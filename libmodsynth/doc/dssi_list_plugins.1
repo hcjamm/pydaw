@@ -1,0 +1,56 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH dssi_list_plugins 1 "June 23rd, 2010"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+dssi_list_plugins \- list available DSSI plugins
+.SH SYNOPSIS
+.B dssi_list_plugins
+[-v|--verbose]
+.SH DESCRIPTION
+.B dssi_list_plugins
+scans a list of directories specified by the environment variable
+.BR DSSI_PATH ,
+looking for DSSI (or LADSPA) shared libraries.  It reports each library
+found, and lists the plugins contained within the library. It ignores
+subdirectories and libtool *.la files; otherwise it will complain
+if any of the files found are not DSSI or LADSPA shared libraries.
+.SH OPTIONS
+.TP
+.PD 0
+.B -v
+.TP
+.PD
+.B --verbose
+Causes
+.B dssi_list_plugins
+to be more verbose in its reporting. It will note conditions which
+are typically ignored by most DSSI hosts, yet may indicate
+problems, including malformed or unreadable components of
+.BR DSSI_PATH ,
+directories which contain no plugin libraries, libraries which appear
+more than once in the
+.BR DSSI_PATH ,
+and libraries which contain no plugins.
+.SH ENVIRONMENT
+.TP
+.B DSSI_PATH
+A colon-separated list of directories to scan for DSSI plugins.
+.SH "CONFORMING TO"
+DSSI RFC version 1.0.
+.SH SEE ALSO
+.BR dssi_analyse_plugin (1),
+http://dssi.sourceforge.net/

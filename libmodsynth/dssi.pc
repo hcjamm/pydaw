@@ -1,0 +1,11 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: dssi
+Version: 1.1.1
+Description: A plugin API for software instruments
+Libs: 
+Cflags: -I${includedir}
+
