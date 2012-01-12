@@ -1,0 +1,71 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH dssi_analyse_plugin 1 "June 23rd, 2010"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+dssi_analyse_plugin \- describe a DSSI plugin
+.SH SYNOPSIS
+.B dssi_analyse_plugin
+[-v|--verbose] [\fIpath\fR]<\fIlibname\fR>[:<\fIlabel\fR>]
+.SH DESCRIPTION
+.B dssi_analyse_plugin
+lists information about DSSI plugins within a specified DSSI shared
+library
+.IR libname .
+If
+.I label
+is given, only information for the plugin labeled
+.I label
+will be listed, otherwise, all plugins in the shared library will be
+listed.
+If
+.I path
+is not given, the shared library is searched for in the colon-separated
+list of directories specified in the environment variable
+.BR DSSI_PATH .
+.SH OPTIONS
+.TP
+.PD 0
+.B -v
+.TP
+.PD
+.B --verbose
+Causes
+.B dssi_analyse_plugin
+to be more verbose in its reporting. In particular, it will list the
+default program names for each plugin, if any.
+.SH EXAMPLES
+The following command will show information about all of the plugins
+in the shared library /usr/local/lib/dssi/calf.so, including default
+program names:
+.P
+$ dssi_analyse_plugin -v /usr/local/lib/dssi/calf.so
+.P
+The following command will look for the shared library
+trivial_sampler.so using
+.BR DSSI_PATH ,
+and display information about the mono_sampler plugin:
+.P
+$ dssi_analyse_plugin trivial_sampler.so:mono_sampler
+.SH ENVIRONMENT
+.TP
+.B DSSI_PATH
+A colon-separated list of directories to scan for DSSI plugins.
+.SH "CONFORMING TO"
+DSSI RFC version 1.0.
+.SH SEE ALSO
+.BR dssi_list_plugins (1),
+http://dssi.sourceforge.net/
