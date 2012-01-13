@@ -617,6 +617,7 @@ config.status:1162: creating jack-dssi-host/Makefile
 config.status:1162: creating examples/Makefile
 config.status:1162: creating tests/Makefile
 config.status:1162: creating config.h
+config.status:1342: config.h is unchanged
 config.status:1390: executing depfiles commands
 config.status:1390: executing libtool commands
 
@@ -760,17 +761,17 @@ pkg_cv_SRC_LIBS='-lsamplerate  '
 ## Output variables. ##
 ## ----------------- ##
 
-ACLOCAL='${SHELL} /home/vm-user/Desktop/test/libmodsynth-code/libmodsynth/missing --run aclocal-1.11'
+ACLOCAL='${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run aclocal-1.11'
 ALSA_CFLAGS='-I/usr/include/alsa  '
 ALSA_LIBS='-lasound  '
 AMDEPBACKSLASH='\'
 AMDEP_FALSE='#'
 AMDEP_TRUE=''
-AMTAR='${SHELL} /home/vm-user/Desktop/test/libmodsynth-code/libmodsynth/missing --run tar'
+AMTAR='${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run tar'
 AR='ar'
-AUTOCONF='${SHELL} /home/vm-user/Desktop/test/libmodsynth-code/libmodsynth/missing --run autoconf'
-AUTOHEADER='${SHELL} /home/vm-user/Desktop/test/libmodsynth-code/libmodsynth/missing --run autoheader'
-AUTOMAKE='${SHELL} /home/vm-user/Desktop/test/libmodsynth-code/libmodsynth/missing --run automake-1.11'
+AUTOCONF='${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run autoconf'
+AUTOHEADER='${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run autoheader'
+AUTOMAKE='${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run automake-1.11'
 AWK='mawk'
 BUILD_SAMPLER_FALSE='#'
 BUILD_SAMPLER_TRUE=''
@@ -819,7 +820,7 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 LIPO=''
 LN_S='ln -s'
 LTLIBOBJS=''
-MAKEINFO='${SHELL} /home/vm-user/Desktop/test/libmodsynth-code/libmodsynth/missing --run makeinfo'
+MAKEINFO='${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run makeinfo'
 MKDIR_P='/bin/mkdir -p'
 NM='/usr/bin/nm -B'
 NMEDIT=''
@@ -885,7 +886,7 @@ host_vendor='unknown'
 htmldir='${docdir}'
 includedir='${prefix}/include'
 infodir='${datarootdir}/info'
-install_sh='${SHELL} /home/vm-user/Desktop/test/libmodsynth-code/libmodsynth/install-sh'
+install_sh='${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/install-sh'
 libdir='${exec_prefix}/lib'
 libexecdir='${exec_prefix}/libexec'
 localedir='${datarootdir}/locale'

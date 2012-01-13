@@ -75,7 +75,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_sustain = newQDial(  0, 100,  1,  75); // %
     m_release = newQDial(  1, 400, 10, 200); // s * 100
     /*Updated for LibModSynth testing*/
-    m_timbre  = newQDial(  30, 120,  1,  82); // s * 100
+    m_timbre  = newQDial(  39, 136,  1,  82); // s * 100
     m_res  = newQDial(  -50, 0,  1,  -36); 
     m_dist  = newQDial(  -6, 36,  1,  -6); 
     
