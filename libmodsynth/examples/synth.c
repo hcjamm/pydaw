@@ -437,19 +437,20 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         float _result = _get_saw(d->_voice->_osc_core_test); //Get a saw oscillator
         
+        _result += _run_w_noise(d->_voice->_w_noise);
+        
         /*Run any processing of the initial result(s)*/      
         
         _adsr_run(d->_voice->_adsr_filter);
         
-        /*TODO:  Add a note_on stage to the beginning of the voice data*/
         _svf_set_cutoff(d->_voice->_svf_filter, ((vals->timbre) + ((d->_voice->_adsr_filter->output) * 60)) );
         //_svf_set_cutoff(_svf_filter, vals->timbre); //this must be run every clock cycle because the cutoff is smoothed internally
                 
         _svf_set_input_value(d->_voice->_svf_filter, _result); //run it through the filter
                 
-        _result = _clp_clip(d->_voice->_clipper1, d->_voice->_svf_filter->_lp); //run the lowpass filter output through a hard-clipper
+        //_result = _clp_clip(d->_voice->_clipper1, d->_voice->_svf_filter->_lp); //run the lowpass filter output through a hard-clipper
         
-        //_result = (_svf_filter->_lp);
+        _result = (d->_voice->_svf_filter->_lp);
         
         /*Run the envelope and assign to the output buffer*/
         out[i] += _result * (d->env) ; // * (d->amp);
@@ -553,7 +554,7 @@ __attribute__((constructor)) void init()
 void _init()
 #endif
 {
-    unsigned int i;
+    //unsigned int i;
     char **port_names;
     //float *sin_table;
     LADSPA_PortDescriptor *port_descriptors;
@@ -650,8 +651,8 @@ void _init()
 	port_range_hints[LMS_TIMBRE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_TIMBRE].LowerBound =  30;//0.0f;
-	port_range_hints[LMS_TIMBRE].UpperBound =  120;//1.0f;
+	port_range_hints[LMS_TIMBRE].LowerBound =  39;//0.0f;
+	port_range_hints[LMS_TIMBRE].UpperBound =  136;//1.0f;
         
         /* Parameters for res */
 	port_descriptors[LMS_RES] = port_descriptors[LMS_ATTACK];

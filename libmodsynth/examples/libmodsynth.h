@@ -19,6 +19,7 @@ extern "C" {
 #include "libmodsynth/lib/osc_core.h"
 #include "libmodsynth/lib/pitch_core.h"
 #include "libmodsynth/modules/oscillator/osc_simple.h"
+#include "libmodsynth/modules/oscillator/noise.h"
 #include "libmodsynth/modules/filter/svf.h"
 #include "libmodsynth/modules/distortion/clipper.h"
 #include "libmodsynth/modules/modulation/adsr.h"
@@ -46,6 +47,7 @@ typedef struct _poly_voice
     state_variable_filter * _svf_filter;
     clipper * _clipper1;
     adsr * _adsr_filter;
+    white_noise * _w_noise;
 }poly_voice;
 
 poly_voice * _poly_init();
@@ -71,13 +73,16 @@ poly_voice * _poly_init()
     _adsr_set_s_value(_voice->_adsr_filter, .2);
     _adsr_set_r_time(_voice->_adsr_filter, 1);
     
+    _voice->_w_noise = _get_white_noise(_sample_rate);
+    
+    /*
     printf("A %f\n", (_voice->_adsr_filter->a_inc));
     printf("D %f\n", (_voice->_adsr_filter->d_inc));
     printf("S %f\n", (_voice->_adsr_filter->s_value));
     printf("R %f\n", (_voice->_adsr_filter->r_inc));
     
     printf("\n_poly_init() has run\n");
-    
+    */
     return _voice;
 }
 

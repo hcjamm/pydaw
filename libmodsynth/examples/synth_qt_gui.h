@@ -68,6 +68,17 @@ protected slots:
 protected:
     QDial *newQDial( int, int, int, int );
     
+    /*LibModSynth addtions
+     These are pre-canned GUIs for different modules*/
+    
+    QGridLayout *Q_svf(int,int,int,int);
+    QGridLayout *Q_adsr(int,int,int,int);
+    QGridLayout *Q_simple_osc(int,int,int,int);
+    QGridLayout *Q_amp(int,int,int,int);
+    QGridLayout *Q_clipper(int,int,int,int);
+    
+    /*End LibModSynth additions*/
+    
     QDial *m_tuning;
     QDial *m_attack;
     QDial *m_decay;
