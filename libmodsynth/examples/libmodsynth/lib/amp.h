@@ -8,6 +8,8 @@
 #ifndef AMP_H
 #define	AMP_H
 
+#include <math.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif

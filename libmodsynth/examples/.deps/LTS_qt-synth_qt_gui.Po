@@ -148,13 +148,18 @@ LTS_qt-synth_qt_gui.o: synth_qt_gui.cpp synth_qt_gui.h \
  /usr/include/bits/sys_errlist.h /usr/include/bits/stdio.h \
  /usr/include/bits/stdio2.h /usr/include/qt4/QtCore/QTimer \
  /usr/include/qt4/QtCore/qtimer.h /usr/include/qt4/QtCore/qbasictimer.h \
- /usr/include/c++/4.5/iostream /usr/include/X11/Xlib.h \
- /usr/include/X11/X.h /usr/include/X11/Xfuncproto.h \
- /usr/include/X11/Xosdefs.h /usr/include/X11/Xutil.h \
- /usr/include/X11/keysym.h /usr/include/X11/keysymdef.h \
- /usr/include/X11/Xatom.h /usr/include/X11/SM/SMlib.h \
- /usr/include/X11/SM/SM.h /usr/include/X11/ICE/ICElib.h \
- /usr/include/X11/ICE/ICE.h
+ /usr/include/c++/4.5/iostream libmodsynth/lib/amp.h /usr/include/math.h \
+ /usr/include/bits/huge_val.h /usr/include/bits/huge_valf.h \
+ /usr/include/bits/huge_vall.h /usr/include/bits/inf.h \
+ /usr/include/bits/nan.h /usr/include/bits/mathdef.h \
+ /usr/include/bits/mathcalls.h /usr/include/bits/mathinline.h \
+ libmodsynth/lib/pitch_core.h libmodsynth/lib/../../constants.h \
+ /usr/include/X11/Xlib.h /usr/include/X11/X.h \
+ /usr/include/X11/Xfuncproto.h /usr/include/X11/Xosdefs.h \
+ /usr/include/X11/Xutil.h /usr/include/X11/keysym.h \
+ /usr/include/X11/keysymdef.h /usr/include/X11/Xatom.h \
+ /usr/include/X11/SM/SMlib.h /usr/include/X11/SM/SM.h \
+ /usr/include/X11/ICE/ICElib.h /usr/include/X11/ICE/ICE.h
 
 synth_qt_gui.h:
 
@@ -637,6 +642,30 @@ synth_qt_gui.h:
 /usr/include/qt4/QtCore/qbasictimer.h:
 
 /usr/include/c++/4.5/iostream:
+
+libmodsynth/lib/amp.h:
+
+/usr/include/math.h:
+
+/usr/include/bits/huge_val.h:
+
+/usr/include/bits/huge_valf.h:
+
+/usr/include/bits/huge_vall.h:
+
+/usr/include/bits/inf.h:
+
+/usr/include/bits/nan.h:
+
+/usr/include/bits/mathdef.h:
+
+/usr/include/bits/mathcalls.h:
+
+/usr/include/bits/mathinline.h:
+
+libmodsynth/lib/pitch_core.h:
+
+libmodsynth/lib/../../constants.h:
 
 /usr/include/X11/Xlib.h:
 

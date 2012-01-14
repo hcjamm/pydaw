@@ -97,7 +97,7 @@ int SynthGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: setTuning((*reinterpret_cast< float(*)>(_a[1]))); break;
+        //case 0: setTuning((*reinterpret_cast< float(*)>(_a[1]))); break;
         case 1: setAttack((*reinterpret_cast< float(*)>(_a[1]))); break;
         case 2: setDecay((*reinterpret_cast< float(*)>(_a[1]))); break;
         case 3: setSustain((*reinterpret_cast< float(*)>(_a[1]))); break;
@@ -106,7 +106,7 @@ int SynthGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 6: setRes((*reinterpret_cast< float(*)>(_a[1]))); break;
         case 7: setDist((*reinterpret_cast< float(*)>(_a[1]))); break;
         case 8: aboutToQuit(); break;
-        case 9: tuningChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        //case 9: tuningChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 10: attackChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 11: decayChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 12: sustainChanged((*reinterpret_cast< int(*)>(_a[1]))); break;

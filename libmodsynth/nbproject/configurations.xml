@@ -11,6 +11,8 @@
       </df>
       <df name="examples">
         <df name="libmodsynth">
+          <df name="gui">
+          </df>
           <df name="lib">
             <df name="tables-sinc">
             </df>

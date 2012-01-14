@@ -43,6 +43,9 @@ void _adsr_set_s_value(adsr*, float);
 void _adsr_set_s_value_db(adsr*, float);
 void _adsr_set_r_time(adsr*, float);
 
+void _adsr_set_adsr_db(adsr*, float, float, float, float);
+void _adsr_set_adsr(adsr*, float, float, float, float);
+
 void _adsr_retrigger(adsr *);
 void _adsr_release(adsr *);
 void _adsr_run(adsr *);
@@ -102,6 +105,8 @@ void _adsr_set_r_time(adsr* _adsr_ptr, float _time)
     
     _adsr_ptr->r_inc = ((_adsr_ptr->_sr_recip) / (_adsr_ptr->r_time)) * -1;
     
+    printf("Setting R time to %f\n", (_adsr_ptr->r_time));
+    
 }
 
 void _adsr_set_s_value(adsr* _adsr_ptr, float _value)
@@ -115,11 +120,29 @@ void _adsr_set_s_value(adsr* _adsr_ptr, float _value)
     
     _adsr_ptr->d_recip = (1/(1-(_adsr_ptr->s_value)));
     _adsr_ptr->r_recip = (1/(_adsr_ptr->s_value));
+    
+    printf("Setting S value to %f\n", (_adsr_ptr->s_value));
 }
 
 void _adsr_set_s_value_db(adsr* _adsr_ptr, float _value)
 {
     _adsr_set_s_value(_adsr_ptr, _db_to_linear(_value));
+}
+
+void _adsr_set_adsr(adsr* _adsr_ptr, float _a, float _d, float _s, float _r)
+{
+    _adsr_set_a_time(_adsr_ptr, _a);
+    _adsr_set_d_time(_adsr_ptr, _d);
+    _adsr_set_s_value(_adsr_ptr, _s);
+    _adsr_set_r_time(_adsr_ptr, _r);
+}
+
+void _adsr_set_adsr_db(adsr* _adsr_ptr, float _a, float _d, float _s, float _r)
+{
+    _adsr_set_a_time(_adsr_ptr, _a);
+    _adsr_set_d_time(_adsr_ptr, _d);
+    _adsr_set_s_value_db(_adsr_ptr, _s);
+    _adsr_set_r_time(_adsr_ptr, _r);
 }
 
 void _adsr_retrigger(adsr * _adsr_ptr)
@@ -132,7 +155,7 @@ void _adsr_retrigger(adsr * _adsr_ptr)
 
 void _adsr_release(adsr * _adsr_ptr)
 {
-    _adsr_ptr->stage = 2;
+    _adsr_ptr->stage = 3;
     printf("ADSR release\n");
 }
 
@@ -174,7 +197,9 @@ void _adsr_run(adsr * _adsr_ptr)
                     printf("ADSR stage2\n");
                 }
                 break;
-                /*No need for 2*/
+            case 2:
+                //Do nothing, we are sustaining
+                break;
             case 3:
                 /*Currently, this would actually take longer to release if the note off arrives
                  before the decay stage finishes, I may fix it later*/
