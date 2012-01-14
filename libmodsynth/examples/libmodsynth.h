@@ -23,7 +23,8 @@ extern "C" {
 #include "libmodsynth/modules/filter/svf.h"
 #include "libmodsynth/modules/distortion/clipper.h"
 #include "libmodsynth/modules/modulation/adsr.h"
-    
+   
+
     
 /*Declare any static variables that should be used globally in LibModSynth
  Note that any constants not requiring dynamically generated data should 
@@ -48,6 +49,7 @@ typedef struct _poly_voice
     clipper * _clipper1;
     adsr * _adsr_filter;
     white_noise * _w_noise;
+    adsr * _adsr_amp;
 }poly_voice;
 
 poly_voice * _poly_init();
@@ -65,6 +67,10 @@ poly_voice * _poly_init()
     _voice->_clipper1 = _clp_get_clipper();
     _clp_set_clip_sym(_voice->_clipper1, -6);
     _clp_set_in_gain(_voice->_clipper1, 12);
+    
+    _voice->_adsr_amp = _adsr_get_adsr(_sr_recip);
+    
+    
     _voice->_adsr_filter = _adsr_get_adsr(_sr_recip);
     
     _adsr_set_a_time(_voice->_adsr_filter, 0.01);
@@ -84,6 +90,28 @@ poly_voice * _poly_init()
     printf("\n_poly_init() has run\n");
     */
     return _voice;
+}
+
+void _poly_note_on(poly_voice * _voice);
+
+//Define anything that should happen when the user presses a note here
+void _poly_note_on(poly_voice * _voice)
+{
+    /*Retrigger ADSR envelopes*/
+    _adsr_retrigger(_voice->_adsr_amp);
+    _adsr_retrigger(_voice->_adsr_filter);
+    
+    /*Set ADSR envelope(doing it here prevents the user for modulating it for notes that are already playing)*/
+    //_adsr_set_adsr(_voice->_adsr_amp, (_instance->attack), (_instance->decay), (_instance->sustain), (_instance->release));
+}
+
+void _poly_note_off(poly_voice * _voice); //, LTS * _instance);
+
+//Define anything that should happen when the user releases a note here
+void _poly_note_off(poly_voice * _voice) //, LTS * _instance)
+{
+    _adsr_release(_voice->_adsr_amp);
+    _adsr_release(_voice->_adsr_filter);    
 }
 
 void _mono_init();

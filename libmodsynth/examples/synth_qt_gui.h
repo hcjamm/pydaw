@@ -22,9 +22,25 @@ GNU General Public License for more details.
 #include <QLabel>
 #include <QLayout>
 
+#include <string>
+#include <stdlib.h>
+
 extern "C" {
 #include <lo/lo.h>
 }
+
+/*Defines ranges and other sane defaults depending on what a knob controls*/
+enum _knob_type
+{
+    decibels_0,
+    decibels_plus_6,
+    decibels_plus_12,
+    decibels_plus_24,
+    pitch,
+    zero_to_one,
+    zero_to_two,
+    zero_to_four            
+};
 
 class SynthGUI : public QFrame
 {
@@ -40,9 +56,9 @@ public:
     void setReady(bool ready) { m_ready = ready; }
 
     void setHostRequestedQuit(bool r) { m_hostRequestedQuit = r; }
-
+        
 public slots:
-    void setTuning (float hz);
+    //void setTuning (float hz);
     void setAttack (float sec);
     void setDecay  (float sec);
     void setSustain(float percent);
@@ -53,7 +69,7 @@ public slots:
     void aboutToQuit();
 
 protected slots:
-    void tuningChanged (int);
+    //void tuningChanged (int);
     void attackChanged (int);
     void decayChanged  (int);
     void sustainChanged(int);
@@ -68,18 +84,17 @@ protected slots:
 protected:
     QDial *newQDial( int, int, int, int );
     
-    /*LibModSynth addtions
-     These are pre-canned GUIs for different modules*/
+    QDial *_get_knob(_knob_type);
     
-    QGridLayout *Q_svf(int,int,int,int);
-    QGridLayout *Q_adsr(int,int,int,int);
-    QGridLayout *Q_simple_osc(int,int,int,int);
-    QGridLayout *Q_amp(int,int,int,int);
-    QGridLayout *Q_clipper(int,int,int,int);
+    void _add_knob(QGridLayout * _layout, int position_x, int position_y, std::string _label_text, QDial * _knob,
+    QLabel * _label);
+
     
-    /*End LibModSynth additions*/
+    void _changed_seconds(int, QLabel *, int);
+    void _changed_pitch(int, QLabel *, int);
+    void _changed_decibels(int, QLabel *, int);
     
-    QDial *m_tuning;
+    //QDial *m_tuning;
     QDial *m_attack;
     QDial *m_decay;
     QDial *m_sustain;
@@ -88,7 +103,7 @@ protected:
     QDial *m_res;
     QDial *m_dist;
 
-    QLabel *m_tuningLabel;
+    //QLabel *m_tuningLabel;
     QLabel *m_attackLabel;
     QLabel *m_decayLabel;
     QLabel *m_sustainLabel;
@@ -105,7 +120,7 @@ protected:
 
     bool m_suppressHostUpdate;
     bool m_hostRequestedQuit;
-    bool m_ready;
+    bool m_ready;    
 };
 
 

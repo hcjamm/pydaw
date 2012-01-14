@@ -28,16 +28,17 @@
 #include "libmodsynth.h"
 #include "libmodsynth/lib/amp.h"
 
+
 #define LMS_OUTPUT  0
-#define LMS_FREQ    1
-#define LMS_ATTACK  2
-#define LMS_DECAY   3
-#define LMS_SUSTAIN 4
-#define LMS_RELEASE 5
-#define LMS_TIMBRE  6
-#define LMS_RES  7
-#define LMS_DIST 8
-#define LMS_COUNT   9 /* must be 1 + highest value above */
+/*#define LMS_FREQ    1*/
+#define LMS_ATTACK  1
+#define LMS_DECAY   2
+#define LMS_SUSTAIN 3
+#define LMS_RELEASE 4
+#define LMS_TIMBRE  5
+#define LMS_RES  6
+#define LMS_DIST 7
+#define LMS_COUNT 8 /* must be 1 + highest value above */
 
 //#define POLYPHONY   74
 #define POLYPHONY   8
@@ -111,7 +112,7 @@ typedef struct {
 } voice_data;
 
 typedef struct {
-    LADSPA_Data tune;
+    /*LADSPA_Data tune;*/
     LADSPA_Data attack;
     LADSPA_Data decay;
     LADSPA_Data sustain;
@@ -141,6 +142,7 @@ typedef struct {
     /*LibModSynth additions*/
     float pitch_bend_amount;
 } LTS;
+
 
 static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
@@ -185,9 +187,9 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
     case LMS_OUTPUT:
 	plugin->output = data;
 	break;
-    case LMS_FREQ:
+    /*case LMS_FREQ:
 	plugin->tune = data;
-	break;
+	break;*/
     case LMS_ATTACK:
 	plugin->attack = data;
 	break;
@@ -219,20 +221,22 @@ static LADSPA_Handle instantiateLTS(const LADSPA_Descriptor * descriptor,
 
     LTS *plugin_data = (LTS *) malloc(sizeof(LTS));
 
+    /*
     plugin_data->fs = s_rate;
     plugin_data->previous_timbre = 0.5f;
-    
+    */
     
     /*LibModSynth additions*/
     _init_lms(s_rate);  //initialize any static variables
     _mono_init();  //initialize all monophonic modules
     /*End LibModSynth additions*/
     
-    
+    /*
     for (i=0; i<MIDI_NOTES; i++) {
 	plugin_data->omega[i].all =
 		FP_OMEGA(pow(2.0, (i-69.0) / 12.0) / (double)s_rate);
     }
+    */
     
     return (LADSPA_Handle) plugin_data;
 }
@@ -272,11 +276,11 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     unsigned long event_pos;
     unsigned long voice;
 
-    vals.tune = *(plugin_data->tune);
-    vals.attack = *(plugin_data->attack) * plugin_data->fs;
-    vals.decay = *(plugin_data->decay) * plugin_data->fs;
-    vals.sustain = *(plugin_data->sustain) * 0.01f;
-    vals.release = *(plugin_data->release) * plugin_data->fs;
+    //vals.tune = *(plugin_data->tune);
+    vals.attack = *(plugin_data->attack);    //  * plugin_data->fs
+    vals.decay = *(plugin_data->decay);   //  * plugin_data->fs;
+    vals.sustain = *(plugin_data->sustain);   // * 0.01f;
+    vals.release = *(plugin_data->release);  //  * plugin_data->fs;
     vals.timbre = *(plugin_data->timbre);
     vals.pitch = plugin_data->pitch;
     vals.res = *(plugin_data->res);
@@ -303,31 +307,41 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 		    plugin_data->note2voice[n.note] = voice;
 		    data[voice].note = n.note;
 		    data[voice].amp = _db_to_linear((n.velocity * 0.157480315) - 20) *  GLOBAL_GAIN; //-20db to 0db
-		    data[voice].state = attack;                    
+		    
+                    /*
+                    data[voice].state = attack;                    
 		    data[voice].env = 0.0;
 		    data[voice].env_d = 1.0f / vals.attack;
 		    data[voice].phase.all = 0;
 		    data[voice].counter = 0;
 		    data[voice].next_event = vals.attack;
+                    */
                     
                     /*LibModSynth additions*/
                     data[voice].note_f = (float)n.note;
                     data[voice].hz = _pit_midi_note_to_hz(data[voice].note_f);
                     data[voice].osc_inc  = data[voice].hz * _sr_recip;
                     data[voice].n_state = note_on;
+                    
+                    _adsr_set_adsr_db(data[voice]._voice->_adsr_amp, (vals.attack), (vals.decay), (vals.sustain), (vals.release));
+                    
+                    printf("note_on\n");
 		} 
                 /*0 velocity, essentially the same as note-off?*/
                 else 
                 {
 		    const int voice = plugin_data->note2voice[n.note];
 
+                    /*
 		    data[voice].state = release;
 		    data[voice].env_d = -vals.sustain / vals.release;
 		    data[voice].counter = 0;
 		    data[voice].next_event = vals.release;
+                    */
                     
                     /*LibModSynth additions*/
                     data[voice].n_state = note_off;
+                    printf("note_off\n");
 		}
 	    } 
             /*Note-off event*/
@@ -340,15 +354,19 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 		const int voice = plugin_data->note2voice[n.note];
 
                 /*Inactivate the voice if it's not already inactive*/
-		if (data[voice].state != inactive) 
+		//if (data[voice].state != inactive) 
+                if(data[voice].n_state != off)
                 {
+                    /*
 		    data[voice].state = release;
 		    data[voice].env_d = -data[voice].env / vals.release;
 		    data[voice].counter = 0;
 		    data[voice].next_event = vals.release;
+                    */                   
                     
                     /*LibModSynth additions*/
                     data[voice].n_state = note_off;
+                    printf("note_off\n");
 		}
 	    } 
             /*Pitch-bend sequencer event, modify the voices pitch*/
@@ -394,10 +412,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 }
 
 static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out, unsigned int count)
-{
-    /*TODO:  CHECK THE PER-VOICE/BLOCK PROCESSING ASPECT, SEE IF ANYTHING NEEDS TO BE MADE PER-VOICE, THAT
-     PROBABLY ACCOUNTS FOR THE GLITCHES.  ALL MODULES SHOULD BE PLACED IN ARRAYS THAT CORRESPOND TO VOICES.*/
-    
+{    
     /*Begin LibModSynth additions*/
     if((d->n_state) == note_on)
         {
@@ -405,6 +420,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
             
         /*This is where you retrigger any envelopes, etc... on a note-on event*/    
             _adsr_retrigger(d->_voice->_adsr_filter);
+            _adsr_retrigger(d->_voice->_adsr_amp);
         }
         else if((d->n_state) == note_off)
         {
@@ -412,6 +428,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
             
             /*This is where you signal a note_off event to any modules that should receive it*/
             _adsr_release(d->_voice->_adsr_filter);
+            _adsr_release(d->_voice->_adsr_amp);
         }
     
     /*Put anything here that is not internally smoothed and only needs to be checked once per block*/
@@ -441,6 +458,8 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         /*Run any processing of the initial result(s)*/      
         
+        _adsr_run(d->_voice->_adsr_amp);
+        
         _adsr_run(d->_voice->_adsr_filter);
         
         _svf_set_cutoff(d->_voice->_svf_filter, ((vals->timbre) + ((d->_voice->_adsr_filter->output) * 60)) );
@@ -453,7 +472,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         _result = (d->_voice->_svf_filter->_lp);
         
         /*Run the envelope and assign to the output buffer*/
-        out[i] += _result * (d->env) ; // * (d->amp);
+        out[i] += _result *  (d->_voice->_adsr_amp->output); //(d->env) ; // * (d->amp);
                 
         
         /*End LibModSynth modifications*/
@@ -461,6 +480,15 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 
     /*Run the envelope.  TODO:  Structure this differently to fit better with
      LibModSynth*/
+    
+    if(d->_voice->_adsr_amp->stage == 4)
+    {
+        d->state = inactive;
+        d->n_state = inactive;
+        printf("adsr_amp->stage == 4");
+    }
+    
+    /*
     d->counter += count;
     if (d->counter >= d->next_event) {
 	switch (d->state) {
@@ -496,6 +524,8 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 	    break;
 	}
     }
+    */
+    
 }
 
 /*This returns MIDI CCs for the different knobs
@@ -599,12 +629,12 @@ void _init()
 	port_range_hints[LMS_OUTPUT].HintDescriptor = 0;
 
 	/* Parameters for tune */
-	port_descriptors[LMS_FREQ] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	/*port_descriptors[LMS_FREQ] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_FREQ] = "A tuning (Hz)";
 	port_range_hints[LMS_FREQ].HintDescriptor = LADSPA_HINT_DEFAULT_440 |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_FREQ].LowerBound = 410;
-	port_range_hints[LMS_FREQ].UpperBound = 460;
+	port_range_hints[LMS_FREQ].UpperBound = 460;*/
 
 	/* Parameters for attack */
 	port_descriptors[LMS_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;

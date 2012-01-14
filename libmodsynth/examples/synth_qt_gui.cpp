@@ -19,6 +19,10 @@
 #include <iostream>
 #include <unistd.h>
 
+#include <stdlib.h>
+#include "libmodsynth/lib/amp.h"
+#include "libmodsynth/lib/pitch_core.h"
+
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -40,14 +44,14 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 
 using std::endl;
 
-#define LTS_PORT_FREQ    1
-#define LTS_PORT_ATTACK  2
-#define LTS_PORT_DECAY   3
-#define LTS_PORT_SUSTAIN 4
-#define LTS_PORT_RELEASE 5
-#define LTS_PORT_TIMBRE  6
-#define LTS_PORT_RES  7
-#define LTS_PORT_DIST  8
+//#define LTS_PORT_FREQ    1
+#define LTS_PORT_ATTACK  1
+#define LTS_PORT_DECAY   2
+#define LTS_PORT_SUSTAIN 3
+#define LTS_PORT_RELEASE 4
+#define LTS_PORT_TIMBRE  5
+#define LTS_PORT_RES  6
+#define LTS_PORT_DIST  7
 
 lo_server osc_server = 0;
 
@@ -68,72 +72,99 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_host = lo_address_new(host, port);
 
     QGridLayout *layout = new QGridLayout(this);
-        
-    m_tuning  = newQDial(100, 600, 10, 400); // (Hz - 400) * 10
-    m_attack  = newQDial(  1, 100,  1,  25); // s * 100
-    m_decay   = newQDial(  1, 100,  1,  25); // s * 100
-    m_sustain = newQDial(  0, 100,  1,  75); // %
-    m_release = newQDial(  1, 400, 10, 200); // s * 100
-    /*Updated for LibModSynth testing*/
-    m_timbre  = newQDial(  39, 136,  1,  82); // s * 100
-    m_res  = newQDial(  -50, 0,  1,  -36); 
-    m_dist  = newQDial(  -6, 36,  1,  -6); 
     
-    m_tuningLabel  = new QLabel(this);
-    m_attackLabel  = new QLabel(this);
+    int _row = 0;
+    int _column = 0;
+          
+    m_attack = _get_knob(zero_to_one);
+    m_attackLabel = new QLabel(this);
+    _add_knob(layout, _column, _row, "Attack",m_attack, m_attackLabel);
+    connect(m_attack,   SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));
+    attackChanged  (m_attack  ->value());
+    
+    _column++;
+    
+    m_decay   =  _get_knob(zero_to_one); //newQDial(  1, 100,  1,  25); // s * 100
     m_decayLabel   = new QLabel(this);
-    m_sustainLabel = new QLabel(this);
-    m_releaseLabel = new QLabel(this);
-    m_timbreLabel  = new QLabel(this);
-    m_resLabel  = new QLabel(this);
-    m_distLabel  = new QLabel(this);
-
-    layout->addWidget(new QLabel("Pitch of A", this), 0, 0, Qt::AlignCenter);
-    layout->addWidget(new QLabel("Attack",     this), 0, 1, Qt::AlignCenter);
+    _add_knob(layout, _column, _row, "Decay",m_decay, m_decayLabel);
+    /*
     layout->addWidget(new QLabel("Decay",      this), 0, 2, Qt::AlignCenter);
-    layout->addWidget(new QLabel("Sustain",    this), 0, 3, Qt::AlignCenter);
-    layout->addWidget(new QLabel("Release",    this), 0, 4, Qt::AlignCenter);
-    layout->addWidget(new QLabel("Timbre",     this), 0, 5, Qt::AlignCenter);
-    layout->addWidget(new QLabel("Res",     this), 0, 6, Qt::AlignCenter);
-    layout->addWidget(new QLabel("Dist",     this), 0, 7, Qt::AlignCenter);
-    
-    layout->addWidget(m_tuning,  1, 0);
-    layout->addWidget(m_attack,  1, 1);
-    layout->addWidget(m_decay,   1, 2);
-    layout->addWidget(m_sustain, 1, 3);
-    layout->addWidget(m_release, 1, 4);
-    layout->addWidget(m_timbre,  1, 5);
-    layout->addWidget(m_res,  1, 6);
-    layout->addWidget(m_dist,  1, 7);
-    
-    layout->addWidget(m_tuningLabel,  2, 0, Qt::AlignCenter);
-    layout->addWidget(m_attackLabel,  2, 1, Qt::AlignCenter);
+    layout->addWidget(m_decay,   1, 2);    
     layout->addWidget(m_decayLabel,   2, 2, Qt::AlignCenter);
-    layout->addWidget(m_sustainLabel, 2, 3, Qt::AlignCenter);
-    layout->addWidget(m_releaseLabel, 2, 4, Qt::AlignCenter);
-    layout->addWidget(m_timbreLabel,  2, 5, Qt::AlignCenter);
-    layout->addWidget(m_resLabel,  2, 6, Qt::AlignCenter);
-    layout->addWidget(m_distLabel,  2, 7, Qt::AlignCenter);
-
-    connect(m_tuning,  SIGNAL(valueChanged(int)), this, SLOT(tuningChanged(int)));
-    connect(m_attack,  SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));
+    */
     connect(m_decay,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));
-    connect(m_sustain, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));
-    connect(m_release, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));
-    connect(m_timbre,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));
-    connect(m_res,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
-    connect(m_dist,  SIGNAL(valueChanged(int)), this, SLOT(distChanged(int)));
-
-    // cause some initial updates
-    tuningChanged (m_tuning ->value());
-    attackChanged (m_attack ->value());
     decayChanged  (m_decay  ->value());
+    
+    _column++;
+    
+    m_sustain =  _get_knob(decibels_0); // newQDial(  0, 100,  1,  75); // %
+    m_sustainLabel = new QLabel(this);
+    _add_knob(layout, _column, _row, "Sustain", m_sustain, m_sustainLabel);
+    /*
+    layout->addWidget(new QLabel("Sustain",    this), 0, _column, Qt::AlignCenter);
+    layout->addWidget(m_sustain, 1, _column);
+    layout->addWidget(m_sustainLabel, 2, _column, Qt::AlignCenter);
+    */    
+    connect(m_sustain, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));
     sustainChanged(m_sustain->value());
+    
+    _column++;
+    
+    
+    m_release = _get_knob(zero_to_four); //newQDial(  1, 400, 10, 200); // s * 100
+    m_releaseLabel = new QLabel(this);
+    layout->addWidget(new QLabel("Release",    this), 0, _column, Qt::AlignCenter);
+    layout->addWidget(m_release, 1, _column);
+    layout->addWidget(m_releaseLabel, 2, _column, Qt::AlignCenter);
+    connect(m_release, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));
     releaseChanged(m_release->value());
+    
+    _column++;
+    
+        
+    m_timbre  =  _get_knob(pitch);  //newQDial(  39, 136,  1,  82); // s * 100
+    m_timbreLabel  = new QLabel(this);
+    _add_knob(layout, _column, _row, "Timbre",m_timbre, m_timbreLabel);
+    /*
+    layout->addWidget(new QLabel("Timbre",     this), 0, 5, Qt::AlignCenter);
+    layout->addWidget(m_timbre,  1, 5);
+    layout->addWidget(m_timbreLabel,  2, 5, Qt::AlignCenter);
+    */
+    connect(m_timbre,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));
     timbreChanged (m_timbre ->value());
+    
+    _column++;
+    
+    
+    m_res  = newQDial(  -50, 0,  1,  -36); 
+    m_resLabel  = new QLabel(this);
+    layout->addWidget(new QLabel("Res",     this), 0, 6, Qt::AlignCenter);
+    layout->addWidget(m_res,  1, 6);
+    layout->addWidget(m_resLabel,  2, 6, Qt::AlignCenter);
+    connect(m_res,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
     resChanged (m_res ->value());
+    
+    _column++;
+    
+    
+    m_dist  = newQDial(  -6, 36,  1,  -6); 
+    m_distLabel  = new QLabel(this);
+    layout->addWidget(new QLabel("Dist",     this), 0, 7, Qt::AlignCenter);
+    layout->addWidget(m_dist,  1, 7);
+    layout->addWidget(m_distLabel,  2, 7, Qt::AlignCenter);
+    connect(m_dist,  SIGNAL(valueChanged(int)), this, SLOT(distChanged(int)));
     distChanged (m_dist ->value());
+    
+    _column++;
+    
+    //Start a new row
+    _row++;
+    _column = 0;
 
+    /*add some GUI elements*/
+    
+    //_column++;
+    
     QPushButton *testButton = new QPushButton("Test", this);
     connect(testButton, SIGNAL(pressed()), this, SLOT(test_press()));
     connect(testButton, SIGNAL(released()), this, SLOT(test_release()));
@@ -143,18 +174,55 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
     myTimer->setSingleShot(false);
     myTimer->start(0);
-
+    
     m_suppressHostUpdate = false;
 }
+
 
 
 void
-SynthGUI::setTuning(float hz)
-{
-    m_suppressHostUpdate = true;
-    m_tuning->setValue(int((hz - 400.0) * 10.0));
-    m_suppressHostUpdate = false;
+SynthGUI::_add_knob(QGridLayout * _layout, int position_x, int position_y, std::string _label_text, QDial * _knob,
+    QLabel * _label)
+{    
+    int _real_pos_y = (position_y) * 3;  // + 1;  ????
+    
+    cerr << "gui _add_knob _real_pos_y == " << _real_pos_y << endl;
+    
+    _layout->addWidget(new QLabel(QString::fromStdString(_label_text),     this), (_real_pos_y), position_x, Qt::AlignCenter);    
+    cerr << "gui _add_knob addWidget new QLabel " << endl;
+    
+    _layout->addWidget(_knob,  (_real_pos_y + 1), position_x);
+    cerr << "gui _add_knob addWidget _knob " << endl;
+    
+    _layout->addWidget(_label,  (_real_pos_y + 2), position_x, Qt::AlignCenter);        
+    cerr << "gui _add_knob addWidget _label " << endl;    
 }
+
+
+QDial * SynthGUI::_get_knob(_knob_type _ktype)
+{
+    switch(_ktype)
+    {
+        case decibels_0:
+            return newQDial(-60, 0, 1, -6);
+        case decibels_plus_12:
+            return newQDial(  -60, 12,  1,  -6);
+        case decibels_plus_24:
+            return newQDial(  -60, 24,  1,  -6);            
+        case decibels_plus_6:            
+            return newQDial(  -60, 6,  1,  -6);
+        case pitch:
+            return newQDial(  20, 124,  1,  105);
+        case zero_to_four:
+            return newQDial(  1, 400,  4,  75);
+        case zero_to_one:
+            return newQDial(  1, 100,  1,  15);
+        case zero_to_two:
+            return newQDial(  1, 200,  2,  25);        
+    }
+    
+}
+
 
 void
 SynthGUI::setAttack(float sec)
@@ -212,71 +280,113 @@ SynthGUI::setDist(float val)
     m_suppressHostUpdate = false;
 }
 
-void
-SynthGUI::tuningChanged(int value)
+void SynthGUI::_changed_seconds(int value, QLabel * _label, int _port)
 {
-    float hz = float(value) / 10.0 + 400.0;
-    m_tuningLabel->setText(QString("%1 Hz").arg(hz));
-
+    float sec = float(value) * .01;
+    _label->setText(QString("%1").arg(sec));
+    
     if (!m_suppressHostUpdate) {
-	cerr << "Sending to host: " << m_controlPath
-	     << " port " << LTS_PORT_FREQ << " to " << hz << endl;
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_FREQ, hz);
+	lo_send(m_host, m_controlPath, "if", _port, sec);
     }
 }
+
+void SynthGUI::_changed_pitch(int value, QLabel * _label, int _port)
+{
+    /*We need to send midi note number to the synth, as it probably still needs to process it as
+     midi_note number.  We use this to display hz to the user*/
+    
+    float _f_value = float(value);
+    float _hz = _pit_midi_note_to_hz(_f_value);
+    _label->setText(QString("%1 hz").arg(_hz));
+    
+    if (!m_suppressHostUpdate) {
+	lo_send(m_host, m_controlPath, "if", _port, _f_value);
+    }
+}
+
+void SynthGUI::_changed_decibels(int value, QLabel * _label, int _port)
+{
+    /*Decibels is a reasonable way to display this to the user, so just use it as it is*/
+    _label->setText(QString("%1").arg(value));
+    
+    if (!m_suppressHostUpdate) {
+	lo_send(m_host, m_controlPath, "if", _port, float(value));
+    }
+}
+
+
 
 void
 SynthGUI::attackChanged(int value)
 {
-    float sec = float(value) / 100.0;
+    _changed_seconds(value,m_attackLabel,LTS_PORT_ATTACK);
+    
+    /*
+    float sec = float(value) * .01;  //  / 100.0;
     m_attackLabel->setText(QString("%1 sec").arg(sec));
 
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", LTS_PORT_ATTACK, sec);
     }
+    */
 }
 
 void
 SynthGUI::decayChanged(int value)
 {
-    float sec = float(value) / 100.0;
+    _changed_seconds(value,m_decayLabel,LTS_PORT_DECAY);
+    
+    /*
+    float sec = float(value) * .01;  // / 100.0;
     m_decayLabel->setText(QString("%1 sec").arg(sec));
 
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", LTS_PORT_DECAY, sec);
     }
+    */
 }
 
 void
 SynthGUI::sustainChanged(int value)
 {
+    _changed_decibels(value, m_sustainLabel, LTS_PORT_SUSTAIN);
+    
+    /*
     m_sustainLabel->setText(QString("%1 %").arg(value));
 
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", LTS_PORT_SUSTAIN, float(value));
     }
+    */
 }
 
 void
 SynthGUI::releaseChanged(int value)
 {
-    float sec = float(value) / 100.0;
+    _changed_seconds(value, m_releaseLabel, LTS_PORT_RELEASE);
+    
+    /*
+    float sec = float(value) * .01; // / 100.0;
     m_releaseLabel->setText(QString("%1 sec").arg(sec));
 
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", LTS_PORT_RELEASE, sec);
     }
+    */
 }
 
 void
 SynthGUI::timbreChanged(int value)
 {
+    _changed_pitch(value, m_timbreLabel, LTS_PORT_TIMBRE);
+    /*
     float val = float(value); // / 100.0;
     m_timbreLabel->setText(QString("%1").arg(val));
 
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", LTS_PORT_TIMBRE, val);
     }
+    */
 }
 
 void
@@ -346,9 +456,9 @@ SynthGUI::newQDial( int minValue, int maxValue, int pageStep, int value )
     dial->setPageStep( pageStep );
     dial->setValue( value );
     dial->setNotchesVisible(true);
+    dial->setGeometry(0,0,30,30);
     return dial;
 }
-
 
 void
 osc_error(int num, const char *msg, const char *path)
@@ -443,12 +553,12 @@ control_handler(const char *path, const char *types, lo_arg **argv,
     const float value = argv[1]->f;
 
     switch (port) {
-
+/*
     case LTS_PORT_FREQ:
 	cerr << "gui setting frequency to " << value << endl;
 	gui->setTuning(value);
 	break;
-
+*/
     case LTS_PORT_ATTACK:
 	cerr << "gui setting attack to " << value << endl;
 	gui->setAttack(value);
@@ -494,7 +604,7 @@ control_handler(const char *path, const char *types, lo_arg **argv,
 int
 main(int argc, char **argv)
 {
-    cerr << "less_trivial_synth_qt_gui starting..." << endl;
+    cerr << "synth_qt_gui starting..." << endl;
 
     QApplication application(argc, argv);
 
