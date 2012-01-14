@@ -148,15 +148,12 @@ void _adsr_set_adsr_db(adsr* _adsr_ptr, float _a, float _d, float _s, float _r)
 void _adsr_retrigger(adsr * _adsr_ptr)
 {
     _adsr_ptr->stage = 0;
-    _adsr_ptr->output = 0;
-    
-    printf("ADSR retrigger\n");
+    _adsr_ptr->output = 0;    
 }
 
 void _adsr_release(adsr * _adsr_ptr)
 {
-    _adsr_ptr->stage = 3;
-    printf("ADSR release\n");
+    _adsr_ptr->stage = 3;    
 }
 
 adsr * _adsr_get_adsr(float __sr_recip)
@@ -186,7 +183,7 @@ void _adsr_run(adsr * _adsr_ptr)
                 if((_adsr_ptr->output) >= 1)
                 {
                     _adsr_ptr->stage = 1;
-                    printf("ADSR stage1\n");
+                    //printf("ADSR stage1\n");
                 }
                 break;
             case 1:
@@ -194,7 +191,7 @@ void _adsr_run(adsr * _adsr_ptr)
                 if((_adsr_ptr->output) <= (_adsr_ptr->s_value))
                 {
                     _adsr_ptr->stage = 2;
-                    printf("ADSR stage2\n");
+                    //printf("ADSR stage2\n");
                 }
                 break;
             case 2:
@@ -208,7 +205,7 @@ void _adsr_run(adsr * _adsr_ptr)
                 {
                     _adsr_ptr->output = 0;
                     _adsr_ptr->stage = 4;
-                    printf("ADSR stage4\n");
+                    //printf("ADSR stage4\n");
                 }
                 break;
         }

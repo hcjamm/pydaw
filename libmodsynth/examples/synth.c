@@ -64,6 +64,7 @@ static DSSI_Descriptor *ltsDDescriptor = NULL;
 
 //static float *table[2];
 
+/*
 typedef enum {
     inactive = 0,
     attack,
@@ -71,13 +72,11 @@ typedef enum {
     sustain,
     release
 } state_t;
+*/
 
 typedef enum {
-    off = 0,
-    note_on,
-    running,            
-    note_off,
-    releasing
+    off = 0,    
+    running
 } note_state;
 
 
@@ -95,12 +94,11 @@ typedef union {
 } fixp;
 
 typedef struct {
-    state_t state;
-    note_state n_state;
+    //state_t state;
     int     note;
     float   amp;
-    float   env;
-    float   env_d;
+    //float   env;
+    //float   env_d;
     fixp    phase;
     int     counter;
     int     next_event;
@@ -108,7 +106,8 @@ typedef struct {
     float note_f;
     float osc_inc;
     float hz;
-    poly_voice * _voice;
+    poly_voice * _voice;    
+    note_state n_state;
 } voice_data;
 
 typedef struct {
@@ -217,26 +216,16 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
 static LADSPA_Handle instantiateLTS(const LADSPA_Descriptor * descriptor,
 				   unsigned long s_rate)
 {
-    unsigned int i;
+    //unsigned int i;
 
     LTS *plugin_data = (LTS *) malloc(sizeof(LTS));
-
-    /*
+    
     plugin_data->fs = s_rate;
-    plugin_data->previous_timbre = 0.5f;
-    */
     
     /*LibModSynth additions*/
     _init_lms(s_rate);  //initialize any static variables
     _mono_init();  //initialize all monophonic modules
     /*End LibModSynth additions*/
-    
-    /*
-    for (i=0; i<MIDI_NOTES; i++) {
-	plugin_data->omega[i].all =
-		FP_OMEGA(pow(2.0, (i-69.0) / 12.0) / (double)s_rate);
-    }
-    */
     
     return (LADSPA_Handle) plugin_data;
 }
@@ -247,7 +236,8 @@ static void activateLTS(LADSPA_Handle instance)
     unsigned int i;
 
     for (i=0; i<POLYPHONY; i++) {
-	plugin_data->data[i].state = inactive;
+	//plugin_data->data[i].state = inactive;
+        plugin_data->data[i].n_state = off;
         plugin_data->data[i]._voice = _poly_init();
     }
     for (i=0; i<MIDI_NOTES; i++) {
@@ -276,7 +266,6 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     unsigned long event_pos;
     unsigned long voice;
 
-    //vals.tune = *(plugin_data->tune);
     vals.attack = *(plugin_data->attack);    //  * plugin_data->fs
     vals.decay = *(plugin_data->decay);   //  * plugin_data->fs;
     vals.sustain = *(plugin_data->sustain);   // * 0.01f;
@@ -308,22 +297,25 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 		    data[voice].note = n.note;
 		    data[voice].amp = _db_to_linear((n.velocity * 0.157480315) - 20) *  GLOBAL_GAIN; //-20db to 0db
 		    
-                    /*
-                    data[voice].state = attack;                    
-		    data[voice].env = 0.0;
-		    data[voice].env_d = 1.0f / vals.attack;
-		    data[voice].phase.all = 0;
-		    data[voice].counter = 0;
-		    data[voice].next_event = vals.attack;
-                    */
                     
                     /*LibModSynth additions*/
                     data[voice].note_f = (float)n.note;
                     data[voice].hz = _pit_midi_note_to_hz(data[voice].note_f);
                     data[voice].osc_inc  = data[voice].hz * _sr_recip;
-                    data[voice].n_state = note_on;
+                    data[voice].n_state = running;
+                    
+                    
+                    /*Here is where we perform any actions that should ONLY happen at note_on*/
+                    
+                    /*Retrigger ADSR envelopes*/
+                    _adsr_retrigger(data[voice]._voice->_adsr_amp);
+                    _adsr_retrigger(data[voice]._voice->_adsr_filter);
                     
                     _adsr_set_adsr_db(data[voice]._voice->_adsr_amp, (vals.attack), (vals.decay), (vals.sustain), (vals.release));
+                    
+                    _clp_set_in_gain(data[voice]._voice->_clipper1, vals.dist);
+    
+                    _svf_set_res(data[voice]._voice->_svf_filter, vals.res);  
                     
                     printf("note_on\n");
 		} 
@@ -332,15 +324,11 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                 {
 		    const int voice = plugin_data->note2voice[n.note];
 
-                    /*
-		    data[voice].state = release;
-		    data[voice].env_d = -vals.sustain / vals.release;
-		    data[voice].counter = 0;
-		    data[voice].next_event = vals.release;
-                    */
-                    
                     /*LibModSynth additions*/
-                    data[voice].n_state = note_off;
+                    //data[voice].n_state = note_off;
+                    
+                    _poly_note_off(data[voice]._voice);
+                    
                     printf("note_off\n");
 		}
 	    } 
@@ -353,19 +341,14 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                  in plugin_data->note2voice.*/
 		const int voice = plugin_data->note2voice[n.note];
 
-                /*Inactivate the voice if it's not already inactive*/
-		//if (data[voice].state != inactive) 
+                /*Inactivate the voice if it's not already inactive*/		
                 if(data[voice].n_state != off)
-                {
-                    /*
-		    data[voice].state = release;
-		    data[voice].env_d = -data[voice].env / vals.release;
-		    data[voice].counter = 0;
-		    data[voice].next_event = vals.release;
-                    */                   
-                    
+                {                    
                     /*LibModSynth additions*/
-                    data[voice].n_state = note_off;
+                    //data[voice].n_state = note_off;
+                    
+                    _poly_note_off(data[voice]._voice);
+                                        
                     printf("note_off\n");
 		}
 	    } 
@@ -404,38 +387,18 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                         );
 	    }
 	}
+        
+    /*TODO:  create a loop here that corresponds to mono effects not processed per-voice*/
+        
     }
     
-    /*TODO:  create a loop here that corresponds to mono effects not processed per-voice*/
-    
-    //plugin_data->previous_timbre = vals.timbre;
 }
 
 static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out, unsigned int count)
-{    
-    /*Begin LibModSynth additions*/
-    if((d->n_state) == note_on)
-        {
-            d->n_state = running;
-            
-        /*This is where you retrigger any envelopes, etc... on a note-on event*/    
-            _adsr_retrigger(d->_voice->_adsr_filter);
-            _adsr_retrigger(d->_voice->_adsr_amp);
-        }
-        else if((d->n_state) == note_off)
-        {
-            d->n_state = releasing;
-            
-            /*This is where you signal a note_off event to any modules that should receive it*/
-            _adsr_release(d->_voice->_adsr_filter);
-            _adsr_release(d->_voice->_adsr_amp);
-        }
+{   
+    /*Put anything here that is not internally smoothed and only needs to be checked once per block, per voice*/
     
-    /*Put anything here that is not internally smoothed and only needs to be checked once per block*/
     
-    _clp_set_in_gain(d->_voice->_clipper1, vals->dist);
-    
-    _svf_set_res(d->_voice->_svf_filter, vals->res);  
     
     /*End LibModSynth additions*/    
     
@@ -444,7 +407,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
     /*Process an audio block*/
     for (i=0; i<count; i++) {
 	
-	d->env += d->env_d; 
+	//d->env += d->env_d; 
                 
         /*Begin LibModSynth modifications, calling everything defined in
          libmodsynth.h in the order it should be called in*/
@@ -478,54 +441,14 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         /*End LibModSynth modifications*/
     }
 
-    /*Run the envelope.  TODO:  Structure this differently to fit better with
-     LibModSynth*/
     
+    /*If the main ADSR envelope has reached it's release stage, kill the voice.
+     However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't*/
     if(d->_voice->_adsr_amp->stage == 4)
     {
-        d->state = inactive;
-        d->n_state = inactive;
-        printf("adsr_amp->stage == 4");
+        d->n_state = off;        
     }
-    
-    /*
-    d->counter += count;
-    if (d->counter >= d->next_event) {
-	switch (d->state) {
-	case inactive:
-	    break;
-            
-	case attack:
-	    d->state = decay;
-	    d->env_d = (vals->sustain - 1.0f) / vals->decay;
-	    d->counter = 0;
-	    d->next_event = vals->decay;
-	    break;
-
-	case decay:
-	    d->state = sustain;
-	    d->env_d = 0.0f;
-	    d->counter = 0;
-	    d->next_event = INT_MAX;
-	    break;
-
-	case sustain:
-	    d->counter = 0;
-	    break;
-
-	case release:
-	    d->state = inactive;
-            d->n_state = inactive;
-	    break;
-
-	default:
-	    d->state = inactive;
-            d->n_state = inactive;
-	    break;
-	}
-    }
-    */
-    
+        
 }
 
 /*This returns MIDI CCs for the different knobs
@@ -560,7 +483,8 @@ int pick_voice(const voice_data *data)
 
     /* Look for an inactive voice */
     for (i=0; i<POLYPHONY; i++) {
-	if (data[i].state == inactive) {
+        //if (data[i].state == inactive) {
+	if (data[i].n_state == off) {
 	    return i;
 	}
     }

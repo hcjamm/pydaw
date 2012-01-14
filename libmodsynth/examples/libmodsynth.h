@@ -40,6 +40,11 @@ void _init_lms(float _sr)
     _sr_recip = 1/_sr;
     
 }
+
+/*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
+ of an instrument, you will most likely want to define all of you modules here*/
+
+
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
 typedef struct _poly_voice
@@ -75,35 +80,15 @@ poly_voice * _poly_init()
     
     _adsr_set_a_time(_voice->_adsr_filter, 0.01);
     _adsr_set_d_time(_voice->_adsr_filter, .5);
-    printf("\nD %f\n\n", (_voice->_adsr_filter->d_inc));
+    
     _adsr_set_s_value(_voice->_adsr_filter, .2);
     _adsr_set_r_time(_voice->_adsr_filter, 1);
     
     _voice->_w_noise = _get_white_noise(_sample_rate);
-    
-    /*
-    printf("A %f\n", (_voice->_adsr_filter->a_inc));
-    printf("D %f\n", (_voice->_adsr_filter->d_inc));
-    printf("S %f\n", (_voice->_adsr_filter->s_value));
-    printf("R %f\n", (_voice->_adsr_filter->r_inc));
-    
-    printf("\n_poly_init() has run\n");
-    */
+        
     return _voice;
 }
 
-void _poly_note_on(poly_voice * _voice);
-
-//Define anything that should happen when the user presses a note here
-void _poly_note_on(poly_voice * _voice)
-{
-    /*Retrigger ADSR envelopes*/
-    _adsr_retrigger(_voice->_adsr_amp);
-    _adsr_retrigger(_voice->_adsr_filter);
-    
-    /*Set ADSR envelope(doing it here prevents the user for modulating it for notes that are already playing)*/
-    //_adsr_set_adsr(_voice->_adsr_amp, (_instance->attack), (_instance->decay), (_instance->sustain), (_instance->release));
-}
 
 void _poly_note_off(poly_voice * _voice); //, LTS * _instance);
 
