@@ -87,11 +87,6 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_decay   =  _get_knob(zero_to_one); //newQDial(  1, 100,  1,  25); // s * 100
     m_decayLabel   = new QLabel(this);
     _add_knob(layout, _column, _row, "Decay",m_decay, m_decayLabel);
-    /*
-    layout->addWidget(new QLabel("Decay",      this), 0, 2, Qt::AlignCenter);
-    layout->addWidget(m_decay,   1, 2);    
-    layout->addWidget(m_decayLabel,   2, 2, Qt::AlignCenter);
-    */
     connect(m_decay,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));
     decayChanged  (m_decay  ->value());
     
@@ -99,12 +94,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_sustain =  _get_knob(decibels_0); // newQDial(  0, 100,  1,  75); // %
     m_sustainLabel = new QLabel(this);
-    _add_knob(layout, _column, _row, "Sustain", m_sustain, m_sustainLabel);
-    /*
-    layout->addWidget(new QLabel("Sustain",    this), 0, _column, Qt::AlignCenter);
-    layout->addWidget(m_sustain, 1, _column);
-    layout->addWidget(m_sustainLabel, 2, _column, Qt::AlignCenter);
-    */    
+    _add_knob(layout, _column, _row, "Sustain", m_sustain, m_sustainLabel);    
     connect(m_sustain, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));
     sustainChanged(m_sustain->value());
     
@@ -113,9 +103,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_release = _get_knob(zero_to_four); //newQDial(  1, 400, 10, 200); // s * 100
     m_releaseLabel = new QLabel(this);
-    layout->addWidget(new QLabel("Release",    this), 0, _column, Qt::AlignCenter);
-    layout->addWidget(m_release, 1, _column);
-    layout->addWidget(m_releaseLabel, 2, _column, Qt::AlignCenter);
+    _add_knob(layout, _column, _row, "Release", m_release, m_releaseLabel);
     connect(m_release, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));
     releaseChanged(m_release->value());
     
@@ -125,22 +113,15 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_timbre  =  _get_knob(pitch);  //newQDial(  39, 136,  1,  82); // s * 100
     m_timbreLabel  = new QLabel(this);
     _add_knob(layout, _column, _row, "Timbre",m_timbre, m_timbreLabel);
-    /*
-    layout->addWidget(new QLabel("Timbre",     this), 0, 5, Qt::AlignCenter);
-    layout->addWidget(m_timbre,  1, 5);
-    layout->addWidget(m_timbreLabel,  2, 5, Qt::AlignCenter);
-    */
     connect(m_timbre,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));
     timbreChanged (m_timbre ->value());
     
     _column++;
     
     
-    m_res  = newQDial(  -50, 0,  1,  -36); 
+    m_res  =  _get_knob(decibels_0); 
     m_resLabel  = new QLabel(this);
-    layout->addWidget(new QLabel("Res",     this), 0, 6, Qt::AlignCenter);
-    layout->addWidget(m_res,  1, 6);
-    layout->addWidget(m_resLabel,  2, 6, Qt::AlignCenter);
+    _add_knob(layout, _column, _row, "Res", m_res, m_resLabel);
     connect(m_res,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
     resChanged (m_res ->value());
     
@@ -157,18 +138,25 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     _column++;
     
-    //Start a new row
+    /*Start a new row
     _row++;
     _column = 0;
-
-    /*add some GUI elements*/
     
-    //_column++;
+     add some GUI elements
+    
+    _column++;
+    */
+    
+    /*This is the test button for playing a note without a keyboard, you should remove this before distributing your plugin*/
     
     QPushButton *testButton = new QPushButton("Test", this);
     connect(testButton, SIGNAL(pressed()), this, SLOT(test_press()));
     connect(testButton, SIGNAL(released()), this, SLOT(test_release()));
-    layout->addWidget(testButton, 3, 7, Qt::AlignCenter);
+    
+    /*This adds the test button below the last column*/
+    layout->addWidget(testButton, (_row + 4), _column, Qt::AlignCenter);
+    
+    /*End test button code, DO NOT remove the code below this*/
 
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
@@ -320,84 +308,44 @@ void
 SynthGUI::attackChanged(int value)
 {
     _changed_seconds(value,m_attackLabel,LTS_PORT_ATTACK);
-    
-    /*
-    float sec = float(value) * .01;  //  / 100.0;
-    m_attackLabel->setText(QString("%1 sec").arg(sec));
-
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_ATTACK, sec);
-    }
-    */
 }
 
 void
 SynthGUI::decayChanged(int value)
 {
     _changed_seconds(value,m_decayLabel,LTS_PORT_DECAY);
-    
-    /*
-    float sec = float(value) * .01;  // / 100.0;
-    m_decayLabel->setText(QString("%1 sec").arg(sec));
-
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_DECAY, sec);
-    }
-    */
 }
 
 void
 SynthGUI::sustainChanged(int value)
 {
-    _changed_decibels(value, m_sustainLabel, LTS_PORT_SUSTAIN);
-    
-    /*
-    m_sustainLabel->setText(QString("%1 %").arg(value));
-
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_SUSTAIN, float(value));
-    }
-    */
+    _changed_decibels(value, m_sustainLabel, LTS_PORT_SUSTAIN);    
 }
 
 void
 SynthGUI::releaseChanged(int value)
 {
-    _changed_seconds(value, m_releaseLabel, LTS_PORT_RELEASE);
-    
-    /*
-    float sec = float(value) * .01; // / 100.0;
-    m_releaseLabel->setText(QString("%1 sec").arg(sec));
-
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_RELEASE, sec);
-    }
-    */
+    _changed_seconds(value, m_releaseLabel, LTS_PORT_RELEASE);    
 }
 
 void
 SynthGUI::timbreChanged(int value)
 {
-    _changed_pitch(value, m_timbreLabel, LTS_PORT_TIMBRE);
-    /*
-    float val = float(value); // / 100.0;
-    m_timbreLabel->setText(QString("%1").arg(val));
-
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_TIMBRE, val);
-    }
-    */
+    _changed_pitch(value, m_timbreLabel, LTS_PORT_TIMBRE);    
 }
 
 void
 SynthGUI::resChanged(int value)
 {
+    _changed_decibels(value, m_resLabel, LTS_PORT_RES);
+    
+    /*
     float val = float(value); // / 100.0;
     m_resLabel->setText(QString("%1").arg(val));
 
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", LTS_PORT_RES, val);
-    }
+    }*/
 }
 
 void
