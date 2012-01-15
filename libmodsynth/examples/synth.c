@@ -32,9 +32,8 @@ GNU General Public License for more details.
 #include "libmodsynth.h"
 #include "libmodsynth/lib/amp.h"
 
-
+/*GUI Step 9:  Add ports to the main synthesizer file that the GUI can talk to */
 #define LMS_OUTPUT  0
-/*#define LMS_FREQ    1*/
 #define LMS_ATTACK  1
 #define LMS_DECAY   2
 #define LMS_SUSTAIN 3
@@ -42,13 +41,17 @@ GNU General Public License for more details.
 #define LMS_TIMBRE  5
 #define LMS_RES  6
 #define LMS_DIST 7
-#define LMS_COUNT 8 /* must be 1 + highest value above */
+#define LMS_ATTACK_F  8
+#define LMS_DECAY_F   9
+#define LMS_SUSTAIN_F 10
+#define LMS_RELEASE_F 11
+#define LMS_COUNT 12 /* must be 1 + highest value above CHANGE THIS IF YOU ADD ANYTHING*/
 
-#define POLYPHONY   8
-#define MIDI_NOTES  128
+#define POLYPHONY   8  //maximum voices played at one time
+#define MIDI_NOTES  128  //Maximum MIDI note.  You probably don't want to change this
 #define STEP_SIZE   16
 
-#define GLOBAL_GAIN 0.25f
+#define GLOBAL_GAIN 0.25f   //TODO:  Get rid of this
 
 long int lrintf (float x);
 
@@ -70,6 +73,8 @@ typedef struct {
     note_state n_state;
 } voice_data;
 
+
+/*GUI Step 10:  Add a variable for each control in the synth_vals type*/
 typedef struct {    
     LADSPA_Data attack;
     LADSPA_Data decay;
@@ -79,8 +84,14 @@ typedef struct {
     LADSPA_Data res;
     LADSPA_Data dist;
     LADSPA_Data pitch;    
+    
+    LADSPA_Data attack_f;
+    LADSPA_Data decay_f;
+    LADSPA_Data sustain_f;
+    LADSPA_Data release_f;
 } synth_vals;
 
+/*GUI Step 11:  Add a variable for each control in the LTS type*/
 typedef struct {
     LADSPA_Data *output;
     LADSPA_Data *tune;
@@ -92,6 +103,12 @@ typedef struct {
     LADSPA_Data *res;
     LADSPA_Data *dist;
     LADSPA_Data pitch;
+    
+    LADSPA_Data *attack_f;
+    LADSPA_Data *decay_f;
+    LADSPA_Data *sustain_f;
+    LADSPA_Data *release_f;
+    
     voice_data data[POLYPHONY];
     int note2voice[MIDI_NOTES];    
     float fs;
@@ -139,6 +156,9 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
     LTS *plugin;
 
     plugin = (LTS *) instance;
+    
+    /*GUI Step 12:  Add the ports from step 9 to the connectPortLTS event handler*/
+    
     switch (port) {
     case LMS_OUTPUT:
 	plugin->output = data;
@@ -163,6 +183,18 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
 	break;
     case LMS_DIST:
 	plugin->dist = data;              
+	break;
+        case LMS_ATTACK_F:
+	plugin->attack_f = data;
+	break;
+    case LMS_DECAY_F:
+	plugin->decay_f = data;
+	break;
+    case LMS_SUSTAIN_F:
+	plugin->sustain_f = data;
+	break;
+    case LMS_RELEASE_F:
+	plugin->release_f = data;
 	break;
     }
 }
@@ -217,6 +249,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     unsigned long event_pos;
     unsigned long voice;
 
+    /*GUI Step 13:  Set the values from synth_vals in RunLTS*/
     vals.attack = *(plugin_data->attack);
     vals.decay = *(plugin_data->decay); 
     vals.sustain = *(plugin_data->sustain);
@@ -226,6 +259,11 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     vals.res = *(plugin_data->res);
     vals.dist = *(plugin_data->dist);
 
+    vals.attack_f = *(plugin_data->attack_f);
+    vals.decay_f = *(plugin_data->decay_f); 
+    vals.sustain_f = *(plugin_data->sustain_f);
+    vals.release_f = *(plugin_data->release_f);
+    
     /*Events is an array of snd_seq_event_t objects, 
      event_count is the number of events,
      and sample_count is the block size          
@@ -431,7 +469,7 @@ int pick_voice(const voice_data *data, int _current_note)
     
     /*Look for the voice being played by the current note.
      It's more musical to kill the same note than to let it play twice,
-     guitars, pianos, etc... work that way.*/    
+     guitars, pianos, etc... work that way.  It also helps to prevent hung notes*/    
     for (i=0; i<POLYPHONY; i++) {
 	if (data[i].note == _current_note) {
             printf("pick_voice found current_note");
@@ -502,6 +540,8 @@ void _init()
 	port_names[LMS_OUTPUT] = "Output";
 	port_range_hints[LMS_OUTPUT].HintDescriptor = 0;
 
+        /*GUI Step 14:  Define the LADSPA ports for the plugin in the class constructor*/
+        
 	/* Parameters for attack */
 	port_descriptors[LMS_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_ATTACK] = "Attack time (s)";
@@ -568,6 +608,52 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_DIST].LowerBound =  -6;
 	port_range_hints[LMS_DIST].UpperBound =  36;
+        
+        
+        
+        
+	/* Parameters for attack_f */
+	port_descriptors[LMS_ATTACK_F] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_ATTACK_F] = "Attack time (s)";
+	port_range_hints[LMS_ATTACK_F].HintDescriptor =
+			LADSPA_HINT_DEFAULT_LOW |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_ATTACK_F].LowerBound = 0.01f;
+	port_range_hints[LMS_ATTACK_F].UpperBound = 1.0f;
+
+	/* Parameters for decay_f */
+	port_descriptors[LMS_DECAY_F] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_DECAY_F] = "Decay time (s)";
+	port_range_hints[LMS_DECAY_F].HintDescriptor =
+			port_range_hints[LMS_ATTACK].HintDescriptor;
+	port_range_hints[LMS_DECAY_F].LowerBound =
+			port_range_hints[LMS_ATTACK].LowerBound;
+	port_range_hints[LMS_DECAY_F].UpperBound =
+			port_range_hints[LMS_ATTACK].UpperBound;
+
+	/* Parameters for sustain_f */
+	port_descriptors[LMS_SUSTAIN_F] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_SUSTAIN_F] = "Sustain level (%)";
+	port_range_hints[LMS_SUSTAIN_F].HintDescriptor =
+			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_SUSTAIN_F].LowerBound = 0.0f;
+	port_range_hints[LMS_SUSTAIN_F].UpperBound = 100.0f;
+
+	/* Parameters for release_f */
+	port_descriptors[LMS_RELEASE_F] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_RELEASE_F] = "Release time (s)";
+	port_range_hints[LMS_RELEASE_F].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_LOGARITHMIC |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_RELEASE_F].LowerBound =
+			port_range_hints[LMS_ATTACK].LowerBound;
+	port_range_hints[LMS_RELEASE_F].UpperBound =
+			port_range_hints[LMS_ATTACK].UpperBound * 4.0f;
+
+        
+        
+        
         
 
 	ltsLDescriptor->activate = activateLTS;

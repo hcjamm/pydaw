@@ -1,6 +1,6 @@
 /* -*- c-basic-offset: 4 -*-  vi:set ts=8 sts=4 sw=4: */
 
-/* less_trivial_synth_qt_gui.cpp
+/* synth_qt_gui.cpp
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 
 using std::endl;
 
+/*GUI Step 6:  Define ports for each control that will send messages to the plugin, such as dials/knobs or faders.*/
 #define LTS_PORT_ATTACK  1
 #define LTS_PORT_DECAY   2
 #define LTS_PORT_SUSTAIN 3
@@ -62,6 +63,10 @@ using std::endl;
 #define LTS_PORT_TIMBRE  5
 #define LTS_PORT_RES  6
 #define LTS_PORT_DIST  7
+#define LTS_PORT_ATTACK_F  8
+#define LTS_PORT_DECAY_F   9
+#define LTS_PORT_SUSTAIN_F 10
+#define LTS_PORT_RELEASE_F 11
 
 lo_server osc_server = 0;
 
@@ -82,13 +87,16 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_host = lo_address_new(host, port);
     
     /*Set the CSS style that will "cascade" on the other controls.*/
-    this->setStyleSheet("QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);     border: 2px solid gray;  border-radius: 5px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
+    this->setStyleSheet("QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF); border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
 
     QGridLayout *layout = new QGridLayout(this);
     //QVBoxLayout *layout = new QVBoxLayout();
         
     int _row = 0;
     int _column = 0;
+    
+    
+    /*GUI Step 4:  Lay out the controls you declared in the first step*/
     
     
     /*The amplitude ADSR GroupBox*/
@@ -99,7 +107,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     int _gb_layout_column = 0;
     
     m_attack = _get_knob(zero_to_one);
-    m_attackLabel = new QLabel(this);
+    m_attackLabel = _newQLabel(this);
     _add_knob(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Attack",m_attack, m_attackLabel);
     connect(m_attack,   SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));
     attackChanged  (m_attack  ->value());
@@ -107,7 +115,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _gb_layout_column++;
         
     m_decay   =  _get_knob(zero_to_one); //newQDial(  1, 100,  1,  25); // s * 100
-    m_decayLabel   = new QLabel(this);
+    m_decayLabel   = _newQLabel(this);
     _add_knob(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Decay",m_decay, m_decayLabel);
     connect(m_decay,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));
     decayChanged  (m_decay  ->value());
@@ -115,7 +123,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _gb_layout_column++;
     
     m_sustain =  _get_knob(decibels_0); // newQDial(  0, 100,  1,  75); // %
-    m_sustainLabel = new QLabel(this);
+    m_sustainLabel = _newQLabel(this);
     _add_knob(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Sustain", m_sustain, m_sustainLabel);    
     connect(m_sustain, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));
     sustainChanged(m_sustain->value());
@@ -123,7 +131,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _gb_layout_column++;
     
     m_release = _get_knob(zero_to_four); //newQDial(  1, 400, 10, 200); // s * 100
-    m_releaseLabel = new QLabel(this);
+    m_releaseLabel = _newQLabel(this);
     _add_knob(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Release", m_release, m_releaseLabel);
     connect(m_release, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));
     releaseChanged(m_release->value());
@@ -144,7 +152,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _gb_layout_column = 0;
     
     m_timbre  =  _get_knob(pitch);  //newQDial(  39, 136,  1,  82); // s * 100
-    m_timbreLabel  = new QLabel(this);
+    m_timbreLabel  = _newQLabel(this);
     _add_knob(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Timbre",m_timbre, m_timbreLabel);
     connect(m_timbre,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));
     timbreChanged (m_timbre ->value());
@@ -152,7 +160,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _gb_layout_column++;
     
     m_res  =  _get_knob(decibels_0); 
-    m_resLabel  = new QLabel(this);
+    m_resLabel  = _newQLabel(this);
     _add_knob(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Res", m_res, m_resLabel);
     connect(m_res,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
     resChanged (m_res ->value());
@@ -183,12 +191,54 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _column++;
     
     /*Start a new row*/
-    //_row++;
-    //_column = 0;
+    _row++;
+    _column = 0;
     
-    //add more stuff here
     
-    //_column++;
+    /*The filter ADSR GroupBox*/
+    QGroupBox * _gb_adsr_f = _newGroupBox("ADSR Filter", this);
+    QGridLayout *_gb_adsr_f_layout = new QGridLayout(_gb_adsr_f);
+    
+    _gb_layout_row = 0;
+    _gb_layout_column = 0;
+    
+    m_attack_f = _get_knob(zero_to_one);
+    m_attackLabel_f = _newQLabel(this);
+    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Attack",m_attack_f, m_attackLabel_f);
+    connect(m_attack_f,   SIGNAL(valueChanged(int)), this, SLOT(attack_fChanged(int)));
+    attack_fChanged  (m_attack_f  ->value());
+    
+    _gb_layout_column++;
+        
+    m_decay_f   =  _get_knob(zero_to_one); //newQDial(  1, 100,  1,  25); // s * 100
+    m_decayLabel_f   = new QLabel(this);
+    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Decay",m_decay_f, m_decayLabel_f);
+    connect(m_decay_f,   SIGNAL(valueChanged(int)), this, SLOT(decay_fChanged(int)));
+    decay_fChanged  (m_decay_f ->value());
+    
+    _gb_layout_column++;
+    
+    m_sustain_f =  _get_knob(decibels_0); // newQDial(  0, 100,  1,  75); // %
+    m_sustainLabel_f = new QLabel(this);
+    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Sustain", m_sustain_f, m_sustainLabel_f);
+    connect(m_sustain_f, SIGNAL(valueChanged(int)), this, SLOT(sustain_fChanged(int)));
+    sustain_fChanged(m_sustain_f->value());
+    
+    _gb_layout_column++;
+    
+    m_release_f = _get_knob(zero_to_four); //newQDial(  1, 400, 10, 200); // s * 100
+    m_releaseLabel_f = new QLabel(this);
+    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Release", m_release_f, m_releaseLabel_f);
+    connect(m_release_f, SIGNAL(valueChanged(int)), this, SLOT(release_fChanged(int)));
+    release_fChanged(m_release_f->value());
+        
+    _gb_layout_column++;
+    
+    layout->addWidget(_gb_adsr_f, _row, _column, Qt::AlignCenter);    
+    
+    
+    
+    _column++;
     
     
     /*This is the test button for playing a note without a keyboard, you should remove this before distributing your plugin*/
@@ -211,12 +261,16 @@ SynthGUI::SynthGUI(const char * host, const char * port,
 
 
 
-void
-SynthGUI::_add_knob(QGridLayout * _layout, int position_x, int position_y, std::string _label_text, QDial * _knob,
+void SynthGUI::_add_knob(QGridLayout * _layout, int position_x, int position_y, QString _label_text, QDial * _knob,
     QLabel * _label)
 {    
     int _real_pos_y = (position_y) * 3;  // + 1;  ????
-    _layout->addWidget(new QLabel(QString::fromStdString(_label_text),     this), (_real_pos_y), position_x, Qt::AlignCenter);    
+    QLabel * _knob_title = new QLabel(_label_text,  this);
+    _knob_title->setMinimumWidth(60);
+    _knob_title->setAlignment(Qt::AlignCenter);
+    _knob_title->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");
+    
+    _layout->addWidget(_knob_title, (_real_pos_y), position_x, Qt::AlignCenter);    
     _layout->addWidget(_knob,  (_real_pos_y + 1), position_x);
     _layout->addWidget(_label,  (_real_pos_y + 2), position_x, Qt::AlignCenter);     
 }
@@ -227,8 +281,13 @@ QGroupBox * SynthGUI::_newGroupBox(QString _title, QWidget * _parent)
     
     _result->setTitle(_title);
     _result->setAlignment(Qt::AlignHCenter);
-    //_result->setStyleSheet("background-color: white; border: 3px solid gray; border-radius: 10px; margin-top: 1ex; subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; text-align:center;");
-        
+    return _result;
+}
+
+QLabel * SynthGUI::_newQLabel(QWidget * _parent)
+{
+    QLabel * _result = new QLabel(_parent);
+    //_result->setStyleSheet("background-color: white; border: 2px solid black;  border-radius: 6px;");
     return _result;
 }
 
@@ -267,59 +326,97 @@ QCheckBox * SynthGUI::_get_checkbox(std::string _text)
     return _checkbox;
 }
 
-void
-SynthGUI::setAttack(float sec)
+
+QDial * SynthGUI::newQDial( int minValue, int maxValue, int pageStep, int value )
+{
+    QDial *dial = new QDial( this );
+    dial->setMinimum( minValue );
+    dial->setMaximum( maxValue );
+    dial->setPageStep( pageStep );
+    dial->setValue( value );
+    dial->setNotchesVisible(true);    
+    dial->setMaximumHeight(66);
+    dial->setMaximumWidth(66);
+    
+    //dial->setFocusPolicy(Qt::NoFocus);
+    
+    return dial;
+}
+/*GUI Step 5:  Implement the event handlers from step 2.*/
+void SynthGUI::setAttack(float sec)
 {
     m_suppressHostUpdate = true;
     m_attack->setValue(int(sec * 100));
     m_suppressHostUpdate = false;
 }
 
-void
-SynthGUI::setDecay(float sec)
+void SynthGUI::setDecay(float sec)
 {
     m_suppressHostUpdate = true;
     m_decay->setValue(int(sec * 100));
     m_suppressHostUpdate = false;
 }
 
-void
-SynthGUI::setSustain(float percent)
+void SynthGUI::setSustain(float val)
 {
     m_suppressHostUpdate = true;
-    m_sustain->setValue(int(percent));
+    m_sustain->setValue(int(val) * 100);
     m_suppressHostUpdate = false;
 }
 
-void
-SynthGUI::setRelease(float sec)
+void SynthGUI::setRelease(float sec)
 {
     m_suppressHostUpdate = true;
     m_release->setValue(int(sec * 100));
     m_suppressHostUpdate = false;
 }
 
-void
-SynthGUI::setTimbre(float val)
+void SynthGUI::setTimbre(float val)
 {
     m_suppressHostUpdate = true;
     m_timbre->setValue(int(val));  // * 100));
     m_suppressHostUpdate = false;
 }
 
-void
-SynthGUI::setRes(float val)
+void SynthGUI::setRes(float val)
 {
     m_suppressHostUpdate = true;
     m_res->setValue(int(val));  // * 100));
     m_suppressHostUpdate = false;
 }
 
-void
-SynthGUI::setDist(float val)
+void SynthGUI::setDist(float val)
 {
     m_suppressHostUpdate = true;
     m_dist->setValue(int(val));  // * 100));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setAttack_f (float sec)
+{
+    m_suppressHostUpdate = true;
+    m_attack_f->setValue(int(sec * 100));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setDecay_f  (float sec)
+{
+    m_suppressHostUpdate = true;
+    m_decay_f->setValue(int(sec * 100));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setSustain_f(float val)
+{
+    m_suppressHostUpdate = true;
+    m_sustain_f->setValue(int(val * 100));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setRelease_f(float sec)
+{
+    m_suppressHostUpdate = true;
+    m_release_f->setValue(int(sec * 100));
     m_suppressHostUpdate = false;
 }
 
@@ -361,10 +458,9 @@ void SynthGUI::_changed_decibels(int value, QLabel * _label, int _port)
     }
 }
 
-/*Slots for handling events*/
+/*GUI Step 7:  Implement the event handlers from step 3.*/
 
-void
-SynthGUI::attackChanged(int value)
+void SynthGUI::attackChanged(int value)
 {
     _changed_seconds(value,m_attackLabel,LTS_PORT_ATTACK);
 }
@@ -375,32 +471,27 @@ SynthGUI::decayChanged(int value)
     _changed_seconds(value,m_decayLabel,LTS_PORT_DECAY);
 }
 
-void
-SynthGUI::sustainChanged(int value)
+void SynthGUI::sustainChanged(int value)
 {
     _changed_decibels(value, m_sustainLabel, LTS_PORT_SUSTAIN);    
 }
 
-void
-SynthGUI::releaseChanged(int value)
+void SynthGUI::releaseChanged(int value)
 {
     _changed_seconds(value, m_releaseLabel, LTS_PORT_RELEASE);    
 }
 
-void
-SynthGUI::timbreChanged(int value)
+void SynthGUI::timbreChanged(int value)
 {
     _changed_pitch(value, m_timbreLabel, LTS_PORT_TIMBRE);    
 }
 
-void
-SynthGUI::resChanged(int value)
+void SynthGUI::resChanged(int value)
 {
     _changed_decibels(value, m_resLabel, LTS_PORT_RES);    
 }
 
-void
-SynthGUI::distChanged(int value)
+void SynthGUI::distChanged(int value)
 {
     float val = float(value); // / 100.0;
     m_distLabel->setText(QString("%1").arg(val));
@@ -410,32 +501,51 @@ SynthGUI::distChanged(int value)
     }
 }
 
+
+void SynthGUI::attack_fChanged(int value)
+{
+    _changed_seconds(value,m_attackLabel_f,LTS_PORT_ATTACK_F);
+}
+
 void
-SynthGUI::test_press()
+SynthGUI::decay_fChanged(int value)
+{
+    _changed_seconds(value,m_decayLabel_f,LTS_PORT_DECAY_F);
+}
+
+void SynthGUI::sustain_fChanged(int value)
+{
+    _changed_decibels(value, m_sustainLabel_f, LTS_PORT_SUSTAIN_F);    
+}
+
+void SynthGUI::release_fChanged(int value)
+{
+    _changed_seconds(value, m_releaseLabel_f, LTS_PORT_RELEASE_F);    
+}
+
+
+void SynthGUI::test_press()
 {
     unsigned char noteon[4] = { 0x00, 0x90, 0x3C, 0x40 };
 
     lo_send(m_host, m_midiPath, "m", noteon);
 }
 
-void
-SynthGUI::oscRecv()
+void SynthGUI::oscRecv()
 {
     if (osc_server) {
 	lo_server_recv_noblock(osc_server, 1);
     }
 }
 
-void
-SynthGUI::test_release()
+void SynthGUI::test_release()
 {
     unsigned char noteoff[4] = { 0x00, 0x90, 0x3C, 0x00 };
 
     lo_send(m_host, m_midiPath, "m", noteoff);
 }
 
-void
-SynthGUI::aboutToQuit()
+void SynthGUI::aboutToQuit()
 {
     if (!m_hostRequestedQuit) lo_send(m_host, m_exitingPath, "");
 }
@@ -446,33 +556,14 @@ SynthGUI::~SynthGUI()
 }
 
 
-QDial *
-SynthGUI::newQDial( int minValue, int maxValue, int pageStep, int value )
-{
-    QDial *dial = new QDial( this );
-    dial->setMinimum( minValue );
-    dial->setMaximum( maxValue );
-    dial->setPageStep( pageStep );
-    dial->setValue( value );
-    dial->setNotchesVisible(true);    
-    dial->setMaximumHeight(66);
-    dial->setMaximumWidth(66);
-    
-    //dial->setFocusPolicy(Qt::NoFocus);
-    
-    return dial;
-}
-
-void
-osc_error(int num, const char *msg, const char *path)
+void osc_error(int num, const char *msg, const char *path)
 {
     cerr << "Error: liblo server error " << num
 	 << " in path \"" << (path ? path : "(null)")
 	 << "\": " << msg << endl;
 }
 
-int
-debug_handler(const char *path, const char *types, lo_arg **argv,
+int debug_handler(const char *path, const char *types, lo_arg **argv,
 	      int argc, void *data, void *user_data)
 {
     int i;
@@ -489,30 +580,26 @@ debug_handler(const char *path, const char *types, lo_arg **argv,
     return 1;
 }
 
-int
-program_handler(const char *path, const char *types, lo_arg **argv,
+int program_handler(const char *path, const char *types, lo_arg **argv,
 	       int argc, void *data, void *user_data)
 {
     cerr << "Program handler not yet implemented" << endl;
     return 0;
 }
 
-int
-configure_handler(const char *path, const char *types, lo_arg **argv,
+int configure_handler(const char *path, const char *types, lo_arg **argv,
 		  int argc, void *data, void *user_data)
 {
     return 0;
 }
 
-int
-rate_handler(const char *path, const char *types, lo_arg **argv,
+int rate_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     return 0; /* ignore it */
 }
 
-int
-show_handler(const char *path, const char *types, lo_arg **argv,
+int show_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     SynthGUI *gui = static_cast<SynthGUI *>(user_data);
@@ -522,8 +609,7 @@ show_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int
-hide_handler(const char *path, const char *types, lo_arg **argv,
+int hide_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     SynthGUI *gui = static_cast<SynthGUI *>(user_data);
@@ -531,8 +617,7 @@ hide_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int
-quit_handler(const char *path, const char *types, lo_arg **argv,
+int quit_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     SynthGUI *gui = static_cast<SynthGUI *>(user_data);
@@ -541,8 +626,7 @@ quit_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int
-control_handler(const char *path, const char *types, lo_arg **argv,
+int control_handler(const char *path, const char *types, lo_arg **argv,
 		int argc, void *data, void *user_data)
 {
     SynthGUI *gui = static_cast<SynthGUI *>(user_data);
@@ -555,6 +639,7 @@ control_handler(const char *path, const char *types, lo_arg **argv,
     const int port = argv[0]->i;
     const float value = argv[1]->f;
 
+    /*GUI Step 8:  Add the controls you created to the control handler*/
     switch (port) {
     case LTS_PORT_ATTACK:
 	cerr << "gui setting attack to " << value << endl;
@@ -590,7 +675,28 @@ control_handler(const char *path, const char *types, lo_arg **argv,
 	cerr << "gui setting res to " << value << endl;
 	gui->setDist(value);
 	break;
-        
+
+    case LTS_PORT_ATTACK_F:
+	cerr << "gui setting attack to " << value << endl;
+	gui->setAttack_f(value);
+	break;
+
+    case LTS_PORT_DECAY_F:
+	cerr << "gui setting decay to " << value << endl;
+	gui->setDecay_f(value);
+	break;
+
+    case LTS_PORT_SUSTAIN_F:
+	cerr << "gui setting sustain to " << value << endl;
+	gui->setSustain_f(value);
+	break;
+
+    case LTS_PORT_RELEASE_F:
+	cerr << "gui setting release to " << value << endl;
+	gui->setRelease_f(value);
+	break;
+
+
     default:
 	cerr << "Warning: received request to set nonexistent port " << port << endl;
     }
@@ -598,8 +704,7 @@ control_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     cerr << "synth_qt_gui starting..." << endl;
 
