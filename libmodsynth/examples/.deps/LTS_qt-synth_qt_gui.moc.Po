@@ -124,6 +124,7 @@ LTS_qt-synth_qt_gui.moc.o: synth_qt_gui.moc.cpp synth_qt_gui.h \
  /usr/include/qt4/QtGui/qlayout.h /usr/include/qt4/QtGui/qgridlayout.h \
  /usr/include/qt4/QtGui/QCheckBox /usr/include/qt4/QtGui/qcheckbox.h \
  /usr/include/qt4/QtGui/qabstractbutton.h /usr/include/qt4/QtGui/qicon.h \
+ /usr/include/qt4/QtGui/QGroupBox /usr/include/qt4/QtGui/qgroupbox.h \
  /usr/include/lo/lo.h /usr/include/lo/lo_endian.h \
  /usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/include/stdint.h \
  /usr/include/stdint.h /usr/include/netinet/in.h \
@@ -536,6 +537,10 @@ synth_qt_gui.h:
 /usr/include/qt4/QtGui/qabstractbutton.h:
 
 /usr/include/qt4/QtGui/qicon.h:
+
+/usr/include/qt4/QtGui/QGroupBox:
+
+/usr/include/qt4/QtGui/qgroupbox.h:
 
 /usr/include/lo/lo.h:
 

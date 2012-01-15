@@ -22,9 +22,11 @@ GNU General Public License for more details.
 #include <QLabel>
 #include <QLayout>
 #include <QCheckBox>
+#include <QGroupBox>
 
 #include <string>
 #include <stdlib.h>
+
 
 extern "C" {
 #include <lo/lo.h>
@@ -59,7 +61,6 @@ public:
     void setHostRequestedQuit(bool r) { m_hostRequestedQuit = r; }
         
 public slots:
-    //void setTuning (float hz);
     void setAttack (float sec);
     void setDecay  (float sec);
     void setSustain(float percent);
@@ -68,9 +69,7 @@ public slots:
     void setRes (float val);
     void setDist (float val);
     void aboutToQuit();
-
 protected slots:
-    //void tuningChanged (int);
     void attackChanged (int);
     void decayChanged  (int);
     void sustainChanged(int);
@@ -81,14 +80,23 @@ protected slots:
     void test_press();
     void test_release();
     void oscRecv();
+    
+    /*Slots for playing the QWERTY keyboard like a MIDI keyboard.
+     You probably want to remove this before distributing your plugin*/
+    void _keypress_event(QKeyEvent *_event);
+    void _keyrelease_event(QKeyEvent * _event);
 
 protected:
     QDial *newQDial( int, int, int, int );
     
     QDial *_get_knob(_knob_type);
     
-    void _add_knob(QGridLayout * _layout, int position_x, int position_y, std::string _label_text, QDial * _knob,
+    //TODO:  update this to be more flexible about layout types
+    void _add_knob(QGridLayout * _layout, int position_x, int position_y, std::string _label_text, QDial * _knob,    
     QLabel * _label);
+    
+    QGroupBox * _newGroupBox(QString, QWidget *);
+    
     
     QCheckBox * _get_checkbox(std::string _text);
     
