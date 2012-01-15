@@ -34,6 +34,11 @@ GNU General Public License for more details.
 #include <qt4/QtGui/qgroupbox.h>
 #include <qt4/QtGui/qlayout.h>
 #include <qt4/QtGui/qlabel.h>
+#include <qt4/QtGui/qgridlayout.h>
+//#include <qt4/QtGui/qformlayout.h>
+#include <QFormLayout>
+#include <qt4/QtGui/qboxlayout.h>
+#include <QGroupBox>
 
 static int handle_x11_error(Display *dpy, XErrorEvent *err)
 {
@@ -75,75 +80,105 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_ready(false)
 {
     m_host = lo_address_new(host, port);
+    
+    /*Set the CSS style that will "cascade" on the other controls.*/
+    this->setStyleSheet("QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);     border: 2px solid gray;  border-radius: 5px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
 
     QGridLayout *layout = new QGridLayout(this);
-    
-    
-    
+    //QVBoxLayout *layout = new QVBoxLayout();
+        
     int _row = 0;
     int _column = 0;
-                    
+    
+    
+    /*The amplitude ADSR GroupBox*/
+    QGroupBox * _gb_adsr = _newGroupBox("ADSR", this);
+    QGridLayout *_gb_adsr_layout = new QGridLayout(_gb_adsr);
+    
+    int _gb_layout_row = 0;
+    int _gb_layout_column = 0;
+    
     m_attack = _get_knob(zero_to_one);
     m_attackLabel = new QLabel(this);
-    _add_knob(layout, _column, _row, "Attack",m_attack, m_attackLabel);
+    _add_knob(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Attack",m_attack, m_attackLabel);
     connect(m_attack,   SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));
     attackChanged  (m_attack  ->value());
     
-    _column++;
-    
+    _gb_layout_column++;
+        
     m_decay   =  _get_knob(zero_to_one); //newQDial(  1, 100,  1,  25); // s * 100
     m_decayLabel   = new QLabel(this);
-    _add_knob(layout, _column, _row, "Decay",m_decay, m_decayLabel);
+    _add_knob(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Decay",m_decay, m_decayLabel);
     connect(m_decay,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));
     decayChanged  (m_decay  ->value());
     
-    _column++;
+    _gb_layout_column++;
     
     m_sustain =  _get_knob(decibels_0); // newQDial(  0, 100,  1,  75); // %
     m_sustainLabel = new QLabel(this);
-    _add_knob(layout, _column, _row, "Sustain", m_sustain, m_sustainLabel);    
+    _add_knob(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Sustain", m_sustain, m_sustainLabel);    
     connect(m_sustain, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));
     sustainChanged(m_sustain->value());
     
-    _column++;
-    
+    _gb_layout_column++;
     
     m_release = _get_knob(zero_to_four); //newQDial(  1, 400, 10, 200); // s * 100
     m_releaseLabel = new QLabel(this);
-    _add_knob(layout, _column, _row, "Release", m_release, m_releaseLabel);
+    _add_knob(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Release", m_release, m_releaseLabel);
     connect(m_release, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));
     releaseChanged(m_release->value());
+        
+    _gb_layout_column++;
+    
+    layout->addWidget(_gb_adsr, _row, _column, Qt::AlignCenter);
+    
     
     _column++;
-            
+    
+    
+    /*The Filter GroupBox*/
+    QGroupBox * _gb_filter = _newGroupBox("LP Filter", this); 
+    QGridLayout *_gb_filter_layout = new QGridLayout(_gb_filter);
+    
+    _gb_layout_row = 0;
+    _gb_layout_column = 0;
+    
     m_timbre  =  _get_knob(pitch);  //newQDial(  39, 136,  1,  82); // s * 100
     m_timbreLabel  = new QLabel(this);
-    _add_knob(layout, _column, _row, "Timbre",m_timbre, m_timbreLabel);
+    _add_knob(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Timbre",m_timbre, m_timbreLabel);
     connect(m_timbre,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));
     timbreChanged (m_timbre ->value());
     
-    _column++;
-    
+    _gb_layout_column++;
     
     m_res  =  _get_knob(decibels_0); 
     m_resLabel  = new QLabel(this);
-    _add_knob(layout, _column, _row, "Res", m_res, m_resLabel);
+    _add_knob(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Res", m_res, m_resLabel);
     connect(m_res,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
     resChanged (m_res ->value());
     
+    _gb_layout_column++;
+    
+    layout->addWidget(_gb_filter, _row, _column, Qt::AlignCenter);
+    
     _column++;
+    
+    
+    /*The Distortion GroupBox*/
+    QGroupBox * _gb_dist = _newGroupBox("Distortion", this);    
+    QGridLayout *_gb_dist_layout = new QGridLayout(_gb_dist);
+    
+    _gb_layout_row = 0;
+    _gb_layout_column = 0;
     
     
     m_dist  = newQDial(  -6, 36,  1,  -6); 
     m_distLabel  = new QLabel(this);
-    _add_knob(layout, _column, _row, "Dist", m_dist, m_distLabel);
-    /*
-    layout->addWidget(new QLabel("Dist",     this), 0, 7, Qt::AlignCenter);
-    layout->addWidget(m_dist,  1, 7);
-    layout->addWidget(m_distLabel,  2, 7, Qt::AlignCenter);
-    */
+    _add_knob(_gb_dist_layout, _column, _row, "Gain", m_dist, m_distLabel);
     connect(m_dist,  SIGNAL(valueChanged(int)), this, SLOT(distChanged(int)));
     distChanged (m_dist ->value());
+    
+    layout->addWidget(_gb_dist, _row, _column, Qt::AlignCenter);
     
     _column++;
     
@@ -163,8 +198,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(testButton, SIGNAL(released()), this, SLOT(test_release()));    
     /*This adds the test button below the last column*/
     layout->addWidget(testButton, (_row + 4), _column, Qt::AlignCenter);
-    
-    
+        
     /*End test button code, DO NOT remove the code below this*/
 
     QTimer *myTimer = new QTimer(this);
@@ -187,11 +221,16 @@ SynthGUI::_add_knob(QGridLayout * _layout, int position_x, int position_y, std::
     _layout->addWidget(_label,  (_real_pos_y + 2), position_x, Qt::AlignCenter);     
 }
 
-void _add_groupbox(QGridLayout * _layout, int position_x, int position_y, QGroupBox * _groupbox)
+QGroupBox * SynthGUI::_newGroupBox(QString _title, QWidget * _parent)
 {
-    _layout->addWidget(_groupbox, position_y, position_x, Qt::AlignCenter);
+    QGroupBox * _result = new QGroupBox(_parent);
+    
+    _result->setTitle(_title);
+    _result->setAlignment(Qt::AlignHCenter);
+    //_result->setStyleSheet("background-color: white; border: 3px solid gray; border-radius: 10px; margin-top: 1ex; subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; text-align:center;");
+        
+    return _result;
 }
-
 
 QDial * SynthGUI::_get_knob(_knob_type _ktype)
 {
@@ -284,6 +323,9 @@ SynthGUI::setDist(float val)
     m_suppressHostUpdate = false;
 }
 
+/*Standard handlers for the audio slots, these perform manipulations of knob values
+ that are common in audio applications*/
+
 void SynthGUI::_changed_seconds(int value, QLabel * _label, int _port)
 {
     float sec = float(value) * .01;
@@ -319,7 +361,7 @@ void SynthGUI::_changed_decibels(int value, QLabel * _label, int _port)
     }
 }
 
-
+/*Slots for handling events*/
 
 void
 SynthGUI::attackChanged(int value)
@@ -415,6 +457,9 @@ SynthGUI::newQDial( int minValue, int maxValue, int pageStep, int value )
     dial->setNotchesVisible(true);    
     dial->setMaximumHeight(66);
     dial->setMaximumWidth(66);
+    
+    //dial->setFocusPolicy(Qt::NoFocus);
+    
     return dial;
 }
 
@@ -511,12 +556,6 @@ control_handler(const char *path, const char *types, lo_arg **argv,
     const float value = argv[1]->f;
 
     switch (port) {
-/*
-    case LTS_PORT_FREQ:
-	cerr << "gui setting frequency to " << value << endl;
-	gui->setTuning(value);
-	break;
-*/
     case LTS_PORT_ATTACK:
 	cerr << "gui setting attack to " << value << endl;
 	gui->setAttack(value);
