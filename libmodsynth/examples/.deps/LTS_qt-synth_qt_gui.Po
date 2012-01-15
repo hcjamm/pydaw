@@ -122,6 +122,8 @@ LTS_qt-synth_qt_gui.o: synth_qt_gui.cpp synth_qt_gui.h \
  /usr/include/qt4/QtGui/QLayout /usr/include/qt4/QtGui/qlayout.h \
  /usr/include/qt4/QtGui/qlayoutitem.h /usr/include/qt4/QtGui/qboxlayout.h \
  /usr/include/qt4/QtGui/qlayout.h /usr/include/qt4/QtGui/qgridlayout.h \
+ /usr/include/qt4/QtGui/QCheckBox /usr/include/qt4/QtGui/qcheckbox.h \
+ /usr/include/qt4/QtGui/qabstractbutton.h /usr/include/qt4/QtGui/qicon.h \
  /usr/include/lo/lo.h /usr/include/lo/lo_endian.h \
  /usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/include/stdint.h \
  /usr/include/stdint.h /usr/include/netinet/in.h \
@@ -140,9 +142,7 @@ LTS_qt-synth_qt_gui.o: synth_qt_gui.cpp synth_qt_gui.h \
  /usr/include/qt4/QtCore/qcoreapplication.h \
  /usr/include/qt4/QtCore/qcoreevent.h \
  /usr/include/qt4/QtCore/qeventloop.h /usr/include/qt4/QtGui/QPushButton \
- /usr/include/qt4/QtGui/qpushbutton.h \
- /usr/include/qt4/QtGui/qabstractbutton.h /usr/include/qt4/QtGui/qicon.h \
- /usr/include/qt4/QtCore/QTextStream \
+ /usr/include/qt4/QtGui/qpushbutton.h /usr/include/qt4/QtCore/QTextStream \
  /usr/include/qt4/QtCore/qtextstream.h /usr/include/qt4/QtCore/qlocale.h \
  /usr/include/libio.h /usr/include/_G_config.h \
  /usr/include/bits/sys_errlist.h /usr/include/bits/stdio.h \
@@ -159,7 +159,9 @@ LTS_qt-synth_qt_gui.o: synth_qt_gui.cpp synth_qt_gui.h \
  /usr/include/X11/Xutil.h /usr/include/X11/keysym.h \
  /usr/include/X11/keysymdef.h /usr/include/X11/Xatom.h \
  /usr/include/X11/SM/SMlib.h /usr/include/X11/SM/SM.h \
- /usr/include/X11/ICE/ICElib.h /usr/include/X11/ICE/ICE.h
+ /usr/include/X11/ICE/ICElib.h /usr/include/X11/ICE/ICE.h \
+ /usr/include/qt4/QtGui/qgroupbox.h /usr/include/qt4/QtGui/qlayout.h \
+ /usr/include/qt4/QtGui/qlabel.h
 
 synth_qt_gui.h:
 
@@ -551,6 +553,14 @@ synth_qt_gui.h:
 
 /usr/include/qt4/QtGui/qgridlayout.h:
 
+/usr/include/qt4/QtGui/QCheckBox:
+
+/usr/include/qt4/QtGui/qcheckbox.h:
+
+/usr/include/qt4/QtGui/qabstractbutton.h:
+
+/usr/include/qt4/QtGui/qicon.h:
+
 /usr/include/lo/lo.h:
 
 /usr/include/lo/lo_endian.h:
@@ -614,10 +624,6 @@ synth_qt_gui.h:
 /usr/include/qt4/QtGui/QPushButton:
 
 /usr/include/qt4/QtGui/qpushbutton.h:
-
-/usr/include/qt4/QtGui/qabstractbutton.h:
-
-/usr/include/qt4/QtGui/qicon.h:
 
 /usr/include/qt4/QtCore/QTextStream:
 
@@ -690,3 +696,9 @@ libmodsynth/lib/../../constants.h:
 /usr/include/X11/ICE/ICElib.h:
 
 /usr/include/X11/ICE/ICE.h:
+
+/usr/include/qt4/QtGui/qgroupbox.h:
+
+/usr/include/qt4/QtGui/qlayout.h:
+
+/usr/include/qt4/QtGui/qlabel.h:

@@ -10,9 +10,9 @@ svn+ssh://jhubbard651@svn.code.sf.net/p/libmodsynth/code
 2012-01-12T03:54:50.555312Z
 3
 jhubbard651
-
-
-
+has-props
+has-prop-mods
+svn:special svn:externals svn:needs-lock
 
 
 
@@ -25,6 +25,81 @@ jhubbard651
 
 
 0c05f14c-9d43-43a8-9505-cb5a000a8143
+
+.deps
+dir
+
+
+
+delete
+
+Makefile
+file
+
+
+
+
+2012-01-12T03:53:52.162748Z
+214095c438e982858fb272ca2b823073
+2012-01-12T03:54:50.555312Z
+3
+jhubbard651
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+20729
+
+Makefile.am
+file
+
+
+
+
+2012-01-12T03:53:52.162748Z
+17d46248d40ecee301945e9f7dc75183
+2012-01-12T03:54:50.555312Z
+3
+jhubbard651
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+624
 
 Makefile.in
 file
@@ -128,47 +203,6 @@ jhubbard651
 
 65190
 
-.deps
-dir
-
-
-
-delete
-
-Makefile.am
-file
-
-
-
-
-2012-01-12T03:53:52.162748Z
-17d46248d40ecee301945e9f7dc75183
-2012-01-12T03:54:50.555312Z
-3
-jhubbard651
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-624
-
 jack-dssi-host.h
 file
 
@@ -202,38 +236,4 @@ jhubbard651
 
 
 3048
-
-Makefile
-file
-
-
-
-
-2012-01-12T03:53:52.162748Z
-214095c438e982858fb272ca2b823073
-2012-01-12T03:54:50.555312Z
-3
-jhubbard651
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-20729
 

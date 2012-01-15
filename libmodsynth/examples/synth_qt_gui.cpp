@@ -2,12 +2,15 @@
 
 /* less_trivial_synth_qt_gui.cpp
 
-   DSSI Soft Synth Interface
-   Constructed by Chris Cannam and Steve Harris
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
 
-   This is an example Qt GUI for an example DSSI synth plugin.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-   This example file is in the public domain.
 */
 
 #include "synth_qt_gui.h"
@@ -28,6 +31,9 @@
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/SM/SMlib.h>
+#include <qt4/QtGui/qgroupbox.h>
+#include <qt4/QtGui/qlayout.h>
+#include <qt4/QtGui/qlabel.h>
 
 static int handle_x11_error(Display *dpy, XErrorEvent *err)
 {
@@ -44,7 +50,6 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 
 using std::endl;
 
-//#define LTS_PORT_FREQ    1
 #define LTS_PORT_ATTACK  1
 #define LTS_PORT_DECAY   2
 #define LTS_PORT_SUSTAIN 3
@@ -73,9 +78,11 @@ SynthGUI::SynthGUI(const char * host, const char * port,
 
     QGridLayout *layout = new QGridLayout(this);
     
+    
+    
     int _row = 0;
     int _column = 0;
-          
+                    
     m_attack = _get_knob(zero_to_one);
     m_attackLabel = new QLabel(this);
     _add_knob(layout, _column, _row, "Attack",m_attack, m_attackLabel);
@@ -108,8 +115,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     releaseChanged(m_release->value());
     
     _column++;
-    
-        
+            
     m_timbre  =  _get_knob(pitch);  //newQDial(  39, 136,  1,  82); // s * 100
     m_timbreLabel  = new QLabel(this);
     _add_knob(layout, _column, _row, "Timbre",m_timbre, m_timbreLabel);
@@ -130,31 +136,34 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_dist  = newQDial(  -6, 36,  1,  -6); 
     m_distLabel  = new QLabel(this);
+    _add_knob(layout, _column, _row, "Dist", m_dist, m_distLabel);
+    /*
     layout->addWidget(new QLabel("Dist",     this), 0, 7, Qt::AlignCenter);
     layout->addWidget(m_dist,  1, 7);
     layout->addWidget(m_distLabel,  2, 7, Qt::AlignCenter);
+    */
     connect(m_dist,  SIGNAL(valueChanged(int)), this, SLOT(distChanged(int)));
     distChanged (m_dist ->value());
     
     _column++;
     
-    /*Start a new row
-    _row++;
-    _column = 0;
+    /*Start a new row*/
+    //_row++;
+    //_column = 0;
     
-     add some GUI elements
+    //add more stuff here
     
-    _column++;
-    */
+    //_column++;
+    
     
     /*This is the test button for playing a note without a keyboard, you should remove this before distributing your plugin*/
     
     QPushButton *testButton = new QPushButton("Test", this);
     connect(testButton, SIGNAL(pressed()), this, SLOT(test_press()));
-    connect(testButton, SIGNAL(released()), this, SLOT(test_release()));
-    
+    connect(testButton, SIGNAL(released()), this, SLOT(test_release()));    
     /*This adds the test button below the last column*/
     layout->addWidget(testButton, (_row + 4), _column, Qt::AlignCenter);
+    
     
     /*End test button code, DO NOT remove the code below this*/
 
@@ -173,17 +182,14 @@ SynthGUI::_add_knob(QGridLayout * _layout, int position_x, int position_y, std::
     QLabel * _label)
 {    
     int _real_pos_y = (position_y) * 3;  // + 1;  ????
-    
-    cerr << "gui _add_knob _real_pos_y == " << _real_pos_y << endl;
-    
     _layout->addWidget(new QLabel(QString::fromStdString(_label_text),     this), (_real_pos_y), position_x, Qt::AlignCenter);    
-    cerr << "gui _add_knob addWidget new QLabel " << endl;
-    
     _layout->addWidget(_knob,  (_real_pos_y + 1), position_x);
-    cerr << "gui _add_knob addWidget _knob " << endl;
-    
-    _layout->addWidget(_label,  (_real_pos_y + 2), position_x, Qt::AlignCenter);        
-    cerr << "gui _add_knob addWidget _label " << endl;    
+    _layout->addWidget(_label,  (_real_pos_y + 2), position_x, Qt::AlignCenter);     
+}
+
+void _add_groupbox(QGridLayout * _layout, int position_x, int position_y, QGroupBox * _groupbox)
+{
+    _layout->addWidget(_groupbox, position_y, position_x, Qt::AlignCenter);
 }
 
 
@@ -211,6 +217,16 @@ QDial * SynthGUI::_get_knob(_knob_type _ktype)
     
 }
 
+QCheckBox * SynthGUI::_get_checkbox(std::string _text)
+{
+    QCheckBox * _checkbox = new QCheckBox(this);
+    
+    _checkbox->setText(QString::fromStdString(_text));
+    
+    //TODO:  add a skin to make it look like a toggle-switch
+        
+    return _checkbox;
+}
 
 void
 SynthGUI::setAttack(float sec)
@@ -285,7 +301,8 @@ void SynthGUI::_changed_pitch(int value, QLabel * _label, int _port)
     
     float _f_value = float(value);
     float _hz = _pit_midi_note_to_hz(_f_value);
-    _label->setText(QString("%1 hz").arg(_hz));
+    
+    _label->setText(QString("%1 hz").arg((int)_hz));
     
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", _port, _f_value);
@@ -337,15 +354,7 @@ SynthGUI::timbreChanged(int value)
 void
 SynthGUI::resChanged(int value)
 {
-    _changed_decibels(value, m_resLabel, LTS_PORT_RES);
-    
-    /*
-    float val = float(value); // / 100.0;
-    m_resLabel->setText(QString("%1").arg(val));
-
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_RES, val);
-    }*/
+    _changed_decibels(value, m_resLabel, LTS_PORT_RES);    
 }
 
 void
@@ -403,8 +412,9 @@ SynthGUI::newQDial( int minValue, int maxValue, int pageStep, int value )
     dial->setMaximum( maxValue );
     dial->setPageStep( pageStep );
     dial->setValue( value );
-    dial->setNotchesVisible(true);
-    dial->setGeometry(0,0,30,30);
+    dial->setNotchesVisible(true);    
+    dial->setMaximumHeight(66);
+    dial->setMaximumWidth(66);
     return dial;
 }
 
