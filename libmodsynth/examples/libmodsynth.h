@@ -1,8 +1,14 @@
 /* 
  * File:   libmodsynth.h
- * Author: vm-user
- *
- * Created on January 7, 2012, 7:26 PM
+ This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
  */
 
 #ifndef LIBMODSYNTH_H
@@ -15,7 +21,7 @@ extern "C" {
 #include <stdio.h>
 #include "constants.h"
     
-/*includes for any libmodsynth components*/
+/*includes for any libmodsynth components you'll be using*/
 #include "libmodsynth/lib/osc_core.h"
 #include "libmodsynth/lib/pitch_core.h"
 #include "libmodsynth/modules/oscillator/osc_simple.h"
@@ -27,7 +33,7 @@ extern "C" {
 
     
 /*Declare any static variables that should be used globally in LibModSynth
- Note that any constants not requiring dynamically generated data should 
+ Note that any constants not requiring dynamically generated data should be declared in constants.h
  */
 static float _sr_recip;
 static float _sample_rate;

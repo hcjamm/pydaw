@@ -1,13 +1,17 @@
 /* -*- c-basic-offset: 4 -*-  vi:set ts=8 sts=4 sw=4: */
 
-/* less_trivial_synth.c
+/* synth.c
 
-   DSSI Soft Synth Interface
-   Constructed by Chris Cannam, Steve Harris and Sean Bolton
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
 
-   This is an example DSSI synth plugin written by Steve Harris.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-   This example file is in the public domain.
+   
 */
 
 #ifdef HAVE_CONFIG_H
@@ -40,69 +44,25 @@
 #define LMS_DIST 7
 #define LMS_COUNT 8 /* must be 1 + highest value above */
 
-//#define POLYPHONY   74
 #define POLYPHONY   8
 #define MIDI_NOTES  128
 #define STEP_SIZE   16
 
 #define GLOBAL_GAIN 0.25f
 
-#define TABLE_MODULUS 1024
-#define TABLE_SIZE    (TABLE_MODULUS + 1)
-#define TABLE_MASK    (TABLE_MODULUS - 1)
-
-#define FP_IN(x) (x.part.in & TABLE_MASK)
-#define FP_FR(x) ((float)x.part.fr * 0.0000152587890625f)
-#define FP_OMEGA(w) ((double)TABLE_MODULUS * 65536.0 * (w));
-
-#define LERP(f,a,b) ((a) + (f) * ((b) - (a)))
-
 long int lrintf (float x);
 
 static LADSPA_Descriptor *ltsLDescriptor = NULL;
 static DSSI_Descriptor *ltsDDescriptor = NULL;
-
-//static float *table[2];
-
-/*
-typedef enum {
-    inactive = 0,
-    attack,
-    decay,
-    sustain,
-    release
-} state_t;
-*/
 
 typedef enum {
     off = 0,    
     running
 } note_state;
 
-
-typedef union {
-    uint32_t all;
-    struct {
-#ifdef WORDS_BIGENDIAN
-	uint16_t in;
-	uint16_t fr;
-#else
-	uint16_t fr;
-	uint16_t in;
-#endif
-    } part;
-} fixp;
-
 typedef struct {
-    //state_t state;
     int     note;
     float   amp;
-    //float   env;
-    //float   env_d;
-    fixp    phase;
-    int     counter;
-    int     next_event;
-    /*LibModSynth additions*/
     float note_f;
     float osc_inc;
     float hz;
@@ -110,8 +70,7 @@ typedef struct {
     note_state n_state;
 } voice_data;
 
-typedef struct {
-    /*LADSPA_Data tune;*/
+typedef struct {    
     LADSPA_Data attack;
     LADSPA_Data decay;
     LADSPA_Data sustain;
@@ -134,10 +93,8 @@ typedef struct {
     LADSPA_Data *dist;
     LADSPA_Data pitch;
     voice_data data[POLYPHONY];
-    int note2voice[MIDI_NOTES];
-    fixp omega[MIDI_NOTES];
+    int note2voice[MIDI_NOTES];    
     float fs;
-    LADSPA_Data previous_timbre;
     /*LibModSynth additions*/
     float pitch_bend_amount;
 } LTS;
@@ -149,7 +106,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 static void run_voice(LTS *p, synth_vals *vals, voice_data *d,
 		      LADSPA_Data *out, unsigned int count);
 
-int pick_voice(const voice_data *data);
+int pick_voice(const voice_data *data, int);
 
 const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
 {
@@ -186,9 +143,6 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
     case LMS_OUTPUT:
 	plugin->output = data;
 	break;
-    /*case LMS_FREQ:
-	plugin->tune = data;
-	break;*/
     case LMS_ATTACK:
 	plugin->attack = data;
 	break;
@@ -216,8 +170,6 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
 static LADSPA_Handle instantiateLTS(const LADSPA_Descriptor * descriptor,
 				   unsigned long s_rate)
 {
-    //unsigned int i;
-
     LTS *plugin_data = (LTS *) malloc(sizeof(LTS));
     
     plugin_data->fs = s_rate;
@@ -236,7 +188,6 @@ static void activateLTS(LADSPA_Handle instance)
     unsigned int i;
 
     for (i=0; i<POLYPHONY; i++) {
-	//plugin_data->data[i].state = inactive;
         plugin_data->data[i].n_state = off;
         plugin_data->data[i]._voice = _poly_init();
     }
@@ -266,12 +217,12 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     unsigned long event_pos;
     unsigned long voice;
 
-    vals.attack = *(plugin_data->attack);    //  * plugin_data->fs
-    vals.decay = *(plugin_data->decay);   //  * plugin_data->fs;
-    vals.sustain = *(plugin_data->sustain);   // * 0.01f;
-    vals.release = *(plugin_data->release);  //  * plugin_data->fs;
+    vals.attack = *(plugin_data->attack);
+    vals.decay = *(plugin_data->decay); 
+    vals.sustain = *(plugin_data->sustain);
+    vals.release = *(plugin_data->release);
     vals.timbre = *(plugin_data->timbre);
-    vals.pitch = plugin_data->pitch;
+    vals.pitch = 0; 
     vals.res = *(plugin_data->res);
     vals.dist = *(plugin_data->dist);
 
@@ -291,8 +242,8 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 
 		if (n.velocity > 0) 
                 {
-		    const int voice = pick_voice(data);
-
+		    const int voice = pick_voice(data, n.note);
+                    
 		    plugin_data->note2voice[n.note] = voice;
 		    data[voice].note = n.note;
 		    data[voice].amp = _db_to_linear((n.velocity * 0.157480315) - 20) *  GLOBAL_GAIN; //-20db to 0db
@@ -344,9 +295,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                 /*Inactivate the voice if it's not already inactive*/		
                 if(data[voice].n_state != off)
                 {                    
-                    /*LibModSynth additions*/
-                    //data[voice].n_state = note_off;
-                    
+                    /*LibModSynth additions*/                    
                     _poly_note_off(data[voice]._voice);
                                         
                     printf("note_off\n");
@@ -355,11 +304,11 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
             /*Pitch-bend sequencer event, modify the voices pitch*/
             else if (events[event_pos].type == SND_SEQ_EVENT_PITCHBEND) 
             {
-                /*TODO:  integrate this part into the LibModSynth
-                 system of doing things*/
-		vals.pitch =
-		    powf(2.0f, (float)(events[event_pos].data.control.value)
-			 * 0.0001220703125f * 0.166666666f);
+		vals.pitch = 0.000061035 //TODO:  Make this a "pitchbend amount" variable, and double-check that it is a 15 bit message
+                        * events[event_pos].data.control.value;
+                printf("%f", vals.pitch);
+		    /*powf(2.0f, (float)(events[event_pos].data.control.value)
+			 * 0.0001220703125f * 0.166666666f);*/
 		plugin_data->pitch = vals.pitch;
 	    }
 	    event_pos++;
@@ -417,7 +366,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         float _result = _get_saw(d->_voice->_osc_core_test); //Get a saw oscillator
         
-        _result += _run_w_noise(d->_voice->_w_noise);
+        _result += _run_w_noise(d->_voice->_w_noise) * .5;
         
         /*Run any processing of the initial result(s)*/      
         
@@ -425,14 +374,13 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         _adsr_run(d->_voice->_adsr_filter);
         
-        _svf_set_cutoff(d->_voice->_svf_filter, ((vals->timbre) + ((d->_voice->_adsr_filter->output) * 60)) );
-        //_svf_set_cutoff(_svf_filter, vals->timbre); //this must be run every clock cycle because the cutoff is smoothed internally
-                
+        _svf_set_cutoff(d->_voice->_svf_filter, ((vals->timbre) + ((d->_voice->_adsr_filter->output) * 24)) );
+                        
         _svf_set_input_value(d->_voice->_svf_filter, _result); //run it through the filter
                 
-        //_result = _clp_clip(d->_voice->_clipper1, d->_voice->_svf_filter->_lp); //run the lowpass filter output through a hard-clipper
+        _result = _clp_clip(d->_voice->_clipper1, d->_voice->_svf_filter->_lp); //run the lowpass filter output through a hard-clipper
         
-        _result = (d->_voice->_svf_filter->_lp);
+        //_result = (d->_voice->_svf_filter->_lp);
         
         /*Run the envelope and assign to the output buffer*/
         out[i] += _result *  (d->_voice->_adsr_amp->output); //(d->env) ; // * (d->amp);
@@ -472,19 +420,29 @@ int getControllerLTS(LADSPA_Handle instance, unsigned long port)
 }
 
 /* Original comment:  find the voice that is least relevant (low note priority)*/
-/*libmodsynth comment:  *data is an array of voices in an LTS struct,
+/*libmodsynth comment:  *data is an array of voices in an LMS struct,
  iterate through them for a free voice, or if one cannot be found,
  pick the highest voice*/
-int pick_voice(const voice_data *data)
+int pick_voice(const voice_data *data, int _current_note)
 {
     unsigned int i;
     int highest_note = 0;
     int highest_note_voice = 0;
-
+    
+    /*Look for the voice being played by the current note.
+     It's more musical to kill the same note than to let it play twice,
+     guitars, pianos, etc... work that way.*/    
+    for (i=0; i<POLYPHONY; i++) {
+	if (data[i].note == _current_note) {
+            printf("pick_voice found current_note");
+	    return i;
+	}
+    }
+    
     /* Look for an inactive voice */
     for (i=0; i<POLYPHONY; i++) {
-        //if (data[i].state == inactive) {
 	if (data[i].n_state == off) {
+            printf("pick_voice found inactive voice %i", i);
 	    return i;
 	}
     }
@@ -494,6 +452,7 @@ int pick_voice(const voice_data *data)
 	if (data[i].note > highest_note) {
 	    highest_note = data[i].note;
 	    highest_note_voice = i;
+            printf("pick_voice found highest voice %i", i);
 	}
     }
 
@@ -508,18 +467,9 @@ __attribute__((constructor)) void init()
 void _init()
 #endif
 {
-    //unsigned int i;
     char **port_names;
-    //float *sin_table;
     LADSPA_PortDescriptor *port_descriptors;
     LADSPA_PortRangeHint *port_range_hints;
-
-    /*sin_table = malloc(sizeof(float) * TABLE_SIZE);
-    for (i=0; i<TABLE_SIZE; i++) {
-	sin_table[i] = sin(2.0 * M_PI * (double)i / (double)TABLE_MODULUS);
-    }*/
-//    table[0] = sin_table;
-//    table[1] = saw_table;
 
     ltsLDescriptor =
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
@@ -551,14 +501,6 @@ void _init()
 	port_descriptors[LMS_OUTPUT] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
 	port_names[LMS_OUTPUT] = "Output";
 	port_range_hints[LMS_OUTPUT].HintDescriptor = 0;
-
-	/* Parameters for tune */
-	/*port_descriptors[LMS_FREQ] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_FREQ] = "A tuning (Hz)";
-	port_range_hints[LMS_FREQ].HintDescriptor = LADSPA_HINT_DEFAULT_440 |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FREQ].LowerBound = 410;
-	port_range_hints[LMS_FREQ].UpperBound = 460;*/
 
 	/* Parameters for attack */
 	port_descriptors[LMS_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;

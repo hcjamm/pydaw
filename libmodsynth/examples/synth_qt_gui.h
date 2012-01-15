@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #include <QDial>
 #include <QLabel>
 #include <QLayout>
+#include <QCheckBox>
 
 #include <string>
 #include <stdlib.h>
@@ -88,7 +89,8 @@ protected:
     
     void _add_knob(QGridLayout * _layout, int position_x, int position_y, std::string _label_text, QDial * _knob,
     QLabel * _label);
-
+    
+    QCheckBox * _get_checkbox(std::string _text);
     
     void _changed_seconds(int, QLabel *, int);
     void _changed_pitch(int, QLabel *, int);
