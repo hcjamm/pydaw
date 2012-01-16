@@ -286,15 +286,15 @@ SynthGUI::SynthGUI(const char * host, const char * port,
 void SynthGUI::_add_knob(QGridLayout * _layout, int position_x, int position_y, QString _label_text, QDial * _knob,
     QLabel * _label)
 {    
-    int _real_pos_y = (position_y) * 3;  // + 1;  ????
+    //int _real_pos_y = (position_y) * 3;  // + 1;  ????
     QLabel * _knob_title = new QLabel(_label_text,  this);
     _knob_title->setMinimumWidth(60);
     _knob_title->setAlignment(Qt::AlignCenter);
     _knob_title->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");
     
-    _layout->addWidget(_knob_title, (_real_pos_y), position_x, Qt::AlignCenter);    
-    _layout->addWidget(_knob,  (_real_pos_y + 1), position_x);
-    _layout->addWidget(_label,  (_real_pos_y + 2), position_x, Qt::AlignCenter);     
+    _layout->addWidget(_knob_title, position_y, position_x, Qt::AlignCenter);    
+    _layout->addWidget(_knob,  (position_y + 1), position_x);
+    _layout->addWidget(_label,  (position_y + 2), position_x, Qt::AlignCenter);     
 }
 
 QGroupBox * SynthGUI::_newGroupBox(QString _title, QWidget * _parent)
