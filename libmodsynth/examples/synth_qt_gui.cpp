@@ -22,6 +22,15 @@ GNU General Public License for more details.
 #include <iostream>
 #include <unistd.h>
 
+#include <qt4/QtGui/qgroupbox.h>
+#include <qt4/QtGui/qlayout.h>
+#include <qt4/QtGui/qlabel.h>
+#include <qt4/QtGui/qgridlayout.h>
+#include <QFormLayout>
+#include <qt4/QtGui/qboxlayout.h>
+#include <QGroupBox>
+#include <qt4/QtGui/qdial.h>
+
 #include <stdlib.h>
 #include "libmodsynth/lib/amp.h"
 #include "libmodsynth/lib/pitch_core.h"
@@ -31,21 +40,13 @@ GNU General Public License for more details.
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/SM/SMlib.h>
-#include <qt4/QtGui/qgroupbox.h>
-#include <qt4/QtGui/qlayout.h>
-#include <qt4/QtGui/qlabel.h>
-#include <qt4/QtGui/qgridlayout.h>
-//#include <qt4/QtGui/qformlayout.h>
-#include <QFormLayout>
-#include <qt4/QtGui/qboxlayout.h>
-#include <QGroupBox>
 
 static int handle_x11_error(Display *dpy, XErrorEvent *err)
 {
     char errstr[256];
     XGetErrorText(dpy, err->error_code, errstr, 256);
     if (err->error_code != BadWindow) {
-	std::cerr << "less_trivial_synth_qt_gui: X Error: "
+	std::cerr << "synth_qt_gui: X Error: "
 		  << errstr << " " << err->error_code
 		  << "\nin major opcode:  " << err->request_code << std::endl;
     }
@@ -63,10 +64,11 @@ using std::endl;
 #define LTS_PORT_TIMBRE  5
 #define LTS_PORT_RES  6
 #define LTS_PORT_DIST  7
-#define LTS_PORT_ATTACK_F  8
-#define LTS_PORT_DECAY_F   9
-#define LTS_PORT_SUSTAIN_F 10
-#define LTS_PORT_RELEASE_F 11
+#define LTS_PORT_FILTER_ATTACK  8
+#define LTS_PORT_FILTER_DECAY   9
+#define LTS_PORT_FILTER_SUSTAIN 10
+#define LTS_PORT_FILTER_RELEASE 11
+#define LTS_PORT_NOISE_AMP 12
 
 lo_server osc_server = 0;
 
@@ -100,7 +102,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     
     /*The amplitude ADSR GroupBox*/
-    QGroupBox * _gb_adsr = _newGroupBox("ADSR", this);
+    QGroupBox * _gb_adsr = _newGroupBox("ADSR Amp", this);
     QGridLayout *_gb_adsr_layout = new QGridLayout(_gb_adsr);
     
     int _gb_layout_row = 0;
@@ -138,8 +140,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         
     _gb_layout_column++;
     
-    layout->addWidget(_gb_adsr, _row, _column, Qt::AlignCenter);
-    
+    layout->addWidget(_gb_adsr, _row, _column, Qt::AlignCenter);    
     
     _column++;
     
@@ -172,6 +173,54 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _column++;
     
     
+    /*The filter ADSR GroupBox*/
+    QGroupBox * _gb_adsr_f = _newGroupBox("ADSR Filter", this);
+    QGridLayout *_gb_adsr_f_layout = new QGridLayout(_gb_adsr_f);
+    
+    _gb_layout_row = 0;
+    _gb_layout_column = 0;
+    
+    m_filter_attack = _get_knob(zero_to_one);
+    m_filter_attackLabel = _newQLabel(this);
+    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Attack",m_filter_attack, m_filter_attackLabel);
+    if(!connect(m_filter_attack,   SIGNAL(valueChanged(int)), this, SLOT(filterAttackChanged(int))))
+    {
+        cerr << "m_filter_attack connect failed\n";
+    }
+    filterAttackChanged  (m_filter_attack  ->value());
+    
+    _gb_layout_column++;
+        
+    m_filter_decay   =  _get_knob(zero_to_one); //newQDial(  1, 100,  1,  25); // s * 100
+    m_filter_decayLabel   = _newQLabel(this);
+    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Decay",m_filter_decay, m_filter_decayLabel);
+    connect(m_filter_decay,   SIGNAL(valueChanged(int)), this, SLOT(filterDecayChanged(int)));
+    filterDecayChanged  (m_filter_decay ->value());
+    
+    _gb_layout_column++;
+    
+    m_filter_sustain =  _get_knob(zero_to_one); // newQDial(  0, 100,  1,  75); // %
+    m_filter_sustainLabel = _newQLabel(this);
+    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Sustain", m_filter_sustain, m_filter_sustainLabel);
+    connect(m_filter_sustain, SIGNAL(valueChanged(int)), this, SLOT(filterSustainChanged(int)));
+    filterSustainChanged(m_filter_sustain->value());
+    
+    _gb_layout_column++;
+    
+    m_filter_release = _get_knob(zero_to_four); //newQDial(  1, 400, 10, 200); // s * 100
+    m_filter_releaseLabel = _newQLabel(this);
+    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Release", m_filter_release, m_filter_releaseLabel);
+    connect(m_filter_release, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));    
+    filterReleaseChanged(m_filter_release->value());
+        
+    _gb_layout_column++;
+    
+    layout->addWidget(_gb_adsr_f, _row, _column, Qt::AlignCenter);    
+    
+    
+    _column++;
+    
+    
     /*The Distortion GroupBox*/
     QGroupBox * _gb_dist = _newGroupBox("Distortion", this);    
     QGridLayout *_gb_dist_layout = new QGridLayout(_gb_dist);
@@ -190,55 +239,28 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     _column++;
     
-    /*Start a new row*/
-    _row++;
-    _column = 0;
     
-    
-    /*The filter ADSR GroupBox*/
-    QGroupBox * _gb_adsr_f = _newGroupBox("ADSR Filter", this);
-    QGridLayout *_gb_adsr_f_layout = new QGridLayout(_gb_adsr_f);
+    /*The Noise Amp GroupBox*/
+    QGroupBox * _gb_noise_amp = _newGroupBox("Noise", this);    
+    QGridLayout *_gb_noise_amp_layout = new QGridLayout(_gb_noise_amp);
     
     _gb_layout_row = 0;
     _gb_layout_column = 0;
     
-    m_attack_f = _get_knob(zero_to_one);
-    m_attackLabel_f = _newQLabel(this);
-    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Attack",m_attack_f, m_attackLabel_f);
-    connect(m_attack_f,   SIGNAL(valueChanged(int)), this, SLOT(attack_fChanged(int)));
-    attack_fChanged  (m_attack_f  ->value());
     
-    _gb_layout_column++;
-        
-    m_decay_f   =  _get_knob(zero_to_one); //newQDial(  1, 100,  1,  25); // s * 100
-    m_decayLabel_f   = new QLabel(this);
-    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Decay",m_decay_f, m_decayLabel_f);
-    connect(m_decay_f,   SIGNAL(valueChanged(int)), this, SLOT(decay_fChanged(int)));
-    decay_fChanged  (m_decay_f ->value());
+    m_noise_amp  = _get_knob(decibels_0);
+    m_noise_ampLabel  = new QLabel(this);
+    _add_knob(_gb_noise_amp_layout, _column, _row, "Vol", m_noise_amp, m_noise_ampLabel);
+    connect(m_noise_amp,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
+    noiseAmpChanged (m_dist ->value());
     
-    _gb_layout_column++;
-    
-    m_sustain_f =  _get_knob(decibels_0); // newQDial(  0, 100,  1,  75); // %
-    m_sustainLabel_f = new QLabel(this);
-    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Sustain", m_sustain_f, m_sustainLabel_f);
-    connect(m_sustain_f, SIGNAL(valueChanged(int)), this, SLOT(sustain_fChanged(int)));
-    sustain_fChanged(m_sustain_f->value());
-    
-    _gb_layout_column++;
-    
-    m_release_f = _get_knob(zero_to_four); //newQDial(  1, 400, 10, 200); // s * 100
-    m_releaseLabel_f = new QLabel(this);
-    _add_knob(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Release", m_release_f, m_releaseLabel_f);
-    connect(m_release_f, SIGNAL(valueChanged(int)), this, SLOT(release_fChanged(int)));
-    release_fChanged(m_release_f->value());
-        
-    _gb_layout_column++;
-    
-    layout->addWidget(_gb_adsr_f, _row, _column, Qt::AlignCenter);    
-    
-    
+    layout->addWidget(_gb_noise_amp, _row, _column, Qt::AlignCenter);
     
     _column++;
+    
+    /*Start a new row*/
+    //_row++;
+    //_column = 0;
     
     
     /*This is the test button for playing a note without a keyboard, you should remove this before distributing your plugin*/
@@ -334,7 +356,8 @@ QDial * SynthGUI::newQDial( int minValue, int maxValue, int pageStep, int value 
     dial->setMaximum( maxValue );
     dial->setPageStep( pageStep );
     dial->setValue( value );
-    dial->setNotchesVisible(true);    
+    dial->setNotchesVisible(false); 
+    //TODO:  Make this a constant value
     dial->setMaximumHeight(66);
     dial->setMaximumWidth(66);
     
@@ -360,7 +383,7 @@ void SynthGUI::setDecay(float sec)
 void SynthGUI::setSustain(float val)
 {
     m_suppressHostUpdate = true;
-    m_sustain->setValue(int(val) * 100);
+    m_sustain->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
@@ -392,36 +415,58 @@ void SynthGUI::setDist(float val)
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setAttack_f (float sec)
-{
+void SynthGUI::setFilterAttack (float sec)
+{    
     m_suppressHostUpdate = true;
-    m_attack_f->setValue(int(sec * 100));
+    m_filter_attack->setValue(int(sec * 100));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setDecay_f  (float sec)
+void SynthGUI::setFilterDecay  (float sec)
 {
     m_suppressHostUpdate = true;
-    m_decay_f->setValue(int(sec * 100));
+    m_filter_decay->setValue(int(sec * 100));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setSustain_f(float val)
+void SynthGUI::setFilterSustain(float val)
 {
     m_suppressHostUpdate = true;
-    m_sustain_f->setValue(int(val * 100));
+    m_filter_sustain->setValue(int(val * 100));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setRelease_f(float sec)
+void SynthGUI::setFilterRelease(float sec)
 {
     m_suppressHostUpdate = true;
-    m_release_f->setValue(int(sec * 100));
+    m_filter_release->setValue(int(sec * 100));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setNoiseAmp(float val)
+{
+    m_suppressHostUpdate = true;
+    m_noise_amp->setValue(val);
     m_suppressHostUpdate = false;
 }
 
 /*Standard handlers for the audio slots, these perform manipulations of knob values
  that are common in audio applications*/
+
+void SynthGUI::_changed_zero_to_x(int value, QLabel * _label, int _port)
+{
+    float val = float(value) * .01;
+    _label->setText(QString("%1").arg(val));
+    
+    if (!m_suppressHostUpdate) {
+	lo_send(m_host, m_controlPath, "if", _port, val);
+        cerr << "m_suppressHostUpdate == FALSE\n";
+    }
+    else
+    {
+        cerr << "m_suppressHostUpdate == TRUE\n";
+    }
+}
 
 void SynthGUI::_changed_seconds(int value, QLabel * _label, int _port)
 {
@@ -430,6 +475,11 @@ void SynthGUI::_changed_seconds(int value, QLabel * _label, int _port)
     
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", _port, sec);
+        cerr << "m_suppressHostUpdate == FALSE\n";
+    }
+    else
+    {
+        cerr << "m_suppressHostUpdate == TRUE\n";
     }
 }
 
@@ -445,6 +495,11 @@ void SynthGUI::_changed_pitch(int value, QLabel * _label, int _port)
     
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", _port, _f_value);
+        cerr << "m_suppressHostUpdate == FALSE\n";
+    }
+    else
+    {
+        cerr << "m_suppressHostUpdate == TRUE\n";
     }
 }
 
@@ -455,6 +510,11 @@ void SynthGUI::_changed_decibels(int value, QLabel * _label, int _port)
     
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", _port, float(value));
+        cerr << "m_suppressHostUpdate == FALSE\n";
+    }
+    else
+    {
+        cerr << "m_suppressHostUpdate == TRUE\n";
     }
 }
 
@@ -502,32 +562,36 @@ void SynthGUI::distChanged(int value)
 }
 
 
-void SynthGUI::attack_fChanged(int value)
+void SynthGUI::filterAttackChanged(int value)
 {
-    _changed_seconds(value,m_attackLabel_f,LTS_PORT_ATTACK_F);
+    _changed_seconds(value,m_filter_attackLabel,LTS_PORT_FILTER_ATTACK);
 }
 
 void
-SynthGUI::decay_fChanged(int value)
+SynthGUI::filterDecayChanged(int value)
 {
-    _changed_seconds(value,m_decayLabel_f,LTS_PORT_DECAY_F);
+    _changed_seconds(value,m_filter_decayLabel,LTS_PORT_FILTER_DECAY);
 }
 
-void SynthGUI::sustain_fChanged(int value)
+void SynthGUI::filterSustainChanged(int value)
 {
-    _changed_decibels(value, m_sustainLabel_f, LTS_PORT_SUSTAIN_F);    
+    _changed_zero_to_x(value, m_filter_sustainLabel, LTS_PORT_FILTER_SUSTAIN);    
 }
 
-void SynthGUI::release_fChanged(int value)
+void SynthGUI::filterReleaseChanged(int value)
 {
-    _changed_seconds(value, m_releaseLabel_f, LTS_PORT_RELEASE_F);    
+    _changed_seconds(value, m_filter_releaseLabel, LTS_PORT_FILTER_RELEASE);    
 }
 
+void SynthGUI::noiseAmpChanged(int value)
+{
+    _changed_decibels(value, m_noise_ampLabel, LTS_PORT_NOISE_AMP);
+}
 
 void SynthGUI::test_press()
 {
-    unsigned char noteon[4] = { 0x00, 0x90, 0x3C, 0x40 };
-
+    //unsigned char noteon[4] = { 0x00, 0x90, 0x3C, 0x40 };
+    unsigned char noteon[4] = { 0x00, 0x90, 0x2A, 0x40 };
     lo_send(m_host, m_midiPath, "m", noteon);
 }
 
@@ -540,7 +604,7 @@ void SynthGUI::oscRecv()
 
 void SynthGUI::test_release()
 {
-    unsigned char noteoff[4] = { 0x00, 0x90, 0x3C, 0x00 };
+    unsigned char noteoff[4] = { 0x00, 0x90, 0x2A, 0x00 };
 
     lo_send(m_host, m_midiPath, "m", noteoff);
 }
@@ -676,26 +740,30 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
 	gui->setDist(value);
 	break;
 
-    case LTS_PORT_ATTACK_F:
+    case LTS_PORT_FILTER_ATTACK:
 	cerr << "gui setting attack to " << value << endl;
-	gui->setAttack_f(value);
+	gui->setFilterAttack(value);
 	break;
 
-    case LTS_PORT_DECAY_F:
+    case LTS_PORT_FILTER_DECAY:
 	cerr << "gui setting decay to " << value << endl;
-	gui->setDecay_f(value);
+	gui->setFilterDecay(value);
 	break;
 
-    case LTS_PORT_SUSTAIN_F:
+    case LTS_PORT_FILTER_SUSTAIN:
 	cerr << "gui setting sustain to " << value << endl;
-	gui->setSustain_f(value);
+	gui->setFilterSustain(value);
 	break;
 
-    case LTS_PORT_RELEASE_F:
+    case LTS_PORT_FILTER_RELEASE:
 	cerr << "gui setting release to " << value << endl;
-	gui->setRelease_f(value);
+	gui->setFilterRelease(value);
 	break;
 
+    case LTS_PORT_NOISE_AMP:
+        cerr << "setting noise amp to " << value << endl;
+        gui->setNoiseAmp(value);
+        break;
 
     default:
 	cerr << "Warning: received request to set nonexistent port " << port << endl;

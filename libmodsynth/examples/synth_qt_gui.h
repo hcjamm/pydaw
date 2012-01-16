@@ -69,13 +69,15 @@ public slots:
     void setTimbre (float val);
     void setRes (float val);
     void setDist (float val);
+        
+    void setFilterAttack (float sec);
+    void setFilterDecay  (float sec);
+    void setFilterSustain(float val);
+    void setFilterRelease(float sec);
+    
+    void setNoiseAmp(float val);
+    
     void aboutToQuit();
-    
-    
-    void setAttack_f (float sec);
-    void setDecay_f  (float sec);
-    void setSustain_f(float val);
-    void setRelease_f(float sec);
     
 protected slots:
     /*GUI Step 3:  Event handlers for receiving changed knob values*/
@@ -86,15 +88,17 @@ protected slots:
     void timbreChanged (int);
     void resChanged (int);
     void distChanged (int);
+        
+    void filterAttackChanged (int);
+    void filterDecayChanged  (int);
+    void filterSustainChanged(int);
+    void filterReleaseChanged(int);
+    
+    void noiseAmpChanged(int);
+
     void test_press();
     void test_release();
     void oscRecv();
-    
-    void attack_fChanged (int);
-    void decay_fChanged  (int);
-    void sustain_fChanged(int);
-    void release_fChanged(int);
-
 protected:
     QDial *newQDial( int, int, int, int );
     
@@ -113,8 +117,9 @@ protected:
     void _changed_seconds(int, QLabel *, int);
     void _changed_pitch(int, QLabel *, int);
     void _changed_decibels(int, QLabel *, int);
+    void _changed_zero_to_x(int, QLabel *, int);
     
-    /*GUI Step1:  Declare a QLabel and QDial for each control (or other controls) here*/
+    /*GUI Step1:  Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
     QDial *m_attack;
     QLabel *m_attackLabel;
     QDial *m_decay;
@@ -131,15 +136,17 @@ protected:
     QLabel *m_distLabel;
     
     
-    QDial *m_attack_f;
-    QLabel *m_attackLabel_f;
-    QDial *m_decay_f;
-    QLabel *m_decayLabel_f;    
-    QDial *m_sustain_f;
-    QLabel *m_sustainLabel_f;
-    QDial *m_release_f;
-    QLabel *m_releaseLabel_f;    
+    QDial *m_filter_attack;
+    QLabel *m_filter_attackLabel;
+    QDial *m_filter_decay;
+    QLabel *m_filter_decayLabel;    
+    QDial *m_filter_sustain;
+    QLabel *m_filter_sustainLabel;
+    QDial *m_filter_release;
+    QLabel *m_filter_releaseLabel;    
     
+    QDial *m_noise_amp;
+    QLabel *m_noise_ampLabel;
 
     lo_address m_host;
     QByteArray m_controlPath;
