@@ -10,8 +10,11 @@
         <in>dssi.h</in>
       </df>
       <df name="examples">
+        <df name=".libs">
+          <in>synth.lai</in>
+        </df>
         <df name="libmodsynth">
-          <df name="gui">
+          <df name="doc">
           </df>
           <df name="lib">
             <df name="tables-sinc">
@@ -51,6 +54,11 @@
               <in>switch.h</in>
             </df>
           </df>
+          <df name="widgets">
+            <df name="keyboard">
+            </df>
+            <in>keyboard.h</in>
+          </df>
         </df>
         <in>constants.h</in>
         <in>dssi_analyse_plugin.c</in>
@@ -64,6 +72,8 @@
         <in>synth_qt_gui.moc.cpp</in>
       </df>
       <df name="jack-dssi-host">
+        <df name=".libs">
+        </df>
         <in>jack-dssi-host.c</in>
         <in>jack-dssi-host.h</in>
       </df>
@@ -77,6 +87,7 @@
         <in>controller.c</in>
       </df>
       <in>config.h</in>
+      <in>key.h</in>
     </df>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

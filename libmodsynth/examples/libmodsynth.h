@@ -30,7 +30,11 @@ extern "C" {
 #include "libmodsynth/modules/distortion/clipper.h"
 #include "libmodsynth/modules/modulation/adsr.h"
    
-
+/*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
+ require less CPU time than running through if or switch statements.
+ Functions from the library that have their own parameters (such as a pointer to 
+ their associated struct type as a parameter) should declare their own function pointer types*/
+typedef float (*_funcptr_audio_generic)();
     
 /*Declare any static variables that should be used globally in LibModSynth
  Note that any constants not requiring dynamically generated data should be declared in constants.h
@@ -43,8 +47,7 @@ void _init_lms(float _sr);
 void _init_lms(float _sr)
 {
     _sample_rate = _sr;
-    _sr_recip = 1/_sr;
-    
+    _sr_recip = 1/_sr;    
 }
 
 /*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
@@ -60,7 +63,8 @@ typedef struct _poly_voice
     clipper * _clipper1;
     adsr * _adsr_filter;
     white_noise * _w_noise;
-    adsr * _adsr_amp;
+    adsr * _adsr_amp;       
+    float _noise_amp;
 }poly_voice;
 
 poly_voice * _poly_init();
@@ -79,8 +83,7 @@ poly_voice * _poly_init()
     _clp_set_clip_sym(_voice->_clipper1, -6);
     _clp_set_in_gain(_voice->_clipper1, 12);
     
-    _voice->_adsr_amp = _adsr_get_adsr(_sr_recip);
-    
+    _voice->_adsr_amp = _adsr_get_adsr(_sr_recip);    
     
     _voice->_adsr_filter = _adsr_get_adsr(_sr_recip);
     
@@ -91,6 +94,8 @@ poly_voice * _poly_init()
     _adsr_set_r_time(_voice->_adsr_filter, 1);
     
     _voice->_w_noise = _get_white_noise(_sample_rate);
+    
+    _voice->_noise_amp = 0;
         
     return _voice;
 }

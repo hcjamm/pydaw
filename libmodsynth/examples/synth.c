@@ -41,11 +41,12 @@ GNU General Public License for more details.
 #define LMS_TIMBRE  5
 #define LMS_RES  6
 #define LMS_DIST 7
-#define LMS_ATTACK_F  8
-#define LMS_DECAY_F   9
-#define LMS_SUSTAIN_F 10
-#define LMS_RELEASE_F 11
-#define LMS_COUNT 12 /* must be 1 + highest value above CHANGE THIS IF YOU ADD ANYTHING*/
+#define LMS_FILTER_ATTACK  8
+#define LMS_FILTER_DECAY   9
+#define LMS_FILTER_SUSTAIN 10
+#define LMS_FILTER_RELEASE 11
+#define LMS_NOISE_AMP 12
+#define LMS_COUNT 13 /* must be 1 + highest value above CHANGE THIS IF YOU ADD ANYTHING*/
 
 #define POLYPHONY   8  //maximum voices played at one time
 #define MIDI_NOTES  128  //Maximum MIDI note.  You probably don't want to change this
@@ -89,6 +90,8 @@ typedef struct {
     LADSPA_Data decay_f;
     LADSPA_Data sustain_f;
     LADSPA_Data release_f;
+    
+    LADSPA_Data noise_amp;
 } synth_vals;
 
 /*GUI Step 11:  Add a variable for each control in the LTS type*/
@@ -108,6 +111,8 @@ typedef struct {
     LADSPA_Data *decay_f;
     LADSPA_Data *sustain_f;
     LADSPA_Data *release_f;
+    
+    LADSPA_Data *noise_amp;
     
     voice_data data[POLYPHONY];
     int note2voice[MIDI_NOTES];    
@@ -184,18 +189,21 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
     case LMS_DIST:
 	plugin->dist = data;              
 	break;
-        case LMS_ATTACK_F:
+        case LMS_FILTER_ATTACK:
 	plugin->attack_f = data;
 	break;
-    case LMS_DECAY_F:
+    case LMS_FILTER_DECAY:
 	plugin->decay_f = data;
 	break;
-    case LMS_SUSTAIN_F:
+    case LMS_FILTER_SUSTAIN:
 	plugin->sustain_f = data;
 	break;
-    case LMS_RELEASE_F:
+    case LMS_FILTER_RELEASE:
 	plugin->release_f = data;
 	break;
+    case LMS_NOISE_AMP:
+        plugin->noise_amp = data;
+        break;
     }
 }
 
@@ -264,6 +272,8 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     vals.sustain_f = *(plugin_data->sustain_f);
     vals.release_f = *(plugin_data->release_f);
     
+    vals.noise_amp = *(plugin_data->noise_amp);
+    
     /*Events is an array of snd_seq_event_t objects, 
      event_count is the number of events,
      and sample_count is the block size          
@@ -301,10 +311,13 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     _adsr_retrigger(data[voice]._voice->_adsr_filter);
                     
                     _adsr_set_adsr_db(data[voice]._voice->_adsr_amp, (vals.attack), (vals.decay), (vals.sustain), (vals.release));
+                    _adsr_set_adsr(data[voice]._voice->_adsr_filter, (vals.attack_f), (vals.decay_f), (vals.sustain_f), (vals.release_f));
                     
                     _clp_set_in_gain(data[voice]._voice->_clipper1, vals.dist);
     
                     _svf_set_res(data[voice]._voice->_svf_filter, vals.res);  
+                    
+                    data[voice]._voice->_noise_amp = _db_to_linear((vals.noise_amp));
                     
                     printf("note_on\n");
 		} 
@@ -404,7 +417,8 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         float _result = _get_saw(d->_voice->_osc_core_test); //Get a saw oscillator
         
-        _result += _run_w_noise(d->_voice->_w_noise) * .5;
+        //Add white noise, adjusted via a knob on the panel
+        _result += _run_w_noise(d->_voice->_w_noise) * (d->_voice->_noise_amp);
         
         /*Run any processing of the initial result(s)*/      
         
@@ -439,6 +453,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 
 /*This returns MIDI CCs for the different knobs
  TODO:  Try it with non-hex numbers*/
+/*GUI Step 15:  Assign the LADSPA ports defined in step 9 to MIDI CCs in getControllerLTS*/
 int getControllerLTS(LADSPA_Handle instance, unsigned long port)
 {
     switch (port) {
@@ -452,6 +467,18 @@ int getControllerLTS(LADSPA_Handle instance, unsigned long port)
         return DSSI_CC(0x48);  //72
     case LMS_TIMBRE:
         return DSSI_CC(0x01);  //1
+    case LMS_DIST:
+        return DSSI_CC(0x14);  //20            
+    case LMS_FILTER_ATTACK:
+        return DSSI_CC(0x15);  //21
+    case LMS_FILTER_DECAY:
+        return DSSI_CC(0x16);  //22
+    case LMS_FILTER_SUSTAIN:
+        return DSSI_CC(0x17);  //23
+    case LMS_FILTER_RELEASE:
+        return DSSI_CC(0x18);  //24
+    case LMS_NOISE_AMP:
+        return DSSI_CC(0x19);
     }
 
     return DSSI_NONE;
@@ -472,7 +499,7 @@ int pick_voice(const voice_data *data, int _current_note)
      guitars, pianos, etc... work that way.  It also helps to prevent hung notes*/    
     for (i=0; i<POLYPHONY; i++) {
 	if (data[i].note == _current_note) {
-            printf("pick_voice found current_note");
+            printf("pick_voice found current_note\n");
 	    return i;
 	}
     }
@@ -480,7 +507,7 @@ int pick_voice(const voice_data *data, int _current_note)
     /* Look for an inactive voice */
     for (i=0; i<POLYPHONY; i++) {
 	if (data[i].n_state == off) {
-            printf("pick_voice found inactive voice %i", i);
+            printf("pick_voice found inactive voice %i\n", i);
 	    return i;
 	}
     }
@@ -490,7 +517,7 @@ int pick_voice(const voice_data *data, int _current_note)
 	if (data[i].note > highest_note) {
 	    highest_note = data[i].note;
 	    highest_note_voice = i;
-            printf("pick_voice found highest voice %i", i);
+            printf("pick_voice found highest voice %i\n", i);
 	}
     }
 
@@ -512,8 +539,8 @@ void _init()
     ltsLDescriptor =
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
     if (ltsLDescriptor) {
-	ltsLDescriptor->UniqueID = 24;
-	ltsLDescriptor->Label = "LTS";
+	ltsLDescriptor->UniqueID = 24;  //TODO:  Find out what this means
+	ltsLDescriptor->Label = "LTS";  //Changing this breaks the plugin, it compiles, but hangs when trying to run.  TODO:  investigate
 	ltsLDescriptor->Properties = 0;
 	ltsLDescriptor->Name = "LibModSynth example synth";
 	ltsLDescriptor->Maker = "Jeff Hubbard <libmodsynth.sourceforge.net>";
@@ -567,8 +594,8 @@ void _init()
 	port_range_hints[LMS_SUSTAIN].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_SUSTAIN].LowerBound = 0.0f;
-	port_range_hints[LMS_SUSTAIN].UpperBound = 100.0f;
+	port_range_hints[LMS_SUSTAIN].LowerBound = -60.0f;
+	port_range_hints[LMS_SUSTAIN].UpperBound = 0.0f;
 
 	/* Parameters for release */
 	port_descriptors[LMS_RELEASE] = port_descriptors[LMS_ATTACK];
@@ -613,49 +640,56 @@ void _init()
         
         
 	/* Parameters for attack_f */
-	port_descriptors[LMS_ATTACK_F] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_ATTACK_F] = "Attack time (s)";
-	port_range_hints[LMS_ATTACK_F].HintDescriptor =
+	port_descriptors[LMS_FILTER_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FILTER_ATTACK] = "Attack time (s) filter";
+	port_range_hints[LMS_FILTER_ATTACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_ATTACK_F].LowerBound = 0.01f;
-	port_range_hints[LMS_ATTACK_F].UpperBound = 1.0f;
+	port_range_hints[LMS_FILTER_ATTACK].LowerBound = 0.01f;
+	port_range_hints[LMS_FILTER_ATTACK].UpperBound = 1.0f;
 
 	/* Parameters for decay_f */
-	port_descriptors[LMS_DECAY_F] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_DECAY_F] = "Decay time (s)";
-	port_range_hints[LMS_DECAY_F].HintDescriptor =
+	port_descriptors[LMS_FILTER_DECAY] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_FILTER_DECAY] = "Decay time (s) filter";
+	port_range_hints[LMS_FILTER_DECAY].HintDescriptor =
 			port_range_hints[LMS_ATTACK].HintDescriptor;
-	port_range_hints[LMS_DECAY_F].LowerBound =
+	port_range_hints[LMS_FILTER_DECAY].LowerBound =
 			port_range_hints[LMS_ATTACK].LowerBound;
-	port_range_hints[LMS_DECAY_F].UpperBound =
+	port_range_hints[LMS_FILTER_DECAY].UpperBound =
 			port_range_hints[LMS_ATTACK].UpperBound;
 
 	/* Parameters for sustain_f */
-	port_descriptors[LMS_SUSTAIN_F] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_SUSTAIN_F] = "Sustain level (%)";
-	port_range_hints[LMS_SUSTAIN_F].HintDescriptor =
+	port_descriptors[LMS_FILTER_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FILTER_SUSTAIN] = "Sustain level (%) filter";
+	port_range_hints[LMS_FILTER_SUSTAIN].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_SUSTAIN_F].LowerBound = 0.0f;
-	port_range_hints[LMS_SUSTAIN_F].UpperBound = 100.0f;
-
+	port_range_hints[LMS_FILTER_SUSTAIN].LowerBound = 0.0f;
+	port_range_hints[LMS_FILTER_SUSTAIN].UpperBound = 1.0f;
+        
 	/* Parameters for release_f */
-	port_descriptors[LMS_RELEASE_F] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_RELEASE_F] = "Release time (s)";
-	port_range_hints[LMS_RELEASE_F].HintDescriptor =
+	port_descriptors[LMS_FILTER_RELEASE] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_FILTER_RELEASE] = "Release time (s) filter";
+	port_range_hints[LMS_FILTER_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_LOGARITHMIC |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_RELEASE_F].LowerBound =
+	port_range_hints[LMS_FILTER_RELEASE].LowerBound =
 			port_range_hints[LMS_ATTACK].LowerBound;
-	port_range_hints[LMS_RELEASE_F].UpperBound =
+	port_range_hints[LMS_FILTER_RELEASE].UpperBound =
 			port_range_hints[LMS_ATTACK].UpperBound * 4.0f;
 
         
+        /*Parameters for noise_amp*/        
+	port_descriptors[LMS_NOISE_AMP] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_NOISE_AMP] = "Dist";
+	port_range_hints[LMS_NOISE_AMP].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_NOISE_AMP].LowerBound =  -60;
+	port_range_hints[LMS_NOISE_AMP].UpperBound =  0;
         
         
-        
-
+        /*Here is where the functions in synth.c get pointed to for the host to call*/
 	ltsLDescriptor->activate = activateLTS;
 	ltsLDescriptor->cleanup = cleanupLTS;
 	ltsLDescriptor->connect_port = connectPortLTS;
@@ -670,10 +704,10 @@ void _init()
     if (ltsDDescriptor) {
 	ltsDDescriptor->DSSI_API_Version = 1;
 	ltsDDescriptor->LADSPA_Plugin = ltsLDescriptor;
-	ltsDDescriptor->configure = NULL;
-	ltsDDescriptor->get_program = NULL;
+	ltsDDescriptor->configure = NULL;  //TODO:  I think this is where the host can set plugin state, etc...
+	ltsDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
 	ltsDDescriptor->get_midi_controller_for_port = getControllerLTS;
-	ltsDDescriptor->select_program = NULL;
+	ltsDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
 	ltsDDescriptor->run_synth = runLTS;
 	ltsDDescriptor->run_synth_adding = NULL;
 	ltsDDescriptor->run_multiple_synths = NULL;
