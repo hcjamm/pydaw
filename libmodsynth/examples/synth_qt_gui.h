@@ -23,6 +23,7 @@ GNU General Public License for more details.
 #include <QLayout>
 #include <QCheckBox>
 #include <QGroupBox>
+#include <QComboBox>
 
 #include <string>
 #include <stdlib.h>
@@ -42,7 +43,11 @@ enum _knob_type
     pitch,
     zero_to_one,
     zero_to_two,
-    zero_to_four            
+    zero_to_four,     
+    minus1_to_1,
+    minus12_to_12,
+    minus24_to_24,
+    minus36_to_36
 };
 
 class SynthGUI : public QFrame
@@ -77,6 +82,19 @@ public slots:
     
     void setNoiseAmp(float val);
     
+    void setFilterEnvAmt(float val);
+    void setDistWet(float val);
+    void setOsc1Type(float val);
+    void setOsc1Pitch(float val);
+    void setOsc1Tune(float val);
+    void setOsc1Volume(float val);
+    void setOsc2Type(float val);
+    void setOsc2Pitch(float val);
+    void setOsc2Tune(float val);
+    void setOsc2Volume(float val);
+    void setMasterVolume(float val);
+    
+    
     void aboutToQuit();
     
 protected slots:
@@ -96,6 +114,20 @@ protected slots:
     
     void noiseAmpChanged(int);
 
+    
+    void filterEnvAmtChanged(int);
+    void distWetChanged(int);
+    void osc1TypeChanged(int);
+    void osc1PitchChanged(int);
+    void osc1TuneChanged(int);
+    void osc1VolumeChanged(int);
+    void osc2TypeChanged(int);
+    void osc2PitchChanged(int);
+    void osc2TuneChanged(int);
+    void osc2VolumeChanged(int);
+    void masterVolumeChanged(int);
+    
+    
     void test_press();
     void test_release();
     void oscRecv();
@@ -105,14 +137,18 @@ protected:
     QDial *_get_knob(_knob_type);
     
     //TODO:  update this to be more flexible about layout types
-    void _add_knob(QGridLayout * _layout, int position_x, int position_y, QString _label_text, QDial * _knob,    
+    void _add_widget(QGridLayout * _layout, int position_x, int position_y, QString _label_text,  QWidget * _widget,    
     QLabel * _label);
+    
+    void _add_widget_no_label(QGridLayout * _layout, int position_x, int position_y, QString _label_text, QWidget * _widget);
     
     QGroupBox * _newGroupBox(QString, QWidget *);
     
     QLabel * _newQLabel(QWidget *);
     
     QCheckBox * _get_checkbox(std::string _text);
+    
+    QComboBox * _get_combobox(QString _choices [], int _count, QWidget * _parent);
     
     void _changed_seconds(int, QLabel *, int);
     void _changed_pitch(int, QLabel *, int);
@@ -129,12 +165,17 @@ protected:
     QDial *m_release;
     QLabel *m_releaseLabel;    
     QDial *m_timbre;
-    QLabel *m_timbreLabel;    
+    QLabel *m_timbreLabel;   
+    
+    QDial *m_filter_env_amt;
+    QLabel *m_filter_env_amtLabel;  
+    
     QDial *m_res;
     QLabel *m_resLabel;    
     QDial *m_dist;
     QLabel *m_distLabel;
     
+    QDial *m_dist_wet;
     
     QDial *m_filter_attack;
     QLabel *m_filter_attackLabel;
@@ -147,7 +188,28 @@ protected:
     
     QDial *m_noise_amp;
     QLabel *m_noise_ampLabel;
-
+    
+    
+    QComboBox *m_osc1_type;
+    QDial *m_osc1_pitch;
+    QLabel *m_osc1_pitchLabel;    
+    QDial *m_osc1_tune;
+    QLabel *m_osc1_tuneLabel;
+    QDial *m_osc1_volume;
+    QLabel *m_osc1_volumeLabel;   
+    
+    QComboBox *m_osc2_type;
+    QDial *m_osc2_pitch;
+    QLabel *m_osc2_pitchLabel;    
+    QDial *m_osc2_tune;
+    QLabel *m_osc2_tuneLabel;
+    QDial *m_osc2_volume;
+    QLabel *m_osc2_volumeLabel;   
+    
+    QDial *m_master_volume;
+    QLabel *m_master_volumeLabel;       
+        
+    
     lo_address m_host;
     QByteArray m_controlPath;
     QByteArray m_midiPath;
