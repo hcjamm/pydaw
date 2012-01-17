@@ -154,6 +154,7 @@ protected:
     void _changed_pitch(int, QLabel *, int);
     void _changed_decibels(int, QLabel *, int);
     void _changed_zero_to_x(int, QLabel *, int);
+    void _changed_integer(int value, QLabel * _label, int _port);
     
     /*GUI Step1:  Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
     QDial *m_attack;
