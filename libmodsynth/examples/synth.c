@@ -46,7 +46,18 @@ GNU General Public License for more details.
 #define LMS_FILTER_SUSTAIN 10
 #define LMS_FILTER_RELEASE 11
 #define LMS_NOISE_AMP 12
-#define LMS_COUNT 13 /* must be 1 + highest value above CHANGE THIS IF YOU ADD ANYTHING*/
+#define LMS_FILTER_ENV_AMT 13
+#define LMS_DIST_WET 14
+#define LMS_OSC1_TYPE 15
+#define LMS_OSC1_PITCH 16
+#define LMS_OSC1_TUNE 17
+#define LMS_OSC1_VOLUME 18
+#define LMS_OSC2_TYPE 19
+#define LMS_OSC2_PITCH 20
+#define LMS_OSC2_TUNE 21
+#define LMS_OSC2_VOLUME 22
+#define LMS_MASTER_VOLUME 23
+#define LMS_COUNT 24 /* must be 1 + highest value above CHANGE THIS IF YOU ADD ANYTHING*/
 
 #define POLYPHONY   8  //maximum voices played at one time
 #define MIDI_NOTES  128  //Maximum MIDI note.  You probably don't want to change this
@@ -91,6 +102,20 @@ typedef struct {
     LADSPA_Data sustain_f;
     LADSPA_Data release_f;
     
+    LADSPA_Data osc1pitch;
+    LADSPA_Data osc1tune;
+    LADSPA_Data osc1type;
+    LADSPA_Data osc1vol;
+    
+    LADSPA_Data osc2pitch;
+    LADSPA_Data osc2tune;
+    LADSPA_Data osc2type;
+    LADSPA_Data osc2vol;
+    
+    LADSPA_Data filter_env_amt;
+    LADSPA_Data dist_wet;
+    LADSPA_Data master_vol;    
+    
     LADSPA_Data noise_amp;
 } synth_vals;
 
@@ -111,6 +136,20 @@ typedef struct {
     LADSPA_Data *decay_f;
     LADSPA_Data *sustain_f;
     LADSPA_Data *release_f;
+    
+    LADSPA_Data *osc1pitch;
+    LADSPA_Data *osc1tune;
+    LADSPA_Data *osc1type;
+    LADSPA_Data *osc1vol;
+    
+    LADSPA_Data *osc2pitch;
+    LADSPA_Data *osc2tune;
+    LADSPA_Data *osc2type;
+    LADSPA_Data *osc2vol;
+    
+    LADSPA_Data *filter_env_amt;
+    LADSPA_Data *dist_wet;
+    LADSPA_Data *master_vol;
     
     LADSPA_Data *noise_amp;
     
@@ -204,6 +243,39 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
     case LMS_NOISE_AMP:
         plugin->noise_amp = data;
         break;
+    case LMS_DIST_WET:
+        plugin->dist_wet = data;
+        break;
+    case LMS_FILTER_ENV_AMT:
+        plugin->filter_env_amt = data;
+        break;
+    case LMS_MASTER_VOLUME:
+        plugin->master_vol = data;
+        break;
+    case LMS_OSC1_PITCH:
+        plugin->osc1pitch = data;
+        break;
+    case LMS_OSC1_TUNE:
+        plugin->osc1tune = data;
+        break;
+    case LMS_OSC1_TYPE:
+        plugin->osc1type = data;
+        break;
+    case LMS_OSC1_VOLUME:
+        plugin->osc1vol = data;
+        break;
+    case LMS_OSC2_PITCH:
+        plugin->osc2pitch = data;
+        break;
+    case LMS_OSC2_TUNE:
+        plugin->osc2tune = data;
+        break;
+    case LMS_OSC2_TYPE:
+        plugin->osc2type = data;
+        break;
+    case LMS_OSC2_VOLUME:
+        plugin->osc2vol = data;
+        break;    
     }
 }
 
@@ -273,6 +345,20 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     vals.release_f = *(plugin_data->release_f);
     
     vals.noise_amp = *(plugin_data->noise_amp);
+    
+    vals.dist_wet = *(plugin_data->dist_wet);    
+    vals.filter_env_amt = *(plugin_data->filter_env_amt);
+    vals.master_vol = *(plugin_data->master_vol);
+    
+    vals.osc1pitch = *(plugin_data->osc1pitch);
+    vals.osc1tune = *(plugin_data->osc1tune);
+    vals.osc1type = *(plugin_data->osc1type);
+    vals.osc1vol = *(plugin_data->osc1vol);
+    
+    vals.osc2pitch = *(plugin_data->osc2pitch);
+    vals.osc2tune = *(plugin_data->osc2tune);
+    vals.osc2type = *(plugin_data->osc2type);
+    vals.osc2vol = *(plugin_data->osc2vol);
     
     /*Events is an array of snd_seq_event_t objects, 
      event_count is the number of events,
@@ -477,8 +563,9 @@ int getControllerLTS(LADSPA_Handle instance, unsigned long port)
         return DSSI_CC(0x17);  //23
     case LMS_FILTER_RELEASE:
         return DSSI_CC(0x18);  //24
-    case LMS_NOISE_AMP:
-        return DSSI_CC(0x19);
+    case LMS_NOISE_AMP:        
+        return DSSI_CC(0x19);  //25
+        
     }
 
     return DSSI_NONE;

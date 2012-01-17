@@ -262,8 +262,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_osc2_volume = _get_knob(decibels_0);
     m_osc2_volumeLabel = _newQLabel(this);
     _add_widget(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Vol", m_osc2_volume, m_osc2_volumeLabel);
-    connect(m_osc2_volume, SIGNAL(valueChanged(int)), this, SLOT(osc1VolumeChanged(int)));
-    osc1VolumeChanged(m_osc2_volume->value());
+    connect(m_osc2_volume, SIGNAL(valueChanged(int)), this, SLOT(osc2VolumeChanged(int)));
+    osc2VolumeChanged(m_osc2_volume->value());
     
     _gb_layout_column++;
     
@@ -683,12 +683,17 @@ void SynthGUI::_changed_zero_to_x(int value, QLabel * _label, int _port)
     _label->setText(QString("%1").arg(val));
     
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", _port, val);
-        cerr << "m_suppressHostUpdate == FALSE\n";
+	lo_send(m_host, m_controlPath, "if", _port, val);     
     }
-    else
-    {
-        cerr << "m_suppressHostUpdate == TRUE\n";
+}
+
+void SynthGUI::_changed_integer(int value, QLabel * _label, int _port)
+{
+    float val = float(value);
+    _label->setText(QString("%1").arg(val));
+    
+    if (!m_suppressHostUpdate) {
+	lo_send(m_host, m_controlPath, "if", _port, val);
     }
 }
 
@@ -699,11 +704,6 @@ void SynthGUI::_changed_seconds(int value, QLabel * _label, int _port)
     
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", _port, sec);
-        cerr << "m_suppressHostUpdate == FALSE\n";
-    }
-    else
-    {
-        cerr << "m_suppressHostUpdate == TRUE\n";
     }
 }
 
@@ -718,13 +718,8 @@ void SynthGUI::_changed_pitch(int value, QLabel * _label, int _port)
     _label->setText(QString("%1 hz").arg((int)_hz));
     
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", _port, _f_value);
-        cerr << "m_suppressHostUpdate == FALSE\n";
-    }
-    else
-    {
-        cerr << "m_suppressHostUpdate == TRUE\n";
-    }
+	lo_send(m_host, m_controlPath, "if", _port, _f_value);     
+    }    
 }
 
 void SynthGUI::_changed_decibels(int value, QLabel * _label, int _port)
@@ -734,11 +729,6 @@ void SynthGUI::_changed_decibels(int value, QLabel * _label, int _port)
     
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", _port, float(value));
-        cerr << "m_suppressHostUpdate == FALSE\n";
-    }
-    else
-    {
-        cerr << "m_suppressHostUpdate == TRUE\n";
     }
 }
 
@@ -777,12 +767,7 @@ void SynthGUI::resChanged(int value)
 
 void SynthGUI::distChanged(int value)
 {
-    float val = float(value); // / 100.0;
-    m_distLabel->setText(QString("%1").arg(val));
-
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_DIST, val);
-    }
+    _changed_integer(value, m_distLabel, LTS_PORT_DIST);
 }
 
 
@@ -832,47 +817,51 @@ void SynthGUI::distWetChanged(int value)
 
 void SynthGUI::osc1TypeChanged(int value)
 {
-    
+    if (!m_suppressHostUpdate) {
+	lo_send(m_host, m_controlPath, "if", LTS_PORT_OSC1_TYPE, float(value));
+    }
 }
 
 void SynthGUI::osc1PitchChanged(int value)
 {
-    
+    _changed_integer(value, m_osc1_pitchLabel, LTS_PORT_OSC1_PITCH);
 }
 
 void SynthGUI::osc1TuneChanged(int value)
 {
-    
+    _changed_zero_to_x(value, m_osc1_tuneLabel, LTS_PORT_OSC1_TUNE);
 }
 
 void SynthGUI::osc1VolumeChanged(int value)
 {
-    
+    _changed_decibels(value, m_osc1_volumeLabel, LTS_PORT_OSC1_VOLUME);
 }
 
 void SynthGUI::osc2TypeChanged(int value)
 {
-    
+    if (!m_suppressHostUpdate) {
+	lo_send(m_host, m_controlPath, "if", LTS_PORT_OSC2_TYPE, float(value));
+    }
 }
 
 void SynthGUI::osc2PitchChanged(int value)
 {
-    
+    _changed_integer(value, m_osc2_pitchLabel, LTS_PORT_OSC2_PITCH);
 }
 
 void SynthGUI::osc2TuneChanged(int value)
 {
-    
+    _changed_zero_to_x(value, m_osc2_tuneLabel, LTS_PORT_OSC2_TUNE);
 }
 
 void SynthGUI::osc2VolumeChanged(int value)
 {
-    
+    _changed_decibels(value, m_osc2_volumeLabel, LTS_PORT_OSC2_VOLUME);
 }
 
 void SynthGUI::masterVolumeChanged(int value)
 {
-    
+    _changed_decibels(value, m_master_volumeLabel, LTS_PORT_MASTER_VOLUME);
 }
 
 
