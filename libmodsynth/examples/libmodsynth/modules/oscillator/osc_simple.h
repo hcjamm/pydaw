@@ -16,6 +16,8 @@ extern "C" {
 #include "../../../constants.h"
 #include <math.h>
 
+//Used to switch between values, uses much less CPU than a switch statement
+typedef float (*_get_osc_func_ptr)(osc_core*);
 
 float _get_saw(osc_core * _core)
 {
