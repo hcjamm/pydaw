@@ -58,7 +58,12 @@ void _init_lms(float _sr)
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
 typedef struct _poly_voice
 {    
-    osc_core * _osc_core_test;    
+    osc_core * _osc_core1;    
+    _get_osc_func_ptr _osc1_type;
+    
+    osc_core * _osc_core2;    
+    _get_osc_func_ptr _osc2_type;
+        
     state_variable_filter * _svf_filter;
     clipper * _clipper1;
     adsr * _adsr_filter;
@@ -75,7 +80,9 @@ poly_voice * _poly_init()
 {
     poly_voice * _voice = (poly_voice*)malloc(sizeof(poly_voice));
     
-    _voice->_osc_core_test = _get_osc_core(_sample_rate);    
+    _voice->_osc_core1 = _get_osc_core(_sample_rate);    
+    _voice->_osc_core2 = _get_osc_core(_sample_rate);   
+        
     _voice->_svf_filter = _svf_get(_sample_rate,4);
     _svf_set_res(_voice->_svf_filter, -3);
     _svf_set_cutoff(_voice->_svf_filter, 72);
@@ -87,11 +94,13 @@ poly_voice * _poly_init()
     
     _voice->_adsr_filter = _adsr_get_adsr(_sr_recip);
     
+    /*
     _adsr_set_a_time(_voice->_adsr_filter, 0.01);
     _adsr_set_d_time(_voice->_adsr_filter, .5);
     
     _adsr_set_s_value(_voice->_adsr_filter, .2);
     _adsr_set_r_time(_voice->_adsr_filter, 1);
+    */
     
     _voice->_w_noise = _get_white_noise(_sample_rate);
     

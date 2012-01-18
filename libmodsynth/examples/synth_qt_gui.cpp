@@ -1043,7 +1043,65 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
         cerr << "setting noise amp to " << value << endl;
         gui->setNoiseAmp(value);
         break;
-
+    
+    case LTS_PORT_DIST_WET:
+        cerr << "setting dist wet to " << value << endl;
+        gui->setDistWet(value);
+        break;
+            
+    case LTS_PORT_FILTER_ENV_AMT:
+        cerr << "setting filter env amt to " << value << endl;
+        gui->setFilterEnvAmt(value);
+        break;
+    
+    case LTS_PORT_OSC1_TYPE:
+        cerr << "setting osc1type to " << value << endl;
+        gui->setOsc1Type(value);
+        break;
+            
+    case LTS_PORT_OSC1_PITCH:
+        cerr << "setting osc1pitch to " << value << endl;
+        gui->setOsc1Pitch(value);
+        break;
+    
+    case LTS_PORT_OSC1_TUNE:
+        cerr << "setting osc1tune to " << value << endl;
+        gui->setOsc1Tune(value);
+        break;
+    
+    case LTS_PORT_OSC1_VOLUME:
+        cerr << "setting osc1vol amp to " << value << endl;
+        gui->setOsc1Volume(value);
+        break;
+            
+        
+    case LTS_PORT_OSC2_TYPE:
+        cerr << "setting osc2type to " << value << endl;
+        gui->setOsc2Type(value);
+        break;
+            
+    case LTS_PORT_OSC2_PITCH:
+        cerr << "setting osc2pitch to " << value << endl;
+        gui->setOsc2Pitch(value);
+        break;
+    
+    case LTS_PORT_OSC2_TUNE:
+        cerr << "setting osc2tune to " << value << endl;
+        gui->setOsc2Tune(value);
+        break;
+    
+    case LTS_PORT_OSC2_VOLUME:
+        cerr << "setting osc2vol amp to " << value << endl;
+        gui->setOsc2Volume(value);
+        break;
+            
+        
+    case LTS_PORT_MASTER_VOLUME:
+        cerr << "setting noise amp to " << value << endl;
+        gui->setMasterVolume(value);
+        break;
+    
+        
     default:
 	cerr << "Warning: received request to set nonexistent port " << port << endl;
     }

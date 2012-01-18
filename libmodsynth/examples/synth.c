@@ -79,7 +79,10 @@ typedef struct {
     int     note;
     float   amp;
     float note_f;
-    float osc_inc;
+    float osc_inc1;
+    float osc_inc2;
+    float osc1_linamp;
+    float osc2_linamp;
     float hz;
     poly_voice * _voice;    
     note_state n_state;
@@ -228,7 +231,7 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
     case LMS_DIST:
 	plugin->dist = data;              
 	break;
-        case LMS_FILTER_ATTACK:
+    case LMS_FILTER_ATTACK:
 	plugin->attack_f = data;
 	break;
     case LMS_FILTER_DECAY:
@@ -386,7 +389,13 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     /*LibModSynth additions*/
                     data[voice].note_f = (float)n.note;
                     data[voice].hz = _pit_midi_note_to_hz(data[voice].note_f);
-                    data[voice].osc_inc  = data[voice].hz * _sr_recip;
+                    
+                    data[voice].osc_inc1  = (_pit_midi_note_to_hz((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune))) * _sr_recip;
+                    data[voice].osc_inc2  = (_pit_midi_note_to_hz((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune))) * _sr_recip;
+                    
+                    data[voice].osc1_linamp = _db_to_linear(vals.osc1vol);
+                    data[voice].osc2_linamp = _db_to_linear(vals.osc2vol);
+                    
                     data[voice].n_state = running;
                     
                     
@@ -405,7 +414,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     data[voice]._voice->_noise_amp = _db_to_linear((vals.noise_amp));
                     
-                    printf("note_on\n");
+                    printf("note_on\n%f", data[voice]._voice->_noise_amp);
 		} 
                 /*0 velocity, essentially the same as note-off?*/
                 else 
@@ -499,12 +508,19 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
          libmodsynth.h in the order it should be called in*/
         
         /*Run any oscillators, etc...*/
-        _run_osc(d->_voice->_osc_core_test, d->osc_inc);
+        _run_osc(d->_voice->_osc_core1, d->osc_inc1);
+        _run_osc(d->_voice->_osc_core2, d->osc_inc2);
         
-        float _result = _get_saw(d->_voice->_osc_core_test); //Get a saw oscillator
+        //float _result = d->_voice->_osc1_type(d->_voice->_osc_core1);
+        //_result = d->_voice->_osc1_type(d->_voice->_osc_core1);
+        
+        float _result = _get_saw(d->_voice->_osc_core1) * (d->osc1_linamp) +
+        _get_saw(d->_voice->_osc_core2) * (d->osc2_linamp); 
+        
+        
         
         //Add white noise, adjusted via a knob on the panel
-        _result += _run_w_noise(d->_voice->_w_noise) * (d->_voice->_noise_amp);
+        _result += (_run_w_noise(d->_voice->_w_noise) * (d->_voice->_noise_amp));
         
         /*Run any processing of the initial result(s)*/      
         
@@ -512,7 +528,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         _adsr_run(d->_voice->_adsr_filter);
         
-        _svf_set_cutoff(d->_voice->_svf_filter, ((vals->timbre) + ((d->_voice->_adsr_filter->output) * 24)) );
+        _svf_set_cutoff(d->_voice->_svf_filter, ((vals->timbre) + ((d->_voice->_adsr_filter->output) * (vals->filter_env_amt))) );
                         
         _svf_set_input_value(d->_voice->_svf_filter, _result); //run it through the filter
                 
@@ -565,6 +581,28 @@ int getControllerLTS(LADSPA_Handle instance, unsigned long port)
         return DSSI_CC(0x18);  //24
     case LMS_NOISE_AMP:        
         return DSSI_CC(0x19);  //25
+    case LMS_FILTER_ENV_AMT:
+        return DSSI_CC(0x1a);  //26
+    case LMS_DIST_WET:
+        return DSSI_CC(0x1b);  //27            
+    case LMS_OSC1_TYPE:
+        return DSSI_CC(0x1c);  //28
+    case LMS_OSC1_PITCH:
+        return DSSI_CC(0x1d);  //29
+    case LMS_OSC1_TUNE:
+        return DSSI_CC(0x1e);  //30
+    case LMS_OSC1_VOLUME:
+        return DSSI_CC(0x1f);  //31
+    case LMS_OSC2_TYPE:
+        return DSSI_CC(0x20);  //32
+    case LMS_OSC2_PITCH:
+        return DSSI_CC(0x21);  //33
+    case LMS_OSC2_TUNE:
+        return DSSI_CC(0x22);  //34
+    case LMS_OSC2_VOLUME:
+        return DSSI_CC(0x23);  //35            
+    case LMS_MASTER_VOLUME:        
+        return DSSI_CC(0x24);  //36
         
     }
 
@@ -774,6 +812,119 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_NOISE_AMP].LowerBound =  -60;
 	port_range_hints[LMS_NOISE_AMP].UpperBound =  0;
+        
+        
+        
+        /*Parameters for filter env amt*/        
+	port_descriptors[LMS_FILTER_ENV_AMT] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_FILTER_ENV_AMT] = "Filter Env Amt";
+	port_range_hints[LMS_FILTER_ENV_AMT].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FILTER_ENV_AMT].LowerBound =  -36;
+	port_range_hints[LMS_FILTER_ENV_AMT].UpperBound =  36;
+        
+        /*Parameters for dist wet*/        
+	port_descriptors[LMS_DIST_WET] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_DIST_WET] = "Filter Env Amt";
+	port_range_hints[LMS_DIST_WET].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_DIST_WET].LowerBound =  0.0f;
+	port_range_hints[LMS_DIST_WET].UpperBound =  1.0f;
+        
+        
+        /*Parameters for osc1type*/        
+	port_descriptors[LMS_OSC1_TYPE] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_OSC1_TYPE] = "Filter Env Amt";
+	port_range_hints[LMS_OSC1_TYPE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_OSC1_TYPE].LowerBound =  0;
+	port_range_hints[LMS_OSC1_TYPE].UpperBound =  4;
+        
+        
+        /*Parameters for osc1pitch*/        
+	port_descriptors[LMS_OSC1_PITCH] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_OSC1_PITCH] = "Filter Env Amt";
+	port_range_hints[LMS_OSC1_PITCH].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_OSC1_PITCH].LowerBound =  -12;
+	port_range_hints[LMS_OSC1_PITCH].UpperBound =  12;
+        
+        
+        /*Parameters for osc1tune*/        
+	port_descriptors[LMS_OSC1_TUNE] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_OSC1_TUNE] = "Filter Env Amt";
+	port_range_hints[LMS_OSC1_TUNE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_OSC1_TUNE].LowerBound =  -1.0f;
+	port_range_hints[LMS_OSC1_TUNE].UpperBound =  1.0f;
+        
+        
+        /*Parameters for osc1vol*/        
+	port_descriptors[LMS_OSC1_VOLUME] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_OSC1_VOLUME] = "Filter Env Amt";
+	port_range_hints[LMS_OSC1_VOLUME].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_OSC1_VOLUME].LowerBound =  -60;
+	port_range_hints[LMS_OSC1_VOLUME].UpperBound =  0;
+        
+        
+        
+        /*Parameters for osc2type*/        
+	port_descriptors[LMS_OSC2_TYPE] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_OSC2_TYPE] = "Filter Env Amt";
+	port_range_hints[LMS_OSC2_TYPE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_OSC2_TYPE].LowerBound =  0;
+	port_range_hints[LMS_OSC2_TYPE].UpperBound =  4;
+        
+        
+        /*Parameters for osc2pitch*/        
+	port_descriptors[LMS_OSC2_PITCH] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_OSC1_PITCH] = "Filter Env Amt";
+	port_range_hints[LMS_OSC2_PITCH].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_OSC2_PITCH].LowerBound =  -12;
+	port_range_hints[LMS_OSC2_PITCH].UpperBound =  12;
+        
+        
+        /*Parameters for osc2tune*/        
+	port_descriptors[LMS_OSC2_TUNE] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_OSC2_TUNE] = "Filter Env Amt";
+	port_range_hints[LMS_OSC2_TUNE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_OSC2_TUNE].LowerBound =  -1.0f;
+	port_range_hints[LMS_OSC2_TUNE].UpperBound =  1.0f;
+        
+        
+        /*Parameters for osc2vol*/        
+	port_descriptors[LMS_OSC2_VOLUME] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_OSC2_VOLUME] = "Filter Env Amt";
+	port_range_hints[LMS_OSC2_VOLUME].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_OSC2_VOLUME].LowerBound =  -60;
+	port_range_hints[LMS_OSC2_VOLUME].UpperBound =  0;
+        
+        
+        /*Parameters for master vol*/        
+	port_descriptors[LMS_MASTER_VOLUME] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_MASTER_VOLUME] = "Filter Env Amt";
+	port_range_hints[LMS_MASTER_VOLUME].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_MASTER_VOLUME].LowerBound =  -60;
+	port_range_hints[LMS_MASTER_VOLUME].UpperBound =  0;
+        
+        
         
         
         /*Here is where the functions in synth.c get pointed to for the host to call*/
