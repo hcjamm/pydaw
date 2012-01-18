@@ -875,7 +875,7 @@ void _init()
 	port_descriptors[LMS_DIST_WET] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_DIST_WET] = "Filter Env Amt";
 	port_range_hints[LMS_DIST_WET].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_DIST_WET].LowerBound =  0.0f;
 	port_range_hints[LMS_DIST_WET].UpperBound =  1.0f;
@@ -885,7 +885,7 @@ void _init()
 	port_descriptors[LMS_OSC1_TYPE] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_OSC1_TYPE] = "Filter Env Amt";
 	port_range_hints[LMS_OSC1_TYPE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_OSC1_TYPE].LowerBound =  0;
 	port_range_hints[LMS_OSC1_TYPE].UpperBound =  4;
@@ -915,7 +915,7 @@ void _init()
 	port_descriptors[LMS_OSC1_VOLUME] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_OSC1_VOLUME] = "Filter Env Amt";
 	port_range_hints[LMS_OSC1_VOLUME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_OSC1_VOLUME].LowerBound =  -60;
 	port_range_hints[LMS_OSC1_VOLUME].UpperBound =  0;
@@ -926,7 +926,7 @@ void _init()
 	port_descriptors[LMS_OSC2_TYPE] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_OSC2_TYPE] = "Filter Env Amt";
 	port_range_hints[LMS_OSC2_TYPE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_OSC2_TYPE].LowerBound =  0;
 	port_range_hints[LMS_OSC2_TYPE].UpperBound =  4;
@@ -956,8 +956,8 @@ void _init()
 	port_descriptors[LMS_OSC2_VOLUME] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_OSC2_VOLUME] = "Filter Env Amt";
 	port_range_hints[LMS_OSC2_VOLUME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+			//LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW |  LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_OSC2_VOLUME].LowerBound =  -60;
 	port_range_hints[LMS_OSC2_VOLUME].UpperBound =  0;
         
@@ -966,10 +966,10 @@ void _init()
 	port_descriptors[LMS_MASTER_VOLUME] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_MASTER_VOLUME] = "Filter Env Amt";
 	port_range_hints[LMS_MASTER_VOLUME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_MASTER_VOLUME].LowerBound =  -60;
-	port_range_hints[LMS_MASTER_VOLUME].UpperBound =  0;
+	port_range_hints[LMS_MASTER_VOLUME].UpperBound =  12;
         
         
         
