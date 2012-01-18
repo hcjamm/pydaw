@@ -29,6 +29,7 @@ extern "C" {
 #include "libmodsynth/modules/filter/svf.h"
 #include "libmodsynth/modules/distortion/clipper.h"
 #include "libmodsynth/modules/modulation/adsr.h"
+#include "libmodsynth/modules/signal_routing/audio_xfade.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -65,7 +66,10 @@ typedef struct _poly_voice
     _get_osc_func_ptr _osc2_type;
         
     state_variable_filter * _svf_filter;
+    
     clipper * _clipper1;
+    audio_xfade * _dist_dry_wet;
+    
     adsr * _adsr_filter;
     white_noise * _w_noise;
     adsr * _adsr_amp;       
@@ -86,9 +90,13 @@ poly_voice * _poly_init()
     _voice->_svf_filter = _svf_get(_sample_rate,4);
     _svf_set_res(_voice->_svf_filter, -3);
     _svf_set_cutoff(_voice->_svf_filter, 72);
+    
     _voice->_clipper1 = _clp_get_clipper();
     _clp_set_clip_sym(_voice->_clipper1, -6);
     _clp_set_in_gain(_voice->_clipper1, 12);
+    
+    _voice->_dist_dry_wet = _axf_get_audio_xfade(-3);
+    
     
     _voice->_adsr_amp = _adsr_get_adsr(_sr_recip);    
     

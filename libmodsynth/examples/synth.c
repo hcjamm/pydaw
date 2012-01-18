@@ -63,7 +63,7 @@ GNU General Public License for more details.
 #define MIDI_NOTES  128  //Maximum MIDI note.  You probably don't want to change this
 #define STEP_SIZE   16
 
-#define GLOBAL_GAIN 0.25f   //TODO:  Get rid of this
+//#define GLOBAL_GAIN 0.25f   //TODO:  Get rid of this
 
 long int lrintf (float x);
 
@@ -383,7 +383,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
 		    plugin_data->note2voice[n.note] = voice;
 		    data[voice].note = n.note;
-		    data[voice].amp = _db_to_linear((n.velocity * 0.157480315) - 20) *  GLOBAL_GAIN; //-20db to 0db
+		    data[voice].amp = _db_to_linear((n.velocity * 0.157480315) - 20 + (vals.master_vol)); //-20db to 0db, + master volume (0 to -60)
 		    
                     
                     /*LibModSynth additions*/
@@ -399,7 +399,8 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     data[voice].n_state = running;
                     
                     
-                    /*Here is where we perform any actions that should ONLY happen at note_on*/
+                    /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
+                     placing things here that don't need to be modulated as a note is playing*/
                     
                     /*Retrigger ADSR envelopes*/
                     _adsr_retrigger(data[voice]._voice->_adsr_amp);
@@ -414,7 +415,51 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     data[voice]._voice->_noise_amp = _db_to_linear((vals.noise_amp));
                     
-                    printf("note_on\n%f", data[voice]._voice->_noise_amp);
+                    _axf_set_xfade(data[voice]._voice->_dist_dry_wet, vals.dist_wet);
+                    
+                    switch((int)(vals.osc1type))
+                    {
+                        case 0:
+                            data[voice]._voice->_osc1_type = _get_saw;
+                            break;
+                        case 1:
+                            data[voice]._voice->_osc1_type = _get_square;
+                            break;
+                        case 2:
+                            data[voice]._voice->_osc1_type = _get_triangle;
+                            break;
+                        case 3:
+                            data[voice]._voice->_osc1_type = _get_sine;
+                            break;
+                        case 4:
+                            printf("invalid osc1type\n%f\n", vals.osc1type);
+                            data[voice]._voice->_osc1_type = _get_saw;
+                            break;    
+                    }
+                    
+                    
+                    switch((int)(vals.osc2type))
+                    {
+                        case 0:
+                            data[voice]._voice->_osc2_type = _get_saw;
+                            break;
+                        case 1:
+                            data[voice]._voice->_osc2_type = _get_square;
+                            break;
+                        case 2:
+                            data[voice]._voice->_osc2_type = _get_triangle;
+                            break;
+                        case 3:
+                            data[voice]._voice->_osc2_type = _get_sine;
+                            break;
+                        case 4:
+                            printf("invalid osc2type\n%f\n", vals.osc2type);
+                            data[voice]._voice->_osc2_type = _get_saw;
+                            break;    
+                    }
+                    
+                    
+                    printf("note_on\n%f\n", (vals.master_vol));
 		} 
                 /*0 velocity, essentially the same as note-off?*/
                 else 
@@ -514,30 +559,32 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         //float _result = d->_voice->_osc1_type(d->_voice->_osc_core1);
         //_result = d->_voice->_osc1_type(d->_voice->_osc_core1);
         
-        float _result = _get_saw(d->_voice->_osc_core1) * (d->osc1_linamp) +
-        _get_saw(d->_voice->_osc_core2) * (d->osc2_linamp); 
+        float _result = (d->_voice->_osc1_type(d->_voice->_osc_core1) * (d->osc1_linamp)) +   //osc1
+        (d->_voice->_osc2_type(d->_voice->_osc_core2) * (d->osc2_linamp)) +  //osc2
+        (_run_w_noise(d->_voice->_w_noise) * (d->_voice->_noise_amp)); //white noise
         
-        
-        
-        //Add white noise, adjusted via a knob on the panel
-        _result += (_run_w_noise(d->_voice->_w_noise) * (d->_voice->_noise_amp));
+        /*
+        float _result = (_get_saw(d->_voice->_osc_core1) * (d->osc1_linamp)) +   //osc1
+        (_get_saw(d->_voice->_osc_core2) * (d->osc2_linamp)) +  //osc2
+        (_run_w_noise(d->_voice->_w_noise) * (d->_voice->_noise_amp)); //white noise
+        */
         
         /*Run any processing of the initial result(s)*/      
         
-        _adsr_run(d->_voice->_adsr_amp);
-        
+        _adsr_run(d->_voice->_adsr_amp);        
         _adsr_run(d->_voice->_adsr_filter);
         
         _svf_set_cutoff(d->_voice->_svf_filter, ((vals->timbre) + ((d->_voice->_adsr_filter->output) * (vals->filter_env_amt))) );
                         
         _svf_set_input_value(d->_voice->_svf_filter, _result); //run it through the filter
                 
-        _result = _clp_clip(d->_voice->_clipper1, d->_voice->_svf_filter->_lp); //run the lowpass filter output through a hard-clipper
+        _result = _axf_run_xfade(d->_voice->_dist_dry_wet, (d->_voice->_svf_filter->_lp), 
+                _clp_clip(d->_voice->_clipper1, d->_voice->_svf_filter->_lp)); //run the lowpass filter output through a hard-clipper, mixed by the dry/wet knob
         
         //_result = (d->_voice->_svf_filter->_lp);
         
         /*Run the envelope and assign to the output buffer*/
-        out[i] += _result *  (d->_voice->_adsr_amp->output); //(d->env) ; // * (d->amp);
+        out[i] += _result *  (d->_voice->_adsr_amp->output) * (d->amp) ; 
                 
         
         /*End LibModSynth modifications*/

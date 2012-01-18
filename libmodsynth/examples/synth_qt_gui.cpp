@@ -146,7 +146,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_osc1_type = _get_combobox(_osc_types, _osc_types_count , this);     
     _add_widget_no_label(_gb_osc1_layout, _gb_layout_column, _gb_layout_row, "Type", m_osc1_type);
-    connect(m_osc1_type, SIGNAL(valueChanged(int)), this, SLOT(osc1TypeChanged(int)));
+    connect(m_osc1_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc1TypeChanged(int)));
     osc1TypeChanged(m_osc1_type->currentIndex());
     
     layout->addWidget(_gb_osc1, _row, _column, Qt::AlignCenter); 
@@ -269,7 +269,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_osc2_type = _get_combobox(_osc_types, _osc_types_count , this);     
     _add_widget_no_label(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Type", m_osc2_type);
-    connect(m_osc2_type, SIGNAL(valueChanged(int)), this, SLOT(osc2typeChanged(int)));
+    connect(m_osc2_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2typeChanged(int)));
     osc2TypeChanged(m_osc2_type->currentIndex());
     
     
@@ -811,7 +811,7 @@ void SynthGUI::distWetChanged(int value)
 {
     //TODO:  make a "Changed no label" method
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_DIST_WET, float(value));
+	lo_send(m_host, m_controlPath, "if", LTS_PORT_DIST_WET, (float(value) * .01));
     }
 }
 
@@ -870,7 +870,7 @@ void SynthGUI::masterVolumeChanged(int value)
 void SynthGUI::test_press()
 {
     //unsigned char noteon[4] = { 0x00, 0x90, 0x3C, 0x40 };
-    unsigned char noteon[4] = { 0x00, 0x90, 0x2A, 0x40 };
+    unsigned char noteon[4] = { 0x00, 0x90, 0x2A, 0x66 };
     lo_send(m_host, m_midiPath, "m", noteon);
 }
 

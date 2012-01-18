@@ -51,11 +51,11 @@ white_noise * _get_white_noise(float _sample_rate)
     {
         /*Mixing 3 random numbers together gives a more natural sounding white noise,
          instead of a "brick" of noise, as seen on an oscilloscope*/
-        float _sample1 = (float)rand() / (float)RAND_MAX;
-        float _sample2 = (float)rand() / (float)RAND_MAX;
-        float _sample3 = (float)rand() / (float)RAND_MAX;
+        float _sample1 = ((float)rand() / (float)RAND_MAX) - .5;
+        float _sample2 = ((float)rand() / (float)RAND_MAX) - .5;
+        float _sample3 = ((float)rand() / (float)RAND_MAX) - .5;
         
-        _result->sample_array[i] = (_sample1 + _sample2 + _sample3) * .33;
+        _result->sample_array[i] = (_sample1 + _sample2 + _sample3) * .5;
         i++;
     }
     
