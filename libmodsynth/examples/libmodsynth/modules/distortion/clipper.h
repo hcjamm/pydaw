@@ -33,7 +33,11 @@ void _clp_set_clip_sym(clipper * _clp, float _db)
     _clp->clip_db = _db;
     
     float _value = _db_to_linear(_db);
-    printf("Clipper value == %f%", _value);
+    
+#ifdef LMS_DEBUG_MODE
+        printf("Clipper value == %f", _value);
+#endif
+
     _clp->clip_high = _value;
     _clp->clip_low = (_value * -1);
 }

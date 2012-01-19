@@ -13,6 +13,15 @@ GNU General Public License for more details.
 
    
 */
+/*Comment this out when compiling a stable, production-ready plugin.  You shouldn't print debug output
+when it won't be read or needed, it can potentially interfere with audio processing.*/
+#define LMS_DEBUG_MODE
+
+/*Then you can print debug information like this:
+#ifdef LMS_DEBUG_MODE
+printf("debug information");
+#endif
+*/
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -79,7 +88,7 @@ typedef struct {
     int     note;
     float   amp;
     float note_f;
-    float osc_inc1;
+    float osc_inc1[5];
     float osc_inc2;
     float osc1_linamp;
     float osc2_linamp;
@@ -389,8 +398,9 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     /*LibModSynth additions*/
                     data[voice].note_f = (float)n.note;
                     data[voice].hz = _pit_midi_note_to_hz(data[voice].note_f);
+                                                            
+                    _osc_set_unison_osc_pitch(data[voice]._voice->_osc_unison1, ((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune)));
                     
-                    data[voice].osc_inc1  = (_pit_midi_note_to_hz((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune))) * _sr_recip;
                     data[voice].osc_inc2  = (_pit_midi_note_to_hz((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune))) * _sr_recip;
                     
                     data[voice].osc1_linamp = _db_to_linear(vals.osc1vol);
@@ -415,27 +425,10 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     data[voice]._voice->_noise_amp = _db_to_linear((vals.noise_amp));
                     
-                    _axf_set_xfade(data[voice]._voice->_dist_dry_wet, vals.dist_wet);
+                    _axf_set_xfade(data[voice]._voice->_dist_dry_wet, vals.dist_wet);                   
                     
-                    switch((int)(vals.osc1type))
-                    {
-                        case 0:
-                            data[voice]._voice->_osc1_type = _get_saw;
-                            break;
-                        case 1:
-                            data[voice]._voice->_osc1_type = _get_square;
-                            break;
-                        case 2:
-                            data[voice]._voice->_osc1_type = _get_triangle;
-                            break;
-                        case 3:
-                            data[voice]._voice->_osc1_type = _get_sine;
-                            break;
-                        case 4:
-                            printf("invalid osc1type\n%f\n", vals.osc1type);
-                            data[voice]._voice->_osc1_type = _get_saw;
-                            break;    
-                    }
+                    
+                    _osc_set_simple_osc_unison_type(data[voice]._voice->_osc_unison1, (int)(vals.osc1type));
                     
                     
                     switch((int)(vals.osc2type))
@@ -551,23 +544,18 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
                 
         /*Begin LibModSynth modifications, calling everything defined in
          libmodsynth.h in the order it should be called in*/
-        
+        float _result = 0;
         /*Run any oscillators, etc...*/
-        _run_osc(d->_voice->_osc_core1, d->osc_inc1);
+        _result += _osc_run_unison_osc(d->_voice->_osc_unison1);
+        
         _run_osc(d->_voice->_osc_core2, d->osc_inc2);
         
-        //float _result = d->_voice->_osc1_type(d->_voice->_osc_core1);
-        //_result = d->_voice->_osc1_type(d->_voice->_osc_core1);
         
-        float _result = (d->_voice->_osc1_type(d->_voice->_osc_core1) * (d->osc1_linamp)) +   //osc1
+        
+        _result += //(d->_voice->_osc1_type(d->_voice->_osc_core1) * (d->osc1_linamp)) +   //osc1
         (d->_voice->_osc2_type(d->_voice->_osc_core2) * (d->osc2_linamp)) +  //osc2
         (_run_w_noise(d->_voice->_w_noise) * (d->_voice->_noise_amp)); //white noise
         
-        /*
-        float _result = (_get_saw(d->_voice->_osc_core1) * (d->osc1_linamp)) +   //osc1
-        (_get_saw(d->_voice->_osc_core2) * (d->osc2_linamp)) +  //osc2
-        (_run_w_noise(d->_voice->_w_noise) * (d->_voice->_noise_amp)); //white noise
-        */
         
         /*Run any processing of the initial result(s)*/      
         
