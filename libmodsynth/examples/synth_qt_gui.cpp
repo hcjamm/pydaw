@@ -136,7 +136,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     _gb_layout_column++;
     
-    m_osc1_volume = _get_knob(decibels_0);
+    m_osc1_volume = _get_knob(decibels_0, -6);
     m_osc1_volumeLabel = _newQLabel(this);
     _add_widget(_gb_osc1_layout, _gb_layout_column, _gb_layout_row, "Vol", m_osc1_volume, m_osc1_volumeLabel);
     connect(m_osc1_volume, SIGNAL(valueChanged(int)), this, SLOT(osc1VolumeChanged(int)));
@@ -259,7 +259,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     _gb_layout_column++;
     
-    m_osc2_volume = _get_knob(decibels_0);
+    m_osc2_volume = _get_knob(decibels_0, -60);
     m_osc2_volumeLabel = _newQLabel(this);
     _add_widget(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Vol", m_osc2_volume, m_osc2_volumeLabel);
     connect(m_osc2_volume, SIGNAL(valueChanged(int)), this, SLOT(osc2VolumeChanged(int)));
@@ -436,35 +436,56 @@ QLabel * SynthGUI::_newQLabel(QWidget * _parent)
     return _result;
 }
 
-QDial * SynthGUI::_get_knob(_knob_type _ktype)
+QDial * SynthGUI::_get_knob(_knob_type _ktype, int _default_value)
 {
+    int _min, _max, _step, _value;
+    
     switch(_ktype)
     {
         case decibels_0:
-            return newQDial(-60, 0, 1, -6);
+                _min = -60; _max = 0; _step = 1; _value = -6; 
+                break;
         case decibels_plus_12:
-            return newQDial(  -60, 12,  1,  -6);
+            _min = -60; _max = 12; _step = 1; _value = -6;            
+            break;
         case decibels_plus_24:
-            return newQDial(  -60, 24,  1,  -6);            
+            _min = -60; _max = 24; _step = 1; _value = -6;            
+            break;
         case decibels_plus_6:            
-            return newQDial(  -60, 6,  1,  -6);
+            _min = -60; _max = 6; _step = 1; _value = -6;            
+            break;
         case pitch:
-            return newQDial(  20, 124,  1,  105);
+            _min = 20; _max = 124; _step = 1; _value = 105;            
+            break;
         case zero_to_four:
-            return newQDial(  1, 400,  4,  75);
+            _min = 1; _max = 400; _step = 4; _value = 75;            
+            break;
         case zero_to_one:
-            return newQDial(  1, 100,  1,  15);
+            _min = 1; _max = 100; _step = 1; _value = 15;            
+            break;
         case zero_to_two:
-            return newQDial(  1, 200,  2,  25);     
+            _min = 1; _max = 200; _step = 2; _value = 25;            
+            break;
         case minus1_to_1:
-            return newQDial(-100, 100, 1, 0);
+            _min = -100; _max = 100; _step = 1; _value = 0;            
+            break;
         case minus12_to_12:
-            return newQDial(-12, 12, 1, 0);
+            _min = -12; _max = 12; _step = 1; _value = 0;            
+            break;
         case minus24_to_24:
-            return newQDial(-24, 24, 1, 0);
+            _min = -24; _max = 24; _step = 1; _value = 0;            
+            break;
         case minus36_to_36:
-            return newQDial(-36, 36, 1, 0);
+            _min = -36; _max = 36; _step = 1; _value = 0;            
+            break;
     }
+    
+    if(_default_value != 333)  //This makes the assumption that we will never pick 333 as a default value
+    {
+        _value = _default_value;
+    }
+    
+     return newQDial(_min, _max, _step, _value);
     
 }
 

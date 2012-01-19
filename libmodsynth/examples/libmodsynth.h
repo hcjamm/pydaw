@@ -92,8 +92,8 @@ poly_voice * _poly_init()
     _svf_set_cutoff(_voice->_svf_filter, 72);
     
     _voice->_clipper1 = _clp_get_clipper();
-    _clp_set_clip_sym(_voice->_clipper1, -6);
-    _clp_set_in_gain(_voice->_clipper1, 12);
+    //_clp_set_clip_sym(_voice->_clipper1, 0);
+    //_clp_set_in_gain(_voice->_clipper1, 12);
     
     _voice->_dist_dry_wet = _axf_get_audio_xfade(-3);
     

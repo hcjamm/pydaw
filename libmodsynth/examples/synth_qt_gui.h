@@ -134,7 +134,7 @@ protected slots:
 protected:
     QDial *newQDial( int, int, int, int );
     
-    QDial *_get_knob(_knob_type);
+    QDial *_get_knob(_knob_type, int _default_value = 333);
     
     //TODO:  update this to be more flexible about layout types
     void _add_widget(QGridLayout * _layout, int position_x, int position_y, QString _label_text,  QWidget * _widget,    
