@@ -33,6 +33,7 @@ void _clp_set_clip_sym(clipper * _clp, float _db)
     _clp->clip_db = _db;
     
     float _value = _db_to_linear(_db);
+    printf("Clipper value == %f%", _value);
     _clp->clip_high = _value;
     _clp->clip_low = (_value * -1);
 }
@@ -52,7 +53,7 @@ clipper * _clp_get_clipper()
     clipper * _result = (clipper*)malloc(sizeof(clipper));
     
     _result->clip_high = 1;
-    _result->clip_low = 1;
+    _result->clip_low = -1;
     _result->input_gain = 1;
     
     return _result;

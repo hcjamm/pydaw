@@ -47,6 +47,7 @@
             <df name="sampler">
             </df>
             <df name="signal_routing">
+              <in>audio_xfade.h</in>
               <in>crossfade.h</in>
               <in>switch.h</in>
             </df>
