@@ -12,6 +12,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 */
+//Comment this out when you compile a stable release version on the plugin
+#define LMS_DEBUG_MODE_QT
 
 #include "synth_qt_gui.h"
 
@@ -922,32 +924,43 @@ SynthGUI::~SynthGUI()
 
 void osc_error(int num, const char *msg, const char *path)
 {
+#ifdef LMS_DEBUG_MODE_QT
     cerr << "Error: liblo server error " << num
 	 << " in path \"" << (path ? path : "(null)")
 	 << "\": " << msg << endl;
+#endif
 }
 
 int debug_handler(const char *path, const char *types, lo_arg **argv,
 	      int argc, void *data, void *user_data)
 {
     int i;
-
-    cerr << "Warning: unhandled OSC message in GUI:" << endl;
+#ifdef LMS_DEBUG_MODE_QT
+      cerr << "Warning: unhandled OSC message in GUI:" << endl;
+#endif
+    
 
     for (i = 0; i < argc; ++i) {
+#ifdef LMS_DEBUG_MODE_QT
 	cerr << "arg " << i << ": type '" << types[i] << "': ";
+#endif
         lo_arg_pp((lo_type)types[i], argv[i]);
+#ifdef LMS_DEBUG_MODE_QT
 	cerr << endl;
+#endif
     }
-
+#ifdef LMS_DEBUG_MODE_QT
     cerr << "(path is <" << path << ">)" << endl;
+#endif
     return 1;
 }
 
 int program_handler(const char *path, const char *types, lo_arg **argv,
 	       int argc, void *data, void *user_data)
 {
+#ifdef LMS_DEBUG_MODE_QT
     cerr << "Program handler not yet implemented" << endl;
+#endif
     return 0;
 }
 

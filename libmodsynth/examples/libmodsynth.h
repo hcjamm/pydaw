@@ -21,7 +21,7 @@ extern "C" {
 #include <stdio.h>
 #include "constants.h"
     
-/*includes for any libmodsynth components you'll be using*/
+/*includes for any libmodsynth modules you'll be using*/
 #include "libmodsynth/lib/osc_core.h"
 #include "libmodsynth/lib/pitch_core.h"
 #include "libmodsynth/modules/oscillator/osc_simple.h"
@@ -59,8 +59,12 @@ void _init_lms(float _sr)
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
 typedef struct _poly_voice
 {    
+    /*
     osc_core * _osc_core1;    
     _get_osc_func_ptr _osc1_type;
+    */
+    
+    osc_simple_unison * _osc_unison1;
     
     osc_core * _osc_core2;    
     _get_osc_func_ptr _osc2_type;
@@ -84,7 +88,8 @@ poly_voice * _poly_init()
 {
     poly_voice * _voice = (poly_voice*)malloc(sizeof(poly_voice));
     
-    _voice->_osc_core1 = _get_osc_core(_sample_rate);    
+    _voice->_osc_unison1 = _osc_get_osc_simple_unison(_sr_recip);
+    
     _voice->_osc_core2 = _get_osc_core(_sample_rate);   
         
     _voice->_svf_filter = _svf_get(_sample_rate,4);
@@ -92,24 +97,13 @@ poly_voice * _poly_init()
     _svf_set_cutoff(_voice->_svf_filter, 72);
     
     _voice->_clipper1 = _clp_get_clipper();
-    //_clp_set_clip_sym(_voice->_clipper1, 0);
-    //_clp_set_in_gain(_voice->_clipper1, 12);
     
     _voice->_dist_dry_wet = _axf_get_audio_xfade(-3);
-    
-    
+        
     _voice->_adsr_amp = _adsr_get_adsr(_sr_recip);    
     
     _voice->_adsr_filter = _adsr_get_adsr(_sr_recip);
-    
-    /*
-    _adsr_set_a_time(_voice->_adsr_filter, 0.01);
-    _adsr_set_d_time(_voice->_adsr_filter, .5);
-    
-    _adsr_set_s_value(_voice->_adsr_filter, .2);
-    _adsr_set_r_time(_voice->_adsr_filter, 1);
-    */
-    
+        
     _voice->_w_noise = _get_white_noise(_sample_rate);
     
     _voice->_noise_amp = 0;
