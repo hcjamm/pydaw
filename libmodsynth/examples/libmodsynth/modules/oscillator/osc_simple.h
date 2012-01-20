@@ -15,7 +15,9 @@ extern "C" {
 #include "../../lib/osc_core.h"
 #include "../../../constants.h"
 #include "../../lib/pitch_core.h"
+#include "../utility/glide.h"
 #include <math.h>
+    
 
 /*C doesn't like dynamic arrays, so we have to define this at compile time.  
  Realistically, we're doing the users a favor by limiting it to 7, because having
@@ -39,10 +41,12 @@ typedef struct _osc_simple_unison
     
     float _phases [OSC_UNISON_MAX_VOICES];  //Restart the oscillators at the same phase on each note-on
     
-    /*Not yet implemented, this is intended to 
-     * paired with the glide and pitchbend functionality*/
-    float _current_pitch;
-    float _destination_pitch;
+    float _uni_spread;
+            
+    //gld_glide * _glide;
+    
+    float _adjusted_amp;  //Set this with unison voices to prevent excessive volume
+    
 }osc_simple_unison;
 
 
@@ -62,29 +66,24 @@ void _osc_set_uni_voice_count(osc_simple_unison* _osc_ptr, int _value)
     {
         _osc_ptr->_voice_count = _value;
     }
-}
-
-float _osc_run_unison_osc(osc_simple_unison * _osc_ptr);
-
-//Return one sample of the oscillator running.
-float _osc_run_unison_osc(osc_simple_unison * _osc_ptr)
-{
-    int i = 0;
-    float _result = 0;
-    while(i < (_osc_ptr->_voice_count))
-    {
-        _run_osc((_osc_ptr->_cores[i]), (_osc_ptr->_voice_inc[i]));
-        _result += _osc_ptr->_osc_type((_osc_ptr->_cores[i]));
-        i++;
-    }
     
-    return _result;
+    _osc_ptr->_adjusted_amp = (1 / (float)(_osc_ptr->_voice_count)) + ((_osc_ptr->_voice_count - 1) * .06);
 }
 
-void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch);
 
-void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch)
+void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch, int _is_glide);
+
+void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch, int _is_glide)
 {
+    /*
+    if(_is_glide == 1)
+    {
+        //TODO
+    }
+    */
+    
+    
+    _osc_ptr->_uni_spread = _spread;
     _osc_ptr->_bottom_pitch = -.5 * _spread;
     _osc_ptr->_pitch_inc = _spread / ((float)(_osc_ptr->_voice_count));
     
@@ -97,32 +96,36 @@ void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _p
     }
 }
 
-/*
-void _osc_set_unison_osc_spread(osc_simple_unison * _osc_ptr, float _amount);
 
 
-void _osc_set_unison_osc_spread(osc_simple_unison * _osc_ptr, float _amount)
-{
-    //TODO:  review this logic for when there is only one voice, and make sure that the spread is accurate and
-    //doesn't need to be voice_count + 1
-    _osc_ptr->_bottom_pitch = -.5 * _amount;
-    _osc_ptr->_pitch_inc = _amount / ((float)(_osc_ptr->_voice_count));
-}
+float _osc_run_unison_osc(osc_simple_unison * _osc_ptr);
 
-void _osc_set_unison_osc_pitch(osc_simple_unison * _osc_ptr, float _pitch);
-
-
-void _osc_set_unison_osc_pitch(osc_simple_unison * _osc_ptr, float _pitch)
+//Return one sample of the oscillator running.
+float _osc_run_unison_osc(osc_simple_unison * _osc_ptr)
 {
     int i = 0;
+    float _result = 0;
+    
+    /*New Code*/
+    
+    /*
+    if(_osc_ptr->_glide->_is_running == 1)
+    {   
+        //_osc_set_unison_pitch(_osc_ptr, _osc_ptr->_uni_spread, _gld_run_glide(_osc_ptr->_glide), 1);
+    }
+    */
+    /*End New Code*/
     
     while(i < (_osc_ptr->_voice_count))
     {
-        _osc_ptr->_voice_inc[i] =  _pit_midi_note_to_hz(_pitch + (_osc_ptr->_bottom_pitch) + (_osc_ptr->_pitch_inc * ((float)i))) * _osc_ptr->_sr_recip;
+        _run_osc((_osc_ptr->_cores[i]), (_osc_ptr->_voice_inc[i]));
+        _result += _osc_ptr->_osc_type((_osc_ptr->_cores[i]));
         i++;
     }
+    
+    return _result * (_osc_ptr->_adjusted_amp);
 }
-*/
+
 
 float _get_saw(osc_core * _core)
 {
@@ -221,13 +224,14 @@ void _osc_note_on_sync_phases(osc_simple_unison * _osc_ptr)
 
 osc_simple_unison * _osc_get_osc_simple_unison(float);
 
-osc_simple_unison * _osc_get_osc_simple_unison(float __sr_recip)
+osc_simple_unison * _osc_get_osc_simple_unison(float _sample_rate)
 {
     osc_simple_unison * _result = (osc_simple_unison*)malloc(sizeof(osc_simple_unison));
     
-    _result->_voice_count = OSC_UNISON_MAX_VOICES;    
+    _osc_set_uni_voice_count(_result, OSC_UNISON_MAX_VOICES);    
     _result->_osc_type = _get_saw;
-    _result->_sr_recip = __sr_recip;
+    _result->_sr_recip = 1 / _sample_rate;
+    //_result->_glide = _gld_get_glide(_sample_rate);
     
     int i = 0;
     
@@ -236,12 +240,8 @@ osc_simple_unison * _osc_get_osc_simple_unison(float __sr_recip)
         _result->_cores[i] = (osc_core*)malloc(sizeof(osc_core));
         i++;
     }
-    /*
-    _osc_set_unison_osc_spread(_result, .5);
-    _osc_set_unison_osc_pitch(_result, 60);
-    */
-    
-    _osc_set_unison_pitch(_result, .5, 60);
+        
+    _osc_set_unison_pitch(_result, .5, 60, 0);
     
     i = 0;
     
@@ -260,7 +260,7 @@ osc_simple_unison * _osc_get_osc_simple_unison(float __sr_recip)
         i++;
     }
     
-    _osc_set_unison_pitch(_result, .2, 60);
+    _osc_set_unison_pitch(_result, .2, 60, 0);
     
     return _result;
 }

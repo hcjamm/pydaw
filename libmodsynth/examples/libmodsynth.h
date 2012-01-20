@@ -89,26 +89,23 @@ poly_voice * _poly_init()
 {
     poly_voice * _voice = (poly_voice*)malloc(sizeof(poly_voice));
     
-    _voice->_osc_unison1 = _osc_get_osc_simple_unison(_sr_recip);
+    /*TODO:  Remove some of the set values, they were from the early days and aren't needed anymore*/
     
-    _voice->_osc_unison2 = _osc_get_osc_simple_unison(_sr_recip);
+    _voice->_osc_unison1 = _osc_get_osc_simple_unison(_sample_rate);    
+    _voice->_osc_unison2 = _osc_get_osc_simple_unison(_sample_rate);
     
-    //_voice->_osc_core2 = _get_osc_core(_sample_rate);   
         
     _voice->_svf_filter = _svf_get(_sample_rate,4);
     _svf_set_res(_voice->_svf_filter, -3);
     _svf_set_cutoff(_voice->_svf_filter, 72);
     
-    _voice->_clipper1 = _clp_get_clipper();
-    
+    _voice->_clipper1 = _clp_get_clipper();    
     _voice->_dist_dry_wet = _axf_get_audio_xfade(-3);
         
-    _voice->_adsr_amp = _adsr_get_adsr(_sr_recip);    
-    
+    _voice->_adsr_amp = _adsr_get_adsr(_sr_recip);        
     _voice->_adsr_filter = _adsr_get_adsr(_sr_recip);
         
-    _voice->_w_noise = _get_white_noise(_sample_rate);
-    
+    _voice->_w_noise = _get_white_noise(_sample_rate);    
     _voice->_noise_amp = 0;
         
     return _voice;

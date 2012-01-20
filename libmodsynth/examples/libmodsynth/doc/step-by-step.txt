@@ -1,0 +1,74 @@
+Step-by-step instructions for writing your own DSSI plugin
+
+by Jeff Hubbard
+
+Step 1:  Conceptualization
+
+Before you begin working, you should have at least a rough idea of what it is you're building.  You can conceptualize either the underlying architecture, or the controls first.
+
+1a:  Architecture
+
+You must decide on what type of plugin you are building, for example:  synthesizer, sampler, effects processor.  Here is an example of a synthesizer concept:
+
+oscillator1
+            \
+             -------Lowpass Filter------Distortion----ADSR Envelope----Output
+            /
+oscillator2
+
+The example itself is very simple, but it is something that can be built upon later as needed.
+
+1b:  Controls
+
+Almost all plugins require some sort of user controls to allow the user to modify parameters at run-time.
+
+
+
+Step 2:  Design
+
+As in the first step, you can begin with either the architecture or the user controls.
+
+2a:  Architecture
+
+//TODO
+
+2b:  Controls
+
+synth_qt_gui.h
+
+/*GUI Step1:  Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
+
+/*GUI Step 2:  Event handlers for setting knob values*/
+
+/*GUI Step 3:  Event handlers for receiving changed knob values*/
+
+synth_qt_gui.cpp
+
+/*GUI Step 4:  Lay out the controls you declared in the first step*/
+
+/*GUI Step 5:  Implement the event handlers from step 2.*/
+
+/*GUI Step 6:  Define ports for each control that will send messages to the plugin, such as dials/knobs or faders.*/
+
+/*GUI Step 7:  Implement the event handlers from step 3.*/
+
+/*GUI Step 8:  Add the controls you created to the control handler*/
+
+synth.c
+
+/*GUI Step 9:  Add ports to the main synthesizer file that the GUI can talk to */
+
+/*GUI Step 10:  Add a variable for each control in the synth_vals type*/
+
+/*GUI Step 11:  Add a variable for each control in the LTS type*/
+
+/*GUI Step 12:  Add the ports from step 9 to the connectPortLTS event handler*/
+
+/*GUI Step 13:  Set the values from synth_vals in RunLTS*/
+
+//TODO:  Simplify the syntax for this step with a function
+/*GUI Step 14:  Define the LADSPA ports for the plugin in the class constructor*/
+
+/*GUI Step 15:  Assign the LADSPA ports defined in step 9 to MIDI CCs in getControllerLTS*/
+
+Step 3:  GUI Customization (optional)

@@ -108,6 +108,7 @@ typedef struct {
 
 /*GUI Step 10:  Add a variable for each control in the synth_vals type*/
 typedef struct {    
+    /*The variables below this line correspond to GUI controls*/
     LADSPA_Data attack;
     LADSPA_Data decay;
     LADSPA_Data sustain;
@@ -115,7 +116,7 @@ typedef struct {
     LADSPA_Data timbre;
     LADSPA_Data res;
     LADSPA_Data dist;
-    LADSPA_Data pitch;    
+    //LADSPA_Data pitch;    
     
     LADSPA_Data attack_f;
     LADSPA_Data decay_f;
@@ -142,6 +143,9 @@ typedef struct {
     LADSPA_Data master_pb_amt;
     
     LADSPA_Data noise_amp;
+    
+    /*The variables below this line do NOT correspond to GUI controls*/
+    
 } synth_vals;
 
 /*GUI Step 11:  Add a variable for each control in the LTS type*/
@@ -183,13 +187,17 @@ typedef struct {
     LADSPA_Data *master_uni_spread;
     LADSPA_Data *master_glide;
     LADSPA_Data *master_pb_amt;
-            
-    
     
     voice_data data[POLYPHONY];
     int note2voice[MIDI_NOTES];    
     float fs;    
 } LTS;
+
+
+static float _pitch_bend_value = 0;
+static float _last_note;  //For glide
+/*For preventing references to values like last_note that will be null, change to 1 once the first note plays*/
+static int _played_first_note = 0;   
 
 
 static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
@@ -377,7 +385,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     vals.sustain = *(plugin_data->sustain);
     vals.release = *(plugin_data->release);
     vals.timbre = *(plugin_data->timbre);
-    vals.pitch = 0; 
+    //vals.pitch = 0; 
     vals.res = *(plugin_data->res);
     vals.dist = *(plugin_data->dist);
 
@@ -423,6 +431,8 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 
 		if (n.velocity > 0) 
                 {
+                    printf("Last note value was %f\n", _last_note);
+                                        
 		    const int voice = pick_voice(data, n.note);
                     
 		    plugin_data->note2voice[n.note] = voice;
@@ -469,12 +479,20 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     /*Set the pitch and unison spread*/
                     _osc_set_unison_pitch(data[voice]._voice->_osc_unison1, vals.master_uni_spread,   
-                            ((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune)));
+                            ((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune) + 
+                            (_pitch_bend_value)), 0); //TODO:  This is feeding from pitchbend, I need to double-check it
                     
                     _osc_set_unison_pitch(data[voice]._voice->_osc_unison2, vals.master_uni_spread, 
-                            ((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune)));
+                            ((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune)  + 
+                            (_pitch_bend_value)), 0);
                     
                     
+                    /*Notify any other components that it's OK to expect values where there wouldn't be
+                     any if the user hasn't played a note yet*/
+                    if(_played_first_note == 0)
+                        _played_first_note = 1;
+                    /*Set the last_note property, so the next note can glide from it if glide is turned on*/
+                    _last_note = (data[voice].note_f);
 		} 
                 /*0 velocity, essentially the same as note-off?*/
                 else 
@@ -482,7 +500,6 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 		    const int voice = plugin_data->note2voice[n.note];
 
                     /*LibModSynth additions*/
-                    //data[voice].n_state = note_off;
                     
                     _poly_note_off(data[voice]._voice);
                     
@@ -510,10 +527,10 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
             /*Pitch-bend sequencer event, modify the voices pitch*/
             else if (events[event_pos].type == SND_SEQ_EVENT_PITCHBEND) 
             {
-		vals.pitch = 0.000061035 //TODO:  Make this a "pitchbend amount" variable, and double-check that it is a 15 bit message
-                        * events[event_pos].data.control.value;
-                printf("%f", vals.pitch);
-		plugin_data->pitch = vals.pitch;
+		_pitch_bend_value = 0.00012207   //0.000061035 
+                        * events[event_pos].data.control.value * vals.master_pb_amt;
+                
+                printf("_pitchbend_value is %f\n", _pitch_bend_value);		
 	    }
 	    event_pos++;
 	}
@@ -726,7 +743,7 @@ void _init()
 	ltsLDescriptor->UniqueID = 24;  //TODO:  Find out what this means
 	ltsLDescriptor->Label = "LTS";  //Changing this breaks the plugin, it compiles, but hangs when trying to run.  TODO:  investigate
 	ltsLDescriptor->Properties = 0;
-	ltsLDescriptor->Name = "LibModSynth example synth";
+	ltsLDescriptor->Name = "LibModSynth Example Synth";
 	ltsLDescriptor->Maker = "Jeff Hubbard <libmodsynth.sourceforge.net>";
 	ltsLDescriptor->Copyright = "GNU GPL v3";
 	ltsLDescriptor->PortCount = LMS_COUNT;
@@ -885,7 +902,7 @@ void _init()
         
         /*Parameters for dist wet*/        
 	port_descriptors[LMS_DIST_WET] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_DIST_WET] = "Filter Env Amt";
+	port_names[LMS_DIST_WET] = "Dist Wet";
 	port_range_hints[LMS_DIST_WET].HintDescriptor =
 			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -895,7 +912,7 @@ void _init()
         
         /*Parameters for osc1type*/        
 	port_descriptors[LMS_OSC1_TYPE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC1_TYPE] = "Filter Env Amt";
+	port_names[LMS_OSC1_TYPE] = "Osc 1 Type";
 	port_range_hints[LMS_OSC1_TYPE].HintDescriptor =
 			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -905,7 +922,7 @@ void _init()
         
         /*Parameters for osc1pitch*/        
 	port_descriptors[LMS_OSC1_PITCH] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC1_PITCH] = "Filter Env Amt";
+	port_names[LMS_OSC1_PITCH] = "Osc 1 Pitch";
 	port_range_hints[LMS_OSC1_PITCH].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -915,7 +932,7 @@ void _init()
         
         /*Parameters for osc1tune*/        
 	port_descriptors[LMS_OSC1_TUNE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC1_TUNE] = "Filter Env Amt";
+	port_names[LMS_OSC1_TUNE] = "Osc 1 Tune";
 	port_range_hints[LMS_OSC1_TUNE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -925,7 +942,7 @@ void _init()
         
         /*Parameters for osc1vol*/        
 	port_descriptors[LMS_OSC1_VOLUME] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC1_VOLUME] = "Filter Env Amt";
+	port_names[LMS_OSC1_VOLUME] = "Osc 1 Vol";
 	port_range_hints[LMS_OSC1_VOLUME].HintDescriptor =
 			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -936,7 +953,7 @@ void _init()
         
         /*Parameters for osc2type*/        
 	port_descriptors[LMS_OSC2_TYPE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC2_TYPE] = "Filter Env Amt";
+	port_names[LMS_OSC2_TYPE] = "Osc 2 Type";
 	port_range_hints[LMS_OSC2_TYPE].HintDescriptor =
 			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -946,7 +963,7 @@ void _init()
         
         /*Parameters for osc2pitch*/        
 	port_descriptors[LMS_OSC2_PITCH] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC1_PITCH] = "Filter Env Amt";
+	port_names[LMS_OSC2_PITCH] = "Osc 2 Pitch";
 	port_range_hints[LMS_OSC2_PITCH].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -956,7 +973,7 @@ void _init()
         
         /*Parameters for osc2tune*/        
 	port_descriptors[LMS_OSC2_TUNE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC2_TUNE] = "Filter Env Amt";
+	port_names[LMS_OSC2_TUNE] = "Osc 2 Tune";
 	port_range_hints[LMS_OSC2_TUNE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -966,7 +983,7 @@ void _init()
         
         /*Parameters for osc2vol*/        
 	port_descriptors[LMS_OSC2_VOLUME] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC2_VOLUME] = "Filter Env Amt";
+	port_names[LMS_OSC2_VOLUME] = "Osc 2 Vol";
 	port_range_hints[LMS_OSC2_VOLUME].HintDescriptor =
 			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW |  LADSPA_HINT_BOUNDED_ABOVE;
@@ -976,7 +993,7 @@ void _init()
         
         /*Parameters for master vol*/        
 	port_descriptors[LMS_MASTER_VOLUME] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_VOLUME] = "Filter Env Amt";
+	port_names[LMS_MASTER_VOLUME] = "Master Vol";
 	port_range_hints[LMS_MASTER_VOLUME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -985,11 +1002,9 @@ void _init()
         
         
         
-        
-        
         /*Parameters for master unison voices*/        
 	port_descriptors[LMS_MASTER_UNISON_VOICES] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_UNISON_VOICES] = "Filter Env Amt";
+	port_names[LMS_MASTER_UNISON_VOICES] = "Master Unison";
 	port_range_hints[LMS_MASTER_UNISON_VOICES].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -999,7 +1014,7 @@ void _init()
         
         /*Parameters for master unison spread*/        
 	port_descriptors[LMS_MASTER_UNISON_SPREAD] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_UNISON_SPREAD] = "Filter Env Amt";
+	port_names[LMS_MASTER_UNISON_SPREAD] = "Master Unison Spread";
 	port_range_hints[LMS_MASTER_UNISON_SPREAD].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -1009,7 +1024,7 @@ void _init()
         
         /*Parameters for master glide*/        
 	port_descriptors[LMS_MASTER_GLIDE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_GLIDE] = "Filter Env Amt";
+	port_names[LMS_MASTER_GLIDE] = "Master Glide";
 	port_range_hints[LMS_MASTER_GLIDE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -1019,18 +1034,12 @@ void _init()
         
         /*Parameters for master pitchbend amt*/        
 	port_descriptors[LMS_MASTER_PITCHBEND_AMT] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_PITCHBEND_AMT] = "Filter Env Amt";
+	port_names[LMS_MASTER_PITCHBEND_AMT] = "Pitchbend Amt";
 	port_range_hints[LMS_MASTER_PITCHBEND_AMT].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_MASTER_PITCHBEND_AMT].LowerBound =  1;
 	port_range_hints[LMS_MASTER_PITCHBEND_AMT].UpperBound =  36;
-        
-        
-        
-        
-        
-        
         
         
         
