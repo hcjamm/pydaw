@@ -26,7 +26,7 @@ extern "C" {
 typedef float (*_get_osc_func_ptr)(osc_core*);
 
 
-/*A unison oscillator.  The _osc_type pointer determines which waveform it uses, it defaults to saw unless you set it to somethign else*/
+/*A unison oscillator.  The _osc_type pointer determines which waveform it uses, it defaults to saw unless you set it to something else*/
 typedef struct _osc_simple_unison
 {
     float _sr_recip;
@@ -36,6 +36,13 @@ typedef struct _osc_simple_unison
     float _pitch_inc;
     float _voice_inc [OSC_UNISON_MAX_VOICES];
     osc_core * _cores [OSC_UNISON_MAX_VOICES];
+    
+    float _phases [OSC_UNISON_MAX_VOICES];  //Restart the oscillators at the same phase on each note-on
+    
+    /*Not yet implemented, this is intended to 
+     * paired with the glide and pitchbend functionality*/
+    float _current_pitch;
+    float _destination_pitch;
 }osc_simple_unison;
 
 
@@ -179,6 +186,20 @@ void _osc_set_simple_osc_unison_type(osc_simple_unison * _osc_ptr, int _index)
     
 }
 
+void _osc_note_on_sync_phases(osc_simple_unison *);
+
+/*Resync the oscillators at note_on to hopefully avoid phasing artifacts*/
+void _osc_note_on_sync_phases(osc_simple_unison * _osc_ptr)
+{
+    int i = 0;
+    
+    while(i < _osc_ptr->_voice_count)
+    {
+        _osc_ptr->_cores[i]->_output = _osc_ptr->_phases[i];
+        
+        i++;
+    }
+}
 
 
 osc_simple_unison * _osc_get_osc_simple_unison(float);
@@ -205,9 +226,17 @@ osc_simple_unison * _osc_get_osc_simple_unison(float __sr_recip)
     i = 0;
     
     //Prevent phasing artifacts from the oscillators starting at the same phase.
-    while(i < 20000)
+    while(i < 200000)
     {
         _osc_run_unison_osc(_result);
+        i++;
+    }
+    
+    i = 0;
+        
+    while(i < (OSC_UNISON_MAX_VOICES))
+    {
+        _result->_phases[i] = _result->_cores[i]->_output;
         i++;
     }
     
