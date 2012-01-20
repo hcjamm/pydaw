@@ -65,6 +65,7 @@ typedef struct _poly_voice
     */
     
     osc_simple_unison * _osc_unison1;
+    osc_simple_unison * _osc_unison2;
     
     osc_core * _osc_core2;    
     _get_osc_func_ptr _osc2_type;
@@ -90,7 +91,9 @@ poly_voice * _poly_init()
     
     _voice->_osc_unison1 = _osc_get_osc_simple_unison(_sr_recip);
     
-    _voice->_osc_core2 = _get_osc_core(_sample_rate);   
+    _voice->_osc_unison2 = _osc_get_osc_simple_unison(_sr_recip);
+    
+    //_voice->_osc_core2 = _get_osc_core(_sample_rate);   
         
     _voice->_svf_filter = _svf_get(_sample_rate,4);
     _svf_set_res(_voice->_svf_filter, -3);

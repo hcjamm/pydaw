@@ -83,6 +83,11 @@ using std::endl;
 #define LTS_PORT_OSC2_VOLUME 22
 #define LTS_PORT_MASTER_VOLUME 23
 
+#define LTS_PORT_MASTER_UNISON_VOICES 24
+#define LTS_PORT_MASTER_UNISON_SPREAD 25
+#define LTS_PORT_MASTER_GLIDE 26
+#define LTS_PORT_MASTER_PITCHBEND_AMT 27
+
 
 lo_server osc_server = 0;
 
@@ -105,8 +110,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     /*Set the CSS style that will "cascade" on the other controls.*/
     this->setStyleSheet("QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF); border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
 
-    QString _osc_types [] = {"Saw", "Square", "Triangle", "Sine"};
-    int _osc_types_count = 4;
+    QString _osc_types [] = {"Saw", "Square", "Triangle", "Sine", "Off"};
+    int _osc_types_count = 5;
     
     QGridLayout *layout = new QGridLayout(this);
     //QVBoxLayout *layout = new QVBoxLayout();
@@ -361,7 +366,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     QGroupBox * _gb_master_vol = _newGroupBox("Master", this); 
     QGridLayout *_gb_master_vol_layout = new QGridLayout(_gb_master_vol);
     
-    m_master_volume  =  _get_knob(decibels_plus_12);  //newQDial(  39, 136,  1,  82); // s * 100
+    m_master_volume  =  _get_knob(decibels_plus_12);
     m_master_volumeLabel  = _newQLabel(this);
     _add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Volume",m_master_volume, m_master_volumeLabel);
     connect(m_master_volume,  SIGNAL(valueChanged(int)), this, SLOT(masterVolumeChanged(int)));
@@ -370,6 +375,42 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _gb_layout_column++;
     
     
+    /*Begin new stuff*/
+    
+    m_master_unison_voices  =  newQDial(1, 7, 1, 1);
+    m_master_unison_voicesLabel  = _newQLabel(this);
+    _add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Unison",m_master_unison_voices, m_master_unison_voicesLabel);
+    connect(m_master_unison_voices,  SIGNAL(valueChanged(int)), this, SLOT( masterUnisonVoicesChanged(int)));
+    masterUnisonVoicesChanged (m_master_unison_voices ->value());
+    
+    _gb_layout_column++;
+    
+    m_master_unison_spread  =  _get_knob(zero_to_one);
+    m_master_unison_spreadLabel  = _newQLabel(this);
+    _add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Spread",m_master_unison_spread, m_master_unison_spreadLabel);
+    connect(m_master_unison_spread,  SIGNAL(valueChanged(int)), this, SLOT(masterUnisonSpreadChanged(int)));
+    masterUnisonSpreadChanged (m_master_unison_spread ->value());
+    
+    _gb_layout_column++;
+    
+    m_master_glide  =  _get_knob(zero_to_one);
+    m_master_glideLabel  = _newQLabel(this);
+    _add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Glide",m_master_glide, m_master_glideLabel);
+    connect(m_master_glide,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));
+    masterGlideChanged (m_master_glide ->value());
+    
+    _gb_layout_column++;
+    
+    m_master_pitchbend_amt  =  newQDial(1, 36, 1, 2);
+    m_master_pitchbend_amtLabel  = _newQLabel(this);
+    _add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Pitchbend",m_master_pitchbend_amt, m_master_pitchbend_amtLabel);
+    connect(m_master_pitchbend_amt,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
+    masterPitchbendAmtChanged (m_master_pitchbend_amt ->value());
+    
+    _gb_layout_column++;
+    
+    
+    /*End new stuff*/
     
     layout->addWidget(_gb_master_vol, _row, _column, Qt::AlignCenter);    
     _column++;
@@ -697,6 +738,40 @@ void SynthGUI::setMasterVolume(float val)
     m_suppressHostUpdate = false;
 }
 
+/*Begin new stuff*/
+
+void SynthGUI::setMasterUnisonVoices(float val)
+{
+    m_suppressHostUpdate = true;
+    m_master_unison_voices->setValue(val);
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setMasterUnisonSpread(float val)
+{
+    m_suppressHostUpdate = true;
+    m_master_unison_spread->setValue(val);
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setMasterGlide(float val)
+{
+    m_suppressHostUpdate = true;
+    m_master_glide->setValue(val);
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setMasterPitchbendAmt(float val)
+{
+    m_suppressHostUpdate = true;
+    m_master_pitchbend_amt->setValue(val);
+    m_suppressHostUpdate = false;
+}
+
+
+/*End new stuff*/
+
+
 /*Standard handlers for the audio slots, these perform manipulations of knob values
  that are common in audio applications*/
 
@@ -888,7 +963,33 @@ void SynthGUI::masterVolumeChanged(int value)
 }
 
 
+/*Begin new stuff*/
 
+
+void SynthGUI::masterUnisonVoicesChanged(int value)
+{
+    _changed_integer(value, m_master_unison_voicesLabel, LTS_PORT_MASTER_UNISON_VOICES);
+}
+
+
+void SynthGUI::masterUnisonSpreadChanged(int value)
+{    
+    _changed_zero_to_x(value, m_master_unison_spreadLabel, LTS_PORT_MASTER_UNISON_SPREAD);
+}
+
+
+void SynthGUI::masterGlideChanged(int value)
+{
+    _changed_zero_to_x(value, m_master_glideLabel, LTS_PORT_MASTER_GLIDE);
+}
+
+
+void SynthGUI::masterPitchbendAmtChanged(int value)
+{
+    _changed_integer(value, m_master_pitchbend_amtLabel, LTS_PORT_MASTER_PITCHBEND_AMT);
+}
+
+/*End new stuff*/
 
 void SynthGUI::test_press()
 {
@@ -1135,6 +1236,35 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
         gui->setMasterVolume(value);
         break;
     
+        /*Begin new stuff*/
+        
+
+    case LTS_PORT_MASTER_UNISON_VOICES:
+        cerr << "setting unison voices to " << value << endl;
+        gui->setMasterUnisonVoices(value);
+        break;
+
+
+    case LTS_PORT_MASTER_UNISON_SPREAD:
+        cerr << "setting unison spread to " << value << endl;
+        gui->setMasterUnisonSpread(value);
+        break;
+
+
+    case LTS_PORT_MASTER_GLIDE:
+        cerr << "setting glide to " << value << endl;
+        gui->setMasterGlide(value);
+        break;
+
+
+    case LTS_PORT_MASTER_PITCHBEND_AMT:
+        cerr << "setting pitchbend to " << value << endl;
+        gui->setMasterPitchbendAmt(value);
+        break;
+
+        
+        
+        /*End new stuff*/
         
     default:
 	cerr << "Warning: received request to set nonexistent port " << port << endl;

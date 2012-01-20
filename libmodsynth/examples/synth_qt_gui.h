@@ -94,6 +94,11 @@ public slots:
     void setOsc2Volume(float val);
     void setMasterVolume(float val);
     
+    void setMasterUnisonVoices(float val);
+    void setMasterUnisonSpread(float val);
+    void setMasterGlide(float val);
+    void setMasterPitchbendAmt(float val);
+    
     
     void aboutToQuit();
     
@@ -126,6 +131,11 @@ protected slots:
     void osc2TuneChanged(int);
     void osc2VolumeChanged(int);
     void masterVolumeChanged(int);
+    
+    void masterUnisonVoicesChanged(int);
+    void masterUnisonSpreadChanged(int);
+    void masterGlideChanged(int);
+    void masterPitchbendAmtChanged(int);
     
     
     void test_press();
@@ -209,7 +219,18 @@ protected:
     
     QDial *m_master_volume;
     QLabel *m_master_volumeLabel;       
-        
+    
+    QDial *m_master_unison_voices;
+    QLabel *m_master_unison_voicesLabel;       
+    
+    QDial *m_master_unison_spread;
+    QLabel *m_master_unison_spreadLabel;       
+    
+    QDial *m_master_glide;
+    QLabel *m_master_glideLabel;       
+    
+    QDial *m_master_pitchbend_amt;
+    QLabel *m_master_pitchbend_amtLabel;
     
     lo_address m_host;
     QByteArray m_controlPath;
