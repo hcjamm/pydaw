@@ -81,6 +81,23 @@ float _osc_run_unison_osc(osc_simple_unison * _osc_ptr)
     return _result;
 }
 
+void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch);
+
+void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch)
+{
+    _osc_ptr->_bottom_pitch = -.5 * _spread;
+    _osc_ptr->_pitch_inc = _spread / ((float)(_osc_ptr->_voice_count));
+    
+    int i = 0;
+    
+    while(i < (_osc_ptr->_voice_count))
+    {
+        _osc_ptr->_voice_inc[i] =  _pit_midi_note_to_hz(_pitch + (_osc_ptr->_bottom_pitch) + (_osc_ptr->_pitch_inc * ((float)i))) * _osc_ptr->_sr_recip;
+        i++;
+    }
+}
+
+/*
 void _osc_set_unison_osc_spread(osc_simple_unison * _osc_ptr, float _amount);
 
 
@@ -105,7 +122,7 @@ void _osc_set_unison_osc_pitch(osc_simple_unison * _osc_ptr, float _pitch)
         i++;
     }
 }
-
+*/
 
 float _get_saw(osc_core * _core)
 {
@@ -146,7 +163,7 @@ float _get_triangle(osc_core * _core)
     }
 }
 
-//Return zero if the oscillator is turned off
+//Return zero if the oscillator is turned off.  A function pointer should point here if the oscillator is turned off.
 float _get_osc_off(osc_core * _core)
 {
     return 0;
@@ -219,9 +236,12 @@ osc_simple_unison * _osc_get_osc_simple_unison(float __sr_recip)
         _result->_cores[i] = (osc_core*)malloc(sizeof(osc_core));
         i++;
     }
-    
+    /*
     _osc_set_unison_osc_spread(_result, .5);
     _osc_set_unison_osc_pitch(_result, 60);
+    */
+    
+    _osc_set_unison_pitch(_result, .5, 60);
     
     i = 0;
     
@@ -240,7 +260,7 @@ osc_simple_unison * _osc_get_osc_simple_unison(float __sr_recip)
         i++;
     }
     
-    _osc_set_unison_osc_spread(_result, .2);
+    _osc_set_unison_pitch(_result, .2, 60);
     
     return _result;
 }

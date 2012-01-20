@@ -433,19 +433,14 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     /*LibModSynth additions*/
                     data[voice].note_f = (float)n.note;
                     data[voice].hz = _pit_midi_note_to_hz(data[voice].note_f);
-                                                            
-                    _osc_set_unison_osc_pitch(data[voice]._voice->_osc_unison1, ((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune)));
-                    
-                    _osc_set_unison_osc_pitch(data[voice]._voice->_osc_unison2, ((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune)));
-                    
+                                        
                     /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
                     data[voice].osc1_linamp = _db_to_linear(vals.osc1vol);
                     data[voice].osc2_linamp = _db_to_linear(vals.osc2vol);
                     data[voice].noise_linamp = _db_to_linear(vals.noise_amp);
                     
                     data[voice].n_state = running;
-                    
-                    
+                                        
                     /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
                      placing things here that don't need to be modulated as a note is playing*/
                     
@@ -462,19 +457,22 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     data[voice]._voice->_noise_amp = _db_to_linear((vals.noise_amp));
                     
-                    _axf_set_xfade(data[voice]._voice->_dist_dry_wet, vals.dist_wet);                   
+                    _axf_set_xfade(data[voice]._voice->_dist_dry_wet, vals.dist_wet);       
                     
-                    
+                    /*Set the oscillator type(saw, square, etc...)*/
                     _osc_set_simple_osc_unison_type(data[voice]._voice->_osc_unison1, (int)(vals.osc1type));
+                    _osc_set_simple_osc_unison_type(data[voice]._voice->_osc_unison2, (int)(vals.osc2type));   
                     
-                    _osc_set_uni_voice_count(data[voice]._voice->_osc_unison1, (int)(vals.master_uni_voice));                     
-                    printf("unison voices: %i\n", (int)(vals.master_uni_voice));
-                    _osc_set_unison_osc_spread(data[voice]._voice->_osc_unison1, vals.master_uni_spread);
+                    /*Set the number of unison voices*/
+                    _osc_set_uni_voice_count(data[voice]._voice->_osc_unison1, vals.master_uni_voice);
+                    _osc_set_uni_voice_count(data[voice]._voice->_osc_unison2, vals.master_uni_voice);
                     
-                    _osc_set_uni_voice_count(data[voice]._voice->_osc_unison2, (int)(vals.master_uni_voice));                     
-                    printf("unison voices: %i\n", (int)(vals.master_uni_voice));
-                    _osc_set_unison_osc_spread(data[voice]._voice->_osc_unison2, vals.master_uni_spread);
+                    /*Set the pitch and unison spread*/
+                    _osc_set_unison_pitch(data[voice]._voice->_osc_unison1, vals.master_uni_spread,   
+                            ((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune)));
                     
+                    _osc_set_unison_pitch(data[voice]._voice->_osc_unison2, vals.master_uni_spread, 
+                            ((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune)));
                     
                     
 		} 
@@ -520,8 +518,8 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 	    event_pos++;
 	}
 
-	count = (sample_count - pos) > STEP_SIZE ? STEP_SIZE :
-		sample_count - pos;
+        /*TODO:  WTF does this mean?*/
+	count = (sample_count - pos) > STEP_SIZE ? STEP_SIZE :	sample_count - pos;
 	
         /*I think this is just clearing the output buffer???*/
         for (i=0; i<count; i++) 
