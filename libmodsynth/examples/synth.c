@@ -99,6 +99,7 @@ typedef struct {
     float osc_inc2;
     float osc1_linamp;
     float osc2_linamp;
+    float noise_linamp;
     float hz;
     poly_voice * _voice;    
     note_state n_state;
@@ -437,8 +438,10 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     _osc_set_unison_osc_pitch(data[voice]._voice->_osc_unison2, ((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune)));
                     
+                    /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
                     data[voice].osc1_linamp = _db_to_linear(vals.osc1vol);
                     data[voice].osc2_linamp = _db_to_linear(vals.osc2vol);
+                    data[voice].noise_linamp = _db_to_linear(vals.noise_amp);
                     
                     data[voice].n_state = running;
                     
@@ -565,12 +568,10 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
          libmodsynth.h in the order it should be called in*/
         float _result = 0;
         /*Run any oscillators, etc...*/
-        _result += _osc_run_unison_osc(d->_voice->_osc_unison1);
-        _result += _osc_run_unison_osc(d->_voice->_osc_unison2);
+        _result += _osc_run_unison_osc(d->_voice->_osc_unison1) * (d->osc1_linamp);
+        _result += _osc_run_unison_osc(d->_voice->_osc_unison2) * (d->osc2_linamp);
         
-                
-        
-        _result += (_run_w_noise(d->_voice->_w_noise) * (d->_voice->_noise_amp)); //white noise
+        _result += (_run_w_noise(d->_voice->_w_noise) * (d->noise_linamp)); //white noise
         
         
         /*Run any processing of the initial result(s)*/      
