@@ -39,6 +39,23 @@ typedef struct _osc_simple_unison
 }osc_simple_unison;
 
 
+void _osc_set_uni_voice_count(osc_simple_unison*, int);
+
+void _osc_set_uni_voice_count(osc_simple_unison* _osc_ptr, int _value)
+{
+    if(_value > (OSC_UNISON_MAX_VOICES))
+    {
+        _osc_ptr->_voice_count = OSC_UNISON_MAX_VOICES;
+    }
+    else if(_value < 1)
+    {
+        _osc_ptr->_voice_count = 1;
+    }
+    else
+    {
+        _osc_ptr->_voice_count = _value;
+    }
+}
 
 float _osc_run_unison_osc(osc_simple_unison * _osc_ptr);
 
@@ -47,7 +64,7 @@ float _osc_run_unison_osc(osc_simple_unison * _osc_ptr)
 {
     int i = 0;
     float _result = 0;
-    while(i < (OSC_UNISON_MAX_VOICES))
+    while(i < (_osc_ptr->_voice_count))
     {
         _run_osc((_osc_ptr->_cores[i]), (_osc_ptr->_voice_inc[i]));
         _result += _osc_ptr->_osc_type((_osc_ptr->_cores[i]));
