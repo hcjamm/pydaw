@@ -324,7 +324,6 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
         plugin->master_glide = data;
     case LMS_MASTER_PITCHBEND_AMT:
         plugin->master_pb_amt = data;
-        
     }
 }
 
@@ -499,18 +498,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     _osc_set_uni_voice_count(data[voice]._voice->_osc_unison1, vals.master_uni_voice);
                     _osc_set_uni_voice_count(data[voice]._voice->_osc_unison2, vals.master_uni_voice);
                     
-                    /*Set the pitch and unison spread*/
-                    /*
-                    _osc_set_unison_pitch(data[voice]._voice->_osc_unison1, vals.master_uni_spread,   
-                            ((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune) + 
-                            (_pitch_bend_value)), 0); //TODO:  This is feeding from pitchbend, I need to double-check it
-                    
-                    _osc_set_unison_pitch(data[voice]._voice->_osc_unison2, vals.master_uni_spread, 
-                            ((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune)  + 
-                            (_pitch_bend_value)), 0);
-                    */
-                    
-                    
+                                        
                     /*Set the last_note property, so the next note can glide from it if glide is turned on*/
                     _last_note = (data[voice].note_f);
 		} 
@@ -616,16 +604,6 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         _osc_set_unison_pitch(d->_voice->_osc_unison2, vals->master_uni_spread, 
                 (d->_voice->_glide_smoother2->last_value) + 0, 0);
         
-        
-        /*
-        _osc_set_unison_pitch(d->_voice->_osc_unison1, vals->master_uni_spread,   
-                            ((d->note_f) + (vals->osc1pitch) + (vals->osc1tune) + 
-                            (_pitch_bend_value)), 0); 
-                    
-        _osc_set_unison_pitch(d->_voice->_osc_unison2, vals->master_uni_spread, 
-                            ((d->note_f) + (vals->osc2pitch) + (vals->osc2tune)  + 
-                            (_pitch_bend_value)), 0);
-        */
         
         /*Run any oscillators, etc...*/
         _result += _osc_run_unison_osc(d->_voice->_osc_unison1) * (d->osc1_linamp);

@@ -27,31 +27,34 @@ typedef struct _state_variable_filter
 
 } state_variable_filter; 
 
-//typedef state_variable_filter * _svf_ptr;
 
 state_variable_filter * _svf_get(float, int);
 
 /*This should be called every sample, otherwise the smoothing doesn't work properly*/
 void _svf_set_cutoff(state_variable_filter * _svf, float _midi_note_number)
 {
-    
-     _svf->_cutoff_note = _sml_run(_svf->cutoff_smoother, _midi_note_number);
+             
+    //_sml_run(_svf->cutoff_smoother, _midi_note_number);
     
      /*It hasn't changed since last time, return*/
-    if((_svf->_cutoff_note) == _midi_note_number)
-        return;
+    
+    /*if((_svf->cutoff_smoother->last_value) == _midi_note_number)
+        return;  */
+    
     
      
     //_svf->_cutoff_note = _midi_note_number;
-    _svf->_cutoff_hz = _pit_midi_note_to_hz(_midi_note_number);
+    _svf->_cutoff_hz = _pit_midi_note_to_hz(_midi_note_number); //_svf->cutoff_smoother->last_value);
     
     if(_svf->_cutoff_hz >= 24000)
         _svf->_cutoff_hz = 24000;
 
     _svf->_cutoff_filter = _svf->_pi2_div_sr * _svf->_cutoff_hz * _svf->_oversample_div;
 
+    /*prevent the filter from exploding numerically, this does artificially cap the cutoff frequency to below what you set it to
+     if you lower the oversampling rate of the filter.*/
     if(_svf->_cutoff_filter > .8)
-        _svf->_cutoff_filter = .8;  //prevent the filter from exploding numerically, this does artificially cap the cutoff frequency to below what you set it to.
+        _svf->_cutoff_filter = .8;  
 }
 
 void _svf_set_res(
@@ -100,7 +103,6 @@ void _svf_set_input_value(state_variable_filter * _svf, float _input_value)
     {
         float _interpolated_sample = _linear_interpolate(_svf->_last_input, _svf->_input, _position);
 
-        //_svf->_hp = _svf->_input - ((_svf->_bp_m1 * _svf->_filter_res) + _svf->_lp_m1);
         _svf->_hp = _interpolated_sample - ((_svf->_bp_m1 * _svf->_filter_res) + _svf->_lp_m1);
         _svf->_bp = (_svf->_hp * _svf->_cutoff_filter) + _svf->_bp_m1;
         _svf->_lp = (_svf->_bp * _svf->_cutoff_filter) + _svf->_lp_m1;

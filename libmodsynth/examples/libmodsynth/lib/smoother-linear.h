@@ -58,34 +58,31 @@ void _sml_set_smoother_glide(smoother_linear * _sml_ptr, float _target, float _c
     printf("Time in seconds %f\n",_time_in_seconds);
 }
 
-float _sml_run(smoother_linear * _smoother, float _current_value)
+void _sml_run(smoother_linear * _smoother, float _current_value)
 {
     /*TODO:  evaluate this more thoroughly.  I'm trying to make it as CPU efficient as possible, since almost every port and/or GUI control will have one.*/
     
     /*Evaluated first because most controls won't be moving most of the time, should consume the fewest cycles*/
     if((_smoother->last_value) == _current_value)
     {        
-        return (_smoother->last_value);
+        //Do nothing
     } 
     /*This does waste CPU while knobs are being moved, but it will effectively kill the knobs processing
      once it does reach it's destination value*/
     else if(fabs(_current_value - (_smoother->last_value)) < (_smoother->rate))
     {
         _smoother->last_value = _current_value;
-        return (_smoother->last_value);
     }
     
     /*Doing the actual work*/
     else if(_current_value > (_smoother->last_value))
     {
-        _smoother->last_value = (_smoother->last_value) + (_smoother->rate);
-        return (_smoother->last_value);
+        _smoother->last_value = (_smoother->last_value) + (_smoother->rate);        
     }
     /*Doing the actual work*/
     else
     {
-        _smoother->last_value = (_smoother->last_value) - (_smoother->rate);
-        return (_smoother->last_value);
+        _smoother->last_value = (_smoother->last_value) - (_smoother->rate);        
     }
 }
 
