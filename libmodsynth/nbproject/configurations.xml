@@ -10,6 +10,9 @@
         <in>dssi.h</in>
       </df>
       <df name="examples">
+        <df name=".libs">
+          <in>synth.lai</in>
+        </df>
         <df name="libmodsynth">
           <df name="doc">
           </df>
@@ -18,6 +21,7 @@
             </df>
             <in>amp.h</in>
             <in>denormal.h</in>
+            <in>glide.h</in>
             <in>interpolate-linear.h</in>
             <in>interpolate-reader.h</in>
             <in>osc_core.h</in>
@@ -51,6 +55,8 @@
               <in>crossfade.h</in>
               <in>switch.h</in>
             </df>
+            <df name="utility">
+            </df>
           </df>
           <df name="widgets">
             <df name="keyboard">
@@ -70,6 +76,8 @@
         <in>synth_qt_gui.moc.cpp</in>
       </df>
       <df name="jack-dssi-host">
+        <df name=".libs">
+        </df>
         <in>jack-dssi-host.c</in>
         <in>jack-dssi-host.h</in>
       </df>

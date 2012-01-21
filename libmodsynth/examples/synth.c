@@ -79,7 +79,6 @@ printf("debug information");
 #define MIDI_NOTES  128  //Maximum MIDI note.  You probably don't want to change this
 #define STEP_SIZE   16
 
-//#define GLOBAL_GAIN 0.25f   //TODO:  Get rid of this
 
 long int lrintf (float x);
 
@@ -112,16 +111,17 @@ typedef struct {
     LADSPA_Data attack;
     LADSPA_Data decay;
     LADSPA_Data sustain;
-    LADSPA_Data release;
-    LADSPA_Data timbre;
-    LADSPA_Data res;
+    LADSPA_Data release;    
     LADSPA_Data dist;
-    //LADSPA_Data pitch;    
+    LADSPA_Data dist_wet;
     
     LADSPA_Data attack_f;
     LADSPA_Data decay_f;
     LADSPA_Data sustain_f;
     LADSPA_Data release_f;
+    LADSPA_Data filter_env_amt;
+    LADSPA_Data timbre;
+    LADSPA_Data res;
     
     LADSPA_Data osc1pitch;
     LADSPA_Data osc1tune;
@@ -133,10 +133,9 @@ typedef struct {
     LADSPA_Data osc2type;
     LADSPA_Data osc2vol;
     
-    LADSPA_Data filter_env_amt;
-    LADSPA_Data dist_wet;
-    LADSPA_Data master_vol;   
     
+    
+    LADSPA_Data master_vol;       
     LADSPA_Data master_uni_voice;
     LADSPA_Data master_uni_spread;
     LADSPA_Data master_glide;
@@ -195,9 +194,9 @@ typedef struct {
 
 
 static float _pitch_bend_value = 0;
-static float _last_note;  //For glide
+static float _last_note = 60;  //For glide
 /*For preventing references to values like last_note that will be null, change to 1 once the first note plays*/
-static int _played_first_note = 0;   
+//static int _played_first_note = 0;   
 
 
 static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
@@ -314,7 +313,7 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
         break;
     case LMS_OSC2_VOLUME:
         plugin->osc2vol = data;
-        break;    
+        break;            
         
         
     case LMS_MASTER_UNISON_VOICES:
@@ -385,7 +384,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     vals.sustain = *(plugin_data->sustain);
     vals.release = *(plugin_data->release);
     vals.timbre = *(plugin_data->timbre);
-    //vals.pitch = 0; 
+    
     vals.res = *(plugin_data->res);
     vals.dist = *(plugin_data->dist);
 
@@ -443,6 +442,29 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     /*LibModSynth additions*/
                     data[voice].note_f = (float)n.note;
                     data[voice].hz = _pit_midi_note_to_hz(data[voice].note_f);
+                    
+                    
+                    data[voice]._voice->_target_pitch1 = ((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune) + 
+                            (_pitch_bend_value));
+                    printf("note_on target pitch1:  %f\n", data[voice]._voice->_target_pitch1);
+                    
+                    data[voice]._voice->_target_pitch2 = ((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune) + 
+                            (_pitch_bend_value));
+                    printf("note_on target pitch2:  %f\n", data[voice]._voice->_target_pitch2);
+                    
+                    data[voice]._voice->_real_pitch1 = _last_note;
+                    printf("note_on real pitch1:  %f\n", data[voice]._voice->_real_pitch1);
+                    
+                    data[voice]._voice->_real_pitch2 = _last_note;
+                    printf("note_on real pitch2:  %f\n", data[voice]._voice->_real_pitch2);
+                    
+                    
+                    _sml_set_smoother_glide(data[voice]._voice->_glide_smoother1, (data[voice]._voice->_target_pitch1), (data[voice]._voice->_real_pitch1),
+                            vals.master_glide);
+                    
+                    _sml_set_smoother_glide(data[voice]._voice->_glide_smoother2, (data[voice]._voice->_target_pitch2), (data[voice]._voice->_real_pitch2),
+                            vals.master_glide);
+                    
                                         
                     /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
                     data[voice].osc1_linamp = _db_to_linear(vals.osc1vol);
@@ -478,6 +500,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     _osc_set_uni_voice_count(data[voice]._voice->_osc_unison2, vals.master_uni_voice);
                     
                     /*Set the pitch and unison spread*/
+                    /*
                     _osc_set_unison_pitch(data[voice]._voice->_osc_unison1, vals.master_uni_spread,   
                             ((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune) + 
                             (_pitch_bend_value)), 0); //TODO:  This is feeding from pitchbend, I need to double-check it
@@ -485,16 +508,13 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     _osc_set_unison_pitch(data[voice]._voice->_osc_unison2, vals.master_uni_spread, 
                             ((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune)  + 
                             (_pitch_bend_value)), 0);
+                    */
                     
                     
-                    /*Notify any other components that it's OK to expect values where there wouldn't be
-                     any if the user hasn't played a note yet*/
-                    if(_played_first_note == 0)
-                        _played_first_note = 1;
                     /*Set the last_note property, so the next note can glide from it if glide is turned on*/
                     _last_note = (data[voice].note_f);
 		} 
-                /*0 velocity, essentially the same as note-off?*/
+                /*0 velocity, the same as note-off*/
                 else 
                 {
 		    const int voice = plugin_data->note2voice[n.note];
@@ -577,11 +597,36 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
     /*Process an audio block*/
     for (i=0; i<count; i++) {
 	
-	//d->env += d->env_d; 
                 
-        /*Begin LibModSynth modifications, calling everything defined in
-         libmodsynth.h in the order it should be called in*/
+        /*Call everything defined in libmodsynth.h in the order it should be called in*/
         float _result = 0;
+        
+        /*Run the glide module*/
+        
+        
+        _sml_run_glide(d->_voice->_glide_smoother1, (d->_voice->_target_pitch1) + 0);
+        
+        _sml_run_glide(d->_voice->_glide_smoother2, (d->_voice->_target_pitch2) + 0);
+        
+        
+        _osc_set_unison_pitch(d->_voice->_osc_unison1, vals->master_uni_spread,   
+                (d->_voice->_glide_smoother1->last_value) + 0, 0);
+
+        
+        _osc_set_unison_pitch(d->_voice->_osc_unison2, vals->master_uni_spread, 
+                (d->_voice->_glide_smoother2->last_value) + 0, 0);
+        
+        
+        /*
+        _osc_set_unison_pitch(d->_voice->_osc_unison1, vals->master_uni_spread,   
+                            ((d->note_f) + (vals->osc1pitch) + (vals->osc1tune) + 
+                            (_pitch_bend_value)), 0); 
+                    
+        _osc_set_unison_pitch(d->_voice->_osc_unison2, vals->master_uni_spread, 
+                            ((d->note_f) + (vals->osc2pitch) + (vals->osc2tune)  + 
+                            (_pitch_bend_value)), 0);
+        */
+        
         /*Run any oscillators, etc...*/
         _result += _osc_run_unison_osc(d->_voice->_osc_unison1) * (d->osc1_linamp);
         _result += _osc_run_unison_osc(d->_voice->_osc_unison2) * (d->osc2_linamp);

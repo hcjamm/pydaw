@@ -24,12 +24,14 @@ extern "C" {
 /*includes for any libmodsynth modules you'll be using*/
 #include "libmodsynth/lib/osc_core.h"
 #include "libmodsynth/lib/pitch_core.h"
+#include "libmodsynth/lib/smoother-linear.h"
 #include "libmodsynth/modules/oscillator/osc_simple.h"
 #include "libmodsynth/modules/oscillator/noise.h"
 #include "libmodsynth/modules/filter/svf.h"
 #include "libmodsynth/modules/distortion/clipper.h"
 #include "libmodsynth/modules/modulation/adsr.h"
 #include "libmodsynth/modules/signal_routing/audio_xfade.h"
+//#include "libmodsynth/lib/glide.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -79,6 +81,17 @@ typedef struct _poly_voice
     white_noise * _w_noise;
     adsr * _adsr_amp;       
     float _noise_amp;
+    
+    smoother_linear * _glide_smoother1;
+    smoother_linear * _glide_smoother2;
+    
+    
+    float _real_pitch1;
+    float _real_pitch2;
+    
+    float _target_pitch1;
+    float _target_pitch2;
+    //poly_glide * _glide;
 }poly_voice;
 
 poly_voice * _poly_init();
@@ -108,6 +121,17 @@ poly_voice * _poly_init()
     _voice->_w_noise = _get_white_noise(_sample_rate);    
     _voice->_noise_amp = 0;
         
+    _voice->_glide_smoother1 = _sml_get_smoother_linear(_sample_rate, 100, 20, .5);  //For osc1
+    _voice->_glide_smoother2 = _sml_get_smoother_linear(_sample_rate, 100, 20, .5);  //For osc2
+    
+    
+    
+    _voice->_real_pitch1 = 60;
+    _voice->_real_pitch2 = 60;
+    
+    _voice->_target_pitch1 = 66;
+    _voice->_target_pitch2 = 66;
+    
     return _voice;
 }
 

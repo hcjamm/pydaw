@@ -34,14 +34,19 @@ state_variable_filter * _svf_get(float, int);
 /*This should be called every sample, otherwise the smoothing doesn't work properly*/
 void _svf_set_cutoff(state_variable_filter * _svf, float _midi_note_number)
 {
-    /*It hasn't changed since last time, return*/
+    
+     _svf->_cutoff_note = _sml_run(_svf->cutoff_smoother, _midi_note_number);
+    
+     /*It hasn't changed since last time, return*/
     if((_svf->_cutoff_note) == _midi_note_number)
         return;
     
-     _svf->_cutoff_note = _sml_run(_svf->cutoff_smoother, _midi_note_number);
-        
+     
     //_svf->_cutoff_note = _midi_note_number;
     _svf->_cutoff_hz = _pit_midi_note_to_hz(_midi_note_number);
+    
+    if(_svf->_cutoff_hz >= 24000)
+        _svf->_cutoff_hz = 24000;
 
     _svf->_cutoff_filter = _svf->_pi2_div_sr * _svf->_cutoff_hz * _svf->_oversample_div;
 
@@ -78,7 +83,7 @@ state_variable_filter * _svf_get(float _sample_rate, int _oversample)
     _svf->_pi2_div_sr = (PI2 / (_svf->_sr));
     _svf->_oversample_mult = _oversample;
     _svf->_oversample_div = (1/((float)_svf->_oversample_mult)); 
-    _svf->cutoff_smoother = _sml_get_smoother_linear(_sample_rate, 130, 30, .1);
+    _svf->cutoff_smoother = _sml_get_smoother_linear(_sample_rate, 130, 30, 2);
     
     return _svf;
 }
