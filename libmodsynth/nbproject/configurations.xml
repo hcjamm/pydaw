@@ -21,7 +21,6 @@
             </df>
             <in>amp.h</in>
             <in>denormal.h</in>
-            <in>glide.h</in>
             <in>interpolate-linear.h</in>
             <in>interpolate-reader.h</in>
             <in>osc_core.h</in>
@@ -60,6 +59,7 @@
           </df>
           <df name="widgets">
             <df name="keyboard">
+              <in>key.h</in>
             </df>
             <in>keyboard.h</in>
           </df>
@@ -91,7 +91,6 @@
         <in>controller.c</in>
       </df>
       <in>config.h</in>
-      <in>key.h</in>
     </df>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -276,7 +276,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_osc2_type = _get_combobox(_osc_types, _osc_types_count , this);     
     _add_widget_no_label(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Type", m_osc2_type);
-    connect(m_osc2_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2typeChanged(int)));
+    connect(m_osc2_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
     osc2TypeChanged(m_osc2_type->currentIndex());
     
     
