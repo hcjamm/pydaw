@@ -15,7 +15,6 @@ extern "C" {
 #include "../../lib/osc_core.h"
 #include "../../../constants.h"
 #include "../../lib/pitch_core.h"
-#include "../utility/glide.h"
 #include <math.h>
     
 
@@ -42,10 +41,8 @@ typedef struct _osc_simple_unison
     float _phases [OSC_UNISON_MAX_VOICES];  //Restart the oscillators at the same phase on each note-on
     
     float _uni_spread;
-            
-    //gld_glide * _glide;
-    
-    float _adjusted_amp;  //Set this with unison voices to prevent excessive volume
+                
+    float _adjusted_amp;  //Set this with unison voices to prevent excessive volume        
     
 }osc_simple_unison;
 
@@ -75,13 +72,6 @@ void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _p
 
 void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch, int _is_glide)
 {
-    /*
-    if(_is_glide == 1)
-    {
-        //TODO
-    }
-    */
-    
     
     _osc_ptr->_uni_spread = _spread;
     _osc_ptr->_bottom_pitch = -.5 * _spread;
@@ -106,15 +96,6 @@ float _osc_run_unison_osc(osc_simple_unison * _osc_ptr)
     int i = 0;
     float _result = 0;
     
-    /*New Code*/
-    
-    /*
-    if(_osc_ptr->_glide->_is_running == 1)
-    {   
-        //_osc_set_unison_pitch(_osc_ptr, _osc_ptr->_uni_spread, _gld_run_glide(_osc_ptr->_glide), 1);
-    }
-    */
-    /*End New Code*/
     
     while(i < (_osc_ptr->_voice_count))
     {
@@ -231,7 +212,7 @@ osc_simple_unison * _osc_get_osc_simple_unison(float _sample_rate)
     _osc_set_uni_voice_count(_result, OSC_UNISON_MAX_VOICES);    
     _result->_osc_type = _get_saw;
     _result->_sr_recip = 1 / _sample_rate;
-    //_result->_glide = _gld_get_glide(_sample_rate);
+    
     
     int i = 0;
     
