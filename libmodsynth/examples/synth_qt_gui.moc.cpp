@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'synth_qt_gui.h'
 **
-** Created: Thu Jan 19 23:19:21 2012
+** Created: Sat Jan 21 21:27:43 2012
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.2)
 **
 ** WARNING! All changes made in this file will be lost!
