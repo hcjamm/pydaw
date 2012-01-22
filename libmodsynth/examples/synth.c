@@ -598,11 +598,11 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         
         _osc_set_unison_pitch(d->_voice->_osc_unison1, vals->master_uni_spread,   
-                (d->_voice->_glide_smoother1->last_value) + 0, 0);
+                (d->_voice->_glide_smoother1->last_value) + 0);
 
         
         _osc_set_unison_pitch(d->_voice->_osc_unison2, vals->master_uni_spread, 
-                (d->_voice->_glide_smoother2->last_value) + 0, 0);
+                (d->_voice->_glide_smoother2->last_value) + 0);
         
         
         /*Run any oscillators, etc...*/
@@ -684,7 +684,7 @@ int getControllerLTS(LADSPA_Handle instance, unsigned long port)
     case LMS_OSC1_VOLUME:
         return DSSI_CC(0x1f);  //31
     case LMS_OSC2_TYPE:
-        return DSSI_CC(0x20);  //32
+        return DSSI_CC(0x29);  //41  (32 is reserved for bank-change MSB
     case LMS_OSC2_PITCH:
         return DSSI_CC(0x21);  //33
     case LMS_OSC2_TUNE:

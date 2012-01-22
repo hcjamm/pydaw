@@ -68,22 +68,32 @@ void _osc_set_uni_voice_count(osc_simple_unison* _osc_ptr, int _value)
 }
 
 
-void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch, int _is_glide);
+void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch);
 
-void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch, int _is_glide)
+void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch)
 {
-    
-    _osc_ptr->_uni_spread = _spread;
-    _osc_ptr->_bottom_pitch = -.5 * _spread;
-    _osc_ptr->_pitch_inc = _spread / ((float)(_osc_ptr->_voice_count));
-    
-    int i = 0;
-    
-    while(i < (_osc_ptr->_voice_count))
+    if((_osc_ptr->_voice_count) == 1)
     {
-        _osc_ptr->_voice_inc[i] =  _pit_midi_note_to_hz(_pitch + (_osc_ptr->_bottom_pitch) + (_osc_ptr->_pitch_inc * ((float)i))) * _osc_ptr->_sr_recip;
-        i++;
+        _osc_ptr->_voice_inc[0] =  _pit_midi_note_to_hz(_pitch) * _osc_ptr->_sr_recip;
     }
+    else
+    {        
+        if(_spread != (_osc_ptr->_uni_spread))
+        {
+            _osc_ptr->_uni_spread = _spread;
+            _osc_ptr->_bottom_pitch = -.5 * _spread;
+            _osc_ptr->_pitch_inc = _spread / ((float)(_osc_ptr->_voice_count));
+        }
+        
+        int i = 0;
+
+        while(i < (_osc_ptr->_voice_count))
+        {
+            _osc_ptr->_voice_inc[i] =  _pit_midi_note_to_hz(_pitch + (_osc_ptr->_bottom_pitch) + (_osc_ptr->_pitch_inc * ((float)i))) * _osc_ptr->_sr_recip;
+            i++;
+        }
+    }
+    
 }
 
 
@@ -222,7 +232,7 @@ osc_simple_unison * _osc_get_osc_simple_unison(float _sample_rate)
         i++;
     }
         
-    _osc_set_unison_pitch(_result, .5, 60, 0);
+    _osc_set_unison_pitch(_result, .5, 60);
     
     i = 0;
     
@@ -241,7 +251,7 @@ osc_simple_unison * _osc_get_osc_simple_unison(float _sample_rate)
         i++;
     }
     
-    _osc_set_unison_pitch(_result, .2, 60, 0);
+    _osc_set_unison_pitch(_result, .2, 60);
     
     return _result;
 }

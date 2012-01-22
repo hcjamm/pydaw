@@ -657,84 +657,84 @@ void SynthGUI::setFilterRelease(float sec)
 void SynthGUI::setNoiseAmp(float val)
 {
     m_suppressHostUpdate = true;
-    m_noise_amp->setValue(val);
+    m_noise_amp->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setFilterEnvAmt(float val)
 {
     m_suppressHostUpdate = true;
-    m_filter_env_amt->setValue(val);
+    m_filter_env_amt->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setDistWet(float val)
 {
     m_suppressHostUpdate = true;
-    m_dist_wet->setValue(val * 100);
+    m_dist_wet->setValue(int(val * 100));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setOsc1Type(float val)
 {
     m_suppressHostUpdate = true;
-    m_osc1_type->setCurrentIndex((int)val);
+    m_osc1_type->setCurrentIndex(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setOsc1Pitch(float val)
 {
     m_suppressHostUpdate = true;
-    m_osc1_pitch->setValue(val);
+    m_osc1_pitch->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setOsc1Tune(float val)
 {
     m_suppressHostUpdate = true;
-    m_osc1_tune->setValue(val * 100);
+    m_osc1_tune->setValue(int(val * 100));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setOsc1Volume(float val)
 {
     m_suppressHostUpdate = true;
-    m_osc1_volume->setValue(val);
+    m_osc1_volume->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setOsc2Type(float val)
 {
     m_suppressHostUpdate = true;
-    m_osc2_type->setCurrentIndex((int)val);
+    m_osc2_type->setCurrentIndex(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setOsc2Pitch(float val)
 {
     m_suppressHostUpdate = true;
-    m_osc2_pitch->setValue(val);
+    m_osc2_pitch->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setOsc2Tune(float val)
 {
     m_suppressHostUpdate = true;
-    m_osc2_tune->setValue(val * 100);
+    m_osc2_tune->setValue(int(val * 100));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setOsc2Volume(float val)
 {
     m_suppressHostUpdate = true;
-    m_osc2_volume->setValue(val);
+    m_osc2_volume->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setMasterVolume(float val)
 {
     m_suppressHostUpdate = true;
-    m_master_volume->setValue(val);
+    m_master_volume->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
@@ -743,28 +743,28 @@ void SynthGUI::setMasterVolume(float val)
 void SynthGUI::setMasterUnisonVoices(float val)
 {
     m_suppressHostUpdate = true;
-    m_master_unison_voices->setValue(val);
+    m_master_unison_voices->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setMasterUnisonSpread(float val)
 {
     m_suppressHostUpdate = true;
-    m_master_unison_spread->setValue(val);
-    m_suppressHostUpdate = false;
+    m_master_unison_spread->setValue(int(val));
+    m_suppressHostUpdate = false; 
 }
 
 void SynthGUI::setMasterGlide(float val)
 {
     m_suppressHostUpdate = true;
-    m_master_glide->setValue(val);
+    m_master_glide->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setMasterPitchbendAmt(float val)
 {
     m_suppressHostUpdate = true;
-    m_master_pitchbend_amt->setValue(val);
+    m_master_pitchbend_amt->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
@@ -1059,9 +1059,35 @@ int debug_handler(const char *path, const char *types, lo_arg **argv,
 int program_handler(const char *path, const char *types, lo_arg **argv,
 	       int argc, void *data, void *user_data)
 {
+    
+    int bank, program;
+
+    if (argc < 2) {
+        //GDB_MESSAGE(GDB_OSC, " error: too few arguments to osc_program_handler\n");
+        return 1;
+    }
+
+    
+    bank = argv[0]->i;
+    program = argv[1]->i;
+
+    if (bank || program < 0 || program >= 128) {
+        //GDB_MESSAGE(GDB_OSC, ": out-of-range program select (bank %d, program %d)\n", bank, program);
+        return 0;
+    }
+
+    //GDB_MESSAGE(GDB_OSC, " osc_program_handler: received program change, bank %d, program %d\n", bank, program);
+
+    //update_from_program_select(bank, program);
+    
+    cerr << "Bank:  " << bank << ", Program:  " << program << endl;
+    
+    
+/*
 #ifdef LMS_DEBUG_MODE_QT
     cerr << "Program handler not yet implemented" << endl;
 #endif
+*/
     return 0;
 }
 
@@ -1175,97 +1201,91 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
 	break;
 
     case LTS_PORT_NOISE_AMP:
-        cerr << "setting noise amp to " << value << endl;
+        cerr << "gui setting noise amp to " << value << endl;
         gui->setNoiseAmp(value);
         break;
     
     case LTS_PORT_DIST_WET:
-        cerr << "setting dist wet to " << value << endl;
+        cerr << "gui setting dist wet to " << value << endl;
         gui->setDistWet(value);
         break;
             
     case LTS_PORT_FILTER_ENV_AMT:
-        cerr << "setting filter env amt to " << value << endl;
+        cerr << "gui setting filter env amt to " << value << endl;
         gui->setFilterEnvAmt(value);
         break;
     
     case LTS_PORT_OSC1_TYPE:
-        cerr << "setting osc1type to " << value << endl;
+        cerr << "gui setting osc1type to " << value << endl;
         gui->setOsc1Type(value);
         break;
             
     case LTS_PORT_OSC1_PITCH:
-        cerr << "setting osc1pitch to " << value << endl;
+        cerr << "gui setting osc1pitch to " << value << endl;
         gui->setOsc1Pitch(value);
         break;
     
     case LTS_PORT_OSC1_TUNE:
-        cerr << "setting osc1tune to " << value << endl;
+        cerr << "gui setting osc1tune to " << value << endl;
         gui->setOsc1Tune(value);
         break;
     
     case LTS_PORT_OSC1_VOLUME:
-        cerr << "setting osc1vol amp to " << value << endl;
+        cerr << "gui setting osc1vol amp to " << value << endl;
         gui->setOsc1Volume(value);
         break;
             
         
     case LTS_PORT_OSC2_TYPE:
-        cerr << "setting osc2type to " << value << endl;
+        cerr << "gui setting osc2type to " << value << endl;
         gui->setOsc2Type(value);
         break;
             
     case LTS_PORT_OSC2_PITCH:
-        cerr << "setting osc2pitch to " << value << endl;
+        cerr << "gui setting osc2pitch to " << value << endl;
         gui->setOsc2Pitch(value);
         break;
     
     case LTS_PORT_OSC2_TUNE:
-        cerr << "setting osc2tune to " << value << endl;
+        cerr << "gui setting osc2tune to " << value << endl;
         gui->setOsc2Tune(value);
         break;
     
     case LTS_PORT_OSC2_VOLUME:
-        cerr << "setting osc2vol amp to " << value << endl;
+        cerr << "gui setting osc2vol amp to " << value << endl;
         gui->setOsc2Volume(value);
         break;
             
         
     case LTS_PORT_MASTER_VOLUME:
-        cerr << "setting noise amp to " << value << endl;
+        cerr << "gui setting noise amp to " << value << endl;
         gui->setMasterVolume(value);
         break;
     
-        /*Begin new stuff*/
-        
-
     case LTS_PORT_MASTER_UNISON_VOICES:
-        cerr << "setting unison voices to " << value << endl;
+        cerr << "gui setting unison voices to " << value << endl;
         gui->setMasterUnisonVoices(value);
         break;
 
 
     case LTS_PORT_MASTER_UNISON_SPREAD:
-        cerr << "setting unison spread to " << value << endl;
+        cerr << "gui setting unison spread to " << value << endl;
         gui->setMasterUnisonSpread(value);
         break;
 
 
     case LTS_PORT_MASTER_GLIDE:
-        cerr << "setting glide to " << value << endl;
+        cerr << "gui setting glide to " << value << endl;
         gui->setMasterGlide(value);
         break;
 
 
     case LTS_PORT_MASTER_PITCHBEND_AMT:
-        cerr << "setting pitchbend to " << value << endl;
+        cerr << "gui setting pitchbend to " << value << endl;
         gui->setMasterPitchbendAmt(value);
         break;
 
-        
-        
-        /*End new stuff*/
-        
+                
     default:
 	cerr << "Warning: received request to set nonexistent port " << port << endl;
     }
