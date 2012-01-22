@@ -113,8 +113,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     QString _osc_types [] = {"Saw", "Square", "Triangle", "Sine", "Off"};
     int _osc_types_count = 5;
     
-    QGridLayout *layout = new QGridLayout(this);
-    //QVBoxLayout *layout = new QVBoxLayout();
+    //QGridLayout *layout = new QGridLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
         
     int _row = 0;
     int _column = 0;
@@ -122,6 +122,9 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     int _gb_layout_row = 0;
     int _gb_layout_column = 0;
     /*GUI Step 4:  Lay out the controls you declared in the first step*/
+    
+    
+    QHBoxLayout *layout_row1 = new QHBoxLayout();
     
     /*The oscillator1 GroupBox*/
     QGroupBox * _gb_osc1 = _newGroupBox("Osc1", this);
@@ -156,7 +159,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_osc1_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc1TypeChanged(int)));
     osc1TypeChanged(m_osc1_type->currentIndex());
     
-    layout->addWidget(_gb_osc1, _row, _column, Qt::AlignCenter); 
+    layout_row1->addWidget(_gb_osc1, -1, Qt::AlignLeft);
     _gb_layout_row = 0;
     _gb_layout_column = 0;
     _column++;
@@ -197,7 +200,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_release, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));
     releaseChanged(m_release->value());
     
-    layout->addWidget(_gb_adsr, _row, _column, Qt::AlignCenter);        
+    layout_row1->addWidget(_gb_adsr, -1, Qt::AlignLeft);
     _column++;
     _gb_layout_row = 0;
     _gb_layout_column = 0;
@@ -221,7 +224,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_dist_wet,  SIGNAL(valueChanged(int)), this, SLOT(distWetChanged(int)));
     distWetChanged (m_dist_wet ->value());
     
-    layout->addWidget(_gb_dist, _row, _column, Qt::AlignCenter);    
+    layout_row1->addWidget(_gb_dist, -1, Qt::AlignLeft);
+    //layout->addWidget(_gb_dist, _row, _column, Qt::AlignCenter);    
     _column++;
     _gb_layout_row = 0;
     _gb_layout_column = 0;
@@ -239,11 +243,18 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_noise_amp,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
     noiseAmpChanged (m_dist ->value());
     
-    
-    layout->addWidget(_gb_noise_amp, _row, _column, Qt::AlignCenter);            
+    layout_row1->addWidget(_gb_noise_amp, -1, Qt::AlignLeft);
+    //layout->addWidget(_gb_noise_amp, _row, _column, Qt::AlignCenter);            
     /*Start a new row*/
     _row++;
     _column = 0;
+    
+    //TODO:  Maybe add an empty QFrame to allow stretching???
+    //layout_row1->addWidget(new QFrame(this));
+    
+    layout->addLayout(layout_row1, -1);    
+    
+    QHBoxLayout *layout_row2 = new QHBoxLayout();
     
     
     /*The oscillator2 GroupBox*/
@@ -279,8 +290,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_osc2_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
     osc2TypeChanged(m_osc2_type->currentIndex());
     
-    
-    layout->addWidget(_gb_osc2, _row, _column, Qt::AlignCenter);        
+    layout_row2->addWidget(_gb_osc2, -1, Qt::AlignLeft);
     _gb_layout_row = 0;
     _gb_layout_column = 0;
     _column++;
@@ -322,8 +332,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_filter_release, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));    
     filterReleaseChanged(m_filter_release->value());
         
-    
-    layout->addWidget(_gb_adsr_f, _row, _column, Qt::AlignCenter);        
+    layout_row2->addWidget(_gb_adsr_f, -1, Qt::AlignLeft);
     _gb_layout_row = 0;
     _gb_layout_column = 0;
     _column++;
@@ -335,7 +344,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_timbre  =  _get_knob(pitch);  //newQDial(  39, 136,  1,  82); // s * 100
     m_timbreLabel  = _newQLabel(this);
-    _add_widget(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Timbre",m_timbre, m_timbreLabel);
+    _add_widget(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Cutoff",m_timbre, m_timbreLabel);
     connect(m_timbre,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));
     timbreChanged (m_timbre ->value());
     
@@ -355,12 +364,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_filter_env_amt,  SIGNAL(valueChanged(int)), this, SLOT(filterEnvAmtChanged(int)));
     filterEnvAmtChanged (m_filter_env_amt ->value());
     
-    
-    layout->addWidget(_gb_filter, _row, _column, Qt::AlignCenter);    
+    layout_row2->addWidget(_gb_filter, -1, Qt::AlignLeft);
     _column++;
     _gb_layout_row = 0;
     _gb_layout_column = 0;
     
+    layout->addLayout(layout_row2, -1);
+    
+    QHBoxLayout *layout_row3 = new QHBoxLayout();
     
     /*The Master Volume GroupBox*/
     QGroupBox * _gb_master_vol = _newGroupBox("Master", this); 
@@ -375,7 +386,6 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _gb_layout_column++;
     
     
-    /*Begin new stuff*/
     
     m_master_unison_voices  =  newQDial(1, 7, 1, 1);
     m_master_unison_voicesLabel  = _newQLabel(this);
@@ -410,9 +420,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _gb_layout_column++;
     
     
-    /*End new stuff*/
-    
-    layout->addWidget(_gb_master_vol, _row, _column, Qt::AlignCenter);    
+    layout_row3->addWidget(_gb_master_vol, -1, Qt::AlignLeft);
     _column++;
     _gb_layout_row = 0;
     _gb_layout_column = 0;
@@ -425,7 +433,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(testButton, SIGNAL(pressed()), this, SLOT(test_press()));
     connect(testButton, SIGNAL(released()), this, SLOT(test_release()));    
     /*This adds the test button below the last column*/
-    layout->addWidget(testButton, (_row + 4), _column, Qt::AlignCenter);
+    
+    layout_row3->addWidget(testButton, -1, Qt::AlignRight);
+    //layout->addWidget(testButton, (_row + 4), _column, Qt::AlignCenter);
+    
+    
+    /*BIG IMPORTANT PIECE RIGHT HERE*/
+    
+    layout->addLayout(layout_row3, -1);
     
     /*End test button code, DO NOT remove the code below this*/
 
@@ -555,6 +570,8 @@ QDial * SynthGUI::newQDial( int minValue, int maxValue, int pageStep, int value 
     //TODO:  Make this a constant value
     dial->setMaximumHeight(66);
     dial->setMaximumWidth(66);
+    dial->setMinimumHeight(66);
+    dial->setMinimumWidth(66);
     
     //dial->setFocusPolicy(Qt::NoFocus);
     
