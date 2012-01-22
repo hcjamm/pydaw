@@ -62,6 +62,7 @@
               <in>key.h</in>
             </df>
             <in>keyboard.h</in>
+            <in>synth_qt_presets.h</in>
           </df>
         </df>
         <in>constants.h</in>
