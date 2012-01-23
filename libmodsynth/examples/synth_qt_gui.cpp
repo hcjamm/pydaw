@@ -12,8 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 */
-//Comment this out when you compile a stable release version on the plugin
-#define LMS_DEBUG_MODE_QT
+
 
 #include "synth_qt_gui.h"
 
@@ -32,6 +31,12 @@ GNU General Public License for more details.
 #include <qt4/QtGui/qboxlayout.h>
 #include <QGroupBox>
 #include <qt4/QtGui/qdial.h>
+#include <QPixmap>
+#include <QFile>
+#include <QDir>
+#include <QTextStream>
+
+
 
 #include <stdlib.h>
 #include "libmodsynth/lib/amp.h"
@@ -55,6 +60,15 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
     return 0;
 }
 #endif
+
+
+//Comment this out when you compile a stable release version on the plugin, you don't want it printing debug output unless you're debugging
+#define LMS_DEBUG_MODE_QT
+
+/*This is used for things like naming the preset file, etc...*/
+#define LMS_PLUGIN_NAME "ray-v"
+//#define PROGRAM_XML_FILE  QDir::homePath() + "/dssi/" + PLUGIN_NAME + "-presets.xml"
+
 
 using std::endl;
 
@@ -113,9 +127,74 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     QString _osc_types [] = {"Saw", "Square", "Triangle", "Sine", "Off"};
     int _osc_types_count = 5;
     
+    
+    /*Getting the program list from the presets file*/
+    
+    QString _programs_list [128];
+    
+    _presets_tab_delimited = new QStringList();
+    
+    QFile* file = new QFile(QDir::homePath() + "/" + LMS_PLUGIN_NAME + "-presets.xml");
+    
+    if(!file->open(QIODevice::ReadOnly)) {
+
+    }
+
+    QTextStream * in = new QTextStream(file);
+
+    for(int i = 0; i < 128; i++) 
+    {
+        if(in->atEnd())
+        {
+            _programs_list[i] = "empty";
+            _presets_tab_delimited->append("empty");
+        }
+        else
+        {
+            QString line = in->readLine();    
+
+            QStringList fields = line.split("\t");    
+            
+            _programs_list[i] = fields.at(0);
+            
+            _presets_tab_delimited->append(line);
+        }
+        
+    }
+
+    file->close();
+    
+    /*End getting the program list from the presets file*/
+    
     //QGridLayout *layout = new QGridLayout(this);
     QVBoxLayout *layout = new QVBoxLayout(this);
         
+    QGroupBox * _gb_program = _newGroupBox("Program", this);    
+    QHBoxLayout *layout_program = new QHBoxLayout();
+    
+    QLabel *m_prog_label = new QLabel(this);
+    m_prog_label->setText("Program");
+    layout_program->addWidget(m_prog_label, -1, Qt::AlignLeft);
+    
+    
+    m_program = _get_combobox( _programs_list, 128, this);
+    
+    m_program->setEditable(TRUE);
+    connect(m_program, SIGNAL(currentIndexChanged(int)), this, SLOT(programChanged(int)));        
+    layout_program->addWidget(m_program, -1, Qt::AlignLeft);
+    
+    m_prog_save = new QPushButton(this);
+    m_prog_save->setText("Save");
+    connect(m_prog_save, SIGNAL(pressed()), this, SLOT(programSaved()));
+    layout_program->addWidget(m_prog_save);
+    
+    //TODO:  Run a load-default-bank method
+    _gb_program->setLayout(layout_program);
+    layout->addWidget(_gb_program, -1, Qt::AlignLeft);
+    
+    
+    
+    
     int _row = 0;
     int _column = 0;
     
@@ -244,13 +323,11 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     noiseAmpChanged (m_dist ->value());
     
     layout_row1->addWidget(_gb_noise_amp, -1, Qt::AlignLeft);
-    //layout->addWidget(_gb_noise_amp, _row, _column, Qt::AlignCenter);            
+    
     /*Start a new row*/
     _row++;
     _column = 0;
     
-    //TODO:  Maybe add an empty QFrame to allow stretching???
-    //layout_row1->addWidget(new QFrame(this));
     
     layout->addLayout(layout_row1, -1);    
     
@@ -424,21 +501,16 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _column++;
     _gb_layout_row = 0;
     _gb_layout_column = 0;
-    
-    
-    
+        
     /*This is the test button for playing a note without a keyboard, you should remove this before distributing your plugin*/
     
     QPushButton *testButton = new QPushButton("Test", this);
     connect(testButton, SIGNAL(pressed()), this, SLOT(test_press()));
     connect(testButton, SIGNAL(released()), this, SLOT(test_release()));    
-    /*This adds the test button below the last column*/
-    
+        
     layout_row3->addWidget(testButton, -1, Qt::AlignRight);
-    //layout->addWidget(testButton, (_row + 4), _column, Qt::AlignCenter);
-    
-    
-    /*BIG IMPORTANT PIECE RIGHT HERE*/
+        
+    /*IMPORTANT:  Adding the last row, don't delete this*/
     
     layout->addLayout(layout_row3, -1);
     
@@ -785,8 +857,22 @@ void SynthGUI::setMasterPitchbendAmt(float val)
     m_suppressHostUpdate = false;
 }
 
+/*
+void SynthGUI::setBank(int val)
+{
+    cerr << "setBank called with val: " << val << endl;
+}
+*/
 
-/*End new stuff*/
+void SynthGUI::setProgram(int val)
+{
+    cerr << "setProgram called with val: " << val << endl;
+}
+
+void SynthGUI::programSaved()
+{
+    cerr << "programSaved called" << endl;
+}
 
 
 /*Standard handlers for the audio slots, these perform manipulations of knob values
@@ -846,6 +932,8 @@ void SynthGUI::_changed_decibels(int value, QLabel * _label, int _port)
 	lo_send(m_host, m_controlPath, "if", _port, float(value));
     }
 }
+
+
 
 /*GUI Step 7:  Implement the event handlers from step 3.*/
 
@@ -980,7 +1068,6 @@ void SynthGUI::masterVolumeChanged(int value)
 }
 
 
-/*Begin new stuff*/
 
 
 void SynthGUI::masterUnisonVoicesChanged(int value)
@@ -1006,7 +1093,19 @@ void SynthGUI::masterPitchbendAmtChanged(int value)
     _changed_integer(value, m_master_pitchbend_amtLabel, LTS_PORT_MASTER_PITCHBEND_AMT);
 }
 
-/*End new stuff*/
+/*
+void SynthGUI::bankChanged(int value)
+{
+    cerr << "Program change not yet implemented.  Bank# " << value << endl;
+}
+*/
+
+void SynthGUI::programChanged(int value)
+{
+    cerr << "Program change not yet implemented.  Program# " << value << endl;
+}
+    
+
 
 void SynthGUI::test_press()
 {
@@ -1076,9 +1175,12 @@ int debug_handler(const char *path, const char *types, lo_arg **argv,
 int program_handler(const char *path, const char *types, lo_arg **argv,
 	       int argc, void *data, void *user_data)
 {
+    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
     
-    int bank, program;
+    int bank = 0;
+    int program = 0;
 
+    /*
     if (argc < 2) {
         //GDB_MESSAGE(GDB_OSC, " error: too few arguments to osc_program_handler\n");
         return 1;
@@ -1088,23 +1190,15 @@ int program_handler(const char *path, const char *types, lo_arg **argv,
     bank = argv[0]->i;
     program = argv[1]->i;
 
-    if (bank || program < 0 || program >= 128) {
-        //GDB_MESSAGE(GDB_OSC, ": out-of-range program select (bank %d, program %d)\n", bank, program);
+    if (bank || program < 0 || program >= 128) {        
         return 0;
     }
-
-    //GDB_MESSAGE(GDB_OSC, " osc_program_handler: received program change, bank %d, program %d\n", bank, program);
-
-    //update_from_program_select(bank, program);
+    */
     
     cerr << "Bank:  " << bank << ", Program:  " << program << endl;
-    
-    
-/*
-#ifdef LMS_DEBUG_MODE_QT
-    cerr << "Program handler not yet implemented" << endl;
-#endif
-*/
+
+    gui->setProgram(program);
+
     return 0;
 }
 

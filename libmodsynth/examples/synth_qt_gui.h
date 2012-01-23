@@ -24,6 +24,11 @@ GNU General Public License for more details.
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QComboBox>
+#include <QPushButton>
+#include <qt4/QtXml/QDomDocument>
+#include <QPixmap>
+#include <QFile>
+#include <QDir>
 
 #include <string>
 #include <stdlib.h>
@@ -99,6 +104,8 @@ public slots:
     void setMasterGlide(float val);
     void setMasterPitchbendAmt(float val);
     
+    void setProgram(int val);
+    void programSaved();
     
     void aboutToQuit();
     
@@ -137,6 +144,8 @@ protected slots:
     void masterGlideChanged(int);
     void masterPitchbendAmtChanged(int);
     
+    void programChanged(int);
+        
     
     void test_press();
     void test_release();
@@ -165,6 +174,9 @@ protected:
     void _changed_decibels(int, QLabel *, int);
     void _changed_zero_to_x(int, QLabel *, int);
     void _changed_integer(int value, QLabel * _label, int _port);
+    
+    QStringList * _presets_tab_delimited;
+    
     
     /*GUI Step1:  Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
     QDial *m_attack;
@@ -231,6 +243,10 @@ protected:
     
     QDial *m_master_pitchbend_amt;
     QLabel *m_master_pitchbend_amtLabel;
+    
+    QComboBox *m_program;
+    QPushButton *m_prog_save;
+    
     
     lo_address m_host;
     QByteArray m_controlPath;

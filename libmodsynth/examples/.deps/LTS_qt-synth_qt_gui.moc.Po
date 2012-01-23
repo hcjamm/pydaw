@@ -137,7 +137,16 @@ LTS_qt-synth_qt_gui.moc.o: synth_qt_gui.moc.cpp synth_qt_gui.h \
  /usr/include/qt4/QtGui/qslider.h /usr/include/qt4/QtGui/qstyle.h \
  /usr/include/qt4/QtGui/qtabbar.h /usr/include/qt4/QtGui/qtabwidget.h \
  /usr/include/qt4/QtGui/qrubberband.h \
- /usr/include/qt4/QtCore/qabstractitemmodel.h /usr/include/lo/lo.h \
+ /usr/include/qt4/QtCore/qabstractitemmodel.h \
+ /usr/include/qt4/QtGui/QPushButton /usr/include/qt4/QtGui/qpushbutton.h \
+ /usr/include/qt4/QtXml/QDomDocument /usr/include/qt4/QtXml/qdom.h \
+ /usr/include/qt4/QtGui/QPixmap /usr/include/qt4/QtGui/qpixmap.h \
+ /usr/include/qt4/QtCore/QFile /usr/include/qt4/QtCore/qfile.h \
+ /usr/include/libio.h /usr/include/_G_config.h \
+ /usr/include/bits/sys_errlist.h /usr/include/bits/stdio.h \
+ /usr/include/bits/stdio2.h /usr/include/qt4/QtCore/QDir \
+ /usr/include/qt4/QtCore/qdir.h /usr/include/qt4/QtCore/qfileinfo.h \
+ /usr/include/qt4/QtCore/qfile.h /usr/include/lo/lo.h \
  /usr/include/lo/lo_endian.h \
  /usr/lib/x86_64-linux-gnu/gcc/x86_64-linux-gnu/4.5.2/include/stdint.h \
  /usr/include/stdint.h /usr/include/netinet/in.h \
@@ -596,6 +605,40 @@ synth_qt_gui.h:
 /usr/include/qt4/QtGui/qrubberband.h:
 
 /usr/include/qt4/QtCore/qabstractitemmodel.h:
+
+/usr/include/qt4/QtGui/QPushButton:
+
+/usr/include/qt4/QtGui/qpushbutton.h:
+
+/usr/include/qt4/QtXml/QDomDocument:
+
+/usr/include/qt4/QtXml/qdom.h:
+
+/usr/include/qt4/QtGui/QPixmap:
+
+/usr/include/qt4/QtGui/qpixmap.h:
+
+/usr/include/qt4/QtCore/QFile:
+
+/usr/include/qt4/QtCore/qfile.h:
+
+/usr/include/libio.h:
+
+/usr/include/_G_config.h:
+
+/usr/include/bits/sys_errlist.h:
+
+/usr/include/bits/stdio.h:
+
+/usr/include/bits/stdio2.h:
+
+/usr/include/qt4/QtCore/QDir:
+
+/usr/include/qt4/QtCore/qdir.h:
+
+/usr/include/qt4/QtCore/qfileinfo.h:
+
+/usr/include/qt4/QtCore/qfile.h:
 
 /usr/include/lo/lo.h:
 

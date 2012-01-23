@@ -61,11 +61,6 @@ void _init_lms(float _sr)
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
 typedef struct _poly_voice
 {    
-    /*
-    osc_core * _osc_core1;    
-    _get_osc_func_ptr _osc1_type;
-    */
-    
     osc_simple_unison * _osc_unison1;
     osc_simple_unison * _osc_unison2;
     
