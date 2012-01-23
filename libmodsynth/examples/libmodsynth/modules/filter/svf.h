@@ -87,6 +87,11 @@ state_variable_filter * _svf_get(float _sample_rate, int _oversample)
     _svf->_oversample_mult = _oversample;
     _svf->_oversample_div = (1/((float)_svf->_oversample_mult)); 
     _svf->cutoff_smoother = _sml_get_smoother_linear(_sample_rate, 130, 30, 2);
+    _svf->_bp = 0;
+    _svf->_bp_m1 = 0;
+    _svf->_hp = 0;
+    _svf->_lp = 0;
+    _svf->_lp_m1 = 0;
     
     return _svf;
 }
@@ -103,14 +108,14 @@ void _svf_set_input_value(state_variable_filter * _svf, float _input_value)
     {
         float _interpolated_sample = _linear_interpolate(_svf->_last_input, _svf->_input, _position);
 
-        _svf->_hp = _interpolated_sample - ((_svf->_bp_m1 * _svf->_filter_res) + _svf->_lp_m1);
-        _svf->_bp = (_svf->_hp * _svf->_cutoff_filter) + _svf->_bp_m1;
-        _svf->_lp = (_svf->_bp * _svf->_cutoff_filter) + _svf->_lp_m1;
+        _svf->_hp = _interpolated_sample - (((_svf->_bp_m1) * (_svf->_filter_res)) + (_svf->_lp_m1));
+        _svf->_bp = ((_svf->_hp) * (_svf->_cutoff_filter)) + (_svf->_bp_m1);
+        _svf->_lp = ((_svf->_bp) * (_svf->_cutoff_filter)) + (_svf->_lp_m1);
 
         _svf->_bp_m1 = _remove_denormal((_svf->_bp));
         _svf->_lp_m1 = _remove_denormal((_svf->_lp));
 
-        _position += _svf->_oversample_mult;
+        _position += (_svf->_oversample_mult);
         
         i++;
     }

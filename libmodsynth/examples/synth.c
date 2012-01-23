@@ -766,7 +766,7 @@ void _init()
 	ltsLDescriptor->UniqueID = 24;  //TODO:  Find out what this means
 	ltsLDescriptor->Label = "LTS";  //Changing this breaks the plugin, it compiles, but hangs when trying to run.  TODO:  investigate
 	ltsLDescriptor->Properties = 0;
-	ltsLDescriptor->Name = "LibModSynth Example Synth";
+	ltsLDescriptor->Name = "Ray-V (Powered by LibModSynth)";
 	ltsLDescriptor->Maker = "Jeff Hubbard <libmodsynth.sourceforge.net>";
 	ltsLDescriptor->Copyright = "GNU GPL v3";
 	ltsLDescriptor->PortCount = LMS_COUNT;
