@@ -105,7 +105,7 @@ public slots:
     void setMasterPitchbendAmt(float val);
     
     void setProgram(int val);
-    void programSaved();
+    
     
     void aboutToQuit();
     
@@ -145,6 +145,7 @@ protected slots:
     void masterPitchbendAmtChanged(int);
     
     void programChanged(int);
+    void programSaved();
         
     
     void test_press();

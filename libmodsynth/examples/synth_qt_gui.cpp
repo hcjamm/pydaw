@@ -35,7 +35,7 @@ GNU General Public License for more details.
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
-
+#include <QMessageBox>
 
 
 #include <stdlib.h>
@@ -73,6 +73,8 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 using std::endl;
 
 /*GUI Step 6:  Define ports for each control that will send messages to the plugin, such as dials/knobs or faders.*/
+
+//TODO:  put something at zero here, and update the below iterator
 #define LTS_PORT_ATTACK  1
 #define LTS_PORT_DECAY   2
 #define LTS_PORT_SUSTAIN 3
@@ -101,6 +103,7 @@ using std::endl;
 #define LTS_PORT_MASTER_UNISON_SPREAD 25
 #define LTS_PORT_MASTER_GLIDE 26
 #define LTS_PORT_MASTER_PITCHBEND_AMT 27
+#define LTS_PORT_MAX 28  //This corresponds to the highest number, you must update this when adding or removing controls
 
 
 lo_server osc_server = 0;
@@ -869,11 +872,6 @@ void SynthGUI::setProgram(int val)
     cerr << "setProgram called with val: " << val << endl;
 }
 
-void SynthGUI::programSaved()
-{
-    cerr << "programSaved called" << endl;
-}
-
 
 /*Standard handlers for the audio slots, these perform manipulations of knob values
  that are common in audio applications*/
@@ -1104,8 +1102,53 @@ void SynthGUI::bankChanged(int value)
 void SynthGUI::programChanged(int value)
 {
     cerr << "Program change not yet implemented.  Program# " << value << endl;
+    if(presets_tab_delimited->at(m_program->currentIndex()) == "empty")
+    {
+        QMessageBox * f_qmess = new QMessageBox(this);
+        f_qmess->setText("You must change the name of the preset before you can save it.");
+        f_qmess->show();
+    }
+    else
+    {
+        
+    }
 }
     
+void SynthGUI::programSaved()
+{
+    
+    if(presets_tab_delimited->at(m_program->currentIndex()).toStdString() == "empty")
+    {
+        QMessageBox * f_qmess = new QMessageBox(this);
+        f_qmess->setText("You must change the name of the preset before you can save it.");
+        f_qmess->show();
+    }
+    else
+    {
+        QString f_result = m_program->currentText();
+        
+        //TODO:  change f_i back to zero when there is something at that index
+        for(int f_i = 1; f_i < LTS_PORT_MAX; f_i++)
+        {
+            f_result.append("\tTODO:  a function to get the controller value");
+        }
+                
+        //presets_tab_delimited[m_program->currentIndex()] = f_result;
+        
+        //QString f_result2 = new QString();
+        
+        for(int f_i = 0; f_i < 128; f_i++)
+        {
+            //f_result2.append(presets_tab_delimited->at(f_i) + "\n");
+        }
+        
+        //QFile f_preset_file = new QFile(QDir::homePath() + "/" + LMS_PLUGIN_NAME + "-presets.xml");
+        
+        //f_preset_file.write(f_result2->toStdString());
+        
+        //f_preset_file.close();
+    }
+}
 
 
 void SynthGUI::test_press()
