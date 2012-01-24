@@ -580,14 +580,14 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
     
     /*End LibModSynth additions*/    
     
-    unsigned int i;
+    unsigned int f_i;
 
     /*Process an audio block*/
-    for (i=0; i<count; i++) {
+    for (f_i=0; f_i<count; f_i++) {
 	
                 
         /*Call everything defined in libmodsynth.h in the order it should be called in*/
-        float _result = 0;
+        float f_result = 0;
         
         /*Run the glide module*/
         
@@ -606,10 +606,10 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         
         /*Run any oscillators, etc...*/
-        _result += f_osc_run_unison_osc(d->_voice->osc_unison1) * (d->osc1_linamp);
-        _result += f_osc_run_unison_osc(d->_voice->osc_unison2) * (d->osc2_linamp);
+        f_result += f_osc_run_unison_osc(d->_voice->osc_unison1) * (d->osc1_linamp);
+        f_result += f_osc_run_unison_osc(d->_voice->osc_unison2) * (d->osc2_linamp);
         
-        _result += (f_run_w_noise(d->_voice->white_noise1) * (d->noise_linamp)); //white noise
+        f_result += (f_run_w_noise(d->_voice->white_noise1) * (d->noise_linamp)); //white noise
         
         
         /*Run any processing of the initial result(s)*/      
@@ -619,15 +619,15 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         v_svf_set_cutoff(d->_voice->svf_filter, ((vals->timbre) + ((d->_voice->adsr_filter->output) * (vals->filter_env_amt))) );
                         
-        v_svf_set_input_value(d->_voice->svf_filter, _result); //run it through the filter
+        v_svf_set_input_value(d->_voice->svf_filter, f_result); //run it through the filter
                 
-        _result = f_axf_run_xfade(d->_voice->dist_dry_wet, (d->_voice->svf_filter->lp), 
+        f_result = f_axf_run_xfade(d->_voice->dist_dry_wet, (d->_voice->svf_filter->lp), 
                 f_clp_clip(d->_voice->clipper1, d->_voice->svf_filter->lp)); //run the lowpass filter output through a hard-clipper, mixed by the dry/wet knob
         
         //_result = (d->_voice->_svf_filter->_lp);
         
         /*Run the envelope and assign to the output buffer*/
-        out[i] += _result *  (d->_voice->adsr_amp->output) * (d->amp) ; 
+        out[f_i] += f_result *  (d->_voice->adsr_amp->output) * (d->amp) ; 
                 
         
         /*End LibModSynth modifications*/
@@ -712,36 +712,36 @@ int getControllerLTS(LADSPA_Handle instance, unsigned long port)
 /*libmodsynth comment:  *data is an array of voices in an LMS struct,
  iterate through them for a free voice, or if one cannot be found,
  pick the highest voice*/
-int pick_voice(const voice_data *data, int _current_note)
+int pick_voice(const voice_data *data, int a_current_note)
 {
-    unsigned int i;
+    unsigned int f_i;
     int highest_note = 0;
     int highest_note_voice = 0;
     
     /*Look for the voice being played by the current note.
      It's more musical to kill the same note than to let it play twice,
      guitars, pianos, etc... work that way.  It also helps to prevent hung notes*/    
-    for (i=0; i<POLYPHONY; i++) {
-	if (data[i].note == _current_note) {
+    for (f_i=0; f_i<POLYPHONY; f_i++) {
+	if (data[f_i].note == a_current_note) {
             printf("pick_voice found current_note\n");
-	    return i;
+	    return f_i;
 	}
     }
     
     /* Look for an inactive voice */
-    for (i=0; i<POLYPHONY; i++) {
-	if (data[i].n_state == off) {
-            printf("pick_voice found inactive voice %i\n", i);
-	    return i;
+    for (f_i=0; f_i<POLYPHONY; f_i++) {
+	if (data[f_i].n_state == off) {
+            printf("pick_voice found inactive voice %i\n", f_i);
+	    return f_i;
 	}
     }
 
     /* otherwise find for the highest note and replace that */
-    for (i=0; i<POLYPHONY; i++) {
-	if (data[i].note > highest_note) {
-	    highest_note = data[i].note;
-	    highest_note_voice = i;
-            printf("pick_voice found highest voice %i\n", i);
+    for (f_i=0; f_i<POLYPHONY; f_i++) {
+	if (data[f_i].note > highest_note) {
+	    highest_note = data[f_i].note;
+	    highest_note_voice = f_i;
+            printf("pick_voice found highest voice %i\n", f_i);
 	}
     }
 
