@@ -32,9 +32,9 @@ typedef struct st_audio_xfade
     float in2_mult;
 }t_audio_xfade;
 
-void _axf_set_xfade(t_audio_xfade *, float);
+void v_axf_set_xfade(t_audio_xfade *, float);
 
-void _axf_set_xfade(t_audio_xfade * a_axf_ptr, float a_point)
+void v_axf_set_xfade(t_audio_xfade * a_axf_ptr, float a_point)
 {
     //TODO:  go back and fix this
     
