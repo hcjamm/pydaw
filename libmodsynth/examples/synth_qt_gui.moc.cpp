@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'synth_qt_gui.h'
 **
-** Created: Mon Jan 23 20:41:19 2012
+** Created: Mon Jan 23 22:28:46 2012
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.2)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -60,35 +60,35 @@ static const uint qt_meta_data_SynthGUI[] = {
      547,   47,    9,    9, 0x0a,
      576,   47,    9,    9, 0x0a,
      592,    9,    9,    9, 0x0a,
-     607,    9,    9,    9, 0x0a,
-     621,    9,    9,    9, 0x09,
-     640,    9,    9,    9, 0x09,
-     658,    9,    9,    9, 0x09,
-     678,    9,    9,    9, 0x09,
-     698,    9,    9,    9, 0x09,
-     717,    9,    9,    9, 0x09,
-     733,    9,    9,    9, 0x09,
-     750,    9,    9,    9, 0x09,
-     775,    9,    9,    9, 0x09,
-     799,    9,    9,    9, 0x09,
-     825,    9,    9,    9, 0x09,
-     851,    9,    9,    9, 0x09,
-     872,    9,    9,    9, 0x09,
-     897,    9,    9,    9, 0x09,
-     917,    9,    9,    9, 0x09,
-     938,    9,    9,    9, 0x09,
-     960,    9,    9,    9, 0x09,
-     981,    9,    9,    9, 0x09,
-    1004,    9,    9,    9, 0x09,
-    1025,    9,    9,    9, 0x09,
-    1047,    9,    9,    9, 0x09,
-    1068,    9,    9,    9, 0x09,
-    1091,    9,    9,    9, 0x09,
-    1116,    9,    9,    9, 0x09,
-    1147,    9,    9,    9, 0x09,
-    1178,    9,    9,    9, 0x09,
-    1202,    9,    9,    9, 0x09,
-    1233,    9,    9,    9, 0x09,
+     606,    9,    9,    9, 0x09,
+     625,    9,    9,    9, 0x09,
+     643,    9,    9,    9, 0x09,
+     663,    9,    9,    9, 0x09,
+     683,    9,    9,    9, 0x09,
+     702,    9,    9,    9, 0x09,
+     718,    9,    9,    9, 0x09,
+     735,    9,    9,    9, 0x09,
+     760,    9,    9,    9, 0x09,
+     784,    9,    9,    9, 0x09,
+     810,    9,    9,    9, 0x09,
+     836,    9,    9,    9, 0x09,
+     857,    9,    9,    9, 0x09,
+     882,    9,    9,    9, 0x09,
+     902,    9,    9,    9, 0x09,
+     923,    9,    9,    9, 0x09,
+     945,    9,    9,    9, 0x09,
+     966,    9,    9,    9, 0x09,
+     989,    9,    9,    9, 0x09,
+    1010,    9,    9,    9, 0x09,
+    1032,    9,    9,    9, 0x09,
+    1053,    9,    9,    9, 0x09,
+    1076,    9,    9,    9, 0x09,
+    1101,    9,    9,    9, 0x09,
+    1132,    9,    9,    9, 0x09,
+    1163,    9,    9,    9, 0x09,
+    1187,    9,    9,    9, 0x09,
+    1218,    9,    9,    9, 0x09,
+    1238,    9,    9,    9, 0x09,
     1253,    9,    9,    9, 0x09,
     1266,    9,    9,    9, 0x09,
     1281,    9,    9,    9, 0x09,
@@ -113,12 +113,11 @@ static const char qt_meta_stringdata_SynthGUI[] = {
     "setMasterUnisonSpread(float)\0"
     "setMasterGlide(float)\0"
     "setMasterPitchbendAmt(float)\0"
-    "setProgram(int)\0programSaved()\0"
-    "aboutToQuit()\0attackChanged(int)\0"
-    "decayChanged(int)\0sustainChanged(int)\0"
-    "releaseChanged(int)\0timbreChanged(int)\0"
-    "resChanged(int)\0distChanged(int)\0"
-    "filterAttackChanged(int)\0"
+    "setProgram(int)\0aboutToQuit()\0"
+    "attackChanged(int)\0decayChanged(int)\0"
+    "sustainChanged(int)\0releaseChanged(int)\0"
+    "timbreChanged(int)\0resChanged(int)\0"
+    "distChanged(int)\0filterAttackChanged(int)\0"
     "filterDecayChanged(int)\0"
     "filterSustainChanged(int)\0"
     "filterReleaseChanged(int)\0"
@@ -132,8 +131,8 @@ static const char qt_meta_stringdata_SynthGUI[] = {
     "masterUnisonSpreadChanged(int)\0"
     "masterGlideChanged(int)\0"
     "masterPitchbendAmtChanged(int)\0"
-    "programChanged(int)\0test_press()\0"
-    "test_release()\0oscRecv()\0"
+    "programChanged(int)\0programSaved()\0"
+    "test_press()\0test_release()\0oscRecv()\0"
 };
 
 const QMetaObject SynthGUI::staticMetaObject = {
@@ -193,36 +192,36 @@ int SynthGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 25: setMasterGlide((*reinterpret_cast< float(*)>(_a[1]))); break;
         case 26: setMasterPitchbendAmt((*reinterpret_cast< float(*)>(_a[1]))); break;
         case 27: setProgram((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 28: programSaved(); break;
-        case 29: aboutToQuit(); break;
-        case 30: attackChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 31: decayChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 32: sustainChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 33: releaseChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 34: timbreChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 35: resChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 36: distChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 37: filterAttackChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 38: filterDecayChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 39: filterSustainChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 40: filterReleaseChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 41: noiseAmpChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 42: filterEnvAmtChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 43: distWetChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 44: osc1TypeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 45: osc1PitchChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 46: osc1TuneChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 47: osc1VolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 48: osc2TypeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 49: osc2PitchChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 50: osc2TuneChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 51: osc2VolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 52: masterVolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 53: masterUnisonVoicesChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 54: masterUnisonSpreadChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 55: masterGlideChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 56: masterPitchbendAmtChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 57: programChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 28: aboutToQuit(); break;
+        case 29: attackChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 30: decayChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 31: sustainChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 32: releaseChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 33: timbreChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 34: resChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 35: distChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 36: filterAttackChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 37: filterDecayChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 38: filterSustainChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 39: filterReleaseChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 40: noiseAmpChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 41: filterEnvAmtChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 42: distWetChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 43: osc1TypeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 44: osc1PitchChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 45: osc1TuneChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 46: osc1VolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 47: osc2TypeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 48: osc2PitchChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 49: osc2TuneChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 50: osc2VolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 51: masterVolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 52: masterUnisonVoicesChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 53: masterUnisonSpreadChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 54: masterGlideChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 55: masterPitchbendAmtChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 56: programChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 57: programSaved(); break;
         case 58: test_press(); break;
         case 59: test_release(); break;
         case 60: oscRecv(); break;
