@@ -12,15 +12,15 @@
 extern "C" {
 #endif
 
-float _remove_denormal(float);
+float f_remove_denormal(float);
 
 /*Prevent recursive modules like filters and feedback delays from consuming too much CPU*/
-float _remove_denormal(float _input)
+float f_remove_denormal(float a_input)
 {
-    if((_input < .0001) && (_input > -.0001))
+    if((a_input < .0001) && (a_input > -.0001))
         return 0;
     else
-        return _input;
+        return a_input;
     
 }
 

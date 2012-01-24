@@ -16,34 +16,34 @@ extern "C" {
 #include <stdlib.h>
    
     
-typedef struct _osc_core
+typedef struct st_osc_core
 {    
-    float _output;
+    float output;
     
-}osc_core;
+}t_osc_core;
 
 
-float _run_osc(osc_core *, float);
-osc_core * _get_osc_core(float);
+float f_run_osc(t_osc_core *, float);
+t_osc_core * g_get_osc_core(float);
 
 
-osc_core * _get_osc_core(float _sr)
+t_osc_core * g_get_osc_core(float a_sr)
 {
-    osc_core * _result = (osc_core*)malloc(sizeof(osc_core)); 
-    _result->_output = 0;    
-    return _result;
+    t_osc_core * f_result = (t_osc_core*)malloc(sizeof(t_osc_core)); 
+    f_result->output = 0;    
+    return f_result;
 }
 
-float _run_osc(osc_core *_core, float _inc)
+float f_run_osc(t_osc_core *a_core, float a_inc)
 {
-    _core->_output += _inc;
+    a_core->output += a_inc;
     
-    if(_core->_output >= 1)
+    if(a_core->output >= 1)
     {
-        _core->_output -= 1;
+        a_core->output -= 1;
     }
     
-    return _core->_output;
+    return a_core->output;
 }
 
 

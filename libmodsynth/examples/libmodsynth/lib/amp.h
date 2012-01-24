@@ -21,18 +21,21 @@ GNU General Public License for more details.
 extern "C" {
 #endif
 
-float _db_to_linear(float _db)
+inline float f_db_to_linear(float);
+inline float f_linear_to_db(float);    
+
+
+inline float f_db_to_linear(float a_db)
 {
-    float _result = pow ( 10.0, (0.05 * _db) );
-    return _result;
+    float f_result = pow ( 10.0, (0.05 * a_db) );
+    return f_result;
 }
 
-float _linear_to_db(float _linear)
+inline float f_linear_to_db(float a_linear)
 {
-    float _result = 20.0 * log10 ( _linear );
-    return _result;
+    float f_result = 20.0 * log10 ( a_linear );
+    return f_result;
 }
-
 
 
 #ifdef	__cplusplus

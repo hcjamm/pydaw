@@ -52,7 +52,7 @@ float * _inr_run_sampler(interpolate_reader *);
 void _inr_set_orig_pitch(interpolate_reader * _reader, float _note)
 {
     _reader->midi_note = _note;
-    _reader->hz = _pit_midi_note_to_hz(_note);
+    _reader->hz = f_pit_midi_note_to_hz(_note);
 }
 
 interpolate_reader * _inr_get_interpolate_reader()

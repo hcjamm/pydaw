@@ -24,22 +24,22 @@ extern "C" {
 
 #include "../../lib/amp.h"
     
-typedef struct _audio_xfade
+typedef struct st_audio_xfade
 {
-    float _mid_point;
-    float _mid_point_50_minus;
-    float _in1_mult;
-    float _in2_mult;
-}audio_xfade;
+    float mid_point;
+    float mid_point_50_minus;
+    float in1_mult;
+    float in2_mult;
+}t_audio_xfade;
 
-void _axf_set_xfade(audio_xfade *, float);
+void _axf_set_xfade(t_audio_xfade *, float);
 
-void _axf_set_xfade(audio_xfade * _axf_ptr, float _point)
+void _axf_set_xfade(t_audio_xfade * a_axf_ptr, float a_point)
 {
     //TODO:  go back and fix this
     
-    _axf_ptr->_in1_mult = 1- _point;
-    _axf_ptr->_in2_mult = _point;
+    a_axf_ptr->in1_mult = 1- a_point;
+    a_axf_ptr->in2_mult = a_point;
     
     /*
     if(_point < .5)
@@ -55,21 +55,21 @@ void _axf_set_xfade(audio_xfade * _axf_ptr, float _point)
      */
 }
 
-float _axf_run_xfade(audio_xfade *, float, float);
+float f_axf_run_xfade(t_audio_xfade *, float, float);
 
-audio_xfade * _axf_get_audio_xfade(float __mid_point)
+t_audio_xfade * g_axf_get_audio_xfade(float a_mid_point)
 {
-    audio_xfade * _result = (audio_xfade*)malloc(sizeof(audio_xfade));
-    _result->_mid_point = __mid_point;
-    _result->_mid_point_50_minus = 50 - _result->_mid_point;
+    t_audio_xfade * f_result = (t_audio_xfade*)malloc(sizeof(t_audio_xfade));
+    f_result->mid_point = a_mid_point;
+    f_result->mid_point_50_minus = 50 - f_result->mid_point;
     
-    return _result;
+    return f_result;
 }
 
-float _axf_run_xfade(audio_xfade * _axf_ptr, float _in1, float _in2)
+float f_axf_run_xfade(t_audio_xfade * a_axf_ptr, float a_in1, float a_in2)
 {
-    float _result = ((_axf_ptr->_in1_mult) * _in1) + ((_axf_ptr->_in2_mult) * _in2);
-    return _result;
+    float f_result = ((a_axf_ptr->in1_mult) * a_in1) + ((a_axf_ptr->in2_mult) * a_in2);
+    return f_result;
 }
 
 #ifdef	__cplusplus

@@ -132,7 +132,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     QString _programs_list [128];
     
-    _presets_tab_delimited = new QStringList();
+    presets_tab_delimited = new QStringList();
     
     QFile* file = new QFile(QDir::homePath() + "/" + LMS_PLUGIN_NAME + "-presets.xml");
     
@@ -147,7 +147,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         if(in->atEnd())
         {
             _programs_list[i] = "empty";
-            _presets_tab_delimited->append("empty");
+            presets_tab_delimited->append("empty");
         }
         else
         {
@@ -157,7 +157,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
             
             _programs_list[i] = fields.at(0);
             
-            _presets_tab_delimited->append(line);
+            presets_tab_delimited->append(line);
         }
         
     }
@@ -169,7 +169,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     //QGridLayout *layout = new QGridLayout(this);
     QVBoxLayout *layout = new QVBoxLayout(this);
         
-    QGroupBox * _gb_program = _newGroupBox("Program", this);    
+    QGroupBox * _gb_program = newGroupBox("Program", this);    
     QHBoxLayout *layout_program = new QHBoxLayout();
     
     QLabel *m_prog_label = new QLabel(this);
@@ -177,7 +177,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     layout_program->addWidget(m_prog_label, -1, Qt::AlignLeft);
     
     
-    m_program = _get_combobox( _programs_list, 128, this);
+    m_program = get_combobox( _programs_list, 128, this);
     
     m_program->setEditable(TRUE);
     connect(m_program, SIGNAL(currentIndexChanged(int)), this, SLOT(programChanged(int)));        
@@ -206,35 +206,35 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     QHBoxLayout *layout_row1 = new QHBoxLayout();
     
     /*The oscillator1 GroupBox*/
-    QGroupBox * _gb_osc1 = _newGroupBox("Osc1", this);
+    QGroupBox * _gb_osc1 = newGroupBox("Osc1", this);
     QGridLayout *_gb_osc1_layout = new QGridLayout(_gb_osc1);
     
-    m_osc1_pitch = _get_knob(minus12_to_12);
-    m_osc1_pitchLabel = _newQLabel(this);
-    _add_widget(_gb_osc1_layout, _gb_layout_column, _gb_layout_row, "Pitch", m_osc1_pitch, m_osc1_pitchLabel);
+    m_osc1_pitch = get_knob(minus12_to_12);
+    m_osc1_pitchLabel = newQLabel(this);
+    add_widget(_gb_osc1_layout, _gb_layout_column, _gb_layout_row, "Pitch", m_osc1_pitch, m_osc1_pitchLabel);
     connect(m_osc1_pitch, SIGNAL(valueChanged(int)), this, SLOT(osc1PitchChanged(int)));
     osc1PitchChanged(m_osc1_pitch->value());
     
     _gb_layout_column++;
     
-    m_osc1_tune = _get_knob(minus1_to_1);
-    m_osc1_tuneLabel = _newQLabel(this);
-    _add_widget(_gb_osc1_layout, _gb_layout_column, _gb_layout_row, "Tune", m_osc1_tune, m_osc1_tuneLabel);
+    m_osc1_tune = get_knob(minus1_to_1);
+    m_osc1_tuneLabel = newQLabel(this);
+    add_widget(_gb_osc1_layout, _gb_layout_column, _gb_layout_row, "Tune", m_osc1_tune, m_osc1_tuneLabel);
     connect(m_osc1_tune, SIGNAL(valueChanged(int)), this, SLOT(osc1TuneChanged(int)));
     osc1TuneChanged(m_osc1_tune->value());
     
     _gb_layout_column++;
     
-    m_osc1_volume = _get_knob(decibels_0, -6);
-    m_osc1_volumeLabel = _newQLabel(this);
-    _add_widget(_gb_osc1_layout, _gb_layout_column, _gb_layout_row, "Vol", m_osc1_volume, m_osc1_volumeLabel);
+    m_osc1_volume = get_knob(decibels_0, -6);
+    m_osc1_volumeLabel = newQLabel(this);
+    add_widget(_gb_osc1_layout, _gb_layout_column, _gb_layout_row, "Vol", m_osc1_volume, m_osc1_volumeLabel);
     connect(m_osc1_volume, SIGNAL(valueChanged(int)), this, SLOT(osc1VolumeChanged(int)));
     osc1VolumeChanged(m_osc1_volume->value());
     
     _gb_layout_column++;
     
-    m_osc1_type = _get_combobox(_osc_types, _osc_types_count , this);     
-    _add_widget_no_label(_gb_osc1_layout, _gb_layout_column, _gb_layout_row, "Type", m_osc1_type);
+    m_osc1_type = get_combobox(_osc_types, _osc_types_count , this);     
+    add_widget_no_label(_gb_osc1_layout, _gb_layout_column, _gb_layout_row, "Type", m_osc1_type);
     connect(m_osc1_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc1TypeChanged(int)));
     osc1TypeChanged(m_osc1_type->currentIndex());
     
@@ -244,38 +244,38 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _column++;
     
     /*The amplitude ADSR GroupBox*/
-    QGroupBox * _gb_adsr = _newGroupBox("ADSR Amp", this);
+    QGroupBox * _gb_adsr = newGroupBox("ADSR Amp", this);
     QGridLayout *_gb_adsr_layout = new QGridLayout(_gb_adsr);
     
     
     
-    m_attack = _get_knob(zero_to_one);
-    m_attackLabel = _newQLabel(this);
-    _add_widget(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Attack",m_attack, m_attackLabel);
+    m_attack = get_knob(zero_to_one);
+    m_attackLabel = newQLabel(this);
+    add_widget(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Attack",m_attack, m_attackLabel);
     connect(m_attack,   SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));
     attackChanged  (m_attack  ->value());
     
     _gb_layout_column++;
         
-    m_decay   =  _get_knob(zero_to_one); //newQDial(  1, 100,  1,  25); // s * 100
-    m_decayLabel   = _newQLabel(this);
-    _add_widget(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Decay",m_decay, m_decayLabel);
+    m_decay   =  get_knob(zero_to_one); //newQDial(  1, 100,  1,  25); // s * 100
+    m_decayLabel   = newQLabel(this);
+    add_widget(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Decay",m_decay, m_decayLabel);
     connect(m_decay,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));
     decayChanged  (m_decay  ->value());
     
     _gb_layout_column++;
     
-    m_sustain =  _get_knob(decibels_0); // newQDial(  0, 100,  1,  75); // %
-    m_sustainLabel = _newQLabel(this);
-    _add_widget(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Sustain", m_sustain, m_sustainLabel);    
+    m_sustain =  get_knob(decibels_0); // newQDial(  0, 100,  1,  75); // %
+    m_sustainLabel = newQLabel(this);
+    add_widget(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Sustain", m_sustain, m_sustainLabel);    
     connect(m_sustain, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));
     sustainChanged(m_sustain->value());
     
     _gb_layout_column++;
     
-    m_release = _get_knob(zero_to_four); //newQDial(  1, 400, 10, 200); // s * 100
-    m_releaseLabel = _newQLabel(this);
-    _add_widget(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Release", m_release, m_releaseLabel);
+    m_release = get_knob(zero_to_four); //newQDial(  1, 400, 10, 200); // s * 100
+    m_releaseLabel = newQLabel(this);
+    add_widget(_gb_adsr_layout, _gb_layout_column, _gb_layout_row, "Release", m_release, m_releaseLabel);
     connect(m_release, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));
     releaseChanged(m_release->value());
     
@@ -286,20 +286,20 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         
     
     /*The Distortion GroupBox*/
-    QGroupBox * _gb_dist = _newGroupBox("Distortion", this);    
+    QGroupBox * _gb_dist = newGroupBox("Distortion", this);    
     QGridLayout *_gb_dist_layout = new QGridLayout(_gb_dist);
     
     
     m_dist  = newQDial(  -6, 36,  1,  -6); 
     m_distLabel  = new QLabel(this);
-    _add_widget(_gb_dist_layout, _gb_layout_column, _gb_layout_row, "Gain", m_dist, m_distLabel);
+    add_widget(_gb_dist_layout, _gb_layout_column, _gb_layout_row, "Gain", m_dist, m_distLabel);
     connect(m_dist,  SIGNAL(valueChanged(int)), this, SLOT(distChanged(int)));
     distChanged (m_dist ->value());
     
     _gb_layout_column++;
     
-    m_dist_wet  = _get_knob(zero_to_one);    
-    _add_widget_no_label(_gb_dist_layout, _gb_layout_column, _gb_layout_row, "Wet", m_dist_wet);
+    m_dist_wet  = get_knob(zero_to_one);    
+    add_widget_no_label(_gb_dist_layout, _gb_layout_column, _gb_layout_row, "Wet", m_dist_wet);
     connect(m_dist_wet,  SIGNAL(valueChanged(int)), this, SLOT(distWetChanged(int)));
     distWetChanged (m_dist_wet ->value());
     
@@ -312,13 +312,13 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     
     /*The Noise Amp GroupBox*/
-    QGroupBox * _gb_noise_amp = _newGroupBox("Noise", this);    
+    QGroupBox * _gb_noise_amp = newGroupBox("Noise", this);    
     QGridLayout *_gb_noise_amp_layout = new QGridLayout(_gb_noise_amp);
     
     
-    m_noise_amp  = _get_knob(decibels_0);
+    m_noise_amp  = get_knob(decibels_0);
     m_noise_ampLabel  = new QLabel(this);
-    _add_widget(_gb_noise_amp_layout, _column, _row, "Vol", m_noise_amp, m_noise_ampLabel);
+    add_widget(_gb_noise_amp_layout, _column, _row, "Vol", m_noise_amp, m_noise_ampLabel);
     connect(m_noise_amp,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
     noiseAmpChanged (m_dist ->value());
     
@@ -335,35 +335,35 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     
     /*The oscillator2 GroupBox*/
-    QGroupBox * _gb_osc2 = _newGroupBox("Osc2", this);
+    QGroupBox * _gb_osc2 = newGroupBox("Osc2", this);
     QGridLayout *_gb_osc2_layout = new QGridLayout(_gb_osc2);
     
-    m_osc2_pitch = _get_knob(minus12_to_12);
-    m_osc2_pitchLabel = _newQLabel(this);
-    _add_widget(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Pitch", m_osc2_pitch, m_osc2_pitchLabel);
+    m_osc2_pitch = get_knob(minus12_to_12);
+    m_osc2_pitchLabel = newQLabel(this);
+    add_widget(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Pitch", m_osc2_pitch, m_osc2_pitchLabel);
     connect(m_osc2_pitch, SIGNAL(valueChanged(int)), this, SLOT(osc2PitchChanged(int)));
     osc2PitchChanged(m_osc2_pitch->value());
             
     _gb_layout_column++;
     
-    m_osc2_tune = _get_knob(minus1_to_1);
-    m_osc2_tuneLabel = _newQLabel(this);
-    _add_widget(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Tune", m_osc2_tune, m_osc2_tuneLabel);
+    m_osc2_tune = get_knob(minus1_to_1);
+    m_osc2_tuneLabel = newQLabel(this);
+    add_widget(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Tune", m_osc2_tune, m_osc2_tuneLabel);
     connect(m_osc2_tune, SIGNAL(valueChanged(int)), this, SLOT(osc2TuneChanged(int)));
     osc2TuneChanged(m_osc2_tune->value());
     
     _gb_layout_column++;
     
-    m_osc2_volume = _get_knob(decibels_0, -60);
-    m_osc2_volumeLabel = _newQLabel(this);
-    _add_widget(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Vol", m_osc2_volume, m_osc2_volumeLabel);
+    m_osc2_volume = get_knob(decibels_0, -60);
+    m_osc2_volumeLabel = newQLabel(this);
+    add_widget(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Vol", m_osc2_volume, m_osc2_volumeLabel);
     connect(m_osc2_volume, SIGNAL(valueChanged(int)), this, SLOT(osc2VolumeChanged(int)));
     osc2VolumeChanged(m_osc2_volume->value());
     
     _gb_layout_column++;
     
-    m_osc2_type = _get_combobox(_osc_types, _osc_types_count , this);     
-    _add_widget_no_label(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Type", m_osc2_type);
+    m_osc2_type = get_combobox(_osc_types, _osc_types_count , this);     
+    add_widget_no_label(_gb_osc2_layout, _gb_layout_column, _gb_layout_row, "Type", m_osc2_type);
     connect(m_osc2_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
     osc2TypeChanged(m_osc2_type->currentIndex());
     
@@ -373,39 +373,39 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     _column++;
     
     /*The filter ADSR GroupBox*/
-    QGroupBox * _gb_adsr_f = _newGroupBox("ADSR Filter", this);
+    QGroupBox * _gb_adsr_f = newGroupBox("ADSR Filter", this);
     QGridLayout *_gb_adsr_f_layout = new QGridLayout(_gb_adsr_f);
     
     _gb_layout_row = 0;
     _gb_layout_column = 0;
     
-    m_filter_attack = _get_knob(zero_to_one);
-    m_filter_attackLabel = _newQLabel(this);
-    _add_widget(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Attack",m_filter_attack, m_filter_attackLabel);
+    m_filter_attack = get_knob(zero_to_one);
+    m_filter_attackLabel = newQLabel(this);
+    add_widget(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Attack",m_filter_attack, m_filter_attackLabel);
     connect(m_filter_attack,   SIGNAL(valueChanged(int)), this, SLOT(filterAttackChanged(int)));
     filterAttackChanged  (m_filter_attack  ->value());
     
     _gb_layout_column++;
         
-    m_filter_decay   =  _get_knob(zero_to_one); //newQDial(  1, 100,  1,  25); // s * 100
-    m_filter_decayLabel   = _newQLabel(this);
-    _add_widget(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Decay",m_filter_decay, m_filter_decayLabel);
+    m_filter_decay   =  get_knob(zero_to_one); //newQDial(  1, 100,  1,  25); // s * 100
+    m_filter_decayLabel   = newQLabel(this);
+    add_widget(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Decay",m_filter_decay, m_filter_decayLabel);
     connect(m_filter_decay,   SIGNAL(valueChanged(int)), this, SLOT(filterDecayChanged(int)));
     filterDecayChanged  (m_filter_decay ->value());
     
     _gb_layout_column++;
     
-    m_filter_sustain =  _get_knob(zero_to_one); // newQDial(  0, 100,  1,  75); // %
-    m_filter_sustainLabel = _newQLabel(this);
-    _add_widget(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Sustain", m_filter_sustain, m_filter_sustainLabel);
+    m_filter_sustain =  get_knob(zero_to_one); // newQDial(  0, 100,  1,  75); // %
+    m_filter_sustainLabel = newQLabel(this);
+    add_widget(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Sustain", m_filter_sustain, m_filter_sustainLabel);
     connect(m_filter_sustain, SIGNAL(valueChanged(int)), this, SLOT(filterSustainChanged(int)));
     filterSustainChanged(m_filter_sustain->value());
     
     _gb_layout_column++;
     
-    m_filter_release = _get_knob(zero_to_four); //newQDial(  1, 400, 10, 200); // s * 100
-    m_filter_releaseLabel = _newQLabel(this);
-    _add_widget(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Release", m_filter_release, m_filter_releaseLabel);
+    m_filter_release = get_knob(zero_to_four); //newQDial(  1, 400, 10, 200); // s * 100
+    m_filter_releaseLabel = newQLabel(this);
+    add_widget(_gb_adsr_f_layout, _gb_layout_column, _gb_layout_row, "Release", m_filter_release, m_filter_releaseLabel);
     connect(m_filter_release, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));    
     filterReleaseChanged(m_filter_release->value());
         
@@ -416,28 +416,28 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     
     /*The Filter GroupBox*/
-    QGroupBox * _gb_filter = _newGroupBox("LP Filter", this); 
+    QGroupBox * _gb_filter = newGroupBox("LP Filter", this); 
     QGridLayout *_gb_filter_layout = new QGridLayout(_gb_filter);
     
-    m_timbre  =  _get_knob(pitch);  //newQDial(  39, 136,  1,  82); // s * 100
-    m_timbreLabel  = _newQLabel(this);
-    _add_widget(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Cutoff",m_timbre, m_timbreLabel);
+    m_timbre  =  get_knob(pitch);  //newQDial(  39, 136,  1,  82); // s * 100
+    m_timbreLabel  = newQLabel(this);
+    add_widget(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Cutoff",m_timbre, m_timbreLabel);
     connect(m_timbre,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));
     timbreChanged (m_timbre ->value());
     
     _gb_layout_column++;
     
-    m_res  =  _get_knob(decibels_0); 
-    m_resLabel  = _newQLabel(this);
-    _add_widget(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Res", m_res, m_resLabel);
+    m_res  =  get_knob(decibels_0); 
+    m_resLabel  = newQLabel(this);
+    add_widget(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Res", m_res, m_resLabel);
     connect(m_res,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
     resChanged (m_res ->value());
     
     _gb_layout_column++;
     
-    m_filter_env_amt  =  _get_knob(minus36_to_36); 
-    m_filter_env_amtLabel  = _newQLabel(this);
-    _add_widget(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Env", m_filter_env_amt, m_filter_env_amtLabel);
+    m_filter_env_amt  =  get_knob(minus36_to_36); 
+    m_filter_env_amtLabel  = newQLabel(this);
+    add_widget(_gb_filter_layout, _gb_layout_column, _gb_layout_row, "Env", m_filter_env_amt, m_filter_env_amtLabel);
     connect(m_filter_env_amt,  SIGNAL(valueChanged(int)), this, SLOT(filterEnvAmtChanged(int)));
     filterEnvAmtChanged (m_filter_env_amt ->value());
     
@@ -451,12 +451,12 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     QHBoxLayout *layout_row3 = new QHBoxLayout();
     
     /*The Master Volume GroupBox*/
-    QGroupBox * _gb_master_vol = _newGroupBox("Master", this); 
+    QGroupBox * _gb_master_vol = newGroupBox("Master", this); 
     QGridLayout *_gb_master_vol_layout = new QGridLayout(_gb_master_vol);
     
-    m_master_volume  =  _get_knob(decibels_plus_12);
-    m_master_volumeLabel  = _newQLabel(this);
-    _add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Volume",m_master_volume, m_master_volumeLabel);
+    m_master_volume  =  get_knob(decibels_plus_12);
+    m_master_volumeLabel  = newQLabel(this);
+    add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Volume",m_master_volume, m_master_volumeLabel);
     connect(m_master_volume,  SIGNAL(valueChanged(int)), this, SLOT(masterVolumeChanged(int)));
     masterVolumeChanged (m_master_volume ->value());
     
@@ -465,32 +465,32 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     
     m_master_unison_voices  =  newQDial(1, 7, 1, 1);
-    m_master_unison_voicesLabel  = _newQLabel(this);
-    _add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Unison",m_master_unison_voices, m_master_unison_voicesLabel);
+    m_master_unison_voicesLabel  = newQLabel(this);
+    add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Unison",m_master_unison_voices, m_master_unison_voicesLabel);
     connect(m_master_unison_voices,  SIGNAL(valueChanged(int)), this, SLOT( masterUnisonVoicesChanged(int)));
     masterUnisonVoicesChanged (m_master_unison_voices ->value());
     
     _gb_layout_column++;
     
-    m_master_unison_spread  =  _get_knob(zero_to_one);
-    m_master_unison_spreadLabel  = _newQLabel(this);
-    _add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Spread",m_master_unison_spread, m_master_unison_spreadLabel);
+    m_master_unison_spread  =  get_knob(zero_to_one);
+    m_master_unison_spreadLabel  = newQLabel(this);
+    add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Spread",m_master_unison_spread, m_master_unison_spreadLabel);
     connect(m_master_unison_spread,  SIGNAL(valueChanged(int)), this, SLOT(masterUnisonSpreadChanged(int)));
     masterUnisonSpreadChanged (m_master_unison_spread ->value());
     
     _gb_layout_column++;
     
-    m_master_glide  =  _get_knob(zero_to_one);
-    m_master_glideLabel  = _newQLabel(this);
-    _add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Glide",m_master_glide, m_master_glideLabel);
+    m_master_glide  =  get_knob(zero_to_one);
+    m_master_glideLabel  = newQLabel(this);
+    add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Glide",m_master_glide, m_master_glideLabel);
     connect(m_master_glide,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));
     masterGlideChanged (m_master_glide ->value());
     
     _gb_layout_column++;
     
     m_master_pitchbend_amt  =  newQDial(1, 36, 1, 2);
-    m_master_pitchbend_amtLabel  = _newQLabel(this);
-    _add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Pitchbend",m_master_pitchbend_amt, m_master_pitchbend_amtLabel);
+    m_master_pitchbend_amtLabel  = newQLabel(this);
+    add_widget(_gb_master_vol_layout, _gb_layout_column, _gb_layout_row, "Pitchbend",m_master_pitchbend_amt, m_master_pitchbend_amtLabel);
     connect(m_master_pitchbend_amt,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
     masterPitchbendAmtChanged (m_master_pitchbend_amt ->value());
     
@@ -526,7 +526,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
 
 
 
-void SynthGUI::_add_widget(QGridLayout * _layout, int position_x, int position_y, QString _label_text,  QWidget * _widget,
+void SynthGUI::add_widget(QGridLayout * _layout, int position_x, int position_y, QString _label_text,  QWidget * _widget,
     QLabel * _label)
 {   
     QLabel * _knob_title = new QLabel(_label_text,  this);
@@ -539,7 +539,7 @@ void SynthGUI::_add_widget(QGridLayout * _layout, int position_x, int position_y
     _layout->addWidget(_label,  (position_y + 2), position_x, Qt::AlignCenter);     
 }
 
-void SynthGUI::_add_widget_no_label(QGridLayout * _layout, int position_x, int position_y, QString _label_text, QWidget * _widget)
+void SynthGUI::add_widget_no_label(QGridLayout * _layout, int position_x, int position_y, QString _label_text, QWidget * _widget)
 {
     QLabel * _knob_title = new QLabel(_label_text,  this);
     _knob_title->setMinimumWidth(60);  //TODO:  make this a constant
@@ -550,7 +550,7 @@ void SynthGUI::_add_widget_no_label(QGridLayout * _layout, int position_x, int p
     _layout->addWidget(_widget,  (position_y + 1), position_x);    
 }
 
-QGroupBox * SynthGUI::_newGroupBox(QString _title, QWidget * _parent)
+QGroupBox * SynthGUI::newGroupBox(QString _title, QWidget * _parent)
 {
     QGroupBox * _result = new QGroupBox(_parent);
     
@@ -559,14 +559,14 @@ QGroupBox * SynthGUI::_newGroupBox(QString _title, QWidget * _parent)
     return _result;
 }
 
-QLabel * SynthGUI::_newQLabel(QWidget * _parent)
+QLabel * SynthGUI::newQLabel(QWidget * _parent)
 {
     QLabel * _result = new QLabel(_parent);
     //_result->setStyleSheet("background-color: white; border: 2px solid black;  border-radius: 6px;");
     return _result;
 }
 
-QDial * SynthGUI::_get_knob(_knob_type _ktype, int _default_value)
+QDial * SynthGUI::get_knob(_knob_type _ktype, int _default_value)
 {
     int _min, _max, _step, _value;
     
@@ -619,7 +619,7 @@ QDial * SynthGUI::_get_knob(_knob_type _ktype, int _default_value)
     
 }
 
-QCheckBox * SynthGUI::_get_checkbox(std::string _text)
+QCheckBox * SynthGUI::get_checkbox(std::string _text)
 {
     QCheckBox * _checkbox = new QCheckBox(this);
     
@@ -650,7 +650,7 @@ QDial * SynthGUI::newQDial( int minValue, int maxValue, int pageStep, int value 
     return dial;
 }
 
-QComboBox * SynthGUI::_get_combobox(QString _choices [], int _count,  QWidget * _parent)
+QComboBox * SynthGUI::get_combobox(QString _choices [], int _count,  QWidget * _parent)
 {
     QComboBox * _result = new QComboBox(_parent);
     QStringList _items;
@@ -878,7 +878,7 @@ void SynthGUI::programSaved()
 /*Standard handlers for the audio slots, these perform manipulations of knob values
  that are common in audio applications*/
 
-void SynthGUI::_changed_zero_to_x(int value, QLabel * _label, int _port)
+void SynthGUI::changed_zero_to_x(int value, QLabel * _label, int _port)
 {
     float val = float(value) * .01;
     _label->setText(QString("%1").arg(val));
@@ -888,7 +888,7 @@ void SynthGUI::_changed_zero_to_x(int value, QLabel * _label, int _port)
     }
 }
 
-void SynthGUI::_changed_integer(int value, QLabel * _label, int _port)
+void SynthGUI::changed_integer(int value, QLabel * _label, int _port)
 {
     float val = float(value);
     _label->setText(QString("%1").arg(val));
@@ -898,7 +898,7 @@ void SynthGUI::_changed_integer(int value, QLabel * _label, int _port)
     }
 }
 
-void SynthGUI::_changed_seconds(int value, QLabel * _label, int _port)
+void SynthGUI::changed_seconds(int value, QLabel * _label, int _port)
 {
     float sec = float(value) * .01;
     _label->setText(QString("%1").arg(sec));
@@ -908,13 +908,13 @@ void SynthGUI::_changed_seconds(int value, QLabel * _label, int _port)
     }
 }
 
-void SynthGUI::_changed_pitch(int value, QLabel * _label, int _port)
+void SynthGUI::changed_pitch(int value, QLabel * _label, int _port)
 {
     /*We need to send midi note number to the synth, as it probably still needs to process it as
      midi_note number.  We use this to display hz to the user*/
     
     float _f_value = float(value);
-    float _hz = _pit_midi_note_to_hz(_f_value);
+    float _hz = f_pit_midi_note_to_hz(_f_value);
     
     _label->setText(QString("%1 hz").arg((int)_hz));
     
@@ -923,7 +923,7 @@ void SynthGUI::_changed_pitch(int value, QLabel * _label, int _port)
     }    
 }
 
-void SynthGUI::_changed_decibels(int value, QLabel * _label, int _port)
+void SynthGUI::changed_decibels(int value, QLabel * _label, int _port)
 {
     /*Decibels is a reasonable way to display this to the user, so just use it as it is*/
     _label->setText(QString("%1").arg(value));
@@ -939,65 +939,65 @@ void SynthGUI::_changed_decibels(int value, QLabel * _label, int _port)
 
 void SynthGUI::attackChanged(int value)
 {
-    _changed_seconds(value,m_attackLabel,LTS_PORT_ATTACK);
+    changed_seconds(value,m_attackLabel,LTS_PORT_ATTACK);
 }
 
 void
 SynthGUI::decayChanged(int value)
 {
-    _changed_seconds(value,m_decayLabel,LTS_PORT_DECAY);
+    changed_seconds(value,m_decayLabel,LTS_PORT_DECAY);
 }
 
 void SynthGUI::sustainChanged(int value)
 {
-    _changed_decibels(value, m_sustainLabel, LTS_PORT_SUSTAIN);    
+    changed_decibels(value, m_sustainLabel, LTS_PORT_SUSTAIN);    
 }
 
 void SynthGUI::releaseChanged(int value)
 {
-    _changed_seconds(value, m_releaseLabel, LTS_PORT_RELEASE);    
+    changed_seconds(value, m_releaseLabel, LTS_PORT_RELEASE);    
 }
 
 void SynthGUI::timbreChanged(int value)
 {
-    _changed_pitch(value, m_timbreLabel, LTS_PORT_TIMBRE);    
+    changed_pitch(value, m_timbreLabel, LTS_PORT_TIMBRE);    
 }
 
 void SynthGUI::resChanged(int value)
 {
-    _changed_decibels(value, m_resLabel, LTS_PORT_RES);    
+    changed_decibels(value, m_resLabel, LTS_PORT_RES);    
 }
 
 void SynthGUI::distChanged(int value)
 {
-    _changed_integer(value, m_distLabel, LTS_PORT_DIST);
+    changed_integer(value, m_distLabel, LTS_PORT_DIST);
 }
 
 
 void SynthGUI::filterAttackChanged(int value)
 {
-    _changed_seconds(value,m_filter_attackLabel,LTS_PORT_FILTER_ATTACK);
+    changed_seconds(value,m_filter_attackLabel,LTS_PORT_FILTER_ATTACK);
 }
 
 void
 SynthGUI::filterDecayChanged(int value)
 {
-    _changed_seconds(value,m_filter_decayLabel,LTS_PORT_FILTER_DECAY);
+    changed_seconds(value,m_filter_decayLabel,LTS_PORT_FILTER_DECAY);
 }
 
 void SynthGUI::filterSustainChanged(int value)
 {
-    _changed_zero_to_x(value, m_filter_sustainLabel, LTS_PORT_FILTER_SUSTAIN);    
+    changed_zero_to_x(value, m_filter_sustainLabel, LTS_PORT_FILTER_SUSTAIN);    
 }
 
 void SynthGUI::filterReleaseChanged(int value)
 {
-    _changed_seconds(value, m_filter_releaseLabel, LTS_PORT_FILTER_RELEASE);    
+    changed_seconds(value, m_filter_releaseLabel, LTS_PORT_FILTER_RELEASE);    
 }
 
 void SynthGUI::noiseAmpChanged(int value)
 {
-    _changed_decibels(value, m_noise_ampLabel, LTS_PORT_NOISE_AMP);
+    changed_decibels(value, m_noise_ampLabel, LTS_PORT_NOISE_AMP);
 }
 
 void SynthGUI::filterEnvAmtChanged(int value)
@@ -1027,17 +1027,17 @@ void SynthGUI::osc1TypeChanged(int value)
 
 void SynthGUI::osc1PitchChanged(int value)
 {
-    _changed_integer(value, m_osc1_pitchLabel, LTS_PORT_OSC1_PITCH);
+    changed_integer(value, m_osc1_pitchLabel, LTS_PORT_OSC1_PITCH);
 }
 
 void SynthGUI::osc1TuneChanged(int value)
 {
-    _changed_zero_to_x(value, m_osc1_tuneLabel, LTS_PORT_OSC1_TUNE);
+    changed_zero_to_x(value, m_osc1_tuneLabel, LTS_PORT_OSC1_TUNE);
 }
 
 void SynthGUI::osc1VolumeChanged(int value)
 {
-    _changed_decibels(value, m_osc1_volumeLabel, LTS_PORT_OSC1_VOLUME);
+    changed_decibels(value, m_osc1_volumeLabel, LTS_PORT_OSC1_VOLUME);
 }
 
 void SynthGUI::osc2TypeChanged(int value)
@@ -1049,22 +1049,22 @@ void SynthGUI::osc2TypeChanged(int value)
 
 void SynthGUI::osc2PitchChanged(int value)
 {
-    _changed_integer(value, m_osc2_pitchLabel, LTS_PORT_OSC2_PITCH);
+    changed_integer(value, m_osc2_pitchLabel, LTS_PORT_OSC2_PITCH);
 }
 
 void SynthGUI::osc2TuneChanged(int value)
 {
-    _changed_zero_to_x(value, m_osc2_tuneLabel, LTS_PORT_OSC2_TUNE);
+    changed_zero_to_x(value, m_osc2_tuneLabel, LTS_PORT_OSC2_TUNE);
 }
 
 void SynthGUI::osc2VolumeChanged(int value)
 {
-    _changed_decibels(value, m_osc2_volumeLabel, LTS_PORT_OSC2_VOLUME);
+    changed_decibels(value, m_osc2_volumeLabel, LTS_PORT_OSC2_VOLUME);
 }
 
 void SynthGUI::masterVolumeChanged(int value)
 {
-    _changed_decibels(value, m_master_volumeLabel, LTS_PORT_MASTER_VOLUME);
+    changed_decibels(value, m_master_volumeLabel, LTS_PORT_MASTER_VOLUME);
 }
 
 
@@ -1072,25 +1072,25 @@ void SynthGUI::masterVolumeChanged(int value)
 
 void SynthGUI::masterUnisonVoicesChanged(int value)
 {
-    _changed_integer(value, m_master_unison_voicesLabel, LTS_PORT_MASTER_UNISON_VOICES);
+    changed_integer(value, m_master_unison_voicesLabel, LTS_PORT_MASTER_UNISON_VOICES);
 }
 
 
 void SynthGUI::masterUnisonSpreadChanged(int value)
 {    
-    _changed_zero_to_x(value, m_master_unison_spreadLabel, LTS_PORT_MASTER_UNISON_SPREAD);
+    changed_zero_to_x(value, m_master_unison_spreadLabel, LTS_PORT_MASTER_UNISON_SPREAD);
 }
 
 
 void SynthGUI::masterGlideChanged(int value)
 {
-    _changed_zero_to_x(value, m_master_glideLabel, LTS_PORT_MASTER_GLIDE);
+    changed_zero_to_x(value, m_master_glideLabel, LTS_PORT_MASTER_GLIDE);
 }
 
 
 void SynthGUI::masterPitchbendAmtChanged(int value)
 {
-    _changed_integer(value, m_master_pitchbend_amtLabel, LTS_PORT_MASTER_PITCHBEND_AMT);
+    changed_integer(value, m_master_pitchbend_amtLabel, LTS_PORT_MASTER_PITCHBEND_AMT);
 }
 
 /*

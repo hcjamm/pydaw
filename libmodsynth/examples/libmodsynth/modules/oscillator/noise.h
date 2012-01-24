@@ -22,32 +22,32 @@ extern "C" {
 #include <stdlib.h>
 #include <time.h>
 
-typedef struct _white_noise
+typedef struct st_white_noise
 {
     uint array_count, read_head;
     float * sample_array;     
     
-}white_noise;
+}t_white_noise;
 
-white_noise * _get_white_noise(float);
+t_white_noise * g_get_white_noise(float);
 
-white_noise * _get_white_noise(float _sample_rate)
+t_white_noise * g_get_white_noise(float a_sample_rate)
 {
     srand((unsigned)time(NULL));
     
-    white_noise * _result = (white_noise*)malloc(sizeof(white_noise));
+    t_white_noise * f_result = (t_white_noise*)malloc(sizeof(t_white_noise));
     
-    _result->array_count = _sample_rate;
+    f_result->array_count = a_sample_rate;
     
-    _result->read_head = 0;
+    f_result->read_head = 0;
     
-    _result->sample_array = (float*)malloc(sizeof(float) * _sample_rate);
+    f_result->sample_array = (float*)malloc(sizeof(float) * a_sample_rate);
     
-    uint i = 0;
+    uint f_i = 0;
     
-    uint _i_s_r = (uint)_sample_rate;
+    uint f_i_s_r = (uint)a_sample_rate;
     
-    while(i < _i_s_r)
+    while(f_i < f_i_s_r)
     {
         /*Mixing 3 random numbers together gives a more natural sounding white noise,
          instead of a "brick" of noise, as seen on an oscilloscope*/
@@ -55,26 +55,26 @@ white_noise * _get_white_noise(float _sample_rate)
         float _sample2 = ((float)rand() / (float)RAND_MAX) - .5;
         float _sample3 = ((float)rand() / (float)RAND_MAX) - .5;
         
-        _result->sample_array[i] = (_sample1 + _sample2 + _sample3) * .5;
-        i++;
+        f_result->sample_array[f_i] = (_sample1 + _sample2 + _sample3) * .5;
+        f_i++;
     }
     
-    return _result;
+    return f_result;
 }
 
 
-float _run_w_noise(white_noise *);
+float f_run_w_noise(t_white_noise *);
 
-float _run_w_noise(white_noise * _w_noise)
+float f_run_w_noise(t_white_noise * a_w_noise)
 {
-    _w_noise->read_head = (_w_noise->read_head) + 1;
+    a_w_noise->read_head = (a_w_noise->read_head) + 1;
     
-    if((_w_noise->read_head) >= (_w_noise->array_count))
+    if((a_w_noise->read_head) >= (a_w_noise->array_count))
     {
-        _w_noise->read_head = 0;
+        a_w_noise->read_head = 0;
     }
     
-    return _w_noise->sample_array[(_w_noise->read_head)];
+    return a_w_noise->sample_array[(a_w_noise->read_head)];
 }
 
 #ifdef	__cplusplus

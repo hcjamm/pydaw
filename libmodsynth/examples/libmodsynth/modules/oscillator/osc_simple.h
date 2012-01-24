@@ -24,72 +24,72 @@ extern "C" {
 #define OSC_UNISON_MAX_VOICES 7
     
 //Used to switch between values, uses much less CPU than a switch statement
-typedef float (*_get_osc_func_ptr)(osc_core*);
+typedef float (*fp_get_osc_func_ptr)(t_osc_core*);
 
 
 /*A unison oscillator.  The _osc_type pointer determines which waveform it uses, it defaults to saw unless you set it to something else*/
-typedef struct _osc_simple_unison
+typedef struct st_osc_simple_unison
 {
-    float _sr_recip;
-    int _voice_count;  //Set this to the max number of voices, not to exceed OSC_UNISON_MAX_VOICES
-    _get_osc_func_ptr _osc_type;        
-    float _bottom_pitch;
-    float _pitch_inc;
-    float _voice_inc [OSC_UNISON_MAX_VOICES];
-    osc_core * _cores [OSC_UNISON_MAX_VOICES];
+    float sr_recip;
+    int voice_count;  //Set this to the max number of voices, not to exceed OSC_UNISON_MAX_VOICES
+    fp_get_osc_func_ptr osc_type;        
+    float bottom_pitch;
+    float pitch_inc;
+    float voice_inc [OSC_UNISON_MAX_VOICES];
+    t_osc_core * osc_cores [OSC_UNISON_MAX_VOICES];
     
-    float _phases [OSC_UNISON_MAX_VOICES];  //Restart the oscillators at the same phase on each note-on
+    float phases [OSC_UNISON_MAX_VOICES];  //Restart the oscillators at the same phase on each note-on
     
-    float _uni_spread;
+    float uni_spread;
                 
-    float _adjusted_amp;  //Set this with unison voices to prevent excessive volume        
+    float adjusted_amp;  //Set this with unison voices to prevent excessive volume        
     
-}osc_simple_unison;
+}t_osc_simple_unison;
 
 
-void _osc_set_uni_voice_count(osc_simple_unison*, int);
+void v_osc_set_uni_voice_count(t_osc_simple_unison*, int);
 
-void _osc_set_uni_voice_count(osc_simple_unison* _osc_ptr, int _value)
+void v_osc_set_uni_voice_count(t_osc_simple_unison* a_osc_ptr, int a_value)
 {
-    if(_value > (OSC_UNISON_MAX_VOICES))
+    if(a_value > (OSC_UNISON_MAX_VOICES))
     {
-        _osc_ptr->_voice_count = OSC_UNISON_MAX_VOICES;
+        a_osc_ptr->voice_count = OSC_UNISON_MAX_VOICES;
     }
-    else if(_value < 1)
+    else if(a_value < 1)
     {
-        _osc_ptr->_voice_count = 1;
+        a_osc_ptr->voice_count = 1;
     }
     else
     {
-        _osc_ptr->_voice_count = _value;
+        a_osc_ptr->voice_count = a_value;
     }
     
-    _osc_ptr->_adjusted_amp = (1 / (float)(_osc_ptr->_voice_count)) + ((_osc_ptr->_voice_count - 1) * .06);
+    a_osc_ptr->adjusted_amp = (1 / (float)(a_osc_ptr->voice_count)) + ((a_osc_ptr->voice_count - 1) * .06);
 }
 
 
-void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch);
+void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, float a_pitch);
 
-void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _pitch)
+void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, float a_pitch)
 {
-    if((_osc_ptr->_voice_count) == 1)
+    if((a_osc_ptr->voice_count) == 1)
     {
-        _osc_ptr->_voice_inc[0] =  _pit_midi_note_to_hz(_pitch) * _osc_ptr->_sr_recip;
+        a_osc_ptr->voice_inc[0] =  f_pit_midi_note_to_hz(a_pitch) * a_osc_ptr->sr_recip;
     }
     else
     {        
-        if(_spread != (_osc_ptr->_uni_spread))
+        if(a_spread != (a_osc_ptr->uni_spread))
         {
-            _osc_ptr->_uni_spread = _spread;
-            _osc_ptr->_bottom_pitch = -.5 * _spread;
-            _osc_ptr->_pitch_inc = _spread / ((float)(_osc_ptr->_voice_count));
+            a_osc_ptr->uni_spread = a_spread;
+            a_osc_ptr->bottom_pitch = -.5 * a_spread;
+            a_osc_ptr->pitch_inc = a_spread / ((float)(a_osc_ptr->voice_count));
         }
         
         int i = 0;
 
-        while(i < (_osc_ptr->_voice_count))
+        while(i < (a_osc_ptr->voice_count))
         {
-            _osc_ptr->_voice_inc[i] =  _pit_midi_note_to_hz(_pitch + (_osc_ptr->_bottom_pitch) + (_osc_ptr->_pitch_inc * ((float)i))) * _osc_ptr->_sr_recip;
+            a_osc_ptr->voice_inc[i] =  f_pit_midi_note_to_hz(a_pitch + (a_osc_ptr->bottom_pitch) + (a_osc_ptr->pitch_inc * ((float)i))) * a_osc_ptr->sr_recip;
             i++;
         }
     }
@@ -98,39 +98,39 @@ void _osc_set_unison_pitch(osc_simple_unison * _osc_ptr, float _spread, float _p
 
 
 
-float _osc_run_unison_osc(osc_simple_unison * _osc_ptr);
+float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr);
 
 //Return one sample of the oscillator running.
-float _osc_run_unison_osc(osc_simple_unison * _osc_ptr)
+float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
 {
-    int i = 0;
-    float _result = 0;
+    int f_i = 0;
+    float f_result = 0;
     
     
-    while(i < (_osc_ptr->_voice_count))
+    while(f_i < (a_osc_ptr->voice_count))
     {
-        _run_osc((_osc_ptr->_cores[i]), (_osc_ptr->_voice_inc[i]));
-        _result += _osc_ptr->_osc_type((_osc_ptr->_cores[i]));
-        i++;
+        f_run_osc((a_osc_ptr->osc_cores[f_i]), (a_osc_ptr->voice_inc[f_i]));
+        f_result += a_osc_ptr->osc_type((a_osc_ptr->osc_cores[f_i]));
+        f_i++;
     }
     
-    return _result * (_osc_ptr->_adjusted_amp);
+    return f_result * (a_osc_ptr->adjusted_amp);
 }
 
 
-float _get_saw(osc_core * _core)
+float f_get_saw(t_osc_core * a_core)
 {
-    return (((_core->_output) * 2) - 1);
+    return (((a_core->output) * 2) - 1);
 }
 
-float _get_sine(osc_core * _core)
+float f_get_sine(t_osc_core * a_core)
 {
-    return sin((_core->_output) * PI2);
+    return sin((a_core->output) * PI2);
 }
 
-float _get_square(osc_core * _core)
+float f_get_square(t_osc_core * a_core)
 {
-    if((_core->_output) >= .5)
+    if((a_core->output) >= .5)
     {
         return 1;
     }
@@ -140,31 +140,31 @@ float _get_square(osc_core * _core)
     }
 }
 
-float _get_triangle(osc_core * _core)
+float f_get_triangle(t_osc_core * a_core)
 {
-    float _ramp = ((_core->_output) * 4) - 2;
-    if(_ramp > 1)
+    float f_ramp = ((a_core->output) * 4) - 2;
+    if(f_ramp > 1)
     {
-        return 2 - _ramp;
+        return 2 - f_ramp;
     }
-    else if(_ramp < -1)
+    else if(f_ramp < -1)
     {
-        return (2 + _ramp) * -1;
+        return (2 + f_ramp) * -1;
     }
     else
     {
-        return _ramp;
+        return f_ramp;
     }
 }
 
 //Return zero if the oscillator is turned off.  A function pointer should point here if the oscillator is turned off.
-float _get_osc_off(osc_core * _core)
+float f_get_osc_off(t_osc_core * _core)
 {
     return 0;
 }
 
 
-void _osc_set_simple_osc_unison_type(osc_simple_unison *, int);
+void v_osc_set_simple_osc_unison_type(t_osc_simple_unison *, int);
 
 
 /*Set the oscillator type.  Current valid types are:
@@ -174,86 +174,87 @@ void _osc_set_simple_osc_unison_type(osc_simple_unison *, int);
  * 3. Sine
  * 4. Off
  */
-void _osc_set_simple_osc_unison_type(osc_simple_unison * _osc_ptr, int _index)
+void v_osc_set_simple_osc_unison_type(t_osc_simple_unison * a_osc_ptr, int a_index)
 {
-    switch(_index)
+    switch(a_index)
     {
         case 0:
-            _osc_ptr->_osc_type = _get_saw;
+            a_osc_ptr->osc_type = f_get_saw;
             break;
         case 1:
-            _osc_ptr->_osc_type = _get_square;
+            a_osc_ptr->osc_type = f_get_square;
             break;
         case 2:
-            _osc_ptr->_osc_type = _get_triangle;
+            a_osc_ptr->osc_type = f_get_triangle;
             break;
         case 3:
-            _osc_ptr->_osc_type = _get_sine;
+            a_osc_ptr->osc_type = f_get_sine;
             break;
         case 4:
-            _osc_ptr->_osc_type = _get_osc_off;
+            a_osc_ptr->osc_type = f_get_osc_off;
             break;
     }
     
 }
 
-void _osc_note_on_sync_phases(osc_simple_unison *);
+void v_osc_note_on_sync_phases(t_osc_simple_unison *);
 
 /*Resync the oscillators at note_on to hopefully avoid phasing artifacts*/
-void _osc_note_on_sync_phases(osc_simple_unison * _osc_ptr)
+void v_osc_note_on_sync_phases(t_osc_simple_unison * a_osc_ptr)
 {
-    int i = 0;
+    int f_i = 0;
     
-    while(i < _osc_ptr->_voice_count)
+    while(f_i < a_osc_ptr->voice_count)
     {
-        _osc_ptr->_cores[i]->_output = _osc_ptr->_phases[i];
+        a_osc_ptr->osc_cores[f_i]->output = a_osc_ptr->phases[f_i];
         
-        i++;
+        f_i++;
     }
 }
 
 
-osc_simple_unison * _osc_get_osc_simple_unison(float);
 
-osc_simple_unison * _osc_get_osc_simple_unison(float _sample_rate)
+t_osc_simple_unison * g_osc_get_osc_simple_unison(float);
+
+t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
 {
-    osc_simple_unison * _result = (osc_simple_unison*)malloc(sizeof(osc_simple_unison));
+    t_osc_simple_unison * f_result = (t_osc_simple_unison*)malloc(sizeof(t_osc_simple_unison));
     
-    _osc_set_uni_voice_count(_result, OSC_UNISON_MAX_VOICES);    
-    _result->_osc_type = _get_saw;
-    _result->_sr_recip = 1 / _sample_rate;
+    v_osc_set_uni_voice_count(f_result, OSC_UNISON_MAX_VOICES);    
+    f_result->osc_type = f_get_saw;
+    f_result->sr_recip = 1 / a_sample_rate;
     
     
-    int i = 0;
+    int f_i = 0;
     
-    while(i < (OSC_UNISON_MAX_VOICES))
+    while(f_i < (OSC_UNISON_MAX_VOICES))
     {
-        _result->_cores[i] = (osc_core*)malloc(sizeof(osc_core));
-        i++;
+        f_result->osc_cores[f_i] = (t_osc_core*)malloc(sizeof(t_osc_core));
+        f_i++;
     }
         
-    _osc_set_unison_pitch(_result, .5, 60);
+    v_osc_set_unison_pitch(f_result, .5, 60);
     
-    i = 0;
+    f_i = 0;
     
     //Prevent phasing artifacts from the oscillators starting at the same phase.
-    while(i < 200000)
+    while(f_i < 200000)
     {
-        _osc_run_unison_osc(_result);
-        i++;
+        f_osc_run_unison_osc(f_result);
+        f_i++;
     }
     
-    i = 0;
+    f_i = 0;
         
-    while(i < (OSC_UNISON_MAX_VOICES))
+    while(f_i < (OSC_UNISON_MAX_VOICES))
     {
-        _result->_phases[i] = _result->_cores[i]->_output;
-        i++;
+        f_result->phases[f_i] = f_result->osc_cores[f_i]->output;
+        f_i++;
     }
     
-    _osc_set_unison_pitch(_result, .2, 60);
+    v_osc_set_unison_pitch(f_result, .2, 60);
     
-    return _result;
+    return f_result;
 }
 
 
