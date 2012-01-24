@@ -153,29 +153,29 @@ protected slots:
 protected:
     QDial *newQDial( int, int, int, int );
     
-    QDial *_get_knob(_knob_type, int _default_value = 333);
+    QDial *get_knob(_knob_type, int _default_value = 333);
     
     //TODO:  update this to be more flexible about layout types
-    void _add_widget(QGridLayout * _layout, int position_x, int position_y, QString _label_text,  QWidget * _widget,    
-    QLabel * _label);
+    void add_widget(QGridLayout * _layout, int position_x, int position_y, QString _label_text,  QWidget * _widget,    
+    QLabel * _label);  
     
-    void _add_widget_no_label(QGridLayout * _layout, int position_x, int position_y, QString _label_text, QWidget * _widget);
+    void add_widget_no_label(QGridLayout * _layout, int position_x, int position_y, QString _label_text, QWidget * _widget);
     
-    QGroupBox * _newGroupBox(QString, QWidget *);
+    QGroupBox * newGroupBox(QString, QWidget *);
     
-    QLabel * _newQLabel(QWidget *);
+    QLabel * newQLabel(QWidget *);
     
-    QCheckBox * _get_checkbox(std::string _text);
+    QCheckBox * get_checkbox(std::string _text);
     
-    QComboBox * _get_combobox(QString _choices [], int _count, QWidget * _parent);
+    QComboBox * get_combobox(QString _choices [], int _count, QWidget * _parent);
     
-    void _changed_seconds(int, QLabel *, int);
-    void _changed_pitch(int, QLabel *, int);
-    void _changed_decibels(int, QLabel *, int);
-    void _changed_zero_to_x(int, QLabel *, int);
-    void _changed_integer(int value, QLabel * _label, int _port);
+    void changed_seconds(int, QLabel *, int);
+    void changed_pitch(int, QLabel *, int);
+    void changed_decibels(int, QLabel *, int);
+    void changed_zero_to_x(int, QLabel *, int);
+    void changed_integer(int value, QLabel * _label, int _port);
     
-    QStringList * _presets_tab_delimited;
+    QStringList * presets_tab_delimited;
     
     
     /*GUI Step1:  Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/

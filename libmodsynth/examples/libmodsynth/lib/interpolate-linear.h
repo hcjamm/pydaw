@@ -12,9 +12,11 @@
 extern "C" {
 #endif
 
-float _linear_interpolate(float _a, float _b, float _position)
+inline float f_linear_interpolate(float, float, float);
+    
+inline float f_linear_interpolate(float a_a, float a_b, float a_position)
 {    
-    return (((_a - _b) * _position) + _a);
+    return (((a_a - a_b) * a_position) + a_a);
 }
 
 

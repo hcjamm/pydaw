@@ -19,19 +19,22 @@ extern "C" {
 #include "../../lib/smoother-linear.h"
 #include "../../lib/denormal.h"
 
-typedef struct _state_variable_filter
+typedef struct st_state_variable_filter
 {
-    smoother_linear * cutoff_smoother;
-    float _bp_m1, _lp_m1, _cutoff_note, _cutoff_hz, _cutoff_filter, _pi2_div_sr, _sr, _oversample_div, _filter_res, _filter_res_db, _input, _last_input, _hp, _lp, _bp;
-    int _oversample_mult;
+    t_smoother_linear * cutoff_smoother;
+    float bp_m1, lp_m1, cutoff_note, cutoff_hz, cutoff_filter, pi2_div_sr, sr, oversample_div, filter_res, filter_res_db, filter_input, filter_last_input, hp, lp, bp;
+    int oversample_mult;
 
-} state_variable_filter; 
+} t_state_variable_filter; 
 
 
-state_variable_filter * _svf_get(float, int);
+inline void v_svf_set_cutoff(t_state_variable_filter*, float);
+void v_svf_set_res(t_state_variable_filter*,  float);
+t_state_variable_filter * g_svf_get(float, int);
+inline void v_svf_set_input_value(t_state_variable_filter*, float);
 
 /*This should be called every sample, otherwise the smoothing doesn't work properly*/
-void _svf_set_cutoff(state_variable_filter * _svf, float _midi_note_number)
+inline void v_svf_set_cutoff(t_state_variable_filter * a_svf, float a_midi_note_number)
 {
              
     //_sml_run(_svf->cutoff_smoother, _midi_note_number);
@@ -44,80 +47,80 @@ void _svf_set_cutoff(state_variable_filter * _svf, float _midi_note_number)
     
      
     //_svf->_cutoff_note = _midi_note_number;
-    _svf->_cutoff_hz = _pit_midi_note_to_hz(_midi_note_number); //_svf->cutoff_smoother->last_value);
+    a_svf->cutoff_hz = f_pit_midi_note_to_hz(a_midi_note_number); //_svf->cutoff_smoother->last_value);
     
-    if(_svf->_cutoff_hz >= 24000)
-        _svf->_cutoff_hz = 24000;
+    if(a_svf->cutoff_hz >= 24000)
+        a_svf->cutoff_hz = 24000;
 
-    _svf->_cutoff_filter = _svf->_pi2_div_sr * _svf->_cutoff_hz * _svf->_oversample_div;
+    a_svf->cutoff_filter = a_svf->pi2_div_sr * a_svf->cutoff_hz * a_svf->oversample_div;
 
     /*prevent the filter from exploding numerically, this does artificially cap the cutoff frequency to below what you set it to
      if you lower the oversampling rate of the filter.*/
-    if(_svf->_cutoff_filter > .8)
-        _svf->_cutoff_filter = .8;  
+    if(a_svf->cutoff_filter > .8)
+        a_svf->cutoff_filter = .8;  
 }
 
-void _svf_set_res(
-    state_variable_filter * _svf,
-    float _db  //-100 to 0 is the expected range
+void v_svf_set_res(
+    t_state_variable_filter * a_svf,
+    float a_db  //-100 to 0 is the expected range
     )
 {
     /*Don't calculate it again if it hasn't changed*/
-    if((_svf->_filter_res_db) == _db)
+    if((a_svf->filter_res_db) == a_db)
         return;
     
-    _svf->_filter_res_db = _db;
+    a_svf->filter_res_db = a_db;
     
-    if(_db < -100)
-        _db = -100;
-    else if (_db > -.5)
+    if(a_db < -100)
+        a_db = -100;
+    else if (a_db > -.5)
     {
-        _db = -.5;
+        a_db = -.5;
     }
 
-       _svf->_filter_res = (1 - _db_to_linear(_db)) * 2;
+       a_svf->filter_res = (1 - f_db_to_linear(a_db)) * 2;
 }
 
 /*instantiate a new pointer to a state variable filter*/
-state_variable_filter * _svf_get(float _sample_rate, int _oversample)
+t_state_variable_filter * g_svf_get(float a_sample_rate, int a_oversample)
 {
-    state_variable_filter * _svf = (state_variable_filter*)malloc(sizeof(state_variable_filter));
-    _svf->_sr = _sample_rate * ((float)_oversample);
-    _svf->_pi2_div_sr = (PI2 / (_svf->_sr));
-    _svf->_oversample_mult = _oversample;
-    _svf->_oversample_div = (1/((float)_svf->_oversample_mult)); 
-    _svf->cutoff_smoother = _sml_get_smoother_linear(_sample_rate, 130, 30, 2);
-    _svf->_bp = 0;
-    _svf->_bp_m1 = 0;
-    _svf->_hp = 0;
-    _svf->_lp = 0;
-    _svf->_lp_m1 = 0;
+    t_state_variable_filter * f_svf = (t_state_variable_filter*)malloc(sizeof(t_state_variable_filter));
+    f_svf->sr = a_sample_rate * ((float)a_oversample);
+    f_svf->pi2_div_sr = (PI2 / (f_svf->sr));
+    f_svf->oversample_mult = a_oversample;
+    f_svf->oversample_div = (1/((float)f_svf->oversample_mult)); 
+    f_svf->cutoff_smoother = g_sml_get_smoother_linear(a_sample_rate, 130, 30, 2);
+    f_svf->bp = 0;
+    f_svf->bp_m1 = 0;
+    f_svf->hp = 0;
+    f_svf->lp = 0;
+    f_svf->lp_m1 = 0;
     
-    return _svf;
+    return f_svf;
 }
 
 //The main action to run the filter
-void _svf_set_input_value(state_variable_filter * _svf, float _input_value)
+inline void v_svf_set_input_value(t_state_variable_filter * a_svf, float a_input_value)
 {
-    _svf->_input = _input_value;
-    float _position = 0;
+    a_svf->filter_input = a_input_value;
+    float f_position = 0;
 
-    int i = 0;
+    int f_i = 0;
     
-    while(i < (_svf->_oversample_mult))
+    while(f_i < (a_svf->oversample_mult))
     {
-        float _interpolated_sample = _linear_interpolate(_svf->_last_input, _svf->_input, _position);
+        float f_interpolated_sample = f_linear_interpolate((a_svf->filter_last_input), (a_svf->filter_input), f_position);
 
-        _svf->_hp = _interpolated_sample - (((_svf->_bp_m1) * (_svf->_filter_res)) + (_svf->_lp_m1));
-        _svf->_bp = ((_svf->_hp) * (_svf->_cutoff_filter)) + (_svf->_bp_m1);
-        _svf->_lp = ((_svf->_bp) * (_svf->_cutoff_filter)) + (_svf->_lp_m1);
+        a_svf->hp = f_interpolated_sample - (((a_svf->bp_m1) * (a_svf->filter_res)) + (a_svf->lp_m1));
+        a_svf->bp = ((a_svf->hp) * (a_svf->cutoff_filter)) + (a_svf->bp_m1);
+        a_svf->lp = ((a_svf->bp) * (a_svf->cutoff_filter)) + (a_svf->lp_m1);
 
-        _svf->_bp_m1 = _remove_denormal((_svf->_bp));
-        _svf->_lp_m1 = _remove_denormal((_svf->_lp));
+        a_svf->bp_m1 = f_remove_denormal((a_svf->bp));
+        a_svf->lp_m1 = f_remove_denormal((a_svf->lp));
 
-        _position += (_svf->_oversample_mult);
+        f_position += (a_svf->oversample_mult);
         
-        i++;
+        f_i++;
     }
 }
 

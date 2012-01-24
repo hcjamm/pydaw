@@ -14,67 +14,68 @@ extern "C" {
     
 #include "../../lib/amp.h"
     
-typedef struct _clipper
+typedef struct st_clipper
 {
     float clip_high, clip_low, input_gain, clip_db, in_db;
-}clipper;
+}t_clipper;
 
 /*Set the values of a clipper struct symmetrically, ie: value of .75 clips at .75 and -.75*/
-void _clp_set_clip_sym(clipper *, float);
-void _clp_set_in_gain(clipper *, float);
+void v_clp_set_clip_sym(t_clipper *, float);
+void v_clp_set_in_gain(t_clipper *, float);
+t_clipper * g_clp_get_clipper();
+inline float f_clp_clip(t_clipper*, float);
 
 
-void _clp_set_clip_sym(clipper * _clp, float _db)
+void v_clp_set_clip_sym(t_clipper * a_clp, float a_db)
 {
     /*Already set, don't set again*/
-    if(_db == (_clp->clip_db))
+    if(a_db == (a_clp->clip_db))
         return;
     
-    _clp->clip_db = _db;
+    a_clp->clip_db = a_db;
     
-    float _value = _db_to_linear(_db);
+    float f_value = f_db_to_linear(a_db);
     
 #ifdef LMS_DEBUG_MODE
-        printf("Clipper value == %f", _value);
+        printf("Clipper value == %f", f_value);
 #endif
 
-    _clp->clip_high = _value;
-    _clp->clip_low = (_value * -1);
+    a_clp->clip_high = f_value;
+    a_clp->clip_low = (f_value * -1);
 }
 
-void _clp_set_in_gain(clipper * _clp, float _db)
+void v_clp_set_in_gain(t_clipper * a_clp, float a_db)
 {
-    if((_clp->in_db) == _db)
+    if((a_clp->in_db) == a_db)
         return;
     
-    _clp->in_db = _db;
+    a_clp->in_db = a_db;
     
-    _clp->input_gain = _db_to_linear(_db);
+    a_clp->input_gain = f_db_to_linear(a_db);
 }
 
-clipper * _clp_get_clipper()
+t_clipper * g_clp_get_clipper()
 {
-    clipper * _result = (clipper*)malloc(sizeof(clipper));
+    t_clipper * f_result = (t_clipper*)malloc(sizeof(t_clipper));
     
-    _result->clip_high = 1;
-    _result->clip_low = -1;
-    _result->input_gain = 1;
+    f_result->clip_high = 1;
+    f_result->clip_low = -1;
+    f_result->input_gain = 1;
     
-    return _result;
+    return f_result;
 };
 
-float _clp_clip(clipper*, float);
 
-float _clp_clip(clipper * _clp, float _input)
+inline float f_clp_clip(t_clipper * a_clp, float a_input)
 {
-    float _result = _input * (_clp->input_gain);
+    float f_result = a_input * (a_clp->input_gain);
     
-    if(_result > (_clp->clip_high))
-        _result = (_clp->clip_high);
-    else if(_result < (_clp->clip_low))
-        _result = (_clp->clip_low);
+    if(f_result > (a_clp->clip_high))
+        f_result = (a_clp->clip_high);
+    else if(f_result < (a_clp->clip_low))
+        f_result = (a_clp->clip_low);
     
-    return _result;
+    return f_result;
 }
 
 #ifdef	__cplusplus
