@@ -488,7 +488,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     data[voice]._voice->noise_amp = f_db_to_linear((vals.noise_amp));
                     
-                    _axf_set_xfade(data[voice]._voice->dist_dry_wet, vals.dist_wet);       
+                    v_axf_set_xfade(data[voice]._voice->dist_dry_wet, vals.dist_wet);       
                     
                     /*Set the oscillator type(saw, square, etc...)*/
                     v_osc_set_simple_osc_unison_type(data[voice]._voice->osc_unison1, (int)(vals.osc1type));
