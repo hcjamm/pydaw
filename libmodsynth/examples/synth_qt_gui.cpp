@@ -135,9 +135,9 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     QString f_programs_list [128];
     
-    presets_tab_delimited = new QStringList();
     
-    QFile* file = new QFile(QDir::homePath() + "/" + LMS_PLUGIN_NAME + "-presets.xml");
+    
+    QFile* file = new QFile(QDir::homePath() + "/dssi/" + LMS_PLUGIN_NAME + "-presets.tsv");
     
     if(!file->open(QIODevice::ReadOnly)) {
 
@@ -150,7 +150,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         if(in->atEnd())
         {
             f_programs_list[i] = "empty";
-            presets_tab_delimited->append("empty");
+            presets_tab_delimited[i] = "empty";
         }
         else
         {
@@ -160,7 +160,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
             
             f_programs_list[i] = fields.at(0);
             
-            presets_tab_delimited->append(line);
+            presets_tab_delimited[i] = line;
         }
         
     }
@@ -1102,22 +1102,16 @@ void SynthGUI::bankChanged(int value)
 void SynthGUI::programChanged(int value)
 {
     cerr << "Program change not yet implemented.  Program# " << value << endl;
-    if(presets_tab_delimited->at(m_program->currentIndex()) == "empty")
-    {
-        QMessageBox * f_qmess = new QMessageBox(this);
-        f_qmess->setText("You must change the name of the preset before you can save it.");
-        f_qmess->show();
-    }
-    else
+    if(presets_tab_delimited[m_program->currentIndex()] != "empty")
     {
         
-    }
+    }    
 }
     
 void SynthGUI::programSaved()
 {
     
-    if(presets_tab_delimited->at(m_program->currentIndex()).toStdString() == "empty")
+    if(presets_tab_delimited[m_program->currentIndex()] == "empty")
     {
         QMessageBox * f_qmess = new QMessageBox(this);
         f_qmess->setText("You must change the name of the preset before you can save it.");
@@ -1139,7 +1133,7 @@ void SynthGUI::programSaved()
         
         for(int f_i = 0; f_i < 128; f_i++)
         {
-            //f_result2.append(presets_tab_delimited->at(f_i) + "\n");
+            
         }
         
         //QFile f_preset_file = new QFile(QDir::homePath() + "/" + LMS_PLUGIN_NAME + "-presets.xml");
@@ -1149,6 +1143,225 @@ void SynthGUI::programSaved()
         //f_preset_file.close();
     }
 }
+
+
+
+void SynthGUI::v_set_control(int a_port, float a_value)
+{
+    /*GUI Step 8:  Add the controls you created to the control handler*/
+    switch (a_port) {
+    case LTS_PORT_ATTACK:
+	cerr << "gui setting attack to " << a_value << endl;
+	setAttack(a_value);
+	break;
+
+    case LTS_PORT_DECAY:
+	cerr << "gui setting decay to " << a_value << endl;
+	setDecay(a_value);
+	break;
+
+    case LTS_PORT_SUSTAIN:
+	cerr << "gui setting sustain to " << a_value << endl;
+	setSustain(a_value);
+	break;
+
+    case LTS_PORT_RELEASE:
+	cerr << "gui setting release to " << a_value << endl;
+	setRelease(a_value);
+	break;
+
+    case LTS_PORT_TIMBRE:
+	cerr << "gui setting timbre to " << a_value << endl;
+	setTimbre(a_value);
+	break;
+
+    case LTS_PORT_RES:
+	cerr << "gui setting res to " << a_value << endl;
+	setRes(a_value);
+	break;
+        
+    case LTS_PORT_DIST:
+	cerr << "gui setting res to " << a_value << endl;
+	setDist(a_value);
+	break;
+
+    case LTS_PORT_FILTER_ATTACK:
+	cerr << "gui setting attack to " << a_value << endl;
+	setFilterAttack(a_value);
+	break;
+
+    case LTS_PORT_FILTER_DECAY:
+	cerr << "gui setting decay to " << a_value << endl;
+	setFilterDecay(a_value);
+	break;
+
+    case LTS_PORT_FILTER_SUSTAIN:
+	cerr << "gui setting sustain to " << a_value << endl;
+	setFilterSustain(a_value);
+	break;
+
+    case LTS_PORT_FILTER_RELEASE:
+	cerr << "gui setting release to " << a_value << endl;
+	setFilterRelease(a_value);
+	break;
+
+    case LTS_PORT_NOISE_AMP:
+        cerr << "gui setting noise amp to " << a_value << endl;
+        setNoiseAmp(a_value);
+        break;
+    
+    case LTS_PORT_DIST_WET:
+        cerr << "gui setting dist wet to " << a_value << endl;
+        setDistWet(a_value);
+        break;
+            
+    case LTS_PORT_FILTER_ENV_AMT:
+        cerr << "gui setting filter env amt to " << a_value << endl;
+        setFilterEnvAmt(a_value);
+        break;
+    
+    case LTS_PORT_OSC1_TYPE:
+        cerr << "gui setting osc1type to " << a_value << endl;
+        setOsc1Type(a_value);
+        break;
+            
+    case LTS_PORT_OSC1_PITCH:
+        cerr << "gui setting osc1pitch to " << a_value << endl;
+        setOsc1Pitch(a_value);
+        break;
+    
+    case LTS_PORT_OSC1_TUNE:
+        cerr << "gui setting osc1tune to " << a_value << endl;
+        setOsc1Tune(a_value);
+        break;
+    
+    case LTS_PORT_OSC1_VOLUME:
+        cerr << "gui setting osc1vol amp to " << a_value << endl;
+        setOsc1Volume(a_value);
+        break;
+            
+        
+    case LTS_PORT_OSC2_TYPE:
+        cerr << "gui setting osc2type to " << a_value << endl;
+        setOsc2Type(a_value);
+        break;
+            
+    case LTS_PORT_OSC2_PITCH:
+        cerr << "gui setting osc2pitch to " << a_value << endl;
+        setOsc2Pitch(a_value);
+        break;
+    
+    case LTS_PORT_OSC2_TUNE:
+        cerr << "gui setting osc2tune to " << a_value << endl;
+        setOsc2Tune(a_value);
+        break;
+    
+    case LTS_PORT_OSC2_VOLUME:
+        cerr << "gui setting osc2vol amp to " << a_value << endl;
+        setOsc2Volume(a_value);
+        break;
+            
+        
+    case LTS_PORT_MASTER_VOLUME:
+        cerr << "gui setting noise amp to " << a_value << endl;
+        setMasterVolume(a_value);
+        break;
+    
+    case LTS_PORT_MASTER_UNISON_VOICES:
+        cerr << "gui setting unison voices to " << a_value << endl;
+        setMasterUnisonVoices(a_value);
+        break;
+
+
+    case LTS_PORT_MASTER_UNISON_SPREAD:
+        cerr << "gui setting unison spread to " << a_value << endl;
+        setMasterUnisonSpread(a_value);
+        break;
+
+
+    case LTS_PORT_MASTER_GLIDE:
+        cerr << "gui setting glide to " << a_value << endl;
+        setMasterGlide(a_value);
+        break;
+
+
+    case LTS_PORT_MASTER_PITCHBEND_AMT:
+        cerr << "gui setting pitchbend to " << a_value << endl;
+        setMasterPitchbendAmt(a_value);
+        break;
+                
+    default:
+	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
+    }
+}
+
+/*TODO:  For the forseeable future, this will only be used for getting the values to write back to 
+ the presets.tsv file;  It should probably return a string that can be re-interpreted into other values for
+ complex controls that could have multiple ints, or string values, etc...*/
+int SynthGUI::i_get_control(int a_port)
+{
+        /*GUI Step 8.5:  Add the controls you created to the control handler
+         TODO:  Renumber the GUI steps*/
+    switch (a_port) {
+    case LTS_PORT_ATTACK:
+        return m_attack->value();
+    case LTS_PORT_DECAY:
+        return m_decay->value();
+    case LTS_PORT_SUSTAIN:
+        return m_sustain->value();
+    case LTS_PORT_RELEASE:
+        return m_release->value();
+    case LTS_PORT_TIMBRE:
+        return m_timbre->value();
+    case LTS_PORT_RES:
+        return m_res->value();        
+    case LTS_PORT_DIST:
+        return m_dist->value();
+    case LTS_PORT_FILTER_ATTACK:
+        return m_filter_attack->value();
+    case LTS_PORT_FILTER_DECAY:
+        return m_filter_decay->value();
+    case LTS_PORT_FILTER_SUSTAIN:
+        return m_filter_sustain->value();
+    case LTS_PORT_FILTER_RELEASE:
+        return m_filter_release->value();
+    case LTS_PORT_NOISE_AMP:
+        return m_noise_amp->value();
+    case LTS_PORT_DIST_WET:
+        return m_dist_wet->value();
+    case LTS_PORT_FILTER_ENV_AMT:
+        return m_filter_env_amt->value();
+    case LTS_PORT_OSC1_TYPE:
+        return m_osc1_type->currentIndex();
+    case LTS_PORT_OSC1_PITCH:
+        return m_osc1_pitch->value();
+    case LTS_PORT_OSC1_TUNE:
+        return m_osc1_tune->value();
+    case LTS_PORT_OSC1_VOLUME:
+        return m_osc1_volume->value();
+    case LTS_PORT_OSC2_TYPE:
+        return m_osc2_type->currentIndex();
+    case LTS_PORT_OSC2_PITCH:
+        return m_osc2_pitch->value();
+    case LTS_PORT_OSC2_TUNE:
+        return m_osc2_tune->value();
+    case LTS_PORT_OSC2_VOLUME:
+        return m_osc2_volume->value();
+    case LTS_PORT_MASTER_VOLUME:
+        return m_master_volume->value();
+    case LTS_PORT_MASTER_UNISON_VOICES:
+        return m_master_unison_voices->value();
+    case LTS_PORT_MASTER_UNISON_SPREAD:
+        return m_master_unison_spread->value();
+    case LTS_PORT_MASTER_GLIDE:
+        return m_master_glide->value();
+    case LTS_PORT_MASTER_PITCHBEND_AMT:
+        return m_master_pitchbend_amt->value();
+    default:
+	cerr << "Warning: received request to get nonexistent port " << a_port << endl;
+    }
+}
+
 
 
 void SynthGUI::test_press()
@@ -1298,152 +1511,7 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
     const int port = argv[0]->i;
     const float value = argv[1]->f;
 
-    /*GUI Step 8:  Add the controls you created to the control handler*/
-    switch (port) {
-    case LTS_PORT_ATTACK:
-	cerr << "gui setting attack to " << value << endl;
-	gui->setAttack(value);
-	break;
-
-    case LTS_PORT_DECAY:
-	cerr << "gui setting decay to " << value << endl;
-	gui->setDecay(value);
-	break;
-
-    case LTS_PORT_SUSTAIN:
-	cerr << "gui setting sustain to " << value << endl;
-	gui->setSustain(value);
-	break;
-
-    case LTS_PORT_RELEASE:
-	cerr << "gui setting release to " << value << endl;
-	gui->setRelease(value);
-	break;
-
-    case LTS_PORT_TIMBRE:
-	cerr << "gui setting timbre to " << value << endl;
-	gui->setTimbre(value);
-	break;
-
-    case LTS_PORT_RES:
-	cerr << "gui setting res to " << value << endl;
-	gui->setRes(value);
-	break;
-        
-    case LTS_PORT_DIST:
-	cerr << "gui setting res to " << value << endl;
-	gui->setDist(value);
-	break;
-
-    case LTS_PORT_FILTER_ATTACK:
-	cerr << "gui setting attack to " << value << endl;
-	gui->setFilterAttack(value);
-	break;
-
-    case LTS_PORT_FILTER_DECAY:
-	cerr << "gui setting decay to " << value << endl;
-	gui->setFilterDecay(value);
-	break;
-
-    case LTS_PORT_FILTER_SUSTAIN:
-	cerr << "gui setting sustain to " << value << endl;
-	gui->setFilterSustain(value);
-	break;
-
-    case LTS_PORT_FILTER_RELEASE:
-	cerr << "gui setting release to " << value << endl;
-	gui->setFilterRelease(value);
-	break;
-
-    case LTS_PORT_NOISE_AMP:
-        cerr << "gui setting noise amp to " << value << endl;
-        gui->setNoiseAmp(value);
-        break;
-    
-    case LTS_PORT_DIST_WET:
-        cerr << "gui setting dist wet to " << value << endl;
-        gui->setDistWet(value);
-        break;
-            
-    case LTS_PORT_FILTER_ENV_AMT:
-        cerr << "gui setting filter env amt to " << value << endl;
-        gui->setFilterEnvAmt(value);
-        break;
-    
-    case LTS_PORT_OSC1_TYPE:
-        cerr << "gui setting osc1type to " << value << endl;
-        gui->setOsc1Type(value);
-        break;
-            
-    case LTS_PORT_OSC1_PITCH:
-        cerr << "gui setting osc1pitch to " << value << endl;
-        gui->setOsc1Pitch(value);
-        break;
-    
-    case LTS_PORT_OSC1_TUNE:
-        cerr << "gui setting osc1tune to " << value << endl;
-        gui->setOsc1Tune(value);
-        break;
-    
-    case LTS_PORT_OSC1_VOLUME:
-        cerr << "gui setting osc1vol amp to " << value << endl;
-        gui->setOsc1Volume(value);
-        break;
-            
-        
-    case LTS_PORT_OSC2_TYPE:
-        cerr << "gui setting osc2type to " << value << endl;
-        gui->setOsc2Type(value);
-        break;
-            
-    case LTS_PORT_OSC2_PITCH:
-        cerr << "gui setting osc2pitch to " << value << endl;
-        gui->setOsc2Pitch(value);
-        break;
-    
-    case LTS_PORT_OSC2_TUNE:
-        cerr << "gui setting osc2tune to " << value << endl;
-        gui->setOsc2Tune(value);
-        break;
-    
-    case LTS_PORT_OSC2_VOLUME:
-        cerr << "gui setting osc2vol amp to " << value << endl;
-        gui->setOsc2Volume(value);
-        break;
-            
-        
-    case LTS_PORT_MASTER_VOLUME:
-        cerr << "gui setting noise amp to " << value << endl;
-        gui->setMasterVolume(value);
-        break;
-    
-    case LTS_PORT_MASTER_UNISON_VOICES:
-        cerr << "gui setting unison voices to " << value << endl;
-        gui->setMasterUnisonVoices(value);
-        break;
-
-
-    case LTS_PORT_MASTER_UNISON_SPREAD:
-        cerr << "gui setting unison spread to " << value << endl;
-        gui->setMasterUnisonSpread(value);
-        break;
-
-
-    case LTS_PORT_MASTER_GLIDE:
-        cerr << "gui setting glide to " << value << endl;
-        gui->setMasterGlide(value);
-        break;
-
-
-    case LTS_PORT_MASTER_PITCHBEND_AMT:
-        cerr << "gui setting pitchbend to " << value << endl;
-        gui->setMasterPitchbendAmt(value);
-        break;
-
-                
-    default:
-	cerr << "Warning: received request to set nonexistent port " << port << endl;
-    }
+    gui->v_set_control(port, value);    
 
     return 0;
 }
