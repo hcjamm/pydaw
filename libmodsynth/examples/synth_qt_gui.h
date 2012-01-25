@@ -69,6 +69,11 @@ public:
     void setReady(bool ready) { m_ready = ready; }
 
     void setHostRequestedQuit(bool r) { m_hostRequestedQuit = r; }
+    
+    
+    void v_set_control(int, float);
+    int i_get_control(int);
+    
         
 public slots:
     /*GUI Step 2:  Event handlers for setting knob values*/
@@ -146,7 +151,7 @@ protected slots:
     
     void programChanged(int);
     void programSaved();
-        
+    
     
     void test_press();
     void test_release();
@@ -175,8 +180,9 @@ protected:
     void changed_decibels(int, QLabel *, int);
     void changed_zero_to_x(int, QLabel *, int);
     void changed_integer(int value, QLabel * _label, int _port);
+       
     
-    QStringList * presets_tab_delimited;
+    QString presets_tab_delimited [128];
     
     
     /*GUI Step1:  Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
