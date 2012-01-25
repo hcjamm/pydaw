@@ -10,6 +10,9 @@
         <in>dssi.h</in>
       </df>
       <df name="examples">
+        <df name=".libs">
+          <in>synth.lai</in>
+        </df>
         <df name="libmodsynth">
           <df name="doc">
           </df>
@@ -73,6 +76,8 @@
         <in>synth_qt_gui.moc.cpp</in>
       </df>
       <df name="jack-dssi-host">
+        <df name=".libs">
+        </df>
         <in>jack-dssi-host.c</in>
         <in>jack-dssi-host.h</in>
       </df>

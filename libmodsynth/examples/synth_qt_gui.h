@@ -72,6 +72,7 @@ public:
     
     
     void v_set_control(int, float);
+    void v_control_changed(int, int);
     int i_get_control(int);
     
         
