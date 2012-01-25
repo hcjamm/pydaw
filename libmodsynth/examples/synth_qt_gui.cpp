@@ -135,37 +135,53 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     QString f_programs_list [128];
     
+    QString f_preset_path = QDir::homePath() + "/dssi";
     
+    QDir* f_dir = new QDir(QDir::homePath());
     
-    QFile* file = new QFile(QDir::homePath() + "/dssi/" + LMS_PLUGIN_NAME + "-presets.tsv");
+    if(!f_dir->exists(f_preset_path))
+        f_dir->mkpath(f_preset_path);
     
-    if(!file->open(QIODevice::ReadOnly)) {
-
-    }
-
-    QTextStream * in = new QTextStream(file);
-
-    for(int i = 0; i < 128; i++) 
+    QFile* f_file = new QFile(f_preset_path + "/" + LMS_PLUGIN_NAME + "-presets.tsv");
+    
+    if(!f_file->open(QIODevice::ReadOnly)) 
     {
-        if(in->atEnd())
+        cerr << "Failed to open preset file:  " << f_preset_path << "/" << LMS_PLUGIN_NAME << "-presets.tsv" << "\n";
+        
+        for(int i = 0; i < 128; i++) 
         {
             f_programs_list[i] = "empty";
             presets_tab_delimited[i] = "empty";
         }
-        else
-        {
-            QString line = in->readLine();    
-
-            QStringList fields = line.split("\t");    
-            
-            f_programs_list[i] = fields.at(0);
-            
-            presets_tab_delimited[i] = line;
-        }
         
     }
+    else
+    {
+        QTextStream * in = new QTextStream(f_file);
 
-    file->close();
+        for(int i = 0; i < 128; i++) 
+        {
+            if(in->atEnd())
+            {
+                f_programs_list[i] = "empty";
+                presets_tab_delimited[i] = "empty";
+            }
+            else
+            {
+                QString line = in->readLine();    
+
+                QStringList fields = line.split("\t");    
+
+                f_programs_list[i] = fields.at(0);
+
+                presets_tab_delimited[i] = line;
+            }
+
+        }
+
+    }
+    
+    f_file->close();
     
     /*End getting the program list from the presets file*/
     
@@ -505,9 +521,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     f_gb_layout_row = 0;
     f_gb_layout_column = 0;
         
-    /*This is the test button for playing a note without a keyboard, you should remove this before distributing your plugin*/
     
-    QPushButton *testButton = new QPushButton("Test", this);
+    QPushButton *testButton = new QPushButton("Test Note", this);
     connect(testButton, SIGNAL(pressed()), this, SLOT(test_press()));
     connect(testButton, SIGNAL(released()), this, SLOT(test_release()));    
         
@@ -516,9 +531,11 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     /*IMPORTANT:  Adding the last row, don't delete this*/
     
     layout->addLayout(layout_row3, -1);
-    
+        
     /*End test button code, DO NOT remove the code below this*/
 
+    programChanged(0);   //Changing the preset to the first one
+    
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
     myTimer->setSingleShot(false);
@@ -1100,47 +1117,76 @@ void SynthGUI::bankChanged(int value)
 */
 
 void SynthGUI::programChanged(int value)
-{
-    cerr << "Program change not yet implemented.  Program# " << value << endl;
-    if(presets_tab_delimited[m_program->currentIndex()] != "empty")
+{    
+    if(presets_tab_delimited[m_program->currentIndex()].compare("empty") != 0)
     {
-        
+        QStringList f_preset_values = presets_tab_delimited[m_program->currentIndex()].split("\t");
+        //TODO:  change f_i back to zero when there is something at that index
+        for(int f_i = 1; f_i < LTS_PORT_MAX; f_i++)
+        {
+            if(f_i > f_preset_values.count())
+            {
+                cerr << "programChanged:  f_i is greater than f_preset_values.count(), preset not fully loaded.\n";
+                break;
+            }
+            
+            int f_preset_value_int = f_preset_values.at(f_i).toInt();
+            
+            v_set_control(f_i, f_preset_value_int);
+            v_control_changed(f_i, f_preset_value_int);
+        }
     }    
 }
     
 void SynthGUI::programSaved()
 {
+    int f_compare_text = m_program->currentText().compare("empty");
     
-    if(presets_tab_delimited[m_program->currentIndex()] == "empty")
+    if(f_compare_text == 0)
     {
         QMessageBox * f_qmess = new QMessageBox(this);
-        f_qmess->setText("You must change the name of the preset before you can save it.");
+        
+        QString * f_compare_text_string = new QString();
+        f_compare_text_string->setNum(f_compare_text);
+        
+        f_compare_text_string->append("  \"" + presets_tab_delimited[m_program->currentIndex()] + "\"\n" +
+        "You must change the name of the preset before you can save it.");
+        
+        f_qmess->setText(*f_compare_text_string);
         f_qmess->show();
     }
     else
     {
-        QString f_result = m_program->currentText();
+        QString f_result = m_program->currentText();                
         
         //TODO:  change f_i back to zero when there is something at that index
         for(int f_i = 1; f_i < LTS_PORT_MAX; f_i++)
         {
-            f_result.append("\tTODO:  a function to get the controller value");
+            QString * f_number = new QString();
+            f_number->setNum(i_get_control(f_i));
+            f_result.append("\t");  
+            f_result.append(f_number);
         }
                 
-        //presets_tab_delimited[m_program->currentIndex()] = f_result;
+        presets_tab_delimited[m_program->currentIndex()] = f_result;
         
-        //QString f_result2 = new QString();
+        QString * f_result2 = new QString();
         
         for(int f_i = 0; f_i < 128; f_i++)
         {
-            
+            f_result2->append(presets_tab_delimited[f_i] + "\n");
         }
         
-        //QFile f_preset_file = new QFile(QDir::homePath() + "/" + LMS_PLUGIN_NAME + "-presets.xml");
+        QFile * f_preset_file = new QFile(QDir::homePath() + "/dssi/" + LMS_PLUGIN_NAME + "-presets.tsv");
         
-        //f_preset_file.write(f_result2->toStdString());
+        f_preset_file->open(QIODevice::WriteOnly);
         
-        //f_preset_file.close();
+        f_preset_file->write(f_result2->toUtf8());
+        f_preset_file->flush();
+        
+        f_preset_file->close();
+                
+        m_program->setItemText(m_program->currentIndex(), m_program->currentText());
     }
 }
 
@@ -1239,7 +1285,6 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         cerr << "gui setting osc1vol amp to " << a_value << endl;
         setOsc1Volume(a_value);
         break;
-            
         
     case LTS_PORT_OSC2_TYPE:
         cerr << "gui setting osc2type to " << a_value << endl;
@@ -1260,7 +1305,6 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         cerr << "gui setting osc2vol amp to " << a_value << endl;
         setOsc2Volume(a_value);
         break;
-            
         
     case LTS_PORT_MASTER_VOLUME:
         cerr << "gui setting noise amp to " << a_value << endl;
@@ -1272,24 +1316,111 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         setMasterUnisonVoices(a_value);
         break;
 
-
     case LTS_PORT_MASTER_UNISON_SPREAD:
         cerr << "gui setting unison spread to " << a_value << endl;
         setMasterUnisonSpread(a_value);
         break;
-
 
     case LTS_PORT_MASTER_GLIDE:
         cerr << "gui setting glide to " << a_value << endl;
         setMasterGlide(a_value);
         break;
 
-
     case LTS_PORT_MASTER_PITCHBEND_AMT:
         cerr << "gui setting pitchbend to " << a_value << endl;
         setMasterPitchbendAmt(a_value);
         break;
                 
+    default:
+	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
+    }
+}
+
+void SynthGUI::v_control_changed(int a_port, int a_value)
+{
+       /*GUI Step 8.25:  Add the controls you created to the control handler*/
+    switch (a_port) {
+    case LTS_PORT_ATTACK:
+	attackChanged(a_value);
+	break;
+    case LTS_PORT_DECAY:	
+	decayChanged(a_value);
+	break;
+    case LTS_PORT_SUSTAIN:
+	sustainChanged(a_value);
+	break;
+    case LTS_PORT_RELEASE:
+	releaseChanged(a_value);
+	break;
+    case LTS_PORT_TIMBRE:
+	timbreChanged(a_value);
+	break;
+    case LTS_PORT_RES:
+	resChanged(a_value);
+	break;        
+    case LTS_PORT_DIST:
+	distChanged(a_value);
+	break;
+    case LTS_PORT_FILTER_ATTACK:
+	filterAttackChanged(a_value);
+	break;
+    case LTS_PORT_FILTER_DECAY:
+	filterDecayChanged(a_value);
+	break;
+    case LTS_PORT_FILTER_SUSTAIN:
+	filterSustainChanged(a_value);
+	break;
+    case LTS_PORT_FILTER_RELEASE:
+	filterReleaseChanged(a_value);
+	break;
+    case LTS_PORT_NOISE_AMP:
+        noiseAmpChanged(a_value);
+        break;    
+    case LTS_PORT_DIST_WET:
+        setDistWet(a_value);
+        break;
+    case LTS_PORT_FILTER_ENV_AMT:
+        filterEnvAmtChanged(a_value);
+        break;    
+    case LTS_PORT_OSC1_TYPE:
+        osc1TypeChanged(a_value);
+        break;            
+    case LTS_PORT_OSC1_PITCH:
+        osc1PitchChanged(a_value);
+        break;    
+    case LTS_PORT_OSC1_TUNE:
+        osc1TuneChanged(a_value);
+        break;    
+    case LTS_PORT_OSC1_VOLUME:
+        osc1VolumeChanged(a_value);
+        break;
+    case LTS_PORT_OSC2_TYPE:
+        osc2TypeChanged(a_value);
+        break;            
+    case LTS_PORT_OSC2_PITCH:
+        osc2PitchChanged(a_value);
+        break;    
+    case LTS_PORT_OSC2_TUNE:
+        osc2TuneChanged(a_value);
+        break;    
+    case LTS_PORT_OSC2_VOLUME:
+        osc2VolumeChanged(a_value);
+        break;
+    case LTS_PORT_MASTER_VOLUME:
+        masterVolumeChanged(a_value);
+        break;
+    case LTS_PORT_MASTER_UNISON_VOICES:
+        masterUnisonVoicesChanged(a_value);
+        break;
+    case LTS_PORT_MASTER_UNISON_SPREAD:
+        masterUnisonSpreadChanged(a_value);
+        break;
+    case LTS_PORT_MASTER_GLIDE:
+        masterGlideChanged(a_value);
+        break;
+    case LTS_PORT_MASTER_PITCHBEND_AMT:
+        masterPitchbendAmtChanged(a_value);
+        break;
     default:
 	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
     }
