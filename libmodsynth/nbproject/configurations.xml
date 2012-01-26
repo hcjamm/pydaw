@@ -10,6 +10,9 @@
         <in>dssi.h</in>
       </df>
       <df name="examples">
+        <df name=".libs">
+          <in>synth.lai</in>
+        </df>
         <df name="libmodsynth">
           <df name="doc">
           </df>
@@ -34,10 +37,12 @@
               <in>sr-reduce.h</in>
             </df>
             <df name="filter">
+              <in>comb_filter.h</in>
               <in>svf.h</in>
             </df>
             <df name="modulation">
               <in>adsr.h</in>
+              <in>ramp_env.h</in>
             </df>
             <df name="oscillator">
               <in>noise.h</in>
@@ -73,6 +78,8 @@
         <in>synth_qt_gui.moc.cpp</in>
       </df>
       <df name="jack-dssi-host">
+        <df name=".libs">
+        </df>
         <in>jack-dssi-host.c</in>
         <in>jack-dssi-host.h</in>
       </df>
