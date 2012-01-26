@@ -609,7 +609,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         f_result += f_osc_run_unison_osc(d->_voice->osc_unison1) * (d->osc1_linamp);
         f_result += f_osc_run_unison_osc(d->_voice->osc_unison2) * (d->osc2_linamp);
         
-        f_result += (f_run_w_noise(d->_voice->white_noise1) * (d->noise_linamp)); //white noise
+        f_result += (f_run_white_noise(d->_voice->white_noise1) * (d->noise_linamp)); //white noise
         
         
         /*Run any processing of the initial result(s)*/      
