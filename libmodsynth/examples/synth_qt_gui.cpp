@@ -37,7 +37,6 @@ GNU General Public License for more details.
 #include <QTextStream>
 #include <QMessageBox>
 
-
 #include <stdlib.h>
 #include "libmodsynth/lib/amp.h"
 #include "libmodsynth/lib/pitch_core.h"
@@ -127,6 +126,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     /*Set the CSS style that will "cascade" on the other controls.*/
     this->setStyleSheet("QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF); border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
 
+    
+    
     QString _osc_types [] = {"Saw", "Square", "Triangle", "Sine", "Off"};
     int _osc_types_count = 5;
     
@@ -187,6 +188,10 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     //QGridLayout *layout = new QGridLayout(this);
     QVBoxLayout *layout = new QVBoxLayout(this);
+    
+    QHBoxLayout *layout_row0 = new QHBoxLayout();
+    
+    layout->addLayout(layout_row0);
         
     QGroupBox * f_gb_program = newGroupBox("Program", this);    
     QHBoxLayout *layout_program = new QHBoxLayout();
@@ -209,9 +214,13 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     //TODO:  Run a load-default-bank method
     f_gb_program->setLayout(layout_program);
-    layout->addWidget(f_gb_program, -1, Qt::AlignLeft);
+    layout_row0->addWidget(f_gb_program, -1, Qt::AlignLeft);
     
-    
+    QPushButton *testButton = new QPushButton("Test Note", this);
+    connect(testButton, SIGNAL(pressed()), this, SLOT(test_press()));
+    connect(testButton, SIGNAL(released()), this, SLOT(test_release()));    
+        
+    layout_row0->addWidget(testButton, -1, Qt::AlignRight);
     
     
     int f_row = 0;
@@ -520,13 +529,13 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     f_column++;
     f_gb_layout_row = 0;
     f_gb_layout_column = 0;
-        
     
-    QPushButton *testButton = new QPushButton("Test Note", this);
-    connect(testButton, SIGNAL(pressed()), this, SLOT(test_press()));
-    connect(testButton, SIGNAL(released()), this, SLOT(test_release()));    
+    QLabel * f_logo_label = new QLabel("", this);
+    f_logo_label->setPixmap(QPixmap(QString::fromUtf8("/usr/local/lib/dssi/synth/ray-v-logo.png")));
+    f_logo_label->setMinimumSize(90, 30);   
+    f_logo_label->show();
+    layout_row3->addWidget(f_logo_label, -1, Qt::AlignRight);
         
-    layout_row3->addWidget(testButton, -1, Qt::AlignRight);
         
     /*IMPORTANT:  Adding the last row, don't delete this*/
     
