@@ -543,14 +543,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         
     /*End test button code, DO NOT remove the code below this*/
 
-    programChanged(0);   //Changing the preset to the first one
-    
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
     myTimer->setSingleShot(false);
     myTimer->start(0);
     
     m_suppressHostUpdate = false;
+    
+    //setProgram(0);   //Load the first preset
 }
 
 
@@ -868,14 +868,14 @@ void SynthGUI::setMasterUnisonVoices(float val)
 void SynthGUI::setMasterUnisonSpread(float val)
 {
     m_suppressHostUpdate = true;
-    m_master_unison_spread->setValue(int(val));
+    m_master_unison_spread->setValue(int(val * 100));
     m_suppressHostUpdate = false; 
 }
 
 void SynthGUI::setMasterGlide(float val)
 {
     m_suppressHostUpdate = true;
-    m_master_glide->setValue(int(val));
+    m_master_glide->setValue(int(val * 100));
     m_suppressHostUpdate = false;
 }
 
@@ -1207,22 +1207,22 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     switch (a_port) {
     case LTS_PORT_ATTACK:
 	cerr << "gui setting attack to " << a_value << endl;
-	setAttack(a_value);
+	setAttack(a_value * .01);
 	break;
 
     case LTS_PORT_DECAY:
 	cerr << "gui setting decay to " << a_value << endl;
-	setDecay(a_value);
+	setDecay(a_value * .01);
 	break;
 
     case LTS_PORT_SUSTAIN:
 	cerr << "gui setting sustain to " << a_value << endl;
-	setSustain(a_value);
+	setSustain(a_value * .01);
 	break;
 
     case LTS_PORT_RELEASE:
 	cerr << "gui setting release to " << a_value << endl;
-	setRelease(a_value);
+	setRelease(a_value * .01);
 	break;
 
     case LTS_PORT_TIMBRE:
@@ -1242,22 +1242,22 @@ void SynthGUI::v_set_control(int a_port, float a_value)
 
     case LTS_PORT_FILTER_ATTACK:
 	cerr << "gui setting attack to " << a_value << endl;
-	setFilterAttack(a_value);
+	setFilterAttack(a_value * .01);
 	break;
 
     case LTS_PORT_FILTER_DECAY:
 	cerr << "gui setting decay to " << a_value << endl;
-	setFilterDecay(a_value);
+	setFilterDecay(a_value * .01);
 	break;
 
     case LTS_PORT_FILTER_SUSTAIN:
 	cerr << "gui setting sustain to " << a_value << endl;
-	setFilterSustain(a_value);
+	setFilterSustain(a_value * .01);
 	break;
 
     case LTS_PORT_FILTER_RELEASE:
 	cerr << "gui setting release to " << a_value << endl;
-	setFilterRelease(a_value);
+	setFilterRelease(a_value * .01);
 	break;
 
     case LTS_PORT_NOISE_AMP:
@@ -1267,7 +1267,7 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     
     case LTS_PORT_DIST_WET:
         cerr << "gui setting dist wet to " << a_value << endl;
-        setDistWet(a_value);
+        setDistWet(a_value * .01);
         break;
             
     case LTS_PORT_FILTER_ENV_AMT:
@@ -1287,7 +1287,7 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     
     case LTS_PORT_OSC1_TUNE:
         cerr << "gui setting osc1tune to " << a_value << endl;
-        setOsc1Tune(a_value);
+        setOsc1Tune(a_value * .01);
         break;
     
     case LTS_PORT_OSC1_VOLUME:
@@ -1307,7 +1307,7 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     
     case LTS_PORT_OSC2_TUNE:
         cerr << "gui setting osc2tune to " << a_value << endl;
-        setOsc2Tune(a_value);
+        setOsc2Tune(a_value * .01);
         break;
     
     case LTS_PORT_OSC2_VOLUME:
@@ -1327,12 +1327,12 @@ void SynthGUI::v_set_control(int a_port, float a_value)
 
     case LTS_PORT_MASTER_UNISON_SPREAD:
         cerr << "gui setting unison spread to " << a_value << endl;
-        setMasterUnisonSpread(a_value);
+        setMasterUnisonSpread(a_value * .01);
         break;
 
     case LTS_PORT_MASTER_GLIDE:
         cerr << "gui setting glide to " << a_value << endl;
-        setMasterGlide(a_value);
+        setMasterGlide(a_value * .01);
         break;
 
     case LTS_PORT_MASTER_PITCHBEND_AMT:
@@ -1386,7 +1386,7 @@ void SynthGUI::v_control_changed(int a_port, int a_value)
         noiseAmpChanged(a_value);
         break;    
     case LTS_PORT_DIST_WET:
-        setDistWet(a_value);
+        distWetChanged(a_value);
         break;
     case LTS_PORT_FILTER_ENV_AMT:
         filterEnvAmtChanged(a_value);
@@ -1717,6 +1717,7 @@ int main(int argc, char **argv)
     QObject::connect(&application, SIGNAL(aboutToQuit()), &gui, SLOT(aboutToQuit()));
 
     gui.setReady(true);
+    gui.setProgram(0);
     return application.exec();
 }
 

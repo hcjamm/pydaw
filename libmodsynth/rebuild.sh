@@ -5,18 +5,18 @@
 #This should fix it, unless there really is an error in your code.
 make clean
 echo -e "\nmake clean finished\n"
-sleep 10
+sleep 15
 cd examples
 rm synth_qt_gui.moc.cpp
 moc synth_qt_gui.h -o synth_qt_gui.moc.cpp
 echo -e "\nmoc finished\n"
-sleep 10
+sleep 15
 cd ..
 ./configure
 echo -e "\nconfigure finished\n"
-sleep 10
+sleep 15
 make
 echo -e "\nmake finished\n"
-sleep 10
+sleep 15
 gksudo make install
 #~/Desktop/libmodsynth-git/libmodsynth/jack-dssi-host/jack-dssi-host /usr/local/lib/dssi/synth.so
