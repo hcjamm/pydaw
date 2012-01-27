@@ -41,7 +41,7 @@ printf("debug information");
 #include "libmodsynth.h"
 #include "libmodsynth/lib/amp.h"
 
-/*GUI Step 9:  Add ports to the main synthesizer file that the GUI can talk to */
+/*GUI Step 11:  Add ports to the main synthesizer file that the GUI can talk to */
 #define LMS_OUTPUT  0
 #define LMS_ATTACK  1
 #define LMS_DECAY   2
@@ -72,7 +72,10 @@ printf("debug information");
 #define LMS_MASTER_GLIDE 26
 #define LMS_MASTER_PITCHBEND_AMT 27
 
-#define LMS_COUNT 28 /* must be 1 + highest value above CHANGE THIS IF YOU ADD ANYTHING*/
+#define LMS_PITCH_ENV_AMT 28
+#define LMS_PITCH_ENV_TIME 29
+
+#define LMS_COUNT 30 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 
 #define POLYPHONY   8  //maximum voices played at one time
@@ -105,7 +108,7 @@ typedef struct {
 } voice_data;
 
 
-/*GUI Step 10:  Add a variable for each control in the synth_vals type*/
+/*GUI Step 12:  Add a variable for each control in the synth_vals type*/
 typedef struct {    
     /*The variables below this line correspond to GUI controls*/
     LADSPA_Data attack;
@@ -141,13 +144,16 @@ typedef struct {
     LADSPA_Data master_glide;
     LADSPA_Data master_pb_amt;
     
+    LADSPA_Data pitch_env_amt;
+    LADSPA_Data pitch_env_time;
+    
     LADSPA_Data noise_amp;
     
     /*The variables below this line do NOT correspond to GUI controls*/
     
 } synth_vals;
 
-/*GUI Step 11:  Add a variable for each control in the LTS type*/
+/*GUI Step 13:  Add a variable for each control in the LTS type*/
 typedef struct {
     LADSPA_Data *output;
     LADSPA_Data *tune;
@@ -186,6 +192,9 @@ typedef struct {
     LADSPA_Data *master_uni_spread;
     LADSPA_Data *master_glide;
     LADSPA_Data *master_pb_amt;
+    
+    LADSPA_Data *pitch_env_amt;
+    LADSPA_Data *pitch_env_time;
     
     voice_data data[POLYPHONY];
     int note2voice[MIDI_NOTES];    
@@ -239,7 +248,7 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
 
     plugin = (LTS *) instance;
     
-    /*GUI Step 12:  Add the ports from step 9 to the connectPortLTS event handler*/
+    /*GUI Step 14:  Add the ports from step 9 to the connectPortLTS event handler*/
     
     switch (port) {
     case LMS_OUTPUT:
@@ -318,12 +327,24 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
         
     case LMS_MASTER_UNISON_VOICES:
         plugin->master_uni_voice = data;
+        break;
     case LMS_MASTER_UNISON_SPREAD:
         plugin->master_uni_spread = data;        
+        break;
     case LMS_MASTER_GLIDE:
         plugin->master_glide = data;
+        break;
     case LMS_MASTER_PITCHBEND_AMT:
         plugin->master_pb_amt = data;
+        break;
+        
+    case LMS_PITCH_ENV_AMT:
+        plugin->pitch_env_amt = data;
+        break;
+    case LMS_PITCH_ENV_TIME:
+        plugin->pitch_env_time = data;
+        break;
+        
     }
 }
 
@@ -377,7 +398,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     unsigned long event_pos;
     unsigned long voice;
 
-    /*GUI Step 13:  Set the values from synth_vals in RunLTS*/
+    /*GUI Step 15:  Set the values from synth_vals in RunLTS*/
     vals.attack = *(plugin_data->attack);
     vals.decay = *(plugin_data->decay); 
     vals.sustain = *(plugin_data->sustain);
@@ -412,6 +433,9 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     vals.master_uni_spread = *(plugin_data->master_uni_spread);
     vals.master_glide = *(plugin_data->master_glide);
     vals.master_pb_amt = *(plugin_data->master_pb_amt);
+    
+    vals.pitch_env_amt = *(plugin_data->pitch_env_amt);
+    vals.pitch_env_time = *(plugin_data->pitch_env_time);
     
     /*Events is an array of snd_seq_event_t objects, 
      event_count is the number of events,
@@ -481,6 +505,11 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     v_adsr_set_adsr_db(data[voice]._voice->adsr_amp, (vals.attack), (vals.decay), (vals.sustain), (vals.release));
                     v_adsr_set_adsr(data[voice]._voice->adsr_filter, (vals.attack_f), (vals.decay_f), (vals.sustain_f), (vals.release_f));
+                    
+                    /*Retrigger the pitch envelope*/
+                    v_rmp_retrigger((data[voice]._voice->pitch_env), (vals.pitch_env_time));                                       
+                    printf("pitch env inc == %f\n", (data[voice]._voice->pitch_env->ramp_inc));
+                    
                     
                     v_clp_set_in_gain(data[voice]._voice->clipper1, vals.dist);
     
@@ -597,12 +626,14 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         v_sml_run_glide(d->_voice->glide_smoother2, (d->_voice->target_pitch2) + 0);
         
         
+        float f_pitch_env = f_rmp_run_ramp(d->_voice->pitch_env, (vals->pitch_env_amt));
+        
         v_osc_set_unison_pitch(d->_voice->osc_unison1, vals->master_uni_spread,   
-                (d->_voice->glide_smoother1->last_value) + 0);
+                (d->_voice->glide_smoother1->last_value) + f_pitch_env);
 
         
         v_osc_set_unison_pitch(d->_voice->osc_unison2, vals->master_uni_spread, 
-                (d->_voice->glide_smoother2->last_value) + 0);
+                (d->_voice->glide_smoother2->last_value) + f_pitch_env);
         
         
         /*Run any oscillators, etc...*/
@@ -645,7 +676,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 
 /*This returns MIDI CCs for the different knobs
  TODO:  Try it with non-hex numbers*/
-/*GUI Step 15:  Assign the LADSPA ports defined in step 9 to MIDI CCs in getControllerLTS*/
+/*GUI Step 16:  Assign the LADSPA ports defined in step 9 to MIDI CCs in getControllerLTS*/
 int getControllerLTS(LADSPA_Handle instance, unsigned long port)
 {
     switch (port) {
@@ -702,7 +733,10 @@ int getControllerLTS(LADSPA_Handle instance, unsigned long port)
         return DSSI_CC(0x27);  //39        
     case LMS_MASTER_PITCHBEND_AMT:        
         return DSSI_CC(0x28);  //40
-        
+    case LMS_PITCH_ENV_AMT:
+        return DSSI_CC(0x2a); //42
+    case LMS_PITCH_ENV_TIME:
+        return DSSI_CC(0x2b); //43        
     }
 
     return DSSI_NONE;
@@ -763,7 +797,8 @@ void _init()
     ltsLDescriptor =
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
     if (ltsLDescriptor) {
-	ltsLDescriptor->UniqueID = 24;  //TODO:  Find out what this means
+	//ltsLDescriptor->UniqueID = 24;  //TODO:  Find out what this means
+        ltsLDescriptor->UniqueID = 1337721;
 	ltsLDescriptor->Label = "LTS";  //Changing this breaks the plugin, it compiles, but hangs when trying to run.  TODO:  investigate
 	ltsLDescriptor->Properties = 0;
 	ltsLDescriptor->Name = "Ray-V (Powered by LibModSynth)";
@@ -1066,6 +1101,31 @@ void _init()
         
         
         
+        
+        
+        /*Parameters for pitch env amt*/        
+	port_descriptors[LMS_PITCH_ENV_AMT] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_PITCH_ENV_AMT] = "Pitch Env Amt";
+	port_range_hints[LMS_PITCH_ENV_AMT].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_PITCH_ENV_AMT].LowerBound =  -36;
+	port_range_hints[LMS_PITCH_ENV_AMT].UpperBound =   36;
+        
+        
+        /*Parameters for pitch env amt*/        
+	port_descriptors[LMS_PITCH_ENV_TIME] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_PITCH_ENV_TIME] = "Pitch Env Time";
+	port_range_hints[LMS_PITCH_ENV_TIME].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_PITCH_ENV_TIME].LowerBound =  0.0f;
+	port_range_hints[LMS_PITCH_ENV_TIME].UpperBound =  2.0f;
+        
+        
+        
+        
+        /*Step 17:  Add LADSPA ports*/
         
         
         /*Here is where the functions in synth.c get pointed to for the host to call*/

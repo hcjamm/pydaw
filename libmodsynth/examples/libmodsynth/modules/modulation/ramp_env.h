@@ -23,46 +23,50 @@ typedef struct st_ramp_env
 }t_ramp_env;
 
 
-inline void v_rmp_set_ramp_time(t_ramp_env*,float);
-inline float f_rmp_run_ramp(t_ramp_env*);
-void v_rmp_retrigger(t_ramp_env*);
-t_ramp_env g_rmp_get_ramp_env(float);
+inline float f_rmp_run_ramp(t_ramp_env*, float);
+void v_rmp_retrigger(t_ramp_env*,float);
+t_ramp_env * g_rmp_get_ramp_env(float);
 
 
-inline void v_rmp_set_ramp_time(t_ramp_env* a_rmp_ptr,float a_time)
+
+inline float f_rmp_run_ramp(t_ramp_env* a_rmp_ptr, float a_multiplier)
 {
-    a_rmp_ptr->ramp_time = a_time;
-    a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) * a_time;
-}
-
-inline float f_rmp_run_ramp(t_ramp_env* a_rmp_ptr)
-{
-    if((a_rmp_ptr->output) == 1)
-        return 1;
+    if(a_multiplier == 0 )
+        return 0;
     
-    a_rmp_ptr->output = (a_rmp_ptr->output) * (a_rmp_ptr->ramp_inc);
+    if((a_rmp_ptr->output) == 1)
+        return a_multiplier;
+    
+    a_rmp_ptr->output = (a_rmp_ptr->output) + (a_rmp_ptr->ramp_inc);
     
     if((a_rmp_ptr->output) >= 1)
     {
         a_rmp_ptr->output = 1;
-        return 1;
+        return a_multiplier;
     }        
     
-    return (a_rmp_ptr->output);
+    return (a_rmp_ptr->output) * a_multiplier;
 }
 
-void v_rmp_retrigger(t_ramp_env* a_rmp_ptr)
+//TODO:  an alternate function that takes velocity into account
+void v_rmp_retrigger(t_ramp_env* a_rmp_ptr, float a_time)
 {
     a_rmp_ptr->output = 0;
+    a_rmp_ptr->ramp_time = a_time;
+    
+    if((a_rmp_ptr->ramp_time = a_time) <= .05)
+        a_rmp_ptr->ramp_time = a_time = .05;
+    
+    a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) / (a_rmp_ptr->ramp_time = a_time);
 }
 
-t_ramp_env g_rmp_get_ramp_env(float a_sr)
+t_ramp_env * g_rmp_get_ramp_env(float a_sr)
 {
     t_ramp_env * f_result = (t_ramp_env*)malloc(sizeof(t_ramp_env));
     f_result->sr = a_sr;
     f_result->sr_recip = 1/a_sr;
     
-    v_rmp_set_ramp_time(f_result, .1);
+    v_rmp_retrigger(f_result, .2);
     
     return f_result;
 }
@@ -72,5 +76,4 @@ t_ramp_env g_rmp_get_ramp_env(float a_sr)
 #endif
 
 #endif	/* RAMP_ENV_H */
-
 

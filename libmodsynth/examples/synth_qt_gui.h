@@ -39,7 +39,7 @@ extern "C" {
 }
 
 /*Defines ranges and other sane defaults depending on what a knob controls*/
-enum _knob_type
+enum e_knob_type
 {
     decibels_0,
     decibels_plus_6,
@@ -110,8 +110,10 @@ public slots:
     void setMasterGlide(float val);
     void setMasterPitchbendAmt(float val);
     
-    void setProgram(int val);
+    void setPitchEnvTime(float val);
+    void setPitchEnvAmt(float val);
     
+    void setProgram(int val);    
     
     void aboutToQuit();
     
@@ -150,6 +152,9 @@ protected slots:
     void masterGlideChanged(int);
     void masterPitchbendAmtChanged(int);
     
+    void pitchEnvTimeChanged(int);
+    void pitchEnvAmtChanged(int);
+    
     void programChanged(int);
     void programSaved();
     
@@ -160,7 +165,7 @@ protected slots:
 protected:
     QDial *newQDial( int, int, int, int );
     
-    QDial *get_knob(_knob_type, int _default_value = 333);
+    QDial *get_knob(e_knob_type, int _default_value = 333);
     
     //TODO:  update this to be more flexible about layout types
     void add_widget(QGridLayout * _layout, int position_x, int position_y, QString _label_text,  QWidget * _widget,    
@@ -251,6 +256,12 @@ protected:
     
     QDial *m_master_pitchbend_amt;
     QLabel *m_master_pitchbend_amtLabel;
+    
+    QDial *m_pitch_env_time;
+    QLabel *m_pitch_env_timeLabel;
+    
+    QDial *m_pitch_env_amt;
+    QLabel *m_pitch_env_amtLabel;
     
     QComboBox *m_program;
     QPushButton *m_prog_save;
