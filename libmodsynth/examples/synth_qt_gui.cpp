@@ -102,7 +102,9 @@ using std::endl;
 #define LTS_PORT_MASTER_UNISON_SPREAD 25
 #define LTS_PORT_MASTER_GLIDE 26
 #define LTS_PORT_MASTER_PITCHBEND_AMT 27
-#define LTS_PORT_MAX 28  //This corresponds to the highest number, you must update this when adding or removing controls
+#define LTS_PORT_PITCH_ENV_TIME 28
+#define LTS_PORT_PITCH_ENV_AMT 29
+#define LTS_PORT_MAX 30  //This corresponds to the highest number, you must update this when adding or removing controls
 
 
 lo_server osc_server = 0;
@@ -490,8 +492,6 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     f_gb_layout_column++;
     
-    
-    
     m_master_unison_voices  =  newQDial(1, 7, 1, 1);
     m_master_unison_voicesLabel  = newQLabel(this);
     add_widget(f_gb_master_vol_layout, f_gb_layout_column, f_gb_layout_row, "Unison",m_master_unison_voices, m_master_unison_voicesLabel);
@@ -526,6 +526,31 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     
     layout_row3->addWidget(f_gb_master_vol, -1, Qt::AlignLeft);
+    f_column++;
+    f_gb_layout_row = 0;
+    f_gb_layout_column = 0;
+    
+    
+    /*The Master Volume GroupBox*/
+    QGroupBox * f_gb_pitch_env = newGroupBox("Pitch Envelope", this); 
+    QGridLayout *f_gb_pitch_env_layout = new QGridLayout(f_gb_pitch_env);
+    
+    
+    m_pitch_env_amt = get_knob(minus36_to_36, 0);
+    m_pitch_env_amtLabel = newQLabel(this);
+    add_widget(f_gb_pitch_env_layout, f_gb_layout_column, f_gb_layout_row, "Amount", m_pitch_env_amt, m_pitch_env_amtLabel);
+    connect(m_pitch_env_amt, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvAmtChanged(int)));
+    pitchEnvAmtChanged(m_pitch_env_amt->value());
+    
+    f_gb_layout_column++;
+    
+    m_pitch_env_time = get_knob(zero_to_two, 0);
+    m_pitch_env_timeLabel = newQLabel(this);
+    add_widget(f_gb_pitch_env_layout, f_gb_layout_column, f_gb_layout_row, "Time", m_pitch_env_time, m_pitch_env_timeLabel);
+    connect(m_pitch_env_time, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvTimeChanged(int)));
+    pitchEnvTimeChanged(m_pitch_env_time->value());
+    
+    layout_row3->addWidget(f_gb_pitch_env, -1, Qt::AlignLeft);
     f_column++;
     f_gb_layout_row = 0;
     f_gb_layout_column = 0;
@@ -595,7 +620,7 @@ QLabel * SynthGUI::newQLabel(QWidget * a_parent)
     return f_result;
 }
 
-QDial * SynthGUI::get_knob(_knob_type a_ktype, int a_default_value)
+QDial * SynthGUI::get_knob(e_knob_type a_ktype, int a_default_value)
 {
     int f_min, f_max, f_step, f_value;
     
@@ -886,6 +911,22 @@ void SynthGUI::setMasterPitchbendAmt(float val)
     m_suppressHostUpdate = false;
 }
 
+void SynthGUI::setPitchEnvAmt(float val)
+{
+    m_suppressHostUpdate = true;
+    m_pitch_env_amt->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+
+void SynthGUI::setPitchEnvTime(float val)
+{
+    m_suppressHostUpdate = true;
+    m_pitch_env_time->setValue(int(val * 100));
+    m_suppressHostUpdate = false;
+}
+
+
 /*
 void SynthGUI::setBank(int val)
 {
@@ -1118,6 +1159,16 @@ void SynthGUI::masterPitchbendAmtChanged(int value)
     changed_integer(value, m_master_pitchbend_amtLabel, LTS_PORT_MASTER_PITCHBEND_AMT);
 }
 
+void SynthGUI::pitchEnvAmtChanged(int value)
+{
+    changed_integer(value, m_pitch_env_amtLabel, LTS_PORT_PITCH_ENV_AMT);
+}
+
+void SynthGUI::pitchEnvTimeChanged(int value)
+{
+    changed_seconds(value, m_pitch_env_timeLabel, LTS_PORT_PITCH_ENV_TIME);
+}
+
 /*
 void SynthGUI::bankChanged(int value)
 {
@@ -1339,7 +1390,14 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         cerr << "gui setting pitchbend to " << a_value << endl;
         setMasterPitchbendAmt(a_value);
         break;
-                
+    case LTS_PORT_PITCH_ENV_AMT:
+        cerr << "gui setting pitch env amt to " << a_value << endl;
+        setPitchEnvAmt(a_value);
+        break;
+    case LTS_PORT_PITCH_ENV_TIME:
+        cerr << "gui setting pitch env time to " << a_value << endl;
+        setPitchEnvTime(a_value * .01);
+        break;        
     default:
 	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
     }
@@ -1347,7 +1405,7 @@ void SynthGUI::v_set_control(int a_port, float a_value)
 
 void SynthGUI::v_control_changed(int a_port, int a_value)
 {
-       /*GUI Step 8.25:  Add the controls you created to the control handler*/
+       /*GUI Step 9:  Add the controls you created to the control handler*/
     switch (a_port) {
     case LTS_PORT_ATTACK:
 	attackChanged(a_value);
@@ -1430,6 +1488,12 @@ void SynthGUI::v_control_changed(int a_port, int a_value)
     case LTS_PORT_MASTER_PITCHBEND_AMT:
         masterPitchbendAmtChanged(a_value);
         break;
+    case LTS_PORT_PITCH_ENV_AMT:
+        pitchEnvAmtChanged(a_value);
+        break;
+    case LTS_PORT_PITCH_ENV_TIME:
+        pitchEnvTimeChanged(a_value);
+            break;
     default:
 	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
     }
@@ -1440,7 +1504,7 @@ void SynthGUI::v_control_changed(int a_port, int a_value)
  complex controls that could have multiple ints, or string values, etc...*/
 int SynthGUI::i_get_control(int a_port)
 {
-        /*GUI Step 8.5:  Add the controls you created to the control handler
+        /*GUI Step 10:  Add the controls you created to the control handler
          TODO:  Renumber the GUI steps*/
     switch (a_port) {
     case LTS_PORT_ATTACK:
@@ -1497,6 +1561,10 @@ int SynthGUI::i_get_control(int a_port)
         return m_master_glide->value();
     case LTS_PORT_MASTER_PITCHBEND_AMT:
         return m_master_pitchbend_amt->value();
+    case LTS_PORT_PITCH_ENV_AMT:
+        return m_pitch_env_amt->value();
+    case LTS_PORT_PITCH_ENV_TIME:
+        return m_pitch_env_time->value();
     default:
 	cerr << "Warning: received request to get nonexistent port " << a_port << endl;
     }

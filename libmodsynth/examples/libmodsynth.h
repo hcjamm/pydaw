@@ -31,7 +31,7 @@ extern "C" {
 #include "libmodsynth/modules/distortion/clipper.h"
 #include "libmodsynth/modules/modulation/adsr.h"
 #include "libmodsynth/modules/signal_routing/audio_xfade.h"
-//#include "libmodsynth/lib/glide.h"
+#include "libmodsynth/modules/modulation/ramp_env.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -80,6 +80,7 @@ typedef struct st_poly_voice
     t_smoother_linear * glide_smoother1;
     t_smoother_linear * glide_smoother2;
     
+    t_ramp_env * pitch_env;
     
     float real_pitch1;
     float real_pitch2;
@@ -119,7 +120,7 @@ t_poly_voice * g_poly_init()
     f_voice->glide_smoother1 = g_sml_get_smoother_linear(va_sample_rate, 100, 20, .5);  //For osc1
     f_voice->glide_smoother2 = g_sml_get_smoother_linear(va_sample_rate, 100, 20, .5);  //For osc2
     
-    
+    f_voice->pitch_env = g_rmp_get_ramp_env(va_sample_rate);
     
     f_voice->real_pitch1 = 60;
     f_voice->real_pitch2 = 60;
