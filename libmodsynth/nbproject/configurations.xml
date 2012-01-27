@@ -14,14 +14,12 @@
           <df name="doc">
           </df>
           <df name="lib">
-            <df name="tables-sinc">
-            </df>
             <in>amp.h</in>
             <in>denormal.h</in>
             <in>interpolate-linear.h</in>
-            <in>interpolate-reader.h</in>
             <in>osc_core.h</in>
             <in>pitch_core.h</in>
+            <in>sinc_lp_gen.h</in>
             <in>smoother-linear.h</in>
           </df>
           <df name="modules">
