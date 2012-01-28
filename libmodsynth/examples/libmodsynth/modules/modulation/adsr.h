@@ -155,6 +155,7 @@ void v_adsr_retrigger(t_adsr * a_adsr_ptr)
 {
     a_adsr_ptr->stage = 0;
     a_adsr_ptr->output = 0;    
+    
 }
 
 void v_adsr_release(t_adsr * a_adsr_ptr)
