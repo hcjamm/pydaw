@@ -255,7 +255,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     f_gb_layout_column++;
     
-    m_osc1_volume = get_knob(decibels_0, -6);
+    m_osc1_volume = get_knob(decibels_30_to_0, -6);
     m_osc1_volumeLabel = newQLabel(this);
     add_widget(f_gb_osc1_layout, f_gb_layout_column, f_gb_layout_row, "Vol", m_osc1_volume, m_osc1_volumeLabel);
     connect(m_osc1_volume, SIGNAL(valueChanged(int)), this, SLOT(osc1VolumeChanged(int)));
@@ -295,7 +295,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     f_gb_layout_column++;
     
-    m_sustain =  get_knob(decibels_0); // newQDial(  0, 100,  1,  75); // %
+    m_sustain =  get_knob(decibels_30_to_0); // newQDial(  0, 100,  1,  75); // %
     m_sustainLabel = newQLabel(this);
     add_widget(f_gb_adsr_layout, f_gb_layout_column, f_gb_layout_row, "Sustain", m_sustain, m_sustainLabel);    
     connect(m_sustain, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));
@@ -457,7 +457,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     f_gb_layout_column++;
     
-    m_res  =  get_knob(decibels_0); 
+    m_res  =  get_knob(decibels_30_to_0); 
     m_resLabel  = newQLabel(this);
     add_widget(_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Res", m_res, m_resLabel);
     connect(m_res,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
@@ -641,6 +641,9 @@ QDial * SynthGUI::get_knob(e_knob_type a_ktype, int a_default_value)
             break;
         case decibels_plus_6:            
             f_min = -60; f_max = 6; f_step = 1; f_value = -6;            
+            break;
+        case decibels_30_to_0:
+            f_min = -30; f_max = 0; f_step = 1; f_value = -9;            
             break;
         case pitch:
             f_min = 20; f_max = 124; f_step = 1; f_value = 105;            
