@@ -45,6 +45,7 @@ enum e_knob_type
     decibels_plus_6,
     decibels_plus_12,
     decibels_plus_24,
+    decibels_30_to_0,
     pitch,
     zero_to_one,
     zero_to_two,
