@@ -574,8 +574,12 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     myTimer->start(0);
     
     m_suppressHostUpdate = false;
-    
-    //setProgram(0);   //Load the first preset
+        
+    //Load the first preset    
+    setProgram(0);   
+    programChanged(0);
+       
+        
 }
 
 
@@ -934,9 +938,12 @@ void SynthGUI::setBank(int val)
 }
 */
 
+
 void SynthGUI::setProgram(int val)
 {
     cerr << "setProgram called with val: " << val << endl;
+    
+    m_program->setCurrentIndex(val);
 }
 
 
@@ -1172,10 +1179,12 @@ void SynthGUI::pitchEnvTimeChanged(int value)
 /*
 void SynthGUI::bankChanged(int value)
 {
-    cerr << "Program change not yet implemented.  Bank# " << value << endl;
+    cerr << "Bank change not yet implemented.  Bank# " << value << endl;
 }
 */
 
+
+/*programChanged(int value is ignored, it reads directly from m_program->currentIndex())*/
 void SynthGUI::programChanged(int value)
 {    
     if(presets_tab_delimited[m_program->currentIndex()].compare("empty") != 0)
@@ -1268,7 +1277,7 @@ void SynthGUI::v_set_control(int a_port, float a_value)
 
     case LTS_PORT_SUSTAIN:
 	cerr << "gui setting sustain to " << a_value << endl;
-	setSustain(a_value * .01);
+	setSustain(a_value);
 	break;
 
     case LTS_PORT_RELEASE:
@@ -1785,7 +1794,7 @@ int main(int argc, char **argv)
     QObject::connect(&application, SIGNAL(aboutToQuit()), &gui, SLOT(aboutToQuit()));
 
     gui.setReady(true);
-    gui.setProgram(0);
+    
     return application.exec();
 }
 
