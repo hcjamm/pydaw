@@ -42,12 +42,24 @@ typedef struct st_osc_simple_unison
     
     float uni_spread;
                 
-    float adjusted_amp;  //Set this with unison voices to prevent excessive volume        
+    float adjusted_amp;  //Set this with unison voices to prevent excessive volume     
     
 }t_osc_simple_unison;
 
 
 void v_osc_set_uni_voice_count(t_osc_simple_unison*, int);
+void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, float a_pitch);
+float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr);
+float f_get_saw(t_osc_core *);
+float f_get_sine(t_osc_core *);
+float f_get_square(t_osc_core *);
+float f_get_triangle(t_osc_core *);
+float f_get_osc_off(t_osc_core *);
+void v_osc_set_simple_osc_unison_type(t_osc_simple_unison *, int);
+void v_osc_note_on_sync_phases(t_osc_simple_unison *);
+t_osc_simple_unison * g_osc_get_osc_simple_unison(float);
+
+
 
 void v_osc_set_uni_voice_count(t_osc_simple_unison* a_osc_ptr, int a_value)
 {
@@ -68,7 +80,6 @@ void v_osc_set_uni_voice_count(t_osc_simple_unison* a_osc_ptr, int a_value)
 }
 
 
-void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, float a_pitch);
 
 void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, float a_pitch)
 {
@@ -98,7 +109,6 @@ void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, flo
 
 
 
-float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr);
 
 //Return one sample of the oscillator running.
 float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
@@ -116,6 +126,7 @@ float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
     
     return f_result * (a_osc_ptr->adjusted_amp);
 }
+
 
 
 float f_get_saw(t_osc_core * a_core)
@@ -157,15 +168,12 @@ float f_get_triangle(t_osc_core * a_core)
     }
 }
 
+
 //Return zero if the oscillator is turned off.  A function pointer should point here if the oscillator is turned off.
-float f_get_osc_off(t_osc_core * _core)
+float f_get_osc_off(t_osc_core * a_core)
 {
     return 0;
 }
-
-
-void v_osc_set_simple_osc_unison_type(t_osc_simple_unison *, int);
-
 
 /*Set the oscillator type.  Current valid types are:
  * 0. Saw
@@ -173,6 +181,7 @@ void v_osc_set_simple_osc_unison_type(t_osc_simple_unison *, int);
  * 2. Triangle
  * 3. Sine
  * 4. Off
+ * 5. Pulse  //Added after 'off' because the developer may not add a pulse knob
  */
 void v_osc_set_simple_osc_unison_type(t_osc_simple_unison * a_osc_ptr, int a_index)
 {
@@ -197,7 +206,6 @@ void v_osc_set_simple_osc_unison_type(t_osc_simple_unison * a_osc_ptr, int a_ind
     
 }
 
-void v_osc_note_on_sync_phases(t_osc_simple_unison *);
 
 /*Resync the oscillators at note_on to hopefully avoid phasing artifacts*/
 void v_osc_note_on_sync_phases(t_osc_simple_unison * a_osc_ptr)
@@ -214,7 +222,7 @@ void v_osc_note_on_sync_phases(t_osc_simple_unison * a_osc_ptr)
 
 
 
-t_osc_simple_unison * g_osc_get_osc_simple_unison(float);
+
 
 t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
 {
