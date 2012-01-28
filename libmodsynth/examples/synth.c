@@ -452,9 +452,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 		snd_seq_ev_note_t n = events[event_pos].data.note;
 
 		if (n.velocity > 0) 
-                {
-                    printf("Last note value was %f\n", sv_last_note);
-                                        
+                {                    
 		    const int voice = pick_voice(data, n.note);
                     
 		    plugin_data->note2voice[n.note] = voice;
@@ -469,17 +467,13 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     data[voice]._voice->target_pitch1 = ((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune) + 
                             (sv_pitch_bend_value));
-                    printf("note_on target pitch1:  %f\n", data[voice]._voice->target_pitch1);
                     
                     data[voice]._voice->target_pitch2 = ((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune) + 
                             (sv_pitch_bend_value));
-                    printf("note_on target pitch2:  %f\n", data[voice]._voice->target_pitch2);
                     
                     data[voice]._voice->real_pitch1 = sv_last_note;
-                    printf("note_on real pitch1:  %f\n", data[voice]._voice->real_pitch1);
                     
                     data[voice]._voice->real_pitch2 = sv_last_note;
-                    printf("note_on real pitch2:  %f\n", data[voice]._voice->real_pitch2);
                     
                     
                     v_sml_set_smoother_glide(data[voice]._voice->glide_smoother1, (data[voice]._voice->target_pitch1), (data[voice]._voice->real_pitch1),
@@ -508,11 +502,6 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     /*Retrigger the pitch envelope*/
                     v_rmp_retrigger((data[voice]._voice->pitch_env), (vals.pitch_env_time));  
-                    
-                    printf("pitch env amt == %f\n", (vals.pitch_env_amt));
-                    printf("pitch env time == %f\n", (vals.pitch_env_time));
-                    printf("pitch env inc == %f\n", (data[voice]._voice->pitch_env->ramp_inc));
-                    
                     
                     v_clp_set_in_gain(data[voice]._voice->clipper1, vals.dist);
     
