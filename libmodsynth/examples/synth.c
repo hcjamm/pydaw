@@ -72,8 +72,8 @@ printf("debug information");
 #define LMS_MASTER_GLIDE 26
 #define LMS_MASTER_PITCHBEND_AMT 27
 
-#define LMS_PITCH_ENV_AMT 28
-#define LMS_PITCH_ENV_TIME 29
+#define LMS_PITCH_ENV_TIME 28
+#define LMS_PITCH_ENV_AMT 29
 
 #define LMS_COUNT 30 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
@@ -507,7 +507,10 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     v_adsr_set_adsr(data[voice]._voice->adsr_filter, (vals.attack_f), (vals.decay_f), (vals.sustain_f), (vals.release_f));
                     
                     /*Retrigger the pitch envelope*/
-                    v_rmp_retrigger((data[voice]._voice->pitch_env), (vals.pitch_env_time));                                       
+                    v_rmp_retrigger((data[voice]._voice->pitch_env), (vals.pitch_env_time));  
+                    
+                    printf("pitch env amt == %f\n", (vals.pitch_env_amt));
+                    printf("pitch env time == %f\n", (vals.pitch_env_time));
                     printf("pitch env inc == %f\n", (data[voice]._voice->pitch_env->ramp_inc));
                     
                     
@@ -797,8 +800,8 @@ void _init()
     ltsLDescriptor =
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
     if (ltsLDescriptor) {
-	//ltsLDescriptor->UniqueID = 24;  //TODO:  Find out what this means
-        ltsLDescriptor->UniqueID = 1337721;
+	//ltsLDescriptor->UniqueID = 24;  //Default, don't use this
+        ltsLDescriptor->UniqueID = 1337721;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
 	ltsLDescriptor->Label = "LTS";  //Changing this breaks the plugin, it compiles, but hangs when trying to run.  TODO:  investigate
 	ltsLDescriptor->Properties = 0;
 	ltsLDescriptor->Name = "Ray-V (Powered by LibModSynth)";
