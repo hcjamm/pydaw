@@ -28,15 +28,19 @@
           </df>
           <df name="modules">
             <df name="delay">
+              <in>convolution_reverb.h</in>
+              <in>delay.h</in>
               <in>reverb_digital.h</in>
             </df>
             <df name="distortion">
               <in>bit-reduce.h</in>
               <in>clipper.h</in>
               <in>sr-reduce.h</in>
+              <in>wavetable_shaper.h</in>
             </df>
             <df name="filter">
               <in>comb_filter.h</in>
+              <in>eq_biquad.h</in>
               <in>svf.h</in>
             </df>
             <df name="modulation">
@@ -49,6 +53,7 @@
               <in>osc_wavetable.h</in>
             </df>
             <df name="sampler">
+              <in>sampler.h</in>
             </df>
             <df name="signal_routing">
               <in>audio_xfade.h</in>
