@@ -41,17 +41,19 @@ inline void v_svf_set_cutoff(t_state_variable_filter * a_svf, float a_midi_note_
     
      /*It hasn't changed since last time, return*/
     
-    /*if((_svf->cutoff_smoother->last_value) == _midi_note_number)
-        return;  */
-    
-    
+    if((a_svf->cutoff_note) == a_midi_note_number)
+        return; 
      
-    //_svf->_cutoff_note = _midi_note_number;
+    a_svf->cutoff_note = a_midi_note_number;
+    
+    
     a_svf->cutoff_hz = f_pit_midi_note_to_hz(a_midi_note_number); //_svf->cutoff_smoother->last_value);
     
-    if(a_svf->cutoff_hz >= 24000)
+    if(a_svf->cutoff_hz > 24000)
         a_svf->cutoff_hz = 24000;
-
+    else if(a_svf->cutoff_hz < 20)
+        a_svf->cutoff_hz = 20;
+    
     a_svf->cutoff_filter = a_svf->pi2_div_sr * a_svf->cutoff_hz * a_svf->oversample_div;
 
     /*prevent the filter from exploding numerically, this does artificially cap the cutoff frequency to below what you set it to
