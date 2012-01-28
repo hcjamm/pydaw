@@ -90,7 +90,7 @@ void v_adsr_set_d_time(t_adsr* a_adsr_ptr, float a_time)
         a_adsr_ptr->d_time = a_time;        
     }
     
-    printf("Setting D time to %f\n", (a_adsr_ptr->d_time));
+    //printf("Setting D time to %f\n", (a_adsr_ptr->d_time));
     
     a_adsr_ptr->d_inc = ((a_adsr_ptr->sr_recip) / (a_adsr_ptr->d_time)) * -1;    
 }
@@ -111,7 +111,7 @@ void v_adsr_set_r_time(t_adsr* a_adsr_ptr, float a_time)
     
     a_adsr_ptr->r_inc = ((a_adsr_ptr->sr_recip) / (a_adsr_ptr->r_time)) * -1;
     
-    printf("Setting R time to %f\n", (a_adsr_ptr->r_time));
+    //printf("Setting R time to %f\n", (a_adsr_ptr->r_time));
     
 }
 
@@ -127,7 +127,7 @@ void v_adsr_set_s_value(t_adsr* a_adsr_ptr, float a_value)
     a_adsr_ptr->d_recip = (1/(1-(a_adsr_ptr->s_value)));
     a_adsr_ptr->r_recip = (1/(a_adsr_ptr->s_value));
     
-    printf("Setting S value to %f\n", (a_adsr_ptr->s_value));
+    //printf("Setting S value to %f\n", (a_adsr_ptr->s_value));
 }
 
 void v_adsr_set_s_value_db(t_adsr* a_adsr_ptr, float a_value)
