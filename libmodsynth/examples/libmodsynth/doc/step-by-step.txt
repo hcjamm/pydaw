@@ -1,3 +1,7 @@
+This documentation is currently out of date, I will remove this message once the API has stabilized, and I've updated the documentation.
+
+
+
 Step-by-step instructions for writing your own DSSI plugin
 
 by Jeff Hubbard
