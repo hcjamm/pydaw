@@ -12,7 +12,7 @@ moc synth_qt_gui.h -o synth_qt_gui.moc.cpp
 echo -e "\nmoc finished\n"
 sleep 15
 cd ..
-./configure
+./configure --enable-libtool-lock
 echo -e "\nconfigure finished\n"
 sleep 15
 make
