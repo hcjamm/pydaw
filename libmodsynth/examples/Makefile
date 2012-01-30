@@ -33,8 +33,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-unknown-linux-gnu
-host_triplet = x86_64-unknown-linux-gnu
+build_triplet = i686-pc-linux-gnu
+host_triplet = i686-pc-linux-gnu
 #bin_PROGRAMS = dssi_analyse_plugin$(EXEEXT) \
 #	dssi_list_plugins$(EXEEXT)
 bin_PROGRAMS = dssi_analyse_plugin$(EXEEXT) \
@@ -155,14 +155,14 @@ DIST_SOURCES = $(synth_la_SOURCES) $(LTS_qt_SOURCES) \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run aclocal-1.11
+ACLOCAL = ${SHELL} /home/bob/Desktop/libmodsynth-git/libmodsynth/missing --run aclocal-1.11
 ALSA_CFLAGS = -I/usr/include/alsa  
 ALSA_LIBS = -lasound  
-AMTAR = ${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run tar
+AMTAR = ${SHELL} /home/bob/Desktop/libmodsynth-git/libmodsynth/missing --run tar
 AR = ar
-AUTOCONF = ${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run automake-1.11
+AUTOCONF = ${SHELL} /home/bob/Desktop/libmodsynth-git/libmodsynth/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/bob/Desktop/libmodsynth-git/libmodsynth/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/bob/Desktop/libmodsynth-git/libmodsynth/missing --run automake-1.11
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -176,6 +176,7 @@ CXXFLAGS = -g -O2
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
+DLLTOOL = false
 DSYMUTIL = 
 DUMPBIN = 
 ECHO_C = 
@@ -191,8 +192,8 @@ INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 JACK_CFLAGS =  
-JACK_LIBS = -ljack -lpthread -lrt  
-LD = /usr/bin/ld -m elf_x86_64
+JACK_LIBS = -ljack  
+LD = /usr/bin/ld
 LDFLAGS = 
 LIBLO_CFLAGS =  
 LIBLO_LIBS = -llo -lpthread  
@@ -202,7 +203,8 @@ LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
 LN_S = ln -s
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/missing --run makeinfo
+MAKEINFO = ${SHELL} /home/bob/Desktop/libmodsynth-git/libmodsynth/missing --run makeinfo
+MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 NM = /usr/bin/nm -B
 NMEDIT = 
@@ -234,10 +236,11 @@ SRC_CFLAGS =
 SRC_LIBS = -lsamplerate  
 STRIP = strip
 VERSION = 1.1.1
-abs_builddir = /home/vm-user/Desktop/libmodsynth-git/libmodsynth/examples
-abs_srcdir = /home/vm-user/Desktop/libmodsynth-git/libmodsynth/examples
-abs_top_builddir = /home/vm-user/Desktop/libmodsynth-git/libmodsynth
-abs_top_srcdir = /home/vm-user/Desktop/libmodsynth-git/libmodsynth
+abs_builddir = /home/bob/Desktop/libmodsynth-git/libmodsynth/examples
+abs_srcdir = /home/bob/Desktop/libmodsynth-git/libmodsynth/examples
+abs_top_builddir = /home/bob/Desktop/libmodsynth-git/libmodsynth
+abs_top_srcdir = /home/bob/Desktop/libmodsynth-git/libmodsynth
+ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 ac_ct_DUMPBIN = 
@@ -247,31 +250,30 @@ am__quote =
 am__tar = ${AMTAR} chof - "$$tardir"
 am__untar = ${AMTAR} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-unknown-linux-gnu
+build = i686-pc-linux-gnu
 build_alias = 
-build_cpu = x86_64
+build_cpu = i686
 build_os = linux-gnu
-build_vendor = unknown
+build_vendor = pc
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = x86_64-unknown-linux-gnu
+host = i686-pc-linux-gnu
 host_alias = 
-host_cpu = x86_64
+host_cpu = i686
 host_os = linux-gnu
-host_vendor = unknown
+host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/vm-user/Desktop/libmodsynth-git/libmodsynth/install-sh
+install_sh = ${SHELL} /home/bob/Desktop/libmodsynth-git/libmodsynth/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
 localstatedir = ${prefix}/var
-lt_ECHO = echo
 mandir = ${datarootdir}/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
@@ -334,9 +336,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu examples/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign examples/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu examples/Makefile
+	  $(AUTOMAKE) --foreign examples/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
