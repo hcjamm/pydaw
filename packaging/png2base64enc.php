@@ -6,6 +6,6 @@ function base64_encode_image ($filename=string,$filetype=string) {
     }
 }
 
-echo base64_encode_image ($argv[1],'png');
+echo '"<html><img src=\"' . base64_encode_image ($argv[1],'png') . '\"/></html>"';
 ?>
 
