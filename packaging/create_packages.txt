@@ -1,0 +1,6 @@
+#The below commands will create your packages for distributing LibModSynth based DSSI plugins
+
+sudo checkinstall --install=no --type=debian
+sudo checkinstall --install=no --type=rpm
+
+#For the maintainer field, use the following format:  "Firstname Lastname" <user@domain.com>
