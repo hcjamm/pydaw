@@ -6,7 +6,7 @@
 #I am open to dependency scripts for other distros if anybody wants to contribute one, please test it thoroughly before sending it to me
 
 #dependencies, current as of Ubuntu 12.04 alpha
-gksudo apt-get install liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qtractor qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf openjdk-7-jre libsm-dev uuid-dev cmake liblscp-dev checkinstall
+gksudo apt-get install liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qtractor qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf openjdk-7-jre libsm-dev uuid-dev cmake liblscp-dev checkinstall php5-cli
 #add your user to the audio group to allow proper access to Qjackctl
 gksudo usermod -g audio $USER
 
