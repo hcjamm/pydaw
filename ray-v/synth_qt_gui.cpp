@@ -147,42 +147,52 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     QFile* f_file = new QFile(f_preset_path + "/" + LMS_PLUGIN_NAME + "-presets.tsv");
     
+    
     if(!f_file->open(QIODevice::ReadOnly)) 
-    {
-        cerr << "Failed to open preset file:  " << f_preset_path << "/" << LMS_PLUGIN_NAME << "-presets.tsv" << "\n";
+    {   
+        f_file->open(QIODevice::ReadWrite | QIODevice::Text);
+                  
+        /*
+            cerr << "Failed to open preset file:  " << f_preset_path << "/" << LMS_PLUGIN_NAME << "-presets.tsv" << "\n";
         
-        for(int i = 0; i < 128; i++) 
-        {
-            f_programs_list[i] = "empty";
-            presets_tab_delimited[i] = "empty";
-        }
-        
-    }
-    else
-    {
-        QTextStream * in = new QTextStream(f_file);
-
-        for(int i = 0; i < 128; i++) 
-        {
-            if(in->atEnd())
+            for(int i = 0; i < 128; i++) 
             {
                 f_programs_list[i] = "empty";
                 presets_tab_delimited[i] = "empty";
             }
-            else
-            {
-                QString line = in->readLine();    
+         */
+        
+        
 
-                QStringList fields = line.split("\t");    
+        f_file->write("classic 5th pad\t100\t100\t-7\t120\t92\t-16\t15\t100\t100\t1\t162\t-12\t24\t1\t0\t0\t0\t0\t0\t7\t0\t0\t-16\t4\t42\t1\t18\t1\t0\n303 acid lead\t21\t26\t-9\t45\t70\t0\t36\t12\t29\t1\t99\t-30\t36\t100\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t1\t1\t1\t18\t1\t0\nhoover\t21\t26\t-9\t45\t124\t-16\t15\t12\t29\t1\t99\t-12\t0\t1\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t4\t42\t1\t18\t32\t-12\nbendy saw\t1\t49\t-3\t16\t124\t-16\t15\t100\t100\t1\t162\t-60\t0\t1\t0\t12\t0\t0\t4\t0\t0\t0\t-16\t1\t42\t54\t36\t1\t0\nsupersaw lead\t3\t49\t-3\t16\t124\t-15\t36\t1\t33\t1\t162\t-12\t0\t1\t0\t12\t0\t-6\t4\t0\t0\t0\t-16\t5\t41\t1\t17\t1\t0\n3rd Plucks\t3\t49\t-20\t195\t90\t-9\t36\t1\t9\t1\t73\t-12\t36\t1\t0\t0\t0\t-6\t0\t5\t0\t0\t-16\t5\t50\t1\t17\t1\t0\nsquare lead\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-12\t36\t1\t1\t0\t0\t-6\t4\t0\t0\t0\t-16\t4\t50\t1\t17\t1\t0\ntriangle kick drum\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-37\t36\t1\t2\t0\t0\t-6\t4\t0\t0\t0\t-5\t4\t50\t1\t17\t17\t-24\nnoise snare\t3\t16\t-30\t14\t124\t-16\t36\t1\t10\t1\t73\t-3\t0\t1\t4\t0\t0\t-6\t4\t0\t0\t0\t-5\t4\t50\t1\t17\t17\t-24\nelectro open hihat\t16\t23\t-30\t14\t101\t-3\t36\t18\t10\t1\t73\t-3\t36\t100\t4\t0\t0\t-6\t4\t0\t0\t0\t-18\t4\t50\t1\t17\t17\t-24\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\n");
 
-                f_programs_list[i] = fields.at(0);
+        f_file->flush();
+        
+        f_file->seek(0);         
+    }
+        
+    QTextStream * in = new QTextStream(f_file);
 
-                presets_tab_delimited[i] = line;
-            }
+    for(int i = 0; i < 128; i++) 
+    {
+        if(in->atEnd())
+        {
+            f_programs_list[i] = "empty";
+            presets_tab_delimited[i] = "empty";
+        }
+        else
+        {
+            QString line = in->readLine();    
 
+            QStringList fields = line.split("\t");    
+
+            f_programs_list[i] = fields.at(0);
+
+            presets_tab_delimited[i] = line;
         }
 
     }
+
     
     f_file->close();
     
