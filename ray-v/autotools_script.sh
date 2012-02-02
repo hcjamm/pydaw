@@ -5,4 +5,4 @@ automake --add-missing --foreign
 autoconf
 ./configure
 make
-sudo checkinstall
+#sudo checkinstall
