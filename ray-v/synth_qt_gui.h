@@ -76,6 +76,7 @@ public:
     void v_control_changed(int, int);
     int i_get_control(int);
     
+    void v_add_knob_to_layout(QDial *, e_knob_type, int, QLabel *, QGridLayout *, QString, int, int, const char *, const char *);
         
 public slots:
     /*GUI Step 2:  Event handlers for setting knob values*/
