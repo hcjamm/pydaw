@@ -249,11 +249,15 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     QGroupBox * f_gb_osc1 = newGroupBox("Osc1", this);
     QGridLayout *f_gb_osc1_layout = new QGridLayout(f_gb_osc1);
     
+    
     m_osc1_pitch = get_knob(minus12_to_12);
     m_osc1_pitchLabel = newQLabel(this);
     add_widget(f_gb_osc1_layout, f_gb_layout_column, f_gb_layout_row, "Pitch", m_osc1_pitch, m_osc1_pitchLabel);
     connect(m_osc1_pitch, SIGNAL(valueChanged(int)), this, SLOT(osc1PitchChanged(int)));
-    osc1PitchChanged(m_osc1_pitch->value());
+    osc1PitchChanged(m_osc1_pitch->value());    
+    
+    /*v_add_knob_to_layout(m_osc1_pitch, minus12_to_12, 0, m_osc1_pitchLabel, f_gb_osc1_layout, QString("Pitch"), 
+            f_gb_layout_column, f_gb_layout_row, SIGNAL(valueChanged(int)), SLOT(osc1PitchChanged(int)));*/
     
     f_gb_layout_column++;
     
@@ -600,6 +604,16 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         
 }
 
+/*I'm leaving this in here for now, but at the present it doesn't work*/
+void SynthGUI::v_add_knob_to_layout(QDial * a_knob, e_knob_type a_knob_type, int a_default_value, QLabel * a_label, QGridLayout * a_layout, QString a_title,
+int a_gb_layout_column, int a_gb_layout_row, const char * a_signal, const char * a_slot)
+{
+    a_knob = get_knob(a_knob_type, a_default_value);
+    a_label  = newQLabel(this);
+    add_widget(a_layout, a_gb_layout_column, a_gb_layout_row, a_title,a_knob, a_label);
+    connect(a_knob,  a_signal, this, a_slot);
+    //masterPitchbendAmtChanged (m_master_pitchbend_amt ->value());
+}
 
 
 void SynthGUI::add_widget(QGridLayout * a_layout, int a_position_x, int a_position_y, QString a_label_text,  QWidget * a_widget,
