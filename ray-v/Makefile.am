@@ -14,7 +14,7 @@ ray_v_la_SOURCES = \
 
 
 
-ray_v_la_CFLAGS = -I$(top_srcdir)/dssi $(AM_CFLAGS) $(ALSA_CFLAGS)
+ray_v_la_CFLAGS = -I$(top_srcdir)/dssi $(AM_CFLAGS) $(ALSA_CFLAGS) -O3 -msse -msse2 -msse3 -mmmx -pipe
 
 ray_v_la_LDFLAGS = -module -avoid-version
 if DARWIN
