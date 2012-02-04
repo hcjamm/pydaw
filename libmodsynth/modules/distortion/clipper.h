@@ -61,6 +61,7 @@ t_clipper * g_clp_get_clipper()
     f_result->clip_high = 1;
     f_result->clip_low = -1;
     f_result->input_gain = 1;
+    f_result->in_db = 0;
     
     return f_result;
 };
