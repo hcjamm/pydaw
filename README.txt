@@ -1,12 +1,16 @@
 About:
 
-LibModSynth is a C/C++ language library for making it quick and easy to develop high quality DSSI plugins.  LibModSynth also comes with a suite of plugins based on the library.
+LibModSynth is a C/C++ language library that makes it quick and easy to develop high quality DSSI plugins.  LibModSynth also comes with a suite of plugins based on the library.
 
 How to use:
 
+
+
 Musicians:
 
-The plugins will always install to /usr/local/lib/dssi, and will be invoked by their .so file.  If you're using a DAW/Sequencer/Tracker, be sure that it is set to look for DSSI plugins in that directory.
+Be sure to download the correct version for your architecture(32 or 64 bit).
+
+The plugins will always install to /usr/local/lib/dssi .  If you're using a DAW/Sequencer/Tracker, be sure that it is set to look for DSSI plugins in that directory.
 
 Standalone use:
 
