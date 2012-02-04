@@ -128,6 +128,10 @@ t_comb_filter * g_cmb_get_comb_filter(float a_sr)
     f_result->note_number = 60;
     f_result->sample_fraction = 0;
     f_result->wet_db = -30;
+    f_result->sample_offset = 0;
+    f_result->feedback_linear = 0;
+    f_result->feedback_db = -30;
+    f_result->linear_wet = 0;
         
     return f_result;
 }

@@ -97,6 +97,16 @@ t_state_variable_filter * g_svf_get(float a_sample_rate, int a_oversample)
     f_svf->hp = 0;
     f_svf->lp = 0;
     f_svf->lp_m1 = 0;
+    f_svf->cutoff_note = 60;
+    f_svf->cutoff_hz = 1000;
+    f_svf->cutoff_filter = .7;
+    f_svf->filter_res = .25;
+    f_svf->filter_res_db = -12;        
+    f_svf->filter_input = 0;
+    f_svf->filter_last_input = 0;
+    f_svf->hp = 0;
+    f_svf->lp = 0;
+    f_svf->bp = 0;
     
     return f_svf;
 }
