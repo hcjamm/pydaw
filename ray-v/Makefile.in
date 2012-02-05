@@ -271,7 +271,7 @@ ray_v_la_SOURCES = \
         synth.c \
 	dssi.h
 
-ray_v_la_CFLAGS = -I$(top_srcdir)/dssi $(AM_CFLAGS) $(ALSA_CFLAGS)
+ray_v_la_CFLAGS = -I$(top_srcdir)/dssi $(AM_CFLAGS) $(ALSA_CFLAGS) -O3 -msse -msse2 -msse3 -mmmx -pipe
 ray_v_la_LDFLAGS = -module -avoid-version
 @DARWIN_FALSE@ray_v_la_LIBADD = -lm
 @DARWIN_TRUE@ray_v_la_LIBADD = -lm -lmx
