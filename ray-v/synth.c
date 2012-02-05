@@ -608,7 +608,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 	
                 
         /*Call everything defined in libmodsynth.h in the order it should be called in*/
-        float f_result = 0;
+        //float f_result = 0;
         
         /*Run the glide module*/
         
@@ -629,10 +629,10 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         
         /*Run any oscillators, etc...*/
-        f_result += f_osc_run_unison_osc(d->_voice->osc_unison1) * (d->osc1_linamp);
-        f_result += f_osc_run_unison_osc(d->_voice->osc_unison2) * (d->osc2_linamp);
+        out[f_i] += f_osc_run_unison_osc(d->_voice->osc_unison1) * (d->osc1_linamp);
+        out[f_i] += f_osc_run_unison_osc(d->_voice->osc_unison2) * (d->osc2_linamp);
         
-        f_result += (f_run_white_noise(d->_voice->white_noise1) * (d->noise_linamp)); //white noise
+        out[f_i] += (f_run_white_noise(d->_voice->white_noise1) * (d->noise_linamp)); //white noise
         
         
         /*Run any processing of the initial result(s)*/      
@@ -642,15 +642,15 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         v_svf_set_cutoff(d->_voice->svf_filter, ((vals->timbre) + ((d->_voice->adsr_filter->output) * (vals->filter_env_amt))) );
                         
-        v_svf_set_input_value(d->_voice->svf_filter, f_result); //run it through the filter
+        v_svf_set_input_value(d->_voice->svf_filter, out[f_i]); //run it through the filter
                 
-        f_result = f_axf_run_xfade(d->_voice->dist_dry_wet, (d->_voice->svf_filter->lp), 
+        out[f_i] = f_axf_run_xfade(d->_voice->dist_dry_wet, (d->_voice->svf_filter->lp), 
                 f_clp_clip(d->_voice->clipper1, d->_voice->svf_filter->lp)); //run the lowpass filter output through a hard-clipper, mixed by the dry/wet knob
         
         //_result = (d->_voice->_svf_filter->_lp);
         
         /*Run the envelope and assign to the output buffer*/
-        out[f_i] += f_result *  (d->_voice->adsr_amp->output) * (d->amp) ; 
+        out[f_i] *=  (d->_voice->adsr_amp->output) * (d->amp) ; 
                 
         
         /*End LibModSynth modifications*/
