@@ -15,7 +15,7 @@ GNU General Public License for more details.
 */
 /*Comment this out when compiling a stable, production-ready plugin.  You shouldn't print debug output
 when it won't be read or needed, it can potentially interfere with audio processing.*/
-//#define LMS_DEBUG_MODE
+#define LMS_DEBUG_MODE
 
 /*Then you can print debug information like this:
 #ifdef LMS_DEBUG_MODE
@@ -83,7 +83,7 @@ printf("debug information");
 #define STEP_SIZE   16
 
 
-long int lrintf (float x);
+//long int lrintf (float x);
 
 static LADSPA_Descriptor *ltsLDescriptor = NULL;
 static DSSI_Descriptor *ltsDDescriptor = NULL;
@@ -537,7 +537,9 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     {                  
                         v_poly_note_off(data[voice]._voice);
 
+#ifdef LMS_DEBUG_MODE
                         printf("note_off zero velocity\n");
+#endif
                     }                    
 		}
 	    } 
@@ -555,8 +557,9 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                 {                    
                     /*LibModSynth additions*/                    
                     v_poly_note_off(data[voice]._voice);
-                                        
+#ifdef LMS_DEBUG_MODE                                        
                     printf("note_off note off event\n");
+#endif
 		}
 	    } 
             /*Pitch-bend sequencer event, modify the voices pitch*/
@@ -564,8 +567,9 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
             {
 		sv_pitch_bend_value = 0.00012207   //0.000061035 
                         * events[event_pos].data.control.value * vals.master_pb_amt;
-                
+#ifdef LMS_DEBUG_MODE                
                 printf("_pitchbend_value is %f\n", sv_pitch_bend_value);		
+#endif                
 	    }
 	    event_pos++;
 	}
@@ -755,7 +759,9 @@ int pick_voice(const voice_data *data, int a_current_note)
      guitars, pianos, etc... work that way.  It also helps to prevent hung notes*/    
     for (f_i=0; f_i<POLYPHONY; f_i++) {
 	if (data[f_i].note == a_current_note) {
-            printf("pick_voice found current_note%i\n", f_i);
+#ifdef LMS_DEBUG_MODE            
+            printf("pick_voice found current_note:  %i\n", f_i);
+#endif
 	    return f_i;
 	}
     }
@@ -763,7 +769,9 @@ int pick_voice(const voice_data *data, int a_current_note)
     /* Look for an inactive voice */
     for (f_i=0; f_i<POLYPHONY; f_i++) {
 	if (data[f_i].n_state == off) {
-            printf("pick_voice found inactive voice %i\n", f_i);
+#ifdef LMS_DEBUG_MODE            
+            printf("pick_voice found inactive voice:  %i\n", f_i);
+#endif
 	    return f_i;
 	}
     }
@@ -773,7 +781,9 @@ int pick_voice(const voice_data *data, int a_current_note)
 	if (data[f_i].note > highest_note) {
 	    highest_note = data[f_i].note;
 	    highest_note_voice = f_i;
-            printf("pick_voice found highest voice %i\n", f_i);
+#ifdef LMS_DEBUG_MODE            
+            printf("pick_voice found highest voice:  %i\n", f_i);
+#endif
 	}
     }
 
