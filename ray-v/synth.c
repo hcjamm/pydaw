@@ -370,6 +370,8 @@ static void activateLTS(LADSPA_Handle instance)
 
     for (i=0; i<POLYPHONY; i++) {
         plugin_data->data[i].n_state = off;
+        plugin_data->data[i].note = i;
+        plugin_data->data[i].note_f = i;
         plugin_data->data[i]._voice = g_poly_init();
     }
     for (i=0; i<MIDI_NOTES; i++) {
@@ -526,13 +528,17 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                 /*0 velocity, the same as note-off*/
                 else 
                 {
+                    snd_seq_ev_note_t n = events[event_pos].data.note;
+                    
 		    const int voice = plugin_data->note2voice[n.note];
 
                     /*LibModSynth additions*/
-                    
-                    v_poly_note_off(data[voice]._voice);
-                    
-                    printf("note_off\n");
+                    if(data[voice].n_state != off)
+                    {                  
+                        v_poly_note_off(data[voice]._voice);
+
+                        printf("note_off zero velocity\n");
+                    }                    
 		}
 	    } 
             /*Note-off event*/
@@ -550,7 +556,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     /*LibModSynth additions*/                    
                     v_poly_note_off(data[voice]._voice);
                                         
-                    printf("note_off\n");
+                    printf("note_off note off event\n");
 		}
 	    } 
             /*Pitch-bend sequencer event, modify the voices pitch*/
@@ -749,7 +755,7 @@ int pick_voice(const voice_data *data, int a_current_note)
      guitars, pianos, etc... work that way.  It also helps to prevent hung notes*/    
     for (f_i=0; f_i<POLYPHONY; f_i++) {
 	if (data[f_i].note == a_current_note) {
-            printf("pick_voice found current_note\n");
+            printf("pick_voice found current_note%i\n", f_i);
 	    return f_i;
 	}
     }
@@ -794,7 +800,7 @@ void _init()
 	ltsLDescriptor->Label = "LMS";  //Changing this breaks the plugin, it compiles, but hangs when trying to run.  TODO:  investigate
 	ltsLDescriptor->Properties = 0;
 	ltsLDescriptor->Name = "Ray-V (Powered by LibModSynth)";
-	ltsLDescriptor->Maker = "Jeff Hubbard <libmodsynth.sourceforge.net>";
+	ltsLDescriptor->Maker = "Jeff Hubbard <jhubbard651@users.sf.net>";
 	ltsLDescriptor->Copyright = "GNU GPL v3";
 	ltsLDescriptor->PortCount = LMS_COUNT;
 
