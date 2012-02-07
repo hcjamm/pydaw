@@ -56,12 +56,13 @@ inline void v_sml_set_smoother_glide(t_smoother_linear * a_sml_ptr, float a_targ
         a_sml_ptr->rate = (((a_target - a_current ) * a_time_in_seconds) * (a_sml_ptr->sr_recip));
         a_sml_ptr->last_value = a_current;
     }
-    
+    /*
     printf("\n\nGlide: \n");
     printf("Last Value  %f\n", (a_sml_ptr->last_value));
     printf("Target  %f\n",a_target);
     printf("Rate  %f\n",a_sml_ptr->rate);
     printf("Time in seconds %f\n\n",a_time_in_seconds);
+    */
 }
 
 inline void v_sml_run(t_smoother_linear * a_smoother, float a_current_value)
