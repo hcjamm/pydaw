@@ -618,10 +618,9 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 	
                 
         /*Call everything defined in libmodsynth.h in the order it should be called in*/
-        //float f_result = 0;
+        d->_voice->current_sample = 0;
         
-        /*Run the glide module*/
-        
+        /*Run the glide module*/        
         
         v_sml_run_glide(d->_voice->glide_smoother1, (d->_voice->target_pitch1) + 0);
         
@@ -639,10 +638,10 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         
         /*Run any oscillators, etc...*/
-        out[f_i] += f_osc_run_unison_osc(d->_voice->osc_unison1) * (d->osc1_linamp);
-        out[f_i] += f_osc_run_unison_osc(d->_voice->osc_unison2) * (d->osc2_linamp);
+        d->_voice->current_sample += f_osc_run_unison_osc(d->_voice->osc_unison1) * (d->osc1_linamp);
+        d->_voice->current_sample += f_osc_run_unison_osc(d->_voice->osc_unison2) * (d->osc2_linamp);
         
-        out[f_i] += (f_run_white_noise(d->_voice->white_noise1) * (d->noise_linamp)); //white noise
+        d->_voice->current_sample += (f_run_white_noise(d->_voice->white_noise1) * (d->noise_linamp)); //white noise
         
         
         /*Run any processing of the initial result(s)*/      
@@ -652,15 +651,13 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         v_svf_set_cutoff(d->_voice->svf_filter, ((vals->timbre) + ((d->_voice->adsr_filter->output) * (vals->filter_env_amt))) );
                         
-        v_svf_set_input_value(d->_voice->svf_filter, out[f_i]); //run it through the filter
+        v_svf_set_input_value(d->_voice->svf_filter, d->_voice->current_sample); //run it through the filter
                 
-        out[f_i] = f_axf_run_xfade(d->_voice->dist_dry_wet, (d->_voice->svf_filter->lp), 
+        d->_voice->current_sample = f_axf_run_xfade(d->_voice->dist_dry_wet, (d->_voice->svf_filter->lp), 
                 f_clp_clip(d->_voice->clipper1, d->_voice->svf_filter->lp)); //run the lowpass filter output through a hard-clipper, mixed by the dry/wet knob
-        
-        //_result = (d->_voice->_svf_filter->_lp);
-        
+                
         /*Run the envelope and assign to the output buffer*/
-        out[f_i] *=  (d->_voice->adsr_amp->output) * (d->amp) ; 
+        out[f_i] += (d->_voice->current_sample) * (d->_voice->adsr_amp->output) * (d->amp) ; 
                 
         
         /*End LibModSynth modifications*/
