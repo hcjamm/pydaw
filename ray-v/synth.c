@@ -627,14 +627,14 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         v_sml_run_glide(d->_voice->glide_smoother2, (d->_voice->target_pitch2) + 0);
         
         
-        float f_pitch_env = f_rmp_run_ramp(d->_voice->pitch_env, (vals->pitch_env_amt));
+        f_rmp_run_ramp(d->_voice->pitch_env, (vals->pitch_env_amt));
         
         v_osc_set_unison_pitch(d->_voice->osc_unison1, vals->master_uni_spread,   
-                (d->_voice->glide_smoother1->last_value) + f_pitch_env);
+                (d->_voice->glide_smoother1->last_value) + (d->_voice->pitch_env->output_multiplied));
 
         
         v_osc_set_unison_pitch(d->_voice->osc_unison2, vals->master_uni_spread, 
-                (d->_voice->glide_smoother2->last_value) + f_pitch_env);
+                (d->_voice->glide_smoother2->last_value) +  (d->_voice->pitch_env->output_multiplied));
         
         
         /*Run any oscillators, etc...*/
