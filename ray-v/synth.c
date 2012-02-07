@@ -455,6 +455,11 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 
 		if (n.velocity > 0) 
                 {                    
+                    
+#ifdef LMS_DEBUG_MODE
+                        printf("note_on note# %i\n", n.note);
+#endif                    
+                    
 		    const int voice = pick_voice(data, n.note);
                     
 		    plugin_data->note2voice[n.note] = voice;
@@ -538,7 +543,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                         v_poly_note_off(data[voice]._voice);
 
 #ifdef LMS_DEBUG_MODE
-                        printf("note_off zero velocity\n");
+                        printf("note_off zero velocity note# %i\n", n.note);
 #endif
                     }                    
 		}
@@ -558,7 +563,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     /*LibModSynth additions*/                    
                     v_poly_note_off(data[voice]._voice);
 #ifdef LMS_DEBUG_MODE                                        
-                    printf("note_off note off event\n");
+                    printf("note_off note off event note# %i\n", n.note);
 #endif
 		}
 	    } 
