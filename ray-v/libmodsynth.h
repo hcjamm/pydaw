@@ -88,6 +88,9 @@ typedef struct st_poly_voice
     float target_pitch1;
     float target_pitch2;
     //poly_glide * _glide;
+    
+    float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
+    
 }t_poly_voice;
 
 t_poly_voice * g_poly_init();
@@ -122,11 +125,13 @@ t_poly_voice * g_poly_init()
     
     f_voice->pitch_env = g_rmp_get_ramp_env(va_sample_rate);
     
-    f_voice->real_pitch1 = 60;
-    f_voice->real_pitch2 = 60;
+    f_voice->real_pitch1 = 60.0f;
+    f_voice->real_pitch2 = 60.0f;
     
-    f_voice->target_pitch1 = 66;
-    f_voice->target_pitch2 = 66;
+    f_voice->target_pitch1 = 66.0f;
+    f_voice->target_pitch2 = 66.0f;
+    
+    f_voice->current_sample = 0.0f;
     
     return f_voice;
 }
