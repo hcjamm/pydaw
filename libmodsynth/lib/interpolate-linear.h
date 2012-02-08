@@ -24,7 +24,7 @@ inline float f_linear_interpolate(float a_a, float a_b, float a_position)
 }
 
 //Accepts an array as input
-inline float f_linear_interpolate_array(float a_table[], float a_ptr)
+inline float f_linear_interpolate_arr(float a_table[], float a_ptr)
 {        
     int f_int_pos = (int)a_ptr;
     int f_int_pos_plus_1 = f_int_pos + 1;
