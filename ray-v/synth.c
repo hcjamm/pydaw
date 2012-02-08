@@ -445,7 +445,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     for (pos = 0, event_pos = 0; pos < sample_count; pos += STEP_SIZE) 
     {	        
         /**/
-	while (event_pos < event_count && pos >= events[event_pos].time.tick) 
+	while (event_pos < event_count) // && pos >= events[event_pos].time.tick) 
         {
 #ifdef LMS_DEBUG_MODE
             printf("Event firing\n");
