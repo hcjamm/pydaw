@@ -41,8 +41,9 @@ printf("debug information");
 #include "libmodsynth.h"
 #include "../libmodsynth/lib/amp.h"
 
-/*GUI Step 11:  Add ports to the main synthesizer file that the GUI can talk to */
+
 #define LMS_OUTPUT  0
+/*GUI Step 11:  Add ports to the main synthesizer file that the GUI can talk to */
 #define LMS_ATTACK  1
 #define LMS_DECAY   2
 #define LMS_SUSTAIN 3
@@ -82,8 +83,6 @@ printf("debug information");
 #define MIDI_NOTES  128  //Maximum MIDI note.  You probably don't want to change this
 #define STEP_SIZE   16
 
-
-//long int lrintf (float x);
 
 static LADSPA_Descriptor *ltsLDescriptor = NULL;
 static DSSI_Descriptor *ltsDDescriptor = NULL;
@@ -448,6 +447,9 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
         /**/
 	while (event_pos < event_count && pos >= events[event_pos].time.tick) 
         {
+#ifdef LMS_DEBUG_MODE
+            printf("Event firing\n");
+#endif                      
             /*Note on event*/
 	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) 
             {
