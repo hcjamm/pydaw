@@ -593,7 +593,7 @@ float arr_amp_db2a [arr_amp_db2a_count] = {
 
 inline float f_db_to_linear_fast(float a_db)
 {
-    a_db = (a_db + 100.0f) * 4;
+    a_db = ((a_db + 100.0f) * 4) - 1;
             
     if(a_db >= arr_amp_db2a_count)
         a_db = arr_amp_db2a_count - 1;
