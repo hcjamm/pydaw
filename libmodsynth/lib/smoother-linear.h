@@ -76,7 +76,9 @@ inline void v_sml_run(t_smoother_linear * a_smoother, float a_current_value)
     } 
     /*This does waste CPU while knobs are being moved, but it will effectively kill the knobs processing
      once it does reach it's destination value*/
-    else if(fabs(a_current_value - (a_smoother->last_value)) < (a_smoother->rate))
+    //else if(fabs(a_current_value - (a_smoother->last_value)) < (a_smoother->rate))
+    else if((((a_smoother->rate) > 0) && a_current_value - (a_smoother->last_value) <= (a_smoother->rate))
+            || (((a_smoother->rate) < 0) && (a_smoother->last_value) - a_current_value <= (a_smoother->rate)))
     {
         a_smoother->last_value = a_current_value;
     }
@@ -105,7 +107,9 @@ inline void v_sml_run_glide(t_smoother_linear * a_smoother, float a_target_value
     } 
     /*This does waste CPU while knobs are being moved, but it will effectively kill the knobs processing
      once it does reach it's destination value*/
-    else if(fabs(a_target_value - (a_smoother->last_value)) <= fabs(a_smoother->rate))
+    //else if(fabs(a_target_value - (a_smoother->last_value)) <= fabs(a_smoother->rate))
+    else if((((a_smoother->rate) > 0) && a_target_value - (a_smoother->last_value) <= (a_smoother->rate))
+            || (((a_smoother->rate) < 0) && (a_smoother->last_value) - a_target_value <= (a_smoother->rate)))
     {
         a_smoother->last_value = a_target_value;
         
