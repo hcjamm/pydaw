@@ -106,7 +106,8 @@ void test_pitch_plot()
  */
 int main(int argc, char** argv) {
 
-    test_db_plot();
+    test_pitch_plot();
+    //test_db_plot();
     //plot_pitch_to_freq();
     //plot_db_to_amp();
     /*
