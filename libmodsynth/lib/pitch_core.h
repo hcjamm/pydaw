@@ -39,7 +39,9 @@ inline float f_pit_hz_to_midi_note(float _hz)
 
 /*Arrays*/
 
-float arr_pit_p2f [129] = {
+#define arr_pit_p2f_count 129
+
+float arr_pit_p2f [arr_pit_p2f_count] = {
 16.351620,
 17.323936,
 18.354071,
@@ -172,6 +174,12 @@ float arr_pit_p2f [129] = {
 
 inline float f_pit_midi_note_to_hz_fast(float a_midi_note_number)
 {
+    if(a_midi_note_number > arr_pit_p2f_count)
+        a_midi_note_number = arr_pit_p2f_count;
+    
+    if(a_midi_note_number < 0)
+        a_midi_note_number = 0;
+    
     return f_linear_interpolate_arr(arr_pit_p2f, a_midi_note_number);
 }
 
