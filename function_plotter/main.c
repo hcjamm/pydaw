@@ -75,12 +75,39 @@ void plot_db_to_amp()
     printf("};\n");
 }
 
+void test_db_plot()
+{
+    int i = -100;
+    
+    while(i < 36)
+    {
+        printf("real: %f   ", f_db_to_linear(i));
+        printf("fast: %f   ", f_db_to_linear_fast(i));
+        printf("\n");
+        i += 3;
+    }
+}
+
+void test_pitch_plot()
+{
+    int i = 0;
+    
+    while(i < 129)
+    {
+        printf("real: %f   ", f_pit_midi_note_to_hz(i));
+        printf("fast: %f   ", f_pit_midi_note_to_hz_fast(i));
+        printf("\n");
+        i += 3;
+    }
+}
+
 /*
  * 
  */
 int main(int argc, char** argv) {
 
-    plot_pitch_to_freq();
+    test_db_plot();
+    //plot_pitch_to_freq();
     //plot_db_to_amp();
     /*
     if(argc < 1)
