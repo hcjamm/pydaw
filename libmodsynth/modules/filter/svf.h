@@ -95,7 +95,7 @@ void v_svf_set_res(
         a_db = -.5;
     }
 
-       a_svf->filter_res = (1 - f_db_to_linear(a_db)) * 2;
+       a_svf->filter_res = (1 - f_db_to_linear_fast(a_db)) * 2;
 }
 
 /*instantiate a new pointer to a state variable filter*/
