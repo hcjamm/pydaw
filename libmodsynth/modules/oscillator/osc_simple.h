@@ -85,7 +85,7 @@ void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, flo
 {
     if((a_osc_ptr->voice_count) == 1)
     {
-        a_osc_ptr->voice_inc[0] =  f_pit_midi_note_to_hz(a_pitch) * a_osc_ptr->sr_recip;
+        a_osc_ptr->voice_inc[0] =  f_pit_midi_note_to_hz_fast(a_pitch) * a_osc_ptr->sr_recip;
     }
     else
     {        
@@ -100,7 +100,7 @@ void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, flo
 
         while(i < (a_osc_ptr->voice_count))
         {
-            a_osc_ptr->voice_inc[i] =  f_pit_midi_note_to_hz(a_pitch + (a_osc_ptr->bottom_pitch) + (a_osc_ptr->pitch_inc * ((float)i))) * a_osc_ptr->sr_recip;
+            a_osc_ptr->voice_inc[i] =  f_pit_midi_note_to_hz_fast(a_pitch + (a_osc_ptr->bottom_pitch) + (a_osc_ptr->pitch_inc * ((float)i))) * a_osc_ptr->sr_recip;
             i++;
         }
     }
