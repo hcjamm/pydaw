@@ -132,7 +132,7 @@ void v_adsr_set_s_value(t_adsr* a_adsr_ptr, float a_value)
 
 void v_adsr_set_s_value_db(t_adsr* a_adsr_ptr, float a_value)
 {
-    v_adsr_set_s_value(a_adsr_ptr, f_db_to_linear(a_value));
+    v_adsr_set_s_value(a_adsr_ptr, f_db_to_linear_fast(a_value));
 }
 
 void v_adsr_set_adsr(t_adsr* a_adsr_ptr, float a_a, float a_d, float a_s, float a_r)
