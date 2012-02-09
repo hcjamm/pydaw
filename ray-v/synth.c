@@ -656,7 +656,12 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         v_adsr_run(d->_voice->adsr_amp);        
         v_adsr_run(d->_voice->adsr_filter);
         
-        v_svf_set_cutoff(d->_voice->svf_filter, ((vals->timbre) + ((d->_voice->adsr_filter->output) * (vals->filter_env_amt))) );
+        
+        v_svf_set_cutoff_base(d->_voice->svf_filter, vals->timbre);
+        //Run v_svf_add_cutoff_mod once for every input source
+        v_svf_add_cutoff_mod(d->_voice->svf_filter, ((d->_voice->adsr_filter->output) * (vals->filter_env_amt)));        
+        //calculate the cutoff
+        v_svf_set_cutoff(d->_voice->svf_filter);
                         
         v_svf_set_input_value(d->_voice->svf_filter, d->_voice->current_sample); //run it through the filter
                 
