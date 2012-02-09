@@ -561,7 +561,8 @@ float arr_pit_p2f [arr_pit_p2f_count] = {
 
 inline float f_pit_midi_note_to_hz_fast(float a_midi_note_number)
 {
-    a_midi_note_number = a_midi_note_number * 4;
+    a_midi_note_number = (a_midi_note_number * 4) - 1;
+    
     
     if(a_midi_note_number > arr_pit_p2f_count)
         a_midi_note_number = arr_pit_p2f_count;
