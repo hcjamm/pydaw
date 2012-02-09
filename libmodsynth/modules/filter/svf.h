@@ -23,36 +23,51 @@ typedef struct st_state_variable_filter
 {
     t_smoother_linear * cutoff_smoother;
     float bp_m1, lp_m1, cutoff_note, cutoff_hz, cutoff_filter, pi2_div_sr, sr, oversample_div, filter_res, filter_res_db, filter_input, filter_last_input, hp, lp, bp;
+    float cutoff_base, cutoff_mod, cutoff_last;  //New additions to fine-tune the modulation process
     int oversample_mult;
 
 } t_state_variable_filter; 
 
 
-inline void v_svf_set_cutoff(t_state_variable_filter*, float);
+inline void v_svf_set_cutoff(t_state_variable_filter*);
 void v_svf_set_res(t_state_variable_filter*,  float);
 t_state_variable_filter * g_svf_get(float, int);
 inline void v_svf_set_input_value(t_state_variable_filter*, float);
+inline void v_svf_set_cutoff_base(t_state_variable_filter*, float);
+inline void v_svf_add_cutoff_mod(t_state_variable_filter*, float);
 
-/*This should be called every sample, otherwise the smoothing doesn't work properly*/
-inline void v_svf_set_cutoff(t_state_variable_filter * a_svf, float a_midi_note_number)
+inline void v_svf_set_cutoff_base(t_state_variable_filter* a_svf, float a_midi_note_number)
+{
+    a_svf->cutoff_base = a_midi_note_number;
+}
+
+inline void v_svf_add_cutoff_mod(t_state_variable_filter* a_svf, float a_midi_note_number)
+{
+    a_svf->cutoff_mod = (a_svf->cutoff_mod) + a_midi_note_number;
+}
+
+/*This should be called every sample, otherwise the smoothing and modulation doesn't work properly*/
+inline void v_svf_set_cutoff(t_state_variable_filter * a_svf)
 {
              
-    //_sml_run(_svf->cutoff_smoother, _midi_note_number);
+    v_sml_run(a_svf->cutoff_smoother, (a_svf->cutoff_base));
     
-     /*It hasn't changed since last time, return*/
-    
-    if((a_svf->cutoff_note) == a_midi_note_number)
-        return; 
+    a_svf->cutoff_note = (a_svf->cutoff_smoother->last_value) + (a_svf->cutoff_mod);
      
-    a_svf->cutoff_note = a_midi_note_number;
+    /*It hasn't changed since last time, return*/    
+    if((a_svf->cutoff_note) == (a_svf->cutoff_last))
+        return; 
     
+    a_svf->cutoff_last = a_svf->cutoff_note;
+         
+    a_svf->cutoff_mod = 0;
     
-    a_svf->cutoff_hz = f_pit_midi_note_to_hz(a_midi_note_number); //_svf->cutoff_smoother->last_value);
+    a_svf->cutoff_hz = f_pit_midi_note_to_hz_fast((a_svf->cutoff_note)); //_svf->cutoff_smoother->last_value);
     
-    if(a_svf->cutoff_hz > 24000)
+    /*if(a_svf->cutoff_hz > 24000)
         a_svf->cutoff_hz = 24000;
     else if(a_svf->cutoff_hz < 20)
-        a_svf->cutoff_hz = 20;
+        a_svf->cutoff_hz = 20;*/
     
     a_svf->cutoff_filter = a_svf->pi2_div_sr * a_svf->cutoff_hz * a_svf->oversample_div;
 
@@ -107,6 +122,9 @@ t_state_variable_filter * g_svf_get(float a_sample_rate, int a_oversample)
     f_svf->hp = 0;
     f_svf->lp = 0;
     f_svf->bp = 0;
+    f_svf->cutoff_base = 78; 
+    f_svf->cutoff_mod = 0;
+    f_svf->cutoff_last = 78;
     
     return f_svf;
 }
