@@ -22,18 +22,24 @@ void print_help()
 
 void plot_pitch_to_freq()
 {
-    int i = 0;
+    float i = 0;
+    float inc = .25;
+    float max = 129;
     
-    printf("float arr_pit_p2f [129] = {\n");
+    int count = (max - i)/inc;
     
-    while(i < 129)
+    printf("#define arr_pit_p2f_count %i\n\n", count);
+    
+    printf("float arr_pit_p2f [arr_pit_p2f_count] = {\n");
+    
+    while(i < max)
     {
         if(i != 0)
             printf(",\n");
         
         printf("%f", f_pit_midi_note_to_hz(i));
         
-        i++;
+        i = i + inc;
     }
     
     printf("};");
@@ -45,19 +51,25 @@ void plot_freq_to_pitch()
 }
 
 void plot_db_to_amp()
-{
-    int i = -100;
+{    
+    float i = -100;
+    float inc = .25;
+    float max = 36;
     
-    printf("float arr_amp_db2a [137] = {\n");
+    int count = (max - i)/inc;
     
-    while(i <= 36)
+    printf("#define arr_amp_db2a_count %i\n\n", count);
+    
+    printf("float arr_amp_db2a [arr_amp_db2a_count] = {\n");
+    
+    while(i <= max)
     {
         if(i != -100)
             printf(",\n");
         
         printf("%f", f_db_to_linear(i));
         
-        i++;
+        i = i + inc;
     }
     
     printf("};\n");
@@ -68,8 +80,8 @@ void plot_db_to_amp()
  */
 int main(int argc, char** argv) {
 
-    //plot_pitch_to_freq();
-    plot_db_to_amp();
+    plot_pitch_to_freq();
+    //plot_db_to_amp();
     /*
     if(argc < 1)
     {
