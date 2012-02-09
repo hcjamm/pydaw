@@ -34,7 +34,7 @@ void v_clp_set_clip_sym(t_clipper * a_clp, float a_db)
     
     a_clp->clip_db = a_db;
     
-    float f_value = f_db_to_linear(a_db);
+    float f_value = f_db_to_linear_fast(a_db);
     
 #ifdef LMS_DEBUG_MODE
         printf("Clipper value == %f", f_value);
