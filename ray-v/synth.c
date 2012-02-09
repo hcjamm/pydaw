@@ -466,7 +466,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
 		    plugin_data->note2voice[n.note] = voice;
 		    data[voice].note = n.note;
-		    data[voice].amp = f_db_to_linear((n.velocity * 0.157480315) - 20 + (vals.master_vol)); //-20db to 0db, + master volume (0 to -60)
+		    data[voice].amp = f_db_to_linear_fast((n.velocity * 0.157480315) - 20 + (vals.master_vol)); //-20db to 0db, + master volume (0 to -60)
 		    
                     
                     /*LibModSynth additions*/
@@ -493,9 +493,9 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                                         
                     /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
-                    data[voice].osc1_linamp = f_db_to_linear(vals.osc1vol);
-                    data[voice].osc2_linamp = f_db_to_linear(vals.osc2vol);
-                    data[voice].noise_linamp = f_db_to_linear(vals.noise_amp);
+                    data[voice].osc1_linamp = f_db_to_linear_fast(vals.osc1vol);
+                    data[voice].osc2_linamp = f_db_to_linear_fast(vals.osc2vol);
+                    data[voice].noise_linamp = f_db_to_linear_fast(vals.noise_amp);
                     
                     data[voice].n_state = running;
                                         
