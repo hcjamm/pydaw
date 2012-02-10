@@ -1,6 +1,6 @@
 /* 
  * File:   main.c
- * Author: bob
+ * Author: Jeff Hubbard
  *
  * Created on February 7, 2012, 6:52 PM
  */
@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "../libmodsynth/lib/amp.h"
 #include "../libmodsynth/lib/pitch_core.h"
+#include "adsr.h"
 
 void print_help()
 {
@@ -26,7 +27,7 @@ void plot_pitch_to_freq()
     float inc = .25;
     float max = 129;
     
-    int count = (max - i)/inc;
+    int count = (max - i)/inc + 1;
     
     printf("#define arr_pit_p2f_count %i\n\n", count);
     
@@ -56,7 +57,7 @@ void plot_db_to_amp()
     float inc = .25;
     float max = 36;
     
-    int count = (max - i)/inc;
+    int count = (max - i)/inc + 1;
     
     printf("#define arr_amp_db2a_count %i\n\n", count);
     
@@ -106,7 +107,10 @@ void test_pitch_plot()
  */
 int main(int argc, char** argv) {
 
-    test_pitch_plot();
+    //test_pitch_plot();
+    
+    adsr_attack(2);
+    
     //test_db_plot();
     //plot_pitch_to_freq();
     //plot_db_to_amp();
