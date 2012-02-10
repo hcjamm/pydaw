@@ -474,23 +474,21 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     data[voice].hz = f_pit_midi_note_to_hz(data[voice].note_f);
                     
                     
-                    data[voice]._voice->target_pitch1 = ((data[voice].note_f) + (vals.osc1pitch) + (vals.osc1tune) + 
-                            (sv_pitch_bend_value));
+                    data[voice]._voice->target_pitch1 = (data[voice].note_f);
                     
-                    data[voice]._voice->target_pitch2 = ((data[voice].note_f) + (vals.osc2pitch) + (vals.osc2tune) + 
-                            (sv_pitch_bend_value));
+                    //data[voice]._voice->target_pitch2 = (data[voice].note_f);
                     
                     data[voice]._voice->real_pitch1 = sv_last_note;
                     
-                    data[voice]._voice->real_pitch2 = sv_last_note;
+                    //data[voice]._voice->real_pitch2 = sv_last_note;
                     
                     
                     v_sml_set_smoother_glide(data[voice]._voice->glide_smoother1, (data[voice]._voice->target_pitch1), (data[voice]._voice->real_pitch1),
                             vals.master_glide);
-                    
+                    /*
                     v_sml_set_smoother_glide(data[voice]._voice->glide_smoother2, (data[voice]._voice->target_pitch2), (data[voice]._voice->real_pitch2),
                             vals.master_glide);
-                    
+                    */
                                         
                     /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
                     data[voice].osc1_linamp = f_db_to_linear_fast(vals.osc1vol);
@@ -631,17 +629,19 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         v_sml_run_glide(d->_voice->glide_smoother1, (d->_voice->target_pitch1) + 0);
         
-        v_sml_run_glide(d->_voice->glide_smoother2, (d->_voice->target_pitch2) + 0);
+        //v_sml_run_glide(d->_voice->glide_smoother2, (d->_voice->target_pitch2) + 0);
         
         
         f_rmp_run_ramp(d->_voice->pitch_env, (vals->pitch_env_amt));
         
         v_osc_set_unison_pitch(d->_voice->osc_unison1, vals->master_uni_spread,   
-                (d->_voice->glide_smoother1->last_value) + (d->_voice->pitch_env->output_multiplied));
+                (d->_voice->glide_smoother1->last_value) + (d->_voice->pitch_env->output_multiplied) 
+                + (vals->osc1pitch) + (vals->osc1tune) + (sv_pitch_bend_value));
 
         
         v_osc_set_unison_pitch(d->_voice->osc_unison2, vals->master_uni_spread, 
-                (d->_voice->glide_smoother2->last_value) +  (d->_voice->pitch_env->output_multiplied));
+                (d->_voice->glide_smoother1->last_value) + (d->_voice->pitch_env->output_multiplied) 
+                + (vals->osc2pitch) + (vals->osc2tune) + (sv_pitch_bend_value));
         
         
         /*Run any oscillators, etc...*/
