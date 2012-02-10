@@ -54,7 +54,7 @@ void v_init_lms(float f_sr)
 }
 
 /*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
- of an instrument, you will most likely want to define all of you modules here*/
+ of an instrument, you will most likely want to define all of your modules here*/
 
 
     
@@ -78,15 +78,15 @@ typedef struct st_poly_voice
     float noise_amp;
     
     t_smoother_linear * glide_smoother1;
-    t_smoother_linear * glide_smoother2;
+    //t_smoother_linear * glide_smoother2;
     
     t_ramp_env * pitch_env;
     
     float real_pitch1;
-    float real_pitch2;
+    //float real_pitch2;
     
     float target_pitch1;
-    float target_pitch2;
+    //float target_pitch2;
     //poly_glide * _glide;
     
     float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
@@ -122,15 +122,15 @@ t_poly_voice * g_poly_init()
     f_voice->noise_amp = 0;
         
     f_voice->glide_smoother1 = g_sml_get_smoother_linear(va_sample_rate, 100, 20, .5);  //For osc1
-    f_voice->glide_smoother2 = g_sml_get_smoother_linear(va_sample_rate, 100, 20, .5);  //For osc2
+    //f_voice->glide_smoother2 = g_sml_get_smoother_linear(va_sample_rate, 100, 20, .5);  //For osc2
     
     f_voice->pitch_env = g_rmp_get_ramp_env(va_sample_rate);
     
     f_voice->real_pitch1 = 60.0f;
-    f_voice->real_pitch2 = 60.0f;
+    //f_voice->real_pitch2 = 60.0f;
     
     f_voice->target_pitch1 = 66.0f;
-    f_voice->target_pitch2 = 66.0f;
+    //f_voice->target_pitch2 = 66.0f;
     
     f_voice->current_sample = 0.0f;
     
