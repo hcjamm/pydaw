@@ -23,12 +23,12 @@ void print_help()
 
 void plot_pitch_to_freq()
 {
-    float i = 0;
+    double i = 0;
     int i2 = 0;
-    float inc = .1;
-    float max = 127;
+    double inc = .05;
+    double max = 126;
     
-    int count = (max - i)/inc + 1;
+    int count = ((max - i)/inc) + 1;
     
     printf("#define arr_pit_p2f_count %i\n", count);
     printf("#define arr_pit_p2f_count_m1 %i\n\n", count - 1);
@@ -38,9 +38,9 @@ void plot_pitch_to_freq()
     while(i < max)
     {
         if(i != 0)
-            printf(",");
+            printf(", ");
         
-        if(i2 >= 10)
+        if(i2 >= 20)
         {
             printf("\n");
             i2 = 0;
@@ -48,7 +48,7 @@ void plot_pitch_to_freq()
         
         i2++;
         
-        printf("%f", f_pit_midi_note_to_hz(i));
+        printf("%f", f_pit_midi_note_to_hz((float)(i)));
         
         i = i + inc;
     }
@@ -126,12 +126,12 @@ void test_pitch_plot()
  */
 int main(int argc, char** argv) {
 
-    test_pitch_plot();
+    //test_pitch_plot();
     
     //adsr_attack(2);
     
     //test_db_plot();
-    //plot_pitch_to_freq();
+    plot_pitch_to_freq();
     //plot_db_to_amp();
     /*
     if(argc < 1)
