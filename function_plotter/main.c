@@ -110,15 +110,22 @@ void test_db_plot()
 
 void test_pitch_plot()
 {
-    int i = 0;
-    
+    float i = 0;
+        
     while(i < 129)
     {
-        printf("real: %f   ", f_pit_midi_note_to_hz(i));
-        printf("fast: %f   ", f_pit_midi_note_to_hz_fast(i));
+        float f_real = f_pit_midi_note_to_hz(i);
+        float f_fast = f_pit_midi_note_to_hz_fast(i);
+        float f_deviation = (f_real - f_fast)/f_real;
+        
+        
+        printf("real: %f   ", f_real);
+        printf("fast: %f   ", f_fast);
+        printf("deviation: %f   ", f_deviation);
         printf("\n");
-        i += 3;
+        i += 5.12765;
     }
+    
 }
 
 /*
@@ -126,12 +133,12 @@ void test_pitch_plot()
  */
 int main(int argc, char** argv) {
 
-    //test_pitch_plot();
+    test_pitch_plot();
     
     //adsr_attack(2);
     
     //test_db_plot();
-    plot_pitch_to_freq();
+    //plot_pitch_to_freq();
     //plot_db_to_amp();
     /*
     if(argc < 1)
