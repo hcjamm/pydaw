@@ -98,6 +98,34 @@ void v_svf_set_res(
        a_svf->filter_res = (1 - f_db_to_linear_fast(a_db)) * 2;
 }
 
+
+
+//The main action to run the filter
+inline void v_svf_set_input_value(t_state_variable_filter * a_svf, float a_input_value)
+{
+    a_svf->filter_input = a_input_value;
+    float f_position = 0;
+
+    int f_i = 0;
+    
+    while(f_i < (a_svf->oversample_mult))
+    {
+        float f_interpolated_sample = f_linear_interpolate((a_svf->filter_last_input), (a_svf->filter_input), f_position);
+
+        a_svf->hp = f_interpolated_sample - (((a_svf->bp_m1) * (a_svf->filter_res)) + (a_svf->lp_m1));
+        a_svf->bp = ((a_svf->hp) * (a_svf->cutoff_filter)) + (a_svf->bp_m1);
+        a_svf->lp = ((a_svf->bp) * (a_svf->cutoff_filter)) + (a_svf->lp_m1);
+
+        a_svf->bp_m1 = f_remove_denormal((a_svf->bp));
+        a_svf->lp_m1 = f_remove_denormal((a_svf->lp));
+
+        f_position += (a_svf->oversample_mult);
+        
+        f_i++;
+    }
+}
+
+
 /*instantiate a new pointer to a state variable filter*/
 t_state_variable_filter * g_svf_get(float a_sample_rate, int a_oversample)
 {
@@ -126,33 +154,16 @@ t_state_variable_filter * g_svf_get(float a_sample_rate, int a_oversample)
     f_svf->cutoff_mod = 0;
     f_svf->cutoff_last = 78;
     
+    v_svf_set_cutoff_base(f_svf, 75);
+    v_svf_add_cutoff_mod(f_svf, 0);
+    v_svf_set_res(f_svf, -12);
+    v_svf_set_cutoff(f_svf);
+    
+    v_svf_set_input_value(f_svf, 0);
+    
     return f_svf;
 }
 
-//The main action to run the filter
-inline void v_svf_set_input_value(t_state_variable_filter * a_svf, float a_input_value)
-{
-    a_svf->filter_input = a_input_value;
-    float f_position = 0;
-
-    int f_i = 0;
-    
-    while(f_i < (a_svf->oversample_mult))
-    {
-        float f_interpolated_sample = f_linear_interpolate((a_svf->filter_last_input), (a_svf->filter_input), f_position);
-
-        a_svf->hp = f_interpolated_sample - (((a_svf->bp_m1) * (a_svf->filter_res)) + (a_svf->lp_m1));
-        a_svf->bp = ((a_svf->hp) * (a_svf->cutoff_filter)) + (a_svf->bp_m1);
-        a_svf->lp = ((a_svf->bp) * (a_svf->cutoff_filter)) + (a_svf->lp_m1);
-
-        a_svf->bp_m1 = f_remove_denormal((a_svf->bp));
-        a_svf->lp_m1 = f_remove_denormal((a_svf->lp));
-
-        f_position += (a_svf->oversample_mult);
-        
-        f_i++;
-    }
-}
 
 #ifdef	__cplusplus
 }
