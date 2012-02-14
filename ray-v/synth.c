@@ -15,7 +15,7 @@ GNU General Public License for more details.
 */
 /*Comment this out when compiling a stable, production-ready plugin.  You shouldn't print debug output
 when it won't be read or needed, it can potentially interfere with audio processing.*/
-//#define LMS_DEBUG_MODE
+#define LMS_DEBUG_MODE
 
 /*Then you can print debug information like this:
 #ifdef LMS_DEBUG_MODE
@@ -104,7 +104,33 @@ typedef struct {
     float hz;
     t_poly_voice * p_voice;    
     note_state n_state;
+#ifdef LMS_DEBUG_MODE
+    int debug_counter;
+#endif
 } voice_data;
+
+#ifdef LMS_DEBUG_MODE
+
+int debug_interval = 176400;
+
+void dump_debug_voice_data(voice_data*);
+
+/*Any changes to voice_data require this to be changed*/
+void dump_debug_voice_data(voice_data * a_data)
+{
+    printf("\n\nRunning dump_debug_voice_data\n");
+    printf("amp == %f\n", a_data->amp);
+    printf("hz == %f\n", a_data->hz);
+    printf("n_state == %i\n", a_data->n_state);
+    printf("noise_linamp == %f\n", a_data->noise_linamp);
+    printf("n_state == %i\n", a_data->note);
+    printf("note_f == %f\n", a_data->note_f);
+    printf("osc1_linamp == %f\n", a_data->osc1_linamp);    
+    printf("osc2_linamp == %f\n", a_data->osc2_linamp);    
+}
+
+#endif
+
 
 
 /*GUI Step 12:  Add a variable for each control in the synth_vals type*/
@@ -135,8 +161,6 @@ typedef struct {
     LADSPA_Data osc2type;
     LADSPA_Data osc2vol;
     
-    
-    
     LADSPA_Data master_vol;       
     LADSPA_Data master_uni_voice;
     LADSPA_Data master_uni_spread;
@@ -149,8 +173,54 @@ typedef struct {
     LADSPA_Data noise_amp;
     
     /*The variables below this line do NOT correspond to GUI controls*/
-    
+#ifdef LMS_DEBUG_MODE
+    int debug_counter;
+#endif
 } synth_vals;
+
+#ifdef LMS_DEBUG_MODE
+
+void dump_debug_synth_vals(synth_vals*);
+
+/*Any changes to voice_data require this to be changed*/
+void dump_debug_synth_vals(synth_vals * a_data)
+{
+    printf("\n\nRunning dump_debug_synth_vals\n");
+    printf("attack == %f\n", a_data->attack);
+    printf("attack_f == %f\n", a_data->attack_f);
+    printf("decay == %f\n", a_data->decay);
+    printf("decay_f == %f\n", a_data->decay_f);
+    printf("dist == %f\n", a_data->dist);
+    printf("dist_wet == %f\n", a_data->dist_wet);
+    printf("filter_env_amt == %f\n", a_data->filter_env_amt);    
+    printf("master_glide == %f\n", a_data->master_glide);    
+    printf("master_pb_amt == %f\n", a_data->master_pb_amt);
+    printf("master_uni_spread == %f\n", a_data->master_uni_spread);
+    printf("master_uni_voice == %f\n", a_data->master_uni_voice);
+    printf("master_vol == %f\n", a_data->master_vol);
+    printf("noise_amp == %f\n", a_data->noise_amp);
+    printf("osc1pitch == %f\n", a_data->osc1pitch);
+    printf("osc1tune == %f\n", a_data->osc1tune);    
+    printf("osc1type == %f\n", a_data->osc1type);   
+    printf("osc1vol == %f\n", a_data->osc1vol);    
+    printf("osc2pitch == %f\n", a_data->osc2pitch);
+    printf("osc2tune == %f\n", a_data->osc2tune);
+    printf("osc2type == %f\n", a_data->osc2type);
+    printf("osc2vol == %f\n", a_data->osc2vol);
+    printf("pitch_env_amt == %f\n", a_data->pitch_env_amt);
+    printf("pitch_env_time == %f\n", a_data->pitch_env_time);    
+    printf("release == %f\n", a_data->release);
+    printf("release_f == %f\n", a_data->release_f);
+    printf("res == %f\n", a_data->res);    
+    printf("sustain == %f\n", a_data->sustain);    
+    printf("sustain_f == %f\n", a_data->sustain_f);
+    printf("timbre == %f\n", a_data->timbre);  
+}
+
+#endif
+
+
+
 
 /*GUI Step 13:  Add a variable for each control in the LTS type*/
 typedef struct {
@@ -204,7 +274,6 @@ typedef struct {
 static float sv_pitch_bend_value = 0;
 static float sv_last_note = 60;  //For glide
 /*For preventing references to values like last_note that will be null, change to 1 once the first note plays*/
-//static int _played_first_note = 0;   
 
 
 static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
@@ -214,6 +283,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d,
 		      LADSPA_Data *out, unsigned int count);
 
 int pick_voice(const voice_data *data, int);
+
 
 const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
 {
@@ -460,6 +530,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
 #ifdef LMS_DEBUG_MODE
                         printf("note_on note# %i\n", n.note);
+                        
 #endif                    
                     
 		    const int voice = pick_voice(data, n.note);
@@ -470,6 +541,10 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 		    
                     
                     /*LibModSynth additions*/
+                    
+#ifdef LMS_DEBUG_MODE
+                    data[voice].debug_counter = 0;                    
+#endif
                     data[voice].note_f = (float)n.note;
                     data[voice].hz = f_pit_midi_note_to_hz(data[voice].note_f);
                     
@@ -621,6 +696,18 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
     /*Process an audio block*/
     for (f_i=0; f_i<count; f_i++) {
 	
+        /*Here is where we periodically dump debug information if debugging is enabled*/
+#ifdef LMS_DEBUG_MODE
+        d->debug_counter = (d->debug_counter) + 1;
+        
+        if((d->debug_counter) >= debug_interval)
+        {
+            d->debug_counter = 0;
+            dump_debug_voice_data(d);
+            dump_debug_synth_vals(vals);
+            dump_debug_t_poly_voice(d->p_voice);
+        }
+#endif
                 
         /*Call everything defined in libmodsynth.h in the order it should be called in*/
         d->p_voice->current_sample = 0;
