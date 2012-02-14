@@ -96,8 +96,8 @@ typedef struct {
     int     note;
     float   amp;
     float note_f;
-    float osc_inc1[5];
-    float osc_inc2;
+    //float osc_inc1[5];
+    //float osc_inc2;
     float osc1_linamp;
     float osc2_linamp;
     float noise_linamp;
