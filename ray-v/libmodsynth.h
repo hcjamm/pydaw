@@ -64,8 +64,8 @@ typedef struct st_poly_voice
     t_osc_simple_unison * osc_unison1;
     t_osc_simple_unison * osc_unison2;
     
-    t_osc_core * osc_core2;    
-    fp_get_osc_func_ptr osc2_type;
+    //t_osc_core * osc_core2;    
+    //fp_get_osc_func_ptr osc2_type;
         
     t_state_variable_filter * svf_filter;
     
@@ -92,6 +92,40 @@ typedef struct st_poly_voice
     float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
     
 }t_poly_voice;
+
+#ifdef LMS_DEBUG_MODE
+
+void dump_debug_t_poly_voice(t_poly_voice*);
+
+/*This must be updated if you make any changes to t_poly_voice*/
+void dump_debug_t_poly_voice(t_poly_voice* a_data)
+{
+    printf("\n\nRunning dump_debug_t_poly_voice \n");
+    printf("adsr_amp->output == %f \n", a_data->adsr_amp->output);
+    printf("adsr_filter->output->output == %f \n", a_data->adsr_filter->output);
+    printf("clipper1->clip_high == %f \n", a_data->clipper1->clip_high);
+    printf("clipper1->clip_low == %f \n", a_data->clipper1->clip_low);
+    
+    printf("clipper1->input_gain == %f \n", a_data->clipper1->input_gain);
+    printf("current_sample == %f \n", a_data->current_sample);
+    printf("dist_dry_wet->in1_mult == %f \n", a_data->dist_dry_wet->in1_mult);
+    printf("dist_dry_wet->in2_mult == %f \n", a_data->dist_dry_wet->in2_mult);
+    printf("glide_smoother1->last_value == %f \n", a_data->glide_smoother1->last_value);
+    printf("glide_smoother1->rate == %f \n", a_data->glide_smoother1->rate);
+    printf("noise_amp == %f \n", a_data->noise_amp);    
+    printf("osc_unison1->adjusted_amp == %f \n", a_data->osc_unison1->adjusted_amp);
+    printf("osc_unison2->adjusted_amp == %f \n", a_data->osc_unison2->adjusted_amp);
+    printf("pitch_env->output_multiplied == %f \n", a_data->pitch_env->output_multiplied);    
+    printf("a_data->real_pitch1 == %f \n", a_data->real_pitch1);
+    printf("svf_filter->lp == %f \n", a_data->svf_filter->lp);    
+    printf("svf_filter->bp == %f \n", a_data->svf_filter->bp);
+    printf("svf_filter->hp == %f \n", a_data->svf_filter->hp);
+    printf("svf_filter->cutoff_filter == %f \n", a_data->svf_filter->cutoff_filter);    
+    printf("target_pitch1 == %f \n", a_data->target_pitch1);
+    printf("white_noise1->sample_array[a_data->white_noise1->read_head] == %f \n", a_data->white_noise1->sample_array[a_data->white_noise1->read_head]);
+}
+
+#endif
 
 t_poly_voice * g_poly_init();
 
