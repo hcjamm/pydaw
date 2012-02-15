@@ -23,27 +23,25 @@ typedef struct st_osc_core
 }t_osc_core;
 
 
-float f_run_osc(t_osc_core *, float);
-t_osc_core * g_get_osc_core(float);
+void v_run_osc(t_osc_core *, float);
+t_osc_core * g_get_osc_core();
 
 
-t_osc_core * g_get_osc_core(float a_sr)
+t_osc_core * g_get_osc_core()
 {
     t_osc_core * f_result = (t_osc_core*)malloc(sizeof(t_osc_core)); 
     f_result->output = 0;    
     return f_result;
 }
 
-float f_run_osc(t_osc_core *a_core, float a_inc)
+void v_run_osc(t_osc_core *a_core, float a_inc)
 {
-    a_core->output += a_inc;
+    a_core->output = (a_core->output) + a_inc;
     
     if(a_core->output >= 1)
     {
-        a_core->output -= 1;
-    }
-    
-    return a_core->output;
+        a_core->output = (a_core->output - 1);
+    }    
 }
 
 

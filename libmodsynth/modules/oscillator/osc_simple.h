@@ -116,11 +116,10 @@ float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
 {
     int f_i = 0;
     float f_result = 0;
-    
-    
+        
     while(f_i < (a_osc_ptr->voice_count))
     {
-        f_run_osc((a_osc_ptr->osc_cores[f_i]), (a_osc_ptr->voice_inc[f_i]));
+        v_run_osc((a_osc_ptr->osc_cores[f_i]), (a_osc_ptr->voice_inc[f_i]));
         f_result += a_osc_ptr->osc_type((a_osc_ptr->osc_cores[f_i]));
         f_i++;
     }
@@ -239,7 +238,7 @@ t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
     
     while(f_i < (OSC_UNISON_MAX_VOICES))
     {
-        f_result->osc_cores[f_i] = (t_osc_core*)malloc(sizeof(t_osc_core));
+        f_result->osc_cores[f_i] =  g_get_osc_core();   //(t_osc_core*)malloc(sizeof(t_osc_core));
         f_i++;
     }
         
