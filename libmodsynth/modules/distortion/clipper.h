@@ -16,7 +16,7 @@ extern "C" {
     
 typedef struct st_clipper
 {
-    float clip_high, clip_low, input_gain, clip_db, in_db;
+    float clip_high, clip_low, input_gain, clip_db, in_db, result;
 }t_clipper;
 
 /*Set the values of a clipper struct symmetrically, ie: value of .75 clips at .75 and -.75*/
@@ -62,6 +62,7 @@ t_clipper * g_clp_get_clipper()
     f_result->clip_low = -1;
     f_result->input_gain = 1;
     f_result->in_db = 0;
+    f_result->result = 0;
     
     return f_result;
 };
@@ -69,14 +70,14 @@ t_clipper * g_clp_get_clipper()
 
 inline float f_clp_clip(t_clipper * a_clp, float a_input)
 {
-    float f_result = a_input * (a_clp->input_gain);
+    a_clp->result = a_input * (a_clp->input_gain);
     
-    if(f_result > (a_clp->clip_high))
-        f_result = (a_clp->clip_high);
-    else if(f_result < (a_clp->clip_low))
-        f_result = (a_clp->clip_low);
+    if(a_clp->result > (a_clp->clip_high))
+        a_clp->result = (a_clp->clip_high);
+    else if(a_clp->result < (a_clp->clip_low))
+        a_clp->result = (a_clp->clip_low);
     
-    return f_result;
+    return (a_clp->result);
 }
 
 #ifdef	__cplusplus
