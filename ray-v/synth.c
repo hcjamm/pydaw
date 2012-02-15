@@ -739,19 +739,31 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         v_osc_set_unison_pitch(d->p_voice->osc_unison2, vals->master_uni_spread, 
                 (d->p_voice->glide_smoother1->last_value) + (d->p_voice->pitch_env->output_multiplied) 
                 + (vals->osc2pitch) + (vals->osc2tune) + (sv_pitch_bend_value));
-        
+
+#ifdef LMS_DEBUG_MODE
+        if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))
+                printf("Before oscillators, d->p_voice->current_sample == %f\n", (d->p_voice->current_sample));
+#endif        
         
         /*Run any oscillators, etc...*/
         d->p_voice->current_sample += f_osc_run_unison_osc(d->p_voice->osc_unison1) * (d->osc1_linamp);
-        d->p_voice->current_sample += f_osc_run_unison_osc(d->p_voice->osc_unison2) * (d->osc2_linamp);
-        
-        d->p_voice->current_sample += (f_run_white_noise(d->p_voice->white_noise1) * (d->noise_linamp)); //white noise
-        
 #ifdef LMS_DEBUG_MODE
-        if(is_debug_printing == 1)
-                printf("After oscillators, d->p_voice->current_sample == %f\n", (d->p_voice->current_sample));
+        if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))
+                printf("After osc1, d->p_voice->current_sample == %f\n", (d->p_voice->current_sample));
 #endif        
         
+        d->p_voice->current_sample += f_osc_run_unison_osc(d->p_voice->osc_unison2) * (d->osc2_linamp);
+#ifdef LMS_DEBUG_MODE
+        if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))
+                printf("After osc2, d->p_voice->current_sample == %f\n", (d->p_voice->current_sample));
+#endif        
+        
+        d->p_voice->current_sample += (f_run_white_noise(d->p_voice->white_noise1) * (d->noise_linamp)); //white noise
+
+#ifdef LMS_DEBUG_MODE
+        if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))
+                printf("After white noise, d->p_voice->current_sample == %f\n", (d->p_voice->current_sample));
+#endif                
         /*Run any processing of the initial result(s)*/      
         
         v_adsr_run(d->p_voice->adsr_amp);        
@@ -774,10 +786,10 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         //calculate the cutoff
         v_svf_set_cutoff(d->p_voice->svf_filter);
                         
-        v_svf_set_input_value(d->p_voice->svf_filter, d->p_voice->current_sample); //run it through the filter
+        v_svf_set_input_value(d->p_voice->svf_filter, (d->p_voice->current_sample)); //run it through the filter
                 
-        d->p_voice->current_sample = f_axf_run_xfade(d->p_voice->dist_dry_wet, (d->p_voice->svf_filter->lp), 
-                f_clp_clip(d->p_voice->clipper1, d->p_voice->svf_filter->lp)); //run the lowpass filter output through a hard-clipper, mixed by the dry/wet knob
+        d->p_voice->current_sample = f_axf_run_xfade((d->p_voice->dist_dry_wet), (d->p_voice->svf_filter->lp), 
+                f_clp_clip(d->p_voice->clipper1, (d->p_voice->svf_filter->lp))); //run the lowpass filter output through a hard-clipper, mixed by the dry/wet knob
                 
         /*Run the envelope and assign to the output buffer*/
         out[f_i] += (d->p_voice->current_sample) * (d->p_voice->adsr_amp->output) * (d->amp) ; 
