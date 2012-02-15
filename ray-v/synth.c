@@ -700,12 +700,15 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 #ifdef LMS_DEBUG_MODE
         d->debug_counter = (d->debug_counter) + 1;
         
+        int is_debug_printing = 0;
+        
         if((d->debug_counter) >= debug_interval)
         {
             d->debug_counter = 0;
             dump_debug_voice_data(d);
             dump_debug_synth_vals(vals);
             dump_debug_t_poly_voice(d->p_voice);
+            is_debug_printing = 1;
         }
 #endif
                 
@@ -716,10 +719,17 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         v_sml_run_glide(d->p_voice->glide_smoother1, (d->p_voice->target_pitch1) + 0);
         
-        //v_sml_run_glide(d->_voice->glide_smoother2, (d->_voice->target_pitch2) + 0);
-        
+#ifdef LMS_DEBUG_MODE
+        if(is_debug_printing == 1)
+                printf("d->p_voice->glide_smoother1->last_value == %f\n", (d->p_voice->glide_smoother1->last_value));
+#endif        
         
         f_rmp_run_ramp(d->p_voice->pitch_env, (vals->pitch_env_amt));
+
+#ifdef LMS_DEBUG_MODE
+        if(is_debug_printing == 1)
+                printf("d->p_voice->pitch_env->output_multiplied == %f\n", (d->p_voice->pitch_env->output_multiplied));
+#endif        
         
         v_osc_set_unison_pitch(d->p_voice->osc_unison1, vals->master_uni_spread,   
                 (d->p_voice->glide_smoother1->last_value) + (d->p_voice->pitch_env->output_multiplied) 
@@ -737,12 +747,26 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         d->p_voice->current_sample += (f_run_white_noise(d->p_voice->white_noise1) * (d->noise_linamp)); //white noise
         
+#ifdef LMS_DEBUG_MODE
+        if(is_debug_printing == 1)
+                printf("After oscillators, d->p_voice->current_sample == %f\n", (d->p_voice->current_sample));
+#endif        
         
         /*Run any processing of the initial result(s)*/      
         
         v_adsr_run(d->p_voice->adsr_amp);        
-        v_adsr_run(d->p_voice->adsr_filter);
         
+#ifdef LMS_DEBUG_MODE
+        if(is_debug_printing == 1)
+                printf("d->p_voice->adsr_amp->output == %f\n", (d->p_voice->adsr_amp->output));
+#endif        
+        
+        v_adsr_run(d->p_voice->adsr_filter);
+
+#ifdef LMS_DEBUG_MODE
+        if(is_debug_printing == 1)
+                printf("d->p_voice->adsr_filter->output == %f\n", (d->p_voice->adsr_filter->output));
+#endif        
         
         v_svf_set_cutoff_base(d->p_voice->svf_filter, vals->timbre);
         //Run v_svf_add_cutoff_mod once for every input source
