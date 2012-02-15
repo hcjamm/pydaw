@@ -65,17 +65,17 @@ inline void v_svf_set_cutoff(t_state_variable_filter * a_svf)
     if((a_svf->cutoff_note) == (a_svf->cutoff_last))
         return; 
     
-    a_svf->cutoff_last = a_svf->cutoff_note;
+    a_svf->cutoff_last = (a_svf->cutoff_note);
          
     a_svf->cutoff_mod = 0;
     
     a_svf->cutoff_hz = f_pit_midi_note_to_hz_fast((a_svf->cutoff_note)); //_svf->cutoff_smoother->last_value);
     
-    a_svf->cutoff_filter = a_svf->pi2_div_sr * a_svf->cutoff_hz * a_svf->oversample_div;
+    a_svf->cutoff_filter = (a_svf->pi2_div_sr) * (a_svf->cutoff_hz) * (a_svf->oversample_div);
 
     /*prevent the filter from exploding numerically, this does artificially cap the cutoff frequency to below what you set it to
      if you lower the oversampling rate of the filter.*/
-    if(a_svf->cutoff_filter > .8)
+    if((a_svf->cutoff_filter) > .8)
         a_svf->cutoff_filter = .8;  
 }
 
@@ -88,16 +88,22 @@ void v_svf_set_res(
     if((a_svf->filter_res_db) == a_db)
         return;
     
-    a_svf->filter_res_db = a_db;
+    
     
     if(a_db < -100)
-        a_db = -100;
+    {
+        a_svf->filter_res_db = -100;
+    }
     else if (a_db > -.5)
     {
-        a_db = -.5;
+        a_svf->filter_res_db = -.5;
+    }
+    else
+    {
+        a_svf->filter_res_db = a_db;
     }
 
-       a_svf->filter_res = (1 - f_db_to_linear_fast(a_db)) * 2;
+       a_svf->filter_res = (1 - (f_db_to_linear_fast(a_db))) * 2;
 }
 
 
@@ -173,10 +179,10 @@ inline void v_svf_set_input_value(t_state_variable_filter * a_svf, float a_input
 t_state_variable_filter * g_svf_get(float a_sample_rate, int a_oversample)
 {
     t_state_variable_filter * f_svf = (t_state_variable_filter*)malloc(sizeof(t_state_variable_filter));
-    f_svf->sr = a_sample_rate * ((float)a_oversample);
+    f_svf->sr = a_sample_rate * ((float)(a_oversample));
     f_svf->pi2_div_sr = (PI2 / (f_svf->sr));
     f_svf->oversample_mult = a_oversample;
-    f_svf->oversample_div = (1/((float)f_svf->oversample_mult)); 
+    f_svf->oversample_div = (1/((float)(f_svf->oversample_mult))); 
     f_svf->cutoff_smoother = g_sml_get_smoother_linear(a_sample_rate, 130, 30, 2);
     f_svf->bp = 0;
     f_svf->bp_m1 = 0;
@@ -189,13 +195,12 @@ t_state_variable_filter * g_svf_get(float a_sample_rate, int a_oversample)
     f_svf->filter_res = .25;
     f_svf->filter_res_db = -12;        
     f_svf->filter_input = 0;
-    f_svf->filter_last_input = 0;
-    f_svf->hp = 0;
-    f_svf->lp = 0;
-    f_svf->bp = 0;
+    f_svf->filter_last_input = 0;    
     f_svf->cutoff_base = 78; 
     f_svf->cutoff_mod = 0;
-    f_svf->cutoff_last = 78;
+    f_svf->cutoff_last = 81;
+    f_svf->filter_res_db = -21;
+    f_svf->filter_res = .5;
     
 #ifdef SVF_DEBUG_MODE    
         f_svf->samples_ran = 0;    
