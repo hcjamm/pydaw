@@ -12,6 +12,9 @@
 extern "C" {
 #endif
 
+/*This should be commented out if releasing a plugin, it will waste a lot of CPU printing debug information to the console that users shouldn't need.*/
+#define SVF_DEBUG_MODE
+
 #include "../../lib/pitch_core.h"
 #include "../../lib/amp.h"
 #include "../../lib/interpolate-linear.h"
@@ -25,7 +28,11 @@ typedef struct st_state_variable_filter
     float bp_m1, lp_m1, cutoff_note, cutoff_hz, cutoff_filter, pi2_div_sr, sr, oversample_div, filter_res, filter_res_db, filter_input, filter_last_input, hp, lp, bp;
     float cutoff_base, cutoff_mod, cutoff_last;  //New additions to fine-tune the modulation process
     int oversample_mult;
-
+    
+#ifdef SVF_DEBUG_MODE
+    int samples_ran;
+#endif
+    
 } t_state_variable_filter; 
 
 
@@ -63,11 +70,6 @@ inline void v_svf_set_cutoff(t_state_variable_filter * a_svf)
     a_svf->cutoff_mod = 0;
     
     a_svf->cutoff_hz = f_pit_midi_note_to_hz_fast((a_svf->cutoff_note)); //_svf->cutoff_smoother->last_value);
-    
-    /*if(a_svf->cutoff_hz > 24000)
-        a_svf->cutoff_hz = 24000;
-    else if(a_svf->cutoff_hz < 20)
-        a_svf->cutoff_hz = 20;*/
     
     a_svf->cutoff_filter = a_svf->pi2_div_sr * a_svf->cutoff_hz * a_svf->oversample_div;
 
@@ -123,6 +125,47 @@ inline void v_svf_set_input_value(t_state_variable_filter * a_svf, float a_input
         
         f_i++;
     }
+    
+#ifdef SVF_DEBUG_MODE
+    
+    
+    if(((a_svf->lp) > 1000) || ((a_svf->lp) < -1000)    
+    || ((a_svf->bp) > 1000) || ((a_svf->bp) < -1000)    
+    ||  ((a_svf->hp) > 1000) || ((a_svf->hp) < -1000))
+    {
+        //printf("hp > 1000, resetting to 0. samples run: %i\n\n", (a_svf->samples_ran));
+        //a_svf->hp = 0;
+        printf("sr == %f\n", a_svf->sr);
+        printf("pi2_div_sr == %f\n", a_svf->pi2_div_sr);
+        printf("oversample_mult == %i\n", a_svf->oversample_mult);
+        printf("oversample_div == %f\n\n", a_svf->oversample_div);
+        printf("cutoff_smoother->last_value == %f\n", a_svf->cutoff_smoother->last_value);
+        printf("bp == %f\n", a_svf->bp);
+        printf("bp_m1 == %f\n", a_svf->bp_m1);
+        printf("hp == %f\n", a_svf->hp);
+        printf("lp == %f\n", a_svf->lp);
+        printf("lp_m1 == %f\n", a_svf->lp_m1);
+        printf("cutoff_note == %f\n", a_svf->cutoff_note);
+        printf("cutoff_hz == %f\n", a_svf->cutoff_hz);
+        printf("cutoff_filter == %f\n", a_svf->cutoff_filter);
+        printf("filter_res == %f\n", a_svf->filter_res);
+        printf("filter_res_db == %f\n", a_svf->filter_res_db);
+        printf("filter_input == %f\n", a_svf->filter_input);
+        printf("filter_last_input == %f\n", a_svf->filter_last_input);
+        printf("hp == %f\n", a_svf->hp);
+        printf("lp == %f\n", a_svf->lp);
+        printf("bp == %f\n", a_svf->bp);
+        printf("cutoff_base == %f\n", a_svf->cutoff_base);
+        printf("cutoff_mod == %f\n", a_svf->cutoff_mod);
+        printf("cutoff_last == %f\n", a_svf->cutoff_last);
+
+    }
+    
+    if((a_svf->samples_ran) == INT_MAX)
+        a_svf->samples_ran = 0;
+    else
+        a_svf->samples_ran++;    
+#endif
 }
 
 
@@ -153,6 +196,10 @@ t_state_variable_filter * g_svf_get(float a_sample_rate, int a_oversample)
     f_svf->cutoff_base = 78; 
     f_svf->cutoff_mod = 0;
     f_svf->cutoff_last = 78;
+    
+#ifdef SVF_DEBUG_MODE    
+        f_svf->samples_ran = 0;    
+#endif
     
     v_svf_set_cutoff_base(f_svf, 75);
     v_svf_add_cutoff_mod(f_svf, 0);
