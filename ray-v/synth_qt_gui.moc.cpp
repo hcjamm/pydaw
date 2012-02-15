@@ -1,8 +1,8 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'synth_qt_gui.h'
 **
-** Created: Sun Feb 5 10:12:19 2012
-**      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
+** Created: Mon Feb 13 19:08:54 2012
+**      by: The Qt Meta Object Compiler version 62 (Qt 4.7.4)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -10,8 +10,8 @@
 #include "synth_qt_gui.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'synth_qt_gui.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 63
-#error "This file was generated using the moc from 4.8.0. It"
+#elif Q_MOC_OUTPUT_REVISION != 62
+#error "This file was generated using the moc from 4.7.4. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -20,7 +20,7 @@ QT_BEGIN_MOC_NAMESPACE
 static const uint qt_meta_data_SynthGUI[] = {
 
  // content:
-       6,       // revision
+       5,       // revision
        0,       // classname
        0,    0, // classinfo
       65,   14, // methods
@@ -142,89 +142,9 @@ static const char qt_meta_stringdata_SynthGUI[] = {
     "oscRecv()\0"
 };
 
-void SynthGUI::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
-{
-    if (_c == QMetaObject::InvokeMetaMethod) {
-        Q_ASSERT(staticMetaObject.cast(_o));
-        SynthGUI *_t = static_cast<SynthGUI *>(_o);
-        switch (_id) {
-        case 0: _t->setAttack((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 1: _t->setDecay((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 2: _t->setSustain((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 3: _t->setRelease((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 4: _t->setTimbre((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 5: _t->setRes((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 6: _t->setDist((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 7: _t->setFilterAttack((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 8: _t->setFilterDecay((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 9: _t->setFilterSustain((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 10: _t->setFilterRelease((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 11: _t->setNoiseAmp((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 12: _t->setFilterEnvAmt((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 13: _t->setDistWet((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 14: _t->setOsc1Type((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 15: _t->setOsc1Pitch((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 16: _t->setOsc1Tune((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 17: _t->setOsc1Volume((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 18: _t->setOsc2Type((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 19: _t->setOsc2Pitch((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 20: _t->setOsc2Tune((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 21: _t->setOsc2Volume((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 22: _t->setMasterVolume((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 23: _t->setMasterUnisonVoices((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 24: _t->setMasterUnisonSpread((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 25: _t->setMasterGlide((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 26: _t->setMasterPitchbendAmt((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 27: _t->setPitchEnvTime((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 28: _t->setPitchEnvAmt((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 29: _t->setProgram((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 30: _t->aboutToQuit(); break;
-        case 31: _t->attackChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 32: _t->decayChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 33: _t->sustainChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 34: _t->releaseChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 35: _t->timbreChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 36: _t->resChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 37: _t->distChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 38: _t->filterAttackChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 39: _t->filterDecayChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 40: _t->filterSustainChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 41: _t->filterReleaseChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 42: _t->noiseAmpChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 43: _t->filterEnvAmtChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 44: _t->distWetChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 45: _t->osc1TypeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 46: _t->osc1PitchChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 47: _t->osc1TuneChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 48: _t->osc1VolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 49: _t->osc2TypeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 50: _t->osc2PitchChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 51: _t->osc2TuneChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 52: _t->osc2VolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 53: _t->masterVolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 54: _t->masterUnisonVoicesChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 55: _t->masterUnisonSpreadChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 56: _t->masterGlideChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 57: _t->masterPitchbendAmtChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 58: _t->pitchEnvTimeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 59: _t->pitchEnvAmtChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 60: _t->programChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 61: _t->programSaved(); break;
-        case 62: _t->test_press(); break;
-        case 63: _t->test_release(); break;
-        case 64: _t->oscRecv(); break;
-        default: ;
-        }
-    }
-}
-
-const QMetaObjectExtraData SynthGUI::staticMetaObjectExtraData = {
-    0,  qt_static_metacall 
-};
-
 const QMetaObject SynthGUI::staticMetaObject = {
     { &QFrame::staticMetaObject, qt_meta_stringdata_SynthGUI,
-      qt_meta_data_SynthGUI, &staticMetaObjectExtraData }
+      qt_meta_data_SynthGUI, 0 }
 };
 
 #ifdef Q_NO_DATA_RELOCATION
@@ -250,8 +170,74 @@ int SynthGUI::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 65)
-            qt_static_metacall(this, _c, _id, _a);
+        switch (_id) {
+        case 0: setAttack((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 1: setDecay((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 2: setSustain((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 3: setRelease((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 4: setTimbre((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 5: setRes((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 6: setDist((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 7: setFilterAttack((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 8: setFilterDecay((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 9: setFilterSustain((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 10: setFilterRelease((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 11: setNoiseAmp((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 12: setFilterEnvAmt((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 13: setDistWet((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 14: setOsc1Type((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 15: setOsc1Pitch((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 16: setOsc1Tune((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 17: setOsc1Volume((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 18: setOsc2Type((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 19: setOsc2Pitch((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 20: setOsc2Tune((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 21: setOsc2Volume((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 22: setMasterVolume((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 23: setMasterUnisonVoices((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 24: setMasterUnisonSpread((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 25: setMasterGlide((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 26: setMasterPitchbendAmt((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 27: setPitchEnvTime((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 28: setPitchEnvAmt((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 29: setProgram((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 30: aboutToQuit(); break;
+        case 31: attackChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 32: decayChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 33: sustainChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 34: releaseChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 35: timbreChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 36: resChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 37: distChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 38: filterAttackChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 39: filterDecayChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 40: filterSustainChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 41: filterReleaseChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 42: noiseAmpChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 43: filterEnvAmtChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 44: distWetChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 45: osc1TypeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 46: osc1PitchChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 47: osc1TuneChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 48: osc1VolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 49: osc2TypeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 50: osc2PitchChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 51: osc2TuneChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 52: osc2VolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 53: masterVolumeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 54: masterUnisonVoicesChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 55: masterUnisonSpreadChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 56: masterGlideChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 57: masterPitchbendAmtChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 58: pitchEnvTimeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 59: pitchEnvAmtChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 60: programChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 61: programSaved(); break;
+        case 62: test_press(); break;
+        case 63: test_release(); break;
+        case 64: oscRecv(); break;
+        default: ;
+        }
         _id -= 65;
     }
     return _id;
