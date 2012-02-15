@@ -15,6 +15,7 @@ extern "C" {
 #include "../../lib/osc_core.h"
 #include "../../constants.h"
 #include "../../lib/pitch_core.h"
+#include "../../lib/fast_sine.h"
 #include <math.h>
     
 
@@ -136,7 +137,8 @@ float f_get_saw(t_osc_core * a_core)
 
 float f_get_sine(t_osc_core * a_core)
 {
-    return sin((a_core->output) * PI2);
+    //return sin((a_core->output) * PI2);
+    return f_sine_fast_run((a_core->output));
 }
 
 float f_get_square(t_osc_core * a_core)

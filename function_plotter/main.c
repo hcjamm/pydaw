@@ -10,6 +10,7 @@
 #include "../libmodsynth/lib/amp.h"
 #include "../libmodsynth/lib/pitch_core.h"
 #include "adsr.h"
+#include <math.h>
 
 void print_help()
 {
@@ -128,12 +129,57 @@ void test_pitch_plot()
     
 }
 
+void plot_sine()
+{
+    double freq = 55;
+    double fs = 44100;
+    double PI_2 = 6.283185307;
+    
+    double inc = (freq/fs) * PI_2;
+    
+    printf("//inc == %f \n\n", (float)inc);
+    
+    double i = 0;
+    int i2 = 0;
+    
+    int count = PI_2/inc;
+    
+    printf("#define arr_sine_count %i\n\n", count);
+    
+    printf("float arr_sine [arr_sine_count] = {\n");
+    
+    
+    while (i < PI_2)
+    {
+        if(i != 0)
+            printf(", ");
+
+        if(i2 >= 20)
+        {
+            printf("\n");
+            i2 = 0;
+        }
+        
+        i2++;
+    
+        float result = (float)(sin(i));
+        
+        printf("%f", result);
+        
+        i += inc;
+    }
+    
+    printf("};\n");
+}
+
 /*
  * 
  */
 int main(int argc, char** argv) {
 
-    test_pitch_plot();
+    //test_pitch_plot();
+    
+    plot_sine();
     
     //adsr_attack(2);
     
