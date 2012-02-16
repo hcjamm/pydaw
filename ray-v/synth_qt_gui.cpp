@@ -976,7 +976,9 @@ void SynthGUI::setBank(int val)
 
 void SynthGUI::setProgram(int val)
 {
+#ifdef LMS_DEBUG_MODE_QT
     cerr << "setProgram called with val: " << val << endl;
+#endif
     
     m_program->setCurrentIndex(val);
 }
@@ -1294,162 +1296,214 @@ void SynthGUI::programSaved()
     }
 }
 
-
+void SynthGUI::v_print_port_name_to_cerr(int a_port)
+{
+    switch (a_port) {
+    case LTS_PORT_ATTACK:
+	cerr << "LTS_PORT_ATTACK";
+	break;
+    case LTS_PORT_DECAY:
+	cerr << "LTS_PORT_DECAY";
+	break;
+    case LTS_PORT_SUSTAIN:
+	cerr << "LTS_PORT_SUSTAIN";
+	break;
+    case LTS_PORT_RELEASE:
+	cerr << "LTS_PORT_RELEASE";
+	break;
+    case LTS_PORT_TIMBRE:
+	cerr << "LTS_PORT_TIMBRE";
+	break;
+    case LTS_PORT_RES:
+	cerr << "LTS_PORT_RES";
+	break;        
+    case LTS_PORT_DIST:
+	cerr << "LTS_PORT_DIST";
+	break;
+    case LTS_PORT_FILTER_ATTACK:
+	cerr << "LTS_PORT_FILTER_ATTACK";
+	break;
+    case LTS_PORT_FILTER_DECAY:
+	cerr << "LTS_PORT_FILTER_DECAY";
+	break;
+    case LTS_PORT_FILTER_SUSTAIN:
+	cerr << "LTS_PORT_FILTER_SUSTAIN";
+	break;
+    case LTS_PORT_FILTER_RELEASE:
+	cerr << "LTS_PORT_FILTER_RELEASE";
+	break;
+    case LTS_PORT_NOISE_AMP:
+        cerr << "LTS_PORT_NOISE_AMP";
+        break;    
+    case LTS_PORT_DIST_WET:
+        cerr << "LTS_PORT_DIST_WET";
+        break;            
+    case LTS_PORT_FILTER_ENV_AMT:
+        cerr << "LTS_PORT_FILTER_ENV_AMT";
+        break;    
+    case LTS_PORT_OSC1_TYPE:
+        cerr << "LTS_PORT_OSC1_TYPE";
+        break;            
+    case LTS_PORT_OSC1_PITCH:
+        cerr << "LTS_PORT_OSC1_PITCH";
+        break;    
+    case LTS_PORT_OSC1_TUNE:
+        cerr << "LTS_PORT_OSC1_TUNE";
+        break;    
+    case LTS_PORT_OSC1_VOLUME:
+        cerr << "LTS_PORT_OSC1_VOLUME";
+        break;        
+    case LTS_PORT_OSC2_TYPE:
+        cerr << "LTS_PORT_OSC2_TYPE";
+        break;            
+    case LTS_PORT_OSC2_PITCH:
+        cerr << "LTS_PORT_OSC2_PITCH";
+        break;    
+    case LTS_PORT_OSC2_TUNE:
+        cerr << "LTS_PORT_OSC2_TUNE";
+        break;    
+    case LTS_PORT_OSC2_VOLUME:
+        cerr << "LTS_PORT_OSC2_VOLUME";
+        break;        
+    case LTS_PORT_MASTER_VOLUME:
+        cerr << "LTS_PORT_MASTER_VOLUME";
+        break;        
+    case LTS_PORT_MASTER_UNISON_VOICES:
+        cerr << "LTS_PORT_MASTER_UNISON_VOICES";
+        break;
+    case LTS_PORT_MASTER_UNISON_SPREAD:
+        cerr << "LTS_PORT_MASTER_UNISON_SPREAD";
+        break;
+    case LTS_PORT_MASTER_GLIDE:
+        cerr << "LTS_PORT_MASTER_GLIDE";
+        break;
+    case LTS_PORT_MASTER_PITCHBEND_AMT:
+        cerr << "LTS_PORT_MASTER_PITCHBEND_AMT";
+        break;
+    case LTS_PORT_PITCH_ENV_AMT:
+        cerr << "LTS_PORT_PITCH_ENV_AMT ";
+        break;
+    case LTS_PORT_PITCH_ENV_TIME:
+        cerr << "LTS_PORT_PITCH_ENV_TIME ";
+        break;        
+    default:
+	cerr << "Warning: received request to set nonexistent port " << a_port ;
+    }
+}
 
 void SynthGUI::v_set_control(int a_port, float a_value)
 {
+
+#ifdef LMS_DEBUG_MODE_QT    
+    cerr << "v_set_control called.  ";  
+    v_print_port_name_to_cerr(a_port);
+    cerr << "  value: " << a_value << endl;
+#endif
+    
     /*GUI Step 8:  Add the controls you created to the control handler*/
+    
     switch (a_port) {
     case LTS_PORT_ATTACK:
-	cerr << "gui setting attack to " << a_value << endl;
 	setAttack(a_value * .01);
 	break;
-
     case LTS_PORT_DECAY:
-	cerr << "gui setting decay to " << a_value << endl;
 	setDecay(a_value * .01);
 	break;
-
     case LTS_PORT_SUSTAIN:
-	cerr << "gui setting sustain to " << a_value << endl;
 	setSustain(a_value);
 	break;
-
     case LTS_PORT_RELEASE:
-	cerr << "gui setting release to " << a_value << endl;
 	setRelease(a_value * .01);
 	break;
-
     case LTS_PORT_TIMBRE:
-	cerr << "gui setting timbre to " << a_value << endl;
 	setTimbre(a_value);
 	break;
-
     case LTS_PORT_RES:
-	cerr << "gui setting res to " << a_value << endl;
 	setRes(a_value);
-	break;
-        
+	break;        
     case LTS_PORT_DIST:
-	cerr << "gui setting res to " << a_value << endl;
 	setDist(a_value);
 	break;
-
     case LTS_PORT_FILTER_ATTACK:
-	cerr << "gui setting attack to " << a_value << endl;
 	setFilterAttack(a_value * .01);
 	break;
-
     case LTS_PORT_FILTER_DECAY:
-	cerr << "gui setting decay to " << a_value << endl;
 	setFilterDecay(a_value * .01);
 	break;
-
     case LTS_PORT_FILTER_SUSTAIN:
-	cerr << "gui setting sustain to " << a_value << endl;
 	setFilterSustain(a_value * .01);
 	break;
-
     case LTS_PORT_FILTER_RELEASE:
-	cerr << "gui setting release to " << a_value << endl;
 	setFilterRelease(a_value * .01);
 	break;
-
     case LTS_PORT_NOISE_AMP:
-        cerr << "gui setting noise amp to " << a_value << endl;
         setNoiseAmp(a_value);
-        break;
-    
+        break;    
     case LTS_PORT_DIST_WET:
-        cerr << "gui setting dist wet to " << a_value << endl;
         setDistWet(a_value * .01);
-        break;
-            
+        break;            
     case LTS_PORT_FILTER_ENV_AMT:
-        cerr << "gui setting filter env amt to " << a_value << endl;
         setFilterEnvAmt(a_value);
-        break;
-    
+        break;    
     case LTS_PORT_OSC1_TYPE:
-        cerr << "gui setting osc1type to " << a_value << endl;
         setOsc1Type(a_value);
-        break;
-            
+        break;            
     case LTS_PORT_OSC1_PITCH:
-        cerr << "gui setting osc1pitch to " << a_value << endl;
         setOsc1Pitch(a_value);
-        break;
-    
+        break;    
     case LTS_PORT_OSC1_TUNE:
-        cerr << "gui setting osc1tune to " << a_value << endl;
         setOsc1Tune(a_value * .01);
-        break;
-    
+        break;    
     case LTS_PORT_OSC1_VOLUME:
-        cerr << "gui setting osc1vol amp to " << a_value << endl;
         setOsc1Volume(a_value);
-        break;
-        
+        break;        
     case LTS_PORT_OSC2_TYPE:
-        cerr << "gui setting osc2type to " << a_value << endl;
         setOsc2Type(a_value);
-        break;
-            
+        break;            
     case LTS_PORT_OSC2_PITCH:
-        cerr << "gui setting osc2pitch to " << a_value << endl;
         setOsc2Pitch(a_value);
-        break;
-    
+        break;    
     case LTS_PORT_OSC2_TUNE:
-        cerr << "gui setting osc2tune to " << a_value << endl;
         setOsc2Tune(a_value * .01);
-        break;
-    
+        break;    
     case LTS_PORT_OSC2_VOLUME:
-        cerr << "gui setting osc2vol amp to " << a_value << endl;
         setOsc2Volume(a_value);
-        break;
-        
+        break;        
     case LTS_PORT_MASTER_VOLUME:
-        cerr << "gui setting noise amp to " << a_value << endl;
         setMasterVolume(a_value);
-        break;
-    
+        break;    
     case LTS_PORT_MASTER_UNISON_VOICES:
-        cerr << "gui setting unison voices to " << a_value << endl;
         setMasterUnisonVoices(a_value);
         break;
-
     case LTS_PORT_MASTER_UNISON_SPREAD:
-        cerr << "gui setting unison spread to " << a_value << endl;
         setMasterUnisonSpread(a_value * .01);
         break;
-
     case LTS_PORT_MASTER_GLIDE:
-        cerr << "gui setting glide to " << a_value << endl;
         setMasterGlide(a_value * .01);
         break;
-
     case LTS_PORT_MASTER_PITCHBEND_AMT:
-        cerr << "gui setting pitchbend to " << a_value << endl;
         setMasterPitchbendAmt(a_value);
         break;
     case LTS_PORT_PITCH_ENV_AMT:
-        cerr << "gui setting pitch env amt to " << a_value << endl;
         setPitchEnvAmt(a_value);
         break;
     case LTS_PORT_PITCH_ENV_TIME:
-        cerr << "gui setting pitch env time to " << a_value << endl;
         setPitchEnvTime(a_value * .01);
-        break;        
-    default:
-	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
+        break;            
     }
 }
 
 void SynthGUI::v_control_changed(int a_port, int a_value)
 {
+    
+#ifdef LMS_DEBUG_MODE_QT    
+    cerr << "v_control_changed called.  ";  
+    v_print_port_name_to_cerr(a_port);
+    cerr << "  value: " << a_value << endl;
+#endif
+    
        /*GUI Step 9:  Add the controls you created to the control handler*/
+    
     switch (a_port) {
     case LTS_PORT_ATTACK:
 	attackChanged(a_value);
@@ -1763,6 +1817,10 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
     const int port = argv[0]->i;
     const float value = argv[1]->f;
 
+#ifdef LMS_DEBUG_MODE_QT
+    cerr << "control_handler called.  port:  " << port << " , value " << value << endl;
+#endif
+    
     gui->v_set_control(port, value);    
 
     return 0;
