@@ -39,15 +39,15 @@ t_white_noise * g_get_white_noise(float a_sample_rate)
     
     t_white_noise * f_result = (t_white_noise*)malloc(sizeof(t_white_noise));
     
-    f_result->array_count = a_sample_rate * 2;
+    f_result->array_count = a_sample_rate;
     
     f_result->read_head = 0;
     
     f_result->sample_array = (float*)malloc(sizeof(float) * a_sample_rate);
     
-    int f_i = 0;
+    uint f_i = 0;
     
-    int f_i_s_r = (int)(f_result->array_count);
+    uint f_i_s_r = (uint)a_sample_rate;
     
     while(f_i < f_i_s_r)
     {
