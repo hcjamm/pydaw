@@ -62,7 +62,7 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 
 
 //Comment this out when you compile a stable release version on the plugin, you don't want it printing debug output unless you're debugging
-#define LMS_DEBUG_MODE_QT
+//#define LMS_DEBUG_MODE_QT
 
 /*This is used for things like naming the preset file, etc...*/
 #define LMS_PLUGIN_NAME "ray-v"
