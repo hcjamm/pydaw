@@ -96,8 +96,6 @@ typedef struct {
     int     note;
     float   amp;
     float note_f;
-    //float osc_inc1[5];
-    //float osc_inc2;
     float osc1_linamp;
     float osc2_linamp;
     float noise_linamp;
@@ -391,9 +389,7 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
         break;
     case LMS_OSC2_VOLUME:
         plugin->osc2vol = data;
-        break;            
-        
-        
+        break;
     case LMS_MASTER_UNISON_VOICES:
         plugin->master_uni_voice = data;
         break;
@@ -406,7 +402,6 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
     case LMS_MASTER_PITCHBEND_AMT:
         plugin->master_pb_amt = data;
         break;
-        
     case LMS_PITCH_ENV_AMT:
         plugin->pitch_env_amt = data;
         break;
@@ -463,12 +458,12 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     LADSPA_Data *const output = plugin_data->output;
     synth_vals vals;
     voice_data *data = plugin_data->data;
-    unsigned long i;
-    unsigned long pos;
-    unsigned long count;
-    unsigned long event_pos;
-    unsigned long voice;
-
+    
+    int pos = 0;
+    int count = 0;
+    int event_pos = 0;
+    int voice = 0;
+    
     /*GUI Step 15:  Set the values from synth_vals in RunLTS*/
     vals.attack = *(plugin_data->attack);
     vals.decay = *(plugin_data->decay); 
@@ -512,7 +507,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
      event_count is the number of events,
      and sample_count is the block size          
      */
-    for (pos = 0, event_pos = 0; pos < sample_count; pos += STEP_SIZE) 
+    while (pos < sample_count) 
     {	        
         /**/
 	while (event_pos < event_count) // && pos >= events[event_pos].time.tick) 
@@ -657,10 +652,13 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
         /*TODO:  WTF does this mean?*/
 	count = (sample_count - pos) > STEP_SIZE ? STEP_SIZE :	sample_count - pos;
 	
-        /*I think this is just clearing the output buffer???*/
-        for (i=0; i<count; i++) 
+        /*Clear the output buffer*/
+        int f_buffer_clear = 0;
+        
+        while(f_buffer_clear<count) 
         {
-	    output[pos + i] = 0.0f;
+	    output[(pos + f_buffer_clear)] = 0.0f;
+            f_buffer_clear++;
 	}
         
 	for (voice = 0; voice < POLYPHONY; voice++) 
@@ -677,6 +675,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 	    }
 	}
         
+        pos += STEP_SIZE;
     /*TODO:  create a loop here that corresponds to mono effects not processed per-voice*/
         
     }
@@ -691,10 +690,10 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
     
     /*End LibModSynth additions*/    
     
-    unsigned int f_i;
-
+    int f_i = 0;
+    
     /*Process an audio block*/
-    for (f_i=0; f_i<count; f_i++) {
+    while(f_i<count) {
 	
         /*Here is where we periodically dump debug information if debugging is enabled*/
 #ifdef LMS_DEBUG_MODE
@@ -794,7 +793,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         /*Run the envelope and assign to the output buffer*/
         out[f_i] += (d->p_voice->current_sample) * (d->p_voice->adsr_amp->output) * (d->amp) ; 
                 
-        
+        f_i++;
         /*End LibModSynth modifications*/
     }
 
