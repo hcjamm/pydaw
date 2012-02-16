@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 /*This should be commented out if releasing a plugin, it will waste a lot of CPU printing debug information to the console that users shouldn't need.*/
-#define SVF_DEBUG_MODE
+//#define SVF_DEBUG_MODE
 
 #include "../../lib/pitch_core.h"
 #include "../../lib/amp.h"

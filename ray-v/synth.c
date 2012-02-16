@@ -15,7 +15,7 @@ GNU General Public License for more details.
 */
 /*Comment this out when compiling a stable, production-ready plugin.  You shouldn't print debug output
 when it won't be read or needed, it can potentially interfere with audio processing.*/
-#define LMS_DEBUG_MODE
+//#define LMS_DEBUG_MODE
 
 /*Then you can print debug information like this:
 #ifdef LMS_DEBUG_MODE
