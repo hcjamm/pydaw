@@ -546,19 +546,10 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     data[voice].p_voice->target_pitch1 = (data[voice].note_f);
                     
-                    //data[voice]._voice->target_pitch2 = (data[voice].note_f);
-                    
                     data[voice].p_voice->real_pitch1 = sv_last_note;
-                    
-                    //data[voice]._voice->real_pitch2 = sv_last_note;
-                    
-                    
+                                        
                     v_sml_set_smoother_glide(data[voice].p_voice->glide_smoother1, (data[voice].p_voice->target_pitch1), (data[voice].p_voice->real_pitch1),
                             vals.master_glide);
-                    /*
-                    v_sml_set_smoother_glide(data[voice]._voice->glide_smoother2, (data[voice]._voice->target_pitch2), (data[voice]._voice->real_pitch2),
-                            vals.master_glide);
-                    */
                                         
                     /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
                     data[voice].osc1_linamp = f_db_to_linear_fast(vals.osc1vol);
@@ -856,8 +847,7 @@ int getControllerLTS(LADSPA_Handle instance, unsigned long port)
     case LMS_OSC2_VOLUME:
         return DSSI_CC(0x23);  //35            
     case LMS_MASTER_VOLUME:        
-        return DSSI_CC(0x24);  //36
-        
+        return DSSI_CC(0x24);  //36        
     case LMS_MASTER_UNISON_VOICES:        
         return DSSI_CC(0x25);  //37        
     case LMS_MASTER_UNISON_SPREAD:        
