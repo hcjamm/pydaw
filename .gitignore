@@ -26,3 +26,5 @@ jack-dssi-host/jack-dssi-host
 ray-v/LMS_qt
 *Makefile.in
 *install-sh
+*.tgz
+*.deb
