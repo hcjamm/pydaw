@@ -60,6 +60,7 @@ void v_init_lms(float f_sr)
 typedef struct st_mono_modules
 {
     t_smoother_iir * filter_smoother;
+    t_smoother_iir * pitchbend_smoother;
 }t_mono_modules;
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
@@ -171,13 +172,16 @@ void v_poly_note_off(t_poly_voice * a_voice) //, LTS * _instance)
     v_adsr_release(a_voice->adsr_filter);    
 }
 
-void v_mono_init(t_mono_modules*);
+t_mono_modules * v_mono_init();
 
 
 /*Initialize any modules that will be run monophonically*/
-void v_mono_init(t_mono_modules* a_mono)
+t_mono_modules * v_mono_init()
 {
+    t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
     a_mono->filter_smoother = g_smr_iir_get_smoother();
+    a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
+    return a_mono;
 }
 
 
