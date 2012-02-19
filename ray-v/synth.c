@@ -266,7 +266,7 @@ typedef struct {
     voice_data data[POLYPHONY];
     int note2voice[MIDI_NOTES];    
     float fs;    
-    //t_mono_modules * mono_modules;
+    t_mono_modules * mono_modules;
 } LTS;
 
 
@@ -443,7 +443,7 @@ static void activateLTS(LADSPA_Handle instance)
     }
     plugin_data->pitch = 1.0f;
     
-    //v_mono_init(plugin_data->mono_modules);  //initialize all monophonic modules
+    plugin_data->mono_modules = v_mono_init();  //initialize all monophonic modules
 }
 
 static void runLTSWrapper(LADSPA_Handle instance,
@@ -511,7 +511,9 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
      */
     while (pos < sample_count) 
     {	        
-                
+        v_smr_iir_run(plugin_data->mono_modules->filter_smoother, vals.timbre);
+        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, sv_pitch_bend_value);
+        
 	while (event_pos < event_count)
         {
 #ifdef LMS_DEBUG_MODE
@@ -677,11 +679,6 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 
 static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out, unsigned int count)
 {   
-    /*Put anything here that is not internally smoothed and only needs to be checked once per block, per voice*/
-    
-    
-    
-    /*End LibModSynth additions*/    
     
     int f_i = 0;
     
@@ -725,12 +722,12 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         v_osc_set_unison_pitch(d->p_voice->osc_unison1, vals->master_uni_spread,   
                 (d->p_voice->glide_smoother1->last_value) + (d->p_voice->pitch_env->output_multiplied) 
-                + (vals->osc1pitch) + (vals->osc1tune) + (sv_pitch_bend_value));
+                + (vals->osc1pitch) + (vals->osc1tune) + (p->mono_modules->pitchbend_smoother->output));
 
         
         v_osc_set_unison_pitch(d->p_voice->osc_unison2, vals->master_uni_spread, 
                 (d->p_voice->glide_smoother1->last_value) + (d->p_voice->pitch_env->output_multiplied) 
-                + (vals->osc2pitch) + (vals->osc2tune) + (sv_pitch_bend_value));
+                + (vals->osc2pitch) + (vals->osc2tune) +  + (p->mono_modules->pitchbend_smoother->output));
 
 #ifdef LMS_DEBUG_MODE
         if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))
@@ -772,7 +769,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
                 printf("d->p_voice->adsr_filter->output == %f\n", (d->p_voice->adsr_filter->output));
 #endif        
         
-        v_svf_set_cutoff_base(d->p_voice->svf_filter, vals->timbre);
+        v_svf_set_cutoff_base(d->p_voice->svf_filter,  (p->mono_modules->filter_smoother->output));//vals->timbre);
         //Run v_svf_add_cutoff_mod once for every input source
         v_svf_add_cutoff_mod(d->p_voice->svf_filter, ((d->p_voice->adsr_filter->output) * (vals->filter_env_amt)));        
         //calculate the cutoff
