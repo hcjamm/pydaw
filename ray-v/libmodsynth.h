@@ -137,7 +137,7 @@ t_poly_voice * g_poly_init()
     
         
     f_voice->svf_filter = g_svf_get(va_sample_rate);
-    f_voice->svf_function = svf_get_run_filter_ptr(2, SVF_FILTER_TYPE_LP);
+    f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
         
     f_voice->clipper1 = g_clp_get_clipper();    
     f_voice->dist_dry_wet = g_axf_get_audio_xfade(-3);
