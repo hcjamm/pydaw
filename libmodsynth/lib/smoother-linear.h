@@ -10,12 +10,19 @@
 
 #include "math.h"
 
+/*Comment this out when compiling for a release, as it will waste a lot of CPU*/
+#define SML_DEBUG_MODE
+
 typedef struct st_smoother_linear
 {
     float rate;
     float last_value;
     float sample_rate;
     float sr_recip;
+    
+#ifdef SML_DEBUG_MODE
+    int debug_counter;
+#endif
 }t_smoother_linear;
 
 t_smoother_linear * g_sml_get_smoother_linear(float, float, float, float);
@@ -37,6 +44,11 @@ t_smoother_linear * g_sml_get_smoother_linear(float a_sample_rate, float a_high,
     f_result->sample_rate = a_sample_rate;
     f_result->sr_recip = 1/a_sample_rate;
     
+    
+#ifdef SML_DEBUG_MODE
+    f_result->debug_counter = 0;
+#endif
+    
     return f_result;
 }
 
@@ -56,13 +68,16 @@ inline void v_sml_set_smoother_glide(t_smoother_linear * a_sml_ptr, float a_targ
         a_sml_ptr->rate = (((a_target - a_current ) * a_time_in_seconds) * (a_sml_ptr->sr_recip));
         a_sml_ptr->last_value = a_current;
     }
-    /*
-    printf("\n\nGlide: \n");
+    
+    
+#ifdef SML_DEBUG_MODE
+    a_sml_ptr->debug_counter = 0;
+    printf("\n\nGlide Set: \n");
     printf("Last Value  %f\n", (a_sml_ptr->last_value));
     printf("Target  %f\n",a_target);
     printf("Rate  %f\n",a_sml_ptr->rate);
     printf("Time in seconds %f\n\n",a_time_in_seconds);
-    */
+#endif        
 }
 
 inline void v_sml_run(t_smoother_linear * a_smoother, float a_current_value)
@@ -106,23 +121,23 @@ inline void v_sml_run_glide(t_smoother_linear * a_smoother, float a_target_value
         //Do nothing
     } 
     /*This does waste CPU while knobs are being moved, but it will effectively kill the knobs processing
-     once it does reach it's destination value*/
-    //else if(fabs(a_target_value - (a_smoother->last_value)) <= fabs(a_smoother->rate))
+     once it does reach it's destination value*/    
     else if((((a_smoother->rate) > 0) && a_target_value - (a_smoother->last_value) <= (a_smoother->rate))
             || (((a_smoother->rate) < 0) && (a_smoother->last_value) - a_target_value <= (a_smoother->rate)))
     {
         a_smoother->last_value = a_target_value;
         
+#ifdef SML_DEBUG_MODE
+        printf("\n\nGlide complete in %i\n", (a_smoother->debug_counter));
+#endif
     }
-    /*Doing the actual work*/
-    /*else if(a_target_value > (a_smoother->last_value))
-    {
-        a_smoother->last_value = (a_smoother->last_value) + (a_smoother->rate);
-    }*/
     /*Doing the actual work*/
     else
     {
         a_smoother->last_value = (a_smoother->last_value) + (a_smoother->rate);
+#ifdef SML_DEBUG_MODE
+        a_smoother->debug_counter = (a_smoother->debug_counter) + 1;
+#endif
     }
 }
 
