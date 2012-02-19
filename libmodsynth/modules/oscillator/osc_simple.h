@@ -37,14 +37,12 @@ typedef struct st_osc_simple_unison
     float bottom_pitch;
     float pitch_inc;
     float voice_inc [OSC_UNISON_MAX_VOICES];
-    t_osc_core * osc_cores [OSC_UNISON_MAX_VOICES];
-    
-    float phases [OSC_UNISON_MAX_VOICES];  //Restart the oscillators at the same phase on each note-on
-    
-    float uni_spread;
-                
+    t_osc_core * osc_cores [OSC_UNISON_MAX_VOICES];    
+    float phases [OSC_UNISON_MAX_VOICES];  //Restart the oscillators at the same phase on each note-on    
+    float uni_spread;                
     float adjusted_amp;  //Set this with unison voices to prevent excessive volume     
-    
+    int i_run_unison;  //iterator for running the unison oscillator
+    float current_sample;  //current output sample for the entire oscillator
 }t_osc_simple_unison;
 
 
@@ -101,7 +99,7 @@ void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, flo
 
         while(i < (a_osc_ptr->voice_count))
         {
-            a_osc_ptr->voice_inc[i] =  f_pit_midi_note_to_hz_fast(a_pitch + (a_osc_ptr->bottom_pitch) + (a_osc_ptr->pitch_inc * ((float)i))) * a_osc_ptr->sr_recip;
+            a_osc_ptr->voice_inc[i] =  f_pit_midi_note_to_hz_fast((a_pitch + (a_osc_ptr->bottom_pitch) + (a_osc_ptr->pitch_inc * ((float)i)))) * (a_osc_ptr->sr_recip);
             i++;
         }
     }
@@ -114,17 +112,17 @@ void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, flo
 //Return one sample of the oscillator running.
 float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
 {
-    int f_i = 0;
-    float f_result = 0;
+    a_osc_ptr->i_run_unison = 0;
+    a_osc_ptr->current_sample = 0;
         
-    while(f_i < (a_osc_ptr->voice_count))
+    while((a_osc_ptr->i_run_unison) < (a_osc_ptr->voice_count))
     {
-        v_run_osc((a_osc_ptr->osc_cores[f_i]), (a_osc_ptr->voice_inc[f_i]));
-        f_result += a_osc_ptr->osc_type((a_osc_ptr->osc_cores[f_i]));
-        f_i++;
+        v_run_osc((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]), (a_osc_ptr->voice_inc[(a_osc_ptr->i_run_unison)]));
+        a_osc_ptr->current_sample = (a_osc_ptr->current_sample) + a_osc_ptr->osc_type((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]));
+        a_osc_ptr->i_run_unison = (a_osc_ptr->i_run_unison) + 1;
     }
     
-    return f_result * (a_osc_ptr->adjusted_amp);
+    return (a_osc_ptr->current_sample) * (a_osc_ptr->adjusted_amp);
 }
 
 
@@ -238,7 +236,7 @@ t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
     
     while(f_i < (OSC_UNISON_MAX_VOICES))
     {
-        f_result->osc_cores[f_i] =  g_get_osc_core();   //(t_osc_core*)malloc(sizeof(t_osc_core));
+        f_result->osc_cores[f_i] =  g_get_osc_core(); 
         f_i++;
     }
         

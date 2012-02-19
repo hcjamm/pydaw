@@ -13,9 +13,9 @@ GNU General Public License for more details.
 
    
 */
-/*Comment this out when compiling a stable, production-ready plugin.  You shouldn't print debug output
-when it won't be read or needed, it can potentially interfere with audio processing.*/
-#define LMS_DEBUG_MODE
+/*Comment this out when compiling a stable, production-ready plugin.  
+ The debugging code wastes a lot of CPU, and end users don't really need to see it*/
+//#define LMS_DEBUG_MODE
 
 /*Then you can print debug information like this:
 #ifdef LMS_DEBUG_MODE
@@ -548,11 +548,11 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     data[voice].hz = f_pit_midi_note_to_hz(data[voice].note_f);
                     
                     
-                    data[voice].p_voice->target_pitch1 = (data[voice].note_f);
+                    data[voice].p_voice->target_pitch = (data[voice].note_f);
                     
-                    data[voice].p_voice->real_pitch1 = sv_last_note;
+                    //data[voice].p_voice->real_pitch = sv_last_note;
                                         
-                    v_sml_set_smoother_glide(data[voice].p_voice->glide_smoother1, (data[voice].p_voice->target_pitch1), (data[voice].p_voice->real_pitch1),
+                    v_sml_set_smoother_glide(data[voice].p_voice->glide_smoother, (data[voice].p_voice->target_pitch), sv_last_note,
                             vals.master_glide);
                                         
                     /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
@@ -706,13 +706,8 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         /*Run the glide module*/        
         
-        v_sml_run_glide(d->p_voice->glide_smoother1, (d->p_voice->target_pitch1) + 0);
-        
-#ifdef LMS_DEBUG_MODE
-        if(is_debug_printing == 1)
-                printf("d->p_voice->glide_smoother1->last_value == %f\n", (d->p_voice->glide_smoother1->last_value));
-#endif        
-        
+        v_sml_run_glide(d->p_voice->glide_smoother, (d->p_voice->target_pitch));
+       
         f_rmp_run_ramp(d->p_voice->pitch_env, (vals->pitch_env_amt));
 
 #ifdef LMS_DEBUG_MODE
@@ -721,13 +716,13 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 #endif        
         
         v_osc_set_unison_pitch(d->p_voice->osc_unison1, vals->master_uni_spread,   
-                (d->p_voice->glide_smoother1->last_value) + (d->p_voice->pitch_env->output_multiplied) 
-                + (vals->osc1pitch) + (vals->osc1tune) + (p->mono_modules->pitchbend_smoother->output));
+                ((d->p_voice->glide_smoother->last_value) + (d->p_voice->pitch_env->output_multiplied) 
+                + (vals->osc1pitch) + (vals->osc1tune) + (p->mono_modules->pitchbend_smoother->output)));
 
         
         v_osc_set_unison_pitch(d->p_voice->osc_unison2, vals->master_uni_spread, 
-                (d->p_voice->glide_smoother1->last_value) + (d->p_voice->pitch_env->output_multiplied) 
-                + (vals->osc2pitch) + (vals->osc2tune) +  + (p->mono_modules->pitchbend_smoother->output));
+                ((d->p_voice->glide_smoother->last_value) + (d->p_voice->pitch_env->output_multiplied) 
+                + (vals->osc2pitch) + (vals->osc2tune) +  + (p->mono_modules->pitchbend_smoother->output)));
 
 #ifdef LMS_DEBUG_MODE
         if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))

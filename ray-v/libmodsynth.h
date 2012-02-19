@@ -80,13 +80,13 @@ typedef struct st_poly_voice
     t_adsr * adsr_amp;       
     float noise_amp;
     
-    t_smoother_linear * glide_smoother1;
+    t_smoother_linear * glide_smoother;
     
     t_ramp_env * pitch_env;
     
-    float real_pitch1;
+    //float real_pitch;
     
-    float target_pitch1;
+    float target_pitch;
     
     float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
     
@@ -109,15 +109,15 @@ void dump_debug_t_poly_voice(t_poly_voice* a_data)
     printf("current_sample == %f \n", a_data->current_sample);
     printf("dist_dry_wet->in1_mult == %f \n", a_data->dist_dry_wet->in1_mult);
     printf("dist_dry_wet->in2_mult == %f \n", a_data->dist_dry_wet->in2_mult);
-    printf("glide_smoother1->last_value == %f \n", a_data->glide_smoother1->last_value);
-    printf("glide_smoother1->rate == %f \n", a_data->glide_smoother1->rate);
+    printf("glide_smoother1->last_value == %f \n", a_data->glide_smoother->last_value);
+    printf("glide_smoother1->rate == %f \n", a_data->glide_smoother->rate);
     printf("noise_amp == %f \n", a_data->noise_amp);    
     printf("osc_unison1->adjusted_amp == %f \n", a_data->osc_unison1->adjusted_amp);
     printf("osc_unison2->adjusted_amp == %f \n", a_data->osc_unison2->adjusted_amp);
     printf("pitch_env->output_multiplied == %f \n", a_data->pitch_env->output_multiplied);    
-    printf("a_data->real_pitch1 == %f \n", a_data->real_pitch1);
+    //printf("a_data->real_pitch1 == %f \n", a_data->real_pitch);
     printf("svf_filter->cutoff_filter == %f \n", a_data->svf_filter->cutoff_filter);    
-    printf("target_pitch1 == %f \n", a_data->target_pitch1);
+    printf("target_pitch1 == %f \n", a_data->target_pitch);
     printf("white_noise1->sample_array[a_data->white_noise1->read_head] == %f \n", a_data->white_noise1->sample_array[a_data->white_noise1->read_head]);
 }
 
@@ -149,13 +149,13 @@ t_poly_voice * g_poly_init()
     f_voice->white_noise1 = g_get_white_noise(va_sample_rate);    
     f_voice->noise_amp = 0;
         
-    f_voice->glide_smoother1 = g_sml_get_smoother_linear(va_sample_rate, 100, 20, .5);  //For osc1
+    f_voice->glide_smoother = g_sml_get_smoother_linear(va_sample_rate, 100, 20, .5);  //For osc1
     
     f_voice->pitch_env = g_rmp_get_ramp_env(va_sample_rate);
     
-    f_voice->real_pitch1 = 60.0f;
+    //f_voice->real_pitch = 60.0f;
     
-    f_voice->target_pitch1 = 66.0f;
+    f_voice->target_pitch = 66.0f;
     
     f_voice->current_sample = 0.0f;
     
