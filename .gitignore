@@ -28,3 +28,4 @@ ray-v/LMS_qt
 *install-sh
 *.tgz
 *.deb
+*.moc.cpp
