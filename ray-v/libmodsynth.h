@@ -32,6 +32,7 @@ extern "C" {
 #include "../libmodsynth/modules/modulation/adsr.h"
 #include "../libmodsynth/modules/signal_routing/audio_xfade.h"
 #include "../libmodsynth/modules/modulation/ramp_env.h"
+#include "../libmodsynth/lib/smoother-iir.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -56,7 +57,10 @@ void v_init_lms(float f_sr)
 /*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
  of an instrument, you will most likely want to define all of your modules here*/
 
-
+typedef struct st_mono_modules
+{
+    t_smoother_iir * filter_smoother;
+}t_mono_modules;
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
 typedef struct st_poly_voice
@@ -65,6 +69,7 @@ typedef struct st_poly_voice
     t_osc_simple_unison * osc_unison2;
     
     t_state_variable_filter * svf_filter;
+    fp_svf_run_filter svf_function;
     
     t_clipper * clipper1;
     t_audio_xfade * dist_dry_wet;
@@ -110,9 +115,6 @@ void dump_debug_t_poly_voice(t_poly_voice* a_data)
     printf("osc_unison2->adjusted_amp == %f \n", a_data->osc_unison2->adjusted_amp);
     printf("pitch_env->output_multiplied == %f \n", a_data->pitch_env->output_multiplied);    
     printf("a_data->real_pitch1 == %f \n", a_data->real_pitch1);
-    printf("svf_filter->lp == %f \n", a_data->svf_filter->lp);    
-    printf("svf_filter->bp == %f \n", a_data->svf_filter->bp);
-    printf("svf_filter->hp == %f \n", a_data->svf_filter->hp);
     printf("svf_filter->cutoff_filter == %f \n", a_data->svf_filter->cutoff_filter);    
     printf("target_pitch1 == %f \n", a_data->target_pitch1);
     printf("white_noise1->sample_array[a_data->white_noise1->read_head] == %f \n", a_data->white_noise1->sample_array[a_data->white_noise1->read_head]);
@@ -134,11 +136,9 @@ t_poly_voice * g_poly_init()
     f_voice->osc_unison2 = g_osc_get_osc_simple_unison(va_sample_rate);
     
         
-    f_voice->svf_filter = g_svf_get(va_sample_rate,4);
-    v_svf_set_res(f_voice->svf_filter, -3);
-    v_svf_set_cutoff_base(f_voice->svf_filter, 78);
-    v_svf_set_cutoff(f_voice->svf_filter);
-    
+    f_voice->svf_filter = g_svf_get(va_sample_rate);
+    f_voice->svf_function = svf_get_run_filter_ptr(2, SVF_FILTER_TYPE_LP);
+        
     f_voice->clipper1 = g_clp_get_clipper();    
     f_voice->dist_dry_wet = g_axf_get_audio_xfade(-3);
         
@@ -171,13 +171,13 @@ void v_poly_note_off(t_poly_voice * a_voice) //, LTS * _instance)
     v_adsr_release(a_voice->adsr_filter);    
 }
 
-void v_mono_init();
+void v_mono_init(t_mono_modules*);
 
 
 /*Initialize any modules that will be run monophonically*/
-void v_mono_init()
+void v_mono_init(t_mono_modules* a_mono)
 {
-    
+    a_mono->filter_smoother = g_smr_iir_get_smoother();
 }
 
 
