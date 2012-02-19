@@ -15,7 +15,7 @@ GNU General Public License for more details.
 */
 /*Comment this out when compiling a stable, production-ready plugin.  You shouldn't print debug output
 when it won't be read or needed, it can potentially interfere with audio processing.*/
-//#define LMS_DEBUG_MODE
+#define LMS_DEBUG_MODE
 
 /*Then you can print debug information like this:
 #ifdef LMS_DEBUG_MODE
@@ -266,6 +266,7 @@ typedef struct {
     voice_data data[POLYPHONY];
     int note2voice[MIDI_NOTES];    
     float fs;    
+    //t_mono_modules * mono_modules;
 } LTS;
 
 
@@ -420,8 +421,7 @@ static LADSPA_Handle instantiateLTS(const LADSPA_Descriptor * descriptor,
     plugin_data->fs = s_rate;
     
     /*LibModSynth additions*/
-    v_init_lms(s_rate);  //initialize any static variables
-    v_mono_init();  //initialize all monophonic modules
+    v_init_lms(s_rate);  //initialize any static variables    
     /*End LibModSynth additions*/
     
     return (LADSPA_Handle) plugin_data;
@@ -442,6 +442,8 @@ static void activateLTS(LADSPA_Handle instance)
 	plugin_data->note2voice[i] = 0;
     }
     plugin_data->pitch = 1.0f;
+    
+    //v_mono_init(plugin_data->mono_modules);  //initialize all monophonic modules
 }
 
 static void runLTSWrapper(LADSPA_Handle instance,
@@ -509,8 +511,8 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
      */
     while (pos < sample_count) 
     {	        
-        /**/
-	while (event_pos < event_count) // && pos >= events[event_pos].time.tick) 
+                
+	while (event_pos < event_count)
         {
 #ifdef LMS_DEBUG_MODE
             printf("Event firing\n");
@@ -668,7 +670,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
         
         pos += STEP_SIZE;
     /*TODO:  create a loop here that corresponds to mono effects not processed per-voice*/
-        
+                
     }
     
 }
@@ -775,12 +777,23 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         v_svf_add_cutoff_mod(d->p_voice->svf_filter, ((d->p_voice->adsr_filter->output) * (vals->filter_env_amt)));        
         //calculate the cutoff
         v_svf_set_cutoff(d->p_voice->svf_filter);
-                        
-        v_svf_set_input_value(d->p_voice->svf_filter, (d->p_voice->current_sample)); //run it through the filter
-                
-        d->p_voice->current_sample = f_axf_run_xfade((d->p_voice->dist_dry_wet), (d->p_voice->svf_filter->lp), 
-                f_clp_clip(d->p_voice->clipper1, (d->p_voice->svf_filter->lp))); //run the lowpass filter output through a hard-clipper, mixed by the dry/wet knob
-                
+        
+        d->p_voice->current_sample = d->p_voice->svf_function(d->p_voice->svf_filter, (d->p_voice->current_sample));
+        
+#ifdef LMS_DEBUG_MODE
+        if(is_debug_printing == 1)
+                printf("output after svf == %f\n", (d->p_voice->current_sample));
+#endif  
+        
+        /*Crossfade between the filter, and the filter run through the distortion unit*/
+        d->p_voice->current_sample = f_axf_run_xfade((d->p_voice->dist_dry_wet), (d->p_voice->current_sample), 
+                f_clp_clip(d->p_voice->clipper1, (d->p_voice->current_sample)));
+
+#ifdef LMS_DEBUG_MODE
+        if(is_debug_printing == 1)
+                printf("output after clipper == %f\n", (d->p_voice->current_sample));
+#endif  
+        
         /*Run the envelope and assign to the output buffer*/
         out[f_i] += (d->p_voice->current_sample) * (d->p_voice->adsr_amp->output) * (d->amp) ; 
                 
