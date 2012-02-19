@@ -11,7 +11,7 @@
 #include "math.h"
 
 /*Comment this out when compiling for a release, as it will waste a lot of CPU*/
-#define SML_DEBUG_MODE
+//#define SML_DEBUG_MODE
 
 typedef struct st_smoother_linear
 {
@@ -137,6 +137,12 @@ inline void v_sml_run_glide(t_smoother_linear * a_smoother, float a_target_value
         a_smoother->last_value = (a_smoother->last_value) + (a_smoother->rate);
 #ifdef SML_DEBUG_MODE
         a_smoother->debug_counter = (a_smoother->debug_counter) + 1;
+        
+        /*Every 2000 samples, print the current value*/
+        if(((a_smoother->debug_counter) % 2000) == 0)
+        {
+            printf("Last glide value == %f\n", (a_smoother->last_value));
+        }
 #endif
     }
 }
