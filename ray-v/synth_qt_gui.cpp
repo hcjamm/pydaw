@@ -1821,7 +1821,8 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
     cerr << "control_handler called.  port:  " << port << " , value " << value << endl;
 #endif
     
-    gui->v_set_control(port, value);    
+    gui->v_set_control(port, value);  
+    gui->v_control_changed(port, value);
 
     return 0;
 }
