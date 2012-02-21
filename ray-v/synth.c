@@ -968,16 +968,16 @@ void _init()
 	port_range_hints[LMS_ATTACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_ATTACK].LowerBound = 0.01f;
-	port_range_hints[LMS_ATTACK].UpperBound = 1.0f;
+	port_range_hints[LMS_ATTACK].LowerBound = 1; 
+	port_range_hints[LMS_ATTACK].UpperBound = 100; 
 
 	/* Parameters for decay */
 	port_descriptors[LMS_DECAY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_DECAY] = "Decay time (s)";
 	port_range_hints[LMS_DECAY].HintDescriptor =
 			port_range_hints[LMS_ATTACK].HintDescriptor;
-	port_range_hints[LMS_DECAY].LowerBound = 0.01f;
-	port_range_hints[LMS_DECAY].UpperBound = 1.0f;
+	port_range_hints[LMS_DECAY].LowerBound = 1; 
+	port_range_hints[LMS_DECAY].UpperBound = 100; 
 
 	/* Parameters for sustain */
 	port_descriptors[LMS_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -985,8 +985,8 @@ void _init()
 	port_range_hints[LMS_SUSTAIN].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_SUSTAIN].LowerBound = -60.0f;
-	port_range_hints[LMS_SUSTAIN].UpperBound = 0.0f;
+	port_range_hints[LMS_SUSTAIN].LowerBound = -60;
+	port_range_hints[LMS_SUSTAIN].UpperBound = 0;
 
 	/* Parameters for release */
 	port_descriptors[LMS_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -994,14 +994,14 @@ void _init()
 	port_range_hints[LMS_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_LOGARITHMIC |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_RELEASE].LowerBound = 0.01f;
-	port_range_hints[LMS_RELEASE].UpperBound = 4.0f;
+	port_range_hints[LMS_RELEASE].LowerBound = 1; 
+	port_range_hints[LMS_RELEASE].UpperBound = 400; 
 
 	/* Parameters for timbre */
 	port_descriptors[LMS_TIMBRE] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_TIMBRE] = "Timbre";
 	port_range_hints[LMS_TIMBRE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_TIMBRE].LowerBound =  20;
 	port_range_hints[LMS_TIMBRE].UpperBound =  124;
@@ -1034,16 +1034,16 @@ void _init()
 	port_range_hints[LMS_FILTER_ATTACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_ATTACK].LowerBound = 0.01f;
-	port_range_hints[LMS_FILTER_ATTACK].UpperBound = 1.0f;
+	port_range_hints[LMS_FILTER_ATTACK].LowerBound = 1; 
+	port_range_hints[LMS_FILTER_ATTACK].UpperBound = 100; 
 
 	/* Parameters for decay_f */
 	port_descriptors[LMS_FILTER_DECAY] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_FILTER_DECAY] = "Decay time (s) filter";
 	port_range_hints[LMS_FILTER_DECAY].HintDescriptor =
 			port_range_hints[LMS_ATTACK].HintDescriptor;
-	port_range_hints[LMS_FILTER_DECAY].LowerBound = 0.01f;
-	port_range_hints[LMS_FILTER_DECAY].UpperBound = 1.0f;
+	port_range_hints[LMS_FILTER_DECAY].LowerBound = 1;
+	port_range_hints[LMS_FILTER_DECAY].UpperBound = 100;
 
 	/* Parameters for sustain_f */
 	port_descriptors[LMS_FILTER_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1051,8 +1051,8 @@ void _init()
 	port_range_hints[LMS_FILTER_SUSTAIN].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_SUSTAIN].LowerBound = 0.01f;
-	port_range_hints[LMS_FILTER_SUSTAIN].UpperBound = 1.0f;
+	port_range_hints[LMS_FILTER_SUSTAIN].LowerBound = 0; 
+	port_range_hints[LMS_FILTER_SUSTAIN].UpperBound = 100; 
         
 	/* Parameters for release_f */
 	port_descriptors[LMS_FILTER_RELEASE] = port_descriptors[LMS_ATTACK];
@@ -1060,8 +1060,8 @@ void _init()
 	port_range_hints[LMS_FILTER_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW  |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_RELEASE].LowerBound = 0.01f;
-	port_range_hints[LMS_FILTER_RELEASE].UpperBound = 4.0f;
+	port_range_hints[LMS_FILTER_RELEASE].LowerBound = 1; 
+	port_range_hints[LMS_FILTER_RELEASE].UpperBound = 400; 
 
         
         /*Parameters for noise_amp*/        
@@ -1090,8 +1090,8 @@ void _init()
 	port_range_hints[LMS_DIST_WET].HintDescriptor =
 			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DIST_WET].LowerBound =  0.0f;
-	port_range_hints[LMS_DIST_WET].UpperBound =  1.0f;
+	port_range_hints[LMS_DIST_WET].LowerBound =  0; 
+	port_range_hints[LMS_DIST_WET].UpperBound =  100;
         
         
         /*Parameters for osc1type*/        
@@ -1101,7 +1101,7 @@ void _init()
 			//LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_OSC1_TYPE].LowerBound =  0;
-	port_range_hints[LMS_OSC1_TYPE].UpperBound =  4;
+	port_range_hints[LMS_OSC1_TYPE].UpperBound =  5;
         
         
         /*Parameters for osc1pitch*/        
@@ -1120,8 +1120,8 @@ void _init()
 	port_range_hints[LMS_OSC1_TUNE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_OSC1_TUNE].LowerBound =  -1.0f;
-	port_range_hints[LMS_OSC1_TUNE].UpperBound =  1.0f;
+	port_range_hints[LMS_OSC1_TUNE].LowerBound = -100;
+	port_range_hints[LMS_OSC1_TUNE].UpperBound =  100;
         
         
         /*Parameters for osc1vol*/        
@@ -1161,8 +1161,8 @@ void _init()
 	port_range_hints[LMS_OSC2_TUNE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_OSC2_TUNE].LowerBound =  -1.0f;
-	port_range_hints[LMS_OSC2_TUNE].UpperBound =  1.0f;
+	port_range_hints[LMS_OSC2_TUNE].LowerBound = -100;
+	port_range_hints[LMS_OSC2_TUNE].UpperBound = 100; 
         
         
         /*Parameters for osc2vol*/        
@@ -1202,18 +1202,18 @@ void _init()
 	port_range_hints[LMS_MASTER_UNISON_SPREAD].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_MASTER_UNISON_SPREAD].LowerBound =  0.0f;
-	port_range_hints[LMS_MASTER_UNISON_SPREAD].UpperBound =  1.0f;
+	port_range_hints[LMS_MASTER_UNISON_SPREAD].LowerBound =  0;
+	port_range_hints[LMS_MASTER_UNISON_SPREAD].UpperBound =  100;
         
         
         /*Parameters for master glide*/        
 	port_descriptors[LMS_MASTER_GLIDE] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_MASTER_GLIDE] = "Master Glide";
 	port_range_hints[LMS_MASTER_GLIDE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_MASTER_GLIDE].LowerBound =  0.0f;
-	port_range_hints[LMS_MASTER_GLIDE].UpperBound =  2.0f;
+	port_range_hints[LMS_MASTER_GLIDE].LowerBound =  0;
+	port_range_hints[LMS_MASTER_GLIDE].UpperBound =  200;
         
         
         /*Parameters for master pitchbend amt*/        
@@ -1245,8 +1245,8 @@ void _init()
 	port_range_hints[LMS_PITCH_ENV_TIME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_PITCH_ENV_TIME].LowerBound =  0.0f;
-	port_range_hints[LMS_PITCH_ENV_TIME].UpperBound =  2.0f;
+	port_range_hints[LMS_PITCH_ENV_TIME].LowerBound = 0; 
+	port_range_hints[LMS_PITCH_ENV_TIME].UpperBound = 200;
         
         
         
