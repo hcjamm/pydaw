@@ -123,6 +123,7 @@ void v_adsr_set_fast_release(t_adsr* a_adsr_ptr)
 {
     a_adsr_ptr->r_time = .05;
     a_adsr_ptr->r_inc = -.0005;
+    a_adsr_ptr->stage = 3;
 }
 
 void v_adsr_set_s_value(t_adsr* a_adsr_ptr, float a_value)
