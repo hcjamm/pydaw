@@ -888,7 +888,8 @@ int pick_voice(const voice_data *data, int a_current_note)
 #ifdef LMS_DEBUG_MODE            
             printf("pick_voice found current_note:  %i\n", f_i);
 #endif
-	    return f_i;
+            v_adsr_set_fast_release(data->p_voice->adsr_amp);
+	    //return f_i; 
 	}
     }
     

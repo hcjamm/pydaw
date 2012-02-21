@@ -48,6 +48,7 @@ void v_adsr_set_d_time(t_adsr*, float);
 void v_adsr_set_s_value(t_adsr*, float);
 void v_adsr_set_s_value_db(t_adsr*, float);
 void v_adsr_set_r_time(t_adsr*, float);
+void v_adsr_set_fast_release(t_adsr*);
 
 void v_adsr_set_adsr_db(t_adsr*, float, float, float, float);
 void v_adsr_set_adsr(t_adsr*, float, float, float, float);
@@ -113,6 +114,15 @@ void v_adsr_set_r_time(t_adsr* a_adsr_ptr, float a_time)
     
     //printf("Setting R time to %f\n", (a_adsr_ptr->r_time));
     
+}
+
+/*This method is for killing voices by allowing a quick fade-out instead of directly stealing a voice, which should 
+ allow a quick transition without a click
+ TODO:  The total time of the fadeout is not consistent between different sample rates.*/
+void v_adsr_set_fast_release(t_adsr* a_adsr_ptr)
+{
+    a_adsr_ptr->r_time = .05;
+    a_adsr_ptr->r_inc = -.0005;
 }
 
 void v_adsr_set_s_value(t_adsr* a_adsr_ptr, float a_value)
