@@ -790,7 +790,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 #endif  
         
         /*Run the envelope and assign to the output buffer*/
-        out[f_i] += (d->p_voice->current_sample) * (d->p_voice->adsr_amp->output) * (d->amp) ; 
+        out[f_i] += (d->p_voice->current_sample) * (f_linear_to_db_linear((d->p_voice->adsr_amp->output))) * (d->amp) ; 
                 
         f_i++;
         /*End LibModSynth modifications*/

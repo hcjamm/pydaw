@@ -25,6 +25,7 @@ extern "C" {
 inline float f_db_to_linear(float);
 inline float f_linear_to_db(float);    
 inline float f_db_to_linear_fast(float);
+inline float f_linear_to_db_linear(float);
 
 inline float f_db_to_linear(float a_db)
 {
@@ -604,6 +605,11 @@ inline float f_db_to_linear_fast(float a_db)
     return f_linear_interpolate_arr(arr_amp_db2a, a_db);
 }
 
+/*This takes a 0 to 1 signal and approximates it to a useful range with a logarithmic decibel curve*/
+inline float f_linear_to_db_linear(float a_input)
+{
+        return f_db_to_linear_fast(((a_input) * 30) - 30);
+}
 #ifdef	__cplusplus
 }
 #endif
