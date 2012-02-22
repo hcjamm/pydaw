@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include "../libmodsynth/lib/amp.h"
 #include "../libmodsynth/lib/pitch_core.h"
-#include "adsr.h"
+#include "../libmodsynth/modules/modulation/adsr.h"
 #include <math.h>
 
 void print_help()
@@ -172,14 +172,52 @@ void plot_sine()
     printf("};\n");
 }
 
+void plot_adsr_inc()
+{
+    t_adsr * f_adsr = g_adsr_get_adsr((1/44100));
+    
+    printf("#define arr_adsr_attack_count 99\n\n");
+    
+    printf("float arr_adsr_attack [arr_adsr_attack_count] = {\n");
+    
+    float i = 0.01;
+    
+    int i2 = 0;
+    
+    float inc = .01;
+    
+    while (i <= 1)
+    {
+        if(i != 0.01)
+            printf(", ");
+
+        if(i2 >= 20)
+        {
+            printf("\n");
+            i2 = 0;
+        }
+        
+        i2++;
+    
+        v_adsr_set_a_time(f_adsr, i);
+        
+        printf("%e", (f_adsr->a_inc));
+        
+        i += inc;
+    }
+    
+    printf("};\n");
+}
+
+
 /*
  * 
  */
 int main(int argc, char** argv) {
 
     //test_pitch_plot();
-    
-    plot_sine();
+    plot_adsr_inc();
+    //plot_sine();
     
     //adsr_attack(2);
     
