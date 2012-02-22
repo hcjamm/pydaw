@@ -773,7 +773,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         //calculate the cutoff
         v_svf_set_cutoff(d->p_voice->svf_filter);
         
-        d->p_voice->current_sample = d->p_voice->svf_function(d->p_voice->svf_filter, (d->p_voice->current_sample));
+        d->p_voice->filter_output = d->p_voice->svf_function(d->p_voice->svf_filter, (d->p_voice->current_sample));
         
 #ifdef LMS_DEBUG_MAIN_LOOP
         if(is_debug_printing == 1)
@@ -781,8 +781,8 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 #endif  
         
         /*Crossfade between the filter, and the filter run through the distortion unit*/
-        d->p_voice->current_sample = f_axf_run_xfade((d->p_voice->dist_dry_wet), (d->p_voice->current_sample), 
-                f_clp_clip(d->p_voice->clipper1, (d->p_voice->current_sample)));
+        d->p_voice->current_sample = f_axf_run_xfade((d->p_voice->dist_dry_wet), (d->p_voice->filter_output), 
+                f_clp_clip(d->p_voice->clipper1, (d->p_voice->filter_output)));
 
 #ifdef LMS_DEBUG_MAIN_LOOP
         if(is_debug_printing == 1)
