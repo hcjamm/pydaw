@@ -67,16 +67,14 @@ printf("debug information");
 #define LMS_OSC2_TUNE 21
 #define LMS_OSC2_VOLUME 22
 #define LMS_MASTER_VOLUME 23
-
 #define LMS_MASTER_UNISON_VOICES 24
 #define LMS_MASTER_UNISON_SPREAD 25
 #define LMS_MASTER_GLIDE 26
 #define LMS_MASTER_PITCHBEND_AMT 27
-
 #define LMS_PITCH_ENV_TIME 28
 #define LMS_PITCH_ENV_AMT 29
-
-#define LMS_COUNT 30 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_PROGRAM_CHANGE 30
+#define LMS_COUNT 31 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 
 #define POLYPHONY   8  //maximum voices played at one time
@@ -263,6 +261,8 @@ typedef struct {
     LADSPA_Data *pitch_env_amt;
     LADSPA_Data *pitch_env_time;
     
+    LADSPA_Data *program;
+    
     voice_data data[POLYPHONY];
     int note2voice[MIDI_NOTES];    
     float fs;    
@@ -409,7 +409,9 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
     case LMS_PITCH_ENV_TIME:
         plugin->pitch_env_time = data;
         break;
-        
+    case LMS_PROGRAM_CHANGE:
+        plugin->program = data;
+        break;
     }
 }
 
@@ -467,43 +469,43 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     int voice = 0;
     
     /*GUI Step 15:  Set the values from synth_vals in RunLTS*/
-    vals.attack = *(plugin_data->attack);
-    vals.decay = *(plugin_data->decay); 
+    vals.attack = *(plugin_data->attack) * .01;
+    vals.decay = *(plugin_data->decay) * .01; 
     vals.sustain = *(plugin_data->sustain);
-    vals.release = *(plugin_data->release);
+    vals.release = *(plugin_data->release) * .01;
     vals.timbre = *(plugin_data->timbre);
     
     vals.res = *(plugin_data->res);
     vals.dist = *(plugin_data->dist);
 
-    vals.attack_f = *(plugin_data->attack_f);
-    vals.decay_f = *(plugin_data->decay_f); 
-    vals.sustain_f = *(plugin_data->sustain_f);
-    vals.release_f = *(plugin_data->release_f);
+    vals.attack_f = *(plugin_data->attack_f) * .01;
+    vals.decay_f = *(plugin_data->decay_f) * .01; 
+    vals.sustain_f = *(plugin_data->sustain_f) * .01;
+    vals.release_f = *(plugin_data->release_f) * .01;
     
     vals.noise_amp = *(plugin_data->noise_amp);
     
-    vals.dist_wet = *(plugin_data->dist_wet);    
+    vals.dist_wet = *(plugin_data->dist_wet) * .01;    
     vals.filter_env_amt = *(plugin_data->filter_env_amt);
     vals.master_vol = *(plugin_data->master_vol);
     
     vals.osc1pitch = *(plugin_data->osc1pitch);
-    vals.osc1tune = *(plugin_data->osc1tune);
+    vals.osc1tune = *(plugin_data->osc1tune) * .01;
     vals.osc1type = *(plugin_data->osc1type);
     vals.osc1vol = *(plugin_data->osc1vol);
     
     vals.osc2pitch = *(plugin_data->osc2pitch);
-    vals.osc2tune = *(plugin_data->osc2tune);
+    vals.osc2tune = *(plugin_data->osc2tune) * .01;
     vals.osc2type = *(plugin_data->osc2type);
     vals.osc2vol = *(plugin_data->osc2vol);
     
     vals.master_uni_voice = *(plugin_data->master_uni_voice);
-    vals.master_uni_spread = *(plugin_data->master_uni_spread);
-    vals.master_glide = *(plugin_data->master_glide);
+    vals.master_uni_spread = *(plugin_data->master_uni_spread) * .01;
+    vals.master_glide = *(plugin_data->master_glide) * .01;
     vals.master_pb_amt = *(plugin_data->master_pb_amt);
     
     vals.pitch_env_amt = *(plugin_data->pitch_env_amt);
-    vals.pitch_env_time = *(plugin_data->pitch_env_time);
+    vals.pitch_env_time = *(plugin_data->pitch_env_time) * .01;
     
     /*Events is an array of snd_seq_event_t objects, 
      event_count is the number of events,
@@ -1251,6 +1253,14 @@ void _init()
         
         
         
+        /*Parameters for program change*/        
+	port_descriptors[LMS_PITCH_ENV_TIME] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_PITCH_ENV_TIME] = "Pitch Env Time";
+	port_range_hints[LMS_PITCH_ENV_TIME].HintDescriptor =
+			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_PITCH_ENV_TIME].LowerBound = 0; 
+	port_range_hints[LMS_PITCH_ENV_TIME].UpperBound = 128;  // > 127 loads the first preset
         
         /*Step 17:  Add LADSPA ports*/
         

@@ -97,14 +97,14 @@ using std::endl;
 #define LTS_PORT_OSC2_TUNE 21
 #define LTS_PORT_OSC2_VOLUME 22
 #define LTS_PORT_MASTER_VOLUME 23
-
 #define LTS_PORT_MASTER_UNISON_VOICES 24
 #define LTS_PORT_MASTER_UNISON_SPREAD 25
 #define LTS_PORT_MASTER_GLIDE 26
 #define LTS_PORT_MASTER_PITCHBEND_AMT 27
 #define LTS_PORT_PITCH_ENV_TIME 28
 #define LTS_PORT_PITCH_ENV_AMT 29
-#define LTS_PORT_MAX 30  //This corresponds to the highest number, you must update this when adding or removing controls
+#define LTS_PORT_PROGRAM_CHANGE 30  //This must be last
+//#define LTS_PORT_MAX 31  
 
 
 lo_server osc_server = 0;
@@ -255,7 +255,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_osc1_pitchLabel = newQLabel(this);
     add_widget(f_gb_osc1_layout, f_gb_layout_column, f_gb_layout_row, "Pitch", m_osc1_pitch, m_osc1_pitchLabel);
     connect(m_osc1_pitch, SIGNAL(valueChanged(int)), this, SLOT(osc1PitchChanged(int)));
-    //osc1PitchChanged(m_osc1_pitch->value());    
+    osc1PitchChanged(m_osc1_pitch->value());    
     
     /*v_add_knob_to_layout(m_osc1_pitch, minus12_to_12, 0, m_osc1_pitchLabel, f_gb_osc1_layout, QString("Pitch"), 
             f_gb_layout_column, f_gb_layout_row, SIGNAL(valueChanged(int)), SLOT(osc1PitchChanged(int)));*/
@@ -266,7 +266,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_osc1_tuneLabel = newQLabel(this);
     add_widget(f_gb_osc1_layout, f_gb_layout_column, f_gb_layout_row, "Tune", m_osc1_tune, m_osc1_tuneLabel);
     connect(m_osc1_tune, SIGNAL(valueChanged(int)), this, SLOT(osc1TuneChanged(int)));
-    //osc1TuneChanged(m_osc1_tune->value());
+    osc1TuneChanged(m_osc1_tune->value());
     
     f_gb_layout_column++;
     
@@ -274,14 +274,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_osc1_volumeLabel = newQLabel(this);
     add_widget(f_gb_osc1_layout, f_gb_layout_column, f_gb_layout_row, "Vol", m_osc1_volume, m_osc1_volumeLabel);
     connect(m_osc1_volume, SIGNAL(valueChanged(int)), this, SLOT(osc1VolumeChanged(int)));
-    //osc1VolumeChanged(m_osc1_volume->value());
+    osc1VolumeChanged(m_osc1_volume->value());
     
     f_gb_layout_column++;
     
     m_osc1_type = get_combobox(_osc_types, _osc_types_count , this);     
     add_widget_no_label(f_gb_osc1_layout, f_gb_layout_column, f_gb_layout_row, "Type", m_osc1_type);
     connect(m_osc1_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc1TypeChanged(int)));
-    //osc1TypeChanged(m_osc1_type->currentIndex());
+    osc1TypeChanged(m_osc1_type->currentIndex());
     
     layout_row1->addWidget(f_gb_osc1, -1, Qt::AlignLeft);
     f_gb_layout_row = 0;
@@ -298,7 +298,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_attackLabel = newQLabel(this);
     add_widget(f_gb_adsr_layout, f_gb_layout_column, f_gb_layout_row, "Attack",m_attack, m_attackLabel);
     connect(m_attack,   SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));
-    //attackChanged  (m_attack  ->value());
+    attackChanged  (m_attack->value());
     
     f_gb_layout_column++;
         
@@ -306,7 +306,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_decayLabel   = newQLabel(this);
     add_widget(f_gb_adsr_layout, f_gb_layout_column, f_gb_layout_row, "Decay",m_decay, m_decayLabel);
     connect(m_decay,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));
-    //decayChanged  (m_decay  ->value());
+    decayChanged  (m_decay->value());
     
     f_gb_layout_column++;
     
@@ -314,7 +314,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_sustainLabel = newQLabel(this);
     add_widget(f_gb_adsr_layout, f_gb_layout_column, f_gb_layout_row, "Sustain", m_sustain, m_sustainLabel);    
     connect(m_sustain, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));
-    //sustainChanged(m_sustain->value());
+    sustainChanged(m_sustain->value());
     
     f_gb_layout_column++;
     
@@ -322,7 +322,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_releaseLabel = newQLabel(this);
     add_widget(f_gb_adsr_layout, f_gb_layout_column, f_gb_layout_row, "Release", m_release, m_releaseLabel);
     connect(m_release, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));
-    //releaseChanged(m_release->value());
+    releaseChanged(m_release->value());
     
     layout_row1->addWidget(f_gb_adsr, -1, Qt::AlignLeft);
     f_column++;
@@ -339,14 +339,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_distLabel  = new QLabel(this);
     add_widget(f_gb_dist_layout, f_gb_layout_column, f_gb_layout_row, "Gain", m_dist, m_distLabel);
     connect(m_dist,  SIGNAL(valueChanged(int)), this, SLOT(distChanged(int)));
-    //distChanged (m_dist ->value());
+    distChanged (m_dist->value());
     
     f_gb_layout_column++;
     
     m_dist_wet  = get_knob(zero_to_one);    
     add_widget_no_label(f_gb_dist_layout, f_gb_layout_column, f_gb_layout_row, "Wet", m_dist_wet);
     connect(m_dist_wet,  SIGNAL(valueChanged(int)), this, SLOT(distWetChanged(int)));
-    //distWetChanged (m_dist_wet ->value());
+    distWetChanged (m_dist_wet->value());
     
     layout_row1->addWidget(f_gb_dist, -1, Qt::AlignLeft);
     //layout->addWidget(_gb_dist, _row, _column, Qt::AlignCenter);    
@@ -365,7 +365,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_noise_ampLabel  = new QLabel(this);
     add_widget(f_gb_noise_amp_layout, f_column, f_row, "Vol", m_noise_amp, m_noise_ampLabel);
     connect(m_noise_amp,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
-    //noiseAmpChanged (m_dist ->value());
+    noiseAmpChanged (m_dist ->value());
     
     layout_row1->addWidget(f_gb_noise_amp, -1, Qt::AlignLeft);
     
@@ -387,7 +387,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_osc2_pitchLabel = newQLabel(this);
     add_widget(f_gb_osc2_layout, f_gb_layout_column, f_gb_layout_row, "Pitch", m_osc2_pitch, m_osc2_pitchLabel);
     connect(m_osc2_pitch, SIGNAL(valueChanged(int)), this, SLOT(osc2PitchChanged(int)));
-    //osc2PitchChanged(m_osc2_pitch->value());
+    osc2PitchChanged(m_osc2_pitch->value());
             
     f_gb_layout_column++;
     
@@ -395,7 +395,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_osc2_tuneLabel = newQLabel(this);
     add_widget(f_gb_osc2_layout, f_gb_layout_column, f_gb_layout_row, "Tune", m_osc2_tune, m_osc2_tuneLabel);
     connect(m_osc2_tune, SIGNAL(valueChanged(int)), this, SLOT(osc2TuneChanged(int)));
-    //osc2TuneChanged(m_osc2_tune->value());
+    osc2TuneChanged(m_osc2_tune->value());
     
     f_gb_layout_column++;
     
@@ -403,14 +403,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_osc2_volumeLabel = newQLabel(this);
     add_widget(f_gb_osc2_layout, f_gb_layout_column, f_gb_layout_row, "Vol", m_osc2_volume, m_osc2_volumeLabel);
     connect(m_osc2_volume, SIGNAL(valueChanged(int)), this, SLOT(osc2VolumeChanged(int)));
-    //osc2VolumeChanged(m_osc2_volume->value());
+    osc2VolumeChanged(m_osc2_volume->value());
     
     f_gb_layout_column++;
     
     m_osc2_type = get_combobox(_osc_types, _osc_types_count , this);     
     add_widget_no_label(f_gb_osc2_layout, f_gb_layout_column, f_gb_layout_row, "Type", m_osc2_type);
     connect(m_osc2_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
-    //osc2TypeChanged(m_osc2_type->currentIndex());
+    osc2TypeChanged(m_osc2_type->currentIndex());
     
     layout_row2->addWidget(f_gb_osc2, -1, Qt::AlignLeft);
     f_gb_layout_row = 0;
@@ -762,14 +762,14 @@ QComboBox * SynthGUI::get_combobox(QString a_choices [], int a_count,  QWidget *
 void SynthGUI::setAttack(float sec)
 {
     m_suppressHostUpdate = true;
-    m_attack->setValue(int(sec * 100));
+    m_attack->setValue(int(sec));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setDecay(float sec)
 {
     m_suppressHostUpdate = true;
-    m_decay->setValue(int(sec * 100));
+    m_decay->setValue(int(sec));
     m_suppressHostUpdate = false;
 }
 
@@ -783,56 +783,56 @@ void SynthGUI::setSustain(float val)
 void SynthGUI::setRelease(float sec)
 {
     m_suppressHostUpdate = true;
-    m_release->setValue(int(sec * 100));
+    m_release->setValue(int(sec));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setTimbre(float val)
 {
     m_suppressHostUpdate = true;
-    m_timbre->setValue(int(val));  // * 100));
+    m_timbre->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setRes(float val)
 {
     m_suppressHostUpdate = true;
-    m_res->setValue(int(val));  // * 100));
+    m_res->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setDist(float val)
 {
     m_suppressHostUpdate = true;
-    m_dist->setValue(int(val));  // * 100));
+    m_dist->setValue(int(val)); 
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setFilterAttack (float sec)
 {    
     m_suppressHostUpdate = true;
-    m_filter_attack->setValue(int(sec * 100));
+    m_filter_attack->setValue(int(sec));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setFilterDecay  (float sec)
 {
     m_suppressHostUpdate = true;
-    m_filter_decay->setValue(int(sec * 100));
+    m_filter_decay->setValue(int(sec));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setFilterSustain(float val)
 {
     m_suppressHostUpdate = true;
-    m_filter_sustain->setValue(int(val * 100));
+    m_filter_sustain->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
 void SynthGUI::setFilterRelease(float sec)
 {
     m_suppressHostUpdate = true;
-    m_filter_release->setValue(int(sec * 100));
+    m_filter_release->setValue(int(sec));
     m_suppressHostUpdate = false;
 }
 
@@ -853,7 +853,7 @@ void SynthGUI::setFilterEnvAmt(float val)
 void SynthGUI::setDistWet(float val)
 {
     m_suppressHostUpdate = true;
-    m_dist_wet->setValue(int(val * 100));
+    m_dist_wet->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
@@ -874,7 +874,7 @@ void SynthGUI::setOsc1Pitch(float val)
 void SynthGUI::setOsc1Tune(float val)
 {
     m_suppressHostUpdate = true;
-    m_osc1_tune->setValue(int(val * 100));
+    m_osc1_tune->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
@@ -902,7 +902,7 @@ void SynthGUI::setOsc2Pitch(float val)
 void SynthGUI::setOsc2Tune(float val)
 {
     m_suppressHostUpdate = true;
-    m_osc2_tune->setValue(int(val * 100));
+    m_osc2_tune->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
@@ -932,14 +932,14 @@ void SynthGUI::setMasterUnisonVoices(float val)
 void SynthGUI::setMasterUnisonSpread(float val)
 {
     m_suppressHostUpdate = true;
-    m_master_unison_spread->setValue(int(val * 100));
+    m_master_unison_spread->setValue(int(val));
     m_suppressHostUpdate = false; 
 }
 
 void SynthGUI::setMasterGlide(float val)
 {
     m_suppressHostUpdate = true;
-    m_master_glide->setValue(int(val * 100));
+    m_master_glide->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
@@ -961,7 +961,7 @@ void SynthGUI::setPitchEnvAmt(float val)
 void SynthGUI::setPitchEnvTime(float val)
 {
     m_suppressHostUpdate = true;
-    m_pitch_env_time->setValue(int(val * 100));
+    m_pitch_env_time->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
@@ -979,8 +979,9 @@ void SynthGUI::setProgram(int val)
 #ifdef LMS_DEBUG_MODE_QT
     cerr << "setProgram called with val: " << val << endl;
 #endif
-    
+    m_suppressHostUpdate = true;
     m_program->setCurrentIndex(val);
+    m_suppressHostUpdate = false;
 }
 
 
@@ -993,7 +994,7 @@ void SynthGUI::changed_zero_to_x(int a_value, QLabel * a_label, int a_port)
     a_label->setText(QString("%1").arg(val));
     
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, val);     
+	lo_send(m_host, m_controlPath, "if", a_port, float(a_value));     
     }
 }
 
@@ -1013,7 +1014,7 @@ void SynthGUI::changed_seconds(int a_value, QLabel * a_label, int a_port)
     a_label->setText(QString("%1").arg(sec));
     
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, sec);
+	lo_send(m_host, m_controlPath, "if", a_port, float(a_value));
     }
 }
 
@@ -1023,7 +1024,7 @@ void SynthGUI::changed_pitch(int a_value, QLabel * a_label, int a_port)
      midi_note number.  We use this to display hz to the user*/
     
     float f_value = float(a_value);
-    float f_hz = f_pit_midi_note_to_hz(f_value);
+    float f_hz = f_pit_midi_note_to_hz_fast(f_value);
     
     a_label->setText(QString("%1 hz").arg((int)f_hz));
     
@@ -1124,7 +1125,7 @@ void SynthGUI::distWetChanged(int value)
 {
     //TODO:  make a "Changed no label" method
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_DIST_WET, (float(value) * .01));
+	lo_send(m_host, m_controlPath, "if", LTS_PORT_DIST_WET, (float(value)));
     }
 }
 
@@ -1220,22 +1221,25 @@ void SynthGUI::bankChanged(int value)
 }
 */
 
-
-/*programChanged(int value is ignored, it reads directly from m_program->currentIndex())*/
 void SynthGUI::programChanged(int value)
 {    
-    if(presets_tab_delimited[m_program->currentIndex()].compare("empty") != 0)
+    int f_adjusted_value = 0;
+    
+    if(value <= 127)
+        f_adjusted_value = value;
+    
+    if(presets_tab_delimited[f_adjusted_value].compare("empty") != 0)
     {
-        QStringList f_preset_values = presets_tab_delimited[m_program->currentIndex()].split("\t");
+        QStringList f_preset_values = presets_tab_delimited[f_adjusted_value].split("\t");
         //TODO:  change f_i back to zero when there is something at that index
-        for(int f_i = 1; f_i < LTS_PORT_MAX; f_i++)
+        for(int f_i = 1; f_i < LTS_PORT_PROGRAM_CHANGE; f_i++)
         {
             if(f_i > f_preset_values.count())
             {
                 cerr << "programChanged:  f_i is greater than f_preset_values.count(), preset not fully loaded.\n";
                 break;
             }
-            
+            /*TODO:  Some error handling here to prevent index-out-of-bounds exceptions from crashing the GUI*/
             int f_preset_value_int = f_preset_values.at(f_i).toInt();
             
             v_set_control(f_i, f_preset_value_int);
@@ -1266,7 +1270,7 @@ void SynthGUI::programSaved()
         QString f_result = m_program->currentText();                
         
         //TODO:  change f_i back to zero when there is something at that index
-        for(int f_i = 1; f_i < LTS_PORT_MAX; f_i++)
+        for(int f_i = 1; f_i < LTS_PORT_PROGRAM_CHANGE; f_i++)
         {
             QString * f_number = new QString();
             f_number->setNum(i_get_control(f_i));
@@ -1386,6 +1390,9 @@ void SynthGUI::v_print_port_name_to_cerr(int a_port)
     case LTS_PORT_PITCH_ENV_TIME:
         cerr << "LTS_PORT_PITCH_ENV_TIME ";
         break;        
+    case LTS_PORT_PROGRAM_CHANGE:
+        cerr << "LTS_PORT_PROGRAM_CHANGE ";
+        break;
     default:
 	cerr << "Warning: received request to set nonexistent port " << a_port ;
     }
@@ -1404,16 +1411,16 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     
     switch (a_port) {
     case LTS_PORT_ATTACK:
-	setAttack(a_value * .01);
+	setAttack(a_value);
 	break;
     case LTS_PORT_DECAY:
-	setDecay(a_value * .01);
+	setDecay(a_value);
 	break;
     case LTS_PORT_SUSTAIN:
 	setSustain(a_value);
 	break;
     case LTS_PORT_RELEASE:
-	setRelease(a_value * .01);
+	setRelease(a_value);
 	break;
     case LTS_PORT_TIMBRE:
 	setTimbre(a_value);
@@ -1425,22 +1432,22 @@ void SynthGUI::v_set_control(int a_port, float a_value)
 	setDist(a_value);
 	break;
     case LTS_PORT_FILTER_ATTACK:
-	setFilterAttack(a_value * .01);
+	setFilterAttack(a_value);
 	break;
     case LTS_PORT_FILTER_DECAY:
-	setFilterDecay(a_value * .01);
+	setFilterDecay(a_value);
 	break;
     case LTS_PORT_FILTER_SUSTAIN:
-	setFilterSustain(a_value * .01);
+	setFilterSustain(a_value);
 	break;
     case LTS_PORT_FILTER_RELEASE:
-	setFilterRelease(a_value * .01);
+	setFilterRelease(a_value);
 	break;
     case LTS_PORT_NOISE_AMP:
         setNoiseAmp(a_value);
         break;    
     case LTS_PORT_DIST_WET:
-        setDistWet(a_value * .01);
+        setDistWet(a_value);
         break;            
     case LTS_PORT_FILTER_ENV_AMT:
         setFilterEnvAmt(a_value);
@@ -1452,7 +1459,7 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         setOsc1Pitch(a_value);
         break;    
     case LTS_PORT_OSC1_TUNE:
-        setOsc1Tune(a_value * .01);
+        setOsc1Tune(a_value);
         break;    
     case LTS_PORT_OSC1_VOLUME:
         setOsc1Volume(a_value);
@@ -1464,7 +1471,7 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         setOsc2Pitch(a_value);
         break;    
     case LTS_PORT_OSC2_TUNE:
-        setOsc2Tune(a_value * .01);
+        setOsc2Tune(a_value);
         break;    
     case LTS_PORT_OSC2_VOLUME:
         setOsc2Volume(a_value);
@@ -1476,10 +1483,10 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         setMasterUnisonVoices(a_value);
         break;
     case LTS_PORT_MASTER_UNISON_SPREAD:
-        setMasterUnisonSpread(a_value * .01);
+        setMasterUnisonSpread(a_value);
         break;
     case LTS_PORT_MASTER_GLIDE:
-        setMasterGlide(a_value * .01);
+        setMasterGlide(a_value);
         break;
     case LTS_PORT_MASTER_PITCHBEND_AMT:
         setMasterPitchbendAmt(a_value);
@@ -1488,8 +1495,11 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         setPitchEnvAmt(a_value);
         break;
     case LTS_PORT_PITCH_ENV_TIME:
-        setPitchEnvTime(a_value * .01);
+        setPitchEnvTime(a_value);
         break;            
+    case LTS_PORT_PROGRAM_CHANGE:
+        setProgram(a_value);
+        break;
     }
 }
 
@@ -1591,7 +1601,10 @@ void SynthGUI::v_control_changed(int a_port, int a_value)
         break;
     case LTS_PORT_PITCH_ENV_TIME:
         pitchEnvTimeChanged(a_value);
-            break;
+        break;
+    case LTS_PORT_PROGRAM_CHANGE:
+        programChanged(a_value);
+        break;
     default:
 	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
     }
@@ -1663,6 +1676,8 @@ int SynthGUI::i_get_control(int a_port)
         return m_pitch_env_amt->value();
     case LTS_PORT_PITCH_ENV_TIME:
         return m_pitch_env_time->value();
+    case LTS_PORT_PROGRAM_CHANGE:
+        return m_program->currentIndex();
     default:
 	cerr << "Warning: received request to get nonexistent port " << a_port << endl;
     }
