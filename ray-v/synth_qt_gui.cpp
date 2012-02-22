@@ -1225,8 +1225,14 @@ void SynthGUI::programChanged(int value)
 {    
     int f_adjusted_value = 0;
     
+    cerr << "programChanged called with value " << value << endl;
+    
     if(value <= 127)
         f_adjusted_value = value;
+    else
+    {
+        programChanged(1);  //change it to program 1 first, then back to zero
+    }
     
     if(presets_tab_delimited[f_adjusted_value].compare("empty") != 0)
     {
