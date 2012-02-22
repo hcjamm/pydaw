@@ -92,7 +92,7 @@ typedef struct st_poly_voice
     
 }t_poly_voice;
 
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
 
 void dump_debug_t_poly_voice(t_poly_voice*);
 

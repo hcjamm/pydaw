@@ -13,9 +13,10 @@ GNU General Public License for more details.
 
    
 */
-/*Comment this out when compiling a stable, production-ready plugin.  
+/*Comment these out when compiling a stable, production-ready plugin.  
  The debugging code wastes a lot of CPU, and end users don't really need to see it*/
-//#define LMS_DEBUG_MODE
+//#define LMS_DEBUG_NOTE
+//#define LMS_DEBUG_MAIN_LOOP
 
 /*Then you can print debug information like this:
 #ifdef LMS_DEBUG_MODE
@@ -100,12 +101,12 @@ typedef struct {
     float hz;
     t_poly_voice * p_voice;    
     note_state n_state;
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
     int debug_counter;
 #endif
 } voice_data;
 
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
 
 int debug_interval = 176400;
 
@@ -169,12 +170,12 @@ typedef struct {
     LADSPA_Data noise_amp;
     
     /*The variables below this line do NOT correspond to GUI controls*/
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
     int debug_counter;
 #endif
 } synth_vals;
 
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
 
 void dump_debug_synth_vals(synth_vals*);
 
@@ -518,7 +519,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
         
 	while (event_pos < event_count)
         {
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_NOTE
             printf("Event firing\n");
 #endif                      
             /*Note on event*/
@@ -529,7 +530,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 		if (n.velocity > 0) 
                 {                    
                     
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_NOTE
                         printf("note_on note# %i\n", n.note);
                         
 #endif                    
@@ -543,7 +544,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     /*LibModSynth additions*/
                     
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
                     data[voice].debug_counter = 0;                    
 #endif
                     data[voice].note_f = (float)n.note;
@@ -609,7 +610,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     {                  
                         v_poly_note_off(data[voice].p_voice);
 
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_NOTE
                         printf("note_off zero velocity note# %i\n", n.note);
 #endif
                     }                    
@@ -629,7 +630,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                 {                    
                     /*LibModSynth additions*/                    
                     v_poly_note_off(data[voice].p_voice);
-#ifdef LMS_DEBUG_MODE                                        
+#ifdef LMS_DEBUG_NOTE                                        
                     printf("note_off note off event note# %i\n", n.note);
 #endif
 		}
@@ -639,7 +640,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
             {
 		sv_pitch_bend_value = 0.00012207   //0.000061035 
                         * events[event_pos].data.control.value * vals.master_pb_amt;
-#ifdef LMS_DEBUG_MODE                
+#ifdef LMS_DEBUG_NOTE                
                 printf("_pitchbend_value is %f\n", sv_pitch_bend_value);		
 #endif                
 	    }
@@ -688,7 +689,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
     while(f_i<count) {
 	
         /*Here is where we periodically dump debug information if debugging is enabled*/
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
         d->debug_counter = (d->debug_counter) + 1;
         
         int is_debug_printing = 0;
@@ -712,7 +713,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
        
         f_rmp_run_ramp(d->p_voice->pitch_env, (vals->pitch_env_amt));
 
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
         if(is_debug_printing == 1)
                 printf("d->p_voice->pitch_env->output_multiplied == %f\n", (d->p_voice->pitch_env->output_multiplied));
 #endif        
@@ -726,27 +727,27 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
                 ((d->p_voice->glide_smoother->last_value) + (d->p_voice->pitch_env->output_multiplied) 
                 + (vals->osc2pitch) + (vals->osc2tune) +  + (p->mono_modules->pitchbend_smoother->output)));
 
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
         if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))
                 printf("Before oscillators, d->p_voice->current_sample == %f\n", (d->p_voice->current_sample));
 #endif        
         
         /*Run any oscillators, etc...*/
         d->p_voice->current_sample += f_osc_run_unison_osc(d->p_voice->osc_unison1) * (d->osc1_linamp);
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
         if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))
                 printf("After osc1, d->p_voice->current_sample == %f\n", (d->p_voice->current_sample));
 #endif        
         
         d->p_voice->current_sample += f_osc_run_unison_osc(d->p_voice->osc_unison2) * (d->osc2_linamp);
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
         if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))
                 printf("After osc2, d->p_voice->current_sample == %f\n", (d->p_voice->current_sample));
 #endif        
         
         d->p_voice->current_sample += (f_run_white_noise(d->p_voice->white_noise1) * (d->noise_linamp)); //white noise
 
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
         if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))
                 printf("After white noise, d->p_voice->current_sample == %f\n", (d->p_voice->current_sample));
 #endif                
@@ -754,14 +755,14 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         v_adsr_run(d->p_voice->adsr_amp);        
         
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
         if(is_debug_printing == 1)
                 printf("d->p_voice->adsr_amp->output == %f\n", (d->p_voice->adsr_amp->output));
 #endif        
         
         v_adsr_run(d->p_voice->adsr_filter);
 
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
         if(is_debug_printing == 1)
                 printf("d->p_voice->adsr_filter->output == %f\n", (d->p_voice->adsr_filter->output));
 #endif        
@@ -774,7 +775,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         
         d->p_voice->current_sample = d->p_voice->svf_function(d->p_voice->svf_filter, (d->p_voice->current_sample));
         
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
         if(is_debug_printing == 1)
                 printf("output after svf == %f\n", (d->p_voice->current_sample));
 #endif  
@@ -783,7 +784,7 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
         d->p_voice->current_sample = f_axf_run_xfade((d->p_voice->dist_dry_wet), (d->p_voice->current_sample), 
                 f_clp_clip(d->p_voice->clipper1, (d->p_voice->current_sample)));
 
-#ifdef LMS_DEBUG_MODE
+#ifdef LMS_DEBUG_MAIN_LOOP
         if(is_debug_printing == 1)
                 printf("output after clipper == %f\n", (d->p_voice->current_sample));
 #endif  
@@ -887,7 +888,7 @@ int pick_voice(const voice_data *data, int a_current_note)
      guitars, pianos, etc... work that way.  It also helps to prevent hung notes*/    
     for (f_i=0; f_i<POLYPHONY; f_i++) {
 	if (data[f_i].note == a_current_note) {
-#ifdef LMS_DEBUG_MODE            
+#ifdef LMS_DEBUG_NOTE            
             printf("pick_voice found current_note:  %i\n", f_i);
 #endif
             v_adsr_set_fast_release(data->p_voice->adsr_amp);
@@ -898,7 +899,7 @@ int pick_voice(const voice_data *data, int a_current_note)
     /* Look for an inactive voice */
     for (f_i=0; f_i<POLYPHONY; f_i++) {
 	if (data[f_i].n_state == off) {
-#ifdef LMS_DEBUG_MODE            
+#ifdef LMS_DEBUG_NOTE            
             printf("pick_voice found inactive voice:  %i\n", f_i);
 #endif
 	    return f_i;
@@ -910,7 +911,7 @@ int pick_voice(const voice_data *data, int a_current_note)
 	if (data[f_i].note > highest_note) {
 	    highest_note = data[f_i].note;
 	    highest_note_voice = f_i;
-#ifdef LMS_DEBUG_MODE            
+#ifdef LMS_DEBUG_NOTE            
             printf("pick_voice found highest voice:  %i\n", f_i);
 #endif
 	}

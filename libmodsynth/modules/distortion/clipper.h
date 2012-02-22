@@ -14,6 +14,8 @@ extern "C" {
     
 #include "../../lib/amp.h"
     
+//#define CLP_DEBUG_MODE
+    
 typedef struct st_clipper
 {
     float clip_high, clip_low, input_gain, clip_db, in_db, result;
@@ -36,7 +38,7 @@ void v_clp_set_clip_sym(t_clipper * a_clp, float a_db)
     
     float f_value = f_db_to_linear_fast(a_db);
     
-#ifdef LMS_DEBUG_MODE
+#ifdef CLP_DEBUG_MODE
         printf("Clipper value == %f", f_value);
 #endif
 
