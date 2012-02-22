@@ -88,6 +88,8 @@ typedef struct st_poly_voice
     
     float target_pitch;
     
+    float filter_output;  //For assigning the filter output to
+    
     float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
     
 }t_poly_voice;
@@ -158,6 +160,8 @@ t_poly_voice * g_poly_init()
     f_voice->target_pitch = 66.0f;
     
     f_voice->current_sample = 0.0f;
+    
+    f_voice->filter_output = 0.0f;
     
     return f_voice;
 }
