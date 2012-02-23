@@ -847,7 +847,7 @@ int getControllerLTS(LADSPA_Handle instance, unsigned long port)
     case LMS_OSC1_VOLUME:
         return DSSI_CC(0x1f);  //31
     case LMS_OSC2_TYPE:
-        return DSSI_CC(0x29);  //41  (32 is reserved for bank-change MSB
+        return DSSI_CC(0x29);  //41  
     case LMS_OSC2_PITCH:
         return DSSI_CC(0x21);  //33
     case LMS_OSC2_TUNE:
@@ -867,7 +867,9 @@ int getControllerLTS(LADSPA_Handle instance, unsigned long port)
     case LMS_PITCH_ENV_AMT:
         return DSSI_CC(0x2a); //42
     case LMS_PITCH_ENV_TIME:
-        return DSSI_CC(0x2b); //43        
+        return DSSI_CC(0x2b); //43     
+    case LMS_PROGRAM_CHANGE:
+        return DSSI_CC(0x20);  //32  -  Bank Select fine (this may be the wrong use of that CC)
     }
 
     return DSSI_NONE;
@@ -1230,9 +1232,6 @@ void _init()
 	port_range_hints[LMS_MASTER_PITCHBEND_AMT].UpperBound =  36;
         
         
-        
-        
-        
         /*Parameters for pitch env amt*/        
 	port_descriptors[LMS_PITCH_ENV_AMT] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_PITCH_ENV_AMT] = "Pitch Env Amt";
@@ -1251,8 +1250,7 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_PITCH_ENV_TIME].LowerBound = 0; 
 	port_range_hints[LMS_PITCH_ENV_TIME].UpperBound = 200;
-        
-        
+                
         
         /*Parameters for program change*/        
 	port_descriptors[LMS_PITCH_ENV_TIME] = port_descriptors[LMS_ATTACK];
