@@ -73,7 +73,7 @@ public:
     
     
     void v_set_control(int, float);
-    void v_control_changed(int, int);
+    void v_control_changed(int, int, bool);
     int i_get_control(int);
     
     void v_add_knob_to_layout(QDial *, e_knob_type, int, QLabel *, QGridLayout *, QString, int, int, const char *, const char *);
@@ -117,7 +117,7 @@ public slots:
     void setPitchEnvTime(float val);
     void setPitchEnvAmt(float val);
     
-    void setProgram(int val);    
+    void setProgram(float val);    
     
     void aboutToQuit();
     
