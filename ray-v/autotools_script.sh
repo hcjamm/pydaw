@@ -1,3 +1,4 @@
+sudo rm -R  /usr/local/lib/dssi/*
 make clean
 sleep 15
 aclocal
@@ -15,4 +16,6 @@ sleep 15
 ./configure
 sleep 15
 make
+sleep 15
+sudo make install
 #sudo checkinstall
