@@ -101,8 +101,8 @@ using std::endl;
 #define LTS_PORT_MASTER_PITCHBEND_AMT 27
 #define LTS_PORT_PITCH_ENV_TIME 28
 #define LTS_PORT_PITCH_ENV_AMT 29
-#define LTS_PORT_PROGRAM_CHANGE 30  //This must be last
-#define LTS_PORT_MAX 31  
+#define LTS_PORT_PROGRAM_CHANGE 30  //This must be after any parameters tied to a preset.  Anything numbered after this will not be included in presets.
+//#define LTS_PORT_MAX 30  //make this last if your plugin doesn't utilize program change, and update the iteration loops that reference LTS_PORT_PROGRAM_CHANGE
 
 
 lo_server osc_server = 0;
@@ -1244,22 +1244,32 @@ void SynthGUI::bankChanged(int value)
 
 void SynthGUI::programChanged(int value)
 {    
-    int f_adjusted_value = 0;
+    //int f_adjusted_value = 0;
 
 #ifdef LMS_DEBUG_MODE_QT    
     cerr << "programChanged called with value " << value << endl;
 #endif    
     
+    if(m_suppressHostUpdate)
+        return;
+    
+    /*TODO:  Something like this, then move the preset code to the DSSI plugin itself*/
+    /*
+    if (!m_suppressHostUpdate) {
+	lo_send(m_host, m_controlPath, "if", LTS_PORT_PROGRAM_CHANGE, (float(value)));
+    }
+    */
+    /*
     if(value <= 127)
         f_adjusted_value = value;
     else
     {
         programChanged(1);  //change it to program 1 first, then back to zero
     }
-    
-    if(presets_tab_delimited[f_adjusted_value].compare("empty") != 0)
+    */
+    if(presets_tab_delimited[value].compare("empty") != 0)
     {
-        QStringList f_preset_values = presets_tab_delimited[f_adjusted_value].split("\t");
+        QStringList f_preset_values = presets_tab_delimited[value].split("\t");
         //TODO:  change f_i back to zero when there is something at that index
         for(int f_i = 1; f_i < LTS_PORT_PROGRAM_CHANGE; f_i++)
         {

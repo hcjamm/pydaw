@@ -1145,7 +1145,7 @@ void _init()
 	port_descriptors[LMS_OSC2_TYPE] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_OSC2_TYPE] = "Osc 2 Type";
 	port_range_hints[LMS_OSC2_TYPE].HintDescriptor =
-			//LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_OSC2_TYPE].LowerBound =  0;
 	port_range_hints[LMS_OSC2_TYPE].UpperBound =  4;
@@ -1175,7 +1175,7 @@ void _init()
 	port_descriptors[LMS_OSC2_VOLUME] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_OSC2_VOLUME] = "Osc 2 Vol";
 	port_range_hints[LMS_OSC2_VOLUME].HintDescriptor =
-			//LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW |  LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_OSC2_VOLUME].LowerBound =  -60;
 	port_range_hints[LMS_OSC2_VOLUME].UpperBound =  0;
@@ -1216,7 +1216,7 @@ void _init()
 	port_descriptors[LMS_MASTER_GLIDE] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_MASTER_GLIDE] = "Master Glide";
 	port_range_hints[LMS_MASTER_GLIDE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW |
+			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_MASTER_GLIDE].LowerBound =  0;
 	port_range_hints[LMS_MASTER_GLIDE].UpperBound =  200;
@@ -1253,13 +1253,13 @@ void _init()
                 
         
         /*Parameters for program change*/        
-	port_descriptors[LMS_PITCH_ENV_TIME] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_PITCH_ENV_TIME] = "Pitch Env Time";
-	port_range_hints[LMS_PITCH_ENV_TIME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_PITCH_ENV_TIME].LowerBound = 0; 
-	port_range_hints[LMS_PITCH_ENV_TIME].UpperBound = 128;  // > 127 loads the first preset
+	port_descriptors[LMS_PROGRAM_CHANGE] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_PROGRAM_CHANGE] = "Program Change";
+	port_range_hints[LMS_PROGRAM_CHANGE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | 
+                        LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_PROGRAM_CHANGE].LowerBound = 0; 
+	port_range_hints[LMS_PROGRAM_CHANGE].UpperBound = 127;  // > 127 loads the first preset
         
         /*Step 17:  Add LADSPA ports*/
         
