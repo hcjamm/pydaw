@@ -894,6 +894,7 @@ int pick_voice(const voice_data *data, int a_current_note)
             printf("pick_voice found current_note:  %i\n", f_i);
 #endif
             v_adsr_set_fast_release(data->p_voice->adsr_amp);
+            break;
 	    //return f_i; 
 	}
     }
@@ -913,12 +914,13 @@ int pick_voice(const voice_data *data, int a_current_note)
 	if (data[f_i].note > highest_note) {
 	    highest_note = data[f_i].note;
 	    highest_note_voice = f_i;
-#ifdef LMS_DEBUG_NOTE            
-            printf("pick_voice found highest voice:  %i\n", f_i);
-#endif
 	}
     }
 
+#ifdef LMS_DEBUG_NOTE            
+            printf("pick_voice found highest voice:  %i\n", highest_note_voice);
+#endif
+            
     return highest_note_voice;
 }
 
