@@ -41,6 +41,7 @@ printf("debug information");
 
 #include "libmodsynth.h"
 #include "../libmodsynth/lib/amp.h"
+#include "../libmodsynth/modules/filter/svf.h"
 
 
 #define LMS_OUTPUT  0
@@ -539,8 +540,8 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
 		    plugin_data->note2voice[n.note] = voice;
 		    data[voice].note = n.note;
-		    data[voice].amp = f_db_to_linear_fast((n.velocity * 0.157480315) - 20 + (vals.master_vol)); //-20db to 0db, + master volume (0 to -60)
-		    
+		    data[voice].amp = f_db_to_linear_fast((n.velocity * 0.094488) - 12 + (vals.master_vol)); //-20db to 0db, + master volume (0 to -60)
+                    v_svf_velocity_mod(data[voice].p_voice->svf_filter, n.velocity);
                     
                     /*LibModSynth additions*/
                     
