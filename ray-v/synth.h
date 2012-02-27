@@ -15,6 +15,23 @@ extern "C" {
 #include "ladspa.h"
 #include "libmodsynth.h"
     
+//Comment this out when you compile a stable release version on the plugin, you don't want it printing debug output unless you're debugging
+//#define LMS_DEBUG_MODE_QT
+/*This is used for things like naming the preset file, etc...*/
+#define LMS_PLUGIN_NAME "ray-v"
+
+    /*Comment these out when compiling a stable, production-ready plugin.  
+ The debugging code wastes a lot of CPU, and end users don't really need to see it*/
+//#define LMS_DEBUG_NOTE
+//#define LMS_DEBUG_MAIN_LOOP
+
+/*Then you can print debug information like this:
+#ifdef LMS_DEBUG_NOTE
+printf("debug information");
+#endif
+*/
+    
+    
 #define LMS_OUTPUT  0
 /*GUI Step 11:  Add ports to the main synthesizer file that the GUI can talk to */
 #define LMS_ATTACK  1
@@ -53,17 +70,6 @@ extern "C" {
 #define POLYPHONY   8  //maximum voices played at one time
 #define MIDI_NOTES  128  //Maximum MIDI note.  You probably don't want to change this
 #define STEP_SIZE   16
-    
-/*Comment these out when compiling a stable, production-ready plugin.  
- The debugging code wastes a lot of CPU, and end users don't really need to see it*/
-//#define LMS_DEBUG_NOTE
-//#define LMS_DEBUG_MAIN_LOOP
-
-/*Then you can print debug information like this:
-#ifdef LMS_DEBUG_NOTE
-printf("debug information");
-#endif
-*/
     
     
 typedef enum {

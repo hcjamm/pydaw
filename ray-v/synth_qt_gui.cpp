@@ -62,15 +62,7 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 }
 #endif
 
-
-//Comment this out when you compile a stable release version on the plugin, you don't want it printing debug output unless you're debugging
-//#define LMS_DEBUG_MODE_QT
-
-/*This is used for things like naming the preset file, etc...*/
-#define LMS_PLUGIN_NAME "ray-v"
-
 using std::endl;
-
 
 lo_server osc_server = 0;
 
@@ -566,8 +558,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     f_gb_layout_row = 0;
     f_gb_layout_column = 0;
     
-    QLabel * f_logo_label = new QLabel("", this);
-    //f_logo_label->setPixmap(QPixmap(QString::fromUtf8("/usr/local/lib/dssi/synth/ray-v-logo.png")));
+    QLabel * f_logo_label = new QLabel("", this);    
     f_logo_label->setTextFormat(Qt::RichText);
     /*This string is a base64 encoded .png image I created using Gimp for the logo.  To get the base64 encoded string,
      run it through png_to_base64.pl in the packaging folder*/
