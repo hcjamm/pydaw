@@ -32,7 +32,8 @@ printf("debug information");
 */
     
     
-#define LMS_OUTPUT  0
+#define LMS_OUTPUT0  0
+#define LMS_OUTPUT1  31
 /*GUI Step 11:  Add ports to the main synthesizer file that the GUI can talk to */
 #define LMS_ATTACK  1
 #define LMS_DECAY   2
@@ -64,7 +65,7 @@ printf("debug information");
 #define LMS_PITCH_ENV_TIME 28
 #define LMS_PITCH_ENV_AMT 29
 #define LMS_PROGRAM_CHANGE 30
-#define LMS_COUNT 31 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_COUNT 32 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 
 #define POLYPHONY   8  //maximum voices played at one time
@@ -207,7 +208,8 @@ void dump_debug_synth_vals(synth_vals * a_data)
 
 /*GUI Step 13:  Add a variable for each control in the LMS type*/
 typedef struct {
-    LADSPA_Data *output;
+    LADSPA_Data *output0;
+    LADSPA_Data *output1;
     LADSPA_Data *tune;
     LADSPA_Data *attack;
     LADSPA_Data *decay;

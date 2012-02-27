@@ -44,7 +44,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
 static void run_voice(LMS *p, synth_vals *vals, voice_data *d,
-		      LADSPA_Data *out, unsigned int count);
+		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count);
 
 int pick_voice(const voice_data *data, int);
 
@@ -84,8 +84,11 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     /*GUI Step 14:  Add the ports from step 9 to the connectPortLMS event handler*/
     
     switch (port) {
-    case LMS_OUTPUT:
-	plugin->output = data;
+    case LMS_OUTPUT0:
+	plugin->output0 = data;
+	break;
+    case LMS_OUTPUT1:
+	plugin->output1 = data;
 	break;
     case LMS_ATTACK:
 	plugin->attack = data;
@@ -226,7 +229,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 {
     LMS *plugin_data = (LMS *) instance;
     
-    LADSPA_Data *const output = plugin_data->output;    
+    LADSPA_Data *const output0 = plugin_data->output0;    
+    LADSPA_Data *const output1 = plugin_data->output1;
     voice_data *data = plugin_data->data;
     
     plugin_data->pos = 0;
@@ -403,7 +407,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             /*Pitch-bend sequencer event, modify the voices pitch*/
             else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_PITCHBEND) 
             {
-		plugin_data->sv_pitch_bend_value = 0.00012207   //0.000061035 
+		plugin_data->sv_pitch_bend_value = 0.00012207
                         * events[(plugin_data->event_pos)].data.control.value * (plugin_data->vals.master_pb_amt);
 #ifdef LMS_DEBUG_NOTE                
                 printf("_pitchbend_value is %f\n", sv_pitch_bend_value);		
@@ -411,8 +415,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 	    }
 	    plugin_data->event_pos = (plugin_data->event_pos) + 1;
 	}
-
-        /*TODO:  WTF does this mean?*/
+        
 	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
 	
         /*Clear the output buffer*/
@@ -420,7 +423,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         
         while((plugin_data->i_buffer_clear)<(plugin_data->count))
         {
-	    output[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;
+	    output0[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;                        
+            output1[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;     
             plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
 	}
         
@@ -433,7 +437,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		run_voice(plugin_data, //The LMS class containing global synth data
                         &(plugin_data->vals), //monophonic values for the the synth's controls
                         &data[(plugin_data->voice)], //The amp, envelope, state, etc... of the voice
-                        output + (plugin_data->pos), //output is the block array, I think + pos advances the index???
+                        output0 + (plugin_data->pos), //output is the block array, I think + pos advances the index???
+                        output1 + (plugin_data->pos), //output is the block array, I think + pos advances the index???
 			  (plugin_data->count) //has to do with iterating through stepsize, but I'm not sure how
                         );
 	    }
@@ -443,12 +448,12 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         
         plugin_data->pos = (plugin_data->pos) + STEP_SIZE;
     /*TODO:  create a loop here that corresponds to mono effects not processed per-voice*/
-                
+        
     }
     
 }
 
-static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out, unsigned int count)
+static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
 {   
     
     //int f_i = 0;
@@ -558,8 +563,11 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
                 printf("output after clipper == %f\n", (d->p_voice->current_sample));
 #endif  
         
-        /*Run the envelope and assign to the output buffer*/
-        out[(d->i_voice)] += (d->p_voice->current_sample) * (f_linear_to_db_linear((d->p_voice->adsr_amp->output))) * (d->amp) ; 
+        d->p_voice->current_sample = (d->p_voice->current_sample) * (f_linear_to_db_linear((d->p_voice->adsr_amp->output))) * (d->amp);
+        
+        /*Run the envelope and assign to the output buffers*/
+        out0[(d->i_voice)] += (d->p_voice->current_sample);
+        out1[(d->i_voice)] += (d->p_voice->current_sample);
                 
         d->i_voice = (d->i_voice) + 1;
         /*End LibModSynth modifications*/
@@ -733,10 +741,14 @@ void _init()
 	LMSLDescriptor->PortNames = (const char **) port_names;
 
 	/* Parameters for output */
-	port_descriptors[LMS_OUTPUT] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	port_names[LMS_OUTPUT] = "Output";
-	port_range_hints[LMS_OUTPUT].HintDescriptor = 0;
+	port_descriptors[LMS_OUTPUT0] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
+	port_names[LMS_OUTPUT0] = "Output 0";
+	port_range_hints[LMS_OUTPUT0].HintDescriptor = 0;
 
+        port_descriptors[LMS_OUTPUT1] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
+	port_names[LMS_OUTPUT1] = "Output 1";
+	port_range_hints[LMS_OUTPUT1].HintDescriptor = 0;
+        
         /*GUI Step 14:  Define the LADSPA ports for the plugin in the class constructor*/
         
 	/* Parameters for attack */
