@@ -37,13 +37,13 @@ GNU General Public License for more details.
 #include "synth.h"
 
 
-static LADSPA_Descriptor *ltsLDescriptor = NULL;
-static DSSI_Descriptor *ltsDDescriptor = NULL;
+static LADSPA_Descriptor *LMSLDescriptor = NULL;
+static DSSI_Descriptor *LMSDDescriptor = NULL;
 
-static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
+static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
-static void run_voice(LTS *p, synth_vals *vals, voice_data *d,
+static void run_voice(LMS *p, synth_vals *vals, voice_data *d,
 		      LADSPA_Data *out, unsigned int count);
 
 int pick_voice(const voice_data *data, int);
@@ -53,7 +53,7 @@ const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
 {
     switch (index) {
     case 0:
-	return ltsLDescriptor;
+	return LMSLDescriptor;
     default:
 	return NULL;
     }
@@ -63,25 +63,25 @@ const DSSI_Descriptor *dssi_descriptor(unsigned long index)
 {
     switch (index) {
     case 0:
-	return ltsDDescriptor;
+	return LMSDDescriptor;
     default:
 	return NULL;
     }
 }
 
-static void cleanupLTS(LADSPA_Handle instance)
+static void cleanupLMS(LADSPA_Handle instance)
 {
     free(instance);
 }
 
-static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
+static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
 			  LADSPA_Data * data)
 {
-    LTS *plugin;
+    LMS *plugin;
 
-    plugin = (LTS *) instance;
+    plugin = (LMS *) instance;
     
-    /*GUI Step 14:  Add the ports from step 9 to the connectPortLTS event handler*/
+    /*GUI Step 14:  Add the ports from step 9 to the connectPortLMS event handler*/
     
     switch (port) {
     case LMS_OUTPUT:
@@ -180,10 +180,10 @@ static void connectPortLTS(LADSPA_Handle instance, unsigned long port,
     }
 }
 
-static LADSPA_Handle instantiateLTS(const LADSPA_Descriptor * descriptor,
+static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
 				   unsigned long s_rate)
 {
-    LTS *plugin_data = (LTS *) malloc(sizeof(LTS));
+    LMS *plugin_data = (LMS *) malloc(sizeof(LMS));
     
     plugin_data->fs = s_rate;
     
@@ -194,9 +194,9 @@ static LADSPA_Handle instantiateLTS(const LADSPA_Descriptor * descriptor,
     return (LADSPA_Handle) plugin_data;
 }
 
-static void activateLTS(LADSPA_Handle instance)
+static void activateLMS(LADSPA_Handle instance)
 {
-    LTS *plugin_data = (LTS *) instance;
+    LMS *plugin_data = (LMS *) instance;
     unsigned int i;
 
     for (i=0; i<POLYPHONY; i++) {
@@ -215,16 +215,16 @@ static void activateLTS(LADSPA_Handle instance)
     plugin_data->mono_modules = v_mono_init();  //initialize all monophonic modules
 }
 
-static void runLTSWrapper(LADSPA_Handle instance,
+static void runLMSWrapper(LADSPA_Handle instance,
 			 unsigned long sample_count)
 {
-    runLTS(instance, sample_count, NULL, 0);
+    runLMS(instance, sample_count, NULL, 0);
 }
 
-static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
+static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
-    LTS *plugin_data = (LTS *) instance;
+    LMS *plugin_data = (LMS *) instance;
     
     LADSPA_Data *const output = plugin_data->output;    
     voice_data *data = plugin_data->data;
@@ -234,7 +234,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->event_pos = 0;
     plugin_data->voice = 0;
     
-    /*GUI Step 15:  Set the values from synth_vals in RunLTS*/
+    /*GUI Step 15:  Set the values from synth_vals in RunLMS*/
     plugin_data->vals.attack = *(plugin_data->attack) * .01;
     plugin_data->vals.decay = *(plugin_data->decay) * .01; 
     plugin_data->vals.sustain = *(plugin_data->sustain);
@@ -430,7 +430,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 	    //if (data[voice].state != inactive) 
             if(data[(plugin_data->voice)].n_state != off)
             {
-		run_voice(plugin_data, //The LTS class containing global synth data
+		run_voice(plugin_data, //The LMS class containing global synth data
                         &(plugin_data->vals), //monophonic values for the the synth's controls
                         &data[(plugin_data->voice)], //The amp, envelope, state, etc... of the voice
                         output + (plugin_data->pos), //output is the block array, I think + pos advances the index???
@@ -448,7 +448,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     
 }
 
-static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out, unsigned int count)
+static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out, unsigned int count)
 {   
     
     //int f_i = 0;
@@ -577,8 +577,8 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 
 /*This returns MIDI CCs for the different knobs
  TODO:  Try it with non-hex numbers*/
-/*GUI Step 16:  Assign the LADSPA ports defined in step 9 to MIDI CCs in getControllerLTS*/
-int getControllerLTS(LADSPA_Handle instance, unsigned long port)
+/*GUI Step 16:  Assign the LADSPA ports defined in step 9 to MIDI CCs in getControllerLMS*/
+int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {
     switch (port) {
     case LMS_ATTACK:
@@ -705,32 +705,32 @@ void _init()
     LADSPA_PortDescriptor *port_descriptors;
     LADSPA_PortRangeHint *port_range_hints;
 
-    ltsLDescriptor =
+    LMSLDescriptor =
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
-    if (ltsLDescriptor) {
-	//ltsLDescriptor->UniqueID = 24;  //Default, don't use this
-        ltsLDescriptor->UniqueID = 1337721;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
-	ltsLDescriptor->Label = "LMS";  //Changing this breaks the plugin, it compiles, but hangs when trying to run.  TODO:  investigate
-	ltsLDescriptor->Properties = 0;
-	ltsLDescriptor->Name = "Ray-V (Powered by LibModSynth)";
-	ltsLDescriptor->Maker = "Jeff Hubbard <jhubbard651@users.sf.net>";
-	ltsLDescriptor->Copyright = "GNU GPL v3";
-	ltsLDescriptor->PortCount = LMS_COUNT;
+    if (LMSLDescriptor) {
+	//LMSLDescriptor->UniqueID = 24;  //Default, don't use this
+        LMSLDescriptor->UniqueID = 1337721;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
+	LMSLDescriptor->Label = "LMS";  //Changing this breaks the plugin, it compiles, but hangs when trying to run.  TODO:  investigate
+	LMSLDescriptor->Properties = 0;
+	LMSLDescriptor->Name = "Ray-V (Powered by LibModSynth)";
+	LMSLDescriptor->Maker = "Jeff Hubbard <jhubbard651@users.sf.net>";
+	LMSLDescriptor->Copyright = "GNU GPL v3";
+	LMSLDescriptor->PortCount = LMS_COUNT;
 
 	port_descriptors = (LADSPA_PortDescriptor *)
-				calloc(ltsLDescriptor->PortCount, sizeof
+				calloc(LMSLDescriptor->PortCount, sizeof
 						(LADSPA_PortDescriptor));
-	ltsLDescriptor->PortDescriptors =
+	LMSLDescriptor->PortDescriptors =
 	    (const LADSPA_PortDescriptor *) port_descriptors;
 
 	port_range_hints = (LADSPA_PortRangeHint *)
-				calloc(ltsLDescriptor->PortCount, sizeof
+				calloc(LMSLDescriptor->PortCount, sizeof
 						(LADSPA_PortRangeHint));
-	ltsLDescriptor->PortRangeHints =
+	LMSLDescriptor->PortRangeHints =
 	    (const LADSPA_PortRangeHint *) port_range_hints;
 
-	port_names = (char **) calloc(ltsLDescriptor->PortCount, sizeof(char *));
-	ltsLDescriptor->PortNames = (const char **) port_names;
+	port_names = (char **) calloc(LMSLDescriptor->PortCount, sizeof(char *));
+	LMSLDescriptor->PortNames = (const char **) port_names;
 
 	/* Parameters for output */
 	port_descriptors[LMS_OUTPUT] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
@@ -1036,28 +1036,28 @@ void _init()
         
         
         /*Here is where the functions in synth.c get pointed to for the host to call*/
-	ltsLDescriptor->activate = activateLTS;
-	ltsLDescriptor->cleanup = cleanupLTS;
-	ltsLDescriptor->connect_port = connectPortLTS;
-	ltsLDescriptor->deactivate = NULL;
-	ltsLDescriptor->instantiate = instantiateLTS;
-	ltsLDescriptor->run = runLTSWrapper;
-	ltsLDescriptor->run_adding = NULL;
-	ltsLDescriptor->set_run_adding_gain = NULL;
+	LMSLDescriptor->activate = activateLMS;
+	LMSLDescriptor->cleanup = cleanupLMS;
+	LMSLDescriptor->connect_port = connectPortLMS;
+	LMSLDescriptor->deactivate = NULL;
+	LMSLDescriptor->instantiate = instantiateLMS;
+	LMSLDescriptor->run = runLMSWrapper;
+	LMSLDescriptor->run_adding = NULL;
+	LMSLDescriptor->set_run_adding_gain = NULL;
     }
 
-    ltsDDescriptor = (DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
-    if (ltsDDescriptor) {
-	ltsDDescriptor->DSSI_API_Version = 1;
-	ltsDDescriptor->LADSPA_Plugin = ltsLDescriptor;
-	ltsDDescriptor->configure = NULL;  //TODO:  I think this is where the host can set plugin state, etc...
-	ltsDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
-	ltsDDescriptor->get_midi_controller_for_port = getControllerLTS;
-	ltsDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
-	ltsDDescriptor->run_synth = runLTS;
-	ltsDDescriptor->run_synth_adding = NULL;
-	ltsDDescriptor->run_multiple_synths = NULL;
-	ltsDDescriptor->run_multiple_synths_adding = NULL;
+    LMSDDescriptor = (DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
+    if (LMSDDescriptor) {
+	LMSDDescriptor->DSSI_API_Version = 1;
+	LMSDDescriptor->LADSPA_Plugin = LMSLDescriptor;
+	LMSDDescriptor->configure = NULL;  //TODO:  I think this is where the host can set plugin state, etc...
+	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
+	LMSDDescriptor->get_midi_controller_for_port = getControllerLMS;
+	LMSDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
+	LMSDDescriptor->run_synth = runLMS;
+	LMSDDescriptor->run_synth_adding = NULL;
+	LMSDDescriptor->run_multiple_synths = NULL;
+	LMSDDescriptor->run_multiple_synths_adding = NULL;
     }
 }
 
@@ -1067,13 +1067,13 @@ __attribute__((destructor)) void fini()
 void _fini()
 #endif
 {
-    if (ltsLDescriptor) {
-	free((LADSPA_PortDescriptor *) ltsLDescriptor->PortDescriptors);
-	free((char **) ltsLDescriptor->PortNames);
-	free((LADSPA_PortRangeHint *) ltsLDescriptor->PortRangeHints);
-	free(ltsLDescriptor);
+    if (LMSLDescriptor) {
+	free((LADSPA_PortDescriptor *) LMSLDescriptor->PortDescriptors);
+	free((char **) LMSLDescriptor->PortNames);
+	free((LADSPA_PortRangeHint *) LMSLDescriptor->PortRangeHints);
+	free(LMSLDescriptor);
     }
-    if (ltsDDescriptor) {
-	free(ltsDDescriptor);
+    if (LMSDDescriptor) {
+	free(LMSDDescriptor);
     }
 }

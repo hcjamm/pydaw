@@ -205,7 +205,7 @@ void dump_debug_synth_vals(synth_vals * a_data)
 
 
 
-/*GUI Step 13:  Add a variable for each control in the LTS type*/
+/*GUI Step 13:  Add a variable for each control in the LMS type*/
 typedef struct {
     LADSPA_Data *output;
     LADSPA_Data *tune;
@@ -264,7 +264,7 @@ typedef struct {
     
     float sv_pitch_bend_value;
     float sv_last_note;  //For glide
-} LTS;
+} LMS;
 
 
 
