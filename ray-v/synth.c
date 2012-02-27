@@ -277,12 +277,10 @@ typedef struct {
     int event_pos;
     int voice;
     int i_buffer_clear;    
+    
+    float sv_pitch_bend_value;
+    float sv_last_note;  //For glide
 } LTS;
-
-
-static float sv_pitch_bend_value = 0;
-static float sv_last_note = 60;  //For glide
-/*For preventing references to values like last_note that will be null, change to 1 once the first note plays*/
 
 
 static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
@@ -454,6 +452,8 @@ static void activateLTS(LADSPA_Handle instance)
 	plugin_data->note2voice[i] = 0;
     }
     plugin_data->pitch = 1.0f;
+    plugin_data->sv_pitch_bend_value = 0.0f;
+    plugin_data->sv_last_note = 60.0f;  //For glide
     
     plugin_data->mono_modules = v_mono_init();  //initialize all monophonic modules
 }
@@ -523,7 +523,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
     while ((plugin_data->pos) < sample_count) 
     {	        
         v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.timbre));
-        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, sv_pitch_bend_value);
+        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
         
 	while ((plugin_data->event_pos) < event_count)
         {
@@ -563,7 +563,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     //data[voice].p_voice->real_pitch = sv_last_note;
                                         
-                    v_sml_set_smoother_glide(data[voice].p_voice->glide_smoother, (data[voice].p_voice->target_pitch), sv_last_note,
+                    v_sml_set_smoother_glide(data[voice].p_voice->glide_smoother, (data[voice].p_voice->target_pitch), (plugin_data->sv_last_note),
                             (plugin_data->vals.master_glide));
                                         
                     /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
@@ -604,7 +604,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
                                         
                     /*Set the last_note property, so the next note can glide from it if glide is turned on*/
-                    sv_last_note = (data[voice].note_f);
+                    plugin_data->sv_last_note = (data[voice].note_f);
 		} 
                 /*0 velocity, the same as note-off*/
                 else 
@@ -646,7 +646,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
             /*Pitch-bend sequencer event, modify the voices pitch*/
             else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_PITCHBEND) 
             {
-		sv_pitch_bend_value = 0.00012207   //0.000061035 
+		plugin_data->sv_pitch_bend_value = 0.00012207   //0.000061035 
                         * events[(plugin_data->event_pos)].data.control.value * (plugin_data->vals.master_pb_amt);
 #ifdef LMS_DEBUG_NOTE                
                 printf("_pitchbend_value is %f\n", sv_pitch_bend_value);		
