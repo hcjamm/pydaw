@@ -1229,7 +1229,7 @@ void SynthGUI::programChanged(int value)
     {
         QStringList f_preset_values = presets_tab_delimited[value].split("\t");
         //TODO:  change f_i back to zero when there is something at that index
-        for(int f_i = 1; f_i < LMS_PROGRAM_CHANGE; f_i++)
+        for(int f_i = LMS_FIRST_CONTROL_PORT; f_i < LMS_LAST_CONTROL_PORT; f_i++)
         {
             if(f_i > f_preset_values.count())
             {
@@ -1271,7 +1271,7 @@ void SynthGUI::programSaved()
         QString f_result = m_program->currentText();                
         
         //TODO:  change f_i back to zero when there is something at that index
-        for(int f_i = 1; f_i < LMS_PROGRAM_CHANGE; f_i++)
+        for(int f_i = LMS_FIRST_CONTROL_PORT; f_i < LMS_LAST_CONTROL_PORT; f_i++)
         {
             QString * f_number = new QString();
             f_number->setNum(i_get_control(f_i));
