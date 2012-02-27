@@ -41,6 +41,8 @@ GNU General Public License for more details.
 #include "../libmodsynth/lib/amp.h"
 #include "../libmodsynth/lib/pitch_core.h"
 
+#include "synth.h"
+
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -68,41 +70,6 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 #define LMS_PLUGIN_NAME "ray-v"
 
 using std::endl;
-
-/*GUI Step 6:  Define ports for each control that will send messages to the plugin, such as dials/knobs or faders.*/
-
-//TODO:  put something at zero here, and update the below iterator
-#define LTS_PORT_ATTACK  1
-#define LTS_PORT_DECAY   2
-#define LTS_PORT_SUSTAIN 3
-#define LTS_PORT_RELEASE 4
-#define LTS_PORT_TIMBRE  5
-#define LTS_PORT_RES  6
-#define LTS_PORT_DIST  7
-#define LTS_PORT_FILTER_ATTACK  8
-#define LTS_PORT_FILTER_DECAY   9
-#define LTS_PORT_FILTER_SUSTAIN 10
-#define LTS_PORT_FILTER_RELEASE 11
-#define LTS_PORT_NOISE_AMP 12
-#define LTS_PORT_FILTER_ENV_AMT 13
-#define LTS_PORT_DIST_WET 14
-#define LTS_PORT_OSC1_TYPE 15
-#define LTS_PORT_OSC1_PITCH 16
-#define LTS_PORT_OSC1_TUNE 17
-#define LTS_PORT_OSC1_VOLUME 18
-#define LTS_PORT_OSC2_TYPE 19
-#define LTS_PORT_OSC2_PITCH 20
-#define LTS_PORT_OSC2_TUNE 21
-#define LTS_PORT_OSC2_VOLUME 22
-#define LTS_PORT_MASTER_VOLUME 23
-#define LTS_PORT_MASTER_UNISON_VOICES 24
-#define LTS_PORT_MASTER_UNISON_SPREAD 25
-#define LTS_PORT_MASTER_GLIDE 26
-#define LTS_PORT_MASTER_PITCHBEND_AMT 27
-#define LTS_PORT_PITCH_ENV_TIME 28
-#define LTS_PORT_PITCH_ENV_AMT 29
-#define LTS_PORT_PROGRAM_CHANGE 30  //This must be after any parameters tied to a preset.  Anything numbered after this will not be included in presets.
-//#define LTS_PORT_MAX 30  //make this last if your plugin doesn't utilize program change, and update the iteration loops that reference LTS_PORT_PROGRAM_CHANGE
 
 
 lo_server osc_server = 0;
@@ -1071,65 +1038,65 @@ void SynthGUI::changed_decibels(int a_value, QLabel * a_label, int a_port)
 
 void SynthGUI::attackChanged(int value)
 {
-    changed_seconds(value,m_attackLabel,LTS_PORT_ATTACK);
+    changed_seconds(value,m_attackLabel,LMS_ATTACK);
 }
 
 void
 SynthGUI::decayChanged(int value)
 {
-    changed_seconds(value,m_decayLabel,LTS_PORT_DECAY);
+    changed_seconds(value,m_decayLabel,LMS_DECAY);
 }
 
 void SynthGUI::sustainChanged(int value)
 {
-    changed_decibels(value, m_sustainLabel, LTS_PORT_SUSTAIN);    
+    changed_decibels(value, m_sustainLabel, LMS_SUSTAIN);    
 }
 
 void SynthGUI::releaseChanged(int value)
 {
-    changed_seconds(value, m_releaseLabel, LTS_PORT_RELEASE);    
+    changed_seconds(value, m_releaseLabel, LMS_RELEASE);    
 }
 
 void SynthGUI::timbreChanged(int value)
 {
-    changed_pitch(value, m_timbreLabel, LTS_PORT_TIMBRE);    
+    changed_pitch(value, m_timbreLabel, LMS_TIMBRE);    
 }
 
 void SynthGUI::resChanged(int value)
 {
-    changed_decibels(value, m_resLabel, LTS_PORT_RES);    
+    changed_decibels(value, m_resLabel, LMS_RES);    
 }
 
 void SynthGUI::distChanged(int value)
 {
-    changed_integer(value, m_distLabel, LTS_PORT_DIST);
+    changed_integer(value, m_distLabel, LMS_DIST);
 }
 
 
 void SynthGUI::filterAttackChanged(int value)
 {
-    changed_seconds(value,m_filter_attackLabel,LTS_PORT_FILTER_ATTACK);
+    changed_seconds(value,m_filter_attackLabel,LMS_FILTER_ATTACK);
 }
 
 void
 SynthGUI::filterDecayChanged(int value)
 {
-    changed_seconds(value,m_filter_decayLabel,LTS_PORT_FILTER_DECAY);
+    changed_seconds(value,m_filter_decayLabel,LMS_FILTER_DECAY);
 }
 
 void SynthGUI::filterSustainChanged(int value)
 {
-    changed_zero_to_x(value, m_filter_sustainLabel, LTS_PORT_FILTER_SUSTAIN);    
+    changed_zero_to_x(value, m_filter_sustainLabel, LMS_FILTER_SUSTAIN);    
 }
 
 void SynthGUI::filterReleaseChanged(int value)
 {
-    changed_seconds(value, m_filter_releaseLabel, LTS_PORT_FILTER_RELEASE);    
+    changed_seconds(value, m_filter_releaseLabel, LMS_FILTER_RELEASE);    
 }
 
 void SynthGUI::noiseAmpChanged(int value)
 {
-    changed_decibels(value, m_noise_ampLabel, LTS_PORT_NOISE_AMP);
+    changed_decibels(value, m_noise_ampLabel, LMS_NOISE_AMP);
 }
 
 void SynthGUI::filterEnvAmtChanged(int value)
@@ -1138,7 +1105,7 @@ void SynthGUI::filterEnvAmtChanged(int value)
     m_filter_env_amtLabel->setText(QString("%1").arg(val));
 
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_FILTER_ENV_AMT, val);
+	lo_send(m_host, m_controlPath, "if", LMS_FILTER_ENV_AMT, val);
     }
 }
 
@@ -1146,57 +1113,57 @@ void SynthGUI::distWetChanged(int value)
 {
     //TODO:  make a "Changed no label" method
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_DIST_WET, (float(value)));
+	lo_send(m_host, m_controlPath, "if", LMS_DIST_WET, (float(value)));
     }
 }
 
 void SynthGUI::osc1TypeChanged(int value)
 {
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_OSC1_TYPE, float(value));
+	lo_send(m_host, m_controlPath, "if", LMS_OSC1_TYPE, float(value));
     }
 }
 
 void SynthGUI::osc1PitchChanged(int value)
 {
-    changed_integer(value, m_osc1_pitchLabel, LTS_PORT_OSC1_PITCH);
+    changed_integer(value, m_osc1_pitchLabel, LMS_OSC1_PITCH);
 }
 
 void SynthGUI::osc1TuneChanged(int value)
 {
-    changed_zero_to_x(value, m_osc1_tuneLabel, LTS_PORT_OSC1_TUNE);
+    changed_zero_to_x(value, m_osc1_tuneLabel, LMS_OSC1_TUNE);
 }
 
 void SynthGUI::osc1VolumeChanged(int value)
 {
-    changed_decibels(value, m_osc1_volumeLabel, LTS_PORT_OSC1_VOLUME);
+    changed_decibels(value, m_osc1_volumeLabel, LMS_OSC1_VOLUME);
 }
 
 void SynthGUI::osc2TypeChanged(int value)
 {
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_OSC2_TYPE, float(value));
+	lo_send(m_host, m_controlPath, "if", LMS_OSC2_TYPE, float(value));
     }
 }
 
 void SynthGUI::osc2PitchChanged(int value)
 {
-    changed_integer(value, m_osc2_pitchLabel, LTS_PORT_OSC2_PITCH);
+    changed_integer(value, m_osc2_pitchLabel, LMS_OSC2_PITCH);
 }
 
 void SynthGUI::osc2TuneChanged(int value)
 {
-    changed_zero_to_x(value, m_osc2_tuneLabel, LTS_PORT_OSC2_TUNE);
+    changed_zero_to_x(value, m_osc2_tuneLabel, LMS_OSC2_TUNE);
 }
 
 void SynthGUI::osc2VolumeChanged(int value)
 {
-    changed_decibels(value, m_osc2_volumeLabel, LTS_PORT_OSC2_VOLUME);
+    changed_decibels(value, m_osc2_volumeLabel, LMS_OSC2_VOLUME);
 }
 
 void SynthGUI::masterVolumeChanged(int value)
 {
-    changed_decibels(value, m_master_volumeLabel, LTS_PORT_MASTER_VOLUME);
+    changed_decibels(value, m_master_volumeLabel, LMS_MASTER_VOLUME);
 }
 
 
@@ -1204,35 +1171,35 @@ void SynthGUI::masterVolumeChanged(int value)
 
 void SynthGUI::masterUnisonVoicesChanged(int value)
 {
-    changed_integer(value, m_master_unison_voicesLabel, LTS_PORT_MASTER_UNISON_VOICES);
+    changed_integer(value, m_master_unison_voicesLabel, LMS_MASTER_UNISON_VOICES);
 }
 
 
 void SynthGUI::masterUnisonSpreadChanged(int value)
 {    
-    changed_zero_to_x(value, m_master_unison_spreadLabel, LTS_PORT_MASTER_UNISON_SPREAD);
+    changed_zero_to_x(value, m_master_unison_spreadLabel, LMS_MASTER_UNISON_SPREAD);
 }
 
 
 void SynthGUI::masterGlideChanged(int value)
 {
-    changed_zero_to_x(value, m_master_glideLabel, LTS_PORT_MASTER_GLIDE);
+    changed_zero_to_x(value, m_master_glideLabel, LMS_MASTER_GLIDE);
 }
 
 
 void SynthGUI::masterPitchbendAmtChanged(int value)
 {
-    changed_integer(value, m_master_pitchbend_amtLabel, LTS_PORT_MASTER_PITCHBEND_AMT);
+    changed_integer(value, m_master_pitchbend_amtLabel, LMS_MASTER_PITCHBEND_AMT);
 }
 
 void SynthGUI::pitchEnvAmtChanged(int value)
 {
-    changed_integer(value, m_pitch_env_amtLabel, LTS_PORT_PITCH_ENV_AMT);
+    changed_integer(value, m_pitch_env_amtLabel, LMS_PITCH_ENV_AMT);
 }
 
 void SynthGUI::pitchEnvTimeChanged(int value)
 {
-    changed_seconds(value, m_pitch_env_timeLabel, LTS_PORT_PITCH_ENV_TIME);
+    changed_seconds(value, m_pitch_env_timeLabel, LMS_PITCH_ENV_TIME);
 }
 
 /*
@@ -1256,7 +1223,7 @@ void SynthGUI::programChanged(int value)
     /*TODO:  Something like this, then move the preset code to the DSSI plugin itself*/
     /*
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LTS_PORT_PROGRAM_CHANGE, (float(value)));
+	lo_send(m_host, m_controlPath, "if", LMS_PROGRAM_CHANGE, (float(value)));
     }
     */
     /*
@@ -1271,7 +1238,7 @@ void SynthGUI::programChanged(int value)
     {
         QStringList f_preset_values = presets_tab_delimited[value].split("\t");
         //TODO:  change f_i back to zero when there is something at that index
-        for(int f_i = 1; f_i < LTS_PORT_PROGRAM_CHANGE; f_i++)
+        for(int f_i = 1; f_i < LMS_PROGRAM_CHANGE; f_i++)
         {
             if(f_i > f_preset_values.count())
             {
@@ -1313,7 +1280,7 @@ void SynthGUI::programSaved()
         QString f_result = m_program->currentText();                
         
         //TODO:  change f_i back to zero when there is something at that index
-        for(int f_i = 1; f_i < LTS_PORT_PROGRAM_CHANGE; f_i++)
+        for(int f_i = 1; f_i < LMS_PROGRAM_CHANGE; f_i++)
         {
             QString * f_number = new QString();
             f_number->setNum(i_get_control(f_i));
@@ -1347,95 +1314,95 @@ void SynthGUI::v_print_port_name_to_cerr(int a_port)
 {
 #ifdef LMS_DEBUG_MODE_QT
     switch (a_port) {
-    case LTS_PORT_ATTACK:
-	cerr << "LTS_PORT_ATTACK";
+    case LMS_ATTACK:
+	cerr << "LMS_ATTACK";
 	break;
-    case LTS_PORT_DECAY:
-	cerr << "LTS_PORT_DECAY";
+    case LMS_DECAY:
+	cerr << "LMS_DECAY";
 	break;
-    case LTS_PORT_SUSTAIN:
-	cerr << "LTS_PORT_SUSTAIN";
+    case LMS_SUSTAIN:
+	cerr << "LMS_SUSTAIN";
 	break;
-    case LTS_PORT_RELEASE:
-	cerr << "LTS_PORT_RELEASE";
+    case LMS_RELEASE:
+	cerr << "LMS_RELEASE";
 	break;
-    case LTS_PORT_TIMBRE:
-	cerr << "LTS_PORT_TIMBRE";
+    case LMS_TIMBRE:
+	cerr << "LMS_TIMBRE";
 	break;
-    case LTS_PORT_RES:
-	cerr << "LTS_PORT_RES";
+    case LMS_RES:
+	cerr << "LMS_RES";
 	break;        
-    case LTS_PORT_DIST:
-	cerr << "LTS_PORT_DIST";
+    case LMS_DIST:
+	cerr << "LMS_DIST";
 	break;
-    case LTS_PORT_FILTER_ATTACK:
-	cerr << "LTS_PORT_FILTER_ATTACK";
+    case LMS_FILTER_ATTACK:
+	cerr << "LMS_FILTER_ATTACK";
 	break;
-    case LTS_PORT_FILTER_DECAY:
-	cerr << "LTS_PORT_FILTER_DECAY";
+    case LMS_FILTER_DECAY:
+	cerr << "LMS_FILTER_DECAY";
 	break;
-    case LTS_PORT_FILTER_SUSTAIN:
-	cerr << "LTS_PORT_FILTER_SUSTAIN";
+    case LMS_FILTER_SUSTAIN:
+	cerr << "LMS_FILTER_SUSTAIN";
 	break;
-    case LTS_PORT_FILTER_RELEASE:
-	cerr << "LTS_PORT_FILTER_RELEASE";
+    case LMS_FILTER_RELEASE:
+	cerr << "LMS_FILTER_RELEASE";
 	break;
-    case LTS_PORT_NOISE_AMP:
-        cerr << "LTS_PORT_NOISE_AMP";
+    case LMS_NOISE_AMP:
+        cerr << "LMS_NOISE_AMP";
         break;    
-    case LTS_PORT_DIST_WET:
-        cerr << "LTS_PORT_DIST_WET";
+    case LMS_DIST_WET:
+        cerr << "LMS_DIST_WET";
         break;            
-    case LTS_PORT_FILTER_ENV_AMT:
-        cerr << "LTS_PORT_FILTER_ENV_AMT";
+    case LMS_FILTER_ENV_AMT:
+        cerr << "LMS_FILTER_ENV_AMT";
         break;    
-    case LTS_PORT_OSC1_TYPE:
-        cerr << "LTS_PORT_OSC1_TYPE";
+    case LMS_OSC1_TYPE:
+        cerr << "LMS_OSC1_TYPE";
         break;            
-    case LTS_PORT_OSC1_PITCH:
-        cerr << "LTS_PORT_OSC1_PITCH";
+    case LMS_OSC1_PITCH:
+        cerr << "LMS_OSC1_PITCH";
         break;    
-    case LTS_PORT_OSC1_TUNE:
-        cerr << "LTS_PORT_OSC1_TUNE";
+    case LMS_OSC1_TUNE:
+        cerr << "LMS_OSC1_TUNE";
         break;    
-    case LTS_PORT_OSC1_VOLUME:
-        cerr << "LTS_PORT_OSC1_VOLUME";
+    case LMS_OSC1_VOLUME:
+        cerr << "LMS_OSC1_VOLUME";
         break;        
-    case LTS_PORT_OSC2_TYPE:
-        cerr << "LTS_PORT_OSC2_TYPE";
+    case LMS_OSC2_TYPE:
+        cerr << "LMS_OSC2_TYPE";
         break;            
-    case LTS_PORT_OSC2_PITCH:
-        cerr << "LTS_PORT_OSC2_PITCH";
+    case LMS_OSC2_PITCH:
+        cerr << "LMS_OSC2_PITCH";
         break;    
-    case LTS_PORT_OSC2_TUNE:
-        cerr << "LTS_PORT_OSC2_TUNE";
+    case LMS_OSC2_TUNE:
+        cerr << "LMS_OSC2_TUNE";
         break;    
-    case LTS_PORT_OSC2_VOLUME:
-        cerr << "LTS_PORT_OSC2_VOLUME";
+    case LMS_OSC2_VOLUME:
+        cerr << "LMS_OSC2_VOLUME";
         break;        
-    case LTS_PORT_MASTER_VOLUME:
-        cerr << "LTS_PORT_MASTER_VOLUME";
+    case LMS_MASTER_VOLUME:
+        cerr << "LMS_MASTER_VOLUME";
         break;        
-    case LTS_PORT_MASTER_UNISON_VOICES:
-        cerr << "LTS_PORT_MASTER_UNISON_VOICES";
+    case LMS_MASTER_UNISON_VOICES:
+        cerr << "LMS_MASTER_UNISON_VOICES";
         break;
-    case LTS_PORT_MASTER_UNISON_SPREAD:
-        cerr << "LTS_PORT_MASTER_UNISON_SPREAD";
+    case LMS_MASTER_UNISON_SPREAD:
+        cerr << "LMS_MASTER_UNISON_SPREAD";
         break;
-    case LTS_PORT_MASTER_GLIDE:
-        cerr << "LTS_PORT_MASTER_GLIDE";
+    case LMS_MASTER_GLIDE:
+        cerr << "LMS_MASTER_GLIDE";
         break;
-    case LTS_PORT_MASTER_PITCHBEND_AMT:
-        cerr << "LTS_PORT_MASTER_PITCHBEND_AMT";
+    case LMS_MASTER_PITCHBEND_AMT:
+        cerr << "LMS_MASTER_PITCHBEND_AMT";
         break;
-    case LTS_PORT_PITCH_ENV_AMT:
-        cerr << "LTS_PORT_PITCH_ENV_AMT ";
+    case LMS_PITCH_ENV_AMT:
+        cerr << "LMS_PITCH_ENV_AMT ";
         break;
-    case LTS_PORT_PITCH_ENV_TIME:
-        cerr << "LTS_PORT_PITCH_ENV_TIME ";
+    case LMS_PITCH_ENV_TIME:
+        cerr << "LMS_PITCH_ENV_TIME ";
         break;        
-    case LTS_PORT_PROGRAM_CHANGE:
-        cerr << "LTS_PORT_PROGRAM_CHANGE ";
+    case LMS_PROGRAM_CHANGE:
+        cerr << "LMS_PROGRAM_CHANGE ";
         break;
     default:
 	cerr << "Warning: received request to set nonexistent port " << a_port ;
@@ -1456,94 +1423,94 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     /*GUI Step 8:  Add the controls you created to the control handler*/
     
     switch (a_port) {
-    case LTS_PORT_ATTACK:
+    case LMS_ATTACK:
 	setAttack(a_value);
 	break;
-    case LTS_PORT_DECAY:
+    case LMS_DECAY:
 	setDecay(a_value);
 	break;
-    case LTS_PORT_SUSTAIN:
+    case LMS_SUSTAIN:
 	setSustain(a_value);
 	break;
-    case LTS_PORT_RELEASE:
+    case LMS_RELEASE:
 	setRelease(a_value);
 	break;
-    case LTS_PORT_TIMBRE:
+    case LMS_TIMBRE:
 	setTimbre(a_value);
 	break;
-    case LTS_PORT_RES:
+    case LMS_RES:
 	setRes(a_value);
 	break;        
-    case LTS_PORT_DIST:
+    case LMS_DIST:
 	setDist(a_value);
 	break;
-    case LTS_PORT_FILTER_ATTACK:
+    case LMS_FILTER_ATTACK:
 	setFilterAttack(a_value);
 	break;
-    case LTS_PORT_FILTER_DECAY:
+    case LMS_FILTER_DECAY:
 	setFilterDecay(a_value);
 	break;
-    case LTS_PORT_FILTER_SUSTAIN:
+    case LMS_FILTER_SUSTAIN:
 	setFilterSustain(a_value);
 	break;
-    case LTS_PORT_FILTER_RELEASE:
+    case LMS_FILTER_RELEASE:
 	setFilterRelease(a_value);
 	break;
-    case LTS_PORT_NOISE_AMP:
+    case LMS_NOISE_AMP:
         setNoiseAmp(a_value);
         break;    
-    case LTS_PORT_DIST_WET:
+    case LMS_DIST_WET:
         setDistWet(a_value);
         break;            
-    case LTS_PORT_FILTER_ENV_AMT:
+    case LMS_FILTER_ENV_AMT:
         setFilterEnvAmt(a_value);
         break;    
-    case LTS_PORT_OSC1_TYPE:
+    case LMS_OSC1_TYPE:
         setOsc1Type(a_value);
         break;            
-    case LTS_PORT_OSC1_PITCH:
+    case LMS_OSC1_PITCH:
         setOsc1Pitch(a_value);
         break;    
-    case LTS_PORT_OSC1_TUNE:
+    case LMS_OSC1_TUNE:
         setOsc1Tune(a_value);
         break;    
-    case LTS_PORT_OSC1_VOLUME:
+    case LMS_OSC1_VOLUME:
         setOsc1Volume(a_value);
         break;        
-    case LTS_PORT_OSC2_TYPE:
+    case LMS_OSC2_TYPE:
         setOsc2Type(a_value);
         break;            
-    case LTS_PORT_OSC2_PITCH:
+    case LMS_OSC2_PITCH:
         setOsc2Pitch(a_value);
         break;    
-    case LTS_PORT_OSC2_TUNE:
+    case LMS_OSC2_TUNE:
         setOsc2Tune(a_value);
         break;    
-    case LTS_PORT_OSC2_VOLUME:
+    case LMS_OSC2_VOLUME:
         setOsc2Volume(a_value);
         break;        
-    case LTS_PORT_MASTER_VOLUME:
+    case LMS_MASTER_VOLUME:
         setMasterVolume(a_value);
         break;    
-    case LTS_PORT_MASTER_UNISON_VOICES:
+    case LMS_MASTER_UNISON_VOICES:
         setMasterUnisonVoices(a_value);
         break;
-    case LTS_PORT_MASTER_UNISON_SPREAD:
+    case LMS_MASTER_UNISON_SPREAD:
         setMasterUnisonSpread(a_value);
         break;
-    case LTS_PORT_MASTER_GLIDE:
+    case LMS_MASTER_GLIDE:
         setMasterGlide(a_value);
         break;
-    case LTS_PORT_MASTER_PITCHBEND_AMT:
+    case LMS_MASTER_PITCHBEND_AMT:
         setMasterPitchbendAmt(a_value);
         break;
-    case LTS_PORT_PITCH_ENV_AMT:
+    case LMS_PITCH_ENV_AMT:
         setPitchEnvAmt(a_value);
         break;
-    case LTS_PORT_PITCH_ENV_TIME:
+    case LMS_PITCH_ENV_TIME:
         setPitchEnvTime(a_value);
         break;            
-    case LTS_PORT_PROGRAM_CHANGE:
+    case LMS_PROGRAM_CHANGE:
         setProgram(a_value);
         break;
     }
@@ -1563,94 +1530,94 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
        /*GUI Step 9:  Add the controls you created to the control handler*/
     
     switch (a_port) {
-    case LTS_PORT_ATTACK:
+    case LMS_ATTACK:
 	attackChanged(a_value);
 	break;
-    case LTS_PORT_DECAY:	
+    case LMS_DECAY:	
 	decayChanged(a_value);
 	break;
-    case LTS_PORT_SUSTAIN:
+    case LMS_SUSTAIN:
 	sustainChanged(a_value);
 	break;
-    case LTS_PORT_RELEASE:
+    case LMS_RELEASE:
 	releaseChanged(a_value);
 	break;
-    case LTS_PORT_TIMBRE:
+    case LMS_TIMBRE:
 	timbreChanged(a_value);
 	break;
-    case LTS_PORT_RES:
+    case LMS_RES:
 	resChanged(a_value);
 	break;        
-    case LTS_PORT_DIST:
+    case LMS_DIST:
 	distChanged(a_value);
 	break;
-    case LTS_PORT_FILTER_ATTACK:
+    case LMS_FILTER_ATTACK:
 	filterAttackChanged(a_value);
 	break;
-    case LTS_PORT_FILTER_DECAY:
+    case LMS_FILTER_DECAY:
 	filterDecayChanged(a_value);
 	break;
-    case LTS_PORT_FILTER_SUSTAIN:
+    case LMS_FILTER_SUSTAIN:
 	filterSustainChanged(a_value);
 	break;
-    case LTS_PORT_FILTER_RELEASE:
+    case LMS_FILTER_RELEASE:
 	filterReleaseChanged(a_value);
 	break;
-    case LTS_PORT_NOISE_AMP:
+    case LMS_NOISE_AMP:
         noiseAmpChanged(a_value);
         break;    
-    case LTS_PORT_DIST_WET:
+    case LMS_DIST_WET:
         distWetChanged(a_value);
         break;
-    case LTS_PORT_FILTER_ENV_AMT:
+    case LMS_FILTER_ENV_AMT:
         filterEnvAmtChanged(a_value);
         break;    
-    case LTS_PORT_OSC1_TYPE:
+    case LMS_OSC1_TYPE:
         osc1TypeChanged(a_value);
         break;            
-    case LTS_PORT_OSC1_PITCH:
+    case LMS_OSC1_PITCH:
         osc1PitchChanged(a_value);
         break;    
-    case LTS_PORT_OSC1_TUNE:
+    case LMS_OSC1_TUNE:
         osc1TuneChanged(a_value);
         break;    
-    case LTS_PORT_OSC1_VOLUME:
+    case LMS_OSC1_VOLUME:
         osc1VolumeChanged(a_value);
         break;
-    case LTS_PORT_OSC2_TYPE:
+    case LMS_OSC2_TYPE:
         osc2TypeChanged(a_value);
         break;            
-    case LTS_PORT_OSC2_PITCH:
+    case LMS_OSC2_PITCH:
         osc2PitchChanged(a_value);
         break;    
-    case LTS_PORT_OSC2_TUNE:
+    case LMS_OSC2_TUNE:
         osc2TuneChanged(a_value);
         break;    
-    case LTS_PORT_OSC2_VOLUME:
+    case LMS_OSC2_VOLUME:
         osc2VolumeChanged(a_value);
         break;
-    case LTS_PORT_MASTER_VOLUME:
+    case LMS_MASTER_VOLUME:
         masterVolumeChanged(a_value);
         break;
-    case LTS_PORT_MASTER_UNISON_VOICES:
+    case LMS_MASTER_UNISON_VOICES:
         masterUnisonVoicesChanged(a_value);
         break;
-    case LTS_PORT_MASTER_UNISON_SPREAD:
+    case LMS_MASTER_UNISON_SPREAD:
         masterUnisonSpreadChanged(a_value);
         break;
-    case LTS_PORT_MASTER_GLIDE:
+    case LMS_MASTER_GLIDE:
         masterGlideChanged(a_value);
         break;
-    case LTS_PORT_MASTER_PITCHBEND_AMT:
+    case LMS_MASTER_PITCHBEND_AMT:
         masterPitchbendAmtChanged(a_value);
         break;
-    case LTS_PORT_PITCH_ENV_AMT:
+    case LMS_PITCH_ENV_AMT:
         pitchEnvAmtChanged(a_value);
         break;
-    case LTS_PORT_PITCH_ENV_TIME:
+    case LMS_PITCH_ENV_TIME:
         pitchEnvTimeChanged(a_value);
         break;
-    case LTS_PORT_PROGRAM_CHANGE:
+    case LMS_PROGRAM_CHANGE:
         programChanged(a_value);
         break;
     default:
@@ -1672,65 +1639,65 @@ int SynthGUI::i_get_control(int a_port)
         /*GUI Step 10:  Add the controls you created to the control handler
          TODO:  Renumber the GUI steps*/
     switch (a_port) {
-    case LTS_PORT_ATTACK:
+    case LMS_ATTACK:
         return m_attack->value();
-    case LTS_PORT_DECAY:
+    case LMS_DECAY:
         return m_decay->value();
-    case LTS_PORT_SUSTAIN:
+    case LMS_SUSTAIN:
         return m_sustain->value();
-    case LTS_PORT_RELEASE:
+    case LMS_RELEASE:
         return m_release->value();
-    case LTS_PORT_TIMBRE:
+    case LMS_TIMBRE:
         return m_timbre->value();
-    case LTS_PORT_RES:
+    case LMS_RES:
         return m_res->value();        
-    case LTS_PORT_DIST:
+    case LMS_DIST:
         return m_dist->value();
-    case LTS_PORT_FILTER_ATTACK:
+    case LMS_FILTER_ATTACK:
         return m_filter_attack->value();
-    case LTS_PORT_FILTER_DECAY:
+    case LMS_FILTER_DECAY:
         return m_filter_decay->value();
-    case LTS_PORT_FILTER_SUSTAIN:
+    case LMS_FILTER_SUSTAIN:
         return m_filter_sustain->value();
-    case LTS_PORT_FILTER_RELEASE:
+    case LMS_FILTER_RELEASE:
         return m_filter_release->value();
-    case LTS_PORT_NOISE_AMP:
+    case LMS_NOISE_AMP:
         return m_noise_amp->value();
-    case LTS_PORT_DIST_WET:
+    case LMS_DIST_WET:
         return m_dist_wet->value();
-    case LTS_PORT_FILTER_ENV_AMT:
+    case LMS_FILTER_ENV_AMT:
         return m_filter_env_amt->value();
-    case LTS_PORT_OSC1_TYPE:
+    case LMS_OSC1_TYPE:
         return m_osc1_type->currentIndex();
-    case LTS_PORT_OSC1_PITCH:
+    case LMS_OSC1_PITCH:
         return m_osc1_pitch->value();
-    case LTS_PORT_OSC1_TUNE:
+    case LMS_OSC1_TUNE:
         return m_osc1_tune->value();
-    case LTS_PORT_OSC1_VOLUME:
+    case LMS_OSC1_VOLUME:
         return m_osc1_volume->value();
-    case LTS_PORT_OSC2_TYPE:
+    case LMS_OSC2_TYPE:
         return m_osc2_type->currentIndex();
-    case LTS_PORT_OSC2_PITCH:
+    case LMS_OSC2_PITCH:
         return m_osc2_pitch->value();
-    case LTS_PORT_OSC2_TUNE:
+    case LMS_OSC2_TUNE:
         return m_osc2_tune->value();
-    case LTS_PORT_OSC2_VOLUME:
+    case LMS_OSC2_VOLUME:
         return m_osc2_volume->value();
-    case LTS_PORT_MASTER_VOLUME:
+    case LMS_MASTER_VOLUME:
         return m_master_volume->value();
-    case LTS_PORT_MASTER_UNISON_VOICES:
+    case LMS_MASTER_UNISON_VOICES:
         return m_master_unison_voices->value();
-    case LTS_PORT_MASTER_UNISON_SPREAD:
+    case LMS_MASTER_UNISON_SPREAD:
         return m_master_unison_spread->value();
-    case LTS_PORT_MASTER_GLIDE:
+    case LMS_MASTER_GLIDE:
         return m_master_glide->value();
-    case LTS_PORT_MASTER_PITCHBEND_AMT:
+    case LMS_MASTER_PITCHBEND_AMT:
         return m_master_pitchbend_amt->value();
-    case LTS_PORT_PITCH_ENV_AMT:
+    case LMS_PITCH_ENV_AMT:
         return m_pitch_env_amt->value();
-    case LTS_PORT_PITCH_ENV_TIME:
+    case LMS_PITCH_ENV_TIME:
         return m_pitch_env_time->value();
-    case LTS_PORT_PROGRAM_CHANGE:
+    case LMS_PROGRAM_CHANGE:
         return m_program->currentIndex();
     default:
 #ifdef LMS_DEBUG_MODE_QT
