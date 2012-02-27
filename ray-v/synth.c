@@ -99,7 +99,6 @@ typedef struct {
     float osc1_linamp;
     float osc2_linamp;
     float noise_linamp;
-    float hz;
     t_poly_voice * p_voice;    
     note_state n_state;
     int i_voice;  //for the runVoice function to iterate the current block
@@ -556,7 +555,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     data[voice].debug_counter = 0;                    
 #endif
                     data[voice].note_f = (float)n.note;
-                    data[voice].hz = f_pit_midi_note_to_hz(data[voice].note_f);
+                    //data[voice].hz = f_pit_midi_note_to_hz(data[voice].note_f);
                     
                     
                     data[voice].p_voice->target_pitch = (data[voice].note_f);
