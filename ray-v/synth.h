@@ -35,6 +35,10 @@ printf("debug information");
 #define LMS_OUTPUT0  0
 #define LMS_OUTPUT1  31
 /*GUI Step 11:  Add ports to the main synthesizer file that the GUI can talk to */
+    
+/*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
+ as they are iterated through*/
+#define LMS_FIRST_CONTROL_PORT 1    
 #define LMS_ATTACK  1
 #define LMS_DECAY   2
 #define LMS_SUSTAIN 3
@@ -65,6 +69,8 @@ printf("debug information");
 #define LMS_PITCH_ENV_TIME 28
 #define LMS_PITCH_ENV_AMT 29
 #define LMS_PROGRAM_CHANGE 30
+/*This is the last control port*/
+#define LMS_LAST_CONTROL_PORT 30
 #define LMS_COUNT 32 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 
