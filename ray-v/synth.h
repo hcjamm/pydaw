@@ -1,6 +1,6 @@
 /* 
  * File:   synth.h
- * Author: bob
+ * Author: Jeff Hubbard
  *
  * Created on February 26, 2012, 8:48 PM
  */
