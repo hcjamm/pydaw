@@ -102,6 +102,7 @@ typedef struct {
     float hz;
     t_poly_voice * p_voice;    
     note_state n_state;
+    int i_voice;  //for the runVoice function to iterate the current block
 #ifdef LMS_DEBUG_MAIN_LOOP
     int debug_counter;
 #endif
@@ -269,6 +270,13 @@ typedef struct {
     int note2voice[MIDI_NOTES];    
     float fs;    
     t_mono_modules * mono_modules;
+    synth_vals vals;
+    
+    int pos;
+    int count;
+    int event_pos;
+    int voice;
+    int i_buffer_clear;    
 } LTS;
 
 
@@ -461,72 +469,71 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 {
     LTS *plugin_data = (LTS *) instance;
     
-    LADSPA_Data *const output = plugin_data->output;
-    synth_vals vals;
+    LADSPA_Data *const output = plugin_data->output;    
     voice_data *data = plugin_data->data;
     
-    int pos = 0;
-    int count = 0;
-    int event_pos = 0;
-    int voice = 0;
+    plugin_data->pos = 0;
+    plugin_data->count= 0;
+    plugin_data->event_pos = 0;
+    plugin_data->voice = 0;
     
     /*GUI Step 15:  Set the values from synth_vals in RunLTS*/
-    vals.attack = *(plugin_data->attack) * .01;
-    vals.decay = *(plugin_data->decay) * .01; 
-    vals.sustain = *(plugin_data->sustain);
-    vals.release = *(plugin_data->release) * .01;
-    vals.timbre = *(plugin_data->timbre);
+    plugin_data->vals.attack = *(plugin_data->attack) * .01;
+    plugin_data->vals.decay = *(plugin_data->decay) * .01; 
+    plugin_data->vals.sustain = *(plugin_data->sustain);
+    plugin_data->vals.release = *(plugin_data->release) * .01;
+    plugin_data->vals.timbre = *(plugin_data->timbre);
     
-    vals.res = *(plugin_data->res);
-    vals.dist = *(plugin_data->dist);
+    plugin_data->vals.res = *(plugin_data->res);
+    plugin_data->vals.dist = *(plugin_data->dist);
 
-    vals.attack_f = *(plugin_data->attack_f) * .01;
-    vals.decay_f = *(plugin_data->decay_f) * .01; 
-    vals.sustain_f = *(plugin_data->sustain_f) * .01;
-    vals.release_f = *(plugin_data->release_f) * .01;
+    plugin_data->vals.attack_f = *(plugin_data->attack_f) * .01;
+    plugin_data->vals.decay_f = *(plugin_data->decay_f) * .01; 
+    plugin_data->vals.sustain_f = *(plugin_data->sustain_f) * .01;
+    plugin_data->vals.release_f = *(plugin_data->release_f) * .01;
     
-    vals.noise_amp = *(plugin_data->noise_amp);
+    plugin_data->vals.noise_amp = *(plugin_data->noise_amp);
     
-    vals.dist_wet = *(plugin_data->dist_wet) * .01;    
-    vals.filter_env_amt = *(plugin_data->filter_env_amt);
-    vals.master_vol = *(plugin_data->master_vol);
+    plugin_data->vals.dist_wet = *(plugin_data->dist_wet) * .01;    
+    plugin_data->vals.filter_env_amt = *(plugin_data->filter_env_amt);
+    plugin_data->vals.master_vol = *(plugin_data->master_vol);
     
-    vals.osc1pitch = *(plugin_data->osc1pitch);
-    vals.osc1tune = *(plugin_data->osc1tune) * .01;
-    vals.osc1type = *(plugin_data->osc1type);
-    vals.osc1vol = *(plugin_data->osc1vol);
+    plugin_data->vals.osc1pitch = *(plugin_data->osc1pitch);
+    plugin_data->vals.osc1tune = *(plugin_data->osc1tune) * .01;
+    plugin_data->vals.osc1type = *(plugin_data->osc1type);
+    plugin_data->vals.osc1vol = *(plugin_data->osc1vol);
     
-    vals.osc2pitch = *(plugin_data->osc2pitch);
-    vals.osc2tune = *(plugin_data->osc2tune) * .01;
-    vals.osc2type = *(plugin_data->osc2type);
-    vals.osc2vol = *(plugin_data->osc2vol);
+    plugin_data->vals.osc2pitch = *(plugin_data->osc2pitch);
+    plugin_data->vals.osc2tune = *(plugin_data->osc2tune) * .01;
+    plugin_data->vals.osc2type = *(plugin_data->osc2type);
+    plugin_data->vals.osc2vol = *(plugin_data->osc2vol);
     
-    vals.master_uni_voice = *(plugin_data->master_uni_voice);
-    vals.master_uni_spread = *(plugin_data->master_uni_spread) * .01;
-    vals.master_glide = *(plugin_data->master_glide) * .01;
-    vals.master_pb_amt = *(plugin_data->master_pb_amt);
+    plugin_data->vals.master_uni_voice = *(plugin_data->master_uni_voice);
+    plugin_data->vals.master_uni_spread = *(plugin_data->master_uni_spread) * .01;
+    plugin_data->vals.master_glide = *(plugin_data->master_glide) * .01;
+    plugin_data->vals.master_pb_amt = *(plugin_data->master_pb_amt);
     
-    vals.pitch_env_amt = *(plugin_data->pitch_env_amt);
-    vals.pitch_env_time = *(plugin_data->pitch_env_time) * .01;
+    plugin_data->vals.pitch_env_amt = *(plugin_data->pitch_env_amt);
+    plugin_data->vals.pitch_env_time = *(plugin_data->pitch_env_time) * .01;
     
     /*Events is an array of snd_seq_event_t objects, 
      event_count is the number of events,
      and sample_count is the block size          
      */
-    while (pos < sample_count) 
+    while ((plugin_data->pos) < sample_count) 
     {	        
-        v_smr_iir_run(plugin_data->mono_modules->filter_smoother, vals.timbre);
+        v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.timbre));
         v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, sv_pitch_bend_value);
         
-	while (event_pos < event_count)
+	while ((plugin_data->event_pos) < event_count)
         {
 #ifdef LMS_DEBUG_NOTE
             printf("Event firing\n");
 #endif                      
             /*Note on event*/
-	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) 
+	    if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEON) 
             {
-		snd_seq_ev_note_t n = events[event_pos].data.note;
+		snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
 
 		if (n.velocity > 0) 
                 {                    
@@ -540,7 +547,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     
 		    plugin_data->note2voice[n.note] = voice;
 		    data[voice].note = n.note;
-		    data[voice].amp = f_db_to_linear_fast((n.velocity * 0.094488) - 12 + (vals.master_vol)); //-20db to 0db, + master volume (0 to -60)
+		    data[voice].amp = f_db_to_linear_fast((n.velocity * 0.094488) - 12 + (plugin_data->vals.master_vol)); //-20db to 0db, + master volume (0 to -60)
                     v_svf_velocity_mod(data[voice].p_voice->svf_filter, n.velocity);
                     
                     /*LibModSynth additions*/
@@ -557,12 +564,12 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     //data[voice].p_voice->real_pitch = sv_last_note;
                                         
                     v_sml_set_smoother_glide(data[voice].p_voice->glide_smoother, (data[voice].p_voice->target_pitch), sv_last_note,
-                            vals.master_glide);
+                            (plugin_data->vals.master_glide));
                                         
                     /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
-                    data[voice].osc1_linamp = f_db_to_linear_fast(vals.osc1vol);
-                    data[voice].osc2_linamp = f_db_to_linear_fast(vals.osc2vol);
-                    data[voice].noise_linamp = f_db_to_linear_fast(vals.noise_amp);
+                    data[voice].osc1_linamp = f_db_to_linear_fast(plugin_data->vals.osc1vol);
+                    data[voice].osc2_linamp = f_db_to_linear_fast(plugin_data->vals.osc2vol);
+                    data[voice].noise_linamp = f_db_to_linear_fast(plugin_data->vals.noise_amp);
                     
                     data[voice].n_state = running;
                                         
@@ -573,27 +580,27 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                     v_adsr_retrigger(data[voice].p_voice->adsr_amp);
                     v_adsr_retrigger(data[voice].p_voice->adsr_filter);
                     
-                    v_adsr_set_adsr_db(data[voice].p_voice->adsr_amp, (vals.attack), (vals.decay), (vals.sustain), (vals.release));
-                    v_adsr_set_adsr(data[voice].p_voice->adsr_filter, (vals.attack_f), (vals.decay_f), (vals.sustain_f), (vals.release_f));
+                    v_adsr_set_adsr_db(data[voice].p_voice->adsr_amp, (plugin_data->vals.attack), (plugin_data->vals.decay), (plugin_data->vals.sustain), (plugin_data->vals.release));
+                    v_adsr_set_adsr(data[voice].p_voice->adsr_filter, (plugin_data->vals.attack_f), (plugin_data->vals.decay_f), (plugin_data->vals.sustain_f), (plugin_data->vals.release_f));
                     
                     /*Retrigger the pitch envelope*/
-                    v_rmp_retrigger((data[voice].p_voice->pitch_env), (vals.pitch_env_time));  
+                    v_rmp_retrigger((data[voice].p_voice->pitch_env), (plugin_data->vals.pitch_env_time));  
                     
-                    v_clp_set_in_gain(data[voice].p_voice->clipper1, vals.dist);
+                    v_clp_set_in_gain(data[voice].p_voice->clipper1, plugin_data->vals.dist);
     
-                    v_svf_set_res(data[voice].p_voice->svf_filter, vals.res);  
+                    v_svf_set_res(data[voice].p_voice->svf_filter, plugin_data->vals.res);  
                     
-                    data[voice].p_voice->noise_amp = f_db_to_linear((vals.noise_amp));
+                    data[voice].p_voice->noise_amp = f_db_to_linear((plugin_data->vals.noise_amp));
                     
-                    v_axf_set_xfade(data[voice].p_voice->dist_dry_wet, vals.dist_wet);       
+                    v_axf_set_xfade(data[voice].p_voice->dist_dry_wet, plugin_data->vals.dist_wet);       
                     
                     /*Set the oscillator type(saw, square, etc...)*/
-                    v_osc_set_simple_osc_unison_type(data[voice].p_voice->osc_unison1, (int)(vals.osc1type));
-                    v_osc_set_simple_osc_unison_type(data[voice].p_voice->osc_unison2, (int)(vals.osc2type));   
+                    v_osc_set_simple_osc_unison_type(data[voice].p_voice->osc_unison1, (int)(plugin_data->vals.osc1type));
+                    v_osc_set_simple_osc_unison_type(data[voice].p_voice->osc_unison2, (int)(plugin_data->vals.osc2type));   
                     
                     /*Set the number of unison voices*/
-                    v_osc_set_uni_voice_count(data[voice].p_voice->osc_unison1, vals.master_uni_voice);
-                    v_osc_set_uni_voice_count(data[voice].p_voice->osc_unison2, vals.master_uni_voice);
+                    v_osc_set_uni_voice_count(data[voice].p_voice->osc_unison1, plugin_data->vals.master_uni_voice);
+                    v_osc_set_uni_voice_count(data[voice].p_voice->osc_unison2, plugin_data->vals.master_uni_voice);
                     
                                         
                     /*Set the last_note property, so the next note can glide from it if glide is turned on*/
@@ -602,7 +609,7 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
                 /*0 velocity, the same as note-off*/
                 else 
                 {
-                    snd_seq_ev_note_t n = events[event_pos].data.note;
+                    snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
                     
 		    const int voice = plugin_data->note2voice[n.note];
 
@@ -618,9 +625,9 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 		}
 	    } 
             /*Note-off event*/
-            else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF) 
+            else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEOFF) 
             {
-		snd_seq_ev_note_t n = events[event_pos].data.note;
+		snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
                 
                 /*POLYPHONY is directly correlated to the actual index of the voice
                  in plugin_data->note2voice.*/
@@ -637,44 +644,47 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 		}
 	    } 
             /*Pitch-bend sequencer event, modify the voices pitch*/
-            else if (events[event_pos].type == SND_SEQ_EVENT_PITCHBEND) 
+            else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_PITCHBEND) 
             {
 		sv_pitch_bend_value = 0.00012207   //0.000061035 
-                        * events[event_pos].data.control.value * vals.master_pb_amt;
+                        * events[(plugin_data->event_pos)].data.control.value * (plugin_data->vals.master_pb_amt);
 #ifdef LMS_DEBUG_NOTE                
                 printf("_pitchbend_value is %f\n", sv_pitch_bend_value);		
 #endif                
 	    }
-	    event_pos++;
+	    plugin_data->event_pos = (plugin_data->event_pos) + 1;
 	}
 
         /*TODO:  WTF does this mean?*/
-	count = (sample_count - pos) > STEP_SIZE ? STEP_SIZE :	sample_count - pos;
+	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
 	
         /*Clear the output buffer*/
-        int f_buffer_clear = 0;
+        plugin_data->i_buffer_clear = 0;
         
-        while(f_buffer_clear<count) 
+        while((plugin_data->i_buffer_clear)<(plugin_data->count))
         {
-	    output[(pos + f_buffer_clear)] = 0.0f;
-            f_buffer_clear++;
+	    output[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;
+            plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
 	}
         
-	for (voice = 0; voice < POLYPHONY; voice++) 
+        plugin_data->voice = 0; 
+	while ((plugin_data->voice) < POLYPHONY) 
         {
 	    //if (data[voice].state != inactive) 
-            if(data[voice].n_state != off)
+            if(data[(plugin_data->voice)].n_state != off)
             {
 		run_voice(plugin_data, //The LTS class containing global synth data
-                        &vals, //monophonic values for the the synth's controls
-                        &data[voice], //The amp, envelope, state, etc... of the voice
-                        output + pos, //output is the block array, I think + pos advances the index???
-			  count //has to do with iterating through stepsize, but I'm not sure how
+                        &(plugin_data->vals), //monophonic values for the the synth's controls
+                        &data[(plugin_data->voice)], //The amp, envelope, state, etc... of the voice
+                        output + (plugin_data->pos), //output is the block array, I think + pos advances the index???
+			  (plugin_data->count) //has to do with iterating through stepsize, but I'm not sure how
                         );
 	    }
+            
+            plugin_data->voice = (plugin_data->voice) + 1; 
 	}
         
-        pos += STEP_SIZE;
+        plugin_data->pos = (plugin_data->pos) + STEP_SIZE;
     /*TODO:  create a loop here that corresponds to mono effects not processed per-voice*/
                 
     }
@@ -684,10 +694,11 @@ static void runLTS(LADSPA_Handle instance, unsigned long sample_count,
 static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out, unsigned int count)
 {   
     
-    int f_i = 0;
+    //int f_i = 0;
+    d->i_voice = 0;
     
     /*Process an audio block*/
-    while(f_i<count) {
+    while((d->i_voice)<count) {
 	
         /*Here is where we periodically dump debug information if debugging is enabled*/
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -791,9 +802,9 @@ static void run_voice(LTS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out,
 #endif  
         
         /*Run the envelope and assign to the output buffer*/
-        out[f_i] += (d->p_voice->current_sample) * (f_linear_to_db_linear((d->p_voice->adsr_amp->output))) * (d->amp) ; 
+        out[(d->i_voice)] += (d->p_voice->current_sample) * (f_linear_to_db_linear((d->p_voice->adsr_amp->output))) * (d->amp) ; 
                 
-        f_i++;
+        d->i_voice = (d->i_voice) + 1;
         /*End LibModSynth modifications*/
     }
 
