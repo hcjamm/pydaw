@@ -55,9 +55,9 @@ typedef struct st_svf_kernel
 typedef struct st_state_variable_filter
 {
     //t_smoother_linear * cutoff_smoother;
-    float cutoff_note, cutoff_hz, cutoff_filter, pi2_div_sr, sr, filter_res, filter_res_db, velocity_cutoff;
+    float cutoff_note, cutoff_hz, cutoff_filter, pi2_div_sr, sr, filter_res, filter_res_db, velocity_cutoff; //, velocity_cutoff_amt;
     
-    float cutoff_base, cutoff_mod, cutoff_last;  //New additions to fine-tune the modulation process
+    float cutoff_base, cutoff_mod, cutoff_last,  velocity_mod_amt;  //New additions to fine-tune the modulation process
     
     /*To create a stereo or greater filter, you would create an additional array of filters for each channel*/
     t_svf_kernel * filter_kernels [SVF_MAX_CASCADE];
@@ -239,6 +239,7 @@ inline void v_svf_velocity_mod(t_state_variable_filter*,float);
 inline void v_svf_velocity_mod(t_state_variable_filter* a_svf, float a_velocity)
 {
     a_svf->velocity_cutoff = ((a_velocity) * .2) - 24;
+    a_svf->velocity_mod_amt = a_velocity * 0.007874016;
 #ifdef SVF_DEBUG_MODE
     printf("svf->velocity:  %f\n", (a_svf->velocity_cutoff));
 #endif
@@ -259,7 +260,7 @@ inline void v_svf_add_cutoff_mod(t_state_variable_filter* a_svf, float a_midi_no
 /*This should be called every sample, otherwise the smoothing and modulation doesn't work properly*/
 inline void v_svf_set_cutoff(t_state_variable_filter * a_svf)
 {             
-    a_svf->cutoff_note = (a_svf->cutoff_base) + (a_svf->cutoff_mod) + (a_svf->velocity_cutoff);
+    a_svf->cutoff_note = (a_svf->cutoff_base) + ((a_svf->cutoff_mod) * (a_svf->velocity_mod_amt)) + (a_svf->velocity_cutoff);
      
     /*It hasn't changed since last time, return*/    
     if((a_svf->cutoff_note) == (a_svf->cutoff_last))
@@ -335,7 +336,8 @@ t_state_variable_filter * g_svf_get(float a_sample_rate)
     f_svf->cutoff_last = 81;
     f_svf->filter_res_db = -21;
     f_svf->filter_res = .5;
-    f_svf->velocity_cutoff = 0;
+    f_svf->velocity_cutoff = 0;    
+    f_svf->velocity_mod_amt = 1;
     
 #ifdef SVF_DEBUG_MODE    
         f_svf->samples_ran = 0;    
@@ -345,9 +347,7 @@ t_state_variable_filter * g_svf_get(float a_sample_rate)
     v_svf_add_cutoff_mod(f_svf, 0);
     v_svf_set_res(f_svf, -12);
     v_svf_set_cutoff(f_svf);
-    
-    //v_svf_set_input_value(f_svf, 0);
-    
+        
     return f_svf;
 }
 
