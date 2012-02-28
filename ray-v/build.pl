@@ -128,7 +128,7 @@ sub clean
 
 sub build
 {
-$make_result = system("make");
+$make_result = `make`;
 #TODO:  Check make result
 `$sleep`;
 }
