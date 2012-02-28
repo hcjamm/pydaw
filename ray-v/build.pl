@@ -171,7 +171,6 @@ equivalent dependencies on your system:
 
 $deps_ubuntu
 ");
-
-`echo 'This file is created when build.pl attempts to install the dependencies' > ../deps_installed.txt`;
 }
+`echo 'This file is created when build.pl attempts to install the dependencies' > ../deps_installed.txt`;
 }
