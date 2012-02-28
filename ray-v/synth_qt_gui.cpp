@@ -87,7 +87,6 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF); border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
-
     
     QString _osc_types [] = {"Saw", "Square", "Triangle", "Sine", "Off"};
     int _osc_types_count = 5;
@@ -130,7 +129,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     cerr << "No preset file found, writing the default preset string to ~/dssi/<plugin name>-presets.tsv" << endl;    
 #endif
 
-        f_file->write("classic 5th pad\t68\t95\t-8\t153\t90\t-15\t15\t94\t100\t52\t166\t-19\t36\t1\t0\t0\t0\t0\t0\t7\t0\t0\t-14\t5\t42\t1\t18\t38\t0\n303 acid lead\t21\t26\t-9\t45\t70\t0\t36\t12\t29\t1\t99\t-30\t36\t100\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t1\t1\t1\t18\t1\t0\nhoover\t21\t26\t-9\t45\t124\t-16\t15\t12\t29\t1\t99\t-12\t0\t1\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t4\t42\t1\t18\t32\t-12\nbendy saw\t1\t49\t-3\t16\t124\t-16\t15\t100\t100\t1\t162\t-60\t0\t1\t0\t0\t0\t0\t4\t0\t0\t0\t-16\t1\t42\t54\t36\t1\t0\nsupersaw lead\t3\t49\t-3\t16\t124\t-15\t36\t1\t33\t1\t162\t-12\t0\t1\t0\t0\t0\t-6\t4\t0\t0\t0\t-16\t5\t41\t1\t17\t1\t0\n3rd Plucks\t3\t49\t-20\t195\t90\t-9\t36\t1\t9\t1\t73\t-12\t36\t1\t0\t0\t0\t-6\t0\t5\t0\t0\t-16\t5\t50\t1\t17\t1\t0\nsquare lead\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-12\t36\t1\t1\t0\t0\t-6\t4\t0\t0\t0\t-16\t4\t50\t1\t17\t1\t0\ntriangle kick drum\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-37\t36\t1\t2\t0\t0\t-6\t4\t0\t0\t0\t-5\t4\t50\t1\t17\t17\t-24\nnoise snare\t3\t16\t-30\t14\t124\t-16\t36\t1\t10\t1\t73\t-3\t0\t1\t4\t0\t0\t-6\t4\t0\t0\t0\t-5\t4\t50\t1\t17\t17\t-24\nelectro open hihat\t16\t23\t-30\t14\t101\t-3\t36\t18\t10\t1\t73\t-3\t36\t100\t4\t0\t0\t-6\t4\t0\t0\t0\t-18\t4\t50\t1\t17\t17\t-24\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\n");
+        f_file->write("empty\nclassic 5th pad\t68\t95\t-8\t153\t90\t-15\t15\t94\t100\t52\t166\t-19\t36\t1\t0\t0\t0\t0\t0\t7\t0\t0\t-14\t5\t42\t1\t18\t38\t0\n303 acid lead\t21\t26\t-9\t45\t70\t0\t36\t12\t29\t1\t99\t-30\t36\t100\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t1\t1\t1\t18\t1\t0\nhoover\t21\t26\t-9\t45\t124\t-16\t15\t12\t29\t1\t99\t-12\t0\t1\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t4\t42\t1\t18\t32\t-12\nbendy saw\t1\t49\t-3\t16\t124\t-16\t15\t100\t100\t1\t162\t-60\t0\t1\t0\t0\t0\t0\t4\t0\t0\t0\t-16\t1\t42\t54\t36\t1\t0\nsupersaw lead\t3\t49\t-3\t16\t124\t-15\t36\t1\t33\t1\t162\t-12\t0\t1\t0\t0\t0\t-6\t4\t0\t0\t0\t-16\t5\t41\t1\t17\t1\t0\n3rd Plucks\t3\t49\t-20\t195\t90\t-9\t36\t1\t9\t1\t73\t-12\t36\t1\t0\t0\t0\t-6\t0\t5\t0\t0\t-16\t5\t50\t1\t17\t1\t0\nsquare lead\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-12\t36\t1\t1\t0\t0\t-6\t4\t0\t0\t0\t-16\t4\t50\t1\t17\t1\t0\ntriangle kick drum\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-37\t36\t1\t2\t0\t0\t-6\t4\t0\t0\t0\t-5\t4\t50\t1\t17\t17\t-24\nnoise snare\t3\t16\t-30\t14\t124\t-16\t36\t1\t10\t1\t73\t-3\t0\t1\t4\t0\t0\t-6\t4\t0\t0\t0\t-5\t4\t50\t1\t17\t17\t-24\nelectro open hihat\t16\t23\t-30\t14\t101\t-3\t36\t18\t10\t1\t73\t-3\t36\t100\t4\t0\t0\t-6\t4\t0\t0\t0\t-18\t4\t50\t1\t17\t17\t-24\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\n");
 
         f_file->flush();
         
@@ -142,7 +141,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     for(int i = 0; i < 128; i++) 
     {
         if(in->atEnd())
-        {
+        {                        
             f_programs_list[i] = "empty";
             presets_tab_delimited[i] = "empty";
         }
@@ -155,6 +154,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
             f_programs_list[i] = fields.at(0);
 
             presets_tab_delimited[i] = line;
+            
         }
 
     }
@@ -187,7 +187,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_program->setEditable(TRUE);
     connect(m_program, SIGNAL(currentIndexChanged(int)), this, SLOT(programChanged(int)));        
     layout_program->addWidget(m_program, -1, Qt::AlignLeft);
-    
+        
     m_prog_save = new QPushButton(this);
     m_prog_save->setText("Save");
     connect(m_prog_save, SIGNAL(pressed()), this, SLOT(programSaved()));
@@ -1202,7 +1202,9 @@ void SynthGUI::bankChanged(int value)
 
 void SynthGUI::programChanged(int value)
 {    
-    //int f_adjusted_value = 0;
+    /*We intentionally leave the first preset empty*/
+    if(value == 0)
+        return;
 
 #ifdef LMS_DEBUG_MODE_QT    
     cerr << "programChanged called with value " << value << endl;
@@ -1210,21 +1212,7 @@ void SynthGUI::programChanged(int value)
     
     if(m_suppressHostUpdate)
         return;
-    
-    /*TODO:  Something like this, then move the preset code to the DSSI plugin itself*/
-    /*
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LMS_PROGRAM_CHANGE, (float(value)));
-    }
-    */
-    /*
-    if(value <= 127)
-        f_adjusted_value = value;
-    else
-    {
-        programChanged(1);  //change it to program 1 first, then back to zero
-    }
-    */
+
     if(presets_tab_delimited[value].compare("empty") != 0)
     {
         QStringList f_preset_values = presets_tab_delimited[value].split("\t");
@@ -1253,7 +1241,20 @@ void SynthGUI::programSaved()
 {
     int f_compare_text = m_program->currentText().compare("empty");
     
-    if(f_compare_text == 0)
+    if((m_program->currentIndex()) == 0)
+    {
+        QMessageBox * f_qmess = new QMessageBox(this);
+        
+        QString * f_compare_text_string = new QString();
+        f_compare_text_string->setNum(f_compare_text);
+        
+        f_compare_text_string->append("  \"" + presets_tab_delimited[m_program->currentIndex()] + "\"\n" +
+        "The first preset on the list must be empty, please select another preset to save.");
+        
+        f_qmess->setText(*f_compare_text_string);
+        f_qmess->show();        
+    }
+    else if(f_compare_text == 0)
     {
         QMessageBox * f_qmess = new QMessageBox(this);
         
@@ -1265,7 +1266,7 @@ void SynthGUI::programSaved()
         
         f_qmess->setText(*f_compare_text_string);
         f_qmess->show();
-    }
+    }    
     else
     {
         QString f_result = m_program->currentText();                
