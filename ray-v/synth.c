@@ -321,11 +321,10 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                     
                     
                     data[voice].p_voice->target_pitch = (data[voice].note_f);
+                    data[voice].p_voice->last_pitch = (plugin_data->sv_last_note);
                     
-                    //data[voice].p_voice->real_pitch = sv_last_note;
-                                        
-                    v_sml_set_smoother_glide(data[voice].p_voice->glide_smoother, (data[voice].p_voice->target_pitch), (plugin_data->sv_last_note),
-                            (plugin_data->vals.master_glide));
+                    v_rmp_retrigger_glide_t(data[voice].p_voice->glide_env , (plugin_data->vals.master_glide), 
+                            (plugin_data->sv_last_note), (data[voice].p_voice->target_pitch));
                                         
                     /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
                     data[voice].osc1_linamp = f_db_to_linear_fast(plugin_data->vals.osc1vol);
@@ -345,7 +344,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                     v_adsr_set_adsr(data[voice].p_voice->adsr_filter, (plugin_data->vals.attack_f), (plugin_data->vals.decay_f), (plugin_data->vals.sustain_f), (plugin_data->vals.release_f));
                     
                     /*Retrigger the pitch envelope*/
-                    v_rmp_retrigger((data[voice].p_voice->pitch_env), (plugin_data->vals.pitch_env_time));  
+                    v_rmp_retrigger((data[voice].p_voice->pitch_env), (plugin_data->vals.pitch_env_time), (plugin_data->vals.pitch_env_amt));  
                     
                     v_clp_set_in_gain(data[voice].p_voice->clipper1, plugin_data->vals.dist);
     
@@ -483,22 +482,28 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
         
         /*Run the glide module*/        
         
-        v_sml_run_glide(d->p_voice->glide_smoother, (d->p_voice->target_pitch));
-       
-        f_rmp_run_ramp(d->p_voice->pitch_env, (vals->pitch_env_amt));
+        f_rmp_run_ramp(d->p_voice->pitch_env);
+        f_rmp_run_ramp(d->p_voice->glide_env);
 
 #ifdef LMS_DEBUG_MAIN_LOOP
         if(is_debug_printing == 1)
                 printf("d->p_voice->pitch_env->output_multiplied == %f\n", (d->p_voice->pitch_env->output_multiplied));
 #endif        
-        
+        d->p_voice->base_pitch = (d->p_voice->glide_env->output_multiplied) + (d->p_voice->pitch_env->output_multiplied) 
+                + (p->mono_modules->pitchbend_smoother->output) + (d->p_voice->last_pitch);
+#ifdef LMS_DEBUG_MAIN_LOOP
+        if(is_debug_printing == 1)
+        {
+            printf("d->p_voice->base_pitch == %f\n", (d->p_voice->base_pitch));
+            printf("d->note_f == %f\n", (d->note_f));
+        }
+#endif                
         v_osc_set_unison_pitch(d->p_voice->osc_unison1, vals->master_uni_spread,   
-                ((d->p_voice->glide_smoother->last_value) + (d->p_voice->pitch_env->output_multiplied) 
-                + (vals->osc1pitch) + (vals->osc1tune) + (p->mono_modules->pitchbend_smoother->output)));
+                ((d->p_voice->base_pitch) + (vals->osc1pitch) + (vals->osc1tune)));
 
         
         v_osc_set_unison_pitch(d->p_voice->osc_unison2, vals->master_uni_spread, 
-                ((d->p_voice->glide_smoother->last_value) + (d->p_voice->pitch_env->output_multiplied) 
+                ((d->p_voice->glide_env->output_multiplied) + (d->p_voice->pitch_env->output_multiplied) 
                 + (vals->osc2pitch) + (vals->osc2tune) +  + (p->mono_modules->pitchbend_smoother->output)));
 
 #ifdef LMS_DEBUG_MAIN_LOOP

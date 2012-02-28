@@ -81,10 +81,13 @@ typedef struct st_poly_voice
     float noise_amp;
     
     t_smoother_linear * glide_smoother;
+    t_ramp_env * glide_env;
     
     t_ramp_env * pitch_env;
     
-    //float real_pitch;
+    float last_pitch;  //For simplicity, this is used whether glide is turned on or not
+    
+    float base_pitch;  //base pitch for all oscillators, to avoid redundant calculations
     
     float target_pitch;
     
@@ -151,13 +154,14 @@ t_poly_voice * g_poly_init()
     f_voice->white_noise1 = g_get_white_noise(va_sample_rate);    
     f_voice->noise_amp = 0;
         
-    f_voice->glide_smoother = g_sml_get_smoother_linear(va_sample_rate, 100, 20, .5);  //For osc1
-    
+    f_voice->glide_env = g_rmp_get_ramp_env(va_sample_rate);    
     f_voice->pitch_env = g_rmp_get_ramp_env(va_sample_rate);
     
     //f_voice->real_pitch = 60.0f;
     
     f_voice->target_pitch = 66.0f;
+    f_voice->last_pitch = 66.0f;
+    f_voice->base_pitch = 66.0f;
     
     f_voice->current_sample = 0.0f;
     

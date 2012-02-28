@@ -21,18 +21,21 @@ typedef struct st_ramp_env
     float ramp_inc;
     float sr;
     float sr_recip;
+    float output_multiplier;
 }t_ramp_env;
 
 
-inline void f_rmp_run_ramp(t_ramp_env*, float);
-void v_rmp_retrigger(t_ramp_env*,float);
+inline void f_rmp_run_ramp(t_ramp_env*);
+void v_rmp_retrigger(t_ramp_env*,float,float);
+void v_rmp_retrigger_glide_t(t_ramp_env*,float,float,float);
+void v_rmp_retrigger_glide_r(t_ramp_env*,float,float,float);
 t_ramp_env * g_rmp_get_ramp_env(float);
 
 
 
-inline void f_rmp_run_ramp(t_ramp_env* a_rmp_ptr, float a_multiplier)
+inline void f_rmp_run_ramp(t_ramp_env* a_rmp_ptr)
 {
-    if(a_multiplier == 0 )
+    if((a_rmp_ptr->output_multiplier) == 0 )
     {
         a_rmp_ptr->output_multiplied = 0;
         return;
@@ -40,7 +43,7 @@ inline void f_rmp_run_ramp(t_ramp_env* a_rmp_ptr, float a_multiplier)
     
     if((a_rmp_ptr->output) == 1)
     {
-        a_rmp_ptr->output_multiplied = a_multiplier;
+        a_rmp_ptr->output_multiplied = (a_rmp_ptr->output_multiplier);
         return;
     }
     
@@ -49,23 +52,50 @@ inline void f_rmp_run_ramp(t_ramp_env* a_rmp_ptr, float a_multiplier)
     if((a_rmp_ptr->output) >= 1)
     {
         a_rmp_ptr->output = 1;
-        a_rmp_ptr->output_multiplied = a_multiplier;
+        a_rmp_ptr->output_multiplied = (a_rmp_ptr->output_multiplier);
         return;
     }        
     
-    a_rmp_ptr->output_multiplied = (a_rmp_ptr->output) * a_multiplier;
+    a_rmp_ptr->output_multiplied = (a_rmp_ptr->output) * (a_rmp_ptr->output_multiplier);
 }
 
 //TODO:  an alternate function that takes velocity into account
-void v_rmp_retrigger(t_ramp_env* a_rmp_ptr, float a_time)
+void v_rmp_retrigger(t_ramp_env* a_rmp_ptr, float a_time, float a_multiplier)
 {
     a_rmp_ptr->output = 0;
     a_rmp_ptr->ramp_time = a_time;
+    a_rmp_ptr->output_multiplier = a_multiplier;
     
-    if((a_rmp_ptr->ramp_time = a_time) <= .05)
-        a_rmp_ptr->ramp_time = a_time = .05;
+    if((a_rmp_ptr->ramp_time) <= .05)
+        a_rmp_ptr->ramp_time = .05;
     
-    a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) / (a_rmp_ptr->ramp_time = a_time);
+    a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) / (a_rmp_ptr->ramp_time);
+}
+
+/*Glide with constant time in seconds*/
+void v_rmp_retrigger_glide_t(t_ramp_env* a_rmp_ptr, float a_time, float a_current_note, float a_next_note)
+{
+    a_rmp_ptr->output = 0;
+    a_rmp_ptr->ramp_time = a_time;
+    a_rmp_ptr->output_multiplier = a_next_note - a_current_note;
+    
+    if((a_rmp_ptr->ramp_time) <= .05)
+        a_rmp_ptr->ramp_time = .05;
+    
+    a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) / (a_rmp_ptr->ramp_time);
+}
+
+/*Glide with constant rate in seconds-per-octave*/
+void v_rmp_retrigger_glide_r(t_ramp_env* a_rmp_ptr, float a_time, float a_current_note, float a_next_note)
+{
+    a_rmp_ptr->output = 0;
+    a_rmp_ptr->output_multiplier = a_next_note - a_current_note;
+    a_rmp_ptr->ramp_time = a_time * (a_rmp_ptr->output_multiplied) * .083333;
+        
+    if((a_rmp_ptr->ramp_time) <= .05)
+        a_rmp_ptr->ramp_time = .05;
+    
+    a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) / (a_rmp_ptr->ramp_time);
 }
 
 t_ramp_env * g_rmp_get_ramp_env(float a_sr)
@@ -74,7 +104,10 @@ t_ramp_env * g_rmp_get_ramp_env(float a_sr)
     f_result->sr = a_sr;
     f_result->sr_recip = 1/a_sr;
     f_result->output_multiplied = 0;
-    v_rmp_retrigger(f_result, .2);
+    f_result->output_multiplier = 0;
+    f_result->ramp_inc = .01;
+    f_result->ramp_time = .05;
+    f_result->output = 0;
     
     return f_result;
 }
