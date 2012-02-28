@@ -1,50 +1,177 @@
 #!/usr/bin/perl
 
-use Switch;
-
-$jack_host = "../jack-dssi-host/jack-dssi-host";
-
-#TODO:  An option to install Ubuntu dependencies
 #TODO:  An option to cleanly fork a plugin that will autogenerate the required changes
-$helptext = "Usage:\nperl build.pl [-f (first build)][-b (build)][-s (run standalone)][-d (build release .deb packages)]\n\n";
+$help_text = "
+The LibModSynth build helper script.  http://libmodsynth.sourceforge.net
+
+Usage:
+
+perl build.pl [-f (first build)] || [-b (build)] || [-s (run standalone)] || 
+[-d (build release .deb packages)]  || [-u (install Ubuntu dependencies)]
+
+-f :  A clean build, rebuilding all autotools files.
+-b :  A quick build.
+-s :  Compile and run standalone from the terminal.  Use this to test changes to your code.
+-d :  Compile and package the plugin into a .deb file
+-u :  Install all Ubuntu dependencies
+
+Only the first argument will be used.  There should be one of these scripts in each plugin directory.
+
+";
 
  #change $plugin_name when you fork a LibModSynth plugin
 $plugin_name = "ray_v.so";
 $plugin_path = "/usr/local/lib/dssi/";
 
-$quick_build = "sh ./quick_build.sh";
-$full_build = "sh ./autotools_script.sh";
+$jack_host = "../jack-dssi-host/jack-dssi-host";
+$sleep = "sleep 10";
+
+$makefile = "Makefile";
+
+$deps_ubuntu = "sudo apt-get install liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf openjdk-7-jre libsm-dev uuid-dev cmake liblscp-dev checkinstall libmad0-dev ; sudo usermod -g audio \$USER";
+
+#TODO:  Check for dependencies when running the other arguments, place a file when installed
+#TODO:  Place a file in the plugin directory once the first build has been run
 
 if($ARGV[0] eq "-f")
 {
-	print "\nPlease wait, this could take a few minutes...\n";
-	print `$full_build`;
+	notify_wait();
+	first_build();
+	notify_done();
 }
 elsif($ARGV[0] eq "-s")
 {
-	print "\nPlease wait, this could take a few minutes...\n";
+	notify_wait();
 	unless(-e $jack_host)
 	{
-		print `cd ../jack-dssi-host ; sh ./autotools_script.sh`;
+		`cd ../jack-dssi-host ; sh ./autotools_script.sh`;
 	}
-	print `$quick_build`;
-	print `$jack_host $plugin_path$plugin_name`;
+
+	if(-e $makefile)
+	{
+		clean();
+		build();
+	}
+	else
+	{
+		first_build();
+	}
+	make_install();
+	exec("$jack_host $plugin_path$plugin_name");
 }
 elsif($ARGV[0] eq "-b")
 {
-	print "\nPlease wait, this could take a few minutes...\n";
-	print `$quick_build`;
+	notify_wait();
+	if(-e $makefile)
+	{
+		clean();
+		build();
+	}
+	else
+	{
+		first_build();
+	}
+	notify_done();
 }
 elsif($ARGV[0] eq "-d")
 {
-	print "\nPlease wait, this could take a few minutes...\n";
-	print `$full_build`;
-	print `sudo checkinstall --install=no --type=debian`;
+
+	deb_package();
+	notify_done();
+}
+elsif($ARGV[0] eq "-u")
+{
+	install_deps_ubuntu();
 }
 else
 {
-	print $help_text . '$ARGV[0] eq ' . $ARV[0] . "\n\n";
+	print $help_text . 'Invalid argument:  $ARGV[0] eq "' . $ARGV[0] . "\"\n\n";
 }
 
+sub notify_wait
+{
+print "\nPlease wait, this could take a few minutes...\n";
+}
 
+sub notify_done
+{
+print "\n\nFinished.\n\n";
+}
 
+sub first_build
+{
+check_deps();
+clean();
+`aclocal`;
+`$sleep`;
+`libtoolize --force --copy`;
+`$sleep`;
+`autoheader`;
+`$sleep`;
+`automake --add-missing --foreign`;
+`$sleep`;
+`autoconf`;
+`$sleep`;
+`moc synth_qt_gui.h -o synth_qt_gui.moc.cpp`;
+`$sleep`;
+`./configure`;
+`$sleep`;
+build();
+}
+
+sub clean
+{
+`sudo rm -R /usr/local/lib/dssi/*`;
+`make clean`;
+`$sleep`;
+}
+
+sub build
+{
+$make_result = system("make");
+#TODO:  Check make result
+`$sleep`;
+}
+
+sub make_install
+{
+$install_result = system("sudo make install");
+#TODO:  Check install result
+}
+
+sub deb_package
+{
+first_build();
+`sudo checkinstall --type=debian --install=no`;
+}
+
+#This isn't a real check, it only tests to see if the script attempted to install the dependencies
+sub check_deps
+{
+	unless(-e "../deps_installed.txt")
+	{
+		install_deps_ubuntu();
+	}
+}
+
+sub install_deps_ubuntu
+{
+$check_ubuntu = `uname -v`;
+if($check_ubuntu =~ m/ubuntu/i)
+{
+	notify_wait();
+	`$deps_ubuntu`;
+	notify_done();
+}
+else
+{	
+print("Did not detect a Ubuntu system, dependencies not installed.
+If you are running a non-Ubuntu system, please ensure that you have the 
+equivalent dependencies on your system:
+
+$deps_ubuntu
+");
+
+`echo 'This file is created when build.pl attempts to install the dependencies' > ../deps_installed.txt`;
+}
+}
