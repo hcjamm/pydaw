@@ -503,8 +503,7 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
 
         
         v_osc_set_unison_pitch(d->p_voice->osc_unison2, vals->master_uni_spread, 
-                ((d->p_voice->glide_env->output_multiplied) + (d->p_voice->pitch_env->output_multiplied) 
-                + (vals->osc2pitch) + (vals->osc2tune) +  + (p->mono_modules->pitchbend_smoother->output)));
+                ((d->p_voice->base_pitch) + (vals->osc2pitch) + (vals->osc2tune)));
 
 #ifdef LMS_DEBUG_MAIN_LOOP
         if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))
