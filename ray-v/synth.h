@@ -109,8 +109,7 @@ void dump_debug_voice_data(voice_data*);
 void dump_debug_voice_data(voice_data * a_data)
 {
     printf("\n\nRunning dump_debug_voice_data\n");
-    printf("amp == %f\n", a_data->amp);
-    printf("hz == %f\n", a_data->hz);
+    printf("amp == %f\n", a_data->amp);    
     printf("n_state == %i\n", a_data->n_state);
     printf("noise_linamp == %f\n", a_data->noise_linamp);
     printf("n_state == %i\n", a_data->note);
