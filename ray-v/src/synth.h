@@ -15,15 +15,12 @@ extern "C" {
 #include "ladspa.h"
 #include "libmodsynth.h"
     
-//Comment this out when you compile a stable release version on the plugin, you don't want it printing debug output unless you're debugging
-//#define LMS_DEBUG_MODE_QT
-/*This is used for things like naming the preset file, etc...*/
-#define LMS_PLUGIN_NAME "ray-v"
-
-    /*Comment these out when compiling a stable, production-ready plugin.  
+/*Comment these out when compiling a stable, production-ready plugin.  
  The debugging code wastes a lot of CPU, and end users don't really need to see it*/
 //#define LMS_DEBUG_NOTE
 //#define LMS_DEBUG_MAIN_LOOP
+//#define LMS_DEBUG_MODE_QT
+
 
 /*Then you can print debug information like this:
 #ifdef LMS_DEBUG_NOTE
@@ -31,6 +28,9 @@ printf("debug information");
 #endif
 */
     
+/*This is used for things like naming the preset file, etc...*/
+#define LMS_PLUGIN_NAME "ray-v"
+   
     
 #define LMS_OUTPUT0  0
 #define LMS_OUTPUT1  31

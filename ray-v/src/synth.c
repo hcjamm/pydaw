@@ -408,9 +408,6 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             {
 		plugin_data->sv_pitch_bend_value = 0.00012207
                         * events[(plugin_data->event_pos)].data.control.value * (plugin_data->vals.master_pb_amt);
-#ifdef LMS_DEBUG_NOTE                
-                printf("_pitchbend_value is %f\n", sv_pitch_bend_value);		
-#endif                
 	    }
 	    plugin_data->event_pos = (plugin_data->event_pos) + 1;
 	}
@@ -471,8 +468,7 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
         {
             d->debug_counter = 0;
             dump_debug_voice_data(d);
-            dump_debug_synth_vals(vals);
-            dump_debug_t_poly_voice(d->p_voice);
+            dump_debug_synth_vals(vals);            
             is_debug_printing = 1;
         }
 #endif
