@@ -30,4 +30,7 @@ ray-v/LMS_qt
 *.deb
 *.moc.cpp
 *.patch
+*deps_installed.txt
+*config.h
+*configure
 
