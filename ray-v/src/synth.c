@@ -31,8 +31,8 @@ GNU General Public License for more details.
 #include "ladspa.h"
 
 #include "libmodsynth.h"
-#include "../libmodsynth/lib/amp.h"
-#include "../libmodsynth/modules/filter/svf.h"
+#include "../../libmodsynth/lib/amp.h"
+#include "../../libmodsynth/modules/filter/svf.h"
 
 #include "synth.h"
 

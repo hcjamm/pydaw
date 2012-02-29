@@ -38,8 +38,8 @@ GNU General Public License for more details.
 #include <QMessageBox>
 
 #include <stdlib.h>
-#include "../libmodsynth/lib/amp.h"
-#include "../libmodsynth/lib/pitch_core.h"
+#include "../../libmodsynth/lib/amp.h"
+#include "../../libmodsynth/lib/pitch_core.h"
 
 #include "synth.h"
 
