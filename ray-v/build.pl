@@ -112,7 +112,7 @@ clean();
 `$sleep`;
 `autoconf`;
 `$sleep`;
-`moc synth_qt_gui.h -o synth_qt_gui.moc.cpp`;
+`moc ./src/synth_qt_gui.h -o ./src/synth_qt_gui.moc.cpp`;
 `$sleep`;
 `./configure`;
 `$sleep`;

@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(LibModSynth, 0.0.1, jhubbard651@users.sf.net)
 
-AC_CONFIG_SRCDIR(dssi.h)
+AC_CONFIG_SRCDIR(src/dssi.h)
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
 
@@ -157,6 +157,7 @@ fi
 
 AC_OUTPUT([
     Makefile
+    src/Makefile
 ])
 
 
