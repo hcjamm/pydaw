@@ -670,7 +670,7 @@ int pick_voice(const voice_data *data, int a_current_note)
 #ifdef LMS_DEBUG_NOTE            
             printf("pick_voice found current_note:  %i\n", f_i);
 #endif
-            v_adsr_set_fast_release(data->p_voice->adsr_amp);
+            v_adsr_set_fast_release(data[f_i].p_voice->adsr_amp);
             break;
 	    //return f_i; 
 	}
