@@ -9,8 +9,8 @@ The LibModSynth build helper script.  http://libmodsynth.sourceforge.net
 
 Usage:
 
-perl build.pl [-f (first build)] || [-b (build)] || [-i (install)] || [-s (run standalone)] || 
-[-d (build release .deb packages)]  || [-u (install Ubuntu dependencies)]
+perl build.pl [-f (first build)] || [-b (build)] [-i (install)] || [-s (run standalone)] || 
+[-d (build release .deb packages)]  || [-u (install Ubuntu dependencies)] [compile options]
 
 -f :  A clean build, rebuilding all autotools files, does not install.
 -b :  A quick build, does not install.
@@ -19,7 +19,17 @@ perl build.pl [-f (first build)] || [-b (build)] || [-i (install)] || [-s (run s
 -d :  Compile and package the plugin into a .deb file
 -u :  Install all Ubuntu dependencies
 
-Only the first argument will be used.  There should be one of these scripts in each plugin directory.
+Additional options for compiling arguments
+
+--native  :  Compile using -march=native .  This optimizes for the machine being compiled on, but the binaries will not be usable on a different machine.  This can give you greater performance if compiling your own plugins, but may introduce bugs.
+
+--sse3    :  Compile for SSE, SSE2 and SSE3.  This is the default option, requires a later Pentium4, Athlon64 or newer machine.
+
+--user-cflags [CFLAGS]  :  Specify your own additional CFLAGS
+
+--no-opt  :  Compile with no optimizations.  Not recommended unless compiling for a non-x86/x64 architecture.
+
+There should be one of these scripts in each plugin directory.
 
 ";
 
@@ -137,8 +147,30 @@ sub clean
 
 sub build
 {
+#TODO:  test -ffast-math CFLAG
+#TODO:  Remove the extra cflags from Makefile.am in ray-v
+
+if($ARGV[1] eq "--native")
+{
+$make_result = `make CFLAGS+="-O3 -pipe -march=native -mtune=native"`;
+}
+elsif($ARGV[1] eq "--user-cflags")
+{
+$user_flags = $ARGV[2];
+$make_result = `make CFLAGS+="$user_flags"`;
+}
+elsif($ARGV[1] eq "--no-opt")
+{
 $make_result = `make`;
+}
+else
+{
+$make_result = `make CFLAGS+="-O3 -msse -msse2 -msse3 -mmmx -pipe"`;
+}
+
 #TODO:  Check make result
+#TODO:  Properly parse the args at the beginning of the script instead of relying on index
+
 `$sleep`;
 }
 
