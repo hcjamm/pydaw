@@ -716,12 +716,11 @@ void _init()
     LMSLDescriptor =
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
     if (LMSLDescriptor) {
-	//LMSLDescriptor->UniqueID = 24;  //Default, don't use this
-        LMSLDescriptor->UniqueID = 1337721;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
-	LMSLDescriptor->Label = "LMS";  //Changing this breaks the plugin, it compiles, but hangs when trying to run.  TODO:  investigate
+        LMSLDescriptor->UniqueID = LMS_PLUGIN_UUID;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
+	LMSLDescriptor->Label = "LMS";  
 	LMSLDescriptor->Properties = 0;
-	LMSLDescriptor->Name = "Ray-V (Powered by LibModSynth)";
-	LMSLDescriptor->Maker = "Jeff Hubbard <jhubbard651@users.sf.net>";
+	LMSLDescriptor->Name = LMS_PLUGIN_LONG_NAME;
+	LMSLDescriptor->Maker = LMS_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";
 	LMSLDescriptor->PortCount = LMS_COUNT;
 
