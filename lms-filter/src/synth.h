@@ -80,7 +80,7 @@ void dump_debug_synth_vals(synth_vals * a_data)
     printf("\n\nRunning dump_debug_synth_vals\n");
     printf("osc1type == %f\n", a_data->osc1type);   
     printf("res == %f\n", a_data->res);    
-    printf("timbre == %f\n", a_data->timbre);  
+    printf("timbre == %f\n", a_data->cutoff);  
 }
 
 #endif
@@ -101,7 +101,7 @@ typedef struct {
     
     int pos;
     int count;
-    int event_pos;
+    int buffer_pos;
     int i_mono_out;
     int i_buffer_clear;    
     

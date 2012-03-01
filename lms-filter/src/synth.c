@@ -140,14 +140,39 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     LADSPA_Data *const output1 = plugin_data->output1;    
     
     plugin_data->pos = 0;
-    plugin_data->count= 0;
-    plugin_data->event_pos = 0;
+    plugin_data->count= 0;    
     plugin_data->i_mono_out = 0;
     
     /*GUI Step 15:  Set the values from synth_vals in RunLMS*/
     plugin_data->vals.cutoff = *(plugin_data->cutoff);    
     plugin_data->vals.res = *(plugin_data->res);
     plugin_data->vals.filter_type = *(plugin_data->filter_type);
+    
+    switch((int)(plugin_data->vals.filter_type))    
+    {
+                case 0:
+                    plugin_data->mono_modules->svf_function = v_svf_run_2_pole_lp;
+                    break;
+                case 1:
+                    plugin_data->mono_modules->svf_function = v_svf_run_2_pole_hp;
+                    break;
+                case 2:
+                    plugin_data->mono_modules->svf_function = v_svf_run_2_pole_bp;
+                    break;
+                case 3:
+                    plugin_data->mono_modules->svf_function = v_svf_run_4_pole_lp;
+                    break;
+                case 4:
+                    plugin_data->mono_modules->svf_function = v_svf_run_4_pole_hp;
+                    break;
+                case 5:
+                    plugin_data->mono_modules->svf_function = v_svf_run_4_pole_bp;
+                    break;                
+                case 6:
+                    plugin_data->mono_modules->svf_function = v_svf_run_no_filter;
+                    break;
+
+    }
     
     while ((plugin_data->pos) < sample_count) 
     {	
@@ -177,38 +202,11 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         plugin_data->i_mono_out = 0;
         
         while((plugin_data->i_mono_out) < (plugin_data->count))
-        {            
-            switch((int)(plugin_data->vals.filter_type))
-            {
-                case 0:
-                    output0[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf_filter0, input0[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    output1[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf_filter1, input1[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    break;
-                case 1:
-                    output0[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_2_pole_hp(plugin_data->mono_modules->svf_filter0, input0[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    output1[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_2_pole_hp(plugin_data->mono_modules->svf_filter1, input1[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    break;
-                case 2:
-                    output0[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_2_pole_bp(plugin_data->mono_modules->svf_filter0, input0[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    output1[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_2_pole_bp(plugin_data->mono_modules->svf_filter1, input1[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    break;
-                case 3:
-                    output0[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_4_pole_lp(plugin_data->mono_modules->svf_filter0, input0[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    output1[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_4_pole_lp(plugin_data->mono_modules->svf_filter1, input1[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    break;
-                case 4:
-                    output0[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_4_pole_hp(plugin_data->mono_modules->svf_filter0, input0[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    output1[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_4_pole_hp(plugin_data->mono_modules->svf_filter1, input1[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    break;
-                case 5:
-                    output0[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_4_pole_bp(plugin_data->mono_modules->svf_filter0, input0[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    output1[(plugin_data->pos) + (plugin_data->i_mono_out)] = v_svf_run_4_pole_bp(plugin_data->mono_modules->svf_filter1, input1[(plugin_data->pos) + (plugin_data->i_mono_out)]);
-                    break;                
-                case 6:
-                    output0[(plugin_data->pos) + (plugin_data->i_mono_out)] = input0[(plugin_data->pos) + (plugin_data->i_mono_out)];
-                    output1[(plugin_data->pos) + (plugin_data->i_mono_out)] = input1[(plugin_data->pos) + (plugin_data->i_mono_out)];
-                    break;
-            }
+        {   
+            plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
+            output0[(plugin_data->buffer_pos)] = plugin_data->mono_modules->svf_function(plugin_data->mono_modules->svf_filter0, input0[(plugin_data->buffer_pos)]);
+            output1[(plugin_data->buffer_pos)] = plugin_data->mono_modules->svf_function(plugin_data->mono_modules->svf_filter1, input1[(plugin_data->buffer_pos)]);
+
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
         
