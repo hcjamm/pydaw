@@ -14,7 +14,7 @@ lms_filter_la_SOURCES = \
 
 
 
-lms_filter_la_CFLAGS = -I$(top_srcdir)/dssi $(AM_CFLAGS) $(ALSA_CFLAGS) -O3 -msse -msse2 -msse3 -mmmx -pipe
+lms_filter_la_CFLAGS = -I$(top_srcdir)/dssi $(AM_CFLAGS) $(ALSA_CFLAGS)
 
 lms_filter_la_LDFLAGS = -module -avoid-version
 if DARWIN

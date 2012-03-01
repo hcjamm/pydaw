@@ -1,13 +1,16 @@
 #!/usr/bin/perl
 
 #TODO:  An option to cleanly fork a plugin that will autogenerate the required changes
+#fork add:  git add dssi.h libmodsynth.h Makefile.am synth.c synth.h synth_qt_gui.cpp synth_qt_gui.h
+#fork add:  git add build.pl Makefile.am configure.ac
+#fork:  Change Makefile.am, replace ray_v with XXXXX
 $help_text = "
 The LibModSynth build helper script.  http://libmodsynth.sourceforge.net
 
 Usage:
 
-perl build.pl [-f (first build)] || [-b (build)] || [-i (install)] || [-s (run standalone)] || 
-[-d (build release .deb packages)]  || [-u (install Ubuntu dependencies)]
+perl build.pl [-f (first build)] || [-b (build)] [-i (install)] || [-s (run standalone)] || 
+[-d (build release .deb packages)]  || [-u (install Ubuntu dependencies)] [compile options]
 
 -f :  A clean build, rebuilding all autotools files, does not install.
 -b :  A quick build, does not install.
@@ -16,13 +19,24 @@ perl build.pl [-f (first build)] || [-b (build)] || [-i (install)] || [-s (run s
 -d :  Compile and package the plugin into a .deb file
 -u :  Install all Ubuntu dependencies
 
-Only the first argument will be used.  There should be one of these scripts in each plugin directory.
+Additional options for compiling arguments
+
+--native  :  Compile using -march=native .  This optimizes for the machine being compiled on, but the binaries will not be usable on a different machine.  This can give you greater performance if compiling your own plugins, but may introduce bugs.
+
+--sse3    :  Compile for SSE, SSE2 and SSE3.  This is the default option, requires a later Pentium4, Athlon64 or newer machine.
+
+--user-cflags [CFLAGS]  :  Specify your own additional CFLAGS
+
+--no-opt  :  Compile with no optimizations.  Not recommended unless compiling for a non-x86/x64 architecture.
+
+There should be one of these scripts in each plugin directory.
 
 ";
 
- #change $plugin_name when you fork a LibModSynth plugin
+ #change $plugin_name and $clean when you fork a LibModSynth plugin
 $plugin_name = "ray_v.so";
-$plugin_path = "/usr/local/lib/dssi/";
+$plugin_path = "/usr/local/lib/dssi";
+$clean = "sudo rm -R $plugin_path/ray_v*";
 
 $jack_host = "../jack-dssi-host/jack-dssi-host";
 $sleep = "sleep 10";
@@ -58,7 +72,7 @@ elsif($ARGV[0] eq "-s")
 		first_build();
 	}
 	make_install();
-	exec("$jack_host $plugin_path$plugin_name");
+	exec("$jack_host $plugin_path/$plugin_name");
 }
 elsif($ARGV[0] eq "-b")
 {
@@ -126,15 +140,37 @@ build();
 
 sub clean
 {
-`sudo rm -R /usr/local/lib/dssi/*`;
+`$clean`;
 `make clean`;
 `$sleep`;
 }
 
 sub build
 {
+#TODO:  test -ffast-math CFLAG
+#TODO:  Remove the extra cflags from Makefile.am in ray-v
+
+if($ARGV[1] eq "--native")
+{
+$make_result = `make CFLAGS+="-O3 -pipe -march=native -mtune=native"`;
+}
+elsif($ARGV[1] eq "--user-cflags")
+{
+$user_flags = $ARGV[2];
+$make_result = `make CFLAGS+="$user_flags"`;
+}
+elsif($ARGV[1] eq "--no-opt")
+{
 $make_result = `make`;
+}
+else
+{
+$make_result = `make CFLAGS+="-O3 -msse -msse2 -msse3 -mmmx -pipe"`;
+}
+
 #TODO:  Check make result
+#TODO:  Properly parse the args at the beginning of the script instead of relying on index
+
 `$sleep`;
 }
 
