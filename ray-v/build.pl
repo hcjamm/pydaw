@@ -6,12 +6,13 @@ The LibModSynth build helper script.  http://libmodsynth.sourceforge.net
 
 Usage:
 
-perl build.pl [-f (first build)] || [-b (build)] || [-s (run standalone)] || 
+perl build.pl [-f (first build)] || [-b (build)] || [-i (install)] || [-s (run standalone)] || 
 [-d (build release .deb packages)]  || [-u (install Ubuntu dependencies)]
 
--f :  A clean build, rebuilding all autotools files.
--b :  A quick build.
--s :  Compile and run standalone from the terminal.  Use this to test changes to your code.
+-f :  A clean build, rebuilding all autotools files, does not install.
+-b :  A quick build, does not install.
+-i :  Install using make install
+-s :  Compile, install and run standalone from the terminal.  Use this to test changes to your code.
 -d :  Compile and package the plugin into a .deb file
 -u :  Install all Ubuntu dependencies
 
@@ -78,6 +79,10 @@ elsif($ARGV[0] eq "-d")
 
 	deb_package();
 	notify_done();
+}
+elsif($ARGV[0] eq "-i")
+{
+	`sudo make install`;
 }
 elsif($ARGV[0] eq "-u")
 {
@@ -159,9 +164,7 @@ sub install_deps_ubuntu
 $check_ubuntu = `uname -v`;
 if($check_ubuntu =~ m/ubuntu/i)
 {
-	notify_wait();
 	`$deps_ubuntu`;
-	notify_done();
 }
 else
 {	
