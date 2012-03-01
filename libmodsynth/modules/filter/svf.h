@@ -85,6 +85,14 @@ inline float v_svf_run_4_pole_hp(t_state_variable_filter*, float);
 inline float v_svf_run_2_pole_bp(t_state_variable_filter*, float);
 inline float v_svf_run_4_pole_bp(t_state_variable_filter*, float);
 
+inline float v_svf_run_no_filter(t_state_variable_filter*, float);
+
+/*This is for allowing a filter to be turned off by running a function pointer*/
+inline float v_svf_run_no_filter(t_state_variable_filter* a_svf, float a_in)
+{
+    return a_in;
+}
+
 t_svf_kernel * g_svf_get_filter_kernel();
 
 t_svf_kernel * g_svf_get_filter_kernel()
