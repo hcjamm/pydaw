@@ -88,8 +88,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF); border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
     
-    QString _osc_types [] = {"Saw", "Square", "Triangle", "Sine", "Off"};
-    int _osc_types_count = 5;
+    QString f_osc_types [] = {"Saw", "Square", "Triangle", "Sine", "Off"};
+    int f_osc_types_count = 5;
     
 #ifdef LMS_DEBUG_MODE_QT    
     cerr << "Getting the program list from the presets file" << endl;    
@@ -249,7 +249,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     f_gb_layout_column++;
     
-    m_osc1_type = get_combobox(_osc_types, _osc_types_count , this);     
+    m_osc1_type = get_combobox(f_osc_types, f_osc_types_count , this);     
     add_widget_no_label(f_gb_osc1_layout, f_gb_layout_column, f_gb_layout_row, "Type", m_osc1_type);
     connect(m_osc1_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc1TypeChanged(int)));
     osc1TypeChanged(m_osc1_type->currentIndex());
@@ -323,7 +323,6 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     distWetChanged (m_dist_wet->value());
     
     layout_row1->addWidget(f_gb_dist, -1, Qt::AlignLeft);
-    //layout->addWidget(_gb_dist, _row, _column, Qt::AlignCenter);    
     f_column++;
     f_gb_layout_row = 0;
     f_gb_layout_column = 0;
@@ -385,7 +384,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     f_gb_layout_column++;
     
-    m_osc2_type = get_combobox(_osc_types, _osc_types_count , this);     
+    m_osc2_type = get_combobox(f_osc_types, f_osc_types_count , this);     
     add_widget_no_label(f_gb_osc2_layout, f_gb_layout_column, f_gb_layout_row, "Type", m_osc2_type);
     connect(m_osc2_type, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
     osc2TypeChanged(m_osc2_type->currentIndex());
@@ -444,12 +443,12 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     cerr << "Creating the Filter controls" << endl;    
 #endif    
     
-    QGroupBox * _gb_filter = newGroupBox("LP Filter", this); 
-    QGridLayout *_gb_filter_layout = new QGridLayout(_gb_filter);
+    QGroupBox * f_gb_filter = newGroupBox("LP Filter", this); 
+    QGridLayout *f_gb_filter_layout = new QGridLayout(f_gb_filter);
     
     m_timbre  =  get_knob(pitch);  //newQDial(  39, 136,  1,  82); // s * 100
     m_timbreLabel  = newQLabel(this);
-    add_widget(_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Cutoff",m_timbre, m_timbreLabel);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Cutoff",m_timbre, m_timbreLabel);
     connect(m_timbre,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));
     //timbreChanged (m_timbre ->value());
     
@@ -457,7 +456,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_res  =  get_knob(decibels_30_to_0); 
     m_resLabel  = newQLabel(this);
-    add_widget(_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Res", m_res, m_resLabel);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Res", m_res, m_resLabel);
     connect(m_res,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
     //resChanged (m_res ->value());
     
@@ -465,11 +464,11 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_filter_env_amt  =  get_knob(minus36_to_36); 
     m_filter_env_amtLabel  = newQLabel(this);
-    add_widget(_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Env", m_filter_env_amt, m_filter_env_amtLabel);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Env", m_filter_env_amt, m_filter_env_amtLabel);
     connect(m_filter_env_amt,  SIGNAL(valueChanged(int)), this, SLOT(filterEnvAmtChanged(int)));
     //filterEnvAmtChanged (m_filter_env_amt ->value());
     
-    layout_row2->addWidget(_gb_filter, -1, Qt::AlignLeft);
+    layout_row2->addWidget(f_gb_filter, -1, Qt::AlignLeft);
     f_column++;
     f_gb_layout_row = 0;
     f_gb_layout_column = 0;
@@ -596,7 +595,7 @@ int a_gb_layout_column, int a_gb_layout_row, const char * a_signal, const char *
 
 
 void SynthGUI::add_widget(QGridLayout * a_layout, int a_position_x, int a_position_y, QString a_label_text,  QWidget * a_widget,
-    QLabel * _label)
+    QLabel * a_label)
 {   
     QLabel * f_knob_title = new QLabel(a_label_text,  this);
     f_knob_title->setMinimumWidth(60);  //TODO:  make this a constant
@@ -605,7 +604,7 @@ void SynthGUI::add_widget(QGridLayout * a_layout, int a_position_x, int a_positi
     
     a_layout->addWidget(f_knob_title, a_position_y, a_position_x, Qt::AlignCenter);    
     a_layout->addWidget(a_widget,  (a_position_y + 1), a_position_x);
-    a_layout->addWidget(_label,  (a_position_y + 2), a_position_x, Qt::AlignCenter);     
+    a_layout->addWidget(a_label,  (a_position_y + 2), a_position_x, Qt::AlignCenter);     
 }
 
 void SynthGUI::add_widget_no_label(QGridLayout * a_layout, int a_position_x, int a_position_y, QString a_label_text, QWidget * a_widget)
