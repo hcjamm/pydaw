@@ -1,0 +1,31 @@
+How to install:
+
+	cd lms-filter  #or whatever plugin you want to install
+	perl build.pl -f
+	perl build.pl -i
+
+
+How to generate a Makefile to be able to open the project in an IDE like Netbeans:
+
+	cd lms-filter  #or whatever plugin you want to build
+	perl build.pl -f
+
+
+How to run a plugin standalone with console debugging:
+	
+	#You must first un-comment the defines for the debug mode you want to use
+	#most are in synth.h, and look like this:
+	#
+	#	#define LMS_DEBUG_MAIN_LOOP
+	#
+	#You should comment them back out when releasing a plugin, as they waste a lot of CPU
+
+	cd lms-filter  #or whatever plugin you want to build
+	perl build.pl -s
+
+
+How to create .deb packages:
+
+	cd lms-filter  #or whatever plugin you want to package
+	perl build.pl -d
+
