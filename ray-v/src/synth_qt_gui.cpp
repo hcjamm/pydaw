@@ -42,6 +42,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/pitch_core.h"
 
 #include "synth.h"
+#include "meta.h"
 
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>
