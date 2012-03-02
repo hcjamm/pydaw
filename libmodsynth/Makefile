@@ -1,3 +1,7 @@
+#This Makefile doesn't actually do anything useful, I only created it so that Netbeans would allow the library to be loaded
+#as a project, and provide code completion.  Shared libraries incur processing overhead, LibModSynth is intended to be a
+#source-based library with functions that can be inlined into your plugins
+
 #
 #  There exist several targets which are by default empty and which can be 
 #  used for execution of your targets. These targets are usually executed 
