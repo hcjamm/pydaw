@@ -81,7 +81,7 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
 
     plugin = (LMS *) instance;
     
-    /*GUI Step 14:  Add the ports from step 9 to the connectPortLMS event handler*/
+    /*Add the ports from step 9 to the connectPortLMS event handler*/
     
     switch (port) {
     case LMS_OUTPUT0:
@@ -238,7 +238,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->event_pos = 0;
     plugin_data->voice = 0;
     
-    /*GUI Step 15:  Set the values from synth_vals in RunLMS*/
+    /*Set the values from synth_vals in RunLMS*/
     plugin_data->vals.attack = *(plugin_data->attack) * .01;
     plugin_data->vals.decay = *(plugin_data->decay) * .01; 
     plugin_data->vals.sustain = *(plugin_data->sustain);
@@ -585,7 +585,7 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
 
 /*This returns MIDI CCs for the different knobs
  TODO:  Try it with non-hex numbers*/
-/*GUI Step 16:  Assign the LADSPA ports defined in step 9 to MIDI CCs in getControllerLMS*/
+/*Assign the LADSPA ports defined in step 9 to MIDI CCs in getControllerLMS*/
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {
     switch (port) {
@@ -748,7 +748,7 @@ void _init()
 	port_names[LMS_OUTPUT1] = "Output 1";
 	port_range_hints[LMS_OUTPUT1].HintDescriptor = 0;
         
-        /*GUI Step 14:  Define the LADSPA ports for the plugin in the class constructor*/
+        /*Define the LADSPA ports for the plugin in the class constructor*/
         
 	/* Parameters for attack */
 	port_descriptors[LMS_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
