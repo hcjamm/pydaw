@@ -35,7 +35,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/modules/filter/svf.h"
 
 #include "synth.h"
-
+#include "meta.h"
 
 static LADSPA_Descriptor *LMSLDescriptor = NULL;
 static DSSI_Descriptor *LMSDDescriptor = NULL;
