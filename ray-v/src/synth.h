@@ -30,7 +30,7 @@ printf("debug information");
     
 #define LMS_OUTPUT0  0
 #define LMS_OUTPUT1  31
-/*GUI Step 11:  Add ports to the main synthesizer file that the GUI can talk to */
+/*Add ports to the main synthesizer file that the GUI can talk to */
     
 /*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
  as they are iterated through*/
@@ -118,7 +118,7 @@ void dump_debug_voice_data(voice_data * a_data)
 
 
 
-/*GUI Step 12:  Add a variable for each control in the synth_vals type*/
+/*Add a variable for each control in the synth_vals type*/
 typedef struct {    
     /*The variables below this line correspond to GUI controls*/
     LADSPA_Data attack;
@@ -207,7 +207,7 @@ void dump_debug_synth_vals(synth_vals * a_data)
 
 
 
-/*GUI Step 13:  Add a variable for each control in the LMS type*/
+/*Add a variable for each control in the LMS type*/
 typedef struct {
     LADSPA_Data *output0;
     LADSPA_Data *output1;

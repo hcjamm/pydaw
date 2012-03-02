@@ -74,7 +74,7 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
 
     plugin = (LMS *) instance;
     
-    /*GUI Step 14:  Add the ports from step 9 to the connectPortLMS event handler*/
+    /*Add the ports from step 9 to the connectPortLMS event handler*/
     
     switch (port) {
     case LMS_INPUT0:
@@ -128,26 +128,29 @@ static void runLMSWrapper(LADSPA_Handle instance,
     runLMS(instance, sample_count, NULL, 0);
 }
 
+/*This is where parameters are update and the main loop is run.*/
 static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
     LMS *plugin_data = (LMS *) instance;
-
+    /*Define our inputs*/
     LADSPA_Data *const input0 = plugin_data->input0;    
     LADSPA_Data *const input1 = plugin_data->input1;
-
+    /*define our outputs*/
     LADSPA_Data *const output0 = plugin_data->output0;    
     LADSPA_Data *const output1 = plugin_data->output1;    
     
+    /*Reset our iterators to 0*/
     plugin_data->pos = 0;
     plugin_data->count= 0;    
     plugin_data->i_mono_out = 0;
     
-    /*GUI Step 15:  Set the values from synth_vals in RunLMS*/
+    /*Set the values from synth_vals in RunLMS*/
     plugin_data->vals.cutoff = *(plugin_data->cutoff);    
     plugin_data->vals.res = *(plugin_data->res);
     plugin_data->vals.filter_type = *(plugin_data->filter_type);
     
+    /*Set the svf_function function pointer to the filter type selected in the GUI*/
     switch((int)(plugin_data->vals.filter_type))    
     {
                 case 0:
@@ -174,14 +177,22 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 
     }
     
+    
     while ((plugin_data->pos) < sample_count) 
     {	
+        /*Run the smoother for the cutoff knob*/
         v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.cutoff));
         
+        /*Set filter resonance from the GUI*/
         v_svf_set_res(plugin_data->mono_modules->svf_filter0, plugin_data->vals.res);  
+        /*This sets the base frequency of the filter cutoff.*/
         v_svf_set_cutoff_base(plugin_data->mono_modules->svf_filter0, (plugin_data->mono_modules->filter_smoother->output));
+        /*This calculates the final cutoff for the filter.  This is done separately because you may wish to have many different
+         sources modulating the cutoff before you actually set the filter coefficients with it*/
         v_svf_set_cutoff(plugin_data->mono_modules->svf_filter0);
         
+        /*Repeat for the right channel.  It would technically be more efficient to have one set of coefficients for both channels,
+         but it's not worth the added effort since this plugin only uses about 1% of one core's CPU on my PC.*/
         v_svf_set_res(plugin_data->mono_modules->svf_filter1, plugin_data->vals.res);  
         v_svf_set_cutoff_base(plugin_data->mono_modules->svf_filter1, (plugin_data->mono_modules->filter_smoother->output));
         v_svf_set_cutoff(plugin_data->mono_modules->svf_filter1);
@@ -189,9 +200,9 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         
 	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
 	
-        /*Clear the output buffer*/
-        plugin_data->i_buffer_clear = 0;
         
+        plugin_data->i_buffer_clear = 0;
+        /*Clear the output buffer*/
         while((plugin_data->i_buffer_clear)<(plugin_data->count))
         {
 	    output0[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;                        
@@ -201,6 +212,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         
         plugin_data->i_mono_out = 0;
         
+        /*The main loop where processing happens*/
         while((plugin_data->i_mono_out) < (plugin_data->count))
         {   
             plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
@@ -218,7 +230,6 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 
 /*This returns MIDI CCs for the different knobs
  TODO:  Try it with non-hex numbers*/
-/*GUI Step 16:  Assign the LADSPA ports defined in step 9 to MIDI CCs in getControllerLMS*/
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {
     switch (port) {    
@@ -290,7 +301,7 @@ void _init()
 	port_names[LMS_OUTPUT1] = "Output 1";
 	port_range_hints[LMS_OUTPUT1].HintDescriptor = 0;
         
-        /*GUI Step 14:  Define the LADSPA ports for the plugin in the class constructor*/
+        /*Define the LADSPA ports for the plugin in the class constructor*/
         
 	
 	/* Parameters for timbre */

@@ -81,7 +81,7 @@ public:
     void v_print_port_name_to_cerr(int);
         
 public slots:
-    /*GUI Step 2:  Event handlers for setting knob values*/
+    /*Event handlers for setting knob values*/
     void setCutoff (float val);
     void setRes (float val);
     void setType (float val);
@@ -89,7 +89,7 @@ public slots:
     void aboutToQuit();
     
 protected slots:
-    /*GUI Step 3:  Event handlers for receiving changed knob values*/
+    /*Event handlers for receiving changed knob values*/
     void cutoffChanged (int);
     void resChanged (int);
     void typeChanged (int);
@@ -124,7 +124,7 @@ protected:
     QString presets_tab_delimited [128];
     
     
-    /*GUI Step1:  Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
+    /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
     QDial *m_cutoff;
     QLabel *m_cutoffLabel;   
     

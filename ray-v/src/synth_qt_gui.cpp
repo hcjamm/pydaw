@@ -210,7 +210,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     int f_gb_layout_row = 0;
     int f_gb_layout_column = 0;
-    /*GUI Step 4:  Lay out the controls you declared in the first step*/
+    /*Lay out the controls you declared in the first step*/
     
 #ifdef LMS_DEBUG_MODE_QT    
     cerr << "Creating the Osc1 controls" << endl;    
@@ -737,7 +737,7 @@ QComboBox * SynthGUI::get_combobox(QString a_choices [], int a_count,  QWidget *
     return f_result;
 }
 
-/*GUI Step 5:  Implement the event handlers from step 2.*/
+/*Implement the event handlers from step 2.*/
 void SynthGUI::setAttack(float sec)
 {
     m_suppressHostUpdate = true;
@@ -1025,7 +1025,7 @@ void SynthGUI::changed_decibels(int a_value, QLabel * a_label, int a_port)
 
 
 
-/*GUI Step 7:  Implement the event handlers from step 3.*/
+/*Implement the event handlers from step 3.*/
 
 void SynthGUI::attackChanged(int value)
 {
@@ -1412,7 +1412,7 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     cerr << "  value: " << a_value << endl;
 #endif
     
-    /*GUI Step 8:  Add the controls you created to the control handler*/
+    /*Add the controls you created to the control handler*/
     
     switch (a_port) {
     case LMS_ATTACK:
@@ -1519,7 +1519,7 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     
     if(a_suppress_host_update)
         m_suppressHostUpdate = true;
-       /*GUI Step 9:  Add the controls you created to the control handler*/
+       /*Add the controls you created to the control handler*/
     
     switch (a_port) {
     case LMS_ATTACK:
@@ -1628,8 +1628,7 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
  complex controls that could have multiple ints, or string values, etc...*/
 int SynthGUI::i_get_control(int a_port)
 {
-        /*GUI Step 10:  Add the controls you created to the control handler
-         TODO:  Renumber the GUI steps*/
+        /*Add the controls you created to the control handler*/
     switch (a_port) {
     case LMS_ATTACK:
         return m_attack->value();
