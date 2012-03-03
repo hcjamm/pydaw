@@ -170,8 +170,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         /*Clear the output buffer*/
         while((plugin_data->i_buffer_clear)<(plugin_data->count))
         {
-	    output0[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;                        
-            output1[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;     
+	    output0[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;
+            output1[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;
             plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
 	}
         
@@ -185,9 +185,10 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             v_cmb_set_input(plugin_data->mono_modules->comb_filter0, (input0[(plugin_data->buffer_pos)]));
             v_cmb_set_input(plugin_data->mono_modules->comb_filter1, (input1[(plugin_data->buffer_pos)]));
             
-            output0[(plugin_data->buffer_pos)] = f_cmb_get_wet_output((plugin_data->mono_modules->comb_filter0));
-            output1[(plugin_data->buffer_pos)] = f_cmb_get_wet_output((plugin_data->mono_modules->comb_filter1));
-
+            output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->comb_filter0->output_sample);
+            output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->comb_filter1->output_sample);
+            
+            
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
         
