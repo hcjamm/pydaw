@@ -4,5 +4,4 @@ autoheader
 automake --add-missing --foreign
 autoconf
 ./configure
-make
-#sudo checkinstall
+make CFLAGS+="-g"
