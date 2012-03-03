@@ -45,6 +45,7 @@ enum e_knob_type
     decibels_plus_6,
     decibels_plus_12,
     decibels_plus_24,
+    decibels_20_to_0,
     decibels_30_to_0,
     pitch,
     zero_to_one,
@@ -83,16 +84,14 @@ public:
 public slots:
     /*Event handlers for setting knob values*/
     void setCutoff (float val);
-    void setRes (float val);
-    void setType (float val);
+    void setAmt (float val);
         
     void aboutToQuit();
     
 protected slots:
     /*Event handlers for receiving changed knob values*/
     void cutoffChanged (int);
-    void resChanged (int);
-    void typeChanged (int);
+    void amtChanged (int);
         
     void oscRecv();
 protected:
@@ -126,13 +125,10 @@ protected:
     
     /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
     QDial *m_cutoff;
-    QLabel *m_cutoffLabel;   
+    QLabel *m_cutoffLabel;
     
-    QDial *m_res;
-    QLabel *m_resLabel;    
-    
-    QComboBox *m_type;
-    
+    QDial *m_amt;
+    QLabel *m_amtLabel;
     
     lo_address m_host;
     QByteArray m_controlPath;

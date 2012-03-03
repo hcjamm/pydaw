@@ -89,10 +89,6 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF); border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
     
-    /*TODO:  Options for 2pole or 4pole*/
-    QString f_filter_types [] = {"LP 2", "HP 2", "BP2", "LP 4", "HP 4", "BP4", "Off"};
-    int f_filter_types_count = 7;
-    
 #ifdef LMS_DEBUG_MODE_QT    
     cerr << "Creating the GUI controls" << endl;    
 #endif
@@ -116,27 +112,22 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     cerr << "Creating the Filter controls" << endl;    
 #endif    
     
-    QGroupBox * f_gb_filter = newGroupBox("Filter", this); 
+    QGroupBox * f_gb_filter = newGroupBox("Comb Filter", this); 
     QGridLayout *f_gb_filter_layout = new QGridLayout(f_gb_filter);
     
-    m_cutoff  =  get_knob(pitch);
+    m_cutoff  =   newQDial(20, 108, 1, 70); //get_knob(pitch);
     m_cutoffLabel  = newQLabel(this);
     add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Cutoff",m_cutoff, m_cutoffLabel);
     connect(m_cutoff,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
         
     f_gb_layout_column++;
     
-    m_res  =  get_knob(decibels_30_to_0); 
-    m_resLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Res", m_res, m_resLabel);
-    connect(m_res,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
+    m_amt  =  get_knob(decibels_20_to_0); 
+    m_amtLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Amt", m_amt, m_amtLabel);
+    connect(m_amt,  SIGNAL(valueChanged(int)), this, SLOT(amtChanged(int)));
         
     f_gb_layout_column++;
-    
-    m_type = get_combobox(f_filter_types, f_filter_types_count , this);     
-    add_widget_no_label(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Type", m_type);
-    connect(m_type, SIGNAL(currentIndexChanged(int)), this, SLOT(typeChanged(int)));
-    typeChanged(m_type->currentIndex());
     
     layout_row0->addWidget(f_gb_filter, -1, Qt::AlignLeft);
     f_column++;
@@ -235,7 +226,10 @@ QDial * SynthGUI::get_knob(e_knob_type a_ktype, int a_default_value)
             f_min = -60; f_max = 6; f_step = 1; f_value = -6;            
             break;
         case decibels_30_to_0:
-            f_min = -30; f_max = 0; f_step = 1; f_value = -9;            
+            f_min = -30; f_max = 0; f_step = 1; f_value = -9;
+            break;
+        case decibels_20_to_0:
+            f_min = -20; f_max = 0; f_step = 1; f_value = -9;
             break;
         case pitch:
             f_min = 20; f_max = 124; f_step = 1; f_value = 105;            
@@ -283,7 +277,13 @@ QCheckBox * SynthGUI::get_checkbox(std::string a_text)
     return f_checkbox;
 }
 
-
+/*newQDial(
+ * int minValue,
+ * int maxValue,
+ * int pageStep,
+ * int value
+ * );
+ */
 QDial * SynthGUI::newQDial( int minValue, int maxValue, int pageStep, int value )
 {
     QDial *dial = new QDial( this );
@@ -325,19 +325,13 @@ void SynthGUI::setCutoff(float val)
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setRes(float val)
+void SynthGUI::setAmt(float val)
 {
     m_suppressHostUpdate = true;
-    m_res->setValue(int(val));
+    m_amt->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setType(float val)
-{
-    m_suppressHostUpdate = true;
-    m_type->setCurrentIndex(int(val));
-    m_suppressHostUpdate = false;
-}
 
 /*Standard handlers for the audio slots, these perform manipulations of knob values
  that are common in audio applications*/
@@ -407,16 +401,9 @@ void SynthGUI::cutoffChanged(int value)
     changed_pitch(value, m_cutoffLabel, LMS_CUTOFF);    
 }
 
-void SynthGUI::resChanged(int value)
+void SynthGUI::amtChanged(int value)
 {
-    changed_decibels(value, m_resLabel, LMS_RES);    
-}
-
-void SynthGUI::typeChanged(int value)
-{
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LMS_TYPE, float(value));
-    }
+    changed_decibels(value, m_amtLabel, LMS_AMT);    
 }
 
 void SynthGUI::v_print_port_name_to_cerr(int a_port)
@@ -426,7 +413,7 @@ void SynthGUI::v_print_port_name_to_cerr(int a_port)
     case LMS_CUTOFF:
 	cerr << "LMS_CUTOFF";
 	break;
-    case LMS_RES:
+    case LMS_AMT:
 	cerr << "LMS_RES";
 	break;        
     case LMS_DIST:
@@ -455,11 +442,8 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     case LMS_CUTOFF:
 	setCutoff(a_value);
 	break;
-    case LMS_RES:
-	setRes(a_value);
-	break;        
-    case LMS_TYPE:
-	setType(a_value);
+    case LMS_AMT:
+	setAmt(a_value);
 	break;
     }
 }
@@ -481,11 +465,8 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case LMS_CUTOFF:
 	cutoffChanged(a_value);
 	break;
-    case LMS_RES:
-	resChanged(a_value);
-	break;        
-    case LMS_TYPE:
-	typeChanged(a_value);
+    case LMS_AMT:
+	amtChanged(a_value);
 	break;
     default:
 #ifdef LMS_DEBUG_MODE_QT
@@ -506,10 +487,8 @@ int SynthGUI::i_get_control(int a_port)
     switch (a_port) {
     case LMS_CUTOFF:
         return m_cutoff->value();
-    case LMS_RES:
-        return m_res->value();        
-    case LMS_TYPE:
-        return m_type->currentIndex();
+    case LMS_AMT:
+        return m_amt->value();
     default:
 #ifdef LMS_DEBUG_MODE_QT
 	cerr << "Warning: received request to get nonexistent port " << a_port << endl;

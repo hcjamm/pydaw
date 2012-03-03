@@ -92,12 +92,9 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     case LMS_CUTOFF:
 	plugin->cutoff = data;              
 	break;
-    case LMS_RES:
-	plugin->res = data;              
-	break;    
-    case LMS_TYPE:
-        plugin->filter_type = data;
-        break;    
+    case LMS_AMT:
+	plugin->amt = data;              
+	break;
     }
 }
 
@@ -147,20 +144,19 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     
     /*Set the values from synth_vals in RunLMS*/
     plugin_data->vals.cutoff = *(plugin_data->cutoff);    
-    plugin_data->vals.res = *(plugin_data->res);
-    plugin_data->vals.filter_type = *(plugin_data->filter_type);
-        
+    plugin_data->vals.amt = *(plugin_data->amt);
     
     while ((plugin_data->pos) < sample_count) 
     {	
         /*Run the smoother for the cutoff knob*/
         v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.cutoff));
         
-        /*TODO:  Replace res with a feedback knob*/
-        v_cmb_set_all(plugin_data->mono_modules->comb_filter0, (plugin_data->vals.res), (plugin_data->vals.res), 
+        /*Feedback and wet are being fed by a single knob, to simplify the use of the plugin.  
+         * You could place them as separate knobs*/
+        v_cmb_set_all(plugin_data->mono_modules->comb_filter0, (plugin_data->vals.amt), (plugin_data->vals.amt), 
                 (plugin_data->mono_modules->filter_smoother->output));
         
-        v_cmb_set_all(plugin_data->mono_modules->comb_filter1, (plugin_data->vals.res), (plugin_data->vals.res), 
+        v_cmb_set_all(plugin_data->mono_modules->comb_filter1, (plugin_data->vals.amt), (plugin_data->vals.amt), 
                 (plugin_data->mono_modules->filter_smoother->output));
         
 	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
@@ -205,10 +201,8 @@ int getControllerLMS(LADSPA_Handle instance, unsigned long port)
     switch (port) {    
     case LMS_CUTOFF:
         return DSSI_CC(0x15);  //21
-    case LMS_RES:
-        return DSSI_CC(0x14);  //20                            
-    case LMS_TYPE:
-        return DSSI_CC(0x1c);  //28    
+    case LMS_AMT:
+        return DSSI_CC(0x14);  //20
     default:
         return DSSI_NONE;
     }
@@ -284,25 +278,14 @@ void _init()
 	port_range_hints[LMS_CUTOFF].UpperBound =  124;
         
         /* Parameters for res */
-	port_descriptors[LMS_RES] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_RES] = "Res";
-	port_range_hints[LMS_RES].HintDescriptor =
+	port_descriptors[LMS_AMT] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_AMT] = "Res";
+	port_range_hints[LMS_AMT].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_RES].LowerBound =  -30;
-	port_range_hints[LMS_RES].UpperBound =  0;
-        
-        
-        
-        /*Parameters for type*/        
-	port_descriptors[LMS_TYPE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_TYPE] = "Type";
-	port_range_hints[LMS_TYPE].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_TYPE].LowerBound =  0;
-	port_range_hints[LMS_TYPE].UpperBound =  5;
-        
+	port_range_hints[LMS_AMT].LowerBound =  -20;
+	port_range_hints[LMS_AMT].UpperBound =  0;
+
         
         /*Step 17:  Add LADSPA ports*/
         
