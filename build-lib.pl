@@ -149,7 +149,7 @@ sub run_script
 }
 sub notify_wait
 {
-print "\nPlease wait, this could take a few minutes...\n";
+print "\n\nPlease wait, this could take a few minutes...\n\n";
 }
 
 sub notify_done
@@ -189,7 +189,7 @@ sub clean
 sub build
 {
 #TODO:  test -ffast-math CFLAG
-$make = 'make -s CFLAGS+="';
+$make = 'make --quiet CFLAGS+="';
 if($ARGV[1] eq "--native")
 {
 $make .= '-O3 -pipe -march=native -mtune=native';
@@ -440,7 +440,7 @@ print "
 The plugin has been forked.  You should now rebuild it with the following commands:
 
 cd ../$short_name
-perl build.pl -f
+perl build.pl --full-build
 
 ";
 
