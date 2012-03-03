@@ -14,7 +14,7 @@ extern "C" {
 #endif
     
 /*Comment this out when compiling a release, it will waste a lot of CPU*/
-#define LMS_CMB_DEBUG_MODE
+//#define LMS_CMB_DEBUG_MODE
 
 #define CMB_BUFFER_SIZE 2000
     
@@ -46,7 +46,11 @@ inline void v_cmb_set_input(t_comb_filter*,float);
 inline void v_cmb_set_all(t_comb_filter*, float,float,float);
 t_comb_filter * g_cmb_get_comb_filter(float);
 
-/*This runs the filter.  You can then use the output sample in your plugin*/
+/* v_cmb_set_input(
+ * t_comb_filter*,
+ * float input value (audio sample, -1 to 1, typically)
+ * );
+ * This runs the filter.  You can then use the output sample in your plugin*/
 inline void v_cmb_set_input(t_comb_filter* a_cmb_ptr,float a_value)
 {
     a_cmb_ptr->input_pointer = (a_cmb_ptr->input_pointer) + 1;
@@ -68,8 +72,14 @@ inline void v_cmb_set_input(t_comb_filter* a_cmb_ptr,float a_value)
     
     a_cmb_ptr->input_buffer[(a_cmb_ptr->input_pointer)] = a_value + ((a_cmb_ptr->wet_sample) * (a_cmb_ptr->feedback_linear));
     
-    a_cmb_ptr->output_sample = a_value + ((a_cmb_ptr->wet_sample) * (a_cmb_ptr->wet_linear));
-    
+    if((a_cmb_ptr->wet_linear) <= -20.0f)
+    {
+        a_cmb_ptr->output_sample = a_value;
+    }
+    else
+    {
+        a_cmb_ptr->output_sample = a_value + ((a_cmb_ptr->wet_sample) * (a_cmb_ptr->wet_linear));
+    }
     
 #ifdef LMS_CMB_DEBUG_MODE
     a_cmb_ptr->debug_counter = (a_cmb_ptr->debug_counter) + 1;
@@ -94,7 +104,15 @@ inline void v_cmb_set_input(t_comb_filter* a_cmb_ptr,float a_value)
     
 }
 
-
+/*v_cmb_set_all(
+ * t_comb_filter*,
+ * float wet (decibels -20 to 0)
+ * float feedback (decibels -20 to 0)
+ * float pitch (midi note number, 20 to 120)
+ * );
+ * 
+ * Sets all parameters of the comb filter.
+ */
 inline void v_cmb_set_all(t_comb_filter* a_cmb_ptr, float a_wet_db, float a_feedback_db, float a_midi_note_number)
 {
     /*Set wet_linear, but only if it's changed since last time*/    
@@ -155,6 +173,9 @@ t_comb_filter * g_cmb_get_comb_filter(float a_sr)
 #ifdef LMS_CMB_DEBUG_MODE
     f_result->debug_counter = 0;
 #endif
+    
+    v_cmb_set_all(f_result,-6.0f, -6.0f, 66.0f);
+    v_cmb_set_input(f_result, 0);
             
     return f_result;
 }
