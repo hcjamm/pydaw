@@ -20,21 +20,32 @@ extern "C" {
 
 inline float f_pit_midi_note_to_hz(float);    
 inline float f_pit_hz_to_midi_note(float);
+inline float f_pit_midi_note_to_samples(float,float);
+/*TODO:  inline float f_pit_midi_note_to_samples_fast(float);*/
 inline float f_pit_midi_note_to_hz_fast(float);
 
 /*Functions*/
 
+/*Convert midi note number to hz*/
 inline float f_pit_midi_note_to_hz(float a_midi_note_number)
 {
-    float f_result;
-    f_result = base_a4*pow(2,(a_midi_note_number-57)*.0833333);
-    return f_result;
+    return (base_a4*pow(2,(a_midi_note_number-57)*.0833333));
+    
 }
 
+/*Convert hz to midi note number*/
 inline float f_pit_hz_to_midi_note(float _hz)
 {
-    float f_result=(12*log2(_hz*base_a4_recip))+57;
-    return f_result;
+     return ((12*log2(_hz*base_a4_recip))+57);
+    
+}
+
+/*Convert a midi note number pitch to the number of samples in a single wave-length at that pitch*/
+inline float f_pit_midi_note_to_samples(float a_midi_note_number, float a_sample_rate)
+{
+    /*This will be used by the _fast method, as it cannot be plotted without knowing the sample rate first*/
+    //return ((1/(f_pit_midi_note_to_hz_fast(a_midi_note_number))) * a_sample_rate);
+    return (a_sample_rate/(f_pit_midi_note_to_hz_fast(a_midi_note_number)));
 }
 
 /*Arrays*/
@@ -173,20 +184,21 @@ float arr_pit_p2f [arr_pit_p2f_count] = {
 22350.572266, 22415.220703, 22480.044922, 22545.068359, 22610.269531, 22675.667969, 22741.255859, 22807.025391, 22872.994141, 22939.142578, 23005.494141, 23072.035156, 23138.759766, 23205.689453, 23272.800781, 23340.115234, 23407.626953, 23475.322266, 23543.222656, 23611.310547, 
 23679.605469};
 
+/*Convert midi note number to hz, using a fast table lookup*/
 inline float f_pit_midi_note_to_hz_fast(float a_midi_note_number)
 {
-    a_midi_note_number = (a_midi_note_number * 20) - 1;
+    float f_arr_index = (a_midi_note_number * 20) - 1;
     
-    
-    if(a_midi_note_number > arr_pit_p2f_count_limit)
+    if(f_arr_index > arr_pit_p2f_count_limit)
     {
-        a_midi_note_number = arr_pit_p2f_count_limit ;
+        f_arr_index = arr_pit_p2f_count_limit ;
+    }    
+    else if(f_arr_index < 0)
+    {
+        f_arr_index = 0;
     }
     
-    if(a_midi_note_number < 0)
-        a_midi_note_number = 0;
-    
-    return f_linear_interpolate_arr(arr_pit_p2f, a_midi_note_number);
+    return f_linear_interpolate_arr(arr_pit_p2f, f_arr_index);
 }
 
 #ifdef	__cplusplus
