@@ -22,6 +22,7 @@ args:
 --deb 		:  Compile and package the plugin into a .deb file
 --ubuntu-deps	:  Install all Ubuntu dependencies
 --fork 		:  Fork the current plugin into a new plugin, with updated meta-data and Makfile.
+--git-add	:  Adds the appropriate files to a git repository for a forked plugin
 
 compile options:
 
@@ -107,6 +108,10 @@ sub run_script
 	elsif($ARGV[0] eq "--fork")
 	{
 		fork_plugin();
+	}
+	elsif($ARGV[0] eq "--git-add")
+	{
+		system("git add src/dssi.h src/libmodsynth.h src/Makefile.am src/synth.c src/synth.h src/synth_qt_gui.cpp src/meta.h src/synth_qt_gui.h build.pl Makefile.am configure.ac");
 	}
 	else
 	{
@@ -234,7 +239,7 @@ my $email = <STDIN>;
 print "\nPlease enter your first and last name:\n";
 my $name = <STDIN>;
 
-my $range = 987651;
+my $range = 687651;
 my $minimum = 12740;
 
 #Adding 2 random numbers is more random than 1
