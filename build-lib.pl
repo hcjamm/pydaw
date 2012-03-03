@@ -1,11 +1,10 @@
 #!/usr/bin/perl
 
-#This script provides functions for the build.pl scripts in each plugin directory.  This prevents the need 
-#to duplicate changes to each build.pl script when making changes.
+#This script should not be invoked by itself, it is a library for each plugin's build.pl script
 
-#This script should not be invoked by itself, it is merely a library for the other scripts.
-
-#TODO:  An option to cleanly fork a plugin that will autogenerate the required changes
+#usage:
+#require "../build-lib.pl"
+#(call subs)
 
 $help_text = "
 The LibModSynth build helper script.  http://libmodsynth.sourceforge.net
@@ -15,13 +14,15 @@ Usage:
 perl build.pl [args] [compile options]
 
 args:
---full-build 	:  A clean build, rebuilding all autotools files, does not install.
---quick-build 	:  A quick build, does not install.
+--full-build 	:  A clean build, rebuilding all autotools files, does not install
+--quick-build 	:  A quick build, does not install
 --install	:  Install using make install
---debug		:  Compile, install and run standalone from the terminal.  Use this to test changes to your code.
+--debug		:  Compile, install and debug, using LMS' console output
+--debug-gdb	:  Compile and debug using GDB and it's interactive prompt (EXPERIMENTAL)
 --deb 		:  Compile and package the plugin into a .deb file
+--rpm		:  Compile and package the plugin into a .rpm file
 --ubuntu-deps	:  Install all Ubuntu dependencies
---fork 		:  Fork the current plugin into a new plugin, with updated meta-data and Makfile.
+--fork 		:  Fork the current plugin into a new plugin, with updated meta-data and Makefile
 --git-add	:  Adds the appropriate files to a git repository for a forked plugin
 
 compile options:
@@ -30,11 +31,11 @@ compile options:
 
 --sse3    :  Compile for SSE, SSE2 and SSE3.  This is the default option, requires a later Pentium4, Athlon64 or newer machine.
 
---user-cflags [CFLAGS]  :  Specify your own additional CFLAGS
+--sse2    :  Compile for SSE, SSE2.  Any machine that doesn't support SSE2 probably can't adequately run plugins anyways, this is a good default for very old machines.
 
---no-opt  :  Compile with no optimizations.  Not recommended unless compiling for a non-x86/x64 architecture.
+--user-cflags [CFLAGS]  :  Specify your own CFLAGS
 
-There should be one of these scripts in each plugin directory.
+There should be one build.pl script in each plugin directory.
 
 ";
 
@@ -45,7 +46,9 @@ $sleep = "sleep 6";
 
 $makefile = "Makefile";
 
-$deps_ubuntu = "sudo apt-get install liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev uuid-dev cmake liblscp-dev checkinstall libmad0-dev ; sudo usermod -g audio \$USER";
+$debug_args = " -g";
+
+$deps_ubuntu = "sudo apt-get install liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev uuid-dev cmake liblscp-dev checkinstall libmad0-dev gdb ; sudo usermod -g audio \$USER";
 
 #TODO:  Check for dependencies when running the other arguments, place a file when installed
 #TODO:  Place a file in the plugin directory once the first build has been run
@@ -77,6 +80,27 @@ sub run_script
 		make_install();
 		exec("$jack_host $plugin_path/$plugin_name");
 	}
+	elsif($ARGV[0] eq "--debug-gdb")
+	{
+		notify_wait();
+		unless(-e $jack_host)
+		{
+			`cd ../jack-dssi-host ; sh ./autotools_script.sh`;
+		}
+
+		if(-e $makefile)
+		{
+			clean();
+			build("-g");
+		}
+		else
+		{
+			first_build("-g");
+		}
+		make_install();
+		print "\n\n\nAt the gdb prompt, type:\nrun $plugin_path/$plugin_name\n\n\n";
+		exec("gdb $jack_host ;");
+	}
 	elsif($ARGV[0] eq "--quick-build")
 	{
 		notify_wait();
@@ -93,8 +117,12 @@ sub run_script
 	}
 	elsif($ARGV[0] eq "--deb")
 	{
-
 		deb_package();
+		notify_done();
+	}
+	elsif($ARGV[0] eq "--rpm")
+	{
+		rpm_package();
 		notify_done();
 	}
 	elsif($ARGV[0] eq "--install")
@@ -147,7 +175,7 @@ clean();
 `$sleep`;
 `./configure`;
 `$sleep`;
-build();
+build($_[0]);
 }
 
 sub clean
@@ -157,31 +185,44 @@ sub clean
 `$sleep`;
 }
 
+#The first argument passed in is any additional CFLAGS
 sub build
 {
 #TODO:  test -ffast-math CFLAG
-#TODO:  Remove the extra cflags from Makefile.am in ray-v
-
+$make = 'make -s CFLAGS+="';
 if($ARGV[1] eq "--native")
 {
-$make_result = `make CFLAGS+="-O3 -pipe -march=native -mtune=native"`;
+$make .= '-O3 -pipe -march=native -mtune=native';
 }
 elsif($ARGV[1] eq "--user-cflags")
 {
 $user_flags = $ARGV[2];
-$make_result = `make CFLAGS+="$user_flags"`;
+$make .= $user_flags;
 }
-elsif($ARGV[1] eq "--no-opt")
+elsif($ARGV[1] eq "--sse2")
 {
-$make_result = `make`;
+$make .= '-O3 -msse -msse2 -mmmx -pipe';
 }
 else
 {
-$make_result = `make CFLAGS+="-O3 -msse -msse2 -msse3 -mmmx -pipe"`;
+$make .= '-O3 -msse -msse2 -msse3 -mmmx -pipe';
 }
 
-#TODO:  Check make result
-#TODO:  Properly parse the args at the beginning of the script instead of relying on index
+if(defined $_[0])
+{
+	$make .= " " . $_[0];
+}
+
+$make .= '"';
+
+$make_result = system($make);
+
+if($make_result)
+{
+	print "\n\nError, \$make_result == $make_result
+Cannot compile, aborting script, please check your code for errors\n\n";
+	exit;
+}
 
 `$sleep`;
 }
@@ -196,6 +237,12 @@ sub deb_package
 {
 first_build();
 `sudo checkinstall --type=debian --install=no`;
+}
+
+sub rpm_package
+{
+first_build();
+`sudo checkinstall --type=rpm --install=no`;
 }
 
 #This isn't a real check, it only tests to see if the script attempted to install the dependencies
@@ -226,6 +273,7 @@ $deps_ubuntu
 `echo 'This file is created when build.pl attempts to install the dependencies' > ../deps_installed.txt`;
 }
 
+#Cleanly fork a plugin into a new plugin, complete with updated Makefiles and DSSI meta-data
 sub fork_plugin
 {
 get_values:
@@ -242,7 +290,7 @@ my $name = <STDIN>;
 my $range = 687651;
 my $minimum = 12740;
 
-#Adding 2 random numbers is more random than 1
+#Adding 2 random numbers is more random than 1, digital random numbers aren't completely random.
 my $uuid = int(rand($range)) + int(rand($range)) + $minimum;
 
 chomp($short_name);
@@ -299,7 +347,6 @@ extern \"C\" {
 #define LMS_PLUGIN_DEV \"$name <$email>\";
 #define LMS_PLUGIN_UUID $uuid
 
-
 #ifdef	__cplusplus
 }
 #endif
@@ -322,8 +369,6 @@ $short_name" . "_la_SOURCES = \\
         synth.c \\
 	dssi.h
 
-
-
 $short_name" . "_la_CFLAGS = -I\$(top_srcdir)/dssi \$(AM_CFLAGS) \$(ALSA_CFLAGS)
 
 $short_name" . "_la_LDFLAGS = -module -avoid-version
@@ -332,7 +377,6 @@ $short_name" . "_la_LIBADD = -lm -lmx
 else
 $short_name" . "_la_LIBADD = -lm
 endif
-
 
 if HAVE_LIBLO
 if HAVE_QT
@@ -356,8 +400,6 @@ nodist_LMS_qt_SOURCES = \$(LMS_MOC)
 
 LMS_qt_CXXFLAGS = \$(AM_CXXFLAGS) \$(QT_CFLAGS) \$(LIBLO_CFLAGS)
 LMS_qt_LDADD = \$(AM_LDFLAGS) \$(QT_LIBS) \$(LIBLO_LIBS)
-
-
 
 CLEANFILES = \$(BUILT_SOURCES)
 
