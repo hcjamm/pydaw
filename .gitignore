@@ -35,3 +35,4 @@ ray-v/LMS_qt
 *configure
 */src/Makefile
 */src/LMS_qt
+/lms-comb/dist/Default/
