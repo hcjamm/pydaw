@@ -33,6 +33,6 @@ ray-v/LMS_qt
 *deps_installed.txt
 *config.h
 *configure
-*/src/Makefile
+*Makefile
 */src/LMS_qt
 /lms-comb/dist/Default/

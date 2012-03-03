@@ -18,12 +18,14 @@ args:
 --quick-build 	:  A quick build, does not install
 --install	:  Install using make install
 --debug		:  Compile, install and debug, using LMS' console output
---debug-gdb	:  Compile and debug using GDB and it's interactive prompt (EXPERIMENTAL)
+--debug-gdb	:  Compile and debug using GDB (EXPERIMENTAL)
 --deb 		:  Compile and package the plugin into a .deb file
 --rpm		:  Compile and package the plugin into a .rpm file
 --ubuntu-deps	:  Install all Ubuntu dependencies
 --fork 		:  Fork the current plugin into a new plugin, with updated meta-data and Makefile
 --git-add	:  Adds the appropriate files to a git repository for a forked plugin
+--build-jack-host  :  This is for compiling the jack-dssi-host.  The user should never have to run this, the script will run it automatically when needed.
+--build-jack-host-debug  :  This is for compiling the jack-dssi-host with GDB debugging support.  The user should never have to run this, the script will run it automatically when needed.
 
 compile options:
 
@@ -31,7 +33,7 @@ compile options:
 
 --sse3    :  Compile for SSE, SSE2 and SSE3.  This is the default option, requires a later Pentium4, Athlon64 or newer machine.
 
---sse2    :  Compile for SSE, SSE2.  Any machine that doesn't support SSE2 probably can't adequately run plugins anyways, this is a good default for very old machines.
+--sse2    :  Compile for SSE, SSE2.  Any machine that doesn't support SSE2 probably can't adequately run plugins anyways, this is a good default for very old machines that will be running 32-bit plugins.
 
 --user-cflags [CFLAGS]  :  Specify your own CFLAGS
 
@@ -63,10 +65,11 @@ sub run_script
 	elsif($ARGV[0] eq "--debug")
 	{
 		notify_wait();
-		unless(-e $jack_host)
-		{
-			`cd ../jack-dssi-host ; sh ./autotools_script.sh`;
-		}
+		#unless(-e $jack_host)
+		#{
+			`cd ../jack-dssi-host ; perl build.pl --build-jack-host`;
+			#`cd ../jack-dssi-host ; sh ./autotools_script.sh`;
+		#}
 
 		if(-e $makefile)
 		{
@@ -83,19 +86,20 @@ sub run_script
 	elsif($ARGV[0] eq "--debug-gdb")
 	{
 		notify_wait();
-		unless(-e $jack_host)
-		{
-			`cd ../jack-dssi-host ; sh ./autotools_script.sh`;
-		}
+		#unless(-e $jack_host)
+		#{
+			`cd ../jack-dssi-host ; perl build.pl --build-jack-host-debug`;
+			#`cd ../jack-dssi-host ; sh ./autotools_script.sh --debug`;
+		#}
 
 		if(-e $makefile)
 		{
 			clean();
-			build("-g");
+			build($debug_args);
 		}
 		else
 		{
-			first_build("-g");
+			first_build($debug_args);
 		}
 		make_install();
 		print "\n\n\nAt the gdb prompt, type:\nrun $plugin_path/$plugin_name\n\n\n";
@@ -115,14 +119,30 @@ sub run_script
 		}
 		notify_done();
 	}
+	elsif($ARGV[0] eq "--build-jack-host")
+	{
+		notify_wait();
+
+		build_jack_host();
+
+		notify_done();
+	}
+	elsif($ARGV[0] eq "--build-jack-host-debug")
+	{
+		notify_wait();
+
+		build_jack_host("-g");
+
+		notify_done();
+	}
 	elsif($ARGV[0] eq "--deb")
 	{
-		deb_package();
+		build_package("debian");
 		notify_done();
 	}
 	elsif($ARGV[0] eq "--rpm")
 	{
-		rpm_package();
+		build_package("rpm");
 		notify_done();
 	}
 	elsif($ARGV[0] eq "--install")
@@ -171,8 +191,6 @@ clean();
 `$sleep`;
 `autoconf`;
 `$sleep`;
-`moc ./src/synth_qt_gui.h -o ./src/synth_qt_gui.moc.cpp`;
-`$sleep`;
 `./configure`;
 `$sleep`;
 build($_[0]);
@@ -188,6 +206,8 @@ sub clean
 #The first argument passed in is any additional CFLAGS
 sub build
 {
+`moc ./src/synth_qt_gui.h -o ./src/synth_qt_gui.moc.cpp`;
+`$sleep`;
 #TODO:  test -ffast-math CFLAG
 $make = 'make --quiet CFLAGS+="';
 if($ARGV[1] eq "--native")
@@ -227,23 +247,52 @@ Cannot compile, aborting script, please check your code for errors\n\n";
 `$sleep`;
 }
 
+#$_[0] will be any additional CFLAGS you wish to compile with, like -g for debugging
+sub build_jack_host
+{
+`rm jack-dssi-host`;
+`aclocal`;
+`$sleep`;
+`libtoolize --force --copy`;
+`$sleep`;
+`autoheader`;
+`$sleep`;
+`automake --add-missing --foreign`;
+`$sleep`;
+`autoconf`;
+`$sleep`;
+`./configure`;
+`$sleep`;
+if(defined $_[0])
+{
+$make = 'make CFLAGS+="' . $_[0] . '"';
+`$make`;
+}
+else
+{
+`make`;
+}
+
+}
+
 sub make_install
 {
 $install_result = system("sudo make install");
 #TODO:  Check install result
 }
 
-sub deb_package
+#$_[0] == debian, rpm or slackware
+sub build_package
 {
 first_build();
-`sudo checkinstall --type=debian --install=no`;
+$ci_command = "sudo checkinstall --type=" . $_[0] . "--install=no";
+#TODO:  more arguments to checkinstall like:
+#--provides=<list>
+#--requires=<list>
+
+`$ci_command`;
 }
 
-sub rpm_package
-{
-first_build();
-`sudo checkinstall --type=rpm --install=no`;
-}
 
 #This isn't a real check, it only tests to see if the script attempted to install the dependencies
 sub check_deps
