@@ -284,6 +284,7 @@ $install_result = system("sudo make install");
 #$_[0] == debian, rpm or slackware
 sub build_package
 {
+notify_wait();
 first_build();
 
 $maintainer = '""';
