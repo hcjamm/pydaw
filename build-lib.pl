@@ -169,7 +169,7 @@ sub run_script
 }
 sub notify_wait
 {
-print "\n\nPlease wait, this could take a few minutes...\n\n";
+print "\nPlease wait, this could take a few minutes...\n\n";
 }
 
 sub notify_done
@@ -491,6 +491,7 @@ The plugin has been forked.  You should now rebuild it with the following comman
 cd ../$short_name
 perl build.pl --full-build
 
+You should delete any IDE-specific project folders before opening it in an IDE, as it could interfere with the original project.
 ";
 
 }
