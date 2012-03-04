@@ -285,12 +285,42 @@ $install_result = system("sudo make install");
 sub build_package
 {
 first_build();
-$ci_command = "sudo checkinstall --type=" . $_[0] . "--install=no";
-#TODO:  more arguments to checkinstall like:
-#--provides=<list>
-#--requires=<list>
 
-`$ci_command`;
+$maintainer = '""';
+$package_name= '';
+
+@folders = split('/', `pwd`);
+
+foreach my $val (@values) {
+$package_name = $val;
+}
+
+if(-e "../maintainer.txt")
+{
+	open FILE, "../maintainer.txt" or die "Couldn't open file: $!"; 
+	$maintainer = join("", <FILE>); 
+	close FILE;
+	chomp($maintainer);
+}
+else
+{
+	print "\nPlease enter your email:\n";
+	my $email = <STDIN>;
+	print "\nPlease enter your first and last name:\n";
+	my $name = <STDIN>;
+
+	chomp($email);
+	chomp($name);
+
+	$maintainer = '"' . $name . '"' . " <$email>";
+
+	open (MYFILE, ">>../maintainer.txt");
+	print MYFILE "$maintainer";
+	close (MYFILE); 
+}
+$ci_command = "sudo checkinstall --type=" . $_[0] . " --install=no --maintainer='" . $maintainer . "' --provides=$package_name --pkgname=$package_name --requires='qtractor' ";
+
+system("$ci_command");
 }
 
 

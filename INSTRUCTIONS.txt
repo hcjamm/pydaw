@@ -41,6 +41,26 @@ How to create .rpm packages:
 	perl build.pl --rpm
 	#answer questions
 
+How to answer packaging questions:
+
+	These are some typical answers.  Be careful, packaging fails without properly formatted information:
+
+	0 -  Maintainer: [ "Jeff Hubbard" <jhubbard651@users.sf.net> ]
+	1 -  Summary: [ LMS Comb is a comb filter(sometimes called a phaser or flanger) written using LibModSynth. ]
+	2 -  Name:    [ lms-comb ]
+	3 -  Version: [ 1.0.0 ]
+	4 -  Release: [ 1 ]
+	5 -  License: [ GPL ]
+	6 -  Group:   [ checkinstall ]
+	7 -  Architecture: [ amd64 ]
+	8 -  Source location: [ lms-comb ]
+	9 -  Alternate source location: [  ]
+	10 - Requires: [ qjackctl ]
+	11 - Provides: [ lms-comb ]
+	12 - Conflicts: [  ]
+	13 - Replaces: [  ]
+
+
 How to fork a plugin automatically:
 
 	Run this command in the directory of the plugin you want to fork:
