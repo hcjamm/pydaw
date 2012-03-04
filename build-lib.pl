@@ -50,7 +50,7 @@ $makefile = "Makefile";
 
 $debug_args = " -g";
 
-$deps_ubuntu = "sudo apt-get install liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev uuid-dev cmake liblscp-dev checkinstall libmad0-dev gdb ; sudo usermod -g audio \$USER";
+$deps_ubuntu = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev uuid-dev cmake liblscp-dev checkinstall libmad0-dev gdb ; sudo usermod -g audio \$USER";
 
 #TODO:  Check for dependencies when running the other arguments, place a file when installed
 #TODO:  Place a file in the plugin directory once the first build has been run
@@ -313,7 +313,7 @@ else
 	chomp($email);
 	chomp($name);
 
-	$maintainer = '"' . $name . '"' . " <$email>";
+	$maintainer = $name . " <$email>";
 
 	open (MYFILE, ">>../maintainer.txt");
 	print MYFILE "$maintainer";
@@ -339,7 +339,14 @@ sub install_deps_ubuntu
 $check_ubuntu = `uname -v`;
 if($check_ubuntu =~ m/ubuntu/i)
 {
-	`$deps_ubuntu`;
+	print("Ubuntu dependencies must be installed.\n
+n");
+	$deps_result = system("$deps_ubuntu");
+
+	if($deps_result)
+	{
+		print("\nInstalling dependencies returned $deps_result.  The required dependencies may not have installed correctly.  If you think this is a bug, please report it.\n\n");
+	}
 }
 else
 {	
