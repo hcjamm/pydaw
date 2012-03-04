@@ -65,11 +65,11 @@ sub run_script
 	elsif($ARGV[0] eq "--debug")
 	{
 		notify_wait();
-		#unless(-e $jack_host)
-		#{
-			`cd ../jack-dssi-host ; perl build.pl --build-jack-host`;
-			#`cd ../jack-dssi-host ; sh ./autotools_script.sh`;
-		#}
+		#check for the jack-host-dssi binary;  build it if not
+		unless(-e $jack_host)
+		{
+			`cd ../jack-dssi-host ; perl build.pl --build-jack-host`;		
+		}
 
 		if(-e $makefile)
 		{
@@ -86,12 +86,9 @@ sub run_script
 	elsif($ARGV[0] eq "--debug-gdb")
 	{
 		notify_wait();
-		#unless(-e $jack_host)
-		#{
-			`cd ../jack-dssi-host ; perl build.pl --build-jack-host-debug`;
-			#`cd ../jack-dssi-host ; sh ./autotools_script.sh --debug`;
-		#}
-
+		#build the jack-dssi-host with debugging symbols for GDB
+		`cd ../jack-dssi-host ; perl build.pl --build-jack-host-debug`;
+		
 		if(-e $makefile)
 		{
 			clean();
@@ -103,6 +100,7 @@ sub run_script
 		}
 		make_install();
 		print "\n\n\nAt the gdb prompt, type:\nrun $plugin_path/$plugin_name\n\n\n";
+		`$sleep`;
 		exec("gdb $jack_host ;");
 	}
 	elsif($ARGV[0] eq "--quick-build")
@@ -292,34 +290,64 @@ $package_name= '';
 
 @folders = split('/', `pwd`);
 
-foreach my $val (@values) {
+foreach my $val (@folders) {
 $package_name = $val;
 }
 
-if(-e "../maintainer.txt")
-{
-	open FILE, "../maintainer.txt" or die "Couldn't open file: $!"; 
-	$maintainer = join("", <FILE>); 
-	close FILE;
-	chomp($maintainer);
-}
-else
-{
-	print "\nPlease enter your email:\n";
-	my $email = <STDIN>;
-	print "\nPlease enter your first and last name:\n";
-	my $name = <STDIN>;
+#This is commented out because of a bug in checkinstall not allowing the full "First Last" <first.last@abc.com>
+#syntax for maintainers.  I'm leaving the code here because this is good stuff, 
+#and I may switch to dpkg to work around these bugs.
+#if(-e "../maintainer.txt")
+#{
+#	open FILE, "../maintainer.txt" or die "Couldn't open file: $!"; 
+#	$maintainer = join("", <FILE>); 
+#	close FILE;
+#	chomp($maintainer);
+#}
+#else
+#{
+#	print "\nPlease enter your email:\n";
+#	my $email = <STDIN>;
+#	print "\nPlease enter your first and last name:\n";
+#	my $name = <STDIN>;
+#
+#	chomp($email);
+#	chomp($name);
+#
+#	$maintainer = $name . " <$email>";
+#
+#	open (MYFILE, ">>../maintainer.txt");
+#	print MYFILE "$maintainer";
+#	close (MYFILE); 
+#}
 
-	chomp($email);
-	chomp($name);
+$ci_command = "sudo checkinstall --type=" . $_[0] . " \\
+--install=no \\
+--requires=liblo-dev,dssi-dev,ladspa-sdk,libasound2-dev,qjackctl,libjack-jackd2-dev,libsndfile1-dev,libsamplerate0-dev,libsm-dev,liblscp-dev,libmad0-dev ";
 
-	$maintainer = $name . " <$email>";
+#print "\nRunning: \n$ci_command\n";
+print "
+You must enter the values in the below format to create a package that will work with most package managers:
 
-	open (MYFILE, ">>../maintainer.txt");
-	print MYFILE "$maintainer";
-	close (MYFILE); 
-}
-$ci_command = "sudo checkinstall --type=" . $_[0] . " --install=no --maintainer='" . $maintainer . "' --provides=$package_name --pkgname=$package_name --requires='qtractor' ";
+0 -  Maintainer: [ \"Jeff Hubbard\" <jhubbard651\@users.sf.net> ]
+1 -  Summary: [ LMS Comb is a comb filter(sometimes called a phaser or flanger) written using LibModSynth. ]
+2 -  Name:    [ lms-comb ]
+3 -  Version: [ 1.0.1 ]
+4 -  Release: [ 1 ]
+5 -  License: [ GPL ]
+6 -  Group:   [ checkinstall ]
+7 -  Architecture: [ amd64 ]
+8 -  Source location: [ lms-comb ]
+9 -  Alternate source location: [  ]
+10 - Requires: [ liblo-dev,dssi-dev,ladspa-sdk,libasound2-dev,qjackctl,libjack-jackd2-dev,libsndfile1-dev,libsamplerate0-dev,libsm-dev,liblscp-dev,libmad0-dev ]
+11 - Provides: [ lms-comb ]
+12 - Conflicts: [  ]
+13 - Replaces: [  ]
+
+Hit the enter key to continue.
+";
+
+my $dummy_value = <STDIN>;
 
 system("$ci_command");
 }
@@ -339,14 +367,34 @@ sub install_deps_ubuntu
 $check_ubuntu = `uname -v`;
 if($check_ubuntu =~ m/ubuntu/i)
 {
-	print("Ubuntu dependencies must be installed.\n
-n");
-	$deps_result = system("$deps_ubuntu");
+	ask_deps:
+	print("Dependencies must be installed.
+Enter 'y' to install, 'n' to continue without installing, or 'q' to quit [y]:\n");
 
-	if($deps_result)
+	$install_answer = <STDIN>;
+	chomp($install_answer);
+	$install_answer = lc($install_answer);
+
+	if(($install_answer eq "y") || ($install_answer eq ""))
 	{
-		print("\nInstalling dependencies returned $deps_result.  The required dependencies may not have installed correctly.  If you think this is a bug, please report it.\n\n");
+		$deps_result = system("$deps_ubuntu");
+
+		if($deps_result)
+		{
+			print("\nInstalling dependencies returned $deps_result.  The required dependencies may not have installed correctly.  If you think this is a bug, please report it.\n\n");
+		}
 	}
+	elsif($install_answer == "q")
+	{
+		exit;
+	}
+	elsif($install_answer eq "n")
+	{}
+	else
+	{
+		goto ask_deps;
+	}
+
 }
 else
 {	
@@ -492,7 +540,6 @@ CLEANFILES = \$(BUILT_SOURCES)
 
 # create symlinks for each plugin to jack-dssi-host
 #install-exec-hook:
-
 ";
 
 $build_dot_pl = "
@@ -531,6 +578,5 @@ perl build.pl --full-build
 
 You should delete any IDE-specific project folders before opening it in an IDE, as it could interfere with the original project.
 ";
-
 }
 
