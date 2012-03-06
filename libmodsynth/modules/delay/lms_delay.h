@@ -84,7 +84,7 @@ t_lms_delay * g_ldl_get_delay(float a_tempo, float a_sr)
  */
 inline void v_ldl_run_delay_ping_pong(t_lms_delay* a_dly, float a_in0, float a_in1)
 {
-    v_dly_run_delay(a_dly->delay0, (a_in0 + a_in1 + (((a_dly->feedback0) + (a_dly->feedback1)) * (a_dly->feedback_linear) * 0.5f)));        
+    v_dly_run_delay(a_dly->delay0, ((((a_dly->feedback1) * (a_dly->feedback_linear)) + ((a_in0 + a_in1) * 0.5f))));        
     v_dly_run_tap(a_dly->delay0, a_dly->tap0);
     
     v_dly_run_delay(a_dly->delay1, (a_dly->tap0->output));        
