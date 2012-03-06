@@ -146,7 +146,16 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->vals.cutoff = *(plugin_data->cutoff);    
     plugin_data->vals.amt = *(plugin_data->amt);
     
-    v_ldl_set_delay(plugin_data->mono_modules->delay, 1.0f, -3.0f, 0);
+    v_ldl_set_delay(plugin_data->mono_modules->delay, 1.0f, -3.0f, 0, 0.0f, -3.0f);
+    
+    v_svf_set_cutoff_base(plugin_data->mono_modules->svf0, 93);
+    v_svf_set_cutoff_base(plugin_data->mono_modules->svf1, 93);
+    
+    v_svf_set_cutoff(plugin_data->mono_modules->svf0);
+    v_svf_set_cutoff(plugin_data->mono_modules->svf1);
+    
+    plugin_data->mono_modules->delay->feedback0 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf0, (plugin_data->mono_modules->delay->feedback0));
+    plugin_data->mono_modules->delay->feedback1 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf1, (plugin_data->mono_modules->delay->feedback1));
     
     while ((plugin_data->pos) < sample_count) 
     {	
@@ -168,18 +177,11 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         {   
             plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
 
-            v_ldl_run_delay_ping_pong(plugin_data->mono_modules->delay, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)])
-                    ,(plugin_data->mono_modules->delay->output0), (plugin_data->mono_modules->delay->output1));
+            v_ldl_run_delay_ping_pong(plugin_data->mono_modules->delay, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
             
             output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->delay->output0);
             output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->delay->output1);
-            /*             
-            v_cmb_set_input(plugin_data->mono_modules->comb_filter0, (input0[(plugin_data->buffer_pos)]));
-            v_cmb_set_input(plugin_data->mono_modules->comb_filter1, (input1[(plugin_data->buffer_pos)]));
-            
-            output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->comb_filter0->output_sample);
-            output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->comb_filter1->output_sample);            
-            */          
+                 
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
         

@@ -27,6 +27,7 @@ extern "C" {
 #include "../../libmodsynth/lib/smoother-linear.h"
 #include "../../libmodsynth/lib/smoother-iir.h"
 #include "../../libmodsynth/modules/delay/lms_delay.h"
+#include "../../libmodsynth/modules/filter/svf.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -54,6 +55,8 @@ void v_init_lms(float f_sr)
 typedef struct st_mono_modules
 {    
     t_lms_delay * delay;
+    t_state_variable_filter * svf0;
+    t_state_variable_filter * svf1;
 }t_mono_modules;
     
 
@@ -66,6 +69,8 @@ t_mono_modules * v_mono_init(float a_sr, float a_tempo)
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
  
     a_mono->delay = g_ldl_get_delay(a_tempo, a_sr);
+    a_mono->svf0 = g_svf_get(a_sr);
+    a_mono->svf1 = g_svf_get(a_sr);
     
     return a_mono;
 }
