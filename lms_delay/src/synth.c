@@ -89,11 +89,23 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     case LMS_OUTPUT1:
 	plugin->output1 = data;
 	break;    
+    case LMS_DELAY_TIME:
+	plugin->delay_time = data;              
+	break;
+    case LMS_FEEDBACK:
+	plugin->feedback = data;              
+	break;
+    case LMS_DRY:
+	plugin->dry = data;              
+	break;
+    case LMS_WET:
+	plugin->wet = data;              
+	break;
+    case LMS_DUCK:
+	plugin->duck = data;              
+	break;
     case LMS_CUTOFF:
 	plugin->cutoff = data;              
-	break;
-    case LMS_AMT:
-	plugin->amt = data;              
 	break;
     }
 }
@@ -143,8 +155,12 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->i_mono_out = 0;
     
     /*Set the values from synth_vals in RunLMS*/
-    plugin_data->vals.cutoff = *(plugin_data->cutoff);    
-    plugin_data->vals.amt = *(plugin_data->amt);
+    plugin_data->vals.delay_time = *(plugin_data->delay_time);    
+    plugin_data->vals.feedback = *(plugin_data->feedback);
+    plugin_data->vals.dry = *(plugin_data->dry);    
+    plugin_data->vals.wet = *(plugin_data->wet);
+    plugin_data->vals.duck = *(plugin_data->duck);    
+    plugin_data->vals.cutoff = *(plugin_data->cutoff);
     
     v_ldl_set_delay(plugin_data->mono_modules->delay, 1.0f, -3.0f, 0, 0.0f, -3.0f);
     
@@ -196,10 +212,18 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {
     switch (port) {    
-    case LMS_CUTOFF:
-        return DSSI_CC(0x15);  //21
-    case LMS_AMT:
+    case LMS_DELAY_TIME:
         return DSSI_CC(0x14);  //20
+    case LMS_FEEDBACK:
+        return DSSI_CC(0x15);  //21
+    case LMS_DRY:
+        return DSSI_CC(0x16);  //22
+    case LMS_WET:
+        return DSSI_CC(0x17);  //23
+    case LMS_DUCK:
+        return DSSI_CC(0x18);  //24
+    case LMS_CUTOFF:
+        return DSSI_CC(0x19);  //25
     default:
         return DSSI_NONE;
     }
@@ -265,24 +289,59 @@ void _init()
         /*Define the LADSPA ports for the plugin in the class constructor*/
         
 	
-	/* Parameters for timbre */
-	port_descriptors[LMS_CUTOFF] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_CUTOFF] = "Timbre";
-	port_range_hints[LMS_CUTOFF].HintDescriptor =
+	/* Parameters for delay time */
+	port_descriptors[LMS_DELAY_TIME] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_DELAY_TIME] = "Delay Time";
+	port_range_hints[LMS_DELAY_TIME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_DELAY_TIME].LowerBound =  0;
+	port_range_hints[LMS_DELAY_TIME].UpperBound =  4;
+        
+        /* Parameters for feedback */
+	port_descriptors[LMS_FEEDBACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FEEDBACK] = "Feedback";
+	port_range_hints[LMS_FEEDBACK].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FEEDBACK].LowerBound =  -20;
+	port_range_hints[LMS_FEEDBACK].UpperBound =  0;
+
+        /* Parameters for dry */
+	port_descriptors[LMS_DRY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_DRY] = "Dry";
+	port_range_hints[LMS_DRY].HintDescriptor =
+			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_DRY].LowerBound =  -30;
+	port_range_hints[LMS_DRY].UpperBound =  0;
+        
+        /* Parameters for wet */
+	port_descriptors[LMS_WET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_WET] = "Wet";
+	port_range_hints[LMS_WET].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_WET].LowerBound =  -30;
+	port_range_hints[LMS_WET].UpperBound =  0;
+        
+        /* Parameters for duck */
+	port_descriptors[LMS_DUCK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_DUCK] = "Duck";
+	port_range_hints[LMS_DUCK].HintDescriptor =
+			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_DUCK].LowerBound =  -30;
+	port_range_hints[LMS_DUCK].UpperBound =  0;
+        
+        /* Parameters for cutoff */
+	port_descriptors[LMS_CUTOFF] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_CUTOFF] = "Cutoff";
+	port_range_hints[LMS_CUTOFF].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_CUTOFF].LowerBound =  20;
 	port_range_hints[LMS_CUTOFF].UpperBound =  124;
-        
-        /* Parameters for res */
-	port_descriptors[LMS_AMT] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_AMT] = "Res";
-	port_range_hints[LMS_AMT].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_AMT].LowerBound =  -20;
-	port_range_hints[LMS_AMT].UpperBound =  0;
-
         
         /*Step 17:  Add LADSPA ports*/
         
