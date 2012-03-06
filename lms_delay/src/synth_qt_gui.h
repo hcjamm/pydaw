@@ -83,15 +83,23 @@ public:
         
 public slots:
     /*Event handlers for setting knob values*/
-    void setCutoff (float val);
-    void setAmt (float val);
+    void setDelayTime (float val);
+    void setFeedback (float val);
+    void setDry(float val);
+    void setWet(float val);
+    void setDuck(float val);
+    void setCutoff(float val);
         
     void aboutToQuit();
     
 protected slots:
     /*Event handlers for receiving changed knob values*/
-    void cutoffChanged (int);
-    void amtChanged (int);
+    void delayTimeChanged (int);
+    void feedbackChanged (int);
+    void dryChanged(int);
+    void wetChanged(int);
+    void duckChanged(int);
+    void cutoffChanged(int);
         
     void oscRecv();
 protected:
@@ -124,11 +132,23 @@ protected:
     
     
     /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
+    QDial *m_delaytime;
+    QLabel *m_delaytimeLabel;
+    
+    QDial *m_feedback;
+    QLabel *m_feedbackLabel;
+    
+    QDial *m_dry;
+    QLabel *m_dryLabel;
+    
+    QDial *m_wet;
+    QLabel *m_wetLabel;
+    
+    QDial *m_duck;
+    QLabel *m_duckLabel;
+    
     QDial *m_cutoff;
     QLabel *m_cutoffLabel;
-    
-    QDial *m_amt;
-    QLabel *m_amtLabel;
     
     lo_address m_host;
     QByteArray m_controlPath;

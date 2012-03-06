@@ -112,20 +112,48 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     cerr << "Creating the Filter controls" << endl;    
 #endif    
     
-    QGroupBox * f_gb_filter = newGroupBox("Comb Filter", this); 
+    QGroupBox * f_gb_filter = newGroupBox("Delay", this); 
     QGridLayout *f_gb_filter_layout = new QGridLayout(f_gb_filter);
     
-    m_cutoff  =   newQDial(20, 108, 1, 70); //get_knob(pitch);
-    m_cutoffLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Cutoff",m_cutoff, m_cutoffLabel);
-    connect(m_cutoff,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
+    m_delaytime  =   newQDial(0, 4, 1, 2);
+    m_delaytimeLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Beats",m_delaytime, m_delaytimeLabel);
+    connect(m_delaytime,  SIGNAL(valueChanged(int)), this, SLOT(delayTimeChanged(int)));
         
     f_gb_layout_column++;
     
-    m_amt  =  get_knob(decibels_20_to_0); 
-    m_amtLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Amt", m_amt, m_amtLabel);
-    connect(m_amt,  SIGNAL(valueChanged(int)), this, SLOT(amtChanged(int)));
+    m_feedback  =  get_knob(decibels_20_to_0); 
+    m_feedbackLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Feedback", m_feedback, m_feedbackLabel);
+    connect(m_feedback,  SIGNAL(valueChanged(int)), this, SLOT(feedbackChanged(int)));
+        
+    f_gb_layout_column++;
+    
+    m_dry  =   get_knob(decibels_30_to_0); 
+    m_dryLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Dry",m_dry, m_dryLabel);
+    connect(m_dry,  SIGNAL(valueChanged(int)), this, SLOT(dryChanged(int)));
+        
+    f_gb_layout_column++;
+    
+    m_wet  =  get_knob(decibels_30_to_0); 
+    m_wetLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Wet", m_wet, m_wetLabel);
+    connect(m_wet,  SIGNAL(valueChanged(int)), this, SLOT(wetChanged(int)));
+        
+    f_gb_layout_column++;
+    
+    m_duck  =   get_knob(decibels_30_to_0);
+    m_duckLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Duck",m_duck, m_duckLabel);
+    connect(m_duck,  SIGNAL(valueChanged(int)), this, SLOT(duckChanged(int)));
+        
+    f_gb_layout_column++;
+    
+    m_cutoff  =  get_knob(pitch); 
+    m_cutoffLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Cutoff", m_cutoff, m_cutoffLabel);
+    connect(m_cutoff,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
         
     f_gb_layout_column++;
     
@@ -318,20 +346,47 @@ QComboBox * SynthGUI::get_combobox(QString a_choices [], int a_count,  QWidget *
     return f_result;
 }
 
+void SynthGUI::setDelayTime(float val)
+{
+    m_suppressHostUpdate = true;
+    m_delaytime->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setFeedback(float val)
+{
+    m_suppressHostUpdate = true;
+    m_feedback->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setDry(float val)
+{
+    m_suppressHostUpdate = true;
+    m_dry->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setWet(float val)
+{
+    m_suppressHostUpdate = true;
+    m_wet->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setDuck(float val)
+{
+    m_suppressHostUpdate = true;
+    m_duck->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
 void SynthGUI::setCutoff(float val)
 {
     m_suppressHostUpdate = true;
     m_cutoff->setValue(int(val));
     m_suppressHostUpdate = false;
 }
-
-void SynthGUI::setAmt(float val)
-{
-    m_suppressHostUpdate = true;
-    m_amt->setValue(int(val));
-    m_suppressHostUpdate = false;
-}
-
 
 /*Standard handlers for the audio slots, these perform manipulations of knob values
  that are common in audio applications*/
@@ -396,29 +451,83 @@ void SynthGUI::changed_decibels(int a_value, QLabel * a_label, int a_port)
 
 /*Implement the event handlers from step 3.*/
 
+void SynthGUI::delayTimeChanged(int value)
+{
+    //changed_pitch(value, m_delaytimeLabel, LMS_DELAY_TIME); 
+    QString f_value;
+    
+    switch(value)
+    {
+        case 0:
+            m_delaytimeLabel->setText("1/4");            
+            break;
+        case 1:
+            m_delaytimeLabel->setText("1/3");
+            break;
+        case 2:
+            m_delaytimeLabel->setText("1/2");
+            break;
+        case 3:
+            m_delaytimeLabel->setText("1");
+            break;
+        case 4:
+            m_delaytimeLabel->setText("2");
+            break;
+    }
+    
+    if (!m_suppressHostUpdate) {
+	lo_send(m_host, m_controlPath, "if", LMS_DELAY_TIME, float(value));
+    }
+}
+
+void SynthGUI::feedbackChanged(int value)
+{
+    changed_decibels(value, m_feedbackLabel, LMS_FEEDBACK);    
+}
+
+void SynthGUI::dryChanged(int value)
+{
+    changed_decibels(value, m_dryLabel, LMS_DRY);    
+}
+
+void SynthGUI::wetChanged(int value)
+{
+    changed_decibels(value, m_wetLabel, LMS_WET);    
+}
+
+void SynthGUI::duckChanged(int value)
+{
+    changed_decibels(value, m_duckLabel, LMS_DUCK);    
+}
+
 void SynthGUI::cutoffChanged(int value)
 {
     changed_pitch(value, m_cutoffLabel, LMS_CUTOFF);    
-}
-
-void SynthGUI::amtChanged(int value)
-{
-    changed_decibels(value, m_amtLabel, LMS_AMT);    
 }
 
 void SynthGUI::v_print_port_name_to_cerr(int a_port)
 {
 #ifdef LMS_DEBUG_MODE_QT
     switch (a_port) {
+    case LMS_DELAY_TIME:
+	cerr << "LMS_DELAY_TIME";
+	break;
+    case LMS_FEEDBACK:
+	cerr << "LMS_FEEDBACK";
+	break;        
+    case LMS_DRY:
+	cerr << "LMS_DRY";
+	break;
+    case LMS_WET:
+	cerr << "LMS_WET";
+	break;        
+    case LMS_DUCK:
+	cerr << "LMS_DUCK";
+	break;
     case LMS_CUTOFF:
 	cerr << "LMS_CUTOFF";
-	break;
-    case LMS_AMT:
-	cerr << "LMS_RES";
 	break;        
-    case LMS_DIST:
-	cerr << "LMS_DIST";
-	break;
+    
     default:
 	cerr << "Warning: received request to set nonexistent port " << a_port ;
         break;
@@ -439,12 +548,24 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     
     switch (a_port) 
     {
-    case LMS_CUTOFF:
-	setCutoff(a_value);
-	break;
-    case LMS_AMT:
-	setAmt(a_value);
-	break;
+        case LMS_DELAY_TIME:
+            setDelayTime(a_value);
+            break;
+        case LMS_FEEDBACK:
+            setFeedback(a_value);
+            break;
+        case LMS_DRY:
+            setDry(a_value);
+            break;
+        case LMS_WET:
+            setWet(a_value);
+            break;
+        case LMS_DUCK:
+            setDuck(a_value);
+            break;
+        case LMS_CUTOFF:
+            setCutoff(a_value);
+            break;
     }
 }
 
@@ -462,17 +583,29 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
        /*Add the controls you created to the control handler*/
     
     switch (a_port) {
-    case LMS_CUTOFF:
-	cutoffChanged(a_value);
-	break;
-    case LMS_AMT:
-	amtChanged(a_value);
-	break;
-    default:
+        case LMS_DELAY_TIME:
+            delayTimeChanged(a_value);
+            break;
+        case LMS_FEEDBACK:
+            feedbackChanged(a_value);
+            break;
+        case LMS_DRY:
+            dryChanged(a_value);
+            break;
+        case LMS_WET:
+            wetChanged(a_value);
+            break;
+        case LMS_DUCK:
+            duckChanged(a_value);
+            break;
+        case LMS_CUTOFF:
+            cutoffChanged(a_value);
+            break;
+        default:
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
+                cerr << "Warning: received request to set nonexistent port " << a_port << endl;
 #endif
-        break;
+            break;
     }
     
     if(a_suppress_host_update)
@@ -485,15 +618,23 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
 int SynthGUI::i_get_control(int a_port)
 {        
     switch (a_port) {
-    case LMS_CUTOFF:
-        return m_cutoff->value();
-    case LMS_AMT:
-        return m_amt->value();
-    default:
+        case LMS_DELAY_TIME:
+            return m_delaytime->value();
+        case LMS_FEEDBACK:
+            return m_feedback->value();
+        case LMS_DRY:
+            return m_dry->value();
+        case LMS_WET:
+            return m_wet->value();
+        case LMS_DUCK:
+            return m_duck->value();
+        case LMS_CUTOFF:
+            return m_cutoff->value();
+        default:
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << "Warning: received request to get nonexistent port " << a_port << endl;
+            cerr << "Warning: received request to get nonexistent port " << a_port << endl;
 #endif
-        break;
+         break;
     }
 }
 

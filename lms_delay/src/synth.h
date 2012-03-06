@@ -37,11 +37,15 @@ printf("debug information");
 /*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
  as they are iterated through*/
 #define LMS_FIRST_CONTROL_PORT 4
-#define LMS_CUTOFF  4
-#define LMS_AMT  5
+#define LMS_DELAY_TIME  4
+#define LMS_FEEDBACK  5
+#define LMS_DRY  6
+#define LMS_WET  7
+#define LMS_DUCK  8
+#define LMS_CUTOFF  9
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 5
-#define LMS_COUNT 6 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_LAST_CONTROL_PORT 9
+#define LMS_COUNT 10 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 
 #define POLYPHONY   8  //maximum voices played at one time
@@ -53,8 +57,12 @@ printf("debug information");
 typedef struct {    
     /*The variables below this line correspond to GUI controls*/
     
+    LADSPA_Data delay_time;
+    LADSPA_Data feedback;
+    LADSPA_Data dry;
+    LADSPA_Data wet;
+    LADSPA_Data duck;
     LADSPA_Data cutoff;
-    LADSPA_Data amt;    
     
     /*The variables below this line do NOT correspond to GUI controls*/
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -83,8 +91,12 @@ typedef struct {
     LADSPA_Data *input1;
     LADSPA_Data *output0;
     LADSPA_Data *output1;
+    LADSPA_Data *delay_time;
+    LADSPA_Data *feedback;
+    LADSPA_Data *dry;
+    LADSPA_Data *wet;
+    LADSPA_Data *duck;
     LADSPA_Data *cutoff;
-    LADSPA_Data *amt;
     
     float fs;
     float tempo;
