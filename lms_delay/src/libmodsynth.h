@@ -26,7 +26,7 @@ extern "C" {
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/lib/smoother-linear.h"
 #include "../../libmodsynth/lib/smoother-iir.h"
-#include "../../libmodsynth/modules/delay/delay.h"
+#include "../../libmodsynth/modules/delay/lms_delay.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -53,10 +53,7 @@ void v_init_lms(float f_sr)
 
 typedef struct st_mono_modules
 {    
-    t_delay_simple * delay0;
-    t_delay_simple * delay1;
-    float filter_output;  //For assigning the filter output to    
-    float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
+    t_lms_delay * delay;
 }t_mono_modules;
     
 
@@ -68,8 +65,7 @@ t_mono_modules * v_mono_init(float a_sr, float a_tempo)
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
  
-    a_mono->delay0 = g_dly_get_delay_tempo(a_tempo, 4, a_sr);
-    a_mono->delay1 = g_dly_get_delay_tempo(a_tempo, 4, a_sr);
+    a_mono->delay = g_ldl_get_delay(a_tempo, a_sr);
     
     return a_mono;
 }
