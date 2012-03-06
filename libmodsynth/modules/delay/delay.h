@@ -14,7 +14,7 @@
 extern "C" {
 #endif
     
-#define DLY_DEBUG_MODE
+//#define DLY_DEBUG_MODE
 
 /* A tap is used to read from a delay.  You can have as many taps as you want per
  * delay line.

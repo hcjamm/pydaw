@@ -29,6 +29,8 @@ inline void v_dw_set_dry_wet(t_dw_dry_wet*,float,float);
 inline void v_dw_run_dry_wet(t_dw_dry_wet*,float,float);
 t_dw_dry_wet* g_dw_get_dry_wet();
 
+/*inline void v_dw_set_dry_wet(t_dw_dry_wet* a_dw,float a_dry_db,float a_wet_db)
+ */
 inline void v_dw_set_dry_wet(t_dw_dry_wet* a_dw,float a_dry_db,float a_wet_db)
 {
     if((a_dw->dry_db) != (a_dry_db))
@@ -44,6 +46,8 @@ inline void v_dw_set_dry_wet(t_dw_dry_wet* a_dw,float a_dry_db,float a_wet_db)
     }
 }
 
+/* inline void v_dw_run_dry_wet(t_dw_dry_wet* a_dw, float a_dry, float a_wet)
+ */
 inline void v_dw_run_dry_wet(t_dw_dry_wet* a_dw, float a_dry, float a_wet)
 {
     a_dw->output = ((a_dw->dry_linear) * a_dry) + ((a_dw->wet_linear) * a_wet);

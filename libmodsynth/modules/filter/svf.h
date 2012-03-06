@@ -110,7 +110,8 @@ t_svf_kernel * g_svf_get_filter_kernel()
         return f_result;
 }
 
-/*The int refers to the number of cascaded filter kernels, ie:  a value of 2 == 4 pole filter*/
+/* inline fp_svf_run_filter svf_get_run_filter_ptr(int a_cascades, int a_filter_type)
+ * The int refers to the number of cascaded filter kernels, ie:  a value of 2 == 4 pole filter*/
 inline fp_svf_run_filter svf_get_run_filter_ptr(int a_cascades, int a_filter_type)
 {
     /*Lowpass*/
@@ -148,7 +149,8 @@ inline fp_svf_run_filter svf_get_run_filter_ptr(int a_cascades, int a_filter_typ
     }
 }
 
-//The main action to run the filter kernel
+/* inline void v_svf_set_input_value(t_state_variable_filter * a_svf, t_svf_kernel * a_kernel, float a_input_value)
+ * The main action to run the filter kernel*/
 inline void v_svf_set_input_value(t_state_variable_filter * a_svf, t_svf_kernel * a_kernel, float a_input_value)
 {
     a_kernel->filter_input = a_input_value;
@@ -244,6 +246,8 @@ inline void v_svf_set_cutoff_base(t_state_variable_filter*, float);
 inline void v_svf_add_cutoff_mod(t_state_variable_filter*, float);
 inline void v_svf_velocity_mod(t_state_variable_filter*,float);
 
+/* inline void v_svf_velocity_mod(t_state_variable_filter* a_svf, float a_velocity)
+ */
 inline void v_svf_velocity_mod(t_state_variable_filter* a_svf, float a_velocity)
 {
     a_svf->velocity_cutoff = ((a_velocity) * .2) - 24;
@@ -253,19 +257,22 @@ inline void v_svf_velocity_mod(t_state_variable_filter* a_svf, float a_velocity)
 #endif
 }
 
-/*Set the base pitch of the filter, this will usually correspond to a single GUI knob*/
+/* inline void v_svf_set_cutoff_base(t_state_variable_filter* a_svf, float a_midi_note_number)
+ * Set the base pitch of the filter, this will usually correspond to a single GUI knob*/
 inline void v_svf_set_cutoff_base(t_state_variable_filter* a_svf, float a_midi_note_number)
 {
     a_svf->cutoff_base = a_midi_note_number;
 }
 
-/*Modulate the filters cutoff with an envelope, LFO, etc...*/
+/* inline void v_svf_add_cutoff_mod(t_state_variable_filter* a_svf, float a_midi_note_number)
+ * Modulate the filters cutoff with an envelope, LFO, etc...*/
 inline void v_svf_add_cutoff_mod(t_state_variable_filter* a_svf, float a_midi_note_number)
 {
     a_svf->cutoff_mod = (a_svf->cutoff_mod) + a_midi_note_number;
 }
 
-/*This should be called every sample, otherwise the smoothing and modulation doesn't work properly*/
+/* inline void v_svf_set_cutoff(t_state_variable_filter * a_svf)
+ * This should be called every sample, otherwise the smoothing and modulation doesn't work properly*/
 inline void v_svf_set_cutoff(t_state_variable_filter * a_svf)
 {             
     a_svf->cutoff_note = (a_svf->cutoff_base) + ((a_svf->cutoff_mod) * (a_svf->velocity_mod_amt)) + (a_svf->velocity_cutoff);
@@ -317,7 +324,8 @@ void v_svf_set_res(
 
 
 
-/*instantiate a new pointer to a state variable filter*/
+/* t_state_variable_filter * g_svf_get(float a_sample_rate)
+ */
 t_state_variable_filter * g_svf_get(float a_sample_rate)
 {
     t_state_variable_filter * f_svf = (t_state_variable_filter*)malloc(sizeof(t_state_variable_filter));
