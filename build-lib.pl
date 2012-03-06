@@ -19,6 +19,7 @@ args:
 --install	:  Install using make install
 --debug		:  Compile, install and debug, using LMS' console output
 --debug-gdb	:  Compile and debug using GDB (EXPERIMENTAL)
+--debug-no-compile  :  Debug without compiling.  This assumes the plugin was already compiled and installed
 --deb 		:  Compile and package the plugin into a .deb file
 --rpm		:  Compile and package the plugin into a .rpm file
 --ubuntu-deps	:  Install all Ubuntu dependencies
@@ -44,7 +45,7 @@ There should be one build.pl script in each plugin directory.
 
 $plugin_path = "/usr/local/lib/dssi";
 $jack_host = "../jack-dssi-host/jack-dssi-host";
-$sleep = "sleep 6";
+$sleep = "sleep 3";
 
 $makefile = "Makefile";
 
@@ -102,6 +103,10 @@ sub run_script
 		print "\n\n\nAt the gdb prompt, type:\nrun $plugin_path/$plugin_name\n\n\n";
 		`$sleep`;
 		exec("gdb $jack_host ;");
+	}
+	elsif($ARGV[0] eq "--debug-no-compile")
+	{
+		exec("$jack_host $plugin_path/$plugin_name");
 	}
 	elsif($ARGV[0] eq "--quick-build")
 	{
