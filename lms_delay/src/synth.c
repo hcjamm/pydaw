@@ -148,8 +148,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     
     v_ldl_set_delay(plugin_data->mono_modules->delay, 1.0f, -3.0f, 0, 0.0f, -3.0f);
     
-    v_svf_set_cutoff_base(plugin_data->mono_modules->svf0, 93);
-    v_svf_set_cutoff_base(plugin_data->mono_modules->svf1, 93);
+    v_svf_set_cutoff_base(plugin_data->mono_modules->svf0, 72);
+    v_svf_set_cutoff_base(plugin_data->mono_modules->svf1, 72);
     
     v_svf_set_cutoff(plugin_data->mono_modules->svf0);
     v_svf_set_cutoff(plugin_data->mono_modules->svf1);
