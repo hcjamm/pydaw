@@ -104,6 +104,7 @@ typedef struct {
     synth_vals vals;
     
     int pos;
+    int event_pos;
     int count;
     int buffer_pos;
     int i_mono_out;

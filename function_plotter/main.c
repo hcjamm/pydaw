@@ -96,6 +96,40 @@ void plot_db_to_amp()
     printf("};\n");
 }
 
+void plot_amp_to_db()
+{    
+    float i = .01;
+    int i2 = 0;
+    float inc = .01;
+    float max = 4;
+    
+    int count = (max - i)/inc + 1;
+    
+    printf("#define arr_amp_a2db_count %i\n\n", count);
+    
+    printf("float arr_amp_a2db [arr_amp_a2db_count] = {\n");
+    
+    while(i <= max)
+    {
+        if(i != 0.01)
+            printf(",");
+        
+        if(i2 >= 6)
+        {
+            printf("\n");
+            i2 = 0;
+        }
+        
+        i2++;
+        
+        printf("%f", f_linear_to_db(i));
+        
+        i = i + inc;
+    }
+    
+    printf("};\n");
+}
+
 void test_db_plot()
 {
     int i = -100;
@@ -215,8 +249,9 @@ void plot_adsr_inc()
  */
 int main(int argc, char** argv) {
 
+    plot_amp_to_db();
     //test_pitch_plot();
-    plot_adsr_inc();
+    //plot_adsr_inc();
     //plot_sine();
     
     //adsr_attack(2);

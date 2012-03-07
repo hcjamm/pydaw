@@ -14,34 +14,25 @@
 extern "C" {
 #endif
     
+#include "../../lib/interpolate-linear.h"
+    
 //#define DLY_DEBUG_MODE
 
 /* A tap is used to read from a delay.  You can have as many taps as you want per
  * delay line.
- * This type is suitable for ping-pong delays, etc...
  */
 typedef struct st_delay_tap
 {
     int read_head;
+    int read_head_p1;
+    float fraction;
     int delay_samples;
     float delay_seconds;
     float delay_beats;
     float output;
 }t_delay_tap;
 
-/* A tap for reading from a delay using linear interpolation.
- * This type is suitable for chorus, flanger, etc...
- */
-typedef struct st_delay_tap_lin
-{
-    int read_head;
-    int read_head_p1;
-    float delay_samples;
-    float delay_seconds;
-    float delay_beats;
-    float output;
-}t_delay_tap_lin;
-    
+   
 /* A delay is just a buffer to write audio to, that also maintains information like tempo,
  * sample rate, etc...  Taps are used to read from the delay line, either 
  * non-interpolated (CPU friendly, not suitable for modulation) or interpolated (suitable for modulation)
@@ -64,9 +55,11 @@ t_delay_simple * g_dly_get_delay(float, float);
 t_delay_simple * g_dly_get_delay_tempo(float,float,float);
 t_delay_tap * g_dly_get_tap();
 inline void v_dly_set_delay_seconds(t_delay_simple*,t_delay_tap*,float);
+inline void v_dly_set_delay_lin(t_delay_simple*,t_delay_tap*,float);
 inline void v_dly_set_delay_tempo(t_delay_simple*,t_delay_tap*,float);
 inline void v_dly_run_delay(t_delay_simple*,float);
 inline void v_dly_run_tap(t_delay_simple*,t_delay_tap*);
+inline void v_dly_run_tap_lin(t_delay_simple*,t_delay_tap*);
 
 
 /*inline void v_dly_set_delay(
@@ -77,11 +70,32 @@ inline void v_dly_run_tap(t_delay_simple*,t_delay_tap*);
 inline void v_dly_set_delay_seconds(t_delay_simple* a_dly, t_delay_tap* a_tap,float a_seconds)
 {
     if((a_tap->delay_seconds) != a_seconds)
-    {
+    {        
         a_tap->delay_seconds = a_seconds;
-        a_tap->delay_samples = (a_dly->sample_rate) * a_seconds;
+        a_tap->delay_samples = (int)((a_dly->sample_rate) * a_seconds);
     }
 }
+
+/* inline void v_dly_set_delay_lin(
+ * t_delay_simple* a_dly,
+ * t_delay_tap* a_tap,
+ * float a_seconds
+ * )
+ * 
+ * This must be run if running the tap as linear, otherwise you will segfault
+ */
+inline void v_dly_set_delay_lin(t_delay_simple* a_dly, t_delay_tap* a_tap,float a_seconds)
+{
+    if((a_tap->delay_seconds) != a_seconds)
+    {
+        
+        a_tap->delay_seconds = a_seconds;
+        a_tap->delay_samples = (int)((a_dly->sample_rate) * a_seconds);
+        a_tap->fraction = ((a_dly->sample_rate) * a_seconds) - (a_tap->delay_samples);
+    }
+}
+
+
 /*inline void v_dly_set_delay_tempo(
  * t_delay_simple* a_dly, 
  * t_delay_tap* a_tap, 
@@ -157,6 +171,38 @@ inline void v_dly_run_tap(t_delay_simple* a_dly,t_delay_tap* a_tap)
 #endif
 }
 
+inline void v_dly_run_tap_lin(t_delay_simple* a_dly,t_delay_tap* a_tap)
+{
+    a_tap->read_head = (a_dly->write_head) - (a_tap->delay_samples);    
+        
+    if((a_tap->read_head) < 0)
+    {
+        a_tap->read_head = (a_tap->read_head) + (a_dly->sample_count);
+    }
+    
+    a_tap->read_head_p1 = (a_tap->read_head) + 1;
+    
+    if((a_tap->read_head_p1) >= (a_dly->sample_count))
+    {
+        a_tap->read_head_p1 = (a_tap->read_head_p1) - (a_dly->sample_count);
+    }
+    
+    a_tap->output = f_linear_interpolate(
+            a_dly->buffer[(a_tap->read_head)], a_dly->buffer[(a_tap->read_head_p1)], (a_tap->fraction));
+    
+    
+#ifdef DLY_DEBUG_MODE
+    if((a_dly->debug_counter) == 50000)
+    {
+        printf("\n\nTap debug info:\n");
+        printf("a_tap->delay_beats == %f\n", (a_tap->delay_beats));
+        printf("a_tap->delay_samples == %i\n", (a_tap->delay_samples));
+        printf("a_tap->delay_seconds == %f\n", (a_tap->delay_seconds));
+        printf("a_tap->output == %f\n", (a_tap->output));
+        printf("a_tap->read_head == %i\n", (a_tap->read_head));
+    }
+#endif
+}
 
 /*t_delay_simple * g_dly_get_delay
  * (float a_max_size, //max size in seconds
