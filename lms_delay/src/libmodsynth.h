@@ -71,7 +71,7 @@ t_mono_modules * v_mono_init(float a_sr, float a_tempo)
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
  
-    a_mono->delay = g_ldl_get_delay(a_tempo, a_sr);
+    a_mono->delay = g_ldl_get_delay(1, a_sr);
     a_mono->svf0 = g_svf_get(a_sr);
     a_mono->svf1 = g_svf_get(a_sr);
     a_mono->time_smoother = g_smr_iir_get_smoother();

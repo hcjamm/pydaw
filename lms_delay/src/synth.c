@@ -206,14 +206,14 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             if((plugin_data->mono_modules->env_follower->output_smoothed) > (plugin_data->vals.duck))
             {
                 v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), 
-                        (plugin_data->vals.feedback), 0, 
+                        (plugin_data->vals.feedback),
                         ((plugin_data->vals.wet) - ((plugin_data->mono_modules->env_follower->output_smoothed) - (plugin_data->vals.duck))), 
                         (plugin_data->vals.dry));
             }
             else
             {
                 v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), (plugin_data->vals.feedback), 
-                        0, (plugin_data->vals.wet), (plugin_data->vals.dry));
+                        (plugin_data->vals.wet), (plugin_data->vals.dry));
             }
     
             
@@ -357,9 +357,9 @@ void _init()
 	port_descriptors[LMS_DUCK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_DUCK] = "Duck";
 	port_range_hints[LMS_DUCK].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DUCK].LowerBound =  -30;
+	port_range_hints[LMS_DUCK].LowerBound =  -40;
 	port_range_hints[LMS_DUCK].UpperBound =  0;
         
         /* Parameters for cutoff */

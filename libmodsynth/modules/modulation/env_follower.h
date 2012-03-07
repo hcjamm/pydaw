@@ -73,7 +73,7 @@ t_enf_env_follower * g_enf_get_env_follower(float a_sr)
     f_result->output_smoothed = 0;
     f_result->smoother = g_opl_get_one_pole(a_sr);
     
-    v_opl_set_coeff(f_result->smoother, 36);  //Set the smoother to 100hz
+    v_opl_set_coeff(f_result->smoother, 20);  //Set the smoother to 100hz
     
 #ifdef ENF_DEBUG_MODE
     f_result->debug_counter = 0;

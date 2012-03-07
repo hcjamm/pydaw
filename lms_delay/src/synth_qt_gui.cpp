@@ -143,7 +143,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         
     f_gb_layout_column++;
     
-    m_duck  =   get_knob(decibels_30_to_0);
+    m_duck  =  newQDial(-40, 0, 1, -20); // get_knob(decibels_0);
     m_duckLabel  = newQLabel(this);
     add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Duck",m_duck, m_duckLabel);
     connect(m_duck,  SIGNAL(valueChanged(int)), this, SLOT(duckChanged(int)));
