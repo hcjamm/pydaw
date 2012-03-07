@@ -12,18 +12,23 @@
 extern "C" {
 #endif
     
+//#define OPL_DEBUG_MODE
+    
 #include "../../constants.h"
+#include "../../lib/denormal.h"
 
 typedef struct st_opl_one_pole
 {
-    float a0, a1, b1, x;
-    float w, norm;
-    float input_m1;
+    float a0, a1, b1, x; 
     float output;
     float cutoff;
     float sample_rate;
     float sr_recip;
     float hp;
+    
+#ifdef OPL_DEBUG_MODE
+    int debug_counter;
+#endif
 }t_opl_one_pole;
 
 inline void v_opl_set_coeff(t_opl_one_pole*, float);
@@ -46,8 +51,27 @@ inline void v_opl_set_coeff(t_opl_one_pole* a_opl, float a_cutoff)
 
 inline void v_opl_run(t_opl_one_pole* a_opl, float a_input)
 {
-    a_opl->output = ((a_opl->a0)*a_input) - ((a_opl->b1)*(a_opl->output)); 
+    a_opl->output = f_remove_denormal(((a_opl->a0)*a_input) - ((a_opl->b1)*(a_opl->output))); 
     a_opl->hp = a_input - (a_opl->output);
+    
+#ifdef OPL_DEBUG_MODE
+    a_opl->debug_counter = (a_opl->debug_counter) + 1;
+    
+    if((a_opl->debug_counter) >= 100000)
+    {
+        a_opl->debug_counter = 0;
+        
+        printf("\n\nOne pole info\n");
+        printf("a_opl->a0 == %f\n", a_opl->a0);
+        printf("a_opl->a1 == %f\n", a_opl->a1);
+        printf("a_opl->b1 == %f\n", a_opl->b1);
+        printf("a_opl->cutoff == %f\n", a_opl->cutoff);
+        printf("a_opl->hp == %f\n", a_opl->hp);
+        printf("a_opl->output == %f\n", a_opl->output);
+        printf("a_opl->x == %f\n", a_opl->x);
+                
+    }
+#endif
 }
 
 /*t_opl_one_pole * g_opl_get_one_pole(
@@ -64,6 +88,10 @@ t_opl_one_pole * g_opl_get_one_pole(float a_sr)
     f_result->cutoff = 1000;
     f_result->sample_rate = a_sr;
     f_result->sr_recip = 1/a_sr;
+    
+#ifdef OPL_DEBUG_MODE
+    f_result->debug_counter = 0;
+#endif
     
     return f_result;
 }

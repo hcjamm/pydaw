@@ -115,9 +115,9 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     QGroupBox * f_gb_filter = newGroupBox("Delay", this); 
     QGridLayout *f_gb_filter_layout = new QGridLayout(f_gb_filter);
     
-    m_delaytime  =   newQDial(0, 4, 1, 2);
+    m_delaytime  =   get_knob(zero_to_one); //newQDial(0, 4, 1, 2);
     m_delaytimeLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Beats",m_delaytime, m_delaytimeLabel);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Time",m_delaytime, m_delaytimeLabel);
     connect(m_delaytime,  SIGNAL(valueChanged(int)), this, SLOT(delayTimeChanged(int)));
         
     f_gb_layout_column++;
@@ -453,7 +453,9 @@ void SynthGUI::changed_decibels(int a_value, QLabel * a_label, int a_port)
 
 void SynthGUI::delayTimeChanged(int value)
 {
-    //changed_pitch(value, m_delaytimeLabel, LMS_DELAY_TIME); 
+    changed_seconds(value, m_delaytimeLabel, LMS_DELAY_TIME); 
+    
+    /*
     QString f_value;
     
     switch(value)
@@ -478,6 +480,7 @@ void SynthGUI::delayTimeChanged(int value)
     if (!m_suppressHostUpdate) {
 	lo_send(m_host, m_controlPath, "if", LMS_DELAY_TIME, float(value));
     }
+     */
 }
 
 void SynthGUI::feedbackChanged(int value)

@@ -17,6 +17,7 @@ extern "C" {
 #include "delay.h"
 #include "../../lib/amp.h"
 #include "../signal_routing/dry_wet.h"
+#include "../../lib/denormal.h"
     
 /* A multi-mode delay module.  This is a complete delay with stereo, ping-pong, etc... modes
  * feeback can be routed out and back into the module.
@@ -90,8 +91,8 @@ inline void v_ldl_run_delay_ping_pong(t_lms_delay* a_dly, float a_in0, float a_i
     v_dly_run_delay(a_dly->delay1, (a_dly->tap0->output));        
     v_dly_run_tap(a_dly->delay1, a_dly->tap1);    
     
-    a_dly->feedback0 = (a_dly->tap0->output);
-    a_dly->feedback1 = (a_dly->tap1->output);
+    a_dly->feedback0 = f_remove_denormal((a_dly->tap0->output));
+    a_dly->feedback1 = f_remove_denormal((a_dly->tap1->output));
     
     v_dw_run_dry_wet(a_dly->dw0, a_in0, (a_dly->feedback0));
     v_dw_run_dry_wet(a_dly->dw1, a_in1, (a_dly->feedback1));
@@ -100,12 +101,23 @@ inline void v_ldl_run_delay_ping_pong(t_lms_delay* a_dly, float a_in0, float a_i
     a_dly->output1 = (a_dly->dw1->output);
 }
 
-
-inline void v_ldl_set_delay(t_lms_delay* a_dly,float a_beats, float a_feeback_db, int a_is_ducking,float a_wet, float a_dry)
+/*inline void v_ldl_set_delay(
+ * t_lms_delay* a_dly,
+ * float a_seconds, 
+ * float a_feeback_db, 
+ * int a_is_ducking,
+ * float a_wet, 
+ * float a_dry)
+ */
+inline void v_ldl_set_delay(t_lms_delay* a_dly,float a_seconds, float a_feeback_db, int a_is_ducking,float a_wet, float a_dry)
 {
+    v_dly_set_delay_seconds(a_dly->delay0, a_dly->tap0, a_seconds);
+    v_dly_set_delay_seconds(a_dly->delay1, a_dly->tap1, a_seconds);
+    
+    /*
     v_dly_set_delay_tempo(a_dly->delay0, a_dly->tap0, a_beats);
     v_dly_set_delay_tempo(a_dly->delay1, a_dly->tap1, a_beats);
-    
+    */
     a_dly->is_ducking = a_is_ducking;
     
     if(a_feeback_db != (a_dly->feedback_db))

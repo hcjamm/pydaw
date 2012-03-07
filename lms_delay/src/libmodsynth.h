@@ -28,6 +28,7 @@ extern "C" {
 #include "../../libmodsynth/lib/smoother-iir.h"
 #include "../../libmodsynth/modules/delay/lms_delay.h"
 #include "../../libmodsynth/modules/filter/svf.h"
+#include "../../libmodsynth/modules/modulation/env_follower.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -57,6 +58,8 @@ typedef struct st_mono_modules
     t_lms_delay * delay;
     t_state_variable_filter * svf0;
     t_state_variable_filter * svf1;
+    t_smoother_iir * time_smoother;
+    t_enf_env_follower * env_follower;
 }t_mono_modules;
     
 
@@ -71,6 +74,8 @@ t_mono_modules * v_mono_init(float a_sr, float a_tempo)
     a_mono->delay = g_ldl_get_delay(a_tempo, a_sr);
     a_mono->svf0 = g_svf_get(a_sr);
     a_mono->svf1 = g_svf_get(a_sr);
+    a_mono->time_smoother = g_smr_iir_get_smoother();
+    a_mono->env_follower = g_enf_get_env_follower(a_sr);
     
     return a_mono;
 }
