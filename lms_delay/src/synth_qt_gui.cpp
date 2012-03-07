@@ -115,14 +115,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     QGroupBox * f_gb_filter = newGroupBox("Delay", this); 
     QGridLayout *f_gb_filter_layout = new QGridLayout(f_gb_filter);
     
-    m_delaytime  =   get_knob(zero_to_one); //newQDial(0, 4, 1, 2);
+    m_delaytime  =   newQDial(10, 100, 1, 50);//get_knob(zero_to_one); //newQDial(0, 4, 1, 2);
     m_delaytimeLabel  = newQLabel(this);
     add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Time",m_delaytime, m_delaytimeLabel);
     connect(m_delaytime,  SIGNAL(valueChanged(int)), this, SLOT(delayTimeChanged(int)));
         
     f_gb_layout_column++;
     
-    m_feedback  =  get_knob(decibels_20_to_0); 
+    m_feedback  =  newQDial(-15, -2, 1, -6); //get_knob(decibels_20_to_0); 
     m_feedbackLabel  = newQLabel(this);
     add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Feedback", m_feedback, m_feedbackLabel);
     connect(m_feedback,  SIGNAL(valueChanged(int)), this, SLOT(feedbackChanged(int)));
@@ -154,7 +154,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_cutoffLabel  = newQLabel(this);
     add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Cutoff", m_cutoff, m_cutoffLabel);
     connect(m_cutoff,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
-        
+    
+    f_gb_layout_column++;
+    
+    m_stereo  =  get_knob(zero_to_one); 
+    m_stereoLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Stereo", m_stereo, m_stereoLabel);
+    connect(m_stereo,  SIGNAL(valueChanged(int)), this, SLOT(stereoChanged(int)));
+    
     f_gb_layout_column++;
     
     layout_row0->addWidget(f_gb_filter, -1, Qt::AlignLeft);
@@ -388,6 +395,13 @@ void SynthGUI::setCutoff(float val)
     m_suppressHostUpdate = false;
 }
 
+void SynthGUI::setStereo(float val)
+{
+    m_suppressHostUpdate = true;
+    m_stereo->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
 /*Standard handlers for the audio slots, these perform manipulations of knob values
  that are common in audio applications*/
 
@@ -508,6 +522,11 @@ void SynthGUI::cutoffChanged(int value)
     changed_pitch(value, m_cutoffLabel, LMS_CUTOFF);    
 }
 
+void SynthGUI::stereoChanged(int value)
+{
+    changed_zero_to_x(value, m_stereoLabel, LMS_STEREO);    
+}
+
 void SynthGUI::v_print_port_name_to_cerr(int a_port)
 {
 #ifdef LMS_DEBUG_MODE_QT
@@ -530,7 +549,9 @@ void SynthGUI::v_print_port_name_to_cerr(int a_port)
     case LMS_CUTOFF:
 	cerr << "LMS_CUTOFF";
 	break;        
-    
+    case LMS_STEREO:
+	cerr << "LMS_STEREO";
+	break;        
     default:
 	cerr << "Warning: received request to set nonexistent port " << a_port ;
         break;
@@ -569,6 +590,9 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         case LMS_CUTOFF:
             setCutoff(a_value);
             break;
+        case LMS_STEREO:
+            setStereo(a_value);
+            break;
     }
 }
 
@@ -604,6 +628,9 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
         case LMS_CUTOFF:
             cutoffChanged(a_value);
             break;
+        case LMS_STEREO:
+            stereoChanged(a_value);
+            break;
         default:
 #ifdef LMS_DEBUG_MODE_QT
                 cerr << "Warning: received request to set nonexistent port " << a_port << endl;
@@ -633,6 +660,8 @@ int SynthGUI::i_get_control(int a_port)
             return m_duck->value();
         case LMS_CUTOFF:
             return m_cutoff->value();
+        case LMS_STEREO:
+            return m_stereo->value();
         default:
 #ifdef LMS_DEBUG_MODE_QT
             cerr << "Warning: received request to get nonexistent port " << a_port << endl;

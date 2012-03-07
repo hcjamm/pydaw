@@ -43,9 +43,10 @@ printf("debug information");
 #define LMS_WET  7
 #define LMS_DUCK  8
 #define LMS_CUTOFF  9
+#define LMS_STEREO 10
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 9
-#define LMS_COUNT 10 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_LAST_CONTROL_PORT 10
+#define LMS_COUNT 11 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 
 #define POLYPHONY   8  //maximum voices played at one time
@@ -63,6 +64,7 @@ typedef struct {
     LADSPA_Data wet;
     LADSPA_Data duck;
     LADSPA_Data cutoff;
+    LADSPA_Data stereo;
     
     /*The variables below this line do NOT correspond to GUI controls*/
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -97,6 +99,7 @@ typedef struct {
     LADSPA_Data *wet;
     LADSPA_Data *duck;
     LADSPA_Data *cutoff;
+    LADSPA_Data *stereo;
     
     float fs;
     float tempo;
