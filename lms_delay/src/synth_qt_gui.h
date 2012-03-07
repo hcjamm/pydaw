@@ -89,6 +89,7 @@ public slots:
     void setWet(float val);
     void setDuck(float val);
     void setCutoff(float val);
+    void setStereo(float val);
         
     void aboutToQuit();
     
@@ -100,6 +101,7 @@ protected slots:
     void wetChanged(int);
     void duckChanged(int);
     void cutoffChanged(int);
+    void stereoChanged(int);
         
     void oscRecv();
 protected:
@@ -149,6 +151,9 @@ protected:
     
     QDial *m_cutoff;
     QLabel *m_cutoffLabel;
+    
+    QDial *m_stereo;
+    QLabel *m_stereoLabel;
     
     lo_address m_host;
     QByteArray m_controlPath;

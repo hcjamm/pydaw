@@ -107,6 +107,9 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     case LMS_CUTOFF:
 	plugin->cutoff = data;              
 	break;
+    case LMS_STEREO:
+        plugin->stereo = data;
+        break;
     }
 }
 
@@ -162,6 +165,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->vals.wet = *(plugin_data->wet);
     plugin_data->vals.duck = *(plugin_data->duck);    
     plugin_data->vals.cutoff = *(plugin_data->cutoff);
+    plugin_data->vals.stereo = *(plugin_data->stereo) * .01;
     
     
     v_svf_set_cutoff_base(plugin_data->mono_modules->svf0, (plugin_data->vals.cutoff));
@@ -208,17 +212,17 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                 v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), 
                         (plugin_data->vals.feedback),
                         ((plugin_data->vals.wet) - ((plugin_data->mono_modules->env_follower->output_smoothed) - (plugin_data->vals.duck))), 
-                        (plugin_data->vals.dry));
+                        (plugin_data->vals.dry), (plugin_data->vals.stereo));
             }
             else
             {
                 v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), (plugin_data->vals.feedback), 
-                        (plugin_data->vals.wet), (plugin_data->vals.dry));
+                        (plugin_data->vals.wet), (plugin_data->vals.dry), (plugin_data->vals.stereo));
             }
     
             
     
-            v_ldl_run_delay_ping_pong(plugin_data->mono_modules->delay, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
+            v_ldl_run_delay(plugin_data->mono_modules->delay, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
             
             output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->delay->output0);
             output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->delay->output1);
@@ -252,6 +256,8 @@ int getControllerLMS(LADSPA_Handle instance, unsigned long port)
         return DSSI_CC(0x18);  //24
     case LMS_CUTOFF:
         return DSSI_CC(0x19);  //25
+    case LMS_STEREO:
+        return DSSI_CC(0x1A);  //26
     default:
         return DSSI_NONE;
     }
@@ -323,7 +329,7 @@ void _init()
 	port_range_hints[LMS_DELAY_TIME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DELAY_TIME].LowerBound =  0;
+	port_range_hints[LMS_DELAY_TIME].LowerBound =  10;
 	port_range_hints[LMS_DELAY_TIME].UpperBound =  100;
         
         /* Parameters for feedback */
@@ -332,8 +338,8 @@ void _init()
 	port_range_hints[LMS_FEEDBACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FEEDBACK].LowerBound =  -20;
-	port_range_hints[LMS_FEEDBACK].UpperBound =  0;
+	port_range_hints[LMS_FEEDBACK].LowerBound =  -15;
+	port_range_hints[LMS_FEEDBACK].UpperBound =  -2;
 
         /* Parameters for dry */
 	port_descriptors[LMS_DRY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -370,6 +376,16 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_CUTOFF].LowerBound =  20;
 	port_range_hints[LMS_CUTOFF].UpperBound =  124;
+        
+        
+        /* Parameters for stereo */
+	port_descriptors[LMS_STEREO] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_STEREO] = "Stereo";
+	port_range_hints[LMS_STEREO].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_STEREO].LowerBound =  0;
+	port_range_hints[LMS_STEREO].UpperBound =  100;
         
         /*Step 17:  Add LADSPA ports*/
         

@@ -18,7 +18,7 @@ extern "C" {
 #include "../../lib/amp.h"
 #include "../signal_routing/dry_wet.h"
 #include "../../lib/denormal.h"
-    
+#include "../signal_routing/audio_xfade.h"
 /* A multi-mode delay module.  This is a complete delay with stereo, ping-pong, etc... modes
  * feeback can be routed out and back into the module.
  * 
@@ -38,6 +38,8 @@ typedef struct st_lms_delay
     float feedback_linear;    
     t_dw_dry_wet * dw0;
     t_dw_dry_wet * dw1;
+    t_audio_xfade * stereo_xfade0;
+    t_audio_xfade * stereo_xfade1;    
 }t_lms_delay;
 
 //Used to switch between delay types, uses much less CPU than a switch statement
@@ -45,10 +47,10 @@ typedef float (*fp_ldl_run_ptr)(t_lms_delay*,float,float);
 
 t_lms_delay * g_ldl_get_delay(float,float);
 
-inline void v_ldl_set_delay(t_lms_delay*,float,float,float,float);
+inline void v_ldl_set_delay(t_lms_delay*,float,float,float,float,float);
 
-inline void v_ldl_run_delay_ping_pong(t_lms_delay*,float,float);
-inline void v_ldl_run_delay_stereo(t_lms_delay*,float,float,float,float);
+inline void v_ldl_run_delay(t_lms_delay*,float,float);
+
 
 /*t_lms_delay * g_ldl_get_delay(
  * float a_seconds, //The maximum amount of time for the delay to buffer, it should never be asked to delay longer than this number
@@ -71,6 +73,9 @@ t_lms_delay * g_ldl_get_delay(float a_seconds, float a_sr)
     f_result->feedback_linear = 0;    
     f_result->dw0 = g_dw_get_dry_wet();
     f_result->dw1 = g_dw_get_dry_wet();
+    f_result->stereo_xfade0 = g_axf_get_audio_xfade(-3.0f);
+    f_result->stereo_xfade1 = g_axf_get_audio_xfade(-3.0f);
+    
     return f_result;
 }
 
@@ -81,12 +86,21 @@ t_lms_delay * g_ldl_get_delay(float a_seconds, float a_sr)
  * float a_fb0, //feedback 0 - This is for allowing external modules to modify the feedback, like a dampening filter
  * float a_fb1) //feedback 1
  */
-inline void v_ldl_run_delay_ping_pong(t_lms_delay* a_dly, float a_in0, float a_in1)
+inline void v_ldl_run_delay(t_lms_delay* a_dly, float a_in0, float a_in1)
 {
-    v_dly_run_delay(a_dly->delay0, ((((a_dly->feedback1) * (a_dly->feedback_linear)) + ((a_in0 + a_in1) * 0.5f))));        
+    v_dly_run_delay(a_dly->delay0, 
+            f_axf_run_xfade(a_dly->stereo_xfade0, 
+            (a_in0 + ((a_dly->feedback0) * (a_dly->feedback_linear))),
+            (((a_dly->feedback1) * (a_dly->feedback_linear)) + ((a_in0 + a_in1) * 0.5f))
+            ));
+    
     v_dly_run_tap(a_dly->delay0, a_dly->tap0);
     
-    v_dly_run_delay(a_dly->delay1, (a_dly->tap0->output));        
+    v_dly_run_delay(a_dly->delay1, 
+            f_axf_run_xfade(a_dly->stereo_xfade0 ,
+            (a_in1 + ((a_dly->feedback1) * (a_dly->feedback_linear))),
+            (a_dly->tap0->output))); 
+    
     v_dly_run_tap(a_dly->delay1, a_dly->tap1);    
     
     a_dly->feedback0 = f_remove_denormal((a_dly->tap0->output));
@@ -102,19 +116,30 @@ inline void v_ldl_run_delay_ping_pong(t_lms_delay* a_dly, float a_in0, float a_i
 /*inline void v_ldl_set_delay(
  * t_lms_delay* a_dly,
  * float a_seconds, 
- * float a_feeback_db, 
+ * float a_feeback_db, //This should not exceed -2 or it could explode
  * int a_is_ducking,
  * float a_wet, 
- * float a_dry)
+ * float a_dry,
+ * float a_stereo)  //Crossfading between dual-mono and stereo.  0 to 1
  */
-inline void v_ldl_set_delay(t_lms_delay* a_dly,float a_seconds, float a_feeback_db, float a_wet, float a_dry)
+inline void v_ldl_set_delay(t_lms_delay* a_dly,float a_seconds, float a_feeback_db, float a_wet, float a_dry, float a_stereo)
 {
     v_dly_set_delay_seconds(a_dly->delay0, a_dly->tap0, a_seconds);
     v_dly_set_delay_seconds(a_dly->delay1, a_dly->tap1, a_seconds);
-        
+ 
+    v_axf_set_xfade(a_dly->stereo_xfade0, a_stereo);
+    v_axf_set_xfade(a_dly->stereo_xfade1, a_stereo);
+    
     if(a_feeback_db != (a_dly->feedback_db))
     {
-        a_dly->feedback_db = a_feeback_db;
+        if(a_feeback_db > -2.0f)
+        {
+            a_dly->feedback_db = -2.0f;
+        }
+        else
+        {
+            a_dly->feedback_db = a_feeback_db;
+        }
         a_dly->feedback_linear = f_db_to_linear_fast(a_feeback_db);
     }
     
