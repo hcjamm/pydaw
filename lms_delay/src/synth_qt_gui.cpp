@@ -150,7 +150,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         
     f_gb_layout_column++;
     
-    m_cutoff  =  get_knob(pitch); 
+    m_cutoff  =  newQDial(40, 118, 1, 105); // get_knob(pitch); 
     m_cutoffLabel  = newQLabel(this);
     add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Cutoff", m_cutoff, m_cutoffLabel);
     connect(m_cutoff,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));

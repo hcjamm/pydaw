@@ -374,8 +374,8 @@ void _init()
 	port_range_hints[LMS_CUTOFF].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_CUTOFF].LowerBound =  20;
-	port_range_hints[LMS_CUTOFF].UpperBound =  124;
+	port_range_hints[LMS_CUTOFF].LowerBound =  40;
+	port_range_hints[LMS_CUTOFF].UpperBound =  118;
         
         
         /* Parameters for stereo */
