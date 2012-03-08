@@ -120,7 +120,8 @@ inline void v_dly_set_delay_tempo(t_delay_simple* a_dly, t_delay_tap* a_tap, flo
  * //That's where you can run it through a filter, or any other processing
  */
 inline void v_dly_run_delay(t_delay_simple* a_dly,float a_input)
-{
+{    
+    a_dly->buffer[(a_dly->write_head)] = a_input;
     
     a_dly->write_head = (a_dly->write_head) + 1;
     if((a_dly->write_head) >= (a_dly->sample_count))
@@ -128,7 +129,6 @@ inline void v_dly_run_delay(t_delay_simple* a_dly,float a_input)
         a_dly->write_head = 0;
     }
     
-    a_dly->buffer[(a_dly->write_head)] = a_input;
     
 #ifdef DLY_DEBUG_MODE
     a_dly->debug_counter = (a_dly->debug_counter) + 1;
