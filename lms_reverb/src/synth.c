@@ -89,27 +89,21 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     case LMS_OUTPUT1:
 	plugin->output1 = data;
 	break;    
-    case LMS_DELAY_TIME:
-	plugin->delay_time = data;              
+    case LMS_PREDELAY:
+	plugin->predelay = data;              
 	break;
-    case LMS_FEEDBACK:
-	plugin->feedback = data;              
+    case LMS_TIME:
+	plugin->time = data;              
 	break;
-    case LMS_DRY:
-	plugin->dry = data;              
+    case LMS_HIGHPASS:
+	plugin->highpass = data;              
 	break;
-    case LMS_WET:
-	plugin->wet = data;              
+    case LMS_LOWPASS:
+	plugin->lowpass = data;              
 	break;
-    case LMS_DUCK:
-	plugin->duck = data;              
+    case LMS_DRYWET:
+	plugin->drywet = data;              
 	break;
-    case LMS_CUTOFF:
-	plugin->cutoff = data;              
-	break;
-    case LMS_STEREO:
-        plugin->stereo = data;
-        break;
     }
 }
 
@@ -159,18 +153,13 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->event_pos = 0;
     
     /*Set the values from synth_vals in RunLMS*/
-    plugin_data->vals.delay_time = *(plugin_data->delay_time) * .01;    
-    plugin_data->vals.feedback = *(plugin_data->feedback);
-    plugin_data->vals.dry = *(plugin_data->dry);    
-    plugin_data->vals.wet = *(plugin_data->wet);
-    plugin_data->vals.duck = *(plugin_data->duck);    
-    plugin_data->vals.cutoff = *(plugin_data->cutoff);
-    plugin_data->vals.stereo = *(plugin_data->stereo) * .01;
+    plugin_data->vals.predelay = *(plugin_data->predelay) * .01;    
+    plugin_data->vals.time = *(plugin_data->time);
+    plugin_data->vals.highpass = *(plugin_data->highpass);    
+    plugin_data->vals.lowpass = *(plugin_data->lowpass);
+    plugin_data->vals.drywet = *(plugin_data->drywet);
     
     
-    v_svf_set_cutoff_base(plugin_data->mono_modules->svf0, (plugin_data->vals.cutoff));
-    v_svf_set_cutoff_base(plugin_data->mono_modules->svf1, (plugin_data->vals.cutoff));
-            
     v_svf_set_cutoff(plugin_data->mono_modules->svf0);
     v_svf_set_cutoff(plugin_data->mono_modules->svf1);
     
@@ -202,27 +191,9 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         {   
             plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
             
-            v_smr_iir_run(plugin_data->mono_modules->time_smoother, (plugin_data->vals.delay_time));
+            v_smr_iir_run(plugin_data->mono_modules->time_smoother, (plugin_data->vals.predelay));
             
             v_enf_run_env_follower(plugin_data->mono_modules->env_follower, ((input0[(plugin_data->buffer_pos)]) + (input1[(plugin_data->buffer_pos)])));
-            
-            /*If above the ducking threshold, reduce the wet amount by the same*/
-            if((plugin_data->mono_modules->env_follower->output_smoothed) > (plugin_data->vals.duck))
-            {
-                v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), 
-                        (plugin_data->vals.feedback),
-                        ((plugin_data->vals.wet) - ((plugin_data->mono_modules->env_follower->output_smoothed) - (plugin_data->vals.duck))), 
-                        (plugin_data->vals.dry), (plugin_data->vals.stereo));
-            }
-            else
-            {
-                v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), (plugin_data->vals.feedback), 
-                        (plugin_data->vals.wet), (plugin_data->vals.dry), (plugin_data->vals.stereo));
-            }
-    
-            
-    
-            v_ldl_run_delay(plugin_data->mono_modules->delay, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
             
             output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->delay->output0);
             output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->delay->output1);
@@ -244,20 +215,16 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {
     switch (port) {    
-    case LMS_DELAY_TIME:
+    case LMS_PREDELAY:
         return DSSI_CC(0x14);  //20
-    case LMS_FEEDBACK:
+    case LMS_TIME:
         return DSSI_CC(0x15);  //21
-    case LMS_DRY:
+    case LMS_HIGHPASS:
         return DSSI_CC(0x16);  //22
-    case LMS_WET:
+    case LMS_LOWPASS:
         return DSSI_CC(0x17);  //23
-    case LMS_DUCK:
-        return DSSI_CC(0x18);  //24
-    case LMS_CUTOFF:
-        return DSSI_CC(0x19);  //25
-    case LMS_STEREO:
-        return DSSI_CC(0x1A);  //26
+    case LMS_DRYWET:
+        return DSSI_CC(0x18);  //24    
     default:
         return DSSI_NONE;
     }
@@ -323,70 +290,51 @@ void _init()
         /*Define the LADSPA ports for the plugin in the class constructor*/
         
 	
-	/* Parameters for delay time */
-	port_descriptors[LMS_DELAY_TIME] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_DELAY_TIME] = "Delay Time";
-	port_range_hints[LMS_DELAY_TIME].HintDescriptor =
+	/* Parameters for predelay */
+	port_descriptors[LMS_PREDELAY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_PREDELAY] = "Predelay";
+	port_range_hints[LMS_PREDELAY].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DELAY_TIME].LowerBound =  10;
-	port_range_hints[LMS_DELAY_TIME].UpperBound =  100;
+	port_range_hints[LMS_PREDELAY].LowerBound =  0;
+	port_range_hints[LMS_PREDELAY].UpperBound =  100;
         
-        /* Parameters for feedback */
-	port_descriptors[LMS_FEEDBACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_FEEDBACK] = "Feedback";
-	port_range_hints[LMS_FEEDBACK].HintDescriptor =
+        /* Parameters for time */
+	port_descriptors[LMS_TIME] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_TIME] = "Time";
+	port_range_hints[LMS_TIME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FEEDBACK].LowerBound =  -15;
-	port_range_hints[LMS_FEEDBACK].UpperBound =  0;
+	port_range_hints[LMS_TIME].LowerBound =  0;
+	port_range_hints[LMS_TIME].UpperBound =  100;
 
-        /* Parameters for dry */
-	port_descriptors[LMS_DRY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_DRY] = "Dry";
-	port_range_hints[LMS_DRY].HintDescriptor =
+        /* Parameters for highpass */
+	port_descriptors[LMS_HIGHPASS] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_HIGHPASS] = "Highpass";
+	port_range_hints[LMS_HIGHPASS].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DRY].LowerBound =  -30;
-	port_range_hints[LMS_DRY].UpperBound =  0;
+	port_range_hints[LMS_HIGHPASS].LowerBound =  20;
+	port_range_hints[LMS_HIGHPASS].UpperBound =  100;
         
-        /* Parameters for wet */
-	port_descriptors[LMS_WET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_WET] = "Wet";
-	port_range_hints[LMS_WET].HintDescriptor =
+        /* Parameters for lowpass */
+	port_descriptors[LMS_LOWPASS] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_LOWPASS] = "Lowpass";
+	port_range_hints[LMS_LOWPASS].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_WET].LowerBound =  -30;
-	port_range_hints[LMS_WET].UpperBound =  0;
+	port_range_hints[LMS_LOWPASS].LowerBound =  40;
+	port_range_hints[LMS_LOWPASS].UpperBound =  120;
         
-        /* Parameters for duck */
-	port_descriptors[LMS_DUCK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_DUCK] = "Duck";
-	port_range_hints[LMS_DUCK].HintDescriptor =
+        /* Parameters for dry/wet */
+	port_descriptors[LMS_DRYWET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_DRYWET] = "Dry/Wet";
+	port_range_hints[LMS_DRYWET].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DUCK].LowerBound =  -40;
-	port_range_hints[LMS_DUCK].UpperBound =  0;
-        
-        /* Parameters for cutoff */
-	port_descriptors[LMS_CUTOFF] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_CUTOFF] = "Cutoff";
-	port_range_hints[LMS_CUTOFF].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_CUTOFF].LowerBound =  20;
-	port_range_hints[LMS_CUTOFF].UpperBound =  124;
-        
-        
-        /* Parameters for stereo */
-	port_descriptors[LMS_STEREO] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_STEREO] = "Stereo";
-	port_range_hints[LMS_STEREO].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_STEREO].LowerBound =  0;
-	port_range_hints[LMS_STEREO].UpperBound =  100;
-        
+	port_range_hints[LMS_DRYWET].LowerBound =  0;
+	port_range_hints[LMS_DRYWET].UpperBound =  100;
+                
         /*Step 17:  Add LADSPA ports*/
         
         
