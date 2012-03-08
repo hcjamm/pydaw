@@ -112,7 +112,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     cerr << "Creating the Filter controls" << endl;    
 #endif    
     
-    QGroupBox * f_gb_filter = newGroupBox("Delay", this); 
+    QGroupBox * f_gb_filter = newGroupBox("Compressor", this); 
     QGridLayout *f_gb_filter_layout = new QGridLayout(f_gb_filter);
     
     m_threshold  =   newQDial(-36, 0, 1, -12);//get_knob(zero_to_one); //newQDial(0, 4, 1, 2);
