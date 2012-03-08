@@ -268,20 +268,20 @@ void _init()
         /*Define the LADSPA ports for the plugin in the class constructor*/
         
 	
-	/* Parameters for timbre */
+	/* Parameters for cutoff */
 	port_descriptors[LMS_CUTOFF] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_CUTOFF] = "Timbre";
+	port_names[LMS_CUTOFF] = "Cutoff";
 	port_range_hints[LMS_CUTOFF].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_CUTOFF].LowerBound =  20;
-	port_range_hints[LMS_CUTOFF].UpperBound =  124;
+	port_range_hints[LMS_CUTOFF].UpperBound =  108;
         
         /* Parameters for res */
 	port_descriptors[LMS_AMT] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_AMT] = "Res";
 	port_range_hints[LMS_AMT].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_AMT].LowerBound =  -20;
 	port_range_hints[LMS_AMT].UpperBound =  0;
