@@ -62,9 +62,7 @@ typedef struct st_mono_modules
 {
     t_smoother_iir * filter_smoother;
     t_comb_filter * comb_filter0;
-    t_comb_filter * comb_filter1;
-    float filter_output;  //For assigning the filter output to    
-    float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
+    t_comb_filter * comb_filter1;    
 }t_mono_modules;
     
 
