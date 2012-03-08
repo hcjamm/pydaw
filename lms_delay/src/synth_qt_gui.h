@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include <QGroupBox>
 #include <QComboBox>
 #include <QPushButton>
+#include <QDoubleSpinBox>
 #include <qt4/QtXml/QDomDocument>
 #include <QPixmap>
 #include <QFile>
@@ -102,6 +103,7 @@ protected slots:
     void duckChanged(int);
     void cutoffChanged(int);
     void stereoChanged(int);
+    void bpmSyncPressed();
         
     void oscRecv();
 protected:
@@ -154,6 +156,12 @@ protected:
     
     QDial *m_stereo;
     QLabel *m_stereoLabel;
+    
+    /*BPM sync box*/
+    QDoubleSpinBox * m_bpm_spinbox;        
+    QComboBox * m_beat_frac;    
+    QPushButton * m_sync_bpm;
+    
     
     lo_address m_host;
     QByteArray m_controlPath;
