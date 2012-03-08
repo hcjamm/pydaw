@@ -112,98 +112,50 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     cerr << "Creating the Filter controls" << endl;    
 #endif    
     
-    QGroupBox * f_gb_filter = newGroupBox("Delay", this); 
+    QGroupBox * f_gb_filter = newGroupBox("Reverb", this); 
     QGridLayout *f_gb_filter_layout = new QGridLayout(f_gb_filter);
     
-    m_delaytime  =   newQDial(10, 100, 1, 50);//get_knob(zero_to_one); //newQDial(0, 4, 1, 2);
-    m_delaytimeLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Time",m_delaytime, m_delaytimeLabel);
-    connect(m_delaytime,  SIGNAL(valueChanged(int)), this, SLOT(delayTimeChanged(int)));
+    m_predelay  =   newQDial(0, 100, 1, 10);//get_knob(zero_to_one); //newQDial(0, 4, 1, 2);
+    m_predelayLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Predelay",m_predelay, m_predelayLabel);
+    connect(m_predelay,  SIGNAL(valueChanged(int)), this, SLOT(predelayChanged(int)));
         
     f_gb_layout_column++;
     
-    m_feedback  =  newQDial(-15, 0, 1, -6); //get_knob(decibels_20_to_0); 
-    m_feedbackLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Feedback", m_feedback, m_feedbackLabel);
-    connect(m_feedback,  SIGNAL(valueChanged(int)), this, SLOT(feedbackChanged(int)));
+    m_time  =  newQDial(0, 100, 1, 30);
+    m_timeLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Time", m_time, m_timeLabel);
+    connect(m_time,  SIGNAL(valueChanged(int)), this, SLOT(timeChanged(int)));
         
     f_gb_layout_column++;
     
-    m_dry  =   get_knob(decibels_30_to_0); 
-    m_dryLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Dry",m_dry, m_dryLabel);
-    connect(m_dry,  SIGNAL(valueChanged(int)), this, SLOT(dryChanged(int)));
+    m_highpass  =   newQDial(20, 100, 1, 30);
+    m_highpassLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Highpass",m_highpass, m_highpassLabel);
+    connect(m_highpass,  SIGNAL(valueChanged(int)), this, SLOT(highpassChanged(int)));
         
     f_gb_layout_column++;
     
-    m_wet  =  get_knob(decibels_30_to_0); 
-    m_wetLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Wet", m_wet, m_wetLabel);
-    connect(m_wet,  SIGNAL(valueChanged(int)), this, SLOT(wetChanged(int)));
+    m_lowpass  =  newQDial(40, 120, 1, 90);
+    m_lowpassLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Lowpass", m_lowpass, m_lowpassLabel);
+    connect(m_lowpass,  SIGNAL(valueChanged(int)), this, SLOT(lowpassChanged(int)));
         
     f_gb_layout_column++;
     
-    m_duck  =  newQDial(-40, 0, 1, -20); // get_knob(decibels_0);
-    m_duckLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Duck",m_duck, m_duckLabel);
-    connect(m_duck,  SIGNAL(valueChanged(int)), this, SLOT(duckChanged(int)));
+    m_drywet  =  newQDial(0, 100, 1, 50);
+    m_drywetLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Dry/Wet",m_drywet, m_drywetLabel);
+    connect(m_drywet,  SIGNAL(valueChanged(int)), this, SLOT(drywetChanged(int)));
         
     f_gb_layout_column++;
     
-    m_cutoff  =  get_knob(pitch); 
-    m_cutoffLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Cutoff", m_cutoff, m_cutoffLabel);
-    connect(m_cutoff,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
-    
-    f_gb_layout_column++;
-    
-    m_stereo  =  get_knob(zero_to_one); 
-    m_stereoLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Stereo", m_stereo, m_stereoLabel);
-    connect(m_stereo,  SIGNAL(valueChanged(int)), this, SLOT(stereoChanged(int)));
-    
-    f_gb_layout_column++;
     
     layout_row0->addWidget(f_gb_filter, -1, Qt::AlignLeft);
     f_column++;
     f_gb_layout_row = 0;
     f_gb_layout_column = 0;
     
-    QGroupBox * f_gb_bpm = newGroupBox("Tempo Sync", this); 
-    QGridLayout *f_gb_bpm_layout = new QGridLayout(f_gb_bpm);
-    
-    m_bpm_spinbox = new QDoubleSpinBox(this);
-    m_bpm_spinbox->setGeometry(QRect(100, 130, 71, 27));
-    m_bpm_spinbox->setDecimals(1);
-    m_bpm_spinbox->setMinimum(60);
-    m_bpm_spinbox->setMaximum(200);
-    m_bpm_spinbox->setSingleStep(0.1);
-    
-    QString f_beat_fracs [] = {"1/4", "1/3", "1/2", "2/3", "3/4", "1"};
-    int f_beat_fracs_count = 6;    
-    m_beat_frac = get_combobox(f_beat_fracs, f_beat_fracs_count , this);     
-    
-    m_sync_bpm = new QPushButton(this);
-    m_sync_bpm->setText("Sync");
-    connect(m_sync_bpm, SIGNAL(pressed()), this, SLOT(bpmSyncPressed()));
-    
-    QLabel * f_bpm_label = new QLabel("BPM",  this);
-    f_bpm_label->setMinimumWidth(60);
-    f_bpm_label->setAlignment(Qt::AlignCenter);
-    f_bpm_label->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");
-    
-    QLabel * f_beat_label = new QLabel("Beats",  this);
-    f_beat_label->setMinimumWidth(60);
-    f_beat_label->setAlignment(Qt::AlignCenter);
-    f_beat_label->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");
-    
-    f_gb_bpm_layout->addWidget(f_bpm_label, 0, 0, Qt::AlignCenter);
-    f_gb_bpm_layout->addWidget(m_bpm_spinbox, 1, 0, Qt::AlignCenter);
-    f_gb_bpm_layout->addWidget(f_beat_label, 0, 1, Qt::AlignCenter);
-    f_gb_bpm_layout->addWidget(m_beat_frac, 1, 1, Qt::AlignCenter);
-    f_gb_bpm_layout->addWidget(m_sync_bpm, 2, 1, Qt::AlignCenter);
-    
-    layout_row1->addWidget(f_gb_bpm, -1, Qt::AlignLeft);
         
     QLabel * f_logo_label = new QLabel("", this);    
     f_logo_label->setTextFormat(Qt::RichText);
@@ -389,54 +341,41 @@ QComboBox * SynthGUI::get_combobox(QString a_choices [], int a_count,  QWidget *
     return f_result;
 }
 
-void SynthGUI::setDelayTime(float val)
+void SynthGUI::setPredelayTime(float val)
 {
     m_suppressHostUpdate = true;
-    m_delaytime->setValue(int(val));
+    m_predelay->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setFeedback(float val)
+void SynthGUI::setTime(float val)
 {
     m_suppressHostUpdate = true;
-    m_feedback->setValue(int(val));
+    m_time->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setDry(float val)
+void SynthGUI::setHighpass(float val)
 {
     m_suppressHostUpdate = true;
-    m_dry->setValue(int(val));
+    m_highpass->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setWet(float val)
+void SynthGUI::setLowpass(float val)
 {
     m_suppressHostUpdate = true;
-    m_wet->setValue(int(val));
+    m_lowpass->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setDuck(float val)
+void SynthGUI::setDryWet(float val)
 {
     m_suppressHostUpdate = true;
-    m_duck->setValue(int(val));
+    m_drywet->setValue(int(val));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setCutoff(float val)
-{
-    m_suppressHostUpdate = true;
-    m_cutoff->setValue(int(val));
-    m_suppressHostUpdate = false;
-}
-
-void SynthGUI::setStereo(float val)
-{
-    m_suppressHostUpdate = true;
-    m_stereo->setValue(int(val));
-    m_suppressHostUpdate = false;
-}
 
 /*Standard handlers for the audio slots, these perform manipulations of knob values
  that are common in audio applications*/
@@ -501,9 +440,9 @@ void SynthGUI::changed_decibels(int a_value, QLabel * a_label, int a_port)
 
 /*Implement the event handlers from step 3.*/
 
-void SynthGUI::delayTimeChanged(int value)
+void SynthGUI::predelayChanged(int value)
 {
-    changed_seconds(value, m_delaytimeLabel, LMS_DELAY_TIME); 
+    changed_seconds(value, m_predelayLabel, LMS_PREDELAY); 
     
     /*
     QString f_value;
@@ -533,68 +472,24 @@ void SynthGUI::delayTimeChanged(int value)
      */
 }
 
-void SynthGUI::feedbackChanged(int value)
+void SynthGUI::timeChanged(int value)
 {
-    changed_decibels(value, m_feedbackLabel, LMS_FEEDBACK);    
+    changed_decibels(value, m_timeLabel, LMS_TIME);    
 }
 
-void SynthGUI::dryChanged(int value)
+void SynthGUI::highpassChanged(int value)
 {
-    changed_decibels(value, m_dryLabel, LMS_DRY);    
+    changed_decibels(value, m_highpassLabel, LMS_HIGHPASS);    
 }
 
-void SynthGUI::wetChanged(int value)
+void SynthGUI::lowpassChanged(int value)
 {
-    changed_decibels(value, m_wetLabel, LMS_WET);    
+    changed_decibels(value, m_lowpassLabel, LMS_LOWPASS);    
 }
 
-void SynthGUI::duckChanged(int value)
+void SynthGUI::drywetChanged(int value)
 {
-    changed_decibels(value, m_duckLabel, LMS_DUCK);    
-}
-
-void SynthGUI::cutoffChanged(int value)
-{
-    changed_pitch(value, m_cutoffLabel, LMS_CUTOFF);    
-}
-
-void SynthGUI::stereoChanged(int value)
-{
-    changed_zero_to_x(value, m_stereoLabel, LMS_STEREO);    
-}
-
-void SynthGUI::bpmSyncPressed()
-{
-    float f_frac = 1.0f;
-    
-    switch(m_beat_frac->currentIndex())            
-    {
-        case 0:  // 1/4
-            f_frac = 0.25f;
-            break;
-        case 1:  // 1/3
-            f_frac = 0.3333f;
-            break;
-        case 2:  // 1/2
-            f_frac = 0.5f;
-            break;
-        case 3:  // 2/3
-            f_frac = 0.6666f;
-            break;
-        case 4:  // 3/4
-            f_frac = 0.75f;
-            break;
-        case 5:  // 1
-            f_frac = 1.0f;
-            break;
-    }
-        
-    float f_seconds_per_beat = 60/(m_bpm_spinbox->value());
-    
-    float f_result = (int)(f_seconds_per_beat * f_frac * 100);
-    
-    /*TODO: Possibly use the built in functions for this*/
-    m_delaytime->setValue(f_result);
+    changed_zero_to_x(value, m_drywetLabel, LMS_DRYWET);
 }
 
 
@@ -602,19 +497,19 @@ void SynthGUI::v_print_port_name_to_cerr(int a_port)
 {
 #ifdef LMS_DEBUG_MODE_QT
     switch (a_port) {
-    case LMS_DELAY_TIME:
+    case LMS_PREDELAY:
 	cerr << "LMS_DELAY_TIME";
 	break;
-    case LMS_FEEDBACK:
+    case LMS_TIME:
 	cerr << "LMS_FEEDBACK";
 	break;        
-    case LMS_DRY:
+    case LMS_HIGHPASS:
 	cerr << "LMS_DRY";
 	break;
-    case LMS_WET:
+    case LMS_LOWPASS:
 	cerr << "LMS_WET";
 	break;        
-    case LMS_DUCK:
+    case LMS_DRYWET:
 	cerr << "LMS_DUCK";
 	break;
     case LMS_CUTOFF:
@@ -643,26 +538,20 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     
     switch (a_port) 
     {
-        case LMS_DELAY_TIME:
-            setDelayTime(a_value);
+        case LMS_PREDELAY:
+            setPredelayTime(a_value);
             break;
-        case LMS_FEEDBACK:
-            setFeedback(a_value);
+        case LMS_TIME:
+            setTime(a_value);
             break;
-        case LMS_DRY:
-            setDry(a_value);
+        case LMS_HIGHPASS:
+            setHighpass(a_value);
             break;
-        case LMS_WET:
-            setWet(a_value);
+        case LMS_LOWPASS:
+            setLowpass(a_value);
             break;
-        case LMS_DUCK:
-            setDuck(a_value);
-            break;
-        case LMS_CUTOFF:
-            setCutoff(a_value);
-            break;
-        case LMS_STEREO:
-            setStereo(a_value);
+        case LMS_DRYWET:
+            setDryWet(a_value);
             break;
     }
 }
@@ -681,26 +570,20 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
        /*Add the controls you created to the control handler*/
     
     switch (a_port) {
-        case LMS_DELAY_TIME:
-            delayTimeChanged(a_value);
+        case LMS_PREDELAY:
+            predelayChanged(a_value);
             break;
-        case LMS_FEEDBACK:
-            feedbackChanged(a_value);
+        case LMS_TIME:
+            timeChanged(a_value);
             break;
-        case LMS_DRY:
-            dryChanged(a_value);
+        case LMS_HIGHPASS:
+            highpassChanged(a_value);
             break;
-        case LMS_WET:
-            wetChanged(a_value);
+        case LMS_LOWPASS:
+            lowpassChanged(a_value);
             break;
-        case LMS_DUCK:
-            duckChanged(a_value);
-            break;
-        case LMS_CUTOFF:
-            cutoffChanged(a_value);
-            break;
-        case LMS_STEREO:
-            stereoChanged(a_value);
+        case LMS_DRYWET:
+            drywetChanged(a_value);
             break;
         default:
 #ifdef LMS_DEBUG_MODE_QT
@@ -719,20 +602,16 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
 int SynthGUI::i_get_control(int a_port)
 {        
     switch (a_port) {
-        case LMS_DELAY_TIME:
-            return m_delaytime->value();
-        case LMS_FEEDBACK:
-            return m_feedback->value();
-        case LMS_DRY:
-            return m_dry->value();
-        case LMS_WET:
-            return m_wet->value();
-        case LMS_DUCK:
-            return m_duck->value();
-        case LMS_CUTOFF:
-            return m_cutoff->value();
-        case LMS_STEREO:
-            return m_stereo->value();
+        case LMS_PREDELAY:
+            return m_predelay->value();
+        case LMS_TIME:
+            return m_time->value();
+        case LMS_HIGHPASS:
+            return m_highpass->value();
+        case LMS_LOWPASS:
+            return m_lowpass->value();
+        case LMS_DRYWET:
+            return m_drywet->value();        
         default:
 #ifdef LMS_DEBUG_MODE_QT
             cerr << "Warning: received request to get nonexistent port " << a_port << endl;

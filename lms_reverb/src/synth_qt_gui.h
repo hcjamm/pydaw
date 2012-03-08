@@ -84,26 +84,21 @@ public:
         
 public slots:
     /*Event handlers for setting knob values*/
-    void setDelayTime (float val);
-    void setFeedback (float val);
-    void setDry(float val);
-    void setWet(float val);
-    void setDuck(float val);
-    void setCutoff(float val);
-    void setStereo(float val);
-        
+    void setPredelayTime (float val);
+    void setTime (float val);
+    void setHighpass(float val);
+    void setLowpass(float val);
+    void setDryWet(float val);
+    
     void aboutToQuit();
     
 protected slots:
     /*Event handlers for receiving changed knob values*/
-    void delayTimeChanged (int);
-    void feedbackChanged (int);
-    void dryChanged(int);
-    void wetChanged(int);
-    void duckChanged(int);
-    void cutoffChanged(int);
-    void stereoChanged(int);
-    void bpmSyncPressed();
+    void predelayChanged (int);
+    void timeChanged (int);
+    void highpassChanged(int);
+    void lowpassChanged(int);
+    void drywetChanged(int);    
         
     void oscRecv();
 protected:
@@ -136,31 +131,20 @@ protected:
     
     
     /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
-    QDial *m_delaytime;
-    QLabel *m_delaytimeLabel;
+    QDial *m_predelay;
+    QLabel *m_predelayLabel;
     
-    QDial *m_feedback;
-    QLabel *m_feedbackLabel;
+    QDial *m_time;
+    QLabel *m_timeLabel;
     
-    QDial *m_dry;
-    QLabel *m_dryLabel;
+    QDial *m_highpass;
+    QLabel *m_highpassLabel;
     
-    QDial *m_wet;
-    QLabel *m_wetLabel;
+    QDial *m_lowpass;
+    QLabel *m_lowpassLabel;
     
-    QDial *m_duck;
-    QLabel *m_duckLabel;
-    
-    QDial *m_cutoff;
-    QLabel *m_cutoffLabel;
-    
-    QDial *m_stereo;
-    QLabel *m_stereoLabel;
-    
-    /*BPM sync box*/
-    QDoubleSpinBox * m_bpm_spinbox;        
-    QComboBox * m_beat_frac;    
-    QPushButton * m_sync_bpm;
+    QDial *m_drywet;
+    QLabel *m_drywetLabel;
     
     
     lo_address m_host;
