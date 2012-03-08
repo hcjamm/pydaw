@@ -339,7 +339,7 @@ void _init()
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_FEEDBACK].LowerBound =  -15;
-	port_range_hints[LMS_FEEDBACK].UpperBound =  -2;
+	port_range_hints[LMS_FEEDBACK].UpperBound =  0;
 
         /* Parameters for dry */
 	port_descriptors[LMS_DRY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;

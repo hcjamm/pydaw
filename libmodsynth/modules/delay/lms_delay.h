@@ -19,6 +19,7 @@ extern "C" {
 #include "../signal_routing/dry_wet.h"
 #include "../../lib/denormal.h"
 #include "../signal_routing/audio_xfade.h"
+#include "../modulation/env_follower.h"
 /* A multi-mode delay module.  This is a complete delay with stereo, ping-pong, etc... modes
  * feeback can be routed out and back into the module.
  * 
@@ -39,18 +40,18 @@ typedef struct st_lms_delay
     t_dw_dry_wet * dw0;
     t_dw_dry_wet * dw1;
     t_audio_xfade * stereo_xfade0;
-    t_audio_xfade * stereo_xfade1;    
+    t_audio_xfade * stereo_xfade1;
+    
+    t_enf_env_follower * feeback_env_follower;  //Checks for overflow
+    t_enf_env_follower * input_env_follower;  //Checks for overflow
+    float wet_dry_diff;  //difference between wet and dry output volume
+    float combined_inputs;  //Add output 0 and 1
+    
 }t_lms_delay;
 
-//Used to switch between delay types, uses much less CPU than a switch statement
-typedef float (*fp_ldl_run_ptr)(t_lms_delay*,float,float);
-
 t_lms_delay * g_ldl_get_delay(float,float);
-
 inline void v_ldl_set_delay(t_lms_delay*,float,float,float,float,float);
-
 inline void v_ldl_run_delay(t_lms_delay*,float,float);
-
 
 /*t_lms_delay * g_ldl_get_delay(
  * float a_seconds, //The maximum amount of time for the delay to buffer, it should never be asked to delay longer than this number
@@ -76,6 +77,10 @@ t_lms_delay * g_ldl_get_delay(float a_seconds, float a_sr)
     f_result->stereo_xfade0 = g_axf_get_audio_xfade(-3.0f);
     f_result->stereo_xfade1 = g_axf_get_audio_xfade(-3.0f);
     
+    f_result->feeback_env_follower = g_enf_get_env_follower(a_sr);
+    f_result->input_env_follower = g_enf_get_env_follower(a_sr);    
+    f_result->combined_inputs = 0;
+    
     return f_result;
 }
 
@@ -87,7 +92,14 @@ t_lms_delay * g_ldl_get_delay(float a_seconds, float a_sr)
  * float a_fb1) //feedback 1
  */
 inline void v_ldl_run_delay(t_lms_delay* a_dly, float a_in0, float a_in1)
-{
+{    
+    v_enf_run_env_follower(a_dly->feeback_env_follower, ((a_dly->feedback0) + (a_dly->feedback1)));
+    /*Automatically reduce feedback if delay volume is too high*/
+    if((a_dly->feeback_env_follower->output_smoothed) > -3.0f)
+    {
+        a_dly->feedback_linear = f_db_to_linear(((-3.0f - (a_dly->feeback_env_follower->output_smoothed)) * 0.3));
+    }
+    
     v_dly_run_delay(a_dly->delay0, 
             f_axf_run_xfade(a_dly->stereo_xfade0, 
             (a_in0 + ((a_dly->feedback0) * (a_dly->feedback_linear))),
@@ -113,6 +125,7 @@ inline void v_ldl_run_delay(t_lms_delay* a_dly, float a_in0, float a_in1)
     a_dly->output1 = (a_dly->dw1->output);
 }
 
+
 /*inline void v_ldl_set_delay(
  * t_lms_delay* a_dly,
  * float a_seconds, 
@@ -132,14 +145,8 @@ inline void v_ldl_set_delay(t_lms_delay* a_dly,float a_seconds, float a_feeback_
     
     if(a_feeback_db != (a_dly->feedback_db))
     {
-        if(a_feeback_db > -2.0f)
-        {
-            a_dly->feedback_db = -2.0f;
-        }
-        else
-        {
-            a_dly->feedback_db = a_feeback_db;
-        }
+        a_dly->feedback_db = a_feeback_db;
+        
         a_dly->feedback_linear = f_db_to_linear_fast(a_feeback_db);
     }
     

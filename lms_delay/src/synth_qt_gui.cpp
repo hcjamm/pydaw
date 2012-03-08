@@ -122,7 +122,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         
     f_gb_layout_column++;
     
-    m_feedback  =  newQDial(-15, -2, 1, -6); //get_knob(decibels_20_to_0); 
+    m_feedback  =  newQDial(-15, 0, 1, -6); //get_knob(decibels_20_to_0); 
     m_feedbackLabel  = newQLabel(this);
     add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Feedback", m_feedback, m_feedbackLabel);
     connect(m_feedback,  SIGNAL(valueChanged(int)), this, SLOT(feedbackChanged(int)));
