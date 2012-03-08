@@ -15,8 +15,6 @@ extern "C" {
     
 /*Comment this out when compiling a release, it will waste a lot of CPU*/
 //#define LMS_CMB_DEBUG_MODE
-
-#define CMB_BUFFER_SIZE 2000
     
 #include "../../lib/amp.h"
 #include "../../lib/pitch_core.h"
@@ -25,7 +23,8 @@ extern "C" {
     
 typedef struct st_comb_filter
 {
-    float input_buffer [CMB_BUFFER_SIZE];
+    float * input_buffer;
+    int buffer_size;
     int input_pointer;
     float delay_pointer;
     float wet_sample;
@@ -55,7 +54,7 @@ inline void v_cmb_set_input(t_comb_filter* a_cmb_ptr,float a_value)
 {
     a_cmb_ptr->input_pointer = (a_cmb_ptr->input_pointer) + 1;
     
-    if((a_cmb_ptr->input_pointer) >= CMB_BUFFER_SIZE)
+    if((a_cmb_ptr->input_pointer) >= (a_cmb_ptr->buffer_size))
     {
         a_cmb_ptr->input_pointer = 0;
     }
@@ -64,11 +63,11 @@ inline void v_cmb_set_input(t_comb_filter* a_cmb_ptr,float a_value)
     
     if((a_cmb_ptr->delay_pointer) < 0)
     {
-        a_cmb_ptr->delay_pointer = (a_cmb_ptr->delay_pointer) + CMB_BUFFER_SIZE;
+        a_cmb_ptr->delay_pointer = (a_cmb_ptr->delay_pointer) + (a_cmb_ptr->buffer_size);
     }
     
     a_cmb_ptr->wet_sample = (f_linear_interpolate_arr_wrap(a_cmb_ptr->input_buffer, 
-            CMB_BUFFER_SIZE, (a_cmb_ptr->delay_pointer)));
+            (a_cmb_ptr->buffer_size), (a_cmb_ptr->delay_pointer)));
     
     a_cmb_ptr->input_buffer[(a_cmb_ptr->input_pointer)] = a_value + ((a_cmb_ptr->wet_sample) * (a_cmb_ptr->feedback_linear));
     
@@ -153,7 +152,11 @@ t_comb_filter * g_cmb_get_comb_filter(float a_sr)
     
     int f_i = 0;
     
-    while(f_i < CMB_BUFFER_SIZE)
+    f_result->buffer_size = (int)(a_sr / 20);  //Allocate enough memory to accomodate 20hz filter frequency
+    
+    f_result->input_buffer = (float*)malloc((sizeof(float)) * (f_result->buffer_size));
+    
+    while(f_i < (f_result->buffer_size))
     {
         f_result->input_buffer[f_i] = 0.0f;
         f_i++;
@@ -168,7 +171,7 @@ t_comb_filter * g_cmb_get_comb_filter(float a_sr)
     f_result->feedback_db = -6.0f;
     f_result->feedback_linear = 0.5f;
     f_result->midi_note_number = 60.0f;
-    f_result->delay_samples = 150;
+    f_result->delay_samples = 150.0f;
     f_result->sr = a_sr;
 #ifdef LMS_CMB_DEBUG_MODE
     f_result->debug_counter = 0;
