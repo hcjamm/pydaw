@@ -80,9 +80,6 @@ void dump_debug_synth_vals(synth_vals*);
 void dump_debug_synth_vals(synth_vals * a_data)
 {
     printf("\n\nRunning dump_debug_synth_vals\n");
-    printf("osc1type == %f\n", a_data->osc1type);   
-    printf("res == %f\n", a_data->res);    
-    printf("timbre == %f\n", a_data->cutoff);  
 }
 
 #endif

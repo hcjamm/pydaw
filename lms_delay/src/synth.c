@@ -176,6 +176,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     
     while ((plugin_data->pos) < sample_count) 
     {	
+        /*
         while ((plugin_data->event_pos) < event_count)
         {
 	    if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_TEMPO) 
@@ -183,7 +184,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                 //events[(plugin_data->event_pos)].data.raw32
             }
         }
-        
+        */
         plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
 	        
         plugin_data->i_buffer_clear = 0;
