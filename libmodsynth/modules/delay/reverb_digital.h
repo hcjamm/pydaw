@@ -12,126 +12,81 @@
 extern "C" {
 #endif
 
-#define REVERB_DIGITAL_BUFFER 100000
-#define REVERB_DIGITAL_COMB_FILTER_COUNT 7
+#define REVERB_DIGITAL_TAPS 8
     
-typedef struct st_reverb_digital{
-    float input_buffer [REVERB_DIGITAL_BUFFER];
-    int buffer_pos;
-    int current_buffer_pos;  //for arbitrarily iterating through the array    
-    int pre_delay;
-    float feedback_linear;
-    float feedback_db;
-    int spread_linear;
-    float spread_semitones;  //Semitones converted to samples-per-second in spread_linear, because it sounds more musical
-    float output;
-    float wet_db;
-    float wet_linear;
-    int comb_iterator;
-    float sample_rate;
-    float comb_tilt;  //The tilting of the feedback, in decibels-per-tap.  Be careful with positive values
-    float comb_amp [REVERB_DIGITAL_COMB_FILTER_COUNT];
-    float last_time;  //For checking the last time set, to avoid recalculating reverb time
-}t_reverb_digital;
-
-t_reverb_digital * g_rvd_get_reverb_digital(float);
-inline void v_rvd_run(t_reverb_digital *, float);
-
-inline void v_rvd_set_time(t_reverb_digital*, float);
-inline void v_rvd_set_wet_db(t_reverb_digital*, float);
-inline void v_rvd_set_pre_delay(t_reverb_digital*, float);
-
-
-t_reverb_digital * g_rvd_get_reverb_digital(float a_sample_rate)
+#include "delay.h"
+    
+typedef struct st_rvd_reverb
 {
-    t_reverb_digital * f_result = (t_reverb_digital *)malloc(sizeof(t_reverb_digital));
+    t_delay_simple buffer0;
+    t_delay_simple buffer1;
+    t_delay_tap taps0 [REVERB_DIGITAL_TAPS];
+    t_delay_tap taps1 [REVERB_DIGITAL_TAPS];
+    float out0;
+    float out1;
+    float feedback0;
+    float feedback1;
+    int predelay;
+    int iterator;
+    float delay_time [REVERB_DIGITAL_TAPS];
+}t_rvd_reverb;
+
+t_rvd_reverb * g_rvd_get_reverb(float);
+
+t_rvd_reverb * g_rvd_get_reverb(float a_sr)
+{
+    t_rvd_reverb * f_result = (t_rvd_reverb*)malloc(sizeof(t_rvd_reverb));
     
-    
-    f_result->buffer_pos = 0;    
-    f_result->current_buffer_pos = 0;    
-    f_result->comb_iterator = 0;  
-    f_result->comb_tilt = -2;
-    f_result->feedback_db = -6;
-    f_result->feedback_linear = .5;
-    f_result->output = 0;
-    f_result->pre_delay = 0;
-    f_result->sample_rate = a_sample_rate;    
-    f_result->spread_linear = 150;  //TODO:  align this with a pitch value
-    f_result->spread_semitones = 1;
-    f_result->wet_db = -6;
-    f_result->wet_linear = 0.5;
-    
+    f_result->buffer0 = g_dly_get_delay(1, a_sr);
+    f_result->buffer1 = g_dly_get_delay(1, a_sr);    
+    f_result->out0 = 0;
+    f_result->out1 = 0;
+    f_result->feedback0 = 0;
+    f_result->feedback1 = 0;
+    f_result->predelay = 0;
+    f_result->iterator = 0;
     
     int f_i = 0;
     
-    while(f_i < REVERB_DIGITAL_BUFFER)
-    {
-        f_result->input_buffer[f_i] = 0;
+    while(f_i < REVERB_DIGITAL_TAPS)
+    {        
+        f_result->taps0 [f_i] = g_dly_get_tap();
+        f_result->taps1 [f_i] = g_dly_get_tap();
+        f_result->delay_time [f_i] = 0.1;
+        
         f_i++;
     }
-    
-    f_i = 0;
-    
-    while(f_i < REVERB_DIGITAL_COMB_FILTER_COUNT)
-    {
-        f_result->comb_amp[f_i] = 0.5;
-        f_i++;
-    }
-    
-    
+        
     return f_result;
 }
 
-void v_rvd_run(t_reverb_digital * a_rvd, float a_input)
+void v_rvd_run_reverb(t_rvd_reverb*,float,float);
+void v_rvd_set_reverb(t_rvd_reverb*,float,float);
+
+void v_rvd_run_reverb(t_rvd_reverb* a_rvd, float a_in0, float a_in1)
 {
-    a_rvd->input_buffer[(a_rvd->buffer_pos)] = a_input;
     
-    a_rvd->comb_iterator = 0;
-    a_rvd->current_buffer_pos = (a_rvd->buffer_pos) - (a_rvd->spread_linear);
     
-    while((a_rvd->comb_iterator) < REVERB_DIGITAL_COMB_FILTER_COUNT)
+    a_rvd->iterator = 0;
+    
+    while((a_rvd->iterator) < REVERB_DIGITAL_TAPS)
     {
-        if((a_rvd->input_buffer[(a_rvd->current_buffer_pos)]) < 0)
-        {
-            a_rvd->input_buffer[(a_rvd->current_buffer_pos)] = (a_rvd->input_buffer[(a_rvd->current_buffer_pos)]) + REVERB_DIGITAL_BUFFER;
-        }
         
-        if((a_rvd->input_buffer[(a_rvd->current_buffer_pos)]) >= REVERB_DIGITAL_BUFFER)
-        {
-            a_rvd->input_buffer[(a_rvd->current_buffer_pos)] = (a_rvd->input_buffer[(a_rvd->current_buffer_pos)]) - REVERB_DIGITAL_BUFFER;
-        }
+        a_rvd->iterator = (a_rvd->iterator) + 1;
+    }
+}
+
+void v_rvd_set_reverb(t_rvd_reverb* a_rvd, float a_time, float a_predelay)
+{
+    
+    
+    a_rvd->iterator = 0;
+    
+    while((a_rvd->iterator) < REVERB_DIGITAL_TAPS)
+    {
         
-        a_rvd->input_buffer[(a_rvd->buffer_pos)] = (a_rvd->input_buffer[(a_rvd->current_buffer_pos)]) * (a_rvd->comb_amp[(a_rvd->comb_iterator)]);
-                
-        a_rvd->comb_iterator = (a_rvd->comb_iterator) + 1;
-        a_rvd->current_buffer_pos = (a_rvd->current_buffer_pos) - (a_rvd->spread_linear);
+        a_rvd->iterator = (a_rvd->iterator) + 1;
     }
-    
-    
-    if((a_rvd->buffer_pos) >= REVERB_DIGITAL_BUFFER)
-    {
-        a_rvd->buffer_pos = 0;
-    }
-    else
-    {
-        a_rvd->buffer_pos += 1;
-    }
-}
-
-/*Currently just a loose estimation, as digital reverbs are a very difficult thing to do right*/
-inline void v_rvd_set_time(t_reverb_digital* a_rvd, float a_seconds)
-{
-    
-}
-
-inline void v_rvd_set_wet_db(t_reverb_digital* a_rvd, float a_db)
-{
-    
-}
-
-inline void v_rvd_set_pre_delay(t_reverb_digital* a_rvd, float a_seconds)
-{
-    
 }
 
 #ifdef	__cplusplus
