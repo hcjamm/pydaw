@@ -150,13 +150,14 @@ inline void v_dly_run_delay(t_delay_simple* a_dly,float a_input)
 
 inline void v_dly_run_tap(t_delay_simple* a_dly,t_delay_tap* a_tap)
 {
-    a_tap->read_head = (a_dly->write_head) - (a_tap->delay_samples);    
+    a_tap->read_head = (a_dly->write_head) - (a_tap->delay_samples);
+    
     if((a_tap->read_head) < 0)
     {
         a_tap->read_head = (a_tap->read_head) + (a_dly->sample_count);
     }
     
-    a_tap->output = a_dly->buffer[(a_tap->read_head)];
+    a_tap->output = (a_dly->buffer[(a_tap->read_head)]);
     
 #ifdef DLY_DEBUG_MODE
     if((a_dly->debug_counter) == 50000)
@@ -220,6 +221,14 @@ t_delay_simple * g_dly_get_delay(float a_max_size, float a_sr)
         
     f_result->sample_count = (int)((a_max_size * a_sr) + 2400);   //add 2400 samples to ensure we don't overrun our buffer
     f_result->buffer = (float*)malloc(sizeof(float) * (f_result->sample_count));
+    
+    int f_i = 0;
+    
+    while(f_i < (f_result->sample_count))
+    {
+        f_result->buffer[f_i] = 0.0f;
+        f_i++;
+    }
     
     return f_result;
 }
