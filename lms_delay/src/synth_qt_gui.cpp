@@ -168,6 +168,42 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     f_column++;
     f_gb_layout_row = 0;
     f_gb_layout_column = 0;
+    
+    QGroupBox * f_gb_bpm = newGroupBox("Tempo Sync", this); 
+    QGridLayout *f_gb_bpm_layout = new QGridLayout(f_gb_bpm);
+    
+    m_bpm_spinbox = new QDoubleSpinBox(this);
+    m_bpm_spinbox->setGeometry(QRect(100, 130, 71, 27));
+    m_bpm_spinbox->setDecimals(1);
+    m_bpm_spinbox->setMinimum(60);
+    m_bpm_spinbox->setMaximum(200);
+    m_bpm_spinbox->setSingleStep(0.1);
+    
+    QString f_beat_fracs [] = {"1/4", "1/3", "1/2", "2/3", "3/4", "1"};
+    int f_beat_fracs_count = 6;    
+    m_beat_frac = get_combobox(f_beat_fracs, f_beat_fracs_count , this);     
+    
+    m_sync_bpm = new QPushButton(this);
+    m_sync_bpm->setText("Sync");
+    connect(m_sync_bpm, SIGNAL(pressed()), this, SLOT(bpmSyncPressed()));
+    
+    QLabel * f_bpm_label = new QLabel("BPM",  this);
+    f_bpm_label->setMinimumWidth(60);
+    f_bpm_label->setAlignment(Qt::AlignCenter);
+    f_bpm_label->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");
+    
+    QLabel * f_beat_label = new QLabel("Beats",  this);
+    f_beat_label->setMinimumWidth(60);
+    f_beat_label->setAlignment(Qt::AlignCenter);
+    f_beat_label->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");
+    
+    f_gb_bpm_layout->addWidget(f_bpm_label, 0, 0, Qt::AlignCenter);
+    f_gb_bpm_layout->addWidget(m_bpm_spinbox, 1, 0, Qt::AlignCenter);
+    f_gb_bpm_layout->addWidget(f_beat_label, 0, 1, Qt::AlignCenter);
+    f_gb_bpm_layout->addWidget(m_beat_frac, 1, 1, Qt::AlignCenter);
+    f_gb_bpm_layout->addWidget(m_sync_bpm, 2, 1, Qt::AlignCenter);
+    
+    layout_row1->addWidget(f_gb_bpm, -1, Qt::AlignLeft);
         
     QLabel * f_logo_label = new QLabel("", this);    
     f_logo_label->setTextFormat(Qt::RichText);
@@ -206,9 +242,9 @@ void SynthGUI::add_widget(QGridLayout * a_layout, int a_position_x, int a_positi
     QLabel * _label)
 {   
     QLabel * f_knob_title = new QLabel(a_label_text,  this);
-    f_knob_title->setMinimumWidth(60);  //TODO:  make this a constant
+    f_knob_title->setMinimumWidth(60);
     f_knob_title->setAlignment(Qt::AlignCenter);
-    f_knob_title->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");  //TODO:  make this a constant string for all knobs
+    f_knob_title->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");
     
     a_layout->addWidget(f_knob_title, a_position_y, a_position_x, Qt::AlignCenter);    
     a_layout->addWidget(a_widget,  (a_position_y + 1), a_position_x);
@@ -526,6 +562,41 @@ void SynthGUI::stereoChanged(int value)
 {
     changed_zero_to_x(value, m_stereoLabel, LMS_STEREO);    
 }
+
+void SynthGUI::bpmSyncPressed()
+{
+    float f_frac = 1.0f;
+    
+    switch(m_beat_frac->currentIndex())            
+    {
+        case 0:  // 1/4
+            f_frac = 0.25f;
+            break;
+        case 1:  // 1/3
+            f_frac = 0.3333f;
+            break;
+        case 2:  // 1/2
+            f_frac = 0.5f;
+            break;
+        case 3:  // 2/3
+            f_frac = 0.6666f;
+            break;
+        case 4:  // 3/4
+            f_frac = 0.75f;
+            break;
+        case 5:  // 1
+            f_frac = 1.0f;
+            break;
+    }
+        
+    float f_seconds_per_beat = 60/(m_bpm_spinbox->value());
+    
+    float f_result = (int)(f_seconds_per_beat * f_frac * 100);
+    
+    /*TODO: Possibly use the built in functions for this*/
+    m_delaytime->setValue(f_result);
+}
+
 
 void SynthGUI::v_print_port_name_to_cerr(int a_port)
 {
