@@ -17,7 +17,7 @@ float f_remove_denormal(float);
 /*Prevent recursive modules like filters and feedback delays from consuming too much CPU*/
 float f_remove_denormal(float a_input)
 {
-    if((a_input < .0001) && (a_input > -.0001))
+    if((a_input < .00001) && (a_input > -.00001))
         return 0;
     else
         return a_input;
