@@ -64,7 +64,7 @@ inline void v_cmb_set_input(t_comb_filter* a_cmb_ptr,float a_value)
     
     a_cmb_ptr->input_buffer[(a_cmb_ptr->input_pointer)] = a_value + ((a_cmb_ptr->wet_sample) * (a_cmb_ptr->feedback_linear));
     
-    if((a_cmb_ptr->wet_linear) <= -20.0f)
+    if((a_cmb_ptr->wet_db) <= -20.0f)
     {
         a_cmb_ptr->output_sample = a_value;
     }
