@@ -22,11 +22,10 @@ extern "C" {
 #include "../../lib/smoother-linear.h"
     
 typedef struct st_comb_filter
-{
-    float * input_buffer;
-    int buffer_size;
-    int input_pointer;
-    float delay_pointer;
+{    
+    int buffer_size;  //The size of input_buffer
+    int input_pointer;  //The index where the current sample is written to
+    float delay_pointer; //
     float wet_sample;
     float output_sample;
     float wet_db;
@@ -34,8 +33,9 @@ typedef struct st_comb_filter
     float feedback_db;
     float feedback_linear;
     float midi_note_number;
-    float delay_samples;
+    float delay_samples;  //How many samples, including the fractional part, to delay the signal
     float sr;
+    float * input_buffer;
 #ifdef LMS_CMB_DEBUG_MODE
     int debug_counter;    
 #endif
@@ -51,14 +51,7 @@ t_comb_filter * g_cmb_get_comb_filter(float);
  * );
  * This runs the filter.  You can then use the output sample in your plugin*/
 inline void v_cmb_set_input(t_comb_filter* a_cmb_ptr,float a_value)
-{
-    a_cmb_ptr->input_pointer = (a_cmb_ptr->input_pointer) + 1;
-    
-    if((a_cmb_ptr->input_pointer) >= (a_cmb_ptr->buffer_size))
-    {
-        a_cmb_ptr->input_pointer = 0;
-    }
-    
+{    
     a_cmb_ptr->delay_pointer = (a_cmb_ptr->input_pointer) - (a_cmb_ptr->delay_samples);
     
     if((a_cmb_ptr->delay_pointer) < 0)
@@ -77,7 +70,15 @@ inline void v_cmb_set_input(t_comb_filter* a_cmb_ptr,float a_value)
     }
     else
     {
-        a_cmb_ptr->output_sample = a_value + ((a_cmb_ptr->wet_sample) * (a_cmb_ptr->wet_linear));
+        a_cmb_ptr->output_sample = (a_value + ((a_cmb_ptr->wet_sample) * (a_cmb_ptr->wet_linear)));
+    }
+    
+    
+    a_cmb_ptr->input_pointer = (a_cmb_ptr->input_pointer) + 1;
+    
+    if((a_cmb_ptr->input_pointer) >= (a_cmb_ptr->buffer_size))
+    {
+        a_cmb_ptr->input_pointer = 0;
     }
     
 #ifdef LMS_CMB_DEBUG_MODE
@@ -152,7 +153,7 @@ t_comb_filter * g_cmb_get_comb_filter(float a_sr)
     
     int f_i = 0;
     
-    f_result->buffer_size = (int)(a_sr / 20);  //Allocate enough memory to accomodate 20hz filter frequency
+    f_result->buffer_size = (int)((a_sr / 20) + 300);  //Allocate enough memory to accomodate 20hz filter frequency
     
     f_result->input_buffer = (float*)malloc((sizeof(float)) * (f_result->buffer_size));
     
