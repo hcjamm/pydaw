@@ -147,18 +147,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->vals.amt = *(plugin_data->amt);
     
     while ((plugin_data->pos) < sample_count) 
-    {	
-        /*Run the smoother for the cutoff knob*/
-        v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.cutoff));
-        
-        /*Feedback and wet are being fed by a single knob, to simplify the use of the plugin.  
-         * You could place them as separate knobs*/
-        v_cmb_set_all(plugin_data->mono_modules->comb_filter0, (plugin_data->vals.amt), (plugin_data->vals.amt), 
-                (plugin_data->mono_modules->filter_smoother->output));
-        
-        v_cmb_set_all(plugin_data->mono_modules->comb_filter1, (plugin_data->vals.amt), (plugin_data->vals.amt), 
-                (plugin_data->mono_modules->filter_smoother->output));
-        
+    {	                
 	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
 	
         
@@ -176,6 +165,17 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         /*The main loop where processing happens*/
         while((plugin_data->i_mono_out) < (plugin_data->count))
         {   
+            /*Run the smoother for the cutoff knob*/
+            v_sml_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.cutoff));
+            
+            /*Feedback and wet are being fed by a single knob, to simplify the use of the plugin.  
+            * You could place them as separate knobs*/
+            v_cmb_set_all(plugin_data->mono_modules->comb_filter0, (plugin_data->vals.amt), (plugin_data->vals.amt), 
+                    (plugin_data->mono_modules->filter_smoother->last_value));
+
+            v_cmb_set_all(plugin_data->mono_modules->comb_filter1, (plugin_data->vals.amt), (plugin_data->vals.amt), 
+                    (plugin_data->mono_modules->filter_smoother->last_value));
+            
             plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
             
             v_cmb_set_input(plugin_data->mono_modules->comb_filter0, (input0[(plugin_data->buffer_pos)]));

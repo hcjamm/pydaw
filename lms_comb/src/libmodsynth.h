@@ -23,7 +23,7 @@ extern "C" {
     
 /*includes for any libmodsynth modules you'll be using*/
 #include "../../libmodsynth/lib/pitch_core.h"
-#include "../../libmodsynth/lib/smoother-iir.h"
+#include "../../libmodsynth/lib/smoother-linear.h"
 #include "../../libmodsynth/modules/filter/comb_filter.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
@@ -51,7 +51,7 @@ void v_init_lms(float f_sr)
 
 typedef struct st_mono_modules
 {
-    t_smoother_iir * filter_smoother;
+    t_smoother_linear * filter_smoother;
     t_comb_filter * comb_filter0;
     t_comb_filter * comb_filter1;    
 }t_mono_modules;
@@ -64,7 +64,7 @@ t_mono_modules * v_mono_init(float);
 t_mono_modules * v_mono_init(float a_sr)
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
-    a_mono->filter_smoother = g_smr_iir_get_smoother();    
+    a_mono->filter_smoother = g_sml_get_smoother_linear(a_sr, 108, 20, 0.6f);
     a_mono->comb_filter0 = g_cmb_get_comb_filter(a_sr);
     a_mono->comb_filter1 = g_cmb_get_comb_filter(a_sr);
     
