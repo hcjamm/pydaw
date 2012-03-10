@@ -16,6 +16,7 @@ extern "C" {
     
 #include "../../constants.h"
 #include "../../lib/denormal.h"
+#include "../../lib/pitch_core.h"
 
 typedef struct st_opl_one_pole
 {
@@ -33,6 +34,7 @@ typedef struct st_opl_one_pole
 
 inline void v_opl_set_coeff(t_opl_one_pole*, float);
 inline void v_opl_set_coeff_slow(t_opl_one_pole*, float);
+inline void v_opl_set_coeff_hz(t_opl_one_pole*, float);
 inline void v_opl_run(t_opl_one_pole*, float);
 t_opl_one_pole * g_opl_get_one_pole(float);
 
@@ -55,9 +57,7 @@ inline void v_opl_set_coeff(t_opl_one_pole* a_opl, float a_cutoff)
  * )
  * 
  * This one is more computationally expensive than the regular function because it
- * doesn't use the approximated midi_note_to_hz function.  This one should only be used 
- * for things like using a filter as a smoother, where you intend to set the frequency 
- * lower than 20hz.
+ * doesn't use the approximated midi_note_to_hz function.
  */
 inline void v_opl_set_coeff_slow(t_opl_one_pole* a_opl, float a_cutoff)
 {
@@ -67,6 +67,20 @@ inline void v_opl_set_coeff_slow(t_opl_one_pole* a_opl, float a_cutoff)
     a_opl->b1 = -(a_opl->x);
 }
 
+/*inline void v_opl_set_coeff_hz(
+ * t_opl_one_pole* a_opl, 
+ * float a_cutoff //Cutoff in MIDI note number.  Typically 0 to 120
+ * )
+ * 
+ * This one allows you to set the frequency directly in Hz.
+ */
+inline void v_opl_set_coeff_hz(t_opl_one_pole* a_opl, float a_cutoff)
+{
+    a_opl->cutoff = a_cutoff;
+    a_opl->x = exp(-2.0*PI*((a_opl->cutoff)*(a_opl->sr_recip)));
+    a_opl->a0 = 1.0-(a_opl->x);
+    a_opl->b1 = -(a_opl->x);
+}
 
 inline void v_opl_run(t_opl_one_pole* a_opl, float a_input)
 {
