@@ -28,8 +28,15 @@ typedef struct st_smoother_linear
 t_smoother_linear * g_sml_get_smoother_linear(float, float, float, float);
 inline void v_sml_run(t_smoother_linear * a_smoother, float);
 
-/*There's not much good reason to change this while the synth is running for controls, so you should only set it here.
- If using this for glide or other things that must be smoothed dynamically, you can use the set method below*/
+/* t_smoother_linear * g_sml_get_smoother_linear(
+ * float a_sample_rate, 
+ * float a_high, //The high value of the control
+ * float a_low,  //The low value of the control
+ * float a_time_in_seconds)
+ * 
+ * There's not much good reason to change this while the synth is running for controls, so you should only set it here.
+ * If using this for glide or other things that must be smoothed dynamically, you can use the set method below
+ */
 t_smoother_linear * g_sml_get_smoother_linear(float a_sample_rate, float a_high, float a_low, float a_time_in_seconds)
 {
     t_smoother_linear * f_result = (t_smoother_linear*)malloc(sizeof(t_smoother_linear));
@@ -63,21 +70,21 @@ inline void v_sml_run(t_smoother_linear * a_smoother, float a_current_value)
     } 
     /*This does waste CPU while knobs are being moved, but it will effectively kill the knobs processing
      once it does reach it's destination value*/
-    //else if(fabs(a_current_value - (a_smoother->last_value)) < (a_smoother->rate))
-    else if((((a_smoother->rate) > 0) && a_current_value - (a_smoother->last_value) <= (a_smoother->rate))
-            || (((a_smoother->rate) < 0) && (a_smoother->last_value) - a_current_value <= (a_smoother->rate)))
+    /*Moving up*/
+    else if(((a_current_value > (a_smoother->last_value)) && (a_current_value - (a_smoother->last_value) <= (a_smoother->rate)))
+            /*Moving down*/
+            || ((a_current_value < (a_smoother->last_value)) && ((a_smoother->last_value) - a_current_value <= (a_smoother->rate))))
     {
         a_smoother->last_value = a_current_value;
     }
     
-    /*Doing the actual work*/
-    
+    /*Moving down*/    
     else if(a_current_value > (a_smoother->last_value))
     {
         a_smoother->last_value = (a_smoother->last_value) + (a_smoother->rate);        
     }
     
-    /*Doing the actual work*/
+    /*Moving up*/
     else
     {
         a_smoother->last_value = (a_smoother->last_value) - (a_smoother->rate);        
