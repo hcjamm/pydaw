@@ -15,7 +15,7 @@ extern "C" {
 
 typedef struct st_ramp_env
 {
-    float output;
+    float output;  //if == 1, the ramp can be considered finished running
     float output_multiplied;
     float ramp_time;
     float ramp_inc;
@@ -29,6 +29,7 @@ inline void f_rmp_run_ramp(t_ramp_env*);
 void v_rmp_retrigger(t_ramp_env*,float,float);
 void v_rmp_retrigger_glide_t(t_ramp_env*,float,float,float);
 void v_rmp_retrigger_glide_r(t_ramp_env*,float,float,float);
+void v_rmp_set_time(t_ramp_env*,float);
 t_ramp_env * g_rmp_get_ramp_env(float);
 
 
@@ -59,13 +60,40 @@ inline void f_rmp_run_ramp(t_ramp_env* a_rmp_ptr)
     a_rmp_ptr->output_multiplied = (a_rmp_ptr->output) * (a_rmp_ptr->output_multiplier);
 }
 
-//TODO:  an alternate function that takes velocity into account
+/* void v_rmp_set_time(
+ * t_ramp_env* a_rmp_ptr,
+ * float a_time)  //time in seconds
+ * 
+ * Set envelope time without retriggering the envelope
+ */
+void v_rmp_set_time(t_ramp_env* a_rmp_ptr,float a_time)
+{
+    a_rmp_ptr->ramp_time = a_time;
+       
+    if((a_rmp_ptr->ramp_time) <= .01)
+    {
+        a_rmp_ptr->output = 1;
+        a_rmp_ptr->output_multiplied = (a_rmp_ptr->output_multiplier);
+        return;
+    }
+    else
+    {
+        a_rmp_ptr->output = 0;
+        a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) / (a_rmp_ptr->ramp_time);
+    }
+}
+
+/*void v_rmp_retrigger(
+ * t_ramp_env* a_rmp_ptr, 
+ * float a_time, 
+ * float a_multiplier)
+ */
 void v_rmp_retrigger(t_ramp_env* a_rmp_ptr, float a_time, float a_multiplier)
 {
     a_rmp_ptr->output = 0;
     a_rmp_ptr->ramp_time = a_time;
     a_rmp_ptr->output_multiplier = a_multiplier;
-    
+        
     if((a_rmp_ptr->ramp_time) <= .05)
     {
         a_rmp_ptr->output = 1;
@@ -123,6 +151,10 @@ void v_rmp_retrigger_glide_r(t_ramp_env* a_rmp_ptr, float a_time, float a_curren
     }
 }
 
+/*t_ramp_env * g_rmp_get_ramp_env(
+ * float a_sr  //sample rate
+ * )
+ */
 t_ramp_env * g_rmp_get_ramp_env(float a_sr)
 {
     t_ramp_env * f_result = (t_ramp_env*)malloc(sizeof(t_ramp_env));
