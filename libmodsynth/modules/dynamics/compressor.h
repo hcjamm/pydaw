@@ -39,6 +39,7 @@ typedef struct st_cpr_compressor
     /*This is a multiplier, not the audio output, for multiplying other audio signals.
      * This allows for effortless side-chaining in the main loop*/
     float output;
+    float output_db;  //Output in decibels
     
 #ifdef CPR_DEBUG_MODE
     int debug_counter;
@@ -96,6 +97,7 @@ inline void v_cpr_run_compressor(t_cpr_compressor * a_cpr, float in0, float in1)
             }
             else
             {
+                a_cpr->output_db = 0;
                 a_cpr->output = 1;
             }
             break;
@@ -109,7 +111,8 @@ inline void v_cpr_run_compressor(t_cpr_compressor * a_cpr, float in0, float in1)
             }
             
             f_rmp_run_ramp(a_cpr->ramp_env_attack);            
-            a_cpr->output = f_db_to_linear_fast((a_cpr->ramp_env_attack->output) * (a_cpr->difference) * (a_cpr->ratio_linear));
+            a_cpr->output_db = (a_cpr->ramp_env_attack->output) * (a_cpr->difference) * (a_cpr->ratio_linear);
+            a_cpr->output = f_db_to_linear_fast((a_cpr->output_db));
             
             if((a_cpr->ramp_env_attack->output) == 1)
             {
@@ -119,7 +122,8 @@ inline void v_cpr_run_compressor(t_cpr_compressor * a_cpr, float in0, float in1)
         case 2:
             if((a_cpr->level_db) > (a_cpr->threshold))
             {
-                a_cpr->output = f_db_to_linear_fast((a_cpr->difference) * (a_cpr->ratio_linear));
+                a_cpr->output_db = (a_cpr->difference) * (a_cpr->ratio_linear);
+                a_cpr->output = f_db_to_linear_fast((a_cpr->output_db));
             }
             else
             {                
@@ -140,7 +144,8 @@ inline void v_cpr_run_compressor(t_cpr_compressor * a_cpr, float in0, float in1)
             
             f_rmp_run_ramp(a_cpr->ramp_env_release);
             
-            a_cpr->output = f_db_to_linear_fast((a_cpr->ramp_env_release->output) * (a_cpr->difference_release));
+            a_cpr->output_db = (a_cpr->ramp_env_release->output) * (a_cpr->difference_release);
+            a_cpr->output = f_db_to_linear_fast((a_cpr->output_db));
             
             if((a_cpr->ramp_env_attack->output) == 1)
             {
