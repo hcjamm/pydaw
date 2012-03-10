@@ -30,7 +30,6 @@ GNU General Public License for more details.
 
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/amp.h"
-#include "../../libmodsynth/modules/filter/svf.h"
 
 #include "synth.h"
 #include "meta.h"
@@ -125,7 +124,7 @@ static void activateLMS(LADSPA_Handle instance)
 {
     LMS *plugin_data = (LMS *) instance;
         
-    plugin_data->mono_modules = v_mono_init((plugin_data->fs), 90.0f);  //initialize all monophonic modules
+    plugin_data->mono_modules = v_mono_init((plugin_data->fs));  //initialize all monophonic modules
 }
 
 static void runLMSWrapper(LADSPA_Handle instance,
@@ -153,14 +152,14 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->event_pos = 0;
     
     /*Set the values from synth_vals in RunLMS*/
-    plugin_data->vals.threshold = *(plugin_data->threshold) * .01;    
-    plugin_data->vals.ratio = *(plugin_data->ratio);
-    plugin_data->vals.attack = *(plugin_data->attack);    
-    plugin_data->vals.release = *(plugin_data->release);
+    plugin_data->vals.threshold = *(plugin_data->threshold);    
+    plugin_data->vals.ratio = *(plugin_data->ratio) * 0.1f;
+    plugin_data->vals.attack = *(plugin_data->attack) * 0.01f;    
+    plugin_data->vals.release = *(plugin_data->release) * 0.01f;
     plugin_data->vals.gain = *(plugin_data->gain);
     
-    v_svf_set_cutoff(plugin_data->mono_modules->svf0);
-    v_svf_set_cutoff(plugin_data->mono_modules->svf1);
+    v_cpr_set_compressor(plugin_data->mono_modules->compressor, (plugin_data->vals.ratio), (plugin_data->vals.threshold),
+            (plugin_data->vals.attack),(plugin_data->vals.release));
     
     while ((plugin_data->pos) < sample_count) 
     {	
@@ -182,20 +181,10 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         {   
             plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
             
-            v_smr_iir_run(plugin_data->mono_modules->time_smoother, (plugin_data->vals.threshold));
-            
-            v_enf_run_env_follower(plugin_data->mono_modules->env_follower, ((input0[(plugin_data->buffer_pos)]) + (input1[(plugin_data->buffer_pos)])));
-            
-    
-            
-    
-            v_ldl_run_delay(plugin_data->mono_modules->delay, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
-            
-            output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->delay->output0);
-            output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->delay->output1);
-            
-            plugin_data->mono_modules->delay->feedback0 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf0, (plugin_data->mono_modules->delay->feedback0));
-            plugin_data->mono_modules->delay->feedback1 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf1, (plugin_data->mono_modules->delay->feedback1));
+            v_cpr_run_compressor(plugin_data->mono_modules->compressor, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
+                        
+            output0[(plugin_data->buffer_pos)] = ((plugin_data->mono_modules->compressor->output) * (input0[(plugin_data->buffer_pos)]));
+            output1[(plugin_data->buffer_pos)] = ((plugin_data->mono_modules->compressor->output) * (input1[(plugin_data->buffer_pos)]));
                  
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }

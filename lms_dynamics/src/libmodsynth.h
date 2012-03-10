@@ -22,13 +22,7 @@ extern "C" {
 #include "../libmodsynth/constants.h"
     
 /*includes for any libmodsynth modules you'll be using*/
-#include "../../libmodsynth/lib/osc_core.h"
-#include "../../libmodsynth/lib/pitch_core.h"
-#include "../../libmodsynth/lib/smoother-linear.h"
-#include "../../libmodsynth/lib/smoother-iir.h"
-#include "../../libmodsynth/modules/delay/lms_delay.h"
-#include "../../libmodsynth/modules/filter/svf.h"
-#include "../../libmodsynth/modules/modulation/env_follower.h"
+#include "../../libmodsynth/modules/dynamics/compressor.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -55,29 +49,19 @@ void v_init_lms(float f_sr)
 
 typedef struct st_mono_modules
 {    
-    t_lms_delay * delay;
-    t_state_variable_filter * svf0;
-    t_state_variable_filter * svf1;
-    t_smoother_iir * time_smoother;
-    t_enf_env_follower * env_follower;
+    t_cpr_compressor * compressor;
 }t_mono_modules;
     
 
-t_mono_modules * v_mono_init(float,float);
+t_mono_modules * v_mono_init(float);
 
 
 /*Initialize any modules that will be run monophonically*/
-t_mono_modules * v_mono_init(float a_sr, float a_tempo)
+t_mono_modules * v_mono_init(float a_sr)
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
  
-    a_mono->delay = g_ldl_get_delay(1, a_sr);
-    a_mono->svf0 = g_svf_get(a_sr);
-    a_mono->svf1 = g_svf_get(a_sr);
-    v_svf_set_res(a_mono->svf0, -18);
-    v_svf_set_res(a_mono->svf1, -18);
-    a_mono->time_smoother = g_smr_iir_get_smoother();
-    a_mono->env_follower = g_enf_get_env_follower(a_sr);
+    a_mono->compressor = g_cpr_get_compressor(a_sr);
     
     return a_mono;
 }
