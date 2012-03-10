@@ -474,17 +474,17 @@ void SynthGUI::predelayChanged(int value)
 
 void SynthGUI::timeChanged(int value)
 {
-    changed_decibels(value, m_timeLabel, LMS_TIME);    
+    changed_seconds(value, m_timeLabel, LMS_TIME);    
 }
 
 void SynthGUI::highpassChanged(int value)
 {
-    changed_decibels(value, m_highpassLabel, LMS_HIGHPASS);    
+    changed_pitch(value, m_highpassLabel, LMS_HIGHPASS);    
 }
 
 void SynthGUI::lowpassChanged(int value)
 {
-    changed_decibels(value, m_lowpassLabel, LMS_LOWPASS);    
+    changed_pitch(value, m_lowpassLabel, LMS_LOWPASS);    
 }
 
 void SynthGUI::drywetChanged(int value)

@@ -154,24 +154,15 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     
     /*Set the values from synth_vals in RunLMS*/
     plugin_data->vals.predelay = *(plugin_data->predelay) * .01;    
-    plugin_data->vals.time = *(plugin_data->time);
+    plugin_data->vals.time = *(plugin_data->time) * .01;
     plugin_data->vals.highpass = *(plugin_data->highpass);    
     plugin_data->vals.lowpass = *(plugin_data->lowpass);
-    plugin_data->vals.drywet = *(plugin_data->drywet);
+    plugin_data->vals.drywet = *(plugin_data->drywet) * .01;
     
-    
-    v_svf_set_cutoff(plugin_data->mono_modules->svf0);
-    v_svf_set_cutoff(plugin_data->mono_modules->svf1);
+    v_rvd_set_reverb(plugin_data->mono_modules->reverb, (plugin_data->vals.time), (plugin_data->vals.predelay));
     
     while ((plugin_data->pos) < sample_count) 
     {	
-        while ((plugin_data->event_pos) < event_count)
-        {
-	    if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_TEMPO) 
-            {
-                //events[(plugin_data->event_pos)].data.raw32
-            }
-        }
         
         plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
 	        
@@ -190,16 +181,11 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         while((plugin_data->i_mono_out) < (plugin_data->count))
         {   
             plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
+    
+            v_rvd_run_reverb(plugin_data->mono_modules->reverb, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
             
-            v_smr_iir_run(plugin_data->mono_modules->time_smoother, (plugin_data->vals.predelay));
-            
-            v_enf_run_env_follower(plugin_data->mono_modules->env_follower, ((input0[(plugin_data->buffer_pos)]) + (input1[(plugin_data->buffer_pos)])));
-            
-            output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->delay->output0);
-            output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->delay->output1);
-            
-            plugin_data->mono_modules->delay->feedback0 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf0, (plugin_data->mono_modules->delay->feedback0));
-            plugin_data->mono_modules->delay->feedback1 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf1, (plugin_data->mono_modules->delay->feedback1));
+            output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->reverb->out0);
+            output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->reverb->out1);
                  
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
@@ -312,7 +298,7 @@ void _init()
 	port_descriptors[LMS_HIGHPASS] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_HIGHPASS] = "Highpass";
 	port_range_hints[LMS_HIGHPASS].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_HIGHPASS].LowerBound =  20;
 	port_range_hints[LMS_HIGHPASS].UpperBound =  100;
@@ -321,7 +307,7 @@ void _init()
 	port_descriptors[LMS_LOWPASS] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_LOWPASS] = "Lowpass";
 	port_range_hints[LMS_LOWPASS].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_LOWPASS].LowerBound =  40;
 	port_range_hints[LMS_LOWPASS].UpperBound =  120;

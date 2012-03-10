@@ -15,7 +15,8 @@ extern "C" {
 #endif
     
 #include "../../lib/interpolate-linear.h"
-    
+#include "../../lib/pitch_core.h"
+        
 //#define DLY_DEBUG_MODE
 
 /* A tap is used to read from a delay.  You can have as many taps as you want per
@@ -29,6 +30,8 @@ typedef struct st_delay_tap
     int delay_samples;
     float delay_seconds;
     float delay_beats;
+    float delay_pitch;
+    float delay_hz;
     float output;
 }t_delay_tap;
 
@@ -57,6 +60,9 @@ t_delay_tap * g_dly_get_tap();
 inline void v_dly_set_delay_seconds(t_delay_simple*,t_delay_tap*,float);
 inline void v_dly_set_delay_lin(t_delay_simple*,t_delay_tap*,float);
 inline void v_dly_set_delay_tempo(t_delay_simple*,t_delay_tap*,float);
+inline void v_dly_set_delay_pitch(t_delay_simple*,t_delay_tap*,float);
+inline void v_dly_set_delay_pitch_fast(t_delay_simple*,t_delay_tap*,float);
+inline void v_dly_set_delay_hz(t_delay_simple*,t_delay_tap*,float);
 inline void v_dly_run_delay(t_delay_simple*,float);
 inline void v_dly_run_tap(t_delay_simple*,t_delay_tap*);
 inline void v_dly_run_tap_lin(t_delay_simple*,t_delay_tap*);
@@ -110,6 +116,61 @@ inline void v_dly_set_delay_tempo(t_delay_simple* a_dly, t_delay_tap* a_tap, flo
         a_tap->delay_samples = (a_dly->tempo_recip) * a_beats * (a_dly->sample_rate);
     }
 }
+
+/*inline void v_dly_set_delay_pitch(
+ * t_delay_simple* a_dly, 
+ * t_delay_tap* a_tap, 
+ * float a_pitch)  //Pitch in MIDI note number
+ * 
+ * This method is very slow because it calculates a more accurate result that the fast method, 
+ * it should only be used in things like reverbs, where feedback and pitch are tightly coupled together, and
+ * require accuracy.
+ */
+inline void v_dly_set_delay_pitch(t_delay_simple* a_dly, t_delay_tap* a_tap, float a_pitch)
+{
+    if((a_tap->delay_pitch) != a_pitch)
+    {
+        a_tap->delay_pitch = a_pitch;
+        a_tap->delay_samples = ((a_dly->sample_rate)/(f_pit_midi_note_to_hz(a_pitch)));
+    }
+}
+
+
+
+/*inline void v_dly_set_delay_pitch(
+ * t_delay_simple* a_dly, 
+ * t_delay_tap* a_tap, 
+ * float a_pitch)  //Pitch in MIDI note number
+ * 
+ * This method is very slow because it calculates a more accurate result that the fast method, 
+ * it should only be used in things like reverbs, where feedback and pitch are tightly coupled together, and
+ * require accuracy.
+ */
+inline void v_dly_set_delay_pitch_fast(t_delay_simple* a_dly, t_delay_tap* a_tap, float a_pitch)
+{
+    if((a_tap->delay_pitch) != a_pitch)
+    {
+        a_tap->delay_pitch = a_pitch;
+        a_tap->delay_samples = ((a_dly->sample_rate)/(f_pit_midi_note_to_hz(a_pitch)));
+    }
+}
+
+
+/*inline void v_dly_set_delay_hz(
+ * t_delay_simple* a_dly, 
+ * t_delay_tap* a_tap, 
+ * float a_hz)  //Frequency in hz.  1/a_hz == the delay time
+ * 
+ */
+inline void v_dly_set_delay_hz(t_delay_simple* a_dly, t_delay_tap* a_tap, float a_hz)
+{
+    if((a_tap->delay_hz) != a_hz)
+    {
+        a_tap->delay_hz = a_hz;
+        a_tap->delay_samples = ((a_dly->sample_rate)/(a_hz));
+    }
+}
+
 
 /*Run the delay for one sample, and update the output sample and input buffer
  * To run with feedback, do something like this:
@@ -264,6 +325,8 @@ t_delay_tap * g_dly_get_tap()
     f_result->delay_seconds  = 0;
     f_result->delay_beats = 0;
     f_result->output = 0;
+    f_result->delay_pitch = 20.0123f;  //To ensure it doesn't accidentally match the first time
+    f_result->delay_hz = 20.2021f;
     
     return f_result;
 }
