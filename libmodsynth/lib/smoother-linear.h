@@ -44,7 +44,7 @@ t_smoother_linear * g_sml_get_smoother_linear(float a_sample_rate, float a_high,
     f_result->last_value = (((a_high - a_low) * .5) + a_low);
     
     /*Rate is the time it would take to complete if the knob was all the way counter-clockwise, and then instantly moved all the way clockwise*/
-    f_result->rate = (((a_high - a_low ) * a_time_in_seconds) / a_sample_rate);
+    f_result->rate = (((a_high - a_low ) / a_time_in_seconds) / a_sample_rate);
     
     f_result->sample_rate = a_sample_rate;
     f_result->sr_recip = 1/a_sample_rate;
