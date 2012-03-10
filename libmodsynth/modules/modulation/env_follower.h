@@ -15,6 +15,7 @@ extern "C" {
 //#define ENF_DEBUG_MODE
     
 #include "../filter/one_pole.h"
+#include "../../lib/amp.h"
 
 typedef struct st_enf_env_follower
 {
@@ -73,7 +74,7 @@ t_enf_env_follower * g_enf_get_env_follower(float a_sr)
     f_result->output_smoothed = 0;
     f_result->smoother = g_opl_get_one_pole(a_sr);
     
-    v_opl_set_coeff(f_result->smoother, 6);  //Set the smoother to ~20hz.  The reciprocal of the hz value is the total smoother time
+    v_opl_set_coeff_hz(f_result->smoother, 10);  //Set the smoother to 10hz.  The reciprocal of the hz value is the total smoother time
     
 #ifdef ENF_DEBUG_MODE
     f_result->debug_counter = 0;
