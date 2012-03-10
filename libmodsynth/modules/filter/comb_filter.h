@@ -20,6 +20,7 @@ extern "C" {
 #include "../../lib/pitch_core.h"
 #include "../../lib/interpolate-linear.h"
 #include "../../lib/smoother-linear.h"
+#include "../../lib/denormal.h"
     
 typedef struct st_comb_filter
 {    
@@ -62,7 +63,7 @@ inline void v_cmb_set_input(t_comb_filter* a_cmb_ptr,float a_value)
     a_cmb_ptr->wet_sample = (f_linear_interpolate_arr_wrap(a_cmb_ptr->input_buffer, 
             (a_cmb_ptr->buffer_size), (a_cmb_ptr->delay_pointer)));
     
-    a_cmb_ptr->input_buffer[(a_cmb_ptr->input_pointer)] = a_value + ((a_cmb_ptr->wet_sample) * (a_cmb_ptr->feedback_linear));
+    a_cmb_ptr->input_buffer[(a_cmb_ptr->input_pointer)] = f_remove_denormal(a_value + ((a_cmb_ptr->wet_sample) * (a_cmb_ptr->feedback_linear)));
     
     if((a_cmb_ptr->wet_db) <= -20.0f)
     {
