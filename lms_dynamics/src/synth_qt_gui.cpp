@@ -439,49 +439,28 @@ void SynthGUI::changed_decibels(int a_value, QLabel * a_label, int a_port)
 
 void SynthGUI::thresholdChanged(int value)
 {
-    changed_seconds(value, m_thresholdLabel, LMS_THRESHOLD); 
+    changed_decibels(value, m_thresholdLabel, LMS_THRESHOLD); 
     
-    /*
-    QString f_value;
-    
-    switch(value)
-    {
-        case 0:
-            m_delaytimeLabel->setText("1/4");            
-            break;
-        case 1:
-            m_delaytimeLabel->setText("1/3");
-            break;
-        case 2:
-            m_delaytimeLabel->setText("1/2");
-            break;
-        case 3:
-            m_delaytimeLabel->setText("1");
-            break;
-        case 4:
-            m_delaytimeLabel->setText("2");
-            break;
-    }
-    
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LMS_DELAY_TIME, float(value));
-    }
-     */
 }
 
 void SynthGUI::ratioChanged(int value)
-{
-    changed_decibels(value, m_ratioLabel, LMS_RATIO);    
+{    
+    float val = float(value) * .1;
+    m_ratioLabel->setText(QString("%1:1").arg(val));
+    
+    if (!m_suppressHostUpdate) {
+	lo_send(m_host, m_controlPath, "if", LMS_RATIO, float(value));     
+    }
 }
 
 void SynthGUI::attackChanged(int value)
 {
-    changed_decibels(value, m_attackLabel, LMS_ATTACK);    
+    changed_seconds(value, m_attackLabel, LMS_ATTACK);    
 }
 
 void SynthGUI::releaseChanged(int value)
 {
-    changed_decibels(value, m_releaseLabel, LMS_RELEASE);    
+    changed_seconds(value, m_releaseLabel, LMS_RELEASE);    
 }
 
 void SynthGUI::gainChanged(int value)
