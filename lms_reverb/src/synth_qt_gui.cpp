@@ -122,7 +122,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         
     f_gb_layout_column++;
     
-    m_time  =  newQDial(0, 100, 1, 30);
+    m_time  =  newQDial(0, 400, 1, 30);
     m_timeLabel  = newQLabel(this);
     add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Time", m_time, m_timeLabel);
     connect(m_time,  SIGNAL(valueChanged(int)), this, SLOT(timeChanged(int)));

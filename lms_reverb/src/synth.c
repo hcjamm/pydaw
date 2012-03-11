@@ -186,7 +186,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             v_rvd_run_reverb(plugin_data->mono_modules->reverb, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
             
             output0[(plugin_data->buffer_pos)] = f_axf_run_xfade(plugin_data->mono_modules->axf0, 
-                    (input1[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out0));
+                    (input0[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out0));
             output1[(plugin_data->buffer_pos)] = f_axf_run_xfade(plugin_data->mono_modules->axf1, 
                     (input1[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out1));
             
@@ -295,7 +295,7 @@ void _init()
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_TIME].LowerBound =  0;
-	port_range_hints[LMS_TIME].UpperBound =  100;
+	port_range_hints[LMS_TIME].UpperBound =  400;
 
         /* Parameters for highpass */
 	port_descriptors[LMS_HIGHPASS] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
