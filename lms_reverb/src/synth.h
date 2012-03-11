@@ -18,8 +18,8 @@ extern "C" {
 /*Comment these out when compiling a stable, production-ready plugin.  
  The debugging code wastes a lot of CPU, and end users don't really need to see it*/
 //#define LMS_DEBUG_NOTE
-//#define LMS_DEBUG_MAIN_LOOP
-//#define LMS_DEBUG_MODE_QT
+#define LMS_DEBUG_MAIN_LOOP
+#define LMS_DEBUG_MODE_QT
 
 
 /*Then you can print debug information like this:
@@ -70,15 +70,17 @@ typedef struct {
 
 #ifdef LMS_DEBUG_MAIN_LOOP
 
-void dump_debug_synth_vals(synth_vals*);
+void dump_debug_synth_vals(synth_vals);
 
 /*Any changes to voice_data require this to be changed*/
-void dump_debug_synth_vals(synth_vals * a_data)
-{
+void dump_debug_synth_vals(synth_vals a_data)
+{       
     printf("\n\nRunning dump_debug_synth_vals\n");
-    printf("osc1type == %f\n", a_data->osc1type);   
-    printf("res == %f\n", a_data->res);    
-    printf("timbre == %f\n", a_data->cutoff);  
+    printf("drywet == %f\n", a_data.drywet);   
+    printf("highpass == %f\n", a_data.highpass);    
+    printf("lowpass == %f\n", a_data.lowpass);
+    printf("predelay == %f\n", a_data.predelay);
+    printf("time == %f\n", a_data.time);
 }
 
 #endif
