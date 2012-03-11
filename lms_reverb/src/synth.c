@@ -159,6 +159,16 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->vals.lowpass = *(plugin_data->lowpass);
     plugin_data->vals.drywet = *(plugin_data->drywet) * .01;
     
+#ifdef LMS_DEBUG_MAIN_LOOP
+    plugin_data->vals.debug_counter = (plugin_data->vals.debug_counter) + 1;                
+    
+    if((plugin_data->vals.debug_counter) >= 100000)
+    {
+        plugin_data->vals.debug_counter = 0;
+        dump_debug_synth_vals(plugin_data->vals);
+    }
+#endif
+    
     v_rvd_set_reverb(plugin_data->mono_modules->reverb, (plugin_data->vals.time), (plugin_data->vals.predelay));
     v_rvd_set_svf(plugin_data->mono_modules->reverb, (plugin_data->vals.highpass), (plugin_data->vals.lowpass));
     

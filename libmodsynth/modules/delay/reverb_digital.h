@@ -13,11 +13,11 @@ extern "C" {
 #endif
 
 /*The number of comb filters in the reverb*/
-#define REVERB_DIGITAL_TAPS 64
+#define REVERB_DIGITAL_TAPS 40
 /*This is used to multiply the amplitude of the output to keep it at a reasonable volume*/
 #define REVERB_AMP_RECIP 1.0f/((float)REVERB_DIGITAL_TAPS)
     
-//#define REVERB_DIGITAL_DEBUG_MODE
+#define REVERB_DIGITAL_DEBUG_MODE
     
 #include "delay.h"
 #include "../../lib/amp.h"
@@ -77,8 +77,8 @@ t_rvd_reverb * g_rvd_get_reverb(float a_sr)
 {
     t_rvd_reverb * f_result = (t_rvd_reverb*)malloc(sizeof(t_rvd_reverb));
     
-    f_result->buffer0 = g_dly_get_delay(2, a_sr);
-    f_result->buffer1 = g_dly_get_delay(2, a_sr);
+    f_result->buffer0 = g_dly_get_delay(4, a_sr);
+    f_result->buffer1 = g_dly_get_delay(4, a_sr);
     f_result->predelay_buffer0 = g_dly_get_delay(1, a_sr);
     f_result->predelay_buffer1 = g_dly_get_delay(1, a_sr);
     f_result->predelay_tap = g_dly_get_tap();
@@ -92,12 +92,12 @@ t_rvd_reverb * g_rvd_get_reverb(float a_sr)
     f_result->out1 = 0;
     f_result->predelay = 0;
     f_result->iterator = 0;
-    f_result->reverb_floor = -30.0f;
+    f_result->reverb_floor = -50.0f;
     f_result->reverb_time = 1;
     f_result->feedback0 = 0;
     f_result->feedback1 = 0;
-    f_result->base_pitch = -48;
-    f_result->pitch_inc = 0.75f;
+    f_result->base_pitch = -46;
+    f_result->pitch_inc = 0.1f;
     f_result->lp_cutoff = 110;
     f_result->hp_cutoff = 40;
     f_result->lp_out0 = 0;
@@ -135,8 +135,8 @@ t_rvd_reverb * g_rvd_get_reverb(float a_sr)
  */
 inline void v_rvd_run_reverb(t_rvd_reverb* a_rvd, float a_in0, float a_in1)
 {    
-    a_rvd->hp_out0 = v_svf_run_2_pole_hp(a_rvd->svf_hp0, (a_in0 + ((a_rvd->feedback0) * REVERB_AMP_RECIP * (a_rvd->feedback[(a_rvd->iterator)]))));
-    a_rvd->hp_out1 = v_svf_run_2_pole_hp(a_rvd->svf_hp1, (a_in1 + ((a_rvd->feedback1) * REVERB_AMP_RECIP * (a_rvd->feedback[(a_rvd->iterator)]))));
+    a_rvd->hp_out0 = v_svf_run_2_pole_hp(a_rvd->svf_hp0, (a_in0 + ((a_rvd->feedback0) * (REVERB_AMP_RECIP) * (a_rvd->feedback[(a_rvd->iterator)]))));
+    a_rvd->hp_out1 = v_svf_run_2_pole_hp(a_rvd->svf_hp1, (a_in1 + ((a_rvd->feedback1) * (REVERB_AMP_RECIP) * (a_rvd->feedback[(a_rvd->iterator)]))));
     
     a_rvd->lp_out0 = v_svf_run_2_pole_lp(a_rvd->svf_lp0, (a_rvd->hp_out0));
     a_rvd->lp_out1 = v_svf_run_2_pole_lp(a_rvd->svf_lp1, (a_rvd->hp_out1));
@@ -191,7 +191,7 @@ inline void v_rvd_run_reverb(t_rvd_reverb* a_rvd, float a_in0, float a_in1)
         printf("a_rvd->out0 == %f\n", (a_rvd->out0));
         printf("a_rvd->out1 == %f\n", (a_rvd->out1));
         printf("a_rvd->pitch_inc == %f\n", (a_rvd->pitch_inc));
-        printf("a_rvd->predelay == %i\n", (a_rvd->predelay));
+        printf("a_rvd->predelay == %f\n", (a_rvd->predelay));
         printf("a_rvd->reverb_floor == %f\n", (a_rvd->reverb_floor));
         printf("a_rvd->reverb_time == %f\n", (a_rvd->reverb_time));
         
@@ -227,6 +227,13 @@ inline void v_rvd_set_reverb(t_rvd_reverb* a_rvd, float a_time, float a_predelay
     
     if(a_time != (a_rvd->reverb_time)) 
     {        
+#ifdef REVERB_DIGITAL_DEBUG_MODE
+        printf("\nif(a_time != (a_rvd->reverb_time))\n");
+        printf("a_time == %f\n", a_time);
+        printf("a_rvd->reverb_time == %f\n", a_rvd->reverb_time);
+#endif
+        a_rvd->reverb_time = a_time;
+        
         a_rvd->iterator = 0;
         
         while((a_rvd->iterator) < REVERB_DIGITAL_TAPS)
@@ -234,7 +241,7 @@ inline void v_rvd_set_reverb(t_rvd_reverb* a_rvd, float a_time, float a_predelay
             a_rvd->hz[(a_rvd->iterator)] = f_pit_midi_note_to_hz((a_rvd->base_pitch) + ((a_rvd->pitch_inc) * (a_rvd->iterator)));
             v_dly_set_delay_hz(a_rvd->buffer0, a_rvd->taps[(a_rvd->iterator)], ((a_rvd->hz[(a_rvd->iterator)])));
             
-            a_rvd->feedback[(a_rvd->iterator)] = a_time *
+            a_rvd->feedback[(a_rvd->iterator)] = //a_time *
                     f_db_to_linear(((a_rvd->reverb_floor)/(a_rvd->reverb_time))/(a_rvd->hz[(a_rvd->iterator)]));
             
             a_rvd->iterator = (a_rvd->iterator) + 1;
