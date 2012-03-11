@@ -25,6 +25,7 @@ extern "C" {
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/modules/filter/svf.h"
 #include "../../libmodsynth/modules/delay/reverb_digital.h"
+#include "../../libmodsynth/modules/signal_routing/audio_xfade.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -52,6 +53,8 @@ void v_init_lms(float f_sr)
 typedef struct st_mono_modules
 {    
     t_rvd_reverb * reverb;
+    t_audio_xfade * axf0;
+    t_audio_xfade * axf1;
 }t_mono_modules;
     
 
@@ -64,6 +67,8 @@ t_mono_modules * v_mono_init(float a_sr, float a_tempo)
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
  
     a_mono->reverb = g_rvd_get_reverb(a_sr);
+    a_mono->axf0 = g_axf_get_audio_xfade(-3.0f);
+    a_mono->axf1 = g_axf_get_audio_xfade(-3.0f);    
     
     return a_mono;
 }

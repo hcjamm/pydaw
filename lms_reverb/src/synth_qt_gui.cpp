@@ -115,7 +115,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     QGroupBox * f_gb_filter = newGroupBox("Reverb", this); 
     QGridLayout *f_gb_filter_layout = new QGridLayout(f_gb_filter);
     
-    m_predelay  =   newQDial(0, 100, 1, 10);//get_knob(zero_to_one); //newQDial(0, 4, 1, 2);
+    m_predelay  =   newQDial(0, 30, 1, 10);//get_knob(zero_to_one); //newQDial(0, 4, 1, 2);
     m_predelayLabel  = newQLabel(this);
     add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Predelay",m_predelay, m_predelayLabel);
     connect(m_predelay,  SIGNAL(valueChanged(int)), this, SLOT(predelayChanged(int)));

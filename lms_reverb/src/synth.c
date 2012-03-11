@@ -160,6 +160,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->vals.drywet = *(plugin_data->drywet) * .01;
     
     v_rvd_set_reverb(plugin_data->mono_modules->reverb, (plugin_data->vals.time), (plugin_data->vals.predelay));
+    v_rvd_set_svf(plugin_data->mono_modules->reverb, (plugin_data->vals.highpass), (plugin_data->vals.lowpass));
     
     while ((plugin_data->pos) < sample_count) 
     {	
@@ -184,9 +185,11 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     
             v_rvd_run_reverb(plugin_data->mono_modules->reverb, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
             
-            output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->reverb->out0);
-            output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->reverb->out1);
-                 
+            output0[(plugin_data->buffer_pos)] = f_axf_run_xfade(plugin_data->mono_modules->axf0, 
+                    (input1[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out0));
+            output1[(plugin_data->buffer_pos)] = f_axf_run_xfade(plugin_data->mono_modules->axf1, 
+                    (input1[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out1));
+            
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
         
@@ -283,7 +286,7 @@ void _init()
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_PREDELAY].LowerBound =  0;
-	port_range_hints[LMS_PREDELAY].UpperBound =  100;
+	port_range_hints[LMS_PREDELAY].UpperBound =  30;
         
         /* Parameters for time */
 	port_descriptors[LMS_TIME] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -298,7 +301,7 @@ void _init()
 	port_descriptors[LMS_HIGHPASS] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_HIGHPASS] = "Highpass";
 	port_range_hints[LMS_HIGHPASS].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
+			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_HIGHPASS].LowerBound =  20;
 	port_range_hints[LMS_HIGHPASS].UpperBound =  100;
@@ -307,7 +310,7 @@ void _init()
 	port_descriptors[LMS_LOWPASS] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_LOWPASS] = "Lowpass";
 	port_range_hints[LMS_LOWPASS].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_LOWPASS].LowerBound =  40;
 	port_range_hints[LMS_LOWPASS].UpperBound =  120;
