@@ -195,10 +195,12 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     
             v_rvd_run_reverb(plugin_data->mono_modules->reverb, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
             
-            output0[(plugin_data->buffer_pos)] = f_axf_run_xfade(plugin_data->mono_modules->axf0, 
-                    (input0[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out0));
-            output1[(plugin_data->buffer_pos)] = f_axf_run_xfade(plugin_data->mono_modules->axf1, 
-                    (input1[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out1));
+            output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->reverb->out0);
+                    /*f_axf_run_xfade(plugin_data->mono_modules->axf0, 
+                    (input0[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out0));*/
+            output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->reverb->out1);
+                    /*f_axf_run_xfade(plugin_data->mono_modules->axf1, 
+                    (input1[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out1));*/
             
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }

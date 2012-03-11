@@ -14,6 +14,8 @@ extern "C" {
 
 /*The number of comb filters in the reverb*/
 #define REVERB_DIGITAL_TAPS 40
+/*Buffer size in seconds*/
+#define REVERB_DIGITAL_BUFFER_SIZE 2
 /*This is used to multiply the amplitude of the output to keep it at a reasonable volume*/
 #define REVERB_AMP_RECIP 1.0f/((float)REVERB_DIGITAL_TAPS)
     
@@ -30,8 +32,6 @@ typedef struct st_rvd_reverb
 {
     t_delay_simple * buffer0;
     t_delay_simple * buffer1;
-    t_delay_simple * predelay_buffer0;
-    t_delay_simple * predelay_buffer1;
     t_state_variable_filter * svf_lp0;
     t_state_variable_filter * svf_lp1;
     t_state_variable_filter * svf_hp0;
@@ -79,8 +79,6 @@ t_rvd_reverb * g_rvd_get_reverb(float a_sr)
     
     f_result->buffer0 = g_dly_get_delay(4, a_sr);
     f_result->buffer1 = g_dly_get_delay(4, a_sr);
-    f_result->predelay_buffer0 = g_dly_get_delay(1, a_sr);
-    f_result->predelay_buffer1 = g_dly_get_delay(1, a_sr);
     f_result->predelay_tap = g_dly_get_tap();
     f_result->svf_lp0 = g_svf_get(a_sr);
     f_result->svf_lp1 = g_svf_get(a_sr);
@@ -96,8 +94,8 @@ t_rvd_reverb * g_rvd_get_reverb(float a_sr)
     f_result->reverb_time = 1;
     f_result->feedback0 = 0;
     f_result->feedback1 = 0;
-    f_result->base_pitch = -46;
-    f_result->pitch_inc = 0.1f;
+    f_result->base_pitch = -20;
+    f_result->pitch_inc = 0.2f;
     f_result->lp_cutoff = 110;
     f_result->hp_cutoff = 40;
     f_result->lp_out0 = 0;
@@ -218,14 +216,10 @@ inline void v_rvd_run_reverb(t_rvd_reverb* a_rvd, float a_in0, float a_in1)
  */
 inline void v_rvd_set_reverb(t_rvd_reverb* a_rvd, float a_time, float a_predelay)
 {
-    if(a_predelay != (a_rvd->predelay))
-    {
-        a_rvd->predelay = a_predelay;
-        
-        v_dly_set_delay_seconds(a_rvd->predelay_buffer0, a_rvd->predelay_tap, a_predelay);
-    }
     
-    if(a_time != (a_rvd->reverb_time)) 
+    
+    
+    if((a_time != (a_rvd->reverb_time)) || (a_predelay != (a_rvd->predelay)))
     {        
 #ifdef REVERB_DIGITAL_DEBUG_MODE
         printf("\nif(a_time != (a_rvd->reverb_time))\n");
@@ -233,6 +227,7 @@ inline void v_rvd_set_reverb(t_rvd_reverb* a_rvd, float a_time, float a_predelay
         printf("a_rvd->reverb_time == %f\n", a_rvd->reverb_time);
 #endif
         a_rvd->reverb_time = a_time;
+        a_rvd->predelay = a_predelay;
         
         a_rvd->iterator = 0;
         

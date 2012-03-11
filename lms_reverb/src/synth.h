@@ -18,8 +18,8 @@ extern "C" {
 /*Comment these out when compiling a stable, production-ready plugin.  
  The debugging code wastes a lot of CPU, and end users don't really need to see it*/
 //#define LMS_DEBUG_NOTE
-#define LMS_DEBUG_MAIN_LOOP
-#define LMS_DEBUG_MODE_QT
+//#define LMS_DEBUG_MAIN_LOOP
+//#define LMS_DEBUG_MODE_QT
 
 
 /*Then you can print debug information like this:
