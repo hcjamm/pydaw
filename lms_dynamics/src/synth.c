@@ -161,6 +161,12 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     v_cpr_set_compressor(plugin_data->mono_modules->compressor, (plugin_data->vals.ratio), (plugin_data->vals.threshold),
             (plugin_data->vals.attack),(plugin_data->vals.release));
     
+    if((plugin_data->vals.gain) != (plugin_data->mono_modules->gain_last))
+    {
+        plugin_data->mono_modules->gain_last = plugin_data->vals.gain;
+        plugin_data->mono_modules->gain_linear = f_db_to_linear_fast((plugin_data->vals.gain));
+    }
+    
     while ((plugin_data->pos) < sample_count) 
     {	
         plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
@@ -183,8 +189,10 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             
             v_cpr_run_compressor(plugin_data->mono_modules->compressor, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
                         
-            output0[(plugin_data->buffer_pos)] = ((plugin_data->mono_modules->compressor->output) * (input0[(plugin_data->buffer_pos)]));
-            output1[(plugin_data->buffer_pos)] = ((plugin_data->mono_modules->compressor->output) * (input1[(plugin_data->buffer_pos)]));
+            output0[(plugin_data->buffer_pos)] = ((plugin_data->mono_modules->compressor->output) * (input0[(plugin_data->buffer_pos)])
+                    * (plugin_data->mono_modules->gain_linear));
+            output1[(plugin_data->buffer_pos)] = ((plugin_data->mono_modules->compressor->output) * (input1[(plugin_data->buffer_pos)])
+                    * (plugin_data->mono_modules->gain_linear));
                  
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }

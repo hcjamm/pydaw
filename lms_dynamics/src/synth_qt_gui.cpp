@@ -129,7 +129,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         
     f_gb_layout_column++;
     
-    m_attack  =  newQDial(0, 100, 1, 20);
+    m_attack  =  newQDial(1, 100, 1, 20);
     m_attackLabel  = newQLabel(this);
     add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Attack",m_attack, m_attackLabel);
     connect(m_attack,  SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));
@@ -487,12 +487,6 @@ void SynthGUI::v_print_port_name_to_cerr(int a_port)
 	break;        
     case LMS_GAIN:
 	cerr << "LMS_DUCK";
-	break;
-    case LMS_CUTOFF:
-	cerr << "LMS_CUTOFF";
-	break;        
-    case LMS_STEREO:
-	cerr << "LMS_STEREO";
 	break;        
     default:
 	cerr << "Warning: received request to set nonexistent port " << a_port ;

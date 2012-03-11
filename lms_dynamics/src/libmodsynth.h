@@ -50,6 +50,8 @@ void v_init_lms(float f_sr)
 typedef struct st_mono_modules
 {    
     t_cpr_compressor * compressor;
+    float gain_linear;
+    float gain_last;
 }t_mono_modules;
     
 
@@ -62,6 +64,8 @@ t_mono_modules * v_mono_init(float a_sr)
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
  
     a_mono->compressor = g_cpr_get_compressor(a_sr);
+    a_mono->gain_last = 0.0f;
+    a_mono->gain_linear = 1.0f;
     
     return a_mono;
 }
