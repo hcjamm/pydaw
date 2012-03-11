@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 /*The number of comb filters in the reverb*/
-#define REVERB_DIGITAL_TAPS 32
+#define REVERB_DIGITAL_TAPS 64
 /*This is used to multiply the amplitude of the output to keep it at a reasonable volume*/
 #define REVERB_AMP_RECIP 1.0f/((float)REVERB_DIGITAL_TAPS)
     
@@ -96,8 +96,8 @@ t_rvd_reverb * g_rvd_get_reverb(float a_sr)
     f_result->reverb_time = 1;
     f_result->feedback0 = 0;
     f_result->feedback1 = 0;
-    f_result->base_pitch = -50;
-    f_result->pitch_inc = 0.5f;
+    f_result->base_pitch = -48;
+    f_result->pitch_inc = 0.75f;
     f_result->lp_cutoff = 110;
     f_result->hp_cutoff = 40;
     f_result->lp_out0 = 0;
@@ -135,8 +135,8 @@ t_rvd_reverb * g_rvd_get_reverb(float a_sr)
  */
 inline void v_rvd_run_reverb(t_rvd_reverb* a_rvd, float a_in0, float a_in1)
 {    
-    a_rvd->hp_out0 = v_svf_run_2_pole_hp(a_rvd->svf_hp0, (a_in0 + ((a_rvd->feedback0) * REVERB_AMP_RECIP)));
-    a_rvd->hp_out1 = v_svf_run_2_pole_hp(a_rvd->svf_hp1, (a_in1 + ((a_rvd->feedback1) * REVERB_AMP_RECIP)));
+    a_rvd->hp_out0 = v_svf_run_2_pole_hp(a_rvd->svf_hp0, (a_in0 + ((a_rvd->feedback0) * REVERB_AMP_RECIP * (a_rvd->feedback[(a_rvd->iterator)]))));
+    a_rvd->hp_out1 = v_svf_run_2_pole_hp(a_rvd->svf_hp1, (a_in1 + ((a_rvd->feedback1) * REVERB_AMP_RECIP * (a_rvd->feedback[(a_rvd->iterator)]))));
     
     a_rvd->lp_out0 = v_svf_run_2_pole_lp(a_rvd->svf_lp0, (a_rvd->hp_out0));
     a_rvd->lp_out1 = v_svf_run_2_pole_lp(a_rvd->svf_lp1, (a_rvd->hp_out1));
@@ -165,6 +165,7 @@ inline void v_rvd_run_reverb(t_rvd_reverb* a_rvd, float a_in0, float a_in1)
         a_rvd->iterator = (a_rvd->iterator) + 1;
     }
     
+    /*
     v_dly_run_delay(a_rvd->predelay_buffer0, (a_rvd->out0));
     v_dly_run_delay(a_rvd->predelay_buffer1, (a_rvd->out1));
     
@@ -175,6 +176,7 @@ inline void v_rvd_run_reverb(t_rvd_reverb* a_rvd, float a_in0, float a_in1)
     v_dly_run_tap(a_rvd->predelay_buffer1, a_rvd->predelay_tap);
     
     a_rvd->out1 = (a_rvd->predelay_tap->output);
+    */
     
 #ifdef REVERB_DIGITAL_DEBUG_MODE
     a_rvd->debug_counter = (a_rvd->debug_counter) + 1;
@@ -216,19 +218,24 @@ inline void v_rvd_run_reverb(t_rvd_reverb* a_rvd, float a_in0, float a_in1)
  */
 inline void v_rvd_set_reverb(t_rvd_reverb* a_rvd, float a_time, float a_predelay)
 {
-    if((a_time != (a_rvd->reverb_time)) && (a_predelay != (a_rvd->predelay)))
+    if(a_predelay != (a_rvd->predelay))
     {
         a_rvd->predelay = a_predelay;
         
         v_dly_set_delay_seconds(a_rvd->predelay_buffer0, a_rvd->predelay_tap, a_predelay);
-        
+    }
+    
+    if(a_time != (a_rvd->reverb_time)) 
+    {        
         a_rvd->iterator = 0;
         
         while((a_rvd->iterator) < REVERB_DIGITAL_TAPS)
         {
             a_rvd->hz[(a_rvd->iterator)] = f_pit_midi_note_to_hz((a_rvd->base_pitch) + ((a_rvd->pitch_inc) * (a_rvd->iterator)));
             v_dly_set_delay_hz(a_rvd->buffer0, a_rvd->taps[(a_rvd->iterator)], ((a_rvd->hz[(a_rvd->iterator)])));
-            a_rvd->feedback[(a_rvd->iterator)] = f_db_to_linear(((a_rvd->reverb_floor)/(a_rvd->reverb_time))/(a_rvd->hz[(a_rvd->iterator)]));
+            
+            a_rvd->feedback[(a_rvd->iterator)] = a_time *
+                    f_db_to_linear(((a_rvd->reverb_floor)/(a_rvd->reverb_time))/(a_rvd->hz[(a_rvd->iterator)]));
             
             a_rvd->iterator = (a_rvd->iterator) + 1;
         }
