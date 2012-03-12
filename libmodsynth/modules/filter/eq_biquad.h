@@ -1,6 +1,8 @@
 /* 
  * File:   eq_biquad.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * This file is not yet implemented.
  *
  * Created on January 28, 2012, 1:36 PM
  */

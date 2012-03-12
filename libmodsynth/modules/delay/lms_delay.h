@@ -2,6 +2,9 @@
  * File:   lms_delay.h
  * Author: Jeff Hubbard
  * 
+ * This file contains t_lms_delay, which is the basis of LMS_Delay version 1.  It is a complete
+ * mono/stereo delay effect written with delay.h
+ * 
  * Created on March 5, 2012, 9:16 PM
  */
 

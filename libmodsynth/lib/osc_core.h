@@ -1,6 +1,9 @@
 /* 
  * File:   osc_core.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * Purpose:  This file provides the t_osc_core type, which is meant to provide base functionality
+ * for oscillators, that can be easily extended in later versions of LibModSynth.
  *
  * Created on January 7, 2012, 7:19 PM
  */
@@ -18,8 +21,7 @@ extern "C" {
     
 typedef struct st_osc_core
 {    
-    float output;
-    
+    float output;   //range:  0 to 1
 }t_osc_core;
 
 
@@ -34,6 +36,11 @@ t_osc_core * g_get_osc_core()
     return f_result;
 }
 
+/* void v_run_osc(
+ * t_osc_core *a_core, 
+ * float a_inc) //The increment to run the oscillator by.
+ * The oscillator will increment until it reaches 1, then resets to (value - 1), for each oscillation
+ */
 void v_run_osc(t_osc_core *a_core, float a_inc)
 {
     a_core->output = (a_core->output) + a_inc;

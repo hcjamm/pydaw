@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+print "#This script is still a work-in-progress, you should not try to use it."
+exit;
+
 #This script is for autogenerating all of the required code for a plugin based on asking
 #the user a series of questions.  This only generates the GUI and all of the required framework
 #for the GUI to talk to the plugin, but it does not create any of the audio bits.

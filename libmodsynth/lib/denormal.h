@@ -1,6 +1,11 @@
 /* 
  * File:   denormal.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * Purpose:  This file provides functions for removing denormals from plugins.
+ * 
+ * Denormalization occurs when audio signals containing feedback decay into very small numbers.
+ * This causes a huge spike in CPU usage.
  *
  * Created on January 11, 2012, 8:10 PM
  */
@@ -12,10 +17,12 @@
 extern "C" {
 #endif
 
-float f_remove_denormal(float);
+inline float f_remove_denormal(float);
 
-/*Prevent recursive modules like filters and feedback delays from consuming too much CPU*/
-float f_remove_denormal(float a_input)
+/* inline float f_remove_denormal(float a_input)
+ * 
+ * Prevent recursive modules like filters and feedback delays from consuming too much CPU*/
+inline float f_remove_denormal(float a_input)
 {
     if((a_input < .00001) && (a_input > -.00001))
         return 0;

@@ -3,6 +3,8 @@
  * Author: Jeff Hubbard
  * 
  * An envelope follower with integrated attack and release
+ * 
+ * This file is not yet production-ready, it still contains bugs and flaws
  *
  * Created on March 11, 2012, 5:19 PM
  */

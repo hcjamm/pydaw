@@ -1,6 +1,10 @@
 /* 
  * File:   pitch_core.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * Purpose:  This file provides functions for converting pitch values to and from linear hz values
+ * 
+ * Typical usage would be converting MIDI notes to hz values
  *
  * Created on January 7, 2012, 7:21 PM
  */
@@ -26,21 +30,31 @@ inline float f_pit_midi_note_to_hz_fast(float);
 
 /*Functions*/
 
-/*Convert midi note number to hz*/
+/* inline float f_pit_midi_note_to_hz(
+ * float a_midi_note_number)  //typical range:  20 to 124
+ * 
+ * Convert midi note number to hz*/
 inline float f_pit_midi_note_to_hz(float a_midi_note_number)
 {
     return (base_a4*pow(2,(a_midi_note_number-57)*.0833333));
     
 }
 
-/*Convert hz to midi note number*/
+/* inline float f_pit_hz_to_midi_note(
+ * float _hz) //typical range:  20 to 20000
+ * 
+ * Convert hz to midi note number*/
 inline float f_pit_hz_to_midi_note(float _hz)
 {
      return ((12*log2(_hz*base_a4_recip))+57);
     
 }
 
-/*Convert a midi note number pitch to the number of samples in a single wave-length at that pitch*/
+/* inline float f_pit_midi_note_to_samples(
+ * float a_midi_note_number, //typical range 20 to 124
+ * float a_sample_rate)
+ * 
+ * Convert a midi note number pitch to the number of samples in a single wave-length at that pitch*/
 inline float f_pit_midi_note_to_samples(float a_midi_note_number, float a_sample_rate)
 {
     /*This will be used by the _fast method, as it cannot be plotted without knowing the sample rate first*/
@@ -184,7 +198,13 @@ float arr_pit_p2f [arr_pit_p2f_count] = {
 22350.572266, 22415.220703, 22480.044922, 22545.068359, 22610.269531, 22675.667969, 22741.255859, 22807.025391, 22872.994141, 22939.142578, 23005.494141, 23072.035156, 23138.759766, 23205.689453, 23272.800781, 23340.115234, 23407.626953, 23475.322266, 23543.222656, 23611.310547, 
 23679.605469};
 
-/*Convert midi note number to hz, using a fast table lookup*/
+/* inline float f_pit_midi_note_to_hz_fast(
+ * float a_midi_note_number) //range: 20 to 124
+ * 
+ * Convert midi note number to hz, using a fast table lookup.
+ * You should prefer this function whenever possible, it is much faster than the
+ * regular version.
+ */
 inline float f_pit_midi_note_to_hz_fast(float a_midi_note_number)
 {
     float f_arr_index = (a_midi_note_number * 20) - 1;

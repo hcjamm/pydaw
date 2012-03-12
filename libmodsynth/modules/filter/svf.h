@@ -1,6 +1,26 @@
 /* 
  * File:   svf.h
  * Author: Jeff Hubbard
+ * 
+ * Purpose:  provides t_state_variable_filter, a multimode filter with lowpass, highpass and bandpass types,
+ * in 2 or 4 pole configurations
+ * 
+ * Usage:
+ * 
+ * t_state_variable_filter * svf = g_svf_get(44100);
+ * //set resonance
+ * void v_svf_set_res(svf, -6);
+ * //Set the value from your control (probably better to run it through a smoother first)
+ * inline void v_svf_set_cutoff_base(svf, (plugin_data->vals.cutoff))
+ * //modify it with an envelope
+ * inline void v_svf_add_cutoff_mod(svf, ...->adsr->output);
+ * //calculate your filter coefficients based on the cutoff base and all mods
+ * inline void v_svf_set_cutoff(svf);
+ * //run the filter
+ * float output = fp_svf_run_filter(svf, input);
+ * 
+ * The above does not include creating the function pointer or setting up controls to change it.  See LMS Filter for an example
+ * 
  *
  * Created on January 8, 2012, 11:35 AM
  */
@@ -45,13 +65,14 @@ extern "C" {
 /*Changing this only affects initialization of the filter, you must still change the code in v_svf_set_input_value()*/
 #define SVF_OVERSAMPLE_MULTIPLIER 4
     
+/*Provides data storage for the inner-workings of the filter*/
 typedef struct st_svf_kernel
 {
     float filter_input, filter_last_input, bp_m1, lp_m1, hp, lp, bp;
     
 }t_svf_kernel;
 
-
+/*Provides both filter coefficients and filter kernels to create a complete filter*/
 typedef struct st_state_variable_filter
 {
     //t_smoother_linear * cutoff_smoother;
@@ -71,6 +92,8 @@ typedef struct st_state_variable_filter
 //Used to switch between values, uses much less CPU than a switch statement at every tick of the samplerate clock
 typedef float (*fp_svf_run_filter)(t_state_variable_filter*,float);
 
+/*TODO:  The function pointer and functions do not comply to the naming standard*/
+
 /*The int is the number of cascaded filter kernels*/
 inline fp_svf_run_filter svf_get_run_filter_ptr(int,int);
 
@@ -87,7 +110,12 @@ inline float v_svf_run_4_pole_bp(t_state_variable_filter*, float);
 
 inline float v_svf_run_no_filter(t_state_variable_filter*, float);
 
-/*This is for allowing a filter to be turned off by running a function pointer*/
+/* inline float v_svf_run_no_filter(
+ * t_state_variable_filter* a_svf, 
+ * float a_in) //audio input
+ * 
+ * This is for allowing a filter to be turned off by running a function pointer.  a_in is returned unmodified. 
+ */
 inline float v_svf_run_no_filter(t_state_variable_filter* a_svf, float a_in)
 {
     return a_in;
@@ -110,8 +138,18 @@ t_svf_kernel * g_svf_get_filter_kernel()
         return f_result;
 }
 
-/* inline fp_svf_run_filter svf_get_run_filter_ptr(int a_cascades, int a_filter_type)
- * The int refers to the number of cascaded filter kernels, ie:  a value of 2 == 4 pole filter*/
+/* inline fp_svf_run_filter svf_get_run_filter_ptr(
+ * int a_cascades, 
+ * int a_filter_type)
+ * 
+ * The int refers to the number of cascaded filter kernels, ie:  a value of 2 == 4 pole filter
+ * 
+ * Filter types:
+ * 
+ * SVF_FILTER_TYPE_LP 0
+ * SVF_FILTER_TYPE_HP 1
+ * SVF_FILTER_TYPE_BP 2 
+ */
 inline fp_svf_run_filter svf_get_run_filter_ptr(int a_cascades, int a_filter_type)
 {
     /*Lowpass*/
@@ -149,11 +187,17 @@ inline fp_svf_run_filter svf_get_run_filter_ptr(int a_cascades, int a_filter_typ
     }
 }
 
-/* inline void v_svf_set_input_value(t_state_variable_filter * a_svf, t_svf_kernel * a_kernel, float a_input_value)
+/* inline void v_svf_set_input_value(
+ * t_state_variable_filter * a_svf, 
+ * t_svf_kernel * a_kernel, 
+ * float a_input_value) //the audio input to filter
+ * 
  * The main action to run the filter kernel*/
 inline void v_svf_set_input_value(t_state_variable_filter * a_svf, t_svf_kernel * a_kernel, float a_input_value)
-{
+{        
     a_kernel->filter_input = a_input_value;
+    
+    /*The filter is 4x oversampled.  Iteration wasn't used here for performance reasons */
     
     a_kernel->hp = f_linear_interpolate((a_kernel->filter_last_input), (a_kernel->filter_input), 0)  //0 == iteration 1
     - (((a_kernel->bp_m1) * (a_svf->filter_res)) + (a_kernel->lp_m1));
@@ -295,10 +339,12 @@ inline void v_svf_set_cutoff(t_state_variable_filter * a_svf)
         a_svf->cutoff_filter = .8;  
 }
 
-void v_svf_set_res(
-    t_state_variable_filter * a_svf,
-    float a_db  //-100 to 0 is the expected range
-    )
+/* void v_svf_set_res(
+ * t_state_variable_filter * a_svf, 
+ * float a_db)   //-100 to 0 is the expected range
+ * 
+ */
+void v_svf_set_res(t_state_variable_filter * a_svf, float a_db)
 {
     /*Don't calculate it again if it hasn't changed*/
     if((a_svf->filter_res_db) == a_db)

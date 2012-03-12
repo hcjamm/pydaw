@@ -1,6 +1,10 @@
 /* 
  * File:   reverb_digital.h
  * Author: Jeff Hubbard
+ * 
+ * This file is not yet production ready, it still has bugs, flaws and inconsistencies.
+ * 
+ * A complete reverb effect.
  *
  * Created on January 8, 2012, 5:48 PM
  */

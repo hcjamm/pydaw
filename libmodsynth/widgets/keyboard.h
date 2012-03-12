@@ -1,6 +1,9 @@
 /* 
  * File:   keyboard.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * This file is not production-ready.  It will likely be deprecated in favor of 
+ * using existing Jack-compatible virtual keyboards.
  *
  * Created on January 15, 2012, 12:41 PM
  */

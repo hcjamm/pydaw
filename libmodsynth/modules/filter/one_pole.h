@@ -1,6 +1,8 @@
 /* 
  * File:   one_pole.h
  * Author: jeffh
+ * 
+ * Purpose:  provides t_opl_one_pole, a simple one pole filter that can be used for audio or smoothing
  *
  * Created on March 5, 2012, 11:06 PM
  */

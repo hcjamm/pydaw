@@ -1,6 +1,6 @@
-This license applies to all components of libmodsynth, including the library, examples/templates and all modules.  
-Any included 3rd party components such as DSSI and others may fall under a different license, 
-please see the individual files for details.
+This license applies to all components of libmodsynth, including the library, examples/templates and all modules.
+
+Any included 3rd party components may fall under a different license, please see the individual files for details.
 
 NOTE:  To clarify the GPL license;  Any plugins, effects, instruments, etc... that you make using LibModSynth or any of it's components are considered a derivative work and must comply with the GPL license.
 
@@ -12,3 +12,5 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
+http://www.gnu.org/copyleft/gpl.html

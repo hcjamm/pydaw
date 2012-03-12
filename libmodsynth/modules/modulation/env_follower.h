@@ -1,6 +1,10 @@
 /* 
  * File:   env_follower.h
- * Author: jeffh
+ * Author: Jeff Hubbard
+ * 
+ * A basic envelope follower without any controls.  Use this for following the amplitude of an audio signal.
+ * 
+ * t_enf_env_follower->output_smoothed == The amplitude of the audio signal in decibels, typically -100 to 0
  *
  * Created on March 5, 2012, 8:35 PM
  */
@@ -30,6 +34,10 @@ typedef struct st_enf_env_follower
 t_enf_env_follower * g_enf_get_env_follower(float);
 inline void v_enf_run_env_follower(t_enf_env_follower*, float);
 
+/* inline void v_enf_run_env_follower(
+ * t_enf_env_follower * a_enf, 
+ * float a_input)  //the signal to follow
+ */
 inline void v_enf_run_env_follower(t_enf_env_follower * a_enf, float a_input)
 {
     

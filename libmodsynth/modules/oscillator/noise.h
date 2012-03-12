@@ -1,15 +1,11 @@
 /* 
  * File:   noise.h
+ * Author: Jeff Hubbard
  * 
- This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; version 3 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
+ * This file provides t_white_noise, a white noise oscillator.
+ * 
+ * There is also a function to return pink noise from white noise.
+ * 
  */
 
 #ifndef NOISE_H
@@ -33,6 +29,8 @@ t_white_noise * g_get_white_noise(float);
 inline float f_run_white_noise(t_white_noise *);
 inline float f_run_pink_noise(t_white_noise *);
 
+/* t_white_noise * g_get_white_noise(float a_sample_rate)
+ */
 t_white_noise * g_get_white_noise(float a_sample_rate)
 {
     srand((unsigned)time(NULL));
@@ -64,7 +62,10 @@ t_white_noise * g_get_white_noise(float a_sample_rate)
     return f_result;
 }
 
-
+/* inline float f_run_white_noise(t_white_noise * a_w_noise)
+ * 
+ * returns a single sample of white noise
+ */
 inline float f_run_white_noise(t_white_noise * a_w_noise)
 {
     a_w_noise->read_head = (a_w_noise->read_head) + 1;
@@ -77,6 +78,10 @@ inline float f_run_white_noise(t_white_noise * a_w_noise)
     return a_w_noise->sample_array[(a_w_noise->read_head)];
 }
 
+/* inline float f_run_pink_noise(t_white_noise * a_w_noise)
+ * 
+ * returns a single sample of pink noise
+ */
 inline float f_run_pink_noise(t_white_noise * a_w_noise)
 {
       a_w_noise->read_head = (a_w_noise->read_head) + 1;

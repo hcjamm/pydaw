@@ -1,6 +1,8 @@
 /* 
  * File:   osc_wavetable.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * This file is not yet implemented
  *
  * Created on January 8, 2012, 11:15 AM
  */

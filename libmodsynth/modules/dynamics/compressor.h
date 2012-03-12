@@ -1,6 +1,8 @@
 /* 
  * File:   compressor.h
  * Author: Jeff Hubbard
+ * 
+ * Purpose:  A complete compressor plugin.  This file is not yet production-ready.
  *
  * Created on March 9, 2012, 9:18 PM
  */

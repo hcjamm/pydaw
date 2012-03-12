@@ -1,6 +1,8 @@
 /* 
- * File:   crossfade_1d.h
- * Author: vm-user
+ * File:   crossfade.h
+ * Author: Jeff Hubbard
+ * 
+ * Purpose:  This file provides crossfader_1d, for crossfading between 2 signals
  *
  * Created on January 8, 2012, 1:55 PM
  */

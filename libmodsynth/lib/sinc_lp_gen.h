@@ -1,6 +1,8 @@
 /* 
  * File:   sinc_lp_gen.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * This file is not yet production ready, and will likely be moved to function_plotter.
  *
  * Created on January 26, 2012, 6:56 PM
  */

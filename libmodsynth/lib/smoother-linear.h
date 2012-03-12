@@ -1,7 +1,19 @@
 /* 
  * File:   smoother-linear.h
- * Author: vm-user
- *
+ * Author: Jeff Hubbard
+ * 
+ * Purpose:  This file provides smoothing for GUI controls, although it is also suitable for other things.
+ * 
+ * Typical usage:
+ * 
+ * //in your mono_modules in libmodsynth.h
+ * t_smoother_linear * smoother = g_sml_get_smoother_linear(44100, 100, 0, 0.5f);
+ * 
+ * //in your main loop in synth.c
+ * v_sml_run(plugin_data->mono_modules->smoother, (plugin_data->vals.your_val));
+ * 
+ * //Now do something with plugin_data->mono_modules->smoother->last_value
+ * 
  * Created on January 9, 2012, 8:02 PM
  */
 
@@ -58,7 +70,12 @@ t_smoother_linear * g_sml_get_smoother_linear(float a_sample_rate, float a_high,
 }
     
 
-
+/* inline void v_sml_run(
+ * t_smoother_linear * a_smoother, 
+ * float a_current_value) //the current control value you wish to smooth
+ * 
+ * smoother->last_value will be the smoothed value
+ */
 inline void v_sml_run(t_smoother_linear * a_smoother, float a_current_value)
 {
     /*TODO:  evaluate this more thoroughly.  I'm trying to make it as CPU efficient as possible, since almost every port and/or GUI control will have one.*/
