@@ -1,5 +1,17 @@
 /* 
  * File:   amp.h
+ * 
+ * Purpose:  This file provides functions used for converting linear amplitude values to and
+ * from decibels.
+ * 
+ * Typical usage:
+ * 
+ * float test1 = f_db_to_linear_fast(-6.0f);  //test1 == .5
+ * float test2 = f_linear_to_db_fast(0.25f);  //test2 == -12
+ * 
+ * You should always prefer the fast versions except in rare circumstances where extreme accuracy
+ * is required, or else you need more input range than the fast version can provide
+ * 
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,12 +40,20 @@ inline float f_db_to_linear_fast(float);
 inline float f_linear_to_db_fast(float);
 inline float f_linear_to_db_linear(float);
 
+/* inline float f_db_to_linear(float a_db)
+ * 
+ * Convert decibels to linear amplitude
+ */
 inline float f_db_to_linear(float a_db)
 {
     float f_result = pow ( 10.0, (0.05 * a_db) );
     return f_result;
 }
 
+/* inline float f_linear_to_db(float a_linear)
+ * 
+ * Convert linear amplitude to decibels
+ */
 inline float f_linear_to_db(float a_linear)
 {
     float f_result = 20.0 * log10 ( a_linear );
@@ -91,6 +111,15 @@ float arr_amp_db2a [arr_amp_db2a_count] = {
 57.876198, 59.566216, 61.305580, 63.095734}; 
 
 
+/* inline float f_db_to_linear_fast(float a_db)
+ * 
+ * Convert decibels to linear using an approximaged table lookup
+ * 
+ * Input range:  -100 to 36
+ * 
+ * Use the regular version if you may require more range, otherwise the values
+ * will be clipped
+ */
 inline float f_db_to_linear_fast(float a_db)
 {
     a_db = ((a_db + 100.0f) * 4) - 1;
@@ -165,7 +194,10 @@ inline float f_linear_to_db_fast(float a_input)
 
 
 /* inline float f_linear_to_db_linear(float a_input)
- * This takes a 0 to 1 signal and approximates it to a useful range with a logarithmic decibel curve*/
+ * 
+ * This takes a 0 to 1 signal and approximates it to a useful range with a logarithmic decibel curve
+ * Typical use would be on an envelope that controls the amplitude of an audio signal
+ */
 inline float f_linear_to_db_linear(float a_input)
 {
         return f_db_to_linear_fast(((a_input) * 30) - 30);

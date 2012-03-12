@@ -29,7 +29,10 @@ inline void v_dw_set_dry_wet(t_dw_dry_wet*,float,float);
 inline void v_dw_run_dry_wet(t_dw_dry_wet*,float,float);
 t_dw_dry_wet* g_dw_get_dry_wet();
 
-/*inline void v_dw_set_dry_wet(t_dw_dry_wet* a_dw,float a_dry_db,float a_wet_db)
+/*inline void v_dw_set_dry_wet(
+ * t_dw_dry_wet* a_dw,
+ * float a_dry_db, //dry value in decibels, typically -50 to 0
+ * float a_wet_db) //wet value in decibels, typically -50 to 0
  */
 inline void v_dw_set_dry_wet(t_dw_dry_wet* a_dw,float a_dry_db,float a_wet_db)
 {
@@ -46,7 +49,10 @@ inline void v_dw_set_dry_wet(t_dw_dry_wet* a_dw,float a_dry_db,float a_wet_db)
     }
 }
 
-/* inline void v_dw_run_dry_wet(t_dw_dry_wet* a_dw, float a_dry, float a_wet)
+/* inline void v_dw_run_dry_wet(
+ * t_dw_dry_wet* a_dw, 
+ * float a_dry, //dry signal
+ * float a_wet) //wet signal
  */
 inline void v_dw_run_dry_wet(t_dw_dry_wet* a_dw, float a_dry, float a_wet)
 {

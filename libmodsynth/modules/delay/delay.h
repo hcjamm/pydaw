@@ -4,6 +4,7 @@
  * 
  * A simple delay line with provisions for settings delay in fractional measures or seconds. 
  * Meant to provide the basis for more complicated delay modules
+ * 
  * Created on January 28, 2012, 1:39 PM
  */
 
@@ -233,6 +234,11 @@ inline void v_dly_run_tap(t_delay_simple* a_dly,t_delay_tap* a_tap)
 #endif
 }
 
+/* inline void v_dly_run_tap_lin(t_delay_simple* a_dly,t_delay_tap* a_tap)
+ * 
+ * Run a delay line using linear interpolation.  The delay must have been set using:
+ * v_dly_set_delay_lin();
+ */
 inline void v_dly_run_tap_lin(t_delay_simple* a_dly,t_delay_tap* a_tap)
 {
     a_tap->read_head = (a_dly->write_head) - (a_tap->delay_samples);    

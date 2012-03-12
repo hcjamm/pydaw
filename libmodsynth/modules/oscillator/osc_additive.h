@@ -1,6 +1,8 @@
 /* 
  * File:   osc_additive.h
  * Author: Jeff Hubbard
+ * 
+ * This file is still incomplete, do not attempt to use it
  *
  * Created on February 16, 2012, 6:50 PM
  */

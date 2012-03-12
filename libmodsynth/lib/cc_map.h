@@ -1,6 +1,10 @@
 /* 
  * File:   cc_map.h
  * Author: Jeff Hubbard
+ * 
+ * This file is not yet production-ready.
+ * 
+ * Purpose:  Allow the user to edit the CC map for each plugin
  *
  * Created on March 6, 2012, 7:44 PM
  */

@@ -1,6 +1,12 @@
 /* 
  * File:   ramp_env.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * Purpose:  This file provides t_ramp_env, a ramp envelope.
+ * 
+ * The envelope goes from 0 at retrigger to 1 when finished.
+ * 
+ * The 0 to 1 value can be read from t_ramp_env->output, or you can read a multiplied value from t_ramp_env->output_multiplied
  *
  * Created on January 25, 2012, 8:23 PM
  */

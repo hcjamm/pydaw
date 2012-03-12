@@ -1,6 +1,8 @@
 /* 
  * File:   sr-reduce.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * This file is not yet implemented
  *
  * Created on January 10, 2012, 9:05 PM
  */

@@ -1,6 +1,12 @@
 /* 
  * File:   osc_simple.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * Purpose:  This file provides t_osc_simple_unison, a full-featured oscillator that uses
+ * simple, mathematically pure waveforms with no anti-aliasing or any other magic.
+ * 
+ * This oscillator type is meant to be used for retro-sounding softsynths.  Eventually, the preferred 
+ * oscillator type will be a wavetable oscillator using SINC interpolation, which is not yet finished.
  *
  * Created on January 7, 2012, 8:52 PM
  */
@@ -16,7 +22,7 @@ extern "C" {
 #include "../../constants.h"
 #include "../../lib/pitch_core.h"
 #include "../../lib/fast_sine.h"
-#include <math.h>
+//#include <math.h>
     
 
 /*C doesn't like dynamic arrays, so we have to define this at compile time.  
@@ -59,7 +65,10 @@ void v_osc_note_on_sync_phases(t_osc_simple_unison *);
 t_osc_simple_unison * g_osc_get_osc_simple_unison(float);
 
 
-
+/* void v_osc_set_uni_voice_count(
+ * t_osc_simple_unison* a_osc_ptr, 
+ * int a_value) //the number of unison voices this oscillator should use
+ */
 void v_osc_set_uni_voice_count(t_osc_simple_unison* a_osc_ptr, int a_value)
 {
     if(a_value > (OSC_UNISON_MAX_VOICES))
@@ -79,7 +88,11 @@ void v_osc_set_uni_voice_count(t_osc_simple_unison* a_osc_ptr, int a_value)
 }
 
 
-
+/* void v_osc_set_unison_pitch(
+ * t_osc_simple_unison * a_osc_ptr, 
+ * float a_spread, //the total spread of the unison pitches, the distance in semitones from bottom pitch to top.  Typically .1 to .5
+ * float a_pitch)  //the pitch of the oscillator in MIDI note number, typically 32 to 70
+ */
 void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, float a_pitch)
 {
     if((a_osc_ptr->voice_count) == 1)
@@ -109,7 +122,10 @@ void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, flo
 
 
 
-//Return one sample of the oscillator running.
+/* float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
+ * 
+ * Returns one sample of an oscillator's output
+ */
 float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
 {
     a_osc_ptr->i_run_unison = 0;
@@ -174,13 +190,14 @@ float f_get_osc_off(t_osc_core * a_core)
     return 0;
 }
 
-/*Set the oscillator type.  Current valid types are:
+/* void v_osc_set_simple_osc_unison_type(t_osc_simple_unison * a_osc_ptr, int a_index)
+ * 
+ * Set the oscillator type.  Current valid types are:
  * 0. Saw
  * 1. Square
  * 2. Triangle
  * 3. Sine
  * 4. Off
- * 5. Pulse  //Added after 'off' because the developer may not add a pulse knob
  */
 void v_osc_set_simple_osc_unison_type(t_osc_simple_unison * a_osc_ptr, int a_index)
 {
@@ -220,9 +237,8 @@ void v_osc_note_on_sync_phases(t_osc_simple_unison * a_osc_ptr)
 }
 
 
-
-
-
+/* t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
+ */
 t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
 {
     t_osc_simple_unison * f_result = (t_osc_simple_unison*)malloc(sizeof(t_osc_simple_unison));

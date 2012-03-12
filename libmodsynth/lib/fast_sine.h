@@ -1,6 +1,11 @@
 /* 
  * File:   fast_sine.h
- * Author: bob
+ * Author: Jeff Hubbard
+ * 
+ * Purpose:  This file provides functions for generating approximated sines.
+ * 
+ * This file should be used instead of sin(); from math.h whenever possible, as it consumes
+ * substantially less CPU.
  *
  * Created on February 14, 2012, 7:20 PM
  */
@@ -64,13 +69,16 @@ float arr_sine [arr_sine_count] = {
 
 inline float f_sine_fast_run(float);
 
-/*Accepts zero to one input*/
+/* inline float f_sine_fast_run(float a_osc_core)
+ * 
+ * Accepts zero to one input.  To get a sine from radians, use this:
+ * 
+ * inline float f_sine_fast_run(input * PI2);
+ */
 inline float f_sine_fast_run(float a_osc_core)
 {
     return f_linear_interpolate_arr_wrap(arr_sine, arr_sine_count, (a_osc_core * arr_sine_count));
 }
-
-
 
 
 #ifdef	__cplusplus

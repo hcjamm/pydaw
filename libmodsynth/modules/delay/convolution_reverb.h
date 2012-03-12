@@ -1,6 +1,8 @@
 /* 
  * File:   convolution_reverb.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * This file is obviously incomplete, there's no reason to use it yet.
  *
  * Created on January 28, 2012, 1:41 PM
  */

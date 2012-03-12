@@ -1,6 +1,8 @@
 /* 
  * File:   sampler.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * This file is not yet implemented
  *
  * Created on January 28, 2012, 1:37 PM
  */

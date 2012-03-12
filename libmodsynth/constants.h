@@ -1,6 +1,10 @@
 /* 
  * File:   constants.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * This file provides basic constants
+ * 
+ * TODO: use defines instead
  *
  * Created on January 7, 2012, 8:56 PM
  */

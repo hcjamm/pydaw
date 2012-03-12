@@ -1,0 +1,50 @@
+1.  Purpose
+
+LibModSynth was created to address a perceived shortage of quality softsynth and effects plugins for Linux hosts.  The idea was to lower the barrier to entry for plugin developers by providing a selection of quality components, and a well documented procedure for creating a plugin.  This allows experienced developers to be more productive, and it allows entry level developers to be able to translate their ideas into quality plugins without having to spend years learning calculus and signal processing.
+
+The design philosophy is that softsynths should be like hardware, and should have all functions easily mapped to a hardware controller.  This will ensure that the softsynths and plugins can be used like a real musical tool.  While there are advantages to software, a keyboard and mouse aren't exactly great performance tools.
+
+The project does not aim to copy the proprietary industry's trends.  Other large Windows/Mac softsynth companies tend to release bigger and more bloated versions of their softsynths every year.  You can program some big league Windows VST softsynths to play entire entire song by pressing a single note, but does that make it a better tool than 7 or 8 simpler softsynths all playing their own MIDI parts from a sequencer?  Of course not, but the proprietary software industry thrives by selling bloated upgrades to already bloated software.  This is where open source can provide a better product, I encourage all of you not to go over-the-top with your creations, but to make things that are truly useful and musical, with simplified controls and a quality sound.
+
+2.  Supported Hardware
+
+LibModSynth was developed for x86/x64 hardware, although there are plans to officially support ARM devices later.  Because of this, and the fact that GCC is exhibiting excellent performance with pure C and select CFLAGS, there are no plans to include any optimizations that would hinder LMS from running on different hardware, such as adding x86 assembly language.  
+
+Other optimizations, such as the use of OpenCL where it makes sense, will be considered as long as they don't prevent portability of code from one hardware platform to another.
+
+3.  Supported Operating Systems
+
+There are currently no plans for LibModSynth to officially support platforms other than Linux, although it will likely work in BSD and other *NIX operating systems.
+
+4. 3rd Party Contributions
+
+LibModSynth is open to the following 3rd party contributions, as long as they meet basic quality standards:
+
+	1.  Patches that fix bugs.
+
+	2.  Patches that provide new or improved functionality.
+
+	3.  binary packages of 3rd party DSSI plugins written with LibModSynth (you must maintain your own repository, and the plugin must be able to be compiled from source using the LMS build scripts)
+
+	4.  Presets for LMS plugins that support them
+
+	5.  Graphic design.  This includes (but is not limited to) various skins and knobs for plugins.
+
+	6.  Binaries of 3rd party components that can be used with LMS plugins.  They must be libre, and they must be compiled from source by the LMS project to be included.
+
+	7.  Advertising.  Not for money, but cross-promoting Linux music software projects by providing links, banners, etc...
+
+Any code contributions must meet the following standards, UNLESS an exception is granted ahead of time:
+
+	a. No 3rd party library dependencies
+
+	b. Code borrowed from other projects must have a license that freely permits inclusion in a GPLv3 licensed project without requiring any kind of attribution.  (I'm not against attributing the changes and giving credit where credit is due, but it must not be an official requirement that must be tracked as LMS evolves).
+
+5.  Licensing
+
+LibModSynth and all components of LibModSynth are GPLv3, to promote collaberation and openness in Linux music production.  This means that any work derived from any component of LibModSynth must also comply with the GPLv3 license.  There will be no exceptions to the license, anything written with LibModSynth, whether a freeware softsynth or a hardware synthesizer's firmware, must comply with the licensing terms.
+
+6.  Long Term Goals
+
+LibModSynth will eventually be a visual plugin designer, where you can drag-n-drop various components into your synthesizer/effect and wire them together.  As visual designer paradigms are inherently limiting, the designer will allow you to export your entire project to C/C++, from which you can compile it, or modify the code directly.  This provides the best of both worlds, and something that proprietary vendors of similar solutions have thus far resisted giving to users:  The power and productivity of visual design with the unlimited flexibility and performance of real C/C++ code.
+

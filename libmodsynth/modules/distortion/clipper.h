@@ -1,6 +1,9 @@
 /* 
  * File:   clipper.h
  * Author: Jeff Hubbard
+ * 
+ * Purpose:  This file provides a hard-clipper.  This is mostly useful for aggressive
+ * sounding distortion effects, although it can be used to clip anything.
  *
  * Created on January 8, 2012, 1:15 PM
  */
@@ -85,6 +88,8 @@ t_clipper * g_clp_get_clipper()
  * t_clipper *,
  * float a_input  //value to be clipped
  * )
+ * 
+ * This function performs the actual clipping, and returns a float
  */
 inline float f_clp_clip(t_clipper * a_clp, float a_input)
 {

@@ -1,14 +1,10 @@
 /* 
  * File:   adsr.h
- This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; version 3 of the License.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
+ * 
+ * Author: Jeff Hubbard
+ * 
+ * This file provides t_adsr, a basic ADSR envelope
+ * 
  */
 
 #ifndef ADSR_H
@@ -59,6 +55,12 @@ void v_adsr_run(t_adsr *);
 
 t_adsr * g_adsr_get_adsr(float);
 
+/* void v_adsr_set_a_time(
+ * t_adsr* a_adsr_ptr, 
+ * float a_time)  //time in seconds
+ * 
+ * Sets the envelope attack time
+ */
 void v_adsr_set_a_time(t_adsr* a_adsr_ptr, float a_time)
 {
     if((a_adsr_ptr->a_time) == a_time)
@@ -77,6 +79,12 @@ void v_adsr_set_a_time(t_adsr* a_adsr_ptr, float a_time)
         
 }
 
+/* void v_adsr_set_d_time(
+ * t_adsr* a_adsr_ptr, 
+ * float a_time) //time in seconds
+ * 
+ * Sets the envelope decay time
+ */
 void v_adsr_set_d_time(t_adsr* a_adsr_ptr, float a_time)
 {
     if((a_adsr_ptr->d_time) == a_time)
@@ -96,6 +104,12 @@ void v_adsr_set_d_time(t_adsr* a_adsr_ptr, float a_time)
     a_adsr_ptr->d_inc = ((a_adsr_ptr->sr_recip) / (a_adsr_ptr->d_time)) * -1;    
 }
 
+/* void v_adsr_set_r_time(
+ * t_adsr* a_adsr_ptr, 
+ * float a_time) //time in seconds
+ * 
+ * Sets the envelope release time
+ */
 void v_adsr_set_r_time(t_adsr* a_adsr_ptr, float a_time)
 {
     if((a_adsr_ptr->r_time) == a_time)
@@ -116,9 +130,12 @@ void v_adsr_set_r_time(t_adsr* a_adsr_ptr, float a_time)
     
 }
 
-/*This method is for killing voices by allowing a quick fade-out instead of directly stealing a voice, which should 
- allow a quick transition without a click
- TODO:  The total time of the fadeout is not consistent between different sample rates.*/
+/* void v_adsr_set_fast_release(t_adsr* a_adsr_ptr)
+ * 
+ * This method is for killing voices by allowing a quick fade-out instead of directly stealing a voice, which should 
+ * allow a quick transition without a click
+ * TODO:  The total time of the fadeout is not consistent between different sample rates.
+ */
 void v_adsr_set_fast_release(t_adsr* a_adsr_ptr)
 {
     a_adsr_ptr->r_time = .05;
@@ -126,6 +143,10 @@ void v_adsr_set_fast_release(t_adsr* a_adsr_ptr)
     a_adsr_ptr->stage = 3;
 }
 
+/* void v_adsr_set_s_value(
+ * t_adsr* a_adsr_ptr, 
+ * float a_value) //The sustain value, range: 0 to 1
+ */
 void v_adsr_set_s_value(t_adsr* a_adsr_ptr, float a_value)
 {
     a_adsr_ptr->s_value = a_value;
@@ -141,11 +162,24 @@ void v_adsr_set_s_value(t_adsr* a_adsr_ptr, float a_value)
     //printf("Setting S value to %f\n", (a_adsr_ptr->s_value));
 }
 
+/* void v_adsr_set_s_value_db(
+ * t_adsr* a_adsr_ptr, 
+ * float a_value)  //The decibel value of sustain, typically -30 to 0
+ */
 void v_adsr_set_s_value_db(t_adsr* a_adsr_ptr, float a_value)
 {
     v_adsr_set_s_value(a_adsr_ptr, f_db_to_linear_fast(a_value));
 }
 
+/* void v_adsr_set_adsr(
+ * t_adsr* a_adsr_ptr, 
+ * float a_a, //attack
+ * float a_d, //decay
+ * float a_s, //sustain
+ * float a_r) //release
+ * 
+ * Set allADSR values, with a range of 0 to 1 for sustain
+ */
 void v_adsr_set_adsr(t_adsr* a_adsr_ptr, float a_a, float a_d, float a_s, float a_r)
 {
     v_adsr_set_a_time(a_adsr_ptr, a_a);
@@ -154,6 +188,16 @@ void v_adsr_set_adsr(t_adsr* a_adsr_ptr, float a_a, float a_d, float a_s, float 
     v_adsr_set_r_time(a_adsr_ptr, a_r);
 }
 
+
+/* void v_adsr_set_adsr(
+ * t_adsr* a_adsr_ptr, 
+ * float a_a, //attack
+ * float a_d, //decay
+ * float a_s, //sustain
+ * float a_r) //release
+ * 
+ * Set allADSR values, with a range of -30 to 0 for sustain
+ */
 void v_adsr_set_adsr_db(t_adsr* a_adsr_ptr, float a_a, float a_d, float a_s, float a_r)
 {
     v_adsr_set_a_time(a_adsr_ptr, a_a);
@@ -162,6 +206,10 @@ void v_adsr_set_adsr_db(t_adsr* a_adsr_ptr, float a_a, float a_d, float a_s, flo
     v_adsr_set_r_time(a_adsr_ptr, a_r);
 }
 
+/* void v_adsr_retrigger(t_adsr * a_adsr_ptr)
+ * 
+ * Reset the ADSR to the beginning of the attack phase
+ */
 void v_adsr_retrigger(t_adsr * a_adsr_ptr)
 {
     a_adsr_ptr->stage = 0;
@@ -169,11 +217,19 @@ void v_adsr_retrigger(t_adsr * a_adsr_ptr)
     
 }
 
+/* void v_adsr_release(t_adsr * a_adsr_ptr)
+ * 
+ * Set the ADSR to the release phase
+ */
 void v_adsr_release(t_adsr * a_adsr_ptr)
 {
     a_adsr_ptr->stage = 3;    
 }
 
+/* t_adsr * g_adsr_get_adsr(
+ * float a_sr_recip) // 1/sample_rate (TODO: use sample_rate instead)
+ * 
+ */
 t_adsr * g_adsr_get_adsr(float a_sr_recip)
 {
     t_adsr * f_result = (t_adsr*)malloc(sizeof(t_adsr));
@@ -190,6 +246,10 @@ t_adsr * g_adsr_get_adsr(float a_sr_recip)
     return f_result;
 }
 
+/* void v_adsr_run(t_adsr * a_adsr_ptr)
+ * 
+ * Run the ADSR envelope
+ */
 void v_adsr_run(t_adsr * a_adsr_ptr)
 {
     if((a_adsr_ptr->stage) != 4)

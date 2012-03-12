@@ -1,7 +1,9 @@
 /* 
  * File:   comb_filter.h
- * Author: vm-user
- *
+ * Author: Jeff Hubbard
+ * 
+ * This file provides t_comb_filter, a complete comb filter effect.
+ * 
  * Created on January 25, 2012, 8:14 PM
  */
 
@@ -147,7 +149,9 @@ inline void v_cmb_set_all(t_comb_filter* a_cmb_ptr, float a_wet_db, float a_feed
     
 }
 
-
+/* t_comb_filter * g_cmb_get_comb_filter(
+ * float a_sr) //sample rate
+ */
 t_comb_filter * g_cmb_get_comb_filter(float a_sr)
 {
     t_comb_filter * f_result = (t_comb_filter*)malloc(sizeof(t_comb_filter));

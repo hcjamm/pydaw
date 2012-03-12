@@ -1,6 +1,8 @@
 /* 
  * File:   sample_reader.h
- * Author: vm-user
+ * Author: Jeff Hubbard
+ * 
+ * This file is not-production ready, and will probably be deprecated and replaced.
  *
  * Created on January 26, 2012, 7:20 PM
  */
