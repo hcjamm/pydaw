@@ -37,3 +37,5 @@ ray-v/LMS_qt
 */src/LMS_qt
 /lms-comb/dist/Default/
 *description-pak
+/debugger/build/Debug/
+/debugger/dist/Debug/
