@@ -19,9 +19,54 @@
 #include "../lms_dynamics/src/synth.h"
 #include "../lms_dynamics/src/synth.c"
 
-/*This defines certain behaviors within projects that are being debugged.  There's no need to comment this out, if you're
- not running the debugger project, then this won't be defined anyways...*/
+/*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
 #define LMS_DEBUGGER_PROJECT
+
+Also:
+ * 
+ * The following apparatus must be added to the runLMS function in synth.c for the project you'll be debugging.
+ * Not all of the LMS plugins have been retrofitted with this yet:
+ * 
+ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
+		  snd_seq_event_t *events, unsigned long event_count)
+{
+    LMS *plugin_data = (LMS *) instance;
+//Add this define, and create dummy inputs when debugging
+#ifdef LMS_DEBUGGER_PROJECT
+    LADSPA_Data *const input0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));    
+    LADSPA_Data *const input1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+
+    LADSPA_Data *const output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+    LADSPA_Data *const output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+#else
+    LADSPA_Data *const input0 = plugin_data->input0;    
+    LADSPA_Data *const input1 = plugin_data->input1;
+
+    LADSPA_Data *const output0 = plugin_data->output0;    
+    LADSPA_Data *const output1 = plugin_data->output1;    
+#endif    
+
+    plugin_data->pos = 0;
+    plugin_data->count= 0;    
+    plugin_data->i_mono_out = 0;
+    plugin_data->event_pos = 0;
+
+ //add this define, and set your control values manually
+#ifdef LMS_DEBUGGER_PROJECT
+    plugin_data->vals.threshold = -24;    
+    plugin_data->vals.ratio = 5;
+    plugin_data->vals.attack = 0.1f;    
+    plugin_data->vals.release = 0.2f;
+    plugin_data->vals.gain = 0;
+#else
+    plugin_data->vals.threshold = *(plugin_data->threshold);    
+    plugin_data->vals.ratio = *(plugin_data->ratio) * 0.1f;
+    plugin_data->vals.attack = *(plugin_data->attack) * 0.01f;    
+    plugin_data->vals.release = *(plugin_data->release) * 0.01f;
+    plugin_data->vals.gain = *(plugin_data->gain);
+#endif
+ 
+ */
 
 /* int main(
  * int argc, //ignored
