@@ -139,6 +139,16 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
     LMS *plugin_data = (LMS *) instance;
+    
+#ifdef LMS_DEBUGGER_PROJECT
+    /*Create dummy inputs and outputs if we're not actually running the plugin*/
+    /*Define our inputs*/
+    LADSPA_Data *const input0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));    
+    LADSPA_Data *const input1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+    /*define our outputs*/
+    LADSPA_Data *const output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+    LADSPA_Data *const output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+#else    
     /*Define our inputs*/
     LADSPA_Data *const input0 = plugin_data->input0;    
     LADSPA_Data *const input1 = plugin_data->input1;
@@ -146,18 +156,27 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     LADSPA_Data *const output0 = plugin_data->output0;    
     LADSPA_Data *const output1 = plugin_data->output1;    
     
+#endif
     /*Reset our iterators to 0*/
     plugin_data->pos = 0;
     plugin_data->count= 0;    
     plugin_data->i_mono_out = 0;
     plugin_data->event_pos = 0;
     
+#ifdef LMS_DEBUGGER_PROJECT
+    plugin_data->vals.predelay = .01;    
+    plugin_data->vals.time = 1.0f;
+    plugin_data->vals.highpass = 45.0f;    
+    plugin_data->vals.lowpass = 120.0f;
+    plugin_data->vals.drywet = 0.5f;
+#else
     /*Set the values from synth_vals in RunLMS*/
     plugin_data->vals.predelay = *(plugin_data->predelay) * .01;    
     plugin_data->vals.time = *(plugin_data->time) * .01;
     plugin_data->vals.highpass = *(plugin_data->highpass);    
     plugin_data->vals.lowpass = *(plugin_data->lowpass);
     plugin_data->vals.drywet = *(plugin_data->drywet) * .01;
+#endif
     
 #ifdef LMS_DEBUG_MAIN_LOOP
     plugin_data->vals.debug_counter = (plugin_data->vals.debug_counter) + 1;                
@@ -195,12 +214,12 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     
             v_rvd_run_reverb(plugin_data->mono_modules->reverb, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
             
-            output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->reverb->out0);
-                    /*f_axf_run_xfade(plugin_data->mono_modules->axf0, 
-                    (input0[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out0));*/
-            output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->reverb->out1);
-                    /*f_axf_run_xfade(plugin_data->mono_modules->axf1, 
-                    (input1[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out1));*/
+            output0[(plugin_data->buffer_pos)] = //(plugin_data->mono_modules->reverb->out0);
+                    f_axf_run_xfade(plugin_data->mono_modules->axf0, 
+                    (input0[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out0));
+            output1[(plugin_data->buffer_pos)] = //(plugin_data->mono_modules->reverb->out1);
+                    f_axf_run_xfade(plugin_data->mono_modules->axf1, 
+                    (input1[(plugin_data->buffer_pos)]), (plugin_data->mono_modules->reverb->out1));
             
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }

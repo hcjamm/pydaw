@@ -16,8 +16,8 @@
 #include <stdlib.h>
 
 /*Change these to the project you would like to debug*/
-#include "../lms_dynamics/src/synth.h"
-#include "../lms_dynamics/src/synth.c"
+#include "../lms_comb/src/synth.h"
+#include "../lms_comb/src/synth.c"
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
 #define LMS_DEBUGGER_PROJECT
