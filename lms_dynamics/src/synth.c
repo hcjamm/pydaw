@@ -138,25 +138,44 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
     LMS *plugin_data = (LMS *) instance;
+    
+#ifdef LMS_DEBUGGER_PROJECT
+    /*Create dummy inputs and outputs if we're not actually running the plugin*/
+    /*Define our inputs*/
+    LADSPA_Data *const input0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));    
+    LADSPA_Data *const input1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+    /*define our outputs*/
+    LADSPA_Data *const output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+    LADSPA_Data *const output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+#else
     /*Define our inputs*/
     LADSPA_Data *const input0 = plugin_data->input0;    
     LADSPA_Data *const input1 = plugin_data->input1;
     /*define our outputs*/
     LADSPA_Data *const output0 = plugin_data->output0;    
     LADSPA_Data *const output1 = plugin_data->output1;    
-    
+#endif    
     /*Reset our iterators to 0*/
     plugin_data->pos = 0;
     plugin_data->count= 0;    
     plugin_data->i_mono_out = 0;
     plugin_data->event_pos = 0;
-    
+
+#ifdef LMS_DEBUGGER_PROJECT
+    /*Set the values that you would like to use for debugging*/
+    plugin_data->vals.threshold = -24;    
+    plugin_data->vals.ratio = 5;
+    plugin_data->vals.attack = 0.1f;    
+    plugin_data->vals.release = 0.2f;
+    plugin_data->vals.gain = 0;
+#else
     /*Set the values from synth_vals in RunLMS*/
     plugin_data->vals.threshold = *(plugin_data->threshold);    
     plugin_data->vals.ratio = *(plugin_data->ratio) * 0.1f;
     plugin_data->vals.attack = *(plugin_data->attack) * 0.01f;    
     plugin_data->vals.release = *(plugin_data->release) * 0.01f;
     plugin_data->vals.gain = *(plugin_data->gain);
+#endif
     
     v_cpr_set_compressor(plugin_data->mono_modules->compressor, (plugin_data->vals.ratio), (plugin_data->vals.threshold),
             (plugin_data->vals.attack),(plugin_data->vals.release));

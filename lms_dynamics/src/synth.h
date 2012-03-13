@@ -20,7 +20,7 @@ extern "C" {
 //#define LMS_DEBUG_NOTE
 //#define LMS_DEBUG_MAIN_LOOP
 //#define LMS_DEBUG_MODE_QT
-
+#define LMS_DEBUGGER_PROJECT
 
 /*Then you can print debug information like this:
 #ifdef LMS_DEBUG_NOTE
