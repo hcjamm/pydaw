@@ -35,6 +35,10 @@ GNU General Public License for more details.
 #include "synth.h"
 #include "meta.h"
 
+#ifdef LMS_DEBUGGER_PROJECT
+#include "../../debugger/input_gen.h"
+#endif
+
 static LADSPA_Descriptor *LMSLDescriptor = NULL;
 static DSSI_Descriptor *LMSDDescriptor = NULL;
 
@@ -143,8 +147,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 #ifdef LMS_DEBUGGER_PROJECT
     /*Create dummy inputs and outputs if we're not actually running the plugin*/
     /*Define our inputs*/
-    LADSPA_Data *const input0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));    
-    LADSPA_Data *const input1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+    LADSPA_Data *const input0 =  g_dbg_get_input_buffer((plugin_data->count), 66.0f, 0);
+    LADSPA_Data *const input1 =  g_dbg_get_input_buffer((plugin_data->count), 66.0f, 0);
     /*define our outputs*/
     LADSPA_Data *const output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
     LADSPA_Data *const output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));

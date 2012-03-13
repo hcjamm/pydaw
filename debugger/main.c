@@ -2,12 +2,18 @@
  * File:   main.c
  * Author: Jeff Hubbard
  * 
- * An experimental debugger for running plugins in a synthetic manner without actually sending
+ * A debugger project for running plugins in a synthetic manner without actually sending
  * any audio to the soundcard.  This is primarily intended for use in IDEs that have
  * GDB integration, such as Netbeans, Eclipse or Anjuta.
  * 
- * Usage:  Set breakpoints anywhere you'd like to see them, and debug the debugger project.  Be sure to edit the 
- * below includes to the project you want to debug.
+ * Usage:  Set breakpoints anywhere you'd like to see them, and debug the debugger project.  Be sure to edit these
+ * lines:
+ * 
+ * #include "../lms_comb/src/synth.h"
+ * #include "../lms_comb/src/synth.c" 
+ * 
+ * below includes to the project you want to debug, replacing 'lms_comb' with the name of the project folder you wish
+ * to debug.  You can also set breakpoints in any file within "../libmodsynth/lib or ../libmodsynth/modules"
  *
  * Created on March 12, 2012, 7:46 PM
  */
@@ -27,6 +33,15 @@ Also:
  * The following apparatus must be added to the runLMS function in synth.c for the project you'll be debugging.
  * Not all of the LMS plugins have been retrofitted with this yet:
  * 
+#include "synth.h"
+#include "meta.h"
+
+#ifdef LMS_DEBUGGER_PROJECT
+#include "../../debugger/input_gen.h"
+#endif
+
+ ...
+  
  static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
@@ -82,6 +97,8 @@ int main(int argc, char** argv) {
     snd_seq_event_t events;    
     
     runLMS(f_plugin, 1000, &events, 0);
+    
+    free(f_plugin);
     
     return (EXIT_SUCCESS);
 }
