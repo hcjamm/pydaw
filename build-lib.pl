@@ -17,26 +17,27 @@ args:
 --full-build 	:  A clean build, rebuilding all autotools files, does not install
 --quick-build 	:  A quick build, does not install
 --install	:  Install using make install
---debug		:  Compile, install and debug, using LMS' console output
---debug-gdb	:  Compile and debug using GDB (EXPERIMENTAL)
---debug-no-compile  :  Debug without compiling.  This assumes the plugin was already compiled and installed
+--debug		:  Compile, install and debug, using LMS' console output.  You must uncomment the LMS_XYZ_DEBUG_MODE #defines in synth.h or in the libmodsynth library for console output to be displayed.
+--run		:  Debug using LMS' console output without recompiling.  This assumes the plugin was already compiled and installed before
 --deb 		:  Compile and package the plugin into a .deb file
 --rpm		:  Compile and package the plugin into a .rpm file
 --ubuntu-deps	:  Install all Ubuntu dependencies
 --fork 		:  Fork the current plugin into a new plugin, with updated meta-data and Makefile
---git-add	:  Adds the appropriate files to a git repository for a forked plugin
+--git-add	:  Adds the appropriate files to a git repository for a forked plugin using 'git add [files]'.  Use this to avoid adding unnecessary GNU autotools files to a git repository.
+--scm-add-show	:  Display a list of files that should be added to an alternative source code management system such as SVN, Mercurial, CVS, etc...  This only displays the files you should be adding, it does not add them for you.
 --build-jack-host  :  This is for compiling the jack-dssi-host.  The user should never have to run this, the script will run it automatically when needed.
---build-jack-host-debug  :  This is for compiling the jack-dssi-host with GDB debugging support.  The user should never have to run this, the script will run it automatically when needed.
+
+Note that you can also debug using the included debugger project and GDB, using the IDE of your choice.  See INSTRUCTIONS.txt for details.  GDB is more suitable for using breakpoints to step through code, whereas the console output is more suitable for getting a glimpse of what's going on in your plugin while you are using it in jack-dssi-host.
 
 compile options:
 
---native  :  Compile using -march=native .  This optimizes for the machine being compiled on, but the binaries will not be usable on a different machine.  This can give you greater performance if compiling your own plugins, but may introduce bugs.
+--native  :  Compile using -march=native and -mtune=native.  This optimizes for the machine being compiled on, but the binaries will not be usable on a different machine.  This can give you greater performance if compiling your own plugins, but may introduce bugs.
 
 --sse3    :  Compile for SSE, SSE2 and SSE3.  This is the default option, requires a later Pentium4, Athlon64 or newer machine.
 
 --sse2    :  Compile for SSE, SSE2.  Any machine that doesn't support SSE2 probably can't adequately run plugins anyways, this is a good default for very old machines that will be running 32-bit plugins.
 
---user-cflags [CFLAGS]  :  Specify your own CFLAGS
+--user-cflags [CFLAGS]  :  Specify your own CFLAGS, for either alternative architectures like ARM, or for your own experimental optimizations.
 
 There should be one build.pl script in each plugin directory.
 
@@ -84,27 +85,7 @@ sub run_script
 		make_install();
 		exec("$jack_host $plugin_path/$plugin_name");
 	}
-	elsif($ARGV[0] eq "--debug-gdb")
-	{
-		notify_wait();
-		#build the jack-dssi-host with debugging symbols for GDB
-		`cd ../jack-dssi-host ; perl build.pl --build-jack-host-debug`;
-		
-		if(-e $makefile)
-		{
-			clean();
-			build($debug_args);
-		}
-		else
-		{
-			first_build($debug_args);
-		}
-		make_install();
-		print "\n\n\nAt the gdb prompt, type:\nrun $plugin_path/$plugin_name\n\n\n";
-		`$sleep`;
-		exec("gdb $jack_host ;");
-	}
-	elsif($ARGV[0] eq "--debug-no-compile")
+	elsif($ARGV[0] eq "--run")
 	{
 		exec("$jack_host $plugin_path/$plugin_name");
 	}
@@ -127,14 +108,6 @@ sub run_script
 		notify_wait();
 
 		build_jack_host();
-
-		notify_done();
-	}
-	elsif($ARGV[0] eq "--build-jack-host-debug")
-	{
-		notify_wait();
-
-		build_jack_host("-g");
 
 		notify_done();
 	}
@@ -163,6 +136,10 @@ sub run_script
 	elsif($ARGV[0] eq "--git-add")
 	{
 		system("git add src/dssi.h src/libmodsynth.h src/Makefile.am src/synth.c src/synth.h src/synth_qt_gui.cpp src/meta.h src/synth_qt_gui.h build.pl Makefile.am configure.ac");
+	}
+	elsif($ARGV[0] eq "--scm-add-show")
+	{
+		print "\n\n add src/dssi.h src/libmodsynth.h src/Makefile.am src/synth.c src/synth.h src/synth_qt_gui.cpp src/meta.h src/synth_qt_gui.h build.pl Makefile.am configure.ac\n\n";
 	}
 	else
 	{

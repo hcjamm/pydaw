@@ -23,11 +23,13 @@ How to run a plugin standalone with console debugging:
 	cd lms-filter  #or whatever plugin you want to build
 	perl build.pl --debug
 
-How to debug using GDB:
+How to debug using GDB and an IDE:
 
-	cd lms-filter  #or whatever plugin you want to build
-	perl build.pl --debug-gdb
-	#This functionality is still a W.I.P.
+	Create a project in your IDE of choice from the ./debugger/main.c and Makefile(LMS is developed in Netbeans, this functionality has not been tested in other IDEs).
+	Create a project for the plugin you wish to debug if you haven't already done so.
+	Set any breakpoints you wish to set.
+	Begin debugging in your IDE.  Your IDE will allow you to stop at any of your breakpoints and examine the state of your plugin.
+
 
 How to create .deb packages:
 
