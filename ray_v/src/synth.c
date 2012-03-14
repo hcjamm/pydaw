@@ -308,7 +308,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                     
 		    plugin_data->note2voice[n.note] = voice;
 		    data[voice].note = n.note;
-		    data[voice].amp = f_db_to_linear_fast((n.velocity * 0.094488) - 12 + (plugin_data->vals.master_vol)); //-20db to 0db, + master volume (0 to -60)
+		    data[voice].amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + (plugin_data->vals.master_vol)), //-20db to 0db, + master volume (0 to -60)
+                            plugin_data->mono_modules->amp_ptr); 
                     v_svf_velocity_mod(data[voice].p_voice->svf_filter, n.velocity);
                     
                     /*LibModSynth additions*/
@@ -327,9 +328,9 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                             (plugin_data->sv_last_note), (data[voice].p_voice->target_pitch));
                                         
                     /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
-                    data[voice].osc1_linamp = f_db_to_linear_fast(plugin_data->vals.osc1vol);
-                    data[voice].osc2_linamp = f_db_to_linear_fast(plugin_data->vals.osc2vol);
-                    data[voice].noise_linamp = f_db_to_linear_fast(plugin_data->vals.noise_amp);
+                    data[voice].osc1_linamp = f_db_to_linear_fast((plugin_data->vals.osc1vol), plugin_data->mono_modules->amp_ptr); 
+                    data[voice].osc2_linamp = f_db_to_linear_fast((plugin_data->vals.osc2vol), plugin_data->mono_modules->amp_ptr);
+                    data[voice].noise_linamp = f_db_to_linear_fast((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
                     
                     data[voice].n_state = running;
                                         
@@ -350,7 +351,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     
                     v_svf_set_res(data[voice].p_voice->svf_filter, plugin_data->vals.res);  
                     
-                    data[voice].p_voice->noise_amp = f_db_to_linear((plugin_data->vals.noise_amp));
+                    data[voice].p_voice->noise_amp = f_db_to_linear((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
                     
                     v_axf_set_xfade(data[voice].p_voice->dist_dry_wet, plugin_data->vals.dist_wet);       
                     
@@ -563,7 +564,8 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
                 printf("output after clipper == %f\n", (d->p_voice->current_sample));
 #endif  
         
-        d->p_voice->current_sample = (d->p_voice->current_sample) * (f_linear_to_db_linear((d->p_voice->adsr_amp->output))) * (d->amp);
+        d->p_voice->current_sample = (d->p_voice->current_sample) * 
+                (f_linear_to_db_linear((d->p_voice->adsr_amp->output), p->mono_modules->amp_ptr)) * (d->amp);
         
         /*Run the envelope and assign to the output buffers*/
         out0[(d->i_voice)] += (d->p_voice->current_sample);
