@@ -371,7 +371,7 @@ void SynthGUI::changed_pitch(int a_value, QLabel * a_label, int a_port)
      midi_note number.  We use this to display hz to the user*/
     
     float f_value = float(a_value);
-    float f_hz = f_pit_midi_note_to_hz_fast(f_value);
+    float f_hz = f_pit_midi_note_to_hz(f_value);
     
     a_label->setText(QString("%1 hz").arg((int)f_hz));
     
