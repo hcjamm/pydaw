@@ -22,6 +22,7 @@ extern "C" {
 typedef struct st_clipper
 {
     float clip_high, clip_low, input_gain_linear, clip_db, in_db, result;
+    t_amp * amp_ptr;
 #ifdef CLP_DEBUG_MODE
     int debug_counter;
 #endif
@@ -46,7 +47,7 @@ void v_clp_set_clip_sym(t_clipper * a_clp, float a_db)
     
     a_clp->clip_db = a_db;
     
-    float f_value = f_db_to_linear_fast(a_db);
+    float f_value = f_db_to_linear_fast(a_db, a_clp->amp_ptr);
     
 #ifdef CLP_DEBUG_MODE
         printf("Clipper value == %f", f_value);
@@ -68,7 +69,7 @@ void v_clp_set_in_gain(t_clipper * a_clp, float a_db)
     
     a_clp->in_db = a_db;
     
-    a_clp->input_gain_linear = f_db_to_linear_fast(a_db);
+    a_clp->input_gain_linear = f_db_to_linear_fast(a_db, a_clp->amp_ptr);
 }
 
 t_clipper * g_clp_get_clipper()
@@ -80,6 +81,7 @@ t_clipper * g_clp_get_clipper()
     f_result->input_gain_linear = 1;
     f_result->in_db = 0;
     f_result->result = 0;
+    f_result->amp_ptr = g_amp_get();
     
     return f_result;
 };

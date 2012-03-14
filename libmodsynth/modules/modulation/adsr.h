@@ -37,6 +37,8 @@ typedef struct st_adsr
     int stage;  //0=a,1=d,2=s,3=r,4=inactive
     
     float output;
+    
+    t_amp * amp_ptr;
 }t_adsr;
 
 void v_adsr_set_a_time(t_adsr*, float);
@@ -168,7 +170,7 @@ void v_adsr_set_s_value(t_adsr* a_adsr_ptr, float a_value)
  */
 void v_adsr_set_s_value_db(t_adsr* a_adsr_ptr, float a_value)
 {
-    v_adsr_set_s_value(a_adsr_ptr, f_db_to_linear_fast(a_value));
+    v_adsr_set_s_value(a_adsr_ptr, f_db_to_linear_fast(a_value, a_adsr_ptr->amp_ptr));
 }
 
 /* void v_adsr_set_adsr(
@@ -235,6 +237,7 @@ t_adsr * g_adsr_get_adsr(float a_sr_recip)
     t_adsr * f_result = (t_adsr*)malloc(sizeof(t_adsr));
     
     f_result->sr_recip = a_sr_recip;
+    f_result->amp_ptr = g_amp_get();
     
     v_adsr_set_a_time(f_result, .05);
     v_adsr_set_d_time(f_result, .5);

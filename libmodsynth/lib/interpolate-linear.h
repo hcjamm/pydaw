@@ -14,18 +14,32 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
     
-inline float f_linear_interpolate(float, float, float);
-inline float f_linear_interpolate_arr(float[],float);
-inline float f_linear_interpolate_arr_wrap(float[],int,float);
+typedef struct st_lin_interpolater
+{
+    int int_pos;
+    int int_pos_plus_1;
+    float pos;    
+}t_lin_interpolater;
 
-/*These are meant to prevent allocating objects constantly, without having to immediately
- re-write everything that uses them.  If LMS ever becomes multi-threaded, these will need
- to be moved to their own struct and passed to the functions*/
-static int f_int_pos;
-static int f_int_pos_plus_1;
-static float f_pos;
+t_lin_interpolater * g_lin_get();
+
+t_lin_interpolater * g_lin_get()
+{
+    t_lin_interpolater * f_result = (t_lin_interpolater*)malloc(sizeof(t_lin_interpolater));
+    
+    f_result->int_pos = 0;
+    f_result->int_pos_plus_1 = 1;
+    f_result->pos = 0.0f;
+    
+    return f_result;
+}
+
+inline float f_linear_interpolate(float, float, float);
+inline float f_linear_interpolate_arr(float[],float, t_lin_interpolater*);
+inline float f_linear_interpolate_arr_wrap(float[],int,float, t_lin_interpolater*);
+inline float f_linear_interpolate_ptr_wrap(float*,int,float, t_lin_interpolater*);
+
 
 /* inline float f_linear_interpolate(
  * float a_a, //item 0
@@ -44,13 +58,13 @@ inline float f_linear_interpolate(float a_a, float a_b, float a_position)
  * You will typically want to use f_linear_interpolate_arr_wrap instead, unless you already know ahead of time
  * that you either won't be outside the bounds of your table, or else that wrapping is not acceptable behavior
  */
-inline float f_linear_interpolate_arr(float a_table[], float a_ptr)
+inline float f_linear_interpolate_arr(float a_table[], float a_ptr, t_lin_interpolater * a_lin)
 {        
-    f_int_pos = (int)a_ptr;
-    f_int_pos_plus_1 = f_int_pos + 1;
-    f_pos = a_ptr - f_int_pos;
+    a_lin->int_pos = (int)a_ptr;
+    a_lin->int_pos_plus_1 = a_lin->int_pos + 1;
+    a_lin->pos = a_ptr - a_lin->int_pos;
     
-    return ((a_table[f_int_pos] - a_table[f_int_pos_plus_1]) * f_pos) + a_table[f_int_pos_plus_1];
+    return ((a_table[(a_lin->int_pos)] - a_table[(a_lin->int_pos_plus_1)]) * (a_lin->pos)) + a_table[(a_lin->int_pos_plus_1)];
 }
 
 /* inline float f_linear_interpolate_arr_wrap(
@@ -64,19 +78,40 @@ inline float f_linear_interpolate_arr(float a_table[], float a_ptr)
  * 
  * This function wraps if a_ptr exceeds a_table_size or is less than 0.
  */
-inline float f_linear_interpolate_arr_wrap(float a_table[], int a_table_size, float a_ptr)
+inline float f_linear_interpolate_arr_wrap(float a_table[], int a_table_size, float a_ptr, t_lin_interpolater * a_lin)
 {        
-    f_int_pos = (int)a_ptr;
-    f_int_pos_plus_1 = f_int_pos + 1;
+    a_lin->int_pos = (int)a_ptr;
+    a_lin->int_pos_plus_1 = (a_lin->int_pos) + 1;
     
-    if(f_int_pos_plus_1 > a_table_size)
-        f_int_pos_plus_1 = 0;
+    if((a_lin->int_pos_plus_1) > a_table_size)
+        a_lin->int_pos_plus_1 = 0;
     
-    f_pos = a_ptr - f_int_pos;
+    a_lin->pos = a_ptr - (a_lin->int_pos);
     
-    return (((a_table[f_int_pos]) - (a_table[f_int_pos_plus_1])) * f_pos) + (a_table[f_int_pos_plus_1]);
+    return (((a_table[(a_lin->int_pos)]) - (a_table[(a_lin->int_pos_plus_1)])) * (a_lin->pos)) + (a_table[(a_lin->int_pos_plus_1)]);
 }
 
+/* inline float f_linear_interpolate_ptr_wrap(
+ * float * a_table, 
+ * int a_table_size, 
+ * float a_ptr, 
+ * t_lin_interpolater * a_lin)
+ * 
+ * This method uses a pointer instead of an array (since apparently they're not quite the same thing).  the float* must be malloc'd 
+ * to (sizeof(float) * a_table_size)
+ */
+inline float f_linear_interpolate_ptr_wrap(float * a_table, int a_table_size, float a_ptr, t_lin_interpolater * a_lin)
+{        
+    a_lin->int_pos = (int)a_ptr;
+    a_lin->int_pos_plus_1 = (a_lin->int_pos) + 1;
+    
+    if((a_lin->int_pos_plus_1) > a_table_size)
+        a_lin->int_pos_plus_1 = 0;
+    
+    a_lin->pos = a_ptr - (a_lin->int_pos);
+    
+    return (((a_table[(a_lin->int_pos)]) - (a_table[(a_lin->int_pos_plus_1)])) * (a_lin->pos)) + (a_table[(a_lin->int_pos_plus_1)]);
+}
     
 #ifdef	__cplusplus
 }

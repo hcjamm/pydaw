@@ -49,6 +49,7 @@ typedef struct st_osc_simple_unison
     float adjusted_amp;  //Set this with unison voices to prevent excessive volume     
     int i_run_unison;  //iterator for running the unison oscillator
     float current_sample;  //current output sample for the entire oscillator
+    t_pit_pitch_core * pitch_core;
 }t_osc_simple_unison;
 
 
@@ -97,7 +98,7 @@ void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, flo
 {
     if((a_osc_ptr->voice_count) == 1)
     {
-        a_osc_ptr->voice_inc[0] =  f_pit_midi_note_to_hz_fast(a_pitch) * a_osc_ptr->sr_recip;
+        a_osc_ptr->voice_inc[0] =  f_pit_midi_note_to_hz_fast(a_pitch, a_osc_ptr->pitch_core) * a_osc_ptr->sr_recip;
     }
     else
     {        
@@ -112,7 +113,10 @@ void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spread, flo
 
         while(i < (a_osc_ptr->voice_count))
         {
-            a_osc_ptr->voice_inc[i] =  f_pit_midi_note_to_hz_fast((a_pitch + (a_osc_ptr->bottom_pitch) + (a_osc_ptr->pitch_inc * ((float)i)))) * (a_osc_ptr->sr_recip);
+            a_osc_ptr->voice_inc[i] =  f_pit_midi_note_to_hz_fast(
+                    (a_pitch + (a_osc_ptr->bottom_pitch) + (a_osc_ptr->pitch_inc * ((float)i)))
+                    , a_osc_ptr->pitch_core) 
+                    * (a_osc_ptr->sr_recip);
             i++;
         }
     }
@@ -151,7 +155,7 @@ float f_get_saw(t_osc_core * a_core)
 float f_get_sine(t_osc_core * a_core)
 {
     //return sin((a_core->output) * PI2);
-    return f_sine_fast_run((a_core->output));
+    return f_sine_fast_run((a_core->output), a_core->linear);
 }
 
 float f_get_square(t_osc_core * a_core)
@@ -254,6 +258,8 @@ t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
     f_result->pitch_inc = 0.1f;
     f_result->uni_spread = 0.1f;
     f_result->voice_count = 1;
+    
+    f_result->pitch_core = g_pit_get();
     
     int f_i = 0;
     

@@ -21,7 +21,8 @@ extern "C" {
     
 typedef struct st_osc_core
 {    
-    float output;   //range:  0 to 1
+    float output;   //range:  0 to 1    
+    t_lin_interpolater * linear;
 }t_osc_core;
 
 
@@ -33,6 +34,7 @@ t_osc_core * g_get_osc_core()
 {
     t_osc_core * f_result = (t_osc_core*)malloc(sizeof(t_osc_core)); 
     f_result->output = 0;    
+    f_result->linear = g_lin_get();
     return f_result;
 }
 

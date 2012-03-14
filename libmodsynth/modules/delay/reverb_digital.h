@@ -64,6 +64,9 @@ typedef struct st_rvd_reverb
     float lp_out1;
     float hp_out0;  //Outputs for the highpass filter
     float hp_out1;
+    
+    t_amp * amp_ptr;
+    t_pit_pitch_core * pitch_core;
 #ifdef REVERB_DIGITAL_DEBUG_MODE
     int debug_counter;
 #endif
@@ -106,6 +109,9 @@ t_rvd_reverb * g_rvd_get_reverb(float a_sr)
     f_result->lp_out1 = 0;
     f_result->hp_out0 = 0;
     f_result->hp_out1 = 0;
+    
+    f_result->amp_ptr = g_amp_get();
+    f_result->pitch_core = g_pit_get();
     
     int f_i = 0;
     
@@ -241,7 +247,7 @@ inline void v_rvd_set_reverb(t_rvd_reverb* a_rvd, float a_time, float a_predelay
             v_dly_set_delay_hz(a_rvd->buffer0, a_rvd->taps[(a_rvd->iterator)], ((a_rvd->hz[(a_rvd->iterator)])));
             
             a_rvd->feedback[(a_rvd->iterator)] = //a_time *
-                    f_db_to_linear(((a_rvd->reverb_floor)/(a_rvd->reverb_time))/(a_rvd->hz[(a_rvd->iterator)]));
+                    f_db_to_linear((((a_rvd->reverb_floor)/(a_rvd->reverb_time))/(a_rvd->hz[(a_rvd->iterator)])), a_rvd->amp_ptr);
             
             a_rvd->iterator = (a_rvd->iterator) + 1;
         }
