@@ -30,13 +30,14 @@ LADSPA_Data * g_get_input(int,float);
  * to run the debugger project with simulated sound coming into the plugin.
  * 
  * Valid osc_types are:
- * 0. Saw
- * 1. Square
- * 2. Triangle
- * 3. Sine
- * 4. Off
+ * -1.   Empty (all zeroes)
+ *  0.   Saw
+ *  1.   Square
+ *  2.   Triangle
+ *  3.   Sine
+ *  4.   Off
  */
-LADSPA_Data * g_dbg_get_input_buffer(int a_buffer_size,float a_note_pitch, int osc_type)
+LADSPA_Data * g_dbg_get_input_buffer(int a_buffer_size,float a_note_pitch, int a_osc_type)
 {
     LADSPA_Data * f_result = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (a_buffer_size));
     
@@ -49,7 +50,12 @@ LADSPA_Data * g_dbg_get_input_buffer(int a_buffer_size,float a_note_pitch, int o
     
     while(f_i < a_buffer_size)
     {
-        float f_sample = f_osc_run_unison_osc(f_osc);
+        float f_sample = 0.0f;
+        
+        if(a_osc_type != -1)
+        {
+            f_sample = f_osc_run_unison_osc(f_osc);
+        }        
         
         f_result[f_i] = f_sample;
         f_i++;
