@@ -20,13 +20,29 @@ extern "C" {
 #include "../constants.h"
 #include "interpolate-linear.h"
 
-/*Forward declaration of functions*/
+typedef struct st_pit_pitch_core
+{
+    t_lin_interpolater * linear;
+    float arr_index;
+}t_pit_pitch_core;
+
+inline t_pit_pitch_core * g_pit_get();
+
+inline t_pit_pitch_core * g_pit_get()
+{
+    t_pit_pitch_core * f_result = (t_pit_pitch_core*)malloc(sizeof(t_pit_pitch_core));
+    
+    f_result->linear = g_lin_get();
+    f_result->arr_index = 0;
+    
+    return f_result;    
+}
 
 inline float f_pit_midi_note_to_hz(float);    
 inline float f_pit_hz_to_midi_note(float);
-inline float f_pit_midi_note_to_samples(float,float);
+inline float f_pit_midi_note_to_samples(float,float,t_pit_pitch_core*);
 /*TODO:  inline float f_pit_midi_note_to_samples_fast(float);*/
-inline float f_pit_midi_note_to_hz_fast(float);
+inline float f_pit_midi_note_to_hz_fast(float,t_pit_pitch_core*);
 
 /*Functions*/
 
@@ -46,8 +62,7 @@ inline float f_pit_midi_note_to_hz(float a_midi_note_number)
  * Convert hz to midi note number*/
 inline float f_pit_hz_to_midi_note(float _hz)
 {
-     return ((12*log2(_hz*base_a4_recip))+57);
-    
+     return ((12*log2(_hz*base_a4_recip))+57);    
 }
 
 /* inline float f_pit_midi_note_to_samples(
@@ -55,11 +70,11 @@ inline float f_pit_hz_to_midi_note(float _hz)
  * float a_sample_rate)
  * 
  * Convert a midi note number pitch to the number of samples in a single wave-length at that pitch*/
-inline float f_pit_midi_note_to_samples(float a_midi_note_number, float a_sample_rate)
+inline float f_pit_midi_note_to_samples(float a_midi_note_number, float a_sample_rate, t_pit_pitch_core * a_pit)
 {
     /*This will be used by the _fast method, as it cannot be plotted without knowing the sample rate first*/
     //return ((1/(f_pit_midi_note_to_hz_fast(a_midi_note_number))) * a_sample_rate);
-    return (a_sample_rate/(f_pit_midi_note_to_hz_fast(a_midi_note_number)));
+    return (a_sample_rate/(f_pit_midi_note_to_hz_fast(a_midi_note_number, a_pit)));
 }
 
 /*Arrays*/
@@ -205,20 +220,20 @@ float arr_pit_p2f [arr_pit_p2f_count] = {
  * You should prefer this function whenever possible, it is much faster than the
  * regular version.
  */
-inline float f_pit_midi_note_to_hz_fast(float a_midi_note_number)
+inline float f_pit_midi_note_to_hz_fast(float a_midi_note_number, t_pit_pitch_core* a_pit)
 {
-    float f_arr_index = (a_midi_note_number * 20) - 1;
+    a_pit->arr_index = (a_midi_note_number * 20) - 1;
     
-    if(f_arr_index > arr_pit_p2f_count_limit)
+    if((a_pit->arr_index) > arr_pit_p2f_count_limit)
     {
-        f_arr_index = arr_pit_p2f_count_limit ;
+        a_pit->arr_index = arr_pit_p2f_count_limit ;
     }    
-    else if(f_arr_index < 0)
+    else if(a_pit->arr_index < 0)
     {
-        f_arr_index = 0;
+        a_pit->arr_index = 0;
     }
     
-    return f_linear_interpolate_arr(arr_pit_p2f, f_arr_index);
+    return f_linear_interpolate_arr(arr_pit_p2f, (a_pit->arr_index), a_pit->linear);
 }
 
 #ifdef	__cplusplus

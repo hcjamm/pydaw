@@ -34,6 +34,8 @@ typedef struct st_efr_env_follower_ar
     float out_linear;
     float out_db;
     float sample_rate;
+    t_lin_interpolater * linear;
+    t_amp * amp_ptr;
 #ifdef EFR_DEBUG_MODE
     int debug_counter;
 #endif
@@ -61,6 +63,8 @@ inline t_efr_env_follower_ar* g_efr_get(float a_sr)
     f_result->out_db = 0.0f;
     f_result->sample_rate = a_sr;
     
+    f_result->linear = g_lin_get();
+    f_result->amp_ptr = g_amp_get();
 #ifdef EFR_DEBUG_MODE
     f_result->debug_counter = 0;
 #endif
@@ -84,7 +88,7 @@ inline void v_efr_run(t_efr_env_follower_ar* a_efr, float a_input)
         a_efr->out_linear = ((a_efr->r_coeff) * (a_efr->input_m1)) + (a_efr->out_linear);
     }
     
-    a_efr->out_db =  f_db_to_linear_fast((a_efr->out_linear));
+    a_efr->out_db =  f_db_to_linear_fast((a_efr->out_linear), a_efr->amp_ptr);
 
 }
 

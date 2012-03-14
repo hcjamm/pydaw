@@ -67,7 +67,7 @@ float arr_sine [arr_sine_count] = {
 -0.170139, -0.162412, -0.154675, -0.146929, -0.139173, -0.131409, -0.123637, -0.115857, -0.108070, -0.100277, -0.092477, -0.084672, -0.076861, -0.069046, -0.061226, -0.053403, -0.045576, -0.037747, -0.029915, -0.022082, 
 -0.014247, -0.006411};
 
-inline float f_sine_fast_run(float);
+inline float f_sine_fast_run(float, t_lin_interpolater*);
 
 /* inline float f_sine_fast_run(float a_osc_core)
  * 
@@ -75,9 +75,9 @@ inline float f_sine_fast_run(float);
  * 
  * inline float f_sine_fast_run(input * PI2);
  */
-inline float f_sine_fast_run(float a_osc_core)
+inline float f_sine_fast_run(float a_osc_core, t_lin_interpolater * a_lin)
 {
-    return f_linear_interpolate_arr_wrap(arr_sine, arr_sine_count, (a_osc_core * arr_sine_count));
+    return f_linear_interpolate_arr_wrap(arr_sine, arr_sine_count, (a_osc_core * arr_sine_count), a_lin);
 }
 
 

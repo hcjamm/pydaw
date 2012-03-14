@@ -26,6 +26,7 @@ typedef struct st_enf_env_follower
     float input;
     float output_smoothed;    
     t_opl_one_pole * smoother;
+    t_amp * amp_ptr;
 #ifdef ENF_DEBUG_MODE
     int debug_counter;
 #endif
@@ -54,7 +55,7 @@ inline void v_enf_run_env_follower(t_enf_env_follower * a_enf, float a_input)
     v_opl_run(a_enf->smoother, (a_enf->input));
     
     /*TODO:  Test the fast l2db function here*/
-    a_enf->output_smoothed = f_linear_to_db_fast(a_enf->smoother->output);
+    a_enf->output_smoothed = f_linear_to_db_fast((a_enf->smoother->output), a_enf->amp_ptr);
     
 #ifdef ENF_DEBUG_MODE
     a_enf->debug_counter = (a_enf->debug_counter) + 1;
@@ -81,6 +82,7 @@ t_enf_env_follower * g_enf_get_env_follower(float a_sr)
     f_result->input = 0;
     f_result->output_smoothed = 0;
     f_result->smoother = g_opl_get_one_pole(a_sr);
+    f_result->amp_ptr = g_amp_get();
     
     v_opl_set_coeff_hz(f_result->smoother, 10);  //Set the smoother to 10hz.  The reciprocal of the hz value is the total smoother time
     

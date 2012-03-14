@@ -23,6 +23,7 @@ typedef struct st_dw_dry_wet
     float dry_db;
     float dry_linear;
     float output;
+    t_amp * amp_ptr;
 }t_dw_dry_wet;
 
 inline void v_dw_set_dry_wet(t_dw_dry_wet*,float,float);
@@ -39,13 +40,13 @@ inline void v_dw_set_dry_wet(t_dw_dry_wet* a_dw,float a_dry_db,float a_wet_db)
     if((a_dw->dry_db) != (a_dry_db))
     {
         a_dw->dry_db = a_dry_db;
-        a_dw->dry_linear = f_db_to_linear(a_dry_db);
+        a_dw->dry_linear = f_db_to_linear(a_dry_db, a_dw->amp_ptr);
     }
     
     if((a_dw->wet_db) != (a_wet_db))
     {
         a_dw->wet_db = a_wet_db;
-        a_dw->wet_linear = f_db_to_linear(a_wet_db);
+        a_dw->wet_linear = f_db_to_linear(a_wet_db, a_dw->amp_ptr);
     }
 }
 
@@ -68,6 +69,7 @@ t_dw_dry_wet* g_dw_get_dry_wet()
     f_result->dry_db = 0;
     f_result->dry_linear = 1;
     f_result->output = 0;
+    f_result->amp_ptr = g_amp_get();
     
     return f_result;
 }

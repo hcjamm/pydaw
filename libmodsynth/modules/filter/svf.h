@@ -82,7 +82,8 @@ typedef struct st_state_variable_filter
     
     /*To create a stereo or greater filter, you would create an additional array of filters for each channel*/
     t_svf_kernel * filter_kernels [SVF_MAX_CASCADE];
-    
+    t_amp * amp_ptr;
+    t_pit_pitch_core * pitch_core;
 #ifdef SVF_DEBUG_MODE
     int samples_ran;
 #endif
@@ -329,7 +330,7 @@ inline void v_svf_set_cutoff(t_state_variable_filter * a_svf)
          
     a_svf->cutoff_mod = 0;
     
-    a_svf->cutoff_hz = f_pit_midi_note_to_hz_fast((a_svf->cutoff_note)); //_svf->cutoff_smoother->last_value);
+    a_svf->cutoff_hz = f_pit_midi_note_to_hz_fast((a_svf->cutoff_note), a_svf->pitch_core); //_svf->cutoff_smoother->last_value);
     
     a_svf->cutoff_filter = (a_svf->pi2_div_sr) * (a_svf->cutoff_hz);
 
@@ -365,7 +366,7 @@ void v_svf_set_res(t_state_variable_filter * a_svf, float a_db)
         a_svf->filter_res_db = a_db;
     }
 
-       a_svf->filter_res = (1 - (f_db_to_linear_fast((a_svf->filter_res_db)))) * 2;
+       a_svf->filter_res = (1 - (f_db_to_linear_fast((a_svf->filter_res_db), a_svf->amp_ptr))) * 2;
 }
 
 
@@ -400,6 +401,9 @@ t_state_variable_filter * g_svf_get(float a_sample_rate)
     f_svf->filter_res = .5;
     f_svf->velocity_cutoff = 0;    
     f_svf->velocity_mod_amt = 1;
+    
+    f_svf->amp_ptr = g_amp_get();
+    f_svf->pitch_core = g_pit_get();
     
 #ifdef SVF_DEBUG_MODE    
         f_svf->samples_ran = 0;    

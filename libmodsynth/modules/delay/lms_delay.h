@@ -50,6 +50,7 @@ typedef struct st_lms_delay
     float wet_dry_diff;  //difference between wet and dry output volume
     float combined_inputs;  //Add output 0 and 1
     
+    t_amp * amp_ptr;    
 }t_lms_delay;
 
 t_lms_delay * g_ldl_get_delay(float,float);
@@ -84,6 +85,8 @@ t_lms_delay * g_ldl_get_delay(float a_seconds, float a_sr)
     f_result->input_env_follower = g_enf_get_env_follower(a_sr);    
     f_result->combined_inputs = 0;
     
+    f_result->amp_ptr = g_amp_get();
+    
     return f_result;
 }
 
@@ -100,7 +103,7 @@ inline void v_ldl_run_delay(t_lms_delay* a_dly, float a_in0, float a_in1)
     /*Automatically reduce feedback if delay volume is too high*/
     if((a_dly->feeback_env_follower->output_smoothed) > -3.0f)
     {
-        a_dly->feedback_linear = f_db_to_linear(((-3.0f - (a_dly->feeback_env_follower->output_smoothed)) * 0.3));
+        a_dly->feedback_linear = f_db_to_linear(((-3.0f - (a_dly->feeback_env_follower->output_smoothed)) * 0.3), a_dly->amp_ptr);
     }
     
     v_dly_run_delay(a_dly->delay0, 
@@ -150,7 +153,7 @@ inline void v_ldl_set_delay(t_lms_delay* a_dly,float a_seconds, float a_feeback_
     {
         a_dly->feedback_db = a_feeback_db;
         
-        a_dly->feedback_linear = f_db_to_linear_fast(a_feeback_db);
+        a_dly->feedback_linear = f_db_to_linear_fast(a_feeback_db, a_dly->amp_ptr);
     }
     
     v_dw_set_dry_wet(a_dly->dw0, a_dry, a_wet);

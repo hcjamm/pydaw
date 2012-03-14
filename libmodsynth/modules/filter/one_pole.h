@@ -28,6 +28,7 @@ typedef struct st_opl_one_pole
     float sample_rate;
     float sr_recip;
     float hp;
+    t_pit_pitch_core * pitch_core;
     
 #ifdef OPL_DEBUG_MODE
     int debug_counter;
@@ -47,7 +48,7 @@ t_opl_one_pole * g_opl_get_one_pole(float);
  */
 inline void v_opl_set_coeff(t_opl_one_pole* a_opl, float a_cutoff)
 {
-    a_opl->cutoff = f_pit_midi_note_to_hz_fast(a_cutoff);
+    a_opl->cutoff = f_pit_midi_note_to_hz_fast(a_cutoff, a_opl->pitch_core);
     a_opl->x = exp(-2.0*PI*((a_opl->cutoff)*(a_opl->sr_recip)));
     a_opl->a0 = 1.0-(a_opl->x);
     a_opl->b1 = -(a_opl->x);
@@ -123,7 +124,7 @@ t_opl_one_pole * g_opl_get_one_pole(float a_sr)
     f_result->cutoff = 1000;
     f_result->sample_rate = a_sr;
     f_result->sr_recip = 1/a_sr;
-    
+    f_result->pitch_core = g_pit_get();
 #ifdef OPL_DEBUG_MODE
     f_result->debug_counter = 0;
 #endif

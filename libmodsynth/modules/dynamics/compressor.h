@@ -58,7 +58,7 @@ inline void v_cpr_run_compressor(t_cpr_compressor * a_cpr, float in0, float in1)
     if((a_cpr->efr0->out_db) > (a_cpr->threshold))
     {
         a_cpr->output_db = (((a_cpr->threshold) - (a_cpr->efr0->out_db)) * (a_cpr->ratio_linear));
-        a_cpr->output = f_db_to_linear_fast((a_cpr->output_db));
+        a_cpr->output = f_db_to_linear_fast((a_cpr->output_db), a_cpr->efr0->amp_ptr);
     }
     
     v_efr_run(a_cpr->efr1, in1);
@@ -66,7 +66,7 @@ inline void v_cpr_run_compressor(t_cpr_compressor * a_cpr, float in0, float in1)
     if((a_cpr->efr1->out_db) > (a_cpr->threshold))
     {
         a_cpr->output_db = (((a_cpr->threshold) - (a_cpr->efr1->out_db)) * (a_cpr->ratio_linear));
-        a_cpr->output = f_db_to_linear_fast((a_cpr->output_db));
+        a_cpr->output = f_db_to_linear_fast((a_cpr->output_db), a_cpr->efr1->amp_ptr);
     }
 }
 
