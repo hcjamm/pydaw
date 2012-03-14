@@ -246,7 +246,14 @@ t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
     v_osc_set_uni_voice_count(f_result, OSC_UNISON_MAX_VOICES);    
     f_result->osc_type = f_get_saw;
     f_result->sr_recip = 1 / a_sample_rate;
-    
+    f_result->adjusted_amp = 1;
+    f_result->bottom_pitch = -0.1;
+    f_result->current_sample = 0;
+    f_result->i_run_unison = 0;
+    f_result->osc_type = f_get_osc_off;
+    f_result->pitch_inc = 0.1f;
+    f_result->uni_spread = 0.1f;
+    f_result->voice_count = 1;
     
     int f_i = 0;
     
