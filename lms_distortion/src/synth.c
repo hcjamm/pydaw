@@ -130,22 +130,34 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
     LMS *plugin_data = (LMS *) instance;
+    
+#ifdef LMS_DEBUGGER_PROJECT
+    LADSPA_Data *const input0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));    
+    LADSPA_Data *const input1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+
+    LADSPA_Data *const output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+    LADSPA_Data *const output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+#else
     /*Define our inputs*/
     LADSPA_Data *const input0 = plugin_data->input0;    
     LADSPA_Data *const input1 = plugin_data->input1;
     /*define our outputs*/
     LADSPA_Data *const output0 = plugin_data->output0;    
     LADSPA_Data *const output1 = plugin_data->output1;    
-    
+#endif
     /*Reset our iterators to 0*/
     plugin_data->pos = 0;
     plugin_data->count= 0;    
     plugin_data->i_mono_out = 0;
-    
+
+#ifdef LMS_DEBUGGER_PROJECT
+    plugin_data->vals.gain = 12;    
+    plugin_data->vals.wet = 0.05f;
+#else
     /*Set the values from synth_vals in RunLMS*/
     plugin_data->vals.gain = *(plugin_data->gain);    
     plugin_data->vals.wet = *(plugin_data->wet) * 0.01;
-    
+#endif
     while ((plugin_data->pos) < sample_count) 
     {	
         v_clp_set_in_gain(plugin_data->mono_modules->clipper0, (plugin_data->vals.gain));

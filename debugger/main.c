@@ -22,8 +22,8 @@
 #include <stdlib.h>
 
 /*Change these to the project you would like to debug*/
-#include "../lms_comb/src/synth.h"
-#include "../lms_comb/src/synth.c"
+#include "../lms_distortion/src/synth.h"
+#include "../lms_distortion/src/synth.c"
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
 #define LMS_DEBUGGER_PROJECT
@@ -98,8 +98,8 @@ int main(int argc, char** argv) {
     
     runLMS(f_plugin, 1000, &events, 0);
     
-    free(f_plugin);
+    //free(f_plugin);
     
-    return (EXIT_SUCCESS);
+    return 0; //(EXIT_SUCCESS);
 }
 
