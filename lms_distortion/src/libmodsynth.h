@@ -19,21 +19,12 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-#include "../libmodsynth/constants.h"
+#include "../../libmodsynth/constants.h"
     
 /*includes for any libmodsynth modules you'll be using*/
-#include "../../libmodsynth/lib/osc_core.h"
 #include "../../libmodsynth/lib/pitch_core.h"
-#include "../../libmodsynth/lib/smoother-linear.h"
-#include "../../libmodsynth/modules/oscillator/osc_simple.h"
-#include "../../libmodsynth/modules/oscillator/noise.h"
-#include "../../libmodsynth/modules/filter/svf.h"
 #include "../../libmodsynth/modules/distortion/clipper.h"
-#include "../../libmodsynth/modules/modulation/adsr.h"
 #include "../../libmodsynth/modules/signal_routing/audio_xfade.h"
-#include "../../libmodsynth/modules/modulation/ramp_env.h"
-#include "../../libmodsynth/lib/smoother-iir.h"
-#include "../../libmodsynth/modules/filter/comb_filter.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
