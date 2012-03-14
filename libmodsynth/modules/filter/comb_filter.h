@@ -160,7 +160,7 @@ t_comb_filter * g_cmb_get_comb_filter(float a_sr)
     
     f_result->buffer_size = (int)((a_sr / 20) + 300);  //Allocate enough memory to accomodate 20hz filter frequency
     
-    f_result->input_buffer = (float*)malloc((sizeof(float)) * (f_result->buffer_size));
+    f_result->input_buffer = (float*)malloc(sizeof(float) * (f_result->buffer_size));
     
     while(f_i < (f_result->buffer_size))
     {
