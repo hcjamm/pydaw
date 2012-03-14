@@ -74,7 +74,7 @@ inline float f_linear_interpolate_arr_wrap(float a_table[], int a_table_size, fl
     
     f_pos = a_ptr - f_int_pos;
     
-    return ((a_table[f_int_pos] - a_table[f_int_pos_plus_1]) * f_pos) + a_table[f_int_pos_plus_1];
+    return (((a_table[f_int_pos]) - (a_table[f_int_pos_plus_1])) * f_pos) + (a_table[f_int_pos_plus_1]);
 }
 
     
