@@ -183,7 +183,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     if((plugin_data->vals.gain) != (plugin_data->mono_modules->gain_last))
     {
         plugin_data->mono_modules->gain_last = plugin_data->vals.gain;
-        plugin_data->mono_modules->gain_linear = f_db_to_linear_fast((plugin_data->vals.gain));
+        plugin_data->mono_modules->gain_linear = f_db_to_linear_fast((plugin_data->vals.gain), (plugin_data->mono_modules->amp_ptr));
     }
     
     while ((plugin_data->pos) < sample_count) 
