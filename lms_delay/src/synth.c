@@ -145,19 +145,36 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
     LMS *plugin_data = (LMS *) instance;
+    
+#ifdef LMS_DEBUGGER_PROJECT
+    LADSPA_Data *const input0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));    
+    LADSPA_Data *const input1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+
+    LADSPA_Data *const output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+    LADSPA_Data *const output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (plugin_data->count));
+#else
     /*Define our inputs*/
     LADSPA_Data *const input0 = plugin_data->input0;    
     LADSPA_Data *const input1 = plugin_data->input1;
     /*define our outputs*/
     LADSPA_Data *const output0 = plugin_data->output0;    
     LADSPA_Data *const output1 = plugin_data->output1;    
+#endif
     
     /*Reset our iterators to 0*/
     plugin_data->pos = 0;
     plugin_data->count= 0;    
     plugin_data->i_mono_out = 0;
     plugin_data->event_pos = 0;
-    
+#ifdef LMS_DEBUGGER_PROJECT
+    plugin_data->vals.delay_time = 0.2f;    
+    plugin_data->vals.feedback = -10.0f;
+    plugin_data->vals.dry = -6;    
+    plugin_data->vals.wet = -12;
+    plugin_data->vals.duck = -20;    
+    plugin_data->vals.cutoff = 100;
+    plugin_data->vals.stereo = 0.5f;
+#else
     /*Set the values from synth_vals in RunLMS*/
     plugin_data->vals.delay_time = *(plugin_data->delay_time) * .01;    
     plugin_data->vals.feedback = *(plugin_data->feedback);
@@ -166,7 +183,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->vals.duck = *(plugin_data->duck);    
     plugin_data->vals.cutoff = *(plugin_data->cutoff);
     plugin_data->vals.stereo = *(plugin_data->stereo) * .01;
-    
+#endif
     
     v_svf_set_cutoff_base(plugin_data->mono_modules->svf0, (plugin_data->vals.cutoff));
     v_svf_set_cutoff_base(plugin_data->mono_modules->svf1, (plugin_data->vals.cutoff));
