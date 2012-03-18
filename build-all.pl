@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+#This script is for creating a monolithic debian package for any number of individual plugins defined in the @plugins array below
+#This script can be used as-is for packaging the LMS Suite for a distro.  If you are a developer using LibModSynth, you should edit
+#the below values.
+#usage:
+#perl build-all.pl
+
 #Change this if you are compiling your own suite of plugins:
 $short_name = "lms_suite";
 
@@ -152,7 +158,7 @@ chomp($arch);
 
 if($arch eq "x86_64")
 {
-$arch = "AMD64"; #i386 will already be correct, so there is no elsif for it
+$arch = "amd64"; #i386 will already be correct, so there is no elsif for it
 }
 
 #$version = "1.0.0-1";
@@ -173,7 +179,7 @@ chomp($size);
 $debian_control = "
 Package: $short_name
 Priority: extra
-Section: multimedia
+Section: sound
 Installed-Size: $size
 Maintainer: $maintainer
 Architecture: $arch
