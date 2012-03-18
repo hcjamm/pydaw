@@ -52,7 +52,7 @@ $makefile = "Makefile";
 
 $debug_args = " -g";
 
-$deps_ubuntu = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev uuid-dev cmake liblscp-dev checkinstall libmad0-dev gdb ; sudo usermod -g audio \$USER";
+$deps_ubuntu = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev uuid-dev cmake liblscp-dev libmad0-dev gdb debhelper dh-make build-essential ; sudo usermod -g audio \$USER";
 
 #TODO:  Check for dependencies when running the other arguments, place a file when installed
 #TODO:  Place a file in the plugin directory once the first build has been run
@@ -192,7 +192,7 @@ sub build
 $make = 'make --quiet CFLAGS+="';
 if($ARGV[1] eq "--native")
 {
-$make .= '-O3 -pipe -march=native -mtune=native';
+$make .= '-O3 -pipe -march=native -mtune=native -funroll-loops';
 }
 elsif($ARGV[1] eq "--user-cflags")
 {
@@ -201,11 +201,11 @@ $make .= $user_flags;
 }
 elsif($ARGV[1] eq "--sse2")
 {
-$make .= '-O3 -msse -msse2 -mmmx -pipe';
+$make .= '-O3 -msse -msse2 -mmmx -pipe -mfpmath=sse -ffast-math -funroll-loops';
 }
 else
 {
-$make .= '-O3 -msse -msse2 -msse3 -mmmx -pipe';
+$make .= '-O3 -msse -msse2 -msse3 -mmmx -pipe -mfpmath=sse -ffast-math -funroll-loops';
 }
 
 if(defined $_[0])
