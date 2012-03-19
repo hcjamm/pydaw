@@ -36,7 +36,7 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 #lms_reverb
 
 #This is the notes that your package manager will show when browsing your package.  Change this if packaging your own plugins.
-$notes = "LibModSynth is a set of developer tools designed to make it fast and easy to develop high quality DSSI plugins.
+$notes = " LibModSynth is a set of developer tools designed to make it fast and easy to develop high quality DSSI plugins.
  The suite currently includes:
 ";
 
@@ -82,9 +82,9 @@ $package_dir = "$base_dir/deb";
 $debian_dir = "$package_dir/debian";
 #At some point, this script may include switches for different distros, which will automatically set these as appropriate.
 #The current values below are valid for Ubuntu, and likely most Debian variants
-$icon_dir = "/usr/share/pixmaps";
-$desktop_dir = "/usr/share/applications";
-$plugin_dir = "/usr/lib/dssi";
+$icon_dir = "$package_dir/usr/share/pixmaps";
+$desktop_dir = "$package_dir/usr/share/applications";
+$plugin_dir = "$package_dir/usr/lib/dssi";
 
 
 #Create a clean folder for the plugins to go in
@@ -92,6 +92,8 @@ $plugin_dir = "/usr/lib/dssi";
 `mkdir -p $plugin_dir`;
 `mkdir -p $debian_dir`;
 `mkdir -p $package_dir`;
+`mkdir -p $icon_dir`;
+`mkdir -p $desktop_dir`;
 
 foreach $val(@plugins)
 {
@@ -101,27 +103,31 @@ print "Compiling $val\n";
 `cd $val ; perl build.pl --full-build`;
 
 print "Copying files\n";
-system("cp $val/src/LMS_qt $package_dir/$plugin_dir/$val/LMS_qt");
-system("cp $val/src/.libs/$val.so $package_dir/$plugin_dir/$val.so");
-system("cp $val/src/.libs/$val.la $package_dir/$plugin_dir/$val.la");
+system("cp $val/src/LMS_qt $plugin_dir/$val/LMS_qt");
+system("cp $val/src/.libs/$val.so $plugin_dir/$val.so");
+system("cp $val/src/.libs/$val.la $plugin_dir/$val.la");
 
-#TODO:  Copy an icon to the icon_dir
-
+#This currently just overwrites the same file at every iteration, but I'm leaving it here because it will eventually support custom icons
+`cp packaging/libmodsynth.png $icon_dir/libmodsynth.png`;
 
 #TODO:  Copy a .desktop file to the desktop_dir
 
 $desktop_text = 
-#TODO:  Populate with real meta-data
 "[Desktop Entry]
 Name=$val
-Comment=$plugin_description
+Comment=$description
 Exec=jack-dssi-host \"$val.so\"
-Icon=lms.png
+Icon=libmodsynth.png
 Terminal=false
 Type=Application
-Categories=GNOME;AudioVideo;Audio;";
+Categories=AudioVideo;Audio;";
 
+open (MYFILE, ">>$desktop_dir");
+print MYFILE "$desktop_text";
+close (MYFILE); 
 }
+
+#TODO:  Compile and install jack-dssi-host
 
 `cp -r . $base_dir/libmodsynth-git`;
 
@@ -133,22 +139,21 @@ if(-e "maintainer.txt")
 	$maintainer = join("", <FILE>); 
 	close FILE;
 	chomp($maintainer);
-	#TODO:  Add additional maintainer lines
 }
 else
 {
 	print "\nThe following questions are required for the package maintainer meta-data.\n\n";
-	print "\nPlease enter your email:\n";
-	my $email = <STDIN>;
 	print "\nPlease enter your first and last name:\n";
 	my $name = <STDIN>;
+	print "\nPlease enter your email:\n";
+	my $email = <STDIN>;
 
 	chomp($email);
 	chomp($name);
 
 	$maintainer = "$name <$email>";
 
-	open (MYFILE, ">>../maintainer.txt");
+	open (MYFILE, ">>maintainer.txt");
 	print MYFILE "$maintainer";
 	close (MYFILE); 
 }
@@ -167,7 +172,7 @@ $arch = "amd64"; #i386 will already be correct, so there is no elsif for it
 #$version = <STDIN>;
 #chomp($version);
 
-#Creates a version number like what Ubuntu does, for example:  12.03 or 13.11
+#Creates a version number like what Ubuntu does, for example:  12.03 or 13.11.  The script may eventually offer a choice of how to name it.
 $version = `date +"%y.%m"`;
 $version .= "-1";
 chomp($version);
@@ -193,6 +198,10 @@ $notes";
 
 open (MYFILE, ">>$debian_dir/control");
 print MYFILE "$debian_control";
+close (MYFILE); 
+
+open (MYFILE, ">>$debian_dir/conffiles");
+print MYFILE "";   #TODO:  Find out what this file is for, and when/if something should ever go in it
 close (MYFILE); 
 
 package_label:
