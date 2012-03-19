@@ -564,8 +564,7 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
                 printf("output after clipper == %f\n", (d->p_voice->current_sample));
 #endif  
         
-        d->p_voice->current_sample = (d->p_voice->current_sample) * 
-                (f_linear_to_db_linear((d->p_voice->adsr_amp->output), p->mono_modules->amp_ptr)) * (d->amp);
+        d->p_voice->current_sample = (d->p_voice->current_sample) * (d->p_voice->adsr_amp->output) * (d->amp);
         
         /*Run the envelope and assign to the output buffers*/
         out0[(d->i_voice)] += (d->p_voice->current_sample);
