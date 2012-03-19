@@ -270,7 +270,7 @@ open (MYFILE, ">>$debian_dir/postinst");
 print MYFILE "$postinst";
 close (MYFILE); 
 
-`chmod +x 555 "$debian_dir/postinst"`;
+`chmod 555 "$debian_dir/postinst"`;
 
 if($prompt)
 {
