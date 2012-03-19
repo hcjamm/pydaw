@@ -19,8 +19,8 @@ args:
 --install	:  Install using make install
 --debug		:  Compile, install and debug, using LMS' console output.  You must uncomment the LMS_XYZ_DEBUG_MODE #defines in synth.h or in the libmodsynth library for console output to be displayed.
 --run		:  Debug using LMS' console output without recompiling.  This assumes the plugin was already compiled and installed before
---deb 		:  Compile and package the plugin into a .deb file
---rpm		:  Compile and package the plugin into a .rpm file
+--deb 		:  Compile and package the plugin into a .deb file (this uses checkinstall, you should use the build-all.pl script instead, using the LibModSynth native packaging system)
+--rpm		:  Compile and package the plugin into a .rpm file (uses checkinstall, will eventually be deprecated)
 --ubuntu-deps	:  Install all Ubuntu dependencies
 --fork 		:  Fork the current plugin into a new plugin, with updated meta-data and Makefile
 --git-add	:  Adds the appropriate files to a git repository for a forked plugin using 'git add [files]'.  Use this to avoid adding unnecessary GNU autotools files to a git repository.
@@ -83,6 +83,8 @@ sub run_script
 			first_build();
 		}
 		make_install();
+		$current_dir = get_current_dir();
+		`rm -Rf /usr/lib/dssi/$current_dir*`;
 		exec("$jack_host $plugin_path/$plugin_name");
 	}
 	elsif($ARGV[0] eq "--run")
@@ -123,6 +125,8 @@ sub run_script
 	}
 	elsif($ARGV[0] eq "--install")
 	{
+		$current_dir = get_current_dir();
+		`rm -Rf /usr/lib/dssi/$current_dir*`;
 		`sudo make install`;
 	}
 	elsif($ARGV[0] eq "--ubuntu-deps")
@@ -264,6 +268,17 @@ $install_result = system("sudo make install");
 #$_[0] == debian, rpm or slackware
 sub build_package
 {
+print "Please note that this method of packaging will be deprecated.  The preferred method of packaging is to use the build-all.pl script in the root directory.  Hit enter to acknowledge, or 'q' to quit.";
+
+$ack = <STDIN>;
+chomp($ack);
+$ack = lc($ack);
+
+if($ack eq 'q')
+{
+	exit;
+}
+
 notify_wait();
 first_build();
 
@@ -276,32 +291,6 @@ foreach my $val (@folders) {
 $package_name = $val;
 }
 
-#This is commented out because of a bug in checkinstall not allowing the full "First Last" <first.last@abc.com>
-#syntax for maintainers.  I'm leaving the code here because this is good stuff, 
-#and I may switch to dpkg to work around these bugs.
-#if(-e "../maintainer.txt")
-#{
-#	open FILE, "../maintainer.txt" or die "Couldn't open file: $!"; 
-#	$maintainer = join("", <FILE>); 
-#	close FILE;
-#	chomp($maintainer);
-#}
-#else
-#{
-#	print "\nPlease enter your email:\n";
-#	my $email = <STDIN>;
-#	print "\nPlease enter your first and last name:\n";
-#	my $name = <STDIN>;
-#
-#	chomp($email);
-#	chomp($name);
-#
-#	$maintainer = $name . " <$email>";
-#
-#	open (MYFILE, ">>../maintainer.txt");
-#	print MYFILE "$maintainer";
-#	close (MYFILE); 
-#}
 
 $ci_command = "sudo checkinstall --type=" . $_[0] . " \\
 --install=no \\
@@ -560,5 +549,22 @@ perl build.pl --full-build
 
 You should delete any IDE-specific project folders before opening it in an IDE, as it could interfere with the original project.
 ";
+}
+
+#Return the current array.  For example:
+#$value = get_current_dir();  #$value is now "ray_v" if invoked from "libmodsynth-git/ray_v"
+sub get_current_dir
+{
+	my $result = `pwd`;
+	chomp($result);
+	my @split_arr = (split("/", $result));
+
+	#The end result is that the last value in the array is the result
+	foreach my $val (@split_arr)
+	{
+		$result = $val;
+	}
+
+	return $result;
 }
 

@@ -1,13 +1,41 @@
 #!/usr/bin/perl
 
-#This script is for creating a monolithic debian package for any number of individual plugins defined in the @plugins array below
-#This script can be used as-is for packaging the LMS Suite for a distro.  If you are a developer using LibModSynth, you should edit
-#the below values.
-#usage:
-#perl build-all.pl
+$help_text = 
+"
+This script is for creating a monolithic debian package for any number of individual plugins defined in the \@plugins array in this script. This script can be used as-is for packaging the LMS Suite for a distro.  If you are a developer using LibModSynth, you should edit the values in this script before running it.
+
+usage:
+perl build-all.pl [-y] || [--help]
+
+-y :  Answer yes to all questions, and do not prompt.  However, this will generate generic maintainer info if you haven't run it without the -y switch before
+--help:  show this help information
+
+";
+
+$prompt = 1;
+
+if(defined $ARGV[0])
+{
+	if($ARGV[0] eq "-y")
+	{
+		$prompt = 0;
+	}
+	else
+	{
+		print $help_text;
+		exit;
+	}
+}
+
+#This is only for printing out extra debug information when running this script.  0 == no debugging, 1 == debugging
+$debug_mode = 0;
 
 #Change this if you are compiling your own suite of plugins:
 $short_name = "lms_suite";
+
+$deb_name = replace_underscore_with_dash($short_name);
+
+build_all_debug("\$deb_name == $deb_name");
 
 #The exact dependencies could vary with each distro, and some of these aren't used yet, but are intended for future use
 $depends = "liblo-dev,dssi-dev,ladspa-sdk,libasound2-dev,qjackctl,libjack-jackd2-dev,libsndfile1-dev,libsamplerate0-dev,libsm-dev,liblscp-dev,libmad0-dev";
@@ -19,12 +47,11 @@ $replaces = "ray_v,ray-v,lms_comb,lms-comb,lms_distortion,lms-distortion,lms_del
 $conflicts = "";
 
 #This is a standard description for the package, change this if packaging your own plugins
-$description = "The LMS Suite is a collection of DSSI plugins written using LibModSynth."
+$description = "The LMS Suite is a collection of DSSI plugins written using LibModSynth.";
 
 #add any new plugins here, or remove all of them if you are not going to redistribute the official LMS plugins.
 #Please take care not to create package conflicts for people with the LMS Suite installed.
-@plugins = 
-(
+@plugins = (
 'ray_v',
 'lms_comb',
 'lms_delay',
@@ -42,50 +69,61 @@ $notes = " LibModSynth is a set of developer tools designed to make it fast and 
 
 foreach $val (@plugins)
 {
-$notes .= " $val\n";
+$notes .= " $val\n \n";
 }
 
 
 #End variables, begin the actual script:
-
+if($prompt)
+{
 ack_label:
-print "
+	print "
 This will build all of the plugins and package them.  You must edit the list of plugins in this script to include any new ones, or exclude any old ones.  Please take care when packaging the existing LMS plugins not to create package conflicts.  If you wish only to build a single plugin, use the build.pl scripts in that plugin's directory.  If you wish to package your own collection of LMS-derived plugins, you should edit the \@plugins array in this script to include only your plugins.
 
 Proceed?  (y/[n])
 ";
 
-$ack = <STDIN>;
+	$ack = <STDIN>;
 
-chomp($ack);
-$ack = lc($ack);
+	chomp($ack);
+	$ack = lc($ack);
 
-if($ack eq 'y')
-{
-#do nothing
+	if($ack eq 'y')
+	{
+	#do nothing
+	}
+	elsif(($ack eq 'n') || ($ack eq ''))
+	{
+	exit;
+	}
+	else
+	{
+	goto ack_label;
+	}
 }
-elsif(($ack eq 'n') || ($ack eq ''))
-{
-exit;
-}
-else
-{
-goto ack_label;
-}
-
 require 'build-lib.pl';
 
 
 #Here are the directories used for the install, you can modify them if needed.
 $base_dir = "../$short_name";
 $package_dir = "$base_dir/deb";
-$debian_dir = "$package_dir/debian";
+$debian_dir = "$package_dir/DEBIAN";
 #At some point, this script may include switches for different distros, which will automatically set these as appropriate.
 #The current values below are valid for Ubuntu, and likely most Debian variants
 $icon_dir = "$package_dir/usr/share/pixmaps";
 $desktop_dir = "$package_dir/usr/share/applications";
 $plugin_dir = "$package_dir/usr/lib/dssi";
+$bin_dir = "$package_dir/usr/bin";
 
+#print the folder names if debugging enabled
+build_all_debug(
+"\$base_dir == $base_dir
+\$package_dir == $package_dir
+\$debian_dir == $debian_dir
+\$icon_dir == $icon_dir
+\$desktop_dir == $desktop_dir
+\$plugin_dir == $plugin_dir
+\$bin_dir == $bin_dir");
 
 #Create a clean folder for the plugins to go in
 `rm -Rf $base_dir`;
@@ -94,11 +132,12 @@ $plugin_dir = "$package_dir/usr/lib/dssi";
 `mkdir -p $package_dir`;
 `mkdir -p $icon_dir`;
 `mkdir -p $desktop_dir`;
+`mkdir -p $bin_dir`;
 
 foreach $val(@plugins)
 {
 #copy the .so, .la and LMS_qt files to the directory we created
-`mkdir $package_dir/$plugin_dir/$val`;
+`mkdir $plugin_dir/$val`;
 print "Compiling $val\n";
 `cd $val ; perl build.pl --full-build`;
 
@@ -116,18 +155,20 @@ $desktop_text =
 "[Desktop Entry]
 Name=$val
 Comment=$description
-Exec=jack-dssi-host \"$val.so\"
+Exec=lms-jack-dssi-host \"$val.so\"
 Icon=libmodsynth.png
 Terminal=false
 Type=Application
 Categories=AudioVideo;Audio;";
 
-open (MYFILE, ">>$desktop_dir");
+open (MYFILE, ">>$desktop_dir/$val.desktop");
 print MYFILE "$desktop_text";
 close (MYFILE); 
 }
 
-#TODO:  Compile and install jack-dssi-host
+build_all_debug("Building jack-dssi-host");
+
+`cd jack-dssi-host ;  perl build.pl --build-jack-host ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host`;
 
 `cp -r . $base_dir/libmodsynth-git`;
 
@@ -142,20 +183,27 @@ if(-e "maintainer.txt")
 }
 else
 {
-	print "\nThe following questions are required for the package maintainer meta-data.\n\n";
-	print "\nPlease enter your first and last name:\n";
-	my $name = <STDIN>;
-	print "\nPlease enter your email:\n";
-	my $email = <STDIN>;
+	if($prompt)
+	{
+		print "\nThe following questions are required for the package maintainer meta-data.\n\n";
+		print "\nPlease enter your first and last name:\n";
+		my $name = <STDIN>;
+		print "\nPlease enter your email:\n";
+		my $email = <STDIN>;
 
-	chomp($email);
-	chomp($name);
+		chomp($email);
+		chomp($name);
 
-	$maintainer = "$name <$email>";
+		$maintainer = "$name <$email>";
 
-	open (MYFILE, ">>maintainer.txt");
-	print MYFILE "$maintainer";
-	close (MYFILE); 
+		open (MYFILE, ">>maintainer.txt");
+		print MYFILE "$maintainer";
+		close (MYFILE); 
+	}
+	else
+	{
+		$maintainer = "No Maintainer <nobody\@maintainer.org>";
+	}
 }
 
 $arch = `uname -i`;
@@ -172,17 +220,17 @@ $arch = "amd64"; #i386 will already be correct, so there is no elsif for it
 #$version = <STDIN>;
 #chomp($version);
 
-#Creates a version number like what Ubuntu does, for example:  12.03 or 13.11.  The script may eventually offer a choice of how to name it.
+#Creates a version number like what Ubuntu does, for example:  12.03 or 13.11.
 $version = `date +"%y.%m"`;
-$version .= "-1";
 chomp($version);
+$version .= "-1";
 
 $size = `du -s $package_dir/usr`;
-$size = split(" ", $size)[0];
+$size = (split(" ", $size))[0];
 chomp($size);
 
 $debian_control = "
-Package: $short_name
+Package: $deb_name
 Priority: extra
 Section: sound
 Installed-Size: $size
@@ -190,7 +238,7 @@ Maintainer: $maintainer
 Architecture: $arch
 Version: $version
 Depends: $depends
-Provides: $short_name
+Provides: $deb_name
 Conflicts: $conflicts
 Replaces: $replaces
 Description: $description
@@ -204,34 +252,75 @@ open (MYFILE, ">>$debian_dir/conffiles");
 print MYFILE "";   #TODO:  Find out what this file is for, and when/if something should ever go in it
 close (MYFILE); 
 
-package_label:
-print "
+$postinst = 
+"#!/usr/bin/perl
+#This removes locally compiled/installed copys of the plugins, to avoid conflicts in DSSI hosts
+
+";
+
+foreach $val(@plugins)
+{
+	#Remove the local versions of the plugin to avoid conflict
+	$postinst .= "`rm -Rf /usr/local/lib/dssi/$val*`;\n";
+}
+
+$postinst .= "exit 0;";
+
+open (MYFILE, ">>$debian_dir/postinst");
+print MYFILE "$postinst";
+close (MYFILE); 
+
+`chmod +x 555 "$debian_dir/postinst"`;
+
+if($prompt)
+{
+	package_label:
+	print "
 The plugins have been compiled and built.  Would you like to package them now?  If you need to modify the files in $debian_dir first, you should choose 'n', and modify them manually.  Once you've done this, you can build the packages with the following commands:
 
-cd $debian_dir
-dpkg-deb --build debian
+	cd $base_dir
+	dpkg-deb --build deb
 
 Build the packages now?  ([y]/n)
 ";
 
-$ack = <STDIN>;
+	$ack = <STDIN>;
 
-chomp($ack);
-$ack = lc($ack);
+	chomp($ack);
+	$ack = lc($ack);
 
-if(($ack eq 'y') || ($ack eq ''))
-{
-#do nothing
+	if(($ack eq 'y') || ($ack eq ''))
+	{
+	#do nothing
+	}
+	elsif($ack eq 'n')
+	{
+	exit;
+	}
+	else
+	{
+	goto package_label;
+	}
 }
-elsif($ack eq 'n')
+
+`cd $base_dir ; dpkg-deb --build deb ; mv deb.deb $short_name-$version-$arch.deb`;
+
+print "\n\nComplete.  Your package is now located at:\n $base_dir/$short_name-$version-$arch.deb\n\n";
+
+sub build_all_debug
 {
-exit;
-}
-else
-{
-goto package_label;
+	if($debug_mode)
+	{
+		print "\nDebug Info:\n" . $_[0] . "\n";
+	}
 }
 
-`cd $package_dir ; dpkg-deb --build debian ; mv debian.deb ../$short_name-$version-$arch.deb`;
+#This is because debian packages will only accept dashes in package names
+sub replace_underscore_with_dash
+{
+	$result = $_[0];
 
-print "\n\nComplete.  Your package is now located at ../$short_name-$version-$arch.deb\n\n";
+	$result =~ s/_/-/g;
+
+	return $result;
+}
