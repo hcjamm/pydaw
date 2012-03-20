@@ -32,12 +32,22 @@ How to debug using GDB and an IDE:
 
 
 How to create .deb packages:
+	
+	Package all plugins in a single .deb(preferred):
+
+	perl build-all.pl
+	#answer a few questions
+	
+
+	Package a single plugin(be careful not to create conflicts with multi-plugin packages)
 
 	cd lms-filter  #or whatever plugin you want to package
 	perl build.pl --deb
 	#answer questions
 
 How to create .rpm packages:
+
+	NOTE:  There is no option currently for packaging all plugins in a single RPM, however, it is planned for later.
 
 	cd lms-filter  #or whatever plugin you want to package
 	perl build.pl --rpm
