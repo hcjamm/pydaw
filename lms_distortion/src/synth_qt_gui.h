@@ -85,14 +85,16 @@ public slots:
     /*Event handlers for setting knob values*/
     void setGain (float val);
     void setWet (float val);
-        
+    void setOutGain (float val);
+    
     void aboutToQuit();
     
 protected slots:
     /*Event handlers for receiving changed knob values*/
     void gainChanged (int);
     void wetChanged (int);
-        
+    void outGainChanged (int);
+    
     void oscRecv();
 protected:
     QDial *newQDial( int, int, int, int );
@@ -125,9 +127,11 @@ protected:
     
     /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
     QDial *m_gain;
-    QLabel *m_gainLabel;
-    
+    QLabel *m_gainLabel;    
     QDial *m_wet;
+    QDial *m_outGain;
+    QLabel *m_outGainLabel;
+    
     
     lo_address m_host;
     QByteArray m_controlPath;
