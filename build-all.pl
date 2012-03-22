@@ -369,7 +369,7 @@ Build the packages now?  ([y]/n)
 
 $package_name = "$short_name-$version-$os-$arch.$package_type";
 
-`cd $base_dir ; dpkg-deb --build deb ; mv deb.deb $package_name`;
+`cd $base_dir ; dpkg-deb --build deb ; rm $package_name ; mv deb.deb $package_name`;
 
 print "\n\nComplete.  Your package is now located at:\n $base_dir/$package_name\n\n";
 
