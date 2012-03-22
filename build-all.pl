@@ -2,15 +2,29 @@
 
 $help_text = 
 "
+The LibModSynth packaging script.  http://libmodsynth.sourceforge.net
+
 This script is for creating a monolithic debian package for any number of individual plugins defined in the \@plugins array in this script. This script can be used as-is for packaging the LMS Suite for a distro.  If you are a developer using LibModSynth, you should edit the values in this script before running it.
 
 usage:
-perl build-all.pl [-y] || [--help]
+perl build-all.pl ([-y] && ([--ubuntu] || [--debian])) || [--help] 
 
--y :  Answer yes to all questions, and do not prompt.  However, this will generate generic maintainer info if you haven't run it without the -y switch before
+-y :  Answer yes to all questions, and do not prompt.  However, this will generate generic maintainer info if you haven't run it without the -y switch before.  You must specify an operating system with this switch.
+
+--ubuntu :  Build for the latest Ubuntu.  Switches for older versions may be added later if dependencies change.  Must be used with -y switch.  If you are not using -y, the script will prompt you for an OS later.
+
+--debian :  Build for the latest Debian.  Switches for older versions may be added later if dependencies change.  Must be used with -y switch.  If you are not using -y, the script will prompt you for an OS later.
+
+If you would like an alternate operating system added, and are willing to track down the dependency package names(and possibly help with the commands for how to create that package type), then please email them to jhubbard651-at-users.sf.net to have them added.
+
 --help:  show this help information
 
 ";
+
+#per-distro dependencies.
+$ubuntu_deps = "liblo-dev,dssi-dev,ladspa-sdk,libasound2-dev,qjackctl,libjack-jackd2-dev,libsndfile1-dev,libsamplerate0-dev,libsm-dev,liblscp-dev,libmad0-dev";
+#A special thanks to Glenn MacArthur from AV Linux (http://www.bandshed.net/AVLinux.html) for helping me with the Debian dependencies
+$debian_deps = "liblo-dev,dssi-dev,ladspa-sdk,libasound2-dev,qjackctl,libjack-dev,libsndfile1-dev,libsamplerate0-dev,libsm-dev,liblscp-dev,libmad0-dev";
 
 $prompt = 1;
 
@@ -19,6 +33,23 @@ if(defined $ARGV[0])
 	if($ARGV[0] eq "-y")
 	{
 		$prompt = 0;
+
+		if($ARGV[1] eq "--ubuntu")
+		{
+			$depends = $ubuntu_deps; $os = "ubuntu"; $package_type = "deb";
+		}
+		elsif($ARGV[1] eq "--debian")
+		{
+			$depends = $debian_deps; $os = "debian"; $package_type = "deb";
+		}
+		else
+		{
+			print $help_text;
+			print "Invalid operating system argument: \"" . $ARGV[$i] . "\"\n\n";
+			exit 1;
+		}
+
+
 	}
 	else
 	{
@@ -36,9 +67,6 @@ $short_name = "lms_suite";
 $deb_name = replace_underscore_with_dash($short_name);
 
 build_all_debug("\$deb_name == $deb_name");
-
-#The exact dependencies could vary with each distro, and some of these aren't used yet, but are intended for future use
-$depends = "liblo-dev,dssi-dev,ladspa-sdk,libasound2-dev,qjackctl,libjack-jackd2-dev,libsndfile1-dev,libsamplerate0-dev,libsm-dev,liblscp-dev,libmad0-dev";
 
 #These are to replace the original packages that the LMS Suite came in.  You can remove these from your own plugins.
 $replaces = "ray_v,ray-v,lms_comb,lms-comb,lms_distortion,lms-distortion,lms_delay,lms-delay,lms_filter,lms-filter";
@@ -64,14 +92,23 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 
 #This is the notes that your package manager will show when browsing your package.  Change this if packaging your own plugins.
 $notes = " LibModSynth is a set of developer tools designed to make it fast and easy to develop high quality DSSI plugins.
- The suite currently includes:
-";
+ The suite currently includes: ";
 
+$first = 1;
 foreach $val (@plugins)
 {
-$notes .= " $val\n \n";
+if($first)
+{
+$first = 0;
 }
-
+else
+{
+$notes .= ", "
+}
+$notes .= "$val";
+}
+#dpkg-deb crashes if EOF happens at the end of a description line
+$notes .= ".\n";
 
 #End variables, begin the actual script:
 if($prompt)
@@ -80,8 +117,7 @@ ack_label:
 	print "
 This will build all of the plugins and package them.  You must edit the list of plugins in this script to include any new ones, or exclude any old ones.  Please take care when packaging the existing LMS plugins not to create package conflicts.  If you wish only to build a single plugin, use the build.pl scripts in that plugin's directory.  If you wish to package your own collection of LMS-derived plugins, you should edit the \@plugins array in this script to include only your plugins.
 
-Proceed?  (y/[n])
-";
+Proceed?  (y/[n]): ";
 
 	$ack = <STDIN>;
 
@@ -100,13 +136,38 @@ Proceed?  (y/[n])
 	{
 	goto ack_label;
 	}
+
+os_choice_label:
+	print "\nPlease select the operating system that you are packaging for:
+1. Ubuntu
+2. Debian
+
+: ";
+
+$os_choice = <STDIN>;
+chomp($os_choice);
+
+if($os_choice eq "1")
+{
+	$depends = $ubuntu_deps; $os = "ubuntu"; $package_type = "deb";
+}
+elsif($os_choice eq "2")
+{
+	$depends = $debian_deps; $os = "debian"; $package_type = "deb";
+}
+else
+{
+	print "\n\nInvalid OS choice: $os_choice .  Please select the number of the OS(1, 2, etc...)\n";
+	goto os_choice_label;
+}
+
 }
 require 'build-lib.pl';
 
 
 #Here are the directories used for the install, you can modify them if needed.
 $base_dir = "../$short_name";
-$package_dir = "$base_dir/deb";
+$package_dir = "$base_dir/$package_type";
 $debian_dir = "$package_dir/DEBIAN";
 #At some point, this script may include switches for different distros, which will automatically set these as appropriate.
 #The current values below are valid for Ubuntu, and likely most Debian variants
@@ -272,6 +333,8 @@ close (MYFILE);
 
 `chmod 555 "$debian_dir/postinst"`;
 
+`cd $package_dir; find . -type f ! -regex '.*\.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > DEBIAN/md5sums`;
+
 if($prompt)
 {
 	package_label:
@@ -303,9 +366,11 @@ Build the packages now?  ([y]/n)
 	}
 }
 
-`cd $base_dir ; dpkg-deb --build deb ; mv deb.deb $short_name-$version-$arch.deb`;
+$package_name = "$short_name-$version-$os-$arch.$package_type";
 
-print "\n\nComplete.  Your package is now located at:\n $base_dir/$short_name-$version-$arch.deb\n\n";
+`cd $base_dir ; dpkg-deb --build deb ; mv deb.deb $package_name`;
+
+print "\n\nComplete.  Your package is now located at:\n $base_dir/$package_name\n\n";
 
 sub build_all_debug
 {

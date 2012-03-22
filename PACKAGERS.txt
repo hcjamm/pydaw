@@ -6,11 +6,11 @@ If you're reading this, you probably want to know the best and easiest way to pa
 
 2.  The plugins can be built into a single .deb by running these commands
 
-	git clone yada/yada..  #If you're reading this, you've probably already done this step
+	git clone git://git.code.sf.net/p/libmodsynth/git libmodsynth-git  #If you're reading this, you've probably already done this step
 	cd libmodsynth-git
 	git tag
 	#pick out the version you want to checkout
-	git checkout tag_you_want_to_build
+	git checkout 12.03    #or whatever tag you want to build
 	perl build-all.pl
 	#answer some question
 
@@ -21,6 +21,10 @@ At the end of build.all.pl, you'll be given the choice to build or not build the
 	dpkg-deb --build deb
 	mv deb.deb lms_suite_version_etc.deb
 
-3.  Cross-compiling:  Currently, it only builds for the architecture you're using.  I build the 64 bit packages on my developer workstation, and the 32bit packages in a 32bit VM of Ubuntu.
+Alternately, you can check out the instructions for how to fully automate the packaging by typing:
+
+	perl build-all.pl --help
+
+3.  Cross-compiling:  Currently, it only builds for the architecture you're using.  I build the 64 bit packages on my developer workstation, and the 32bit packages in a 32bit VM of Ubuntu.  I may implement cross-compiling at some point, but only if I deem it as being just as reliable as compiling natively.
 
 4.  Non-deb distros:  I'll add alternative packaging to the build-all.pl script if people request it(or better yet, if they assist in creating a packaging script for it).
