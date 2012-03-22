@@ -167,7 +167,7 @@ require 'build-lib.pl';
 
 #Here are the directories used for the install, you can modify them if needed.
 $base_dir = "../$short_name";
-$package_dir = "$base_dir/$package_type";
+$package_dir = "$base_dir/$os";
 $debian_dir = "$package_dir/DEBIAN";
 #At some point, this script may include switches for different distros, which will automatically set these as appropriate.
 #The current values below are valid for Ubuntu, and likely most Debian variants
@@ -187,7 +187,7 @@ build_all_debug(
 \$bin_dir == $bin_dir");
 
 #Create a clean folder for the plugins to go in
-`rm -Rf $base_dir`;
+`rm -Rf $package_dir`;
 `mkdir -p $plugin_dir`;
 `mkdir -p $debian_dir`;
 `mkdir -p $package_dir`;
@@ -231,7 +231,8 @@ build_all_debug("Building jack-dssi-host");
 
 `cd jack-dssi-host ;  perl build.pl --build-jack-host ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host`;
 
-`cp -r . $base_dir/libmodsynth-git`;
+
+#`cp -r . $base_dir/libmodsynth-git`;
 
 maintainer_label:
 
