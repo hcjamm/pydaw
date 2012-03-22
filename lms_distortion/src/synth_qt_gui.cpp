@@ -117,7 +117,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_gain  =   newQDial(-6, 36, 1, 15); //get_knob(pitch);
     m_gainLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Gain",m_gain, m_gainLabel);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "In Gain",m_gain, m_gainLabel);
     connect(m_gain,  SIGNAL(valueChanged(int)), this, SLOT(gainChanged(int)));
         
     f_gb_layout_column++;
@@ -125,6 +125,13 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_wet  =  get_knob(zero_to_one); 
     add_widget_no_label(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Wet", m_wet);
     connect(m_wet,  SIGNAL(valueChanged(int)), this, SLOT(wetChanged(int)));
+        
+    f_gb_layout_column++;
+    
+    m_outGain  =   newQDial(-24, 6, 1, -6); //get_knob(pitch);
+    m_outGainLabel  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Out Gain",m_outGain, m_outGainLabel);
+    connect(m_outGain,  SIGNAL(valueChanged(int)), this, SLOT(outGainChanged(int)));
         
     f_gb_layout_column++;
     
@@ -331,6 +338,12 @@ void SynthGUI::setWet(float val)
     m_suppressHostUpdate = false;
 }
 
+void SynthGUI::setOutGain(float val)
+{
+    m_suppressHostUpdate = true;
+    m_outGain->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
 
 /*Standard handlers for the audio slots, these perform manipulations of knob values
  that are common in audio applications*/
@@ -407,6 +420,11 @@ void SynthGUI::wetChanged(int value)
     }  
 }
 
+void SynthGUI::outGainChanged(int value)
+{
+    changed_decibels(value, m_outGainLabel, LMS_OUT_GAIN);    
+}
+
 void SynthGUI::v_print_port_name_to_cerr(int a_port)
 {
 #ifdef LMS_DEBUG_MODE_QT
@@ -440,12 +458,15 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     
     switch (a_port) 
     {
-    case LMS_GAIN:
-	setGain(a_value);
-	break;
-    case LMS_WET:
-	setWet(a_value);
-	break;
+        case LMS_GAIN:
+            setGain(a_value);
+            break;
+        case LMS_WET:
+            setWet(a_value);
+            break;
+        case LMS_OUT_GAIN:
+            setOutGain(a_value);
+            break;
     }
 }
 
@@ -469,6 +490,9 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case LMS_WET:
 	wetChanged(a_value);
 	break;
+    case LMS_OUT_GAIN:
+	outGainChanged(a_value);
+	break;
     default:
 #ifdef LMS_DEBUG_MODE_QT
 	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
@@ -490,6 +514,8 @@ int SynthGUI::i_get_control(int a_port)
         return m_gain->value();
     case LMS_WET:
         return m_wet->value();
+    case LMS_OUT_GAIN:
+        return m_gain->value();
     default:
 #ifdef LMS_DEBUG_MODE_QT
 	cerr << "Warning: received request to get nonexistent port " << a_port << endl;

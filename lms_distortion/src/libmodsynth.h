@@ -25,6 +25,7 @@ extern "C" {
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/modules/distortion/clipper.h"
 #include "../../libmodsynth/modules/signal_routing/audio_xfade.h"
+#include "../../libmodsynth/lib/amp.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -54,6 +55,8 @@ typedef struct st_mono_modules
     t_clipper * clipper0;
     t_clipper * clipper1;
     t_audio_xfade * dry_wet;
+    t_amp * amp_ptr;
+    float outgain;
 }t_mono_modules;
     
 
@@ -67,6 +70,8 @@ t_mono_modules * v_mono_init(float a_sr)
     a_mono->clipper0 = g_clp_get_clipper();
     a_mono->clipper1 = g_clp_get_clipper();
     a_mono->dry_wet = g_axf_get_audio_xfade(-3.0f);
+    a_mono->amp_ptr = g_amp_get();
+    a_mono->outgain = 1.0f;
     
     v_clp_set_clip_sym(a_mono->clipper0, -3.0);
     v_clp_set_clip_sym(a_mono->clipper1, -3.0);
