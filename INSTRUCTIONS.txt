@@ -31,6 +31,15 @@ How to debug using GDB and an IDE:
 	Begin debugging in your IDE.  Your IDE will allow you to stop at any of your breakpoints and examine the state of your plugin.
 
 
+How to debug by having the plugin write text to the console:
+
+	In synth.h, there are multiple #defines that have been commented out, like:
+
+	#define LMS_DEBUG_MAIN_LOOP
+
+	If you uncomment them, you can print debug output defined in synth.c, etc... to the console.
+
+
 How to create .deb packages:
 	
 	Package all plugins in a single .deb(preferred):
@@ -104,18 +113,3 @@ How to fork a plugin manually:
 	The appropriate files can be added to git with:
 	git add src/dssi.h src/libmodsynth.h src/Makefile.am src/synth.c src/synth.h src/synth_qt_gui.cpp src/meta.h src/synth_qt_gui.h build.pl Makefile.am configure.ac
 
-How to debug by having the plugin write text to the console:
-
-	In synth.h, there are multiple #defines that have been commented out, like:
-
-	#define LMS_DEBUG_MAIN_LOOP
-
-	If you uncomment them, you can print debug output defined in synth.c, etc... to the console.
-
-How to debug in an IDE, or using gdb, etc...:
-
-	You will need an ELF executable, use the one here:
-
-	../jack-dssi-host/jack-dssi-host
-
-	This will be built automatically the first time you run "perl build.pl --full-build" in any plugin folder.
