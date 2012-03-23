@@ -175,6 +175,7 @@ $icon_dir = "$package_dir/usr/share/pixmaps";
 $desktop_dir = "$package_dir/usr/share/applications";
 $plugin_dir = "$package_dir/usr/lib/dssi";
 $bin_dir = "$package_dir/usr/bin";
+$doc_dir = "$package_dir/usr/share/doc/$short_name";
 
 #print the folder names if debugging enabled
 build_all_debug(
@@ -184,7 +185,8 @@ build_all_debug(
 \$icon_dir == $icon_dir
 \$desktop_dir == $desktop_dir
 \$plugin_dir == $plugin_dir
-\$bin_dir == $bin_dir");
+\$bin_dir == $bin_dir
+\$doc_dir == $doc_dir");
 
 #Create a clean folder for the plugins to go in
 `rm -Rf $package_dir`;
@@ -194,6 +196,7 @@ build_all_debug(
 `mkdir -p $icon_dir`;
 `mkdir -p $desktop_dir`;
 `mkdir -p $bin_dir`;
+`mkdir -p $doc_dir`;
 
 foreach $val(@plugins)
 {
@@ -310,10 +313,12 @@ open (MYFILE, ">>$debian_dir/control");
 print MYFILE "$debian_control";
 close (MYFILE); 
 
+#Create the DEBIAN/conffiles file.  TODO:  look into deprecating this, it probably won't ever be needed
 open (MYFILE, ">>$debian_dir/conffiles");
 print MYFILE "";   #TODO:  Find out what this file is for, and when/if something should ever go in it
-close (MYFILE); 
+close (MYFILE);
 
+#Create the DEBIAN/postinst script
 $postinst = 
 "#!/usr/bin/perl
 #This removes locally compiled/installed copys of the plugins, to avoid conflicts in DSSI hosts
@@ -334,7 +339,32 @@ close (MYFILE);
 
 `chmod 555 "$debian_dir/postinst"`;
 
+#Create the DEBIAN/md5sums file
 `cd $package_dir; find . -type f ! -regex '.*\.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > DEBIAN/md5sums`;
+
+#Create the copyright file.  TODO: add an option to specify if this is re-packaged, or a derivative work
+
+$copyright_file = 
+"This package was created automatically with the LibModSynth 
+built-in packaging script:  build-all.pl, by the following:
+
+$maintainer
+
+LibModSynth is licensed under the GNU GPL version 3.  If this package 
+is a derivative work, it must be licensed under a compatible license,
+with the full source code available for download.
+If not, please send a message to jhubbard651\@users.sf.net.
+
+See /usr/share/common-licenses/GPL-3
+
+LibModSynth is Copyright (c) 2012 Jeff Hubbard
+Any derivative works are the copyright of their respective owners
+";
+
+open (MYFILE, ">>$doc_dir/copyright");
+#open (MYFILE, ">>$debian_dir/copyright");  #Debian says put it here, but I haven't found a single other package that does in Ubuntu, so I'm going to do what everybody else is doing
+print MYFILE "$copyright_file";
+close (MYFILE);
 
 if($prompt)
 {
