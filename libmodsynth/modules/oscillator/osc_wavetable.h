@@ -31,9 +31,6 @@ extern "C" {
 /*The wavetable oscillator.  This does not included the wavetables themselves*/    
 typedef struct st_osc_wav
 {
-    /*The position in the wavetable that we are interpolating.  Wavetables shouldn't have more than 4 digits of indexes,
-     so floating point provides acceptable precision.  A sample player can have 5 or 6 digits, so this wouldn't work in that context*/
-    float ptr;
     /*The increment to advance the pointer each tick of the sample rate clock.  For example:
      Base note of wavetable:  C1
      Playing C2:
@@ -44,16 +41,16 @@ typedef struct st_osc_wav
     float output;  //the output sample
 }t_osc_wav;
 
-/*A unison oscillator.  The _osc_type pointer determines which waveform it uses, it defaults to saw unless you set it to something else*/
+/*A unison oscillator. */
 typedef struct st_osc_wav_unison
 {
     float sr_recip;
-    int voice_count;  //Set this to the max number of voices, not to exceed OSC_UNISON_MAX_VOICES
-    fp_get_osc_func_ptr osc_type;        
+    int voice_count;  //Set this to the max number of voices, not to exceed OSC_UNISON_MAX_VOICES      
     float bottom_pitch;
     float pitch_inc;
     float voice_inc [OSC_UNISON_MAX_VOICES];
-    t_osc_core * osc_cores [OSC_UNISON_MAX_VOICES];    
+    t_osc_core * osc_cores [OSC_UNISON_MAX_VOICES];
+    t_osc_wav * osc_wavs [OSC_UNISON_MAX_VOICES];
     float phases [OSC_UNISON_MAX_VOICES];  //Restart the oscillators at the same phase on each note-on    
     float uni_spread;                
     float adjusted_amp;  //Set this with unison voices to prevent excessive volume     
@@ -79,8 +76,9 @@ inline void v_osc_set_uni_voice_count(t_osc_wav_unison*, int);
 inline void v_osc_set_unison_pitch(t_osc_wav_unison *, float, float, float);
 inline float f_osc_wav_run_unison(t_osc_wav_unison *,t_wavetable*);
 inline float f_osc_wav_run_unison_off(t_osc_wav_unison *,t_wavetable*);
-inline void v_osc_wav_run(t_osc_core *,t_wavetable*,t_lin_interpolater*);
+static inline void v_osc_wav_run(t_osc_core *,t_wavetable*,t_lin_interpolater*);
 inline void v_osc_note_on_sync_phases(t_osc_wav_unison *);
+t_osc_wav * g_osc_get_osc_wav();
 t_osc_wav_unison * g_osc_get_osc_wav_unison(float);
 
 /* void v_osc_set_uni_voice_count(
@@ -150,7 +148,7 @@ void v_osc_set_unison_pitch(t_osc_wav_unison * a_osc_ptr, float a_spread, float 
 
 
 //Return zero if the oscillator is turned off.  A function pointer should point here if the oscillator is turned off.
-float f_osc_wav_run_unison(t_osc_wav_unison * a_osc_ptr, t_wavetable* a_wavetable)
+float f_osc_wav_run_unison_off(t_osc_wav_unison * a_osc_ptr, t_wavetable* a_wavetable)
 {
     return 0;
 }
@@ -168,28 +166,16 @@ float f_osc_wav_run_unison(t_osc_wav_unison * a_osc_ptr, t_wavetable* a_wavetabl
     {
         //v_run_osc((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]), (a_osc_ptr->voice_inc[(a_osc_ptr->i_run_unison)]));
         //a_osc_ptr->current_sample = (a_osc_ptr->current_sample) + a_osc_ptr->osc_type((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]));
-        
-        
+        v_run_osc((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]), (a_osc_ptr->voice_inc[(a_osc_ptr->i_run_unison)]));
+        a_osc_ptr->current_sample = (a_osc_ptr->current_sample) + 
+                f_linear_interpolate_ptr_wrap(a_wavetable->wavetable, a_wavetable->length, 
+                ((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]->output) * (a_wavetable->length)), a_osc_ptr->linear_interpolator);
+    
         a_osc_ptr->i_run_unison = (a_osc_ptr->i_run_unison) + 1;
     }
     
     return (a_osc_ptr->current_sample) * (a_osc_ptr->adjusted_amp);
 }
-
-void v_osc_wav_run(t_osc_wav * a_core, t_wavetable* a_wavetable, t_lin_interpolater * a_interpolator)
-{    
-    a_core->inc = f_linear_interpolate_ptr_wrap(a_wavetable->wavetable, (a_core->ptr), a_interpolator);
-    
-    a_core->ptr = (a_core->ptr) + (a_core->inc);
-    
-    if((a_core->ptr) >= (a_wavetable->length))
-    {
-        a_core->ptr = (a_core->ptr) - (a_wavetable->length);
-    }
-}
-
-
-
 
 
 /*Resync the oscillators at note_on to hopefully avoid phasing artifacts*/
@@ -205,6 +191,16 @@ void v_osc_note_on_sync_phases(t_osc_wav_unison * a_osc_ptr)
     }
 }
 
+t_osc_wav * g_osc_get_osc_wav()
+{
+    t_osc_wav * f_result = (t_osc_wav*)malloc(sizeof(t_osc_wav));
+    
+    f_result->inc = 0;
+    f_result->last_pitch = 20;
+    f_result->output = 0;
+        
+    return f_result;
+}
 
 /* t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
  */
@@ -212,14 +208,12 @@ t_osc_simple_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
 {
     t_osc_wav_unison * f_result = (t_osc_wav_unison*)malloc(sizeof(t_osc_wav_unison));
     
-    v_osc_set_uni_voice_count(f_result, OSC_UNISON_MAX_VOICES);    
-    f_result->osc_type = f_get_saw;
+    v_osc_set_uni_voice_count(f_result, OSC_UNISON_MAX_VOICES);        
     f_result->sr_recip = 1 / a_sample_rate;
     f_result->adjusted_amp = 1;
     f_result->bottom_pitch = -0.1;
     f_result->current_sample = 0;
     f_result->i_run_unison = 0;
-    f_result->osc_type = f_get_osc_off;
     f_result->pitch_inc = 0.1f;
     f_result->uni_spread = 0.1f;
     f_result->voice_count = 1;
@@ -231,6 +225,7 @@ t_osc_simple_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
     while(f_i < (OSC_UNISON_MAX_VOICES))
     {
         f_result->osc_cores[f_i] =  g_get_osc_core(); 
+        f_result->osc_wavs[f_i] = 
         f_i++;
     }
         
