@@ -75,12 +75,12 @@ typedef struct st_wavetable
 
 typedef float (*fp_get_osc_wav_func_ptr)(t_osc_wav*,t_wavetable*);
 
-void v_osc_set_uni_voice_count(t_osc_wav_unison*, int);
-void v_osc_set_unison_pitch(t_osc_wav_unison *, float, float, float);
-float f_osc_wav_run_unison(t_osc_wav_unison *,t_wavetable*);
-float f_osc_wav_run_unison_off(t_osc_wav_unison *,t_wavetable*);
-void v_osc_wav_run(t_osc_core *,t_wavetable*,t_lin_interpolater*);
-void v_osc_note_on_sync_phases(t_osc_wav_unison *);
+inline void v_osc_set_uni_voice_count(t_osc_wav_unison*, int);
+inline void v_osc_set_unison_pitch(t_osc_wav_unison *, float, float, float);
+inline float f_osc_wav_run_unison(t_osc_wav_unison *,t_wavetable*);
+inline float f_osc_wav_run_unison_off(t_osc_wav_unison *,t_wavetable*);
+inline void v_osc_wav_run(t_osc_core *,t_wavetable*,t_lin_interpolater*);
+inline void v_osc_note_on_sync_phases(t_osc_wav_unison *);
 t_osc_wav_unison * g_osc_get_osc_wav_unison(float);
 
 /* void v_osc_set_uni_voice_count(
