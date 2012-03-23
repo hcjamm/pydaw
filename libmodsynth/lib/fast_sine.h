@@ -68,6 +68,7 @@ float arr_sine [arr_sine_count] = {
 -0.014247, -0.006411};
 
 inline float f_sine_fast_run(float, t_lin_interpolater*);
+inline float f_cosine_fast_run(float, t_lin_interpolater*);
 
 /* inline float f_sine_fast_run(float a_osc_core)
  * 
@@ -80,6 +81,16 @@ inline float f_sine_fast_run(float a_osc_core, t_lin_interpolater * a_lin)
     return f_linear_interpolate_arr_wrap(arr_sine, arr_sine_count, (a_osc_core * arr_sine_count), a_lin);
 }
 
+/* inline float f_cosine_fast_run(
+ * float a_osc_core, 
+ * t_lin_interpolater * a_lin)
+ * 
+ * Perform a fast, table-lookup based cosine
+ */
+inline float f_cosine_fast_run(float a_osc_core, t_lin_interpolater * a_lin)
+{
+    return f_linear_interpolate_arr_wrap(arr_sine, arr_sine_count, (a_osc_core * arr_sine_count * 1.25f), a_lin);
+}
 
 #ifdef	__cplusplus
 }
