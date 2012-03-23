@@ -53,7 +53,8 @@ inline float f_linear_interpolate(float a_a, float a_b, float a_position)
 
 /* inline float f_linear_interpolate_arr(
  * float a_table[], //an array of floats 
- * float a_ptr) //the position in a_table to interpolate
+ * float a_ptr, //the position in a_table to interpolate
+ * t_lin_interpolater * a_lin)
  * 
  * You will typically want to use f_linear_interpolate_arr_wrap instead, unless you already know ahead of time
  * that you either won't be outside the bounds of your table, or else that wrapping is not acceptable behavior
