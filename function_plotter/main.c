@@ -1,6 +1,10 @@
 /* 
  * File:   main.c
  * Author: Jeff Hubbard
+ * 
+ * This is for plotting functions.  The "doodling" code style should make it abundantly clear that
+ * this is not a serious application for serious people, but rather a fast-and-loose developer's tool
+ * for generating code that may or may not require more tweaking.
  *
  * Created on February 7, 2012, 6:52 PM
  */
@@ -71,6 +75,8 @@ void plot_db_to_amp()
     
     int count = (max - i)/inc + 1;
     
+    t_amp * amp_ptr = g_amp_get();
+    
     printf("#define arr_amp_db2a_count %i\n\n", count);
     
     printf("float arr_amp_db2a [arr_amp_db2a_count] = {\n");
@@ -88,7 +94,7 @@ void plot_db_to_amp()
         
         i2++;
         
-        printf("%f", f_db_to_linear(i));
+        printf("%f", f_db_to_linear(i, amp_ptr));
         
         i = i + inc;
     }
@@ -104,6 +110,8 @@ void plot_amp_to_db()
     float max = 4;
     
     int count = (max - i)/inc + 1;
+    
+    t_amp * amp_ptr = g_amp_get();
     
     printf("#define arr_amp_a2db_count %i\n\n", count);
     
@@ -122,7 +130,7 @@ void plot_amp_to_db()
         
         i2++;
         
-        printf("%f", f_linear_to_db(i));
+        printf("%f", f_linear_to_db(i, amp_ptr));
         
         i = i + inc;
     }
@@ -134,10 +142,12 @@ void test_db_plot()
 {
     int i = -100;
     
+    t_amp * amp_ptr = g_amp_get();
+    
     while(i < 36)
     {
-        printf("real: %f   ", f_db_to_linear(i));
-        printf("fast: %f   ", f_db_to_linear_fast(i));
+        printf("real: %f   ", f_db_to_linear(i, amp_ptr));
+        printf("fast: %f   ", f_db_to_linear_fast(i, amp_ptr));
         printf("\n");
         i += 3;
     }
@@ -147,10 +157,12 @@ void test_pitch_plot()
 {
     float i = 0;
         
+    t_pit_pitch_core * core = g_pit_get();
+    
     while(i < 129)
     {
         float f_real = f_pit_midi_note_to_hz(i);
-        float f_fast = f_pit_midi_note_to_hz_fast(i);
+        float f_fast = f_pit_midi_note_to_hz_fast(i, core);
         float f_deviation = (f_real - f_fast)/f_real;
         
         
@@ -244,12 +256,49 @@ void plot_adsr_inc()
 }
 
 
+void plot_sqrt()
+{    
+    double i = 0;
+    int i2 = 0;
+    double inc = .01;
+    double max = 4;
+    
+    int count = (max - i)/inc + 1;
+    
+    printf("#define arr_sqrt_count %i\n\n", count);
+    
+    printf("float arr_sqrt [arr_sqrt_count] = {\n");
+    
+    while(i <= max)
+    {
+        if(i != 0)
+            printf(",");
+        
+        if(i2 >= 6)
+        {
+            printf("\n");
+            i2 = 0;
+        }
+        
+        i2++;
+        
+        printf("%f", sqrt(i));
+        
+        i = i + inc;
+    }
+    
+    printf("};\n");
+}
+
+
+
 /*
  * 
  */
 int main(int argc, char** argv) {
 
-    plot_amp_to_db();
+    plot_sqrt();
+    //plot_amp_to_db();
     //test_pitch_plot();
     //plot_adsr_inc();
     //plot_sine();
