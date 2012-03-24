@@ -15,19 +15,30 @@ perl build.pl [args] [compile options]
 
 args:
 --full-build 	:  A clean build, rebuilding all autotools files, does not install
+
 --quick-build 	:  A quick build, does not install
+
 --install	:  Install using make install
+
 --debug		:  Compile, install and debug, using LMS' console output.  You must uncomment the LMS_XYZ_DEBUG_MODE #defines in synth.h or in the libmodsynth library for console output to be displayed.
+
 --run		:  Debug using LMS' console output without recompiling.  This assumes the plugin was already compiled and installed before
+
 --deb 		:  Compile and package the plugin into a .deb file (this uses checkinstall, you should use the build-all.pl script instead, using the LibModSynth native packaging system)
+
 --rpm		:  Compile and package the plugin into a .rpm file (uses checkinstall, will eventually be deprecated)
+
 --deps		:  Install all dependencies.  Some operating systems are not yet supported
+
 --fork 		:  Fork the current plugin into a new plugin, with updated meta-data and Makefile
+
 --git-add	:  Adds the appropriate files to a git repository for a forked plugin using 'git add [files]'.  Use this to avoid adding unnecessary GNU autotools files to a git repository.
+
 --scm-add-show	:  Display a list of files that should be added to an alternative source code management system such as SVN, Mercurial, CVS, etc...  This only displays the files you should be adding, it does not add them for you.
+
 --build-jack-host  :  This is for compiling the jack-dssi-host.  The user should never have to run this, the script will run it automatically when needed.
 
-Note that you can also debug using the included debugger project and GDB, using the IDE of your choice.  See INSTRUCTIONS.txt for details.  GDB is more suitable for using breakpoints to step through code, whereas the console output is more suitable for getting a glimpse of what's going on in your plugin while you are using it in jack-dssi-host.
+Note that you can also debug using the included debugger project and GDB, using the IDE of your choice.  See doc/instructions.txt for details.  GDB is more suitable for using breakpoints to step through code, whereas the console output is more suitable for getting a glimpse of what's going on in your plugin while you are using it in jack-dssi-host.
 
 compile options:
 

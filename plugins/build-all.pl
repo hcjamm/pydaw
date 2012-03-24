@@ -116,7 +116,8 @@ if($prompt)
 {
 ack_label:
 	print "
-This will build all of the plugins and package them.  You must edit the list of plugins in this script to include any new ones, or exclude any old ones.  Please take care when packaging the existing LMS plugins not to create package conflicts.  If you wish only to build a single plugin, use the build.pl scripts in that plugin's directory.  If you wish to package your own collection of LMS-derived plugins, you should edit the \@plugins array in this script to include only your plugins.
+This will build all of the plugins and package them.  You must edit the list of plugins in this script to include any new ones, or exclude any old ones.  Please take care when packaging the existing LMS plugins not to create package conflicts.  
+If you wish only to build a single plugin, use the build.pl scripts in that plugin's directory.  If you wish to package your own collection of LMS-derived plugins, you should edit the \@plugins array in this script to include only your plugins.
 
 Proceed?  (y/[n]): ";
 
@@ -142,7 +143,7 @@ os_choice_label:
 	print "\nPlease select the operating system that you are packaging for:
 1. Ubuntu
 2. Debian
-
+3. AV Linux
 : ";
 
 $os_choice = <STDIN>;
@@ -153,6 +154,10 @@ if($os_choice eq "1")
 	$depends = $ubuntu_deps; $os = "ubuntu"; $package_type = "deb";
 }
 elsif($os_choice eq "2")
+{
+	$depends = $debian_deps; $os = "debian"; $package_type = "deb";
+}
+elsif($os_choice eq "3")
 {
 	$depends = $debian_deps; $os = "debian"; $package_type = "deb";
 }
@@ -287,16 +292,35 @@ if($arch eq "x86_64")
 $arch = "amd64"; #i386 will already be correct, so there is no elsif for it
 }
 
-#$version = "1.0.0-1";
-#print "Please enter the version number of this release.  
-#The format should be something like:  1.1.3 or 3.5.0\n[version number]:";
-#$version = <STDIN>;
-#chomp($version);
 
-#Creates a version number like what Ubuntu does, for example:  12.03 or 13.11.
-$version = `date +"%y.%m"`;
-chomp($version);
-$version .= "-1";
+if(-e "$short_name-version.txt")
+{
+	open FILE, "$short_name-version.txt"; # or `rm maintainer.txt` && goto maintainer_label; #die "Couldn't open file: $!"; 
+	$version = join("", <FILE>); 
+	close FILE;
+	chomp($version);
+}
+else
+{
+	#Creates a version number like what Ubuntu does, for example:  12.03 or 13.11.
+	$version = `date +"%y.%m"`;
+	chomp($version);
+	$version .= "-1";
+	if($prompt)
+	{
+		print 
+"Please enter the version number of this release.  
+The format should be something like:  1.1.3-1 or 12.04-1
+Hit enter to accept the auto-generated default version number:  $version
+[version number]:";
+		$version_answer = <STDIN>;
+		chomp($version_answer);
+
+		if($version_answer ne ""){
+			$version = $version_answer;
+		}
+	}
+}
 
 $size = `du -s $package_dir/usr`;
 $size = (split(" ", $size))[0];
@@ -387,7 +411,7 @@ if($prompt)
 The plugins have been compiled and built.  Would you like to package them now?  If you need to modify the files in $debian_dir first, you should choose 'n', and modify them manually.  Once you've done this, you can build the packages with the following commands:
 
 	cd $base_dir
-	dpkg-deb --build deb
+	dpkg-deb --build $os
 
 Build the packages now?  ([y]/n)
 ";
