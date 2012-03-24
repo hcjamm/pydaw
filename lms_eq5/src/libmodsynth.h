@@ -87,23 +87,23 @@ t_mono_modules * v_mono_init(float a_sr)
     /*EQ1*/
     a_mono->eq1_0 = g_svf_get(a_sr);
     a_mono->eq1_1 = g_svf_get(a_sr);
-    a_mono->smoother1 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 1.0f);
+    a_mono->smoother1 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 0.6f);
     /*EQ2*/
     a_mono->eq2_0 = g_svf_get(a_sr);
     a_mono->eq2_1 = g_svf_get(a_sr);
-    a_mono->smoother2 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 1.0f);
+    a_mono->smoother2 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 0.6f);
     /*EQ3*/
     a_mono->eq3_0 = g_svf_get(a_sr);
     a_mono->eq3_1 = g_svf_get(a_sr);
-    a_mono->smoother3 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 1.0f);
+    a_mono->smoother3 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 0.6f);
     /*EQ4*/
     a_mono->eq4_0 = g_svf_get(a_sr);
     a_mono->eq4_1 = g_svf_get(a_sr);
-    a_mono->smoother4 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 1.0f);
+    a_mono->smoother4 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 0.6f);
     /*EQ5*/
     a_mono->eq5_0 = g_svf_get(a_sr);
     a_mono->eq5_1 = g_svf_get(a_sr);
-    a_mono->smoother5 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 1.0f);
+    a_mono->smoother5 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 0.6f);
     
     a_mono->out_sample0 = 0.0f;
     a_mono->out_sample1 = 0.0f;
