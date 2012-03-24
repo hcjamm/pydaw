@@ -389,6 +389,10 @@ If not, please send a message to jhubbard651\@users.sf.net.
 
 See /usr/share/common-licenses/GPL-3
 
+Check out the LibModSynth project and view it's source code at:
+
+http://libmodsynth.sourceforge.net/
+
 LibModSynth is Copyright (c) 2012 Jeff Hubbard
 Any derivative works are the copyright of their respective owners
 ";
