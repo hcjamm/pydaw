@@ -222,54 +222,34 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->vals.res5 = *(plugin_data->res5);
         
 #endif
-    /*EQ1 Left Channel*/
-    v_svf_set_cutoff_base(plugin_data->mono_modules->eq1_0, (plugin_data->vals.pitch1));
-    v_svf_set_cutoff(plugin_data->mono_modules->eq1_0);    
+    /*EQ1 Left Channel*/    
     v_svf_set_res(plugin_data->mono_modules->eq1_0, (plugin_data->vals.res1));    
     v_svf_set_eq(plugin_data->mono_modules->eq1_0, (plugin_data->vals.gain1));
     /*EQ1 Right Channel*/
-    v_svf_set_cutoff_base(plugin_data->mono_modules->eq1_1, (plugin_data->vals.pitch1));
-    v_svf_set_cutoff(plugin_data->mono_modules->eq1_1);    
     v_svf_set_res(plugin_data->mono_modules->eq1_1, (plugin_data->vals.res1));    
     v_svf_set_eq(plugin_data->mono_modules->eq1_1, (plugin_data->vals.gain1));
-    /*EQ2 Left Channel*/
-    v_svf_set_cutoff_base(plugin_data->mono_modules->eq2_0, (plugin_data->vals.pitch2));
-    v_svf_set_cutoff(plugin_data->mono_modules->eq2_0);    
+    /*EQ2 Left Channel*/    
     v_svf_set_res(plugin_data->mono_modules->eq2_0, (plugin_data->vals.res2));    
     v_svf_set_eq(plugin_data->mono_modules->eq2_0, (plugin_data->vals.gain2));
-    /*EQ2 Right Channel*/
-    v_svf_set_cutoff_base(plugin_data->mono_modules->eq2_1, (plugin_data->vals.pitch2));
-    v_svf_set_cutoff(plugin_data->mono_modules->eq2_1);    
+    /*EQ2 Right Channel*/  
     v_svf_set_res(plugin_data->mono_modules->eq2_1, (plugin_data->vals.res2));    
     v_svf_set_eq(plugin_data->mono_modules->eq2_1, (plugin_data->vals.gain2));
-        /*EQ3 Left Channel*/
-    v_svf_set_cutoff_base(plugin_data->mono_modules->eq3_0, (plugin_data->vals.pitch3));
-    v_svf_set_cutoff(plugin_data->mono_modules->eq3_0);    
+    /*EQ3 Left Channel*/
     v_svf_set_res(plugin_data->mono_modules->eq3_0, (plugin_data->vals.res3));    
     v_svf_set_eq(plugin_data->mono_modules->eq3_0, (plugin_data->vals.gain3));
     /*EQ3 Right Channel*/
-    v_svf_set_cutoff_base(plugin_data->mono_modules->eq3_1, (plugin_data->vals.pitch3));
-    v_svf_set_cutoff(plugin_data->mono_modules->eq3_1);    
     v_svf_set_res(plugin_data->mono_modules->eq3_1, (plugin_data->vals.res3));    
     v_svf_set_eq(plugin_data->mono_modules->eq3_1, (plugin_data->vals.gain3));
-        /*EQ4 Left Channel*/
-    v_svf_set_cutoff_base(plugin_data->mono_modules->eq4_0, (plugin_data->vals.pitch4));
-    v_svf_set_cutoff(plugin_data->mono_modules->eq4_0);    
+    /*EQ4 Left Channel*/
     v_svf_set_res(plugin_data->mono_modules->eq4_0, (plugin_data->vals.res4));    
     v_svf_set_eq(plugin_data->mono_modules->eq4_0, (plugin_data->vals.gain4));
     /*EQ4 Right Channel*/
-    v_svf_set_cutoff_base(plugin_data->mono_modules->eq4_1, (plugin_data->vals.pitch4));
-    v_svf_set_cutoff(plugin_data->mono_modules->eq4_1);    
     v_svf_set_res(plugin_data->mono_modules->eq4_1, (plugin_data->vals.res4));    
     v_svf_set_eq(plugin_data->mono_modules->eq4_1, (plugin_data->vals.gain4));
-        /*EQ5 Left Channel*/
-    v_svf_set_cutoff_base(plugin_data->mono_modules->eq5_0, (plugin_data->vals.pitch5));
-    v_svf_set_cutoff(plugin_data->mono_modules->eq5_0);    
+    /*EQ5 Left Channel*/
     v_svf_set_res(plugin_data->mono_modules->eq5_0, (plugin_data->vals.res5));    
     v_svf_set_eq(plugin_data->mono_modules->eq5_0, (plugin_data->vals.gain5));
-    /*EQ5 Right Channel*/
-    v_svf_set_cutoff_base(plugin_data->mono_modules->eq5_1, (plugin_data->vals.pitch5));
-    v_svf_set_cutoff(plugin_data->mono_modules->eq5_1);
+    /*EQ5 Right Channel*/    
     v_svf_set_res(plugin_data->mono_modules->eq5_1, (plugin_data->vals.res5));    
     v_svf_set_eq(plugin_data->mono_modules->eq5_1, (plugin_data->vals.gain5));
         
@@ -307,23 +287,48 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             v_sml_run(plugin_data->mono_modules->smoother4, (plugin_data->vals.pitch4));
             v_sml_run(plugin_data->mono_modules->smoother5, (plugin_data->vals.pitch5));
             /*Set cutoff frequencies*/
-            
-            
+
             /*EQ1*/
-            plugin_data->mono_modules->out_sample0 = v_svf_run_4_pole_eq(plugin_data->mono_modules->eq1_0, (plugin_data->mono_modules->out_sample0));
-            plugin_data->mono_modules->out_sample1 = v_svf_run_4_pole_eq(plugin_data->mono_modules->eq1_1, (plugin_data->mono_modules->out_sample1));
+            v_svf_set_cutoff_base(plugin_data->mono_modules->eq1_0, (plugin_data->mono_modules->smoother1->last_value));
+            v_svf_set_cutoff(plugin_data->mono_modules->eq1_0);
+            v_svf_set_cutoff_base(plugin_data->mono_modules->eq1_1, (plugin_data->mono_modules->smoother1->last_value));
+            v_svf_set_cutoff(plugin_data->mono_modules->eq1_1);
             /*EQ2*/
-            plugin_data->mono_modules->out_sample0 = v_svf_run_4_pole_eq(plugin_data->mono_modules->eq2_0, (plugin_data->mono_modules->out_sample0));
-            plugin_data->mono_modules->out_sample1 = v_svf_run_4_pole_eq(plugin_data->mono_modules->eq2_1, (plugin_data->mono_modules->out_sample1));            
+            v_svf_set_cutoff_base(plugin_data->mono_modules->eq2_0, (plugin_data->mono_modules->smoother2->last_value));
+            v_svf_set_cutoff(plugin_data->mono_modules->eq2_0);
+            v_svf_set_cutoff_base(plugin_data->mono_modules->eq2_1, (plugin_data->mono_modules->smoother2->last_value));
+            v_svf_set_cutoff(plugin_data->mono_modules->eq2_1);
             /*EQ3*/
-            plugin_data->mono_modules->out_sample0 = v_svf_run_4_pole_eq(plugin_data->mono_modules->eq3_0, (plugin_data->mono_modules->out_sample0));
-            plugin_data->mono_modules->out_sample1 = v_svf_run_4_pole_eq(plugin_data->mono_modules->eq3_1, (plugin_data->mono_modules->out_sample1));            
-            /*EQ4*/
-            plugin_data->mono_modules->out_sample0 = v_svf_run_4_pole_eq(plugin_data->mono_modules->eq4_0, (plugin_data->mono_modules->out_sample0));
-            plugin_data->mono_modules->out_sample1 = v_svf_run_4_pole_eq(plugin_data->mono_modules->eq4_1, (plugin_data->mono_modules->out_sample1));            
+            v_svf_set_cutoff_base(plugin_data->mono_modules->eq3_0, (plugin_data->mono_modules->smoother3->last_value));
+            v_svf_set_cutoff(plugin_data->mono_modules->eq3_0);        
+            v_svf_set_cutoff_base(plugin_data->mono_modules->eq3_1, (plugin_data->mono_modules->smoother3->last_value));
+            v_svf_set_cutoff(plugin_data->mono_modules->eq3_1);    
+            /*EQ4*/    
+            v_svf_set_cutoff_base(plugin_data->mono_modules->eq4_0, (plugin_data->mono_modules->smoother4->last_value));
+            v_svf_set_cutoff(plugin_data->mono_modules->eq4_0);    
+            v_svf_set_cutoff_base(plugin_data->mono_modules->eq4_1, (plugin_data->mono_modules->smoother4->last_value));
+            v_svf_set_cutoff(plugin_data->mono_modules->eq4_1);            
             /*EQ5*/
-            plugin_data->mono_modules->out_sample0 = v_svf_run_4_pole_eq(plugin_data->mono_modules->eq5_0, (plugin_data->mono_modules->out_sample0));
-            plugin_data->mono_modules->out_sample1 = v_svf_run_4_pole_eq(plugin_data->mono_modules->eq5_1, (plugin_data->mono_modules->out_sample1));            
+            v_svf_set_cutoff_base(plugin_data->mono_modules->eq5_0, (plugin_data->mono_modules->smoother5->last_value));
+            v_svf_set_cutoff(plugin_data->mono_modules->eq5_0);
+            v_svf_set_cutoff_base(plugin_data->mono_modules->eq5_1, (plugin_data->mono_modules->smoother5->last_value));
+            v_svf_set_cutoff(plugin_data->mono_modules->eq5_1);
+
+            /*EQ1*/
+            plugin_data->mono_modules->out_sample0 = v_svf_run_2_pole_eq(plugin_data->mono_modules->eq1_0, (plugin_data->mono_modules->out_sample0));
+            plugin_data->mono_modules->out_sample1 = v_svf_run_2_pole_eq(plugin_data->mono_modules->eq1_1, (plugin_data->mono_modules->out_sample1));
+            /*EQ2*/
+            plugin_data->mono_modules->out_sample0 = v_svf_run_2_pole_eq(plugin_data->mono_modules->eq2_0, (plugin_data->mono_modules->out_sample0));
+            plugin_data->mono_modules->out_sample1 = v_svf_run_2_pole_eq(plugin_data->mono_modules->eq2_1, (plugin_data->mono_modules->out_sample1));            
+            /*EQ3*/
+            plugin_data->mono_modules->out_sample0 = v_svf_run_2_pole_eq(plugin_data->mono_modules->eq3_0, (plugin_data->mono_modules->out_sample0));
+            plugin_data->mono_modules->out_sample1 = v_svf_run_2_pole_eq(plugin_data->mono_modules->eq3_1, (plugin_data->mono_modules->out_sample1));            
+            /*EQ4*/
+            plugin_data->mono_modules->out_sample0 = v_svf_run_2_pole_eq(plugin_data->mono_modules->eq4_0, (plugin_data->mono_modules->out_sample0));
+            plugin_data->mono_modules->out_sample1 = v_svf_run_2_pole_eq(plugin_data->mono_modules->eq4_1, (plugin_data->mono_modules->out_sample1));            
+            /*EQ5*/
+            plugin_data->mono_modules->out_sample0 = v_svf_run_2_pole_eq(plugin_data->mono_modules->eq5_0, (plugin_data->mono_modules->out_sample0));
+            plugin_data->mono_modules->out_sample1 = v_svf_run_2_pole_eq(plugin_data->mono_modules->eq5_1, (plugin_data->mono_modules->out_sample1));            
             
             output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->out_sample0);
             
