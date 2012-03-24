@@ -7,19 +7,19 @@ If you're reading this, you probably want to know the best and easiest way to pa
 2.  The plugins can be built into a single .deb by running these commands
 
 	git clone git://git.code.sf.net/p/libmodsynth/git libmodsynth-git  #If you're reading this, you've probably already done this step
-	cd libmodsynth-git
+	cd libmodsynth-git/plugins
 	git tag
 	#pick out the version you want to checkout
-	git checkout 12.03    #or whatever tag you want to build
+	git checkout 12.03    #or whatever tag you want to build.  Skip this step to build the latest from GIT.
 	perl build-all.pl
 	#answer some question
 
 At the end of build.all.pl, you'll be given the choice to build or not build the package.  If not, you can use these commands:
 
-	cd ../lms_suite
+	cd lms_suite
 	#make whatever modifications you want
-	dpkg-deb --build deb
-	mv deb.deb lms_suite_version_etc.deb
+	dpkg-deb --build ubuntu  #or debian, or any other supported OS
+	mv ubuntu.deb lms_suite_version_etc.deb
 
 Alternately, you can check out the instructions for how to fully automate the packaging by typing:
 
