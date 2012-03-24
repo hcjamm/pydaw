@@ -21,7 +21,7 @@ args:
 --run		:  Debug using LMS' console output without recompiling.  This assumes the plugin was already compiled and installed before
 --deb 		:  Compile and package the plugin into a .deb file (this uses checkinstall, you should use the build-all.pl script instead, using the LibModSynth native packaging system)
 --rpm		:  Compile and package the plugin into a .rpm file (uses checkinstall, will eventually be deprecated)
---ubuntu-deps	:  Install all Ubuntu dependencies
+--deps		:  Install all dependencies.  Some operating systems are not yet supported
 --fork 		:  Fork the current plugin into a new plugin, with updated meta-data and Makefile
 --git-add	:  Adds the appropriate files to a git repository for a forked plugin using 'git add [files]'.  Use this to avoid adding unnecessary GNU autotools files to a git repository.
 --scm-add-show	:  Display a list of files that should be added to an alternative source code management system such as SVN, Mercurial, CVS, etc...  This only displays the files you should be adding, it does not add them for you.
@@ -54,6 +54,9 @@ $makefile = "Makefile";
 $debug_args = " -g";
 
 $deps_ubuntu = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev uuid-dev cmake liblscp-dev libmad0-dev gdb debhelper dh-make build-essential ; sudo usermod -g audio \$USER";
+
+$deps_debian = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev qjackctl libjack-dev libsndfile1-dev libsamplerate0-dev libsm-dev liblscp-dev libmad0-dev";
+
 
 #TODO:  Check for dependencies when running the other arguments, place a file when installed
 #TODO:  Place a file in the plugin directory once the first build has been run
@@ -130,9 +133,9 @@ sub run_script
 		`rm -Rf /usr/lib/dssi/$current_dir*`;
 		`sudo make install`;
 	}
-	elsif($ARGV[0] eq "--ubuntu-deps")
+	elsif($ARGV[0] eq "--deps")
 	{
-		install_deps_ubuntu();
+		install_deps();
 	}
 	elsif($ARGV[0] eq "--fork")
 	{
@@ -328,16 +331,41 @@ system("$ci_command");
 #This isn't a real check, it only tests to see if the script attempted to install the dependencies
 sub check_deps
 {
-	unless(-e "../deps_installed.txt")
+	#check both directories, because this can be invoked from the plugin's directory or the base directory
+	unless((-e "../deps_installed.txt") || (-e "deps_installed.txt"))
 	{
-		install_deps_ubuntu();
+		install_deps();
 	}
 }
 
-sub install_deps_ubuntu
+sub install_deps
 {
-$check_ubuntu = `uname -v`;
-if($check_ubuntu =~ m/ubuntu/i)
+$supported_os = 0;
+$check_os = `uname -v`;
+if($check_os =~ m/ubuntu/i)
+{
+	$supported_os = 1;
+	$deps_os = "ubuntu";
+}
+elsif(($check_os =~ m/debian/i) || ($check_os =~ m/avl/i))
+{
+	$supported_os = 1;
+	$deps_os = "debian";
+}
+else
+{	
+print("Did not detect a Ubuntu or Debian system, dependencies not installed.
+If you are running a non-Ubuntu system, please ensure that you have the 
+equivalent dependencies on your system:
+
+$deps_ubuntu
+
+Press enter to continue.
+");
+$dummy = <STDIN>;
+}
+
+if($supported_os)
 {
 	ask_deps:
 	print("Dependencies must be installed.
@@ -349,7 +377,12 @@ Enter 'y' to install, 'n' to continue without installing, or 'q' to quit [y]:\n"
 
 	if(($install_answer eq "y") || ($install_answer eq ""))
 	{
-		$deps_result = system("$deps_ubuntu");
+		if($deps_os eq "ubuntu"){		
+			$deps_result = system("$deps_ubuntu");
+		}
+		elsif($deps_os eq "ubuntu"){
+			$deps_result = system("$deps_debian");
+		}
 
 		if($deps_result)
 		{
@@ -366,17 +399,8 @@ Enter 'y' to install, 'n' to continue without installing, or 'q' to quit [y]:\n"
 	{
 		goto ask_deps;
 	}
-
 }
-else
-{	
-print("Did not detect a Ubuntu system, dependencies not installed.
-If you are running a non-Ubuntu system, please ensure that you have the 
-equivalent dependencies on your system:
 
-$deps_ubuntu
-");
-}
 `echo 'This file is created when build.pl attempts to install the dependencies' > ../deps_installed.txt`;
 }
 
