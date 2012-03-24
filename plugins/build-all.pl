@@ -165,6 +165,8 @@ else
 }
 require 'build-lib.pl';
 
+#Attempt to install dependencies first
+check_deps();
 
 #Here are the directories used for the install, you can modify them if needed.
 $base_dir = "$short_name";
@@ -211,8 +213,15 @@ system("cp $val/src/LMS_qt $plugin_dir/$val/LMS_qt");
 system("cp $val/src/.libs/$val.so $plugin_dir/$val.so");
 system("cp $val/src/.libs/$val.la $plugin_dir/$val.la");
 
-#This currently just overwrites the same file at every iteration, but I'm leaving it here because it will eventually support custom icons
-`cp packaging/libmodsynth.png $icon_dir/libmodsynth.png`;
+#Plugins with their own icon can use a file called icon.png in the base directory instead of the LMS icon
+if(-e "$val/icon.png")
+{
+	`cp $val/icon.png $icon_dir/libmodsynth.png`;
+}
+else
+{
+	`cp ../img/libmodsynth.png $icon_dir/libmodsynth.png`;	
+}
 
 #TODO:  Copy a .desktop file to the desktop_dir
 
@@ -366,7 +375,10 @@ print MYFILE "$copyright_file";
 close (MYFILE);
 
 #Copy any documentation to the $doc_dir
-`cp -Rf ../doc/* $doc_dir/*`;
+if(system("cp -Rf ../doc/* $doc_dir/"))
+{
+	print "Errors encountered while copying to $doc_dir";
+}
 
 if($prompt)
 {
