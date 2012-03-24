@@ -25,7 +25,7 @@ Structure:
 
 Compiling/Debugging/Forking:
 
-	LibModSynth uses a custom build system written in Perl to simplify the build process.  See INSTRUCTIONS.txt for details.
+	LibModSynth uses a custom build system written in Perl to simplify the build process.  See instructions.txt for details.
 
 The library:
 

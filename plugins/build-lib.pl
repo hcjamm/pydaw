@@ -45,7 +45,8 @@ There should be one build.pl script in each plugin directory.
 
 
 $plugin_path = "/usr/local/lib/dssi";
-$jack_host = "../jack-dssi-host/jack-dssi-host";
+$jack_host_dir = "../../tools/jack-dssi-host";
+$jack_host = "$jack_host_dir/jack-dssi-host";
 $sleep = "sleep 3";
 
 $makefile = "Makefile";
@@ -70,7 +71,7 @@ sub run_script
 		#check for the jack-host-dssi binary;  build it if not
 		unless(-e $jack_host)
 		{
-			`cd ../jack-dssi-host ; perl build.pl --build-jack-host`;		
+			`cd $jack_host_dir ; perl build.pl --build-jack-host`;		
 		}
 
 		if(-e $makefile)

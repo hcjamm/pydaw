@@ -233,10 +233,8 @@ close (MYFILE);
 
 build_all_debug("Building jack-dssi-host");
 
-`cd jack-dssi-host ;  perl build.pl --build-jack-host ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host`;
+`cd ../tools/jack-dssi-host ;  perl build.pl --build-jack-host ; cp jack-dssi-host ../../plugins/$bin_dir/lms-jack-dssi-host`;
 
-
-#`cp -r . $base_dir/libmodsynth-git`;
 
 maintainer_label:
 
@@ -366,6 +364,9 @@ open (MYFILE, ">>$doc_dir/copyright");
 #open (MYFILE, ">>$debian_dir/copyright");  #Debian says put it here, but I haven't found a single other package that does in Ubuntu, so I'm going to do what everybody else is doing
 print MYFILE "$copyright_file";
 close (MYFILE);
+
+#Copy any documentation to the $doc_dir
+`cp -Rf ../doc/* $doc_dir/*`;
 
 if($prompt)
 {
