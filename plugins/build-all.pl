@@ -221,11 +221,13 @@ system("cp $val/src/.libs/$val.la $plugin_dir/$val.la");
 #Plugins with their own icon can use a file called icon.png in the base directory instead of the LMS icon
 if(-e "$val/icon.png")
 {
-	`cp $val/icon.png $icon_dir/libmodsynth.png`;
+	`cp $val/icon.png $icon_dir/$val.png`;
+	$icon_name = "$val.png";
 }
 else
 {
 	`cp ../img/libmodsynth.png $icon_dir/libmodsynth.png`;	
+	$icon_name = "libmodsynth.png";
 }
 
 #TODO:  Copy a .desktop file to the desktop_dir
@@ -235,7 +237,7 @@ $desktop_text =
 Name=$val
 Comment=$description
 Exec=lms-jack-dssi-host \"$val.so\"
-Icon=libmodsynth.png
+Icon=$icon_name
 Terminal=false
 Type=Application
 Categories=AudioVideo;Audio;";
