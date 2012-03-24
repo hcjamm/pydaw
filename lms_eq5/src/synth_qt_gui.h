@@ -87,6 +87,22 @@ public slots:
     void setPitch1 (float val);
     void setRes1 (float val);
     
+    void setGain2 (float val);
+    void setPitch2 (float val);
+    void setRes2 (float val);
+    
+    void setGain3 (float val);
+    void setPitch3 (float val);
+    void setRes3 (float val);
+    
+    void setGain4 (float val);
+    void setPitch4 (float val);
+    void setRes4 (float val);
+    
+    void setGain5 (float val);
+    void setPitch5 (float val);
+    void setRes5 (float val);
+    
     void aboutToQuit();
     
 protected slots:
@@ -94,6 +110,22 @@ protected slots:
     void gain1Changed (int);
     void pitch1Changed (int);
     void res1Changed (int);
+    
+    void gain2Changed (int);
+    void pitch2Changed (int);
+    void res2Changed (int);
+    
+    void gain3Changed (int);
+    void pitch3Changed (int);
+    void res3Changed (int);
+    
+    void gain4Changed (int);
+    void pitch4Changed (int);
+    void res4Changed (int);
+    
+    void gain5Changed (int);
+    void pitch5Changed (int);
+    void res5Changed (int);
     
     void oscRecv();
 protected:
@@ -121,20 +153,41 @@ protected:
     void changed_zero_to_x(int, QLabel *, int);
     void changed_integer(int value, QLabel * _label, int _port);
        
-    
-    QString presets_tab_delimited [128];
-    
-    
     /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
     QDial *m_pitch1;
-    QLabel *m_pitch1Label;    
-    
+    QLabel *m_pitch1Label;
     QDial *m_gain1;
     QLabel *m_gain1Label;    
-    
     QDial *m_res1;
     QLabel *m_res1Label;
     
+    QDial *m_pitch2;
+    QLabel *m_pitch2Label;
+    QDial *m_gain2;
+    QLabel *m_gain2Label;    
+    QDial *m_res2;
+    QLabel *m_res2Label;
+    
+    QDial *m_pitch3;
+    QLabel *m_pitch3Label;
+    QDial *m_gain3;
+    QLabel *m_gain3Label;    
+    QDial *m_res3;
+    QLabel *m_res3Label;
+    
+    QDial *m_pitch4;
+    QLabel *m_pitch4Label;
+    QDial *m_gain4;
+    QLabel *m_gain4Label;    
+    QDial *m_res4;
+    QLabel *m_res4Label;
+    
+    QDial *m_pitch5;
+    QLabel *m_pitch5Label;
+    QDial *m_gain5;
+    QLabel *m_gain5Label;    
+    QDial *m_res5;
+    QLabel *m_res5Label;
     
     lo_address m_host;
     QByteArray m_controlPath;

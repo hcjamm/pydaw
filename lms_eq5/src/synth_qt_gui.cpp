@@ -115,18 +115,22 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     QGroupBox * f_gb_filter = newGroupBox("Parametric EQ", this); 
     QGridLayout *f_gb_filter_layout = new QGridLayout(f_gb_filter);
     
+    /*EQ1*/
     m_pitch1  =  get_knob(pitch); 
-    add_widget_no_label(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Freq", m_pitch1);
+    m_pitch1Label = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Freq",m_pitch1, m_pitch1Label);    
     connect(m_pitch1,  SIGNAL(valueChanged(int)), this, SLOT(pitch1Changed(int)));
         
-    f_gb_layout_column++;
+    //f_gb_layout_column++;
+    f_gb_layout_row += 3;
     
     m_gain1  =   newQDial(-24, 24, 1, 0);
     m_gain1Label  = newQLabel(this);
     add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Boost",m_gain1, m_gain1Label);
     connect(m_gain1,  SIGNAL(valueChanged(int)), this, SLOT(gain1Changed(int)));
         
-    f_gb_layout_column++;
+    //f_gb_layout_column++;
+    f_gb_layout_row += 3;
         
     m_res1  =   newQDial(-24, -1, 1, -15);
     m_res1Label  = newQLabel(this);
@@ -134,6 +138,113 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_res1,  SIGNAL(valueChanged(int)), this, SLOT(res1Changed(int)));
         
     f_gb_layout_column++;
+    f_gb_layout_row = 0;
+    
+    /*EQ2*/
+    
+    m_pitch2  =  get_knob(pitch); 
+    m_pitch2Label = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Freq",m_pitch2, m_pitch2Label);    
+    connect(m_pitch2,  SIGNAL(valueChanged(int)), this, SLOT(pitch2Changed(int)));
+        
+    //f_gb_layout_column++;
+    f_gb_layout_row += 3;
+    
+    m_gain2  =   newQDial(-24, 24, 1, 0);
+    m_gain2Label  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Boost",m_gain2, m_gain2Label);
+    connect(m_gain2,  SIGNAL(valueChanged(int)), this, SLOT(gain2Changed(int)));
+        
+    //f_gb_layout_column++;
+    f_gb_layout_row += 3;
+        
+    m_res2  =   newQDial(-24, -1, 1, -15);
+    m_res2Label  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Q",m_res2, m_res2Label);
+    connect(m_res2,  SIGNAL(valueChanged(int)), this, SLOT(res2Changed(int)));
+        
+    f_gb_layout_column++;
+    f_gb_layout_row = 0;
+    
+    /*EQ3*/
+    
+    m_pitch3  =  get_knob(pitch); 
+    m_pitch3Label = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Freq",m_pitch3, m_pitch3Label);    
+    connect(m_pitch3,  SIGNAL(valueChanged(int)), this, SLOT(pitch3Changed(int)));
+        
+    //f_gb_layout_column++;
+    f_gb_layout_row += 3;
+    
+    m_gain3  =   newQDial(-24, 24, 1, 0);
+    m_gain3Label  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Boost",m_gain3, m_gain3Label);
+    connect(m_gain3,  SIGNAL(valueChanged(int)), this, SLOT(gain3Changed(int)));
+        
+    //f_gb_layout_column++;
+    f_gb_layout_row += 3;
+        
+    m_res3  =   newQDial(-24, -1, 1, -15);
+    m_res3Label  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Q",m_res3, m_res3Label);
+    connect(m_res3,  SIGNAL(valueChanged(int)), this, SLOT(res3Changed(int)));
+        
+    f_gb_layout_column++;
+    f_gb_layout_row = 0;
+    
+    /*EQ4*/
+    
+    m_pitch4  =  get_knob(pitch); 
+    m_pitch4Label = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Freq",m_pitch4, m_pitch4Label);    
+    connect(m_pitch4,  SIGNAL(valueChanged(int)), this, SLOT(pitch4Changed(int)));
+        
+    //f_gb_layout_column++;
+    f_gb_layout_row += 3;
+    
+    m_gain4  =   newQDial(-24, 24, 1, 0);
+    m_gain4Label  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Boost",m_gain4, m_gain4Label);
+    connect(m_gain4,  SIGNAL(valueChanged(int)), this, SLOT(gain4Changed(int)));
+        
+    //f_gb_layout_column++;
+    f_gb_layout_row += 3;
+        
+    m_res4  =   newQDial(-24, -1, 1, -15);
+    m_res4Label  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Q",m_res4, m_res4Label);
+    connect(m_res4,  SIGNAL(valueChanged(int)), this, SLOT(res4Changed(int)));
+        
+    f_gb_layout_column++;
+    f_gb_layout_row = 0;
+    
+    /*EQ5*/
+    
+    m_pitch5  =  get_knob(pitch); 
+    m_pitch5Label = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Freq",m_pitch5, m_pitch5Label);    
+    connect(m_pitch5,  SIGNAL(valueChanged(int)), this, SLOT(pitch5Changed(int)));
+        
+    //f_gb_layout_column++;
+    f_gb_layout_row += 3;
+    
+    m_gain5  =   newQDial(-24, 24, 1, 0);
+    m_gain5Label  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Boost",m_gain5, m_gain5Label);
+    connect(m_gain5,  SIGNAL(valueChanged(int)), this, SLOT(gain5Changed(int)));
+        
+    //f_gb_layout_column++;
+    f_gb_layout_row += 3;
+        
+    m_res5  =   newQDial(-24, -1, 1, -15);
+    m_res5Label  = newQLabel(this);
+    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Q",m_res5, m_res5Label);
+    connect(m_res5,  SIGNAL(valueChanged(int)), this, SLOT(res5Changed(int)));
+        
+    f_gb_layout_column++;
+    f_gb_layout_row = 0;
+    
+    /*End EQ sections*/
     
     layout_row0->addWidget(f_gb_filter, -1, Qt::AlignLeft);
     f_column++;
@@ -151,7 +262,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     layout_row1->addWidget(f_logo_label, -1, Qt::AlignRight);
                 
         
-    /*End test button code, DO NOT remove the code below this*/
+    /*DO NOT remove the code below this*/
 
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
@@ -324,6 +435,7 @@ QComboBox * SynthGUI::get_combobox(QString a_choices [], int a_count,  QWidget *
     return f_result;
 }
 
+/*EQ1*/
 void SynthGUI::setGain1(float val)
 {
     m_suppressHostUpdate = true;
@@ -344,6 +456,98 @@ void SynthGUI::setRes1(float val)
     m_res1->setValue(int(val));
     m_suppressHostUpdate = false;
 }
+
+/*EQ2*/
+void SynthGUI::setGain2(float val)
+{
+    m_suppressHostUpdate = true;
+    m_gain2->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setPitch2(float val)
+{
+    m_suppressHostUpdate = true;
+    m_pitch2->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setRes2(float val)
+{
+    m_suppressHostUpdate = true;
+    m_res2->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+/*EQ3*/
+void SynthGUI::setGain3(float val)
+{
+    m_suppressHostUpdate = true;
+    m_gain3->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setPitch3(float val)
+{
+    m_suppressHostUpdate = true;
+    m_pitch3->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setRes3(float val)
+{
+    m_suppressHostUpdate = true;
+    m_res3->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+
+/*EQ4*/
+void SynthGUI::setGain4(float val)
+{
+    m_suppressHostUpdate = true;
+    m_gain4->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setPitch4(float val)
+{
+    m_suppressHostUpdate = true;
+    m_pitch4->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setRes4(float val)
+{
+    m_suppressHostUpdate = true;
+    m_res4->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+
+/*EQ5*/
+void SynthGUI::setGain5(float val)
+{
+    m_suppressHostUpdate = true;
+    m_gain5->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setPitch5(float val)
+{
+    m_suppressHostUpdate = true;
+    m_pitch5->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setRes5(float val)
+{
+    m_suppressHostUpdate = true;
+    m_res5->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+
 
 /*Standard handlers for the audio slots, these perform manipulations of knob values
  that are common in audio applications*/
@@ -408,6 +612,7 @@ void SynthGUI::changed_decibels(int a_value, QLabel * a_label, int a_port)
 
 /*Implement the event handlers from step 3.*/
 
+/*EQ1*/
 void SynthGUI::pitch1Changed(int value)
 {
     changed_pitch(value, m_pitch1Label, LMS_PITCH1);        
@@ -422,6 +627,73 @@ void SynthGUI::res1Changed(int value)
 {
     changed_decibels(value, m_res1Label, LMS_RES1);    
 }
+
+/*EQ2*/
+void SynthGUI::pitch2Changed(int value)
+{
+    changed_pitch(value, m_pitch2Label, LMS_PITCH2);        
+}
+
+void SynthGUI::gain2Changed(int value)
+{
+    changed_decibels(value, m_gain2Label, LMS_GAIN2);    
+}
+
+void SynthGUI::res2Changed(int value)
+{
+    changed_decibels(value, m_res2Label, LMS_RES2);    
+}
+
+/*EQ3*/
+void SynthGUI::pitch3Changed(int value)
+{
+    changed_pitch(value, m_pitch3Label, LMS_PITCH3);        
+}
+
+void SynthGUI::gain3Changed(int value)
+{
+    changed_decibels(value, m_gain3Label, LMS_GAIN3);    
+}
+
+void SynthGUI::res3Changed(int value)
+{
+    changed_decibels(value, m_res3Label, LMS_RES3);    
+}
+
+/*EQ4*/
+void SynthGUI::pitch4Changed(int value)
+{
+    changed_pitch(value, m_pitch4Label, LMS_PITCH4);        
+}
+
+void SynthGUI::gain4Changed(int value)
+{
+    changed_decibels(value, m_gain4Label, LMS_GAIN4);    
+}
+
+void SynthGUI::res4Changed(int value)
+{
+    changed_decibels(value, m_res4Label, LMS_RES4);    
+}
+
+/*EQ5*/
+void SynthGUI::pitch5Changed(int value)
+{
+    changed_pitch(value, m_pitch5Label, LMS_PITCH5);        
+}
+
+void SynthGUI::gain5Changed(int value)
+{
+    changed_decibels(value, m_gain5Label, LMS_GAIN5);    
+}
+
+void SynthGUI::res5Changed(int value)
+{
+    changed_decibels(value, m_res5Label, LMS_RES5);    
+}
+
+
+
 
 void SynthGUI::v_print_port_name_to_cerr(int a_port)
 {
@@ -456,6 +728,7 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     
     switch (a_port) 
     {
+        /*EQ1*/
         case LMS_GAIN1:
             setGain1(a_value);
             break;
@@ -465,6 +738,47 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         case LMS_RES1:
             setRes1(a_value);
             break;
+            /*EQ2*/
+        case LMS_GAIN2:
+            setGain2(a_value);
+            break;
+        case LMS_PITCH2:
+            setPitch2(a_value);
+            break;
+        case LMS_RES2:
+            setRes2(a_value);
+            break;
+            /*EQ3*/
+        case LMS_GAIN3:
+            setGain3(a_value);
+            break;
+        case LMS_PITCH3:
+            setPitch3(a_value);
+            break;
+        case LMS_RES3:
+            setRes3(a_value);
+            break;
+            /*EQ4*/
+        case LMS_GAIN4:
+            setGain4(a_value);
+            break;
+        case LMS_PITCH4:
+            setPitch4(a_value);
+            break;
+        case LMS_RES4:
+            setRes4(a_value);
+            break;
+            /*EQ5*/
+        case LMS_GAIN5:
+            setGain5(a_value);
+            break;
+        case LMS_PITCH5:
+            setPitch5(a_value);
+            break;
+        case LMS_RES5:
+            setRes5(a_value);
+            break;
+            
     }
 }
 
@@ -481,21 +795,64 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
         m_suppressHostUpdate = true;
        /*Add the controls you created to the control handler*/
     
-    switch (a_port) {
-    case LMS_GAIN1:
-	gain1Changed(a_value);
-	break;
-    case LMS_PITCH1:
-	pitch1Changed(a_value);
-	break;
-    case LMS_RES1:
-	res1Changed(a_value);
-	break;
-    default:
+    switch (a_port) 
+    {
+        /*EQ1*/
+        case LMS_GAIN1:
+            gain1Changed(a_value);
+            break;
+        case LMS_PITCH1:
+            pitch1Changed(a_value);
+            break;
+        case LMS_RES1:
+            res1Changed(a_value);
+            break;
+        /*EQ2*/
+        case LMS_GAIN2:
+            gain2Changed(a_value);
+            break;
+        case LMS_PITCH2:
+            pitch2Changed(a_value);
+            break;
+        case LMS_RES2:
+            res2Changed(a_value);
+            break;
+        /*EQ3*/
+        case LMS_GAIN3:
+            gain3Changed(a_value);
+            break;
+        case LMS_PITCH3:
+            pitch3Changed(a_value);
+            break;
+        case LMS_RES3:
+            res3Changed(a_value);
+            break;
+        /*EQ4*/
+        case LMS_GAIN4:
+            gain4Changed(a_value);
+            break;
+        case LMS_PITCH4:
+            pitch4Changed(a_value);
+            break;
+        case LMS_RES4:
+            res4Changed(a_value);
+            break;
+        /*EQ5*/
+        case LMS_GAIN5:
+            gain5Changed(a_value);
+            break;
+        case LMS_PITCH5:
+            pitch5Changed(a_value);
+            break;
+        case LMS_RES5:
+            res5Changed(a_value);
+            break;
+
+        default:
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
+            cerr << "Warning: received request to set nonexistent port " << a_port << endl;
 #endif
-        break;
+            break;
     }
     
     if(a_suppress_host_update)
@@ -508,12 +865,46 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
 int SynthGUI::i_get_control(int a_port)
 {        
     switch (a_port) {
+        /*EQ1*/
         case LMS_PITCH1:
             return m_pitch1->value();
         case LMS_GAIN1:
             return m_gain1->value();
         case LMS_RES1:
             return m_gain1->value();
+            
+        /*EQ2*/
+        case LMS_PITCH2:
+            return m_pitch2->value();
+        case LMS_GAIN2:
+            return m_gain2->value();
+        case LMS_RES2:
+            return m_gain2->value();
+
+        /*EQ3*/
+        case LMS_PITCH3:
+            return m_pitch3->value();
+        case LMS_GAIN3:
+            return m_gain3->value();
+        case LMS_RES3:
+            return m_gain3->value();
+
+        /*EQ4*/
+        case LMS_PITCH4:
+            return m_pitch4->value();
+        case LMS_GAIN4:
+            return m_gain4->value();
+        case LMS_RES4:
+            return m_gain4->value();
+
+        /*EQ5*/
+        case LMS_PITCH5:
+            return m_pitch5->value();
+        case LMS_GAIN5:
+            return m_gain5->value();
+        case LMS_RES5:
+            return m_gain5->value();
+
         default:
 #ifdef LMS_DEBUG_MODE_QT
                 cerr << "Warning: received request to get nonexistent port " << a_port << endl;

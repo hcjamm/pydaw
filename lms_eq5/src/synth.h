@@ -20,7 +20,7 @@ extern "C" {
 //#define LMS_DEBUG_NOTE
 //#define LMS_DEBUG_MAIN_LOOP
 //#define LMS_DEBUG_MODE_QT
-#define LMS_DEBUGGER_PROJECT
+//#define LMS_DEBUGGER_PROJECT
 
 /*Then you can print debug information like this:
 #ifdef LMS_DEBUG_NOTE
@@ -37,12 +37,30 @@ printf("debug information");
 /*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
  as they are iterated through*/
 #define LMS_FIRST_CONTROL_PORT 4
+/*EQ1*/
 #define LMS_PITCH1  4
 #define LMS_GAIN1  5
 #define LMS_RES1  6
+/*EQ2*/
+#define LMS_PITCH2  7
+#define LMS_GAIN2  8
+#define LMS_RES2  9
+/*EQ1*/
+#define LMS_PITCH3  10
+#define LMS_GAIN3  11
+#define LMS_RES3  12
+/*EQ1*/
+#define LMS_PITCH4  13
+#define LMS_GAIN4  14
+#define LMS_RES4  15
+/*EQ1*/
+#define LMS_PITCH5  16
+#define LMS_GAIN5  17
+#define LMS_RES5  18
+
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 6
-#define LMS_COUNT 7 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_LAST_CONTROL_PORT 18
+#define LMS_COUNT 19 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 
 #define POLYPHONY   8  //maximum voices played at one time
@@ -53,9 +71,26 @@ printf("debug information");
 /*GUI Step 12:  Add a variable for each control in the synth_vals type*/
 typedef struct {    
     /*The variables below this line correspond to GUI controls*/
+    /*EQ1*/
     LADSPA_Data pitch1;
     LADSPA_Data gain1;
     LADSPA_Data res1;
+    /*EQ2*/
+    LADSPA_Data gain2;
+    LADSPA_Data pitch2;
+    LADSPA_Data res2;
+    /*EQ3*/
+    LADSPA_Data gain3;
+    LADSPA_Data pitch3;
+    LADSPA_Data res3;
+    /*EQ4*/
+    LADSPA_Data gain4;
+    LADSPA_Data pitch4;
+    LADSPA_Data res4;
+    /*EQ5*/
+    LADSPA_Data gain5;
+    LADSPA_Data pitch5;
+    LADSPA_Data res5;
     /*The variables below this line do NOT correspond to GUI controls*/
 #ifdef LMS_DEBUG_MAIN_LOOP
     int debug_counter;
@@ -88,9 +123,26 @@ typedef struct {
     LADSPA_Data *input1;
     LADSPA_Data *output0;
     LADSPA_Data *output1;
+    /*EQ1*/
     LADSPA_Data *gain1;
     LADSPA_Data *pitch1;
     LADSPA_Data *res1;
+    /*EQ2*/
+    LADSPA_Data *gain2;
+    LADSPA_Data *pitch2;
+    LADSPA_Data *res2;
+    /*EQ3*/
+    LADSPA_Data *gain3;
+    LADSPA_Data *pitch3;
+    LADSPA_Data *res3;
+    /*EQ4*/
+    LADSPA_Data *gain4;
+    LADSPA_Data *pitch4;
+    LADSPA_Data *res4;
+    /*EQ5*/
+    LADSPA_Data *gain5;
+    LADSPA_Data *pitch5;
+    LADSPA_Data *res5;
     
     float fs;    
     t_mono_modules * mono_modules;

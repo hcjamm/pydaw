@@ -46,6 +46,7 @@ extern "C" {
 #define SVF_FILTER_TYPE_LP 0
 #define SVF_FILTER_TYPE_HP 1
 #define SVF_FILTER_TYPE_BP 2
+#define SVF_FILTER_TYPE_EQ 3
     
 /*The maximum number of filter kernels to cascade.  Multiply this times 2 to get the number of poles the filter will have.
  To people using the library or forking the plugins I've written:  
@@ -80,6 +81,8 @@ typedef struct st_state_variable_filter
     
     float cutoff_base, cutoff_mod, cutoff_last,  velocity_mod_amt;  //New additions to fine-tune the modulation process
     
+    /*For the eq*/
+    float gain_db, gain_linear;
     /*To create a stereo or greater filter, you would create an additional array of filters for each channel*/
     t_svf_kernel * filter_kernels [SVF_MAX_CASCADE];
     t_amp * amp_ptr;
@@ -109,7 +112,12 @@ inline float v_svf_run_4_pole_hp(t_state_variable_filter*, float);
 inline float v_svf_run_2_pole_bp(t_state_variable_filter*, float);
 inline float v_svf_run_4_pole_bp(t_state_variable_filter*, float);
 
+inline float v_svf_run_2_pole_eq(t_state_variable_filter*, float);
+inline float v_svf_run_4_pole_eq(t_state_variable_filter*, float);
+
 inline float v_svf_run_no_filter(t_state_variable_filter*, float);
+
+inline void v_svf_set_eq(t_state_variable_filter*, float);
 
 /* inline float v_svf_run_no_filter(
  * t_state_variable_filter* a_svf, 
@@ -120,6 +128,15 @@ inline float v_svf_run_no_filter(t_state_variable_filter*, float);
 inline float v_svf_run_no_filter(t_state_variable_filter* a_svf, float a_in)
 {
     return a_in;
+}
+
+inline void v_svf_set_eq(t_state_variable_filter* a_svf, float a_gain)
+{
+    if(a_gain != (a_svf->gain_db))
+    {
+        a_svf->gain_db = a_gain;
+        a_svf->gain_linear = f_db_to_linear_fast(a_gain, a_svf->amp_ptr) - 1;
+    }
 }
 
 t_svf_kernel * g_svf_get_filter_kernel();
@@ -179,6 +196,15 @@ inline fp_svf_run_filter svf_get_run_filter_ptr(int a_cascades, int a_filter_typ
     else if((a_cascades == 2) && (a_filter_type == SVF_FILTER_TYPE_BP))
     {
         return v_svf_run_4_pole_bp;
+    }
+    /*EQ*/
+    else if((a_cascades == 1) && (a_filter_type == SVF_FILTER_TYPE_EQ))
+    {
+        return v_svf_run_2_pole_eq;
+    }
+    else if((a_cascades == 2) && (a_filter_type == SVF_FILTER_TYPE_EQ))
+    {
+        return v_svf_run_4_pole_eq;
     }
     /*This means that you entered invalid settings, if your filter unexpectedly returns a 2 pole lowpass, 
      then check the  settings being fed to it*/
@@ -282,6 +308,22 @@ inline float v_svf_run_4_pole_bp(t_state_variable_filter* a_svf, float a_input)
     v_svf_set_input_value(a_svf, (a_svf->filter_kernels[1]), (a_svf->filter_kernels[0]->bp));
     
     return (a_svf->filter_kernels[1]->bp);
+}
+
+inline float v_svf_run_2_pole_eq(t_state_variable_filter* a_svf, float a_input)
+{
+    v_svf_set_input_value(a_svf, (a_svf->filter_kernels[0]), a_input);
+    
+    return (((a_svf->filter_kernels[0]->bp) * (a_svf->gain_linear)) + a_input);
+}
+
+
+inline float v_svf_run_4_pole_eq(t_state_variable_filter* a_svf, float a_input)
+{
+    v_svf_set_input_value(a_svf, (a_svf->filter_kernels[0]), a_input);
+    v_svf_set_input_value(a_svf, (a_svf->filter_kernels[1]), (((a_svf->filter_kernels[0]->bp) * (a_svf->gain_linear) * 0.5f) + a_input));
+    
+    return (((a_svf->filter_kernels[1]->bp) * ((a_svf->gain_linear) * 0.5f)) + a_input);
 }
 
 inline void v_svf_set_cutoff(t_state_variable_filter*);
@@ -401,6 +443,9 @@ t_state_variable_filter * g_svf_get(float a_sample_rate)
     f_svf->filter_res = .5;
     f_svf->velocity_cutoff = 0;    
     f_svf->velocity_mod_amt = 1;
+    
+    f_svf->gain_db = 0.0f;
+    f_svf->gain_linear = 1.0f;
     
     f_svf->amp_ptr = g_amp_get();
     f_svf->pitch_core = g_pit_get();
