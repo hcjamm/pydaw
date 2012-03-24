@@ -167,7 +167,7 @@ require 'build-lib.pl';
 
 
 #Here are the directories used for the install, you can modify them if needed.
-$base_dir = "../$short_name";
+$base_dir = "$short_name";
 $package_dir = "$base_dir/$os";
 $debian_dir = "$package_dir/DEBIAN";
 #At some point, this script may include switches for different distros, which will automatically set these as appropriate.
@@ -400,7 +400,7 @@ Build the packages now?  ([y]/n)
 
 $package_name = "$short_name-$version-$os-$arch.$package_type";
 
-`cd $base_dir ; dpkg-deb --build deb ; rm $package_name ; mv deb.deb $package_name`;
+`cd $base_dir ; dpkg-deb --build $os ; rm $package_name ; mv $os.deb $package_name`;
 
 print "\n\nComplete.  Your package is now located at:\n $base_dir/$package_name\n\n";
 
