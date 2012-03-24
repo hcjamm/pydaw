@@ -14,9 +14,9 @@
 extern "C" {
 #endif
 
-#include "../libmodsynth/modules/oscillator/osc_simple.h"
-#include "../libmodsynth/lib/amp.h"
-#include "../libmodsynth/lib/pitch_core.h"
+#include "../../plugins/libmodsynth/modules/oscillator/osc_simple.h"
+#include "../../plugins/libmodsynth/lib/amp.h"
+#include "../../plugins/libmodsynth/lib/pitch_core.h"
 #include <ladspa.h>
     
 LADSPA_Data * g_get_input(int,float);
