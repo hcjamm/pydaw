@@ -8,4 +8,4 @@ Documentation is in the "doc" folder.  In here, you will find instructions for c
 
 License:
 
-LibModSynth is licensed under the GNU GPLv3 license.  See doc/copyright for details
+LibModSynth is licensed under the GNU GPLv3 license.  See ./copyright for details
