@@ -11,9 +11,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../libmodsynth/lib/amp.h"
-#include "../libmodsynth/lib/pitch_core.h"
-#include "../libmodsynth/modules/modulation/adsr.h"
+#include "../../plugins/libmodsynth/lib/amp.h"
+#include "../../plugins/libmodsynth/lib/pitch_core.h"
+#include "../../plugins/libmodsynth/modules/modulation/adsr.h"
 #include <math.h>
 
 void print_help()
