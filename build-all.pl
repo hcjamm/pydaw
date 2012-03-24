@@ -84,7 +84,8 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 'lms_comb',
 'lms_delay',
 'lms_distortion',
-'lms_filter'
+'lms_filter',
+'lms_eq5'
 );
 #Unfinished plugins not yet in the official package:
 #lms_dynamics,
