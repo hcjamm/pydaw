@@ -24,7 +24,8 @@ extern "C" {
 /*includes for any libmodsynth modules you'll be using*/
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/lib/amp.h"
-#include "../../libmodsynth/modules/filter/parametric_eq.h"
+    #include "../../libmodsynth/lib/smoother-linear.h"
+#include "../../libmodsynth/modules/filter/svf.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -51,13 +52,28 @@ void v_init_lms(float f_sr)
 
 typedef struct st_mono_modules
 {
-    t_peq_para_eq * peq1;
-    /*
-    t_peq_para_eq peq2;
-    t_peq_para_eq peq3;
-    t_peq_para_eq peq4;
-    t_peq_para_eq peq5;
-    */
+    /*EQ1*/
+    t_state_variable_filter * eq1_0;
+    t_state_variable_filter * eq1_1;
+    t_smoother_linear * smoother1;            
+    /*EQ2*/
+    t_state_variable_filter * eq2_0;
+    t_state_variable_filter * eq2_1;
+    t_smoother_linear * smoother2;
+    /*EQ3*/
+    t_state_variable_filter * eq3_0;
+    t_state_variable_filter * eq3_1;
+    t_smoother_linear * smoother3;
+    /*EQ4*/
+    t_state_variable_filter * eq4_0;
+    t_state_variable_filter * eq4_1;
+    t_smoother_linear * smoother4;
+    /*EQ5*/
+    t_state_variable_filter * eq5_0;
+    t_state_variable_filter * eq5_1;
+    t_smoother_linear * smoother5;
+    
+    float out_sample0, out_sample1;
 }t_mono_modules;
     
 
@@ -68,15 +84,29 @@ t_mono_modules * v_mono_init(float);
 t_mono_modules * v_mono_init(float a_sr)
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
+    /*EQ1*/
+    a_mono->eq1_0 = g_svf_get(a_sr);
+    a_mono->eq1_1 = g_svf_get(a_sr);
+    a_mono->smoother1 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 1.0f);
+    /*EQ2*/
+    a_mono->eq2_0 = g_svf_get(a_sr);
+    a_mono->eq2_1 = g_svf_get(a_sr);
+    a_mono->smoother2 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 1.0f);
+    /*EQ3*/
+    a_mono->eq3_0 = g_svf_get(a_sr);
+    a_mono->eq3_1 = g_svf_get(a_sr);
+    a_mono->smoother3 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 1.0f);
+    /*EQ4*/
+    a_mono->eq4_0 = g_svf_get(a_sr);
+    a_mono->eq4_1 = g_svf_get(a_sr);
+    a_mono->smoother4 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 1.0f);
+    /*EQ5*/
+    a_mono->eq5_0 = g_svf_get(a_sr);
+    a_mono->eq5_1 = g_svf_get(a_sr);
+    a_mono->smoother5 = g_sml_get_smoother_linear(a_sr, 124.0f, 20.0f, 1.0f);
     
-    a_mono->peq1 = g_peq_get(a_sr);
-    
-    /*
-    a_mono->peq2 = g_peq_get(a_sr);
-    a_mono->peq3 = g_peq_get(a_sr);
-    a_mono->peq4 = g_peq_get(a_sr);
-    a_mono->peq5 = g_peq_get(a_sr);
-    */
+    a_mono->out_sample0 = 0.0f;
+    a_mono->out_sample1 = 0.0f;
     
     return a_mono;
     
