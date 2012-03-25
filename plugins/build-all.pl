@@ -23,7 +23,7 @@ If you would like an alternate operating system added, and are willing to track 
 
 #per-distro dependencies.
 $ubuntu_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libjack-jackd2-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev";
-#A special thanks to Glenn MacArthur from AV Linux (http://www.bandshed.net/AVLinux.html) for helping me with the Debian dependencies
+#A special thanks to Glen MacArthur from AV Linux (http://www.bandshed.net/AVLinux.html) for helping me with the Debian dependencies
 $debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libjack-dev | libjack-jackd2-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev";
 
 $prompt = 1;
