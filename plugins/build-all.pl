@@ -69,7 +69,7 @@ $deb_name = replace_underscore_with_dash($short_name);
 build_all_debug("\$deb_name == $deb_name");
 
 #These are to replace the original packages that the LMS Suite came in.  You can remove these from your own plugins.
-$replaces = "ray_v,ray-v,lms_comb,lms-comb,lms_distortion,lms-distortion,lms_delay,lms-delay,lms_filter,lms-filter";
+$replaces = "ray_v, ray-v, lms_comb, lms-comb, lms_distortion, lms-distortion, lms_delay, lms-delay, lms_filter, lms-filter";
 
 #You can probably leave this empty, otherwise you should probably know if any packages conflict
 $conflicts = "";
@@ -211,7 +211,7 @@ foreach $val(@plugins)
 #copy the .so, .la and LMS_qt files to the directory we created
 `mkdir $plugin_dir/$val`;
 print "Compiling $val\n";
-`cd $val ; perl build.pl --full-build`;
+system("cd $val ; perl build.pl --full-build");
 
 print "Copying files\n";
 system("cp $val/src/LMS_qt $plugin_dir/$val/LMS_qt");
