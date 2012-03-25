@@ -22,9 +22,9 @@ If you would like an alternate operating system added, and are willing to track 
 ";
 
 #per-distro dependencies.
-$ubuntu_deps = "liblo-dev,dssi-dev,ladspa-sdk,libasound2-dev,qjackctl,libjack-jackd2-dev,libsndfile1-dev,libsamplerate0-dev,libsm-dev,liblscp-dev,libmad0-dev";
+$ubuntu_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libjack-jackd2-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev";
 #A special thanks to Glenn MacArthur from AV Linux (http://www.bandshed.net/AVLinux.html) for helping me with the Debian dependencies
-$debian_deps = "liblo-dev,dssi-dev,ladspa-sdk,libasound2-dev,qjackctl,libjack-dev,libsndfile1-dev,libsamplerate0-dev,libsm-dev,liblscp-dev,libmad0-dev";
+$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libjack-dev | libjack-jackd2-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev";
 
 $prompt = 1;
 
@@ -308,21 +308,28 @@ else
 	$version = `date +"%y.%m"`;
 	chomp($version);
 	$version .= "-1";
-	if($prompt)
-	{
-		print 
+}
+
+if($prompt)
+{
+	print 
 "Please enter the version number of this release.  
 The format should be something like:  1.1.3-1 or 12.04-1
 Hit enter to accept the auto-generated default version number:  $version
 [version number]:";
-		$version_answer = <STDIN>;
-		chomp($version_answer);
+	$version_answer = <STDIN>;
+	chomp($version_answer);
 
-		if($version_answer ne ""){
-			$version = $version_answer;
-		}
+	if($version_answer ne ""){
+		$version = $version_answer;
+		open (MYFILE, ">>$short_name-version.txt");
+		print MYFILE "$version";
+		close (MYFILE);
 	}
+
+	
 }
+
 
 $size = `du -s $package_dir/usr`;
 $size = (split(" ", $size))[0];
@@ -408,6 +415,10 @@ close (MYFILE);
 if(system("cp -Rf ../doc/* $doc_dir/"))
 {
 	print "Errors encountered while copying to $doc_dir";
+}
+else
+{
+	`rm -Rf $doc_dir/*~`;
 }
 
 if($prompt)
