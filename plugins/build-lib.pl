@@ -11,7 +11,7 @@ The LibModSynth build helper script.  http://libmodsynth.sourceforge.net
 
 Usage:
 
-perl build.pl [args] [compile options]
+perl build.pl [args] [compile options] [install options]
 
 args:
 --full-build 	:  A clean build, rebuilding all autotools files, does not install
@@ -50,6 +50,12 @@ compile options:
 
 --user-cflags [CFLAGS]  :  Specify your own CFLAGS, for either alternative architectures like ARM, or for your own experimental optimizations.
 
+install options:
+
+--user-install-options	:  Specify your own additional make install options, such as DESTDIR=\"/a/b/c\", etc...
+
+--no-sudo		:  Install without sudo privileges.  Typically this is only useful if using the DESTDIR or --prefix make install options
+
 There should be one build.pl script in each plugin directory.
 
 ";
@@ -69,10 +75,12 @@ $makefile = "Makefile";
 
 $debug_args = " -g";
 
-$deps_ubuntu = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev uuid-dev cmake liblscp-dev libmad0-dev gdb debhelper dh-make build-essential ; sudo usermod -g audio \$USER";
+$deps_ubuntu = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ qjackctl qt4-designer libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev uuid-dev cmake liblscp-dev libmad0-dev gdb debhelper dh-make build-essential";
 
 $deps_debian = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev qjackctl libjack-dev libsndfile1-dev libsamplerate0-dev libsm-dev liblscp-dev libmad0-dev";
 
+#This isn't currently in use, due to the potential for conflicts it may cause.
+$audio_group = "sudo usermod -g audio \$USER";
 
 #TODO:  Check for dependencies when running the other arguments, place a file when installed
 #TODO:  Place a file in the plugin directory once the first build has been run
@@ -284,8 +292,45 @@ else
 
 sub make_install
 {
-$install_result = system("sudo make install");
-#TODO:  Check install result
+$install_command = "make install";
+$user_inst_ops = 0;
+
+foreach $val($ARGV)
+{
+	if($user_inst_ops)
+	{
+		$install_command .= " $val";
+		break;
+	}
+
+	if($val eq "--user-install-options")
+	{
+		$user_inst_ops = 1;	
+	}
+}
+
+$sudo_install = 0;
+
+foreach $val($ARGV)
+{
+	if($sudo_install)
+	{
+		$install_command = "sudo $install_command";
+		break;
+	}
+
+	if($val eq "--no-sudo")
+	{
+		$user_inst_ops = 1;	
+	}
+}
+
+$install_result = system($install_command);
+
+if($install_result)
+{
+	print "Install returned $install_result, installation may have failed.\n";
+}
 }
 
 #$_[0] == debian, rpm or slackware
@@ -379,7 +424,7 @@ equivalent dependencies on your system:
 
 $deps_ubuntu
 
-Press enter to continue.
+Press enter to continue, or 'q' to exit.
 ");
 $dummy = <STDIN>;
 }
@@ -387,19 +432,26 @@ $dummy = <STDIN>;
 if($supported_os)
 {
 	ask_deps:
-	print("Dependencies must be installed.
-Enter 'y' to install, 'n' to continue without installing, or 'q' to quit [y]:\n");
+	print("Dependencies may need to be installed.
+
+Enter 'y' to attempt to install them automatically, 'n' to continue without installing, or 'q' to quit 
+
+If you select 'y' or 'n', you will not be prompted again to install dependencies.  You can attempt to install the dependencies later with this command:
+
+perl build.pl --deps
+
+Attempt to install dependencies[n]:\n");
 
 	$install_answer = <STDIN>;
 	chomp($install_answer);
 	$install_answer = lc($install_answer);
 
-	if(($install_answer eq "y") || ($install_answer eq ""))
+	if(($install_answer eq "y"))
 	{
 		if($deps_os eq "ubuntu"){		
 			$deps_result = system("$deps_ubuntu");
 		}
-		elsif($deps_os eq "ubuntu"){
+		elsif($deps_os eq "debian"){
 			$deps_result = system("$deps_debian");
 		}
 
@@ -412,7 +464,7 @@ Enter 'y' to install, 'n' to continue without installing, or 'q' to quit [y]:\n"
 	{
 		exit;
 	}
-	elsif($install_answer eq "n")
+	elsif(($install_answer eq "n") || ($install_answer eq ""))
 	{}
 	else
 	{
