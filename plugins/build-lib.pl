@@ -58,7 +58,12 @@ There should be one build.pl script in each plugin directory.
 $plugin_path = "/usr/local/lib/dssi";
 $jack_host_dir = "../../tools/jack-dssi-host";
 $jack_host = "$jack_host_dir/jack-dssi-host";
-$sleep = "sleep 3";
+$debug_dir = "../../bin";
+$current_dir = get_current_dir();
+$dssi_path = `cd $debug_dir ; pwd`;
+chomp($dssi_path);
+
+$sleep = "sleep 1";
 
 $makefile = "Makefile";
 
@@ -97,14 +102,18 @@ sub run_script
 		{
 			first_build();
 		}
-		make_install();
-		$current_dir = get_current_dir();
-		`rm -Rf /usr/lib/dssi/$current_dir*`;
-		exec("$jack_host $plugin_path/$plugin_name");
+
+		`rm -Rf $debug_dir/$current_dir*`;
+		`mkdir -p $debug_dir/$current_dir`;
+		system("cp src/LMS_qt $debug_dir/$current_dir/");
+		system("cp src/.libs/$current_dir.so $debug_dir/$current_dir.so");
+		system("cp src/.libs/$current_dir.la $debug_dir/$current_dir.la");
+		exec("export DSSI_PATH=\"$dssi_path\" ; $jack_host $current_dir.so");
+		`unset DSSI_PATH`;
 	}
 	elsif($ARGV[0] eq "--run")
 	{
-		exec("$jack_host $plugin_path/$plugin_name");
+		exec("$jack_host $debug_dir/$current_dir.so");
 	}
 	elsif($ARGV[0] eq "--quick-build")
 	{
@@ -140,8 +149,7 @@ sub run_script
 	}
 	elsif($ARGV[0] eq "--install")
 	{
-		$current_dir = get_current_dir();
-		`rm -Rf /usr/lib/dssi/$current_dir*`;
+		`sudo rm -Rf /usr/lib/dssi/$current_dir*`;
 		`sudo make install`;
 	}
 	elsif($ARGV[0] eq "--deps")
@@ -197,7 +205,7 @@ build($_[0]);
 
 sub clean
 {
-`$clean`;
+#`$clean`;
 `make clean`;
 `$sleep`;
 }
