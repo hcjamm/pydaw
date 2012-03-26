@@ -434,14 +434,22 @@ $deps_ubuntu
 
 Press enter to continue, or 'q' to exit.
 ");
-$dummy = <STDIN>;
+$quit_answer = <STDIN>;
+chomp($quit_answer);
+$quit_answer = lc($quit_answer);
+
+if($quit_answer eq "q")
+{
+	exit;
+}
+
 }
 
 if($supported_os)
 {
 	ask_deps:
-	print("
-
+	print(
+"
 
 
 Dependencies may need to be installed.
@@ -476,12 +484,12 @@ Attempt to install dependencies[n]:\n");
 			print("\nInstalling dependencies returned $deps_result.  The required dependencies may not have installed correctly.  If you think this is a bug, please report it.\n\n");
 		}
 	}
-	elsif($install_answer == "q")
+	elsif(($install_answer eq "n") || ($install_answer eq ""))
+	{}
+	elsif($install_answer eq "q")
 	{
 		exit;
 	}
-	elsif(($install_answer eq "n") || ($install_answer eq ""))
-	{}
 	else
 	{
 		goto ask_deps;
