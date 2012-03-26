@@ -65,6 +65,12 @@ $plugin_path = "/usr/local/lib/dssi";
 $jack_host_dir = "../../tools/jack-dssi-host";
 $jack_host = "$jack_host_dir/jack-dssi-host";
 $debug_dir = "../../bin";
+
+unless(-e $debug_dir)
+{
+`mkdir $debug_dir`;
+}
+
 $current_dir = get_current_dir();
 $dssi_path = `cd $debug_dir ; pwd`;
 chomp($dssi_path);
@@ -223,7 +229,6 @@ sub build
 {
 `moc ./src/synth_qt_gui.h -o ./src/synth_qt_gui.moc.cpp`;
 `$sleep`;
-#TODO:  test -ffast-math CFLAG
 $make = 'make --quiet CFLAGS+="';
 if($ARGV[1] eq "--native")
 {
@@ -435,7 +440,11 @@ $dummy = <STDIN>;
 if($supported_os)
 {
 	ask_deps:
-	print("Dependencies may need to be installed.
+	print("
+
+
+
+Dependencies may need to be installed.
 
 Enter 'y' to attempt to install them automatically, 'n' to continue without installing, or 'q' to quit 
 
