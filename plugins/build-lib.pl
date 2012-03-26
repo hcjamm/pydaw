@@ -440,6 +440,10 @@ If you select 'y' or 'n', you will not be prompted again to install dependencies
 
 perl build.pl --deps
 
+Also, you may want to consider adding yourself to the audio group with this command:
+
+$audio_group
+
 Attempt to install dependencies[n]:\n");
 
 	$install_answer = <STDIN>;
