@@ -299,7 +299,7 @@ foreach $val($ARGV)
 {
 	if($user_inst_ops)
 	{
-		$install_command .= " $val";
+		$install_command = "make $val install";
 		break;
 	}
 
