@@ -309,21 +309,24 @@ foreach $val($ARGV)
 	}
 }
 
-$sudo_install = 0;
+$sudo_install = 1;
 
 foreach $val($ARGV)
 {
-	if($sudo_install)
-	{
-		$install_command = "sudo $install_command";
-		break;
-	}
 
 	if($val eq "--no-sudo")
 	{
-		$user_inst_ops = 1;	
+		$sudo_install = 0;
+		break;
 	}
 }
+
+if($sudo_install)
+{
+	$install_command = "sudo $install_command";
+	break;
+}
+
 
 $install_result = system($install_command);
 
