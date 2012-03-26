@@ -464,7 +464,7 @@ Also, you may want to consider adding yourself to the audio group with this comm
 
 $audio_group
 
-Attempt to install dependencies[n]:\n");
+Attempt to install dependencies? [n]:\n");
 
 	$install_answer = <STDIN>;
 	chomp($install_answer);
