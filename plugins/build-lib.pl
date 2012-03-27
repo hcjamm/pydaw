@@ -123,7 +123,6 @@ sub run_script
 		system("cp src/.libs/$current_dir.so $debug_dir/$current_dir.so");
 		system("cp src/.libs/$current_dir.la $debug_dir/$current_dir.la");
 		exec("export DSSI_PATH=\"$dssi_path\" ; $jack_host $current_dir.so");
-		`unset DSSI_PATH`;
 	}
 	elsif($ARGV[0] eq "--run")
 	{
