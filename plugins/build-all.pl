@@ -15,6 +15,12 @@ perl build-all.pl ([-y] && ([--ubuntu] || [--debian])) || [--help]
 
 --debian :  Build for the latest Debian.  Switches for older versions may be added later if dependencies change.  Must be used with -y switch.  If you are not using -y, the script will prompt you for an OS later.
 
+--generic:  Don't create a package, just compile and create a generic installer script.  Use this to install the suite on a machine that doesn't use a supported packaging format.  You must install the following dependencies first:
+
+liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libjack-dev | libjack-jackd2-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev
+
+Once --install has run, you must run an additional command
+
 If you would like an alternate operating system added, and are willing to track down the dependency package names(and possibly help with the commands for how to create that package type), then please email them to jhubbard651-at-users.sf.net to have them added.
 
 --help:  show this help information
@@ -41,6 +47,10 @@ if(defined $ARGV[0])
 		elsif($ARGV[1] eq "--debian")
 		{
 			$depends = $debian_deps; $os = "debian"; $package_type = "deb";
+		}
+		elsif($ARGV[1] eq "--generic")
+		{
+			$depends = $debian_deps; $os = "install"; $package_type = "install";
 		}
 		else
 		{
@@ -90,6 +100,7 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 #Unfinished plugins not yet in the official package:
 #lms_dynamics,
 #lms_reverb
+#euphoria
 
 #This is the notes that your package manager will show when browsing your package.  Change this if packaging your own plugins.
 $notes = " LibModSynth is a set of developer tools designed to make it fast and easy to develop high quality DSSI plugins.
@@ -140,11 +151,14 @@ Proceed?  (y/[n]): ";
 	}
 
 os_choice_label:
-	print "\nPlease select the operating system that you are packaging for:
+	print "
+Please select the operating system that you are packaging for:
 1. Ubuntu
 2. Debian
 3. AV Linux
-: ";
+4. Generic (use this if your OS isn't a variant of one of the above)
+
+Enter choice [1-4]: ";
 
 $os_choice = <STDIN>;
 chomp($os_choice);
@@ -161,6 +175,11 @@ elsif($os_choice eq "3")
 {
 	$depends = $debian_deps; $os = "debian"; $package_type = "deb";
 }
+
+elsif($os_choice eq "3")
+{
+	$depends = $debian_deps; $os = "install"; $package_type = "install";
+}
 else
 {
 	print "\n\nInvalid OS choice: $os_choice .  Please select the number of the OS(1, 2, etc...)\n";
@@ -169,21 +188,94 @@ else
 
 }
 require 'build-lib.pl';
-
-#Attempt to install dependencies first
-check_deps();
+if($os ne "install")
+{
+	#Attempt to install dependencies first
+	check_deps();
+}
 
 #Here are the directories used for the install, you can modify them if needed.
 $base_dir = "$short_name";
 $package_dir = "$base_dir/$os";
-$debian_dir = "$package_dir/DEBIAN";
-#At some point, this script may include switches for different distros, which will automatically set these as appropriate.
-#The current values below are valid for Ubuntu, and likely most Debian variants
-$icon_dir = "$package_dir/usr/share/pixmaps";
-$desktop_dir = "$package_dir/usr/share/applications";
-$plugin_dir = "$package_dir/usr/lib/dssi";
-$bin_dir = "$package_dir/usr/bin";
-$doc_dir = "$package_dir/usr/share/doc/$short_name";
+
+#Check to see that our system directories are where we think they are.  If not, exit gracefully and ask the user to report it.
+if($os eq "install")
+{
+	if(-e "/usr/bin")
+	{
+		$bin_dir = "$package_dir/usr/bin";
+	}
+	else
+	{
+		print "
+
+Unable to find /usr/bin, the script doesn't know where to place the binary files.
+Please report a bug on the LibModSynth sourceforge.net page, and include the name and version of the OS you are running.
+
+";
+		exit;
+	}
+
+	if(-e "/usr/lib")
+	{
+		$plugin_dir = "$package_dir/usr/lib/dssi";
+	}
+	else
+	{
+		print "
+
+Unable to find /usr/lib, the script doesn't know where to place the plugin files.
+Please report a bug on the LibModSynth sourceforge.net page, and include the name and version of the OS you are running.
+
+";
+		exit;
+	}
+
+	if(-e "/usr/share/pixmaps")
+	{
+		$icon_dir = "$package_dir/usr/share/pixmaps";
+	}
+	else
+	{
+		print "
+
+Unable to find /usr/share/pixmaps, the script doesn't know where to place the icon files.
+Please report a bug on the LibModSynth sourceforge.net page, and include the name and version of the OS you are running.
+
+";
+		exit;
+	}
+
+	if(-e "/usr/share/applications")
+	{
+		$desktop_dir = "$package_dir/usr/share/applications";
+	}
+	else
+	{
+		print "
+
+Unable to find /usr/share/applications, the script doesn't know where to place the .desktop files.
+Please report a bug on the LibModSynth sourceforge.net page, and include the name and version of the OS you are running.
+
+";
+		exit;
+	}
+}
+else
+{
+	$bin_dir = "$package_dir/usr/bin";
+	$plugin_dir = "$package_dir/usr/lib/dssi";
+	$doc_dir = "$package_dir/usr/share/doc/$short_name";
+}
+
+if($os ne "install")
+{
+	$debian_dir = "$package_dir/DEBIAN";
+	#At some point, this script may include switches for different distros, which will automatically set these as appropriate.
+	#The current values below are valid for Ubuntu, and likely most Debian variants
+	$icon_dir = "$package_dir/usr/share/pixmaps";
+	$desktop_dir = "$package_dir/usr/share/applications";
+}
 
 #print the folder names if debugging enabled
 build_all_debug(
@@ -198,13 +290,17 @@ build_all_debug(
 
 #Create a clean folder for the plugins to go in
 `rm -Rf $package_dir`;
-`mkdir -p $plugin_dir`;
-`mkdir -p $debian_dir`;
 `mkdir -p $package_dir`;
-`mkdir -p $icon_dir`;
-`mkdir -p $desktop_dir`;
+`mkdir -p $plugin_dir`;
 `mkdir -p $bin_dir`;
 `mkdir -p $doc_dir`;
+`mkdir -p $icon_dir`;
+`mkdir -p $desktop_dir`;
+
+if($os ne "install")
+{
+	`mkdir -p $debian_dir`;
+}
 
 foreach $val(@plugins)
 {
@@ -244,13 +340,25 @@ Categories=AudioVideo;Audio;";
 
 open (MYFILE, ">>$desktop_dir/$val.desktop");
 print MYFILE "$desktop_text";
-close (MYFILE); 
+close (MYFILE);
+
 }
 
 build_all_debug("Building jack-dssi-host");
 
 `cd ../tools/jack-dssi-host ;  perl build.pl --build-jack-host ; cp jack-dssi-host ../../plugins/$bin_dir/lms-jack-dssi-host`;
 
+if($os eq "install")
+{
+	print "
+
+Complete.  You can now install $short_name by running the following command as root:
+
+cp -R \"$package_dir/*\" /
+
+";
+	exit;
+}
 
 maintainer_label:
 
