@@ -37,6 +37,7 @@
 #include <X11/Xatom.h>
 #include <X11/SM/SMlib.h>
 #include <qt4/QtGui/qapplication.h>
+#include <qt4/QtCore/qstring.h>
 
 static int handle_x11_error(Display *dpy, XErrorEvent *err)
 {
@@ -213,17 +214,36 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_table->setHorizontalHeaderItem(15, __qtablewidgetitem15);
         QTableWidgetItem *__qtablewidgetitem16 = new QTableWidgetItem();
         m_sample_table->setHorizontalHeaderItem(16, __qtablewidgetitem16);
-        if (m_sample_table->rowCount() < 32)
-            m_sample_table->setRowCount(32);
+        if (m_sample_table->rowCount() < LMS_MAX_SAMPLE_COUNT)
+            m_sample_table->setRowCount(LMS_MAX_SAMPLE_COUNT);
         m_sample_table->setObjectName(QString::fromUtf8("m_sample_table"));
         m_sample_table->setMinimumSize(QSize(0, 300));
         m_sample_table->setMaximumSize(QSize(1920, 800));
-        m_sample_table->setRowCount(32);
+        m_sample_table->setRowCount(LMS_MAX_SAMPLE_COUNT);
         m_sample_table->horizontalHeader()->setCascadingSectionResizes(true);
         m_sample_table->horizontalHeader()->setDefaultSectionSize(60);
         m_sample_table->horizontalHeader()->setMinimumSectionSize(42);
         m_sample_table->horizontalHeader()->setStretchLastSection(true);
 
+        for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
+        {
+            m_selected_sample[i] = new QRadioButton(this);
+            if(i == 0)
+            {
+                m_selected_sample[0]->setChecked(true);
+            }
+            
+            connect(m_selected_sample[i], SIGNAL(clicked()), this, SLOT(selectionChanged()));
+            m_sample_table->setCellWidget(i, 0, m_selected_sample[i]);
+            
+            QPixmap pmap(m_previewWidth, m_previewHeight);
+            pmap.fill();
+            
+            m_sample_graphs[i] = pmap;
+            
+            m_note_indexes[i] = 0;
+        }
+        
         verticalLayout_20->addWidget(m_sample_table);
 
         horizontalLayout_16 = new QHBoxLayout();
@@ -685,9 +705,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_3->addWidget(m_fx_knob_1_1, 1, 0, 1, 1);
 
-
         verticalLayout_2->addLayout(gridLayout_3);
-
 
         gridLayout->addWidget(groupBox_2, 0, 0, 1, 1);
 
@@ -747,9 +765,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_4->addWidget(m_fx_knob_2_1, 1, 0, 1, 1);
 
-
         verticalLayout_3->addLayout(gridLayout_4);
-
 
         gridLayout->addWidget(groupBox_3, 0, 1, 1, 1);
 
@@ -809,9 +825,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_5->addWidget(m_fx_knob_3_1, 1, 0, 1, 1);
 
-
         verticalLayout_5->addLayout(gridLayout_5);
-
 
         gridLayout->addWidget(groupBox_4, 0, 2, 1, 1);
 
@@ -1164,6 +1178,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         /*Connect slots manually*/
     
         connect(m_load_sample, SIGNAL(pressed()), this, SLOT(fileSelect()));
+        connect(m_update_sample, SIGNAL(pressed()), this, SLOT(updateSampleTable()));
 
     /*
     QGridLayout *layout = new QGridLayout(this);
@@ -1280,25 +1295,29 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_suppressHostUpdate = false;
 }
 
-void
-SamplerGUI::generatePreview(QString path)
+void SamplerGUI::generatePreview(QString path)
 {
     SF_INFO info;
     SNDFILE *file;
+    /*
     QPixmap pmap(m_previewWidth, m_previewHeight);
     pmap.fill();
-    
+    */
+    findSelected();
+
+    printf("set sample index\n");
+        
     info.format = 0;
     file = sf_open(path.toLocal8Bit(), SFM_READ, &info);
-
+    printf("Opened SNDFILE\n");
     if (file && info.frames > 0) {
 
 	float binSize = (float)info.frames / m_previewWidth;
 	float peak[2] = { 0.0f, 0.0f }, mean[2] = { 0.0f, 0.0f };
 	float *frame = (float *)malloc(info.channels * sizeof(float));
 	int bin = 0;
-
-	QPainter paint(&pmap);
+        
+	QPainter paint(&(m_sample_graphs[m_selected_sample_index]));
 
 	for (size_t i = 0; i < info.frames; ++i) {
 
@@ -1351,7 +1370,34 @@ SamplerGUI::generatePreview(QString path)
 	    }
 	}
 
+        printf("Finished loop\n");
+        
 	int duration = int(100.0 * float(info.frames) / float(info.samplerate));
+                        
+        /*Set seconds*/
+        QTableWidgetItem *f_set_seconds = new QTableWidgetItem;
+        QString * f_seconds = new QString();                
+        f_seconds->setNum((float(info.frames) / float(info.samplerate)));
+        f_set_seconds->setText(*f_seconds);
+        m_sample_table->setItem(m_selected_sample_index, 11, f_set_seconds);
+        
+        printf("set seconds\n");
+        /*Set samples*/
+        QTableWidgetItem *f_set_samples = new QTableWidgetItem;
+        QString * f_samples = new QString();                
+        f_samples->setNum((info.frames));
+        f_set_samples->setText(*f_samples);
+        m_sample_table->setItem(m_selected_sample_index, 12, f_set_samples);
+        
+        printf("set samples\n");
+        /*Trigger start/end changes to update m_sample_table*/
+        sampleStartChanged(m_sample_start->value());
+        sampleEndChanged(m_sample_start->value());
+        loopStartChanged(m_sample_start->value());
+        loopEndChanged(m_sample_start->value());
+        
+        printf("Triggered changes\n");
+        
 	std::cout << "duration " << duration << std::endl;
 	
         /*m_duration->setText(QString("%1.%2%3 sec")
@@ -1378,8 +1424,8 @@ SamplerGUI::generatePreview(QString path)
     if (file) sf_close(file);
 
     //m_preview->setPixmap(pmap);
-    m_sample_graph->setPixmap(pmap);
-
+    m_sample_graph->setPixmap(m_sample_graphs[m_selected_sample_index]);
+    
 }
 /*
 void
@@ -1397,11 +1443,145 @@ SamplerGUI::setSampleFile(QString file)
 {
     m_suppressHostUpdate = true;
     //m_sampleFile->setText(QFileInfo(file).fileName());
-    m_file_path->setText(QFileInfo(file).fileName());
+    //m_file_path->setText(QFileInfo(file).fileName());
+    m_file_path->setText(file);
     m_file = file;
+    
+    updateSampleTable();
+    /*TODO:  Move this to the last method to set values in the table*/
+    m_sample_table->resizeColumnsToContents();
+    
     generatePreview(file);
     m_suppressHostUpdate = false;
 }
+
+void SamplerGUI::updateSampleTable()
+{    
+ 
+    findSelected();
+    
+    /*Set the file path*/
+    QTableWidgetItem *f_set_file = new QTableWidgetItem;
+    f_set_file->setText(m_file);
+    m_sample_table->setItem(m_selected_sample_index, 1, f_set_file);
+    /*Set the note*/
+    QTableWidgetItem *f_set_note = new QTableWidgetItem;                
+    f_set_note->setText(m_note->currentText());
+    m_note_indexes[m_selected_sample_index] = m_note->currentIndex();
+    m_sample_table->setItem(m_selected_sample_index, 2, f_set_note);
+    /*Set the octave*/
+    QTableWidgetItem *f_set_octave = new QTableWidgetItem;
+    QString * f_octave = new QString();                
+    f_octave->setNum((m_octave->value()));
+    f_set_octave->setText(*f_octave);
+    m_sample_table->setItem(m_selected_sample_index, 3, f_set_octave);
+    /*Set the low note*/
+    QTableWidgetItem *f_set_low_note = new QTableWidgetItem;
+    QString * f_low_note = new QString();                
+    f_low_note->setNum((m_lnote->value()));
+    f_set_low_note->setText(*f_low_note);
+    m_sample_table->setItem(m_selected_sample_index, 4, f_set_low_note);
+    /*Set the high note*/
+    QTableWidgetItem *f_set_high_note = new QTableWidgetItem;
+    QString * f_high_note = new QString();                
+    f_high_note->setNum((m_hnote->value()));
+    f_set_high_note->setText(*f_high_note);
+    m_sample_table->setItem(m_selected_sample_index, 5, f_set_high_note);
+    /*Set the low velocity*/
+    QTableWidgetItem *f_set_low_vel = new QTableWidgetItem;
+    QString * f_low_vel = new QString();                
+    f_low_vel->setNum((m_lvel->value()));
+    f_set_low_vel->setText(*f_low_vel);
+    m_sample_table->setItem(m_selected_sample_index, 6, f_set_low_vel);
+    /*Set the high velocity*/
+    QTableWidgetItem *f_set_high_vel = new QTableWidgetItem;
+    QString * f_high_vel = new QString();                
+    f_high_vel->setNum((m_hvel->value()));
+    f_set_high_vel->setText(*f_high_vel);
+    m_sample_table->setItem(m_selected_sample_index, 7, f_set_high_vel);
+    /*Set the high volume*/
+    QTableWidgetItem *f_set_vol = new QTableWidgetItem;
+    QString * f_vol = new QString();                
+    f_vol->setNum((m_sample_vol->value()));
+    f_set_vol->setText(*f_vol);
+    m_sample_table->setItem(m_selected_sample_index, 8, f_set_vol);
+    /*Set the FX group*/
+    QTableWidgetItem *f_set_fx = new QTableWidgetItem;                
+    f_set_fx->setText(m_sample_fx_group->currentText());
+    m_sample_table->setItem(m_selected_sample_index, 9, f_set_fx);
+    /*Set the mode*/
+    QTableWidgetItem *f_set_mode = new QTableWidgetItem;                
+    f_set_mode->setText(m_play_mode->currentText());
+    m_sample_table->setItem(m_selected_sample_index, 10, f_set_mode);
+    
+}
+
+
+void SamplerGUI::setSelection(int a_value)
+{
+    m_suppressHostUpdate = true;
+    m_selected_sample[a_value]->setChecked(true);
+    m_suppressHostUpdate = false;
+}
+
+void SamplerGUI::setSampleStart(int a_value)
+{
+    m_suppressHostUpdate = true;
+    m_sample_start->setValue(a_value);
+    m_suppressHostUpdate = false;
+}
+
+void SamplerGUI::setSampleEnd(int a_value)
+{
+    m_suppressHostUpdate = true;
+    m_sample_end->setValue(a_value);
+    m_suppressHostUpdate = false;
+}
+
+void SamplerGUI::setSampleStartFine(int a_value)
+{
+    m_suppressHostUpdate = true;
+    m_sample_start_fine->setValue(a_value);
+    m_suppressHostUpdate = false;
+}
+
+void SamplerGUI::setSampleEndFine(int a_value)
+{
+    m_suppressHostUpdate = true;
+    m_sample_end_fine->setValue(a_value);
+    m_suppressHostUpdate = false;
+}
+
+void SamplerGUI::setLoopStart(int a_value)
+{
+    m_suppressHostUpdate = true;
+    m_loop_start->setValue(a_value);
+    m_suppressHostUpdate = false;
+}
+
+void SamplerGUI::setLoopEnd(int a_value)
+{
+    m_suppressHostUpdate = true;
+    m_loop_end->setValue(a_value);
+    m_suppressHostUpdate = false;
+}
+
+void SamplerGUI::setLoopStartFine(int a_value)
+{
+    m_suppressHostUpdate = true;
+    m_loop_start_fine->setValue(a_value);
+    m_suppressHostUpdate = false;
+}
+
+void SamplerGUI::setLoopEndFine(int a_value)
+{
+    m_suppressHostUpdate = true;
+    m_loop_end_fine->setValue(a_value);
+    m_suppressHostUpdate = false;
+}
+
+
+
 /*
 void
 SamplerGUI::setRetune(bool retune)
@@ -1536,6 +1716,103 @@ SamplerGUI::fileSelect()
 	    setSampleFile(path);
 	}
     }
+}
+
+/* This finds the selected row and sets m_selected_sample_index to it's index.
+ */
+void SamplerGUI::findSelected()
+{
+    for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
+    {
+        if(m_selected_sample[i]->isChecked())
+        {
+            m_selected_sample_index = i;
+            break;
+        }
+    }
+}
+
+void SamplerGUI::selectionChanged()
+{
+    findSelected();
+    /*These 2 will never be null, and should be set regardless of whether a sample is loaded*/
+    m_sample_graph->setPixmap(m_sample_graphs[m_selected_sample_index]);
+    m_sample_num->setValue(m_selected_sample_index);
+    
+    QTableWidgetItem * f_item_file = m_sample_table->item(m_selected_sample_index, 1);    
+    
+    /*If no file loaded, then the selection is empty.  Clear the file path and don't bother setting any other widgets*/
+    if(!f_item_file)
+    {
+        m_file_path->setText("");
+        return;
+    }
+    
+    m_file_path->setText((f_item_file->text()));
+    
+    QTableWidgetItem * f_item_note = m_sample_table->item(m_selected_sample_index, 2);    
+    if(f_item_note){
+        m_note->setCurrentIndex(m_note_indexes[m_selected_sample_index]);
+    }    
+    QTableWidgetItem * f_item_octave = m_sample_table->item(m_selected_sample_index, 3);    
+    if(f_item_octave){
+        int f_octave = f_item_octave->text().toInt();
+        printf("f_octave = %i\n", f_octave);
+        m_octave->setValue(f_octave);
+    }
+    QTableWidgetItem * f_item_lnote = m_sample_table->item(m_selected_sample_index, 4);    
+    if(f_item_lnote){
+        int f_lnote = f_item_lnote->text().toInt();
+        printf("f_lnote = %i\n", f_lnote);
+        m_lnote->setValue(f_lnote);
+    }
+    QTableWidgetItem * f_item_hnote = m_sample_table->item(m_selected_sample_index, 5);
+    if(f_item_hnote){
+        int f_hnote = f_item_hnote->text().toInt();
+        printf("f_hnote = %i\n", f_hnote);
+        m_hnote->setValue(f_hnote);
+    }
+}
+
+void SamplerGUI::sampleStartChanged(int a_value)
+{
+    
+    
+}
+
+void SamplerGUI::sampleEndChanged(int a_value)
+{
+    
+}
+
+void SamplerGUI::sampleStartFineChanged(int a_value)
+{
+    
+}
+
+void SamplerGUI::sampleEndFineChanged(int a_value)
+{
+    
+}
+
+void SamplerGUI::loopStartChanged(int a_value)
+{
+    
+}
+
+void SamplerGUI::loopEndChanged(int a_value)
+{
+    
+}
+
+void SamplerGUI::loopStartFineChanged(int a_value)
+{
+    
+}
+
+void SamplerGUI::loopEndFineChanged(int a_value)
+{
+    
 }
 
 

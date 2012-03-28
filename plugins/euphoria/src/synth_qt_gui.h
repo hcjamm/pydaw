@@ -42,6 +42,9 @@
 #include <QtGui/QTableWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
+#include <QRadioButton>
+
+#include "synth.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -63,9 +66,24 @@ public:
     void setHostRequestedQuit(bool r) { m_hostRequestedQuit = r; }
     
     void retranslateUi(QFrame * Frame);
-
-public slots:
+    void findSelected();
+    
+public slots:        
     void setSampleFile(QString file);
+    void updateSampleTable();
+    
+    void setSelection(int);
+    
+    void setSampleStart(int);
+    void setSampleEnd(int);
+    void setSampleStartFine(int);
+    void setSampleEndFine(int);
+    
+    void setLoopStart(int);
+    void setLoopEnd(int);
+    void setLoopStartFine(int);
+    void setLoopEndFine(int);
+    
     /*
     void setRetune(bool retune);
     void setBasePitch(int pitch);
@@ -78,6 +96,18 @@ public slots:
 
 protected slots:
     void fileSelect();
+    
+    void selectionChanged();
+    
+    void sampleStartChanged(int);
+    void sampleEndChanged(int);
+    void sampleStartFineChanged(int);
+    void sampleEndFineChanged(int);
+    
+    void loopStartChanged(int);
+    void loopEndChanged(int);
+    void loopStartFineChanged(int);
+    void loopEndFineChanged(int);
     /*
     void retuneChanged(bool);
     void basePitchChanged(int);
@@ -112,6 +142,12 @@ protected:
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout_20;
     QTableWidget *m_sample_table;
+    
+    QRadioButton * m_selected_sample[LMS_MAX_SAMPLE_COUNT];
+    int m_selected_sample_index;
+    QPixmap m_sample_graphs[LMS_MAX_SAMPLE_COUNT];
+    int m_note_indexes [LMS_MAX_SAMPLE_COUNT];
+    
     QHBoxLayout *horizontalLayout_16;
     QVBoxLayout *verticalLayout_21;
     QHBoxLayout *horizontalLayout_17;
@@ -266,7 +302,7 @@ protected:
     QTableWidget *tableWidget_2;
     QWidget *tab;
     QLabel *label_6;
-
+    
     lo_address m_host;
     QByteArray m_controlPath;
     QByteArray m_midiPath;
