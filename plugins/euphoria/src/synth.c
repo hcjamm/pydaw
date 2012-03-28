@@ -29,31 +29,11 @@
 #include <pthread.h>
 
 #include "synth.h"
+#include "meta.h"
 
-static LADSPA_Descriptor *samplerMonoLDescriptor = NULL;
 static LADSPA_Descriptor *samplerStereoLDescriptor = NULL;
 
-static DSSI_Descriptor *samplerMonoDDescriptor = NULL;
 static DSSI_Descriptor *samplerStereoDDescriptor = NULL;
-
-typedef struct {
-    LADSPA_Data *output[2];
-    LADSPA_Data *retune;
-    LADSPA_Data *basePitch;
-    LADSPA_Data *sustain;
-    LADSPA_Data *release;
-    LADSPA_Data *balance;
-    int          channels;
-    float       *sampleData[2];
-    size_t       sampleCount;
-    int          sampleRate;
-    long         ons[Sampler_NOTES];
-    long         offs[Sampler_NOTES];
-    char         velocities[Sampler_NOTES];
-    long         sampleNo;
-    char        *projectDir;
-    pthread_mutex_t mutex;
-} Sampler;
 
 static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 		       snd_seq_event_t *events, unsigned long EventCount);
@@ -63,8 +43,6 @@ const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
     switch (index) {
     case 0:
 	return samplerStereoLDescriptor;
-    case 1:
-	return samplerMonoLDescriptor;
     default:
 	return NULL;
     }
@@ -74,9 +52,7 @@ const DSSI_Descriptor *dssi_descriptor(unsigned long index)
 {
     switch (index) {
     case 0:
-	return samplerStereoDDescriptor;
-    case 1:
-	return samplerMonoDDescriptor;
+	return samplerStereoDDescriptor;    
     default:
 	return NULL;
     }
@@ -109,22 +85,16 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
 	break;
     case Sampler_RELEASE:
 	plugin->release = data;
-	break;
+	break;    
+    case Sampler_OUTPUT_RIGHT:
+        plugin->output[1] = data;
+        break;
+    case Sampler_BALANCE:
+        plugin->balance = data;
+        break;
     default:
-	break;
-    }
+        break;
 
-    if (plugin->channels == 2) {
-	switch (port) {
-	case Sampler_OUTPUT_RIGHT:
-	    plugin->output[1] = data;
-	    break;
-	case Sampler_BALANCE:
-	    plugin->balance = data;
-	    break;
-	default:
-	    break;
-	}
     }
 }
 
@@ -142,17 +112,15 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->basePitch = 0;
     plugin_data->sustain = 0;
     plugin_data->release = 0;
-    plugin_data->balance = 0;
-    plugin_data->channels = 1;
+    plugin_data->balance = 0;    
     plugin_data->sampleData[0] = 0;
     plugin_data->sampleData[1] = 0;
     plugin_data->sampleCount = 0;
     plugin_data->sampleRate = s_rate;
     plugin_data->projectDir = 0;
 
-    if (!strcmp(descriptor->Label, Sampler_Stereo_LABEL)) {
-	plugin_data->channels = 2;
-    }
+    plugin_data->channels = 2;
+
     
     memcpy(&plugin_data->mutex, &m, sizeof(pthread_mutex_t));
 
@@ -271,8 +239,8 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 
     for (pos = 0, event_pos = 0; pos < sample_count; ) {
 
-	while (event_pos < event_count
-	       && pos >= events[event_pos].time.tick) {
+	while (event_pos < event_count){
+	       //&& pos >= events[event_pos].time.tick) {
 
 	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
@@ -481,7 +449,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path)
     if (tmpOld[0]) free(tmpOld[0]);
     if (tmpOld[1]) free(tmpOld[1]);
 
-    printf("%s: loaded %s (%ld samples from original %ld channels resampled from %ld frames at %ld Hz)\n", (plugin_data->channels == 2 ? Sampler_Stereo_LABEL : Sampler_Mono_LABEL), path, (long)samples, (long)info.channels, (long)info.frames, (long)info.samplerate);
+    printf("%s: loaded %s (%ld samples from original %ld channels resampled from %ld frames at %ld Hz)\n", Sampler_Stereo_LABEL, path, (long)samples, (long)info.channels, (long)info.frames, (long)info.samplerate);
 
     if (revisedPath) {
 	char *message = dssi_configure_message("warning: sample file '%s' not found: loading from '%s' instead", path, revisedPath);
@@ -518,14 +486,8 @@ void _init()
     LADSPA_PortRangeHint *port_range_hints;
     int channels;
 
-    samplerMonoLDescriptor =
-	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
-
     samplerStereoLDescriptor =
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
-
-    samplerMonoDDescriptor =
-	(DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
 
     samplerStereoDDescriptor =
 	(DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
@@ -536,16 +498,15 @@ void _init()
 
 	int stereo = (channels == 2);
 
-	LADSPA_Descriptor *desc =
-	    (stereo ? samplerStereoLDescriptor : samplerMonoLDescriptor);
+	LADSPA_Descriptor *desc = samplerStereoLDescriptor;
 
 	desc->UniqueID = channels;
 	desc->Label = "LMS"; //(stereo ? Sampler_Stereo_LABEL : Sampler_Mono_LABEL);
 	desc->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
-	desc->Name = (stereo ? "Simple Stereo Sampler" : "Simple Mono Sampler");
-	desc->Maker = "Chris Cannam <cannam@all-day-breakfast.com>";
+	desc->Name =  LMS_PLUGIN_LONG_NAME; //(stereo ? "Simple Stereo Sampler" : "Simple Mono Sampler");
+	desc->Maker = LMS_PLUGIN_DEV;
 	desc->Copyright = "GPL";
-	desc->PortCount = (stereo ? Sampler_Stereo_COUNT : Sampler_Mono_COUNT);
+	desc->PortCount = Sampler_Stereo_COUNT;
 
 	port_descriptors = (LADSPA_PortDescriptor *)
 	    calloc(desc->PortCount, sizeof(LADSPA_PortDescriptor));
@@ -628,17 +589,6 @@ void _init()
 	desc->set_run_adding_gain = NULL;
     }
 
-    samplerMonoDDescriptor->DSSI_API_Version = 1;
-    samplerMonoDDescriptor->LADSPA_Plugin = samplerMonoLDescriptor;
-    samplerMonoDDescriptor->configure = samplerConfigure;
-    samplerMonoDDescriptor->get_program = NULL;
-    samplerMonoDDescriptor->get_midi_controller_for_port = getControllerSampler;
-    samplerMonoDDescriptor->select_program = NULL;
-    samplerMonoDDescriptor->run_synth = runSampler;
-    samplerMonoDDescriptor->run_synth_adding = NULL;
-    samplerMonoDDescriptor->run_multiple_synths = NULL;
-    samplerMonoDDescriptor->run_multiple_synths_adding = NULL;
-
     samplerStereoDDescriptor->DSSI_API_Version = 1;
     samplerStereoDDescriptor->LADSPA_Plugin = samplerStereoLDescriptor;
     samplerStereoDDescriptor->configure = samplerConfigure;
@@ -657,15 +607,6 @@ __attribute__((destructor)) void fini()
 void _fini()
 #endif
 {
-    if (samplerMonoLDescriptor) {
-	free((LADSPA_PortDescriptor *) samplerMonoLDescriptor->PortDescriptors);
-	free((char **) samplerMonoLDescriptor->PortNames);
-	free((LADSPA_PortRangeHint *) samplerMonoLDescriptor->PortRangeHints);
-	free(samplerMonoLDescriptor);
-    }
-    if (samplerMonoDDescriptor) {
-	free(samplerMonoDDescriptor);
-    }
     if (samplerStereoLDescriptor) {
 	free((LADSPA_PortDescriptor *) samplerStereoLDescriptor->PortDescriptors);
 	free((char **) samplerStereoLDescriptor->PortNames);
