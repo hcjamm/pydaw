@@ -206,54 +206,8 @@ public:
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
-            MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
+        MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->resize(942, 694);
-        MainWindow->setStyleSheet(QString::fromUtf8(" QMainWindow::separator {\n"
-"     background: yellow;\n"
-"     width: 10px; /* when vertical */\n"
-"     height: 10px; /* when horizontal */\n"
-" }\n"
-"\n"
-" QMainWindow::separator:hover {\n"
-"     background: red;\n"
-" }\n"
-" QPushButton#evilButton {\n"
-"     background-color: red;\n"
-"     border-style: outset;\n"
-"     border-width: 2px;\n"
-"     border-radius: 10px;\n"
-"     border-color: beige;\n"
-"     font: bold 14px;\n"
-"     min-width: 10em;\n"
-"     padding: 6px;\n"
-" }\n"
-" QPushButton#evilButton:pressed {\n"
-"     background-color: rgb(224, 0, 0);\n"
-"     border-style: inset;\n"
-" }\n"
-" QLineEdit { color: red }\n"
-" QLineEdit[readOnly=\"true\"] { color: gray }\n"
-"\n"
-" QSlider::groove:horizontal {\n"
-"     border: 1px solid #999999;\n"
-"     height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */\n"
-"     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);\n"
-"     margin: 2px 0;\n"
-" }\n"
-"\n"
-" QSl"
-                        "ider::handle:horizontal {\n"
-"     background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);\n"
-"     border: 1px solid #5c5c5c;\n"
-"     width: 18px;\n"
-"     margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */\n"
-"     border-radius: 3px;\n"
-" }\n"
-"\n"
-" QTableView {\n"
-"     selection-background-color: qlineargradient(x1: 0, y1: 0, x2: 0.5, y2: 0.5,\n"
-"                                 stop: 0 #FF92BB, stop: 1 white);\n"
-" }"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         verticalLayout_4 = new QVBoxLayout(centralwidget);
