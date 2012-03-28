@@ -61,6 +61,8 @@ public:
     void setReady(bool ready) { m_ready = ready; }
 
     void setHostRequestedQuit(bool r) { m_hostRequestedQuit = r; }
+    
+    void retranslateUi(QFrame * Frame);
 
 public slots:
     void setSampleFile(QString file);

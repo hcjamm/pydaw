@@ -1150,6 +1150,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         horizontalLayout_5->addWidget(m_main_tab);
 
+        retranslateUi(this);
 
         m_main_tab->setCurrentIndex(0);
         m_note->setCurrentIndex(0);
@@ -1571,6 +1572,287 @@ SamplerGUI::~SamplerGUI()
 {
     lo_address_free(m_host);
 }
+
+
+
+
+    void SamplerGUI::retranslateUi(QFrame* Frame)
+    {
+        Frame->setWindowTitle(QApplication::translate("Frame", "Frame", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem = m_sample_table->horizontalHeaderItem(0);
+        ___qtablewidgetitem->setText(QApplication::translate("Frame", "Select", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem1 = m_sample_table->horizontalHeaderItem(1);
+        ___qtablewidgetitem1->setText(QApplication::translate("Frame", "File", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem2 = m_sample_table->horizontalHeaderItem(2);
+        ___qtablewidgetitem2->setText(QApplication::translate("Frame", "Note", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem3 = m_sample_table->horizontalHeaderItem(3);
+        ___qtablewidgetitem3->setText(QApplication::translate("Frame", "Octave", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem4 = m_sample_table->horizontalHeaderItem(4);
+        ___qtablewidgetitem4->setText(QApplication::translate("Frame", "Low Note", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem5 = m_sample_table->horizontalHeaderItem(5);
+        ___qtablewidgetitem5->setText(QApplication::translate("Frame", "High Note", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem6 = m_sample_table->horizontalHeaderItem(6);
+        ___qtablewidgetitem6->setText(QApplication::translate("Frame", "Low Vel", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem7 = m_sample_table->horizontalHeaderItem(7);
+        ___qtablewidgetitem7->setText(QApplication::translate("Frame", "High Vel", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem8 = m_sample_table->horizontalHeaderItem(8);
+        ___qtablewidgetitem8->setText(QApplication::translate("Frame", "Volume", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem9 = m_sample_table->horizontalHeaderItem(9);
+        ___qtablewidgetitem9->setText(QApplication::translate("Frame", "FX Group", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem10 = m_sample_table->horizontalHeaderItem(10);
+        ___qtablewidgetitem10->setText(QApplication::translate("Frame", "Mode", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem11 = m_sample_table->horizontalHeaderItem(11);
+        ___qtablewidgetitem11->setText(QApplication::translate("Frame", "Length Seconds", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem12 = m_sample_table->horizontalHeaderItem(12);
+        ___qtablewidgetitem12->setText(QApplication::translate("Frame", "Length Samples", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem13 = m_sample_table->horizontalHeaderItem(13);
+        ___qtablewidgetitem13->setText(QApplication::translate("Frame", "Start", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem14 = m_sample_table->horizontalHeaderItem(14);
+        ___qtablewidgetitem14->setText(QApplication::translate("Frame", "End", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem15 = m_sample_table->horizontalHeaderItem(15);
+        ___qtablewidgetitem15->setText(QApplication::translate("Frame", "Loop Start", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem16 = m_sample_table->horizontalHeaderItem(16);
+        ___qtablewidgetitem16->setText(QApplication::translate("Frame", "Loop End", 0, QApplication::UnicodeUTF8));
+        m_load_sample->setText(QApplication::translate("Frame", "Load File", 0, QApplication::UnicodeUTF8));
+        m_sample_numLabel_6->setText(QApplication::translate("Frame", "Sample#", 0, QApplication::UnicodeUTF8));
+        m_hvelLabel_10->setText(QApplication::translate("Frame", "Volume", 0, QApplication::UnicodeUTF8));
+        m_lnoteLabel_5->setText(QApplication::translate("Frame", "<html><head/><body><p>Low<br />Note</p></body></html>", 0, QApplication::UnicodeUTF8));
+        m_note->clear();
+        m_note->insertItems(0, QStringList()
+         << QApplication::translate("Frame", "C", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "C#", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "D", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "D#", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "E", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "F", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "F#", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "G", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "G#", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "A", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "A#", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "B", 0, QApplication::UnicodeUTF8)
+        );
+        m_noteLabel_8->setText(QApplication::translate("Frame", "Note", 0, QApplication::UnicodeUTF8));
+        m_noteLabel_9->setText(QApplication::translate("Frame", "Mode", 0, QApplication::UnicodeUTF8));
+        m_play_mode->clear();
+        m_play_mode->insertItems(0, QStringList()
+         << QApplication::translate("Frame", "Play Once", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Loop", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Reverse", 0, QApplication::UnicodeUTF8)
+        );
+        m_octaveLabel_5->setText(QApplication::translate("Frame", "Octave", 0, QApplication::UnicodeUTF8));
+        m_lvelLabel_5->setText(QApplication::translate("Frame", "<html><head/><body><p>Low<br />Velocity</p></body></html>", 0, QApplication::UnicodeUTF8));
+        m_hvelLabel_9->setText(QApplication::translate("Frame", "<html><head/><body><p>High<br />Velocity</p></body></html>", 0, QApplication::UnicodeUTF8));
+        m_hnoteLabel_5->setText(QApplication::translate("Frame", "<html><head/><body><p>High<br />Note</p></body></html>", 0, QApplication::UnicodeUTF8));
+        m_noteLabel_10->setText(QApplication::translate("Frame", "FX Group", 0, QApplication::UnicodeUTF8));
+        m_sample_fx_group->clear();
+        m_sample_fx_group->insertItems(0, QStringList()
+         << QApplication::translate("Frame", "1", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "3", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8)
+        );
+        m_update_sample->setText(QApplication::translate("Frame", "Update", 0, QApplication::UnicodeUTF8));
+        m_sample_graph->setText(QApplication::translate("Frame", "pixmap", 0, QApplication::UnicodeUTF8));
+        label_21->setText(QApplication::translate("Frame", "Start", 0, QApplication::UnicodeUTF8));
+        label_22->setText(QApplication::translate("Frame", "End", 0, QApplication::UnicodeUTF8));
+        label_23->setText(QApplication::translate("Frame", "Sample Start/End", 0, QApplication::UnicodeUTF8));
+        label_24->setText(QApplication::translate("Frame", "Start", 0, QApplication::UnicodeUTF8));
+        label_25->setText(QApplication::translate("Frame", "End", 0, QApplication::UnicodeUTF8));
+        label_26->setText(QApplication::translate("Frame", "Loop Start/End", 0, QApplication::UnicodeUTF8));
+        m_main_tab->setTabText(m_main_tab->indexOf(tab_4), QApplication::translate("Frame", "Samples", 0, QApplication::UnicodeUTF8));
+        label->setText(QApplication::translate("Frame", "Edit FX Group: ", 0, QApplication::UnicodeUTF8));
+        groupBox_5->setTitle(QApplication::translate("Frame", "FX4", 0, QApplication::UnicodeUTF8));
+        m_fx_label_4_2->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        label_19->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
+        comboBox_5->clear();
+        comboBox_5->insertItems(0, QStringList()
+         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter LP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter LP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter HP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter HP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter BP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter BP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "EQ", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Distortion", 0, QApplication::UnicodeUTF8)
+        );
+        m_fx_label_4_1->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        m_fx_label_4_3->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        groupBox_2->setTitle(QApplication::translate("Frame", "FX1", 0, QApplication::UnicodeUTF8));
+        m_fx_label_1_2->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        label_8->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
+        comboBox_2->clear();
+        comboBox_2->insertItems(0, QStringList()
+         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter LP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter LP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter HP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter HP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter BP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter BP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "EQ", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Distortion", 0, QApplication::UnicodeUTF8)
+        );
+        m_fx_label_1_1->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        m_fx_label_1_3->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        groupBox_3->setTitle(QApplication::translate("Frame", "FX2", 0, QApplication::UnicodeUTF8));
+        m_fx_label_2_2->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        label_11->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
+        comboBox_3->clear();
+        comboBox_3->insertItems(0, QStringList()
+         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter LP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter LP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter HP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter HP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter BP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter BP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "EQ", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Distortion", 0, QApplication::UnicodeUTF8)
+        );
+        m_fx_label_2_1->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        m_fx_label_2_3->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        groupBox_4->setTitle(QApplication::translate("Frame", "FX3", 0, QApplication::UnicodeUTF8));
+        m_fx_label_3_2->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        label_15->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
+        comboBox_4->clear();
+        comboBox_4->insertItems(0, QStringList()
+         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter LP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter LP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter HP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter HP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter BP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter BP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "EQ", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Distortion", 0, QApplication::UnicodeUTF8)
+        );
+        m_fx_label_3_1->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        m_fx_label_3_3->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        groupBox_6->setTitle(QApplication::translate("Frame", "FX5", 0, QApplication::UnicodeUTF8));
+        m_fx_label_5_2->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        label_29->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
+        comboBox_6->clear();
+        comboBox_6->insertItems(0, QStringList()
+         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter LP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter LP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter HP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter HP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter BP2", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Filter BP4", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "EQ", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Distortion", 0, QApplication::UnicodeUTF8)
+        );
+        m_fx_label_5_1->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        m_fx_label_5_3->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        groupBox_8->setTitle(QApplication::translate("Frame", "ADSR1", 0, QApplication::UnicodeUTF8));
+        label_4->setText(QApplication::translate("Frame", "A", 0, QApplication::UnicodeUTF8));
+        label_36->setText(QApplication::translate("Frame", "D", 0, QApplication::UnicodeUTF8));
+        label_37->setText(QApplication::translate("Frame", "S", 0, QApplication::UnicodeUTF8));
+        label_38->setText(QApplication::translate("Frame", "R", 0, QApplication::UnicodeUTF8));
+        groupBox_9->setTitle(QApplication::translate("Frame", "ADSR2", 0, QApplication::UnicodeUTF8));
+        label_43->setText(QApplication::translate("Frame", "R", 0, QApplication::UnicodeUTF8));
+        label_44->setText(QApplication::translate("Frame", "S", 0, QApplication::UnicodeUTF8));
+        m_adsr2Label_a->setText(QApplication::translate("Frame", "A", 0, QApplication::UnicodeUTF8));
+        label_45->setText(QApplication::translate("Frame", "D", 0, QApplication::UnicodeUTF8));
+        groupBox_10->setTitle(QApplication::translate("Frame", "LFO", 0, QApplication::UnicodeUTF8));
+        label_46->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        label_47->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
+        comboBox_8->clear();
+        comboBox_8->insertItems(0, QStringList()
+         << QApplication::translate("Frame", "Sine", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Triangle", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
+        );
+        label_48->setText(QApplication::translate("Frame", "Freq", 0, QApplication::UnicodeUTF8));
+        label_49->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
+        label_3->setText(QApplication::translate("Frame", "Modulation Matrix", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem17 = tableWidget_2->horizontalHeaderItem(0);
+        ___qtablewidgetitem17->setText(QApplication::translate("Frame", "Volume", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem18 = tableWidget_2->horizontalHeaderItem(1);
+        ___qtablewidgetitem18->setText(QApplication::translate("Frame", "Pitch", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem19 = tableWidget_2->horizontalHeaderItem(2);
+        ___qtablewidgetitem19->setText(QApplication::translate("Frame", "FX1-1", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem20 = tableWidget_2->horizontalHeaderItem(3);
+        ___qtablewidgetitem20->setText(QApplication::translate("Frame", "FX1-2", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem21 = tableWidget_2->horizontalHeaderItem(4);
+        ___qtablewidgetitem21->setText(QApplication::translate("Frame", "FX1-3", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem22 = tableWidget_2->horizontalHeaderItem(5);
+        ___qtablewidgetitem22->setText(QApplication::translate("Frame", "FX2-1", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem23 = tableWidget_2->horizontalHeaderItem(6);
+        ___qtablewidgetitem23->setText(QApplication::translate("Frame", "FX2-2", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem24 = tableWidget_2->horizontalHeaderItem(7);
+        ___qtablewidgetitem24->setText(QApplication::translate("Frame", "FX2-3", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem25 = tableWidget_2->horizontalHeaderItem(8);
+        ___qtablewidgetitem25->setText(QApplication::translate("Frame", "FX3-1", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem26 = tableWidget_2->horizontalHeaderItem(9);
+        ___qtablewidgetitem26->setText(QApplication::translate("Frame", "FX3-2", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem27 = tableWidget_2->horizontalHeaderItem(10);
+        ___qtablewidgetitem27->setText(QApplication::translate("Frame", "FX3-3", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem28 = tableWidget_2->horizontalHeaderItem(11);
+        ___qtablewidgetitem28->setText(QApplication::translate("Frame", "FX4-1", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem29 = tableWidget_2->horizontalHeaderItem(12);
+        ___qtablewidgetitem29->setText(QApplication::translate("Frame", "FX4-2", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem30 = tableWidget_2->horizontalHeaderItem(13);
+        ___qtablewidgetitem30->setText(QApplication::translate("Frame", "FX4-3", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem31 = tableWidget_2->horizontalHeaderItem(14);
+        ___qtablewidgetitem31->setText(QApplication::translate("Frame", "FX5-1", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem32 = tableWidget_2->horizontalHeaderItem(15);
+        ___qtablewidgetitem32->setText(QApplication::translate("Frame", "FX5-2", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem33 = tableWidget_2->horizontalHeaderItem(16);
+        ___qtablewidgetitem33->setText(QApplication::translate("Frame", "FX5-3", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem34 = tableWidget_2->verticalHeaderItem(0);
+        ___qtablewidgetitem34->setText(QApplication::translate("Frame", "ADSR1", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem35 = tableWidget_2->verticalHeaderItem(1);
+        ___qtablewidgetitem35->setText(QApplication::translate("Frame", "ADSR2", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem36 = tableWidget_2->verticalHeaderItem(2);
+        ___qtablewidgetitem36->setText(QApplication::translate("Frame", "LFO1", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem37 = tableWidget_2->verticalHeaderItem(3);
+        ___qtablewidgetitem37->setText(QApplication::translate("Frame", "Velocity", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem38 = tableWidget_2->verticalHeaderItem(4);
+        ___qtablewidgetitem38->setText(QApplication::translate("Frame", "Pitch", 0, QApplication::UnicodeUTF8));
+        m_main_tab->setTabText(m_main_tab->indexOf(tab_2), QApplication::translate("Frame", "Poly FX", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("Frame", "<html><p><a href=\"http://libmodsynth.sourceforge.net\">Powered by LibModSynth</a></p><img src=\\\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAADYCAYAAABRCd7OAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wDGhM4J33Zr2YAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAgAElEQVR42uy9d5glV3UtvvapcEPnnpnuyUFxJIGEUMCIaBOdZLCfA/wMfjYOBJFtYx6P8ODhZ2NjjMHpYYEJz/aHE9gmg0mWBEoozWhy6J7pns7pxgpn/f6oU1WnbvdoZqQBtVCf75uZDtPhnqpaZ++1114bWFtra22trbW1ttbW2lpba2ttra21tbbW1tpaW2trba2ttbW21tbaWltra22trbW1ttbW2lpba2ttra21tbbW1tpaW2trba2ttbW2VtOStS1YW4+XdVDP4WI1gP16Fg4AgYgIAQooApKA0H4wkg+JSPIOODk7hxvWX7C2mWtrba2tHwBocRZjnH7YX08yQbG19agsd20L1tbjYe3Xc3BFy4UySAA4oOcqnmBAAIIgREGDEOokvEowiQKASYTlOMSMiLQA4Bsn9uLZWy9f29jVmBIe5BwulgEc4CwEkl5Lc10FLHwkiapF0o8mX0ECELHuBRTeSn8Vpt+FhIgCSey/fw9uvOoZq/dh4AwulXXYp6ehRGUviyJJhiHJh5LXZvbD2isIzR4KgCQ1EWuv2LFD6d/pxaMmdjvr1u7m016fWVwqg9n7h/XsM7TgOSTXQxADSFCKNAjVsdmAgOILZErH+rO7vXXfW9vVVQxYJpSWi83p9GiskIQnsupB69FaaZoiskZLAsD39ByqABQ0LlbJdTmkFz1K9P8B/C0HssOhE0NE"
+                        "E0y3jzTnLyU/UwlBSehosNqg/tpio/GOp3RvPbC2y6s0JTzAOXWxDGgTbe0wsZV2kqMpj7AoECGEAhENbeIJ0MQPYkVRFHNTaIACkeROIQFJ4g9ClC+a8xc5g7OeCL41vk+euWn3qiMQDnBWLjFgfoizXZpYT5AiwiTaBGg9BJIEkIAAQjERloZAJf8PgEr3yvxHCk38JWCSvEAAJWDkNBqnRCQGgDkSA49z0NqrZxGbO+5itY4AcFTP9oYSv1qDv1SGGu5nucsX1ycYaxPwmts0fTsNeOEAzlQcTE+idarsOBeI41wB4IB16K+RWqsFsPZzVl0iA/qQnu/W0L8Wg08idEAgjhLwYZbziJUcWhUXK3nJ/xFtfS4Brey/CQFCC7SvlAofjKY/c5m7/mvP3LSbf/6Ff5TX/PjPr5ob5KCew8UyQOp9OCjD10XkjRRuJBARjCEJXmlzW4t05HNZ0td531skSpYmG4CXNG2EoyCIK10P3lcf+8yVXZtHHu9g9YCehYjAB3GpDNBkBzta5KuEfHE3VO+AVKtV8XsADQ0ddebYHTsoAsf59sTo4tdrs8dedMll3kJUjzuen3gNtFYBYJncXwNAJPFLFdRbS1BKIC2aoCGJDQyVZYCLUmBYksiKaXwtxYeVafRQvFsIQoEhIP2Bw923zh87eUP/zn2rCawAQAsUAH0QwxfE4O+5kKeX4GoNBNqc2JQEkrNg1H4ibJJLLNLEkH5JIJqGY0U4UwAcEC3Rz0PJH3rt+97+rg/97nui5SfE4wWsZgABLpMBK9qaf3Ib8WsA/sgAvN4hlPtdeGWNKNKIw87joxO8HMKhuPP7Zmfmjk6cxMgll548uP9QDUDV/K/YAi2sAdejCFgpBbmfs8Mx+ARAt6vwunpY2kBAU5Lcn2KirE5G2A6wOg/+lN20sMx+ylwRtRC35g8GS6f8kue7pdI1APaZ/6JQ5KMfPcDKE9uNmrzcEcV++hUXTh+FmqbewAzUl21yvj8daWPnwwOTPoKAI0q1d"
+                        "RSNtBdGgpLT5Sj1hAt3X9YDYM7a/cdNunKfngUAPMEi1/fouRfEEr/KBXcPSKlrHSvrXFGeRhzECVjZd+zy6wJAxHWOLk4Fe2enl+rbt87/V23h6Of/4m9qANYBaJk/6b2o1yDlUQQszfTooBZK2ICer0BzCOiHQDShxcaP7BERC4Gk+NCluGYevE7wAgRaazjiOZON1vy3jx2d3X3h9sXBWMcAPACh+YF6NZxo+UtgDKLdBmsRiB5BN5JUkCukGcvBW7j8bXREo+YHQSgCx4vbjeY9R443ei7Y3NpQ6V66+zt3+tZ1NdWvH27QuptT8KAKYHWQU6pF56WRxL/qA9uGWertl+p6EXFihC0NHSdsYFayRR7iW4eHibFGRkZxy6mJ+VPP/NFj99/6zZnRj36qbABr3uxxhDUR9ioALHMNNBRdoW4BQR1oxIgDAVQMxMX0JsWdnMFclpx0cjjLsx3EIBzQaQSt8MjkZOhv27g0s1AjgG7rRIuQcv6rALA0oCnQLTCoi671QvcChKbZxofEIDEyDvtBST9vgbn1pgvoIAriyckpzm4bmm9XsLT33ge6APjmT5D/aj+sYDULgYaAeIKp0D7A+f4G9Su06P9WhVo/hHJvv5SGQDKSqEFQJ3oTc4vm+8rOe9J8RI9OT7f23nk38cTdnP3sF0oAhsyhGZj70TEH6eMyFV81gGU/lVpAzaTsa6qE5OkujHTE2Z0g1fmvfY9k31QYa42RVru+EOmZvpETDoBBAEsA2ubLwkc7gtDmR2sQJDUhZFJ8MPXOFLmXgzSyAJTF9wtpIrHsUDDfRZFOGIbygFKnBhnPj42eHABQt0Cq/cMKWHdxGgKiCw4uMZzV/Xp6V4DolQCe2081MIxqf1X8AY04ihC3TaMNstQ8ywAoBd2VOVQU4UCwcGhudgn33DeEvy/Vcct3CKAGoGEOBuc0pMfa+sFHWBmXBQ1Qg9SpMBhJsb2AUIXjJZNNrkhm2rJSZCSAuXGMKkbHsdo3N98Ya9RnLhwZdQ"
+                        "CsN99hyaQ88aPNZcXM94oQrSXNpI1IOhMkIDuybXLdzkAy2sTeU0nDrOQNwxkKACitnVaj4XwhaE9WPHd2bn4h5VVqZm/SKPRRj0TP57pdzwAArrZ0b3dz5poAfA3IJw+K17uFlWFP3GrMKIglDhIlc9I7mN2GyS1q3T/5XpOAozwZCxbj7+3fHyLWJTzwYB8OH10EUDbPjlqJnV2DlUcJsGLzzIRCuEiiLMMLm6ssXMYji6kD2iG2HWUVJFl5ciRkFoRneBWGau7IsYqulNxD+w5WDW8Qmciqbf59VHka5tGkAXSQCbjk9Jbkz0ORVLdpk6yCypzPykqs7AiwCIBKCcKlJX/qrntddPcoaTRTwNJWqhL9MN2wd3IKAuAaC6zu5MwzYujXecRlG8TvHkJlkyuOHyNqxaJDQCQvRFvHqGRq2/yMLYCX0seOHpM9ex4EPFcwNe1hYlIZoELHYbAGVI96hJXJfwkKqCnMn74sfSlSloSs0EOSQF0ib5AiQZ8FWsy+oQEvHUUiR0cGsLgwzPHJtomsljpC8Ud12cw/BdQ2WJkUeqVzd4X+2U6xmpyGAUz3jnCcOKrVS7jtyDAqlYhhWDf7k/6rUGC/HtvrO5wGAVxrgdUdeuZ5MXmTL7hgC/y+9axuhoiECBsajAsbSIswZUeQS5vLIpionqPjY2PR4f0HgYFeYqlGMIvsI/MnxiopAD3uASsNkShCAoyF2vBYpsiXMcU50WJXuJY1DeZJj8BODcXCvEweQR1rwexsF2pL/ViqzyPRvpSRVAvVagAs2kctk6qg4eGYF0iXa8wMeNtJM/O/Up7F1q0xjbjyhEYpxu3AxciJPnh+HXHcDaBiAN21IgE81kHru3oWgMZ1sj4HK07fGFO/0gO2bYE/sF4qW0DogFGdkpDrzMDJXAmx+16lsO35mwIBFYCloxMTbYyPV1H2a6g3Aiu6TyP8R52WWAMsFHkmMtEvmNgnuzhGEHr6CyUrnGUdAZZ0RB2WsJukFjaaPhrNCtpByXo"
+                        "QndUCWGkllUlhQif6tIJgg53VUnkIwkN4OlS0W6FTmkugw1BhYaEC16+ALFvRp+rY4sfsA3WbngRF40cssPoOp38xJF5REmzaRm9gA8pbQIkDRI2kH1CKR6bYwZTVOSBWdJVCGwlfeTKFVnTPwUNNdFUFYRhhYbGNXHtlA5ZeA6zVkBJakZYmk+gBy4qDYmtGl+U87GjQKRqkFfIlEZvmMlxWGLnQsYco9h6C6HzUU0JTRTWcFu2gU6Qzcbb2Sx6Krz3dvorFuGgtaLUd+PRAOKcBq8fsupVTAJCB1V5NNSczL4vIl1cFQ9vhD66T0mYCUYCokXGoMI2tKdqnqV4erOYQJiSW3ZaOPn70gNp74CDR39dGFIeYW2ha0VXQEWGtpYSPfoSVPoxGkGIqhKQVKJ3pkZDTPI42h2WrvNmRvmgtiGMFrTsfwlXxMObdk4QWJtKPpB+JVi6Sn+Bymo1eSfKw4l7leWbSsUkgjhWiWDp4L6ymfTrX9Wn9aWzCswC6eKoaMGnhRHkWM79K6F/sg6zfztL6PvjDWiQMyIahp+wSR8732TFvemmkI4BNW+81E/5qfDzcc/hIjFIpxPxigChqW4DV7uCw1sBqtURYOjmsErNFsJCvc6X+uJXSHFnhinI5uVJMl5gwZjpRf63Gh7CgwwKpRWVphSk1FCWzWUbHc0XGFT6SNfyIBeiPWZBK1xf1KVTFgQPBDUZjdYee6W2J/vUYfNEGyvqd4g9VWVoXA+0Quml2Na37dew5xRFHPHgIJWRMbdo0C9uaYx2pALSPT0wGODnmY+vmOprNlpUONk2EFa2B1aqKsNKwQIGMqVPNaP4IUR4qsuogqqQzZLC+WGSZUwFXMC9YdWkOLcBKChLLHUoKAHMm7luwMnzLslOB1jddsez4WFxf0KMoQeDAwQ2m1ebWaGp9A3xlDL5gCFh3AcqbyvD7I0Erom4hrUVA7DwP6RHrKUcc+GwjDuqMozKk5AIOi/dvWkhkyXFlHmzdc/RoA57nIYpDLNXS"
+                        "dNDmr9YA6we81EM+jMYChohhnKypk0Msk7mnqMXU7jp3cWDhY4XPSf626Z9OPpZ/3ETvzKpldjVnVQGWZFvJRHBISwRqvWbzGqVjX0whw2xY9rUWE5Z/bfp5yTcjCyh+CHTW/8JZuKjAh+BpBqy+zektbYU3htAvGAIGL0RpS1n8/pBohohb1nGXbmHShWzu0JLyHAd+tH9hfPa9n7h59tjkZLsq5fTiLL9PQQh8PTJ21Nmz90Giv7cJHYeYW7AjLJu/Wmt4XjUpoXnsYsRQIkkEkWWFhbABxkYmMUMxmirjX2cTPZmZXTHQoCk4k1bqaB5irsrIKvvNmUmjTNsS0oeGmeXuMq6Ky15/4X1mddIVa3xSTMeZdDHyMQ9ZfdBwhHiaDAEAvqkndwXkTRQ+ZRMwcCFL20sodQeCeixxYDbJUtYaU7akv1CVpaQAt/Vge3bml9/8ltbI9GzwKz994zYAfkyGdlNnymwx8XTXI6dORfcfOhqhXI5Qqwdot+10cCVJw1qU9WhHWFbzM3Riz5+d8OnDmT2ZSGUP9lmVBQnIv4ap0V/6vgnFO4MSYIXiy6p7KNNugJiEaV1iBladEaZYgRSzemgeVVqq+Wwvzaum0IqsWMCr05Fcj6X1Oc7AAfFs2QAA+Iae3BkKXk/hU7cQgxfR31kSv6stXIoYB3mpg8xyOaSkJ6QsVQW4rW8efWDhv730v/Puf/k39YwbfsTZPDDoF/Y4vQiSBbwKQHt0YiIMjx8vIYoitNp2dJWmhNEaUK22lLAAXonUCFbXiJW+SZ620IoymFfMrEeNWTsiJS365xmRFPSmWUa4Su+LjMOSdI+EGfcr1uFbMC8RScS4xk869RVlwePCbn+mETGYKECK/NVjfP22/glUiAysvq5ndgYir9fEtVvBvovE3+lLqdIiliLqsKBAEEie1lGUwClLFYAs/vP3bp35jd98rdr7ha+4uPTi1o/e8FTHhUsi1HYlyATy1AQ8x1E1oHnfyEgDAh+xjrFUb63AX61VB"
+                        "1cfYOWntzYPZVYVzAytaH3MAJLQbubtNIRikZ9hgVC2mPaUtzF91qszjNBWSqjtQDGfC5GHQukZngN6JtzKoI2Fk9+KHnIBfUEUX6wWPibXC+Vv8WNmUMQ3OL0jgH6tJq/dCvRfQH+XC7/UIhZjYSR2WcIqN5CEK0rKqDIEFv/PV/7t1Cte8wYe3POgxubhua5Nw8GTL76o4kGpNiLdcS9mF8xDWR+fOu7ed/8DQF9vA2SAhQUbsIIOwv28rG+fZlbiVzmF/9Bja0h1NhyW3ZoDINUYZf69tG0J0pCgwyYljzQsDsY0OOcdJ5Dsu6EIbB1vrb4IS+xYkElRIsWWvFk8YfPSOCm1wbcaBcTwXXYxkBbfZcdUzOSnRBHDHnvry5zAcw1n9Z96YnsLvIng9dvA/ovg7/RQKjWBJY04yi2jzdGWif8pnlKOj0q8hGjpHR98f/Cnf/3RLrRaWu3YtqRbzVrvrh3BBYMDuxL+SreNtCSZfZIBIAWQ+OSpiXjPwcMxyuUIrXaAeqNpRVcrRVgPa/e/yCkIYrxANuIZlorfXs81UeceEpdjbSrSQwJW2uYfAnCNMJJZDGFULwVQkg5C3fYrZyZ8pMUsiwDWuByg0/9hlT+ImQ6LOuGwhDpNDa12QEvBmGs/bfQpRKMWOZ89k1ZrCaytZtZ2/dhDrC/rSXm+DDGJJCa3tYCbSH39dqDvEvF2evDLTWAxBiMRUciiTTsaJ3zlKh/lcBrhwlv+1zv50Y990kGpHDlbNzdj6jY2DrWf/vSnocvzXSBMWgyZteQXw2WF1ujUVLBw+GgJ6wbaaAed/FUaYT3s6OqznEAZghcYMMoATE90N4D+SMSvEGFF9OxzZWMdAK4wg0fuIHHd4xi0zq6XEIKUTM4tZpi6EWSMAjtAhtKRE0oxzCo8jOb/SDHCssIwrtIqYRpmGh0W05fGLFGzXeGkA5wy3bUUI9Ac6/NeRRHL0teGtJW6fFb5+pKelOerBKy+ok9tbQE3afD6HWDfJfB3eixVmi"
+                        "JLMRhZXJ61Ycl7JfEcD6XgOMLJN7ztrfKZT/5DGYP9DdXdXY9n5loYWtfAVU9YuOHyyzb6cFSEODa7xc6D0VVKNYHmnhMn64iiKqIoQm0ZfxU8Ev7q33gSHlQBrL6oJy9vCZ/TAC51iUoJRAjoGtD4Dz3xgETxF3/S3zwqIth4+W48+zd+Gd/4yKfWAOt0pDupjb1MXv9FoUvQjgVg+bqv4I5ilep52p9q131wNg1Aj16EZU47baz6CqIGKRgFWK/Z9kJerqHKOb/inq7YrUnbCeOxEWX9ByflBSay+hInt7TA1yRghb7d8Hf6KFUaIksaOgSg7DmOFmGKsvjKhRc8EMxOvvIt/zO45Z8+W8XwhqaqlOv60NElVMp1bNm46F99ZeP67dsvKQF+CzouQJVkBw9LqqIPzo959957n6C3pwlIiPkFOxV8xIJRoYcfV6a4wMlKHfjZNvBCn9hWAnr7RVUqhDMH3ZgD6hFwmXKdqz7THP3Eiyrbbj+1dx/EVVJoN1oDrGK6E5v4WdvldlodWdIpzU5NNjO2pXiHdNj+5n5qmQi1gyVaxRwWWCDdUdBlWMMZC685p/1YDGRlWe1BrJ6BLBuSIgRyde+Rvf6dE/JTBqy+yIktLeI1MfCUncK+yxKw6moIajF0KBnbmc+GS+G/KiXlwG1/Z+Lw/E2/+z/lrq98vQtbNwdOudSMHzywgOnZGTz7aSGuv3rmsmuvdnZWKgOC2IuoA0m9cplvaTKa1uHY5GR8/8EjISolIogCo3BP9VctKx08Z/7qXziDnzZeXrfpSXca+LWQ/Mle4dBFcPqGxRt0qHwRIIJuTjAe24uoURd5En2//aEjt4+/9oLrR8fv20tvaL2Ek9OPO8g6gw4rfygTfiarqmStolzJHdnyXOAyoGIhwLAmPeM03YaZFmJ1clhppEVoUGsRjULxrlj3ZEccmrJPmQ+8XbdKXZFTQVuqkheuAJerPyX8D56Sn5bhFKw2t4hXR9BP2Q72XQ5/p89SVwNSi6HDbEe"
+                        "saDLV4XYZsPr6kfsXfutVr3fu+vLXSti+JXBcrxkfODyH6dkJANN46jXTeOFzll60c2d/FahEjHUuQZZiXpD0YrZOTE0HU/sPlhFTIwxbHWBl9w+e8/KyUQTABHBjQL5gELr/GjhDO6S0swy/H+KoEE7swKsOobR9o3jd8+DEgpJdamjDs9LfPpycTp1PZQ2wCmkeQDpZuV0jM3VPzQIyJaRpjEgp9LxTglYLSqqZST8vSbCWCUvz2Ra0HuDVmxJa/ybiWtuxId0rI/qUPGdMN6fYW0PjdSKWat4WdMhKufOqBvR0fUaPy0/JRgLAl3lqY5N4VQg+ZTvQ+wT4O0ssddeBWgQdWBINpiF9SmJ2SclRcJuf33fXwqtf8yb3vltvV9i1o6FE1eMDh2YxMTUJYApbN0/iuc+avvySK7zrlLtJkSpKGPdMaZqLn0lPRAVA68Hx8TpaTR9xFJvqYCd/lTo0nPOG/7RsBgD8M6c2hMJnV4WDl4s72I/yxhBOuEjO1MHFNnSzTtYcEbeH7sBJOAsjcFqTnrez8qZXDiExsHTO9Pw+jiMsgTZXCcyjgsTAPWs4TB88FtKcdLwhLf0QLfLG/p+ZdVGhV86ciasTtOICYBkQEnQ4NeSa/2zuKiVNF82XZkpbFnmpbCcsoE8hSqyYbfUB1qf1KQDAP+lTUjVFvi/piU1Nymsj4bN2QNY9UfwLSlLqaQC1SHRgInACoq3meWqSnjgqhlv/f/feOv3rr3yd2nf7ncT2LYsSxkt638EpzMyOAzgF4CRe8OyZ7qc+WT8XanA31VYXcKMknUspq2yDNcmSU9XHaxPq9tvvBLqrbYi0MTffMNFV+icFrEe04RH1DQ70zo2Qrj74AxGdoAksEVorUDmEY842XRHl12PiqzqY+m4cx139fRsB9AIoYRUZWa4S0t1gkYRJu1rxxCdt9n3ZlqWmdbYBTVZSXC5fl2WUcxJtrXK/zMwzzI6qioBbfI35PDMWiqIFT3FYIRMNfZhVMjJWz2KuBKts"
+                        "p/6Bk/gFGcKnOQFXE89Xw/xyfHKwBvxaCNywHei6Et62EhKwCkQH5gYR635Kbh5NKSvXUSjXP37PLVNvfu2bywv7Dggu2rUkUVznwSOzWKpNAZgBMA7g1IYX/XjvlZXe/ivQWtcv5R4lkAgFOsx8+0Sc7MDVY+OnuO/gIaBSCRDHARaWmh3RVWfDM88dxBtKY+kKBXT1QKCpnBBsk9pMS5SsvhwDWoESHB/tvm1uesYdXt/QR4/1I/fsZwf5z8c1YKXRQwiBK5KO+SIKbsa5AWbSJGgcy6XzQbVLiiu5CxSqaQUjgtWc7hSj0IT9ZmGILC2SvDDWuZNct5SjeRlfchFDZ5EwHwHC1Rdh/ZIM4e84AZ+xvMjZzK9wvGeR+JU2+KNbge6r4G0piZ+AFRkkZlaybBaj1kRFOY6gUv/be26ZeNNNby7XDhz0ceHOmrTDGg8enkG9OW3AagLAKBw184TrnrTpSjhDuzU3+Ap+TGpmrfliiXMTFzMAwcnp6fDE/kM+yqU6gsiWM3TyVw97wyvSVHWgHEKkRRWGQCygUxjdIqDWGp6q6NnZcXzvi1/tgifd0YZ1XbjvwUEDWDEehxY3Z2fgB6tlJC/yJSabkpUKM2OFhIpKdUdJTVFyrXdu2WCP+mIh2LB66LC6ZQ1ZJVVDk1TIDLGyUWipCYXhYvL5zbRLrLTto7Pq67LAKR9EwdW8Rx/nKZRI9SK1WX+NU6VZ6pcEwhduBvuuhre5Qr+vAakHwrY1GY6AMLPK1kBZuS5QqX3s3lsm3nzTm8r1/Ycq2LV9Cc3WEg8enUGzNQ1gGsCkia5Ouj9/o75ysG/95YiG+6GqGiZCZUcrk4F8V0QCoHXg1Kkm6rUKXCdGo9lEsdnZ5q/0w3/gmnTo6CYQjIrMbwQ2V0g3sqZQa01KTM9VXvuu0dG5b33pPx1cflE/Dhyp4/59fQAWkAxybaylhIUzPDvcqc0w1awpXorKOyJPcWhlNETBWiBr67EOk2KgVkyjuOwjqw2waBn4iTmw8"
+                        "9mKtOfeJF07lrd9WmVNWwWYTU7I4Uc6pN2m0p9WDJflpqtg3awnUAXVz6mN+tt6Ro0x+rkQ/JlhcOBqeBu7UVrXhGq2wZZkU5fTCUwGujVRVq4jqNRuvueWU29+zZsqrQOHqti1vYZWu4aDR2bQak8ZsJrIuCtg+gW/8bLtw67Xtx5xeVC8PoEoDcawx0FmlrBkySnxZDAjd95zX4xKOYRSIRYXm6eJsB7RTrfowhHqJtG+k9H8BeJtukjcHq0jHWrG0Fr5rut0eX2tO5sTkx/4+CebGBvvQXdXiOMjPoKgimR61EqTkR7npDtzUWRmLyOW+lzy6p+V7NkmcxlBnJH1efmQhXH3AnsiDwuQt5p1WFbzpBHn5K9BjFmTkDoPQO3Xl/2/bLI97JZnS9KQHAgstFgiM6hZNTqsj+op9EiIn5eNGgDGJHxRAP5iPzj4JDjr++Ctb1K1WmBToFFQgmb2XmRZOQ5QqX3knv8ae+Or31huHTjYhZ3b6mi1l3DwyLQFVqdS3sr8Wbjq6iuGu0R6yySqkIoDKJ3ep5J77ic3r4YLX4+PT2DfvoOCSiUA0Mb84nnnrwDgxWpjDMjhsqhwMgriT02O7d3TXBorq65wwOllv9ffCKU6+4Wj986+6W3viu/57Oe70N+rMDkF3LNHY3mF8IfCFvv8pISp1xMSD2zNQq3PHhph9Qeio09HijS8JTPNPFVs4bdFfln3sXQ2+qwe0r04+VkE1MhaIo2GwfDINHY6nUGjLQvNdaYrkfK0hxbmsofVIf14N0/CY4hfkK2GeB97YRt8aQ+w/kmiBtajNNyCEzSgG5KM+lZ5dzjSaqBUxHGJau0j994y9uZXv6kaHTzUg53ba2gFizh0ZAqtdpoGpkA1Yd6fBqAHe7o2l4H+DXAqnsDXoGYawVr3mJHRKAWJxmemo8P7DyoAIaK4Da1X8r86L1OeGzr+VlV5z7zEdbb/w9L8gT3HRsKf6Oq+cJ1mX3vbxEgAACAASURBVF3r9neOHVv4+7/5RG"
+                        "Vmz74KNm1sw3Hb2HeojnpjpcEXj6shrmfgsMQAlgOhhs7tfXWW1MhKA4vtgXxI7xG7FYVZk3PH+WCFZQXqerWu2LyqxMAPVGIkafkkIFISCi8fkZY3YNKOTWET78z3l7RYeLFdWVEwbniU1y4ovExtSsBKjz+rDby8BAxdJdK7haXNAZy4Iaxbbh/MuCVJ0uuyOI5Gdekj994y9uZXvbGiDx7qwY5tNbTaizh0dMpEVjNWZDVh3p8DUHvRF/9hsMdxhgfBXh+OGwKxApTpy8w7pczdpQAVALVDU9N1zM11oae7hWar+f0g3G8ncb0IftnZMvrx+MTn+pT/izdeeNG2rwZ7l97yla8dnRk75eDYaB/mF3yIquOyS1oIwggHj8zj+Og0kspgKrVon48U9YeSdKckKtEsgM8myrNzTL3lypDjlxQpKC4z5FthNkNBErCKs0JaHjuaWXSVRY6ZjeryIRvFADSLsjLDGi7bGnuAleSyrdXQGP5xnsLLZCMA4JN6/Oom8N9dcvNVonp2obQtFBdL0DVjsSN2VG4qEvDFUQrV+kfvu/XUm171xgoPHurD9m11tNqLOHxsqoOzGrMiqwUAiwCiH3nadVsg6KkA6IXqFopoMM4KkNZ9qTVZdX2cQo3fve+BEL4XQ0mExWXtOJ2A9bCmaF9nvf0rztZ/+4vm8XpPufSjV1964eDiBduXZhYXa/j27d246771GJ+s4tio4IF9TUzNLBpAnjX/LiHXhT2uTATPcvJzEl3p3OTfIpJXGPMlxTezT58u217e/CsdMLVqe+WKSvesQTwXeNrWg2eEFcl0tzY//FD7ZZkqP2qg9VFO4FdkGADwtxy/rEn8mi/ccRWkZzf8HRE9Z1G4REArdEwDN2DlieN46Gr9457vzP6P1/52D/cfrGLntjraZwSreSRl/joA9FbLOzTYDUpYhlQdgRMkUVYRZBJdJjyU4lNjh9WB+/d6qFYSwejCwvfF/0pE8FUSzzVZyasrO7720k988IHeZ93whN5"
+                        "1g/3rZhfdmYWlHoxNTOO2u7qw/5CYn9syoDxlAXQDy33lH+cRFlMuS0Mg1BRqSYcrGBbZfhyl8AxZla3Ocpb1GOY1MDvWKLbvFIMSWV2Alfre5zq1rELYOZfQKot2DGCUXH8k7Bihnp4akrorF2bXd5Y7fsDrbziGX0vBSp/c1QZ/VcALnwjVcwVKOyL43gK4pKFjlQ4DTENx4/HkiXJK6Gp/bt8di7/3ut+tLt6/10/AKljE4WPTZwIrUSqgTkXOsl3A3kEovyTwNZOJFEWPEEkLhOLCiU7NzoZ79h+UpGVWtxFGnYT7edM6PVcEn2KIXxYPAPB3L3/9hAGgPgDrzJ8BAN1IKoE0v8eSia7SCKuFR9AmdDbrj5pH8avlnVgvgg+Gx1Fy3CS3NtbmBQqHkrpTJmdu2lwuyKYYkRrtZgu/033x95d0JxPBlZYEwwyH3En0sWDYZ9IgWU64wOba8+9CWoRoxzwZdg41XD2AJcUUlpKV8zp+XVk+4rMjvaBl2pco4cWqVlhWfyxY9uUdBT9gMP8rjuPXZZOJsk6ub1JeRvDyKyE9T4S/g/BKBqwiSataqf7FqDMcgVtCd/C1I99b/J03vqU0dtc9LnZtryGKazhyfPosIqs2tQ4B4G1z93UrcGM3pNuH60SQ2JGctCJzx07T4qlCoHF0ZraJiYluVCsLiOIGlhv2nRMwfFiPwoGCSFENGmtiUG1GiBAv+cgfy8kHHpRvffBmMWDYAOA4QEygSaAKpVwmZ2BgUsCa+dPAeZJZnG79MUfQBRef1ifxEY7Jr2MTLbfTR/Qz/46Ulxi7VwBwyiXErfZ5SAlpRRFmKoxhgJPUUCzrlLzlBLZTHWX50NRCwpmPXu/8HK2ZMqvWrzyf/KwRC6lyjUJKvhetYoiCN3SGUEkAJXk9osOGx/bWsrURWToogh+gE+WH9Sm80nBWn+J4ZZF8SSB80m6gchX8HQpeZQFYisFQJWCV9kAAgGiSDuFUpTf49ti++Te+8X/4R269w8WObXWQ"
+                        "dRw5Po1mywar8ZXAyop+MNy3fpsW9pSZ8lcQo79KT898aIgmK17JmUKTd96/J4Lr6kR/Nd+0UsHWuURYf65PQgnwKtlyVvSn9f1i83OaccLFlQF40NoD4CsRrYEAZOcQ1/OeCv6BPoI+KaMLgpebwwgAfwPAzdFxT4k7CEEZIh4gviZ9CjwNKFAhGb2pddL4gYgigQaCmLoehtHCG0o7Wy8V4UsBfIKLeLn0njVYnRGwYsl3Myk5m8kwlFR+ZA4tscl0SYcrSA5GAtpC1FzekLkm54IHsed9rb6YamXAiplEpOkEFqTCzmxOo+2rmqISC/GVUcNbCWSS/4lVtWDR1DvhzH7AG/ThaAQ3qY3Z+/Pki0Ph03eQPdeIv60kfu8ipBaBoWQ+2GlUnfRGitZu1ekL71g8MfOG336bd+Abt/jYtqUJRzVw5Pg06o1OUWhaDUzBKgAQKcfR2piIuoIdAditIe2qSNWFuG2wrSy9YVp6TgZOlPTE1Kjsvfd+F+VSAMcJML9oR1id/NXp0yc9Ak+I3zSSjr/iWJeCDAvpimQmStSMAXGSeycKJIojhKGWZqMlS4tLamFh0VlcrKkojr2pUxON/3zl753S9UaskuchZjHaO29DMD7MExAKXqNysP0rPaGUhBuFWKchQ03ItgjYFINdMVgmUKGwArBMwjEVIyPZREyRtgJbDtB0oBZcz536cDw6EgbRg//1vr868XLp1U997Stw24duPl9VQm3SnhgCZYSjgs6+P9oj6bksdSlAjtjIVoi0sHzKVyHblFUNWFo0NaG16d2l2QgSeUOO3fEtLDZjWnDfaTKa9mZm42Hy88Hq3PnBcFh/ynHclJ+8+DM9/sJA9I8Pk/3Xi7e5D/6GGtEIRIfKjiVz1YtGFLs97kCwB4uTr33L29Wez3+1jC0bW/D9Bo6OTGMxa2SeRFFnNW/SoSyyGty2mdPHRgEAEfR2Er3roPwSEv1Vhyo1y85JLS7caGJ2Jt67/6AAiEC20Q5W4q/OODB1EA5eY"
+                        "SKrv9YndsXk8xuCCwNQmXoMtJG+CONkbrDrgK4DXRKwu0t7Q+vYD7ALKnYh3m4gvO4XbvyvP/yZX/2W/uLX20gEo+dFC5ZdP56AgsJNxvoGAP5Sj3ZB5IqI0WUhZEcIbCEw2ANdGoKUugCvDHge4TgiSkFUOrouvd4xoDWoW9DhAtiuiw5qkEiLglfyjzzlra/6+D+/8w/vu+1DN8Pv7ZFgcYnnAbCMDst0jMQi2ooebM1o5i/QYeS4DHZs9z5KkUjv8L9Ke4hldc8llOxfQ7pnA7IL2jKKLhQMzUTCoke7ebmSTtrJ/zdtcWkWh9pNTN9fRP95EjdwEi4DC6xOPiUAf64XHLwGzroN9IcbooLMeaGjckyAjGLV5/ZHR9Caft1b36Hv+cfP9GJ4fYhKuYFjJ6Yxv5CCVRpZTT5EGpiB1Tt5wiexsUuku0LHS3yOtM4JQaPKNeGt6FgRaIwsLNZboyf74LuLgDRWSAfDs+GvXmEik1fr70kb8nwfeNHFYFcvxItN/SqlUTIXxkKwLNRZ0q/RgmpNQDjvlwfe8M8fGfvTroseMK/7EV/nD/IEFABNhddZQPVhjg8JubstvDoErnaF69aT/jqRcj9UZQBOdx9UpQTllQnPE7gKImmXhxEcpronaiHbZLAENurQwTS4dFDU7JToS1uufsZzv/UvR7/6zJ9dqm4YlGBx6awe8rPSYSEZU5+YNokx8RORfO6n9cgRljKvWJgxDqXMg4tsahNR9OymzvutBUVPkNUpa2A2TBXMxggj47Bo9wSiYzhQtgNi62+tIWqFB58wyl2L5/u+81dXYQIKAW5S202kNba7Df6SDz18NaVvu5S2tunoFnVTpFCFyfcqiqXX7dXjaC289X+9x7n15k/1YKBfo7uridGTM5idmzxNZLVggVW4Ep/UTW6NBL0ViPSJ00UKIjCGNVI7/UsTuuT7zjRavOuBvTGUiuE4kbGT6RSMnlMVbpcMbQ6IXT2C0hV0120Vd1NM0bTG2FGKRrQ2L0ISJV"
+                        "Huwah98vbW0t64u1oql0s7ATxQuFsexnq/Pg4RDwKN15rUFQA+xLEhgtc2oa8JBZf2QPfsInp2wh0cgtPXQ1WuiFQIpSKqOILEWsAWEDMxrNRpN4GxNhABRFFECbx+YmCDwNkEXd83Pzl/v4qnN/b2DfY67hCApbDRdJCbw/ARkO55w03yMJK6+NnOb575zqbGDdbgl9Q9ROwUkLaXuVVktJ7WVd0rlZPu6aj6tEpoZqKJ9foLY886JB3LXqWkUdqycQOW6Vb+z/cxAH2fPoESArzegNUH9cnNbfAlCtx5FdBzGUq7CNetC2vm0qmO+gAYa+lxuzCPqP6eD3wA//bXH+1Fd1eI3t4mTo7PYGrWBquJM0VWy25kkR1tsicStLsgVVfEaYOBIlRn0VaT8FCJRxYm5f577nNQ8kK47pn4Kz5kdcqgtAI2xkBVg3UtLgN6jNOHMXfyl8KQEUmrT4k+QEspOlhbnP/igQNLlz35ilp3pLUh4qPkR5z71J738QQAwqWD16kkqvp/PODMoPrUFvicALxsEOzaBenekQDt+i44XREdBCLhItmKBKGWpDBum9uJNSGzOEw4mVkjgPhQzgz82f88fmLhuy5r117RXz98+z0lANXWYk2sw+EhQcs9u5J90laSmtTlgVPKC5uURLLJlOmZYZ1sxSqNNaUqb1Ax108XE55VTbwXdFiE1mK812lZ8KZRpFgzGgtHpXS4UojlfW85zFh7lrcwfX/5vd/XJwEhXi9pZHWyt0X8UgR9+ZVE9UlS3qXELy+QNYrWAlFE8XfWWqPieKoNf/H9//jx2sf+7K8G4DoxBvqaODWR2hrPdJDsUwasajiN5ujDnMVNMggACIltGtI3SOWVBSVm9tsdwl0Ro7/y9OTcbPzgvoMCSASibSxlmg+RDp7xLiQ5rMFeF6IVlASCVgAGkoNTfu3Sa2uuKAn6AnceUe22+dmJE0E7cDTned+DLQA9BkQ7haJn/J3+yIDVm2Vb9rE/4diOMfB5bfCpJejBq4i"
+                        "eK8TbvBHuOg9OKYSj58l6IAkHoATKhZIyfBE4cQxEMSTSUDFBOhDlIqyEaHkBdGzTAIm8Q3h4cbpxz9RU4/DW4Vp7bHxx/vNfKwHoi9tB23pND9kbeQYDPzFkpkAxVbpb1XQDVtnfRXtNsnNYYUFgZeuTZJnYncu8nlb7EIrcdZTQgCi7oZtFD2hh1iZCy+KKK4wSyn2csnetSYSpgZ+kjNf5XO+JRiEAftekDx/Sx90a+LNtwbUXEZVrxd/h0+teEtY0dKzS6bG0ZjBqwlfKcdBd/9gd/7nwJ7///i40WwqbNzYwPTuPsYkUrKZWINhTsFqRR0rB6qXcr2JguAR09cDxkPgra+SNq1kuBgGhYwdQjbHFpebC0eO9IBtwdaf+qo2zVZJb6XgErNdA93q4pUGUKhV44oFKZYG0QCNGAy2G0Lkjk+l1c1WJC4sz6uC+/Wp6qK8+PT2zqP7vp4hETFo3RYezirB+k3diFxJR7+8YsPoAR9wY6llN8PkRuXOLsHotnKGLxdteolttQgVLwFIEHYpAPDjKhytEuTGOev3u++9Qh06cjBbb7ajVaEq72RStYxGluHPXzqXnX39tdWd3fw+hRRtAFigASp84dNgfP3jYR9lTJ752i8JXvtktwCDjeN56TQ85pPYMSndtSPck5olTi5nkAWOhf0YKyU6hLpOeK1KkWmxDzbwrUTIG2erSO6u+lkcJsHSWIMdCxMx9+5ZDkOmsFKtNME0EUro9jWBTSlZyPOuY52iVIs5/Z8a79BgUY7zVKnMvwvmJEPzRrWDP0+Bv64O/rgY0I+hIjChFbPcKEq6IU0JP+98P3F5771ve0Y3RE93YurmBxdo8ToydLrKaOxNY2etiVDdpsL+HcHpFVXUSocb5LShMu540Cd9zMY9A3/3g/hDUhKMi1OsNC6hs/uqcUi9HVJdA/HsXFhYO3f3dRWduXrTrRApQAmGsY3b198VPvu7aeHNXXynWgStKsoErDhw932yG+w8eIRYGKthzoFv/6+d7"
+                        "AAyadDA6GyB9i55FN+tQIH5HbTMHzmi5Tvm5QPD8CuPeayA9T6K3fb346wM4egZcMNcSLpRTRlkvIKp9ac9d7e/s2dd+cGy8cfepU0uzS4sNNFoOavUKmq0SglChHWhs3zwdbBwaeNPl6y6PoCUWW3qnoiPT0825Bw95aLU34Ou3TgMYIBAbYWx6QMhD8XRnmRIScXIDpg32zIybaPU8ywqTQ7OHSzoMYmgV2SQPH/McictKcatwpUl3LERszHazCWZiG99zOQ/NooCBtgVYJmNYIWU08tLCVJ3zvByJ0WudLu/RJ54eCH9qHdn3VLjDQyhtbEC1Q8RBqsqzY2hNwNF0qk5f+O2Jgwvv+O23V2fvvreKbVvqaAcLGD05Cc0ZqyKYRlZ2c+9pT9t362N4h9oJAPCB7QHYEwravZQuH/ACsG0qrVmxlULoWMN3qvpEfUrdf+c9HlwnhOu2sTDZwHL/q3MWZwq4KJDoKOP24fnJw63JycqC6zamwjBozC5I7fiIM7Rxo/t3T7xixwVdg11L1FpRZT2VCorzrVaw74EHfVTL61FvhJhdGLSql3WzN3I6Ev6dHIHDOjwovMUcOH/E0b5F4Bfa5DMHge6nizN8Ob1dHrzyIlSjSd0mSE/EqaAkbTiNr48fWvz7z32p/bm9e+eWpmdaCKMSdu1o4OIL26jXFWr1NmoNDUCgpITuatP13AEHdENLhS+AaLjB6PFRhfv2DqLeqOHw8V4A/RBpgVw0WCRnKiycZS9hEshqo3fUTLHJ+IRYNimdjXJizaPPWk9yZfdyp+Tk52oib8o7y1T90QUsIHNkZcb7JSRkyqnSgm2umMNJwdaeqTYgI+ml4EVm6ZvkfMoa3s0TUNR4rTmZ/7ceuTSAfnEJWHctnP6tUtragoqaYEtECsKM7HeMY6fbHQz2YGnqLW97T+nwN28rY8umpL1k5MQUgnC6A6ymkLgRLK0QWS0fWCm592REbtWCvgE6TkmkREIz7cnsmAKiCXFQiibnF+L9+w46E"
+                        "NEQCVBrNPHQgtGzIt3bOvweIJfs6O+9fPjFLw5m4M8cQGnxKNRc4+gdDr55aznevq1nfW/PRUDoxUo1Et4PFE1XO17j1NJiO953YAiVygJa7bTPcDHB5jOP9xICDmL8nrl+7+XJ9U3wJW3w+iFh9cfgbL4I5V2RODJPzEfUkQJVSRy3hK7wMOcX/vZfPtv++2/dujA5MVnDts0BrrkyxMx8E8dPArffG2FhIUQ7iLC4FGD3RVVcudsb2r6tcnlff5+ZsKU1E+27QDAHd3705Jhgcno9fL+N2bkKgC6QtiGhLCvgnZusIa8SkmCcaozEtssE7eSG9nxKq8K10lxta/y42KYztEj3fIyVrPYqIXVaJSmY6+VyWHu6kB2G5q9OWGy/oV3ayBOuhLgtmCmerxj07RyFhsY7TEXw3Xp0fSD4WQG3PZnSfan4OwlHGtBNe2ib5O3bUITqcnvjMTQX/+fb3+3d/9kvdGN4fSCeV+fx0Sk0WtMGnCZXAKtmh5xgRaB4pykCJIcFN7qQ7j44vqI4sVAvO+kktV7WoqDCicWl9tjhI10IgjYgDavtpdOw75xSwumR8f29w0OfpIovbMbN0vz8AheOn4Semaugv+ciDPSVn71pc0+357shko7tJAggPKVkCTq8f2y8jqX6erTaAeaXPCQjvc7KDvkdPAEB8TZJos/36tGtIfVL2+CVW4WV58DduQOlbS24cY2sm7ZlVRZP+aiEt88fn33Pxz61+M1v3drAQF+AJ+xuY2YO+PevASfGmpiYaWF+oVEoTDz5ietxyYXxridd2bW5v88PEevYajFTcHi4NR4dGz8FKOVgbl6hVlcdr6nzWj8M0l1SAz8FSMyYhXHs+WxjW7IuhYyOxZbcgsdoFlrl47GyPpYOL+DVrMMSOzKkThxHqQt+WJmkFixOk2Dm7W4dKCxIPHJSr6NkIQVAPw8B6Fv1EQg03iU7kkqSnnDnENwYgJdfAZSuQmmHC6+8CNaTl5p198LS5Emv6tUzCBr/+/1/7H"
+                        "715k92o6crRle1wdGxaSwspeA0tQJYNc4GrOz123pkgwYHBgGvT1RVJwdrnEsq8hNCg9pzHGcRcXzvkaNtBEEvlNKoNxsdYBXiXBqeRfCvJGoAXiYSAzhk/sBED93YMrQLX/jkEDYP91zZPVh1STcSiTLZEEnXKenJcNo5fPd9VcRawEgwt2AfR7bKfVmV8NVHbgGhMzB/tx5d1xa+JCCevBP0nwP3gq0obW7ACevUDYOVTkU8R6Ha/NzYg9Pv/bO/jB44cKiNSy6oARTccodgz4E6RsfSw6SNfE5jHUPrNZ7/LAc/dkPjCdt37tjsVroixDof0acIOPHInger8+MTMcqlGPVGjHozPRDiczkYznZqDgWglo7ZhFlLnIUnRqme+2RaKY4JnaUQRNN6MCVzFs7NzVf3yLU8wgK0GfhJyf3ZWZwvyA5/BqvIxJzVK+aElg9PJozoLKaKZS7/sNZv8k4IXbzbilxmpf28NvHU7dBdT0FpWxVebw1oaDJWAgUsGxUr3VJWIZzFP/v8Zxc/+ec3D0MpoL+3ifHJGczMTZ4GrBZxDv5Ov8tRvM9UvcqQbSHYE4LtfqjuMuC3iLYSqHRjstmRWqPklOOJ9oy69/a7PTgqhOO0MT23EuF+TiPpX7zy9jtIPNjV4P95a3X24l3ulnI1fgL9Hk/ghNRxrv0hHDjx7NJSfOjocVPb0hoLizZ4xg+Vpvbv3Ib3mOv3YRKnOPoTbfKqXQLvefQv3AR/Uw2q3QCbiWaMqiK+AsqNvzt6z9i7PvDn4fTICeCinW1Mz5Zwxz1NPHBgHmQjA6jkWi3BceqI4wVc88RS5cbn9YWbt5augtPXBd0dElGKGabKFB+dnG7Pzc0TJd/BzFxoiPYIy0eV8eHrsEyVUCOCIJ1sbJfhO473zK+d2WCr3KW80NKVzS3psI7BslCelp/wKpY1xBDE1MYvLMWbLLMVywcrf8EJJcyCD74USuUpa2+N/cp1XcUr+8gAfQBD0HCy99/G41e3wBf0AX1Pgbd"
+                        "hiP5QCwhC6FAlx2ahPEIAZfHER7X1T/u/0/rQu9/Xi0ZdYXiohanZOZyamjDglFYEU2GorWI/Z9+pGNwSi/T3QTlloMSOuZZkdonEDJyIZxbG4gcf3K8gEsNx2qjVGw+hv3q4JdjUQycEoHY/4ynd82W/9wJI905xBj2K2wCbCnTSCosDV8/V69HR4yOCOCaUEyII04ivcxBG4Xe6jcRnOZK9f4qjz2oJnjZIeE+Ft3kI/lANqtUAW2IeVF8c5aIcfH7iwOTb/+RD7bmjIwoX7IhwYtzFd+5exPGTc+YgqRmZyZy5XovKcxs6jqe3vfBZW4Y3bxrYCr3hUqh1SBwyDAWd+LcRTnhi9ITC1IzCuoEI7bC9QnEjfuSAlbk1JJ7ksYkgsiqhWHkAU7dM63GSYh6TaeeEzJqOOix2UuFpNikm08KvUtKdeaQVA7a41pKSSXGuasqpFHyTs/gpb1xKBRN2Ec5KqzOo0HhEw57erI+BBP7QVJTeytGtbfJnHHDoGlG9O1naGorSbWpTeRMWCwXJzd+DnvYttdGF33/be3vCA4d7sXm4jnpjDidPTZ4BrM5JQvA+SwAZCTcqoGcQju9RXC2MCEKnytv8PCC0VgpeNLW0FIwcOFxGO9BQThNRvNLAiUdqjEe/u4vBUk0DCLZsHhpcD7Xuaur+HkFVJwxCFiZDa0fDbU0sLAbh2EQ/wiiEYsrndT7Yy/bpvwD8gdphUvuRC1vAC12w72qovq3wNjZFhQ2ymVqCuCKqjO7orsb47Hs/8Bd67uCRErZtCXDkuODO+5cwMTVnrs28KY6kvvmLAGoO2dTAzO7nPH3bOnDoArB/kNJtemnTNh0oQM1DLZycnFRot3sRRdMIgvRg6DRI1I+oSpgWnkhFiJlLmNn/Ju9n406Wp/XCjg75ztAJnSp2ySZc6IJwFMQjTXm+bxFWNlnIkO7JYWm4PuO6LqcRpMtK1SYUei87JyF3Gvhl3n4PU/rxBo4ABN5nSPa38kRXm/rGWHjBVUT1KpR2"
+                        "OqK8JbBBJKM0Cr79TG7KXvTq42gvvuvdf+gc+PZtXRha3xSNRZ4YnwI500Gy28LQNs6ywXh5GjvaF0MPrCf8flGVWIQCxrnaptBrD0cpVQeD+0+ebOhaLRn53myu1PB8XhxGg6Va8vXr1rHfcYYI9l0Ip9sHvNgYe2gznMRVomqIwwcmJ2uIol6IaDRbtk1z8FAp8++Yx+P3eLInZPwToXDrFWTpCvG2KzhuDbppAjlRgJRR5VGEk+/5vx9t7fnOnR42DWsZn3D43XuWMD2bXps0fU9T93kAdeV7zTBxtYg3XbC9tw9xdRuc7hLgRcKIzHFBQeFINBEfm5yKUKlotMMArXarA4jP+vo/5LkcSU6+x4llRBrrwbSg5FPxJJ1KkfNPxgHeaHgL8wiTt4WZS7w1UsGamrOq6asOWYOYHSes15hFoWZfzADUjh2yXq9VcEj3Nx84kQ8OM08Tiyruc9yn1/MIhBrvVzlv1YZ+YUv01TuoS9eLv6MCt6cGNmPquHCVk38JaOmRHj0PXfuDD/2Jd8unPzOAwf5IfL/Gk+NTaAd2RXDS0lo9ZDPz6dZvcCx7uwfcGoK9AdgaoOougX5E6qyRODswkrd8t6Tn4mn3e7fd4cNRIUp+gMWanQ6eb0tkAsDLDn6j11foLS7khQAAIABJREFUHQTLA1BlMin7p1lKTA3X9eP5eNY5fM/9ZTgqhusEqNftB3slYC8qfwDEjJ8ZgE/aArrXwt/WRa+3DrZjMk53oiQ+WpDGX/77p9tf//yXBX29VPWG4j176gas6ihOJkpdM+YALJb6exsAajd+69Ol3pK3wYGWPohfFVWKAR2DRrMJChw9sndfdW5svIRqJUQ7CAwQ2xFWfLYcljoDPwAACNN0p1AdTMvwksJRbgyTmtilDkBiM8zMpBCd5X/rWc1D5Yf7NP6AOayEdDcXSoqMeJ7f5REXWRhPyFw8Ym8HOobNmrcLYwmLweq5kSxOgVV+I0ee1oJ+9hDY80zxt62jv64GNhOdDoSim"
+                        "V+kRHTVJWXR8Bp/8c3PLX3iLz/WDRFPdVWbPDU5Y3ytOkn2TmHoOUVWXQjs+3NzBPT3iKgKWLZ2uDDMNt1fF148t7Co9+/Z7wKI4Tpt1Op1rDxw4rzdcD293cMEKj0Q6YfqghCxMEY+fgoOXD1fq+nDR0cAEQ3lRKg1GtZDHayUEtp+jm/k8a0t8Lpu6O7r4AxvFH9DSxCETNpsSNIVEQ+l6NaZo/P//A//6qEdlB1A9J4DTZycSMBKxI6G026ERRN1Ndc/cXcAAFufuLuilAzFSfEj4RDTgzlvoI2PTU23Z2bnQ5R8ot0OzMzH4ExR4zkDVorewhjaRFjakhkxf2isB8l8QsCUdKaVSqaCysLUYzGNwtn0Z9GFIaGreCaIXa6JTfMzsosmhddLS2JGa9J1hlLWHqyg5SrsI9LvzzzGPRee7yZ9BBE0PmjU4m/gyMUB+ZNlsP96uP3bUNoYCOIQOsizKsmvMTR98eCju/W5Q7e3/vydfzDIpSVfDfY39cT0PKZmU3Ca7oisbK3VOSvJ/9ToiwAgAjcqoncIbsmHuHFqh2zfb1ap2UE5nK7XguP7DlTQagOaTQRhp3/7eZmQc91fvDd721MyHAFlAmE3EidUjTxoBjVUQriHR4+NCBIH1RDtdhunn9wDp+R33otPCoXbt4moHfSGNZW0wbaYKdcCQQklzkLXbv70v4bTI6MK5bIbHx0JcOxE0g4lMgdyJX1cVhi56GeerwGgXK12xcCGCsTtp5QUoUj7kBBqeO2TJ04KJqbLICLDX7VXAKyz2u8zRFipE4GDGISGpjUY3Y4F7AcsU2EX0xwWUx7LkiJ/YlmcVf8YmFxUFI6ShnjPuvFpAXqaCzJL7ApIz2J8xXzPWAQwK7SyQP3s9+q39DHEUPiw7AIAvEkfG2gDPxULN18L1fNElHYSoppgK4lvJQ97zWt2Rake9IW3B2ML733b7///1L1plGXZVR747XPu9MaYIyNynmoeVFUqlURJqCRZErbADMZgM8uYRggb3K"
+                        "a9sL2AdmPDUhsb0UBjQAwGNGCEJSM0oAKqpBJIoua5KrOyqnKIjMyYI9587z3D7h93fC8iszJVKSn7rRUrcoh4793z7tln729/+/vqreePT2BqQtl2dwvnV7IbPZOLyf7e+kq4Vjs9foDPVA1jcozgj0NULBEMw+R+AxgO/g4JEQH6+PJqf7DVCgAGwqg3gl9dKcAdd773B4t9RJhhQrXOJAIiD5nUOCX6crBWMPxotdNR8dlzE4iVgFJ98LaNPRTg3UYtf42f4FO7Yuab6mD/IDtjLkkvJI7TJhAxAIckGJ76zAuPde7/7H0+tA1EGCucOtuBtV0QtcG8hsJObHOUH1eZnbL+xHiyNq7bNECjAnKqJLxssiPlakIA1IboLC6tAP1BHUpFSJQZ4gtkja9IBxCXgs/EECmEz6XahNLShpjLpggpOFVKocobtLyD8zqSRzqDDB61c6erwSz04hhWJt6X4VZFULY8rJ0xtC40sl5DmSiNBveh2tmOBvVLFOJZBcMtrWZI/I6I7Y3XAMFr4R0MICt9YGABywWRF2n7hwmEOprmLOL2L/z8f3WPP/DFGmamQ9KmjbPn12DM+kiwyrTY+/gKh4oB4Fv5WP7nOvMeTTxmwPEky7oP4WnADKXspfVy4dstbIhHv/SQB0DB92N0v3r41W+WOpkRYxrM1Ukiz2U4hmCKfUIshUQPRj2zttaxcZzMNYRhOLKxt2nL21iVP/pbFOHwLIP2Qk4RhIiZVVZ1AgwXHq9AtT/ywT9x4zOLFREEsGcW++j0Em4VeL0UrHZSy7Df9YWP8md/4F9ZAFCEaYfZGWfyHCZHJzruuZKLhMQpu2JOLq3E8D2LOFYIhzqE6nIPiIt3CSlbG5XoNDPYZoqjwLCm+JAY2U6dsBE61dCYYybrR6V8gUvyMny1TuYMKY6apEto0w1TlG/EFx6f2eYyy6VZnVER6ryVWkL18jbtJS/QBFn8Gh0BAPw4n7q7D757nmzlTfD2jcMd7wADxawFQZRdfzL/oxp"
+                        "VEEIOfvWDHxAP/I+PT6DZYOHInj21kNlybaY3/gqGjSNeFUY0A7+0bDyvwOMVEKpAIIYGncuD9skfHPLMVmeVjz17TILZwHNidPr9rzZ+9UN8pmHZNKtETo2llziEs034ScnLOI5vN3lTvvjYUwEEmVRMcDDSIRwaFSIpOW53AQDv5ZcnI/DNAVA5AmesDlk1ibK5ze4chxwChP2bl54Kn3ri6QoYHnd7HSyvtQG0QbRV6uaOBqs8gB+57m0pFeZ0ZcA8a4m5CXKrID/RcYdNyOEEgmMWjr1Q2Vg8Z1GtGAzCVwW4v2LAMoXBApiJk04ho1BsGKIZDXX0iEZP/yQyEQ11/5K/j9rbJxQBa/H/h+FnLvGwOO2kDlVQqcZk+VqICv+WsplOWcEPOWmhGBigcsGYzxOm4omXdvIz472Z87A9tT8E3uGDx++CnNgDbyYCKZX6CA7xAhK+FQXkkItq+PHjX+59+P/93RnEUSBmpjr27PkNtLqJ6B7RWoqDZNydHW/+y33cymX8yu4CY2wX3MAnuBrG8DB1hEtiakLCVWv9fnzy2eM1xBHBdfolw4nR+cFXQxgd2WB2lyGuBCDbJKqAQYbYckm+X0DaVm/Lnnz5tAAokbsphrF3JFeyMWX60U0x4Zo9YDpIctph4Q6Yo1Lzihw43AcN/uIv76f+0qqgSoV54VwPgzAB05k3S8Fqp5lOAMAaVggAK+KaAc9EYOuDRBXk26yAYgAkiEHm9OpavLa+SfBcxlY7hjFZs+WyAfdXLAlVuqViCMQE1oVdvbWloFJQFzgv6yzbxAk5/WcLy5aS3jhz3k2zSZnB+c8WMsOjmu5X50MXnVRWxFbBZtduLZgNWzbJZabrgPT/kOvWp9dtk9/Mr91muFi21vk65mYXJZjsEjOsE+n399oXql3wO0M2e24FVW+Bvx8Qog8Tcvr86UxkOh9pWRJQQ1M/gbXW+3/+v9S7pxdqNDke2vXNrVTiuBys1jA80Pyqs5d/JZJL/CZ70ovAk1XAH4Pw"
+                        "mME6KQDYMltL1ub3EjELAmJAvbSx1eutrQfQhhDF2cDzToD7qwpUb+GXy52rmRAcaLBugCqSIDSzYcr2B1jAMZu9njp18oyA0gBzjCgKL4D1DL23H+GX6yHhehe2dgiy2YSsacBYYsvpXGtiEyHsC+huPvHgox622g0yJkKr0wXQAVE7PVi20m7gBQfQQwwoOaBtdcA87QKyyfAITJaLezaBLNx48ewiYWk1BdzVToD7ZY1AXTxgZYqjDFYgjhnWJILzhS17GmCScojTkjGzbE+wGFtgU/mG43wzFFLCaUnP5ecf6vlchQ+VBSxiKMAagE22DszWEpeCUqYrmcSl5FpLgT37WbC1pVCU/1ImvYwi8HFG5L6E9fkpZrw/za56kG/uwb5mL7H3Orh7K5CVHtvQpnPbWTBkSg4fgFFFzayCW7/yvl+pvPj5L05ivKkRqzaWVjOAdgPM5VLwioHs4I/mf5wkzIegMU2Ip0nUfcBTYMWUrH0ypJ+3160Lz26hQ4988UHXsNUI/HiEznBFCaOTpW0Vws7EjEoNhArIS5hrbEs8Nlh44UqvE4ULZ8cRxxJaD2A5vpTWvwH2Dpj3+8xmL+SYC+GGsBEXBycLSKvA6i/vu18uvHTKQ+ALu7nVx2DQSbOrrVKwyqgU23DGf80MazUDwADUiAiNCpNTA7lJDGCbHaQERguyffb8EtDrNaBUnChjQGE7EfaS1/wVSkKTljsKFg7HBKvTkz+td+x2Vd8RhYgyyT6DqfJJuJ2rvbQTZW3ugsH4akgAX5mARel3sAKsZthULsSmYdZum8sZ8mrkHPxLJy95CLPKjVWzTnGhEJgaX1ySRPLu73gnvT8dqfkBfvmGDvObJogr98Cb38XeVJc4jImVABGPvgcAHrnSIgh/5/7/FX/qQ386Dc8V5LltPr24jlitl3Cr1QsEq1cVCL4Dr8X/ynFDuysijEmGqREHEhAGbEVJvKeseCHhmrba5ONPP+fCWobrZvjVKOD+aucHAQAfL1EvBsCkJ"
+                        "a5MMrkO2DFgY7OPjxguSPag9bMrqz0dxbMgsgijQek9RRfLRGJgVhFPVlmIKoSXHpK21K0iCce2IboP/uXnqzi/UqXJ8ZDPr3RhbMataqXBqjdSug89ltSL+GPvGgaAPmMSgGwSuQ6EVGBtsgY5MQtIOo0Vc/L8SlIOKqVK1zWq6HoZJfbFNmOKTcWU9L9U1rbPjCFHI9KI8Di2iY8OSRWUgPh8rJCR6HEX7dHSyPDVGbCK74rBOm9OJMEqmb2koeunXFs0Va4YtRstj+MQ72T1ldJMShqHFykJyZFoXJNsoh/mE2PrzG+1ZCdvZ9k4St6cAdkIJiZQQlzJPpN013vkUAUT4V+df6r/h7/w/llsbFZpdnrAy2ubKTl0C4Q18AWdbl51mXVNqk2eZC2YNcDYXnKCCuDFxJqZ2NJoMyMR8CHy1Xo4iE4+c6yJMBKo10LE0YW6g1eC4Q4AeBefqiqYegCIBgmXGUjwK87fq4CvN9Gilx57ugKwhePE6LQG2Hk4eOi9vYvPyhDhLgI7s3ADFyQVEqWEbP/JtGt6Aq3OyTNnJ6G0jzDqoB92Ut5VO1X87I6U7tvWwTiCAPAP6pe9AcyMAnMdnkwAd7YmseZEYjrh6IVjz/prZxYlKoFBGMcYhIMLBOFLlmS5aMCKcywrERXISp4kayBYLoHLRdePyg4TQ2LHeZbBPNwF4zxoIUnnKcNQkBllXaUolkovVYM5JrYqTYuLOj47QbgA0nOh65wuWvT5SitXBDCbWquWNLNSy7XRmYCdiqmZd72Fjv/SBywArIO+sQ977U2Afye8vS4Lr0tmYAtz6kKUHUyCCFXU7MvotX/lfb9WX3vm+TFMTyjudLewlpJDidbTUnC9xN0Jr1SwAoBfojoAYBc/LOIUvxpn4VsQK2KdrtDw6gFwCFJDqNObrai9vFyFUhZx3IWxWbAa4DIs6S+vjNXTMdnKOBOPk6hwAiGYsvSKgGO2ehv21EsnZaIrLTR6g8EO3cv8467eeBT9516Ej2gmZM"
+                        "x7YD1DVA2YvJissqV1kBAwYPPUQ4/5a6trDiq+5U5vgCjuAuiDuZMGq7KjNu8cD5J/joStKmC2B7Y+mGqMwIKtTbqSEABZkD29uqrX19cJjsOIexG0GWD7/OBlEXTFpWQPMQgKsDGzNcy2BI4nm5MSUCbJKtL6PAdu2TIlaarNN/MQ2FyI3hXYlU2yE8vFhrxaS8JifCkR+WFrkgWwKUZnU5wqD2SWkYPyCThaBtgz6ghbS8Wf03UdXkNKJ/4v0phwpiZo5c/vswDwbfzizR3grnFY/y3s7p4hZ7xPNtScAtYogGqbXkIAFz243d/47d8IHv+zv5hBo24IaGNpbRXGJl2lJFhdcZB9505hY1cIO8YweheoHhC5CqyZS++/dI868GwXHXrkwUecOFYM31foDXqlQDVqSf8qeS7/V5nyMj0AAk3QDUbFIRYarHOjYGYWcExr0NenT56RUIoAUiOA+7aN3bj9Bk471NMh8S6Z4GaBCzgJZJM2w5itgDAKpJ576jkZr647CHyDftiHtVmQ6o6Ughcs31UKOxjieo8w6xE5U0y+IBbDexts4EbnFs8JLK9VUsA9ugiv7JLvEXHxDCsDlA3HzBwDrIvuVbHhks4MW2Y2aRAzXNi2m3wRk69MzSAPeAxrE9FFm4LuNnuenK98lT5UylXTYMTMVjOy4FysUdpfyIM0IevAJWuX4HWlgyAL2Hm3Ll+P/OfB2ZDpRTMsf3KMAPC3tJ+YaoPvsTDjd5EzdhjejAJ0BKuYGEmHx5YCIluHJFxM9D/23BfDj/3Ohyag44AqwYCXVtcxCLPSb60UrNpXErfKHq8vEUYZYjZkHrcMXSfyHcAxQ4E8vdco2bQSrmnZDp944tkAxlr4boRevzeCX10J/SsAwD14d7F/iKcjoBqAuJIz3PMDyiZD7F680u9Hg4XFccRKQus+jL0QfsWiGmD5w59MS2PepcH1WQivDvJNdl+V7j1A2DZk9+Xnj/vY2KoRKEIUJXZhRD0UphYXbTr8PfsiBGs"
+                        "LAD3GZMS2Ps7kjhP5FjCGOGcMEBhtuN3Fc0tAp9eE1gqxGozwry6b0vDKGFaaHStmssQcMRtddAJgc2f2UWXkZLItrQCLkogw7CBKaY1DlkoESLaAyLuEl9EF+3o84vR9RZyWhMw2z6AoJdKN0tF2Apwo00i0JXlkpkyDFZnUHyUiWulcJ9JR6x2Dupwco96JU7H4l98jW/XKG2PYo68FVe+Gty8gEbTZ9mz+vFSu0EkSwUOgn8By57f+4y9PRydeHsPu2T5vbK5js72EYUv51a9mdvUgXZ//uQfsigjNQ+wGdSZfwSZuxKkjYuIznM9jkCDPrPW6+viTz9YRhoR6dYBBVAbcr2iH8AFRAO59NlOaKNjFwvMAVxOMSZox6agMiS50/NTi+b7qDRK4KRkXKr+voeDvzkwhOr2IN/KJeg885zBjP2StCvIi5thSMQAhiYgh+Dm1Mjhz6swYmD2O4hVEcepvyN0dgPZt138HH4OFxSfpBvx9PiEHzHsMWM4BfgOiohhaE0xKcCcBiVM4b15aWDRwJaBUjDAsZ7Q7YZuvvksYF6UhWwbHxLbIsMDmQo4itIMAF5XYkbl0eQluTki5WaqbdQlL2/zqDFgRZacpOAKsgmUNaw2JNAtKlbw4b63SkDlOgcUzSuvCZQ/Q4a5qooORZKJgsEQWtMploRCwGy0GYO/8rz9zc5fojllY9x72dk3DGeuSHShiQ4UmIFHJoEdAUgey/we/+lvNs5//4izGmwaxzvhWGygGm3cih17xUjCpsb6MkHiiAlRmIAMQI2LWtqR4kU5FMBhwCELDUWfb3bi1eL4KpQCle7Bm1HBC4QqC7Unp+kwlBNcDJjlB5IEZmtMOYSp2KeHrNlri5KNPVsGW4Tgare4AOys0JPN5lYztz/UY3IzAqg5yA8CPySouPD5ZQJIB+MRDj9Xaa5seKoFCfzBAHCdBitG/QMAeWofH6Hq8kY8TADYwjYjE3pDZjhPJBlNFk7U6LaeT3MWzC8ee99fPLAYIfIMo"
+                        "jlLAXV0EcL8SGVaB0xhijpLyDsw5Kc0OhSvC0IQJhrwVmHJd0txtL727hv0ZqITnoKQ4c/WVhQtfyoN6zEAMWEUJ9mYxRAJNM5dcvH17JyL3GMoz0ZK5V2plXvAbYFPbNVsekipz6auB4G4/OvSZ35nt+N4bJLjxejjNI3BnQlg1gI1pSBcxVw1khwR5aOg/e/4hde8HPzYPrX2Mj63j3PIatMkoCxcrBb8qp8stNDkbgscCht5FVPMZbkxWD888FVo7Ei530cMjjz5FgygieI7GIOyCt2VX5koHLMPOlAIHE8SYZFTTbrvmZLwt/eQd01KbduHFky6sJUip0B/0S4F/W/fS2TUNHHsZCvAisA/AiMJ2ii2TLennIQbrhTOLFHV7BM+1aPcGsJy9xk4Nh6E12GufxUGy0Cl6FAJTfeY9dcCdB1U8YhkylCFmkTtbk1lYWTVbq+uAlAylIxj7ilI5rz7D4ixgCShmG4GtIbaGuEwILY/C8ZCJwrAtIucapJSLkVJJZTl/jnTMxdrCj+fqpDXsuxuxPZbhFYjArDN8Lm1C5FloqflGVFjolOYMuZxBDXG1Mol85Iq/mdwP5dMA5fVxJHG3rwC45hvvfE0XfOhOwL+bvfkAwm+R6WddwVIrkrOWtAufT6Pf/eCv/u5E+OLJBmYn+2h1NtHpJbLGQmyAsA4hNiFlh3xvQM26kntmjXfb9XC/8bVU+c53QPiTsOgn8imUm1gD5RibWkYX/1fIhxESx6bzdGOSeTPPROAxS1ANhu8CTsgcU6afTqXqggAJz6yjjRMPP1FjYxi+H2F1MykHiSJIEcFxNCq+ETOT7L3uZri3XU/eXbfCf/PbASg+lzoIfQUtwqk+OIhBqgkKHIII2arMx1EQCJB2q981C6cWKlAacL0Y0Y7ywfkhUPt738CdBx5CDHgDJm+crHABqRlGJw2cbGMlIzRgvbi+adAPkw6kUmF6/SGYd3yN8uOsuAmT9ll6SlzDb7H3Uht8MCIObmEZ7GHZ1MRGA"
+                        "yadxKCEcuPGSwtnHSyv1eC5BkpHOwSrr+iAuGjAitLnG4BhiVghAZUNZWMiyd1ly1UfFcQhTjcBUkPQLFsv1Ta5D+tQ5p9oclvDLArQ/SoE3g9PQGUlIVuOARsRWc1ss0aDKUwQ0mun1IUocwsq0z3EEGeNyhYPmflfobOPbJxnWwaaMi2qn/jNA5169dY9sP474M7OQ0z0YELN0KDk5ipckZMPwgUJDT/84Ad/t3LsM/fNoFYBlNnC6voyMlt5a5cALMPYVSi9yWHU5VYnsgvnWf3dk8Bv/Qm2vu/KL3cIM9EnahyGG4wRAsVWGUoIo6UYnxfSRI7ZGvT1i8+fqCOMCa4zQLefaDsx96BNH9oMEEah3WxH4QunOPzwp4Zec5rP0Buwjz91CcP34/wstuimbO9MRkClAnAV5AIMDViROx2wMORFK/1BFC6cn0OsXAiZAe6jHKx8cxvXyfakNyDrzzIJD5CWksZMknNT6rZMrAETrq37GIQeVSsRG1sOiOWAta3hUPv9X0Dvh38WMSX8qy72jnfB12gwDpFTmYCoRYDWVOiQSUC24HQXzy830O01MdbYTAF3dYEgfOVKwijtgIXQAFyOkqHHpIuViGebdCdSYYPDOQN+6CMmzqubLDHLbAmZijqJGDDMMLA21yrF1RmwvEc+D50ueAiICAnGZwhJ1y/tVpXUJmjYG7uQRk4SEJtHdGKmQu0hm3zOtP+IbFaeF5u0QAuNiXH7Dc3+G2652YKbr4eo38Turpis6TFHKUW3GFpPTxNBAgEa8QNnn48//Tsf3o9Wq4G52S2sbW7C2BY8tw/X6ZDn9kS9GoqpCeMd3C1qt93ojb/hdlHbO8veZJPd+WnOVCVsSl2UsBDE4Nzg18IywZIEpdqnnPdodPpvBM0Sc6jo44hpnaIZH6jMsfRBhJBYJR3nIfU0ZiIWzMLCi5cGoWqfOjOGKHTg1HrwXA1tLBpVFvUayfkZt/qaa4PpN99J9dtvNpWjB1gGNWwA9DwdCddoP3/q8Y"
+                        "9gauVvsT77poveD1mwAoAe8ZgCgnmG6xFcnY5pZZIBPgkxgNHHlldDNQgdAIwoGsWvtpVq0dnzadVjnBDsCJJwGGTYJh34DCtOWlmsAWM63QBKecx+B9Ymz80c4xUMIHo//LOY5+dxjG6wANAlHByA53eDvMMs6g5BDsCxBlviRNPUg0MLWObTi0sMRwJax4jjwcWyxitWEob59zQcsWWT83QKJnqqpDI0NpIkELawaC9GU5gxVAJRWdaBEp4HG1iGgCUhTEKdvfr0ZeR4AJsifSEg4lxNJumqZsPD201Us/UpBgXsTmY0yGvAnGWaIU25+yTnVXmWflkAJH7kHx+y9cqBvSD3Hni7GpCVNszAIDHhoZIKM4OYCPAhaQXc+/Bvf6jZfvaFMZoaD4UUCtOTDu3fPY6ZSct7d1lzdL9rbjwyZq4/3FHz08oEAYeOhKTkeTIl+iT46uy8opydhHIrwSBTB8uyTWJBxVFl+WnuWQZ7irF3gjiaJ6r5gBMz6zS34rLdeCIF7KKHCE8++byIB6GA71nZqLp063W7MDfNOLq/om+5dtLefsNW6+i+QVwJ2CdKa6mIJLOcVU+vy9XNJ87vfnNvHYD4wM/B/uh/esX7wudnvAFQ9xhymoRPCYdJ2wSWTexF4eku2uLUI0/WYQzBddQOksjbGhi8ayrN4CxFAMfMHAFG5bSCfC04MTEsWWOCbBosLiSety14SNYCgD1qjzfbMK9hGPd17NYPkpyMwTpOeGUlzxRXL5447m+cXqjA9yy0jtOubLxDSXhlQfe8ZQ9iwZZBNukSpm17k2rfFK9p06CVYsVDkr3ExQ0r8tEJlDndpVvagJmFsHCkyUm7O9v/fN0CGZNC5okekRUqlbdLR2dsoQ80Mro02pwodwHZlrS/MstZHjarTTA+GCrh98wEQQRAidtvmLQ3H70WVlfeBTl9BM5Un0wUgzXKuUhp5VxIilAd/OZH/sB9+Df+cA6ttmDX6RmGwtS4wN5ZB0f3O7j+cAPXHpA4uGc"
+                        "CuyaV9H2WYJl0fC0xRq8rW6v07KciApfXwJb+zjTcqUm6psQ", 0, QApplication::UnicodeUTF8));
+        m_main_tab->setTabText(m_main_tab->indexOf(tab), QApplication::translate("Frame", "About", 0, QApplication::UnicodeUTF8));
+    } // retranslateUi
+
+
+
 
 
 void
