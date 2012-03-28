@@ -72,6 +72,79 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_hostRequestedQuit(false),
     m_ready(false)
 {
+    /*
+     *  Example of how to add widgets to the QTableWidget
+     * 
+        QTableWidget* table = new QTableWidget( this );
+        table->setColumnCount( 2 );
+        table->setRowCount( 1 );
+        table->setCellWidget ( 0, 0, new QComboBox( table ) );
+        table->setCellWidget ( 0, 1, new QSpinBox( table ) );
+        table->horizontalHeader()->setResizeMode( 0, QHeaderView::Stretch );
+        table->horizontalHeader()->setResizeMode( 1, QHeaderView::ResizeToContents );
+     */
+    
+    /*
+     * Example of how to setup a filebrowser treeview
+     * 
+    #include <QtGui/QApplication>
+    #include <QtGui/QDirModel>
+    #include <QtGui/QTreeView>
+
+    int main(int argc, char *argv[])
+    {
+        QApplication app(argc, argv);
+
+        QDirModel model;
+        QTreeView tree;
+
+        tree.setModel(&model);
+
+        tree.setRootIndex(model.index(QDir::homePath()));
+        tree.setColumnHidden( 1, true );
+        tree.setColumnHidden( 2, true );
+        tree.setColumnHidden( 3, true );
+
+        tree.setWindowTitle(QObject::tr("Dir View:")+QDir::homePath());
+        tree.resize(640, 480);
+        tree.show();
+
+        return app.exec();
+    }
+     */
+    
+    /* Example of QSignalMapper from here:  http://stackoverflow.com/questions/1332110/selecting-qcombobox-in-qtablewidget
+     * 
+
+    Here's a modification of the QSignalMapper documentation to fit your situation:
+
+    QSignalMapper* signalMapper = new QSignalMapper(this);
+
+    for (each row in table) {
+        QComboBox* combo = new QComboBox();
+        table->setCellWidget(row,col,combo);                         
+        combo->setCurrentIndex(node.type()); 
+        connect(combo, SIGNAL(currentIndexChanged(int)), signalMapper, SLOT(map()));
+        signalMapper->setMapping(combo, QString("%1-%2).arg(row).arg(col));
+    }
+
+    connect(signalMapper, SIGNAL(mapped(const QString &)),
+            this, SIGNAL(changed(const QString &)));
+
+    In the handler function ::changed(QString position):
+
+    QStringList coordinates = position.split("-");
+    int row = coordinates[0].toInt();
+    int col = coordinates[1].toInt();
+    QComboBox* combo=(QComboBox*)table->cellWidget(row, col);  
+    combo->currentIndex()
+
+    Note that a QString is a pretty clumsy way to pass this information. A better choice would be a new QModelIndex that you pass, and which the changed function would then delete.
+
+    The downside to this solution is that you lose the value that currentIndexChanged emits, but you can query the QComboBox for its index from ::changed.
+
+     */
+    
     m_host = lo_address_new(host, port);
 
     QGridLayout *layout = new QGridLayout(this);
