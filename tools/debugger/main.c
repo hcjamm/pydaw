@@ -22,8 +22,8 @@
 #include <stdlib.h>
 
 /*Change these to the project you would like to debug*/
-#include "../../plugins/lms_eq5/src/synth.h"
-#include "../../plugins/lms_eq5/src/synth.c"
+#include "../../plugins/ray_v/src/synth.h"
+#include "../../plugins/ray_v/src/synth.c"
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
 #define LMS_DEBUGGER_PROJECT
