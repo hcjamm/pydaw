@@ -143,10 +143,16 @@ protected:
     QVBoxLayout *verticalLayout_20;
     QTableWidget *m_sample_table;
     
+    /*The radio buttons used for selecting each sample*/
     QRadioButton * m_selected_sample[LMS_MAX_SAMPLE_COUNT];
+    /*The currently selected sample for viewing/editing */
     int m_selected_sample_index;
+    /*The graphs displayed for each sample*/
     QPixmap m_sample_graphs[LMS_MAX_SAMPLE_COUNT];
+    /*The index of C, C#, D, D#, E, etc... in the QCombobox*/
     int m_note_indexes [LMS_MAX_SAMPLE_COUNT];
+    /*The length of each sample, in samples(frames)*/
+    int m_sample_counts[LMS_MAX_SAMPLE_COUNT];
     
     QHBoxLayout *horizontalLayout_16;
     QVBoxLayout *verticalLayout_21;
