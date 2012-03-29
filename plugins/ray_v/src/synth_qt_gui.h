@@ -119,6 +119,12 @@ public slots:
     
     void setProgram(float val);    
     
+    void setLFOfreq(float val);
+    void setLFOtype(float val);
+    void setLFOamp(float val);
+    void setLFOpitch(float val);
+    void setLFOcutoff(float val);
+    
     void aboutToQuit();
     
 protected slots:
@@ -162,6 +168,11 @@ protected slots:
     void programChanged(int);
     void programSaved();
     
+    void LFOfreqChanged(int);
+    void LFOtypeChanged(int);
+    void LFOampChanged(int);
+    void LFOpitchChanged(int);
+    void LFOcutoffChanged(int);
     
     void test_press();
     void test_release();
@@ -266,6 +277,20 @@ protected:
     
     QDial *m_pitch_env_amt;
     QLabel *m_pitch_env_amtLabel;
+    
+    QDial *m_lfo_freq;
+    QLabel *m_lfo_freqLabel;
+    
+    QComboBox *m_lfo_type;
+    
+    QDial *m_lfo_amp;
+    QLabel *m_lfo_ampLabel;
+    
+    QDial *m_lfo_pitch;
+    QLabel *m_lfo_pitchLabel;
+    
+    QDial *m_lfo_cutoff;
+    QLabel *m_lfo_cutoffLabel;
     
     QComboBox *m_program;
     QPushButton *m_prog_save;
