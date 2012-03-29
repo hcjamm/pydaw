@@ -1,14 +1,16 @@
 /* -*- c-basic-offset: 4 -*-  vi:set ts=8 sts=4 sw=4: */
 
-/* trivial_sampler_qt_gui.cpp
+/* synth_qt_gui.cpp
 
-   DSSI Soft Synth Interface
-   Constructed by Chris Cannam, Steve Harris and Sean Bolton
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
 
-   A straightforward DSSI plugin sampler: Qt GUI.
-
-   This example file is in the public domain.
-*/
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+ */
 
 #include "synth_qt_gui.h"
 #include "synth.h"
@@ -59,6 +61,9 @@ lo_server osc_server = 0;
 static QTextStream cerr(stderr);
 
 #define NO_SAMPLE_TEXT "<none loaded>   "
+/*For sliders that calculate as a percentage, like sample start/end or loop start/end*/
+#define SLIDER_LENGTH 10000
+#define SLIDER_LENGTH_RECIP 1/SLIDER_LENGTH
 
 SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 		       QByteArray controlPath, QByteArray midiPath, QByteArray configurePath,
@@ -74,17 +79,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_hostRequestedQuit(false),
     m_ready(false)
 {
-    /*
-     *  Example of how to add widgets to the QTableWidget
-     * 
-        QTableWidget* table = new QTableWidget( this );
-        table->setColumnCount( 2 );
-        table->setRowCount( 1 );
-        table->setCellWidget ( 0, 0, new QComboBox( table ) );
-        table->setCellWidget ( 0, 1, new QSpinBox( table ) );
-        table->horizontalHeader()->setResizeMode( 0, QHeaderView::Stretch );
-        table->horizontalHeader()->setResizeMode( 1, QHeaderView::ResizeToContents );
-     */
     
     /*
      * Example of how to setup a filebrowser treeview
@@ -150,8 +144,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_host = lo_address_new(host, port);
     
     
-            if (this->objectName().isEmpty())
-            this->setObjectName(QString::fromUtf8("Frame"));
+        if (this->objectName().isEmpty())
+        this->setObjectName(QString::fromUtf8("Frame"));
         this->resize(1023, 801);
         this->setFrameShape(QFrame::StyledPanel);
         this->setFrameShadow(QFrame::Raised);
@@ -225,6 +219,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_table->horizontalHeader()->setMinimumSectionSize(42);
         m_sample_table->horizontalHeader()->setStretchLastSection(true);
 
+        /*Set all of the array variables that are per-sample*/
         for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
         {
             m_selected_sample[i] = new QRadioButton(this);
@@ -242,6 +237,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
             m_sample_graphs[i] = pmap;
             
             m_note_indexes[i] = 0;
+            m_sample_counts[i] = 0;
         }
         
         verticalLayout_20->addWidget(m_sample_table);
@@ -1179,6 +1175,12 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     
         connect(m_load_sample, SIGNAL(pressed()), this, SLOT(fileSelect()));
         connect(m_update_sample, SIGNAL(pressed()), this, SLOT(updateSampleTable()));
+        
+        connect(m_sample_start, SIGNAL(valueChanged(int)), this, SLOT(sampleStartChanged(int)));
+        connect(m_sample_start_fine, SIGNAL(valueChanged(int)), this, SLOT(sampleStartFineChanged(int)));
+        connect(m_sample_end, SIGNAL(valueChanged(int)), this, SLOT(sampleEndChanged(int)));
+        connect(m_sample_end_fine, SIGNAL(valueChanged(int)), this, SLOT(sampleEndFineChanged(int)));
+        
 
     /*
     QGridLayout *layout = new QGridLayout(this);
@@ -1369,11 +1371,15 @@ void SamplerGUI::generatePreview(QString path)
 		++bin;
 	    }
 	}
-
-        printf("Finished loop\n");
         
 	int duration = int(100.0 * float(info.frames) / float(info.samplerate));
-                        
+        
+        m_sample_counts[m_selected_sample_index] = info.frames;
+        m_sample_start_fine->setMaximum(info.frames);
+        m_sample_end_fine->setMaximum(info.frames);
+        m_loop_start_fine->setMaximum(info.frames);
+        m_loop_end_fine->setMaximum(info.frames);
+        
         /*Set seconds*/
         QTableWidgetItem *f_set_seconds = new QTableWidgetItem;
         QString * f_seconds = new QString();                
@@ -1381,7 +1387,6 @@ void SamplerGUI::generatePreview(QString path)
         f_set_seconds->setText(*f_seconds);
         m_sample_table->setItem(m_selected_sample_index, 11, f_set_seconds);
         
-        printf("set seconds\n");
         /*Set samples*/
         QTableWidgetItem *f_set_samples = new QTableWidgetItem;
         QString * f_samples = new QString();                
@@ -1389,15 +1394,12 @@ void SamplerGUI::generatePreview(QString path)
         f_set_samples->setText(*f_samples);
         m_sample_table->setItem(m_selected_sample_index, 12, f_set_samples);
         
-        printf("set samples\n");
         /*Trigger start/end changes to update m_sample_table*/
         sampleStartChanged(m_sample_start->value());
         sampleEndChanged(m_sample_start->value());
         loopStartChanged(m_sample_start->value());
         loopEndChanged(m_sample_start->value());
-        
-        printf("Triggered changes\n");
-        
+                
 	std::cout << "duration " << duration << std::endl;
 	
         /*m_duration->setText(QString("%1.%2%3 sec")
@@ -1428,8 +1430,7 @@ void SamplerGUI::generatePreview(QString path)
     
 }
 /*
-void
-SamplerGUI::setProjectDirectory(QString dir)
+void SamplerGUI::setProjectDirectory(QString dir)
 {
     QFileInfo info(dir);
     if (info.exists() && info.isDir() && info.isReadable()) {
@@ -1438,8 +1439,7 @@ SamplerGUI::setProjectDirectory(QString dir)
 }
 */
 
-void
-SamplerGUI::setSampleFile(QString file)
+void SamplerGUI::setSampleFile(QString file)
 {
     m_suppressHostUpdate = true;
     //m_sampleFile->setText(QFileInfo(file).fileName());
@@ -1448,10 +1448,11 @@ SamplerGUI::setSampleFile(QString file)
     m_file = file;
     
     updateSampleTable();
-    /*TODO:  Move this to the last method to set values in the table*/
-    m_sample_table->resizeColumnsToContents();
     
     generatePreview(file);
+    
+    m_sample_table->resizeColumnsToContents();
+    
     m_suppressHostUpdate = false;
 }
 
@@ -1776,18 +1777,49 @@ void SamplerGUI::selectionChanged()
 
 void SamplerGUI::sampleStartChanged(int a_value)
 {
+    findSelected();
     
-    
+    if(m_sample_counts[m_selected_sample_index] > 0)
+    {
+        int f_value = ((int)((m_sample_counts[m_selected_sample_index]) * SLIDER_LENGTH_RECIP * (m_sample_start->value())));
+                
+        QTableWidgetItem * f_widget = new QTableWidgetItem;
+        f_widget->setText(QString::number(f_value));
+        setSampleStartFine(f_value);
+        m_sample_table->setItem(m_selected_sample_index, 13, f_widget);
+    }
 }
 
 void SamplerGUI::sampleEndChanged(int a_value)
 {
+    findSelected();
     
+    if(m_sample_counts[m_selected_sample_index] > 0)
+    {
+        int f_value = ((int)((m_sample_counts[m_selected_sample_index]) * SLIDER_LENGTH_RECIP * (m_sample_end->value())));
+                
+        QTableWidgetItem * f_widget = new QTableWidgetItem;
+        f_widget->setText(QString::number(f_value));
+        setSampleEndFine(f_value);
+        m_sample_table->setItem(m_selected_sample_index, 14, f_widget);
+    }
 }
 
 void SamplerGUI::sampleStartFineChanged(int a_value)
 {
+    /*
+    findSelected();
     
+    if(m_sample_counts[m_selected_sample_index] > 0)
+    {
+        int f_value = ((int)(((m_sample_counts[m_selected_sample_index])/(m_sample_start_fine->value())) * SLIDER_LENGTH));
+                
+        QTableWidgetItem * f_widget = new QTableWidgetItem;
+        f_widget->setText(QString::number(f_value));
+        setSampleStart(f_value);
+        m_sample_table->setItem(m_selected_sample_index, 15, f_widget);
+    }
+     */
 }
 
 void SamplerGUI::sampleEndFineChanged(int a_value)
