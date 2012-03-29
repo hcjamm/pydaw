@@ -1,13 +1,15 @@
 /* -*- c-basic-offset: 4 -*-  vi:set ts=8 sts=4 sw=4: */
 
-/* trivial_sampler_qt_gui.h
+/* synth_qt_gui.h
+ * 
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
 
-   DSSI Soft Synth Interface
-   Constructed by Chris Cannam, Steve Harris and Sean Bolton
-
-   A straightforward DSSI plugin sampler Qt GUI.
-
-   This example file is in the public domain.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.   
 */
 
 #ifndef _TRIVIAL_SAMPLER_QT_GUI_H_INCLUDED_
@@ -67,7 +69,10 @@ public:
     
     void retranslateUi(QFrame * Frame);
     void findSelected();
+    /*To prevent controls that update other controls from going berserk*/
+    bool m_handle_control_updates;
     
+    void calculate_fx_label(int,int,QLabel*);
 public slots:        
     void setSampleFile(QString file);
     void updateSampleTable();
@@ -153,6 +158,10 @@ protected:
     int m_note_indexes [LMS_MAX_SAMPLE_COUNT];
     /*The length of each sample, in samples(frames)*/
     int m_sample_counts[LMS_MAX_SAMPLE_COUNT];
+    /*The index of the QCombobox for fx_group*/
+    int m_sample_fx_group_indexes[LMS_MAX_SAMPLE_COUNT];
+    /*The index of the QCombobox for playback mode*/
+    int m_sample_mode_indexes[LMS_MAX_SAMPLE_COUNT];
     
     QHBoxLayout *horizontalLayout_16;
     QVBoxLayout *verticalLayout_21;

@@ -64,6 +64,14 @@ static QTextStream cerr(stderr);
 /*For sliders that calculate as a percentage, like sample start/end or loop start/end*/
 #define SLIDER_LENGTH 10000
 #define SLIDER_LENGTH_RECIP 1/SLIDER_LENGTH
+/*This corresponds to knobs having the range of 0-127, since the DSSI engine requires
+ the values to be hard-coded, we can't change them when the user switches effect type*/
+#define FX_KNOB_MAX 127
+#define FX_KNOB_MAX_RECIP (1/FX_KNOB_MAX)
+/*Define the range that filters will use*/
+#define FX_FILTER_MAX_PITCH 124
+#define FX_FILTER_MIN_PITCH 20
+#define FX_FILTER_PITCH_RANGE (FX_FILTER_MAX_PITCH - FX_FILTER_MIN_PITCH)
 
 SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 		       QByteArray controlPath, QByteArray midiPath, QByteArray configurePath,
@@ -143,6 +151,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     
     m_host = lo_address_new(host, port);
     
+    m_handle_control_updates = true;
     
         if (this->objectName().isEmpty())
         this->setObjectName(QString::fromUtf8("Frame"));
@@ -238,6 +247,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
             
             m_note_indexes[i] = 0;
             m_sample_counts[i] = 0;
+            m_sample_fx_group_indexes[i] = 0;
+            m_sample_mode_indexes[i] = 0;
         }
         
         verticalLayout_20->addWidget(m_sample_table);
@@ -258,7 +269,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_load_sample->setObjectName(QString::fromUtf8("m_load_sample"));
 
         horizontalLayout_17->addWidget(m_load_sample);
-
 
         verticalLayout_21->addLayout(horizontalLayout_17);
 
@@ -409,8 +419,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         horizontalSpacer_10 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_16->addItem(horizontalSpacer_10);
-
-
+        
         verticalLayout_20->addLayout(horizontalLayout_16);
 
         verticalLayout_22 = new QVBoxLayout();
@@ -422,7 +431,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_graph->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
 
         verticalLayout_22->addWidget(m_sample_graph);
-
 
         verticalLayout_20->addLayout(verticalLayout_22);
 
@@ -458,7 +466,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         horizontalLayout_6->addItem(horizontalSpacer_5);
 
-
         gridLayout_10->addLayout(horizontalLayout_6, 3, 0, 1, 1);
 
         m_sample_start = new QSlider(scrollAreaWidgetContents);
@@ -480,7 +487,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_end->setOrientation(Qt::Horizontal);
 
         gridLayout_10->addWidget(m_sample_end, 2, 0, 1, 1);
-
 
         verticalLayout_20->addLayout(gridLayout_10);
 
@@ -516,7 +522,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         horizontalLayout_7->addItem(horizontalSpacer_6);
 
-
         gridLayout_11->addLayout(horizontalLayout_7, 3, 0, 1, 1);
 
         m_loop_start = new QSlider(scrollAreaWidgetContents);
@@ -539,9 +544,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_11->addWidget(m_loop_end, 2, 0, 1, 1);
 
-
         verticalLayout_20->addLayout(gridLayout_11);
-
 
         horizontalLayout->addLayout(verticalLayout_20);
 
@@ -573,7 +576,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_3->addItem(horizontalSpacer_3);
-
 
         verticalLayout->addLayout(horizontalLayout_3);
 
@@ -635,9 +637,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_7->addWidget(m_fx_knob_4_1, 1, 0, 1, 1);
 
-
         verticalLayout_6->addLayout(gridLayout_7);
-
 
         gridLayout->addWidget(groupBox_5, 1, 0, 1, 1);
 
@@ -885,9 +885,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_8->addWidget(m_fx_knob_5_1, 1, 0, 1, 1);
 
-
         verticalLayout_7->addLayout(gridLayout_8);
-
 
         gridLayout->addWidget(groupBox_6, 1, 1, 1, 1);
 
@@ -951,9 +949,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_12->addWidget(label_38, 0, 3, 1, 1);
 
-
         verticalLayout_9->addLayout(gridLayout_12);
-
 
         gridLayout->addWidget(groupBox_8, 2, 0, 1, 1);
 
@@ -1017,9 +1013,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_14->addWidget(label_45, 0, 1, 1, 1);
 
-
         verticalLayout_11->addLayout(gridLayout_14);
-
 
         gridLayout->addWidget(groupBox_9, 2, 1, 1, 1);
 
@@ -1079,12 +1073,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_15->addWidget(dial_34, 1, 0, 1, 1);
 
-
         verticalLayout_12->addLayout(gridLayout_15);
 
-
         gridLayout->addWidget(groupBox_10, 1, 2, 1, 1);
-
 
         verticalLayout->addLayout(gridLayout);
 
@@ -1146,7 +1137,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         verticalLayout->addWidget(tableWidget_2);
 
-
         horizontalLayout_4->addLayout(verticalLayout);
 
         m_main_tab->addTab(tab_2, QString());
@@ -1167,7 +1157,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_note->setCurrentIndex(0);
         m_play_mode->setCurrentIndex(0);
         m_sample_fx_group->setCurrentIndex(0);
-
 
         QMetaObject::connectSlotsByName(this);
     
@@ -1510,10 +1499,12 @@ void SamplerGUI::updateSampleTable()
     QTableWidgetItem *f_set_fx = new QTableWidgetItem;                
     f_set_fx->setText(m_sample_fx_group->currentText());
     m_sample_table->setItem(m_selected_sample_index, 9, f_set_fx);
+    m_sample_fx_group_indexes[m_selected_sample_index] = (m_sample_fx_group->currentIndex());
     /*Set the mode*/
     QTableWidgetItem *f_set_mode = new QTableWidgetItem;                
     f_set_mode->setText(m_play_mode->currentText());
     m_sample_table->setItem(m_selected_sample_index, 10, f_set_mode);
+    m_sample_mode_indexes[m_selected_sample_index] = (m_play_mode->currentIndex());
     
 }
 
@@ -1733,6 +1724,72 @@ void SamplerGUI::findSelected()
     }
 }
 
+/* void SamplerGUI::calculate_fx_label(
+ * int a_combobox_index, //The index of the combobox for that effect.  This corresponds to the effect being used
+ * int a_knob_index, //The index of the knob. 0 to 2
+ * QLabel * a_label) //The label to set
+ * 
+ * Calculate the displayed value of an FX knob depending on what effect is selected
+ */
+void SamplerGUI::calculate_fx_label(int a_combobox_index, int a_knob_index, QLabel * a_label)
+{
+    //off
+    if(a_combobox_index == 0)
+    {
+        return;
+    }
+    //filters
+    else if((a_combobox_index >= 1) && (a_combobox_index <= 6))
+    {
+        switch(a_knob_index)
+        {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            default:
+                break;
+        }
+    }
+    //EQ
+    else if(a_combobox_index == 7)
+    {
+        switch(a_knob_index)
+        {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            default:
+                break;
+        }
+    }
+    //Distortion
+    else if(a_combobox_index == 8)
+    {
+        switch(a_knob_index)
+        {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            default:
+                break;
+        }
+    }
+    else
+    {
+        printf("calculate_fx_label received unknown a_combobox_index == %i\n", a_combobox_index);
+    }
+}
+
+
 void SamplerGUI::selectionChanged()
 {
     findSelected();
@@ -1773,53 +1830,99 @@ void SamplerGUI::selectionChanged()
         printf("f_hnote = %i\n", f_hnote);
         m_hnote->setValue(f_hnote);
     }
+    QTableWidgetItem * f_item_lvel = m_sample_table->item(m_selected_sample_index, 6);
+    if(f_item_lvel){
+        int f_lvel = f_item_lvel->text().toInt();
+        printf("f_lvel = %i\n", f_lvel);
+        m_lvel->setValue(f_lvel);
+    }
+    QTableWidgetItem * f_item_hvel = m_sample_table->item(m_selected_sample_index, 7);
+    if(f_item_hvel){
+        int f_hvel = f_item_hvel->text().toInt();
+        printf("f_hvel = %i\n", f_hvel);
+        m_hvel->setValue(f_hvel);
+    }
+    QTableWidgetItem * f_item_vol = m_sample_table->item(m_selected_sample_index, 8);
+    if(f_item_vol){
+        int f_vol = f_item_vol->text().toInt();
+        printf("f_vol = %i\n", f_vol);
+        m_sample_vol->setValue(f_vol);
+    }
+    QTableWidgetItem * f_item_fx = m_sample_table->item(m_selected_sample_index, 9);
+    if(f_item_fx){
+        int f_fx = (m_sample_fx_group_indexes[m_selected_sample_index]);
+        printf("f_fx = %i\n", f_fx);
+        m_sample_fx_group->setCurrentIndex(f_fx);
+    }
+    QTableWidgetItem * f_item_mode = m_sample_table->item(m_selected_sample_index, 10);
+    if(f_item_mode){
+        int f_mode = m_sample_mode_indexes[m_selected_sample_index];
+        printf("f_mode = %i\n", f_mode);
+        m_play_mode->setCurrentIndex(f_mode);
+    }
+    /* TODO:  Start, End, Loop Start, Loop End
+     */
 }
 
 void SamplerGUI::sampleStartChanged(int a_value)
-{
-    findSelected();
-    
-    if(m_sample_counts[m_selected_sample_index] > 0)
+{   
+    if(m_handle_control_updates)
     {
-        int f_value = ((int)((m_sample_counts[m_selected_sample_index]) * SLIDER_LENGTH_RECIP * (m_sample_start->value())));
-                
-        QTableWidgetItem * f_widget = new QTableWidgetItem;
-        f_widget->setText(QString::number(f_value));
-        setSampleStartFine(f_value);
-        m_sample_table->setItem(m_selected_sample_index, 13, f_widget);
+        findSelected();
+        m_handle_control_updates = false;
+        
+        if(m_sample_counts[m_selected_sample_index] > 0)
+        {
+            int f_value = ((int)((m_sample_counts[m_selected_sample_index]) * SLIDER_LENGTH_RECIP * (m_sample_start->value())));
+
+            QTableWidgetItem * f_widget = new QTableWidgetItem;
+            f_widget->setText(QString::number(f_value));
+            setSampleStartFine(f_value);
+            m_sample_table->setItem(m_selected_sample_index, 13, f_widget);
+        }
+        
+        m_handle_control_updates = true;
     }
 }
 
 void SamplerGUI::sampleEndChanged(int a_value)
 {
-    findSelected();
-    
-    if(m_sample_counts[m_selected_sample_index] > 0)
+    if(m_handle_control_updates)
     {
-        int f_value = ((int)((m_sample_counts[m_selected_sample_index]) * SLIDER_LENGTH_RECIP * (m_sample_end->value())));
-                
-        QTableWidgetItem * f_widget = new QTableWidgetItem;
-        f_widget->setText(QString::number(f_value));
-        setSampleEndFine(f_value);
-        m_sample_table->setItem(m_selected_sample_index, 14, f_widget);
+        findSelected();
+        m_handle_control_updates = false;
+
+        if(m_sample_counts[m_selected_sample_index] > 0)
+        {
+            int f_value = ((int)((m_sample_counts[m_selected_sample_index]) * SLIDER_LENGTH_RECIP * (m_sample_end->value())));
+
+            QTableWidgetItem * f_widget = new QTableWidgetItem;
+            f_widget->setText(QString::number(f_value));
+            setSampleEndFine(f_value);
+            m_sample_table->setItem(m_selected_sample_index, 14, f_widget);
+        }
+        m_handle_control_updates = true;
     }
 }
 
 void SamplerGUI::sampleStartFineChanged(int a_value)
 {
-    /*
-    findSelected();
-    
-    if(m_sample_counts[m_selected_sample_index] > 0)
+    if(m_handle_control_updates)
     {
-        int f_value = ((int)(((m_sample_counts[m_selected_sample_index])/(m_sample_start_fine->value())) * SLIDER_LENGTH));
-                
-        QTableWidgetItem * f_widget = new QTableWidgetItem;
-        f_widget->setText(QString::number(f_value));
-        setSampleStart(f_value);
-        m_sample_table->setItem(m_selected_sample_index, 15, f_widget);
+        findSelected();
+        m_handle_control_updates = false;
+
+        if(m_sample_counts[m_selected_sample_index] > 0)
+        {
+            int f_value = ((int)(((m_sample_counts[m_selected_sample_index])/(m_sample_start_fine->value())) * SLIDER_LENGTH));
+            printf("f_value == %i\n", f_value);
+            QTableWidgetItem * f_widget = new QTableWidgetItem;
+            f_widget->setText(QString::number(f_value));
+            setSampleStart(f_value);
+            m_sample_table->setItem(m_selected_sample_index, 15, f_widget);
+        }
+        m_handle_control_updates = true;
     }
-     */
 }
 
 void SamplerGUI::sampleEndFineChanged(int a_value)
@@ -1829,12 +1932,44 @@ void SamplerGUI::sampleEndFineChanged(int a_value)
 
 void SamplerGUI::loopStartChanged(int a_value)
 {
-    
+    if(m_handle_control_updates)
+    {
+        findSelected();
+        m_handle_control_updates = false;
+        
+        if(m_sample_counts[m_selected_sample_index] > 0)
+        {
+            int f_value = ((int)((m_sample_counts[m_selected_sample_index]) * SLIDER_LENGTH_RECIP * (m_loop_start->value())));
+
+            QTableWidgetItem * f_widget = new QTableWidgetItem;
+            f_widget->setText(QString::number(f_value));
+            setLoopStartFine(f_value);
+            m_sample_table->setItem(m_selected_sample_index, 15, f_widget);
+        }
+        
+        m_handle_control_updates = true;
+    }
 }
 
 void SamplerGUI::loopEndChanged(int a_value)
 {
-    
+    if(m_handle_control_updates)
+    {
+        findSelected();
+        m_handle_control_updates = false;
+        
+        if(m_sample_counts[m_selected_sample_index] > 0)
+        {
+            int f_value = ((int)((m_sample_counts[m_selected_sample_index]) * SLIDER_LENGTH_RECIP * (m_loop_end->value())));
+
+            QTableWidgetItem * f_widget = new QTableWidgetItem;
+            f_widget->setText(QString::number(f_value));
+            setLoopStartFine(f_value);
+            m_sample_table->setItem(m_selected_sample_index, 16, f_widget);
+        }
+        
+        m_handle_control_updates = true;
+    }
 }
 
 void SamplerGUI::loopStartFineChanged(int a_value)
