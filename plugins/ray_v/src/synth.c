@@ -614,80 +614,78 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
         
 }
 
-/*This returns MIDI CCs for the different knobs
- TODO:  Try it with non-hex numbers*/
-/*Assign the LADSPA ports defined in step 9 to MIDI CCs in getControllerLMS*/
+/*This returns MIDI CCs for the different knobs*/ 
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {
     switch (port) {
     case LMS_ATTACK:
-        return DSSI_CC(0x49);  //73
+        return DSSI_CC(73);
     case LMS_DECAY:
-        return DSSI_CC(0x4b);  //75
+        return DSSI_CC(75);
     case LMS_SUSTAIN:
-        return DSSI_CC(0x4f);  //79
+        return DSSI_CC(79);
     case LMS_RELEASE:
-        return DSSI_CC(0x48);  //72
+        return DSSI_CC(72);
     case LMS_TIMBRE:
-        return DSSI_CC(0x01);  //1
+        return DSSI_CC(1);
     case LMS_DIST:
-        return DSSI_CC(0x14);  //20            
+        return DSSI_CC(20);
     case LMS_FILTER_ATTACK:
-        return DSSI_CC(0x15);  //21
+        return DSSI_CC(21);
     case LMS_FILTER_DECAY:
-        return DSSI_CC(0x16);  //22
+        return DSSI_CC(22);
     case LMS_FILTER_SUSTAIN:
-        return DSSI_CC(0x17);  //23
+        return DSSI_CC(23);
     case LMS_FILTER_RELEASE:
-        return DSSI_CC(0x18);  //24
+        return DSSI_CC(24);
     case LMS_NOISE_AMP:        
-        return DSSI_CC(0x19);  //25
+        return DSSI_CC(25);
     case LMS_FILTER_ENV_AMT:
-        return DSSI_CC(0x1a);  //26
+        return DSSI_CC(26);
     case LMS_DIST_WET:
-        return DSSI_CC(0x1b);  //27            
+        return DSSI_CC(27);
     case LMS_OSC1_TYPE:
-        return DSSI_CC(0x1c);  //28
+        return DSSI_CC(28);
     case LMS_OSC1_PITCH:
-        return DSSI_CC(0x1d);  //29
+        return DSSI_CC(29);
     case LMS_OSC1_TUNE:
-        return DSSI_CC(0x1e);  //30
+        return DSSI_CC(30);
     case LMS_OSC1_VOLUME:
-        return DSSI_CC(0x1f);  //31
+        return DSSI_CC(31);
     case LMS_OSC2_TYPE:
-        return DSSI_CC(0x29);  //41  
+        return DSSI_CC(41);  //41  
     case LMS_OSC2_PITCH:
-        return DSSI_CC(0x21);  //33
+        return DSSI_CC(33);
     case LMS_OSC2_TUNE:
-        return DSSI_CC(0x22);  //34
+        return DSSI_CC(34);
     case LMS_OSC2_VOLUME:
-        return DSSI_CC(0x23);  //35            
+        return DSSI_CC(35);
     case LMS_MASTER_VOLUME:        
-        return DSSI_CC(0x24);  //36        
+        return DSSI_CC(36);
     case LMS_MASTER_UNISON_VOICES:        
-        return DSSI_CC(0x25);  //37        
+        return DSSI_CC(37);
     case LMS_MASTER_UNISON_SPREAD:        
-        return DSSI_CC(0x26);  //38        
+        return DSSI_CC(38);
     case LMS_MASTER_GLIDE:        
-        return DSSI_CC(0x27);  //39        
+        return DSSI_CC(39);
     case LMS_MASTER_PITCHBEND_AMT:        
-        return DSSI_CC(0x28);  //40
+        return DSSI_CC(40);
     case LMS_PITCH_ENV_AMT:
-        return DSSI_CC(0x2a); //42
+        return DSSI_CC(42);
     case LMS_PITCH_ENV_TIME:
-        return DSSI_CC(0x2b); //43 
+        return DSSI_CC(43);
     case LMS_LFO_FREQ:
-        return DSSI_CC(0x2c); //44 
+        return DSSI_CC(44);
     case LMS_LFO_TYPE:
-        return DSSI_CC(0x2d); //45 
+        return DSSI_CC(45);
     case LMS_LFO_AMP:
-        return DSSI_CC(0x2e); //46 
+        return DSSI_CC(46);
     case LMS_LFO_PITCH:
-        return DSSI_CC(0x2f); //47 
+        return DSSI_CC(47);
     case LMS_LFO_FILTER:
-        return DSSI_CC(0x30); //48
+        return DSSI_CC(48);
     case LMS_PROGRAM_CHANGE:
-        return DSSI_CC(0x20);  //32  -  Bank Select fine (this may be the wrong use of that CC)
+        return DSSI_CC(32);  //Bank Select fine (this may be the wrong use of that CC)
     }
 
     return DSSI_NONE;
