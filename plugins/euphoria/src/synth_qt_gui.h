@@ -315,7 +315,7 @@ protected:
     QDial *dial_34;
     QLabel *label_3;
     QTableWidget *tableWidget_2;
-    QWidget *tab;
+    //QWidget *tab;
     QLabel *label_6;
     
     lo_address m_host;

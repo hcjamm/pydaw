@@ -1140,15 +1140,15 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         horizontalLayout_4->addLayout(verticalLayout);
 
         m_main_tab->addTab(tab_2, QString());
-        tab = new QWidget();
-        tab->setObjectName(QString::fromUtf8("tab"));
-        label_6 = new QLabel(tab);
+        //tab = new QWidget();
+        //tab->setObjectName(QString::fromUtf8("tab"));
+        /*label_6 = new QLabel(tab);
         label_6->setObjectName(QString::fromUtf8("label_6"));
         label_6->setGeometry(QRect(120, 110, 391, 331));
         label_6->setTextFormat(Qt::RichText);
         label_6->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
         m_main_tab->addTab(tab, QString());
-
+        */
         horizontalLayout_5->addWidget(m_main_tab);
 
         retranslateUi(this);
@@ -2295,7 +2295,7 @@ void SamplerGUI::retranslateUi(QFrame* Frame)
                     "9gauVvsT77poveD1mwAoAe8ZgCgnmG6xFcnY5pZZIBPgkxgNHHlldDNQgdAIwoGsWvtpVq0dnzadVjnBDsCJJwGGTYJh34DCtOWlmsAWM63QBKecx+B9Ymz80c4xUMIHo//LOY5+dxjG6wANAlHByA53eDvMMs6g5BDsCxBlviRNPUg0MLWObTi0sMRwJax4jjwcWyxitWEob59zQcsWWT83QKJnqqpDI0NpIkELawaC9GU5gxVAJRWdaBEp4HG1iGgCUhTEKdvfr0ZeR4AJsifSEg4lxNJumqZsPD201Us/UpBgXsTmY0yGvAnGWaIU25+yTnVXmWflkAJH7kHx+y9cqBvSD3Hni7GpCVNszAIDHhoZIKM4OYCPAhaQXc+/Bvf6jZfvaFMZoaD4UUCtOTDu3fPY6ZSct7d1lzdL9rbjwyZq4/3FHz08oEAYeOhKTkeTIl+iT46uy8opydhHIrwSBTB8uyTWJBxVFl+WnuWQZ7irF3gjiaJ6r5gBMz6zS34rLdeCIF7KKHCE8++byIB6GA71nZqLp063W7MDfNOLq/om+5dtLefsNW6+i+QVwJ2CdKa6mIJLOcVU+vy9XNJ87vfnNvHYD4wM/B/uh/esX7wudnvAFQ9xhymoRPCYdJ2wSWTexF4eku2uLUI0/WYQzBddQOksjbGhi8ayrN4CxFAMfMHAFG5bSCfC04MTEsWWOCbBosLiSety14SNYCgD1qjzfbMK9hGPd17NYPkpyMwTpOeGUlzxRXL5447m+cXqjA9yy0jtOubLxDSXhlQfe8ZQ9iwZZBNukSpm17k2rfFK9p06CVYsVDkr3ExQ0r8tEJlDndpVvagJmFsHCkyUm7O9v/fN0CGZNC5okekRUqlbdLR2dsoQ80Mro02pwodwHZlrS/MstZHjarTTA+GCrh98wEQQRAidtvmLQ3H70WVlfeBTl9BM5Un0wUgzXKuUhp5VxIilAd/OZH/sB9+Df+cA6ttmDX6RmGwtS4wN5ZB0f3O7j+cAPXHpA4uGc"
                     "CuyaV9H2WYJl0fC0xRq8rW6v07KciApfXwJb+zjTcqUm6psQ", 0, QApplication::UnicodeUTF8));
      */
-    m_main_tab->setTabText(m_main_tab->indexOf(tab), QApplication::translate("Frame", "About", 0, QApplication::UnicodeUTF8));
+    //m_main_tab->setTabText(m_main_tab->indexOf(tab), QApplication::translate("Frame", "About", 0, QApplication::UnicodeUTF8));
 
 } // retranslateUi
 
