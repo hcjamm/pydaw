@@ -1914,7 +1914,7 @@ void SamplerGUI::sampleStartFineChanged(int a_value)
 
         if(m_sample_counts[m_selected_sample_index] > 0)
         {
-            int f_value = ((int)(((m_sample_counts[m_selected_sample_index])/(m_sample_start_fine->value())) * SLIDER_LENGTH));
+            int f_value = ((int)(((m_sample_start_fine->value())/(m_sample_counts[m_selected_sample_index])) * SLIDER_LENGTH));
             printf("f_value == %i\n", f_value);
             QTableWidgetItem * f_widget = new QTableWidgetItem;
             f_widget->setText(QString::number(f_value));
@@ -1964,7 +1964,7 @@ void SamplerGUI::loopEndChanged(int a_value)
 
             QTableWidgetItem * f_widget = new QTableWidgetItem;
             f_widget->setText(QString::number(f_value));
-            setLoopStartFine(f_value);
+            setLoopEndFine(f_value);
             m_sample_table->setItem(m_selected_sample_index, 16, f_widget);
         }
         
