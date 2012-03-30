@@ -1170,6 +1170,12 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_sample_end, SIGNAL(valueChanged(int)), this, SLOT(sampleEndChanged(int)));
         connect(m_sample_end_fine, SIGNAL(valueChanged(int)), this, SLOT(sampleEndFineChanged(int)));
         
+        connect(m_loop_start, SIGNAL(valueChanged(int)), this, SLOT(loopStartChanged(int)));
+        connect(m_loop_start_fine, SIGNAL(valueChanged(int)), this, SLOT(loopStartFineChanged(int)));
+        connect(m_loop_end, SIGNAL(valueChanged(int)), this, SLOT(loopEndChanged(int)));
+        connect(m_loop_end_fine, SIGNAL(valueChanged(int)), this, SLOT(loopEndFineChanged(int)));
+        
+        
 
     /*
     QGridLayout *layout = new QGridLayout(this);
@@ -1914,10 +1920,10 @@ void SamplerGUI::sampleStartFineChanged(int a_value)
 
         if(m_sample_counts[m_selected_sample_index] > 0)
         {
-            int f_value = ((int)(((m_sample_start_fine->value())/(m_sample_counts[m_selected_sample_index])) * SLIDER_LENGTH));
+            int f_value = (int)(((float)(m_sample_start_fine->value())/(float)(m_sample_counts[m_selected_sample_index])) * SLIDER_LENGTH);
             printf("f_value == %i\n", f_value);
             QTableWidgetItem * f_widget = new QTableWidgetItem;
-            f_widget->setText(QString::number(f_value));
+            f_widget->setText(QString::number((m_sample_start_fine->value())));
             setSampleStart(f_value);
             m_sample_table->setItem(m_selected_sample_index, 15, f_widget);
         }
@@ -1927,7 +1933,22 @@ void SamplerGUI::sampleStartFineChanged(int a_value)
 
 void SamplerGUI::sampleEndFineChanged(int a_value)
 {
-    
+    if(m_handle_control_updates)
+    {
+        findSelected();
+        m_handle_control_updates = false;
+
+        if(m_sample_counts[m_selected_sample_index] > 0)
+        {
+            int f_value = (int)(((float)(m_sample_end_fine->value())/(float)(m_sample_counts[m_selected_sample_index])) * SLIDER_LENGTH);
+            printf("f_value == %i\n", f_value);
+            QTableWidgetItem * f_widget = new QTableWidgetItem;
+            f_widget->setText(QString::number((m_sample_end_fine->value())));
+            setSampleEnd(f_value);
+            m_sample_table->setItem(m_selected_sample_index, 15, f_widget);
+        }
+        m_handle_control_updates = true;
+    }
 }
 
 void SamplerGUI::loopStartChanged(int a_value)
@@ -1940,7 +1961,7 @@ void SamplerGUI::loopStartChanged(int a_value)
         if(m_sample_counts[m_selected_sample_index] > 0)
         {
             int f_value = ((int)((m_sample_counts[m_selected_sample_index]) * SLIDER_LENGTH_RECIP * (m_loop_start->value())));
-
+            printf("f_value == %i\n", f_value);
             QTableWidgetItem * f_widget = new QTableWidgetItem;
             f_widget->setText(QString::number(f_value));
             setLoopStartFine(f_value);
@@ -1961,7 +1982,7 @@ void SamplerGUI::loopEndChanged(int a_value)
         if(m_sample_counts[m_selected_sample_index] > 0)
         {
             int f_value = ((int)((m_sample_counts[m_selected_sample_index]) * SLIDER_LENGTH_RECIP * (m_loop_end->value())));
-
+            printf("f_value == %i\n", f_value);
             QTableWidgetItem * f_widget = new QTableWidgetItem;
             f_widget->setText(QString::number(f_value));
             setLoopEndFine(f_value);
@@ -1974,12 +1995,42 @@ void SamplerGUI::loopEndChanged(int a_value)
 
 void SamplerGUI::loopStartFineChanged(int a_value)
 {
-    
+    if(m_handle_control_updates)
+    {
+        findSelected();
+        m_handle_control_updates = false;
+
+        if(m_sample_counts[m_selected_sample_index] > 0)
+        {
+            int f_value = (int)(((float)(m_loop_start_fine->value())/(float)(m_sample_counts[m_selected_sample_index])) * SLIDER_LENGTH);
+            printf("f_value == %i\n", f_value);
+            QTableWidgetItem * f_widget = new QTableWidgetItem;
+            f_widget->setText(QString::number((m_loop_start_fine->value())));
+            setLoopStart(f_value);
+            m_sample_table->setItem(m_selected_sample_index, 15, f_widget);
+        }
+        m_handle_control_updates = true;
+    }
 }
 
 void SamplerGUI::loopEndFineChanged(int a_value)
 {
-    
+    if(m_handle_control_updates)
+    {
+        findSelected();
+        m_handle_control_updates = false;
+
+        if(m_sample_counts[m_selected_sample_index] > 0)
+        {
+            int f_value = (int)(((float)(m_loop_end_fine->value())/(float)(m_sample_counts[m_selected_sample_index])) * SLIDER_LENGTH);
+            printf("f_value == %i\n", f_value);
+            QTableWidgetItem * f_widget = new QTableWidgetItem;
+            f_widget->setText(QString::number((m_loop_end_fine->value())));
+            setLoopEnd(f_value);
+            m_sample_table->setItem(m_selected_sample_index, 15, f_widget);
+        }
+        m_handle_control_updates = true;
+    }
 }
 
 
