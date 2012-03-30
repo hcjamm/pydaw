@@ -581,33 +581,33 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     f_gb_layout_row = 0;
     f_gb_layout_column = 0;
-    printf("m_lfo_freq\n");
+    
     m_lfo_freq  =  newQDial(10,400,1,100);
     m_lfo_freqLabel  = newQLabel(this);
     add_widget(f_gb_lfo_layout, f_gb_layout_column, f_gb_layout_row, "Freq", m_lfo_freq, m_lfo_freqLabel);
     connect(m_lfo_freq,  SIGNAL(valueChanged(int)), this, SLOT(LFOfreqChanged(int)));
-    printf("m_lfo_type\n");
+    
     f_gb_layout_column++;
     
     m_lfo_type = get_combobox(f_lfo_types, f_lfo_types_count, this);     
     add_widget_no_label(f_gb_lfo_layout, f_gb_layout_column, f_gb_layout_row, "Type", m_lfo_type);
     connect(m_lfo_type, SIGNAL(currentIndexChanged(int)), this, SLOT(LFOtypeChanged(int)));
     //LFOtypeChanged(m_lfo_type->currentIndex());
-    printf("m_lfo_amp\n");
+    
     f_gb_layout_column++;
     
     m_lfo_amp  =  newQDial(-24,24,1,0);
     m_lfo_ampLabel  = newQLabel(this);
     add_widget(f_gb_lfo_layout, f_gb_layout_column, f_gb_layout_row, "Amp", m_lfo_amp, m_lfo_ampLabel);
     connect(m_lfo_amp,  SIGNAL(valueChanged(int)), this, SLOT(LFOampChanged(int)));
-    printf("m_lfo_pitch\n");
+    
     f_gb_layout_column++;
     
     m_lfo_pitch  =  newQDial(-36,36,1,0);
     m_lfo_pitchLabel  = newQLabel(this);
     add_widget(f_gb_lfo_layout, f_gb_layout_column, f_gb_layout_row, "Pitch", m_lfo_pitch, m_lfo_pitchLabel);
     connect(m_lfo_pitch,  SIGNAL(valueChanged(int)), this, SLOT(LFOpitchChanged(int)));
-    printf("m_lfo_cutoff\n");
+    
     f_gb_layout_column++;
     
     m_lfo_cutoff  =  newQDial(-48,48,1,0);

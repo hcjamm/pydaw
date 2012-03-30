@@ -1033,7 +1033,51 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_PITCH_ENV_TIME].LowerBound = 0; 
 	port_range_hints[LMS_PITCH_ENV_TIME].UpperBound = 200;
-                
+        
+        /*Parameters for LFO Freq*/        
+	port_descriptors[LMS_LFO_FREQ] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_LFO_FREQ] = "LFO Freq";
+	port_range_hints[LMS_LFO_FREQ].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_LFO_FREQ].LowerBound = 10; 
+	port_range_hints[LMS_LFO_FREQ].UpperBound = 400;
+        
+        /*Parameters for LFO Type*/        
+	port_descriptors[LMS_LFO_TYPE] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_LFO_TYPE] = "LFO Type";
+	port_range_hints[LMS_LFO_TYPE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MINIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_LFO_TYPE].LowerBound = 0; 
+	port_range_hints[LMS_LFO_TYPE].UpperBound = 2;
+        
+        /*Parameters for LFO Amp*/
+	port_descriptors[LMS_LFO_AMP] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_LFO_AMP] = "LFO Amp";
+	port_range_hints[LMS_LFO_AMP].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_LFO_AMP].LowerBound = -24;
+	port_range_hints[LMS_LFO_AMP].UpperBound = 24;
+        
+        /*Parameters for LFO Pitch*/
+	port_descriptors[LMS_LFO_PITCH] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_LFO_PITCH] = "LFO Pitch";
+	port_range_hints[LMS_LFO_PITCH].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_LFO_PITCH].LowerBound = -36;
+	port_range_hints[LMS_LFO_PITCH].UpperBound = 36;
+        
+        /*Parameters for LFO Filter*/
+	port_descriptors[LMS_LFO_FILTER] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_LFO_FILTER] = "LFO Filter";
+	port_range_hints[LMS_LFO_FILTER].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_LFO_FILTER].LowerBound = -48;
+	port_range_hints[LMS_LFO_FILTER].UpperBound = 48;
         
         /*Parameters for program change*/        
 	port_descriptors[LMS_PROGRAM_CHANGE] = port_descriptors[LMS_ATTACK];
