@@ -2023,7 +2023,7 @@ SamplerGUI::~SamplerGUI()
 
 void SamplerGUI::retranslateUi(QFrame* Frame)
 {
-    Frame->setWindowTitle(QApplication::translate("Euphoria Sampler - Powered by LibModSynth", "Frame", 0, QApplication::UnicodeUTF8));
+    Frame->setWindowTitle(QApplication::translate("Euphoria Sampler - Powered by LibModSynth", "Euphoria Sampler - Powered by LibModSynth", 0, QApplication::UnicodeUTF8));
     QTableWidgetItem *___qtablewidgetitem = m_sample_table->horizontalHeaderItem(0);
     ___qtablewidgetitem->setText(QApplication::translate("Frame", "Select", 0, QApplication::UnicodeUTF8));
     QTableWidgetItem *___qtablewidgetitem1 = m_sample_table->horizontalHeaderItem(1);
