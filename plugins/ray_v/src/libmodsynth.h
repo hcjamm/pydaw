@@ -33,6 +33,7 @@ extern "C" {
 #include "../../libmodsynth/modules/signal_routing/audio_xfade.h"
 #include "../../libmodsynth/modules/modulation/ramp_env.h"
 #include "../../libmodsynth/lib/smoother-iir.h"
+#include "../../libmodsynth/modules/oscillator/lfo_simple.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -96,6 +97,11 @@ typedef struct st_poly_voice
     
     float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
     
+    t_lfs_lfo * lfo1;
+    
+    float lfo_amp_output, lfo_pitch_output, lfo_filter_output;
+    
+    t_amp * amp_ptr;
 }t_poly_voice;
 
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -167,6 +173,14 @@ t_poly_voice * g_poly_init()
     f_voice->current_sample = 0.0f;
     
     f_voice->filter_output = 0.0f;
+    
+    f_voice->lfo1 = g_lfs_get(va_sample_rate);
+    
+    f_voice->lfo_amp_output = 0.0f;
+    f_voice->lfo_filter_output = 0.0f;
+    f_voice->lfo_pitch_output = 0.0f;
+    
+    f_voice->amp_ptr = g_amp_get();
     
     return f_voice;
 }
