@@ -65,7 +65,6 @@ inline float f_get_triangle(t_osc_core *);
 inline float f_get_osc_off(t_osc_core *);
 inline void v_osc_set_simple_osc_unison_type(t_osc_simple_unison *, int);
 inline void v_osc_note_on_sync_phases(t_osc_simple_unison *);
-inline void v_osc_set_hz(t_osc_simple_unison *, float);
 t_osc_simple_unison * g_osc_get_osc_simple_unison(float);
 
 
@@ -124,18 +123,6 @@ inline void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spre
         }
     }
     
-}
-
-
-/* void v_osc_set_hz(
- * t_osc_simple_unison * a_osc_ptr,  
- * float a_hz)  //the pitch of the oscillator in hz, typically 0.1 to 10000
- * 
- * For setting LFO frequency.  Only sets voice[0], this does not work for unison
- */
-inline void v_osc_set_hz(t_osc_simple_unison * a_osc_ptr, float a_pitch)
-{    
-    a_osc_ptr->voice_inc[0] =  a_pitch * a_osc_ptr->sr_recip;    
 }
 
 /* float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
