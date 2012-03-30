@@ -180,6 +180,21 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     case LMS_PROGRAM_CHANGE:
         plugin->program = data;
         break;
+    case LMS_LFO_FREQ:
+        plugin->lfo_freq = data;
+        break;
+    case LMS_LFO_TYPE:
+        plugin->lfo_type = data;
+        break;
+    case LMS_LFO_AMP:
+        plugin->lfo_amp = data;
+        break;
+    case LMS_LFO_PITCH:
+        plugin->lfo_pitch = data;
+        break;
+    case LMS_LFO_FILTER:
+        plugin->lfo_filter = data;
+        break;
     }
 }
 
@@ -276,6 +291,12 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     
     plugin_data->vals.pitch_env_amt = *(plugin_data->pitch_env_amt);
     plugin_data->vals.pitch_env_time = *(plugin_data->pitch_env_time) * .01;
+    
+    plugin_data->vals.lfo_freq = *(plugin_data->lfo_freq) * .01;
+    plugin_data->vals.lfo_type = *(plugin_data->lfo_type);
+    plugin_data->vals.lfo_amp = *(plugin_data->lfo_amp);
+    plugin_data->vals.lfo_pitch = *(plugin_data->lfo_pitch);
+    plugin_data->vals.lfo_filter = *(plugin_data->lfo_filter);
     
     /*Events is an array of snd_seq_event_t objects, 
      event_count is the number of events,
@@ -645,7 +666,17 @@ int getControllerLMS(LADSPA_Handle instance, unsigned long port)
     case LMS_PITCH_ENV_AMT:
         return DSSI_CC(0x2a); //42
     case LMS_PITCH_ENV_TIME:
-        return DSSI_CC(0x2b); //43     
+        return DSSI_CC(0x2b); //43 
+    case LMS_LFO_FREQ:
+        return DSSI_CC(0x2c); //44 
+    case LMS_LFO_TYPE:
+        return DSSI_CC(0x2d); //45 
+    case LMS_LFO_AMP:
+        return DSSI_CC(0x2e); //46 
+    case LMS_LFO_PITCH:
+        return DSSI_CC(0x2f); //47 
+    case LMS_LFO_FILTER:
+        return DSSI_CC(0x30); //48
     case LMS_PROGRAM_CHANGE:
         return DSSI_CC(0x20);  //32  -  Bank Select fine (this may be the wrong use of that CC)
     }

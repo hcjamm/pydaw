@@ -160,6 +160,12 @@ typedef struct {
     LADSPA_Data pitch_env_amt;
     LADSPA_Data pitch_env_time;
     
+    LADSPA_Data lfo_freq;
+    LADSPA_Data lfo_type;
+    LADSPA_Data lfo_amp;
+    LADSPA_Data lfo_pitch;
+    LADSPA_Data lfo_filter;
+    
     LADSPA_Data noise_amp;
     
     /*The variables below this line do NOT correspond to GUI controls*/
@@ -255,6 +261,12 @@ typedef struct {
     
     LADSPA_Data *pitch_env_amt;
     LADSPA_Data *pitch_env_time;
+    
+    LADSPA_Data *lfo_freq;
+    LADSPA_Data *lfo_type;
+    LADSPA_Data *lfo_amp;
+    LADSPA_Data *lfo_pitch;
+    LADSPA_Data *lfo_filter;
     
     LADSPA_Data *program;
     
