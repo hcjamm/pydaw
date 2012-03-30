@@ -1,0 +1,34 @@
+This file is only for developer reference to the schema of QTableWidgets
+
+m_sample_select:
+
+0  "Select"
+1  "File"
+2  "Note"
+3  "Octave"
+4  "Low Note"
+5  "High Note"
+6  "Low Vel"
+7  "High Vel"
+8  "Volume"
+9  "FX Group"
+10 "Mode"
+11 "Length Seconds"
+12 "Length Samples"
+13 "Start"
+14 "End"
+15 "Loop Start"
+16 "Loop End"
+
+
+FX Group effect choices:
+
+0  "Off"
+1  "LP2"
+2  "LP4"
+3  "HP2"
+4  "HP4"
+5  "BP2"
+6  "BP4"
+7  "EQ"
+8  "Distortion"
