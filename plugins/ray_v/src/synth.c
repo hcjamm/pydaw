@@ -358,9 +358,10 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                     /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
                      placing things here that don't need to be modulated as a note is playing*/
                     
-                    /*Retrigger ADSR envelopes*/
+                    /*Retrigger ADSR envelopes and LFO*/
                     v_adsr_retrigger(data[voice].p_voice->adsr_amp);
                     v_adsr_retrigger(data[voice].p_voice->adsr_filter);
+                    v_lfs_sync(data[voice].p_voice->lfo1, 0.0f, (plugin_data->vals.lfo_type));
                     
                     v_adsr_set_adsr_db(data[voice].p_voice->adsr_amp, (plugin_data->vals.attack), (plugin_data->vals.decay), (plugin_data->vals.sustain), (plugin_data->vals.release));
                     v_adsr_set_adsr(data[voice].p_voice->adsr_filter, (plugin_data->vals.attack_f), (plugin_data->vals.decay_f), (plugin_data->vals.sustain_f), (plugin_data->vals.release_f));
@@ -502,6 +503,13 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
         
         f_rmp_run_ramp(d->p_voice->pitch_env);
         f_rmp_run_ramp(d->p_voice->glide_env);
+        
+        /*Set and run the LFO*/
+        v_lfs_set(d->p_voice->lfo1, vals->lfo_freq);
+        v_lfs_run(d->p_voice->lfo1);
+        d->p_voice->lfo_amp_output = f_db_to_linear_fast(((vals->lfo_amp) * (d->p_voice->lfo1->output)), d->p_voice->amp_ptr);
+        d->p_voice->lfo_filter_output = (vals->lfo_filter) * (d->p_voice->lfo1->output);
+        d->p_voice->lfo_pitch_output = (vals->lfo_pitch) * (d->p_voice->lfo1->output);
 
 #ifdef LMS_DEBUG_MAIN_LOOP
         if(is_debug_printing == 1)
@@ -517,11 +525,11 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
         }
 #endif                
         v_osc_set_unison_pitch(d->p_voice->osc_unison1, vals->master_uni_spread,   
-                ((d->p_voice->base_pitch) + (vals->osc1pitch) + (vals->osc1tune)));
+                ((d->p_voice->base_pitch) + (vals->osc1pitch) + (vals->osc1tune) + (d->p_voice->lfo_pitch_output)));
 
         
         v_osc_set_unison_pitch(d->p_voice->osc_unison2, vals->master_uni_spread, 
-                ((d->p_voice->base_pitch) + (vals->osc2pitch) + (vals->osc2tune)));
+                ((d->p_voice->base_pitch) + (vals->osc2pitch) + (vals->osc2tune) + (d->p_voice->lfo_pitch_output)));
 
 #ifdef LMS_DEBUG_MAIN_LOOP
         if((is_debug_printing == 1) || ((d->p_voice->current_sample) > 1000)  || ((d->p_voice->current_sample) < -1000))
@@ -565,7 +573,8 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
         
         v_svf_set_cutoff_base(d->p_voice->svf_filter,  (p->mono_modules->filter_smoother->output));//vals->timbre);
         //Run v_svf_add_cutoff_mod once for every input source
-        v_svf_add_cutoff_mod(d->p_voice->svf_filter, ((d->p_voice->adsr_filter->output) * (vals->filter_env_amt)));        
+        v_svf_add_cutoff_mod(d->p_voice->svf_filter, 
+                (((d->p_voice->adsr_filter->output) * (vals->filter_env_amt)) + (d->p_voice->lfo_filter_output)));        
         //calculate the cutoff
         v_svf_set_cutoff(d->p_voice->svf_filter);
         
@@ -585,7 +594,7 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
                 printf("output after clipper == %f\n", (d->p_voice->current_sample));
 #endif  
         
-        d->p_voice->current_sample = (d->p_voice->current_sample) * (d->p_voice->adsr_amp->output) * (d->amp);
+        d->p_voice->current_sample = (d->p_voice->current_sample) * (d->p_voice->adsr_amp->output) * (d->amp) * (d->p_voice->lfo_amp_output);
         
         /*Run the envelope and assign to the output buffers*/
         out0[(d->i_voice)] += (d->p_voice->current_sample);

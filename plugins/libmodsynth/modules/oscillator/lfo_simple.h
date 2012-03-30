@@ -27,7 +27,7 @@ typedef struct st_lfs_lfo
 inline void v_lfs_sync(t_lfs_lfo *,float,int);
 inline void v_lfs_set(t_lfs_lfo *, float);
 inline void v_lfs_run(t_lfs_lfo *);
-t_lfs_lfo * v_lfs_get(float);
+t_lfs_lfo * g_lfs_get(float);
 
 /* inline void v_lfs_sync(
  * t_lfs_lfo * a_lfs, 
@@ -55,6 +55,13 @@ inline void v_lfs_sync(t_lfs_lfo * a_lfs, float a_phase, int a_type)
             a_lfs->osc_ptr = f_get_triangle;
             break;
     }
+    
+    printf("\nLFO info\n");
+    printf("\na_lfs->inc == %f\n", (a_lfs->inc));
+    printf("\na_lfs->osc_core->output == %f\n", (a_lfs->osc_core->output));
+    printf("\na_lfs->output == %f\n", (a_lfs->output));
+    printf("\na_lfs->sr == %f\n", (a_lfs->sr));
+    printf("\na_lfs->sr_recip == %f\n", (a_lfs->sr_recip));
 }
 
 
@@ -73,10 +80,11 @@ inline void v_lfs_set(t_lfs_lfo * a_lfs_ptr, float a_hz)
  */
 inline void v_lfs_run(t_lfs_lfo * a_lfs)
 {
+    v_run_osc(a_lfs->osc_core, (a_lfs->inc));
     a_lfs->output = a_lfs->osc_ptr(a_lfs->osc_core);
 }
 
-t_lfs_lfo * v_lfs_get(float a_sr)
+t_lfs_lfo * g_lfs_get(float a_sr)
 {
     t_lfs_lfo * f_result = (t_lfs_lfo*)malloc(sizeof(t_lfs_lfo));
     
