@@ -363,10 +363,10 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_6->addWidget(m_octave, 2, 2, 1, 1);
 
-        m_octaveLabel_5 = new QLabel(scrollAreaWidgetContents);
-        m_octaveLabel_5->setObjectName(QString::fromUtf8("m_octaveLabel_5"));
+        m_octaveLabel = new QLabel(scrollAreaWidgetContents);
+        m_octaveLabel->setObjectName(QString::fromUtf8("m_octaveLabel_5"));
 
-        gridLayout_6->addWidget(m_octaveLabel_5, 1, 2, 1, 1);
+        gridLayout_6->addWidget(m_octaveLabel, 1, 2, 1, 1);
 
         m_lvelLabel_5 = new QLabel(scrollAreaWidgetContents);
         m_lvelLabel_5->setObjectName(QString::fromUtf8("m_lvelLabel_5"));
@@ -581,328 +581,328 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout = new QGridLayout();
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        groupBox_5 = new QGroupBox(tab_2);
-        groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
-        groupBox_5->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
-        verticalLayout_6 = new QVBoxLayout(groupBox_5);
-        verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
-        gridLayout_7 = new QGridLayout();
-        gridLayout_7->setObjectName(QString::fromUtf8("gridLayout_7"));
-        m_fx_knob_4_3 = new QDial(groupBox_5);
+        m_fx4_groupbox = new QGroupBox(tab_2);
+        m_fx4_groupbox->setObjectName(QString::fromUtf8("groupBox_5"));
+        m_fx4_groupbox->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
+        m_fx4_verticallayout = new QVBoxLayout(m_fx4_groupbox);
+        m_fx4_verticallayout->setObjectName(QString::fromUtf8("verticalLayout_6"));
+        m_fx4_gridlayout = new QGridLayout();
+        m_fx4_gridlayout->setObjectName(QString::fromUtf8("gridLayout_7"));
+        m_fx_knob_4_3 = new QDial(m_fx4_groupbox);
         m_fx_knob_4_3->setObjectName(QString::fromUtf8("m_fx_knob_4_3"));
         m_fx_knob_4_3->setMinimumSize(QSize(48, 48));
         m_fx_knob_4_3->setMaximumSize(QSize(48, 48));
 
-        gridLayout_7->addWidget(m_fx_knob_4_3, 1, 2, 1, 1);
+        m_fx4_gridlayout->addWidget(m_fx_knob_4_3, 1, 2, 1, 1);
 
-        m_fx_label_4_2 = new QLabel(groupBox_5);
+        m_fx_label_4_2 = new QLabel(m_fx4_groupbox);
         m_fx_label_4_2->setObjectName(QString::fromUtf8("m_fx_label_4_2"));
 
-        gridLayout_7->addWidget(m_fx_label_4_2, 0, 1, 1, 1);
+        m_fx4_gridlayout->addWidget(m_fx_label_4_2, 0, 1, 1, 1);
 
-        label_19 = new QLabel(groupBox_5);
+        label_19 = new QLabel(m_fx4_groupbox);
         label_19->setObjectName(QString::fromUtf8("label_19"));
 
-        gridLayout_7->addWidget(label_19, 0, 3, 1, 1);
+        m_fx4_gridlayout->addWidget(label_19, 0, 3, 1, 1);
 
-        m_fx_knob_4_2 = new QDial(groupBox_5);
+        m_fx_knob_4_2 = new QDial(m_fx4_groupbox);
         m_fx_knob_4_2->setObjectName(QString::fromUtf8("m_fx_knob_4_2"));
         m_fx_knob_4_2->setMinimumSize(QSize(48, 48));
         m_fx_knob_4_2->setMaximumSize(QSize(48, 48));
 
-        gridLayout_7->addWidget(m_fx_knob_4_2, 1, 1, 1, 1);
+        m_fx4_gridlayout->addWidget(m_fx_knob_4_2, 1, 1, 1, 1);
 
-        comboBox_5 = new QComboBox(groupBox_5);
-        comboBox_5->setObjectName(QString::fromUtf8("comboBox_5"));
-        comboBox_5->setMinimumSize(QSize(60, 0));
-        comboBox_5->setMaximumSize(QSize(60, 16777215));
+        m_fx4_combobox = new QComboBox(m_fx4_groupbox);
+        m_fx4_combobox->setObjectName(QString::fromUtf8("comboBox_5"));
+        m_fx4_combobox->setMinimumSize(QSize(60, 0));
+        m_fx4_combobox->setMaximumSize(QSize(60, 16777215));
 
-        gridLayout_7->addWidget(comboBox_5, 1, 3, 1, 1);
+        m_fx4_gridlayout->addWidget(m_fx4_combobox, 1, 3, 1, 1);
 
-        m_fx_label_4_1 = new QLabel(groupBox_5);
+        m_fx_label_4_1 = new QLabel(m_fx4_groupbox);
         m_fx_label_4_1->setObjectName(QString::fromUtf8("m_fx_label_4_1"));
 
-        gridLayout_7->addWidget(m_fx_label_4_1, 0, 0, 1, 1);
+        m_fx4_gridlayout->addWidget(m_fx_label_4_1, 0, 0, 1, 1);
 
-        m_fx_label_4_3 = new QLabel(groupBox_5);
+        m_fx_label_4_3 = new QLabel(m_fx4_groupbox);
         m_fx_label_4_3->setObjectName(QString::fromUtf8("m_fx_label_4_3"));
 
-        gridLayout_7->addWidget(m_fx_label_4_3, 0, 2, 1, 1);
+        m_fx4_gridlayout->addWidget(m_fx_label_4_3, 0, 2, 1, 1);
 
-        m_fx_knob_4_1 = new QDial(groupBox_5);
+        m_fx_knob_4_1 = new QDial(m_fx4_groupbox);
         m_fx_knob_4_1->setObjectName(QString::fromUtf8("m_fx_knob_4_1"));
         m_fx_knob_4_1->setMinimumSize(QSize(48, 48));
         m_fx_knob_4_1->setMaximumSize(QSize(48, 48));
         m_fx_knob_4_1->setStyleSheet(QString::fromUtf8(""));
 
-        gridLayout_7->addWidget(m_fx_knob_4_1, 1, 0, 1, 1);
+        m_fx4_gridlayout->addWidget(m_fx_knob_4_1, 1, 0, 1, 1);
 
-        verticalLayout_6->addLayout(gridLayout_7);
+        m_fx4_verticallayout->addLayout(m_fx4_gridlayout);
 
-        gridLayout->addWidget(groupBox_5, 1, 0, 1, 1);
+        gridLayout->addWidget(m_fx4_groupbox, 1, 0, 1, 1);
 
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         gridLayout->addItem(horizontalSpacer_2, 1, 3, 1, 1);
 
-        groupBox_2 = new QGroupBox(tab_2);
-        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
-        verticalLayout_2 = new QVBoxLayout(groupBox_2);
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        gridLayout_3 = new QGridLayout();
-        gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
-        m_fx_knob_1_3 = new QDial(groupBox_2);
+        m_fx1_groupbox = new QGroupBox(tab_2);
+        m_fx1_groupbox->setObjectName(QString::fromUtf8("groupBox_2"));
+        m_fx1_groupbox->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
+        m_fx1_verticallayout = new QVBoxLayout(m_fx1_groupbox);
+        m_fx1_verticallayout->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        m_fx1_gridlayout = new QGridLayout();
+        m_fx1_gridlayout->setObjectName(QString::fromUtf8("gridLayout_3"));
+        m_fx_knob_1_3 = new QDial(m_fx1_groupbox);
         m_fx_knob_1_3->setObjectName(QString::fromUtf8("m_fx_knob_1_3"));
         m_fx_knob_1_3->setMinimumSize(QSize(48, 48));
         m_fx_knob_1_3->setMaximumSize(QSize(48, 48));
 
-        gridLayout_3->addWidget(m_fx_knob_1_3, 1, 2, 1, 1);
+        m_fx1_gridlayout->addWidget(m_fx_knob_1_3, 1, 2, 1, 1);
 
-        m_fx_label_1_2 = new QLabel(groupBox_2);
+        m_fx_label_1_2 = new QLabel(m_fx1_groupbox);
         m_fx_label_1_2->setObjectName(QString::fromUtf8("m_fx_label_1_2"));
 
-        gridLayout_3->addWidget(m_fx_label_1_2, 0, 1, 1, 1);
+        m_fx1_gridlayout->addWidget(m_fx_label_1_2, 0, 1, 1, 1);
 
-        label_8 = new QLabel(groupBox_2);
+        label_8 = new QLabel(m_fx1_groupbox);
         label_8->setObjectName(QString::fromUtf8("label_8"));
 
-        gridLayout_3->addWidget(label_8, 0, 3, 1, 1);
+        m_fx1_gridlayout->addWidget(label_8, 0, 3, 1, 1);
 
-        m_fx_knob_1_2 = new QDial(groupBox_2);
+        m_fx_knob_1_2 = new QDial(m_fx1_groupbox);
         m_fx_knob_1_2->setObjectName(QString::fromUtf8("m_fx_knob_1_2"));
         m_fx_knob_1_2->setMinimumSize(QSize(48, 48));
         m_fx_knob_1_2->setMaximumSize(QSize(48, 48));
 
-        gridLayout_3->addWidget(m_fx_knob_1_2, 1, 1, 1, 1);
+        m_fx1_gridlayout->addWidget(m_fx_knob_1_2, 1, 1, 1, 1);
 
-        comboBox_2 = new QComboBox(groupBox_2);
-        comboBox_2->setObjectName(QString::fromUtf8("comboBox_2"));
-        comboBox_2->setMinimumSize(QSize(60, 0));
-        comboBox_2->setMaximumSize(QSize(60, 16777215));
+        m_fx1_combobox = new QComboBox(m_fx1_groupbox);
+        m_fx1_combobox->setObjectName(QString::fromUtf8("comboBox_2"));
+        m_fx1_combobox->setMinimumSize(QSize(60, 0));
+        m_fx1_combobox->setMaximumSize(QSize(60, 16777215));
 
-        gridLayout_3->addWidget(comboBox_2, 1, 3, 1, 1);
+        m_fx1_gridlayout->addWidget(m_fx1_combobox, 1, 3, 1, 1);
 
-        m_fx_label_1_1 = new QLabel(groupBox_2);
+        m_fx_label_1_1 = new QLabel(m_fx1_groupbox);
         m_fx_label_1_1->setObjectName(QString::fromUtf8("m_fx_label_1_1"));
 
-        gridLayout_3->addWidget(m_fx_label_1_1, 0, 0, 1, 1);
+        m_fx1_gridlayout->addWidget(m_fx_label_1_1, 0, 0, 1, 1);
 
-        m_fx_label_1_3 = new QLabel(groupBox_2);
+        m_fx_label_1_3 = new QLabel(m_fx1_groupbox);
         m_fx_label_1_3->setObjectName(QString::fromUtf8("m_fx_label_1_3"));
 
-        gridLayout_3->addWidget(m_fx_label_1_3, 0, 2, 1, 1);
+        m_fx1_gridlayout->addWidget(m_fx_label_1_3, 0, 2, 1, 1);
 
-        m_fx_knob_1_1 = new QDial(groupBox_2);
+        m_fx_knob_1_1 = new QDial(m_fx1_groupbox);
         m_fx_knob_1_1->setObjectName(QString::fromUtf8("m_fx_knob_1_1"));
         m_fx_knob_1_1->setMinimumSize(QSize(48, 48));
         m_fx_knob_1_1->setMaximumSize(QSize(48, 48));
         m_fx_knob_1_1->setStyleSheet(QString::fromUtf8(""));
 
-        gridLayout_3->addWidget(m_fx_knob_1_1, 1, 0, 1, 1);
+        m_fx1_gridlayout->addWidget(m_fx_knob_1_1, 1, 0, 1, 1);
 
-        verticalLayout_2->addLayout(gridLayout_3);
+        m_fx1_verticallayout->addLayout(m_fx1_gridlayout);
 
-        gridLayout->addWidget(groupBox_2, 0, 0, 1, 1);
+        gridLayout->addWidget(m_fx1_groupbox, 0, 0, 1, 1);
 
-        groupBox_3 = new QGroupBox(tab_2);
-        groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        groupBox_3->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
-        verticalLayout_3 = new QVBoxLayout(groupBox_3);
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-        gridLayout_4 = new QGridLayout();
-        gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
-        m_fx_knob_2_3 = new QDial(groupBox_3);
+        m_fx2_groupbox = new QGroupBox(tab_2);
+        m_fx2_groupbox->setObjectName(QString::fromUtf8("groupBox_3"));
+        m_fx2_groupbox->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
+        m_fx2_verticallayout = new QVBoxLayout(m_fx2_groupbox);
+        m_fx2_verticallayout->setObjectName(QString::fromUtf8("verticalLayout_3"));
+        m_fx2_gridlayout = new QGridLayout();
+        m_fx2_gridlayout->setObjectName(QString::fromUtf8("gridLayout_4"));
+        m_fx_knob_2_3 = new QDial(m_fx2_groupbox);
         m_fx_knob_2_3->setObjectName(QString::fromUtf8("m_fx_knob_2_3"));
         m_fx_knob_2_3->setMinimumSize(QSize(48, 48));
         m_fx_knob_2_3->setMaximumSize(QSize(48, 48));
 
-        gridLayout_4->addWidget(m_fx_knob_2_3, 1, 2, 1, 1);
+        m_fx2_gridlayout->addWidget(m_fx_knob_2_3, 1, 2, 1, 1);
 
-        m_fx_label_2_2 = new QLabel(groupBox_3);
+        m_fx_label_2_2 = new QLabel(m_fx2_groupbox);
         m_fx_label_2_2->setObjectName(QString::fromUtf8("m_fx_label_2_2"));
 
-        gridLayout_4->addWidget(m_fx_label_2_2, 0, 1, 1, 1);
+        m_fx2_gridlayout->addWidget(m_fx_label_2_2, 0, 1, 1, 1);
 
-        label_11 = new QLabel(groupBox_3);
+        label_11 = new QLabel(m_fx2_groupbox);
         label_11->setObjectName(QString::fromUtf8("label_11"));
 
-        gridLayout_4->addWidget(label_11, 0, 3, 1, 1);
+        m_fx2_gridlayout->addWidget(label_11, 0, 3, 1, 1);
 
-        m_fx_knob_2_2 = new QDial(groupBox_3);
+        m_fx_knob_2_2 = new QDial(m_fx2_groupbox);
         m_fx_knob_2_2->setObjectName(QString::fromUtf8("m_fx_knob_2_2"));
         m_fx_knob_2_2->setMinimumSize(QSize(48, 48));
         m_fx_knob_2_2->setMaximumSize(QSize(48, 48));
 
-        gridLayout_4->addWidget(m_fx_knob_2_2, 1, 1, 1, 1);
+        m_fx2_gridlayout->addWidget(m_fx_knob_2_2, 1, 1, 1, 1);
 
-        comboBox_3 = new QComboBox(groupBox_3);
-        comboBox_3->setObjectName(QString::fromUtf8("comboBox_3"));
-        comboBox_3->setMinimumSize(QSize(60, 0));
-        comboBox_3->setMaximumSize(QSize(60, 16777215));
+        m_fx2_combobox = new QComboBox(m_fx2_groupbox);
+        m_fx2_combobox->setObjectName(QString::fromUtf8("comboBox_3"));
+        m_fx2_combobox->setMinimumSize(QSize(60, 0));
+        m_fx2_combobox->setMaximumSize(QSize(60, 16777215));
 
-        gridLayout_4->addWidget(comboBox_3, 1, 3, 1, 1);
+        m_fx2_gridlayout->addWidget(m_fx2_combobox, 1, 3, 1, 1);
 
-        m_fx_label_2_1 = new QLabel(groupBox_3);
+        m_fx_label_2_1 = new QLabel(m_fx2_groupbox);
         m_fx_label_2_1->setObjectName(QString::fromUtf8("m_fx_label_2_1"));
 
-        gridLayout_4->addWidget(m_fx_label_2_1, 0, 0, 1, 1);
+        m_fx2_gridlayout->addWidget(m_fx_label_2_1, 0, 0, 1, 1);
 
-        m_fx_label_2_3 = new QLabel(groupBox_3);
+        m_fx_label_2_3 = new QLabel(m_fx2_groupbox);
         m_fx_label_2_3->setObjectName(QString::fromUtf8("m_fx_label_2_3"));
 
-        gridLayout_4->addWidget(m_fx_label_2_3, 0, 2, 1, 1);
+        m_fx2_gridlayout->addWidget(m_fx_label_2_3, 0, 2, 1, 1);
 
-        m_fx_knob_2_1 = new QDial(groupBox_3);
+        m_fx_knob_2_1 = new QDial(m_fx2_groupbox);
         m_fx_knob_2_1->setObjectName(QString::fromUtf8("m_fx_knob_2_1"));
         m_fx_knob_2_1->setMinimumSize(QSize(48, 48));
         m_fx_knob_2_1->setMaximumSize(QSize(48, 48));
         m_fx_knob_2_1->setStyleSheet(QString::fromUtf8(""));
 
-        gridLayout_4->addWidget(m_fx_knob_2_1, 1, 0, 1, 1);
+        m_fx2_gridlayout->addWidget(m_fx_knob_2_1, 1, 0, 1, 1);
 
-        verticalLayout_3->addLayout(gridLayout_4);
+        m_fx2_verticallayout->addLayout(m_fx2_gridlayout);
 
-        gridLayout->addWidget(groupBox_3, 0, 1, 1, 1);
+        gridLayout->addWidget(m_fx2_groupbox, 0, 1, 1, 1);
 
-        groupBox_4 = new QGroupBox(tab_2);
-        groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
-        groupBox_4->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
-        verticalLayout_5 = new QVBoxLayout(groupBox_4);
-        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
-        gridLayout_5 = new QGridLayout();
-        gridLayout_5->setObjectName(QString::fromUtf8("gridLayout_5"));
-        m_fx_knob_3_3 = new QDial(groupBox_4);
+        m_fx3_groupbox = new QGroupBox(tab_2);
+        m_fx3_groupbox->setObjectName(QString::fromUtf8("groupBox_4"));
+        m_fx3_groupbox->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
+        m_fx3_groupbox_verticallayout = new QVBoxLayout(m_fx3_groupbox);
+        m_fx3_groupbox_verticallayout->setObjectName(QString::fromUtf8("verticalLayout_5"));
+        m_fx3_gridlayout = new QGridLayout();
+        m_fx3_gridlayout->setObjectName(QString::fromUtf8("gridLayout_5"));
+        m_fx_knob_3_3 = new QDial(m_fx3_groupbox);
         m_fx_knob_3_3->setObjectName(QString::fromUtf8("m_fx_knob_3_3"));
         m_fx_knob_3_3->setMinimumSize(QSize(48, 48));
         m_fx_knob_3_3->setMaximumSize(QSize(48, 48));
 
-        gridLayout_5->addWidget(m_fx_knob_3_3, 1, 2, 1, 1);
+        m_fx3_gridlayout->addWidget(m_fx_knob_3_3, 1, 2, 1, 1);
 
-        m_fx_label_3_2 = new QLabel(groupBox_4);
+        m_fx_label_3_2 = new QLabel(m_fx3_groupbox);
         m_fx_label_3_2->setObjectName(QString::fromUtf8("m_fx_label_3_2"));
 
-        gridLayout_5->addWidget(m_fx_label_3_2, 0, 1, 1, 1);
+        m_fx3_gridlayout->addWidget(m_fx_label_3_2, 0, 1, 1, 1);
 
-        label_15 = new QLabel(groupBox_4);
+        label_15 = new QLabel(m_fx3_groupbox);
         label_15->setObjectName(QString::fromUtf8("label_15"));
 
-        gridLayout_5->addWidget(label_15, 0, 3, 1, 1);
+        m_fx3_gridlayout->addWidget(label_15, 0, 3, 1, 1);
 
-        m_fx_knob_3_2 = new QDial(groupBox_4);
+        m_fx_knob_3_2 = new QDial(m_fx3_groupbox);
         m_fx_knob_3_2->setObjectName(QString::fromUtf8("m_fx_knob_3_2"));
         m_fx_knob_3_2->setMinimumSize(QSize(48, 48));
         m_fx_knob_3_2->setMaximumSize(QSize(48, 48));
 
-        gridLayout_5->addWidget(m_fx_knob_3_2, 1, 1, 1, 1);
+        m_fx3_gridlayout->addWidget(m_fx_knob_3_2, 1, 1, 1, 1);
 
-        comboBox_4 = new QComboBox(groupBox_4);
-        comboBox_4->setObjectName(QString::fromUtf8("comboBox_4"));
-        comboBox_4->setMinimumSize(QSize(60, 0));
-        comboBox_4->setMaximumSize(QSize(60, 16777215));
+        m_fx3_combobox = new QComboBox(m_fx3_groupbox);
+        m_fx3_combobox->setObjectName(QString::fromUtf8("comboBox_4"));
+        m_fx3_combobox->setMinimumSize(QSize(60, 0));
+        m_fx3_combobox->setMaximumSize(QSize(60, 16777215));
 
-        gridLayout_5->addWidget(comboBox_4, 1, 3, 1, 1);
+        m_fx3_gridlayout->addWidget(m_fx3_combobox, 1, 3, 1, 1);
 
-        m_fx_label_3_1 = new QLabel(groupBox_4);
+        m_fx_label_3_1 = new QLabel(m_fx3_groupbox);
         m_fx_label_3_1->setObjectName(QString::fromUtf8("m_fx_label_3_1"));
 
-        gridLayout_5->addWidget(m_fx_label_3_1, 0, 0, 1, 1);
+        m_fx3_gridlayout->addWidget(m_fx_label_3_1, 0, 0, 1, 1);
 
-        m_fx_label_3_3 = new QLabel(groupBox_4);
+        m_fx_label_3_3 = new QLabel(m_fx3_groupbox);
         m_fx_label_3_3->setObjectName(QString::fromUtf8("m_fx_label_3_3"));
 
-        gridLayout_5->addWidget(m_fx_label_3_3, 0, 2, 1, 1);
+        m_fx3_gridlayout->addWidget(m_fx_label_3_3, 0, 2, 1, 1);
 
-        m_fx_knob_3_1 = new QDial(groupBox_4);
+        m_fx_knob_3_1 = new QDial(m_fx3_groupbox);
         m_fx_knob_3_1->setObjectName(QString::fromUtf8("m_fx_knob_3_1"));
         m_fx_knob_3_1->setMinimumSize(QSize(48, 48));
         m_fx_knob_3_1->setMaximumSize(QSize(48, 48));
         m_fx_knob_3_1->setStyleSheet(QString::fromUtf8(""));
 
-        gridLayout_5->addWidget(m_fx_knob_3_1, 1, 0, 1, 1);
+        m_fx3_gridlayout->addWidget(m_fx_knob_3_1, 1, 0, 1, 1);
 
-        verticalLayout_5->addLayout(gridLayout_5);
+        m_fx3_groupbox_verticallayout->addLayout(m_fx3_gridlayout);
 
-        gridLayout->addWidget(groupBox_4, 0, 2, 1, 1);
+        gridLayout->addWidget(m_fx3_groupbox, 0, 2, 1, 1);
 
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         gridLayout->addItem(horizontalSpacer, 0, 3, 1, 1);
 
-        groupBox_6 = new QGroupBox(tab_2);
-        groupBox_6->setObjectName(QString::fromUtf8("groupBox_6"));
-        groupBox_6->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
-        verticalLayout_7 = new QVBoxLayout(groupBox_6);
-        verticalLayout_7->setObjectName(QString::fromUtf8("verticalLayout_7"));
-        gridLayout_8 = new QGridLayout();
-        gridLayout_8->setObjectName(QString::fromUtf8("gridLayout_8"));
-        m_fx_knob_5_3 = new QDial(groupBox_6);
+        m_fx5_groupbox = new QGroupBox(tab_2);
+        m_fx5_groupbox->setObjectName(QString::fromUtf8("groupBox_6"));
+        m_fx5_groupbox->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
+        m_fx5_groupbox_verticallayout = new QVBoxLayout(m_fx5_groupbox);
+        m_fx5_groupbox_verticallayout->setObjectName(QString::fromUtf8("verticalLayout_7"));
+        m_fx5_gridlayout = new QGridLayout();
+        m_fx5_gridlayout->setObjectName(QString::fromUtf8("gridLayout_8"));
+        m_fx_knob_5_3 = new QDial(m_fx5_groupbox);
         m_fx_knob_5_3->setObjectName(QString::fromUtf8("m_fx_knob_5_3"));
         m_fx_knob_5_3->setMinimumSize(QSize(48, 48));
         m_fx_knob_5_3->setMaximumSize(QSize(48, 48));
 
-        gridLayout_8->addWidget(m_fx_knob_5_3, 1, 2, 1, 1);
+        m_fx5_gridlayout->addWidget(m_fx_knob_5_3, 1, 2, 1, 1);
 
-        m_fx_label_5_2 = new QLabel(groupBox_6);
+        m_fx_label_5_2 = new QLabel(m_fx5_groupbox);
         m_fx_label_5_2->setObjectName(QString::fromUtf8("m_fx_label_5_2"));
 
-        gridLayout_8->addWidget(m_fx_label_5_2, 0, 1, 1, 1);
+        m_fx5_gridlayout->addWidget(m_fx_label_5_2, 0, 1, 1, 1);
 
-        label_29 = new QLabel(groupBox_6);
+        label_29 = new QLabel(m_fx5_groupbox);
         label_29->setObjectName(QString::fromUtf8("label_29"));
 
-        gridLayout_8->addWidget(label_29, 0, 3, 1, 1);
+        m_fx5_gridlayout->addWidget(label_29, 0, 3, 1, 1);
 
-        m_fx_knob_5_2 = new QDial(groupBox_6);
+        m_fx_knob_5_2 = new QDial(m_fx5_groupbox);
         m_fx_knob_5_2->setObjectName(QString::fromUtf8("m_fx_knob_5_2"));
         m_fx_knob_5_2->setMinimumSize(QSize(48, 48));
         m_fx_knob_5_2->setMaximumSize(QSize(48, 48));
 
-        gridLayout_8->addWidget(m_fx_knob_5_2, 1, 1, 1, 1);
+        m_fx5_gridlayout->addWidget(m_fx_knob_5_2, 1, 1, 1, 1);
 
-        comboBox_6 = new QComboBox(groupBox_6);
-        comboBox_6->setObjectName(QString::fromUtf8("comboBox_6"));
-        comboBox_6->setMinimumSize(QSize(60, 0));
-        comboBox_6->setMaximumSize(QSize(60, 16777215));
+        m_fx5_combobox = new QComboBox(m_fx5_groupbox);
+        m_fx5_combobox->setObjectName(QString::fromUtf8("comboBox_6"));
+        m_fx5_combobox->setMinimumSize(QSize(60, 0));
+        m_fx5_combobox->setMaximumSize(QSize(60, 16777215));
 
-        gridLayout_8->addWidget(comboBox_6, 1, 3, 1, 1);
+        m_fx5_gridlayout->addWidget(m_fx5_combobox, 1, 3, 1, 1);
 
-        m_fx_label_5_1 = new QLabel(groupBox_6);
+        m_fx_label_5_1 = new QLabel(m_fx5_groupbox);
         m_fx_label_5_1->setObjectName(QString::fromUtf8("m_fx_label_5_1"));
 
-        gridLayout_8->addWidget(m_fx_label_5_1, 0, 0, 1, 1);
+        m_fx5_gridlayout->addWidget(m_fx_label_5_1, 0, 0, 1, 1);
 
-        m_fx_label_5_3 = new QLabel(groupBox_6);
+        m_fx_label_5_3 = new QLabel(m_fx5_groupbox);
         m_fx_label_5_3->setObjectName(QString::fromUtf8("m_fx_label_5_3"));
 
-        gridLayout_8->addWidget(m_fx_label_5_3, 0, 2, 1, 1);
+        m_fx5_gridlayout->addWidget(m_fx_label_5_3, 0, 2, 1, 1);
 
-        m_fx_knob_5_1 = new QDial(groupBox_6);
+        m_fx_knob_5_1 = new QDial(m_fx5_groupbox);
         m_fx_knob_5_1->setObjectName(QString::fromUtf8("m_fx_knob_5_1"));
         m_fx_knob_5_1->setMinimumSize(QSize(48, 48));
         m_fx_knob_5_1->setMaximumSize(QSize(48, 48));
         m_fx_knob_5_1->setStyleSheet(QString::fromUtf8(""));
 
-        gridLayout_8->addWidget(m_fx_knob_5_1, 1, 0, 1, 1);
+        m_fx5_gridlayout->addWidget(m_fx_knob_5_1, 1, 0, 1, 1);
 
-        verticalLayout_7->addLayout(gridLayout_8);
+        m_fx5_groupbox_verticallayout->addLayout(m_fx5_gridlayout);
 
-        gridLayout->addWidget(groupBox_6, 1, 1, 1, 1);
+        gridLayout->addWidget(m_fx5_groupbox, 1, 1, 1, 1);
 
-        groupBox_8 = new QGroupBox(tab_2);
-        groupBox_8->setObjectName(QString::fromUtf8("groupBox_8"));
-        groupBox_8->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
-        verticalLayout_9 = new QVBoxLayout(groupBox_8);
+        m_adsr1_groupbox = new QGroupBox(tab_2);
+        m_adsr1_groupbox->setObjectName(QString::fromUtf8("groupBox_8"));
+        m_adsr1_groupbox->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
+        verticalLayout_9 = new QVBoxLayout(m_adsr1_groupbox);
         verticalLayout_9->setObjectName(QString::fromUtf8("verticalLayout_9"));
         gridLayout_12 = new QGridLayout();
         gridLayout_12->setObjectName(QString::fromUtf8("gridLayout_12"));
-        label_4 = new QLabel(groupBox_8);
+        label_4 = new QLabel(m_adsr1_groupbox);
         label_4->setObjectName(QString::fromUtf8("label_4"));
         label_4->setAlignment(Qt::AlignCenter);
 
         gridLayout_12->addWidget(label_4, 0, 0, 1, 1);
 
-        m_adsr1_a = new QDial(groupBox_8);
+        m_adsr1_a = new QDial(m_adsr1_groupbox);
         m_adsr1_a->setObjectName(QString::fromUtf8("m_adsr1_a"));
         m_adsr1_a->setMinimumSize(QSize(48, 48));
         m_adsr1_a->setMaximumSize(QSize(48, 48));
@@ -910,40 +910,40 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_12->addWidget(m_adsr1_a, 1, 0, 1, 1);
 
-        m_adsr1_s = new QDial(groupBox_8);
+        m_adsr1_s = new QDial(m_adsr1_groupbox);
         m_adsr1_s->setObjectName(QString::fromUtf8("m_adsr1_s"));
         m_adsr1_s->setMinimumSize(QSize(48, 48));
         m_adsr1_s->setMaximumSize(QSize(48, 48));
 
         gridLayout_12->addWidget(m_adsr1_s, 1, 2, 1, 1);
 
-        m_adsr1_d = new QDial(groupBox_8);
+        m_adsr1_d = new QDial(m_adsr1_groupbox);
         m_adsr1_d->setObjectName(QString::fromUtf8("m_adsr1_d"));
         m_adsr1_d->setMinimumSize(QSize(48, 48));
         m_adsr1_d->setMaximumSize(QSize(48, 48));
 
         gridLayout_12->addWidget(m_adsr1_d, 1, 1, 1, 1);
 
-        m_adsr1_r = new QDial(groupBox_8);
+        m_adsr1_r = new QDial(m_adsr1_groupbox);
         m_adsr1_r->setObjectName(QString::fromUtf8("m_adsr1_r"));
         m_adsr1_r->setMinimumSize(QSize(48, 48));
         m_adsr1_r->setMaximumSize(QSize(48, 48));
 
         gridLayout_12->addWidget(m_adsr1_r, 1, 3, 1, 1);
 
-        label_36 = new QLabel(groupBox_8);
+        label_36 = new QLabel(m_adsr1_groupbox);
         label_36->setObjectName(QString::fromUtf8("label_36"));
         label_36->setAlignment(Qt::AlignCenter);
 
         gridLayout_12->addWidget(label_36, 0, 1, 1, 1);
 
-        label_37 = new QLabel(groupBox_8);
+        label_37 = new QLabel(m_adsr1_groupbox);
         label_37->setObjectName(QString::fromUtf8("label_37"));
         label_37->setAlignment(Qt::AlignCenter);
 
         gridLayout_12->addWidget(label_37, 0, 2, 1, 1);
 
-        label_38 = new QLabel(groupBox_8);
+        label_38 = new QLabel(m_adsr1_groupbox);
         label_38->setObjectName(QString::fromUtf8("label_38"));
         label_38->setAlignment(Qt::AlignCenter);
 
@@ -951,121 +951,121 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         verticalLayout_9->addLayout(gridLayout_12);
 
-        gridLayout->addWidget(groupBox_8, 2, 0, 1, 1);
+        gridLayout->addWidget(m_adsr1_groupbox, 2, 0, 1, 1);
 
-        groupBox_9 = new QGroupBox(tab_2);
-        groupBox_9->setObjectName(QString::fromUtf8("groupBox_9"));
-        groupBox_9->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
-        verticalLayout_11 = new QVBoxLayout(groupBox_9);
-        verticalLayout_11->setObjectName(QString::fromUtf8("verticalLayout_11"));
-        gridLayout_14 = new QGridLayout();
-        gridLayout_14->setObjectName(QString::fromUtf8("gridLayout_14"));
-        m_adsr2_a = new QDial(groupBox_9);
+        m_adsr2_groupbox = new QGroupBox(tab_2);
+        m_adsr2_groupbox->setObjectName(QString::fromUtf8("groupBox_9"));
+        m_adsr2_groupbox->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
+        m_adsr2_groupbox_verticallayout = new QVBoxLayout(m_adsr2_groupbox);
+        m_adsr2_groupbox_verticallayout->setObjectName(QString::fromUtf8("verticalLayout_11"));
+        m_adsr2_gridlayout = new QGridLayout();
+        m_adsr2_gridlayout->setObjectName(QString::fromUtf8("gridLayout_14"));
+        m_adsr2_a = new QDial(m_adsr2_groupbox);
         m_adsr2_a->setObjectName(QString::fromUtf8("m_adsr2_a"));
         m_adsr2_a->setMinimumSize(QSize(48, 48));
         m_adsr2_a->setMaximumSize(QSize(48, 48));
         m_adsr2_a->setStyleSheet(QString::fromUtf8(""));
 
-        gridLayout_14->addWidget(m_adsr2_a, 1, 0, 1, 1);
+        m_adsr2_gridlayout->addWidget(m_adsr2_a, 1, 0, 1, 1);
 
-        m_adsr2_s = new QDial(groupBox_9);
+        m_adsr2_s = new QDial(m_adsr2_groupbox);
         m_adsr2_s->setObjectName(QString::fromUtf8("m_adsr2_s"));
         m_adsr2_s->setMinimumSize(QSize(48, 48));
         m_adsr2_s->setMaximumSize(QSize(48, 48));
 
-        gridLayout_14->addWidget(m_adsr2_s, 1, 2, 1, 1);
+        m_adsr2_gridlayout->addWidget(m_adsr2_s, 1, 2, 1, 1);
 
-        m_adsr2_d = new QDial(groupBox_9);
+        m_adsr2_d = new QDial(m_adsr2_groupbox);
         m_adsr2_d->setObjectName(QString::fromUtf8("m_adsr2_d"));
         m_adsr2_d->setMinimumSize(QSize(48, 48));
         m_adsr2_d->setMaximumSize(QSize(48, 48));
 
-        gridLayout_14->addWidget(m_adsr2_d, 1, 1, 1, 1);
+        m_adsr2_gridlayout->addWidget(m_adsr2_d, 1, 1, 1, 1);
 
-        m_adsr2_r = new QDial(groupBox_9);
+        m_adsr2_r = new QDial(m_adsr2_groupbox);
         m_adsr2_r->setObjectName(QString::fromUtf8("m_adsr2_r"));
         m_adsr2_r->setMinimumSize(QSize(48, 48));
         m_adsr2_r->setMaximumSize(QSize(48, 48));
 
-        gridLayout_14->addWidget(m_adsr2_r, 1, 3, 1, 1);
+        m_adsr2_gridlayout->addWidget(m_adsr2_r, 1, 3, 1, 1);
 
-        label_43 = new QLabel(groupBox_9);
+        label_43 = new QLabel(m_adsr2_groupbox);
         label_43->setObjectName(QString::fromUtf8("label_43"));
         label_43->setAlignment(Qt::AlignCenter);
 
-        gridLayout_14->addWidget(label_43, 0, 3, 1, 1);
+        m_adsr2_gridlayout->addWidget(label_43, 0, 3, 1, 1);
 
-        label_44 = new QLabel(groupBox_9);
+        label_44 = new QLabel(m_adsr2_groupbox);
         label_44->setObjectName(QString::fromUtf8("label_44"));
         label_44->setAlignment(Qt::AlignCenter);
 
-        gridLayout_14->addWidget(label_44, 0, 2, 1, 1);
+        m_adsr2_gridlayout->addWidget(label_44, 0, 2, 1, 1);
 
-        m_adsr2Label_a = new QLabel(groupBox_9);
+        m_adsr2Label_a = new QLabel(m_adsr2_groupbox);
         m_adsr2Label_a->setObjectName(QString::fromUtf8("m_adsr2Label_a"));
         m_adsr2Label_a->setAlignment(Qt::AlignCenter);
 
-        gridLayout_14->addWidget(m_adsr2Label_a, 0, 0, 1, 1);
+        m_adsr2_gridlayout->addWidget(m_adsr2Label_a, 0, 0, 1, 1);
 
-        label_45 = new QLabel(groupBox_9);
+        label_45 = new QLabel(m_adsr2_groupbox);
         label_45->setObjectName(QString::fromUtf8("label_45"));
         label_45->setAlignment(Qt::AlignCenter);
 
-        gridLayout_14->addWidget(label_45, 0, 1, 1, 1);
+        m_adsr2_gridlayout->addWidget(label_45, 0, 1, 1, 1);
 
-        verticalLayout_11->addLayout(gridLayout_14);
+        m_adsr2_groupbox_verticallayout->addLayout(m_adsr2_gridlayout);
 
-        gridLayout->addWidget(groupBox_9, 2, 1, 1, 1);
+        gridLayout->addWidget(m_adsr2_groupbox, 2, 1, 1, 1);
 
-        groupBox_10 = new QGroupBox(tab_2);
-        groupBox_10->setObjectName(QString::fromUtf8("groupBox_10"));
-        groupBox_10->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
-        verticalLayout_12 = new QVBoxLayout(groupBox_10);
-        verticalLayout_12->setObjectName(QString::fromUtf8("verticalLayout_12"));
+        m_lfo_groupbox = new QGroupBox(tab_2);
+        m_lfo_groupbox->setObjectName(QString::fromUtf8("groupBox_10"));
+        m_lfo_groupbox->setStyleSheet(QString::fromUtf8("QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};"));
+        m_lfo_groupbox_verticallayout = new QVBoxLayout(m_lfo_groupbox);
+        m_lfo_groupbox_verticallayout->setObjectName(QString::fromUtf8("verticalLayout_12"));
         gridLayout_15 = new QGridLayout();
         gridLayout_15->setObjectName(QString::fromUtf8("gridLayout_15"));
-        dial_32 = new QDial(groupBox_10);
-        dial_32->setObjectName(QString::fromUtf8("dial_32"));
-        dial_32->setMinimumSize(QSize(48, 48));
-        dial_32->setMaximumSize(QSize(48, 48));
+        m_lfo_freq = new QDial(m_lfo_groupbox);
+        m_lfo_freq->setObjectName(QString::fromUtf8("dial_32"));
+        m_lfo_freq->setMinimumSize(QSize(48, 48));
+        m_lfo_freq->setMaximumSize(QSize(48, 48));
 
-        gridLayout_15->addWidget(dial_32, 1, 2, 1, 1);
+        gridLayout_15->addWidget(m_lfo_freq, 1, 2, 1, 1);
 
-        label_46 = new QLabel(groupBox_10);
+        label_46 = new QLabel(m_lfo_groupbox);
         label_46->setObjectName(QString::fromUtf8("label_46"));
 
         gridLayout_15->addWidget(label_46, 0, 1, 1, 1);
 
-        label_47 = new QLabel(groupBox_10);
+        label_47 = new QLabel(m_lfo_groupbox);
         label_47->setObjectName(QString::fromUtf8("label_47"));
 
         gridLayout_15->addWidget(label_47, 0, 3, 1, 1);
 
-        dial_33 = new QDial(groupBox_10);
+        dial_33 = new QDial(m_lfo_groupbox);
         dial_33->setObjectName(QString::fromUtf8("dial_33"));
         dial_33->setMinimumSize(QSize(48, 48));
         dial_33->setMaximumSize(QSize(48, 48));
 
         gridLayout_15->addWidget(dial_33, 1, 1, 1, 1);
 
-        comboBox_8 = new QComboBox(groupBox_10);
-        comboBox_8->setObjectName(QString::fromUtf8("comboBox_8"));
-        comboBox_8->setMinimumSize(QSize(60, 0));
-        comboBox_8->setMaximumSize(QSize(60, 16777215));
+        m_lfo_combobox = new QComboBox(m_lfo_groupbox);
+        m_lfo_combobox->setObjectName(QString::fromUtf8("comboBox_8"));
+        m_lfo_combobox->setMinimumSize(QSize(60, 0));
+        m_lfo_combobox->setMaximumSize(QSize(60, 16777215));
 
-        gridLayout_15->addWidget(comboBox_8, 1, 3, 1, 1);
+        gridLayout_15->addWidget(m_lfo_combobox, 1, 3, 1, 1);
 
-        label_48 = new QLabel(groupBox_10);
+        label_48 = new QLabel(m_lfo_groupbox);
         label_48->setObjectName(QString::fromUtf8("label_48"));
 
         gridLayout_15->addWidget(label_48, 0, 0, 1, 1);
 
-        label_49 = new QLabel(groupBox_10);
+        label_49 = new QLabel(m_lfo_groupbox);
         label_49->setObjectName(QString::fromUtf8("label_49"));
 
         gridLayout_15->addWidget(label_49, 0, 2, 1, 1);
 
-        dial_34 = new QDial(groupBox_10);
+        dial_34 = new QDial(m_lfo_groupbox);
         dial_34->setObjectName(QString::fromUtf8("dial_34"));
         dial_34->setMinimumSize(QSize(48, 48));
         dial_34->setMaximumSize(QSize(48, 48));
@@ -1073,9 +1073,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         gridLayout_15->addWidget(dial_34, 1, 0, 1, 1);
 
-        verticalLayout_12->addLayout(gridLayout_15);
+        m_lfo_groupbox_verticallayout->addLayout(gridLayout_15);
 
-        gridLayout->addWidget(groupBox_10, 1, 2, 1, 1);
+        gridLayout->addWidget(m_lfo_groupbox, 1, 2, 1, 1);
 
         verticalLayout->addLayout(gridLayout);
 
@@ -2136,7 +2136,7 @@ void SamplerGUI::retranslateUi(QFrame* Frame)
         << QApplication::translate("Frame", "Loop", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "Reverse", 0, QApplication::UnicodeUTF8)
     );
-    m_octaveLabel_5->setText(QApplication::translate("Frame", "Octave", 0, QApplication::UnicodeUTF8));
+    m_octaveLabel->setText(QApplication::translate("Frame", "Octave", 0, QApplication::UnicodeUTF8));
     m_lvelLabel_5->setText(QApplication::translate("Frame", "<html><head/><body><p>Low<br />Velocity</p></body></html>", 0, QApplication::UnicodeUTF8));
     m_hvelLabel_9->setText(QApplication::translate("Frame", "<html><head/><body><p>High<br />Velocity</p></body></html>", 0, QApplication::UnicodeUTF8));
     m_hnoteLabel_5->setText(QApplication::translate("Frame", "<html><head/><body><p>High<br />Note</p></body></html>", 0, QApplication::UnicodeUTF8));
@@ -2159,11 +2159,11 @@ void SamplerGUI::retranslateUi(QFrame* Frame)
     label_26->setText(QApplication::translate("Frame", "Loop Start/End", 0, QApplication::UnicodeUTF8));
     m_main_tab->setTabText(m_main_tab->indexOf(tab_4), QApplication::translate("Frame", "Samples", 0, QApplication::UnicodeUTF8));
     label->setText(QApplication::translate("Frame", "Edit FX Group: ", 0, QApplication::UnicodeUTF8));
-    groupBox_5->setTitle(QApplication::translate("Frame", "FX4", 0, QApplication::UnicodeUTF8));
+    m_fx4_groupbox->setTitle(QApplication::translate("Frame", "FX4", 0, QApplication::UnicodeUTF8));
     m_fx_label_4_2->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
     label_19->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
-    comboBox_5->clear();
-    comboBox_5->insertItems(0, QStringList()
+    m_fx4_combobox->clear();
+    m_fx4_combobox->insertItems(0, QStringList()
         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "LP2", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "LP4", 0, QApplication::UnicodeUTF8)
@@ -2176,11 +2176,11 @@ void SamplerGUI::retranslateUi(QFrame* Frame)
     );
     m_fx_label_4_1->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
     m_fx_label_4_3->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
-    groupBox_2->setTitle(QApplication::translate("Frame", "FX1", 0, QApplication::UnicodeUTF8));
+    m_fx1_groupbox->setTitle(QApplication::translate("Frame", "FX1", 0, QApplication::UnicodeUTF8));
     m_fx_label_1_2->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
     label_8->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
-    comboBox_2->clear();
-    comboBox_2->insertItems(0, QStringList()
+    m_fx1_combobox->clear();
+    m_fx1_combobox->insertItems(0, QStringList()
         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "LP2", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "LP4", 0, QApplication::UnicodeUTF8)
@@ -2193,11 +2193,11 @@ void SamplerGUI::retranslateUi(QFrame* Frame)
     );
     m_fx_label_1_1->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
     m_fx_label_1_3->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
-    groupBox_3->setTitle(QApplication::translate("Frame", "FX2", 0, QApplication::UnicodeUTF8));
+    m_fx2_groupbox->setTitle(QApplication::translate("Frame", "FX2", 0, QApplication::UnicodeUTF8));
     m_fx_label_2_2->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
     label_11->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
-    comboBox_3->clear();
-    comboBox_3->insertItems(0, QStringList()
+    m_fx2_combobox->clear();
+    m_fx2_combobox->insertItems(0, QStringList()
         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "LP2", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "LP4", 0, QApplication::UnicodeUTF8)
@@ -2210,11 +2210,11 @@ void SamplerGUI::retranslateUi(QFrame* Frame)
     );
     m_fx_label_2_1->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
     m_fx_label_2_3->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
-    groupBox_4->setTitle(QApplication::translate("Frame", "FX3", 0, QApplication::UnicodeUTF8));
+    m_fx3_groupbox->setTitle(QApplication::translate("Frame", "FX3", 0, QApplication::UnicodeUTF8));
     m_fx_label_3_2->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
     label_15->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
-    comboBox_4->clear();
-    comboBox_4->insertItems(0, QStringList()
+    m_fx3_combobox->clear();
+    m_fx3_combobox->insertItems(0, QStringList()
         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "LP2", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "LP4", 0, QApplication::UnicodeUTF8)
@@ -2227,11 +2227,11 @@ void SamplerGUI::retranslateUi(QFrame* Frame)
     );
     m_fx_label_3_1->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
     m_fx_label_3_3->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
-    groupBox_6->setTitle(QApplication::translate("Frame", "FX5", 0, QApplication::UnicodeUTF8));
+    m_fx5_groupbox->setTitle(QApplication::translate("Frame", "FX5", 0, QApplication::UnicodeUTF8));
     m_fx_label_5_2->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
     label_29->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
-    comboBox_6->clear();
-    comboBox_6->insertItems(0, QStringList()
+    m_fx5_combobox->clear();
+    m_fx5_combobox->insertItems(0, QStringList()
         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "LP2", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "LP4", 0, QApplication::UnicodeUTF8)
@@ -2244,21 +2244,21 @@ void SamplerGUI::retranslateUi(QFrame* Frame)
     );
     m_fx_label_5_1->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
     m_fx_label_5_3->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
-    groupBox_8->setTitle(QApplication::translate("Frame", "ADSR1", 0, QApplication::UnicodeUTF8));
+    m_adsr1_groupbox->setTitle(QApplication::translate("Frame", "ADSR1", 0, QApplication::UnicodeUTF8));
     label_4->setText(QApplication::translate("Frame", "A", 0, QApplication::UnicodeUTF8));
     label_36->setText(QApplication::translate("Frame", "D", 0, QApplication::UnicodeUTF8));
     label_37->setText(QApplication::translate("Frame", "S", 0, QApplication::UnicodeUTF8));
     label_38->setText(QApplication::translate("Frame", "R", 0, QApplication::UnicodeUTF8));
-    groupBox_9->setTitle(QApplication::translate("Frame", "ADSR2", 0, QApplication::UnicodeUTF8));
+    m_adsr2_groupbox->setTitle(QApplication::translate("Frame", "ADSR2", 0, QApplication::UnicodeUTF8));
     label_43->setText(QApplication::translate("Frame", "R", 0, QApplication::UnicodeUTF8));
     label_44->setText(QApplication::translate("Frame", "S", 0, QApplication::UnicodeUTF8));
     m_adsr2Label_a->setText(QApplication::translate("Frame", "A", 0, QApplication::UnicodeUTF8));
     label_45->setText(QApplication::translate("Frame", "D", 0, QApplication::UnicodeUTF8));
-    groupBox_10->setTitle(QApplication::translate("Frame", "LFO", 0, QApplication::UnicodeUTF8));
+    m_lfo_groupbox->setTitle(QApplication::translate("Frame", "LFO", 0, QApplication::UnicodeUTF8));
     label_46->setText(QApplication::translate("Frame", "None", 0, QApplication::UnicodeUTF8));
     label_47->setText(QApplication::translate("Frame", "Type", 0, QApplication::UnicodeUTF8));
-    comboBox_8->clear();
-    comboBox_8->insertItems(0, QStringList()
+    m_lfo_combobox->clear();
+    m_lfo_combobox->insertItems(0, QStringList()
         << QApplication::translate("Frame", "Sine", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "Triangle", 0, QApplication::UnicodeUTF8)
         << QApplication::translate("Frame", "Off", 0, QApplication::UnicodeUTF8)
