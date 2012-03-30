@@ -243,7 +243,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 
 	while (event_pos < event_count){
 	       //&& pos >= events[event_pos].time.tick) {
-
+            /*Note-on event*/
 	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
 		if (n.velocity > 0) {
@@ -257,7 +257,8 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 			    plugin_data->sampleNo + events[event_pos].time.tick;
 		    }
 		}
-	    } else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF &&
+	    } /*Note-off event*/
+            else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF &&
 		       (!plugin_data->sustain || (*plugin_data->sustain < 0.001))) {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
 		plugin_data->offs[n.note] = 
