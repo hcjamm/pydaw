@@ -33,7 +33,7 @@ GNU General Public License for more details.
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/amp.h"
 #include "../../libmodsynth/modules/filter/svf.h"
-
+#include "../../libmodsynth/lib/lms_math.h"
 #include "synth.h"
 #include "meta.h"
 
@@ -507,7 +507,7 @@ static void run_voice(LMS *p, synth_vals *vals, voice_data *d, LADSPA_Data *out0
         /*Set and run the LFO*/
         v_lfs_set(d->p_voice->lfo1, vals->lfo_freq);
         v_lfs_run(d->p_voice->lfo1);
-        d->p_voice->lfo_amp_output = f_db_to_linear_fast(((vals->lfo_amp) * (d->p_voice->lfo1->output)), d->p_voice->amp_ptr);
+        d->p_voice->lfo_amp_output = f_db_to_linear_fast((((vals->lfo_amp) * (d->p_voice->lfo1->output)) - (f_lms_abs((vals->lfo_amp)) * 0.5)), d->p_voice->amp_ptr);
         d->p_voice->lfo_filter_output = (vals->lfo_filter) * (d->p_voice->lfo1->output);
         d->p_voice->lfo_pitch_output = (vals->lfo_pitch) * (d->p_voice->lfo1->output);
 
