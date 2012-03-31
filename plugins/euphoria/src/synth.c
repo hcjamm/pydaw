@@ -118,6 +118,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->sustain = 0;
     plugin_data->release = 0;
     plugin_data->selected_sample = 0;
+    plugin_data->i_selected_sample = 0;
     //plugin_data->balance = 0; 
     
     int f_i = 0;
@@ -208,9 +209,9 @@ static void addSample(Sampler *plugin_data, int n,
 	
 	for (ch = 0; ch < plugin_data->channels; ++ch) {
 
-	    float sample = plugin_data->sampleData[ch][LMS_ZERO_INDEX][rsi] +
-		((plugin_data->sampleData[ch][LMS_ZERO_INDEX][rsi + 1] -
-		  plugin_data->sampleData[ch][LMS_ZERO_INDEX][rsi]) *
+	    float sample = plugin_data->sampleData[ch][(plugin_data->i_selected_sample)][rsi] +
+		((plugin_data->sampleData[ch][(plugin_data->i_selected_sample)][rsi + 1] -
+		  plugin_data->sampleData[ch][(plugin_data->i_selected_sample)][rsi]) *
 		 (rs - (float)rsi));
             /*
 	    if (plugin_data->balance) {
@@ -318,8 +319,7 @@ int getControllerSampler(LADSPA_Handle instance, unsigned long port)
     return DSSI_NONE;
 }
 
-char *
-dssi_configure_message(const char *fmt, ...)
+char * dssi_configure_message(const char *fmt, ...)
 {
     va_list args;
     char buffer[256];
@@ -332,7 +332,8 @@ dssi_configure_message(const char *fmt, ...)
 
 char *samplerLoad(Sampler *plugin_data, const char *path)
 {
-    printf("Sample Index is %i\n", (int)(*(plugin_data->selected_sample)));
+    plugin_data->i_selected_sample = (int)(*(plugin_data->selected_sample));
+    printf("Sample Index is %i\n", (plugin_data->i_selected_sample));
     
     SF_INFO info;
     SNDFILE *file;
@@ -447,10 +448,10 @@ char *samplerLoad(Sampler *plugin_data, const char *path)
     
     pthread_mutex_lock(&plugin_data->mutex);
 
-    tmpOld[0] = plugin_data->sampleData[0][LMS_ZERO_INDEX];
-    tmpOld[1] = plugin_data->sampleData[1][LMS_ZERO_INDEX];
-    plugin_data->sampleData[0][LMS_ZERO_INDEX] = tmpSamples[0];
-    plugin_data->sampleData[1][LMS_ZERO_INDEX] = tmpSamples[1];
+    tmpOld[0] = plugin_data->sampleData[0][(plugin_data->i_selected_sample)];
+    tmpOld[1] = plugin_data->sampleData[1][(plugin_data->i_selected_sample)];
+    plugin_data->sampleData[0][(plugin_data->i_selected_sample)] = tmpSamples[0];
+    plugin_data->sampleData[1][(plugin_data->i_selected_sample)] = tmpSamples[1];
     plugin_data->sampleCount = samples;
 
     for (i = 0; i < Sampler_NOTES; ++i) {
