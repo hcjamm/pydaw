@@ -1,297 +1,100 @@
 #!/usr/bin/perl
 
-$max_samples = 32;
+#This script generates much of the more tedious code for Euphoria.  DSSI plugins aren't very dynamic, you must define
+#your I/O ports, etc... at compile time, and this plugin contains approximately 500 ports with $max_samples set to 32, with each port requiring
+#various additional code throughout the plugin.  By running this and piping it to a text file, you can generate all of 
+#the required code.
 
-$defines = "";
-$struct = "";
-$qdials_h = "//Mod matrix knobs\n";
-$qdials_cpp = "//Mod matrix knobs\n";
-$ladspa_descriptor = "";
-$connect_port = "\n\n/*Begin auto-generated ports*/\n";
-$midi_cc = "";  #else if (port == Sampler_BASE_PITCH) return DSSI_CC(13);
+$max_samples = 32;
+$script_name = "gen_header.pl";
+
+$defines = "\n\n/*defines generated automatically by $script_name*/\n";
+$ladspa_descriptor = "\n\n/*LADSPA descriptors generated automatically by $script_name*/\n";
+$connect_port = "\n\n/*Port mappings generated automatically by $script_name*/\n";
+$slot_defs = "\n\n/*Slot definitions generated automatically by $script_name*/\n";
+$signal_defs = "\n\n/*Signal definitions generated automatically by $script_name*/\n";
+$slots = "\n\n/*Slots generated automatically by $script_name*/\n\n";
+$signals = "\n\n/*Signals generated automatically by $script_name*/\n\n";
+$qt_controls = "\n\n/*Controls generated automatically by $script_name*/\n";
+$gui_control_handlers = "\n\n/*Control handlers generated automatically by $script_name*/\n";
 
 $lh_min = "LADSPA_HINT_DEFAULT_MINIMUM |";
 $lh_max = "LADSPA_HINT_DEFAULT_MAXIMUM |";
 $lh_mid = "LADSPA_HINT_DEFAULT_MIDDLE |";
 
-$port_define = $_[0];
-$min = $_[1];
-$max = $_[2];
-$hint = $_[3];
-$desc = $_[4];
+$qdial = 0; $hslider = 1; $vslider = 2; $button = 3; $spinbox = 4; $combobox = 5; $text = 6;
 
-for($i = 1; $i <= $max_samples; $i++)
+for($i = 0; $i < $max_samples; $i++)
 {
 	$i2 = 7 + ($i * 15);
 
-	$define = "LMS_SMPL_NOTE_$i";
-	$ladspa = "smpl_note_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 120, $lh_mid, "Sample Note $i");
+	get_per_sample($i, $i2, "Note", 0, 120, $lh_mid, $spinbox); $i2++;
+	get_per_sample($i, $i2, "Oct", -2, 8, $lh_mid, $spinbox); $i2++;
+	get_per_sample($i, $i2, "Lnote", 0, 120, $lh_min, $spinbox); $i2++;
+	get_per_sample($i, $i2, "Hnote", 0, 120, $lh_max, $spinbox); $i2++;
+	get_per_sample($i, $i2, "Lvel", 1, 127, $lh_min, $spinbox); $i2++;
+	get_per_sample($i, $i2, "Hvel", 1, 127, $lh_max, $spinbox); $i2++;
+	get_per_sample($i, $i2, "Vol", -50, 36, $lh_mid, $spinbox); $i2++;
+	get_per_sample($i, $i2, "Fxgrp", 0, 4, $lh_min, $combobox); $i2++;
+	get_per_sample($i, $i2, "Mode", 0, 2, $lh_min, $combobox); $i2++;
+	get_per_sample($i, $i2, "Lsec", 0, 1000, $lh_min, $text); $i2++;
+	get_per_sample($i, $i2, "Lsamp", 0, "Sampler_FRAMES_MAX", $lh_min, $text); $i2++;
+	get_per_sample($i, $i2, "Start", 0, "Sampler_FRAMES_MAX", $lh_min, $text); $i2++;
+	get_per_sample($i, $i2, "End", 0, "Sampler_FRAMES_MAX", $lh_max, $text); $i2++;
+	get_per_sample($i, $i2, "Lstart", 0, "Sampler_FRAMES_MAX", $lh_min, $text); $i2++;
+	get_per_sample($i, $i2, "Lend", 0, "Sampler_FRAMES_MAX", $lh_max, $text); $i2++;
 
-	$define = "LMS_SMPL_OCT_$i";
-	$ladspa = "smpl_oct_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, -2, 8, $lh_mid, "Sample Octave $i");
-
-	$define = "LMS_SMPL_LNOTE_$i";
-	$ladspa = "smpl_lnote_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 120, $lh_min, "Sample Low Note $i");
-
-	$define = "LMS_SMPL_HNOTE_$i";
-	$ladspa = "smpl_hnote_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 120, $lh_max, "Sample High Note $i");
-
-	$define = "LMS_SMPL_LVEL_$i";
-	$ladspa = "smpl_lvel_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 1, 127, $lh_min, "Sample Low Velocity $i");
-
-	$define = "LMS_SMPL_HVEL_$i";
-	$ladspa = "smpl_hvel_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 1, 127, $lh_max, "Sample High Velocity $i");
-
-	$define = "LMS_SMPL_VOL_$i";
-	$ladspa = "smpl_vol_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, -50, 36, "LADSPA_HINT_DEFAULT_HIGH | ", "Sample Volume $i");
-
-	$define = "LMS_SMPL_FXGRP_$i";
-	$ladspa = "smpl_fxgrp_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 4, $lh_min, "Sample FX Group $i");
-
-	$define = "LMS_SMPL_MODE_$i";
-	$ladspa = "smpl_mode_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 2, $lh_min, "Sample Mode $i");
-
-	$define = "LMS_SMPL_LSEC_$i";
-	$ladspa = "smpl_lsec_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 1000, $lh_min, "Sample Length Seconds $i");
-
-
-	$define = "LMS_SMPL_LSAMP_$i";
-	$ladspa = "smpl_lsamp_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 1000, $lh_mid, "Sample Lenth Samples $i");
-
-	$define = "LMS_SMPL_START_$i";
-	$ladspa = "smpl_start_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX", $lh_min, "Sample Start $i");
-
-
-	$define = "LMS_SMPL_END_$i";
-	$ladspa = "smpl_end_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX", $lh_max, "Sample End $i");
-
-	$define = "LMS_SMPL_LSTART_$i";
-	$ladspa = "smpl_lstart_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX", $lh_min, "Sample Loop Start $i");
-
-	$define = "LMS_SMPL_LEND_$i";
-	$ladspa = "smpl_lend_$i";
-	$defines .= "#define $define = $i2\n";  $i2++;
-	$struct .= "LADSPA_Data * $ladspa;\n";
-	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX", $lh_max, "Sample Loop End $i");
 }
 
-#for each row header
-for($i4 = 0; $i4 < 5; $i4++)
-{
-	$i3 = 0;  #Column index
-	#for each FX group
-	for($i = 1; $i <= 4; $i++)
-	{	
-		#for each FX knob
-		for($i2 = 1; $i2 <= 3; $i2++)
-		{
-#m_fx_knob_4_2 = new QDial(groupBox_5);
-#m_fx_knob_4_2->setObjectName(QString::fromUtf8("m_fx_knob_4_2"));
-#m_fx_knob_4_2->setMinimumSize(QSize(48, 48));
-#m_fx_knob_4_2->setMaximumSize(QSize(48, 48));
-			$qdial = "m_mmtrx$i4" . "_$i" . "_$i2";
-			$qdials_h .= "QDial * $qdial;\n";
-			#TODO: Refactor tableWidget_2 and rename it here
-			$qdials_cpp .= "$qdial = new QDial(0, 100, 1, 0);\ntableWidget_2->setCellWidget($i4, $i3, $qdial);\n";
-			$i3++;
-		}
-	}
-}
-
-print "
-
-$defines
-
-";
-
-print "
-
-$struct
-
-";
-
-print "
-
-$qdials_h
-
-";
-
-print "
-
-$qdials_cpp
-
-";
-
-print "
-
-$connect_port
-
-
-";
-
-print "
-
-$ladspa_descriptor
-
-";
+print "\n\n$defines\n\n";
+print "\n\n$ladspa_descriptor\n\n";
+print "\n\n$connect_port\n\n";
+print "\n\n$slot_defs\n\n";
+print "\n\n$signal_defs\n\n";
+print "\n\n$slots\n\n";
+print "\n\n$signals\n\n";
+print "\n\n$qt_controls\n\n";
+print "\n\n$gui_control_handlers\n\n";
 
 #0 == port define(LMS_SAMPL_XXXX), 1 == description
 sub get_ladspa_desc
 {
-$port_define = $_[0];
-$min = $_[1];
-$max = $_[2];
-$hint = $_[3];
-$desc = $_[4];
-return "
-	port_descriptors[$port_define] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[$port_define] = \"$desc\";
-	port_range_hints[$port_define].HintDescriptor =
-	    $hint
-	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[$port_define].LowerBound = $min;
-	port_range_hints[$port_define].UpperBound = $max;
-";
+	$port_define = $_[0];
+	$min = $_[1];
+	$max = $_[2];
+	$hint = $_[3];
+	$desc = $_[4];
+	return "port_descriptors[$port_define] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; port_names[$port_define] = \"$desc\";	port_range_hints[$port_define].HintDescriptor = $hint LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE; port_range_hints[$port_define].LowerBound = $min;	 port_range_hints[$port_define].UpperBound = $max;\n";
 }
 
-#0 == fx group number, 1 == fx number
-#returns array:  [0] == header declarations, [1] == cpp instantiations, [2] == retranslate function
-#TODO:  Place in separate layouts, and write a function that switches the layout that each one is in.
-sub get_fx_groupbox
+sub get_per_sample
 {
-return ("
-    QGroupBox *groupBox_3;
-    QVBoxLayout *verticalLayout_3;
-    QGridLayout *gridLayout_4;
-    QDial *m_fx_knob_2_3;
-    QLabel *m_fx_label_2_2;
-    QLabel *label_11;
-    QDial *m_fx_knob_2_2;
-    QComboBox *comboBox_3;
-    QLabel *m_fx_label_2_1;
-    QLabel *m_fx_label_2_3;
-    QDial *m_fx_knob_2_1;
-", "
+	my $i = $_[0];
+	my $i2 = $_[1];
+	my $ctrl_name_uc = uc($_[2]);
+	my $ctrl_name = $_[2];
+	my $lmin = $_[3];
+	my $lmax = $_[4];
+	my $lhint = $_[5];
 
-        groupBox_3 = new QGroupBox(tab_2);
-        groupBox_3->setObjectName(QString::fromUtf8(\"groupBox_3\"));
-        groupBox_3->setStyleSheet(QString::fromUtf8(\"QGroupBox{border-color: rgb(0, 0, 127); background-color: white;};\"));
-        verticalLayout_3 = new QVBoxLayout(groupBox_3);
-        verticalLayout_3->setObjectName(QString::fromUtf8(\"verticalLayout_3\"));
-        gridLayout_4 = new QGridLayout();
-        gridLayout_4->setObjectName(QString::fromUtf8(\"gridLayout_4\"));
-        m_fx_knob_2_3 = new QDial(groupBox_3);
-        m_fx_knob_2_3->setObjectName(QString::fromUtf8(\"m_fx_knob_2_3\"));
-        m_fx_knob_2_3->setMinimumSize(QSize(48, 48));
-        m_fx_knob_2_3->setMaximumSize(QSize(48, 48));
+	if($_[6] == 0) { $control = "QDial"; $set_func = "setValue"}
+	elsif($_[6] == 1) { $control = "QSlider"; $set_func = "setValue"}
+	elsif($_[6] == 2) { $control = "Button"; $set_func = "????"}
+	elsif($_[6] == 3)  { $control = "QSpinBox"; $set_func = "setValue"}
+	elsif($_[6] == 4) { $control = "QComboBox"; $set_func = "setCurrentIndex"}
+	elsif($_[6] == 5)  { $control = "????"; $set_func = "????"}  #text
 
-        gridLayout_4->addWidget(m_fx_knob_2_3, 1, 2, 1, 1);
-
-        m_fx_label_2_2 = new QLabel(groupBox_3);
-        m_fx_label_2_2->setObjectName(QString::fromUtf8(\"m_fx_label_2_2\"));
-
-        gridLayout_4->addWidget(m_fx_label_2_2, 0, 1, 1, 1);
-
-        label_11 = new QLabel(groupBox_3);
-        label_11->setObjectName(QString::fromUtf8(\"label_11\"));
-
-        gridLayout_4->addWidget(label_11, 0, 3, 1, 1);
-
-        m_fx_knob_2_2 = new QDial(groupBox_3);
-        m_fx_knob_2_2->setObjectName(QString::fromUtf8(\"m_fx_knob_2_2\"));
-        m_fx_knob_2_2->setMinimumSize(QSize(48, 48));
-        m_fx_knob_2_2->setMaximumSize(QSize(48, 48));
-
-        gridLayout_4->addWidget(m_fx_knob_2_2, 1, 1, 1, 1);
-
-        comboBox_3 = new QComboBox(groupBox_3);
-        comboBox_3->setObjectName(QString::fromUtf8(\"comboBox_3\"));
-        comboBox_3->setMinimumSize(QSize(60, 0));
-        comboBox_3->setMaximumSize(QSize(60, 16777215));
-
-        gridLayout_4->addWidget(comboBox_3, 1, 3, 1, 1);
-
-        m_fx_label_2_1 = new QLabel(groupBox_3);
-        m_fx_label_2_1->setObjectName(QString::fromUtf8(\"m_fx_label_2_1\"));
-
-        gridLayout_4->addWidget(m_fx_label_2_1, 0, 0, 1, 1);
-
-        m_fx_label_2_3 = new QLabel(groupBox_3);
-        m_fx_label_2_3->setObjectName(QString::fromUtf8(\"m_fx_label_2_3\"));
-
-        gridLayout_4->addWidget(m_fx_label_2_3, 0, 2, 1, 1);
-
-        m_fx_knob_2_1 = new QDial(groupBox_3);
-        m_fx_knob_2_1->setObjectName(QString::fromUtf8(\"m_fx_knob_2_1\"));
-        m_fx_knob_2_1->setMinimumSize(QSize(48, 48));
-        m_fx_knob_2_1->setMaximumSize(QSize(48, 48));
-        m_fx_knob_2_1->setStyleSheet(QString::fromUtf8(\"\"));
-
-        gridLayout_4->addWidget(m_fx_knob_2_1, 1, 0, 1, 1);
-
-        verticalLayout_3->addLayout(gridLayout_4);
-
-", "
-
-groupBox_3->setTitle(QApplication::translate(\"Frame\", \"FX2\", 0, QApplication::UnicodeUTF8));
-
-"
-);
+	my $define = "LMS_SMPL_$ctrl_name_uc" . "_$i";
+	my $signal = "smpl$ctrl_name$i" . "Changed";
+	my $slot = "setSmpl$ctrl_name$i";
+	$defines .= "#define $define = $i2\n";
+	$connect_port .= "case $define: plugin->smpl_notes[$i] = data; break;\n";
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, 120, $lh_mid, "Sample $ctrl_name $i");
+	$gui_control_handlers .= "case $define: gui->$slot(value); break;\n";
+	$slots .= "void SamplerGUI::$slot(int a_value){m_suppressHostUpdate = true; $control->$set_func(a_value); m_suppressHostUpdate = false;}\n";
+	$signals .= "void SamplerGUI::$signal(int a_value){if(!m_suppressHostUpdate){float v = (float)a_value; lo_send(m_host, m_controlPath, \"if\", $define, v);}}\n";
+	$slot_defs .= "$slot(int);\n";
+	$signal_defs .= "$signal(int);\n";
+	$qt_controls .= "";
 }
+
