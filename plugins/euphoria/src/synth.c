@@ -189,7 +189,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 	float         rs = s * ratio;
 	unsigned long rsi = lrintf(floor(rs));
 
-	if (rsi >= plugin_data->sampleCount[(plugin_data->i_selected_sample)]) {
+	if (rsi >= plugin_data->sampleCount[(plugin_data->current_sample)]) {
 	    plugin_data->ons[n] = -1;
 	    break;
 	}
@@ -215,9 +215,9 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 	
 	for (ch = 0; ch < plugin_data->channels; ++ch) {
 
-	    float sample = plugin_data->sampleData[ch][(plugin_data->i_selected_sample)][rsi] +
-		((plugin_data->sampleData[ch][(plugin_data->i_selected_sample)][rsi + 1] -
-		  plugin_data->sampleData[ch][(plugin_data->i_selected_sample)][rsi]) *
+	    float sample = plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi] +
+		((plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi + 1] -
+		  plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi]) *
 		 (rs - (float)rsi));
             
 	    plugin_data->output[ch][pos + i] += lgain * sample;
@@ -284,8 +284,18 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 	}
 
 	for (i = 0; i < Sampler_NOTES; ++i) {
-	    if (plugin_data->ons[i] >= 0) {
-		addSample(plugin_data, i, pos, count);
+	    if (plugin_data->ons[i] >= 0) {   
+    
+                plugin_data->i_loaded_samples = 0;
+
+                while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
+                {
+                    plugin_data->current_sample = (plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]);
+                    addSample(plugin_data, i, pos, count);
+                    plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
+                }                
+                
+		//addSample(plugin_data, i, pos, count);
 	    }
 	}
 
