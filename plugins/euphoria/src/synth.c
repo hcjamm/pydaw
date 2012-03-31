@@ -1,6 +1,6 @@
 /* -*- c-basic-offset: 4 -*-  vi:set ts=8 sts=4 sw=4: */
 
-/* trivial_sampler.c
+/* synth.c
    
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -126,9 +126,10 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     {
         plugin_data->sampleData[0][f_i] = 0;
         plugin_data->sampleData[1][f_i] = 0;
+        plugin_data->sampleCount[f_i] = 0;
         f_i++;
     }
-    plugin_data->sampleCount = 0;
+    
     plugin_data->sampleRate = s_rate;
     plugin_data->projectDir = 0;
 
@@ -183,7 +184,7 @@ static void addSample(Sampler *plugin_data, int n,
 	float         rs = s * ratio;
 	unsigned long rsi = lrintf(floor(rs));
 
-	if (rsi >= plugin_data->sampleCount) {
+	if (rsi >= plugin_data->sampleCount[(plugin_data->i_selected_sample)]) {
 	    plugin_data->ons[n] = -1;
 	    break;
 	}
@@ -452,7 +453,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path)
     tmpOld[1] = plugin_data->sampleData[1][(plugin_data->i_selected_sample)];
     plugin_data->sampleData[0][(plugin_data->i_selected_sample)] = tmpSamples[0];
     plugin_data->sampleData[1][(plugin_data->i_selected_sample)] = tmpSamples[1];
-    plugin_data->sampleCount = samples;
+    plugin_data->sampleCount[(plugin_data->i_selected_sample)] = samples;
 
     for (i = 0; i < Sampler_NOTES; ++i) {
 	plugin_data->ons[i] = -1;

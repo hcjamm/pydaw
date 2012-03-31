@@ -1,6 +1,6 @@
 /* -*- c-basic-offset: 4 -*-  vi:set ts=8 sts=4 sw=4: */
 
-/* trivial_sampler.c
+/* synth.h
    
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ typedef struct {
     int         i_selected_sample;
     int          channels;
     float       *sampleData[2][LMS_MAX_SAMPLE_COUNT];
-    size_t       sampleCount;
+    size_t       sampleCount[LMS_MAX_SAMPLE_COUNT];
     int          sampleRate;
     long         ons[Sampler_NOTES];
     long         offs[Sampler_NOTES];
