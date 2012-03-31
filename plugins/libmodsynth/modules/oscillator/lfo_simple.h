@@ -46,22 +46,15 @@ inline void v_lfs_sync(t_lfs_lfo * a_lfs, float a_phase, int a_type)
     switch(a_type)
     {
         case 0:
-            a_lfs->osc_ptr = f_get_osc_off;
+            a_lfs->osc_ptr = f_get_osc_off;            
             break;
         case 1:
-            a_lfs->osc_ptr = f_get_sine;
+            a_lfs->osc_ptr = f_get_sine;            
             break;
         case 2:
-            a_lfs->osc_ptr = f_get_triangle;
+            a_lfs->osc_ptr = f_get_triangle;     
             break;
-    }
-    
-    printf("\nLFO info\n");
-    printf("\na_lfs->inc == %f\n", (a_lfs->inc));
-    printf("\na_lfs->osc_core->output == %f\n", (a_lfs->osc_core->output));
-    printf("\na_lfs->output == %f\n", (a_lfs->output));
-    printf("\na_lfs->sr == %f\n", (a_lfs->sr));
-    printf("\na_lfs->sr_recip == %f\n", (a_lfs->sr_recip));
+    }    
 }
 
 
