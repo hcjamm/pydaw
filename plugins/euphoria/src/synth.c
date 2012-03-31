@@ -91,9 +91,12 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     case Sampler_OUTPUT_RIGHT:
         plugin->output[1] = data;
         break;
+    case Sampler_SELECTED_SAMPLE:
+        plugin->selected_sample = data;
+        break;
     /*case Sampler_BALANCE:
         plugin->balance = data;
-        break;*/
+        break;*/        
     default:
         break;
 
@@ -114,6 +117,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->basePitch = 0;
     plugin_data->sustain = 0;
     plugin_data->release = 0;
+    plugin_data->selected_sample = 0;
     //plugin_data->balance = 0; 
     
     int f_i = 0;
@@ -571,6 +575,15 @@ void _init()
 	port_range_hints[Sampler_RELEASE].LowerBound = Sampler_RELEASE_MIN;
 	port_range_hints[Sampler_RELEASE].UpperBound = Sampler_RELEASE_MAX;
 
+        /* Parameters for selected sample */
+	port_descriptors[Sampler_SELECTED_SAMPLE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[Sampler_SELECTED_SAMPLE] = "Selected Sample";
+	port_range_hints[Sampler_SELECTED_SAMPLE].HintDescriptor =
+	    LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_LOGARITHMIC |
+	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[Sampler_SELECTED_SAMPLE].LowerBound = 0;
+	port_range_hints[Sampler_SELECTED_SAMPLE].UpperBound = (LMS_MAX_SAMPLE_COUNT - 1);
+        
 	if (stereo) {
 
 	    /* Parameters for output right */
