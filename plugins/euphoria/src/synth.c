@@ -119,6 +119,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->release = 0;
     plugin_data->selected_sample = 0;
     plugin_data->i_selected_sample = 0;
+    plugin_data->current_sample = 0;
+    plugin_data->loaded_samples_count = 0;
     //plugin_data->balance = 0; 
     
     int f_i = 0;
@@ -134,7 +136,6 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->projectDir = 0;
 
     plugin_data->channels = 2;
-
     
     memcpy(&plugin_data->mutex, &m, sizeof(pthread_mutex_t));
 
@@ -159,8 +160,12 @@ static void activateSampler(LADSPA_Handle instance)
     pthread_mutex_unlock(&plugin_data->mutex);
 }
 
-static void addSample(Sampler *plugin_data, int n,
-		      unsigned long pos, unsigned long count)
+/* static void addSample(Sampler *plugin_data, 
+ * int n, //The note number?
+ * unsigned long pos, //the position in the output buffer
+ * unsigned long count) //how many samples to fill in the output buffer?
+ */
+static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned long count)
 {
     float ratio = 1.0;
     float gain = 1.0;
@@ -214,15 +219,7 @@ static void addSample(Sampler *plugin_data, int n,
 		((plugin_data->sampleData[ch][(plugin_data->i_selected_sample)][rsi + 1] -
 		  plugin_data->sampleData[ch][(plugin_data->i_selected_sample)][rsi]) *
 		 (rs - (float)rsi));
-            /*
-	    if (plugin_data->balance) {
-		if (ch == 0 && *plugin_data->balance > 0) {
-		    sample *= 1.0 - *plugin_data->balance;
-		} else if (ch == 1 && *plugin_data->balance < 0) {
-		    sample *= 1.0 + *plugin_data->balance;
-		}
-	    }
-            */
+            
 	    plugin_data->output[ch][pos + i] += lgain * sample;
 	}
     }
@@ -334,7 +331,29 @@ char * dssi_configure_message(const char *fmt, ...)
 char *samplerLoad(Sampler *plugin_data, const char *path)
 {
     plugin_data->i_selected_sample = (int)(*(plugin_data->selected_sample));
-    printf("Sample Index is %i\n", (plugin_data->i_selected_sample));
+    printf("plugin_data->i_selected_sample == %i\n", (plugin_data->i_selected_sample));
+    
+    /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
+    plugin_data->i_loaded_samples = 0;
+    plugin_data->sample_is_loaded = 0;
+    
+    while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
+    {
+        if((plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]) == (plugin_data->i_selected_sample))
+        {
+            printf("Sample index %i is already loaded.\n", (plugin_data->i_loaded_samples));
+            plugin_data->sample_is_loaded = 1;
+            break;
+        }
+        plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
+    }
+    
+    if((plugin_data->sample_is_loaded) == 0)
+    {
+        plugin_data->loaded_samples[(plugin_data->loaded_samples_count)] = (plugin_data->i_selected_sample);
+        plugin_data->loaded_samples_count = (plugin_data->loaded_samples_count) + 1;
+        printf("plugin_data->loaded_samples_count == %i\n", (plugin_data->loaded_samples_count));
+    }
     
     SF_INFO info;
     SNDFILE *file;
