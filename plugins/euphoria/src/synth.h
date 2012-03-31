@@ -24,9 +24,9 @@ GNU General Public License for more details.
 #define Sampler_RELEASE 4
 
 #define Sampler_OUTPUT_RIGHT 5
-#define Sampler_BALANCE 6
+//#define Sampler_BALANCE 6
 
-#define Sampler_Stereo_COUNT 7
+#define Sampler_Stereo_COUNT 6
 
 #define Sampler_BASE_PITCH_MIN 0
 // not 127, as we want 120/2 = 60 as the default:
@@ -54,7 +54,7 @@ typedef struct {
     LADSPA_Data *basePitch;
     LADSPA_Data *sustain;
     LADSPA_Data *release;
-    LADSPA_Data *balance;
+    //LADSPA_Data *balance;
     int          channels;
     float       *sampleData[2][LMS_MAX_SAMPLE_COUNT];
     size_t       sampleCount;

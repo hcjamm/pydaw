@@ -91,9 +91,9 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     case Sampler_OUTPUT_RIGHT:
         plugin->output[1] = data;
         break;
-    case Sampler_BALANCE:
+    /*case Sampler_BALANCE:
         plugin->balance = data;
-        break;
+        break;*/
     default:
         break;
 
@@ -114,7 +114,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->basePitch = 0;
     plugin_data->sustain = 0;
     plugin_data->release = 0;
-    plugin_data->balance = 0; 
+    //plugin_data->balance = 0; 
     
     int f_i = 0;
     while(f_i < LMS_MAX_SAMPLE_COUNT)
@@ -208,7 +208,7 @@ static void addSample(Sampler *plugin_data, int n,
 		((plugin_data->sampleData[ch][LMS_ZERO_INDEX][rsi + 1] -
 		  plugin_data->sampleData[ch][LMS_ZERO_INDEX][rsi]) *
 		 (rs - (float)rsi));
-
+            /*
 	    if (plugin_data->balance) {
 		if (ch == 0 && *plugin_data->balance > 0) {
 		    sample *= 1.0 - *plugin_data->balance;
@@ -216,7 +216,7 @@ static void addSample(Sampler *plugin_data, int n,
 		    sample *= 1.0 + *plugin_data->balance;
 		}
 	    }
-
+            */
 	    plugin_data->output[ch][pos + i] += lgain * sample;
 	}
     }
@@ -305,12 +305,12 @@ int getControllerSampler(LADSPA_Handle instance, unsigned long port)
     else if (port == Sampler_BASE_PITCH) return DSSI_CC(13);
     else if (port == Sampler_SUSTAIN) return DSSI_CC(64);
     else if (port == Sampler_RELEASE) return DSSI_CC(72);
-    else {
+    /*else {
 	Sampler *plugin_data = (Sampler *) instance;
 	if (plugin_data->channels == 2) {
 	    if (port == Sampler_BALANCE) return DSSI_CC(10);
 	}
-    }
+    }*/
     return DSSI_NONE;
 }
 
@@ -578,14 +578,14 @@ void _init()
 	    port_names[Sampler_OUTPUT_RIGHT] = "Output R";
 	    port_range_hints[Sampler_OUTPUT_RIGHT].HintDescriptor = 0;
 
-	    /* Parameters for balance */
+	    /* Parameters for balance 
 	    port_descriptors[Sampler_BALANCE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	    port_names[Sampler_BALANCE] = "Pan / Balance";
 	    port_range_hints[Sampler_BALANCE].HintDescriptor =
 		LADSPA_HINT_DEFAULT_MIDDLE |
 		LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	    port_range_hints[Sampler_BALANCE].LowerBound = -1.0f;
-	    port_range_hints[Sampler_BALANCE].UpperBound = 1.0f;
+	    port_range_hints[Sampler_BALANCE].UpperBound = 1.0f;*/
 	}
 
 	desc->activate = activateSampler;
