@@ -71,7 +71,7 @@ inline float f_lms_min(float a_1, float a_2)
     }
 }
 
-#define arr_sqrt_count 400
+#define arr_sqrt_count 401
 
 float arr_sqrt [arr_sqrt_count] = {
 0.000000,0.100000,0.141421,0.173205,0.200000,0.223607,
