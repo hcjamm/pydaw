@@ -60,6 +60,15 @@ typedef struct {
     int          channels;
     float       *sampleData[2][LMS_MAX_SAMPLE_COUNT];
     size_t       sampleCount[LMS_MAX_SAMPLE_COUNT];
+    
+    int loaded_samples[LMS_MAX_SAMPLE_COUNT];
+    int loaded_samples_count;
+    int i_loaded_samples;
+    /*Used as a boolean when determining if a sample has already been loaded*/
+    int sample_is_loaded;    
+    /*The current sample being played*/
+    int current_sample;
+    
     int          sampleRate;
     long         ons[Sampler_NOTES];
     long         offs[Sampler_NOTES];
