@@ -1799,6 +1799,12 @@ void SamplerGUI::calculate_fx_label(int a_combobox_index, int a_knob_index, QLab
 void SamplerGUI::selectionChanged()
 {
     findSelected();
+        
+    if (!m_suppressHostUpdate) {
+        printf("m_selected_sample_index == %i\n",  m_selected_sample_index);
+	lo_send(m_host, m_controlPath, "if", Sampler_SELECTED_SAMPLE, (float)m_selected_sample_index);
+    }
+    
     /*These 2 will never be null, and should be set regardless of whether a sample is loaded*/
     m_sample_graph->setPixmap(m_sample_graphs[m_selected_sample_index]);
     m_sample_num->setValue(m_selected_sample_index);
