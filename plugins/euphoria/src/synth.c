@@ -332,6 +332,8 @@ dssi_configure_message(const char *fmt, ...)
 
 char *samplerLoad(Sampler *plugin_data, const char *path)
 {
+    printf("Sample Index is %i\n", (int)(*(plugin_data->selected_sample)));
+    
     SF_INFO info;
     SNDFILE *file;
     size_t samples = 0;
@@ -579,7 +581,7 @@ void _init()
 	port_descriptors[Sampler_SELECTED_SAMPLE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[Sampler_SELECTED_SAMPLE] = "Selected Sample";
 	port_range_hints[Sampler_SELECTED_SAMPLE].HintDescriptor =
-	    LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_LOGARITHMIC |
+	    LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[Sampler_SELECTED_SAMPLE].LowerBound = 0;
 	port_range_hints[Sampler_SELECTED_SAMPLE].UpperBound = (LMS_MAX_SAMPLE_COUNT - 1);
