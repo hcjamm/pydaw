@@ -114,9 +114,15 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->basePitch = 0;
     plugin_data->sustain = 0;
     plugin_data->release = 0;
-    plugin_data->balance = 0;    
-    plugin_data->sampleData[0] = 0;
-    plugin_data->sampleData[1] = 0;
+    plugin_data->balance = 0; 
+    
+    int f_i = 0;
+    while(f_i < LMS_MAX_SAMPLE_COUNT)
+    {
+        plugin_data->sampleData[0][f_i] = 0;
+        plugin_data->sampleData[1][f_i] = 0;
+        f_i++;
+    }
     plugin_data->sampleCount = 0;
     plugin_data->sampleRate = s_rate;
     plugin_data->projectDir = 0;
@@ -198,9 +204,9 @@ static void addSample(Sampler *plugin_data, int n,
 	
 	for (ch = 0; ch < plugin_data->channels; ++ch) {
 
-	    float sample = plugin_data->sampleData[ch][rsi] +
-		((plugin_data->sampleData[ch][rsi + 1] -
-		  plugin_data->sampleData[ch][rsi]) *
+	    float sample = plugin_data->sampleData[ch][LMS_ZERO_INDEX][rsi] +
+		((plugin_data->sampleData[ch][LMS_ZERO_INDEX][rsi + 1] -
+		  plugin_data->sampleData[ch][LMS_ZERO_INDEX][rsi]) *
 		 (rs - (float)rsi));
 
 	    if (plugin_data->balance) {
@@ -435,10 +441,10 @@ char *samplerLoad(Sampler *plugin_data, const char *path)
     
     pthread_mutex_lock(&plugin_data->mutex);
 
-    tmpOld[0] = plugin_data->sampleData[0];
-    tmpOld[1] = plugin_data->sampleData[1];
-    plugin_data->sampleData[0] = tmpSamples[0];
-    plugin_data->sampleData[1] = tmpSamples[1];
+    tmpOld[0] = plugin_data->sampleData[0][LMS_ZERO_INDEX];
+    tmpOld[1] = plugin_data->sampleData[1][LMS_ZERO_INDEX];
+    plugin_data->sampleData[0][LMS_ZERO_INDEX] = tmpSamples[0];
+    plugin_data->sampleData[1][LMS_ZERO_INDEX] = tmpSamples[1];
     plugin_data->sampleCount = samples;
 
     for (i = 0; i < Sampler_NOTES; ++i) {
