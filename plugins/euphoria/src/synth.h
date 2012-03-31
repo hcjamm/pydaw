@@ -41,6 +41,8 @@ GNU General Public License for more details.
 
 /*Provide an arbitrary maximum number of samples the user can load*/
 #define LMS_MAX_SAMPLE_COUNT 32
+/*Temporary placeholder, to be removed*/
+#define LMS_ZERO_INDEX 0
 
 //#define Sampler_Stereo_LABEL "stereo_sampler"
 #define Sampler_Stereo_LABEL "Euphoria"
@@ -54,7 +56,7 @@ typedef struct {
     LADSPA_Data *release;
     LADSPA_Data *balance;
     int          channels;
-    float       *sampleData[2];
+    float       *sampleData[2][LMS_MAX_SAMPLE_COUNT];
     size_t       sampleCount;
     int          sampleRate;
     long         ons[Sampler_NOTES];
