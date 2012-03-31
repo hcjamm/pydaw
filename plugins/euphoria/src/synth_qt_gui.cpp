@@ -1302,6 +1302,8 @@ void SamplerGUI::generatePreview(QString path)
     */
     findSelected();
 
+    m_sample_graphs[m_selected_sample_index].fill();
+    
     printf("set sample index\n");
         
     info.format = 0;
