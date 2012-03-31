@@ -1279,7 +1279,9 @@ void SynthGUI::LFOfreqChanged(int a_value)
 
 void SynthGUI::LFOtypeChanged(int a_value)
 {
-    //TODO:  Delete this?
+    if (!m_suppressHostUpdate) {
+	lo_send(m_host, m_controlPath, "if", LMS_LFO_TYPE, float(a_value));
+    }
 }
 
 void SynthGUI::LFOampChanged(int a_value)
