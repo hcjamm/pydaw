@@ -10,116 +10,126 @@ $ladspa_descriptor = "";
 $connect_port = "\n\n/*Begin auto-generated ports*/\n";
 $midi_cc = "";  #else if (port == Sampler_BASE_PITCH) return DSSI_CC(13);
 
+$lh_min = "LADSPA_HINT_DEFAULT_MINIMUM |";
+$lh_max = "LADSPA_HINT_DEFAULT_MAXIMUM |";
+$lh_mid = "LADSPA_HINT_DEFAULT_MIDDLE |";
+
+$port_define = $_[0];
+$min = $_[1];
+$max = $_[2];
+$hint = $_[3];
+$desc = $_[4];
+
 for($i = 1; $i <= $max_samples; $i++)
 {
 	$i2 = 7 + ($i * 15);
 
-	$define = "LMS_SMPL_NOTE_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_NOTE_$i";
 	$ladspa = "smpl_note_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 120);
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, 120, $lh_mid, "Sample Note $i");
 
-	$define = "LMS_SMPL_OCT_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_OCT_$i";
 	$ladspa = "smpl_oct_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, -2, 8);
+	$ladspa_descriptor .= get_ladspa_desc($define, -2, 8, $lh_mid, "Sample Octave $i");
 
-	$define = "LMS_SMPL_LNOTE_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_LNOTE_$i";
 	$ladspa = "smpl_lnote_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 120);
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, 120, $lh_min, "Sample Low Note $i");
 
-	$define = "LMS_SMPL_HNOTE_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_HNOTE_$i";
 	$ladspa = "smpl_hnote_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 120);
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, 120, $lh_max, "Sample High Note $i");
 
-	$define = "LMS_SMPL_LVEL_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_LVEL_$i";
 	$ladspa = "smpl_lvel_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 1, 127);
+	$ladspa_descriptor .= get_ladspa_desc($define, 1, 127, $lh_min, "Sample Low Velocity $i");
 
-	$define = "LMS_SMPL_HVEL_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_HVEL_$i";
 	$ladspa = "smpl_hvel_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 1, 127);
+	$ladspa_descriptor .= get_ladspa_desc($define, 1, 127, $lh_max, "Sample High Velocity $i");
 
-	$define = "LMS_SMPL_VOL_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_VOL_$i";
 	$ladspa = "smpl_vol_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, -50, 36);
+	$ladspa_descriptor .= get_ladspa_desc($define, -50, 36, "LADSPA_HINT_DEFAULT_HIGH | ", "Sample Volume $i");
 
-	$define = "LMS_SMPL_FXGRP_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_FXGRP_$i";
 	$ladspa = "smpl_fxgrp_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 4);
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, 4, $lh_min, "Sample FX Group $i");
 
-	$define = "LMS_SMPL_MODE_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_MODE_$i";
 	$ladspa = "smpl_mode_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 2);
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, 2, $lh_min, "Sample Mode $i");
 
-	$define = "LMS_SMPL_LSEC_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_LSEC_$i";
 	$ladspa = "smpl_lsec_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 1000);
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, 1000, $lh_min, "Sample Length Seconds $i");
 
 
-	$define = "LMS_SMPL_LSAMP_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_LSAMP_$i";
 	$ladspa = "smpl_lsamp_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, 1000);
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, 1000, $lh_mid, "Sample Lenth Samples $i");
 
-	$define = "LMS_SMPL_START_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_START_$i";
 	$ladspa = "smpl_start_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX");
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX", $lh_min, "Sample Start $i");
 
 
-	$define = "LMS_SMPL_END_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_END_$i";
 	$ladspa = "smpl_end_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX");
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX", $lh_max, "Sample End $i");
 
-	$define = "LMS_SMPL_LSTART_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_LSTART_$i";
 	$ladspa = "smpl_lstart_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX");
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX", $lh_min, "Sample Loop Start $i");
 
-	$define = "LMS_SMPL_LEND_$i = " . $i2;  $i2++;
+	$define = "LMS_SMPL_LEND_$i";
 	$ladspa = "smpl_lend_$i";
-	$defines .= "#define $define\n";
+	$defines .= "#define $define = $i2\n";  $i2++;
 	$struct .= "LADSPA_Data * $ladspa;\n";
 	$connect_port .= "case $define: plugin->$ladspa = data; break;\n";
-	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX");
+	$ladspa_descriptor .= get_ladspa_desc($define, 0, "Sampler_FRAMES_MAX", $lh_max, "Sample Loop End $i");
 }
 
 #for each row header
@@ -188,11 +198,13 @@ sub get_ladspa_desc
 $port_define = $_[0];
 $min = $_[1];
 $max = $_[2];
+$hint = $_[3];
+$desc = $_[4];
 return "
 	port_descriptors[$port_define] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[$port_define] = \"$_[1]\";
+	port_names[$port_define] = \"$desc\";
 	port_range_hints[$port_define].HintDescriptor =
-	    LADSPA_HINT_DEFAULT_MINIMUM |
+	    $hint
 	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[$port_define].LowerBound = $min;
 	port_range_hints[$port_define].UpperBound = $max;
