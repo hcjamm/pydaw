@@ -3,6 +3,9 @@
  * Author: Jeff Hubbard
  * 
  * Controls for use in a QTableWidget for a modulation matrix
+ * 
+ * The widgets here will use various lms_setup_xxxx methods(sometimes multiple for each widget type), rather than baking them into 
+ * different constructors, in order to provide more flexibility.
  *
  * Created on April 1, 2012, 10:41 AM
  */
@@ -14,6 +17,7 @@
 #include <QtGui/QSpinBox>
 #include <QtGui/QComboBox>
 #include <QStringList>
+#include <QLineEdit>
 
 /* A QSpinBox with the following fields added:
  * 
@@ -72,6 +76,31 @@ void MMComboBox::lms_setup(int a_column, int a_row, int a_group, QStringList a_i
     insertItems(0, a_items); 
 }
 
+/* A QLineEdit with the following fields added:
+ * 
+ * int lms_column, lms_row, lms_group;
+ * 
+ */
+class MMLineEdit : public QLineEdit
+{
+    public:
+        void lms_setup(int,int,int,QString);
+        int lms_column, lms_row, lms_group;
+};
+
+/* void MMLineEdit::lms_setup(
+ * int a_column,  //The zero-based column index of the parent QTableWidget
+ * int a_row,     //The zero-based row index of the parent QTableWidget
+ * int a_group,   //An integer uniquely identifying controls that this one may be grouped with.  Enter something random if you don't intend to use this
+ * QString a_text) //The initial text of the line edit
+ */
+void MMLineEdit::lms_setup(int a_column, int a_row, int a_group, QString a_text)
+{
+    lms_column = a_column;
+    lms_group = a_group;
+    lms_row = a_row;
+    setText(a_text);
+}
 
 #endif	/* MOD_MATRIX_H */
 
