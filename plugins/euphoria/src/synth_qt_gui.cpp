@@ -116,42 +116,14 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         return app.exec();
     }
      */
-    
-    /* Example of QSignalMapper from here:  http://stackoverflow.com/questions/1332110/selecting-qcombobox-in-qtablewidget
-     * 
-
-    Here's a modification of the QSignalMapper documentation to fit your situation:
-
-    QSignalMapper* signalMapper = new QSignalMapper(this);
-
-    for (each row in table) {
-        QComboBox* combo = new QComboBox();
-        table->setCellWidget(row,col,combo);                         
-        combo->setCurrentIndex(node.type()); 
-        connect(combo, SIGNAL(currentIndexChanged(int)), signalMapper, SLOT(map()));
-        signalMapper->setMapping(combo, QString("%1-%2).arg(row).arg(col));
-    }
-
-    connect(signalMapper, SIGNAL(mapped(const QString &)),
-            this, SIGNAL(changed(const QString &)));
-
-    In the handler function ::changed(QString position):
-
-    QStringList coordinates = position.split("-");
-    int row = coordinates[0].toInt();
-    int col = coordinates[1].toInt();
-    QComboBox* combo=(QComboBox*)table->cellWidget(row, col);  
-    combo->currentIndex()
-
-    Note that a QString is a pretty clumsy way to pass this information. A better choice would be a new QModelIndex that you pass, and which the changed function would then delete.
-
-    The downside to this solution is that you lose the value that currentIndexChanged emits, but you can query the QComboBox for its index from ::changed.
-
-     */
-    
+        
     m_host = lo_address_new(host, port);
     
     m_handle_control_updates = true;
+    
+    QStringList f_notes_list = QStringList() << "C" << "C#" << "D" << "D#" << "E" << "F" << "F#" << "G" << "G#" << "A" << "A#" << "B";
+    QStringList f_fx_group_list = QStringList() << "1" << "2" << "3" << "4" << "None";
+    QStringList f_mode_list = QStringList() << "Play Once" << "Loop" << "Reverse";
     
         if (this->objectName().isEmpty())
         this->setObjectName(QString::fromUtf8("Frame"));
