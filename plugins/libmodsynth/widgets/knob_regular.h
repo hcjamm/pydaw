@@ -34,8 +34,9 @@ enum LMS_KNOB_CONVERSION{lmk_integer, lmk_pitch, lmk_decimal, lmk_off};
 
 /* This class passes global information for the plugin to new knobs
  */
-class LMS_knob_info
+class LMS_knob_info : QObject
 {
+    Q_OBJECT
     public:
         LMS_knob_info(bool * a_suppressHostUpdate, 
                 lo_address a_host, QByteArray a_controlPath)
@@ -65,10 +66,8 @@ class LMS_knob_regular : QObject
          * QString a_label_value, 
          * LMS_KNOB_CONVERSION a_conv_type, 
          * QWidget *a_parent, 
-         * bool * a_suppressHostUpdate, 
          * int a_lms_port, 
-         * lo_address a_host, 
-         * QByteArray a_controlPath)
+         * LMS_knob_info * a_knob_info)
          */
         LMS_knob_regular(QString a_label,int a_min, int a_max, int a_step_size, int a_value, 
         QString a_label_value, LMS_KNOB_CONVERSION a_conv_type, QWidget *a_parent, int a_lms_port, LMS_knob_info * a_knob_info)
@@ -97,7 +96,14 @@ class LMS_knob_regular : QObject
             connect(lms_knob, SIGNAL(valueChanged(int)), this, SLOT(lms_value_changed(int)));
             
             lms_value_changed(lms_knob->value());            
-        };
+        }
+        
+        void setValue(int a_value)
+        {
+            *(lms_suppressHostUpdate) = TRUE;
+            lms_knob->setValue(a_value);
+            *(lms_suppressHostUpdate) = FALSE;
+        }
         
         QVBoxLayout * lms_layout;
         QLabel * lms_label;
@@ -141,7 +147,7 @@ class LMS_knob_regular : QObject
                 lo_send(lms_host, lms_controlPath, "if", lms_port, a_value);
             }
             
-        };
+        }
 };
 
 
