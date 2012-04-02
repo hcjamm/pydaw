@@ -15,13 +15,7 @@
 #include <QString>
 #include <QLabel>
 #include <QDial>
-#include <math.h>
 
-/*
-extern "C"{
-#include <lo/lo.h>
-}
-*/
 
 /* Convert the knob value to a different format for display
  * lmk_integer  Display as it is
@@ -44,8 +38,7 @@ class LMS_knob_info
             lms_size = a_size;
         };
         
-        int lms_size;
-    
+        int lms_size;    
 };
 
 
@@ -87,7 +80,7 @@ class LMS_knob_regular
             lms_layout->addWidget(lms_knob, -1, Qt::AlignCenter);
             lms_layout->addWidget(lms_value, -1, Qt::AlignCenter);
             
-            lms_value_changed(lms_knob->value());            
+            //lms_value_changed(lms_knob->value());            
         }
                 
         QVBoxLayout * lms_layout;
@@ -103,30 +96,7 @@ class LMS_knob_regular
         QByteArray lms_controlPath;
         
         ~LMS_knob_regular(){};
-    public slots:
-        void lms_value_changed(int a_value)
-        {
-            switch(lms_conversion_type)
-            {
-                case lmk_integer:
-                    lms_value->setText(QString::number(a_value));
-                    break;
-                case lmk_decimal:
-                    lms_value->setText(QString::number(((float)a_value) * .01));
-                    break;
-                case lmk_pitch:
-                    lms_value->setText(QString::number(
-                    (440*pow(2,(a_value-57)*.0833333))
-                    ));
-                    break;
-                case lmk_off:
-                    //Do nothing
-                    break;
-            }
-                       
-        }
 };
-
 
 #endif	/* KNOB_REGULAR_H */
 
