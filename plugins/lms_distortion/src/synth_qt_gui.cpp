@@ -85,10 +85,10 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     LMS_knob_info * f_info = new LMS_knob_info(75);
     
     m_groupbox = new LMS_group_box(this, "Distortion", "");    
-    m_ingain = new LMS_knob_regular(QString("In"), -6, 36, 1, 12, QString("0"), lmk_integer, m_groupbox->lms_groupbox, LMS_GAIN, f_info);
+    m_ingain = new LMS_knob_regular(QString("In"), -6, 36, 1, 12, QString("0"), m_groupbox->lms_groupbox, f_info);
     //connect((m_ingain->lms_knob), SIGNAL(valueChanged(int)), (m_ingain), SLOT(lms_value_changed(int)));
-    m_drywet = new LMS_knob_regular(QString("Wet"), 0, 100, 1, 0, QString("0"), lmk_off, m_groupbox->lms_groupbox, LMS_WET, f_info);
-    m_outgain = new LMS_knob_regular(QString("Out"), -24, 6, 1, -6, QString("0"), lmk_integer, m_groupbox->lms_groupbox, LMS_OUT_GAIN, f_info);
+    m_drywet = new LMS_knob_regular(QString("Wet"), 0, 100, 1, 0, QString("0"), m_groupbox->lms_groupbox, f_info);
+    m_outgain = new LMS_knob_regular(QString("Out"), -24, 6, 1, -6, QString("0"), m_groupbox->lms_groupbox, f_info);
     
     m_groupbox->lms_add_h(m_ingain);
     m_groupbox->lms_add_h(m_drywet);
