@@ -30,6 +30,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/group_box.h"
 #include "../../libmodsynth/widgets/knob_regular.h"
 #include "../../libmodsynth/widgets/lms_main_layout.h"
+#include "../../libmodsynth/widgets/lms_control.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -57,8 +58,8 @@ public:
     
     void v_print_port_name_to_cerr(int);
     
-    void lms_value_changed(int, LMS_knob_regular *);
-    void lms_set_value(float, LMS_knob_regular *);
+    void lms_value_changed(int, LMS_control *); //LMS_knob_regular *);
+    void lms_set_value(float, LMS_control *); //LMS_knob_regular *);
         
 public slots:
     /*Event handlers for setting knob values*/

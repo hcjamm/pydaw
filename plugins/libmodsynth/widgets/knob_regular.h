@@ -17,37 +17,14 @@
 #include <QDial>
 #include <math.h>
 
+#include "lms_control.h"
+
 enum LMS_KNOB_CONVERSION
 {
     lms_kc_integer, lms_kc_decimal, lms_kc_pitch, lms_kc_none
 };
 
-/* This class passes global information for the plugin to new knobs
- */
-class LMS_knob_info
-{    
-    public:
-        LMS_knob_info(int a_size)
-        {
-            lms_knob_size = a_size;
-            lms_use_label_style = FALSE;
-        };
-        
-        void LMS_set_label_style(QString a_style, int a_width)
-        {
-            lms_use_label_style = TRUE;
-            lms_label_style = a_style;
-            lms_label_width = a_width;
-        }
-        
-        int lms_knob_size;
-        int lms_label_width;
-        QString lms_label_style;
-        bool lms_use_label_style;
-};
-
-
-class LMS_knob_regular
+class LMS_knob_regular : public LMS_control
 {   
     public:
         /* LMS_knob_regular(
@@ -63,11 +40,11 @@ class LMS_knob_regular
          * LMS_knob_info * a_knob_info)
          */
         LMS_knob_regular(QString a_label,int a_min, int a_max, int a_step_size, int a_value, 
-        QString a_label_value, QWidget *a_parent, LMS_knob_info * a_knob_info, LMS_KNOB_CONVERSION a_conv_type, int a_lms_port)
+        QString a_label_value, QWidget *a_parent, LMS_style_info * a_style_info, LMS_KNOB_CONVERSION a_conv_type, int a_lms_port)
         {
             lms_layout = new QVBoxLayout(a_parent);
             lms_label = new QLabel(a_parent);
-            lms_label->setMinimumWidth(a_knob_info->lms_label_width);
+            lms_label->setMinimumWidth(a_style_info->lms_label_width);
             lms_label->setText(a_label);
             lms_label->setAlignment(Qt::AlignCenter);
             lms_knob = new QDial(a_parent);
@@ -78,14 +55,19 @@ class LMS_knob_regular
             lms_value = new QLabel(a_parent);
             lms_value->setText(a_label_value);
             
-            if(a_knob_info->lms_use_label_style)
+            if(a_style_info->lms_use_label_style)
             {
-                lms_label->setStyleSheet((a_knob_info->lms_label_style));
+                lms_label->setStyleSheet((a_style_info->lms_label_style));
                 //lms_value->setStyleSheet((a_knob_info->lms_label_style));
             }
+            
+            if(a_style_info->lms_use_value_style)
+            {
+                lms_value->setStyleSheet((a_style_info->lms_value_style));
+            }
                         
-            lms_knob->setMinimumSize((a_knob_info->lms_knob_size),(a_knob_info->lms_knob_size));
-            lms_knob->setMaximumSize((a_knob_info->lms_knob_size),(a_knob_info->lms_knob_size));
+            lms_knob->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
+            lms_knob->setMaximumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
             
             lms_conv_type  = a_conv_type;
                                     
@@ -95,10 +77,10 @@ class LMS_knob_regular
             
             lms_port = a_lms_port;
             
-            //valueChanged(lms_knob->value());            
+            lms_value_changed(lms_knob->value());
         }
         
-        void valueChanged(int a_value)
+        void lms_value_changed(int a_value)
         {
                 switch(lms_conv_type)
                 {
@@ -126,7 +108,20 @@ class LMS_knob_regular
         QLabel * lms_value;
         LMS_KNOB_CONVERSION lms_conv_type;
         
-        int lms_port;
+        void lms_set_value(int a_value)
+        {
+            lms_knob->setValue(a_value);
+        }
+        
+        int lms_get_value()
+        {
+            return lms_knob->value();
+        }
+        
+        QLayout * lms_get_layout()
+        {
+            return lms_layout;
+        }
         
         ~LMS_knob_regular(){};
 };

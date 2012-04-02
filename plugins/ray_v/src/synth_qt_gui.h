@@ -25,14 +25,12 @@ GNU General Public License for more details.
 #include <QGroupBox>
 #include <QComboBox>
 #include <QPushButton>
-#include <qt4/QtXml/QDomDocument>
 #include <QPixmap>
-#include <QFile>
-#include <QDir>
 
 #include <string>
 #include <stdlib.h>
 
+#include "../../libmodsynth/widgets/presets.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -201,10 +199,7 @@ protected:
     void changed_decibels(int, QLabel *, int);
     void changed_zero_to_x(int, QLabel *, int);
     void changed_integer(int value, QLabel * _label, int _port);
-       
-    
-    QString presets_tab_delimited [128];
-    
+        
     
     /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
     QDial *m_attack;
@@ -292,9 +287,7 @@ protected:
     QDial *m_lfo_cutoff;
     QLabel *m_lfo_cutoffLabel;
     
-    QComboBox *m_program;
-    QPushButton *m_prog_save;
-    
+    LMS_preset_manager * m_program;
     
     lo_address m_host;
     QByteArray m_controlPath;
