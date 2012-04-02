@@ -14,27 +14,33 @@
 #include <QGroupBox>
 #include <QGridLayout>
 #include "knob_regular.h"
+#include "lms_control.h"
 
 class LMS_group_box 
 {
     public:
-        LMS_group_box(QWidget * a_parent, QString a_title, QString a_stylesheet)
+        LMS_group_box(QWidget * a_parent, QString a_title, LMS_style_info * a_style_info)
         {
             lms_groupbox = new QGroupBox(a_parent);
             lms_groupbox->setTitle(a_title);
             lms_layout = new QGridLayout(lms_groupbox);
-            lms_groupbox->setStyleSheet(a_stylesheet);
-            lms_stylesheet = a_stylesheet;
+            
+            if(a_style_info->lms_use_groupbox_style)
+            {
+                lms_groupbox->setStyleSheet(a_style_info->lms_groupbox_style);
+                lms_stylesheet = (a_style_info->lms_groupbox_style);
+            }
+            
             x_index = 0;
             y_index = 0;
         }
-        void lms_add_h(LMS_knob_regular * a_knob)        
+        void lms_add_h(LMS_control * a_ctrl)
         {
-            lms_add(a_knob);
+            lms_add(a_ctrl);
             x_index++;
         }
         
-        void lms_add_v(LMS_knob_regular * a_knob)        
+        void lms_add_v(LMS_control * a_ctrl)        
         {
             /*Don't increment if nothing has been added yet
             if((y_index != 0) && (x_index != 0))*/
@@ -43,7 +49,7 @@ class LMS_group_box
             
             x_index = 0;
             
-            lms_add(a_knob);
+            lms_add(a_ctrl);
             
             x_index++;
         }
@@ -56,9 +62,9 @@ class LMS_group_box
         int x_index;
         int y_index;
         
-        void lms_add(LMS_knob_regular * a_knob)        
+        void lms_add(LMS_control * a_ctrl)        
         {            
-            lms_layout->addLayout(a_knob->lms_layout, y_index, x_index, Qt::AlignCenter);
+            lms_layout->addLayout(a_ctrl->lms_get_layout(), y_index, x_index, Qt::AlignCenter);
         }
 };
 

@@ -13,7 +13,6 @@ GNU General Public License for more details.
 
 */
 
-
 #include "synth_qt_gui.h"
 
 #include <QApplication>
@@ -24,9 +23,6 @@ GNU General Public License for more details.
 #include <unistd.h>
 
 #include <QPixmap>
-#include <QFile>
-#include <QDir>
-#include <QTextStream>
 
 #include <stdlib.h>
 #include <math.h>
@@ -83,10 +79,10 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_main_layout = new LMS_main_layout(this);
     
-    LMS_knob_info * f_info = new LMS_knob_info(75);
+    LMS_style_info * f_info = new LMS_style_info(75);
     f_info->LMS_set_label_style("background-color: white; border: 1px solid black;  border-radius: 6px;", 60);
     
-    m_groupbox = new LMS_group_box(this, "Distortion", "");
+    m_groupbox = new LMS_group_box(this, "Distortion", f_info);
     
     m_ingain = new LMS_knob_regular(QString("In"), -6, 36, 1, 12, QString("0"), m_groupbox->lms_groupbox, f_info, lms_kc_integer, LMS_GAIN);
     connect(m_ingain->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(gainChanged(int)));
@@ -139,10 +135,10 @@ void SynthGUI::setOutGain(float val)
     lms_set_value(val, m_outgain);
 }
 
-void SynthGUI::lms_set_value(float val, LMS_knob_regular * a_knob)
+void SynthGUI::lms_set_value(float val, LMS_control * a_ctrl ) //LMS_knob_regular * a_knob)
 {
     m_suppressHostUpdate = true;
-    a_knob->lms_knob->setValue(int(val));
+    a_ctrl->lms_set_value(int(val));
     m_suppressHostUpdate = false;
 }
 
@@ -161,12 +157,12 @@ void SynthGUI::outGainChanged(int value)
     lms_value_changed(value, m_outgain);
 }
 
-void SynthGUI::lms_value_changed(int a_value, LMS_knob_regular * a_knob)
+void SynthGUI::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {
-    a_knob->valueChanged(a_value);
+    a_ctrl->lms_value_changed(a_value);
 
     if (!m_suppressHostUpdate) {
-        lo_send(m_host, m_controlPath, "if", (a_knob->lms_port), float(a_value));
+        lo_send(m_host, m_controlPath, "if", (a_ctrl->lms_port), float(a_value));
     }
 }
 
@@ -204,13 +200,13 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     switch (a_port) 
     {
         case LMS_GAIN:
-            m_ingain->lms_knob->setValue(a_value);
+            m_ingain->lms_set_value(a_value);
             break;
         case LMS_WET:
-            m_drywet->lms_knob->setValue(a_value);
+            m_drywet->lms_set_value(a_value);
             break;
         case LMS_OUT_GAIN:
-            m_outgain->lms_knob->setValue(a_value);
+            m_outgain->lms_set_value(a_value);
             break;
     }
 }
@@ -230,13 +226,13 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     
     switch (a_port) {
     case LMS_GAIN:
-	//m_ingain->lms_value_changed(a_value);
+	m_ingain->lms_value_changed(a_value);
 	break;
     case LMS_WET:
-	//m_drywet->lms_value_changed(a_value);
+	m_drywet->lms_value_changed(a_value);
 	break;
     case LMS_OUT_GAIN:
-	//m_outgain->lms_value_changed(a_value);
+	m_outgain->lms_value_changed(a_value);
 	break;
     default:
 #ifdef LMS_DEBUG_MODE_QT
@@ -249,18 +245,15 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
         m_suppressHostUpdate = false;
 }
 
-/*TODO:  For the forseeable future, this will only be used for getting the values to write back to 
- the presets.tsv file;  It should probably return a string that can be re-interpreted into other values for
- complex controls that could have multiple ints, or string values, etc...*/
 int SynthGUI::i_get_control(int a_port)
 {        
     switch (a_port) {
     case LMS_GAIN:
-        return m_ingain->lms_knob->value();
+        return m_ingain->lms_get_value();
     case LMS_WET:
-        return m_drywet->lms_knob->value();
+        return m_drywet->lms_get_value();
     case LMS_OUT_GAIN:
-        return m_outgain->lms_knob->value();
+        return m_outgain->lms_get_value();
     default:
 #ifdef LMS_DEBUG_MODE_QT
 	cerr << "Warning: received request to get nonexistent port " << a_port << endl;
