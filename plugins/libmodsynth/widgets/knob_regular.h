@@ -16,29 +16,26 @@
 #include <QLabel>
 #include <QDial>
 
-
-/* Convert the knob value to a different format for display
- * lmk_integer  Display as it is
- * lmk_pitch    Convert from pitch to Hz
- * lmk_decimal  multiply by .01
- * lmk_off      don't update the label
- */
-enum LMS_KNOB_CONVERSION{lmk_integer, lmk_pitch, lmk_decimal, lmk_off};
-
-
 /* This class passes global information for the plugin to new knobs
  */
-
-
 class LMS_knob_info
 {    
     public:
         LMS_knob_info(int a_size)
         {
             lms_size = a_size;
+            lms_use_label_style = FALSE;
         };
         
-        int lms_size;    
+        void LMS_set_label_style(QString a_style)
+        {
+            lms_use_label_style = TRUE;
+            lms_label_style = a_style;
+        }
+        
+        int lms_size;
+        QString lms_label_style;
+        bool lms_use_label_style;
 };
 
 
@@ -58,7 +55,7 @@ class LMS_knob_regular
          * LMS_knob_info * a_knob_info)
          */
         LMS_knob_regular(QString a_label,int a_min, int a_max, int a_step_size, int a_value, 
-        QString a_label_value, LMS_KNOB_CONVERSION a_conv_type, QWidget *a_parent, int a_lms_port, LMS_knob_info * a_knob_info)
+        QString a_label_value, QWidget *a_parent, LMS_knob_info * a_knob_info)
         {
             lms_layout = new QVBoxLayout(a_parent);
             lms_label = new QLabel(a_parent);
@@ -70,9 +67,13 @@ class LMS_knob_regular
             lms_knob->setValue(a_value);
             lms_value = new QLabel(a_parent);
             lms_value->setText(a_label_value);
-            lms_conversion_type = a_conv_type;
-            lms_port = a_lms_port;
             
+            if(a_knob_info->lms_use_label_style)
+            {
+                lms_label->setStyleSheet((a_knob_info->lms_label_style));
+                lms_value->setStyleSheet((a_knob_info->lms_label_style));
+            }
+                        
             lms_knob->setMinimumSize((a_knob_info->lms_size),(a_knob_info->lms_size));
             lms_knob->setMaximumSize((a_knob_info->lms_size),(a_knob_info->lms_size));
                                     
@@ -87,10 +88,7 @@ class LMS_knob_regular
         QLabel * lms_label;
         QDial * lms_knob;        
         QLabel * lms_value;        
-        int lms_port;
-        LMS_KNOB_CONVERSION lms_conversion_type;
-        
-        
+                        
         bool * lms_suppressHostUpdate;
         //lo_address lms_host;
         QByteArray lms_controlPath;
