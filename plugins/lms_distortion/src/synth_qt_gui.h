@@ -56,13 +56,26 @@ public:
     int i_get_control(int);
     
     void v_print_port_name_to_cerr(int);
+    
+    void lms_value_changed(int, LMS_knob_regular *);
+    void lms_set_value(float, LMS_knob_regular *);
         
-public slots:    
+public slots:
+    /*Event handlers for setting knob values*/
+    void setGain (float val);
+    void setWet (float val);
+    void setOutGain (float val);
+    
     void aboutToQuit();
     
 protected slots:
+    /*Event handlers for receiving changed knob values*/
+    void gainChanged (int);
+    void wetChanged (int);
+    void outGainChanged (int);
     
     void oscRecv();
+    
 protected:
     LMS_main_layout * m_main_layout;
     LMS_group_box * m_groupbox;

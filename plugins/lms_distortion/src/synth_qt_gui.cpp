@@ -29,6 +29,7 @@ GNU General Public License for more details.
 #include <QTextStream>
 
 #include <stdlib.h>
+#include <math.h>
 #include "../../libmodsynth/lib/amp.h"
 
 #include "synth.h"
@@ -85,11 +86,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     LMS_knob_info * f_info = new LMS_knob_info(75);
     f_info->LMS_set_label_style("background-color: white; border: 1px solid black;  border-radius: 6px;", 60);
     
-    m_groupbox = new LMS_group_box(this, "Distortion", "");    
-    m_ingain = new LMS_knob_regular(QString("In"), -6, 36, 1, 12, QString("0"), m_groupbox->lms_groupbox, f_info);
-    //connect((m_ingain->lms_knob), SIGNAL(valueChanged(int)), (m_ingain), SLOT(lms_value_changed(int)));
-    m_drywet = new LMS_knob_regular(QString("Wet"), 0, 100, 1, 0, QString("0"), m_groupbox->lms_groupbox, f_info);
-    m_outgain = new LMS_knob_regular(QString("Out"), -24, 6, 1, -6, QString("0"), m_groupbox->lms_groupbox, f_info);
+    m_groupbox = new LMS_group_box(this, "Distortion", "");
+    
+    m_ingain = new LMS_knob_regular(QString("In"), -6, 36, 1, 12, QString("0"), m_groupbox->lms_groupbox, f_info, lms_kc_integer, LMS_GAIN);
+    connect(m_ingain->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(gainChanged(int)));
+    m_drywet = new LMS_knob_regular(QString("Wet"), 0, 100, 1, 0, QString(""), m_groupbox->lms_groupbox, f_info, lms_kc_none, LMS_WET);
+    connect(m_drywet->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(wetChanged(int)));
+    m_outgain = new LMS_knob_regular(QString("Out"), -24, 6, 1, -6, QString("0"), m_groupbox->lms_groupbox, f_info, lms_kc_integer, LMS_OUT_GAIN);
+    connect(m_outgain->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(outGainChanged(int)));
     
     m_groupbox->lms_add_h(m_ingain);
     m_groupbox->lms_add_h(m_drywet);
@@ -118,6 +122,52 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     myTimer->start(0);
     
     m_suppressHostUpdate = false;
+}
+
+void SynthGUI::setGain(float val)
+{
+    lms_set_value(val, m_ingain);
+}
+
+void SynthGUI::setWet(float val)
+{
+    lms_set_value(val, m_drywet);
+}
+
+void SynthGUI::setOutGain(float val)
+{
+    lms_set_value(val, m_outgain);
+}
+
+void SynthGUI::lms_set_value(float val, LMS_knob_regular * a_knob)
+{
+    m_suppressHostUpdate = true;
+    a_knob->lms_knob->setValue(int(val));
+    m_suppressHostUpdate = false;
+}
+
+void SynthGUI::gainChanged(int value)
+{
+    lms_value_changed(value, m_ingain);
+}
+
+void SynthGUI::wetChanged(int value)
+{
+    lms_value_changed(value, m_drywet);
+}
+
+void SynthGUI::outGainChanged(int value)
+{
+    lms_value_changed(value, m_outgain);
+}
+
+void SynthGUI::lms_value_changed(int a_value, LMS_knob_regular * a_knob)
+{
+    a_knob->valueChanged(a_value);
+
+    if (!m_suppressHostUpdate) {
+        lo_send(m_host, m_controlPath, "if", (a_knob->lms_port), float(a_value));
+    }
 }
 
 void SynthGUI::v_print_port_name_to_cerr(int a_port)
@@ -218,8 +268,6 @@ int SynthGUI::i_get_control(int a_port)
         break;
     }
 }
-
-
 
 void SynthGUI::oscRecv()
 {
