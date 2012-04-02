@@ -59,7 +59,9 @@ class LMS_knob_regular
         {
             lms_layout = new QVBoxLayout(a_parent);
             lms_label = new QLabel(a_parent);
+            lms_label->setMinimumWidth(a_knob_info->lms_size);
             lms_label->setText(a_label);
+            lms_label->setAlignment(Qt::AlignCenter);
             lms_knob = new QDial(a_parent);
             lms_knob->setMinimum(a_min);
             lms_knob->setMaximum(a_max);
@@ -71,7 +73,7 @@ class LMS_knob_regular
             if(a_knob_info->lms_use_label_style)
             {
                 lms_label->setStyleSheet((a_knob_info->lms_label_style));
-                lms_value->setStyleSheet((a_knob_info->lms_label_style));
+                //lms_value->setStyleSheet((a_knob_info->lms_label_style));
             }
                         
             lms_knob->setMinimumSize((a_knob_info->lms_size),(a_knob_info->lms_size));
