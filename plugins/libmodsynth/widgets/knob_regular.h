@@ -39,7 +39,12 @@ enum LMS_KNOB_CONVERSION{lmk_integer, lmk_pitch, lmk_decimal, lmk_off};
 class LMS_knob_info
 {    
     public:
-        LMS_knob_info(){};
+        LMS_knob_info(int a_size)
+        {
+            lms_size = a_size;
+        };
+        
+        int lms_size;
     
 };
 
@@ -74,6 +79,9 @@ class LMS_knob_regular
             lms_value->setText(a_label_value);
             lms_conversion_type = a_conv_type;
             lms_port = a_lms_port;
+            
+            lms_knob->setMinimumSize((a_knob_info->lms_size),(a_knob_info->lms_size));
+            lms_knob->setMaximumSize((a_knob_info->lms_size),(a_knob_info->lms_size));
                                     
             lms_layout->addWidget(lms_label, -1, Qt::AlignCenter);
             lms_layout->addWidget(lms_knob, -1, Qt::AlignCenter);
