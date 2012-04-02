@@ -23,17 +23,19 @@ class LMS_knob_info
     public:
         LMS_knob_info(int a_size)
         {
-            lms_size = a_size;
+            lms_knob_size = a_size;
             lms_use_label_style = FALSE;
         };
         
-        void LMS_set_label_style(QString a_style)
+        void LMS_set_label_style(QString a_style, int a_width)
         {
             lms_use_label_style = TRUE;
             lms_label_style = a_style;
+            lms_label_width = a_width;
         }
         
-        int lms_size;
+        int lms_knob_size;
+        int lms_label_width;
         QString lms_label_style;
         bool lms_use_label_style;
 };
@@ -59,7 +61,7 @@ class LMS_knob_regular
         {
             lms_layout = new QVBoxLayout(a_parent);
             lms_label = new QLabel(a_parent);
-            lms_label->setMinimumWidth(a_knob_info->lms_size);
+            lms_label->setMinimumWidth(a_knob_info->lms_label_width);
             lms_label->setText(a_label);
             lms_label->setAlignment(Qt::AlignCenter);
             lms_knob = new QDial(a_parent);
@@ -76,8 +78,8 @@ class LMS_knob_regular
                 //lms_value->setStyleSheet((a_knob_info->lms_label_style));
             }
                         
-            lms_knob->setMinimumSize((a_knob_info->lms_size),(a_knob_info->lms_size));
-            lms_knob->setMaximumSize((a_knob_info->lms_size),(a_knob_info->lms_size));
+            lms_knob->setMinimumSize((a_knob_info->lms_knob_size),(a_knob_info->lms_knob_size));
+            lms_knob->setMaximumSize((a_knob_info->lms_knob_size),(a_knob_info->lms_knob_size));
                                     
             lms_layout->addWidget(lms_label, -1, Qt::AlignCenter);
             lms_layout->addWidget(lms_knob, -1, Qt::AlignCenter);

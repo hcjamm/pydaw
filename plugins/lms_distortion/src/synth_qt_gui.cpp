@@ -83,7 +83,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_main_layout = new LMS_main_layout(this);
     
     LMS_knob_info * f_info = new LMS_knob_info(75);
-    f_info->LMS_set_label_style("background-color: white; border: 1px solid black;  border-radius: 6px;");
+    f_info->LMS_set_label_style("background-color: white; border: 1px solid black;  border-radius: 6px;", 60);
     
     m_groupbox = new LMS_group_box(this, "Distortion", "");    
     m_ingain = new LMS_knob_regular(QString("In"), -6, 36, 1, 12, QString("0"), m_groupbox->lms_groupbox, f_info);
