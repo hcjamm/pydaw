@@ -17,11 +17,11 @@
 #include <QDial>
 #include <math.h>
 
-
+/*
 extern "C"{
 #include <lo/lo.h>
 }
-
+*/
 
 /* Convert the knob value to a different format for display
  * lmk_integer  Display as it is
@@ -34,28 +34,18 @@ enum LMS_KNOB_CONVERSION{lmk_integer, lmk_pitch, lmk_decimal, lmk_off};
 
 /* This class passes global information for the plugin to new knobs
  */
-class LMS_knob_info : QObject
-{
-    Q_OBJECT
+
+
+class LMS_knob_info
+{    
     public:
-        LMS_knob_info(bool * a_suppressHostUpdate, 
-                lo_address a_host, QByteArray a_controlPath)
-        {
-            lms_controlPath = a_controlPath;
-            lms_host = a_host;
-            lms_suppressHostUpdate = a_suppressHostUpdate;
-        }
-        
-        bool * lms_suppressHostUpdate;        
-        lo_address lms_host;
-        QByteArray lms_controlPath;
+        LMS_knob_info(){};
     
 };
 
 
-class LMS_knob_regular : QObject
-{    
-    Q_OBJECT
+class LMS_knob_regular
+{   
     public:
         /* LMS_knob_regular(
          * QString a_label,
@@ -84,27 +74,14 @@ class LMS_knob_regular : QObject
             lms_value->setText(a_label_value);
             lms_conversion_type = a_conv_type;
             lms_port = a_lms_port;
-            
-            lms_suppressHostUpdate =  a_knob_info->lms_suppressHostUpdate;
-            lms_host = a_knob_info->lms_host;
-            lms_controlPath = a_knob_info->lms_controlPath;
-                        
+                                    
             lms_layout->addWidget(lms_label, -1, Qt::AlignCenter);
             lms_layout->addWidget(lms_knob, -1, Qt::AlignCenter);
             lms_layout->addWidget(lms_value, -1, Qt::AlignCenter);
-
-            connect(lms_knob, SIGNAL(valueChanged(int)), this, SLOT(lms_value_changed(int)));
             
             lms_value_changed(lms_knob->value());            
         }
-        
-        void setValue(int a_value)
-        {
-            *(lms_suppressHostUpdate) = TRUE;
-            lms_knob->setValue(a_value);
-            *(lms_suppressHostUpdate) = FALSE;
-        }
-        
+                
         QVBoxLayout * lms_layout;
         QLabel * lms_label;
         QDial * lms_knob;        
@@ -114,7 +91,7 @@ class LMS_knob_regular : QObject
         
         
         bool * lms_suppressHostUpdate;
-        lo_address lms_host;
+        //lo_address lms_host;
         QByteArray lms_controlPath;
         
         ~LMS_knob_regular(){};
@@ -138,15 +115,7 @@ class LMS_knob_regular : QObject
                     //Do nothing
                     break;
             }
-           
-            
-            bool f_osc_send = *(lms_suppressHostUpdate);
-            
-            if (!f_osc_send) 
-            {
-                lo_send(lms_host, lms_controlPath, "if", lms_port, a_value);
-            }
-            
+                       
         }
 };
 
