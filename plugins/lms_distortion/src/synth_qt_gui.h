@@ -29,6 +29,7 @@ GNU General Public License for more details.
 #include <stdlib.h>
 #include "../../libmodsynth/widgets/group_box.h"
 #include "../../libmodsynth/widgets/knob_regular.h"
+#include "../../libmodsynth/widgets/lms_main_layout.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -63,6 +64,7 @@ protected slots:
     
     void oscRecv();
 protected:
+    LMS_main_layout * m_main_layout;
     LMS_group_box * m_groupbox;
     LMS_knob_regular * m_ingain;
     LMS_knob_regular * m_outgain;
