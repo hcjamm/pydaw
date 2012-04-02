@@ -68,7 +68,7 @@ public:
         bool f_at_end = FALSE;
         int f_count = 0;
         
-        while(!f_at_end) 
+        while(f_count < 128) 
         {
             if(in->atEnd())
             {      
@@ -82,9 +82,9 @@ public:
                 QStringList fields = line.split("\t");
                 f_programs_list.append(fields.at(0));
                 presets_tab_delimited.append(line);
-                
-                f_count++;
             }
+            
+            f_count++;
         }
 
         f_file->close();
