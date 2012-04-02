@@ -92,14 +92,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     layout->addLayout(layout_row0);
     layout->addLayout(layout_row1, -1);        
         
-    LMS_knob_info * f_info;
-    f_info->lms_controlPath = m_controlPath;
-    f_info->lms_host = m_host;
-    f_info->lms_suppressHostUpdate = &m_suppressHostUpdate;
+    LMS_knob_info * f_info = new LMS_knob_info();
     
     m_groupbox = new LMS_group_box(this, "Distortion", "QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF); border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
+    printf("adding ingain");
     m_ingain = new LMS_knob_regular(QString("In"), -6, 36, 1, 12, QString("0"), lmk_integer, m_groupbox->lms_groupbox, LMS_GAIN, f_info);
+    printf("adding drywet");
     m_drywet = new LMS_knob_regular(QString("Wet"), 0, 100, 1, 0, QString("0"), lmk_off, m_groupbox->lms_groupbox, LMS_WET, f_info);
+    printf("adding outgain");
     m_outgain = new LMS_knob_regular(QString("Out"), -24, 6, 1, -6, QString("0"), lmk_integer, m_groupbox->lms_groupbox, LMS_OUT_GAIN, f_info);
     
     m_groupbox->lms_add_h(m_ingain);
@@ -162,13 +162,13 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     switch (a_port) 
     {
         case LMS_GAIN:
-            m_ingain->setValue(a_value);
+            m_ingain->lms_knob->setValue(a_value);
             break;
         case LMS_WET:
-            m_drywet->setValue(a_value);
+            m_drywet->lms_knob->setValue(a_value);
             break;
         case LMS_OUT_GAIN:
-            m_outgain->setValue(a_value);
+            m_outgain->lms_knob->setValue(a_value);
             break;
     }
 }

@@ -38,8 +38,7 @@ LMS_MOC = synth_qt_gui.moc.cpp
 
 LMS_qt_SOURCES = \
 	synth_qt_gui.cpp \
-	synth_qt_gui.h \
-	../../libmodsynth/widgets/knob_regular.h
+	synth_qt_gui.h 
 
 nodist_LMS_qt_SOURCES = $(LMS_MOC) 
 
