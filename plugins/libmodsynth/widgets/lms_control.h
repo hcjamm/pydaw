@@ -66,6 +66,7 @@ public:
     virtual void lms_value_changed(int) = 0;
     virtual int lms_get_value() = 0;
     virtual QLayout * lms_get_layout() = 0;
+    virtual QWidget * lms_get_widget() = 0;
 };
 
 #endif	/* LMS_CONTROL_H */

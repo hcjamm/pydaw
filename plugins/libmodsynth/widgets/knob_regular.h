@@ -123,6 +123,11 @@ class LMS_knob_regular : public LMS_control
             return lms_layout;
         }
         
+        QWidget * lms_get_widget()
+        {
+            return lms_knob;
+        }
+        
         ~LMS_knob_regular(){};
 };
 
