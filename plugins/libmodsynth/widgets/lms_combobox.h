@@ -46,18 +46,10 @@ class LMS_combobox : public LMS_control
             
             lms_value = new QLabel(a_parent);
             //lms_value->setText(a_label_value);
-            /*
-            if(a_knob_info->lms_use_label_style)
-            {
-                lms_label->setStyleSheet((a_knob_info->lms_label_style));
-                //lms_value->setStyleSheet((a_knob_info->lms_label_style));
-            }
+                                    
+            lms_combobox->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
+            lms_combobox->setMaximumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
                         
-            lms_knob->setMinimumSize((a_knob_info->lms_knob_size),(a_knob_info->lms_knob_size));
-            lms_knob->setMaximumSize((a_knob_info->lms_knob_size),(a_knob_info->lms_knob_size));
-            
-            lms_conv_type  = a_conv_type;
-            */                      
             lms_layout->addWidget(lms_label, -1, Qt::AlignCenter);
             lms_layout->addWidget(lms_combobox, -1, Qt::AlignCenter);
             lms_layout->addWidget(lms_value, -1, Qt::AlignCenter);
@@ -88,11 +80,11 @@ class LMS_combobox : public LMS_control
             return lms_combobox->currentIndex();
         }
         
-        virtual QLayout * lms_get_layout()
+        QLayout * lms_get_layout()
         {
             return lms_layout;
         }
-        virtual QWidget * lms_get_widget()
+        QWidget * lms_get_widget()
         {
             return lms_combobox;
         }
