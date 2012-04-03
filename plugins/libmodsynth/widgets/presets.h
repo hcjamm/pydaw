@@ -123,6 +123,11 @@ public:
         return lms_layout;
     }
     
+    QWidget * lms_get_widget()
+    {
+        return m_program;
+    }
+    
     void lms_value_changed(int a_value)    
     {
         /*We intentionally leave the first preset empty*/

@@ -88,6 +88,15 @@ class LMS_combobox : public LMS_control
             return lms_combobox->currentIndex();
         }
         
+        virtual QLayout * lms_get_layout()
+        {
+            return lms_layout;
+        }
+        virtual QWidget * lms_get_widget()
+        {
+            return lms_combobox;
+        }
+        
         ~LMS_combobox(){};
 };
 
