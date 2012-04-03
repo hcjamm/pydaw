@@ -49,15 +49,33 @@ class LMS_combobox : public LMS_control
             lms_layout->addWidget(lms_combobox, -1, Qt::AlignCenter);
             lms_layout->addWidget(lms_value, -1, Qt::AlignCenter);
             
-            lms_port = a_lms_port;
+            lms_port = a_lms_port;           
+        }
+        
+        /* This constructor is meant to be used only with LMS_mod_matrix,
+         * it does not initialize the layout or label.
+         * 
+         * LMS_combobox(         
+         * QWidget *a_parent, //the parent widget
+         * QStringList a_items, //The items to show in the dropdown
+         * int a_lms_port, //The LMS port for this control
+         * LMS_style_info * a_style_info) //The style_info object that controls theming
+         */
+        LMS_combobox(QWidget *a_parent, QStringList a_items, int a_lms_port, LMS_style_info * a_style_info)
+        {   
+            lms_combobox = new QComboBox(a_parent);
+            lms_combobox->insertItems(0, a_items);
+                                    
+            lms_combobox->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
+            lms_combobox->setMaximumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
             
+            lms_port = a_lms_port;           
         }
         
         void lms_value_changed(int a_value)
         {
                 //Do nothing
-        }
-        
+        }        
                 
         QVBoxLayout * lms_layout;
         QLabel * lms_label;
