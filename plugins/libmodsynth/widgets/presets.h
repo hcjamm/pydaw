@@ -30,6 +30,7 @@ public:
         lms_plugin_name = a_plugin_name;
         lms_port = a_lms_port;
         m_program = new QComboBox(a_parent);
+        m_program->setEditable(TRUE);
         m_prog_save = new QPushButton(a_parent);
         m_prog_save->setText(QString("Save"));
         lms_group_box = new QGroupBox(a_parent);
