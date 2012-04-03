@@ -2,105 +2,90 @@
  * File:   mod_matrix.h
  * Author: Jeff Hubbard
  * 
- * Controls for use in a QTableWidget for a modulation matrix
- * 
- * The widgets here will use various lms_setup_xxxx methods(sometimes multiple for each widget type), rather than baking them into 
- * different constructors, in order to provide more flexibility.
+ *  A QTableWidget that automatically creates rows based on column definitions
  *
- * Created on April 1, 2012, 10:41 AM
+ * Created on April 1, 2012,10:41 AM
  */
 
 #ifndef MOD_MATRIX_H
 #define	MOD_MATRIX_H
 
-#include <QtGui/QApplication>
-#include <QtGui/QSpinBox>
-#include <QtGui/QComboBox>
-#include <QStringList>
-#include <QLineEdit>
+#include <QApplication>
+#include <QTableWidget>
+#include <QList>
+#include "lms_control.h"
 
-/* A QSpinBox with the following fields added:
- * 
- * int lms_column, lms_row, lms_group;
- * 
- */
-class MMSpinBox : public QSpinBox
-{    
-    public:
-        void lms_setup(int,int,int,int,int,int);
-        int lms_column, lms_row, lms_group;         
+/*Flags for defining special control variants*/
+#define LMS_MM_NO_FLAG 0
+#define LMS_MM_LINEEDIT_ENTRY 1
+#define LMS_MM_LINEEDIT_FS 2
+
+enum lms_mm_widget_type
+{
+    lms_mm_spinbox, lms_mm_combobox, lms_mm_knob, lms_mm_text, lms_mm_lineedit
 };
 
-/* void MMSpinBox::lms_setup(
- * int a_column,  //The zero-based column index of the parent QTableWidget
- * int a_row,     //The zero-based row index of the parent QTableWidget
- * int a_group,   //An integer uniquely identifying controls that this one may be grouped with.  Enter something random if you don't intend to use this
- * int a_min,     //The minimum value of the SpinBox
- * int a_max,     //The maximum value of the SpinBox 
- * int a_value)   //The initial value of the Spinbox
- */
-void MMSpinBox::lms_setup(int a_column, int a_row, int a_group, int a_min, int a_max, int a_value)
-{   
-    lms_column = a_column;
-    lms_group = a_group;
-    lms_row = a_row;
-    setMaximum(a_max);
-    setMinimum(a_min);
-    setValue(a_value); 
-}
-
-
-/* A QComboBox with the following fields added:
- * 
- * int lms_column, lms_row, lms_group;
- * 
- */
-class MMComboBox : public QComboBox
-{    
-    public:
-        void lms_setup(int,int,int,QStringList);
-        int lms_column, lms_row, lms_group;
+class LMS_mm_column_info
+{
+public:
+    LMS_mm_column_info(){}
+    
+    lms_mm_widget_type lms_type;
+    int min_value;
+    int max_value;
+    int lms_flag;
+    QString lms_name;
 };
 
-/* void MMComboBox::lms_setup(
- * int a_column,  //The zero-based column index of the parent QTableWidget
- * int a_row,     //The zero-based row index of the parent QTableWidget
- * int a_group,   //An integer uniquely identifying controls that this one may be grouped with.  Enter something random if you don't intend to use this
- * QStringList a_items) //The items to populate the list with
- */
-void MMComboBox::lms_setup(int a_column, int a_row, int a_group, QStringList a_items)
-{
-    lms_column = a_column;
-    lms_group = a_group;
-    lms_row = a_row;
-    insertItems(0, a_items); 
-}
-
-/* A QLineEdit with the following fields added:
- * 
- * int lms_column, lms_row, lms_group;
- * 
- */
-class MMLineEdit : public QLineEdit
+class LMS_mod_matrix : public LMS_control
 {
     public:
-        void lms_setup(int,int,int,QString);
-        int lms_column, lms_row, lms_group;
+        LMS_mod_matrix(int a_row_count, QWidget * a_parent)
+        {
+            lms_matrix = new QTableWidget(a_parent);
+            lms_matrix->setRowCount(a_row_count);
+            row_count = a_row_count;
+        }
+        
+        void add_column(LMS_mm_column_info a_column_info)
+        {
+            lms_columns.append(a_column_info);
+        }
+        
+        /* void setup_matrix()
+         * 
+         * Call this once you've added all of your columns.  It should only  be called once.
+         */
+        void setup_matrix()
+        {
+            for(int f_i = 0; f_i < lms_columns; f_i++)
+            {
+                for(int f_i2 = 0; f_i2 < row_count; f_i2++)
+                {
+                    QTableWidgetItem * f_item = new QTableWidgetItem(0);
+                    
+                    switch(lms_columns[f_i]->lms_type)
+                    {
+                        case lms_mm_combobox:                            
+                            break;
+                        case lms_mm_knob:
+                            break;
+                        case lms_mm_lineedit:
+                            break;
+                        case lms_mm_spinbox:
+                            break;
+                        case lms_mm_text:
+                            break;
+                    }
+                }
+            }
+        }
+        
+        QTableWidget * lms_matrix;
+        QList <LMS_mm_column_info*> lms_columns;
+        int row_count;
 };
 
-/* void MMLineEdit::lms_setup(
- * int a_column,  //The zero-based column index of the parent QTableWidget
- * int a_row,     //The zero-based row index of the parent QTableWidget
- * int a_group,   //An integer uniquely identifying controls that this one may be grouped with.  Enter something random if you don't intend to use this
- * QString a_text) //The initial text of the line edit
- */
-void MMLineEdit::lms_setup(int a_column, int a_row, int a_group, QString a_text)
-{
-    lms_column = a_column;
-    lms_group = a_group;
-    lms_row = a_row;
-    setText(a_text);
-}
 
 #endif	/* MOD_MATRIX_H */
 
