@@ -8,6 +8,9 @@
 #ifndef LMS_SPINBOX_H
 #define	LMS_SPINBOX_H
 
+#include <QLabel>
+#include <QSpinBox>
+
 class LMS_spinbox : public LMS_control
 {   
     public:
@@ -16,15 +19,13 @@ class LMS_spinbox : public LMS_control
          * int a_min,  //The minimum value of the knob.
          * int a_max, //The maximum value of the knob.
          * int a_step_size, //Step size.  Usually 1
-         * int a_value, //The initial value
-         * QString a_value_label_value, //The initial value of the label below the knob that displays the converted value
+         * int a_value, //The initial value        
          * QWidget *a_parent, //The parent widget
-         * LMS_style_info * a_style_info, //A style_info object to provide information about theming
-         * LMS_KNOB_CONVERSION a_conv_type, //This enum specifies how the knob's integer value is converted to the displayed value
+         * LMS_style_info * a_style_info, //A style_info object to provide information about theming         
          * int a_lms_port) //The port defined in synth.h for this control
          */
         LMS_spinbox(QString a_label,int a_min, int a_max, int a_step_size, int a_value, 
-        QString a_value_label_value, QWidget *a_parent, LMS_style_info * a_style_info, LMS_KNOB_CONVERSION a_conv_type, int a_lms_port)
+        QWidget *a_parent, LMS_style_info * a_style_info, int a_lms_port)
         {
             lms_layout = new QVBoxLayout(a_parent);
             lms_label = new QLabel(a_parent);
@@ -45,11 +46,36 @@ class LMS_spinbox : public LMS_control
                         
             lms_spinbox->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
             lms_spinbox->setMaximumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
-            
-            lms_conv_type  = a_conv_type;
-                                    
+                                                
             lms_layout->addWidget(lms_label, -1, Qt::AlignCenter);
             lms_layout->addWidget(lms_spinbox, -1, Qt::AlignCenter);
+                        
+            lms_port = a_lms_port;            
+        }
+        
+        /* This constructor is meant to be used only with LMS_mod_matrix,
+         * it does not initialize the layout or label.
+         * 
+         * LMS_knob_regular(
+         * int a_min,  //The minimum value of the knob.
+         * int a_max, //The maximum value of the knob.
+         * int a_step_size, //Step size.  Usually 1
+         * int a_value, //The initial value        
+         * QWidget *a_parent, //The parent widget
+         * LMS_style_info * a_style_info, //A style_info object to provide information about theming         
+         * int a_lms_port) //The port defined in synth.h for this control
+         */
+        LMS_spinbox(int a_min, int a_max, int a_step_size, int a_value, 
+        QWidget *a_parent, LMS_style_info * a_style_info, int a_lms_port)
+        {            
+            lms_spinbox = new QDial(a_parent);
+            lms_spinbox->setMinimum(a_min);
+            lms_spinbox->setMaximum(a_max);
+            lms_spinbox->setSingleStep(a_step_size);
+            lms_spinbox->setValue(a_value);
+                        
+            lms_spinbox->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
+            lms_spinbox->setMaximumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
                         
             lms_port = a_lms_port;            
         }
@@ -62,7 +88,6 @@ class LMS_spinbox : public LMS_control
         QVBoxLayout * lms_layout;
         QLabel * lms_label;
         QSpinBox * lms_spinbox;        
-        LMS_KNOB_CONVERSION lms_conv_type;
         
         void lms_set_value(int a_value)
         {

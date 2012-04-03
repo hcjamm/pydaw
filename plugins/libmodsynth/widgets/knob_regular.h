@@ -80,6 +80,35 @@ class LMS_knob_regular : public LMS_control
             lms_value_changed(lms_knob->value());
         }
         
+        /* This constructor is meant to be used only with LMS_mod_matrix,
+         * it does not initialize the layout or label.
+         * 
+         * LMS_knob_regular(
+         * int a_min,  //The minimum value of the knob.
+         * int a_max, //The maximum value of the knob.
+         * int a_step_size, //Step size.  Usually 1
+         * int a_value, //The initial value
+         * QWidget *a_parent, //The parent widget
+         * LMS_style_info * a_style_info, //A style_info object to provide information about theming         
+         * int a_lms_port) //The port defined in synth.h for this control
+         */        
+        LMS_knob_regular(int a_min, int a_max, int a_step_size, int a_value, 
+        QWidget *a_parent, LMS_style_info * a_style_info, int a_lms_port)
+        {
+            lms_knob = new QDial(a_parent);
+            lms_knob->setMinimum(a_min);
+            lms_knob->setMaximum(a_max);
+            lms_knob->setSingleStep(a_step_size);
+            lms_knob->setValue(a_value);
+                                    
+            lms_knob->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
+            lms_knob->setMaximumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
+            
+            lms_conv_type  = lms_kc_none;
+                                    
+            lms_port = a_lms_port;            
+        }
+        
         void lms_value_changed(int a_value)
         {
                 switch(lms_conv_type)
