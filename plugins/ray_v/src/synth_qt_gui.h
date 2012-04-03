@@ -31,6 +31,9 @@ GNU General Public License for more details.
 #include <stdlib.h>
 
 #include "../../libmodsynth/widgets/presets.h"
+#include "../../libmodsynth/widgets/group_box.h"
+#include "../../libmodsynth/widgets/lms_combobox.h"
+#include "../../libmodsynth/widgets/lms_main_layout.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -176,116 +179,62 @@ protected slots:
     void test_release();
     void oscRecv();
 protected:
-    QDial *newQDial( int, int, int, int );
     
-    QDial *get_knob(e_knob_type, int _default_value = 333);
+    LMS_main_layout * m_main_layout;
     
-    //TODO:  update this to be more flexible about layout types
-    void add_widget(QGridLayout * _layout, int position_x, int position_y, QString _label_text,  QWidget * _widget,    
-    QLabel * _label);  
+    LMS_group_box * m_groupbox_adsr_a;    
+    LMS_knob_regular *m_attack;    
+    LMS_knob_regular *m_decay;    
+    LMS_knob_regular *m_sustain;
+    LMS_knob_regular *m_release;
     
-    void add_widget_no_label(QGridLayout * _layout, int position_x, int position_y, QString _label_text, QWidget * _widget);
+    LMS_group_box * m_groupbox_filter;
+    LMS_knob_regular *m_timbre;        
+    LMS_knob_regular *m_filter_env_amt;        
+    LMS_knob_regular *m_res;
     
-    QGroupBox * newGroupBox(QString, QWidget *);
+    LMS_group_box * m_groupbox_distortion;
+    LMS_knob_regular *m_dist;
+    LMS_knob_regular *m_dist_wet;
     
-    QLabel * newQLabel(QWidget *);
+    LMS_group_box * m_groupbox_adsr_f;
+    LMS_knob_regular *m_filter_attack;    
+    LMS_knob_regular *m_filter_decay;    
+    LMS_knob_regular *m_filter_sustain;    
+    LMS_knob_regular *m_filter_release;
     
-    QCheckBox * get_checkbox(std::string _text);
+    LMS_group_box * m_groupbox_noise;
+    LMS_knob_regular *m_noise_amp;
     
-    QComboBox * get_combobox(QString _choices [], int _count, QWidget * _parent);
+    LMS_group_box * m_groupbox_osc1;
+    LMS_combobox *m_osc1_type;
+    LMS_knob_regular *m_osc1_pitch;    
+    LMS_knob_regular *m_osc1_tune;    
+    LMS_knob_regular *m_osc1_volume;
     
-    void changed_seconds(int, QLabel *, int);
-    void changed_pitch(int, QLabel *, int);
-    void changed_decibels(int, QLabel *, int);
-    void changed_zero_to_x(int, QLabel *, int);
-    void changed_integer(int value, QLabel * _label, int _port);
-        
+    LMS_group_box * m_groupbox_osc2;
+    LMS_combobox *m_osc2_type;
+    LMS_knob_regular *m_osc2_pitch;    
+    LMS_knob_regular *m_osc2_tune;    
+    LMS_knob_regular *m_osc2_volume;
     
-    /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
-    QDial *m_attack;
-    QLabel *m_attackLabel;
-    QDial *m_decay;
-    QLabel *m_decayLabel;    
-    QDial *m_sustain;
-    QLabel *m_sustainLabel;
-    QDial *m_release;
-    QLabel *m_releaseLabel;    
-    QDial *m_timbre;
-    QLabel *m_timbreLabel;   
+    LMS_group_box * m_groupbox_master;
+    LMS_knob_regular *m_master_volume;    
+    LMS_knob_regular *m_master_unison_voices;
+    LMS_knob_regular *m_master_unison_spread;
+    LMS_knob_regular *m_master_glide;
+    LMS_knob_regular *m_master_pitchbend_amt;
     
-    QDial *m_filter_env_amt;
-    QLabel *m_filter_env_amtLabel;  
+    LMS_group_box * m_groupbox_pitch_env;
+    LMS_knob_regular *m_pitch_env_time;
+    LMS_knob_regular *m_pitch_env_amt;
     
-    QDial *m_res;
-    QLabel *m_resLabel;    
-    QDial *m_dist;
-    QLabel *m_distLabel;
-    
-    QDial *m_dist_wet;
-    
-    QDial *m_filter_attack;
-    QLabel *m_filter_attackLabel;
-    QDial *m_filter_decay;
-    QLabel *m_filter_decayLabel;    
-    QDial *m_filter_sustain;
-    QLabel *m_filter_sustainLabel;
-    QDial *m_filter_release;
-    QLabel *m_filter_releaseLabel;    
-    
-    QDial *m_noise_amp;
-    QLabel *m_noise_ampLabel;
-    
-    
-    QComboBox *m_osc1_type;
-    QDial *m_osc1_pitch;
-    QLabel *m_osc1_pitchLabel;    
-    QDial *m_osc1_tune;
-    QLabel *m_osc1_tuneLabel;
-    QDial *m_osc1_volume;
-    QLabel *m_osc1_volumeLabel;   
-    
-    QComboBox *m_osc2_type;
-    QDial *m_osc2_pitch;
-    QLabel *m_osc2_pitchLabel;    
-    QDial *m_osc2_tune;
-    QLabel *m_osc2_tuneLabel;
-    QDial *m_osc2_volume;
-    QLabel *m_osc2_volumeLabel;   
-    
-    QDial *m_master_volume;
-    QLabel *m_master_volumeLabel;       
-    
-    QDial *m_master_unison_voices;
-    QLabel *m_master_unison_voicesLabel;       
-    
-    QDial *m_master_unison_spread;
-    QLabel *m_master_unison_spreadLabel;       
-    
-    QDial *m_master_glide;
-    QLabel *m_master_glideLabel;       
-    
-    QDial *m_master_pitchbend_amt;
-    QLabel *m_master_pitchbend_amtLabel;
-    
-    QDial *m_pitch_env_time;
-    QLabel *m_pitch_env_timeLabel;
-    
-    QDial *m_pitch_env_amt;
-    QLabel *m_pitch_env_amtLabel;
-    
-    QDial *m_lfo_freq;
-    QLabel *m_lfo_freqLabel;
-    
-    QComboBox *m_lfo_type;
-    
-    QDial *m_lfo_amp;
-    QLabel *m_lfo_ampLabel;
-    
-    QDial *m_lfo_pitch;
-    QLabel *m_lfo_pitchLabel;
-    
-    QDial *m_lfo_cutoff;
-    QLabel *m_lfo_cutoffLabel;
+    LMS_group_box * m_groupbox_lfo;
+    LMS_knob_regular *m_lfo_freq;
+    LMS_combobox *m_lfo_type;    
+    LMS_knob_regular *m_lfo_amp;        
+    LMS_knob_regular *m_lfo_pitch;       
+    LMS_knob_regular *m_lfo_cutoff;    
     
     LMS_preset_manager * m_program;
     
