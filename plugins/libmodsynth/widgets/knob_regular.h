@@ -28,19 +28,19 @@ class LMS_knob_regular : public LMS_control
 {   
     public:
         /* LMS_knob_regular(
-         * QString a_label,
-         * int a_min, 
-         * int a_max, 
-         * int a_step_size, 
-         * int a_value, 
-         * QString a_label_value, 
-         * LMS_KNOB_CONVERSION a_conv_type, 
-         * QWidget *a_parent, 
-         * int a_lms_port, 
-         * LMS_knob_info * a_knob_info)
+         * QString a_label,  //The label to display above the knob
+         * int a_min,  //The minimum value of the knob.
+         * int a_max, //The maximum value of the knob.
+         * int a_step_size, //Step size.  Usually 1
+         * int a_value, //The initial value
+         * QString a_value_label_value, //The initial value of the label below the knob that displays the converted value
+         * QWidget *a_parent, //The parent widget
+         * LMS_style_info * a_style_info, //A style_info object to provide information about theming
+         * LMS_KNOB_CONVERSION a_conv_type, //This enum specifies how the knob's integer value is converted to the displayed value
+         * int a_lms_port) //The port defined in synth.h for this control
          */
         LMS_knob_regular(QString a_label,int a_min, int a_max, int a_step_size, int a_value, 
-        QString a_label_value, QWidget *a_parent, LMS_style_info * a_style_info, LMS_KNOB_CONVERSION a_conv_type, int a_lms_port)
+        QString a_value_label_value, QWidget *a_parent, LMS_style_info * a_style_info, LMS_KNOB_CONVERSION a_conv_type, int a_lms_port)
         {
             lms_layout = new QVBoxLayout(a_parent);
             lms_label = new QLabel(a_parent);
@@ -53,7 +53,7 @@ class LMS_knob_regular : public LMS_control
             lms_knob->setSingleStep(a_step_size);
             lms_knob->setValue(a_value);
             lms_value = new QLabel(a_parent);
-            lms_value->setText(a_label_value);
+            lms_value->setText(a_value_label_value);
             
             if(a_style_info->lms_use_label_style)
             {
