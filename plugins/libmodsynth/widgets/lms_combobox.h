@@ -21,17 +21,12 @@
 class LMS_combobox : public LMS_control
 {   
     public:
-        /* LMS_knob_regular(
-         * QString a_label,
-         * int a_min, 
-         * int a_max, 
-         * int a_step_size, 
-         * int a_value, 
-         * QString a_label_value, 
-         * LMS_KNOB_CONVERSION a_conv_type, 
-         * QWidget *a_parent, 
-         * int a_lms_port, 
-         * LMS_knob_info * a_knob_info)
+        /* LMS_combobox(
+         * QString a_label, //The text to be used for the control's label
+         * QWidget *a_parent, //the parent widget
+         * QStringList a_items, //The items to show in the dropdown
+         * int a_lms_port, //The LMS port for this control
+         * LMS_style_info * a_style_info) //The style_info object that controls theming
          */
         LMS_combobox(QString a_label, QWidget *a_parent, QStringList a_items, int a_lms_port, LMS_style_info * a_style_info)
         {
