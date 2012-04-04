@@ -92,6 +92,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_program = new LMS_preset_manager(QString(LMS_PLUGIN_NAME), f_default_presets, LMS_PROGRAM_CHANGE, f_info, this);
     connect(m_program->m_program, SIGNAL(currentIndexChanged(int)), this, SLOT(programChanged(int)));
+    connect(m_program->m_prog_save, SIGNAL(pressed()), this, SLOT(programSaved()));
     
     m_main_layout->lms_add_widget(m_program->lms_group_box);
     
@@ -239,7 +240,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_groupbox_master->lms_add_h(m_master_unison_voices);
     connect(m_master_unison_voices->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( masterUnisonVoicesChanged(int)));
     
-    m_master_unison_spread  =  new LMS_knob_regular(QString("Uni Spread"), 10, 100, 1, 20, QString(".2"), m_groupbox_master->lms_groupbox, f_info, lms_kc_decimal, LMS_MASTER_UNISON_SPREAD);
+    m_master_unison_spread  =  new LMS_knob_regular(QString("Spread"), 10, 100, 1, 20, QString(".2"), m_groupbox_master->lms_groupbox, f_info, lms_kc_decimal, LMS_MASTER_UNISON_SPREAD);
     m_groupbox_master->lms_add_h(m_master_unison_spread);
     connect(m_master_unison_spread->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterUnisonSpreadChanged(int)));
     
@@ -290,42 +291,32 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_program->lms_add_control(m_attack);
     m_program->lms_add_control(m_decay);
     m_program->lms_add_control(m_sustain);
-    m_program->lms_add_control(m_release);
-    
+    m_program->lms_add_control(m_release);    
     m_program->lms_add_control(m_timbre);
     m_program->lms_add_control(m_res);
-    m_program->lms_add_control(m_filter_env_amt);
-    
+    m_program->lms_add_control(m_dist);        
     m_program->lms_add_control(m_filter_attack);
     m_program->lms_add_control(m_filter_decay);
     m_program->lms_add_control(m_filter_sustain);
-    m_program->lms_add_control(m_filter_release);
-    
+    m_program->lms_add_control(m_filter_release);    
     m_program->lms_add_control(m_noise_amp);
-    
-    m_program->lms_add_control(m_dist);
-    m_program->lms_add_control(m_dist_wet);
-    
+    m_program->lms_add_control(m_filter_env_amt);
+    m_program->lms_add_control(m_dist_wet);    
+    m_program->lms_add_control(m_osc1_type);
     m_program->lms_add_control(m_osc1_pitch);
     m_program->lms_add_control(m_osc1_tune);
-    m_program->lms_add_control(m_osc1_volume);
-    m_program->lms_add_control(m_osc1_type);
-        
+    m_program->lms_add_control(m_osc1_volume);    
+    m_program->lms_add_control(m_osc2_type);
     m_program->lms_add_control(m_osc2_pitch);
     m_program->lms_add_control(m_osc2_tune);
-    m_program->lms_add_control(m_osc2_volume);
-    m_program->lms_add_control(m_osc2_type);
-    
-    
+    m_program->lms_add_control(m_osc2_volume);    
     m_program->lms_add_control(m_master_volume);
     m_program->lms_add_control(m_master_unison_voices);
     m_program->lms_add_control(m_master_unison_spread);
     m_program->lms_add_control(m_master_glide);
     m_program->lms_add_control(m_master_pitchbend_amt);
-    
-    m_program->lms_add_control(m_pitch_env_amt);
     m_program->lms_add_control(m_pitch_env_time);
-    
+    m_program->lms_add_control(m_pitch_env_amt);
     m_program->lms_add_control(m_lfo_freq);
     m_program->lms_add_control(m_lfo_type);
     m_program->lms_add_control(m_lfo_amp);
@@ -430,7 +421,7 @@ void SynthGUI::LFOampChanged(int a_value){lms_value_changed(a_value, m_lfo_amp);
 void SynthGUI::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
 void SynthGUI::LFOcutoffChanged(int a_value){lms_value_changed(a_value, m_lfo_cutoff);}
 void SynthGUI::programChanged(int a_value){lms_value_changed(a_value, m_program);}
-void SynthGUI::programSaved(){/*TODO*/}
+void SynthGUI::programSaved(){ m_program->programSaved(); }
 
 
 void SynthGUI::v_print_port_name_to_cerr(int a_port)
