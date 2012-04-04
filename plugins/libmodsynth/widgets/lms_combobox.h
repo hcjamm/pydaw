@@ -32,24 +32,28 @@ class LMS_combobox : public LMS_control
         {
             lms_layout = new QVBoxLayout(a_parent);
             lms_label = new QLabel(a_parent);
-            //lms_label->setMinimumWidth(a_knob_info->lms_label_width);
             lms_label->setText(a_label);
-            lms_label->setAlignment(Qt::AlignCenter);
+                        
+            if(a_style_info->lms_use_label_style)
+            {
+                lms_label->setStyleSheet((a_style_info->lms_label_style));
+                lms_label->setMinimumWidth(a_style_info->lms_label_width);
+            }
             
             lms_combobox = new QComboBox(a_parent);
             lms_combobox->insertItems(0, a_items);
-            
+                                    
             lms_value = new QLabel(a_parent);
             //lms_value->setText(a_label_value);
-                                    
-            lms_combobox->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
-            lms_combobox->setMaximumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
+              
+            lms_combobox->setMinimumWidth((a_style_info->lms_knob_size));
+            lms_combobox->setMaximumWidth((a_style_info->lms_knob_size));
                         
-            lms_layout->addWidget(lms_label, -1, Qt::AlignCenter);
+            lms_layout->addWidget(lms_label, 0, Qt::AlignTop);
             lms_layout->addWidget(lms_combobox, -1, Qt::AlignCenter);
-            lms_layout->addWidget(lms_value, -1, Qt::AlignCenter);
-            
-            lms_port = a_lms_port;           
+            lms_layout->addWidget(lms_value, 1, Qt::AlignCenter);
+                                    
+            lms_port = a_lms_port;   
         }
         
         /* This constructor is meant to be used only with LMS_mod_matrix,
