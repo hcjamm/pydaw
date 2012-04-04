@@ -20,7 +20,14 @@ public:
     LMS_style_info(int a_knob_size)
     {
         lms_knob_size = a_knob_size;
-        lms_use_label_style = FALSE;
+        
+        lms_use_label_style = FALSE;        
+        lms_label_style = QString("");
+        lms_label_width = 60;
+        lms_value_style = QString("");
+        lms_value_width = 60;
+        lms_groupbox_style = QString("");
+        lms_use_groupbox_style = FALSE;
     };
     
     void LMS_set_label_style(QString a_style, int a_width)
@@ -33,7 +40,7 @@ public:
     void LMS_set_value_style(QString a_style, int a_width)
     {
         lms_use_label_style = TRUE;
-        lms_label_style = a_style;
+        lms_value_style = a_style;
         lms_value_width = a_width;
     }
     
