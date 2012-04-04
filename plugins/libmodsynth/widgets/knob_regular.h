@@ -43,8 +43,7 @@ class LMS_knob_regular : public LMS_control
         QString a_value_label_value, QWidget *a_parent, LMS_style_info * a_style_info, LMS_KNOB_CONVERSION a_conv_type, int a_lms_port)
         {
             lms_layout = new QVBoxLayout(a_parent);
-            lms_label = new QLabel(a_parent);
-            lms_label->setMinimumWidth(a_style_info->lms_label_width);
+            lms_label = new QLabel(a_parent);            
             lms_label->setText(a_label);
             lms_label->setAlignment(Qt::AlignCenter);
             lms_knob = new QDial(a_parent);
@@ -58,7 +57,7 @@ class LMS_knob_regular : public LMS_control
             if(a_style_info->lms_use_label_style)
             {
                 lms_label->setStyleSheet((a_style_info->lms_label_style));
-                //lms_value->setStyleSheet((a_knob_info->lms_label_style));
+                lms_label->setMinimumWidth(a_style_info->lms_label_width);
             }
             
             if(a_style_info->lms_use_value_style)
@@ -124,7 +123,7 @@ class LMS_knob_regular : public LMS_control
                         break;
                     case lms_kc_pitch:
                         lms_value->setText(QString::number(
-                        (440*pow(2,((float)(a_value-57))*.0833333))
+                       ((int)(440*pow(2,((float)(a_value-57))*.0833333)))
                         ));
                         break;
                 }
