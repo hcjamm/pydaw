@@ -42,7 +42,7 @@ class LMS_knob_regular : public LMS_control
         LMS_knob_regular(QString a_label,int a_min, int a_max, int a_step_size, int a_value, 
         QString a_value_label_value, QWidget *a_parent, LMS_style_info * a_style_info, LMS_KNOB_CONVERSION a_conv_type, int a_lms_port)
         {
-            lms_layout = new QVBoxLayout(a_parent);
+            lms_layout = new QVBoxLayout();
             lms_label = new QLabel(a_parent);            
             lms_label->setText(a_label);
             lms_label->setAlignment(Qt::AlignCenter);

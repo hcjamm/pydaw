@@ -30,7 +30,7 @@ class LMS_combobox : public LMS_control
          */
         LMS_combobox(QString a_label, QWidget *a_parent, QStringList a_items, int a_lms_port, LMS_style_info * a_style_info)
         {
-            lms_layout = new QVBoxLayout(a_parent);
+            lms_layout = new QVBoxLayout();
             lms_label = new QLabel(a_parent);
             lms_label->setText(a_label);
                         
