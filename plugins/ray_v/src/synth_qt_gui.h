@@ -39,24 +39,6 @@ extern "C" {
 #include <lo/lo.h>
 }
 
-/*Defines ranges and other sane defaults depending on what a knob controls*/
-enum e_knob_type
-{
-    decibels_0,
-    decibels_plus_6,
-    decibels_plus_12,
-    decibels_plus_24,
-    decibels_30_to_0,
-    pitch,
-    zero_to_one,
-    zero_to_two,
-    zero_to_four,     
-    minus1_to_1,
-    minus12_to_12,
-    minus24_to_24,
-    minus36_to_36
-};
-
 class SynthGUI : public QFrame
 {
     Q_OBJECT
@@ -77,54 +59,55 @@ public:
     void v_control_changed(int, int, bool);
     int i_get_control(int);
     
-    void v_add_knob_to_layout(QDial *, e_knob_type, int, QLabel *, QGridLayout *, QString, int, int, const char *, const char *);
-    
     void v_print_port_name_to_cerr(int);
+    
+    void lms_value_changed(int, LMS_control *);
+    void lms_set_value(float, LMS_control *);
         
 public slots:
     /*Event handlers for setting knob values*/
-    void setAttack (float sec);
-    void setDecay  (float sec);
-    void setSustain(float val);
-    void setRelease(float sec);
-    void setTimbre (float val);
-    void setRes (float val);
-    void setDist (float val);
+    void setAttack (float);
+    void setDecay  (float);
+    void setSustain(float);
+    void setRelease(float);
+    void setTimbre (float);
+    void setRes (float);
+    void setDist (float);
         
-    void setFilterAttack (float sec);
-    void setFilterDecay  (float sec);
-    void setFilterSustain(float val);
-    void setFilterRelease(float sec);
+    void setFilterAttack (float);
+    void setFilterDecay  (float);
+    void setFilterSustain(float);
+    void setFilterRelease(float);
     
-    void setNoiseAmp(float val);
+    void setNoiseAmp(float);
     
-    void setFilterEnvAmt(float val);
-    void setDistWet(float val);
-    void setOsc1Type(float val);
-    void setOsc1Pitch(float val);
-    void setOsc1Tune(float val);
-    void setOsc1Volume(float val);
-    void setOsc2Type(float val);
-    void setOsc2Pitch(float val);
-    void setOsc2Tune(float val);
-    void setOsc2Volume(float val);
-    void setMasterVolume(float val);
+    void setFilterEnvAmt(float);
+    void setDistWet(float);
+    void setOsc1Type(float);
+    void setOsc1Pitch(float);
+    void setOsc1Tune(float);
+    void setOsc1Volume(float);
+    void setOsc2Type(float);
+    void setOsc2Pitch(float);
+    void setOsc2Tune(float);
+    void setOsc2Volume(float);
+    void setMasterVolume(float);
     
-    void setMasterUnisonVoices(float val);
-    void setMasterUnisonSpread(float val);
-    void setMasterGlide(float val);
-    void setMasterPitchbendAmt(float val);
+    void setMasterUnisonVoices(float);
+    void setMasterUnisonSpread(float);
+    void setMasterGlide(float);
+    void setMasterPitchbendAmt(float);
     
-    void setPitchEnvTime(float val);
-    void setPitchEnvAmt(float val);
+    void setPitchEnvTime(float);
+    void setPitchEnvAmt(float);
     
-    void setProgram(float val);    
+    void setProgram(float);    
     
-    void setLFOfreq(float val);
-    void setLFOtype(float val);
-    void setLFOamp(float val);
-    void setLFOpitch(float val);
-    void setLFOcutoff(float val);
+    void setLFOfreq(float);
+    void setLFOtype(float);
+    void setLFOamp(float);
+    void setLFOpitch(float);
+    void setLFOcutoff(float);
     
     void aboutToQuit();
     
