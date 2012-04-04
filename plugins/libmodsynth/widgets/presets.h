@@ -137,15 +137,15 @@ public:
         if(presets_tab_delimited[a_value].compare("empty") != 0)
         {
             QStringList f_preset_values = presets_tab_delimited[a_value].split("\t");
-            //TODO:  change f_i back to zero when there is something at that index
+            
             for(int f_i = 0; f_i < lms_controls.count(); f_i++)
             {
-                if(f_i > f_preset_values.count())
+                if((f_i + 1) >= f_preset_values.count())
                 {
                     break;
                 }
-                /*TODO:  Some error handling here to prevent index-out-of-bounds exceptions from crashing the GUI*/
-                int f_preset_value_int = f_preset_values.at(f_i).toInt();
+                
+                int f_preset_value_int = f_preset_values.at(f_i + 1).toInt();
 
                 lms_controls.at(f_i)->lms_set_value(f_preset_value_int);
                 //v_control_changed(f_i, f_preset_value_int, false);
