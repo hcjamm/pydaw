@@ -69,10 +69,10 @@ class LMS_combobox : public LMS_control
         {   
             lms_combobox = new QComboBox(a_parent);
             lms_combobox->insertItems(0, a_items);
-                                    
+            /*
             lms_combobox->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
             lms_combobox->setMaximumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
-            
+            */
             lms_port = a_lms_port;           
         }
         
@@ -85,7 +85,7 @@ class LMS_combobox : public LMS_control
         QLabel * lms_label;
         QComboBox * lms_combobox;
         QLabel * lms_value;
-        LMS_KNOB_CONVERSION lms_conv_type;
+
         
         void lms_set_value(int a_value)
         {

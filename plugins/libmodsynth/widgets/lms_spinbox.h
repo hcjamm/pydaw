@@ -32,7 +32,7 @@ class LMS_spinbox : public LMS_control
             lms_label->setMinimumWidth(a_style_info->lms_label_width);
             lms_label->setText(a_label);
             lms_label->setAlignment(Qt::AlignCenter);
-            lms_spinbox = new QDial(a_parent);
+            lms_spinbox = new  QSpinBox(a_parent);
             lms_spinbox->setMinimum(a_min);
             lms_spinbox->setMaximum(a_max);
             lms_spinbox->setSingleStep(a_step_size);
@@ -44,9 +44,10 @@ class LMS_spinbox : public LMS_control
                 lms_label->setStyleSheet((a_style_info->lms_label_style));
             }
                         
+            /*
             lms_spinbox->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
             lms_spinbox->setMaximumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
-                                                
+            */
             lms_layout->addWidget(lms_label, -1, Qt::AlignCenter);
             lms_layout->addWidget(lms_spinbox, -1, Qt::AlignCenter);
                         
@@ -68,15 +69,15 @@ class LMS_spinbox : public LMS_control
         LMS_spinbox(int a_min, int a_max, int a_step_size, int a_value, 
         QWidget *a_parent, LMS_style_info * a_style_info, int a_lms_port)
         {            
-            lms_spinbox = new QDial(a_parent);
+            lms_spinbox = new QSpinBox(a_parent);
             lms_spinbox->setMinimum(a_min);
             lms_spinbox->setMaximum(a_max);
             lms_spinbox->setSingleStep(a_step_size);
             lms_spinbox->setValue(a_value);
-                        
+            /*
             lms_spinbox->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
             lms_spinbox->setMaximumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
-                        
+            */
             lms_port = a_lms_port;            
         }
         
