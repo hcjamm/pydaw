@@ -48,6 +48,8 @@ GNU General Public License for more details.
 
 #include "synth.h"
 #include "../../libmodsynth/widgets/ui_modules/sample_viewer.h"
+#include "../../libmodsynth/widgets/mod_matrix.h"
+#include "../../libmodsynth/widgets/lms_file_select.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -68,13 +70,11 @@ public:
 
     void setHostRequestedQuit(bool r) { m_hostRequestedQuit = r; }
     
-    void retranslateUi(QFrame * Frame);
-    void findSelected();
     /*To prevent controls that update other controls from going berserk*/
     bool m_handle_control_updates;
     
     void calculate_fx_label(int,int,QLabel*);
-public slots:        
+public slots:
     void setSampleFile(QString file);
     void updateSampleTable();
     
@@ -112,11 +112,11 @@ protected slots:
 protected:    
         
     /*The radio buttons used for selecting each sample*/
-    QRadioButton * m_selected_sample[LMS_MAX_SAMPLE_COUNT];
+    //QRadioButton * m_selected_sample[LMS_MAX_SAMPLE_COUNT];
     /*The currently selected sample for viewing/editing */
-    int m_selected_sample_index;
+    //int m_selected_sample_index;
     /*The graphs displayed for each sample*/
-    QPixmap m_sample_graphs[LMS_MAX_SAMPLE_COUNT];
+    //QPixmap m_sample_graphs[LMS_MAX_SAMPLE_COUNT];
     /*The index of C, C#, D, D#, E, etc... in the QCombobox*/
     int m_note_indexes [LMS_MAX_SAMPLE_COUNT];
     /*The length of each sample, in samples(frames)*/
@@ -126,7 +126,9 @@ protected:
     /*The index of the QCombobox for playback mode*/
     int m_sample_mode_indexes[LMS_MAX_SAMPLE_COUNT];
     
+    LMS_mod_matrix * m_sample_table;
     LMS_sample_viewer * m_sample_viewer;
+    LMS_file_select * m_file_selector;
     
     QVBoxLayout *m_smp_tab_main_verticalLayout;
     QHBoxLayout *horizontalLayout_5;

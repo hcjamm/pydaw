@@ -121,27 +121,40 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     
     m_handle_control_updates = true;
     
+    LMS_style_info * a_style = new LMS_style_info(64);
+    //a_style->LMS_set_value_style("")
+    
     QStringList f_notes_list = QStringList() << "C" << "C#" << "D" << "D#" << "E" << "F" << "F#" << "G" << "G#" << "A" << "A#" << "B";
     QStringList f_fx_group_list = QStringList() << "1" << "2" << "3" << "4" << "None";
     QStringList f_mode_list = QStringList() << "Play Once" << "Loop" << "Reverse";
     
     
+    QList <LMS_mod_matrix_column*> f_sample_table_columns;
+    
+    f_sample_table_columns << new LMS_mod_matrix_column(radiobutton, QString(""), 0, 1, 0);  //Selected row
+    f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Path"), 0, 1, 0);  //File path
+    f_sample_table_columns << new LMS_mod_matrix_column(f_notes_list,QString("Note"));  //Note
+    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Octave"), -2, 8, 3);  //Octave
+    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("High Note"), 0, 127, 127);  //High Note
+    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Low Note"), 0, 127, 0);  //Low Note
+    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Volume"), -50, 36, 0);  //Volume
+    f_sample_table_columns << new LMS_mod_matrix_column(f_fx_group_list, QString("FX Group"));  //FX Group
+    
+    m_sample_table = new LMS_mod_matrix(this, LMS_MAX_SAMPLE_COUNT, f_sample_table_columns, 20, a_style);
+    
+    m_file_selector = new LMS_file_select(this);
+    
         /*Set all of the array variables that are per-sample*/
         for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
-        {
-            m_selected_sample[i] = new QRadioButton(this);
-            if(i == 0)
-            {
-                m_selected_sample[0]->setChecked(true);
-            }
-            
-            connect(m_selected_sample[i], SIGNAL(clicked()), this, SLOT(selectionChanged()));
+        {            
+            //TODO:  Re-implement this for each radiobutton in the LMS_mod_matrix
+            //connect(m_selected_sample[i], SIGNAL(clicked()), this, SLOT(selectionChanged()));
             //m_sample_table->setCellWidget(i, 0, m_selected_sample[i]);
             
             QPixmap pmap(m_previewWidth, m_previewHeight);
             pmap.fill();
             
-            m_sample_graphs[i] = pmap;
+            //m_sample_viewer->lms_sample_graph->lms_graphs[i] = pmap;
             
             m_note_indexes[i] = 0;
             m_sample_counts[i] = 0;
@@ -189,6 +202,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
 
         //m_smp_tab_main_verticalLayout->addLayout(m_loop_start_end_Layout);
+        m_smp_tab_main_verticalLayout->addWidget(m_sample_table->lms_mod_matrix, Qt::AlignCenter); 
+        m_smp_tab_main_verticalLayout->addLayout(m_file_selector->lms_layout);
         m_smp_tab_main_verticalLayout->addLayout(m_sample_viewer->m_smp_tab_main_verticalLayout);
 
         horizontalLayout->addLayout(m_smp_tab_main_verticalLayout);
@@ -214,11 +229,16 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_main_tab->addTab(m_poly_fx_tab, QString());
 
         horizontalLayout_5->addWidget(m_main_tab);
-
-        retranslateUi(this);
+        
+        this->setWindowTitle(QApplication::translate("Frame", "Euphoria - Powered by LibModSynth", 0, QApplication::UnicodeUTF8));
+        m_main_tab->setTabText(m_main_tab->indexOf(m_sample_tab), QApplication::translate("Frame", "Samples", 0, QApplication::UnicodeUTF8));
+        m_main_tab->setTabText(m_main_tab->indexOf(m_poly_fx_tab), QApplication::translate("Frame", "Poly FX", 0, QApplication::UnicodeUTF8));
 
         m_main_tab->setCurrentIndex(0);
 
+        m_sample_table->lms_mod_matrix->resizeColumnsToContents();
+        m_sample_table->lms_mod_matrix->resizeRowsToContents();
+        
         QMetaObject::connectSlotsByName(this);
     
         /*Connect slots manually*/
@@ -254,9 +274,12 @@ void SamplerGUI::generatePreview(QString path)
     QPixmap pmap(m_previewWidth, m_previewHeight);
     pmap.fill();
     */
-    findSelected();
+    m_sample_table->find_selected_radio_button(0);
+    
+    m_sample_viewer->lms_sample_graph->generatePreview(path, m_sample_table->lms_selected_column);
 
-    m_sample_graphs[m_selected_sample_index].fill();
+    /*
+    m_sample_viewer->lms_sample_graph->lms_graphs[m_sample_table->lms_selected_column].fill();
     
     printf("set sample index\n");
         
@@ -270,7 +293,7 @@ void SamplerGUI::generatePreview(QString path)
 	float *frame = (float *)malloc(info.channels * sizeof(float));
 	int bin = 0;
         
-	QPainter paint(&(m_sample_graphs[m_selected_sample_index]));
+	QPainter paint(&(m_sample_viewer->lms_sample_graph->lms_graphs[m_sample_table->lms_selected_column]));
 
 	for (size_t i = 0; i < info.frames; ++i) {
 
@@ -325,8 +348,10 @@ void SamplerGUI::generatePreview(QString path)
         
 	int duration = int(100.0 * float(info.frames) / float(info.samplerate));
         
-        m_sample_counts[m_selected_sample_index] = info.frames;
+        m_sample_counts[m_sample_table->lms_selected_column] = info.frames;
         
+     * */
+     
         /*
         m_sample_start_fine->setMaximum(info.frames);
         m_sample_end_fine->setMaximum(info.frames);
@@ -335,19 +360,23 @@ void SamplerGUI::generatePreview(QString path)
         */
         
         /*Set seconds*/
+        /*
         QTableWidgetItem *f_set_seconds = new QTableWidgetItem;
         QString * f_seconds = new QString();                
         f_seconds->setNum((float(info.frames) / float(info.samplerate)));
         f_set_seconds->setText(*f_seconds);
+         * */
         //m_sample_table->setItem(m_selected_sample_index, 11, f_set_seconds);
         
         /*Set samples*/
+        /*
         QTableWidgetItem *f_set_samples = new QTableWidgetItem;
         QString * f_samples = new QString();                
         f_samples->setNum((info.frames));
         f_set_samples->setText(*f_samples);
         //m_sample_table->setItem(m_selected_sample_index, 12, f_set_samples);
-        
+        */
+    
         /*Trigger start/end changes to update m_sample_table*/
         
         /*
@@ -357,7 +386,7 @@ void SamplerGUI::generatePreview(QString path)
         loopEndChanged(m_sample_start->value());
         */
         
-	std::cout << "duration " << duration << std::endl;
+	//std::cout << "duration " << duration << std::endl;
 	
         /*m_duration->setText(QString("%1.%2%3 sec")
 			    .arg(duration / 100)
@@ -372,15 +401,15 @@ void SamplerGUI::generatePreview(QString path)
 	    m_balanceLabel->setText(info.channels == 1 ? "Pan:  " : "Balance:  ");
 	}*/
 
-    } else {
+    //} else {
         /*
 	m_duration->setText("0.00 sec");
 	m_sampleRate->setText("");
 	m_channels->setText("");
          */
-    }
+    //}
     
-    if (file) sf_close(file);
+    //if (file) sf_close(file);
 
     //m_preview->setPixmap(pmap);
     //m_sample_graph->setPixmap(m_sample_graphs[m_selected_sample_index]);
@@ -421,7 +450,7 @@ void SamplerGUI::updateSampleTable()
 void SamplerGUI::setSelection(int a_value)
 {
     m_suppressHostUpdate = true;
-    m_selected_sample[a_value]->setChecked(true);
+    //m_selected_sample[a_value]->setChecked(true);
     m_suppressHostUpdate = false;
 }
 
@@ -528,27 +557,13 @@ void SamplerGUI::fileSelect()
     }
 }
 
-/* This finds the selected row and sets m_selected_sample_index to it's index.
- */
-void SamplerGUI::findSelected()
-{
-    for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
-    {
-        if(m_selected_sample[i]->isChecked())
-        {
-            m_selected_sample_index = i;
-            break;
-        }
-    }
-}
-
 void SamplerGUI::selectionChanged()
 {
-    findSelected();
+    m_sample_table->find_selected_radio_button(0);
         
     if (!m_suppressHostUpdate) {
-        printf("m_selected_sample_index == %i\n",  m_selected_sample_index);
-	lo_send(m_host, m_controlPath, "if", Sampler_SELECTED_SAMPLE, (float)m_selected_sample_index);
+        printf("m_selected_sample_index == %i\n",  m_sample_table->lms_selected_column);
+	lo_send(m_host, m_controlPath, "if", Sampler_SELECTED_SAMPLE, (float)(m_sample_table->lms_selected_column));
     }
     /*
     //These 2 will never be null, and should be set regardless of whether a sample is loaded
@@ -680,24 +695,14 @@ SamplerGUI::~SamplerGUI()
 }
 
 
-void SamplerGUI::retranslateUi(QFrame* Frame)
-{
-    Frame->setWindowTitle(QApplication::translate("Frame", "Euphoria - Powered by LibModSynth", 0, QApplication::UnicodeUTF8));
-    m_main_tab->setTabText(m_main_tab->indexOf(m_sample_tab), QApplication::translate("Frame", "Samples", 0, QApplication::UnicodeUTF8));
-    m_main_tab->setTabText(m_main_tab->indexOf(m_poly_fx_tab), QApplication::translate("Frame", "Poly FX", 0, QApplication::UnicodeUTF8));
-} // retranslateUi
-
-
-void
-osc_error(int num, const char *msg, const char *path)
+void osc_error(int num, const char *msg, const char *path)
 {
     cerr << "Error: liblo server error " << num
 	 << " in path \"" << (path ? path : "(null)")
 	 << "\": " << msg << endl;
 }
 
-int
-debug_handler(const char *path, const char *types, lo_arg **argv,
+int debug_handler(const char *path, const char *types, lo_arg **argv,
 	      int argc, void *data, void *user_data)
 {
     int i;
@@ -714,8 +719,7 @@ debug_handler(const char *path, const char *types, lo_arg **argv,
     return 1;
 }
 
-int
-configure_handler(const char *path, const char *types, lo_arg **argv,
+int configure_handler(const char *path, const char *types, lo_arg **argv,
 		  int argc, void *data, void *user_data)
 {
     SamplerGUI *gui = static_cast<SamplerGUI *>(user_data);
@@ -731,15 +735,13 @@ configure_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int
-rate_handler(const char *path, const char *types, lo_arg **argv,
+int rate_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     return 0;
 }
 
-int
-show_handler(const char *path, const char *types, lo_arg **argv,
+int show_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     SamplerGUI *gui = static_cast<SamplerGUI *>(user_data);
@@ -756,8 +758,7 @@ show_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int
-hide_handler(const char *path, const char *types, lo_arg **argv,
+int hide_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     SamplerGUI *gui = static_cast<SamplerGUI *>(user_data);
@@ -765,8 +766,7 @@ hide_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int
-quit_handler(const char *path, const char *types, lo_arg **argv,
+int quit_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     SamplerGUI *gui = static_cast<SamplerGUI *>(user_data);
@@ -775,8 +775,7 @@ quit_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int
-control_handler(const char *path, const char *types, lo_arg **argv,
+int control_handler(const char *path, const char *types, lo_arg **argv,
 		int argc, void *data, void *user_data)
 {
     SamplerGUI *gui = static_cast<SamplerGUI *>(user_data);
@@ -819,8 +818,7 @@ control_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     cerr << "trivial_sampler_qt_gui starting..." << endl;
 
