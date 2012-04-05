@@ -14,27 +14,35 @@
 #include <QPainter>
 #include <QList>
 #include <sndfile.h>
+#include <math.h>
 
 class LMS_sample_graph
 {
 public:
-    LMS_sample_graph(int a_count, int a_graph_height, int a_graph_width)
+    LMS_sample_graph(int a_count, int a_graph_height, int a_graph_width, QWidget * a_parent)
     {
         lms_graph_height = a_graph_height;
         lms_graph_width = a_graph_width;
         lms_graph_count = a_count;
+                
+        m_sample_graph = new QLabel(a_parent);
+        m_sample_graph->setObjectName(QString::fromUtf8("m_sample_graph"));
+        m_sample_graph->setMinimumSize(QSize(0, 200));
+        m_sample_graph->setStyleSheet(QString::fromUtf8("QLabel {background-color: white;};"));
+        m_sample_graph->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
         
         for(int f_i = 0; f_i < a_count; f_i++)
         {
-            QPixmap * f_pixmap;
-            f_pixmap->fill();
+            QPixmap f_pixmap;
+            f_pixmap.fill();
             lms_graphs.append(f_pixmap);
             lms_durations.append(0);
         }
     }
         
-    QList <QPixmap*> lms_graphs;
+    QList <QPixmap> lms_graphs;
     QList <int> lms_durations;
+    QLabel * m_sample_graph;
     int lms_graph_count;
     int lms_graph_height;
     int lms_graph_width;
@@ -44,7 +52,7 @@ public:
     {
         if(a_index > lms_graph_count)
         {
-            std::cout << "a_index is greater than lms_graph_count, NOT generating a sample graph\n";
+            //std::cout << "a_index is greater than lms_graph_count, NOT generating a sample graph\n";
         }
         
         SF_INFO info;
@@ -151,7 +159,7 @@ public:
         
         if (file) sf_close(file);
         
-        //m_sample_graph->setPixmap(lms_graphs[a_index]);
+        m_sample_graph->setPixmap(lms_graphs[a_index]);
     }
 
     
