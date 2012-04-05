@@ -18,6 +18,7 @@
 #include <QSlider>
 #include <QSpacerItem>
 #include <QSizePolicy>
+#include <QTableWidgetItem>
 #include "../sample_graph.h"
 
 /*For sliders that calculate as a percentage, like sample start/end or loop start/end*/
@@ -208,6 +209,7 @@ public:
 
                 QTableWidgetItem * f_widget = new QTableWidgetItem;
                 f_widget->setText(QString::number(f_value));
+                
                 //setSampleStartFine(f_value);
                 //m_sample_table->setItem(m_selected_sample_index, 13, f_widget);
             }
