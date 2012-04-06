@@ -196,6 +196,38 @@ public:
         m_loop_start_end_Label->setText(QApplication::translate("Frame", "Loop Start/End", 0, QApplication::UnicodeUTF8));
     }
     
+    void generatePreview(QString path, int a_index)
+    {
+        lms_sample_graph->generatePreview(path, a_index);
+        
+        m_sample_start_fine->setMaximum(lms_sample_graph->m_sample_counts[a_index]);
+        m_sample_end_fine->setMaximum(lms_sample_graph->m_sample_counts[a_index]);
+        m_loop_start_fine->setMaximum(lms_sample_graph->m_sample_counts[a_index]);
+        m_loop_end_fine->setMaximum(lms_sample_graph->m_sample_counts[a_index]);
+        
+            /*
+            //Set seconds
+            QTableWidgetItem *f_set_seconds = new QTableWidgetItem;
+            QString * f_seconds = new QString();                
+            f_seconds->setNum((float(info.frames) / float(info.samplerate)));
+            f_set_seconds->setText(*f_seconds);
+            m_sample_table->setItem(a_index, 11, f_set_seconds);
+
+            //Set samples
+            QTableWidgetItem *f_set_samples = new QTableWidgetItem;
+            QString * f_samples = new QString();                
+            f_samples->setNum((info.frames));
+            f_set_samples->setText(*f_samples);
+            m_sample_table->setItem(a_index, 12, f_set_samples);
+
+            //Trigger start/end changes to update m_sample_table
+            sampleStartChanged(m_sample_start->value());
+            sampleEndChanged(m_sample_start->value());
+            loopStartChanged(m_sample_start->value());
+            loopEndChanged(m_sample_start->value());
+            */
+
+    }
     
     void smp_start_Changed()
     {

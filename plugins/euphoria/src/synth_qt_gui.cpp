@@ -261,9 +261,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         QMetaObject::connectSlotsByName(this);
     
         /*Connect slots manually*/
-    
-        /*
-        connect(m_load_sample, SIGNAL(pressed()), this, SLOT(fileSelect()));
+        connect(m_file_selector->lms_open_button, SIGNAL(pressed()), this, SLOT(fileSelect()));    
+        /*        
         connect(m_update_sample, SIGNAL(pressed()), this, SLOT(updateSampleTable()));
         
         connect(m_sample_start, SIGNAL(valueChanged(int)), this, SLOT(sampleStartChanged(int)));
@@ -295,7 +294,7 @@ void SamplerGUI::generatePreview(QString path)
     */
     m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
     
-    m_sample_viewer->lms_sample_graph->generatePreview(path, m_sample_table->lms_selected_column);
+    m_sample_viewer->generatePreview(path, m_sample_table->lms_selected_column);
 
     /*
     m_sample_viewer->lms_sample_graph->lms_graphs[m_sample_table->lms_selected_column].fill();
@@ -455,7 +454,7 @@ void SamplerGUI::setSampleFile(QString file)
     
     generatePreview(file);
     
-    //m_sample_table->resizeColumnsToContents();
+    m_sample_table->lms_mod_matrix->resizeColumnsToContents();
     
     m_suppressHostUpdate = false;
 }
@@ -846,7 +845,7 @@ int main(int argc, char **argv)
     cerr << "trivial_sampler_qt_gui starting..." << endl;
 
     QApplication application(argc, argv);
-
+    
     if (application.argc() != 5) {
 	cerr << "usage: "
 	     << application.argv()[0] 
@@ -855,7 +854,7 @@ int main(int argc, char **argv)
 	     << " <plugin label>"
 	     << " <user-friendly id>"
 	     << endl;
-	return 2;
+	return 2;        
     }
 
 #ifdef Q_WS_X11

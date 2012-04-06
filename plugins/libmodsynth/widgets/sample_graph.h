@@ -33,15 +33,17 @@ public:
         
         for(int f_i = 0; f_i < a_count; f_i++)
         {
-            QPixmap f_pixmap;
-            f_pixmap.fill();
-            lms_graphs.append(f_pixmap);
+            QPixmap * f_pixmap = new QPixmap();
+            f_pixmap->fill();
+            lms_graphs.append(*f_pixmap);
             lms_durations.append(0);
+            m_sample_counts.append(0);
         }
     }
         
     QList <QPixmap> lms_graphs;
-    QList <int> lms_durations;
+    QList <int> lms_durations;   //TODO: get rid of this
+    QList <int> m_sample_counts;
     QLabel * m_sample_graph;
     int lms_graph_count;
     int lms_graph_height;
@@ -127,34 +129,7 @@ public:
 
             lms_durations[a_index] = int(100.0 * float(info.frames) / float(info.samplerate));
 
-            /*
             m_sample_counts[a_index] = info.frames;
-            m_sample_start_fine->setMaximum(info.frames);
-            m_sample_end_fine->setMaximum(info.frames);
-            m_loop_start_fine->setMaximum(info.frames);
-            m_loop_end_fine->setMaximum(info.frames);
-
-            //Set seconds
-            QTableWidgetItem *f_set_seconds = new QTableWidgetItem;
-            QString * f_seconds = new QString();                
-            f_seconds->setNum((float(info.frames) / float(info.samplerate)));
-            f_set_seconds->setText(*f_seconds);
-            m_sample_table->setItem(a_index, 11, f_set_seconds);
-
-            //Set samples
-            QTableWidgetItem *f_set_samples = new QTableWidgetItem;
-            QString * f_samples = new QString();                
-            f_samples->setNum((info.frames));
-            f_set_samples->setText(*f_samples);
-            m_sample_table->setItem(a_index, 12, f_set_samples);
-
-            //Trigger start/end changes to update m_sample_table
-            sampleStartChanged(m_sample_start->value());
-            sampleEndChanged(m_sample_start->value());
-            loopStartChanged(m_sample_start->value());
-            loopEndChanged(m_sample_start->value());
-            */
-
         } 
         
         if (file) sf_close(file);
