@@ -542,8 +542,12 @@ void SamplerGUI::fileSelect()
 	}
     }
 
+    /*
     QString path = QFileDialog::getOpenFileName
         (this, "Select an audio sample file", orig, "Audio files (*.wav *.aiff)");
+    */
+    
+    QString path = m_file_selector->button_pressed(this);
 
     if (!path.isEmpty()) {
 
