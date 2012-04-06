@@ -139,6 +139,11 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Low Note"), 0, 127, 0);  //Low Note
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Volume"), -50, 36, 0);  //Volume
     f_sample_table_columns << new LMS_mod_matrix_column(f_fx_group_list, QString("FX Group"));  //FX Group
+    f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Sample Start"), 0, 1, 0);  //Sample Start
+    f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Sample End"), 0, 1, 0);  //Sample End
+    f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Loop Start"), 0, 1, 0);  //Loop Start
+    f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Loop End"), 0, 1, 0);  //Loop End
+    
     
     m_sample_table = new LMS_mod_matrix(this, LMS_MAX_SAMPLE_COUNT, f_sample_table_columns, 20, a_style);
     
