@@ -13,6 +13,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QFileDialog>
 
 class LMS_file_select
 {
@@ -27,9 +28,17 @@ public:
         lms_open_button = new QPushButton(a_parent);
         lms_open_button->setText(QString("Open"));
         lms_file_path = new QLineEdit(a_parent);
+        lms_file_path->setReadOnly(TRUE);
         
         lms_layout->addWidget(lms_file_path);
         lms_layout->addWidget(lms_open_button);
+    }
+    
+    QString button_pressed(QWidget * a_parent)
+    {
+        QString f_result = QFileDialog::getOpenFileName(a_parent, "Select an audio sample file", ".", "Audio files (*.wav *.aiff)");
+        lms_file_path->setText(f_result);
+        return lms_file_path->text();
     }
     
     QString lms_get_file()
