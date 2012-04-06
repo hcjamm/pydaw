@@ -108,7 +108,7 @@ public:
                         break;
                     case radiobutton:{
                         QRadioButton * f_rb = new QRadioButton(a_parent);
-                        if(f_i == 0)
+                        if(f_i2 == 0)
                         {
                             f_rb->setChecked(TRUE);
                         }
