@@ -71,6 +71,20 @@ static QTextStream cerr(stderr);
 #define FX_FILTER_MIN_PITCH 20
 #define FX_FILTER_PITCH_RANGE (FX_FILTER_MAX_PITCH - FX_FILTER_MIN_PITCH)
 
+/*These define the index of each column in m_sample_table.  Re-order these if you add or remove columns*/
+#define SMP_TB_RADIOBUTTON_INDEX 0
+#define SMP_TB_FILE_PATH_INDEX 1
+#define SMP_TB_NOTE_INDEX 2
+#define SMP_TB_OCTAVE_INDEX 3
+#define SMP_TB_LOW_NOTE_INDEX 4
+#define SMP_TB_HIGH_NOTE_INDEX 5
+#define SMP_TB_VOLUME_INDEX 6
+#define SMP_TB_FX_GROUP_INDEX 7
+#define SMP_TB_SMP_START_INDEX 8
+#define SMP_TB_SMP_END_INDEX 9
+#define SMP_TB_LOOP_START_INDEX 10
+#define SMP_TB_LOOP_END_INDEX 11
+
 SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 		       QByteArray controlPath, QByteArray midiPath, QByteArray configurePath,
 		       QByteArray exitingPath, QWidget *w) :
@@ -135,8 +149,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Path"), 0, 1, 0);  //File path
     f_sample_table_columns << new LMS_mod_matrix_column(f_notes_list,QString("Note"));  //Note
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Octave"), -2, 8, 3);  //Octave
-    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("High Note"), 0, 127, 127);  //High Note
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Low Note"), 0, 127, 0);  //Low Note
+    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("High Note"), 0, 127, 127);  //High Note    
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Volume"), -50, 36, 0);  //Volume
     f_sample_table_columns << new LMS_mod_matrix_column(f_fx_group_list, QString("FX Group"));  //FX Group
     f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Sample Start"), 0, 1, 0);  //Sample Start
@@ -279,7 +293,7 @@ void SamplerGUI::generatePreview(QString path)
     QPixmap pmap(m_previewWidth, m_previewHeight);
     pmap.fill();
     */
-    m_sample_table->find_selected_radio_button(0);
+    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
     
     m_sample_viewer->lms_sample_graph->generatePreview(path, m_sample_table->lms_selected_column);
 
@@ -564,7 +578,7 @@ void SamplerGUI::fileSelect()
 
 void SamplerGUI::selectionChanged()
 {
-    m_sample_table->find_selected_radio_button(0);
+    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
         
     if (!m_suppressHostUpdate) {
         printf("m_selected_sample_index == %i\n",  m_sample_table->lms_selected_column);
