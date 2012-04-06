@@ -54,6 +54,9 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 }
 #endif
 
+/*This allows the executable to run standalone for debugging.  This should normally be commented out*/
+//#define LMS_DEBUG_STANDALONE
+
 using std::endl;
 
 lo_server osc_server = 0;
@@ -128,9 +131,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         return app.exec();
     }
      */
-        
+#ifndef LMS_DEBUG_STANDALONE
     m_host = lo_address_new(host, port);
-    
+#endif    
     this->setStyleSheet("QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF); border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
     
     m_handle_control_updates = true;
@@ -700,20 +703,26 @@ void SamplerGUI::loopEndFineChanged(int a_value)
 void
 SamplerGUI::oscRecv()
 {
+#ifndef LMS_DEBUG_STANDALONE
     if (osc_server) {
 	lo_server_recv_noblock(osc_server, 1);
     }
+#endif
 }
 
 void
 SamplerGUI::aboutToQuit()
 {
+#ifndef LMS_DEBUG_STANDALONE
     if (!m_hostRequestedQuit) lo_send(m_host, m_exitingPath, "");
+#endif
 }
 
 SamplerGUI::~SamplerGUI()
 {
+#ifndef LMS_DEBUG_STANDALONE
     lo_address_free(m_host);
+#endif
 }
 
 
@@ -733,7 +742,9 @@ int debug_handler(const char *path, const char *types, lo_arg **argv,
 
     for (i = 0; i < argc; ++i) {
 	cerr << "arg " << i << ": type '" << types[i] << "': ";
+#ifndef LMS_DEBUG_STANDALONE        
         lo_arg_pp((lo_type)types[i], argv[i]);
+#endif        
 	cerr << endl;
     }
 
@@ -846,6 +857,7 @@ int main(int argc, char **argv)
 
     QApplication application(argc, argv);
     
+#ifndef LMS_DEBUG_STANDALONE    
     if (application.argc() != 5) {
 	cerr << "usage: "
 	     << application.argv()[0] 
@@ -856,11 +868,13 @@ int main(int argc, char **argv)
 	     << endl;
 	return 2;        
     }
-
+#endif
+    
 #ifdef Q_WS_X11
     XSetErrorHandler(handle_x11_error);
 #endif
 
+#ifndef LMS_DEBUG_STANDALONE
     char *url = application.argv()[1];
 
     char *host = lo_url_get_hostname(url);
@@ -872,7 +886,17 @@ int main(int argc, char **argv)
     if (QString(label).toLower() == QString(Sampler_Stereo_LABEL).toLower()) {
 	stereo = true;
     }
+#else
+    char *url = "testing";
 
+    char *host = "localhost";
+    char *port = "10000";
+    char *path = "/usr/lib/dssi/test";
+
+    char *label = "Debug Mode - No Audio";
+    bool stereo = true;    
+#endif
+    
     SamplerGUI gui(stereo, host, port,
 		   QByteArray(path) + "/control",
 		   QByteArray(path) + "/midi",
@@ -886,7 +910,7 @@ int main(int argc, char **argv)
     QByteArray myShowPath = QByteArray(path) + "/show";
     QByteArray myHidePath = QByteArray(path) + "/hide";
     QByteArray myQuitPath = QByteArray(path) + "/quit";
-
+#ifndef LMS_DEBUG_STANDALONE
     osc_server = lo_server_new(NULL, osc_error);
     lo_server_add_method(osc_server, myControlPath, "if", control_handler, &gui);
     lo_server_add_method(osc_server, myConfigurePath, "ss", configure_handler, &gui);
@@ -901,10 +925,14 @@ int main(int argc, char **argv)
 	    QByteArray(path) + "/update",
 	    "s",
 	    (QByteArray(lo_server_get_url(osc_server)) + QByteArray(path+1)).data());
-
+#endif
     QObject::connect(&application, SIGNAL(aboutToQuit()), &gui, SLOT(aboutToQuit()));
 
+#ifndef LMS_DEBUG_STANDALONE
     gui.setReady(true);
     return application.exec();
+#else
+    gui.show();
+#endif
 }
 
