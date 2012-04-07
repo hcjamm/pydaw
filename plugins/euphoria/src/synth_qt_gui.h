@@ -76,19 +76,8 @@ public:
     void calculate_fx_label(int,int,QLabel*);
 public slots:
     void setSampleFile(QString file);
-    void updateSampleTable();
-    
+        
     void setSelection(int);
-    
-    void setSampleStart(int);
-    void setSampleEnd(int);
-    void setSampleStartFine(int);
-    void setSampleEndFine(int);
-    
-    void setLoopStart(int);
-    void setLoopEnd(int);
-    void setLoopStartFine(int);
-    void setLoopEndFine(int);
     
     void aboutToQuit();
 
@@ -97,17 +86,8 @@ protected slots:
     
     void selectionChanged();
     
-    void sampleStartChanged(int);
-    void sampleEndChanged(int);
-    void sampleStartFineChanged(int);
-    void sampleEndFineChanged(int);
-    
-    void loopStartChanged(int);
-    void loopEndChanged(int);
-    void loopStartFineChanged(int);
-    void loopEndFineChanged(int);
     void oscRecv();
-    void generatePreview(QString file);
+    
 
 protected:    
         
@@ -123,11 +103,9 @@ protected:
     int m_sample_counts[LMS_MAX_SAMPLE_COUNT];
     /*The index of the QCombobox for fx_group*/
     int m_sample_fx_group_indexes[LMS_MAX_SAMPLE_COUNT];
-    /*The index of the QCombobox for playback mode*/
-    int m_sample_mode_indexes[LMS_MAX_SAMPLE_COUNT];
     
     LMS_mod_matrix * m_sample_table;
-    LMS_sample_viewer * m_sample_viewer;
+    //LMS_sample_viewer * m_sample_viewer;
     LMS_file_select * m_file_selector;
     
     QVBoxLayout *m_smp_tab_main_verticalLayout;
