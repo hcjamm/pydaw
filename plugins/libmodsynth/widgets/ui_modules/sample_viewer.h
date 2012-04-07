@@ -44,7 +44,7 @@ public:
     int m_selected_sample_index;
     QList<int> m_sample_counts;
     
-    LMS_sample_viewer(QWidget* a_parent)
+    LMS_sample_viewer(QWidget* a_parent, int a_max_frames)
     {
         QString f_stylesheet = QString("QSlider::groove:horizontal { border: 1px solid #bbb; background: white; height: 10px; border-radius: 4px; }  QSlider::sub-page:horizontal { background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,     stop: 0 #66e, stop: 1 #bbf); background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,     stop: 0 #bbf, stop: 1 #55f); border: 1px solid #777; height: 10px; border-radius: 4px; }  QSlider::add-page:horizontal { background: #fff; border: 1px solid #777; height: 10px; border-radius: 4px; }  QSlider::handle:horizontal { background: qlineargradient(x1:0, y1:0, x2:1, y2:1,     stop:0 #eee, stop:1 #ccc); border: 1px solid #777; width: 13px; margin-top: -2px; margin-bottom: -2px; border-radius: 4px; }  QSlider::handle:horizontal:hover { background: qlineargradient(x1:0, y1:0, x2:1, y2:1,     stop:0 #fff, stop:1 #ddd); border: 1px solid #444; border-radius: 4px; }");
                     
@@ -57,7 +57,7 @@ public:
         m_smp_tab_main_verticalLayout->setObjectName(QString::fromUtf8("m_smp_tab_main_verticalLayout"));
         
         /*TODO:  User configurable values*/
-        lms_sample_graph = new LMS_sample_graph(32, 400, 800, a_parent);
+        lms_sample_graph = new LMS_sample_graph(32, 400, 800, a_parent, a_max_frames);
         m_smp_tab_main_verticalLayout->addWidget(lms_sample_graph->m_sample_graph);
         
         m_smp_start_end_Layout = new QGridLayout();
@@ -205,27 +205,12 @@ public:
         m_loop_start_fine->setMaximum(lms_sample_graph->m_sample_counts[a_index]);
         m_loop_end_fine->setMaximum(lms_sample_graph->m_sample_counts[a_index]);
         
-            /*
-            //Set seconds
-            QTableWidgetItem *f_set_seconds = new QTableWidgetItem;
-            QString * f_seconds = new QString();                
-            f_seconds->setNum((float(info.frames) / float(info.samplerate)));
-            f_set_seconds->setText(*f_seconds);
-            m_sample_table->setItem(a_index, 11, f_set_seconds);
+        //Trigger start/end changes to update m_sample_table
+        smp_start_Changed(m_sample_start->value());
+        smp_end_Changed(m_sample_start->value());
+        loop_start_Changed(m_sample_start->value());
+        loop_end_Changed(m_sample_start->value());
 
-            //Set samples
-            QTableWidgetItem *f_set_samples = new QTableWidgetItem;
-            QString * f_samples = new QString();                
-            f_samples->setNum((info.frames));
-            f_set_samples->setText(*f_samples);
-            m_sample_table->setItem(a_index, 12, f_set_samples);
-
-            //Trigger start/end changes to update m_sample_table
-            sampleStartChanged(m_sample_start->value());
-            sampleEndChanged(m_sample_start->value());
-            loopStartChanged(m_sample_start->value());
-            loopEndChanged(m_sample_start->value());
-            */
 
     }
     
