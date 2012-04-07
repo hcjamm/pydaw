@@ -55,7 +55,7 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 #endif
 
 /*This allows the executable to run standalone for debugging.  This should normally be commented out*/
-//#define LMS_DEBUG_STANDALONE
+#define LMS_DEBUG_STANDALONE
 
 using std::endl;
 
@@ -928,11 +928,10 @@ int main(int argc, char **argv)
 #endif
     QObject::connect(&application, SIGNAL(aboutToQuit()), &gui, SLOT(aboutToQuit()));
 
-#ifndef LMS_DEBUG_STANDALONE
     gui.setReady(true);
-    return application.exec();
-#else
+#ifdef LMS_DEBUG_STANDALONE
     gui.show();
 #endif
+    return application.exec();
 }
 
