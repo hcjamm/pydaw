@@ -206,11 +206,12 @@ public:
         m_loop_end_fine->setMaximum(lms_sample_graph->m_sample_counts[a_index]);
         
         //Trigger start/end changes to update m_sample_table
-        smp_start_Changed(m_sample_start->value());
-        smp_end_Changed(m_sample_start->value());
-        loop_start_Changed(m_sample_start->value());
-        loop_end_Changed(m_sample_start->value());
-
+        /*
+        smp_start_Changed();
+        smp_end_Changed();
+        loop_start_Changed();
+        loop_end_Changed();
+        */
 
     }
     

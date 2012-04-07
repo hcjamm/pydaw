@@ -157,9 +157,9 @@ public:
                     m_sample_counts[a_index] = info.frames;
                 }
 
-                m_sample_graph->setPixmap(lms_graphs[a_index]);
+                //m_sample_graph->setPixmap(lms_graphs[a_index]);
 
-                if (file) sf_close(file);
+                //if (file) sf_close(file);
 
                 }
         }        
