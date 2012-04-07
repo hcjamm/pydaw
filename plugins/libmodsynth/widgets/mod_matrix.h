@@ -19,10 +19,11 @@
 #include "lms_control.h"
 #include "lms_spinbox.h"
 #include "lms_combobox.h"
+#include "lms_note_selector.h"
 
 enum LMS_mm_column_type
     {
-        no_widget, spinbox, combobox, radiobutton
+        no_widget, spinbox, combobox, radiobutton, note_selector
     };
 
 class LMS_mod_matrix_column
@@ -105,6 +106,12 @@ public:
                         break;
                     case no_widget:
                         //Do nothing
+                        break;
+                    case note_selector:{
+                        LMS_note_selector * f_ns = new LMS_note_selector(a_parent, f_port, a_style, a_columns[f_i]->default_value);
+                        a_columns[f_i]->controls.append(f_ns);
+                        lms_mod_matrix->setCellWidget(f_i2, f_i, f_ns->lms_get_widget());
+                    }
                         break;
                     case radiobutton:{
                         QRadioButton * f_rb = new QRadioButton(a_parent);

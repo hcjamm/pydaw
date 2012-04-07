@@ -89,21 +89,12 @@ protected slots:
     void oscRecv();
     
 
-protected:    
-        
-    /*The radio buttons used for selecting each sample*/
-    //QRadioButton * m_selected_sample[LMS_MAX_SAMPLE_COUNT];
+protected:
     /*The currently selected sample for viewing/editing */
-    //int m_selected_sample_index;
-    /*The graphs displayed for each sample*/
-    //QPixmap m_sample_graphs[LMS_MAX_SAMPLE_COUNT];
+    //int m_selected_sample_index;    
     /*The index of C, C#, D, D#, E, etc... in the QCombobox*/
     int m_note_indexes [LMS_MAX_SAMPLE_COUNT];
-    /*The length of each sample, in samples(frames)*/
-    int m_sample_counts[LMS_MAX_SAMPLE_COUNT];
-    /*The index of the QCombobox for fx_group*/
-    int m_sample_fx_group_indexes[LMS_MAX_SAMPLE_COUNT];
-    
+            
     LMS_mod_matrix * m_sample_table;
     //LMS_sample_viewer * m_sample_viewer;
     LMS_file_select * m_file_selector;
