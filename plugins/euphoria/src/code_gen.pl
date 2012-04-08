@@ -14,8 +14,8 @@ my $slot_def = "sample_pitch$i" . "Changed(int a_value)";
 my $function = "sample_pitchChanged($i);";
 $slots .= "\t$slot;\n";
 $slot_defs .= "$class_name" . "::" . "$slot_def" . "{$function}\n";
-$connections .= "\t\t\tconnect($widget1, SIGNAL(currentIndexChanged(int)), this, SLOT($slot));\n";
-$connections .= "\t\t\tconnect($widget2, SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
+$connections .= "\t\t\tconnect(((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[$i]))->lms_note, SIGNAL(currentIndexChanged(int)), this, SLOT($slot));\n";
+$connections .= "\t\t\tconnect(((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[$i]))->lms_octave, SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
 }
 
 for($i = 0; $i < $sample_count; $i++)
@@ -25,8 +25,8 @@ my $slot_def = "sample_lnote$i" . "Changed(int a_value)";
 my $function = "sample_lnoteChanged($i);";
 $slots .= "\t$slot;\n";
 $slot_defs .= "$class_name" . "::" . "$slot_def" . "{$function}\n";
-$connections .= "\t\t\tconnect($widget1, SIGNAL(currentIndexChanged(int)), this, SLOT($slot));\n";
-$connections .= "\t\t\tconnect($widget2, SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
+$connections .= "\t\t\tconnect(((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[$i]))->lms_note, SIGNAL(currentIndexChanged(int)), this, SLOT($slot));\n";
+$connections .= "\t\t\tconnect(((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[$i]))->lms_octave, SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
 }
 
 for($i = 0; $i < $sample_count; $i++)
@@ -36,8 +36,8 @@ my $slot_def = "sample_hnote$i" . "Changed(int a_value)";
 my $function = "sample_hnoteChanged($i);";
 $slots .= "\t$slot;\n";
 $slot_defs .= "$class_name" . "::" . "$slot_def" . "{$function}\n";
-$connections .= "\t\t\tconnect($widget1, SIGNAL(currentIndexChanged(int)), this, SLOT($slot));\n";
-$connections .= "\t\t\tconnect($widget2, SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
+$connections .= "\t\t\tconnect(((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[$i]))->lms_note, SIGNAL(currentIndexChanged(int)), this, SLOT($slot));\n";
+$connections .= "\t\t\tconnect(((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[$i]))->lms_octave, SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
 }
 
 for($i = 0; $i < $sample_count; $i++)
@@ -47,8 +47,8 @@ my $slot_def = "sample_vol$i" . "Changed(int a_value)";
 my $function = "sample_volChanged($i);";
 $slots .= "\t$slot;\n";
 $slot_defs .= "$class_name" . "::" . "$slot_def" . "{$function}\n";
-$connections .= "\t\t\tconnect($widget1, SIGNAL(currentIndexChanged(int)), this, SLOT($slot));\n";
-$connections .= "\t\t\tconnect($widget2, SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
+$connections .= "\t\t\tconnect(((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[$i]))->lms_note, SIGNAL(currentIndexChanged(int)), this, SLOT($slot));\n";
+$connections .= "\t\t\tconnect(((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[$i]))->lms_octave, SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
 }
 
 
