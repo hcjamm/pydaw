@@ -151,6 +151,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->amp_ptr = g_amp_get();
     
     memcpy(&plugin_data->mutex, &m, sizeof(pthread_mutex_t));
+    
+    plugin_data->mono_modules = g_mono_init(s_rate);
 
     return (LADSPA_Handle) plugin_data;
 }
@@ -182,6 +184,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 {
     float ratio = 1.0;
     float gain = 1.0;
+    float gain_test = 1.0;
     unsigned long i, ch, s;
 
     //if (plugin_data->retune && *plugin_data->retune) {
@@ -225,6 +228,10 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 		lgain = lgain * (float)(releaseFrames - dist) / (float)releaseFrames;
 	    }
 	}
+        
+        if (plugin_data->sample_vol[(plugin_data->current_sample)] && n != *(plugin_data->sample_vol[(plugin_data->current_sample)])) {
+            gain_test = lgain * f_db_to_linear_fast(*(plugin_data->sample_vol[(plugin_data->current_sample)]), plugin_data->amp_ptr);
+        }
 	
 	for (ch = 0; ch < plugin_data->channels; ++ch) {
 
@@ -233,7 +240,9 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 		  plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi]) *
 		 (rs - (float)rsi));
             
-	    plugin_data->output[ch][pos + i] += lgain * sample * f_db_to_linear_fast(0.0f, plugin_data->amp_ptr);
+            
+            
+	    plugin_data->output[ch][pos + i] += lgain * sample * gain_test;
 	}
     }
 }

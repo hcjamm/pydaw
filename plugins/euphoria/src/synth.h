@@ -18,6 +18,7 @@ GNU General Public License for more details.
 #include <ladspa.h>
 #include "ports.h"
 #include "../../libmodsynth/lib/amp.h"
+#include "libmodsynth.h"
 
 
 #define Sampler_BASE_PITCH_MIN 0
@@ -63,6 +64,7 @@ typedef struct {
     long         sampleNo;
     char        *projectDir;
     pthread_mutex_t mutex;
+    t_mono_modules * mono_modules;
     t_amp * amp_ptr;
 } Sampler;
 
