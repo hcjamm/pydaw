@@ -20,6 +20,7 @@ class LMS_file_select
 public:
     QHBoxLayout * lms_layout;
     QPushButton * lms_open_button;
+    QPushButton * lms_clear_button;
     QLineEdit * lms_file_path;
     
     LMS_file_select(QWidget * a_parent)
@@ -27,18 +28,26 @@ public:
         lms_layout = new QHBoxLayout();
         lms_open_button = new QPushButton(a_parent);
         lms_open_button->setText(QString("Open"));
+        lms_clear_button = new QPushButton(a_parent);
+        lms_clear_button->setText(QString("Clear"));
         lms_file_path = new QLineEdit(a_parent);
         lms_file_path->setReadOnly(TRUE);
         
         lms_layout->addWidget(lms_file_path);
+        lms_layout->addWidget(lms_clear_button);
         lms_layout->addWidget(lms_open_button);
     }
     
-    QString button_pressed(QWidget * a_parent)
+    QString open_button_pressed(QWidget * a_parent)
     {
         QString f_result = QFileDialog::getOpenFileName(a_parent, "Select an audio sample file", ".", "Audio files (*.wav *.aiff)");
         lms_file_path->setText(f_result);
         return lms_file_path->text();
+    }
+    
+    void clear_button_pressed()
+    {        
+        lms_file_path->setText(QString(""));        
     }
     
     QString lms_get_file()

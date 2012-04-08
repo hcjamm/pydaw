@@ -80,7 +80,7 @@ public:
     void calculate_fx_label(int,int,QLabel*);
 public slots:
     void setSampleFile(QString file);
-        
+    void clearFile();
     void setSelection(int);
     
     void aboutToQuit();
