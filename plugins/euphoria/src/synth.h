@@ -30,8 +30,12 @@ GNU General Public License for more details.
 /*Provide an arbitrary maximum number of samples the user can load*/
 #define LMS_MAX_SAMPLE_COUNT 32
 
+/*The first port to use when enumerating the ports for mod_matrix controls.  All of the mod_matrix ports should be sequential, 
+ * any additional ports should prepend this port number*/
+#define LMS_FIRST_MOD_MATRIX_PORT 7
+
 /*The range of ports for sample pitch*/
-#define LMS_SAMPLE_PITCH_PORT_RANGE_MIN 7
+#define LMS_SAMPLE_PITCH_PORT_RANGE_MIN     LMS_FIRST_MOD_MATRIX_PORT
 #define LMS_SAMPLE_PITCH_PORT_RANGE_MAX     (LMS_SAMPLE_PITCH_PORT_RANGE_MIN + LMS_MAX_SAMPLE_COUNT)
 
 /*The range of ports for the low note to play a sample on*/
