@@ -8,10 +8,6 @@
  * Created on January 8, 2012, 11:14 AM
  */
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-    
 #include "interpolate-linear.h"
 
 t_lin_interpolater * g_lin_get()
@@ -97,7 +93,3 @@ inline float f_linear_interpolate_ptr_wrap(float * a_table, int a_table_size, fl
     
     return (((a_table[(a_lin->int_pos)]) - (a_table[(a_lin->int_pos_plus_1)])) * (a_lin->pos)) + (a_table[(a_lin->int_pos_plus_1)]);
 }
- 
-#ifdef	__cplusplus
-}
-#endif
