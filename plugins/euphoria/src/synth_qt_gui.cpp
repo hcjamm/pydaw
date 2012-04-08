@@ -498,6 +498,7 @@ void SamplerGUI::selectionChanged()
 
 void SamplerGUI::sample_pitchChanged(int a_control_index)
 {
+    m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[a_control_index]->lms_value_changed(0);
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",                 
@@ -509,6 +510,7 @@ void SamplerGUI::sample_pitchChanged(int a_control_index)
 
 void SamplerGUI::sample_lnoteChanged(int a_control_index)
 {
+    m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[a_control_index]->lms_value_changed(0);
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",                 
@@ -520,6 +522,7 @@ void SamplerGUI::sample_lnoteChanged(int a_control_index)
 }
 void SamplerGUI::sample_hnoteChanged(int a_control_index)
 {
+    m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[a_control_index]->lms_value_changed(0);
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",                 
@@ -532,6 +535,7 @@ void SamplerGUI::sample_hnoteChanged(int a_control_index)
 
 void SamplerGUI::sample_volChanged(int a_control_index)
 {
+    m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[a_control_index]->lms_value_changed(0);
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",                 
