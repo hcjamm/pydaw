@@ -104,6 +104,7 @@ public:
                         LMS_combobox * f_cb = new LMS_combobox(a_parent, lms_mm_columns[f_i]->lms_combobox_items, f_port, a_style);
                         lms_mm_columns[f_i]->controls.append(f_cb);
                         lms_mod_matrix->setCellWidget(f_i2, f_i, f_cb->lms_get_widget());
+                        f_port++;
                     }
                         break;
                     case no_widget:
@@ -113,6 +114,7 @@ public:
                         LMS_note_selector * f_ns = new LMS_note_selector(a_parent, f_port, a_style, lms_mm_columns[f_i]->default_value);
                         lms_mm_columns[f_i]->controls.append(f_ns);
                         lms_mod_matrix->setCellWidget(f_i2, f_i, f_ns->lms_get_widget());
+                        f_port++;
                     }
                         break;
                     case radiobutton:{
@@ -128,11 +130,10 @@ public:
                         LMS_spinbox * f_sb = new LMS_spinbox(lms_mm_columns[f_i]->min, lms_mm_columns[f_i]->max, 1, lms_mm_columns[f_i]->default_value, a_parent, a_style, f_port);
                         lms_mm_columns[f_i]->controls.append(f_sb);
                         lms_mod_matrix->setCellWidget(f_i2, f_i, f_sb->lms_get_widget());
+                        f_port++;
                     }
                         break;
-                }
-                
-                f_port++;
+                }                                
             }
         }
         

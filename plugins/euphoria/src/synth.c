@@ -70,8 +70,8 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
 			       LADSPA_Data * data)
 {
     Sampler *plugin;
-
     plugin = (Sampler *) instance;
+    
     switch (port) {
     case Sampler_OUTPUT_LEFT:
 	plugin->output[0] = data;
@@ -79,11 +79,6 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     case Sampler_RETUNE:
 	plugin->retune = data;
 	break;
-    /*
-    case Sampler_BASE_PITCH:
-	plugin->basePitch = data;
-	break;
-    */
     case Sampler_SUSTAIN:
 	plugin->sustain = data;
 	break;
@@ -95,10 +90,7 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         break;
     case Sampler_SELECTED_SAMPLE:
         plugin->selected_sample = data;
-        break;
-    /*case Sampler_BALANCE:
-        plugin->balance = data;
-        break;*/        
+        break;     
     default:
         break;
     }
@@ -138,7 +130,6 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->i_selected_sample = 0;
     plugin_data->current_sample = 0;
     plugin_data->loaded_samples_count = 0;
-    //plugin_data->balance = 0; 
     
     int f_i = 0;
     while(f_i < LMS_MAX_SAMPLE_COUNT)
@@ -192,11 +183,11 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
     float gain = 1.0;
     unsigned long i, ch, s;
 
-    if (plugin_data->retune && *plugin_data->retune) {
-	if (plugin_data->basePitch[(plugin_data->current_sample)] && n != *plugin_data->basePitch[(plugin_data->current_sample)]) {
-	    ratio = powf(1.059463094, n - *plugin_data->basePitch[(plugin_data->current_sample)]);
+    //if (plugin_data->retune && *plugin_data->retune) {
+	if (plugin_data->basePitch[(plugin_data->current_sample)] && n != *(plugin_data->basePitch[(plugin_data->current_sample)])) {
+	    ratio = powf(1.059463094, n - *(plugin_data->basePitch[(plugin_data->current_sample)]));
 	}
-    }
+    //}
 
     if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
 
@@ -311,8 +302,13 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 
                 while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
                 {
-                    plugin_data->current_sample = (plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]);
-                    addSample(plugin_data, i, pos, count);
+                    if((i >= *(plugin_data->low_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])) && 
+                            (i <= *(plugin_data->high_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])))
+                    {
+                        plugin_data->current_sample = (plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]);
+                        addSample(plugin_data, i, pos, count);
+                    }
+
                     plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
                 }                
                 
@@ -661,7 +657,7 @@ void _init()
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample Pitch";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;
             
             f_i++;
@@ -692,7 +688,7 @@ void _init()
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample Volume";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;
+            port_range_hints[f_i].LowerBound = -50; port_range_hints[f_i].UpperBound = 36;
             
             f_i++;
         }
