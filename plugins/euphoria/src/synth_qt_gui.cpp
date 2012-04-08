@@ -504,12 +504,15 @@ void SamplerGUI::clearFile()
 
 void SamplerGUI::selectionChanged()
 {
-    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
+    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);    
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if", Sampler_SELECTED_SAMPLE, (float)(m_sample_table->lms_selected_column));
     }
 #endif    
+    
+    m_file_selector->lms_set_file(m_sample_table->lms_mod_matrix->item(m_sample_table->lms_selected_column, SMP_TB_FILE_PATH_INDEX)->text());
+    
 }
 
 void SamplerGUI::sample_pitchChanged(int a_control_index)
