@@ -533,13 +533,81 @@ char *samplerLoad(Sampler *plugin_data, const char *path)
     return NULL;
 }
 
+char *samplerClear(Sampler *plugin_data)
+{
+    if((plugin_data->loaded_samples_count) == 0)
+    {
+        return NULL;
+    }
+
+    
+    plugin_data->i_selected_sample = (int)(*(plugin_data->selected_sample));
+    printf("plugin_data->i_selected_sample == %i\n", (plugin_data->i_selected_sample));
+    
+    /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
+    plugin_data->i_loaded_samples = 0;
+    plugin_data->sample_is_loaded = 0;
+    
+    while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
+    {
+        if((plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]) == (plugin_data->i_selected_sample))
+        {
+            printf("Sample index %i is already loaded.\n", (plugin_data->i_loaded_samples));
+            plugin_data->sample_is_loaded = 1;
+            break;
+        }
+        plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
+    }
+    
+    if((plugin_data->sample_is_loaded) == 0)
+    {        
+        return NULL;
+    }
+    else
+    {
+        if((plugin_data->loaded_samples_count) == 1)
+        {
+            plugin_data->loaded_samples_count = 0;
+        }
+        else
+        {
+            plugin_data->loaded_samples[(plugin_data->i_loaded_samples)] = (plugin_data->loaded_samples[(plugin_data->loaded_samples_count) - 1]);            
+            plugin_data->loaded_samples_count = (plugin_data->loaded_samples_count) - 1;        
+        }        
+    }
+
+    float *tmpSamples[2], *tmpOld[2];    
+
+    tmpSamples[0] = (float*)malloc(sizeof(float));        
+    tmpSamples[1] = (float *)malloc(sizeof(float));
+    
+    pthread_mutex_lock(&plugin_data->mutex);
+
+    tmpOld[0] = plugin_data->sampleData[0][(plugin_data->i_selected_sample)];
+    tmpOld[1] = plugin_data->sampleData[1][(plugin_data->i_selected_sample)];
+    plugin_data->sampleData[0][(plugin_data->i_selected_sample)] = tmpSamples[0];
+    plugin_data->sampleData[1][(plugin_data->i_selected_sample)] = tmpSamples[1];
+    plugin_data->sampleCount[(plugin_data->i_selected_sample)] = 0;
+
+    pthread_mutex_unlock(&plugin_data->mutex);
+
+    if (tmpOld[0]) free(tmpOld[0]);
+    if (tmpOld[1]) free(tmpOld[1]);
+
+    return NULL;
+}
+
+
 char *samplerConfigure(LADSPA_Handle instance, const char *key, const char *value)
 {
     Sampler *plugin_data = (Sampler *)instance;
 
     if (!strcmp(key, "load")) {
 	return samplerLoad(plugin_data, value);
-    } else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
+    } else if (!strcmp(key, "clear")) {
+        return samplerClear(plugin_data);
+    }
+    else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
 	if (plugin_data->projectDir) free(plugin_data->projectDir);
 	plugin_data->projectDir = strdup(value);
 	return 0;

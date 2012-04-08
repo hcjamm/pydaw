@@ -107,8 +107,11 @@ public:
                         f_port++;
                     }
                         break;
-                    case no_widget:
-                        //Do nothing
+                    case no_widget:{                        
+                        QTableWidgetItem * f_empty = new QTableWidgetItem();
+                        f_empty->setText(QString(""));
+                        lms_mod_matrix->setItem(f_i2, f_i, f_empty);
+                    }
                         break;
                     case note_selector:{
                         LMS_note_selector * f_ns = new LMS_note_selector(a_parent, f_port, a_style, lms_mm_columns[f_i]->default_value);
