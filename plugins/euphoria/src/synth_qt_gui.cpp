@@ -13,7 +13,6 @@ GNU General Public License for more details.
  */
 
 #include "synth_qt_gui.h"
-#include "synth.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -32,7 +31,6 @@ GNU General Public License for more details.
 #include <sndfile.h>
 
 #include "dssi.h"
-#include "synth.h"
 
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>

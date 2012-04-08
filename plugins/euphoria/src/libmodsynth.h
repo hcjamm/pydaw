@@ -25,8 +25,6 @@ extern "C" {
 #include "../../libmodsynth/lib/osc_core.h"
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/lib/smoother-linear.h"
-#include "../../libmodsynth/modules/oscillator/osc_simple.h"
-#include "../../libmodsynth/modules/oscillator/noise.h"
 #include "../../libmodsynth/modules/filter/svf.h"
 #include "../../libmodsynth/modules/distortion/clipper.h"
 #include "../../libmodsynth/modules/modulation/adsr.h"
@@ -66,21 +64,16 @@ typedef struct st_mono_modules
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
 typedef struct st_poly_voice
-{    
-    t_osc_simple_unison * osc_unison1;
-    t_osc_simple_unison * osc_unison2;
-    
+{   
     t_state_variable_filter * svf_filter;
     fp_svf_run_filter svf_function;
     
     t_clipper * clipper1;
     t_audio_xfade * dist_dry_wet;
     
-    t_adsr * adsr_filter;
-    t_white_noise * white_noise1;
+    t_adsr * adsr_filter;    
     t_adsr * adsr_amp;       
-    float noise_amp;
-    
+        
     t_smoother_linear * glide_smoother;
     t_ramp_env * glide_env;
     
@@ -105,26 +98,7 @@ void dump_debug_t_poly_voice(t_poly_voice*);
 /*This must be updated if you make any changes to t_poly_voice*/
 void dump_debug_t_poly_voice(t_poly_voice* a_data)
 {
-    printf("\n\nRunning dump_debug_t_poly_voice \n");
-    printf("adsr_amp->output == %f \n", a_data->adsr_amp->output);
-    printf("adsr_filter->output->output == %f \n", a_data->adsr_filter->output);
-    printf("clipper1->clip_high == %f \n", a_data->clipper1->clip_high);
-    printf("clipper1->clip_low == %f \n", a_data->clipper1->clip_low);
     
-    printf("clipper1->input_gain == %f \n", a_data->clipper1->input_gain);
-    printf("current_sample == %f \n", a_data->current_sample);
-    printf("dist_dry_wet->in1_mult == %f \n", a_data->dist_dry_wet->in1_mult);
-    printf("dist_dry_wet->in2_mult == %f \n", a_data->dist_dry_wet->in2_mult);
-    printf("glide_smoother1->last_value == %f \n", a_data->glide_smoother->last_value);
-    printf("glide_smoother1->rate == %f \n", a_data->glide_smoother->rate);
-    printf("noise_amp == %f \n", a_data->noise_amp);    
-    printf("osc_unison1->adjusted_amp == %f \n", a_data->osc_unison1->adjusted_amp);
-    printf("osc_unison2->adjusted_amp == %f \n", a_data->osc_unison2->adjusted_amp);
-    printf("pitch_env->output_multiplied == %f \n", a_data->pitch_env->output_multiplied);    
-    //printf("a_data->real_pitch1 == %f \n", a_data->real_pitch);
-    printf("svf_filter->cutoff_filter == %f \n", a_data->svf_filter->cutoff_filter);    
-    printf("target_pitch1 == %f \n", a_data->target_pitch);
-    printf("white_noise1->sample_array[a_data->white_noise1->read_head] == %f \n", a_data->white_noise1->sample_array[a_data->white_noise1->read_head]);
 }
 
 #endif
@@ -136,13 +110,7 @@ t_poly_voice * g_poly_init();
 t_poly_voice * g_poly_init()
 {
     t_poly_voice * f_voice = (t_poly_voice*)malloc(sizeof(t_poly_voice));
-    
-    /*TODO:  Remove some of the set values, they were from the early days and aren't needed anymore*/
-    
-    f_voice->osc_unison1 = g_osc_get_osc_simple_unison(va_sample_rate);    
-    f_voice->osc_unison2 = g_osc_get_osc_simple_unison(va_sample_rate);
-    
-        
+                
     f_voice->svf_filter = g_svf_get(va_sample_rate);
     f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
         
@@ -150,10 +118,7 @@ t_poly_voice * g_poly_init()
     f_voice->dist_dry_wet = g_axf_get_audio_xfade(-3);
         
     f_voice->adsr_amp = g_adsr_get_adsr(va_sr_recip);        
-    f_voice->adsr_filter = g_adsr_get_adsr(va_sr_recip);
-        
-    f_voice->white_noise1 = g_get_white_noise(va_sample_rate);    
-    f_voice->noise_amp = 0;
+    f_voice->adsr_filter = g_adsr_get_adsr(va_sr_recip);       
         
     f_voice->glide_env = g_rmp_get_ramp_env(va_sample_rate);    
     f_voice->pitch_env = g_rmp_get_ramp_env(va_sample_rate);

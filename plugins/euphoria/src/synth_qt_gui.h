@@ -46,10 +46,10 @@ GNU General Public License for more details.
 #include <QtGui/QWidget>
 #include <QRadioButton>
 
-#include "synth.h"
-#include "../../libmodsynth/widgets/ui_modules/sample_viewer.h"
+//#include "../../libmodsynth/widgets/ui_modules/sample_viewer.h"
 #include "../../libmodsynth/widgets/mod_matrix.h"
 #include "../../libmodsynth/widgets/lms_file_select.h"
+#include "ports.h"
 
 extern "C" {
 #include <lo/lo.h>

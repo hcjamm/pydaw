@@ -148,6 +148,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->projectDir = 0;
 
     plugin_data->channels = 2;
+    plugin_data->amp_ptr = g_amp_get();
     
     memcpy(&plugin_data->mutex, &m, sizeof(pthread_mutex_t));
 
@@ -232,7 +233,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 		  plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi]) *
 		 (rs - (float)rsi));
             
-	    plugin_data->output[ch][pos + i] += lgain * sample;
+	    plugin_data->output[ch][pos + i] += lgain * sample * f_db_to_linear_fast(0.0f, plugin_data->amp_ptr);
 	}
     }
 }

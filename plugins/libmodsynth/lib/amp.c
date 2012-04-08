@@ -24,10 +24,6 @@ GNU General Public License for more details.
 
  */
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-    
 #include "amp.h"
 
 t_amp * g_amp_get()
@@ -208,7 +204,3 @@ inline float f_linear_to_db_linear(float a_input, t_amp * a_amp)
     
     return f_db_to_linear_fast((a_amp->result), a_amp);
 }
-
-#ifdef	__cplusplus
-}
-#endif
