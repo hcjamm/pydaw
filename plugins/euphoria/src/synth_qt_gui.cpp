@@ -64,16 +64,8 @@ lo_server osc_server = 0;
 
 static QTextStream cerr(stderr);
 
-#define NO_SAMPLE_TEXT "<none loaded>   "
-
 /*This corresponds to knobs having the range of 0-127, since the DSSI engine requires
  the values to be hard-coded, we can't change them when the user switches effect type*/
-#define FX_KNOB_MAX 127
-#define FX_KNOB_MAX_RECIP (1/FX_KNOB_MAX)
-/*Define the range that filters will use*/
-#define FX_FILTER_MAX_PITCH 124
-#define FX_FILTER_MIN_PITCH 20
-#define FX_FILTER_PITCH_RANGE (FX_FILTER_MAX_PITCH - FX_FILTER_MIN_PITCH)
 
 /*These define the index of each column in m_sample_table.  Re-order these if you add or remove columns*/
 #define SMP_TB_RADIOBUTTON_INDEX 0
@@ -96,36 +88,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_suppressHostUpdate(true),
     m_hostRequestedQuit(false),
     m_ready(false)
-{
+{   
     
-    /*
-     * Example of how to setup a filebrowser treeview
-     * 
-    #include <QtGui/QApplication>
-    #include <QtGui/QDirModel>
-    #include <QtGui/QTreeView>
-
-    int main(int argc, char *argv[])
-    {
-        QApplication app(argc, argv);
-
-        QDirModel model;
-        QTreeView tree;
-
-        tree.setModel(&model);
-
-        tree.setRootIndex(model.index(QDir::homePath()));
-        tree.setColumnHidden( 1, true );
-        tree.setColumnHidden( 2, true );
-        tree.setColumnHidden( 3, true );
-
-        tree.setWindowTitle(QObject::tr("Dir View:")+QDir::homePath());
-        tree.resize(640, 480);
-        tree.show();
-
-        return app.exec();
-    }
-     */
 #ifndef LMS_DEBUG_STANDALONE
     m_host = lo_address_new(host, port);
 #endif    
@@ -236,7 +200,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         QMetaObject::connectSlotsByName(this);
     
         /*Connect slots manually*/
-        connect(m_file_selector->lms_open_button, SIGNAL(pressed()), this, SLOT(fileSelect()));    
+        connect(m_file_selector->lms_open_button, SIGNAL(pressed()), this, SLOT(fileSelect()));
+        
+        
         
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));

@@ -79,9 +79,11 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     case Sampler_RETUNE:
 	plugin->retune = data;
 	break;
+    /*
     case Sampler_BASE_PITCH:
 	plugin->basePitch = data;
 	break;
+    */
     case Sampler_SUSTAIN:
 	plugin->sustain = data;
 	break;
@@ -99,7 +101,23 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         break;*/        
     default:
         break;
-
+    }
+    
+    if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
+    {
+        plugin->basePitch[(port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN)] = data;
+    }
+    else if((port >= LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX))
+    {
+        plugin->low_note[(port - LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)] = data;
+    }    
+    else if((port >= LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
+    {
+        plugin->high_note[(port - LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)] = data;
+    }
+    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX))
+    {
+        plugin->sample_vol[(port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)] = data;
     }
 }
 
@@ -113,8 +131,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
 
     plugin_data->output[0] = 0;
     plugin_data->output[1] = 0;
-    plugin_data->retune = 0;
-    plugin_data->basePitch = 0;
+    plugin_data->retune = 0;    
     plugin_data->sustain = 0;
     plugin_data->release = 0;
     plugin_data->selected_sample = 0;
@@ -129,6 +146,10 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         plugin_data->sampleData[0][f_i] = 0;
         plugin_data->sampleData[1][f_i] = 0;
         plugin_data->sampleCount[f_i] = 0;
+        plugin_data->basePitch[f_i] = 0;
+        plugin_data->low_note[f_i] = 0;
+        plugin_data->high_note[f_i] = 0;
+        plugin_data->sample_vol[f_i] = 0;
         f_i++;
     }
     
@@ -172,8 +193,8 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
     unsigned long i, ch, s;
 
     if (plugin_data->retune && *plugin_data->retune) {
-	if (plugin_data->basePitch && n != *plugin_data->basePitch) {
-	    ratio = powf(1.059463094, n - *plugin_data->basePitch);
+	if (plugin_data->basePitch[(plugin_data->current_sample)] && n != *plugin_data->basePitch[(plugin_data->current_sample)]) {
+	    ratio = powf(1.059463094, n - *plugin_data->basePitch[(plugin_data->current_sample)]);
 	}
     }
 

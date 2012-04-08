@@ -82,9 +82,9 @@ public slots:
     void aboutToQuit();
 
 protected slots:
-    void fileSelect();
-    
+    void fileSelect();    
     void selectionChanged();
+    
     
     void oscRecv();
     

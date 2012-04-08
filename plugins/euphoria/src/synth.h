@@ -26,7 +26,27 @@ GNU General Public License for more details.
 #define Sampler_OUTPUT_RIGHT 5
 //#define Sampler_BALANCE 6
 #define Sampler_SELECTED_SAMPLE 6
-#define Sampler_Stereo_COUNT 7
+
+/*Provide an arbitrary maximum number of samples the user can load*/
+#define LMS_MAX_SAMPLE_COUNT 32
+
+/*The range of ports for sample pitch*/
+#define LMS_SAMPLE_PITCH_PORT_RANGE_MIN 7
+#define LMS_SAMPLE_PITCH_PORT_RANGE_MAX     LMS_SAMPLE_PITCH_PORT_RANGE_MIN + LMS_MAX_SAMPLE_COUNT
+
+/*The range of ports for the low note to play a sample on*/
+#define LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN   LMS_SAMPLE_PITCH_PORT_RANGE_MAX
+#define LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX   LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN + LMS_MAX_SAMPLE_COUNT
+
+/*The range of ports for the high note to play a sample on*/
+#define LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN  LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX
+#define LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX  LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN + LMS_MAX_SAMPLE_COUNT
+
+/*The range of ports for sample volume*/
+#define LMS_SAMPLE_VOLUME_PORT_RANGE_MIN    LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX
+#define LMS_SAMPLE_VOLUME_PORT_RANGE_MAX    LMS_SAMPLE_VOLUME_PORT_RANGE_MIN + LMS_MAX_SAMPLE_COUNT
+
+#define Sampler_Stereo_COUNT                LMS_SAMPLE_VOLUME_PORT_RANGE_MAX
 
 #define Sampler_BASE_PITCH_MIN 0
 // not 127, as we want 120/2 = 60 as the default:
@@ -39,23 +59,21 @@ GNU General Public License for more details.
 #define Sampler_NOTES 128
 #define Sampler_FRAMES_MAX 1048576
 
-/*Provide an arbitrary maximum number of samples the user can load*/
-#define LMS_MAX_SAMPLE_COUNT 32
-/*Temporary placeholder, to be removed*/
-//#define LMS_ZERO_INDEX 0
-
-//#define Sampler_Stereo_LABEL "stereo_sampler"
 #define Sampler_Stereo_LABEL "Euphoria"
 
 
 typedef struct {
     LADSPA_Data *output[2];
     LADSPA_Data *retune;
-    LADSPA_Data *basePitch;
+    LADSPA_Data *basePitch[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *low_note[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *high_note[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_vol[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sustain;
     LADSPA_Data *release;
     //LADSPA_Data *balance;
     LADSPA_Data *selected_sample;
+    
     int         i_selected_sample;
     int          channels;
     float       *sampleData[2][LMS_MAX_SAMPLE_COUNT];
