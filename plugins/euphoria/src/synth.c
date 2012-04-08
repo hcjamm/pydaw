@@ -661,7 +661,7 @@ void _init()
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample Pitch";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;
             
             f_i++;
