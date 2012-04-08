@@ -654,6 +654,48 @@ void _init()
 	    port_range_hints[Sampler_BALANCE].LowerBound = -1.0f;
 	    port_range_hints[Sampler_BALANCE].UpperBound = 1.0f;*/
 	}
+        
+        int f_i = LMS_SAMPLE_PITCH_PORT_RANGE_MIN;
+        
+        while(f_i < LMS_SAMPLE_PITCH_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Sample Pitch";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;
+            
+            f_i++;
+        }
+        
+        while(f_i < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Sample Pitch Low";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;
+            
+            f_i++;
+        }
+        
+        while(f_i < LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Sample Pitch High";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;
+            
+            f_i++;
+        }
+        
+        while(f_i < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Sample Volume";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;
+            
+            f_i++;
+        }
 
 	desc->activate = activateSampler;
 	desc->cleanup = cleanupSampler;
