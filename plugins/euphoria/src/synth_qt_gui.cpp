@@ -389,32 +389,39 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
 
     const int port = argv[0]->i;
     const float value = argv[1]->f;
-
+    /*
     switch (port) {
-/*
-    case Sampler_RETUNE:
-	gui->setRetune(value < 0.001f ? false : true);
-	break;
 
-    case Sampler_BASE_PITCH:
-	gui->setBasePitch((int)value);
-	break;
-
-    case Sampler_SUSTAIN:
-	gui->setSustain(value < 0.001f ? true : false);
-	break;
-
-    case Sampler_RELEASE:
-	gui->setRelease(value < (Sampler_RELEASE_MIN + 0.000001f) ?
-			0 : (int)(value * 1000.0 + 0.5));
-	break;
-
-    case Sampler_BALANCE:
-	gui->setBalance((int)(value * 100.0));
-	break;
-*/
-    default:
-	cerr << "Warning: received request to set nonexistent port " << port << endl;
+    }
+    */
+    /*The range of ports for sample pitch*/
+    if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN;
+        //cerr << "LMS_SAMPLE_PITCH_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
+        gui->m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[f_value]->lms_set_value(value);
+    }
+    else if((port >= LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN;
+        //cerr << "LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
+        gui->m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[f_value]->lms_set_value(value);
+    }
+    else if((port >= LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN;
+        //cerr << "LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
+        gui->m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[f_value]->lms_set_value(value);
+    }
+    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN;
+        //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
+        gui->m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[f_value]->lms_set_value(value);
+    }
+    else
+    {
+        cerr << "Warning: received request to set nonexistent port " << port << endl;
     }
 
     return 0;

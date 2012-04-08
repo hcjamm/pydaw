@@ -75,32 +75,34 @@ public:
     {
         lms_selected_column = 0;
         
+        lms_mm_columns = a_columns;
+        
         lms_mod_matrix = new QTableWidget(a_parent);        
         lms_mod_matrix->setRowCount(a_row_count);        
-        lms_mod_matrix->setColumnCount(a_columns.count());
+        lms_mod_matrix->setColumnCount(lms_mm_columns.count());
         lms_mod_matrix->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         lms_mod_matrix->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         
         QStringList f_headers;
         
-        for(int f_i = 0; f_i < a_columns.count(); f_i++)
+        for(int f_i = 0; f_i < lms_mm_columns.count(); f_i++)
         {
-            f_headers << a_columns[f_i]->lms_column_header;
+            f_headers << lms_mm_columns[f_i]->lms_column_header;
         }
         
         lms_mod_matrix->setHorizontalHeaderLabels(f_headers);
                 
         int f_port = a_first_port;
         
-        for(int f_i = 0; f_i < a_columns.count(); f_i++)
+        for(int f_i = 0; f_i < lms_mm_columns.count(); f_i++)
         {            
             for(int f_i2 = 0; f_i2 < a_row_count; f_i2++)
             {
-                switch(a_columns[f_i]->lms_column_type)
+                switch(lms_mm_columns[f_i]->lms_column_type)
                 {
                     case combobox:{
-                        LMS_combobox * f_cb = new LMS_combobox(a_parent, a_columns[f_i]->lms_combobox_items, f_port, a_style);
-                        a_columns[f_i]->controls.append(f_cb);
+                        LMS_combobox * f_cb = new LMS_combobox(a_parent, lms_mm_columns[f_i]->lms_combobox_items, f_port, a_style);
+                        lms_mm_columns[f_i]->controls.append(f_cb);
                         lms_mod_matrix->setCellWidget(f_i2, f_i, f_cb->lms_get_widget());
                     }
                         break;
@@ -108,8 +110,8 @@ public:
                         //Do nothing
                         break;
                     case note_selector:{
-                        LMS_note_selector * f_ns = new LMS_note_selector(a_parent, f_port, a_style, a_columns[f_i]->default_value);
-                        a_columns[f_i]->controls.append(f_ns);
+                        LMS_note_selector * f_ns = new LMS_note_selector(a_parent, f_port, a_style, lms_mm_columns[f_i]->default_value);
+                        lms_mm_columns[f_i]->controls.append(f_ns);
                         lms_mod_matrix->setCellWidget(f_i2, f_i, f_ns->lms_get_widget());
                     }
                         break;
@@ -123,8 +125,8 @@ public:
                     }
                         break;
                     case spinbox:{
-                        LMS_spinbox * f_sb = new LMS_spinbox(a_columns[f_i]->min, a_columns[f_i]->max, 1, a_columns[f_i]->default_value, a_parent, a_style, f_port);
-                        a_columns[f_i]->controls.append(f_sb);
+                        LMS_spinbox * f_sb = new LMS_spinbox(lms_mm_columns[f_i]->min, lms_mm_columns[f_i]->max, 1, lms_mm_columns[f_i]->default_value, a_parent, a_style, f_port);
+                        lms_mm_columns[f_i]->controls.append(f_sb);
                         lms_mod_matrix->setCellWidget(f_i2, f_i, f_sb->lms_get_widget());
                     }
                         break;

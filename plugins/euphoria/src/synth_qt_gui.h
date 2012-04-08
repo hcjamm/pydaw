@@ -70,6 +70,9 @@ public:
 
     void setHostRequestedQuit(bool r) { m_hostRequestedQuit = r; }
     
+    /*Moved here to be accessible by the control_handler*/
+    LMS_mod_matrix * m_sample_table;
+    
     /*To prevent controls that update other controls from going berserk*/
     bool m_handle_control_updates;
     
@@ -94,8 +97,7 @@ protected:
     //int m_selected_sample_index;    
     /*The index of C, C#, D, D#, E, etc... in the QCombobox*/
     int m_note_indexes [LMS_MAX_SAMPLE_COUNT];
-            
-    LMS_mod_matrix * m_sample_table;
+    
     //LMS_sample_viewer * m_sample_viewer;
     LMS_file_select * m_file_selector;
     
