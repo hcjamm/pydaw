@@ -38,20 +38,6 @@ extern "C" {
  their associated struct type as a parameter) should declare their own function pointer types*/
 typedef float (*fp_funcptr_audio_generic)();
     
-/*Declare any static variables that should be used globally in LibModSynth
- Note that any constants not requiring dynamically generated data should be declared in constants.h
- */
-static float va_sr_recip;
-static float va_sample_rate;
-
-void v_init_lms(float f_sr);
-
-void v_init_lms(float f_sr)
-{
-    va_sample_rate = f_sr;
-    va_sr_recip = 1/f_sr;    
-}
-
 /*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
  of an instrument, you will most likely want to define all of your modules here*/
 
@@ -103,25 +89,27 @@ void dump_debug_t_poly_voice(t_poly_voice* a_data)
 
 #endif
 
-t_poly_voice * g_poly_init();
+t_poly_voice * g_poly_init(float);
 
 /*initialize all of the modules in an instance of poly_voice*/
 
-t_poly_voice * g_poly_init()
+t_poly_voice * g_poly_init(float a_sr)
 {
+    float f_sr_recip = 1/a_sr;
+    
     t_poly_voice * f_voice = (t_poly_voice*)malloc(sizeof(t_poly_voice));
                 
-    f_voice->svf_filter = g_svf_get(va_sample_rate);
+    f_voice->svf_filter = g_svf_get(a_sr);
     f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
         
     f_voice->clipper1 = g_clp_get_clipper();    
     f_voice->dist_dry_wet = g_axf_get_audio_xfade(-3);
         
-    f_voice->adsr_amp = g_adsr_get_adsr(va_sr_recip);        
-    f_voice->adsr_filter = g_adsr_get_adsr(va_sr_recip);       
+    f_voice->adsr_amp = g_adsr_get_adsr(f_sr_recip);        
+    f_voice->adsr_filter = g_adsr_get_adsr(f_sr_recip);       
         
-    f_voice->glide_env = g_rmp_get_ramp_env(va_sample_rate);    
-    f_voice->pitch_env = g_rmp_get_ramp_env(va_sample_rate);
+    f_voice->glide_env = g_rmp_get_ramp_env(a_sr);    
+    f_voice->pitch_env = g_rmp_get_ramp_env(a_sr);
     
     //f_voice->real_pitch = 60.0f;
     
@@ -146,11 +134,11 @@ void v_poly_note_off(t_poly_voice * a_voice) //, LTS * _instance)
     v_adsr_release(a_voice->adsr_filter);    
 }
 
-t_mono_modules * v_mono_init();
+t_mono_modules * g_mono_init(float);
 
 
 /*Initialize any modules that will be run monophonically*/
-t_mono_modules * v_mono_init()
+t_mono_modules * g_mono_init(float a_sr)
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
     a_mono->filter_smoother = g_smr_iir_get_smoother();
