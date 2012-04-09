@@ -58,7 +58,7 @@ class LMS_note_selector : public LMS_control
             lms_octave->setValue((int)(a_value / 12));
         }
         void lms_value_changed(int a_value)
-        {
+        {            
             lms_selected_note = (lms_note->currentIndex()) + (((lms_octave->value()) + 2) * 12);
         }
         
