@@ -38,11 +38,31 @@ inline t_pit_pitch_core * g_pit_get()
     return f_result;    
 }
 
+
+typedef struct st_pit_ratio
+{
+    float pitch, hz, hz_recip;
+}t_pit_ratio;
+
+t_pit_ratio * g_pit_ratio();
+
+t_pit_ratio * g_pit_ratio()
+{
+    t_pit_ratio * f_result = (t_pit_ratio*)malloc(sizeof(t_pit_ratio));
+    
+    f_result->hz = 1;
+    f_result->hz_recip = 1;
+    f_result->pitch = 12.345432;  //ensures that it won't coincidentally be the pitch
+    
+    return f_result;
+}
+
 inline float f_pit_midi_note_to_hz(float);    
 inline float f_pit_hz_to_midi_note(float);
 inline float f_pit_midi_note_to_samples(float,float,t_pit_pitch_core*);
 /*TODO:  inline float f_pit_midi_note_to_samples_fast(float);*/
 inline float f_pit_midi_note_to_hz_fast(float,t_pit_pitch_core*);
+inline float f_pit_midi_note_to_ratio_fast(float, float, t_pit_pitch_core*, t_pit_ratio *);
 
 /*Functions*/
 
@@ -234,6 +254,25 @@ inline float f_pit_midi_note_to_hz_fast(float a_midi_note_number, t_pit_pitch_co
     }
     
     return f_linear_interpolate_arr(arr_pit_p2f, (a_pit->arr_index), a_pit->linear);
+}
+
+
+/* inline float f_pit_midi_note_to_ratio_fast(
+ * float a_base_pitch, //The base pitch of the sample in MIDI note number
+ * float a_transposed_pitch, //The pitch the sample will be transposed to
+ * t_pit_pitch_core* a_pit,
+ * t_pit_ratio * a_ratio)   
+ */
+inline float f_pit_midi_note_to_ratio_fast(float a_base_pitch, float a_transposed_pitch, t_pit_pitch_core* a_pit, t_pit_ratio * a_ratio)
+{
+    if(a_base_pitch != (a_ratio->pitch))
+    {
+        a_ratio->pitch = a_base_pitch;
+        a_ratio->hz = f_pit_midi_note_to_hz_fast(a_base_pitch, a_pit);
+        a_ratio->hz_recip = 1/(a_ratio->hz);
+    }
+    
+    return (a_ratio->hz_recip) * f_pit_midi_note_to_hz_fast(a_transposed_pitch, a_pit);
 }
 
 #ifdef	__cplusplus

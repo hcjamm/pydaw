@@ -141,6 +141,10 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         plugin_data->low_note[f_i] = 0;
         plugin_data->high_note[f_i] = 0;
         plugin_data->sample_vol[f_i] = 0;
+        
+        plugin_data->smp_pit_core[f_i] = g_pit_get();
+        plugin_data->smp_pit_ratio[f_i] = g_pit_ratio();
+        
         f_i++;
     }
     
@@ -188,11 +192,14 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
     unsigned long i, ch, s;
 
     //if (plugin_data->retune && *plugin_data->retune) {
-	if (plugin_data->basePitch[(plugin_data->current_sample)] && n != *(plugin_data->basePitch[(plugin_data->current_sample)])) {
-	    ratio = powf(1.059463094, n - *(plugin_data->basePitch[(plugin_data->current_sample)]));
+	if (plugin_data->basePitch[(plugin_data->current_sample)]){ // && n != *(plugin_data->basePitch[(plugin_data->current_sample)])) {
+	    //ratio = powf(1.059463094, n - *(plugin_data->basePitch[(plugin_data->current_sample)]));
+            ratio =
+            f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]), (float)(n), 
+                    plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
 	}
     //}
-
+    
     if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
 
     gain = (float)plugin_data->velocities[n] / 127.0f;
@@ -521,7 +528,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path)
 
     if (tmpOld[0]) free(tmpOld[0]);
     if (tmpOld[1]) free(tmpOld[1]);
-
+    
     printf("%s: loaded %s (%ld samples from original %ld channels resampled from %ld frames at %ld Hz)\n", Sampler_Stereo_LABEL, path, (long)samples, (long)info.channels, (long)info.frames, (long)info.samplerate);
 
     if (revisedPath) {
