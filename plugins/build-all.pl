@@ -95,12 +95,12 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 'lms_delay',
 'lms_distortion',
 'lms_filter',
-'lms_eq5'
+'lms_eq5',
+'euphoria'
 );
 #Unfinished plugins not yet in the official package:
 #lms_dynamics,
 #lms_reverb
-#euphoria
 
 #This is the notes that your package manager will show when browsing your package.  Change this if packaging your own plugins.
 $notes = " LibModSynth is a set of developer tools designed to make it fast and easy to develop high quality DSSI plugins.
