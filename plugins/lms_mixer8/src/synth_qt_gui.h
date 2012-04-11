@@ -28,9 +28,11 @@ GNU General Public License for more details.
 #include <string>
 #include <stdlib.h>
 #include "../../libmodsynth/widgets/group_box.h"
-#include "../../libmodsynth/widgets/knob_regular.h"
 #include "../../libmodsynth/widgets/lms_main_layout.h"
 #include "../../libmodsynth/widgets/lms_control.h"
+#include "../../libmodsynth/widgets/ui_modules/mixer_channel.h"
+
+#include "defines.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -79,11 +81,8 @@ protected slots:
     
 protected:
     LMS_main_layout * m_main_layout;
-    LMS_group_box * m_groupbox;
-    LMS_knob_regular * m_ingain;
-    LMS_knob_regular * m_outgain;
-    LMS_knob_regular * m_drywet;
-    
+    LMS_mixer_channel * m_mixer_channels[LMS_MIXER_CHANNEL_COUNT];
+        
     lo_address m_host;
     QByteArray m_controlPath;
     QByteArray m_midiPath;

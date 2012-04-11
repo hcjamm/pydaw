@@ -28,23 +28,6 @@ printf("debug information");
 #endif
 */
    
-#define LMS_INPUT0  0
-#define LMS_INPUT1  1    
-#define LMS_OUTPUT0  2
-#define LMS_OUTPUT1  3
-/*GUI Step 11:  Add ports to the main synthesizer file that the GUI can talk to */
-    
-/*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
- as they are iterated through*/
-#define LMS_FIRST_CONTROL_PORT 4
-#define LMS_GAIN  4
-#define LMS_WET  5
-#define LMS_OUT_GAIN  6
-/*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 6
-#define LMS_COUNT 7 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-
-
 #define POLYPHONY   8  //maximum voices played at one time
 #define MIDI_NOTES  128  //Maximum MIDI note.  You probably don't want to change this
 #define STEP_SIZE   16

@@ -22,11 +22,9 @@ extern "C" {
 #include "../../libmodsynth/constants.h"
     
 /*includes for any libmodsynth modules you'll be using*/
-#include "../../libmodsynth/lib/pitch_core.h"
-#include "../../libmodsynth/modules/distortion/clipper.h"
-#include "../../libmodsynth/modules/signal_routing/audio_xfade.h"
-#include "../../libmodsynth/lib/amp.h"
-   
+#include "../../libmodsynth/modules/signal_routing/mixer_channel.h"
+    
+    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
  Functions from the library that have their own parameters (such as a pointer to 
@@ -52,11 +50,8 @@ void v_init_lms(float f_sr)
 
 typedef struct st_mono_modules
 {
-    t_clipper * clipper0;
-    t_clipper * clipper1;
-    t_audio_xfade * dry_wet;
-    t_amp * amp_ptr;
-    float outgain;
+    int iterator;
+    t_mxc_mixer_channel * mixer_channels[LMS_MIXER_CHANNEL_COUNT];
 }t_mono_modules;
     
 
@@ -67,14 +62,16 @@ t_mono_modules * v_mono_init(float);
 t_mono_modules * v_mono_init(float a_sr)
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
-    a_mono->clipper0 = g_clp_get_clipper();
-    a_mono->clipper1 = g_clp_get_clipper();
-    a_mono->dry_wet = g_axf_get_audio_xfade(-3.0f);
-    a_mono->amp_ptr = g_amp_get();
-    a_mono->outgain = 1.0f;
     
-    v_clp_set_clip_sym(a_mono->clipper0, -3.0);
-    v_clp_set_clip_sym(a_mono->clipper1, -3.0);
+    a_mono->iterator = 0;
+    
+    int f_i = 0;
+    
+    while(f_i < LMS_MIXER_CHANNEL_COUNT)
+    {
+        a_mono->mixer_channels[f_i] = g_mxc_get();
+        f_i++;
+    }
     
     return a_mono;
 }
