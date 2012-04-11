@@ -34,6 +34,7 @@ GNU General Public License for more details.
 
 #include "synth.h"
 #include "meta.h"
+#include "defines.h"
 
 static LADSPA_Descriptor *LMSLDescriptor = NULL;
 static DSSI_Descriptor *LMSDDescriptor = NULL;
@@ -77,6 +78,7 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     /*Add the ports from step 9 to the connectPortLMS event handler*/
     
     switch (port) {
+        /*
     case LMS_INPUT0:
 	plugin->input0 = data;
 	break;
@@ -98,6 +100,7 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     case LMS_OUT_GAIN:
 	plugin->out_gain = data;              
 	break;
+         */
     }
 }
 
@@ -162,14 +165,10 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->vals.wet = *(plugin_data->wet) * 0.01;
     plugin_data->vals.out_gain = *(plugin_data->out_gain);    
     
-    plugin_data->mono_modules->outgain = f_db_to_linear_fast((plugin_data->vals.out_gain), plugin_data->mono_modules->amp_ptr);
+    
 #endif
     while ((plugin_data->pos) < sample_count) 
     {	
-        v_clp_set_in_gain(plugin_data->mono_modules->clipper0, (plugin_data->vals.gain));
-        v_clp_set_in_gain(plugin_data->mono_modules->clipper1, (plugin_data->vals.gain));
-        v_axf_set_xfade(plugin_data->mono_modules->dry_wet, plugin_data->vals.wet);
-        
 	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
 	
         plugin_data->i_buffer_clear = 0;
@@ -191,7 +190,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         while((plugin_data->i_mono_out) < (plugin_data->count))
         {   
             plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
-            
+            /*
             output0[(plugin_data->buffer_pos)] =  f_axf_run_xfade(plugin_data->mono_modules->dry_wet, (input0[(plugin_data->buffer_pos)]),
                     f_clp_clip(plugin_data->mono_modules->clipper0, (input0[(plugin_data->buffer_pos)]))) 
                     * (plugin_data->mono_modules->outgain);
@@ -199,7 +198,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             output1[(plugin_data->buffer_pos)] = f_axf_run_xfade(plugin_data->mono_modules->dry_wet, (input1[(plugin_data->buffer_pos)]),
                     f_clp_clip(plugin_data->mono_modules->clipper1, (input1[(plugin_data->buffer_pos)])))
                     * (plugin_data->mono_modules->outgain);
-                    
+            */
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
         
@@ -213,13 +212,16 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
  TODO:  Try it with non-hex numbers*/
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {
-    switch (port) {    
+    switch (port) {
+        /*
     case LMS_GAIN:
         return DSSI_CC(0x15);  //21
     case LMS_WET:
         return DSSI_CC(0x14);  //20
     case LMS_OUT_GAIN:
         return DSSI_CC(0x16);  //22
+         * */
+        
     default:
         return DSSI_NONE;
     }
@@ -264,15 +266,18 @@ void _init()
 	port_names = (char **) calloc(LMSLDescriptor->PortCount, sizeof(char *));
 	LMSLDescriptor->PortNames = (const char **) port_names;
 
-        /* Parameters for input */
-	port_descriptors[LMS_INPUT0] = LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO;
-	port_names[LMS_INPUT0] = "Input 0";
-	port_range_hints[LMS_INPUT0].HintDescriptor = 0;
-
-        port_descriptors[LMS_INPUT1] = LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO;
-	port_names[LMS_INPUT1] = "Input 1";
-	port_range_hints[LMS_INPUT1].HintDescriptor = 0;
+        int f_i = 0;
         
+        while(f_i < LMS_INPUT1)
+        {
+            /* Parameters for input */
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO;
+            port_names[f_i] = "Input";
+            port_range_hints[f_i].HintDescriptor = 0;
+            
+            f_i++;
+        }
+                
 	/* Parameters for output */
 	port_descriptors[LMS_OUTPUT0] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
 	port_names[LMS_OUTPUT0] = "Output 0";
@@ -284,36 +289,57 @@ void _init()
         
         /*Define the LADSPA ports for the plugin in the class constructor*/
         
-	
-	/* Parameters for gain */
-	port_descriptors[LMS_GAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_GAIN] = "In Gain";
-	port_range_hints[LMS_GAIN].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_GAIN].LowerBound =  -6;
-	port_range_hints[LMS_GAIN].UpperBound =  36;
+        f_i = LMS_FIRST_CONTROL_PORT;
         
-        /* Parameters for wet */
-	port_descriptors[LMS_WET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_WET] = "Wet";
-	port_range_hints[LMS_WET].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_WET].LowerBound =  0;
-	port_range_hints[LMS_WET].UpperBound =  100;
+        while (f_i < LMS_COUNT)
+        {
+            /* Parameters for gain */
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Amp Fader";
+            port_range_hints[f_i].HintDescriptor =
+                            LADSPA_HINT_DEFAULT_HIGH |
+                            LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound =  -6;
+            port_range_hints[f_i].UpperBound =  36;
 
-        /* Parameters for out gain */
-	port_descriptors[LMS_OUT_GAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_OUT_GAIN] = "Out Gain";
-	port_range_hints[LMS_OUT_GAIN].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_OUT_GAIN].LowerBound =  -24;
-	port_range_hints[LMS_OUT_GAIN].UpperBound =  6;
-        
-        /*Step 17:  Add LADSPA ports*/
-        
+            f_i++;
+            
+            /* Parameters for wet */
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Gain";
+            port_range_hints[f_i].HintDescriptor =
+                            LADSPA_HINT_DEFAULT_MAXIMUM |
+                            LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound =  0;
+            port_range_hints[f_i].UpperBound =  100;
+
+            f_i++;
+            
+            /* Parameters for out gain */
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Pan";
+            port_range_hints[f_i].HintDescriptor =
+                            LADSPA_HINT_DEFAULT_MIDDLE |
+                            LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound =  -24;
+            port_range_hints[f_i].UpperBound =  6;
+            
+            f_i++;
+                        
+            /* Parameters for out gain */
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Pan Law";
+            port_range_hints[f_i].HintDescriptor =
+                            LADSPA_HINT_DEFAULT_MIDDLE |
+                            LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound =  -24;
+            port_range_hints[f_i].UpperBound =  6;
+            
+            
+            f_i++;
+            
+        }
+		
         
         /*Here is where the functions in synth.c get pointed to for the host to call*/
 	LMSLDescriptor->activate = activateLMS;
