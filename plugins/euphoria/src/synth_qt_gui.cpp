@@ -179,7 +179,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         horizontalLayout_4->addLayout(m_poly_fx_vertical_layout);
 
-        m_main_tab->addTab(m_poly_fx_tab, QString());
+        //m_main_tab->addTab(m_poly_fx_tab, QString());
 
         horizontalLayout_5->addWidget(m_main_tab);
         
