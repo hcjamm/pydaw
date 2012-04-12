@@ -11,9 +11,7 @@ perl build-all.pl ([-y] && ([--ubuntu] || [--debian])) || [--help]
 
 -y :  Answer yes to all questions, and do not prompt.  However, this will generate generic maintainer info if you haven't run it without the -y switch before.  You must specify an operating system with this switch.
 
---ubuntu :  Build for the latest Ubuntu.  Switches for older versions may be added later if dependencies change.  Must be used with -y switch.  If you are not using -y, the script will prompt you for an OS later.
-
---debian :  Build for the latest Debian.  Switches for older versions may be added later if dependencies change.  Must be used with -y switch.  If you are not using -y, the script will prompt you for an OS later.
+--debian :  Build for the Debian or Ubuntu based distros.  Switches for differnt versions may be added later if dependencies change.  Must be used with -y switch.  If you are not using -y, the script will prompt you for an OS later.
 
 --generic:  Don't create a package, just compile and create a generic installer script.  Use this to install the suite on a machine that doesn't use a supported packaging format.  You must install the following dependencies first:
 
@@ -27,9 +25,8 @@ If you would like an alternate operating system added, and are willing to track 
 
 ";
 
-#per-distro dependencies.
-$ubuntu_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libjack-jackd2-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev";
-#A special thanks to Glen MacArthur from AV Linux (http://www.bandshed.net/AVLinux.html) for helping me with the Debian dependencies
+#per-distro dependencies.  A special thanks to Glen MacArthur from AV Linux (http://www.bandshed.net/AVLinux.html) 
+#for helping me with dependencies that work in Ubuntu and Debian
 $debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libjack-dev | libjack-jackd2-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev";
 
 $prompt = 1;
@@ -40,11 +37,7 @@ if(defined $ARGV[0])
 	{
 		$prompt = 0;
 
-		if($ARGV[1] eq "--ubuntu")
-		{
-			$depends = $ubuntu_deps; $os = "ubuntu"; $package_type = "deb";
-		}
-		elsif($ARGV[1] eq "--debian")
+		if($ARGV[1] eq "--debian")
 		{
 			$depends = $debian_deps; $os = "debian"; $package_type = "deb";
 		}
@@ -58,8 +51,6 @@ if(defined $ARGV[0])
 			print "Invalid operating system argument: \"" . $ARGV[$i] . "\"\n\n";
 			exit 1;
 		}
-
-
 	}
 	else
 	{
@@ -79,7 +70,7 @@ $deb_name = replace_underscore_with_dash($short_name);
 build_all_debug("\$deb_name == $deb_name");
 
 #These are to replace the original packages that the LMS Suite came in.  You can remove these from your own plugins.
-$replaces = "ray_v, ray-v, lms_comb, lms-comb, lms_distortion, lms-distortion, lms_delay, lms-delay, lms_filter, lms-filter";
+$replaces = "ray_v, ray-v, lms_comb, lms-comb, lms_distortion, lms-distortion, lms_delay, lms-delay, lms_filter, lms-filter, euphoria";
 
 #You can probably leave this empty, otherwise you should probably know if any packages conflict
 $conflicts = "";
@@ -123,6 +114,8 @@ $notes .= "$val";
 $notes .= ".\n";
 
 #End variables, begin the actual script:
+
+
 if($prompt)
 {
 ack_label:
@@ -153,30 +146,19 @@ Proceed?  (y/[n]): ";
 os_choice_label:
 	print "
 Please select the operating system that you are packaging for:
-1. Ubuntu
-2. Debian
-3. AV Linux
-4. Generic (use this if your OS isn't a variant of one of the above)
+1. Ubuntu/Debian/AVLinux
+2. Generic (use this if your OS isn't a variant of one of the above)
 
-Enter choice [1-4]: ";
+Enter choice [1-2]: ";
 
 $os_choice = <STDIN>;
 chomp($os_choice);
 
 if($os_choice eq "1")
 {
-	$depends = $ubuntu_deps; $os = "ubuntu"; $package_type = "deb";
+	$depends = $debian_deps; $os = "debian"; $package_type = "deb";
 }
 elsif($os_choice eq "2")
-{
-	$depends = $debian_deps; $os = "debian"; $package_type = "deb";
-}
-elsif($os_choice eq "3")
-{
-	$depends = $debian_deps; $os = "debian"; $package_type = "deb";
-}
-
-elsif($os_choice eq "3")
 {
 	$depends = $debian_deps; $os = "install"; $package_type = "install";
 }
@@ -560,7 +542,7 @@ Build the packages now?  ([y]/n)
 	}
 }
 
-$package_name = "$short_name-$version-$os-$arch.$package_type";
+$package_name = "$short_name-$version-$arch.$package_type";
 
 `cd $base_dir ; dpkg-deb --build $os ; rm $package_name ; mv $os.deb $package_name`;
 
