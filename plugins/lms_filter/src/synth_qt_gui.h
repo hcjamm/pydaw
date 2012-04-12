@@ -21,40 +21,19 @@ GNU General Public License for more details.
 #include <QDial>
 #include <QLabel>
 #include <QLayout>
-#include <QCheckBox>
 #include <QGroupBox>
 #include <QComboBox>
-#include <QPushButton>
-#include <qt4/QtXml/QDomDocument>
 #include <QPixmap>
-#include <QFile>
-#include <QDir>
 
 #include <string>
 #include <stdlib.h>
 
+#include "../../libmodsynth/widgets/ui_modules/filter.h"
+#include "../../libmodsynth/widgets/lms_main_layout.h"
 
 extern "C" {
 #include <lo/lo.h>
 }
-
-/*Defines ranges and other sane defaults depending on what a knob controls*/
-enum e_knob_type
-{
-    decibels_0,
-    decibels_plus_6,
-    decibels_plus_12,
-    decibels_plus_24,
-    decibels_30_to_0,
-    pitch,
-    zero_to_one,
-    zero_to_two,
-    zero_to_four,     
-    minus1_to_1,
-    minus12_to_12,
-    minus24_to_24,
-    minus36_to_36
-};
 
 class SynthGUI : public QFrame
 {
@@ -75,10 +54,10 @@ public:
     void v_set_control(int, float);
     void v_control_changed(int, int, bool);
     int i_get_control(int);
-    
-    void v_add_knob_to_layout(QDial *, e_knob_type, int, QLabel *, QGridLayout *, QString, int, int, const char *, const char *);
-    
+        
     void v_print_port_name_to_cerr(int);
+    void lms_set_value(float val, LMS_control * a_ctrl );
+    void lms_value_changed(int a_value, LMS_control * a_ctrl);
         
 public slots:
     /*Event handlers for setting knob values*/
@@ -96,43 +75,10 @@ protected slots:
         
     void oscRecv();
 protected:
-    QDial *newQDial( int, int, int, int );
-    
-    QDial *get_knob(e_knob_type, int _default_value = 333);
-    
-    //TODO:  update this to be more flexible about layout types
-    void add_widget(QGridLayout * _layout, int position_x, int position_y, QString _label_text,  QWidget * _widget,    
-    QLabel * _label);  
-    
-    void add_widget_no_label(QGridLayout * _layout, int position_x, int position_y, QString _label_text, QWidget * _widget);
-    
-    QGroupBox * newGroupBox(QString, QWidget *);
-    
-    QLabel * newQLabel(QWidget *);
-    
-    QCheckBox * get_checkbox(std::string _text);
-    
-    QComboBox * get_combobox(QString _choices [], int _count, QWidget * _parent);
-    
-    void changed_seconds(int, QLabel *, int);
-    void changed_pitch(int, QLabel *, int);
-    void changed_decibels(int, QLabel *, int);
-    void changed_zero_to_x(int, QLabel *, int);
-    void changed_integer(int value, QLabel * _label, int _port);
-       
-    
-    QString presets_tab_delimited [128];
-    
     
     /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
-    QDial *m_cutoff;
-    QLabel *m_cutoffLabel;   
-    
-    QDial *m_res;
-    QLabel *m_resLabel;    
-    
-    QComboBox *m_type;
-    
+    LMS_main_layout * m_main_layout;
+    LMS_filter_widget * m_filter_widget;
     
     lo_address m_host;
     QByteArray m_controlPath;

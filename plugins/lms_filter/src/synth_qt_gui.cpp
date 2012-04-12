@@ -17,29 +17,17 @@ GNU General Public License for more details.
 #include "synth_qt_gui.h"
 
 #include <QApplication>
-#include <QPushButton>
 #include <QTextStream>
 #include <QTimer>
 #include <iostream>
 #include <unistd.h>
 
-#include <qt4/QtGui/qgroupbox.h>
-#include <qt4/QtGui/qlayout.h>
-#include <qt4/QtGui/qlabel.h>
-#include <qt4/QtGui/qgridlayout.h>
-#include <QFormLayout>
-#include <qt4/QtGui/qboxlayout.h>
-#include <QGroupBox>
-#include <qt4/QtGui/qdial.h>
 #include <QPixmap>
 #include <QFile>
 #include <QDir>
-#include <QTextStream>
 #include <QMessageBox>
 
 #include <stdlib.h>
-#include "../../libmodsynth/lib/amp.h"
-#include "../../libmodsynth/lib/pitch_core.h"
 
 #include "synth.h"
 #include "meta.h"
@@ -90,60 +78,18 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF); border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
+
+    m_main_layout = new LMS_main_layout(this);
     
-    /*TODO:  Options for 2pole or 4pole*/
-    QString f_filter_types [] = {"LP 2", "HP 2", "BP2", "LP 4", "HP 4", "BP4", "Off"};
-    int f_filter_types_count = 7;
+    LMS_style_info * f_info = new LMS_style_info(75);
+    f_info->LMS_set_label_style("background-color: white; border: 1px solid black;  border-radius: 6px;", 60);
     
-#ifdef LMS_DEBUG_MODE_QT    
-    cerr << "Creating the GUI controls" << endl;    
-#endif
+    m_filter_widget = new LMS_filter_widget(this, f_info, LMS_CUTOFF, LMS_RES, LMS_TYPE);        
+    connect(m_filter_widget->lms_cutoff_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
+    connect(m_filter_widget->lms_res_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
+    connect(m_filter_widget->lms_filter_type->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(typeChanged(int)));
     
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    
-    QHBoxLayout *layout_row0 = new QHBoxLayout();
-    QHBoxLayout *layout_row1 = new QHBoxLayout();
-    
-    layout->addLayout(layout_row0);
-    layout->addLayout(layout_row1, -1);        
-        
-    int f_row = 0;
-    int f_column = 0;
-    
-    int f_gb_layout_row = 0;
-    int f_gb_layout_column = 0;
-    /*Lay out the controls you declared in the first step*/
-    
-#ifdef LMS_DEBUG_MODE_QT    
-    cerr << "Creating the Filter controls" << endl;    
-#endif    
-    
-    QGroupBox * f_gb_filter = newGroupBox("Filter", this); 
-    QGridLayout *f_gb_filter_layout = new QGridLayout(f_gb_filter);
-    
-    m_cutoff  =  get_knob(pitch);
-    m_cutoffLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Cutoff",m_cutoff, m_cutoffLabel);
-    connect(m_cutoff,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
-        
-    f_gb_layout_column++;
-    
-    m_res  =  get_knob(decibels_30_to_0); 
-    m_resLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Res", m_res, m_resLabel);
-    connect(m_res,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
-        
-    f_gb_layout_column++;
-    
-    m_type = get_combobox(f_filter_types, f_filter_types_count , this);     
-    add_widget_no_label(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Type", m_type);
-    connect(m_type, SIGNAL(currentIndexChanged(int)), this, SLOT(typeChanged(int)));
-    typeChanged(m_type->currentIndex());
-    
-    layout_row0->addWidget(f_gb_filter, -1, Qt::AlignLeft);
-    f_column++;
-    f_gb_layout_row = 0;
-    f_gb_layout_column = 0;
+    m_main_layout->lms_add_widget(m_filter_widget->lms_groupbox->lms_groupbox);
         
     QLabel * f_logo_label = new QLabel("", this);    
     f_logo_label->setTextFormat(Qt::RichText);
@@ -153,7 +99,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     f_logo_label->setText(f_logo_text);
     f_logo_label->setMinimumSize(90, 30);   
     f_logo_label->show();
-    layout_row1->addWidget(f_logo_label, -1, Qt::AlignRight);
+    m_main_layout->lms_add_layout();
+    m_main_layout->lms_add_widget(f_logo_label);
                 
         
     /*End test button code, DO NOT remove the code below this*/
@@ -167,259 +114,29 @@ SynthGUI::SynthGUI(const char * host, const char * port,
 
 }
 
-/*I'm leaving this in here for now, but at the present it doesn't work*/
-void SynthGUI::v_add_knob_to_layout(QDial * a_knob, e_knob_type a_knob_type, int a_default_value, QLabel * a_label, QGridLayout * a_layout, QString a_title,
-int a_gb_layout_column, int a_gb_layout_row, const char * a_signal, const char * a_slot)
-{
-    a_knob = get_knob(a_knob_type, a_default_value);
-    a_label  = newQLabel(this);
-    add_widget(a_layout, a_gb_layout_column, a_gb_layout_row, a_title,a_knob, a_label);
-    connect(a_knob,  a_signal, this, a_slot);    
-}
-
-
-void SynthGUI::add_widget(QGridLayout * a_layout, int a_position_x, int a_position_y, QString a_label_text,  QWidget * a_widget,
-    QLabel * _label)
-{   
-    QLabel * f_knob_title = new QLabel(a_label_text,  this);
-    f_knob_title->setMinimumWidth(60);  //TODO:  make this a constant
-    f_knob_title->setAlignment(Qt::AlignCenter);
-    f_knob_title->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");  //TODO:  make this a constant string for all knobs
-    
-    a_layout->addWidget(f_knob_title, a_position_y, a_position_x, Qt::AlignCenter);    
-    a_layout->addWidget(a_widget,  (a_position_y + 1), a_position_x);
-    a_layout->addWidget(_label,  (a_position_y + 2), a_position_x, Qt::AlignCenter);     
-}
-
-void SynthGUI::add_widget_no_label(QGridLayout * a_layout, int a_position_x, int a_position_y, QString a_label_text, QWidget * a_widget)
-{
-    QLabel * f_knob_title = new QLabel(a_label_text,  this);
-    f_knob_title->setMinimumWidth(60);  //TODO:  make this a constant
-    f_knob_title->setAlignment(Qt::AlignCenter);
-    f_knob_title->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");    //TODO:  make this a constant string for all knobs
-    
-    a_layout->addWidget(f_knob_title, a_position_y, a_position_x, Qt::AlignCenter);    
-    a_layout->addWidget(a_widget,  (a_position_y + 1), a_position_x);    
-}
-
-QGroupBox * SynthGUI::newGroupBox(QString a_title, QWidget * a_parent)
-{
-    QGroupBox * f_result = new QGroupBox(a_parent);
-    
-    f_result->setTitle(a_title);
-    f_result->setAlignment(Qt::AlignHCenter);
-    return f_result;
-}
-
-QLabel * SynthGUI::newQLabel(QWidget * a_parent)
-{
-    QLabel * f_result = new QLabel(a_parent);
-    //_result->setStyleSheet("background-color: white; border: 2px solid black;  border-radius: 6px;");
-    return f_result;
-}
-
-QDial * SynthGUI::get_knob(e_knob_type a_ktype, int a_default_value)
-{
-    int f_min, f_max, f_step, f_value;
-    
-    switch(a_ktype)
-    {
-        case decibels_0:
-                f_min = -60; f_max = 0; f_step = 1; f_value = -6; 
-                break;
-        case decibels_plus_12:
-            f_min = -60; f_max = 12; f_step = 1; f_value = -6;            
-            break;
-        case decibels_plus_24:
-            f_min = -60; f_max = 24; f_step = 1; f_value = -6;            
-            break;
-        case decibels_plus_6:            
-            f_min = -60; f_max = 6; f_step = 1; f_value = -6;            
-            break;
-        case decibels_30_to_0:
-            f_min = -30; f_max = 0; f_step = 1; f_value = -9;            
-            break;
-        case pitch:
-            f_min = 20; f_max = 124; f_step = 1; f_value = 105;            
-            break;
-        case zero_to_four:
-            f_min = 1; f_max = 400; f_step = 4; f_value = 75;            
-            break;
-        case zero_to_one:
-            f_min = 1; f_max = 100; f_step = 1; f_value = 15;            
-            break;
-        case zero_to_two:
-            f_min = 1; f_max = 200; f_step = 2; f_value = 25;            
-            break;
-        case minus1_to_1:
-            f_min = -100; f_max = 100; f_step = 1; f_value = 0;            
-            break;
-        case minus12_to_12:
-            f_min = -12; f_max = 12; f_step = 1; f_value = 0;            
-            break;
-        case minus24_to_24:
-            f_min = -24; f_max = 24; f_step = 1; f_value = 0;            
-            break;
-        case minus36_to_36:
-            f_min = -36; f_max = 36; f_step = 1; f_value = 0;            
-            break;
-    }
-    
-    if(a_default_value != 333)  //This makes the assumption that we will never pick 333 as a default value
-    {
-        f_value = a_default_value;
-    }
-    
-     return newQDial(f_min, f_max, f_step, f_value);
-    
-}
-
-QCheckBox * SynthGUI::get_checkbox(std::string a_text)
-{
-    QCheckBox * f_checkbox = new QCheckBox(this);
-    
-    f_checkbox->setText(QString::fromStdString(a_text));
-    
-    //TODO:  add a skin to make it look like a toggle-switch
-        
-    return f_checkbox;
-}
-
-
-QDial * SynthGUI::newQDial( int minValue, int maxValue, int pageStep, int value )
-{
-    QDial *dial = new QDial( this );
-    dial->setMinimum( minValue );
-    dial->setMaximum( maxValue );
-    dial->setPageStep( pageStep );
-    dial->setValue( value );
-    dial->setNotchesVisible(false); 
-    //TODO:  Make this a constant value
-    dial->setMaximumHeight(66);
-    dial->setMaximumWidth(66);
-    dial->setMinimumHeight(66);
-    dial->setMinimumWidth(66);
-    
-    //dial->setFocusPolicy(Qt::NoFocus);
-    
-    return dial;
-}
-
-QComboBox * SynthGUI::get_combobox(QString a_choices [], int a_count,  QWidget * a_parent)
-{
-    QComboBox * f_result = new QComboBox(a_parent);
-    QStringList f_items;
-    
-    for(int i = 0; i < a_count; i++)
-    {
-        f_items << a_choices[i];
-    }
-    
-    f_result->addItems(f_items);
-    
-    return f_result;
-}
-
-void SynthGUI::setCutoff(float val)
+void SynthGUI::lms_set_value(float val, LMS_control * a_ctrl)
 {
     m_suppressHostUpdate = true;
-    m_cutoff->setValue(int(val));
+    a_ctrl->lms_set_value(int(val));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setRes(float val)
-{
-    m_suppressHostUpdate = true;
-    m_res->setValue(int(val));
-    m_suppressHostUpdate = false;
-}
+void SynthGUI::setCutoff(float val){ lms_set_value(val, m_filter_widget->lms_cutoff_knob); }
+void SynthGUI::setRes(float val){ lms_set_value(val, m_filter_widget->lms_res_knob); }
+void SynthGUI::setType(float val){ lms_set_value(val, m_filter_widget->lms_filter_type); }
 
-void SynthGUI::setType(float val)
+void SynthGUI::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {
-    m_suppressHostUpdate = true;
-    m_type->setCurrentIndex(int(val));
-    m_suppressHostUpdate = false;
-}
+    a_ctrl->lms_value_changed(a_value);
 
-/*Standard handlers for the audio slots, these perform manipulations of knob values
- that are common in audio applications*/
-
-void SynthGUI::changed_zero_to_x(int a_value, QLabel * a_label, int a_port)
-{
-    float val = float(a_value) * .01;
-    a_label->setText(QString("%1").arg(val));
-    
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, float(a_value));     
+        lo_send(m_host, m_controlPath, "if", (a_ctrl->lms_port), float(a_value));
     }
 }
 
-void SynthGUI::changed_integer(int a_value, QLabel * a_label, int a_port)
-{
-    float val = float(a_value);
-    a_label->setText(QString("%1").arg(val));
-    
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, val);
-    }
-}
-
-void SynthGUI::changed_seconds(int a_value, QLabel * a_label, int a_port)
-{
-    float sec = float(a_value) * .01;
-    a_label->setText(QString("%1").arg(sec));
-    
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, float(a_value));
-    }
-}
-
-void SynthGUI::changed_pitch(int a_value, QLabel * a_label, int a_port)
-{
-    /*We need to send midi note number to the synth, as it probably still needs to process it as
-     midi_note number.  We use this to display hz to the user*/
-    
-    float f_value = float(a_value);
-    float f_hz = f_pit_midi_note_to_hz(f_value);
-    
-    a_label->setText(QString("%1 hz").arg((int)f_hz));
-    
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, f_value);     
-    }    
-}
-
-void SynthGUI::changed_decibels(int a_value, QLabel * a_label, int a_port)
-{
-    /*Decibels is a reasonable way to display this to the user, so just use it as it is*/
-    a_label->setText(QString("%1").arg(a_value));
-    
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, float(a_value));
-    }
-}
-
-
-
-
-/*Implement the event handlers from step 3.*/
-
-void SynthGUI::cutoffChanged(int value)
-{
-    changed_pitch(value, m_cutoffLabel, LMS_CUTOFF);    
-}
-
-void SynthGUI::resChanged(int value)
-{
-    changed_decibels(value, m_resLabel, LMS_RES);    
-}
-
-void SynthGUI::typeChanged(int value)
-{
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LMS_TYPE, float(value));
-    }
-}
+void SynthGUI::cutoffChanged(int value){ lms_value_changed(value, m_filter_widget->lms_cutoff_knob); }
+void SynthGUI::resChanged(int value){ lms_value_changed(value, m_filter_widget->lms_res_knob); }
+void SynthGUI::typeChanged(int value){ lms_value_changed(value, m_filter_widget->lms_filter_type); }
 
 void SynthGUI::v_print_port_name_to_cerr(int a_port)
 {
@@ -507,11 +224,11 @@ int SynthGUI::i_get_control(int a_port)
 {        
     switch (a_port) {
     case LMS_CUTOFF:
-        return m_cutoff->value();
+        return m_filter_widget->lms_cutoff_knob->lms_get_value();
     case LMS_RES:
-        return m_res->value();        
+        return m_filter_widget->lms_res_knob->lms_get_value();
     case LMS_TYPE:
-        return m_type->currentIndex();
+        return m_filter_widget->lms_filter_type->lms_get_value();
     default:
 #ifdef LMS_DEBUG_MODE_QT
 	cerr << "Warning: received request to get nonexistent port " << a_port << endl;
@@ -519,8 +236,6 @@ int SynthGUI::i_get_control(int a_port)
         break;
     }
 }
-
-
 
 void SynthGUI::oscRecv()
 {
