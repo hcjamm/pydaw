@@ -197,7 +197,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_main_layout->lms_add_layout();
     
-    m_groupbox_master = new LMS_group_box(this, QString("LP Filter"), f_info);
+    m_groupbox_master = new LMS_group_box(this, QString("Master"), f_info);
     m_main_layout->lms_add_widget(m_groupbox_master->lms_groupbox);
     
     m_master_volume =  new LMS_knob_regular(QString("Vol"), -60, 12, 1, -6, QString("0"), m_groupbox_master->lms_groupbox, f_info, lms_kc_integer, LMS_MASTER_VOLUME);
