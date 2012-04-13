@@ -2,7 +2,6 @@
 
 /* synth_qt_gui.h
 
-
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; version 3 of the License.
@@ -34,6 +33,8 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/group_box.h"
 #include "../../libmodsynth/widgets/lms_combobox.h"
 #include "../../libmodsynth/widgets/lms_main_layout.h"
+#include "../../libmodsynth/widgets/ui_modules/adsr.h"
+#include "../../libmodsynth/widgets/ui_modules/oscillator.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -165,11 +166,9 @@ protected:
     
     LMS_main_layout * m_main_layout;
     
-    LMS_group_box * m_groupbox_adsr_a;    
-    LMS_knob_regular *m_attack;    
-    LMS_knob_regular *m_decay;    
-    LMS_knob_regular *m_sustain;
-    LMS_knob_regular *m_release;
+    LMS_adsr_widget * m_adsr_amp;
+    LMS_oscillator_widget * m_osc1;
+    LMS_oscillator_widget * m_osc2;
     
     LMS_group_box * m_groupbox_filter;
     LMS_knob_regular *m_timbre;        
@@ -188,18 +187,6 @@ protected:
     
     LMS_group_box * m_groupbox_noise;
     LMS_knob_regular *m_noise_amp;
-    
-    LMS_group_box * m_groupbox_osc1;
-    LMS_combobox *m_osc1_type;
-    LMS_knob_regular *m_osc1_pitch;    
-    LMS_knob_regular *m_osc1_tune;    
-    LMS_knob_regular *m_osc1_volume;
-    
-    LMS_group_box * m_groupbox_osc2;
-    LMS_combobox *m_osc2_type;
-    LMS_knob_regular *m_osc2_pitch;    
-    LMS_knob_regular *m_osc2_tune;    
-    LMS_knob_regular *m_osc2_volume;
     
     LMS_group_box * m_groupbox_master;
     LMS_knob_regular *m_master_volume;    

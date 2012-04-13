@@ -115,44 +115,23 @@ SynthGUI::SynthGUI(const char * host, const char * port,
      
     m_main_layout->lms_add_layout();
     
-    m_groupbox_osc1 = new LMS_group_box(this, QString("Osc1"), f_info);    
-    m_main_layout->lms_add_widget(m_groupbox_osc1->lms_groupbox);
+    m_osc1 = new LMS_oscillator_widget(f_info, this, QString("Oscillator 1") , LMS_OSC1_PITCH, LMS_OSC1_TUNE, LMS_OSC1_VOLUME, LMS_OSC1_TYPE, f_osc_types);
     
+    m_main_layout->lms_add_widget(m_osc1->lms_groupbox->lms_groupbox);
     
-    m_osc1_pitch =  new LMS_knob_regular(QString("Pitch"), -12, 12, 1, 0, QString("0"), m_groupbox_osc1->lms_groupbox, f_info, lms_kc_integer, LMS_OSC1_PITCH);    
-    m_groupbox_osc1->lms_add_h(m_osc1_pitch);    
-    connect(m_osc1_pitch->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc1PitchChanged(int)));
-    
-    m_osc1_tune = new LMS_knob_regular(QString("Fine"), -100, 100, 1, 0, QString("0"), m_groupbox_osc1->lms_groupbox, f_info, lms_kc_decimal, LMS_OSC1_TUNE);
-    m_groupbox_osc1->lms_add_h(m_osc1_tune);
-    connect(m_osc1_tune->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc1TuneChanged(int)));
-    
-    m_osc1_volume = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 0, QString("0"), m_groupbox_osc1->lms_groupbox, f_info, lms_kc_integer, LMS_OSC1_VOLUME);
-    m_groupbox_osc1->lms_add_h(m_osc1_volume);
-    connect(m_osc1_volume->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc1VolumeChanged(int)));
-    
-    m_osc1_type = new LMS_combobox(QString("Type"), m_groupbox_osc1->lms_groupbox, f_osc_types, LMS_OSC1_TYPE, f_info);
-    m_groupbox_osc1->lms_add_h(m_osc1_type);
-    connect(m_osc1_type->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc1TypeChanged(int)));
+    connect(m_osc1->lms_pitch_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc1PitchChanged(int)));
+    connect(m_osc1->lms_fine_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc1TuneChanged(int)));        
+    connect(m_osc1->lms_vol_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc1VolumeChanged(int)));        
+    connect(m_osc1->lms_osc_type_box->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc1TypeChanged(int)));
 
-    m_groupbox_adsr_a = new LMS_group_box(this, QString("ADSR Amp"), f_info);
-    m_main_layout->lms_add_widget(m_groupbox_adsr_a->lms_groupbox);
-
-    m_attack =  new LMS_knob_regular(QString("Attack"), 1, 100, 1, 1, QString(".01"), m_groupbox_adsr_a->lms_groupbox, f_info, lms_kc_decimal, LMS_ATTACK);
-    m_groupbox_adsr_a->lms_add_h(m_attack);
-    connect(m_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));
-        
-    m_decay =  new LMS_knob_regular(QString("Decay"), 1, 100, 1, 1, QString(".01"), m_groupbox_adsr_a->lms_groupbox, f_info, lms_kc_decimal, LMS_DECAY);
-    m_groupbox_adsr_a->lms_add_h(m_decay);
-    connect(m_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));
-        
-    m_sustain = new LMS_knob_regular(QString("Sustain"), -60, 0, 1, -6, QString("-6"), m_groupbox_adsr_a->lms_groupbox, f_info, lms_kc_integer, LMS_SUSTAIN);
-    m_groupbox_adsr_a->lms_add_h(m_sustain);
-    connect(m_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));
+    m_adsr_amp = new LMS_adsr_widget(this, f_info, true, LMS_ATTACK, LMS_DECAY, LMS_SUSTAIN, LMS_RELEASE, QString("ADSR Amp"));
     
-    m_release = new LMS_knob_regular(QString("Release"), 1, 400, 1, 50, QString(".5"), m_groupbox_adsr_a->lms_groupbox, f_info, lms_kc_decimal, LMS_RELEASE);
-    m_groupbox_adsr_a->lms_add_h(m_release);
-    connect(m_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));    
+    m_main_layout->lms_add_widget(m_adsr_amp->lms_groupbox_adsr->lms_groupbox);
+    
+    connect(m_adsr_amp->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));    
+    connect(m_adsr_amp->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));        
+    connect(m_adsr_amp->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));        
+    connect(m_adsr_amp->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));    
     
     m_groupbox_distortion = new LMS_group_box(this, QString("Distortion"), f_info);
     m_main_layout->lms_add_widget(m_groupbox_distortion->lms_groupbox);
@@ -174,24 +153,13 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_main_layout->lms_add_layout();    
     
-    m_groupbox_osc2 = new LMS_group_box(this, QString("Osc2"), f_info);
-    m_main_layout->lms_add_widget(m_groupbox_osc2->lms_groupbox);
+    m_osc2 = new LMS_oscillator_widget(f_info, this, QString("Oscillator 2"), LMS_OSC2_PITCH, LMS_OSC2_TUNE, LMS_OSC2_VOLUME, LMS_OSC2_TYPE, f_osc_types);    
     
-    m_osc2_pitch = new LMS_knob_regular(QString("Pitch"), -12, 12, 1, 0, QString("0"), m_groupbox_osc2->lms_groupbox, f_info, lms_kc_integer, LMS_OSC2_PITCH);
-    m_groupbox_osc2->lms_add_h(m_osc2_pitch);
-    connect(m_osc2_pitch->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2PitchChanged(int)));
-    
-    m_osc2_tune = new LMS_knob_regular(QString("Fine"), -100, 100, 1, 0, QString("0"), m_groupbox_osc2->lms_groupbox, f_info, lms_kc_decimal, LMS_OSC2_TUNE);
-    m_groupbox_osc2->lms_add_h(m_osc2_tune);
-    connect(m_osc2_tune->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2TuneChanged(int)));
-
-    m_osc2_volume = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 0, QString("0"), m_groupbox_osc2->lms_groupbox, f_info, lms_kc_integer, LMS_OSC2_VOLUME);
-    m_groupbox_osc2->lms_add_h(m_osc2_volume);
-    connect(m_osc2_volume->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2VolumeChanged(int)));
-    
-    m_osc2_type = new LMS_combobox(QString("Type"), m_groupbox_osc2->lms_groupbox, f_osc_types, LMS_OSC2_TYPE, f_info);
-    m_groupbox_osc2->lms_add_h(m_osc2_type);
-    connect(m_osc2_type->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
+    m_main_layout->lms_add_widget(m_osc2->lms_groupbox->lms_groupbox);
+    connect(m_osc2->lms_pitch_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2PitchChanged(int)));
+    connect(m_osc2->lms_fine_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2TuneChanged(int)));
+    connect(m_osc2->lms_vol_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2VolumeChanged(int)));    
+    connect(m_osc2->lms_osc_type_box->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
     
     m_groupbox_adsr_f = new LMS_group_box(this, QString("ADSR Filter"), f_info);
     m_main_layout->lms_add_widget(m_groupbox_adsr_f->lms_groupbox);
@@ -288,10 +256,10 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     /*Add the knobs to the preset module*/
     
-    m_program->lms_add_control(m_attack);
-    m_program->lms_add_control(m_decay);
-    m_program->lms_add_control(m_sustain);
-    m_program->lms_add_control(m_release);    
+    m_program->lms_add_control(m_adsr_amp->lms_attack);
+    m_program->lms_add_control(m_adsr_amp->lms_decay);
+    m_program->lms_add_control(m_adsr_amp->lms_sustain);
+    m_program->lms_add_control(m_adsr_amp->lms_release);    
     m_program->lms_add_control(m_timbre);
     m_program->lms_add_control(m_res);
     m_program->lms_add_control(m_dist);        
@@ -302,14 +270,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_program->lms_add_control(m_noise_amp);
     m_program->lms_add_control(m_filter_env_amt);
     m_program->lms_add_control(m_dist_wet);    
-    m_program->lms_add_control(m_osc1_type);
-    m_program->lms_add_control(m_osc1_pitch);
-    m_program->lms_add_control(m_osc1_tune);
-    m_program->lms_add_control(m_osc1_volume);    
-    m_program->lms_add_control(m_osc2_type);
-    m_program->lms_add_control(m_osc2_pitch);
-    m_program->lms_add_control(m_osc2_tune);
-    m_program->lms_add_control(m_osc2_volume);    
+    m_program->lms_add_control(m_osc1->lms_osc_type_box);
+    m_program->lms_add_control(m_osc1->lms_pitch_knob);
+    m_program->lms_add_control(m_osc1->lms_fine_knob);
+    m_program->lms_add_control(m_osc1->lms_vol_knob);    
+    m_program->lms_add_control(m_osc2->lms_osc_type_box);
+    m_program->lms_add_control(m_osc2->lms_pitch_knob);
+    m_program->lms_add_control(m_osc2->lms_fine_knob);
+    m_program->lms_add_control(m_osc2->lms_vol_knob);    
     m_program->lms_add_control(m_master_volume);
     m_program->lms_add_control(m_master_unison_voices);
     m_program->lms_add_control(m_master_unison_spread);
@@ -341,10 +309,10 @@ void SynthGUI::lms_set_value(float val, LMS_control * a_ctrl )
     m_suppressHostUpdate = false;     
 }
 
-void SynthGUI::setAttack(float a_value){ lms_set_value(a_value, m_attack);}
-void SynthGUI::setDecay(float a_value){ lms_set_value(a_value, m_decay); }
-void SynthGUI::setSustain(float a_value){lms_set_value(a_value, m_sustain);}
-void SynthGUI::setRelease(float a_value){lms_set_value(a_value, m_release);}
+void SynthGUI::setAttack(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_attack);}
+void SynthGUI::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_decay); }
+void SynthGUI::setSustain(float a_value){lms_set_value(a_value, m_adsr_amp->lms_sustain);}
+void SynthGUI::setRelease(float a_value){lms_set_value(a_value, m_adsr_amp->lms_release);}
 void SynthGUI::setTimbre(float a_value){lms_set_value(a_value, m_timbre);}
 void SynthGUI::setRes(float a_value){lms_set_value(a_value, m_res);}
 void SynthGUI::setDist(float a_value){lms_set_value(a_value, m_dist);}
@@ -355,14 +323,14 @@ void SynthGUI::setFilterRelease(float a_value){lms_set_value(a_value, m_filter_r
 void SynthGUI::setNoiseAmp(float a_value){lms_set_value(a_value, m_noise_amp);}
 void SynthGUI::setFilterEnvAmt(float a_value){lms_set_value(a_value, m_filter_env_amt);}
 void SynthGUI::setDistWet(float a_value){lms_set_value(a_value, m_dist_wet);}
-void SynthGUI::setOsc1Type(float a_value){lms_set_value(a_value, m_osc1_type);}
-void SynthGUI::setOsc1Pitch(float a_value){lms_set_value(a_value, m_osc1_pitch);}
-void SynthGUI::setOsc1Tune(float a_value){lms_set_value(a_value, m_osc1_tune);}
-void SynthGUI::setOsc1Volume(float a_value){lms_set_value(a_value, m_osc1_volume);}
-void SynthGUI::setOsc2Type(float a_value){lms_set_value(a_value, m_osc2_type);}
-void SynthGUI::setOsc2Pitch(float a_value){lms_set_value(a_value, m_osc2_pitch);}
-void SynthGUI::setOsc2Tune(float a_value){lms_set_value(a_value, m_osc2_tune);}
-void SynthGUI::setOsc2Volume(float a_value){lms_set_value(a_value, m_osc2_volume);}
+void SynthGUI::setOsc1Type(float a_value){lms_set_value(a_value, m_osc1->lms_osc_type_box);}
+void SynthGUI::setOsc1Pitch(float a_value){lms_set_value(a_value, m_osc1->lms_pitch_knob);}
+void SynthGUI::setOsc1Tune(float a_value){lms_set_value(a_value, m_osc1->lms_fine_knob);}
+void SynthGUI::setOsc1Volume(float a_value){lms_set_value(a_value, m_osc1->lms_vol_knob);}
+void SynthGUI::setOsc2Type(float a_value){lms_set_value(a_value, m_osc2->lms_osc_type_box);}
+void SynthGUI::setOsc2Pitch(float a_value){lms_set_value(a_value, m_osc2->lms_pitch_knob);}
+void SynthGUI::setOsc2Tune(float a_value){lms_set_value(a_value, m_osc2->lms_fine_knob);}
+void SynthGUI::setOsc2Volume(float a_value){lms_set_value(a_value, m_osc2->lms_vol_knob);}
 void SynthGUI::setMasterVolume(float a_value){lms_set_value(a_value, m_master_volume);}
 void SynthGUI::setMasterUnisonVoices(float a_value){lms_set_value(a_value, m_master_unison_voices);}
 void SynthGUI::setMasterUnisonSpread(float a_value){lms_set_value(a_value, m_master_unison_spread);}
@@ -386,10 +354,10 @@ void SynthGUI::lms_value_changed(int a_value, LMS_control * a_ctrl)
     }    
 }
 
-void SynthGUI::attackChanged(int a_value){lms_value_changed(a_value, m_attack);}
-void SynthGUI::decayChanged(int a_value){lms_value_changed(a_value, m_decay);}
-void SynthGUI::sustainChanged(int a_value){lms_value_changed(a_value, m_sustain);}
-void SynthGUI::releaseChanged(int a_value){lms_value_changed(a_value, m_release);}
+void SynthGUI::attackChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_attack);}
+void SynthGUI::decayChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_decay);}
+void SynthGUI::sustainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_sustain);}
+void SynthGUI::releaseChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_release);}
 void SynthGUI::timbreChanged(int a_value){lms_value_changed(a_value, m_timbre);}
 void SynthGUI::resChanged(int a_value){lms_value_changed(a_value, m_res);}
 void SynthGUI::distChanged(int a_value){lms_value_changed(a_value, m_dist);}
@@ -400,14 +368,14 @@ void SynthGUI::filterReleaseChanged(int a_value){lms_value_changed(a_value, m_fi
 void SynthGUI::noiseAmpChanged(int a_value){lms_value_changed(a_value, m_noise_amp);}
 void SynthGUI::filterEnvAmtChanged(int a_value){lms_value_changed(a_value, m_filter_env_amt);}
 void SynthGUI::distWetChanged(int a_value){lms_value_changed(a_value, m_dist_wet);}
-void SynthGUI::osc1TypeChanged(int a_value){lms_value_changed(a_value, m_osc1_type);}
-void SynthGUI::osc1PitchChanged(int a_value){lms_value_changed(a_value, m_osc1_pitch);}
-void SynthGUI::osc1TuneChanged(int a_value){lms_value_changed(a_value, m_osc1_tune);}
-void SynthGUI::osc1VolumeChanged(int a_value){lms_value_changed(a_value, m_osc1_volume);}
-void SynthGUI::osc2TypeChanged(int a_value){lms_value_changed(a_value, m_osc2_type);}
-void SynthGUI::osc2PitchChanged(int a_value){lms_value_changed(a_value, m_osc2_pitch);}
-void SynthGUI::osc2TuneChanged(int a_value){lms_value_changed(a_value, m_osc2_tune);}
-void SynthGUI::osc2VolumeChanged(int a_value){lms_value_changed(a_value, m_osc2_volume);}
+void SynthGUI::osc1TypeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_osc_type_box);}
+void SynthGUI::osc1PitchChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_pitch_knob);}
+void SynthGUI::osc1TuneChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_fine_knob);}
+void SynthGUI::osc1VolumeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_vol_knob);}
+void SynthGUI::osc2TypeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_osc_type_box);}
+void SynthGUI::osc2PitchChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_pitch_knob);}
+void SynthGUI::osc2TuneChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_fine_knob);}
+void SynthGUI::osc2VolumeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_vol_knob);}
 void SynthGUI::masterVolumeChanged(int a_value){lms_value_changed(a_value, m_master_volume);}
 void SynthGUI::masterUnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_master_unison_voices);}
 void SynthGUI::masterUnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_master_unison_spread);}
@@ -580,10 +548,10 @@ int SynthGUI::i_get_control(int a_port)
         /*Add the controls you created to the control handler*/
     
     switch (a_port) {
-    case LMS_ATTACK: return m_attack->lms_get_value();
-    case LMS_DECAY:  return m_decay->lms_get_value();
-    case LMS_SUSTAIN: return m_sustain->lms_get_value();
-    case LMS_RELEASE: return m_release->lms_get_value();
+    case LMS_ATTACK: return  m_adsr_amp->lms_attack->lms_get_value();
+    case LMS_DECAY:  return m_adsr_amp->lms_decay->lms_get_value();
+    case LMS_SUSTAIN: return m_adsr_amp->lms_sustain->lms_get_value();
+    case LMS_RELEASE: return m_adsr_amp->lms_release->lms_get_value();
     case LMS_TIMBRE: return m_timbre->lms_get_value();
     case LMS_RES: return m_res->lms_get_value();        
     case LMS_DIST: return m_dist->lms_get_value();
@@ -594,14 +562,14 @@ int SynthGUI::i_get_control(int a_port)
     case LMS_NOISE_AMP: return m_noise_amp->lms_get_value();
     case LMS_DIST_WET: return m_dist_wet->lms_get_value();
     case LMS_FILTER_ENV_AMT: return m_filter_env_amt->lms_get_value();
-    case LMS_OSC1_TYPE: return m_osc1_type->lms_get_value();
-    case LMS_OSC1_PITCH: return m_osc1_pitch->lms_get_value();
-    case LMS_OSC1_TUNE: return m_osc1_tune->lms_get_value();
-    case LMS_OSC1_VOLUME: return m_osc1_volume->lms_get_value();
-    case LMS_OSC2_TYPE:  return m_osc2_type->lms_get_value();
-    case LMS_OSC2_PITCH: return m_osc2_pitch->lms_get_value();
-    case LMS_OSC2_TUNE: return m_osc2_tune->lms_get_value();
-    case LMS_OSC2_VOLUME: return m_osc2_volume->lms_get_value();
+    case LMS_OSC1_TYPE: return m_osc1->lms_osc_type_box->lms_get_value();
+    case LMS_OSC1_PITCH: return m_osc1->lms_pitch_knob->lms_get_value();
+    case LMS_OSC1_TUNE: return  m_osc1->lms_fine_knob->lms_get_value();
+    case LMS_OSC1_VOLUME: return m_osc1->lms_vol_knob->lms_get_value();
+    case LMS_OSC2_TYPE:  return m_osc2->lms_osc_type_box->lms_get_value();
+    case LMS_OSC2_PITCH: return m_osc2->lms_pitch_knob->lms_get_value();
+    case LMS_OSC2_TUNE: return m_osc2->lms_fine_knob->lms_get_value();
+    case LMS_OSC2_VOLUME: return m_osc2->lms_vol_knob->lms_get_value();
     case LMS_MASTER_VOLUME: return m_master_volume->lms_get_value();
     case LMS_MASTER_UNISON_VOICES: return m_master_unison_voices->lms_get_value();
     case LMS_MASTER_UNISON_SPREAD: return m_master_unison_spread->lms_get_value();
