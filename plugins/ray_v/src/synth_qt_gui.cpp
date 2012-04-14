@@ -170,9 +170,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_adsr_filter->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterSustainChanged(int)));
     connect(m_adsr_filter->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));
         
-    m_filter = new LMS_filter_widget(this, f_info, LMS_TIMBRE, LMS_RES, -1);
-    m_filter->lms_filter_type->lms_combobox->hide();  //Type is not used in Ray-V, and won't be connected to anything
-    
+    m_filter = new LMS_filter_widget(this, f_info, LMS_TIMBRE, LMS_RES, -1, FALSE);
+        
     m_main_layout->lms_add_widget(m_filter->lms_groupbox->lms_groupbox);
     
     connect(m_filter->lms_cutoff_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));

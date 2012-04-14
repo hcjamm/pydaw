@@ -84,7 +84,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     LMS_style_info * f_info = new LMS_style_info(75);
     f_info->LMS_set_label_style("background-color: white; border: 1px solid black;  border-radius: 6px;", 60);
     
-    m_filter_widget = new LMS_filter_widget(this, f_info, LMS_CUTOFF, LMS_RES, LMS_TYPE);        
+    m_filter_widget = new LMS_filter_widget(this, f_info, LMS_CUTOFF, LMS_RES, LMS_TYPE, TRUE);       
     connect(m_filter_widget->lms_cutoff_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
     connect(m_filter_widget->lms_res_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
     connect(m_filter_widget->lms_filter_type->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(typeChanged(int)));
