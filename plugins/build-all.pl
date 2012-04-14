@@ -93,6 +93,16 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 #lms_dynamics,
 #lms_reverb
 
+#Plugins in this array will be symlinked to /usr/lib/ladspa, allowing them to be used by
+#hosts that support LADSPA effects but not DSSI.
+@ladspa_plugins = (
+'lms_comb',
+'lms_delay',
+'lms_distortion',
+'lms_filter',
+'lms_eq5'
+);
+
 #This is the notes that your package manager will show when browsing your package.  Change this if packaging your own plugins.
 $notes = " LibModSynth is a set of developer tools designed to make it fast and easy to develop high quality DSSI plugins.
  The suite currently includes: ";
@@ -460,6 +470,16 @@ foreach $val(@plugins)
 {
 	#Remove the local versions of the plugin to avoid conflict
 	$postinst .= "`rm -Rf /usr/local/lib/dssi/$val*`;\n";
+}
+
+foreach $val(@ladspa_plugins)
+{
+#symlink the effects to the LADSPA plugin directory so that they can be used by LADSPA hosts
+$postinst .= 
+"`cd /usr/lib/ladspa ; rm -Rf $val.so $val.la $val`;
+`ln -s /usr/lib/dssi/$val /usr/lib/ladspa/$val`;
+`ln -s /usr/lib/dssi/$val.so /usr/lib/ladspa/$val.so`;
+`ln -s /usr/lib/dssi/$val.la /usr/lib/ladspa/$val.la`;\n";
 }
 
 $postinst .= "exit 0;";
