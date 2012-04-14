@@ -262,7 +262,7 @@ void _init()
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = LMS_PLUGIN_UUID;
 	LMSLDescriptor->Label = "LMS";  
-	LMSLDescriptor->Properties = 0;
+	LMSLDescriptor->Properties = LADSPA_PROPERTY_INPLACE_BROKEN; //0;
 	LMSLDescriptor->Name = LMS_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = LMS_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";
@@ -328,7 +328,7 @@ void _init()
 	port_descriptors[LMS_TYPE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_TYPE] = "Type";
 	port_range_hints[LMS_TYPE].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MINIMUM |
+                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_TYPE].LowerBound =  0;
 	port_range_hints[LMS_TYPE].UpperBound =  5;
