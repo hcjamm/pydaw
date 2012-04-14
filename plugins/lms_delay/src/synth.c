@@ -299,7 +299,7 @@ void _init()
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = LMS_PLUGIN_UUID;
 	LMSLDescriptor->Label = "LMS";  
-	LMSLDescriptor->Properties = 0;
+	LMSLDescriptor->Properties = LADSPA_PROPERTY_INPLACE_BROKEN; //0;
 	LMSLDescriptor->Name = LMS_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = LMS_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";
