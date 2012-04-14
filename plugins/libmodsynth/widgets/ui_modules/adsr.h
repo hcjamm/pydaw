@@ -32,8 +32,17 @@ public:
         lms_attack =  new LMS_knob_regular(QString("Attack"), 1, 100, 1, 1, QString(".01"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_decimal, a_attack_port);
         lms_groupbox_adsr->lms_add_h(lms_attack);
         lms_decay =  new LMS_knob_regular(QString("Decay"), 1, 100, 1, 1, QString(".01"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_decimal, a_decay_port);
-        lms_groupbox_adsr->lms_add_h(lms_decay);    
-        lms_sustain = new LMS_knob_regular(QString("Sustain"), -60, 0, 1, -6, QString("-6"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_integer, a_sustain_port);
+        lms_groupbox_adsr->lms_add_h(lms_decay);
+        
+        if(a_sustain_in_db)
+        {
+            lms_sustain = new LMS_knob_regular(QString("Sustain"), -60, 0, 1, -6, QString("-6"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_integer, a_sustain_port);
+        }
+        else
+        {
+            lms_sustain = new LMS_knob_regular(QString("Sustain"), 0, 100, 1, 50, QString("0.5"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_decimal, a_sustain_port);
+        }
+        
         lms_groupbox_adsr->lms_add_h(lms_sustain);
         lms_release = new LMS_knob_regular(QString("Release"), 1, 400, 1, 50, QString(".5"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_decimal, a_release_port);
         lms_groupbox_adsr->lms_add_h(lms_release);
