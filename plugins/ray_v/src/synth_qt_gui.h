@@ -35,6 +35,10 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/lms_main_layout.h"
 #include "../../libmodsynth/widgets/ui_modules/adsr.h"
 #include "../../libmodsynth/widgets/ui_modules/oscillator.h"
+#include "../../libmodsynth/widgets/ui_modules/filter.h"
+#include "../../libmodsynth/widgets/ui_modules/ramp_env.h"
+#include "../../libmodsynth/widgets/ui_modules/lfo.h"
+#include "../../libmodsynth/widgets/ui_modules/master.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -167,45 +171,27 @@ protected:
     LMS_main_layout * m_main_layout;
     
     LMS_adsr_widget * m_adsr_amp;
+    LMS_adsr_widget * m_adsr_filter;
     LMS_oscillator_widget * m_osc1;
-    LMS_oscillator_widget * m_osc2;
+    LMS_oscillator_widget * m_osc2;    
+    LMS_filter_widget * m_filter;
+    LMS_knob_regular * m_filter_env_amt;
+    LMS_ramp_env * m_pitch_env;
     
-    LMS_group_box * m_groupbox_filter;
-    LMS_knob_regular *m_timbre;        
-    LMS_knob_regular *m_filter_env_amt;        
-    LMS_knob_regular *m_res;
+    LMS_lfo_widget * m_lfo;
+    LMS_knob_regular *m_lfo_amp;
+    LMS_knob_regular *m_lfo_pitch;
+    LMS_knob_regular *m_lfo_cutoff;
+    
+    LMS_master_widget * m_master;
     
     LMS_group_box * m_groupbox_distortion;
     LMS_knob_regular *m_dist;
     LMS_knob_regular *m_dist_wet;
-    
-    LMS_group_box * m_groupbox_adsr_f;
-    LMS_knob_regular *m_filter_attack;    
-    LMS_knob_regular *m_filter_decay;    
-    LMS_knob_regular *m_filter_sustain;    
-    LMS_knob_regular *m_filter_release;
-    
+        
     LMS_group_box * m_groupbox_noise;
     LMS_knob_regular *m_noise_amp;
-    
-    LMS_group_box * m_groupbox_master;
-    LMS_knob_regular *m_master_volume;    
-    LMS_knob_regular *m_master_unison_voices;
-    LMS_knob_regular *m_master_unison_spread;
-    LMS_knob_regular *m_master_glide;
-    LMS_knob_regular *m_master_pitchbend_amt;
-    
-    LMS_group_box * m_groupbox_pitch_env;
-    LMS_knob_regular *m_pitch_env_time;
-    LMS_knob_regular *m_pitch_env_amt;
-    
-    LMS_group_box * m_groupbox_lfo;
-    LMS_knob_regular *m_lfo_freq;
-    LMS_combobox *m_lfo_type;    
-    LMS_knob_regular *m_lfo_amp;        
-    LMS_knob_regular *m_lfo_pitch;       
-    LMS_knob_regular *m_lfo_cutoff;    
-    
+        
     LMS_preset_manager * m_program;
     
     lo_address m_host;
