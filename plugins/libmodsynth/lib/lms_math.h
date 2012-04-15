@@ -22,6 +22,8 @@ extern "C" {
 inline float f_lms_abs(float);
 inline float f_lms_max(float,float);
 inline float f_lms_min(float,float);
+inline float f_lms_floor(float,float);
+inline float f_lms_ceiling(float,float);
 inline float f_lms_sqrt(float, t_lin_interpolater*);
 /* inline float f_lms_abs(float a_input)
  * 
@@ -68,6 +70,38 @@ inline float f_lms_min(float a_1, float a_2)
     else
     {
         return a_2;
+    }
+}
+
+/* inline float f_lms_floor(float a_input, float a_floor)
+ * 
+ * Clips a value if less than a_floor
+ */
+inline float f_lms_floor(float a_input, float a_floor)
+{
+    if(a_input < a_floor)
+    {
+        return a_floor;
+    }
+    else
+    {
+        return a_input;
+    }
+}
+
+/* inline float f_lms_ceiling(float a_input, float a_ceiling)
+ * 
+ * Clips a value if more than a_ceiling
+ */
+inline float f_lms_ceiling(float a_input, float a_ceiling)
+{
+    if(a_input > a_ceiling)
+    {
+        return a_ceiling;
+    }
+    else
+    {
+        return a_input;
     }
 }
 
