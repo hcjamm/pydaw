@@ -5,6 +5,11 @@
  * This file is not yet production-ready.
  * 
  * Purpose:  Allow the user to edit the CC map for each plugin
+ * 
+ * a_cc_map is an array of int [CC_MAX_COUNT][2]
+ * 
+ * [0] == LADSPA Control
+ * [1] == MIDI CC number
  *
  * Created on March 6, 2012, 7:44 PM
  */
@@ -12,44 +17,57 @@
 #ifndef CC_MAP_H
 #define	CC_MAP_H
 
+#include <cstring>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-typedef struct st_cc_map
-{
-    char** name;
-    int*   key;
-    int*   value;
-    int    count;
-}t_cc_map;
-
-
-t_cc_map * g_ccm_get_cc_map(char a_name [], int a_key [], int a_value [], int a_count);
-int i_ccm_get_cc(t_cc_map*, int);
-int i_ccm_char_to_int(char);
-
-
-int i_ccm_get_cc(t_cc_map* a_map, int a_port)
+#define CC_MAX_COUNT 128
+    
+int v_ccm_get_cc(int a_cc_map[CC_MAX_COUNT][2],int a_control)
 {
     int f_i = 0;
     
-    while(f_i < (a_map->count))
+    while(f_i < CC_MAX_COUNT)
     {
-        if((a_map->key[f_i]) == a_port)
+        if(a_cc_map[f_i][0] == a_control)
         {
-            return (a_map->value[f_i]);
+            return a_cc_map[f_i][1];
         }
+        
         f_i++;
     }
     
-    return -1;
+    return 0;  //TODO:  DSSI_CC(NONE);
 }
 
+int v_ccm_set_cc(int a_cc_map[CC_MAX_COUNT][2], int a_control, int a_cc)
+{    
+    int f_i = 0;
+    
+    while(f_i < CC_MAX_COUNT)
+    {
+        if(a_cc_map[f_i][0] == a_control)
+        {
+            a_cc_map[f_i][1] = a_cc;
+        }
+        
+        f_i++;
+    }    
+}
 
-int i_ccm_char_to_int(char a_char)
+int i_ccm_char_arr_to_int(char * a_input)
 {
-    switch(a_char)
+    int f_result = 0;
+    /*TODO:  validate that none of the digits returned -1 */
+    return (i_ccm_char_arr_to_digit(a_input[0]) * 100) + (i_ccm_char_arr_to_digit(a_input[1]) * 10)
+            + (i_ccm_char_arr_to_digit(a_input[2]));
+}
+
+int i_ccm_char_arr_to_digit(char a_input)
+{
+    switch(a_input)
     {
         case '0':
             return 0;
@@ -72,32 +90,23 @@ int i_ccm_char_to_int(char a_char)
         case '9':
             return 9;
         default:
-            return -1;
-                    
-    }
+            return -1;       
+    }    
 }
 
-t_cc_map * g_ccm_get_cc_map(char* a_name [], int a_key [], int a_value [], int a_count, char* a_map_file)
+void v_ccm_read_file_to_array()
 {
-    t_cc_map * f_result = (t_cc_map*)malloc(sizeof(t_cc_map));
-    
-    f_result->count = a_count;
-    f_result->key = (int*)malloc(sizeof(int) * a_count);
-    f_result->value = (int*)malloc(sizeof(int) * a_count);
-    f_result->name = (char*)malloc(sizeof(char) * a_count);
-    
-    int f_i = 0;
-    
-    while(f_i < a_count)
-    {
-        f_result->name[f_i] = a_name[f_i];
-        f_result->key[f_i] = a_key[f_i];
-        f_result->value[f_i] = a_value[f_i];
-        
-        f_i++;
-    }
-    
-    return f_result;    
+    FILE *f = fopen("text.txt", "rb");
+    fseek(f, 0, SEEK_END);
+    long pos = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    char *bytes = malloc(pos);
+    fread(bytes, pos, 1, f);
+    fclose(f);
+
+    //hexdump(bytes); // do some stuff with it
+    free(bytes); // free allocated memory
 }
 
 #ifdef	__cplusplus
