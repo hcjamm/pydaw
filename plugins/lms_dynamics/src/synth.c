@@ -177,8 +177,9 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->vals.gain = *(plugin_data->gain);
 #endif
     
-    v_cpr_set_compressor(plugin_data->mono_modules->compressor, (plugin_data->vals.ratio), (plugin_data->vals.threshold),
-            (plugin_data->vals.attack),(plugin_data->vals.release));
+    /*v_cpr_set_compressor(plugin_data->mono_modules->compressor, (plugin_data->vals.ratio), (plugin_data->vals.threshold),
+            (plugin_data->vals.attack),(plugin_data->vals.release));*/
+    v_lic_set(plugin_data->mono_modules->compressor, (plugin_data->vals.threshold),(plugin_data->vals.ratio), (plugin_data->vals.attack), (plugin_data->vals.release));
     
     if((plugin_data->vals.gain) != (plugin_data->mono_modules->gain_last))
     {
@@ -206,12 +207,11 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         {   
             plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
             
-            v_cpr_run_compressor(plugin_data->mono_modules->compressor, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
+            //v_cpr_run_compressor(plugin_data->mono_modules->compressor, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
+            v_lic_run(plugin_data->mono_modules->compressor, (input0[(plugin_data->buffer_pos)]), (input1[(plugin_data->buffer_pos)]));
                         
-            output0[(plugin_data->buffer_pos)] = ((plugin_data->mono_modules->compressor->output) * (input0[(plugin_data->buffer_pos)])
-                    * (plugin_data->mono_modules->gain_linear));
-            output1[(plugin_data->buffer_pos)] = ((plugin_data->mono_modules->compressor->output) * (input1[(plugin_data->buffer_pos)])
-                    * (plugin_data->mono_modules->gain_linear));
+            output0[(plugin_data->buffer_pos)] = ((plugin_data->mono_modules->compressor->output0) * (plugin_data->mono_modules->gain_linear));
+            output1[(plugin_data->buffer_pos)] = ((plugin_data->mono_modules->compressor->output1) * (plugin_data->mono_modules->gain_linear));
                  
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
@@ -260,7 +260,7 @@ void _init()
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = LMS_PLUGIN_UUID;
 	LMSLDescriptor->Label = "LMS";  
-	LMSLDescriptor->Properties = 0;
+	LMSLDescriptor->Properties = LADSPA_PROPERTY_INPLACE_BROKEN; //0;
 	LMSLDescriptor->Name = LMS_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = LMS_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";

@@ -22,7 +22,7 @@ extern "C" {
 #include "../../libmodsynth/constants.h"
     
 /*includes for any libmodsynth modules you'll be using*/
-#include "../../libmodsynth/modules/dynamics/compressor.h"
+#include "../../libmodsynth/modules/dynamics/lin_compress.h"
 #include "../../libmodsynth/lib/amp.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
@@ -50,7 +50,7 @@ void v_init_lms(float f_sr)
 
 typedef struct st_mono_modules
 {    
-    t_cpr_compressor * compressor;
+    t_lic_compress * compressor;
     float gain_linear;
     float gain_last;
     t_amp * amp_ptr;
@@ -65,7 +65,7 @@ t_mono_modules * v_mono_init(float a_sr)
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
  
-    a_mono->compressor = g_cpr_get_compressor(a_sr);
+    a_mono->compressor = g_lic_get(a_sr);
     a_mono->gain_last = 0.0f;
     a_mono->gain_linear = 1.0f;
     a_mono->amp_ptr = g_amp_get();
