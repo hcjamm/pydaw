@@ -73,7 +73,7 @@ void v_rac_run(t_rac_compress* a_rac, float a_in0, float a_in1)
         if((a_rac->action) == 1)
         {
             a_rac->action = 0;
-            a_rac->attack_env->output = (a_rac->release_env->output);
+            a_rac->attack_env->output = (1.0f - (a_rac->release_env->output));
         }
         
         f_rmp_run_ramp(a_rac->attack_env);
@@ -127,7 +127,7 @@ t_rac_compress * g_rac_get(float a_sr)
     f_result->amp_ptr = g_amp_get();
     f_result->attack = 0.05f;    
     f_result->attack_env = g_rmp_get_ramp_env(a_sr);
-    f_result->audio_smoother = g_sml_get_smoother_linear(a_sr, 0, 1, 0.02f);
+    f_result->audio_smoother = g_sml_get_smoother_linear(a_sr, 0, 1, 0.05f);
     f_result->gain_reduction_db = 0.0f;
     f_result->gain_reduction_linear = 1.0f;
     f_result->input_db = -50.0f;
