@@ -167,7 +167,7 @@ t_ramp_env * g_rmp_get_ramp_env(float a_sr)
     f_result->sr = a_sr;
     f_result->sr_recip = 1/a_sr;
     f_result->output_multiplied = 0;
-    f_result->output_multiplier = 0;
+    f_result->output_multiplier = 1;
     f_result->ramp_inc = .01;
     f_result->ramp_time = .05;
     f_result->output = 0;
