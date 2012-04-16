@@ -65,6 +65,7 @@ extern "C" {
 
 /*Changing this only affects initialization of the filter, you must still change the code in v_svf_set_input_value()*/
 #define SVF_OVERSAMPLE_MULTIPLIER 4
+#define SVF_OVERSAMPLE_STEP_SIZE 0.25f
     
 /*Provides data storage for the inner-workings of the filter*/
 typedef struct st_svf_kernel
@@ -83,6 +84,7 @@ typedef struct st_state_variable_filter
     
     /*For the eq*/
     float gain_db, gain_linear;
+    float oversample_iterator;
     /*To create a stereo or greater filter, you would create an additional array of filters for each channel*/
     t_svf_kernel * filter_kernels [SVF_MAX_CASCADE];
     t_amp * amp_ptr;
@@ -224,28 +226,17 @@ inline void v_svf_set_input_value(t_state_variable_filter * a_svf, t_svf_kernel 
 {        
     a_kernel->filter_input = a_input_value;
     
-    /*The filter is 4x oversampled.  Iteration wasn't used here for performance reasons */
+    a_svf->oversample_iterator = 0;
     
-    a_kernel->hp = f_linear_interpolate((a_kernel->filter_last_input), (a_kernel->filter_input), 0)  //0 == iteration 1
-    - (((a_kernel->bp_m1) * (a_svf->filter_res)) + (a_kernel->lp_m1));
-    a_kernel->bp = ((a_kernel->hp) * (a_svf->cutoff_filter)) + (a_kernel->bp_m1);
-    a_kernel->lp = ((a_kernel->bp) * (a_svf->cutoff_filter)) + (a_kernel->lp_m1);
-
-    a_kernel->hp = f_linear_interpolate((a_kernel->filter_last_input), (a_kernel->filter_input), .25)  //.25 == iteration 2
-    - (((a_kernel->bp_m1) * (a_svf->filter_res)) + (a_kernel->lp_m1));
-    a_kernel->bp = ((a_kernel->hp) * (a_svf->cutoff_filter)) + (a_kernel->bp_m1);
-    a_kernel->lp = ((a_kernel->bp) * (a_svf->cutoff_filter)) + (a_kernel->lp_m1);
-
-    a_kernel->hp = f_linear_interpolate((a_kernel->filter_last_input), (a_kernel->filter_input), .5)  //.5 == iteration 3
-    - (((a_kernel->bp_m1) * (a_svf->filter_res)) + (a_kernel->lp_m1));
-    a_kernel->bp = ((a_kernel->hp) * (a_svf->cutoff_filter)) + (a_kernel->bp_m1);
-    a_kernel->lp = ((a_kernel->bp) * (a_svf->cutoff_filter)) + (a_kernel->lp_m1);
-
-    a_kernel->hp = f_linear_interpolate((a_kernel->filter_last_input), (a_kernel->filter_input), .75)  //.75 == iteration 4
-    - (((a_kernel->bp_m1) * (a_svf->filter_res)) + (a_kernel->lp_m1));
-    a_kernel->bp = ((a_kernel->hp) * (a_svf->cutoff_filter)) + (a_kernel->bp_m1);
-    a_kernel->lp = ((a_kernel->bp) * (a_svf->cutoff_filter)) + (a_kernel->lp_m1);
-    
+    while((a_svf->oversample_iterator) < 1.0f)
+    {
+        a_kernel->hp = f_linear_interpolate((a_kernel->filter_last_input), (a_kernel->filter_input), (a_svf->oversample_iterator))
+        - (((a_kernel->bp_m1) * (a_svf->filter_res)) + (a_kernel->lp_m1));
+        a_kernel->bp = ((a_kernel->hp) * (a_svf->cutoff_filter)) + (a_kernel->bp_m1);
+        a_kernel->lp = ((a_kernel->bp) * (a_svf->cutoff_filter)) + (a_kernel->lp_m1);
+        
+        a_svf->oversample_iterator = (a_svf->oversample_iterator) + SVF_OVERSAMPLE_STEP_SIZE;
+    }    
     
     a_kernel->bp_m1 = f_remove_denormal((a_kernel->bp));
     a_kernel->lp_m1 = f_remove_denormal((a_kernel->lp));
@@ -449,7 +440,7 @@ t_state_variable_filter * g_svf_get(float a_sample_rate)
     
     f_svf->amp_ptr = g_amp_get();
     f_svf->pitch_core = g_pit_get();
-    
+    f_svf->oversample_iterator = 0.0f;
 #ifdef SVF_DEBUG_MODE    
         f_svf->samples_ran = 0;    
 #endif
