@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-#include "../libmodsynth/constants.h"
+#include "../../libmodsynth/constants.h"
     
 /*includes for any libmodsynth modules you'll be using*/
 #include "../../libmodsynth/lib/osc_core.h"
@@ -102,6 +102,14 @@ typedef struct st_poly_voice
     float lfo_amp_output, lfo_pitch_output, lfo_filter_output;
     
     t_amp * amp_ptr;
+
+    /*Migrated from the now deprecate voice_data struct*/
+    float   amp;
+    float note_f;
+    float osc1_linamp;
+    float osc2_linamp;
+    float noise_linamp;           
+    int i_voice;  //for the runVoice function to iterate the current block
 }t_poly_voice;
 
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -181,6 +189,13 @@ t_poly_voice * g_poly_init()
     f_voice->lfo_pitch_output = 0.0f;
     
     f_voice->amp_ptr = g_amp_get();
+    
+    f_voice->amp = 1.0f;
+    f_voice->note_f = 1.0f;
+    f_voice->osc1_linamp = 1.0f;
+    f_voice->osc2_linamp = 1.0f;
+    f_voice->noise_linamp = 1.0f;
+    f_voice->i_voice = 0;
     
     return f_voice;
 }

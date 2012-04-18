@@ -14,6 +14,7 @@ extern "C" {
 
 #include "ladspa.h"
 #include "libmodsynth.h"
+#include "../../libmodsynth/lib/voice.h"
     
 /*Comment these out when compiling a stable, production-ready plugin.  
  The debugging code wastes a lot of CPU, and end users don't really need to see it*/
@@ -76,53 +77,9 @@ printf("debug information");
 
 
 #define POLYPHONY   8  //maximum voices played at one time
-#define MIDI_NOTES  128  //Maximum MIDI note.  You probably don't want to change this
 #define STEP_SIZE   16
     
     
-typedef enum {
-    off = 0,    
-    running
-} note_state;
-
-typedef struct {
-    int     note;
-    float   amp;
-    float note_f;
-    float osc1_linamp;
-    float osc2_linamp;
-    float noise_linamp;
-    t_poly_voice * p_voice;    
-    note_state n_state;
-    int i_voice;  //for the runVoice function to iterate the current block
-#ifdef LMS_DEBUG_MAIN_LOOP
-    int debug_counter;
-#endif
-} voice_data;
-
-#ifdef LMS_DEBUG_MAIN_LOOP
-
-int debug_interval = 176400;
-
-void dump_debug_voice_data(voice_data*);
-
-/*Any changes to voice_data require this to be changed*/
-void dump_debug_voice_data(voice_data * a_data)
-{
-    printf("\n\nRunning dump_debug_voice_data\n");
-    printf("amp == %f\n", a_data->amp);    
-    printf("n_state == %i\n", a_data->n_state);
-    printf("noise_linamp == %f\n", a_data->noise_linamp);
-    printf("n_state == %i\n", a_data->note);
-    printf("note_f == %f\n", a_data->note_f);
-    printf("osc1_linamp == %f\n", a_data->osc1_linamp);    
-    printf("osc2_linamp == %f\n", a_data->osc2_linamp);    
-}
-
-#endif
-
-
-
 /*Add a variable for each control in the synth_vals type*/
 typedef struct {    
     /*The variables below this line correspond to GUI controls*/
@@ -270,8 +227,9 @@ typedef struct {
     
     LADSPA_Data *program;
     
-    voice_data data[POLYPHONY];
-    int note2voice[MIDI_NOTES];    
+    t_poly_voice * data[POLYPHONY];
+    t_voc_voices * voices;
+    
     float fs;    
     t_mono_modules * mono_modules;
     synth_vals vals;
