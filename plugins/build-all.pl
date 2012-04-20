@@ -302,7 +302,7 @@ print "Compiling $val\n";
 system("cd $val ; perl build.pl --full-build");
 
 print "Copying files\n";
-system("cp $val/src/LMS_qt $plugin_dir/$val/LMS_qt");
+system("cp $val/src/*_qt $plugin_dir/$val/");
 system("cp $val/src/.libs/$val.so $plugin_dir/$val.so");
 system("cp $val/src/.libs/$val.la $plugin_dir/$val.la");
 
