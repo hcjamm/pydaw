@@ -24,7 +24,7 @@ endif
 
 if HAVE_LIBLO
 if HAVE_QT
-lms_ui_PROGRAMS = LMS_qt
+lms_ui_PROGRAMS = LMS_EQ5_qt
 else
 lms_ui_PROGRAMS =
 endif
@@ -36,14 +36,14 @@ lms_uidir = $(libdir)/dssi/lms_eq5
 
 LMS_MOC = synth_qt_gui.moc.cpp
 
-LMS_qt_SOURCES = \
+LMS_EQ5_qt_SOURCES = \
 	synth_qt_gui.cpp \
 	synth_qt_gui.h
 
-nodist_LMS_qt_SOURCES = $(LMS_MOC)
+nodist_LMS_EQ5_qt_SOURCES = $(LMS_MOC)
 
-LMS_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_CFLAGS) $(LIBLO_CFLAGS)
-LMS_qt_LDADD = $(AM_LDFLAGS) $(QT_LIBS) $(LIBLO_LIBS)
+LMS_EQ5_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_CFLAGS) $(LIBLO_CFLAGS)
+LMS_EQ5_qt_LDADD = $(AM_LDFLAGS) $(QT_LIBS) $(LIBLO_LIBS)
 
 CLEANFILES = $(BUILT_SOURCES)
 

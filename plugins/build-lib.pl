@@ -119,7 +119,7 @@ sub run_script
 
 		`rm -Rf $debug_dir/$current_dir*`;
 		`mkdir -p $debug_dir/$current_dir`;
-		system("cp src/LMS_qt $debug_dir/$current_dir/");
+		system("cp src/*_qt $debug_dir/$current_dir/");
 		system("cp src/.libs/$current_dir.so $debug_dir/$current_dir.so");
 		system("cp src/.libs/$current_dir.la $debug_dir/$current_dir.la");
 		exec("export DSSI_PATH=\"$dssi_path\" ; $jack_host $current_dir.so");
@@ -526,6 +526,8 @@ chomp($name);
 $short_name =~ s/\s+/_/g;
 $short_name =~ s/-/_/g;
 
+$gui_name = uc($short_name) . "_qt";
+
 $short_name = lc($short_name);
 
 print "\n\n\$short_name == $short_name\n\$long_name == $long_name\n\$email == $email\n\$name == $name\n\$uuid == $uuid\n\n";
@@ -605,7 +607,7 @@ endif
 
 if HAVE_LIBLO
 if HAVE_QT
-lms_ui_PROGRAMS = LMS_qt
+lms_ui_PROGRAMS = $gui_name
 else
 lms_ui_PROGRAMS =
 endif
@@ -617,14 +619,14 @@ lms_uidir = \$(libdir)/dssi/$short_name
 
 LMS_MOC = synth_qt_gui.moc.cpp
 
-LMS_qt_SOURCES = \\
+$gui_name_SOURCES = \\
 	synth_qt_gui.cpp \\
 	synth_qt_gui.h
 
-nodist_LMS_qt_SOURCES = \$(LMS_MOC)
+nodist_" . "$gui_name" . "_SOURCES = \$(LMS_MOC)
 
-LMS_qt_CXXFLAGS = \$(AM_CXXFLAGS) \$(QT_CFLAGS) \$(LIBLO_CFLAGS)
-LMS_qt_LDADD = \$(AM_LDFLAGS) \$(QT_LIBS) \$(LIBLO_LIBS)
+$gui_name" . "_CXXFLAGS = \$(AM_CXXFLAGS) \$(QT_CFLAGS) \$(LIBLO_CFLAGS)
+$gui_name" . "_LDADD = \$(AM_LDFLAGS) \$(QT_LIBS) \$(LIBLO_LIBS)
 
 CLEANFILES = \$(BUILT_SOURCES)
 

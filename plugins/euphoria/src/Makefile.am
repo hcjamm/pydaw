@@ -17,7 +17,7 @@ euphoria_la_LIBADD = -lpthread -lm $(SNDFILE_LIBS) $(SRC_LIBS)
 
 if HAVE_LIBLO
 if HAVE_QT
-euphoria_ui_PROGRAMS = LMS_qt
+euphoria_ui_PROGRAMS = LMS_EUPHORIA_qt
 else
 euphoria_ui_PROGRAMS =
 endif
@@ -29,15 +29,15 @@ euphoria_uidir = $(libdir)/dssi/euphoria
 
 euphoria_MOC = synth_qt_gui.moc.cpp
 
-LMS_qt_SOURCES = \
+LMS_EUPHORIA_qt_SOURCES = \
 	synth_qt_gui.cpp \
 	synth_qt_gui.h \
 	dssi.h
 
-nodist_LMS_qt_SOURCES = $(euphoria_MOC)
+nodist_LMS_EUPHORIA_qt_SOURCES = $(euphoria_MOC)
 
-LMS_qt_CXXFLAGS = $(AM_CXXFLAGS) -I$(top_srcdir)/dssi $(ALSA_CFLAGS) $(QT_CFLAGS) $(LIBLO_CFLAGS) $(SNDFILE_CFLAGS)
-LMS_qt_LDADD = $(AM_LDFLAGS) $(QT_LIBS) $(LIBLO_LIBS) $(SNDFILE_LIBS)
+LMS_EUPHORIA_qt_CXXFLAGS = $(AM_CXXFLAGS) -I$(top_srcdir)/dssi $(ALSA_CFLAGS) $(QT_CFLAGS) $(LIBLO_CFLAGS) $(SNDFILE_CFLAGS)
+LMS_EUPHORIA_qt_LDADD = $(AM_LDFLAGS) $(QT_LIBS) $(LIBLO_LIBS) $(SNDFILE_LIBS)
 
 %.moc.cpp: %.h
 	$(QT_MOC) -o $@ $<

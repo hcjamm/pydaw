@@ -701,7 +701,7 @@ void _init()
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = LMS_PLUGIN_UUID;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
-	LMSLDescriptor->Label = "LMS";  
+	LMSLDescriptor->Label = "LMS_RAYV";  
 	LMSLDescriptor->Properties = 0;
 	LMSLDescriptor->Name = LMS_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = LMS_PLUGIN_DEV;
