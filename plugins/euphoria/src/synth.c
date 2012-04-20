@@ -649,7 +649,7 @@ void _init()
 	LADSPA_Descriptor *desc = samplerStereoLDescriptor;
 
 	desc->UniqueID = channels;
-	desc->Label = "LMS"; //(stereo ? Sampler_Stereo_LABEL : Sampler_Mono_LABEL);
+	desc->Label = "LMS_EUPHORIA"; //(stereo ? Sampler_Stereo_LABEL : Sampler_Mono_LABEL);
 	desc->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
 	desc->Name =  LMS_PLUGIN_LONG_NAME; //(stereo ? "Simple Stereo Sampler" : "Simple Mono Sampler");
 	desc->Maker = LMS_PLUGIN_DEV;
