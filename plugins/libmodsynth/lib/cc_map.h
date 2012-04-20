@@ -17,6 +17,9 @@
 #ifndef CC_MAP_H
 #define	CC_MAP_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -25,10 +28,25 @@ extern "C" {
     
 typedef struct st_ccm_midi_cc_map
 {
-    int cc_map[CC_MAX_COUNT][2];
+    int cc_map[CC_MAX_COUNT];
 }t_ccm_midi_cc_map;
 
 t_ccm_midi_cc_map * g_ccm_get();
+
+t_ccm_midi_cc_map * g_ccm_get()
+{
+    t_ccm_midi_cc_map * f_result = (t_ccm_midi_cc_map*)malloc(sizeof(t_ccm_midi_cc_map));
+    
+    int f_i = 0;
+    
+    while(f_i < CC_MAX_COUNT)
+    {
+        f_result->cc_map[f_i] = -1;
+        f_i++;
+    }
+    
+    return f_result;
+}
     
 int v_ccm_get_cc(t_ccm_midi_cc_map* a_ccm, int a_control)
 {
@@ -36,9 +54,9 @@ int v_ccm_get_cc(t_ccm_midi_cc_map* a_ccm, int a_control)
     
     while(f_i < CC_MAX_COUNT)
     {
-        if(a_ccm->cc_map[f_i][0] == a_control)
+        if(a_ccm->cc_map[f_i] == a_control)
         {
-            return a_ccm->cc_map[f_i][1];
+            return f_i;
         }
         
         f_i++;
@@ -49,17 +67,7 @@ int v_ccm_get_cc(t_ccm_midi_cc_map* a_ccm, int a_control)
 
 int v_ccm_set_cc(t_ccm_midi_cc_map* a_ccm, int a_control, int a_cc)
 {    
-    int f_i = 0;
-    
-    while(f_i < CC_MAX_COUNT)
-    {
-        if(a_ccm->cc_map[f_i][0] == a_control)
-        {
-            a_ccm->cc_map[f_i][1] = a_cc;
-        }
-        
-        f_i++;
-    }    
+    a_ccm->cc_map[a_cc] = a_control;
 }
 
 /* int i_ccm_char_arr_to_int(char * a_input)
@@ -133,18 +141,48 @@ char * c_ccm_int_to_char_arr(int a_input)
  */
 char * c_ccm_3_char_ptr(char* a_arr, int a_pos)
 {
-    char * f_result = "000";
+    char * f_result = (char*)malloc(sizeof(char) * 3);
     
     f_result[0] = a_arr[a_pos];
-    f_result[1] = a_arr[a_pos + 1];
-    f_result[2] = a_arr[a_pos + 2];
-    
+    a_pos++;
+    f_result[1] = a_arr[a_pos];
+    a_pos++;
+    f_result[2] = a_arr[a_pos];
+    a_pos++;
+        
     return f_result;
 }
 
 void v_ccm_read_file_to_array(t_ccm_midi_cc_map* a_ccm, char * a_file_name)
 {
+    char * f_home = getenv("HOME");
+    
     FILE *f = fopen(a_file_name, "rb");
+    
+    if(!f)
+    {                
+        printf("Failed to open %s\n", a_file_name);      
+        /*TODO:  Create the file from a_ccm*/
+        f = fopen(a_file_name,"wb");
+        
+        if(f)
+        {
+            int f_i = 0;
+            while(f_i < CC_MAX_COUNT)
+            {
+                fprintf(f,"%s\n","test");
+                f_i++;
+            }        
+            fclose(f);
+        }
+        else
+        {
+            printf("cc_map.h:  Cannot open %s for writing, path is either invalid or you do not have the rights to open it.\n", a_file_name);
+        }
+        return;
+    }
+    
+    
     fseek(f, 0, SEEK_END);
     long pos = ftell(f);
     fseek(f, 0, SEEK_SET);
@@ -155,20 +193,34 @@ void v_ccm_read_file_to_array(t_ccm_midi_cc_map* a_ccm, char * a_file_name)
 
     int f_i = 0;
     
-    int f_arr_pos = 0;
-    
+    /*a value of 1 means that the iterator is within quotation marks*/
+    int f_name_state = 0;
+        
     while(f_i < pos)
     {
-        if(i_ccm_char_arr_to_digit(bytes[f_i]) != -1)
+        if(bytes[f_i] == '"')
         {
-            a_ccm->cc_map[f_arr_pos][0] = i_ccm_char_arr_to_int(c_ccm_3_char_ptr(bytes, f_i));
-            
-            f_i += 3;
-            
-            a_ccm->cc_map[f_arr_pos][1] = i_ccm_char_arr_to_int(c_ccm_3_char_ptr(bytes, f_i));
-            
-            f_arr_pos++;
+            if(f_name_state == 0)
+            {
+                f_name_state = 1;
+            }
+            else
+            {
+                f_name_state = 0;
+            }
+            f_i++;
+            continue;
         }
+                
+        if((f_name_state == 0) && (i_ccm_char_arr_to_digit(bytes[f_i]) != -1))
+        {
+            a_ccm->cc_map[i_ccm_char_arr_to_int(c_ccm_3_char_ptr(bytes, f_i))] = 
+            i_ccm_char_arr_to_int(c_ccm_3_char_ptr(bytes, f_i + 3));
+            
+            f_i += 6;
+        }
+        
+        f_i++;
     }
     
     free(bytes); // free allocated memory
