@@ -1,15 +1,16 @@
 /* 
  * File:   cc_map.h
  * Author: Jeff Hubbard
- * 
- * This file is not yet production-ready.
- * 
+ *
  * Purpose:  Allow the user to edit the CC map for each plugin
  * 
- * a_cc_map is an array of int [CC_MAX_COUNT][2]
+ * DO NOT use 0 for a LADSPA control port number, 0 is meant to mean 'null' in
+ * this context
  * 
- * [0] == LADSPA Control
- * [1] == MIDI CC number
+ * a_cc_map is an array of int [CC_MAX_COUNT]
+ * 
+ * [index] == LADSPA Control Port number
+ * array index == MIDI CC number
  *
  * Created on March 6, 2012, 7:44 PM
  */
@@ -19,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -29,9 +31,19 @@ extern "C" {
 typedef struct st_ccm_midi_cc_map
 {
     int cc_map[CC_MAX_COUNT];
+    char * cc_descriptions[CC_MAX_COUNT];
 }t_ccm_midi_cc_map;
 
 t_ccm_midi_cc_map * g_ccm_get();
+int v_ccm_get_cc(t_ccm_midi_cc_map* a_ccm, int a_control);
+char * c_ccm_int_to_char_arr(int a_input);
+int v_ccm_set_cc(t_ccm_midi_cc_map* a_ccm, int a_control, int a_cc, char * a_cc_description);
+int i_ccm_char_arr_to_int(char * a_input);
+int i_ccm_char_arr_to_digit(char * a_input);
+char * c_ccm_control_and_cc_to_char_arr(int a_ladspa_port, int a_midi_cc);
+char * c_ccm_int_to_char_arr(int a_input);
+char * c_ccm_3_char_ptr(char* a_arr, int a_pos);
+void v_ccm_read_file_to_array(t_ccm_midi_cc_map* a_ccm, char * a_file_name);
 
 t_ccm_midi_cc_map * g_ccm_get()
 {
@@ -41,12 +53,15 @@ t_ccm_midi_cc_map * g_ccm_get()
     
     while(f_i < CC_MAX_COUNT)
     {
-        f_result->cc_map[f_i] = -1;
+        f_result->cc_map[f_i] = 0;
+        f_result->cc_descriptions[f_i] = "empty";
         f_i++;
     }
     
     return f_result;
 }
+
+
     
 int v_ccm_get_cc(t_ccm_midi_cc_map* a_ccm, int a_control)
 {
@@ -65,9 +80,10 @@ int v_ccm_get_cc(t_ccm_midi_cc_map* a_ccm, int a_control)
     return -1;  //Equivalent to  DSSI_NONE;
 }
 
-int v_ccm_set_cc(t_ccm_midi_cc_map* a_ccm, int a_control, int a_cc)
+int v_ccm_set_cc(t_ccm_midi_cc_map* a_ccm, int a_control, int a_cc, char * a_cc_description)
 {    
     a_ccm->cc_map[a_cc] = a_control;
+    a_ccm->cc_descriptions[a_cc] = a_cc_description;
 }
 
 /* int i_ccm_char_arr_to_int(char * a_input)
@@ -77,62 +93,86 @@ int v_ccm_set_cc(t_ccm_midi_cc_map* a_ccm, int a_control, int a_cc)
  */
 int i_ccm_char_arr_to_int(char * a_input)
 {
-    int f_result = 0;
     /*TODO:  validate that none of the digits returned -1 */
-    return (i_ccm_char_arr_to_digit(a_input[0]) * 100) + (i_ccm_char_arr_to_digit(a_input[1]) * 10)
-            + (i_ccm_char_arr_to_digit(a_input[2]));
+    char f_digit1 = a_input[0];
+    char f_digit2 = a_input[1];
+    char f_digit3 = a_input[2];
+    return (i_ccm_char_arr_to_digit(&f_digit1) * 100) + (i_ccm_char_arr_to_digit(&f_digit2) * 10)
+            + (i_ccm_char_arr_to_digit(&f_digit3));
 }
 
-/* int i_ccm_char_arr_to_digit(char * a_input)
+/* int i_ccm_char_arr_to_digit(char a_input)
  * 
  * Admittedly, the implementation is ugly, but it does work without the
  * compiler complaining about it.
  */
 int i_ccm_char_arr_to_digit(char * a_input)
 {        
-    switch((int)(a_input))
-    {
-        case '0':
+        if(*a_input == '0')
             return 0;
-        case '1':
+        else if(*a_input ==  '1')
             return 1;
-        case '2':
+        else if(*a_input ==  '2')
             return 2;
-        case '3':
+        else if(*a_input ==  '3')
             return 3;
-        case '4':
+        else if(*a_input ==  '4')
             return 4;
-        case '5':
+        else if(*a_input ==  '5')
             return 5;
-        case '6':
+        else if(*a_input ==  '6')
             return 6;
-        case '7':
+        else if(*a_input ==  '7')
             return 7;
-        case '8':
+        else if(*a_input ==  '8')
             return 8;
-        case '9':
+        else if(*a_input ==  '9')
             return 9;
-        default:
-            return -1;       
-    }    
-     
+        else
+            return -1;                
+}
+
+char * c_ccm_control_and_cc_to_char_arr(int a_ladspa_port, int a_midi_cc)
+{
+    /*TODO:  Check that the numbers aren't out of range*/
+    char * f_result = (char*)malloc(sizeof(char) * 8);
+    
+    sprintf(f_result, "%s-%s", c_ccm_int_to_char_arr(a_midi_cc), c_ccm_int_to_char_arr(a_ladspa_port));
+    
+    return f_result;
 }
 
 char * c_ccm_int_to_char_arr(int a_input)
 {
-    char * f_result = "000";
+    /*TODO:  Check that the numbers aren't out of range*/
+    char * f_result1 = (char*)malloc(sizeof(char) * 4);
+    
+    sprintf(f_result1, "%i", a_input);
+    
+    char * f_result2 = (char*)malloc(sizeof(char) * 4);
     
     if(a_input >= 100)
     {
-        
+        f_result2[0] = f_result1[0];
+        f_result2[1] = f_result1[1];
+        f_result2[2] = f_result1[2];
     }
-    
-    if(a_input >= 10)
+    else if(a_input >= 10)
     {
-        
+        f_result2[0] = '0';
+        f_result2[1] = f_result1[0];
+        f_result2[2] = f_result1[1];
+    }
+    else
+    {
+        f_result2[0] = '0';
+        f_result2[1] = '0';
+        f_result2[2] = f_result1[0];
     }
     
-    return f_result;
+    f_result2[3] = '\0';
+    
+    return f_result2;
 }
 
 /* char * c_ccm_3_char_ptr(char* a_arr, int a_pos)
@@ -153,31 +193,54 @@ char * c_ccm_3_char_ptr(char* a_arr, int a_pos)
     return f_result;
 }
 
+/* void v_ccm_read_file_to_array(t_ccm_midi_cc_map* a_ccm, char * a_file_name)
+ * 
+ * Check for the existence of a_file_name in ~/dssi, creating the directory and/or the
+ * file if needed.  If the file exists, read it into a_ccm, if not, read the default
+ * values in a_ccm set by calling v_ccm_set_cc in the plugin's constructor.
+ * 
+ * Descriptions are not currently read back into a_ccm, as they are not used by
+ * the plugin.  Those values are only kept for generating the file.
+ */
 void v_ccm_read_file_to_array(t_ccm_midi_cc_map* a_ccm, char * a_file_name)
 {
     char * f_home = getenv("HOME");
+    char * f_path = (char*)malloc(sizeof(char) * 200);
+    char * f_file = (char*)malloc(sizeof(char) * 200);
+    sprintf(f_path, "%s/dssi", f_home);
+    sprintf(f_file, "%s/%s", f_path, a_file_name);
+    printf("f_file == %s\n", f_file);
     
-    FILE *f = fopen(a_file_name, "rb");
+    struct stat st;
+    if(stat(f_path,&st) != 0)
+    {
+        printf("%s does not exist, creating directory\n", f_path);
+        mkdir(f_path, 0777);
+    }
+    
+    FILE *f = fopen(f_file, "rb");
     
     if(!f)
     {                
-        printf("Failed to open %s\n", a_file_name);      
+        printf("Failed to open %s\n", f_file);      
         /*TODO:  Create the file from a_ccm*/
-        f = fopen(a_file_name,"wb");
+        f = fopen(f_file,"wb");
         
         if(f)
         {
+            fprintf(f,"\"This is a MIDI CC mapping file.  The first 3 digits are the MIDI CC number,  do not edit them.  \nThe 2nd 3 digits are the LADSPA port number, you may change these from any value from 001 to 999.  \nAny additional text must be enclosed in quotation marks.\"\n\n");
             int f_i = 0;
             while(f_i < CC_MAX_COUNT)
             {
-                fprintf(f,"%s\n","test");
+                fprintf(f,"%s \"%s\"\n",c_ccm_control_and_cc_to_char_arr(a_ccm->cc_map[f_i] , f_i), a_ccm->cc_descriptions[f_i]);
                 f_i++;
-            }        
+            }
+            fflush(f);
             fclose(f);
         }
         else
         {
-            printf("cc_map.h:  Cannot open %s for writing, path is either invalid or you do not have the rights to open it.\n", a_file_name);
+            printf("cc_map.h:  Cannot open %s for writing, path is either invalid or you do not have the rights to open it.\n", f_file);
         }
         return;
     }
@@ -193,6 +256,13 @@ void v_ccm_read_file_to_array(t_ccm_midi_cc_map* a_ccm, char * a_file_name)
 
     int f_i = 0;
     
+    while(f_i < CC_MAX_COUNT)
+    {
+        a_ccm->cc_map[f_i] = 0;  //clear the values
+        f_i++;
+    }
+    
+    f_i = 0;
     /*a value of 1 means that the iterator is within quotation marks*/
     int f_name_state = 0;
         
@@ -212,12 +282,14 @@ void v_ccm_read_file_to_array(t_ccm_midi_cc_map* a_ccm, char * a_file_name)
             continue;
         }
                 
-        if((f_name_state == 0) && (i_ccm_char_arr_to_digit(bytes[f_i]) != -1))
+        char f_current_char = bytes[f_i];
+        
+        if((f_name_state == 0) && (i_ccm_char_arr_to_digit(&f_current_char) != -1))
         {
             a_ccm->cc_map[i_ccm_char_arr_to_int(c_ccm_3_char_ptr(bytes, f_i))] = 
-            i_ccm_char_arr_to_int(c_ccm_3_char_ptr(bytes, f_i + 3));
+            i_ccm_char_arr_to_int(c_ccm_3_char_ptr(bytes, f_i + 4));
             
-            f_i += 6;
+            f_i += 7;
         }
         
         f_i++;
