@@ -34,7 +34,7 @@ tools/jack-dssi-host/jack-dssi-host
 *config.h
 *configure
 *Makefile
-*LMS_qt
+*_qt
 *dist
 *description-pak
 */build/*
