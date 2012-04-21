@@ -35,9 +35,9 @@ typedef struct st_ccm_midi_cc_map
 }t_ccm_midi_cc_map;
 
 t_ccm_midi_cc_map * g_ccm_get();
-int v_ccm_get_cc(t_ccm_midi_cc_map* a_ccm, int a_control);
+int i_ccm_get_cc(t_ccm_midi_cc_map* a_ccm, int a_control);
 char * c_ccm_int_to_char_arr(int a_input);
-int v_ccm_set_cc(t_ccm_midi_cc_map* a_ccm, int a_control, int a_cc, char * a_cc_description);
+void v_ccm_set_cc(t_ccm_midi_cc_map* a_ccm, int a_control, int a_cc, char * a_cc_description);
 int i_ccm_char_arr_to_int(char * a_input);
 int i_ccm_char_arr_to_digit(char * a_input);
 char * c_ccm_control_and_cc_to_char_arr(int a_ladspa_port, int a_midi_cc);
@@ -63,7 +63,7 @@ t_ccm_midi_cc_map * g_ccm_get()
 
 
     
-int v_ccm_get_cc(t_ccm_midi_cc_map* a_ccm, int a_control)
+int i_ccm_get_cc(t_ccm_midi_cc_map* a_ccm, int a_control)
 {
     int f_i = 0;
     
@@ -80,7 +80,7 @@ int v_ccm_get_cc(t_ccm_midi_cc_map* a_ccm, int a_control)
     return -1;  //Equivalent to  DSSI_NONE;
 }
 
-int v_ccm_set_cc(t_ccm_midi_cc_map* a_ccm, int a_control, int a_cc, char * a_cc_description)
+void v_ccm_set_cc(t_ccm_midi_cc_map* a_ccm, int a_control, int a_cc, char * a_cc_description)
 {    
     a_ccm->cc_map[a_cc] = a_control;
     a_ccm->cc_descriptions[a_cc] = a_cc_description;
@@ -250,7 +250,7 @@ void v_ccm_read_file_to_array(t_ccm_midi_cc_map* a_ccm, char * a_file_name)
     long pos = ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    char *bytes = malloc(pos);
+    char *bytes = (char*)malloc(pos);
     fread(bytes, pos, 1, f);
     fclose(f);
 
