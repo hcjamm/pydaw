@@ -108,6 +108,13 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
     
     plugin_data->fs = s_rate;
     
+    plugin_data->midi_cc_map = g_ccm_get();
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_CUTOFF, 21, "Cutoff");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_CUTOFF, 20, "Res");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_CUTOFF, 28, "Type");
+    
+    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "lms_filter-cc_map.txt");
+    
     /*LibModSynth additions*/
     v_init_lms(s_rate);  //initialize any static variables    
     /*End LibModSynth additions*/
@@ -119,7 +126,7 @@ static void activateLMS(LADSPA_Handle instance)
 {
     LMS *plugin_data = (LMS *) instance;
         
-    plugin_data->mono_modules = v_mono_init((plugin_data->fs));  //initialize all monophonic modules
+    plugin_data->mono_modules = v_mono_init((plugin_data->fs));  //initialize all monophonic modules    
 }
 
 static void runLMSWrapper(LADSPA_Handle instance,
@@ -232,16 +239,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
  TODO:  Try it with non-hex numbers*/
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {
-    switch (port) {    
-    case LMS_CUTOFF:
-        return DSSI_CC(0x15);  //21
-    case LMS_RES:
-        return DSSI_CC(0x14);  //20                            
-    case LMS_TYPE:
-        return DSSI_CC(0x1c);  //28    
-    default:
-        return DSSI_NONE;
-    }
+    LMS *plugin_data = (LMS *) instance;
+    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
 }
 
 
