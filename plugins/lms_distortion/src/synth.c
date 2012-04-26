@@ -108,6 +108,13 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
     
     plugin_data->fs = s_rate;
     
+    plugin_data->midi_cc_map = g_ccm_get();
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_GAIN, 21, "In Gain");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_WET, 20, "Wet");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_OUT_GAIN, 22, "Out Gain");
+    
+    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "lms_distortion-cc_map.txt");
+        
     /*LibModSynth additions*/
     v_init_lms(s_rate);  //initialize any static variables    
     /*End LibModSynth additions*/
@@ -213,16 +220,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
  TODO:  Try it with non-hex numbers*/
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {
-    switch (port) {    
-    case LMS_GAIN:
-        return DSSI_CC(0x15);  //21
-    case LMS_WET:
-        return DSSI_CC(0x14);  //20
-    case LMS_OUT_GAIN:
-        return DSSI_CC(0x16);  //22
-    default:
-        return DSSI_NONE;
-    }
+    LMS *plugin_data = (LMS *) instance;
+    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
 }
 
 

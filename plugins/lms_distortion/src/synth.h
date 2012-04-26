@@ -14,6 +14,7 @@ extern "C" {
 
 #include "ladspa.h"
 #include "libmodsynth.h"
+#include "../../libmodsynth/lib/cc_map.h"
     
 /*Comment these out when compiling a stable, production-ready plugin.  
  The debugging code wastes a lot of CPU, and end users don't really need to see it*/
@@ -92,6 +93,8 @@ typedef struct {
     LADSPA_Data *gain;
     LADSPA_Data *wet;
     LADSPA_Data *out_gain;
+    
+    t_ccm_midi_cc_map * midi_cc_map;
     
     float fs;    
     t_mono_modules * mono_modules;
