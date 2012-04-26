@@ -149,6 +149,29 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
     
     plugin_data->fs = s_rate;
     
+    plugin_data->midi_cc_map = g_ccm_get();
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH1, 20, "Cutoff1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_GAIN1, 21, "Gain1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES1, 22, "Res1");
+
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH2, 23, "Cutoff2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_GAIN2, 24, "Gain2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES2, 25, "Res2");
+    
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH3, 26, "Cutoff3");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_GAIN3, 27, "Gain3");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES3, 28, "Res3");
+    
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH4, 29, "Cutoff4");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_GAIN4, 30, "Gain4");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES4, 31, "Res4");
+    
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH2, 32, "Cutoff5");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_GAIN2, 33, "Gain5");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES2, 34, "Res5");
+    
+    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "lms_eq5-cc_map.txt");
+    
     /*LibModSynth additions*/
     v_init_lms(s_rate);  //initialize any static variables    
     /*End LibModSynth additions*/
@@ -347,46 +370,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
  TODO:  Try it with non-hex numbers*/
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {
-    switch (port) {    
-        /*EQ1*/
-        case LMS_PITCH1:
-            return DSSI_CC(0x14);  //20
-        case LMS_GAIN1:
-            return DSSI_CC(0x15);  //21    
-        case LMS_RES1:
-            return DSSI_CC(0x16);  //22
-        /*EQ2*/
-        case LMS_PITCH2:
-            return DSSI_CC(0x17);  //23
-        case LMS_GAIN2:
-            return DSSI_CC(0x18);  //24 
-        case LMS_RES2:
-            return DSSI_CC(0x19);  //25
-        /*EQ3*/
-        case LMS_PITCH3:
-            return DSSI_CC(0x1A);  //26
-        case LMS_GAIN3:
-            return DSSI_CC(0x1B);  //27
-        case LMS_RES3:
-            return DSSI_CC(0x1C);  //28
-        /*EQ4*/
-        case LMS_PITCH4:
-            return DSSI_CC(0x1D);  //29
-        case LMS_GAIN4:
-            return DSSI_CC(0x1E);  //30    
-        case LMS_RES4:
-            return DSSI_CC(0x1F);  //31
-        /*EQ5*/
-        case LMS_PITCH5:
-            return DSSI_CC(0x21);  //33
-        case LMS_GAIN5:
-            return DSSI_CC(0x22);  //34    
-        case LMS_RES5:
-            return DSSI_CC(0x23);  //35
-            
-        default:
-            return DSSI_NONE;
-    }
+    LMS *plugin_data = (LMS *) instance;
+    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
 }
 
 
