@@ -120,6 +120,18 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
     
     plugin_data->fs = s_rate;
     
+    plugin_data->midi_cc_map = g_ccm_get();
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DELAY_TIME, 20, "Delay Time");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FEEDBACK, 21, "Feedback");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DRY, 22, "Dry");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_WET, 23, "Wet");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DUCK, 24, "Duck");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_CUTOFF, 25, "Cutoff");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_STEREO, 26, "Stereo");
+    
+
+    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "lms_delay-cc_map.txt");
+
     /*LibModSynth additions*/
     v_init_lms(s_rate);  //initialize any static variables    
     /*End LibModSynth additions*/
@@ -260,25 +272,9 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 /*This returns MIDI CCs for the different knobs
  TODO:  Try it with non-hex numbers*/
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
-{
-    switch (port) {    
-    case LMS_DELAY_TIME:
-        return DSSI_CC(0x14);  //20
-    case LMS_FEEDBACK:
-        return DSSI_CC(0x15);  //21
-    case LMS_DRY:
-        return DSSI_CC(0x16);  //22
-    case LMS_WET:
-        return DSSI_CC(0x17);  //23
-    case LMS_DUCK:
-        return DSSI_CC(0x18);  //24
-    case LMS_CUTOFF:
-        return DSSI_CC(0x19);  //25
-    case LMS_STEREO:
-        return DSSI_CC(0x1A);  //26
-    default:
-        return DSSI_NONE;
-    }
+{    
+    LMS *plugin_data = (LMS *) instance;
+    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
 }
 
 
