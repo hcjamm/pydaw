@@ -110,8 +110,8 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
     
     plugin_data->midi_cc_map = g_ccm_get();
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_CUTOFF, 21, "Cutoff");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_CUTOFF, 20, "Res");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_CUTOFF, 28, "Type");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES, 20, "Res");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_TYPE, 28, "Type");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "lms_filter-cc_map.txt");
     
