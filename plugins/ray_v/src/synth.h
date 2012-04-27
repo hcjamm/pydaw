@@ -15,6 +15,7 @@ extern "C" {
 #include "ladspa.h"
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/voice.h"
+#include "../../libmodsynth/lib/cc_map.h"
     
 /*Comment these out when compiling a stable, production-ready plugin.  
  The debugging code wastes a lot of CPU, and end users don't really need to see it*/
@@ -226,6 +227,8 @@ typedef struct {
     LADSPA_Data *lfo_filter;
     
     LADSPA_Data *program;
+    
+    t_ccm_midi_cc_map * midi_cc_map;
     
     t_poly_voice * data[POLYPHONY];
     t_voc_voices * voices;

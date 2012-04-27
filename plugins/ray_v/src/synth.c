@@ -203,6 +203,45 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
     
     plugin_data->fs = s_rate;
     
+    plugin_data->midi_cc_map = g_ccm_get();
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_ATTACK, 73, "Attack Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DECAY, 75, "Decay Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_SUSTAIN, 79, "Sustain Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RELEASE, 72, "Release Amp");    
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_TIMBRE, 20, "Filter Cutoff");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DIST, 51, "Distortion Gain");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES, 50, "Res");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ATTACK, 21, "Attack Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_DECAY, 22, "Decay Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_SUSTAIN, 23, "Sustain Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_RELEASE, 24, "Release Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_NOISE_AMP, 25, "Noise Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ENV_AMT, 26, "Filter Env Amt");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DIST_WET, 27, "Distortion Wet");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_OSC1_TYPE, 28, "Osc1 Type");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_OSC1_PITCH, 29, "Osc1 Pitch");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_OSC1_TUNE, 30, "Osc1 Tune");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_OSC1_VOLUME, 31, "Osc1 Volume");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_OSC2_TYPE, 41, "Osc2 Type");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_OSC2_PITCH, 33, "Osc2 Pitch");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_OSC2_TUNE, 34, "Osc2 Tune");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_OSC2_VOLUME, 35, "Osc2 Volume");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_VOLUME, 36, "Master Volume");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_UNISON_VOICES, 37, "Unison Voices");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_UNISON_SPREAD, 38, "Unison Spread");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_GLIDE, 39, "Glide Time");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_PITCHBEND_AMT, 40, "Pitchbend Amount");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_AMT, 42, "Pitch Env Amt");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_TIME, 43, "Pitch Env Time");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FREQ, 44, "LFO Freq");    
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_TYPE, 45, "LFO Type");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_AMP, 46, "LFO Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_PITCH, 47, "LFO Pitch");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FILTER, 48, "LFO Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PROGRAM_CHANGE, 49, "Program Change");
+    
+    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "ray_v-cc_map.txt");
+    
     /*LibModSynth additions*/
     v_init_lms(s_rate);  //initialize any static variables    
     /*End LibModSynth additions*/
@@ -611,78 +650,8 @@ static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d, LADSPA_Data *ou
 /*This returns MIDI CCs for the different knobs*/ 
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {
-    switch (port) {
-    case LMS_ATTACK:
-        return DSSI_CC(73);
-    case LMS_DECAY:
-        return DSSI_CC(75);
-    case LMS_SUSTAIN:
-        return DSSI_CC(79);
-    case LMS_RELEASE:
-        return DSSI_CC(72);
-    case LMS_TIMBRE:
-        return DSSI_CC(1);
-    case LMS_DIST:
-        return DSSI_CC(20);
-    case LMS_FILTER_ATTACK:
-        return DSSI_CC(21);
-    case LMS_FILTER_DECAY:
-        return DSSI_CC(22);
-    case LMS_FILTER_SUSTAIN:
-        return DSSI_CC(23);
-    case LMS_FILTER_RELEASE:
-        return DSSI_CC(24);
-    case LMS_NOISE_AMP:        
-        return DSSI_CC(25);
-    case LMS_FILTER_ENV_AMT:
-        return DSSI_CC(26);
-    case LMS_DIST_WET:
-        return DSSI_CC(27);
-    case LMS_OSC1_TYPE:
-        return DSSI_CC(28);
-    case LMS_OSC1_PITCH:
-        return DSSI_CC(29);
-    case LMS_OSC1_TUNE:
-        return DSSI_CC(30);
-    case LMS_OSC1_VOLUME:
-        return DSSI_CC(31);
-    case LMS_OSC2_TYPE:
-        return DSSI_CC(41);  //41  
-    case LMS_OSC2_PITCH:
-        return DSSI_CC(33);
-    case LMS_OSC2_TUNE:
-        return DSSI_CC(34);
-    case LMS_OSC2_VOLUME:
-        return DSSI_CC(35);
-    case LMS_MASTER_VOLUME:        
-        return DSSI_CC(36);
-    case LMS_MASTER_UNISON_VOICES:        
-        return DSSI_CC(37);
-    case LMS_MASTER_UNISON_SPREAD:        
-        return DSSI_CC(38);
-    case LMS_MASTER_GLIDE:        
-        return DSSI_CC(39);
-    case LMS_MASTER_PITCHBEND_AMT:        
-        return DSSI_CC(40);
-    case LMS_PITCH_ENV_AMT:
-        return DSSI_CC(42);
-    case LMS_PITCH_ENV_TIME:
-        return DSSI_CC(43);
-    case LMS_LFO_FREQ:
-        return DSSI_CC(44);
-    case LMS_LFO_TYPE:
-        return DSSI_CC(45);
-    case LMS_LFO_AMP:
-        return DSSI_CC(46);
-    case LMS_LFO_PITCH:
-        return DSSI_CC(47);
-    case LMS_LFO_FILTER:
-        return DSSI_CC(48);
-    case LMS_PROGRAM_CHANGE:
-        return DSSI_CC(32);  //Bank Select fine (this may be the wrong use of that CC)
-    }
-
-    return DSSI_NONE;
+    LMS *plugin_data = (LMS *) instance;
+    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
 }
 
 /*Here we define how all of the LADSPA and DSSI header stuff is setup,
