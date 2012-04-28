@@ -225,7 +225,10 @@ void v_adsr_retrigger(t_adsr * a_adsr_ptr)
  */
 void v_adsr_release(t_adsr * a_adsr_ptr)
 {
-    a_adsr_ptr->stage = 3;    
+    if(a_adsr_ptr->stage < 3)
+    {
+        a_adsr_ptr->stage = 3;
+    }
 }
 
 /* t_adsr * g_adsr_get_adsr(
