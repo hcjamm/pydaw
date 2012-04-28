@@ -386,7 +386,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                     plugin_data->data[voice]->osc2_linamp = f_db_to_linear_fast((plugin_data->vals.osc2vol), plugin_data->mono_modules->amp_ptr);
                     plugin_data->data[voice]->noise_linamp = f_db_to_linear_fast((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
                     
-                    plugin_data->voices->voices[voice].n_state = running;
+                    plugin_data->voices->voices[voice].n_state = note_state_running;
                                         
                     /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
                      placing things here that don't need to be modulated as a note is playing*/
@@ -427,17 +427,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                 {
                     snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
                     
-		    const int voice = plugin_data->voices->note2voice[n.note];
-
-                    /*LibModSynth additions*/
-                    if(plugin_data->voices->voices[voice].n_state != off)
-                    {                  
-                        v_poly_note_off(plugin_data->data[voice]);
-
-#ifdef LMS_DEBUG_NOTE
-                        printf("note_off zero velocity note# %i\n", n.note);
-#endif
-                    }                    
+		    v_voc_note_off(plugin_data->voices, n.note);
 		}
 	    } 
             /*Note-off event*/
@@ -445,19 +435,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             {
 		snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
                 
-                /*POLYPHONY is directly correlated to the actual index of the voice
-                 in plugin_data->note2voice.*/
-		const int voice = plugin_data->voices->note2voice[n.note];
+                v_voc_note_off(plugin_data->voices, n.note);
 
-                /*Inactivate the voice if it's not already inactive*/		
-                if(plugin_data->voices->voices[voice].n_state != off)
-                {                    
-                    /*LibModSynth additions*/                    
-                    v_poly_note_off(plugin_data->data[voice]);
-#ifdef LMS_DEBUG_NOTE                                        
-                    printf("note_off note off event note# %i\n", n.note);
-#endif
-		}
 	    } 
             /*Pitch-bend sequencer event, modify the voices pitch*/
             else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_PITCHBEND) 
@@ -468,23 +447,35 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 	    plugin_data->event_pos = (plugin_data->event_pos) + 1;
 	}
         
+        plugin_data->i_iterator = 0;
+        
+        while(plugin_data->i_iterator < (plugin_data->voices->count))
+        {
+            if((plugin_data->voices->voices[(plugin_data->i_iterator)].n_state) == note_state_releasing)
+            {
+                v_poly_note_off(plugin_data->data[(plugin_data->i_iterator)]);
+            }
+            
+            plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
+        }
+        
 	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
 	
         /*Clear the output buffer*/
-        plugin_data->i_buffer_clear = 0;
+        plugin_data->i_iterator = 0;
         
-        while((plugin_data->i_buffer_clear)<(plugin_data->count))
+        while((plugin_data->i_iterator)<(plugin_data->count))
         {
-	    output0[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;                        
-            output1[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;     
-            plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
+	    output0[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;                        
+            output1[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;     
+            plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
 	}
         
         plugin_data->voice = 0; 
 	while ((plugin_data->voice) < POLYPHONY) 
         {
 	    //if (data[voice].state != inactive) 
-            if(plugin_data->voices->voices[(plugin_data->voice)].n_state != off)
+            if(plugin_data->voices->voices[(plugin_data->voice)].n_state != note_state_off)
             {
 		run_voice(plugin_data, //The LMS class containing global synth data
                         &(plugin_data->vals), //monophonic values for the the synth's controls
@@ -508,8 +499,6 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 
 static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count, int a_voice_number)
 {   
-    
-    //int f_i = 0;
     d->i_voice = 0;
     
     /*Process an audio block*/
@@ -550,13 +539,7 @@ static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d, LADSPA_Data *ou
 #endif        
         d->base_pitch = (d->glide_env->output_multiplied) + (d->pitch_env->output_multiplied) 
                 + (p->mono_modules->pitchbend_smoother->output) + (d->last_pitch);
-#ifdef LMS_DEBUG_MAIN_LOOP
-        if(is_debug_printing == 1)
-        {
-            printf("d->base_pitch == %f\n", (d->base_pitch));
-            printf("d->note_f == %f\n", (d->note_f));
-        }
-#endif                
+       
         v_osc_set_unison_pitch(d->osc_unison1, vals->master_uni_spread,   
                 ((d->base_pitch) + (vals->osc1pitch) + (vals->osc1tune) + (d->lfo_pitch_output)));
 
@@ -638,11 +621,11 @@ static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d, LADSPA_Data *ou
     }
 
     
-    /*If the main ADSR envelope has reached it's release stage, kill the voice.
+    /*If the main ADSR envelope has reached the end it's release stage, kill the voice.
      However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't*/
     if(d->adsr_amp->stage == 4)
     {
-        p->voices->voices[a_voice_number].n_state = off;
+        p->voices->voices[a_voice_number].n_state = note_state_off;
     }
         
 }
