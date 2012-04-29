@@ -714,7 +714,7 @@ void _init()
 	port_descriptors[LMS_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_RELEASE] = "Release time (s)";
 	port_range_hints[LMS_RELEASE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_LOGARITHMIC |
+			LADSPA_HINT_DEFAULT_MIDDLE | 
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_RELEASE].LowerBound = 1; 
 	port_range_hints[LMS_RELEASE].UpperBound = 400; 
@@ -746,10 +746,7 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_DIST].LowerBound =  -6;
 	port_range_hints[LMS_DIST].UpperBound =  36;
-        
-        
-        
-        
+                
 	/* Parameters for attack_f */
 	port_descriptors[LMS_FILTER_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_FILTER_ATTACK] = "Attack time (s) filter";
@@ -820,7 +817,7 @@ void _init()
 	port_descriptors[LMS_OSC1_TYPE] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_OSC1_TYPE] = "Osc 1 Type";
 	port_range_hints[LMS_OSC1_TYPE].HintDescriptor =
-			//LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_OSC1_TYPE].LowerBound =  0;
 	port_range_hints[LMS_OSC1_TYPE].UpperBound =  5;
@@ -850,7 +847,7 @@ void _init()
 	port_descriptors[LMS_OSC1_VOLUME] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_OSC1_VOLUME] = "Osc 1 Vol";
 	port_range_hints[LMS_OSC1_VOLUME].HintDescriptor =
-			//LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_OSC1_VOLUME].LowerBound =  -60;
 	port_range_hints[LMS_OSC1_VOLUME].UpperBound =  0;
@@ -891,7 +888,7 @@ void _init()
 	port_descriptors[LMS_OSC2_VOLUME] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_OSC2_VOLUME] = "Osc 2 Vol";
 	port_range_hints[LMS_OSC2_VOLUME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW |  LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_OSC2_VOLUME].LowerBound =  -60;
 	port_range_hints[LMS_OSC2_VOLUME].UpperBound =  0;
