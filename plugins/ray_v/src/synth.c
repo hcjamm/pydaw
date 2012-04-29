@@ -385,8 +385,6 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                     plugin_data->data[voice]->osc1_linamp = f_db_to_linear_fast((plugin_data->vals.osc1vol), plugin_data->mono_modules->amp_ptr); 
                     plugin_data->data[voice]->osc2_linamp = f_db_to_linear_fast((plugin_data->vals.osc2vol), plugin_data->mono_modules->amp_ptr);
                     plugin_data->data[voice]->noise_linamp = f_db_to_linear_fast((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
-                    
-                    plugin_data->voices->voices[voice].n_state = note_state_running;
                                         
                     /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
                      placing things here that don't need to be modulated as a note is playing*/
@@ -475,7 +473,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 	while ((plugin_data->voice) < POLYPHONY) 
         {
 	    //if (data[voice].state != inactive) 
-            if(plugin_data->voices->voices[(plugin_data->voice)].n_state != note_state_off)
+            if((plugin_data->voices->voices[(plugin_data->voice)].n_state) != note_state_off)
             {
 		run_voice(plugin_data, //The LMS class containing global synth data
                         &(plugin_data->vals), //monophonic values for the the synth's controls
