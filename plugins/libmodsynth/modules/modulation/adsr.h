@@ -247,7 +247,8 @@ t_adsr * g_adsr_get_adsr(float a_sr_recip)
     v_adsr_set_s_value_db(f_result, -12);
     v_adsr_set_r_time(f_result, .5);
 
-    v_adsr_retrigger(f_result);
+    f_result->output = 0;
+    f_result->stage = 4;
     
     return f_result;
 }
