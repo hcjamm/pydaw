@@ -474,7 +474,7 @@ void _init()
 	/* Parameters for gain2 */
 	port_descriptors[LMS_GAIN2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_GAIN2] = "Gain2";
-	port_range_hints[LMS_GAIN1].HintDescriptor =
+	port_range_hints[LMS_GAIN2].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_GAIN2].LowerBound =  -24;
@@ -546,7 +546,7 @@ void _init()
 	port_range_hints[LMS_RES4].UpperBound =  -1;
         
         /*EQ5*/
-        /* Parameters for pitch1 */
+        /* Parameters for pitch5 */
 	port_descriptors[LMS_PITCH5] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_PITCH5] = "Freq5";
 	port_range_hints[LMS_PITCH5].HintDescriptor =
@@ -555,7 +555,7 @@ void _init()
 	port_range_hints[LMS_PITCH5].LowerBound =  20;
 	port_range_hints[LMS_PITCH5].UpperBound =  124;
         
-	/* Parameters for gain1 */
+	/* Parameters for gain5 */
 	port_descriptors[LMS_GAIN5] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_GAIN5] = "Gain5";
 	port_range_hints[LMS_GAIN5].HintDescriptor =
