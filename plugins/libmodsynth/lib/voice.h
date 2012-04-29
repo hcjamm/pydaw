@@ -87,7 +87,7 @@ int i_pick_voice(t_voc_voices *data, int a_current_note)
                 (data->voices[(data->iterator)].n_state == note_state_running)) {
                 /*Kill the note if already being used, this is to prevent hung
                  notes in hosts that might not handle MIDI events properly*/
-                data->voices[(data->iterator)].n_state == note_state_releasing;
+                data->voices[(data->iterator)].n_state = note_state_releasing;
 	}
         
         data->iterator = (data->iterator) + 1;
@@ -98,7 +98,9 @@ int i_pick_voice(t_voc_voices *data, int a_current_note)
     while ((data->iterator) < (data->count)) {
 	if (data->voices[(data->iterator)].n_state == note_state_off) {
         
-        data->voices[(data->iterator)].note = a_current_note;            
+        data->voices[(data->iterator)].note = a_current_note;
+        data->voices[(data->iterator)].n_state = note_state_running;
+        
         return (data->iterator);
 	}
         
@@ -119,6 +121,7 @@ int i_pick_voice(t_voc_voices *data, int a_current_note)
     }
 
     data->voices[highest_note_voice].note = a_current_note;
+    data->voices[highest_note_voice].n_state = note_state_running;
             
     return highest_note_voice;        
 }
