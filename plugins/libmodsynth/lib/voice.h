@@ -82,7 +82,7 @@ int i_pick_voice(t_voc_voices *data, int a_current_note)
 {   
     data->iterator = 0;
     /* Look for an inactive voice */
-    while (data->iterator<data->count) {
+    while ((data->iterator) < (data->count)) {
 	if ((data->voices[(data->iterator)].note == a_current_note) &&
                 (data->voices[(data->iterator)].n_state == note_state_running)) {
                 /*Kill the note if already being used, this is to prevent hung
@@ -95,7 +95,7 @@ int i_pick_voice(t_voc_voices *data, int a_current_note)
     
     data->iterator = 0;
     /* Look for an inactive voice */
-    while (data->iterator<data->count) {
+    while ((data->iterator) < (data->count)) {
 	if (data->voices[(data->iterator)].n_state == note_state_off) {
         
         data->voices[(data->iterator)].note = a_current_note;            
