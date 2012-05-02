@@ -81,9 +81,9 @@ public:
         
 	commandAndParameters << f_file_path;
 
-	QProcess * myProcess = new QProcess(a_parent);
+	QProcess myProcess;
 
-	myProcess->startDetached(lms_editor_path, commandAndParameters);
+	myProcess.startDetached(lms_editor_path, commandAndParameters);
     }        
 };
 
