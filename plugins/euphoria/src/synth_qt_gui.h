@@ -82,6 +82,8 @@ public slots:
     void setSampleFile(QString file);
     void clearFile();
     void setSelection(int);
+    void openInEditor();
+    void reloadSample();
     
     void aboutToQuit();
 
