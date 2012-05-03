@@ -54,7 +54,11 @@ public:
     QString open_button_pressed(QWidget * a_parent)
     {
         QString f_result = QFileDialog::getOpenFileName(a_parent, "Select an audio sample file", ".", "Audio files (*.wav *.aiff)");
-        lms_file_path->setText(f_result);
+        if(!f_result.isEmpty())
+        {
+            lms_file_path->setText(f_result);
+        }
+        
         return lms_file_path->text();
     }
     
