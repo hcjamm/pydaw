@@ -478,6 +478,7 @@ void SamplerGUI::fileSelect()
                 
         QTableWidgetItem * f_item = new QTableWidgetItem();
         f_item->setText(path);
+        f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
         m_sample_table->lms_mod_matrix->setItem(m_sample_table->lms_selected_column, SMP_TB_FILE_PATH_INDEX, f_item);
         m_sample_table->lms_mod_matrix->resizeColumnsToContents();
     }
@@ -496,6 +497,7 @@ void SamplerGUI::clearFile()
     
     QTableWidgetItem * f_item = new QTableWidgetItem();
     f_item->setText(path);
+    f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
     m_sample_table->lms_mod_matrix->setItem(m_sample_table->lms_selected_column, SMP_TB_FILE_PATH_INDEX, f_item);
     m_file_selector->clear_button_pressed();
 }

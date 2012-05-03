@@ -108,8 +108,9 @@ public:
                     }
                         break;
                     case no_widget:{                        
-                        QTableWidgetItem * f_empty = new QTableWidgetItem();
+                        QTableWidgetItem * f_empty = new QTableWidgetItem();                        
                         f_empty->setText(QString(""));
+                        f_empty->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
                         lms_mod_matrix->setItem(f_i2, f_i, f_empty);
                     }
                         break;
