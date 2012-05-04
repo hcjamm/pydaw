@@ -21,6 +21,9 @@ GNU General Public License for more details.
 #include <QLabel>
 #include <QSlider>
 #include <QLayout>
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -84,6 +87,9 @@ public slots:
     void setSelection(int);
     void openInEditor();
     void reloadSample();
+    void moveSamplesToSingleDirectory();
+    void saveInstrumentToSingleFile();
+    void openInstrumentFromFile();
     
     void aboutToQuit();
 
@@ -239,11 +245,17 @@ protected:
     /*The index of C, C#, D, D#, E, etc... in the QCombobox*/
     int m_note_indexes [LMS_MAX_SAMPLE_COUNT];
     
+    QAction *actionMove_files_to_single_directory;
+    QAction *actionSave_instrument_to_file;
+    QAction *actionOpen_instrument_from_file;
+    QMenuBar *menubar;
+    QMenu *menuFile;
+        
     //LMS_sample_viewer * m_sample_viewer;
     LMS_file_select * m_file_selector;
     
     QVBoxLayout *m_smp_tab_main_verticalLayout;
-    QHBoxLayout *horizontalLayout_5;
+    QVBoxLayout *m_main_v_layout;
     QTabWidget *m_main_tab;
     QWidget *m_sample_tab;
     QHBoxLayout *horizontalLayout_2;
