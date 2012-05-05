@@ -79,7 +79,11 @@ public:
     
     /*To prevent controls that update other controls from going berserk*/
     bool m_handle_control_updates;
-    
+    /*Setting this to true causes the moveSamplesToSingleDirectory() to use a tmp folder, and not 
+     to reset the sample locations to the new folder*/
+    bool m_creating_instrument_file;
+    /*This is used when creating an instrument file*/
+    QString m_inst_file_tmp_path;
     void calculate_fx_label(int,int,QLabel*);
 public slots:
     void setSampleFile(QString file);
