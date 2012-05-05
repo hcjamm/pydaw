@@ -213,7 +213,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_lfo->lms_groupbox->lms_add_h(m_lfo_pitch);
     connect(m_lfo_pitch->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOpitchChanged(int)));
     
-    m_lfo_cutoff  = new LMS_knob_regular(QString("Filter"), -48, 48, 1, 0, QString("0"), m_lfo->lms_groupbox->lms_groupbox, f_info, lms_kc_decimal, LMS_LFO_FILTER);
+    m_lfo_cutoff  = new LMS_knob_regular(QString("Filter"), -48, 48, 1, 0, QString("0"), m_lfo->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, LMS_LFO_FILTER);
     m_lfo->lms_groupbox->lms_add_h(m_lfo_cutoff);
     connect(m_lfo_cutoff->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOcutoffChanged(int)));    
     
