@@ -24,6 +24,7 @@ GNU General Public License for more details.
 #include <QPainter>
 #include <QGroupBox>
 #include <QTextStream>
+#include <QString>
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
@@ -39,6 +40,7 @@ GNU General Public License for more details.
 #include <X11/SM/SMlib.h>
 #include <qt4/QtGui/qapplication.h>
 #include <qt4/QtCore/qstring.h>
+#include <qt4/QtGui/qfont.h>
 
 static int handle_x11_error(Display *dpy, XErrorEvent *err)
 {
@@ -54,7 +56,7 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 #endif
 
 /*This allows the executable to run standalone for debugging.  This should normally be commented out*/
-//#define LMS_DEBUG_STANDALONE
+#define LMS_DEBUG_STANDALONE
 
 using std::endl;
 
@@ -115,7 +117,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         /*Set all of the array variables that are per-sample*/
         for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
         {           
-            QRadioButton * f_rb = (QRadioButton*)m_sample_table->lms_mod_matrix->cellWidget(i , SMP_TB_RADIOBUTTON_INDEX);            
+            QRadioButton * f_rb = (QRadioButton*)m_sample_table->lms_mod_matrix->cellWidget(i , SMP_TB_RADIOBUTTON_INDEX);         
             connect(f_rb, SIGNAL(clicked()), this, SLOT(selectionChanged()));
             
             m_note_indexes[i] = 0;                 
@@ -643,23 +645,53 @@ void SamplerGUI::moveSamplesToSingleDirectory()
 {
     QString f_selected_path = QFileDialog::getExistingDirectory(this, "Select a directory to move the samples to...", ".");
     
-    //TODO:  check that the directory is empty...
-    
-    for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
-    {           
-        if(!(m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text().startsWith(f_selected_path, Qt::CaseInsensitive)));
-        {
-            /*  TODO:  Note the current selected radio button, then programmatically select each one that changes, then 
-             * reselect the original button.  Use the below to send to the DSSI engine...
-             if(!path.isEmpty())
-                {
-                    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
-            #ifndef LMS_DEBUG_STANDALONE
-                    lo_send(m_host, m_configurePath, "ss", "load", path.toLocal8Bit().data());
-            #endif                
-                }
-             */
+    if(!f_selected_path.isEmpty())
+    {
+        //TODO:  check that the directory is empty...
+        
+        m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
+        int f_current_radio_button = m_sample_table->lms_selected_column;
+
+        for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
+        {           
+            QString f_current_file_path = m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text();
+            
+            if(f_current_file_path.isNull())
+                continue;
+            
+            if((f_current_file_path.isEmpty()))
+                continue;
+            
+            if(f_current_file_path.startsWith(f_selected_path, Qt::CaseInsensitive))
+                continue;
+            
+            QFile * f_current_file = new QFile(f_current_file_path);
+            QStringList f_file_arr = f_current_file->fileName().split("/");
+            
+            QString f_new_file = f_selected_path.append("/").append(f_file_arr[(f_file_arr.count() - 1)]);
+                
+#ifdef LMS_DEBUG_STANDALONE
+            std::string f_string = f_new_file.toStdString();
+#endif
+                
+            f_current_file->copy(f_new_file);
+                
+            QTableWidgetItem * f_item = new QTableWidgetItem();
+            f_item->setText(f_new_file);
+            f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+            m_sample_table->lms_mod_matrix->setItem(i, SMP_TB_FILE_PATH_INDEX, f_item);
+            
+            QRadioButton * f_radio_button = (QRadioButton*)m_sample_table->lms_mod_matrix->cellWidget(i , SMP_TB_RADIOBUTTON_INDEX);                
+            f_radio_button->setChecked(TRUE);
+                
+#ifndef LMS_DEBUG_STANDALONE
+            lo_send(m_host, m_configurePath, "ss", "load", f_new_file.toLocal8Bit().data());
+#endif                      
         }
+        
+        /*Select the radio button that was originally selected*/
+        QRadioButton * f_radio_button = (QRadioButton*)m_sample_table->lms_mod_matrix->cellWidget(f_current_radio_button , SMP_TB_RADIOBUTTON_INDEX);                
+        f_radio_button->setChecked(TRUE);
     }
 }
 
