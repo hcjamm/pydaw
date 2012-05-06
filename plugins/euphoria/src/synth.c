@@ -175,8 +175,21 @@ static void activateSampler(LADSPA_Handle instance)
 	plugin_data->offs[i] = -1;
 	plugin_data->velocities[i] = 0;
     }
+    
+    plugin_data->voices = g_voc_get_voices(POLYPHONY);
+    
+    for (i=0; i<POLYPHONY; i++) {
+        plugin_data->data[i] = g_poly_init((float)(plugin_data->sampleRate));
+        plugin_data->data[i]->note_f = i;        
+    }
+    
+    plugin_data->pitch = 1.0f;
+    plugin_data->sv_pitch_bend_value = 0.0f;
+    plugin_data->sv_last_note = 60.0f;  //For glide
+    
+    plugin_data->mono_modules = g_mono_init();  //initialize all monophonic modules
 
-    pthread_mutex_unlock(&plugin_data->mutex);
+    pthread_mutex_unlock(&plugin_data->mutex);        
 }
 
 /* static void addSample(Sampler *plugin_data, 
@@ -284,12 +297,15 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
             /*Note-on event*/
 	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
-		if (n.velocity > 0) {
+		if (n.velocity > 0) 
+                {
 		    plugin_data->ons[n.note] =
 			plugin_data->sampleNo + events[event_pos].time.tick;
 		    plugin_data->offs[n.note] = -1;
 		    plugin_data->velocities[n.note] = n.velocity;
-		} else {
+		} 
+                else 
+                {
 		    if (!plugin_data->sustain || (*plugin_data->sustain < 0.001)) {
 			plugin_data->offs[n.note] = 
 			    plugin_data->sampleNo + events[event_pos].time.tick;
@@ -297,7 +313,8 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 		}
 	    } /*Note-off event*/
             else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF &&
-		       (!plugin_data->sustain || (*plugin_data->sustain < 0.001))) {
+		       (!plugin_data->sustain || (*plugin_data->sustain < 0.001))) 
+            {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
 		plugin_data->offs[n.note] = 
 		    plugin_data->sampleNo + events[event_pos].time.tick;
