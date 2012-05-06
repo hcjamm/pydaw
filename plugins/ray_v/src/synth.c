@@ -652,7 +652,7 @@ void _init()
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = LMS_PLUGIN_UUID;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
 	LMSLDescriptor->Label = "LMS_RAYV";  
-	LMSLDescriptor->Properties = 0;
+	LMSLDescriptor->Properties = LADSPA_PROPERTY_REALTIME | LADSPA_PROPERTY_HARD_RT_CAPABLE; //0;
 	LMSLDescriptor->Name = LMS_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = LMS_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";
