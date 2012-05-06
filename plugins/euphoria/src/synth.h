@@ -78,6 +78,9 @@ typedef struct {
     
     /*From Ray-V.  TODO:  check to make sure this is really supposed to be here*/
     LADSPA_Data pitch;
+    int i_iterator;
+    int voice;
+    int count;
     
     t_poly_voice * data[POLYPHONY];
     t_voc_voices * voices;

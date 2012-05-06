@@ -84,6 +84,7 @@ typedef struct st_poly_voice
     
     /*From Ray-V:  TODO:  make sure this is really needed*/
     float note_f;
+    float amp;
 }t_poly_voice;
 
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -133,6 +134,8 @@ t_poly_voice * g_poly_init(float a_sr)
     f_voice->filter_output = 0.0f;
     
     f_voice->lfo1 = g_lfs_get(a_sr);
+    
+    f_voice->amp = 1.0f;
         
     return f_voice;
 }

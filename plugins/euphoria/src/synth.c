@@ -292,6 +292,10 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 
     for (pos = 0, event_pos = 0; pos < sample_count; ) {
 
+        /*Run smoothers.  Not actually functional yet*/
+        v_smr_iir_run(plugin_data->mono_modules->filter_smoother,  66.0f); // (plugin_data->vals.timbre));
+        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
+        
 	while (event_pos < event_count){
 	       //&& pos >= events[event_pos].time.tick) {
             /*Note-on event*/
@@ -303,6 +307,21 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 			plugin_data->sampleNo + events[event_pos].time.tick;
 		    plugin_data->offs[n.note] = -1;
 		    plugin_data->velocities[n.note] = n.velocity;
+                    
+                                        
+		    const int voice = i_pick_voice(plugin_data->voices, n.note);
+                    
+		    plugin_data->data[voice]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12), //+ (plugin_data->vals.master_vol)), //-20db to 0db, + master volume (0 to -60)
+                            plugin_data->mono_modules->amp_ptr); 
+                    
+                    plugin_data->data[voice]->note_f = (float)n.note;
+                    //data[voice].hz = f_pit_midi_note_to_hz(data[voice].note_f);
+                    
+                    
+                    plugin_data->data[voice]->target_pitch = (plugin_data->data[voice]->note_f);
+                    plugin_data->data[voice]->last_pitch = (plugin_data->sv_last_note);
+                    
+                    /*TODO: Retrigger envelopes here, etc...*/
 		} 
                 else 
                 {
@@ -310,6 +329,8 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 			plugin_data->offs[n.note] = 
 			    plugin_data->sampleNo + events[event_pos].time.tick;
 		    }
+                    
+                    v_voc_note_off(plugin_data->voices, n.note);
 		}
 	    } /*Note-off event*/
             else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF &&
@@ -318,15 +339,59 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 		snd_seq_ev_note_t n = events[event_pos].data.note;
 		plugin_data->offs[n.note] = 
 		    plugin_data->sampleNo + events[event_pos].time.tick;
+                
+                v_voc_note_off(plugin_data->voices, n.note);
 	    }
 
 	    ++event_pos;
 	}
+        
+        
+        plugin_data->i_iterator = 0;
+        
+        while(plugin_data->i_iterator < (plugin_data->voices->count))
+        {
+            if((plugin_data->voices->voices[(plugin_data->i_iterator)].n_state) == note_state_releasing)
+            {
+                v_poly_note_off(plugin_data->data[(plugin_data->i_iterator)]);
+            }
+            
+            plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
+        }
 
 	count = sample_count - pos;
 	if (event_pos < event_count &&
 	    events[event_pos].time.tick < sample_count) {
 	    count = events[event_pos].time.tick - pos;
+	}
+        
+        /*Clear the output buffer*/
+        plugin_data->i_iterator = 0;
+        
+        while((plugin_data->i_iterator)<(count))
+        {
+	    //output0[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;                        
+            //output1[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;     
+            plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
+	}
+        
+        plugin_data->voice = 0; 
+	while ((plugin_data->voice) < POLYPHONY) 
+        {
+	    //if (data[voice].state != inactive) 
+            if((plugin_data->voices->voices[(plugin_data->voice)].n_state) != note_state_off)
+            {
+		/*run_voice(plugin_data, //The LMS class containing global synth data
+                        &(plugin_data->vals), //monophonic values for the the synth's controls
+                        plugin_data->data[(plugin_data->voice)], //The amp, envelope, state, etc... of the voice
+                        output0 + (plugin_data->pos), //output is the block array, I think + pos advances the index???
+                        output1 + (plugin_data->pos), //output is the block array, I think + pos advances the index???
+			  (plugin_data->count), //has to do with iterating through stepsize, but I'm not sure how
+                        (plugin_data->voice));  //The voice number
+                  */      
+	    }
+            
+            plugin_data->voice = (plugin_data->voice) + 1; 
 	}
 
 	for (i = 0; i < Sampler_NOTES; ++i) {
