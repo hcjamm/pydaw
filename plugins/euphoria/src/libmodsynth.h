@@ -31,6 +31,7 @@ extern "C" {
 #include "../../libmodsynth/modules/signal_routing/audio_xfade.h"
 #include "../../libmodsynth/modules/modulation/ramp_env.h"
 #include "../../libmodsynth/lib/smoother-iir.h"
+#include "../../libmodsynth/modules/oscillator/lfo_simple.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -51,8 +52,10 @@ typedef struct st_mono_modules
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
 typedef struct st_poly_voice
 {   
-    t_state_variable_filter * svf_filter;
-    fp_svf_run_filter svf_function;
+    t_state_variable_filter * svf_filter1;
+    t_state_variable_filter * svf_filter2;
+    fp_svf_run_filter svf_function1;
+    fp_svf_run_filter svf_function2;
     
     t_clipper * clipper1;
     t_audio_xfade * dist_dry_wet;
@@ -75,6 +78,12 @@ typedef struct st_poly_voice
     
     float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
     
+    t_lfs_lfo * lfo1;
+    
+    t_amp * amp_ptr;
+    
+    /*From Ray-V:  TODO:  make sure this is really needed*/
+    float note_f;
 }t_poly_voice;
 
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -99,8 +108,10 @@ t_poly_voice * g_poly_init(float a_sr)
     
     t_poly_voice * f_voice = (t_poly_voice*)malloc(sizeof(t_poly_voice));
                 
-    f_voice->svf_filter = g_svf_get(a_sr);
-    f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
+    f_voice->svf_filter1 = g_svf_get(a_sr);
+    f_voice->svf_filter2 = g_svf_get(a_sr);
+    f_voice->svf_function1 = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
+    f_voice->svf_function1 = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_HP);
         
     f_voice->clipper1 = g_clp_get_clipper();    
     f_voice->dist_dry_wet = g_axf_get_audio_xfade(-3);
@@ -121,6 +132,8 @@ t_poly_voice * g_poly_init(float a_sr)
     
     f_voice->filter_output = 0.0f;
     
+    f_voice->lfo1 = g_lfs_get(a_sr);
+        
     return f_voice;
 }
 
@@ -134,11 +147,11 @@ void v_poly_note_off(t_poly_voice * a_voice) //, LTS * _instance)
     v_adsr_release(a_voice->adsr_filter);    
 }
 
-t_mono_modules * g_mono_init(float);
+t_mono_modules * g_mono_init();
 
 
 /*Initialize any modules that will be run monophonically*/
-t_mono_modules * g_mono_init(float a_sr)
+t_mono_modules * g_mono_init()
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
     a_mono->filter_smoother = g_smr_iir_get_smoother();
