@@ -56,7 +56,7 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 #endif
 
 /*This allows the executable to run standalone for debugging.  This should normally be commented out*/
-#define LMS_DEBUG_STANDALONE
+//#define LMS_DEBUG_STANDALONE
 
 using std::endl;
 
