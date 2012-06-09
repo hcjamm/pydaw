@@ -32,6 +32,7 @@ GNU General Public License for more details.
 
 #include "synth.h"
 #include "meta.h"
+#include "../../libmodsynth/lib/lms_math.h"
 
 static LADSPA_Descriptor *samplerStereoLDescriptor = NULL;
 
@@ -200,14 +201,13 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
     float gain_test = 1.0;
     unsigned long i, ch, s;
 
-    //if (plugin_data->retune && *plugin_data->retune) {
-	if (plugin_data->basePitch[(plugin_data->current_sample)]){ // && n != *(plugin_data->basePitch[(plugin_data->current_sample)])) {
-	    //ratio = powf(1.059463094, n - *(plugin_data->basePitch[(plugin_data->current_sample)]));
-            ratio =
-            f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]), (float)(n), 
-                    plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
-	}
-    //}
+    if (plugin_data->basePitch[(plugin_data->current_sample)])
+    {
+        ratio =
+        f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]), (float)(n), 
+                plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
+    }
+
     
     if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
 
@@ -255,10 +255,70 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 		((plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi + 1] -
 		  plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi]) *
 		 (rs - (float)rsi));
+            float sample2 = sample;
+            /*Process PolyFX here*/
+            
+            //Call everything defined in libmodsynth.h in the order it should be called in
+            //plugin_data->current_sample = 0;
+
+            //Run the glide module
+            
+            f_rmp_run_ramp(plugin_data->data[n]->pitch_env);
+            f_rmp_run_ramp(plugin_data->data[n]->glide_env);
+            
+            //Set and run the LFO
+            v_lfs_set(plugin_data->data[n]->lfo1,  2); // vals->lfo_freq);
+            v_lfs_run(plugin_data->data[n]->lfo1);
+            plugin_data->data[n]->lfo_amp_output = f_db_to_linear_fast((((6   //vals->lfo_amp
+                    ) * (plugin_data->data[n]->lfo1->output)) - (f_lms_abs((6 //vals->lfo_amp
+                    )) * 0.5)), plugin_data->data[n]->amp_ptr);
+            plugin_data->data[n]->lfo_filter_output = (12 //vals->lfo_filter
+                    ) * (plugin_data->data[n]->lfo1->output);
+            plugin_data->data[n]->lfo_pitch_output = (12 //vals->lfo_pitch
+                    ) * (plugin_data->data[n]->lfo1->output);
+            
+            //plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied) + (plugin_data->data[n]->pitch_env->output_multiplied) 
+            //        + (p->mono_modules->pitchbend_smoother->output) + (plugin_data->data[n]->last_pitch);
+            
+            sample += (f_run_white_noise(plugin_data->data[n]->white_noise1[ch]) * (plugin_data->data[n]->noise_linamp)); //white noise
+            
+            v_adsr_run(plugin_data->data[n]->adsr_amp);        
+
+            v_adsr_run(plugin_data->data[n]->adsr_filter);
+            
+            v_svf_set_cutoff_base(plugin_data->data[n]->svf_filter[ch],  75); // (plugin_data->mono_modules->filter_smoother->output));
+            //Run v_svf_add_cutoff_mod once for every input source
+            v_svf_add_cutoff_mod(plugin_data->data[n]->svf_filter[ch], 
+                    (((plugin_data->data[n]->adsr_filter->output) * (12 //vals->filter_env_amt
+                    )) + (plugin_data->data[n]->lfo_filter_output)));        
+            //calculate the cutoff
+            v_svf_set_cutoff(plugin_data->data[n]->svf_filter[ch]);
+            
+            plugin_data->data[n]->filter_output = plugin_data->data[n]->svf_function(plugin_data->data[n]->svf_filter[ch], (sample));
+
+            //Crossfade between the filter, and the filter run through the distortion unit
+            sample = f_axf_run_xfade((plugin_data->data[n]->dist_dry_wet[ch]), (plugin_data->data[n]->filter_output), 
+                    f_clp_clip(plugin_data->data[n]->clipper1[ch], (plugin_data->data[n]->filter_output)));
+            
+            sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->data[n]->amp) * (plugin_data->data[n]->lfo_amp_output);
+
+            //Run the envelope and assign to the output buffers
+            //out0[(plugin_data->data[n]->i_voice)] += (sample);
+            //out1[(plugin_data->data[n]->i_voice)] += (sample);
+
+            //plugin_data->data[n]->i_voice = (plugin_data->data[n]->i_voice) + 1;
+    
+            //If the main ADSR envelope has reached the end it's release stage, kill the voice.
+            //However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't            
+            //if(plugin_data->data[n]->adsr_amp->stage == 4)
+            //{
+            //    p->voices->voices[a_voice_number].n_state = note_state_off;
+            //}
             
             
+            /*End process PolyFX*/
             
-	    plugin_data->output[ch][pos + i] += lgain * sample * gain_test;
+	    plugin_data->output[ch][pos + i] += lgain * sample2 * gain_test;
 	}
     }
 }
