@@ -69,6 +69,8 @@ typedef struct {
     t_amp * amp_ptr;
     t_pit_pitch_core * smp_pit_core[LMS_MAX_SAMPLE_COUNT];
     t_pit_ratio * smp_pit_ratio[LMS_MAX_SAMPLE_COUNT];
+    
+    t_poly_voice * data[Sampler_NOTES];
 } Sampler;
 
 #endif

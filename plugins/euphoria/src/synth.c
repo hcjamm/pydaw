@@ -148,6 +148,15 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         f_i++;
     }
     
+    f_i = 0;
+    
+    while(f_i < Sampler_NOTES)
+    {
+        plugin_data->data[f_i] = g_poly_init(s_rate);
+        
+        f_i++;
+    }
+    
     plugin_data->sampleRate = s_rate;
     plugin_data->projectDir = 0;
 

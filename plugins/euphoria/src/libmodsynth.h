@@ -32,6 +32,7 @@ extern "C" {
 #include "../../libmodsynth/modules/modulation/ramp_env.h"
 #include "../../libmodsynth/lib/smoother-iir.h"
 #include "../../libmodsynth/modules/oscillator/lfo_simple.h"
+#include "../../libmodsynth/modules/oscillator/noise.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
@@ -52,17 +53,17 @@ typedef struct st_mono_modules
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
 typedef struct st_poly_voice
 {   
-    t_state_variable_filter * svf_filter1;
-    t_state_variable_filter * svf_filter2;
-    fp_svf_run_filter svf_function1;
-    fp_svf_run_filter svf_function2;
+    t_state_variable_filter * svf_filter;
+    fp_svf_run_filter svf_function;
     
     t_clipper * clipper1;
     t_audio_xfade * dist_dry_wet;
     
-    t_adsr * adsr_filter;    
+    t_adsr * adsr_filter;
+    t_white_noise * white_noise1;
     t_adsr * adsr_amp;       
-        
+    float noise_amp;
+    
     t_smoother_linear * glide_smoother;
     t_ramp_env * glide_env;
     
@@ -80,11 +81,17 @@ typedef struct st_poly_voice
     
     t_lfs_lfo * lfo1;
     
-    t_amp * amp_ptr;
+    float lfo_amp_output, lfo_pitch_output, lfo_filter_output;
     
-    /*From Ray-V:  TODO:  make sure this is really needed*/
+    t_amp * amp_ptr;
+
+    /*Migrated from the now deprecate voice_data struct*/
+    float   amp;
     float note_f;
-    float amp;
+    float osc1_linamp;
+    float osc2_linamp;
+    float noise_linamp;           
+    int i_voice;  //for the runVoice function to iterate the current block
 }t_poly_voice;
 
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -108,17 +115,18 @@ t_poly_voice * g_poly_init(float a_sr)
     float f_sr_recip = 1/a_sr;
     
     t_poly_voice * f_voice = (t_poly_voice*)malloc(sizeof(t_poly_voice));
-                
-    f_voice->svf_filter1 = g_svf_get(a_sr);
-    f_voice->svf_filter2 = g_svf_get(a_sr);
-    f_voice->svf_function1 = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
-    f_voice->svf_function1 = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_HP);
+
+    f_voice->svf_filter = g_svf_get(a_sr);
+    f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
         
     f_voice->clipper1 = g_clp_get_clipper();    
     f_voice->dist_dry_wet = g_axf_get_audio_xfade(-3);
         
     f_voice->adsr_amp = g_adsr_get_adsr(f_sr_recip);        
-    f_voice->adsr_filter = g_adsr_get_adsr(f_sr_recip);       
+    f_voice->adsr_filter = g_adsr_get_adsr(f_sr_recip);
+        
+    f_voice->white_noise1 = g_get_white_noise(a_sr);    
+    f_voice->noise_amp = 0;
         
     f_voice->glide_env = g_rmp_get_ramp_env(a_sr);    
     f_voice->pitch_env = g_rmp_get_ramp_env(a_sr);
@@ -135,8 +143,19 @@ t_poly_voice * g_poly_init(float a_sr)
     
     f_voice->lfo1 = g_lfs_get(a_sr);
     
+    f_voice->lfo_amp_output = 0.0f;
+    f_voice->lfo_filter_output = 0.0f;
+    f_voice->lfo_pitch_output = 0.0f;
+    
+    f_voice->amp_ptr = g_amp_get();
+    
     f_voice->amp = 1.0f;
-        
+    f_voice->note_f = 1.0f;
+    f_voice->osc1_linamp = 1.0f;
+    f_voice->osc2_linamp = 1.0f;
+    f_voice->noise_linamp = 1.0f;
+    f_voice->i_voice = 0;
+    
     return f_voice;
 }
 
