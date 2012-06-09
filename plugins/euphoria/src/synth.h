@@ -20,7 +20,6 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/amp.h"
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "libmodsynth.h"
-#include "../../libmodsynth/lib/voice.h"
 
 
 #define Sampler_BASE_PITCH_MIN 0
@@ -33,8 +32,6 @@ GNU General Public License for more details.
 
 #define Sampler_NOTES 128
 #define Sampler_FRAMES_MAX 1048576
-
-#define POLYPHONY 16
 
 typedef struct {
     LADSPA_Data *output[2];
@@ -72,18 +69,6 @@ typedef struct {
     t_amp * amp_ptr;
     t_pit_pitch_core * smp_pit_core[LMS_MAX_SAMPLE_COUNT];
     t_pit_ratio * smp_pit_ratio[LMS_MAX_SAMPLE_COUNT];
-    
-    float sv_pitch_bend_value;
-    float sv_last_note;  //For glide
-    
-    /*From Ray-V.  TODO:  check to make sure this is really supposed to be here*/
-    LADSPA_Data pitch;
-    int i_iterator;
-    int voice;
-    int count;
-    
-    t_poly_voice * data[POLYPHONY];
-    t_voc_voices * voices;
 } Sampler;
 
 #endif
