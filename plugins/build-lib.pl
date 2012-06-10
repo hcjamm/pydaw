@@ -201,24 +201,6 @@ sub first_build
 {
 check_deps();
 clean();
-print "running aclocal...\n";
-`aclocal`;
-`$sleep`;
-print "running libtoolize...\n";
-`libtoolize --force --copy`;
-`$sleep`;
-print "running autoheader...\n";
-`autoheader`;
-`$sleep`;
-print "running automake...\n";
-`automake --add-missing --foreign`;
-`$sleep`;
-print "running autoconf...\n";
-`autoconf`;
-`$sleep`;
-print "running configure...\n";
-`./configure`;
-`$sleep`;
 build($_[0]);
 }
 
@@ -232,9 +214,6 @@ sub clean
 #The first argument passed in is any additional CFLAGS
 sub build
 {
-print "running moc...\n";
-`moc ./src/synth_qt_gui.h -o ./src/synth_qt_gui.moc.cpp`;
-`$sleep`;
 $make = 'make --quiet CFLAGS+="';
 if($ARGV[1] eq "--native")
 {
