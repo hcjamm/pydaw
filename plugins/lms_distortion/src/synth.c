@@ -42,6 +42,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
 
+__attribute__ ((visibility("default")))
 const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
 {
     switch (index) {
@@ -52,6 +53,7 @@ const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
     }
 }
 
+__attribute__ ((visibility("default")))
 const DSSI_Descriptor *dssi_descriptor(unsigned long index)
 {
     switch (index) {
@@ -333,7 +335,7 @@ void _init()
 	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
 	LMSDDescriptor->get_midi_controller_for_port = getControllerLMS;
 	LMSDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
-	LMSDDescriptor->run_synth = runLMS;
+	LMSDDescriptor->run_synth = NULL;
 	LMSDDescriptor->run_synth_adding = NULL;
 	LMSDDescriptor->run_multiple_synths = NULL;
 	LMSDDescriptor->run_multiple_synths_adding = NULL;
