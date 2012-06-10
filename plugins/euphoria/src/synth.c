@@ -40,6 +40,7 @@ static DSSI_Descriptor *samplerStereoDDescriptor = NULL;
 static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 		       snd_seq_event_t *events, unsigned long EventCount);
 
+__attribute__ ((visibility("default")))
 const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
 {
     switch (index) {
@@ -50,6 +51,7 @@ const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
     }
 }
 
+__attribute__ ((visibility("default")))
 const DSSI_Descriptor *dssi_descriptor(unsigned long index)
 {
     switch (index) {

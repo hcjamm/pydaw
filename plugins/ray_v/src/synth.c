@@ -47,6 +47,7 @@ static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d,
 int pick_voice(const t_poly_voice *data, int);
 
 
+__attribute__ ((visibility("default")))
 const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
 {
     switch (index) {
@@ -57,6 +58,7 @@ const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
     }
 }
 
+__attribute__ ((visibility("default")))
 const DSSI_Descriptor *dssi_descriptor(unsigned long index)
 {
     switch (index) {
