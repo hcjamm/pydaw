@@ -328,7 +328,7 @@ Exec=lms-jack-dssi-host \"$val.so\"
 Icon=$icon_name
 Terminal=false
 Type=Application
-Categories=AudioVideo;Audio;";
+Categories=AudioVideo;Audio;AudioEditing;";
 
 open (MYFILE, ">>$desktop_dir/$val.desktop");
 print MYFILE "$desktop_text";
