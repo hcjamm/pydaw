@@ -6,8 +6,9 @@ How to compile and install from the source code.
 
 I've written a script to make this easy.  Compile and install with these commands:
 
-	cd ~/Desktop/libmodsynth-git  #Or wherever you untarred the tar.gz file if not on your desktop
-	perl compile_and_install.pl
+	cd ~/Desktop/libmodsynth-git/plugins  #Or wherever you untarred the tar.gz file if not on your desktop
+	make
+	make install #as root, sudo, su, etc...
 
 This will compile and install all of the plugins.
 
