@@ -26,7 +26,6 @@ GNU General Public License for more details.
 #include <QComboBox>
 #include <QPushButton>
 #include <QDoubleSpinBox>
-#include <qt4/QtXml/QDomDocument>
 #include <QPixmap>
 #include <QFile>
 #include <QDir>
