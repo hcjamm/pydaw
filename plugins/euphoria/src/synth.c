@@ -469,6 +469,58 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 			plugin_data->sampleNo + events[event_pos].time.tick;
 		    plugin_data->offs[n.note] = -1;
 		    plugin_data->velocities[n.note] = n.velocity;
+                    
+                    
+                    //Begin Ray-V additions
+                    
+                    //const int voice = i_pick_voice(plugin_data->voices, n.note);
+                    
+		    plugin_data->data[n.note]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + *(plugin_data->master_vol)), //-20db to 0db, + master volume (0 to -60)
+                            plugin_data->mono_modules->amp_ptr);                     
+                    
+                    plugin_data->data[n.note]->note_f = (float)n.note;
+                    //data[n.note].hz = f_pit_midi_note_to_hz(data[n.note].note_f);
+                                        
+                    plugin_data->data[n.note]->target_pitch = (plugin_data->data[n.note]->note_f);
+                    plugin_data->data[n.note]->last_pitch = (plugin_data->sv_last_note);
+                    
+                    v_rmp_retrigger_glide_t(plugin_data->data[n.note]->glide_env , *(plugin_data->master_glide), 
+                            (plugin_data->sv_last_note), (plugin_data->data[n.note]->target_pitch));
+                                        
+                    /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/                    
+                    plugin_data->data[n.note]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
+                                        
+                    /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
+                     placing things here that don't need to be modulated as a note is playing*/
+                    
+                    /*Retrigger ADSR envelopes and LFO*/
+                    v_adsr_retrigger(plugin_data->data[n.note]->adsr_amp);
+                    v_adsr_retrigger(plugin_data->data[n.note]->adsr_filter);
+                    v_lfs_sync(plugin_data->data[n.note]->lfo1, 0.0f, *(plugin_data->lfo_type));
+                    
+                    v_adsr_set_adsr_db(plugin_data->data[n.note]->adsr_amp, *(plugin_data->attack), *(plugin_data->decay), *(plugin_data->sustain), *(plugin_data->release));
+                    v_adsr_set_adsr(plugin_data->data[n.note]->adsr_filter, *(plugin_data->attack_f), *(plugin_data->decay_f), *(plugin_data->sustain_f), *(plugin_data->release_f));
+                    
+                    /*Retrigger the pitch envelope*/
+                    v_rmp_retrigger((plugin_data->data[n.note]->pitch_env), *(plugin_data->pitch_env_time), *(plugin_data->pitch_env_amt));  
+                    
+                    plugin_data->data[n.note]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
+                                        
+                    /*Set the last_note property, so the next note can glide from it if glide is turned on*/
+                    plugin_data->sv_last_note = (plugin_data->data[n.note]->note_f);
+                    
+                    //TODO:  Create a define for the number of channels
+                    //Move all of the multi-channel functions here
+                    for(i = 0; i < 2; i++)
+                    {
+                        v_svf_velocity_mod(plugin_data->data[n.note]->svf_filter[i], n.velocity);
+                        v_clp_set_in_gain(plugin_data->data[n.note]->clipper1[i], *(plugin_data->dist));
+                        v_svf_set_res(plugin_data->data[n.note]->svf_filter[i], *(plugin_data->res));
+                        v_axf_set_xfade(plugin_data->data[n.note]->dist_dry_wet[i], *(plugin_data->dist_wet));
+                    }
+                    
+                    //End Ray-V additions                    
+                    
 		} else {
 		    if (!plugin_data->sustain || (*plugin_data->sustain < 0.001)) {
 			plugin_data->offs[n.note] = 

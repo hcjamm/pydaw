@@ -111,6 +111,9 @@ typedef struct {
     t_pit_ratio * smp_pit_ratio[LMS_MAX_SAMPLE_COUNT];
     t_ccm_midi_cc_map * midi_cc_map;    
     t_poly_voice * data[Sampler_NOTES];
+    
+    float sv_pitch_bend_value;
+    float sv_last_note;  //For glide
 } Sampler;
 
 #endif
