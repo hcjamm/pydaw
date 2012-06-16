@@ -359,48 +359,52 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         if (plugin_data->sample_vol[(plugin_data->current_sample)] && n != *(plugin_data->sample_vol[(plugin_data->current_sample)])) {
             gain_test = lgain * f_db_to_linear_fast(*(plugin_data->sample_vol[(plugin_data->current_sample)]), plugin_data->amp_ptr);
         }
-	
+
+        //Run things that aren't per-channel like envelopes
+        
+        //Run the glide module
+            
+        f_rmp_run_ramp(plugin_data->data[n]->pitch_env);
+        f_rmp_run_ramp(plugin_data->data[n]->glide_env);
+        
+        //Set and run the LFO
+        v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01  );
+        v_lfs_run(plugin_data->data[n]->lfo1);
+        plugin_data->data[n]->lfo_amp_output = f_db_to_linear_fast((((*(plugin_data->lfo_amp)
+                ) * (plugin_data->data[n]->lfo1->output)) - (f_lms_abs((*(plugin_data->lfo_amp)
+                )) * 0.5)), plugin_data->data[n]->amp_ptr);
+        plugin_data->data[n]->lfo_filter_output = ( *(plugin_data->lfo_filter)
+                ) * (plugin_data->data[n]->lfo1->output);
+        plugin_data->data[n]->lfo_pitch_output = ( *(plugin_data->lfo_pitch)
+
+                ) * (plugin_data->data[n]->lfo1->output);
+        
+        v_adsr_run(plugin_data->data[n]->adsr_amp);        
+
+        v_adsr_run(plugin_data->data[n]->adsr_filter);
+        
 	for (ch = 0; ch < plugin_data->channels; ++ch) {
 
 	    float sample = plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi] +
 		((plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi + 1] -
 		  plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi]) *
 		 (rs - (float)rsi));
-            float sample2 = sample;
+            //float sample2 = sample;
             /*Process PolyFX here*/
             
             //Call everything defined in libmodsynth.h in the order it should be called in
             //plugin_data->current_sample = 0;
-
-            //Run the glide module
-            
-            f_rmp_run_ramp(plugin_data->data[n]->pitch_env);
-            f_rmp_run_ramp(plugin_data->data[n]->glide_env);
-            
-            //Set and run the LFO
-            v_lfs_set(plugin_data->data[n]->lfo1,  2); // vals->lfo_freq);
-            v_lfs_run(plugin_data->data[n]->lfo1);
-            plugin_data->data[n]->lfo_amp_output = f_db_to_linear_fast((((6   //vals->lfo_amp
-                    ) * (plugin_data->data[n]->lfo1->output)) - (f_lms_abs((6 //vals->lfo_amp
-                    )) * 0.5)), plugin_data->data[n]->amp_ptr);
-            plugin_data->data[n]->lfo_filter_output = (12 //vals->lfo_filter
-                    ) * (plugin_data->data[n]->lfo1->output);
-            plugin_data->data[n]->lfo_pitch_output = (12 //vals->lfo_pitch
-                    ) * (plugin_data->data[n]->lfo1->output);
             
             //plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied) + (plugin_data->data[n]->pitch_env->output_multiplied) 
             //        + (p->mono_modules->pitchbend_smoother->output) + (plugin_data->data[n]->last_pitch);
             
             sample += (f_run_white_noise(plugin_data->data[n]->white_noise1[ch]) * (plugin_data->data[n]->noise_linamp)); //white noise
-            
-            v_adsr_run(plugin_data->data[n]->adsr_amp);        
-
-            v_adsr_run(plugin_data->data[n]->adsr_filter);
-            
-            v_svf_set_cutoff_base(plugin_data->data[n]->svf_filter[ch],  75); // (plugin_data->mono_modules->filter_smoother->output));
+                        
+            //TODO:  Run the filter smoother
+            v_svf_set_cutoff_base(plugin_data->data[n]->svf_filter[ch],  *(plugin_data->timbre)); // (plugin_data->mono_modules->filter_smoother->output));
             //Run v_svf_add_cutoff_mod once for every input source
             v_svf_add_cutoff_mod(plugin_data->data[n]->svf_filter[ch], 
-                    (((plugin_data->data[n]->adsr_filter->output) * (12 //vals->filter_env_amt
+                    (((plugin_data->data[n]->adsr_filter->output) * ( *(plugin_data->filter_env_amt)
                     )) + (plugin_data->data[n]->lfo_filter_output)));        
             //calculate the cutoff
             v_svf_set_cutoff(plugin_data->data[n]->svf_filter[ch]);
@@ -411,7 +415,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             sample = f_axf_run_xfade((plugin_data->data[n]->dist_dry_wet[ch]), (plugin_data->data[n]->filter_output), 
                     f_clp_clip(plugin_data->data[n]->clipper1[ch], (plugin_data->data[n]->filter_output)));
             
-            sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->data[n]->amp) * (plugin_data->data[n]->lfo_amp_output);
+            //sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->data[n]->amp) * (plugin_data->data[n]->lfo_amp_output);
 
             //Run the envelope and assign to the output buffers
             //out0[(plugin_data->data[n]->i_voice)] += (sample);
@@ -429,7 +433,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             
             /*End process PolyFX*/
             
-	    plugin_data->output[ch][pos + i] += lgain * sample2 * gain_test;
+	    plugin_data->output[ch][pos + i] += lgain * sample * gain_test;
 	}
     }
 }
@@ -498,11 +502,11 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                     v_adsr_retrigger(plugin_data->data[n.note]->adsr_filter);
                     v_lfs_sync(plugin_data->data[n.note]->lfo1, 0.0f, *(plugin_data->lfo_type));
                     
-                    v_adsr_set_adsr_db(plugin_data->data[n.note]->adsr_amp, *(plugin_data->attack), *(plugin_data->decay), *(plugin_data->sustain), *(plugin_data->release));
-                    v_adsr_set_adsr(plugin_data->data[n.note]->adsr_filter, *(plugin_data->attack_f), *(plugin_data->decay_f), *(plugin_data->sustain_f), *(plugin_data->release_f));
+                    v_adsr_set_adsr_db(plugin_data->data[n.note]->adsr_amp, (*(plugin_data->attack) * .01), (*(plugin_data->decay) * .01), (*(plugin_data->sustain) * .01), (*(plugin_data->release) * .01));
+                    v_adsr_set_adsr(plugin_data->data[n.note]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
                     
                     /*Retrigger the pitch envelope*/
-                    v_rmp_retrigger((plugin_data->data[n.note]->pitch_env), *(plugin_data->pitch_env_time), *(plugin_data->pitch_env_amt));  
+                    v_rmp_retrigger((plugin_data->data[n.note]->pitch_env), (*(plugin_data->pitch_env_time) * .01), *(plugin_data->pitch_env_amt));  
                     
                     plugin_data->data[n.note]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
                                         
@@ -516,7 +520,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                         v_svf_velocity_mod(plugin_data->data[n.note]->svf_filter[i], n.velocity);
                         v_clp_set_in_gain(plugin_data->data[n.note]->clipper1[i], *(plugin_data->dist));
                         v_svf_set_res(plugin_data->data[n.note]->svf_filter[i], *(plugin_data->res));
-                        v_axf_set_xfade(plugin_data->data[n.note]->dist_dry_wet[i], *(plugin_data->dist_wet));
+                        v_axf_set_xfade(plugin_data->data[n.note]->dist_dry_wet[i], (*(plugin_data->dist_wet) * .01));
                     }
                     
                     //End Ray-V additions                    
@@ -533,6 +537,13 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 		snd_seq_ev_note_t n = events[event_pos].data.note;
 		plugin_data->offs[n.note] = 
 		    plugin_data->sampleNo + events[event_pos].time.tick;
+	    }
+            
+            /*Pitch-bend sequencer event, modify the voices pitch*/
+            else if (events[event_pos].type == SND_SEQ_EVENT_PITCHBEND) 
+            {
+		plugin_data->sv_pitch_bend_value = 0.00012207
+                        * events[event_pos].data.control.value * (*(plugin_data->master_pb_amt));
 	    }
 
 	    ++event_pos;
@@ -582,7 +593,7 @@ int getControllerSampler(LADSPA_Handle instance, unsigned long port)
 {
     Sampler *plugin_data = (Sampler *) instance;
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
-    return DSSI_NONE;
+    //return DSSI_NONE;
 }
 
 char * dssi_configure_message(const char *fmt, ...)
