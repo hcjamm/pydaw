@@ -23,14 +23,12 @@ GNU General Public License for more details.
 #include <iostream>
 #include <unistd.h>
 
-#include <qt4/QtGui/qgroupbox.h>
-#include <qt4/QtGui/qlayout.h>
-#include <qt4/QtGui/qlabel.h>
-#include <qt4/QtGui/qgridlayout.h>
-#include <QFormLayout>
-#include <qt4/QtGui/qboxlayout.h>
 #include <QGroupBox>
-#include <qt4/QtGui/qdial.h>
+#include <QLabel>
+#include <QGridLayout>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QDial>
 #include <QPixmap>
 #include <QFile>
 #include <QDir>

@@ -38,9 +38,9 @@ GNU General Public License for more details.
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/SM/SMlib.h>
-#include <qt4/QtGui/qapplication.h>
-#include <qt4/QtCore/qstring.h>
-#include <qt4/QtGui/qfont.h>
+#include <QApplication>
+#include <QString>
+#include <QFont>
 
 static int handle_x11_error(Display *dpy, XErrorEvent *err)
 {
@@ -464,8 +464,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_main_layout = new LMS_main_layout(m_poly_fx_tab);
 
-        m_poly_fx_tab->setLayout(m_main_layout->lms_layout);
-        
         QLabel * f_logo_label = new QLabel("", this);    
         f_logo_label->setTextFormat(Qt::RichText);
         /*This string is a base64 encoded .png image I created using Gimp for the logo.  To get the base64 encoded string,
