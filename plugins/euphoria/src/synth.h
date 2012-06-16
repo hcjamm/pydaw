@@ -19,8 +19,8 @@ GNU General Public License for more details.
 #include "ports.h"
 #include "../../libmodsynth/lib/amp.h"
 #include "../../libmodsynth/lib/pitch_core.h"
+#include "../../libmodsynth/lib/cc_map.h"
 #include "libmodsynth.h"
-#include "../../libmodsynth/lib/voice.h"
 
 
 #define Sampler_BASE_PITCH_MIN 0
@@ -34,19 +34,55 @@ GNU General Public License for more details.
 #define Sampler_NOTES 128
 #define Sampler_FRAMES_MAX 1048576
 
-#define POLYPHONY 16
-
 typedef struct {
     LADSPA_Data *output[2];
     LADSPA_Data *retune;
     LADSPA_Data *basePitch[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *low_note[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *high_note[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_vol[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_vol[LMS_MAX_SAMPLE_COUNT];        
+    LADSPA_Data *selected_sample;
+    
+    //From Ray-V
+    
+    LADSPA_Data *output0;
+    LADSPA_Data *output1;
+    LADSPA_Data *tune;
+    LADSPA_Data *attack;
+    LADSPA_Data *decay;
     LADSPA_Data *sustain;
     LADSPA_Data *release;
-    //LADSPA_Data *balance;
-    LADSPA_Data *selected_sample;
+    LADSPA_Data *timbre;
+    LADSPA_Data *res;
+    LADSPA_Data *dist;
+    LADSPA_Data pitch;
+    
+    LADSPA_Data *attack_f;
+    LADSPA_Data *decay_f;
+    LADSPA_Data *sustain_f;
+    LADSPA_Data *release_f;
+    
+    LADSPA_Data *filter_env_amt;
+    LADSPA_Data *dist_wet;
+    LADSPA_Data *master_vol;
+    
+    LADSPA_Data *noise_amp;    
+    
+    LADSPA_Data *master_uni_voice;
+    LADSPA_Data *master_uni_spread;
+    LADSPA_Data *master_glide;
+    LADSPA_Data *master_pb_amt;
+    
+    LADSPA_Data *pitch_env_amt;
+    LADSPA_Data *pitch_env_time;
+    
+    LADSPA_Data *lfo_freq;
+    LADSPA_Data *lfo_type;
+    LADSPA_Data *lfo_amp;
+    LADSPA_Data *lfo_pitch;
+    LADSPA_Data *lfo_filter;    
+    
+    //End from Ray-V
     
     int         i_selected_sample;
     int          channels;
@@ -62,6 +98,7 @@ typedef struct {
     int current_sample;
     
     int          sampleRate;
+    float fs;    //From Ray-V
     long         ons[Sampler_NOTES];
     long         offs[Sampler_NOTES];
     char         velocities[Sampler_NOTES];
@@ -72,18 +109,11 @@ typedef struct {
     t_amp * amp_ptr;
     t_pit_pitch_core * smp_pit_core[LMS_MAX_SAMPLE_COUNT];
     t_pit_ratio * smp_pit_ratio[LMS_MAX_SAMPLE_COUNT];
+    t_ccm_midi_cc_map * midi_cc_map;    
+    t_poly_voice * data[Sampler_NOTES];
     
     float sv_pitch_bend_value;
     float sv_last_note;  //For glide
-    
-    /*From Ray-V.  TODO:  check to make sure this is really supposed to be here*/
-    LADSPA_Data pitch;
-    int i_iterator;
-    int voice;
-    int count;
-    
-    t_poly_voice * data[POLYPHONY];
-    t_voc_voices * voices;
 } Sampler;
 
 #endif

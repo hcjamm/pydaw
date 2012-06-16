@@ -32,6 +32,7 @@ GNU General Public License for more details.
 
 #include "synth.h"
 #include "meta.h"
+#include "../../libmodsynth/lib/lms_math.h"
 
 static LADSPA_Descriptor *samplerStereoLDescriptor = NULL;
 
@@ -78,21 +79,94 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     case Sampler_OUTPUT_LEFT:
 	plugin->output[0] = data;
 	break;
-    case Sampler_RETUNE:
-	plugin->retune = data;
-	break;
-    case Sampler_SUSTAIN:
-	plugin->sustain = data;
-	break;
-    case Sampler_RELEASE:
-	plugin->release = data;
-	break;    
     case Sampler_OUTPUT_RIGHT:
         plugin->output[1] = data;
         break;
     case Sampler_SELECTED_SAMPLE:
         plugin->selected_sample = data;
-        break;     
+        break;
+        //Begin Ray-V ports
+        
+    case LMS_ATTACK:
+        plugin->attack = data;
+        break;
+    case LMS_DECAY:
+        plugin->decay = data;
+        break;
+    case LMS_SUSTAIN:
+        plugin->sustain = data;
+        break;
+    case LMS_RELEASE:
+        plugin->release = data;
+        break;
+    case LMS_TIMBRE:
+        plugin->timbre = data;              
+        break;
+    case LMS_RES:
+        plugin->res = data;              
+        break;
+    case LMS_DIST:
+        plugin->dist = data;              
+        break;
+    case LMS_FILTER_ATTACK:
+        plugin->attack_f = data;
+        break;
+    case LMS_FILTER_DECAY:
+        plugin->decay_f = data;
+        break;
+    case LMS_FILTER_SUSTAIN:
+        plugin->sustain_f = data;
+        break;
+    case LMS_FILTER_RELEASE:
+        plugin->release_f = data;
+        break;
+    case LMS_NOISE_AMP:
+        plugin->noise_amp = data;
+        break;
+    case LMS_DIST_WET:
+        plugin->dist_wet = data;
+        break;
+    case LMS_FILTER_ENV_AMT:
+        plugin->filter_env_amt = data;
+        break;
+    case LMS_MASTER_VOLUME:
+        plugin->master_vol = data;
+        break;
+    case LMS_MASTER_UNISON_VOICES:
+        plugin->master_uni_voice = data;
+        break;
+    case LMS_MASTER_UNISON_SPREAD:
+        plugin->master_uni_spread = data;        
+        break;
+    case LMS_MASTER_GLIDE:
+        plugin->master_glide = data;
+        break;
+    case LMS_MASTER_PITCHBEND_AMT:
+        plugin->master_pb_amt = data;
+        break;
+    case LMS_PITCH_ENV_AMT:
+        plugin->pitch_env_amt = data;
+        break;
+    case LMS_PITCH_ENV_TIME:
+        plugin->pitch_env_time = data;
+        break;
+    case LMS_LFO_FREQ:
+        plugin->lfo_freq = data;
+        break;
+    case LMS_LFO_TYPE:
+        plugin->lfo_type = data;
+        break;
+    case LMS_LFO_AMP:
+        plugin->lfo_amp = data;
+        break;
+    case LMS_LFO_PITCH:
+        plugin->lfo_pitch = data;
+        break;
+    case LMS_LFO_FILTER:
+        plugin->lfo_filter = data;
+        break;
+        
+        //End Ray-V ports
     default:
         break;
     }
@@ -150,6 +224,15 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         f_i++;
     }
     
+    f_i = 0;
+    
+    while(f_i < Sampler_NOTES)
+    {
+        plugin_data->data[f_i] = g_poly_init(s_rate);
+        
+        f_i++;
+    }
+    
     plugin_data->sampleRate = s_rate;
     plugin_data->projectDir = 0;
 
@@ -159,6 +242,44 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     memcpy(&plugin_data->mutex, &m, sizeof(pthread_mutex_t));
     
     plugin_data->mono_modules = g_mono_init(s_rate);
+    
+    
+    //Begin Ray-V MIDI CC Map
+    
+    plugin_data->fs = s_rate;
+    
+    plugin_data->midi_cc_map = g_ccm_get();
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_ATTACK, 73, "Attack Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DECAY, 75, "Decay Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_SUSTAIN, 79, "Sustain Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RELEASE, 72, "Release Amp");    
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_TIMBRE, 20, "Filter Cutoff");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DIST, 51, "Distortion Gain");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES, 50, "Res");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ATTACK, 21, "Attack Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_DECAY, 22, "Decay Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_SUSTAIN, 23, "Sustain Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_RELEASE, 24, "Release Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_NOISE_AMP, 25, "Noise Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ENV_AMT, 26, "Filter Env Amt");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DIST_WET, 27, "Distortion Wet");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_VOLUME, 36, "Master Volume");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_UNISON_VOICES, 37, "Unison Voices");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_UNISON_SPREAD, 38, "Unison Spread");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_GLIDE, 39, "Glide Time");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_PITCHBEND_AMT, 40, "Pitchbend Amount");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_AMT, 42, "Pitch Env Amt");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_TIME, 43, "Pitch Env Time");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FREQ, 44, "LFO Freq");    
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_TYPE, 45, "LFO Type");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_AMP, 46, "LFO Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_PITCH, 47, "LFO Pitch");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FILTER, 48, "LFO Filter");
+    
+    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "euphoria-cc_map.txt");
+    
+    //End Ray-V MIDI CC Map
+    
 
     return (LADSPA_Handle) plugin_data;
 }
@@ -177,21 +298,8 @@ static void activateSampler(LADSPA_Handle instance)
 	plugin_data->offs[i] = -1;
 	plugin_data->velocities[i] = 0;
     }
-    
-    plugin_data->voices = g_voc_get_voices(POLYPHONY);
-    
-    for (i=0; i<POLYPHONY; i++) {
-        plugin_data->data[i] = g_poly_init((float)(plugin_data->sampleRate));
-        plugin_data->data[i]->note_f = i;        
-    }
-    
-    plugin_data->pitch = 1.0f;
-    plugin_data->sv_pitch_bend_value = 0.0f;
-    plugin_data->sv_last_note = 60.0f;  //For glide
-    
-    plugin_data->mono_modules = g_mono_init();  //initialize all monophonic modules
 
-    pthread_mutex_unlock(&plugin_data->mutex);        
+    pthread_mutex_unlock(&plugin_data->mutex);
 }
 
 /* static void addSample(Sampler *plugin_data, 
@@ -206,14 +314,13 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
     float gain_test = 1.0;
     unsigned long i, ch, s;
 
-    //if (plugin_data->retune && *plugin_data->retune) {
-	if (plugin_data->basePitch[(plugin_data->current_sample)]){ // && n != *(plugin_data->basePitch[(plugin_data->current_sample)])) {
-	    //ratio = powf(1.059463094, n - *(plugin_data->basePitch[(plugin_data->current_sample)]));
-            ratio =
-            f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]), (float)(n), 
-                    plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
-	}
-    //}
+    if (plugin_data->basePitch[(plugin_data->current_sample)])
+    {
+        ratio =
+        f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]), (float)(n), 
+                plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
+    }
+
     
     if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
 
@@ -254,15 +361,79 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         if (plugin_data->sample_vol[(plugin_data->current_sample)] && n != *(plugin_data->sample_vol[(plugin_data->current_sample)])) {
             gain_test = lgain * f_db_to_linear_fast(*(plugin_data->sample_vol[(plugin_data->current_sample)]), plugin_data->amp_ptr);
         }
-	
+
+        //Run things that aren't per-channel like envelopes
+        
+        //Run the glide module
+            
+        f_rmp_run_ramp(plugin_data->data[n]->pitch_env);
+        f_rmp_run_ramp(plugin_data->data[n]->glide_env);
+        
+        //Set and run the LFO
+        v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01  );
+        v_lfs_run(plugin_data->data[n]->lfo1);
+        plugin_data->data[n]->lfo_amp_output = f_db_to_linear_fast((((*(plugin_data->lfo_amp)
+                ) * (plugin_data->data[n]->lfo1->output)) - (f_lms_abs((*(plugin_data->lfo_amp)
+                )) * 0.5)), plugin_data->data[n]->amp_ptr);
+        plugin_data->data[n]->lfo_filter_output = ( *(plugin_data->lfo_filter)
+                ) * (plugin_data->data[n]->lfo1->output);
+        plugin_data->data[n]->lfo_pitch_output = ( *(plugin_data->lfo_pitch)
+
+                ) * (plugin_data->data[n]->lfo1->output);
+        
+        v_adsr_run(plugin_data->data[n]->adsr_amp);        
+
+        v_adsr_run(plugin_data->data[n]->adsr_filter);
+        
 	for (ch = 0; ch < plugin_data->channels; ++ch) {
 
 	    float sample = plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi] +
 		((plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi + 1] -
 		  plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi]) *
 		 (rs - (float)rsi));
+            //float sample2 = sample;
+            /*Process PolyFX here*/
+            
+            //Call everything defined in libmodsynth.h in the order it should be called in
+            //plugin_data->current_sample = 0;
+            
+            //plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied) + (plugin_data->data[n]->pitch_env->output_multiplied) 
+            //        + (p->mono_modules->pitchbend_smoother->output) + (plugin_data->data[n]->last_pitch);
+            
+            sample += (f_run_white_noise(plugin_data->data[n]->white_noise1[ch]) * (plugin_data->data[n]->noise_linamp)); //white noise
+                        
+            //TODO:  Run the filter smoother
+            v_svf_set_cutoff_base(plugin_data->data[n]->svf_filter[ch],  *(plugin_data->timbre)); // (plugin_data->mono_modules->filter_smoother->output));
+            //Run v_svf_add_cutoff_mod once for every input source
+            v_svf_add_cutoff_mod(plugin_data->data[n]->svf_filter[ch], 
+                    (((plugin_data->data[n]->adsr_filter->output) * ( *(plugin_data->filter_env_amt)
+                    )) + (plugin_data->data[n]->lfo_filter_output)));        
+            //calculate the cutoff
+            v_svf_set_cutoff(plugin_data->data[n]->svf_filter[ch]);
+            
+            plugin_data->data[n]->filter_output = plugin_data->data[n]->svf_function(plugin_data->data[n]->svf_filter[ch], (sample));
+
+            //Crossfade between the filter, and the filter run through the distortion unit
+            sample = f_axf_run_xfade((plugin_data->data[n]->dist_dry_wet[ch]), (plugin_data->data[n]->filter_output), 
+                    f_clp_clip(plugin_data->data[n]->clipper1[ch], (plugin_data->data[n]->filter_output)));
+            
+            //sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->data[n]->amp) * (plugin_data->data[n]->lfo_amp_output);
+
+            //Run the envelope and assign to the output buffers
+            //out0[(plugin_data->data[n]->i_voice)] += (sample);
+            //out1[(plugin_data->data[n]->i_voice)] += (sample);
+
+            //plugin_data->data[n]->i_voice = (plugin_data->data[n]->i_voice) + 1;
+    
+            //If the main ADSR envelope has reached the end it's release stage, kill the voice.
+            //However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't            
+            //if(plugin_data->data[n]->adsr_amp->stage == 4)
+            //{
+            //    p->voices->voices[a_voice_number].n_state = note_state_off;
+            //}
             
             
+            /*End process PolyFX*/
             
 	    plugin_data->output[ch][pos + i] += lgain * sample * gain_test;
 	}
@@ -294,106 +465,96 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 
     for (pos = 0, event_pos = 0; pos < sample_count; ) {
 
-        /*Run smoothers.  Not actually functional yet*/
-        v_smr_iir_run(plugin_data->mono_modules->filter_smoother,  66.0f); // (plugin_data->vals.timbre));
-        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
-        
 	while (event_pos < event_count){
 	       //&& pos >= events[event_pos].time.tick) {
             /*Note-on event*/
 	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
-		if (n.velocity > 0) 
-                {
+		if (n.velocity > 0) {
 		    plugin_data->ons[n.note] =
 			plugin_data->sampleNo + events[event_pos].time.tick;
 		    plugin_data->offs[n.note] = -1;
 		    plugin_data->velocities[n.note] = n.velocity;
                     
+                    
+                    //Begin Ray-V additions
+                    
+                    //const int voice = i_pick_voice(plugin_data->voices, n.note);
+                    
+		    plugin_data->data[n.note]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + *(plugin_data->master_vol)), //-20db to 0db, + master volume (0 to -60)
+                            plugin_data->mono_modules->amp_ptr);                     
+                    
+                    plugin_data->data[n.note]->note_f = (float)n.note;
+                    //data[n.note].hz = f_pit_midi_note_to_hz(data[n.note].note_f);
                                         
-		    const int voice = i_pick_voice(plugin_data->voices, n.note);
+                    plugin_data->data[n.note]->target_pitch = (plugin_data->data[n.note]->note_f);
+                    plugin_data->data[n.note]->last_pitch = (plugin_data->sv_last_note);
                     
-		    plugin_data->data[voice]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12), //+ (plugin_data->vals.master_vol)), //-20db to 0db, + master volume (0 to -60)
-                            plugin_data->mono_modules->amp_ptr); 
+                    v_rmp_retrigger_glide_t(plugin_data->data[n.note]->glide_env , *(plugin_data->master_glide), 
+                            (plugin_data->sv_last_note), (plugin_data->data[n.note]->target_pitch));
+                                        
+                    /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/                    
+                    plugin_data->data[n.note]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
+                                        
+                    /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
+                     placing things here that don't need to be modulated as a note is playing*/
                     
-                    plugin_data->data[voice]->note_f = (float)n.note;
-                    //data[voice].hz = f_pit_midi_note_to_hz(data[voice].note_f);
+                    /*Retrigger ADSR envelopes and LFO*/
+                    v_adsr_retrigger(plugin_data->data[n.note]->adsr_amp);
+                    v_adsr_retrigger(plugin_data->data[n.note]->adsr_filter);
+                    v_lfs_sync(plugin_data->data[n.note]->lfo1, 0.0f, *(plugin_data->lfo_type));
                     
+                    v_adsr_set_adsr_db(plugin_data->data[n.note]->adsr_amp, (*(plugin_data->attack) * .01), (*(plugin_data->decay) * .01), (*(plugin_data->sustain) * .01), (*(plugin_data->release) * .01));
+                    v_adsr_set_adsr(plugin_data->data[n.note]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
                     
-                    plugin_data->data[voice]->target_pitch = (plugin_data->data[voice]->note_f);
-                    plugin_data->data[voice]->last_pitch = (plugin_data->sv_last_note);
+                    /*Retrigger the pitch envelope*/
+                    v_rmp_retrigger((plugin_data->data[n.note]->pitch_env), (*(plugin_data->pitch_env_time) * .01), *(plugin_data->pitch_env_amt));  
                     
-                    /*TODO: Retrigger envelopes here, etc...*/
-		} 
-                else 
-                {
+                    plugin_data->data[n.note]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
+                                        
+                    /*Set the last_note property, so the next note can glide from it if glide is turned on*/
+                    plugin_data->sv_last_note = (plugin_data->data[n.note]->note_f);
+                    
+                    //TODO:  Create a define for the number of channels
+                    //Move all of the multi-channel functions here
+                    for(i = 0; i < 2; i++)
+                    {
+                        v_svf_velocity_mod(plugin_data->data[n.note]->svf_filter[i], n.velocity);
+                        v_clp_set_in_gain(plugin_data->data[n.note]->clipper1[i], *(plugin_data->dist));
+                        v_svf_set_res(plugin_data->data[n.note]->svf_filter[i], *(plugin_data->res));
+                        v_axf_set_xfade(plugin_data->data[n.note]->dist_dry_wet[i], (*(plugin_data->dist_wet) * .01));
+                    }
+                    
+                    //End Ray-V additions                    
+                    
+		} else {
 		    if (!plugin_data->sustain || (*plugin_data->sustain < 0.001)) {
 			plugin_data->offs[n.note] = 
 			    plugin_data->sampleNo + events[event_pos].time.tick;
 		    }
-                    
-                    v_voc_note_off(plugin_data->voices, n.note);
 		}
 	    } /*Note-off event*/
             else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF &&
-		       (!plugin_data->sustain || (*plugin_data->sustain < 0.001))) 
-            {
+		       (!plugin_data->sustain || (*plugin_data->sustain < 0.001))) {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
 		plugin_data->offs[n.note] = 
 		    plugin_data->sampleNo + events[event_pos].time.tick;
-                
-                v_voc_note_off(plugin_data->voices, n.note);
+	    }
+            
+            /*Pitch-bend sequencer event, modify the voices pitch*/
+            else if (events[event_pos].type == SND_SEQ_EVENT_PITCHBEND) 
+            {
+		plugin_data->sv_pitch_bend_value = 0.00012207
+                        * events[event_pos].data.control.value * (*(plugin_data->master_pb_amt));
 	    }
 
 	    ++event_pos;
 	}
-        
-        
-        plugin_data->i_iterator = 0;
-        
-        while(plugin_data->i_iterator < (plugin_data->voices->count))
-        {
-            if((plugin_data->voices->voices[(plugin_data->i_iterator)].n_state) == note_state_releasing)
-            {
-                v_poly_note_off(plugin_data->data[(plugin_data->i_iterator)]);
-            }
-            
-            plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
-        }
 
 	count = sample_count - pos;
 	if (event_pos < event_count &&
 	    events[event_pos].time.tick < sample_count) {
 	    count = events[event_pos].time.tick - pos;
-	}
-        
-        /*Clear the output buffer*/
-        plugin_data->i_iterator = 0;
-        
-        while((plugin_data->i_iterator)<(count))
-        {
-	    //output0[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;                        
-            //output1[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;     
-            plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
-	}
-        
-        plugin_data->voice = 0; 
-	while ((plugin_data->voice) < POLYPHONY) 
-        {
-	    //if (data[voice].state != inactive) 
-            if((plugin_data->voices->voices[(plugin_data->voice)].n_state) != note_state_off)
-            {
-		/*run_voice(plugin_data, //The LMS class containing global synth data
-                        &(plugin_data->vals), //monophonic values for the the synth's controls
-                        plugin_data->data[(plugin_data->voice)], //The amp, envelope, state, etc... of the voice
-                        output0 + (plugin_data->pos), //output is the block array, I think + pos advances the index???
-                        output1 + (plugin_data->pos), //output is the block array, I think + pos advances the index???
-			  (plugin_data->count), //has to do with iterating through stepsize, but I'm not sure how
-                        (plugin_data->voice));  //The voice number
-                  */      
-	    }
-            
-            plugin_data->voice = (plugin_data->voice) + 1; 
 	}
 
 	for (i = 0; i < Sampler_NOTES; ++i) {
@@ -432,17 +593,9 @@ static void runSamplerWrapper(LADSPA_Handle instance,
 
 int getControllerSampler(LADSPA_Handle instance, unsigned long port)
 {
-    if (port == Sampler_RETUNE) return DSSI_CC(12);
-    else if (port == Sampler_BASE_PITCH) return DSSI_CC(13);
-    else if (port == Sampler_SUSTAIN) return DSSI_CC(64);
-    else if (port == Sampler_RELEASE) return DSSI_CC(72);
-    /*else {
-	Sampler *plugin_data = (Sampler *) instance;
-	if (plugin_data->channels == 2) {
-	    if (port == Sampler_BALANCE) return DSSI_CC(10);
-	}
-    }*/
-    return DSSI_NONE;
+    Sampler *plugin_data = (Sampler *) instance;
+    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
+    //return DSSI_NONE;
 }
 
 char * dssi_configure_message(const char *fmt, ...)
@@ -758,42 +911,6 @@ void _init()
 	port_names[Sampler_OUTPUT_LEFT] = "Output L";
 	port_range_hints[Sampler_OUTPUT_LEFT].HintDescriptor = 0;
 
-	/* Parameters for retune */
-	port_descriptors[Sampler_RETUNE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[Sampler_RETUNE] = "Tuned (on/off)";
-	port_range_hints[Sampler_RETUNE].HintDescriptor =
-	    LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_INTEGER |
-	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[Sampler_RETUNE].LowerBound = 0;
-	port_range_hints[Sampler_RETUNE].UpperBound = 1;
-
-	/* Parameters for base pitch */
-	port_descriptors[Sampler_BASE_PITCH] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[Sampler_BASE_PITCH] = "Base pitch (MIDI)";
-	port_range_hints[Sampler_BASE_PITCH].HintDescriptor =
-	    LADSPA_HINT_INTEGER | LADSPA_HINT_DEFAULT_MIDDLE |
-	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[Sampler_BASE_PITCH].LowerBound = Sampler_BASE_PITCH_MIN;
-	port_range_hints[Sampler_BASE_PITCH].UpperBound = Sampler_BASE_PITCH_MAX;
-
-	/* Parameters for sustain */
-	port_descriptors[Sampler_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[Sampler_SUSTAIN] = "Sustain (on/off)";
-	port_range_hints[Sampler_SUSTAIN].HintDescriptor =
-	    LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
-	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[Sampler_SUSTAIN].LowerBound = 0.0f;
-	port_range_hints[Sampler_SUSTAIN].UpperBound = 1.0f;
-
-	/* Parameters for release */
-	port_descriptors[Sampler_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[Sampler_RELEASE] = "Release time (s)";
-	port_range_hints[Sampler_RELEASE].HintDescriptor =
-	    LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_LOGARITHMIC |
-	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[Sampler_RELEASE].LowerBound = Sampler_RELEASE_MIN;
-	port_range_hints[Sampler_RELEASE].UpperBound = Sampler_RELEASE_MAX;
-
         /* Parameters for selected sample */
 	port_descriptors[Sampler_SELECTED_SAMPLE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[Sampler_SELECTED_SAMPLE] = "Selected Sample";
@@ -809,16 +926,255 @@ void _init()
 	    port_descriptors[Sampler_OUTPUT_RIGHT] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
 	    port_names[Sampler_OUTPUT_RIGHT] = "Output R";
 	    port_range_hints[Sampler_OUTPUT_RIGHT].HintDescriptor = 0;
-
-	    /* Parameters for balance 
-	    port_descriptors[Sampler_BALANCE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	    port_names[Sampler_BALANCE] = "Pan / Balance";
-	    port_range_hints[Sampler_BALANCE].HintDescriptor =
-		LADSPA_HINT_DEFAULT_MIDDLE |
-		LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	    port_range_hints[Sampler_BALANCE].LowerBound = -1.0f;
-	    port_range_hints[Sampler_BALANCE].UpperBound = 1.0f;*/
 	}
+        
+        //Begin Ray-V PolyFX ports
+        
+        
+	/* Parameters for attack */
+	port_descriptors[LMS_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_ATTACK] = "Attack time (s)";
+	port_range_hints[LMS_ATTACK].HintDescriptor =
+			LADSPA_HINT_DEFAULT_LOW |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_ATTACK].LowerBound = 1; 
+	port_range_hints[LMS_ATTACK].UpperBound = 100; 
+
+	/* Parameters for decay */
+	port_descriptors[LMS_DECAY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_DECAY] = "Decay time (s)";
+	port_range_hints[LMS_DECAY].HintDescriptor =
+			port_range_hints[LMS_ATTACK].HintDescriptor;
+	port_range_hints[LMS_DECAY].LowerBound = 1; 
+	port_range_hints[LMS_DECAY].UpperBound = 100; 
+
+	/* Parameters for sustain */
+	port_descriptors[LMS_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_SUSTAIN] = "Sustain level (%)";
+	port_range_hints[LMS_SUSTAIN].HintDescriptor =
+			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_SUSTAIN].LowerBound = -60;
+	port_range_hints[LMS_SUSTAIN].UpperBound = 0;
+
+	/* Parameters for release */
+	port_descriptors[LMS_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_RELEASE] = "Release time (s)";
+	port_range_hints[LMS_RELEASE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE | 
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_RELEASE].LowerBound = 1; 
+	port_range_hints[LMS_RELEASE].UpperBound = 400; 
+
+	/* Parameters for timbre */
+	port_descriptors[LMS_TIMBRE] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_TIMBRE] = "Timbre";
+	port_range_hints[LMS_TIMBRE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_TIMBRE].LowerBound =  20;
+	port_range_hints[LMS_TIMBRE].UpperBound =  124;
+        
+        /* Parameters for res */
+	port_descriptors[LMS_RES] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_RES] = "Res";
+	port_range_hints[LMS_RES].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_RES].LowerBound =  -30;
+	port_range_hints[LMS_RES].UpperBound =  0;
+        
+        
+        /* Parameters for dist */
+	port_descriptors[LMS_DIST] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_DIST] = "Dist";
+	port_range_hints[LMS_DIST].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_DIST].LowerBound =  -6;
+	port_range_hints[LMS_DIST].UpperBound =  36;
+                
+	/* Parameters for attack_f */
+	port_descriptors[LMS_FILTER_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FILTER_ATTACK] = "Attack time (s) filter";
+	port_range_hints[LMS_FILTER_ATTACK].HintDescriptor =
+			LADSPA_HINT_DEFAULT_LOW |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FILTER_ATTACK].LowerBound = 1; 
+	port_range_hints[LMS_FILTER_ATTACK].UpperBound = 100; 
+
+	/* Parameters for decay_f */
+	port_descriptors[LMS_FILTER_DECAY] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_FILTER_DECAY] = "Decay time (s) filter";
+	port_range_hints[LMS_FILTER_DECAY].HintDescriptor =
+			port_range_hints[LMS_ATTACK].HintDescriptor;
+	port_range_hints[LMS_FILTER_DECAY].LowerBound = 1;
+	port_range_hints[LMS_FILTER_DECAY].UpperBound = 100;
+
+	/* Parameters for sustain_f */
+	port_descriptors[LMS_FILTER_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FILTER_SUSTAIN] = "Sustain level (%) filter";
+	port_range_hints[LMS_FILTER_SUSTAIN].HintDescriptor =
+			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FILTER_SUSTAIN].LowerBound = 0; 
+	port_range_hints[LMS_FILTER_SUSTAIN].UpperBound = 100; 
+        
+	/* Parameters for release_f */
+	port_descriptors[LMS_FILTER_RELEASE] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_FILTER_RELEASE] = "Release time (s) filter";
+	port_range_hints[LMS_FILTER_RELEASE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_LOW  |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FILTER_RELEASE].LowerBound = 1; 
+	port_range_hints[LMS_FILTER_RELEASE].UpperBound = 400; 
+
+        
+        /*Parameters for noise_amp*/        
+	port_descriptors[LMS_NOISE_AMP] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_NOISE_AMP] = "Dist";
+	port_range_hints[LMS_NOISE_AMP].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_NOISE_AMP].LowerBound =  -60;
+	port_range_hints[LMS_NOISE_AMP].UpperBound =  0;
+        
+        
+        
+        /*Parameters for filter env amt*/        
+	port_descriptors[LMS_FILTER_ENV_AMT] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_FILTER_ENV_AMT] = "Filter Env Amt";
+	port_range_hints[LMS_FILTER_ENV_AMT].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FILTER_ENV_AMT].LowerBound =  -36;
+	port_range_hints[LMS_FILTER_ENV_AMT].UpperBound =  36;
+        
+        /*Parameters for dist wet*/        
+	port_descriptors[LMS_DIST_WET] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_DIST_WET] = "Dist Wet";
+	port_range_hints[LMS_DIST_WET].HintDescriptor =
+			//LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_DIST_WET].LowerBound =  0; 
+	port_range_hints[LMS_DIST_WET].UpperBound =  100;
+        
+        /*Parameters for master vol*/        
+	port_descriptors[LMS_MASTER_VOLUME] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_MASTER_VOLUME] = "Master Vol";
+	port_range_hints[LMS_MASTER_VOLUME].HintDescriptor =
+			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_MASTER_VOLUME].LowerBound =  -60;
+	port_range_hints[LMS_MASTER_VOLUME].UpperBound =  12;
+        
+        
+        
+        /*Parameters for master unison voices*/        
+	port_descriptors[LMS_MASTER_UNISON_VOICES] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_MASTER_UNISON_VOICES] = "Master Unison";
+	port_range_hints[LMS_MASTER_UNISON_VOICES].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_MASTER_UNISON_VOICES].LowerBound =  1;
+	port_range_hints[LMS_MASTER_UNISON_VOICES].UpperBound =  7;
+        
+        
+        /*Parameters for master unison spread*/        
+	port_descriptors[LMS_MASTER_UNISON_SPREAD] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_MASTER_UNISON_SPREAD] = "Master Unison Spread";
+	port_range_hints[LMS_MASTER_UNISON_SPREAD].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_MASTER_UNISON_SPREAD].LowerBound =  0;
+	port_range_hints[LMS_MASTER_UNISON_SPREAD].UpperBound =  100;
+        
+        
+        /*Parameters for master glide*/        
+	port_descriptors[LMS_MASTER_GLIDE] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_MASTER_GLIDE] = "Master Glide";
+	port_range_hints[LMS_MASTER_GLIDE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MINIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_MASTER_GLIDE].LowerBound =  0;
+	port_range_hints[LMS_MASTER_GLIDE].UpperBound =  200;
+        
+        
+        /*Parameters for master pitchbend amt*/        
+	port_descriptors[LMS_MASTER_PITCHBEND_AMT] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_MASTER_PITCHBEND_AMT] = "Pitchbend Amt";
+	port_range_hints[LMS_MASTER_PITCHBEND_AMT].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_MASTER_PITCHBEND_AMT].LowerBound =  1;
+	port_range_hints[LMS_MASTER_PITCHBEND_AMT].UpperBound =  36;
+        
+        
+        /*Parameters for pitch env amt*/        
+	port_descriptors[LMS_PITCH_ENV_AMT] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_PITCH_ENV_AMT] = "Pitch Env Amt";
+	port_range_hints[LMS_PITCH_ENV_AMT].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_PITCH_ENV_AMT].LowerBound =  -36;
+	port_range_hints[LMS_PITCH_ENV_AMT].UpperBound =   36;
+        
+        
+        /*Parameters for pitch env time*/        
+	port_descriptors[LMS_PITCH_ENV_TIME] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_PITCH_ENV_TIME] = "Pitch Env Time";
+	port_range_hints[LMS_PITCH_ENV_TIME].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_PITCH_ENV_TIME].LowerBound = 0; 
+	port_range_hints[LMS_PITCH_ENV_TIME].UpperBound = 200;
+        
+        /*Parameters for LFO Freq*/        
+	port_descriptors[LMS_LFO_FREQ] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_LFO_FREQ] = "LFO Freq";
+	port_range_hints[LMS_LFO_FREQ].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_LFO_FREQ].LowerBound = 10; 
+	port_range_hints[LMS_LFO_FREQ].UpperBound = 400;
+        
+        /*Parameters for LFO Type*/        
+	port_descriptors[LMS_LFO_TYPE] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_LFO_TYPE] = "LFO Type";
+	port_range_hints[LMS_LFO_TYPE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MINIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_LFO_TYPE].LowerBound = 0; 
+	port_range_hints[LMS_LFO_TYPE].UpperBound = 2;
+        
+        /*Parameters for LFO Amp*/
+	port_descriptors[LMS_LFO_AMP] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_LFO_AMP] = "LFO Amp";
+	port_range_hints[LMS_LFO_AMP].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_LFO_AMP].LowerBound = -24;
+	port_range_hints[LMS_LFO_AMP].UpperBound = 24;
+        
+        /*Parameters for LFO Pitch*/
+	port_descriptors[LMS_LFO_PITCH] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_LFO_PITCH] = "LFO Pitch";
+	port_range_hints[LMS_LFO_PITCH].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_LFO_PITCH].LowerBound = -36;
+	port_range_hints[LMS_LFO_PITCH].UpperBound = 36;
+        
+        /*Parameters for LFO Filter*/
+	port_descriptors[LMS_LFO_FILTER] = port_descriptors[LMS_ATTACK];
+	port_names[LMS_LFO_FILTER] = "LFO Filter";
+	port_range_hints[LMS_LFO_FILTER].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_LFO_FILTER].LowerBound = -48;
+	port_range_hints[LMS_LFO_FILTER].UpperBound = 48;        
+        
+        //End Ray-V
         
         int f_i = LMS_SAMPLE_PITCH_PORT_RANGE_MIN;
         
