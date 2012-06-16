@@ -77,15 +77,6 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     case Sampler_OUTPUT_LEFT:
 	plugin->output[0] = data;
 	break;
-    case Sampler_RETUNE:
-	plugin->retune = data;
-	break;
-    case Sampler_SUSTAIN:
-	plugin->sustain = data;
-	break;
-    case Sampler_RELEASE:
-	plugin->release = data;
-	break;    
     case Sampler_OUTPUT_RIGHT:
         plugin->output[1] = data;
         break;
@@ -417,10 +408,13 @@ static void runSamplerWrapper(LADSPA_Handle instance,
 
 int getControllerSampler(LADSPA_Handle instance, unsigned long port)
 {
+    
+/*
     if (port == Sampler_RETUNE) return DSSI_CC(12);
     else if (port == Sampler_BASE_PITCH) return DSSI_CC(13);
     else if (port == Sampler_SUSTAIN) return DSSI_CC(64);
     else if (port == Sampler_RELEASE) return DSSI_CC(72);
+*/
     /*else {
 	Sampler *plugin_data = (Sampler *) instance;
 	if (plugin_data->channels == 2) {
@@ -742,42 +736,6 @@ void _init()
 	port_descriptors[Sampler_OUTPUT_LEFT] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
 	port_names[Sampler_OUTPUT_LEFT] = "Output L";
 	port_range_hints[Sampler_OUTPUT_LEFT].HintDescriptor = 0;
-
-	/* Parameters for retune */
-	port_descriptors[Sampler_RETUNE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[Sampler_RETUNE] = "Tuned (on/off)";
-	port_range_hints[Sampler_RETUNE].HintDescriptor =
-	    LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_INTEGER |
-	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[Sampler_RETUNE].LowerBound = 0;
-	port_range_hints[Sampler_RETUNE].UpperBound = 1;
-
-	/* Parameters for base pitch */
-	port_descriptors[Sampler_BASE_PITCH] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[Sampler_BASE_PITCH] = "Base pitch (MIDI)";
-	port_range_hints[Sampler_BASE_PITCH].HintDescriptor =
-	    LADSPA_HINT_INTEGER | LADSPA_HINT_DEFAULT_MIDDLE |
-	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[Sampler_BASE_PITCH].LowerBound = Sampler_BASE_PITCH_MIN;
-	port_range_hints[Sampler_BASE_PITCH].UpperBound = Sampler_BASE_PITCH_MAX;
-
-	/* Parameters for sustain */
-	port_descriptors[Sampler_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[Sampler_SUSTAIN] = "Sustain (on/off)";
-	port_range_hints[Sampler_SUSTAIN].HintDescriptor =
-	    LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
-	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[Sampler_SUSTAIN].LowerBound = 0.0f;
-	port_range_hints[Sampler_SUSTAIN].UpperBound = 1.0f;
-
-	/* Parameters for release */
-	port_descriptors[Sampler_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[Sampler_RELEASE] = "Release time (s)";
-	port_range_hints[Sampler_RELEASE].HintDescriptor =
-	    LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_LOGARITHMIC |
-	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[Sampler_RELEASE].LowerBound = Sampler_RELEASE_MIN;
-	port_range_hints[Sampler_RELEASE].UpperBound = Sampler_RELEASE_MAX;
 
         /* Parameters for selected sample */
 	port_descriptors[Sampler_SELECTED_SAMPLE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
