@@ -1332,13 +1332,13 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
 
     const int port = argv[0]->i;
     const float value = argv[1]->f;
-    /*
-    switch (port) {
-
+    
+    
+    if((port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN))
+    {
+        gui->v_set_control(port, value);
     }
-    */
-    /*The range of ports for sample pitch*/
-    if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
+    else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN;
         //cerr << "LMS_SAMPLE_PITCH_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
