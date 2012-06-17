@@ -316,27 +316,42 @@ static void activateSampler(LADSPA_Handle instance)
 static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned long count)
 {
     float ratio = 1.0;
-    float gain = 1.0;
+
     float gain_test = 1.0;
     unsigned long i, ch, s;
 
-    if (plugin_data->basePitch[(plugin_data->current_sample)])
-    {
-        ratio =
-        f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]), (float)(n), 
-                plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
-    }
-
-    
     if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
-
-    gain = (float)plugin_data->velocities[n] / 127.0f;
 
     for (i = 0, s = pos + plugin_data->sampleNo - plugin_data->ons[n];
 	 i < count;
 	 ++i, ++s) {
 
-	float         lgain = gain;
+        //Run the glide module
+            
+        f_rmp_run_ramp(plugin_data->data[n]->pitch_env);
+        f_rmp_run_ramp(plugin_data->data[n]->glide_env);
+        
+        //Set and run the LFO
+        v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01  );
+        v_lfs_run(plugin_data->data[n]->lfo1);
+        plugin_data->data[n]->lfo_amp_output = f_db_to_linear_fast((((*(plugin_data->lfo_amp)
+                ) * (plugin_data->data[n]->lfo1->output)) - (f_lms_abs((*(plugin_data->lfo_amp)
+                )) * 0.5)), plugin_data->data[n]->amp_ptr);
+        plugin_data->data[n]->lfo_filter_output = ( *(plugin_data->lfo_filter)) * (plugin_data->data[n]->lfo1->output);
+        plugin_data->data[n]->lfo_pitch_output = (*(plugin_data->lfo_pitch)) * (plugin_data->data[n]->lfo1->output);
+        
+        plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied) + (plugin_data->data[n]->pitch_env->output_multiplied) 
+                + (plugin_data->mono_modules->pitchbend_smoother->output) + (plugin_data->data[n]->last_pitch);
+                
+        if (plugin_data->basePitch[(plugin_data->current_sample)])
+        {
+            ratio =
+            f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]), 
+                    //((float)(n)), 
+                    ((plugin_data->data[n]->base_pitch) + (plugin_data->data[n]->lfo_pitch_output)),
+                    plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
+        }
+        	
 	float         rs = s * ratio;
 	unsigned long rsi = lrintf(floor(rs));
 
@@ -359,34 +374,11 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 	    if (dist > releaseFrames) {
 		plugin_data->ons[n] = -1;
 		break;
-	    } else {
-		lgain = lgain * (float)(releaseFrames - dist) / (float)releaseFrames;
-	    }
+	    } 
 	}
         
-        if (plugin_data->sample_vol[(plugin_data->current_sample)] && n != *(plugin_data->sample_vol[(plugin_data->current_sample)])) {
-            gain_test = lgain * f_db_to_linear_fast(*(plugin_data->sample_vol[(plugin_data->current_sample)]), plugin_data->amp_ptr);
-        }
-
         //Run things that aren't per-channel like envelopes
-        
-        //Run the glide module
-            
-        f_rmp_run_ramp(plugin_data->data[n]->pitch_env);
-        f_rmp_run_ramp(plugin_data->data[n]->glide_env);
-        
-        //Set and run the LFO
-        v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01  );
-        v_lfs_run(plugin_data->data[n]->lfo1);
-        plugin_data->data[n]->lfo_amp_output = f_db_to_linear_fast((((*(plugin_data->lfo_amp)
-                ) * (plugin_data->data[n]->lfo1->output)) - (f_lms_abs((*(plugin_data->lfo_amp)
-                )) * 0.5)), plugin_data->data[n]->amp_ptr);
-        plugin_data->data[n]->lfo_filter_output = ( *(plugin_data->lfo_filter)
-                ) * (plugin_data->data[n]->lfo1->output);
-        plugin_data->data[n]->lfo_pitch_output = ( *(plugin_data->lfo_pitch)
-
-                ) * (plugin_data->data[n]->lfo1->output);
-        
+                
         v_adsr_run(plugin_data->data[n]->adsr_amp);        
 
         v_adsr_run(plugin_data->data[n]->adsr_filter);
@@ -402,14 +394,11 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             
             //Call everything defined in libmodsynth.h in the order it should be called in
             //plugin_data->current_sample = 0;
-            
-            //plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied) + (plugin_data->data[n]->pitch_env->output_multiplied) 
-            //        + (p->mono_modules->pitchbend_smoother->output) + (plugin_data->data[n]->last_pitch);
-            
+                        
             sample += (f_run_white_noise(plugin_data->data[n]->white_noise1[ch]) * (plugin_data->data[n]->noise_linamp)); //white noise
                         
             //TODO:  Run the filter smoother
-            v_svf_set_cutoff_base(plugin_data->data[n]->svf_filter[ch],  *(plugin_data->timbre)); // (plugin_data->mono_modules->filter_smoother->output));
+            v_svf_set_cutoff_base(plugin_data->data[n]->svf_filter[ch], (plugin_data->mono_modules->filter_smoother->output));
             //Run v_svf_add_cutoff_mod once for every input source
             v_svf_add_cutoff_mod(plugin_data->data[n]->svf_filter[ch], 
                     (((plugin_data->data[n]->adsr_filter->output) * ( *(plugin_data->filter_env_amt)
@@ -471,6 +460,9 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 
     for (pos = 0, event_pos = 0; pos < sample_count; ) {
 
+        v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (*(plugin_data->timbre)));
+        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
+        
 	while (event_pos < event_count){
 	       //&& pos >= events[event_pos].time.tick) {
             /*Note-on event*/
@@ -521,12 +513,11 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                             plugin_data->mono_modules->amp_ptr);                     
                     
                     plugin_data->data[n.note]->note_f = (float)n.note;
-                    //data[n.note].hz = f_pit_midi_note_to_hz(data[n.note].note_f);
                                         
                     plugin_data->data[n.note]->target_pitch = (plugin_data->data[n.note]->note_f);
                     plugin_data->data[n.note]->last_pitch = (plugin_data->sv_last_note);
                     
-                    v_rmp_retrigger_glide_t(plugin_data->data[n.note]->glide_env , *(plugin_data->master_glide), 
+                    v_rmp_retrigger_glide_t(plugin_data->data[n.note]->glide_env , (*(plugin_data->master_glide) * .01), 
                             (plugin_data->sv_last_note), (plugin_data->data[n.note]->target_pitch));
                                         
                     /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/                    
