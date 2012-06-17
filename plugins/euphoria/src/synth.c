@@ -937,7 +937,7 @@ void _init()
 	port_descriptors[LMS_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_ATTACK] = "Attack time (s)";
 	port_range_hints[LMS_ATTACK].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW |
+			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_ATTACK].LowerBound = 1; 
 	port_range_hints[LMS_ATTACK].UpperBound = 100; 
@@ -946,7 +946,8 @@ void _init()
 	port_descriptors[LMS_DECAY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_DECAY] = "Decay time (s)";
 	port_range_hints[LMS_DECAY].HintDescriptor =
-			port_range_hints[LMS_ATTACK].HintDescriptor;
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_DECAY].LowerBound = 1; 
 	port_range_hints[LMS_DECAY].UpperBound = 100; 
 
@@ -954,7 +955,7 @@ void _init()
 	port_descriptors[LMS_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_SUSTAIN] = "Sustain level (%)";
 	port_range_hints[LMS_SUSTAIN].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_SUSTAIN].LowerBound = -60;
 	port_range_hints[LMS_SUSTAIN].UpperBound = 0;
@@ -972,7 +973,7 @@ void _init()
 	port_descriptors[LMS_TIMBRE] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_TIMBRE] = "Timbre";
 	port_range_hints[LMS_TIMBRE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_TIMBRE].LowerBound =  20;
 	port_range_hints[LMS_TIMBRE].UpperBound =  124;
