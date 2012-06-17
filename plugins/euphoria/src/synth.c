@@ -341,7 +341,8 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         plugin_data->data[n]->lfo_pitch_output = (*(plugin_data->lfo_pitch)) * (plugin_data->data[n]->lfo1->output);
         
         plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied) + (plugin_data->data[n]->pitch_env->output_multiplied) 
-                + (plugin_data->mono_modules->pitchbend_smoother->output) + (plugin_data->data[n]->last_pitch);
+                +  (plugin_data->sv_pitch_bend_value)  //(plugin_data->mono_modules->pitchbend_smoother->output) 
+                + (plugin_data->data[n]->last_pitch);
                 
         if (plugin_data->basePitch[(plugin_data->current_sample)])
         {
@@ -393,12 +394,11 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             /*Process PolyFX here*/
             
             //Call everything defined in libmodsynth.h in the order it should be called in
-            //plugin_data->current_sample = 0;
-                        
+                                    
             sample += (f_run_white_noise(plugin_data->data[n]->white_noise1[ch]) * (plugin_data->data[n]->noise_linamp)); //white noise
                         
             //TODO:  Run the filter smoother
-            v_svf_set_cutoff_base(plugin_data->data[n]->svf_filter[ch], (plugin_data->mono_modules->filter_smoother->output));
+            v_svf_set_cutoff_base(plugin_data->data[n]->svf_filter[ch], (*(plugin_data->timbre)));   //(plugin_data->mono_modules->filter_smoother->output));
             //Run v_svf_add_cutoff_mod once for every input source
             v_svf_add_cutoff_mod(plugin_data->data[n]->svf_filter[ch], 
                     (((plugin_data->data[n]->adsr_filter->output) * ( *(plugin_data->filter_env_amt)
@@ -413,12 +413,6 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                     f_clp_clip(plugin_data->data[n]->clipper1[ch], (plugin_data->data[n]->filter_output)));
             
             sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->data[n]->amp) * (plugin_data->data[n]->lfo_amp_output);
-
-            //Run the envelope and assign to the output buffers
-            //out0[(plugin_data->data[n]->i_voice)] += (sample);
-            //out1[(plugin_data->data[n]->i_voice)] += (sample);
-
-            //plugin_data->data[n]->i_voice = (plugin_data->data[n]->i_voice) + 1;
     
             //If the main ADSR envelope has reached the end it's release stage, kill the voice.
             //However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't            
@@ -426,7 +420,6 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             //{
             //    p->voices->voices[a_voice_number].n_state = note_state_off;
             //}
-            
             
             /*End process PolyFX*/
             
@@ -519,8 +512,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                     
                     v_rmp_retrigger_glide_t(plugin_data->data[n.note]->glide_env , (*(plugin_data->master_glide) * .01), 
                             (plugin_data->sv_last_note), (plugin_data->data[n.note]->target_pitch));
-                                        
-                    /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/                    
+                                                    
                     plugin_data->data[n.note]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
                                         
                     /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
