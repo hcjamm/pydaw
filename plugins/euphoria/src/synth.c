@@ -539,6 +539,8 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 		snd_seq_ev_note_t n = events[event_pos].data.note;
 		plugin_data->offs[n.note] = 
 		    plugin_data->sampleNo + events[event_pos].time.tick;
+                
+                v_poly_note_off(plugin_data->data[n.note]);
 	    }
             
             /*Pitch-bend sequencer event, modify the voices pitch*/
