@@ -46,16 +46,17 @@
 #define LMS_LFO_AMP 26
 #define LMS_LFO_PITCH 27
 #define LMS_LFO_FILTER 28
+#define LMS_FILTER_TYPE 29
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 28  //TODO:  Is this obsolete now with the below?
-#define LMS_COUNT 29 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_LAST_CONTROL_PORT 29  //TODO:  Is this obsolete now with the below?
+#define LMS_COUNT 30 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 /*Provide an arbitrary maximum number of samples the user can load*/
 #define LMS_MAX_SAMPLE_COUNT 32
 
 /*The first port to use when enumerating the ports for mod_matrix controls.  All of the mod_matrix ports should be sequential, 
  * any additional ports should prepend this port number*/
-#define LMS_FIRST_MOD_MATRIX_PORT 29
+#define LMS_FIRST_MOD_MATRIX_PORT 30
 
 /*The range of ports for sample pitch*/
 #define LMS_SAMPLE_PITCH_PORT_RANGE_MIN     LMS_FIRST_MOD_MATRIX_PORT

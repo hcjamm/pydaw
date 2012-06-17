@@ -75,103 +75,108 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     Sampler *plugin;
     plugin = (Sampler *) instance;
     
-    switch (port) {
-    case Sampler_OUTPUT_LEFT:
-	plugin->output[0] = data;
-	break;
-    case Sampler_OUTPUT_RIGHT:
-        plugin->output[1] = data;
-        break;
-    case Sampler_SELECTED_SAMPLE:
-        plugin->selected_sample = data;
-        break;
-        //Begin Ray-V ports
-        
-    case LMS_ATTACK:
-        plugin->attack = data;
-        break;
-    case LMS_DECAY:
-        plugin->decay = data;
-        break;
-    case LMS_SUSTAIN:
-        plugin->sustain = data;
-        break;
-    case LMS_RELEASE:
-        plugin->release = data;
-        break;
-    case LMS_TIMBRE:
-        plugin->timbre = data;              
-        break;
-    case LMS_RES:
-        plugin->res = data;              
-        break;
-    case LMS_DIST:
-        plugin->dist = data;              
-        break;
-    case LMS_FILTER_ATTACK:
-        plugin->attack_f = data;
-        break;
-    case LMS_FILTER_DECAY:
-        plugin->decay_f = data;
-        break;
-    case LMS_FILTER_SUSTAIN:
-        plugin->sustain_f = data;
-        break;
-    case LMS_FILTER_RELEASE:
-        plugin->release_f = data;
-        break;
-    case LMS_NOISE_AMP:
-        plugin->noise_amp = data;
-        break;
-    case LMS_DIST_WET:
-        plugin->dist_wet = data;
-        break;
-    case LMS_FILTER_ENV_AMT:
-        plugin->filter_env_amt = data;
-        break;
-    case LMS_MASTER_VOLUME:
-        plugin->master_vol = data;
-        break;
-    case LMS_MASTER_UNISON_VOICES:
-        plugin->master_uni_voice = data;
-        break;
-    case LMS_MASTER_UNISON_SPREAD:
-        plugin->master_uni_spread = data;        
-        break;
-    case LMS_MASTER_GLIDE:
-        plugin->master_glide = data;
-        break;
-    case LMS_MASTER_PITCHBEND_AMT:
-        plugin->master_pb_amt = data;
-        break;
-    case LMS_PITCH_ENV_AMT:
-        plugin->pitch_env_amt = data;
-        break;
-    case LMS_PITCH_ENV_TIME:
-        plugin->pitch_env_time = data;
-        break;
-    case LMS_LFO_FREQ:
-        plugin->lfo_freq = data;
-        break;
-    case LMS_LFO_TYPE:
-        plugin->lfo_type = data;
-        break;
-    case LMS_LFO_AMP:
-        plugin->lfo_amp = data;
-        break;
-    case LMS_LFO_PITCH:
-        plugin->lfo_pitch = data;
-        break;
-    case LMS_LFO_FILTER:
-        plugin->lfo_filter = data;
-        break;
-        
-        //End Ray-V ports
-    default:
-        break;
+    if(port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN)
+    {
+        switch (port) {
+        case Sampler_OUTPUT_LEFT:
+            plugin->output[0] = data;
+            break;
+        case Sampler_OUTPUT_RIGHT:
+            plugin->output[1] = data;
+            break;
+        case Sampler_SELECTED_SAMPLE:
+            plugin->selected_sample = data;
+            break;
+            //Begin Ray-V ports
+
+        case LMS_ATTACK:
+            plugin->attack = data;
+            break;
+        case LMS_DECAY:
+            plugin->decay = data;
+            break;
+        case LMS_SUSTAIN:
+            plugin->sustain = data;
+            break;
+        case LMS_RELEASE:
+            plugin->release = data;
+            break;
+        case LMS_TIMBRE:
+            plugin->timbre = data;              
+            break;
+        case LMS_FILTER_TYPE:
+            plugin->filter_type = data;
+            break;
+        case LMS_RES:
+            plugin->res = data;              
+            break;
+        case LMS_DIST:
+            plugin->dist = data;              
+            break;
+        case LMS_FILTER_ATTACK:
+            plugin->attack_f = data;
+            break;
+        case LMS_FILTER_DECAY:
+            plugin->decay_f = data;
+            break;
+        case LMS_FILTER_SUSTAIN:
+            plugin->sustain_f = data;
+            break;
+        case LMS_FILTER_RELEASE:
+            plugin->release_f = data;
+            break;
+        case LMS_NOISE_AMP:
+            plugin->noise_amp = data;
+            break;
+        case LMS_DIST_WET:
+            plugin->dist_wet = data;
+            break;
+        case LMS_FILTER_ENV_AMT:
+            plugin->filter_env_amt = data;
+            break;
+        case LMS_MASTER_VOLUME:
+            plugin->master_vol = data;
+            break;
+        case LMS_MASTER_UNISON_VOICES:
+            plugin->master_uni_voice = data;
+            break;
+        case LMS_MASTER_UNISON_SPREAD:
+            plugin->master_uni_spread = data;        
+            break;
+        case LMS_MASTER_GLIDE:
+            plugin->master_glide = data;
+            break;
+        case LMS_MASTER_PITCHBEND_AMT:
+            plugin->master_pb_amt = data;
+            break;
+        case LMS_PITCH_ENV_AMT:
+            plugin->pitch_env_amt = data;
+            break;
+        case LMS_PITCH_ENV_TIME:
+            plugin->pitch_env_time = data;
+            break;
+        case LMS_LFO_FREQ:
+            plugin->lfo_freq = data;
+            break;
+        case LMS_LFO_TYPE:
+            plugin->lfo_type = data;
+            break;
+        case LMS_LFO_AMP:
+            plugin->lfo_amp = data;
+            break;
+        case LMS_LFO_PITCH:
+            plugin->lfo_pitch = data;
+            break;
+        case LMS_LFO_FILTER:
+            plugin->lfo_filter = data;
+            break;
+
+            //End Ray-V ports
+        default:
+            break;
+        }
     }
-    
-    if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
+    else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
     {
         plugin->basePitch[(port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN)] = data;
     }
@@ -275,6 +280,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_AMP, 46, "LFO Amp");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_PITCH, 47, "LFO Pitch");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FILTER, 48, "LFO Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_TYPE, 49, "Filter Type");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "euphoria-cc_map.txt");
     
@@ -476,6 +482,36 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 		    plugin_data->offs[n.note] = -1;
 		    plugin_data->velocities[n.note] = n.velocity;
                     
+                    /*Set the svf_function function pointer to the filter type selected in the GUI*/
+                    switch((int)(*(plugin_data->filter_type)))
+                    {
+                                case 0:
+                                    plugin_data->data[n.note]->svf_function = v_svf_run_2_pole_lp;
+                                    break;
+                                case 1:
+                                    plugin_data->data[n.note]->svf_function = v_svf_run_2_pole_hp;
+                                    break;
+                                case 2:
+                                    plugin_data->data[n.note]->svf_function = v_svf_run_2_pole_bp;
+                                    break;
+                                case 3:
+                                    plugin_data->data[n.note]->svf_function = v_svf_run_4_pole_lp;
+                                    break;
+                                case 4:
+                                    plugin_data->data[n.note]->svf_function = v_svf_run_4_pole_hp;
+                                    break;
+                                case 5:
+                                    plugin_data->data[n.note]->svf_function = v_svf_run_4_pole_bp;
+                                    break;                
+                                case 6:
+                                    plugin_data->data[n.note]->svf_function = v_svf_run_no_filter;
+                                    break;
+                                default:
+                                    plugin_data->data[n.note]->svf_function = v_svf_run_no_filter;
+                                    printf("Invalid filter type:  %i", (int)(*(plugin_data->filter_type)));
+                                    break;
+
+                    }
                     
                     //Begin Ray-V additions
                     
@@ -1176,6 +1212,15 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_LFO_FILTER].LowerBound = -48;
 	port_range_hints[LMS_LFO_FILTER].UpperBound = 48;        
+        
+        /*Parameters for filter type*/        
+	port_descriptors[LMS_FILTER_TYPE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FILTER_TYPE] = "Filter Type";
+	port_range_hints[LMS_FILTER_TYPE].HintDescriptor =
+                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FILTER_TYPE].LowerBound =  0;
+	port_range_hints[LMS_FILTER_TYPE].UpperBound =  5;
         
         //End Ray-V
         
