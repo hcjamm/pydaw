@@ -417,7 +417,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             sample = f_axf_run_xfade((plugin_data->data[n]->dist_dry_wet[ch]), (plugin_data->data[n]->filter_output), 
                     f_clp_clip(plugin_data->data[n]->clipper1[ch], (plugin_data->data[n]->filter_output)));
             
-            //sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->data[n]->amp) * (plugin_data->data[n]->lfo_amp_output);
+            sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->data[n]->amp) * (plugin_data->data[n]->lfo_amp_output);
 
             //Run the envelope and assign to the output buffers
             //out0[(plugin_data->data[n]->i_voice)] += (sample);
@@ -435,7 +435,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             
             /*End process PolyFX*/
             
-	    plugin_data->output[ch][pos + i] += lgain * sample * gain_test;
+	    plugin_data->output[ch][pos + i] += sample;
 	}
     }
 }
@@ -504,7 +504,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                     v_adsr_retrigger(plugin_data->data[n.note]->adsr_filter);
                     v_lfs_sync(plugin_data->data[n.note]->lfo1, 0.0f, *(plugin_data->lfo_type));
                     
-                    v_adsr_set_adsr_db(plugin_data->data[n.note]->adsr_amp, (*(plugin_data->attack) * .01), (*(plugin_data->decay) * .01), (*(plugin_data->sustain) * .01), (*(plugin_data->release) * .01));
+                    v_adsr_set_adsr_db(plugin_data->data[n.note]->adsr_amp, (*(plugin_data->attack) * .01), (*(plugin_data->decay) * .01), (*(plugin_data->sustain)), (*(plugin_data->release) * .01));
                     v_adsr_set_adsr(plugin_data->data[n.note]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
                     
                     /*Retrigger the pitch envelope*/
