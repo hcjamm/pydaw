@@ -127,6 +127,7 @@ public slots:
     void setRelease(float);
     void setTimbre (float);
     void setRes (float);
+    void setFilterType (float val);
     void setDist (float);
         
     void setFilterAttack (float);
@@ -304,6 +305,7 @@ protected slots:
     void sustainChanged(int);
     void releaseChanged(int);
     void timbreChanged (int);
+    void filterTypeChanged (int);
     void resChanged (int);
     void distChanged (int);
         

@@ -515,12 +515,13 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_adsr_filter->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterSustainChanged(int)));
         connect(m_adsr_filter->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));
         
-        m_filter = new LMS_filter_widget(this, f_info, LMS_TIMBRE, LMS_RES, -1, TRUE);
+        m_filter = new LMS_filter_widget(this, f_info, LMS_TIMBRE, LMS_RES, LMS_FILTER_TYPE, TRUE);
 
         m_main_layout->lms_add_widget(m_filter->lms_groupbox->lms_groupbox);
-
+        
         connect(m_filter->lms_cutoff_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));
         connect(m_filter->lms_res_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
+        connect(m_filter->lms_filter_type->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(filterTypeChanged(int)));
 
         m_filter_env_amt  = new LMS_knob_regular(QString("Env Amt"), -36, 36, 1, 0, QString("0"), m_filter->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, LMS_FILTER_ENV_AMT);
         m_filter->lms_groupbox->lms_add_h(m_filter_env_amt);
@@ -974,6 +975,7 @@ void SamplerGUI::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms
 void SamplerGUI::setSustain(float a_value){lms_set_value(a_value, m_adsr_amp->lms_sustain);}
 void SamplerGUI::setRelease(float a_value){lms_set_value(a_value, m_adsr_amp->lms_release);}
 void SamplerGUI::setTimbre(float a_value){lms_set_value(a_value, m_filter->lms_cutoff_knob);}
+void SamplerGUI::setFilterType(float a_value){lms_set_value(a_value, m_filter->lms_filter_type);}
 void SamplerGUI::setRes(float a_value){lms_set_value(a_value, m_filter->lms_res_knob);}
 void SamplerGUI::setDist(float a_value){lms_set_value(a_value, m_dist);}
 void SamplerGUI::setFilterAttack (float a_value){lms_set_value(a_value, m_adsr_filter->lms_attack);}
@@ -1010,6 +1012,7 @@ void SamplerGUI::decayChanged(int a_value){lms_value_changed(a_value, m_adsr_amp
 void SamplerGUI::sustainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_sustain);}
 void SamplerGUI::releaseChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_release);}
 void SamplerGUI::timbreChanged(int a_value){lms_value_changed(a_value, m_filter->lms_cutoff_knob);}
+void SamplerGUI::filterTypeChanged(int a_value){lms_value_changed(a_value, m_filter->lms_filter_type);}
 void SamplerGUI::resChanged(int a_value){lms_value_changed(a_value, m_filter->lms_res_knob);}
 void SamplerGUI::distChanged(int a_value){lms_value_changed(a_value, m_dist);}
 void SamplerGUI::filterAttackChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_attack);}
@@ -1088,6 +1091,7 @@ void SamplerGUI::v_set_control(int a_port, float a_value)
         case LMS_RELEASE: setRelease(a_value); break;
         case LMS_TIMBRE: setTimbre(a_value); break;
         case LMS_RES: setRes(a_value); break;
+        case LMS_FILTER_TYPE: setFilterType(a_value); break;
         case LMS_DIST: setDist(a_value); break;
         case LMS_FILTER_ATTACK: setFilterAttack(a_value); break;
         case LMS_FILTER_DECAY: setFilterDecay(a_value); break;
@@ -1130,7 +1134,8 @@ void SamplerGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host
     case LMS_SUSTAIN: sustainChanged(a_value); break;
     case LMS_RELEASE: releaseChanged(a_value); break;
     case LMS_TIMBRE: timbreChanged(a_value); break;
-    case LMS_RES: resChanged(a_value); break;        
+    case LMS_RES: resChanged(a_value); break;
+    case LMS_FILTER_TYPE: filterTypeChanged(a_value); break;
     case LMS_DIST: distChanged(a_value); break;
     case LMS_FILTER_ATTACK: filterAttackChanged(a_value); break;
     case LMS_FILTER_DECAY: filterDecayChanged(a_value); break;
@@ -1177,7 +1182,8 @@ int SamplerGUI::i_get_control(int a_port)
     case LMS_SUSTAIN: return m_adsr_amp->lms_sustain->lms_get_value();
     case LMS_RELEASE: return m_adsr_amp->lms_release->lms_get_value();
     case LMS_TIMBRE: return  m_filter->lms_cutoff_knob->lms_get_value();
-    case LMS_RES: return m_filter->lms_res_knob->lms_get_value();        
+    case LMS_RES: return m_filter->lms_res_knob->lms_get_value();  
+    case LMS_FILTER_TYPE:return m_filter->lms_filter_type->lms_get_value();
     case LMS_DIST: return m_dist->lms_get_value();
     case LMS_FILTER_ATTACK: return m_adsr_filter->lms_attack->lms_get_value();
     case LMS_FILTER_DECAY: return m_adsr_filter->lms_decay->lms_get_value();

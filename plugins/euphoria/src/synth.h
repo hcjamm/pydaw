@@ -53,6 +53,7 @@ typedef struct {
     LADSPA_Data *sustain;
     LADSPA_Data *release;
     LADSPA_Data *timbre;
+    LADSPA_Data *filter_type;
     LADSPA_Data *res;
     LADSPA_Data *dist;
     LADSPA_Data pitch;
