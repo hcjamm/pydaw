@@ -608,17 +608,38 @@ void SamplerGUI::fileSelect()
     if(!path.isEmpty())
     {
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
-#ifndef LMS_DEBUG_STANDALONE
-        lo_send(m_host, m_configurePath, "ss", "load", path.toLocal8Bit().data());
-#endif
-                
+        
         QTableWidgetItem * f_item = new QTableWidgetItem();
         f_item->setText(path);
         f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
         m_sample_table->lms_mod_matrix->setItem(m_sample_table->lms_selected_column, SMP_TB_FILE_PATH_INDEX, f_item);
         m_sample_table->lms_mod_matrix->resizeColumnsToContents();
+        
+        generate_files_string();
+                
+#ifndef LMS_DEBUG_STANDALONE
+        lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
+#endif
+                
     }
 
+}
+
+void SamplerGUI::generate_files_string()
+{
+    files_string = QString("");
+    
+    for(int f_i = 0; f_i < LMS_MAX_SAMPLE_COUNT; f_i++)
+    {
+        files_string.append(m_sample_table->lms_mod_matrix->item(f_i, SMP_TB_FILE_PATH_INDEX)->text());
+        
+        if(f_i < (LMS_MAX_SAMPLE_COUNT - 1))
+        {
+            files_string.append(LMS_FILES_STRING_DELIMITER);
+        }
+    }
+    
+    cerr << files_string;
 }
 
 void SamplerGUI::clearFile()
@@ -636,6 +657,10 @@ void SamplerGUI::clearFile()
     f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
     m_sample_table->lms_mod_matrix->setItem(m_sample_table->lms_selected_column, SMP_TB_FILE_PATH_INDEX, f_item);
     m_file_selector->clear_button_pressed();
+    
+    generate_files_string();
+    
+    cerr << files_string;
 }
 
 void SamplerGUI::openInEditor()

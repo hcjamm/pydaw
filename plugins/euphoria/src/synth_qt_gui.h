@@ -97,6 +97,9 @@ public:
     QString m_inst_file_tmp_path;
     void calculate_fx_label(int,int,QLabel*);
     
+    void generate_files_string();
+    QString files_string;
+    
     //From Ray-V   TODO:  Are these necessary?
     
     void v_set_control(int, float);
