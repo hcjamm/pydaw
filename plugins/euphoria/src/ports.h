@@ -10,6 +10,8 @@
 #ifndef PORTS_H
 #define	PORTS_H
 
+#define LMS_FILES_STRING_DELIMITER "|"
+
 #define Sampler_Stereo_LABEL "Euphoria"
 
 #define Sampler_OUTPUT_LEFT 0

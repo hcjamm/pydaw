@@ -630,9 +630,9 @@ char * dssi_configure_message(const char *fmt, ...)
     return strdup(buffer);
 }
 
-char *samplerLoad(Sampler *plugin_data, const char *path)
+char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 {
-    plugin_data->i_selected_sample = (int)(*(plugin_data->selected_sample));
+    plugin_data->i_selected_sample =  a_index; // (int)(*(plugin_data->selected_sample));
     printf("plugin_data->i_selected_sample == %i\n", (plugin_data->i_selected_sample));
     
     /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
@@ -862,13 +862,37 @@ char *samplerClear(Sampler *plugin_data)
     return NULL;
 }
 
+/* Call samplerLoad for all samples.*/
+char *samplerLoadAll(Sampler *plugin_data, const char *paths)
+{       
+    char * pch;
+    int f_index = 0;
+    pch = strtok (paths, LMS_FILES_STRING_DELIMITER);
+    while (pch != NULL)
+    {    
+        if(strcmp(pch, "") == 0)
+        {
+            //samplerClear(plugin_data);
+        }
+        else
+        {            
+            samplerLoad(plugin_data, pch, f_index);
+        }
+        
+        pch = strtok (NULL, " ");    
+        f_index++;
+    }
+    
+    return NULL;
+}
 
 char *samplerConfigure(LADSPA_Handle instance, const char *key, const char *value)
 {
     Sampler *plugin_data = (Sampler *)instance;
 
     if (!strcmp(key, "load")) {
-	return samplerLoad(plugin_data, value);
+	//return samplerLoad(plugin_data, value);
+        return samplerLoadAll(plugin_data, value);
     } else if (!strcmp(key, "clear")) {
         return samplerClear(plugin_data);
     }
