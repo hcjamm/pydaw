@@ -27,7 +27,7 @@ If you would like an alternate operating system added, and are willing to track 
 
 #per-distro dependencies.  A special thanks to Glen MacArthur from AV Linux (http://www.bandshed.net/AVLinux.html) 
 #for helping me with dependencies that work in Ubuntu and Debian
-$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libsndfile1-dev, libsamplerate0-dev";
+$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsamplerate0-dev";
 
 $prompt = 1;
 
@@ -105,20 +105,36 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 
 #This is the notes that your package manager will show when browsing your package.  Change this if packaging your own plugins.
 $notes = " LibModSynth is a set of developer tools designed to make it fast and easy to develop high quality DSSI plugins.
- The suite currently includes: ";
+ The suite currently includes the following instruments: ";
+
+$first = 1;
+foreach $val (@instruments)
+{
+	if($first)
+	{
+		$first = 0;
+	}
+	else
+	{
+		$notes .= ", "
+	}
+	$notes .= "$val";
+}
+
+$notes .= " and the following effect plugins:  ";
 
 $first = 1;
 foreach $val (@plugins)
 {
-if($first)
-{
-$first = 0;
-}
-else
-{
-$notes .= ", "
-}
-$notes .= "$val";
+	if($first)
+	{
+		$first = 0;
+	}
+	else
+	{
+		$notes .= ", "
+	}
+	$notes .= "$val";
 }
 #dpkg-deb crashes if EOF happens at the end of a description line
 $notes .= ".\n";
@@ -131,7 +147,7 @@ if($prompt)
 ack_label:
 	print "
 This will build all of the plugins and package them.  You must edit the list of plugins in this script to include any new ones, or exclude any old ones.  Please take care when packaging the existing LMS plugins not to create package conflicts.  
-If you wish only to build a single plugin, use the build.pl scripts in that plugin's directory.  If you wish to package your own collection of LMS-derived plugins, you should edit the \@plugins array in this script to include only your plugins.
+If you wish only to build a single plugin, use the build.pl scripts in that plugin's directory.  If you wish to package your own collection of LMS-derived plugins, you should edit the \@plugins and \@instruments array in this script to include only your plugins.
 
 Proceed?  (y/[n]): ";
 
@@ -256,7 +272,7 @@ Please report a bug on the LibModSynth sourceforge.net page, and include the nam
 else
 {
 	$bin_dir = "$package_dir/usr/bin";
-	$plugin_dir = "$package_dir/usr/lib/dssi";
+	$plugin_dir = "$package_dir/usr/lib/lms_suite";
 	$doc_dir = "$package_dir/usr/share/doc/$short_name";
 }
 
@@ -328,7 +344,7 @@ Exec=lms-jack-dssi-host \"$val.so\"
 Icon=$icon_name
 Terminal=false
 Type=Application
-Categories=AudioVideo;Audio;AudioEditing;";
+Categories=Audio;AudioEditing;";
 
 open (MYFILE, ">>$desktop_dir/$val.desktop");
 print MYFILE "$desktop_text";
@@ -477,9 +493,9 @@ foreach $val(@ladspa_plugins)
 #symlink the effects to the LADSPA plugin directory so that they can be used by LADSPA hosts
 $postinst .= 
 "`cd /usr/lib/ladspa ; rm -Rf $val.so $val.la $val`;
-`ln -s /usr/lib/dssi/$val /usr/lib/ladspa/$val`;
-`ln -s /usr/lib/dssi/$val.so /usr/lib/ladspa/$val.so`;
-`ln -s /usr/lib/dssi/$val.la /usr/lib/ladspa/$val.la`;\n";
+`ln -s /usr/lib/lms_suite/$val /usr/lib/ladspa/$val`;
+`ln -s /usr/lib/lms_suite/$val.so /usr/lib/ladspa/$val.so`;
+`ln -s /usr/lib/lms_suite/$val.la /usr/lib/ladspa/$val.la`;\n";
 }
 
 $postinst .= "exit 0;";
