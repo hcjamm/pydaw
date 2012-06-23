@@ -402,7 +402,7 @@ protected:
     QByteArray m_configurePath;
     QByteArray m_exitingPath;
 
-    QString m_file;
+    QString m_files;
     QString m_projectDir;
     int m_previewWidth;
     int m_previewHeight;

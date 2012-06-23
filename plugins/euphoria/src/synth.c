@@ -226,6 +226,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         plugin_data->smp_pit_core[f_i] = g_pit_get();
         plugin_data->smp_pit_ratio[f_i] = g_pit_ratio();
         
+        plugin_data->sample_paths[f_i] = "";
+        
         f_i++;
     }
     
@@ -615,8 +617,7 @@ static void runSamplerWrapper(LADSPA_Handle instance,
 int getControllerSampler(LADSPA_Handle instance, unsigned long port)
 {
     Sampler *plugin_data = (Sampler *) instance;
-    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
-    //return DSSI_NONE;
+    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));    
 }
 
 char * dssi_configure_message(const char *fmt, ...)
@@ -631,28 +632,25 @@ char * dssi_configure_message(const char *fmt, ...)
 }
 
 char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
-{
-    plugin_data->i_selected_sample =  a_index; // (int)(*(plugin_data->selected_sample));
-    printf("plugin_data->i_selected_sample == %i\n", (plugin_data->i_selected_sample));
-    
+{   
     /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
-    plugin_data->i_loaded_samples = 0;
+    int i_loaded_samples = 0;
     plugin_data->sample_is_loaded = 0;
     
-    while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
+    while((i_loaded_samples) < (plugin_data->loaded_samples_count))
     {
-        if((plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]) == (plugin_data->i_selected_sample))
+        if((plugin_data->loaded_samples[(i_loaded_samples)]) == a_index)
         {
-            printf("Sample index %i is already loaded.\n", (plugin_data->i_loaded_samples));
+            printf("Sample index %i is already loaded.\n", (i_loaded_samples));
             plugin_data->sample_is_loaded = 1;
             break;
         }
-        plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
+        i_loaded_samples++;
     }
     
     if((plugin_data->sample_is_loaded) == 0)
     {
-        plugin_data->loaded_samples[(plugin_data->loaded_samples_count)] = (plugin_data->i_selected_sample);
+        plugin_data->loaded_samples[(plugin_data->loaded_samples_count)] = a_index;
         plugin_data->loaded_samples_count = (plugin_data->loaded_samples_count) + 1;
         printf("plugin_data->loaded_samples_count == %i\n", (plugin_data->loaded_samples_count));
     }
@@ -770,12 +768,14 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     
     pthread_mutex_lock(&plugin_data->mutex);
 
-    tmpOld[0] = plugin_data->sampleData[0][(plugin_data->i_selected_sample)];
-    tmpOld[1] = plugin_data->sampleData[1][(plugin_data->i_selected_sample)];
-    plugin_data->sampleData[0][(plugin_data->i_selected_sample)] = tmpSamples[0];
-    plugin_data->sampleData[1][(plugin_data->i_selected_sample)] = tmpSamples[1];
-    plugin_data->sampleCount[(plugin_data->i_selected_sample)] = samples;
+    tmpOld[0] = plugin_data->sampleData[0][(a_index)];
+    tmpOld[1] = plugin_data->sampleData[1][(a_index)];
+    plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
+    plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
+    plugin_data->sampleCount[(a_index)] = samples;
 
+    plugin_data->sample_paths[(a_index)] = path;
+    
     for (i = 0; i < Sampler_NOTES; ++i) {
 	plugin_data->ons[i] = -1;
 	plugin_data->offs[i] = -1;
@@ -865,21 +865,28 @@ char *samplerClear(Sampler *plugin_data)
 /* Call samplerLoad for all samples.*/
 char *samplerLoadAll(Sampler *plugin_data, const char *paths)
 {       
+    plugin_data->sample_files = paths;
     char * pch;
     int f_index = 0;
     pch = strtok (paths, LMS_FILES_STRING_DELIMITER);
-    while (pch != NULL)
+    while ((pch != NULL) && (f_index < LMS_MAX_SAMPLE_COUNT))
     {    
+        printf("findex == %i\n", f_index);
+        printf("pch == %s\n", pch);
         if(strcmp(pch, "") == 0)
         {
             //samplerClear(plugin_data);
         }
         else
         {            
-            samplerLoad(plugin_data, pch, f_index);
+            if(strcmp(pch, (plugin_data->sample_paths[f_index])) != 0)
+            {
+                printf("calling samplerLoad\n");
+                samplerLoad(plugin_data, pch, f_index);
+            }
         }
         
-        pch = strtok (NULL, " ");    
+        pch = strtok (NULL, LMS_FILES_STRING_DELIMITER);    
         f_index++;
     }
     
