@@ -1311,6 +1311,8 @@ int configure_handler(const char *path, const char *types, lo_arg **argv,
     const char *key = (const char *)&argv[0]->s;
     const char *value = (const char *)&argv[1]->s;
 
+    cerr << "GUI configure_handler:  Key:  " << QString(key) << " , Value:" << QString(value);
+    
     if (!strcmp(key, "load")) {
 	gui->setSampleFile(QString::fromLocal8Bit(value));
     } else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
