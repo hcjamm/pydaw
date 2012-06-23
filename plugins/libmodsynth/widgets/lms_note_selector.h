@@ -44,6 +44,8 @@ class LMS_note_selector : public LMS_control
                         
             lms_layout->addWidget(lms_note, -1);
             lms_layout->addWidget(lms_octave, -1);
+            
+            lms_value_changed(-1);
         }
             
         int lms_selected_note;
@@ -55,7 +57,7 @@ class LMS_note_selector : public LMS_control
         void lms_set_value(int a_value)
         {
             lms_note->setCurrentIndex(a_value % 12);
-            lms_octave->setValue((int)(a_value / 12));
+            lms_octave->setValue(((int)(a_value / 12)) - 2);
         }
         void lms_value_changed(int a_value)
         {            
@@ -64,7 +66,6 @@ class LMS_note_selector : public LMS_control
         
         int lms_get_value()
         {
-            //TODO:  Check to see the octave is correct
             return lms_selected_note;
         }
         
