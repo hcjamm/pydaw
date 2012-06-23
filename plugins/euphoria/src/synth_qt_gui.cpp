@@ -771,6 +771,8 @@ void SamplerGUI::saveInstrumentToSingleFile()
         {
             QTextStream stream( &file );
             
+            stream << LMS_FILE_FILES_TAG << "\n";
+            
             for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
             {           
                 //TODO:  This is wrong, the files need to be copied to a central location and use only file name, not full path
@@ -863,7 +865,7 @@ void SamplerGUI::openInstrumentFromFile()
     
     if(!f_selected_path.isEmpty())
     {
-        int f_current_stage = 0; //0 == files, 1 == controls
+        int f_current_stage = 0; //0 == none, 1 == files, 2 == controls
         int f_line_number = 0;
     
         QFile file(f_selected_path);
@@ -877,14 +879,21 @@ void SamplerGUI::openInstrumentFromFile()
         while(!in.atEnd()) {
             QString line = in.readLine();    
         
-            if(line.compare(QString(LMS_FILE_CONTROLS_TAG)) == 0)
+            if(line.compare(QString(LMS_FILE_FILES_TAG)) == 0)
             {
                 f_current_stage = 1;
+            }
+            else if(line.compare(QString(LMS_FILE_CONTROLS_TAG)) == 0)
+            {
+                f_current_stage = 2;
             }
             
             switch(f_current_stage)
             {
                 case 0:{
+                    cerr << "f_current_stage == 0 on line# " << f_line_number << ".  " << line << "\n";
+                }break;
+                case 1:{
                     QStringList file_arr = line.split(LMS_DELIMITER);
                     
                     if(file_arr.count() != 2)
@@ -918,7 +927,7 @@ void SamplerGUI::openInstrumentFromFile()
                     }
                 }
                     break;
-                case 1:{
+                case 2:{
                     QStringList f_control_port_value_pair = line.split(LMS_FILE_PORT_VALUE_SEPARATOR);
                     
                     if(f_control_port_value_pair.count() != 2)
@@ -941,9 +950,10 @@ void SamplerGUI::openInstrumentFromFile()
         }
 
         file.close();
+       
+        m_sample_table->lms_mod_matrix->resizeColumnsToContents();
         
-        
-            generate_files_string();
+        generate_files_string();
 #ifndef LMS_DEBUG_STANDALONE
             lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
 #endif              
