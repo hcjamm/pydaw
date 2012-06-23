@@ -13,6 +13,7 @@
 #define LMS_FILES_STRING_DELIMITER "|"
 /* defines used for the file saving format */
 //This indicates the beginning of the controls section
+#define LMS_FILE_FILES_TAG "<<><<|{Begin Files}|>><>>"
 #define LMS_FILE_CONTROLS_TAG "<<><<|{Begin Controls}|>><>>"
 //This separates port/value pairs
 #define LMS_FILE_PORT_VALUE_SEPARATOR ":"
