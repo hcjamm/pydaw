@@ -139,7 +139,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         menuFile = new QMenu(menubar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));        
         menubar->addAction(menuFile->menuAction());
-        menuFile->addAction(actionMove_files_to_single_directory);
+        //menuFile->addAction(actionMove_files_to_single_directory);
         menuFile->addAction(actionSave_instrument_to_file);
         menuFile->addAction(actionOpen_instrument_from_file);
         
