@@ -474,7 +474,8 @@ char *
 load(const char *dllName, void **dll, int quiet) /* returns directory where dll found */
 {
     static char *defaultDssiPath = 0;
-    const char *dssiPath = "/usr/local/lib/dssi:/usr/lib/dssi:/usr/lib/lms_suite"; //getenv("DSSI_PATH");
+    const char *dssiPath = getenv("DSSI_PATH");
+    strcat(dssiPath, ":/usr/lib/lms_suite");
     char *path, *origPath, *element, *message;
     void *handle = 0;
 
@@ -560,7 +561,7 @@ load(const char *dllName, void **dll, int quiet) /* returns directory where dll 
     }
 
     free(origPath);
-    return 0;
+    return "/usr/";
 }
 
 static int
