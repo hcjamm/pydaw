@@ -760,35 +760,36 @@ void SamplerGUI::saveInstrumentToSingleFile()
     
     if(!f_selected_path.isEmpty())
     {
-        //TODO:  some obligatory sanity checks
-        
-        m_inst_file_tmp_path = QString("/tmp/u4ia-");
-        m_inst_file_tmp_path.append(QUuid::createUuid().toString());
-        
-#ifdef LMS_DEBUG_STANDALONE
-        std::string f_string = f_selected_path.toStdString();
-#endif
+        //TODO:  some sanity checks
+      
         m_creating_instrument_file = TRUE;
-        moveSamplesToSingleDirectory();
+        //moveSamplesToSingleDirectory();
         m_creating_instrument_file = FALSE;
         
         QFile file( f_selected_path );
         if ( file.open(QIODevice::ReadWrite) )
         {
             QTextStream stream( &file );
-            stream << "#Some meta-data about the file...\n";
+            
             for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
             {           
                 //TODO:  This is wrong, the files need to be copied to a central location and use only file name, not full path
                 stream << i << LMS_DELIMITER << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << "\n";                
             }
             
-            stream << "\n#Suggested common parameters for .u4ia compliant samplers to implement\n";
+            stream << LMS_FILE_CONTROLS_TAG << "\n";
             
-            //TODO:  parameters for the instrument
+            for(int i = LMS_FIRST_CONTROL_PORT; i < Sampler_Stereo_COUNT; i++)        
+            {   
+                stream << i << LMS_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";                
+            }   
             
-            stream << "\n#Optional parameters for .u4ia compliant samplers to implement\n";
-        }        
+            file.close();
+        }
+        else
+        {
+            cerr << "Error opening file for Read/Write, you may not have permissions to that directory\n";
+        }
     }
 }
 
@@ -844,8 +845,9 @@ void SamplerGUI::moveSamplesToSingleDirectory()
             QRadioButton * f_radio_button = (QRadioButton*)m_sample_table->lms_mod_matrix->cellWidget(i , SMP_TB_RADIOBUTTON_INDEX);                
             f_radio_button->setChecked(TRUE);
                 
+            generate_files_string();
 #ifndef LMS_DEBUG_STANDALONE
-            lo_send(m_host, m_configurePath, "ss", "load", f_new_file.toLocal8Bit().data());
+            lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
 #endif                      
         }
         
@@ -859,6 +861,93 @@ void SamplerGUI::openInstrumentFromFile()
 {
     QString f_selected_path = QFileDialog::getOpenFileName(this, "Select an instrument file to open...", ".", "Euphoria Instrument Files (*.u4ia)");  
     
+    if(!f_selected_path.isEmpty())
+    {
+        int f_current_stage = 0; //0 == files, 1 == controls
+        int f_line_number = 0;
+    
+        QFile file(f_selected_path);
+        if(!file.open(QIODevice::ReadOnly)) {
+            QMessageBox::information(0, "error", file.errorString());
+            return;
+        }
+
+        QTextStream in(&file);
+
+        while(!in.atEnd()) {
+            QString line = in.readLine();    
+        
+            if(line.compare(QString(LMS_FILE_CONTROLS_TAG)) == 0)
+            {
+                f_current_stage = 1;
+            }
+            
+            switch(f_current_stage)
+            {
+                case 0:{
+                    QStringList file_arr = line.split(LMS_DELIMITER);
+                    
+                    if(file_arr.count() != 2)
+                    {
+                        cerr << "Malformed file definition at line# " << f_line_number << ".  " << line << "\n";                        
+                    }                    
+                    else
+                    {
+                        if(file_arr.at(1).compare(QString("")) == 0)
+                        {
+                            QTableWidgetItem * f_item = new QTableWidgetItem();
+                            f_item->setText(QString(""));
+                            f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+                            m_sample_table->lms_mod_matrix->setItem(file_arr.at(0).toInt(), SMP_TB_FILE_PATH_INDEX, f_item);   
+                        }
+                        else
+                        {
+                            if(QFile::exists(file_arr.at(1)))
+                            {
+                                cerr << "Setting " << file_arr.at(0) << " to " << file_arr.at(1);
+                                QTableWidgetItem * f_item = new QTableWidgetItem();
+                                f_item->setText(file_arr.at(1));
+                                f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+                                m_sample_table->lms_mod_matrix->setItem(file_arr.at(0).toInt(), SMP_TB_FILE_PATH_INDEX, f_item);   
+                            }
+                            else
+                            {
+                                cerr << "Invalid file " << line << "\n";
+                            }
+                        }
+                    }
+                }
+                    break;
+                case 1:{
+                    QStringList f_control_port_value_pair = line.split(LMS_FILE_PORT_VALUE_SEPARATOR);
+                    
+                    if(f_control_port_value_pair.count() != 2)
+                    {
+                        cerr << "Malformed control/port definition at line# " << f_line_number << ".  " << line << "\n";
+                        break;
+                    }
+                    
+                    v_set_control(f_control_port_value_pair.at(0).toInt(), f_control_port_value_pair.at(1).toFloat());
+                    v_control_changed(f_control_port_value_pair.at(0).toInt(), f_control_port_value_pair.at(1).toInt(), FALSE);
+                }
+                    break;
+                default:{
+                    cerr << "Invalid f_current_stage " << f_current_stage << "\n";
+                }
+                    break;
+            }
+         
+            f_line_number++;
+        }
+
+        file.close();
+        
+        
+            generate_files_string();
+#ifndef LMS_DEBUG_STANDALONE
+            lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
+#endif              
+    }
     
 }
 
@@ -1110,48 +1199,67 @@ void SamplerGUI::v_print_port_name_to_cerr(int a_port)
 #endif
 }
 
-void SamplerGUI::v_set_control(int a_port, float a_value)
+void SamplerGUI::v_set_control(int port, float a_value)
 {
 
-#ifdef LMS_DEBUG_MODE_QT    
-    cerr << "v_set_control called.  ";  
-    v_print_port_name_to_cerr(a_port);
-    cerr << "  value: " << a_value << endl;
-#endif
-        
-    switch (a_port) {
-        case LMS_ATTACK: setAttack(a_value); break;
-        case LMS_DECAY: setDecay(a_value); break;
-        case LMS_SUSTAIN: setSustain(a_value); break;
-        case LMS_RELEASE: setRelease(a_value); break;
-        case LMS_TIMBRE: setTimbre(a_value); break;
-        case LMS_RES: setRes(a_value); break;
-        case LMS_FILTER_TYPE: setFilterType(a_value); break;
-        case LMS_DIST: setDist(a_value); break;
-        case LMS_FILTER_ATTACK: setFilterAttack(a_value); break;
-        case LMS_FILTER_DECAY: setFilterDecay(a_value); break;
-        case LMS_FILTER_SUSTAIN: setFilterSustain(a_value); break;
-        case LMS_FILTER_RELEASE: setFilterRelease(a_value); break;
-        case LMS_NOISE_AMP: setNoiseAmp(a_value); break;    
-        case LMS_DIST_WET: setDistWet(a_value); break;
-        case LMS_FILTER_ENV_AMT: setFilterEnvAmt(a_value); break;    
-        case LMS_MASTER_VOLUME: setMasterVolume(a_value); break;    
-        case LMS_MASTER_UNISON_VOICES: setMasterUnisonVoices(a_value); break;
-        case LMS_MASTER_UNISON_SPREAD: setMasterUnisonSpread(a_value); break;
-        case LMS_MASTER_GLIDE: setMasterGlide(a_value); break;
-        case LMS_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
-        case LMS_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
-        case LMS_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;                
-        case LMS_LFO_FREQ: setLFOfreq(a_value); break;            
-        case LMS_LFO_TYPE:  setLFOtype(a_value);  break;            
-        case LMS_LFO_AMP: setLFOamp(a_value); break;            
-        case LMS_LFO_PITCH: setLFOpitch(a_value); break;            
-        case LMS_LFO_FILTER: setLFOcutoff(a_value); break;
-    }
+    if((port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN))
+    {
+        switch (port) {
+            case Sampler_SELECTED_SAMPLE: setSelection(a_value); break;
+            case LMS_ATTACK: setAttack(a_value); break;
+            case LMS_DECAY: setDecay(a_value); break;
+            case LMS_SUSTAIN: setSustain(a_value); break;
+            case LMS_RELEASE: setRelease(a_value); break;
+            case LMS_TIMBRE: setTimbre(a_value); break;
+            case LMS_RES: setRes(a_value); break;
+            case LMS_FILTER_TYPE: setFilterType(a_value); break;
+            case LMS_DIST: setDist(a_value); break;
+            case LMS_FILTER_ATTACK: setFilterAttack(a_value); break;
+            case LMS_FILTER_DECAY: setFilterDecay(a_value); break;
+            case LMS_FILTER_SUSTAIN: setFilterSustain(a_value); break;
+            case LMS_FILTER_RELEASE: setFilterRelease(a_value); break;
+            case LMS_NOISE_AMP: setNoiseAmp(a_value); break;    
+            case LMS_DIST_WET: setDistWet(a_value); break;
+            case LMS_FILTER_ENV_AMT: setFilterEnvAmt(a_value); break;    
+            case LMS_MASTER_VOLUME: setMasterVolume(a_value); break;    
+            case LMS_MASTER_UNISON_VOICES: setMasterUnisonVoices(a_value); break;
+            case LMS_MASTER_UNISON_SPREAD: setMasterUnisonSpread(a_value); break;
+            case LMS_MASTER_GLIDE: setMasterGlide(a_value); break;
+            case LMS_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
+            case LMS_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
+            case LMS_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;                
+            case LMS_LFO_FREQ: setLFOfreq(a_value); break;            
+            case LMS_LFO_TYPE:  setLFOtype(a_value);  break;            
+            case LMS_LFO_AMP: setLFOamp(a_value); break;            
+            case LMS_LFO_PITCH: setLFOpitch(a_value); break;            
+            case LMS_LFO_FILTER: setLFOcutoff(a_value); break;
+        }
     
+    }
+    else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
+    {
+        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[(port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN)]))->lms_set_value(a_value);
+    }
+    else if((port >= LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX))
+    {
+        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[(port - LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)]))->lms_set_value(a_value);
+    }    
+    else if((port >= LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
+    {
+        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[(port - LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)]))->lms_set_value(a_value);
+    }
+    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX))
+    {
+        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[(port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
+    }
+    else
+    {
+        cerr << "v_set_control called with invalid port " << port << "\n";
+    }
+
 }
 
-void SamplerGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_update)
+void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_update)
 {
     
 #ifdef LMS_DEBUG_MODE_QT    
@@ -1163,40 +1271,60 @@ void SamplerGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host
     if(a_suppress_host_update)
         m_suppressHostUpdate = true;      
     
-    switch (a_port) {
-    case LMS_ATTACK: attackChanged(a_value); break;
-    case LMS_DECAY: decayChanged(a_value); break;
-    case LMS_SUSTAIN: sustainChanged(a_value); break;
-    case LMS_RELEASE: releaseChanged(a_value); break;
-    case LMS_TIMBRE: timbreChanged(a_value); break;
-    case LMS_RES: resChanged(a_value); break;
-    case LMS_FILTER_TYPE: filterTypeChanged(a_value); break;
-    case LMS_DIST: distChanged(a_value); break;
-    case LMS_FILTER_ATTACK: filterAttackChanged(a_value); break;
-    case LMS_FILTER_DECAY: filterDecayChanged(a_value); break;
-    case LMS_FILTER_SUSTAIN: filterSustainChanged(a_value); break;
-    case LMS_FILTER_RELEASE: filterReleaseChanged(a_value); break;
-    case LMS_NOISE_AMP: noiseAmpChanged(a_value); break;    
-    case LMS_DIST_WET: distWetChanged(a_value); break;
-    case LMS_FILTER_ENV_AMT: filterEnvAmtChanged(a_value); break;        
-    case LMS_MASTER_VOLUME: masterVolumeChanged(a_value); break;
-    case LMS_MASTER_UNISON_VOICES: masterUnisonVoicesChanged(a_value); break;
-    case LMS_MASTER_UNISON_SPREAD: masterUnisonSpreadChanged(a_value); break;
-    case LMS_MASTER_GLIDE: masterGlideChanged(a_value); break;
-    case LMS_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;
-    case LMS_PITCH_ENV_AMT: pitchEnvAmtChanged(a_value); break;
-    case LMS_PITCH_ENV_TIME: pitchEnvTimeChanged(a_value); break;
-    case LMS_LFO_FREQ: LFOfreqChanged(a_value); break;
-    case LMS_LFO_TYPE: LFOtypeChanged(a_value); break;
-    case LMS_LFO_AMP: LFOampChanged(a_value); break;
-    case LMS_LFO_PITCH: LFOpitchChanged(a_value); break;
-    case LMS_LFO_FILTER: LFOcutoffChanged(a_value); break;
+    if((port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN))
+    {
+        switch (port) 
+        {
+            case Sampler_SELECTED_SAMPLE: selectionChanged(); break;
+            case LMS_ATTACK: attackChanged(a_value); break;
+            case LMS_DECAY: decayChanged(a_value); break;
+            case LMS_SUSTAIN: sustainChanged(a_value); break;
+            case LMS_RELEASE: releaseChanged(a_value); break;
+            case LMS_TIMBRE: timbreChanged(a_value); break;
+            case LMS_RES: resChanged(a_value); break;
+            case LMS_FILTER_TYPE: filterTypeChanged(a_value); break;
+            case LMS_DIST: distChanged(a_value); break;
+            case LMS_FILTER_ATTACK: filterAttackChanged(a_value); break;
+            case LMS_FILTER_DECAY: filterDecayChanged(a_value); break;
+            case LMS_FILTER_SUSTAIN: filterSustainChanged(a_value); break;
+            case LMS_FILTER_RELEASE: filterReleaseChanged(a_value); break;
+            case LMS_NOISE_AMP: noiseAmpChanged(a_value); break;    
+            case LMS_DIST_WET: distWetChanged(a_value); break;
+            case LMS_FILTER_ENV_AMT: filterEnvAmtChanged(a_value); break;        
+            case LMS_MASTER_VOLUME: masterVolumeChanged(a_value); break;
+            case LMS_MASTER_UNISON_VOICES: masterUnisonVoicesChanged(a_value); break;
+            case LMS_MASTER_UNISON_SPREAD: masterUnisonSpreadChanged(a_value); break;
+            case LMS_MASTER_GLIDE: masterGlideChanged(a_value); break;
+            case LMS_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;
+            case LMS_PITCH_ENV_AMT: pitchEnvAmtChanged(a_value); break;
+            case LMS_PITCH_ENV_TIME: pitchEnvTimeChanged(a_value); break;
+            case LMS_LFO_FREQ: LFOfreqChanged(a_value); break;
+            case LMS_LFO_TYPE: LFOtypeChanged(a_value); break;
+            case LMS_LFO_AMP: LFOampChanged(a_value); break;
+            case LMS_LFO_PITCH: LFOpitchChanged(a_value); break;
+            case LMS_LFO_FILTER: LFOcutoffChanged(a_value); break;            
+        }
     
-    default:
-#ifdef LMS_DEBUG_MODE_QT
-	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
-#endif
-        break;
+    }
+    else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
+    {
+        sample_pitchChanged((port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN));
+    }
+    else if((port >= LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX))
+    {
+        sample_lnoteChanged((port - LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN));
+    }    
+    else if((port >= LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
+    {
+        sample_hnoteChanged((port - LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN));
+    }
+    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX))
+    {
+        sample_volChanged((port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN));
+    }
+    else
+    {
+        cerr << "v_control_changed called with invalid port " << port << "\n";
     }
     
     if(a_suppress_host_update)
@@ -1207,50 +1335,65 @@ void SamplerGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host
 /*TODO:  For the forseeable future, this will only be used for getting the values to write back to 
  the presets.tsv file;  It should probably return a string that can be re-interpreted into other values for
  complex controls that could have multiple ints, or string values, etc...*/
-int SamplerGUI::i_get_control(int a_port)
+int SamplerGUI::i_get_control(int port)
 {
-        /*Add the controls you created to the control handler*/
+    /*Add the controls you created to the control handler*/
     
-    switch (a_port) {
-    case LMS_ATTACK: return  m_adsr_amp->lms_attack->lms_get_value();
-    case LMS_DECAY:  return m_adsr_amp->lms_decay->lms_get_value();
-    case LMS_SUSTAIN: return m_adsr_amp->lms_sustain->lms_get_value();
-    case LMS_RELEASE: return m_adsr_amp->lms_release->lms_get_value();
-    case LMS_TIMBRE: return  m_filter->lms_cutoff_knob->lms_get_value();
-    case LMS_RES: return m_filter->lms_res_knob->lms_get_value();  
-    case LMS_FILTER_TYPE:return m_filter->lms_filter_type->lms_get_value();
-    case LMS_DIST: return m_dist->lms_get_value();
-    case LMS_FILTER_ATTACK: return m_adsr_filter->lms_attack->lms_get_value();
-    case LMS_FILTER_DECAY: return m_adsr_filter->lms_decay->lms_get_value();
-    case LMS_FILTER_SUSTAIN: return m_adsr_filter->lms_sustain->lms_get_value();
-    case LMS_FILTER_RELEASE: return m_adsr_filter->lms_release->lms_get_value();
-    case LMS_NOISE_AMP: return m_noise_amp->lms_get_value();
-    case LMS_DIST_WET: return m_dist_wet->lms_get_value();
-    case LMS_FILTER_ENV_AMT: return m_filter_env_amt->lms_get_value();
-    case LMS_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
-    case LMS_MASTER_UNISON_VOICES: return m_master->lms_master_unison_voices->lms_get_value();
-    case LMS_MASTER_UNISON_SPREAD: return m_master->lms_master_unison_spread->lms_get_value();
-    case LMS_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
-    case LMS_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
-    case LMS_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
-    case LMS_PITCH_ENV_TIME: return m_pitch_env->lms_time_knob->lms_get_value();
-    case LMS_LFO_FREQ: return m_lfo->lms_freq_knob->lms_get_value();
-    case LMS_LFO_TYPE: return m_lfo->lms_type_combobox->lms_get_value();
-    case LMS_LFO_AMP: return m_lfo_amp->lms_get_value();
-    case LMS_LFO_PITCH: return m_lfo_pitch->lms_get_value();
-    case LMS_LFO_FILTER: return m_lfo_cutoff->lms_get_value();
-    //case LMS_PROGRAM_CHANGE:
-        //return m_program->currentIndex();
-    default:
-#ifdef LMS_DEBUG_MODE_QT
-	cerr << "Warning: received request to get nonexistent port " << a_port << endl;
-#endif
-        break;
+    if((port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN))
+    {
+        switch (port) 
+        {
+            case Sampler_SELECTED_SAMPLE: m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX); return m_sample_table->lms_selected_column;
+            case LMS_ATTACK: return  m_adsr_amp->lms_attack->lms_get_value();
+            case LMS_DECAY:  return m_adsr_amp->lms_decay->lms_get_value();
+            case LMS_SUSTAIN: return m_adsr_amp->lms_sustain->lms_get_value();
+            case LMS_RELEASE: return m_adsr_amp->lms_release->lms_get_value();
+            case LMS_TIMBRE: return  m_filter->lms_cutoff_knob->lms_get_value();
+            case LMS_RES: return m_filter->lms_res_knob->lms_get_value();  
+            case LMS_FILTER_TYPE:return m_filter->lms_filter_type->lms_get_value();
+            case LMS_DIST: return m_dist->lms_get_value();
+            case LMS_FILTER_ATTACK: return m_adsr_filter->lms_attack->lms_get_value();
+            case LMS_FILTER_DECAY: return m_adsr_filter->lms_decay->lms_get_value();
+            case LMS_FILTER_SUSTAIN: return m_adsr_filter->lms_sustain->lms_get_value();
+            case LMS_FILTER_RELEASE: return m_adsr_filter->lms_release->lms_get_value();
+            case LMS_NOISE_AMP: return m_noise_amp->lms_get_value();
+            case LMS_DIST_WET: return m_dist_wet->lms_get_value();
+            case LMS_FILTER_ENV_AMT: return m_filter_env_amt->lms_get_value();
+            case LMS_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
+            case LMS_MASTER_UNISON_VOICES: return m_master->lms_master_unison_voices->lms_get_value();
+            case LMS_MASTER_UNISON_SPREAD: return m_master->lms_master_unison_spread->lms_get_value();
+            case LMS_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
+            case LMS_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
+            case LMS_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
+            case LMS_PITCH_ENV_TIME: return m_pitch_env->lms_time_knob->lms_get_value();
+            case LMS_LFO_FREQ: return m_lfo->lms_freq_knob->lms_get_value();
+            case LMS_LFO_TYPE: return m_lfo->lms_type_combobox->lms_get_value();
+            case LMS_LFO_AMP: return m_lfo_amp->lms_get_value();
+            case LMS_LFO_PITCH: return m_lfo_pitch->lms_get_value();
+            case LMS_LFO_FILTER: return m_lfo_cutoff->lms_get_value();    
+        }    
+    }
+    else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
+    {
+        return ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[(port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN)]))->lms_get_value();
+    }
+    else if((port >= LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX))
+    {
+        return ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[(port - LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)]))->lms_get_value();
     }    
+    else if((port >= LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
+    {
+        return ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[(port - LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)]))->lms_get_value();
+    }
+    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX))
+    {
+        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[(port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)]->lms_get_widget()))->value();
+    }
+    else
+    {
+        cerr << "i_get_control called with invalid port " << port << "\n";
+    }
 }
-
-
-//End Ray-V
 
 void
 SamplerGUI::oscRecv()
