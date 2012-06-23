@@ -573,12 +573,22 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_suppressHostUpdate = false;
 }
 
-void SamplerGUI::setSampleFile(QString file)
+void SamplerGUI::setSampleFile(QString files)
 {
     m_suppressHostUpdate = true;
         
-    m_file = file;
-            
+    m_files = files;    
+    
+    QStringList f_file_list = files.split(QString(LMS_FILES_STRING_DELIMITER));
+    
+    for(int f_i = 0; f_i < f_file_list.count(); f_i++)
+    {
+        QTableWidgetItem * f_item = new QTableWidgetItem();
+        f_item->setText(f_file_list[f_i]);
+        f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+        m_sample_table->lms_mod_matrix->setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_item);              
+    }
+
     m_sample_table->lms_mod_matrix->resizeColumnsToContents();
     
     m_suppressHostUpdate = false;
@@ -594,7 +604,7 @@ void SamplerGUI::setSelection(int a_value)
 
 void SamplerGUI::fileSelect()
 {
-    QString orig = m_file;
+    QString orig = m_files;
     if (orig.isEmpty()) {
 	if (!m_projectDir.isEmpty()) {
 	    orig = m_projectDir;

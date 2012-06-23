@@ -105,6 +105,8 @@ typedef struct {
     char         velocities[Sampler_NOTES];
     long         sampleNo;
     char        *projectDir;
+    char*       sample_paths[LMS_MAX_SAMPLE_COUNT];
+    char*       sample_files;
     pthread_mutex_t mutex;
     t_mono_modules * mono_modules;
     t_amp * amp_ptr;
