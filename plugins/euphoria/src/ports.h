@@ -11,7 +11,13 @@
 #define	PORTS_H
 
 #define LMS_FILES_STRING_DELIMITER "|"
+/* defines used for the file saving format */
+//This indicates the beginning of the controls section
+#define LMS_FILE_CONTROLS_TAG "<<><<|{Begin Controls}|>><>>"
+//This separates port/value pairs
+#define LMS_FILE_PORT_VALUE_SEPARATOR ":"
 
+/**/
 #define Sampler_Stereo_LABEL "Euphoria"
 
 #define Sampler_OUTPUT_LEFT 0
