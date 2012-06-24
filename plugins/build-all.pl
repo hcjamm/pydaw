@@ -352,12 +352,13 @@ close (MYFILE);
 
 }
 
-#Create a desktop icon for a2jmidid , Ubuntu(and possibly others) don't create one by default
+#Create a desktop icon for a2jmidid , Ubuntu(and possibly others) don't create one by default.  Append -lms to the name just to avoid conflicting with any
+#distros implementation of a .desktop file for it.
 unless(-e "$desktop_dir/a2jmidid.desktop")
 {
 $desktop_text = 
 "[Desktop Entry]
-Name=a2jmidid
+Name=a2jmidid-lms
 Comment=Convert ALSA MIDI ports to JACK MIDI ports and vice-versa
 Exec=a2jmidi
 Icon=
