@@ -44,28 +44,26 @@
 #define LMS_FILTER_ENV_AMT 15
 #define LMS_DIST_WET 16
 #define LMS_MASTER_VOLUME 17
-#define LMS_MASTER_UNISON_VOICES 18
-#define LMS_MASTER_UNISON_SPREAD 19
-#define LMS_MASTER_GLIDE 20
-#define LMS_MASTER_PITCHBEND_AMT 21
-#define LMS_PITCH_ENV_TIME 22
-#define LMS_PITCH_ENV_AMT 23
-#define LMS_LFO_FREQ 24
-#define LMS_LFO_TYPE 25
-#define LMS_LFO_AMP 26
-#define LMS_LFO_PITCH 27
-#define LMS_LFO_FILTER 28
-#define LMS_FILTER_TYPE 29
+#define LMS_MASTER_GLIDE 18
+#define LMS_MASTER_PITCHBEND_AMT 19
+#define LMS_PITCH_ENV_TIME 20
+#define LMS_PITCH_ENV_AMT 21
+#define LMS_LFO_FREQ 22
+#define LMS_LFO_TYPE 23
+#define LMS_LFO_AMP 24
+#define LMS_LFO_PITCH 25
+#define LMS_LFO_FILTER 26
+#define LMS_FILTER_TYPE 27
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 29  //TODO:  Is this obsolete now with the below?
-#define LMS_COUNT 30 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_LAST_CONTROL_PORT 27  //TODO:  Is this obsolete now with the below?
+#define LMS_COUNT 28 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 /*Provide an arbitrary maximum number of samples the user can load*/
 #define LMS_MAX_SAMPLE_COUNT 32
 
 /*The first port to use when enumerating the ports for mod_matrix controls.  All of the mod_matrix ports should be sequential, 
  * any additional ports should prepend this port number*/
-#define LMS_FIRST_MOD_MATRIX_PORT 30
+#define LMS_FIRST_MOD_MATRIX_PORT 28
 
 /*The range of ports for sample pitch*/
 #define LMS_SAMPLE_PITCH_PORT_RANGE_MIN     LMS_FIRST_MOD_MATRIX_PORT

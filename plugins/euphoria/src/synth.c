@@ -137,12 +137,6 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         case LMS_MASTER_VOLUME:
             plugin->master_vol = data;
             break;
-        case LMS_MASTER_UNISON_VOICES:
-            plugin->master_uni_voice = data;
-            break;
-        case LMS_MASTER_UNISON_SPREAD:
-            plugin->master_uni_spread = data;        
-            break;
         case LMS_MASTER_GLIDE:
             plugin->master_glide = data;
             break;
@@ -271,8 +265,6 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ENV_AMT, 26, "Filter Env Amt");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DIST_WET, 27, "Distortion Wet");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_VOLUME, 36, "Master Volume");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_UNISON_VOICES, 37, "Unison Voices");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_UNISON_SPREAD, 38, "Unison Spread");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_GLIDE, 39, "Glide Time");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_PITCHBEND_AMT, 40, "Pitchbend Amount");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_AMT, 42, "Pitch Env Amt");
@@ -1122,29 +1114,7 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_MASTER_VOLUME].LowerBound =  -60;
 	port_range_hints[LMS_MASTER_VOLUME].UpperBound =  12;
-        
-        
-        
-        /*Parameters for master unison voices*/        
-	port_descriptors[LMS_MASTER_UNISON_VOICES] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_UNISON_VOICES] = "Master Unison";
-	port_range_hints[LMS_MASTER_UNISON_VOICES].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_MASTER_UNISON_VOICES].LowerBound =  1;
-	port_range_hints[LMS_MASTER_UNISON_VOICES].UpperBound =  7;
-        
-        
-        /*Parameters for master unison spread*/        
-	port_descriptors[LMS_MASTER_UNISON_SPREAD] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_UNISON_SPREAD] = "Master Unison Spread";
-	port_range_hints[LMS_MASTER_UNISON_SPREAD].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_MASTER_UNISON_SPREAD].LowerBound =  0;
-	port_range_hints[LMS_MASTER_UNISON_SPREAD].UpperBound =  100;
-        
-        
+                        
         /*Parameters for master glide*/        
 	port_descriptors[LMS_MASTER_GLIDE] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_MASTER_GLIDE] = "Master Glide";

@@ -529,13 +529,11 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_main_layout->lms_add_layout();
 
-        m_master = new LMS_master_widget(this, f_info, LMS_MASTER_VOLUME, LMS_MASTER_UNISON_VOICES, 
-                LMS_MASTER_UNISON_SPREAD, LMS_MASTER_GLIDE, LMS_MASTER_PITCHBEND_AMT, QString("Master"));
+        m_master = new LMS_master_widget(this, f_info, LMS_MASTER_VOLUME, -1, 
+                -1, LMS_MASTER_GLIDE, LMS_MASTER_PITCHBEND_AMT, QString("Master"), FALSE);
         m_main_layout->lms_add_widget(m_master->lms_groupbox->lms_groupbox);    
                 
-        connect(m_master->lms_master_volume->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterVolumeChanged(int)));    
-        connect(m_master->lms_master_unison_voices->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( masterUnisonVoicesChanged(int)));    
-        connect(m_master->lms_master_unison_spread->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterUnisonSpreadChanged(int)));
+        connect(m_master->lms_master_volume->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterVolumeChanged(int)));
         connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    
         connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
 
@@ -1232,8 +1230,8 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case LMS_DIST_WET: setDistWet(a_value); break;
             case LMS_FILTER_ENV_AMT: setFilterEnvAmt(a_value); break;    
             case LMS_MASTER_VOLUME: setMasterVolume(a_value); break;    
-            case LMS_MASTER_UNISON_VOICES: setMasterUnisonVoices(a_value); break;
-            case LMS_MASTER_UNISON_SPREAD: setMasterUnisonSpread(a_value); break;
+            //case LMS_MASTER_UNISON_VOICES: setMasterUnisonVoices(a_value); break;
+            //case LMS_MASTER_UNISON_SPREAD: setMasterUnisonSpread(a_value); break;
             case LMS_MASTER_GLIDE: setMasterGlide(a_value); break;
             case LMS_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
             case LMS_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
@@ -1302,8 +1300,8 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case LMS_DIST_WET: distWetChanged(a_value); break;
             case LMS_FILTER_ENV_AMT: filterEnvAmtChanged(a_value); break;        
             case LMS_MASTER_VOLUME: masterVolumeChanged(a_value); break;
-            case LMS_MASTER_UNISON_VOICES: masterUnisonVoicesChanged(a_value); break;
-            case LMS_MASTER_UNISON_SPREAD: masterUnisonSpreadChanged(a_value); break;
+            //case LMS_MASTER_UNISON_VOICES: masterUnisonVoicesChanged(a_value); break;
+            //case LMS_MASTER_UNISON_SPREAD: masterUnisonSpreadChanged(a_value); break;
             case LMS_MASTER_GLIDE: masterGlideChanged(a_value); break;
             case LMS_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;
             case LMS_PITCH_ENV_AMT: pitchEnvAmtChanged(a_value); break;
@@ -1370,8 +1368,6 @@ int SamplerGUI::i_get_control(int port)
             case LMS_DIST_WET: return m_dist_wet->lms_get_value();
             case LMS_FILTER_ENV_AMT: return m_filter_env_amt->lms_get_value();
             case LMS_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
-            case LMS_MASTER_UNISON_VOICES: return m_master->lms_master_unison_voices->lms_get_value();
-            case LMS_MASTER_UNISON_SPREAD: return m_master->lms_master_unison_spread->lms_get_value();
             case LMS_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
             case LMS_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
             case LMS_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
