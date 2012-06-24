@@ -551,6 +551,7 @@ int SynthGUI::i_get_control(int a_port)
 #ifdef LMS_DEBUG_MODE_QT
 	cerr << "Warning: received request to get nonexistent port " << a_port << endl;
 #endif
+        return 0;
         break;
     }    
 }
