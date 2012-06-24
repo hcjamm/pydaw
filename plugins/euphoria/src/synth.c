@@ -1061,7 +1061,8 @@ void _init()
 	port_descriptors[LMS_FILTER_DECAY] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_FILTER_DECAY] = "Decay time (s) filter";
 	port_range_hints[LMS_FILTER_DECAY].HintDescriptor =
-			port_range_hints[LMS_ATTACK].HintDescriptor;
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_FILTER_DECAY].LowerBound = 1;
 	port_range_hints[LMS_FILTER_DECAY].UpperBound = 100;
 
