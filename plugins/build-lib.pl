@@ -233,7 +233,7 @@ sub clean
 #The first argument passed in is any additional CFLAGS
 sub build
 {
-system("moc -o synth_qt_gui.moc.cpp synth_qt_gui.h");
+system("moc -o src/synth_qt_gui.moc.cpp src/synth_qt_gui.h");
 $make = 'make --quiet CFLAGS+="';
 if($ARGV[1] eq "--native")
 {
