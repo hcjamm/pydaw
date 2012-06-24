@@ -890,13 +890,13 @@ char *samplerConfigure(LADSPA_Handle instance, const char *key, const char *valu
 {
     Sampler *plugin_data = (Sampler *)instance;
 
-    if (!strcmp(key, "load")) {
-	//return samplerLoad(plugin_data, value);
+    if (!strcmp(key, "load")) {	
         return samplerLoadAll(plugin_data, value);
+    } else if (!strcmp(key, "reload")) {
+        return samplerLoad(plugin_data, value, (int)(*(plugin_data->selected_sample)));
     } else if (!strcmp(key, "clear")) {
         return samplerClear(plugin_data);
-    }
-    else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
+    } else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
 	if (plugin_data->projectDir) free(plugin_data->projectDir);
 	plugin_data->projectDir = strdup(value);
 	return 0;

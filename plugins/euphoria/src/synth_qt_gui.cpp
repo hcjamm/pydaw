@@ -684,7 +684,7 @@ void SamplerGUI::reloadSample()
     {
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
 #ifndef LMS_DEBUG_STANDALONE
-        lo_send(m_host, m_configurePath, "ss", "load", path.toLocal8Bit().data());
+        lo_send(m_host, m_configurePath, "ss", "reload", path.toLocal8Bit().data());
 #endif                
     }
 }
