@@ -474,8 +474,7 @@ char *
 load(const char *dllName, void **dll, int quiet) /* returns directory where dll found */
 {
     static char *defaultDssiPath = 0;
-    const char *dssiPath = getenv("DSSI_PATH");
-    strcat(dssiPath, ":/usr/lib/lms_suite");
+    char *dssiPath = getenv("DSSI_PATH");    
     char *path, *origPath, *element, *message;
     void *handle = 0;
 
@@ -501,7 +500,7 @@ load(const char *dllName, void **dll, int quiet) /* returns directory where dll 
 	    const char *home = getenv("HOME");
 	    if (home) {
 		defaultDssiPath = malloc(strlen(home) + 60);
-		sprintf(defaultDssiPath, "/usr/local/lib/dssi:/usr/lib/dssi:%s/.dssi", home);
+		sprintf(defaultDssiPath, "/usr/lib/lms_suite:/usr/local/lib/dssi:/usr/lib/dssi:%s/.dssi", home);
 	    } else {
                 defaultDssiPath = strdup("/usr/local/lib/dssi:/usr/lib/dssi:/usr/lib/lms_suite");
 	    }
@@ -510,6 +509,10 @@ load(const char *dllName, void **dll, int quiet) /* returns directory where dll 
 	if (!quiet) {
 	    fprintf(stderr, "\n%s: Warning: DSSI path not set\n%s: Defaulting to \"%s\"\n\n", myName, myName, dssiPath);
 	}
+    }
+    else
+    {
+        strcat(dssiPath, strdup(":/usr/lib/lms_suite"));
     }
 
     path = strdup(dssiPath);
