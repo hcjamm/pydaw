@@ -64,7 +64,7 @@ There should be one build.pl script in each plugin directory.
 $plugin_path = "/usr/local/lib/dssi";
 $jack_host_dir = "../../tools/jack-dssi-host";
 $jack_host = "$jack_host_dir/jack-dssi-host";
-$debug_dir = "../../bin";
+$debug_dir = "../bin";
 
 unless(-e $debug_dir)
 {
@@ -107,22 +107,11 @@ sub run_script
 			`cd $jack_host_dir ; perl build.pl --build-jack-host`;		
 		}
 
-		if(-e "aclocal.m4")
-		{
-			clean();
-			build();
-		}
-		else
-		{
-			first_build();
-		}
+		clean();
+		build();
 
-		`rm -Rf $debug_dir/$current_dir*`;
-		`mkdir -p $debug_dir/$current_dir`;
-		system("cp src/*_qt $debug_dir/$current_dir/");
-		system("cp src/.libs/$current_dir.so $debug_dir/$current_dir.so");
-		system("cp src/.libs/$current_dir.la $debug_dir/$current_dir.la");
-		exec("export DSSI_PATH=\"$dssi_path\" ; $jack_host $current_dir.so");
+		`make PREFIX=/usr DESTDIR=$dssi_path install`;
+		exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; $jack_host $current_dir.so");
 	}
 	elsif($ARGV[0] eq "--run")
 	{
@@ -131,15 +120,7 @@ sub run_script
 	elsif($ARGV[0] eq "--quick-build")
 	{
 		notify_wait();
-		if(-e $makefile)
-		{
-			clean();
-			build();
-		}
-		else
-		{
-			first_build();
-		}
+		build();
 		notify_done();
 	}
 	elsif($ARGV[0] eq "--build-jack-host")
@@ -201,25 +182,6 @@ sub first_build
 {
 check_deps();
 clean();
-print "running aclocal...\n";
-`aclocal`;
-`$sleep`;
-print "running libtoolize...\n";
-`libtoolize --force --copy`;
-`$sleep`;
-print "running autoheader...\n";
-`autoheader`;
-`$sleep`;
-print "running automake...\n";
-`automake --add-missing --foreign`;
-`$sleep`;
-print "running autoconf...\n";
-`autoconf`;
-`$sleep`;
-print "running configure...\n";
-`./configure`;
-`$sleep`;
-
 build($_[0]);
 }
 
@@ -233,7 +195,7 @@ sub clean
 #The first argument passed in is any additional CFLAGS
 sub build
 {
-system("moc -o src/synth_qt_gui.moc.cpp src/synth_qt_gui.h");
+#system("moc -o src/synth_qt_gui.moc.cpp src/synth_qt_gui.h");
 $make = 'make --quiet CFLAGS+="';
 if($ARGV[1] eq "--native")
 {
