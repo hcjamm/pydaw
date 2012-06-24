@@ -1,3 +1,5 @@
+plugins/*/*.so
+plugins/*/src/moc_synth_qt_gui.cpp
 tools/jack-dssi-host/Makefile
 bin
 *.dep.inc
