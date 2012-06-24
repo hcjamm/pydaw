@@ -107,7 +107,7 @@ sub run_script
 			`cd $jack_host_dir ; perl build.pl --build-jack-host`;		
 		}
 
-		if(-e $makefile)
+		if(-e "aclocal.m4")
 		{
 			clean();
 			build();
@@ -201,6 +201,25 @@ sub first_build
 {
 check_deps();
 clean();
+print "running aclocal...\n";
+`aclocal`;
+`$sleep`;
+print "running libtoolize...\n";
+`libtoolize --force --copy`;
+`$sleep`;
+print "running autoheader...\n";
+`autoheader`;
+`$sleep`;
+print "running automake...\n";
+`automake --add-missing --foreign`;
+`$sleep`;
+print "running autoconf...\n";
+`autoconf`;
+`$sleep`;
+print "running configure...\n";
+`./configure`;
+`$sleep`;
+
 build($_[0]);
 }
 
