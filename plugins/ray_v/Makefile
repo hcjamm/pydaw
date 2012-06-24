@@ -8,9 +8,9 @@ PREFIX ?= /usr/local
 
 BASE_FLAGS     = -O2 -ffast-math -fomit-frame-pointer -fvisibility=hidden -fPIC -mtune=generic -msse -Wall -Isrc
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
-BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui) $(CXXFLAGS)
-LINK_CFLAGS    = -shared -lm $(LDFLAGS)
-LINK_CXXFLAGS  = -lm $(shell pkg-config --libs liblo QtCore QtGui) $(LDFLAGS)
+BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11 sm) $(CXXFLAGS)
+LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa)
+LINK_CXXFLAGS  = -lm $(shell pkg-config --libs liblo QtCore QtGui x11 sm) $(LDFLAGS)
 
 C_OBJS   = src/synth.o
 CXX_OBJS = src/synth_qt_gui.o src/moc_synth_qt_gui.o
