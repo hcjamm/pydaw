@@ -173,9 +173,8 @@ os_choice_label:
 	print "
 Please select the operating system that you are packaging for:
 1. Ubuntu/Debian/AVLinux
-2. Generic (use this if your OS isn't a variant of one of the above)
 
-Enter choice [1-2]: ";
+Enter choice [1-1]: ";
 
 $os_choice = <STDIN>;
 chomp($os_choice);
@@ -183,10 +182,6 @@ chomp($os_choice);
 if($os_choice eq "1")
 {
 	$depends = $debian_deps; $os = "debian"; $package_type = "deb";
-}
-elsif($os_choice eq "2")
-{
-	$depends = $debian_deps; $os = "install"; $package_type = "install";
 }
 else
 {
@@ -196,110 +191,28 @@ else
 
 }
 require 'build-lib.pl';
-if($os ne "install")
-{
-	#Attempt to install dependencies first
-	check_deps();
-}
+
+#Attempt to install dependencies first
+check_deps();
 
 #Here are the directories used for the install, you can modify them if needed.
 $base_dir = "$short_name";
 $package_dir = "$base_dir/$os";
 
-#Check to see that our system directories are where we think they are.  If not, exit gracefully and ask the user to report it.
-if($os eq "install")
-{
-	if(-e "/usr/bin")
-	{
-		$bin_dir = "$package_dir/usr/bin";
-	}
-	else
-	{
-		print "
+$bin_dir = "$package_dir/usr/bin";
+#$plugin_dir = "$package_dir/usr/lib/dssi";
+$doc_dir = "$package_dir/usr/share/doc/$short_name";
+$debian_dir = "$package_dir/DEBIAN";
+#At some point, this script may include switches for different distros, which will automatically set these as appropriate.
+#The current values below are valid for Ubuntu, and likely most Debian variants
+$icon_dir = "$package_dir/usr/share/pixmaps";
+$desktop_dir = "$package_dir/usr/share/applications";
 
-Unable to find /usr/bin, the script doesn't know where to place the binary files.
-Please report a bug on the LibModSynth sourceforge.net page, and include the name and version of the OS you are running.
-
-";
-		exit;
-	}
-
-	if(-e "/usr/lib")
-	{
-		$plugin_dir = "$package_dir/usr/lib/dssi";
-	}
-	else
-	{
-		print "
-
-Unable to find /usr/lib, the script doesn't know where to place the plugin files.
-Please report a bug on the LibModSynth sourceforge.net page, and include the name and version of the OS you are running.
-
-";
-		exit;
-	}
-
-	if(-e "/usr/share/pixmaps")
-	{
-		$icon_dir = "$package_dir/usr/share/pixmaps";
-	}
-	else
-	{
-		print "
-
-Unable to find /usr/share/pixmaps, the script doesn't know where to place the icon files.
-Please report a bug on the LibModSynth sourceforge.net page, and include the name and version of the OS you are running.
-
-";
-		exit;
-	}
-
-	if(-e "/usr/share/applications")
-	{
-		$desktop_dir = "$package_dir/usr/share/applications";
-	}
-	else
-	{
-		print "
-
-Unable to find /usr/share/applications, the script doesn't know where to place the .desktop files.
-Please report a bug on the LibModSynth sourceforge.net page, and include the name and version of the OS you are running.
-
-";
-		exit;
-	}
-}
-else
-{
-	$bin_dir = "$package_dir/usr/bin";
-	$plugin_dir = "$package_dir/usr/lib/lms_suite";
-	$doc_dir = "$package_dir/usr/share/doc/$short_name";
-}
-
-if($os ne "install")
-{
-	$debian_dir = "$package_dir/DEBIAN";
-	#At some point, this script may include switches for different distros, which will automatically set these as appropriate.
-	#The current values below are valid for Ubuntu, and likely most Debian variants
-	$icon_dir = "$package_dir/usr/share/pixmaps";
-	$desktop_dir = "$package_dir/usr/share/applications";
-}
-
-#print the folder names if debugging enabled
-build_all_debug(
-"\$base_dir == $base_dir
-\$package_dir == $package_dir
-\$debian_dir == $debian_dir
-\$icon_dir == $icon_dir
-\$desktop_dir == $desktop_dir
-\$plugin_dir == $plugin_dir
-\$bin_dir == $bin_dir
-\$doc_dir == $doc_dir");
 
 #Create a clean folder for the plugins to go in
 `rm -Rf $package_dir`;
 `mkdir -p $package_dir`;
-`mkdir -p $plugin_dir`;
+#`mkdir -p $plugin_dir`;
 `mkdir -p $bin_dir`;
 `mkdir -p $doc_dir`;
 `mkdir -p $icon_dir`;
@@ -313,14 +226,11 @@ if($os ne "install")
 foreach $val(@plugins)
 {
 #copy the .so, .la and LMS_qt files to the directory we created
-`mkdir $plugin_dir/$val`;
 print "Compiling $val\n";
-system("cd $val ; perl build.pl --full-build");
+system("cd $val ; make");
 
 print "Copying files\n";
-system("cp $val/src/*_qt $plugin_dir/$val/");
-system("cp $val/src/.libs/$val.so $plugin_dir/$val.so");
-system("cp $val/src/.libs/$val.la $plugin_dir/$val.la");
+system("cd $val ; make PREFIX=/usr DESTDIR=../$package_dir install");
 
 #Plugins with their own icon can use a file called icon.png in the base directory instead of the LMS icon
 if(-e "$val/icon.png")
@@ -512,9 +422,9 @@ foreach $val(@ladspa_plugins)
 #symlink the effects to the LADSPA plugin directory so that they can be used by LADSPA hosts
 $postinst .= 
 "`cd /usr/lib/ladspa ; rm -Rf $val.so $val.la $val`;
-`ln -s /usr/lib/lms_suite/$val /usr/lib/ladspa/$val`;
-`ln -s /usr/lib/lms_suite/$val.so /usr/lib/ladspa/$val.so`;
-`ln -s /usr/lib/lms_suite/$val.la /usr/lib/ladspa/$val.la`;\n";
+`ln -s /usr/lib/dssi/$val /usr/lib/ladspa/$val`;
+`ln -s /usr/lib/dssi/$val.so /usr/lib/ladspa/$val.so`;
+`ln -s /usr/lib/dssi/$val.la /usr/lib/ladspa/$val.la`;\n";
 }
 
 $postinst .= "exit 0;";
