@@ -27,7 +27,7 @@ If you would like an alternate operating system added, and are willing to track 
 
 #per-distro dependencies.  A special thanks to Glen MacArthur from AV Linux (http://www.bandshed.net/AVLinux.html) 
 #for helping me with dependencies that work in Ubuntu and Debian
-$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsamplerate0-dev";
+$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsamplerate0-dev, a2jmidid, libsm-dev, liblscp-dev, libmad0-dev";
 
 $prompt = 1;
 
@@ -350,6 +350,24 @@ open (MYFILE, ">>$desktop_dir/$val.desktop");
 print MYFILE "$desktop_text";
 close (MYFILE);
 
+}
+
+#Create a desktop icon for a2jmidid , Ubuntu(and possibly others) don't create one by default
+unless(-e "$desktop_dir/a2jmidid.desktop")
+{
+$desktop_text = 
+"[Desktop Entry]
+Name=a2jmidid
+Comment=Convert ALSA MIDI ports to JACK MIDI ports and vice-versa
+Exec=a2jmidi
+Icon=
+Terminal=true
+Type=Application
+Categories=Audio;AudioEditing;";
+
+open (MYFILE, ">>$desktop_dir/a2jmidid-lms.desktop");
+print MYFILE "$desktop_text";
+close (MYFILE);
 }
 
 build_all_debug("Building jack-dssi-host");
