@@ -270,7 +270,7 @@ $desktop_text =
 "[Desktop Entry]
 Name=a2jmidid-lms
 Comment=Convert ALSA MIDI ports to JACK MIDI ports and vice-versa
-Exec=a2jmidi
+Exec=a2jmidid
 Icon=
 Terminal=true
 Type=Application
