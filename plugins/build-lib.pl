@@ -156,11 +156,11 @@ sub run_script
 	}
 	elsif($ARGV[0] eq "--git-add")
 	{
-		system("git add src/dssi.h src/libmodsynth.h src/Makefile.am src/synth.c src/synth.h src/synth_qt_gui.cpp src/meta.h src/synth_qt_gui.h build.pl Makefile.am configure.ac");
+		system("git add src/dssi.h src/libmodsynth.h Makefile src/synth.c src/synth.h src/synth_qt_gui.cpp src/meta.h src/synth_qt_gui.h build.pl");
 	}
 	elsif($ARGV[0] eq "--scm-add-show")
 	{
-		print "\n\n add src/dssi.h src/libmodsynth.h src/Makefile.am src/synth.c src/synth.h src/synth_qt_gui.cpp src/meta.h src/synth_qt_gui.h build.pl Makefile.am configure.ac\n\n";
+		print "\n\n add src/dssi.h src/libmodsynth.h Makefile src/synth.c src/synth.h src/synth_qt_gui.cpp src/meta.h src/synth_qt_gui.h build.pl\n\n";
 	}
 	else
 	{
@@ -523,7 +523,8 @@ else
 {
 goto yes_or_no;
 }
-
+#delete any files that will clutter up the new project
+`make clean`;
 `cp -R . ../$short_name`;
 
 $meta_dot_h = "
@@ -549,57 +550,55 @@ extern \"C\" {
 #endif	/* META_H */
 ";
 
-$makefile_dot_am = "
-## Process this file with automake to produce Makefile.in
+$makefile_text = "
+#!/usr/bin/make -f
 
-plugindir = \$(libdir)/dssi
+CC  ?= gcc
+CXX ?= g++
+MOC ?= moc
 
-if BUILD_SAMPLER
-plugin_LTLIBRARIES = $short_name.la
-else
-plugin_LTLIBRARIES = $short_name.la
-endif
+PREFIX ?= /usr/local
 
-$short_name" . "_la_SOURCES = \\
-        synth.c \\
-	dssi.h
+BASE_FLAGS     = -O2 -ffast-math -fomit-frame-pointer -fvisibility=hidden -fPIC -mtune=generic -msse -Wall -Isrc -I.
+BUILD_CFLAGS   = \$(BASE_FLAGS) \$(CFLAGS)
+BUILD_CXXFLAGS = \$(BASE_FLAGS) \$(shell pkg-config --cflags liblo QtCore QtGui x11 sm sndfile) \$(CXXFLAGS)
+LINK_CFLAGS    = -shared -lm \$(LDFLAGS) \$(shell pkg-config --libs liblo alsa sndfile samplerate)
+LINK_CXXFLAGS  = -lm -pthread \$(shell pkg-config --libs liblo QtCore QtGui x11 sm sndfile) \$(LDFLAGS)
 
-$short_name" . "_la_CFLAGS = -I\$(top_srcdir)/dssi \$(AM_CFLAGS) \$(ALSA_CFLAGS)
+C_OBJS   = src/synth.o
+CXX_OBJS = src/synth_qt_gui.o src/moc_synth_qt_gui.o
 
-$short_name" . "_la_LDFLAGS = -module -avoid-version
-if DARWIN
-$short_name" . "_la_LIBADD = -lm -lmx
-else
-$short_name" . "_la_LIBADD = -lm
-endif
+# --------------------------------------------------------------
 
-if HAVE_LIBLO
-if HAVE_QT
-lms_ui_PROGRAMS = $gui_name
-else
-lms_ui_PROGRAMS =
-endif
-else
-lms_ui_PROGRAMS =
-endif
+all: $short_name.so $gui_name
 
-lms_uidir = \$(libdir)/dssi/$short_name
+$short_name.so: \$(C_OBJS)
+	\$(CC) \$(C_OBJS) \$(LINK_CFLAGS) -o \$@
 
-LMS_MOC = synth_qt_gui.moc.cpp
+$gui_name: \$(CXX_OBJS)
+	\$(CXX) \$(CXX_OBJS) \$(LINK_CXXFLAGS) -o \$@
 
-$gui_name_SOURCES = \\
-	synth_qt_gui.cpp \\
-	synth_qt_gui.h
+# --------------------------------------------------------------
 
-nodist_" . "$gui_name" . "_SOURCES = \$(LMS_MOC)
+.c.o:
+	\$(CC) -c \$< \$(BUILD_CFLAGS) -o \$@
 
-$gui_name" . "_CXXFLAGS = \$(AM_CXXFLAGS) \$(QT_CFLAGS) \$(LIBLO_CFLAGS)
-$gui_name" . "_LDADD = \$(AM_LDFLAGS) \$(QT_LIBS) \$(LIBLO_LIBS)
+.cpp.o:
+	\$(CXX) -c \$< \$(BUILD_CXXFLAGS) -o \$@
 
-CLEANFILES = \$(BUILT_SOURCES)
+src/moc_synth_qt_gui.cpp: src/synth_qt_gui.h
+	\$(MOC) \$< -o \$@
 
-# create symlinks for each plugin to jack-dssi-host
-#install-exec-hook:
+# --------------------------------------------------------------
+
+install:
+	install -d \$(DESTDIR)\$(PREFIX)/lib/dssi
+	install -d \$(DESTDIR)\$(PREFIX)/lib/dssi/euphoria
+	install -m 644 $short_name.so \$(DESTDIR)\$(PREFIX)/lib/dssi
+	install -m 755 $gui_name \$(DESTDIR)\$(PREFIX)/lib/dssi/euphoria
+
+clean:
+	rm -f src/*.o src/moc_*.cpp *.so $gui_name
 ";
 
 $build_dot_pl = "
@@ -614,9 +613,9 @@ require \"../build-lib.pl\";
 run_script();
 ";
 
-`rm ../$short_name/src/Makefile.am`;
-open (MYFILE, ">>../$short_name/src/Makefile.am");
-print MYFILE "$makefile_dot_am";
+`rm ../$short_name/Makefile`;
+open (MYFILE, ">>../$short_name/Makefile");
+print MYFILE "$makefile_text";
 close (MYFILE); 
 
 `rm ../$short_name/src/meta.h`;
