@@ -32,15 +32,14 @@ GNU General Public License for more details.
 #include <sndfile.h>
 #include <quuid.h>
 #include "dssi.h"
+#include <QFont>
 
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/SM/SMlib.h>
-#include <QApplication>
-#include <QString>
-#include <QFont>
+
 
 static int handle_x11_error(Display *dpy, XErrorEvent *err)
 {
@@ -574,13 +573,20 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 void SamplerGUI::setSampleFile(QString files)
 {
     m_suppressHostUpdate = true;
-        
+
+    cerr << "Calling SamplerGUI::setSampleFile\n";
+    
     m_files = files;    
     
     QStringList f_file_list = files.split(QString(LMS_FILES_STRING_DELIMITER));
     
     for(int f_i = 0; f_i < f_file_list.count(); f_i++)
     {
+        if(!f_file_list[f_i].isEmpty())
+        {
+            cerr << "Setting " << f_file_list[f_i] << " at index " << f_i << "\n";
+        }
+        
         QTableWidgetItem * f_item = new QTableWidgetItem();
         f_item->setText(f_file_list[f_i]);
         f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
@@ -1376,7 +1382,8 @@ int SamplerGUI::i_get_control(int port)
             case LMS_LFO_TYPE: return m_lfo->lms_type_combobox->lms_get_value();
             case LMS_LFO_AMP: return m_lfo_amp->lms_get_value();
             case LMS_LFO_PITCH: return m_lfo_pitch->lms_get_value();
-            case LMS_LFO_FILTER: return m_lfo_cutoff->lms_get_value();    
+            case LMS_LFO_FILTER: return m_lfo_cutoff->lms_get_value();
+            default: cerr << "i_get_control called with invalid port " << port << "\n"; return 0;
         }    
     }
     else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
@@ -1398,6 +1405,7 @@ int SamplerGUI::i_get_control(int port)
     else
     {
         cerr << "i_get_control called with invalid port " << port << "\n";
+        return 0;
     }
 }
 
@@ -1460,7 +1468,7 @@ int configure_handler(const char *path, const char *types, lo_arg **argv,
     const char *key = (const char *)&argv[0]->s;
     const char *value = (const char *)&argv[1]->s;
 
-    cerr << "GUI configure_handler:  Key:  " << QString(key) << " , Value:" << QString(value);
+    cerr << "GUI configure_handler:  Key:  " << QString::fromLocal8Bit(key) << " , Value:" << QString::fromLocal8Bit(value);
     
     if (!strcmp(key, "load")) {
 	gui->setSampleFile(QString::fromLocal8Bit(value));
