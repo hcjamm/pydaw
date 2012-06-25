@@ -10,6 +10,8 @@
 #ifndef VOICE_H
 #define	VOICE_H
 
+#define VOICES_MAX_MIDI_NOTE_NUMBER 128
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -50,6 +52,7 @@ typedef struct st_voc_voices
     t_voc_single_voice * voices;
     int count;
     int iterator;
+    int note_ons[VOICES_MAX_MIDI_NOTE_NUMBER];  //will be 1 for note_on, zero for note_off
 }t_voc_voices;
 
 t_voc_voices * g_voc_get_voices(int);
@@ -71,15 +74,36 @@ t_voc_voices * g_voc_get_voices(int a_count)
         f_result->voices[f_i] = g_voc_get_single_voice(f_i);   
         f_i++;
     }
+    
+    f_i = 0;
+    
+    while(f_i < VOICES_MAX_MIDI_NOTE_NUMBER)
+    {
+        f_result->note_ons[f_i] = 0;
+        f_i++;
+    }    
         
     return f_result;
 }
 
-/*libmodsynth comment:  *data is an array of voices in an LMS struct,
- iterate through them for a free voice, or if one cannot be found,
- pick the highest voice*/
+/* int i_pick_voice(
+ * t_voc_voices *data, 
+ * int a_current_note)
+ * 
+ * You must check whether the function returns -1(duplicate note), if so, do not attempt to fire off a voice. 
+ */
 int i_pick_voice(t_voc_voices *data, int a_current_note)
 {   
+    /*Note is already on, discard this event*/
+    if((data->note_ons[a_current_note]) == 1)
+    {
+        return -1;
+    }
+    else
+    {
+        data->note_ons[a_current_note] == 1;
+    }
+    
     data->iterator = 0;
     /* Look for an inactive voice */
     while ((data->iterator) < (data->count)) {
@@ -146,6 +170,10 @@ int i_pick_voice(t_voc_voices *data, int a_current_note)
  */
 void v_voc_note_off(t_voc_voices * a_voc, int a_note)
 {
+    /* It may be worthwhile to check that the note isn't already off, however, this is mostly for preventing stuck notes, 
+     so I'd rather release an envelope twice than risk not releasing it by dropping an event */
+    a_voc->note_ons[a_note] == 0;
+    
     a_voc->iterator = 0;
     
     while((a_voc->iterator) < (a_voc->count))
