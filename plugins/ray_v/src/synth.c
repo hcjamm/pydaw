@@ -364,6 +364,12 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                     
 		    const int voice = i_pick_voice(plugin_data->voices, n.note);
                     
+                    if(voice == -1)
+                    {
+                        //Skip this note-on, there's already been one for this note since the last note-off
+                        continue;
+                    }
+                    
 		    plugin_data->data[voice]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + (plugin_data->vals.master_vol)), //-20db to 0db, + master volume (0 to -60)
                             plugin_data->mono_modules->amp_ptr); 
                     v_svf_velocity_mod(plugin_data->data[voice]->svf_filter, n.velocity);
