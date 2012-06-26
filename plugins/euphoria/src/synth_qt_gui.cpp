@@ -97,6 +97,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     
     m_handle_control_updates = true;
     m_creating_instrument_file = FALSE;
+    m_suppress_selected_sample_changed = FALSE;
     
     LMS_style_info * a_style = new LMS_style_info(64);
     //a_style->LMS_set_value_style("")
@@ -553,6 +554,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         }
 
         m_sample_view_extra_controls_gridview->addWidget(m_selected_sample_index_combobox, 1, 0, 1, 1);
+        
+        connect(m_selected_sample_index_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(viewSampleSelectedIndexChanged(int)));
 
         m_selected_sample_index_label = new QLabel(m_view_sample_tab);
         m_selected_sample_index_label->setObjectName(QString::fromUtf8("m_selected_sample_index_label"));
@@ -729,6 +732,17 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_suppressHostUpdate = false;
 }
 
+void SamplerGUI::viewSampleSelectedIndexChanged(int a_index)
+{
+    if(m_suppress_selected_sample_changed)
+    {
+        return;
+    }
+        
+    QRadioButton * f_radio_button = (QRadioButton*)m_sample_table->lms_mod_matrix->cellWidget(a_index , SMP_TB_RADIOBUTTON_INDEX);    
+    f_radio_button->click();    
+}
+
 void SamplerGUI::sampleStartChanged(int a_value)
 {
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);    
@@ -802,11 +816,14 @@ void SamplerGUI::fileSelect()
         }
         QStringList f_path_sections = path.split(QString("/"));
         
+        m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
+        
+        m_suppress_selected_sample_changed = TRUE;
         m_selected_sample_index_combobox->removeItem((m_sample_table->lms_selected_column));
         m_selected_sample_index_combobox->insertItem((m_sample_table->lms_selected_column), f_path_sections.at((f_path_sections.count() - 1)));
         m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));
+        m_suppress_selected_sample_changed = FALSE;
         
-        m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
         m_sample_graph->generatePreview(path, (m_sample_table->lms_selected_column));
         
         QTableWidgetItem * f_item = new QTableWidgetItem();
@@ -886,7 +903,17 @@ void SamplerGUI::reloadSample()
 
 void SamplerGUI::selectionChanged()
 {
-    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);   
+    if(m_suppress_selected_sample_changed)
+    {
+        return;
+    }
+    
+    m_suppress_selected_sample_changed = TRUE;
+    
+    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
+    m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));    
+    m_suppress_selected_sample_changed = FALSE;
+        
     m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));
     m_sample_graph->indexChanged((m_sample_table->lms_selected_column));
     

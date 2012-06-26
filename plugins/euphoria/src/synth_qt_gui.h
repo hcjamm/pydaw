@@ -127,6 +127,7 @@ public slots:
     void openInstrumentFromFile();
     void sampleStartChanged(int);
     void sampleEndChanged(int);
+    void viewSampleSelectedIndexChanged(int);
     
     //From Ray-V PolyFX
     void setAttack (float);
@@ -346,7 +347,7 @@ protected slots:
     //End from Ray-V
 
 protected:
-    
+    bool m_suppress_selected_sample_changed;
     //From Ray-V PolyFX
     
     LMS_main_layout * m_main_layout;
