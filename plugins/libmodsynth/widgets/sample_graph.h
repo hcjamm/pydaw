@@ -12,10 +12,12 @@
 
 #include <QPixmap>
 #include <QPainter>
-#include <QMessageBox>
+#include <QLabel>
+#include <QWidget>
 #include <QList>
 #include <sndfile.h>
 #include <math.h>
+#include <QSize>
 
 class LMS_sample_graph
 {
@@ -30,7 +32,9 @@ public:
                 
         m_sample_graph = new QLabel(a_parent);
         m_sample_graph->setObjectName(QString::fromUtf8("m_sample_graph"));
-        m_sample_graph->setMinimumSize(QSize(0, 200));
+        m_sample_graph->setMinimumSize(QSize(a_graph_width, a_graph_height));
+        m_sample_graph->setMaximumSize(QSize(a_graph_width, a_graph_height));
+        m_sample_graph->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         m_sample_graph->setStyleSheet(QString::fromUtf8("QLabel {background-color: white;};"));
         m_sample_graph->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
         
@@ -55,115 +59,105 @@ public:
     int lms_max_sample_size;
        
 
-    void generatePreview(QString path, int a_index)
+    void generatePreview(QString path, int a_index)  
     {
-        if(a_index > lms_graph_count)
-        {
-            //std::cout << "a_index is greater than lms_graph_count, NOT generating a sample graph\n";
-        }
-        
-        lms_graphs[a_index].fill();
+    SF_INFO info;
+    SNDFILE *file;
+    QPixmap pmap(lms_graph_width, lms_graph_height);
+    pmap.fill();
 
-        if (!path.isEmpty()) {
+    info.format = 0;
+    file = sf_open(path.toLocal8Bit(), SFM_READ, &info);
 
-            SF_INFO info;
-            SNDFILE *file;
+    if (file && info.frames > 0) {
 
-            info.format = 0;
-            file = sf_open(path.toLocal8Bit(), SFM_READ, &info);
+        float binSize = (float)info.frames / lms_graph_width;
+        float peak[2] = { 0.0f, 0.0f }, mean[2] = { 0.0f, 0.0f };
+        float *frame = (float *)malloc(info.channels * sizeof(float));
+        int bin = 0;
 
-            if (!file) {
-                QMessageBox::warning
-                    (lms_parent, "Couldn't load audio file",
-                    QString("Couldn't load audio sample file '%1'").arg(path),
-                    QMessageBox::Ok, 0);
-                return;
+        QPainter paint(&pmap);
+
+        for (size_t i = 0; i < info.frames; ++i) {
+
+            sf_readf_float(file, frame, 1);
+
+            if (fabs(frame[0]) > peak[0]) peak[0] = fabs(frame[0]);
+            mean[0] += fabs(frame[0]);
+
+            if (info.channels > 1) {
+                if (fabs(frame[1]) > peak[1]) peak[1] = fabs(frame[1]);
+                mean[1] += fabs(frame[1]);
             }
 
-            if (info.frames > lms_max_sample_size) {
-                QMessageBox::warning
-                    (lms_parent, "Couldn't use audio file",
-                    QString("Audio sample file '%1' is too large (%2 frames, maximum is %3)").arg(path).arg((int)info.frames).arg(lms_max_sample_size),
-                    QMessageBox::Ok, 0);
-                sf_close(file);
-                return;
-            } else {  /*Success*/
-                //sf_close(file);
-                info.format = 0;
-                file = sf_open(path.toLocal8Bit(), SFM_READ, &info);
+            if (i == size_t((bin + 1) * binSize)) {
 
-                if (file && info.frames > 0) {
+                float silent = 1.0 / float(lms_graph_height);
 
-                    float binSize = (float)info.frames / lms_graph_width;
-                    float peak[2] = { 0.0f, 0.0f }, mean[2] = { 0.0f, 0.0f };
-                    float *frame = (float *)malloc(info.channels * sizeof(float));
-                    int bin = 0;
-
-                    QPainter paint(&(lms_graphs[a_index]));
-
-                    for (size_t i = 0; i < info.frames; ++i) {
-
-                        sf_readf_float(file, frame, 1);
-
-                        if (fabs(frame[0]) > peak[0]) peak[0] = fabs(frame[0]);
-                        mean[0] += fabs(frame[0]);
-
-                        if (info.channels > 1) {
-                            if (fabs(frame[1]) > peak[1]) peak[1] = fabs(frame[1]);
-                            mean[1] += fabs(frame[1]);
-                        }
-
-                        if (i == size_t((bin + 1) * binSize)) {
-
-                            float silent = 1.0 / float(lms_graph_height);
-
-                            if (info.channels == 1) {
-                                mean[1] = mean[0];
-                                peak[1] = peak[0];
-                            }
-
-                            mean[0] /= binSize;
-                            mean[1] /= binSize;
-
-                            int m = lms_graph_height / 2;
-
-                            paint.setPen(Qt::black);
-                            paint.drawLine(bin, m, bin, int(m - m * peak[0]));
-                            if (peak[0] > silent && peak[1] > silent) {
-                                paint.drawLine(bin, m, bin, int(m + m * peak[1]));
-                            }
-
-                            paint.setPen(Qt::gray);
-                            paint.drawLine(bin, m, bin, int(m - m * mean[0]));
-                            if (mean[0] > silent && mean[1] > silent) {
-                                paint.drawLine(bin, m, bin, int(m + m * mean[1]));
-                            }
-
-                            paint.setPen(Qt::black);
-                            paint.drawPoint(bin, int(m - m * peak[0]));
-                            if (peak[0] > silent && peak[1] > silent) {
-                                paint.drawPoint(bin, int(m + m * peak[1]));
-                            }
-
-                            mean[0] = mean[1] = 0.0f;
-                            peak[0] = peak[1] = 0.0f;
-
-                            ++bin;
-                        }
-                    }
-
-                    lms_durations[a_index] = int(100.0 * float(info.frames) / float(info.samplerate));
-
-                    m_sample_counts[a_index] = info.frames;
+                if (info.channels == 1) {
+                    mean[1] = mean[0];
+                    peak[1] = peak[0];
                 }
 
-                //m_sample_graph->setPixmap(lms_graphs[a_index]);
+                mean[0] /= binSize;
+                mean[1] /= binSize;
 
-                //if (file) sf_close(file);
+                int m = lms_graph_height / 2;
 
+                paint.setPen(Qt::black);
+                paint.drawLine(bin, m, bin, int(m - m * peak[0]));
+                if (peak[0] > silent && peak[1] > silent) {
+                    paint.drawLine(bin, m, bin, int(m + m * peak[1]));
                 }
-        }        
+
+                paint.setPen(Qt::gray);
+                paint.drawLine(bin, m, bin, int(m - m * mean[0]));
+                if (mean[0] > silent && mean[1] > silent) {
+                    paint.drawLine(bin, m, bin, int(m + m * mean[1]));
+                }
+
+                paint.setPen(Qt::black);
+                paint.drawPoint(bin, int(m - m * peak[0]));
+                if (peak[0] > silent && peak[1] > silent) {
+                    paint.drawPoint(bin, int(m + m * peak[1]));
+                }
+
+                mean[0] = mean[1] = 0.0f;
+                peak[0] = peak[1] = 0.0f;
+
+                ++bin;
+            }
+        }
+
+        //int duration = int(100.0 * float(info.frames) / float(info.samplerate));
+        //std::cout << "duration " << duration << std::endl;
+        
+        /*m_duration->setText(QString("%1.%2%3 sec")
+                            .arg(duration / 100)
+                            .arg((duration / 10) % 10)
+                            .arg((duration % 10)));
+        m_sampleRate->setText(QString("%1 Hz")
+                            .arg(info.samplerate));
+        m_channels->setText(info.channels > 1 ? (m_balance ? "stereo" : "stereo (to mix)") : "mono");
+        if (m_balanceLabel) {
+            m_balanceLabel->setText(info.channels == 1 ? "Pan:  " : "Balance:  ");
+        }
+
+        } else {
+            m_duration->setText("0.00 sec");
+            m_sampleRate->setText("");
+            m_channels->setText("");
+        }*/
+
+        if (file) sf_close(file);
+
+        lms_graphs[a_index] =  pmap;
+
+        m_sample_graph->setPixmap(pmap);
+
+        }
     }
+
 
     void indexChanged(int a_index)
     {
