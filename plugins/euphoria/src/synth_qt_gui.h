@@ -421,11 +421,11 @@ protected:
     QLabel *m_selected_sample_index_label;
     QSpacerItem *m_sample_view_extra_controls_right_hspacer;
     QHBoxLayout *m_sample_view_file_select_hlayout;
-    QSpacerItem *m_sample_view_file_select_left_hspacer;
-    QLabel *m_LMS_file_select_placeholder;
+    QSpacerItem *m_sample_view_file_select_left_hspacer;    
     QSpacerItem *m_sample_view_file_select_right_hspacer;
     QSpacerItem *m_view_sample_tab_lower_vspacer;
 
+    LMS_file_select * m_view_file_selector;
     
     //end m_view_sample_tab
     

@@ -492,20 +492,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_sample_graph_hlayout->addItem(m_sample_graph_left_hspacer);
 
-        /*
-        m_sample_graph_label = new QLabel(m_view_sample_tab);
-        m_sample_graph_label->setObjectName(QString::fromUtf8("m_sample_graph_label"));
-        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(m_sample_graph_label->sizePolicy().hasHeightForWidth());
-        m_sample_graph_label->setSizePolicy(sizePolicy);
-        m_sample_graph_label->setMinimumSize(QSize(800, 300));
-        m_sample_graph_label->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
-
-        m_sample_graph_hlayout->addWidget(m_sample_graph_label);
-        m_sample_graph_label->setText(QApplication::translate("MainWindow", "Sample Graph", 0, QApplication::UnicodeUTF8));
-        */
+        m_sample_graph = new LMS_sample_graph(LMS_MAX_SAMPLE_COUNT, 400, 800, m_view_sample_tab);
+        m_sample_graph_hlayout->addWidget(m_sample_graph->m_sample_graph);
+        
         
         m_sample_graph_right_hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -581,10 +570,11 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_sample_view_file_select_hlayout->addItem(m_sample_view_file_select_left_hspacer);
 
-        m_LMS_file_select_placeholder = new QLabel(m_view_sample_tab);
-        m_LMS_file_select_placeholder->setObjectName(QString::fromUtf8("m_LMS_file_select_placeholder"));
+        m_view_file_selector = new LMS_file_select(m_view_sample_tab);
 
-        m_sample_view_file_select_hlayout->addWidget(m_LMS_file_select_placeholder);
+        m_sample_view_file_select_hlayout->addLayout(m_view_file_selector->lms_layout);
+        
+        //TODO:  connect the signals and slots
 
         m_sample_view_file_select_right_hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -596,10 +586,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_view_sample_tab_lower_vspacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         m_view_sample_tab_main_vlayout->addItem(m_view_sample_tab_lower_vspacer);
-
         
         m_selected_sample_index_label->setText(QApplication::translate("MainWindow", "Selected Sample", 0, QApplication::UnicodeUTF8));
-        m_LMS_file_select_placeholder->setText(QApplication::translate("MainWindow", "m_LMS_file_select_placeholder", 0, QApplication::UnicodeUTF8));
+        
 
         
         //end m_view_sample_tab
