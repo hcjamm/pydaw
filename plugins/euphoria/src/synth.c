@@ -186,6 +186,14 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     {
         plugin->sample_vol[(port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)] = data;
     }
+    else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
+    {
+        plugin->sample_vol[(port - LMS_SAMPLE_START_PORT_RANGE_MIN)] = data;
+    }
+    else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
+    {
+        plugin->sample_vol[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)] = data;
+    }
 }
 
 static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
@@ -973,8 +981,7 @@ void _init()
 	    port_range_hints[Sampler_OUTPUT_RIGHT].HintDescriptor = 0;
 	}
         
-        //Begin Ray-V PolyFX ports
-        
+        //Begin Ray-V PolyFX ports        
         
 	/* Parameters for attack */
 	port_descriptors[LMS_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1252,6 +1259,26 @@ void _init()
             f_i++;
         }
 
+        while(f_i < LMS_SAMPLE_START_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Sample Start";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;
+            
+            f_i++;
+        }
+        
+        while(f_i < LMS_SAMPLE_END_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Sample Start";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;
+            
+            f_i++;
+        }
+        
 	desc->activate = activateSampler;
 	desc->cleanup = cleanupSampler;
 	desc->connect_port = connectPortSampler;

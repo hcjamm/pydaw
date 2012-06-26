@@ -112,6 +112,9 @@ public:
     void lms_set_value(float, LMS_control *);
     
     //End from Ray-V
+        
+    int m_sample_starts[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  0 == the very start of the sample, 10000 == the very end
+    int m_sample_ends[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  READ CAREFULLY:  0 == the very end of the sample, 10000 == the very beginning (IT'S INVERTED)
     
 public slots:
     void setSampleFile(QString file);
@@ -122,6 +125,8 @@ public slots:
     void moveSamplesToSingleDirectory();
     void saveInstrumentToSingleFile();
     void openInstrumentFromFile();
+    void sampleStartChanged(int);
+    void sampleEndChanged(int);
     
     //From Ray-V PolyFX
     void setAttack (float);
