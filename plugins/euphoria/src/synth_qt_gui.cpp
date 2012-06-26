@@ -546,6 +546,11 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_selected_sample_index_combobox->setSizePolicy(sizePolicy1);
         m_selected_sample_index_combobox->setMinimumSize(QSize(160, 0));
         m_selected_sample_index_combobox->setMaximumSize(QSize(160, 16777215));
+        
+        for(int f_i = 0; f_i < LMS_MAX_SAMPLE_COUNT; f_i++)
+        {
+            m_selected_sample_index_combobox->addItem(QString(""));
+        }
 
         m_sample_view_extra_controls_gridview->addWidget(m_selected_sample_index_combobox, 1, 0, 1, 1);
 
@@ -588,7 +593,12 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_view_sample_tab_main_vlayout->addItem(m_view_sample_tab_lower_vspacer);
         
         m_selected_sample_index_label->setText(QApplication::translate("MainWindow", "Selected Sample", 0, QApplication::UnicodeUTF8));
-        
+
+        for(int f_i = 0; f_i < LMS_MAX_SAMPLE_COUNT; f_i++)
+        {
+            m_sample_starts[f_i] = 0;
+            m_sample_ends[f_i] = 0;
+        }
 
         
         //end m_view_sample_tab
@@ -715,6 +725,26 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_suppressHostUpdate = false;
 }
 
+void SamplerGUI::sampleStartChanged(int a_value)
+{
+        m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);    
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) {        
+	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_START_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(a_value));
+    }
+#endif    
+}
+
+void SamplerGUI::sampleEndChanged(int a_value)
+{
+    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);    
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) {        
+	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_END_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(a_value));
+    }
+#endif    
+}
+
 void SamplerGUI::setSampleFile(QString files)
 {
     m_suppressHostUpdate = true;
@@ -759,12 +789,18 @@ void SamplerGUI::fileSelect()
     
     if(!path.isEmpty())
     {
+        if(!QFile::exists(path))
+        {
+            QMessageBox::warning(this, QString("Error"), QString("File cannot be read."));
+            return;
+        }
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
+        m_sample_graph->generatePreview(path, (m_sample_table->lms_selected_column));
         
         QTableWidgetItem * f_item = new QTableWidgetItem();
         f_item->setText(path);
         f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-        m_sample_table->lms_mod_matrix->setItem(m_sample_table->lms_selected_column, SMP_TB_FILE_PATH_INDEX, f_item);
+        m_sample_table->lms_mod_matrix->setItem((m_sample_table->lms_selected_column), SMP_TB_FILE_PATH_INDEX, f_item);
         m_sample_table->lms_mod_matrix->resizeColumnsToContents();
         
         generate_files_string();
@@ -804,10 +840,12 @@ void SamplerGUI::clearFile()
         lo_send(m_host, m_configurePath, "ss", "clear", path.toLocal8Bit().data());
 #endif
     
+    m_sample_graph->clearPixmap((m_sample_table->lms_selected_column));
+    
     QTableWidgetItem * f_item = new QTableWidgetItem();
     f_item->setText(path);
     f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-    m_sample_table->lms_mod_matrix->setItem(m_sample_table->lms_selected_column, SMP_TB_FILE_PATH_INDEX, f_item);
+    m_sample_table->lms_mod_matrix->setItem((m_sample_table->lms_selected_column), SMP_TB_FILE_PATH_INDEX, f_item);
     m_file_selector->clear_button_pressed();
     
     generate_files_string();
@@ -835,7 +873,8 @@ void SamplerGUI::reloadSample()
 
 void SamplerGUI::selectionChanged()
 {
-    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);    
+    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);   
+    m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if", Sampler_SELECTED_SAMPLE, (float)(m_sample_table->lms_selected_column));
@@ -1704,6 +1743,18 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_suppressHostUpdate = TRUE;
         gui->m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[f_value]->lms_set_value(value);
         gui->m_suppressHostUpdate = FALSE;
+    }
+    else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_SAMPLE_START_PORT_RANGE_MIN;
+        //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
+        gui->m_sample_starts[f_value] = (int)value;
+    }
+    else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_SAMPLE_END_PORT_RANGE_MIN;
+        //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
+        gui->m_sample_ends[f_value] = (int)value;
     }
     else
     {

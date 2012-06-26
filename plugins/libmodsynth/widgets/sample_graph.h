@@ -49,8 +49,8 @@ public:
         
     QWidget * lms_parent;
     QList <QPixmap> lms_graphs;
-    QList <int> lms_durations;   //TODO: get rid of this
-    QList <int> m_sample_counts;
+    QList <float> lms_durations;   //TODO: implement this
+    QList <int> m_sample_counts; //TODO: implement this
     QLabel * m_sample_graph;
     int lms_graph_count;
     int lms_graph_height;
@@ -161,6 +161,20 @@ public:
         m_sample_graph->setPixmap(lms_graphs[a_index]);
     }
     
+    void clearPixmap(int a_index)
+    {
+        QPixmap * f_pixmap = new QPixmap();
+        f_pixmap->fill();
+                
+        lms_graphs.removeAt(a_index);
+        lms_graphs.insert(a_index, *f_pixmap);
+        
+        lms_durations.removeAt(a_index);
+        lms_durations.insert(a_index, 0);
+        
+        m_sample_counts.removeAt(a_index);
+        m_sample_counts.insert(a_index, 0);
+    }
     
 };
 
