@@ -54,7 +54,6 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/lms_file_select.h"
 #include "ports.h"
 
-#include "../../libmodsynth/widgets/presets.h"
 #include "../../libmodsynth/widgets/group_box.h"
 #include "../../libmodsynth/widgets/lms_combobox.h"
 #include "../../libmodsynth/widgets/lms_main_layout.h"
@@ -64,6 +63,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/ui_modules/ramp_env.h"
 #include "../../libmodsynth/widgets/ui_modules/lfo.h"
 #include "../../libmodsynth/widgets/ui_modules/master.h"
+#include "../../libmodsynth/widgets/sample_graph.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -365,6 +365,7 @@ protected:
         
     LMS_group_box * m_groupbox_noise;
     LMS_knob_regular *m_noise_amp;
+    LMS_sample_graph *m_sample_graph;
     
     //End from Ray-V
     
