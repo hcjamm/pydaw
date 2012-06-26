@@ -396,6 +396,38 @@ protected:
     QWidget *m_smp_tab_scrollAreaWidgetContents;
     QHBoxLayout *horizontalLayout;
     QWidget *m_poly_fx_tab;
+    QWidget *m_view_sample_tab;
+    
+    //m_view_sample_tab
+    
+    //QWidget *verticalLayoutWidget;
+    QVBoxLayout *m_view_sample_tab_main_vlayout;
+    QHBoxLayout *m_sample_start_hlayout;
+    QSpacerItem *m_sample_start_left_hspacer;
+    QSlider *m_sample_start_hslider;
+    QSpacerItem *m_sample_start_right_hspacer;
+    QHBoxLayout *m_sample_graph_hlayout;
+    QSpacerItem *m_sample_graph_left_hspacer;
+    QLabel *m_sample_graph_label;
+    QSpacerItem *m_sample_graph_right_hspacer;
+    QHBoxLayout *m_sample_end_hlayout;
+    QSpacerItem *m_sample_end_left_hspacer;
+    QSlider *m_sample_end_hslider;
+    QSpacerItem *m_sample_end_right_hspacer;
+    QHBoxLayout *m_sample_view_select_sample_hlayout;
+    QSpacerItem *m_sample_view_extra_controls_left_hspacer;
+    QGridLayout *m_sample_view_extra_controls_gridview;
+    QComboBox *m_selected_sample_index_combobox;
+    QLabel *m_selected_sample_index_label;
+    QSpacerItem *m_sample_view_extra_controls_right_hspacer;
+    QHBoxLayout *m_sample_view_file_select_hlayout;
+    QSpacerItem *m_sample_view_file_select_left_hspacer;
+    QLabel *m_LMS_file_select_placeholder;
+    QSpacerItem *m_sample_view_file_select_right_hspacer;
+    QSpacerItem *m_view_sample_tab_lower_vspacer;
+
+    
+    //end m_view_sample_tab
     
     lo_address m_host;
     QByteArray m_controlPath;
