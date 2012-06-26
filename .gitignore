@@ -25,7 +25,6 @@ tools/jack-dssi-host/jack-dssi-host
 *libtool
 *ltmain.sh
 *missing
-*stamp-h1
 *.orig
 *Makefile.in
 *install-sh
@@ -34,9 +33,8 @@ tools/jack-dssi-host/jack-dssi-host
 *.moc.cpp
 *.patch
 *deps_installed.txt
-*config.h
-*configure
 *_qt
-*dist
-*description-pak
 */build/*
+tools/jack-dssi-host/config.h
+tools/jack-dssi-host/configure
+tools/jack-dssi-host/stamp-h1
