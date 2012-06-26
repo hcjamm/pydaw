@@ -22,12 +22,11 @@
 class LMS_sample_graph
 {
 public:
-    LMS_sample_graph(int a_count, int a_graph_height, int a_graph_width, QWidget * a_parent, int a_max_sample_size)
+    LMS_sample_graph(int a_count, int a_graph_height, int a_graph_width, QWidget * a_parent)
     {
         lms_graph_height = a_graph_height;
         lms_graph_width = a_graph_width;
-        lms_graph_count = a_count;
-        lms_max_sample_size = a_max_sample_size;
+        lms_graph_count = a_count;        
         lms_parent = a_parent;
                 
         m_sample_graph = new QLabel(a_parent);
@@ -56,9 +55,7 @@ public:
     int lms_graph_count;
     int lms_graph_height;
     int lms_graph_width;
-    int lms_max_sample_size;
-       
-
+    
     void generatePreview(QString path, int a_index)  
     {
     SF_INFO info;
