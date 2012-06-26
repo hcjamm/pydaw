@@ -576,10 +576,14 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_view_file_select_hlayout->addItem(m_sample_view_file_select_left_hspacer);
 
         m_view_file_selector = new LMS_file_select(m_view_sample_tab);
+        m_view_file_selector->lms_file_path->setMinimumWidth(400);
 
         m_sample_view_file_select_hlayout->addLayout(m_view_file_selector->lms_layout);
         
-        //TODO:  connect the signals and slots
+        connect(m_view_file_selector->lms_open_button, SIGNAL(pressed()), this, SLOT(fileSelect()));
+        connect(m_view_file_selector->lms_clear_button, SIGNAL(pressed()), this, SLOT(clearFile()));
+        connect(m_view_file_selector->lms_open_in_editor_button, SIGNAL(pressed()), this, SLOT(openInEditor()));
+        connect(m_view_file_selector->lms_reload_button, SIGNAL(pressed()), this, SLOT(reloadSample()));
 
         m_sample_view_file_select_right_hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -787,6 +791,8 @@ void SamplerGUI::fileSelect()
     
     QString path = m_file_selector->open_button_pressed(this);
     
+    m_view_file_selector->lms_set_file(m_file_selector->lms_get_file());
+    
     if(!path.isEmpty())
     {
         if(!QFile::exists(path))
@@ -794,6 +800,12 @@ void SamplerGUI::fileSelect()
             QMessageBox::warning(this, QString("Error"), QString("File cannot be read."));
             return;
         }
+        QStringList f_path_sections = path.split(QString("/"));
+        
+        m_selected_sample_index_combobox->removeItem((m_sample_table->lms_selected_column));
+        m_selected_sample_index_combobox->insertItem((m_sample_table->lms_selected_column), f_path_sections.at((f_path_sections.count() - 1)));
+        m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));
+        
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
         m_sample_graph->generatePreview(path, (m_sample_table->lms_selected_column));
         
@@ -847,6 +859,7 @@ void SamplerGUI::clearFile()
     f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
     m_sample_table->lms_mod_matrix->setItem((m_sample_table->lms_selected_column), SMP_TB_FILE_PATH_INDEX, f_item);
     m_file_selector->clear_button_pressed();
+    m_view_file_selector->clear_button_pressed();
     
     generate_files_string();
     
@@ -875,6 +888,8 @@ void SamplerGUI::selectionChanged()
 {
     m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);   
     m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));
+    m_sample_graph->indexChanged((m_sample_table->lms_selected_column));
+    
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if", Sampler_SELECTED_SAMPLE, (float)(m_sample_table->lms_selected_column));
@@ -882,6 +897,7 @@ void SamplerGUI::selectionChanged()
 #endif    
     
     m_file_selector->lms_set_file(m_sample_table->lms_mod_matrix->item(m_sample_table->lms_selected_column, SMP_TB_FILE_PATH_INDEX)->text());
+    m_view_file_selector->lms_set_file(m_sample_table->lms_mod_matrix->item(m_sample_table->lms_selected_column, SMP_TB_FILE_PATH_INDEX)->text());
     
 }
 
@@ -1443,6 +1459,14 @@ void SamplerGUI::v_set_control(int port, float a_value)
     {
         ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[(port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
     }
+    else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
+    {
+        m_sample_starts[(port - LMS_SAMPLE_START_PORT_RANGE_MIN)] = a_value;
+    }
+    else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
+    {
+        m_sample_ends[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)] = a_value;
+    }
     else
     {
         cerr << "v_set_control called with invalid port " << port << "\n";
@@ -1513,6 +1537,7 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
     {
         sample_volChanged((port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN));
     }
+    //TODO:  How best to implement the sample_start/sample_end controls?
     else
     {
         cerr << "v_control_changed called with invalid port " << port << "\n";
@@ -1577,6 +1602,14 @@ int SamplerGUI::i_get_control(int port)
     else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX))
     {
         return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[(port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)]->lms_get_widget()))->value();
+    }    
+    else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
+    {
+        return m_sample_starts[(port - LMS_SAMPLE_START_PORT_RANGE_MIN)];
+    }        
+    else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
+    {
+        return m_sample_ends[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)];
     }
     else
     {
