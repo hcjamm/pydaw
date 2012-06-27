@@ -18,7 +18,9 @@
 //This separates port/value pairs
 #define LMS_FILE_PORT_VALUE_SEPARATOR ":"
 
-/**/
+/*Provide an arbitrary maximum number of samples the user can load*/
+#define LMS_MAX_SAMPLE_COUNT 32
+
 #define Sampler_Stereo_LABEL "Euphoria"
 
 #define Sampler_OUTPUT_LEFT 0
@@ -58,9 +60,6 @@
 #define LMS_LAST_CONTROL_PORT 27  //TODO:  Is this obsolete now with the below?
 #define LMS_COUNT 28 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
-/*Provide an arbitrary maximum number of samples the user can load*/
-#define LMS_MAX_SAMPLE_COUNT 32
-
 /*The first port to use when enumerating the ports for mod_matrix controls.  All of the mod_matrix ports should be sequential, 
  * any additional ports should prepend this port number*/
 #define LMS_FIRST_MOD_MATRIX_PORT 28
@@ -81,7 +80,13 @@
 #define LMS_SAMPLE_VOLUME_PORT_RANGE_MIN    LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX
 #define LMS_SAMPLE_VOLUME_PORT_RANGE_MAX    (LMS_SAMPLE_VOLUME_PORT_RANGE_MIN + LMS_MAX_SAMPLE_COUNT)
 
-#define Sampler_Stereo_COUNT                LMS_SAMPLE_VOLUME_PORT_RANGE_MAX
+#define LMS_SAMPLE_START_PORT_RANGE_MIN    LMS_SAMPLE_VOLUME_PORT_RANGE_MAX
+#define LMS_SAMPLE_START_PORT_RANGE_MAX    (LMS_SAMPLE_START_PORT_RANGE_MIN + LMS_MAX_SAMPLE_COUNT)
+
+#define LMS_SAMPLE_END_PORT_RANGE_MIN    LMS_SAMPLE_START_PORT_RANGE_MAX
+#define LMS_SAMPLE_END_PORT_RANGE_MAX    (LMS_SAMPLE_END_PORT_RANGE_MIN + LMS_MAX_SAMPLE_COUNT)
+
+#define Sampler_Stereo_COUNT                LMS_SAMPLE_END_PORT_RANGE_MAX
 
 #endif	/* PORTS_H */
 

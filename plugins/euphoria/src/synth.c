@@ -186,6 +186,14 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     {
         plugin->sample_vol[(port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)] = data;
     }
+    else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
+    {
+        plugin->sampleStarts[(port - LMS_SAMPLE_START_PORT_RANGE_MIN)] = data;
+    }
+    else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
+    {
+        plugin->sampleEnds[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)] = data;
+    }
 }
 
 static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
@@ -230,7 +238,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     while(f_i < Sampler_NOTES)
     {
         plugin_data->data[f_i] = g_poly_init(s_rate);
-        
+        plugin_data->sampleStarts[f_i] = 0;
+        plugin_data->sampleEnds[f_i] = 0;
         f_i++;
     }
     
@@ -316,7 +325,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 
     if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
 
-    for (i = 0, s = pos + plugin_data->sampleNo - plugin_data->ons[n];
+    for (i = 0, s = pos + plugin_data->sampleNo - plugin_data->ons[n] + plugin_data->sampleStartPos[plugin_data->current_sample];
 	 i < count;
 	 ++i, ++s) {
 
@@ -341,8 +350,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         if (plugin_data->basePitch[(plugin_data->current_sample)])
         {
             ratio =
-            f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]), 
-                    //((float)(n)), 
+            f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]),                     
                     ((plugin_data->data[n]->base_pitch) + (plugin_data->data[n]->lfo_pitch_output)),
                     plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
         }
@@ -350,7 +358,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 	float         rs = s * ratio;
 	unsigned long rsi = lrintf(floor(rs));
 
-	if (rsi >= plugin_data->sampleCount[(plugin_data->current_sample)]) {
+	if (rsi >=  plugin_data->sampleEndPos[plugin_data->current_sample]){ // plugin_data->sampleCount[(plugin_data->current_sample)]) {
 	    plugin_data->ons[n] = -1;
 	    break;
 	}
@@ -435,7 +443,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
     for (i = 0; i < plugin_data->channels; ++i) {
 	memset(plugin_data->output[i], 0, sample_count * sizeof(float));
     }
-
+    
     if (pthread_mutex_trylock(&plugin_data->mutex)) {
 	return;
     }
@@ -584,6 +592,11 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                             (i <= *(plugin_data->high_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])))
                     {
                         plugin_data->current_sample = (plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]);
+                        
+                        plugin_data->sampleStartPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleStarts[(plugin_data->current_sample)])) * .0001);
+                        plugin_data->sampleEndPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) - ((plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleEnds[(plugin_data->current_sample)])) * .0001));
+
+                        
                         addSample(plugin_data, i, pos, count);
                     }
 
@@ -973,8 +986,7 @@ void _init()
 	    port_range_hints[Sampler_OUTPUT_RIGHT].HintDescriptor = 0;
 	}
         
-        //Begin Ray-V PolyFX ports
-        
+        //Begin Ray-V PolyFX ports        
         
 	/* Parameters for attack */
 	port_descriptors[LMS_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1252,6 +1264,26 @@ void _init()
             f_i++;
         }
 
+        while(f_i < LMS_SAMPLE_START_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Sample Start";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;
+            
+            f_i++;
+        }
+        
+        while(f_i < LMS_SAMPLE_END_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Sample Start";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;
+            
+            f_i++;
+        }
+        
 	desc->activate = activateSampler;
 	desc->cleanup = cleanupSampler;
 	desc->connect_port = connectPortSampler;
