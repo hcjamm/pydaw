@@ -40,7 +40,9 @@ typedef struct {
     LADSPA_Data *basePitch[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *low_note[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *high_note[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_vol[LMS_MAX_SAMPLE_COUNT];        
+    LADSPA_Data *sample_vol[LMS_MAX_SAMPLE_COUNT];     
+    LADSPA_Data *sampleStarts[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sampleEnds[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *selected_sample;
     
     //From Ray-V
@@ -88,7 +90,9 @@ typedef struct {
     int         i_selected_sample;
     int          channels;
     float       *sampleData[2][LMS_MAX_SAMPLE_COUNT];
-    size_t       sampleCount[LMS_MAX_SAMPLE_COUNT];
+    size_t       sampleCount[LMS_MAX_SAMPLE_COUNT];        
+    float       sampleStartPos[LMS_MAX_SAMPLE_COUNT];         
+    float       sampleEndPos[LMS_MAX_SAMPLE_COUNT];
     
     int loaded_samples[LMS_MAX_SAMPLE_COUNT];
     int loaded_samples_count;
@@ -105,7 +109,7 @@ typedef struct {
     char         velocities[Sampler_NOTES];
     long         sampleNo;
     char        *projectDir;
-    char*       sample_paths[LMS_MAX_SAMPLE_COUNT];
+    char*       sample_paths[LMS_MAX_SAMPLE_COUNT];    
     char*       sample_files;
     pthread_mutex_t mutex;
     t_mono_modules * mono_modules;
