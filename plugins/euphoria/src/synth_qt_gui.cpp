@@ -749,6 +749,8 @@ void SamplerGUI::viewSampleSelectedIndexChanged(int a_index)
 void SamplerGUI::sampleStartChanged(int a_value)
 {
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);    
+        
+        m_sample_starts[(m_sample_table->lms_selected_column)] = a_value;
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_START_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(a_value));
@@ -759,6 +761,8 @@ void SamplerGUI::sampleStartChanged(int a_value)
 void SamplerGUI::sampleEndChanged(int a_value)
 {
     m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);    
+    
+    m_sample_ends[(m_sample_table->lms_selected_column)] = a_value;
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_END_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(a_value));
@@ -928,6 +932,13 @@ void SamplerGUI::selectionChanged()
     
     m_file_selector->lms_set_file(m_sample_table->lms_mod_matrix->item(m_sample_table->lms_selected_column, SMP_TB_FILE_PATH_INDEX)->text());
     m_view_file_selector->lms_set_file(m_sample_table->lms_mod_matrix->item(m_sample_table->lms_selected_column, SMP_TB_FILE_PATH_INDEX)->text());
+    
+    m_suppressHostUpdate = TRUE;
+    
+    m_sample_start_hslider->setValue(m_sample_starts[(m_sample_table->lms_selected_column)]);
+    m_sample_end_hslider->setValue(m_sample_ends[(m_sample_table->lms_selected_column)]);
+    
+    m_suppressHostUpdate = FALSE;
     
 }
 
