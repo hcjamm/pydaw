@@ -174,6 +174,8 @@ public:
         
         m_sample_counts.removeAt(a_index);
         m_sample_counts.insert(a_index, 0);
+        
+        m_sample_graph->setPixmap(*f_pixmap);
     }
     
 };

@@ -884,6 +884,12 @@ void SamplerGUI::clearFile()
     
     m_sample_graph->clearPixmap((m_sample_table->lms_selected_column));
     
+    m_suppress_selected_sample_changed = TRUE;
+    m_selected_sample_index_combobox->removeItem((m_sample_table->lms_selected_column));
+    m_selected_sample_index_combobox->insertItem((m_sample_table->lms_selected_column), QString(""));
+    m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));
+    m_suppress_selected_sample_changed = FALSE;
+
     QTableWidgetItem * f_item = new QTableWidgetItem();
     f_item->setText(path);
     f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
