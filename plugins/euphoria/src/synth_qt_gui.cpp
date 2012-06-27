@@ -520,6 +520,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_end_hslider->setInvertedAppearance(false);
         m_sample_end_hslider->setInvertedControls(false);
         m_sample_end_hslider->setTickPosition(QSlider::NoTicks);
+        
+        connect(m_sample_start_hslider, SIGNAL(valueChanged(int)), this, SLOT(sampleStartChanged(int)));
+        connect(m_sample_end_hslider, SIGNAL(valueChanged(int)), this, SLOT(sampleEndChanged(int)));
 
         m_sample_end_hlayout->addWidget(m_sample_end_hslider);
 

@@ -444,12 +444,6 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 	memset(plugin_data->output[i], 0, sample_count * sizeof(float));
     }
     
-    for (i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)
-    {
-        plugin_data->sampleStartPos[i] = (plugin_data->sampleCount[i]) * ((*(plugin_data->sampleStarts[i])) * .00001);
-        plugin_data->sampleEndPos[i] = (plugin_data->sampleCount[i]) - ((plugin_data->sampleCount[i]) * ((*(plugin_data->sampleEnds[i])) * .00001));
-    }
-
     if (pthread_mutex_trylock(&plugin_data->mutex)) {
 	return;
     }
@@ -598,6 +592,11 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                             (i <= *(plugin_data->high_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])))
                     {
                         plugin_data->current_sample = (plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]);
+                        
+                        plugin_data->sampleStartPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleStarts[(plugin_data->current_sample)])) * .0001);
+                        plugin_data->sampleEndPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) - ((plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleEnds[(plugin_data->current_sample)])) * .0001));
+
+                        
                         addSample(plugin_data, i, pos, count);
                     }
 
