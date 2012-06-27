@@ -224,6 +224,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         plugin_data->low_note[f_i] = 0;
         plugin_data->high_note[f_i] = 0;
         plugin_data->sample_vol[f_i] = 0;
+        plugin_data->sample_amp[f_i] = 1.0f;
         
         plugin_data->smp_pit_core[f_i] = g_pit_get();
         plugin_data->smp_pit_ratio[f_i] = g_pit_ratio();
@@ -318,9 +319,11 @@ static void activateSampler(LADSPA_Handle instance)
  */
 static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned long count)
 {
+    plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(*(plugin_data->sample_vol[(plugin_data->current_sample)]) , plugin_data->amp_ptr);
+    
     float ratio = 1.0;
 
-    float gain_test = 1.0;
+    //float gain_test = 1.0;
     unsigned long i, ch, s;
 
     if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
@@ -415,7 +418,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                     f_clp_clip(plugin_data->data[n]->clipper1[ch], (plugin_data->data[n]->filter_output)));
             
             sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->data[n]->amp) * (plugin_data->data[n]->lfo_amp_output) 
-                    * f_db_to_linear(*(plugin_data->sample_vol[(plugin_data->current_sample)]), plugin_data->amp_ptr);
+                    * (plugin_data->sample_amp[(plugin_data->current_sample)]);
     
             //If the main ADSR envelope has reached the end it's release stage, kill the voice.
             //However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't            

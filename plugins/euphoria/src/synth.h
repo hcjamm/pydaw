@@ -40,7 +40,7 @@ typedef struct {
     LADSPA_Data *basePitch[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *low_note[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *high_note[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_vol[LMS_MAX_SAMPLE_COUNT];     
+    LADSPA_Data *sample_vol[LMS_MAX_SAMPLE_COUNT];     //in decibels    
     LADSPA_Data *sampleStarts[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sampleEnds[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *selected_sample;
@@ -93,6 +93,7 @@ typedef struct {
     size_t       sampleCount[LMS_MAX_SAMPLE_COUNT];        
     float       sampleStartPos[LMS_MAX_SAMPLE_COUNT];         
     float       sampleEndPos[LMS_MAX_SAMPLE_COUNT];
+    float       sample_amp[LMS_MAX_SAMPLE_COUNT];     //linear, for multiplying
     
     int loaded_samples[LMS_MAX_SAMPLE_COUNT];
     int loaded_samples_count;
