@@ -15,6 +15,7 @@
 #include <QHBoxLayout>
 #include <QFileDialog>
 #include <QProcess>
+#include <QFileInfo>
 
 class LMS_file_select
 {
@@ -26,6 +27,7 @@ public:
     QPushButton * lms_reload_button;
     QLineEdit * lms_file_path;
     QString lms_editor_path;
+    QString lms_last_directory;
     
     LMS_file_select(QWidget * a_parent)
     {
@@ -40,6 +42,7 @@ public:
         lms_reload_button->setText(QString("Reload"));
         lms_file_path = new QLineEdit(a_parent);
         lms_file_path->setReadOnly(TRUE);
+        lms_last_directory = QString("");
         
         /*TODO:  Read this from a to-be-created LMS global config file*/
         lms_editor_path = QString("/usr/bin/audacity");
@@ -53,10 +56,13 @@ public:
     
     QString open_button_pressed(QWidget * a_parent)
     {
-        QString f_result = QFileDialog::getOpenFileName(a_parent, "Select an audio sample file", ".", "Audio files (*.wav *.aiff)");
+        QString f_result = QFileDialog::getOpenFileName(a_parent, "Select an audio sample file", lms_last_directory, "Audio files (*.wav *.aiff)");
         if(!f_result.isEmpty())
         {
             lms_file_path->setText(f_result);
+            
+            QFileInfo f_fi(f_result);
+            lms_last_directory = f_fi.absolutePath();
         }
         
         return lms_file_path->text();
