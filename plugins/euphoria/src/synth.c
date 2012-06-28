@@ -807,16 +807,14 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     return NULL;
 }
 
-char *samplerClear(Sampler *plugin_data)
+char *samplerClear(Sampler *plugin_data, int a_index)
 {
     if((plugin_data->loaded_samples_count) == 0)
     {
         return NULL;
     }
-
-    
-    plugin_data->i_selected_sample = (int)(*(plugin_data->selected_sample));
-    printf("plugin_data->i_selected_sample == %i\n", (plugin_data->i_selected_sample));
+        
+    printf("a_index == %i\n", (a_index));
     
     /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
     plugin_data->i_loaded_samples = 0;
@@ -824,7 +822,7 @@ char *samplerClear(Sampler *plugin_data)
     
     while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
     {
-        if((plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]) == (plugin_data->i_selected_sample))
+        if((plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]) == (a_index))
         {
             printf("Sample index %i is already loaded.\n", (plugin_data->i_loaded_samples));
             plugin_data->sample_is_loaded = 1;
@@ -857,11 +855,11 @@ char *samplerClear(Sampler *plugin_data)
     
     pthread_mutex_lock(&plugin_data->mutex);
 
-    tmpOld[0] = plugin_data->sampleData[0][(plugin_data->i_selected_sample)];
-    tmpOld[1] = plugin_data->sampleData[1][(plugin_data->i_selected_sample)];
-    plugin_data->sampleData[0][(plugin_data->i_selected_sample)] = tmpSamples[0];
-    plugin_data->sampleData[1][(plugin_data->i_selected_sample)] = tmpSamples[1];
-    plugin_data->sampleCount[(plugin_data->i_selected_sample)] = 0;
+    tmpOld[0] = plugin_data->sampleData[0][(a_index)];
+    tmpOld[1] = plugin_data->sampleData[1][(a_index)];
+    plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
+    plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
+    plugin_data->sampleCount[(a_index)] = 0;
 
     pthread_mutex_unlock(&plugin_data->mutex);
 
@@ -884,7 +882,7 @@ char *samplerLoadAll(Sampler *plugin_data, const char *paths)
         printf("pch == %s\n", pch);
         if(strcmp(pch, "") == 0)
         {
-            //samplerClear(plugin_data);
+            samplerClear(plugin_data, (int)(*(plugin_data->selected_sample)));
         }
         else
         {            
@@ -911,7 +909,7 @@ char *samplerConfigure(LADSPA_Handle instance, const char *key, const char *valu
     } else if (!strcmp(key, "reload")) {
         return samplerLoad(plugin_data, value, (int)(*(plugin_data->selected_sample)));
     } else if (!strcmp(key, "clear")) {
-        return samplerClear(plugin_data);
+        return samplerClear(plugin_data, (int)(*(plugin_data->selected_sample)));
     } else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
 	if (plugin_data->projectDir) free(plugin_data->projectDir);
 	plugin_data->projectDir = strdup(value);
