@@ -12,6 +12,10 @@
 
 #define LMS_FILES_STRING_DELIMITER "|"
 /* defines used for the file saving format */
+
+/*These indicate that the file paths are either relative to the directory the saved file is in(useful for distributed files), or absolute(useful for saving one's work on a local machine).*/
+#define LMS_FILES_ATTRIBUTE_ABSOLUTE_PATH "<<><<|{Path:Absolute}|>><>>"
+#define LMS_FILES_ATTRIBUTE_RELATIVE_PATH "<<><<|{Path:Relative}|>><>>"
 //This indicates the beginning of the controls section
 #define LMS_FILE_FILES_TAG "<<><<|{Begin Files}|>><>>"
 #define LMS_FILE_CONTROLS_TAG "<<><<|{Begin Controls}|>><>>"

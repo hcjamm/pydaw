@@ -100,6 +100,8 @@ public:
     void generate_files_string();
     QString files_string;
     
+    void set_selected_sample_combobox_item(int,QString);
+    
     //From Ray-V   TODO:  Are these necessary?
     
     void v_set_control(int, float);
@@ -110,7 +112,7 @@ public:
     
     void lms_value_changed(int, LMS_control *);
     void lms_set_value(float, LMS_control *);
-    
+        
     //End from Ray-V
         
     int m_sample_starts[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  0 == the very start of the sample, 10000 == the very end
