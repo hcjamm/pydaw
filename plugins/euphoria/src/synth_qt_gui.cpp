@@ -1061,6 +1061,7 @@ void SamplerGUI::saveInstrumentToSingleFile()
             }
             
             stream << LMS_FILE_CONTROLS_TAG << "\n";
+            stream << LMS_FILE_CONTROLS_TAG_EUP_V1 << "\n";
             
             for(int i = LMS_FIRST_CONTROL_PORT; i < Sampler_Stereo_COUNT; i++)        
             {   
@@ -1159,6 +1160,7 @@ void SamplerGUI::openInstrumentFromFile()
                 
         QString f_path_prefix = QString("");
         bool f_use_path_prefix = FALSE;
+        bool f_is_current_app_and_control_version = FALSE;
 
         while(!in.atEnd()) {
             QString line = in.readLine();    
@@ -1176,7 +1178,13 @@ void SamplerGUI::openInstrumentFromFile()
             }
             else if(line.compare(QString(LMS_FILE_CONTROLS_TAG)) == 0)
             {
-                f_current_stage = 2; continue;
+                f_current_stage = 2; 
+                f_is_current_app_and_control_version = FALSE;  //must be reset each time this tag is found, otherwise you might start reading another sampler's controls
+                continue;
+            }
+            else if(line.compare(QString(LMS_FILE_CONTROLS_TAG_EUP_V1)) == 0)
+            {
+                f_is_current_app_and_control_version = TRUE; continue;
             }
             
             switch(f_current_stage)
@@ -1229,6 +1237,11 @@ void SamplerGUI::openInstrumentFromFile()
                 }
                     break;
                 case 2:{
+                    if(!f_is_current_app_and_control_version)
+                    {
+                        continue;
+                    }
+                    
                     QStringList f_control_port_value_pair = line.split(LMS_FILE_PORT_VALUE_SEPARATOR);
                     
                     if(f_control_port_value_pair.count() != 2)

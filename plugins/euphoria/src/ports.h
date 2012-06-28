@@ -16,9 +16,33 @@
 /*These indicate that the file paths are either relative to the directory the saved file is in(useful for distributed files), or absolute(useful for saving one's work on a local machine).*/
 #define LMS_FILES_ATTRIBUTE_ABSOLUTE_PATH "<<><<|{Path:Absolute}|>><>>"
 #define LMS_FILES_ATTRIBUTE_RELATIVE_PATH "<<><<|{Path:Relative}|>><>>"
-//This indicates the beginning of the controls section
+//This indicates the beginning of the files section
 #define LMS_FILE_FILES_TAG "<<><<|{Begin Files}|>><>>"
+//Indicates the beginning of the controls section.  Must be followed by a controls identifier before attempting to load any control values
 #define LMS_FILE_CONTROLS_TAG "<<><<|{Begin Controls}|>><>>"
+/*This indicates the beginning of the controls section for Euphoria, version 1 of Euphoria's control ports. 
+ If you implement this file format in another application, you must come up with your own unique app.  If you 
+ then change the control ports by adding/remove controls or changing their range or order, you should increment 
+ your version number.  The idea is, you can't set one sampler's control's from another's, nor would it even be
+ a good idea to try.  You can, however, merge the control sections from multiple files supporting this format,
+ as a particular version of a particular sampler should only try to load controls from it's own control section,
+ and only if it's a compatible version.  All others should be ignored.  Example of a multi-instrument file:
+ 
+ <<><<|{Path:Relative}|>><>>
+ 0|samples/sample1.wav
+ ...
+ <<><<|{Begin Controls}|>><>>
+ <<><<|{controls_identifier|app=lms_euphoria|version=1}|>><>>
+ 2|100
+ 3|50
+ ...
+ <<><<|{Begin Controls}|>><>>
+ <<><<|{controls_identifier|app=super_duper_sampler|version=6}|>><>>
+ 2|780
+ 3|5000
+ ...
+ */
+#define LMS_FILE_CONTROLS_TAG_EUP_V1 "<<><<|{controls_identifier|app=lms_euphoria|version=1}|>><>>"
 //This separates port/value pairs
 #define LMS_FILE_PORT_VALUE_SEPARATOR ":"
 
