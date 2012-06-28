@@ -139,7 +139,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         menuFile = new QMenu(menubar);
         menuFile->setObjectName(QString::fromUtf8("menuFile"));        
         menubar->addAction(menuFile->menuAction());
-        //menuFile->addAction(actionMove_files_to_single_directory);
+        menuFile->addAction(actionMove_files_to_single_directory);
         menuFile->addAction(actionSave_instrument_to_file);
         menuFile->addAction(actionOpen_instrument_from_file);
         
@@ -456,11 +456,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_view_sample_tab->setObjectName(QString::fromUtf8("m_view_sample_tab"));        
         m_main_tab->addTab(m_view_sample_tab, QString());                
         m_main_tab->setTabText(m_main_tab->indexOf(m_view_sample_tab), QApplication::translate("Frame", "View", 0, QApplication::UnicodeUTF8));
-        
-        
-        //verticalLayoutWidget = new QWidget(centralwidget);
-        //verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        //verticalLayoutWidget->setGeometry(QRect(40, 30, 981, 691));
+                
         m_view_sample_tab_main_vlayout = new QVBoxLayout(m_view_sample_tab);
         m_view_sample_tab_main_vlayout->setObjectName(QString::fromUtf8("m_view_sample_tab_main_vlayout"));
         m_view_sample_tab_main_vlayout->setContentsMargins(0, 0, 0, 0);
@@ -804,6 +800,18 @@ void SamplerGUI::setSelection(int a_value)
     m_suppressHostUpdate = false;
 }
 
+/* void SamplerGUI::set_selected_sample_combobox_item(
+ * int a_index, //Currently, you should only set this to (m_sample_table->lms_selected_column), but I'm leaving it there for when it can be implemented to work otherwise
+ * QString a_text)  //The text of the new item
+ */
+void SamplerGUI::set_selected_sample_combobox_item(int a_index, QString a_text)
+{
+    m_suppress_selected_sample_changed = TRUE;
+    m_selected_sample_index_combobox->removeItem(a_index);
+    m_selected_sample_index_combobox->insertItem(a_index, a_text);
+    m_selected_sample_index_combobox->setCurrentIndex(a_index);
+    m_suppress_selected_sample_changed = FALSE;
+}
 
 void SamplerGUI::fileSelect()
 {
@@ -830,12 +838,8 @@ void SamplerGUI::fileSelect()
         QStringList f_path_sections = path.split(QString("/"));
         
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
-        
-        m_suppress_selected_sample_changed = TRUE;
-        m_selected_sample_index_combobox->removeItem((m_sample_table->lms_selected_column));
-        m_selected_sample_index_combobox->insertItem((m_sample_table->lms_selected_column), f_path_sections.at((f_path_sections.count() - 1)));
-        m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));
-        m_suppress_selected_sample_changed = FALSE;
+                
+        set_selected_sample_combobox_item((m_sample_table->lms_selected_column), f_path_sections.at((f_path_sections.count() - 1)));
         
         m_sample_graph->generatePreview(path, (m_sample_table->lms_selected_column));
         
@@ -869,7 +873,7 @@ void SamplerGUI::generate_files_string()
         }
     }
     
-    cerr << files_string;
+    //cerr << files_string;
 }
 
 void SamplerGUI::clearFile()
@@ -884,11 +888,7 @@ void SamplerGUI::clearFile()
     
     m_sample_graph->clearPixmap((m_sample_table->lms_selected_column));
     
-    m_suppress_selected_sample_changed = TRUE;
-    m_selected_sample_index_combobox->removeItem((m_sample_table->lms_selected_column));
-    m_selected_sample_index_combobox->insertItem((m_sample_table->lms_selected_column), QString(""));
-    m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));
-    m_suppress_selected_sample_changed = FALSE;
+    set_selected_sample_combobox_item((m_sample_table->lms_selected_column), QString(""));
 
     QTableWidgetItem * f_item = new QTableWidgetItem();
     f_item->setText(path);
@@ -1007,10 +1007,28 @@ void SamplerGUI::sample_volChanged(int a_control_index)
 void SamplerGUI::saveInstrumentToSingleFile()
 {       
     QString f_selected_path = QFileDialog::getSaveFileName(this, "Select an file to save the instrument to...", ".", "Euphoria Instrument Files (*.u4ia)");
-    
+        
     if(!f_selected_path.isEmpty())
-    {
-        //TODO:  some sanity checks
+    {        
+        if(!f_selected_path.endsWith(QString(".u4ia")))
+            f_selected_path.append(QString(".u4ia"));
+        
+        QFileInfo f_qfileinfo(f_selected_path);
+        
+        bool f_paths_are_relative = TRUE;
+
+        for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
+        {
+            if(m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text().isEmpty() || m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text().isNull())
+                continue;
+            
+            if(!m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text().startsWith(f_qfileinfo.absolutePath()))
+            {
+                f_paths_are_relative = FALSE;
+                cerr << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << " does not begin with " << f_qfileinfo.absolutePath() << "\n";
+                break;
+            }
+        }
       
         m_creating_instrument_file = TRUE;
         //moveSamplesToSingleDirectory();
@@ -1021,12 +1039,25 @@ void SamplerGUI::saveInstrumentToSingleFile()
         {
             QTextStream stream( &file );
             
+            if(f_paths_are_relative)
+                stream << LMS_FILES_ATTRIBUTE_RELATIVE_PATH << "\n";
+            else
+                stream << LMS_FILES_ATTRIBUTE_ABSOLUTE_PATH << "\n";
+            
             stream << LMS_FILE_FILES_TAG << "\n";
             
             for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
-            {           
-                //TODO:  This is wrong, the files need to be copied to a central location and use only file name, not full path
-                stream << i << LMS_DELIMITER << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << "\n";                
+            {        
+                if(f_paths_are_relative)
+                {
+                    QDir f_dir(f_qfileinfo.absolutePath());
+                                        
+                    stream << i << LMS_DELIMITER << f_dir.relativeFilePath(m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text()) << "\n";    
+                }
+                else
+                {
+                    stream << i << LMS_DELIMITER << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << "\n";     
+                }
             }
             
             stream << LMS_FILE_CONTROLS_TAG << "\n";
@@ -1081,7 +1112,7 @@ void SamplerGUI::moveSamplesToSingleDirectory()
             QFile * f_current_file = new QFile(f_current_file_path);
             QStringList f_file_arr = f_current_file->fileName().split("/");
             
-            QString f_new_file = f_selected_path.append("/").append(f_file_arr[(f_file_arr.count() - 1)]);
+            QString f_new_file = f_selected_path + QString("/")  + f_file_arr[(f_file_arr.count() - 1)];
                 
 #ifdef LMS_DEBUG_STANDALONE
             std::string f_string = f_new_file.toStdString();
@@ -1125,17 +1156,27 @@ void SamplerGUI::openInstrumentFromFile()
         }
 
         QTextStream in(&file);
+                
+        QString f_path_prefix = QString("");
+        bool f_use_path_prefix = FALSE;
 
         while(!in.atEnd()) {
             QString line = in.readLine();    
+            
+            if(line.compare(QString(LMS_FILES_ATTRIBUTE_RELATIVE_PATH)) == 0)
+            {
+                f_path_prefix = QFileInfo(f_selected_path).absolutePath();
+                f_use_path_prefix = TRUE;
+                continue;
+            }
         
             if(line.compare(QString(LMS_FILE_FILES_TAG)) == 0)
             {
-                f_current_stage = 1;
+                f_current_stage = 1; continue;
             }
             else if(line.compare(QString(LMS_FILE_CONTROLS_TAG)) == 0)
             {
-                f_current_stage = 2;
+                f_current_stage = 2; continue;
             }
             
             switch(f_current_stage)
@@ -1152,7 +1193,7 @@ void SamplerGUI::openInstrumentFromFile()
                     }                    
                     else
                     {
-                        if(file_arr.at(1).compare(QString("")) == 0)
+                        if(file_arr.at(1).isEmpty())
                         {
                             QTableWidgetItem * f_item = new QTableWidgetItem();
                             f_item->setText(QString(""));
@@ -1161,17 +1202,27 @@ void SamplerGUI::openInstrumentFromFile()
                         }
                         else
                         {
-                            if(QFile::exists(file_arr.at(1)))
+                            QString f_full_path = file_arr.at(1);
+                            
+                            if(f_use_path_prefix)
+                                    f_full_path = QString(f_path_prefix + "/" + file_arr.at(1));
+                            
+                            if(QFile::exists(f_full_path))
                             {
-                                cerr << "Setting " << file_arr.at(0) << " to " << file_arr.at(1);
+                                cerr << "Setting " << file_arr.at(0) << " to " << f_full_path;
                                 QTableWidgetItem * f_item = new QTableWidgetItem();
-                                f_item->setText(file_arr.at(1));
+                                f_item->setText(f_full_path);
                                 f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-                                m_sample_table->lms_mod_matrix->setItem(file_arr.at(0).toInt(), SMP_TB_FILE_PATH_INDEX, f_item);   
+                                int f_sample_index = file_arr.at(0).toInt();
+                                m_sample_table->lms_mod_matrix->setItem(f_sample_index, SMP_TB_FILE_PATH_INDEX, f_item);   
+                                m_sample_graph->generatePreview(f_full_path, f_sample_index);
+                                
+                                QStringList file_sections = f_full_path.split("/");
+                                set_selected_sample_combobox_item(f_sample_index, file_sections.at((file_sections.count() - 1)));
                             }
                             else
                             {
-                                cerr << "Invalid file " << line << "\n";
+                                cerr << "Invalid file " << line << "  full path: " << f_full_path << "\n";
                             }
                         }
                     }
