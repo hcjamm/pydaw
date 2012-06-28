@@ -1641,7 +1641,24 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
     {
         sample_volChanged((port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN));
     }
-    //TODO:  How best to implement the sample_start/sample_end controls?
+    else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
+    {
+        m_sample_starts[((port - LMS_SAMPLE_START_PORT_RANGE_MIN))] = a_value;
+        
+        if (!m_suppressHostUpdate) 
+        {
+                lo_send(m_host, m_controlPath, "if", port, float(a_value));
+        }        
+    }
+    else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
+    {
+        m_sample_starts[((port - LMS_SAMPLE_END_PORT_RANGE_MIN))] = a_value;
+        
+        if (!m_suppressHostUpdate) 
+        {
+                lo_send(m_host, m_controlPath, "if", port, float(a_value));
+        }
+    }    
     else
     {
         cerr << "v_control_changed called with invalid port " << port << "\n";
