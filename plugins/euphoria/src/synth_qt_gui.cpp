@@ -1147,6 +1147,17 @@ void SamplerGUI::openInstrumentFromFile()
     
     if(!f_selected_path.isEmpty())
     {
+        QString f_clear_all_files = QString("");
+        
+        for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)
+        {
+            f_clear_all_files.append(LMS_FILES_STRING_DELIMITER);
+        }
+        
+#ifndef LMS_DEBUG_STANDALONE
+            lo_send(m_host, m_configurePath, "ss", "load", f_clear_all_files.toLocal8Bit().data());
+#endif              
+        
         int f_current_stage = 0; //0 == none, 1 == files, 2 == controls
         int f_line_number = 0;
     
@@ -1266,6 +1277,13 @@ void SamplerGUI::openInstrumentFromFile()
         file.close();
        
         m_sample_table->lms_mod_matrix->resizeColumnsToContents();
+        
+        m_suppress_selected_sample_changed = TRUE;
+        
+        m_sample_start_hslider->setValue(m_sample_starts[m_selected_sample_index_combobox->currentIndex()]);
+        m_sample_end_hslider->setValue(m_sample_ends[m_selected_sample_index_combobox->currentIndex()]);
+        
+        m_suppress_selected_sample_changed = FALSE;
         
         generate_files_string();
 #ifndef LMS_DEBUG_STANDALONE
@@ -1655,9 +1673,7 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
         sample_volChanged((port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN));
     }
     else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
-    {
-        m_sample_starts[((port - LMS_SAMPLE_START_PORT_RANGE_MIN))] = a_value;
-        
+    {   
         if (!m_suppressHostUpdate) 
         {
                 lo_send(m_host, m_controlPath, "if", port, float(a_value));
@@ -1665,8 +1681,6 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
     }
     else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
     {
-        m_sample_starts[((port - LMS_SAMPLE_END_PORT_RANGE_MIN))] = a_value;
-        
         if (!m_suppressHostUpdate) 
         {
                 lo_send(m_host, m_controlPath, "if", port, float(a_value));
