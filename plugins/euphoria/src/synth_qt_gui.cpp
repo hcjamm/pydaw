@@ -880,18 +880,12 @@ void SamplerGUI::clearFile()
 { 
     m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
     
-    QString path = QString("");
-    
-#ifndef LMS_DEBUG_STANDALONE
-        lo_send(m_host, m_configurePath, "ss", "clear", path.toLocal8Bit().data());
-#endif
-    
     m_sample_graph->clearPixmap((m_sample_table->lms_selected_column));
     
     set_selected_sample_combobox_item((m_sample_table->lms_selected_column), QString(""));
 
     QTableWidgetItem * f_item = new QTableWidgetItem();
-    f_item->setText(path);
+    f_item->setText(QString(""));
     f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
     m_sample_table->lms_mod_matrix->setItem((m_sample_table->lms_selected_column), SMP_TB_FILE_PATH_INDEX, f_item);
     m_file_selector->clear_button_pressed();
@@ -899,7 +893,11 @@ void SamplerGUI::clearFile()
     
     generate_files_string();
     
-    cerr << files_string;
+#ifndef LMS_DEBUG_STANDALONE
+        lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
+#endif
+    
+    //cerr << files_string;
 }
 
 void SamplerGUI::openInEditor()
