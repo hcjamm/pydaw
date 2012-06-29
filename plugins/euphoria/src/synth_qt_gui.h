@@ -97,6 +97,7 @@ public:
     QString m_inst_file_tmp_path;
     void calculate_fx_label(int,int,QLabel*);
     
+    void generate_files_string(int);
     void generate_files_string();
     QString files_string;
     
