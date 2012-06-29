@@ -824,7 +824,7 @@ char *samplerClear(Sampler *plugin_data, int a_index)
     {
         if((plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]) == (a_index))
         {
-            printf("Sample index %i is already loaded.\n", (plugin_data->i_loaded_samples));
+            printf("Sample index %i is loaded.\n", (plugin_data->i_loaded_samples));
             plugin_data->sample_is_loaded = 1;
             break;
         }
@@ -907,9 +907,7 @@ char *samplerConfigure(LADSPA_Handle instance, const char *key, const char *valu
     if (!strcmp(key, "load")) {	
         return samplerLoadAll(plugin_data, value);
     } else if (!strcmp(key, "reload")) {
-        return samplerLoad(plugin_data, value, (int)(*(plugin_data->selected_sample)));
-    } else if (!strcmp(key, "clear")) {
-        return samplerClear(plugin_data, (int)(*(plugin_data->selected_sample)));
+        return samplerLoad(plugin_data, value, (int)(*(plugin_data->selected_sample)));    
     } else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
 	if (plugin_data->projectDir) free(plugin_data->projectDir);
 	plugin_data->projectDir = strdup(value);
