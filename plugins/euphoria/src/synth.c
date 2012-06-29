@@ -813,9 +813,7 @@ char *samplerClear(Sampler *plugin_data, int a_index)
     {
         return NULL;
     }
-        
-    printf("a_index == %i\n", (a_index));
-    
+            
     /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
     plugin_data->i_loaded_samples = 0;
     plugin_data->sample_is_loaded = 0;
@@ -873,29 +871,59 @@ char *samplerClear(Sampler *plugin_data, int a_index)
 char *samplerLoadAll(Sampler *plugin_data, const char *paths)
 {       
     plugin_data->sample_files = paths;
-    char * pch;
+    
     int f_index = 0;
-    pch = strtok (paths, LMS_FILES_STRING_DELIMITER);
-    while ((pch != NULL) && (f_index < LMS_MAX_SAMPLE_COUNT))
+    int f_samples_loaded_count = 0;
+    int f_current_string_index = 0;
+    
+    char * f_result_string = malloc(256);    
+    
+    while (f_samples_loaded_count < LMS_MAX_SAMPLE_COUNT)
     {    
-        printf("findex == %i\n", f_index);
-        printf("pch == %s\n", pch);
-        if(strcmp(pch, "") == 0)
+        if(paths[f_index] == '\0')
         {
-            samplerClear(plugin_data, (int)(*(plugin_data->selected_sample)));
+            break;
+        }
+        else if(paths[f_index] == LMS_FILES_STRING_DELIMITER)
+        {
+            f_result_string[f_current_string_index] = '\0';
+            
+            if(f_current_string_index == 0)
+            {
+                samplerClear(plugin_data, f_samples_loaded_count);
+            }
+            else if(strcmp(f_result_string, plugin_data->sample_paths[f_samples_loaded_count]) != 0)
+            {
+                samplerLoad(plugin_data,f_result_string,f_samples_loaded_count);
+            }
+            f_current_string_index = 0;
+            f_samples_loaded_count++;
+        }
+        else if(paths[f_index] == LMS_FILES_STRING_RELOAD_DELIMITER)
+        {            
+            f_result_string[f_current_string_index] = '\0';
+            
+            if(f_current_string_index == 0)
+            {
+                samplerClear(plugin_data, f_samples_loaded_count);
+            }
+            else
+            {
+                samplerLoad(plugin_data,f_result_string,f_samples_loaded_count);
+            }
+            f_current_string_index = 0;
+            f_samples_loaded_count++;
         }
         else
-        {            
-            if(strcmp(pch, (plugin_data->sample_paths[f_index])) != 0)
-            {
-                printf("calling samplerLoad\n");
-                samplerLoad(plugin_data, pch, f_index);
-            }
+        {
+            f_result_string[f_current_string_index] = paths[f_index];
+            f_current_string_index++;
         }
         
-        pch = strtok (NULL, LMS_FILES_STRING_DELIMITER);    
         f_index++;
     }
+    
+    free(f_result_string);
     
     return NULL;
 }
