@@ -11,9 +11,9 @@
 #define	PORTS_H
 
 //Delimits the file string sent with configure().  Also used in the file saving format
-#define LMS_FILES_STRING_DELIMITER "|"
+#define LMS_FILES_STRING_DELIMITER '|'
 //When used in place of "|", it tells the sampler to load the sample even if it's already been loaded once.
-#define LMS_FILES_STRING_RELOAD_DELIMITER ">"
+#define LMS_FILES_STRING_RELOAD_DELIMITER '>'
 /* defines used for the file saving format */
 
 /*These indicate that the file paths are either relative to the directory the saved file is in(useful for distributed files), or absolute(useful for saving one's work on a local machine).*/
