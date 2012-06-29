@@ -773,6 +773,8 @@ void SamplerGUI::setSampleFile(QString files)
     
     m_files = files;    
     
+    files.replace(QString(LMS_FILES_STRING_RELOAD_DELIMITER), QString(LMS_FILES_STRING_DELIMITER));
+    
     QStringList f_file_list = files.split(QString(LMS_FILES_STRING_DELIMITER));
     
     for(int f_i = 0; f_i < f_file_list.count(); f_i++)
@@ -861,13 +863,22 @@ void SamplerGUI::fileSelect()
 
 void SamplerGUI::generate_files_string()
 {
+    generate_files_string(-1);
+}
+
+void SamplerGUI::generate_files_string(int a_index)
+{
     files_string = QString("");
-    
+        
     for(int f_i = 0; f_i < LMS_MAX_SAMPLE_COUNT; f_i++)
     {
         files_string.append(m_sample_table->lms_mod_matrix->item(f_i, SMP_TB_FILE_PATH_INDEX)->text());
         
-        if(f_i < (LMS_MAX_SAMPLE_COUNT - 1))
+        if((a_index != -1) && (f_i == a_index))
+        {
+            files_string.append(LMS_FILES_STRING_RELOAD_DELIMITER);
+        }
+        else
         {
             files_string.append(LMS_FILES_STRING_DELIMITER);
         }
@@ -912,9 +923,12 @@ void SamplerGUI::reloadSample()
     if(!path.isEmpty())
     {
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
+        
+        generate_files_string((m_sample_table->lms_selected_column));
+    
 #ifndef LMS_DEBUG_STANDALONE
-        lo_send(m_host, m_configurePath, "ss", "reload", path.toLocal8Bit().data());
-#endif                
+        lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
+#endif
     }
 }
 
