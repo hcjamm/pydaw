@@ -354,7 +354,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         plugin_data->data[n]->lfo_pitch_output = (*(plugin_data->lfo_pitch)) * (plugin_data->data[n]->lfo1->output);
         
         plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied) + (plugin_data->data[n]->pitch_env->output_multiplied) 
-                +  (plugin_data->sv_pitch_bend_value)  //(plugin_data->mono_modules->pitchbend_smoother->output) 
+                +  (plugin_data->mono_modules->pitchbend_smoother->output)  //(plugin_data->sv_pitch_bend_value)
                 + (plugin_data->data[n]->last_pitch);
                 
         if (plugin_data->basePitch[(plugin_data->current_sample)])
@@ -395,7 +395,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             sample += (f_run_white_noise(plugin_data->data[n]->white_noise1[ch]) * (plugin_data->data[n]->noise_linamp)); //white noise
                         
             //TODO:  Run the filter smoother
-            v_svf_set_cutoff_base(plugin_data->data[n]->svf_filter[ch], (*(plugin_data->timbre)));   //(plugin_data->mono_modules->filter_smoother->output));
+            v_svf_set_cutoff_base(plugin_data->data[n]->svf_filter[ch],  (plugin_data->mono_modules->filter_smoother->output));//(*(plugin_data->timbre)));
             //Run v_svf_add_cutoff_mod once for every input source
             v_svf_add_cutoff_mod(plugin_data->data[n]->svf_filter[ch], 
                     (((plugin_data->data[n]->adsr_filter->output) * ( *(plugin_data->filter_env_amt)
@@ -450,9 +450,6 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
     }
 
     for (pos = 0, event_pos = 0; pos < sample_count; ) {
-
-        v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (*(plugin_data->timbre)));
-        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
         
 	while (event_pos < event_count){
 	       //&& pos >= events[event_pos].time.tick) {
@@ -583,7 +580,15 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 	    events[event_pos].time.tick < sample_count) {
 	    count = events[event_pos].time.tick - pos;
 	}
-
+        
+        //An ugly hack to get the smoother to run faster.  TODO:  Fix this correctly
+        int f_i2;        
+        for(f_i2 = 0; f_i2 < 8; f_i2++)
+        {
+            v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (*(plugin_data->timbre)));
+            v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
+        }
+        
 	for (i = 0; i < Sampler_NOTES; ++i) {
             if(plugin_data->data[i]->adsr_amp->stage != 4){
                 plugin_data->i_loaded_samples = 0;
@@ -604,8 +609,6 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 
                     plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
                 }                
-                
-		//addSample(plugin_data, i, pos, count);
 	    }
 	}
 
