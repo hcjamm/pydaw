@@ -566,15 +566,13 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                     
                     //End Ray-V additions                    
                     
-		} else {
-		    if (!plugin_data->sustain || (*plugin_data->sustain < 0.001)) {
-			plugin_data->offs[n.note] = 
-			    plugin_data->sampleNo + events[event_pos].time.tick;
-		    }
+		} else {		    
+                    plugin_data->offs[n.note] = 
+                        plugin_data->sampleNo + events[event_pos].time.tick;		    
 		}
 	    } /*Note-off event*/
-            else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF &&
-		       (!plugin_data->sustain || (*plugin_data->sustain < 0.001))) {
+            else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF )
+            {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
 		plugin_data->offs[n.note] = 
 		    plugin_data->sampleNo + events[event_pos].time.tick;
