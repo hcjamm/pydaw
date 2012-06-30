@@ -213,6 +213,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->i_selected_sample = 0;
     plugin_data->current_sample = 0;
     plugin_data->loaded_samples_count = 0;
+    plugin_data->lin_interpolator = g_lin_get();
     
     int f_i = 0;
     while(f_i < LMS_MAX_SAMPLE_COUNT)
@@ -235,12 +236,21 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     }
     
     f_i = 0;
+    int f_i2;
     
     while(f_i < Sampler_NOTES)
     {
         plugin_data->data[f_i] = g_poly_init(s_rate);
         plugin_data->sampleStarts[f_i] = 0;
         plugin_data->sampleEnds[f_i] = 0;
+        
+        f_i2 = 0;
+        while(f_i2 < LMS_MAX_SAMPLE_COUNT)
+        {
+            plugin_data->sample_position[f_i][f_i2] = 0.0f;
+            f_i2++;
+        }
+        
         f_i++;
     }
     
@@ -322,13 +332,13 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
     plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(*(plugin_data->sample_vol[(plugin_data->current_sample)]) , plugin_data->amp_ptr);
     
     float ratio = 1.0;
-
+    
     //float gain_test = 1.0;
     unsigned long i, ch, s;
 
-    if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
+    //if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
 
-    for (i = 0, s = pos + plugin_data->sampleNo - plugin_data->ons[n] + plugin_data->sampleStartPos[plugin_data->current_sample];
+    for (i = 0; //, //s = pos + plugin_data->sampleNo - plugin_data->ons[n] + plugin_data->sampleStartPos[plugin_data->current_sample];
 	 i < count;
 	 ++i, ++s) {
 
@@ -358,14 +368,17 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                     plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
         }
         	
-	float         rs = s * ratio;
-	unsigned long rsi = lrintf(floor(rs));
+        plugin_data->sample_position[n][(plugin_data->current_sample)] = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + ratio;
+        
+	//float         rs = s * ratio;
+	//unsigned long rsi = lrintf(floor(rs));
 
-	if (rsi >=  plugin_data->sampleEndPos[plugin_data->current_sample]){ // plugin_data->sampleCount[(plugin_data->current_sample)]) {
+	if ((plugin_data->sample_position[n][(plugin_data->current_sample)]) >=  plugin_data->sampleEndPos[plugin_data->current_sample]){
 	    plugin_data->ons[n] = -1;
 	    break;
 	}
 
+        /*
 	if (plugin_data->offs[n] >= 0 &&
 	    pos + i + plugin_data->sampleNo > plugin_data->offs[n]) {
 
@@ -382,6 +395,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 		break;
 	    } 
 	}
+        */
         
         //Run things that aren't per-channel like envelopes
                 
@@ -391,11 +405,16 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         
 	for (ch = 0; ch < plugin_data->channels; ++ch) {
 
+            float sample = f_linear_interpolate_ptr_wrap(plugin_data->sampleData[ch][(plugin_data->current_sample)], 
+                    (plugin_data->sampleCount[(plugin_data->current_sample)]),
+                    (plugin_data->sample_position[n][(plugin_data->current_sample)]),
+                    plugin_data->lin_interpolator);
+            /*
 	    float sample = plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi] +
 		((plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi + 1] -
 		  plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi]) *
-		 (rs - (float)rsi));
-            //float sample2 = sample;
+		 (rs - (float)rsi));*/
+            
             /*Process PolyFX here*/
             
             //Call everything defined in libmodsynth.h in the order it should be called in
@@ -472,6 +491,12 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 			plugin_data->sampleNo + events[event_pos].time.tick;
 		    plugin_data->offs[n.note] = -1;
 		    plugin_data->velocities[n.note] = n.velocity;
+                    
+                    //Reset the sample start positions to 0.  TODO:  optimize this
+                    for(i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)
+                    {
+                        plugin_data->sample_position[n.note][i] = 0.0f;
+                    }
                     
                     /*Set the svf_function function pointer to the filter type selected in the GUI*/
                     switch((int)(*(plugin_data->filter_type)))
