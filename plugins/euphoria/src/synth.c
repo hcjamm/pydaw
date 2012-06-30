@@ -1127,9 +1127,9 @@ void _init()
         
         /*Parameters for noise_amp*/        
 	port_descriptors[LMS_NOISE_AMP] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_NOISE_AMP] = "Dist";
+	port_names[LMS_NOISE_AMP] = "Noise Amp";
 	port_range_hints[LMS_NOISE_AMP].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_NOISE_AMP].LowerBound =  -60;
 	port_range_hints[LMS_NOISE_AMP].UpperBound =  0;
