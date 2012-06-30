@@ -814,11 +814,13 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 
 char *samplerClear(Sampler *plugin_data, int a_index)
 {
+    plugin_data->sample_paths[a_index] = "";
+    
     if((plugin_data->loaded_samples_count) == 0)
     {
         return NULL;
     }
-            
+    
     /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
     plugin_data->i_loaded_samples = 0;
     plugin_data->sample_is_loaded = 0;
