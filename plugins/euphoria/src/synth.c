@@ -370,10 +370,9 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         	
         plugin_data->sample_position[n][(plugin_data->current_sample)] = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + ratio;
         
-	//float         rs = s * ratio;
-	//unsigned long rsi = lrintf(floor(rs));
-
-	if ((plugin_data->sample_position[n][(plugin_data->current_sample)]) >=  plugin_data->sampleEndPos[plugin_data->current_sample]){
+        float f_adjusted_sample_position = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + (plugin_data->sampleStartPos[(plugin_data->current_sample)]);
+        
+	if ((f_adjusted_sample_position) >=  plugin_data->sampleEndPos[plugin_data->current_sample]){
 	    plugin_data->ons[n] = -1;
 	    break;
 	}
@@ -407,13 +406,8 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 
             float sample = f_linear_interpolate_ptr_wrap(plugin_data->sampleData[ch][(plugin_data->current_sample)], 
                     (plugin_data->sampleCount[(plugin_data->current_sample)]),
-                    (plugin_data->sample_position[n][(plugin_data->current_sample)]),
+                    (f_adjusted_sample_position),
                     plugin_data->lin_interpolator);
-            /*
-	    float sample = plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi] +
-		((plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi + 1] -
-		  plugin_data->sampleData[ch][(plugin_data->current_sample)][rsi]) *
-		 (rs - (float)rsi));*/
             
             /*Process PolyFX here*/
             
