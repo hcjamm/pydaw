@@ -190,6 +190,33 @@ else
 }
 
 }
+
+
+$arch = `uname -i`;
+chomp($arch);
+
+if($arch eq "x86_64")
+{
+$arch = "amd64"; #i386 will already be correct, so there is no elsif for it
+}
+elsif($arch eq "unknown")
+{
+	print "Architecture returned as 'unknown', are you compiling on AV Linux?[y]/n";
+	$is_avlinux = <STDIN>;
+	chomp($is_avlinux);
+	if($is_avlinux eq 'y' || $is_avlinux eq '')
+	{
+		$arch = "i686";
+	}
+	elsif($is_avlinux eq 'n')
+	{
+		print "Unknown architecture, please enter the name of the architecture.  Some standard ones are i386, i686 and AMD64:";
+		$arch = <STDIN>;
+		chomp($arch);
+	}
+	
+}
+
 require 'build-lib.pl';
 
 #Attempt to install dependencies first
@@ -330,15 +357,6 @@ else
 		$maintainer = "No Maintainer <nobody\@maintainer.org>";
 	}
 }
-
-$arch = `uname -i`;
-chomp($arch);
-
-if($arch eq "x86_64")
-{
-$arch = "amd64"; #i386 will already be correct, so there is no elsif for it
-}
-
 
 if(-e "$short_name-version.txt")
 {
