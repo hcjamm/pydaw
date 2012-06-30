@@ -21,7 +21,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/lib/cc_map.h"
 #include "libmodsynth.h"
-
+#include "../../libmodsynth/lib/interpolate-linear.h"
 
 #define Sampler_BASE_PITCH_MIN 0
 // not 127, as we want 120/2 = 60 as the default:
@@ -108,6 +108,7 @@ typedef struct {
     long         ons[Sampler_NOTES];
     long         offs[Sampler_NOTES];
     char         velocities[Sampler_NOTES];
+    float       sample_position[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];
     long         sampleNo;
     char        *projectDir;
     char*       sample_paths[LMS_MAX_SAMPLE_COUNT];    
@@ -119,6 +120,8 @@ typedef struct {
     t_pit_ratio * smp_pit_ratio[LMS_MAX_SAMPLE_COUNT];
     t_ccm_midi_cc_map * midi_cc_map;    
     t_poly_voice * data[Sampler_NOTES];
+    
+    t_lin_interpolater * lin_interpolator;
     
     float sv_pitch_bend_value;
     float sv_last_note;  //For glide
