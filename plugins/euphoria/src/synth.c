@@ -331,16 +331,14 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 {
     plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(*(plugin_data->sample_vol[(plugin_data->current_sample)]) , plugin_data->amp_ptr);
     
-    float ratio = 1.0;
+    float ratio = 1.0f;
     
     //float gain_test = 1.0;
-    unsigned long i, ch, s;
+    unsigned long i, ch;
 
     //if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
 
-    for (i = 0; //, //s = pos + plugin_data->sampleNo - plugin_data->ons[n] + plugin_data->sampleStartPos[plugin_data->current_sample];
-	 i < count;
-	 ++i, ++s) {
+    for (i = 0; i < count; ++i) {
 
         //Run the glide module
             
@@ -373,7 +371,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         float f_adjusted_sample_position = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + (plugin_data->sampleStartPos[(plugin_data->current_sample)]);
         
 	if ((f_adjusted_sample_position) >=  plugin_data->sampleEndPos[plugin_data->current_sample]){
-	    plugin_data->ons[n] = -1;
+	    //plugin_data->ons[n] = -1;
 	    break;
 	}
 
