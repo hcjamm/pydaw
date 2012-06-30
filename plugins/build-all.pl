@@ -201,16 +201,19 @@ $arch = "amd64"; #i386 will already be correct, so there is no elsif for it
 }
 elsif($arch eq "unknown")
 {
-	print "Architecture returned as 'unknown', are you compiling on AV Linux?[y]/n";
+	print "Architecture returned as 'unknown', are you compiling on AV Linux?
+([y]/n)";
 	$is_avlinux = <STDIN>;
 	chomp($is_avlinux);
 	if($is_avlinux eq 'y' || $is_avlinux eq '')
 	{
-		$arch = "i686";
+		$arch = "i386";
 	}
 	elsif($is_avlinux eq 'n')
 	{
-		print "Unknown architecture, please enter the name of the architecture.  Some standard ones are i386, i686 and AMD64:";
+		print "Unknown architecture, please enter the name of the architecture.  Some standard ones are i386, i686 and AMD64.  
+If you're not sure, press CTRL+C to exit the script, and confirm the architecture you're compiling for, otherwise your packages won't work
+arch:\n";
 		$arch = <STDIN>;
 		chomp($arch);
 	}
