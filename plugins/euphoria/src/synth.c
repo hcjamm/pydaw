@@ -333,15 +333,17 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
     
     float ratio = 1.0f;
     
-    //float gain_test = 1.0;
     unsigned long i, ch;
 
     //if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
 
     for (i = 0; i < count; ++i) {
 
-        //Run the glide module
-            
+        //Delay the note-on event until the sample it was called for
+        if(((plugin_data->sampleNo) + i) < (plugin_data->ons[n]))
+            continue;
+        
+        //Run the glide module            
         f_rmp_run_ramp(plugin_data->data[n]->pitch_env);
         f_rmp_run_ramp(plugin_data->data[n]->glide_env);
         
@@ -374,25 +376,12 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 	    //plugin_data->ons[n] = -1;
 	    break;
 	}
-
-        /*
+        
 	if (plugin_data->offs[n] >= 0 &&
-	    pos + i + plugin_data->sampleNo > plugin_data->offs[n]) {
-
-	    unsigned long dist =
-		pos + i + plugin_data->sampleNo - plugin_data->offs[n];
-
-	    unsigned long releaseFrames = 200;
-	    if (plugin_data->release) {
-		releaseFrames = *plugin_data->release * plugin_data->sampleRate;
-	    }
-
-	    if (dist > releaseFrames) {
-		plugin_data->ons[n] = -1;
-		break;
-	    } 
-	}
-        */
+	    pos + i + plugin_data->sampleNo > plugin_data->offs[n]) 
+        {            
+            v_poly_note_off(plugin_data->data[n]);            
+	}        
         
         //Run things that aren't per-channel like envelopes
                 
@@ -576,8 +565,6 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 		snd_seq_ev_note_t n = events[event_pos].data.note;
 		plugin_data->offs[n.note] = 
 		    plugin_data->sampleNo + events[event_pos].time.tick;
-                
-                v_poly_note_off(plugin_data->data[n.note]);
 	    }
             
             /*Pitch-bend sequencer event, modify the voices pitch*/
