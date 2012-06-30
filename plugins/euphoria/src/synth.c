@@ -323,14 +323,12 @@ static void activateSampler(LADSPA_Handle instance)
 }
 
 /* static void addSample(Sampler *plugin_data, 
- * int n, //The note number?
+ * int n, //The note number
  * unsigned long pos, //the position in the output buffer
- * unsigned long count) //how many samples to fill in the output buffer?
+ * unsigned long count) //how many samples to fill in the output buffer
  */
 static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned long count)
 {
-    plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(*(plugin_data->sample_vol[(plugin_data->current_sample)]) , plugin_data->amp_ptr);
-    
     float ratio = 1.0f;
     
     unsigned long i, ch;
@@ -359,24 +357,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied) + (plugin_data->data[n]->pitch_env->output_multiplied) 
                 +  (plugin_data->mono_modules->pitchbend_smoother->output)  //(plugin_data->sv_pitch_bend_value)
                 + (plugin_data->data[n]->last_pitch);
-                
-        if (plugin_data->basePitch[(plugin_data->current_sample)])
-        {
-            ratio =
-            f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]),                     
-                    ((plugin_data->data[n]->base_pitch) + (plugin_data->data[n]->lfo_pitch_output)),
-                    plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
-        }
-        	
-        plugin_data->sample_position[n][(plugin_data->current_sample)] = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + ratio;
-        
-        float f_adjusted_sample_position = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + (plugin_data->sampleStartPos[(plugin_data->current_sample)]);
-        
-	if ((f_adjusted_sample_position) >=  plugin_data->sampleEndPos[plugin_data->current_sample]){
-	    //plugin_data->ons[n] = -1;
-	    break;
-	}
-        
+                 
 	if (plugin_data->offs[n] >= 0 &&
 	    pos + i + plugin_data->sampleNo > plugin_data->offs[n]) 
         {            
@@ -389,12 +370,51 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 
         v_adsr_run(plugin_data->data[n]->adsr_filter);
         
-	for (ch = 0; ch < plugin_data->channels; ++ch) {
+	for (ch = 0; ch < (plugin_data->channels); ++ch) {
 
-            float sample = f_linear_interpolate_ptr_wrap(plugin_data->sampleData[ch][(plugin_data->current_sample)], 
+            float sample = 0.0f;             
+            
+            plugin_data->i_loaded_samples = 0;
+
+            while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
+            {                       
+                if((n >= *(plugin_data->low_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])) && 
+                        (n <= *(plugin_data->high_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])))
+                {
+                    plugin_data->current_sample = (plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]);
+                    
+                    //start parts from the beginning of the function   
+                    
+                    plugin_data->sampleStartPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleStarts[(plugin_data->current_sample)])) * .0001);
+                    plugin_data->sampleEndPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) - ((plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleEnds[(plugin_data->current_sample)])) * .0001));
+
+                    
+                    plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(*(plugin_data->sample_vol[(plugin_data->current_sample)]) , plugin_data->amp_ptr);
+                    
+                    ratio =
+                    f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]),                     
+                            ((plugin_data->data[n]->base_pitch) + (plugin_data->data[n]->lfo_pitch_output)),
+                            plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
+
+                    plugin_data->sample_position[n][(plugin_data->current_sample)] = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + ratio;
+
+                    float f_adjusted_sample_position = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + (plugin_data->sampleStartPos[(plugin_data->current_sample)]);
+
+                    if ((f_adjusted_sample_position) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)]){
+                        plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
+                        //plugin_data->ons[n] = -1;
+                        continue;
+                    }
+                    //end
+
+                    sample += f_linear_interpolate_ptr_wrap(plugin_data->sampleData[ch][(plugin_data->current_sample)], 
                     (plugin_data->sampleCount[(plugin_data->current_sample)]),
                     (f_adjusted_sample_position),
                     plugin_data->lin_interpolator);
+                }
+
+                plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
+            }            
             
             /*Process PolyFX here*/
             
@@ -422,10 +442,11 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
     
             //If the main ADSR envelope has reached the end it's release stage, kill the voice.
             //However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't            
-            //if(plugin_data->data[n]->adsr_amp->stage == 4)
-            //{
-            //    p->voices->voices[a_voice_number].n_state = note_state_off;
-            //}
+            if(plugin_data->data[n]->adsr_amp->stage == 4)
+            {
+                plugin_data->ons[n] = -1;
+                break;
+            }
             
             /*End process PolyFX*/
             
@@ -592,26 +613,9 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
         }
         
 	for (i = 0; i < Sampler_NOTES; ++i) {
-	    if (plugin_data->ons[i] >= 0) {   
-    
-                plugin_data->i_loaded_samples = 0;
-
-                while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
-                {
-                    if((i >= *(plugin_data->low_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])) && 
-                            (i <= *(plugin_data->high_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])))
-                    {
-                        plugin_data->current_sample = (plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]);
-                        
-                        plugin_data->sampleStartPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleStarts[(plugin_data->current_sample)])) * .0001);
-                        plugin_data->sampleEndPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) - ((plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleEnds[(plugin_data->current_sample)])) * .0001));
-
-                        
-                        addSample(plugin_data, i, pos, count);
-                    }
-
-                    plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
-                }                
+	    if((plugin_data->data[i]->adsr_amp->stage) < 4)
+            {    
+                addSample(plugin_data, i, pos, count);                                
 	    }
 	}
 
