@@ -893,6 +893,9 @@ void SamplerGUI::clearFile()
     
     m_sample_graph->clearPixmap((m_sample_table->lms_selected_column));
     
+    m_sample_start_hslider->setValue(0);
+    m_sample_end_hslider->setValue(0);
+    
     set_selected_sample_combobox_item((m_sample_table->lms_selected_column), QString(""));
 
     QTableWidgetItem * f_item = new QTableWidgetItem();
