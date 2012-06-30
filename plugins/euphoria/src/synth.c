@@ -314,8 +314,7 @@ static void activateSampler(LADSPA_Handle instance)
     plugin_data->sampleNo = 0;
 
     for (i = 0; i < Sampler_NOTES; i++) {
-	plugin_data->ons[i] = -1;
-	plugin_data->offs[i] = -1;
+	//plugin_data->ons[i] = -1;
 	plugin_data->velocities[i] = 0;
     }
 
@@ -372,28 +371,10 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         
 	if ((f_adjusted_sample_position) >=  plugin_data->sampleEndPos[plugin_data->current_sample]){
 	    //plugin_data->ons[n] = -1;
+            //TODO:  Find a way to stop processing earlier when the sample is finished playing
 	    break;
 	}
-
-        /*
-	if (plugin_data->offs[n] >= 0 &&
-	    pos + i + plugin_data->sampleNo > plugin_data->offs[n]) {
-
-	    unsigned long dist =
-		pos + i + plugin_data->sampleNo - plugin_data->offs[n];
-
-	    unsigned long releaseFrames = 200;
-	    if (plugin_data->release) {
-		releaseFrames = *plugin_data->release * plugin_data->sampleRate;
-	    }
-
-	    if (dist > releaseFrames) {
-		plugin_data->ons[n] = -1;
-		break;
-	    } 
-	}
-        */
-        
+       
         //Run things that aren't per-channel like envelopes
                 
         v_adsr_run(plugin_data->data[n]->adsr_amp);        
@@ -433,10 +414,10 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
     
             //If the main ADSR envelope has reached the end it's release stage, kill the voice.
             //However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't            
-            //if(plugin_data->data[n]->adsr_amp->stage == 4)
-            //{
-            //    p->voices->voices[a_voice_number].n_state = note_state_off;
-            //}
+            if(plugin_data->data[n]->adsr_amp->stage == 4)
+            {
+                break;
+            }
             
             /*End process PolyFX*/
             
@@ -479,9 +460,9 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
 		if (n.velocity > 0) {
-		    plugin_data->ons[n.note] =
-			plugin_data->sampleNo + events[event_pos].time.tick;
-		    plugin_data->offs[n.note] = -1;
+		    /*plugin_data->ons[n.note] =
+			plugin_data->sampleNo + events[event_pos].time.tick;*/
+		    
 		    plugin_data->velocities[n.note] = n.velocity;
                     
                     //Reset the sample start positions to 0.  TODO:  optimize this
@@ -570,17 +551,19 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                     //End Ray-V additions                    
                     
 		} else {
-		    if (!plugin_data->sustain || (*plugin_data->sustain < 0.001)) {
-			plugin_data->offs[n.note] = 
-			    plugin_data->sampleNo + events[event_pos].time.tick;
-		    }
+                    v_poly_note_off(plugin_data->data[n.note]);
+		    //if (!plugin_data->sustain || (*plugin_data->sustain < 0.001)) {
+			/*plugin_data->offs[n.note] = 
+			    plugin_data->sampleNo + events[event_pos].time.tick;*/
+		    //}
 		}
 	    } /*Note-off event*/
-            else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF &&
-		       (!plugin_data->sustain || (*plugin_data->sustain < 0.001))) {
+            else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF )
+                    //&& (!plugin_data->sustain || (*plugin_data->sustain < 0.001))) 
+            {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
-		plugin_data->offs[n.note] = 
-		    plugin_data->sampleNo + events[event_pos].time.tick;
+		/*plugin_data->offs[n.note] = 
+		    plugin_data->sampleNo + events[event_pos].time.tick;*/
                 
                 v_poly_note_off(plugin_data->data[n.note]);
 	    }
@@ -602,8 +585,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 	}
 
 	for (i = 0; i < Sampler_NOTES; ++i) {
-	    if (plugin_data->ons[i] >= 0) {   
-    
+            if(plugin_data->data[i]->adsr_amp->stage != 4){
                 plugin_data->i_loaded_samples = 0;
 
                 while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
@@ -802,12 +784,12 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 
     plugin_data->sample_paths[(a_index)] = path;
     
+    /*
     for (i = 0; i < Sampler_NOTES; ++i) {
 	plugin_data->ons[i] = -1;
-	plugin_data->offs[i] = -1;
 	plugin_data->velocities[i] = 0;
     }
-
+    */
     pthread_mutex_unlock(&plugin_data->mutex);
 
     if (tmpOld[0]) free(tmpOld[0]);
