@@ -133,6 +133,7 @@ public slots:
     void sampleEndChanged(int);
     void viewSampleSelectedIndexChanged(int);
     void mapAllSamplesToOneWhiteKey();
+    void clearAllSamples();
     
     //From Ray-V PolyFX
     void setAttack (float);
@@ -393,6 +394,8 @@ protected:
     QAction *actionSave_instrument_to_file;
     QAction *actionOpen_instrument_from_file;
     QAction *actionMapToWhiteKeys;
+    QAction *actionClearAllSamples;
+    
     QMenuBar *menubar;
     QMenu *menuFile;
         
