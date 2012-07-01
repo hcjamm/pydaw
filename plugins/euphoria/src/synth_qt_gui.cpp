@@ -92,7 +92,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 #ifndef LMS_DEBUG_STANDALONE
     m_host = lo_address_new(host, port);
 #endif    
-    this->setStyleSheet("QSpinBox{background-color:black; color:white;} QTabBar::tab:selected { color:black;background-color:#BBBBBB;} QTableView QTableCornerButton::section {background: black; border: 2px outset white;} QComboBox{color:white;background-color:black;} QTabBar::tab {background-color:black;  border: 2px solid white;  border-bottom-color: #333333; border-top-left-radius: 4px;  border-top-right-radius: 4px;  min-width: 8ex;  padding: 2px; color:white;} QHeaderView::section {background: black; color: white;border:2px solid white;} QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QLabel{color:black;background-color:white;border:solid 2px white;border-radius:2px;} QFrame{background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0.273, stop:0 rgba(90, 90, 90, 255), stop:1 rgba(60, 60, 60, 255))} QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #111111, stop: 1 #222222); border: 2px solid white;  border-radius: 10px;  margin-top: 1ex;} QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; color:black; background-color: white; border solid 2px white; border-radius:3px;}");
+    this->setStyleSheet("QTabBar::tab:selected { color:black;background-color:#BBBBBB;} QTableView QTableCornerButton::section {background: black; border: 2px outset white;} QComboBox{color:white; background-color:black;} QTabBar::tab {background-color:black;  border: 2px solid white;  border-bottom-color: #333333; border-top-left-radius: 4px;  border-top-right-radius: 4px;  min-width: 8ex;  padding: 2px; color:white;} QHeaderView::section {background: black; color: white;border:2px solid white;} QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QLabel{color:black;background-color:white;border:solid 2px white;border-radius:2px;} QFrame{background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0.273, stop:0 rgba(90, 90, 90, 255), stop:1 rgba(60, 60, 60, 255))} QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #111111, stop: 1 #222222); border: 2px solid white;  border-radius: 10px;  margin-top: 1ex;} QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; color:black; background-color: white; border solid 2px white; border-radius:3px;}");
     
     m_handle_control_updates = true;
     m_creating_instrument_file = FALSE;
@@ -182,7 +182,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         horizontalLayout = new QHBoxLayout(m_smp_tab_scrollAreaWidgetContents);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         
-        m_smp_tab_scrollAreaWidgetContents->setStyleSheet(QString("QWidget{background-color:black; color:white}"));
+        m_smp_tab_scrollAreaWidgetContents->setStyleSheet(QString("QWidget{background-color:black; color:white} QComboBox{background-color:black; color:white} QComboBox:editable {background-color:black; color:white;} QSpinBox{color:black;background-color:white;}"));
 
 
         //m_smp_tab_main_verticalLayout->addLayout(m_loop_start_end_Layout);
@@ -621,7 +621,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         and uncomment the section above it.*/
         
         LMS_style_info * f_info = new LMS_style_info(64);
-        f_info->LMS_set_label_style("background-color: white; border: 1px solid black;  border-radius: 6px;", 60);
+        f_info->LMS_set_label_style("background-color: white; border: 1px solid black;  border-radius: 6px; QComboBox{color:white;background-color:black;}", 60);
 
         m_main_layout = new LMS_main_layout(m_poly_fx_tab);
 
