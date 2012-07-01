@@ -830,16 +830,7 @@ void SamplerGUI::set_selected_sample_combobox_item(int a_index, QString a_text)
 }
 
 void SamplerGUI::fileSelect()
-{
-    QString orig = m_files;
-    if (orig.isEmpty()) {
-	if (!m_projectDir.isEmpty()) {
-	    orig = m_projectDir;
-	} else {
-	    orig = ".";
-	}
-    }
-    
+{   
     QStringList paths = m_file_selector->open_button_pressed_multiple(this);
     
     m_view_file_selector->lms_set_file(m_file_selector->lms_get_file());
@@ -887,6 +878,7 @@ void SamplerGUI::fileSelect()
                 
 #ifndef LMS_DEBUG_STANDALONE
         lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
+        lo_send(m_host, m_configurePath, "ss", "lastdir", m_file_selector->lms_last_directory.toLocal8Bit().data());
 #endif
                 
     }
@@ -1879,6 +1871,8 @@ int configure_handler(const char *path, const char *types, lo_arg **argv,
 	gui->setSampleFile(QString::fromLocal8Bit(value));
     } else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
 	//gui->setProjectDirectory(QString::fromLocal8Bit(value));
+    } else if (!strcmp(key, "lastdir")) {
+        gui->m_file_selector->lms_last_directory = QString::fromLocal8Bit(value);
     }
 
     return 0;
