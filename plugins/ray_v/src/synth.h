@@ -233,6 +233,10 @@ typedef struct {
     t_poly_voice * data[POLYPHONY];
     t_voc_voices * voices;
     
+    long         ons[VOICES_MAX_MIDI_NOTE_NUMBER];
+    long         offs[VOICES_MAX_MIDI_NOTE_NUMBER];
+    long         sampleNo;
+    
     float fs;    
     t_mono_modules * mono_modules;
     synth_vals vals;
