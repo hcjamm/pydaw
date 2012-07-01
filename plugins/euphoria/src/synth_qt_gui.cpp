@@ -840,31 +840,49 @@ void SamplerGUI::fileSelect()
 	}
     }
     
-    QString path = m_file_selector->open_button_pressed(this);
+    QStringList paths = m_file_selector->open_button_pressed_multiple(this);
     
     m_view_file_selector->lms_set_file(m_file_selector->lms_get_file());
     
-    if(!path.isEmpty())
+    if(!paths.isEmpty())
     {
-        if(!QFile::exists(path))
-        {
-            QMessageBox::warning(this, QString("Error"), QString("File cannot be read."));
-            return;
-        }
-        QStringList f_path_sections = path.split(QString("/"));
-        
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
+            
+        int f_sample_index_to_load = (m_sample_table->lms_selected_column);
+            
+        for(int i = 0; i < paths.count(); i++)
+        {
+            QString path = paths[i];
+
+            if(!path.isEmpty())
+            {
+                /*if(!QFile::exists(path))
+                {
+                    QMessageBox::warning(this, QString("Error"), QString("File cannot be read."));
+                    return;
+                }*/
                 
-        set_selected_sample_combobox_item((m_sample_table->lms_selected_column), f_path_sections.at((f_path_sections.count() - 1)));
-        
-        m_sample_graph->generatePreview(path, (m_sample_table->lms_selected_column));
-        
-        QTableWidgetItem * f_item = new QTableWidgetItem();
-        f_item->setText(path);
-        f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-        m_sample_table->lms_mod_matrix->setItem((m_sample_table->lms_selected_column), SMP_TB_FILE_PATH_INDEX, f_item);
-        m_sample_table->lms_mod_matrix->resizeColumnsToContents();
-        
+                QStringList f_path_sections = path.split(QString("/"));
+
+                set_selected_sample_combobox_item(f_sample_index_to_load, f_path_sections.at((f_path_sections.count() - 1)));
+
+                m_sample_graph->generatePreview(path, f_sample_index_to_load);
+
+                QTableWidgetItem * f_item = new QTableWidgetItem();
+                f_item->setText(path);
+                f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
+                m_sample_table->lms_mod_matrix->setItem(f_sample_index_to_load, SMP_TB_FILE_PATH_INDEX, f_item);
+                m_sample_table->lms_mod_matrix->resizeColumnsToContents();
+                
+                f_sample_index_to_load++;
+                
+                if(f_sample_index_to_load >= LMS_MAX_SAMPLE_COUNT)
+                {
+                    cerr << "Multiple sample loading index exceeded LMS_MAX_SAMPLE count, not all samples were loaded\n";
+                    break;
+                }
+            }
+        }
         generate_files_string();
                 
 #ifndef LMS_DEBUG_STANDALONE
