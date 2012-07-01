@@ -856,11 +856,11 @@ void SamplerGUI::fileSelect()
 
             if(!path.isEmpty())
             {
-                /*if(!QFile::exists(path))
+                if(!QFile::exists(path))
                 {
                     QMessageBox::warning(this, QString("Error"), QString("File cannot be read."));
-                    return;
-                }*/
+                    continue;
+                }
                 
                 QStringList f_path_sections = path.split(QString("/"));
 
