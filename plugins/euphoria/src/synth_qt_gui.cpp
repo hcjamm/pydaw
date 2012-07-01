@@ -769,7 +769,7 @@ void SamplerGUI::setSampleFile(QString files)
 {
     m_suppressHostUpdate = true;
 
-    cerr << "Calling SamplerGUI::setSampleFile\n";
+    cerr << "Calling SamplerGUI::setSampleFile with string:\n" << files << "\n";
     
     m_files = files;    
     
@@ -787,7 +787,18 @@ void SamplerGUI::setSampleFile(QString files)
         QTableWidgetItem * f_item = new QTableWidgetItem();
         f_item->setText(f_file_list[f_i]);
         f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-        m_sample_table->lms_mod_matrix->setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_item);              
+        m_sample_table->lms_mod_matrix->setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_item);       
+        
+        if(f_file_list[f_i].isEmpty())
+        {
+            continue;
+        }
+        
+        QStringList f_path_sections = f_file_list[f_i].split(QString("/"));        
+        
+        set_selected_sample_combobox_item(f_i, f_path_sections.at((f_path_sections.count() - 1)));
+        
+        m_sample_graph->generatePreview(f_file_list[f_i], f_i);
     }
 
     m_sample_table->lms_mod_matrix->resizeColumnsToContents();
