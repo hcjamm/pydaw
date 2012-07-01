@@ -949,6 +949,9 @@ char *samplerConfigure(LADSPA_Handle instance, const char *key, const char *valu
 	if (plugin_data->projectDir) free(plugin_data->projectDir);
 	plugin_data->projectDir = strdup(value);
 	return 0;
+    } else if (!strcmp(key, "lastdir")) {
+        //do nothing, this is only so the plugin host will recall the last sample directory
+        return NULL;
     }
 
     return strdup("error: unrecognized configure key");

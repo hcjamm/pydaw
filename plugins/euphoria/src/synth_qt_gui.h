@@ -102,6 +102,7 @@ public:
     QString files_string;
     
     void set_selected_sample_combobox_item(int,QString);
+    LMS_file_select * m_file_selector;
     
     //From Ray-V   TODO:  Are these necessary?
     
@@ -393,9 +394,7 @@ protected:
     QMenuBar *menubar;
     QMenu *menuFile;
         
-    //LMS_sample_viewer * m_sample_viewer;
-    LMS_file_select * m_file_selector;
-    
+    //LMS_sample_viewer * m_sample_viewer;        
     QVBoxLayout *m_smp_tab_main_verticalLayout;
     QVBoxLayout *m_main_v_layout;
     QTabWidget *m_main_tab;
