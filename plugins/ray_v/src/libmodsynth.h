@@ -106,6 +106,7 @@ typedef struct st_poly_voice
     /*Migrated from the now deprecate voice_data struct*/
     float   amp;
     float note_f;
+    int note;
     float osc1_linamp;
     float osc2_linamp;
     float noise_linamp;           

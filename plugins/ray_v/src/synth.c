@@ -262,6 +262,12 @@ static void activateLMS(LADSPA_Handle instance)
         plugin_data->data[i] = g_poly_init();
         plugin_data->data[i]->note_f = i;        
     }
+    plugin_data->sampleNo = 0;
+    
+    for (i = 0; i < VOICES_MAX_MIDI_NOTE_NUMBER; i++) {
+	plugin_data->ons[i] = -1;
+	plugin_data->offs[i] = -1;
+    }
     
     plugin_data->pitch = 1.0f;
     plugin_data->sv_pitch_bend_value = 0.0f;
@@ -370,6 +376,10 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                         continue;
                     }
                     
+                    plugin_data->ons[n.note] =
+			plugin_data->sampleNo + events[(plugin_data->event_pos)].time.tick;
+		    plugin_data->offs[n.note] = -1;
+                    
 		    plugin_data->data[voice]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + (plugin_data->vals.master_vol)), //-20db to 0db, + master volume (0 to -60)
                             plugin_data->mono_modules->amp_ptr); 
                     v_svf_velocity_mod(plugin_data->data[voice]->svf_filter, n.velocity);
@@ -380,6 +390,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                     data[voice].debug_counter = 0;                    
 #endif
                     plugin_data->data[voice]->note_f = (float)n.note;
+                    plugin_data->data[voice]->note = n.note;
                     //data[voice].hz = f_pit_midi_note_to_hz(data[voice].note_f);
                     
                     
@@ -433,7 +444,9 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                 {
                     snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
                     
-		    v_voc_note_off(plugin_data->voices, n.note);
+                    plugin_data->offs[n.note] = 
+                        plugin_data->sampleNo + events[(plugin_data->event_pos)].time.tick;
+		    //v_voc_note_off(plugin_data->voices, n.note);
 		}
 	    } 
             /*Note-off event*/
@@ -441,8 +454,9 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             {
 		snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
                 
-                v_voc_note_off(plugin_data->voices, n.note);
-
+                plugin_data->offs[n.note] = 
+                        plugin_data->sampleNo + events[(plugin_data->event_pos)].time.tick;
+                //v_voc_note_off(plugin_data->voices, n.note);
 	    } 
             /*Pitch-bend sequencer event, modify the voices pitch*/
             else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_PITCHBEND) 
@@ -489,8 +503,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
                         output0 + (plugin_data->pos), //output is the block array, I think + pos advances the index???
                         output1 + (plugin_data->pos), //output is the block array, I think + pos advances the index???
 			  (plugin_data->count), //has to do with iterating through stepsize, but I'm not sure how
-                        (plugin_data->voice));  //The voice number
-                        
+                        (plugin_data->voice));  //The voice number                        
 	    }
             
             plugin_data->voice = (plugin_data->voice) + 1; 
@@ -501,6 +514,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         
     }
     
+    plugin_data->sampleNo += sample_count;
 }
 
 static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count, int a_voice_number)
@@ -509,6 +523,18 @@ static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d, LADSPA_Data *ou
     
     /*Process an audio block*/
     while((d->i_voice)<count) {
+        
+        //Delay the note-on event until the sample it was called for
+        if(((p->sampleNo) + (d->i_voice)) < (p->ons[d->note]))
+        {
+            d->i_voice = (d->i_voice) + 1;
+            continue;
+        }
+        
+        if (((p->offs[(d->note)]) >= 0) && (((d->i_voice) + (p->sampleNo)) > p->offs[(d->note)]))
+        {            
+            v_poly_note_off(d);
+	}        
 	
         /*Here is where we periodically dump debug information if debugging is enabled*/
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -623,17 +649,15 @@ static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d, LADSPA_Data *ou
         out1[(d->i_voice)] += (d->current_sample);
                 
         d->i_voice = (d->i_voice) + 1;
-        /*End LibModSynth modifications*/
-    }
 
-    
-    /*If the main ADSR envelope has reached the end it's release stage, kill the voice.
-     However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't*/
-    if(d->adsr_amp->stage == 4)
-    {
-        p->voices->voices[a_voice_number].n_state = note_state_off;
+        /*If the main ADSR envelope has reached the end it's release stage, kill the voice.
+        However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't*/
+        if(d->adsr_amp->stage == 4)
+        {
+            p->voices->voices[a_voice_number].n_state = note_state_off;
+            p->ons[(d->i_voice)] = -1;
+        }        
     }
-        
 }
 
 /*This returns MIDI CCs for the different knobs*/ 
