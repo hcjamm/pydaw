@@ -16,6 +16,8 @@
 #include <QFileDialog>
 #include <QProcess>
 #include <QFileInfo>
+#include <QStringList>
+#include <QString>
 
 class LMS_file_select
 {
@@ -66,6 +68,22 @@ public:
         }
         
         return lms_file_path->text();
+    }
+    
+    /* Return multiple files
+     */
+    QStringList open_button_pressed_multiple(QWidget * a_parent)
+    {
+        QStringList f_result = QFileDialog::getOpenFileNames(a_parent, "Select an audio sample file", lms_last_directory, "Audio files (*.wav *.aiff)");
+        if(!f_result.isEmpty())
+        {
+            lms_file_path->setText(f_result[(f_result.count() - 1)]);
+            
+            QFileInfo f_fi(f_result[0]);
+            lms_last_directory = f_fi.absolutePath();
+        }
+        
+        return f_result;
     }
     
     void clear_button_pressed()
