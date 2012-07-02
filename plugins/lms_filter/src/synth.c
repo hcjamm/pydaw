@@ -262,7 +262,7 @@ void _init()
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = LMS_PLUGIN_UUID;
-	LMSLDescriptor->Label = "LMS_FILTER";
+	LMSLDescriptor->Label = LMS_PLUGIN_NAME;
 	LMSLDescriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE; // LADSPA_PROPERTY_INPLACE_BROKEN; //0;
 	LMSLDescriptor->Name = LMS_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = LMS_PLUGIN_DEV;
