@@ -538,7 +538,7 @@ extern \"C\" {
 #endif
 
 /*These should be customized for each developer and plugin*/
-#define LMS_PLUGIN_NAME \"$short_name\"
+#define LMS_PLUGIN_NAME \"" . uc($short_name) . "\"
 #define LMS_PLUGIN_LONG_NAME \"$long_name\";
 #define LMS_PLUGIN_DEV \"$name <$email>\";
 #define LMS_PLUGIN_UUID $uuid
