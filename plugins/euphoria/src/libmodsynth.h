@@ -89,7 +89,7 @@ typedef struct st_poly_voice
     t_amp * amp_ptr;
 
     /*Migrated from the now deprecate voice_data struct*/
-    float   amp;
+    //float   amp;
     float note_f;
     float osc1_linamp;
     float osc2_linamp;
@@ -158,7 +158,6 @@ t_poly_voice * g_poly_init(float a_sr)
     
     f_voice->amp_ptr = g_amp_get();
     
-    f_voice->amp = 1.0f;
     f_voice->note_f = 1.0f;
     f_voice->osc1_linamp = 1.0f;
     f_voice->osc2_linamp = 1.0f;

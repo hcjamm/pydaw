@@ -73,7 +73,10 @@ static QTextStream cerr(stderr);
 #define SMP_TB_LOW_NOTE_INDEX 2
 #define SMP_TB_HIGH_NOTE_INDEX 3
 #define SMP_TB_VOLUME_INDEX 4
-#define SMP_TB_FILE_PATH_INDEX 5
+#define SMP_TB_VEL_SENS_INDEX 5
+#define SMP_TB_VEL_LOW_INDEX 6
+#define SMP_TB_VEL_HIGH_INDEX 7
+#define SMP_TB_FILE_PATH_INDEX 8
 
 SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 		       QByteArray controlPath, QByteArray midiPath, QByteArray configurePath,
@@ -109,6 +112,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     f_sample_table_columns << new LMS_mod_matrix_column(note_selector, QString("Low Note"), 0, 1, -2);  //Low Note
     f_sample_table_columns << new LMS_mod_matrix_column(note_selector, QString("High Note"), 0, 1, 8);  //High Note    
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Volume"), -50, 36, -6);  //Volume
+    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Vel. Sens."), 0, 20, 10);  //Velocity Sensitivity
+    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Low Vel."), 0, 127, 0);  //Low Velocity
+    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("High Vel"), 0, 127, 127);  //High Velocity
     f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Path"), 0, 1, 0);  //File path            
     
     m_sample_table = new LMS_mod_matrix(this, LMS_MAX_SAMPLE_COUNT, f_sample_table_columns, LMS_FIRST_MOD_MATRIX_PORT, a_style);
@@ -461,6 +467,103 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[29]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vol29Changed(int)));
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[30]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vol30Changed(int)));
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[31]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vol31Changed(int)));
+        //new
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[0]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens0Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[1]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens1Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[2]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens2Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[3]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens3Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[4]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens4Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[5]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens5Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[6]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens6Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[7]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens7Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[8]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens8Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[9]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens9Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[10]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens10Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[11]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens11Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[12]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens12Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[13]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens13Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[14]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens14Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[15]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens15Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[16]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens16Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[17]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens17Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[18]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens18Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[19]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens19Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[20]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens20Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[21]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens21Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[22]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens22Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[23]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens23Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[24]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens24Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[25]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens25Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[26]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens26Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[27]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens27Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[28]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens28Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[29]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens29Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[30]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens30Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[31]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens31Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[0]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low0Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[1]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low1Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[2]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low2Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[3]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low3Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[4]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low4Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[5]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low5Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[6]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low6Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[7]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low7Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[8]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low8Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[9]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low9Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[10]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low10Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[11]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low11Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[12]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low12Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[13]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low13Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[14]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low14Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[15]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low15Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[16]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low16Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[17]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low17Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[18]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low18Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[19]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low19Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[20]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low20Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[21]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low21Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[22]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low22Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[23]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low23Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[24]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low24Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[25]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low25Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[26]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low26Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[27]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low27Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[28]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low28Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[29]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low29Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[30]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low30Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[31]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_low31Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[0]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high0Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[1]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high1Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[2]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high2Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[3]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high3Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[4]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high4Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[5]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high5Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[6]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high6Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[7]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high7Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[8]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high8Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[9]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high9Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[10]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high10Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[11]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high11Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[12]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high12Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[13]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high13Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[14]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high14Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[15]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high15Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[16]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high16Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[17]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high17Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[18]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high18Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[19]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high19Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[20]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high20Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[21]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high21Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[22]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high22Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[23]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high23Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[24]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high24Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[25]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high25Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[26]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high26Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[27]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high27Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[28]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high28Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[29]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high29Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[30]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high30Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[31]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high31Changed(int)));
         
 /*End synth_qt_gui.cpp Autogenerated connections*/
         
@@ -1109,8 +1212,43 @@ void SamplerGUI::sample_volChanged(int a_control_index)
                 (m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[a_control_index]->lms_port), 
                 (float)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[a_control_index]->lms_get_value()));
     }
-#endif    
-    
+#endif
+}
+
+void SamplerGUI::sample_vel_sensChanged(int a_control_index)
+{
+    m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_value_changed(0);
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) {        
+	lo_send(m_host, m_controlPath, "if",                 
+                (m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_port), 
+                (float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_get_value()));
+    }
+#endif
+}
+
+void SamplerGUI::sample_vel_lowChanged(int a_control_index)
+{
+    m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_value_changed(0);
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) {        
+	lo_send(m_host, m_controlPath, "if",                 
+                (m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_port), 
+                (float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_get_value()));
+    }
+#endif
+}
+
+void SamplerGUI::sample_vel_highChanged(int a_control_index)
+{
+    m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_value_changed(0);
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) {        
+	lo_send(m_host, m_controlPath, "if",                 
+                (m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_port), 
+                (float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_get_value()));
+    }
+#endif
 }
 
 void SamplerGUI::saveInstrumentToSingleFile()
@@ -1532,6 +1670,103 @@ void SamplerGUI::sample_vol28Changed(int a_value){sample_volChanged(28);}
 void SamplerGUI::sample_vol29Changed(int a_value){sample_volChanged(29);}
 void SamplerGUI::sample_vol30Changed(int a_value){sample_volChanged(30);}
 void SamplerGUI::sample_vol31Changed(int a_value){sample_volChanged(31);}
+//new
+void SamplerGUI::sample_vel_sens0Changed(int a_value){sample_vel_sensChanged(0);}
+void SamplerGUI::sample_vel_sens1Changed(int a_value){sample_vel_sensChanged(1);}
+void SamplerGUI::sample_vel_sens2Changed(int a_value){sample_vel_sensChanged(2);}
+void SamplerGUI::sample_vel_sens3Changed(int a_value){sample_vel_sensChanged(3);}
+void SamplerGUI::sample_vel_sens4Changed(int a_value){sample_vel_sensChanged(4);}
+void SamplerGUI::sample_vel_sens5Changed(int a_value){sample_vel_sensChanged(5);}
+void SamplerGUI::sample_vel_sens6Changed(int a_value){sample_vel_sensChanged(6);}
+void SamplerGUI::sample_vel_sens7Changed(int a_value){sample_vel_sensChanged(7);}
+void SamplerGUI::sample_vel_sens8Changed(int a_value){sample_vel_sensChanged(8);}
+void SamplerGUI::sample_vel_sens9Changed(int a_value){sample_vel_sensChanged(9);}
+void SamplerGUI::sample_vel_sens10Changed(int a_value){sample_vel_sensChanged(10);}
+void SamplerGUI::sample_vel_sens11Changed(int a_value){sample_vel_sensChanged(11);}
+void SamplerGUI::sample_vel_sens12Changed(int a_value){sample_vel_sensChanged(12);}
+void SamplerGUI::sample_vel_sens13Changed(int a_value){sample_vel_sensChanged(13);}
+void SamplerGUI::sample_vel_sens14Changed(int a_value){sample_vel_sensChanged(14);}
+void SamplerGUI::sample_vel_sens15Changed(int a_value){sample_vel_sensChanged(15);}
+void SamplerGUI::sample_vel_sens16Changed(int a_value){sample_vel_sensChanged(16);}
+void SamplerGUI::sample_vel_sens17Changed(int a_value){sample_vel_sensChanged(17);}
+void SamplerGUI::sample_vel_sens18Changed(int a_value){sample_vel_sensChanged(18);}
+void SamplerGUI::sample_vel_sens19Changed(int a_value){sample_vel_sensChanged(19);}
+void SamplerGUI::sample_vel_sens20Changed(int a_value){sample_vel_sensChanged(20);}
+void SamplerGUI::sample_vel_sens21Changed(int a_value){sample_vel_sensChanged(21);}
+void SamplerGUI::sample_vel_sens22Changed(int a_value){sample_vel_sensChanged(22);}
+void SamplerGUI::sample_vel_sens23Changed(int a_value){sample_vel_sensChanged(23);}
+void SamplerGUI::sample_vel_sens24Changed(int a_value){sample_vel_sensChanged(24);}
+void SamplerGUI::sample_vel_sens25Changed(int a_value){sample_vel_sensChanged(25);}
+void SamplerGUI::sample_vel_sens26Changed(int a_value){sample_vel_sensChanged(26);}
+void SamplerGUI::sample_vel_sens27Changed(int a_value){sample_vel_sensChanged(27);}
+void SamplerGUI::sample_vel_sens28Changed(int a_value){sample_vel_sensChanged(28);}
+void SamplerGUI::sample_vel_sens29Changed(int a_value){sample_vel_sensChanged(29);}
+void SamplerGUI::sample_vel_sens30Changed(int a_value){sample_vel_sensChanged(30);}
+void SamplerGUI::sample_vel_sens31Changed(int a_value){sample_vel_sensChanged(31);}
+void SamplerGUI::sample_vel_low0Changed(int a_value){sample_vel_lowChanged(0);}
+void SamplerGUI::sample_vel_low1Changed(int a_value){sample_vel_lowChanged(1);}
+void SamplerGUI::sample_vel_low2Changed(int a_value){sample_vel_lowChanged(2);}
+void SamplerGUI::sample_vel_low3Changed(int a_value){sample_vel_lowChanged(3);}
+void SamplerGUI::sample_vel_low4Changed(int a_value){sample_vel_lowChanged(4);}
+void SamplerGUI::sample_vel_low5Changed(int a_value){sample_vel_lowChanged(5);}
+void SamplerGUI::sample_vel_low6Changed(int a_value){sample_vel_lowChanged(6);}
+void SamplerGUI::sample_vel_low7Changed(int a_value){sample_vel_lowChanged(7);}
+void SamplerGUI::sample_vel_low8Changed(int a_value){sample_vel_lowChanged(8);}
+void SamplerGUI::sample_vel_low9Changed(int a_value){sample_vel_lowChanged(9);}
+void SamplerGUI::sample_vel_low10Changed(int a_value){sample_vel_lowChanged(10);}
+void SamplerGUI::sample_vel_low11Changed(int a_value){sample_vel_lowChanged(11);}
+void SamplerGUI::sample_vel_low12Changed(int a_value){sample_vel_lowChanged(12);}
+void SamplerGUI::sample_vel_low13Changed(int a_value){sample_vel_lowChanged(13);}
+void SamplerGUI::sample_vel_low14Changed(int a_value){sample_vel_lowChanged(14);}
+void SamplerGUI::sample_vel_low15Changed(int a_value){sample_vel_lowChanged(15);}
+void SamplerGUI::sample_vel_low16Changed(int a_value){sample_vel_lowChanged(16);}
+void SamplerGUI::sample_vel_low17Changed(int a_value){sample_vel_lowChanged(17);}
+void SamplerGUI::sample_vel_low18Changed(int a_value){sample_vel_lowChanged(18);}
+void SamplerGUI::sample_vel_low19Changed(int a_value){sample_vel_lowChanged(19);}
+void SamplerGUI::sample_vel_low20Changed(int a_value){sample_vel_lowChanged(20);}
+void SamplerGUI::sample_vel_low21Changed(int a_value){sample_vel_lowChanged(21);}
+void SamplerGUI::sample_vel_low22Changed(int a_value){sample_vel_lowChanged(22);}
+void SamplerGUI::sample_vel_low23Changed(int a_value){sample_vel_lowChanged(23);}
+void SamplerGUI::sample_vel_low24Changed(int a_value){sample_vel_lowChanged(24);}
+void SamplerGUI::sample_vel_low25Changed(int a_value){sample_vel_lowChanged(25);}
+void SamplerGUI::sample_vel_low26Changed(int a_value){sample_vel_lowChanged(26);}
+void SamplerGUI::sample_vel_low27Changed(int a_value){sample_vel_lowChanged(27);}
+void SamplerGUI::sample_vel_low28Changed(int a_value){sample_vel_lowChanged(28);}
+void SamplerGUI::sample_vel_low29Changed(int a_value){sample_vel_lowChanged(29);}
+void SamplerGUI::sample_vel_low30Changed(int a_value){sample_vel_lowChanged(30);}
+void SamplerGUI::sample_vel_low31Changed(int a_value){sample_vel_lowChanged(31);}
+void SamplerGUI::sample_vel_high0Changed(int a_value){sample_vel_highChanged(0);}
+void SamplerGUI::sample_vel_high1Changed(int a_value){sample_vel_highChanged(1);}
+void SamplerGUI::sample_vel_high2Changed(int a_value){sample_vel_highChanged(2);}
+void SamplerGUI::sample_vel_high3Changed(int a_value){sample_vel_highChanged(3);}
+void SamplerGUI::sample_vel_high4Changed(int a_value){sample_vel_highChanged(4);}
+void SamplerGUI::sample_vel_high5Changed(int a_value){sample_vel_highChanged(5);}
+void SamplerGUI::sample_vel_high6Changed(int a_value){sample_vel_highChanged(6);}
+void SamplerGUI::sample_vel_high7Changed(int a_value){sample_vel_highChanged(7);}
+void SamplerGUI::sample_vel_high8Changed(int a_value){sample_vel_highChanged(8);}
+void SamplerGUI::sample_vel_high9Changed(int a_value){sample_vel_highChanged(9);}
+void SamplerGUI::sample_vel_high10Changed(int a_value){sample_vel_highChanged(10);}
+void SamplerGUI::sample_vel_high11Changed(int a_value){sample_vel_highChanged(11);}
+void SamplerGUI::sample_vel_high12Changed(int a_value){sample_vel_highChanged(12);}
+void SamplerGUI::sample_vel_high13Changed(int a_value){sample_vel_highChanged(13);}
+void SamplerGUI::sample_vel_high14Changed(int a_value){sample_vel_highChanged(14);}
+void SamplerGUI::sample_vel_high15Changed(int a_value){sample_vel_highChanged(15);}
+void SamplerGUI::sample_vel_high16Changed(int a_value){sample_vel_highChanged(16);}
+void SamplerGUI::sample_vel_high17Changed(int a_value){sample_vel_highChanged(17);}
+void SamplerGUI::sample_vel_high18Changed(int a_value){sample_vel_highChanged(18);}
+void SamplerGUI::sample_vel_high19Changed(int a_value){sample_vel_highChanged(19);}
+void SamplerGUI::sample_vel_high20Changed(int a_value){sample_vel_highChanged(20);}
+void SamplerGUI::sample_vel_high21Changed(int a_value){sample_vel_highChanged(21);}
+void SamplerGUI::sample_vel_high22Changed(int a_value){sample_vel_highChanged(22);}
+void SamplerGUI::sample_vel_high23Changed(int a_value){sample_vel_highChanged(23);}
+void SamplerGUI::sample_vel_high24Changed(int a_value){sample_vel_highChanged(24);}
+void SamplerGUI::sample_vel_high25Changed(int a_value){sample_vel_highChanged(25);}
+void SamplerGUI::sample_vel_high26Changed(int a_value){sample_vel_highChanged(26);}
+void SamplerGUI::sample_vel_high27Changed(int a_value){sample_vel_highChanged(27);}
+void SamplerGUI::sample_vel_high28Changed(int a_value){sample_vel_highChanged(28);}
+void SamplerGUI::sample_vel_high29Changed(int a_value){sample_vel_highChanged(29);}
+void SamplerGUI::sample_vel_high30Changed(int a_value){sample_vel_highChanged(30);}
+void SamplerGUI::sample_vel_high31Changed(int a_value){sample_vel_highChanged(31);}
 
 /*End synth_qt_gui.cpp Autogenerated slots*/
 
@@ -1711,6 +1946,18 @@ void SamplerGUI::v_set_control(int port, float a_value)
     {
         m_sample_ends[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)] = a_value;
     }
+    else if((port >= LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
+    {
+        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[(port - LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
+    }
+    else if((port >= LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
+    {
+        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[(port - LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
+    }
+    else if((port >= LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
+    {
+        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[(port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
+    }
     else
     {
         cerr << "v_set_control called with invalid port " << port << "\n";
@@ -1794,7 +2041,19 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
         {
                 lo_send(m_host, m_controlPath, "if", port, float(a_value));
         }
-    }    
+    }
+    else if((port >= LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
+    {
+        sample_vel_sensChanged((port - LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN));
+    }
+    else if((port >= LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
+    {
+        sample_vel_lowChanged((port - LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN));
+    }
+    else if((port >= LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
+    {
+        sample_vel_highChanged((port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN));
+    }
     else
     {
         cerr << "v_control_changed called with invalid port " << port << "\n";
@@ -1868,6 +2127,18 @@ int SamplerGUI::i_get_control(int port)
     else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
     {
         return m_sample_ends[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)];
+    }
+    else if((port >= LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
+    {
+        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[(port - LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)]->lms_get_widget()))->value();
+    }
+    else if((port >= LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
+    {
+        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[(port - LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)]->lms_get_widget()))->value();
+    }
+    else if((port >= LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
+    {
+        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[(port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)]->lms_get_widget()))->value();
     }
     else
     {
@@ -2049,6 +2320,27 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
         int f_value = port - LMS_SAMPLE_END_PORT_RANGE_MIN;
         //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
         gui->m_sample_ends[f_value] = (int)value;
+    }
+    else if((port >= LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN;        
+        gui->m_suppressHostUpdate = TRUE;
+        gui->m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[f_value]->lms_set_value(value);
+        gui->m_suppressHostUpdate = FALSE;
+    }
+    else if((port >= LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN;        
+        gui->m_suppressHostUpdate = TRUE;
+        gui->m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[f_value]->lms_set_value(value);
+        gui->m_suppressHostUpdate = FALSE;
+    }
+    else if((port >= LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN;        
+        gui->m_suppressHostUpdate = TRUE;
+        gui->m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[f_value]->lms_set_value(value);
+        gui->m_suppressHostUpdate = FALSE;
     }
     else
     {

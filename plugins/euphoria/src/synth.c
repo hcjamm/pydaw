@@ -194,6 +194,18 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     {
         plugin->sampleEnds[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)] = data;
     }
+    else if((port >= LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
+    {
+        plugin->sample_vel_sens[(port - LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)] = data;
+    }    
+    else if((port >= LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
+    {
+        plugin->sample_vel_low[(port - LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)] = data;
+    }
+    else if((port >= LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
+    {
+        plugin->sample_vel_high[(port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)] = data;
+    }
 }
 
 static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
@@ -214,6 +226,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->current_sample = 0;
     plugin_data->loaded_samples_count = 0;
     plugin_data->lin_interpolator = g_lin_get();
+    plugin_data->amp = 1.0f;
     
     int f_i = 0;
     while(f_i < LMS_MAX_SAMPLE_COUNT)
@@ -379,7 +392,9 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
             {                       
                 if((n >= *(plugin_data->low_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])) && 
-                        (n <= *(plugin_data->high_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])))
+                (n <= *(plugin_data->high_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])) &&
+                (plugin_data->velocities[n] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])) &&
+                (plugin_data->velocities[n] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])))
                 {
                     plugin_data->current_sample = (plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]);
                     
@@ -389,8 +404,11 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                     plugin_data->sampleEndPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) - ((plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleEnds[(plugin_data->current_sample)])) * .0001));
 
                     
-                    plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(*(plugin_data->sample_vol[(plugin_data->current_sample)]) , plugin_data->amp_ptr);
-                    
+                    plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(
+                            (*(plugin_data->sample_vol[(plugin_data->current_sample)])) + 
+                            (((*(plugin_data->sample_vel_sens[(plugin_data->current_sample)])) * 0.007874016 * (plugin_data->velocities[n]))
+                            - (*(plugin_data->sample_vel_sens[(plugin_data->current_sample)])))
+                            , plugin_data->amp_ptr);                    
                     ratio =
                     f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]),                     
                             ((plugin_data->data[n]->base_pitch) + (plugin_data->data[n]->lfo_pitch_output)),
@@ -437,7 +455,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             sample = f_axf_run_xfade((plugin_data->data[n]->dist_dry_wet[ch]), (plugin_data->data[n]->filter_output), 
                     f_clp_clip(plugin_data->data[n]->clipper1[ch], (plugin_data->data[n]->filter_output)));
             
-            sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->data[n]->amp) * (plugin_data->data[n]->lfo_amp_output) 
+            sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp) * (plugin_data->data[n]->lfo_amp_output) 
                     * (plugin_data->sample_amp[(plugin_data->current_sample)]);
     
             //If the main ADSR envelope has reached the end it's release stage, kill the voice.
@@ -532,8 +550,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                     
                     //const int voice = i_pick_voice(plugin_data->voices, n.note);
                     
-		    plugin_data->data[n.note]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + *(plugin_data->master_vol)), //-20db to 0db, + master volume (0 to -60)
-                            plugin_data->mono_modules->amp_ptr);                     
+		    plugin_data->amp = f_db_to_linear_fast(*(plugin_data->master_vol), plugin_data->mono_modules->amp_ptr);                     
                     
                     plugin_data->data[n.note]->note_f = (float)n.note;
                                         
@@ -568,7 +585,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                     //Move all of the multi-channel functions here
                     for(i = 0; i < 2; i++)
                     {
-                        v_svf_velocity_mod(plugin_data->data[n.note]->svf_filter[i], n.velocity);
+                        //v_svf_velocity_mod(plugin_data->data[n.note]->svf_filter[i], n.velocity);
                         v_clp_set_in_gain(plugin_data->data[n.note]->clipper1[i], *(plugin_data->dist));
                         v_svf_set_res(plugin_data->data[n.note]->svf_filter[i], *(plugin_data->res));
                         v_axf_set_xfade(plugin_data->data[n.note]->dist_dry_wet[i], (*(plugin_data->dist_wet) * .01));
@@ -1316,9 +1333,39 @@ void _init()
         while(f_i < LMS_SAMPLE_END_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Sample Start";
+            port_names[f_i] = "Sample End";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;
+            
+            f_i++;
+        }
+        
+        while(f_i < LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Velocity Sensitivity";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 20;
+            
+            f_i++;
+        }
+        
+        while(f_i < LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Low Velocity";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;
+            
+            f_i++;
+        }
+        
+        while(f_i < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "High Velocity";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;
             
             f_i++;
         }
