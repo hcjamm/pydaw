@@ -15,6 +15,7 @@ extern "C" {
 #endif
 
 #include "../filter/svf.h"
+#include "../filter/comb_filter.h"
 #include "../distortion/clipper.h"
 #include "../../lib/smoother-linear.h"
     
@@ -22,9 +23,8 @@ extern "C" {
     
 typedef struct st_mf3_multi
 {
-    int effect_index;
-    //Currently only 1 or 2 are supported
-    int channels;
+    int effect_index;    
+    int channels;  //Currently only 1 or 2 are supported
     t_state_variable_filter * svf0;
     t_state_variable_filter * svf1;
     t_clipper * clp0;
@@ -41,17 +41,25 @@ typedef struct st_mf3_multi
 typedef inline void (*fp_mf3_run)(t_mf3_multi*,float,float,float);
 
 inline void v_mf3_set(t_mf3_multi*,int,int);
-inline void v_mf3_run_off(t_mf3_multi*,float,float,float);
-inline void v_mf3_run_lp2(t_mf3_multi*,float,float,float);
-inline void v_mf3_run_lp4(t_mf3_multi*,float,float,float);
-inline void v_mf3_run_hp2(t_mf3_multi*,float,float,float);
-inline void v_mf3_run_hp4(t_mf3_multi*,float,float,float);
-inline void v_mf3_run_bp2(t_mf3_multi*,float,float,float);
-inline void v_mf3_run_bp4(t_mf3_multi*,float,float,float);
-inline void v_mf3_run_eq(t_mf3_multi*,float,float,float);
-inline void v_mf3_run_dist(t_mf3_multi*,float,float,float);
+inline void v_mf3_run_off(t_mf3_multi*,float,float,float,float,float);
+inline void v_mf3_run_lp2(t_mf3_multi*,float,float,float,float,float);
+inline void v_mf3_run_lp4(t_mf3_multi*,float,float,float,float,float);
+inline void v_mf3_run_hp2(t_mf3_multi*,float,float,float,float,float);
+inline void v_mf3_run_hp4(t_mf3_multi*,float,float,float,float,float);
+inline void v_mf3_run_bp2(t_mf3_multi*,float,float,float,float,float);
+inline void v_mf3_run_bp4(t_mf3_multi*,float,float,float,float,float);
+inline void v_mf3_run_eq(t_mf3_multi*,float,float,float,float,float);
+inline void v_mf3_run_dist(t_mf3_multi*,float,float,float,float,float);
 
-inline float f_mf3_midi_to_pitch(float);
+inline float f_mfx_transform_filter_cutoff(float);
+inline float f_mfx_transform_filter_res(float);
+inline float f_mfx_transform_eq_gain(float);
+inline float f_mfx_transform_dry_wet(float);
+inline float f_mfx_transform_comb_cutoff(float);
+inline float f_mfx_transform_dist_gain(float);
+inline float f_mfx_transform_ignored_knob(float);
+
+//inline float f_mf3_midi_to_pitch(float);
 
 t_mf3_multi g_mf3_get(float);
 
@@ -116,6 +124,45 @@ inline void v_mf3_set(t_mf3_multi* a_mf3, int a_fx_index, int a_channels)
         a_mf3->channels = a_channels;
         /*TODO:  function pointers, etc...*/
     }
+}
+
+inline void v_mf3_run_off(t_mf3_multi* a_mf3, float a_in0, float a_in1, float a_knob1,float a_knob2, float a_knob3)
+{
+    a_mf3->output0 = 0.0f;
+    a_mf3->output1 = 0.0f;
+}
+
+inline void v_mf3_run_lp2(t_mf3_multi* a_mf3, float a_in0, float a_in1, float a_knob1,float a_knob2, float a_knob3)
+{
+    a_mf3->control_value0 = f_mfx_transform_filter_cutoff(a_knob1);
+    a_mf3->control_value1 = f_mfx_transform_filter_res(a_knob2 );
+    
+    v_svf_set_cutoff_base(a_mf3->svf0, (a_mf3->control_value0));
+    v_svf_set_res(a_mf3->svf0, (a_mf3->control_value1));
+    a_mf3->output0 = v_svf_run_2_pole_lp(a_mf3->svf0, a_in0);
+    
+    v_svf_set_cutoff_base(a_mf3->svf1, (a_mf3->control_value0));
+    v_svf_set_res(a_mf3->svf1, (a_mf3->control_value1));
+    a_mf3->output1 = v_svf_run_2_pole_lp(a_mf3->svf1, a_in1);
+}
+
+inline void v_mf3_run_lp4(t_mf3_multi* a_mf3, float a_in0, float a_in1, float a_knob1,float a_knob2, float a_knob3);
+inline void v_mf3_run_hp2(t_mf3_multi* a_mf3, float a_in0, float a_in1, float a_knob1,float a_knob2, float a_knob3);
+inline void v_mf3_run_hp4(t_mf3_multi* a_mf3, float a_in0, float a_in1, float a_knob1,float a_knob2, float a_knob3);
+inline void v_mf3_run_bp2(t_mf3_multi* a_mf3, float a_in0, float a_in1, float a_knob1,float a_knob2, float a_knob3);
+inline void v_mf3_run_bp4(t_mf3_multi* a_mf3, float a_in0, float a_in1, float a_knob1,float a_knob2, float a_knob3);
+inline void v_mf3_run_eq(t_mf3_multi* a_mf3, float a_in0, float a_in1, float a_knob1,float a_knob2, float a_knob3);
+inline void v_mf3_run_dist(t_mf3_multi* a_mf3, float a_in0, float a_in1, float a_knob1,float a_knob2, float a_knob3);
+
+//TODO:  These functions weren't exact, go back and calculate the desired values
+inline float f_mfx_transform_filter_cutoff(float a_knob)
+{
+    return (a_knob * 0.787401575) + 20;
+}
+
+inline float f_mfx_transform_filter_res(float a_knob)
+{
+    return (a_knob * 0.236220472) - 31;
 }
 
 /* t_mf3_multi g_mf3_get(
