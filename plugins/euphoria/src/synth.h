@@ -43,6 +43,9 @@ typedef struct {
     LADSPA_Data *sample_vol[LMS_MAX_SAMPLE_COUNT];     //in decibels    
     LADSPA_Data *sampleStarts[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sampleEnds[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_vel_sens[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_vel_low[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_vel_high[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *selected_sample;
     
     //From Ray-V
@@ -107,7 +110,7 @@ typedef struct {
     float fs;    //From Ray-V
     long         ons[Sampler_NOTES];
     long         offs[Sampler_NOTES];
-    char         velocities[Sampler_NOTES];
+    int         velocities[Sampler_NOTES];
     float       sample_position[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];
     long         sampleNo;
     char        *projectDir;
@@ -120,6 +123,8 @@ typedef struct {
     t_pit_ratio * smp_pit_ratio[LMS_MAX_SAMPLE_COUNT];
     t_ccm_midi_cc_map * midi_cc_map;    
     t_poly_voice * data[Sampler_NOTES];
+    
+    float amp;  //linear amplitude, from the master volume knob
     
     t_lin_interpolater * lin_interpolator;
     
