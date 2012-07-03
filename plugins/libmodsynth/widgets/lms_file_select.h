@@ -18,6 +18,7 @@
 #include <QFileInfo>
 #include <QStringList>
 #include <QString>
+#include <QTextStream>
 
 class LMS_file_select
 {
@@ -46,8 +47,30 @@ public:
         lms_file_path->setReadOnly(TRUE);
         lms_last_directory = QString("");
         
-        /*TODO:  Read this from a to-be-created LMS global config file*/
         lms_editor_path = QString("/usr/bin/audacity");
+        
+        QString f_global_config_path(QDir::homePath() + QString("/dssi/lms_global_wave_editor.txt"));
+
+        //QByteArray ba = f_global_config_path.toLocal8Bit();
+        
+        if(QFile::exists(f_global_config_path))
+        {
+            QFile f_file(f_global_config_path);
+            QTextStream f_in(&f_file);
+            f_file.open(QIODevice::ReadOnly | QIODevice::Text);
+            lms_editor_path = f_in.readAll();
+            f_file.close();
+        }
+        else
+        {
+            QFile f_file(f_global_config_path);
+            f_file.open(QIODevice::WriteOnly | QIODevice::Text);
+            QTextStream f_out(&f_file);
+            f_out << "/usr/bin/audacity";
+            f_out.flush();
+            f_file.close(); 
+        }
+        
         
         lms_layout->addWidget(lms_file_path);
         lms_layout->addWidget(lms_clear_button);
