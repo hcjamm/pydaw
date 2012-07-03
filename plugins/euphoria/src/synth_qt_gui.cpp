@@ -113,7 +113,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Volume"), -50, 36, -6);  //Volume
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Vel. Sens."), 0, 20, 10);  //Velocity Sensitivity
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Low Vel."), 0, 127, 0);  //Low Velocity
-    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("High Vel"), 0, 127, 127);  //High Velocity
+    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("High Vel."), 0, 127, 127);  //High Velocity
     f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Path"), 0, 1, 0);  //File path            
     
     m_sample_table = new LMS_mod_matrix(this, LMS_MAX_SAMPLE_COUNT, f_sample_table_columns, LMS_FIRST_MOD_MATRIX_PORT, a_style);
