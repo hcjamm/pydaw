@@ -6,7 +6,7 @@ MOC ?= moc
 
 PREFIX ?= /usr/local
 
-BASE_FLAGS     = -O2 -ffast-math -fomit-frame-pointer -fvisibility=hidden -fPIC -mtune=generic -msse -Wall -Isrc -I.
+BASE_FLAGS     = -O3 -ffast-math -fomit-frame-pointer -fvisibility=hidden -fPIC -mtune=generic -msse -msse2 -msse3 -funroll-loops -Wall -Isrc -I.
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
 BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11 sm sndfile) $(CXXFLAGS)
 LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile samplerate)
@@ -20,7 +20,7 @@ CXX_OBJS = src/synth_qt_gui.o src/moc_synth_qt_gui.o
 all: euphoria.so LMS_EUPHORIA_qt
 
 euphoria.so: $(C_OBJS)
-	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
+	$(CC) $(C_OBJS) $(LINK_CFLAGS)  -o $@
 
 LMS_EUPHORIA_qt: $(CXX_OBJS)
 	$(CXX) $(CXX_OBJS) $(LINK_CXXFLAGS) -o $@
