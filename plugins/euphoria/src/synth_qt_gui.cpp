@@ -1216,10 +1216,6 @@ void SamplerGUI::sample_volChanged(int a_control_index)
 
 void SamplerGUI::sample_vel_sensChanged(int a_control_index)
 {
-    cerr << LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN << " " << LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX << " " << SMP_TB_VEL_SENS_INDEX << "\n";
-    cerr << "sample_vel_sensChanged a_control_index==" << a_control_index << " value==" << 
-            (m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_get_value()) << " port==" << 
-            (m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_port) << "\n";    
     m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_value_changed(0);
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
@@ -1231,11 +1227,7 @@ void SamplerGUI::sample_vel_sensChanged(int a_control_index)
 }
 
 void SamplerGUI::sample_vel_lowChanged(int a_control_index)
-{
-    cerr << LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN << " " << LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX << " " << SMP_TB_VEL_LOW_INDEX << "\n";    
-    cerr << "sample_vel_lowChanged a_control_index==" << a_control_index << " value==" <<
-            (m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_get_value()) << " port==" <<
-            (m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_port) << "\n";
+{    
     m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_value_changed(0);
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
@@ -1311,18 +1303,28 @@ void SamplerGUI::saveInstrumentToSingleFile()
                 {
                     QDir f_dir(f_qfileinfo.absolutePath());
                                         
-                    stream << i << LMS_DELIMITER << f_dir.relativeFilePath(m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text()) << "\n";    
+                    stream << i << LMS_FILES_STRING_DELIMITER << 
+                            f_dir.relativeFilePath(m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text()) << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_PITCH_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_START_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_END_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)) << "\n";
                 }
                 else
                 {
-                    stream << i << LMS_DELIMITER << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << "\n";     
+                    stream << i << LMS_FILES_STRING_DELIMITER << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << "\n";     
                 }
             }
             
             stream << LMS_FILE_CONTROLS_TAG << "\n";
             stream << LMS_FILE_CONTROLS_TAG_EUP_V1 << "\n";
             
-            for(int i = LMS_FIRST_CONTROL_PORT; i < Sampler_Stereo_COUNT; i++)        
+            for(int i = LMS_FIRST_CONTROL_PORT; i <= LMS_LAST_CONTROL_PORT; i++)        
             {   
                 stream << i << LMS_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";                
             }   
@@ -1463,9 +1465,11 @@ void SamplerGUI::openInstrumentFromFile()
                     cerr << "f_current_stage == 0 on line# " << f_line_number << ".  " << line << "\n";
                 }break;
                 case 1:{
-                    QStringList file_arr = line.split(LMS_DELIMITER);
+                    QStringList file_arr = line.split(LMS_FILES_STRING_DELIMITER);
                     
-                    if(file_arr.count() != 2)
+                    int f_sample_index = file_arr.at(0).toInt();
+                    
+                    if(file_arr.count() < 2)
                     {
                         cerr << "Malformed file definition at line# " << f_line_number << ".  " << line << "\n";                        
                     }                    
@@ -1476,7 +1480,7 @@ void SamplerGUI::openInstrumentFromFile()
                             QTableWidgetItem * f_item = new QTableWidgetItem();
                             f_item->setText(QString(""));
                             f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-                            m_sample_table->lms_mod_matrix->setItem(file_arr.at(0).toInt(), SMP_TB_FILE_PATH_INDEX, f_item);   
+                            m_sample_table->lms_mod_matrix->setItem(f_sample_index, SMP_TB_FILE_PATH_INDEX, f_item);   
                         }
                         else
                         {
@@ -1502,6 +1506,40 @@ void SamplerGUI::openInstrumentFromFile()
                             {
                                 cerr << "Invalid file " << line << "  full path: " << f_full_path << "\n";
                             }
+                        }
+                    }
+                    
+                    for(int i = 2; i < file_arr.count(); i++)
+                    {
+                        switch(i)
+                        {
+                            case 2:
+                                v_set_control((f_sample_index + LMS_SAMPLE_PITCH_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
+                            case 3:
+                                v_set_control((f_sample_index + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
+                            case 4:
+                                v_set_control((f_sample_index + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
+                            case 5:
+                                v_set_control((f_sample_index + LMS_SAMPLE_VOLUME_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
+                            case 6:
+                                v_set_control((f_sample_index + LMS_SAMPLE_START_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
+                            case 7:
+                                v_set_control((f_sample_index + LMS_SAMPLE_END_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
+                            case 8:
+                                v_set_control((f_sample_index + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
+                            case 9:
+                                v_set_control((f_sample_index + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
+                            case 10:
+                                v_set_control((f_sample_index + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
                         }
                     }
                 }
