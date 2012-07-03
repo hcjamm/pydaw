@@ -978,6 +978,8 @@ void SamplerGUI::setSampleFile(QString files)
 
     m_sample_table->lms_mod_matrix->resizeColumnsToContents();
     
+    selectionChanged();
+    
     m_suppressHostUpdate = false;
 }
 
