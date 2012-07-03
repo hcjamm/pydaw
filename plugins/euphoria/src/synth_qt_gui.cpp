@@ -33,14 +33,13 @@ GNU General Public License for more details.
 #include <quuid.h>
 #include "dssi.h"
 #include <QFont>
+//#include <qt4/QtGui/qabstractbutton.h>
 
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/SM/SMlib.h>
-#include <qt4/QtGui/qabstractbutton.h>
-
 
 static int handle_x11_error(Display *dpy, XErrorEvent *err)
 {
@@ -1217,11 +1216,15 @@ void SamplerGUI::sample_volChanged(int a_control_index)
 
 void SamplerGUI::sample_vel_sensChanged(int a_control_index)
 {
+    cerr << LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN << " " << LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX << " " << SMP_TB_VEL_SENS_INDEX << "\n";
+    cerr << "sample_vel_sensChanged a_control_index==" << a_control_index << " value==" << 
+            (m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_get_value()) << " port==" << 
+            (m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_port) << "\n";    
     m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_value_changed(0);
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",                 
-                (m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_port), 
+                (LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN + a_control_index), 
                 (float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_get_value()));
     }
 #endif
@@ -1229,25 +1232,34 @@ void SamplerGUI::sample_vel_sensChanged(int a_control_index)
 
 void SamplerGUI::sample_vel_lowChanged(int a_control_index)
 {
+    cerr << LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN << " " << LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX << " " << SMP_TB_VEL_LOW_INDEX << "\n";    
+    cerr << "sample_vel_lowChanged a_control_index==" << a_control_index << " value==" <<
+            (m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_get_value()) << " port==" <<
+            (m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_port) << "\n";
     m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_value_changed(0);
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",                 
-                (m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_port), 
+                (LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN + a_control_index), 
                 (float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_get_value()));
     }
 #endif
 }
 
 void SamplerGUI::sample_vel_highChanged(int a_control_index)
-{
+{    
     m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_value_changed(0);
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
-	lo_send(m_host, m_controlPath, "if",                 
-                (m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_port), 
+	lo_send(m_host, m_controlPath, "if",
+                (LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN + a_control_index),
                 (float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_get_value()));
     }
+#else
+    int test_value = (m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_get_value());
+    int test_port = (m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_port);   
+    int ought_to_be_right_port = LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN + a_control_index;
+    cerr << LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN << " " << LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX << " " << SMP_TB_VEL_HIGH_INDEX << "\n";
 #endif
 }
 
@@ -1998,8 +2010,6 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case LMS_DIST_WET: distWetChanged(a_value); break;
             case LMS_FILTER_ENV_AMT: filterEnvAmtChanged(a_value); break;        
             case LMS_MASTER_VOLUME: masterVolumeChanged(a_value); break;
-            //case LMS_MASTER_UNISON_VOICES: masterUnisonVoicesChanged(a_value); break;
-            //case LMS_MASTER_UNISON_SPREAD: masterUnisonSpreadChanged(a_value); break;
             case LMS_MASTER_GLIDE: masterGlideChanged(a_value); break;
             case LMS_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;
             case LMS_PITCH_ENV_AMT: pitchEnvAmtChanged(a_value); break;
