@@ -408,7 +408,8 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                             (*(plugin_data->sample_vol[(plugin_data->current_sample)])) + 
                             (((*(plugin_data->sample_vel_sens[(plugin_data->current_sample)])) * 0.007874016 * (plugin_data->velocities[n]))
                             - (*(plugin_data->sample_vel_sens[(plugin_data->current_sample)])))
-                            , plugin_data->amp_ptr);                    
+                            , plugin_data->amp_ptr);
+                    
                     ratio =
                     f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]),                     
                             ((plugin_data->data[n]->base_pitch) + (plugin_data->data[n]->lfo_pitch_output)),
@@ -428,7 +429,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                     sample += f_linear_interpolate_ptr_wrap(plugin_data->sampleData[ch][(plugin_data->current_sample)], 
                     (plugin_data->sampleCount[(plugin_data->current_sample)]),
                     (f_adjusted_sample_position),
-                    plugin_data->lin_interpolator);
+                    plugin_data->lin_interpolator) * (plugin_data->sample_amp[(plugin_data->current_sample)]);
                 }
 
                 plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
@@ -455,8 +456,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             sample = f_axf_run_xfade((plugin_data->data[n]->dist_dry_wet[ch]), (plugin_data->data[n]->filter_output), 
                     f_clp_clip(plugin_data->data[n]->clipper1[ch], (plugin_data->data[n]->filter_output)));
             
-            sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp) * (plugin_data->data[n]->lfo_amp_output) 
-                    * (plugin_data->sample_amp[(plugin_data->current_sample)]);
+            sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp) * (plugin_data->data[n]->lfo_amp_output);
     
             //If the main ADSR envelope has reached the end it's release stage, kill the voice.
             //However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't            

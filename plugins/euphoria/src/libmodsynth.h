@@ -22,7 +22,6 @@ extern "C" {
 #include "../libmodsynth/constants.h"
     
 /*includes for any libmodsynth modules you'll be using*/
-#include "../../libmodsynth/lib/osc_core.h"
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/lib/smoother-linear.h"
 #include "../../libmodsynth/modules/filter/svf.h"

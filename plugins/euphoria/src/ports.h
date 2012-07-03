@@ -36,13 +36,13 @@
  ...
  <<><<|{Begin Controls}|>><>>
  <<><<|{controls_identifier|app=lms_euphoria|version=1}|>><>>
- 2|100
- 3|50
+ 2:100
+ 3:50
  ...
  <<><<|{Begin Controls}|>><>>
  <<><<|{controls_identifier|app=super_duper_sampler|version=6}|>><>>
- 2|780
- 3|5000
+ 2:780
+ 3:5000
  ...
  */
 #define LMS_FILE_CONTROLS_TAG_EUP_V1 "<<><<|{controls_identifier|app=lms_euphoria|version=1}|>><>>"
