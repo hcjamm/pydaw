@@ -593,7 +593,7 @@ src/moc_synth_qt_gui.cpp: src/synth_qt_gui.h
 
 install:
 	install -d \$(DESTDIR)\$(PREFIX)/lib/dssi
-	install -d \$(DESTDIR)\$(PREFIX)/lib/dssi/euphoria
+	install -d \$(DESTDIR)\$(PREFIX)/lib/dssi/$short_name
 	install -m 644 $short_name.so \$(DESTDIR)\$(PREFIX)/lib/dssi
 	install -m 755 $gui_name \$(DESTDIR)\$(PREFIX)/lib/dssi/$short_name
 
