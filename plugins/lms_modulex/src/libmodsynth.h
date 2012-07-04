@@ -22,16 +22,8 @@ extern "C" {
 #include "../libmodsynth/constants.h"
     
 /*includes for any libmodsynth modules you'll be using*/
-#include "../../libmodsynth/lib/pitch_core.h"
-#include "../../libmodsynth/modules/filter/svf.h"
-#include "../../libmodsynth/lib/smoother-iir.h"
-   
-/*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
- require less CPU time than running through if or switch statements.
- Functions from the library that have their own parameters (such as a pointer to 
- their associated struct type as a parameter) should declare their own function pointer types*/
-typedef float (*fp_funcptr_audio_generic)();
-    
+#include "../../libmodsynth/modules/multifx/multifx3knob.h"
+       
 /*Declare any static variables that should be used globally in LibModSynth
  Note that any constants not requiring dynamically generated data should be declared in constants.h
  */
@@ -51,10 +43,8 @@ void v_init_lms(float f_sr)
 
 typedef struct st_mono_modules
 {
-    t_smoother_iir * filter_smoother;
-    t_state_variable_filter * svf_filter0;
-    t_state_variable_filter * svf_filter1;
-    fp_svf_run_filter svf_function;
+    t_mf3_multi * multieffect0;
+    fp_mf3_run fx1_func_ptr;
     float filter_output;  //For assigning the filter output to    
     float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
 }t_mono_modules;
@@ -67,10 +57,8 @@ t_mono_modules * v_mono_init(float);
 t_mono_modules * v_mono_init(float a_sr)
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
-    a_mono->filter_smoother = g_smr_iir_get_smoother();    
-    a_mono->svf_filter0 = g_svf_get(a_sr);
-    a_mono->svf_filter1 = g_svf_get(a_sr);
-    a_mono->svf_function = v_svf_run_2_pole_lp;
+    a_mono->multieffect0 = g_mf3_get(a_sr);    
+    a_mono->fx1_func_ptr = v_mf3_run_off;
             
     return a_mono;
 }

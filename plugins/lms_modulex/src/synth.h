@@ -38,16 +38,14 @@ printf("debug information");
 /*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
  as they are iterated through*/
 #define LMS_FIRST_CONTROL_PORT 4
-#define LMS_CUTOFF  4
-#define LMS_RES  5
-#define LMS_TYPE 6
+#define LMS_FX1_KNOB1  4
+#define LMS_FX1_KNOB2  5
+#define LMS_FX1_KNOB3  6
+#define LMS_FX1_COMBOBOX 7
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 6
-#define LMS_COUNT 7 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_LAST_CONTROL_PORT 7
+#define LMS_COUNT 8 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
-
-#define POLYPHONY   8  //maximum voices played at one time
-#define MIDI_NOTES  128  //Maximum MIDI note.  You probably don't want to change this
 #define STEP_SIZE   16
     
 
@@ -55,9 +53,10 @@ printf("debug information");
 typedef struct {    
     /*The variables below this line correspond to GUI controls*/
     
-    LADSPA_Data cutoff;
-    LADSPA_Data res;    
-    LADSPA_Data filter_type;
+    LADSPA_Data fx1_knob1;
+    LADSPA_Data fx1_knob2;    
+    LADSPA_Data fx1_knob3;
+    LADSPA_Data fx1_combobox;
     
     /*The variables below this line do NOT correspond to GUI controls*/
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -86,9 +85,10 @@ typedef struct {
     LADSPA_Data *input1;
     LADSPA_Data *output0;
     LADSPA_Data *output1;
-    LADSPA_Data *cutoff;
-    LADSPA_Data *res;
-    LADSPA_Data *filter_type;
+    LADSPA_Data *fx1_knob1;
+    LADSPA_Data *fx1_knob2;    
+    LADSPA_Data *fx1_knob3;
+    LADSPA_Data *fx1_combobox;
     
     float fs;    
     t_mono_modules * mono_modules;
