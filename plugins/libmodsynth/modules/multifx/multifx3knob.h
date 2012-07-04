@@ -217,8 +217,9 @@ inline void v_mf3_run_bp4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 }
 
 inline void v_mf3_run_eq(t_mf3_multi* a_mf3, float a_in0, float a_in1)
-{    
+{   
     f_mfx_transform_svf_filter(a_mf3);
+    a_mf3->control_value2 = (a_mf3->control2) * 0.377952756 - 24;
     v_svf_set_eq(a_mf3->svf0, (a_mf3->control_value2));
     v_svf_set_eq(a_mf3->svf1, (a_mf3->control_value2));
     
