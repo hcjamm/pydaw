@@ -19,6 +19,7 @@ extern "C" {
 #include "../distortion/clipper.h"
 #include "../../lib/smoother-linear.h"
 #include "../signal_routing/audio_xfade.h"
+#include "../../lib/amp.h"
     
 /*BIG TODO:  Add a function to modify for the modulation sources*/
     
@@ -34,7 +35,9 @@ typedef struct st_mf3_multi
     float control_value0, control_value1, control_value2;    
     float mod_value0, mod_value1, mod_value2;
     t_audio_xfade * xfader;
+    float outgain;  //For anything with an outgain knob
     t_smoother_linear * smoother_linear;
+    t_amp * amp_ptr;
 }t_mf3_multi;
 
 /*A function pointer for switching between effect types*/
@@ -231,10 +234,14 @@ inline void v_mf3_run_dist(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
     a_mf3->control_value0 = ((a_mf3->control0) * 0.283464567);
+    a_mf3->control_value1 = ((a_mf3->control1) * 0.007874016);
+    a_mf3->control_value2 = (((a_mf3->control2) * 0.094488189) - 12);
+    a_mf3->outgain = f_db_to_linear((a_mf3->control_value2), a_mf3->amp_ptr);
     v_clp_set_in_gain(a_mf3->clipper, (a_mf3->control_value0));
+    v_axf_set_xfade(a_mf3->xfader, (a_mf3->control_value1));
     
-    a_mf3->output0 = f_clp_clip(a_mf3->clipper, a_in0);
-    a_mf3->output1 = f_clp_clip(a_mf3->clipper, a_in1);
+    a_mf3->output0 = f_axf_run_xfade(a_mf3->xfader, a_in0, ((a_mf3->outgain) * f_clp_clip(a_mf3->clipper, a_in0)));
+    a_mf3->output1 = f_axf_run_xfade(a_mf3->xfader, a_in1, ((a_mf3->outgain) * f_clp_clip(a_mf3->clipper, a_in1)));
 }
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi* a_mf3)
@@ -267,7 +274,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->svf0 = g_svf_get(a_sample_rate);
     f_result->svf1 = g_svf_get(a_sample_rate);
     f_result->clipper = g_clp_get_clipper();
-    v_clp_set_clip_sym(f_result->clipper, 0.9f);
+    v_clp_set_clip_sym(f_result->clipper, -3.0f);
     f_result->output0 = 0.0f;
     f_result->output1 = 0.0f;
     f_result->control0 = 0.0f;
@@ -280,7 +287,9 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->mod_value1 = 0.0f;
     f_result->mod_value2 = 0.0f;
     f_result->xfader = g_axf_get_audio_xfade(-3.0f);
+    f_result->outgain = 1.0f;
     f_result->smoother_linear = g_sml_get_smoother_linear(a_sample_rate, 127.0f, 0.0f, 0.1f);
+    f_result->amp_ptr = g_amp_get();
     
     return f_result;
 }
