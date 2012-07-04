@@ -19,6 +19,7 @@
 #include <QStringList>
 #include <QString>
 #include <QTextStream>
+#include <QMessageBox>
 
 class LMS_file_select
 {
@@ -58,8 +59,16 @@ public:
             QFile f_file(f_global_config_path);
             QTextStream f_in(&f_file);
             f_file.open(QIODevice::ReadOnly | QIODevice::Text);
-            lms_editor_path = f_in.readAll();
+            lms_editor_path = f_in.readLine();
+            
             f_file.close();
+            
+            if((!QFile::exists(lms_editor_path)) && (QFile::exists(QString("/usr/bin/audacity"))))
+            {
+                //TODO:  notify?
+                //Revert to Audacity
+                lms_editor_path = QString("/usr/bin/audacity");
+            }
         }
         else
         {
@@ -126,9 +135,21 @@ public:
     
     void open_in_editor_button_pressed(QWidget * a_parent)
     {
+        if(!QFile::exists(lms_editor_path))
+        {
+            QMessageBox::warning(lms_file_path, QString("No Wave Editor Found"), QString("Could not locate ") + lms_editor_path +
+            QString(" or another suitable wave editor.  Please edit ~/dssi/lms_global_wave_editor.txt with your wave editor of choice, or install Audacity."));
+            return;
+        }
+        
         QStringList commandAndParameters;
 
         QString f_file_path = lms_file_path->text();
+        
+        if(f_file_path.isEmpty())
+        {
+            return;
+        }
         
 	commandAndParameters << f_file_path;
 
