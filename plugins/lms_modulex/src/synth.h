@@ -57,27 +57,8 @@ typedef struct {
     LADSPA_Data fx1_knob2;    
     LADSPA_Data fx1_knob3;
     LADSPA_Data fx1_combobox;
-    
-    /*The variables below this line do NOT correspond to GUI controls*/
-#ifdef LMS_DEBUG_MAIN_LOOP
-    int debug_counter;
-#endif
 } synth_vals;
 
-#ifdef LMS_DEBUG_MAIN_LOOP
-
-void dump_debug_synth_vals(synth_vals*);
-
-/*Any changes to voice_data require this to be changed*/
-void dump_debug_synth_vals(synth_vals * a_data)
-{
-    printf("\n\nRunning dump_debug_synth_vals\n");
-    printf("osc1type == %f\n", a_data->osc1type);   
-    printf("res == %f\n", a_data->res);    
-    printf("timbre == %f\n", a_data->cutoff);  
-}
-
-#endif
 
 /*GUI Step 13:  Add a variable for each control in the LMS type*/
 typedef struct {
@@ -101,9 +82,6 @@ typedef struct {
     int i_buffer_clear;    
     
 } LMS;
-
-
-
 
 #ifdef	__cplusplus
 }
