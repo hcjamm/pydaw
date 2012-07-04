@@ -21,7 +21,7 @@
 
 enum LMS_KNOB_CONVERSION
 {
-    lms_kc_integer, lms_kc_decimal, lms_kc_pitch, lms_kc_none
+    lms_kc_integer, lms_kc_decimal, lms_kc_pitch, lms_kc_none, lms_kc_127_pitch, lms_kc_127_zero_to_x
 };
 
 class LMS_knob_regular : public LMS_control
@@ -105,7 +105,12 @@ class LMS_knob_regular : public LMS_control
             
             lms_conv_type  = lms_kc_none;
                                     
-            lms_port = a_lms_port;            
+            lms_port = a_lms_port;
+            
+            min_label_value_127 = 0.0f;
+            min_label_value_127 = 1.0f;
+            label_value_127_add_to = 0.0f;
+            label_value_127_multiply_by = 1.0f;
         }
         
         void lms_value_changed(int a_value)
@@ -126,6 +131,14 @@ class LMS_knob_regular : public LMS_control
                        ((int)(440*pow(2,((float)(a_value-57))*.0833333)))
                         ));
                         break;
+                    case lms_kc_127_pitch:
+                        lms_value->setText(QString::number(
+                       ((int)(440*pow(2,((float)(((a_value * 0.818897638) + 20) -57))*.0833333)))
+                        ));
+                        break;
+                    case lms_kc_127_zero_to_x:
+                        lms_value->setText(QString::number((((float)a_value) * label_value_127_multiply_by) - label_value_127_add_to));
+                        break;
                 }
         }
         
@@ -135,6 +148,12 @@ class LMS_knob_regular : public LMS_control
         QDial * lms_knob;        
         QLabel * lms_value;
         LMS_KNOB_CONVERSION lms_conv_type;
+        
+        //used for scaling the value for the lms_kc_127_zero_to_x LMS_KNOB_CONVERSION
+        float min_label_value_127;
+        float max_label_value_127;
+        float label_value_127_add_to;
+        float label_value_127_multiply_by;
         
         void lms_set_value(int a_value)
         {
@@ -157,6 +176,15 @@ class LMS_knob_regular : public LMS_control
         }
         
         ~LMS_knob_regular(){};
+        
+        void lms_set_127_min_max(float a_min, float a_max)
+        {
+            min_label_value_127 = a_min;
+            max_label_value_127 = a_max;
+            
+            label_value_127_add_to = 0 - a_min;
+            label_value_127_multiply_by = ((a_max - a_min)/127);
+        }
 };
 
 #endif	/* KNOB_REGULAR_H */
