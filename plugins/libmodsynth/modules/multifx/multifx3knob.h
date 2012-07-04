@@ -245,11 +245,13 @@ inline void f_mfx_transform_svf_filter(t_mf3_multi* a_mf3)
     //res
     a_mf3->control_value1 = ((a_mf3->control1) * 0.236220472) - 30;
     
-    v_svf_set_cutoff_base(a_mf3->svf0, (a_mf3->control_value0));
+    v_svf_set_cutoff_base(a_mf3->svf0, (a_mf3->control_value0));    
     v_svf_set_res(a_mf3->svf0, (a_mf3->control_value1));    
+    v_svf_set_cutoff(a_mf3->svf0);
     
     v_svf_set_cutoff_base(a_mf3->svf1, (a_mf3->control_value0));
     v_svf_set_res(a_mf3->svf1, (a_mf3->control_value1));    
+    v_svf_set_cutoff(a_mf3->svf1);
 }
 
 
