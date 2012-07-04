@@ -299,7 +299,7 @@ void _init()
         
         /*Parameters for type*/        
 	port_descriptors[LMS_FX1_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_FX1_COMBOBOX] = "Type";
+	port_names[LMS_FX1_COMBOBOX] = "FX1 Type";
 	port_range_hints[LMS_FX1_COMBOBOX].HintDescriptor =
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
