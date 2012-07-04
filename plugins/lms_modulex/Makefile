@@ -43,7 +43,7 @@ install:
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi/euphoria
 	install -m 644 lms_modulex.so $(DESTDIR)$(PREFIX)/lib/dssi
-	install -m 755 LMS_MODULEX_qt $(DESTDIR)$(PREFIX)/lib/dssi/euphoria
+	install -m 755 LMS_MODULEX_qt $(DESTDIR)$(PREFIX)/lib/dssi/lms_modulex
 
 clean:
 	rm -f src/*.o src/moc_*.cpp *.so LMS_MODULEX_qt
