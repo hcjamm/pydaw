@@ -595,7 +595,7 @@ install:
 	install -d \$(DESTDIR)\$(PREFIX)/lib/dssi
 	install -d \$(DESTDIR)\$(PREFIX)/lib/dssi/euphoria
 	install -m 644 $short_name.so \$(DESTDIR)\$(PREFIX)/lib/dssi
-	install -m 755 $gui_name \$(DESTDIR)\$(PREFIX)/lib/dssi/euphoria
+	install -m 755 $gui_name \$(DESTDIR)\$(PREFIX)/lib/dssi/$short_name
 
 clean:
 	rm -f src/*.o src/moc_*.cpp *.so $gui_name
