@@ -91,14 +91,17 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     case LMS_OUTPUT1:
 	plugin->output1 = data;
 	break;    
-    case LMS_CUTOFF:
-	plugin->cutoff = data;              
+    case LMS_FX1_KNOB1:
+	plugin->fx1_knob1 = data;              
 	break;
-    case LMS_RES:
-	plugin->res = data;              
+    case LMS_FX1_KNOB2:
+	plugin->fx1_knob2 = data;              
 	break;    
-    case LMS_TYPE:
-        plugin->filter_type = data;
+    case LMS_FX1_KNOB3:
+        plugin->fx1_knob3 = data;
+        break;    
+    case LMS_FX1_COMBOBOX:
+        plugin->fx1_combobox = data;
         break;    
     }
 }
@@ -111,11 +114,12 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
     plugin_data->fs = s_rate;
     
     plugin_data->midi_cc_map = g_ccm_get();
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_CUTOFF, 21, "Cutoff");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES, 20, "Res");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_TYPE, 28, "Type");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_KNOB1, 67, "FX1Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_KNOB2, 71, "FX1Knob2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_KNOB3, 70, "FX1Knob3");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_COMBOBOX, 91, "FX1Combobox");
     
-    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "lms_filter-cc_map.txt");
+    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "lms_modulex-cc_map.txt");
     
     /*LibModSynth additions*/
     v_init_lms(s_rate);  //initialize any static variables    
@@ -155,57 +159,18 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->i_mono_out = 0;
     
     /*Set the values from synth_vals in RunLMS*/
-    plugin_data->vals.cutoff = *(plugin_data->cutoff);    
-    plugin_data->vals.res = *(plugin_data->res);
-    plugin_data->vals.filter_type = *(plugin_data->filter_type);
-    
-    /*Set the svf_function function pointer to the filter type selected in the GUI*/
-    switch((int)(plugin_data->vals.filter_type))    
-    {
-                case 0:
-                    plugin_data->mono_modules->svf_function = v_svf_run_2_pole_lp;
-                    break;
-                case 1:
-                    plugin_data->mono_modules->svf_function = v_svf_run_2_pole_hp;
-                    break;
-                case 2:
-                    plugin_data->mono_modules->svf_function = v_svf_run_2_pole_bp;
-                    break;
-                case 3:
-                    plugin_data->mono_modules->svf_function = v_svf_run_4_pole_lp;
-                    break;
-                case 4:
-                    plugin_data->mono_modules->svf_function = v_svf_run_4_pole_hp;
-                    break;
-                case 5:
-                    plugin_data->mono_modules->svf_function = v_svf_run_4_pole_bp;
-                    break;                
-                case 6:
-                    plugin_data->mono_modules->svf_function = v_svf_run_no_filter;
-                    break;
-
-    }
+    plugin_data->vals.fx1_knob1 = *(plugin_data->fx1_knob1);
+    plugin_data->vals.fx1_knob2 = *(plugin_data->fx1_knob2);
+    plugin_data->vals.fx1_knob3 = *(plugin_data->fx1_knob3);
+    plugin_data->vals.fx1_combobox = *(plugin_data->fx1_combobox);
     
     
     while ((plugin_data->pos) < sample_count) 
     {	
-        /*Run the smoother for the cutoff knob*/
-        v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.cutoff));
+        plugin_data->mono_modules->fx1_func_ptr = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
         
-        /*Set filter resonance from the GUI*/
-        v_svf_set_res(plugin_data->mono_modules->svf_filter0, plugin_data->vals.res);  
-        /*This sets the base frequency of the filter cutoff.*/
-        v_svf_set_cutoff_base(plugin_data->mono_modules->svf_filter0, (plugin_data->mono_modules->filter_smoother->output));
-        /*This calculates the final cutoff for the filter.  This is done separately because you may wish to have many different
-         sources modulating the cutoff before you actually set the filter coefficients with it*/
-        v_svf_set_cutoff(plugin_data->mono_modules->svf_filter0);
-        
-        /*Repeat for the right channel.  It would technically be more efficient to have one set of coefficients for both channels,
-         but it's not worth the added effort since this plugin only uses about 1% of one core's CPU on my PC.*/
-        v_svf_set_res(plugin_data->mono_modules->svf_filter1, plugin_data->vals.res);  
-        v_svf_set_cutoff_base(plugin_data->mono_modules->svf_filter1, (plugin_data->mono_modules->filter_smoother->output));
-        v_svf_set_cutoff(plugin_data->mono_modules->svf_filter1);
-        
+        v_mf3_set(plugin_data->mono_modules->multieffect0, 
+                *(plugin_data->fx1_knob1), *(plugin_data->fx1_knob2), *(plugin_data->fx1_knob3));
         
 	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
 	
@@ -224,9 +189,11 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         /*The main loop where processing happens*/
         while((plugin_data->i_mono_out) < (plugin_data->count))
         {   
+            plugin_data->mono_modules->fx1_func_ptr(plugin_data->mono_modules->multieffect0, input0[(plugin_data->buffer_pos)], input1[(plugin_data->buffer_pos)]); 
+            
             plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
-            output0[(plugin_data->buffer_pos)] = plugin_data->mono_modules->svf_function(plugin_data->mono_modules->svf_filter0, input0[(plugin_data->buffer_pos)]);
-            output1[(plugin_data->buffer_pos)] = plugin_data->mono_modules->svf_function(plugin_data->mono_modules->svf_filter1, input1[(plugin_data->buffer_pos)]);
+            output0[(plugin_data->buffer_pos)] = plugin_data->mono_modules->multieffect0->output0;
+            output1[(plugin_data->buffer_pos)] = plugin_data->mono_modules->multieffect0->output1; 
 
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
@@ -303,40 +270,44 @@ void _init()
 	port_range_hints[LMS_OUTPUT1].HintDescriptor = 0;
         
         /*Define the LADSPA ports for the plugin in the class constructor*/
-        
-	
-	/* Parameters for timbre */
-	port_descriptors[LMS_CUTOFF] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_CUTOFF] = "Timbre";
-	port_range_hints[LMS_CUTOFF].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_CUTOFF].LowerBound =  20;
-	port_range_hints[LMS_CUTOFF].UpperBound =  124;
-        
-        /* Parameters for res */
-	port_descriptors[LMS_RES] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_RES] = "Res";
-	port_range_hints[LMS_RES].HintDescriptor =
+        	
+	port_descriptors[LMS_FX1_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX1_KNOB1] = "FX1 Knob1";
+	port_range_hints[LMS_FX1_KNOB1].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_RES].LowerBound =  -30;
-	port_range_hints[LMS_RES].UpperBound =  0;
+	port_range_hints[LMS_FX1_KNOB1].LowerBound =  0;
+	port_range_hints[LMS_FX1_KNOB1].UpperBound =  127;
         
+        	
+	port_descriptors[LMS_FX1_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX1_KNOB2] = "FX1 Knob2";
+	port_range_hints[LMS_FX1_KNOB2].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FX1_KNOB2].LowerBound =  0;
+	port_range_hints[LMS_FX1_KNOB2].UpperBound =  127;
+        	
+	port_descriptors[LMS_FX1_KNOB3] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX1_KNOB3] = "FX1 Knob3";
+	port_range_hints[LMS_FX1_KNOB3].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FX1_KNOB3].LowerBound =  0;
+	port_range_hints[LMS_FX1_KNOB3].UpperBound =  127;
         
         
         /*Parameters for type*/        
-	port_descriptors[LMS_TYPE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_TYPE] = "Type";
-	port_range_hints[LMS_TYPE].HintDescriptor =
+	port_descriptors[LMS_FX1_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX1_COMBOBOX] = "Type";
+	port_range_hints[LMS_FX1_COMBOBOX].HintDescriptor =
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_TYPE].LowerBound =  0;
-	port_range_hints[LMS_TYPE].UpperBound =  5;
+	port_range_hints[LMS_FX1_COMBOBOX].LowerBound =  0;
+	port_range_hints[LMS_FX1_COMBOBOX].UpperBound =  8;
         
         
-        /*Step 17:  Add LADSPA ports*/
-        
+        /*Step 17:  Add LADSPA ports*/        
         
         /*Here is where the functions in synth.c get pointed to for the host to call*/
 	LMSLDescriptor->activate = activateLMS;

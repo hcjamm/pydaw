@@ -28,8 +28,8 @@ GNU General Public License for more details.
 #include <string>
 #include <stdlib.h>
 
-#include "../../libmodsynth/widgets/ui_modules/filter.h"
 #include "../../libmodsynth/widgets/lms_main_layout.h"
+#include "../../libmodsynth/widgets/ui_modules/multieffect_basic.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -61,24 +61,26 @@ public:
         
 public slots:
     /*Event handlers for setting knob values*/
-    void setCutoff (float val);
-    void setRes (float val);
-    void setType (float val);
+    void setFX1knob1 (float val);
+    void setFX1knob2 (float val);
+    void setFX1knob3 (float val);
+    void setFX1combobox (float val);
         
     void aboutToQuit();
     
 protected slots:
     /*Event handlers for receiving changed knob values*/
-    void cutoffChanged (int);
-    void resChanged (int);
-    void typeChanged (int);
+    void fx1knob1Changed(int);
+    void fx1knob2Changed(int);
+    void fx1knob3Changed(int);
+    void fx1comboboxChanged(int);
         
     void oscRecv();
 protected:
     
     /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
     LMS_main_layout * m_main_layout;
-    LMS_filter_widget * m_filter_widget;
+    LMS_multieffect * m_fx1;
     
     lo_address m_host;
     QByteArray m_controlPath;
