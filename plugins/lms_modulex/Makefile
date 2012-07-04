@@ -41,7 +41,7 @@ src/moc_synth_qt_gui.cpp: src/synth_qt_gui.h
 
 install:
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi
-	install -d $(DESTDIR)$(PREFIX)/lib/dssi/euphoria
+	install -d $(DESTDIR)$(PREFIX)/lib/dssi/lms_modulex
 	install -m 644 lms_modulex.so $(DESTDIR)$(PREFIX)/lib/dssi
 	install -m 755 LMS_MODULEX_qt $(DESTDIR)$(PREFIX)/lib/dssi/lms_modulex
 
