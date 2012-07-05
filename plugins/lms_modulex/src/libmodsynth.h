@@ -44,9 +44,9 @@ void v_init_lms(float f_sr)
 typedef struct st_mono_modules
 {
     t_mf3_multi * multieffect0;
-    fp_mf3_run fx1_func_ptr;
-    float filter_output;  //For assigning the filter output to    
-    float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
+    fp_mf3_run fx1_func_ptr0;    
+    float current_sample0;
+    float current_sample1;
 }t_mono_modules;
     
 
@@ -58,7 +58,7 @@ t_mono_modules * v_mono_init(float a_sr)
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
     a_mono->multieffect0 = g_mf3_get(a_sr);    
-    a_mono->fx1_func_ptr = v_mf3_run_off;
+    a_mono->fx1_func_ptr0 = v_mf3_run_off;
             
     return a_mono;
 }

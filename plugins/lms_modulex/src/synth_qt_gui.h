@@ -61,18 +61,18 @@ public:
         
 public slots:
     /*Event handlers for setting knob values*/
+    void setFX1knob0 (float val);
     void setFX1knob1 (float val);
     void setFX1knob2 (float val);
-    void setFX1knob3 (float val);
     void setFX1combobox (float val);
         
     void aboutToQuit();
     
 protected slots:
     /*Event handlers for receiving changed knob values*/
+    void fx1knob0Changed(int);
     void fx1knob1Changed(int);
     void fx1knob2Changed(int);
-    void fx1knob3Changed(int);
     void fx1comboboxChanged(int);
         
     void oscRecv();
@@ -80,7 +80,7 @@ protected:
     
     /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
     LMS_main_layout * m_main_layout;
-    LMS_multieffect * m_fx1;
+    LMS_multieffect * m_fx0;
     
     lo_address m_host;
     QByteArray m_controlPath;
