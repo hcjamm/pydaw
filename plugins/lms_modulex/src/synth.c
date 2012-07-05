@@ -167,7 +167,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     
     while ((plugin_data->pos) < sample_count) 
     {	
-        plugin_data->mono_modules->fx1_func_ptr = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
+        plugin_data->mono_modules->fx1_func_ptr0 = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
         
         v_mf3_set(plugin_data->mono_modules->multieffect0, 
                 *(plugin_data->fx1_knob1), *(plugin_data->fx1_knob2), *(plugin_data->fx1_knob3));
@@ -189,7 +189,10 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         /*The main loop where processing happens*/
         while((plugin_data->i_mono_out) < (plugin_data->count))
         {   
-            plugin_data->mono_modules->fx1_func_ptr(plugin_data->mono_modules->multieffect0, input0[(plugin_data->buffer_pos)], input1[(plugin_data->buffer_pos)]); 
+            plugin_data->mono_modules->current_sample0 = input0[(plugin_data->buffer_pos)];
+            plugin_data->mono_modules->current_sample1 = input1[(plugin_data->buffer_pos)];
+            
+            plugin_data->mono_modules->fx1_func_ptr0(plugin_data->mono_modules->multieffect0, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
             
             plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
             output0[(plugin_data->buffer_pos)] = plugin_data->mono_modules->multieffect0->output0;
