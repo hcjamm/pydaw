@@ -84,10 +84,9 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 'ray_v',
 'lms_comb',
 'lms_delay',
-'lms_distortion',
-'lms_filter',
 'lms_eq5',
-'euphoria'
+'euphoria',
+'lms_modulex'
 );
 #Unfinished plugins not yet in the official package:
 #lms_dynamics,
@@ -98,9 +97,8 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 @ladspa_plugins = (
 'lms_comb',
 'lms_delay',
-'lms_distortion',
-'lms_filter',
-'lms_eq5'
+'lms_eq5',
+'lms_modulex'
 );
 
 #This is the notes that your package manager will show when browsing your package.  Change this if packaging your own plugins.
@@ -257,7 +255,7 @@ foreach $val(@plugins)
 {
 #copy the .so, .la and LMS_qt files to the directory we created
 print "Compiling $val\n";
-system("cd $val ; make");
+system("cd $val ; make clean; make");
 
 print "Copying files\n";
 system("cd $val ; make PREFIX=/usr DESTDIR=../$package_dir install");
