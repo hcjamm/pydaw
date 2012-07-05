@@ -61,19 +61,19 @@ public:
         
 public slots:
     /*Event handlers for setting knob values*/
-    void setFX1knob0 (float val);
-    void setFX1knob1 (float val);
-    void setFX1knob2 (float val);
-    void setFX1combobox (float val);
+    void setFX0knob0 (float val);
+    void setFX0knob1 (float val);
+    void setFX0knob2 (float val);
+    void setFX0combobox (float val);
         
     void aboutToQuit();
     
 protected slots:
     /*Event handlers for receiving changed knob values*/
-    void fx1knob0Changed(int);
-    void fx1knob1Changed(int);
-    void fx1knob2Changed(int);
-    void fx1comboboxChanged(int);
+    void fx0knob0Changed(int);
+    void fx0knob1Changed(int);
+    void fx0knob2Changed(int);
+    void fx0comboboxChanged(int);
         
     void oscRecv();
 protected:
