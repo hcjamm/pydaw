@@ -38,27 +38,28 @@ printf("debug information");
 /*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
  as they are iterated through*/
 #define LMS_FIRST_CONTROL_PORT 4
-#define LMS_FX1_KNOB1  4
-#define LMS_FX1_KNOB2  5
-#define LMS_FX1_KNOB3  6
-#define LMS_FX1_COMBOBOX 7
+#define LMS_FX0_KNOB0  4
+#define LMS_FX0_KNOB1  5
+#define LMS_FX0_KNOB2  6
+#define LMS_FX0_COMBOBOX 7
+#define LMS_FX1_KNOB0  8
+#define LMS_FX1_KNOB1  9
+#define LMS_FX1_KNOB2  10
+#define LMS_FX1_COMBOBOX 11
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 7
-#define LMS_COUNT 8 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_LAST_CONTROL_PORT 11
+#define LMS_COUNT 12 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 #define STEP_SIZE   16
     
-
-/*GUI Step 12:  Add a variable for each control in the synth_vals type*/
-typedef struct {    
-    /*The variables below this line correspond to GUI controls*/
-    
+/*
+typedef struct {        
     LADSPA_Data fx1_knob1;
     LADSPA_Data fx1_knob2;    
     LADSPA_Data fx1_knob3;
     LADSPA_Data fx1_combobox;
 } synth_vals;
-
+*/
 
 /*GUI Step 13:  Add a variable for each control in the LMS type*/
 typedef struct {
@@ -66,14 +67,20 @@ typedef struct {
     LADSPA_Data *input1;
     LADSPA_Data *output0;
     LADSPA_Data *output1;
-    LADSPA_Data *fx1_knob1;
-    LADSPA_Data *fx1_knob2;    
-    LADSPA_Data *fx1_knob3;
-    LADSPA_Data *fx1_combobox;
     
+    LADSPA_Data *fx0_knob0;
+    LADSPA_Data *fx0_knob1;    
+    LADSPA_Data *fx0_knob2;
+    LADSPA_Data *fx0_combobox;
+        
+    LADSPA_Data *fx1_knob0;
+    LADSPA_Data *fx1_knob1;    
+    LADSPA_Data *fx1_knob2;
+    LADSPA_Data *fx1_combobox;
+        
     float fs;    
     t_mono_modules * mono_modules;
-    synth_vals vals;
+    //synth_vals vals;
     t_ccm_midi_cc_map * midi_cc_map;
     int pos;
     int count;
