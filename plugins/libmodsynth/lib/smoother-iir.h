@@ -22,6 +22,7 @@ typedef struct s_smoother_iir
 }t_smoother_iir;
 
 inline void v_smr_iir_run(t_smoother_iir*, float);
+inline void v_smr_iir_run_fast(t_smoother_iir*, float);
 
 /* inline void v_smr_iir_run(
  * t_smoother_iir * 
@@ -32,6 +33,17 @@ inline void v_smr_iir_run(t_smoother_iir*, float);
 inline void v_smr_iir_run(t_smoother_iir * a_smoother, float a_in) 
 { 
     a_smoother->output = (a_in * .01) + ((a_smoother->output) * .99f);     
+}
+
+/* inline void v_smr_iir_run_fast(
+ * t_smoother_iir * 
+ * a_smoother, float a_in)  //The input to be smoothed
+ * 
+ * Use t_smoother_iir->output as your new control value after running this
+ */
+inline void v_smr_iir_run_fast(t_smoother_iir * a_smoother, float a_in) 
+{ 
+    a_smoother->output = (a_in * .2) + ((a_smoother->output) * .8f);
 }
 
 t_smoother_iir * g_smr_iir_get_smoother();
