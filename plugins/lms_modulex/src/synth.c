@@ -78,21 +78,32 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     
     /*Add the ports from step 9 to the connectPortLMS event handler*/
     
-    switch (port) {
-    case LMS_INPUT0: plugin->input0 = data; break;
-    case LMS_INPUT1: plugin->input1 = data; break;
-    case LMS_OUTPUT0: plugin->output0 = data; break;
-    case LMS_OUTPUT1: plugin->output1 = data; break;   
-    
-    case LMS_FX0_KNOB0: plugin->fx0_knob0 = data; break;
-    case LMS_FX0_KNOB1:	plugin->fx0_knob1 = data; break;    
-    case LMS_FX0_KNOB2: plugin->fx0_knob2 = data; break;    
-    case LMS_FX0_COMBOBOX: plugin->fx0_combobox = data; break;    
-    
-    case LMS_FX1_KNOB0: plugin->fx1_knob0 = data; break;
-    case LMS_FX1_KNOB1:	plugin->fx1_knob1 = data; break;    
-    case LMS_FX1_KNOB2: plugin->fx1_knob2 = data; break;    
-    case LMS_FX1_COMBOBOX: plugin->fx1_combobox = data; break;    
+    switch (port) 
+    {
+        case LMS_INPUT0: plugin->input0 = data; break;
+        case LMS_INPUT1: plugin->input1 = data; break;
+        case LMS_OUTPUT0: plugin->output0 = data; break;
+        case LMS_OUTPUT1: plugin->output1 = data; break;   
+
+        case LMS_FX0_KNOB0: plugin->fx0_knob0 = data; break;
+        case LMS_FX0_KNOB1:	plugin->fx0_knob1 = data; break;    
+        case LMS_FX0_KNOB2: plugin->fx0_knob2 = data; break;    
+        case LMS_FX0_COMBOBOX: plugin->fx0_combobox = data; break;    
+
+        case LMS_FX1_KNOB0: plugin->fx1_knob0 = data; break;
+        case LMS_FX1_KNOB1:	plugin->fx1_knob1 = data; break;    
+        case LMS_FX1_KNOB2: plugin->fx1_knob2 = data; break;    
+        case LMS_FX1_COMBOBOX: plugin->fx1_combobox = data; break;    
+
+        case LMS_FX2_KNOB0: plugin->fx2_knob0 = data; break;
+        case LMS_FX2_KNOB1:	plugin->fx2_knob1 = data; break;    
+        case LMS_FX2_KNOB2: plugin->fx2_knob2 = data; break;    
+        case LMS_FX2_COMBOBOX: plugin->fx2_combobox = data; break;    
+
+        case LMS_FX3_KNOB0: plugin->fx3_knob0 = data; break;
+        case LMS_FX3_KNOB1:	plugin->fx3_knob1 = data; break;    
+        case LMS_FX3_KNOB2: plugin->fx3_knob2 = data; break;    
+        case LMS_FX3_COMBOBOX: plugin->fx3_combobox = data; break;    
     }
 }
 
@@ -104,15 +115,26 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
     plugin_data->fs = s_rate;
     
     plugin_data->midi_cc_map = g_ccm_get();
+    
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB0, 67, "FX0Knob0");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB1, 71, "FX0Knob1");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB2, 70, "FX0Knob2");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_COMBOBOX, 91, "FX0Combobox");
     
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB0, 20, "FX1Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB1, 21, "FX1Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB2, 22, "FX1Knob2");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_COMBOBOX, 23, "FX1Combobox");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_KNOB0, 20, "FX1Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_KNOB1, 21, "FX1Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_KNOB2, 22, "FX1Knob2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_COMBOBOX, 23, "FX1Combobox");
+    
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX2_KNOB0, 24, "FX2Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX2_KNOB1, 25, "FX2Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX2_KNOB2, 26, "FX2Knob2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX2_COMBOBOX, 27, "FX2Combobox");
+    
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_KNOB0, 28, "FX3Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_KNOB1, 29, "FX3Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_KNOB2, 37, "FX3Knob2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_COMBOBOX, 38, "FX3Combobox");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "lms_modulex-cc_map.txt");
     
@@ -152,19 +174,13 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->pos = 0;
     plugin_data->count= 0;    
     plugin_data->i_mono_out = 0;
-    
-    /*Set the values from synth_vals in RunLMS*/
-    /*
-    plugin_data->vals.fx0_knob0 = *(plugin_data->fx0_knob0);
-    plugin_data->vals.fx0_knob1 = *(plugin_data->fx0_knob1);
-    plugin_data->vals.fx0_knob2 = *(plugin_data->fx0_knob2);
-    plugin_data->vals.fx0_combobox = *(plugin_data->fx0_combobox);
-    */
-    
+        
     while ((plugin_data->pos) < sample_count) 
     {	
         plugin_data->mono_modules->fx_func_ptr0 = g_mf3_get_function_pointer((int)(*(plugin_data->fx0_combobox)));
-        plugin_data->mono_modules->fx0_func_ptr1 = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
+        plugin_data->mono_modules->fx_func_ptr1 = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
+        plugin_data->mono_modules->fx_func_ptr2 = g_mf3_get_function_pointer((int)(*(plugin_data->fx2_combobox)));
+        plugin_data->mono_modules->fx_func_ptr3 = g_mf3_get_function_pointer((int)(*(plugin_data->fx3_combobox)));
         
         v_mf3_set(plugin_data->mono_modules->multieffect0, 
                 *(plugin_data->fx0_knob0), *(plugin_data->fx0_knob1), *(plugin_data->fx0_knob2));
@@ -172,8 +188,13 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         v_mf3_set(plugin_data->mono_modules->multieffect1, 
                 *(plugin_data->fx1_knob0), *(plugin_data->fx1_knob1), *(plugin_data->fx1_knob2));
         
-	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
-	
+        v_mf3_set(plugin_data->mono_modules->multieffect2, 
+                *(plugin_data->fx2_knob0), *(plugin_data->fx2_knob1), *(plugin_data->fx2_knob2));
+        
+        v_mf3_set(plugin_data->mono_modules->multieffect3, 
+                *(plugin_data->fx3_knob0), *(plugin_data->fx3_knob1), *(plugin_data->fx3_knob2));
+        
+	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);	
         
         plugin_data->i_buffer_clear = 0;
         /*Clear the output buffer*/
@@ -189,6 +210,8 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
         /*The main loop where processing happens*/
         while((plugin_data->i_mono_out) < (plugin_data->count))
         {   
+            plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
+            
             plugin_data->mono_modules->current_sample0 = input0[(plugin_data->buffer_pos)];
             plugin_data->mono_modules->current_sample1 = input1[(plugin_data->buffer_pos)];
             
@@ -197,13 +220,21 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect0->output0;
             plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect0->output1;
                         
-            plugin_data->mono_modules->fx0_func_ptr1(plugin_data->mono_modules->multieffect1, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+            plugin_data->mono_modules->fx_func_ptr1(plugin_data->mono_modules->multieffect1, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
                         
             plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect1->output0;
             plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect1->output1;
             
-            //TODO:  Should this be right here, or at the end of the loop???
-            plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
+            plugin_data->mono_modules->fx_func_ptr2(plugin_data->mono_modules->multieffect2, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+            
+            plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect2->output0;
+            plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect2->output1;
+                        
+            plugin_data->mono_modules->fx_func_ptr3(plugin_data->mono_modules->multieffect3, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+                        
+            plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect3->output0;
+            plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect3->output1;
+            
             output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->current_sample0);
             output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->current_sample1);
 
@@ -219,9 +250,10 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 /*This returns MIDI CCs for the different knobs
  TODO:  Try it with non-hex numbers*/
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
-{
+{    
     LMS *plugin_data = (LMS *) instance;
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
+     
 }
 
 
@@ -349,6 +381,75 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_FX1_COMBOBOX].LowerBound =  0;
 	port_range_hints[LMS_FX1_COMBOBOX].UpperBound =  8;
+        
+        
+        
+        port_descriptors[LMS_FX2_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX2_KNOB0] = "FX2 Knob0";
+	port_range_hints[LMS_FX2_KNOB0].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FX2_KNOB0].LowerBound =  0;
+	port_range_hints[LMS_FX2_KNOB0].UpperBound =  127;
+        
+        	
+	port_descriptors[LMS_FX2_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX2_KNOB1] = "FX2 Knob1";
+	port_range_hints[LMS_FX2_KNOB1].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FX2_KNOB1].LowerBound =  0;
+	port_range_hints[LMS_FX2_KNOB1].UpperBound =  127;
+        	
+	port_descriptors[LMS_FX2_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX2_KNOB2] = "FX2 Knob2";
+	port_range_hints[LMS_FX2_KNOB2].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FX2_KNOB2].LowerBound =  0;
+	port_range_hints[LMS_FX2_KNOB2].UpperBound =  127;
+        
+	port_descriptors[LMS_FX2_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX2_COMBOBOX] = "FX2 Type";
+	port_range_hints[LMS_FX2_COMBOBOX].HintDescriptor =
+                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FX2_COMBOBOX].LowerBound =  0;
+	port_range_hints[LMS_FX2_COMBOBOX].UpperBound =  8;
+        
+        	
+	port_descriptors[LMS_FX3_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX3_KNOB0] = "FX3 Knob0";
+	port_range_hints[LMS_FX3_KNOB0].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FX3_KNOB0].LowerBound =  0;
+	port_range_hints[LMS_FX3_KNOB0].UpperBound =  127;
+        
+        	
+	port_descriptors[LMS_FX3_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX3_KNOB1] = "FX3 Knob1";
+	port_range_hints[LMS_FX3_KNOB1].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FX3_KNOB1].LowerBound =  0;
+	port_range_hints[LMS_FX3_KNOB1].UpperBound =  127;
+        	
+	port_descriptors[LMS_FX3_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX3_KNOB2] = "FX3 Knob2";
+	port_range_hints[LMS_FX3_KNOB2].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FX3_KNOB2].LowerBound =  0;
+	port_range_hints[LMS_FX3_KNOB2].UpperBound =  127;
+        
+	port_descriptors[LMS_FX3_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FX3_COMBOBOX] = "FX3 Type";
+	port_range_hints[LMS_FX3_COMBOBOX].HintDescriptor =
+                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FX3_COMBOBOX].LowerBound =  0;
+	port_range_hints[LMS_FX3_COMBOBOX].UpperBound =  8;
         
         
         /*Step 17:  Add LADSPA ports*/        

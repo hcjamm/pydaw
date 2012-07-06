@@ -71,6 +71,16 @@ public slots:
     void setFX1knob2 (float val);
     void setFX1combobox (float val);
     
+    void setFX2knob0 (float val);
+    void setFX2knob1 (float val);
+    void setFX2knob2 (float val);
+    void setFX2combobox (float val);
+    
+    void setFX3knob0 (float val);
+    void setFX3knob1 (float val);
+    void setFX3knob2 (float val);
+    void setFX3combobox (float val);
+    
     void aboutToQuit();
     
 protected slots:
@@ -85,6 +95,16 @@ protected slots:
     void fx1knob2Changed(int);
     void fx1comboboxChanged(int);
     
+    void fx2knob0Changed(int);
+    void fx2knob1Changed(int);
+    void fx2knob2Changed(int);
+    void fx2comboboxChanged(int);
+    
+    void fx3knob0Changed(int);
+    void fx3knob1Changed(int);
+    void fx3knob2Changed(int);
+    void fx3comboboxChanged(int);
+        
     void oscRecv();
 protected:
     
@@ -92,6 +112,8 @@ protected:
     LMS_main_layout * m_main_layout;
     LMS_multieffect * m_fx0;
     LMS_multieffect * m_fx1;
+    LMS_multieffect * m_fx2;
+    LMS_multieffect * m_fx3;
     
     lo_address m_host;
     QByteArray m_controlPath;

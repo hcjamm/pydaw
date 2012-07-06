@@ -47,7 +47,13 @@ typedef struct st_mono_modules
     fp_mf3_run fx_func_ptr0;    
     
     t_mf3_multi * multieffect1;
-    fp_mf3_run fx0_func_ptr1;    
+    fp_mf3_run fx_func_ptr1;    
+    
+    t_mf3_multi * multieffect2;
+    fp_mf3_run fx_func_ptr2;    
+    
+    t_mf3_multi * multieffect3;
+    fp_mf3_run fx_func_ptr3;    
     
     float current_sample0;
     float current_sample1;
@@ -65,7 +71,13 @@ t_mono_modules * v_mono_init(float a_sr)
     a_mono->fx_func_ptr0 = v_mf3_run_off;
     
     a_mono->multieffect1 = g_mf3_get(a_sr);    
-    a_mono->fx0_func_ptr1 = v_mf3_run_off;
+    a_mono->fx_func_ptr1 = v_mf3_run_off;
+    
+    a_mono->multieffect2 = g_mf3_get(a_sr);    
+    a_mono->fx_func_ptr2 = v_mf3_run_off;
+    
+    a_mono->multieffect3 = g_mf3_get(a_sr);    
+    a_mono->fx_func_ptr3 = v_mf3_run_off;
     
     return a_mono;
 }
