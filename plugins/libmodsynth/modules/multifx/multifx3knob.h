@@ -13,6 +13,9 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+    
+/*The highest index for selecting the effect type*/
+#define MULTIFX3KNOB_MAX_INDEX 9
 
 #include "../filter/svf.h"
 #include "../filter/comb_filter.h"
@@ -29,6 +32,8 @@ typedef struct st_mf3_multi
     int channels;  //Currently only 1 or 2 are supported
     t_state_variable_filter * svf0;
     t_state_variable_filter * svf1;
+    t_comb_filter * comb_filter0;
+    t_comb_filter * comb_filter1;  
     t_clipper * clipper;    
     float output0, output1;
     float control0, control1, control2;
@@ -55,6 +60,7 @@ inline void v_mf3_run_bp2(t_mf3_multi*,float,float);
 inline void v_mf3_run_bp4(t_mf3_multi*,float,float);
 inline void v_mf3_run_eq(t_mf3_multi*,float,float);
 inline void v_mf3_run_dist(t_mf3_multi*,float,float);
+inline void v_mf3_run_comb(t_mf3_multi*,float,float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -99,6 +105,8 @@ inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
                 return v_mf3_run_eq;
             case 8:
                 return v_mf3_run_dist;
+            case 9:
+                return v_mf3_run_comb;
             default:
                 /*TODO: Report error*/
                 return v_mf3_run_off;
@@ -244,6 +252,29 @@ inline void v_mf3_run_dist(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = f_axf_run_xfade(a_mf3->xfader, a_in1, ((a_mf3->outgain) * f_clp_clip(a_mf3->clipper, a_in1)));
 }
 
+
+inline void v_mf3_run_comb(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+{
+    v_mf3_commit_mod(a_mf3);
+    v_sml_run(a_mf3->smoother_linear, (((a_mf3->control0) * 0.692913386) + 20));
+    //cutoff
+    a_mf3->control_value0 = (a_mf3->smoother_linear->last_value);
+    //res
+    a_mf3->control_value1 = ((a_mf3->control1) * 0.157480315) - 20;
+    
+    v_cmb_set_all(a_mf3->comb_filter0, (a_mf3->control_value1), (a_mf3->control_value1), 
+                    (a_mf3->control_value0));
+
+    v_cmb_set_all(a_mf3->comb_filter1, (a_mf3->control_value1), (a_mf3->control_value1), 
+            (a_mf3->control_value0));
+
+    v_cmb_set_input(a_mf3->comb_filter0, a_in0);
+    v_cmb_set_input(a_mf3->comb_filter1, a_in1);
+
+    a_mf3->output0 = (a_mf3->comb_filter0->output_sample);
+    a_mf3->output1 = (a_mf3->comb_filter1->output_sample);
+}
+
 inline void f_mfx_transform_svf_filter(t_mf3_multi* a_mf3)
 {
     v_mf3_commit_mod(a_mf3);
@@ -273,6 +304,8 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->channels = 2;
     f_result->svf0 = g_svf_get(a_sample_rate);
     f_result->svf1 = g_svf_get(a_sample_rate);
+    f_result->comb_filter0 = g_cmb_get_comb_filter(a_sample_rate);
+    f_result->comb_filter1 = g_cmb_get_comb_filter(a_sample_rate);
     f_result->clipper = g_clp_get_clipper();
     v_clp_set_clip_sym(f_result->clipper, -3.0f);
     f_result->output0 = 0.0f;
