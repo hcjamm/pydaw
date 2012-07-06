@@ -631,13 +631,8 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 	    count = events[event_pos].time.tick - pos;
 	}
         
-        //An ugly hack to get the smoother to run faster.  TODO:  Fix this correctly
-        int f_i2;        
-        for(f_i2 = 0; f_i2 < 8; f_i2++)
-        {
-            v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (*(plugin_data->timbre)));
-            v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
-        }
+        v_smr_iir_run_fast(plugin_data->mono_modules->filter_smoother, (*(plugin_data->timbre)));
+        v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
         
 	for (i = 0; i < Sampler_NOTES; ++i) {
 	    if(((plugin_data->data[i]->adsr_amp->stage) < 4) && ((plugin_data->sample_indexes_count[i]) > 0))
