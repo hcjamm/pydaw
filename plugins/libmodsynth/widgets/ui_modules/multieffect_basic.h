@@ -20,7 +20,7 @@ public:
     LMS_multieffect(QWidget * a_parent, QString a_title, LMS_style_info * a_style, int a_knob1_port, int a_knob2_port, int a_knob3_port, int a_combobox_port)
     {
         QStringList f_types = QStringList() << QString("Off") << QString("LP2") << QString("LP4") << QString("HP2") << QString("HP4") << QString("BP2") << QString("BP4")
-                 << QString("EQ") << QString("Distortion");
+                 << QString("EQ") << QString("Distortion") << QString("Comb Filter");
         
         lms_groupbox = new LMS_group_box(a_parent, a_title, a_style);
         
@@ -136,6 +136,16 @@ public:
                 lms_knob2->lms_value->setText(QString(""));
                 lms_knob3->lms_conv_type = lms_kc_127_zero_to_x;
                 lms_knob3->lms_set_127_min_max(-12.0f, 0.0f);
+                break;
+            case 9: //Comb Filter
+                lms_knob1->lms_label->setText(QString("Cutoff"));
+                lms_knob2->lms_label->setText(QString("Amt"));
+                lms_knob3->lms_label->setText(QString("unused"));
+                lms_knob1->lms_conv_type = lms_kc_127_pitch;
+                lms_knob2->lms_conv_type = lms_kc_127_zero_to_x;
+                lms_knob2->lms_set_127_min_max(-20.0f, 0.0f);
+                lms_knob3->lms_conv_type = lms_kc_none;
+                lms_knob3->lms_value->setText(QString(""));
                 break;
         }
     }

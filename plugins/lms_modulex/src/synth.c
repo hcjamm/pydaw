@@ -346,7 +346,7 @@ void _init()
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_FX0_COMBOBOX].LowerBound =  0;
-	port_range_hints[LMS_FX0_COMBOBOX].UpperBound =  8;
+	port_range_hints[LMS_FX0_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
         	
 	port_descriptors[LMS_FX1_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -380,7 +380,7 @@ void _init()
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_FX1_COMBOBOX].LowerBound =  0;
-	port_range_hints[LMS_FX1_COMBOBOX].UpperBound =  8;
+	port_range_hints[LMS_FX1_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
         
         
@@ -415,7 +415,7 @@ void _init()
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_FX2_COMBOBOX].LowerBound =  0;
-	port_range_hints[LMS_FX2_COMBOBOX].UpperBound =  8;
+	port_range_hints[LMS_FX2_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
         	
 	port_descriptors[LMS_FX3_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -449,7 +449,7 @@ void _init()
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_FX3_COMBOBOX].LowerBound =  0;
-	port_range_hints[LMS_FX3_COMBOBOX].UpperBound =  8;
+	port_range_hints[LMS_FX3_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
         
         /*Step 17:  Add LADSPA ports*/        
