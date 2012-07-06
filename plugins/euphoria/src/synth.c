@@ -256,11 +256,13 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         plugin_data->data[f_i] = g_poly_init(s_rate);
         plugin_data->sampleStarts[f_i] = 0;
         plugin_data->sampleEnds[f_i] = 0;
+        plugin_data->sample_indexes_count[f_i] = 0;
         
         f_i2 = 0;
         while(f_i2 < LMS_MAX_SAMPLE_COUNT)
         {
             plugin_data->sample_position[f_i][f_i2] = 0.0f;
+            plugin_data->sample_indexes[f_i][f_i2] = 0;
             f_i2++;
         }
         
@@ -389,48 +391,42 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             
             plugin_data->i_loaded_samples = 0;
 
-            while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
-            {                       
-                if((n >= *(plugin_data->low_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])) && 
-                (n <= *(plugin_data->high_note[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])) &&
-                (plugin_data->velocities[n] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])) &&
-                (plugin_data->velocities[n] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[(plugin_data->i_loaded_samples)])])))
-                {
-                    plugin_data->current_sample = (plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]);
-                    
-                    //start parts from the beginning of the function   
-                    
-                    plugin_data->sampleStartPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleStarts[(plugin_data->current_sample)])) * .0001);
-                    plugin_data->sampleEndPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) - ((plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleEnds[(plugin_data->current_sample)])) * .0001));
+            while((plugin_data->i_loaded_samples) < (plugin_data->sample_indexes_count[n]))
+            {   
+                plugin_data->current_sample = (plugin_data->sample_indexes[n][(plugin_data->i_loaded_samples)]);
 
-                    
-                    plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(
-                            (*(plugin_data->sample_vol[(plugin_data->current_sample)])) + 
-                            (((*(plugin_data->sample_vel_sens[(plugin_data->current_sample)])) * 0.007874016 * (plugin_data->velocities[n]))
-                            - (*(plugin_data->sample_vel_sens[(plugin_data->current_sample)])))
-                            , plugin_data->amp_ptr);
-                    
-                    ratio =
-                    f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]),                     
-                            ((plugin_data->data[n]->base_pitch) + (plugin_data->data[n]->lfo_pitch_output)),
-                            plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
+                //start parts from the beginning of the function   
 
-                    plugin_data->sample_position[n][(plugin_data->current_sample)] = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + ratio;
+                plugin_data->sampleStartPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleStarts[(plugin_data->current_sample)])) * .0001);
+                plugin_data->sampleEndPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) - ((plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleEnds[(plugin_data->current_sample)])) * .0001));
 
-                    float f_adjusted_sample_position = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + (plugin_data->sampleStartPos[(plugin_data->current_sample)]);
 
-                    if ((f_adjusted_sample_position) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)]){
-                        plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
-                        //plugin_data->ons[n] = -1;
-                        continue;
-                    }
-                    //end
+                plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(
+                        (*(plugin_data->sample_vol[(plugin_data->current_sample)])) + 
+                        (((*(plugin_data->sample_vel_sens[(plugin_data->current_sample)])) * 0.007874016 * (plugin_data->velocities[n]))
+                        - (*(plugin_data->sample_vel_sens[(plugin_data->current_sample)])))
+                        , plugin_data->amp_ptr);
 
-                    sample += f_linear_interpolate_ptr_wrap(plugin_data->sampleData[ch][(plugin_data->current_sample)], 
-                    (plugin_data->sampleCount[(plugin_data->current_sample)]),
-                    (f_adjusted_sample_position),
-                    plugin_data->lin_interpolator) * (plugin_data->sample_amp[(plugin_data->current_sample)]);
+                ratio =
+                f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]),                     
+                        ((plugin_data->data[n]->base_pitch) + (plugin_data->data[n]->lfo_pitch_output)),
+                        plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
+
+                plugin_data->sample_position[n][(plugin_data->current_sample)] = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + ratio;
+
+                float f_adjusted_sample_position = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + (plugin_data->sampleStartPos[(plugin_data->current_sample)]);
+
+                if ((f_adjusted_sample_position) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)]){
+                    plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
+                    //plugin_data->ons[n] = -1;
+                    continue;
                 }
+                //end
+
+                sample += f_linear_interpolate_ptr_wrap(plugin_data->sampleData[ch][(plugin_data->current_sample)], 
+                (plugin_data->sampleCount[(plugin_data->current_sample)]),
+                (f_adjusted_sample_position),
+                plugin_data->lin_interpolator) * (plugin_data->sample_amp[(plugin_data->current_sample)]);
 
                 plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
             }            
@@ -508,6 +504,20 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 			plugin_data->sampleNo + events[event_pos].time.tick;
 		    plugin_data->offs[n.note] = -1;
 		    plugin_data->velocities[n.note] = n.velocity;
+
+                    plugin_data->sample_indexes_count[n.note] = 0;
+                    
+                    for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
+                    {                       
+                        if((n.note >= *(plugin_data->low_note[(plugin_data->loaded_samples[i])])) && 
+                        (n.note <= *(plugin_data->high_note[(plugin_data->loaded_samples[i])])) &&
+                        (plugin_data->velocities[n.note] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])) &&
+                        (plugin_data->velocities[n.note] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
+                        {
+                            plugin_data->sample_indexes[n.note][(plugin_data->sample_indexes_count[n.note])] = (plugin_data->loaded_samples[i]);
+                            plugin_data->sample_indexes_count[n.note] = (plugin_data->sample_indexes_count[n.note]) + 1;
+                        }
+                    }
                     
                     //Reset the sample start positions to 0.  TODO:  optimize this
                     for(i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)
@@ -630,7 +640,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
         }
         
 	for (i = 0; i < Sampler_NOTES; ++i) {
-	    if((plugin_data->data[i]->adsr_amp->stage) < 4)
+	    if(((plugin_data->data[i]->adsr_amp->stage) < 4) && ((plugin_data->sample_indexes_count[i]) > 0))
             {    
                 addSample(plugin_data, i, pos, count);                                
 	    }
