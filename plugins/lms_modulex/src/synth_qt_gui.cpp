@@ -74,7 +74,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
 {
     m_host = lo_address_new(host, port);
     
-    this->setWindowTitle(QString("LMS Modulex"));
+    this->setWindowTitle(QString("LMS Modulex - Modular Effects Unit"));
     
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF); border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #FFOECE, stop: 1 #FFFFFF); }");
@@ -99,6 +99,25 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_fx1->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(fx1comboboxChanged(int)));
     
     m_main_layout->lms_add_widget(m_fx1->lms_groupbox->lms_groupbox);
+    
+    m_main_layout->lms_add_layout();    
+    
+    m_fx2 = new LMS_multieffect(this, QString("FX3"), f_info, LMS_FX2_KNOB0, LMS_FX2_KNOB1, LMS_FX2_KNOB2, LMS_FX2_COMBOBOX);
+    connect(m_fx2->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob0Changed(int)));
+    connect(m_fx2->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob1Changed(int)));
+    connect(m_fx2->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob2Changed(int)));
+    connect(m_fx2->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(fx2comboboxChanged(int)));
+    
+    m_main_layout->lms_add_widget(m_fx2->lms_groupbox->lms_groupbox);
+    
+    m_fx3 = new LMS_multieffect(this, QString("FX4"), f_info, LMS_FX3_KNOB0, LMS_FX3_KNOB1, LMS_FX3_KNOB2, LMS_FX3_COMBOBOX);
+    connect(m_fx3->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob0Changed(int)));
+    connect(m_fx3->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob1Changed(int)));
+    connect(m_fx3->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob2Changed(int)));
+    connect(m_fx3->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(fx3comboboxChanged(int)));
+    
+    m_main_layout->lms_add_widget(m_fx3->lms_groupbox->lms_groupbox);
+    
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
@@ -126,6 +145,16 @@ void SynthGUI::setFX1knob1(float val){ lms_set_value(val, m_fx1->lms_knob2); }
 void SynthGUI::setFX1knob2(float val){ lms_set_value(val, m_fx1->lms_knob3); }
 void SynthGUI::setFX1combobox(float val){ lms_set_value(val, m_fx1->lms_combobox); }
 
+void SynthGUI::setFX2knob0(float val){ lms_set_value(val, m_fx2->lms_knob1); }
+void SynthGUI::setFX2knob1(float val){ lms_set_value(val, m_fx2->lms_knob2); }
+void SynthGUI::setFX2knob2(float val){ lms_set_value(val, m_fx2->lms_knob3); }
+void SynthGUI::setFX2combobox(float val){ lms_set_value(val, m_fx2->lms_combobox); }
+
+void SynthGUI::setFX3knob0(float val){ lms_set_value(val, m_fx3->lms_knob1); }
+void SynthGUI::setFX3knob1(float val){ lms_set_value(val, m_fx3->lms_knob2); }
+void SynthGUI::setFX3knob2(float val){ lms_set_value(val, m_fx3->lms_knob3); }
+void SynthGUI::setFX3combobox(float val){ lms_set_value(val, m_fx3->lms_combobox); }
+
 void SynthGUI::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {
     a_ctrl->lms_value_changed(a_value);
@@ -144,6 +173,16 @@ void SynthGUI::fx1knob0Changed(int value){ lms_value_changed(value, m_fx1->lms_k
 void SynthGUI::fx1knob1Changed(int value){ lms_value_changed(value, m_fx1->lms_knob2); }
 void SynthGUI::fx1knob2Changed(int value){ lms_value_changed(value, m_fx1->lms_knob3); }
 void SynthGUI::fx1comboboxChanged(int value){ lms_value_changed(value, m_fx1->lms_combobox); m_fx1->lms_combobox_changed(); }
+
+void SynthGUI::fx2knob0Changed(int value){ lms_value_changed(value, m_fx2->lms_knob1); }
+void SynthGUI::fx2knob1Changed(int value){ lms_value_changed(value, m_fx2->lms_knob2); }
+void SynthGUI::fx2knob2Changed(int value){ lms_value_changed(value, m_fx2->lms_knob3); }
+void SynthGUI::fx2comboboxChanged(int value){ lms_value_changed(value, m_fx2->lms_combobox); m_fx2->lms_combobox_changed(); }
+
+void SynthGUI::fx3knob0Changed(int value){ lms_value_changed(value, m_fx3->lms_knob1); }
+void SynthGUI::fx3knob1Changed(int value){ lms_value_changed(value, m_fx3->lms_knob2); }
+void SynthGUI::fx3knob2Changed(int value){ lms_value_changed(value, m_fx3->lms_knob3); }
+void SynthGUI::fx3comboboxChanged(int value){ lms_value_changed(value, m_fx3->lms_combobox); m_fx3->lms_combobox_changed(); }
 
 void SynthGUI::v_print_port_name_to_cerr(int a_port)
 {
@@ -187,6 +226,16 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         case LMS_FX1_KNOB1:	setFX1knob1(a_value); break;        
         case LMS_FX1_KNOB2:	setFX1knob2(a_value); break;        
         case LMS_FX1_COMBOBOX: setFX1combobox(a_value); break;
+        
+        case LMS_FX2_KNOB0:	setFX2knob0(a_value); break;
+        case LMS_FX2_KNOB1:	setFX2knob1(a_value); break;        
+        case LMS_FX2_KNOB2:	setFX2knob2(a_value); break;        
+        case LMS_FX2_COMBOBOX: setFX2combobox(a_value); break;
+        
+        case LMS_FX3_KNOB0:	setFX3knob0(a_value); break;
+        case LMS_FX3_KNOB1:	setFX3knob1(a_value); break;        
+        case LMS_FX3_KNOB2:	setFX3knob2(a_value); break;        
+        case LMS_FX3_COMBOBOX: setFX3combobox(a_value); break;
     }
 }
 
@@ -214,6 +263,16 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
         case LMS_FX1_KNOB2:	fx1knob2Changed(a_value); break;  
         case LMS_FX1_COMBOBOX:  fx1comboboxChanged(a_value); break;
         
+        case LMS_FX2_KNOB0:	fx2knob0Changed(a_value); break;
+        case LMS_FX2_KNOB1:	fx2knob1Changed(a_value); break;
+        case LMS_FX2_KNOB2:	fx2knob2Changed(a_value); break;  
+        case LMS_FX2_COMBOBOX:  fx2comboboxChanged(a_value);	break;
+        
+        case LMS_FX3_KNOB0:	fx3knob0Changed(a_value); break;
+        case LMS_FX3_KNOB1:	fx3knob1Changed(a_value); break;
+        case LMS_FX3_KNOB2:	fx3knob2Changed(a_value); break;  
+        case LMS_FX3_COMBOBOX:  fx3comboboxChanged(a_value); break;
+                
         default:
 #ifdef LMS_DEBUG_MODE_QT
             cerr << "Warning: received request to set nonexistent port " << a_port << endl;
@@ -240,7 +299,17 @@ int SynthGUI::i_get_control(int a_port)
     case LMS_FX1_KNOB1: return m_fx1->lms_knob2->lms_get_value();
     case LMS_FX1_KNOB2: return m_fx1->lms_knob3->lms_get_value();
     case LMS_FX1_COMBOBOX: return m_fx1->lms_combobox->lms_get_value();
-        
+    
+    case LMS_FX2_KNOB0: return m_fx2->lms_knob1->lms_get_value();
+    case LMS_FX2_KNOB1: return m_fx2->lms_knob2->lms_get_value();
+    case LMS_FX2_KNOB2: return m_fx2->lms_knob3->lms_get_value();
+    case LMS_FX2_COMBOBOX: return m_fx2->lms_combobox->lms_get_value();
+    
+    case LMS_FX3_KNOB0: return m_fx3->lms_knob1->lms_get_value();
+    case LMS_FX3_KNOB1: return m_fx3->lms_knob2->lms_get_value();
+    case LMS_FX3_KNOB2: return m_fx3->lms_knob3->lms_get_value();
+    case LMS_FX3_COMBOBOX: return m_fx3->lms_combobox->lms_get_value();
+            
     default:
 #ifdef LMS_DEBUG_MODE_QT
 	cerr << "Warning: received request to get nonexistent port " << a_port << endl;

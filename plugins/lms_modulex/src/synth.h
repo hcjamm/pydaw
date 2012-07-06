@@ -15,19 +15,6 @@ extern "C" {
 #include "ladspa.h"
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/cc_map.h"
-    
-/*Comment these out when compiling a stable, production-ready plugin.  
- The debugging code wastes a lot of CPU, and end users don't really need to see it*/
-//#define LMS_DEBUG_NOTE
-//#define LMS_DEBUG_MAIN_LOOP
-//#define LMS_DEBUG_MODE_QT
-
-
-/*Then you can print debug information like this:
-#ifdef LMS_DEBUG_NOTE
-printf("debug information");
-#endif
-*/
    
 #define LMS_INPUT0  0
 #define LMS_INPUT1  1    
@@ -46,21 +33,20 @@ printf("debug information");
 #define LMS_FX1_KNOB1  9
 #define LMS_FX1_KNOB2  10
 #define LMS_FX1_COMBOBOX 11
+#define LMS_FX2_KNOB0  12
+#define LMS_FX2_KNOB1  13
+#define LMS_FX2_KNOB2  14
+#define LMS_FX2_COMBOBOX 15
+#define LMS_FX3_KNOB0  16
+#define LMS_FX3_KNOB1  17
+#define LMS_FX3_KNOB2  18
+#define LMS_FX3_COMBOBOX 19
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 11
-#define LMS_COUNT 12 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_LAST_CONTROL_PORT 19
+#define LMS_COUNT 20 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 #define STEP_SIZE   16
-    
-/*
-typedef struct {        
-    LADSPA_Data fx1_knob1;
-    LADSPA_Data fx1_knob2;    
-    LADSPA_Data fx1_knob3;
-    LADSPA_Data fx1_combobox;
-} synth_vals;
-*/
-
+  
 /*GUI Step 13:  Add a variable for each control in the LMS type*/
 typedef struct {
     LADSPA_Data *input0;
@@ -78,9 +64,19 @@ typedef struct {
     LADSPA_Data *fx1_knob2;
     LADSPA_Data *fx1_combobox;
         
+    LADSPA_Data *fx2_knob0;
+    LADSPA_Data *fx2_knob1;    
+    LADSPA_Data *fx2_knob2;
+    LADSPA_Data *fx2_combobox;
+        
+    LADSPA_Data *fx3_knob0;
+    LADSPA_Data *fx3_knob1;    
+    LADSPA_Data *fx3_knob2;
+    LADSPA_Data *fx3_combobox;
+        
     float fs;    
     t_mono_modules * mono_modules;
-    //synth_vals vals;
+    
     t_ccm_midi_cc_map * midi_cc_map;
     int pos;
     int count;
