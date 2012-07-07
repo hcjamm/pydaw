@@ -75,9 +75,8 @@ typedef struct {
     
     //End from Ray-V
     
-    //From Modulex
-    
-    //Corresponds to the mod matrix knobs
+    //From Modulex        
+    //Corresponds to the actual knobs on the effects themselves, not the mod matrix
     LADSPA_Data *pfx_mod_knob[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
     
     LADSPA_Data *fx_combobox[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT];
@@ -85,7 +84,7 @@ typedef struct {
     //End from Modulex
     
     //PolyFX Mod Matrix
-    //Corresponds to the actual knobs on the effects themselves, not the mod matrix
+    //Corresponds to the mod matrix knobs
     LADSPA_Data *polyfx_mod_matrix[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_MODULATOR_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
     
     //End from PolyFX Mod Matrix
