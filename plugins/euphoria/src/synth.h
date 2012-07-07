@@ -106,8 +106,7 @@ typedef struct {
     //End from Modulex
     
     //PolyFX Mod Matrix
-    
-    LADSPA_Data *polyfx_mod_matrix[LMS_MODULAR_POLYFX_COUNT][LMS_MODULATOR_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
+    LADSPA_Data *polyfx_mod_matrix[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_MODULATOR_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
     
     //End from PolyFX Mod Matrix
     
