@@ -64,6 +64,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/ui_modules/lfo.h"
 #include "../../libmodsynth/widgets/ui_modules/master.h"
 #include "../../libmodsynth/widgets/sample_graph.h"
+#include "../../libmodsynth/widgets/ui_modules/multieffect_basic.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -164,6 +165,30 @@ public slots:
     void setLFOpitch(float);
     void setLFOcutoff(float);
     //End from Ray-V
+    
+    //From Modulex
+    
+    void setFX0knob0 (float val);
+    void setFX0knob1 (float val);
+    void setFX0knob2 (float val);
+    void setFX0combobox (float val);
+    
+    void setFX1knob0 (float val);
+    void setFX1knob1 (float val);
+    void setFX1knob2 (float val);
+    void setFX1combobox (float val);
+    
+    void setFX2knob0 (float val);
+    void setFX2knob1 (float val);
+    void setFX2knob2 (float val);
+    void setFX2combobox (float val);
+    
+    void setFX3knob0 (float val);
+    void setFX3knob1 (float val);
+    void setFX3knob2 (float val);
+    void setFX3combobox (float val);
+    
+    //End from Modulex
     
     
     void aboutToQuit();
@@ -436,9 +461,43 @@ protected slots:
     void LFOcutoffChanged(int);
     
     //End from Ray-V
+    
+    //From Modulex
+    
+    void fx0knob0Changed(int);
+    void fx0knob1Changed(int);
+    void fx0knob2Changed(int);
+    void fx0comboboxChanged(int);
+    
+    void fx1knob0Changed(int);
+    void fx1knob1Changed(int);
+    void fx1knob2Changed(int);
+    void fx1comboboxChanged(int);
+    
+    void fx2knob0Changed(int);
+    void fx2knob1Changed(int);
+    void fx2knob2Changed(int);
+    void fx2comboboxChanged(int);
+    
+    void fx3knob0Changed(int);
+    void fx3knob1Changed(int);
+    void fx3knob2Changed(int);
+    void fx3comboboxChanged(int);
+    
+    //End from Modulex
 
 protected:
     bool m_suppress_selected_sample_changed;
+    
+    //From Modulex
+    
+    LMS_multieffect * m_fx0;
+    LMS_multieffect * m_fx1;
+    LMS_multieffect * m_fx2;
+    LMS_multieffect * m_fx3;
+    
+    //End from Modulex
+    
     //From Ray-V PolyFX
     
     LMS_main_layout * m_main_layout;

@@ -81,13 +81,30 @@
 #define LMS_LFO_AMP 19
 #define LMS_LFO_PITCH 20
 #define LMS_LFO_FILTER 21
+//From Modulex
+#define LMS_FX0_KNOB0  22
+#define LMS_FX0_KNOB1 23
+#define LMS_FX0_KNOB2  24
+#define LMS_FX0_COMBOBOX 25
+#define LMS_FX1_KNOB0  26
+#define LMS_FX1_KNOB1  27
+#define LMS_FX1_KNOB2  28
+#define LMS_FX1_COMBOBOX 29
+#define LMS_FX2_KNOB0  30
+#define LMS_FX2_KNOB1  31
+#define LMS_FX2_KNOB2  32
+#define LMS_FX2_COMBOBOX 33
+#define LMS_FX3_KNOB0  34
+#define LMS_FX3_KNOB1  35
+#define LMS_FX3_KNOB2  36
+#define LMS_FX3_COMBOBOX 37
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 21  //TODO:  Is this obsolete now with the below?
-#define LMS_COUNT 22 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_LAST_CONTROL_PORT 37  //TODO:  Is this obsolete now with the below?
+#define LMS_COUNT 38 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 /*The first port to use when enumerating the ports for mod_matrix controls.  All of the mod_matrix ports should be sequential, 
  * any additional ports should prepend this port number*/
-#define LMS_FIRST_MOD_MATRIX_PORT 22
+#define LMS_FIRST_MOD_MATRIX_PORT 38
 
 /*The range of ports for sample pitch*/
 #define LMS_SAMPLE_PITCH_PORT_RANGE_MIN     LMS_FIRST_MOD_MATRIX_PORT
