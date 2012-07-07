@@ -139,24 +139,23 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
             break;
         //End Ray-V ports
         //From Modulex
-        case LMS_FX0_KNOB0: plugin->fx0_knob0 = data; break;
-        case LMS_FX0_KNOB1:	plugin->fx0_knob1 = data; break;    
-        case LMS_FX0_KNOB2: plugin->fx0_knob2 = data; break;    
+            
+        case LMS_FX0_KNOB0: plugin->pfx_mod_knob[0][0][0] = data; break;
+        case LMS_FX0_KNOB1: plugin->pfx_mod_knob[0][0][1] = data; break;
+        case LMS_FX0_KNOB2: plugin->pfx_mod_knob[0][0][2] = data; break;
+        case LMS_FX1_KNOB0: plugin->pfx_mod_knob[0][1][0] = data; break;
+        case LMS_FX1_KNOB1: plugin->pfx_mod_knob[0][1][1] = data; break;
+        case LMS_FX1_KNOB2: plugin->pfx_mod_knob[0][1][2] = data; break;
+        case LMS_FX2_KNOB0: plugin->pfx_mod_knob[0][2][0] = data; break;
+        case LMS_FX2_KNOB1: plugin->pfx_mod_knob[0][2][1] = data; break;
+        case LMS_FX2_KNOB2: plugin->pfx_mod_knob[0][2][2] = data; break;
+        case LMS_FX3_KNOB0: plugin->pfx_mod_knob[0][3][0] = data; break;
+        case LMS_FX3_KNOB1: plugin->pfx_mod_knob[0][3][1] = data; break;
+        case LMS_FX3_KNOB2: plugin->pfx_mod_knob[0][3][2] = data; break;
+            
         case LMS_FX0_COMBOBOX: plugin->fx0_combobox = data; break;    
-
-        case LMS_FX1_KNOB0: plugin->fx1_knob0 = data; break;
-        case LMS_FX1_KNOB1:	plugin->fx1_knob1 = data; break;    
-        case LMS_FX1_KNOB2: plugin->fx1_knob2 = data; break;    
         case LMS_FX1_COMBOBOX: plugin->fx1_combobox = data; break;    
-
-        case LMS_FX2_KNOB0: plugin->fx2_knob0 = data; break;
-        case LMS_FX2_KNOB1:	plugin->fx2_knob1 = data; break;    
-        case LMS_FX2_KNOB2: plugin->fx2_knob2 = data; break;    
         case LMS_FX2_COMBOBOX: plugin->fx2_combobox = data; break;    
-
-        case LMS_FX3_KNOB0: plugin->fx3_knob0 = data; break;
-        case LMS_FX3_KNOB1:	plugin->fx3_knob1 = data; break;    
-        case LMS_FX3_KNOB2: plugin->fx3_knob2 = data; break;    
         case LMS_FX3_COMBOBOX: plugin->fx3_combobox = data; break;    
         //End from Modulex
         /*PolyFX mod matrix port connections*/
@@ -505,38 +504,38 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 	}
         
         //Begin from Modulex
+        //TODO:  Roll the loop back up
+        v_mf3_set(plugin_data->data[n]->multieffect[0], 
+            *(plugin_data->pfx_mod_knob[0][0][0]), *(plugin_data->pfx_mod_knob[0][0][1]), *(plugin_data->pfx_mod_knob[0][0][2]));
 
-        v_mf3_set(plugin_data->data[n]->multieffect0, 
-            *(plugin_data->fx0_knob0), *(plugin_data->fx0_knob1), *(plugin_data->fx0_knob2));
+        v_mf3_set(plugin_data->data[n]->multieffect[1], 
+            *(plugin_data->pfx_mod_knob[0][1][0]), *(plugin_data->pfx_mod_knob[0][1][1]), *(plugin_data->pfx_mod_knob[0][1][2]));
+        
+        v_mf3_set(plugin_data->data[n]->multieffect[2], 
+            *(plugin_data->pfx_mod_knob[0][2][0]), *(plugin_data->pfx_mod_knob[0][2][1]), *(plugin_data->pfx_mod_knob[0][2][2]));
+        
+        v_mf3_set(plugin_data->data[n]->multieffect[0], 
+            *(plugin_data->pfx_mod_knob[0][0][0]), *(plugin_data->pfx_mod_knob[0][0][1]), *(plugin_data->pfx_mod_knob[0][0][2]));
+        
+        plugin_data->data[n]->fx_func_ptr[0](plugin_data->data[n]->multieffect[0], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
 
-        v_mf3_set(plugin_data->data[n]->multieffect1, 
-                *(plugin_data->fx1_knob0), *(plugin_data->fx1_knob1), *(plugin_data->fx1_knob2));
+        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[0]->output0;
+        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[0]->output1;
 
-        v_mf3_set(plugin_data->data[n]->multieffect2, 
-                *(plugin_data->fx2_knob0), *(plugin_data->fx2_knob1), *(plugin_data->fx2_knob2));
+        plugin_data->data[n]->fx_func_ptr[1](plugin_data->data[n]->multieffect[1], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
 
-        v_mf3_set(plugin_data->data[n]->multieffect3, 
-                *(plugin_data->fx3_knob0), *(plugin_data->fx3_knob1), *(plugin_data->fx3_knob2));
+        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[1]->output0;
+        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[1]->output1;
 
-        plugin_data->data[n]->fx_func_ptr0(plugin_data->data[n]->multieffect0, (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
+        plugin_data->data[n]->fx_func_ptr[2](plugin_data->data[n]->multieffect[2], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
 
-        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect0->output0;
-        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect0->output1;
+        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[2]->output0;
+        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[2]->output1;
 
-        plugin_data->data[n]->fx_func_ptr1(plugin_data->data[n]->multieffect1, (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
+        plugin_data->data[n]->fx_func_ptr[3](plugin_data->data[n]->multieffect[3], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
 
-        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect1->output0;
-        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect1->output1;
-
-        plugin_data->data[n]->fx_func_ptr2(plugin_data->data[n]->multieffect2, (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
-
-        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect2->output0;
-        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect2->output1;
-
-        plugin_data->data[n]->fx_func_ptr3(plugin_data->data[n]->multieffect3, (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
-
-        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect3->output0;
-        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect3->output1;
+        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[3]->output0;
+        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[3]->output1;
 
         //End from Modulex
 
@@ -595,10 +594,11 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                         }
                     }
                     
-                    plugin_data->data[n.note]->fx_func_ptr0 = g_mf3_get_function_pointer((int)(*(plugin_data->fx0_combobox)));
-                    plugin_data->data[n.note]->fx_func_ptr1 = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
-                    plugin_data->data[n.note]->fx_func_ptr2 = g_mf3_get_function_pointer((int)(*(plugin_data->fx2_combobox)));
-                    plugin_data->data[n.note]->fx_func_ptr3 = g_mf3_get_function_pointer((int)(*(plugin_data->fx3_combobox)));
+                    //TODO:  Roll the loop up
+                    plugin_data->data[n.note]->fx_func_ptr[0] = g_mf3_get_function_pointer((int)(*(plugin_data->fx0_combobox)));
+                    plugin_data->data[n.note]->fx_func_ptr[1] = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
+                    plugin_data->data[n.note]->fx_func_ptr[2] = g_mf3_get_function_pointer((int)(*(plugin_data->fx2_combobox)));
+                    plugin_data->data[n.note]->fx_func_ptr[3] = g_mf3_get_function_pointer((int)(*(plugin_data->fx3_combobox)));
                     
                     //Reset the sample start positions to 0.  TODO:  optimize this
                     for(i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)

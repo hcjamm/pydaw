@@ -83,24 +83,11 @@ typedef struct {
     
     //From Modulex
     
-    LADSPA_Data *fx0_knob0;
-    LADSPA_Data *fx0_knob1;    
-    LADSPA_Data *fx0_knob2;
+    LADSPA_Data *pfx_mod_knob[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
+    
     LADSPA_Data *fx0_combobox;
-        
-    LADSPA_Data *fx1_knob0;
-    LADSPA_Data *fx1_knob1;    
-    LADSPA_Data *fx1_knob2;
-    LADSPA_Data *fx1_combobox;
-        
-    LADSPA_Data *fx2_knob0;
-    LADSPA_Data *fx2_knob1;    
-    LADSPA_Data *fx2_knob2;
+    LADSPA_Data *fx1_combobox;        
     LADSPA_Data *fx2_combobox;
-        
-    LADSPA_Data *fx3_knob0;
-    LADSPA_Data *fx3_knob1;    
-    LADSPA_Data *fx3_knob2;
     LADSPA_Data *fx3_combobox;
     
     //End from Modulex
