@@ -89,7 +89,7 @@ public:
     LMS_mod_matrix * m_sample_table;    
     
     //New mod matrix
-    LMS_mod_matrix * m_polyfx_mod_matrix;
+    LMS_mod_matrix * m_polyfx_mod_matrix[LMS_EFFECTS_GROUPS_COUNT];
     
     bool m_suppressHostUpdate;
     

@@ -123,10 +123,10 @@ $port_descriptors .=
 my $lc_name = "pfxmatrix_grp$i4" . "dst$i2" . "src$i" . "ctrl$i3";
 my $slot = $lc_name . "Changed(int)";
 my $slot_def = $lc_name . "Changed(int a_value)";
-my $function = "pfxmatrix_Changed($i, $i2, $i3);";
+my $function = "pfxmatrix_Changed($i4, $i, $i2, $i3);";
 $slots .= "\tvoid $slot;\n";
 $slot_defs .= "void $class_name" . "::" . "$slot_def" . "{$function}\n";
-$connections .= "\t\t\tconnect((QDial*)(m_sample_table->m_polyfx_mod_matrix[" . (($i2 * $mod_matrix_knobs_per_control) + $i3) . "]->controls[$i]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
+$connections .= "\t\t\tconnect((QDial*)(m_polyfx_mod_matrix[$i4]->lms_mm_columns[" . (($i2 * $mod_matrix_knobs_per_control) + $i3) . "]->controls[$i]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
 
 $connect_ports .= "case $port_name: plugin->polyfx_mod_matrix[$i4][$i2][$i][$i3] = data; break;\n";
 
