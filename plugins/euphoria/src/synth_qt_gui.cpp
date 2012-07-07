@@ -761,17 +761,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_adsr_amp->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));        
         connect(m_adsr_amp->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));    
 
-        m_groupbox_distortion = new LMS_group_box(this, QString("Distortion"), f_info);
-        m_main_layout->lms_add_widget(m_groupbox_distortion->lms_groupbox);
-
-        m_dist = new LMS_knob_regular(QString("Gain"), -6, 36, 1, 12, QString("12"), m_groupbox_distortion->lms_groupbox, f_info, lms_kc_integer, LMS_DIST);
-        m_groupbox_distortion->lms_add_h(m_dist);
-        connect(m_dist->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(distChanged(int)));
-
-        m_dist_wet = new LMS_knob_regular(QString("Wet"), 0, 100, 1, 0, QString(""), m_groupbox_distortion->lms_groupbox, f_info, lms_kc_none, LMS_DIST_WET);
-        m_groupbox_distortion->lms_add_h(m_dist_wet);
-        connect(m_dist_wet->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(distWetChanged(int)));
-
         m_groupbox_noise = new LMS_group_box(this, QString("Noise"), f_info);
         m_main_layout->lms_add_widget(m_groupbox_noise->lms_groupbox);
 
@@ -790,18 +779,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_adsr_filter->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterSustainChanged(int)));
         connect(m_adsr_filter->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));
         
-        m_filter = new LMS_filter_widget(this, f_info, LMS_TIMBRE, LMS_RES, LMS_FILTER_TYPE, TRUE);
-
-        m_main_layout->lms_add_widget(m_filter->lms_groupbox->lms_groupbox);
-        
-        connect(m_filter->lms_cutoff_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));
-        connect(m_filter->lms_res_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
-        connect(m_filter->lms_filter_type->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(filterTypeChanged(int)));
-
-        m_filter_env_amt  = new LMS_knob_regular(QString("Env Amt"), -36, 36, 1, 0, QString("0"), m_filter->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, LMS_FILTER_ENV_AMT);
-        m_filter->lms_groupbox->lms_add_h(m_filter_env_amt);
-        connect(m_filter_env_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(filterEnvAmtChanged(int)));
-
         m_main_layout->lms_add_layout();
 
         m_master = new LMS_master_widget(this, f_info, LMS_MASTER_VOLUME, -1, 
@@ -1836,17 +1813,11 @@ void SamplerGUI::setAttack(float a_value){ lms_set_value(a_value, m_adsr_amp->lm
 void SamplerGUI::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_decay); }
 void SamplerGUI::setSustain(float a_value){lms_set_value(a_value, m_adsr_amp->lms_sustain);}
 void SamplerGUI::setRelease(float a_value){lms_set_value(a_value, m_adsr_amp->lms_release);}
-void SamplerGUI::setTimbre(float a_value){lms_set_value(a_value, m_filter->lms_cutoff_knob);}
-void SamplerGUI::setFilterType(float a_value){lms_set_value(a_value, m_filter->lms_filter_type);}
-void SamplerGUI::setRes(float a_value){lms_set_value(a_value, m_filter->lms_res_knob);}
-void SamplerGUI::setDist(float a_value){lms_set_value(a_value, m_dist);}
 void SamplerGUI::setFilterAttack (float a_value){lms_set_value(a_value, m_adsr_filter->lms_attack);}
 void SamplerGUI::setFilterDecay  (float a_value){lms_set_value(a_value, m_adsr_filter->lms_decay);}
 void SamplerGUI::setFilterSustain(float a_value){lms_set_value(a_value, m_adsr_filter->lms_sustain);}
 void SamplerGUI::setFilterRelease(float a_value){lms_set_value(a_value, m_adsr_filter->lms_release);}
 void SamplerGUI::setNoiseAmp(float a_value){lms_set_value(a_value, m_noise_amp);}
-void SamplerGUI::setFilterEnvAmt(float a_value){lms_set_value(a_value, m_filter_env_amt);}
-void SamplerGUI::setDistWet(float a_value){lms_set_value(a_value, m_dist_wet);}
 void SamplerGUI::setMasterVolume(float a_value){lms_set_value(a_value, m_master->lms_master_volume);}
 void SamplerGUI::setMasterUnisonVoices(float a_value){lms_set_value(a_value, m_master->lms_master_unison_voices);}
 void SamplerGUI::setMasterUnisonSpread(float a_value){lms_set_value(a_value, m_master->lms_master_unison_spread);}
@@ -1873,17 +1844,11 @@ void SamplerGUI::attackChanged(int a_value){lms_value_changed(a_value, m_adsr_am
 void SamplerGUI::decayChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_decay);}
 void SamplerGUI::sustainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_sustain);}
 void SamplerGUI::releaseChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_release);}
-void SamplerGUI::timbreChanged(int a_value){lms_value_changed(a_value, m_filter->lms_cutoff_knob);}
-void SamplerGUI::filterTypeChanged(int a_value){lms_value_changed(a_value, m_filter->lms_filter_type);}
-void SamplerGUI::resChanged(int a_value){lms_value_changed(a_value, m_filter->lms_res_knob);}
-void SamplerGUI::distChanged(int a_value){lms_value_changed(a_value, m_dist);}
 void SamplerGUI::filterAttackChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_attack);}
 void SamplerGUI::filterDecayChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_decay);}
 void SamplerGUI::filterSustainChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_sustain);}
 void SamplerGUI::filterReleaseChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_release);}
 void SamplerGUI::noiseAmpChanged(int a_value){lms_value_changed(a_value, m_noise_amp);}
-void SamplerGUI::filterEnvAmtChanged(int a_value){lms_value_changed(a_value, m_filter_env_amt);}
-void SamplerGUI::distWetChanged(int a_value){lms_value_changed(a_value, m_dist_wet);}
 void SamplerGUI::masterVolumeChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_volume);}
 void SamplerGUI::masterUnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_voices);}
 void SamplerGUI::masterUnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_spread);}
@@ -1948,17 +1913,11 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case LMS_DECAY: setDecay(a_value); break;
             case LMS_SUSTAIN: setSustain(a_value); break;
             case LMS_RELEASE: setRelease(a_value); break;
-            case LMS_TIMBRE: setTimbre(a_value); break;
-            case LMS_RES: setRes(a_value); break;
-            case LMS_FILTER_TYPE: setFilterType(a_value); break;
-            case LMS_DIST: setDist(a_value); break;
             case LMS_FILTER_ATTACK: setFilterAttack(a_value); break;
             case LMS_FILTER_DECAY: setFilterDecay(a_value); break;
             case LMS_FILTER_SUSTAIN: setFilterSustain(a_value); break;
             case LMS_FILTER_RELEASE: setFilterRelease(a_value); break;
-            case LMS_NOISE_AMP: setNoiseAmp(a_value); break;    
-            case LMS_DIST_WET: setDistWet(a_value); break;
-            case LMS_FILTER_ENV_AMT: setFilterEnvAmt(a_value); break;    
+            case LMS_NOISE_AMP: setNoiseAmp(a_value); break;            
             case LMS_MASTER_VOLUME: setMasterVolume(a_value); break;    
             //case LMS_MASTER_UNISON_VOICES: setMasterUnisonVoices(a_value); break;
             //case LMS_MASTER_UNISON_SPREAD: setMasterUnisonSpread(a_value); break;
@@ -2038,17 +1997,11 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case LMS_DECAY: decayChanged(a_value); break;
             case LMS_SUSTAIN: sustainChanged(a_value); break;
             case LMS_RELEASE: releaseChanged(a_value); break;
-            case LMS_TIMBRE: timbreChanged(a_value); break;
-            case LMS_RES: resChanged(a_value); break;
-            case LMS_FILTER_TYPE: filterTypeChanged(a_value); break;
-            case LMS_DIST: distChanged(a_value); break;
             case LMS_FILTER_ATTACK: filterAttackChanged(a_value); break;
             case LMS_FILTER_DECAY: filterDecayChanged(a_value); break;
             case LMS_FILTER_SUSTAIN: filterSustainChanged(a_value); break;
             case LMS_FILTER_RELEASE: filterReleaseChanged(a_value); break;
-            case LMS_NOISE_AMP: noiseAmpChanged(a_value); break;    
-            case LMS_DIST_WET: distWetChanged(a_value); break;
-            case LMS_FILTER_ENV_AMT: filterEnvAmtChanged(a_value); break;        
+            case LMS_NOISE_AMP: noiseAmpChanged(a_value); break;      
             case LMS_MASTER_VOLUME: masterVolumeChanged(a_value); break;
             case LMS_MASTER_GLIDE: masterGlideChanged(a_value); break;
             case LMS_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;
@@ -2130,17 +2083,11 @@ int SamplerGUI::i_get_control(int port)
             case LMS_DECAY:  return m_adsr_amp->lms_decay->lms_get_value();
             case LMS_SUSTAIN: return m_adsr_amp->lms_sustain->lms_get_value();
             case LMS_RELEASE: return m_adsr_amp->lms_release->lms_get_value();
-            case LMS_TIMBRE: return  m_filter->lms_cutoff_knob->lms_get_value();
-            case LMS_RES: return m_filter->lms_res_knob->lms_get_value();  
-            case LMS_FILTER_TYPE:return m_filter->lms_filter_type->lms_get_value();
-            case LMS_DIST: return m_dist->lms_get_value();
             case LMS_FILTER_ATTACK: return m_adsr_filter->lms_attack->lms_get_value();
             case LMS_FILTER_DECAY: return m_adsr_filter->lms_decay->lms_get_value();
             case LMS_FILTER_SUSTAIN: return m_adsr_filter->lms_sustain->lms_get_value();
             case LMS_FILTER_RELEASE: return m_adsr_filter->lms_release->lms_get_value();
             case LMS_NOISE_AMP: return m_noise_amp->lms_get_value();
-            case LMS_DIST_WET: return m_dist_wet->lms_get_value();
-            case LMS_FILTER_ENV_AMT: return m_filter_env_amt->lms_get_value();
             case LMS_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
             case LMS_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
             case LMS_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();

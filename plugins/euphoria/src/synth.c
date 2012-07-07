@@ -101,18 +101,6 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         case LMS_RELEASE:
             plugin->release = data;
             break;
-        case LMS_TIMBRE:
-            plugin->timbre = data;              
-            break;
-        case LMS_FILTER_TYPE:
-            plugin->filter_type = data;
-            break;
-        case LMS_RES:
-            plugin->res = data;              
-            break;
-        case LMS_DIST:
-            plugin->dist = data;              
-            break;
         case LMS_FILTER_ATTACK:
             plugin->attack_f = data;
             break;
@@ -127,12 +115,6 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
             break;
         case LMS_NOISE_AMP:
             plugin->noise_amp = data;
-            break;
-        case LMS_DIST_WET:
-            plugin->dist_wet = data;
-            break;
-        case LMS_FILTER_ENV_AMT:
-            plugin->filter_env_amt = data;
             break;
         case LMS_MASTER_VOLUME:
             plugin->master_vol = data;
@@ -288,17 +270,12 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_ATTACK, 73, "Attack Amp");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DECAY, 75, "Decay Amp");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_SUSTAIN, 79, "Sustain Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RELEASE, 72, "Release Amp");    
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_TIMBRE, 20, "Filter Cutoff");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DIST, 51, "Distortion Gain");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES, 50, "Res");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RELEASE, 72, "Release Amp");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ATTACK, 21, "Attack Filter");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_DECAY, 22, "Decay Filter");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_SUSTAIN, 23, "Sustain Filter");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_RELEASE, 24, "Release Filter");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_NOISE_AMP, 25, "Noise Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ENV_AMT, 26, "Filter Env Amt");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DIST_WET, 27, "Distortion Wet");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_VOLUME, 36, "Master Volume");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_GLIDE, 39, "Glide Time");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_PITCHBEND_AMT, 40, "Pitchbend Amount");
@@ -309,7 +286,6 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_AMP, 46, "LFO Amp");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_PITCH, 47, "LFO Pitch");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FILTER, 48, "LFO Filter");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_TYPE, 49, "Filter Type");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "euphoria-cc_map.txt");
     
@@ -436,21 +412,8 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             //Call everything defined in libmodsynth.h in the order it should be called in
                                     
             sample += (f_run_white_noise(plugin_data->data[n]->white_noise1[ch]) * (plugin_data->data[n]->noise_linamp)); //white noise
-                        
-            //TODO:  Run the filter smoother
-            v_svf_set_cutoff_base(plugin_data->data[n]->svf_filter[ch],  (plugin_data->mono_modules->filter_smoother->output));//(*(plugin_data->timbre)));
-            //Run v_svf_add_cutoff_mod once for every input source
-            v_svf_add_cutoff_mod(plugin_data->data[n]->svf_filter[ch], 
-                    (((plugin_data->data[n]->adsr_filter->output) * ( *(plugin_data->filter_env_amt)
-                    )) + (plugin_data->data[n]->lfo_filter_output)));        
-            //calculate the cutoff
-            v_svf_set_cutoff(plugin_data->data[n]->svf_filter[ch]);
-            
-            plugin_data->data[n]->filter_output = plugin_data->data[n]->svf_function(plugin_data->data[n]->svf_filter[ch], (sample));
 
-            //Crossfade between the filter, and the filter run through the distortion unit
-            sample = f_axf_run_xfade((plugin_data->data[n]->dist_dry_wet[ch]), (plugin_data->data[n]->filter_output), 
-                    f_clp_clip(plugin_data->data[n]->clipper1[ch], (plugin_data->data[n]->filter_output)));
+            //Effex0ring was here
             
             sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp) * (plugin_data->data[n]->lfo_amp_output);
     
@@ -525,36 +488,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                         plugin_data->sample_position[n.note][i] = 0.0f;
                     }
                     
-                    /*Set the svf_function function pointer to the filter type selected in the GUI*/
-                    switch((int)(*(plugin_data->filter_type)))
-                    {
-                                case 0:
-                                    plugin_data->data[n.note]->svf_function = v_svf_run_2_pole_lp;
-                                    break;
-                                case 1:
-                                    plugin_data->data[n.note]->svf_function = v_svf_run_2_pole_hp;
-                                    break;
-                                case 2:
-                                    plugin_data->data[n.note]->svf_function = v_svf_run_2_pole_bp;
-                                    break;
-                                case 3:
-                                    plugin_data->data[n.note]->svf_function = v_svf_run_4_pole_lp;
-                                    break;
-                                case 4:
-                                    plugin_data->data[n.note]->svf_function = v_svf_run_4_pole_hp;
-                                    break;
-                                case 5:
-                                    plugin_data->data[n.note]->svf_function = v_svf_run_4_pole_bp;
-                                    break;                
-                                case 6:
-                                    plugin_data->data[n.note]->svf_function = v_svf_run_no_filter;
-                                    break;
-                                default:
-                                    plugin_data->data[n.note]->svf_function = v_svf_run_no_filter;
-                                    printf("Invalid filter type:  %i", (int)(*(plugin_data->filter_type)));
-                                    break;
-
-                    }
+                                        
                     
                     //Begin Ray-V additions
                     
@@ -595,10 +529,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                     //Move all of the multi-channel functions here
                     for(i = 0; i < 2; i++)
                     {
-                        //v_svf_velocity_mod(plugin_data->data[n.note]->svf_filter[i], n.velocity);
-                        v_clp_set_in_gain(plugin_data->data[n.note]->clipper1[i], *(plugin_data->dist));
-                        v_svf_set_res(plugin_data->data[n.note]->svf_filter[i], *(plugin_data->res));
-                        v_axf_set_xfade(plugin_data->data[n.note]->dist_dry_wet[i], (*(plugin_data->dist_wet) * .01));
+                        
                     }
                     
                     //End Ray-V additions                    
@@ -631,7 +562,6 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 	    count = events[event_pos].time.tick - pos;
 	}
         
-        v_smr_iir_run_fast(plugin_data->mono_modules->filter_smoother, (*(plugin_data->timbre)));
         v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
         
 	for (i = 0; i < Sampler_NOTES; ++i) {
@@ -1084,34 +1014,6 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_RELEASE].LowerBound = 1; 
 	port_range_hints[LMS_RELEASE].UpperBound = 400; 
-
-	/* Parameters for timbre */
-	port_descriptors[LMS_TIMBRE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_TIMBRE] = "Timbre";
-	port_range_hints[LMS_TIMBRE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_TIMBRE].LowerBound =  20;
-	port_range_hints[LMS_TIMBRE].UpperBound =  124;
-        
-        /* Parameters for res */
-	port_descriptors[LMS_RES] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_RES] = "Res";
-	port_range_hints[LMS_RES].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_RES].LowerBound =  -30;
-	port_range_hints[LMS_RES].UpperBound =  0;
-        
-        
-        /* Parameters for dist */
-	port_descriptors[LMS_DIST] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_DIST] = "Dist";
-	port_range_hints[LMS_DIST].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DIST].LowerBound =  -6;
-	port_range_hints[LMS_DIST].UpperBound =  36;
                 
 	/* Parameters for attack_f */
 	port_descriptors[LMS_FILTER_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1158,27 +1060,7 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_NOISE_AMP].LowerBound =  -60;
 	port_range_hints[LMS_NOISE_AMP].UpperBound =  0;
-        
-        
-        
-        /*Parameters for filter env amt*/        
-	port_descriptors[LMS_FILTER_ENV_AMT] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_FILTER_ENV_AMT] = "Filter Env Amt";
-	port_range_hints[LMS_FILTER_ENV_AMT].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_ENV_AMT].LowerBound =  -36;
-	port_range_hints[LMS_FILTER_ENV_AMT].UpperBound =  36;
-        
-        /*Parameters for dist wet*/        
-	port_descriptors[LMS_DIST_WET] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_DIST_WET] = "Dist Wet";
-	port_range_hints[LMS_DIST_WET].HintDescriptor =
-			//LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DIST_WET].LowerBound =  0; 
-	port_range_hints[LMS_DIST_WET].UpperBound =  100;
-        
+                
         /*Parameters for master vol*/        
 	port_descriptors[LMS_MASTER_VOLUME] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_MASTER_VOLUME] = "Master Vol";
@@ -1271,16 +1153,7 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_LFO_FILTER].LowerBound = -48;
 	port_range_hints[LMS_LFO_FILTER].UpperBound = 48;        
-        
-        /*Parameters for filter type*/        
-	port_descriptors[LMS_FILTER_TYPE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_FILTER_TYPE] = "Filter Type";
-	port_range_hints[LMS_FILTER_TYPE].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_TYPE].LowerBound =  0;
-	port_range_hints[LMS_FILTER_TYPE].UpperBound =  5;
-        
+                
         //End Ray-V
         
         int f_i = LMS_SAMPLE_PITCH_PORT_RANGE_MIN;
