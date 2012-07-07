@@ -135,7 +135,7 @@ inline void v_mf3_mod(t_mf3_multi* a_mf3,float a_mod, float a_amt0, float a_amt1
 {    
     a_mf3->mod_value0 = (a_mf3->mod_value0) + (a_mod * a_amt0 * .01);
     a_mf3->mod_value1 = (a_mf3->mod_value1) + (a_mod * a_amt1 * .01);
-    a_mf3->mod_value1 = (a_mf3->mod_value2) + (a_mod * a_amt2 * .01);
+    a_mf3->mod_value2 = (a_mf3->mod_value2) + (a_mod * a_amt2 * .01);
 }
 
 inline void v_mf3_commit_mod(t_mf3_multi* a_mf3)
