@@ -214,19 +214,13 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_poly_fx_tab->setObjectName(QString::fromUtf8("m_poly_fx_tab"));
         
         m_main_tab->addTab(m_poly_fx_tab, QString());
-        
-        m_mod_matrix_tab = new QWidget();
-        m_mod_matrix_tab_horizontalLayout = new QHBoxLayout(m_mod_matrix_tab);
-        
-        m_main_tab->addTab(m_mod_matrix_tab, QString());
-        
+                
         m_main_v_layout->addWidget(m_main_tab);
         
         this->setWindowTitle(QApplication::translate("Frame", "Euphoria - Powered by LibModSynth", 0, QApplication::UnicodeUTF8));
         m_main_tab->setTabText(m_main_tab->indexOf(m_sample_tab), QApplication::translate("Frame", "Samples", 0, QApplication::UnicodeUTF8));
         m_main_tab->setTabText(m_main_tab->indexOf(m_poly_fx_tab), QApplication::translate("Frame", "Poly FX", 0, QApplication::UnicodeUTF8));
-        m_main_tab->setTabText(m_main_tab->indexOf(m_mod_matrix_tab), QApplication::translate("Frame", "Mod Matrix", 0, QApplication::UnicodeUTF8));
-
+        
         m_main_tab->setCurrentIndex(0);
 
         m_sample_table->lms_mod_matrix->resizeColumnsToContents();
@@ -782,6 +776,39 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_main_layout->lms_add_layout();  
         
+        
+        //New mod matrix
+        
+        QList <LMS_mod_matrix_column*> f_mod_matrix_columns;
+        
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl1"), -100, 100, 0); 
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl2"), -100, 100, 0); 
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl3"), -100, 100, 0); 
+        
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl1"), -100, 100, 0); 
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl2"), -100, 100, 0); 
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl3"), -100, 100, 0);  
+        
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl1"), -100, 100, 0);  
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl2"), -100, 100, 0);  
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl3"), -100, 100, 0);  
+        
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl1"), -100, 100, 0);  
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl2"), -100, 100, 0);  
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl3"), -100, 100, 0);  
+        
+        m_polyfx_mod_matrix = new LMS_mod_matrix(this, LMS_MODULATOR_COUNT, f_mod_matrix_columns, LMS_FIRST_MOD_MATRIX_PORT, a_style);
+        
+        m_main_layout->lms_add_widget(m_polyfx_mod_matrix->lms_mod_matrix);
+        
+        m_polyfx_mod_matrix->lms_mod_matrix->resizeColumnsToContents();
+
+        m_main_layout->lms_add_layout();  
+        
+        //End new mod matrix
+        
+        
+        
         //End from Modulex
         /*
         QLabel * f_logo_label = new QLabel("", this);    
@@ -844,32 +871,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_lfo->lms_type_combobox->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(LFOtypeChanged(int)));
         
         //End Ray-V
-        
-        //New mod matrix
-        
-        QList <LMS_mod_matrix_column*> f_mod_matrix_columns;
-        
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl1"), -100, 100, 0); 
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl2"), -100, 100, 0); 
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl3"), -100, 100, 0); 
-        
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl1"), -100, 100, 0); 
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl2"), -100, 100, 0); 
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl3"), -100, 100, 0);  
-        
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl1"), -100, 100, 0);  
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl2"), -100, 100, 0);  
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl3"), -100, 100, 0);  
-        
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl1"), -100, 100, 0);  
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl2"), -100, 100, 0);  
-        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl3"), -100, 100, 0);  
-        
-        m_polyfx_mod_matrix = new LMS_mod_matrix(this, LMS_MODULATOR_COUNT, f_mod_matrix_columns, LMS_FIRST_MOD_MATRIX_PORT, a_style);
-        
-        m_mod_matrix_tab_horizontalLayout->addWidget(m_polyfx_mod_matrix->lms_mod_matrix);
-        
-        //End new mod matrix
         
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));

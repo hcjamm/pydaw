@@ -485,8 +485,6 @@ protected slots:
 protected:
     bool m_suppress_selected_sample_changed;
     
-    QWidget *m_mod_matrix_tab;
-    QHBoxLayout *m_mod_matrix_tab_horizontalLayout;
     //From Modulex
     
     LMS_multieffect * m_fx0;
