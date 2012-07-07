@@ -78,9 +78,6 @@ typedef struct {
     
     LADSPA_Data *lfo_freq;
     LADSPA_Data *lfo_type;
-    LADSPA_Data *lfo_amp;
-    LADSPA_Data *lfo_pitch;
-    LADSPA_Data *lfo_filter;    
     
     //End from Ray-V
     
@@ -107,6 +104,13 @@ typedef struct {
     LADSPA_Data *fx3_combobox;
     
     //End from Modulex
+    
+    //PolyFX Mod Matrix
+    
+    LADSPA_Data *polyfx_mod_matrix[LMS_MODULAR_POLYFX_COUNT][LMS_MODULATOR_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
+    
+    //End from PolyFX Mod Matrix
+    
     
     int         i_selected_sample;
     int          channels;

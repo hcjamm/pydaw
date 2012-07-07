@@ -842,18 +842,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         connect(m_lfo->lms_freq_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOfreqChanged(int)));
         connect(m_lfo->lms_type_combobox->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(LFOtypeChanged(int)));
-
-        m_lfo_amp  = new LMS_knob_regular(QString("Amp"), -24, 24, 1, 0, QString("0"), m_lfo->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, LMS_LFO_AMP);
-        m_lfo->lms_groupbox->lms_add_h(m_lfo_amp);
-        connect(m_lfo_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOampChanged(int)));
-
-        m_lfo_pitch = new LMS_knob_regular(QString("Pitch"), -36, 36, 1, 0, QString("0"), m_lfo->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, LMS_LFO_PITCH);
-        m_lfo->lms_groupbox->lms_add_h(m_lfo_pitch);
-        connect(m_lfo_pitch->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOpitchChanged(int)));
-
-        m_lfo_cutoff  = new LMS_knob_regular(QString("Filter"), -48, 48, 1, 0, QString("0"), m_lfo->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, LMS_LFO_FILTER);
-        m_lfo->lms_groupbox->lms_add_h(m_lfo_cutoff);
-        connect(m_lfo_cutoff->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOcutoffChanged(int)));    
         
         //End Ray-V
         
@@ -1942,9 +1930,6 @@ void SamplerGUI::setPitchEnvAmt(float a_value){lms_set_value(a_value, m_pitch_en
 void SamplerGUI::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env->lms_time_knob);}
 void SamplerGUI::setLFOfreq(float a_value){lms_set_value(a_value, m_lfo->lms_freq_knob);}
 void SamplerGUI::setLFOtype(float a_value){lms_set_value(a_value, m_lfo->lms_type_combobox);}
-void SamplerGUI::setLFOamp(float a_value){lms_set_value(a_value, m_lfo_amp);}
-void SamplerGUI::setLFOpitch(float a_value){lms_set_value(a_value, m_lfo_pitch);}
-void SamplerGUI::setLFOcutoff(float a_value){lms_set_value(a_value, m_lfo_cutoff);}
 
 void SamplerGUI::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {    
@@ -1973,10 +1958,6 @@ void SamplerGUI::pitchEnvAmtChanged(int a_value){lms_value_changed(a_value, m_pi
 void SamplerGUI::pitchEnvTimeChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_time_knob);}
 void SamplerGUI::LFOfreqChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_freq_knob);}
 void SamplerGUI::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_type_combobox);}
-void SamplerGUI::LFOampChanged(int a_value){lms_value_changed(a_value, m_lfo_amp);}
-void SamplerGUI::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
-void SamplerGUI::LFOcutoffChanged(int a_value){lms_value_changed(a_value, m_lfo_cutoff);}
-
 
 void SamplerGUI::v_print_port_name_to_cerr(int a_port)
 {
@@ -2039,11 +2020,7 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case LMS_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
             case LMS_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;                
             case LMS_LFO_FREQ: setLFOfreq(a_value); break;            
-            case LMS_LFO_TYPE:  setLFOtype(a_value);  break;            
-            case LMS_LFO_AMP: setLFOamp(a_value); break;            
-            case LMS_LFO_PITCH: setLFOpitch(a_value); break;            
-            case LMS_LFO_FILTER: setLFOcutoff(a_value); break;
-            
+            case LMS_LFO_TYPE:  setLFOtype(a_value);  break;
             //From Modulex            
             case LMS_FX0_KNOB0:	setFX0knob0(a_value); break;
             case LMS_FX0_KNOB1:	setFX0knob1(a_value); break;        
@@ -2144,9 +2121,6 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case LMS_PITCH_ENV_TIME: pitchEnvTimeChanged(a_value); break;
             case LMS_LFO_FREQ: LFOfreqChanged(a_value); break;
             case LMS_LFO_TYPE: LFOtypeChanged(a_value); break;
-            case LMS_LFO_AMP: LFOampChanged(a_value); break;
-            case LMS_LFO_PITCH: LFOpitchChanged(a_value); break;
-            case LMS_LFO_FILTER: LFOcutoffChanged(a_value); break;
             //From Modulex            
             case LMS_FX0_KNOB0:	fx0knob0Changed(a_value); break;
             case LMS_FX0_KNOB1:	fx0knob1Changed(a_value); break;
@@ -2251,9 +2225,7 @@ int SamplerGUI::i_get_control(int port)
             case LMS_PITCH_ENV_TIME: return m_pitch_env->lms_time_knob->lms_get_value();
             case LMS_LFO_FREQ: return m_lfo->lms_freq_knob->lms_get_value();
             case LMS_LFO_TYPE: return m_lfo->lms_type_combobox->lms_get_value();
-            case LMS_LFO_AMP: return m_lfo_amp->lms_get_value();
-            case LMS_LFO_PITCH: return m_lfo_pitch->lms_get_value();
-            case LMS_LFO_FILTER: return m_lfo_cutoff->lms_get_value();
+            
             //From Modulex            
             case LMS_FX0_KNOB0: return m_fx0->lms_knob1->lms_get_value();
             case LMS_FX0_KNOB1: return m_fx0->lms_knob2->lms_get_value();

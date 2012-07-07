@@ -79,9 +79,7 @@ typedef struct st_poly_voice
     float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
     
     t_lfs_lfo * lfo1;
-    
-    float lfo_amp_output, lfo_pitch_output, lfo_filter_output;
-    
+        
     t_amp * amp_ptr;
 
     /*Migrated from the now deprecate voice_data struct*/
@@ -164,11 +162,7 @@ t_poly_voice * g_poly_init(float a_sr)
     f_voice->filter_output = 0.0f;
     
     f_voice->lfo1 = g_lfs_get(a_sr);
-    
-    f_voice->lfo_amp_output = 0.0f;
-    f_voice->lfo_filter_output = 0.0f;
-    f_voice->lfo_pitch_output = 0.0f;
-    
+        
     f_voice->amp_ptr = g_amp_get();
     
     f_voice->note_f = 1.0f;

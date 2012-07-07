@@ -137,15 +137,6 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         case LMS_LFO_TYPE:
             plugin->lfo_type = data;
             break;
-        case LMS_LFO_AMP:
-            plugin->lfo_amp = data;
-            break;
-        case LMS_LFO_PITCH:
-            plugin->lfo_pitch = data;
-            break;
-        case LMS_LFO_FILTER:
-            plugin->lfo_filter = data;
-            break;
         //End Ray-V ports
         //From Modulex
         case LMS_FX0_KNOB0: plugin->fx0_knob0 = data; break;
@@ -303,9 +294,6 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_TIME, 43, "Pitch Env Time");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FREQ, 44, "LFO Freq");    
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_TYPE, 45, "LFO Type");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_AMP, 46, "LFO Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_PITCH, 47, "LFO Pitch");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FILTER, 48, "LFO Filter");
     
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB0, 49, "FX0Knob0");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB1, 50, "FX0Knob1");
@@ -379,11 +367,6 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         //Set and run the LFO
         v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01  );
         v_lfs_run(plugin_data->data[n]->lfo1);
-        plugin_data->data[n]->lfo_amp_output = f_db_to_linear_fast((((*(plugin_data->lfo_amp)
-                ) * (plugin_data->data[n]->lfo1->output)) - (f_lms_abs((*(plugin_data->lfo_amp)
-                )) * 0.5)), plugin_data->data[n]->amp_ptr);
-        plugin_data->data[n]->lfo_filter_output = ( *(plugin_data->lfo_filter)) * (plugin_data->data[n]->lfo1->output);
-        plugin_data->data[n]->lfo_pitch_output = (*(plugin_data->lfo_pitch)) * (plugin_data->data[n]->lfo1->output);
         
         plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied) + (plugin_data->data[n]->pitch_env->output_multiplied) 
                 +  (plugin_data->mono_modules->pitchbend_smoother->output)  //(plugin_data->sv_pitch_bend_value)
@@ -425,7 +408,8 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 
                 ratio =
                 f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]),                     
-                        ((plugin_data->data[n]->base_pitch) + (plugin_data->data[n]->lfo_pitch_output)),
+                        ((plugin_data->data[n]->base_pitch) //+ (plugin_data->data[n]->lfo_pitch_output)
+                        ),
                         plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
 
                 plugin_data->sample_position[n][(plugin_data->current_sample)] = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + ratio;
@@ -453,7 +437,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                                     
             sample += (f_run_white_noise(plugin_data->data[n]->white_noise1[ch]) * (plugin_data->data[n]->noise_linamp)); //white noise
             
-            sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp) * (plugin_data->data[n]->lfo_amp_output);
+            sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp); // * (plugin_data->data[n]->lfo_amp_output);
     
             //If the main ADSR envelope has reached the end it's release stage, kill the voice.
             //However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't            
@@ -1209,34 +1193,7 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_LFO_TYPE].LowerBound = 0; 
 	port_range_hints[LMS_LFO_TYPE].UpperBound = 2;
-        
-        /*Parameters for LFO Amp*/
-	port_descriptors[LMS_LFO_AMP] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_LFO_AMP] = "LFO Amp";
-	port_range_hints[LMS_LFO_AMP].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_LFO_AMP].LowerBound = -24;
-	port_range_hints[LMS_LFO_AMP].UpperBound = 24;
-        
-        /*Parameters for LFO Pitch*/
-	port_descriptors[LMS_LFO_PITCH] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_LFO_PITCH] = "LFO Pitch";
-	port_range_hints[LMS_LFO_PITCH].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_LFO_PITCH].LowerBound = -36;
-	port_range_hints[LMS_LFO_PITCH].UpperBound = 36;
-        
-        /*Parameters for LFO Filter*/
-	port_descriptors[LMS_LFO_FILTER] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_LFO_FILTER] = "LFO Filter";
-	port_range_hints[LMS_LFO_FILTER].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_LFO_FILTER].LowerBound = -48;
-	port_range_hints[LMS_LFO_FILTER].UpperBound = 48;        
-                
+                        
         //End Ray-V
         
         //From Modulex
