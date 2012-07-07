@@ -52,6 +52,9 @@
 /*Provide an arbitrary maximum number of samples the user can load*/
 #define LMS_MAX_SAMPLE_COUNT 32
 
+//Total number of LFOs, ADSRs, other envelopes, etc...  Used for the PolyFX mod matrix
+#define LMS_MODULATOR_COUNT 4
+
 #define Sampler_Stereo_LABEL "Euphoria"
 
 #define Sampler_OUTPUT_LEFT 0
@@ -137,7 +140,11 @@
 #define LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN    LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX
 #define LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX    (LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN + LMS_MAX_SAMPLE_COUNT)
 
-#define Sampler_Stereo_COUNT                LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX
+#define LMS_FIRST_POLYFX_MOD_MATRIX_PORT LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX
+
+
+
+#define Sampler_Stereo_COUNT                LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX  //TODO:  Update
 
 #endif	/* PORTS_H */
 
