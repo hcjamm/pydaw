@@ -54,6 +54,12 @@
 
 //Total number of LFOs, ADSRs, other envelopes, etc...  Used for the PolyFX mod matrix
 #define LMS_MODULATOR_COUNT 4
+//How many modular PolyFX
+#define LMS_MODULAR_POLYFX_COUNT 4
+//How many ports per PolyFX, 3 knobs and a combobox
+#define LMS_PORTS_PER_MOD_EFFECT 4
+//How many knobs per PolyFX, 3 knobs
+#define LMS_CONTROLS_PER_MOD_EFFECT 3
 
 #define Sampler_Stereo_LABEL "Euphoria"
 
@@ -101,6 +107,9 @@
 #define LMS_FX3_KNOB1  35
 #define LMS_FX3_KNOB2  36
 #define LMS_FX3_COMBOBOX 37
+//PolyFX Mod Matrix
+
+//End PolyFX Mod Matrix
 /*This is the last control port*/
 #define LMS_LAST_CONTROL_PORT 37  //TODO:  Is this obsolete now with the below?
 #define LMS_COUNT 38 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
@@ -140,11 +149,7 @@
 #define LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN    LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX
 #define LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX    (LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN + LMS_MAX_SAMPLE_COUNT)
 
-#define LMS_FIRST_POLYFX_MOD_MATRIX_PORT LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX
-
-
-
-#define Sampler_Stereo_COUNT                LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX  //TODO:  Update
+#define Sampler_Stereo_COUNT                LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX
 
 #endif	/* PORTS_H */
 
