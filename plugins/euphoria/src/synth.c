@@ -153,10 +153,10 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         case LMS_FX3_KNOB1: plugin->pfx_mod_knob[0][3][1] = data; break;
         case LMS_FX3_KNOB2: plugin->pfx_mod_knob[0][3][2] = data; break;
             
-        case LMS_FX0_COMBOBOX: plugin->fx0_combobox = data; break;    
-        case LMS_FX1_COMBOBOX: plugin->fx1_combobox = data; break;    
-        case LMS_FX2_COMBOBOX: plugin->fx2_combobox = data; break;    
-        case LMS_FX3_COMBOBOX: plugin->fx3_combobox = data; break;    
+        case LMS_FX0_COMBOBOX: plugin->fx_combobox[0][0] = data; break;    
+        case LMS_FX1_COMBOBOX: plugin->fx_combobox[0][1] = data; break;    
+        case LMS_FX2_COMBOBOX: plugin->fx_combobox[0][2] = data; break;    
+        case LMS_FX3_COMBOBOX: plugin->fx_combobox[0][3] = data; break;    
         //End from Modulex
         /*PolyFX mod matrix port connections*/
         case LMS_PFXMATRIX_GRP0DST0SRC0CTRL0: plugin->polyfx_mod_matrix[0][0][0][0] = data; break;
@@ -595,10 +595,10 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                     }
                     
                     //TODO:  Roll the loop up
-                    plugin_data->data[n.note]->fx_func_ptr[0] = g_mf3_get_function_pointer((int)(*(plugin_data->fx0_combobox)));
-                    plugin_data->data[n.note]->fx_func_ptr[1] = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
-                    plugin_data->data[n.note]->fx_func_ptr[2] = g_mf3_get_function_pointer((int)(*(plugin_data->fx2_combobox)));
-                    plugin_data->data[n.note]->fx_func_ptr[3] = g_mf3_get_function_pointer((int)(*(plugin_data->fx3_combobox)));
+                    plugin_data->data[n.note]->fx_func_ptr[0] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][0])));
+                    plugin_data->data[n.note]->fx_func_ptr[1] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][1])));
+                    plugin_data->data[n.note]->fx_func_ptr[2] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][2])));
+                    plugin_data->data[n.note]->fx_func_ptr[3] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][3])));
                     
                     //Reset the sample start positions to 0.  TODO:  optimize this
                     for(i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)
