@@ -45,7 +45,7 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
     char errstr[256];
     XGetErrorText(dpy, err->error_code, errstr, 256);
     if (err->error_code != BadWindow) {
-	std::cerr << "trivial_sampler_qt_gui: X Error: "
+	std::cerr << "euphoria_qt_gui: X Error: "
 		  << errstr << " " << err->error_code
 		  << "\nin major opcode:  " << err->request_code << std::endl;
     }
@@ -1343,9 +1343,18 @@ void SamplerGUI::sample_vel_highChanged(int a_control_index)
 #endif
 }
 
-void SamplerGUI::pfxmatrix_Changed(int,int,int,int,int)
+void SamplerGUI::pfxmatrix_Changed(int a_port, int a_fx_group, int a_dst,int a_src, int a_ctrl)
 {
-    //TODO
+    //m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_value_changed(0);
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) {        
+	lo_send(m_host, m_controlPath, "if",
+                a_port,
+                //(float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_get_value())
+                (float)(m_polyfx_mod_matrix[a_fx_group]->lms_mm_columns[((a_dst * LMS_CONTROLS_PER_MOD_EFFECT) + a_ctrl)]->controls[a_src]->lms_get_value())
+                );
+    }
+#endif
 }
 
 void SamplerGUI::saveInstrumentToSingleFile()
