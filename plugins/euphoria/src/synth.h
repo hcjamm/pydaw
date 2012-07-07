@@ -83,6 +83,7 @@ typedef struct {
     
     //From Modulex
     
+    //Corresponds to the mod matrix knobs
     LADSPA_Data *pfx_mod_knob[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
     
     LADSPA_Data *fx_combobox[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT];
@@ -90,6 +91,7 @@ typedef struct {
     //End from Modulex
     
     //PolyFX Mod Matrix
+    //Corresponds to the actual knobs on the effects themselves, not the mod matrix
     LADSPA_Data *polyfx_mod_matrix[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_MODULATOR_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
     
     //End from PolyFX Mod Matrix
@@ -132,6 +134,12 @@ typedef struct {
     t_pit_ratio * smp_pit_ratio[LMS_MAX_SAMPLE_COUNT];
     t_ccm_midi_cc_map * midi_cc_map;    
     t_poly_voice * data[Sampler_NOTES];
+    
+    //iterators for iterating through their respective array dimensions
+    int i_fx_grps;
+    int i_src;
+    int i_dst;
+    int i_ctrl;
     
     float amp;  //linear amplitude, from the master volume knob
     
