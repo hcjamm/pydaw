@@ -165,9 +165,6 @@ public slots:
     
     void setLFOfreq(float);
     void setLFOtype(float);
-    void setLFOamp(float);
-    void setLFOpitch(float);
-    void setLFOcutoff(float);
     //End from Ray-V
     
     //From Modulex
@@ -459,10 +456,6 @@ protected slots:
     
     void LFOfreqChanged(int);
     void LFOtypeChanged(int);
-    void LFOampChanged(int);
-    void LFOpitchChanged(int);
-    void LFOcutoffChanged(int);
-    
     //End from Ray-V
     
     //From Modulex
@@ -513,9 +506,6 @@ protected:
     LMS_ramp_env * m_pitch_env;
     
     LMS_lfo_widget * m_lfo;
-    LMS_knob_regular *m_lfo_amp;
-    LMS_knob_regular *m_lfo_pitch;
-    LMS_knob_regular *m_lfo_cutoff;
     
     LMS_master_widget * m_master;
             
