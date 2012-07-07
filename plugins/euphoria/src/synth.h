@@ -57,10 +57,6 @@ typedef struct {
     LADSPA_Data *decay;
     LADSPA_Data *sustain;
     LADSPA_Data *release;
-    LADSPA_Data *timbre;
-    LADSPA_Data *filter_type;
-    LADSPA_Data *res;
-    LADSPA_Data *dist;
     LADSPA_Data pitch;
     
     LADSPA_Data *attack_f;
@@ -68,8 +64,6 @@ typedef struct {
     LADSPA_Data *sustain_f;
     LADSPA_Data *release_f;
     
-    LADSPA_Data *filter_env_amt;
-    LADSPA_Data *dist_wet;
     LADSPA_Data *master_vol;
     
     LADSPA_Data *noise_amp;    

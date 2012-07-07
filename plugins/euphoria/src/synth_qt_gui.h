@@ -140,11 +140,7 @@ public slots:
     void setDecay  (float);
     void setSustain(float);
     void setRelease(float);
-    void setTimbre (float);
-    void setRes (float);
-    void setFilterType (float val);
-    void setDist (float);
-        
+            
     void setFilterAttack (float);
     void setFilterDecay  (float);
     void setFilterSustain(float);
@@ -152,8 +148,6 @@ public slots:
     
     void setNoiseAmp(float);
     
-    void setFilterEnvAmt(float);
-    void setDistWet(float);    
     void setMasterVolume(float);
     
     void setMasterUnisonVoices(float);
@@ -417,21 +411,14 @@ protected slots:
     void decayChanged  (int);
     void sustainChanged(int);
     void releaseChanged(int);
-    void timbreChanged (int);
-    void filterTypeChanged (int);
-    void resChanged (int);
-    void distChanged (int);
-        
+            
     void filterAttackChanged (int);
     void filterDecayChanged  (int);
     void filterSustainChanged(int);
     void filterReleaseChanged(int);
     
     void noiseAmpChanged(int);
-
-    
-    void filterEnvAmtChanged(int);
-    void distWetChanged(int);
+        
     void masterVolumeChanged(int);
     
     void masterUnisonVoicesChanged(int);
@@ -458,8 +445,7 @@ protected:
     
     LMS_adsr_widget * m_adsr_amp;
     LMS_adsr_widget * m_adsr_filter;        
-    LMS_filter_widget * m_filter;
-    LMS_knob_regular * m_filter_env_amt;
+    
     LMS_ramp_env * m_pitch_env;
     
     LMS_lfo_widget * m_lfo;
@@ -468,11 +454,7 @@ protected:
     LMS_knob_regular *m_lfo_cutoff;
     
     LMS_master_widget * m_master;
-    
-    LMS_group_box * m_groupbox_distortion;
-    LMS_knob_regular *m_dist;
-    LMS_knob_regular *m_dist_wet;
-        
+            
     LMS_group_box * m_groupbox_noise;
     LMS_knob_regular *m_noise_amp;
     LMS_sample_graph *m_sample_graph;

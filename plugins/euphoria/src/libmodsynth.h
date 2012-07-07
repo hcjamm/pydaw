@@ -46,7 +46,6 @@ typedef float (*fp_funcptr_audio_generic)();
 
 typedef struct st_mono_modules
 {
-    t_smoother_iir * filter_smoother;
     t_smoother_iir * pitchbend_smoother;
     t_amp * amp_ptr;
 }t_mono_modules;
@@ -183,7 +182,6 @@ t_mono_modules * g_mono_init();
 t_mono_modules * g_mono_init()
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
-    a_mono->filter_smoother = g_smr_iir_get_smoother();
     a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
     a_mono->amp_ptr = g_amp_get();
     return a_mono;
