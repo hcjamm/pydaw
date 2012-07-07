@@ -481,6 +481,58 @@ protected slots:
     void fx3comboboxChanged(int);
     
     //End from Modulex
+    
+    //From PolyFX mod matrix
+    
+    void pfxmatrix_grp0dst0src0ctrl0Changed(int);
+    void pfxmatrix_grp0dst0src0ctrl1Changed(int);
+    void pfxmatrix_grp0dst0src0ctrl2Changed(int);
+    void pfxmatrix_grp0dst0src1ctrl0Changed(int);
+    void pfxmatrix_grp0dst0src1ctrl1Changed(int);
+    void pfxmatrix_grp0dst0src1ctrl2Changed(int);
+    void pfxmatrix_grp0dst0src2ctrl0Changed(int);
+    void pfxmatrix_grp0dst0src2ctrl1Changed(int);
+    void pfxmatrix_grp0dst0src2ctrl2Changed(int);
+    void pfxmatrix_grp0dst0src3ctrl0Changed(int);
+    void pfxmatrix_grp0dst0src3ctrl1Changed(int);
+    void pfxmatrix_grp0dst0src3ctrl2Changed(int);
+    void pfxmatrix_grp0dst1src0ctrl0Changed(int);
+    void pfxmatrix_grp0dst1src0ctrl1Changed(int);
+    void pfxmatrix_grp0dst1src0ctrl2Changed(int);
+    void pfxmatrix_grp0dst1src1ctrl0Changed(int);
+    void pfxmatrix_grp0dst1src1ctrl1Changed(int);
+    void pfxmatrix_grp0dst1src1ctrl2Changed(int);
+    void pfxmatrix_grp0dst1src2ctrl0Changed(int);
+    void pfxmatrix_grp0dst1src2ctrl1Changed(int);
+    void pfxmatrix_grp0dst1src2ctrl2Changed(int);
+    void pfxmatrix_grp0dst1src3ctrl0Changed(int);
+    void pfxmatrix_grp0dst1src3ctrl1Changed(int);
+    void pfxmatrix_grp0dst1src3ctrl2Changed(int);
+    void pfxmatrix_grp0dst2src0ctrl0Changed(int);
+    void pfxmatrix_grp0dst2src0ctrl1Changed(int);
+    void pfxmatrix_grp0dst2src0ctrl2Changed(int);
+    void pfxmatrix_grp0dst2src1ctrl0Changed(int);
+    void pfxmatrix_grp0dst2src1ctrl1Changed(int);
+    void pfxmatrix_grp0dst2src1ctrl2Changed(int);
+    void pfxmatrix_grp0dst2src2ctrl0Changed(int);
+    void pfxmatrix_grp0dst2src2ctrl1Changed(int);
+    void pfxmatrix_grp0dst2src2ctrl2Changed(int);
+    void pfxmatrix_grp0dst2src3ctrl0Changed(int);
+    void pfxmatrix_grp0dst2src3ctrl1Changed(int);
+    void pfxmatrix_grp0dst2src3ctrl2Changed(int);
+    void pfxmatrix_grp0dst3src0ctrl0Changed(int);
+    void pfxmatrix_grp0dst3src0ctrl1Changed(int);
+    void pfxmatrix_grp0dst3src0ctrl2Changed(int);
+    void pfxmatrix_grp0dst3src1ctrl0Changed(int);
+    void pfxmatrix_grp0dst3src1ctrl1Changed(int);
+    void pfxmatrix_grp0dst3src1ctrl2Changed(int);
+    void pfxmatrix_grp0dst3src2ctrl0Changed(int);
+    void pfxmatrix_grp0dst3src2ctrl1Changed(int);
+    void pfxmatrix_grp0dst3src2ctrl2Changed(int);
+    void pfxmatrix_grp0dst3src3ctrl0Changed(int);
+    void pfxmatrix_grp0dst3src3ctrl1Changed(int);
+    void pfxmatrix_grp0dst3src3ctrl2Changed(int);
+
 
 protected:
     bool m_suppress_selected_sample_changed;
@@ -521,6 +573,8 @@ protected:
     void sample_vel_highChanged(int);
     void sample_vel_lowChanged(int);
     void sample_vel_sensChanged(int);
+    
+    void pfxmatrix_Changed(int,int,int,int,int);
     /*The currently selected sample for viewing/editing */
     //int m_selected_sample_index;    
     /*The index of C, C#, D, D#, E, etc... in the QCombobox*/
