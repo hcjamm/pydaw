@@ -19,6 +19,10 @@ $ports = "";
 $port_descriptors = "";
 $connect_ports = "";
 
+$v_set_control = "";
+$i_get_control = "";
+$v_control_changed = "";
+
 for($i = 0; $i < $sample_count; $i++)
 {
 my $slot = "sample_pitch$i" . "Changed(int)";
@@ -129,7 +133,12 @@ $connections .= "\t\t\tconnect((QSpinBox*)(m_polyfx_mod_matrix[$i4]->lms_mm_colu
 
 $connect_ports .= "case $port_name: plugin->polyfx_mod_matrix[$i4][$i2][$i][$i3] = data; break;\n";
 
+$i_get_control .= "case $port_name: return ((QSpinBox*)(m_polyfx_mod_matrix[$i4]->lms_mm_columns[" . (($i2 * $mod_matrix_knobs_per_control) + $i3) . "]->controls[$i]->lms_get_widget()))->value();\n";
+$v_set_control .= "case $port_name: ((QSpinBox*)(m_polyfx_mod_matrix[$i4]->lms_mm_columns[" . (($i2 * $mod_matrix_knobs_per_control) + $i3) . "]->controls[$i]->lms_get_widget()))->setValue(a_value); break;\n";
+$v_control_changed .= "case $port_name:  $lc_name"."Changed(a_value); break;\n";
+
 $current_control_port++;
+
 }
 }
 }
@@ -159,6 +168,15 @@ $port_descriptors
 
 /*Port connections*/
 $connect_ports
+
+//v_set_control
+$v_set_control
+
+//i_get_control
+$i_get_control
+
+//v_control_changed
+$v_control_changed
 
 ";
 
