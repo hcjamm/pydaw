@@ -85,11 +85,8 @@ typedef struct {
     
     LADSPA_Data *pfx_mod_knob[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
     
-    LADSPA_Data *fx0_combobox;
-    LADSPA_Data *fx1_combobox;        
-    LADSPA_Data *fx2_combobox;
-    LADSPA_Data *fx3_combobox;
-    
+    LADSPA_Data *fx_combobox[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT];
+        
     //End from Modulex
     
     //PolyFX Mod Matrix
