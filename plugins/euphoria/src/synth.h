@@ -49,10 +49,6 @@ typedef struct {
     LADSPA_Data *selected_sample;
     
     //From Ray-V
-    
-    LADSPA_Data *output0;
-    LADSPA_Data *output1;
-    LADSPA_Data *tune;
     LADSPA_Data *attack;
     LADSPA_Data *decay;
     LADSPA_Data *sustain;
@@ -68,8 +64,6 @@ typedef struct {
     
     LADSPA_Data *noise_amp;    
     
-    LADSPA_Data *master_uni_voice;
-    LADSPA_Data *master_uni_spread;
     LADSPA_Data *master_glide;
     LADSPA_Data *master_pb_amt;
     
