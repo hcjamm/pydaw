@@ -107,6 +107,8 @@
 #define LMS_FX3_KNOB2  33
 #define LMS_FX3_COMBOBOX 34
 //PolyFX Mod Matrix
+#define LMS_PFXMATRIX_FIRST_PORT 35
+
 #define LMS_PFXMATRIX_GRP0DST0SRC0CTRL0  35
 #define LMS_PFXMATRIX_GRP0DST0SRC0CTRL1  36
 #define LMS_PFXMATRIX_GRP0DST0SRC0CTRL2  37
@@ -158,15 +160,14 @@
 
 //End PolyFX Mod Matrix
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 82  //TODO:  Is this obsolete now with the below?
-#define LMS_COUNT 83 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_LAST_REGULAR_CONTROL_PORT 83
 
 /*The first port to use when enumerating the ports for mod_matrix controls.  All of the mod_matrix ports should be sequential, 
  * any additional ports should prepend this port number*/
-#define LMS_FIRST_MOD_MATRIX_PORT 83
+#define LMS_FIRST_SAMPLE_TABLE_PORT 83
 
 /*The range of ports for sample pitch*/
-#define LMS_SAMPLE_PITCH_PORT_RANGE_MIN     LMS_FIRST_MOD_MATRIX_PORT
+#define LMS_SAMPLE_PITCH_PORT_RANGE_MIN     LMS_FIRST_SAMPLE_TABLE_PORT
 #define LMS_SAMPLE_PITCH_PORT_RANGE_MAX     (LMS_SAMPLE_PITCH_PORT_RANGE_MIN + LMS_MAX_SAMPLE_COUNT)
 
 /*The range of ports for the low note to play a sample on*/

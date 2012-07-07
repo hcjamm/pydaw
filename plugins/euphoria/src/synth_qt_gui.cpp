@@ -116,7 +116,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("High Vel."), 0, 127, 127);  //High Velocity
     f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Path"), 0, 1, 0);  //File path            
     
-    m_sample_table = new LMS_mod_matrix(this, LMS_MAX_SAMPLE_COUNT, f_sample_table_columns, LMS_FIRST_MOD_MATRIX_PORT, a_style);
+    m_sample_table = new LMS_mod_matrix(this, LMS_MAX_SAMPLE_COUNT, f_sample_table_columns, LMS_FIRST_SAMPLE_TABLE_PORT, a_style);
         
     m_file_selector = new LMS_file_select(this);
         /*Set all of the array variables that are per-sample*/
@@ -797,11 +797,11 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl2"), -100, 100, 0);  
         f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl3"), -100, 100, 0);  
         
-        m_polyfx_mod_matrix = new LMS_mod_matrix(this, LMS_MODULATOR_COUNT, f_mod_matrix_columns, LMS_FIRST_MOD_MATRIX_PORT, a_style);
+        m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, LMS_MODULATOR_COUNT, f_mod_matrix_columns, LMS_PFXMATRIX_FIRST_PORT, a_style);
         
-        m_main_layout->lms_add_widget(m_polyfx_mod_matrix->lms_mod_matrix);
+        m_main_layout->lms_add_widget(m_polyfx_mod_matrix[0]->lms_mod_matrix);
         
-        m_polyfx_mod_matrix->lms_mod_matrix->resizeColumnsToContents();
+        m_polyfx_mod_matrix[0]->lms_mod_matrix->resizeColumnsToContents();
 
         m_main_layout->lms_add_layout();  
         
@@ -1360,7 +1360,7 @@ void SamplerGUI::saveInstrumentToSingleFile()
             stream << LMS_FILE_CONTROLS_TAG << "\n";
             stream << LMS_FILE_CONTROLS_TAG_EUP_V1 << "\n";
             
-            for(int i = LMS_FIRST_CONTROL_PORT; i <= LMS_LAST_CONTROL_PORT; i++)        
+            for(int i = LMS_FIRST_CONTROL_PORT; i < LMS_LAST_REGULAR_CONTROL_PORT; i++)        
             {   
                 stream << i << LMS_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";                
             }   
