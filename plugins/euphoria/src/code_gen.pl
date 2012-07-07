@@ -111,7 +111,6 @@ for($i3 = 0; $i3 < $mod_matrix_knobs_per_control; $i3++)
 
 my $port_name = "LMS_PFXMATRIX_GRP$i4". "DST$i2" . "SRC$i" . "CTRL$i3";
 my $port = "$port_name  $current_control_port";
-$current_control_port++;
 
 $ports .= "#define $port\n";
 
@@ -123,13 +122,14 @@ $port_descriptors .=
 my $lc_name = "pfxmatrix_grp$i4" . "dst$i2" . "src$i" . "ctrl$i3";
 my $slot = $lc_name . "Changed(int)";
 my $slot_def = $lc_name . "Changed(int a_value)";
-my $function = "pfxmatrix_Changed($i4, $i, $i2, $i3);";
+my $function = "pfxmatrix_Changed($current_control_port, $i4, $i2, $i3, $i);";
 $slots .= "\tvoid $slot;\n";
 $slot_defs .= "void $class_name" . "::" . "$slot_def" . "{$function}\n";
-$connections .= "\t\t\tconnect((QDial*)(m_polyfx_mod_matrix[$i4]->lms_mm_columns[" . (($i2 * $mod_matrix_knobs_per_control) + $i3) . "]->controls[$i]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
+$connections .= "\t\t\tconnect((QSpinBox*)(m_polyfx_mod_matrix[$i4]->lms_mm_columns[" . (($i2 * $mod_matrix_knobs_per_control) + $i3) . "]->controls[$i]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
 
 $connect_ports .= "case $port_name: plugin->polyfx_mod_matrix[$i4][$i2][$i][$i3] = data; break;\n";
 
+$current_control_port++;
 }
 }
 }
