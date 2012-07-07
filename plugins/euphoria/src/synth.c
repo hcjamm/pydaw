@@ -503,40 +503,19 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             plugin_data->data[n]->modulex_current_sample[ch] = sample;
 	}
         
-        //Begin from Modulex
-        //TODO:  Roll the loop back up
-        v_mf3_set(plugin_data->data[n]->multieffect[0], 
-            *(plugin_data->pfx_mod_knob[0][0][0]), *(plugin_data->pfx_mod_knob[0][0][1]), *(plugin_data->pfx_mod_knob[0][0][2]));
+        //Begin from Modulex        
+        for(plugin_data->i_dst = 0; (plugin_data->i_dst) < LMS_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
+        {
+            v_mf3_set(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], 
+                *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][0]), *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][1]), *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][2])); 
+            
+            plugin_data->data[n]->fx_func_ptr[(plugin_data->i_dst)](plugin_data->data[n]->multieffect[(plugin_data->i_dst)], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
 
-        v_mf3_set(plugin_data->data[n]->multieffect[1], 
-            *(plugin_data->pfx_mod_knob[0][1][0]), *(plugin_data->pfx_mod_knob[0][1][1]), *(plugin_data->pfx_mod_knob[0][1][2]));
-        
-        v_mf3_set(plugin_data->data[n]->multieffect[2], 
-            *(plugin_data->pfx_mod_knob[0][2][0]), *(plugin_data->pfx_mod_knob[0][2][1]), *(plugin_data->pfx_mod_knob[0][2][2]));
-        
-        v_mf3_set(plugin_data->data[n]->multieffect[0], 
-            *(plugin_data->pfx_mod_knob[0][0][0]), *(plugin_data->pfx_mod_knob[0][0][1]), *(plugin_data->pfx_mod_knob[0][0][2]));
-        
-        plugin_data->data[n]->fx_func_ptr[0](plugin_data->data[n]->multieffect[0], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
+            plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[(plugin_data->i_dst)]->output0;
+            plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[(plugin_data->i_dst)]->output1;
 
-        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[0]->output0;
-        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[0]->output1;
-
-        plugin_data->data[n]->fx_func_ptr[1](plugin_data->data[n]->multieffect[1], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
-
-        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[1]->output0;
-        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[1]->output1;
-
-        plugin_data->data[n]->fx_func_ptr[2](plugin_data->data[n]->multieffect[2], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
-
-        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[2]->output0;
-        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[2]->output1;
-
-        plugin_data->data[n]->fx_func_ptr[3](plugin_data->data[n]->multieffect[3], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
-
-        plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[3]->output0;
-        plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[3]->output1;
-
+        }
+ 
         //End from Modulex
 
         plugin_data->output[0][pos + i] += plugin_data->data[n]->modulex_current_sample[0];
@@ -594,12 +573,10 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                         }
                     }
                     
-                    //TODO:  Roll the loop up
-                    plugin_data->data[n.note]->fx_func_ptr[0] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][0])));
-                    plugin_data->data[n.note]->fx_func_ptr[1] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][1])));
-                    plugin_data->data[n.note]->fx_func_ptr[2] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][2])));
-                    plugin_data->data[n.note]->fx_func_ptr[3] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][3])));
-                    
+                    for(plugin_data->i_dst = 0; (plugin_data->i_dst) < LMS_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
+                    {
+                        plugin_data->data[n.note]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)])));                        
+                    }    
                     //Reset the sample start positions to 0.  TODO:  optimize this
                     for(i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)
                     {
