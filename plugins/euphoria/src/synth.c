@@ -509,6 +509,9 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             v_mf3_set(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], 
                 *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][0]), *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][1]), *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][2])); 
             
+            v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->adsr_filter->output, 
+                    *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][0]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][1]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][2]));
+            
             plugin_data->data[n]->fx_func_ptr[(plugin_data->i_dst)](plugin_data->data[n]->multieffect[(plugin_data->i_dst)], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
 
             plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[(plugin_data->i_dst)]->output0;
