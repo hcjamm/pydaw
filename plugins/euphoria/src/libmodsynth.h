@@ -92,18 +92,9 @@ typedef struct st_poly_voice
     
     //From Modulex
     
-    t_mf3_multi * multieffect0;
-    fp_mf3_run fx_func_ptr0;    
-    
-    t_mf3_multi * multieffect1;
-    fp_mf3_run fx_func_ptr1;    
-    
-    t_mf3_multi * multieffect2;
-    fp_mf3_run fx_func_ptr2;    
-    
-    t_mf3_multi * multieffect3;
-    fp_mf3_run fx_func_ptr3;    
-    
+    t_mf3_multi * multieffect[LMS_MODULAR_POLYFX_COUNT];
+    fp_mf3_run fx_func_ptr[LMS_MODULAR_POLYFX_COUNT];
+        
     float modulex_current_sample[2];    
     
 }t_poly_voice;
@@ -173,17 +164,11 @@ t_poly_voice * g_poly_init(float a_sr)
     
     //From Modulex
     
-    f_voice->multieffect0 = g_mf3_get(a_sr);    
-    f_voice->fx_func_ptr0 = v_mf3_run_off;
-    
-    f_voice->multieffect1 = g_mf3_get(a_sr);    
-    f_voice->fx_func_ptr1 = v_mf3_run_off;
-    
-    f_voice->multieffect2 = g_mf3_get(a_sr);    
-    f_voice->fx_func_ptr2 = v_mf3_run_off;
-    
-    f_voice->multieffect3 = g_mf3_get(a_sr);    
-    f_voice->fx_func_ptr3 = v_mf3_run_off;
+    for(f_i = 0; f_i < LMS_MODULAR_POLYFX_COUNT; f_i++)
+    {
+        f_voice->multieffect[f_i] = g_mf3_get(a_sr);    
+        f_voice->fx_func_ptr[f_i] = v_mf3_run_off;
+    }
     
     return f_voice;
 }
