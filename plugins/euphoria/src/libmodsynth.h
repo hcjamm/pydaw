@@ -24,14 +24,12 @@ extern "C" {
 /*includes for any libmodsynth modules you'll be using*/
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/lib/smoother-linear.h"
-#include "../../libmodsynth/modules/filter/svf.h"
-#include "../../libmodsynth/modules/distortion/clipper.h"
 #include "../../libmodsynth/modules/modulation/adsr.h"
-#include "../../libmodsynth/modules/signal_routing/audio_xfade.h"
 #include "../../libmodsynth/modules/modulation/ramp_env.h"
 #include "../../libmodsynth/lib/smoother-iir.h"
 #include "../../libmodsynth/modules/oscillator/lfo_simple.h"
 #include "../../libmodsynth/modules/oscillator/noise.h"
+#include "../../libmodsynth/modules/multifx/multifx3knob.h"
     
 #define LMS_CHANNEL_COUNT 2
    
@@ -93,6 +91,23 @@ typedef struct st_poly_voice
     float osc2_linamp;
     float noise_linamp;           
     int i_voice;  //for the runVoice function to iterate the current block
+    
+    //From Modulex
+    
+    t_mf3_multi * multieffect0;
+    fp_mf3_run fx_func_ptr0;    
+    
+    t_mf3_multi * multieffect1;
+    fp_mf3_run fx_func_ptr1;    
+    
+    t_mf3_multi * multieffect2;
+    fp_mf3_run fx_func_ptr2;    
+    
+    t_mf3_multi * multieffect3;
+    fp_mf3_run fx_func_ptr3;    
+    
+    float modulex_current_sample[2];    
+    
 }t_poly_voice;
 
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -161,6 +176,20 @@ t_poly_voice * g_poly_init(float a_sr)
     f_voice->osc2_linamp = 1.0f;
     f_voice->noise_linamp = 1.0f;
     f_voice->i_voice = 0;
+    
+    //From Modulex
+    
+    f_voice->multieffect0 = g_mf3_get(a_sr);    
+    f_voice->fx_func_ptr0 = v_mf3_run_off;
+    
+    f_voice->multieffect1 = g_mf3_get(a_sr);    
+    f_voice->fx_func_ptr1 = v_mf3_run_off;
+    
+    f_voice->multieffect2 = g_mf3_get(a_sr);    
+    f_voice->fx_func_ptr2 = v_mf3_run_off;
+    
+    f_voice->multieffect3 = g_mf3_get(a_sr);    
+    f_voice->fx_func_ptr3 = v_mf3_run_off;
     
     return f_voice;
 }

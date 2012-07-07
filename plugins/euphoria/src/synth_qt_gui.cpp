@@ -737,6 +737,46 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         f_info->LMS_set_label_style("background-color: white; border: 1px solid black;  border-radius: 6px; QComboBox{color:white;background-color:black;}", 60);
 
         m_main_layout = new LMS_main_layout(m_poly_fx_tab);
+        
+        //From Modulex
+        
+        m_fx0 = new LMS_multieffect(this, QString("FX1"), f_info, LMS_FX0_KNOB0, LMS_FX0_KNOB1, LMS_FX0_KNOB2, LMS_FX0_COMBOBOX);
+        connect(m_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob0Changed(int)));
+        connect(m_fx0->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob1Changed(int)));
+        connect(m_fx0->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob2Changed(int)));
+        connect(m_fx0->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(fx0comboboxChanged(int)));
+
+        m_main_layout->lms_add_widget(m_fx0->lms_groupbox->lms_groupbox);
+
+        m_fx1 = new LMS_multieffect(this, QString("FX2"), f_info, LMS_FX1_KNOB0, LMS_FX1_KNOB1, LMS_FX1_KNOB2, LMS_FX1_COMBOBOX);
+        connect(m_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob0Changed(int)));
+        connect(m_fx1->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob1Changed(int)));
+        connect(m_fx1->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob2Changed(int)));
+        connect(m_fx1->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(fx1comboboxChanged(int)));
+
+        m_main_layout->lms_add_widget(m_fx1->lms_groupbox->lms_groupbox);
+
+        m_main_layout->lms_add_layout();    
+
+        m_fx2 = new LMS_multieffect(this, QString("FX3"), f_info, LMS_FX2_KNOB0, LMS_FX2_KNOB1, LMS_FX2_KNOB2, LMS_FX2_COMBOBOX);
+        connect(m_fx2->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob0Changed(int)));
+        connect(m_fx2->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob1Changed(int)));
+        connect(m_fx2->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob2Changed(int)));
+        connect(m_fx2->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(fx2comboboxChanged(int)));
+
+        m_main_layout->lms_add_widget(m_fx2->lms_groupbox->lms_groupbox);
+
+        m_fx3 = new LMS_multieffect(this, QString("FX4"), f_info, LMS_FX3_KNOB0, LMS_FX3_KNOB1, LMS_FX3_KNOB2, LMS_FX3_COMBOBOX);
+        connect(m_fx3->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob0Changed(int)));
+        connect(m_fx3->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob1Changed(int)));
+        connect(m_fx3->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob2Changed(int)));
+        connect(m_fx3->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(fx3comboboxChanged(int)));
+
+        m_main_layout->lms_add_widget(m_fx3->lms_groupbox->lms_groupbox);
+
+        m_main_layout->lms_add_layout();  
+        
+        //End from Modulex
 
         QLabel * f_logo_label = new QLabel("", this);    
         f_logo_label->setTextFormat(Qt::RichText);
@@ -767,8 +807,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, f_info, lms_kc_integer, LMS_NOISE_AMP);
         m_groupbox_noise->lms_add_h(m_noise_amp);
         connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
-
-        m_main_layout->lms_add_layout();    
         
         m_adsr_filter = new LMS_adsr_widget(this, f_info, FALSE, LMS_FILTER_ATTACK, LMS_FILTER_DECAY, LMS_FILTER_SUSTAIN, LMS_FILTER_RELEASE, QString("ADSR Filter"));
 
@@ -1569,6 +1607,30 @@ void SamplerGUI::openInstrumentFromFile()
     
 }
 
+//From Modulex
+
+void SamplerGUI::fx0knob0Changed(int value){ lms_value_changed(value, m_fx0->lms_knob1); }
+void SamplerGUI::fx0knob1Changed(int value){ lms_value_changed(value, m_fx0->lms_knob2); }
+void SamplerGUI::fx0knob2Changed(int value){ lms_value_changed(value, m_fx0->lms_knob3); }
+void SamplerGUI::fx0comboboxChanged(int value){ lms_value_changed(value, m_fx0->lms_combobox); m_fx0->lms_combobox_changed(); }
+
+void SamplerGUI::fx1knob0Changed(int value){ lms_value_changed(value, m_fx1->lms_knob1); }
+void SamplerGUI::fx1knob1Changed(int value){ lms_value_changed(value, m_fx1->lms_knob2); }
+void SamplerGUI::fx1knob2Changed(int value){ lms_value_changed(value, m_fx1->lms_knob3); }
+void SamplerGUI::fx1comboboxChanged(int value){ lms_value_changed(value, m_fx1->lms_combobox); m_fx1->lms_combobox_changed(); }
+
+void SamplerGUI::fx2knob0Changed(int value){ lms_value_changed(value, m_fx2->lms_knob1); }
+void SamplerGUI::fx2knob1Changed(int value){ lms_value_changed(value, m_fx2->lms_knob2); }
+void SamplerGUI::fx2knob2Changed(int value){ lms_value_changed(value, m_fx2->lms_knob3); }
+void SamplerGUI::fx2comboboxChanged(int value){ lms_value_changed(value, m_fx2->lms_combobox); m_fx2->lms_combobox_changed(); }
+
+void SamplerGUI::fx3knob0Changed(int value){ lms_value_changed(value, m_fx3->lms_knob1); }
+void SamplerGUI::fx3knob1Changed(int value){ lms_value_changed(value, m_fx3->lms_knob2); }
+void SamplerGUI::fx3knob2Changed(int value){ lms_value_changed(value, m_fx3->lms_knob3); }
+void SamplerGUI::fx3comboboxChanged(int value){ lms_value_changed(value, m_fx3->lms_combobox); m_fx3->lms_combobox_changed(); }
+
+//End from Modulex
+
 /*synth_qt_gui.cpp Autogenerated slots*/
 
 void SamplerGUI::sample_pitch0Changed(int a_value){sample_pitchChanged(0);}
@@ -1808,6 +1870,29 @@ void SamplerGUI::lms_set_value(float val, LMS_control * a_ctrl )
     m_suppressHostUpdate = false;     
 }
 
+//From Modulex
+
+void SamplerGUI::setFX0knob0(float val){ lms_set_value(val, m_fx0->lms_knob1); }
+void SamplerGUI::setFX0knob1(float val){ lms_set_value(val, m_fx0->lms_knob2); }
+void SamplerGUI::setFX0knob2(float val){ lms_set_value(val, m_fx0->lms_knob3); }
+void SamplerGUI::setFX0combobox(float val){ lms_set_value(val, m_fx0->lms_combobox); }
+
+void SamplerGUI::setFX1knob0(float val){ lms_set_value(val, m_fx1->lms_knob1); }
+void SamplerGUI::setFX1knob1(float val){ lms_set_value(val, m_fx1->lms_knob2); }
+void SamplerGUI::setFX1knob2(float val){ lms_set_value(val, m_fx1->lms_knob3); }
+void SamplerGUI::setFX1combobox(float val){ lms_set_value(val, m_fx1->lms_combobox); }
+
+void SamplerGUI::setFX2knob0(float val){ lms_set_value(val, m_fx2->lms_knob1); }
+void SamplerGUI::setFX2knob1(float val){ lms_set_value(val, m_fx2->lms_knob2); }
+void SamplerGUI::setFX2knob2(float val){ lms_set_value(val, m_fx2->lms_knob3); }
+void SamplerGUI::setFX2combobox(float val){ lms_set_value(val, m_fx2->lms_combobox); }
+
+void SamplerGUI::setFX3knob0(float val){ lms_set_value(val, m_fx3->lms_knob1); }
+void SamplerGUI::setFX3knob1(float val){ lms_set_value(val, m_fx3->lms_knob2); }
+void SamplerGUI::setFX3knob2(float val){ lms_set_value(val, m_fx3->lms_knob3); }
+void SamplerGUI::setFX3combobox(float val){ lms_set_value(val, m_fx3->lms_combobox); }
+
+//End from Modulex
 
 void SamplerGUI::setAttack(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_attack);}
 void SamplerGUI::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_decay); }
@@ -1918,9 +2003,7 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case LMS_FILTER_SUSTAIN: setFilterSustain(a_value); break;
             case LMS_FILTER_RELEASE: setFilterRelease(a_value); break;
             case LMS_NOISE_AMP: setNoiseAmp(a_value); break;            
-            case LMS_MASTER_VOLUME: setMasterVolume(a_value); break;    
-            //case LMS_MASTER_UNISON_VOICES: setMasterUnisonVoices(a_value); break;
-            //case LMS_MASTER_UNISON_SPREAD: setMasterUnisonSpread(a_value); break;
+            case LMS_MASTER_VOLUME: setMasterVolume(a_value); break;
             case LMS_MASTER_GLIDE: setMasterGlide(a_value); break;
             case LMS_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
             case LMS_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
@@ -1930,6 +2013,28 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case LMS_LFO_AMP: setLFOamp(a_value); break;            
             case LMS_LFO_PITCH: setLFOpitch(a_value); break;            
             case LMS_LFO_FILTER: setLFOcutoff(a_value); break;
+            
+            //From Modulex            
+            case LMS_FX0_KNOB0:	setFX0knob0(a_value); break;
+            case LMS_FX0_KNOB1:	setFX0knob1(a_value); break;        
+            case LMS_FX0_KNOB2:	setFX0knob2(a_value); break;        
+            case LMS_FX0_COMBOBOX: setFX0combobox(a_value); break;
+
+            case LMS_FX1_KNOB0:	setFX1knob0(a_value); break;
+            case LMS_FX1_KNOB1:	setFX1knob1(a_value); break;        
+            case LMS_FX1_KNOB2:	setFX1knob2(a_value); break;        
+            case LMS_FX1_COMBOBOX: setFX1combobox(a_value); break;
+
+            case LMS_FX2_KNOB0:	setFX2knob0(a_value); break;
+            case LMS_FX2_KNOB1:	setFX2knob1(a_value); break;        
+            case LMS_FX2_KNOB2:	setFX2knob2(a_value); break;        
+            case LMS_FX2_COMBOBOX: setFX2combobox(a_value); break;
+
+            case LMS_FX3_KNOB0:	setFX3knob0(a_value); break;
+            case LMS_FX3_KNOB1:	setFX3knob1(a_value); break;        
+            case LMS_FX3_KNOB2:	setFX3knob2(a_value); break;        
+            case LMS_FX3_COMBOBOX: setFX3combobox(a_value); break;
+            //End from Modulex
         }
     
     }
@@ -2011,7 +2116,28 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case LMS_LFO_TYPE: LFOtypeChanged(a_value); break;
             case LMS_LFO_AMP: LFOampChanged(a_value); break;
             case LMS_LFO_PITCH: LFOpitchChanged(a_value); break;
-            case LMS_LFO_FILTER: LFOcutoffChanged(a_value); break;            
+            case LMS_LFO_FILTER: LFOcutoffChanged(a_value); break;
+            //From Modulex            
+            case LMS_FX0_KNOB0:	fx0knob0Changed(a_value); break;
+            case LMS_FX0_KNOB1:	fx0knob1Changed(a_value); break;
+            case LMS_FX0_KNOB2:	fx0knob2Changed(a_value); break;  
+            case LMS_FX0_COMBOBOX:  fx0comboboxChanged(a_value); break;
+
+            case LMS_FX1_KNOB0:	fx1knob0Changed(a_value); break;
+            case LMS_FX1_KNOB1:	fx1knob1Changed(a_value); break;
+            case LMS_FX1_KNOB2:	fx1knob2Changed(a_value); break;  
+            case LMS_FX1_COMBOBOX:  fx1comboboxChanged(a_value); break;
+
+            case LMS_FX2_KNOB0:	fx2knob0Changed(a_value); break;
+            case LMS_FX2_KNOB1:	fx2knob1Changed(a_value); break;
+            case LMS_FX2_KNOB2:	fx2knob2Changed(a_value); break;  
+            case LMS_FX2_COMBOBOX:  fx2comboboxChanged(a_value); break;
+
+            case LMS_FX3_KNOB0:	fx3knob0Changed(a_value); break;
+            case LMS_FX3_KNOB1:	fx3knob1Changed(a_value); break;
+            case LMS_FX3_KNOB2:	fx3knob2Changed(a_value); break;  
+            case LMS_FX3_COMBOBOX:  fx3comboboxChanged(a_value); break;
+            //End from Modulex
         }
     
     }
@@ -2098,6 +2224,28 @@ int SamplerGUI::i_get_control(int port)
             case LMS_LFO_AMP: return m_lfo_amp->lms_get_value();
             case LMS_LFO_PITCH: return m_lfo_pitch->lms_get_value();
             case LMS_LFO_FILTER: return m_lfo_cutoff->lms_get_value();
+            //From Modulex            
+            case LMS_FX0_KNOB0: return m_fx0->lms_knob1->lms_get_value();
+            case LMS_FX0_KNOB1: return m_fx0->lms_knob2->lms_get_value();
+            case LMS_FX0_KNOB2: return m_fx0->lms_knob3->lms_get_value();
+            case LMS_FX0_COMBOBOX: return m_fx0->lms_combobox->lms_get_value();
+
+            case LMS_FX1_KNOB0: return m_fx1->lms_knob1->lms_get_value();
+            case LMS_FX1_KNOB1: return m_fx1->lms_knob2->lms_get_value();
+            case LMS_FX1_KNOB2: return m_fx1->lms_knob3->lms_get_value();
+            case LMS_FX1_COMBOBOX: return m_fx1->lms_combobox->lms_get_value();
+
+            case LMS_FX2_KNOB0: return m_fx2->lms_knob1->lms_get_value();
+            case LMS_FX2_KNOB1: return m_fx2->lms_knob2->lms_get_value();
+            case LMS_FX2_KNOB2: return m_fx2->lms_knob3->lms_get_value();
+            case LMS_FX2_COMBOBOX: return m_fx2->lms_combobox->lms_get_value();
+
+            case LMS_FX3_KNOB0: return m_fx3->lms_knob1->lms_get_value();
+            case LMS_FX3_KNOB1: return m_fx3->lms_knob2->lms_get_value();
+            case LMS_FX3_KNOB2: return m_fx3->lms_knob3->lms_get_value();
+            case LMS_FX3_COMBOBOX: return m_fx3->lms_combobox->lms_get_value();
+            //End from Modulex
+            
             default: cerr << "i_get_control called with invalid port " << port << "\n"; return 0;
         }    
     }

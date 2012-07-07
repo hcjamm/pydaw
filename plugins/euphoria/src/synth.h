@@ -84,6 +84,30 @@ typedef struct {
     
     //End from Ray-V
     
+    //From Modulex
+    
+    LADSPA_Data *fx0_knob0;
+    LADSPA_Data *fx0_knob1;    
+    LADSPA_Data *fx0_knob2;
+    LADSPA_Data *fx0_combobox;
+        
+    LADSPA_Data *fx1_knob0;
+    LADSPA_Data *fx1_knob1;    
+    LADSPA_Data *fx1_knob2;
+    LADSPA_Data *fx1_combobox;
+        
+    LADSPA_Data *fx2_knob0;
+    LADSPA_Data *fx2_knob1;    
+    LADSPA_Data *fx2_knob2;
+    LADSPA_Data *fx2_combobox;
+        
+    LADSPA_Data *fx3_knob0;
+    LADSPA_Data *fx3_knob1;    
+    LADSPA_Data *fx3_knob2;
+    LADSPA_Data *fx3_combobox;
+    
+    //End from Modulex
+    
     int         i_selected_sample;
     int          channels;
     float       *sampleData[2][LMS_MAX_SAMPLE_COUNT];
