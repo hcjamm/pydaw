@@ -103,9 +103,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     
     LMS_style_info * a_style = new LMS_style_info(64);
     //a_style->LMS_set_value_style("")
-        
-    QList <LMS_mod_matrix_column*> f_sample_table_columns;
     
+    QList <LMS_mod_matrix_column*> f_sample_table_columns;
+        
     f_sample_table_columns << new LMS_mod_matrix_column(radiobutton, QString(""), 0, 1, 0);  //Selected row      
     f_sample_table_columns << new LMS_mod_matrix_column(note_selector, QString("Sample Pitch"), 0, 1, 3);  //Sample base pitch
     f_sample_table_columns << new LMS_mod_matrix_column(note_selector, QString("Low Note"), 0, 1, -2);  //Low Note
@@ -182,8 +182,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_main_tab->setStyleSheet(QString::fromUtf8(""));
         m_sample_tab = new QWidget();
         m_sample_tab->setObjectName(QString::fromUtf8("m_sample_tab"));
-        horizontalLayout_2 = new QHBoxLayout(m_sample_tab);
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        m_sample_tab_horizontalLayout = new QHBoxLayout(m_sample_tab);
+        m_sample_tab_horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         m_smp_tab_scrollArea = new QScrollArea(m_sample_tab);
         m_smp_tab_scrollArea->setObjectName(QString::fromUtf8("m_smp_tab_scrollArea"));
         m_smp_tab_scrollArea->setStyleSheet(QString::fromUtf8(""));
@@ -198,7 +198,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         m_smp_tab_scrollAreaWidgetContents->setStyleSheet(QString("QTableView::item { border: 1px solid white; } QTableWidget::setShowGrid{border: 1px solid white;} QWidget{background-color:black; color:white} QComboBox{background-color:black; color:white; border:solid 1px white;} QComboBox:editable {background-color:black; color:white;} QSpinBox{color:black;background-color:white;}"));
 
-
+        
         //m_smp_tab_main_verticalLayout->addLayout(m_loop_start_end_Layout);
         m_smp_tab_main_verticalLayout->addWidget(m_sample_table->lms_mod_matrix, Qt::AlignCenter); 
         m_smp_tab_main_verticalLayout->addLayout(m_file_selector->lms_layout);
@@ -207,19 +207,25 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_smp_tab_scrollArea->setWidget(m_smp_tab_scrollAreaWidgetContents);
 
-        horizontalLayout_2->addWidget(m_smp_tab_scrollArea);
+        m_sample_tab_horizontalLayout->addWidget(m_smp_tab_scrollArea);
 
         m_main_tab->addTab(m_sample_tab, QString());
         m_poly_fx_tab = new QWidget();
         m_poly_fx_tab->setObjectName(QString::fromUtf8("m_poly_fx_tab"));
         
         m_main_tab->addTab(m_poly_fx_tab, QString());
-
+        
+        m_mod_matrix_tab = new QWidget();
+        m_mod_matrix_tab_horizontalLayout = new QHBoxLayout(m_mod_matrix_tab);
+        
+        m_main_tab->addTab(m_mod_matrix_tab, QString());
+        
         m_main_v_layout->addWidget(m_main_tab);
         
         this->setWindowTitle(QApplication::translate("Frame", "Euphoria - Powered by LibModSynth", 0, QApplication::UnicodeUTF8));
         m_main_tab->setTabText(m_main_tab->indexOf(m_sample_tab), QApplication::translate("Frame", "Samples", 0, QApplication::UnicodeUTF8));
         m_main_tab->setTabText(m_main_tab->indexOf(m_poly_fx_tab), QApplication::translate("Frame", "Poly FX", 0, QApplication::UnicodeUTF8));
+        m_main_tab->setTabText(m_main_tab->indexOf(m_mod_matrix_tab), QApplication::translate("Frame", "Mod Matrix", 0, QApplication::UnicodeUTF8));
 
         m_main_tab->setCurrentIndex(0);
 
@@ -850,6 +856,32 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_lfo_cutoff->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOcutoffChanged(int)));    
         
         //End Ray-V
+        
+        //New mod matrix
+        
+        QList <LMS_mod_matrix_column*> f_mod_matrix_columns;
+        
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl1"), -100, 100, 0); 
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl2"), -100, 100, 0); 
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl3"), -100, 100, 0); 
+        
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl1"), -100, 100, 0); 
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl2"), -100, 100, 0); 
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl3"), -100, 100, 0);  
+        
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl1"), -100, 100, 0);  
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl2"), -100, 100, 0);  
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl3"), -100, 100, 0);  
+        
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl1"), -100, 100, 0);  
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl2"), -100, 100, 0);  
+        f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl3"), -100, 100, 0);  
+        
+        m_polyfx_mod_matrix = new LMS_mod_matrix(this, LMS_MODULATOR_COUNT, f_mod_matrix_columns, LMS_FIRST_MOD_MATRIX_PORT, a_style);
+        
+        m_mod_matrix_tab_horizontalLayout->addWidget(m_polyfx_mod_matrix->lms_mod_matrix);
+        
+        //End new mod matrix
         
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
