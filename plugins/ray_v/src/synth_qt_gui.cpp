@@ -193,7 +193,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    
     connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
     
-    m_pitch_env = new LMS_ramp_env(this, f_info, LMS_PITCH_ENV_TIME, LMS_PITCH_ENV_AMT, -1, FALSE, QString("Pitch Env"));
+    m_pitch_env = new LMS_ramp_env(this, f_info, LMS_PITCH_ENV_TIME, LMS_PITCH_ENV_AMT, -1, FALSE, QString("Pitch Env"), TRUE);
     m_main_layout->lms_add_widget(m_pitch_env->lms_groupbox->lms_groupbox);
     
     connect(m_pitch_env->lms_amt_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvAmtChanged(int)));
