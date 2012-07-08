@@ -106,7 +106,7 @@ public:
      */
     QStringList open_button_pressed_multiple(QWidget * a_parent)
     {
-        QStringList f_result = QFileDialog::getOpenFileNames(a_parent, "Select one or more audio sample files", lms_last_directory, "Audio files (*.wav *.aiff)");
+        QStringList f_result = QFileDialog::getOpenFileNames(a_parent, "Select one or more audio sample files", lms_last_directory, "Audio files (*.wav *.aiff *.ogg);;All files (*)");
         if(!f_result.isEmpty())
         {
             lms_file_path->setText(f_result[(f_result.count() - 1)]);
