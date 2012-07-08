@@ -24,9 +24,9 @@ public:
         
         lms_groupbox = new LMS_group_box(a_parent, a_title, a_style);
         
-        lms_knob1 = new LMS_knob_regular(QString(""), 0, 127, 1, 65, QString("65"), a_parent, a_style, lms_kc_none, a_knob1_port);
-        lms_knob2 = new LMS_knob_regular(QString(""), 0, 127, 1, 65, QString("65"), a_parent, a_style, lms_kc_none, a_knob2_port);
-        lms_knob3 = new LMS_knob_regular(QString(""), 0, 127, 1, 65, QString("65"), a_parent, a_style, lms_kc_none, a_knob3_port);
+        lms_knob1 = new LMS_knob_regular(QString(""), 0, 127, 1, 65, QString(""), a_parent, a_style, lms_kc_none, a_knob1_port);
+        lms_knob2 = new LMS_knob_regular(QString(""), 0, 127, 1, 65, QString(""), a_parent, a_style, lms_kc_none, a_knob2_port);
+        lms_knob3 = new LMS_knob_regular(QString(""), 0, 127, 1, 65, QString(""), a_parent, a_style, lms_kc_none, a_knob3_port);
         lms_combobox = new LMS_combobox(QString("Type"), a_parent, f_types, a_combobox_port, a_style);
         
         lms_groupbox->lms_add_h(lms_knob1);
