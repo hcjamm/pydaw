@@ -190,8 +190,8 @@ public slots:
     
     //End from Modulex
     
-    void set_global_midi_octaves_offsetChanged(float val);
-    void set_global_midi_channelChanged(float val);
+    void set_global_midi_octaves_offset(float val);
+    void set_global_midi_channel(float val);
     
     void aboutToQuit();
 
