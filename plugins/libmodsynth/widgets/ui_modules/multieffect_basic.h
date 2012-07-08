@@ -149,6 +149,10 @@ public:
                 lms_knob3->lms_value->setText(QString(""));
                 break;
         }
+        
+        lms_knob1->lms_value_changed(lms_knob1->lms_get_value());
+        lms_knob2->lms_value_changed(lms_knob2->lms_get_value());
+        lms_knob3->lms_value_changed(lms_knob3->lms_get_value());
     }
 };
 
