@@ -2028,22 +2028,22 @@ void SamplerGUI::pfxmatrix_grp0dst3src3ctrl2Changed(int a_value){pfxmatrix_Chang
 
 void SamplerGUI::global_midi_octaves_offsetChanged(int a_value)
 {
-    
+    lms_value_changed(a_value, m_global_midi_octaves_offset);
 }
 
 void SamplerGUI::global_midi_channelChanged(int a_value)
 {
-    
+    lms_value_changed(a_value, m_global_midi_channel);
 }
 
-void SamplerGUI::set_global_midi_octaves_offsetChanged(float val)
+void SamplerGUI::set_global_midi_octaves_offset(float val)
 {
-    lms_value_changed(value, m_global_midi_octaves_offset);
+    lms_set_value(val, m_global_midi_octaves_offset);
 }
 
-void SamplerGUI::set_global_midi_channelChanged(float val)
+void SamplerGUI::set_global_midi_channel(float val)
 {
-    lms_value_changed(value, m_global_midi_channel);
+    lms_set_value(val, m_global_midi_channel);
 }
 
 
@@ -2256,7 +2256,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case LMS_PFXMATRIX_GRP0DST3SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[3]->lms_get_widget()))->setValue(a_value); break;
             case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]->lms_get_widget()))->setValue(a_value); break;
             case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-
+            //End PolyFX mod matrix
+            case LMS_GLOBAL_MIDI_CHANNEL: set_global_midi_channel(a_value); break;
+            case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: set_global_midi_octaves_offset(a_value); break;
         }
     
     }
