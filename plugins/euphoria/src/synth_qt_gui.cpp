@@ -101,6 +101,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_suppress_selected_sample_changed = FALSE;
     
     LMS_style_info * a_style = new LMS_style_info(64);
+    a_style->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
+    a_style->LMS_set_label_style(QString("QLabel{color:black;background-color:white;border:solid 2px white;border-radius:2px; text-align : center;}"), 64);
     //a_style->LMS_set_value_style("")
     
     QList <LMS_mod_matrix_column*> f_sample_table_columns;
@@ -735,14 +737,14 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         in ~/dssi .  If modifying this plugin by changing the number of parameters to be saved by presets, you should comment this out
         and uncomment the section above it.*/
         
-        LMS_style_info * f_info = new LMS_style_info(64);
-        f_info->LMS_set_label_style("background-color: white; border: 1px solid black;  border-radius: 6px; QComboBox{color:white;background-color:black;}", 60);
+        //LMS_style_info * f_info = new LMS_style_info(64);
+        //f_info->LMS_set_label_style("background-color: white; border: 1px solid black;  border-radius: 6px; QComboBox{color:white;background-color:black;}", 60);
 
         m_main_layout = new LMS_main_layout(m_poly_fx_tab);
         
         //From Modulex
         
-        m_fx0 = new LMS_multieffect(this, QString("FX1"), f_info, LMS_FX0_KNOB0, LMS_FX0_KNOB1, LMS_FX0_KNOB2, LMS_FX0_COMBOBOX);
+        m_fx0 = new LMS_multieffect(this, QString("FX1"), a_style, LMS_FX0_KNOB0, LMS_FX0_KNOB1, LMS_FX0_KNOB2, LMS_FX0_COMBOBOX);
         connect(m_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob0Changed(int)));
         connect(m_fx0->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob1Changed(int)));
         connect(m_fx0->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob2Changed(int)));
@@ -750,7 +752,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_main_layout->lms_add_widget(m_fx0->lms_groupbox->lms_groupbox);
 
-        m_fx1 = new LMS_multieffect(this, QString("FX2"), f_info, LMS_FX1_KNOB0, LMS_FX1_KNOB1, LMS_FX1_KNOB2, LMS_FX1_COMBOBOX);
+        m_fx1 = new LMS_multieffect(this, QString("FX2"), a_style, LMS_FX1_KNOB0, LMS_FX1_KNOB1, LMS_FX1_KNOB2, LMS_FX1_COMBOBOX);
         connect(m_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob0Changed(int)));
         connect(m_fx1->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob1Changed(int)));
         connect(m_fx1->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob2Changed(int)));
@@ -760,7 +762,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_main_layout->lms_add_layout();    
 
-        m_fx2 = new LMS_multieffect(this, QString("FX3"), f_info, LMS_FX2_KNOB0, LMS_FX2_KNOB1, LMS_FX2_KNOB2, LMS_FX2_COMBOBOX);
+        m_fx2 = new LMS_multieffect(this, QString("FX3"), a_style, LMS_FX2_KNOB0, LMS_FX2_KNOB1, LMS_FX2_KNOB2, LMS_FX2_COMBOBOX);
         connect(m_fx2->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob0Changed(int)));
         connect(m_fx2->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob1Changed(int)));
         connect(m_fx2->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob2Changed(int)));
@@ -768,7 +770,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_main_layout->lms_add_widget(m_fx2->lms_groupbox->lms_groupbox);
 
-        m_fx3 = new LMS_multieffect(this, QString("FX4"), f_info, LMS_FX3_KNOB0, LMS_FX3_KNOB1, LMS_FX3_KNOB2, LMS_FX3_COMBOBOX);
+        m_fx3 = new LMS_multieffect(this, QString("FX4"), a_style, LMS_FX3_KNOB0, LMS_FX3_KNOB1, LMS_FX3_KNOB2, LMS_FX3_COMBOBOX);
         connect(m_fx3->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob0Changed(int)));
         connect(m_fx3->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob1Changed(int)));
         connect(m_fx3->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob2Changed(int)));
@@ -878,7 +880,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
                 
         m_main_layout->lms_add_layout();
         */
-        m_adsr_amp = new LMS_adsr_widget(this, f_info, TRUE, LMS_ATTACK, LMS_DECAY, LMS_SUSTAIN, LMS_RELEASE, QString("ADSR Amp"));
+        m_adsr_amp = new LMS_adsr_widget(this, a_style, TRUE, LMS_ATTACK, LMS_DECAY, LMS_SUSTAIN, LMS_RELEASE, QString("ADSR Amp"));
 
         m_main_layout->lms_add_widget(m_adsr_amp->lms_groupbox_adsr->lms_groupbox);
 
@@ -887,14 +889,14 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_adsr_amp->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));        
         connect(m_adsr_amp->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));    
 
-        m_groupbox_noise = new LMS_group_box(this, QString("Noise"), f_info);
+        m_groupbox_noise = new LMS_group_box(this, QString("Noise"), a_style);
         m_main_layout->lms_add_widget(m_groupbox_noise->lms_groupbox);
 
-        m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, f_info, lms_kc_integer, LMS_NOISE_AMP);
+        m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, a_style, lms_kc_integer, LMS_NOISE_AMP);
         m_groupbox_noise->lms_add_h(m_noise_amp);
         connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
         
-        m_adsr_filter = new LMS_adsr_widget(this, f_info, FALSE, LMS_FILTER_ATTACK, LMS_FILTER_DECAY, LMS_FILTER_SUSTAIN, LMS_FILTER_RELEASE, QString("ADSR 2"));
+        m_adsr_filter = new LMS_adsr_widget(this, a_style, FALSE, LMS_FILTER_ATTACK, LMS_FILTER_DECAY, LMS_FILTER_SUSTAIN, LMS_FILTER_RELEASE, QString("ADSR 2"));
 
         m_main_layout->lms_add_widget(m_adsr_filter->lms_groupbox_adsr->lms_groupbox);
 
@@ -905,7 +907,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         m_main_layout->lms_add_layout();
 
-        m_master = new LMS_master_widget(this, f_info, LMS_MASTER_VOLUME, -1, 
+        m_master = new LMS_master_widget(this, a_style, LMS_MASTER_VOLUME, -1, 
                 -1, LMS_MASTER_GLIDE, LMS_MASTER_PITCHBEND_AMT, QString("Master"), FALSE);
         m_main_layout->lms_add_widget(m_master->lms_groupbox->lms_groupbox);    
                 
@@ -913,12 +915,12 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    
         connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
 
-        m_pitch_env = new LMS_ramp_env(this, f_info, LMS_PITCH_ENV_TIME, -1, -1, FALSE, QString("Ramp Env"), FALSE);
+        m_pitch_env = new LMS_ramp_env(this, a_style, LMS_PITCH_ENV_TIME, -1, -1, FALSE, QString("Ramp Env"), FALSE);
         m_main_layout->lms_add_widget(m_pitch_env->lms_groupbox->lms_groupbox);
 
         connect(m_pitch_env->lms_time_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvTimeChanged(int)));
 
-        m_lfo = new LMS_lfo_widget(this, f_info, LMS_LFO_FREQ, LMS_LFO_TYPE, f_lfo_types, QString("LFO"));
+        m_lfo = new LMS_lfo_widget(this, a_style, LMS_LFO_FREQ, LMS_LFO_TYPE, f_lfo_types, QString("LFO"));
         m_main_layout->lms_add_widget(m_lfo->lms_groupbox->lms_groupbox);
 
         connect(m_lfo->lms_freq_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOfreqChanged(int)));
