@@ -74,7 +74,7 @@ typedef struct {
     
     //End from Ray-V
     
-    LADSPA_Data *global_midi_channel;
+    //LADSPA_Data *global_midi_channel;
     LADSPA_Data *global_midi_octaves_offset;
     
     //From Modulex        
