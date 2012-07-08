@@ -87,7 +87,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         
     LMS_style_info * f_info = new LMS_style_info(64);
     f_info->LMS_set_label_style("QLabel{background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
-    
+    f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
+        
     m_main_layout = new LMS_main_layout(this);
     
     m_program = new LMS_preset_manager(QString(LMS_PLUGIN_NAME), f_default_presets, LMS_PROGRAM_CHANGE, f_info, this);
