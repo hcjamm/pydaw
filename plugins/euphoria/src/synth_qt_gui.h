@@ -161,8 +161,7 @@ public slots:
     void setMasterPitchbendAmt(float);
     
     void setPitchEnvTime(float);
-    void setPitchEnvAmt(float);
-    
+        
     void setLFOfreq(float);
     void setLFOtype(float);
     //End from Ray-V
@@ -452,8 +451,7 @@ protected slots:
     void masterPitchbendAmtChanged(int);
     
     void pitchEnvTimeChanged(int);
-    void pitchEnvAmtChanged(int);
-    
+        
     void LFOfreqChanged(int);
     void LFOtypeChanged(int);
     //End from Ray-V

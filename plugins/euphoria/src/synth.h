@@ -67,7 +67,6 @@ typedef struct {
     LADSPA_Data *master_glide;
     LADSPA_Data *master_pb_amt;
     
-    LADSPA_Data *pitch_env_amt;
     LADSPA_Data *pitch_env_time;
     
     LADSPA_Data *lfo_freq;

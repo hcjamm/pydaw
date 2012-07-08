@@ -800,6 +800,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, LMS_MODULATOR_COUNT, f_mod_matrix_columns, LMS_PFXMATRIX_FIRST_PORT, a_style);
         
+        m_polyfx_mod_matrix[0]->lms_mod_matrix->setVerticalHeaderLabels(QStringList() << QString("ADSR Amp") << QString("ADSR 2") << QString("Ramp Env") << QString("LFO"));
+        
         m_main_layout->lms_add_widget(m_polyfx_mod_matrix[0]->lms_mod_matrix);
         
         m_polyfx_mod_matrix[0]->lms_mod_matrix->resizeColumnsToContents();
@@ -808,7 +810,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         //Connect all ports from PolyFX mod matrix
         
-                connect((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[0]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(pfxmatrix_grp0dst0src0ctrl0Changed(int)));
+        connect((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[0]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(pfxmatrix_grp0dst0src0ctrl0Changed(int)));
         connect((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[0]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(pfxmatrix_grp0dst0src0ctrl1Changed(int)));
         connect((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[0]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(pfxmatrix_grp0dst0src0ctrl2Changed(int)));
         connect((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[1]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(pfxmatrix_grp0dst0src1ctrl0Changed(int)));
@@ -891,7 +893,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_groupbox_noise->lms_add_h(m_noise_amp);
         connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
         
-        m_adsr_filter = new LMS_adsr_widget(this, f_info, FALSE, LMS_FILTER_ATTACK, LMS_FILTER_DECAY, LMS_FILTER_SUSTAIN, LMS_FILTER_RELEASE, QString("ADSR Filter"));
+        m_adsr_filter = new LMS_adsr_widget(this, f_info, FALSE, LMS_FILTER_ATTACK, LMS_FILTER_DECAY, LMS_FILTER_SUSTAIN, LMS_FILTER_RELEASE, QString("ADSR 2"));
 
         m_main_layout->lms_add_widget(m_adsr_filter->lms_groupbox_adsr->lms_groupbox);
 
@@ -910,10 +912,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    
         connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
 
-        m_pitch_env = new LMS_ramp_env(this, f_info, LMS_PITCH_ENV_TIME, LMS_PITCH_ENV_AMT, -1, FALSE, QString("Pitch Env"));
+        m_pitch_env = new LMS_ramp_env(this, f_info, LMS_PITCH_ENV_TIME, -1, -1, FALSE, QString("Ramp Env"), FALSE);
         m_main_layout->lms_add_widget(m_pitch_env->lms_groupbox->lms_groupbox);
 
-        connect(m_pitch_env->lms_amt_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvAmtChanged(int)));
         connect(m_pitch_env->lms_time_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvTimeChanged(int)));
 
         m_lfo = new LMS_lfo_widget(this, f_info, LMS_LFO_FREQ, LMS_LFO_TYPE, f_lfo_types, QString("LFO"));
@@ -2042,7 +2043,6 @@ void SamplerGUI::setMasterUnisonVoices(float a_value){lms_set_value(a_value, m_m
 void SamplerGUI::setMasterUnisonSpread(float a_value){lms_set_value(a_value, m_master->lms_master_unison_spread);}
 void SamplerGUI::setMasterGlide(float a_value){lms_set_value(a_value, m_master->lms_master_glide);}
 void SamplerGUI::setMasterPitchbendAmt(float a_value){lms_set_value(a_value, m_master->lms_master_pitchbend_amt);}
-void SamplerGUI::setPitchEnvAmt(float a_value){lms_set_value(a_value, m_pitch_env->lms_amt_knob);}
 void SamplerGUI::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env->lms_time_knob);}
 void SamplerGUI::setLFOfreq(float a_value){lms_set_value(a_value, m_lfo->lms_freq_knob);}
 void SamplerGUI::setLFOtype(float a_value){lms_set_value(a_value, m_lfo->lms_type_combobox);}
@@ -2070,7 +2070,6 @@ void SamplerGUI::masterUnisonVoicesChanged(int a_value){lms_value_changed(a_valu
 void SamplerGUI::masterUnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_spread);}
 void SamplerGUI::masterGlideChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_glide);}
 void SamplerGUI::masterPitchbendAmtChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_pitchbend_amt);}
-void SamplerGUI::pitchEnvAmtChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_amt_knob);}
 void SamplerGUI::pitchEnvTimeChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_time_knob);}
 void SamplerGUI::LFOfreqChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_freq_knob);}
 void SamplerGUI::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_type_combobox);}
@@ -2132,8 +2131,7 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case LMS_NOISE_AMP: setNoiseAmp(a_value); break;            
             case LMS_MASTER_VOLUME: setMasterVolume(a_value); break;
             case LMS_MASTER_GLIDE: setMasterGlide(a_value); break;
-            case LMS_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
-            case LMS_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
+            case LMS_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;            
             case LMS_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;                
             case LMS_LFO_FREQ: setLFOfreq(a_value); break;            
             case LMS_LFO_TYPE:  setLFOtype(a_value);  break;
@@ -2282,8 +2280,7 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case LMS_NOISE_AMP: noiseAmpChanged(a_value); break;      
             case LMS_MASTER_VOLUME: masterVolumeChanged(a_value); break;
             case LMS_MASTER_GLIDE: masterGlideChanged(a_value); break;
-            case LMS_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;
-            case LMS_PITCH_ENV_AMT: pitchEnvAmtChanged(a_value); break;
+            case LMS_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;            
             case LMS_PITCH_ENV_TIME: pitchEnvTimeChanged(a_value); break;
             case LMS_LFO_FREQ: LFOfreqChanged(a_value); break;
             case LMS_LFO_TYPE: LFOtypeChanged(a_value); break;
@@ -2433,7 +2430,6 @@ int SamplerGUI::i_get_control(int port)
             case LMS_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
             case LMS_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
             case LMS_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
-            case LMS_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
             case LMS_PITCH_ENV_TIME: return m_pitch_env->lms_time_knob->lms_get_value();
             case LMS_LFO_FREQ: return m_lfo->lms_freq_knob->lms_get_value();
             case LMS_LFO_TYPE: return m_lfo->lms_type_combobox->lms_get_value();

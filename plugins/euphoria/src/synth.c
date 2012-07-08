@@ -125,9 +125,6 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         case LMS_MASTER_PITCHBEND_AMT:
             plugin->master_pb_amt = data;
             break;
-        case LMS_PITCH_ENV_AMT:
-            plugin->pitch_env_amt = data;
-            break;
         case LMS_PITCH_ENV_TIME:
             plugin->pitch_env_time = data;
             break;
@@ -339,8 +336,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_NOISE_AMP, 25, "Noise Amp");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_VOLUME, 36, "Master Volume");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_GLIDE, 39, "Glide Time");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_PITCHBEND_AMT, 40, "Pitchbend Amount");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_AMT, 42, "Pitch Env Amt");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_PITCHBEND_AMT, 40, "Pitchbend Amount");    
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_TIME, 43, "Pitch Env Time");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FREQ, 44, "LFO Freq");    
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_TYPE, 45, "LFO Type");
@@ -508,11 +504,11 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
         {
             v_mf3_set(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], 
                 *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][0]), *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][1]), *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][2])); 
-                        
-            v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->adsr_filter->output, 
-                    *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][0]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][1]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][2]));
             
             v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->adsr_amp->output, 
+                    *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][0]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][1]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][2]));
+            
+            v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->adsr_filter->output, 
                     *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][1][0]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][1][1]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][1][2]));
             
             v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->pitch_env->output, 
@@ -625,7 +621,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                     v_adsr_set_adsr(plugin_data->data[n.note]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
                     
                     /*Retrigger the pitch envelope*/
-                    v_rmp_retrigger((plugin_data->data[n.note]->pitch_env), (*(plugin_data->pitch_env_time) * .01), *(plugin_data->pitch_env_amt));  
+                    v_rmp_retrigger((plugin_data->data[n.note]->pitch_env), (*(plugin_data->pitch_env_time) * .01), 1);  
                     
                     plugin_data->data[n.note]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
                                         
@@ -1195,17 +1191,6 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_MASTER_PITCHBEND_AMT].LowerBound =  1;
 	port_range_hints[LMS_MASTER_PITCHBEND_AMT].UpperBound =  36;
-        
-        
-        /*Parameters for pitch env amt*/        
-	port_descriptors[LMS_PITCH_ENV_AMT] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_PITCH_ENV_AMT] = "Pitch Env Amt";
-	port_range_hints[LMS_PITCH_ENV_AMT].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_PITCH_ENV_AMT].LowerBound =  -36;
-	port_range_hints[LMS_PITCH_ENV_AMT].UpperBound =   36;
-        
         
         /*Parameters for pitch env time*/        
 	port_descriptors[LMS_PITCH_ENV_TIME] = port_descriptors[LMS_ATTACK];
