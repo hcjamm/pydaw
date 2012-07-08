@@ -205,22 +205,22 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_smp_tab_main_verticalLayout->addLayout(m_file_selector->lms_layout);
         
         horizontalLayout->addLayout(m_smp_tab_main_verticalLayout);
-        
+        /*
         QStringList f_midi_channels = QStringList() << QString("1") << QString("2") << QString("3") << QString("4") << QString("5") << QString("6")
                 << QString("7") << QString("8") << QString("9") << QString("10") << QString("11") << QString("12") << QString("13") << QString("14") 
                 << QString("15") << QString("16") << QString("All") ;
-        
+        */
         m_global_midi_settings_groupbox = new LMS_group_box(this, QString("MIDI Settings"), a_style);
         m_global_midi_octaves_offset = new LMS_spinbox(QString("Offset"), -3, 3, 1, 0, this, a_style, LMS_GLOBAL_MIDI_OCTAVES_OFFSET);
-        m_global_midi_channel = new LMS_combobox(QString("Channel"), this, f_midi_channels, LMS_GLOBAL_MIDI_CHANNEL, a_style);
+        //m_global_midi_channel = new LMS_combobox(QString("Channel"), this, f_midi_channels, LMS_GLOBAL_MIDI_CHANNEL, a_style);
         
         m_global_midi_settings_groupbox->lms_add_h(m_global_midi_octaves_offset);
-        m_global_midi_settings_groupbox->lms_add_h(m_global_midi_channel);
+        //m_global_midi_settings_groupbox->lms_add_h(m_global_midi_channel);
         
         m_smp_tab_main_verticalLayout->addWidget(m_global_midi_settings_groupbox->lms_groupbox, -1, Qt::AlignCenter);
         
         connect(m_global_midi_octaves_offset->lms_spinbox, SIGNAL(valueChanged(int)), this, SLOT(global_midi_octaves_offsetChanged(int)));
-        connect(m_global_midi_channel->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(global_midi_channelChanged(int)));
+        //connect(m_global_midi_channel->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(global_midi_channelChanged(int)));
 
         m_smp_tab_scrollArea->setWidget(m_smp_tab_scrollAreaWidgetContents);
 
@@ -2030,22 +2030,22 @@ void SamplerGUI::global_midi_octaves_offsetChanged(int a_value)
 {
     lms_value_changed(a_value, m_global_midi_octaves_offset);
 }
-
+/*
 void SamplerGUI::global_midi_channelChanged(int a_value)
 {
     lms_value_changed(a_value, m_global_midi_channel);
 }
-
+*/
 void SamplerGUI::set_global_midi_octaves_offset(float val)
 {
     lms_set_value(val, m_global_midi_octaves_offset);
 }
-
+/*
 void SamplerGUI::set_global_midi_channel(float val)
 {
     lms_set_value(val, m_global_midi_channel);
 }
-
+*/
 
 //Begin Ray-V PolyFX
 
@@ -2257,7 +2257,7 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]->lms_get_widget()))->setValue(a_value); break;
             case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]->lms_get_widget()))->setValue(a_value); break;
             //End PolyFX mod matrix
-            case LMS_GLOBAL_MIDI_CHANNEL: set_global_midi_channel(a_value); break;
+            //case LMS_GLOBAL_MIDI_CHANNEL: set_global_midi_channel(a_value); break;
             case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: set_global_midi_octaves_offset(a_value); break;
         }
     
@@ -2407,6 +2407,8 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case LMS_PFXMATRIX_GRP0DST3SRC3CTRL0:  pfxmatrix_grp0dst3src3ctrl0Changed(a_value); break;
             case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1:  pfxmatrix_grp0dst3src3ctrl1Changed(a_value); break;
             case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2:  pfxmatrix_grp0dst3src3ctrl2Changed(a_value); break;
+            
+            case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: global_midi_octaves_offsetChanged(a_value); break;
         }
     
     }
@@ -2558,6 +2560,7 @@ int SamplerGUI::i_get_control(int port)
             case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]->lms_get_widget()))->value();
             case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]->lms_get_widget()))->value();
 
+            case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: return m_global_midi_octaves_offset->lms_get_value();
             //End from PolyFX mod matrix            
             default: cerr << "i_get_control called with invalid port " << port << "\n"; return 0;
         }    

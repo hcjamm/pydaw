@@ -207,7 +207,7 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
 
         //End PolyFX mod matrix
         
-        case LMS_GLOBAL_MIDI_CHANNEL: plugin->global_midi_channel = data; break;
+        //case LMS_GLOBAL_MIDI_CHANNEL: plugin->global_midi_channel = data; break;
         case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: plugin->global_midi_octaves_offset = data; break;
         default:
             break;
@@ -566,7 +566,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
             /*Note-on event*/
 	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
-                
+                /*
                 if(*(plugin_data->global_midi_channel) < 16)
                 {
                     if((int)(*(plugin_data->global_midi_channel)) != (int)(n.channel))
@@ -576,7 +576,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                         continue;
                     }                    
                 }
-                
+                */
                 f_note_adjusted = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
                 
 		if (n.velocity > 0) {
@@ -1576,7 +1576,7 @@ void _init()
 	port_range_hints[LMS_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100; port_range_hints[LMS_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100;
         
         //End from PolyFX mod matrix
-        
+        /*
         port_descriptors[LMS_GLOBAL_MIDI_CHANNEL] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_GLOBAL_MIDI_CHANNEL] = "Global MIDI Channel";
 	port_range_hints[LMS_GLOBAL_MIDI_CHANNEL].HintDescriptor =
@@ -1584,6 +1584,7 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_GLOBAL_MIDI_CHANNEL].LowerBound =  0;
 	port_range_hints[LMS_GLOBAL_MIDI_CHANNEL].UpperBound =  16;
+        */
         
 	port_descriptors[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = "Global MIDI Offset(Octaves)";

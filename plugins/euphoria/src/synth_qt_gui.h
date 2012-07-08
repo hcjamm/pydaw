@@ -191,7 +191,7 @@ public slots:
     //End from Modulex
     
     void set_global_midi_octaves_offset(float val);
-    void set_global_midi_channel(float val);
+    //void set_global_midi_channel(float val);
     
     void aboutToQuit();
 
@@ -480,7 +480,7 @@ protected slots:
     void fx3knob2Changed(int);
     void fx3comboboxChanged(int);
     void global_midi_octaves_offsetChanged(int);
-    void global_midi_channelChanged(int);
+    //void global_midi_channelChanged(int);
     
     //End from Modulex
     
