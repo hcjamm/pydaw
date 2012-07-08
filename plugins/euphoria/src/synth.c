@@ -579,6 +579,15 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                 */
                 f_note_adjusted = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
                 
+                if(f_note_adjusted < 0)
+                {
+                    f_note_adjusted = 0;
+                }
+                if(f_note_adjusted > 119)
+                {
+                    f_note_adjusted = 119;
+                }
+                
 		if (n.velocity > 0) {
 		    plugin_data->ons[f_note_adjusted] =
 			plugin_data->sampleNo + events[event_pos].time.tick;
@@ -664,6 +673,16 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
             {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
                 f_note_adjusted = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
+                
+                
+                if(f_note_adjusted < 0)
+                {
+                    f_note_adjusted = 0;
+                }
+                if(f_note_adjusted > 119)
+                {
+                    f_note_adjusted = 119;
+                }
                 
 		plugin_data->offs[f_note_adjusted] = 
 		    plugin_data->sampleNo + events[event_pos].time.tick;
