@@ -407,14 +407,14 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             continue;
         
         //Run the glide module            
-        f_rmp_run_ramp(plugin_data->data[n]->pitch_env);
+        f_rmp_run_ramp(plugin_data->data[n]->ramp_env);
         f_rmp_run_ramp(plugin_data->data[n]->glide_env);
         
         //Set and run the LFO
         v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01  );
         v_lfs_run(plugin_data->data[n]->lfo1);
         
-        plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied) + (plugin_data->data[n]->pitch_env->output_multiplied) 
+        plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied)
                 +  (plugin_data->mono_modules->pitchbend_smoother->output)  //(plugin_data->sv_pitch_bend_value)
                 + (plugin_data->data[n]->last_pitch);
                  
@@ -511,7 +511,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->adsr_filter->output, 
                     *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][1][0]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][1][1]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][1][2]));
             
-            v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->pitch_env->output, 
+            v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->ramp_env->output, 
                     *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][2][0]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][2][1]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][2][2]));
             
             v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->lfo1->output, 
@@ -621,7 +621,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                     v_adsr_set_adsr(plugin_data->data[n.note]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
                     
                     /*Retrigger the pitch envelope*/
-                    v_rmp_retrigger((plugin_data->data[n.note]->pitch_env), (*(plugin_data->pitch_env_time) * .01), 1);  
+                    v_rmp_retrigger((plugin_data->data[n.note]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1);  
                     
                     plugin_data->data[n.note]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
                                         

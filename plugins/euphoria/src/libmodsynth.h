@@ -66,7 +66,7 @@ typedef struct st_poly_voice
     t_smoother_linear * glide_smoother;
     t_ramp_env * glide_env;
     
-    t_ramp_env * pitch_env;
+    t_ramp_env * ramp_env;
     
     float last_pitch;  //For simplicity, this is used whether glide is turned on or not
     
@@ -140,7 +140,7 @@ t_poly_voice * g_poly_init(float a_sr)
     f_voice->noise_amp = 0;
         
     f_voice->glide_env = g_rmp_get_ramp_env(a_sr);    
-    f_voice->pitch_env = g_rmp_get_ramp_env(a_sr);
+    f_voice->ramp_env = g_rmp_get_ramp_env(a_sr);
     
     //f_voice->real_pitch = 60.0f;
     
