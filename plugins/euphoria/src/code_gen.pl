@@ -9,7 +9,7 @@ $mod_matrix_control_count = 4;
 $mod_matrix_mod_sources = 4;
 $fx_group_count = 1;
 
-$mod_matrix_first_control_port = 35;
+$mod_matrix_first_control_port = 34;
 
 $slots = "";
 $slot_defs = "";
@@ -128,7 +128,7 @@ $port_descriptors .=
 my $lc_name = "pfxmatrix_grp$i4" . "dst$i2" . "src$i" . "ctrl$i3";
 my $slot = $lc_name . "Changed(int)";
 my $slot_def = $lc_name . "Changed(int a_value)";
-my $function = "pfxmatrix_Changed($current_control_port, $i4, $i2, $i3, $i);";
+my $function = "pfxmatrix_Changed($port_name, $i4, $i2, $i3, $i);";
 $slots .= "\tvoid $slot;\n";
 $slot_defs .= "void $class_name" . "::" . "$slot_def" . "{$function}\n";
 $connections .= "\t\t\tconnect((QSpinBox*)(m_polyfx_mod_matrix[$i4]->lms_mm_columns[" . (($i2 * $mod_matrix_knobs_per_control) + $i3) . "]->controls[$i]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
@@ -146,7 +146,7 @@ $current_control_port++;
 }
 }
 
-$current_control_port = 19;
+$current_control_port = 18;
 
 
 
