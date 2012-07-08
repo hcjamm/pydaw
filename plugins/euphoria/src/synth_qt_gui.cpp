@@ -1420,7 +1420,16 @@ void SamplerGUI::saveInstrumentToSingleFile()
                 }
                 else
                 {
-                    stream << i << LMS_FILES_STRING_DELIMITER << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << "\n";     
+                    stream << i << LMS_FILES_STRING_DELIMITER << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_PITCH_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_START_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_END_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)) << "\n";     
                 }
             }
             

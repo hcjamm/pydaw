@@ -6,7 +6,7 @@ MOC ?= moc
 
 PREFIX ?= /usr/local
 
-BASE_FLAGS     = -O2 -ffast-math -fomit-frame-pointer -fvisibility=hidden -fPIC -mtune=generic -msse -Wall -Isrc
+BASE_FLAGS     = -O3 -ffast-math -fomit-frame-pointer -fvisibility=hidden -fPIC -mtune=generic -msse -msse2 -msse3 -Wall -Isrc
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
 BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11 sm) $(CXXFLAGS)
 LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa)
