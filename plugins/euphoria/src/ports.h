@@ -158,12 +158,15 @@
 #define LMS_PFXMATRIX_GRP0DST3SRC3CTRL2  81
 
 //End PolyFX Mod Matrix
+
+#define LMS_GLOBAL_MIDI_OCTAVES_OFFSET 82
+#define LMS_GLOBAL_MIDI_CHANNEL 83
 /*This is the last control port, + 1, for zero-based iteration*/
-#define LMS_LAST_REGULAR_CONTROL_PORT 82
+#define LMS_LAST_REGULAR_CONTROL_PORT 84
 
 /*The first port to use when enumerating the ports for mod_matrix controls.  All of the mod_matrix ports should be sequential, 
  * any additional ports should prepend this port number*/
-#define LMS_FIRST_SAMPLE_TABLE_PORT 82
+#define LMS_FIRST_SAMPLE_TABLE_PORT 84
 
 /*The range of ports for sample pitch*/
 #define LMS_SAMPLE_PITCH_PORT_RANGE_MIN     LMS_FIRST_SAMPLE_TABLE_PORT
