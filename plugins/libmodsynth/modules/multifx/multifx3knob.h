@@ -20,7 +20,6 @@ extern "C" {
 #include "../filter/svf.h"
 #include "../filter/comb_filter.h"
 #include "../distortion/clipper.h"
-#include "../../lib/smoother-linear.h"
 #include "../signal_routing/audio_xfade.h"
 #include "../../lib/amp.h"
     
@@ -40,8 +39,7 @@ typedef struct st_mf3_multi
     float control_value0, control_value1, control_value2;    
     float mod_value0, mod_value1, mod_value2;
     t_audio_xfade * xfader;
-    float outgain;  //For anything with an outgain knob
-    t_smoother_linear * smoother_linear;
+    float outgain;  //For anything with an outgain knob    
     t_amp * amp_ptr;
 }t_mf3_multi;
 
@@ -260,9 +258,9 @@ inline void v_mf3_run_dist(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 inline void v_mf3_run_comb(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
-    v_sml_run(a_mf3->smoother_linear, (((a_mf3->control0) * 0.692913386) + 20));
+    
     //cutoff
-    a_mf3->control_value0 = (a_mf3->smoother_linear->last_value);
+    a_mf3->control_value0 = (((a_mf3->control0) * 0.692913386) + 20);
     //res
     a_mf3->control_value1 = ((a_mf3->control1) * 0.157480315) - 20;
     
@@ -281,10 +279,9 @@ inline void v_mf3_run_comb(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi* a_mf3)
 {
-    v_mf3_commit_mod(a_mf3);
-    v_sml_run(a_mf3->smoother_linear, (((a_mf3->control0) * 0.818897638) + 20));
+    v_mf3_commit_mod(a_mf3);    
     //cutoff
-    a_mf3->control_value0 = (a_mf3->smoother_linear->last_value);
+    a_mf3->control_value0 = (((a_mf3->control0) * 0.818897638) + 20);
     //res
     a_mf3->control_value1 = ((a_mf3->control1) * 0.236220472) - 30;
     
@@ -325,7 +322,6 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->mod_value2 = 0.0f;
     f_result->xfader = g_axf_get_audio_xfade(-3.0f);
     f_result->outgain = 1.0f;
-    f_result->smoother_linear = g_sml_get_smoother_linear(a_sample_rate, 127.0f, 0.0f, 0.1f);
     f_result->amp_ptr = g_amp_get();
     
     return f_result;
