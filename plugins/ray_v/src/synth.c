@@ -464,6 +464,10 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 		plugin_data->sv_pitch_bend_value = 0.00012207
                         * events[(plugin_data->event_pos)].data.control.value * (plugin_data->vals.master_pb_amt);
 	    }
+            else
+            {
+                printf("Received ALSA event %i", events[(plugin_data->event_pos)].type);
+            }
 	    plugin_data->event_pos = (plugin_data->event_pos) + 1;
 	}
         
