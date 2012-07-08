@@ -1220,6 +1220,8 @@ void SamplerGUI::reloadSample()
 #ifndef LMS_DEBUG_STANDALONE
         lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
 #endif
+        
+        m_sample_graph->generatePreview(path, (m_sample_table->lms_selected_column));
     }
 }
 
