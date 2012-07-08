@@ -39,7 +39,7 @@ public:
     
     void LMS_set_value_style(QString a_style, int a_width)
     {
-        lms_use_label_style = TRUE;
+        lms_use_value_style = TRUE;
         lms_value_style = a_style;
         lms_value_width = a_width;
     }
