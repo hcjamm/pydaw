@@ -569,9 +569,10 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                 
                 if(*(plugin_data->global_midi_channel) < 16)
                 {
-                    if(*(plugin_data->global_midi_channel) != n.channel)
+                    if((int)(*(plugin_data->global_midi_channel)) != (int)(n.channel))
                     {
                         ++event_pos;
+                        printf("Skipping event on channel %i\n", (int)(n.channel));
                         continue;
                     }                    
                 }
