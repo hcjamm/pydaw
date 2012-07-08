@@ -570,7 +570,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         //m_view_sample_tab
         
         m_view_sample_tab = new QWidget();
-        m_view_sample_tab->setObjectName(QString::fromUtf8("m_view_sample_tab"));        
+        m_view_sample_tab->setObjectName(QString::fromUtf8("m_view_sample_tab"));  
+        m_view_sample_tab->setStyleSheet(QString("color : white; background-color : black;"));
         m_main_tab->addTab(m_view_sample_tab, QString());                
         m_main_tab->setTabText(m_main_tab->indexOf(m_view_sample_tab), QApplication::translate("Frame", "View", 0, QApplication::UnicodeUTF8));
                 
