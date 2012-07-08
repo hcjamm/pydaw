@@ -1343,9 +1343,9 @@ void SamplerGUI::sample_vel_highChanged(int a_control_index)
 #endif
 }
 
-void SamplerGUI::pfxmatrix_Changed(int a_port, int a_fx_group, int a_dst,int a_src, int a_ctrl)
+void SamplerGUI::pfxmatrix_Changed(int a_port, int a_fx_group, int a_dst, int a_ctrl, int a_src)
 {
-    //m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_value_changed(0);
+    //m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_value_changed(0);    
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",
