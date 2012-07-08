@@ -74,6 +74,9 @@ typedef struct {
     
     //End from Ray-V
     
+    LADSPA_Data *global_midi_channel;
+    LADSPA_Data *global_midi_octaves_offset;
+    
     //From Modulex        
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
     LADSPA_Data *pfx_mod_knob[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];

@@ -206,6 +206,9 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2: plugin->polyfx_mod_matrix[0][3][3][2] = data; break;
 
         //End PolyFX mod matrix
+        
+        case LMS_GLOBAL_MIDI_CHANNEL: plugin->global_midi_channel = data; break;
+        case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: plugin->global_midi_octaves_offset = data; break;
         default:
             break;
         }
@@ -453,7 +456,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                         , plugin_data->amp_ptr);
 
                 ratio =
-                f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]),                     
+                f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]) + (*(plugin_data->global_midi_octaves_offset) * -12),                     
                         ((plugin_data->data[n]->base_pitch) //+ (plugin_data->data[n]->lfo_pitch_output)
                         ),
                         plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
@@ -553,6 +556,8 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 	pthread_mutex_unlock(&plugin_data->mutex);
 	return;
     }
+    
+    int f_note_adjusted = 60;
 
     for (pos = 0, event_pos = 0; pos < sample_count; ) {
         
@@ -561,91 +566,105 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
             /*Note-on event*/
 	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
+                
+                if(*(plugin_data->global_midi_channel) < 16)
+                {
+                    if(*(plugin_data->global_midi_channel) != n.channel)
+                    {
+                        ++event_pos;
+                        continue;
+                    }                    
+                }
+                
+                f_note_adjusted = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
+                
 		if (n.velocity > 0) {
-		    plugin_data->ons[n.note] =
+		    plugin_data->ons[f_note_adjusted] =
 			plugin_data->sampleNo + events[event_pos].time.tick;
-		    plugin_data->offs[n.note] = -1;
-		    plugin_data->velocities[n.note] = n.velocity;
+		    plugin_data->offs[f_note_adjusted] = -1;
+		    plugin_data->velocities[f_note_adjusted] = n.velocity;
 
-                    plugin_data->sample_indexes_count[n.note] = 0;
+                    plugin_data->sample_indexes_count[f_note_adjusted] = 0;
                     
                     for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
                     {                       
-                        if((n.note >= *(plugin_data->low_note[(plugin_data->loaded_samples[i])])) && 
-                        (n.note <= *(plugin_data->high_note[(plugin_data->loaded_samples[i])])) &&
-                        (plugin_data->velocities[n.note] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])) &&
-                        (plugin_data->velocities[n.note] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
+                        if((f_note_adjusted >= *(plugin_data->low_note[(plugin_data->loaded_samples[i])])) && 
+                        (f_note_adjusted <= *(plugin_data->high_note[(plugin_data->loaded_samples[i])])) &&
+                        (plugin_data->velocities[f_note_adjusted] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])) &&
+                        (plugin_data->velocities[f_note_adjusted] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
                         {
-                            plugin_data->sample_indexes[n.note][(plugin_data->sample_indexes_count[n.note])] = (plugin_data->loaded_samples[i]);
-                            plugin_data->sample_indexes_count[n.note] = (plugin_data->sample_indexes_count[n.note]) + 1;
+                            plugin_data->sample_indexes[f_note_adjusted][(plugin_data->sample_indexes_count[f_note_adjusted])] = (plugin_data->loaded_samples[i]);
+                            plugin_data->sample_indexes_count[f_note_adjusted] = (plugin_data->sample_indexes_count[f_note_adjusted]) + 1;
                         }
                     }
                     
                     for(plugin_data->i_dst = 0; (plugin_data->i_dst) < LMS_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
                     {
-                        plugin_data->data[n.note]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)])));                        
+                        plugin_data->data[f_note_adjusted]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)])));                        
                     }    
                     //Reset the sample start positions to 0.  TODO:  optimize this
                     for(i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)
                     {
-                        plugin_data->sample_position[n.note][i] = 0.0f;
+                        plugin_data->sample_position[f_note_adjusted][i] = 0.0f;
                     }
                     
                                         
                     
                     //Begin Ray-V additions
                     
-                    //const int voice = i_pick_voice(plugin_data->voices, n.note);
+                    //const int voice = i_pick_voice(plugin_data->voices, f_note_adjusted);
                     
 		    plugin_data->amp = f_db_to_linear_fast(*(plugin_data->master_vol), plugin_data->mono_modules->amp_ptr);                     
                     
-                    plugin_data->data[n.note]->note_f = (float)n.note;
+                    plugin_data->data[f_note_adjusted]->note_f = (float)f_note_adjusted;
                                         
-                    plugin_data->data[n.note]->target_pitch = (plugin_data->data[n.note]->note_f);
-                    plugin_data->data[n.note]->last_pitch = (plugin_data->sv_last_note);
+                    plugin_data->data[f_note_adjusted]->target_pitch = (plugin_data->data[f_note_adjusted]->note_f);
+                    plugin_data->data[f_note_adjusted]->last_pitch = (plugin_data->sv_last_note);
                     
-                    v_rmp_retrigger_glide_t(plugin_data->data[n.note]->glide_env , (*(plugin_data->master_glide) * .01), 
-                            (plugin_data->sv_last_note), (plugin_data->data[n.note]->target_pitch));
+                    v_rmp_retrigger_glide_t(plugin_data->data[f_note_adjusted]->glide_env , (*(plugin_data->master_glide) * .01), 
+                            (plugin_data->sv_last_note), (plugin_data->data[f_note_adjusted]->target_pitch));
                                                     
-                    plugin_data->data[n.note]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
+                    plugin_data->data[f_note_adjusted]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
                                         
                     /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
                      placing things here that don't need to be modulated as a note is playing*/
                     
                     /*Retrigger ADSR envelopes and LFO*/
-                    v_adsr_retrigger(plugin_data->data[n.note]->adsr_amp);
-                    v_adsr_retrigger(plugin_data->data[n.note]->adsr_filter);
-                    v_lfs_sync(plugin_data->data[n.note]->lfo1, 0.0f, *(plugin_data->lfo_type));
+                    v_adsr_retrigger(plugin_data->data[f_note_adjusted]->adsr_amp);
+                    v_adsr_retrigger(plugin_data->data[f_note_adjusted]->adsr_filter);
+                    v_lfs_sync(plugin_data->data[f_note_adjusted]->lfo1, 0.0f, *(plugin_data->lfo_type));
                     
-                    v_adsr_set_adsr_db(plugin_data->data[n.note]->adsr_amp, (*(plugin_data->attack) * .01), (*(plugin_data->decay) * .01), (*(plugin_data->sustain)), (*(plugin_data->release) * .01));
-                    v_adsr_set_adsr(plugin_data->data[n.note]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
+                    v_adsr_set_adsr_db(plugin_data->data[f_note_adjusted]->adsr_amp, (*(plugin_data->attack) * .01), (*(plugin_data->decay) * .01), (*(plugin_data->sustain)), (*(plugin_data->release) * .01));
+                    v_adsr_set_adsr(plugin_data->data[f_note_adjusted]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
                     
                     /*Retrigger the pitch envelope*/
-                    v_rmp_retrigger((plugin_data->data[n.note]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1);  
+                    v_rmp_retrigger((plugin_data->data[f_note_adjusted]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1);  
                     
-                    plugin_data->data[n.note]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
+                    plugin_data->data[f_note_adjusted]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
                                         
                     /*Set the last_note property, so the next note can glide from it if glide is turned on*/
-                    plugin_data->sv_last_note = (plugin_data->data[n.note]->note_f);
+                    plugin_data->sv_last_note = (plugin_data->data[f_note_adjusted]->note_f);
                     
                     //TODO:  Create a define for the number of channels
                     //Move all of the multi-channel functions here
-                    for(i = 0; i < 2; i++)
-                    {
+                    //for(i = 0; i < 2; i++)
+                    //{
                         
-                    }
+                    //}
                     
                     //End Ray-V additions                    
                     
-		} else {		    
-                    plugin_data->offs[n.note] = 
+		} else {    
+                    plugin_data->offs[f_note_adjusted] = 
                         plugin_data->sampleNo + events[event_pos].time.tick;		    
 		}
 	    } /*Note-off event*/
             else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF )
             {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
-		plugin_data->offs[n.note] = 
+                f_note_adjusted = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
+                
+		plugin_data->offs[f_note_adjusted] = 
 		    plugin_data->sampleNo + events[event_pos].time.tick;
 	    }
             
@@ -1556,6 +1575,22 @@ void _init()
 	port_range_hints[LMS_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100; port_range_hints[LMS_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100;
         
         //End from PolyFX mod matrix
+        
+        port_descriptors[LMS_GLOBAL_MIDI_CHANNEL] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_GLOBAL_MIDI_CHANNEL] = "Global MIDI Channel";
+	port_range_hints[LMS_GLOBAL_MIDI_CHANNEL].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MAXIMUM |LADSPA_HINT_INTEGER |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_GLOBAL_MIDI_CHANNEL].LowerBound =  0;
+	port_range_hints[LMS_GLOBAL_MIDI_CHANNEL].UpperBound =  16;
+        
+	port_descriptors[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = "Global MIDI Offset(Octaves)";
+	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].HintDescriptor =
+                        LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_INTEGER |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].LowerBound =  -3;
+	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].UpperBound =  3;
         
         int f_i = LMS_SAMPLE_PITCH_PORT_RANGE_MIN;
         
