@@ -467,6 +467,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
 	    plugin_data->event_pos = (plugin_data->event_pos) + 1;
 	}
         
+        /*
         plugin_data->i_iterator = 0;
         
         while(plugin_data->i_iterator < (plugin_data->voices->count))
@@ -478,6 +479,7 @@ static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
             
             plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
         }
+        */
         
 	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
 	
