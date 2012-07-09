@@ -144,7 +144,7 @@ inline void v_mf3_mod(t_mf3_multi* a_mf3,float a_mod, float a_amt0, float a_amt1
  */
 inline void v_mf3_mod_single(t_mf3_multi* a_mf3,float a_mod, float a_amt, int a_index)
 {    
-    a_mf3->mod_value[a_index] = (a_mf3->mod_value[a_index]) + (a_mod * a_amt * .01);    
+    a_mf3->mod_value[a_index] = (a_mf3->mod_value[a_index]) + (a_mod * a_amt);    //not  * .01 because it's expected you did this at note_on
 }
 
 inline void v_mf3_commit_mod(t_mf3_multi* a_mf3)
