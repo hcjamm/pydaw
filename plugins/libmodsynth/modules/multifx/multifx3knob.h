@@ -16,6 +16,7 @@ extern "C" {
     
 /*The highest index for selecting the effect type*/
 #define MULTIFX3KNOB_MAX_INDEX 9
+#define MULTIFX3KNOB_KNOB_COUNT 3
 
 #include "../filter/svf.h"
 #include "../filter/comb_filter.h"
@@ -35,9 +36,9 @@ typedef struct st_mf3_multi
     t_comb_filter * comb_filter1;  
     t_clipper * clipper;    
     float output0, output1;
-    float control0, control1, control2;
-    float control_value0, control_value1, control_value2;    
-    float mod_value0, mod_value1, mod_value2;
+    float control[MULTIFX3KNOB_KNOB_COUNT];
+    float control_value[MULTIFX3KNOB_KNOB_COUNT];
+    float mod_value[MULTIFX3KNOB_KNOB_COUNT];
     t_audio_xfade * xfader;
     float outgain;  //For anything with an outgain knob    
     t_amp * amp_ptr;
@@ -116,13 +117,13 @@ inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
 inline void v_mf3_set(t_mf3_multi* a_mf3, float a_control0, float a_control1, float a_control2)
 {
     
-    a_mf3->control0 = a_control0;
-    a_mf3->control1 = a_control1;
-    a_mf3->control2 = a_control2;
+    a_mf3->control[0] = a_control0;
+    a_mf3->control[1] = a_control1;
+    a_mf3->control[2] = a_control2;
     
-    a_mf3->mod_value0 = 0.0f;
-    a_mf3->mod_value1 = 0.0f;
-    a_mf3->mod_value2 = 0.0f;
+    a_mf3->mod_value[0] = 0.0f;
+    a_mf3->mod_value[1] = 0.0f;
+    a_mf3->mod_value[2] = 0.0f;
 }
 
 /* inline void v_mf3_mod(t_mf3_multi* a_mf3,
@@ -131,47 +132,47 @@ inline void v_mf3_set(t_mf3_multi* a_mf3, float a_control0, float a_control1, fl
  */
 inline void v_mf3_mod(t_mf3_multi* a_mf3,float a_mod, float a_amt0, float a_amt1, float a_amt2)
 {    
-    a_mf3->mod_value0 = (a_mf3->mod_value0) + (a_mod * a_amt0 * .01);
-    a_mf3->mod_value1 = (a_mf3->mod_value1) + (a_mod * a_amt1 * .01);
-    a_mf3->mod_value2 = (a_mf3->mod_value2) + (a_mod * a_amt2 * .01);
+    a_mf3->mod_value[0] = (a_mf3->mod_value[0]) + (a_mod * a_amt0 * .01);
+    a_mf3->mod_value[1] = (a_mf3->mod_value[1]) + (a_mod * a_amt1 * .01);
+    a_mf3->mod_value[2] = (a_mf3->mod_value[2]) + (a_mod * a_amt2 * .01);
 }
 
 inline void v_mf3_commit_mod(t_mf3_multi* a_mf3)
 {
-    a_mf3->control0 = (a_mf3->control0) + ((a_mf3->mod_value0) * 127);
+    a_mf3->control[0] = (a_mf3->control[0]) + ((a_mf3->mod_value[0]) * 127);
     
-    if((a_mf3->control0) > 127)
+    if((a_mf3->control[0]) > 127)
     {
-        a_mf3->control0 = 127;
+        a_mf3->control[0] = 127;
     }
     
-    if((a_mf3->control0) < 0)
+    if((a_mf3->control[0]) < 0)
     {
-        a_mf3->control0 = 0;
+        a_mf3->control[0] = 0;
     }
     
-    a_mf3->control1 = (a_mf3->control1) + ((a_mf3->mod_value1) * 127);
+    a_mf3->control[1] = (a_mf3->control[1]) + ((a_mf3->mod_value[1]) * 127);
         
-    if((a_mf3->control1) > 127)
+    if((a_mf3->control[1]) > 127)
     {
-        a_mf3->control1 = 127;
+        a_mf3->control[1] = 127;
     }
     
-    if((a_mf3->control1) < 0)
+    if((a_mf3->control[1]) < 0)
     {
-        a_mf3->control1 = 0;
+        a_mf3->control[1] = 0;
     }
     
-    a_mf3->control2 = (a_mf3->control2) + ((a_mf3->mod_value2) * 127);
+    a_mf3->control[2] = (a_mf3->control[2]) + ((a_mf3->mod_value[2]) * 127);
              
-    if((a_mf3->control2) > 127)
+    if((a_mf3->control[2]) > 127)
     {
-        a_mf3->control2 = 127;
+        a_mf3->control[2] = 127;
     }
     
-    if((a_mf3->control2) < 0)
+    if((a_mf3->control[2]) < 0)
     {
-        a_mf3->control2 = 0;
+        a_mf3->control[2] = 0;
     }
 }
 
@@ -232,9 +233,9 @@ inline void v_mf3_run_bp4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 inline void v_mf3_run_eq(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 {   
     f_mfx_transform_svf_filter(a_mf3);
-    a_mf3->control_value2 = (a_mf3->control2) * 0.377952756 - 24;
-    v_svf_set_eq(a_mf3->svf0, (a_mf3->control_value2));
-    v_svf_set_eq(a_mf3->svf1, (a_mf3->control_value2));
+    a_mf3->control_value[2] = (a_mf3->control[2]) * 0.377952756 - 24;
+    v_svf_set_eq(a_mf3->svf0, (a_mf3->control_value[2]));
+    v_svf_set_eq(a_mf3->svf1, (a_mf3->control_value[2]));
     
     a_mf3->output0 = v_svf_run_2_pole_eq(a_mf3->svf0, a_in0);
     a_mf3->output1 = v_svf_run_2_pole_eq(a_mf3->svf1, a_in1);
@@ -243,12 +244,12 @@ inline void v_mf3_run_eq(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 inline void v_mf3_run_dist(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
-    a_mf3->control_value0 = ((a_mf3->control0) * 0.283464567);
-    a_mf3->control_value1 = ((a_mf3->control1) * 0.007874016);
-    a_mf3->control_value2 = (((a_mf3->control2) * 0.094488189) - 12);
-    a_mf3->outgain = f_db_to_linear((a_mf3->control_value2), a_mf3->amp_ptr);
-    v_clp_set_in_gain(a_mf3->clipper, (a_mf3->control_value0));
-    v_axf_set_xfade(a_mf3->xfader, (a_mf3->control_value1));
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.283464567);
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.007874016);
+    a_mf3->control_value[2] = (((a_mf3->control[2]) * 0.094488189) - 12);
+    a_mf3->outgain = f_db_to_linear((a_mf3->control_value[2]), a_mf3->amp_ptr);
+    v_clp_set_in_gain(a_mf3->clipper, (a_mf3->control_value[0]));
+    v_axf_set_xfade(a_mf3->xfader, (a_mf3->control_value[1]));
     
     a_mf3->output0 = f_axf_run_xfade(a_mf3->xfader, a_in0, ((a_mf3->outgain) * f_clp_clip(a_mf3->clipper, a_in0)));
     a_mf3->output1 = f_axf_run_xfade(a_mf3->xfader, a_in1, ((a_mf3->outgain) * f_clp_clip(a_mf3->clipper, a_in1)));
@@ -260,15 +261,15 @@ inline void v_mf3_run_comb(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     v_mf3_commit_mod(a_mf3);
     
     //cutoff
-    a_mf3->control_value0 = (((a_mf3->control0) * 0.692913386) + 20);
+    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.692913386) + 20);
     //res
-    a_mf3->control_value1 = ((a_mf3->control1) * 0.157480315) - 20;
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.157480315) - 20;
     
-    v_cmb_set_all(a_mf3->comb_filter0, (a_mf3->control_value1), (a_mf3->control_value1), 
-                    (a_mf3->control_value0));
+    v_cmb_set_all(a_mf3->comb_filter0, (a_mf3->control_value[1]), (a_mf3->control_value[1]), 
+                    (a_mf3->control_value[0]));
 
-    v_cmb_set_all(a_mf3->comb_filter1, (a_mf3->control_value1), (a_mf3->control_value1), 
-            (a_mf3->control_value0));
+    v_cmb_set_all(a_mf3->comb_filter1, (a_mf3->control_value[1]), (a_mf3->control_value[1]), 
+            (a_mf3->control_value[0]));
 
     v_cmb_set_input(a_mf3->comb_filter0, a_in0);
     v_cmb_set_input(a_mf3->comb_filter1, a_in1);
@@ -281,16 +282,16 @@ inline void f_mfx_transform_svf_filter(t_mf3_multi* a_mf3)
 {
     v_mf3_commit_mod(a_mf3);    
     //cutoff
-    a_mf3->control_value0 = (((a_mf3->control0) * 0.818897638) + 20);
+    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.818897638) + 20);
     //res
-    a_mf3->control_value1 = ((a_mf3->control1) * 0.236220472) - 30;
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.236220472) - 30;
     
-    v_svf_set_cutoff_base(a_mf3->svf0, (a_mf3->control_value0));    
-    v_svf_set_res(a_mf3->svf0, (a_mf3->control_value1));    
+    v_svf_set_cutoff_base(a_mf3->svf0, (a_mf3->control_value[0]));    
+    v_svf_set_res(a_mf3->svf0, (a_mf3->control_value[1]));    
     v_svf_set_cutoff(a_mf3->svf0);
     
-    v_svf_set_cutoff_base(a_mf3->svf1, (a_mf3->control_value0));
-    v_svf_set_res(a_mf3->svf1, (a_mf3->control_value1));    
+    v_svf_set_cutoff_base(a_mf3->svf1, (a_mf3->control_value[0]));
+    v_svf_set_res(a_mf3->svf1, (a_mf3->control_value[1]));    
     v_svf_set_cutoff(a_mf3->svf1);
 }
 
@@ -311,15 +312,15 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     v_clp_set_clip_sym(f_result->clipper, -3.0f);
     f_result->output0 = 0.0f;
     f_result->output1 = 0.0f;
-    f_result->control0 = 0.0f;
-    f_result->control1 = 0.0f;
-    f_result->control2 = 0.0f;
-    f_result->control_value0 = 65.0f;
-    f_result->control_value1 = 65.0f;
-    f_result->control_value2 = 65.0f;
-    f_result->mod_value0 = 0.0f;
-    f_result->mod_value1 = 0.0f;
-    f_result->mod_value2 = 0.0f;
+    f_result->control[0] = 0.0f;
+    f_result->control[1] = 0.0f;
+    f_result->control[2] = 0.0f;
+    f_result->control_value[0] = 65.0f;
+    f_result->control_value[1] = 65.0f;
+    f_result->control_value[2] = 65.0f;
+    f_result->mod_value[0] = 0.0f;
+    f_result->mod_value[1] = 0.0f;
+    f_result->mod_value[2] = 0.0f;
     f_result->xfader = g_axf_get_audio_xfade(-3.0f);
     f_result->outgain = 1.0f;
     f_result->amp_ptr = g_amp_get();
