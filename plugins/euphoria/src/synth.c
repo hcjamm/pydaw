@@ -271,6 +271,9 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->lin_interpolator = g_lin_get();
     plugin_data->amp = 1.0f;
     
+    plugin_data->smp_pit_core = g_pit_get();
+    plugin_data->smp_pit_ratio = g_pit_ratio();
+        
     int f_i = 0;
     while(f_i < LMS_MAX_SAMPLE_COUNT)
     {
@@ -282,9 +285,6 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         plugin_data->high_note[f_i] = 0;
         plugin_data->sample_vol[f_i] = 0;
         plugin_data->sample_amp[f_i] = 1.0f;
-        
-        plugin_data->smp_pit_core[f_i] = g_pit_get();
-        plugin_data->smp_pit_ratio[f_i] = g_pit_ratio();
         
         plugin_data->sample_paths[f_i] = "";
         
@@ -456,7 +456,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                 f_pit_midi_note_to_ratio_fast(plugin_data->adjusted_base_pitch[(plugin_data->current_sample)],                     
                         ((plugin_data->data[n]->base_pitch) //+ (plugin_data->data[n]->lfo_pitch_output)
                         ),
-                        plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
+                        plugin_data->smp_pit_core, plugin_data->smp_pit_ratio);
 
                 plugin_data->sample_position[n][(plugin_data->current_sample)] = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + ratio;
 
