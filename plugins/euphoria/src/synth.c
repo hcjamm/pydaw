@@ -288,6 +288,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         
         plugin_data->sample_paths[f_i] = "";
         
+        plugin_data->adjusted_base_pitch[f_i] = 60.0f;
+        
         f_i++;
     }
     
@@ -451,7 +453,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                         , plugin_data->amp_ptr);
 
                 ratio =
-                f_pit_midi_note_to_ratio_fast(*(plugin_data->basePitch[(plugin_data->current_sample)]) + (*(plugin_data->global_midi_octaves_offset) * -12),                     
+                f_pit_midi_note_to_ratio_fast(plugin_data->adjusted_base_pitch[(plugin_data->current_sample)],                     
                         ((plugin_data->data[n]->base_pitch) //+ (plugin_data->data[n]->lfo_pitch_output)
                         ),
                         plugin_data->smp_pit_core[(plugin_data->current_sample)], plugin_data->smp_pit_ratio[(plugin_data->current_sample)]);
@@ -603,6 +605,8 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                             
                             plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001);
                             plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001));
+                            
+                            plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = *(plugin_data->basePitch[(plugin_data->loaded_samples[i])]) + (*(plugin_data->global_midi_octaves_offset) * -12);
                         }
                     }
                     

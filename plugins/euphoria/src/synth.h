@@ -103,6 +103,8 @@ typedef struct {
     int         sample_indexes[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];  //Sample indexes for each note to play
     int         sample_indexes_count[Sampler_NOTES]; //The count of sample indexes to iterate through
     
+    float adjusted_base_pitch[LMS_MAX_SAMPLE_COUNT];
+    
     /*TODO:  Deprecate these 2?*/
     int loaded_samples[LMS_MAX_SAMPLE_COUNT];
     int loaded_samples_count;
