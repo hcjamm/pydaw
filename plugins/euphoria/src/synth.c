@@ -593,6 +593,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 
                     plugin_data->sample_indexes_count[f_note_adjusted] = 0;
                     
+                    //Figure out which samples to play and stash all relevant values
                     for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
                     {                       
                         if((f_note_adjusted >= *(plugin_data->low_note[(plugin_data->loaded_samples[i])])) && 
@@ -607,20 +608,19 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                             plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001));
                             
                             plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = *(plugin_data->basePitch[(plugin_data->loaded_samples[i])]) + (*(plugin_data->global_midi_octaves_offset) * -12);
+                            
+                            plugin_data->sample_position[f_note_adjusted][(plugin_data->loaded_samples[i])] = 0.0f;
                         }
                     }
                     
+                    //Determine which PolyFX have been selected
                     for(plugin_data->i_dst = 0; (plugin_data->i_dst) < LMS_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
                     {
                         plugin_data->data[f_note_adjusted]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)])));                        
                     }    
-                    //Reset the sample start positions to 0.  TODO:  optimize this
-                    for(i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)
-                    {
-                        plugin_data->sample_position[f_note_adjusted][i] = 0.0f;
-                    }
                     
-                                        
+                    
+                    
                     
                     //Begin Ray-V additions
                     
