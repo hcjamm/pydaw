@@ -444,11 +444,6 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                 plugin_data->current_sample = (plugin_data->sample_indexes[n][(plugin_data->i_loaded_samples)]);
 
                 //start parts from the beginning of the function   
-
-                plugin_data->sampleStartPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleStarts[(plugin_data->current_sample)])) * .0001);
-                plugin_data->sampleEndPos[(plugin_data->current_sample)] = (plugin_data->sampleCount[(plugin_data->current_sample)]) - ((plugin_data->sampleCount[(plugin_data->current_sample)]) * ((*(plugin_data->sampleEnds[(plugin_data->current_sample)])) * .0001));
-
-
                 plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(
                         (*(plugin_data->sample_vol[(plugin_data->current_sample)])) + 
                         (((*(plugin_data->sample_vel_sens[(plugin_data->current_sample)])) * 0.007874016 * (plugin_data->velocities[n]))
@@ -604,7 +599,10 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                         (plugin_data->velocities[f_note_adjusted] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
                         {
                             plugin_data->sample_indexes[f_note_adjusted][(plugin_data->sample_indexes_count[f_note_adjusted])] = (plugin_data->loaded_samples[i]);
-                            plugin_data->sample_indexes_count[f_note_adjusted] = (plugin_data->sample_indexes_count[f_note_adjusted]) + 1;
+                            plugin_data->sample_indexes_count[f_note_adjusted] = (plugin_data->sample_indexes_count[f_note_adjusted]) + 1;                            
+                            
+                            plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001);
+                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001));
                         }
                     }
                     
