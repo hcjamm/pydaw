@@ -172,10 +172,10 @@ t_poly_voice * g_poly_init(float a_sr)
         f_voice->fx_func_ptr[f_i] = v_mf3_run_off;
     }
     
-    f_voice->modulator_outputs[0] = &f_voice->adsr_amp->output;
-    f_voice->modulator_outputs[1] = &f_voice->adsr_filter->output;
-    f_voice->modulator_outputs[2] = &f_voice->ramp_env->output;
-    f_voice->modulator_outputs[3] = &f_voice->lfo1->output;
+    f_voice->modulator_outputs[0] = &(f_voice->adsr_amp->output);
+    f_voice->modulator_outputs[1] = &(f_voice->adsr_filter->output);
+    f_voice->modulator_outputs[2] = &(f_voice->ramp_env->output);
+    f_voice->modulator_outputs[3] = &(f_voice->lfo1->output);
     
     return f_voice;
 }
