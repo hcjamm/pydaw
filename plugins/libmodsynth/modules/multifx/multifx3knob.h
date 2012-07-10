@@ -138,9 +138,11 @@ inline void v_mf3_mod(t_mf3_multi* a_mf3,float a_mod, float a_amt0, float a_amt1
     a_mf3->mod_value[2] = (a_mf3->mod_value[2]) + (a_mod * a_amt2 * .01);
 }
 
-/* inline void v_mf3_mod(t_mf3_multi* a_mf3,
- * float a_mod, //Expects 0 to 1 or -1 to 1 range from an LFO, envelope, etc...
- * float a_amt0, float a_amt1, float a_amt2)  //Amount, from the GUI.  Range:  -100 to 100
+/* inline void v_mf3_mod_single(
+ * t_mf3_multi* a_mf3,
+ * float a_mod, //The output of the LFO, etc...  -1.0f to 1.0f
+ * float a_amt, //amount, -1.0f to 1.0f
+ * int a_index)  //control index
  */
 inline void v_mf3_mod_single(t_mf3_multi* a_mf3,float a_mod, float a_amt, int a_index)
 {    

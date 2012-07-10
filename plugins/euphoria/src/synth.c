@@ -651,7 +651,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                                         plugin_data->polyfx_mod_matrix_values[f_note_adjusted][(plugin_data->i_dst)][(plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->i_dst)])] = 
                                                 (*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->i_dst)][(plugin_data->i_src)][(plugin_data->i_ctrl)])) * .01;
                                         
-                                        plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->i_dst)] = (plugin_data->polyfx_mod_counts[f_note_adjusted]) + 1;
+                                        plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->i_dst)] = (plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->i_dst)]) + 1;
                                     }
                                 }
                             }
