@@ -500,20 +500,20 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 	}
                
         //Modular PolyFX
-        for(plugin_data->i_dst = 0; (plugin_data->i_dst) < LMS_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
-        {
-            v_mf3_set(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], 
-                *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][0]), *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][1]), *(plugin_data->pfx_mod_knob[0][(plugin_data->i_dst)][2])); 
+        for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[n]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
+        {            
+            v_mf3_set(plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])], 
+                *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][0]), *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][1]), *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][2])); 
             
             int f_mod_test;
         
-            for(f_mod_test = 0; f_mod_test < (plugin_data->polyfx_mod_counts[n][(plugin_data->i_dst)]); f_mod_test++)
+            for(f_mod_test = 0; f_mod_test < (plugin_data->polyfx_mod_counts[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]); f_mod_test++)
             {
                 v_mf3_mod_single(
-                        plugin_data->data[n]->multieffect[(plugin_data->i_dst)],                    
-                        *(plugin_data->data[n]->modulator_outputs[(plugin_data->polyfx_mod_src_index[n][(plugin_data->i_dst)][f_mod_test])]),
-                        (plugin_data->polyfx_mod_matrix_values[n][(plugin_data->i_dst)][f_mod_test]),
-                        (plugin_data->polyfx_mod_ctrl_indexes[n][(plugin_data->i_dst)][f_mod_test])
+                        plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])],                    
+                        *(plugin_data->data[n]->modulator_outputs[(plugin_data->polyfx_mod_src_index[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test])]),
+                        (plugin_data->polyfx_mod_matrix_values[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test]),
+                        (plugin_data->polyfx_mod_ctrl_indexes[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test])
                         );
             }
             
@@ -531,10 +531,10 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                     *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][3][0]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][3][1]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][3][2]));
             */
             
-            plugin_data->data[n]->fx_func_ptr[(plugin_data->i_dst)](plugin_data->data[n]->multieffect[(plugin_data->i_dst)], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
+            plugin_data->data[n]->fx_func_ptr[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])](plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
 
-            plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[(plugin_data->i_dst)]->output0;
-            plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[(plugin_data->i_dst)]->output1;
+            plugin_data->data[n]->modulex_current_sample[0] = plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]->output0;
+            plugin_data->data[n]->modulex_current_sample[1] = plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]->output1;
 
         }
  
@@ -626,32 +626,39 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                             plugin_data->sample_position[f_note_adjusted][(plugin_data->loaded_samples[i])] = 0.0f;
                         }
                     }
-                    
-                    //Determine which PolyFX have been selected
+                    plugin_data->active_polyfx_count[f_note_adjusted] = 0;
+                    //Determine which PolyFX have been enabled
                     for(plugin_data->i_dst = 0; (plugin_data->i_dst) < LMS_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
                     {
-                        plugin_data->data[f_note_adjusted]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)])));                        
+                        int f_pfx_combobox_index = (int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)]));
+                        plugin_data->data[f_note_adjusted]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer(f_pfx_combobox_index); 
+                        
+                        if(f_pfx_combobox_index != 0)
+                        {
+                            plugin_data->active_polyfx[f_note_adjusted][(plugin_data->active_polyfx_count[f_note_adjusted])] = (plugin_data->i_dst);
+                            plugin_data->active_polyfx_count[f_note_adjusted] = (plugin_data->active_polyfx_count[f_note_adjusted]) + 1;
+                        }
                     }    
                     
                     //Calculate which mod_matrix controls to actually process.  This, folks, is how you do something stupidly parallel in an efficient manner when it will spend 99% of the time idle                                        
                     for(plugin_data->i_fx_grps = 0; (plugin_data->i_fx_grps) < LMS_EFFECTS_GROUPS_COUNT; plugin_data->i_fx_grps = (plugin_data->i_fx_grps) + 1)
                     {
-                        for(plugin_data->i_dst = 0; (plugin_data->i_dst) < LMS_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
+                        for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[f_note_adjusted]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
                         {
-                            plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->i_dst)] = 0;
+                            plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->active_polyfx[f_note_adjusted][(plugin_data->i_dst)])] = 0;
                             
                             for(plugin_data->i_src = 0; (plugin_data->i_src) < LMS_MODULATOR_COUNT; plugin_data->i_src = (plugin_data->i_src) + 1)
                             {
                                 for(plugin_data->i_ctrl = 0; (plugin_data->i_ctrl) < LMS_CONTROLS_PER_MOD_EFFECT; plugin_data->i_ctrl = (plugin_data->i_ctrl) + 1)
                                 {
-                                    if((*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->i_dst)][(plugin_data->i_src)][(plugin_data->i_ctrl)])) != 0)
+                                    if((*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_note_adjusted][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) != 0)
                                     {                                        
-                                        plugin_data->polyfx_mod_ctrl_indexes[f_note_adjusted][(plugin_data->i_dst)][(plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->i_dst)])] = (plugin_data->i_ctrl);
-                                        plugin_data->polyfx_mod_src_index[f_note_adjusted][(plugin_data->i_dst)][(plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->i_dst)])] = (plugin_data->i_src);
-                                        plugin_data->polyfx_mod_matrix_values[f_note_adjusted][(plugin_data->i_dst)][(plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->i_dst)])] = 
-                                                (*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->i_dst)][(plugin_data->i_src)][(plugin_data->i_ctrl)])) * .01;
+                                        plugin_data->polyfx_mod_ctrl_indexes[f_note_adjusted][(plugin_data->active_polyfx[f_note_adjusted][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->active_polyfx[f_note_adjusted][(plugin_data->i_dst)])])] = (plugin_data->i_ctrl);
+                                        plugin_data->polyfx_mod_src_index[f_note_adjusted][(plugin_data->active_polyfx[f_note_adjusted][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->active_polyfx[f_note_adjusted][(plugin_data->i_dst)])])] = (plugin_data->i_src);
+                                        plugin_data->polyfx_mod_matrix_values[f_note_adjusted][(plugin_data->active_polyfx[f_note_adjusted][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->active_polyfx[f_note_adjusted][(plugin_data->i_dst)])])] = 
+                                                (*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_note_adjusted][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) * .01;
                                         
-                                        plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->i_dst)] = (plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->i_dst)]) + 1;
+                                        plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->active_polyfx[f_note_adjusted][(plugin_data->i_dst)])] = (plugin_data->polyfx_mod_counts[f_note_adjusted][(plugin_data->active_polyfx[f_note_adjusted][(plugin_data->i_dst)])]) + 1;
                                     }
                                 }
                             }
