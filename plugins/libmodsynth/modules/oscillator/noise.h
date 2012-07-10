@@ -24,10 +24,12 @@ typedef struct st_white_noise
     float b0,b1,b2,b3,b4,b5,b6;  //pink noise coefficients
 }t_white_noise;
 
+typedef float (*fp_noise_func_ptr)(t_white_noise*);
 
 t_white_noise * g_get_white_noise(float);
 inline float f_run_white_noise(t_white_noise *);
 inline float f_run_pink_noise(t_white_noise *);
+inline float f_run_noise_off(t_white_noise *);
 
 /* t_white_noise * g_get_white_noise(float a_sample_rate)
  */
@@ -98,6 +100,12 @@ inline float f_run_pink_noise(t_white_noise * a_w_noise)
       return (a_w_noise->b0) + (a_w_noise->b1) + (a_w_noise->b2) + (a_w_noise->b3) + 
               (a_w_noise->b4) + (a_w_noise->b5) + (a_w_noise->b6) + f_white * 0.5362;      
 }
+
+inline float f_run_noise_off(t_white_noise * a_w_noise)
+{
+    return 0;
+}
+
 
 #ifdef	__cplusplus
 }
