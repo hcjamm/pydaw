@@ -63,6 +63,7 @@ typedef struct {
     LADSPA_Data *master_vol;
     
     LADSPA_Data *noise_amp;    
+    LADSPA_Data *noise_type;
     
     LADSPA_Data *master_glide;
     LADSPA_Data *master_pb_amt;

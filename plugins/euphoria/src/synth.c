@@ -209,6 +209,7 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         
         //case LMS_GLOBAL_MIDI_CHANNEL: plugin->global_midi_channel = data; break;
         case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: plugin->global_midi_octaves_offset = data; break;
+        case LMS_NOISE_TYPE: plugin->noise_type = data; break;
         default:
             break;
         }
@@ -481,7 +482,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
             
             //Call everything defined in libmodsynth.h in the order it should be called in
                                     
-            sample += (f_run_white_noise(plugin_data->data[n]->white_noise1[ch]) * (plugin_data->data[n]->noise_linamp)); //white noise
+            sample += ((plugin_data->data[n]->noise_func_ptr(plugin_data->data[n]->white_noise1[ch])) * (plugin_data->data[n]->noise_linamp)); //add noise
             
             sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp); // * (plugin_data->data[n]->lfo_amp_output);
     
@@ -516,20 +517,6 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                         (plugin_data->polyfx_mod_ctrl_indexes[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test])
                         );
             }
-            
-            /*
-            v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->adsr_amp->output, 
-                    *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][0]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][1]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][0][2]));
-            
-            v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->adsr_filter->output, 
-                    *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][1][0]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][1][1]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][1][2]));
-            
-            v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->ramp_env->output, 
-                    *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][2][0]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][2][1]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][2][2]));
-            
-            v_mf3_mod(plugin_data->data[n]->multieffect[(plugin_data->i_dst)], plugin_data->data[n]->lfo1->output, 
-                    *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][3][0]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][3][1]), *(plugin_data->polyfx_mod_matrix[0][(plugin_data->i_dst)][3][2]));
-            */
             
             plugin_data->data[n]->fx_func_ptr[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])](plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])], (plugin_data->data[n]->modulex_current_sample[0]), (plugin_data->data[n]->modulex_current_sample[1])); 
 
@@ -664,7 +651,8 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                             }
                         }
                     }
-                    
+                    //Get the noise function pointer
+                    plugin_data->data[f_note_adjusted]->noise_func_ptr = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
                     
                     //Begin Ray-V additions
                     
@@ -1658,6 +1646,14 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].LowerBound =  -3;
 	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].UpperBound =  3;
+        
+        port_descriptors[LMS_NOISE_TYPE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_NOISE_TYPE] = "Noise Type";
+	port_range_hints[LMS_NOISE_TYPE].HintDescriptor =
+                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_NOISE_TYPE].LowerBound =  0;
+	port_range_hints[LMS_NOISE_TYPE].UpperBound =  2;
         
         int f_i = LMS_SAMPLE_PITCH_PORT_RANGE_MIN;
         

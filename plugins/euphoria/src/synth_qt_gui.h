@@ -152,6 +152,7 @@ public slots:
     void setFilterRelease(float);
     
     void setNoiseAmp(float);
+    void setNoiseType(float);
     
     void setMasterVolume(float);
     
@@ -444,7 +445,8 @@ protected slots:
     void filterReleaseChanged(int);
     
     void noiseAmpChanged(int);
-        
+    void noise_typeChanged(int);
+    
     void masterVolumeChanged(int);
     
     void masterUnisonVoicesChanged(int);
@@ -480,6 +482,7 @@ protected slots:
     void fx3knob2Changed(int);
     void fx3comboboxChanged(int);
     void global_midi_octaves_offsetChanged(int);
+    
     //void global_midi_channelChanged(int);
     
     //End from Modulex
@@ -567,6 +570,7 @@ protected:
             
     LMS_group_box * m_groupbox_noise;
     LMS_knob_regular *m_noise_amp;
+    LMS_combobox *m_noise_type;
     LMS_sample_graph *m_sample_graph;
     
     //End from Ray-V
