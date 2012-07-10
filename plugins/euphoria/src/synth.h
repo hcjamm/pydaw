@@ -131,6 +131,10 @@ typedef struct {
     int polyfx_mod_src_index[Sampler_NOTES][LMS_MODULAR_POLYFX_COUNT][(LMS_CONTROLS_PER_MOD_EFFECT * LMS_MODULATOR_COUNT)];  //The index of the modulation source(LFO, ADSR, etc...) to multiply by
     float polyfx_mod_matrix_values[Sampler_NOTES][LMS_MODULAR_POLYFX_COUNT][(LMS_CONTROLS_PER_MOD_EFFECT * LMS_MODULATOR_COUNT)];  //The value of the mod_matrix knob, multiplied by .01
     
+    //Active PolyFX to process
+    int active_polyfx[Sampler_NOTES][LMS_MODULAR_POLYFX_COUNT];
+    int active_polyfx_count[Sampler_NOTES];
+    
     pthread_mutex_t mutex;
     t_mono_modules * mono_modules;
     t_amp * amp_ptr;
