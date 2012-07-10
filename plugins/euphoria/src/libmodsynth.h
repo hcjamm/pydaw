@@ -99,6 +99,8 @@ typedef struct st_poly_voice
     
     float * modulator_outputs[LMS_MODULATOR_COUNT];
     
+    fp_noise_func_ptr noise_func_ptr;
+    
 }t_poly_voice;
 
 #ifdef LMS_DEBUG_MAIN_LOOP
@@ -176,6 +178,8 @@ t_poly_voice * g_poly_init(float a_sr)
     f_voice->modulator_outputs[1] = &(f_voice->adsr_filter->output);
     f_voice->modulator_outputs[2] = &(f_voice->ramp_env->output);
     f_voice->modulator_outputs[3] = &(f_voice->lfo1->output);
+    
+    f_voice->noise_func_ptr = f_run_noise_off;
     
     return f_voice;
 }

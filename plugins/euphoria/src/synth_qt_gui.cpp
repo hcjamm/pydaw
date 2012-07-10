@@ -916,6 +916,10 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_groupbox_noise->lms_add_h(m_noise_amp);
         connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
         
+        m_noise_type = new LMS_combobox(QString("Type"), this, QStringList() << QString("Off") << QString("White") << QString("Pink"), LMS_NOISE_TYPE, a_style);
+        m_groupbox_noise->lms_add_h(m_noise_type);
+        connect(m_noise_type->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(noise_typeChanged(int)));
+        
         m_adsr_filter = new LMS_adsr_widget(this, a_style, FALSE, LMS_FILTER_ATTACK, LMS_FILTER_DECAY, LMS_FILTER_SUSTAIN, LMS_FILTER_RELEASE, QString("ADSR 2"));
 
         m_main_layout->lms_add_widget(m_adsr_filter->lms_groupbox_adsr->lms_groupbox);
@@ -2093,6 +2097,7 @@ void SamplerGUI::setFilterDecay  (float a_value){lms_set_value(a_value, m_adsr_f
 void SamplerGUI::setFilterSustain(float a_value){lms_set_value(a_value, m_adsr_filter->lms_sustain);}
 void SamplerGUI::setFilterRelease(float a_value){lms_set_value(a_value, m_adsr_filter->lms_release);}
 void SamplerGUI::setNoiseAmp(float a_value){lms_set_value(a_value, m_noise_amp);}
+void SamplerGUI::setNoiseType(float a_value){lms_set_value(a_value, m_noise_type);}
 void SamplerGUI::setMasterVolume(float a_value){lms_set_value(a_value, m_master->lms_master_volume);}
 void SamplerGUI::setMasterUnisonVoices(float a_value){lms_set_value(a_value, m_master->lms_master_unison_voices);}
 void SamplerGUI::setMasterUnisonSpread(float a_value){lms_set_value(a_value, m_master->lms_master_unison_spread);}
@@ -2120,6 +2125,7 @@ void SamplerGUI::filterDecayChanged(int a_value){lms_value_changed(a_value, m_ad
 void SamplerGUI::filterSustainChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_sustain);}
 void SamplerGUI::filterReleaseChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_release);}
 void SamplerGUI::noiseAmpChanged(int a_value){lms_value_changed(a_value, m_noise_amp);}
+void SamplerGUI::noise_typeChanged(int a_value){lms_value_changed(a_value, m_noise_type);}
 void SamplerGUI::masterVolumeChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_volume);}
 void SamplerGUI::masterUnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_voices);}
 void SamplerGUI::masterUnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_spread);}
@@ -2183,7 +2189,8 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case LMS_FILTER_DECAY: setFilterDecay(a_value); break;
             case LMS_FILTER_SUSTAIN: setFilterSustain(a_value); break;
             case LMS_FILTER_RELEASE: setFilterRelease(a_value); break;
-            case LMS_NOISE_AMP: setNoiseAmp(a_value); break;            
+            case LMS_NOISE_AMP: setNoiseAmp(a_value); break;        
+            case LMS_NOISE_TYPE: setNoiseType(a_value); break;
             case LMS_MASTER_VOLUME: setMasterVolume(a_value); break;
             case LMS_MASTER_GLIDE: setMasterGlide(a_value); break;
             case LMS_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;            
@@ -2335,6 +2342,7 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case LMS_FILTER_SUSTAIN: filterSustainChanged(a_value); break;
             case LMS_FILTER_RELEASE: filterReleaseChanged(a_value); break;
             case LMS_NOISE_AMP: noiseAmpChanged(a_value); break;      
+            case LMS_NOISE_TYPE: noise_typeChanged(a_value); break;      
             case LMS_MASTER_VOLUME: masterVolumeChanged(a_value); break;
             case LMS_MASTER_GLIDE: masterGlideChanged(a_value); break;
             case LMS_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;            
@@ -2486,6 +2494,7 @@ int SamplerGUI::i_get_control(int port)
             case LMS_FILTER_SUSTAIN: return m_adsr_filter->lms_sustain->lms_get_value();
             case LMS_FILTER_RELEASE: return m_adsr_filter->lms_release->lms_get_value();
             case LMS_NOISE_AMP: return m_noise_amp->lms_get_value();
+            case LMS_NOISE_TYPE: return m_noise_type->lms_get_value();
             case LMS_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
             case LMS_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
             case LMS_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
