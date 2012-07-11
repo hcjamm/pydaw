@@ -22,8 +22,7 @@
 #include <stdlib.h>
 
 /*Change these to the project you would like to debug*/
-#include "../../plugins/ray_v/src/synth.h"
-#include "../../plugins/ray_v/src/synth.c"
+#include "../../plugins/libmodsynth/lib/interpolate-sinc.h"
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
 #define LMS_DEBUGGER_PROJECT
@@ -91,14 +90,58 @@ Also:
 int main(int argc, char** argv) {
     
     //LADSPA_Descriptor * f_descriptor = *ladspa_descriptor(0);
-    LADSPA_Handle f_plugin = instantiateLMS(LMSLDescriptor, 44100);
-    activateLMS(f_plugin);
+    //LADSPA_Handle f_plugin = instantiateLMS(LMSLDescriptor, 44100);
+    //activateLMS(f_plugin);
     
-    snd_seq_event_t events;    
+    //snd_seq_event_t events;    
     
-    runLMS(f_plugin, 1000, &events, 0);
+    //runLMS(f_plugin, 1000, &events, 0);
     
     //free(f_plugin);
+    
+    //t_sinc_interpolator * test = g_sinc_get(15, 1000);
+    
+    t_sinc_interpolator * f_test = g_sinc_get(7, 100, 0.15);
+    
+    float * test_square = (float*)malloc(sizeof(float) * 50);
+        
+    int i;
+    
+    for(i = 0; i < 10; i++)
+    {
+        test_square[i] = 0.0f;
+    }
+    
+    test_square[10] = 1.0f;
+    test_square[11] = 1.0f;
+    test_square[12] = 1.0f;
+    test_square[13] = 1.0f;
+    test_square[14] = 1.0f;
+    test_square[15] = 1.0f;
+    test_square[16] = 1.0f;
+    test_square[17] = 1.0f;
+    test_square[18] = 1.0f;
+    test_square[19] = -1.0f;
+    test_square[20] = -1.0f;
+    test_square[21] = -1.0f;
+    test_square[22] = -1.0f;
+    test_square[23] = -1.0f;
+    test_square[24] = -1.0f;
+    test_square[25] = -1.0f;
+    test_square[26] = -1.0f;
+    test_square[27] = -1.0f;
+    
+    for(i = 28; i < 50; i++)
+    {
+        test_square[i] = 0.0f;
+    }
+    
+    float f_iterate;
+    
+    for(f_iterate  = 10.0f; f_iterate < 40; f_iterate+=0.369f)
+    {
+        printf("%f\n", f_sinc_interpolate(f_test,test_square,f_iterate));
+    }
     
     return 0; //(EXIT_SUCCESS);
 }
