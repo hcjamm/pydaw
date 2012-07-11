@@ -21,6 +21,7 @@ typedef struct st_sinc_interpolator
     float * sinc_table;
     int table_size;
     int points;
+    int points_div2;
     int samples_per_point;
     t_lin_interpolater * linear_interpolate;
 }t_sinc_interpolator;
@@ -45,7 +46,7 @@ float f_sinc_interpolate(t_sinc_interpolator* a_sinc, float * a_array, float a_p
                 *
                 a_array[f_pos_int];
     
-    for(f_i = 1; f_i <= (((a_sinc->points) -1) / 2); f_i++)
+    for(f_i = 1; f_i <= (a_sinc->points_div2); f_i++)
     {
         f_result += 
                 f_linear_interpolate_ptr_wrap(a_sinc->sinc_table, a_sinc->table_size, f_float_iterator_down, a_sinc->linear_interpolate)
@@ -76,6 +77,7 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
     f_result->points = a_points;
     f_result->samples_per_point = a_samples_per_point;
     f_result->table_size = f_array_size;
+    f_result->points_div2 = (((a_points) -1) / 2);
     
     double f_points = (double)a_points;
     
