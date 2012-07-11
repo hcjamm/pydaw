@@ -29,6 +29,13 @@ typedef struct st_sinc_interpolator
 float f_sinc_interpolate(t_sinc_interpolator*,float*,float);
 //float f_sinc_interpolate(t_sinc_interpolator*,float,int);
 
+/* float f_sinc_interpolate(
+ * t_sinc_interpolator* a_sinc, 
+ * float * a_array, //The array to interpolate from
+ * float a_pos) //The position in the array to interpolate
+ * 
+ * This function assumes you added adequate 0.0f's to the beginning and end of the array, it does not check array boundaries
+ */
 float f_sinc_interpolate(t_sinc_interpolator* a_sinc, float * a_array, float a_pos)
 {
     int f_pos_int = (int)a_pos;
@@ -67,6 +74,11 @@ float f_sinc_interpolate(t_sinc_interpolator* a_sinc, float * a_array, float a_p
 
 t_sinc_interpolator * g_sinc_get(int, int, double);
 
+/* t_sinc_interpolator * g_sinc_get(
+ * int a_points, //The number of points to use
+ * int a_samples_per_point, //how many array elements per a_point
+ * double a_fc)  //cutoff, usually 0.1 to 0.5
+ */
 t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a_fc)
 {
     int f_array_size = a_points * a_samples_per_point;
