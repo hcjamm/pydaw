@@ -30,6 +30,10 @@ extern "C" {
 #include "../../libmodsynth/modules/oscillator/lfo_simple.h"
 #include "../../libmodsynth/modules/oscillator/noise.h"
 #include "../../libmodsynth/modules/multifx/multifx3knob.h"
+#include "../../libmodsynth/lib/interpolate-sinc.h"
+    
+#define LMS_SINC_INTERPOLATION_POINTS 25
+#define LMS_SINC_INTERPOLATION_POINTS_DIV2 12
     
 #define LMS_CHANNEL_COUNT 2
    
@@ -46,6 +50,7 @@ typedef struct st_mono_modules
 {
     t_smoother_iir * pitchbend_smoother;
     t_amp * amp_ptr;
+    t_sinc_interpolator * sinc_interpolator;
 }t_mono_modules;
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
@@ -203,6 +208,7 @@ t_mono_modules * g_mono_init()
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
     a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
     a_mono->amp_ptr = g_amp_get();
+    a_mono->sinc_interpolator = g_sinc_get(LMS_SINC_INTERPOLATION_POINTS, 200,0.15f);
     return a_mono;
 }
 

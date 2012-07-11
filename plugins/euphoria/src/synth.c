@@ -463,6 +463,8 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
 
                 float f_adjusted_sample_position = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + (plugin_data->sampleStartPos[(plugin_data->current_sample)]);
 
+                f_adjusted_sample_position += LMS_SINC_INTERPOLATION_POINTS_DIV2;
+                
                 if ((f_adjusted_sample_position) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)]){
                     plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
                     //plugin_data->ons[n] = -1;
@@ -470,10 +472,14 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                 }
                 //end
 
-                sample += f_linear_interpolate_ptr_wrap(plugin_data->sampleData[ch][(plugin_data->current_sample)], 
+                /*sample += f_linear_interpolate_ptr_wrap(plugin_data->sampleData[ch][(plugin_data->current_sample)], 
                 (plugin_data->sampleCount[(plugin_data->current_sample)]),
                 (f_adjusted_sample_position),
-                plugin_data->lin_interpolator) * (plugin_data->sample_amp[(plugin_data->current_sample)]);
+                plugin_data->lin_interpolator) * (plugin_data->sample_amp[(plugin_data->current_sample)]);*/
+                
+                sample += f_sinc_interpolate(plugin_data->mono_modules->sinc_interpolator, 
+                        plugin_data->sampleData[ch][(plugin_data->current_sample)],
+                        f_adjusted_sample_position)  * (plugin_data->sample_amp[(plugin_data->current_sample)]);
 
                 plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
             }            
@@ -874,10 +880,10 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     }
 
     /* add an extra sample for linear interpolation */
-    tmpSamples[0] = (float *)malloc((samples + 1) * sizeof(float));
+    tmpSamples[0] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS - 1) * sizeof(float));
 
     if (plugin_data->channels == 2) {
-	tmpSamples[1] = (float *)malloc((samples + 1) * sizeof(float));
+	tmpSamples[1] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS - 1) * sizeof(float));
     } else {
 	tmpSamples[1] = NULL;
     }
@@ -907,9 +913,14 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     free(tmpFrames);
 
     /* add an extra sample for linear interpolation */
-    tmpSamples[0][samples] = 0.0f;
+    int f_i;
+    for(f_i = 0; f_i < LMS_SINC_INTERPOLATION_POINTS_DIV2; f_i++)
+    {
+        tmpSamples[0][f_i] = 0.0f;
+    }
     if (plugin_data->channels == 2) {
-	tmpSamples[1][samples] = 0.0f;
+        for(f_i = samples + LMS_SINC_INTERPOLATION_POINTS_DIV2; f_i < (samples + LMS_SINC_INTERPOLATION_POINTS - 1); f_i++)
+	tmpSamples[1][f_i] = 0.0f;
     }
     
     pthread_mutex_lock(&plugin_data->mutex);
