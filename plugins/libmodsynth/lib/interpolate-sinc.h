@@ -72,14 +72,15 @@ float f_sinc_interpolate(t_sinc_interpolator* a_sinc, float * a_array, float a_p
     
 }
 
-t_sinc_interpolator * g_sinc_get(int, int, double);
+t_sinc_interpolator * g_sinc_get(int, int, double, double);
 
 /* t_sinc_interpolator * g_sinc_get(
  * int a_points, //The number of points to use
  * int a_samples_per_point, //how many array elements per a_point
- * double a_fc)  //cutoff, usually 0.1 to 0.5
+ * double a_fc,  //cutoff, usually 0.1 to 0.5
+ * double a_amp) //Adjusting for the loss of amplitude in the SINC LP.  This is a linear value, normal range:  1.0 to 8.0
  */
-t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a_fc)
+t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a_fc, double a_amp)
 {
     int f_array_size = a_points * a_samples_per_point;
     
@@ -105,7 +106,7 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
     for(i = (f_points*0.5); i < f_points; i+=f_inc)
     {
         double f_sinc1 = sin((pi*a_fc*i));
-        double sinclp = f_sinc1/(pi*i);
+        double sinclp = (f_sinc1/(pi*i)) * a_amp;
         
         double f_bm1 = (f_points)+(i);
 
