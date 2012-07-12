@@ -156,6 +156,6 @@ typedef struct {
     
     float sv_pitch_bend_value;
     float sv_last_note;  //For glide
-} Sampler;
+} Sampler __attribute__((aligned(16)));
 
 #endif
