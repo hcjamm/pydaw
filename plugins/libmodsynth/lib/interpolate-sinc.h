@@ -105,15 +105,11 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
     
     double pi = 3.141592;
     
-    double f_i_test = 0;
-    
     for(i = (f_points*0.5); i < f_points; i+=f_inc)
     {
         double f_sinc1 = sin((pi*a_fc*i));
         double sinclp = (f_sinc1/(pi*i)) * a_amp;
         
-        double f_bm1 = (f_points)+(i);
-
         double f_bm2 = 0.42659 - (0.49656 *(cos((2*pi*i)/(f_points - 1))));
         double f_bm3 = (cos((12.5664 * i)/(f_points - 1) ) * .076849) + f_bm2;
         float f_out = sinclp * f_bm3;
