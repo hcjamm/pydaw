@@ -51,7 +51,7 @@ typedef struct st_mono_modules
     t_smoother_iir * pitchbend_smoother;
     t_amp * amp_ptr;
     t_sinc_interpolator * sinc_interpolator;
-}t_mono_modules;
+}t_mono_modules __attribute__((aligned(16)));
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
 typedef struct st_poly_voice
@@ -106,7 +106,7 @@ typedef struct st_poly_voice
     
     fp_noise_func_ptr noise_func_ptr;
     
-}t_poly_voice;
+}t_poly_voice __attribute__((aligned(16)));
 
 #ifdef LMS_DEBUG_MAIN_LOOP
 
