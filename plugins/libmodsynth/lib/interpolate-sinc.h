@@ -86,15 +86,25 @@ t_sinc_interpolator * g_sinc_get(int, int, double, double);
  */
 t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a_fc, double a_amp)
 {
-    int f_array_size = a_points * a_samples_per_point;
+    
     
     t_sinc_interpolator * f_result = (t_sinc_interpolator*)malloc(sizeof(t_sinc_interpolator));
+
+    if (a_points % 2) 
+    {
+        f_result->points_div2 = (((a_points) + 1) / 2);
+    }
+    else
+    {
+        f_result->points_div2 = ((a_points) / 2);
+    }
+    
+    int f_array_size = (f_result->points_div2) * a_samples_per_point;
     f_result->sinc_table = (float*)malloc(sizeof(float) * f_array_size);
 
     f_result->points = a_points;
     f_result->samples_per_point = a_samples_per_point;
     f_result->table_size = f_array_size;
-    f_result->points_div2 = (((a_points) + 1) / 2);
     
     double f_points = (double)a_points;
     
@@ -105,7 +115,7 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
     
     double pi = 3.141592;
     
-    for(i = (f_points*0.5); i < f_points; i+=f_inc)
+    for(i = ((double)(f_result->points_div2)); i < f_points; i+=f_inc)
     {
         double f_sinc1 = sin((pi*a_fc*i));
         double sinclp = (f_sinc1/(pi*i)) * a_amp;
@@ -116,6 +126,11 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
         
         f_result->sinc_table[i_int] = f_out;
         i_int++;
+        
+        if(i_int >= f_array_size)
+        {
+            break;
+        }
     }
     
     f_result->linear_interpolate = g_lin_get();
