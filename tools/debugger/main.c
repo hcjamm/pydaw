@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
     
     //t_sinc_interpolator * test = g_sinc_get(15, 1000);
     
-    t_sinc_interpolator * f_test = g_sinc_get(7, 100, 0.15);
+    t_sinc_interpolator * f_test = g_sinc_get(7, 6, 0.15);
     
     float * test_square = (float*)malloc(sizeof(float) * 50);
         

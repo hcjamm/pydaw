@@ -64,8 +64,8 @@ float f_sinc_interpolate(t_sinc_interpolator* a_sinc, float * a_array, float a_p
                 *
                 a_array[f_pos_int + f_i];
         
-        f_float_iterator_up += f_sinc_pos_plus;
-        f_float_iterator_down += f_sinc_pos_plus;
+        f_float_iterator_up += (a_sinc->samples_per_point);
+        f_float_iterator_down += (a_sinc->samples_per_point);
     }
     
     return f_result;
@@ -100,15 +100,17 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
     
     double pi = 3.141592;
     
-    for(i = f_inc; i < f_points; i+=f_inc)
+    double f_i_test = 0;
+    
+    for(i = (f_points*0.5); i < f_points; i+=f_inc)
     {
-        double f_sinc1 = sin((2*pi*a_fc)*i);
+        double f_sinc1 = sin((pi*a_fc*i));
         double sinclp = f_sinc1/(pi*i);
         
-        double f_bm1 = (0.5*f_points)+(i*0.5);
+        double f_bm1 = (f_points)+(i);
 
-        double f_bm2 = 0.42 - ( cos((2*pi)/f_points) * 0.5);
-        double f_bm3 = (cos((12.5664 * f_bm1)/f_points) * .08) + f_bm2;
+        double f_bm2 = 0.42659 - (0.49656 * cos((2*pi*i)/(f_points - 1)));
+        double f_bm3 = (cos((12.5664 * i)/(f_points - 1) ) * .076849) + f_bm2;
         float f_out = sinclp * f_bm3;
         
         f_result->sinc_table[i_int] = f_out;
