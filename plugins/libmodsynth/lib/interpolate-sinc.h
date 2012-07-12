@@ -90,7 +90,7 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
     f_result->points = a_points;
     f_result->samples_per_point = a_samples_per_point;
     f_result->table_size = f_array_size;
-    f_result->points_div2 = (((a_points) -1) / 2);
+    f_result->points_div2 = (((a_points) + 1) / 2);
     
     double f_points = (double)a_points;
     
@@ -110,7 +110,7 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
         
         double f_bm1 = (f_points)+(i);
 
-        double f_bm2 = 0.42659 - (0.49656 * cos((2*pi*i)/(f_points - 1)));
+        double f_bm2 = 0.42659 - (0.49656 *(cos((2*pi*i)/(f_points - 1))));
         double f_bm3 = (cos((12.5664 * i)/(f_points - 1) ) * .076849) + f_bm2;
         float f_out = sinclp * f_bm3;
         
