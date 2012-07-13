@@ -47,6 +47,7 @@ extern "C" {
 #define SVF_FILTER_TYPE_HP 1
 #define SVF_FILTER_TYPE_BP 2
 #define SVF_FILTER_TYPE_EQ 3
+#define SVF_FILTER_TYPE_NOTCH 4
     
 /*The maximum number of filter kernels to cascade.  Multiply this times 2 to get the number of poles the filter will have.
  To people using the library or forking the plugins I've written:  
@@ -113,6 +114,9 @@ inline float v_svf_run_4_pole_hp(t_state_variable_filter*, float);
 
 inline float v_svf_run_2_pole_bp(t_state_variable_filter*, float);
 inline float v_svf_run_4_pole_bp(t_state_variable_filter*, float);
+
+inline float v_svf_run_2_pole_notch(t_state_variable_filter*, float);
+inline float v_svf_run_4_pole_notch(t_state_variable_filter*, float);
 
 inline float v_svf_run_2_pole_eq(t_state_variable_filter*, float);
 inline float v_svf_run_4_pole_eq(t_state_variable_filter*, float);
@@ -209,6 +213,15 @@ inline fp_svf_run_filter svf_get_run_filter_ptr(int a_cascades, int a_filter_typ
     {
         return v_svf_run_4_pole_bp;
     }
+    /*Notch*/
+    else if((a_cascades == 1) && (a_filter_type == SVF_FILTER_TYPE_NOTCH))
+    {
+        return v_svf_run_2_pole_notch;
+    }
+    else if((a_cascades == 2) && (a_filter_type == SVF_FILTER_TYPE_NOTCH))
+    {
+        return v_svf_run_4_pole_notch;
+    }
     /*EQ*/
     else if((a_cascades == 1) && (a_filter_type == SVF_FILTER_TYPE_EQ))
     {
@@ -302,13 +315,28 @@ inline float v_svf_run_2_pole_bp(t_state_variable_filter* a_svf, float a_input)
     return (a_svf->filter_kernels[0]->bp);
 }
 
-
 inline float v_svf_run_4_pole_bp(t_state_variable_filter* a_svf, float a_input)
 {
     v_svf_set_input_value(a_svf, (a_svf->filter_kernels[0]), a_input);
     v_svf_set_input_value(a_svf, (a_svf->filter_kernels[1]), (a_svf->filter_kernels[0]->bp));
     
     return (a_svf->filter_kernels[1]->bp);
+}
+
+inline float v_svf_run_2_pole_notch(t_state_variable_filter* a_svf, float a_input)
+{
+    v_svf_set_input_value(a_svf, (a_svf->filter_kernels[0]), a_input);
+    
+    return (a_svf->filter_kernels[0]->hp) + (a_svf->filter_kernels[0]->lp);
+}
+
+inline float v_svf_run_4_pole_notch(t_state_variable_filter* a_svf, float a_input)
+{
+    v_svf_set_input_value(a_svf, (a_svf->filter_kernels[0]), a_input);
+    
+    v_svf_set_input_value(a_svf, (a_svf->filter_kernels[1]), (a_svf->filter_kernels[0]->hp) + (a_svf->filter_kernels[0]->lp));
+    
+    return (a_svf->filter_kernels[1]->hp) + (a_svf->filter_kernels[1]->lp);
 }
 
 inline float v_svf_run_2_pole_eq(t_state_variable_filter* a_svf, float a_input)

@@ -58,6 +58,8 @@ inline void v_mf3_run_hp2(t_mf3_multi*,float,float);
 inline void v_mf3_run_hp4(t_mf3_multi*,float,float);
 inline void v_mf3_run_bp2(t_mf3_multi*,float,float);
 inline void v_mf3_run_bp4(t_mf3_multi*,float,float);
+inline void v_mf3_run_notch2(t_mf3_multi*,float,float);
+inline void v_mf3_run_notch4(t_mf3_multi*,float,float);
 inline void v_mf3_run_eq(t_mf3_multi*,float,float);
 inline void v_mf3_run_dist(t_mf3_multi*,float,float);
 inline void v_mf3_run_comb(t_mf3_multi*,float,float);
@@ -102,10 +104,14 @@ inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
             case 6:
                 return v_mf3_run_bp4;
             case 7:
-                return v_mf3_run_eq;
+                return v_mf3_run_notch2;
             case 8:
-                return v_mf3_run_dist;
+                return v_mf3_run_notch4;
             case 9:
+                return v_mf3_run_eq;
+            case 10:
+                return v_mf3_run_dist;
+            case 11:
                 return v_mf3_run_comb;
             default:
                 /*TODO: Report error*/
@@ -240,6 +246,22 @@ inline void v_mf3_run_bp4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     
     a_mf3->output0 = v_svf_run_4_pole_bp(a_mf3->svf0, a_in0);
     a_mf3->output1 = v_svf_run_4_pole_bp(a_mf3->svf1, a_in1);
+}
+
+inline void v_mf3_run_notch2(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+{
+    f_mfx_transform_svf_filter(a_mf3);
+    
+    a_mf3->output0 = v_svf_run_2_pole_notch(a_mf3->svf0, a_in0);
+    a_mf3->output1 = v_svf_run_2_pole_notch(a_mf3->svf1, a_in1);
+}
+
+inline void v_mf3_run_notch4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+{
+    f_mfx_transform_svf_filter(a_mf3);
+    
+    a_mf3->output0 = v_svf_run_4_pole_notch(a_mf3->svf0, a_in0);
+    a_mf3->output1 = v_svf_run_4_pole_notch(a_mf3->svf1, a_in1);
 }
 
 inline void v_mf3_run_eq(t_mf3_multi* a_mf3, float a_in0, float a_in1)
