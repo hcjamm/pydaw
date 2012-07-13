@@ -33,7 +33,7 @@ extern "C" {
 #include "../../libmodsynth/lib/interpolate-sinc.h"
     
 #define LMS_SINC_INTERPOLATION_POINTS 25
-#define LMS_SINC_INTERPOLATION_POINTS_DIV2 12
+#define LMS_SINC_INTERPOLATION_POINTS_DIV2 13
     
 #define LMS_CHANNEL_COUNT 2
    
@@ -208,7 +208,7 @@ t_mono_modules * g_mono_init()
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
     a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
     a_mono->amp_ptr = g_amp_get();
-    a_mono->sinc_interpolator = g_sinc_get(LMS_SINC_INTERPOLATION_POINTS, 2000, 0.25f, 4.0);
+    a_mono->sinc_interpolator = g_sinc_get(LMS_SINC_INTERPOLATION_POINTS, 2000, 0.25f, 8.0);
     return a_mono;
 }
 
