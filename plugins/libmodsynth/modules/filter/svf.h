@@ -120,6 +120,7 @@ inline float v_svf_run_4_pole_eq(t_state_variable_filter*, float);
 inline float v_svf_run_no_filter(t_state_variable_filter*, float);
 
 inline void v_svf_set_eq(t_state_variable_filter*, float);
+inline void v_svf_set_eq4(t_state_variable_filter*, float);
 
 /* inline float v_svf_run_no_filter(
  * t_state_variable_filter* a_svf, 
@@ -137,7 +138,16 @@ inline void v_svf_set_eq(t_state_variable_filter* a_svf, float a_gain)
     if(a_gain != (a_svf->gain_db))
     {
         a_svf->gain_db = a_gain;
-        a_svf->gain_linear = f_db_to_linear_fast(a_gain, a_svf->amp_ptr) - 1;
+        a_svf->gain_linear = f_db_to_linear_fast(a_gain, a_svf->amp_ptr);
+    }
+}
+
+inline void v_svf_set_eq4(t_state_variable_filter* a_svf, float a_gain)
+{
+    if(a_gain != (a_svf->gain_db))
+    {
+        a_svf->gain_db = a_gain;
+        a_svf->gain_linear = f_db_to_linear_fast((a_gain * .05), a_svf->amp_ptr);
     }
 }
 
@@ -305,16 +315,16 @@ inline float v_svf_run_2_pole_eq(t_state_variable_filter* a_svf, float a_input)
 {
     v_svf_set_input_value(a_svf, (a_svf->filter_kernels[0]), a_input);
     
-    return (((a_svf->filter_kernels[0]->bp) * (a_svf->gain_linear)) + a_input);
+    return (((a_svf->filter_kernels[0]->lp) + (a_svf->filter_kernels[0]->hp)) + ((a_svf->filter_kernels[0]->bp) * (a_svf->gain_linear)));
 }
 
 
 inline float v_svf_run_4_pole_eq(t_state_variable_filter* a_svf, float a_input)
 {
     v_svf_set_input_value(a_svf, (a_svf->filter_kernels[0]), a_input);
-    v_svf_set_input_value(a_svf, (a_svf->filter_kernels[1]), (((a_svf->filter_kernels[0]->bp) * (a_svf->gain_linear) * 0.5f) + a_input));
+    v_svf_set_input_value(a_svf, (a_svf->filter_kernels[1]), (((a_svf->filter_kernels[0]->lp) + (a_svf->filter_kernels[0]->hp)) + ((a_svf->filter_kernels[0]->bp) * (a_svf->gain_linear))));
     
-    return (((a_svf->filter_kernels[1]->bp) * ((a_svf->gain_linear) * 0.5f)) + a_input);
+    return (((a_svf->filter_kernels[1]->lp) + (a_svf->filter_kernels[1]->hp)) + ((a_svf->filter_kernels[1]->bp) * (a_svf->gain_linear)));
 }
 
 inline void v_svf_set_cutoff(t_state_variable_filter*);
