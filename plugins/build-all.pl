@@ -365,7 +365,7 @@ Hit enter to accept the auto-generated default version number:  $version
 
 	if($version_answer ne ""){
 		$version = $version_answer;
-		open (MYFILE, ">>$short_name-version.txt");
+		open (MYFILE, ">$short_name-version.txt");
 		print MYFILE "$version";
 		close (MYFILE);
 	}
