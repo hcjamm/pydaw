@@ -83,7 +83,6 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 @plugins = (
 'ray_v',
 'lms_delay',
-'lms_eq5',
 'euphoria',
 'lms_modulex'
 );
@@ -95,7 +94,6 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 #hosts that support LADSPA effects but not DSSI.
 @ladspa_plugins = (
 'lms_delay',
-'lms_eq5',
 'lms_modulex'
 );
 
