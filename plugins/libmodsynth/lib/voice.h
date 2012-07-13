@@ -101,7 +101,7 @@ int i_pick_voice(t_voc_voices *data, int a_current_note)
     }
     else
     {
-        data->note_ons[a_current_note] == 1;
+        data->note_ons[a_current_note] = 1;
     }
     
     data->iterator = 0;
@@ -172,7 +172,7 @@ void v_voc_note_off(t_voc_voices * a_voc, int a_note)
 {
     /* It may be worthwhile to check that the note isn't already off, however, this is mostly for preventing stuck notes, 
      so I'd rather release an envelope twice than risk not releasing it by dropping an event */
-    a_voc->note_ons[a_note] == 0;
+    a_voc->note_ons[a_note] = 0;
     
     a_voc->iterator = 0;
     
