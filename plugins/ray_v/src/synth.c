@@ -42,7 +42,7 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
 static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d,
-		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count, int a_voice_number);
+		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count);
 
 int pick_voice(const t_poly_voice *data, int);
 
@@ -256,8 +256,6 @@ static void activateLMS(LADSPA_Handle instance)
     LMS *plugin_data = (LMS *) instance;
     unsigned int i;
     
-    plugin_data->voices = g_voc_get_voices(POLYPHONY);
-
     for (i=0; i<POLYPHONY; i++) {
         plugin_data->data[i] = g_poly_init();
         plugin_data->data[i]->note_f = i;        
@@ -291,9 +289,7 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
     LADSPA_Data *const output1 = plugin_data->output1;
     //t_poly_voice *data = plugin_data->data;
     
-    plugin_data->pos = 0;
-    plugin_data->count= 0;
-    plugin_data->event_pos = 0;
+    plugin_data->count= 0;    
     plugin_data->voice = 0;
     
     /*Set the values from synth_vals in RunLMS*/
@@ -345,99 +341,71 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
      event_count is the number of events,
      and sample_count is the block size          
      */
-    while ((plugin_data->pos) < sample_count) 
+    for (plugin_data->pos = 0; (plugin_data->pos) < sample_count; plugin_data->pos = (plugin_data->pos) + STEP_SIZE) 
     {	        
         v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.timbre));
         v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
         
-	while ((plugin_data->event_pos) < event_count)
+	for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count; plugin_data->event_pos = (plugin_data->event_pos) + 1)
         {
-#ifdef LMS_DEBUG_NOTE
-            printf("Event firing\n");
-#endif                      
             /*Note on event*/
 	    if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEON) 
             {
 		snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
 
+                if(n.note >= POLYPHONY)
+                {
+                    continue;
+                }
+                
 		if (n.velocity > 0) 
-                {                    
-                    
-#ifdef LMS_DEBUG_NOTE
-                        printf("note_on note# %i\n", n.note);
-                        
-#endif                    
-                    
-		    const int voice = i_pick_voice(plugin_data->voices, n.note);
-                    
-                    if(voice == -1)
-                    {
-                        //Skip this note-on, there's already been one for this note since the last note-off
-                        continue;
-                    }
-                    
+                {
                     plugin_data->ons[n.note] =
 			plugin_data->sampleNo + events[(plugin_data->event_pos)].time.tick;
 		    plugin_data->offs[n.note] = -1;
                     
-		    plugin_data->data[voice]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + (plugin_data->vals.master_vol)), //-20db to 0db, + master volume (0 to -60)
+		    plugin_data->data[n.note]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + (plugin_data->vals.master_vol)), //-20db to 0db, + master volume (0 to -60)
                             plugin_data->mono_modules->amp_ptr); 
-                    v_svf_velocity_mod(plugin_data->data[voice]->svf_filter, n.velocity);
+                    v_svf_velocity_mod(plugin_data->data[n.note]->svf_filter, n.velocity);
+      
+                    plugin_data->data[n.note]->note_f = (float)n.note;
+                    plugin_data->data[n.note]->note = n.note;
                     
-                    /*LibModSynth additions*/
+                    plugin_data->data[n.note]->target_pitch = (plugin_data->data[n.note]->note_f);
+                    plugin_data->data[n.note]->last_pitch = (plugin_data->sv_last_note);
                     
-#ifdef LMS_DEBUG_MAIN_LOOP
-                    data[voice].debug_counter = 0;                    
-#endif
-                    plugin_data->data[voice]->note_f = (float)n.note;
-                    plugin_data->data[voice]->note = n.note;
-                    //data[voice].hz = f_pit_midi_note_to_hz(data[voice].note_f);
-                    
-                    
-                    plugin_data->data[voice]->target_pitch = (plugin_data->data[voice]->note_f);
-                    plugin_data->data[voice]->last_pitch = (plugin_data->sv_last_note);
-                    
-                    v_rmp_retrigger_glide_t(plugin_data->data[voice]->glide_env , (plugin_data->vals.master_glide), 
-                            (plugin_data->sv_last_note), (plugin_data->data[voice]->target_pitch));
+                    v_rmp_retrigger_glide_t(plugin_data->data[n.note]->glide_env , (plugin_data->vals.master_glide), 
+                            (plugin_data->sv_last_note), (plugin_data->data[n.note]->target_pitch));
                                         
-                    /*These are the values to multiply the oscillators by, DO NOT use the one's in vals*/
-                    plugin_data->data[voice]->osc1_linamp = f_db_to_linear_fast((plugin_data->vals.osc1vol), plugin_data->mono_modules->amp_ptr); 
-                    plugin_data->data[voice]->osc2_linamp = f_db_to_linear_fast((plugin_data->vals.osc2vol), plugin_data->mono_modules->amp_ptr);
-                    plugin_data->data[voice]->noise_linamp = f_db_to_linear_fast((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
+                    plugin_data->data[n.note]->osc1_linamp = f_db_to_linear_fast((plugin_data->vals.osc1vol), plugin_data->mono_modules->amp_ptr); 
+                    plugin_data->data[n.note]->osc2_linamp = f_db_to_linear_fast((plugin_data->vals.osc2vol), plugin_data->mono_modules->amp_ptr);
+                    plugin_data->data[n.note]->noise_linamp = f_db_to_linear_fast((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
+                    
+                    v_adsr_retrigger(plugin_data->data[n.note]->adsr_amp);
+                    v_adsr_retrigger(plugin_data->data[n.note]->adsr_filter);
+                    v_lfs_sync(plugin_data->data[n.note]->lfo1, 0.0f, (plugin_data->vals.lfo_type));
+                    
+                    v_adsr_set_adsr_db(plugin_data->data[n.note]->adsr_amp, (plugin_data->vals.attack), (plugin_data->vals.decay), (plugin_data->vals.sustain), (plugin_data->vals.release));
+                    v_adsr_set_adsr(plugin_data->data[n.note]->adsr_filter, (plugin_data->vals.attack_f), (plugin_data->vals.decay_f), (plugin_data->vals.sustain_f), (plugin_data->vals.release_f));
                                         
-                    /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
-                     placing things here that don't need to be modulated as a note is playing*/
+                    v_rmp_retrigger((plugin_data->data[n.note]->pitch_env), (plugin_data->vals.pitch_env_time), (plugin_data->vals.pitch_env_amt));  
                     
-                    /*Retrigger ADSR envelopes and LFO*/
-                    v_adsr_retrigger(plugin_data->data[voice]->adsr_amp);
-                    v_adsr_retrigger(plugin_data->data[voice]->adsr_filter);
-                    v_lfs_sync(plugin_data->data[voice]->lfo1, 0.0f, (plugin_data->vals.lfo_type));
-                    
-                    v_adsr_set_adsr_db(plugin_data->data[voice]->adsr_amp, (plugin_data->vals.attack), (plugin_data->vals.decay), (plugin_data->vals.sustain), (plugin_data->vals.release));
-                    v_adsr_set_adsr(plugin_data->data[voice]->adsr_filter, (plugin_data->vals.attack_f), (plugin_data->vals.decay_f), (plugin_data->vals.sustain_f), (plugin_data->vals.release_f));
-                    
-                    /*Retrigger the pitch envelope*/
-                    v_rmp_retrigger((plugin_data->data[voice]->pitch_env), (plugin_data->vals.pitch_env_time), (plugin_data->vals.pitch_env_amt));  
-                    
-                    v_clp_set_in_gain(plugin_data->data[voice]->clipper1, plugin_data->vals.dist);
+                    v_clp_set_in_gain(plugin_data->data[n.note]->clipper1, plugin_data->vals.dist);
     
-                    v_svf_set_res(plugin_data->data[voice]->svf_filter, plugin_data->vals.res);  
+                    v_svf_set_res(plugin_data->data[n.note]->svf_filter, plugin_data->vals.res);  
                     
-                    plugin_data->data[voice]->noise_amp = f_db_to_linear((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
+                    plugin_data->data[n.note]->noise_amp = f_db_to_linear((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
                     
-                    v_axf_set_xfade(plugin_data->data[voice]->dist_dry_wet, plugin_data->vals.dist_wet);       
+                    v_axf_set_xfade(plugin_data->data[n.note]->dist_dry_wet, plugin_data->vals.dist_wet);       
                     
-                    /*Set the oscillator type(saw, square, etc...)*/
-                    v_osc_set_simple_osc_unison_type(plugin_data->data[voice]->osc_unison1, (int)(plugin_data->vals.osc1type));
-                    v_osc_set_simple_osc_unison_type(plugin_data->data[voice]->osc_unison2, (int)(plugin_data->vals.osc2type));   
+                    v_osc_set_simple_osc_unison_type(plugin_data->data[n.note]->osc_unison1, (int)(plugin_data->vals.osc1type));
+                    v_osc_set_simple_osc_unison_type(plugin_data->data[n.note]->osc_unison2, (int)(plugin_data->vals.osc2type));   
                     
-                    /*Set the number of unison voices*/
-                    v_osc_set_uni_voice_count(plugin_data->data[voice]->osc_unison1, plugin_data->vals.master_uni_voice);
-                    v_osc_set_uni_voice_count(plugin_data->data[voice]->osc_unison2, plugin_data->vals.master_uni_voice);
-                    
+                    v_osc_set_uni_voice_count(plugin_data->data[n.note]->osc_unison1, plugin_data->vals.master_uni_voice);
+                    v_osc_set_uni_voice_count(plugin_data->data[n.note]->osc_unison2, plugin_data->vals.master_uni_voice);                    
                                         
                     /*Set the last_note property, so the next note can glide from it if glide is turned on*/
-                    plugin_data->sv_last_note = (plugin_data->data[voice]->note_f);
+                    plugin_data->sv_last_note = (plugin_data->data[n.note]->note_f);
 		} 
                 /*0 velocity, the same as note-off*/
                 else 
@@ -445,8 +413,7 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
                     snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
                     
                     plugin_data->offs[n.note] = 
-                        plugin_data->sampleNo + events[(plugin_data->event_pos)].time.tick;
-		    //v_voc_note_off(plugin_data->voices, n.note);
+                        (plugin_data->sampleNo) + (events[(plugin_data->event_pos)].time.tick);		    
 		}
 	    } 
             /*Note-off event*/
@@ -455,37 +422,22 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
 		snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
                 
                 plugin_data->offs[n.note] = 
-                        plugin_data->sampleNo + events[(plugin_data->event_pos)].time.tick;
+                        (plugin_data->sampleNo) + (events[(plugin_data->event_pos)].time.tick);
                 //v_voc_note_off(plugin_data->voices, n.note);
 	    } 
             /*Pitch-bend sequencer event, modify the voices pitch*/
             else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_PITCHBEND) 
             {
-		plugin_data->sv_pitch_bend_value = 0.00012207
-                        * events[(plugin_data->event_pos)].data.control.value * (plugin_data->vals.master_pb_amt);
+		plugin_data->sv_pitch_bend_value = 0.00012207f
+                        * (events[(plugin_data->event_pos)].data.control.value) * (plugin_data->vals.master_pb_amt);
 	    }
             else
             {
-                printf("Received ALSA event %i", events[(plugin_data->event_pos)].type);
-            }
-	    plugin_data->event_pos = (plugin_data->event_pos) + 1;
+                printf("Received ALSA event %i\n", events[(plugin_data->event_pos)].type);
+            }	    
 	}
-        
-        /*
-        plugin_data->i_iterator = 0;
-        
-        while(plugin_data->i_iterator < (plugin_data->voices->count))
-        {
-            if((plugin_data->voices->voices[(plugin_data->i_iterator)].n_state) == note_state_releasing)
-            {
-                v_poly_note_off(plugin_data->data[(plugin_data->i_iterator)]);
-            }
-            
-            plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
-        }
-        */
-        
-	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);
+                
+	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE : sample_count - (plugin_data->pos);
 	
         /*Clear the output buffer*/
         plugin_data->i_iterator = 0;
@@ -501,21 +453,20 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
 	while ((plugin_data->voice) < POLYPHONY) 
         {
 	    //if (data[voice].state != inactive) 
-            if((plugin_data->voices->voices[(plugin_data->voice)].n_state) != note_state_off)
+            if((plugin_data->data[(plugin_data->voice)]->adsr_amp->stage) != 4)
             {
-		run_voice(plugin_data, //The LMS class containing global synth data
-                        &(plugin_data->vals), //monophonic values for the the synth's controls
-                        plugin_data->data[(plugin_data->voice)], //The amp, envelope, state, etc... of the voice
-                        output0 + (plugin_data->pos), //output is the block array, I think + pos advances the index???
-                        output1 + (plugin_data->pos), //output is the block array, I think + pos advances the index???
-			  (plugin_data->count), //has to do with iterating through stepsize, but I'm not sure how
-                        (plugin_data->voice));  //The voice number                        
+		run_voice(plugin_data,
+                        &(plugin_data->vals),
+                        plugin_data->data[(plugin_data->voice)],
+                        output0 + (plugin_data->pos),
+                        output1 + (plugin_data->pos),
+			  (plugin_data->count)
+                        );
 	    }
             
             plugin_data->voice = (plugin_data->voice) + 1; 
 	}
         
-        plugin_data->pos = (plugin_data->pos) + STEP_SIZE;
     /*TODO:  create a loop here that corresponds to mono effects not processed per-voice*/
         
     }
@@ -523,146 +474,69 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->sampleNo += sample_count;
 }
 
-static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count, int a_voice_number)
+static void run_voice(LMS *plugin_data, synth_vals *vals, t_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
 {   
-    d->i_voice = 0;
-    
     /*Process an audio block*/
-    while((d->i_voice)<count) {
-        
+    for(a_voice->i_voice = 0; (a_voice->i_voice)<count;a_voice->i_voice = (a_voice->i_voice) + 1) 
+    {        
         //Delay the note-on event until the sample it was called for
-        if(((p->sampleNo) + (d->i_voice)) < (p->ons[d->note]))
+        if(((plugin_data->sampleNo) + (a_voice->i_voice) + (plugin_data->pos)) < (plugin_data->ons[a_voice->note]))
         {
-            d->i_voice = (d->i_voice) + 1;
             continue;
         }
         
-        if (((p->offs[(d->note)]) >= 0) && (((d->i_voice) + (p->sampleNo)) > p->offs[(d->note)]))
-        {            
-            v_poly_note_off(d);
-	}        
-	
-        /*Here is where we periodically dump debug information if debugging is enabled*/
-#ifdef LMS_DEBUG_MAIN_LOOP
-        d->debug_counter = (d->debug_counter) + 1;
-        
-        int is_debug_printing = 0;
-        
-        if((d->debug_counter) >= debug_interval)
+        if (((plugin_data->offs[(a_voice->note)]) >= 0) && (((a_voice->i_voice) + (plugin_data->sampleNo) + (plugin_data->pos)) >= plugin_data->offs[(a_voice->note)]))
         {
-            d->debug_counter = 0;            
-            dump_debug_synth_vals(vals);            
-            is_debug_printing = 1;
-        }
-#endif
-                
-        /*Call everything defined in libmodsynth.h in the order it should be called in*/
-        d->current_sample = 0;
-        
-        /*Run the glide module*/        
-        
-        f_rmp_run_ramp(d->pitch_env);
-        f_rmp_run_ramp(d->glide_env);
-        
-        /*Set and run the LFO*/
-        v_lfs_set(d->lfo1, vals->lfo_freq);
-        v_lfs_run(d->lfo1);
-        d->lfo_amp_output = f_db_to_linear_fast((((vals->lfo_amp) * (d->lfo1->output)) - (f_lms_abs((vals->lfo_amp)) * 0.5)), d->amp_ptr);
-        d->lfo_filter_output = (vals->lfo_filter) * (d->lfo1->output);
-        d->lfo_pitch_output = (vals->lfo_pitch) * (d->lfo1->output);
+            v_poly_note_off(a_voice);            
+	}        
 
-#ifdef LMS_DEBUG_MAIN_LOOP
-        if(is_debug_printing == 1)
-                printf("d->pitch_env->output_multiplied == %f\n", (d->pitch_env->output_multiplied));
-#endif        
-        d->base_pitch = (d->glide_env->output_multiplied) + (d->pitch_env->output_multiplied) 
-                + (p->mono_modules->pitchbend_smoother->output) + (d->last_pitch);
+        a_voice->current_sample = 0;
+        
+        f_rmp_run_ramp(a_voice->pitch_env);
+        f_rmp_run_ramp(a_voice->glide_env);
+
+        v_lfs_set(a_voice->lfo1, vals->lfo_freq);
+        v_lfs_run(a_voice->lfo1);
+        a_voice->lfo_amp_output = f_db_to_linear_fast((((vals->lfo_amp) * (a_voice->lfo1->output)) - (f_lms_abs((vals->lfo_amp)) * 0.5)), a_voice->amp_ptr);
+        a_voice->lfo_filter_output = (vals->lfo_filter) * (a_voice->lfo1->output);
+        a_voice->lfo_pitch_output = (vals->lfo_pitch) * (a_voice->lfo1->output);
+
+        a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + (a_voice->pitch_env->output_multiplied) 
+                + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch);
        
-        v_osc_set_unison_pitch(d->osc_unison1, vals->master_uni_spread,   
-                ((d->base_pitch) + (vals->osc1pitch) + (vals->osc1tune) + (d->lfo_pitch_output)));
+        v_osc_set_unison_pitch(a_voice->osc_unison1, vals->master_uni_spread,   
+                ((a_voice->base_pitch) + (vals->osc1pitch) + (vals->osc1tune) + (a_voice->lfo_pitch_output)));
+        
+        v_osc_set_unison_pitch(a_voice->osc_unison2, vals->master_uni_spread, 
+                ((a_voice->base_pitch) + (vals->osc2pitch) + (vals->osc2tune) + (a_voice->lfo_pitch_output)));
 
+        a_voice->current_sample += f_osc_run_unison_osc(a_voice->osc_unison1) * (a_voice->osc1_linamp);
         
-        v_osc_set_unison_pitch(d->osc_unison2, vals->master_uni_spread, 
-                ((d->base_pitch) + (vals->osc2pitch) + (vals->osc2tune) + (d->lfo_pitch_output)));
+        a_voice->current_sample += f_osc_run_unison_osc(a_voice->osc_unison2) * (a_voice->osc2_linamp);
+        
+        a_voice->current_sample += (f_run_white_noise(a_voice->white_noise1) * (a_voice->noise_linamp)); //white noise
+        
+        v_adsr_run(a_voice->adsr_amp);        
+        
+        v_adsr_run(a_voice->adsr_filter);
+        
+        v_svf_set_cutoff_base(a_voice->svf_filter,  (plugin_data->mono_modules->filter_smoother->output));//vals->timbre);
 
-#ifdef LMS_DEBUG_MAIN_LOOP
-        if((is_debug_printing == 1) || ((d->current_sample) > 1000)  || ((d->current_sample) < -1000))
-                printf("Before oscillators, d->current_sample == %f\n", (d->current_sample));
-#endif        
-        
-        /*Run any oscillators, etc...*/
-        d->current_sample += f_osc_run_unison_osc(d->osc_unison1) * (d->osc1_linamp);
-#ifdef LMS_DEBUG_MAIN_LOOP
-        if((is_debug_printing == 1) || ((d->current_sample) > 1000)  || ((d->current_sample) < -1000))
-                printf("After osc1, d->current_sample == %f\n", (d->current_sample));
-#endif        
-        
-        d->current_sample += f_osc_run_unison_osc(d->osc_unison2) * (d->osc2_linamp);
-#ifdef LMS_DEBUG_MAIN_LOOP
-        if((is_debug_printing == 1) || ((d->current_sample) > 1000)  || ((d->current_sample) < -1000))
-                printf("After osc2, d->current_sample == %f\n", (d->current_sample));
-#endif        
-        
-        d->current_sample += (f_run_white_noise(d->white_noise1) * (d->noise_linamp)); //white noise
+        v_svf_add_cutoff_mod(a_voice->svf_filter, 
+                (((a_voice->adsr_filter->output) * (vals->filter_env_amt)) + (a_voice->lfo_filter_output)));        
 
-#ifdef LMS_DEBUG_MAIN_LOOP
-        if((is_debug_printing == 1) || ((d->current_sample) > 1000)  || ((d->current_sample) < -1000))
-                printf("After white noise, d->current_sample == %f\n", (d->current_sample));
-#endif                
-        /*Run any processing of the initial result(s)*/      
+        v_svf_set_cutoff(a_voice->svf_filter);
         
-        v_adsr_run(d->adsr_amp);        
-        
-#ifdef LMS_DEBUG_MAIN_LOOP
-        if(is_debug_printing == 1)
-                printf("d->adsr_amp->output == %f\n", (d->adsr_amp->output));
-#endif        
-        
-        v_adsr_run(d->adsr_filter);
+        a_voice->filter_output = a_voice->svf_function(a_voice->svf_filter, (a_voice->current_sample));
 
-#ifdef LMS_DEBUG_MAIN_LOOP
-        if(is_debug_printing == 1)
-                printf("d->adsr_filter->output == %f\n", (d->adsr_filter->output));
-#endif        
+        a_voice->current_sample = f_axf_run_xfade((a_voice->dist_dry_wet), (a_voice->filter_output), 
+                f_clp_clip(a_voice->clipper1, (a_voice->filter_output)));
         
-        v_svf_set_cutoff_base(d->svf_filter,  (p->mono_modules->filter_smoother->output));//vals->timbre);
-        //Run v_svf_add_cutoff_mod once for every input source
-        v_svf_add_cutoff_mod(d->svf_filter, 
-                (((d->adsr_filter->output) * (vals->filter_env_amt)) + (d->lfo_filter_output)));        
-        //calculate the cutoff
-        v_svf_set_cutoff(d->svf_filter);
-        
-        d->filter_output = d->svf_function(d->svf_filter, (d->current_sample));
-        
-#ifdef LMS_DEBUG_MAIN_LOOP
-        if(is_debug_printing == 1)
-                printf("output after svf == %f\n", (d->current_sample));
-#endif  
-        
-        /*Crossfade between the filter, and the filter run through the distortion unit*/
-        d->current_sample = f_axf_run_xfade((d->dist_dry_wet), (d->filter_output), 
-                f_clp_clip(d->clipper1, (d->filter_output)));
-
-#ifdef LMS_DEBUG_MAIN_LOOP
-        if(is_debug_printing == 1)
-                printf("output after clipper == %f\n", (d->current_sample));
-#endif  
-        
-        d->current_sample = (d->current_sample) * (d->adsr_amp->output) * (d->amp) * (d->lfo_amp_output);
+        a_voice->current_sample = (a_voice->current_sample) * (a_voice->adsr_amp->output) * (a_voice->amp) * (a_voice->lfo_amp_output);
         
         /*Run the envelope and assign to the output buffers*/
-        out0[(d->i_voice)] += (d->current_sample);
-        out1[(d->i_voice)] += (d->current_sample);
-                
-        d->i_voice = (d->i_voice) + 1;
-
-        /*If the main ADSR envelope has reached the end it's release stage, kill the voice.
-        However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't*/
-        if(d->adsr_amp->stage == 4)
-        {
-            p->voices->voices[a_voice_number].n_state = note_state_off;
-            p->ons[(d->i_voice)] = -1;
-        }        
+        out0[(a_voice->i_voice)] += (a_voice->current_sample);
+        out1[(a_voice->i_voice)] += (a_voice->current_sample);                
     }
 }
 
