@@ -119,8 +119,8 @@ typedef struct {
     float fs;    //From Ray-V
     long         ons[Sampler_NOTES];
     long         offs[Sampler_NOTES];
-    int         velocities[Sampler_NOTES];
-    float       sample_position[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];
+    int         velocities[Sampler_NOTES];    
+    t_int_frac_read_head * sample_read_heads[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];
     long         sampleNo;
     char        *projectDir;
     char*       sample_paths[LMS_MAX_SAMPLE_COUNT];    

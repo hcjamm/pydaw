@@ -306,8 +306,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         
         f_i2 = 0;
         while(f_i2 < LMS_MAX_SAMPLE_COUNT)
-        {
-            plugin_data->sample_position[f_i][f_i2] = 0.0f;
+        {            
+            plugin_data->sample_read_heads[f_i][f_i2] = g_ifh_get();
             plugin_data->sample_indexes[f_i][f_i2] = 0;
             f_i2++;
         }
@@ -459,10 +459,10 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                         ),
                         plugin_data->smp_pit_core, plugin_data->smp_pit_ratio);
 
-                plugin_data->sample_position[n][(plugin_data->current_sample)] = (plugin_data->sample_position[n][(plugin_data->current_sample)]) + ratio;
+                v_ifh_run(plugin_data->sample_read_heads[n][(plugin_data->current_sample)], ratio);
 
                 
-                if ((plugin_data->sample_position[n][(plugin_data->current_sample)]) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)]){
+                if ((plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)]){
                     plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
                     //plugin_data->ons[n] = -1;
                     continue;
@@ -474,9 +474,10 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
                 (f_adjusted_sample_position),
                 plugin_data->lin_interpolator) * (plugin_data->sample_amp[(plugin_data->current_sample)]);*/
                 
-                sample += f_sinc_interpolate(plugin_data->mono_modules->sinc_interpolator, 
+                sample += f_sinc_interpolate2(plugin_data->mono_modules->sinc_interpolator, 
                         plugin_data->sampleData[ch][(plugin_data->current_sample)],
-                        (plugin_data->sample_position[n][(plugin_data->current_sample)]))  
+                        (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
+                        (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction))  
                         * (plugin_data->sample_amp[(plugin_data->current_sample)]);
 
                 plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
@@ -609,14 +610,16 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
                             plugin_data->sample_indexes[f_note_adjusted][(plugin_data->sample_indexes_count[f_note_adjusted])] = (plugin_data->loaded_samples[i]);
                             plugin_data->sample_indexes_count[f_note_adjusted] = (plugin_data->sample_indexes_count[f_note_adjusted]) + 1;                            
                             
-                            plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001);
-                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001));
+                            plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001));
+                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001)));
                             
                             plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = *(plugin_data->basePitch[(plugin_data->loaded_samples[i])]) + (*(plugin_data->global_midi_octaves_offset) * -12);
                             
-                            plugin_data->sample_position[f_note_adjusted][(plugin_data->loaded_samples[i])] = LMS_SINC_INTERPOLATION_POINTS_DIV2 +  + (plugin_data->sampleStartPos[(plugin_data->current_sample)]);// 0.0f;
+                            v_ifh_retrigger(plugin_data->sample_read_heads[f_note_adjusted][(plugin_data->loaded_samples[i])], 
+                                    (LMS_SINC_INTERPOLATION_POINTS_DIV2 +  + (plugin_data->sampleStartPos[(plugin_data->current_sample)])));// 0.0f;
                         }
                     }
+                        
                     plugin_data->active_polyfx_count[f_note_adjusted] = 0;
                     //Determine which PolyFX have been enabled
                     for(plugin_data->i_dst = 0; (plugin_data->i_dst) < LMS_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
