@@ -33,6 +33,9 @@ typedef struct st_sinc_interpolator
 }t_sinc_interpolator;
 
 float f_sinc_interpolate(t_sinc_interpolator*,float*,float);
+
+float f_sinc_interpolate2(t_sinc_interpolator*,float*,int,float);
+
 //float f_sinc_interpolate(t_sinc_interpolator*,float,int);
 
 /* float f_sinc_interpolate(
@@ -42,10 +45,18 @@ float f_sinc_interpolate(t_sinc_interpolator*,float*,float);
  * 
  * This function assumes you added adequate 0.0f's to the beginning and end of the array, it does not check array boundaries
  */
-float f_sinc_interpolate(t_sinc_interpolator* a_sinc, float * a_array, float a_pos)
+float f_sinc_interpolate(t_sinc_interpolator * a_sinc, float * a_array, float a_pos)
 {
     a_sinc->pos_int = (int)a_pos;
     a_sinc->pos_frac = a_pos - ((float)(a_sinc->pos_int));
+    
+    return f_sinc_interpolate2(a_sinc,a_array,(a_sinc->pos_int), (a_sinc->pos_frac));
+}
+
+float f_sinc_interpolate2(t_sinc_interpolator * a_sinc, float * a_array, int a_int_pos, float a_float_pos)
+{
+    a_sinc->pos_int = a_int_pos;
+    a_sinc->pos_frac = a_float_pos;
     a_sinc->float_iterator_up = (a_sinc->pos_frac) * (a_sinc->samples_per_point);
     
     a_sinc->float_iterator_down = (a_sinc->samples_per_point) - (a_sinc->float_iterator_up);    
@@ -139,8 +150,55 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
 
 }
 
+typedef struct st_int_frac_read_head
+{
+    float last_increment;
+    float float_increment;
+    int int_increment;
+    float fraction;
+    int whole_number;
+}t_int_frac_read_head;
 
+t_int_frac_read_head * g_ifh_get();
+void v_ifh_run(t_int_frac_read_head*, float);
+void v_ifh_retrigger(t_int_frac_read_head*, int);
 
+void v_ifh_run(t_int_frac_read_head* a_ifh, float a_ratio)
+{
+    if((a_ratio) != (a_ifh->last_increment))
+    {
+        a_ifh->int_increment = (int)a_ratio;
+        a_ifh->float_increment = a_ratio - ((float)(a_ifh->int_increment));
+    }
+    
+    a_ifh->whole_number = (a_ifh->whole_number) + (a_ifh->int_increment);
+    a_ifh->fraction = (a_ifh->fraction) + (a_ifh->float_increment);
+    
+    if((a_ifh->fraction) > 1.0f)
+    {
+        a_ifh->fraction = (a_ifh->fraction) - 1.0f;
+        a_ifh->whole_number = (a_ifh->whole_number) + 1;
+    }
+}
+
+void v_ifh_retrigger(t_int_frac_read_head* a_ifh, int a_pos)
+{
+    a_ifh->whole_number = a_pos;
+    a_ifh->fraction = 0.0f;
+}
+
+t_int_frac_read_head * g_ifh_get()
+{
+    t_int_frac_read_head * f_result = (t_int_frac_read_head*)malloc(sizeof(t_int_frac_read_head));
+    
+    f_result->float_increment = 0.0f;
+    f_result->fraction = 0.0f;
+    f_result->whole_number = 0;
+    f_result->int_increment = 1;
+    f_result->float_increment = 0.0f;
+    
+    return f_result;
+}
 
 #ifdef	__cplusplus
 }
