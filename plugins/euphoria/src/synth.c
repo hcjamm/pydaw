@@ -317,6 +317,9 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     
     plugin_data->sampleRate = s_rate;
     plugin_data->projectDir = 0;
+    
+    plugin_data->sv_pitch_bend_value = 0.0f;
+    plugin_data->sv_last_note = 36.0f;
 
     plugin_data->channels = 2;
     plugin_data->amp_ptr = g_amp_get();
