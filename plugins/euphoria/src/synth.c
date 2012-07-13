@@ -38,7 +38,7 @@ static LADSPA_Descriptor *samplerStereoLDescriptor = NULL;
 
 static DSSI_Descriptor *samplerStereoDDescriptor = NULL;
 
-static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
+static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 		       snd_seq_event_t *events, unsigned long EventCount);
 
 __attribute__ ((visibility("default")))
@@ -401,7 +401,7 @@ static void activateSampler(LADSPA_Handle instance)
  * unsigned long pos, //the position in the output buffer
  * unsigned long count) //how many samples to fill in the output buffer
  */
-static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned long count)
+static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long pos, unsigned long count)
 {
     float ratio = 1.0f;
     
@@ -540,7 +540,7 @@ static void addSample(Sampler *plugin_data, int n, unsigned long pos, unsigned l
     }
 }
 
-static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
+static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 		       snd_seq_event_t *events, unsigned long event_count)
 {
     Sampler *plugin_data = (Sampler *) instance;
@@ -753,7 +753,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 	for (i = 0; i < Sampler_NOTES; ++i) {
 	    if(((plugin_data->data[i]->adsr_amp->stage) < 4) && ((plugin_data->sample_indexes_count[i]) > 0))
             {    
-                addSample(plugin_data, i, pos, count);                                
+                add_sample_lms_euphoria(plugin_data, i, pos, count);                                
 	    }
 	}
 
@@ -767,7 +767,7 @@ static void runSampler(LADSPA_Handle instance, unsigned long sample_count,
 static void runSamplerWrapper(LADSPA_Handle instance,
 			 unsigned long sample_count)
 {
-    runSampler(instance, sample_count, NULL, 0);
+    run_lms_euphoria(instance, sample_count, NULL, 0);
 }
 
 int getControllerSampler(LADSPA_Handle instance, unsigned long port)
@@ -1778,7 +1778,7 @@ void _init()
     samplerStereoDDescriptor->get_program = NULL;
     samplerStereoDDescriptor->get_midi_controller_for_port = getControllerSampler;
     samplerStereoDDescriptor->select_program = NULL;
-    samplerStereoDDescriptor->run_synth = runSampler;
+    samplerStereoDDescriptor->run_synth = run_lms_euphoria;
     samplerStereoDDescriptor->run_synth_adding = NULL;
     samplerStereoDDescriptor->run_multiple_synths = NULL;
     samplerStereoDDescriptor->run_multiple_synths_adding = NULL;
