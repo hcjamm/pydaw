@@ -20,7 +20,7 @@ public:
     LMS_multieffect(QWidget * a_parent, QString a_title, LMS_style_info * a_style, int a_knob1_port, int a_knob2_port, int a_knob3_port, int a_combobox_port)
     {
         QStringList f_types = QStringList() << QString("Off") << QString("LP2") << QString("LP4") << QString("HP2") << QString("HP4") << QString("BP2") << QString("BP4")
-                 << QString("Notch2") << QString("Notch4") << QString("EQ") << QString("Distortion") << QString("Comb Filter");
+                 << QString("Notch2") << QString("Notch4") << QString("EQ") << QString("Distortion") << QString("Comb Filter") << QString("Amp/Panner");
         
         lms_groupbox = new LMS_group_box(a_parent, a_title, a_style);
         
@@ -160,6 +160,17 @@ public:
             case 11: //Comb Filter
                 lms_knob1->lms_label->setText(QString("Cutoff"));
                 lms_knob2->lms_label->setText(QString("Amt"));
+                lms_knob3->lms_label->setText(QString("unused"));
+                lms_knob1->lms_conv_type = lms_kc_none;
+                lms_knob2->lms_conv_type = lms_kc_none;                
+                lms_knob3->lms_conv_type = lms_kc_none;
+                lms_knob1->lms_value->setText(QString(""));
+                lms_knob2->lms_value->setText(QString(""));
+                lms_knob3->lms_value->setText(QString(""));
+                break;
+            case 12: //Amp/Panner
+                lms_knob1->lms_label->setText(QString("Pan"));
+                lms_knob2->lms_label->setText(QString("Amp"));
                 lms_knob3->lms_label->setText(QString("unused"));
                 lms_knob1->lms_conv_type = lms_kc_none;
                 lms_knob2->lms_conv_type = lms_kc_none;                

@@ -15,7 +15,7 @@ extern "C" {
 #endif
     
 /*The highest index for selecting the effect type*/
-#define MULTIFX3KNOB_MAX_INDEX 9
+#define MULTIFX3KNOB_MAX_INDEX 12
 #define MULTIFX3KNOB_KNOB_COUNT 3
 
 #include "../filter/svf.h"
@@ -23,6 +23,7 @@ extern "C" {
 #include "../distortion/clipper.h"
 #include "../signal_routing/audio_xfade.h"
 #include "../../lib/amp.h"
+#include "../signal_routing/amp_and_panner.h"
     
 /*BIG TODO:  Add a function to modify for the modulation sources*/
     
@@ -40,6 +41,7 @@ typedef struct st_mf3_multi
     float control_value[MULTIFX3KNOB_KNOB_COUNT];
     float mod_value[MULTIFX3KNOB_KNOB_COUNT];
     t_audio_xfade * xfader;
+    t_amp_and_panner * amp_and_panner;
     float outgain;  //For anything with an outgain knob    
     t_amp * amp_ptr;
 }t_mf3_multi;
@@ -63,6 +65,7 @@ inline void v_mf3_run_notch4(t_mf3_multi*,float,float);
 inline void v_mf3_run_eq(t_mf3_multi*,float,float);
 inline void v_mf3_run_dist(t_mf3_multi*,float,float);
 inline void v_mf3_run_comb(t_mf3_multi*,float,float);
+inline void v_mf3_run_amp_panner(t_mf3_multi*,float,float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -113,6 +116,8 @@ inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
                 return v_mf3_run_dist;
             case 11:
                 return v_mf3_run_comb;
+            case 12:
+                return v_mf3_run_amp_panner;
             default:
                 /*TODO: Report error*/
                 return v_mf3_run_off;
@@ -312,6 +317,20 @@ inline void v_mf3_run_comb(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = (a_mf3->comb_filter1->output_sample);
 }
 
+inline void v_mf3_run_amp_panner(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+{
+    v_mf3_commit_mod(a_mf3);
+    
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.007874016);    
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.283464567) - 30;
+    
+    v_app_set(a_mf3->amp_and_panner, (a_mf3->control_value[1]), (a_mf3->control_value[0]));
+    v_app_run(a_mf3->amp_and_panner, a_in0, a_in1);
+    
+    a_mf3->output0 = (a_mf3->amp_and_panner->output0);
+    a_mf3->output1 = (a_mf3->amp_and_panner->output1);
+}
+
 inline void f_mfx_transform_svf_filter(t_mf3_multi* a_mf3)
 {
     v_mf3_commit_mod(a_mf3);    
@@ -358,6 +377,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->xfader = g_axf_get_audio_xfade(-3.0f);
     f_result->outgain = 1.0f;
     f_result->amp_ptr = g_amp_get();
+    f_result->amp_and_panner = g_app_get();
     
     return f_result;
 }
