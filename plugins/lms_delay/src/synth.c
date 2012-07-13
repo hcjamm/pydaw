@@ -38,7 +38,7 @@ GNU General Public License for more details.
 static LADSPA_Descriptor *LMSLDescriptor = NULL;
 static DSSI_Descriptor *LMSDDescriptor = NULL;
 
-static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
+static void run_lms_delay(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
 
@@ -151,11 +151,11 @@ static void activateLMS(LADSPA_Handle instance)
 static void runLMSWrapper(LADSPA_Handle instance,
 			 unsigned long sample_count)
 {
-    runLMS(instance, sample_count, NULL, 0);
+    run_lms_delay(instance, sample_count, NULL, 0);
 }
 
 /*This is where parameters are update and the main loop is run.*/
-static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
+static void run_lms_delay(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
     LMS *plugin_data = (LMS *) instance;

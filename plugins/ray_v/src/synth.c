@@ -38,7 +38,7 @@ GNU General Public License for more details.
 static LADSPA_Descriptor *LMSLDescriptor = NULL;
 static DSSI_Descriptor *LMSDDescriptor = NULL;
 
-static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
+static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
 static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d,
@@ -279,10 +279,10 @@ static void activateLMS(LADSPA_Handle instance)
 static void runLMSWrapper(LADSPA_Handle instance,
 			 unsigned long sample_count)
 {
-    runLMS(instance, sample_count, NULL, 0);
+    run_lms_ray_v(instance, sample_count, NULL, 0);
 }
 
-static void runLMS(LADSPA_Handle instance, unsigned long sample_count,
+static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
     LMS *plugin_data = (LMS *) instance;
@@ -1081,7 +1081,7 @@ void _init()
 	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
 	LMSDDescriptor->get_midi_controller_for_port = getControllerLMS;
 	LMSDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
-	LMSDDescriptor->run_synth = runLMS;
+	LMSDDescriptor->run_synth = run_lms_ray_v;
 	LMSDDescriptor->run_synth_adding = NULL;
 	LMSDDescriptor->run_multiple_synths = NULL;
 	LMSDDescriptor->run_multiple_synths_adding = NULL;
