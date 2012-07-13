@@ -76,8 +76,8 @@ printf("debug information");
 #define LMS_LAST_CONTROL_PORT 35
 #define LMS_COUNT 37 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
-
-#define POLYPHONY   8  //maximum voices played at one time
+//maximum voices played at one time
+#define POLYPHONY   90  
 #define STEP_SIZE   16
     
     
@@ -231,7 +231,6 @@ typedef struct {
     t_ccm_midi_cc_map * midi_cc_map;
     
     t_poly_voice * data[POLYPHONY];
-    t_voc_voices * voices;
     
     long         ons[VOICES_MAX_MIDI_NOTE_NUMBER];
     long         offs[VOICES_MAX_MIDI_NOTE_NUMBER];
