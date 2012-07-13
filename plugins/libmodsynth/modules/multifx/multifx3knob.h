@@ -246,11 +246,11 @@ inline void v_mf3_run_eq(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 {   
     f_mfx_transform_svf_filter(a_mf3);
     a_mf3->control_value[2] = (a_mf3->control[2]) * 0.377952756 - 24;
-    v_svf_set_eq(a_mf3->svf0, (a_mf3->control_value[2]));
-    v_svf_set_eq(a_mf3->svf1, (a_mf3->control_value[2]));
+    v_svf_set_eq4(a_mf3->svf0, (a_mf3->control_value[2]));
+    v_svf_set_eq4(a_mf3->svf1, (a_mf3->control_value[2]));
     
-    a_mf3->output0 = v_svf_run_2_pole_eq(a_mf3->svf0, a_in0);
-    a_mf3->output1 = v_svf_run_2_pole_eq(a_mf3->svf1, a_in1);
+    a_mf3->output0 = v_svf_run_4_pole_eq(a_mf3->svf0, a_in0);
+    a_mf3->output1 = v_svf_run_4_pole_eq(a_mf3->svf1, a_in1);
 }
 
 inline void v_mf3_run_dist(t_mf3_multi* a_mf3, float a_in0, float a_in1)
