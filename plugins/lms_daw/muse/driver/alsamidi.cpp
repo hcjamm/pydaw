@@ -627,7 +627,7 @@ void MidiAlsaDevice::processMidi()
   */
   
   //if(!(stop || (seek && is_playing)))
-  {
+  //{
     // Transfer the play events FIFO to the play events list.
     //while(!playEventFifo.isEmpty())
     //  _playEvents.add(playEventFifo.get());
@@ -650,7 +650,7 @@ void MidiAlsaDevice::processMidi()
     }
     */
     processStuckNotes();  
-  }
+  //}
   
   if(_playEvents.empty())
     return;
@@ -1225,9 +1225,9 @@ void alsaProcessMidiInput()
       for (;;) 
       {
             int rv = snd_seq_event_input(alsaSeq, &ev);
-// printf("AlsaInput %d\n", rv);
+            fprintf(stderr, "AlsaInput %d\n", rv);
             if (rv < 0) {
-//                  printf("AlsaMidi: read error %s\n", snd_strerror(rv));
+                  fprintf(stderr,"AlsaMidi: read error %s\n", snd_strerror(rv));
                   return;
                   }
             switch(ev->type) {
@@ -1264,8 +1264,7 @@ void alsaProcessMidiInput()
             
             if (mdev == 0 || curPort == -1) {
                   if (MusEGlobal::debugMsg) {
-                        fprintf(stderr, "no port %d:%d found for received alsa event\n",
-                           ev->source.client, ev->source.port);
+                        fprintf(stderr,"no port %d:%d found for received alsa event\n", ev->source.client, ev->source.port);
                         }
                   snd_seq_free_event(ev);
                   return;
@@ -1278,7 +1277,8 @@ void alsaProcessMidiInput()
             switch(ev->type) 
             {
                   case SND_SEQ_EVENT_NOTEON:
-                  case SND_SEQ_EVENT_KEYPRESS:
+                  //case SND_SEQ_EVENT_KEYPRESS:  //According to seq_event.h, this is for aftertouch???  Not exactly a note_on then, is it?
+                      fprintf(stderr,"Note on event, velocity %i, note %i\n", (ev->data.note.velocity), (ev->data.note.note));
                         event.setChannel(ev->data.note.channel);
                         event.setType(ME_NOTEON);
                         event.setA(ev->data.note.note);
@@ -1286,6 +1286,7 @@ void alsaProcessMidiInput()
                         break;
 
                   case SND_SEQ_EVENT_NOTEOFF:
+                      fprintf(stderr,"Note on event, velocity %i, note %i\n", (ev->data.note.velocity), (ev->data.note.note));
                         event.setChannel(ev->data.note.channel);
                         event.setType(ME_NOTEOFF);
                         event.setA(ev->data.note.note);
@@ -1384,15 +1385,19 @@ void alsaProcessMidiInput()
                   // case SND_SEQ_EVENT_NONREGPARAM:
                   // case SND_SEQ_EVENT_REGPARAM:
                   default:
-                        printf("ALSA Midi input: type %d not handled\n", ev->type);
+                        fprintf(stderr,"ALSA Midi input: type %d not handled\n", ev->type);
                         break;
             }
             if(event.type())
-              mdev->recordEvent(event);
+            {
+                mdev->recordEvent(event);
+            }
                   
             snd_seq_free_event(ev);
             if (rv == 0)
-                  break;
+            {                
+                break;
+            }
       }
 }
 
