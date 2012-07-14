@@ -500,10 +500,34 @@ static void run_voice(LMS *plugin_data, synth_vals *vals, t_poly_voice *a_voice,
             continue;
         }
         
-        if (((plugin_data->offs[(a_voice->note)]) >= 0) && (((a_voice->i_voice) + (plugin_data->sampleNo) + (plugin_data->pos)) >= plugin_data->offs[(a_voice->note)]))
+        if (((plugin_data->offs[(a_voice->note)]) >= 0) && (((a_voice->i_voice) + (plugin_data->sampleNo) + (plugin_data->pos)) >= plugin_data->offs[(a_voice->note)])
+                && ((a_voice->adsr_amp->stage) < 3))
         {
-            plugin_data->ons[(a_voice->note)] = -1;
-            v_poly_note_off(a_voice);            
+            //This is here to prevent stuck notes because it was discovered that Muse2
+            //(and by extension LMS DAW) will sometimes send back note_off on a different note
+            //than the note_on was sent, and this code will be invoked constantly with no effect
+            //while the note hangs.  This may cause all of the notes to release at the wrong time, 
+            //but it at least ensures the release does happen on all notes.
+            //TODO: Fix it in LMS DAW
+            if((plugin_data->ons[(a_voice->note)]) == -1)
+            {
+                int f_stuck_note = 0;
+                
+                for(f_stuck_note = 0; f_stuck_note < POLYPHONY; f_stuck_note++)
+                {
+                    if((plugin_data->data[f_stuck_note]->adsr_amp->stage) < 3)
+                    {
+                        plugin_data->ons[f_stuck_note] = -1;
+                        v_poly_note_off(plugin_data->data[f_stuck_note]);
+                        break;  //only unstick one note...
+                    }
+                }
+            }
+            else
+            {
+                plugin_data->ons[(a_voice->note)] = -1;
+                v_poly_note_off(a_voice);
+            }
 	}        
 
         a_voice->current_sample = 0;
