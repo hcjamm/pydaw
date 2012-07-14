@@ -35,7 +35,7 @@
 #define DSSI_PARAMSAVE_VERSION_MINOR  1
 
 
-#ifdef DSSI_SUPPORT
+
 
 #include <vector>
 #include <map>
@@ -60,11 +60,8 @@
 //#include <QMenu>
 #include "popupmenu.h"
 
-#endif // DSSI_SUPPORT
-
 namespace MusECore {
  
-#ifdef DSSI_SUPPORT
 
 struct _DSSI;
 class DssiPluginIF;
@@ -233,8 +230,7 @@ class DssiSynthIF : public SynthIF, public PluginIBase
       friend class DssiSynth;
       };
 
-#endif // DSSI_SUPPORT
-      
+
 extern void initDSSI();
 
 } // namespace MusECore
