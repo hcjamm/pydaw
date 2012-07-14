@@ -228,7 +228,6 @@ static void usage(const char* prog, const char* txt)
       fprintf(stderr, "   -h       This help\n");
       fprintf(stderr, "   -v       Print version\n");
       fprintf(stderr, "   -a       No audio, use dummy audio driver, plus ALSA midi\n");
-      fprintf(stderr, "   -A       Force inclusion of ALSA midi even if using Jack\n");
       fprintf(stderr, "   -P  n    Set audio driver real time priority to n\n");
       fprintf(stderr, "                        (Dummy only, default 40. Else fixed by Jack.)\n");
       fprintf(stderr, "   -Y  n    Force midi real time priority to n (default: audio driver prio +2)\n");
@@ -360,6 +359,8 @@ int main(int argc, char* argv[])
       
       bool noAudio = false;
       int i;
+
+      MusEGlobal::useAlsaWithJack = true;
       
       // Now read the remaining arguments as our own...
       while ((i = getopt(argc, argv, optstr.toLatin1().constData())) != EOF) {
@@ -372,9 +373,6 @@ int main(int argc, char* argv[])
                         return 0;
                   case 'a':
                         noAudio = true;
-                        break;
-                  case 'A':
-                        MusEGlobal::useAlsaWithJack = true;
                         break;
                   case 'd':
                         MusEGlobal::debugMode = true;
