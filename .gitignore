@@ -1,3 +1,6 @@
+plugins/lms_daw/Makefile
+plugins/lms_daw/build/
+plugins/lms_daw/*.h
 plugins/*/*.so
 plugins/*/src/moc_synth_qt_gui.cpp
 tools/jack-dssi-host/Makefile
