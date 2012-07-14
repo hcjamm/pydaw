@@ -33,6 +33,8 @@ GNU General Public License for more details.
 
 #define Sampler_NOTES 128
 #define Sampler_FRAMES_MAX 1048576
+//Pad the end of samples with zeroes to ensure you don't get artifacts from samples that have no silence at the end
+#define Sampler_Sample_Padding 100
 
 typedef struct {
     LADSPA_Data *output[2];
