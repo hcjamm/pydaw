@@ -588,11 +588,9 @@ int main(int argc, char* argv[])
       else if (MusECore::initJackAudio()) {
             if (!MusEGlobal::debugMode)
                   {
-                  QMessageBox::critical(NULL, "MusE fatal error", "MusE <b>failed</b> to find a <b>Jack audio server</b>.<br><br>"
-                                                                  "<i>MusE will continue without audio support (-a switch)!</i><br><br>"
-                                                                  "If this was not intended check that Jack was started. "
-                                                                  "If Jack <i>was</i> started check that it was\n"
-                                                                  "started as the same user as MusE.\n");
+                  QMessageBox::critical(NULL, "Error", "LMS DAW did not find a jack audio server, and will start without audio.<br><br>"
+                                                                  "Most likely, you will need to open qjackctl and start the jack server.\n"
+                                                                  "You may also need to configure your soundcard settings in qjackctl if you haven't already done so");
 
                   MusECore::initDummyAudio();
                   noAudio = true;
