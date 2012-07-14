@@ -22,7 +22,7 @@
 //=============================================================================
 
 #include "config.h"
-#ifdef DSSI_SUPPORT
+
 
 // Turn on debugging messages
 //#define DSSI_DEBUG 
@@ -162,11 +162,8 @@ static void scanDSSIDir(QString& s) // ddskrjo removed const for argument
       if(MusEGlobal::debugMsg)
         printf("scanDSSIDir: scan DSSI plugin dir <%s>\n", s.toLatin1().constData());
 
-#ifdef __APPLE__
-      QDir pluginDir(s, QString("*.dylib"), QDir::Unsorted, QDir::Files);
-#else
       QDir pluginDir(s, QString("*.so"), QDir::Unsorted, QDir::Files);
-#endif
+
       if(!pluginDir.exists())
         return;
 
@@ -403,10 +400,10 @@ SynthIF* DssiSynth::createSIF(SynthI* synti)
 
 bool DssiSynthIF::nativeGuiVisible() const
       {
-      #ifdef OSC_SUPPORT
+      
       return _oscif.oscGuiVisible();
-      #endif
-      return false;
+      
+      //return false;
       }
 
 bool DssiSynthIF::guiVisible() const
@@ -420,7 +417,7 @@ bool DssiSynthIF::guiVisible() const
 
 void DssiSynthIF::showNativeGui(bool v)
       {
-      #ifdef OSC_SUPPORT
+      
       
       #ifdef DSSI_DEBUG 
       printf("DssiSynthIF::showNativeGui(): v:%d visible:%d\n", v, guiVisible());
@@ -428,7 +425,7 @@ void DssiSynthIF::showNativeGui(bool v)
       
       _oscif.oscShowGui(v);
       
-      #endif // OSC_SUPPORT
+      
       }
 
 //---------------------------------------------------------
@@ -471,10 +468,8 @@ bool DssiSynthIF::init(DssiSynth* s)
       const DSSI_Descriptor* dssi = synth->dssi;
       const LADSPA_Descriptor* ld = dssi->LADSPA_Plugin;
       handle = ld->instantiate(ld, MusEGlobal::sampleRate);
-
-      #ifdef OSC_SUPPORT
+      
       _oscif.oscSetSynthIF(this);
-      #endif
       
       queryPrograms();
 
@@ -718,9 +713,9 @@ DssiSynthIF::~DssiSynthIF()
       printf("DssiSynthIF::~DssiSynthIF\n");
       #endif
 
-      #ifdef OSC_SUPPORT
+      
       _oscif.oscSetSynthIF(NULL);
-      #endif
+      
       
       if(synth)
       {
@@ -1776,20 +1771,17 @@ void DssiSynth::incInstances(int val)
 //   initGui
 //---------------------------------------------------------
 bool DssiSynthIF::initGui()
-{
-      #ifdef OSC_SUPPORT
+{      
       return _oscif.oscInitGui();
-      #endif
-      return true;
+      
 }
-
 //---------------------------------------------------------
 //   guiHeartBeat
 //---------------------------------------------------------
 
 void DssiSynthIF::guiHeartBeat()
 {
-  #ifdef OSC_SUPPORT
+
   // Update the gui's program if needed.
   _oscif.oscSendProgram(synti->_curProgram, synti->_curBankL);
   
@@ -1798,10 +1790,10 @@ void DssiSynthIF::guiHeartBeat()
 
   for(unsigned long i = 0; i < ports; ++i)
     _oscif.oscSendControl(controls[i].idx, controls[i].val);
-  #endif
+
 }
 
-#ifdef OSC_SUPPORT
+
 //---------------------------------------------------------
 //   oscUpdate
 //---------------------------------------------------------
@@ -2062,7 +2054,6 @@ int DssiSynthIF::oscConfigure(const char *key, const char *value)
       queryPrograms();
       return 0;
       }
-#endif // OSC_SUPPORT
 
 //---------------------------------------------------------
 //   queryPrograms
@@ -2297,9 +2288,4 @@ CtrlList::Mode DssiSynthIF::ctrlMode(unsigned long i) const     { return ladspaC
 
 } // namespace MusECore
 
-#else //DSSI_SUPPORT
-namespace MusECore {
-void initDSSI() {}
-}
-#endif
 
