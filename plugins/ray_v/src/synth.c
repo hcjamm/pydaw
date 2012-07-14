@@ -360,6 +360,11 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
                 
 		if (n.velocity > 0) 
                 {
+                    if((plugin_data->ons[n.note]) != -1)
+                    {
+                        continue;
+                    }
+                    
                     plugin_data->ons[n.note] =
 			plugin_data->sampleNo + events[(plugin_data->event_pos)].time.tick;
 		    plugin_data->offs[n.note] = -1;
@@ -431,10 +436,20 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
 		plugin_data->sv_pitch_bend_value = 0.00012207f
                         * (events[(plugin_data->event_pos)].data.control.value) * (plugin_data->vals.master_pb_amt);
 	    }
-            else
+            else if(events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_STOP)
             {
-                printf("Received ALSA event %i\n", events[(plugin_data->event_pos)].type);
-            }	    
+                plugin_data->sv_pitch_bend_value = 0.0f;
+                
+                int f_note_off;
+                
+                for(f_note_off = 0; f_note_off < POLYPHONY; f_note_off++)
+                {
+                    if((plugin_data->ons[f_note_off]) > -1)
+                    {
+                        plugin_data->offs[f_note_off] = (plugin_data->sampleNo) + (events[(plugin_data->event_pos)].time.tick);
+                    }
+                }
+            }    
 	}
                 
 	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE : sample_count - (plugin_data->pos);
@@ -487,6 +502,7 @@ static void run_voice(LMS *plugin_data, synth_vals *vals, t_poly_voice *a_voice,
         
         if (((plugin_data->offs[(a_voice->note)]) >= 0) && (((a_voice->i_voice) + (plugin_data->sampleNo) + (plugin_data->pos)) >= plugin_data->offs[(a_voice->note)]))
         {
+            plugin_data->ons[(a_voice->note)] = -1;
             v_poly_note_off(a_voice);            
 	}        
 
