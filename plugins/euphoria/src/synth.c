@@ -884,10 +884,10 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     }
 
     /* add an extra sample for linear interpolation */
-    tmpSamples[0] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS - 1) * sizeof(float));
+    tmpSamples[0] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS + Sampler_Sample_Padding) * sizeof(float));
 
     if (plugin_data->channels == 2) {
-	tmpSamples[1] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS - 1) * sizeof(float));
+	tmpSamples[1] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS + Sampler_Sample_Padding) * sizeof(float));
     } else {
 	tmpSamples[1] = NULL;
     }
@@ -923,7 +923,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
         tmpSamples[0][f_i] = 0.0f;
     }
     if (plugin_data->channels == 2) {
-        for(f_i = samples + LMS_SINC_INTERPOLATION_POINTS_DIV2; f_i < (samples + LMS_SINC_INTERPOLATION_POINTS - 1); f_i++)
+        for(f_i = samples + LMS_SINC_INTERPOLATION_POINTS_DIV2; f_i < (samples + LMS_SINC_INTERPOLATION_POINTS  + Sampler_Sample_Padding); f_i++)
 	tmpSamples[1][f_i] = 0.0f;
     }
     
@@ -933,7 +933,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     tmpOld[1] = plugin_data->sampleData[1][(a_index)];
     plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
     plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
-    plugin_data->sampleCount[(a_index)] = samples + (LMS_SINC_INTERPOLATION_POINTS_DIV2);
+    plugin_data->sampleCount[(a_index)] = samples + Sampler_Sample_Padding;
 
     plugin_data->sample_paths[(a_index)] = path;
     
