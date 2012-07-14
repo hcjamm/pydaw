@@ -548,7 +548,7 @@ int main(int argc, char* argv[])
                   QTimer* stimer = new QTimer(0);
                   muse_splash->connect(stimer, SIGNAL(timeout()), muse_splash, SLOT(close()));
                   stimer->setSingleShot(true);
-                  stimer->start(6000);
+                  stimer->start(3000);
                   }
             }
 
@@ -636,7 +636,7 @@ int main(int argc, char* argv[])
       MusECore::initMidiInstruments();  
       MusECore::initMidiPorts();
       MusECore::initMidiSequencer();   
-      MusEGlobal::midiSeq->checkAndReportTimingResolution();  
+      //MusEGlobal::midiSeq->checkAndReportTimingResolution();
 
       if (MusEGlobal::loadPlugins)
             MusECore::initPlugins();
