@@ -901,6 +901,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         //End from Modulex
         
         m_adsr_amp = new LMS_adsr_widget(this, a_style, TRUE, LMS_ATTACK, LMS_DECAY, LMS_SUSTAIN, LMS_RELEASE, QString("ADSR Amp"));
+        
+        m_adsr_amp->lms_release->lms_knob->setMinimum(5);  //overriding the default for this, because we want a low minimum default that won't click
 
         m_main_layout->lms_add_widget(m_adsr_amp->lms_groupbox_adsr->lms_groupbox);
 
