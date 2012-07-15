@@ -309,6 +309,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         {            
             plugin_data->sample_read_heads[f_i][f_i2] = g_ifh_get();
             plugin_data->sample_indexes[f_i][f_i2] = 0;
+            plugin_data->vel_sens_output[f_i][f_i2] = 0.0f;
             f_i2++;
         }
         
@@ -452,8 +453,7 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
                 //start parts from the beginning of the function   
                 plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(
                         (*(plugin_data->sample_vol[(plugin_data->current_sample)])) + 
-                        (((*(plugin_data->sample_vel_sens[(plugin_data->current_sample)])) * 0.007874016 * (plugin_data->velocities[n]))
-                        - (*(plugin_data->sample_vel_sens[(plugin_data->current_sample)])))
+                        (plugin_data->vel_sens_output[n][(plugin_data->current_sample)])                        
                         , plugin_data->amp_ptr);
 
                 ratio =
@@ -622,6 +622,13 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                             
                             v_ifh_retrigger(plugin_data->sample_read_heads[f_note_adjusted][(plugin_data->loaded_samples[i])], 
                                     (LMS_SINC_INTERPOLATION_POINTS_DIV2 +  + (plugin_data->sampleStartPos[(plugin_data->current_sample)])));// 0.0f;
+                            
+                            plugin_data->vel_sens_output[f_note_adjusted][(plugin_data->loaded_samples[i])] = 
+                                    ((1 -
+                                    (((float)(n.velocity) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
+                                    /
+                                    ((float)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])]) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])]))))))
+                                    * (*(plugin_data->sample_vel_sens[(plugin_data->loaded_samples[i])])) * -1.0f);
                         }
                     }
                         
