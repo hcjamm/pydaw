@@ -87,7 +87,7 @@ float f_sinc_interpolate2(t_sinc_interpolator * a_sinc, float * a_array, int a_i
     
 }
 
-t_sinc_interpolator * g_sinc_get(int, int, double, double);
+t_sinc_interpolator * g_sinc_get(int, int, double);
 
 /* t_sinc_interpolator * g_sinc_get(
  * int a_points, //The number of points to use
@@ -95,7 +95,7 @@ t_sinc_interpolator * g_sinc_get(int, int, double, double);
  * double a_fc,  //cutoff, usually 0.1 to 0.5
  * double a_amp) //Adjusting for the loss of amplitude in the SINC LP.  This is a linear value, normal range:  1.0 to 8.0
  */
-t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a_fc, double a_amp)
+t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a_fc)
 {
     
     
@@ -119,6 +119,8 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
     
     double f_points = (double)a_points;
     
+    float f_high_value = 0.0f;
+    
     double f_inc = (1.0f/((double)f_array_size)) * f_points;
 
     double i;
@@ -133,16 +135,28 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
         
         double f_bm2 = 0.42659 - (0.49656 *(cos((2*pi*i)/(f_points - 1))));
         double f_bm3 = (cos((12.5664 * i)/(f_points - 1) ) * .076849) + f_bm2;
-        float f_out = sinclp * f_bm3 * a_amp;
+        float f_out = sinclp * f_bm3;
         
         f_result->sinc_table[i_int] = f_out;
         i_int++;
+        
+        if(f_out > f_high_value)
+        {
+            f_high_value = f_out;
+        }
         
         if(i_int >= f_array_size)
         {
             break;
         }
     }
+    
+    float f_normalize = (0.9f / f_high_value);
+    
+    for(i_int = 0; i_int < f_array_size; i_int++)
+    {
+        f_result->sinc_table[i_int] = (f_result->sinc_table[i_int]) * f_normalize;
+    }        
     
     f_result->linear_interpolate = g_lin_get();
     
