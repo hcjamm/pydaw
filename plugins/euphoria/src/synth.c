@@ -910,7 +910,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     tmpOld[1] = plugin_data->sampleData[1][(a_index)];
     plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
     plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
-    plugin_data->sampleCount[(a_index)] = samples + Sampler_Sample_Padding;
+    plugin_data->sampleCount[(a_index)] = samples + Sampler_Sample_Padding + LMS_SINC_INTERPOLATION_POINTS_DIV2;
 
     plugin_data->sample_paths[(a_index)] = path;
     
