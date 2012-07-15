@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svnroot/qtractor/!svn/ver/2899/trunk/debian
+END
+compat
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svnroot/qtractor/!svn/ver/563/trunk/debian/compat
+END
+changelog
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svnroot/qtractor/!svn/ver/2899/trunk/debian/changelog
+END
+copyright
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svnroot/qtractor/!svn/ver/2652/trunk/debian/copyright
+END
+docs
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svnroot/qtractor/!svn/ver/896/trunk/debian/docs
+END
+rules
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svnroot/qtractor/!svn/ver/1521/trunk/debian/rules
+END
+control
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svnroot/qtractor/!svn/ver/1595/trunk/debian/control
+END

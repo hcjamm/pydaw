@@ -1,0 +1,279 @@
+<ui version="4.0" >
+ <author>rncbc aka Rui Nuno Capela</author>
+ <comment>qtractor - An Audio/MIDI multi-track sequencer.
+
+   Copyright (C) 2005-2011, rncbc aka Rui Nuno Capela. All rights reserved.
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License along
+   with this program; if not, write to the Free Software Foundation, Inc.,
+   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+ </comment>
+ <class>qtractorInstrumentForm</class>
+ <widget class="QDialog" name="qtractorInstrumentForm" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>580</width>
+    <height>340</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Instruments - Qtractor</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="qtractor.qrc" >:/images/itemInstrument.png</iconset>
+  </property>
+  <layout class="QHBoxLayout" >
+   <item>
+    <widget class="QSplitter" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QTreeWidget" name="InstrumentsListView" >
+      <property name="minimumSize" >
+       <size>
+        <width>240</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="selectionMode" >
+       <enum>QAbstractItemView::NoSelection</enum>
+      </property>
+      <property name="rootIsDecorated" >
+       <bool>true</bool>
+      </property>
+      <property name="uniformRowHeights" >
+       <bool>true</bool>
+      </property>
+      <property name="allColumnsShowFocus" >
+       <bool>true</bool>
+      </property>
+      <column>
+       <property name="text" >
+        <string>Instruments</string>
+       </property>
+      </column>
+     </widget>
+     <widget class="QSplitter" >
+      <property name="orientation" >
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QTreeWidget" name="FilesListView" >
+       <property name="minimumSize" >
+        <size>
+         <width>240</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="rootIsDecorated" >
+        <bool>false</bool>
+       </property>
+       <property name="uniformRowHeights" >
+        <bool>true</bool>
+       </property>
+       <property name="itemsExpandable" >
+        <bool>false</bool>
+       </property>
+       <property name="allColumnsShowFocus" >
+        <bool>true</bool>
+       </property>
+       <column>
+        <property name="text" >
+         <string>Files</string>
+        </property>
+       </column>
+       <column>
+        <property name="text" >
+         <string>Path</string>
+        </property>
+       </column>
+      </widget>
+      <widget class="QTreeWidget" name="NamesListView" >
+       <property name="minimumSize" >
+        <size>
+         <width>240</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="selectionMode" >
+        <enum>QAbstractItemView::NoSelection</enum>
+       </property>
+       <property name="rootIsDecorated" >
+        <bool>true</bool>
+       </property>
+       <property name="uniformRowHeights" >
+        <bool>true</bool>
+       </property>
+       <property name="allColumnsShowFocus" >
+        <bool>true</bool>
+       </property>
+       <column>
+        <property name="text" >
+         <string>Names</string>
+        </property>
+       </column>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" >
+     <item>
+      <widget class="QPushButton" name="ImportPushButton" >
+       <property name="toolTip" >
+        <string>Import from instrument file</string>
+       </property>
+       <property name="text" >
+        <string>&amp;Import...</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="qtractor.qrc" >:/images/formOpen.png</iconset>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+I</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="RemovePushButton" >
+       <property name="toolTip" >
+        <string>Remove instrument file</string>
+       </property>
+       <property name="text" >
+        <string>&amp;Remove</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="qtractor.qrc" >:/images/formRemove.png</iconset>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+R</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="MoveUpPushButton" >
+       <property name="toolTip" >
+        <string>Move instrument file up on list order</string>
+       </property>
+       <property name="text" >
+        <string>&amp;Up</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="qtractor.qrc" >:/images/formMoveUp.png</iconset>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+U</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="MoveDownPushButton" >
+       <property name="toolTip" >
+        <string>Move instrument file down on list order</string>
+       </property>
+       <property name="text" >
+        <string>&amp;Down</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="qtractor.qrc" >:/images/formMoveDown.png</iconset>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+D</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ReloadPushButton" >
+       <property name="toolTip" >
+        <string>Reload all instrument files</string>
+       </property>
+       <property name="text" >
+        <string>Relo&amp;ad</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="qtractor.qrc" >:/images/formRefresh.png</iconset>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+A</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ExportPushButton" >
+       <property name="toolTip" >
+        <string>Export to instrument file</string>
+       </property>
+       <property name="text" >
+        <string>E&amp;xport...</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="qtractor.qrc" >:/images/formSave.png</iconset>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+X</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ClosePushButton" >
+       <property name="toolTip" >
+        <string>Close this dialog</string>
+       </property>
+       <property name="text" >
+        <string>Close</string>
+       </property>
+       <property name="shortcut" >
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="4" margin="8" />
+ <tabstops>
+  <tabstop>InstrumentsListView</tabstop>
+  <tabstop>FilesListView</tabstop>
+  <tabstop>NamesListView</tabstop>
+  <tabstop>ImportPushButton</tabstop>
+  <tabstop>RemovePushButton</tabstop>
+  <tabstop>MoveUpPushButton</tabstop>
+  <tabstop>MoveDownPushButton</tabstop>
+  <tabstop>ReloadPushButton</tabstop>
+  <tabstop>ExportPushButton</tabstop>
+  <tabstop>ClosePushButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="qtractor.qrc" />
+ </resources>
+ <connections/>
+</ui>

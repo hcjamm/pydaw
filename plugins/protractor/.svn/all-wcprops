@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svnroot/qtractor/!svn/ver/2917/trunk
+END
+Makefile.in
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svnroot/qtractor/!svn/ver/2903/trunk/Makefile.in
+END
+Makefile.svn
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svnroot/qtractor/!svn/ver/1898/trunk/Makefile.svn
+END
+configure.ac
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svnroot/qtractor/!svn/ver/2917/trunk/configure.ac
+END
+AUTHORS
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svnroot/qtractor/!svn/ver/3/trunk/AUTHORS
+END
+TODO
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svnroot/qtractor/!svn/ver/2631/trunk/TODO
+END
+INSTALL
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svnroot/qtractor/!svn/ver/2732/trunk/INSTALL
+END
+ChangeLog
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svnroot/qtractor/!svn/ver/2917/trunk/ChangeLog
+END
+COPYING
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svnroot/qtractor/!svn/ver/409/trunk/COPYING
+END
+README.VST
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svnroot/qtractor/!svn/ver/1427/trunk/README.VST
+END
+TRANSLATORS
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svnroot/qtractor/!svn/ver/2903/trunk/TRANSLATORS
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/svnroot/qtractor/!svn/ver/2631/trunk/README
+END
+qtractor.spec.in
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svnroot/qtractor/!svn/ver/2899/trunk/qtractor.spec.in
+END
+qtractor.pro
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svnroot/qtractor/!svn/ver/1530/trunk/qtractor.pro
+END

@@ -1,0 +1,742 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <author>rncbc aka Rui Nuno Capela</author>
+ <comment>qtractor - An Audio/MIDI multi-track sequencer.
+
+   Copyright (C) 2005-2011, rncbc aka Rui Nuno Capela. All rights reserved.
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License along
+   with this program; if not, write to the Free Software Foundation, Inc.,
+   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+ </comment>
+ <class>qtractorBusForm</class>
+ <widget class="QDialog" name="qtractorBusForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>658</width>
+    <height>317</height>
+   </rect>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::StrongFocus</enum>
+  </property>
+  <property name="windowTitle">
+   <string>Buses - Qtractor</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="qtractor.qrc">:/images/qtractorTracks.png</iconset>
+  </property>
+  <layout class="QVBoxLayout">
+   <item>
+    <widget class="QSplitter" name="BusSplitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="handleWidth">
+      <number>4</number>
+     </property>
+     <widget class="QTreeWidget" name="BusListView">
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>120</height>
+       </size>
+      </property>
+      <property name="toolTip">
+       <string>Bus list</string>
+      </property>
+      <property name="rootIsDecorated">
+       <bool>false</bool>
+      </property>
+      <property name="uniformRowHeights">
+       <bool>true</bool>
+      </property>
+      <property name="allColumnsShowFocus">
+       <bool>true</bool>
+      </property>
+      <column>
+       <property name="text">
+        <string>Buses</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Ch</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Mode</string>
+       </property>
+      </column>
+     </widget>
+     <widget class="QWidget" name="BusLayout">
+      <layout class="QVBoxLayout">
+       <property name="spacing">
+        <number>4</number>
+       </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="BusTitleTextLabel">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Bus</string>
+         </property>
+         <property name="margin">
+          <number>2</number>
+         </property>
+         <property name="indent">
+          <number>6</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTabWidget" name="BusTabWidget">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="PropertiesTab">
+          <attribute name="title">
+           <string>Properties</string>
+          </attribute>
+          <layout class="QGridLayout">
+           <item row="0" column="0" colspan="2">
+            <widget class="QGroupBox" name="CommonBusGroup">
+             <property name="title">
+              <string>Bus</string>
+             </property>
+             <layout class="QGridLayout">
+              <property name="margin">
+               <number>8</number>
+              </property>
+              <property name="spacing">
+               <number>4</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QLabel" name="BusNameTextLabel">
+                <property name="text">
+                 <string>&amp;Name:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>BusNameLineEdit</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" colspan="2">
+               <widget class="QLineEdit" name="BusNameLineEdit">
+                <property name="toolTip">
+                 <string>Bus name</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="BusModeTextLabel">
+                <property name="text">
+                 <string>&amp;Mode:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>BusModeComboBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <spacer>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="BusModeComboBox">
+                <property name="toolTip">
+                 <string>Bus mode</string>
+                </property>
+                <property name="currentIndex">
+                 <number>2</number>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Input</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Output</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Duplex</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="3">
+               <widget class="QCheckBox" name="MonitorCheckBox">
+                <property name="toolTip">
+                 <string>Bus monitor (pass-through)</string>
+                </property>
+                <property name="text">
+                 <string>M&amp;onitor (pass-through)</string>
+                </property>
+                <property name="shortcut">
+                 <string>Alt+O</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QGroupBox" name="AudioBusGroup">
+             <property name="title">
+              <string>Audio</string>
+             </property>
+             <layout class="QGridLayout">
+              <property name="margin">
+               <number>8</number>
+              </property>
+              <property name="spacing">
+               <number>4</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QLabel" name="AudioChannelsTextLabel">
+                <property name="text">
+                 <string>Cha&amp;nnels:</string>
+                </property>
+                <property name="buddy">
+                 <cstring>AudioChannelsSpinBox</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QSpinBox" name="AudioChannelsSpinBox">
+                <property name="toolTip">
+                 <string>Audio channels</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="value">
+                 <number>2</number>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <spacer>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="1" column="0" colspan="3">
+               <widget class="QCheckBox" name="AudioAutoConnectCheckBox">
+                <property name="toolTip">
+                 <string>Audio auto-connect</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Auto connect</string>
+                </property>
+                <property name="shortcut">
+                 <string>Alt+A</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QGroupBox" name="MidiBusGroup">
+             <property name="title">
+              <string>MIDI</string>
+             </property>
+             <layout class="QGridLayout">
+              <item row="0" column="0" colspan="3">
+               <widget class="QComboBox" name="MidiInstrumentComboBox">
+                <property name="toolTip">
+                 <string>MIDI Instrument name</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QPushButton" name="MidiSysexPushButton">
+                <property name="toolTip">
+                 <string>MIDI SysEx setup</string>
+                </property>
+                <property name="text">
+                 <string>SysE&amp;x...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="MidiSysexTextLabel">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <spacer>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="InputPluginsTab">
+          <attribute name="title">
+           <string>Input Plugins</string>
+          </attribute>
+          <layout class="QHBoxLayout">
+           <item>
+            <widget class="qtractorPluginListView" name="InputPluginListView">
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="toolTip">
+              <string>Input bus plugins</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout">
+             <item>
+              <widget class="QToolButton" name="AddInputPluginToolButton">
+               <property name="minimumSize">
+                <size>
+                 <width>90</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Add input plugin</string>
+               </property>
+               <property name="text">
+                <string>&amp;Add...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="qtractor.qrc">:/images/formCreate.png</iconset>
+               </property>
+               <property name="shortcut">
+                <string>Alt+A</string>
+               </property>
+               <property name="toolButtonStyle">
+                <enum>Qt::ToolButtonTextBesideIcon</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="RemoveInputPluginToolButton">
+               <property name="minimumSize">
+                <size>
+                 <width>90</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Remove input plugin</string>
+               </property>
+               <property name="text">
+                <string>&amp;Remove</string>
+               </property>
+               <property name="icon">
+                <iconset resource="qtractor.qrc">:/images/formRemove.png</iconset>
+               </property>
+               <property name="shortcut">
+                <string>Alt+R</string>
+               </property>
+               <property name="toolButtonStyle">
+                <enum>Qt::ToolButtonTextBesideIcon</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint">
+                <size>
+                 <width>8</width>
+                 <height>8</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QToolButton" name="MoveUpInputPluginToolButton">
+               <property name="minimumSize">
+                <size>
+                 <width>90</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Move input plugin up</string>
+               </property>
+               <property name="text">
+                <string>&amp;Up</string>
+               </property>
+               <property name="icon">
+                <iconset resource="qtractor.qrc">:/images/formMoveUp.png</iconset>
+               </property>
+               <property name="shortcut">
+                <string>Alt+U</string>
+               </property>
+               <property name="toolButtonStyle">
+                <enum>Qt::ToolButtonTextBesideIcon</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="MoveDownInputPluginToolButton">
+               <property name="minimumSize">
+                <size>
+                 <width>90</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Move input plugin down</string>
+               </property>
+               <property name="text">
+                <string>&amp;Down</string>
+               </property>
+               <property name="icon">
+                <iconset resource="qtractor.qrc">:/images/formMoveDown.png</iconset>
+               </property>
+               <property name="shortcut">
+                <string>Alt+D</string>
+               </property>
+               <property name="toolButtonStyle">
+                <enum>Qt::ToolButtonTextBesideIcon</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="OutputPluginsTab">
+          <attribute name="title">
+           <string>Output Plugins</string>
+          </attribute>
+          <layout class="QHBoxLayout">
+           <item>
+            <widget class="qtractorPluginListView" name="OutputPluginListView">
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="toolTip">
+              <string>Output bus plugins</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout">
+             <item>
+              <widget class="QToolButton" name="AddOutputPluginToolButton">
+               <property name="minimumSize">
+                <size>
+                 <width>90</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Add output plugin</string>
+               </property>
+               <property name="text">
+                <string>&amp;Add...</string>
+               </property>
+               <property name="icon">
+                <iconset resource="qtractor.qrc">:/images/formCreate.png</iconset>
+               </property>
+               <property name="shortcut">
+                <string>Alt+A</string>
+               </property>
+               <property name="toolButtonStyle">
+                <enum>Qt::ToolButtonTextBesideIcon</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="RemoveOutputPluginToolButton">
+               <property name="minimumSize">
+                <size>
+                 <width>90</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Remove output plugin</string>
+               </property>
+               <property name="text">
+                <string>&amp;Remove</string>
+               </property>
+               <property name="icon">
+                <iconset resource="qtractor.qrc">:/images/formRemove.png</iconset>
+               </property>
+               <property name="shortcut">
+                <string>Alt+R</string>
+               </property>
+               <property name="toolButtonStyle">
+                <enum>Qt::ToolButtonTextBesideIcon</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint">
+                <size>
+                 <width>8</width>
+                 <height>8</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QToolButton" name="MoveUpOutputPluginToolButton">
+               <property name="minimumSize">
+                <size>
+                 <width>90</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Move output plugin up</string>
+               </property>
+               <property name="text">
+                <string>&amp;Up</string>
+               </property>
+               <property name="icon">
+                <iconset resource="qtractor.qrc">:/images/formMoveUp.png</iconset>
+               </property>
+               <property name="shortcut">
+                <string>Alt+U</string>
+               </property>
+               <property name="toolButtonStyle">
+                <enum>Qt::ToolButtonTextBesideIcon</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="MoveDownOutputPluginToolButton">
+               <property name="minimumSize">
+                <size>
+                 <width>90</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Move output plugin down</string>
+               </property>
+               <property name="text">
+                <string>&amp;Down</string>
+               </property>
+               <property name="icon">
+                <iconset resource="qtractor.qrc">:/images/formMoveDown.png</iconset>
+               </property>
+               <property name="shortcut">
+                <string>Alt+D</string>
+               </property>
+               <property name="toolButtonStyle">
+                <enum>Qt::ToolButtonTextBesideIcon</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout">
+     <property name="spacing">
+      <number>4</number>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="RefreshPushButton">
+       <property name="toolTip">
+        <string>Refresh bus list view</string>
+       </property>
+       <property name="text">
+        <string>&amp;Refresh</string>
+       </property>
+       <property name="icon">
+        <iconset resource="qtractor.qrc">:/images/formRefresh.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>Alt+R</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="CreatePushButton">
+       <property name="toolTip">
+        <string>Create bus</string>
+       </property>
+       <property name="text">
+        <string>&amp;Create</string>
+       </property>
+       <property name="icon">
+        <iconset resource="qtractor.qrc">:/images/formCreate.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>Alt+C</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="UpdatePushButton">
+       <property name="toolTip">
+        <string>Update bus</string>
+       </property>
+       <property name="text">
+        <string>&amp;Update</string>
+       </property>
+       <property name="icon">
+        <iconset resource="qtractor.qrc">:/images/formAccept.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>Alt+U</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="DeletePushButton">
+       <property name="toolTip">
+        <string>Delete bus</string>
+       </property>
+       <property name="text">
+        <string>&amp;Delete</string>
+       </property>
+       <property name="icon">
+        <iconset resource="qtractor.qrc">:/images/formRemove.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>Alt+D</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ClosePushButton">
+       <property name="toolTip">
+        <string>Close this dialog</string>
+       </property>
+       <property name="text">
+        <string>Close</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="4" margin="8"/>
+ <customwidgets>
+  <customwidget>
+   <class>qtractorPluginListView</class>
+   <extends>QListWidget</extends>
+   <header>qtractorPluginListView.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>BusListView</tabstop>
+  <tabstop>BusTabWidget</tabstop>
+  <tabstop>BusNameLineEdit</tabstop>
+  <tabstop>BusModeComboBox</tabstop>
+  <tabstop>MonitorCheckBox</tabstop>
+  <tabstop>AudioChannelsSpinBox</tabstop>
+  <tabstop>AudioAutoConnectCheckBox</tabstop>
+  <tabstop>InputPluginListView</tabstop>
+  <tabstop>AddInputPluginToolButton</tabstop>
+  <tabstop>RemoveInputPluginToolButton</tabstop>
+  <tabstop>MoveUpInputPluginToolButton</tabstop>
+  <tabstop>MoveDownInputPluginToolButton</tabstop>
+  <tabstop>OutputPluginListView</tabstop>
+  <tabstop>AddOutputPluginToolButton</tabstop>
+  <tabstop>RemoveOutputPluginToolButton</tabstop>
+  <tabstop>MoveUpOutputPluginToolButton</tabstop>
+  <tabstop>MoveDownOutputPluginToolButton</tabstop>
+  <tabstop>RefreshPushButton</tabstop>
+  <tabstop>CreatePushButton</tabstop>
+  <tabstop>UpdatePushButton</tabstop>
+  <tabstop>DeletePushButton</tabstop>
+  <tabstop>ClosePushButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="qtractor.qrc"/>
+  <include location="qtractor.qrc"/>
+ </resources>
+ <connections/>
+</ui>
