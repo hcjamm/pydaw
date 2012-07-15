@@ -823,10 +823,9 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     SF_INFO info;
     SNDFILE *file;
     size_t samples = 0;
-    float *tmpFrames, *tmpSamples[2], *tmpResamples, *tmpOld[2];
+    float *tmpFrames, *tmpSamples[2], *tmpOld[2];
     char *revisedPath = 0;
-    size_t i;
-
+    
     info.format = 0;
     file = sf_open(path, SFM_READ, &info);
 
@@ -866,60 +865,44 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     sf_readf_float(file, tmpFrames, info.frames);
     sf_close(file);
 
-    tmpResamples = 0;
-
-    if (info.samplerate != plugin_data->sampleRate) {
-	
+    if ((int)(info.samplerate) != (int)(plugin_data->sampleRate)) 
+    {	
 	double ratio = (double)(info.samplerate)/(double)(plugin_data->sampleRate);
 	
         plugin_data->sample_rate_ratios[(a_index)] = (float)ratio;
     }
-
-    /* add extra samples for interpolation */
-    tmpSamples[0] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS + 1 + Sampler_Sample_Padding) * sizeof(float));
-
-    if (plugin_data->channels == 2) {
-	tmpSamples[1] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS + 1 + Sampler_Sample_Padding) * sizeof(float));
-    } else {
-	tmpSamples[1] = NULL;
-    }
-
-
-    if (plugin_data->channels == 2) {
-	for (i = LMS_SINC_INTERPOLATION_POINTS_DIV2; i < (LMS_SINC_INTERPOLATION_POINTS_DIV2 + samples + Sampler_Sample_Padding); ++i) {
-	    int j;
-	    for (j = 0; j < 2; ++j) {
-		if (j == 1 && info.frames < 2) {
-		    tmpSamples[j][i] = tmpSamples[0][i];
-		} else {
-		    tmpSamples[j][i] = tmpFrames[i * info.channels + j];
-		}
-	    }
-	}
-    } else {
-	for (i = LMS_SINC_INTERPOLATION_POINTS_DIV2; i < (LMS_SINC_INTERPOLATION_POINTS_DIV2 + samples + Sampler_Sample_Padding); ++i) {
-	    int j;
-	    tmpSamples[0][i] = 0.0f;
-	    for (j = 0; j < info.channels; ++j) {
-		tmpSamples[0][i] += tmpFrames[i * info.channels + j];
-	    }
-	}
-    }
-
-    free(tmpFrames);
-
-    /* add extra samples for interpolation */
-    int f_i;
-    for(f_i = 0; f_i < LMS_SINC_INTERPOLATION_POINTS_DIV2; f_i++)
+    else
     {
-        tmpSamples[0][f_i] = 0.0f;
+        plugin_data->sample_rate_ratios[(a_index)] = 1.0f;
     }
-    if (plugin_data->channels == 2) {
-        for(f_i = 0; f_i < LMS_SINC_INTERPOLATION_POINTS_DIV2; f_i++)
+
+    int f_actual_array_size = (samples + LMS_SINC_INTERPOLATION_POINTS + 1 + Sampler_Sample_Padding);
+    
+    tmpSamples[0] = (float *)malloc((f_actual_array_size) * sizeof(float));
+    tmpSamples[1] = (float *)malloc((f_actual_array_size) * sizeof(float));
+    
+    int f_i, j;
+        
+    for(f_i = 0; f_i < f_actual_array_size; f_i++)
+    {   
+        if((f_i > LMS_SINC_INTERPOLATION_POINTS_DIV2) && (f_i < (samples + LMS_SINC_INTERPOLATION_POINTS_DIV2 + Sampler_Sample_Padding)))
         {
-            tmpSamples[1][f_i] = 0.0f;
+	    for (j = 0; j < 2; ++j) {
+		if (j == 1 && info.channels < 2) {
+		    tmpSamples[j][f_i] = tmpSamples[0][f_i];
+		} else {
+		    tmpSamples[j][f_i] = tmpFrames[(f_i - LMS_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j];
+		}
+            }
         }
+        else
+        {
+            tmpSamples[0][f_i] = 0.0f;
+            tmpSamples[1][f_i] = 0.0f;
+        }            
     }
+        
+    free(tmpFrames);
     
     pthread_mutex_lock(&plugin_data->mutex);
 
@@ -931,12 +914,14 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 
     plugin_data->sample_paths[(a_index)] = path;
     
+    /*
     for (i = 0; i < Sampler_NOTES; ++i) {
 	plugin_data->ons[i] = -1;
 	plugin_data->offs[i] = -1;
 	plugin_data->velocities[i] = 0;
     }
-
+    */
+    
     pthread_mutex_unlock(&plugin_data->mutex);
 
     if (tmpOld[0]) free(tmpOld[0]);
