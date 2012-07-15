@@ -598,7 +598,8 @@ bool qtractorMidiEditorForm::queryClose (void)
 // Save(as) warning message box.
 int qtractorMidiEditorForm::querySave ( const QString& sFilename )
 {
-	return (QMessageBox::warning(
+	return QMessageBox::Save;
+                /*(QMessageBox::warning(
 		qtractorMainForm::getInstance(),
 		tr("Warning") + " - " QTRACTOR_TITLE,
 		tr("The current MIDI clip has been changed:\n\n"
@@ -606,7 +607,7 @@ int qtractorMidiEditorForm::querySave ( const QString& sFilename )
 		"Do you want to save the changes?").arg(sFilename),
 		QMessageBox::Save |
 		QMessageBox::Discard |
-		QMessageBox::Cancel));
+		QMessageBox::Cancel));*/
 }
 
 
