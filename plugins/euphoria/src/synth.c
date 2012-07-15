@@ -27,7 +27,6 @@ GNU General Public License for more details.
 #include "ladspa.h"
 
 #include <sndfile.h>
-#include <samplerate.h>
 #include <pthread.h>
 
 #include "synth.h"
@@ -290,6 +289,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         plugin_data->sample_paths[f_i] = "";
         
         plugin_data->adjusted_base_pitch[f_i] = 60.0f;
+        plugin_data->sample_rate_ratios[f_i] = 1.0f;
         
         f_i++;
     }
@@ -457,10 +457,12 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
                         , plugin_data->amp_ptr);
 
                 ratio =
-                f_pit_midi_note_to_ratio_fast(plugin_data->adjusted_base_pitch[(plugin_data->current_sample)],                     
+                f_pit_midi_note_to_ratio_fast(plugin_data->adjusted_base_pitch[(plugin_data->current_sample)],
                         ((plugin_data->data[n]->base_pitch) //+ (plugin_data->data[n]->lfo_pitch_output)
                         ),
-                        plugin_data->smp_pit_core, plugin_data->smp_pit_ratio);
+                        plugin_data->smp_pit_core, plugin_data->smp_pit_ratio)
+                        *
+                        plugin_data->sample_rate_ratios[(plugin_data->current_sample)];
 
                 v_ifh_run(plugin_data->sample_read_heads[n][(plugin_data->current_sample)], ratio);
 
@@ -861,26 +863,9 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 
     if (info.samplerate != plugin_data->sampleRate) {
 	
-	double ratio = (double)plugin_data->sampleRate / (double)info.samplerate;
-	size_t target = (size_t)(info.frames * ratio);
-	SRC_DATA data;
-
-	tmpResamples = (float *)malloc(target * info.channels * sizeof(float));
-	memset(tmpResamples, 0, target * info.channels * sizeof(float));
-
-	data.data_in = tmpFrames;
-	data.data_out = tmpResamples;
-	data.input_frames = info.frames;
-	data.output_frames = target;
-	data.src_ratio = ratio;
-
-	if (!src_simple(&data, SRC_SINC_BEST_QUALITY, info.channels)) {
-	    free(tmpFrames);
-	    tmpFrames = tmpResamples;
-	    samples = target;
-	} else {
-	    free(tmpResamples);
-	}
+	double ratio = (double)(info.samplerate)/(double)(plugin_data->sampleRate);
+	
+        plugin_data->sample_rate_ratios[(a_index)] = (float)ratio;
     }
 
     /* add extra samples for interpolation */
