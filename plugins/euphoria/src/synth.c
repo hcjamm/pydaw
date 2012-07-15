@@ -1180,9 +1180,9 @@ void _init()
 	port_descriptors[LMS_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_RELEASE] = "Release time (s)";
 	port_range_hints[LMS_RELEASE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW | 
+			LADSPA_HINT_DEFAULT_MINIMUM | 
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_RELEASE].LowerBound = 1; 
+	port_range_hints[LMS_RELEASE].LowerBound = 5; 
 	port_range_hints[LMS_RELEASE].UpperBound = 400; 
                 
 	/* Parameters for attack_f */
