@@ -105,6 +105,7 @@ typedef struct {
     /*TODO: Initialize these at startup*/
     int         sample_indexes[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];  //Sample indexes for each note to play
     int         sample_indexes_count[Sampler_NOTES]; //The count of sample indexes to iterate through
+    float vel_sens_output[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];
     
     float adjusted_base_pitch[LMS_MAX_SAMPLE_COUNT];
     
