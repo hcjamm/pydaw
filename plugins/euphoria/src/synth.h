@@ -119,6 +119,7 @@ typedef struct {
     
     int          sampleRate;
     float fs;    //From Ray-V
+    float sample_rate_ratios[LMS_MAX_SAMPLE_COUNT];
     long         ons[Sampler_NOTES];
     long         offs[Sampler_NOTES];
     int         velocities[Sampler_NOTES];    
