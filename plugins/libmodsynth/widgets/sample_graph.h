@@ -75,7 +75,7 @@ public:
 
         QPainter paint(&pmap);
 
-        for (size_t i = 0; i < info.frames; ++i) {
+        for (size_t i = 0; i < ((uint)(info.frames)); ++i) {
 
             sf_readf_float(file, frame, 1);
 
