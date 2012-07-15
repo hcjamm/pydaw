@@ -883,18 +883,18 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 	}
     }
 
-    /* add an extra sample for linear interpolation */
-    tmpSamples[0] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS + Sampler_Sample_Padding) * sizeof(float));
+    /* add extra samples for interpolation */
+    tmpSamples[0] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS + 1 + Sampler_Sample_Padding) * sizeof(float));
 
     if (plugin_data->channels == 2) {
-	tmpSamples[1] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS + Sampler_Sample_Padding) * sizeof(float));
+	tmpSamples[1] = (float *)malloc((samples + LMS_SINC_INTERPOLATION_POINTS + 1 + Sampler_Sample_Padding) * sizeof(float));
     } else {
 	tmpSamples[1] = NULL;
     }
 
 
     if (plugin_data->channels == 2) {
-	for (i = LMS_SINC_INTERPOLATION_POINTS_DIV2; i < samples; ++i) {
+	for (i = LMS_SINC_INTERPOLATION_POINTS_DIV2; i < (LMS_SINC_INTERPOLATION_POINTS_DIV2 + samples + Sampler_Sample_Padding); ++i) {
 	    int j;
 	    for (j = 0; j < 2; ++j) {
 		if (j == 1 && info.frames < 2) {
@@ -905,7 +905,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 	    }
 	}
     } else {
-	for (i = 0; i < samples; ++i) {
+	for (i = LMS_SINC_INTERPOLATION_POINTS_DIV2; i < (LMS_SINC_INTERPOLATION_POINTS_DIV2 + samples + Sampler_Sample_Padding); ++i) {
 	    int j;
 	    tmpSamples[0][i] = 0.0f;
 	    for (j = 0; j < info.channels; ++j) {
@@ -916,15 +916,17 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 
     free(tmpFrames);
 
-    /* add an extra sample for linear interpolation */
+    /* add extra samples for interpolation */
     int f_i;
     for(f_i = 0; f_i < LMS_SINC_INTERPOLATION_POINTS_DIV2; f_i++)
     {
         tmpSamples[0][f_i] = 0.0f;
     }
     if (plugin_data->channels == 2) {
-        for(f_i = samples + LMS_SINC_INTERPOLATION_POINTS_DIV2; f_i < (samples + LMS_SINC_INTERPOLATION_POINTS  + Sampler_Sample_Padding); f_i++)
-	tmpSamples[1][f_i] = 0.0f;
+        for(f_i = 0; f_i < LMS_SINC_INTERPOLATION_POINTS_DIV2; f_i++)
+        {
+            tmpSamples[1][f_i] = 0.0f;
+        }
     }
     
     pthread_mutex_lock(&plugin_data->mutex);
