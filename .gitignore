@@ -1,9 +1,11 @@
+*.qm
+*jack-dssi-host
+plugins/protractor/src/.svn/*
 plugins/lms_daw/Makefile
 plugins/lms_daw/build/
 plugins/lms_daw/*.h
 plugins/*/*.so
 plugins/*/src/moc_synth_qt_gui.cpp
-tools/jack-dssi-host/Makefile
 bin
 *.dep.inc
 plugins/lms_suite
@@ -24,7 +26,6 @@ plugins/maintainer.txt
 *config.status
 *config.sub
 *depcomp
-tools/jack-dssi-host/jack-dssi-host
 *libtool
 *ltmain.sh
 *missing
@@ -38,6 +39,6 @@ tools/jack-dssi-host/jack-dssi-host
 *deps_installed.txt
 *_qt
 */build/*
-tools/jack-dssi-host/config.h
-tools/jack-dssi-host/configure
-tools/jack-dssi-host/stamp-h1
+plugins/lms-jack-dssi-host/config.h
+plugins/lms-jack-dssi-host/configure
+plugins/lms-jack-dssi-host/stamp-h1
