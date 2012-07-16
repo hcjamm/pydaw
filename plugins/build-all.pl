@@ -288,7 +288,7 @@ close (MYFILE);
 
 build_all_debug("Building jack-dssi-host");
 
-`cd ../tools/jack-dssi-host ;  perl build.pl --build-jack-host ; cp jack-dssi-host ../../plugins/$bin_dir/lms-jack-dssi-host`;
+`cd lms-jack-dssi-host ;  perl build.pl --build-jack-host ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host`;
 
 if($os eq "install")
 {
