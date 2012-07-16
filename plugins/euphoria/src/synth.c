@@ -882,16 +882,50 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     tmpSamples[1] = (float *)malloc((f_actual_array_size) * sizeof(float));
     
     int f_i, j;
+    
+    for(f_i = 0; f_i < LMS_CHANNEL_COUNT; f_i++)
+    {
+        v_dco_reset(plugin_data->mono_modules->dc_offset_filters[f_i]);
+    }    
+    
+    //For performing a 5ms fadeout of the sample, for preventing clicks
+    float f_fade_out_dec = (1.0f/(float)(info.samplerate))/(0.005);
+    int f_fade_out_start = (samples + LMS_SINC_INTERPOLATION_POINTS_DIV2) - ((int)(0.005f * ((float)(info.samplerate))));
+    float f_fade_out_envelope = 1.0f;
+    float f_temp_sample = 0.0f;
         
     for(f_i = 0; f_i < f_actual_array_size; f_i++)
     {   
         if((f_i > LMS_SINC_INTERPOLATION_POINTS_DIV2) && (f_i < (samples + LMS_SINC_INTERPOLATION_POINTS_DIV2 + Sampler_Sample_Padding)))
         {
+            if(f_i >= f_fade_out_start)
+            {
+                if(f_fade_out_envelope <= 0.0f)
+                {
+                    f_fade_out_dec = 0.0f;
+                }
+                
+                f_fade_out_envelope -= f_fade_out_dec;
+            }
+            
 	    for (j = 0; j < 2; ++j) {
-		if (j == 1 && info.channels < 2) {
+		//if (j == 1 && info.channels < 2) {
+                if (j == 1 && info.channels <= 2) {
 		    tmpSamples[j][f_i] = tmpSamples[0][f_i];
 		} else {
-		    tmpSamples[j][f_i] = tmpFrames[(f_i - LMS_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j];
+		    f_temp_sample = //(tmpFrames[(f_i - LMS_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j]);
+                            f_dco_run(plugin_data->mono_modules->dc_offset_filters[j], 
+                            (tmpFrames[(f_i - LMS_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j]));
+                    
+                    if(f_i >= f_fade_out_start)
+                    {
+                        tmpSamples[j][f_i] = f_temp_sample * f_fade_out_envelope;
+                    }
+                    else
+                    {
+                        tmpSamples[j][f_i] = f_temp_sample;
+                    }
+                    
 		}
             }
         }
@@ -914,20 +948,12 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 
     plugin_data->sample_paths[(a_index)] = path;
     
-    /*
-    for (i = 0; i < Sampler_NOTES; ++i) {
-	plugin_data->ons[i] = -1;
-	plugin_data->offs[i] = -1;
-	plugin_data->velocities[i] = 0;
-    }
-    */
-    
     pthread_mutex_unlock(&plugin_data->mutex);
 
     if (tmpOld[0]) free(tmpOld[0]);
     if (tmpOld[1]) free(tmpOld[1]);
     
-    printf("%s: loaded %s (%ld samples from original %ld channels resampled from %ld frames at %ld Hz)\n", Sampler_Stereo_LABEL, path, (long)samples, (long)info.channels, (long)info.frames, (long)info.samplerate);
+    //printf("%s: loaded %s (%ld samples from original %ld channels resampled from %ld frames at %ld Hz)\n", Sampler_Stereo_LABEL, path, (long)samples, (long)info.channels, (long)info.frames, (long)info.samplerate);
 
     if (revisedPath) {
 	char *message = dssi_configure_message("warning: sample file '%s' not found: loading from '%s' instead", path, revisedPath);
