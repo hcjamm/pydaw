@@ -42,7 +42,7 @@ t_dco_dc_offset_filter * g_dco_get(float a_sr)
 {
     t_dco_dc_offset_filter * f_result = (t_dco_dc_offset_filter*)malloc(sizeof(t_dco_dc_offset_filter));
     
-    f_result->coeff = (1 - (6.6/a_sr));
+    f_result->coeff = (1.0f - (6.6f/a_sr));
     v_dco_reset(f_result);
     
     return f_result;
