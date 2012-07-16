@@ -62,7 +62,7 @@ There should be one build.pl script in each plugin directory.
 
 
 $plugin_path = "/usr/local/lib/dssi";
-$jack_host_dir = "../../tools/jack-dssi-host";
+$jack_host_dir = "../lms-jack-dssi-host";
 $jack_host = "$jack_host_dir/jack-dssi-host";
 $debug_dir = "../bin";
 
@@ -111,7 +111,7 @@ sub run_script
 		build();
 
 		`make PREFIX=/usr DESTDIR=$dssi_path install`;
-		exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; $jack_host $current_dir.so");
+		exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; ddd $jack_host");
 	}
 	elsif($ARGV[0] eq "--run")
 	{
