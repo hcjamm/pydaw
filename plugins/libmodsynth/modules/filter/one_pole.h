@@ -123,7 +123,7 @@ t_opl_one_pole * g_opl_get_one_pole(float a_sr)
     f_result->output = 0;
     f_result->cutoff = 1000;
     f_result->sample_rate = a_sr;
-    f_result->sr_recip = 1/a_sr;
+    f_result->sr_recip = 1.0f/a_sr;
     f_result->pitch_core = g_pit_get();
 #ifdef OPL_DEBUG_MODE
     f_result->debug_counter = 0;

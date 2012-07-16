@@ -158,8 +158,8 @@ void v_adsr_set_s_value(t_adsr* a_adsr_ptr, float a_value)
         a_adsr_ptr->s_value = .001;
     }
     
-    a_adsr_ptr->d_recip = (1/(1-(a_adsr_ptr->s_value)));
-    a_adsr_ptr->r_recip = (1/(a_adsr_ptr->s_value));
+    a_adsr_ptr->d_recip = (1.0f/(1-(a_adsr_ptr->s_value)));
+    a_adsr_ptr->r_recip = (1.0f/(a_adsr_ptr->s_value));
     
     //printf("Setting S value to %f\n", (a_adsr_ptr->s_value));
 }
@@ -232,7 +232,7 @@ void v_adsr_release(t_adsr * a_adsr_ptr)
 }
 
 /* t_adsr * g_adsr_get_adsr(
- * float a_sr_recip) // 1/sample_rate (TODO: use sample_rate instead)
+ * float a_sr_recip) // 1.0f/sample_rate (TODO: use sample_rate instead)
  * 
  */
 t_adsr * g_adsr_get_adsr(float a_sr_recip)
