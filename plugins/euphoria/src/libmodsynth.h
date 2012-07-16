@@ -141,7 +141,7 @@ t_poly_voice * g_poly_init(float a_sr)
         f_i++;
     }
     
-    float f_sr_recip = 1/a_sr;
+    float f_sr_recip = 1.0f/a_sr;
         
     f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
     f_voice->adsr_amp = g_adsr_get_adsr(f_sr_recip);        

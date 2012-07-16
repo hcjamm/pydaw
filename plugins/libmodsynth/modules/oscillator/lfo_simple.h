@@ -86,7 +86,7 @@ t_lfs_lfo * g_lfs_get(float a_sr)
     f_result->osc_ptr = f_get_osc_off;
     f_result->output = 0;
     f_result->sr = a_sr;
-    f_result->sr_recip = 1/a_sr;
+    f_result->sr_recip = 1.0f/a_sr;
     
     return f_result;
 }

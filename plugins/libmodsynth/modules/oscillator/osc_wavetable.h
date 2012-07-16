@@ -111,7 +111,7 @@ void v_osc_set_uni_voice_count(t_osc_wav_unison* a_osc_ptr, int a_value)
  * float a_wav_recip) //The the reciprocal of the wavetable's base pitch
  * 
  * This uses the formula:
- * (1/(sample_rate/table_length)) * osc_hz = ratio
+ * (1.0f/(sample_rate/table_length)) * osc_hz = ratio
  * 
  * This avoids division in the main loop
  */

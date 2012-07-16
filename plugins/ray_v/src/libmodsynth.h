@@ -52,7 +52,7 @@ void v_init_lms(float f_sr);
 void v_init_lms(float f_sr)
 {
     va_sample_rate = f_sr;
-    va_sr_recip = 1/f_sr;    
+    va_sr_recip = 1.0f/f_sr;    
 }
 
 /*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead

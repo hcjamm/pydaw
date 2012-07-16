@@ -160,7 +160,7 @@ inline void v_dly_set_delay_pitch_fast(t_delay_simple* a_dly, t_delay_tap* a_tap
 /*inline void v_dly_set_delay_hz(
  * t_delay_simple* a_dly, 
  * t_delay_tap* a_tap, 
- * float a_hz)  //Frequency in hz.  1/a_hz == the delay time
+ * float a_hz)  //Frequency in hz.  1.0f/a_hz == the delay time
  * 
  */
 inline void v_dly_set_delay_hz(t_delay_simple* a_dly, t_delay_tap* a_tap, float a_hz)
