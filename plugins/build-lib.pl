@@ -111,7 +111,8 @@ sub run_script
 		build();
 
 		`make PREFIX=/usr DESTDIR=$dssi_path install`;
-		exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; ddd $jack_host");
+		#exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; ddd $jack_host");
+		exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; $jack_host $current_dir.so");
 	}
 	elsif($ARGV[0] eq "--run")
 	{
