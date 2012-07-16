@@ -610,8 +610,8 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                     //Figure out which samples to play and stash all relevant values
                     for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
                     {                       
-                        if((f_note_adjusted >= *(plugin_data->low_note[(plugin_data->loaded_samples[i])])) && 
-                        (f_note_adjusted <= *(plugin_data->high_note[(plugin_data->loaded_samples[i])])) &&
+                        if((f_note >= *(plugin_data->low_note[(plugin_data->loaded_samples[i])])) && 
+                        (f_note <= *(plugin_data->high_note[(plugin_data->loaded_samples[i])])) &&
                         (plugin_data->velocities[f_note] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])) &&
                         (plugin_data->velocities[f_note] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
                         {
@@ -682,7 +682,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                     
 		    plugin_data->amp = f_db_to_linear_fast(*(plugin_data->master_vol), plugin_data->mono_modules->amp_ptr);                     
                     
-                    plugin_data->data[f_note]->note_f = (float)f_note_adjusted;
+                    plugin_data->data[f_note]->note_f = (float)f_note;
                                         
                     plugin_data->data[f_note]->target_pitch = (plugin_data->data[f_note]->note_f);
                     plugin_data->data[f_note]->last_pitch = (plugin_data->sv_last_note);
@@ -728,7 +728,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
             else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF )
             {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
-                f_note = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
+                f_note = n.note; // + (*(plugin_data->global_midi_octaves_offset) * -12);
                 
                 
                 if(f_note < 0)
