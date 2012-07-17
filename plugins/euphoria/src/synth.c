@@ -437,6 +437,12 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
         //Run things that aren't per-channel like envelopes
                 
         v_adsr_run(plugin_data->data[n]->adsr_amp);        
+                            
+        if(plugin_data->data[n]->adsr_amp->stage == 4)
+        {
+            plugin_data->ons[n] = -1;
+            break;
+        }
 
         v_adsr_run(plugin_data->data[n]->adsr_filter);
         
@@ -472,12 +478,6 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
                     //plugin_data->ons[n] = -1;
                     continue;
                 }
-                //end
-
-                /*sample += f_linear_interpolate_ptr_wrap(plugin_data->sampleData[ch][(plugin_data->current_sample)], 
-                (plugin_data->sampleCount[(plugin_data->current_sample)]),
-                (f_adjusted_sample_position),
-                plugin_data->lin_interpolator) * (plugin_data->sample_amp[(plugin_data->current_sample)]);*/
                 
                 sample += f_sinc_interpolate2(plugin_data->mono_modules->sinc_interpolator, 
                         plugin_data->sampleData[ch][(plugin_data->current_sample)],
@@ -495,14 +495,6 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
             sample += ((plugin_data->data[n]->noise_func_ptr(plugin_data->data[n]->white_noise1[ch])) * (plugin_data->data[n]->noise_linamp)); //add noise
             
             sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp); // * (plugin_data->data[n]->lfo_amp_output);
-    
-            //If the main ADSR envelope has reached the end it's release stage, kill the voice.
-            //However, you don't have to necessarily have to kill the voice, but you will waste a lot of CPU if you don't            
-            if(plugin_data->data[n]->adsr_amp->stage == 4)
-            {
-                plugin_data->ons[n] = -1;
-                break;
-            }
             
             /*End process PolyFX*/
             
