@@ -184,14 +184,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_tab = new QWidget();
         m_sample_tab->setObjectName(QString::fromUtf8("m_sample_tab"));
         m_sample_tab_horizontalLayout = new QHBoxLayout(m_sample_tab);
-        m_sample_tab_horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        m_smp_tab_scrollArea = new QScrollArea(m_sample_tab);
-        m_smp_tab_scrollArea->setObjectName(QString::fromUtf8("m_smp_tab_scrollArea"));
-        m_smp_tab_scrollArea->setStyleSheet(QString::fromUtf8(""));
-        m_smp_tab_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-        m_smp_tab_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-        m_smp_tab_scrollArea->setWidgetResizable(true);
-        m_smp_tab_scrollAreaWidgetContents = new QWidget();
+        m_sample_tab_horizontalLayout->setObjectName(QString::fromUtf8("m_sample_tab_horizontalLayout"));        
+        m_smp_tab_scrollAreaWidgetContents = new QWidget(m_sample_tab);
         m_smp_tab_scrollAreaWidgetContents->setObjectName(QString::fromUtf8("m_smp_tab_scrollAreaWidgetContents"));
         m_smp_tab_scrollAreaWidgetContents->setGeometry(QRect(0, 0, 966, 728));
         horizontalLayout = new QHBoxLayout(m_smp_tab_scrollAreaWidgetContents);
@@ -238,9 +232,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_global_midi_octaves_offset->lms_spinbox, SIGNAL(valueChanged(int)), this, SLOT(global_midi_octaves_offsetChanged(int)));
         //connect(m_global_midi_channel->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(global_midi_channelChanged(int)));
 
-        m_smp_tab_scrollArea->setWidget(m_smp_tab_scrollAreaWidgetContents);
-
-        m_sample_tab_horizontalLayout->addWidget(m_smp_tab_scrollArea);
+        m_sample_tab_horizontalLayout->addWidget(m_smp_tab_scrollAreaWidgetContents);
 
         m_main_tab->addTab(m_sample_tab, QString());
         m_poly_fx_tab = new QWidget();

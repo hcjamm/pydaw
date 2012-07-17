@@ -604,8 +604,7 @@ protected:
     QVBoxLayout *m_main_v_layout;
     QTabWidget *m_main_tab;
     QWidget *m_sample_tab;
-    QHBoxLayout *m_sample_tab_horizontalLayout;
-    QScrollArea *m_smp_tab_scrollArea;
+    QHBoxLayout *m_sample_tab_horizontalLayout;    
     QWidget *m_smp_tab_scrollAreaWidgetContents;
     QHBoxLayout *horizontalLayout;
     QWidget *m_poly_fx_tab;
