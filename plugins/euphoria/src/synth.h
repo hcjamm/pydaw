@@ -23,15 +23,12 @@ GNU General Public License for more details.
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/interpolate-linear.h"
 
-#define Sampler_BASE_PITCH_MIN 0
-// not 127, as we want 120/2 = 60 as the default:
-#define Sampler_BASE_PITCH_MAX 120
-
 //#define Sampler_RELEASE_MIN 0.001f
 #define Sampler_RELEASE_MIN 0.01f
 #define Sampler_RELEASE_MAX 2.0f
 
-#define Sampler_NOTES 128
+#define Sampler_NOTES 100
+#define Sampler_NOTES_m1 99
 #define Sampler_FRAMES_MAX 1048576
 //Pad the end of samples with zeroes to ensure you don't get artifacts from samples that have no silence at the end
 #define Sampler_Sample_Padding 100
