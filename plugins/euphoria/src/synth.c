@@ -590,13 +590,22 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                 f_note = n.note;
                 f_note_adjusted = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
                 
-                if(f_note_adjusted < 0)
+                if(f_note < 0)
                 {
-                    f_note_adjusted = 0;
+                    f_note = 0;
                 }
-                if(f_note_adjusted > 119)
+                if(f_note > Sampler_NOTES_m1)
                 {
-                    f_note_adjusted = 119;
+                    f_note = Sampler_NOTES_m1;
+                }
+                
+                if(f_note < 0)
+                {
+                    f_note = 0;
+                }
+                if(f_note > Sampler_NOTES_m1)
+                {
+                    f_note = Sampler_NOTES_m1;
                 }
                 
 		if (n.velocity > 0) {
@@ -735,9 +744,9 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                 {
                     f_note = 0;
                 }
-                if(f_note > 119)
+                if(f_note > Sampler_NOTES_m1)
                 {
-                    f_note = 119;
+                    f_note = Sampler_NOTES_m1;
                 }
                 
 		plugin_data->offs[f_note] = 
