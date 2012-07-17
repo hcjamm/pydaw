@@ -446,14 +446,22 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
 
         v_adsr_run(plugin_data->data[n]->adsr_filter);
         
+        float sample[2];
+        sample[0] = 0.0f;
+        sample[1] = 0.0f;        
+                
 	for (ch = 0; ch < (plugin_data->channels); ++ch) {
-
-            float sample = 0.0f;             
             
             plugin_data->i_loaded_samples = 0;
 
             while((plugin_data->i_loaded_samples) < (plugin_data->sample_indexes_count[n]))
             {   
+                if((ch == 2) && ((plugin_data->sample_channels[(plugin_data->current_sample)]) == 1))
+                {
+                    sample[ch] += (plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)]);
+                    continue;
+                }
+                
                 plugin_data->current_sample = (plugin_data->sample_indexes[n][(plugin_data->i_loaded_samples)]);
 
                 //start parts from the beginning of the function   
@@ -479,12 +487,14 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
                     continue;
                 }
                 
-                sample += f_sinc_interpolate2(plugin_data->mono_modules->sinc_interpolator, 
+                plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = f_sinc_interpolate2(plugin_data->mono_modules->sinc_interpolator, 
                         plugin_data->sampleData[ch][(plugin_data->current_sample)],
                         (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
                         (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction))  
                         * (plugin_data->sample_amp[(plugin_data->current_sample)]);
 
+                sample[ch] += plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)];
+                
                 plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
             }            
             
@@ -492,14 +502,14 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
             
             //Call everything defined in libmodsynth.h in the order it should be called in
                                     
-            sample += ((plugin_data->data[n]->noise_func_ptr(plugin_data->data[n]->white_noise1[ch])) * (plugin_data->data[n]->noise_linamp)); //add noise
+            sample[ch] += ((plugin_data->data[n]->noise_func_ptr(plugin_data->data[n]->white_noise1[ch])) * (plugin_data->data[n]->noise_linamp)); //add noise
             
-            sample = (sample) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp); // * (plugin_data->data[n]->lfo_amp_output);
+            sample[ch] = (sample[ch]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp); // * (plugin_data->data[n]->lfo_amp_output);
             
             /*End process PolyFX*/
             
 	    //plugin_data->output[ch][pos + i] += sample;
-            plugin_data->data[n]->modulex_current_sample[ch] = sample;
+            plugin_data->data[n]->modulex_current_sample[ch] = sample[ch];
 	}
                
         //Modular PolyFX
@@ -949,7 +959,15 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
     plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
     plugin_data->sampleCount[(a_index)] = samples + Sampler_Sample_Padding + LMS_SINC_INTERPOLATION_POINTS_DIV2;
-
+    
+    if((info.channels) >= 2)
+    {
+        plugin_data->sample_channels[(a_index)] = 2;
+    }
+    else
+    {
+        plugin_data->sample_channels[(a_index)] = 1;
+    }
     plugin_data->sample_paths[(a_index)] = path;
     
     pthread_mutex_unlock(&plugin_data->mutex);

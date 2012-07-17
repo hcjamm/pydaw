@@ -94,6 +94,8 @@ typedef struct {
     
     int         i_selected_sample;
     int          channels;
+    int         sample_channels[LMS_MAX_SAMPLE_COUNT];
+    float       sample_last_interpolated_value[LMS_MAX_SAMPLE_COUNT];
     float       *sampleData[2][LMS_MAX_SAMPLE_COUNT];
     size_t       sampleCount[LMS_MAX_SAMPLE_COUNT];        
     float       sampleStartPos[LMS_MAX_SAMPLE_COUNT];         
