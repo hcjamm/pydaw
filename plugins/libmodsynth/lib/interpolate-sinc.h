@@ -87,15 +87,16 @@ float f_sinc_interpolate2(t_sinc_interpolator * a_sinc, float * a_array, int a_i
     
 }
 
-t_sinc_interpolator * g_sinc_get(int, int, double, double);
+t_sinc_interpolator * g_sinc_get(int, int, double, double, float);
 
 /* t_sinc_interpolator * g_sinc_get(
  * int a_points, //The number of points to use
  * int a_samples_per_point, //how many array elements per a_point
  * double a_fc,  //cutoff, in hz
- * double sample_rate)
+ * double sample_rate,
+ * float a_normalize_to) //A value to normalize to, typically 0.5 to 0.9
  */
-t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a_fc, double a_sr)
+t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a_fc, double a_sr, float a_normalize_to)
 {
     double f_cutoff = a_fc / a_sr;
     
@@ -151,7 +152,7 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
         }
     }
     
-    float f_normalize = (0.8f / f_high_value);
+    float f_normalize = (a_normalize_to / f_high_value);
     
     for(i_int = 0; i_int < f_array_size; i_int++)
     {
