@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 /*Change these to the project you would like to debug*/
-#include "../../plugins/libmodsynth/lib/interpolate-sinc.h"
+#include "../../plugins/libmodsynth/modules/filter/peak_eq.h"
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
 #define LMS_DEBUGGER_PROJECT
@@ -89,19 +89,9 @@ Also:
  */
 int main(int argc, char** argv) {
     
-    //LADSPA_Descriptor * f_descriptor = *ladspa_descriptor(0);
-    //LADSPA_Handle f_plugin = instantiateLMS(LMSLDescriptor, 44100);
-    //activateLMS(f_plugin);
+    t_pkq_peak_eq * eq = g_pkq_get(44100);
     
-    //snd_seq_event_t events;    
-    
-    //runLMS(f_plugin, 1000, &events, 0);
-    
-    //free(f_plugin);
-    
-    //t_sinc_interpolator * test = g_sinc_get(15, 1000);
-    
-    t_sinc_interpolator * f_test = g_sinc_get(7, 6, 0.15);
+    v_pkq_calc_coeffs(eq, 69.0f, 5.0f, 12.0f);
     
     float * test_square = (float*)malloc(sizeof(float) * 50);
         
@@ -136,11 +126,11 @@ int main(int argc, char** argv) {
         test_square[i] = 0.0f;
     }
     
-    float f_iterate;
+    int f_i;
     
-    for(f_iterate  = 10.0f; f_iterate < 40; f_iterate+=0.369f)
+    for(f_i = 0; f_i < 50; f_i++)
     {
-        printf("%f\n", f_sinc_interpolate(f_test,test_square,f_iterate));
+        v_pkq_run(eq, (test_square[f_i]), (test_square[f_i]));
     }
     
     return 0; //(EXIT_SUCCESS);
