@@ -24,6 +24,7 @@ extern "C" {
 #include "../signal_routing/audio_xfade.h"
 #include "../../lib/amp.h"
 #include "../signal_routing/amp_and_panner.h"
+#include "../filter/peak_eq.h"
     
 /*BIG TODO:  Add a function to modify for the modulation sources*/
     
@@ -35,6 +36,7 @@ typedef struct st_mf3_multi
     t_state_variable_filter * svf1;
     t_comb_filter * comb_filter0;
     t_comb_filter * comb_filter1;  
+    t_pkq_peak_eq * eq0;
     t_clipper * clipper;    
     float output0, output1;
     float control[MULTIFX3KNOB_KNOB_COUNT];
@@ -271,13 +273,20 @@ inline void v_mf3_run_notch4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 
 inline void v_mf3_run_eq(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 {   
-    f_mfx_transform_svf_filter(a_mf3);
+    v_mf3_commit_mod(a_mf3);    
+    //cutoff
+    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.818897638) + 20);
+    //width
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.047244094) + 2.5f;
+    //gain
     a_mf3->control_value[2] = (a_mf3->control[2]) * 0.377952756 - 24;
-    v_svf_set_eq4(a_mf3->svf0, (a_mf3->control_value[2]));
-    v_svf_set_eq4(a_mf3->svf1, (a_mf3->control_value[2]));
     
-    a_mf3->output0 = v_svf_run_4_pole_eq(a_mf3->svf0, a_in0);
-    a_mf3->output1 = v_svf_run_4_pole_eq(a_mf3->svf1, a_in1);
+    v_pkq_calc_coeffs(a_mf3->eq0, a_mf3->control_value[0], a_mf3->control_value[1], a_mf3->control_value[2]);
+    
+    v_pkq_run(a_mf3->eq0, a_in0, a_in1);
+    
+    a_mf3->output0 = (a_mf3->eq0->output0);
+    a_mf3->output1 = (a_mf3->eq0->output1);
 }
 
 inline void v_mf3_run_dist(t_mf3_multi* a_mf3, float a_in0, float a_in1)
@@ -361,6 +370,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->svf1 = g_svf_get(a_sample_rate);
     f_result->comb_filter0 = g_cmb_get_comb_filter(a_sample_rate);
     f_result->comb_filter1 = g_cmb_get_comb_filter(a_sample_rate);
+    f_result->eq0 = g_pkq_get(a_sample_rate);
     f_result->clipper = g_clp_get_clipper();
     v_clp_set_clip_sym(f_result->clipper, -3.0f);
     f_result->output0 = 0.0f;
