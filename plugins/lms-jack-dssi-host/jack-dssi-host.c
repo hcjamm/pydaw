@@ -41,6 +41,8 @@
 #include <alsa/asoundlib.h>
 #include <alsa/seq.h>
 #include <jack/jack.h>
+#include <jack/session.h>
+#include <jack/jslist.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -117,6 +119,7 @@ static pthread_mutex_t midiEventBufferMutex = PTHREAD_MUTEX_INITIALIZER;
 LADSPA_Data get_port_default(const LADSPA_Descriptor *plugin, int port);
 
 void osc_error(int num, const char *m, const char *path);
+void session_callback (jack_session_event_t *event, void *arg);
 
 int osc_message_handler(const char *path, const char *types, lo_arg **argv, int
 		      argc, void *data, void *user_data) ;
@@ -1091,7 +1094,7 @@ main(int argc, char **argv)
 	}
     }
 
-    if ((jackClient = jack_client_open(clientName, 0, &status)) == 0) {
+    if ((jackClient = jack_client_open(clientName, JackSessionID, &status)) == 0) {
         fprintf(stderr, "\n%s: Error: Failed to connect to JACK server\n",
             myName);
         return 1;
@@ -1100,6 +1103,10 @@ main(int argc, char **argv)
         strncpy(clientName, jack_get_client_name(jackClient), clientLen);
 	clientName[clientLen] = '\0';
     }
+    
+    jack_set_session_callback (jackClient, session_callback, NULL);
+    
+    
 
     sample_rate = jack_get_sample_rate(jackClient);
 
@@ -2010,3 +2017,31 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
     return osc_debug_handler(path, types, argv, argc, data, user_data);
 }
 
+void session_callback (jack_session_event_t *event, void *arg)
+{
+        char retval[100];
+        printf ("session notification\n");
+        printf ("path %s, uuid %s, type: %s\n", event->session_dir, event->client_uuid, event->type == JackSessionSave ? "save" : "quit");
+
+        //char * f_result = (char*)malloc(100000);
+                
+        snprintf (retval, 100, "jack_simple_session_client %s", event->client_uuid);
+        event->command_line = strdup (retval);
+
+        jack_session_reply( jackClient, event );
+
+        if (event->type == JackSessionSaveAndQuit) {
+                //simple_quit = 1;
+            exiting = 1;
+        }
+
+        jack_session_event_free (event);
+}
+
+
+
+void jack_shutdown(void *arg)
+{
+	fprintf(stderr, "JACK shut down, exiting ...\n");
+	exit(1);
+}
