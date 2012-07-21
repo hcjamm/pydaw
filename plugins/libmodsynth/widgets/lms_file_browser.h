@@ -29,98 +29,12 @@
 
 #define LMS_file_browser_bookmark_delimiter "|||"
 
-class LMS_file_browser_bookmark_list_class : public QListWidget {
-
-public:
-    QLineEdit * folder_path;
-    QMap <QString, QString> hashtable;
-    QString f_global_config_path;
-    LMS_file_browser_bookmark_list_class(QWidget * parent, QLineEdit * a_folder_path) :
-    QListWidget(parent) 
-    {
-        folder_path = a_folder_path;
-        f_global_config_path = QString(QDir::homePath() + QString("/dssi/lms_file_browser_bookmarks.txt"));
-        
-        if(QFile::exists(f_global_config_path))
-        {
-            QFile f_file(f_global_config_path);
-            QTextStream f_in(&f_file);
-            f_file.open(QIODevice::ReadOnly | QIODevice::Text);
-            
-            while(TRUE)
-            {
-                QString f_line = f_in.readLine();
-                //TODO:  Also stop after an arbitrary maximum number of bookmarks
-                if(f_line.isNull())
-                {
-                    break;
-                }
-                
-                QStringList f_line_arr = f_line.split(QString(LMS_file_browser_bookmark_delimiter));
-                
-                //TODO:  Check f_line_arr
-                
-                hashtable.insert(f_line_arr.at(0), f_line_arr.at(1));
-                this->addItem(new QListWidgetItem(f_line_arr.at(0), this));
-            }
-
-            f_file.close();
-        }
-    }
-
-protected:
-        void dragMoveEvent(QDragMoveEvent *e) {
-            if ((e->source() != this)                    
-                    ) {
-                e->accept();
-
-                QFile f_file(f_global_config_path);
-                f_file.open(QIODevice::WriteOnly | QIODevice::Text);
-
-                QTextStream f_out(&f_file);
-
-                for(int f_i = 0; f_i < this->count(); f_i++)
-                {
-                    if((!hashtable.contains(this->item(f_i)->text())))
-                    {
-                        hashtable.insert(this->item(f_i)->text(), folder_path->text());
-                    }
-                }
-                                
-                foreach(const QString &key, hashtable.keys())
-                {
-                    f_out << key << LMS_file_browser_bookmark_delimiter << hashtable.value(key) << "\n";
-                }
-
-                f_out.flush();
-                f_file.close(); 
-            } else {
-                e->ignore();
-            }
-        }
-        
-        void keyPressEvent(QKeyEvent * event)
-        {
-            if(event->key() == Qt::Key_Delete)
-            {
-                QList<QListWidgetItem*> f_list = this->selectedItems();
-                
-                //Multiselect is not allowed, only remove the first selected
-                if(f_list.count() > 0)
-                {
-                    f_list.removeOne(f_list.at(0));
-                }
-            }
-        }
-}; 
-
-
 class LMS_file_browser
 {
 public:    
     QVBoxLayout *m_file_browser_verticalLayout;
     QLabel *m_bookmarks_label;
-    LMS_file_browser_bookmark_list_class *m_bookmarks_listWidget;
+    QListWidget *m_bookmarks_listWidget;
     QLabel *m_folders_label;
     QLineEdit *m_folder_path_label;
     QListWidget *m_folders_listWidget;    
@@ -133,6 +47,10 @@ public:
     
     QHBoxLayout *m_folders_hlayout0;
     QHBoxLayout *m_files_hlayout0;
+    
+    QLineEdit * folder_path;
+    QMap <QString, QString> hashtable;
+    QString f_global_config_path;
 
     LMS_file_browser(QWidget *a_parent)
     {     
@@ -151,7 +69,7 @@ public:
         m_folder_path_label->setMaximumWidth(240);
         m_folder_path_label->setReadOnly(TRUE);
                 
-        m_bookmarks_listWidget = new LMS_file_browser_bookmark_list_class(a_parent, m_folder_path_label);
+        m_bookmarks_listWidget = new QListWidget(a_parent);
         m_bookmarks_listWidget->setObjectName(QString::fromUtf8("m_bookmarks_listWidget"));
         m_bookmarks_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         m_bookmarks_listWidget->setMaximumWidth(240);
@@ -237,6 +155,35 @@ public:
         m_preview_pushButton->setText(QString("Preview"));
         m_load_pushButton->setText(QString("Load"));
         
+        f_global_config_path = QString(QDir::homePath() + QString("/dssi/lms_file_browser_bookmarks.txt"));
+        
+        if(QFile::exists(f_global_config_path))
+        {
+            QFile f_file(f_global_config_path);
+            QTextStream f_in(&f_file);
+            f_file.open(QIODevice::ReadOnly | QIODevice::Text);
+            
+            while(TRUE)
+            {
+                QString f_line = f_in.readLine();
+                //TODO:  Also stop after an arbitrary maximum number of bookmarks
+                if(f_line.isNull())
+                {
+                    break;
+                }
+                
+                QStringList f_line_arr = f_line.split(QString(LMS_file_browser_bookmark_delimiter));
+                
+                //TODO:  Check f_line_arr
+                
+                hashtable.insert(f_line_arr.at(0), f_line_arr.at(1));
+                m_bookmarks_listWidget->addItem(new QListWidgetItem(f_line_arr.at(0), m_bookmarks_listWidget));
+            }
+
+            f_file.close();
+        }
+        
+        
         folder_opened(QString("/home/"), FALSE);
     }
     
@@ -318,6 +265,30 @@ public:
         QFileInfo f_current_folder(m_folder_path_label->text());
         
         enumerate_folders_and_files(f_current_folder.absoluteDir().absolutePath());
+    }
+    
+    void bookmark_button_pushed()
+    {
+                QFile f_file(f_global_config_path);
+                f_file.open(QIODevice::WriteOnly | QIODevice::Text);
+
+                QTextStream f_out(&f_file);
+
+                for(int f_i = 0; f_i < m_bookmarks_listWidget->count(); f_i++)
+                {
+                    if((!hashtable.contains(m_bookmarks_listWidget->item(f_i)->text())))
+                    {
+                        hashtable.insert(m_bookmarks_listWidget->item(f_i)->text(), folder_path->text());
+                    }
+                }
+                                
+                foreach(const QString &key, hashtable.keys())
+                {
+                    f_out << key << LMS_file_browser_bookmark_delimiter << hashtable.value(key) << "\n";
+                }
+
+                f_out.flush();
+                f_file.close();
     }
 };
 
