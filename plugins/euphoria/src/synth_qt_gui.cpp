@@ -942,6 +942,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_master = new LMS_master_widget(this, a_style, LMS_MASTER_VOLUME, -1, 
                 -1, LMS_MASTER_GLIDE, LMS_MASTER_PITCHBEND_AMT, QString("Master"), FALSE);
         m_main_layout->lms_add_widget(m_master->lms_groupbox->lms_groupbox);    
+        
+        m_master->lms_master_volume->lms_knob->setMinimum(-24);
+        m_master->lms_master_volume->lms_knob->setMaximum(24);
                 
         connect(m_master->lms_master_volume->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterVolumeChanged(int)));
         connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    

@@ -1303,10 +1303,10 @@ void _init()
 	port_descriptors[LMS_MASTER_VOLUME] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_MASTER_VOLUME] = "Master Vol";
 	port_range_hints[LMS_MASTER_VOLUME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_MASTER_VOLUME].LowerBound =  -60;
-	port_range_hints[LMS_MASTER_VOLUME].UpperBound =  12;
+	port_range_hints[LMS_MASTER_VOLUME].LowerBound =  -24;
+	port_range_hints[LMS_MASTER_VOLUME].UpperBound =  24;
                         
         /*Parameters for master glide*/        
 	port_descriptors[LMS_MASTER_GLIDE] = port_descriptors[LMS_ATTACK];
