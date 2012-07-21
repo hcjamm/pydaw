@@ -34,9 +34,10 @@ class LMS_file_browser
 public:    
     QVBoxLayout *m_file_browser_verticalLayout;
     QLabel *m_bookmarks_label;
-    QListWidget *m_bookmarks_listWidget;
+    QListWidget *m_bookmarks_listWidget;    
+    QPushButton *m_bookmarks_delete_button;
     QLabel *m_folders_label;
-    QLineEdit *m_folder_path_label;
+    QLineEdit *m_folder_path_lineedit;
     QListWidget *m_folders_listWidget;    
     QPushButton *m_up_pushButton;
     QPushButton *m_bookmark_button;
@@ -45,9 +46,10 @@ public:
     QPushButton *m_preview_pushButton;
     QPushButton *m_load_pushButton; 
     
+    QHBoxLayout *m_bookmarks_hlayout0;
     QHBoxLayout *m_folders_hlayout0;
     QHBoxLayout *m_files_hlayout0;
-    
+        
     QLineEdit * folder_path;
     QMap <QString, QString> hashtable;
     QString f_global_config_path;
@@ -64,10 +66,10 @@ public:
 
         m_file_browser_verticalLayout->addWidget(m_bookmarks_label);
         
-        m_folder_path_label = new QLineEdit(a_parent);
-        m_folder_path_label->setObjectName(QString::fromUtf8("m_folder_path_label"));
-        m_folder_path_label->setMaximumWidth(240);
-        m_folder_path_label->setReadOnly(TRUE);
+        m_folder_path_lineedit = new QLineEdit(a_parent);
+        m_folder_path_lineedit->setObjectName(QString::fromUtf8("m_folder_path_label"));
+        m_folder_path_lineedit->setMaximumWidth(240);
+        m_folder_path_lineedit->setReadOnly(TRUE);
                 
         m_bookmarks_listWidget = new QListWidget(a_parent);
         m_bookmarks_listWidget->setObjectName(QString::fromUtf8("m_bookmarks_listWidget"));
@@ -75,10 +77,19 @@ public:
         m_bookmarks_listWidget->setMaximumWidth(240);
         m_bookmarks_listWidget->setAcceptDrops(TRUE);
         m_bookmarks_listWidget->setDropIndicatorShown(TRUE);
-        m_bookmarks_listWidget->setToolTip(QString("Drag and drop folders from the folder list here."));
+        m_bookmarks_listWidget->setToolTip(QString("Press the 'bookmark' button to add folders here."));
         m_bookmarks_listWidget->setDragDropMode(QAbstractItemView::DropOnly);
 
         m_file_browser_verticalLayout->addWidget(m_bookmarks_listWidget);
+        
+        m_bookmarks_hlayout0 = new QHBoxLayout();
+        
+        m_bookmarks_delete_button = new QPushButton(a_parent);
+        m_bookmarks_delete_button->setText(QString("Delete"));
+        
+        m_bookmarks_hlayout0->addWidget(m_bookmarks_delete_button);
+        
+        m_file_browser_verticalLayout->addLayout(m_bookmarks_hlayout0);
 
         m_folders_label = new QLabel(a_parent);
         m_folders_label->setObjectName(QString::fromUtf8("m_folders_label"));
@@ -86,7 +97,7 @@ public:
 
         m_file_browser_verticalLayout->addWidget(m_folders_label);
         
-        m_file_browser_verticalLayout->addWidget(m_folder_path_label);
+        m_file_browser_verticalLayout->addWidget(m_folder_path_lineedit);
 
         m_folders_listWidget = new QListWidget(a_parent);
         m_folders_listWidget->setObjectName(QString::fromUtf8("m_folders_listWidget"));
@@ -146,7 +157,7 @@ public:
 
         m_bookmarks_label->setText(QString("Bookmarks"));
         m_folders_label->setText(QString("Folders"));
-        m_folder_path_label->setText(QString("/home"));
+        m_folder_path_lineedit->setText(QString("/home"));
         m_up_pushButton->setText(QString("Up"));
         m_files_label->setText(QString("Files"));
 
@@ -191,13 +202,13 @@ public:
     {
         if(a_relative_path)
         {
-            if(m_folder_path_label->text().compare(QString("/")) == 0)
+            if(m_folder_path_lineedit->text().compare(QString("/")) == 0)
             {
                 enumerate_folders_and_files(QString("/") + a_folder);
             }
             else
             {
-                enumerate_folders_and_files(m_folder_path_label->text() + QString("/") + a_folder);
+                enumerate_folders_and_files(m_folder_path_lineedit->text() + QString("/") + a_folder);
             }
         }
         else
@@ -220,7 +231,7 @@ public:
         m_files_listWidget->clear();
         m_folders_listWidget->clear();
         
-        m_folder_path_label->setText(f_dir.path());
+        m_folder_path_lineedit->setText(f_dir.path());
         
         foreach(QFileInfo f_info, f_list)
         {
@@ -262,34 +273,68 @@ public:
     void up_one_folder()
     {
         //TODO:  Some checks before we just fire this off...
-        QFileInfo f_current_folder(m_folder_path_label->text());
+        QFileInfo f_current_folder(m_folder_path_lineedit->text());
         
         enumerate_folders_and_files(f_current_folder.absoluteDir().absolutePath());
     }
     
-    void bookmark_button_pushed()
+    void bookmark_button_pressed()
     {
-                QFile f_file(f_global_config_path);
-                f_file.open(QIODevice::WriteOnly | QIODevice::Text);
+        //TODO:  Some validation of the results
+        QStringList f_list = m_folder_path_lineedit->text().split(QString("/"));
+        
+        QString f_folder = f_list.at((f_list.count() - 1));
+        QString f_path = QString("");
+        
+        for(int f_i = 0; f_i < (f_list.count() - 1); f_i++)
+        {
+            if(!f_list.at(f_i).isEmpty())
+            {
+                f_path.append(QString("/") + f_list.at(f_i));
+            }
+        }
+        
+        hashtable.insert(f_folder, f_path);
+        m_bookmarks_listWidget->addItem(f_folder);        
 
-                QTextStream f_out(&f_file);
-
-                for(int f_i = 0; f_i < m_bookmarks_listWidget->count(); f_i++)
-                {
-                    if((!hashtable.contains(m_bookmarks_listWidget->item(f_i)->text())))
-                    {
-                        hashtable.insert(m_bookmarks_listWidget->item(f_i)->text(), folder_path->text());
-                    }
-                }
-                                
-                foreach(const QString &key, hashtable.keys())
-                {
-                    f_out << key << LMS_file_browser_bookmark_delimiter << hashtable.value(key) << "\n";
-                }
-
-                f_out.flush();
-                f_file.close();
+        write_hashtable_to_file();
     }
+    
+    void bookmark_clicked(QString a_key)
+    {
+        folder_opened(hashtable.value(a_key) + QString("/") + a_key, FALSE);
+    }
+    
+    void bookmark_delete_button_pressed()
+    {
+        QList<QListWidgetItem*> f_list = m_bookmarks_listWidget->selectedItems();
+        
+        if(f_list.count() > 0)
+        {
+            m_bookmarks_listWidget->takeItem(m_bookmarks_listWidget->selectionModel()->selectedRows(0).at(0).row());
+            
+            hashtable.remove (f_list.at(0)->text());
+        
+            write_hashtable_to_file();
+        }
+    }
+    
+    void write_hashtable_to_file()
+    {        
+        QFile f_file(f_global_config_path);
+        f_file.open(QIODevice::WriteOnly | QIODevice::Text);
+
+        QTextStream f_out(&f_file);
+
+        foreach(const QString &key, hashtable.keys())
+        {
+            f_out << key << LMS_file_browser_bookmark_delimiter << hashtable.value(key) << "\n";
+        }
+
+        f_out.flush();
+        f_file.close();
+    }
+    
 };
 
 #endif	/* LMS_FILE_BROWSER_H */
