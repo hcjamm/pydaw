@@ -256,7 +256,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
                 
         m_main_v_layout->addWidget(m_main_tab);
         
-        //this->setWindowTitle(QApplication::translate("Frame", "Euphoria - Powered by LibModSynth", 0, QApplication::UnicodeUTF8));
+        this->setWindowTitle(QApplication::translate("Frame", "Euphoria - Powered by LibModSynth", 0, QApplication::UnicodeUTF8));
         m_main_tab->setTabText(m_main_tab->indexOf(m_sample_tab), QApplication::translate("Frame", "Samples", 0, QApplication::UnicodeUTF8));
         m_main_tab->setTabText(m_main_tab->indexOf(m_poly_fx_tab), QApplication::translate("Frame", "Poly FX", 0, QApplication::UnicodeUTF8));
         
@@ -1211,7 +1211,7 @@ void SamplerGUI::generate_files_string(int a_index)
     
     files_string.append(preview_file + LMS_FILES_STRING_DELIMITER);
     
-    cerr << files_string << "\n";
+    //cerr << files_string << "\n";
 }
 
 void SamplerGUI::clearFile()
