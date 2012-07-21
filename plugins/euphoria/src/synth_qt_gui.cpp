@@ -54,7 +54,7 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 #endif
 
 /*This allows the executable to run standalone for debugging.  This should normally be commented out*/
-#define LMS_DEBUG_STANDALONE
+//#define LMS_DEBUG_STANDALONE
 
 using std::endl;
 
@@ -199,9 +199,11 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_smp_tab_main_verticalLayout->addLayout(m_file_selector->lms_layout);
         
         m_file_browser = new LMS_file_browser(this);
+        preview_file = QString("");
         
         connect(m_file_browser->m_folders_listWidget, SIGNAL(itemClicked( QListWidgetItem*)), this, SLOT(file_browser_folder_clicked(QListWidgetItem*)));
         connect(m_file_browser->m_load_pushButton, SIGNAL(clicked()), this, SLOT(file_browser_load_button_pressed()));
+        connect(m_file_browser->m_preview_pushButton, SIGNAL(clicked()), this, SLOT(file_browser_preview_button_pressed()));
         connect(m_file_browser->m_up_pushButton, SIGNAL(clicked()), this, SLOT(file_browser_up_button_pressed()));
         
         horizontalLayout->addLayout(m_file_browser->m_file_browser_verticalLayout, -1);
@@ -1203,7 +1205,9 @@ void SamplerGUI::generate_files_string(int a_index)
         }
     }
     
-    //cerr << files_string;
+    files_string.append(preview_file + LMS_FILES_STRING_DELIMITER);
+    
+    cerr << files_string << "\n";
 }
 
 void SamplerGUI::clearFile()
@@ -1312,7 +1316,23 @@ void SamplerGUI::file_browser_up_button_pressed()
 
 void SamplerGUI::file_browser_preview_button_pressed()
 {
-    //TODO:
+    QList<QListWidgetItem*> f_list = m_file_browser->m_files_listWidget->selectedItems();
+    
+    if(f_list.count() == 0)
+    {
+        preview_file = QString("");
+    }
+    else
+    {
+        preview_file = m_file_browser->m_folder_path_label->text() + QString("/") + f_list[0]->text();
+        
+        generate_files_string();
+                
+#ifndef LMS_DEBUG_STANDALONE
+        lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
+        lo_send(m_host, m_configurePath, "ss", "lastdir", m_file_browser->m_folder_path_label->text().toLocal8Bit().data());
+#endif
+    }
 }
 
 void SamplerGUI::file_browser_folder_clicked(QListWidgetItem * a_item)
@@ -1669,7 +1689,7 @@ void SamplerGUI::openInstrumentFromFile()
                             
                             if(QFile::exists(f_full_path))
                             {
-                                cerr << "Setting " << file_arr.at(0) << " to " << f_full_path;
+                                cerr << "Setting " << file_arr.at(0) << " to " << f_full_path << "\n";
                                 QTableWidgetItem * f_item = new QTableWidgetItem();
                                 f_item->setText(f_full_path);
                                 f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
@@ -2725,6 +2745,7 @@ int configure_handler(const char *path, const char *types, lo_arg **argv,
 	//gui->setProjectDirectory(QString::fromLocal8Bit(value));
     } else if (!strcmp(key, "lastdir")) {
         gui->m_file_selector->lms_last_directory = QString::fromLocal8Bit(value);
+        gui->m_file_browser->folder_opened(QString::fromLocal8Bit(value), FALSE);
     }
 
     return 0;

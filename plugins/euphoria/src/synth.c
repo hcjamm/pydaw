@@ -271,6 +271,9 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->lin_interpolator = g_lin_get();
     plugin_data->amp = 1.0f;
     
+    plugin_data->preview_sample_array_index = 0;
+    plugin_data->sampleCount[(LMS_TOTAL_SAMPLE_COUNT - 1)] = 0;  //To prevent a SEGFAULT on the first call of the main loop
+    
     plugin_data->smp_pit_core = g_pit_get();
     plugin_data->smp_pit_ratio = g_pit_ratio();
         
@@ -768,7 +771,22 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                 add_sample_lms_euphoria(plugin_data, i, pos, count);                                
 	    }
 	}
-
+        
+        if((plugin_data->preview_sample_array_index) < (plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT]))
+        {
+            for(i = 0; i < count; i++)
+            {
+                plugin_data->output[0][pos + i] += (plugin_data->sampleData[0][(LMS_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+                plugin_data->output[1][pos + i] += (plugin_data->sampleData[1][(LMS_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+                
+                plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + 1;
+                
+                if((plugin_data->preview_sample_array_index) >= (plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT]))
+                {
+                    break;  //TODO:  Something that will allow the same sample to be previewed consecutively
+                }
+            }
+        }
 	pos += count;
     }
 
@@ -1048,7 +1066,7 @@ char *samplerLoadAll(Sampler *plugin_data, const char *paths)
     
     char * f_result_string = malloc(256);    
     
-    while (f_samples_loaded_count < LMS_MAX_SAMPLE_COUNT)
+    while (f_samples_loaded_count < LMS_TOTAL_SAMPLE_COUNT)
     {    
         if(paths[f_index] == '\0')
         {
@@ -1065,6 +1083,13 @@ char *samplerLoadAll(Sampler *plugin_data, const char *paths)
             else if(strcmp(f_result_string, plugin_data->sample_paths[f_samples_loaded_count]) != 0)
             {
                 samplerLoad(plugin_data,f_result_string,f_samples_loaded_count);
+                
+                //The last index is reserved for previewing samples for the UI;
+                //Reset the array indexer so it will play from the beginning.
+                if(f_samples_loaded_count == LMS_MAX_SAMPLE_COUNT)
+                {
+                    plugin_data->preview_sample_array_index = 0;
+                }
             }
             f_current_string_index = 0;
             f_samples_loaded_count++;

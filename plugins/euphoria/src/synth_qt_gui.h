@@ -106,9 +106,11 @@ public:
     void generate_files_string(int);
     void generate_files_string();
     QString files_string;
+    QString preview_file;
     
     void set_selected_sample_combobox_item(int,QString);
     LMS_file_select * m_file_selector;
+    LMS_file_browser * m_file_browser;
     
     //From Ray-V   TODO:  Are these necessary?
     
@@ -643,8 +645,7 @@ protected:
     QSpacerItem *m_sample_view_file_select_right_hspacer;
     QSpacerItem *m_view_sample_tab_lower_vspacer;
 
-    LMS_file_select * m_view_file_selector;
-    LMS_file_browser * m_file_browser;
+    LMS_file_select * m_view_file_selector;    
     
     //end m_view_sample_tab
     
