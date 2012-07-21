@@ -120,6 +120,7 @@ public:
     
     void lms_value_changed(int, LMS_control *);
     void lms_set_value(float, LMS_control *);
+    void load_files(QStringList);
         
     //End from Ray-V
         

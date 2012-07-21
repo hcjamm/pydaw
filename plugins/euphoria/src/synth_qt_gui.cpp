@@ -1121,8 +1121,13 @@ void SamplerGUI::fileSelect()
 {   
     QStringList paths = m_file_selector->open_button_pressed_multiple(this);
     
-    m_view_file_selector->lms_set_file(m_file_selector->lms_get_file());
+    m_view_file_selector->lms_set_file(m_file_selector->lms_get_file());    
     
+    load_files(paths);
+}
+
+void SamplerGUI::load_files(QStringList paths)
+{
     if(!paths.isEmpty())
     {
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
@@ -1170,7 +1175,6 @@ void SamplerGUI::fileSelect()
                 
         m_sample_table->lms_mod_matrix->resizeColumnsToContents();
     }
-
 }
 
 void SamplerGUI::generate_files_string()
