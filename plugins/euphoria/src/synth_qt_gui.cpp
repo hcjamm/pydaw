@@ -54,7 +54,7 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 #endif
 
 /*This allows the executable to run standalone for debugging.  This should normally be commented out*/
-//#define LMS_DEBUG_STANDALONE
+#define LMS_DEBUG_STANDALONE
 
 using std::endl;
 
@@ -200,7 +200,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         m_file_browser = new LMS_file_browser(this);
         
-        
+        connect(m_file_browser->m_folders_listWidget, SIGNAL(itemClicked( QListWidgetItem*)), this, SLOT(file_browser_folder_clicked(QListWidgetItem*)));
+        connect(m_file_browser->m_load_pushButton, SIGNAL(clicked()), this, SLOT(file_browser_load_button_pressed()));
+        connect(m_file_browser->m_up_pushButton, SIGNAL(clicked()), this, SLOT(file_browser_up_button_pressed()));
         
         horizontalLayout->addLayout(m_file_browser->m_file_browser_verticalLayout, -1);
         
@@ -1285,6 +1287,36 @@ void SamplerGUI::selectionChanged()
     
     m_suppressHostUpdate = FALSE;
     
+}
+
+void SamplerGUI::file_browser_load_button_pressed()
+{
+    QStringList f_result = m_file_browser->files_opened();
+    
+    for(int f_i = 0; f_i < f_result.count(); f_i++)
+    {
+        QString f_temp = QString(m_file_browser->m_folder_path_label->text() + "/" + f_result.at(f_i));
+        
+        f_result.removeAt(f_i);
+        f_result.insert(f_i, f_temp);
+    }
+    
+    load_files(f_result);
+}
+
+void SamplerGUI::file_browser_up_button_pressed()
+{
+    m_file_browser->up_one_folder();
+}
+
+void SamplerGUI::file_browser_preview_button_pressed()
+{
+    //TODO:
+}
+
+void SamplerGUI::file_browser_folder_clicked(QListWidgetItem * a_item)
+{
+    m_file_browser->folder_opened(a_item->text(), TRUE);
 }
 
 void SamplerGUI::sample_pitchChanged(int a_control_index)
