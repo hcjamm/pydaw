@@ -102,7 +102,8 @@ typedef struct {
     float adjusted_base_pitch[LMS_MAX_SAMPLE_COUNT];
     
     //For sample preview:
-    int preview_sample_array_index;    
+    int preview_sample_array_index;
+    int preview_sample_max_length;  //Used to set the maximum time to preview a sample to an arbitrary number of samples
     
     /*TODO:  Deprecate these 2?*/
     int loaded_samples[LMS_MAX_SAMPLE_COUNT];
