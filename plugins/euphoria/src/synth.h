@@ -46,8 +46,7 @@ typedef struct {
     LADSPA_Data *sample_vel_low[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sample_vel_high[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *selected_sample;
-    
-    //From Ray-V
+        
     LADSPA_Data *attack;
     LADSPA_Data *decay;
     LADSPA_Data *sustain;
@@ -71,22 +70,16 @@ typedef struct {
     
     LADSPA_Data *lfo_freq;
     LADSPA_Data *lfo_type;
-    
-    //End from Ray-V
-    
-    //LADSPA_Data *global_midi_channel;
+        
     LADSPA_Data *global_midi_octaves_offset;
-    
-    //From Modulex        
+        
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
     LADSPA_Data *pfx_mod_knob[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
     
     LADSPA_Data *fx_combobox[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT];
         
-    //End from Modulex
-    
     //PolyFX Mod Matrix
-    //Corresponds to the mod matrix knobs
+    //Corresponds to the mod matrix spinboxes
     LADSPA_Data *polyfx_mod_matrix[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_MODULATOR_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
     
     //End from PolyFX Mod Matrix
@@ -114,7 +107,7 @@ typedef struct {
     int i_loaded_samples;
     /*Used as a boolean when determining if a sample has already been loaded*/
     int sample_is_loaded;    
-    /*The current sample being played*/
+    /*The index of the current sample being played*/
     int current_sample;
     
     int          sampleRate;
