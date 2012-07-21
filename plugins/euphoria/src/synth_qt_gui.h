@@ -201,6 +201,10 @@ public slots:
 protected slots:
     void fileSelect();    
     void selectionChanged();   
+    void file_browser_load_button_pressed();
+    void file_browser_up_button_pressed();
+    void file_browser_preview_button_pressed();
+    void file_browser_folder_clicked(QListWidgetItem *);
     
     void oscRecv();
     
