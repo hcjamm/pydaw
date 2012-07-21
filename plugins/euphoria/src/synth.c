@@ -408,13 +408,23 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
     
     unsigned long i, ch;
 
-    //if (pos + plugin_data->sampleNo < plugin_data->ons[n]) return;
-
     for (i = 0; i < count; ++i) {
 
         //Delay the note-on event until the sample it was called for
         if(((plugin_data->sampleNo) + i) < (plugin_data->ons[n]))
             continue;
+
+        //Run things that aren't per-channel like envelopes
+                
+        v_adsr_run(plugin_data->data[n]->adsr_amp);        
+                            
+        if(plugin_data->data[n]->adsr_amp->stage == 4)
+        {
+            plugin_data->ons[n] = -1;
+            break;
+        }
+
+        v_adsr_run(plugin_data->data[n]->adsr_filter);
         
         //Run the glide module            
         f_rmp_run_ramp(plugin_data->data[n]->ramp_env);
@@ -434,18 +444,6 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
             v_poly_note_off(plugin_data->data[n]);            
 	}        
         
-        //Run things that aren't per-channel like envelopes
-                
-        v_adsr_run(plugin_data->data[n]->adsr_amp);        
-                            
-        if(plugin_data->data[n]->adsr_amp->stage == 4)
-        {
-            plugin_data->ons[n] = -1;
-            break;
-        }
-
-        v_adsr_run(plugin_data->data[n]->adsr_filter);
-        
         float sample[2];
         sample[0] = 0.0f;
         sample[1] = 0.0f;        
@@ -464,7 +462,6 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
                 
                 plugin_data->current_sample = (plugin_data->sample_indexes[n][(plugin_data->i_loaded_samples)]);
 
-                //start parts from the beginning of the function   
                 plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(
                         (*(plugin_data->sample_vol[(plugin_data->current_sample)])) + 
                         (plugin_data->vel_sens_output[n][(plugin_data->current_sample)])                        
@@ -498,21 +495,14 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
                 plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
             }            
             
-            /*Process PolyFX here*/
-            
-            //Call everything defined in libmodsynth.h in the order it should be called in
-                                    
             sample[ch] += ((plugin_data->data[n]->noise_func_ptr(plugin_data->data[n]->white_noise1[ch])) * (plugin_data->data[n]->noise_linamp)); //add noise
             
             sample[ch] = (sample[ch]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp); // * (plugin_data->data[n]->lfo_amp_output);
             
-            /*End process PolyFX*/
-            
-	    //plugin_data->output[ch][pos + i] += sample;
             plugin_data->data[n]->modulex_current_sample[ch] = sample[ch];
 	}
                
-        //Modular PolyFX
+        //Modular PolyFX, processed from the index created during note_on
         for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[n]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
         {            
             v_mf3_set(plugin_data->data[n]->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])], 
@@ -537,8 +527,6 @@ static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long p
 
         }
  
-        //End from Modulex
-
         plugin_data->output[0][pos + i] += plugin_data->data[n]->modulex_current_sample[0];
         plugin_data->output[1][pos + i] += plugin_data->data[n]->modulex_current_sample[1];        
     }
@@ -577,6 +565,9 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
             /*Note-on event*/
 	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
+                
+                //Code for accepting MIDI only on a user selected MIDI channel.  Not currently implemented
+                //because jack-dssi-host does not accept MIDI on all channels in it's current state
                 /*
                 if(*(plugin_data->global_midi_channel) < 16)
                 {
@@ -660,7 +651,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                         }
                     }    
                     
-                    //Calculate which mod_matrix controls to actually process.  This, folks, is how you do something stupidly parallel in an efficient manner when it will spend 99% of the time idle                                        
+                    //Calculate an index of which mod_matrix controls to process.  This saves expensive iterations and if/then logic in the main loop
                     for(plugin_data->i_fx_grps = 0; (plugin_data->i_fx_grps) < LMS_EFFECTS_GROUPS_COUNT; plugin_data->i_fx_grps = (plugin_data->i_fx_grps) + 1)
                     {
                         for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[f_note]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
@@ -728,8 +719,6 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                     //{
                         
                     //}
-                    
-                    //End Ray-V additions                    
                     
 		} else {    
                     plugin_data->offs[f_note] = 
@@ -1153,9 +1142,9 @@ void _init()
 	LADSPA_Descriptor *desc = samplerStereoLDescriptor;
 
 	desc->UniqueID = channels;
-	desc->Label = LMS_PLUGIN_NAME; //(stereo ? Sampler_Stereo_LABEL : Sampler_Mono_LABEL);
+	desc->Label = LMS_PLUGIN_NAME;
 	desc->Properties = LADSPA_PROPERTY_REALTIME | LADSPA_PROPERTY_HARD_RT_CAPABLE;
-	desc->Name =  LMS_PLUGIN_LONG_NAME; //(stereo ? "Simple Stereo Sampler" : "Simple Mono Sampler");
+	desc->Name =  LMS_PLUGIN_LONG_NAME;
 	desc->Maker = LMS_PLUGIN_DEV;
 	desc->Copyright = "GPL";
 	desc->PortCount = Sampler_Stereo_COUNT;
@@ -1194,9 +1183,7 @@ void _init()
 	    port_names[Sampler_OUTPUT_RIGHT] = "Output R";
 	    port_range_hints[Sampler_OUTPUT_RIGHT].HintDescriptor = 0;
 	}
-        
-        //Begin Ray-V PolyFX ports        
-        
+                
 	/* Parameters for attack */
 	port_descriptors[LMS_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_ATTACK] = "Attack time (s)";
@@ -1333,12 +1320,8 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_LFO_TYPE].LowerBound = 0; 
 	port_range_hints[LMS_LFO_TYPE].UpperBound = 2;
-                        
-        //End Ray-V
         
-        //From Modulex
-        
-        	port_descriptors[LMS_FX0_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+        port_descriptors[LMS_FX0_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_FX0_KNOB0] = "FX0 Knob0";
 	port_range_hints[LMS_FX0_KNOB0].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
@@ -1473,8 +1456,6 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_FX3_COMBOBOX].LowerBound =  0;
 	port_range_hints[LMS_FX3_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-        
-        //End from Modulex
         
         //From PolyFX mod matrix
         
