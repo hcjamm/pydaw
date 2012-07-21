@@ -1176,6 +1176,7 @@ void SamplerGUI::load_files(QStringList paths)
 #endif
                 
         m_sample_table->lms_mod_matrix->resizeColumnsToContents();
+        selectionChanged();
     }
 }
 
