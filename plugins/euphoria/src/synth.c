@@ -273,6 +273,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     
     plugin_data->preview_sample_array_index = 0;
     plugin_data->sampleCount[(LMS_TOTAL_SAMPLE_COUNT - 1)] = 0;  //To prevent a SEGFAULT on the first call of the main loop
+    plugin_data->preview_sample_max_length = s_rate * 5;  //Sets the maximum time to preview a sample to 5 seconds, lest a user unwittlingly tries to preview a 2 hour long sample.
     
     plugin_data->smp_pit_core = g_pit_get();
     plugin_data->smp_pit_ratio = g_pit_ratio();
@@ -772,7 +773,8 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 	    }
 	}
         
-        if((plugin_data->preview_sample_array_index) < (plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT]))
+        if(((plugin_data->preview_sample_array_index) < (plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT])) &&
+                ((plugin_data->preview_sample_array_index) <  (plugin_data->preview_sample_max_length)))
         {
             for(i = 0; i < count; i++)
             {
