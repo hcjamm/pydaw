@@ -89,8 +89,8 @@ typedef struct {
     int          channels;
     int         sample_channels[LMS_MAX_SAMPLE_COUNT];
     float       sample_last_interpolated_value[LMS_MAX_SAMPLE_COUNT];
-    float       *sampleData[2][LMS_MAX_SAMPLE_COUNT];
-    size_t       sampleCount[LMS_MAX_SAMPLE_COUNT];        
+    float       *sampleData[2][LMS_TOTAL_SAMPLE_COUNT];
+    size_t       sampleCount[LMS_TOTAL_SAMPLE_COUNT];        
     float       sampleStartPos[LMS_MAX_SAMPLE_COUNT];         
     float       sampleEndPos[LMS_MAX_SAMPLE_COUNT];
     float       sample_amp[LMS_MAX_SAMPLE_COUNT];     //linear, for multiplying
@@ -100,6 +100,9 @@ typedef struct {
     float vel_sens_output[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];
     
     float adjusted_base_pitch[LMS_MAX_SAMPLE_COUNT];
+    
+    //For sample preview:
+    int preview_sample_array_index;    
     
     /*TODO:  Deprecate these 2?*/
     int loaded_samples[LMS_MAX_SAMPLE_COUNT];

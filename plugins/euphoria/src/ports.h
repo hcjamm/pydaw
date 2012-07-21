@@ -51,6 +51,8 @@
 
 /*Provide an arbitrary maximum number of samples the user can load*/
 #define LMS_MAX_SAMPLE_COUNT 32
+//+1 to LMS_MAX_SAMPLE_COUNT, the highest index is for the preview sample
+#define LMS_TOTAL_SAMPLE_COUNT 33
 
 //Total number of LFOs, ADSRs, other envelopes, etc...  Used for the PolyFX mod matrix
 #define LMS_MODULATOR_COUNT 4
