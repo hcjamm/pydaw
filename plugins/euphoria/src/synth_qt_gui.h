@@ -207,6 +207,9 @@ protected slots:
     void file_browser_up_button_pressed();
     void file_browser_preview_button_pressed();
     void file_browser_folder_clicked(QListWidgetItem *);
+    void file_browser_bookmark_clicked(QListWidgetItem *);
+    void file_browser_bookmark_button_pressed();
+    void file_browser_bookmark_delete_button_pressed();
     
     void oscRecv();
     

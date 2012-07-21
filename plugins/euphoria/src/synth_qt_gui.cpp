@@ -32,6 +32,7 @@ GNU General Public License for more details.
 #include <sndfile.h>
 #include <quuid.h>
 #include "dssi.h"
+#include "synth.h"
 #include <QFont>
 
 #ifdef Q_WS_X11
@@ -202,9 +203,12 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         preview_file = QString("");
         
         connect(m_file_browser->m_folders_listWidget, SIGNAL(itemClicked( QListWidgetItem*)), this, SLOT(file_browser_folder_clicked(QListWidgetItem*)));
+        connect(m_file_browser->m_bookmarks_listWidget, SIGNAL(itemClicked( QListWidgetItem*)), this, SLOT(file_browser_bookmark_clicked(QListWidgetItem*)));
         connect(m_file_browser->m_load_pushButton, SIGNAL(clicked()), this, SLOT(file_browser_load_button_pressed()));
         connect(m_file_browser->m_preview_pushButton, SIGNAL(clicked()), this, SLOT(file_browser_preview_button_pressed()));
         connect(m_file_browser->m_up_pushButton, SIGNAL(clicked()), this, SLOT(file_browser_up_button_pressed()));
+        connect(m_file_browser->m_bookmark_button, SIGNAL(clicked()), this, SLOT(file_browser_bookmark_button_pressed()));
+        connect(m_file_browser->m_bookmarks_delete_button, SIGNAL(clicked()), this, SLOT(file_browser_bookmark_delete_button_pressed()));
         
         horizontalLayout->addLayout(m_file_browser->m_file_browser_verticalLayout, -1);
         
@@ -1300,7 +1304,7 @@ void SamplerGUI::file_browser_load_button_pressed()
     
     for(int f_i = 0; f_i < f_result.count(); f_i++)
     {
-        QString f_temp = QString(m_file_browser->m_folder_path_label->text() + "/" + f_result.at(f_i));
+        QString f_temp = QString(m_file_browser->m_folder_path_lineedit->text() + "/" + f_result.at(f_i));
         
         f_result.removeAt(f_i);
         f_result.insert(f_i, f_temp);
@@ -1324,13 +1328,13 @@ void SamplerGUI::file_browser_preview_button_pressed()
     }
     else
     {
-        preview_file = m_file_browser->m_folder_path_label->text() + QString("/") + f_list[0]->text();
+        preview_file = m_file_browser->m_folder_path_lineedit->text() + QString("/") + f_list[0]->text();
         
         generate_files_string();
                 
 #ifndef LMS_DEBUG_STANDALONE
         lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
-        lo_send(m_host, m_configurePath, "ss", "lastdir", m_file_browser->m_folder_path_label->text().toLocal8Bit().data());
+        lo_send(m_host, m_configurePath, "ss", "lastdir", m_file_browser->m_folder_path_lineedit->text().toLocal8Bit().data());
 #endif
     }
 }
@@ -1338,6 +1342,21 @@ void SamplerGUI::file_browser_preview_button_pressed()
 void SamplerGUI::file_browser_folder_clicked(QListWidgetItem * a_item)
 {
     m_file_browser->folder_opened(a_item->text(), TRUE);
+}
+
+void SamplerGUI::file_browser_bookmark_clicked(QListWidgetItem * a_item)
+{
+    m_file_browser->bookmark_clicked(a_item->text());
+}
+
+void SamplerGUI::file_browser_bookmark_button_pressed()
+{
+    m_file_browser->bookmark_button_pressed();
+}
+
+void SamplerGUI::file_browser_bookmark_delete_button_pressed()
+{
+    m_file_browser->bookmark_delete_button_pressed();
 }
 
 void SamplerGUI::sample_pitchChanged(int a_control_index)
