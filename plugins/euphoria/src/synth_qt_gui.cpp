@@ -1336,6 +1336,8 @@ void SamplerGUI::file_browser_preview_button_pressed()
         lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
         lo_send(m_host, m_configurePath, "ss", "lastdir", m_file_browser->m_folder_path_lineedit->text().toLocal8Bit().data());
 #endif
+        
+        preview_file = QString("");        
     }
 }
 
