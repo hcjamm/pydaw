@@ -108,17 +108,18 @@ public:
 
         m_file_browser_verticalLayout->addWidget(m_preview_pushButton);
 
-        m_bookmarks_label->setText(QApplication::translate("Form", "Bookmarks", 0, QApplication::UnicodeUTF8));
-        m_folders_label->setText(QApplication::translate("Form", "Folders", 0, QApplication::UnicodeUTF8));
-        m_folder_path_label->setText(QApplication::translate("Form", "/home/you", 0, QApplication::UnicodeUTF8));
-        m_up_pushButton->setText(QApplication::translate("Form", "Up", 0, QApplication::UnicodeUTF8));
-        m_files_label->setText(QApplication::translate("Form", "Files", 0, QApplication::UnicodeUTF8));
+        m_bookmarks_label->setText(QString("Bookmarks"));
+        m_folders_label->setText(QString("Folders"));
+        m_folder_path_label->setText(QString("/home"));
+        m_up_pushButton->setText(QString("Up"));
+        m_files_label->setText(QString("Files"));
 
         m_files_listWidget->setSortingEnabled(TRUE);
 
         m_preview_pushButton->setText(QString("Preview"));
         m_load_pushButton->setText(QString("Load"));
         
+        folder_opened(QString("/home/"), FALSE);
     }
     
     void folder_opened(QString a_folder, bool a_relative_path)
@@ -149,20 +150,22 @@ public:
         
         m_folder_path_label->setText(f_dir.path());
         
+        QDir f_test_dir;
+        
         foreach(QString f_entry, f_list)
         {
             QFileInfo f_info(f_entry);
             
-            if(f_info.isDir())
-            {
-                m_folders_listWidget->addItem(f_info.fileName());
-            }
-            else if(f_info.fileName().endsWith("wav", Qt::CaseInsensitive) ||
-                    f_info.fileName().endsWith("ogg", Qt::CaseInsensitive) ||
-                    f_info.fileName().endsWith("aiff", Qt::CaseInsensitive))
+            if(f_info.fileName().endsWith(".wav", Qt::CaseInsensitive) ||
+                    f_info.fileName().endsWith(".ogg", Qt::CaseInsensitive) ||
+                    f_info.fileName().endsWith(".aiff", Qt::CaseInsensitive))
             {
                 m_files_listWidget->addItem(f_info.fileName());
             }
+            else if(f_test_dir.exists(f_info.absolutePath()))
+            {
+                m_folders_listWidget->addItem(f_info.fileName());
+            }            
         }
     }
     
@@ -179,6 +182,14 @@ public:
         }
         
         return f_result;
+    }
+    
+    void up_one_folder()
+    {
+        //TODO:  Some checks before we just fire this off...
+        QFileInfo f_current_folder(m_folder_path_label->text());
+        
+        enumerate_folders_and_files(f_current_folder.absoluteDir().absolutePath());
     }
 
 };
