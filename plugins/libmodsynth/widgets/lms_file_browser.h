@@ -41,7 +41,7 @@ public:
 
     LMS_file_browser(QWidget *a_parent)
     {     
-        m_file_browser_verticalLayout = new QVBoxLayout(a_parent);
+        m_file_browser_verticalLayout = new QVBoxLayout();
                 
         m_file_browser_verticalLayout->setObjectName(QString::fromUtf8("m_file_browser_verticalLayout"));
         m_file_browser_verticalLayout->setContentsMargins(0, 0, 0, 0);
