@@ -822,25 +822,29 @@ char * dssi_configure_message(const char *fmt, ...)
 char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 {   
     /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
-    int i_loaded_samples = 0;
-    plugin_data->sample_is_loaded = 0;
     
-    while((i_loaded_samples) < (plugin_data->loaded_samples_count))
+    if(a_index != LMS_MAX_SAMPLE_COUNT)
     {
-        if((plugin_data->loaded_samples[(i_loaded_samples)]) == a_index)
+        int i_loaded_samples = 0;
+        plugin_data->sample_is_loaded = 0;
+
+        while((i_loaded_samples) < (plugin_data->loaded_samples_count))
         {
-            printf("Sample index %i is already loaded.\n", (i_loaded_samples));
-            plugin_data->sample_is_loaded = 1;
-            break;
+            if((plugin_data->loaded_samples[(i_loaded_samples)]) == a_index)
+            {
+                //printf("Sample index %i is already loaded.\n", (i_loaded_samples));
+                plugin_data->sample_is_loaded = 1;
+                break;
+            }
+            i_loaded_samples++;
         }
-        i_loaded_samples++;
-    }
-    
-    if((plugin_data->sample_is_loaded) == 0)
-    {
-        plugin_data->loaded_samples[(plugin_data->loaded_samples_count)] = a_index;
-        plugin_data->loaded_samples_count = (plugin_data->loaded_samples_count) + 1;
-        printf("plugin_data->loaded_samples_count == %i\n", (plugin_data->loaded_samples_count));
+
+        if((plugin_data->sample_is_loaded) == 0)
+        {
+            plugin_data->loaded_samples[(plugin_data->loaded_samples_count)] = a_index;
+            plugin_data->loaded_samples_count = (plugin_data->loaded_samples_count) + 1;
+            printf("plugin_data->loaded_samples_count == %i\n", (plugin_data->loaded_samples_count));
+        }
     }
     
     SF_INFO info;
@@ -999,43 +1003,45 @@ char *samplerClear(Sampler *plugin_data, int a_index)
 {
     plugin_data->sample_paths[a_index] = "";
     
-    if((plugin_data->loaded_samples_count) == 0)
+    if(a_index != LMS_MAX_SAMPLE_COUNT)
     {
-        return NULL;
-    }
-    
-    /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
-    plugin_data->i_loaded_samples = 0;
-    plugin_data->sample_is_loaded = 0;
-    
-    while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
-    {
-        if((plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]) == (a_index))
+        if((plugin_data->loaded_samples_count) == 0)
         {
-            printf("Sample index %i is loaded.\n", (plugin_data->i_loaded_samples));
-            plugin_data->sample_is_loaded = 1;
-            break;
+            return NULL;
         }
-        plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
-    }
-    
-    if((plugin_data->sample_is_loaded) == 0)
-    {        
-        return NULL;
-    }
-    else
-    {
-        if((plugin_data->loaded_samples_count) == 1)
+
+        /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
+        plugin_data->i_loaded_samples = 0;
+        plugin_data->sample_is_loaded = 0;
+
+        while((plugin_data->i_loaded_samples) < (plugin_data->loaded_samples_count))
         {
-            plugin_data->loaded_samples_count = 0;
+            if((plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]) == (a_index))
+            {
+                printf("Sample index %i is loaded.\n", (plugin_data->i_loaded_samples));
+                plugin_data->sample_is_loaded = 1;
+                break;
+            }
+            plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
+        }
+
+        if((plugin_data->sample_is_loaded) == 0)
+        {        
+            return NULL;
         }
         else
         {
-            plugin_data->loaded_samples[(plugin_data->i_loaded_samples)] = (plugin_data->loaded_samples[(plugin_data->loaded_samples_count) - 1]);            
-            plugin_data->loaded_samples_count = (plugin_data->loaded_samples_count) - 1;        
-        }        
+            if((plugin_data->loaded_samples_count) == 1)
+            {
+                plugin_data->loaded_samples_count = 0;
+            }
+            else
+            {
+                plugin_data->loaded_samples[(plugin_data->i_loaded_samples)] = (plugin_data->loaded_samples[(plugin_data->loaded_samples_count) - 1]);            
+                plugin_data->loaded_samples_count = (plugin_data->loaded_samples_count) - 1;        
+            }        
+        }
     }
-
     float *tmpSamples[2], *tmpOld[2];    
 
     tmpSamples[0] = (float*)malloc(sizeof(float));        
