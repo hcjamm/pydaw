@@ -65,6 +65,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/ui_modules/master.h"
 #include "../../libmodsynth/widgets/sample_graph.h"
 #include "../../libmodsynth/widgets/ui_modules/multieffect_basic.h"
+#include "../../libmodsynth/widgets/lms_file_browser.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -638,6 +639,7 @@ protected:
     QSpacerItem *m_view_sample_tab_lower_vspacer;
 
     LMS_file_select * m_view_file_selector;
+    LMS_file_browser * m_file_browser;
     
     //end m_view_sample_tab
     
