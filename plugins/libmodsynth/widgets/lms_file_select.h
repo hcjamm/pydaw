@@ -38,14 +38,19 @@ public:
         lms_layout = new QHBoxLayout();
         lms_open_button = new QPushButton(a_parent);
         lms_open_button->setText(QString("Open"));
+        lms_open_button->setMaximumWidth(60);
         lms_clear_button = new QPushButton(a_parent);
         lms_clear_button->setText(QString("Clear"));
+        lms_clear_button->setMaximumWidth(60);
         lms_open_in_editor_button = new QPushButton(a_parent);
         lms_open_in_editor_button->setText("Edit");
+        lms_open_in_editor_button->setMaximumWidth(60);
         lms_reload_button = new QPushButton(a_parent);
         lms_reload_button->setText(QString("Reload"));
+        lms_reload_button->setMaximumWidth(60);
         lms_file_path = new QLineEdit(a_parent);
         lms_file_path->setReadOnly(TRUE);
+        lms_file_path->setMinimumWidth(360);
         lms_last_directory = QString("");
         
         lms_editor_path = QString("/usr/bin/audacity");
