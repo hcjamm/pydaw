@@ -31,7 +31,7 @@ public:
     QLabel *m_bookmarks_label;
     QListWidget *m_bookmarks_listWidget;
     QLabel *m_folders_label;
-    QLabel *m_folder_path_label;
+    QLineEdit *m_folder_path_label;
     QListWidget *m_folders_listWidget;    
     QPushButton *m_up_pushButton;
     QLabel *m_files_label;
@@ -64,9 +64,12 @@ public:
 
         m_file_browser_verticalLayout->addWidget(m_folders_label);
 
-        m_folder_path_label = new QLabel(a_parent);
+        m_folder_path_label = new QLineEdit(a_parent);
         m_folder_path_label->setObjectName(QString::fromUtf8("m_folder_path_label"));
-
+        m_folder_path_label->setMaximumWidth(240);
+        m_folder_path_label->setReadOnly(TRUE);
+        
+        
         m_file_browser_verticalLayout->addWidget(m_folder_path_label);
 
         m_folders_listWidget = new QListWidget(a_parent);
@@ -126,7 +129,14 @@ public:
     {
         if(a_relative_path)
         {
-            enumerate_folders_and_files(m_folder_path_label->text() + "/" + a_folder);
+            if(m_folder_path_label->text().compare(QString("/")) == 0)
+            {
+                enumerate_folders_and_files(QString("/") + a_folder);
+            }
+            else
+            {
+                enumerate_folders_and_files(m_folder_path_label->text() + QString("/") + a_folder);
+            }
         }
         else
         {
@@ -144,28 +154,31 @@ public:
             return;
         }
         
-        QStringList f_list = f_dir.entryList();
+        QFileInfoList f_list = f_dir.entryInfoList();
         m_files_listWidget->clear();
         m_folders_listWidget->clear();
         
         m_folder_path_label->setText(f_dir.path());
         
-        QDir f_test_dir;
-        
-        foreach(QString f_entry, f_list)
+        foreach(QFileInfo f_info, f_list)
         {
-            QFileInfo f_info(f_entry);
             
-            if(f_info.fileName().endsWith(".wav", Qt::CaseInsensitive) ||
-                    f_info.fileName().endsWith(".ogg", Qt::CaseInsensitive) ||
-                    f_info.fileName().endsWith(".aiff", Qt::CaseInsensitive))
+            if((f_info.fileName().compare(QString(".")) == 0) ||
+                (f_info.fileName().compare(QString("..")) == 0))
             {
-                m_files_listWidget->addItem(f_info.fileName());
+                continue;
             }
-            else if(f_test_dir.exists(f_info.absolutePath()))
+            
+            if(f_info.isDir())
             {
                 m_folders_listWidget->addItem(f_info.fileName());
-            }            
+            }
+            else if((f_info.fileName().endsWith(".wav", Qt::CaseInsensitive) ||
+                    f_info.fileName().endsWith(".ogg", Qt::CaseInsensitive) ||
+                    f_info.fileName().endsWith(".aiff", Qt::CaseInsensitive)))
+            {
+                m_files_listWidget->addItem(f_info.fileName());
+            }                        
         }
     }
     
