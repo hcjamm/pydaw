@@ -45,7 +45,7 @@ float f_sinc_interpolate2(t_sinc_interpolator*,float*,int,float);
  * 
  * This function assumes you added adequate 0.0f's to the beginning and end of the array, it does not check array boundaries
  */
-float f_sinc_interpolate(t_sinc_interpolator * a_sinc, float * a_array, float a_pos)
+float f_sinc_interpolate(t_sinc_interpolator  *__restrict a_sinc, float *__restrict a_array, float a_pos)
 {
     a_sinc->pos_int = (int)a_pos;
     a_sinc->pos_frac = a_pos - ((float)(a_sinc->pos_int));
@@ -53,7 +53,7 @@ float f_sinc_interpolate(t_sinc_interpolator * a_sinc, float * a_array, float a_
     return f_sinc_interpolate2(a_sinc,a_array,(a_sinc->pos_int), (a_sinc->pos_frac));
 }
 
-float f_sinc_interpolate2(t_sinc_interpolator * a_sinc, float * a_array, int a_int_pos, float a_float_pos)
+float f_sinc_interpolate2(t_sinc_interpolator *__restrict a_sinc, float *__restrict a_array, int a_int_pos, float a_float_pos)
 {
     a_sinc->pos_int = a_int_pos;
     a_sinc->pos_frac = a_float_pos;

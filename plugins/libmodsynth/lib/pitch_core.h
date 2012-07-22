@@ -240,7 +240,7 @@ float arr_pit_p2f [arr_pit_p2f_count] = {
  * You should prefer this function whenever possible, it is much faster than the
  * regular version.
  */
-inline float f_pit_midi_note_to_hz_fast(float a_midi_note_number, t_pit_pitch_core* a_pit)
+inline float f_pit_midi_note_to_hz_fast(float a_midi_note_number, t_pit_pitch_core*__restrict a_pit)
 {
     a_pit->arr_index = (a_midi_note_number * 20) - 1;
     
@@ -263,7 +263,7 @@ inline float f_pit_midi_note_to_hz_fast(float a_midi_note_number, t_pit_pitch_co
  * t_pit_pitch_core* a_pit,
  * t_pit_ratio * a_ratio)   
  */
-inline float f_pit_midi_note_to_ratio_fast(float a_base_pitch, float a_transposed_pitch, t_pit_pitch_core* a_pit, t_pit_ratio * a_ratio)
+inline float f_pit_midi_note_to_ratio_fast(float a_base_pitch, float a_transposed_pitch, t_pit_pitch_core*__restrict a_pit, t_pit_ratio *__restrict a_ratio)
 {
     if(a_base_pitch != (a_ratio->pitch))
     {

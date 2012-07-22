@@ -405,7 +405,7 @@ static void activateSampler(LADSPA_Handle instance)
  * unsigned long pos, //the position in the output buffer
  * unsigned long count) //how many samples to fill in the output buffer
  */
-static void add_sample_lms_euphoria(Sampler *plugin_data, int n, unsigned long pos, unsigned long count)
+static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsigned long pos, unsigned long count)
 {
     float ratio = 1.0f;
     

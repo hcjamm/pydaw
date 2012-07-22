@@ -62,7 +62,7 @@ inline float f_linear_to_db_linear(float,t_amp*);
  * 
  * Convert decibels to linear amplitude
  */
-inline float f_db_to_linear(float a_db,t_amp * a_amp)
+inline float f_db_to_linear(float a_db,t_amp *__restrict a_amp)
 {
     a_amp->result = pow ( 10.0, (0.05 * a_db) );
     return a_amp->result;
@@ -72,7 +72,7 @@ inline float f_db_to_linear(float a_db,t_amp * a_amp)
  * 
  * Convert linear amplitude to decibels
  */
-inline float f_linear_to_db(float a_linear,t_amp * a_amp)
+inline float f_linear_to_db(float a_linear,t_amp *__restrict a_amp)
 {
     a_amp->result = 20.0 * log10 ( a_linear );
     return a_amp->result;
@@ -138,7 +138,7 @@ float arr_amp_db2a [arr_amp_db2a_count] = {
  * Use the regular version if you may require more range, otherwise the values
  * will be clipped
  */
-inline float f_db_to_linear_fast(float a_db, t_amp * a_amp)
+inline float f_db_to_linear_fast(float a_db, t_amp *__restrict a_amp)
 {
     a_amp->result = ((a_db + 100.0f) * 4) - 1;
             
@@ -201,7 +201,7 @@ float arr_amp_a2db [arr_amp_a2db_count] = {
  * A fast, table-lookup based linear to decibels converter.  
  * The range is 0 to 4, above 4 will clip at 4.
  */
-inline float f_linear_to_db_fast(float a_input, t_amp * a_amp)
+inline float f_linear_to_db_fast(float a_input, t_amp *__restrict a_amp)
 {
     a_amp->result = (a_input  * 100);
             
@@ -224,7 +224,7 @@ inline float f_linear_to_db_fast(float a_input, t_amp * a_amp)
  * This takes a 0 to 1 signal and approximates it to a useful range with a logarithmic decibel curve
  * Typical use would be on an envelope that controls the amplitude of an audio signal
  */
-inline float f_linear_to_db_linear(float a_input, t_amp * a_amp)
+inline float f_linear_to_db_linear(float a_input, t_amp *__restrict a_amp)
 {
     a_amp->result = ((a_input) * 30) - 30;
     

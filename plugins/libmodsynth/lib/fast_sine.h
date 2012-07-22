@@ -78,7 +78,7 @@ inline float f_cosine_fast_run_radians(float, t_lin_interpolater*);
  * 
  * Accepts zero to one input.
  */
-inline float f_sine_fast_run(float a_osc_core, t_lin_interpolater * a_lin)
+inline float f_sine_fast_run(float a_osc_core, t_lin_interpolater *__restrict a_lin)
 {
     return f_linear_interpolate_arr_wrap(arr_sine, arr_sine_count, (a_osc_core * arr_sine_count), a_lin);
 }
@@ -87,7 +87,7 @@ inline float f_sine_fast_run(float a_osc_core, t_lin_interpolater * a_lin)
  * 
  * Accepts input in radians (zero to (PI * 2))
  */
-inline float f_sine_fast_run_radians(float a_osc_core, t_lin_interpolater * a_lin)
+inline float f_sine_fast_run_radians(float a_osc_core, t_lin_interpolater *__restrict a_lin)
 {
     return f_linear_interpolate_arr_wrap(arr_sine, arr_sine_count, (a_osc_core * arr_sine_count_radians), a_lin);
 }
@@ -98,7 +98,7 @@ inline float f_sine_fast_run_radians(float a_osc_core, t_lin_interpolater * a_li
  * 
  * Perform a fast, table-lookup based cosine.  Accepts zero to one input
  */
-inline float f_cosine_fast_run(float a_osc_core, t_lin_interpolater * a_lin)
+inline float f_cosine_fast_run(float a_osc_core, t_lin_interpolater *__restrict a_lin)
 {
     return f_linear_interpolate_arr_wrap(arr_sine, arr_sine_count, ((a_osc_core * arr_sine_count) + 0.25f), a_lin);
 }
@@ -110,7 +110,7 @@ inline float f_cosine_fast_run(float a_osc_core, t_lin_interpolater * a_lin)
  * 
  * Perform a fast, table-lookup based cosine.  Accepts input in Radians (zero to (PI * 2))
  */
-inline float f_cosine_fast_run_radians(float a_osc_core, t_lin_interpolater * a_lin)
+inline float f_cosine_fast_run_radians(float a_osc_core, t_lin_interpolater *__restrict a_lin)
 {
     return f_linear_interpolate_arr_wrap(arr_sine, arr_sine_count, ((a_osc_core * arr_sine_count_radians) + arr_cosine_phase_radians), a_lin);
 }

@@ -43,7 +43,7 @@ inline void v_pkq_run(t_pkq_peak_eq*,float,float);
  * float a_bw, 
  * float a_db)
  */
-inline void v_pkq_calc_coeffs(t_pkq_peak_eq *a_pkq,float a_pitch, float a_bw, float a_db)
+inline void v_pkq_calc_coeffs(t_pkq_peak_eq *__restrict a_pkq,float a_pitch, float a_bw, float a_db)
 {
     if((a_db != (a_pkq->dB)) || (a_bw != (a_pkq->BW)))
     {
@@ -77,7 +77,7 @@ inline void v_pkq_calc_coeffs(t_pkq_peak_eq *a_pkq,float a_pitch, float a_bw, fl
     a_pkq->coeff2   = (a_pkq->w2p1) - (a_pkq->wQ);
 }
 
-inline void v_pkq_run(t_pkq_peak_eq *a_pkq,float a_in0, float a_in1)
+inline void v_pkq_run(t_pkq_peak_eq *__restrict a_pkq,float a_in0, float a_in1)
 {
     a_pkq->in0_m2 = (a_pkq->in0_m1);
     a_pkq->in0_m1 = a_in0;
