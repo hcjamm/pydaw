@@ -68,14 +68,15 @@ static QTextStream cerr(stderr);
 
 /*These define the index of each column in m_sample_table.  Re-order these if you add or remove columns*/
 #define SMP_TB_RADIOBUTTON_INDEX 0
-#define SMP_TB_NOTE_INDEX 1
-#define SMP_TB_LOW_NOTE_INDEX 2
-#define SMP_TB_HIGH_NOTE_INDEX 3
-#define SMP_TB_VOLUME_INDEX 4
-#define SMP_TB_VEL_SENS_INDEX 5
-#define SMP_TB_VEL_LOW_INDEX 6
-#define SMP_TB_VEL_HIGH_INDEX 7
-#define SMP_TB_FILE_PATH_INDEX 8
+#define SMP_TB_FILE_PATH_INDEX 1
+#define SMP_TB_NOTE_INDEX 2
+#define SMP_TB_LOW_NOTE_INDEX 3
+#define SMP_TB_HIGH_NOTE_INDEX 4
+#define SMP_TB_VOLUME_INDEX 5
+#define SMP_TB_VEL_SENS_INDEX 6
+#define SMP_TB_VEL_LOW_INDEX 7
+#define SMP_TB_VEL_HIGH_INDEX 8
+
 
 SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 		       QByteArray controlPath, QByteArray midiPath, QByteArray configurePath,
@@ -109,6 +110,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     QList <LMS_mod_matrix_column*> f_sample_table_columns;
         
     f_sample_table_columns << new LMS_mod_matrix_column(radiobutton, QString(""), 0, 1, 0);  //Selected row      
+    f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Path"), 0, 1, 0);  //File path  
     f_sample_table_columns << new LMS_mod_matrix_column(note_selector, QString("Sample Pitch"), 0, 1, 3);  //Sample base pitch
     f_sample_table_columns << new LMS_mod_matrix_column(note_selector, QString("Low Note"), 0, 1, -2);  //Low Note
     f_sample_table_columns << new LMS_mod_matrix_column(note_selector, QString("High Note"), 0, 1, 8);  //High Note    
@@ -116,7 +118,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Vel. Sens."), 0, 20, 10);  //Velocity Sensitivity
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Low Vel."), 0, 127, 0);  //Low Velocity
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("High Vel."), 0, 127, 127);  //High Velocity
-    f_sample_table_columns << new LMS_mod_matrix_column(no_widget, QString("Path"), 0, 1, 0);  //File path            
     
     m_sample_table = new LMS_mod_matrix(this, LMS_MAX_SAMPLE_COUNT, f_sample_table_columns, LMS_FIRST_SAMPLE_TABLE_PORT, a_style);
         
