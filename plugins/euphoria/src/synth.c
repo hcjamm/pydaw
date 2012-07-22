@@ -413,6 +413,86 @@ static void activateSampler(LADSPA_Handle instance)
     pthread_mutex_unlock(&plugin_data->mutex);
 }
 
+
+//For the per-sample interpolation modes
+typedef int (*fp_run_sampler_interpolation)(Sampler *__restrict plugin_data, int n, int ch);
+
+static fp_run_sampler_interpolation interpolation_modes[LMS_MAX_SAMPLE_COUNT];
+
+static int run_sampler_interpolation_sinc(Sampler *__restrict plugin_data, int n, int ch)
+{    
+    plugin_data->ratio =
+    f_pit_midi_note_to_ratio_fast(plugin_data->adjusted_base_pitch[(plugin_data->current_sample)],
+            ((plugin_data->data[n]->base_pitch) //+ (plugin_data->data[n]->lfo_pitch_output)
+            ),
+            plugin_data->smp_pit_core, plugin_data->smp_pit_ratio)
+            *
+            plugin_data->sample_rate_ratios[(plugin_data->current_sample)];
+
+    v_ifh_run(plugin_data->sample_read_heads[n][(plugin_data->current_sample)], (plugin_data->ratio));
+
+
+    if ((plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)]){
+        plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
+        //plugin_data->ons[n] = -1;
+        return 1;
+    }
+
+    plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = f_sinc_interpolate2(plugin_data->mono_modules->sinc_interpolator, 
+            plugin_data->sampleData[ch][(plugin_data->current_sample)],
+            (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
+            (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction))  
+            * (plugin_data->sample_amp[(plugin_data->current_sample)]);
+    
+    return 0;
+}
+
+
+static int run_sampler_interpolation_linear(Sampler *__restrict plugin_data, int n, int ch)
+{
+    plugin_data->ratio =
+    f_pit_midi_note_to_ratio_fast(plugin_data->adjusted_base_pitch[(plugin_data->current_sample)],
+            ((plugin_data->data[n]->base_pitch) //+ (plugin_data->data[n]->lfo_pitch_output)
+            ),
+            plugin_data->smp_pit_core, plugin_data->smp_pit_ratio)
+            *
+            plugin_data->sample_rate_ratios[(plugin_data->current_sample)];
+
+    v_ifh_run(plugin_data->sample_read_heads[n][(plugin_data->current_sample)], (plugin_data->ratio));
+
+
+    if ((plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)]){
+        plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
+        //plugin_data->ons[n] = -1;
+        return 1;
+    }
+
+    plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = f_linear_interpolate_ptr_ifh(
+            plugin_data->sampleData[ch][(plugin_data->current_sample)],
+            (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
+            (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction),
+            plugin_data->lin_interpolator)  
+            * (plugin_data->sample_amp[(plugin_data->current_sample)]);
+    
+    return 0;
+}
+
+
+static int run_sampler_interpolation_none(Sampler *__restrict plugin_data, int n, int ch)
+{
+    plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number = (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) + 1;
+    
+    if ((plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)]){
+        plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
+        //plugin_data->ons[n] = -1;
+        return 1;
+    }
+    
+    plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = plugin_data->sampleData[ch][(plugin_data->current_sample)][(plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number)];
+
+    return 0;
+}
+
 /* static void addSample(Sampler *plugin_data, 
  * int n, //The note number
  * unsigned long pos, //the position in the output buffer
@@ -420,7 +500,7 @@ static void activateSampler(LADSPA_Handle instance)
  */
 static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsigned long pos, unsigned long count)
 {
-    float ratio = 1.0f;
+    plugin_data->ratio = 1.0f;
     
     unsigned long i, ch;
 
@@ -483,28 +563,11 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
                         (plugin_data->vel_sens_output[n][(plugin_data->current_sample)])                        
                         , plugin_data->amp_ptr);
 
-                ratio =
-                f_pit_midi_note_to_ratio_fast(plugin_data->adjusted_base_pitch[(plugin_data->current_sample)],
-                        ((plugin_data->data[n]->base_pitch) //+ (plugin_data->data[n]->lfo_pitch_output)
-                        ),
-                        plugin_data->smp_pit_core, plugin_data->smp_pit_ratio)
-                        *
-                        plugin_data->sample_rate_ratios[(plugin_data->current_sample)];
-
-                v_ifh_run(plugin_data->sample_read_heads[n][(plugin_data->current_sample)], ratio);
-
-                
-                if ((plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)]){
+                if(interpolation_modes[(plugin_data->current_sample)](plugin_data, n, ch))
+                {
                     plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
-                    //plugin_data->ons[n] = -1;
                     continue;
                 }
-                
-                plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = f_sinc_interpolate2(plugin_data->mono_modules->sinc_interpolator, 
-                        plugin_data->sampleData[ch][(plugin_data->current_sample)],
-                        (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
-                        (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction))  
-                        * (plugin_data->sample_amp[(plugin_data->current_sample)]);
 
                 sample[ch] += plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)];
                 
@@ -627,7 +690,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                     
                     //Figure out which samples to play and stash all relevant values
                     for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
-                    {                       
+                    {
                         if((f_note >= *(plugin_data->low_note[(plugin_data->loaded_samples[i])])) && 
                         (f_note <= *(plugin_data->high_note[(plugin_data->loaded_samples[i])])) &&
                         (plugin_data->velocities[f_note] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])) &&
@@ -651,6 +714,19 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                                     /
                                     ((float)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])]) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])]))))))
                                     * (*(plugin_data->sample_vel_sens[(plugin_data->loaded_samples[i])])) * -1.0f);
+                            
+                            switch((int)(*(plugin_data->sample_interpolation_mode[(plugin_data->loaded_samples[i])])))
+                            {
+                                case 0:
+                                    interpolation_modes[(plugin_data->loaded_samples[i])] = run_sampler_interpolation_sinc;
+                                    break;
+                                case 1:
+                                    interpolation_modes[(plugin_data->loaded_samples[i])] = run_sampler_interpolation_linear;
+                                    break;
+                                case 2:
+                                    interpolation_modes[(plugin_data->loaded_samples[i])] = run_sampler_interpolation_none;
+                                    break;
+                            }
                         }
                     }
                         

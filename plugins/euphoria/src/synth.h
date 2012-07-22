@@ -48,6 +48,7 @@ typedef struct {
     LADSPA_Data *sample_pitch[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sample_tune[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sample_interpolation_mode[LMS_MAX_SAMPLE_COUNT];
+    
     LADSPA_Data *selected_sample;
         
     LADSPA_Data *attack;
@@ -119,6 +120,7 @@ typedef struct {
     
     int          sampleRate;
     float fs;    //From Ray-V
+    float ratio; //Used per-sample;  If voices are ever multithreaded, this will need to be widened...
     float sample_rate_ratios[LMS_MAX_SAMPLE_COUNT];
     long         ons[Sampler_NOTES];
     long         offs[Sampler_NOTES];
@@ -161,4 +163,6 @@ typedef struct {
     float sv_last_note;  //For glide
 } Sampler __attribute__((aligned(16)));
 
+
+    
 #endif
