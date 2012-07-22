@@ -272,11 +272,10 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_main_tab->setCurrentIndex(0);
 
         m_sample_table->lms_mod_matrix->resizeColumnsToContents();
-        m_sample_table->lms_mod_matrix->resizeRowsToContents();
-        
+                
         //m_sample_table->lms_mod_matrix->horizontalHeader()->setStretchLastSection(TRUE);
         
-        QMetaObject::connectSlotsByName(this);
+        //QMetaObject::connectSlotsByName(this);
     
         /*Connect slots manually*/
         connect(m_file_selector->lms_open_button, SIGNAL(pressed()), this, SLOT(fileSelect()));
@@ -1146,9 +1145,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         connect(m_lfo->lms_freq_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOfreqChanged(int)));
         connect(m_lfo->lms_type_combobox->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(LFOtypeChanged(int)));
-        
-        //End Ray-V
-        
+                
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
     myTimer->setSingleShot(false);
