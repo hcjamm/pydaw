@@ -624,7 +624,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                             plugin_data->sample_indexes_count[f_note] = (plugin_data->sample_indexes_count[f_note]) + 1;                            
                             
                             plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001));
-                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001)));
+                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001))));
                             
                             plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = *(plugin_data->basePitch[(plugin_data->loaded_samples[i])]) + (*(plugin_data->global_midi_octaves_offset) * -12);
                             
