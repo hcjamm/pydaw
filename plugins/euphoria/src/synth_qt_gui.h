@@ -128,6 +128,9 @@ public:
         
     int m_sample_starts[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  0 == the very start of the sample, 10000 == the very end
     int m_sample_ends[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  READ CAREFULLY:  0 == the very end of the sample, 10000 == the very beginning (IT'S INVERTED)
+    int m_sample_loop_starts[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  0 == the very start of the sample, 10000 == the very end
+    int m_sample_loop_ends[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  READ CAREFULLY:  0 == the very end of the sample, 10000 == the very beginning (IT'S INVERTED)
+    int m_sample_loop_modes[LMS_MAX_SAMPLE_COUNT];
     
 public slots:
     void setSampleFile(QString file);
@@ -140,7 +143,10 @@ public slots:
     void openInstrumentFromFile();
     void sampleStartChanged(int);
     void sampleEndChanged(int);
+    void sampleLoopStartChanged(int);
+    void sampleLoopEndChanged(int);
     void viewSampleSelectedIndexChanged(int);
+    void loopModeChanged(int);
     void mapAllSamplesToOneWhiteKey();
     void clearAllSamples();
     
@@ -725,21 +731,31 @@ protected:
     QVBoxLayout *m_view_sample_tab_main_vlayout;
     QHBoxLayout *m_sample_start_hlayout;
     QSpacerItem *m_sample_start_left_hspacer;
+    QHBoxLayout *m_sample_loop_start_hlayout;
+    QSpacerItem *m_sample_loop_start_left_hspacer;
     QSlider *m_sample_start_hslider;
+    QSlider *m_sample_end_hslider;
+    QSlider *m_sample_loop_start_hslider;
+    QSlider *m_sample_loop_end_hslider;
     QSpacerItem *m_sample_start_right_hspacer;
+    QSpacerItem *m_sample_loop_start_right_hspacer;
     QHBoxLayout *m_sample_graph_hlayout;
     QSpacerItem *m_sample_graph_left_hspacer;
     QLabel *m_sample_graph_label;
     QSpacerItem *m_sample_graph_right_hspacer;
     QHBoxLayout *m_sample_end_hlayout;
-    QSpacerItem *m_sample_end_left_hspacer;
-    QSlider *m_sample_end_hslider;
+    QHBoxLayout *m_sample_loop_end_hlayout;
+    QSpacerItem *m_sample_end_left_hspacer;    
     QSpacerItem *m_sample_end_right_hspacer;
+    QSpacerItem *m_sample_loop_end_left_hspacer;    
+    QSpacerItem *m_sample_loop_end_right_hspacer;
     QHBoxLayout *m_sample_view_select_sample_hlayout;
     QSpacerItem *m_sample_view_extra_controls_left_hspacer;
     QGridLayout *m_sample_view_extra_controls_gridview;
     QComboBox *m_selected_sample_index_combobox;
     QLabel *m_selected_sample_index_label;
+    QComboBox *m_loop_mode_combobox;
+    QLabel *m_loop_mode_label;
     QSpacerItem *m_sample_view_extra_controls_right_hspacer;
     QHBoxLayout *m_sample_view_file_select_hlayout;
     QSpacerItem *m_sample_view_file_select_left_hspacer;    

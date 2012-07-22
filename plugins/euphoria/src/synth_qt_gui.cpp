@@ -723,6 +723,12 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_view_sample_tab_main_vlayout = new QVBoxLayout(m_view_sample_tab);
         m_view_sample_tab_main_vlayout->setObjectName(QString::fromUtf8("m_view_sample_tab_main_vlayout"));
         m_view_sample_tab_main_vlayout->setContentsMargins(0, 0, 0, 0);
+        
+        QLabel * m_start_end_label = new QLabel(m_view_sample_tab);
+        m_start_end_label->setText(QString("Start/End"));
+        m_view_sample_tab_main_vlayout->addWidget(m_start_end_label, -1, Qt::AlignHCenter);
+
+        //Sample Start
         m_sample_start_hlayout = new QHBoxLayout();
         m_sample_start_hlayout->setObjectName(QString::fromUtf8("m_sample_start_hlayout"));
         m_sample_start_left_hspacer = new QSpacerItem(0, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -741,27 +747,10 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_start_right_hspacer = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         m_sample_start_hlayout->addItem(m_sample_start_right_hspacer);
-
-
+        
         m_view_sample_tab_main_vlayout->addLayout(m_sample_start_hlayout);
-
-        m_sample_graph_hlayout = new QHBoxLayout();
-        m_sample_graph_hlayout->setObjectName(QString::fromUtf8("m_sample_graph_hlayout"));
-        m_sample_graph_left_hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        m_sample_graph_hlayout->addItem(m_sample_graph_left_hspacer);
-
-        m_sample_graph = new LMS_sample_graph(LMS_MAX_SAMPLE_COUNT, 400, 800, m_view_sample_tab);
-        m_sample_graph_hlayout->addWidget(m_sample_graph->m_sample_graph);
         
-        
-        m_sample_graph_right_hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        m_sample_graph_hlayout->addItem(m_sample_graph_right_hspacer);
-
-
-        m_view_sample_tab_main_vlayout->addLayout(m_sample_graph_hlayout);
-
+        //Sample End
         m_sample_end_hlayout = new QHBoxLayout();
         m_sample_end_hlayout->setObjectName(QString::fromUtf8("m_sample_end_hlayout"));
         m_sample_end_left_hspacer = new QSpacerItem(0, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -788,9 +777,85 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_sample_end_hlayout->addItem(m_sample_end_right_hspacer);
 
-
         m_view_sample_tab_main_vlayout->addLayout(m_sample_end_hlayout);
+        
+        
+        QLabel * m_loop_start_end_label = new QLabel(m_view_sample_tab);
+        m_loop_start_end_label->setText(QString("Loop Start/End"));
+        m_view_sample_tab_main_vlayout->addWidget(m_loop_start_end_label, -1, Qt::AlignHCenter);
+        
+        //Sample Loop Start
+        
+        m_sample_loop_start_hlayout = new QHBoxLayout();
+        m_sample_loop_start_hlayout->setObjectName(QString::fromUtf8("m_sample_loop_start_hlayout"));
+        m_sample_loop_start_left_hspacer = new QSpacerItem(0, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
+        m_sample_loop_start_hlayout->addItem(m_sample_loop_start_left_hspacer);
+        
+        m_sample_loop_start_hslider = new QSlider(m_view_sample_tab);
+        m_sample_loop_start_hslider->setObjectName(QString::fromUtf8("m_sample_loop_start_hslider"));
+        m_sample_loop_start_hslider->setMinimumSize(QSize(800, 0));
+        m_sample_loop_start_hslider->setMaximum(10000);
+        m_sample_loop_start_hslider->setOrientation(Qt::Horizontal);
+        m_sample_loop_start_hslider->setTickPosition(QSlider::NoTicks);
+
+        m_sample_loop_start_hlayout->addWidget(m_sample_loop_start_hslider);
+
+        m_sample_loop_start_right_hspacer = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        m_sample_loop_start_hlayout->addItem(m_sample_loop_start_right_hspacer);
+        
+        m_view_sample_tab_main_vlayout->addLayout(m_sample_loop_start_hlayout);
+        
+        //Sample Loop End
+        m_sample_loop_end_hlayout = new QHBoxLayout();
+        m_sample_loop_end_hlayout->setObjectName(QString::fromUtf8("m_sample_loop_end_hlayout"));
+        m_sample_loop_end_left_hspacer = new QSpacerItem(0, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        m_sample_loop_end_hlayout->addItem(m_sample_loop_end_left_hspacer);
+
+        m_sample_loop_end_hslider = new QSlider(m_view_sample_tab);
+        m_sample_loop_end_hslider->setObjectName(QString::fromUtf8("m_sample_loop_end_hslider"));
+        m_sample_loop_end_hslider->setMinimumSize(QSize(800, 0));
+        m_sample_loop_end_hslider->setLayoutDirection(Qt::RightToLeft);
+        m_sample_loop_end_hslider->setMaximum(10000);
+        m_sample_loop_end_hslider->setValue(0);
+        m_sample_loop_end_hslider->setOrientation(Qt::Horizontal);
+        m_sample_loop_end_hslider->setInvertedAppearance(false);
+        m_sample_loop_end_hslider->setInvertedControls(false);
+        m_sample_loop_end_hslider->setTickPosition(QSlider::NoTicks);
+        
+        connect(m_sample_loop_start_hslider, SIGNAL(valueChanged(int)), this, SLOT(sampleLoopStartChanged(int)));
+        connect(m_sample_loop_end_hslider, SIGNAL(valueChanged(int)), this, SLOT(sampleLoopEndChanged(int)));
+
+        m_sample_loop_end_hlayout->addWidget(m_sample_loop_end_hslider);
+
+        m_sample_loop_end_right_hspacer = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        m_sample_loop_end_hlayout->addItem(m_sample_loop_end_right_hspacer);
+
+        m_view_sample_tab_main_vlayout->addLayout(m_sample_loop_end_hlayout);
+        
+        
+        //Sample Graph
+        m_sample_graph_hlayout = new QHBoxLayout();
+        m_sample_graph_hlayout->setObjectName(QString::fromUtf8("m_sample_graph_hlayout"));
+        m_sample_graph_left_hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        m_sample_graph_hlayout->addItem(m_sample_graph_left_hspacer);
+
+        m_sample_graph = new LMS_sample_graph(LMS_MAX_SAMPLE_COUNT, 400, 800, m_view_sample_tab);
+        m_sample_graph_hlayout->addWidget(m_sample_graph->m_sample_graph);
+        
+        
+        m_sample_graph_right_hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        m_sample_graph_hlayout->addItem(m_sample_graph_right_hspacer);
+
+
+        m_view_sample_tab_main_vlayout->addLayout(m_sample_graph_hlayout);
+
+        //The combobox for selecting the sample on the 'view' tab
         m_sample_view_select_sample_hlayout = new QHBoxLayout();
         m_sample_view_select_sample_hlayout->setObjectName(QString::fromUtf8("m_sample_view_select_sample_hlayout"));
         m_sample_view_extra_controls_left_hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -799,6 +864,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_sample_view_extra_controls_gridview = new QGridLayout();
         m_sample_view_extra_controls_gridview->setObjectName(QString::fromUtf8("m_sample_view_extra_controls_gridview"));
+        
         m_selected_sample_index_combobox = new QComboBox(m_view_sample_tab);
         m_selected_sample_index_combobox->setObjectName(QString::fromUtf8("m_selected_sample_index_combobox"));
         QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -823,16 +889,28 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_sample_view_extra_controls_gridview->addWidget(m_selected_sample_index_label, 0, 0, 1, 1);
 
-
         m_sample_view_select_sample_hlayout->addLayout(m_sample_view_extra_controls_gridview);
 
         m_sample_view_extra_controls_right_hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         m_sample_view_select_sample_hlayout->addItem(m_sample_view_extra_controls_right_hspacer);
 
-
         m_view_sample_tab_main_vlayout->addLayout(m_sample_view_select_sample_hlayout);
 
+        //The loop mode combobox
+        
+        m_loop_mode_combobox = new QComboBox(m_view_sample_tab);        
+        m_loop_mode_combobox->addItems(QStringList() << QString("Off") << QString("On"));
+        
+        m_loop_mode_label = new QLabel(m_view_sample_tab);
+        m_loop_mode_label->setText(QString("Loop Mode"));
+        
+        m_sample_view_extra_controls_gridview->addWidget(m_loop_mode_label, 0, 1, 1, 1);
+        m_sample_view_extra_controls_gridview->addWidget(m_loop_mode_combobox, 1, 1, 1, 1);
+        
+        connect(m_loop_mode_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(loopModeChanged(int)));
+        
+        //The file select on the 'view' tab
         m_sample_view_file_select_hlayout = new QHBoxLayout();
         m_sample_view_file_select_hlayout->setObjectName(QString::fromUtf8("m_sample_view_file_select_hlayout"));
         m_sample_view_file_select_left_hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -866,6 +944,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         {
             m_sample_starts[f_i] = 0;
             m_sample_ends[f_i] = 0;
+            m_sample_loop_starts[f_i] = 0;
+            m_sample_loop_ends[f_i] = 0;
+            m_sample_loop_modes[f_i] = 0;
         }
 
         
@@ -1146,6 +1227,19 @@ void SamplerGUI::viewSampleSelectedIndexChanged(int a_index)
     f_radio_button->click();    
 }
 
+void SamplerGUI::loopModeChanged(int a_value)
+{
+    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);    
+
+    m_sample_loop_modes[(m_sample_table->lms_selected_column)] = a_value;
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) 
+    {
+	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(a_value));
+    }
+#endif        
+}
+
 void SamplerGUI::sampleStartChanged(int a_value)
 {
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);    
@@ -1166,6 +1260,30 @@ void SamplerGUI::sampleEndChanged(int a_value)
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_END_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(a_value));
+    }
+#endif    
+}
+
+void SamplerGUI::sampleLoopStartChanged(int a_value)
+{
+        m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);    
+        
+        m_sample_loop_starts[(m_sample_table->lms_selected_column)] = a_value;
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) {        
+	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(a_value));
+    }
+#endif    
+}
+
+void SamplerGUI::sampleLoopEndChanged(int a_value)
+{
+    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);    
+    
+    m_sample_loop_ends[(m_sample_table->lms_selected_column)] = a_value;
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) {        
+	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(a_value));
     }
 #endif    
 }
@@ -1401,6 +1519,11 @@ void SamplerGUI::selectionChanged()
     
     m_sample_start_hslider->setValue(m_sample_starts[(m_sample_table->lms_selected_column)]);
     m_sample_end_hslider->setValue(m_sample_ends[(m_sample_table->lms_selected_column)]);
+    
+    m_sample_loop_start_hslider->setValue(m_sample_loop_starts[(m_sample_table->lms_selected_column)]);
+    m_sample_loop_end_hslider->setValue(m_sample_loop_ends[(m_sample_table->lms_selected_column)]);
+    
+    m_loop_mode_combobox->setCurrentIndex(m_sample_loop_modes[(m_sample_table->lms_selected_column)]);
     
     m_suppressHostUpdate = FALSE;
     
@@ -1959,6 +2082,11 @@ void SamplerGUI::openInstrumentFromFile()
         
         m_sample_start_hslider->setValue(m_sample_starts[m_selected_sample_index_combobox->currentIndex()]);
         m_sample_end_hslider->setValue(m_sample_ends[m_selected_sample_index_combobox->currentIndex()]);
+        
+        m_sample_loop_start_hslider->setValue(m_sample_loop_starts[m_selected_sample_index_combobox->currentIndex()]);
+        m_sample_loop_end_hslider->setValue(m_sample_loop_ends[m_selected_sample_index_combobox->currentIndex()]);
+        
+        m_loop_mode_combobox->setCurrentIndex(m_sample_loop_modes[m_selected_sample_index_combobox->currentIndex()]);
         
         m_suppress_selected_sample_changed = FALSE;
         
@@ -2659,6 +2787,20 @@ void SamplerGUI::v_set_control(int port, float a_value)
     {
         ((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[(port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)]->lms_get_widget()))->setCurrentIndex(a_value);
     }
+    //even newer
+    
+    else if((port >= LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_START_PORT_RANGE_MAX))
+    {
+        m_sample_loop_starts[(port - LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN)] = a_value;
+    }
+    else if((port >= LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_END_PORT_RANGE_MAX))
+    {
+        m_sample_loop_ends[(port - LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN)] = a_value;
+    }
+    else if((port >= LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
+    {
+        m_sample_loop_modes[(port - LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN)] = a_value;
+    }
     else
     {
         cerr << "v_set_control called with invalid port " << port << "\n";
@@ -2990,6 +3132,20 @@ int SamplerGUI::i_get_control(int port)
     {
         return ((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[(port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)]->lms_get_widget()))->currentIndex();
     }
+    //newer
+        
+    else if((port >= LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_START_PORT_RANGE_MAX))
+    {
+        return m_sample_loop_starts[(port - LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN)];
+    }        
+    else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
+    {
+        return m_sample_ends[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)];
+    }        
+    else if((port >= LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
+    {
+        return m_sample_loop_modes[(port - LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN)];
+    }
     
     else
     {
@@ -3215,6 +3371,26 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_suppressHostUpdate = TRUE;
         gui->m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[f_value]->lms_set_value(value);
         gui->m_suppressHostUpdate = FALSE;
+    }
+    //newer
+    
+    else if((port >= LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_LOOP_START_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN;
+        //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
+        gui->m_sample_loop_starts[f_value] = (int)value;
+    }
+    else if((port >= LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_LOOP_END_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN;
+        //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
+        gui->m_sample_loop_ends[f_value] = (int)value;
+    }
+    else if((port >= LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN;
+        //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
+        gui->m_sample_loop_modes[f_value] = (int)value;
     }
     
     else
