@@ -39,7 +39,7 @@ inline float f_linear_interpolate(float, float, float);
 inline float f_linear_interpolate_arr(float[],float, t_lin_interpolater*);
 inline float f_linear_interpolate_arr_wrap(float[],int,float, t_lin_interpolater*);
 inline float f_linear_interpolate_ptr_wrap(float*,int,float, t_lin_interpolater*);
-
+inline float f_linear_interpolate_ptr_ifh(float * a_table, int a_whole_number, float a_frac, t_lin_interpolater * a_lin);
 
 /* inline float f_linear_interpolate(
  * float a_a, //item 0
@@ -110,6 +110,25 @@ inline float f_linear_interpolate_ptr_wrap(float * a_table, int a_table_size, fl
         a_lin->int_pos_plus_1 = 0;
     
     a_lin->pos = a_ptr - (a_lin->int_pos);
+    
+    return (((a_table[(a_lin->int_pos)]) - (a_table[(a_lin->int_pos_plus_1)])) * (a_lin->pos)) + (a_table[(a_lin->int_pos_plus_1)]);
+}
+
+/* inline float f_linear_interpolate_ptr_ifh(
+ * float * a_table, 
+ * int a_table_size, 
+ * int a_whole_number, 
+ * float a_frac, 
+ * t_lin_interpolater * a_lin)
+ * 
+ * For use with the read_head type in Euphoria Sampler
+ */
+inline float f_linear_interpolate_ptr_ifh(float * a_table, int a_whole_number, float a_frac, t_lin_interpolater * a_lin)
+{        
+    a_lin->int_pos = a_whole_number;
+    a_lin->int_pos_plus_1 = (a_lin->int_pos) + 1;
+        
+    a_lin->pos = a_frac;
     
     return (((a_table[(a_lin->int_pos)]) - (a_table[(a_lin->int_pos_plus_1)])) * (a_lin->pos)) + (a_table[(a_lin->int_pos_plus_1)]);
 }
