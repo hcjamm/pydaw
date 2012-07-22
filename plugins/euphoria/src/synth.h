@@ -34,8 +34,7 @@ GNU General Public License for more details.
 #define Sampler_Sample_Padding 100
 
 typedef struct {
-    LADSPA_Data *output[2];
-    LADSPA_Data *retune;
+    LADSPA_Data *output[2];    
     LADSPA_Data *basePitch[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *low_note[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *high_note[LMS_MAX_SAMPLE_COUNT];

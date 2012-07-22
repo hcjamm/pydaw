@@ -272,11 +272,6 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
 
     //!!! check rv from malloc throughout
 
-    plugin_data->output[0] = 0;
-    plugin_data->output[1] = 0;
-    plugin_data->retune = 0;    
-    plugin_data->sustain = 0;
-    plugin_data->release = 0;
     plugin_data->selected_sample = 0;
     plugin_data->i_selected_sample = 0;
     plugin_data->current_sample = 0;
