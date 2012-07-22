@@ -788,7 +788,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                 
                 if((plugin_data->preview_sample_array_index) >= (plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT]))
                 {
-                    break;  //TODO:  Something that will allow the same sample to be previewed consecutively
+                    break;
                 }
             }
         }
@@ -888,7 +888,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     }
 
     //!!! complain also if more than 2 channels
-
+    
     samples = info.frames;
 
     tmpFrames = (float *)malloc(info.frames * info.channels * sizeof(float));
@@ -926,7 +926,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
         
     for(f_i = 0; f_i < f_actual_array_size; f_i++)
     {   
-        if((f_i > LMS_SINC_INTERPOLATION_POINTS_DIV2) && (f_i < (samples + LMS_SINC_INTERPOLATION_POINTS_DIV2 + Sampler_Sample_Padding)))
+        if((f_i > LMS_SINC_INTERPOLATION_POINTS_DIV2) && (f_i < (samples + LMS_SINC_INTERPOLATION_POINTS_DIV2))) // + Sampler_Sample_Padding)))
         {
             if(f_i >= f_fade_out_start)
             {
@@ -974,7 +974,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     tmpOld[1] = plugin_data->sampleData[1][(a_index)];
     plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
     plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
-    plugin_data->sampleCount[(a_index)] = samples + Sampler_Sample_Padding + LMS_SINC_INTERPOLATION_POINTS_DIV2;
+    plugin_data->sampleCount[(a_index)] = f_actual_array_size;
     
     if((info.channels) >= 2)
     {
