@@ -1632,7 +1632,7 @@ void SamplerGUI::openInstrumentFromFile()
     {
         QString f_clear_all_files = QString("");
         
-        for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)
+        for(int i = 0; i < LMS_TOTAL_SAMPLE_COUNT; i++)
         {
             f_clear_all_files.append(LMS_FILES_STRING_DELIMITER);
         }
