@@ -266,7 +266,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_table->lms_mod_matrix->resizeColumnsToContents();
         m_sample_table->lms_mod_matrix->resizeRowsToContents();
         
-        m_sample_table->lms_mod_matrix->horizontalHeader()->setStretchLastSection(TRUE);
+        //m_sample_table->lms_mod_matrix->horizontalHeader()->setStretchLastSection(TRUE);
         
         QMetaObject::connectSlotsByName(this);
     
