@@ -40,7 +40,7 @@ t_ramp_env * g_rmp_get_ramp_env(float);
 
 
 
-inline void f_rmp_run_ramp(t_ramp_env* a_rmp_ptr)
+inline void f_rmp_run_ramp(t_ramp_env*__restrict a_rmp_ptr)
 {
     if((a_rmp_ptr->output_multiplier) == 0 )
     {
@@ -72,7 +72,7 @@ inline void f_rmp_run_ramp(t_ramp_env* a_rmp_ptr)
  * 
  * Set envelope time without retriggering the envelope
  */
-void v_rmp_set_time(t_ramp_env* a_rmp_ptr,float a_time)
+void v_rmp_set_time(t_ramp_env*__restrict a_rmp_ptr,float a_time)
 {
     a_rmp_ptr->ramp_time = a_time;
        
@@ -94,7 +94,7 @@ void v_rmp_set_time(t_ramp_env* a_rmp_ptr,float a_time)
  * float a_time, 
  * float a_multiplier)
  */
-void v_rmp_retrigger(t_ramp_env* a_rmp_ptr, float a_time, float a_multiplier)
+void v_rmp_retrigger(t_ramp_env*__restrict a_rmp_ptr, float a_time, float a_multiplier)
 {
     a_rmp_ptr->output = 0;
     a_rmp_ptr->ramp_time = a_time;
@@ -115,7 +115,7 @@ void v_rmp_retrigger(t_ramp_env* a_rmp_ptr, float a_time, float a_multiplier)
 }
 
 /*Glide with constant time in seconds*/
-void v_rmp_retrigger_glide_t(t_ramp_env* a_rmp_ptr, float a_time, float a_current_note, float a_next_note)
+void v_rmp_retrigger_glide_t(t_ramp_env*__restrict a_rmp_ptr, float a_time, float a_current_note, float a_next_note)
 {    
     a_rmp_ptr->ramp_time = a_time;
     
@@ -137,7 +137,7 @@ void v_rmp_retrigger_glide_t(t_ramp_env* a_rmp_ptr, float a_time, float a_curren
 }
 
 /*Glide with constant rate in seconds-per-octave*/
-void v_rmp_retrigger_glide_r(t_ramp_env* a_rmp_ptr, float a_time, float a_current_note, float a_next_note)
+void v_rmp_retrigger_glide_r(t_ramp_env*__restrict a_rmp_ptr, float a_time, float a_current_note, float a_next_note)
 {
     a_rmp_ptr->output = 0;
     a_rmp_ptr->output_multiplier = a_next_note - a_current_note;

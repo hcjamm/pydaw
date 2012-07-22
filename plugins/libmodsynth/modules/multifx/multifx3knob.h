@@ -128,7 +128,7 @@ inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
     
 }
 
-inline void v_mf3_set(t_mf3_multi* a_mf3, float a_control0, float a_control1, float a_control2)
+inline void v_mf3_set(t_mf3_multi*__restrict a_mf3, float a_control0, float a_control1, float a_control2)
 {
     
     a_mf3->control[0] = a_control0;
@@ -144,7 +144,7 @@ inline void v_mf3_set(t_mf3_multi* a_mf3, float a_control0, float a_control1, fl
  * float a_mod, //Expects 0 to 1 or -1 to 1 range from an LFO, envelope, etc...
  * float a_amt0, float a_amt1, float a_amt2)  //Amount, from the GUI.  Range:  -100 to 100
  */
-inline void v_mf3_mod(t_mf3_multi* a_mf3,float a_mod, float a_amt0, float a_amt1, float a_amt2)
+inline void v_mf3_mod(t_mf3_multi*__restrict a_mf3,float a_mod, float a_amt0, float a_amt1, float a_amt2)
 {    
     a_mf3->mod_value[0] = (a_mf3->mod_value[0]) + (a_mod * a_amt0 * .01);
     a_mf3->mod_value[1] = (a_mf3->mod_value[1]) + (a_mod * a_amt1 * .01);
@@ -157,12 +157,12 @@ inline void v_mf3_mod(t_mf3_multi* a_mf3,float a_mod, float a_amt0, float a_amt1
  * float a_amt, //amount, -1.0f to 1.0f
  * int a_index)  //control index
  */
-inline void v_mf3_mod_single(t_mf3_multi* a_mf3,float a_mod, float a_amt, int a_index)
+inline void v_mf3_mod_single(t_mf3_multi*__restrict a_mf3,float a_mod, float a_amt, int a_index)
 {    
     a_mf3->mod_value[a_index] = (a_mf3->mod_value[a_index]) + (a_mod * a_amt);    //not  * .01 because it's expected you did this at note_on
 }
 
-inline void v_mf3_commit_mod(t_mf3_multi* a_mf3)
+inline void v_mf3_commit_mod(t_mf3_multi*__restrict a_mf3)
 {
     a_mf3->control[0] = (a_mf3->control[0]) + ((a_mf3->mod_value[0]) * 127);
     
@@ -201,13 +201,13 @@ inline void v_mf3_commit_mod(t_mf3_multi* a_mf3)
     }
 }
 
-inline void v_mf3_run_off(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_off(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     a_mf3->output0 = a_in0;
     a_mf3->output1 = a_in1;
 }
 
-inline void v_mf3_run_lp2(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_lp2(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
     
@@ -215,7 +215,7 @@ inline void v_mf3_run_lp2(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = v_svf_run_2_pole_lp(a_mf3->svf1, a_in1);
 }
 
-inline void v_mf3_run_lp4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_lp4(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
     
@@ -223,7 +223,7 @@ inline void v_mf3_run_lp4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = v_svf_run_4_pole_lp(a_mf3->svf1, a_in1);
 }
 
-inline void v_mf3_run_hp2(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_hp2(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
     
@@ -231,7 +231,7 @@ inline void v_mf3_run_hp2(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = v_svf_run_2_pole_hp(a_mf3->svf1, a_in1);
 }
 
-inline void v_mf3_run_hp4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_hp4(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
     
@@ -239,7 +239,7 @@ inline void v_mf3_run_hp4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = v_svf_run_4_pole_hp(a_mf3->svf1, a_in1);
 }
 
-inline void v_mf3_run_bp2(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_bp2(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
     
@@ -247,7 +247,7 @@ inline void v_mf3_run_bp2(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = v_svf_run_2_pole_bp(a_mf3->svf1, a_in1);
 }
 
-inline void v_mf3_run_bp4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_bp4(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
     
@@ -255,7 +255,7 @@ inline void v_mf3_run_bp4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = v_svf_run_4_pole_bp(a_mf3->svf1, a_in1);
 }
 
-inline void v_mf3_run_notch2(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_notch2(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
     
@@ -263,7 +263,7 @@ inline void v_mf3_run_notch2(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = v_svf_run_2_pole_notch(a_mf3->svf1, a_in1);
 }
 
-inline void v_mf3_run_notch4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_notch4(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
     
@@ -271,7 +271,7 @@ inline void v_mf3_run_notch4(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = v_svf_run_4_pole_notch(a_mf3->svf1, a_in1);
 }
 
-inline void v_mf3_run_eq(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_eq(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {   
     v_mf3_commit_mod(a_mf3);    
     //cutoff
@@ -289,7 +289,7 @@ inline void v_mf3_run_eq(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = (a_mf3->eq0->output1);
 }
 
-inline void v_mf3_run_dist(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_dist(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
     a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.283464567);
@@ -304,7 +304,7 @@ inline void v_mf3_run_dist(t_mf3_multi* a_mf3, float a_in0, float a_in1)
 }
 
 
-inline void v_mf3_run_comb(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_comb(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
     
@@ -326,7 +326,7 @@ inline void v_mf3_run_comb(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = (a_mf3->comb_filter1->output_sample);
 }
 
-inline void v_mf3_run_amp_panner(t_mf3_multi* a_mf3, float a_in0, float a_in1)
+inline void v_mf3_run_amp_panner(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
     
@@ -340,7 +340,7 @@ inline void v_mf3_run_amp_panner(t_mf3_multi* a_mf3, float a_in0, float a_in1)
     a_mf3->output1 = (a_mf3->amp_and_panner->output1);
 }
 
-inline void f_mfx_transform_svf_filter(t_mf3_multi* a_mf3)
+inline void f_mfx_transform_svf_filter(t_mf3_multi*__restrict a_mf3)
 {
     v_mf3_commit_mod(a_mf3);    
     //cutoff

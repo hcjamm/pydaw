@@ -56,7 +56,7 @@ t_comb_filter * g_cmb_get_comb_filter(float);
  * float input value (audio sample, -1 to 1, typically)
  * );
  * This runs the filter.  You can then use the output sample in your plugin*/
-inline void v_cmb_set_input(t_comb_filter* a_cmb_ptr,float a_value)
+inline void v_cmb_set_input(t_comb_filter*__restrict a_cmb_ptr,float a_value)
 {    
     a_cmb_ptr->delay_pointer = (a_cmb_ptr->input_pointer) - (a_cmb_ptr->delay_samples);
     
@@ -119,7 +119,7 @@ inline void v_cmb_set_input(t_comb_filter* a_cmb_ptr,float a_value)
  * 
  * Sets all parameters of the comb filter.
  */
-inline void v_cmb_set_all(t_comb_filter* a_cmb_ptr, float a_wet_db, float a_feedback_db, float a_midi_note_number)
+inline void v_cmb_set_all(t_comb_filter*__restrict a_cmb_ptr, float a_wet_db, float a_feedback_db, float a_midi_note_number)
 {
     /*Set wet_linear, but only if it's changed since last time*/    
     if((a_cmb_ptr->wet_db) != a_wet_db)
