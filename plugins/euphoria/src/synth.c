@@ -272,7 +272,10 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->amp = 1.0f;
     
     plugin_data->preview_sample_array_index = 0;
-    plugin_data->sampleCount[(LMS_TOTAL_SAMPLE_COUNT - 1)] = 0;  //To prevent a SEGFAULT on the first call of the main loop
+    plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT] = 0;  //To prevent a SEGFAULT on the first call of the main loop
+    plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT] = "";
+    plugin_data->sampleData[0][LMS_MAX_SAMPLE_COUNT] = 0;
+    plugin_data->sampleData[1][LMS_MAX_SAMPLE_COUNT] = 0;
     plugin_data->preview_sample_max_length = s_rate * 5;  //Sets the maximum time to preview a sample to 5 seconds, lest a user unwittlingly tries to preview a 2 hour long sample.
     
     plugin_data->smp_pit_core = g_pit_get();

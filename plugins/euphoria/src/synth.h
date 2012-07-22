@@ -87,7 +87,7 @@ typedef struct {
     
     int         i_selected_sample;
     int          channels;
-    int         sample_channels[LMS_MAX_SAMPLE_COUNT];
+    int         sample_channels[LMS_TOTAL_SAMPLE_COUNT];
     float       sample_last_interpolated_value[LMS_MAX_SAMPLE_COUNT];
     float       *sampleData[2][LMS_TOTAL_SAMPLE_COUNT];
     size_t       sampleCount[LMS_TOTAL_SAMPLE_COUNT];        
@@ -123,7 +123,7 @@ typedef struct {
     t_int_frac_read_head * sample_read_heads[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];
     long         sampleNo;
     char        *projectDir;
-    char*       sample_paths[LMS_MAX_SAMPLE_COUNT];    
+    char*       sample_paths[LMS_TOTAL_SAMPLE_COUNT];    
     char*       sample_files;
     
     //PolyFX modulation streams    
