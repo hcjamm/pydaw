@@ -27,9 +27,9 @@ $ladspa_data = "";
 
 for($i = 0; $i < $sample_count; $i++)
 {
-my $slot = "sample_pitch$i" . "Changed(int)";
-my $slot_def = "sample_pitch$i" . "Changed(int a_value)";
-my $function = "sample_pitchChanged($i);";
+my $slot = "sample_note$i" . "Changed(int)";
+my $slot_def = "sample_note$i" . "Changed(int a_value)";
+my $function = "sample_noteChanged($i);";
 $slots .= "\tvoid $slot;\n";
 $slot_defs .= "void $class_name" . "::" . "$slot_def" . "{$function}\n";
 $connections .= "\t\t\tconnect(((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[$i]))->lms_note, SIGNAL(currentIndexChanged(int)), this, SLOT($slot));\n";
@@ -98,8 +98,36 @@ $slot_defs .= "void $class_name" . "::" . "$slot_def" . "{$function}\n";
 $connections .= "\t\t\tconnect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[$i]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
 }
 
+for($i = 0; $i < $sample_count; $i++)
+{
+my $slot = "sample_pitch$i" . "Changed(int)";
+my $slot_def = "sample_pitch$i" . "Changed(int a_value)";
+my $function = "sample_pitchChanged($i);";
+$slots .= "\tvoid $slot;\n";
+$slot_defs .= "void $class_name" . "::" . "$slot_def" . "{$function}\n";
+$connections .= "\t\t\tconnect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[$i]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
+}
+
+for($i = 0; $i < $sample_count; $i++)
+{
+my $slot = "sample_tune$i" . "Changed(int)";
+my $slot_def = "sample_tune$i" . "Changed(int a_value)";
+my $function = "sample_tuneChanged($i);";
+$slots .= "\tvoid $slot;\n";
+$slot_defs .= "void $class_name" . "::" . "$slot_def" . "{$function}\n";
+$connections .= "\t\t\tconnect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[$i]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT($slot));\n";
+}
 
 
+for($i = 0; $i < $sample_count; $i++)
+{
+my $slot = "sample_interpolation_mode$i" . "Changed(int)";
+my $slot_def = "sample_interpolation_mode$i" . "Changed(int a_value)";
+my $function = "sample_interpolation_modeChanged($i);";
+$slots .= "\tvoid $slot;\n";
+$slot_defs .= "void $class_name" . "::" . "$slot_def" . "{$function}\n";
+$connections .= "\t\t\tconnect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[$i]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT($slot));\n";
+}
 
 $mod_matrix_knobs_per_control = 3;
 $mod_matrix_control_count = 4;

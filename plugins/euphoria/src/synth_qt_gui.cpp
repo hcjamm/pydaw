@@ -76,6 +76,9 @@ static QTextStream cerr(stderr);
 #define SMP_TB_VEL_SENS_INDEX 6
 #define SMP_TB_VEL_LOW_INDEX 7
 #define SMP_TB_VEL_HIGH_INDEX 8
+#define SMP_TB_PITCH_INDEX 9
+#define SMP_TB_TUNE_INDEX 10
+#define SMP_TB_INTERPOLATION_MODE_INDEX 11
 
 
 SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
@@ -107,6 +110,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     a_style->LMS_set_label_style(QString("QLabel{color:black;background-color:white;border:solid 2px white;border-radius:2px; text-align : center;}"), 64);
     //a_style->LMS_set_value_style("")
     
+    QStringList f_interpolation_modes = QStringList() << QString("High Quality") << QString("Low Quality") << QString("None");
+    
     QList <LMS_mod_matrix_column*> f_sample_table_columns;
         
     f_sample_table_columns << new LMS_mod_matrix_column(radiobutton, QString(""), 0, 1, 0);  //Selected row      
@@ -118,6 +123,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Vel. Sens."), 0, 20, 10);  //Velocity Sensitivity
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Low Vel."), 0, 127, 0);  //Low Velocity
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("High Vel."), 0, 127, 127);  //High Velocity
+    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Pitch"), -36, 36, 0);  //Pitch
+    f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Tune"), -100, 100, 0);  //Tune
+    f_sample_table_columns << new LMS_mod_matrix_column(f_interpolation_modes, QString("Mode")); //Interpolation Mode
     
     m_sample_table = new LMS_mod_matrix(this, LMS_MAX_SAMPLE_COUNT, f_sample_table_columns, LMS_FIRST_SAMPLE_TABLE_PORT, a_style);
         
@@ -506,7 +514,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[29]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vol29Changed(int)));
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[30]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vol30Changed(int)));
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[31]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vol31Changed(int)));
-        //new
+        
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[0]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens0Changed(int)));
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[1]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens1Changed(int)));
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[2]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_sens2Changed(int)));
@@ -603,7 +611,103 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[29]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high29Changed(int)));
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[30]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high30Changed(int)));
         connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[31]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_vel_high31Changed(int)));
-        
+        //new
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[0]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch0Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[1]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch1Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[2]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch2Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[3]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch3Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[4]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch4Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[5]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch5Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[6]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch6Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[7]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch7Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[8]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch8Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[9]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch9Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[10]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch10Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[11]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch11Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[12]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch12Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[13]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch13Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[14]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch14Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[15]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch15Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[16]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch16Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[17]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch17Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[18]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch18Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[19]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch19Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[20]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch20Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[21]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch21Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[22]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch22Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[23]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch23Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[24]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch24Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[25]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch25Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[26]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch26Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[27]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch27Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[28]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch28Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[29]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch29Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[30]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch30Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[31]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_pitch31Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[0]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune0Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[1]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune1Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[2]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune2Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[3]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune3Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[4]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune4Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[5]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune5Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[6]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune6Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[7]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune7Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[8]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune8Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[9]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune9Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[10]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune10Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[11]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune11Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[12]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune12Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[13]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune13Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[14]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune14Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[15]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune15Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[16]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune16Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[17]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune17Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[18]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune18Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[19]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune19Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[20]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune20Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[21]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune21Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[22]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune22Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[23]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune23Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[24]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune24Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[25]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune25Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[26]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune26Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[27]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune27Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[28]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune28Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[29]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune29Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[30]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune30Changed(int)));
+        connect((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[31]->lms_get_widget()), SIGNAL(valueChanged(int)), this, SLOT(sample_tune31Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[0]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode0Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[1]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode1Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[2]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode2Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[3]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode3Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[4]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode4Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[5]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode5Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[6]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode6Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[7]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode7Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[8]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode8Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[9]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode9Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[10]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode10Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[11]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode11Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[12]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode12Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[13]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode13Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[14]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode14Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[15]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode15Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[16]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode16Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[17]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode17Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[18]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode18Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[19]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode19Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[20]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode20Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[21]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode21Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[22]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode22Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[23]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode23Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[24]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode24Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[25]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode25Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[26]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode26Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[27]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode27Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[28]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode28Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[29]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode29Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[30]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode30Changed(int)));
+        connect((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[31]->lms_get_widget()), SIGNAL(currentIndexChanged(int)), this, SLOT(sample_interpolation_mode31Changed(int)));
         //From PolyFX mod matrix
 
 /*End synth_qt_gui.cpp Autogenerated connections*/
@@ -1361,7 +1465,7 @@ void SamplerGUI::file_browser_bookmark_delete_button_pressed()
     m_file_browser->bookmark_delete_button_pressed();
 }
 
-void SamplerGUI::sample_pitchChanged(int a_control_index)
+void SamplerGUI::sample_noteChanged(int a_control_index)
 {
     m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[a_control_index]->lms_value_changed(0);
 #ifndef LMS_DEBUG_STANDALONE
@@ -1451,6 +1555,43 @@ void SamplerGUI::sample_vel_highChanged(int a_control_index)
 #endif
 }
 
+
+void SamplerGUI::sample_pitchChanged(int a_control_index)
+{
+        m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[a_control_index]->lms_value_changed(0);
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) {        
+	lo_send(m_host, m_controlPath, "if",
+                (LMS_PITCH_PORT_RANGE_MIN + a_control_index),
+                (float)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[a_control_index]->lms_get_value()));
+    }
+#endif
+}
+
+void SamplerGUI::sample_tuneChanged(int a_control_index)
+{
+        m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[a_control_index]->lms_value_changed(0);
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) {        
+	lo_send(m_host, m_controlPath, "if",
+                (LMS_TUNE_PORT_RANGE_MIN + a_control_index),
+                (float)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[a_control_index]->lms_get_value()));
+    }
+#endif
+}
+
+void SamplerGUI::sample_interpolation_modeChanged(int a_control_index)
+{
+        m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[a_control_index]->lms_value_changed(0);
+#ifndef LMS_DEBUG_STANDALONE
+    if (!m_suppressHostUpdate) {        
+	lo_send(m_host, m_controlPath, "if",
+                (LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN + a_control_index),
+                (float)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[a_control_index]->lms_get_value()));
+    }
+#endif
+}
+
 void SamplerGUI::pfxmatrix_Changed(int a_port, int a_fx_group, int a_dst, int a_ctrl, int a_src)
 {
     //m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_value_changed(0);    
@@ -1523,7 +1664,12 @@ void SamplerGUI::saveInstrumentToSingleFile()
                              i_get_control((i + LMS_SAMPLE_END_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
                              i_get_control((i + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
                              i_get_control((i + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)) << "\n";
+                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER << 
+                            //new
+                            i_get_control((i + LMS_PITCH_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
+                            i_get_control((i + LMS_TUNE_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
+                            i_get_control((i + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN))
+                            << "\n";
                 }
                 else
                 {
@@ -1536,7 +1682,12 @@ void SamplerGUI::saveInstrumentToSingleFile()
                              i_get_control((i + LMS_SAMPLE_END_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
                              i_get_control((i + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
                              i_get_control((i + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)) << "\n";     
+                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                            //new
+                            i_get_control((i + LMS_PITCH_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
+                            i_get_control((i + LMS_TUNE_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
+                            i_get_control((i + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN))
+                            << "\n";
                 }
             }
             
@@ -1759,6 +1910,16 @@ void SamplerGUI::openInstrumentFromFile()
                             case 10:
                                 v_set_control((f_sample_index + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN), file_arr.at(i).toFloat());
                                 break;
+                            case 11:
+                                v_set_control((f_sample_index + LMS_PITCH_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
+                            case 12:
+                                v_set_control((f_sample_index + LMS_TUNE_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;                        
+                            case 13:
+                                v_set_control((f_sample_index + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
+                        
                         }
                     }
                 }
@@ -1835,38 +1996,38 @@ void SamplerGUI::fx3comboboxChanged(int value){ lms_value_changed(value, m_fx3->
 
 /*synth_qt_gui.cpp Autogenerated slots*/
 
-void SamplerGUI::sample_pitch0Changed(int a_value){sample_pitchChanged(0);}
-void SamplerGUI::sample_pitch1Changed(int a_value){sample_pitchChanged(1);}
-void SamplerGUI::sample_pitch2Changed(int a_value){sample_pitchChanged(2);}
-void SamplerGUI::sample_pitch3Changed(int a_value){sample_pitchChanged(3);}
-void SamplerGUI::sample_pitch4Changed(int a_value){sample_pitchChanged(4);}
-void SamplerGUI::sample_pitch5Changed(int a_value){sample_pitchChanged(5);}
-void SamplerGUI::sample_pitch6Changed(int a_value){sample_pitchChanged(6);}
-void SamplerGUI::sample_pitch7Changed(int a_value){sample_pitchChanged(7);}
-void SamplerGUI::sample_pitch8Changed(int a_value){sample_pitchChanged(8);}
-void SamplerGUI::sample_pitch9Changed(int a_value){sample_pitchChanged(9);}
-void SamplerGUI::sample_pitch10Changed(int a_value){sample_pitchChanged(10);}
-void SamplerGUI::sample_pitch11Changed(int a_value){sample_pitchChanged(11);}
-void SamplerGUI::sample_pitch12Changed(int a_value){sample_pitchChanged(12);}
-void SamplerGUI::sample_pitch13Changed(int a_value){sample_pitchChanged(13);}
-void SamplerGUI::sample_pitch14Changed(int a_value){sample_pitchChanged(14);}
-void SamplerGUI::sample_pitch15Changed(int a_value){sample_pitchChanged(15);}
-void SamplerGUI::sample_pitch16Changed(int a_value){sample_pitchChanged(16);}
-void SamplerGUI::sample_pitch17Changed(int a_value){sample_pitchChanged(17);}
-void SamplerGUI::sample_pitch18Changed(int a_value){sample_pitchChanged(18);}
-void SamplerGUI::sample_pitch19Changed(int a_value){sample_pitchChanged(19);}
-void SamplerGUI::sample_pitch20Changed(int a_value){sample_pitchChanged(20);}
-void SamplerGUI::sample_pitch21Changed(int a_value){sample_pitchChanged(21);}
-void SamplerGUI::sample_pitch22Changed(int a_value){sample_pitchChanged(22);}
-void SamplerGUI::sample_pitch23Changed(int a_value){sample_pitchChanged(23);}
-void SamplerGUI::sample_pitch24Changed(int a_value){sample_pitchChanged(24);}
-void SamplerGUI::sample_pitch25Changed(int a_value){sample_pitchChanged(25);}
-void SamplerGUI::sample_pitch26Changed(int a_value){sample_pitchChanged(26);}
-void SamplerGUI::sample_pitch27Changed(int a_value){sample_pitchChanged(27);}
-void SamplerGUI::sample_pitch28Changed(int a_value){sample_pitchChanged(28);}
-void SamplerGUI::sample_pitch29Changed(int a_value){sample_pitchChanged(29);}
-void SamplerGUI::sample_pitch30Changed(int a_value){sample_pitchChanged(30);}
-void SamplerGUI::sample_pitch31Changed(int a_value){sample_pitchChanged(31);}
+void SamplerGUI::sample_note0Changed(int a_value){sample_noteChanged(0);}
+void SamplerGUI::sample_note1Changed(int a_value){sample_noteChanged(1);}
+void SamplerGUI::sample_note2Changed(int a_value){sample_noteChanged(2);}
+void SamplerGUI::sample_note3Changed(int a_value){sample_noteChanged(3);}
+void SamplerGUI::sample_note4Changed(int a_value){sample_noteChanged(4);}
+void SamplerGUI::sample_note5Changed(int a_value){sample_noteChanged(5);}
+void SamplerGUI::sample_note6Changed(int a_value){sample_noteChanged(6);}
+void SamplerGUI::sample_note7Changed(int a_value){sample_noteChanged(7);}
+void SamplerGUI::sample_note8Changed(int a_value){sample_noteChanged(8);}
+void SamplerGUI::sample_note9Changed(int a_value){sample_noteChanged(9);}
+void SamplerGUI::sample_note10Changed(int a_value){sample_noteChanged(10);}
+void SamplerGUI::sample_note11Changed(int a_value){sample_noteChanged(11);}
+void SamplerGUI::sample_note12Changed(int a_value){sample_noteChanged(12);}
+void SamplerGUI::sample_note13Changed(int a_value){sample_noteChanged(13);}
+void SamplerGUI::sample_note14Changed(int a_value){sample_noteChanged(14);}
+void SamplerGUI::sample_note15Changed(int a_value){sample_noteChanged(15);}
+void SamplerGUI::sample_note16Changed(int a_value){sample_noteChanged(16);}
+void SamplerGUI::sample_note17Changed(int a_value){sample_noteChanged(17);}
+void SamplerGUI::sample_note18Changed(int a_value){sample_noteChanged(18);}
+void SamplerGUI::sample_note19Changed(int a_value){sample_noteChanged(19);}
+void SamplerGUI::sample_note20Changed(int a_value){sample_noteChanged(20);}
+void SamplerGUI::sample_note21Changed(int a_value){sample_noteChanged(21);}
+void SamplerGUI::sample_note22Changed(int a_value){sample_noteChanged(22);}
+void SamplerGUI::sample_note23Changed(int a_value){sample_noteChanged(23);}
+void SamplerGUI::sample_note24Changed(int a_value){sample_noteChanged(24);}
+void SamplerGUI::sample_note25Changed(int a_value){sample_noteChanged(25);}
+void SamplerGUI::sample_note26Changed(int a_value){sample_noteChanged(26);}
+void SamplerGUI::sample_note27Changed(int a_value){sample_noteChanged(27);}
+void SamplerGUI::sample_note28Changed(int a_value){sample_noteChanged(28);}
+void SamplerGUI::sample_note29Changed(int a_value){sample_noteChanged(29);}
+void SamplerGUI::sample_note30Changed(int a_value){sample_noteChanged(30);}
+void SamplerGUI::sample_note31Changed(int a_value){sample_noteChanged(31);}
 void SamplerGUI::sample_lnote0Changed(int a_value){sample_lnoteChanged(0);}
 void SamplerGUI::sample_lnote1Changed(int a_value){sample_lnoteChanged(1);}
 void SamplerGUI::sample_lnote2Changed(int a_value){sample_lnoteChanged(2);}
@@ -1963,7 +2124,7 @@ void SamplerGUI::sample_vol28Changed(int a_value){sample_volChanged(28);}
 void SamplerGUI::sample_vol29Changed(int a_value){sample_volChanged(29);}
 void SamplerGUI::sample_vol30Changed(int a_value){sample_volChanged(30);}
 void SamplerGUI::sample_vol31Changed(int a_value){sample_volChanged(31);}
-//new
+
 void SamplerGUI::sample_vel_sens0Changed(int a_value){sample_vel_sensChanged(0);}
 void SamplerGUI::sample_vel_sens1Changed(int a_value){sample_vel_sensChanged(1);}
 void SamplerGUI::sample_vel_sens2Changed(int a_value){sample_vel_sensChanged(2);}
@@ -2060,6 +2221,104 @@ void SamplerGUI::sample_vel_high28Changed(int a_value){sample_vel_highChanged(28
 void SamplerGUI::sample_vel_high29Changed(int a_value){sample_vel_highChanged(29);}
 void SamplerGUI::sample_vel_high30Changed(int a_value){sample_vel_highChanged(30);}
 void SamplerGUI::sample_vel_high31Changed(int a_value){sample_vel_highChanged(31);}
+//new
+void SamplerGUI::sample_pitch0Changed(int a_value){sample_pitchChanged(0);}
+void SamplerGUI::sample_pitch1Changed(int a_value){sample_pitchChanged(1);}
+void SamplerGUI::sample_pitch2Changed(int a_value){sample_pitchChanged(2);}
+void SamplerGUI::sample_pitch3Changed(int a_value){sample_pitchChanged(3);}
+void SamplerGUI::sample_pitch4Changed(int a_value){sample_pitchChanged(4);}
+void SamplerGUI::sample_pitch5Changed(int a_value){sample_pitchChanged(5);}
+void SamplerGUI::sample_pitch6Changed(int a_value){sample_pitchChanged(6);}
+void SamplerGUI::sample_pitch7Changed(int a_value){sample_pitchChanged(7);}
+void SamplerGUI::sample_pitch8Changed(int a_value){sample_pitchChanged(8);}
+void SamplerGUI::sample_pitch9Changed(int a_value){sample_pitchChanged(9);}
+void SamplerGUI::sample_pitch10Changed(int a_value){sample_pitchChanged(10);}
+void SamplerGUI::sample_pitch11Changed(int a_value){sample_pitchChanged(11);}
+void SamplerGUI::sample_pitch12Changed(int a_value){sample_pitchChanged(12);}
+void SamplerGUI::sample_pitch13Changed(int a_value){sample_pitchChanged(13);}
+void SamplerGUI::sample_pitch14Changed(int a_value){sample_pitchChanged(14);}
+void SamplerGUI::sample_pitch15Changed(int a_value){sample_pitchChanged(15);}
+void SamplerGUI::sample_pitch16Changed(int a_value){sample_pitchChanged(16);}
+void SamplerGUI::sample_pitch17Changed(int a_value){sample_pitchChanged(17);}
+void SamplerGUI::sample_pitch18Changed(int a_value){sample_pitchChanged(18);}
+void SamplerGUI::sample_pitch19Changed(int a_value){sample_pitchChanged(19);}
+void SamplerGUI::sample_pitch20Changed(int a_value){sample_pitchChanged(20);}
+void SamplerGUI::sample_pitch21Changed(int a_value){sample_pitchChanged(21);}
+void SamplerGUI::sample_pitch22Changed(int a_value){sample_pitchChanged(22);}
+void SamplerGUI::sample_pitch23Changed(int a_value){sample_pitchChanged(23);}
+void SamplerGUI::sample_pitch24Changed(int a_value){sample_pitchChanged(24);}
+void SamplerGUI::sample_pitch25Changed(int a_value){sample_pitchChanged(25);}
+void SamplerGUI::sample_pitch26Changed(int a_value){sample_pitchChanged(26);}
+void SamplerGUI::sample_pitch27Changed(int a_value){sample_pitchChanged(27);}
+void SamplerGUI::sample_pitch28Changed(int a_value){sample_pitchChanged(28);}
+void SamplerGUI::sample_pitch29Changed(int a_value){sample_pitchChanged(29);}
+void SamplerGUI::sample_pitch30Changed(int a_value){sample_pitchChanged(30);}
+void SamplerGUI::sample_pitch31Changed(int a_value){sample_pitchChanged(31);}
+void SamplerGUI::sample_tune0Changed(int a_value){sample_tuneChanged(0);}
+void SamplerGUI::sample_tune1Changed(int a_value){sample_tuneChanged(1);}
+void SamplerGUI::sample_tune2Changed(int a_value){sample_tuneChanged(2);}
+void SamplerGUI::sample_tune3Changed(int a_value){sample_tuneChanged(3);}
+void SamplerGUI::sample_tune4Changed(int a_value){sample_tuneChanged(4);}
+void SamplerGUI::sample_tune5Changed(int a_value){sample_tuneChanged(5);}
+void SamplerGUI::sample_tune6Changed(int a_value){sample_tuneChanged(6);}
+void SamplerGUI::sample_tune7Changed(int a_value){sample_tuneChanged(7);}
+void SamplerGUI::sample_tune8Changed(int a_value){sample_tuneChanged(8);}
+void SamplerGUI::sample_tune9Changed(int a_value){sample_tuneChanged(9);}
+void SamplerGUI::sample_tune10Changed(int a_value){sample_tuneChanged(10);}
+void SamplerGUI::sample_tune11Changed(int a_value){sample_tuneChanged(11);}
+void SamplerGUI::sample_tune12Changed(int a_value){sample_tuneChanged(12);}
+void SamplerGUI::sample_tune13Changed(int a_value){sample_tuneChanged(13);}
+void SamplerGUI::sample_tune14Changed(int a_value){sample_tuneChanged(14);}
+void SamplerGUI::sample_tune15Changed(int a_value){sample_tuneChanged(15);}
+void SamplerGUI::sample_tune16Changed(int a_value){sample_tuneChanged(16);}
+void SamplerGUI::sample_tune17Changed(int a_value){sample_tuneChanged(17);}
+void SamplerGUI::sample_tune18Changed(int a_value){sample_tuneChanged(18);}
+void SamplerGUI::sample_tune19Changed(int a_value){sample_tuneChanged(19);}
+void SamplerGUI::sample_tune20Changed(int a_value){sample_tuneChanged(20);}
+void SamplerGUI::sample_tune21Changed(int a_value){sample_tuneChanged(21);}
+void SamplerGUI::sample_tune22Changed(int a_value){sample_tuneChanged(22);}
+void SamplerGUI::sample_tune23Changed(int a_value){sample_tuneChanged(23);}
+void SamplerGUI::sample_tune24Changed(int a_value){sample_tuneChanged(24);}
+void SamplerGUI::sample_tune25Changed(int a_value){sample_tuneChanged(25);}
+void SamplerGUI::sample_tune26Changed(int a_value){sample_tuneChanged(26);}
+void SamplerGUI::sample_tune27Changed(int a_value){sample_tuneChanged(27);}
+void SamplerGUI::sample_tune28Changed(int a_value){sample_tuneChanged(28);}
+void SamplerGUI::sample_tune29Changed(int a_value){sample_tuneChanged(29);}
+void SamplerGUI::sample_tune30Changed(int a_value){sample_tuneChanged(30);}
+void SamplerGUI::sample_tune31Changed(int a_value){sample_tuneChanged(31);}
+void SamplerGUI::sample_interpolation_mode0Changed(int a_value){sample_interpolation_modeChanged(0);}
+void SamplerGUI::sample_interpolation_mode1Changed(int a_value){sample_interpolation_modeChanged(1);}
+void SamplerGUI::sample_interpolation_mode2Changed(int a_value){sample_interpolation_modeChanged(2);}
+void SamplerGUI::sample_interpolation_mode3Changed(int a_value){sample_interpolation_modeChanged(3);}
+void SamplerGUI::sample_interpolation_mode4Changed(int a_value){sample_interpolation_modeChanged(4);}
+void SamplerGUI::sample_interpolation_mode5Changed(int a_value){sample_interpolation_modeChanged(5);}
+void SamplerGUI::sample_interpolation_mode6Changed(int a_value){sample_interpolation_modeChanged(6);}
+void SamplerGUI::sample_interpolation_mode7Changed(int a_value){sample_interpolation_modeChanged(7);}
+void SamplerGUI::sample_interpolation_mode8Changed(int a_value){sample_interpolation_modeChanged(8);}
+void SamplerGUI::sample_interpolation_mode9Changed(int a_value){sample_interpolation_modeChanged(9);}
+void SamplerGUI::sample_interpolation_mode10Changed(int a_value){sample_interpolation_modeChanged(10);}
+void SamplerGUI::sample_interpolation_mode11Changed(int a_value){sample_interpolation_modeChanged(11);}
+void SamplerGUI::sample_interpolation_mode12Changed(int a_value){sample_interpolation_modeChanged(12);}
+void SamplerGUI::sample_interpolation_mode13Changed(int a_value){sample_interpolation_modeChanged(13);}
+void SamplerGUI::sample_interpolation_mode14Changed(int a_value){sample_interpolation_modeChanged(14);}
+void SamplerGUI::sample_interpolation_mode15Changed(int a_value){sample_interpolation_modeChanged(15);}
+void SamplerGUI::sample_interpolation_mode16Changed(int a_value){sample_interpolation_modeChanged(16);}
+void SamplerGUI::sample_interpolation_mode17Changed(int a_value){sample_interpolation_modeChanged(17);}
+void SamplerGUI::sample_interpolation_mode18Changed(int a_value){sample_interpolation_modeChanged(18);}
+void SamplerGUI::sample_interpolation_mode19Changed(int a_value){sample_interpolation_modeChanged(19);}
+void SamplerGUI::sample_interpolation_mode20Changed(int a_value){sample_interpolation_modeChanged(20);}
+void SamplerGUI::sample_interpolation_mode21Changed(int a_value){sample_interpolation_modeChanged(21);}
+void SamplerGUI::sample_interpolation_mode22Changed(int a_value){sample_interpolation_modeChanged(22);}
+void SamplerGUI::sample_interpolation_mode23Changed(int a_value){sample_interpolation_modeChanged(23);}
+void SamplerGUI::sample_interpolation_mode24Changed(int a_value){sample_interpolation_modeChanged(24);}
+void SamplerGUI::sample_interpolation_mode25Changed(int a_value){sample_interpolation_modeChanged(25);}
+void SamplerGUI::sample_interpolation_mode26Changed(int a_value){sample_interpolation_modeChanged(26);}
+void SamplerGUI::sample_interpolation_mode27Changed(int a_value){sample_interpolation_modeChanged(27);}
+void SamplerGUI::sample_interpolation_mode28Changed(int a_value){sample_interpolation_modeChanged(28);}
+void SamplerGUI::sample_interpolation_mode29Changed(int a_value){sample_interpolation_modeChanged(29);}
+void SamplerGUI::sample_interpolation_mode30Changed(int a_value){sample_interpolation_modeChanged(30);}
+void SamplerGUI::sample_interpolation_mode31Changed(int a_value){sample_interpolation_modeChanged(31);}
+
 //From PolyFX mod matrix
 void SamplerGUI::pfxmatrix_grp0dst0src0ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC0CTRL0, 0, 0, 0, 0);}
 void SamplerGUI::pfxmatrix_grp0dst0src0ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC0CTRL1, 0, 0, 1, 0);}
@@ -2387,6 +2646,19 @@ void SamplerGUI::v_set_control(int port, float a_value)
     {
         ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[(port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
     }
+    //new
+    else if((port >= LMS_PITCH_PORT_RANGE_MIN) && (port < LMS_PITCH_PORT_RANGE_MAX))
+    {
+        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[(port - LMS_PITCH_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
+    }
+    else if((port >= LMS_TUNE_PORT_RANGE_MIN) && (port < LMS_TUNE_PORT_RANGE_MAX))
+    {
+        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[(port - LMS_TUNE_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
+    }
+    else if((port >= LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
+    {
+        ((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[(port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)]->lms_get_widget()))->setCurrentIndex(a_value);
+    }
     else
     {
         cerr << "v_set_control called with invalid port " << port << "\n";
@@ -2504,7 +2776,7 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
     }
     else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
     {
-        sample_pitchChanged((port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN));
+        sample_noteChanged((port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN));
     }
     else if((port >= LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX))
     {
@@ -2543,6 +2815,19 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
     else if((port >= LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
     {
         sample_vel_highChanged((port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN));
+    }
+    //new    
+    else if((port >= LMS_PITCH_PORT_RANGE_MIN) && (port < LMS_PITCH_PORT_RANGE_MAX))
+    {
+        sample_pitchChanged((port - LMS_PITCH_PORT_RANGE_MIN));
+    }
+    else if((port >= LMS_TUNE_PORT_RANGE_MIN) && (port < LMS_TUNE_PORT_RANGE_MAX))
+    {
+        sample_tuneChanged((port - LMS_TUNE_PORT_RANGE_MIN));
+    }
+    else if((port >= LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
+    {
+        sample_interpolation_modeChanged((port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN));
     }
     else
     {
@@ -2692,6 +2977,20 @@ int SamplerGUI::i_get_control(int port)
     {
         return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[(port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)]->lms_get_widget()))->value();
     }
+    //new
+    else if((port >= LMS_PITCH_PORT_RANGE_MIN) && (port < LMS_PITCH_PORT_RANGE_MAX))
+    {
+        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[(port - LMS_PITCH_PORT_RANGE_MIN)]->lms_get_widget()))->value();
+    }
+    else if((port >= LMS_TUNE_PORT_RANGE_MIN) && (port < LMS_TUNE_PORT_RANGE_MAX))
+    {
+        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[(port - LMS_TUNE_PORT_RANGE_MIN)]->lms_get_widget()))->value();
+    }
+    else if((port >= LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
+    {
+        return ((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[(port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)]->lms_get_widget()))->currentIndex();
+    }
+    
     else
     {
         cerr << "i_get_control called with invalid port " << port << "\n";
@@ -2895,6 +3194,29 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[f_value]->lms_set_value(value);
         gui->m_suppressHostUpdate = FALSE;
     }
+    //new    
+    else if((port >= LMS_PITCH_PORT_RANGE_MIN ) && (port < LMS_PITCH_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_PITCH_PORT_RANGE_MIN;        
+        gui->m_suppressHostUpdate = TRUE;
+        gui->m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[f_value]->lms_set_value(value);
+        gui->m_suppressHostUpdate = FALSE;
+    }
+    else if((port >= LMS_TUNE_PORT_RANGE_MIN ) && (port < LMS_TUNE_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_TUNE_PORT_RANGE_MIN;        
+        gui->m_suppressHostUpdate = TRUE;
+        gui->m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[f_value]->lms_set_value(value);
+        gui->m_suppressHostUpdate = FALSE;
+    }
+    else if((port >= LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN;        
+        gui->m_suppressHostUpdate = TRUE;
+        gui->m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[f_value]->lms_set_value(value);
+        gui->m_suppressHostUpdate = FALSE;
+    }
+    
     else
     {
         cerr << "Warning: received request to set nonexistent port " << port << endl;

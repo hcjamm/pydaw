@@ -45,6 +45,9 @@ typedef struct {
     LADSPA_Data *sample_vel_sens[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sample_vel_low[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sample_vel_high[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_pitch[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_tune[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_interpolation_mode[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *selected_sample;
         
     LADSPA_Data *attack;
