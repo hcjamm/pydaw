@@ -99,6 +99,7 @@ typedef struct {
     size_t       sampleCount[LMS_TOTAL_SAMPLE_COUNT];        
     float       sampleStartPos[LMS_MAX_SAMPLE_COUNT];         
     float       sampleEndPos[LMS_MAX_SAMPLE_COUNT];
+    float       sampleLoopStartPos[LMS_MAX_SAMPLE_COUNT];   //There is no sampleLoopEndPos because the regular sample end is re-used for this purpose
     float       sample_amp[LMS_MAX_SAMPLE_COUNT];     //linear, for multiplying
     /*TODO: Initialize these at startup*/
     int         sample_indexes[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];  //Sample indexes for each note to play

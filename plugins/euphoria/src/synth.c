@@ -429,6 +429,28 @@ typedef void (*fp_run_sampler_interpolation)(Sampler *__restrict plugin_data, in
 static fp_calculate_ratio ratio_function_ptrs[LMS_MAX_SAMPLE_COUNT];
 static fp_run_sampler_interpolation interpolation_modes[LMS_MAX_SAMPLE_COUNT];
 
+static inline int check_sample_bounds(Sampler *__restrict plugin_data, int n)
+{
+    
+    if ((plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)])
+    {
+        if(((int)(*(plugin_data->sampleLoopModes[(plugin_data->current_sample)]))) > 0)
+        {
+            //TODO:  write a special function that either maintains the fraction, or
+            //else wraps the negative interpolation back to where it was before the loop happened, to avoid clicks and pops
+            v_ifh_retrigger(plugin_data->sample_read_heads[n][(plugin_data->current_sample)], 
+                    (LMS_SINC_INTERPOLATION_POINTS_DIV2 + (plugin_data->sampleLoopStartPos[(plugin_data->current_sample)])));// 0.0f;
+   
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int calculate_ratio_sinc(Sampler *__restrict plugin_data, int n)
 {
     plugin_data->ratio =
@@ -441,12 +463,7 @@ static int calculate_ratio_sinc(Sampler *__restrict plugin_data, int n)
 
     v_ifh_run(plugin_data->sample_read_heads[n][(plugin_data->current_sample)], (plugin_data->ratio));
 
-
-    if ((plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)])
-    {        
-        return 1;
-    }
-    return 0;
+    return check_sample_bounds(plugin_data, n);
 }
 
 static int calculate_ratio_linear(Sampler *__restrict plugin_data, int n)
@@ -458,12 +475,7 @@ static int calculate_ratio_none(Sampler *__restrict plugin_data, int n)
 {
     plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number = (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) + 1;
     
-    if ((plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)])
-    {        
-        return 1;
-    }
-    
-    return 0;
+    return check_sample_bounds(plugin_data, n);
 }
 
 static void run_sampler_interpolation_sinc(Sampler *__restrict plugin_data, int n, int ch)
@@ -537,7 +549,7 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
 	if (plugin_data->offs[n] >= 0 &&
 	    pos + i + plugin_data->sampleNo > plugin_data->offs[n]) 
         {            
-            v_poly_note_off(plugin_data->data[n]);            
+            v_poly_note_off(plugin_data->data[n]);
 	}        
         
         float sample[2];
@@ -702,13 +714,26 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                             plugin_data->sample_indexes_count[f_note] = (plugin_data->sample_indexes_count[f_note]) + 1;                            
                             
                             plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001));
-                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001))));
+                            plugin_data->sampleLoopStartPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleLoopStarts[(plugin_data->loaded_samples[i])])) * .0001));
+                            
+                            /* If loop mode is enabled for this sample, set the sample end to be the same as the
+                               loop end.  Then, in the main loop, we'll recalculate sample_end to be the real sample end once
+                               the note_off event is fired.  Doing it this way greatly reduces the need for extra if-then-else logic
+                               in the main loop */
+                            if(((int)(*(plugin_data->sampleLoopModes[(plugin_data->loaded_samples[i])]))) == 0)
+                            {
+                                plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001))));
+                            }
+                            else
+                            {
+                                plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleLoopEnds[(plugin_data->loaded_samples[i])])) * .0001))));
+                            }
                             
                             plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->global_midi_octaves_offset) + 2) * 12)
                                     - (*(plugin_data->sample_pitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->sample_tune[(plugin_data->loaded_samples[i])])) * .01f);
                             
                             v_ifh_retrigger(plugin_data->sample_read_heads[f_note][(plugin_data->loaded_samples[i])], 
-                                    (LMS_SINC_INTERPOLATION_POINTS_DIV2 +  + (plugin_data->sampleStartPos[(plugin_data->current_sample)])));// 0.0f;
+                                    (LMS_SINC_INTERPOLATION_POINTS_DIV2 + (plugin_data->sampleStartPos[(plugin_data->current_sample)])));// 0.0f;
                             
                             plugin_data->vel_sens_output[f_note][(plugin_data->loaded_samples[i])] = 
                                     ((1 -
@@ -1962,7 +1987,7 @@ void _init()
 	desc->activate = activateSampler;
 	desc->cleanup = cleanupSampler;
 	desc->connect_port = connectPortSampler;
-	desc->deactivate = activateSampler; // sic
+	desc->deactivate = activateSampler;
 	desc->instantiate = instantiateSampler;
 	desc->run = runSamplerWrapper;
 	desc->run_adding = NULL;
