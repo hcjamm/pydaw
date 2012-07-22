@@ -41,6 +41,9 @@ typedef struct {
     LADSPA_Data *sample_vol[LMS_MAX_SAMPLE_COUNT];     //in decibels    
     LADSPA_Data *sampleStarts[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sampleEnds[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sampleLoopStarts[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sampleLoopEnds[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sampleLoopModes[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sample_vel_sens[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sample_vel_low[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sample_vel_high[LMS_MAX_SAMPLE_COUNT];
