@@ -249,6 +249,19 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     {
         plugin->sample_vel_high[(port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)] = data;
     }
+    //new
+    else if((port >= LMS_PITCH_PORT_RANGE_MIN) && (port < LMS_PITCH_PORT_RANGE_MAX))
+    {
+        plugin->sample_pitch[(port - LMS_PITCH_PORT_RANGE_MIN)] = data;
+    }    
+    else if((port >= LMS_TUNE_PORT_RANGE_MIN) && (port < LMS_TUNE_PORT_RANGE_MAX))
+    {
+        plugin->sample_tune[(port - LMS_TUNE_PORT_RANGE_MIN)] = data;
+    }
+    else if((port >= LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
+    {
+        plugin->sample_interpolation_mode[(port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)] = data;
+    }
 }
 
 static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
@@ -1717,7 +1730,7 @@ void _init()
         while(f_i < LMS_SAMPLE_PITCH_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Sample Pitch";
+            port_names[f_i] = "Sample Note";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;
             
@@ -1800,6 +1813,36 @@ void _init()
             port_names[f_i] = "High Velocity";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;
+            
+            f_i++;
+        }
+        //new
+        while(f_i < LMS_PITCH_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Sample Pitch";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = -36; port_range_hints[f_i].UpperBound = 36;
+            
+            f_i++;
+        }
+        
+        while(f_i < LMS_TUNE_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Sample Tune";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = -100; port_range_hints[f_i].UpperBound = 100;
+            
+            f_i++;
+        }
+        
+        while(f_i < LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mode";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 3;
             
             f_i++;
         }
