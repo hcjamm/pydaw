@@ -1325,11 +1325,7 @@ void SamplerGUI::file_browser_preview_button_pressed()
 {
     QList<QListWidgetItem*> f_list = m_file_browser->m_files_listWidget->selectedItems();
     
-    if(f_list.count() == 0)
-    {
-        preview_file = QString("");
-    }
-    else
+    if(f_list.count() > 0)    
     {
         preview_file = m_file_browser->m_folder_path_lineedit->text() + QString("/") + f_list[0]->text();
         
