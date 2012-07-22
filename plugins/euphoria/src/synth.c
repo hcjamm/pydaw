@@ -534,18 +534,17 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
         
         float sample[2];
         sample[0] = 0.0f;
-        sample[1] = 0.0f;        
-
+        sample[1] = 0.0f;
                     
         plugin_data->i_loaded_samples = 0;
 
+        //Calculating and summing all of the interpolated samples for this note
         while((plugin_data->i_loaded_samples) < (plugin_data->sample_indexes_count[n]))
         {
             plugin_data->current_sample = (plugin_data->sample_indexes[n][(plugin_data->i_loaded_samples)]);
             if(ratio_function_ptrs[(plugin_data->current_sample)](plugin_data, n))
             {
-                plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
-                //plugin_data->ons[n] = -1;
+                plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;                
                 continue;
             }
             
@@ -568,8 +567,6 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
 
                 plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
                 
-                //was in the other loop previously
-
                 sample[ch] += ((plugin_data->data[n]->noise_func_ptr(plugin_data->data[n]->white_noise1[ch])) * (plugin_data->data[n]->noise_linamp)); //add noise
 
                 sample[ch] = (sample[ch]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp); // * (plugin_data->data[n]->lfo_amp_output);
@@ -699,7 +696,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                             plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001));
                             plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001))));
                             
-                            plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])])) - (*(plugin_data->global_midi_octaves_offset) * 12)
+                            plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->global_midi_octaves_offset) + 2) * 12)
                                     - (*(plugin_data->sample_pitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->sample_tune[(plugin_data->loaded_samples[i])])) * .01f);
                             
                             v_ifh_retrigger(plugin_data->sample_read_heads[f_note][(plugin_data->loaded_samples[i])], 
@@ -1789,10 +1786,10 @@ void _init()
 	port_descriptors[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = "Global MIDI Offset(Octaves)";
 	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_INTEGER |
+                        LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].LowerBound =  -2;
-	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].UpperBound =  2;
+	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].LowerBound =  -3;
+	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].UpperBound =  3;
         
         port_descriptors[LMS_NOISE_TYPE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_NOISE_TYPE] = "Noise Type";
