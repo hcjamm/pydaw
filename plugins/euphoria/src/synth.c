@@ -274,8 +274,6 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->preview_sample_array_index = 0;
     plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT] = 0;  //To prevent a SEGFAULT on the first call of the main loop
     plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT] = "";
-    plugin_data->sampleData[0][LMS_MAX_SAMPLE_COUNT] = 0;
-    plugin_data->sampleData[1][LMS_MAX_SAMPLE_COUNT] = 0;
     plugin_data->preview_sample_max_length = s_rate * 5;  //Sets the maximum time to preview a sample to 5 seconds, lest a user unwittlingly tries to preview a 2 hour long sample.
     
     plugin_data->smp_pit_core = g_pit_get();
@@ -284,8 +282,6 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     int f_i = 0;
     while(f_i < LMS_MAX_SAMPLE_COUNT)
     {
-        plugin_data->sampleData[0][f_i] = 0;
-        plugin_data->sampleData[1][f_i] = 0;
         plugin_data->sampleCount[f_i] = 0;
         plugin_data->basePitch[f_i] = 0;
         plugin_data->low_note[f_i] = 0;
@@ -788,6 +784,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                 
                 if((plugin_data->preview_sample_array_index) >= (plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT]))
                 {
+                    plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT] = "";
                     break;
                 }
             }
@@ -986,6 +983,14 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     }
     plugin_data->sample_paths[(a_index)] = path;
     
+    
+    //The last index is reserved for previewing samples for the UI;
+    //Reset the array indexer so it will play from the beginning.
+    if(a_index == LMS_MAX_SAMPLE_COUNT)
+    {
+        plugin_data->preview_sample_array_index = 0;
+    }
+    
     pthread_mutex_unlock(&plugin_data->mutex);
 
     if (tmpOld[0]) free(tmpOld[0]);
@@ -1021,7 +1026,7 @@ char *samplerClear(Sampler *plugin_data, int a_index)
         {
             if((plugin_data->loaded_samples[(plugin_data->i_loaded_samples)]) == (a_index))
             {
-                printf("Sample index %i is loaded.\n", (plugin_data->i_loaded_samples));
+                printf("Sample index %i is loaded, clearing.\n", (plugin_data->i_loaded_samples));
                 plugin_data->sample_is_loaded = 1;
                 break;
             }
@@ -1091,16 +1096,9 @@ char *samplerLoadAll(Sampler *plugin_data, const char *paths)
             {
                 samplerClear(plugin_data, f_samples_loaded_count);
             }
-            else if(strcmp(f_result_string, plugin_data->sample_paths[f_samples_loaded_count]) != 0)
+            else if(strcmp(f_result_string, (plugin_data->sample_paths[f_samples_loaded_count])) != 0)
             {
-                samplerLoad(plugin_data,f_result_string,f_samples_loaded_count);
-                
-                //The last index is reserved for previewing samples for the UI;
-                //Reset the array indexer so it will play from the beginning.
-                if(f_samples_loaded_count == LMS_MAX_SAMPLE_COUNT)
-                {
-                    plugin_data->preview_sample_array_index = 0;
-                }
+                samplerLoad(plugin_data,f_result_string,f_samples_loaded_count);                
             }
             f_current_string_index = 0;
             f_samples_loaded_count++;
