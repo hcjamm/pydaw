@@ -86,7 +86,6 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         case Sampler_SELECTED_SAMPLE:
             plugin->selected_sample = data;
             break;
-            //Begin Ray-V ports
 
         case LMS_ATTACK:
             plugin->attack = data;
@@ -283,9 +282,6 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     Sampler *plugin_data = (Sampler *) malloc(sizeof(Sampler));
     pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 
-    //!!! check rv from malloc throughout
-
-    plugin_data->selected_sample = 0;
     plugin_data->i_selected_sample = 0;
     plugin_data->current_sample = 0;
     plugin_data->loaded_samples_count = 0;
@@ -353,10 +349,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     
     plugin_data->mono_modules = g_mono_init(s_rate);
     
-    
-    //Begin Ray-V MIDI CC Map
-    
-    plugin_data->fs = s_rate;
+        plugin_data->fs = s_rate;
     
     plugin_data->midi_cc_map = g_ccm_get();
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_ATTACK, 73, "Attack Amp");
@@ -396,10 +389,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_COMBOBOX, 64, "FX3Combobox");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "euphoria-cc_map.txt");
-    
-    //End Ray-V MIDI CC Map
-    
-
+        
     return (LADSPA_Handle) plugin_data;
 }
 
@@ -1286,8 +1276,6 @@ void _init()
 
     samplerStereoDDescriptor =
 	(DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
-
-    //!!! malloc rv
 
     for (channels = 1; channels <= 2; ++channels) {
 
