@@ -1449,10 +1449,10 @@ void _init()
 	port_descriptors[LMS_LFO_FREQ] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_LFO_FREQ] = "LFO Freq";
 	port_range_hints[LMS_LFO_FREQ].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_LFO_FREQ].LowerBound = 10; 
-	port_range_hints[LMS_LFO_FREQ].UpperBound = 400;
+	port_range_hints[LMS_LFO_FREQ].UpperBound = 1600;
         
         /*Parameters for LFO Type*/        
 	port_descriptors[LMS_LFO_TYPE] = port_descriptors[LMS_ATTACK];
