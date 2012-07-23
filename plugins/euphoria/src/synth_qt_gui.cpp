@@ -1143,6 +1143,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_lfo = new LMS_lfo_widget(this, a_style, LMS_LFO_FREQ, LMS_LFO_TYPE, f_lfo_types, QString("LFO"));
         m_main_layout->lms_add_widget(m_lfo->lms_groupbox->lms_groupbox);
 
+        //Overriding the default so we can have a faster LFO
+        m_lfo->lms_freq_knob->lms_knob->setMaximum(1600);
+        
         connect(m_lfo->lms_freq_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOfreqChanged(int)));
         connect(m_lfo->lms_type_combobox->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(LFOtypeChanged(int)));
                 
