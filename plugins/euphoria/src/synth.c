@@ -703,8 +703,8 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                             plugin_data->sample_indexes[f_note][(plugin_data->sample_indexes_count[f_note])] = (plugin_data->loaded_samples[i]);
                             plugin_data->sample_indexes_count[f_note] = (plugin_data->sample_indexes_count[f_note]) + 1;                            
                             
-                            plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001));
-                            plugin_data->sampleLoopStartPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleLoopStarts[(plugin_data->loaded_samples[i])])) * .0001));
+                            plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001)));
+                            plugin_data->sampleLoopStartPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleLoopStarts[(plugin_data->loaded_samples[i])])) * .0001)));
                             
                             /* If loop mode is enabled for this sample, set the sample end to be the same as the
                                loop end.  Then, in the main loop, we'll recalculate sample_end to be the real sample end once
@@ -712,18 +712,23 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                                in the main loop */
                             if(((int)(*(plugin_data->sampleLoopModes[(plugin_data->loaded_samples[i])]))) == 0)
                             {
-                                plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001))));
+                                plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
                             }
                             else
                             {
-                                plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (int)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleLoopEnds[(plugin_data->loaded_samples[i])])) * .0001))));
+                                plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleLoopEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
+                            }
+                            
+                            if((plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]) > ((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]))))
+                            {
+                                plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (float)(plugin_data->sampleCount[(plugin_data->loaded_samples[i])]);
                             }
                             
                             plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->global_midi_octaves_offset) + 2) * 12)
                                     - (*(plugin_data->sample_pitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->sample_tune[(plugin_data->loaded_samples[i])])) * .01f);
                             
                             v_ifh_retrigger(plugin_data->sample_read_heads[f_note][(plugin_data->loaded_samples[i])], 
-                                    (LMS_SINC_INTERPOLATION_POINTS_DIV2 + (plugin_data->sampleStartPos[(plugin_data->current_sample)])));// 0.0f;
+                                    (plugin_data->sampleStartPos[(plugin_data->current_sample)]));// 0.0f;
                             
                             plugin_data->vel_sens_output[f_note][(plugin_data->loaded_samples[i])] = 
                                     ((1 -
@@ -1081,7 +1086,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     tmpOld[1] = plugin_data->sampleData[1][(a_index)];
     plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
     plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
-    plugin_data->sampleCount[(a_index)] = f_actual_array_size;
+    plugin_data->sampleCount[(a_index)] = (samples + LMS_SINC_INTERPOLATION_POINTS_DIV2 + Sampler_Sample_Padding - 20);  //-20 to ensure we don't read past the end of the array
     
     if((info.channels) >= 2)
     {
