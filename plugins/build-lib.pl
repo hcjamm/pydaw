@@ -40,16 +40,6 @@ args:
 
 Note that you can also debug using the included debugger project and GDB, using the IDE of your choice.  See doc/instructions.txt for details.  GDB is more suitable for using breakpoints to step through code, whereas the console output is more suitable for getting a glimpse of what's going on in your plugin while you are using it in jack-dssi-host.
 
-compile options:
-
---native  :  Compile using -march=native and -mtune=native.  This optimizes for the machine being compiled on, but the binaries will not be usable on a different machine.  This can give you greater performance if compiling your own plugins, but may introduce bugs.
-
---sse3    :  Compile for SSE, SSE2 and SSE3.  This is the default option, requires a later Pentium4, Athlon64 or newer machine.
-
---sse2    :  Compile for SSE, SSE2.  Any machine that doesn't support SSE2 probably can't adequately run plugins anyways, this is a good default for very old machines that will be running 32-bit plugins.
-
---user-cflags [CFLAGS]  :  Specify your own CFLAGS, for either alternative architectures like ARM, or for your own experimental optimizations.
-
 install options:
 
 --user-install-options	:  Specify your own additional make install options, such as DESTDIR=\"/a/b/c\", etc...
@@ -197,31 +187,13 @@ sub clean
 sub build
 {
 #system("moc -o src/synth_qt_gui.moc.cpp src/synth_qt_gui.h");
-$make = 'make --quiet CFLAGS+="';
-if($ARGV[1] eq "--native")
-{
-$make .= '-O3 -pipe -march=native -mtune=native -funroll-loops';
-}
-elsif($ARGV[1] eq "--user-cflags")
-{
-$user_flags = $ARGV[2];
-$make .= $user_flags;
-}
-elsif($ARGV[1] eq "--sse2")
-{
-$make .= '-O3 -msse -msse2 -mmmx -pipe -mfpmath=sse -ffast-math -funroll-loops';
-}
-else
-{
-$make .= '-O3 -msse -msse2 -msse3 -mmmx -pipe -mfpmath=sse -ffast-math -funroll-loops';
-}
+$make = 'make --quiet ';
+
 
 if(defined $_[0])
 {
-	$make .= " " . $_[0];
+	$make .= "CFLAGS+=\"" . $_[0] . "\"";
 }
-
-$make .= '"';
 
 $make_result = system($make);
 
