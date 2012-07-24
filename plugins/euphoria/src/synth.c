@@ -643,8 +643,8 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 
     for (pos = 0, event_pos = 0; pos < sample_count; ) {
         
-	while (event_pos < event_count){
-	       //&& pos >= events[event_pos].time.tick) {
+	while (event_pos < event_count
+	       && pos >= events[event_pos].time.tick) {
             /*Note-on event*/
 	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) {
 		snd_seq_ev_note_t n = events[event_pos].data.note;
