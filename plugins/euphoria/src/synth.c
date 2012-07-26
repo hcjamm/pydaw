@@ -438,7 +438,10 @@ static inline int check_sample_bounds(Sampler *__restrict plugin_data, int n)
             return 1;
         }
     }
-    return 0;
+    else
+    {
+        return 0;
+    }
 }
 
 static int calculate_ratio_sinc(Sampler *__restrict plugin_data, int n)
@@ -552,7 +555,7 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
         while((plugin_data->i_loaded_samples) < (plugin_data->sample_indexes_count[n]))
         {
             plugin_data->current_sample = (plugin_data->sample_indexes[n][(plugin_data->i_loaded_samples)]);
-            if(ratio_function_ptrs[(plugin_data->current_sample)](plugin_data, n))
+            if(ratio_function_ptrs[(plugin_data->current_sample)](plugin_data, n) == 1)
             {
                 plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;                
                 continue;
@@ -574,8 +577,6 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
                 interpolation_modes[(plugin_data->current_sample)](plugin_data, n, ch);
 
                 sample[ch] += plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)];
-
-                plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
                 
                 sample[ch] += ((plugin_data->data[n]->noise_func_ptr(plugin_data->data[n]->white_noise1[ch])) * (plugin_data->data[n]->noise_linamp)); //add noise
 
@@ -611,6 +612,8 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
 
             plugin_data->output[0][pos + i] += plugin_data->data[n]->modulex_current_sample[0];
             plugin_data->output[1][pos + i] += plugin_data->data[n]->modulex_current_sample[1];
+            
+            plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
             
         }
            
