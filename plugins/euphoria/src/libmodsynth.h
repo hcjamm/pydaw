@@ -33,16 +33,12 @@ extern "C" {
 #include "../../libmodsynth/lib/interpolate-sinc.h"
 #include "../../libmodsynth/modules/filter/dc_offset_filter.h"
     
+#include "ports.h"
+    
 #define LMS_SINC_INTERPOLATION_POINTS 25
 #define LMS_SINC_INTERPOLATION_POINTS_DIV2 13
     
 #define LMS_CHANNEL_COUNT 2
-   
-/*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
- require less CPU time than running through if or switch statements.
- Functions from the library that have their own parameters (such as a pointer to 
- their associated struct type as a parameter) should declare their own function pointer types*/
-typedef float (*fp_funcptr_audio_generic)();
     
 /*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
  of an instrument, you will most likely want to define all of your modules here*/
@@ -99,7 +95,7 @@ typedef struct st_poly_voice
     
     //From Modulex
     
-    t_mf3_multi * multieffect[LMS_MODULAR_POLYFX_COUNT];
+    t_mf3_multi * multieffect[LMS_MODULAR_POLYFX_COUNT][LMS_MAX_SAMPLE_COUNT];
     fp_mf3_run fx_func_ptr[LMS_MODULAR_POLYFX_COUNT];
         
     float modulex_current_sample[2];    
@@ -109,18 +105,6 @@ typedef struct st_poly_voice
     fp_noise_func_ptr noise_func_ptr;
     
 }t_poly_voice __attribute__((aligned(16)));
-
-#ifdef LMS_DEBUG_MAIN_LOOP
-
-void dump_debug_t_poly_voice(t_poly_voice*);
-
-/*This must be updated if you make any changes to t_poly_voice*/
-void dump_debug_t_poly_voice(t_poly_voice* a_data)
-{
-    
-}
-
-#endif
 
 t_poly_voice * g_poly_init(float);
 
@@ -177,7 +161,12 @@ t_poly_voice * g_poly_init(float a_sr)
     
     for(f_i = 0; f_i < LMS_MODULAR_POLYFX_COUNT; f_i++)
     {
-        f_voice->multieffect[f_i] = g_mf3_get(a_sr);    
+        int f_i2;
+        for(f_i2 = 0; f_i2 < LMS_MAX_SAMPLE_COUNT; f_i2++)
+        {
+            f_voice->multieffect[f_i][f_i2] = g_mf3_get(a_sr);    
+        }
+        
         f_voice->fx_func_ptr[f_i] = v_mf3_run_off;
     }
     
