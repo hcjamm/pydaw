@@ -66,7 +66,7 @@
 //EDIT:  This may or may not ever come to fruition with my new strategy.  Delete this and re-arrange everywhere it's used...
 #define LMS_EFFECTS_GROUPS_COUNT 1
 //The number of mono_fx groups
-#define LMS_MONO_FX_GROUPS_COUNT 6
+#define LMS_MONO_FX_GROUPS_COUNT LMS_MAX_SAMPLE_COUNT
 #define LMS_MONO_FX_COUNT 4
 
 #define Sampler_Stereo_LABEL "Euphoria"

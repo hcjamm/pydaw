@@ -258,16 +258,23 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_tab_horizontalLayout->addWidget(m_smp_tab_scrollAreaWidgetContents);
 
         m_main_tab->addTab(m_sample_tab, QString());
+        
         m_poly_fx_tab = new QWidget();
         m_poly_fx_tab->setObjectName(QString::fromUtf8("m_poly_fx_tab"));
         
         m_main_tab->addTab(m_poly_fx_tab, QString());
-                
-        m_main_v_layout->addWidget(m_main_tab);
         
+        m_mono_fx_tab = new QWidget();
+        m_mono_fx_tab->setObjectName(QString::fromUtf8("m_mono_fx_tab"));
+        m_main_tab->addTab(m_mono_fx_tab, QString());
+        
+        
+        m_main_v_layout->addWidget(m_main_tab);
+                
         this->setWindowTitle(QApplication::translate("Frame", "Euphoria - Powered by LibModSynth", 0, QApplication::UnicodeUTF8));
         m_main_tab->setTabText(m_main_tab->indexOf(m_sample_tab), QApplication::translate("Frame", "Samples", 0, QApplication::UnicodeUTF8));
         m_main_tab->setTabText(m_main_tab->indexOf(m_poly_fx_tab), QApplication::translate("Frame", "Poly FX", 0, QApplication::UnicodeUTF8));
+        m_main_tab->setTabText(m_main_tab->indexOf(m_mono_fx_tab), QApplication::translate("Frame", "Mono FX", 0, QApplication::UnicodeUTF8));
         
         m_main_tab->setCurrentIndex(0);
 
@@ -1148,6 +1155,50 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         connect(m_lfo->lms_freq_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOfreqChanged(int)));
         connect(m_lfo->lms_type_combobox->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(LFOtypeChanged(int)));
+        
+        
+        //MonoFX Tab
+        
+        
+        m_mono_fx_tab_main_layout = new LMS_main_layout(m_mono_fx_tab);
+        
+        m_mono_fx0 = new LMS_multieffect(this, QString("FX1"), a_style, LMS_FX0_KNOB0, LMS_FX0_KNOB1, LMS_FX0_KNOB2, LMS_FX0_COMBOBOX);
+        connect(m_mono_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx0knob0Changed(int)));
+        connect(m_mono_fx0->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx0knob1Changed(int)));
+        connect(m_mono_fx0->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx0knob2Changed(int)));
+        connect(m_mono_fx0->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(monofx0comboboxChanged(int)));
+
+        m_mono_fx_tab_main_layout->lms_add_widget(m_mono_fx0->lms_groupbox->lms_groupbox);
+
+        m_mono_fx1 = new LMS_multieffect(this, QString("FX2"), a_style, LMS_FX1_KNOB0, LMS_FX1_KNOB1, LMS_FX1_KNOB2, LMS_FX1_COMBOBOX);
+        connect(m_mono_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx1knob0Changed(int)));
+        connect(m_mono_fx1->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx1knob1Changed(int)));
+        connect(m_mono_fx1->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx1knob2Changed(int)));
+        connect(m_mono_fx1->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(monofx1comboboxChanged(int)));
+
+        m_mono_fx_tab_main_layout->lms_add_widget(m_mono_fx1->lms_groupbox->lms_groupbox);
+
+        m_mono_fx_tab_main_layout->lms_add_layout();    
+
+        m_mono_fx2 = new LMS_multieffect(this, QString("FX3"), a_style, LMS_FX2_KNOB0, LMS_FX2_KNOB1, LMS_FX2_KNOB2, LMS_FX2_COMBOBOX);
+        connect(m_mono_fx2->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx2knob0Changed(int)));
+        connect(m_mono_fx2->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx2knob1Changed(int)));
+        connect(m_mono_fx2->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx2knob2Changed(int)));
+        connect(m_mono_fx2->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(monofx2comboboxChanged(int)));
+
+        m_mono_fx_tab_main_layout->lms_add_widget(m_mono_fx2->lms_groupbox->lms_groupbox);
+
+        m_mono_fx3 = new LMS_multieffect(this, QString("FX4"), a_style, LMS_FX3_KNOB0, LMS_FX3_KNOB1, LMS_FX3_KNOB2, LMS_FX3_COMBOBOX);
+        connect(m_mono_fx3->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx3knob0Changed(int)));
+        connect(m_mono_fx3->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx3knob1Changed(int)));
+        connect(m_mono_fx3->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx3knob2Changed(int)));
+        connect(m_mono_fx3->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(monofx3comboboxChanged(int)));
+
+        m_mono_fx_tab_main_layout->lms_add_widget(m_mono_fx3->lms_groupbox->lms_groupbox);
+
+        m_mono_fx_tab_main_layout->lms_add_layout();  
+        
+        //Timer
                 
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
@@ -2166,8 +2217,6 @@ void SamplerGUI::openInstrumentFromFile()
     
 }
 
-//From Modulex
-
 void SamplerGUI::fx0knob0Changed(int value){ lms_value_changed(value, m_fx0->lms_knob1); }
 void SamplerGUI::fx0knob1Changed(int value){ lms_value_changed(value, m_fx0->lms_knob2); }
 void SamplerGUI::fx0knob2Changed(int value){ lms_value_changed(value, m_fx0->lms_knob3); }
@@ -2188,7 +2237,28 @@ void SamplerGUI::fx3knob1Changed(int value){ lms_value_changed(value, m_fx3->lms
 void SamplerGUI::fx3knob2Changed(int value){ lms_value_changed(value, m_fx3->lms_knob3); }
 void SamplerGUI::fx3comboboxChanged(int value){ lms_value_changed(value, m_fx3->lms_combobox); m_fx3->lms_combobox_changed(); }
 
-//End from Modulex
+
+void SamplerGUI::monofx0knob0Changed(int value){ lms_value_changed(value, m_mono_fx0->lms_knob1); }
+void SamplerGUI::monofx0knob1Changed(int value){ lms_value_changed(value, m_mono_fx0->lms_knob2); }
+void SamplerGUI::monofx0knob2Changed(int value){ lms_value_changed(value, m_mono_fx0->lms_knob3); }
+void SamplerGUI::monofx0comboboxChanged(int value){ lms_value_changed(value, m_mono_fx0->lms_combobox); m_mono_fx0->lms_combobox_changed(); }
+
+void SamplerGUI::monofx1knob0Changed(int value){ lms_value_changed(value, m_mono_fx1->lms_knob1); }
+void SamplerGUI::monofx1knob1Changed(int value){ lms_value_changed(value, m_mono_fx1->lms_knob2); }
+void SamplerGUI::monofx1knob2Changed(int value){ lms_value_changed(value, m_mono_fx1->lms_knob3); }
+void SamplerGUI::monofx1comboboxChanged(int value){ lms_value_changed(value, m_mono_fx1->lms_combobox); m_mono_fx1->lms_combobox_changed(); }
+
+void SamplerGUI::monofx2knob0Changed(int value){ lms_value_changed(value, m_mono_fx2->lms_knob1); }
+void SamplerGUI::monofx2knob1Changed(int value){ lms_value_changed(value, m_mono_fx2->lms_knob2); }
+void SamplerGUI::monofx2knob2Changed(int value){ lms_value_changed(value, m_mono_fx2->lms_knob3); }
+void SamplerGUI::monofx2comboboxChanged(int value){ lms_value_changed(value, m_mono_fx2->lms_combobox); m_mono_fx2->lms_combobox_changed(); }
+
+void SamplerGUI::monofx3knob0Changed(int value){ lms_value_changed(value, m_mono_fx3->lms_knob1); }
+void SamplerGUI::monofx3knob1Changed(int value){ lms_value_changed(value, m_mono_fx3->lms_knob2); }
+void SamplerGUI::monofx3knob2Changed(int value){ lms_value_changed(value, m_mono_fx3->lms_knob3); }
+void SamplerGUI::monofx3comboboxChanged(int value){ lms_value_changed(value, m_mono_fx3->lms_combobox); m_mono_fx3->lms_combobox_changed(); }
+
+
 
 /*synth_qt_gui.cpp Autogenerated slots*/
 
