@@ -2970,6 +2970,93 @@ void SamplerGUI::v_set_control(int port, float a_value)
     {
         m_sample_loop_modes[(port - LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN)] = a_value;
     }
+    
+    //MonoFX0
+    else if((port >= LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB0_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][0][0] = a_value;
+    }
+    else if((port >= LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB1_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][0][1] = a_value;
+    }
+    else if((port >= LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB2_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][0][2] = a_value;
+    }
+    else if((port >= LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][0][3] = a_value;
+    }    
+    //MonoFX1
+    else if((port >= LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB0_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][1][0] = a_value;
+    }
+    else if((port >= LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB1_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][1][1] = a_value;
+    }
+    else if((port >= LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB2_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][1][2] = a_value;
+    }
+    else if((port >= LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][1][3] = a_value;
+    }
+    //MonoFX2
+    else if((port >= LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB0_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][2][0] = a_value;
+    }
+    else if((port >= LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB1_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][2][1] = a_value;
+    }
+    else if((port >= LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB2_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][2][2] = a_value;
+    }
+    else if((port >= LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][2][3] = a_value;
+    }
+    
+    //MonoFX3
+    else if((port >= LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB0_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][3][0] = a_value;
+    }
+    else if((port >= LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB1_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][3][1] = a_value;
+    }
+    else if((port >= LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB2_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][3][2] = a_value;
+    }
+    else if((port >= LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
+    {
+        int f_value = port - LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN;
+        m_mono_fx_values[f_value][3][3] = a_value;
+    }
+    
     else
     {
         cerr << "v_set_control called with invalid port " << port << "\n";
