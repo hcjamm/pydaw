@@ -51,6 +51,9 @@ typedef struct {
     LADSPA_Data *sample_tune[LMS_MAX_SAMPLE_COUNT];
     LADSPA_Data *sample_interpolation_mode[LMS_MAX_SAMPLE_COUNT];
     
+    LADSPA_Data *mfx_knobs[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
+    LADSPA_Data *mfx_comboboxes[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT];
+    
     LADSPA_Data *selected_sample;
         
     LADSPA_Data *attack;
