@@ -132,25 +132,8 @@ public:
     int m_sample_loop_ends[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  READ CAREFULLY:  0 == the very end of the sample, 10000 == the very beginning (IT'S INVERTED)
     int m_sample_loop_modes[LMS_MAX_SAMPLE_COUNT];
     
-    int m_mono_fx0_knob0[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx0_knob1[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx0_knob2[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx0_combobox[LMS_MONO_FX_GROUPS_COUNT];
-    
-    int m_mono_fx1_knob0[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx1_knob1[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx1_knob2[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx1_combobox[LMS_MONO_FX_GROUPS_COUNT];
-    
-    int m_mono_fx2_knob0[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx2_knob1[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx2_knob2[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx2_combobox[LMS_MONO_FX_GROUPS_COUNT];
-    
-    int m_mono_fx3_knob0[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx3_knob1[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx3_knob2[LMS_MONO_FX_GROUPS_COUNT];
-    int m_mono_fx3_combobox[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx_values[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT][LMS_PORTS_PER_MOD_EFFECT];
+
     
 public slots:
     void setSampleFile(QString file);
