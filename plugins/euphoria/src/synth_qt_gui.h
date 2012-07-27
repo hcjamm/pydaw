@@ -571,9 +571,6 @@ protected slots:
         
     void LFOfreqChanged(int);
     void LFOtypeChanged(int);
-    //End from Ray-V
-    
-    //From Modulex
     
     void fx0knob0Changed(int);
     void fx0knob1Changed(int);
@@ -594,6 +591,29 @@ protected slots:
     void fx3knob1Changed(int);
     void fx3knob2Changed(int);
     void fx3comboboxChanged(int);
+    
+    void monofx0knob0Changed(int);
+    void monofx0knob1Changed(int);
+    void monofx0knob2Changed(int);
+    void monofx0comboboxChanged(int);
+    
+    void monofx1knob0Changed(int);
+    void monofx1knob1Changed(int);
+    void monofx1knob2Changed(int);
+    void monofx1comboboxChanged(int);
+    
+    void monofx2knob0Changed(int);
+    void monofx2knob1Changed(int);
+    void monofx2knob2Changed(int);
+    void monofx2comboboxChanged(int);
+    
+    void monofx3knob0Changed(int);
+    void monofx3knob1Changed(int);
+    void monofx3knob2Changed(int);
+    void monofx3comboboxChanged(int);
+    
+    
+    
     void global_midi_octaves_offsetChanged(int);
     
     //void global_midi_channelChanged(int);
@@ -662,6 +682,12 @@ protected:
     LMS_multieffect * m_fx2;
     LMS_multieffect * m_fx3;
     
+    
+    LMS_multieffect * m_mono_fx0;
+    LMS_multieffect * m_mono_fx1;
+    LMS_multieffect * m_mono_fx2;
+    LMS_multieffect * m_mono_fx3;
+    
     //End from Modulex
     
     LMS_group_box *m_global_midi_settings_groupbox;
@@ -723,6 +749,8 @@ protected:
     QWidget *m_smp_tab_scrollAreaWidgetContents;
     QHBoxLayout *horizontalLayout;
     QWidget *m_poly_fx_tab;
+    QWidget *m_mono_fx_tab;
+    LMS_main_layout *m_mono_fx_tab_main_layout;
     QWidget *m_view_sample_tab;
     
     //m_view_sample_tab
