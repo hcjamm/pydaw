@@ -2113,6 +2113,157 @@ void _init()
             f_i++;
         }
         
+        //MonoFX0
+        while(f_i < LMS_MONO_FX0_KNOB0_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX0 Knob0";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX0_KNOB1_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX0 Knob1";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX0_KNOB2_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX0 Knob2";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX0 Combobox";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
+            f_i++;
+        }
+        
+        
+        //MonoFX1
+        while(f_i < LMS_MONO_FX1_KNOB0_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX1 Knob0";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX1_KNOB1_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX1 Knob1";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX1_KNOB2_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX1 Knob2";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX1 Combobox";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
+            f_i++;
+        }
+        
+        //MonoFX2
+        while(f_i < LMS_MONO_FX2_KNOB0_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX2 Knob0";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX2_KNOB1_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX2 Knob1";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX2_KNOB2_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX2 Knob2";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX2 Combobox";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
+            f_i++;
+        }
+        
+        //MonoFX3
+        while(f_i < LMS_MONO_FX3_KNOB0_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX3 Knob0";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX3_KNOB1_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX3 Knob1";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX3_KNOB2_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX3 Knob2";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+               
+        while(f_i < LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Mono FX3 Combobox";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
+            f_i++;
+        }
+        
+        
+        
 	desc->activate = activateSampler;
 	desc->cleanup = cleanupSampler;
 	desc->connect_port = connectPortSampler;
