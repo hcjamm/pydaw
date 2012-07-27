@@ -343,7 +343,10 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     {
         plugin->mfx_comboboxes[(port - LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN)][3] = data;
     }
-    
+    else if((port >= LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
+    {
+        plugin->sample_mfx_groups[(port - LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN)] = data;
+    }    
 }
 
 static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
@@ -2261,8 +2264,15 @@ void _init()
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
             f_i++;
         }
-        
-        
+              
+        while(f_i < LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = "Sample MonoFX Group";
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = LMS_MAX_SAMPLE_COUNT;            
+            f_i++;
+        }
         
 	desc->activate = activateSampler;
 	desc->cleanup = cleanupSampler;

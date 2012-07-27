@@ -54,6 +54,9 @@ typedef struct {
     LADSPA_Data *mfx_knobs[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
     LADSPA_Data *mfx_comboboxes[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT];
     
+    //The MonoFX group selected for each sample
+    LADSPA_Data *sample_mfx_groups[LMS_MAX_SAMPLE_COUNT];
+    
     LADSPA_Data *selected_sample;
         
     LADSPA_Data *attack;
