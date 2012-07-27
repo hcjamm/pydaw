@@ -132,6 +132,26 @@ public:
     int m_sample_loop_ends[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  READ CAREFULLY:  0 == the very end of the sample, 10000 == the very beginning (IT'S INVERTED)
     int m_sample_loop_modes[LMS_MAX_SAMPLE_COUNT];
     
+    int m_mono_fx0_knob0[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx0_knob1[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx0_knob2[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx0_combobox[LMS_MONO_FX_GROUPS_COUNT];
+    
+    int m_mono_fx1_knob0[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx1_knob1[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx1_knob2[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx1_combobox[LMS_MONO_FX_GROUPS_COUNT];
+    
+    int m_mono_fx2_knob0[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx2_knob1[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx2_knob2[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx2_combobox[LMS_MONO_FX_GROUPS_COUNT];
+    
+    int m_mono_fx3_knob0[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx3_knob1[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx3_knob2[LMS_MONO_FX_GROUPS_COUNT];
+    int m_mono_fx3_combobox[LMS_MONO_FX_GROUPS_COUNT];
+    
 public slots:
     void setSampleFile(QString file);
     void clearFile();
@@ -751,6 +771,12 @@ protected:
     QWidget *m_poly_fx_tab;
     QWidget *m_mono_fx_tab;
     LMS_main_layout *m_mono_fx_tab_main_layout;
+    QHBoxLayout *m_mono_fx_tab_selected_hlayout;
+    QComboBox *m_mono_fx_tab_selected_sample;
+    QComboBox *m_mono_fx_tab_selected_group;
+    QLabel *m_mono_fx_tab_selected_sample_label;
+    QLabel *m_mono_fx_tab_selected_group_label;
+    
     QWidget *m_view_sample_tab;
     
     //m_view_sample_tab

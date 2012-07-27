@@ -1162,6 +1162,37 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         m_mono_fx_tab_main_layout = new LMS_main_layout(m_mono_fx_tab);
         
+        QWidget *m_selected_container = new QWidget();
+        
+        m_mono_fx_tab_selected_hlayout = new QHBoxLayout(m_selected_container);
+        m_mono_fx_tab_selected_sample = new QComboBox(m_mono_fx_tab);
+        m_mono_fx_tab_selected_group = new QComboBox(m_mono_fx_tab);
+        m_mono_fx_tab_selected_sample_label = new QLabel();
+        m_mono_fx_tab_selected_sample_label->setText(QString("Selected Sample:"));
+        m_mono_fx_tab_selected_group_label = new QLabel();
+        m_mono_fx_tab_selected_group_label->setText(QString("FX Group:"));
+        
+        for(int f_i = 0; f_i < LMS_MONO_FX_GROUPS_COUNT; f_i++)
+        {
+            m_mono_fx_tab_selected_group->addItem(QString::number(f_i));
+        }
+        
+        for(int f_i = 0; f_i < LMS_MAX_SAMPLE_COUNT; f_i++)
+        {
+            m_mono_fx_tab_selected_sample->addItem(QString(""));
+        }
+        
+        //TODO:  connect with slots
+        
+        m_mono_fx_tab_selected_hlayout->addWidget(m_mono_fx_tab_selected_sample_label);
+        m_mono_fx_tab_selected_hlayout->addWidget(m_mono_fx_tab_selected_sample);
+        m_mono_fx_tab_selected_hlayout->addWidget(m_mono_fx_tab_selected_group_label);
+        m_mono_fx_tab_selected_hlayout->addWidget(m_mono_fx_tab_selected_group);
+        
+        m_mono_fx_tab_main_layout->lms_add_widget(m_selected_container);
+        
+        m_mono_fx_tab_main_layout->lms_add_layout();
+        
         m_mono_fx0 = new LMS_multieffect(this, QString("FX1"), a_style, LMS_FX0_KNOB0, LMS_FX0_KNOB1, LMS_FX0_KNOB2, LMS_FX0_COMBOBOX);
         connect(m_mono_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx0knob0Changed(int)));
         connect(m_mono_fx0->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx0knob1Changed(int)));
