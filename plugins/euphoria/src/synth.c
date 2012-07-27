@@ -274,6 +274,76 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     {
         plugin->sampleLoopModes[(port - LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN)] = data;
     }
+    
+    //MonoFX0
+    else if((port >= LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB0_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN)][0][0] = data;
+    }
+    else if((port >= LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB1_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN)][0][1] = data;
+    }
+    else if((port >= LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB2_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN)][0][2] = data;
+    }
+    else if((port >= LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
+    {
+        plugin->mfx_comboboxes[(port - LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN)][0] = data;
+    }
+    //MonoFX1
+    else if((port >= LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB0_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN)][1][0] = data;
+    }
+    else if((port >= LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB1_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN)][1][1] = data;
+    }
+    else if((port >= LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB2_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN)][1][2] = data;
+    }
+    else if((port >= LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
+    {
+        plugin->mfx_comboboxes[(port - LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN)][1] = data;
+    }
+    //MonoFX2
+    else if((port >= LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB0_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN)][2][0] = data;
+    }
+    else if((port >= LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB1_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN)][2][1] = data;
+    }
+    else if((port >= LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB2_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN)][2][2] = data;
+    }
+    else if((port >= LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
+    {
+        plugin->mfx_comboboxes[(port - LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN)][2] = data;
+    }
+    //MonoFX3
+    else if((port >= LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB0_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN)][3][0] = data;
+    }
+    else if((port >= LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB1_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN)][3][1] = data;
+    }
+    else if((port >= LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB2_PORT_RANGE_MAX))
+    {
+        plugin->mfx_knobs[(port - LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN)][3][2] = data;
+    }
+    else if((port >= LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
+    {
+        plugin->mfx_comboboxes[(port - LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN)][3] = data;
+    }
+    
 }
 
 static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
