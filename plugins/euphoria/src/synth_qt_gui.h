@@ -134,7 +134,7 @@ public:
     int m_sample_loop_modes[LMS_MAX_SAMPLE_COUNT];
     
     int m_mono_fx_values[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT][LMS_PORTS_PER_MOD_EFFECT];
-
+    int m_sample_selected_monofx_groups[LMS_MAX_SAMPLE_COUNT];
     
 public slots:
     void setSampleFile(QString file);
@@ -616,7 +616,7 @@ protected slots:
     void monofx3knob2Changed(int);
     void monofx3comboboxChanged(int);
     
-    
+    void sample_selected_monofx_groupChanged(int);
     
     void global_midi_octaves_offsetChanged(int);
     
