@@ -121,6 +121,7 @@ public:
     void v_print_port_name_to_cerr(int);
     
     void lms_value_changed(int, LMS_control *);
+    void lms_monofx_value_changed(int, LMS_control*, int);
     void lms_set_value(float, LMS_control *);
     void load_files(QStringList);
         
