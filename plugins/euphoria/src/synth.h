@@ -152,6 +152,12 @@ typedef struct {
     t_ccm_midi_cc_map * midi_cc_map;    
     t_poly_voice * data[Sampler_NOTES];
     
+    long pos_plus_i;  //To avoid redundantly calculating this
+    
+    //These are used for storing the mono FX buffers from the polyphonic voices.
+    //4096 was chosen because AFAIK that's the largest size you can use in qjackctl
+    float mono_fx_buffers[LMS_MONO_FX_COUNT][2][4096];
+    
     //iterators for iterating through their respective array dimensions
     int i_fx_grps;
     int i_dst;
