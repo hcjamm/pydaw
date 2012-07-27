@@ -889,7 +889,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_view_extra_controls_gridview->addWidget(m_selected_sample_index_combobox, 1, 0, 1, 1);
         
         connect(m_selected_sample_index_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(viewSampleSelectedIndexChanged(int)));
-
+                
         m_selected_sample_index_label = new QLabel(m_view_sample_tab);
         m_selected_sample_index_label->setObjectName(QString::fromUtf8("m_selected_sample_index_label"));
 
@@ -1182,7 +1182,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
             m_mono_fx_tab_selected_sample->addItem(QString(""));
         }
         
-        //TODO:  connect with slots
+        connect(m_mono_fx_tab_selected_sample, SIGNAL(currentIndexChanged(int)), this, SLOT(viewSampleSelectedIndexChanged(int)));
+        //TODO:  Connect group combobox to a slot
         
         m_mono_fx_tab_selected_hlayout->addWidget(m_mono_fx_tab_selected_sample_label);
         m_mono_fx_tab_selected_hlayout->addWidget(m_mono_fx_tab_selected_sample);
@@ -1495,9 +1496,15 @@ void SamplerGUI::setSelection(int a_value)
 void SamplerGUI::set_selected_sample_combobox_item(int a_index, QString a_text)
 {
     m_suppress_selected_sample_changed = TRUE;
+    
     m_selected_sample_index_combobox->removeItem(a_index);
     m_selected_sample_index_combobox->insertItem(a_index, a_text);
     m_selected_sample_index_combobox->setCurrentIndex(a_index);
+    
+    m_mono_fx_tab_selected_sample->removeItem(a_index);
+    m_mono_fx_tab_selected_sample->insertItem(a_index, a_text);
+    m_mono_fx_tab_selected_sample->setCurrentIndex(a_index);
+    
     m_suppress_selected_sample_changed = FALSE;
 }
 
@@ -1650,10 +1657,12 @@ void SamplerGUI::selectionChanged()
     m_suppress_selected_sample_changed = TRUE;
     
     m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
-    m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));    
+    m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));  
+    m_mono_fx_tab_selected_sample->setCurrentIndex((m_sample_table->lms_selected_column));    
     m_suppress_selected_sample_changed = FALSE;
         
     m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));
+    m_mono_fx_tab_selected_sample->setCurrentIndex((m_sample_table->lms_selected_column));
     m_sample_graph->indexChanged((m_sample_table->lms_selected_column));
     
 #ifndef LMS_DEBUG_STANDALONE
