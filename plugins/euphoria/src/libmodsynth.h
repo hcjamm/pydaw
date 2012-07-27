@@ -49,6 +49,9 @@ typedef struct st_mono_modules
     t_amp * amp_ptr;
     t_sinc_interpolator * sinc_interpolator;
     t_dco_dc_offset_filter * dc_offset_filters[LMS_CHANNEL_COUNT];
+    
+    t_mf3_multi * multieffect[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT];
+    fp_mf3_run fx_func_ptr[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT];
 }t_mono_modules __attribute__((aligned(16)));
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
@@ -206,6 +209,17 @@ t_mono_modules * g_mono_init(float a_sr)
     for(f_i = 0; f_i < LMS_CHANNEL_COUNT; f_i++)
     {
         a_mono->dc_offset_filters[f_i] = g_dco_get(a_sr);
+    }
+    
+    int f_i2;
+    
+    for(f_i = 0; f_i < LMS_MONO_FX_GROUPS_COUNT; f_i++)
+    {
+        for(f_i2 = 0; f_i2 < LMS_MONO_FX_COUNT; f_i2++)
+        {
+            a_mono->multieffect[f_i][f_i2] = g_mf3_get(a_sr);
+            a_mono->fx_func_ptr[f_i][f_i2] = v_mf3_run_off;
+        }
     }
     
     return a_mono;
