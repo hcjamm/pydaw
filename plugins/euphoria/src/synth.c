@@ -336,7 +336,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         f_i++;
     }
     
-    for(f_i = 0; f_i < LMS_MONO_FX_COUNT; f_i++)
+    for(f_i = 0; f_i < LMS_MONO_FX_GROUPS_COUNT; f_i++)
     {
         for(f_i2 = 0; f_i2 < 4096; f_i2++)
         {
@@ -918,10 +918,12 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
         {
             plugin_data->pos_plus_i = pos + i;
 
-            //Process MonoFX (eventually will be happening here)
+            //Process MonoFX (eventually will be happening here).  Currently running the default 'off' function pointer
+            v_mf3_set(plugin_data->mono_modules->multieffect[0][0], 0.0f, 0.0f, 0.0f);
+            plugin_data->mono_modules->fx_func_ptr[0][0](plugin_data->mono_modules->multieffect[0][0] ,(plugin_data->mono_fx_buffers[0][0][i]), (plugin_data->mono_fx_buffers[0][1][i]));
 
-            plugin_data->output[0][(plugin_data->pos_plus_i)] += plugin_data->mono_fx_buffers[0][0][i];
-            plugin_data->output[1][(plugin_data->pos_plus_i)] += plugin_data->mono_fx_buffers[0][1][i];
+            plugin_data->output[0][(plugin_data->pos_plus_i)] += (plugin_data->mono_modules->multieffect[0][0]->output0);
+            plugin_data->output[1][(plugin_data->pos_plus_i)] += (plugin_data->mono_modules->multieffect[0][0]->output1);
         }
         
         if(((plugin_data->preview_sample_array_index) < (plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT])) &&
