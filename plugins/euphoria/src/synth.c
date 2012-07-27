@@ -336,6 +336,17 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         f_i++;
     }
     
+    for(f_i = 0; f_i < LMS_MONO_FX_COUNT; f_i++)
+    {
+        for(f_i2 = 0; f_i2 < 4096; f_i2++)
+        {
+            plugin_data->mono_fx_buffers[f_i][0][f_i2] = 0.0f;
+            plugin_data->mono_fx_buffers[f_i][1][f_i2] = 0.0f;
+        }
+    }
+    
+    
+    
     plugin_data->sampleRate = s_rate;
     plugin_data->projectDir = 0;
     
@@ -538,6 +549,8 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
         plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied)
                 +  (plugin_data->mono_modules->pitchbend_smoother->output)  //(plugin_data->sv_pitch_bend_value)
                 + (plugin_data->data[n]->last_pitch);
+        
+        
                  
 	if (plugin_data->offs[n] >= 0 &&
 	    pos + i + plugin_data->sampleNo > plugin_data->offs[n]) 
@@ -610,8 +623,11 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
 
             }
 
-            plugin_data->output[0][pos + i] += plugin_data->data[n]->modulex_current_sample[0];
-            plugin_data->output[1][pos + i] += plugin_data->data[n]->modulex_current_sample[1];
+            //plugin_data->output[0][(plugin_data->pos_plus_i)] += plugin_data->data[n]->modulex_current_sample[0];
+            //plugin_data->output[1][(plugin_data->pos_plus_i)] += plugin_data->data[n]->modulex_current_sample[1];
+            plugin_data->mono_fx_buffers[0][0][i] += plugin_data->data[n]->modulex_current_sample[0];
+            plugin_data->mono_fx_buffers[0][1][i] += plugin_data->data[n]->modulex_current_sample[1];
+            
             
             plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
             
@@ -885,6 +901,12 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
         
         v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
         
+        for(i = 0; i < count; i++)
+        {
+            plugin_data->mono_fx_buffers[0][0][i] = 0.0f;
+            plugin_data->mono_fx_buffers[0][1][i] = 0.0f;
+        }
+        
 	for (i = 0; i < Sampler_NOTES; ++i) {
 	    if(((plugin_data->data[i]->adsr_amp->stage) < 4) && ((plugin_data->sample_indexes_count[i]) > 0))
             {    
@@ -892,13 +914,31 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 	    }
 	}
         
+        for(i = 0; i < count; i++)
+        {
+            plugin_data->pos_plus_i = pos + i;
+
+            //Process MonoFX (eventually will be happening here)
+
+            plugin_data->output[0][(plugin_data->pos_plus_i)] += plugin_data->mono_fx_buffers[0][0][i];
+            plugin_data->output[1][(plugin_data->pos_plus_i)] += plugin_data->mono_fx_buffers[0][1][i];
+        }
+        
         if(((plugin_data->preview_sample_array_index) < (plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT])) &&
                 ((plugin_data->preview_sample_array_index) <  (plugin_data->preview_sample_max_length)))
         {
             for(i = 0; i < count; i++)
             {
-                plugin_data->output[0][pos + i] += (plugin_data->sampleData[0][(LMS_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
-                plugin_data->output[1][pos + i] += (plugin_data->sampleData[1][(LMS_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+                plugin_data->pos_plus_i = pos + i;
+                
+                //Process MonoFX (eventually will be happening here)
+                
+                plugin_data->output[0][(plugin_data->pos_plus_i)] += plugin_data->mono_fx_buffers[0][0][i];
+                plugin_data->output[1][(plugin_data->pos_plus_i)] += plugin_data->mono_fx_buffers[0][1][i];
+                
+                //Add the previewing sample
+                plugin_data->output[0][(plugin_data->pos_plus_i)] += (plugin_data->sampleData[0][(LMS_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+                plugin_data->output[1][(plugin_data->pos_plus_i)] += (plugin_data->sampleData[1][(LMS_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
                 
                 plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + 1;
                 
