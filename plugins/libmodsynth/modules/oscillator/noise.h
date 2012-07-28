@@ -102,19 +102,24 @@ inline float f_run_white_noise(t_white_noise * a_w_noise)
  */
 inline float f_run_pink_noise(t_white_noise * a_w_noise)
 {
-      a_w_noise->read_head = (a_w_noise->read_head) + 1;
-        
-      float f_white = a_w_noise->sample_array[(a_w_noise->read_head)];
+    a_w_noise->read_head = (a_w_noise->read_head) + 1;
       
-      (a_w_noise->b0) = 0.99886 * (a_w_noise->b0) + f_white * 0.0555179;
-      (a_w_noise->b1) = 0.99332 * (a_w_noise->b1) + f_white * 0.0750759;
-      (a_w_noise->b2) = 0.96900 * (a_w_noise->b2) + f_white * 0.1538520;
-      (a_w_noise->b3) = 0.86650 * (a_w_noise->b3) + f_white * 0.3104856;
-      (a_w_noise->b4) = 0.55000 * (a_w_noise->b4) + f_white * 0.5329522;
-      (a_w_noise->b5) = -0.7616 * (a_w_noise->b5) - f_white * 0.0168980;
-      (a_w_noise->b6) = f_white * 0.115926;
-      return (a_w_noise->b0) + (a_w_noise->b1) + (a_w_noise->b2) + (a_w_noise->b3) + 
-              (a_w_noise->b4) + (a_w_noise->b5) + (a_w_noise->b6) + f_white * 0.5362;      
+    if((a_w_noise->read_head) >= (a_w_noise->array_count))
+    {
+        a_w_noise->read_head = 0;
+    }
+
+    float f_white = a_w_noise->sample_array[(a_w_noise->read_head)];
+
+    (a_w_noise->b0) = 0.99886 * (a_w_noise->b0) + f_white * 0.0555179;
+    (a_w_noise->b1) = 0.99332 * (a_w_noise->b1) + f_white * 0.0750759;
+    (a_w_noise->b2) = 0.96900 * (a_w_noise->b2) + f_white * 0.1538520;
+    (a_w_noise->b3) = 0.86650 * (a_w_noise->b3) + f_white * 0.3104856;
+    (a_w_noise->b4) = 0.55000 * (a_w_noise->b4) + f_white * 0.5329522;
+    (a_w_noise->b5) = -0.7616 * (a_w_noise->b5) - f_white * 0.0168980;
+    (a_w_noise->b6) = f_white * 0.115926;
+    return (a_w_noise->b0) + (a_w_noise->b1) + (a_w_noise->b2) + (a_w_noise->b3) + 
+            (a_w_noise->b4) + (a_w_noise->b5) + (a_w_noise->b6) + f_white * 0.5362;      
 }
 
 inline float f_run_noise_off(t_white_noise * a_w_noise)
