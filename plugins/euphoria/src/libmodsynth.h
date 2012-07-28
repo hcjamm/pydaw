@@ -60,7 +60,7 @@ typedef struct st_poly_voice
     t_state_variable_filter * svf_filter[LMS_CHANNEL_COUNT];
     t_clipper * clipper1[LMS_CHANNEL_COUNT];
     t_audio_xfade * dist_dry_wet[LMS_CHANNEL_COUNT];
-    t_white_noise * white_noise1[LMS_CHANNEL_COUNT];
+    t_white_noise * white_noise1;
     
     fp_svf_run_filter svf_function;
         
@@ -91,8 +91,7 @@ typedef struct st_poly_voice
     /*Migrated from the now deprecate voice_data struct*/
     //float   amp;
     float note_f;
-    float osc1_linamp;
-    float osc2_linamp;
+    float noise_sample;
     float noise_linamp;           
     int i_voice;  //for the runVoice function to iterate the current block
     
@@ -121,8 +120,7 @@ t_poly_voice * g_poly_init(float a_sr)
     
     while(f_i < LMS_CHANNEL_COUNT)
     {
-        f_voice->svf_filter[f_i] = g_svf_get(a_sr);
-        f_voice->white_noise1[f_i] = g_get_white_noise(a_sr); 
+        f_voice->svf_filter[f_i] = g_svf_get(a_sr);        
         f_voice->clipper1[f_i] = g_clp_get_clipper();    
         f_voice->dist_dry_wet[f_i] = g_axf_get_audio_xfade(-3);
         f_i++;
@@ -130,6 +128,8 @@ t_poly_voice * g_poly_init(float a_sr)
     
     float f_sr_recip = 1.0f/a_sr;
         
+    f_voice->white_noise1 = g_get_white_noise(a_sr);
+    
     f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
     f_voice->adsr_amp = g_adsr_get_adsr(f_sr_recip);        
     f_voice->adsr_filter = g_adsr_get_adsr(f_sr_recip);
@@ -155,8 +155,7 @@ t_poly_voice * g_poly_init(float a_sr)
     f_voice->amp_ptr = g_amp_get();
     
     f_voice->note_f = 1.0f;
-    f_voice->osc1_linamp = 1.0f;
-    f_voice->osc2_linamp = 1.0f;
+    f_voice->noise_sample = 0.0f;
     f_voice->noise_linamp = 1.0f;
     f_voice->i_voice = 0;
     
