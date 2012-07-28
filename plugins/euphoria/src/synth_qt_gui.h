@@ -125,6 +125,8 @@ public:
     void lms_set_value(float, LMS_control *);
     void load_files(QStringList);
         
+    QComboBox *m_mono_fx_tab_selected_group;
+        
     //End from Ray-V
         
     int m_sample_starts[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  0 == the very start of the sample, 10000 == the very end
@@ -226,6 +228,29 @@ public slots:
     //void set_global_midi_channel(float val);
     
     void aboutToQuit();
+    
+    
+    void monofx0knob0Changed(int);
+    void monofx0knob1Changed(int);
+    void monofx0knob2Changed(int);
+    void monofx0comboboxChanged(int);
+    
+    void monofx1knob0Changed(int);
+    void monofx1knob1Changed(int);
+    void monofx1knob2Changed(int);
+    void monofx1comboboxChanged(int);
+    
+    void monofx2knob0Changed(int);
+    void monofx2knob1Changed(int);
+    void monofx2knob2Changed(int);
+    void monofx2comboboxChanged(int);
+    
+    void monofx3knob0Changed(int);
+    void monofx3knob1Changed(int);
+    void monofx3knob2Changed(int);
+    void monofx3comboboxChanged(int);
+    
+    void sample_selected_monofx_groupChanged(int);
 
 protected slots:
     void fileSelect();    
@@ -613,27 +638,6 @@ protected slots:
     void fx3knob2Changed(int);
     void fx3comboboxChanged(int);
     
-    void monofx0knob0Changed(int);
-    void monofx0knob1Changed(int);
-    void monofx0knob2Changed(int);
-    void monofx0comboboxChanged(int);
-    
-    void monofx1knob0Changed(int);
-    void monofx1knob1Changed(int);
-    void monofx1knob2Changed(int);
-    void monofx1comboboxChanged(int);
-    
-    void monofx2knob0Changed(int);
-    void monofx2knob1Changed(int);
-    void monofx2knob2Changed(int);
-    void monofx2comboboxChanged(int);
-    
-    void monofx3knob0Changed(int);
-    void monofx3knob1Changed(int);
-    void monofx3knob2Changed(int);
-    void monofx3comboboxChanged(int);
-    
-    void sample_selected_monofx_groupChanged(int);
     
     void global_midi_octaves_offsetChanged(int);
     
@@ -774,7 +778,6 @@ protected:
     LMS_main_layout *m_mono_fx_tab_main_layout;
     QHBoxLayout *m_mono_fx_tab_selected_hlayout;
     QComboBox *m_mono_fx_tab_selected_sample;
-    QComboBox *m_mono_fx_tab_selected_group;
     QLabel *m_mono_fx_tab_selected_sample_label;
     QLabel *m_mono_fx_tab_selected_group_label;
     
