@@ -220,6 +220,8 @@ public slots:
     void setmonoFX3knob2 (float val);
     void setmonoFX3combobox (float val);    
     
+    void setSelectedMonoFX(float val);
+    
     void set_global_midi_octaves_offset(float val);
     //void set_global_midi_channel(float val);
     
