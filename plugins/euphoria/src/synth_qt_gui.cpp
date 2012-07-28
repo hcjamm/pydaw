@@ -4076,63 +4076,111 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
     {
         int f_value = port - LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][0][0] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx0knob0Changed(gui->m_mono_fx_values[f_value][0][0]);
+        }
     }
     else if((port >= LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB1_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][0][1] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx0knob1Changed(gui->m_mono_fx_values[f_value][0][1]);
+        }
     }
     else if((port >= LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB2_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][0][2] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx0knob2Changed(gui->m_mono_fx_values[f_value][0][2]);
+        }
     }
     else if((port >= LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][0][3] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx0comboboxChanged(gui->m_mono_fx_values[f_value][0][3]);
+        }
     }    
     //MonoFX1
     else if((port >= LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB0_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][1][0] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx1knob0Changed(gui->m_mono_fx_values[f_value][1][0]);
+        }
     }
     else if((port >= LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB1_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][1][1] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx1knob1Changed(gui->m_mono_fx_values[f_value][1][1]);
+        }
     }
     else if((port >= LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB2_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][1][2] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx1knob2Changed(gui->m_mono_fx_values[f_value][1][2]);
+        }
     }
     else if((port >= LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][1][3] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx1comboboxChanged(gui->m_mono_fx_values[f_value][1][3]);
+        }
     }
     //MonoFX2
     else if((port >= LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB0_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][2][0] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx2knob0Changed(gui->m_mono_fx_values[f_value][2][0]);
+        }
     }
     else if((port >= LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB1_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][2][1] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx2knob1Changed(gui->m_mono_fx_values[f_value][2][1]);
+        }
     }
     else if((port >= LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB2_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][2][2] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx2knob2Changed(gui->m_mono_fx_values[f_value][2][2]);
+        }
     }
     else if((port >= LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][2][3] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx2comboboxChanged(gui->m_mono_fx_values[f_value][2][3]);
+        }
     }
     
     //MonoFX3
@@ -4140,27 +4188,47 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
     {
         int f_value = port - LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][3][0] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx3knob0Changed(gui->m_mono_fx_values[f_value][3][0]);
+        }
     }
     else if((port >= LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB1_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][3][1] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx3knob1Changed(gui->m_mono_fx_values[f_value][3][1]);
+        }
     }
     else if((port >= LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB2_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][3][2] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx3knob2Changed(gui->m_mono_fx_values[f_value][3][2]);
+        }
     }
     else if((port >= LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][3][3] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->monofx3comboboxChanged(gui->m_mono_fx_values[f_value][3][3]);
+        }
     }
     
     else if((port >= LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN;
         gui->m_sample_selected_monofx_groups[f_value] = (int)value;
+        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            gui->sample_selected_monofx_groupChanged(gui->m_sample_selected_monofx_groups[f_value]);
+        }
     }        
     
     else
