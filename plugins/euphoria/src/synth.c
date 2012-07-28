@@ -559,8 +559,7 @@ static void run_sampler_interpolation_sinc(Sampler *__restrict plugin_data, int 
     plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = f_sinc_interpolate2(plugin_data->mono_modules->sinc_interpolator, 
             plugin_data->sampleData[ch][(plugin_data->current_sample)],
             (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
-            (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction))  
-            * (plugin_data->sample_amp[(plugin_data->current_sample)]);
+            (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction));
 }
 
 
@@ -570,8 +569,7 @@ static void run_sampler_interpolation_linear(Sampler *__restrict plugin_data, in
             plugin_data->sampleData[ch][(plugin_data->current_sample)],
             (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
             (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction),
-            plugin_data->lin_interpolator)  
-            * (plugin_data->sample_amp[(plugin_data->current_sample)]);    
+            plugin_data->lin_interpolator);
 }
 
 
@@ -655,19 +653,14 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
                     sample[ch] += (plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)]);
                     continue;
                 }
-
-                plugin_data->sample_amp[(plugin_data->current_sample)] = f_db_to_linear(
-                        (*(plugin_data->sample_vol[(plugin_data->current_sample)])) + 
-                        (plugin_data->vel_sens_output[n][(plugin_data->current_sample)])                        
-                        , plugin_data->amp_ptr);
-
+                
                 interpolation_modes[(plugin_data->current_sample)](plugin_data, n, ch);
 
                 sample[ch] += plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)];
                 
                 sample[ch] += (plugin_data->data[n]->noise_sample);
 
-                sample[ch] = (sample[ch]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp); // * (plugin_data->data[n]->lfo_amp_output);
+                sample[ch] = (sample[ch]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp) * (plugin_data->sample_amp[(plugin_data->current_sample)]); // * (plugin_data->data[n]->lfo_amp_output);
 
                 plugin_data->data[n]->modulex_current_sample[ch] = sample[ch];
             }
@@ -867,6 +860,11 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                                     /
                                     ((float)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])]) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])]))))))
                                     * (*(plugin_data->sample_vel_sens[(plugin_data->loaded_samples[i])])) * -1.0f);
+                            
+                            plugin_data->sample_amp[(plugin_data->loaded_samples[i])] = f_db_to_linear(
+                                (*(plugin_data->sample_vol[(plugin_data->loaded_samples[i])])) + 
+                                (plugin_data->vel_sens_output[f_note][(plugin_data->loaded_samples[i])])                        
+                                , plugin_data->amp_ptr);
                             
                             switch((int)(*(plugin_data->sample_interpolation_mode[(plugin_data->loaded_samples[i])])))
                             {
