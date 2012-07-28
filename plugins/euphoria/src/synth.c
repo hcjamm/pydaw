@@ -74,7 +74,7 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     Sampler *plugin;
     plugin = (Sampler *) instance;
     
-    if(port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN)
+    if(port < LMS_LAST_REGULAR_CONTROL_PORT)
     {
         switch (port) {
         case Sampler_OUTPUT_LEFT:
@@ -86,7 +86,6 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         case Sampler_SELECTED_SAMPLE:
             plugin->selected_sample = data;
             break;
-
         case LMS_ATTACK:
             plugin->attack = data;
             break;
@@ -132,8 +131,6 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         case LMS_LFO_TYPE:
             plugin->lfo_type = data;
             break;
-        //End Ray-V ports
-        //From Modulex
             
         case LMS_FX0_KNOB0: plugin->pfx_mod_knob[0][0][0] = data; break;
         case LMS_FX0_KNOB1: plugin->pfx_mod_knob[0][0][1] = data; break;
@@ -1514,6 +1511,12 @@ void _init()
 	port_descriptors[Sampler_OUTPUT_LEFT] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
 	port_names[Sampler_OUTPUT_LEFT] = "Output L";
 	port_range_hints[Sampler_OUTPUT_LEFT].HintDescriptor = 0;
+        
+        /* Parameters for output right */
+        port_descriptors[Sampler_OUTPUT_RIGHT] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
+        port_names[Sampler_OUTPUT_RIGHT] = "Output R";
+        port_range_hints[Sampler_OUTPUT_RIGHT].HintDescriptor = 0;
+
 
         /* Parameters for selected sample */
 	port_descriptors[Sampler_SELECTED_SAMPLE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1523,14 +1526,6 @@ void _init()
 	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[Sampler_SELECTED_SAMPLE].LowerBound = 0;
 	port_range_hints[Sampler_SELECTED_SAMPLE].UpperBound = (LMS_MAX_SAMPLE_COUNT - 1);
-        
-	if (stereo) {
-
-	    /* Parameters for output right */
-	    port_descriptors[Sampler_OUTPUT_RIGHT] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	    port_names[Sampler_OUTPUT_RIGHT] = "Output R";
-	    port_range_hints[Sampler_OUTPUT_RIGHT].HintDescriptor = 0;
-	}
                 
 	/* Parameters for attack */
 	port_descriptors[LMS_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -2000,15 +1995,6 @@ void _init()
 	port_range_hints[LMS_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100; port_range_hints[LMS_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100;
         
         //End from PolyFX mod matrix
-        /*
-        port_descriptors[LMS_GLOBAL_MIDI_CHANNEL] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_GLOBAL_MIDI_CHANNEL] = "Global MIDI Channel";
-	port_range_hints[LMS_GLOBAL_MIDI_CHANNEL].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |LADSPA_HINT_INTEGER |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_GLOBAL_MIDI_CHANNEL].LowerBound =  0;
-	port_range_hints[LMS_GLOBAL_MIDI_CHANNEL].UpperBound =  16;
-        */
         
 	port_descriptors[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = "Global MIDI Offset(Octaves)";
