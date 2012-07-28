@@ -286,7 +286,7 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     }
     else if((port >= LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB2_PORT_RANGE_MAX))
     {
-        plugin->mfx_knobs[(port - LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN)][0][2] = data;
+        plugin->mfx_knobs[(port - LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN)][0][2] = data;
     }
     else if((port >= LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
     {
@@ -303,7 +303,7 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     }
     else if((port >= LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB2_PORT_RANGE_MAX))
     {
-        plugin->mfx_knobs[(port - LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN)][1][2] = data;
+        plugin->mfx_knobs[(port - LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN)][1][2] = data;
     }
     else if((port >= LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
     {
@@ -320,7 +320,7 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     }
     else if((port >= LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB2_PORT_RANGE_MAX))
     {
-        plugin->mfx_knobs[(port - LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN)][2][2] = data;
+        plugin->mfx_knobs[(port - LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN)][2][2] = data;
     }
     else if((port >= LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
     {
@@ -337,12 +337,13 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
     }
     else if((port >= LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB2_PORT_RANGE_MAX))
     {
-        plugin->mfx_knobs[(port - LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN)][3][2] = data;
+        plugin->mfx_knobs[(port - LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN)][3][2] = data;
     }
     else if((port >= LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
     {
         plugin->mfx_comboboxes[(port - LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN)][3] = data;
     }
+    
     else if((port >= LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
     {
         plugin->sample_mfx_groups[(port - LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN)] = data;
@@ -974,10 +975,15 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
         
         v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
         
+        int i2, i3;
+        //TODO:  Get these indexed
         for(i = 0; i < count; i++)
         {
-            plugin_data->mono_fx_buffers[0][0][i] = 0.0f;
-            plugin_data->mono_fx_buffers[0][1][i] = 0.0f;
+            for(i2 = 0; i2 < LMS_MONO_FX_GROUPS_COUNT; i2++)
+            {
+                plugin_data->mono_fx_buffers[i2][0][i] = 0.0f;
+                plugin_data->mono_fx_buffers[i2][1][i] = 0.0f;
+            }
         }
         
 	for (i = 0; i < Sampler_NOTES; ++i) {
@@ -987,16 +993,23 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 	    }
 	}
         
+        //TODO:  Get these indexed
         for(i = 0; i < count; i++)
         {
             plugin_data->pos_plus_i = pos + i;
 
-            //Process MonoFX (eventually will be happening here).  Currently running the default 'off' function pointer
-            v_mf3_set(plugin_data->mono_modules->multieffect[0][0], 0.0f, 0.0f, 0.0f);
-            plugin_data->mono_modules->fx_func_ptr[0][0](plugin_data->mono_modules->multieffect[0][0] ,(plugin_data->mono_fx_buffers[0][0][i]), (plugin_data->mono_fx_buffers[0][1][i]));
-
-            plugin_data->output[0][(plugin_data->pos_plus_i)] += (plugin_data->mono_modules->multieffect[0][0]->output0);
-            plugin_data->output[1][(plugin_data->pos_plus_i)] += (plugin_data->mono_modules->multieffect[0][0]->output1);
+            for(i2 = 0; i2 < LMS_MONO_FX_GROUPS_COUNT; i2++)
+            {
+                //Process MonoFX (eventually will be happening here).  Currently running the default 'off' function pointer
+                for(i3 = 0; i3 < LMS_MONO_FX_COUNT; i3++)
+                {
+                        v_mf3_set(plugin_data->mono_modules->multieffect[i2][i3], (*(plugin_data->mfx_knobs[i2][i3][0])), (*(plugin_data->mfx_knobs[i2][i3][1])), (*(plugin_data->mfx_knobs[i2][i3][2])));
+                        plugin_data->mono_modules->fx_func_ptr[i2][i3](plugin_data->mono_modules->multieffect[i2][i3] ,(plugin_data->mono_fx_buffers[i2][0][i]), (plugin_data->mono_fx_buffers[0][1][i]));
+                        
+                        plugin_data->output[0][(plugin_data->pos_plus_i)] += (plugin_data->mono_modules->multieffect[i2][i3]->output0);
+                        plugin_data->output[1][(plugin_data->pos_plus_i)] += (plugin_data->mono_modules->multieffect[i2][i3]->output1);
+                }
+            }            
         }
         
         if(((plugin_data->preview_sample_array_index) < (plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT])) &&
