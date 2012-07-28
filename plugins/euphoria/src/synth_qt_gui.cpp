@@ -1978,7 +1978,7 @@ void SamplerGUI::saveInstrumentToSingleFile()
             stream << LMS_FILE_CONTROLS_TAG << "\n";
             stream << LMS_FILE_CONTROLS_TAG_EUP_V1 << "\n";
             
-            for(int i = LMS_FIRST_CONTROL_PORT; i < LMS_LAST_REGULAR_CONTROL_PORT; i++)        
+            for(int i = LMS_FIRST_CONTROL_PORT; i < Sampler_Stereo_COUNT; i++)        
             {   
                 stream << i << LMS_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";                
             }   
@@ -3698,11 +3698,21 @@ int SamplerGUI::i_get_control(int port)
     else if((port >= LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_START_PORT_RANGE_MAX))
     {
         return m_sample_loop_starts[(port - LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN)];
-    }        
+    }   
+    else if((port >= LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_END_PORT_RANGE_MAX))
+    {
+        return m_sample_loop_ends[(port - LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN)];
+    }
+    /*
+    else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
+    {
+        return m_sample_starts[(port - LMS_SAMPLE_START_PORT_RANGE_MIN)];
+    }
     else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
     {
         return m_sample_ends[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)];
-    }        
+    }
+    */
     else if((port >= LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
     {
         return m_sample_loop_modes[(port - LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN)];
