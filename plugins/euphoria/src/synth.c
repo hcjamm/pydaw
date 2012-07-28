@@ -361,6 +361,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->loaded_samples_count = 0;
     plugin_data->lin_interpolator = g_lin_get();
     plugin_data->amp = 1.0f;
+    plugin_data->i_slow_index = LMS_SLOW_INDEX_COUNT;   //Trigger an indexing event on the first running of the main loop
     
     plugin_data->preview_sample_array_index = 0;
     plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT] = 0;  //To prevent a SEGFAULT on the first call of the main loop
@@ -699,12 +700,10 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
 
             //plugin_data->output[0][(plugin_data->pos_plus_i)] += plugin_data->data[n]->modulex_current_sample[0];
             //plugin_data->output[1][(plugin_data->pos_plus_i)] += plugin_data->data[n]->modulex_current_sample[1];
-            plugin_data->mono_fx_buffers[0][0][i] += plugin_data->data[n]->modulex_current_sample[0];
-            plugin_data->mono_fx_buffers[0][1][i] += plugin_data->data[n]->modulex_current_sample[1];
+            plugin_data->mono_fx_buffers[(int)(*(plugin_data->sample_mfx_groups[(plugin_data->current_sample)]))][0][i] += plugin_data->data[n]->modulex_current_sample[0];
+            plugin_data->mono_fx_buffers[(int)(*(plugin_data->sample_mfx_groups[(plugin_data->current_sample)]))][1][i] += plugin_data->data[n]->modulex_current_sample[1];            
             
-            
-            plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;
-            
+            plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;            
         }
            
     }
@@ -732,6 +731,16 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 	pthread_mutex_unlock(&plugin_data->mutex);
 	return;
     }
+    
+    plugin_data->i_slow_index = (plugin_data->i_slow_index) + 1;
+    
+    if((plugin_data->i_slow_index) > LMS_SLOW_INDEX_COUNT)
+    {
+        plugin_data->i_slow_index = 0;
+        
+        //TODO:  The indexing operation
+    }
+    
     
     int f_note = 60;
     int f_note_adjusted = 60;
@@ -993,6 +1002,8 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 	    }
 	}
         
+        float f_temp_sample0, f_temp_sample1;
+        
         //TODO:  Get these indexed
         for(i = 0; i < count; i++)
         {
@@ -1000,15 +1011,20 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 
             for(i2 = 0; i2 < LMS_MONO_FX_GROUPS_COUNT; i2++)
             {
-                //Process MonoFX (eventually will be happening here).  Currently running the default 'off' function pointer
+                f_temp_sample0 = (plugin_data->mono_fx_buffers[i2][0][i]);
+                f_temp_sample1 = (plugin_data->mono_fx_buffers[i2][1][i]);
+                
                 for(i3 = 0; i3 < LMS_MONO_FX_COUNT; i3++)
                 {
                         v_mf3_set(plugin_data->mono_modules->multieffect[i2][i3], (*(plugin_data->mfx_knobs[i2][i3][0])), (*(plugin_data->mfx_knobs[i2][i3][1])), (*(plugin_data->mfx_knobs[i2][i3][2])));
-                        plugin_data->mono_modules->fx_func_ptr[i2][i3](plugin_data->mono_modules->multieffect[i2][i3] ,(plugin_data->mono_fx_buffers[i2][0][i]), (plugin_data->mono_fx_buffers[0][1][i]));
+                        plugin_data->mono_modules->fx_func_ptr[i2][i3](plugin_data->mono_modules->multieffect[i2][i3], f_temp_sample0, f_temp_sample1);
                         
-                        plugin_data->output[0][(plugin_data->pos_plus_i)] += (plugin_data->mono_modules->multieffect[i2][i3]->output0);
-                        plugin_data->output[1][(plugin_data->pos_plus_i)] += (plugin_data->mono_modules->multieffect[i2][i3]->output1);
+                        f_temp_sample0 = (plugin_data->mono_modules->multieffect[i2][i3]->output0);
+                        f_temp_sample1 = (plugin_data->mono_modules->multieffect[i2][i3]->output1);
                 }
+                
+                plugin_data->output[0][(plugin_data->pos_plus_i)] += f_temp_sample0;
+                plugin_data->output[1][(plugin_data->pos_plus_i)] += f_temp_sample1;
             }            
         }
         
