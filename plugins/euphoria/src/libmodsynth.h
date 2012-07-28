@@ -62,19 +62,12 @@ typedef struct st_mono_modules
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
 typedef struct st_poly_voice
-{   
-    t_state_variable_filter * svf_filter[LMS_CHANNEL_COUNT];
-    t_clipper * clipper1[LMS_CHANNEL_COUNT];
-    t_audio_xfade * dist_dry_wet[LMS_CHANNEL_COUNT];
-        
-    fp_svf_run_filter svf_function;
-        
+{    
     t_adsr * adsr_filter;
     
     t_adsr * adsr_amp;       
     float noise_amp;
     
-    t_smoother_linear * glide_smoother;
     t_ramp_env * glide_env;
     
     t_ramp_env * ramp_env;
@@ -124,21 +117,11 @@ t_poly_voice * g_poly_init(float a_sr)
     t_poly_voice * f_voice = (t_poly_voice*)malloc(sizeof(t_poly_voice));
     
     int f_i = 0;
-    
-    while(f_i < LMS_CHANNEL_COUNT)
-    {
-        f_voice->svf_filter[f_i] = g_svf_get(a_sr);        
-        f_voice->clipper1[f_i] = g_clp_get_clipper();    
-        f_voice->dist_dry_wet[f_i] = g_axf_get_audio_xfade(-3);
-        f_i++;
-    }
-    
+   
     float f_sr_recip = 1.0f/a_sr;
-    
-    f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
+
     f_voice->adsr_amp = g_adsr_get_adsr(f_sr_recip);        
     f_voice->adsr_filter = g_adsr_get_adsr(f_sr_recip);
-        
     
     f_voice->noise_amp = 0;
         
