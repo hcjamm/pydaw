@@ -115,6 +115,8 @@ typedef struct {
     int         sample_indexes_count[Sampler_NOTES]; //The count of sample indexes to iterate through
     float vel_sens_output[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];
     
+    int sample_mfx_groups_index[LMS_MAX_SAMPLE_COUNT];  //Cast to int during note_on
+    
     float adjusted_base_pitch[LMS_MAX_SAMPLE_COUNT];
     
     //For sample preview:

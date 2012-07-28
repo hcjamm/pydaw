@@ -700,8 +700,8 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
 
             }
 
-            plugin_data->mono_fx_buffers[(int)(*(plugin_data->sample_mfx_groups[(plugin_data->current_sample)]))][0][i] += plugin_data->data[n]->modulex_current_sample[0];
-            plugin_data->mono_fx_buffers[(int)(*(plugin_data->sample_mfx_groups[(plugin_data->current_sample)]))][1][i] += plugin_data->data[n]->modulex_current_sample[1];            
+            plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][0][i] += plugin_data->data[n]->modulex_current_sample[0];
+            plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][1][i] += plugin_data->data[n]->modulex_current_sample[1];            
             
             plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;            
         }
@@ -812,6 +812,8 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                         {
                             plugin_data->sample_indexes[f_note][(plugin_data->sample_indexes_count[f_note])] = (plugin_data->loaded_samples[i]);
                             plugin_data->sample_indexes_count[f_note] = (plugin_data->sample_indexes_count[f_note]) + 1;                            
+                            
+                            plugin_data->sample_mfx_groups_index[(plugin_data->loaded_samples[i])] = (int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]));
                             
                             plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001)));
                             plugin_data->sampleLoopStartPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleLoopStarts[(plugin_data->loaded_samples[i])])) * .0001)));
