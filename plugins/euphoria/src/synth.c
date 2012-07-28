@@ -1486,7 +1486,7 @@ void _init()
 
 	desc->UniqueID = channels;
 	desc->Label = LMS_PLUGIN_NAME;
-	desc->Properties = LADSPA_PROPERTY_REALTIME | LADSPA_PROPERTY_HARD_RT_CAPABLE;
+	desc->Properties = LADSPA_PROPERTY_REALTIME; // | LADSPA_PROPERTY_HARD_RT_CAPABLE;
 	desc->Name =  LMS_PLUGIN_LONG_NAME;
 	desc->Maker = LMS_PLUGIN_DEV;
 	desc->Copyright = "GPL";
