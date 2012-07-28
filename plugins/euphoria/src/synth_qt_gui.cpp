@@ -2311,6 +2311,9 @@ void SamplerGUI::lms_monofx_value_changed(int a_value, LMS_control * a_ctrl, int
 
 void SamplerGUI::sample_selected_monofx_groupChanged(int a_value)
 {    
+    m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
+    m_sample_selected_monofx_groups[(m_sample_table->lms_selected_column)] = a_value;
+    
     setmonoFX0knob0(m_mono_fx_values[a_value][0][0]);
     setmonoFX0knob1(m_mono_fx_values[a_value][0][1]);
     setmonoFX0knob2(m_mono_fx_values[a_value][0][2]);
