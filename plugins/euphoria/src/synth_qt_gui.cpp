@@ -1661,6 +1661,9 @@ void SamplerGUI::selectionChanged()
     m_mono_fx_tab_selected_sample->setCurrentIndex((m_sample_table->lms_selected_column));    
     m_suppress_selected_sample_changed = FALSE;
         
+    //TODO:  Does this need a 'supress' bool?
+    m_mono_fx_tab_selected_group->setCurrentIndex(m_sample_selected_monofx_groups[((m_sample_table->lms_selected_column))]);
+    
     m_selected_sample_index_combobox->setCurrentIndex((m_sample_table->lms_selected_column));
     m_mono_fx_tab_selected_sample->setCurrentIndex((m_sample_table->lms_selected_column));
     m_sample_graph->indexChanged((m_sample_table->lms_selected_column));
@@ -2300,7 +2303,7 @@ void SamplerGUI::monofx3comboboxChanged(int value){ lms_monofx_value_changed(val
 
 void SamplerGUI::lms_monofx_value_changed(int a_value, LMS_control * a_ctrl, int a_port)
 {    
-    //a_ctrl->lms_value_changed(a_value);
+    a_ctrl->lms_value_changed(a_value);
 
     if (!m_suppressHostUpdate) {
         lo_send(m_host, m_controlPath, "if", a_port, float(a_value));
@@ -2309,6 +2312,7 @@ void SamplerGUI::lms_monofx_value_changed(int a_value, LMS_control * a_ctrl, int
 
 void SamplerGUI::sample_selected_monofx_groupChanged(int a_value)
 {    
+    
     if (!m_suppressHostUpdate) {
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
         lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), float(a_value));
@@ -2722,7 +2726,7 @@ void SamplerGUI::lms_set_value(float val, LMS_control * a_ctrl )
     m_suppressHostUpdate = false;     
 }
 
-//From Modulex
+
 
 void SamplerGUI::setFX0knob0(float val){ lms_set_value(val, m_fx0->lms_knob1); }
 void SamplerGUI::setFX0knob1(float val){ lms_set_value(val, m_fx0->lms_knob2); }
@@ -2744,7 +2748,27 @@ void SamplerGUI::setFX3knob1(float val){ lms_set_value(val, m_fx3->lms_knob2); }
 void SamplerGUI::setFX3knob2(float val){ lms_set_value(val, m_fx3->lms_knob3); }
 void SamplerGUI::setFX3combobox(float val){ lms_set_value(val, m_fx3->lms_combobox); }
 
-//End from Modulex
+
+void SamplerGUI::setmonoFX0knob0(float val){ lms_set_value(val, m_mono_fx0->lms_knob1); }
+void SamplerGUI::setmonoFX0knob1(float val){ lms_set_value(val, m_mono_fx0->lms_knob2); }
+void SamplerGUI::setmonoFX0knob2(float val){ lms_set_value(val, m_mono_fx0->lms_knob3); }
+void SamplerGUI::setmonoFX0combobox(float val){ lms_set_value(val, m_mono_fx0->lms_combobox); }
+
+void SamplerGUI::setmonoFX1knob0(float val){ lms_set_value(val, m_mono_fx1->lms_knob1); }
+void SamplerGUI::setmonoFX1knob1(float val){ lms_set_value(val, m_mono_fx1->lms_knob2); }
+void SamplerGUI::setmonoFX1knob2(float val){ lms_set_value(val, m_mono_fx1->lms_knob3); }
+void SamplerGUI::setmonoFX1combobox(float val){ lms_set_value(val, m_mono_fx1->lms_combobox); }
+
+void SamplerGUI::setmonoFX2knob0(float val){ lms_set_value(val, m_mono_fx2->lms_knob1); }
+void SamplerGUI::setmonoFX2knob1(float val){ lms_set_value(val, m_mono_fx2->lms_knob2); }
+void SamplerGUI::setmonoFX2knob2(float val){ lms_set_value(val, m_mono_fx2->lms_knob3); }
+void SamplerGUI::setmonoFX2combobox(float val){ lms_set_value(val, m_mono_fx2->lms_combobox); }
+
+void SamplerGUI::setmonoFX3knob0(float val){ lms_set_value(val, m_mono_fx3->lms_knob1); }
+void SamplerGUI::setmonoFX3knob1(float val){ lms_set_value(val, m_mono_fx3->lms_knob2); }
+void SamplerGUI::setmonoFX3knob2(float val){ lms_set_value(val, m_mono_fx3->lms_knob3); }
+void SamplerGUI::setmonoFX3combobox(float val){ lms_set_value(val, m_mono_fx3->lms_combobox); }
+
 
 void SamplerGUI::setAttack(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_attack);}
 void SamplerGUI::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_decay); }
@@ -3000,63 +3024,123 @@ void SamplerGUI::v_set_control(int port, float a_value)
     {
         int f_value = port - LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][0][0] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX0knob0(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB1_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][0][1] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX0knob1(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB2_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][0][2] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX0knob2(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][0][3] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX0combobox(a_value);
+        }
     }    
     //MonoFX1
     else if((port >= LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB0_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][1][0] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX1knob0(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB1_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][1][1] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX1knob1(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB2_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][1][2] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX1knob2(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][1][3] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX1combobox(a_value);
+        }
     }
     //MonoFX2
     else if((port >= LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB0_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][2][0] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX2knob0(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB1_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][2][1] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX2knob1(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB2_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][2][2] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX2knob2(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][2][3] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX2combobox(a_value);
+        }
     }
     
     //MonoFX3
@@ -3064,21 +3148,41 @@ void SamplerGUI::v_set_control(int port, float a_value)
     {
         int f_value = port - LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][3][0] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX3knob0(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB1_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][3][1] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX3knob1(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB2_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][3][2] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX3knob2(a_value);
+        }
     }
     else if((port >= LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][3][3] = a_value;
+        
+        if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
+        {
+            setmonoFX3combobox(a_value);
+        }        
     }
         
     else if((port >= LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
