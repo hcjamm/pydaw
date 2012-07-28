@@ -586,8 +586,6 @@ static void run_sampler_interpolation_none(Sampler *__restrict plugin_data, int 
  */
 static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsigned long pos, unsigned long count)
 {
-    plugin_data->ratio = 1.0f;
-    
     unsigned long i, ch;
 
     for (i = 0; i < count; ++i) {
@@ -627,10 +625,9 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
         {            
             v_poly_note_off(plugin_data->data[n]);
 	}        
-        
-        float sample[2];
-        sample[0] = 0.0f;
-        sample[1] = 0.0f;
+                
+        plugin_data->sample[0] = 0.0f;
+        plugin_data->sample[1] = 0.0f;
                     
         plugin_data->i_loaded_samples = 0;
 
@@ -650,19 +647,19 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
             {
                 if((ch == 2) && ((plugin_data->sample_channels[(plugin_data->current_sample)]) == 1))
                 {
-                    sample[ch] += (plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)]);
+                    plugin_data->sample[ch] += (plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)]);
                     continue;
                 }
                 
                 interpolation_modes[(plugin_data->current_sample)](plugin_data, n, ch);
 
-                sample[ch] += plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)];
+                plugin_data->sample[ch] += plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)];
                 
-                sample[ch] += (plugin_data->data[n]->noise_sample);
+                plugin_data->sample[ch] += (plugin_data->data[n]->noise_sample);
 
-                sample[ch] = (sample[ch]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp) * (plugin_data->sample_amp[(plugin_data->current_sample)]); // * (plugin_data->data[n]->lfo_amp_output);
+                plugin_data->sample[ch] = (plugin_data->sample[ch]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp) * (plugin_data->sample_amp[(plugin_data->current_sample)]); // * (plugin_data->data[n]->lfo_amp_output);
 
-                plugin_data->data[n]->modulex_current_sample[ch] = sample[ch];
+                plugin_data->data[n]->modulex_current_sample[ch] = (plugin_data->sample[ch]);
             }
                         
             //Modular PolyFX, processed from the index created during note_on
