@@ -649,6 +649,8 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
                 continue;
             }
             
+            plugin_data->data[n]->noise_sample = ((plugin_data->data[n]->noise_func_ptr(plugin_data->data[n]->white_noise1)) * (plugin_data->data[n]->noise_linamp)); //add noise
+            
             for (ch = 0; ch < (plugin_data->channels); ++ch) 
             {
                 if((ch == 2) && ((plugin_data->sample_channels[(plugin_data->current_sample)]) == 1))
@@ -666,7 +668,7 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
 
                 sample[ch] += plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)];
                 
-                sample[ch] += ((plugin_data->data[n]->noise_func_ptr(plugin_data->data[n]->white_noise1[ch])) * (plugin_data->data[n]->noise_linamp)); //add noise
+                sample[ch] += (plugin_data->data[n]->noise_sample);
 
                 sample[ch] = (sample[ch]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp); // * (plugin_data->data[n]->lfo_amp_output);
 
