@@ -738,6 +738,28 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
     {
         plugin_data->i_slow_index = 0;
         
+        plugin_data->monofx_channel_index_count = 0;        
+        
+        for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
+        {
+            plugin_data->monofx_index_contained = 0;
+            
+            for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
+            {
+                if((plugin_data->monofx_channel_index[i2]) == ((int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]))))
+                {
+                    plugin_data->monofx_index_contained = 1;
+                    break;
+                }
+            }
+            
+            if((plugin_data->monofx_index_contained) == 0)
+            {
+                plugin_data->monofx_channel_index[(plugin_data->monofx_channel_index_count)] = (int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]));
+                plugin_data->monofx_channel_index_count = (plugin_data->monofx_channel_index_count) + 1;
+            }
+        }
+        
         for(i2 = 0; i2 < LMS_MONO_FX_GROUPS_COUNT; i2++)
         {
             for(i3 = 0; i3 < LMS_MONO_FX_COUNT; i3++)
@@ -991,14 +1013,14 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 	}
         
         v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
-                
-        //TODO:  Get these indexed
-        for(i = 0; i < count; i++)
+
+        for(i = 0; i < count; i++)        
         {
-            for(i2 = 0; i2 < LMS_MONO_FX_GROUPS_COUNT; i2++)
+            for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
             {
-                plugin_data->mono_fx_buffers[i2][0][i] = 0.0f;
-                plugin_data->mono_fx_buffers[i2][1][i] = 0.0f;
+            
+                plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][0][i] = 0.0f;
+                plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][1][i] = 0.0f;            
             }
         }
         
@@ -1011,24 +1033,23 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
         
         float f_temp_sample0, f_temp_sample1;
         
-        //TODO:  Get these indexed
-        for(i = 0; i < count; i++)
+        for(i = 0; i < count; i++)        
         {
             plugin_data->pos_plus_i = pos + i;
 
-            for(i2 = 0; i2 < LMS_MONO_FX_GROUPS_COUNT; i2++)
+            for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
             {
-                f_temp_sample0 = (plugin_data->mono_fx_buffers[i2][0][i]);
-                f_temp_sample1 = (plugin_data->mono_fx_buffers[i2][1][i]);
+                f_temp_sample0 = (plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][0][i]);
+                f_temp_sample1 = (plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][1][i]);
                 
                 
                 for(i3 = 0; i3 < LMS_MONO_FX_COUNT; i3++)
                 {
-                    v_mf3_set(plugin_data->mono_modules->multieffect[i2][i3], (*(plugin_data->mfx_knobs[i2][i3][0])), (*(plugin_data->mfx_knobs[i2][i3][1])), (*(plugin_data->mfx_knobs[i2][i3][2])));
-                    plugin_data->mono_modules->fx_func_ptr[i2][i3](plugin_data->mono_modules->multieffect[i2][i3], f_temp_sample0, f_temp_sample1);
+                    v_mf3_set(plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3], (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][0])), (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][1])), (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][2])));
+                    plugin_data->mono_modules->fx_func_ptr[(plugin_data->monofx_channel_index[i2])][i3](plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3], f_temp_sample0, f_temp_sample1);
 
-                    f_temp_sample0 = (plugin_data->mono_modules->multieffect[i2][i3]->output0);
-                    f_temp_sample1 = (plugin_data->mono_modules->multieffect[i2][i3]->output1);
+                    f_temp_sample0 = (plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3]->output0);
+                    f_temp_sample1 = (plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3]->output1);
                 }
                 
                 plugin_data->output[0][(plugin_data->pos_plus_i)] += f_temp_sample0;

@@ -117,6 +117,18 @@ typedef struct {
     
     int sample_mfx_groups_index[LMS_MAX_SAMPLE_COUNT];  //Cast to int during note_on
     
+    //These 2 calculate which channels are assigned to a sample and should be processed
+    int monofx_channel_index[LMS_MONO_FX_GROUPS_COUNT];
+    int monofx_channel_index_count;
+        
+    int monofx_index_contained;  //Used as a boolean
+    
+    //These 2 calculate which effects are enabled and should be processed.  Not yet implemented
+    /*
+    int monofx_effect_index[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT];
+    int monofx_effect_index_count[LMS_MONO_FX_GROUPS_COUNT]; 
+    */
+        
     float adjusted_base_pitch[LMS_MAX_SAMPLE_COUNT];
     
     //For sample preview:
