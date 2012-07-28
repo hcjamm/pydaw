@@ -157,6 +157,8 @@ typedef struct {
     char*       sample_paths[LMS_TOTAL_SAMPLE_COUNT];    
     char*       sample_files;
     
+    float sample[LMS_CHANNEL_COUNT];
+    
     //PolyFX modulation streams    
     int polyfx_mod_ctrl_indexes[Sampler_NOTES][LMS_MODULAR_POLYFX_COUNT][(LMS_CONTROLS_PER_MOD_EFFECT * LMS_MODULATOR_COUNT)]; //The index of the control to mod, currently 0-2
     int polyfx_mod_counts[Sampler_NOTES][LMS_MODULAR_POLYFX_COUNT];  //How many polyfx_mod_ptrs to iterate through for the current note
