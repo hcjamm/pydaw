@@ -1970,7 +1970,11 @@ void SamplerGUI::saveInstrumentToSingleFile()
                             //new
                             i_get_control((i + LMS_PITCH_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
                             i_get_control((i + LMS_TUNE_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
-                            i_get_control((i + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN))
+                            i_get_control((i + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                            
+                            i_get_control((i + LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
+                            i_get_control((i + LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER  <<
+                            i_get_control((i + LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN))  
                             << "\n";
                 }
             }
@@ -1978,10 +1982,15 @@ void SamplerGUI::saveInstrumentToSingleFile()
             stream << LMS_FILE_CONTROLS_TAG << "\n";
             stream << LMS_FILE_CONTROLS_TAG_EUP_V1 << "\n";
             
-            for(int i = LMS_FIRST_CONTROL_PORT; i < Sampler_Stereo_COUNT; i++)        
+            for(int i = LMS_FIRST_CONTROL_PORT; i < LMS_LAST_REGULAR_CONTROL_PORT; i++)        
             {   
-                stream << i << LMS_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";                
+                stream << i << LMS_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";
             }   
+            
+            for(int i = LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN; i < Sampler_Stereo_COUNT; i++)
+            {
+                stream << i << LMS_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";
+            }
             
             file.close();
         }
@@ -2202,8 +2211,16 @@ void SamplerGUI::openInstrumentFromFile()
                                 break;                        
                             case 13:
                                 v_set_control((f_sample_index + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;                                                        
+                            case 14:
+                                v_set_control((f_sample_index + LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN), file_arr.at(i).toFloat());
                                 break;
-                        
+                            case 15:
+                                v_set_control((f_sample_index + LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;
+                            case 16:
+                                v_set_control((f_sample_index + LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                break;                        
                         }
                     }
                 }
