@@ -33,6 +33,9 @@ GNU General Public License for more details.
 //Pad the end of samples with zeroes to ensure you don't get artifacts from samples that have no silence at the end
 #define Sampler_Sample_Padding 100
 
+//How many buffers in between slow indexing operations.  Buffer == users soundcard latency settings, ie: 512 samples
+#define LMS_SLOW_INDEX_COUNT 8
+
 typedef struct {
     LADSPA_Data *output[2];    
     LADSPA_Data *basePitch[LMS_MAX_SAMPLE_COUNT];
@@ -164,6 +167,8 @@ typedef struct {
     //4096 was chosen because AFAIK that's the largest size you can use in qjackctl
     float mono_fx_buffers[LMS_MONO_FX_GROUPS_COUNT][2][4096];
     
+    int i_slow_index;  //For indexing operations that don't need to track realtime events closely
+        
     //iterators for iterating through their respective array dimensions
     int i_fx_grps;
     int i_dst;
