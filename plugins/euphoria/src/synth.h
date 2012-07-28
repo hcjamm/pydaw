@@ -34,7 +34,7 @@ GNU General Public License for more details.
 #define Sampler_Sample_Padding 100
 
 //How many buffers in between slow indexing operations.  Buffer == users soundcard latency settings, ie: 512 samples
-#define LMS_SLOW_INDEX_COUNT 8
+#define LMS_SLOW_INDEX_COUNT 64
 
 typedef struct {
     LADSPA_Data *output[2];    

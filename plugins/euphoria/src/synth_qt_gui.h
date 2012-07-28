@@ -179,10 +179,7 @@ public slots:
         
     void setLFOfreq(float);
     void setLFOtype(float);
-    //End from Ray-V
-    
-    //From Modulex
-    
+        
     void setFX0knob0 (float val);
     void setFX0knob1 (float val);
     void setFX0knob2 (float val);
@@ -203,7 +200,25 @@ public slots:
     void setFX3knob2 (float val);
     void setFX3combobox (float val);
     
-    //End from Modulex
+    void setmonoFX0knob0 (float val);
+    void setmonoFX0knob1 (float val);
+    void setmonoFX0knob2 (float val);
+    void setmonoFX0combobox (float val);
+    
+    void setmonoFX1knob0 (float val);
+    void setmonoFX1knob1 (float val);
+    void setmonoFX1knob2 (float val);
+    void setmonoFX1combobox (float val);
+    
+    void setmonoFX2knob0 (float val);
+    void setmonoFX2knob1 (float val);
+    void setmonoFX2knob2 (float val);
+    void setmonoFX2combobox (float val);
+    
+    void setmonoFX3knob0 (float val);
+    void setmonoFX3knob1 (float val);
+    void setmonoFX3knob2 (float val);
+    void setmonoFX3combobox (float val);    
     
     void set_global_midi_octaves_offset(float val);
     //void set_global_midi_channel(float val);

@@ -698,8 +698,6 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
 
             }
 
-            //plugin_data->output[0][(plugin_data->pos_plus_i)] += plugin_data->data[n]->modulex_current_sample[0];
-            //plugin_data->output[1][(plugin_data->pos_plus_i)] += plugin_data->data[n]->modulex_current_sample[1];
             plugin_data->mono_fx_buffers[(int)(*(plugin_data->sample_mfx_groups[(plugin_data->current_sample)]))][0][i] += plugin_data->data[n]->modulex_current_sample[0];
             plugin_data->mono_fx_buffers[(int)(*(plugin_data->sample_mfx_groups[(plugin_data->current_sample)]))][1][i] += plugin_data->data[n]->modulex_current_sample[1];            
             
@@ -716,7 +714,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
     unsigned long pos;
     unsigned long count;
     unsigned long event_pos;
-    int i;
+    int i, i2, i3;
 
     for (i = 0; i < plugin_data->channels; ++i) {
 	memset(plugin_data->output[i], 0, sample_count * sizeof(float));
@@ -734,11 +732,17 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
     
     plugin_data->i_slow_index = (plugin_data->i_slow_index) + 1;
     
-    if((plugin_data->i_slow_index) > LMS_SLOW_INDEX_COUNT)
+    if((plugin_data->i_slow_index) >= LMS_SLOW_INDEX_COUNT)
     {
         plugin_data->i_slow_index = 0;
         
-        //TODO:  The indexing operation
+        for(i2 = 0; i2 < LMS_MONO_FX_GROUPS_COUNT; i2++)
+        {
+            for(i3 = 0; i3 < LMS_MONO_FX_COUNT; i3++)
+            {
+                plugin_data->mono_modules->fx_func_ptr[i2][i3] = g_mf3_get_function_pointer((int)(*(plugin_data->mfx_comboboxes[i2][i3])));
+            }
+        }          
     }
     
     
@@ -983,8 +987,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 	}
         
         v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
-        
-        int i2, i3;
+                
         //TODO:  Get these indexed
         for(i = 0; i < count; i++)
         {
@@ -1014,13 +1017,14 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                 f_temp_sample0 = (plugin_data->mono_fx_buffers[i2][0][i]);
                 f_temp_sample1 = (plugin_data->mono_fx_buffers[i2][1][i]);
                 
+                
                 for(i3 = 0; i3 < LMS_MONO_FX_COUNT; i3++)
                 {
-                        v_mf3_set(plugin_data->mono_modules->multieffect[i2][i3], (*(plugin_data->mfx_knobs[i2][i3][0])), (*(plugin_data->mfx_knobs[i2][i3][1])), (*(plugin_data->mfx_knobs[i2][i3][2])));
-                        plugin_data->mono_modules->fx_func_ptr[i2][i3](plugin_data->mono_modules->multieffect[i2][i3], f_temp_sample0, f_temp_sample1);
-                        
-                        f_temp_sample0 = (plugin_data->mono_modules->multieffect[i2][i3]->output0);
-                        f_temp_sample1 = (plugin_data->mono_modules->multieffect[i2][i3]->output1);
+                    v_mf3_set(plugin_data->mono_modules->multieffect[i2][i3], (*(plugin_data->mfx_knobs[i2][i3][0])), (*(plugin_data->mfx_knobs[i2][i3][1])), (*(plugin_data->mfx_knobs[i2][i3][2])));
+                    plugin_data->mono_modules->fx_func_ptr[i2][i3](plugin_data->mono_modules->multieffect[i2][i3], f_temp_sample0, f_temp_sample1);
+
+                    f_temp_sample0 = (plugin_data->mono_modules->multieffect[i2][i3]->output0);
+                    f_temp_sample1 = (plugin_data->mono_modules->multieffect[i2][i3]->output1);
                 }
                 
                 plugin_data->output[0][(plugin_data->pos_plus_i)] += f_temp_sample0;
@@ -1034,8 +1038,6 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
             for(i = 0; i < count; i++)
             {
                 plugin_data->pos_plus_i = pos + i;
-                
-                //Process MonoFX (eventually will be happening here)
                 
                 plugin_data->output[0][(plugin_data->pos_plus_i)] += plugin_data->mono_fx_buffers[0][0][i];
                 plugin_data->output[1][(plugin_data->pos_plus_i)] += plugin_data->mono_fx_buffers[0][1][i];
@@ -2177,7 +2179,7 @@ void _init()
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Mono FX0 Combobox";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
             f_i++;
         }
@@ -2215,7 +2217,7 @@ void _init()
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Mono FX1 Combobox";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
             f_i++;
         }
@@ -2252,7 +2254,7 @@ void _init()
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Mono FX2 Combobox";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
             f_i++;
         }
@@ -2289,7 +2291,7 @@ void _init()
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Mono FX3 Combobox";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
             f_i++;
         }
@@ -2298,8 +2300,8 @@ void _init()
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample MonoFX Group";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = LMS_MAX_SAMPLE_COUNT;            
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = (LMS_MAX_SAMPLE_COUNT - 1);
             f_i++;
         }
         
