@@ -200,6 +200,11 @@ public:
     
     void folder_opened(QString a_folder, bool a_relative_path)
     {
+        if((a_folder.isEmpty()) || (a_folder.isNull()))
+        {
+            return;
+        }
+        
         if(a_relative_path)
         {
             if(m_folder_path_lineedit->text().compare(QString("/")) == 0)
