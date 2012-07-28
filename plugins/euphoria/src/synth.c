@@ -649,7 +649,7 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
                 continue;
             }
             
-            plugin_data->data[n]->noise_sample = ((plugin_data->data[n]->noise_func_ptr(plugin_data->data[n]->white_noise1)) * (plugin_data->data[n]->noise_linamp)); //add noise
+            plugin_data->data[n]->noise_sample = ((plugin_data->data[n]->noise_func_ptr(plugin_data->mono_modules->white_noise1[(plugin_data->data[n]->noise_index)])) * (plugin_data->data[n]->noise_linamp)); //add noise
             
             for (ch = 0; ch < (plugin_data->channels); ++ch) 
             {
@@ -930,7 +930,13 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                     //Get the noise function pointer
                     plugin_data->data[f_note]->noise_func_ptr = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
                     
-                    //Begin Ray-V additions
+                    plugin_data->data[f_note]->noise_index = (plugin_data->mono_modules->noise_current_index);
+                    plugin_data->mono_modules->noise_current_index = (plugin_data->mono_modules->noise_current_index) + 1;
+                    
+                    if((plugin_data->mono_modules->noise_current_index) >= LMS_NOISE_COUNT)
+                    {
+                        plugin_data->mono_modules->noise_current_index = 0;
+                    }
                     
                     //const int voice = i_pick_voice(plugin_data->voices, f_note);
                     

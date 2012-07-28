@@ -40,6 +40,9 @@ extern "C" {
     
 #define LMS_CHANNEL_COUNT 2
     
+//The number of noise modules to use.  This saves a lot of memory vs. having one per voice, since we don't need 100+ unique noise oscillators
+#define LMS_NOISE_COUNT 16
+    
 /*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
  of an instrument, you will most likely want to define all of your modules here*/
 
@@ -52,6 +55,9 @@ typedef struct st_mono_modules
     
     t_mf3_multi * multieffect[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT];
     fp_mf3_run fx_func_ptr[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT];
+    
+    t_white_noise * white_noise1[LMS_NOISE_COUNT];
+    int noise_current_index;
 }t_mono_modules __attribute__((aligned(16)));
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
@@ -60,8 +66,7 @@ typedef struct st_poly_voice
     t_state_variable_filter * svf_filter[LMS_CHANNEL_COUNT];
     t_clipper * clipper1[LMS_CHANNEL_COUNT];
     t_audio_xfade * dist_dry_wet[LMS_CHANNEL_COUNT];
-    t_white_noise * white_noise1;
-    
+        
     fp_svf_run_filter svf_function;
         
     t_adsr * adsr_filter;
@@ -106,6 +111,8 @@ typedef struct st_poly_voice
     
     fp_noise_func_ptr noise_func_ptr;
     
+    int noise_index;
+    
 }t_poly_voice __attribute__((aligned(16)));
 
 t_poly_voice * g_poly_init(float);
@@ -127,8 +134,6 @@ t_poly_voice * g_poly_init(float a_sr)
     }
     
     float f_sr_recip = 1.0f/a_sr;
-        
-    f_voice->white_noise1 = g_get_white_noise(a_sr);
     
     f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
     f_voice->adsr_amp = g_adsr_get_adsr(f_sr_recip);        
@@ -178,6 +183,7 @@ t_poly_voice * g_poly_init(float a_sr)
     f_voice->modulator_outputs[3] = &(f_voice->lfo1->output);
     
     f_voice->noise_func_ptr = f_run_noise_off;
+    f_voice->noise_index = 0;
     
     return f_voice;
 }
@@ -202,6 +208,7 @@ t_mono_modules * g_mono_init(float a_sr)
     a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
     a_mono->amp_ptr = g_amp_get();
     a_mono->sinc_interpolator = g_sinc_get(LMS_SINC_INTERPOLATION_POINTS, 2000, 8000.0f, a_sr, 0.6f);
+    a_mono->noise_current_index = 0;
     
     int f_i;
     
@@ -219,6 +226,11 @@ t_mono_modules * g_mono_init(float a_sr)
             a_mono->multieffect[f_i][f_i2] = g_mf3_get(a_sr);
             a_mono->fx_func_ptr[f_i][f_i2] = v_mf3_run_off;
         }
+    }
+    
+    for(f_i = 0; f_i < LMS_NOISE_COUNT; f_i++)
+    {
+        a_mono->white_noise1[f_i] = g_get_white_noise(a_sr);
     }
     
     return a_mono;
