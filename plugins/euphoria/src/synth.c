@@ -1292,8 +1292,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     }
     
     pthread_mutex_unlock(&plugin_data->mutex);
-
-    /*
+    
     if (tmpOld[0]) 
     {
         free(tmpOld[0]);
@@ -1303,7 +1302,6 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     {
         free(tmpOld[1]);
     }
-    */
     
     //printf("%s: loaded %s (%ld samples from original %ld channels resampled from %ld frames at %ld Hz)\n", Sampler_Stereo_LABEL, path, (long)samples, (long)info.channels, (long)info.frames, (long)info.samplerate);
 
@@ -1374,11 +1372,9 @@ char *samplerClear(Sampler *plugin_data, int a_index)
 
     pthread_mutex_unlock(&plugin_data->mutex);
 
-    /*
     if (tmpOld[0]) free(tmpOld[0]);
     if (tmpOld[1]) free(tmpOld[1]);
-    */
-    
+        
     return NULL;
 }
 
