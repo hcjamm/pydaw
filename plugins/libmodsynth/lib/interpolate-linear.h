@@ -39,6 +39,7 @@ inline float f_linear_interpolate(float, float, float);
 inline float f_linear_interpolate_arr(float[],float, t_lin_interpolater*);
 inline float f_linear_interpolate_arr_wrap(float[],int,float, t_lin_interpolater*);
 inline float f_linear_interpolate_ptr_wrap(float*,int,float, t_lin_interpolater*);
+inline float f_linear_interpolate_ptr(float*, float, t_lin_interpolater*);
 inline float f_linear_interpolate_ptr_ifh(float * a_table, int a_whole_number, float a_frac, t_lin_interpolater * a_lin);
 
 /* inline float f_linear_interpolate(
@@ -98,8 +99,7 @@ inline float f_linear_interpolate_arr_wrap(float a_table[], int a_table_size, fl
  * float a_ptr, 
  * t_lin_interpolater * a_lin)
  * 
- * This method uses a pointer instead of an array (since apparently they're not quite the same thing).  the float* must be malloc'd 
- * to (sizeof(float) * a_table_size)
+ * This method uses a pointer instead of an array the float* must be malloc'd to (sizeof(float) * a_table_size)
  */
 inline float f_linear_interpolate_ptr_wrap(float * a_table, int a_table_size, float a_ptr, t_lin_interpolater * a_lin)
 {        
@@ -109,6 +109,25 @@ inline float f_linear_interpolate_ptr_wrap(float * a_table, int a_table_size, fl
     if((a_lin->int_pos_plus_1) > a_table_size)
         a_lin->int_pos_plus_1 = 0;
     
+    a_lin->pos = a_ptr - (a_lin->int_pos);
+    
+    return (((a_table[(a_lin->int_pos)]) - (a_table[(a_lin->int_pos_plus_1)])) * (a_lin->pos)) + (a_table[(a_lin->int_pos_plus_1)]);
+}
+
+/* inline float f_linear_interpolate_ptr_wrap(
+ * float * a_table, 
+ * float a_ptr, 
+ * t_lin_interpolater * a_lin)
+ * 
+ * This method uses a pointer instead of an array the float* must be malloc'd to (sizeof(float) * a_table_size)
+ * 
+ * THIS DOES NOT CHECK THAT YOU PROVIDED A VALID POSITION
+ */
+inline float f_linear_interpolate_ptr(float * a_table, float a_ptr, t_lin_interpolater * a_lin)
+{        
+    a_lin->int_pos = (int)a_ptr;
+    a_lin->int_pos_plus_1 = (a_lin->int_pos) + 1;
+        
     a_lin->pos = a_ptr - (a_lin->int_pos);
     
     return (((a_table[(a_lin->int_pos)]) - (a_table[(a_lin->int_pos_plus_1)])) * (a_lin->pos)) + (a_table[(a_lin->int_pos_plus_1)]);
