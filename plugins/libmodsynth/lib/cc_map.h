@@ -54,7 +54,8 @@ t_ccm_midi_cc_map * g_ccm_get()
     while(f_i < CC_MAX_COUNT)
     {
         f_result->cc_map[f_i] = 0;
-        f_result->cc_descriptions[f_i] = "empty";
+        f_result->cc_descriptions[f_i] = (char*)malloc(sizeof(char) * 120);
+        strcpy(f_result->cc_descriptions[f_i], "empty");
         f_i++;
     }
     
