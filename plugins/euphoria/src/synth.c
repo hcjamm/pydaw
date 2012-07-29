@@ -439,8 +439,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DECAY, 75, "Decay Amp");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_SUSTAIN, 79, "Sustain Amp");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RELEASE, 72, "Release Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ATTACK, 21, "Attack Filter");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_DECAY, 22, "Decay Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ATTACK, 58, "Attack Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_DECAY, 62, "Decay Filter");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_SUSTAIN, 23, "Sustain Filter");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_RELEASE, 24, "Release Filter");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_NOISE_AMP, 25, "Noise Amp");
@@ -448,28 +448,29 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_GLIDE, 39, "Glide Time");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_PITCHBEND_AMT, 40, "Pitchbend Amount");    
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_TIME, 43, "Pitch Env Time");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FREQ, 44, "LFO Freq");    
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FREQ, 15, "LFO Freq");    
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_TYPE, 45, "LFO Type");
     
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB0, 49, "FX0Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB1, 50, "FX0Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB0, 74, "FX0Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB1, 71, "FX0Knob1");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_KNOB2, 51, "FX0Knob2");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX0_COMBOBOX, 52, "FX0Combobox");
     
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_KNOB0, 53, "FX1Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_KNOB1, 54, "FX1Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_KNOB0, 70, "FX1Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_KNOB1, 91, "FX1Knob1");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_KNOB2, 55, "FX1Knob2");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX1_COMBOBOX, 56, "FX1Combobox");
     
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX2_KNOB0, 57, "FX2Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX2_KNOB1, 58, "FX2Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX2_KNOB0, 20, "FX2Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX2_KNOB1, 21, "FX2Knob1");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX2_KNOB2, 59, "FX2Knob2");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX2_COMBOBOX, 60, "FX2Combobox");
     
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_KNOB0, 61, "FX3Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_KNOB1, 62, "FX3Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_KNOB0, 22, "FX3Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_KNOB1, 5, "FX3Knob1");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_KNOB2, 63, "FX3Knob2");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_COMBOBOX, 64, "FX3Combobox");
+    
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "euphoria-cc_map.txt");
         
