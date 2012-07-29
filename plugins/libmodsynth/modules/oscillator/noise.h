@@ -47,11 +47,16 @@ inline fp_noise_func_ptr fp_get_noise_func_ptr(int a_index)
     }    
 }
 
+static unsigned int seed_helper = 18;
+
 /* t_white_noise * g_get_white_noise(float a_sample_rate)
  */
 t_white_noise * g_get_white_noise(float a_sample_rate)
 {
-    srand((unsigned)time(NULL));
+    time_t f_clock = time(NULL);
+    srand(((unsigned)f_clock) + (seed_helper));
+    
+    seed_helper *= 7;
     
     t_white_noise * f_result = (t_white_noise*)malloc(sizeof(t_white_noise));
     
@@ -69,9 +74,9 @@ t_white_noise * g_get_white_noise(float a_sample_rate)
     {
         /*Mixing 3 random numbers together gives a more natural sounding white noise,
          instead of a "brick" of noise, as seen on an oscilloscope*/
-        float _sample1 = ((float)rand() / (float)RAND_MAX) - .5;
-        float _sample2 = ((float)rand() / (float)RAND_MAX) - .5;
-        float _sample3 = ((float)rand() / (float)RAND_MAX) - .5;
+        float _sample1 = ((double)rand() / (double)RAND_MAX) - .5f;
+        float _sample2 = ((double)rand() / (double)RAND_MAX) - .5f;
+        float _sample3 = ((double)rand() / (double)RAND_MAX) - .5f;
         
         f_result->sample_array[f_i] = (_sample1 + _sample2 + _sample3) * .5;
         f_i++;
