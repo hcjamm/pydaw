@@ -23,10 +23,6 @@ GNU General Public License for more details.
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/interpolate-linear.h"
 
-//#define Sampler_RELEASE_MIN 0.001f
-#define Sampler_RELEASE_MIN 0.01f
-#define Sampler_RELEASE_MAX 2.0f
-
 #define Sampler_NOTES 100
 #define Sampler_NOTES_m1 99
 #define Sampler_FRAMES_MAX 1048576
