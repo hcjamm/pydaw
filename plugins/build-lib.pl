@@ -11,22 +11,18 @@ The LibModSynth build helper script.  http://libmodsynth.sourceforge.net
 
 Usage:
 
-perl build.pl [args] [compile options] [install options]
+perl build.pl [args]
 
 args:
 --full-build 	:  A clean build, rebuilding all autotools files, does not install
 
---quick-build 	:  A quick build, does not install
-
---install	:  Install using make install
+--build-debug	:  A clean build, with debug symbols.
 
 --debug		:  Compile, install and debug, using LMS' console output.  You must uncomment the LMS_XYZ_DEBUG_MODE #defines in synth.h or in the libmodsynth library for console output to be displayed.
 
 --run		:  Debug using LMS' console output without recompiling.  This assumes the plugin was already compiled and installed before
 
 --deb 		:  Compile and package the plugin into a .deb file (this uses checkinstall, you should use the build-all.pl script instead, using the LibModSynth native packaging system)
-
---rpm		:  Compile and package the plugin into a .rpm file (uses checkinstall, will eventually be deprecated)
 
 --deps		:  Install all dependencies.  Some operating systems are not yet supported
 
@@ -38,13 +34,9 @@ args:
 
 --build-jack-host  :  This is for compiling the jack-dssi-host.  The user should never have to run this, the script will run it automatically when needed.
 
+--build-jack-host-debug  :  This is for compiling the jack-dssi-host with debug symbols.
+
 Note that you can also debug using the included debugger project and GDB, using the IDE of your choice.  See doc/instructions.txt for details.  GDB is more suitable for using breakpoints to step through code, whereas the console output is more suitable for getting a glimpse of what's going on in your plugin while you are using it in jack-dssi-host.
-
-install options:
-
---user-install-options	:  Specify your own additional make install options, such as DESTDIR=\"/a/b/c\", etc...
-
---no-sudo		:  Install without sudo privileges.  Typically this is only useful if using the DESTDIR or --prefix make install options
 
 There should be one build.pl script in each plugin directory.
 
@@ -61,6 +53,9 @@ unless(-e $debug_dir)
 `mkdir $debug_dir`;
 }
 
+$debug_flags = ' CFLAGS+=" -O0 -g -gdwarf-3 " ';
+$release_flags = ' CFLAGS+=" -O3 " ';
+
 $current_dir = get_current_dir();
 $dssi_path = `cd $debug_dir ; pwd`;
 chomp($dssi_path);
@@ -68,8 +63,6 @@ chomp($dssi_path);
 $sleep = "sleep 1";
 
 $makefile = "Makefile";
-
-$debug_args = " -g";
 
 $deps_ubuntu = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ libqt4-dev libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev uuid-dev cmake liblscp-dev libmad0-dev gdb debhelper dh-make build-essential automake autoconf libtool";
 
@@ -82,43 +75,49 @@ $audio_group = "sudo usermod -g audio \$USER";
 #TODO:  Place a file in the plugin directory once the first build has been run
 sub run_script
 {
-	if($ARGV[0] eq "--full-build")
+	if($ARGV[0] eq "--build")
 	{
+		check_deps();
 		notify_wait();
-		first_build();
+		first_build($release_flags);
+		notify_done();
+	}
+	if($ARGV[0] eq "--build-debug")
+	{
+		check_deps();
+		notify_wait();
+		first_build($debug_flags);
 		notify_done();
 	}
 	elsif($ARGV[0] eq "--debug")
 	{
+		check_deps();
 		notify_wait();
-		#check for the jack-host-dssi binary;  build it if not
-		unless(-e $jack_host)
-		{
-			`cd $jack_host_dir ; perl build.pl --build-jack-host`;		
-		}
+
+		system("cd $jack_host_dir ; make clean; perl build.pl --build-jack-host-debug ");
 
 		clean();
-		build();
+		build($debug_flags);
 
 		`make PREFIX=/usr DESTDIR=$dssi_path install`;
 		#exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; ddd $jack_host");
-		exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; $jack_host $current_dir.so");
-	}
-	elsif($ARGV[0] eq "--run")
-	{
-		exec("$jack_host $debug_dir/$current_dir.so");
-	}
-	elsif($ARGV[0] eq "--quick-build")
-	{
-		notify_wait();
-		build();
-		notify_done();
+		exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; $jack_host $current_dir.so ");
 	}
 	elsif($ARGV[0] eq "--build-jack-host")
 	{
+		check_deps();
 		notify_wait();
 
-		build_jack_host();
+		build_jack_host($release_flags);
+
+		notify_done();
+	}
+	elsif($ARGV[0] eq "--build-jack-host-debug")
+	{
+		check_deps();
+		notify_wait();
+
+		build_jack_host($debug_flags);
 
 		notify_done();
 	}
@@ -126,16 +125,6 @@ sub run_script
 	{
 		build_package("debian");
 		notify_done();
-	}
-	elsif($ARGV[0] eq "--rpm")
-	{
-		build_package("rpm");
-		notify_done();
-	}
-	elsif($ARGV[0] eq "--install")
-	{
-		`sudo rm -Rf /usr/lib/dssi/$current_dir*`;
-		`sudo make install`;
 	}
 	elsif($ARGV[0] eq "--deps")
 	{
@@ -192,7 +181,7 @@ $make = 'make --quiet ';
 
 if(defined $_[0])
 {
-	$make .= "CFLAGS+=\"" . $_[0] . "\"";
+	$make .= $_[0];
 }
 
 $make_result = system($make);
@@ -204,143 +193,37 @@ Cannot compile, aborting script, please check your code for errors\n\n";
 	exit;
 }
 
-`$sleep`;
 }
 
-#$_[0] will be any additional CFLAGS you wish to compile with, like -g for debugging
+
 sub build_jack_host
 {
-`rm jack-dssi-host`;
-`aclocal`;
-`$sleep`;
-`libtoolize --force --copy`;
-`$sleep`;
-`autoheader`;
-`$sleep`;
-`automake --add-missing --foreign`;
-`$sleep`;
-`autoconf`;
-`$sleep`;
-`./configure`;
-`$sleep`;
+system("rm jack-dssi-host");
+system("aclocal");
+system("$sleep");
+system("libtoolize --force --copy");
+system("$sleep");
+system("autoheader");
+system("$sleep");
+system("automake --add-missing --foreign");
+system("$sleep");
+system("autoconf");
+system("$sleep");
+system("./configure");
+system("$sleep");
 if(defined $_[0])
 {
-$make = 'make CFLAGS+="' . $_[0] . '"';
-`$make`;
+	$make = "make " . $_[0];
+	system("$make");
 }
 else
 {
-`make`;
+	system("make");
 }
 
 }
 
-sub make_install
-{
-$install_command = "make install";
-$user_inst_ops = 0;
-
-foreach $val($ARGV)
-{
-	if($user_inst_ops)
-	{
-		$install_command = "make $val install";
-		break;
-	}
-
-	if($val eq "--user-install-options")
-	{
-		$user_inst_ops = 1;	
-	}
-}
-
-$sudo_install = 1;
-
-foreach $val($ARGV)
-{
-
-	if($val eq "--no-sudo")
-	{
-		$sudo_install = 0;
-		break;
-	}
-}
-
-if($sudo_install)
-{
-	$install_command = "sudo $install_command";
-	break;
-}
-
-
-$install_result = system($install_command);
-
-if($install_result)
-{
-	print "Install returned $install_result, installation may have failed.\n";
-}
-}
-
-#$_[0] == debian, rpm or slackware
-sub build_package
-{
-print "Please note that this method of packaging will be deprecated.  The preferred method of packaging is to use the build-all.pl script in the root directory.  Hit enter to acknowledge, or 'q' to quit.";
-
-$ack = <STDIN>;
-chomp($ack);
-$ack = lc($ack);
-
-if($ack eq 'q')
-{
-	exit;
-}
-
-notify_wait();
-first_build();
-
-$maintainer = '""';
-$package_name= '';
-
-@folders = split('/', `pwd`);
-
-foreach my $val (@folders) {
-$package_name = $val;
-}
-
-
-$ci_command = "sudo checkinstall --type=" . $_[0] . " \\
---install=no \\
---requires=liblo-dev,dssi-dev,ladspa-sdk,libasound2-dev,qjackctl,libjack-jackd2-dev,libsndfile1-dev,libsamplerate0-dev,libsm-dev,liblscp-dev,libmad0-dev ";
-
-#print "\nRunning: \n$ci_command\n";
-print "
-You must enter the values in the below format to create a package that will work with most package managers:
-
-0 -  Maintainer: [ \"Jeff Hubbard\" <jhubbard651\@users.sf.net> ]
-1 -  Summary: [ LMS Comb is a comb filter(sometimes called a phaser or flanger) written using LibModSynth. ]
-2 -  Name:    [ lms-comb ]
-3 -  Version: [ 1.0.1 ]
-4 -  Release: [ 1 ]
-5 -  License: [ GPL ]
-6 -  Group:   [ checkinstall ]
-7 -  Architecture: [ amd64 ]
-8 -  Source location: [ lms-comb ]
-9 -  Alternate source location: [  ]
-10 - Requires: [ liblo-dev,dssi-dev,ladspa-sdk,libasound2-dev,qjackctl,libjack-jackd2-dev,libsndfile1-dev,libsamplerate0-dev,libsm-dev,liblscp-dev,libmad0-dev ]
-11 - Provides: [ lms-comb ]
-12 - Conflicts: [  ]
-13 - Replaces: [  ]
-
-Hit the enter key to continue.
-";
-
-my $dummy_value = <STDIN>;
-
-system("$ci_command");
-}
-
-
-#This isn't a real check, it only tests to see if the script attempted to install the dependencies
+#This isn't a real check, it only tests to see if the script attempted to install the dependencies.  Valid on Ubuntu only.
 sub check_deps
 {
 	#check both directories, because this can be invoked from the plugin's directory or the base directory
@@ -532,7 +415,7 @@ MOC ?= moc
 
 PREFIX ?= /usr/local
 
-BASE_FLAGS     = -O2 -ffast-math -fomit-frame-pointer -fvisibility=hidden -fPIC -mtune=generic -msse -Wall -Isrc -I.
+BASE_FLAGS     = -ffast-math -fPIC -msse -msse2 -msse3 -mfpmath=sse -Wall -Isrc -I.
 BUILD_CFLAGS   = \$(BASE_FLAGS) \$(CFLAGS)
 BUILD_CXXFLAGS = \$(BASE_FLAGS) \$(shell pkg-config --cflags liblo QtCore QtGui x11 sm sndfile) \$(CXXFLAGS)
 LINK_CFLAGS    = -shared -lm \$(LDFLAGS) \$(shell pkg-config --libs liblo alsa sndfile samplerate)
