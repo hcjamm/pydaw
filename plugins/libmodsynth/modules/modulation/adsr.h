@@ -241,14 +241,25 @@ t_adsr * g_adsr_get_adsr(float a_sr_recip)
     
     f_result->sr_recip = a_sr_recip;
     f_result->amp_ptr = g_amp_get();
+        
+    f_result->output = 0.0f;
+    f_result->stage = 4;
+    
+    //Set these to nonsensical values so that comparisons aren't happening with invalid numbers
+    f_result->a_inc = -100.5f;
+    f_result->a_time = -100.5f;
+    f_result->d_inc = -100.5f;
+    f_result->d_recip = -100.5f;
+    f_result->d_time =  -100.5f;
+    f_result->r_inc = -100.5f;
+    f_result->r_recip = -100.5f;
+    f_result->r_time = -100.5f;
+    f_result->s_value = -100.5f;    
     
     v_adsr_set_a_time(f_result, .05);
     v_adsr_set_d_time(f_result, .5);
     v_adsr_set_s_value_db(f_result, -12);
     v_adsr_set_r_time(f_result, .5);
-
-    f_result->output = 0;
-    f_result->stage = 4;
     
     return f_result;
 }

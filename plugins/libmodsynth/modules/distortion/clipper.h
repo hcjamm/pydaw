@@ -81,6 +81,7 @@ t_clipper * g_clp_get_clipper()
     f_result->input_gain_linear = 1;
     f_result->in_db = 0;
     f_result->result = 0;
+    f_result->clip_db = 7654567.0f;  //A nonsensical value for the sake of forcing a change on the first comparison
     f_result->amp_ptr = g_amp_get();
     
     return f_result;
