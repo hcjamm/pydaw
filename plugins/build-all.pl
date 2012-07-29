@@ -59,6 +59,8 @@ if(defined $ARGV[0])
 	}
 }
 
+$debug_build = 0;
+
 #This is only for printing out extra debug information when running this script.  0 == no debugging, 1 == debugging
 $debug_mode = 0;
 
@@ -183,6 +185,25 @@ else
 	goto os_choice_label;
 }
 
+build_debug_label:
+	print "
+Build plugins with debug symbols?(makes them much slower, but allows for debugging):
+1. Yes
+2. No
+Enter choice [1-2]: ";
+
+$debug_choice = <STDIN>;
+chomp($debug_choice);
+
+if($debug_choice eq "1")
+{
+	$debug_build = 1;
+}
+else
+{
+#Do nothing
+}
+
 }
 
 
@@ -251,7 +272,14 @@ foreach $val(@plugins)
 {
 #copy the .so, .la and LMS_qt files to the directory we created
 print "Compiling $val\n";
-system("cd $val ; make clean; make");
+if($debug_build)
+{
+	system("cd $val ; make clean; make CFLAGS+=\" -O0 -g -gdwarf-3 \"");
+}
+else
+{
+	system("cd $val ; make clean; make CFLAGS+=\" -O3 \"");
+}
 
 print "Copying files\n";
 system("cd $val ; make PREFIX=/usr DESTDIR=../$package_dir install");
@@ -288,7 +316,14 @@ close (MYFILE);
 
 build_all_debug("Building jack-dssi-host");
 
-`cd lms-jack-dssi-host ;  perl build.pl --build-jack-host ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host`;
+if($debug_build)
+{
+	`cd lms-jack-dssi-host ; make clean ; perl build.pl --build-jack-host ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host`;
+}
+else
+{
+	`cd lms-jack-dssi-host ; make clean ;  perl build.pl --build-jack-host-debug ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host`;
+}
 
 if($os eq "install")
 {
