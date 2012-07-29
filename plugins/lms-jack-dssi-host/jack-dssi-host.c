@@ -746,10 +746,10 @@ main(int argc, char **argv)
     char *url;
     int i, reps, j;
     int in, out, controlIn, controlOut;
-    char clientName[33];
+    char * clientName = (char*)malloc(sizeof(char) * 33);
     int haveClientName = 0;
     const int clientLen = 32;
-    jack_status_t status;
+    jack_status_t status = 0;
 
     setsid();
     sigemptyset (&_signals);
@@ -1094,7 +1094,7 @@ main(int argc, char **argv)
 	}
     }
 
-    if ((jackClient = jack_client_open(clientName, JackSessionID, &status)) == 0) {
+    if ((jackClient = jack_client_open(clientName, JackNullOption, &status)) == 0) {
         fprintf(stderr, "\n%s: Error: Failed to connect to JACK server\n",
             myName);
         return 1;
