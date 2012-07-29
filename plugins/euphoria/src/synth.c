@@ -759,7 +759,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
     
     
     int f_note = 60;
-    int f_note_adjusted = 60;
+    //int f_note_adjusted = 60;
 
     for (pos = 0, event_pos = 0; pos < sample_count; ) {
         
@@ -784,7 +784,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                 */
                 
                 f_note = n.note;
-                f_note_adjusted = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
+                //f_note_adjusted = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
                 
                 if(f_note < 0)
                 {
@@ -1140,7 +1140,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     SF_INFO info;
     SNDFILE *file;
     size_t samples = 0;
-    float *tmpFrames, *tmpSamples[2], *tmpOld[2];
+    float *tmpFrames, *tmpSamples[2]; //, *tmpOld[2];
     char *revisedPath = 0;
     
     info.format = 0;
@@ -1357,15 +1357,15 @@ char *samplerClear(Sampler *plugin_data, int a_index)
             }        
         }
     }
-    float *tmpSamples[2], *tmpOld[2];    
+    float *tmpSamples[2]; //, *tmpOld[2];    
 
     tmpSamples[0] = (float*)malloc(sizeof(float));        
     tmpSamples[1] = (float *)malloc(sizeof(float));
     
     pthread_mutex_lock(&plugin_data->mutex);
 
-    tmpOld[0] = plugin_data->sampleData[0][(a_index)];
-    tmpOld[1] = plugin_data->sampleData[1][(a_index)];
+    //tmpOld[0] = plugin_data->sampleData[0][(a_index)];
+    //tmpOld[1] = plugin_data->sampleData[1][(a_index)];
     plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
     plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
     plugin_data->sampleCount[(a_index)] = 0;
@@ -1477,8 +1477,6 @@ void _init()
 	(DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
 
     for (channels = 1; channels <= 2; ++channels) {
-
-	int stereo = (channels == 2);
 
 	LADSPA_Descriptor *desc = samplerStereoLDescriptor;
 

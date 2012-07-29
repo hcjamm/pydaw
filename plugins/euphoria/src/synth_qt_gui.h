@@ -824,17 +824,15 @@ protected:
     
     //end m_view_sample_tab
     
+    QString m_files;
+    QString m_projectDir;
+    
     lo_address m_host;
     QByteArray m_controlPath;
     QByteArray m_midiPath;
     QByteArray m_configurePath;
-    QByteArray m_exitingPath;
-
-    QString m_files;
-    QString m_projectDir;
-    int m_previewWidth;
-    int m_previewHeight;
-
+    QByteArray m_exitingPath;    
+    
     bool m_hostRequestedQuit;
     bool m_ready;
 };
