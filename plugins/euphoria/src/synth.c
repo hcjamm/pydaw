@@ -362,7 +362,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     
     plugin_data->preview_sample_array_index = 0;
     plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT] = 0;  //To prevent a SEGFAULT on the first call of the main loop
-    plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT] = "";
+    plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT] = ""; //This is the preview file path
+    plugin_data->sample_files = (char*)malloc(sizeof(char) * 10000);
     plugin_data->preview_sample_max_length = s_rate * 5;  //Sets the maximum time to preview a sample to 5 seconds, lest a user unwittlingly tries to preview a 2 hour long sample.
     
     plugin_data->smp_pit_core = g_pit_get();
@@ -378,7 +379,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         plugin_data->sample_vol[f_i] = 0;
         plugin_data->sample_amp[f_i] = 1.0f;
         
-        plugin_data->sample_paths[f_i] = "";
+        plugin_data->sample_paths[f_i] = (char*)malloc(sizeof(char) * 200);
         
         plugin_data->adjusted_base_pitch[f_i] = 60.0f;
         plugin_data->sample_rate_ratios[f_i] = 1.0f;
@@ -1281,7 +1282,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     {
         plugin_data->sample_channels[(a_index)] = 1;
     }
-    plugin_data->sample_paths[(a_index)] = path;
+    strcpy(plugin_data->sample_paths[(a_index)], path);
     
     
     //The last index is reserved for previewing samples for the UI;
@@ -1383,7 +1384,7 @@ char *samplerClear(Sampler *plugin_data, int a_index)
 /* Call samplerLoad for all samples.*/
 char *samplerLoadAll(Sampler *plugin_data, const char *paths)
 {       
-    plugin_data->sample_files = paths;
+    strcpy(plugin_data->sample_files, paths);
     
     int f_index = 0;
     int f_samples_loaded_count = 0;
