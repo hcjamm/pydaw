@@ -626,7 +626,7 @@ int program_handler(const char *path, const char *types, lo_arg **argv,
 {
     SynthGUI *gui = static_cast<SynthGUI *>(user_data);
     
-    int bank = 0;
+    //int bank = 0;
     int program = 0;
 
     /*
