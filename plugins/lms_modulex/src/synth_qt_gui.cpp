@@ -55,9 +55,8 @@ using std::endl;
 
 lo_server osc_server = 0;
 
-#ifdef LMS_DEBUG_MODE_QT    
-    static QTextStream cerr(stderr);
-#endif    
+static QTextStream cerr(stderr);
+
 
 
 SynthGUI::SynthGUI(const char * host, const char * port,
@@ -312,10 +311,8 @@ int SynthGUI::i_get_control(int a_port)
     case LMS_FX3_COMBOBOX: return m_fx3->lms_combobox->lms_get_value();
             
     default:
-#ifdef LMS_DEBUG_MODE_QT
 	cerr << "Warning: received request to get nonexistent port " << a_port << endl;
-#endif
-        break;
+        return 0;
     }
 }
 
