@@ -64,7 +64,7 @@ float f_sinc_interpolate2(t_sinc_interpolator *__restrict a_sinc, float *__restr
     a_sinc->result = 0.0f;
         
     a_sinc->result +=  
-                f_linear_interpolate_ptr_wrap(a_sinc->sinc_table, a_sinc->table_size, (a_sinc->float_iterator_up), a_sinc->linear_interpolate)
+                f_linear_interpolate_ptr(a_sinc->sinc_table, (a_sinc->float_iterator_up), a_sinc->linear_interpolate)
                 *
                 a_array[(a_sinc->pos_int)];
     
@@ -111,8 +111,8 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
         f_result->points_div2 = ((a_points) / 2);
     }
     
-    int f_array_size = (f_result->points_div2) * a_samples_per_point;
-    f_result->sinc_table = (float*)malloc(sizeof(float) * f_array_size);
+    int f_array_size = ((f_result->points_div2) * a_samples_per_point);
+    f_result->sinc_table = (float*)malloc((sizeof(float) * (f_array_size)) + (sizeof(float) * 16));
 
     f_result->points = a_points;
     f_result->samples_per_point = a_samples_per_point;
@@ -145,11 +145,17 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
         {
             f_high_value = f_out;
         }
-        
+                
         if(i_int >= f_array_size)
         {
             break;
         }
+    }
+    
+    for(; i_int < (f_array_size + 16); i_int++)
+    {
+        //Padding the end with zeroes to be safe
+        f_result->sinc_table[i_int] = 0.0f;
     }
     
     float f_normalize = (a_normalize_to / f_high_value);
@@ -211,6 +217,7 @@ t_int_frac_read_head * g_ifh_get()
     f_result->whole_number = 0;
     f_result->int_increment = 1;
     f_result->float_increment = 0.0f;
+    f_result->last_increment = 0.0f;
     
     return f_result;
 }
