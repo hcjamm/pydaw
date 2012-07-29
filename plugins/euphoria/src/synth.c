@@ -1256,6 +1256,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     
     pthread_mutex_lock(&plugin_data->mutex);
 
+    /*
     if(plugin_data->sampleData[0][(a_index)])
     {
         tmpOld[0] = plugin_data->sampleData[0][(a_index)];
@@ -1265,6 +1266,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     {
         tmpOld[1] = plugin_data->sampleData[1][(a_index)];
     }
+    */
     
     plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
     plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
