@@ -64,10 +64,7 @@ using std::endl;
 
 lo_server osc_server = 0;
 
-#ifdef LMS_DEBUG_MODE_QT    
-    static QTextStream cerr(stderr);
-#endif    
-
+static QTextStream cerr(stderr);
 
 SynthGUI::SynthGUI(const char * host, const char * port,
 		   QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
@@ -86,7 +83,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     this->setWindowTitle(QString("LMS Delay  Powered by LibModSynth."));
     
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
-    this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{border:1px solid white;border-radius:3px; padding:1px;background-color:black;color:white} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
+    this->setStyleSheet("QLabel {color: white} QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{border:1px solid white;border-radius:3px; padding:1px;background-color:black;color:white} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
     
 #ifdef LMS_DEBUG_MODE_QT    
     cerr << "Creating the GUI controls" << endl;    
@@ -100,7 +97,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     layout->addLayout(layout_row0);
     layout->addLayout(layout_row1, -1);        
         
-    int f_row = 0;
+    //int f_row = 0;
     int f_column = 0;
     
     int f_gb_layout_row = 0;
@@ -189,12 +186,12 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     QLabel * f_bpm_label = new QLabel("BPM",  this);
     f_bpm_label->setMinimumWidth(60);
     f_bpm_label->setAlignment(Qt::AlignCenter);
-    f_bpm_label->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");
+    f_bpm_label->setStyleSheet("color: black; background-color: white; border: 1px solid black;  border-radius: 6px;");
     
     QLabel * f_beat_label = new QLabel("Beats",  this);
     f_beat_label->setMinimumWidth(60);
     f_beat_label->setAlignment(Qt::AlignCenter);
-    f_beat_label->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");
+    f_beat_label->setStyleSheet("color: black; background-color: white; border: 1px solid black;  border-radius: 6px;");
     
     f_gb_bpm_layout->addWidget(f_bpm_label, 0, 0, Qt::AlignCenter);
     f_gb_bpm_layout->addWidget(m_bpm_spinbox, 1, 0, Qt::AlignCenter);
@@ -232,7 +229,7 @@ void SynthGUI::add_widget(QGridLayout * a_layout, int a_position_x, int a_positi
     QLabel * f_knob_title = new QLabel(a_label_text,  this);
     f_knob_title->setMinimumWidth(60);
     f_knob_title->setAlignment(Qt::AlignCenter);
-    f_knob_title->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");
+    f_knob_title->setStyleSheet("color: black; background-color: white; border: 1px solid black;  border-radius: 6px;");
     
     a_layout->addWidget(f_knob_title, a_position_y, a_position_x, Qt::AlignCenter);    
     a_layout->addWidget(a_widget,  (a_position_y + 1), a_position_x);
@@ -722,10 +719,8 @@ int SynthGUI::i_get_control(int a_port)
         case LMS_STEREO:
             return m_stereo->value();
         default:
-#ifdef LMS_DEBUG_MODE_QT
             cerr << "Warning: received request to get nonexistent port " << a_port << endl;
-#endif
-         break;
+            return 0;
     }
 }
 
