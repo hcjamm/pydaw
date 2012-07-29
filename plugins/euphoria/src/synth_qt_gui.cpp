@@ -35,6 +35,8 @@ GNU General Public License for more details.
 #include "synth.h"
 #include <QFont>
 
+#define LMS_SAMPLE_GRAPH_WIDTH 1100
+
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -173,7 +175,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         if (this->objectName().isEmpty())
         this->setObjectName(QString::fromUtf8("Frame"));
-        this->resize(1200, 800);
+        this->resize(1200, 700);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -743,7 +745,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_sample_start_hslider = new QSlider(m_view_sample_tab);
         m_sample_start_hslider->setObjectName(QString::fromUtf8("m_sample_start_hslider"));
-        m_sample_start_hslider->setMinimumSize(QSize(800, 0));
+        m_sample_start_hslider->setMinimumSize(QSize(LMS_SAMPLE_GRAPH_WIDTH, 0));
         m_sample_start_hslider->setMaximum(10000);
         m_sample_start_hslider->setOrientation(Qt::Horizontal);
         m_sample_start_hslider->setTickPosition(QSlider::NoTicks);
@@ -765,7 +767,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_sample_end_hslider = new QSlider(m_view_sample_tab);
         m_sample_end_hslider->setObjectName(QString::fromUtf8("m_sample_end_hslider"));
-        m_sample_end_hslider->setMinimumSize(QSize(800, 0));
+        m_sample_end_hslider->setMinimumSize(QSize(LMS_SAMPLE_GRAPH_WIDTH, 0));
         m_sample_end_hslider->setLayoutDirection(Qt::RightToLeft);
         m_sample_end_hslider->setMaximum(10000);
         m_sample_end_hslider->setValue(0);
@@ -800,7 +802,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         m_sample_loop_start_hslider = new QSlider(m_view_sample_tab);
         m_sample_loop_start_hslider->setObjectName(QString::fromUtf8("m_sample_loop_start_hslider"));
-        m_sample_loop_start_hslider->setMinimumSize(QSize(800, 0));
+        m_sample_loop_start_hslider->setMinimumSize(QSize(LMS_SAMPLE_GRAPH_WIDTH, 0));
         m_sample_loop_start_hslider->setMaximum(10000);
         m_sample_loop_start_hslider->setOrientation(Qt::Horizontal);
         m_sample_loop_start_hslider->setTickPosition(QSlider::NoTicks);
@@ -822,7 +824,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_sample_loop_end_hslider = new QSlider(m_view_sample_tab);
         m_sample_loop_end_hslider->setObjectName(QString::fromUtf8("m_sample_loop_end_hslider"));
-        m_sample_loop_end_hslider->setMinimumSize(QSize(800, 0));
+        m_sample_loop_end_hslider->setMinimumSize(QSize(LMS_SAMPLE_GRAPH_WIDTH, 0));
         m_sample_loop_end_hslider->setLayoutDirection(Qt::RightToLeft);
         m_sample_loop_end_hslider->setMaximum(10000);
         m_sample_loop_end_hslider->setValue(0);
@@ -850,7 +852,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_sample_graph_hlayout->addItem(m_sample_graph_left_hspacer);
 
-        m_sample_graph = new LMS_sample_graph(LMS_MAX_SAMPLE_COUNT, 400, 800, m_view_sample_tab);
+        m_sample_graph = new LMS_sample_graph(LMS_MAX_SAMPLE_COUNT, 300, LMS_SAMPLE_GRAPH_WIDTH, m_view_sample_tab);
         m_sample_graph_hlayout->addWidget(m_sample_graph->m_sample_graph);
         
         
@@ -1128,19 +1130,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_adsr_filter->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(filterDecayChanged(int))); 
         connect(m_adsr_filter->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterSustainChanged(int)));
         connect(m_adsr_filter->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));
-        
-        m_main_layout->lms_add_layout();
-
-        m_master = new LMS_master_widget(this, a_style, LMS_MASTER_VOLUME, -1, 
-                -1, LMS_MASTER_GLIDE, LMS_MASTER_PITCHBEND_AMT, QString("Master"), FALSE);
-        m_main_layout->lms_add_widget(m_master->lms_groupbox->lms_groupbox);    
-        
-        m_master->lms_master_volume->lms_knob->setMinimum(-24);
-        m_master->lms_master_volume->lms_knob->setMaximum(24);
-                
-        connect(m_master->lms_master_volume->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterVolumeChanged(int)));
-        connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    
-        connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
 
         m_pitch_env = new LMS_ramp_env(this, a_style, LMS_PITCH_ENV_TIME, -1, -1, FALSE, QString("Ramp Env"), FALSE);
         m_main_layout->lms_add_widget(m_pitch_env->lms_groupbox->lms_groupbox);
@@ -1229,6 +1218,19 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_mono_fx_tab_main_layout->lms_add_widget(m_mono_fx3->lms_groupbox->lms_groupbox);
 
         m_mono_fx_tab_main_layout->lms_add_layout();  
+        
+        m_master = new LMS_master_widget(this, a_style, LMS_MASTER_VOLUME, -1, 
+                -1, LMS_MASTER_GLIDE, LMS_MASTER_PITCHBEND_AMT, QString("Master"), FALSE);
+        m_mono_fx_tab_main_layout->lms_add_widget(m_master->lms_groupbox->lms_groupbox);    
+        
+        m_master->lms_master_volume->lms_knob->setMinimum(-24);
+        m_master->lms_master_volume->lms_knob->setMaximum(24);
+                
+        connect(m_master->lms_master_volume->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterVolumeChanged(int)));
+        connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    
+        connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
+
+        m_mono_fx_tab_main_layout->lms_add_layout();
         
         //Timer
                 
