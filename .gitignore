@@ -30,7 +30,6 @@ plugins/maintainer.txt
 *ltmain.sh
 *missing
 *.orig
-*Makefile.in
 *install-sh
 *.tgz
 *.deb
