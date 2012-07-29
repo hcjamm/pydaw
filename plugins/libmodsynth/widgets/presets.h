@@ -66,14 +66,14 @@ public:
 
         QTextStream * in = new QTextStream(f_file);
 
-        bool f_at_end = FALSE;
+        //bool f_at_end = FALSE;
         int f_count = 0;
         
         while(f_count < 128) 
         {
             if(in->atEnd())
             {      
-                f_at_end = TRUE;
+                //f_at_end = TRUE;
                 f_programs_list.append(QString("empty"));
                 presets_tab_delimited.append(QString("empty"));
             }
