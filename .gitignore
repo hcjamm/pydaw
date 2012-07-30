@@ -41,3 +41,6 @@ plugins/maintainer.txt
 plugins/lms-jack-dssi-host/config.h
 plugins/lms-jack-dssi-host/configure
 plugins/lms-jack-dssi-host/stamp-h1
+/plugins/lms_splashscreen/build/
+/plugins/lms_splashscreen/dist/
+
