@@ -32,6 +32,7 @@ GNU General Public License for more details.
 #include "synth.h"
 #include "meta.h"
 #include "../../libmodsynth/lib/lms_math.h"
+#include "../../libmodsynth/lib/strings.h"
 
 static LADSPA_Descriptor *samplerStereoLDescriptor = NULL;
 
@@ -362,7 +363,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     
     plugin_data->preview_sample_array_index = 0;
     plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT] = 0;  //To prevent a SEGFAULT on the first call of the main loop
-    plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT] = ""; //This is the preview file path
+    plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT] = (char*)malloc(sizeof(char) * 200);
+    lms_strcpy(plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT], ""); //This is the preview file path
     plugin_data->sample_files = (char*)malloc(sizeof(char) * 10000);
     plugin_data->preview_sample_max_length = s_rate * 5;  //Sets the maximum time to preview a sample to 5 seconds, lest a user unwittlingly tries to preview a 2 hour long sample.
     
@@ -1075,7 +1077,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
                 
                 if((plugin_data->preview_sample_array_index) >= (plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT]))
                 {
-                    plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT] = "";
+                    lms_strcpy(plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT], "");
                     break;
                 }
             }
@@ -1282,7 +1284,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     {
         plugin_data->sample_channels[(a_index)] = 1;
     }
-    strcpy(plugin_data->sample_paths[(a_index)], path);
+    lms_strcpy(plugin_data->sample_paths[(a_index)], path);
     
     
     //The last index is reserved for previewing samples for the UI;
@@ -1317,7 +1319,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 
 char *samplerClear(Sampler *plugin_data, int a_index)
 {
-    plugin_data->sample_paths[a_index] = "";
+    lms_strcpy(plugin_data->sample_paths[a_index], "");
     
     if(a_index != LMS_MAX_SAMPLE_COUNT)
     {
@@ -1384,7 +1386,7 @@ char *samplerClear(Sampler *plugin_data, int a_index)
 /* Call samplerLoad for all samples.*/
 char *samplerLoadAll(Sampler *plugin_data, const char *paths)
 {       
-    strcpy(plugin_data->sample_files, paths);
+    lms_strcpy(plugin_data->sample_files, paths);
     
     int f_index = 0;
     int f_samples_loaded_count = 0;
