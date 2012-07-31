@@ -79,7 +79,12 @@ inline void v_lfs_run(t_lfs_lfo * a_lfs)
 
 t_lfs_lfo * g_lfs_get(float a_sr)
 {
-    t_lfs_lfo * f_result = (t_lfs_lfo*)malloc(sizeof(t_lfs_lfo));
+    t_lfs_lfo * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_lfs_lfo))) != 0)
+    {
+        return 0;
+    }
     
     f_result->inc = 0;
     f_result->osc_core = g_get_osc_core();

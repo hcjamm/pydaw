@@ -30,7 +30,12 @@ inline t_pit_pitch_core * g_pit_get();
 
 inline t_pit_pitch_core * g_pit_get()
 {
-    t_pit_pitch_core * f_result = (t_pit_pitch_core*)malloc(sizeof(t_pit_pitch_core));
+    t_pit_pitch_core * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_pit_pitch_core))) != 0)
+    {
+        return 0;
+    }
     
     f_result->linear = g_lin_get();
     f_result->arr_index = 0;

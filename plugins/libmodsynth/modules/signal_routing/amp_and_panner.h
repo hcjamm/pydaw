@@ -52,7 +52,13 @@ void v_app_run(t_amp_and_panner* a_app, float a_in0, float a_in1)
 
 t_amp_and_panner * g_app_get()
 {
-    t_amp_and_panner * f_result = (t_amp_and_panner*)malloc(sizeof(t_amp_and_panner));
+    t_amp_and_panner * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_amp_and_panner))) != 0)
+    {
+        return 0;
+    }
+    
     f_result->amp_db = 0.0f;
     f_result->pan = 0.0f;
     f_result->amp_linear0 = 1.0f;

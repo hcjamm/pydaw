@@ -159,7 +159,12 @@ t_svf_kernel * g_svf_get_filter_kernel();
 
 t_svf_kernel * g_svf_get_filter_kernel()
 {
-    t_svf_kernel * f_result = (t_svf_kernel*)malloc(sizeof(t_svf_kernel));
+    t_svf_kernel * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_svf_kernel))) != 0)
+    {
+        return 0;
+    }
         
         f_result->bp = 0;    
         f_result->hp = 0;
@@ -446,7 +451,13 @@ void v_svf_set_res(t_state_variable_filter *__restrict a_svf, float a_db)
  */
 t_state_variable_filter * g_svf_get(float a_sample_rate)
 {
-    t_state_variable_filter * f_svf = (t_state_variable_filter*)malloc(sizeof(t_state_variable_filter));
+    t_state_variable_filter * f_svf;
+    
+    if(posix_memalign((void**)&f_svf, 16, (sizeof(t_state_variable_filter))) != 0)
+    {
+        return 0;
+    }
+    
     f_svf->sr = a_sample_rate * ((float)(SVF_OVERSAMPLE_MULTIPLIER));
     f_svf->pi2_div_sr = (PI2 / (f_svf->sr));
     

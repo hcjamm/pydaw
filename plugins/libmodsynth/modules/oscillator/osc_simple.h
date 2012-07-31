@@ -244,7 +244,12 @@ inline void v_osc_note_on_sync_phases(t_osc_simple_unison * a_osc_ptr)
  */
 t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
 {
-    t_osc_simple_unison * f_result = (t_osc_simple_unison*)malloc(sizeof(t_osc_simple_unison));
+    t_osc_simple_unison * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_osc_simple_unison))) != 0)
+    {
+        return 0;
+    }
     
     v_osc_set_uni_voice_count(f_result, OSC_UNISON_MAX_VOICES);    
     f_result->osc_type = f_get_saw;

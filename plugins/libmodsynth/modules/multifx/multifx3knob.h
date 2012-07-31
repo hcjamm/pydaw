@@ -363,7 +363,13 @@ inline void f_mfx_transform_svf_filter(t_mf3_multi*__restrict a_mf3)
  */
 t_mf3_multi * g_mf3_get(float a_sample_rate)
 {
-    t_mf3_multi * f_result = (t_mf3_multi*)malloc(sizeof(t_mf3_multi));
+    t_mf3_multi * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_mf3_multi))) != 0)
+    {
+        return 0;
+    }
+    
     f_result->effect_index = 0; 
     f_result->channels = 2;
     f_result->svf0 = g_svf_get(a_sample_rate);
