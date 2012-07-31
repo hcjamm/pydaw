@@ -15,7 +15,7 @@ perl build-all.pl ([-y] && ([--ubuntu] || [--debian])) || [--help]
 
 --generic:  Don't create a package, just compile and create a generic installer script.  Use this to install the suite on a machine that doesn't use a supported packaging format.  You must install the following dependencies first:
 
-liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libjack-dev | libjack-jackd2-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev
+liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libjack-dev | libjack-jackd2-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev, libsdl1.2-dev
 
 Once --install has run, you must run an additional command
 
@@ -25,9 +25,7 @@ If you would like an alternate operating system added, and are willing to track 
 
 ";
 
-#per-distro dependencies.  A special thanks to Glen MacArthur from AV Linux (http://www.bandshed.net/AVLinux.html) 
-#for helping me with dependencies that work in Ubuntu and Debian
-$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev";
+$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev, libsdl1.2-dev";
 
 $prompt = 1;
 
@@ -72,7 +70,7 @@ $deb_name = replace_underscore_with_dash($short_name);
 build_all_debug("\$deb_name == $deb_name");
 
 #These are to replace the original packages that the LMS Suite came in.  You can remove these from your own plugins.
-$replaces = "ray_v, ray-v, lms_comb, lms-comb, lms_distortion, lms-distortion, lms_delay, lms-delay, lms_filter, lms-filter, euphoria";
+$replaces = "";
 
 #You can probably leave this empty, otherwise you should probably know if any packages conflict
 $conflicts = "";
