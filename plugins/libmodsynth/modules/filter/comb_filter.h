@@ -157,13 +157,21 @@ inline void v_cmb_set_all(t_comb_filter*__restrict a_cmb_ptr, float a_wet_db, fl
  */
 t_comb_filter * g_cmb_get_comb_filter(float a_sr)
 {
-    t_comb_filter * f_result = (t_comb_filter*)malloc(sizeof(t_comb_filter));
+    t_comb_filter * f_result;// = (t_comb_filter*)malloc(sizeof(t_comb_filter));
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_comb_filter))) != 0)
+    {
+        return 0;
+    }
     
     int f_i = 0;
     
     f_result->buffer_size = (int)((a_sr / 20) + 300);  //Allocate enough memory to accomodate 20hz filter frequency
     
-    f_result->input_buffer = (float*)malloc(sizeof(float) * (f_result->buffer_size));
+    if(posix_memalign((void**)(&(f_result->input_buffer)), 16, (sizeof(float) * (f_result->buffer_size))) != 0)
+    {
+        return 0;
+    }
     
     while(f_i < (f_result->buffer_size))
     {

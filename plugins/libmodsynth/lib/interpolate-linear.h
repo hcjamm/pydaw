@@ -26,7 +26,12 @@ t_lin_interpolater * g_lin_get();
 
 t_lin_interpolater * g_lin_get()
 {
-    t_lin_interpolater * f_result = (t_lin_interpolater*)malloc(sizeof(t_lin_interpolater));
+    t_lin_interpolater * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, sizeof(t_lin_interpolater)) != 0)
+    {
+        return 0;
+    }
     
     f_result->int_pos = 0;
     f_result->int_pos_plus_1 = 1;

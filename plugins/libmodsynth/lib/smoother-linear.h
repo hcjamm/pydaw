@@ -51,7 +51,13 @@ inline void v_sml_run(t_smoother_linear * a_smoother, float);
  */
 t_smoother_linear * g_sml_get_smoother_linear(float a_sample_rate, float a_high, float a_low, float a_time_in_seconds)
 {
-    t_smoother_linear * f_result = (t_smoother_linear*)malloc(sizeof(t_smoother_linear));
+    t_smoother_linear * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_smoother_linear))) != 0)
+    {
+        return 0;
+    }
+    
     /*Start in the middle, the user can manually set the value if this isn't acceptable*/
     f_result->last_value = (((a_high - a_low) * .5) + a_low);
     

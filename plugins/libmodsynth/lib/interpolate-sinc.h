@@ -9,6 +9,7 @@
 #define	INTERPOLATE_SINC_H
 
 #include <math.h>
+#include <stdlib.h>
 #include "interpolate-linear.h"
 
 #ifdef	__cplusplus
@@ -100,8 +101,13 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
 {
     double f_cutoff = a_fc / a_sr;
     
-    t_sinc_interpolator * f_result = (t_sinc_interpolator*)malloc(sizeof(t_sinc_interpolator));
-
+    t_sinc_interpolator * f_result;
+    
+    if(posix_memalign(((void**)&f_result), 16, sizeof(t_sinc_interpolator)) != 0)
+    {
+        return 0;
+    }
+    
     if (a_points % 2) 
     {
         f_result->points_div2 = (((a_points) + 1) / 2);
@@ -112,8 +118,12 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
     }
     
     int f_array_size = ((f_result->points_div2) * a_samples_per_point);
-    f_result->sinc_table = (float*)malloc((sizeof(float) * (f_array_size)) + (sizeof(float) * 16));
-
+    
+    if(posix_memalign(((void**)&(f_result->sinc_table)), 16, ((sizeof(float) * (f_array_size)) + (sizeof(float) * 16))) != 0)
+    {
+        return 0;
+    }
+    
     f_result->points = a_points;
     f_result->samples_per_point = a_samples_per_point;
     f_result->table_size = f_array_size;
@@ -210,7 +220,12 @@ void v_ifh_retrigger(t_int_frac_read_head* a_ifh, int a_pos)
 
 t_int_frac_read_head * g_ifh_get()
 {
-    t_int_frac_read_head * f_result = (t_int_frac_read_head*)malloc(sizeof(t_int_frac_read_head));
+    t_int_frac_read_head * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_int_frac_read_head))) != 0)
+    {
+        return 0;
+    }
     
     f_result->float_increment = 0.0f;
     f_result->fraction = 0.0f;

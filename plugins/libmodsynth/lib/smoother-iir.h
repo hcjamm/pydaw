@@ -50,7 +50,13 @@ t_smoother_iir * g_smr_iir_get_smoother();
 
 t_smoother_iir * g_smr_iir_get_smoother()
 {
-    t_smoother_iir * f_result = (t_smoother_iir*)malloc(sizeof(t_smoother_iir));
+    t_smoother_iir * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, sizeof(t_smoother_iir)) != 0)
+    {
+        return 0;
+    }
+    
     f_result->output = 0;
     return f_result;
 }

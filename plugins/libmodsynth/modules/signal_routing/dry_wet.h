@@ -62,7 +62,12 @@ inline void v_dw_run_dry_wet(t_dw_dry_wet* a_dw, float a_dry, float a_wet)
 
 t_dw_dry_wet* g_dw_get_dry_wet()
 {
-    t_dw_dry_wet* f_result = (t_dw_dry_wet*)malloc(sizeof(t_dw_dry_wet));
+    t_dw_dry_wet* f_result;// = (t_dw_dry_wet*)malloc(sizeof(t_dw_dry_wet));
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_dw_dry_wet))) != 0)
+    {
+        return 0;
+    }
     
     f_result->wet_db = -50;
     f_result->wet_linear = 0;

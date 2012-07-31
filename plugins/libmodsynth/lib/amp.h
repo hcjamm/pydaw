@@ -44,7 +44,12 @@ t_amp * g_amp_get();
 
 t_amp * g_amp_get()
 {
-    t_amp * f_result = (t_amp*)malloc(sizeof(t_amp));
+    t_amp * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_amp))) != 0)
+    {
+        return 0;
+    }
     
     f_result->linear = g_lin_get();
     f_result->result = 0;

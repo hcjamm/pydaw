@@ -111,7 +111,12 @@ inline void v_pkq_run(t_pkq_peak_eq *__restrict a_pkq,float a_in0, float a_in1)
 
 t_pkq_peak_eq * g_pkq_get(float a_sample_rate)
 {
-    t_pkq_peak_eq * f_result = (t_pkq_peak_eq*)malloc(sizeof(t_pkq_peak_eq));
+    t_pkq_peak_eq * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_pkq_peak_eq))) != 0)
+    {
+        return 0;
+    }
     
     f_result->B = 0.0f;
     f_result->FIR_out_0 = 0.0f;

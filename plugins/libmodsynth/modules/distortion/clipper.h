@@ -74,7 +74,12 @@ void v_clp_set_in_gain(t_clipper * a_clp, float a_db)
 
 t_clipper * g_clp_get_clipper()
 {
-    t_clipper * f_result = (t_clipper*)malloc(sizeof(t_clipper));
+    t_clipper * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_clipper))) != 0)
+    {
+        return 0;
+    }
     
     f_result->clip_high = 1;
     f_result->clip_low = -1;
