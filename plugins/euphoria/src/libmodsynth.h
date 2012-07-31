@@ -113,7 +113,11 @@ t_poly_voice * g_poly_init(float);
 
 t_poly_voice * g_poly_init(float a_sr)
 {    
-    t_poly_voice * f_voice = (t_poly_voice*)malloc(sizeof(t_poly_voice));
+    t_poly_voice * f_voice;
+    if(posix_memalign((void**)&(f_voice), 16, (sizeof(t_poly_voice))) != 0)
+    {
+        return 0;
+    }
     
     int f_i = 0;
    
@@ -186,7 +190,13 @@ t_mono_modules * g_mono_init(float a_sr);
 /*Initialize any modules that will be run monophonically*/
 t_mono_modules * g_mono_init(float a_sr)
 {
-    t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
+    t_mono_modules * a_mono;
+    
+    if(posix_memalign((void**)&(a_mono), 16, (sizeof(t_mono_modules))) != 0)
+    {
+        return 0;
+    }
+    
     a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
     a_mono->amp_ptr = g_amp_get();
     a_mono->sinc_interpolator = g_sinc_get(LMS_SINC_INTERPOLATION_POINTS, 2000, 8000.0f, a_sr, 0.6f);
