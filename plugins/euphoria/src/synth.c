@@ -351,7 +351,13 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
 static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
 					unsigned long s_rate)
 {
-    Sampler *plugin_data = (Sampler *) malloc(sizeof(Sampler));
+    Sampler *plugin_data; // = (Sampler *) malloc(sizeof(Sampler));
+    
+    if(posix_memalign((void**)&plugin_data, 16, sizeof(Sampler)) != 0)
+    {     
+        return NULL;
+    }
+    
     pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 
     plugin_data->i_selected_sample = 0;
@@ -1198,8 +1204,18 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
 
     int f_actual_array_size = (samples + LMS_SINC_INTERPOLATION_POINTS + 1 + Sampler_Sample_Padding);
     
-    tmpSamples[0] = (float *)malloc((f_actual_array_size) * sizeof(float));
-    tmpSamples[1] = (float *)malloc((f_actual_array_size) * sizeof(float));
+    //tmpSamples[0] = (float *)malloc((f_actual_array_size) * sizeof(float));
+    //tmpSamples[1] = (float *)malloc((f_actual_array_size) * sizeof(float));
+    if(posix_memalign((void**)(&(tmpSamples[0])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
+    {
+        printf("Call to posix_memalign failed for tmpSamples[0]\n");
+        return NULL;
+    }
+    if(posix_memalign((void**)(&(tmpSamples[1])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
+    {
+        printf("Call to posix_memalign failed for tmpSamples[1]\n");
+        return NULL;
+    }
     
     int f_i, j;
     
