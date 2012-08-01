@@ -316,11 +316,11 @@ build_all_debug("Building jack-dssi-host");
 
 if($debug_build)
 {
-	`cd lms-jack-dssi-host ; make clean ; perl build.pl --build-jack-host ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host`;
+	system("cd lms-jack-dssi-host ; make clean ; perl build.pl --build-jack-host ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host");
 }
 else
 {
-	`cd lms-jack-dssi-host ; make clean ;  perl build.pl --build-jack-host-debug ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host`;
+	system("cd lms-jack-dssi-host ; make clean ;  perl build.pl --build-jack-host-debug ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host");
 }
 
 if($os eq "install")
