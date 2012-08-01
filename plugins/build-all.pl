@@ -2,30 +2,19 @@
 
 $help_text = 
 "
-The LibModSynth packaging script.  http://libmodsynth.sourceforge.net
+The LibModSynth interactive packaging script.  http://libmodsynth.sourceforge.net
 
 This script is for creating a monolithic debian package for any number of individual plugins defined in the \@plugins array in this script. This script can be used as-is for packaging the LMS Suite for a distro.  If you are a developer using LibModSynth, you should edit the values in this script before running it.
 
 usage:
-perl build-all.pl ([-y] && ([--ubuntu] || [--debian])) || [--help] 
+perl build-all.pl 
 
--y :  Answer yes to all questions, and do not prompt.  However, this will generate generic maintainer info if you haven't run it without the -y switch before.  You must specify an operating system with this switch.
-
---debian :  Build for the Debian or Ubuntu based distros.  Switches for differnt versions may be added later if dependencies change.  Must be used with -y switch.  If you are not using -y, the script will prompt you for an OS later.
-
---generic:  Don't create a package, just compile and create a generic installer script.  Use this to install the suite on a machine that doesn't use a supported packaging format.  You must install the following dependencies first:
-
-liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libjack-dev | libjack-jackd2-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev, libsdl1.2-dev
-
-Once --install has run, you must run an additional command
-
-If you would like an alternate operating system added, and are willing to track down the dependency package names(and possibly help with the commands for how to create that package type), then please email them to jhubbard651-at-users.sf.net to have them added.
 
 --help:  show this help information
 
 ";
 
-$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev, libsdl1.2-dev";
+$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev, libsdl1.2-dev qjackctl";
 
 $prompt = 1;
 
