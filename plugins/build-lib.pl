@@ -319,7 +319,15 @@ Attempt to install dependencies? [n]:\n");
 	}
 }
 
+if(get_current_dir() eq "plugins")
+{
+`echo 'This file is created when build.pl attempts to install the dependencies' > deps_installed.txt`;
+}
+else
+{
 `echo 'This file is created when build.pl attempts to install the dependencies' > ../deps_installed.txt`;
+}
+
 }
 
 #Cleanly fork a plugin into a new plugin, complete with updated Makefiles and DSSI meta-data
