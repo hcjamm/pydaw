@@ -1,3 +1,0 @@
-Below is a list of the dependencies needed to make the project, the package name may vary for your distro:
-
-liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, qjackctl, libjack-dev | libjack-jackd2-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev
