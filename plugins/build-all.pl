@@ -14,7 +14,7 @@ perl build-all.pl
 
 ";
 
-$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev, libsdl1.2-dev qjackctl";
+$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev, libsdl1.2-dev, qjackctl";
 
 $prompt = 1;
 
