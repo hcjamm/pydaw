@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 /*Change these to the project you would like to debug*/
-#include "../../plugins/libmodsynth/modules/filter/peak_eq.h"
+#include "../../plugins/libmodsynth/modules/dynamics/limiter.h"
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
 #define LMS_DEBUGGER_PROJECT
@@ -89,9 +89,9 @@ Also:
  */
 int main(int argc, char** argv) {
     
-    t_pkq_peak_eq * eq = g_pkq_get(44100);
+    t_lim_limiter * f_limiter = g_lim_get(44100.0f);
     
-    v_pkq_calc_coeffs(eq, 69.0f, 5.0f, 12.0f);
+    v_lim_set(f_limiter, -6.0f, -3.0f, 200.0f);
     
     float * test_square = (float*)malloc(sizeof(float) * 50);
         
@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
     
     for(f_i = 0; f_i < 50; f_i++)
     {
-        v_pkq_run(eq, (test_square[f_i]), (test_square[f_i]));
+        v_lim_run(f_limiter, test_square[f_i], test_square[f_i]);
     }
     
     return 0; //(EXIT_SUCCESS);

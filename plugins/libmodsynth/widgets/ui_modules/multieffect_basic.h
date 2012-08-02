@@ -19,8 +19,10 @@ class LMS_multieffect
 public:
     LMS_multieffect(QWidget * a_parent, QString a_title, LMS_style_info * a_style, int a_knob1_port, int a_knob2_port, int a_knob3_port, int a_combobox_port)
     {
-        QStringList f_types = QStringList() << QString("Off") << QString("LP2") << QString("LP4") << QString("HP2") << QString("HP4") << QString("BP2") << QString("BP4")
-                 << QString("Notch2") << QString("Notch4") << QString("EQ") << QString("Distortion") << QString("Comb Filter") << QString("Amp/Panner");
+        QStringList f_types = QStringList() << QString("Off") << QString("LP2") 
+                << QString("LP4") << QString("HP2") << QString("HP4") << QString("BP2") << QString("BP4")
+                 << QString("Notch2") << QString("Notch4") << QString("EQ") 
+                << QString("Distortion") << QString("Comb Filter") << QString("Amp/Panner") << QString("Limiter");
         
         lms_groupbox = new LMS_group_box(a_parent, a_title, a_style);
         
@@ -177,6 +179,17 @@ public:
                 lms_knob1->lms_value->setText(QString(""));
                 lms_knob2->lms_value->setText(QString(""));
                 lms_knob3->lms_value->setText(QString(""));
+                break;
+            case 13: //Limiter
+                lms_knob1->lms_label->setText(QString("Thresh"));
+                lms_knob2->lms_label->setText(QString("Ceiling"));
+                lms_knob3->lms_label->setText(QString("Release"));
+                lms_knob1->lms_conv_type = lms_kc_127_zero_to_x;
+                lms_knob1->lms_set_127_min_max(-30.0f, 0.0f);
+                lms_knob2->lms_conv_type = lms_kc_127_zero_to_x;
+                lms_knob2->lms_set_127_min_max(-6.0f, -0.1f);
+                lms_knob3->lms_conv_type = lms_kc_127_zero_to_x;
+                lms_knob3->lms_set_127_min_max(0.0f, 500.0f);
                 break;
         }
         

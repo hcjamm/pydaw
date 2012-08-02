@@ -25,6 +25,7 @@ extern "C" {
 #include "../../lib/amp.h"
 #include "../signal_routing/amp_and_panner.h"
 #include "../filter/peak_eq.h"
+#include "../dynamics/limiter.h"
     
 /*BIG TODO:  Add a function to modify for the modulation sources*/
     
@@ -38,6 +39,7 @@ typedef struct st_mf3_multi
     t_comb_filter * comb_filter1;  
     t_pkq_peak_eq * eq0;
     t_clipper * clipper;    
+    t_lim_limiter * limiter;
     float output0, output1;
     float control[MULTIFX3KNOB_KNOB_COUNT];
     float control_value[MULTIFX3KNOB_KNOB_COUNT];
@@ -45,7 +47,7 @@ typedef struct st_mf3_multi
     t_audio_xfade * xfader;
     t_amp_and_panner * amp_and_panner;
     float outgain;  //For anything with an outgain knob    
-    t_amp * amp_ptr;
+    t_amp * amp_ptr;    
 }t_mf3_multi;
 
 /*A function pointer for switching between effect types*/
@@ -68,6 +70,7 @@ inline void v_mf3_run_eq(t_mf3_multi*,float,float);
 inline void v_mf3_run_dist(t_mf3_multi*,float,float);
 inline void v_mf3_run_comb(t_mf3_multi*,float,float);
 inline void v_mf3_run_amp_panner(t_mf3_multi*,float,float);
+inline void v_mf3_run_limiter(t_mf3_multi*,float,float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -87,8 +90,13 @@ inline fp_mf3_run g_mf3_get_function_pointer( int);
 4  "HP4"
 5  "BP2"
 6  "BP4"
-7  "EQ"
-8  "Distortion"
+7  "Notch2"
+8  "Notch4"
+9  "EQ"
+10 "Distortion"
+11 "Comb Filter"
+12 "Amp/Panner"
+13 "Limiter"
  */
 inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
 {    
@@ -120,6 +128,8 @@ inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
                 return v_mf3_run_comb;
             case 12:
                 return v_mf3_run_amp_panner;
+            case 13:
+                return v_mf3_run_limiter;
             default:
                 /*TODO: Report error*/
                 return v_mf3_run_off;
@@ -358,6 +368,20 @@ inline void f_mfx_transform_svf_filter(t_mf3_multi*__restrict a_mf3)
 }
 
 
+inline void v_mf3_run_limiter(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
+{
+    v_mf3_commit_mod(a_mf3);
+    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.236220472) - 30.0f);
+    a_mf3->control_value[1] = (((a_mf3->control[1]) * 0.046456693) - 5.9f);
+    a_mf3->control_value[2] = ((a_mf3->control[2]) * 3.937007874);
+    
+    v_lim_set(a_mf3->limiter, (a_mf3->control_value[0]), (a_mf3->control_value[1]), (a_mf3->control_value[2]));
+    v_lim_run(a_mf3->limiter, a_in0, a_in1);
+    
+    a_mf3->output0 = a_mf3->limiter->output0;
+    a_mf3->output1 = a_mf3->limiter->output1;
+}
+
 /* t_mf3_multi g_mf3_get(
  * float a_sample_rate)
  */
@@ -379,6 +403,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->eq0 = g_pkq_get(a_sample_rate);
     f_result->clipper = g_clp_get_clipper();
     v_clp_set_clip_sym(f_result->clipper, -3.0f);
+    f_result->limiter = g_lim_get(a_sample_rate);
     f_result->output0 = 0.0f;
     f_result->output1 = 0.0f;
     f_result->control[0] = 0.0f;
