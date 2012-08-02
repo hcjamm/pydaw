@@ -13,6 +13,7 @@ extern "C" {
 #endif
     
 #include "../../lib/lms_math.h"
+#include "../../lib/amp.h"
 #include <math.h>
 
 typedef struct st_lim_limiter
@@ -25,6 +26,7 @@ typedef struct st_lim_limiter
     float last_thresh, last_ceiling, last_release;
     float *buffer0, *buffer1;
     int buffer_size, buffer_index, buffer_read_index;
+    t_amp * amp_ptr;
 }t_lim_limiter;
 
 t_lim_limiter * g_lim_get(float);
@@ -35,15 +37,13 @@ void v_lim_set(t_lim_limiter*a_lim, float a_thresh, float a_ceiling, float a_rel
 {
     if(a_thresh != (a_lim->last_thresh))
     {
-        a_lim->thresh = powf(10.0f, (a_thresh * 0.05f));
-        a_lim->volume = (a_lim->ceiling)/(a_lim->thresh);
+        a_lim->thresh = f_db_to_linear_fast((a_thresh), a_lim->amp_ptr);     
         a_lim->last_thresh = a_thresh;
     }
     
     if(a_ceiling != (a_lim->last_ceiling))
     {
-        a_lim->ceiling = powf(10.0f, (a_ceiling * 0.05f));
-        a_lim->volume = (a_lim->ceiling)/(a_lim->thresh);
+        a_lim->volume = f_db_to_linear_fast((a_ceiling), a_lim->amp_ptr);
         a_lim->last_ceiling = a_ceiling;
     }
     
@@ -133,6 +133,8 @@ t_lim_limiter * g_lim_get(float srate)
     
     posix_memalign((void**)&f_result->buffer0, 16, (sizeof(float) * (f_result->buffer_size)));
     posix_memalign((void**)&f_result->buffer1, 16, (sizeof(float) * (f_result->buffer_size)));
+    
+    f_result->amp_ptr = g_amp_get();
     
     int f_i;
     
