@@ -189,7 +189,7 @@ public:
                 lms_knob2->lms_conv_type = lms_kc_127_zero_to_x;
                 lms_knob2->lms_set_127_min_max(-12.0f, -0.1f);
                 lms_knob3->lms_conv_type = lms_kc_127_zero_to_x;
-                lms_knob3->lms_set_127_min_max(0.0f, 500.0f);
+                lms_knob3->lms_set_127_min_max(0.0f, 300.0f);
                 break;
         }
         

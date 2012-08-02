@@ -64,7 +64,12 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     if((a_lim->r1Timer) > (a_lim->HOLDTIME))
     {
         a_lim->r1Timer = 0; 
-        a_lim->max1Block = 0;
+        a_lim->max1Block = (a_lim->max1Block) - 0.032f;
+                
+        if((a_lim->max1Block) < 0.0f)
+        {
+            a_lim->max1Block = 0.0f;
+        }
     }
      
     a_lim->max1Block = f_lms_max((a_lim->max1Block),(a_lim->maxSpls));
@@ -74,7 +79,12 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     if((a_lim->r2Timer) > (a_lim->HOLDTIME))
     {
         a_lim->r2Timer = 0; 
-        a_lim->max2Block = 0;
+        a_lim->max2Block = (a_lim->max2Block) - 0.032f;
+        
+        if((a_lim->max2Block) < 0.0f)
+        {
+            a_lim->max2Block = 0.0f;
+        }
     }
     
     a_lim->max2Block = f_lms_max((a_lim->max2Block),(a_lim->maxSpls));
@@ -151,8 +161,6 @@ t_lim_limiter * g_lim_get(float srate)
     f_result->thresh = 0.0f;
     f_result->volume = 0.0f;
     f_result->sr = srate;
-    
-    
     
     //nonsensical values that it won't evaluate to on the first run
     f_result->last_ceiling = 1234.4522f;
