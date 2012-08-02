@@ -20,7 +20,7 @@ typedef struct st_lim_limiter
 {
     int HOLDTIME, r1Timer, r2Timer;
     float output0, output1;
-    float sr;
+    float sr, sr_recip;
     float thresh, ceiling, volume, release, r;
     float maxSpls, max1Block, max2Block, envT, env, gain;
     float last_thresh, last_ceiling, last_release;
@@ -49,8 +49,17 @@ void v_lim_set(t_lim_limiter*a_lim, float a_thresh, float a_ceiling, float a_rel
     
     if(a_release != (a_lim->last_release))
     {
-        a_lim->release = a_release * 0.001;
-        a_lim->r = expf(-3.0f/((a_lim->sr)*f_lms_max((a_lim->release), 0.05)));
+        if(a_release <= 0)
+        {
+            a_lim->release = 0.005f;
+        }
+        else
+        {
+            a_lim->release = a_release * 0.001f;
+        }
+        
+        
+        a_lim->r = ((a_lim->sr_recip) / (a_lim->release)) * 128.0f;        
         a_lim->last_release = a_release;
     }
 }
@@ -64,7 +73,7 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     if((a_lim->r1Timer) > (a_lim->HOLDTIME))
     {
         a_lim->r1Timer = 0; 
-        a_lim->max1Block = (a_lim->max1Block) - 0.032f;
+        a_lim->max1Block = (a_lim->max1Block) - (a_lim->r);
                 
         if((a_lim->max1Block) < 0.0f)
         {
@@ -79,7 +88,7 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     if((a_lim->r2Timer) > (a_lim->HOLDTIME))
     {
         a_lim->r2Timer = 0; 
-        a_lim->max2Block = (a_lim->max2Block) - 0.032f;
+        a_lim->max2Block = (a_lim->max2Block) - (a_lim->r);
         
         if((a_lim->max2Block) < 0.0f)
         {
@@ -88,7 +97,9 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     }
     
     a_lim->max2Block = f_lms_max((a_lim->max2Block),(a_lim->maxSpls));
-
+    
+    a_lim->env = f_lms_max((a_lim->max1Block),(a_lim->max2Block));
+    /*
     a_lim->envT = f_lms_max((a_lim->max1Block),(a_lim->max2Block));
 
     if((a_lim->env) < (a_lim->envT))
@@ -97,9 +108,9 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     }
     else
     {
-        a_lim->env = (a_lim->envT) + (a_lim->r) * ((a_lim->env) - (a_lim->envT));
+        a_lim->env = (a_lim->envT) * ((a_lim->env) - (a_lim->envT));
     }
-    
+    */
     if(a_lim->env > a_lim->thresh)
     {
         a_lim->gain = ((a_lim->thresh) / (a_lim->env))*(a_lim->volume);
@@ -163,6 +174,7 @@ t_lim_limiter * g_lim_get(float srate)
     f_result->thresh = 0.0f;
     f_result->volume = 0.0f;
     f_result->sr = srate;
+    f_result->sr_recip = 1.0f/srate;
     
     //nonsensical values that it won't evaluate to on the first run
     f_result->last_ceiling = 1234.4522f;
