@@ -372,7 +372,7 @@ inline void v_mf3_run_limiter(t_mf3_multi*__restrict a_mf3, float a_in0, float a
 {
     v_mf3_commit_mod(a_mf3);
     a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.236220472) - 30.0f);
-    a_mf3->control_value[1] = (((a_mf3->control[1]) * 0.046456693) - 5.9f);
+    a_mf3->control_value[1] = (((a_mf3->control[1]) * 0.093700787) - 11.9f);
     a_mf3->control_value[2] = ((a_mf3->control[2]) * 3.937007874);
     
     v_lim_set(a_mf3->limiter, (a_mf3->control_value[0]), (a_mf3->control_value[1]), (a_mf3->control_value[2]));

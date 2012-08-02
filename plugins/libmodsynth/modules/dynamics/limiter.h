@@ -23,6 +23,8 @@ typedef struct st_lim_limiter
     float thresh, ceiling, volume, release, r;
     float maxSpls, max1Block, max2Block, envT, env, gain;
     float last_thresh, last_ceiling, last_release;
+    float *buffer0, *buffer1;
+    int buffer_size, buffer_index, buffer_read_index;
 }t_lim_limiter;
 
 t_lim_limiter * g_lim_get(float);
@@ -95,16 +97,40 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     else
     {
         a_lim->gain= (a_lim->volume);
-    }        
+    }
+    
+    a_lim->buffer0[(a_lim->buffer_index)] = a_in0;
+    a_lim->buffer1[(a_lim->buffer_index)] = a_in1;
+    
+    a_lim->buffer_index = (a_lim->buffer_index) + 1;
+    
+    if((a_lim->buffer_index) >= (a_lim->buffer_size))
+    {
+        a_lim->buffer_index = 0;
+    }
 
-    a_lim->output0 = a_in0 * (a_lim->gain);
-    a_lim->output1 = a_in1 * (a_lim->gain);
+    a_lim->output0 = (a_lim->buffer0[(a_lim->buffer_index)]) * (a_lim->gain);
+    a_lim->output1 = (a_lim->buffer0[(a_lim->buffer_index)]) * (a_lim->gain);
 }
 
 t_lim_limiter * g_lim_get(float srate)
 {
-    t_lim_limiter * f_result = (t_lim_limiter*)malloc(sizeof(t_lim_limiter));
-    //posix_memalign((void**)&f_result, 16, sizeof(t_lim_limiter));
+    t_lim_limiter * f_result;
+    posix_memalign((void**)&f_result, 16, sizeof(t_lim_limiter));
+    
+    f_result->buffer_size = (int)(srate*0.003f);
+    f_result->buffer_index = 0;
+    
+    posix_memalign((void**)&f_result->buffer0, 16, (sizeof(float) * (f_result->buffer_size)));
+    posix_memalign((void**)&f_result->buffer1, 16, (sizeof(float) * (f_result->buffer_size)));
+    
+    int f_i;
+    
+    for(f_i = 0; f_i < (f_result->buffer_size); f_i++)
+    {
+        f_result->buffer0[f_i] = 0.0f;
+        f_result->buffer1[f_i] = 0.0f;
+    }
     
     f_result->HOLDTIME = ((int)(srate/128.0f));
 
@@ -125,6 +151,8 @@ t_lim_limiter * g_lim_get(float srate)
     f_result->thresh = 0.0f;
     f_result->volume = 0.0f;
     f_result->sr = srate;
+    
+    
     
     //nonsensical values that it won't evaluate to on the first run
     f_result->last_ceiling = 1234.4522f;
