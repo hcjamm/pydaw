@@ -93,7 +93,8 @@ int main(int argc, char** argv) {
     
     v_lim_set(f_limiter, -6.0f, -3.0f, 200.0f);
     
-    float * test_square = (float*)malloc(sizeof(float) * 50);
+    float * test_square; // = (float*)malloc(sizeof(float) * 50);
+    posix_memalign((void**)&test_square, 16, (sizeof(float) * 50));
         
     int i;
     
