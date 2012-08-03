@@ -26,6 +26,7 @@ typedef struct st_lim_limiter
     float thresh, ceiling, volume, release, r;
     float maxSpls, max1Block, max2Block, envT, env, gain;
     float last_thresh, last_ceiling, last_release;
+    float autogain;
     float *buffer0, *buffer1;
     int buffer_size, buffer_index, buffer_read_index;
     t_amp * amp_ptr;
@@ -39,7 +40,8 @@ void v_lim_set(t_lim_limiter*a_lim, float a_thresh, float a_ceiling, float a_rel
 {
     if(a_thresh != (a_lim->last_thresh))
     {
-        a_lim->thresh = f_db_to_linear_fast((a_thresh), a_lim->amp_ptr);     
+        a_lim->thresh = f_db_to_linear_fast((a_thresh), a_lim->amp_ptr); 
+        a_lim->autogain = (1.0f/(a_lim->thresh));
         a_lim->last_thresh = a_thresh;
     }
     
@@ -121,8 +123,8 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
         a_lim->buffer_index = 0;
     }
 
-    a_lim->output0 = (a_lim->buffer0[(a_lim->buffer_index)]) * (a_lim->gain);
-    a_lim->output1 = (a_lim->buffer0[(a_lim->buffer_index)]) * (a_lim->gain);
+    a_lim->output0 = (a_lim->buffer0[(a_lim->buffer_index)]) * (a_lim->gain) * (a_lim->autogain);
+    a_lim->output1 = (a_lim->buffer0[(a_lim->buffer_index)]) * (a_lim->gain) * (a_lim->autogain);
 }
 
 t_lim_limiter * g_lim_get(float srate)
