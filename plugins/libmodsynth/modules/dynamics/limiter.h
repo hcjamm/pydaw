@@ -15,10 +15,12 @@ extern "C" {
 #include "../../lib/lms_math.h"
 #include "../../lib/amp.h"
 #include <math.h>
+    
+#define LMS_HOLD_TIME_DIVISOR 128.0f
 
 typedef struct st_lim_limiter
 {
-    int HOLDTIME, r1Timer, r2Timer;
+    int holdtime, r1Timer, r2Timer;
     float output0, output1;
     float sr, sr_recip;
     float thresh, ceiling, volume, release, r;
@@ -59,18 +61,18 @@ void v_lim_set(t_lim_limiter*a_lim, float a_thresh, float a_ceiling, float a_rel
         }
         
         
-        a_lim->r = ((a_lim->sr_recip) / (a_lim->release)) * 128.0f;        
+        a_lim->r = ((a_lim->sr_recip) / (a_lim->release)) * LMS_HOLD_TIME_DIVISOR;        
         a_lim->last_release = a_release;
     }
 }
 
 void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
 {
-    a_lim->maxSpls=f_lms_max(abs(a_in0),abs(a_in1));
+    a_lim->maxSpls=f_lms_max(f_lms_abs(a_in0),f_lms_abs(a_in1));
 
     a_lim->r1Timer = (a_lim->r1Timer) + 1;
     
-    if((a_lim->r1Timer) > (a_lim->HOLDTIME))
+    if((a_lim->r1Timer) > (a_lim->holdtime))
     {
         a_lim->r1Timer = 0; 
         a_lim->max1Block = (a_lim->max1Block) - (a_lim->r);
@@ -85,7 +87,7 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     
     a_lim->r2Timer = (a_lim->r2Timer) + 1;
     
-    if((a_lim->r2Timer) > (a_lim->HOLDTIME))
+    if((a_lim->r2Timer) > (a_lim->holdtime))
     {
         a_lim->r2Timer = 0; 
         a_lim->max2Block = (a_lim->max2Block) - (a_lim->r);
@@ -99,18 +101,7 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     a_lim->max2Block = f_lms_max((a_lim->max2Block),(a_lim->maxSpls));
     
     a_lim->env = f_lms_max((a_lim->max1Block),(a_lim->max2Block));
-    /*
-    a_lim->envT = f_lms_max((a_lim->max1Block),(a_lim->max2Block));
 
-    if((a_lim->env) < (a_lim->envT))
-    {
-        a_lim->env = (a_lim->envT);
-    }
-    else
-    {
-        a_lim->env = (a_lim->envT) * ((a_lim->env) - (a_lim->envT));
-    }
-    */
     if(a_lim->env > a_lim->thresh)
     {
         a_lim->gain = ((a_lim->thresh) / (a_lim->env))*(a_lim->volume);
@@ -139,7 +130,9 @@ t_lim_limiter * g_lim_get(float srate)
     t_lim_limiter * f_result;
     posix_memalign((void**)&f_result, 16, sizeof(t_lim_limiter));
     
-    f_result->buffer_size = (int)(srate*0.003f);
+    f_result->holdtime = ((int)(srate/LMS_HOLD_TIME_DIVISOR));
+    
+    f_result->buffer_size = (f_result->holdtime); // (int)(srate*0.003f);
     f_result->buffer_index = 0;
     
     posix_memalign((void**)&f_result->buffer0, 16, (sizeof(float) * (f_result->buffer_size)));
@@ -155,10 +148,8 @@ t_lim_limiter * g_lim_get(float srate)
         f_result->buffer1[f_i] = 0.0f;
     }
     
-    f_result->HOLDTIME = ((int)(srate/128.0f));
-
     f_result->r1Timer = 0;
-    f_result->r2Timer = (f_result->HOLDTIME)/2;
+    f_result->r2Timer = (f_result->holdtime)/2;
     
     f_result->ceiling = 0.0f;
     f_result->env = 0.0f;
