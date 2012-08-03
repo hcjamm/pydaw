@@ -16,7 +16,7 @@ extern "C" {
 #include "../../lib/amp.h"
 #include <math.h>
     
-#define LMS_HOLD_TIME_DIVISOR 128.0f
+#define LMS_HOLD_TIME_DIVISOR 500.0f
 
 typedef struct st_lim_limiter
 {
