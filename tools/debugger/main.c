@@ -23,6 +23,8 @@
 
 /*Change these to the project you would like to debug*/
 #include "../../plugins/libmodsynth/modules/dynamics/limiter.h"
+#include "../../plugins/libmodsynth/modules/oscillator/osc_simple.h"
+
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
 #define LMS_DEBUGGER_PROJECT
@@ -90,8 +92,12 @@ Also:
 int main(int argc, char** argv) {
     
     t_lim_limiter * f_limiter = g_lim_get(44100.0f);
+    t_osc_simple_unison * f_osc = g_osc_get_osc_simple_unison(44100.0f);
+    v_osc_set_simple_osc_unison_type(f_osc, 0);
     
-    v_lim_set(f_limiter, -6.0f, -3.0f, 200.0f);
+    v_osc_set_unison_pitch(f_osc, 0.1f, 66.0f);
+    
+    v_lim_set(f_limiter, -6.0f, -9.0f, 200.0f);
     
     float * test_square; // = (float*)malloc(sizeof(float) * 50);
     posix_memalign((void**)&test_square, 16, (sizeof(float) * 50));
@@ -129,9 +135,27 @@ int main(int argc, char** argv) {
     
     int f_i;
     
-    for(f_i = 0; f_i < 50; f_i++)
+    for(f_i = 0; f_i < 500000; f_i++)
     {
-        v_lim_run(f_limiter, test_square[f_i], test_square[f_i]);
+        float f_sample = f_osc_run_unison_osc(f_osc);
+        
+        v_lim_run(f_limiter, f_sample, f_sample);
+    }
+    
+    
+    for(f_i = 0; f_i < 500000; f_i++)
+    {
+        float f_sample = f_osc_run_unison_osc(f_osc);
+        
+        v_lim_run(f_limiter, f_sample, f_sample);
+    }
+    
+    
+    for(f_i = 0; f_i < 500000; f_i++)
+    {
+        float f_sample = f_osc_run_unison_osc(f_osc);
+        
+        v_lim_run(f_limiter, f_sample, f_sample);
     }
     
     return 0; //(EXIT_SUCCESS);
