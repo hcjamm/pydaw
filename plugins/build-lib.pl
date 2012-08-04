@@ -198,19 +198,8 @@ Cannot compile, aborting script, please check your code for errors\n\n";
 
 sub build_jack_host
 {
-system("rm jack-dssi-host");
-system("aclocal");
-system("$sleep");
-system("libtoolize --force --copy");
-system("$sleep");
-system("autoheader");
-system("$sleep");
-system("automake --add-missing --foreign");
-system("$sleep");
-system("autoconf");
-system("$sleep");
-system("./configure");
-system("$sleep");
+system("make clean");
+
 if(defined $_[0])
 {
 	$make = "make " . $_[0];
