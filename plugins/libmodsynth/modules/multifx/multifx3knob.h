@@ -15,7 +15,7 @@ extern "C" {
 #endif
     
 /*The highest index for selecting the effect type*/
-#define MULTIFX3KNOB_MAX_INDEX 12
+#define MULTIFX3KNOB_MAX_INDEX 14
 #define MULTIFX3KNOB_KNOB_COUNT 3
 
 #include "../filter/svf.h"
@@ -26,6 +26,7 @@ extern "C" {
 #include "../signal_routing/amp_and_panner.h"
 #include "../filter/peak_eq.h"
 #include "../dynamics/limiter.h"
+#include "../distortion/saturator.h"
     
 /*BIG TODO:  Add a function to modify for the modulation sources*/
     
@@ -40,6 +41,7 @@ typedef struct st_mf3_multi
     t_pkq_peak_eq * eq0;
     t_clipper * clipper;    
     t_lim_limiter * limiter;
+    t_sat_saturator * saturator;
     float output0, output1;
     float control[MULTIFX3KNOB_KNOB_COUNT];
     float control_value[MULTIFX3KNOB_KNOB_COUNT];
@@ -71,6 +73,7 @@ inline void v_mf3_run_dist(t_mf3_multi*,float,float);
 inline void v_mf3_run_comb(t_mf3_multi*,float,float);
 inline void v_mf3_run_amp_panner(t_mf3_multi*,float,float);
 inline void v_mf3_run_limiter(t_mf3_multi*,float,float);
+inline void v_mf3_run_saturator(t_mf3_multi*, float, float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -130,6 +133,8 @@ inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
                 return v_mf3_run_amp_panner;
             case 13:
                 return v_mf3_run_limiter;
+            case 14:
+                return v_mf3_run_saturator;
             default:
                 /*TODO: Report error*/
                 return v_mf3_run_off;
@@ -382,6 +387,19 @@ inline void v_mf3_run_limiter(t_mf3_multi*__restrict a_mf3, float a_in0, float a
     a_mf3->output1 = a_mf3->limiter->output1;
 }
 
+inline void v_mf3_run_saturator(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
+{
+    v_mf3_commit_mod(a_mf3);
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.787401575);
+    
+    v_sat_set(a_mf3->saturator, (a_mf3->control_value[0]));
+    
+    v_sat_run(a_mf3->saturator, a_in0, a_in1);
+    
+    a_mf3->output0 = a_mf3->saturator->output0;
+    a_mf3->output1 = a_mf3->saturator->output1;
+}
+
 /* t_mf3_multi g_mf3_get(
  * float a_sample_rate)
  */
@@ -419,6 +437,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->outgain = 1.0f;
     f_result->amp_ptr = g_amp_get();
     f_result->amp_and_panner = g_app_get();
+    f_result->saturator = g_sat_get();
     
     return f_result;
 }

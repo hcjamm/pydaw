@@ -22,7 +22,8 @@ public:
         QStringList f_types = QStringList() << QString("Off") << QString("LP2") 
                 << QString("LP4") << QString("HP2") << QString("HP4") << QString("BP2") << QString("BP4")
                  << QString("Notch2") << QString("Notch4") << QString("EQ") 
-                << QString("Distortion") << QString("Comb Filter") << QString("Amp/Panner") << QString("Limiter");
+                << QString("Distortion") << QString("Comb Filter") << QString("Amp/Panner") << QString("Limiter")
+                << QString("Saturator");
         
         lms_groupbox = new LMS_group_box(a_parent, a_title, a_style);
         
@@ -191,6 +192,16 @@ public:
                 lms_knob3->lms_conv_type = lms_kc_127_zero_to_x;
                 lms_knob3->lms_set_127_min_max(150.0f, 400.0f);
                 break;
+            case 14: //Saturator
+                lms_knob1->lms_label->setText(QString("Amt"));
+                lms_knob2->lms_label->setText(QString("unused"));
+                lms_knob3->lms_label->setText(QString("unused"));
+                lms_knob1->lms_conv_type = lms_kc_none;
+                lms_knob2->lms_conv_type = lms_kc_none;                
+                lms_knob3->lms_conv_type = lms_kc_none;
+                lms_knob1->lms_value->setText(QString(""));
+                lms_knob2->lms_value->setText(QString(""));
+                lms_knob3->lms_value->setText(QString(""));
         }
         
         lms_knob1->lms_value_changed(lms_knob1->lms_get_value());
