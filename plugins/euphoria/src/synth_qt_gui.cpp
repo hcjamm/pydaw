@@ -1252,10 +1252,13 @@ void SamplerGUI::clearAllSamples()
     }
     
     generate_files_string();
-    
+        
 #ifndef LMS_DEBUG_STANDALONE
     lo_send(m_host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data());
 #endif
+    
+    m_view_file_selector->lms_set_file(QString(""));
+    m_file_selector->lms_set_file(QString(""));
 }
 
 void SamplerGUI::mapAllSamplesToOneWhiteKey()
