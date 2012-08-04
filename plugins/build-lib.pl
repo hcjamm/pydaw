@@ -94,9 +94,9 @@ sub run_script
 		check_deps();
 		notify_wait();
 
-		system("cd $jack_host_dir ; make clean; perl build.pl --build-jack-host-debug ");
+		system("cd $jack_host_dir ; perl build.pl --build-jack-host-debug ");
 
-		clean();
+		system("make clean");
 		build($debug_flags);
 
 		`make PREFIX=/usr DESTDIR=$dssi_path install`;
@@ -176,7 +176,7 @@ sub clean
 sub build
 {
 #system("moc -o src/synth_qt_gui.moc.cpp src/synth_qt_gui.h");
-$make = 'make --quiet ';
+$make = 'make ';
 
 
 if(defined $_[0])
