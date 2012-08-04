@@ -193,15 +193,15 @@ public:
                 lms_knob3->lms_set_127_min_max(150.0f, 400.0f);
                 break;
             case 14: //Saturator
-                lms_knob1->lms_label->setText(QString("Amt"));
-                lms_knob2->lms_label->setText(QString("unused"));
-                lms_knob3->lms_label->setText(QString("unused"));
-                lms_knob1->lms_conv_type = lms_kc_none;
-                lms_knob2->lms_conv_type = lms_kc_none;                
-                lms_knob3->lms_conv_type = lms_kc_none;
-                lms_knob1->lms_value->setText(QString(""));
+                lms_knob1->lms_label->setText(QString("InGain"));
+                lms_knob2->lms_label->setText(QString("Amt"));
+                lms_knob3->lms_label->setText(QString("OutGain"));
+                lms_knob1->lms_conv_type = lms_kc_127_zero_to_x;
+                lms_knob1->lms_set_127_min_max(-12.0f, 12.0f);
+                lms_knob2->lms_conv_type = lms_kc_none;
                 lms_knob2->lms_value->setText(QString(""));
-                lms_knob3->lms_value->setText(QString(""));
+                lms_knob3->lms_conv_type = lms_kc_127_zero_to_x;
+                lms_knob3->lms_set_127_min_max(-12.0f, 12.0f);
         }
         
         lms_knob1->lms_value_changed(lms_knob1->lms_get_value());
