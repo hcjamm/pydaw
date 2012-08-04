@@ -390,9 +390,11 @@ inline void v_mf3_run_limiter(t_mf3_multi*__restrict a_mf3, float a_in0, float a
 inline void v_mf3_run_saturator(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
-    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.787401575);
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.188976378) - 12.0f;
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.748031496f) + 5.0f;
+    a_mf3->control_value[2] = ((a_mf3->control[2]) * 0.188976378) - 12.0f;
     
-    v_sat_set(a_mf3->saturator, (a_mf3->control_value[0]));
+    v_sat_set(a_mf3->saturator, (a_mf3->control_value[0]), (a_mf3->control_value[1]), (a_mf3->control_value[2]));
     
     v_sat_run(a_mf3->saturator, a_in0, a_in1);
     
