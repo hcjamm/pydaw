@@ -444,9 +444,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         plugin_data->fs = s_rate;
     
     plugin_data->midi_cc_map = g_ccm_get();
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_ATTACK, 73, "Attack Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DECAY, 75, "Decay Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_SUSTAIN, 79, "Sustain Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_ATTACK, 73, "Attack Amp");    
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RELEASE, 72, "Release Amp");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ATTACK, 58, "Attack Filter");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_DECAY, 62, "Decay Filter");
@@ -480,6 +478,10 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_KNOB2, 63, "FX3Knob2");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FX3_COMBOBOX, 64, "FX3Combobox");
     
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN, 75, "MonoFX0Knob0_group0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN, 76, "MonoFX0Knob1_group0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN, 77, "MonoFX1Knob0_group0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN, 7, "MonoFX1Knob1_group0");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "euphoria-cc_map.txt");
         
