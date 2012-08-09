@@ -31,26 +31,6 @@ extern "C"
 
 #define LMS_INSTRUMENT_COUNT 16
 
-class lms_instrument_class
-{
-public:
-    
-    lms_instrument_class()
-    {
-        
-    }
-    
-    ~lms_instrument_class()
-    {
-        
-    }
-    
-    void connect_port()
-    {
-        
-    }   
-};
-
 class main_form : public QWidget
 {
     Q_OBJECT
@@ -58,21 +38,13 @@ class main_form : public QWidget
     public:
     main_form()
     {
-        QRect f_rect(0, 0, 600, 600);
+        QRect f_rect(0, 0, 360, 600);
         this->setGeometry(f_rect);
         //this->setStyleSheet(QString("background-color: white; color:black;"));
         this->setWindowTitle(QString("LMS Session Manager"));
-                
-        /*
-        QList<LMS_mod_matrix_column*> f_columns;
-        f_columns << new LMS_mod_matrix_column(radiobutton, QString("MIDI Keyboard"), 0, 1,0);
-        f_columns << new LMS_mod_matrix_column(QStringList() << QString("None") << QString("Euphoria") << QString("Ray-V"), QString("Plugin"));
-        f_columns << new LMS_mod_matrix_column(QStringList(), QString("MIDI Input"));
-        f_columns << new LMS_mod_matrix_column(QStringList(), QString("Audio Output"));
-        */
         
         main_layout = new LMS_main_layout(this);
-        
+        /*
         QLabel * f_midi_kbd_label = new QLabel(this);
         f_midi_kbd_label->setText(QString("MIDI Keyboard:"));
         midi_keyboard_combobox = new QComboBox(this);
@@ -81,32 +53,47 @@ class main_form : public QWidget
         main_layout->lms_add_widget(midi_keyboard_combobox);
         
         main_layout->lms_add_layout();
+        */
         
-        table_widget = new QTableWidget(LMS_INSTRUMENT_COUNT, 5, this);
-        table_widget->setHorizontalHeaderLabels(QStringList() << QString("Keyboard") << QString("Instrument") << QString("Instance Name") << QString("MIDI In") << QString("Audio Out"));
+        save_button = new QPushButton();        
+        save_button->setText(QString("Save"));
+        
+        main_layout->lms_add_widget(save_button);
+        
+        open_button = new QPushButton();
+        open_button->setText(QString("Open"));
+        
+        main_layout->lms_add_widget(open_button);
+        
+        main_layout->lms_add_layout();
+        
+        table_widget = new QTableWidget(LMS_INSTRUMENT_COUNT, 2, this);
+        table_widget->setHorizontalHeaderLabels(QStringList() //<< QString("Keyboard") 
+                << QString("Instrument") << QString("Instance Name")); // << QString("MIDI In") << QString("Audio Out"));
         
         main_layout->lms_add_widget(table_widget);
         
         for(int i = 0; i < LMS_INSTRUMENT_COUNT; i++)
         {
             processes[i] = new QProcess(this);
-            
+            /*
             select_midi_keyboard[i] = new QRadioButton(table_widget);
             
             table_widget->setCellWidget(i, 0, select_midi_keyboard[i]);
-            
+            */
             select_instrument[i] = new QComboBox();
             
             select_instrument[i]->addItems(QStringList() << QString("None") << QString("Euphoria") << QString("Ray-V"));
             
-            table_widget->setCellWidget(i, 1, select_instrument[i]);
+            table_widget->setCellWidget(i, 0, select_instrument[i]);
             
             instance_names[i] = new QLineEdit(table_widget);
             
             instance_names[i]->setMinimumWidth(180);
             
-            table_widget->setCellWidget(i, 2, instance_names[i]);
-                        
+            table_widget->setCellWidget(i, 1, instance_names[i]);
+            
+            /*
             select_midi_input[i] = new QComboBox();
             
             table_widget->setCellWidget(i, 3, select_midi_input[i]);
@@ -114,10 +101,10 @@ class main_form : public QWidget
             select_audio_output[i] = new QComboBox();
             
             table_widget->setCellWidget(i, 4, select_audio_output[i]);
-            
+            */
         }
         
-        select_midi_keyboard[0]->setChecked(TRUE);
+        //select_midi_keyboard[0]->setChecked(TRUE);
         
         table_widget->resizeColumnsToContents();
         
@@ -155,6 +142,7 @@ class main_form : public QWidget
     QProcess * processes[LMS_INSTRUMENT_COUNT];
     
     QPushButton * open_button;
+    QPushButton * save_button;
     
     QComboBox * midi_keyboard_combobox;
     QTableWidget * table_widget;
@@ -163,7 +151,6 @@ class main_form : public QWidget
     QComboBox * select_midi_input[LMS_INSTRUMENT_COUNT];
     QComboBox * select_audio_output[LMS_INSTRUMENT_COUNT];
     QRadioButton * select_midi_keyboard[LMS_INSTRUMENT_COUNT];
-    lms_instrument_class * instrument_classes[LMS_INSTRUMENT_COUNT];
     LMS_main_layout * main_layout;
             
     void instrument_index_changed(int a_instrument_index, int a_index)
@@ -196,12 +183,17 @@ class main_form : public QWidget
         
     }
     
-    void launch_application()
+public slots:
+    void save_button_pressed()
     {
-        
+        save_session_file();
     }
     
-public slots:
+    void open_button_pressed()
+    {
+        open_session_file();
+    }
+    
     void instrument_index_changed0(int a_index){instrument_index_changed(0, a_index);};
     void instrument_index_changed1(int a_index){instrument_index_changed(1, a_index);};
     void instrument_index_changed2(int a_index){instrument_index_changed(2, a_index);};
