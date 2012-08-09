@@ -11,7 +11,6 @@
 #include <QWidget>
 #include <QLabel>
 #include <QString>
-#include <QMenuBar>
 #include <QTableWidget>
 #include <QProcess>
 #include <QRadioButton>
@@ -19,15 +18,18 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTimer>
+#include <QMessageBox>
+#include <QFileDialog>
 
 #include "../libmodsynth/widgets/lms_main_layout.h"
 
 extern "C"
 {
-#include <jack/jack.h>
+//#include <jack/jack.h>
 #include <alsa/asoundlib.h>
 }
 
+#define LMS_DELIMITER QString("|")
 
 #define LMS_INSTRUMENT_COUNT 16
 
@@ -36,6 +38,9 @@ class main_form : public QWidget
     Q_OBJECT
     
     public:
+        
+        //TODO:  Ensure that a2jmidid is running at startup
+        
     main_form()
     {
         QRect f_rect(0, 0, 360, 600);
@@ -90,6 +95,7 @@ class main_form : public QWidget
             instance_names[i] = new QLineEdit(table_widget);
             
             instance_names[i]->setMinimumWidth(180);
+            instance_names[i]->setText(QString("instrument") + QString::number(i));
             
             table_widget->setCellWidget(i, 1, instance_names[i]);
             
@@ -155,7 +161,13 @@ class main_form : public QWidget
             
     void instrument_index_changed(int a_instrument_index, int a_index)
     {
-        QStringList f_args = QStringList() << QString("-a") << QString("-c") << QString("project-name-") + instance_names[a_instrument_index]->text();
+        if(instance_names[a_instrument_index]->text().isEmpty())
+        {
+            QMessageBox::warning(this, QString("Error"), QString("The instance name must not be empty"));
+            return;
+        }
+        
+        QStringList f_args = QStringList() << QString("-a") << QString("-c") << project_name + QString("-") + instance_names[a_instrument_index]->text();
         
         switch(a_index)
         {
@@ -180,7 +192,18 @@ class main_form : public QWidget
     
     void save_session_file()
     {
+        QFileDialog::getSaveFileName(this, QString(""));
         
+        QString f_result = QString("");
+        
+        for(int f_i = 0; f_i < LMS_INSTRUMENT_COUNT; f_i++)
+        {
+            f_result.append(
+            QString::number(select_instrument[f_i]->currentIndex()) + LMS_DELIMITER +
+            instance_names[f_i]->text() +
+            QString("\n")
+            );
+        }
     }
     
 public slots:
