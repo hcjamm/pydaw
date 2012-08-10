@@ -11,6 +11,7 @@
 #include <QWidget>
 #include <QLabel>
 #include <QString>
+#include <QTextStream>
 #include <QTableWidget>
 #include <QProcess>
 #include <QRadioButton>
@@ -62,11 +63,13 @@ class main_form : public QWidget
         
         save_button = new QPushButton();        
         save_button->setText(QString("Save"));
+        connect(save_button, SIGNAL(pressed()), this, SLOT(save_button_pressed()));
         
         main_layout->lms_add_widget(save_button);
         
         open_button = new QPushButton();
         open_button->setText(QString("Open"));
+        connect(open_button, SIGNAL(pressed()), this, SLOT(open_button_pressed()));
         
         main_layout->lms_add_widget(open_button);
         
@@ -187,23 +190,59 @@ class main_form : public QWidget
     
     void open_session_file()
     {
-        
-    }
+        QString f_selected_path = QFileDialog::getOpenFileName(this, "Select a session file to open...", ".", "Protractor Session Files (*.pss)");  
     
+        if(!f_selected_path.isEmpty())
+        {
+            QFile file(f_selected_path);
+
+            if(!file.open(QIODevice::ReadOnly)) {
+                QMessageBox::information(0, "error", file.errorString());
+                return;
+            }
+
+            QTextStream in(&file);
+
+            int f_count = 0;
+            
+            while(!in.atEnd()) 
+            {
+                QString line = in.readLine();
+                
+                QStringList f_line_list = line.split(LMS_DELIMITER);
+                
+                instance_names[f_count]->setText(f_line_list.at(1));  //This must be set before select_instrument
+                select_instrument[f_count]->setCurrentIndex(f_line_list.at(0).toInt());                
+                
+                f_count++;
+            }
+
+        }
+    }
     void save_session_file()
     {
-        QFileDialog::getSaveFileName(this, QString(""));
+        QString f_selected_path = QFileDialog::getSaveFileName(this, "Select an file to save the session to...", ".", "Protractor Session Files (*.pss)");
         
-        QString f_result = QString("");
-        
-        for(int f_i = 0; f_i < LMS_INSTRUMENT_COUNT; f_i++)
+        if(f_selected_path.isEmpty())
         {
-            f_result.append(
-            QString::number(select_instrument[f_i]->currentIndex()) + LMS_DELIMITER +
-            instance_names[f_i]->text() +
-            QString("\n")
-            );
+            return;
         }
+        
+        QFile file( f_selected_path );
+        if ( file.open(QIODevice::ReadWrite) )
+        {
+            QTextStream stream( &file );
+         
+            for(int f_i = 0; f_i < LMS_INSTRUMENT_COUNT; f_i++)
+            {
+                stream <<
+                QString::number(select_instrument[f_i]->currentIndex()) << LMS_DELIMITER <<
+                instance_names[f_i]->text() <<  QString("\n");
+            }            
+            
+            file.close();
+        }        
+        
     }
     
 public slots:
