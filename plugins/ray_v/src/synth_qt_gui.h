@@ -39,6 +39,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/ui_modules/ramp_env.h"
 #include "../../libmodsynth/widgets/ui_modules/lfo.h"
 #include "../../libmodsynth/widgets/ui_modules/master.h"
+#include "../../libmodsynth/widgets/lms_session_manager.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -68,6 +69,11 @@ public:
     
     void lms_value_changed(int, LMS_control *);
     void lms_set_value(float, LMS_control *);
+    
+    QString project_path;
+    QString instance_name;
+    
+    bool is_session;
         
 public slots:
     /*Event handlers for setting knob values*/
@@ -166,6 +172,7 @@ protected slots:
     void test_press();
     void test_release();
     void oscRecv();
+    void sessionTimeout();
 protected:
     
     LMS_main_layout * m_main_layout;

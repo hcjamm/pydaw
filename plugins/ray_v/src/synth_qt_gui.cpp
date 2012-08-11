@@ -52,9 +52,7 @@ using std::endl;
 
 lo_server osc_server = 0;
 
-#ifdef LMS_DEBUG_MODE_QT    
-        static QTextStream cerr(stderr);
-#endif    
+static QTextStream cerr(stderr);
 
 
 SynthGUI::SynthGUI(const char * host, const char * port,
@@ -262,6 +260,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
     myTimer->setSingleShot(false);
     myTimer->start(0);
+    
+    
+    QTimer *sessionTimer = new QTimer(this);
+    connect(sessionTimer, SIGNAL(timeout()), this, SLOT(sessionTimeout()));
+    sessionTimer->setSingleShot(false);
+    sessionTimer->setInterval(5000);
+    sessionTimer->start();
+    
     
     m_suppressHostUpdate = false;
 }
@@ -570,6 +576,23 @@ void SynthGUI::oscRecv()
     }
 }
 
+void SynthGUI::sessionTimeout()
+{
+    cerr << instance_name << " " << project_path << " sessionTimeout called...\n";
+    
+    if(lms_session_manager::is_saving(project_path, instance_name))
+    {
+        cerr << "Is saving...\n";
+        //Currently works by saving the entire preset file
+        m_program->write_presets_to_file(project_path + QString("/") + instance_name + LMS_SESSION_INSTRUMENT_FILE);
+    }
+    
+    if(lms_session_manager::is_quitting(project_path, instance_name))
+    {
+        
+    }        
+}
+
 void SynthGUI::test_release()
 {
     unsigned char noteoff[4] = { 0x00, 0x90, 0x2A, 0x00 };
@@ -719,14 +742,15 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
 
 int main(int argc, char **argv)
 {
-#ifdef LMS_DEBUG_MODE_QT
+
     cerr << "Qt GUI main() called..." << endl;
-#endif
+
     
     QApplication application(argc, argv);
 
-    if (application.argc() != 5) {
-#ifdef LMS_DEBUG_MODE_QT
+    if (application.argc() < 5)
+    {
+
 	cerr << "usage: "
 	     << application.argv()[0] 
 	     << " <osc url>"
@@ -735,7 +759,6 @@ int main(int argc, char **argv)
 	     << " <user-friendly id>"
 	     << endl;
 
-#endif
 	return 2;
     }
 
@@ -763,9 +786,9 @@ int main(int argc, char **argv)
     QByteArray myShowPath = QByteArray(path) + "/show";
     QByteArray myHidePath = QByteArray(path) + "/hide";
     QByteArray myQuitPath = QByteArray(path) + "/quit";
-#ifdef LMS_DEBUG_MODE_QT
+
     cerr << "Adding lo server methods" << endl;
-#endif
+
     osc_server = lo_server_new(NULL, osc_error);
     lo_server_add_method(osc_server, myControlPath, "if", control_handler, &gui);
     lo_server_add_method(osc_server, myProgramPath, "ii", program_handler, &gui);
@@ -785,10 +808,19 @@ int main(int argc, char **argv)
     QObject::connect(&application, SIGNAL(aboutToQuit()), &gui, SLOT(aboutToQuit()));
 
     gui.setReady(true);
+    gui.is_session = FALSE;
     
-#ifdef LMS_DEBUG_MODE_QT
+    if(argc >= 7)
+    {
+        gui.project_path = application.argv()[5];        
+        gui.instance_name = application.argv()[6];
+        
+        gui.is_session = TRUE;
+        
+        cerr << gui.project_path << "\n" << gui.instance_name << "\n";
+    }
+    
     cerr << "Starting GUI now..." << endl;
-#endif
     
     return application.exec();
 }
