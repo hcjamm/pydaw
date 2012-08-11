@@ -178,7 +178,7 @@ class main_form : public QWidget
         
         //TODO:  Check that the name is unique.
         
-        QStringList f_args = QStringList() << QString("-a") << QString("-c") << project_name + QString("-") + instance_names[a_instrument_index]->text();
+        QStringList f_args = QStringList() << QString("-a") <<  QString("-p") << project_directory << QString("-c") << instance_names[a_instrument_index]->text();
         
         switch(a_index)
         {

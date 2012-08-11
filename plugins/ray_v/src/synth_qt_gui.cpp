@@ -812,12 +812,16 @@ int main(int argc, char **argv)
     
     if(argc >= 7)
     {
-        gui.project_path = application.argv()[5];        
-        gui.instance_name = application.argv()[6];
+        gui.project_path = QString(application.argv()[5]);
+        gui.instance_name = QString(application.argv()[6]);
         
         gui.is_session = TRUE;
         
         cerr << gui.project_path << "\n" << gui.instance_name << "\n";
+    }
+    else
+    {
+        cerr << QString("argc==") << QString::number(argc) << QString("\n");
     }
     
     cerr << "Starting GUI now..." << endl;

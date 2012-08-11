@@ -97,7 +97,8 @@ static int *pluginPortUpdated;                             /* indexed by global 
 static char osc_path_tmp[1024];
 
 static char *projectDirectory;
-static char *session_file;
+
+static char * clientName;
 
 lo_server_thread serverThread;
 
@@ -653,7 +654,7 @@ startGUI(const char *directory, const char *dllName, const char *label,
 		}
 		
 		if (fork() == 0) {
-		    execlp(filename, filename, oscUrl, dllName, label, instanceTag, session_file, NULL);
+		    execlp(filename, filename, oscUrl, dllName, label, instanceTag, projectDirectory, clientName, NULL);
 		    perror("exec failed");
 		    exit(1);
 		}
@@ -743,7 +744,7 @@ main(int argc, char **argv)
     char *url;
     int i, reps, j;
     int in, out, controlIn, controlOut;
-    char * clientName = (char*)malloc(sizeof(char) * 33);
+    clientName = (char*)malloc(sizeof(char) * 33);
     int haveClientName = 0;
     const int clientLen = 32;
     jack_status_t status = 0;
@@ -789,12 +790,11 @@ main(int argc, char **argv)
     /* Parse args and report usage */
 
     if (argc < 2) {
-	fprintf(stderr, "\nUsage: %s [-v] [-a] [-n] [-p <projdir> -s <session file>] [-c <cname>] [-<i>] <libname>[%c<label>] [...]\n", argv[0], LABEL_SEP);
+	fprintf(stderr, "\nUsage: %s [-v] [-a] [-n] [-p <projdir>] [-c <cname>] [-<i>] <libname>[%c<label>] [...]\n", argv[0], LABEL_SEP);
 	fprintf(stderr, "\n  -v        Verbose mode\n");
 	fprintf(stderr, "  -a        Don't autoconnect outputs to JACK physical outputs\n");
 	fprintf(stderr, "  -n        Don't automatically start plugin GUIs\n");
-	fprintf(stderr, "  <projdir> Project directory to pass to plugin and UI\n");
-        fprintf(stderr, "  <projdir> Project directory to pass to plugin and UI\n");
+	fprintf(stderr, "  <projdir> Project directory to pass to plugin and UI\n");        
 	fprintf(stderr, "  <cname>   Client name to use for ALSA and JACK\n");
 	fprintf(stderr, "  <i>       Number of instances of each plugin to run (max %d total, default 1)\n", D3H_MAX_INSTANCES);
 	fprintf(stderr, "  <libname> DSSI plugin library .so to load (searched for in $DSSI_PATH)\n");
@@ -811,8 +811,7 @@ main(int argc, char **argv)
     }
 
     projectDirectory = NULL;
-    session_file = NULL;
-
+    
     reps = 1;
     for (i = 1; i < argc; i++) {
 
@@ -834,16 +833,6 @@ main(int argc, char **argv)
 		projectDirectory = argv[++i];
 	    } else {
 		fprintf(stderr, "%s: project directory expected after -p\n", myName);
-		return 2;
-	    }
-	    continue;
-	}
-        
-	if (!strcmp(argv[i], "-s")) {
-	    if (i < argc - 1) {
-		session_file = argv[++i];
-	    } else {
-		fprintf(stderr, "%s: session file expected after -s\n", myName);
 		return 2;
 	    }
 	    continue;
