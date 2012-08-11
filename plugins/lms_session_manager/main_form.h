@@ -206,7 +206,22 @@ class main_form : public QWidget
         if(!f_selected_path.isEmpty())
         {
             QFile file(f_selected_path);
+            
+            QFileInfo f_file_info(f_selected_path);
 
+            project_directory = f_file_info.dir().absolutePath();
+
+            QString f_notify_dir = project_directory + LMS_NOTIFY_DIRECTORY;
+
+            if(!QFile::exists(f_notify_dir))
+            {
+                //cerr << f_file_info.dir().absolutePath() + QString("/.notify/");
+                QDir f_dir(project_directory);
+
+                f_dir.mkpath(f_notify_dir);
+            }
+            
+            
             if(!file.open(QIODevice::ReadOnly)) {
                 QMessageBox::information(0, "error", file.errorString());
                 return;
@@ -216,7 +231,7 @@ class main_form : public QWidget
 
             int f_count = 0;
             
-            while(!in.atEnd()) 
+            while((!in.atEnd()) && (f_count < LMS_INSTRUMENT_COUNT))
             {
                 QString line = in.readLine();
                 
@@ -233,6 +248,11 @@ class main_form : public QWidget
     void save_session_file()
     {
         QString f_selected_path = QFileDialog::getSaveFileName(this, "Select an file to save the session to...", ".", "Protractor Session Files (*.pss)");
+        
+        if(!f_selected_path.endsWith(QString(".pss"), Qt::CaseSensitive))
+        {
+            f_selected_path.append(QString(".pss"));
+        }
         
         if(f_selected_path.isEmpty())
         {
@@ -265,7 +285,7 @@ class main_form : public QWidget
             //cerr << f_file_info.dir().absolutePath() + QString("/.notify/");
             QDir f_dir(project_directory);
             
-            f_dir.mkdir(f_notify_dir);
+            f_dir.mkpath(f_notify_dir);
         }
         
         for(int f_i = 0; f_i < LMS_INSTRUMENT_COUNT; f_i++)

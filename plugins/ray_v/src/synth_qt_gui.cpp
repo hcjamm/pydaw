@@ -57,7 +57,7 @@ static QTextStream cerr(stderr);
 
 SynthGUI::SynthGUI(const char * host, const char * port,
 		   QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
-		   QByteArray exitingPath, QWidget *w) :
+		   QByteArray exitingPath, QWidget *w, bool a_is_session, QString a_project_path, QString a_instance_name) :
     QFrame(w),
     m_controlPath(controlPath),
     m_midiPath(midiPath),
@@ -69,7 +69,18 @@ SynthGUI::SynthGUI(const char * host, const char * port,
 {
     m_host = lo_address_new(host, port);
     
-    this->setWindowTitle(QString("Ray-V  Powered by LibModSynth."));
+    is_session = a_is_session;
+    project_path = a_project_path;
+    instance_name = a_instance_name;    
+    
+    if(is_session)
+    {
+        this->setWindowTitle(QString("Ray-V  ") + a_instance_name);
+    }
+    else
+    {
+        this->setWindowTitle(QString("Ray-V  Powered by LibModSynth."));
+    }
     
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{border:1px solid white;border-radius:3px; padding:1px;background-color:black;color:white} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
@@ -88,13 +99,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
         
     m_main_layout = new LMS_main_layout(this);
+    
     if(is_session)
     {
-        m_program = new LMS_preset_manager(QString(LMS_PLUGIN_NAME), f_default_presets, LMS_PROGRAM_CHANGE, f_info, this);
+        m_program = new LMS_preset_manager(instance_name, f_default_presets, LMS_PROGRAM_CHANGE, f_info, this, project_path);        
     }
     else
-    {
-        m_program = new LMS_preset_manager(instance_name, f_default_presets, LMS_PROGRAM_CHANGE, f_info, this, project_path);
+    {        
+        m_program = new LMS_preset_manager(QString(LMS_PLUGIN_NAME), f_default_presets, LMS_PROGRAM_CHANGE, f_info, this);
     }
     
     connect(m_program->m_program, SIGNAL(currentIndexChanged(int)), this, SLOT(programChanged(int)));
@@ -259,8 +271,10 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_program->lms_add_control(m_lfo_amp);
     m_program->lms_add_control(m_lfo_pitch);
     m_program->lms_add_control(m_lfo_cutoff);
-    
-    
+        
+    cerr << QString("pending_index_change: ") << m_program->pending_index_change << QString("\n")
+            << QString("currentIndex: ") << m_program->m_program->currentIndex() << QString("\n");
+        
     /*DO NOT remove the code below this line*/
     
     QTimer *myTimer = new QTimer(this);
@@ -366,7 +380,7 @@ void SynthGUI::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms
 void SynthGUI::LFOampChanged(int a_value){lms_value_changed(a_value, m_lfo_amp);}
 void SynthGUI::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
 void SynthGUI::LFOcutoffChanged(int a_value){lms_value_changed(a_value, m_lfo_cutoff);}
-void SynthGUI::programChanged(int a_value){lms_value_changed(a_value, m_program);}
+void SynthGUI::programChanged(int a_value){lms_value_changed(a_value, m_program); m_program->pending_index_change = a_value;}
 void SynthGUI::programSaved(){ m_program->programSaved(); }
 
 
@@ -586,9 +600,19 @@ void SynthGUI::oscRecv()
 
 void SynthGUI::sessionTimeout()
 {
+    /* On the surface, this would appear that this is a seriously stupid piece of
+     code, but as it turns out, QComboBoxes don't like having their index set during
+     a window constructor, they will ignore the change and emit no signals;  So we
+     catch it here 6 seconds after loading the window, then this should never evaluate
+     to TRUE again...*/
+    if(m_program->m_program->currentIndex() != (m_program->pending_index_change))
+    {
+        m_program->m_program->setCurrentIndex((m_program->pending_index_change));
+    }
+    
     if(lms_session_manager::is_saving(project_path, instance_name))
     {
-        cerr << instance_name << "Is saving...\n";
+        cerr << instance_name << " is saving...\n";
         //Currently works by saving the entire preset file
         
         m_program->session_save(project_path, instance_name);
@@ -778,13 +802,34 @@ int main(int argc, char **argv)
     char *host = lo_url_get_hostname(url);
     char *port = lo_url_get_port(url);
     char *path = lo_url_get_path(url);
+    
+    bool f_is_session = FALSE;
+    QString f_project_path = QString("");
+    QString f_instance_name = QString("");
+    
+    if(argc >= 7)
+    {
+        f_project_path = QString(application.argv()[5]);
+        f_instance_name = QString(application.argv()[6]);
+        
+        f_is_session = TRUE;
+        
+        cerr << f_project_path << "\n" << f_instance_name << "\n";
+    }
+    else
+    {
+        cerr << QString("argc==") << QString::number(argc) << QString("\n");
+    }
 
     SynthGUI gui(host, port,
 		 QByteArray(path) + "/control",
 		 QByteArray(path) + "/midi",
 		 QByteArray(path) + "/program",
 		 QByteArray(path) + "/exiting",
-		 0);
+		 0,
+                 f_is_session,
+                 f_project_path,
+                 f_instance_name);
  
     QByteArray myControlPath = QByteArray(path) + "/control";
     QByteArray myProgramPath = QByteArray(path) + "/program";
@@ -815,21 +860,6 @@ int main(int argc, char **argv)
     QObject::connect(&application, SIGNAL(aboutToQuit()), &gui, SLOT(aboutToQuit()));
 
     gui.setReady(true);
-    gui.is_session = FALSE;
-    
-    if(argc >= 7)
-    {
-        gui.project_path = QString(application.argv()[5]);
-        gui.instance_name = QString(application.argv()[6]);
-        
-        gui.is_session = TRUE;
-        
-        cerr << gui.project_path << "\n" << gui.instance_name << "\n";
-    }
-    else
-    {
-        cerr << QString("argc==") << QString::number(argc) << QString("\n");
-    }
     
     cerr << "Starting GUI now..." << endl;
     

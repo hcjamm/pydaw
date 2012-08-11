@@ -52,7 +52,7 @@ class SynthGUI : public QFrame
 public:
     SynthGUI(const char * host, const char * port,
 	     QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
-	     QByteArray exitingPath, QWidget *w = 0);
+	     QByteArray exitingPath, QWidget *w = 0, bool a_is_session = FALSE, QString a_project_path = QString(""), QString a_instance_name = QString(""));
     virtual ~SynthGUI();
 
     bool ready() const { return m_ready; }

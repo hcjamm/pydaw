@@ -33,7 +33,7 @@ public:
     /* The overload for running standalone */
     LMS_preset_manager(QString a_plugin_name, QString a_default_presets, int a_lms_port, LMS_style_info * a_style_info, QWidget * a_parent)
     {
-        QString f_preset_path = QDir::homePath() + "/dssi";
+        QString f_preset_path = QDir::homePath() + QString("/dssi");
         
         instantiate(a_plugin_name, a_default_presets, a_lms_port, a_style_info, a_parent, f_preset_path);
     }
@@ -54,6 +54,8 @@ public:
     QString lms_plugin_name;
     QList<LMS_control*> lms_controls;
     QWidget * lms_parent;
+    
+    int pending_index_change;
     
     void lms_add_control(LMS_control * a_control)
     {
@@ -232,10 +234,12 @@ public:
         
         QStringList f_programs_list;        
 
-        QDir* f_dir = new QDir(QDir::homePath());
+        QDir* f_dir = new QDir(a_preset_directory);
 
-        if(!f_dir->exists(a_preset_directory))
+        if(!f_dir->exists(a_preset_directory))           
+        {
             f_dir->mkpath(a_preset_directory);
+        }
 
         QFile* f_file = new QFile(a_preset_directory + "/" + a_plugin_name + LMS_PRESETS_EXT);
 
@@ -251,15 +255,14 @@ public:
 
         QTextStream * in = new QTextStream(f_file);
 
-        int f_preset_index = 0;
+        pending_index_change = 0;
 
         int f_count = 0;
         
         while(f_count < 129) 
         {
             if(in->atEnd())
-            {      
-                //f_at_end = TRUE;
+            {
                 f_programs_list.append(QString("empty"));
                 presets_tab_delimited.append(QString("empty"));
             }
@@ -267,9 +270,9 @@ public:
             {
                 QString line = in->readLine();
                 
-                if(line.trimmed().startsWith(LMS_INDEX_IDENTIFIER))
+                if(line.startsWith(LMS_INDEX_IDENTIFIER, Qt::CaseInsensitive))
                 {
-                    f_preset_index = line.trimmed().split(QString("="))[1].toInt();
+                    pending_index_change = line.split(QString("=")).at(1).toInt();
                     continue;
                 }
                 
@@ -284,12 +287,7 @@ public:
         f_file->close();
         
         m_program->insertItems(0, f_programs_list);
-        
-        if(f_preset_index != 0)
-        {
-            m_program->setCurrentIndex(f_preset_index);
-        }
-        
+                
     }
     
 };
