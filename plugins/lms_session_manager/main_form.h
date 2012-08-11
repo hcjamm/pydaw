@@ -30,6 +30,10 @@ extern "C"
 #include <alsa/asoundlib.h>
 }
 
+static QTextStream cerr(stderr);
+
+#define LMS_NOTIFY_DIRECTORY QString("/notify/")
+
 #define LMS_DELIMITER QString("|")
 
 #define LMS_INSTRUMENT_COUNT 16
@@ -170,20 +174,27 @@ class main_form : public QWidget
             return;
         }
         
+        instance_names[a_instrument_index]->setText(instance_names[a_instrument_index]->text().trimmed());
+        
+        //TODO:  Check that the name is unique.
+        
         QStringList f_args = QStringList() << QString("-a") << QString("-c") << project_name + QString("-") + instance_names[a_instrument_index]->text();
         
         switch(a_index)
         {
             case 0:
-                processes[a_instrument_index]->kill();
+                //TODO:  Send the quit signal
+                instance_names[a_instrument_index]->setEnabled(TRUE);
                 break;
             case 1:
                 f_args << QString("euphoria.so");
                 processes[a_instrument_index]->start(QString("lms-jack-dssi-host"), f_args);
+                instance_names[a_instrument_index]->setEnabled(FALSE);
                 break;
             case 2:
                 f_args << QString("ray_v.so");
                 processes[a_instrument_index]->startDetached(QString("lms-jack-dssi-host"), f_args);
+                instance_names[a_instrument_index]->setEnabled(FALSE);
                 break;
         }
     }
@@ -240,8 +251,43 @@ class main_form : public QWidget
                 instance_names[f_i]->text() <<  QString("\n");
             }            
             
-            file.close();
+            file.close();            
         }        
+        
+        QFileInfo f_file_info(f_selected_path);
+        
+        project_directory = f_file_info.dir().absolutePath();
+        
+        QString f_notify_dir = project_directory + LMS_NOTIFY_DIRECTORY;
+        
+        if(!QFile::exists(f_notify_dir))
+        {
+            //cerr << f_file_info.dir().absolutePath() + QString("/.notify/");
+            QDir f_dir(project_directory);
+            
+            f_dir.mkdir(f_notify_dir);
+        }
+        
+        for(int f_i = 0; f_i < LMS_INSTRUMENT_COUNT; f_i++)
+        {
+            if(select_instrument[f_i]->currentIndex() > 0)
+            {
+                QFile f_save_file( f_notify_dir + instance_names[f_i]->text() + QString(".save"));
+                if ( f_save_file.open(QIODevice::WriteOnly | QIODevice::Text) )
+                {
+                    QTextStream stream( &f_save_file );
+                    stream << "Created by LMS Session Manager\n";
+                    stream.flush();
+                }
+                else
+                {
+                    cerr << "Failed to open file.\n";
+                }
+                
+                f_save_file.close();
+
+            }
+        }
         
     }
     
@@ -272,12 +318,18 @@ public slots:
     void instrument_index_changed13(int a_index){instrument_index_changed(13, a_index);};
     void instrument_index_changed14(int a_index){instrument_index_changed(14, a_index);};
     void instrument_index_changed15(int a_index){instrument_index_changed(15, a_index);};
-        
-    
     
     void timer_polling()
     {
         
+    }
+    
+    
+    void quitHandler()
+    {
+        cerr << QString("Quitting...");
+        
+        //TODO:  Signal to all of the plugins to quit
     }
 };
 
