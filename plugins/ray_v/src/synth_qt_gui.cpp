@@ -88,8 +88,15 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
         
     m_main_layout = new LMS_main_layout(this);
+    if(is_session)
+    {
+        m_program = new LMS_preset_manager(QString(LMS_PLUGIN_NAME), f_default_presets, LMS_PROGRAM_CHANGE, f_info, this);
+    }
+    else
+    {
+        m_program = new LMS_preset_manager(instance_name, f_default_presets, LMS_PROGRAM_CHANGE, f_info, this, project_path);
+    }
     
-    m_program = new LMS_preset_manager(QString(LMS_PLUGIN_NAME), f_default_presets, LMS_PROGRAM_CHANGE, f_info, this);
     connect(m_program->m_program, SIGNAL(currentIndexChanged(int)), this, SLOT(programChanged(int)));
     connect(m_program->m_prog_save, SIGNAL(pressed()), this, SLOT(programSaved()));
     
@@ -261,13 +268,14 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     myTimer->setSingleShot(false);
     myTimer->start(0);
     
-    
-    QTimer *sessionTimer = new QTimer(this);
-    connect(sessionTimer, SIGNAL(timeout()), this, SLOT(sessionTimeout()));
-    sessionTimer->setSingleShot(false);
-    sessionTimer->setInterval(5000);
-    sessionTimer->start();
-    
+    if(is_session)
+    {
+        QTimer *sessionTimer = new QTimer(this);
+        connect(sessionTimer, SIGNAL(timeout()), this, SLOT(sessionTimeout()));
+        sessionTimer->setSingleShot(false);
+        sessionTimer->setInterval(5000);
+        sessionTimer->start();
+    }
     
     m_suppressHostUpdate = false;
 }
@@ -578,13 +586,12 @@ void SynthGUI::oscRecv()
 
 void SynthGUI::sessionTimeout()
 {
-    cerr << instance_name << " " << project_path << " sessionTimeout called...\n";
-    
     if(lms_session_manager::is_saving(project_path, instance_name))
     {
-        cerr << "Is saving...\n";
+        cerr << instance_name << "Is saving...\n";
         //Currently works by saving the entire preset file
-        m_program->write_presets_to_file(project_path + QString("/") + instance_name + LMS_SESSION_INSTRUMENT_FILE);
+        
+        m_program->session_save(project_path, instance_name);
     }
     
     if(lms_session_manager::is_quitting(project_path, instance_name))

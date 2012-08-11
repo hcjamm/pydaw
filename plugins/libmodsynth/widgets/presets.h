@@ -25,6 +25,7 @@
 #include "lms_control.h"
 
 #define LMS_INDEX_IDENTIFIER QString("LMS_CURRENT_INDEX=")
+#define LMS_PRESETS_EXT QString("-presets.tsv")
 
 class LMS_preset_manager : public LMS_control
 {
@@ -154,7 +155,7 @@ public:
 
         presets_tab_delimited[m_program->currentIndex()] = f_result;
 
-        QString f_file_path = QDir::homePath() + "/dssi/" + lms_plugin_name + "-presets.tsv";
+        QString f_file_path = QDir::homePath() + "/dssi/" + lms_plugin_name + LMS_PRESETS_EXT;
 
         write_presets_to_file(f_file_path);
         
@@ -174,6 +175,24 @@ public:
         f_result2.append(LMS_INDEX_IDENTIFIER + QString::number(m_program->currentIndex()));
         
         return f_result2;
+    }
+    
+    void session_save(QString a_project_dir, QString a_instance_name)
+    {
+        QString f_result = m_program->currentText();                
+
+        //TODO:  change f_i back to zero when there is something at that index
+        for(int f_i = 0; f_i < lms_controls.count(); f_i++)
+        {
+            QString f_number = QString("");
+            f_number.setNum(lms_controls.at(f_i)->lms_get_value()); //i_get_control(f_i));
+            f_result.append("\t");  
+            f_result.append(f_number);
+        }
+
+        presets_tab_delimited[m_program->currentIndex()] = f_result;
+        
+        write_presets_to_file(a_project_dir + QString("/") + a_instance_name + LMS_PRESETS_EXT);
     }
     
     void write_presets_to_file(QString a_file)
@@ -218,7 +237,7 @@ public:
         if(!f_dir->exists(a_preset_directory))
             f_dir->mkpath(a_preset_directory);
 
-        QFile* f_file = new QFile(a_preset_directory + "/" + a_plugin_name + "-presets.tsv");
+        QFile* f_file = new QFile(a_preset_directory + "/" + a_plugin_name + LMS_PRESETS_EXT);
 
         if(!f_file->open(QIODevice::ReadOnly)) 
         {   
