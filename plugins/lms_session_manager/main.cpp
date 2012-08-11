@@ -8,6 +8,7 @@
  */
 
 #include <QApplication>
+#include <QWidget>
 #include "main_form.h"
 
 int main(int argc, char *argv[]) {
@@ -18,7 +19,9 @@ int main(int argc, char *argv[]) {
 
     // create and show your widgets here
     main_form * form = new main_form();
+    QObject::connect(&app, SIGNAL(aboutToQuit()), form, SLOT(quitHandler()));    
+        
     form->show();
-
+    
     return app.exec();
 }
