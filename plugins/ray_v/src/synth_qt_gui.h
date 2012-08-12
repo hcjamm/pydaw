@@ -121,6 +121,7 @@ public slots:
     void setLFOcutoff(float);
     
     void aboutToQuit();
+    void setFirstPreset();
     
 protected slots:
     /*Event handlers for receiving changed knob values*/

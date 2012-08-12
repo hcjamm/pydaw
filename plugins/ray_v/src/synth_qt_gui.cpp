@@ -282,6 +282,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     myTimer->setSingleShot(false);
     myTimer->start(0);
     
+    m_suppressHostUpdate = false;
+    
     if(is_session)
     {
         QTimer *sessionTimer = new QTimer(this);
@@ -289,9 +291,27 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         sessionTimer->setSingleShot(false);
         sessionTimer->setInterval(5000);
         sessionTimer->start();
+        
+        QTimer *setPreset = new QTimer(this);
+        connect(setPreset, SIGNAL(timeout()), this, SLOT(setFirstPreset()));
+        setPreset->setSingleShot(TRUE);
+        setPreset->setInterval(2000);
+        setPreset->start();
     }
     
-    m_suppressHostUpdate = false;
+    
+}
+
+void SynthGUI::setFirstPreset()
+{
+    /* On the surface, this would appear that this is a seriously stupid piece of
+     code, but as it turns out, QComboBoxes don't like having their index set during
+     a window constructor, they will ignore the change and emit no signals;  So we
+     catch it here 5 seconds after loading the window, then this should never evaluate
+     to TRUE again...*/
+    
+    m_program->m_program->setCurrentIndex((m_program->pending_index_change));
+    
 }
 
 void SynthGUI::lms_set_value(float val, LMS_control * a_ctrl )
@@ -380,7 +400,7 @@ void SynthGUI::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms
 void SynthGUI::LFOampChanged(int a_value){lms_value_changed(a_value, m_lfo_amp);}
 void SynthGUI::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
 void SynthGUI::LFOcutoffChanged(int a_value){lms_value_changed(a_value, m_lfo_cutoff);}
-void SynthGUI::programChanged(int a_value){lms_value_changed(a_value, m_program); m_program->pending_index_change = a_value;}
+void SynthGUI::programChanged(int a_value){lms_value_changed(a_value, m_program);}
 void SynthGUI::programSaved(){ m_program->programSaved(); }
 
 
@@ -599,17 +619,7 @@ void SynthGUI::oscRecv()
 }
 
 void SynthGUI::sessionTimeout()
-{
-    /* On the surface, this would appear that this is a seriously stupid piece of
-     code, but as it turns out, QComboBoxes don't like having their index set during
-     a window constructor, they will ignore the change and emit no signals;  So we
-     catch it here 6 seconds after loading the window, then this should never evaluate
-     to TRUE again...*/
-    if(m_program->m_program->currentIndex() != (m_program->pending_index_change))
-    {
-        m_program->m_program->setCurrentIndex((m_program->pending_index_change));
-    }
-    
+{    
     if(lms_session_manager::is_saving(project_path, instance_name))
     {
         cerr << instance_name << " is saving...\n";
