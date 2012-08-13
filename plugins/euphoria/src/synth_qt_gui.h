@@ -66,6 +66,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/sample_graph.h"
 #include "../../libmodsynth/widgets/ui_modules/multieffect_basic.h"
 #include "../../libmodsynth/widgets/lms_file_browser.h"
+#include "../../libmodsynth/widgets/lms_session_manager.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -78,7 +79,9 @@ class SamplerGUI : public QFrame
 public:
     SamplerGUI(bool stereo, const char * host, const char * port,
 	       QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
-	       QByteArray exitingPath, QWidget *w = 0);
+	       QByteArray exitingPath, QWidget *w = 0,
+               bool a_is_session = FALSE, QString a_project_path = QString(""), QString a_instance_name = QString("")
+               );
     virtual ~SamplerGUI();
 
     bool ready() const { return m_ready; }
@@ -137,6 +140,11 @@ public:
     
     int m_mono_fx_values[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT][LMS_PORTS_PER_MOD_EFFECT];
     int m_sample_selected_monofx_groups[LMS_MAX_SAMPLE_COUNT];
+        
+    QString project_path;
+    QString instance_name;
+    
+    bool is_session;
     
 public slots:
     void setSampleFile(QString file);
@@ -146,7 +154,9 @@ public slots:
     void reloadSample();
     void moveSamplesToSingleDirectory();
     void saveInstrumentToSingleFile();
+    void saveInstrumentToSingleFile(QString);
     void openInstrumentFromFile();
+    void openInstrumentFromFile(QString);
     void sampleStartChanged(int);
     void sampleEndChanged(int);
     void sampleLoopStartChanged(int);
@@ -155,6 +165,9 @@ public slots:
     void loopModeChanged(int);
     void mapAllSamplesToOneWhiteKey();
     void clearAllSamples();
+    
+    void sessionTimeout();
+    void setFirstPreset();
     
     //From Ray-V PolyFX
     void setAttack (float);
