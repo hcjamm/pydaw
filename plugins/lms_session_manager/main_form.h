@@ -188,7 +188,7 @@ class main_form : public QWidget
                 break;
             case 1:
                 f_args << QString("euphoria.so");
-                processes[a_instrument_index]->start(QString("lms-jack-dssi-host"), f_args);
+                processes[a_instrument_index]->startDetached(QString("lms-jack-dssi-host"), f_args);
                 instance_names[a_instrument_index]->setEnabled(FALSE);
                 break;
             case 2:
