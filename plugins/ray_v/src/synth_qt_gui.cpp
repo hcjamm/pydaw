@@ -630,7 +630,7 @@ void SynthGUI::sessionTimeout()
     
     if(lms_session_manager::is_quitting(project_path, instance_name))
     {
-        
+        this->close();
     }        
 }
 

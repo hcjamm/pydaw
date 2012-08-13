@@ -347,9 +347,30 @@ public slots:
     
     void quitHandler()
     {
-        cerr << QString("Quitting...");
+        cerr << QString("Quitting...\n");
         
-        //TODO:  Signal to all of the plugins to quit
+        QString f_notify_dir = project_directory + LMS_NOTIFY_DIRECTORY;
+        
+        for(int f_i = 0; f_i < LMS_INSTRUMENT_COUNT; f_i++)
+        {
+            if(select_instrument[f_i]->currentIndex() > 0)
+            {
+                QFile f_save_file( f_notify_dir + instance_names[f_i]->text() + QString(".quit"));
+                if ( f_save_file.open(QIODevice::WriteOnly | QIODevice::Text) )
+                {
+                    QTextStream stream( &f_save_file );
+                    stream << "Created by LMS Session Manager\n";
+                    stream.flush();
+                }
+                else
+                {
+                    cerr << "Failed to open file.\n";
+                }
+                
+                f_save_file.close();
+
+            }
+        }
     }
 };
 
