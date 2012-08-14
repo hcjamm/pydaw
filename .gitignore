@@ -38,8 +38,8 @@ plugins/maintainer.txt
 /plugins/lms_splashscreen/build/
 /plugins/lms_splashscreen/dist/
 
-/plugins/lms_session_manager/dist/
-/plugins/lms_session_manager/build/
+plugins/lms_session_manager/lms_session_mgr
+plugins/lms_session_manager/moc_main_form.cpp
 
 plugins/lms_splashscreen/lms_splashscreen
 plugins/protractor/Makefile
