@@ -21,6 +21,7 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QApplication>
 
 #include "../libmodsynth/widgets/lms_main_layout.h"
 
@@ -44,10 +45,30 @@ class main_form : public QWidget
     
     public:
         
-        //TODO:  Ensure that a2jmidid is running at startup
+    //TODO:  Ensure that a2jmidid is running at startup
         
-    main_form()
+    main_form(QString a_project_path)
     {
+        full_project_file_path = a_project_path;
+        
+        QStringList f_project_path_arr = a_project_path.split(QString("/"));
+        
+        project_directory = QString("");
+        
+        for(int i = 1; i < f_project_path_arr.count(); i++)            
+        {
+            if(i == (f_project_path_arr.count() - 1))
+            {
+                project_name = f_project_path_arr.at(i).split(QString(".pss")).at(0);
+            }
+            else
+            {
+                project_directory.append(QString("/"));
+                project_directory.append(f_project_path_arr.at(i));
+            }
+            
+        }
+        
         QRect f_rect(0, 0, 360, 600);
         this->setGeometry(f_rect);
         //this->setStyleSheet(QString("background-color: white; color:black;"));
@@ -70,13 +91,7 @@ class main_form : public QWidget
         connect(save_button, SIGNAL(pressed()), this, SLOT(save_button_pressed()));
         
         main_layout->lms_add_widget(save_button);
-        
-        open_button = new QPushButton();
-        open_button->setText(QString("Open"));
-        connect(open_button, SIGNAL(pressed()), this, SLOT(open_button_pressed()));
-        
-        main_layout->lms_add_widget(open_button);
-        
+                
         main_layout->lms_add_layout();
         
         table_widget = new QTableWidget(LMS_INSTRUMENT_COUNT, 2, this);
@@ -137,10 +152,52 @@ class main_form : public QWidget
         connect(select_instrument[13], SIGNAL(currentIndexChanged(int)), this, SLOT(instrument_index_changed13(int)));
         connect(select_instrument[14], SIGNAL(currentIndexChanged(int)), this, SLOT(instrument_index_changed14(int)));
         connect(select_instrument[15], SIGNAL(currentIndexChanged(int)), this, SLOT(instrument_index_changed15(int)));
+
         
+        QString f_notify_dir = project_directory + LMS_NOTIFY_DIRECTORY;
+
+        if(!QFile::exists(f_notify_dir))
+        {
+            //cerr << f_file_info.dir().absolutePath() + QString("/.notify/");
+            QDir f_dir(project_directory);
+
+            f_dir.mkpath(f_notify_dir);
+        }
+
         
-        
-        
+        if(QFile::exists(full_project_file_path))
+        {            
+            QFile file(full_project_file_path);
+
+            //QFileInfo f_file_info(full_project_file_path);
+
+            //project_directory = f_file_info.dir().absolutePath();
+
+            if(!file.open(QIODevice::ReadOnly)) {
+                QMessageBox::information(0, "error", file.errorString());
+                return;
+            }
+
+            QTextStream in(&file);
+
+            int f_count = 0;
+
+            while((!in.atEnd()) && (f_count < LMS_INSTRUMENT_COUNT))
+            {
+                QString line = in.readLine();
+
+                QStringList f_line_list = line.split(LMS_DELIMITER);
+
+                instance_names[f_count]->setText(f_line_list.at(1));  //This must be set before select_instrument
+                select_instrument[f_count]->setCurrentIndex(f_line_list.at(0).toInt());                
+
+                f_count++;
+            }
+        }
+        else
+        {
+            
+        }
         
         QTimer *myTimer = new QTimer(this);
         connect(myTimer, SIGNAL(timeout()), this, SLOT(timer_polling()));
@@ -151,10 +208,10 @@ class main_form : public QWidget
     
     QString project_directory;
     QString project_name;
+    QString full_project_file_path;
     
     QProcess * processes[LMS_INSTRUMENT_COUNT];
     
-    QPushButton * open_button;
     QPushButton * save_button;
     
     QComboBox * midi_keyboard_combobox;
@@ -199,67 +256,9 @@ class main_form : public QWidget
         }
     }
     
-    void open_session_file()
-    {
-        QString f_selected_path = QFileDialog::getOpenFileName(this, "Select a session file to open...", ".", "Protractor Session Files (*.pss)");  
-    
-        if(!f_selected_path.isEmpty())
-        {
-            QFile file(f_selected_path);
-            
-            QFileInfo f_file_info(f_selected_path);
-
-            project_directory = f_file_info.dir().absolutePath();
-
-            QString f_notify_dir = project_directory + LMS_NOTIFY_DIRECTORY;
-
-            if(!QFile::exists(f_notify_dir))
-            {
-                //cerr << f_file_info.dir().absolutePath() + QString("/.notify/");
-                QDir f_dir(project_directory);
-
-                f_dir.mkpath(f_notify_dir);
-            }
-            
-            
-            if(!file.open(QIODevice::ReadOnly)) {
-                QMessageBox::information(0, "error", file.errorString());
-                return;
-            }
-
-            QTextStream in(&file);
-
-            int f_count = 0;
-            
-            while((!in.atEnd()) && (f_count < LMS_INSTRUMENT_COUNT))
-            {
-                QString line = in.readLine();
-                
-                QStringList f_line_list = line.split(LMS_DELIMITER);
-                
-                instance_names[f_count]->setText(f_line_list.at(1));  //This must be set before select_instrument
-                select_instrument[f_count]->setCurrentIndex(f_line_list.at(0).toInt());                
-                
-                f_count++;
-            }
-
-        }
-    }
     void save_session_file()
-    {
-        QString f_selected_path = QFileDialog::getSaveFileName(this, "Select an file to save the session to...", ".", "Protractor Session Files (*.pss)");
-        
-        if(!f_selected_path.endsWith(QString(".pss"), Qt::CaseSensitive))
-        {
-            f_selected_path.append(QString(".pss"));
-        }
-        
-        if(f_selected_path.isEmpty())
-        {
-            return;
-        }
-        
-        QFile file( f_selected_path );
+    {   
+        QFile file( full_project_file_path );
         if ( file.open(QIODevice::ReadWrite) )
         {
             QTextStream stream( &file );
@@ -274,7 +273,7 @@ class main_form : public QWidget
             file.close();            
         }        
         
-        QFileInfo f_file_info(f_selected_path);
+        QFileInfo f_file_info(full_project_file_path);
         
         project_directory = f_file_info.dir().absolutePath();
         
@@ -307,19 +306,13 @@ class main_form : public QWidget
                 f_save_file.close();
 
             }
-        }
-        
+        }        
     }
     
 public slots:
     void save_button_pressed()
     {
         save_session_file();
-    }
-    
-    void open_button_pressed()
-    {
-        open_session_file();
     }
     
     void instrument_index_changed0(int a_index){instrument_index_changed(0, a_index);};
@@ -371,6 +364,91 @@ public slots:
 
             }
         }
+    }
+};
+
+class first_window : public QWidget
+{
+    Q_OBJECT
+    
+public:
+    first_window(QApplication * a_qapp)
+    {
+        qapp = a_qapp;
+        
+        main_layout = new LMS_main_layout(this);
+        
+        text_label = new QLabel(this);
+        
+        text_label->setText(QString("Open an existing .pss file, or create a new project."));
+        
+        main_layout->lms_add_widget(text_label);
+        
+        main_layout->lms_add_layout();
+        
+        new_button = new QPushButton();        
+        new_button->setText(QString("New"));
+        connect(new_button, SIGNAL(pressed()), this, SLOT(new_button_pressed()));
+        
+        main_layout->lms_add_widget(new_button);
+        
+        open_button = new QPushButton();
+        open_button->setText(QString("Open"));
+        connect(open_button, SIGNAL(pressed()), this, SLOT(open_button_pressed()));
+        
+        main_layout->lms_add_widget(open_button);
+    }
+    
+    ~first_window()
+    {
+        delete new_button;
+        delete new_button;
+        delete text_label;
+        delete main_layout;
+    }
+    
+    LMS_main_layout * main_layout;
+    QPushButton * new_button;
+    QPushButton * open_button;
+    QLabel * text_label;
+    QApplication * qapp;
+            
+public slots:
+    void open_button_pressed()
+    {
+        QString f_selected_path = QFileDialog::getOpenFileName(this, "Select a session file to open...", ".", "Protractor Session Files (*.pss)");  
+                
+        if(f_selected_path.isEmpty())
+        {
+            return;
+        }
+        
+        main_form * f_form = new main_form(f_selected_path);
+        QObject::connect(qapp, SIGNAL(aboutToQuit()), f_form, SLOT(quitHandler()));
+        f_form->show();
+        
+        this->close();
+    }
+    
+    void new_button_pressed()
+    {
+        QString f_selected_path = QFileDialog::getSaveFileName(this, "Select an file to save the session to...", ".", "Protractor Session Files (*.pss)");
+                
+        if(f_selected_path.isEmpty())
+        {
+            return;
+        }
+        
+        if(!f_selected_path.endsWith(QString(".pss"), Qt::CaseSensitive))
+        {
+            f_selected_path.append(QString(".pss"));
+        }
+                
+        main_form * f_form = new main_form(f_selected_path);
+        QObject::connect(qapp, SIGNAL(aboutToQuit()), f_form, SLOT(quitHandler()));    
+        f_form->show();
+        
+        this->close();
     }
 };
 
