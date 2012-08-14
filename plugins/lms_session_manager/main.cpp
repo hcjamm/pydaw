@@ -15,13 +15,11 @@ int main(int argc, char *argv[]) {
     // initialize resources, if needed
     // Q_INIT_RESOURCE(resfile);
 
-    QApplication app(argc, argv);
-
-    // create and show your widgets here
-    main_form * form = new main_form();
-    QObject::connect(&app, SIGNAL(aboutToQuit()), form, SLOT(quitHandler()));    
-        
+    QApplication * app = new QApplication(argc, argv);
+    
+    first_window * form = new first_window(app);
+    
     form->show();
     
-    return app.exec();
+    return app->exec();
 }
