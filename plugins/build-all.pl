@@ -312,6 +312,24 @@ else
 	system("cd lms-jack-dssi-host ; make clean ;  perl build.pl --build-jack-host-debug ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host");
 }
 
+#build LMS Session Manager
+print "\nBuilding LMS Session Manager...\n\n";
+system("cd lms_session_manager ; make ; make PREFIX=/usr DESTDIR=../$package_dir install");
+
+$desktop_text = 
+"[Desktop Entry]
+Name=LMS Session Manager
+Comment=LMS Suite Project Management
+Exec=lms_session_mgr
+Icon=libmodsynth.png
+Terminal=false
+Type=Application
+Categories=Audio;AudioEditing;";
+
+open (MYFILE, ">>$desktop_dir/lms_session_mgr.desktop");
+print MYFILE "$desktop_text";
+close (MYFILE);
+
 if($os eq "install")
 {
 	print "
