@@ -196,8 +196,10 @@ class main_form : public QWidget
         }
         else
         {
-            
+            //Do nothing, or maybe create a new default file?
         }
+        
+        supress_instrument_change = FALSE;
         
         QTimer *myTimer = new QTimer(this);
         connect(myTimer, SIGNAL(timeout()), this, SLOT(timer_polling()));
@@ -222,20 +224,42 @@ class main_form : public QWidget
     QComboBox * select_audio_output[LMS_INSTRUMENT_COUNT];
     QRadioButton * select_midi_keyboard[LMS_INSTRUMENT_COUNT];
     LMS_main_layout * main_layout;
+    
+    bool supress_instrument_change;
             
     void instrument_index_changed(int a_instrument_index, int a_index)
     {
+        if(supress_instrument_change)
+        {
+            return;
+        }
+        
         if(instance_names[a_instrument_index]->text().isEmpty())
         {
             QMessageBox::warning(this, QString("Error"), QString("The instance name must not be empty"));
             return;
         }
         
+        //TODO:  Figure out how best to handle attempts at going between different instruments...  Invoke the quit handler, etc..
+        
         instance_names[a_instrument_index]->setText(instance_names[a_instrument_index]->text().trimmed());
+                        
+        for(int i = 0; i < LMS_INSTRUMENT_COUNT; i++)
+        {
+            if((i != a_instrument_index) && (select_instrument[i]->currentIndex() > 0))
+            {
+                if(!(instance_names[a_instrument_index]->text()).compare(instance_names[i]->text(), Qt::CaseInsensitive))
+                {
+                    QMessageBox::warning(this, QString("Error"), QString("Instance names must be unique."));
+                    supress_instrument_change = TRUE;
+                    select_instrument[a_instrument_index]->setCurrentIndex(0);
+                    supress_instrument_change = FALSE;
+                    return;
+                }
+            }
+        }
         
-        //TODO:  Check that the name is unique.
-        
-        QStringList f_args = QStringList() << QString("-a") <<  QString("-p") << project_directory << QString("-c") << instance_names[a_instrument_index]->text();
+        QStringList f_args = QStringList() << QString("-a") <<  QString("-p") << project_directory << QString("-c") << project_name + QString("-") + instance_names[a_instrument_index]->text();
         
         switch(a_index)
         {
@@ -291,7 +315,7 @@ class main_form : public QWidget
         {
             if(select_instrument[f_i]->currentIndex() > 0)
             {
-                QFile f_save_file( f_notify_dir + instance_names[f_i]->text() + QString(".save"));
+                QFile f_save_file( f_notify_dir + project_name + QString("-") + instance_names[f_i]->text() + QString(".save"));
                 if ( f_save_file.open(QIODevice::WriteOnly | QIODevice::Text) )
                 {
                     QTextStream stream( &f_save_file );
@@ -348,10 +372,10 @@ public slots:
         {
             if(select_instrument[f_i]->currentIndex() > 0)
             {
-                QFile f_save_file( f_notify_dir + instance_names[f_i]->text() + QString(".quit"));
-                if ( f_save_file.open(QIODevice::WriteOnly | QIODevice::Text) )
+                QFile f_quit_file( f_notify_dir + project_name + QString("-") + instance_names[f_i]->text() + QString(".quit"));
+                if ( f_quit_file.open(QIODevice::WriteOnly | QIODevice::Text) )
                 {
-                    QTextStream stream( &f_save_file );
+                    QTextStream stream( &f_quit_file );
                     stream << "Created by LMS Session Manager\n";
                     stream.flush();
                 }
@@ -360,7 +384,7 @@ public slots:
                     cerr << "Failed to open file.\n";
                 }
                 
-                f_save_file.close();
+                f_quit_file.close();
 
             }
         }
