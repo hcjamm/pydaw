@@ -1244,6 +1244,10 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     
     if(is_session)
     {
+        //This checks for any stray notification files and removes them
+        lms_session_manager::is_saving(project_path, instance_name);
+        lms_session_manager::is_quitting(project_path, instance_name);
+        
         QTimer *sessionTimer = new QTimer(this);
         connect(sessionTimer, SIGNAL(timeout()), this, SLOT(sessionTimeout()));
         sessionTimer->setSingleShot(false);
