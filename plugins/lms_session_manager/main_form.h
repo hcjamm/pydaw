@@ -49,6 +49,8 @@ class main_form : public QWidget
         
     main_form(QString a_project_path)
     {
+        first_quit = TRUE;
+        
         full_project_file_path = a_project_path;
         
         QStringList f_project_path_arr = a_project_path.split(QString("/"));
@@ -164,7 +166,8 @@ class main_form : public QWidget
             f_dir.mkpath(f_notify_dir);
         }
 
-        
+        supress_instrument_change = FALSE;
+                
         if(QFile::exists(full_project_file_path))
         {            
             QFile file(full_project_file_path);
@@ -198,9 +201,7 @@ class main_form : public QWidget
         {
             //Do nothing, or maybe create a new default file?
         }
-        
-        supress_instrument_change = FALSE;
-        
+                
         QTimer *myTimer = new QTimer(this);
         connect(myTimer, SIGNAL(timeout()), this, SLOT(timer_polling()));
         myTimer->setSingleShot(false);
@@ -225,6 +226,7 @@ class main_form : public QWidget
     QRadioButton * select_midi_keyboard[LMS_INSTRUMENT_COUNT];
     LMS_main_layout * main_layout;
     
+    bool first_quit;    
     bool supress_instrument_change;
             
     void instrument_index_changed(int a_instrument_index, int a_index)
@@ -361,9 +363,16 @@ public slots:
         
     }
     
-    
     void quitHandler()
     {
+        /*
+        if(first_quit)
+        {
+            first_quit = FALSE;
+            return;
+        }
+        */
+        
         cerr << QString("Quitting...\n");
         
         QString f_notify_dir = project_directory + LMS_NOTIFY_DIRECTORY;
@@ -372,20 +381,21 @@ public slots:
         {
             if(select_instrument[f_i]->currentIndex() > 0)
             {
-                QFile f_quit_file( f_notify_dir + project_name + QString("-") + instance_names[f_i]->text() + QString(".quit"));
+                QString f_quit_file_path = f_notify_dir + project_name + QString("-") + instance_names[f_i]->text() + QString(".quit");
+                
+                QFile f_quit_file(f_quit_file_path);
                 if ( f_quit_file.open(QIODevice::WriteOnly | QIODevice::Text) )
                 {
                     QTextStream stream( &f_quit_file );
                     stream << "Created by LMS Session Manager\n";
                     stream.flush();
+                    
+                    f_quit_file.close();
                 }
                 else
                 {
-                    cerr << "Failed to open file.\n";
-                }
-                
-                f_quit_file.close();
-
+                    cerr << "quitHandler failed to open file " << f_quit_file_path << "\n";
+                }                
             }
         }
     }
