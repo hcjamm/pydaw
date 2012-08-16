@@ -17,8 +17,6 @@ GNU General Public License for more details.
 #include "synth_qt_gui.h"
 
 #include <QApplication>
-#include <QPushButton>
-#include <QTextStream>
 #include <QTimer>
 #include <iostream>
 #include <unistd.h>
@@ -28,9 +26,6 @@ GNU General Public License for more details.
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QDial>
-#include <QPixmap>
-#include <QFile>
-#include <QDir>
 #include <QTextStream>
 #include <QMessageBox>
 
@@ -85,87 +80,44 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QLabel {color: white} QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{border:1px solid white;border-radius:3px; padding:1px;background-color:black;color:white} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
     
-#ifdef LMS_DEBUG_MODE_QT    
-    cerr << "Creating the GUI controls" << endl;    
-#endif
+    main_layout = new LMS_main_layout(this);
     
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    LMS_style_info * f_info = new LMS_style_info(60);
     
-    QHBoxLayout *layout_row0 = new QHBoxLayout();
-    QHBoxLayout *layout_row1 = new QHBoxLayout();
+    delay_groupbox = new LMS_group_box(this, QString("Delay"), f_info);
+    main_layout->lms_add_widget(delay_groupbox->lms_groupbox);
     
-    layout->addLayout(layout_row0);
-    layout->addLayout(layout_row1, -1);        
+    m_delaytime  = new LMS_knob_regular(QString("Time"), 10, 100, 1, 50, QString(""), this, f_info, lms_kc_decimal, LMS_DELAY_TIME);
+    delay_groupbox->lms_add_h(m_delaytime);
+    connect(m_delaytime->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(delayTimeChanged(int)));
         
-    //int f_row = 0;
-    int f_column = 0;
+    m_feedback = new LMS_knob_regular(QString("Feedback"), -20, 0, 1, -12, QString(""), this, f_info, lms_kc_integer, LMS_FEEDBACK);
+    delay_groupbox->lms_add_h(m_feedback);
+    connect(m_feedback->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(feedbackChanged(int)));
     
-    int f_gb_layout_row = 0;
-    int f_gb_layout_column = 0;
-    /*Lay out the controls you declared in the first step*/
+    m_dry = new LMS_knob_regular(QString("Dry"), -30, 0, 1, 0, QString(""), this, f_info, lms_kc_integer, LMS_DRY);
+    delay_groupbox->lms_add_h(m_dry);
+    connect(m_dry->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(dryChanged(int)));
     
-#ifdef LMS_DEBUG_MODE_QT    
-    cerr << "Creating the Filter controls" << endl;    
-#endif    
-    
-    QGroupBox * f_gb_filter = newGroupBox("Delay", this); 
-    QGridLayout *f_gb_filter_layout = new QGridLayout(f_gb_filter);
-    
-    m_delaytime  =   newQDial(10, 100, 1, 50);//get_knob(zero_to_one); //newQDial(0, 4, 1, 2);
-    m_delaytimeLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Time",m_delaytime, m_delaytimeLabel);
-    connect(m_delaytime,  SIGNAL(valueChanged(int)), this, SLOT(delayTimeChanged(int)));
+    m_wet = new LMS_knob_regular(QString("Wet"), -30, 0, 1, -6, QString(""), this, f_info, lms_kc_integer, LMS_WET);
+    delay_groupbox->lms_add_h(m_wet);
+    connect(m_wet->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(wetChanged(int)));
         
-    f_gb_layout_column++;
+    m_duck = new LMS_knob_regular(QString("Duck"), -40, 0, 1, -6, QString(""), this, f_info, lms_kc_integer, LMS_DUCK);
+    delay_groupbox->lms_add_h(m_duck);
+    connect(m_duck->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(duckChanged(int)));
     
-    m_feedback  =  newQDial(-15, 0, 1, -6); //get_knob(decibels_20_to_0); 
-    m_feedbackLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Feedback", m_feedback, m_feedbackLabel);
-    connect(m_feedback,  SIGNAL(valueChanged(int)), this, SLOT(feedbackChanged(int)));
+    m_cutoff = new LMS_knob_regular(QString("Cutoff"), 20, 124, 1, -6, QString(""), this, f_info, lms_kc_pitch, LMS_CUTOFF);
+    delay_groupbox->lms_add_h(m_cutoff);
+    connect(m_cutoff->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
+    
+    m_stereo = new LMS_knob_regular(QString("Stereo"), 0, 100, 1, 100, QString(""), this, f_info, lms_kc_decimal, LMS_CUTOFF);
+    delay_groupbox->lms_add_h(m_stereo);
+    connect(m_stereo->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(stereoChanged(int)));
         
-    f_gb_layout_column++;
-    
-    m_dry  =   get_knob(decibels_30_to_0); 
-    m_dryLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Dry",m_dry, m_dryLabel);
-    connect(m_dry,  SIGNAL(valueChanged(int)), this, SLOT(dryChanged(int)));
-        
-    f_gb_layout_column++;
-    
-    m_wet  =  get_knob(decibels_30_to_0); 
-    m_wetLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Wet", m_wet, m_wetLabel);
-    connect(m_wet,  SIGNAL(valueChanged(int)), this, SLOT(wetChanged(int)));
-        
-    f_gb_layout_column++;
-    
-    m_duck  =  newQDial(-40, 0, 1, -20); // get_knob(decibels_0);
-    m_duckLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Duck",m_duck, m_duckLabel);
-    connect(m_duck,  SIGNAL(valueChanged(int)), this, SLOT(duckChanged(int)));
-        
-    f_gb_layout_column++;
-    
-    m_cutoff  =  newQDial(40, 118, 1, 105); // get_knob(pitch); 
-    m_cutoffLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Cutoff", m_cutoff, m_cutoffLabel);
-    connect(m_cutoff,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
-    
-    f_gb_layout_column++;
-    
-    m_stereo  =  get_knob(zero_to_one); 
-    m_stereoLabel  = newQLabel(this);
-    add_widget(f_gb_filter_layout, f_gb_layout_column, f_gb_layout_row, "Stereo", m_stereo, m_stereoLabel);
-    connect(m_stereo,  SIGNAL(valueChanged(int)), this, SLOT(stereoChanged(int)));
-    
-    f_gb_layout_column++;
-    
-    layout_row0->addWidget(f_gb_filter, -1, Qt::AlignLeft);
-    f_column++;
-    f_gb_layout_row = 0;
-    f_gb_layout_column = 0;
-    
-    QGroupBox * f_gb_bpm = newGroupBox("Tempo Sync", this); 
+    QGroupBox * f_gb_bpm = new QGroupBox(this); 
+    f_gb_bpm->setTitle(QString("Tempo Sync"));
+    f_gb_bpm->setAlignment(Qt::AlignHCenter);    
     QGridLayout *f_gb_bpm_layout = new QGridLayout(f_gb_bpm);
     
     m_bpm_spinbox = new QDoubleSpinBox(this);
@@ -175,9 +127,10 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_bpm_spinbox->setMaximum(200);
     m_bpm_spinbox->setSingleStep(0.1);
     
-    QString f_beat_fracs [] = {"1/4", "1/3", "1/2", "2/3", "3/4", "1"};
-    int f_beat_fracs_count = 6;    
-    m_beat_frac = get_combobox(f_beat_fracs, f_beat_fracs_count , this);     
+    QStringList f_beat_fracs = QStringList() << QString("1/4") << QString("1/3") << QString("1/2") << QString("2/3") << QString("3/4") << QString("1");
+    
+    m_beat_frac = new QComboBox(this); // get_combobox(f_beat_fracs, f_beat_fracs_count , this);
+    m_beat_frac->addItems(f_beat_fracs);
     
     m_sync_bpm = new QPushButton(this);
     m_sync_bpm->setText("Sync");
@@ -199,7 +152,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     f_gb_bpm_layout->addWidget(m_beat_frac, 1, 1, Qt::AlignCenter);
     f_gb_bpm_layout->addWidget(m_sync_bpm, 2, 1, Qt::AlignCenter);
     
-    layout_row0->addWidget(f_gb_bpm, -1, Qt::AlignLeft);
+    main_layout->lms_add_widget(f_gb_bpm);
         
     /*End test button code, DO NOT remove the code below this*/
 
@@ -212,341 +165,51 @@ SynthGUI::SynthGUI(const char * host, const char * port,
 
 }
 
-/*I'm leaving this in here for now, but at the present it doesn't work*/
-void SynthGUI::v_add_knob_to_layout(QDial * a_knob, e_knob_type a_knob_type, int a_default_value, QLabel * a_label, QGridLayout * a_layout, QString a_title,
-int a_gb_layout_column, int a_gb_layout_row, const char * a_signal, const char * a_slot)
-{
-    a_knob = get_knob(a_knob_type, a_default_value);
-    a_label  = newQLabel(this);
-    add_widget(a_layout, a_gb_layout_column, a_gb_layout_row, a_title,a_knob, a_label);
-    connect(a_knob,  a_signal, this, a_slot);    
-}
-
-
-void SynthGUI::add_widget(QGridLayout * a_layout, int a_position_x, int a_position_y, QString a_label_text,  QWidget * a_widget,
-    QLabel * _label)
-{   
-    QLabel * f_knob_title = new QLabel(a_label_text,  this);
-    f_knob_title->setMinimumWidth(60);
-    f_knob_title->setAlignment(Qt::AlignCenter);
-    f_knob_title->setStyleSheet("color: black; background-color: white; border: 1px solid black;  border-radius: 6px;");
-    
-    a_layout->addWidget(f_knob_title, a_position_y, a_position_x, Qt::AlignCenter);    
-    a_layout->addWidget(a_widget,  (a_position_y + 1), a_position_x);
-    a_layout->addWidget(_label,  (a_position_y + 2), a_position_x, Qt::AlignCenter);     
-}
-
-void SynthGUI::add_widget_no_label(QGridLayout * a_layout, int a_position_x, int a_position_y, QString a_label_text, QWidget * a_widget)
-{
-    QLabel * f_knob_title = new QLabel(a_label_text,  this);
-    f_knob_title->setMinimumWidth(60);  //TODO:  make this a constant
-    f_knob_title->setAlignment(Qt::AlignCenter);
-    f_knob_title->setStyleSheet("background-color: white; border: 1px solid black;  border-radius: 6px;");    //TODO:  make this a constant string for all knobs
-    
-    a_layout->addWidget(f_knob_title, a_position_y, a_position_x, Qt::AlignCenter);    
-    a_layout->addWidget(a_widget,  (a_position_y + 1), a_position_x);    
-}
-
-QGroupBox * SynthGUI::newGroupBox(QString a_title, QWidget * a_parent)
-{
-    QGroupBox * f_result = new QGroupBox(a_parent);
-    
-    f_result->setTitle(a_title);
-    f_result->setAlignment(Qt::AlignHCenter);
-    return f_result;
-}
-
-QLabel * SynthGUI::newQLabel(QWidget * a_parent)
-{
-    QLabel * f_result = new QLabel(a_parent);
-    //_result->setStyleSheet("background-color: white; border: 2px solid black;  border-radius: 6px;");
-    return f_result;
-}
-
-QDial * SynthGUI::get_knob(e_knob_type a_ktype, int a_default_value)
-{
-    int f_min, f_max, f_step, f_value;
-    
-    switch(a_ktype)
-    {
-        case decibels_0:
-                f_min = -60; f_max = 0; f_step = 1; f_value = -6; 
-                break;
-        case decibels_plus_12:
-            f_min = -60; f_max = 12; f_step = 1; f_value = -6;            
-            break;
-        case decibels_plus_24:
-            f_min = -60; f_max = 24; f_step = 1; f_value = -6;            
-            break;
-        case decibels_plus_6:            
-            f_min = -60; f_max = 6; f_step = 1; f_value = -6;            
-            break;
-        case decibels_30_to_0:
-            f_min = -30; f_max = 0; f_step = 1; f_value = -9;
-            break;
-        case decibels_20_to_0:
-            f_min = -20; f_max = 0; f_step = 1; f_value = -9;
-            break;
-        case pitch:
-            f_min = 20; f_max = 124; f_step = 1; f_value = 105;            
-            break;
-        case zero_to_four:
-            f_min = 1; f_max = 400; f_step = 4; f_value = 75;            
-            break;
-        case zero_to_one:
-            f_min = 1; f_max = 100; f_step = 1; f_value = 15;            
-            break;
-        case zero_to_two:
-            f_min = 1; f_max = 200; f_step = 2; f_value = 25;            
-            break;
-        case minus1_to_1:
-            f_min = -100; f_max = 100; f_step = 1; f_value = 0;            
-            break;
-        case minus12_to_12:
-            f_min = -12; f_max = 12; f_step = 1; f_value = 0;            
-            break;
-        case minus24_to_24:
-            f_min = -24; f_max = 24; f_step = 1; f_value = 0;            
-            break;
-        case minus36_to_36:
-            f_min = -36; f_max = 36; f_step = 1; f_value = 0;            
-            break;
-    }
-    
-    if(a_default_value != 333)  //This makes the assumption that we will never pick 333 as a default value
-    {
-        f_value = a_default_value;
-    }
-    
-     return newQDial(f_min, f_max, f_step, f_value);
-    
-}
-
-QCheckBox * SynthGUI::get_checkbox(std::string a_text)
-{
-    QCheckBox * f_checkbox = new QCheckBox(this);
-    
-    f_checkbox->setText(QString::fromStdString(a_text));
-    
-    //TODO:  add a skin to make it look like a toggle-switch
-        
-    return f_checkbox;
-}
-
-/*newQDial(
- * int minValue,
- * int maxValue,
- * int pageStep,
- * int value
- * );
- */
-QDial * SynthGUI::newQDial( int minValue, int maxValue, int pageStep, int value )
-{
-    QDial *dial = new QDial( this );
-    dial->setMinimum( minValue );
-    dial->setMaximum( maxValue );
-    dial->setPageStep( pageStep );
-    dial->setValue( value );
-    dial->setNotchesVisible(false); 
-    //TODO:  Make this a constant value
-    dial->setMaximumHeight(66);
-    dial->setMaximumWidth(66);
-    dial->setMinimumHeight(66);
-    dial->setMinimumWidth(66);
-    
-    //dial->setFocusPolicy(Qt::NoFocus);
-    
-    return dial;
-}
-
-QComboBox * SynthGUI::get_combobox(QString a_choices [], int a_count,  QWidget * a_parent)
-{
-    QComboBox * f_result = new QComboBox(a_parent);
-    QStringList f_items;
-    
-    for(int i = 0; i < a_count; i++)
-    {
-        f_items << a_choices[i];
-    }
-    
-    f_result->addItems(f_items);
-    
-    return f_result;
-}
-
-void SynthGUI::setDelayTime(float val)
+void SynthGUI::lms_set_value(float val, LMS_control * a_ctrl)
 {
     m_suppressHostUpdate = true;
-    m_delaytime->setValue(int(val));
+    a_ctrl->lms_set_value(int(val));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setFeedback(float val)
+void SynthGUI::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {
-    m_suppressHostUpdate = true;
-    m_feedback->setValue(int(val));
-    m_suppressHostUpdate = false;
-}
+    a_ctrl->lms_value_changed(a_value);
 
-void SynthGUI::setDry(float val)
-{
-    m_suppressHostUpdate = true;
-    m_dry->setValue(int(val));
-    m_suppressHostUpdate = false;
-}
-
-void SynthGUI::setWet(float val)
-{
-    m_suppressHostUpdate = true;
-    m_wet->setValue(int(val));
-    m_suppressHostUpdate = false;
-}
-
-void SynthGUI::setDuck(float val)
-{
-    m_suppressHostUpdate = true;
-    m_duck->setValue(int(val));
-    m_suppressHostUpdate = false;
-}
-
-void SynthGUI::setCutoff(float val)
-{
-    m_suppressHostUpdate = true;
-    m_cutoff->setValue(int(val));
-    m_suppressHostUpdate = false;
-}
-
-void SynthGUI::setStereo(float val)
-{
-    m_suppressHostUpdate = true;
-    m_stereo->setValue(int(val));
-    m_suppressHostUpdate = false;
-}
-
-/*Standard handlers for the audio slots, these perform manipulations of knob values
- that are common in audio applications*/
-
-void SynthGUI::changed_zero_to_x(int a_value, QLabel * a_label, int a_port)
-{
-    float val = float(a_value) * .01;
-    a_label->setText(QString("%1").arg(val));
-    
     if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, float(a_value));     
+        lo_send(m_host, m_controlPath, "if", (a_ctrl->lms_port), float(a_value));
     }
 }
 
-void SynthGUI::changed_integer(int a_value, QLabel * a_label, int a_port)
-{
-    float val = float(a_value);
-    a_label->setText(QString("%1").arg(val));
-    
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, val);
-    }
-}
+void SynthGUI::setDelayTime(float val){ lms_set_value(val, m_delaytime); }
 
-void SynthGUI::changed_seconds(int a_value, QLabel * a_label, int a_port)
-{
-    float sec = float(a_value) * .01;
-    a_label->setText(QString("%1").arg(sec));
-    
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, float(a_value));
-    }
-}
+void SynthGUI::setFeedback(float val){ lms_set_value(val, m_feedback); }
 
-void SynthGUI::changed_pitch(int a_value, QLabel * a_label, int a_port)
-{
-    /*We need to send midi note number to the synth, as it probably still needs to process it as
-     midi_note number.  We use this to display hz to the user*/
-    
-    float f_value = float(a_value);
-    float f_hz = f_pit_midi_note_to_hz(f_value);
-    
-    a_label->setText(QString("%1 hz").arg((int)f_hz));
-    
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, f_value);     
-    }    
-}
+void SynthGUI::setDry(float val){ lms_set_value(val, m_dry); }
 
-void SynthGUI::changed_decibels(int a_value, QLabel * a_label, int a_port)
-{
-    /*Decibels is a reasonable way to display this to the user, so just use it as it is*/
-    a_label->setText(QString("%1").arg(a_value));
-    
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", a_port, float(a_value));
-    }
-}
+void SynthGUI::setWet(float val){ lms_set_value(val, m_wet); }
+
+void SynthGUI::setDuck(float val){ lms_set_value(val, m_duck); }
+
+void SynthGUI::setCutoff(float val){ lms_set_value(val, m_cutoff); }
+
+void SynthGUI::setStereo(float val){ lms_set_value(val, m_stereo); }
 
 
 
+void SynthGUI::delayTimeChanged(int value){ lms_value_changed(value, m_delaytime); }
 
-/*Implement the event handlers from step 3.*/
+void SynthGUI::feedbackChanged(int value){ lms_value_changed(value, m_feedback); }
 
-void SynthGUI::delayTimeChanged(int value)
-{
-    changed_seconds(value, m_delaytimeLabel, LMS_DELAY_TIME); 
-    
-    /*
-    QString f_value;
-    
-    switch(value)
-    {
-        case 0:
-            m_delaytimeLabel->setText("1/4");            
-            break;
-        case 1:
-            m_delaytimeLabel->setText("1/3");
-            break;
-        case 2:
-            m_delaytimeLabel->setText("1/2");
-            break;
-        case 3:
-            m_delaytimeLabel->setText("1");
-            break;
-        case 4:
-            m_delaytimeLabel->setText("2");
-            break;
-    }
-    
-    if (!m_suppressHostUpdate) {
-	lo_send(m_host, m_controlPath, "if", LMS_DELAY_TIME, float(value));
-    }
-     */
-}
+void SynthGUI::dryChanged(int value){ lms_value_changed(value, m_dry); }
 
-void SynthGUI::feedbackChanged(int value)
-{
-    changed_decibels(value, m_feedbackLabel, LMS_FEEDBACK);    
-}
+void SynthGUI::wetChanged(int value){ lms_value_changed(value, m_wet); }
 
-void SynthGUI::dryChanged(int value)
-{
-    changed_decibels(value, m_dryLabel, LMS_DRY);    
-}
+void SynthGUI::duckChanged(int value){ lms_value_changed(value, m_duck); }
 
-void SynthGUI::wetChanged(int value)
-{
-    changed_decibels(value, m_wetLabel, LMS_WET);    
-}
+void SynthGUI::cutoffChanged(int value){ lms_value_changed(value, m_cutoff); }
 
-void SynthGUI::duckChanged(int value)
-{
-    changed_decibels(value, m_duckLabel, LMS_DUCK);    
-}
-
-void SynthGUI::cutoffChanged(int value)
-{
-    changed_pitch(value, m_cutoffLabel, LMS_CUTOFF);    
-}
-
-void SynthGUI::stereoChanged(int value)
-{
-    changed_zero_to_x(value, m_stereoLabel, LMS_STEREO);    
-}
+void SynthGUI::stereoChanged(int value){ lms_value_changed(value, m_stereo); }
 
 void SynthGUI::bpmSyncPressed()
 {
@@ -578,8 +241,7 @@ void SynthGUI::bpmSyncPressed()
     
     float f_result = (int)(f_seconds_per_beat * f_frac * 100);
     
-    /*TODO: Possibly use the built in functions for this*/
-    m_delaytime->setValue(f_result);
+    m_delaytime->lms_set_value(f_result);
 }
 
 
@@ -705,19 +367,19 @@ int SynthGUI::i_get_control(int a_port)
 {        
     switch (a_port) {
         case LMS_DELAY_TIME:
-            return m_delaytime->value();
+            return m_delaytime->lms_get_value();
         case LMS_FEEDBACK:
-            return m_feedback->value();
+            return m_feedback->lms_get_value();
         case LMS_DRY:
-            return m_dry->value();
+            return m_dry->lms_get_value();
         case LMS_WET:
-            return m_wet->value();
+            return m_wet->lms_get_value();
         case LMS_DUCK:
-            return m_duck->value();
+            return m_duck->lms_get_value();
         case LMS_CUTOFF:
-            return m_cutoff->value();
+            return m_cutoff->lms_get_value();
         case LMS_STEREO:
-            return m_stereo->value();
+            return m_stereo->lms_get_value();
         default:
             cerr << "Warning: received request to get nonexistent port " << a_port << endl;
             return 0;
