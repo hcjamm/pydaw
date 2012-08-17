@@ -312,6 +312,11 @@ else
 	system("cd lms-jack-dssi-host ; make clean ;  perl build.pl --build-jack-host-debug ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host");
 }
 
+#build Protractor
+print "\nBuilding Protractor...\n\n";
+system("cd protractor ; ./configure ; make");
+system("cp protractor/src/qtractor $bin_dir/protractor");
+
 #build LMS Session Manager
 print "\nBuilding LMS Session Manager...\n\n";
 system("cd lms_session_manager ; make ; make PREFIX=/usr DESTDIR=../$package_dir install");
