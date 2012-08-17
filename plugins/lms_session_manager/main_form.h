@@ -206,7 +206,10 @@ class main_form : public QWidget
         connect(myTimer, SIGNAL(timeout()), this, SLOT(timer_polling()));
         myTimer->setSingleShot(false);
         myTimer->setInterval(10000);
-        myTimer->start();        
+        myTimer->start();   
+        
+        QProcess * f_protractor = new QProcess(this);
+        f_protractor->start(QString("protractor"), QStringList());
     }   
     
     QString project_directory;
