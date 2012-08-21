@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QApplication>
+#include <unistd.h>
 
 #include "../libmodsynth/widgets/lms_main_layout.h"
 
@@ -192,9 +193,17 @@ class main_form : public QWidget
                 QStringList f_line_list = line.split(LMS_DELIMITER);
 
                 instance_names[f_count]->setText(f_line_list.at(1));  //This must be set before select_instrument
-                select_instrument[f_count]->setCurrentIndex(f_line_list.at(0).toInt());                
+                
+                int f_inst_index = f_line_list.at(0).toInt();
+                
+                select_instrument[f_count]->setCurrentIndex(f_inst_index);                
 
                 f_count++;
+                
+                if(f_inst_index > 0)
+                { 
+                    sleep(2);
+                }
             }
         }
         else
@@ -209,7 +218,7 @@ class main_form : public QWidget
         myTimer->start();   
         
         QProcess * f_protractor = new QProcess(this);
-        f_protractor->start(QString("protractor"), QStringList());
+        //f_protractor->start(QString("seq24"), QStringList());
     }   
     
     QString project_directory;
