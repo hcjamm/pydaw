@@ -1,0 +1,10 @@
+DAW Design Spec
+(because writing code and then figuring out how you're going to do the rest of it is really stupid)
+
+Language:  C backend, liberally allocating memory to avoid m/re/c-allocing it while running...  If 1GB of memory is allocated at startup, then so be it...  Performance and latency are key, screw low-spec and older PCs...  Front end:  unknown, probably an original canvassing type library using either OpenGL, SDL or Cairo...
+
+Technologies:  Jack, just Jack...  Unless that sucks by itself, then throw in ALSA, but no DSSI, LADSPA, and especially no LV2
+
+1. Audio/MIDI item:  A single type for audio or MIDI...  To simplify maintaining a collection of items...  The items are not to have their type changed during run-time arbitrarily...  Really needs some well thought out editing functions like change_note_length(), etc..
+
+2. Track:  Maintains an array of types contain audio_midi_item* , position, length/rate, etc...  REALLY NEED TO HAVE ALL FEATURES PLANNED BEFORE CODING.  Each reference to the item will contain the stretch/fadeout, etc.. settings, this must be planned carefully...
