@@ -42,7 +42,7 @@
 #include <alsa/seq.h>
 #include <jack/jack.h>
 #include <jack/session.h>
-#include <jack/jslist.h>
+//#include <jack/jslist.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
