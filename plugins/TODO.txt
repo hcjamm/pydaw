@@ -1,3 +1,5 @@
+BUG:  Recalling loop points doesn't work properly.  The controls are recalled properly on the UI, but they are not set in the engine....
+
 use cautious-launcher to launch with .desktop icon(albeit, something is still wrong, because that doesn't work)
 
 Protractor:  
