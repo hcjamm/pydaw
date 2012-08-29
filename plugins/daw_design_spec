@@ -53,3 +53,33 @@ A marquee selector, and SHIFT->CLICK and CTRL->CLICK?  Maybe something like litt
 Splitting(or only copying/pasting partial items)
 
 Something akin to Reaper regions...  Not necessarily regions, but the ability to copy/cut and paste things to either move what's ahead of them, or else overwrite it, but no overlapping items....
+
+LMS Mixer Plugin:
+
+Create a 16 channel mixer for Jack, that can accept MIDI CC volume messages per channel, and eventually gain and pan.  Most likely it should not have it's own UI???  Or maybe just hide by default?
+
+OpenGL Rendering:
+
+The item canvas must have a start/end point that can be related to item position.  Provisions for sample-accuracy must be made, and MIDI, etc... processed in blocks per soundcard settings (512 samples, 1024, etc...).  The blocks should be pre-calculated, and the user should not be able to edit anything during playback.  TODO:  Look at how this is currently implemented in jack and/or alsa
+
+Drawing primitives?
+
+Mouse-click event:  How best to efficiently handle determining what was clicked and with what modifiers?
+
+Port the LMS_Session_Manager work to Python, and begin with a 16-track MIDI sequencer with a fixed track count, add 16 audio tracks later, then work on making it dynamic.
+
+Track Panel == Fixed Width, Track Area = Remaining width
+Zoom == Bars per area, in factors of 8(?)
+
+Top panel == Fixed Height, Track height = remainder/track_count???
+
+Quantize everything to 1 bar, with 1 bar being the minimum item width, and it must be an exact multiple of bars.  I'm not aware of any sane use of odd item lengths in other DAWs, although I spend a lot of time trimming and padding them to be multiples of 1 bar.
+
+File Format Mock-up:
+
+item0|blah|blah|blah
+item0_midi_data|note-055|cc-27-120|...
+...
+
+track0|blah|blah
+track0_items|item0-blah-blah-blah|item169-blah-blah-blah
