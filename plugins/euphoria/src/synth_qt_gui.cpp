@@ -2228,54 +2228,74 @@ void SamplerGUI::openInstrumentFromFile(QString a_selected_path)
                     
                     for(int i = 2; i < file_arr.count(); i++)
                     {
+                        int f_port_number = -10;
+                        float f_port_value = file_arr.at(i).toFloat();
+                        
                         switch(i)
                         {
                             case 2:
-                                v_set_control((f_sample_index + LMS_SAMPLE_PITCH_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_SAMPLE_PITCH_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 3:
-                                v_set_control((f_sample_index + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 4:
-                                v_set_control((f_sample_index + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 5:
-                                v_set_control((f_sample_index + LMS_SAMPLE_VOLUME_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_SAMPLE_VOLUME_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 6:
-                                v_set_control((f_sample_index + LMS_SAMPLE_START_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_SAMPLE_START_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 7:
-                                v_set_control((f_sample_index + LMS_SAMPLE_END_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_SAMPLE_END_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 8:
-                                v_set_control((f_sample_index + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 9:
-                                v_set_control((f_sample_index + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 10:
-                                v_set_control((f_sample_index + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 11:
-                                v_set_control((f_sample_index + LMS_PITCH_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_PITCH_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 12:
-                                v_set_control((f_sample_index + LMS_TUNE_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_TUNE_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;                        
                             case 13:
-                                v_set_control((f_sample_index + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;                                                        
                             case 14:
-                                v_set_control((f_sample_index + LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 15:
-                                v_set_control((f_sample_index + LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;
                             case 16:
-                                v_set_control((f_sample_index + LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN), file_arr.at(i).toFloat());
+                                f_port_number = (f_sample_index + LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN);
+                                v_set_control(f_port_number, f_port_value);
                                 break;                        
                         }
+                        
+                        lo_send(m_host, m_controlPath, "if", f_port_number, f_port_value);
                     }
                 }
                     break;
