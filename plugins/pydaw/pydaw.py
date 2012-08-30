@@ -19,21 +19,23 @@
 # You should have received a copy of the GNU General Public License
 # along with PyGletSpace.  If not, see <http://www.gnu.org/licenses/>
 
-__author__ = "Mark Mruss <selsine@gmail.com>"
+__author__ = "Jeff Hubbard <jhubbard651@users.sf.net>"
 __version__ = "0.1"
-__date__ = "Date: 2007/10/13"
-__copyright__ = "Copyright (c) 2007 Mark Mruss"
+__date__ = "Date: 2012/8/27"
+__copyright__ = "Copyright (c) 2012 Jeff Hubbard"
 __license__ = "GPL"
 
 from pyglet import window
 from pyglet import clock
 from pyglet import font
-import random
+#import random
 
 import helper
 
-class SpaceGameWindow(window.Window):
 
+
+class SpaceGameWindow(window.Window):
+	temp_pos = 0
 	def __init__(self, *args, **kwargs):
 		self.max_monsters = 30
 		#Let all of the standard stuff pass through
@@ -120,8 +122,11 @@ class SpaceGameWindow(window.Window):
 
 	def create_monster(self, interval):
 		if (len(self.monsters) < self.max_monsters):
+			self.temp_pos += 100
+			if(self.temp_pos >= self.width):
+				self.temp_pos = 0
 			self.monsters.append(Monster(self.monster_image
-				, x=random.randint(0, self.width) , y=self.height))
+				, x=self.temp_pos , y=self.height))
 
 	"""******************************************
 	Event Handlers
