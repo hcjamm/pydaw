@@ -47,6 +47,8 @@ class SpaceGameWindow(window.Window):
 		self.ship = SpaceShip(self.width - 150, 10, x=100,y=100)
 		self.bullet_image = helper.load_image("bullet.png")
 		self.monster_image = helper.load_image("monster.png")
+		self.monster_image.width = 100
+		self.monster_image.height = 200
 
 	def main_loop(self):
 
@@ -273,7 +275,7 @@ class Monster(Sprite):
 			self.set_x_velocity()
 
 	def set_x_velocity(self):
-		self.x_velocity = random.randint(-3,3)
+		self.x_velocity = 0 #random.randint(-3,3)
 
 if __name__ == "__main__":
 	# Someone is launching this directly
