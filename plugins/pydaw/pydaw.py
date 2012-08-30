@@ -48,7 +48,7 @@ class SpaceGameWindow(window.Window):
 		self.monsters = []
 		self.ship = SpaceShip(self.width - 150, 10, x=100,y=100)
 		self.bullet_image = helper.load_image("bullet.png")
-		self.monster_image = helper.load_image("monster.png")
+		self.monster_image = helper.load_image("midi_item.png")
 		self.monster_image.width = 100
 		self.monster_image.height = 200
 
