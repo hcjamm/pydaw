@@ -80,7 +80,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
 
     m_main_layout = new LMS_main_layout(this);
     
-    LMS_style_info * f_info = new LMS_style_info(75);
+    LMS_style_info * f_info = new LMS_style_info(60);
     f_info->LMS_set_label_style("QLabel{background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
     f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
     
@@ -91,6 +91,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_fx0->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(fx0comboboxChanged(int)));
     
     m_main_layout->lms_add_widget(m_fx0->lms_groupbox->lms_groupbox);
+    
+    m_main_layout->lms_add_layout();  
     
     m_fx1 = new LMS_multieffect(this, QString("FX2"), f_info, LMS_FX1_KNOB0, LMS_FX1_KNOB1, LMS_FX1_KNOB2, LMS_FX1_COMBOBOX);
     connect(m_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob0Changed(int)));
@@ -109,6 +111,8 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     connect(m_fx2->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(fx2comboboxChanged(int)));
     
     m_main_layout->lms_add_widget(m_fx2->lms_groupbox->lms_groupbox);
+    
+    m_main_layout->lms_add_layout();  
     
     m_fx3 = new LMS_multieffect(this, QString("FX4"), f_info, LMS_FX3_KNOB0, LMS_FX3_KNOB1, LMS_FX3_KNOB2, LMS_FX3_COMBOBOX);
     connect(m_fx3->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob0Changed(int)));
