@@ -61,60 +61,20 @@ public:
         
 public slots:
     /*Event handlers for setting knob values*/
-    void setFX0knob0 (float val);
-    void setFX0knob1 (float val);
-    void setFX0knob2 (float val);
-    void setFX0combobox (float val);
-    
-    void setFX1knob0 (float val);
-    void setFX1knob1 (float val);
-    void setFX1knob2 (float val);
-    void setFX1combobox (float val);
-    
-    void setFX2knob0 (float val);
-    void setFX2knob1 (float val);
-    void setFX2knob2 (float val);
-    void setFX2combobox (float val);
-    
-    void setFX3knob0 (float val);
-    void setFX3knob1 (float val);
-    void setFX3knob2 (float val);
-    void setFX3combobox (float val);
+    //void setFX0knob0 (float val);
     
     void aboutToQuit();
     
 protected slots:
     /*Event handlers for receiving changed knob values*/
-    void fx0knob0Changed(int);
-    void fx0knob1Changed(int);
-    void fx0knob2Changed(int);
-    void fx0comboboxChanged(int);
-    
-    void fx1knob0Changed(int);
-    void fx1knob1Changed(int);
-    void fx1knob2Changed(int);
-    void fx1comboboxChanged(int);
-    
-    void fx2knob0Changed(int);
-    void fx2knob1Changed(int);
-    void fx2knob2Changed(int);
-    void fx2comboboxChanged(int);
-    
-    void fx3knob0Changed(int);
-    void fx3knob1Changed(int);
-    void fx3knob2Changed(int);
-    void fx3comboboxChanged(int);
+    //void fx0knob0Changed(int);
         
     void oscRecv();
 protected:
     
     /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
     LMS_main_layout * m_main_layout;
-    LMS_multieffect * m_fx0;
-    LMS_multieffect * m_fx1;
-    LMS_multieffect * m_fx2;
-    LMS_multieffect * m_fx3;
-    
+        
     lo_address m_host;
     QByteArray m_controlPath;
     QByteArray m_midiPath;
