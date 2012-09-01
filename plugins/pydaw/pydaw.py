@@ -23,33 +23,29 @@ __license__ = "GPL"
 from pyglet import window
 from pyglet import clock
 from pyglet import font
-#import random
 
 import helper
 
-
-
-class SpaceGameWindow(window.Window):
+class pydaw_main_window(window.Window):
     #midi_item_height = 20
     #midi_item_width = 20
 
     def __init__(self, *args, **kwargs):
-        self.max_monsters = 60
+        self.max_midi_items = 120
         self.temp_pos = 0
         #Let all of the standard stuff pass through
         window.Window.__init__(self, *args, **kwargs)
         #self.set_mouse_visible(False)
 
-        self.midi_item_height = 60  #16/self.height
+        self.midi_item_height = 75  #16/self.height
         self.midi_item_width = 60
         self.init_sprites()
 
-
     def init_sprites(self):
-        self.monsters = []
-        self.monster_image = helper.load_image("midi_item.png")
-        self.monster_image.width = self.midi_item_width
-        self.monster_image.height = self.midi_item_height
+        self.midi_items = []
+        self.midi_item_image = helper.load_image("midi_item.png")
+        self.midi_item_image.width = self.midi_item_width
+        self.midi_item_image.height = self.midi_item_height
 
     def main_loop(self):
 
@@ -58,9 +54,9 @@ class SpaceGameWindow(window.Window):
         #The pyglet.font.Text object to display the FPS
         fps_text = font.Text(ft, y=10)
 
-        #Schedule the Monster creation
-        clock.schedule_interval(self.create_monster, 0.05)
-        clock.set_fps_limit(30)
+        #Schedule the midi_item creation
+        clock.schedule_interval(self.create_midi_item, 0.05)
+        clock.set_fps_limit(60)
 
         while not self.has_exit:
             self.dispatch_events()
@@ -79,25 +75,25 @@ class SpaceGameWindow(window.Window):
     def update(self):
 
         to_remove = []
-        for sprite in self.monsters:
+        for sprite in self.midi_items:
             sprite.update()
             #Is it dead?
             if (sprite.dead):
                 to_remove.append(sprite)
         #Remove dead sprites
         for sprite in to_remove:
-            self.monsters.remove(sprite)
+            self.midi_items.remove(sprite)
 
     def draw(self):
-        for sprite in self.monsters:
+        for sprite in self.midi_items:
             sprite.draw()
 
-    def create_monster(self, interval):
-        if (len(self.monsters) < self.max_monsters):
+    def create_midi_item(self, interval):
+        if (len(self.midi_items) < self.max_midi_items):
             self.temp_pos += self.midi_item_width
             if(self.temp_pos >= self.width):
                 self.temp_pos = 0
-            self.monsters.append(Monster(self.monster_image
+            self.midi_items.append(midi_item(self.midi_item_image
                 , x=self.width , y=self.temp_pos))
 
     """******************************************
@@ -185,10 +181,10 @@ class Sprite(object):
                 return sprite
         return None
 
-class Monster(Sprite):
+class midi_item(Sprite):
 
     def __init__(self, image_data, **kwargs):
-        self.y_velocity = 5
+        self.y_velocity = 1
         self.set_x_velocity()
         self.x_move_count = 0
         self.x_velocity
@@ -211,6 +207,6 @@ class Monster(Sprite):
 
 if __name__ == "__main__":
     # Someone is launching this directly
-    space = SpaceGameWindow()
+    space = pydaw_main_window()
     space.main_loop()
 
