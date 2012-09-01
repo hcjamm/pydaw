@@ -17,6 +17,21 @@ Technologies:  Jack, just Jack...  Unless that sucks by itself, then throw in AL
 
 2. Track:  Maintains an array of types contain audio_midi_item* , position, length/rate, etc...  REALLY NEED TO HAVE ALL FEATURES PLANNED BEFORE CODING.  Each reference to the item will contain the stretch/fadeout, etc.. settings, this must be planned carefully...
 
+
+New disposable stuff:
+
+Use DSSI for the underlying engine...  It will be horribly limiting later, but it's a neglible loss as long as the whole thing is written like a modular DAW library.  Then just a Python/Pyglet/OpenGL UI that can send OSC messages to it, then later on some real inter-process communication mechanism can be added...  It gives a stable, viable main loop + IO now, and also allows for writing a custom Python/OpenGL rendering engine for use by the instruments later...  python-liblo and python-pyglet should be able to replace all of the Qt GUI and liblo server stuff...
+
+	Pitfalls:  How to do the CC recording?(check jack-dssi-host for clues...)  How to sync transport with UI?  EDIT:  The UI should be the only part initiating playback cursor changes, so not a big deal?
+
+Create files for each MIDI item, then the tracks must reference them in an individual track file...  Then the UI (and the DSSI engine???) must regularly poll the directories that contain these items...
+
+Use configure messages to pass messages about new items being created, etc...?  This may be better than polling in the main loop, it can use the same pthread_mutex setup that Euphoria uses for loading samples...
+
+It could read the CC_map files in ~/dssi for the MIDI CC numbers and descriptions...  Epic win?
+
+Some interesting Python work here that may be of value:  http://sourceforge.net/projects/muframework/?source=directory
+
 Routing:
 
 Consideration for what gets routed to where, and how much...  Function pointer arrays and indexing algorithms  
