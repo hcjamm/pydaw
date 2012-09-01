@@ -29,13 +29,13 @@ import helper
 class pydaw_main_window(window.Window):
 
     def __init__(self, *args, **kwargs):
-        self.max_midi_items = 120
+        self.max_midi_items = 240
         #Let all of the standard stuff pass through
-        window.Window.__init__(self, *args, **kwargs)
+        window.Window.__init__(self, 1200, 720, 'PyDAW - LibModSynth', True) #*args, **kwargs)
         #self.set_mouse_visible(False)
         self.temp_pos = self.height
         self.midi_item_height = 60
-        self.midi_item_width = 60
+        self.midi_item_width = 180
         self.init_sprites()
 
     def init_sprites(self):
@@ -52,7 +52,7 @@ class pydaw_main_window(window.Window):
         fps_text = font.Text(ft, y=10)
 
         #Schedule the midi_item creation
-        clock.schedule_interval(self.create_midi_item, 0.05)
+        clock.schedule_interval(self.create_midi_item, 0.3)
         clock.set_fps_limit(60)
 
         while not self.has_exit:
