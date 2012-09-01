@@ -20,22 +20,36 @@ __date__ = "Date: 2012/8/27"
 __copyright__ = "Copyright (c) 2012 Jeff Hubbard"
 __license__ = "GPL"
 
+import pyglet
 from pyglet import window
 from pyglet import clock
 from pyglet import font
+from pyglet import image
+from pyglet.gl import *
+from pyglet.resource import *
+import pyglet.sprite
 
 import helper
+
+##img = pyglet.resource.image(get_image_dir() + 'midi_item.png')
+##img.anchor_x = img.width/2
+##img.anchor_y = img.width/2
+##self.sprite = pyglet.sprite.Sprite(img, batch = parent.batch, group =
+##parent.visualeffects)
+##self.sprite.x = pos[0]
+##self.sprite.y = pos[1]
+##self.sprite.scale = 0.5
 
 class pydaw_main_window(window.Window):
 
     def __init__(self, *args, **kwargs):
         self.max_midi_items = 240
         #Let all of the standard stuff pass through
-        window.Window.__init__(self, 1200, 720, 'PyDAW - LibModSynth', True) #*args, **kwargs)
+        window.Window.__init__(self, 1200, 720, 'PyDAW - LibModSynth', True)
         #self.set_mouse_visible(False)
         self.temp_pos = self.height
-        self.midi_item_height = 60
-        self.midi_item_width = 180
+        self.midi_item_height = 128
+        self.midi_item_width = 128
         self.init_sprites()
 
     def init_sprites(self):
@@ -52,8 +66,8 @@ class pydaw_main_window(window.Window):
         fps_text = font.Text(ft, y=10)
 
         #Schedule the midi_item creation
-        clock.schedule_interval(self.create_midi_item, 0.3)
-        clock.set_fps_limit(60)
+        clock.schedule_interval(self.create_midi_item, 3.5)
+        #clock.set_fps_limit(60)
 
         while not self.has_exit:
             self.dispatch_events()
@@ -86,12 +100,11 @@ class pydaw_main_window(window.Window):
             sprite.draw()
 
     def create_midi_item(self, interval):
-        if (len(self.midi_items) < self.max_midi_items):
-            self.temp_pos -= self.midi_item_height
-            if(self.temp_pos <= self.midi_item_height):
-                self.temp_pos = self.height
+        self.temp_pos = self.height
+        while (self.temp_pos >= self.midi_item_height):
             self.midi_items.append(midi_item(self.midi_item_image
                 , x=self.width , y=self.temp_pos))
+            self.temp_pos -= self.midi_item_height
 
     """******************************************
     Event Handlers
@@ -133,6 +146,8 @@ class Sprite(object):
             self.image = helper.load_image(image_file)
         else:
             self.image = image_data
+
+        self.image.scale = .1
         self.x = 0
         self.y = 0
         self.dead = False
@@ -188,7 +203,7 @@ class midi_item(Sprite):
         self.x -= self.x_velocity
 
         #We've gone past the edge of the screen
-        if (self.x < 0):
+        if (self.right < 0):
             self.dead = True
 
 if __name__ == "__main__":
