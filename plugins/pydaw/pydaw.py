@@ -1,23 +1,18 @@
 #!/usr/bin/env python
-
-# PyGletSpace - An Example game using PyGlet
-# Copyright (C) 2007 Mark Mruss <selsine@gmail.com>
-# http://www.learningpython.com
 #
-# This file is part of PyGletSpace.
 #
-# Foobar is free software: you can redistribute it and/or modify
+#
+# PyDAW is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# the Free Software Foundation, either version 3 of the License
 #
-# Foobar is distributed in the hope that it will be useful,
+# PyDAW is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with PyGletSpace.  If not, see <http://www.gnu.org/licenses/>
+# along with PyDAW.  If not, see <http://www.gnu.org/licenses/>
 
 __author__ = "Jeff Hubbard <jhubbard651@users.sf.net>"
 __version__ = "0.1"
@@ -35,22 +30,23 @@ import helper
 
 
 class SpaceGameWindow(window.Window):
-    temp_pos = 0
-    midi_item_height = 90
-    midi_item_width = 60
-    
+    #midi_item_height = 20
+    #midi_item_width = 20
+
     def __init__(self, *args, **kwargs):
         self.max_monsters = 60
+        self.temp_pos = 0
         #Let all of the standard stuff pass through
         window.Window.__init__(self, *args, **kwargs)
-        self.set_mouse_visible(False)
+        #self.set_mouse_visible(False)
+
+        self.midi_item_height = 60  #16/self.height
+        self.midi_item_width = 60
         self.init_sprites()
 
+
     def init_sprites(self):
-        self.bullets = []
         self.monsters = []
-        self.ship = SpaceShip(self.width - 150, 10, x=100,y=100)
-        self.bullet_image = helper.load_image("bullet.png")
         self.monster_image = helper.load_image("midi_item.png")
         self.monster_image.width = self.midi_item_width
         self.monster_image.height = self.midi_item_height
@@ -92,36 +88,9 @@ class SpaceGameWindow(window.Window):
         for sprite in to_remove:
             self.monsters.remove(sprite)
 
-        #Bullet update and collision
-        to_remove = []
-        for sprite in self.bullets:
-            sprite.update()
-            if (not sprite.dead):
-                monster_hit = sprite.collide_once(self.monsters)
-                if (monster_hit is not None):
-                    sprite.on_kill()
-                    self.monsters.remove(monster_hit)
-                    to_remove.append(sprite)
-            else:
-                to_remove.append(sprite)
-        #Remove bullets that hit monsters
-        for sprite in to_remove:
-            self.bullets.remove(sprite)
-
-        self.ship.update()
-        #Is it dead?
-        monster_hit = self.ship.collide_once(self.monsters)
-        if (monster_hit is not None):
-            self.ship.dead = True
-            self.has_exit = True
-
     def draw(self):
-
-        for sprite in self.bullets:
-            sprite.draw()
         for sprite in self.monsters:
             sprite.draw()
-        self.ship.draw()
 
     def create_monster(self, interval):
         if (len(self.monsters) < self.max_monsters):
@@ -129,27 +98,21 @@ class SpaceGameWindow(window.Window):
             if(self.temp_pos >= self.width):
                 self.temp_pos = 0
             self.monsters.append(Monster(self.monster_image
-                , x=self.temp_pos , y=self.height))
+                , x=self.width , y=self.temp_pos))
 
     """******************************************
     Event Handlers
     *********************************************"""
     def on_mouse_motion(self, x, y, dx, dy):
-        self.ship.x = x
-        self.ship.y = y
+        pass
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        self.ship.x = x
-        self.ship.y = y
+        pass
 
     def on_mouse_press(self, x, y, button, modifiers):
 
         if (button == 1):
-            self.bullets.append(Bullet(self.ship
-                    , self.bullet_image
-                    , self.height
-                    , x=x + (self.ship.image.width / 2) - (self.bullet_image.width / 2)
-                    , y=y))
+            pass
 
 class Sprite(object):
 
@@ -222,45 +185,6 @@ class Sprite(object):
                 return sprite
         return None
 
-class SpaceShip(Sprite):
-
-    def __init__(self, text_x, text_y, **kwargs):
-
-        self.kills = 0
-        Sprite.__init__(self, "ship.png", **kwargs)
-
-        #Create a font for our kill message
-        self.font = font.load('Arial', 28)
-        #The pyglet.font.Text object to display the FPS
-        self.kill_text = font.Text(self.font, y=text_y, x=text_x)
-
-    def draw(self):
-        Sprite.draw(self)
-        self.kill_text.text = ("Kills: %d") % (self.kills)
-        self.kill_text.draw()
-
-    def on_kill(self):
-        self.kills += 1
-
-
-class Bullet(Sprite):
-
-    def __init__(self, parent_ship, image_data, top, **kwargs):
-        self.velocity = 5
-        self.screen_top = top
-        self.parent_ship = parent_ship
-        Sprite.__init__(self,"", image_data, **kwargs)
-
-    def update(self):
-        self.y += self.velocity
-        #Have we gone off the screen?
-        if (self.bottom > self.screen_top):
-            self.dead = True
-
-    def on_kill(self):
-        """We have hit a monster let the parent know"""
-        self.parent_ship.on_kill()
-
 class Monster(Sprite):
 
     def __init__(self, image_data, **kwargs):
@@ -271,11 +195,11 @@ class Monster(Sprite):
         Sprite.__init__(self, "", image_data, **kwargs)
 
     def update(self):
-        self.y -= self.y_velocity
-        self.x += self.x_velocity#random.randint(-3,3)
+        self.x -= self.y_velocity
+        self.y += self.x_velocity#random.randint(-3,3)
         self.x_move_count += 1
         #Have we gone beneath the botton of the screen?
-        if (self.y < 0):
+        if (self.x < 0):
             self.dead = True
 
         if (self.x_move_count >=30):
