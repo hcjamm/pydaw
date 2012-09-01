@@ -27,17 +27,14 @@ from pyglet import font
 import helper
 
 class pydaw_main_window(window.Window):
-    #midi_item_height = 20
-    #midi_item_width = 20
 
     def __init__(self, *args, **kwargs):
         self.max_midi_items = 120
-        self.temp_pos = 0
         #Let all of the standard stuff pass through
         window.Window.__init__(self, *args, **kwargs)
         #self.set_mouse_visible(False)
-
-        self.midi_item_height = 75  #16/self.height
+        self.temp_pos = self.height
+        self.midi_item_height = 60
         self.midi_item_width = 60
         self.init_sprites()
 
@@ -90,9 +87,9 @@ class pydaw_main_window(window.Window):
 
     def create_midi_item(self, interval):
         if (len(self.midi_items) < self.max_midi_items):
-            self.temp_pos += self.midi_item_width
-            if(self.temp_pos >= self.width):
-                self.temp_pos = 0
+            self.temp_pos -= self.midi_item_height
+            if(self.temp_pos <= self.midi_item_height):
+                self.temp_pos = self.height
             self.midi_items.append(midi_item(self.midi_item_image
                 , x=self.width , y=self.temp_pos))
 
@@ -184,29 +181,18 @@ class Sprite(object):
 class midi_item(Sprite):
 
     def __init__(self, image_data, **kwargs):
-        self.y_velocity = 1
-        self.set_x_velocity()
-        self.x_move_count = 0
-        self.x_velocity
+        self.x_velocity = 1
         Sprite.__init__(self, "", image_data, **kwargs)
 
     def update(self):
-        self.x -= self.y_velocity
-        self.y += self.x_velocity#random.randint(-3,3)
-        self.x_move_count += 1
-        #Have we gone beneath the botton of the screen?
+        self.x -= self.x_velocity
+
+        #We've gone past the edge of the screen
         if (self.x < 0):
             self.dead = True
 
-        if (self.x_move_count >=30):
-            self.x_move_count = 0
-            self.set_x_velocity()
-
-    def set_x_velocity(self):
-        self.x_velocity = 0 #random.randint(-3,3)
-
 if __name__ == "__main__":
     # Someone is launching this directly
-    space = pydaw_main_window()
-    space.main_loop()
+    pydaw = pydaw_main_window()
+    pydaw.main_loop()
 
