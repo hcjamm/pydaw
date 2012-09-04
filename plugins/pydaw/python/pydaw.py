@@ -150,55 +150,6 @@ def create_scrollable_dialog():
 	anchor=kytten.ANCHOR_CENTER,
 	theme=theme2, on_escape=on_escape)
 
-def create_folding_dialog():
-    document1 = pyglet.text.decode_attributed("""
-Click on the section headers below to open them up.
-Jellicle Cats is, of course, copyrighted by T. S. Eliot.
-""")
-    document2 = pyglet.text.decode_attributed("""
-Jellicle cats come out tonight{}
-Jellicle cats come one, come all{}
-The Jellicle moon is shining bright{}
-Jellicles come to the Jellicle ball
-""")
-    document3 = pyglet.text.decode_attributed("""
-Jellicle cats are black and white{}
-Jellicle cats are rather small{}
-Jellicle cats are merry and bright{}
-And pleasant to hear when we caterwaul
-""")
-    document4 = pyglet.text.decode_attributed("""
-Jellicle cats have cheerful faces{}
-Jellicle cats have bright black eyes{}
-We like to practice our airs and graces{}
-And wait for the Jellicle moon to rise
-""")
-
-    dialog = kytten.Dialog(
-	kytten.Frame(
-	    kytten.Scrollable(
-		kytten.VerticalLayout([
-		    kytten.SectionHeader("Jellicle Cats"),
-		    kytten.Document(document1, width=300),
-		    kytten.FoldingSection("Verse 1",
-			kytten.VerticalLayout([
-			    kytten.Document(document2, width=300),
-			])),
-		    kytten.FoldingSection("Verse 2",
-			kytten.VerticalLayout([
-			    kytten.Document(document3, width=300),
-			]), is_open=False),
-		    kytten.FoldingSection("Verse 3",
-			kytten.VerticalLayout([
-			    kytten.Document(document4, width=300),
-			]), is_open=False),
-		], align=kytten.HALIGN_LEFT),
-	    height=400)
-	),
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_CENTER,
-	theme=theme2, on_escape=on_escape)
-
 def create_dropdown_dialog():
     def on_select(choice):
 	print "Selected: %s" % choice
@@ -266,8 +217,6 @@ def on_select(choice):
 	create_form_dialog()
     elif choice == 'Scrollable':
 	create_scrollable_dialog()
-    elif choice == 'Folding':
-	create_folding_dialog()
     elif choice == 'Dropdown':
 	create_dropdown_dialog()
     elif choice == 'File Load':
@@ -279,9 +228,80 @@ def on_select(choice):
     else:
 	print "Unexpected menu selection: %s" % choice
 
+def create_transport():
+    def on_play():
+        print("Playing")
+    def on_stop():
+        print("Stopping")
+    def on_rec():
+        print("Recording")
+    
+    dialog = kytten.Dialog(
+	kytten.Frame(
+	    kytten.HorizontalLayout([
+             kytten.Button(text="Play",on_click=on_play),
+             kytten.Button(text="Stop",on_click=on_stop),
+             kytten.Button(text="Rec",on_click=on_rec),
+	    ]),      
+	),
+	window=window, batch=batch, group=fg_group,
+	anchor=kytten.ANCHOR_CENTER,
+	theme=theme2, on_escape=on_escape, movable=False, offset=(-400, 400))
+    
+def create_tracks():
+    def on_vol_change(value):
+        print(value)
+    def on_pan_change():
+        pass
+    def on_solo():
+        pass
+    def on_mute():
+        pass
+    def on_instrument_change(selected_instrument):
+        pass
+    
+    track_array = []
+    
+    #TODO:  Try creating the tracks in a loop here.  Also make a global variable for track count
+    
+    dialog = kytten.Dialog(
+	kytten.Frame(
+         kytten.VerticalLayout([
+             kytten.Slider(value=0.0, min_value=-50.0, max_value=12.0, steps=620, on_set=on_vol_change),
+             kytten.HorizontalLayout([
+                 kytten.Button(text="Solo",on_click=on_solo),
+                 kytten.Button(text="Mute",on_click=on_mute),
+                 kytten.Dropdown([],on_select=on_instrument_change)               
+                ]),
+         ])      
+	),
+	window=window, batch=batch, group=fg_group,
+	anchor=kytten.ANCHOR_CENTER,
+	theme=theme2, on_escape=on_escape, movable=False, offset=(offset_x, offset_y))
+
+def create_midi_item():
+
+    dialog = kytten.Dialog(
+	kytten.Frame(
+	    kytten.VerticalLayout([
+		kytten.Label("Select a letter:"),
+		kytten.Dropdown(['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon',
+				 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa',
+				 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron',
+				 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon',
+				 'Phi', 'Chi', 'Psi', 'Omega'],
+				on_select=on_select),           
+	    ]),      
+	),
+	window=window, batch=batch, group=fg_group,
+	anchor=kytten.ANCHOR_CENTER,
+	theme=theme2, on_escape=on_escape)
+ 
+ 
+
 if __name__ == '__main__':
     window = pyglet.window.Window(
-	640, 480, caption='Kytten Test %s' % VERSION,
+	1200, 700, caption="PyDAW - By LibModSynth",
 	resizable=True, vsync=False)
     batch = pyglet.graphics.Batch()
     bg_group = pyglet.graphics.OrderedGroup(0)
@@ -300,26 +320,8 @@ if __name__ == '__main__':
 	window.dispatch_event('on_update', dt)
     pyglet.clock.schedule(update)
 
-    # Set up a background which changes when user hits left or right arrow
-    background = Background(batch=batch, group=bg_group)
-    window.push_handlers(background)
-
-    # Set up a Dialog to choose test dialogs to show
-    dialog = kytten.Dialog(
-	kytten.TitleFrame("Kytten Demo",
-	    kytten.VerticalLayout([
-		kytten.Label("Select dialog to show"),
-		kytten.Menu(options=["Document", "Form", "Scrollable",
-				     "Folding", "Dropdown",
-				     "File Load", "File Save",
-				     "Directory Select"],
-			    on_select=on_select),
-	    ]),
-	),
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_TOP_LEFT,
-	theme=theme)
-
+    create_transport()
+         
     # Change this flag to run with profiling and dump top 20 cumulative times
     if True:
 	pyglet.app.run()
