@@ -30,273 +30,101 @@ theme2 = kytten.Theme(theme, override={
 def on_escape(dialog):
     dialog.teardown()
 
-def create_document_dialog():
-    document = pyglet.text.decode_attributed('''
-With {bold True}kytten{bold False}, you can harness the power of
-{underline (255, 255, 255, 255)}pyglet{underline None}'s documents in a
-scrollable window!
-
-{font_name "Courier New"}Change fonts{font_name Lucia Grande},
-{italic True}italicize your text,{italic False} and more!
-
-{align "center"}Center yourself!{align "left"}{}
-{align "right"}Or go right.{align "left"}
-
-{color (128, 255, 128, 255)}
-Express
-{color (255, 128, 128, 255)}
-yourself
-{color (128, 128, 255, 255)}
-colorfully!
-{color (255, 255, 255, 255}
-''')
-
-    dialog = kytten.Dialog(
-	kytten.Frame(
-	    kytten.Document(document, width=300, height=150)
-	),
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_CENTER,
-	theme=theme2, on_escape=on_escape)
-
-def create_form_dialog():
-    dialog = None
-    def on_enter(dialog):
-	print "Form submitted!"
-	for key, value in dialog.get_values().iteritems():
-	    print "  %s=%s" % (key, value)
-	on_escape(dialog)
-    def on_submit():
-	on_enter(dialog)
-    def on_cancel():
-	print "Form canceled."
-	on_escape(dialog)
-    dialog = kytten.Dialog(
-	kytten.Frame(
-	    kytten.Scrollable(
-		kytten.VerticalLayout([
-		    kytten.SectionHeader("Personnel Data",
-					 align=kytten.HALIGN_LEFT),
-		    kytten.Document("Try tabbing through fields, "
-				    "if offscreen they'll be moved "
-				    "automatically",
-				    width=500),
-		    kytten.GridLayout([
-			[kytten.Label("Name"), kytten.Input("name", "Lynx",
-							    max_length=20)],
-			[kytten.Label("Job"), kytten.Input("job", "Cat",
-							   max_length=80)],
-			[kytten.Label("Hobby"),
-			     kytten.Input("hobby", "Programming")],
-			[kytten.Label("Class"),
-			     kytten.Input("class", "Druid")],
-			[kytten.Label("Disabled"),
-			     kytten.Input("disabled", "Disabled input",
-					  disabled=True)],
-			[kytten.Label("Sign"),
-			     kytten.Input("sign", "Free to good home")],
-			[kytten.Label("Blood Type"),
-			     kytten.Input("bloodtype", "Red")],
-			[kytten.Label("Favored Weapon"),
-			     kytten.Input("weapon", "Claws")],
-		    ]),
-		    kytten.Checkbox("Full-Time", id="fulltime"),
-		    kytten.Checkbox("Married", id="married", disabled=True),
-		    kytten.SectionHeader("Actions",
-					 align=kytten.HALIGN_LEFT),
-		    kytten.HorizontalLayout([
-			kytten.Button("Submit", on_click=on_submit),
-			kytten.Button("Disabled", disabled=True),
-			None,
-			kytten.Button("Cancel", on_click=on_cancel),
-		    ]),
-		], align=kytten.HALIGN_LEFT),
-		height=200, width=360)
-	),
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_CENTER,
-	theme=theme2, on_enter=on_enter, on_escape=on_escape)
-
-def create_scrollable_dialog():
-    def on_select(choice):
-	print "Kytten is %s" % choice
-
-    def on_set(value):
-	print "Kytten rating is %0.0f" % value
-
-    dialog = kytten.Dialog(
-	kytten.Frame(
-	    kytten.Scrollable(
-		kytten.VerticalLayout([
-		    kytten.Label("Rate Kytten from 1 to 10:"),
-		    kytten.Slider(7.0, 1.0, 10.0, steps=9, on_set=on_set),
-		    kytten.Label("This slider is disabled:"),
-		    kytten.Slider(1.0, 1.0, 10.0, steps=9, on_set=on_set,
-				  disabled=True),
-		    kytten.Label("Kytten is..."),
-		    kytten.Menu(options=["Awesome",
-					 "Cute",
-					 "-Disabled Option",
-					 "Excellent",
-					 "Fantastic",
-					 "Great",
-					 "Supercalifragilistiexpialidocious",
-					 "Terrific"],
-				align=kytten.HALIGN_LEFT, on_select=on_select),
-		], align=kytten.HALIGN_LEFT),
-	    width=200, height=150)
-	),
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_CENTER,
-	theme=theme2, on_escape=on_escape)
-
-def create_dropdown_dialog():
-    def on_select(choice):
-	print "Selected: %s" % choice
-
-    dialog = kytten.Dialog(
-	kytten.Frame(
-	    kytten.VerticalLayout([
-		kytten.Label("Select a letter:"),
-		kytten.Dropdown(['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon',
-				 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa',
-				 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron',
-				 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon',
-				 'Phi', 'Chi', 'Psi', 'Omega'],
-				on_select=on_select),
-		kytten.Label("This dropdown is disabled"),
-		kytten.Dropdown(['Disabled', 'Enabled'], disabled=True),
-	    ]),
-	),
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_CENTER,
-	theme=theme2, on_escape=on_escape)
-
-def create_file_load_dialog():
-    dialog = None
-
-    def on_select(filename):
-	print "File load: %s" % filename
-	on_escape(dialog)
-
-    dialog = kytten.FileLoadDialog(  # by default, path is current working dir
-	extensions=['.png', '.jpg', '.bmp', '.gif'],
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_CENTER,
-	theme=theme2, on_escape=on_escape, on_select=on_select)
-
-def create_file_save_dialog():
-    dialog = None
-
-    def on_select(filename):
-	print "File save: %s" % filename
-	on_escape(dialog)
-
-    dialog = kytten.FileSaveDialog(  # by default, path is current working dir
-	extensions=['.png', '.jpg', '.bmp', '.gif'],
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_CENTER,
-	theme=theme2, on_escape=on_escape, on_select=on_select)
-
-def create_directory_select_dialog():
-    dialog = None
-
-    def on_select(filename):
-	print "Directory: %s" % filename
-	on_escape(dialog)
-
-    dialog = kytten.DirectorySelectDialog(
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_CENTER,
-	theme=theme2, on_escape=on_escape, on_select=on_select)
-
-def on_select(choice):
-    if choice == 'Document':
-	create_document_dialog()
-    elif choice == 'Form':
-	create_form_dialog()
-    elif choice == 'Scrollable':
-	create_scrollable_dialog()
-    elif choice == 'Dropdown':
-	create_dropdown_dialog()
-    elif choice == 'File Load':
-	create_file_load_dialog()
-    elif choice == 'File Save':
-	create_file_save_dialog()
-    elif choice == 'Directory Select':
-	create_directory_select_dialog()
-    else:
-	print "Unexpected menu selection: %s" % choice
-
-def create_transport():
-    def on_play():
+class transport:
+    def on_play(self):
         print("Playing")
-    def on_stop():
+    def on_stop(self):
         print("Stopping")
-    def on_rec():
+    def on_rec(self):
         print("Recording")
     
-    dialog = kytten.Dialog(
-	kytten.Frame(
-	    kytten.HorizontalLayout([
-             kytten.Button(text="Play",on_click=on_play),
-             kytten.Button(text="Stop",on_click=on_stop),
-             kytten.Button(text="Rec",on_click=on_rec),
-	    ]),      
-	),
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_CENTER,
-	theme=theme2, on_escape=on_escape, movable=False, offset=(-400, 400))
-    
-def create_tracks():
-    def on_vol_change(value):
-        print(value)
-    def on_pan_change():
-        pass
-    def on_solo():
-        pass
-    def on_mute():
-        pass
-    def on_instrument_change(selected_instrument):
-        pass
-    
-    track_array = []
-    
-    #TODO:  Try creating the tracks in a loop here.  Also make a global variable for track count
-    
-    dialog = kytten.Dialog(
-	kytten.Frame(
-         kytten.VerticalLayout([
-             kytten.Slider(value=0.0, min_value=-50.0, max_value=12.0, steps=620, on_set=on_vol_change),
-             kytten.HorizontalLayout([
-                 kytten.Button(text="Solo",on_click=on_solo),
-                 kytten.Button(text="Mute",on_click=on_mute),
-                 kytten.Dropdown([],on_select=on_instrument_change)               
-                ]),
-         ])      
-	),
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_CENTER,
-	theme=theme2, on_escape=on_escape, movable=False, offset=(offset_x, offset_y))
-
-def create_midi_item():
-
-    dialog = kytten.Dialog(
-	kytten.Frame(
-	    kytten.VerticalLayout([
-		kytten.Label("Select a letter:"),
-		kytten.Dropdown(['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon',
-				 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa',
-				 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron',
-				 'Pi', 'Rho', 'Sigma', 'Tau', 'Upsilon',
-				 'Phi', 'Chi', 'Psi', 'Omega'],
-				on_select=on_select),           
-	    ]),      
-	),
-	window=window, batch=batch, group=fg_group,
-	anchor=kytten.ANCHOR_CENTER,
-	theme=theme2, on_escape=on_escape)
+    def __init__(self):
+        self.dialog = kytten.Dialog(
+        	kytten.Frame(
+        	    kytten.HorizontalLayout([
+                     kytten.Button(text="Play",on_click=self.on_play),
+                     kytten.Button(text="Stop",on_click=self.on_stop),
+                     kytten.Button(text="Rec",on_click=self.on_rec),
+        	    ]),      
+        	),
+        	window=window, batch=batch, group=fg_group,
+        	anchor=kytten.ANCHOR_CENTER,
+        	theme=theme2, offset=(-400, 400))
  
+class mouse_tool_select:
+     pass
+ 
+class musical_timeline:
+    pass
+    
+class seq_track:
+    def on_vol_change(self, value):
+        print(value)
+    def on_pan_change(self, value):
+        pass
+    def on_solo(self, value):
+        pass
+    def on_mute(self, value):
+        pass
+    def on_rec(self, value):
+        pass
+    def on_instrument_change(self, selected_instrument):
+        pass
+    def on_name_changed(self, new_name):
+        pass
+    def __init__(self, a_track_text="track"):
+        self.dialog = kytten.Dialog(
+        	kytten.Frame(
+                 kytten.VerticalLayout([
+                         kytten.Slider(value=0.0, min_value=-50.0, max_value=12.0, on_set=self.on_vol_change),
+                         kytten.HorizontalLayout([                             
+                             kytten.Checkbox(text="Solo",on_click=self.on_solo),
+                             kytten.Checkbox(text="Mute",on_click=self.on_mute),    
+                             kytten.Checkbox(text="Rec",on_click=self.on_rec)
+                            ]),
+                         kytten.HorizontalLayout([
+                              kytten.Input(text=a_track_text),
+                              kytten.Dropdown(['Euphoria', 'Ray-V'],on_select=self.on_instrument_change),
+                             ])
+                     ])
+        	),
+        	window=window, batch=batch, group=fg_group,
+        	anchor=kytten.ANCHOR_CENTER,
+        	theme=theme2, on_escape=on_escape, movable=True)
+         
+        self.midi_track = kytten.Dialog(
+        	kytten.Frame(
+                 kytten.HorizontalLayout([
+                         
+                     ])
+        	),
+        	window=window, batch=batch, group=fg_group,
+        	anchor=kytten.ANCHOR_CENTER,
+        	theme=theme2, on_escape=on_escape, movable=True)
+    
+
+class track_view:
+    def __init__(self):
+        
+        self.tracks = []
+
+        for i in range(0, 15):        
+            self.tracks.append(seq_track(a_track_text="track" + str(i)).dialog)
+        
+        self.layout = kytten.VerticalLayout(self.tracks)
+        self.scrollable = kytten.Scrollable(self.layout, width=1000, height=600, always_show_scrollbars=False)
+        
+        self.dialog = kytten.Dialog(
+            	kytten.Frame(
+            	    self.scrollable
+        	),
+        	window=window, batch=batch, group=fg_group,
+        	anchor=kytten.ANCHOR_CENTER,
+        	theme=theme2, on_escape=on_escape)
+    
+
+class midi_item:
+    pass
  
 
 if __name__ == '__main__':
@@ -307,7 +135,7 @@ if __name__ == '__main__':
     bg_group = pyglet.graphics.OrderedGroup(0)
     fg_group = pyglet.graphics.OrderedGroup(1)
     fps = pyglet.clock.ClockDisplay()
-
+    
     @window.event
     def on_draw():
 	window.clear()
@@ -320,8 +148,10 @@ if __name__ == '__main__':
 	window.dispatch_event('on_update', dt)
     pyglet.clock.schedule(update)
 
-    create_transport()
-         
+    transport()
+    
+    track_view_test = track_view()
+             
     # Change this flag to run with profiling and dump top 20 cumulative times
     if True:
 	pyglet.app.run()
