@@ -7,7 +7,8 @@ Base class for implementing one's own DSSI GUI
 """
 class dssi_gui:
     def __init__(self):
-        if (argc < 5):
+        if (argv.count < 5):
+            print('test')            
             exit(2)
 
         self.url = argv[1];
@@ -34,8 +35,9 @@ class dssi_gui:
         self.server.add_method(None, None, fallback)
         ##UI stuff goes here???
         # loop and dispatch messages every 100ms
-        while True:
-            self.server.recv(100)
+        #while True:
+            #self.server.recv(100)
+        self.server.start()
 
     def configure_handler(self, path, args):
         pass
@@ -63,5 +65,7 @@ class dssi_gui:
         pass
 
 
+test = dssi_gui()
 
+raw_input('press enter to quit')
 
