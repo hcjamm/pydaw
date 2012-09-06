@@ -18,32 +18,25 @@ CXX_OBJS = src/synth_qt_gui.o src/moc_synth_qt_gui.o
 
 # --------------------------------------------------------------
 
-all: pydaw.so PYDAW_qt
+all: pydaw.so
 
 pydaw.so: $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
-
-PYDAW_qt: $(CXX_OBJS)
-	$(CXX) $(CXX_OBJS) $(LINK_CXXFLAGS) -o $@
 
 # --------------------------------------------------------------
 
 .c.o:
 	$(CC) -c $< $(BUILD_CFLAGS) -o $@
 
-.cpp.o:
-	$(CXX) -c $< $(BUILD_CXXFLAGS) -o $@
-
-src/moc_synth_qt_gui.cpp: src/synth_qt_gui.h
-	$(MOC) $< -o $@
-
 # --------------------------------------------------------------
 
 install:
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
+	install -d $(DESTDIR)$(PREFIX)/lib/dssi/pydaw/python
 	install -m 644 pydaw.so $(DESTDIR)$(PREFIX)/lib/dssi
 	install -m 755 PYDAW_qt $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
+	cp -R python $(DESTDIR)$(PREFIX)/lib/dssi/pydaw/python
 
 clean:
-	rm -f src/*.o src/moc_*.cpp *.so PYDAW_qt
+	rm -f src/*.o *.so python/*.pyc python/*/*.pyc
