@@ -36,7 +36,7 @@ class lms_session:
         
         for i in range(0, lms_instrument_count):
             self.processes[i] = None
-            self.instance_names[i] = None
+            self.instance_names[i] = ''
             self.select_instrument[i] = 0
         
         f_notify_dir = self.project_directory + lms_notify_directory
@@ -70,15 +70,15 @@ class lms_session:
             pass #TODO:  Create a new file, or something...
                 
                 
-    def instrument_index_changed(self, a_instrument_index, a_index):
+    def instrument_index_changed(self, a_instrument_index, a_index, a_instance_name):
         if self.supress_instrument_change:
             return
             
-        if self.instance_names[a_instrument_index] == '':
-            print("Error:  The instance name must not be empty") #TODO:  Create a default instance name
-            return
+        #if self.instance_names[a_instrument_index] == '':
+        #    print("Error:  The instance name must not be empty") #TODO:  Create a default instance name
+        #    return
                 
-        self.instance_names[a_instrument_index] = str.strip(self.instance_names[a_instrument_index])
+        self.instance_names[a_instrument_index] = str.strip(a_instance_name) #self.instance_names[a_instrument_index])
         
         #test for uniqueness
         for i in range(0, lms_instrument_count):
@@ -93,12 +93,12 @@ class lms_session:
         #We've passed all of the tests, now run the instrument
         f_args = ["-a",  "-p", self.project_directory, "-c", self.project_name + "-" + self.instance_names[a_instrument_index]]
         
-        if a_index == 0:
+        if a_index == 'None':
             #TODO: Send the quit signal
             pass
-        elif a_index == 1:
+        elif a_index == 'Euphoria':
             self.processes[a_instrument_index] = subprocess.Popen(['lms-jack-dssi-host', 'euphoria.so'] + f_args)            
-        elif a_index == 2:
+        elif a_index == 'Ray-V':
             self.processes[a_instrument_index] = subprocess.Popen(['lms-jack-dssi-host', 'ray_v.so'] + f_args)
         else:
             print("Invalid index: " + a_index)
@@ -108,7 +108,7 @@ class lms_session:
         f_file = open(self.full_project_file_path, 'w')
         
         for f_i in range(0, lms_instrument_count):
-            f_file.write(self.select_instrument[f_i] + lms_delimiter +
+            f_file.write(str(self.select_instrument[f_i]) + lms_delimiter +
                 self.instance_names[f_i] + "\n")
                 
         f_file.close()

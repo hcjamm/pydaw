@@ -16,6 +16,7 @@ VERSION = '5.9'
 import kytten
 
 from lmssession import lms_session
+from dssi_gui import dssi_gui
 
 # Default theme, gold-colored
 theme = kytten.Theme(os.path.join(os.getcwd(), 'theme'), override={
@@ -32,47 +33,9 @@ theme2 = kytten.Theme(theme, override={
 
 # Callback functions for dialogs which may be of interest
 def on_escape(dialog):
-    dialog.teardown()
-
-class transport:
-    def on_play(self):
-        print("Playing")
-    def on_stop(self):
-        print("Stopping")
-    def on_rec(self):
-        print("Recording")
-    def on_new(self):
-        print("Saving")
-    def on_open(self):
-        print("Saving")
-    def on_save(self):
-        print("Saving")
+    dialog.teardown()    
     
-    def __init__(self):
-        self.dialog = kytten.Dialog(
-        	kytten.Frame(
-             kytten.VerticalLayout([
-        	    kytten.HorizontalLayout([
-                     kytten.Button(text="Play",on_click=self.on_play),
-                     kytten.Button(text="Stop",on_click=self.on_stop),
-                     kytten.Button(text="Rec",on_click=self.on_rec),
-        	    ]),
-        	    kytten.HorizontalLayout([
-                     kytten.Button(text="New",on_click=self.on_new),
-                     kytten.Button(text="Open",on_click=self.on_open),
-                     kytten.Button(text="Save",on_click=self.on_save),
-        	    ]),
-             ])
-        	),
-        	window=window, batch=batch, group=fg_group,
-        	anchor=kytten.ANCHOR_CENTER,
-        	theme=theme2, offset=(-400, 400))
- 
-class mouse_tool_select:
-     pass
- 
-class musical_timeline:
-    pass
+session_mgr = lms_session('/home/bob/default.pss')    
     
 class seq_track:
     def on_vol_change(self, value):
@@ -85,11 +48,15 @@ class seq_track:
         pass
     def on_rec(self, value):
         pass
-    def on_instrument_change(self, selected_instrument):
-        pass
     def on_name_changed(self, new_name):
         pass
+    def on_instrument_change(self, selected_instrument):
+        session_mgr.instrument_index_changed(self.track_number, selected_instrument, self.instrument_label.text)
+    
     def __init__(self, a_track_num, a_track_text="track"):
+        self.instrument_select = kytten.Dropdown(['None', 'Euphoria', 'Ray-V'], on_select=self.on_instrument_change)
+        self.instrument_label = kytten.Input(text=a_track_text)
+        
         self.dialog = kytten.Dialog(
         	kytten.Frame(
                  kytten.VerticalLayout([
@@ -100,8 +67,8 @@ class seq_track:
                              kytten.Checkbox(text="Rec",on_click=self.on_rec)
                             ]),
                          kytten.HorizontalLayout([
-                              kytten.Input(text=a_track_text),
-                              kytten.Dropdown(['None', 'Euphoria', 'Ray-V'],on_select=self.on_instrument_change),
+                              self.instrument_label,
+                              self.instrument_select
                              ])
                      ])
         	),
@@ -130,16 +97,46 @@ class seq_track:
     
 
 class track_view:
+    def on_play(self):
+        print("Playing")
+    def on_stop(self):
+        print("Stopping")
+    def on_rec(self):
+        print("Recording")
+    def on_new(self):
+        print("Creating new project")
+    def on_open(self):
+        print("Opening existing project")
+    def on_save(self):
+        print("Saving project")
+        self.session_mgr.save_session_file()    
+            
     def __init__(self):
-        self.session_mgr = lms_session('/home/bob/default.pss')
-        self.transport = transport()
+        self.transport_dialog = kytten.Dialog(
+        	kytten.Frame(
+             kytten.VerticalLayout([
+        	    kytten.HorizontalLayout([
+                     kytten.Button(text="Play",on_click=self.on_play),
+                     kytten.Button(text="Stop",on_click=self.on_stop),
+                     kytten.Button(text="Rec",on_click=self.on_rec),
+        	    ]),
+        	    kytten.HorizontalLayout([
+                     kytten.Button(text="New",on_click=self.on_new),
+                     kytten.Button(text="Open",on_click=self.on_open),
+                     kytten.Button(text="Save",on_click=self.on_save),
+        	    ]),
+             ])
+        	),
+        	window=window, batch=batch, group=fg_group,
+        	anchor=kytten.ANCHOR_CENTER, theme=theme2)
                 
         self.tracks = [
-                kytten.HorizontalLayout([self.transport.dialog, kytten.Slider(max_value=16)])
+                kytten.HorizontalLayout([self.transport_dialog, kytten.Slider(max_value=16)])
             ]
 
-        for i in range(0, 16):        
-            self.tracks.append(seq_track(i, a_track_text="track" + str(i)).hlayout)            
+        for i in range(0, 16):
+            f_seq_track = seq_track(i, a_track_text="track" + str(i))
+            self.tracks.append(f_seq_track.hlayout)
         
         self.layout = kytten.VerticalLayout(self.tracks)
         self.scrollable = kytten.Scrollable(self.layout, width=1180, height=600, always_show_scrollbars=False)
