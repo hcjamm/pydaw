@@ -165,6 +165,20 @@ static void run_lms_modulex(LADSPA_Handle instance, unsigned long sample_count,
     }
 }
 
+char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)
+{
+    //t_pydaw_engine *plugin_data = (t_pydaw_engine *)instance;
+
+    if (!strcmp(key, "save")) {	
+        printf("configure called with key 'save'\n");
+        return NULL; //samplerLoadAll(plugin_data, value);    
+    }  else if (!strcmp(key, "lastdir")) {
+        //do nothing, this is only so the plugin host will recall the last sample directory
+        return NULL;
+    }
+
+    return strdup("error: unrecognized configure key");
+}
 
 
 /*This returns MIDI CCs for the different knobs
@@ -250,7 +264,7 @@ void _init()
     if (LMSDDescriptor) {
 	LMSDDescriptor->DSSI_API_Version = 1;
 	LMSDDescriptor->LADSPA_Plugin = LMSLDescriptor;
-	LMSDDescriptor->configure = NULL;  //TODO:  I think this is where the host can set plugin state, etc...
+	LMSDDescriptor->configure = pydaw_configure;  //TODO:  I think this is where the host can set plugin state, etc...
 	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
 	LMSDDescriptor->get_midi_controller_for_port = getControllerLMS;
 	LMSDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
