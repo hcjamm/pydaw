@@ -33,10 +33,9 @@ pydaw.so: $(C_OBJS)
 install:
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
-	install -d $(DESTDIR)$(PREFIX)/lib/dssi/pydaw/python
 	install -m 644 pydaw.so $(DESTDIR)$(PREFIX)/lib/dssi
 	install -m 755 PYDAW_qt $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
-	cp -R python $(DESTDIR)$(PREFIX)/lib/dssi/pydaw/python
+	cp -R python $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
 
 clean:
 	rm -f src/*.o *.so python/*.pyc python/*/*.pyc

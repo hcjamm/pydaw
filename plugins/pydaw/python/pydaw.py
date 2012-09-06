@@ -10,6 +10,8 @@ import pyglet
 # Disable error checking for increased performance
 pyglet.options['debug_gl'] = False
 from pyglet import gl
+from sys import argv
+from os.path import expanduser
 
 VERSION = '5.9'
 
@@ -34,8 +36,16 @@ theme2 = kytten.Theme(theme, override={
 # Callback functions for dialogs which may be of interest
 def on_escape(dialog):
     dialog.teardown()    
+
+for arg in argv:
+    print arg
     
-session_mgr = lms_session('/home/bob/default.pss')    
+if(len(argv) >= 2):
+    this_dssi_gui = dssi_gui(argv[1])
+    
+user_home_folder = expanduser("~")
+print("user_home_folder = " + user_home_folder)
+session_mgr = lms_session(user_home_folder + '/default.pss')    
     
 class seq_track:
     def on_vol_change(self, value):
@@ -109,7 +119,8 @@ class track_view:
         print("Opening existing project")
     def on_save(self):
         print("Saving project")
-        self.session_mgr.save_session_file()    
+        session_mgr.save_session_file()  #Notify the instruments to save their state
+        this_dssi_gui.send_configure("save", "testing") #Send a message to the DSSI engine to save it's state.  Currently, this doesn't do anything...
             
     def __init__(self):
         self.transport_dialog = kytten.Dialog(
@@ -149,6 +160,8 @@ class track_view:
         	anchor=kytten.ANCHOR_CENTER,
         	theme=theme2, on_escape=on_escape)
     
+    def __del__(self):
+        this_dssi_gui.stop_server()
 
 class midi_item:
     def __init__(self):
