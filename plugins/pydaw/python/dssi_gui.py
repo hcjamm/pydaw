@@ -6,15 +6,12 @@ import liblo, sys
 Base class for implementing one's own DSSI GUI
 """
 class dssi_gui:
-    def __init__(self):
-        if (argv.count < 5):
-            print('test')            
-            exit(2)
+    def __init__(self, a_url):
 
-        self.url = argv[1];
-        self.host = liblo.Address.get_hostname(url);
-        self.port = liblo.Address.get_port(url);
-        self.path = liblo.Address.get_path(url);
+        self.url = a_url
+        self.host = liblo.Address.get_hostname(self.url)
+        self.port = liblo.Address.get_port(self.url)
+        self.path = liblo.Address.get_path(self.url)
 
         # create self.server, listening on port 1234
         try:
@@ -23,16 +20,16 @@ class dssi_gui:
             print str(err)
             sys.exit()
 
-        self.server.add_method(self.path + "/control", 'if', control_handler)
-        self.server.add_method(self.path + "/program", 'ii', program_handler)
-        self.server.add_method(self.path + "/configure", 'ss', configure_handler)
-        self.server.add_method(self.path + "/sample-rate", 'i', rate_handler)
-        self.server.add_method(self.path + "/show", '', show_handler)
-        self.server.add_method(self.path + "/hide", '', hide_handler)
-        self.server.add_method(self.path + "/quit", '', quit_handler)
+        self.server.add_method(self.path + "/control", 'if', self.control_handler)
+        self.server.add_method(self.path + "/program", 'ii', self.program_handler)
+        self.server.add_method(self.path + "/configure", 'ss', self.configure_handler)
+        self.server.add_method(self.path + "/sample-rate", 'i', self.rate_handler)
+        self.server.add_method(self.path + "/show", '', self.show_handler)
+        self.server.add_method(self.path + "/hide", '', self.hide_handler)
+        self.server.add_method(self.path + "/quit", '', self.quit_handler)
         ##    lo_self.server.add_method(osc_self.server, NULL, NULL, debug_handler, &gui);
         # register a fallback for unhandled messages
-        self.server.add_method(None, None, fallback)
+        self.server.add_method(None, None, self.fallback)
         ##UI stuff goes here???
         # loop and dispatch messages every 100ms
         #while True:
@@ -63,9 +60,4 @@ class dssi_gui:
     """Override this function"""
     def i_get_control():
         pass
-
-
-test = dssi_gui()
-
-raw_input('press enter to quit')
 
