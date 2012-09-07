@@ -70,6 +70,8 @@ Also, rename .pss extension to .pydaw or something...
 
 dssi_gui: The @make_method decorator should be replaced with explicitly adding methods... 
 
+The top area of the main window shouldn't be part of the scroll area
+
 Need a dropdown for selecting an ALSA MIDI device, then make the Rec checkbox only available to one track at a time for recording...  If hacking it with aconnect, just use aconnect -o to get a list, aconnect -i to determine which client:port PyDAW is, then aconnect client:port client:port to connect, then aconnect -d client:port client:port when moving to a different track
 
 Use configure messages for pretty much everything, and keep a history of them to allow undo-ing of various actions
@@ -78,7 +80,7 @@ The exit handler doesn't actually cause it to exit when the UI is closed.  AFAIK
 
 Need to be able to set tempo...
 
-A list editor for starters, and eventually a piano roll and maybe even a score editor someday...
+A list editor for midi events...
 
 Deprecate the current widget library and replace with a custom library based on textures...
 
@@ -94,7 +96,7 @@ Figure out a way for the UI to determine that playback is happening and move the
 
 Create 8 bar 'sets' that can be used for writing entire songs, with buttons for previous/next, and a little spinbox widget that shows which one you are on...  Maybe use less than 16 instruments for the initial version, maybe just 8?
 
-Audio sequencing:  Introduce a pool of items, that can be selected in an event list similar to (or alongside?) the MIDI events.  Have the option of a smooth/unsmooth mode for CCs...
+Audio sequencing:  Introduce a pool of items, that can be selected in an event list similar to (or alongside?) the MIDI events.  Have the option of a smooth/unsmooth mode for CCs(per CC, per track?)...
 
 A series of comboboxes to serve as a menustrip, with File->Save,Save As, Open, New, etc....
 
@@ -102,5 +104,5 @@ Sequencing engine:  Perhaps just keep the underlying C in the simplest terms pos
 
 Sequencing engine, take 2:  The first idea probably isn't workable, this actually needs to be calculated at the beginning of each bar, which coincides with the end of a previous bar....  The C engine calculates the length of a bar in samples when the tempo changes
 
-
+ALSA latency compensation:  Apparently devices can report latency,  use that to offset....
 

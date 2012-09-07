@@ -18,6 +18,21 @@ from pyglet import gl
 from sys import argv
 from os.path import expanduser
 
+import kytten
+
+
+# Default theme, gold-colored
+theme = kytten.Theme(os.path.join(os.getcwd(), 'theme'), override={
+    #"gui_color": [64, 128, 255, 255],
+    "gui_color": [255, 240, 255, 255],
+    "font_size": 12
+})
+
+theme2 = kytten.Theme(theme, override={
+    "gui_color": [255, 235, 128, 255],
+    "font_size": 10
+})
+
 def note_number_to_string(a_note_number):
     pass
 
@@ -29,7 +44,8 @@ class le_event_base:
         self.time_in_samples = 0
         self.time_in_bars = 0
     
-    def set_musical_time_in_beats(self, a_beats, a_seconds_offset=0.0, a_samples_offset=0):
+    #offset is typically -1.0 to 1.0, although more typically much less than that, like < 0.1
+    def set_musical_time_in_beats(self, a_beats, a_offset=0.0):
         pass
     
     def set_musical_time_in_notes(self, a_numerator, a_denominator):
@@ -49,8 +65,21 @@ class le_audio_event(le_event_base):
         self.mode = 0 #0 == one-shot, 1 == loop .  At some point when timestretching is available, 2 == stretch
 
 class midi_list_editor:
-    def __init__(self, a_file_name, a_tempo, a_sr):
-        self.tempo = a_tempo
+    #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
+    def __init__(self, a_file_name, a_new_file_name=None):
+        self.events = []        
+        self.layout = kytten.VerticalLayout(self.events)
+        self.scrollable = kytten.Scrollable(self.layout, width=1180, height=600, always_show_scrollbars=False)
+        
+        self.dialog = kytten.Dialog(
+            	kytten.Frame(
+                     kytten.VerticalLayout([
+                         self.scrollable
+                         ])
+        	),
+        	window=window, batch=batch, group=fg_group,
+        	anchor=kytten.ANCHOR_CENTER,
+        	theme=theme2)
         
     
 #TODO:  I think this could all be done in the midi_list_editor constructor?
@@ -79,6 +108,9 @@ if __name__ == '__main__':
     
     #Declare the window class here
     
+    user_home_folder = expanduser("~")
+
+    midi_list_editor(user_home_folder + '/default.pymid')  
                   
     # Change this flag to run with profiling and dump top 20 cumulative times
     if True:
