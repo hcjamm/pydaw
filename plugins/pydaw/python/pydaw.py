@@ -4,6 +4,7 @@
 # backend written in C
 #
 # Copyright 2012, Jeff Hubbard
+# See GPLv3 for license
 
 import os
 import pyglet

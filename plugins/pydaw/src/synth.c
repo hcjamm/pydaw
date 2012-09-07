@@ -264,10 +264,10 @@ void _init()
     if (LMSDDescriptor) {
 	LMSDDescriptor->DSSI_API_Version = 1;
 	LMSDDescriptor->LADSPA_Plugin = LMSLDescriptor;
-	LMSDDescriptor->configure = pydaw_configure;  //TODO:  I think this is where the host can set plugin state, etc...
-	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
+	LMSDDescriptor->configure = pydaw_configure;
+	LMSDDescriptor->get_program = NULL;
 	LMSDDescriptor->get_midi_controller_for_port = getControllerLMS;
-	LMSDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
+	LMSDDescriptor->select_program = NULL;
 	LMSDDescriptor->run_synth = NULL;
 	LMSDDescriptor->run_synth_adding = NULL;
 	LMSDDescriptor->run_multiple_synths = NULL;
