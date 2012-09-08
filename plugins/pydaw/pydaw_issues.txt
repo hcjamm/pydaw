@@ -106,3 +106,47 @@ Sequencing engine, take 2:  The first idea probably isn't workable, this actuall
 
 ALSA latency compensation:  Apparently devices can report latency,  use that to offset....
 
+The audio item pool should automatically copy items to a project folder...  I wished that Reaper, Kontakt, etc... did this automagically so that when I reinstall everything I could open my old projects
+
+The hardcore architectural RFC of excellence, aka "I RFC'd myself":
+
+	Idea:
+		*Maybe the sequencer part shouldn't be traditional either, but an event list?
+	Benefits:
+		*It brings the same type of non-linear futuristic-ness that it does to MIDI items
+		*More UI code re-use
+		*Probably better performance
+	Detriments:
+		*It may make it harder to understand the flow of a song
+
+	Idea:
+		*Treat 8-bar regions as a fundamental building block of tunes that everything must align to, ie:
+			song->REGION->item->event
+	Benefits:
+		*Encourages good habits
+		*Limits the need to render an entire song graphically
+		*Allows easily copying and pasting entire regions
+	Detriments:
+		*May not be so great for certain people's workflow and genre, however, I'm not exactly worried about them, I'm making a DAW for electronic musicians
+	Workarounds:
+		*Allow item length to exceed 8 bars to a very high number(1000 bars?)...
+
+	Idea:
+		*Allow intermingling of audio items as events within a MIDI item, creating a sort of super-item that covers everything
+	Benefits:
+		*A high degree of flexibility for those who work with audio
+		*
+	Detriments:
+		*
+	Workarounds:
+		*
+
+UI mockup v1:
+
+Main Sequencer Window:
+
+[Menus]		[transport]	[tempo/region#]
+[	tracks		][selected track/region event list][midi item event list]
+
+
+
