@@ -22,8 +22,7 @@
 #include <stdlib.h>
 
 /*Change these to the project you would like to debug*/
-#include "../../plugins/libmodsynth/modules/dynamics/limiter.h"
-#include "../../plugins/libmodsynth/modules/oscillator/osc_simple.h"
+#include "../../plugins/libmodsynth/lib/lms_alsa.h"
 
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
@@ -91,8 +90,8 @@ Also:
  */
 int main(int argc, char** argv) {
     
-    t_lim_limiter * f_limiter = g_lim_get(44100.0f);
-    t_osc_simple_unison * f_osc = g_osc_get_osc_simple_unison(44100.0f);
+    
+    /*t_osc_simple_unison * f_osc = g_osc_get_osc_simple_unison(44100.0f);
     v_osc_set_simple_osc_unison_type(f_osc, 0);
     
     v_osc_set_unison_pitch(f_osc, 0.1f, 66.0f);
@@ -157,6 +156,10 @@ int main(int argc, char** argv) {
         
         v_lim_run(f_limiter, f_sample, f_sample);
     }
+    */
+
+    midi_open();
+    //snd_seq_close(seq);
     
     return 0; //(EXIT_SUCCESS);
 }
