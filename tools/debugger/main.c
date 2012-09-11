@@ -17,7 +17,7 @@
 #include <alsa/seqmid.h>
 
 /*Change these to the project you would like to debug*/
-#include "../../plugins/libmodsynth/lib/lms_alsa.h"
+#include "../../plugins/libmodsynth/lib/lms_sequencer.h"
 
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
