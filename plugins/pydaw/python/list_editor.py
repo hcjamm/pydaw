@@ -20,6 +20,7 @@ from os.path import expanduser
 
 import kytten
 
+from list_item import *
 
 # Default theme, gold-colored
 theme = kytten.Theme(os.path.join(os.getcwd(), 'theme'), override={
