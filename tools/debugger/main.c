@@ -2,24 +2,19 @@
  * File:   main.c
  * Author: Jeff Hubbard
  * 
- * A debugger project for running plugins in a synthetic manner without actually sending
- * any audio to the soundcard.  This is primarily intended for use in IDEs that have
- * GDB integration, such as Netbeans, Eclipse or Anjuta.
  * 
- * Usage:  Set breakpoints anywhere you'd like to see them, and debug the debugger project.  Be sure to edit these
- * lines:
- * 
- * #include "../lms_comb/src/synth.h"
- * #include "../lms_comb/src/synth.c" 
- * 
- * below includes to the project you want to debug, replacing 'lms_comb' with the name of the project folder you wish
- * to debug.  You can also set breakpoints in any file within "../libmodsynth/lib or ../libmodsynth/modules"
  *
  * Created on March 12, 2012, 7:46 PM
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <alsa/asoundlib.h>
+#include <alsa/seq.h>
+#include <alsa/seq_event.h>
+#include <alsa/seq_midi_event.h>
+#include <alsa/seqmid.h>
 
 /*Change these to the project you would like to debug*/
 #include "../../plugins/libmodsynth/lib/lms_alsa.h"

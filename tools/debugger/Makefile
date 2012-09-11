@@ -1,59 +1,43 @@
-## -*- Makefile -*-
-##
-## User: bob
-## Time: Feb 8, 2012 9:29:58 PM
-## Makefile created by Oracle Solaris Studio.
-##
-## This file is generated automatically.
-##
+#!/usr/bin/make -f
 
+CC  ?= g++
+CXX ?= g++
+MOC ?= moc
 
-#### Compiler and tool definitions shared by all build targets #####
-CC = gcc
-BASICOPTS = -g
-CFLAGS = $(BASICOPTS)
+PREFIX ?= /usr/local
 
+BASE_FLAGS     =  -mstackrealign -fsingle-precision-constant -fPIC -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -Wall
+BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
+BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11 sm) $(CXXFLAGS)
+LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa)
+LINK_CXXFLAGS  = -lm $(shell pkg-config --libs liblo QtCore QtGui x11 sm alsa) $(LDFLAGS)
 
-# Define the target directories.
-TARGETDIR_main.c=GNU-amd64-Linux
+C_OBJS   = main.o
+CXX_OBJS = main.o
 
+# --------------------------------------------------------------
 
-all: $(TARGETDIR_main.c)/main.c
+all: debugger
 
-## Target: main.c
-OBJS_main.c =  \
-	$(TARGETDIR_main.c)/main.o
-SYSLIBS_main.c = -lm 
-USERLIBS_main.c = $(SYSLIBS_main.c) 
-DEPLIBS_main.c =  
-LDLIBS_main.c = $(USERLIBS_main.c)
+debugger: $(CXX_OBJS)
+	$(CXX) $(CXX_OBJS) $(LINK_CXXFLAGS) -o $@
 
+# --------------------------------------------------------------
 
-# Link or archive
-$(TARGETDIR_main.c)/main.c: $(TARGETDIR_main.c) $(OBJS_main.c) $(DEPLIBS_main.c)
-	$(LINK.c) $(CFLAGS_main.c) $(CPPFLAGS_main.c) -o $@ $(OBJS_main.c) $(LDLIBS_main.c)
+.c.o:
+	$(CC) -c $< $(BUILD_CFLAGS) -o $@
 
+.cpp.o:
+	$(CXX) -c $< $(BUILD_CXXFLAGS) -o $@
 
-# Compile source files into .o files
-$(TARGETDIR_main.c)/main.o: $(TARGETDIR_main.c) main.c
-	$(COMPILE.c) $(CFLAGS_main.c) $(CPPFLAGS_main.c) -o $@ main.c
+# --------------------------------------------------------------
 
+install:
+	install -d $(DESTDIR)$(PREFIX)/lib/dssi
+	install -d $(DESTDIR)$(PREFIX)/lib/dssi/ray_v
+	install -m 644 ray_v.so $(DESTDIR)$(PREFIX)/lib/dssi
+	install -m 755 LMS_RAYV_qt $(DESTDIR)$(PREFIX)/lib/dssi/ray_v
 
-
-#### Clean target deletes all generated files ####
 clean:
-	rm -f \
-		$(TARGETDIR_main.c)/main.c \
-		$(TARGETDIR_main.c)/main.o
-	rm -f -r $(TARGETDIR_main.c)
-
-
-# Create the target directory (if needed)
-$(TARGETDIR_main.c):
-	mkdir -p $(TARGETDIR_main.c)
-
-
-# Enable dependency checking
-.KEEP_STATE:
-.KEEP_STATE_FILE:.make.state.GNU-amd64-Linux
+	rm -f *.o *.so debugger
 
