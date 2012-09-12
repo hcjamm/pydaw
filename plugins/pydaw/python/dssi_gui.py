@@ -3,11 +3,12 @@
 import sys
 import liblo
 from liblo import *
-#import liblo
 from urlparse import urlparse
 
 """
-Base class for implementing one's own DSSI GUI
+Class for implementing one's own DSSI GUI.  Instantiate this class and 
+call it's functions to send OSC messages to the DSSI plugin's audio/MIDI
+engine
 """
 class dssi_gui(ServerThread):
     def __init__(self, a_url):
@@ -36,10 +37,7 @@ class dssi_gui(ServerThread):
         self.hide_path = self.base_path + "/hide"
         self.quit_path = self.base_path + "/quit"
         self.update_path = self.base_path + "/update"
-        
-        #It's probably not going to work until this is set...  Need to figure out a Python equivalent
-        #lo_address hostaddr = lo_address_new(host, port)
-        #lo_send(hostaddr, QByteArray(path) + "/update", "s", (QByteArray(lo_server_get_url(osc_server))+QByteArray(path+1)).data());
+                        
         liblo.send(self.target, self.update_path, self.get_url()[:-1] + self.base_path)
         print("Sent " + self.get_url()[:-1] + self.base_path + " to " + self.update_path)
 
@@ -58,18 +56,15 @@ class dssi_gui(ServerThread):
     def configure_handler(self, path, args):
         s1, s2 = args
         liblo.send(self.target, self.configure_path, s1, s2)
-        pass
     
     @make_method('/dssi/pydaw/PYDAW/chan00/control', 'if')
     def control_handler(self, path, args):
         i, f = args
         liblo.send(target, self.control_path, i, f)
-        pass
     
     @make_method('/dssi/pydaw/PYDAW/chan00/sample-rate', 'i')
     def rate_handler(self, path, args):
         liblo.send(target, self.rate_path, args[0])
-        pass
     
     #@make_method('/foo', 'ifs')
     def debug_handler(self, path, args):
@@ -83,15 +78,3 @@ class dssi_gui(ServerThread):
         for a, t in zip(args, types):
             print "argument of type '%s': %s" % (t, a)
     
-    """Override this function"""
-    def init_gui():
-        pass
-    """Override this function"""
-    def v_set_control():
-        pass
-    """Override this function"""
-    def v_control_changed():
-        pass
-    """Override this function"""
-    def i_get_control():
-        pass
