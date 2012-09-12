@@ -84,6 +84,12 @@ class item_list_editor:
         	anchor=kytten.ANCHOR_CENTER,
         	theme=theme2)
          
+    """
+    This should be called whenever the items have been changed, or when 
+    switching items
+    
+    a_items should be an array of 
+    """
     def update_items(self, a_items=[]):
          self.layout.delete()
          
