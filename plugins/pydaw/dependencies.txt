@@ -1,0 +1,7 @@
+PyDAW is still a work-in-progress, although it's expected to become somewhat
+useful soon.  The current required dependencies in Ubuntu are:
+
+python-pyglet
+python-liblo
+
+This is subject to change as the project evolves
