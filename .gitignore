@@ -1,5 +1,6 @@
 tools/debugger/debugger
 plugins/lms_jack_oscrolloscope/jack_oscrolloscope
+plugins/lms_modulex/LMS_MODULEX_qt
 plugins/euphoria/LMS_EUPHORIA_qt
 plugins/lms_delay/LMS_DELAY_qt
 plugins/ray_v/LMS_RAYV_qt
