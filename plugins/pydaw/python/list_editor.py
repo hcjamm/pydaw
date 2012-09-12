@@ -1,11 +1,9 @@
 # PyDAW - Part of the LibModSynth project
 #
-# A generic list editor for MIDI events. Whether or not this is the final
-# solution remains to be seen, a piano-roll editor is somewhat intuitive,
-# but OTOH, a visualization of a millenia-old musical instrument isn't 
-# inline with my vision of a bleeding-edge editor that is both capable
-# and intuitive...  Think alternative tunings, algorithimic music, and
-# advanced editing and automation.
+# This file contains the region editor and the item editor, and any methods
+# they share.  The overall strategy is not to try and be too clever about 
+# using inheritance to share common functionality, since it's more likely to
+# hinder it than to help later on.
 #
 # Copyright 2012, Jeff Hubbard
 # See GPLv3 for license
@@ -65,7 +63,11 @@ class le_audio_event(le_event_base):
     def __init__(self):
         self.mode = 0 #0 == one-shot, 1 == loop .  At some point when timestretching is available, 2 == stretch
 
-class midi_list_editor:
+
+class region_list_editor:
+    pass
+
+class item_list_editor:
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self, a_file_name, a_new_file_name=None):
         self.events = []        
@@ -81,11 +83,14 @@ class midi_list_editor:
         	window=window, batch=batch, group=fg_group,
         	anchor=kytten.ANCHOR_CENTER,
         	theme=theme2)
-        
+         
+    def update_items(self, a_items=[]):
+         self.layout.delete()
+         
+         for item in a_items:
+             item_dialog = item.get_widget()
+             self.layout.add(item_dialog)
     
-#TODO:  I think this could all be done in the midi_list_editor constructor?
-# That would allow the parent window access to functions, properties and
-# signals from here, rather than launching as a separate script
 if __name__ == '__main__':
     window = pyglet.window.Window(
 	900, 700, caption="PyDAW MIDI Item List Editor",
@@ -111,7 +116,7 @@ if __name__ == '__main__':
     
     user_home_folder = expanduser("~")
 
-    midi_list_editor(user_home_folder + '/default.pymid')  
+    item_list_editor(user_home_folder + '/default.pymid')  
                   
     # Change this flag to run with profiling and dump top 20 cumulative times
     if True:
