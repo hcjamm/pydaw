@@ -93,12 +93,12 @@ class lms_session:
         #We've passed all of the tests, now run the instrument
         f_args = ["-a",  "-p", self.project_directory, "-c", self.project_name + "-" + self.instance_names[a_instrument_index]]
         
-        if a_index == 'None':
+        if a_index == 0:
             #TODO: Send the quit signal
             pass
-        elif a_index == 'Euphoria':
+        elif a_index == 1:
             self.processes[a_instrument_index] = subprocess.Popen(['lms-jack-dssi-host', 'euphoria.so'] + f_args)            
-        elif a_index == 'Ray-V':
+        elif a_index == 2:
             self.processes[a_instrument_index] = subprocess.Popen(['lms-jack-dssi-host', 'ray_v.so'] + f_args)
         else:
             print("Invalid index: " + a_index)
