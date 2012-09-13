@@ -18,7 +18,7 @@ VERSION = '5.9'
 
 import kytten
 
-from lmssession import lms_session
+from lms_session import lms_session
 from dssi_gui import dssi_gui
 
 # Default theme, gold-colored
@@ -300,15 +300,18 @@ class track_view:
         	anchor=kytten.ANCHOR_CENTER, theme=theme2)
                 
         self.tracks = [
-                kytten.HorizontalLayout([self.transport_dialog])
+                kytten.HorizontalLayout()
             ]
 
         for i in range(0, 16):
             f_seq_track = seq_track(i, a_track_text="track" + str(i))
             self.tracks.append(f_seq_track.dialog)
         
-        self.layout = kytten.VerticalLayout(self.tracks)
-        self.scrollable = kytten.Scrollable(self.layout, width=1180, height=600, always_show_scrollbars=False)
+        self.tracks_layout = kytten.VerticalLayout(self.tracks)
+        
+        self.scrollable = kytten.Scrollable(self.tracks_layout, width=1180, height=600, always_show_scrollbars=False)
+        
+        self.vlayout0 = kytten.VerticalLayout([self.transport_dialog, self.scrollable])
 
         self.region_editor = region_list_editor()
         self.item_editor = item_list_editor()        
@@ -316,7 +319,7 @@ class track_view:
         self.dialog = kytten.Dialog(
             	kytten.Frame(
                      kytten.HorizontalLayout([
-                        self.scrollable,
+                        self.vlayout0,
                         self.region_editor.dialog,
                         self.item_editor.dialog
                      ])            	    
@@ -346,7 +349,7 @@ class midi_item:
 
 if __name__ == '__main__':
     window = pyglet.window.Window(
-	1200, 700, caption="PyDAW - By LibModSynth",
+	1200, 750, caption="PyDAW - By LibModSynth",
 	resizable=True, vsync=False)
     batch = pyglet.graphics.Batch()
     bg_group = pyglet.graphics.OrderedGroup(0)
