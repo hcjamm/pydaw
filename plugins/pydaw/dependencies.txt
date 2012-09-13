@@ -3,5 +3,8 @@ useful soon.  The current required dependencies in Ubuntu are:
 
 python-pyglet
 python-liblo
+pyqt-tools
+python-pyqt4
+python-pyqt4-doc
 
 This is subject to change as the project evolves
