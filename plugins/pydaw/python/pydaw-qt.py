@@ -5,7 +5,7 @@
 PyDAW - Part of the LibModSynth project
 
 A DAW using Python and Qt, with a high performance audio/MIDI
-backend written in C
+end written in C
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,6 +17,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
+# The basic idea:  A non-linear DAW, since every other DAW on the planet is excessively linear.
+# A song contains X number of 8 bar regions.  Regions contain items.  Items contain events.
+# Events can be a MIDI note event, a MIDI CC event for automation, or playing back an audio file(?)
+# The placement of an item with in a region determines what bar the item starts on in the song, but
+# the bar itself has no defined length...  Which is how this becomes non-linear and uber...
+
 import sys, os
 from PyQt4 import QtGui, QtCore
 from sys import argv
@@ -24,56 +30,10 @@ from os.path import expanduser
 from lms_session import lms_session
 from dssi_gui import dssi_gui
 
-class seq_track:
-    def __init__(self):
-        self.regions = []
-        
-    def __str__(self):
-        return "" #TODO
-
-class list_region:
-    def __init__(self, a_string=None):
-        self.seq_items = []
-        
-        if not a_string is None:
-            pass     
-    
-    def __str__(self):
-        return "" #TODO
-
 class lms_note_selector:
     def __init__(self):
         pass
-
-class list_item_seq:
-    def __init__(self, a_position, a_file_name, a_length=1, a_actual_length=1):
-        self.position = a_position
-        self.length = a_length
-        self.name = a_file_name
-        self.note_items = []
-        self.fq_file_path = os.getcwd() + a_file_name        
-        
-        file_handle = open(self.fq_file_path, 'r')        
-        line_arr = file_handle.readlines()        
-        file_handle.close()
-        
-        for line in line_arr:
-            item_arr = line.split('|')
-            self.note_items.append(list_item(item_arr[0], item_arr[1]), item_arr[2])
-        
-    """
-    Rename the underlying file associated with the sequencer item
-    """
-    def rename(self, a_name):
-        pass
-    
-    def __str__(self):
-        f_result = ""
-        for content_item in self.note_items:
-            f_result += content_item
-        
-        return f_result
-        
+                
 class list_item:
     """
     Tentatively, for a_type:  0 == MIDI Note, 1 == MIDI CC, 2 == Pitchbend, 3 == Audio
@@ -99,23 +59,62 @@ def string_to_note_number(a_note_string):
     pass
 
 class region_list_editor:
-    #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
+    def region_num_changed(self, a_num):
+        self.region_name_lineedit.setText(self.region_names[a_num])
+    def region_name_changed(self, a_new_name):
+        #self.region_names[self.region_num_spinbox.value] = str(a_new_name)
+        pass
+    
+    def cell_clicked(self, x, y):        
+        pass #TODO:  Open in editor
+        
+    def key_press_event(self, a_event):
+        print("key press event")
+        
     def __init__(self):
         self.events = []
+        self.region_names = []
         self.group_box = QtGui.QGroupBox()
         self.main_vlayout = QtGui.QVBoxLayout()
+        
+        self.hlayout0 = QtGui.QHBoxLayout()
+        self.main_vlayout.addLayout(self.hlayout0)
+        self.region_num_label = QtGui.QLabel()
+        self.region_num_label.setText("Region#:")
+        self.hlayout0.addWidget(self.region_num_label)
+        self.region_num_spinbox = QtGui.QSpinBox()
+        self.region_num_spinbox.setRange(0, 100)
+        self.region_num_spinbox.setValue(0)
+        self.region_num_spinbox.valueChanged.connect(self.region_num_changed)
+        self.hlayout0.addWidget(self.region_num_spinbox)
+        self.region_name_lineedit = QtGui.QLineEdit("Region0")
+        self.region_name_lineedit.textChanged.connect(self.region_name_changed)
+        self.hlayout0.addWidget(self.region_name_lineedit)
+        #self.hlayout1 = QtGui.QHBoxLayout()
+        #self.main_vlayout.addLayout(self.hlayout1)
+        #self.draw_button = QtGui.QRadioButton("Draw")
+        #self.draw_button.setChecked(True)
+        #self.hlayout1.addWidget(self.draw_button)        
+        #self.erase_button = QtGui.QRadioButton("Erase")
+        #self.hlayout1.addWidget(self.erase_button)
+        
+        for i in range(0, 100):
+            self.region_names.append("Region" + str(i))
+        
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
-        self.table_widget.setColumnCount(1)
-        self.table_widget.setVerticalHeaderLabels(['Items'])
+        self.table_widget.setColumnCount(3)
+        self.table_widget.setHorizontalHeaderLabels(['1', '2', '3test'])
         self.table_widget.setRowCount(8)
+        self.table_widget.cellClicked.connect(self.cell_clicked)
+        self.table_widget.keyPressEvent.connect(self.key_press_event)
         self.main_vlayout.addWidget(self.table_widget)        
          
     """
     This should be called whenever the items have been changed, or when 
     switching items
     
-    a_items should be an array of 
+    a_items should be an array of TODO
     """
     def update_items(self, a_items=[]):
          self.layout.delete()
@@ -127,15 +126,22 @@ class region_list_editor:
 class item_list_editor:
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):
-        self.events = []
+        self.events = []                
         self.group_box = QtGui.QGroupBox()
-        self.group_box.setTitle("Item Editor")
+        self.main_vlayout = QtGui.QVBoxLayout()
+        self.group_box.setLayout(self.main_vlayout)
+        self.table_widget = QtGui.QTableWidget()
+        self.table_widget.setColumnCount(1)
+        self.table_widget.setHorizontalHeaderLabels(['Events'])
+        self.table_widget.setRowCount(128)
+        self.main_vlayout.addWidget(self.table_widget)        
+        
          
     """
     This should be called whenever the items have been changed, or when 
     switching items
     
-    a_items should be an array of 
+    a_items should be an array of TODO
     """
     def update_items(self, a_items=[]):
          self.layout.delete()
@@ -203,7 +209,6 @@ class seq_track:
         self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V"])
         self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
         self.hlayout3.addWidget(self.instrument_combobox)
-
 
 class transport_widget:
     def on_play(self):
@@ -309,9 +314,11 @@ class pydaw_main_window(QtGui.QWidget):
         self.tracks_tablewidget.resizeColumnsToContents()
         self.tracks_tablewidget.resizeRowsToContents()
         
-        self.region_editor = region_list_editor()
-        
+        self.region_editor = region_list_editor()        
         self.editor_hlayout.addWidget(self.region_editor.group_box)
+        
+        self.item_editor = item_list_editor()        
+        self.editor_hlayout.addWidget(self.item_editor.group_box)        
         
         self.setWindowTitle('PyDAW')    
         self.show()
