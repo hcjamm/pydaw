@@ -21,8 +21,6 @@ import sys, os
 from PyQt4 import QtGui, QtCore
 from sys import argv
 from os.path import expanduser
-
-
 from lms_session import lms_session
 from dssi_gui import dssi_gui
 
@@ -277,6 +275,13 @@ class pydaw_main_window(QtGui.QWidget):
         
         self.resize(1000, 600)
         self.center()
+
+        # This part is not quite working yet
+        #self.menu_bar = QtGui.QMenuBar(self)
+        #self.open_action = QtGui.QAction(self)
+        #self.open_action.triggered.connect(self.on_open)
+        #self.menu_bar.addAction(self.open_action)
+        
         self.main_layout = QtGui.QVBoxLayout(self)
         self.setLayout(self.main_layout)
         

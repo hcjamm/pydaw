@@ -25,7 +25,7 @@ class lms_session:
         
         for i in range(1, len(f_project_path_arr)):
             if i == (len(f_project_path_arr) - 1):
-                self.project_name = str.split(a_project_path, '.pss')[0]
+                self.project_name = str.split(f_project_path_arr[i], '.pss')[0]
             else:
                 self.project_directory += '/' + f_project_path_arr[i]
                 
