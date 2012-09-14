@@ -7,8 +7,14 @@ PyDAW - Part of the LibModSynth project
 A DAW using Python and Qt, with a high performance audio/MIDI
 backend written in C
 
-Copyright 2012, Jeff Hubbard
-See GPLv3 for license
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 """
 
 import sys, os
@@ -55,7 +61,7 @@ class list_item_seq:
         
         for line in line_arr:
             item_arr = line.split('|')
-            self.note_items.append(list_item_content(item_arr[0], item_arr[1]))
+            self.note_items.append(list_item(item_arr[0], item_arr[1]), item_arr[2])
         
     """
     Rename the underlying file associated with the sequencer item
@@ -70,7 +76,7 @@ class list_item_seq:
         
         return f_result
         
-class list_item_note:
+class list_item:
     """
     Tentatively, for a_type:  0 == MIDI Note, 1 == MIDI CC, 2 == Pitchbend, 3 == Audio
     """
@@ -98,6 +104,14 @@ class region_list_editor:
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):
         self.events = []
+        self.group_box = QtGui.QGroupBox()
+        self.main_vlayout = QtGui.QVBoxLayout()
+        self.group_box.setLayout(self.main_vlayout)
+        self.table_widget = QtGui.QTableWidget()
+        self.table_widget.setColumnCount(1)
+        self.table_widget.setVerticalHeaderLabels(['Items'])
+        self.table_widget.setRowCount(8)
+        self.main_vlayout.addWidget(self.table_widget)        
          
     """
     This should be called whenever the items have been changed, or when 
@@ -110,8 +124,7 @@ class region_list_editor:
          
          for item in a_items:
              item_dialog = item.get_widget()
-             self.layout.add(item_dialog)
-    
+             self.layout.add(item_dialog)    
 
 class item_list_editor:
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
@@ -192,13 +205,45 @@ class seq_track:
         self.hlayout3.addWidget(self.instrument_combobox)
 
 
-class track_view:
+class transport_widget:
     def on_play(self):
-        print("Playing")
+        if with_osc:
+            this_dssi_gui.send_configure("play", "testing")
     def on_stop(self):
-        print("Stopping")
+        if with_osc:
+            this_dssi_gui.send_configure("stop", "testing")
     def on_rec(self):
-        print("Recording")
+        if with_osc:
+            this_dssi_gui.send_configure("rec", "testing")
+    def on_tempo_changed(self, a_tempo):        
+        if with_osc:
+            this_dssi_gui.send_configure("rec", str(a_tempo))
+            
+    def __init__(self):
+        self.group_box = QtGui.QGroupBox()
+        self.grid_layout = QtGui.QGridLayout()
+        self.group_box.setLayout(self.grid_layout)        
+        self.play_button = QtGui.QPushButton()
+        self.play_button.setText("Play")
+        self.play_button.pressed.connect(self.on_play)
+        self.grid_layout.addWidget(self.play_button, 0, 0)
+        self.stop_button = QtGui.QPushButton()
+        self.stop_button.setText("Stop")
+        self.stop_button.pressed.connect(self.on_stop)
+        self.grid_layout.addWidget(self.stop_button, 0, 1)    
+        self.rec_button = QtGui.QPushButton()
+        self.rec_button.setText("Rec")
+        self.rec_button.pressed.connect(self.on_rec)
+        self.grid_layout.addWidget(self.rec_button, 0, 2)
+        self.tempo_label = QtGui.QLabel("BPM:")
+        self.grid_layout.addWidget(self.tempo_label, 0, 3)
+        self.tempo_spinbox = QtGui.QSpinBox()
+        self.tempo_spinbox.setRange(50, 200)
+        self.tempo_spinbox.setValue(140)
+        self.tempo_spinbox.valueChanged.connect(self.on_tempo_changed)
+        self.grid_layout.addWidget(self.tempo_spinbox, 0, 4)
+
+class Example(QtGui.QWidget):    
     def on_new(self):
         print("Creating new project")
     def on_open(self):
@@ -208,22 +253,7 @@ class track_view:
         session_mgr.save_session_file()  #Notify the instruments to save their state
         this_dssi_gui.send_configure("save", "testing") #Send a message to the DSSI engine to save it's state.  Currently, this doesn't do anything...
     def on_file_menu_select(self, a_selected):
-        pass            
-            
-    def __init__(self):
-        self.tracks = []
-
-        for i in range(0, 16):
-            f_seq_track = seq_track(i, a_track_text="track" + str(i))
-            self.tracks.append(f_seq_track.dialog)
-
-        self.region_editor = region_list_editor()
-        self.item_editor = item_list_editor()        
-            
-def __del__(self):
-    this_dssi_gui.stop_server()
-
-class Example(QtGui.QWidget):
+        pass
     
     def __init__(self):
         super(Example, self).__init__()
@@ -238,7 +268,10 @@ class Example(QtGui.QWidget):
         self.setLayout(self.main_layout)
         
         self.transport_hlayout = QtGui.QHBoxLayout()
-        self.main_layout.addLayout(self.transport_hlayout)        
+        self.main_layout.addLayout(self.transport_hlayout)
+
+        self.transport = transport_widget()
+        self.transport_hlayout.addWidget(self.transport.group_box, alignment=QtCore.Qt.AlignLeft)        
         
         self.editor_hlayout = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.editor_hlayout)
@@ -246,7 +279,7 @@ class Example(QtGui.QWidget):
         self.tracks_tablewidget.setColumnCount(1)
         self.tracks_tablewidget.setHorizontalHeaderLabels(['Tracks'])
         self.editor_hlayout.addWidget(self.tracks_tablewidget)
-                
+                        
         self.tracks = []
         
         for i in range(0, 16):
@@ -256,25 +289,30 @@ class Example(QtGui.QWidget):
             self.tracks_tablewidget.setCellWidget(i, 0, track.group_box)
 
         self.tracks_tablewidget.resizeColumnsToContents()
-        self.tracks_tablewidget.resizeRowsToContents()        
+        self.tracks_tablewidget.resizeRowsToContents()
+        
+        self.region_editor = region_list_editor()
+        
+        self.editor_hlayout.addWidget(self.region_editor.group_box)
         
         self.setWindowTitle('PyDAW')    
         self.show()
         
-    def center(self):
-        
+    def center(self):        
         qr = self.frameGeometry()
         cp = QtGui.QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
-        self.move(qr.topLeft())
+        self.move(qr.topLeft())        
         
-        
-def main():
-    
+def main():    
     app = QtGui.QApplication(sys.argv)
+    if(len(argv) >= 2):
+        app.aboutToQuit.connect(about_to_quit)
     ex = Example()
     sys.exit(app.exec_())
 
+def about_to_quit():
+    this_dssi_gui.stop_server()
 
 if __name__ == '__main__':
     user_home_folder = expanduser("~")
@@ -283,7 +321,10 @@ if __name__ == '__main__':
 
     for arg in argv:
         print arg
+        
+    with_osc = False
     
     if(len(argv) >= 2):
         this_dssi_gui = dssi_gui(argv[1])
+        with_osc = True
     main()     
