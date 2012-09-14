@@ -4,5 +4,5 @@ echo "arg2: $2"
 echo "arg3: $3"
 echo "arg4: $4"
 echo "arg5: $5"
-python pydaw.py $1
+python pydaw-qt.py $1
 

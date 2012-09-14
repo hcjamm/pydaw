@@ -92,6 +92,7 @@ class lms_session:
                     
         #We've passed all of the tests, now run the instrument
         f_args = ["-a",  "-p", self.project_directory, "-c", self.project_name + "-" + self.instance_names[a_instrument_index]]
+        print(f_args)
         
         if a_index == 0:
             #TODO: Send the quit signal
