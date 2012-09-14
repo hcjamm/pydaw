@@ -43,7 +43,7 @@ class dssi_gui(ServerThread):
 
     def stop_server(self):
         print("stop_server called")
-        liblo.send(self.target, self.exit_path, "")
+        liblo.send(self.target, self.exit_path)
         self.stop()
 
     def send_control(self, port_number, port_value):
