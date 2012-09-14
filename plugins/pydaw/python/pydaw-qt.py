@@ -38,7 +38,7 @@ class list_region:
         self.seq_items = []
         
         if not a_string is None:
-            pass            
+            pass     
     
     def __str__(self):
         return "" #TODO
@@ -146,10 +146,11 @@ class item_list_editor:
              item_dialog = item.get_widget()
              self.layout.content.append(item_dialog)
 
+rec_button_group = QtGui.QButtonGroup()
     
 class seq_track:
     def on_vol_change(self, value):
-        self.volume_label.setText(str(value))
+        self.volume_label.setText(str(value) + " dB")
     def on_pan_change(self, value):
         pass
     def on_solo(self, value):
@@ -183,6 +184,7 @@ class seq_track:
         self.hlayout1.addWidget(self.mute_checkbox)
         self.record_radiobutton = QtGui.QRadioButton()
         self.record_radiobutton.setText("Rec")
+        rec_button_group.addButton(self.record_radiobutton)
         self.record_radiobutton.clicked.connect(self.on_rec)
         self.hlayout1.addWidget(self.record_radiobutton)
         self.hlayout2 = QtGui.QHBoxLayout()
@@ -195,7 +197,7 @@ class seq_track:
         self.volume_slider.valueChanged.connect(self.on_vol_change)                
         self.hlayout2.addWidget(self.volume_slider)
         self.volume_label = QtGui.QLabel()
-        self.volume_label.setText("0")
+        self.volume_label.setText("0 dB")
         self.hlayout2.addWidget(self.volume_label)
         self.hlayout3 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout3)
@@ -217,7 +219,7 @@ class transport_widget:
             this_dssi_gui.send_configure("rec", "testing")
     def on_tempo_changed(self, a_tempo):        
         if with_osc:
-            this_dssi_gui.send_configure("rec", str(a_tempo))
+            this_dssi_gui.send_configure("tempo", str(a_tempo))
             
     def __init__(self):
         self.group_box = QtGui.QGroupBox()
@@ -242,8 +244,13 @@ class transport_widget:
         self.tempo_spinbox.setValue(140)
         self.tempo_spinbox.valueChanged.connect(self.on_tempo_changed)
         self.grid_layout.addWidget(self.tempo_spinbox, 0, 4)
+        self.keybd_label = QtGui.QLabel("MIDI Keybd:")
+        self.grid_layout.addWidget(self.keybd_label, 0, 5)
+        self.keybd_combobox = QtGui.QComboBox()
+        self.keybd_combobox.addItems(['M-Audio UberXsomething', 'Akai MPK99999', 'Yamawho Expensive Keything'])
+        self.grid_layout.addWidget(self.keybd_combobox, 0, 6)
 
-class Example(QtGui.QWidget):    
+class pydaw_main_window(QtGui.QWidget):    
     def on_new(self):
         print("Creating new project")
     def on_open(self):
@@ -256,12 +263,18 @@ class Example(QtGui.QWidget):
         pass
     
     def __init__(self):
-        super(Example, self).__init__()
+        super(pydaw_main_window, self).__init__()
         
         self.initUI()
         
     def initUI(self):               
         QtGui.QMainWindow.__init__(self)
+        stylesheet_file = os.getcwd() + "/style.txt"
+        print(stylesheet_file)
+        file_handle = open(stylesheet_file, 'r')
+        self.setStyleSheet(file_handle.read())
+        file_handle.close()        
+        
         self.resize(1000, 600)
         self.center()
         self.main_layout = QtGui.QVBoxLayout(self)
@@ -308,7 +321,7 @@ def main():
     app = QtGui.QApplication(sys.argv)
     if(len(argv) >= 2):
         app.aboutToQuit.connect(about_to_quit)
-    ex = Example()
+    ex = pydaw_main_window()
     sys.exit(app.exec_())
 
 def about_to_quit():
