@@ -1,6 +1,5 @@
 Notes on current bugs in PyDAW, as well as pseudo-roadmap stuff
 
-
 How jack_lsp is currently listing ports(note the spaces in PyDAW in/out, and the jacked up names for Ray-V):
 	system:capture_1
 	system:capture_2
@@ -32,61 +31,15 @@ How jack_lsp is currently listing ports(note the spaces in PyDAW in/out, and the
 	/home/****/default-track0:out_0
 	/home/****/default-track0:out_1
 
-~/default.pss looks like this, which is an obvious bug:
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-0|
-
-Also, rename .pss extension to .pydaw or something...
-
 dssi_gui: The @make_method decorator should be replaced with explicitly adding methods... 
-
-The top area of the main window shouldn't be part of the scroll area
 
 Need a dropdown for selecting an ALSA MIDI device, then make the Rec checkbox only available to one track at a time for recording...  If hacking it with aconnect, just use aconnect -o to get a list, aconnect -i to determine which client:port PyDAW is, then aconnect client:port client:port to connect, then aconnect -d client:port client:port when moving to a different track
 
-Use configure messages for pretty much everything, and keep a history of them to allow undo-ing of various actions
-
-The exit handler doesn't actually cause it to exit when the UI is closed.  AFAIK, the destructor is never being called...
-
-Need to be able to set tempo...
-
-A list editor for midi events...
+Use configure messages for pretty much everything, and keep a history of them to allow undo-ing of various actions.  BETTER:  For items, keep a running diff log of their text...  Or just keep old versions.
 
 Deprecate the current widget library and replace with a custom library based on textures...
 
 Write a Python module for Jack and Alsa...  Or maybe just enumerate a list into the project directory, with the assumption that those devices will always be there...
-
-Figure out what function is being called on widget move to un-jumble everything, and call it at startup...
 
 Perhaps just cheat and parse the output of jack_lsp, aconnect, etc...  I can always go back and do it right later...
 
@@ -97,8 +50,6 @@ Figure out a way for the UI to determine that playback is happening and move the
 Create 8 bar 'sets' that can be used for writing entire songs, with buttons for previous/next, and a little spinbox widget that shows which one you are on...  Maybe use less than 16 instruments for the initial version, maybe just 8?
 
 Audio sequencing:  Introduce a pool of items, that can be selected in an event list similar to (or alongside?) the MIDI events.  Have the option of a smooth/unsmooth mode for CCs(per CC, per track?)...
-
-A series of comboboxes to serve as a menustrip, with File->Save,Save As, Open, New, etc....
 
 Sequencing engine:  Perhaps just keep the underlying C in the simplest terms possible, and let the UI generate configure messages like key:note_on value:127|23321 and key:note_off value:0|24566, etc...  The UI could also tell the engine exactly what sample to execute on, but that may pose a problem when changing tempo?  When changing play cursor positions, editing, each track should keep an index of the next
 
