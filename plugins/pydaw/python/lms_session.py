@@ -94,9 +94,12 @@ class lms_session:
         f_args = ["-a",  "-p", self.project_directory, "-c", self.project_name + "-" + self.instance_names[a_instrument_index]]
         print(f_args)
         
-        if a_index == 0:
-            #TODO: Send the quit signal
-            pass
+        if a_index == 0: #Send the quit signal
+            f_notify_dir = self.project_directory + lms_notify_directory
+            f_quit_file_path = f_notify_dir + self.project_name + "-" + self.instance_names[a_instrument_index] + ".quit"
+            f_quit_file = open(f_quit_file_path, 'w')
+            f_quit_file.write("Created by PyDAW\n")
+            f_quit_file.close()
         elif a_index == 1:
             self.processes[a_instrument_index] = subprocess.Popen(['lms-jack-dssi-host', 'euphoria.so'] + f_args)            
         elif a_index == 2:

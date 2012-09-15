@@ -1,5 +1,7 @@
 # PyDAW - Part of the LibModSynth project
 #
+# THIS FILE IS CURRENTLY DEPRECATED IN FAVOR OF THE QT PORT!
+#
 # A DAW using Python and OpenGL for the UI, and a high performance audio/MIDI
 # backend written in C
 #

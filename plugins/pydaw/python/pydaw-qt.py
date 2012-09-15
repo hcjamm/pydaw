@@ -67,6 +67,10 @@ class region_list_editor:
     
     def cell_clicked(self, x, y):        
         pass #TODO:  Open in editor
+    def cell_doubleclicked(self, x, y):
+        f_clip = QtGui.QApplication.clipboard()
+        f_item = QtGui.QTableWidgetItem(f_clip.text())
+        self.table_widget.setItem(x, y, f_item)
         
     def key_press_event(self, a_event):
         print("key press event")
@@ -103,11 +107,12 @@ class region_list_editor:
         
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
-        self.table_widget.setColumnCount(3)
-        self.table_widget.setHorizontalHeaderLabels(['1', '2', '3test'])
-        self.table_widget.setRowCount(8)
+        self.table_widget.setColumnCount(8)
+        #self.table_widget.setHorizontalHeaderLabels(['1', '2', '3'])
+        self.table_widget.setRowCount(3)                
         self.table_widget.cellClicked.connect(self.cell_clicked)
-        self.table_widget.keyPressEvent.connect(self.key_press_event)
+        self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)
+        #self.table_widget.keyPressEvent.connect(self.key_press_event)
         self.main_vlayout.addWidget(self.table_widget)        
          
     """
@@ -134,6 +139,7 @@ class item_list_editor:
         self.table_widget.setColumnCount(1)
         self.table_widget.setHorizontalHeaderLabels(['Events'])
         self.table_widget.setRowCount(128)
+        self.group_box.setMaximumWidth(360)
         self.main_vlayout.addWidget(self.table_widget)        
         
          
@@ -167,6 +173,10 @@ class seq_track:
         print(new_name)
     def on_instrument_change(self, selected_instrument):
         session_mgr.instrument_index_changed(self.track_number, selected_instrument, str(self.track_name_lineedit.text()))
+        if selected_instrument == 0:
+            self.track_name_lineedit.setEnabled(True)
+        else:
+            self.track_name_lineedit.setEnabled(False)
     
     def __init__(self, a_track_num, a_track_text="track"):        
         self.track_number = a_track_num
@@ -280,16 +290,18 @@ class pydaw_main_window(QtGui.QWidget):
         
         self.resize(1000, 600)
         self.center()
-
-        # This part is not quite working yet
-        #self.menu_bar = QtGui.QMenuBar(self)
-        #self.open_action = QtGui.QAction(self)
-        #self.open_action.triggered.connect(self.on_open)
-        #self.menu_bar.addAction(self.open_action)
         
         self.main_layout = QtGui.QVBoxLayout(self)
         self.setLayout(self.main_layout)
         
+        # This part is not quite working yet.  It's also not working with QMainWindow, for some reason...
+        self.menu_bar = QtGui.QMenuBar(self)
+        self.main_layout.addWidget(self.menu_bar)
+        self.menu_file = QtGui.QMenu()
+        self.open_action = QtGui.QAction(self)
+        self.menu_file.addAction(self.open_action)
+        self.open_action.triggered.connect(self.on_open)
+                
         self.transport_hlayout = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.transport_hlayout)
 
@@ -306,13 +318,15 @@ class pydaw_main_window(QtGui.QWidget):
         self.tracks = []
         
         for i in range(0, 16):
-            track = seq_track(a_track_num=i, a_track_text="test" + str(i))
+            track = seq_track(a_track_num=i, a_track_text="track" + str(i))
             self.tracks.append(track)
             self.tracks_tablewidget.insertRow(i)
             self.tracks_tablewidget.setCellWidget(i, 0, track.group_box)
 
         self.tracks_tablewidget.resizeColumnsToContents()
         self.tracks_tablewidget.resizeRowsToContents()
+        
+        self.tracks_tablewidget.setMaximumWidth(420)
         
         self.region_editor = region_list_editor()        
         self.editor_hlayout.addWidget(self.region_editor.group_box)
