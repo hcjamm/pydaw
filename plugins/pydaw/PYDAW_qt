@@ -1,8 +1,9 @@
 cd python
+echo "PYDAW_qt called..."
 echo "arg1: $1"
 echo "arg2: $2"
 echo "arg3: $3"
 echo "arg4: $4"
 echo "arg5: $5"
-python pydaw-qt.py $1
+python pydaw.py $1
 
