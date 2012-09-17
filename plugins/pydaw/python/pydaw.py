@@ -5,7 +5,7 @@
 PyDAW - Part of the LibModSynth project
 
 A DAW using Python and Qt, with a high performance audio/MIDI
-end written in C
+back end written in C
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -58,6 +58,28 @@ def note_number_to_string(a_note_number):
 def string_to_note_number(a_note_string):
     pass
 
+class song_editor:
+    def __init__(self):
+        self.group_box = QtGui.QGroupBox()
+        self.main_vlayout = QtGui.QVBoxLayout()        
+        self.hlayout0 = QtGui.QHBoxLayout()
+        self.main_vlayout.addLayout(self.hlayout0)
+        self.region_num_label = QtGui.QLabel()
+        self.region_num_label.setText("Region#:")
+        self.hlayout0.addWidget(self.region_num_label)        
+        self.hlayout0.addWidget(self.region_num_spinbox)
+        self.region_name_lineedit = QtGui.QLineEdit("Region0")
+        self.region_name_lineedit.textChanged.connect(self.region_name_changed)
+        self.hlayout0.addWidget(self.region_name_lineedit)        
+        self.group_box.setLayout(self.main_vlayout)
+        
+        self.table_widget = QtGui.QTableWidget()
+        self.table_widget.setColumnCount(8)
+        self.table_widget.setRowCount(1)                
+        self.table_widget.cellClicked.connect(self.cell_clicked)
+        self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)        
+        self.main_vlayout.addWidget(self.table_widget)
+
 class region_list_editor:
     def region_num_changed(self, a_num):
         self.region_name_lineedit.setText(self.region_names[a_num])
@@ -71,10 +93,7 @@ class region_list_editor:
         f_clip = QtGui.QApplication.clipboard()
         f_item = QtGui.QTableWidgetItem(f_clip.text())
         self.table_widget.setItem(x, y, f_item)
-        
-    def key_press_event(self, a_event):
-        print("key press event")
-        
+                
     def __init__(self):
         self.events = []
         self.region_names = []
@@ -85,12 +104,7 @@ class region_list_editor:
         self.main_vlayout.addLayout(self.hlayout0)
         self.region_num_label = QtGui.QLabel()
         self.region_num_label.setText("Region#:")
-        self.hlayout0.addWidget(self.region_num_label)
-        self.region_num_spinbox = QtGui.QSpinBox()
-        self.region_num_spinbox.setRange(0, 100)
-        self.region_num_spinbox.setValue(0)
-        self.region_num_spinbox.valueChanged.connect(self.region_num_changed)
-        self.hlayout0.addWidget(self.region_num_spinbox)
+        self.hlayout0.addWidget(self.region_num_label)        
         self.region_name_lineedit = QtGui.QLineEdit("Region0")
         self.region_name_lineedit.textChanged.connect(self.region_name_changed)
         self.hlayout0.addWidget(self.region_name_lineedit)
@@ -109,25 +123,11 @@ class region_list_editor:
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setColumnCount(8)
         #self.table_widget.setHorizontalHeaderLabels(['1', '2', '3'])
-        self.table_widget.setRowCount(3)                
+        self.table_widget.setRowCount(16)                
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)
-        #self.table_widget.keyPressEvent.connect(self.key_press_event)
-        self.main_vlayout.addWidget(self.table_widget)        
+        self.main_vlayout.addWidget(self.table_widget)
          
-    """
-    This should be called whenever the items have been changed, or when 
-    switching items
-    
-    a_items should be an array of TODO
-    """
-    def update_items(self, a_items=[]):
-         self.layout.delete()
-         
-         for item in a_items:
-             item_dialog = item.get_widget()
-             self.layout.add(item_dialog)    
-
 class item_list_editor:
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):
@@ -260,7 +260,7 @@ class transport_widget:
         self.keybd_label = QtGui.QLabel("MIDI Keybd:")
         self.grid_layout.addWidget(self.keybd_label, 0, 5)
         self.keybd_combobox = QtGui.QComboBox()
-        self.keybd_combobox.addItems(['M-Audio UberXsomething', 'Akai MPK99999', 'Yamawho Expensive Keything'])
+        self.keybd_combobox.addItems(['M-Audio UberXsomething', 'Akai MPK99999', 'Yamawho Expensive Keything'])  #TODO:  Query for real devices
         self.grid_layout.addWidget(self.keybd_combobox, 0, 6)
 
 class pydaw_main_window(QtGui.QWidget):    
@@ -295,12 +295,12 @@ class pydaw_main_window(QtGui.QWidget):
         self.setLayout(self.main_layout)
         
         # This part is not quite working yet.  It's also not working with QMainWindow, for some reason...
-        self.menu_bar = QtGui.QMenuBar(self)
-        self.main_layout.addWidget(self.menu_bar)
-        self.menu_file = QtGui.QMenu()
-        self.open_action = QtGui.QAction(self)
-        self.menu_file.addAction(self.open_action)
-        self.open_action.triggered.connect(self.on_open)
+        #self.menu_bar = QtGui.QMenuBar(self)
+        #self.main_layout.addWidget(self.menu_bar)
+        #self.menu_file = QtGui.QMenu()
+        #self.open_action = QtGui.QAction(self)
+        #self.menu_file.addAction(self.open_action)
+        #self.open_action.triggered.connect(self.on_open)
                 
         self.transport_hlayout = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.transport_hlayout)
@@ -348,6 +348,7 @@ def main():
     if(len(argv) >= 2):
         app.aboutToQuit.connect(about_to_quit)
     ex = pydaw_main_window()
+    ex.setWindowState(QtCore.Qt.WindowMaximized)
     sys.exit(app.exec_())
 
 def about_to_quit():
