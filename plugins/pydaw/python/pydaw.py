@@ -123,6 +123,8 @@ class region_list_editor:
         self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)
         self.main_vlayout.addWidget(self.table_widget)
          
+         
+         
 class item_list_editor:
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):
@@ -134,22 +136,18 @@ class item_list_editor:
         self.table_widget.setColumnCount(1)
         self.table_widget.setHorizontalHeaderLabels(['Events'])
         self.table_widget.setRowCount(128)
-        self.group_box.setMaximumWidth(360)
+        self.table_widget.cellClicked.connect(self.show_event_dialog)
+        self.group_box.setMaximumWidth(150)
         self.main_vlayout.addWidget(self.table_widget)        
         
-         
-    """
-    This should be called whenever the items have been changed, or when 
-    switching items
-    
-    a_items should be an array of TODO
-    """
-    def update_items(self, a_items=[]):
-         self.layout.delete()
-         
-         for item in a_items:
-             item_dialog = item.get_widget()
-             self.layout.content.append(item_dialog)
+    def show_event_dialog(self):   
+        f_window = QtGui.QDialog()
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_note = QtGui.QLineEdit()
+        f_layout.addWidget(QtGui.QLabel("Note"), 0, 0)
+        f_layout.addWidget(f_note, 0, 1)
+        f_window.exec_()
 
 rec_button_group = QtGui.QButtonGroup()
     
@@ -322,7 +320,7 @@ class pydaw_main_window(QtGui.QWidget):
         self.tracks_tablewidget.resizeColumnsToContents()
         self.tracks_tablewidget.resizeRowsToContents()
         
-        self.tracks_tablewidget.setMaximumWidth(410)
+        self.tracks_tablewidget.setMaximumWidth(395)
 
         self.song_region_vlayout = QtGui.QVBoxLayout()
         self.editor_hlayout.addLayout(self.song_region_vlayout)
