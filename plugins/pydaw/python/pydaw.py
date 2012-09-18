@@ -29,6 +29,7 @@ from sys import argv
 from os.path import expanduser
 from lms_session import lms_session
 from dssi_gui import dssi_gui
+from connect import *
 
 class lms_note_selector:
     def __init__(self):
@@ -61,23 +62,17 @@ def string_to_note_number(a_note_string):
 class song_editor:
     def __init__(self):
         self.group_box = QtGui.QGroupBox()
+        self.group_box.setMaximumHeight(200)
         self.main_vlayout = QtGui.QVBoxLayout()        
         self.hlayout0 = QtGui.QHBoxLayout()
-        self.main_vlayout.addLayout(self.hlayout0)
-        self.region_num_label = QtGui.QLabel()
-        self.region_num_label.setText("Region#:")
-        self.hlayout0.addWidget(self.region_num_label)        
-        self.hlayout0.addWidget(self.region_num_spinbox)
-        self.region_name_lineedit = QtGui.QLineEdit("Region0")
-        self.region_name_lineedit.textChanged.connect(self.region_name_changed)
-        self.hlayout0.addWidget(self.region_name_lineedit)        
+        self.main_vlayout.addLayout(self.hlayout0)    
         self.group_box.setLayout(self.main_vlayout)
         
         self.table_widget = QtGui.QTableWidget()
-        self.table_widget.setColumnCount(8)
-        self.table_widget.setRowCount(1)                
-        self.table_widget.cellClicked.connect(self.cell_clicked)
-        self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)        
+        self.table_widget.setColumnCount(100)
+        self.table_widget.setRowCount(1)
+        #self.table_widget.cellClicked.connect(self.cell_clicked)
+        #self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)        
         self.main_vlayout.addWidget(self.table_widget)
 
 class region_list_editor:
@@ -260,7 +255,8 @@ class transport_widget:
         self.keybd_label = QtGui.QLabel("MIDI Keybd:")
         self.grid_layout.addWidget(self.keybd_label, 0, 5)
         self.keybd_combobox = QtGui.QComboBox()
-        self.keybd_combobox.addItems(['M-Audio UberXsomething', 'Akai MPK99999', 'Yamawho Expensive Keything'])  #TODO:  Query for real devices
+        self.alsa_output_ports = alsa_ports()
+        self.keybd_combobox.addItems(self.alsa_output_ports.get_output_fqnames())
         self.grid_layout.addWidget(self.keybd_combobox, 0, 6)
 
 class pydaw_main_window(QtGui.QWidget):    
@@ -326,10 +322,16 @@ class pydaw_main_window(QtGui.QWidget):
         self.tracks_tablewidget.resizeColumnsToContents()
         self.tracks_tablewidget.resizeRowsToContents()
         
-        self.tracks_tablewidget.setMaximumWidth(420)
+        self.tracks_tablewidget.setMaximumWidth(410)
+
+        self.song_region_vlayout = QtGui.QVBoxLayout()
+        self.editor_hlayout.addLayout(self.song_region_vlayout)
+
+        self.song_editor = song_editor()
+        self.song_region_vlayout.addWidget(self.song_editor.group_box)        
         
         self.region_editor = region_list_editor()        
-        self.editor_hlayout.addWidget(self.region_editor.group_box)
+        self.song_region_vlayout.addWidget(self.region_editor.group_box)
         
         self.item_editor = item_list_editor()        
         self.editor_hlayout.addWidget(self.item_editor.group_box)        
@@ -341,8 +343,8 @@ class pydaw_main_window(QtGui.QWidget):
         qr = self.frameGeometry()
         cp = QtGui.QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
-        self.move(qr.topLeft())        
-        
+        self.move(qr.topLeft())
+                   
 def main():    
     app = QtGui.QApplication(sys.argv)
     if(len(argv) >= 2):
@@ -356,8 +358,8 @@ def about_to_quit():
 
 if __name__ == '__main__':
     user_home_folder = expanduser("~")
-    print("user_home_folder = " + user_home_folder)
-    session_mgr = lms_session(user_home_folder + '/default.pydaw')    
+    print("user_home_folder == " + user_home_folder)
+    session_mgr = lms_session(user_home_folder + '/dssi/default.pydaw')    
 
     for arg in argv:
         print arg

@@ -15,11 +15,12 @@ from commands import getoutput
 
 class alsa_port:
     def __init__(self, a_client_number, a_client_name, a_client_type, a_port_number, a_port_name):
-        self.client_number = a_client_number
-        self.client_name = a_client_name
-        self.client_type = a_client_type        
-        self.port_number = a_port_number
-        self.port_name = a_port_name
+        self.client_number = a_client_number.strip()
+        self.client_name = a_client_name.strip()
+        self.client_type = a_client_type.strip()
+        self.port_number = a_port_number.strip()
+        self.port_name = a_port_name.strip()
+        self.fqname = self.client_name + " " + self.client_number + " " + self.port_name + " " + self.port_number
         
 class alsa_ports:
     def parse_aconnect(self, a_string):
@@ -39,7 +40,21 @@ class alsa_ports:
                 f_result.append(alsa_port(client_number, client_name, client_type, port_number, port_name))
         return f_result
         
-    
+    def get_input_fqnames(self):
+        f_result = []
+        for port in self.input_ports:
+            f_result.append(port.fqname)
+        return f_result
+        
+    def get_output_fqnames(self):
+        f_result = []
+        for port in self.output_ports:
+            f_result.append(port.fqname)
+        return f_result
+        
+    def connect_ports(a_port_out_name, a_port_in_name):
+        #command will be aconnect [client#]:[port#] [client#]:[port#], like aconnect 23:0 44:1 , where the first is sender, and 2nd receiver     
+        pass
         
     def __init__(self):
         input_str = getoutput("aconnect -i")        
@@ -48,17 +63,14 @@ class alsa_ports:
         self.output_ports = self.parse_aconnect(output_str)
 
 
-def alsa_connect_ports(a_port_out, a_port_in):
-    pass
 
 class jack_ports:
     def __init__(self):
         jack_ports = getoutput("jack_lsp")
 
-
 if __name__ == "__main__":
     this_alsa_ports = alsa_ports()
     for port in this_alsa_ports.input_ports:
-        print("Client Name:  " + port.client_name + " Client Number: " + port.client_number +
-            " Client Type: " + port.client_type + " Port Number: " + port.port_number + 
-            " Port Name: " + port.port_name)
+        print(port.fqname)
+    for port in this_alsa_ports.output_ports:
+        print(port.fqname)
