@@ -37,8 +37,6 @@ Need a dropdown for selecting an ALSA MIDI device, then make the Rec checkbox on
 
 Use configure messages for pretty much everything, and keep a history of them to allow undo-ing of various actions.  BETTER:  For items, keep a running diff log of their text...  Or just keep old versions.
 
-Deprecate the current widget library and replace with a custom library based on textures...
-
 Write a Python module for Jack and Alsa...  Or maybe just enumerate a list into the project directory, with the assumption that those devices will always be there...
 
 Perhaps just cheat and parse the output of jack_lsp, aconnect, etc...  I can always go back and do it right later...
@@ -91,13 +89,4 @@ The hardcore architectural RFC of excellence, aka "I RFC'd myself":
 		*
 	Workarounds:
 		*
-
-UI mockup v1:
-
-Main Sequencer Window:
-
-[Menus]		[transport]	[tempo/region#]
-[	tracks		][selected track/region event list][midi item event list]
-
-
 

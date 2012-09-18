@@ -1,0 +1,31 @@
+OSC configure message keys/values:
+
+key	value	notes
+
+"ss"	file	Save song(file == file name)
+"ns"	file	New song(file == file name)
+"us"	file	Update Song(file==file name)
+"ni"	file	New item(file==file name)
+"ui"	file	Update an item(file==file name)
+"di"	file	Delete item(file==file name)
+"nr"	file	New region(file==file name)
+"ur"	file	Update an region(file==file name)
+"dr"	file	Delete region(file==file name)
+
+Other TODO:
+Euphoria: Dynamically allocate per-sample data at sample load
+Move this and others to a ./doc/* folder
+Popup dialogs for editing cell data(for now)
+
+Project structure:
+
+project/
+	instruments/
+		project.pss
+		*.whatever-extension-i-gave-them
+	regions/
+		*.pyreg
+	items/
+		*.pyitem
+	project.pysong
+	
