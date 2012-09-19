@@ -98,7 +98,7 @@ class region_list_editor:
         self.hlayout0 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout0)
         self.region_num_label = QtGui.QLabel()
-        self.region_num_label.setText("Region#:")
+        self.region_num_label.setText("Region:")
         self.hlayout0.addWidget(self.region_num_label)        
         self.region_name_lineedit = QtGui.QLineEdit("Region0")
         self.region_name_lineedit.textChanged.connect(self.region_name_changed)
@@ -137,17 +137,56 @@ class item_list_editor:
         self.table_widget.setHorizontalHeaderLabels(['Events'])
         self.table_widget.setRowCount(128)
         self.table_widget.cellClicked.connect(self.show_event_dialog)
-        self.group_box.setMaximumWidth(150)
+        self.group_box.setMaximumWidth(180)
         self.main_vlayout.addWidget(self.table_widget)        
         
-    def show_event_dialog(self):   
+    def show_event_dialog(self, x, y):
+                
+        def ok_handler():
+            f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
+            f_new_cell = QtGui.QTableWidgetItem(str(f_start.value()) + "|" +
+                str(f_length.value()) + "|" + str(f_note_value) + "|"
+                )
+            self.table_widget.setItem(x, y, f_new_cell)
+            f_window.close()
+            
+        def cancel_handler():            
+            f_window.close()
+            
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
-        f_note = QtGui.QLineEdit()
-        f_layout.addWidget(QtGui.QLabel("Note"), 0, 0)
-        f_layout.addWidget(f_note, 0, 1)
+        f_type = QtGui.QComboBox()
+        f_type.addItems(['Note', 'Audio', 'Controller'])
+        f_layout.addWidget(QtGui.QLabel("Type"), 0, 0)
+        f_layout.addWidget(f_type, 0, 1)
+        f_note_layout = QtGui.QHBoxLayout()
+        f_note = QtGui.QComboBox()
+        f_note.addItems(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])
+        f_note_layout.addWidget(f_note)
+        f_layout.addWidget(QtGui.QLabel("Note"), 1, 0)
+        f_octave = QtGui.QSpinBox()
+        f_octave.setRange(-2, 8)
+        f_note_layout.addWidget(f_octave)
+        f_layout.addLayout(f_note_layout, 1, 1)
+        f_layout.addWidget(QtGui.QLabel("Start"), 2, 0)
+        f_start = QtGui.QDoubleSpinBox()
+        f_start.setRange(0.0, 3.99)
+        f_layout.addWidget(f_start, 2, 1)
+        f_layout.addWidget(QtGui.QLabel("Length"), 3, 0)
+        f_length = QtGui.QDoubleSpinBox()
+        f_length.setRange(0.1, 16.0)
+        f_layout.addWidget(f_length, 3, 1)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_layout.addWidget(f_ok_button, 4,0)
+        f_ok_button.clicked.connect(ok_handler)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_layout.addWidget(f_cancel_button, 4,1)
+        f_cancel_button.clicked.connect(cancel_handler)
+                
         f_window.exec_()
+
+        #QtGui.QTableWidgetItem()
 
 rec_button_group = QtGui.QButtonGroup()
     
@@ -178,10 +217,6 @@ class seq_track:
         self.group_box.setLayout(self.main_vlayout)
         self.hlayout1 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout1)
-        self.track_name_lineedit = QtGui.QLineEdit()
-        self.track_name_lineedit.setText(a_track_text)
-        self.track_name_lineedit.textChanged.connect(self.on_name_changed)
-        self.hlayout1.addWidget(self.track_name_lineedit)
         self.solo_checkbox = QtGui.QCheckBox()
         self.solo_checkbox.setText("Solo")
         self.solo_checkbox.clicked.connect(self.on_solo)
@@ -208,6 +243,10 @@ class seq_track:
         self.hlayout2.addWidget(self.volume_label)
         self.hlayout3 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout3)
+        self.track_name_lineedit = QtGui.QLineEdit()
+        self.track_name_lineedit.setText(a_track_text)
+        self.track_name_lineedit.textChanged.connect(self.on_name_changed)
+        self.hlayout3.addWidget(self.track_name_lineedit)
         self.instrument_combobox = QtGui.QComboBox()
         self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V"])
         self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
@@ -320,7 +359,7 @@ class pydaw_main_window(QtGui.QWidget):
         self.tracks_tablewidget.resizeColumnsToContents()
         self.tracks_tablewidget.resizeRowsToContents()
         
-        self.tracks_tablewidget.setMaximumWidth(395)
+        self.tracks_tablewidget.setMaximumWidth(300)
 
         self.song_region_vlayout = QtGui.QVBoxLayout()
         self.editor_hlayout.addLayout(self.song_region_vlayout)
