@@ -8,6 +8,11 @@ QLineEdit, QRadioButton, QCheckBox, QSpinBox
 	background-color:white;
 }
 
+QTableWidget
+{
+	color:white;
+}
+
 QMessageBox
 {
 	color:white;
