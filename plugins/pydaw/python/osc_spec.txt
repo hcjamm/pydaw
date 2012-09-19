@@ -17,7 +17,6 @@ key	value	notes
 Other TODO:
 Euphoria: Dynamically allocate per-sample data at sample load
 Move this and others to a ./doc/* folder
-Move CC events into a separate lane?  Also need to work out whether to sort the list or not...
 Create a tabwidget for the main area, and move the item editor to a new tab.  Later I can add audio and MIDI event lists...
 
 Project structure:
