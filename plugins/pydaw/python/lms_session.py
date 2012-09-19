@@ -25,7 +25,7 @@ class lms_session:
         
         for i in range(1, len(f_project_path_arr)):
             if i == (len(f_project_path_arr) - 1):
-                self.project_name = str.split(f_project_path_arr[i], '.pss')[0]
+                self.project_name = str.split(f_project_path_arr[i], '.pyses')[0]
             else:
                 self.project_directory += '/' + f_project_path_arr[i]
                 
@@ -91,6 +91,8 @@ class lms_session:
                     return
                     
         #We've passed all of the tests, now run the instrument
+        self.select_instrument[a_instrument_index] = a_index
+
         f_args = ["-a",  "-p", self.project_directory, "-c", self.project_name + "-" + self.instance_names[a_instrument_index]]
         print(f_args)
         
@@ -133,6 +135,7 @@ class lms_session:
     def quit_hander(self):
         print("Quitting...")
         f_notify_dir = self.project_directory + lms_notify_directory
+        print("Sending quit notify messages in " + f_notify_dir)
         for f_i in range(0, lms_instrument_count):
             if self.select_instrument[f_i] > 0:
                 f_quit_file_path = f_notify_dir + self.project_name + "-" + self.instance_names[f_i] + ".quit"
