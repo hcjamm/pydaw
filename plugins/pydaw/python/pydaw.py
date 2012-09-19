@@ -284,7 +284,7 @@ class transport_widget:
         self.keybd_combobox.addItems(self.alsa_output_ports.get_output_fqnames())
         self.grid_layout.addWidget(self.keybd_combobox, 0, 6)
 
-class pydaw_main_window(QtGui.QWidget):
+class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
         print("Creating new project")
     def on_open(self):
@@ -292,12 +292,13 @@ class pydaw_main_window(QtGui.QWidget):
     def on_save(self):
         print("Saving project")
         session_mgr.save_session_file()  #Notify the instruments to save their state
-        this_dssi_gui.send_configure("save", "testing") #Send a message to the DSSI engine to save it's state.  Currently, this doesn't do anything...
-    def on_file_menu_select(self, a_selected):
-        pass
+        if with_osc:
+            this_dssi_gui.send_configure("save", "testing") #Send a message to the DSSI engine to save it's state.  Currently, this doesn't do anything...
+    def on_save_as(self):
+        print("This is where I would open a file dialog")
     
     def __init__(self):
-        super(pydaw_main_window, self).__init__()
+        #super(pydaw_main_window, self).__init__()
         
         self.initUI()
         
@@ -312,16 +313,30 @@ class pydaw_main_window(QtGui.QWidget):
         self.resize(1000, 600)
         self.center()
         
-        self.main_layout = QtGui.QVBoxLayout(self)
-        self.setLayout(self.main_layout)
+        self.central_widget = QtGui.QWidget()
+        self.setCentralWidget(self.central_widget)
         
-        # This part is not quite working yet.  It's also not working with QMainWindow, for some reason...
-        #self.menu_bar = QtGui.QMenuBar(self)
-        #self.main_layout.addWidget(self.menu_bar)
-        #self.menu_file = QtGui.QMenu()
-        #self.open_action = QtGui.QAction(self)
-        #self.menu_file.addAction(self.open_action)
-        #self.open_action.triggered.connect(self.on_open)
+        self.main_layout = QtGui.QVBoxLayout()
+        self.central_widget.setLayout(self.main_layout)
+        
+        self.menu_bar = self.menuBar()
+        self.menu_file = self.menu_bar.addMenu("&File")
+        
+        self.new_action = QtGui.QAction("New", self)
+        self.menu_file.addAction(self.new_action)
+        self.new_action.triggered.connect(self.on_new)
+        
+        self.open_action = QtGui.QAction("Open", self)
+        self.menu_file.addAction(self.open_action)
+        self.open_action.triggered.connect(self.on_open)
+        
+        self.save_action = QtGui.QAction("Save", self)
+        self.menu_file.addAction(self.save_action)
+        self.open_action.triggered.connect(self.on_save)
+        
+        self.save_as_action = QtGui.QAction("Save As...", self)
+        self.menu_file.addAction(self.save_as_action)
+        self.save_as_action.triggered.connect(self.on_save_as)
                 
         self.transport_hlayout = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.transport_hlayout)
