@@ -11,11 +11,13 @@ key	value	notes
 "nr"	file	New region(file==file name)
 "ur"	file	Update an region(file==file name)
 "dr"	file	Delete region(file==file name)
+"rr"	file|file	Rename a region (old file | new file)
+"ri"	file|file	Rename an item (old file | new file)
 
 Other TODO:
 Euphoria: Dynamically allocate per-sample data at sample load
 Move this and others to a ./doc/* folder
-Popup dialogs for editing cell data(for now)
+Move CC events into a separate lane?  Also need to work out whether to sort the list or not...
 
 Project structure:
 
@@ -29,3 +31,13 @@ project/
 		*.pyitem
 	project.pysong
 	
+
+
+Move this to a document:
+
+
+# The basic idea:  A non-linear DAW, since every other DAW on the planet is excessively linear.
+# A song contains X number of 8 bar regions.  Regions contain items.  Items contain events.
+# Events can be a MIDI note event, a MIDI CC event for automation, or playing back an audio file(?)
+# The placement of an item with in a region determines what bar the item starts on in the song, but
+# the bar itself has no defined length...  Which is how this becomes non-linear and uber...

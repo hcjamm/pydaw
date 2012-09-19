@@ -17,12 +17,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-# The basic idea:  A non-linear DAW, since every other DAW on the planet is excessively linear.
-# A song contains X number of 8 bar regions.  Regions contain items.  Items contain events.
-# Events can be a MIDI note event, a MIDI CC event for automation, or playing back an audio file(?)
-# The placement of an item with in a region determines what bar the item starts on in the song, but
-# the bar itself has no defined length...  Which is how this becomes non-linear and uber...
-
 import sys, os
 from PyQt4 import QtGui, QtCore
 from sys import argv
@@ -60,6 +54,9 @@ def string_to_note_number(a_note_string):
     pass
 
 class song_editor:
+    def cell_clicked(self, x, y):
+        pass
+    
     def __init__(self):
         self.group_box = QtGui.QGroupBox()
         self.group_box.setMaximumHeight(200)
@@ -71,8 +68,7 @@ class song_editor:
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setColumnCount(100)
         self.table_widget.setRowCount(1)
-        #self.table_widget.cellClicked.connect(self.cell_clicked)
-        #self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)        
+        self.table_widget.cellClicked.connect(self.cell_clicked)
         self.main_vlayout.addWidget(self.table_widget)
 
 class region_list_editor:
@@ -103,21 +99,13 @@ class region_list_editor:
         self.region_name_lineedit = QtGui.QLineEdit("Region0")
         self.region_name_lineedit.textChanged.connect(self.region_name_changed)
         self.hlayout0.addWidget(self.region_name_lineedit)
-        #self.hlayout1 = QtGui.QHBoxLayout()
-        #self.main_vlayout.addLayout(self.hlayout1)
-        #self.draw_button = QtGui.QRadioButton("Draw")
-        #self.draw_button.setChecked(True)
-        #self.hlayout1.addWidget(self.draw_button)        
-        #self.erase_button = QtGui.QRadioButton("Erase")
-        #self.hlayout1.addWidget(self.erase_button)
-        
+                
         for i in range(0, 100):
             self.region_names.append("Region" + str(i))
         
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setColumnCount(8)
-        #self.table_widget.setHorizontalHeaderLabels(['1', '2', '3'])
         self.table_widget.setRowCount(16)                
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)
@@ -296,7 +284,7 @@ class transport_widget:
         self.keybd_combobox.addItems(self.alsa_output_ports.get_output_fqnames())
         self.grid_layout.addWidget(self.keybd_combobox, 0, 6)
 
-class pydaw_main_window(QtGui.QWidget):    
+class pydaw_main_window(QtGui.QWidget):
     def on_new(self):
         print("Creating new project")
     def on_open(self):
@@ -394,9 +382,20 @@ def about_to_quit():
     this_dssi_gui.stop_server()
 
 if __name__ == '__main__':
-    user_home_folder = expanduser("~")
-    print("user_home_folder == " + user_home_folder)
-    session_mgr = lms_session(user_home_folder + '/dssi/default.pydaw')    
+    default_project_folder = expanduser("~") + '/dssi/pydaw/'
+        
+    project_folders = [
+        default_project_folder,
+        default_project_folder + "instruments",
+        default_project_folder + "regions",
+        default_project_folder + "items",
+        ]
+                
+    for project_dir in project_folders:
+        if not os.path.isdir(project_dir):
+            os.mkdir(project_dir)
+
+    session_mgr = lms_session(default_project_folder + 'instruments/default.pydaw')
 
     for arg in argv:
         print arg
