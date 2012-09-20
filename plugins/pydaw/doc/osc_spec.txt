@@ -19,6 +19,7 @@ Create some kind of song->region dialog, like when clicking in a region in the s
 Context menus?  Stuff like, insert, delete, etc...
 Euphoria: Dynamically allocate per-sample data at sample load
 Create a tabwidget for the main area, and move the item editor to a new tab.  Later I can add audio and MIDI event lists...
+Move the with_osc variable to within the dssi_gui class;  Allow a dummy instance to be instantiated when no arguments are passed to the constructor
 
 Project structure:
 
