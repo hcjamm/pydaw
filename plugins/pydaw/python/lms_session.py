@@ -49,7 +49,7 @@ class lms_session:
         if(os.path.exists(self.full_project_file_path)):
             f_file = open(self.full_project_file_path)
             
-            f_count = 0            
+            f_count = 0          
             
             for line in f_file:
                 if f_count >= lms_instrument_count:
@@ -59,11 +59,10 @@ class lms_session:
                 self.instance_names[f_count] = f_line_list[1]
                 f_inst_index = int(f_line_list[0])
                 self.select_instrument[f_count] = f_inst_index
-                f_count += 1
-                
+                f_count += 1                
                 #Pause between so that we don't thrash the CPU and hard disk
-                if f_inst_index > 0:
-                    sleep(2)
+                #if f_inst_index > 0:
+                    #sleep(2)
                             
             f_file.close()
         else:
@@ -78,7 +77,7 @@ class lms_session:
         #    print("Error:  The instance name must not be empty") #TODO:  Create a default instance name
         #    return
                 
-        self.instance_names[a_instrument_index] = str.strip(a_instance_name) #self.instance_names[a_instrument_index])
+        self.instance_names[a_instrument_index] = a_instance_name.strip() #self.instance_names[a_instrument_index])
         
         #test for uniqueness
         for i in range(0, lms_instrument_count):
@@ -127,7 +126,7 @@ class lms_session:
         #Now notify the instruments to save their state
         for f_i in range(0, lms_instrument_count):
             if self.select_instrument[f_i] > 0:
-                f_save_file = open(f_notify_dir + self.project_name + "-" + self.instance_names[f_i] + ".save")
+                f_save_file = open(f_notify_dir + self.project_name + "-" + self.instance_names[f_i] + ".save", 'w')
                 f_save_file.write("Created by PyDAW\n")
                 #Does flush need to be called here?
                 f_save_file.close()
