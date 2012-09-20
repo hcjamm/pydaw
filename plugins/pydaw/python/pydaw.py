@@ -25,27 +25,22 @@ from lms_session import lms_session
 from dssi_gui import dssi_gui
 from connect import *
 
-class lms_note_selector:
-    def __init__(self):
-        pass
-    
 class song_editor:
     def cell_clicked(self, x, y):
         f_cell = self.table_widget.item(x, y)
         if f_cell is None:
-            def note_ok_handler():
+            def song_ok_handler():
                 f_new_cell = QtGui.QTableWidgetItem(f_new_lineedit.text())
                 if f_new_radiobutton.isChecked():
-                    #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
-                    open(this_pydaw_project.regions_folder + "/" + f_new_lineedit.text() + ".pyreg", 'w').close() #TODO:  Put this into the project                    
+                    this_pydaw_project.create_empty_region(f_new_lineedit.text())               
                 elif f_copy_radiobutton.isChecked():
-                    pass
+                    this_pydaw_project.copy_region(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
                     
                 self.table_widget.setItem(x, y, f_new_cell)
                 this_region_editor.open_region(f_new_lineedit.text())
                 f_window.close()
                 
-            def note_cancel_handler():            
+            def song_cancel_handler():            
                 f_window.close()
                 
             f_window = QtGui.QDialog()
@@ -62,16 +57,14 @@ class song_editor:
             f_copy_combobox = QtGui.QComboBox()
             f_copy_combobox.addItems(this_pydaw_project.get_region_list())                                    
             f_layout.addWidget(QtGui.QLabel("Copy from:"), 1, 1)
-            f_layout.addWidget(f_copy_combobox, 1, 2)           
+            f_layout.addWidget(f_copy_combobox, 1, 2)
             f_ok_button = QtGui.QPushButton("OK")
             f_layout.addWidget(f_ok_button, 5,0)
-            f_ok_button.clicked.connect(note_ok_handler)
+            f_ok_button.clicked.connect(song_ok_handler)
             f_cancel_button = QtGui.QPushButton("Cancel")
             f_layout.addWidget(f_cancel_button, 5,1)
-            f_cancel_button.clicked.connect(note_cancel_handler)
-                    
+            f_cancel_button.clicked.connect(song_cancel_handler)                    
             f_window.exec_()
-
         else:
             pass #TODO:  Open in region editor
     
@@ -91,14 +84,74 @@ class song_editor:
 
 class region_list_editor:
     def open_region(self, a_file_name):
-        pass
-    
-    def region_name_changed(self, a_new_name):
-        #self.region_names[self.region_num_spinbox.value] = str(a_new_name)
-        pass
-    
+        self.region_name_lineedit.setText(a_file_name)
+        f_region_string = this_pydaw_project.get_region_string(a_file_name)
+        f_region_arr = f_region_string.split("\n")
+        for f_i in range(0, len(f_region_arr)):
+            f_track_arr = f_region_arr[f_i].split("|")
+            for f_i2 in range(0, len(f_track_arr)):
+                f_new_cell = QtGui.QTableWidgetItem(f_track_arr[f_i2])
+                self.table_widget.setItem(f_i, f_i2, f_new_cell)                
+        
     def cell_clicked(self, x, y):        
-        pass #TODO:  Open in editor
+        f_item = self.table_widget.item(x, y)
+        if f_item is None:
+            self.show_cell_dialog(x, y)
+        else:
+            f_item_name = str(f_item.text())
+            if f_item_name != "":
+                this_item_editor.open_item(f_item_name)
+            else:
+                self.show_cell_dialog(x, y)
+    #Maybe use __str__ for this one?                
+    def get_region_string(self):
+        f_result = ""
+        for i in range(0, self.table_widget.rowCount()):
+            for i in range(0, self.table_widget.columnCount()):
+                f_item = self.table_widget.item(f_i, f_i2)
+                if not f_item is None:
+                    f_result += f_item.text()
+                f_result += "|"
+            f_result += "\n"                    
+                
+    def show_cell_dialog(self, x, y):
+        def note_ok_handler():            
+            if f_new_radiobutton.isChecked():
+                f_cell_text = str(f_new_lineedit.text())                
+                this_pydaw_project.create_empty_item(f_new_lineedit.text())                
+            elif f_copy_radiobutton.isChecked():
+                f_cell_text = str(f_copy_combobox.currentText())
+            this_item_editor.open_item(f_cell_text)
+            f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
+            self.table_widget.setItem(x, y, f_new_cell)
+            #this_pydaw_project.save_region()
+            f_window.close()
+                
+        def note_cancel_handler():            
+            f_window.close()
+            
+        f_window = QtGui.QDialog()
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_new_radiobutton = QtGui.QRadioButton()
+        f_new_radiobutton.setChecked(True)
+        f_layout.addWidget(f_new_radiobutton, 0, 0)
+        f_layout.addWidget(QtGui.QLabel("New:"), 0, 1)
+        f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_item_name())
+        f_layout.addWidget(f_new_lineedit, 0, 2)
+        f_copy_radiobutton = QtGui.QRadioButton()
+        f_layout.addWidget(f_copy_radiobutton, 1, 0)            
+        f_copy_combobox = QtGui.QComboBox()
+        f_copy_combobox.addItems(this_pydaw_project.get_item_list())                                    
+        f_layout.addWidget(QtGui.QLabel("Existing:"), 1, 1)
+        f_layout.addWidget(f_copy_combobox, 1, 2)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_layout.addWidget(f_ok_button, 5,0)
+        f_ok_button.clicked.connect(note_ok_handler)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_layout.addWidget(f_cancel_button, 5,1)
+        f_cancel_button.clicked.connect(note_cancel_handler)                
+        f_window.exec_()
         
     def cell_doubleclicked(self, x, y):
         f_clip = QtGui.QApplication.clipboard()
@@ -115,7 +168,8 @@ class region_list_editor:
         self.region_num_label.setText("Region:")
         self.hlayout0.addWidget(self.region_num_label)        
         self.region_name_lineedit = QtGui.QLineEdit("Region0")
-        self.region_name_lineedit.textChanged.connect(self.region_name_changed)
+        self.region_name_lineedit.setEnabled(False)
+        #self.region_name_lineedit.textChanged.connect(self.region_name_changed)
         self.hlayout0.addWidget(self.region_name_lineedit)
                 
         self.group_box.setLayout(self.main_vlayout)
@@ -141,7 +195,11 @@ class item_list_editor:
         self.table_widget.setRowCount(128)
         self.table_widget.cellClicked.connect(self.show_event_dialog)
         self.group_box.setMaximumWidth(270)
-        self.main_vlayout.addWidget(self.table_widget)        
+        self.main_vlayout.addWidget(self.table_widget)
+        
+    def open_item(self, a_item_name):
+        f_this_item_string = this_pydaw_project.get_item_string(a_item_name)
+        #TODO
         
     def show_event_dialog(self, x, y):
         if y == 0:
@@ -209,8 +267,7 @@ class item_list_editor:
                     
             f_window.exec_()
 
-        elif y == 1:
-            
+        elif y == 1:            
             f_cell = self.table_widget.item(x, y)
             if f_cell is None:
                 f_default_start = 0.0
@@ -329,18 +386,14 @@ class seq_track:
         self.hlayout3.addWidget(self.instrument_combobox)
 
 class transport_widget:
-    def on_play(self):
-        if with_osc:
-            this_dssi_gui.send_configure("play", "testing")
+    def on_play(self):        
+        this_dssi_gui.send_configure("play", "testing")
     def on_stop(self):
-        if with_osc:
-            this_dssi_gui.send_configure("stop", "testing")
+        this_dssi_gui.send_configure("stop", "testing")
     def on_rec(self):
-        if with_osc:
-            this_dssi_gui.send_configure("rec", "testing")
-    def on_tempo_changed(self, a_tempo):        
-        if with_osc:
-            this_dssi_gui.send_configure("tempo", str(a_tempo))
+        this_dssi_gui.send_configure("rec", "testing")
+    def on_tempo_changed(self, a_tempo):
+        this_dssi_gui.send_configure("tempo", str(a_tempo))
             
     def __init__(self):
         self.group_box = QtGui.QGroupBox()
@@ -373,28 +426,46 @@ class transport_widget:
         self.loop_mode_combobox = QtGui.QComboBox()
         self.loop_mode_combobox.addItems(["Off", "Bar", "Region"])
         self.grid_layout.addWidget(self.loop_mode_combobox, 0, 8)
+        
+class track_editor:
+    def __init__(self):
+        self.tracks_tablewidget = QtGui.QTableWidget()
+        self.tracks_tablewidget.setColumnCount(1)
+        self.tracks_tablewidget.setHorizontalHeaderLabels(['Tracks'])                     
+        self.tracks = []
+        
+        for i in range(0, 16):
+            track = seq_track(a_track_num=i, a_track_text="track" + str(i))
+            self.tracks.append(track)
+            self.tracks_tablewidget.insertRow(i)
+            self.tracks_tablewidget.setCellWidget(i, 0, track.group_box)
+
+        self.tracks_tablewidget.resizeColumnsToContents()
+        self.tracks_tablewidget.resizeRowsToContents()        
+        self.tracks_tablewidget.setMaximumWidth(300)
 
 class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
         print("Creating new project")
+        this_pydaw_project.new_project()
     def on_open(self):
         print("Opening existing project")
+        this_pydaw_project.open_project()
     def on_save(self):
         print("Saving project")
         this_pydaw_project.save_project()
-        if with_osc:
-            this_dssi_gui.send_configure("save", "testing") #Send a message to the DSSI engine to save it's state.  Currently, this doesn't do anything...
+        this_dssi_gui.send_configure("save", "testing") #Send a message to the DSSI engine to save it's state.  Currently, this doesn't do anything...
     def on_save_as(self):
-        print("This is where I would open a file dialog")
+        print("Saving project as...")
+        this_pydaw_project.save_project_as()
     
     def __init__(self):
-        #super(pydaw_main_window, self).__init__()        
         self.initUI()
         
     def initUI(self):               
         QtGui.QMainWindow.__init__(self)
         stylesheet_file = os.getcwd() + "/style.txt"
-        print(stylesheet_file)
+        print("Opening CSS stylesheet from:  " + stylesheet_file)
         file_handle = open(stylesheet_file, 'r')
         self.setStyleSheet(file_handle.read())
         file_handle.close()        
@@ -429,48 +500,20 @@ class pydaw_main_window(QtGui.QMainWindow):
                 
         self.transport_hlayout = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.transport_hlayout)
-
-        global transport
-        transport = transport_widget()
-        self.transport_hlayout.addWidget(transport.group_box, alignment=QtCore.Qt.AlignLeft)        
+                
+        self.transport_hlayout.addWidget(this_transport.group_box, alignment=QtCore.Qt.AlignLeft)        
         
         self.editor_hlayout = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.editor_hlayout)
-        self.tracks_tablewidget = QtGui.QTableWidget()
-        self.tracks_tablewidget.setColumnCount(1)
-        self.tracks_tablewidget.setHorizontalHeaderLabels(['Tracks'])
-        self.editor_hlayout.addWidget(self.tracks_tablewidget)
-             
-        global tracks
-        tracks = []
+        self.editor_hlayout.addWidget(this_track_editor.tracks_tablewidget)
         
-        for i in range(0, 16):
-            track = seq_track(a_track_num=i, a_track_text="track" + str(i))
-            tracks.append(track)
-            self.tracks_tablewidget.insertRow(i)
-            self.tracks_tablewidget.setCellWidget(i, 0, track.group_box)
-
-        self.tracks_tablewidget.resizeColumnsToContents()
-        self.tracks_tablewidget.resizeRowsToContents()
-        
-        self.tracks_tablewidget.setMaximumWidth(300)
-
         self.song_region_vlayout = QtGui.QVBoxLayout()
         self.editor_hlayout.addLayout(self.song_region_vlayout)
 
-        global this_song_editor
-        this_song_editor = song_editor()
-        self.song_region_vlayout.addWidget(this_song_editor.group_box)        
-        
-        global this_region_editor
-        this_region_editor = region_list_editor()        
+        self.song_region_vlayout.addWidget(this_song_editor.group_box)
         self.song_region_vlayout.addWidget(this_region_editor.group_box)
-        
-        global this_item_editor
-        this_item_editor = item_list_editor()        
         self.editor_hlayout.addWidget(this_item_editor.group_box)        
         
-        self.setWindowTitle('PyDAW')    
         self.show()
         
     def center(self):        
@@ -489,7 +532,8 @@ class pydaw_project:
         pass
     def new_project(self, a_project_folder=None, a_project_file=None):
         #TODO:  Show a QFileDialog when either is None
-        self.project_folder = a_project_folder        
+        self.project_folder = a_project_folder
+        self.project_file = a_project_file
         self.instrument_folder = self.project_folder + "instruments"
         self.regions_folder = self.project_folder + "regions"
         self.items_folder = self.project_folder + "items"
@@ -506,6 +550,7 @@ class pydaw_project:
                 os.mkdir(project_dir)
         
         self.session_mgr = lms_session(self.instrument_folder + '/' + a_project_file + '.pyses')
+        this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
         
     def get_region_string(self, a_region_name):
         f_file = open(self.regions_folder + "/" + a_region_name + ".pyreg", "r")        
@@ -519,11 +564,29 @@ class pydaw_project:
         f_file.close()
         return f_result
         
+    def create_empty_region(self, a_region_name):
+        #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
+        open(self.regions_folder + "/" + a_region_name + ".pyreg", 'w').close()        
+    
+    def create_empty_item(self, a_item_name):
+        #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
+        open(self.items_folder + "/" + a_item_name + ".pyitem", 'w').close()        
+        
     def copy_region(self, a_old_region, a_new_region):
         copyfile(self.regions_folder + "/" + a_old_region + ".pyreg", self.regions_folder + "/" + a_new_region + ".pyreg")
     
     def copy_item(self, a_old_item, a_new_item):
         copyfile(self.items_folder + "/" + a_old_item + ".pyitem", self.items_folder + "/" + a_new_item + ".pyitem")
+
+    def save_item(self, a_name, a_string):
+        f_file = open(self.items_folder + "/" + a_name + ".pyitem", 'w')
+        f_file.write(a_string)
+        f_file.close()
+    
+    def save_region(self, a_name, a_string):
+        f_file = open(self.regions_folder + "/" + a_name + ".pyreg", 'w')
+        f_file.write(a_string)
+        f_file.close()
 
     def get_next_default_item_name(self):
         for i in range(self.last_item_number, 10000):
@@ -543,7 +606,7 @@ class pydaw_project:
         f_result = []
         for files in os.listdir(self.items_folder):
             if files.endswith(".pyitem"):
-                f_result.append(files)
+                f_result.append(files.split(".pyitem")[0])
         f_result.sort()
         return f_result
     
@@ -551,7 +614,7 @@ class pydaw_project:
         f_result = []
         for files in os.listdir(self.regions_folder):
             if files.endswith(".pyreg"):
-                f_result.append(files)
+                f_result.append(files.split(".pyreg")[0])
         f_result.sort()
         return f_result
         
@@ -562,25 +625,29 @@ class pydaw_project:
     
 def about_to_quit():
     this_pydaw_project.session_mgr.quit_hander()
-    if with_osc:
-        this_dssi_gui.stop_server()
+    this_dssi_gui.stop_server()
 
 if __name__ == '__main__':
-    project_folder = expanduser("~") + '/dssi/pydaw/'
-    
-    this_pydaw_project = pydaw_project(project_folder, "default")    
-
     for arg in argv:
         print arg
     
     if(len(argv) >= 2):
         this_dssi_gui = dssi_gui(argv[1])
-        with_osc = True
     else:
-        with_osc = False
+        this_dssi_gui = dssi_gui()
         
     app = QtGui.QApplication(sys.argv)    
     app.aboutToQuit.connect(about_to_quit)
-    ex = pydaw_main_window()
-    ex.setWindowState(QtCore.Qt.WindowMaximized)
+    this_song_editor = song_editor()
+    this_region_editor = region_list_editor()
+    this_item_editor = item_list_editor()
+    this_transport = transport_widget()
+    this_track_editor = track_editor()
+    
+    this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
+    this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
+    
+    project_folder = expanduser("~") + '/dssi/pydaw/'    
+    this_pydaw_project = pydaw_project(project_folder, "default")        
+    
     sys.exit(app.exec_())

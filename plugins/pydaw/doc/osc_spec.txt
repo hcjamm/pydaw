@@ -1,3 +1,11 @@
+# The basic idea:  A non-linear DAW, since every other DAW on the planet is excessively linear.
+# A song contains X number of 8 bar regions.  Regions contain per-track items.  Items contain events.
+# Events can be a MIDI note event, a MIDI CC event for automation, or playing back an audio file(?)
+# The placement of an item with in a region determines what bar the item starts on in the song, but
+# items within the bar may be longer than 1 bar.  The UI is completely detached from the underlying
+# audio/MIDI engine, and communicates with it via a well defined protocol, which will allow easily 
+# replacing the UI with a different UI, as well as safe customization of the UI.
+
 OSC configure message keys/values:
 
 key	value	notes
@@ -5,6 +13,7 @@ key	value	notes
 "ss"	file	Save song(file == file name)
 "ns"	file	New song(file == file name)
 "us"	file	Update Song(file==file name)
+"os"	dir|file	Open song(dir=project directory, file=.pysong file)
 "ni"	file	New item(file==file name)
 "ui"	file	Update an item(file==file name)
 "di"	file	Delete item(file==file name)
@@ -13,20 +22,16 @@ key	value	notes
 "dr"	file	Delete region(file==file name)
 "rr"	file|file	Rename a region (old file | new file)
 "ri"	file|file	Rename an item (old file | new file)
-
-Other TODO:
-Create some kind of song->region dialog, like when clicking in a region in the song editor, prompt to make new or copy from another...  Create a region->item dialog to do the same...
-Context menus?  Stuff like, insert, delete, etc...
-Euphoria: Dynamically allocate per-sample data at sample load
-Create a tabwidget for the main area, and move the item editor to a new tab.  Later I can add audio and MIDI event lists...
-Move the with_osc variable to within the dssi_gui class;  Allow a dummy instance to be instantiated when no arguments are passed to the constructor
+"play"	""	Begin playback
+"rec"	""	Begin recording
+"stop"	""	Stop playback or recording
 
 Project structure:
 
 project/
 	instruments/
-		project.pss
-		*.whatever-extension-i-gave-them
+		project.pyses
+		*-presets.tsv
 	regions/
 		*.pyreg
 	items/
@@ -35,11 +40,14 @@ project/
 	
 
 
-Move this to a document:
-
-
-# The basic idea:  A non-linear DAW, since every other DAW on the planet is excessively linear.
-# A song contains X number of 8 bar regions.  Regions contain items.  Items contain events.
-# Events can be a MIDI note event, a MIDI CC event for automation, or playing back an audio file(?)
-# The placement of an item with in a region determines what bar the item starts on in the song, but
-# the bar itself has no defined length...  Which is how this becomes non-linear and uber...
+Miscellaneous TODO:
+Create some kind of song->region dialog, like when clicking in a region in the song editor, prompt to make new or copy from another...  Create a region->item dialog to do the same...
+Context menus?  Stuff like, insert, delete, etc...
+Euphoria: Dynamically allocate per-sample data at sample load
+Create a tabwidget for the main area, and move the item editor to a new tab.  Later I can add audio and MIDI event lists...
+Move the with_osc variable to within the dssi_gui class;  Allow a dummy instance to be instantiated when no arguments are passed to the constructor
+Implement event filter to double-click->reset-to-zero the volume sliders
+Add the preset manager class to Modulex
+Implement insert FX instances of Modulex
+Rename this file to just 'spec.txt'
+Implement the ability to specify a device + settings and stop/start the Jack server.  Then deprecate QJackCtl as a dependency...
