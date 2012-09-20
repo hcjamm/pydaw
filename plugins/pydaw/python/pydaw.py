@@ -20,6 +20,7 @@ from PyQt4 import QtGui, QtCore
 from sys import argv
 from os.path import expanduser
 from os import listdir
+from shutil import copyfile
 from lms_session import lms_session
 from dssi_gui import dssi_gui
 from connect import *
@@ -38,9 +39,10 @@ class song_editor:
                     #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
                     open(this_pydaw_project.regions_folder + "/" + f_new_lineedit.text() + ".pyreg", 'w').close() #TODO:  Put this into the project                    
                 elif f_copy_radiobutton.isChecked():
-                    #TODO:  cp the file with the new name
                     pass
+                    
                 self.table_widget.setItem(x, y, f_new_cell)
+                this_region_editor.open_region(f_new_lineedit.text())
                 f_window.close()
                 
             def note_cancel_handler():            
@@ -88,8 +90,9 @@ class song_editor:
         self.main_vlayout.addWidget(self.table_widget)
 
 class region_list_editor:
-    def region_num_changed(self, a_num):
-        self.region_name_lineedit.setText(self.region_names[a_num])
+    def open_region(self, a_file_name):
+        pass
+    
     def region_name_changed(self, a_new_name):
         #self.region_names[self.region_num_spinbox.value] = str(a_new_name)
         pass
@@ -103,8 +106,6 @@ class region_list_editor:
         self.table_widget.setItem(x, y, f_item)
                 
     def __init__(self):
-        self.events = []
-        self.region_names = []
         self.group_box = QtGui.QGroupBox()
         self.main_vlayout = QtGui.QVBoxLayout()
         
@@ -117,9 +118,6 @@ class region_list_editor:
         self.region_name_lineedit.textChanged.connect(self.region_name_changed)
         self.hlayout0.addWidget(self.region_name_lineedit)
                 
-        for i in range(0, 100):
-            self.region_names.append("Region" + str(i))
-        
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setColumnCount(8)
@@ -464,13 +462,13 @@ class pydaw_main_window(QtGui.QMainWindow):
         this_song_editor = song_editor()
         self.song_region_vlayout.addWidget(this_song_editor.group_box)        
         
-        global region_editor
-        region_editor = region_list_editor()        
-        self.song_region_vlayout.addWidget(region_editor.group_box)
+        global this_region_editor
+        this_region_editor = region_list_editor()        
+        self.song_region_vlayout.addWidget(this_region_editor.group_box)
         
-        global item_editor
-        item_editor = item_list_editor()        
-        self.editor_hlayout.addWidget(item_editor.group_box)        
+        global this_item_editor
+        this_item_editor = item_list_editor()        
+        self.editor_hlayout.addWidget(this_item_editor.group_box)        
         
         self.setWindowTitle('PyDAW')    
         self.show()
@@ -481,6 +479,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+#Handles the various file IO for the project.  TODO:  Move to it's own file
 class pydaw_project:
     def save_project(self):
         self.session_mgr.save_session_file()
@@ -507,6 +506,24 @@ class pydaw_project:
                 os.mkdir(project_dir)
         
         self.session_mgr = lms_session(self.instrument_folder + '/' + a_project_file + '.pyses')
+        
+    def get_region_string(self, a_region_name):
+        f_file = open(self.regions_folder + "/" + a_region_name + ".pyreg", "r")        
+        f_result = f_file.read()
+        f_file.close()
+        return f_result
+                
+    def get_item_string(self, a_item_name):
+        f_file = open(self.items_folder + "/" + a_item_name + ".pyitem", "r")        
+        f_result = f_file.read()
+        f_file.close()
+        return f_result
+        
+    def copy_region(self, a_old_region, a_new_region):
+        copyfile(self.regions_folder + "/" + a_old_region + ".pyreg", self.regions_folder + "/" + a_new_region + ".pyreg")
+    
+    def copy_item(self, a_old_item, a_new_item):
+        copyfile(self.items_folder + "/" + a_old_item + ".pyitem", self.items_folder + "/" + a_new_item + ".pyitem")
 
     def get_next_default_item_name(self):
         for i in range(self.last_item_number, 10000):
@@ -527,6 +544,7 @@ class pydaw_project:
         for files in os.listdir(self.items_folder):
             if files.endswith(".pyitem"):
                 f_result.append(files)
+        f_result.sort()
         return f_result
     
     def get_region_list(self):
@@ -534,6 +552,7 @@ class pydaw_project:
         for files in os.listdir(self.regions_folder):
             if files.endswith(".pyreg"):
                 f_result.append(files)
+        f_result.sort()
         return f_result
         
     def __init__(self, a_project_folder=None, a_project_file=None):
@@ -553,12 +572,12 @@ if __name__ == '__main__':
 
     for arg in argv:
         print arg
-        
-    with_osc = False
     
     if(len(argv) >= 2):
         this_dssi_gui = dssi_gui(argv[1])
         with_osc = True
+    else:
+        with_osc = False
         
     app = QtGui.QApplication(sys.argv)    
     app.aboutToQuit.connect(about_to_quit)
