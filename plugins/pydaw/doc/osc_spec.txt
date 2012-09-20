@@ -15,8 +15,9 @@ key	value	notes
 "ri"	file|file	Rename an item (old file | new file)
 
 Other TODO:
+Create some kind of song->region dialog, like when clicking in a region in the song editor, prompt to make new or copy from another...  Create a region->item dialog to do the same...
+Context menus?  Stuff like, insert, delete, etc...
 Euphoria: Dynamically allocate per-sample data at sample load
-Move this and others to a ./doc/* folder
 Create a tabwidget for the main area, and move the item editor to a new tab.  Later I can add audio and MIDI event lists...
 
 Project structure:

@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-PyDAW - Part of the LibModSynth project
-
-A DAW using Python and Qt, with a high performance audio/MIDI
-back end written in C
+PyDAW is a DAW using Python and Qt for the UI, with a high performance 
+audio/MIDI back end written in C
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,6 +19,7 @@ import sys, os
 from PyQt4 import QtGui, QtCore
 from sys import argv
 from os.path import expanduser
+from os import listdir
 from lms_session import lms_session
 from dssi_gui import dssi_gui
 from connect import *
@@ -31,7 +30,48 @@ class lms_note_selector:
     
 class song_editor:
     def cell_clicked(self, x, y):
-        pass
+        f_cell = self.table_widget.item(x, y)
+        if f_cell is None:
+            def note_ok_handler():
+                f_new_cell = QtGui.QTableWidgetItem(f_new_lineedit.text())
+                if f_new_radiobutton.isChecked():
+                    #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
+                    open(this_pydaw_project.regions_folder + "/" + f_new_lineedit.text() + ".pyreg", 'w').close() #TODO:  Put this into the project                    
+                elif f_copy_radiobutton.isChecked():
+                    #TODO:  cp the file with the new name
+                    pass
+                self.table_widget.setItem(x, y, f_new_cell)
+                f_window.close()
+                
+            def note_cancel_handler():            
+                f_window.close()
+                
+            f_window = QtGui.QDialog()
+            f_layout = QtGui.QGridLayout()
+            f_window.setLayout(f_layout)
+            f_new_radiobutton = QtGui.QRadioButton()
+            f_new_radiobutton.setChecked(True)
+            f_layout.addWidget(f_new_radiobutton, 0, 0)
+            f_layout.addWidget(QtGui.QLabel("New:"), 0, 1)
+            f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_region_name())
+            f_layout.addWidget(f_new_lineedit, 0, 2)
+            f_copy_radiobutton = QtGui.QRadioButton()
+            f_layout.addWidget(f_copy_radiobutton, 1, 0)            
+            f_copy_combobox = QtGui.QComboBox()
+            f_copy_combobox.addItems(this_pydaw_project.get_region_list())                                    
+            f_layout.addWidget(QtGui.QLabel("Copy from:"), 1, 1)
+            f_layout.addWidget(f_copy_combobox, 1, 2)           
+            f_ok_button = QtGui.QPushButton("OK")
+            f_layout.addWidget(f_ok_button, 5,0)
+            f_ok_button.clicked.connect(note_ok_handler)
+            f_cancel_button = QtGui.QPushButton("Cancel")
+            f_layout.addWidget(f_cancel_button, 5,1)
+            f_cancel_button.clicked.connect(note_cancel_handler)
+                    
+            f_window.exec_()
+
+        else:
+            pass #TODO:  Open in region editor
     
     def __init__(self):
         self.group_box = QtGui.QGroupBox()
@@ -56,6 +96,7 @@ class region_list_editor:
     
     def cell_clicked(self, x, y):        
         pass #TODO:  Open in editor
+        
     def cell_doubleclicked(self, x, y):
         f_clip = QtGui.QApplication.clipboard()
         f_item = QtGui.QTableWidgetItem(f_clip.text())
@@ -349,8 +390,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         print("This is where I would open a file dialog")
     
     def __init__(self):
-        #super(pydaw_main_window, self).__init__()
-        
+        #super(pydaw_main_window, self).__init__()        
         self.initUI()
         
     def initUI(self):               
@@ -467,8 +507,38 @@ class pydaw_project:
                 os.mkdir(project_dir)
         
         self.session_mgr = lms_session(self.instrument_folder + '/' + a_project_file + '.pyses')
+
+    def get_next_default_item_name(self):
+        for i in range(self.last_item_number, 10000):
+            f_result = self.items_folder + "/item-" + str(i) + ".pyitem"
+            if not os.path.isfile(f_result):
+                self.last_item_number = i
+                return "item-" + str(i)
+
+    def get_next_default_region_name(self):
+        for i in range(self.last_region_number, 10000):
+            f_result = self.regions_folder + "/region-" + str(i) + ".pyreg"
+            if not os.path.isfile(f_result):
+                self.last_item_number = i
+                return "region-" + str(i)
+            
+    def get_item_list(self):
+        f_result = []
+        for files in os.listdir(self.items_folder):
+            if files.endswith(".pyitem"):
+                f_result.append(files)
+        return f_result
     
+    def get_region_list(self):
+        f_result = []
+        for files in os.listdir(self.regions_folder):
+            if files.endswith(".pyreg"):
+                f_result.append(files)
+        return f_result
+        
     def __init__(self, a_project_folder=None, a_project_file=None):
+        self.last_item_number = 0
+        self.last_region_number = 0
         self.new_project(a_project_folder, a_project_file)
     
 def about_to_quit():
