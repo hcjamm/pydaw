@@ -37,8 +37,15 @@ project/
 	items/
 		*.pyitem
 	project.pysong
+	project.pytracks
 	
 
+*.pysong:  A | delimited representation of the song editor's QTableWidget
+*.pyses :  A LMS Session Manager file containing instrument indexes
+*.pyreg :  A region, with | and \n delimited representations of the QTableWidget
+*.pyitem : A \t and \n delimited representation of the item editor(because the formats are already delimited with | )
+
+#Maybe separate .pyitem into .pynotes, .pyccs and eventually .pyaudio files?
 
 Miscellaneous TODO:
 Create some kind of song->region dialog, like when clicking in a region in the song editor, prompt to make new or copy from another...  Create a region->item dialog to do the same...
@@ -51,3 +58,10 @@ Add the preset manager class to Modulex
 Implement insert FX instances of Modulex
 Rename this file to just 'spec.txt'
 Implement the ability to specify a device + settings and stop/start the Jack server.  Then deprecate QJackCtl as a dependency...
+Implement an audio specific widget kit much like the libmodsynth widgets I wrote(yet building upon the experience gained there)
+Keep some sort of in-memory index of the various project files, that can be queried directly...  Maybe even a SQLite or MemcacheDB in-memory database...
+
+TODO for today:
+
+7.  When opening an existing project, read the tracks[] from the session_mgr and update track_editor
+
