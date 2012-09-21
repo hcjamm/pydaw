@@ -32,7 +32,7 @@ class pydaw_project:
                     
         for project_dir in project_folders:
             if not os.path.isdir(project_dir):
-                os.mkdir(project_dir)
+                os.makedirs(project_dir)
         
         self.session_mgr = lms_session(self.instrument_folder + '/' + a_project_file + '.pyses')
         #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
@@ -81,6 +81,11 @@ class pydaw_project:
         
     def save_song(self, a_string):
         f_file = open(self.project_folder + "/" + self.project_file + ".pysong", 'w')
+        f_file.write(a_string)
+        f_file.close()
+        
+    def save_tracks(self, a_string):
+        f_file = open(self.project_folder + "/" + self.project_file + ".pytracks", 'w')
         f_file.write(a_string)
         f_file.close()
 

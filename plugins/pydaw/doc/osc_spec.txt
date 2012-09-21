@@ -25,6 +25,12 @@ key	value	notes
 "play"	""	Begin playback
 "rec"	""	Begin recording
 "stop"	""	Stop playback or recording
+"tempo"	int	The new tempo
+"loop"	int	The loop mode qcombobox index #Use a LADSPA port instead?
+
+"vol"	"int|int"  Track volume, track#|dB
+"solo"	"int|bool"	solo track, track#|bool
+"mute"	"int|bool"	mute track, track#|bool
 
 Project structure:
 
@@ -48,11 +54,9 @@ project/
 #Maybe separate .pyitem into .pynotes, .pyccs and eventually .pyaudio files?
 
 Miscellaneous TODO:
-Create some kind of song->region dialog, like when clicking in a region in the song editor, prompt to make new or copy from another...  Create a region->item dialog to do the same...
 Context menus?  Stuff like, insert, delete, etc...
 Euphoria: Dynamically allocate per-sample data at sample load
 Create a tabwidget for the main area, and move the item editor to a new tab.  Later I can add audio and MIDI event lists...
-Move the with_osc variable to within the dssi_gui class;  Allow a dummy instance to be instantiated when no arguments are passed to the constructor
 Implement event filter to double-click->reset-to-zero the volume sliders
 Add the preset manager class to Modulex
 Implement insert FX instances of Modulex
@@ -60,6 +64,7 @@ Rename this file to just 'spec.txt'
 Implement the ability to specify a device + settings and stop/start the Jack server.  Then deprecate QJackCtl as a dependency...
 Implement an audio specific widget kit much like the libmodsynth widgets I wrote(yet building upon the experience gained there)
 Keep some sort of in-memory index of the various project files, that can be queried directly...  Maybe even a SQLite or MemcacheDB in-memory database...
+
 
 TODO for today:
 
