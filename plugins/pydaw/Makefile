@@ -9,12 +9,9 @@ PREFIX ?= /usr/local
 
 BASE_FLAGS     = -ffast-math -fPIC -msse -msse2 -msse3 -mfpmath=sse -Wall -Isrc -I.
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
-BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11 sm sndfile) $(CXXFLAGS)
-LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile samplerate)
-LINK_CXXFLAGS  = -lm -pthread $(shell pkg-config --libs liblo QtCore QtGui x11 sm sndfile) $(LDFLAGS)
+LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile)
 
 C_OBJS   = src/synth.o
-CXX_OBJS = src/synth_qt_gui.o src/moc_synth_qt_gui.o
 
 # --------------------------------------------------------------
 
@@ -38,4 +35,4 @@ install:
 	cp -R python $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
 
 clean:
-	rm -f src/*.o *.so python/*.pyc python/*/*.pyc
+	rm -f src/*.o *.so python/*.pyc

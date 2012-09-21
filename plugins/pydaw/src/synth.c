@@ -31,6 +31,7 @@ GNU General Public License for more details.
 
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/amp.h"
+#include "pydaw.h"
 
 #include "synth.h"
 #include "meta.h"
@@ -40,6 +41,8 @@ GNU General Public License for more details.
 
 static LADSPA_Descriptor *LMSLDescriptor = NULL;
 static DSSI_Descriptor *LMSDDescriptor = NULL;
+
+static t_pydaw_data * pydaw_data;
 
 static void run_lms_modulex(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
@@ -99,6 +102,7 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
 				   unsigned long s_rate)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) malloc(sizeof(t_pydaw_engine));
+    pydaw_data = g_pydaw_data_get();
     
     plugin_data->fs = s_rate;
             

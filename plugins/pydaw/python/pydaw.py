@@ -69,8 +69,8 @@ class song_editor:
             f_layout.addWidget(f_cancel_button, 5,1)
             f_cancel_button.clicked.connect(song_cancel_handler)                    
             f_window.exec_()
-        else:
-            pass #TODO:  Open in region editor
+        else:            
+            this_region_editor.open_region(str(f_cell.text()))
     
     def __init__(self):
         self.group_box = QtGui.QGroupBox()
@@ -204,12 +204,15 @@ class item_list_editor:
         self.main_vlayout = QtGui.QVBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
-        self.table_widget.setColumnCount(2)
-        self.table_widget.setHorizontalHeaderLabels(['Notes', 'CCs'])
+        self.table_widget.setColumnCount(2)        
         self.table_widget.setRowCount(128)
         self.table_widget.cellClicked.connect(self.show_event_dialog)
         self.group_box.setMaximumWidth(270)
         self.main_vlayout.addWidget(self.table_widget)
+        self.set_headers()
+    
+    def set_headers(self): #Because clearing the table clears the headers
+        self.table_widget.setHorizontalHeaderLabels(['Notes', 'CCs'])
         
     def __str__(self):
         f_result = ""
@@ -224,6 +227,7 @@ class item_list_editor:
         
     def open_item(self, a_item_name):
         self.table_widget.clear()
+        self.set_headers()
         self.item_name = a_item_name
         f_items = this_pydaw_project.get_item_string(a_item_name).split("\n")
         for f_i in range(0, len(f_items)):
@@ -351,30 +355,34 @@ class item_list_editor:
             f_window.exec_()
 
         else:
-            print(y)            
-            
+            print(y)
         
 rec_button_group = QtGui.QButtonGroup()
     
 class seq_track:
     def on_vol_change(self, value):
         self.volume_label.setText(str(value) + " dB")
+        this_dssi_gui.send_configure("vol", str(self.track_number) + "|" + str(self.volume_slider.value()))
+        this_pydaw_project.save_tracks(this_track_editor.__str__())
     def on_pan_change(self, value):
-        pass
+        this_pydaw_project.save_tracks(this_track_editor.__str__())
     def on_solo(self, value):
-        print(value)
+        this_dssi_gui.send_configure("solo", str(self.track_number) + "|" + str(self.solo_checkbox.isChecked()))
+        this_pydaw_project.save_tracks(this_track_editor.__str__())
     def on_mute(self, value):
-        print(value)
+        this_dssi_gui.send_configure("mute", str(self.track_number) + "|" + str(self.mute_checkbox.isChecked()))
+        this_pydaw_project.save_tracks(this_track_editor.__str__())
     def on_rec(self, value):
-        print(value)
+        this_pydaw_project.save_tracks(this_track_editor.__str__())
     def on_name_changed(self, new_name):
-        print(new_name)
+        this_pydaw_project.save_tracks(this_track_editor.__str__())
     def on_instrument_change(self, selected_instrument):
         this_pydaw_project.session_mgr.instrument_index_changed(self.track_number, selected_instrument, str(self.track_name_lineedit.text()))
         if selected_instrument == 0:
             self.track_name_lineedit.setEnabled(True)
         else:
             self.track_name_lineedit.setEnabled(False)
+        this_pydaw_project.save_tracks(this_track_editor.__str__())
     
     def __init__(self, a_track_num, a_track_text="track"):        
         self.track_number = a_track_num
@@ -418,16 +426,31 @@ class seq_track:
         self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V"])
         self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
         self.hlayout3.addWidget(self.instrument_combobox)
+    
+    def __str__(self):
+        if self.record_radiobutton.isChecked(): f_rec = "t"
+        else: f_rec = "f"
+        if self.solo_checkbox.isChecked(): f_solo = "t"
+        else: f_solo = "f"
+        if self.mute_checkbox.isChecked(): f_mute = "t"
+        else: f_mute = "f"
+        f_name = str(self.track_name_lineedit.text())
+        f_vol = str(self.volume_slider.value())
+        f_inst = str(self.instrument_combobox.currentIndex())
+        f_result = f_rec + "|" + f_solo + "|" + f_mute + "|" + f_name + "|" + f_vol + "|" + f_inst
+        return f_result
 
 class transport_widget:
     def on_play(self):        
-        this_dssi_gui.send_configure("play", "testing")
+        this_dssi_gui.send_configure("play", "")
     def on_stop(self):
-        this_dssi_gui.send_configure("stop", "testing")
+        this_dssi_gui.send_configure("stop", "")
     def on_rec(self):
-        this_dssi_gui.send_configure("rec", "testing")
+        this_dssi_gui.send_configure("rec", "")
     def on_tempo_changed(self, a_tempo):
         this_dssi_gui.send_configure("tempo", str(a_tempo))
+    def on_loop_mode_changed(self, a_loop_mode):
+        this_dssi_gui.send_configure("loop", str(a_loop_mode))
             
     def __init__(self):
         self.group_box = QtGui.QGroupBox()
@@ -481,7 +504,7 @@ class track_editor:
     def __str__(self):
         f_result = ""
         for track in self.tracks:
-            pass #TODO
+            f_result += track.__str__() + "\n"
         return f_result
 
 class pydaw_main_window(QtGui.QMainWindow):
@@ -586,7 +609,7 @@ if __name__ == '__main__':
     this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
     this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
     
-    project_folder = expanduser("~") + '/dssi/pydaw/'    
+    project_folder = expanduser("~") + '/dssi/pydaw/default-project/'    
     this_pydaw_project = pydaw_project(project_folder, "default")        
     
     sys.exit(app.exec_())

@@ -61,7 +61,7 @@ class dssi_gui(ServerThread):
         if self.with_osc:
             liblo.send(self.target, self.configure_path, key, value)
         else:
-            print("Running standalone UI without OSC.  Would've sent configure message: key:" + str(key) + " value: " + str(value))
+            print("Running standalone UI without OSC.  Would've sent configure message: key: \"" + str(key) + "\" value: \"" + str(value) + "\"")
                 
     @make_method('/dssi/pydaw/PYDAW/chan00/configure', 'ss')
     def configure_handler(self, path, args):
