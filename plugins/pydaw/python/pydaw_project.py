@@ -149,4 +149,7 @@ class pydaw_project:
     def __init__(self, a_project_file=None):
         self.last_item_number = 0
         self.last_region_number = 0
-        self.new_project(a_project_file)        
+        self.new_project(a_project_file)
+
+
+    
