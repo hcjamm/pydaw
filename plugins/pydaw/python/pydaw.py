@@ -532,17 +532,14 @@ class track_editor:
 
 class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
-        print("Creating new project")
+        
         this_pydaw_project.new_project()
     def on_open(self):
-        print("Opening existing project")
-        this_pydaw_project.open_project()
-    def on_save(self):
-        print("Saving project")
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open File', directory='.')
+        global_open_project(f_file)
+    def on_save(self):        
         this_pydaw_project.save_project()
-        this_dssi_gui.send_configure("save", "testing") #Send a message to the DSSI engine to save it's state.  Currently, this doesn't do anything...
     def on_save_as(self):
-        print("Saving project as...")
         this_pydaw_project.save_project_as()
     
     def __init__(self):
@@ -555,9 +552,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         file_handle = open(stylesheet_file, 'r')
         self.setStyleSheet(file_handle.read())
         file_handle.close()        
-        
-        self.resize(1000, 600)
-        self.center()
         
         self.central_widget = QtGui.QWidget()
         self.setCentralWidget(self.central_widget)
@@ -580,9 +574,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_file.addAction(self.save_action)
         self.save_action.triggered.connect(self.on_save)
         
-        self.save_as_action = QtGui.QAction("Save As...", self)
-        self.menu_file.addAction(self.save_as_action)
-        self.save_as_action.triggered.connect(self.on_save_as)
+        #Leaving this off for now, the instruments need an implementation of a .chdir signal before this can work correctly
+        #self.save_as_action = QtGui.QAction("Save As...", self)
+        #self.menu_file.addAction(self.save_as_action)
+        #self.save_as_action.triggered.connect(self.on_save_as)
                 
         self.transport_hlayout = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.transport_hlayout)
@@ -601,17 +596,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.editor_hlayout.addWidget(this_item_editor.group_box)        
         
         self.show()
-        
-    def center(self):        
-        qr = self.frameGeometry()
-        cp = QtGui.QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
-        
+                
 #Opens or creates a new project
-def global_open_project(a_project_folder, a_project_file):
+def global_open_project(a_project_file):
     global this_pydaw_project
-    this_pydaw_project = pydaw_project(a_project_folder, a_project_file)
+    this_pydaw_project = pydaw_project(a_project_file)
     this_song_editor.open_song()
     this_track_editor.open_tracks()
    
@@ -639,7 +628,7 @@ if __name__ == '__main__':
     this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
     this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
     
-    project_folder = expanduser("~") + '/dssi/pydaw/default-project/'    
-    global_open_project(project_folder, "default")
+    default_project_file = expanduser("~") + '/dssi/pydaw/default-project/default.pysong'    
+    global_open_project(default_project_file)
     
     sys.exit(app.exec_())
