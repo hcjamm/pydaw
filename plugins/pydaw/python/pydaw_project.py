@@ -14,12 +14,12 @@ class pydaw_project:
     def save_project_as(self):
         pass
 
-    def set_project_folders(self, a_project_folder, a_project_file):
-        self.project_folder = a_project_folder
-        self.project_file = a_project_file
-        self.instrument_folder = self.project_folder + "instruments"
-        self.regions_folder = self.project_folder + "regions"
-        self.items_folder = self.project_folder + "items"
+    def set_project_folders(self, a_project_file):
+        self.project_folder = os.path.dirname(a_project_file)        
+        self.project_file = os.path.splitext(os.path.basename(a_project_file))[0]
+        self.instrument_folder = self.project_folder + "/instruments"
+        self.regions_folder = self.project_folder + "/regions"
+        self.items_folder = self.project_folder + "/items"
         
     def instantiate_session_manager(self):
         self.session_mgr = lms_session(self.instrument_folder + '/' + self.project_file + '.pyses')
@@ -29,9 +29,8 @@ class pydaw_project:
         self.instantiate_session_manager()
         
         
-    def new_project(self, a_project_folder=None, a_project_file=None):
-        #TODO:  Show a QFileDialog when either is None
-        self.set_project_folders(a_project_folder, a_project_file)
+    def new_project(self, a_project_file):
+        self.set_project_folders(a_project_file)
         
         project_folders = [
             self.project_folder,
@@ -147,7 +146,7 @@ class pydaw_project:
         f_result.sort()
         return f_result
         
-    def __init__(self, a_project_folder=None, a_project_file=None):
+    def __init__(self, a_project_file=None):
         self.last_item_number = 0
         self.last_region_number = 0
-        self.new_project(a_project_folder, a_project_file)        
+        self.new_project(a_project_file)        
