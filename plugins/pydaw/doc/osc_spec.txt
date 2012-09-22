@@ -44,6 +44,7 @@ project/
 		*.pyitem
 	project.pysong
 	project.pytracks
+	project.pystate  #A catch-all file for things like last selected region, item, etc...  and anything else
 	
 
 *.pysong:  A | delimited representation of the song editor's QTableWidget
@@ -64,7 +65,8 @@ Rename this file to just 'spec.txt'
 Implement the ability to specify a device + settings and stop/start the Jack server.  Then deprecate QJackCtl as a dependency...
 Implement an audio specific widget kit much like the libmodsynth widgets I wrote(yet building upon the experience gained there)
 Keep some sort of in-memory index of the various project files, that can be queried directly...  Maybe even a SQLite or MemcacheDB in-memory database...
-
+Create song_string_factory, region_string_factory, etc...  methods (classes?) to relieve the burden of properly formatting the file strings from the users who may fork PyDAW.  This should also provide reverse functionality for returning a class that can be used to set parameters
+Once the main interface becomes tabbed, create a rudimentary piano-roll viewer using a QTableWidget, just to demonstrate how it could be accomplished for those who may fork PyDAW
 
 TODO for today:
 

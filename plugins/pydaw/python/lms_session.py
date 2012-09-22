@@ -113,8 +113,7 @@ class lms_session:
         f_file = open(self.full_project_file_path, 'w')
         
         for f_i in range(0, lms_instrument_count):
-            f_file.write(str(self.select_instrument[f_i]) + lms_delimiter +
-                self.instance_names[f_i] + "\n")
+            f_file.write(str(self.select_instrument[f_i]) + lms_delimiter + self.instance_names[f_i])
                 
         f_file.close()
         
