@@ -508,21 +508,25 @@ class track_editor:
             if len(f_track_arr) >= 6:
                 self.tracks[f_i].open_track(f_track_arr[0], f_track_arr[1], f_track_arr[2], f_track_arr[3], f_track_arr[4], f_track_arr[5])        
     
-    def __init__(self):
-        self.tracks_tablewidget = QtGui.QTableWidget()
-        self.tracks_tablewidget.setColumnCount(1)
-        self.tracks_tablewidget.setHorizontalHeaderLabels(['Tracks'])                     
+    def reset(self):
+        self.tracks_tablewidget.clear()
+        self.tracks_tablewidget.setHorizontalHeaderLabels(['Tracks'])
         self.tracks = []
-        
         for i in range(0, 16):
             track = seq_track(a_track_num=i, a_track_text="track" + str(i))
             self.tracks.append(track)
             self.tracks_tablewidget.insertRow(i)
             self.tracks_tablewidget.setCellWidget(i, 0, track.group_box)
-
         self.tracks_tablewidget.resizeColumnsToContents()
         self.tracks_tablewidget.resizeRowsToContents()        
         self.tracks_tablewidget.setMaximumWidth(300)
+
+    
+    def __init__(self):
+        self.tracks_tablewidget = QtGui.QTableWidget()
+        self.tracks_tablewidget.setColumnCount(1)            
+        self.reset()
+        
         
     def __str__(self):
         f_result = ""
@@ -532,11 +536,18 @@ class track_editor:
 
 class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
-        
-        this_pydaw_project.new_project()
+        f_file = QtGui.QFileDialog.getSaveFileName(parent=this_main_window ,caption='New Project', directory='.', filter='PyDAW Song (*.pysong)')
+        if not f_file is None and not str(f_file) == "":
+            f_file = str(f_file)
+            if not f_file.endswith(".pysong"):
+                f_file += ".pysong"
+            global_open_project(str(f_file))
+            global_new_project()
+        #this_pydaw_project.new_project()
     def on_open(self):
-        f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open File', directory='.')
-        global_open_project(f_file)
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open Project', directory='.', filter='PyDAW Song (*.pysong)')
+        if not f_file is None and not str(f_file) == "":
+            global_open_project(str(f_file))
     def on_save(self):        
         this_pydaw_project.save_project()
     def on_save_as(self):
@@ -598,11 +609,21 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.show()
                 
 #Opens or creates a new project
-def global_open_project(a_project_file):
+def global_open_project(a_project_file):    
+    #this_pydaw_project.session_mgr.quit_hander()
     global this_pydaw_project
     this_pydaw_project = pydaw_project(a_project_file)
     this_song_editor.open_song()
     this_track_editor.open_tracks()
+    
+def global_new_project():    
+    #this_pydaw_project.session_mgr.quit_hander()
+    global this_pydaw_project
+    this_pydaw_project = pydaw_project(a_project_file)
+    this_song_editor.table_widget.clear()
+    this_region_editor.table_widget.clear()
+    this_item_editor.table_widget.clear()    
+    this_track_editor.reset()
    
 def about_to_quit():
     this_pydaw_project.session_mgr.quit_hander()
