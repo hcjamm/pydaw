@@ -27,7 +27,9 @@ class song_editor:
     def open_song(self):
         self.table_widget.clear()
         f_song_string_arr = this_pydaw_project.get_song_string().split("|")
-        #TODO
+        for f_i in range(0, len(f_song_string_arr)):            
+            if f_song_string_arr[f_i] != "":
+                self.table_widget.setItem(0, f_i, QtGui.QTableWidgetItem(f_song_string_arr[f_i]))
     
     def cell_clicked(self, x, y):
         f_cell = self.table_widget.item(x, y)
@@ -89,7 +91,7 @@ class song_editor:
     def __str__(self):
         f_result = ""
         for f_i in range(0, self.table_widget.columnCount()):
-            f_item = self.table_widget.item(f_i, 0)
+            f_item = self.table_widget.item(0, f_i)
             if not f_item is None:
                 f_result += f_item.text()
             f_result += "|"
@@ -426,6 +428,20 @@ class seq_track:
         self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V"])
         self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
         self.hlayout3.addWidget(self.instrument_combobox)
+        
+    def open_track(self, a_rec, a_solo, a_mute, a_name, a_vol, a_inst):
+        if a_rec == "t": f_rec = True
+        else: f_rec = False
+        if a_solo == "t": f_solo = True
+        else: f_solo = False
+        if a_mute == "t": f_mute = True
+        else: f_mute = False
+        self.record_radiobutton.setChecked(f_rec)
+        self.solo_checkbox.setChecked(f_solo)
+        self.mute_checkbox.setChecked(f_mute)
+        self.track_name_lineedit.setText(a_name)
+        self.volume_slider.setValue(int(a_vol))
+        self.instrument_combobox.setCurrentIndex(int(a_inst))
     
     def __str__(self):
         if self.record_radiobutton.isChecked(): f_rec = "t"
@@ -485,6 +501,13 @@ class transport_widget:
         self.grid_layout.addWidget(self.loop_mode_combobox, 0, 8)
         
 class track_editor:
+    def open_tracks(self):
+        f_tracks_arr = this_pydaw_project.get_tracks_string().split("\n")
+        for f_i in range(0, len(f_tracks_arr)):
+            f_track_arr = f_tracks_arr[f_i].split("|")
+            if len(f_track_arr) >= 6:
+                self.tracks[f_i].open_track(f_track_arr[0], f_track_arr[1], f_track_arr[2], f_track_arr[3], f_track_arr[4], f_track_arr[5])        
+    
     def __init__(self):
         self.tracks_tablewidget = QtGui.QTableWidget()
         self.tracks_tablewidget.setColumnCount(1)
@@ -584,6 +607,13 @@ class pydaw_main_window(QtGui.QMainWindow):
         cp = QtGui.QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+        
+#Opens or creates a new project
+def global_open_project(a_project_folder, a_project_file):
+    global this_pydaw_project
+    this_pydaw_project = pydaw_project(a_project_folder, a_project_file)
+    this_song_editor.open_song()
+    this_track_editor.open_tracks()
    
 def about_to_quit():
     this_pydaw_project.session_mgr.quit_hander()
@@ -610,6 +640,6 @@ if __name__ == '__main__':
     this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
     
     project_folder = expanduser("~") + '/dssi/pydaw/default-project/'    
-    this_pydaw_project = pydaw_project(project_folder, "default")        
+    global_open_project(project_folder, "default")
     
     sys.exit(app.exec_())

@@ -13,15 +13,25 @@ class pydaw_project:
         self.session_mgr.save_session_file()
     def save_project_as(self):
         pass
-    def open_project(self):
-        pass
-    def new_project(self, a_project_folder=None, a_project_file=None):
-        #TODO:  Show a QFileDialog when either is None
+
+    def set_project_folders(self, a_project_folder, a_project_file):
         self.project_folder = a_project_folder
         self.project_file = a_project_file
         self.instrument_folder = self.project_folder + "instruments"
         self.regions_folder = self.project_folder + "regions"
         self.items_folder = self.project_folder + "items"
+        
+    def instantiate_session_manager(self):
+        self.session_mgr = lms_session(self.instrument_folder + '/' + self.project_file + '.pyses')
+
+    def open_project(self, a_project_folder, a_project_file):
+        self.set_project_folders(a_project_folder, a_project_file)
+        self.instantiate_session_manager()
+        
+        
+    def new_project(self, a_project_folder=None, a_project_file=None):
+        #TODO:  Show a QFileDialog when either is None
+        self.set_project_folders(a_project_folder, a_project_file)
         
         project_folders = [
             self.project_folder,
@@ -34,23 +44,41 @@ class pydaw_project:
             if not os.path.isdir(project_dir):
                 os.makedirs(project_dir)
         
-        self.session_mgr = lms_session(self.instrument_folder + '/' + a_project_file + '.pyses')
+        self.instantiate_session_manager()
         #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
         
     def get_song_string(self):
-        f_file = open(self.project_folder + "/" + self.project_file + ".pysong", "r")        
+        try:
+            f_file = open(self.project_folder + "/" + self.project_file + ".pysong", "r")
+        except:
+            return ""
         f_result = f_file.read()
         f_file.close()
         return f_result
         
     def get_region_string(self, a_region_name):
-        f_file = open(self.regions_folder + "/" + a_region_name + ".pyreg", "r")        
+        try:
+            f_file = open(self.regions_folder + "/" + a_region_name + ".pyreg", "r")
+        except:
+            return ""
         f_result = f_file.read()
         f_file.close()
         return f_result
                 
     def get_item_string(self, a_item_name):
-        f_file = open(self.items_folder + "/" + a_item_name + ".pyitem", "r")        
+        try:
+            f_file = open(self.items_folder + "/" + a_item_name + ".pyitem", "r")
+        except:
+            return ""
+        f_result = f_file.read()
+        f_file.close()
+        return f_result
+        
+    def get_tracks_string(self):
+        try:
+            f_file = open(self.project_folder + "/" + self.project_file + ".pytracks", "r")
+        except:
+            return ""
         f_result = f_file.read()
         f_file.close()
         return f_result
@@ -122,4 +150,4 @@ class pydaw_project:
     def __init__(self, a_project_folder=None, a_project_file=None):
         self.last_item_number = 0
         self.last_region_number = 0
-        self.new_project(a_project_folder, a_project_file)
+        self.new_project(a_project_folder, a_project_file)        
