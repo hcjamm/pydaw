@@ -25,7 +25,6 @@ from pydaw_project import *
 
 class song_editor:
     def open_song(self):
-        print("open_song called")
         self.table_widget.clear()
         self.song = this_pydaw_project.get_song()
         for f_pos, f_region in self.song.regions.iteritems():       
@@ -354,19 +353,19 @@ class seq_track:
     def on_vol_change(self, value):
         self.volume_label.setText(str(value) + " dB")
         this_dssi_gui.send_configure("vol", str(self.track_number) + "|" + str(self.volume_slider.value()))
-        this_pydaw_project.save_tracks(this_track_editor.__str__())
+        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_pan_change(self, value):
-        this_pydaw_project.save_tracks(this_track_editor.__str__())
+        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_solo(self, value):
         this_dssi_gui.send_configure("solo", str(self.track_number) + "|" + str(self.solo_checkbox.isChecked()))
-        this_pydaw_project.save_tracks(this_track_editor.__str__())
+        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_mute(self, value):
         this_dssi_gui.send_configure("mute", str(self.track_number) + "|" + str(self.mute_checkbox.isChecked()))
-        this_pydaw_project.save_tracks(this_track_editor.__str__())
+        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_rec(self, value):
-        this_pydaw_project.save_tracks(this_track_editor.__str__())
+        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_name_changed(self, new_name):
-        this_pydaw_project.save_tracks(this_track_editor.__str__())
+        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_instrument_change(self, selected_instrument):
         this_pydaw_project.session_mgr.instrument_index_changed(self.track_number, selected_instrument, str(self.track_name_lineedit.text()))
         if selected_instrument == 0:
@@ -418,32 +417,17 @@ class seq_track:
         self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
         self.hlayout3.addWidget(self.instrument_combobox)
         
-    def open_track(self, a_rec, a_solo, a_mute, a_name, a_vol, a_inst):
-        if a_rec == "t": f_rec = True
-        else: f_rec = False
-        if a_solo == "t": f_solo = True
-        else: f_solo = False
-        if a_mute == "t": f_mute = True
-        else: f_mute = False
-        self.record_radiobutton.setChecked(f_rec)
-        self.solo_checkbox.setChecked(f_solo)
-        self.mute_checkbox.setChecked(f_mute)
-        self.track_name_lineedit.setText(a_name)
-        self.volume_slider.setValue(int(a_vol))
-        self.instrument_combobox.setCurrentIndex(int(a_inst))
-    
-    def __str__(self):
-        if self.record_radiobutton.isChecked(): f_rec = "t"
-        else: f_rec = "f"
-        if self.solo_checkbox.isChecked(): f_solo = "t"
-        else: f_solo = "f"
-        if self.mute_checkbox.isChecked(): f_mute = "t"
-        else: f_mute = "f"
-        f_name = str(self.track_name_lineedit.text())
-        f_vol = str(self.volume_slider.value())
-        f_inst = str(self.instrument_combobox.currentIndex())
-        f_result = f_rec + "|" + f_solo + "|" + f_mute + "|" + f_name + "|" + f_vol + "|" + f_inst
-        return f_result
+    def open_track(self, a_track):        
+        self.record_radiobutton.setChecked(a_track.rec)
+        self.solo_checkbox.setChecked(a_track.solo)
+        self.mute_checkbox.setChecked(a_track.mute)
+        self.track_name_lineedit.setText(a_track.name)
+        self.volume_slider.setValue(a_track.vol)
+        self.instrument_combobox.setCurrentIndex(a_track.inst)
+        
+    def get_track(self):
+        return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.record_radiobutton.isChecked(), 
+                           self.volume_slider.value(), str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex())
 
 class transport_widget:
     def on_play(self):        
@@ -491,11 +475,9 @@ class transport_widget:
         
 class track_editor:
     def open_tracks(self):
-        f_tracks_arr = this_pydaw_project.get_tracks_string().split("\n")
-        for f_i in range(0, len(f_tracks_arr)):
-            f_track_arr = f_tracks_arr[f_i].split("|")
-            if len(f_track_arr) >= 6:
-                self.tracks[f_i].open_track(f_track_arr[0], f_track_arr[1], f_track_arr[2], f_track_arr[3], f_track_arr[4], f_track_arr[5])        
+        f_tracks = this_pydaw_project.get_tracks()
+        for key, f_track in f_tracks.tracks.iteritems():            
+            self.tracks[key].open_track(f_track)
     
     def reset(self):
         self.tracks_tablewidget.clear()
@@ -509,18 +491,16 @@ class track_editor:
         self.tracks_tablewidget.resizeColumnsToContents()
         self.tracks_tablewidget.resizeRowsToContents()        
         self.tracks_tablewidget.setMaximumWidth(300)
-
     
     def __init__(self):
         self.tracks_tablewidget = QtGui.QTableWidget()
         self.tracks_tablewidget.setColumnCount(1)            
-        self.reset()
+        self.reset()        
         
-        
-    def __str__(self):
-        f_result = ""
-        for track in self.tracks:
-            f_result += track.__str__() + "\n"
+    def get_tracks(self):
+        f_result = pydaw_tracks()
+        for f_i in range(0, len(self.tracks)):
+            f_result.add_track(f_i, self.tracks[f_i].get_track())
         return f_result
 
 class pydaw_main_window(QtGui.QMainWindow):

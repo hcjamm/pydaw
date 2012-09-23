@@ -91,7 +91,7 @@ class pydaw_project:
         return f_result
         
     def get_tracks(self):
-        pass
+        return pydaw_tracks.from_str(self.get_tracks_string())
         
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
@@ -122,9 +122,9 @@ class pydaw_project:
         f_file.write(a_song.__str__())
         f_file.close()
         
-    def save_tracks(self, a_string):
+    def save_tracks(self, a_tracks):
         f_file = open(self.project_folder + "/" + self.project_file + ".pytracks", 'w')
-        f_file.write(a_string)
+        f_file.write(a_tracks.__str__())
         f_file.close()
 
     def get_next_default_item_name(self):
@@ -289,13 +289,38 @@ class pydaw_cc:
         return pydaw_note.from_arr(f_arr)
     
 class pydaw_tracks:
-    def add_track(self, a_index, a_solo, a_mute, a_rec, a_vol, a_name, a_inst):
-        self.tracks[a_index] = pydaw_track(a_solo, a_mute, a_rec, a_vol, a_name, a_inst)        
+    def add_track(self, a_index, a_track):
+        self.tracks[a_index] = a_track
+        
     def __init__(self):
         self.tracks = {}
+        
+    def __str__(self):
+        f_result = ""
+        for k, v in self.tracks.iteritems():
+            if v.solo: f_solo = "t"
+            else: f_solo = "f"
+            if v.mute: f_mute = "t"
+            else: f_mute = "f"
+            if v.rec: f_rec = "t"
+            else: f_rec = "f"
+            f_result += str(k) + "|" + f_solo + "|" + f_mute + "|" + f_rec + "|" + str(v.vol) + "|" + v.name + "|" + str(v.inst) + "\n"        
+        return f_result
+        
     @staticmethod
     def from_str(a_str):
         f_result = pydaw_tracks()
+        f_arr = a_str.split("\n")
+        for f_line in f_arr:
+            if not f_line == "":
+                f_line_arr = f_line.split("|")
+                if f_line_arr[1] == "t": f_solo = True
+                else: f_solo = False
+                if f_line_arr[2] == "t": f_mute = True
+                else: f_mute = False
+                if f_line_arr[3] == "t": f_rec = True
+                else: f_rec = False                
+                f_result.add_track(int(f_line_arr[0]), pydaw_track(f_solo, f_mute, f_rec, int(f_line_arr[4]), f_line_arr[5], int(f_line_arr[6])))
         return f_result
     
 class pydaw_track:
