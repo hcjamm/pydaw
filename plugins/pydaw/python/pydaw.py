@@ -21,15 +21,15 @@ from sys import argv
 from os.path import expanduser
 from dssi_gui import dssi_gui
 from connect import *
-from pydaw_project import pydaw_project
+from pydaw_project import *
 
 class song_editor:
     def open_song(self):
+        print("open_song called")
         self.table_widget.clear()
-        f_song_string_arr = this_pydaw_project.get_song_string().split("|")
-        for f_i in range(0, len(f_song_string_arr)):            
-            if f_song_string_arr[f_i] != "":
-                self.table_widget.setItem(0, f_i, QtGui.QTableWidgetItem(f_song_string_arr[f_i]))
+        self.song = this_pydaw_project.get_song()
+        for f_pos, f_region in self.song.regions.iteritems():       
+            self.table_widget.setItem(0, f_pos, QtGui.QTableWidgetItem(f_region))
     
     def cell_clicked(self, x, y):
         f_cell = self.table_widget.item(x, y)
@@ -42,8 +42,9 @@ class song_editor:
                     this_pydaw_project.copy_region(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
                     
                 self.table_widget.setItem(x, y, f_new_cell)
+                self.song.add_region_ref(y, str(f_new_lineedit.text()))
                 this_region_editor.open_region(f_new_lineedit.text())
-                this_pydaw_project.save_song(self.__str__())
+                this_pydaw_project.save_song(self.song)
                 f_window.close()
                 
             def song_cancel_handler():            
@@ -75,6 +76,7 @@ class song_editor:
             this_region_editor.open_region(str(f_cell.text()))
     
     def __init__(self):
+        self.song = pydaw_song()
         self.group_box = QtGui.QGroupBox()
         self.group_box.setMaximumHeight(200)
         self.main_vlayout = QtGui.QVBoxLayout()        
@@ -88,15 +90,6 @@ class song_editor:
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.main_vlayout.addWidget(self.table_widget)
         
-    def __str__(self):
-        f_result = ""
-        for f_i in range(0, self.table_widget.columnCount()):
-            f_item = self.table_widget.item(0, f_i)
-            if not f_item is None:
-                f_result += f_item.text()
-            f_result += "|"
-        return f_result
-
 class region_list_editor:
     def open_region(self, a_file_name):
         self.table_widget.clear()

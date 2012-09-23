@@ -55,7 +55,7 @@ class pydaw_project:
         return f_result
         
     def get_song(self):
-        f_arr = self.get_song_string().split("\n")
+        return pydaw_song.from_str(self.get_song_string())
                 
     def get_region_string(self, a_region_name):
         try:
@@ -65,6 +65,9 @@ class pydaw_project:
         f_result = f_file.read()
         f_file.close()
         return f_result
+        
+    def get_region(self, a_region_name):
+        return pydaw_region.from_str(a_region_name, self.get_region_string(a_region_name))
                 
     def get_item_string(self, a_item_name):
         try:
@@ -75,6 +78,9 @@ class pydaw_project:
         f_file.close()
         return f_result
         
+    def get_item(self, a_item_name):
+        return pydaw_item.from_str(self.get_item_string(a_item_name))
+        
     def get_tracks_string(self):
         try:
             f_file = open(self.project_folder + "/" + self.project_file + ".pytracks", "r")
@@ -83,6 +89,9 @@ class pydaw_project:
         f_result = f_file.read()
         f_file.close()
         return f_result
+        
+    def get_tracks(self):
+        pass
         
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
@@ -108,9 +117,9 @@ class pydaw_project:
         f_file.write(a_string)
         f_file.close()
         
-    def save_song(self, a_string):
+    def save_song(self, a_song):
         f_file = open(self.project_folder + "/" + self.project_file + ".pysong", 'w')
-        f_file.write(a_string)
+        f_file.write(a_song.__str__())
         f_file.close()
         
     def save_tracks(self, a_string):
@@ -153,7 +162,6 @@ class pydaw_project:
         self.last_region_number = 0
         self.new_project(a_project_file)
 
-
 #The below classes are used to generate the saved file strings that will properly enforce the standard, rather than relying on developers to do it themselves
 
 class pydaw_song:
@@ -166,14 +174,17 @@ class pydaw_song:
     def __str__(self):
         f_result = ""
         for k, v in self.regions.iteritems():
-            f_result += k + "|" + v
+            f_result += str(k) + "|" + v + "\n"
+        return f_result
     @staticmethod    
-    def from_str(a_str):
+    def from_str(a_str):        
         f_result = pydaw_song()        
-        f_arr = a_str        
+        f_arr = a_str.split("\n")     
         for f_line in f_arr:
-            f_region = f_line.split("|")
-            f_result.add_region_ref(int(f_region[0]), f_region[1])
+            if not f_line == "":
+                print("pydaw_song f_line :" + f_line)
+                f_region = f_line.split("|")
+                f_result.add_region_ref(int(f_region[0]), f_region[1])
         return f_result            
                 
 class pydaw_region:
@@ -276,8 +287,14 @@ class pydaw_cc:
         return pydaw_note.from_arr(f_arr)
     
 class pydaw_tracks:
+    def add_track(self, a_index, a_solo, a_mute, a_rec, a_vol, a_name, a_inst):
+        self.tracks[a_index] = pydaw_track(a_solo, a_mute, a_rec, a_vol, a_name, a_inst)        
     def __init__(self):
         self.tracks = {}
+    @staticmethod
+    def from_str(a_str):
+        f_result = pydaw_tracks()
+        return f_result
     
 class pydaw_track:
     def __init__(self, a_solo, a_mute, a_rec, a_vol, a_name, a_inst):
