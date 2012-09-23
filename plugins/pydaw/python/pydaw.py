@@ -197,8 +197,6 @@ class region_list_editor:
         self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)
         self.main_vlayout.addWidget(self.table_widget)
          
-         
-         
 class item_list_editor:
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):           

@@ -152,4 +152,121 @@ class pydaw_project:
         self.new_project(a_project_file)
 
 
+#The below classes are used to generate the saved file strings that will properly enforce the standard, rather than relying on developers to do it themselves
+
+class pydaw_song:
+    def add_region_ref(self, a_pos, a_region_name):
+        self.regions[a_pos] = a_region_name #TODO:  It may be best just to go ahead and make a child class, for when other parameters are added later
     
+    def __init__(self):
+        self.regions = {}
+        
+    def __str__(self):
+        f_result = ""
+        for k, v in self.regions.iteritems():
+            f_result += k + "|" + v.name
+                
+class pydaw_region:
+    def add_item_ref(self, a_track_num, a_bar_num, a_item_name):
+        self.items.append(pydaw_region.region_item(a_track_num, a_bar_num, a_item_name))        
+    
+    def __init__(self, a_name):
+        self.items = []
+        self.name = a_name
+    def __str__(self):
+        f_result = ""
+        for f_item in self.items:
+            f_result += f_item.track_num + "|" + f_item.bar_num + "|" + f_item.item_name + "\n"
+        return f_result
+        
+    class region_item:
+        def __init__(self, a_track_num, a_bar_num, a_item_name):
+            self.track_num = a_track_num
+            self.bar_num = a_bar_num
+            self.item_name = a_item_name
+    
+class pydaw_item:    
+    def add_note(self, a_index, a_note):
+        self.notes[a_index] = a_note
+        
+    def add_cc(self, a_index, a_cc):
+        self.ccs[a_index] = a_cc
+    
+    @staticmethod
+    def from_str(a_str):
+        f_result = pydaw_item()
+        f_arr = a_str.split("\n")
+        for f_event_str in f_arr:
+            f_event_arr = f_event_str.split("|")
+            if f_event_arr[1] == "n":
+                f_result.add_note(f_event_arr[0], pydaw_note.from_arr(f_event_arr))
+            elif f_event_arr[1] == "c":
+                f_result.add_cc(f_event_arr[0], pydaw_cc.from_arr(f_event_arr))
+        return f_result
+                
+    
+    def __init__(self):
+        self.notes = {}
+        self.ccs = {}
+        
+    def __str__(self):
+        f_result = ""
+        for k, v in self.notes.iteritems():
+            f_result += str(k) + "|" + v            
+        for k, v in self.ccs.iteritems():
+            f_result += str(k) + "|" + v            
+        return f_result
+    
+        
+class pydaw_note:
+    def __init__(self, a_start, a_length, a_note_number, a_velocity, a_extra_data=""):
+        self.start = a_start
+        self.length = a_length
+        self.note = a_note_number
+        self.velocity = a_velocity
+        self.extra_data = a_extra_data
+        
+    @staticmethod
+    def from_arr(a_arr):
+        f_result = pydaw_note(a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6])
+        return f_result
+        
+    @staticmethod
+    def from_str(a_str):
+        f_arr = a_str.split("|")
+        return pydaw_note.from_arr(f_arr)
+                
+    def __str__(self):
+        return "n|" + self.start + "|" + self.length + "|" + self.note + "|" + self.velocity + "|" + self.extra_data
+    
+class pydaw_cc:
+    def __init__(self, a_start, a_cc_num, a_cc_val):
+        self.start = a_start
+        self.cc_num = a_cc_num
+        self.cc_val = a_cc_val
+        
+    def __str__(self):
+        return "c|" + self.start + "|" + self.cc_num + "|" + self.cc_val
+
+    @staticmethod
+    def from_arr(a_arr):
+        f_result = pydaw_cc(a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5])        
+        return f_result
+        
+    @staticmethod
+    def from_str(a_str):
+        f_arr = a_str.split("|")
+        return pydaw_note.from_arr(f_arr)
+    
+class pydaw_tracks:
+    def __init__(self):
+        self.tracks = {}
+    
+class pydaw_track:
+    def __init__(self, a_solo, a_mute, a_rec, a_vol, a_name, a_inst):
+        self.name = a_name
+        self.solo = a_solo
+        self.mute = a_mute
+        self.rec = a_rec
+        self.vol = a_vol
+        self.inst = a_inst
