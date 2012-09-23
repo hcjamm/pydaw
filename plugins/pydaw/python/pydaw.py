@@ -19,9 +19,7 @@ import sys, os
 from PyQt4 import QtGui, QtCore
 from sys import argv
 from os.path import expanduser
-from dssi_gui import dssi_gui
-from connect import *
-from pydaw_project import *
+from libpydaw import *
 
 class song_editor:
     def open_song(self):
@@ -545,7 +543,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         
     def initUI(self):               
         QtGui.QMainWindow.__init__(self)
-        stylesheet_file = os.getcwd() + "/style.txt"
+        stylesheet_file = os.getcwd() + "/pydaw-style.txt"
         print("Opening CSS stylesheet from:  " + stylesheet_file)
         file_handle = open(stylesheet_file, 'r')
         self.setStyleSheet(file_handle.read())
