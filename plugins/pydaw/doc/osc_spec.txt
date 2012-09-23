@@ -68,7 +68,4 @@ Keep some sort of in-memory index of the various project files, that can be quer
 Create song_string_factory, region_string_factory, etc...  methods (classes?) to relieve the burden of properly formatting the file strings from the users who may fork PyDAW.  This should also provide reverse functionality for returning a class that can be used to set parameters
 Once the main interface becomes tabbed, create a rudimentary piano-roll viewer using a QTableWidget, just to demonstrate how it could be accomplished for those who may fork PyDAW
 
-TODO for today:
-
-7.  When opening an existing project, read the tracks[] from the session_mgr and update track_editor
 
