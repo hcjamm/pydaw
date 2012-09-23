@@ -44,7 +44,6 @@ class pydaw_project:
                 os.makedirs(project_dir)
         
         self.instantiate_session_manager()
-        #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
         
     def get_song_string(self):
         try:
@@ -55,6 +54,9 @@ class pydaw_project:
         f_file.close()
         return f_result
         
+    def get_song(self):
+        f_arr = self.get_song_string().split("\n")
+                
     def get_region_string(self, a_region_name):
         try:
             f_file = open(self.regions_folder + "/" + a_region_name + ".pyreg", "r")
@@ -164,7 +166,15 @@ class pydaw_song:
     def __str__(self):
         f_result = ""
         for k, v in self.regions.iteritems():
-            f_result += k + "|" + v.name
+            f_result += k + "|" + v
+    @staticmethod    
+    def from_str(a_str):
+        f_result = pydaw_song()        
+        f_arr = a_str        
+        for f_line in f_arr:
+            f_region = f_line.split("|")
+            f_result.add_region_ref(int(f_region[0]), f_region[1])
+        return f_result            
                 
 class pydaw_region:
     def add_item_ref(self, a_track_num, a_bar_num, a_item_name):
@@ -177,6 +187,14 @@ class pydaw_region:
         f_result = ""
         for f_item in self.items:
             f_result += f_item.track_num + "|" + f_item.bar_num + "|" + f_item.item_name + "\n"
+        return f_result
+        
+    def from_str(self, a_name, a_str):
+        f_result = pydaw_region(a_name)
+        f_arr = a_str.split("\n")
+        for f_line in f_arr:
+            f_item_arr = f_line.split("|")
+            f_result.add_item_ref(f_item_arr[0], f_item_arr[1], f_item_arr[2])
         return f_result
         
     class region_item:
@@ -202,8 +220,7 @@ class pydaw_item:
                 f_result.add_note(f_event_arr[0], pydaw_note.from_arr(f_event_arr))
             elif f_event_arr[1] == "c":
                 f_result.add_cc(f_event_arr[0], pydaw_cc.from_arr(f_event_arr))
-        return f_result
-                
+        return f_result                
     
     def __init__(self):
         self.notes = {}
