@@ -612,7 +612,8 @@ def global_open_project(a_project_file):
     global this_pydaw_project
     this_pydaw_project = pydaw_project(a_project_file)
     this_song_editor.open_song()
-    this_track_editor.open_tracks()
+    this_track_editor.open_tracks()    
+    #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
     
 def global_new_project():    
     #this_pydaw_project.session_mgr.quit_hander()
@@ -621,7 +622,8 @@ def global_new_project():
     this_song_editor.table_widget.clear()
     this_region_editor.table_widget.clear()
     this_item_editor.table_widget.clear()    
-    this_track_editor.reset()
+    this_track_editor.reset()    
+    #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
    
 def about_to_quit():
     this_pydaw_project.session_mgr.quit_hander()
