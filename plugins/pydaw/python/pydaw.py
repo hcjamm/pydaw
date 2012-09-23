@@ -191,161 +191,179 @@ class item_list_editor:
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):           
         self.group_box = QtGui.QGroupBox()
-        self.main_vlayout = QtGui.QVBoxLayout()
-        self.group_box.setLayout(self.main_vlayout)
-        self.table_widget = QtGui.QTableWidget()
-        self.table_widget.setColumnCount(2)        
-        self.table_widget.setRowCount(128)
-        self.table_widget.cellClicked.connect(self.show_event_dialog)
-        self.group_box.setMaximumWidth(270)
-        self.main_vlayout.addWidget(self.table_widget)
+        self.main_hlayout = QtGui.QHBoxLayout()
+        self.group_box.setLayout(self.main_hlayout)
+        
+        self.notes_table_widget = QtGui.QTableWidget()
+        self.notes_table_widget.setColumnCount(5)
+        self.notes_table_widget.setRowCount(128)
+        self.notes_table_widget.cellClicked.connect(self.notes_show_event_dialog)
+        
+        self.ccs_table_widget = QtGui.QTableWidget()
+        self.ccs_table_widget.setColumnCount(3)
+        self.ccs_table_widget.setRowCount(128)
+        self.ccs_table_widget.cellClicked.connect(self.ccs_show_event_dialog)
+        
+        #self.group_box.setMaximumWidth(900)
+        self.main_hlayout.addWidget(self.notes_table_widget)
+        self.main_hlayout.addWidget(self.ccs_table_widget)
         self.set_headers()
     
     def set_headers(self): #Because clearing the table clears the headers
-        self.table_widget.setHorizontalHeaderLabels(['Notes', 'CCs'])
-        
-    def __str__(self):
-        f_result = ""
-        for f_i in range(0, self.table_widget.rowCount()):
-            for f_i2 in range(0, self.table_widget.columnCount()):
-                f_item = self.table_widget.item(f_i, f_i2)
-                if not f_item is None:
-                    f_result += f_item.text()
-                f_result += "\t"
-            f_result += "\n"
-        return f_result
+        self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note', 'Note#', 'Velocity'])
+        self.ccs_table_widget.setHorizontalHeaderLabels(['Start', 'CC', 'Value'])
         
     def open_item(self, a_item_name):
-        self.table_widget.clear()
+        self.notes_table_widget.clear()
+        self.ccs_table_widget.clear()
         self.set_headers()
         self.item_name = a_item_name
-        f_items = this_pydaw_project.get_item_string(a_item_name).split("\n")
-        for f_i in range(0, len(f_items)):
-            f_item_arr = f_items[f_i].split("\t")
-            for f_i2 in range(0, len(f_item_arr)):
-                if f_item_arr[f_i2] != "":
-                    f_cell = QtGui.QTableWidgetItem(f_item_arr[f_i2])
-                    self.table_widget.setItem(f_i, f_i2, f_cell)
+        this_main_window.main_tabwidget.setCurrentIndex(1)
+        self.item = this_pydaw_project.get_item(a_item_name)        
+        for k, v in self.item.notes.iteritems():
+            f_start_item = QtGui.QTableWidgetItem(str(v.start))
+            self.notes_table_widget.setItem(k, 0, f_start_item)
+            f_length_item = QtGui.QTableWidgetItem(str(v.length))
+            self.notes_table_widget.setItem(k, 1, f_length_item)
+            f_note_item = QtGui.QTableWidgetItem(str(v.note))
+            self.notes_table_widget.setItem(k, 2, f_note_item)
+            f_note_num_item = QtGui.QTableWidgetItem(str(v.note_num))
+            self.notes_table_widget.setItem(k, 3, f_note_num_item)
+            f_vel_item = QtGui.QTableWidgetItem(str(v.velocity))
+            self.notes_table_widget.setItem(k, 4, f_vel_item)
+        for k, v in self.item.ccs.iteritems():
+            f_cc_item = QtGui.QTableWidgetItem(str(v.cc_num))
+            self.ccs_table_widget.setItem(k, 0, f_cc_item)
+            f_cc_val_item = QtGui.QTableWidgetItem(str(v.cc_val))
+            self.ccs_table_widget.setItem(k, 1, f_cc_val_item)
+            f_start_item = QtGui.QTableWidgetItem(str(v.start))
+            self.ccs_table_widget.setItem(k, 2, f_start_item)
         
-    def show_event_dialog(self, x, y):
-        if y == 0:
-            f_cell = self.table_widget.item(x, y)
-            if f_cell is None:
-                f_default_start = 0.0
-                f_default_length = 1.0
-                f_default_note = 0
-                f_default_octave = 3
-                f_default_velocity = 100
-            else:
-                f_cell_arr = f_cell.text().split("|")                
-                f_default_start = int(float(f_cell_arr[0]))
-                f_default_length = int(float(f_cell_arr[1]))
-                f_default_note = int(f_cell_arr[2]) % 12
-                f_default_octave = (int(f_cell_arr[2]) / 12) - 2
-                f_default_velocity = int(f_cell_arr[3])
-            def note_ok_handler():
-                f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
-                f_new_cell = QtGui.QTableWidgetItem(str(f_start.value()) + "|" +
-                    str(f_length.value()) + "|" + str(f_note_value) + "|" +
-                    str(f_velocity.value()) + "|" + str(f_note.currentText()) + str(f_octave.value())
-                    )
-                self.table_widget.setItem(x, y, f_new_cell)
-                this_pydaw_project.save_item(self.item_name, self.__str__())
-                f_window.close()
-                
-            def note_cancel_handler():            
-                f_window.close()
-                
-            f_window = QtGui.QDialog()
-            f_layout = QtGui.QGridLayout()
-            f_window.setLayout(f_layout)
-            f_note_layout = QtGui.QHBoxLayout()
-            f_note = QtGui.QComboBox()
-            f_note.addItems(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])
-            f_note.setCurrentIndex(f_default_note)
-            f_note_layout.addWidget(f_note)
-            f_layout.addWidget(QtGui.QLabel("Note"), 1, 0)
-            f_octave = QtGui.QSpinBox()
-            f_octave.setRange(-2, 8)
-            f_octave.setValue(f_default_octave)
-            f_note_layout.addWidget(f_octave)
-            f_layout.addLayout(f_note_layout, 1, 1)
-            f_layout.addWidget(QtGui.QLabel("Start(beats)"), 2, 0)
-            f_start = QtGui.QDoubleSpinBox()
-            f_start.setRange(0.0, 3.99)
-            f_start.setValue(f_default_start)
-            f_layout.addWidget(f_start, 2, 1)
-            f_layout.addWidget(QtGui.QLabel("Length(beats)"), 3, 0)
-            f_length = QtGui.QDoubleSpinBox()
-            f_length.setRange(0.1, 16.0)
-            f_length.setValue(f_default_length)
-            f_layout.addWidget(f_length, 3, 1)
-            f_velocity = QtGui.QSpinBox()
-            f_velocity.setRange(1, 127)
-            f_velocity.setValue(f_default_velocity)
-            f_layout.addWidget(QtGui.QLabel("Velocity"), 4, 0)
-            f_layout.addWidget(f_velocity, 4, 1)
-            f_ok_button = QtGui.QPushButton("OK")
-            f_layout.addWidget(f_ok_button, 5,0)
-            f_ok_button.clicked.connect(note_ok_handler)
-            f_cancel_button = QtGui.QPushButton("Cancel")
-            f_layout.addWidget(f_cancel_button, 5,1)
-            f_cancel_button.clicked.connect(note_cancel_handler)
-                    
-            f_window.exec_()
-
-        elif y == 1:            
-            f_cell = self.table_widget.item(x, y)
-            if f_cell is None:
-                f_default_start = 0.0
-                f_default_cc = 1
-                f_default_cc_value = 64
-            else:
-                f_cell_arr = f_cell.text().split("|")                
-                f_default_start = int(float(f_cell_arr[0]))
-                f_default_cc = int(f_cell_arr[1])
-                f_default_cc_value = int(f_cell_arr[2])
-                
-            def cc_ok_handler():                
-                f_new_cell = QtGui.QTableWidgetItem(str(f_start.value()) + "|" +
-                    str(f_cc.value()) + "|" + str(f_cc_value.value())
-                    )
-                self.table_widget.setItem(x, y, f_new_cell)
-                this_pydaw_project.save_item(self.item_name, self.__str__())
-                f_window.close()
-                
-            def cc_cancel_handler():            
-                f_window.close()
-                
-            f_window = QtGui.QDialog()
-            f_layout = QtGui.QGridLayout()
-            f_window.setLayout(f_layout)
-            f_cc = QtGui.QSpinBox()
-            f_cc.setRange(1, 127)
-            f_cc.setValue(f_default_cc)
-            f_layout.addWidget(QtGui.QLabel("CC"), 0, 0)
-            f_layout.addWidget(f_cc, 0, 1)
-            f_cc_value = QtGui.QSpinBox()
-            f_cc_value.setRange(1, 127)
-            f_cc_value.setValue(f_default_cc_value)
-            f_layout.addWidget(QtGui.QLabel("Value"), 1, 0)
-            f_layout.addWidget(f_cc_value, 1, 1)
-            f_layout.addWidget(QtGui.QLabel("Position(beats)"), 2, 0)
-            f_start = QtGui.QDoubleSpinBox()
-            f_start.setRange(0.0, 3.99)
-            f_start.setValue(f_default_start)
-            f_layout.addWidget(f_start, 2, 1)
-            f_ok_button = QtGui.QPushButton("OK")
-            f_layout.addWidget(f_ok_button, 4,0)
-            f_ok_button.clicked.connect(cc_ok_handler)
-            f_cancel_button = QtGui.QPushButton("Cancel")
-            f_layout.addWidget(f_cancel_button, 4,1)
-            f_cancel_button.clicked.connect(cc_cancel_handler)
-                    
-            f_window.exec_()
-
+    def notes_show_event_dialog(self, x, y): 
+        f_cell = self.notes_table_widget.item(x, y)
+        if f_cell is None:
+            f_default_start = 0.0
+            f_default_length = 1.0
+            f_default_note = 0
+            f_default_octave = 3
+            f_default_velocity = 100
         else:
-            print(y)
+            f_cell_arr = f_cell.text().split("|")                
+            f_default_start = int(float(f_cell_arr[0]))
+            f_default_length = int(float(f_cell_arr[1]))
+            f_default_note = int(f_cell_arr[2]) % 12
+            f_default_octave = (int(f_cell_arr[2]) / 12) - 2
+            f_default_velocity = int(f_cell_arr[3])
+        def note_ok_handler():
+            f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
+            f_note_name = str(f_note.currentText()) + str(f_octave.value())
+
+            f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))
+            self.notes_table_widget.setItem(x, 0, f_start_item)
+            f_length_item = QtGui.QTableWidgetItem(str(f_length.value()))
+            self.notes_table_widget.setItem(x, 1, f_length_item)
+            f_note_name_item = QtGui.QTableWidgetItem(f_note_name)
+            self.notes_table_widget.setItem(x, 2, f_note_name_item)
+            f_note_num = QtGui.QTableWidgetItem(str(f_note_value))
+            self.notes_table_widget.setItem(x, 3, f_note_num)
+            f_vel_item = QtGui.QTableWidgetItem(str(f_velocity.value()))
+            self.notes_table_widget.setItem(x, 4, f_vel_item)
+            
+            self.item.add_note(x, pydaw_note(f_start.value(), f_length.value(), f_note_name, f_note_value, f_velocity.value()))
+            this_pydaw_project.save_item(self.item_name, self.item)
+            f_window.close()
+            
+        def note_cancel_handler():            
+            f_window.close()
+            
+        f_window = QtGui.QDialog()
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_note_layout = QtGui.QHBoxLayout()
+        f_note = QtGui.QComboBox()
+        f_note.addItems(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])
+        f_note.setCurrentIndex(f_default_note)
+        f_note_layout.addWidget(f_note)
+        f_layout.addWidget(QtGui.QLabel("Note"), 1, 0)
+        f_octave = QtGui.QSpinBox()
+        f_octave.setRange(-2, 8)
+        f_octave.setValue(f_default_octave)
+        f_note_layout.addWidget(f_octave)
+        f_layout.addLayout(f_note_layout, 1, 1)
+        f_layout.addWidget(QtGui.QLabel("Start(beats)"), 2, 0)
+        f_start = QtGui.QDoubleSpinBox()
+        f_start.setRange(0.0, 3.99)
+        f_start.setValue(f_default_start)
+        f_layout.addWidget(f_start, 2, 1)
+        f_layout.addWidget(QtGui.QLabel("Length(beats)"), 3, 0)
+        f_length = QtGui.QDoubleSpinBox()
+        f_length.setRange(0.1, 16.0)
+        f_length.setValue(f_default_length)
+        f_layout.addWidget(f_length, 3, 1)
+        f_velocity = QtGui.QSpinBox()
+        f_velocity.setRange(1, 127)
+        f_velocity.setValue(f_default_velocity)
+        f_layout.addWidget(QtGui.QLabel("Velocity"), 4, 0)
+        f_layout.addWidget(f_velocity, 4, 1)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_layout.addWidget(f_ok_button, 5,0)
+        f_ok_button.clicked.connect(note_ok_handler)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_layout.addWidget(f_cancel_button, 5,1)
+        f_cancel_button.clicked.connect(note_cancel_handler)                
+        f_window.exec_()
+
+    def ccs_show_event_dialog(self, x, y):
+        f_cell = self.ccs_table_widget.item(x, y)
+        if f_cell is None:
+            f_default_start = 0.0
+            f_default_cc = 1
+            f_default_cc_value = 64
+        else:
+            f_cell_arr = f_cell.text().split("|")                
+            f_default_start = int(float(f_cell_arr[0]))
+            f_default_cc = int(f_cell_arr[1])
+            f_default_cc_value = int(f_cell_arr[2])
+            
+        def cc_ok_handler():
+            f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))
+            self.ccs_table_widget.setItem(x, 0, f_start_item)
+            f_cc_num_item = QtGui.QTableWidgetItem(str(f_cc.value()))
+            self.ccs_table_widget.setItem(x, 1, f_cc_num_item)
+            f_cc_val_item = QtGui.QTableWidgetItem(str(f_cc_value.value()))
+            self.ccs_table_widget.setItem(x, 2, f_cc_val_item)            
+            self.item.add_cc(x, pydaw_cc(f_start.value(), f_cc.value(), f_cc_value.value()))
+            this_pydaw_project.save_item(self.item_name, self.item)
+            f_window.close()
+            
+        def cc_cancel_handler():            
+            f_window.close()
+            
+        f_window = QtGui.QDialog()
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_cc = QtGui.QSpinBox()
+        f_cc.setRange(1, 127)
+        f_cc.setValue(f_default_cc)
+        f_layout.addWidget(QtGui.QLabel("CC"), 0, 0)
+        f_layout.addWidget(f_cc, 0, 1)
+        f_cc_value = QtGui.QSpinBox()
+        f_cc_value.setRange(1, 127)
+        f_cc_value.setValue(f_default_cc_value)
+        f_layout.addWidget(QtGui.QLabel("Value"), 1, 0)
+        f_layout.addWidget(f_cc_value, 1, 1)
+        f_layout.addWidget(QtGui.QLabel("Position(beats)"), 2, 0)
+        f_start = QtGui.QDoubleSpinBox()
+        f_start.setRange(0.0, 3.99)
+        f_start.setValue(f_default_start)
+        f_layout.addWidget(f_start, 2, 1)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_layout.addWidget(f_ok_button, 4,0)
+        f_ok_button.clicked.connect(cc_ok_handler)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_layout.addWidget(f_cancel_button, 4,1)
+        f_cancel_button.clicked.connect(cc_cancel_handler)                
+        f_window.exec_()
         
 rec_button_group = QtGui.QButtonGroup()
     
@@ -564,16 +582,28 @@ class pydaw_main_window(QtGui.QMainWindow):
                 
         self.transport_hlayout.addWidget(this_transport.group_box, alignment=QtCore.Qt.AlignLeft)        
         
-        self.editor_hlayout = QtGui.QHBoxLayout()
-        self.main_layout.addLayout(self.editor_hlayout)
-        self.editor_hlayout.addWidget(this_track_editor.tracks_tablewidget)
+        
+        
+        self.main_tabwidget = QtGui.QTabWidget()
+        self.song_tab = QtGui.QWidget()
+        self.song_tab_hlayout = QtGui.QHBoxLayout(self.song_tab)
+        
+        self.main_tabwidget.addTab(self.song_tab, "Song")
+        
+        self.main_layout.addWidget(self.main_tabwidget)
+        self.song_tab_hlayout.addWidget(this_track_editor.tracks_tablewidget)
         
         self.song_region_vlayout = QtGui.QVBoxLayout()
-        self.editor_hlayout.addLayout(self.song_region_vlayout)
+        self.song_tab_hlayout.addLayout(self.song_region_vlayout)
 
         self.song_region_vlayout.addWidget(this_song_editor.group_box)
         self.song_region_vlayout.addWidget(this_region_editor.group_box)
-        self.editor_hlayout.addWidget(this_item_editor.group_box)        
+        
+        self.item_tab = QtGui.QWidget()
+        self.item_tab_hlayout = QtGui.QHBoxLayout(self.item_tab)        
+        self.item_tab_hlayout.addWidget(this_item_editor.group_box)
+        
+        self.main_tabwidget.addTab(self.item_tab, "Item")
         
         self.show()
                 

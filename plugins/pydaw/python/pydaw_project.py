@@ -107,9 +107,9 @@ class pydaw_project:
     def copy_item(self, a_old_item, a_new_item):
         copyfile(self.items_folder + "/" + a_old_item + ".pyitem", self.items_folder + "/" + a_new_item + ".pyitem")
 
-    def save_item(self, a_name, a_string):
+    def save_item(self, a_name, a_item):
         f_file = open(self.items_folder + "/" + a_name + ".pyitem", 'w')
-        f_file.write(a_string)
+        f_file.write(a_item.__str__())
         f_file.close()
     
     def save_region(self, a_name, a_region):
@@ -228,11 +228,12 @@ class pydaw_item:
         f_result = pydaw_item()
         f_arr = a_str.split("\n")
         for f_event_str in f_arr:
-            f_event_arr = f_event_str.split("|")
-            if f_event_arr[1] == "n":
-                f_result.add_note(f_event_arr[0], pydaw_note.from_arr(f_event_arr))
-            elif f_event_arr[1] == "c":
-                f_result.add_cc(f_event_arr[0], pydaw_cc.from_arr(f_event_arr))
+            if not f_event_str == "":
+                f_event_arr = f_event_str.split("|")
+                if f_event_arr[1] == "n":
+                    f_result.add_note(int(f_event_arr[0]), pydaw_note.from_arr(f_event_arr))
+                elif f_event_arr[1] == "c":
+                    f_result.add_cc(int(f_event_arr[0]), pydaw_cc.from_arr(f_event_arr))
         return f_result                
     
     def __init__(self):
@@ -242,19 +243,18 @@ class pydaw_item:
     def __str__(self):
         f_result = ""
         for k, v in self.notes.iteritems():
-            f_result += str(k) + "|" + v            
+            f_result += str(k) + "|" + v.__str__() + "\n"   
         for k, v in self.ccs.iteritems():
-            f_result += str(k) + "|" + v            
-        return f_result
-    
+            f_result += str(k) + "|" + v.__str__() + "\n"
+        return f_result    
         
 class pydaw_note:
-    def __init__(self, a_start, a_length, a_note_number, a_velocity, a_extra_data=""):
+    def __init__(self, a_start, a_length, a_note, a_note_number, a_velocity):
         self.start = a_start
         self.length = a_length
-        self.note = a_note_number
+        self.note = a_note
         self.velocity = a_velocity
-        self.extra_data = a_extra_data
+        self.note_num = a_note_number
         
     @staticmethod
     def from_arr(a_arr):
@@ -267,7 +267,7 @@ class pydaw_note:
         return pydaw_note.from_arr(f_arr)
                 
     def __str__(self):
-        return "n|" + self.start + "|" + self.length + "|" + self.note + "|" + self.velocity + "|" + self.extra_data
+        return "n|" + str(self.start) + "|" + str(self.length) + "|" + self.note + "|" + str(self.note_num) + "|" + str(self.velocity)
     
 class pydaw_cc:
     def __init__(self, a_start, a_cc_num, a_cc_val):
@@ -276,11 +276,11 @@ class pydaw_cc:
         self.cc_val = a_cc_val
         
     def __str__(self):
-        return "c|" + self.start + "|" + self.cc_num + "|" + self.cc_val
+        return "c|" + str(self.start) + "|" + str(self.cc_num) + "|" + str(self.cc_val)
 
     @staticmethod
-    def from_arr(a_arr):
-        f_result = pydaw_cc(a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5])        
+    def from_arr(a_arr):        
+        f_result = pydaw_cc(float(a_arr[2]), int(a_arr[3]), int(a_arr[4]))
         return f_result
         
     @staticmethod
