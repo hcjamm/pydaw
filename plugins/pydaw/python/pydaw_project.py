@@ -112,9 +112,9 @@ class pydaw_project:
         f_file.write(a_string)
         f_file.close()
     
-    def save_region(self, a_name, a_string):
+    def save_region(self, a_name, a_region):
         f_file = open(self.regions_folder + "/" + a_name + ".pyreg", 'w')
-        f_file.write(a_string)
+        f_file.write(a_region.__str__())
         f_file.close()
         
     def save_song(self, a_song):
@@ -177,15 +177,14 @@ class pydaw_song:
             f_result += str(k) + "|" + v + "\n"
         return f_result
     @staticmethod    
-    def from_str(a_str):        
+    def from_str(a_str):
         f_result = pydaw_song()        
         f_arr = a_str.split("\n")     
         for f_line in f_arr:
             if not f_line == "":
-                print("pydaw_song f_line :" + f_line)
                 f_region = f_line.split("|")
                 f_result.add_region_ref(int(f_region[0]), f_region[1])
-        return f_result            
+        return f_result
                 
 class pydaw_region:
     def add_item_ref(self, a_track_num, a_bar_num, a_item_name):
@@ -194,18 +193,21 @@ class pydaw_region:
     def __init__(self, a_name):
         self.items = []
         self.name = a_name
+        
     def __str__(self):
         f_result = ""
         for f_item in self.items:
-            f_result += f_item.track_num + "|" + f_item.bar_num + "|" + f_item.item_name + "\n"
+            f_result += str(f_item.track_num) + "|" + str(f_item.bar_num) + "|" + f_item.item_name + "\n"
         return f_result
         
-    def from_str(self, a_name, a_str):
+    @staticmethod
+    def from_str(a_name, a_str):
         f_result = pydaw_region(a_name)
         f_arr = a_str.split("\n")
         for f_line in f_arr:
-            f_item_arr = f_line.split("|")
-            f_result.add_item_ref(f_item_arr[0], f_item_arr[1], f_item_arr[2])
+            if not f_line == "":
+                f_item_arr = f_line.split("|")
+                f_result.add_item_ref(int(f_item_arr[0]), int(f_item_arr[1]), f_item_arr[2])
         return f_result
         
     class region_item:
