@@ -94,13 +94,9 @@ class region_list_editor:
     def open_region(self, a_file_name):
         self.table_widget.clear()
         self.region_name_lineedit.setText(a_file_name)
-        f_region_string = this_pydaw_project.get_region_string(a_file_name)
-        f_region_arr = f_region_string.split("\n")
-        for f_i in range(0, len(f_region_arr)):
-            f_track_arr = f_region_arr[f_i].split("|")
-            for f_i2 in range(0, len(f_track_arr)):
-                f_new_cell = QtGui.QTableWidgetItem(f_track_arr[f_i2])
-                self.table_widget.setItem(f_i, f_i2, f_new_cell)                
+        self.region = this_pydaw_project.get_region(a_file_name)        
+        for f_item in self.region.items:            
+            self.table_widget.setItem(f_item.bar_num, f_item.track_num, QtGui.QTableWidgetItem(f_item.item_name))
         
     def cell_clicked(self, x, y):        
         f_item = self.table_widget.item(x, y)
@@ -133,8 +129,10 @@ class region_list_editor:
                 f_cell_text = str(f_copy_combobox.currentText())
             this_item_editor.open_item(f_cell_text)
             f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
+            self.region = this_pydaw_project.get_region(f_cell_text)
+            self.region.add_item_ref(x, y, f_cell_text)
             self.table_widget.setItem(x, y, f_new_cell)
-            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.__str__())
+            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             f_window.close()
                 
         def note_cancel_handler():            
