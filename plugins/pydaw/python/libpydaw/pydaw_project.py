@@ -168,6 +168,9 @@ class pydaw_song:
     def add_region_ref(self, a_pos, a_region_name):
         self.regions[a_pos] = a_region_name #TODO:  It may be best just to go ahead and make a child class, for when other parameters are added later
 
+    def remove_region_ref(self, a_pos):
+        del self.regions[a_pos]
+
     def __init__(self):
         self.regions = {}
 
@@ -188,7 +191,13 @@ class pydaw_song:
 
 class pydaw_region:
     def add_item_ref(self, a_bar_num, a_track_num, a_item_name):
+        self.remove_item_ref(a_bar_num, a_track_num)
         self.items.append(pydaw_region.region_item(a_track_num, a_bar_num, a_item_name))
+
+    def remove_item_ref(self, a_bar_num, a_track_num):
+        for f_item in self.items:
+            if f_item.bar_num == a_bar_num and f_item.track_num == a_track_num:
+                self.items.remove(f_item)
 
     def __init__(self, a_name):
         self.items = []

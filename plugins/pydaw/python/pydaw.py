@@ -30,49 +30,66 @@ class song_editor:
 
     def cell_clicked(self, x, y):
         f_cell = self.table_widget.item(x, y)
-        if f_cell is None:
-            def song_ok_handler():
-                f_new_cell = QtGui.QTableWidgetItem(f_new_lineedit.text())
-                if f_new_radiobutton.isChecked():
-                    this_pydaw_project.create_empty_region(f_new_lineedit.text())
-                elif f_copy_radiobutton.isChecked():
-                    this_pydaw_project.copy_region(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
 
-                self.table_widget.setItem(x, y, f_new_cell)
-                self.song.add_region_ref(y, str(f_new_lineedit.text()))
-                this_region_editor.open_region(f_new_lineedit.text())
-                this_pydaw_project.save_song(self.song)
-                f_window.close()
+        if this_edit_mode_selector.add_radiobutton.isChecked():
+            if f_cell is None:
+                def song_ok_handler():
+                    f_new_cell = QtGui.QTableWidgetItem(f_new_lineedit.text())
+                    if f_new_radiobutton.isChecked():
+                        this_pydaw_project.create_empty_region(f_new_lineedit.text())
+                    elif f_copy_radiobutton.isChecked():
+                        this_pydaw_project.copy_region(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
 
-            def song_cancel_handler():
-                f_window.close()
+                    self.table_widget.setItem(x, y, f_new_cell)
+                    self.song.add_region_ref(y, str(f_new_lineedit.text()))
+                    this_region_editor.open_region(f_new_lineedit.text())
+                    this_pydaw_project.save_song(self.song)
+                    f_window.close()
 
-            f_window = QtGui.QDialog()
-            f_layout = QtGui.QGridLayout()
-            f_window.setLayout(f_layout)
-            f_new_radiobutton = QtGui.QRadioButton()
-            f_new_radiobutton.setChecked(True)
-            f_layout.addWidget(f_new_radiobutton, 0, 0)
-            f_layout.addWidget(QtGui.QLabel("New:"), 0, 1)
-            f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_region_name())
-            f_layout.addWidget(f_new_lineedit, 0, 2)
-            f_copy_radiobutton = QtGui.QRadioButton()
-            f_layout.addWidget(f_copy_radiobutton, 1, 0)
-            f_copy_combobox = QtGui.QComboBox()
-            f_copy_combobox.addItems(this_pydaw_project.get_region_list())
-            f_layout.addWidget(QtGui.QLabel("Copy from:"), 1, 1)
-            f_layout.addWidget(f_copy_combobox, 1, 2)
-            f_ok_button = QtGui.QPushButton("OK")
-            f_layout.addWidget(f_ok_button, 5,0)
-            f_ok_button.clicked.connect(song_ok_handler)
-            f_cancel_button = QtGui.QPushButton("Cancel")
-            f_layout.addWidget(f_cancel_button, 5,1)
-            f_cancel_button.clicked.connect(song_cancel_handler)
-            f_window.exec_()
-        else:
-            this_region_editor.open_region(str(f_cell.text()))
+                def song_cancel_handler():
+                    f_window.close()
+
+                f_window = QtGui.QDialog()
+                f_layout = QtGui.QGridLayout()
+                f_window.setLayout(f_layout)
+                f_new_radiobutton = QtGui.QRadioButton()
+                f_new_radiobutton.setChecked(True)
+                f_layout.addWidget(f_new_radiobutton, 0, 0)
+                f_layout.addWidget(QtGui.QLabel("New:"), 0, 1)
+                f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_region_name())
+                f_layout.addWidget(f_new_lineedit, 0, 2)
+                f_copy_radiobutton = QtGui.QRadioButton()
+                f_layout.addWidget(f_copy_radiobutton, 1, 0)
+                f_copy_combobox = QtGui.QComboBox()
+                f_copy_combobox.addItems(this_pydaw_project.get_region_list())
+                f_layout.addWidget(QtGui.QLabel("Copy from:"), 1, 1)
+                f_layout.addWidget(f_copy_combobox, 1, 2)
+                f_ok_button = QtGui.QPushButton("OK")
+                f_layout.addWidget(f_ok_button, 5,0)
+                f_ok_button.clicked.connect(song_ok_handler)
+                f_cancel_button = QtGui.QPushButton("Cancel")
+                f_layout.addWidget(f_cancel_button, 5,1)
+                f_cancel_button.clicked.connect(song_cancel_handler)
+                f_window.exec_()
+            else:
+                this_region_editor.open_region(str(f_cell.text()))
+        elif this_edit_mode_selector.delete_radiobutton.isChecked():
+            self.song.remove_region_ref(y)
+            this_pydaw_project.save_song(self.song)
+            self.table_widget.clear()
+            self.open_song()
+        elif this_edit_mode_selector.copy_paste_radiobutton.isChecked():
+            if f_cell is None:
+                if not self.copied_cell is None:
+                    f_new_cell = QtGui.QTableWidgetItem(self.copied_cell)
+                    self.table_widget.setItem(x, y, f_new_cell)
+                    self.song.add_region_ref(y, self.copied_cell)
+                    this_pydaw_project.save_song(self.song)
+            else:
+                self.copied_cell = str(f_cell.text())
 
     def __init__(self):
+        self.copied_cell = None
         self.song = pydaw_song()
         self.group_box = QtGui.QGroupBox()
         self.group_box.setMaximumHeight(200)
@@ -93,6 +110,7 @@ class region_list_editor:
         self.region_name_lineedit.setText(a_file_name)
         self.region = this_pydaw_project.get_region(a_file_name)
         for f_item in self.region.items:
+            print(f_item.item_name)
             self.table_widget.setItem(f_item.track_num, f_item.bar_num, QtGui.QTableWidgetItem(f_item.item_name))
 
     def cell_clicked(self, x, y):
@@ -162,7 +180,6 @@ class region_list_editor:
         self.hlayout0.addWidget(self.region_num_label)
         self.region_name_lineedit = QtGui.QLineEdit("Region0")
         self.region_name_lineedit.setEnabled(False)
-        #self.region_name_lineedit.textChanged.connect(self.region_name_changed)
         self.hlayout0.addWidget(self.region_name_lineedit)
 
         self.group_box.setLayout(self.main_vlayout)
@@ -477,6 +494,19 @@ class transport_widget:
         self.loop_mode_combobox.addItems(["Off", "Bar", "Region"])
         self.grid_layout.addWidget(self.loop_mode_combobox, 0, 8)
 
+class edit_mode_selector:
+    def __init__(self):
+        self.groupbox = QtGui.QGroupBox()
+        self.hlayout0 = QtGui.QHBoxLayout(self.groupbox)
+        self.hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
+        self.add_radiobutton = QtGui.QRadioButton("Add")
+        self.hlayout0.addWidget(self.add_radiobutton)
+        self.delete_radiobutton = QtGui.QRadioButton("Delete")
+        self.hlayout0.addWidget(self.delete_radiobutton)
+        self.copy_paste_radiobutton = QtGui.QRadioButton("Copy/Paste")
+        self.hlayout0.addWidget(self.copy_paste_radiobutton)
+        self.add_radiobutton.setChecked(True)
+
 class track_editor:
     def open_tracks(self):
         f_tracks = this_pydaw_project.get_tracks()
@@ -567,8 +597,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_layout.addLayout(self.transport_hlayout)
 
         self.transport_hlayout.addWidget(this_transport.group_box, alignment=QtCore.Qt.AlignLeft)
-
-
+        self.transport_hlayout.addWidget(this_edit_mode_selector.groupbox, alignment=QtCore.Qt.AlignLeft)
 
         self.main_tabwidget = QtGui.QTabWidget()
         self.song_tab = QtGui.QWidget()
@@ -632,6 +661,7 @@ if __name__ == '__main__':
     this_item_editor = item_list_editor()
     this_transport = transport_widget()
     this_track_editor = track_editor()
+    this_edit_mode_selector = edit_mode_selector()
 
     this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
     this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
