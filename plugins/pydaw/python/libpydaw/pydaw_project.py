@@ -7,6 +7,7 @@ import sys, os
 from shutil import copyfile
 from os import listdir
 from lms_session import lms_session
+from dssi_gui import dssi_gui
 
 class pydaw_project:
     def save_project(self):
@@ -111,21 +112,25 @@ class pydaw_project:
         f_file = open(self.items_folder + "/" + a_name + ".pyitem", 'w')
         f_file.write(a_item.__str__())
         f_file.close()
+        self.this_dssi_gui.send_configure("si", a_name)
 
     def save_region(self, a_name, a_region):
         f_file = open(self.regions_folder + "/" + a_name + ".pyreg", 'w')
         f_file.write(a_region.__str__())
         f_file.close()
+        self.this_dssi_gui.send_configure("sr", a_name)
 
     def save_song(self, a_song):
         f_file = open(self.project_folder + "/" + self.project_file + ".pysong", 'w')
         f_file.write(a_song.__str__())
         f_file.close()
+        self.this_dssi_gui.send_configure("ss", self.project_file)
 
     def save_tracks(self, a_tracks):
         f_file = open(self.project_folder + "/" + self.project_file + ".pytracks", 'w')
         f_file.write(a_tracks.__str__())
         f_file.close()
+        #Is there a need for a configure message here?
 
     def get_next_default_item_name(self):
         for i in range(self.last_item_number, 10000):
@@ -157,10 +162,11 @@ class pydaw_project:
         f_result.sort()
         return f_result
 
-    def __init__(self, a_project_file=None):
+    def __init__(self, a_project_file=None, a_osc_url=None):
         self.last_item_number = 0
         self.last_region_number = 0
         self.new_project(a_project_file)
+        self.this_dssi_gui = dssi_gui(a_osc_url)
 
 #The below classes are used to generate the saved file strings that will properly enforce the standard, rather than relying on developers to do it themselves
 

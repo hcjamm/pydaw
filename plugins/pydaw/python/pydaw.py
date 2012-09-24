@@ -395,15 +395,15 @@ rec_button_group = QtGui.QButtonGroup()
 class seq_track:
     def on_vol_change(self, value):
         self.volume_label.setText(str(value) + " dB")
-        this_dssi_gui.send_configure("vol", str(self.track_number) + "|" + str(self.volume_slider.value()))
+        this_pydaw_project.this_dssi_gui.send_configure("vol", str(self.track_number) + "|" + str(self.volume_slider.value()))
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_pan_change(self, value):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_solo(self, value):
-        this_dssi_gui.send_configure("solo", str(self.track_number) + "|" + str(self.solo_checkbox.isChecked()))
+        this_pydaw_project.this_dssi_gui.send_configure("solo", str(self.track_number) + "|" + str(self.solo_checkbox.isChecked()))
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_mute(self, value):
-        this_dssi_gui.send_configure("mute", str(self.track_number) + "|" + str(self.mute_checkbox.isChecked()))
+        this_pydaw_project.this_dssi_gui.send_configure("mute", str(self.track_number) + "|" + str(self.mute_checkbox.isChecked()))
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_rec(self, value):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
@@ -474,15 +474,15 @@ class seq_track:
 
 class transport_widget:
     def on_play(self):
-        this_dssi_gui.send_configure("play", "")
+        this_pydaw_project.this_dssi_gui.send_configure("play", "")
     def on_stop(self):
-        this_dssi_gui.send_configure("stop", "")
+        this_pydaw_project.this_dssi_gui.send_configure("stop", "")
     def on_rec(self):
-        this_dssi_gui.send_configure("rec", "")
+        this_pydaw_project.this_dssi_gui.send_configure("rec", "")
     def on_tempo_changed(self, a_tempo):
-        this_dssi_gui.send_configure("tempo", str(a_tempo))
+        this_pydaw_project.this_dssi_gui.send_configure("tempo", str(a_tempo))
     def on_loop_mode_changed(self, a_loop_mode):
-        this_dssi_gui.send_configure("loop", str(a_loop_mode))
+        this_pydaw_project.this_dssi_gui.send_configure("loop", str(a_loop_mode))
 
     def __init__(self):
         self.group_box = QtGui.QGroupBox()
@@ -647,8 +647,11 @@ class pydaw_main_window(QtGui.QMainWindow):
 #Opens or creates a new project
 def global_open_project(a_project_file):
     #this_pydaw_project.session_mgr.quit_hander()
-    global this_pydaw_project
-    this_pydaw_project = pydaw_project(a_project_file)
+    global this_pydaw_project    
+    if(len(argv) >= 2):
+        this_pydaw_project = pydaw_project(a_project_file, (argv[1]))
+    else:
+        this_pydaw_project = pydaw_project(a_project_file)    
     this_song_editor.open_song()
     this_track_editor.open_tracks()
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
@@ -656,7 +659,10 @@ def global_open_project(a_project_file):
 def global_new_project():
     #this_pydaw_project.session_mgr.quit_hander()
     global this_pydaw_project
-    this_pydaw_project = pydaw_project(a_project_file)
+    if(len(argv) >= 2):
+        this_pydaw_project = pydaw_project(a_project_file, (argv[1]))
+    else:
+        this_pydaw_project = pydaw_project(a_project_file)
     this_song_editor.table_widget.clear()
     this_region_editor.table_widget.clear()
     this_item_editor.table_widget.clear()
@@ -665,16 +671,11 @@ def global_new_project():
 
 def about_to_quit():
     this_pydaw_project.session_mgr.quit_hander()
-    this_dssi_gui.stop_server()
+    this_pydaw_project.this_pydaw_project.this_dssi_gui.stop_server()
 
 if __name__ == '__main__':
     for arg in argv:
         print arg
-
-    if(len(argv) >= 2):
-        this_dssi_gui = dssi_gui(argv[1])
-    else:
-        this_dssi_gui = dssi_gui()
 
     app = QtGui.QApplication(sys.argv)
     app.aboutToQuit.connect(about_to_quit)
