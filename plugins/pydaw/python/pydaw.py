@@ -115,14 +115,17 @@ class region_list_editor:
 
     def cell_clicked(self, x, y):
         f_item = self.table_widget.item(x, y)
-        if f_item is None:
-            self.show_cell_dialog(x, y)
-        else:
-            f_item_name = str(f_item.text())
-            if f_item_name != "":
-                this_item_editor.open_item(f_item_name)
-            else:
+        if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
+            if f_item is None:
                 self.show_cell_dialog(x, y)
+            else:
+                f_item_name = str(f_item.text())
+                if f_item_name != "":
+                    this_item_editor.open_item(f_item_name)
+                else:
+                    self.show_cell_dialog(x, y)
+        if this_edit_mode_selector.delete_radiobutton.isChecked():
+            pass
 
     def show_cell_dialog(self, x, y):
         def note_ok_handler():
@@ -131,6 +134,7 @@ class region_list_editor:
                 this_pydaw_project.create_empty_item(f_new_lineedit.text())
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
+            
             this_item_editor.open_item(f_cell_text)
             f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
             self.region.add_item_ref(x, y, f_cell_text)
@@ -181,6 +185,9 @@ class region_list_editor:
         self.region_name_lineedit = QtGui.QLineEdit("Region0")
         self.region_name_lineedit.setEnabled(False)
         self.hlayout0.addWidget(self.region_name_lineedit)
+        self.open_new_items_checkbox = QtGui.QCheckBox("Open New Items In Editor")
+        self.open_new_items_checkbox.setChecked(True)
+        self.hlayout0.addWidget(self.open_new_items_checkbox)
 
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
@@ -200,12 +207,12 @@ class item_list_editor:
         self.notes_table_widget = QtGui.QTableWidget()
         self.notes_table_widget.setColumnCount(5)
         self.notes_table_widget.setRowCount(128)
-        self.notes_table_widget.cellClicked.connect(self.notes_show_event_dialog)
+        self.notes_table_widget.cellClicked.connect(self.notes_click_handler)
 
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setColumnCount(3)
         self.ccs_table_widget.setRowCount(128)
-        self.ccs_table_widget.cellClicked.connect(self.ccs_show_event_dialog)
+        self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
 
         #self.group_box.setMaximumWidth(900)
         self.main_hlayout.addWidget(self.notes_table_widget)
@@ -221,7 +228,8 @@ class item_list_editor:
         self.ccs_table_widget.clear()
         self.set_headers()
         self.item_name = a_item_name
-        this_main_window.main_tabwidget.setCurrentIndex(1)
+        if this_region_editor.open_new_items_checkbox.isChecked():
+            this_main_window.main_tabwidget.setCurrentIndex(1)
         self.item = this_pydaw_project.get_item(a_item_name)
         for k, v in self.item.notes.iteritems():
             f_start_item = QtGui.QTableWidgetItem(str(v.start))
@@ -241,6 +249,22 @@ class item_list_editor:
             self.ccs_table_widget.setItem(k, 1, f_cc_val_item)
             f_start_item = QtGui.QTableWidgetItem(str(v.start))
             self.ccs_table_widget.setItem(k, 2, f_start_item)
+            
+    def notes_click_handler(self, x, y):
+        if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
+            self.notes_show_event_dialog(x, y)
+        elif this_edit_mode_selector.delete_radiobutton.isChecked():            
+            self.item.remove_note(x)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
+    
+    def ccs_click_handler(self, x, y):
+        if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
+            self.ccs_show_event_dialog(x, y)
+        elif this_edit_mode_selector.delete_radiobutton.isChecked():
+            self.item.remove_cc(x)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
 
     def notes_show_event_dialog(self, x, y):
         f_cell = self.notes_table_widget.item(x, y)
@@ -251,12 +275,11 @@ class item_list_editor:
             f_default_octave = 3
             f_default_velocity = 100
         else:
-            f_cell_arr = f_cell.text().split("|")
-            f_default_start = int(float(f_cell_arr[0]))
-            f_default_length = int(float(f_cell_arr[1]))
-            f_default_note = int(f_cell_arr[2]) % 12
-            f_default_octave = (int(f_cell_arr[2]) / 12) - 2
-            f_default_velocity = int(f_cell_arr[3])
+            f_default_start = float(self.notes_table_widget.item(x, 0).text())
+            f_default_length = float(self.notes_table_widget.item(x, 1).text())
+            f_default_note = int(self.notes_table_widget.item(x, 3).text()) % 12
+            f_default_octave = (int(self.notes_table_widget.item(x, 3).text()) / 12) - 2
+            f_default_velocity = int(self.notes_table_widget.item(x, 4).text())
         def note_ok_handler():
             f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
             f_note_name = str(f_note.currentText()) + str(f_octave.value())
@@ -323,10 +346,9 @@ class item_list_editor:
             f_default_cc = 1
             f_default_cc_value = 64
         else:
-            f_cell_arr = f_cell.text().split("|")
-            f_default_start = int(float(f_cell_arr[0]))
-            f_default_cc = int(f_cell_arr[1])
-            f_default_cc_value = int(f_cell_arr[2])
+            f_default_start = float(self.ccs_table_widget.item(x, 0).text())
+            f_default_cc = int(self.ccs_table_widget.item(x, 1).text())
+            f_default_cc_value = int(self.ccs_table_widget.item(x, 2).text())
 
         def cc_ok_handler():
             f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))

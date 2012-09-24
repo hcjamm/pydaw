@@ -229,9 +229,17 @@ class pydaw_region:
 class pydaw_item:
     def add_note(self, a_index, a_note):
         self.notes[a_index] = a_note
+        
+    def remove_note(self, a_index):
+        if a_index in self.notes:        
+            del self.notes[a_index]
 
     def add_cc(self, a_index, a_cc):
         self.ccs[a_index] = a_cc
+        
+    def remove_cc(self, a_index):
+        if a_index in self.ccs:        
+            del self.ccs[a_index]
 
     @staticmethod
     def from_str(a_str):
