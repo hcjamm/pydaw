@@ -415,7 +415,7 @@ class seq_track:
             self.track_name_lineedit.setEnabled(True)
         else:
             self.track_name_lineedit.setEnabled(False)
-        this_pydaw_project.save_tracks(this_track_editor.__str__())
+        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
 
     def __init__(self, a_track_num, a_track_text="track"):
         self.track_number = a_track_num
@@ -670,8 +670,7 @@ def global_new_project():
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
 def about_to_quit():
-    this_pydaw_project.session_mgr.quit_hander()
-    this_pydaw_project.this_pydaw_project.this_dssi_gui.stop_server()
+    this_pydaw_project.quit_handler()
 
 if __name__ == '__main__':
     for arg in argv:

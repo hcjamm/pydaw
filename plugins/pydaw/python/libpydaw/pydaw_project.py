@@ -161,6 +161,10 @@ class pydaw_project:
                 f_result.append(files.split(".pyreg")[0])
         f_result.sort()
         return f_result
+        
+    def quit_handler(self):
+        self.session_mgr.quit_hander()
+        self.this_dssi_gui.stop_server()        
 
     def __init__(self, a_project_file=None, a_osc_url=None):
         self.last_item_number = 0
@@ -175,7 +179,8 @@ class pydaw_song:
         self.regions[a_pos] = a_region_name #TODO:  It may be best just to go ahead and make a child class, for when other parameters are added later
 
     def remove_region_ref(self, a_pos):
-        del self.regions[a_pos]
+        if a_pos in self.regions:
+            del self.regions[a_pos]
 
     def __init__(self):
         self.regions = {}
