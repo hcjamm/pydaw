@@ -12,13 +12,10 @@ key	value	notes
 
 "ss"	file	Save song(file == file name)
 "ns"	file	New song(file == file name)
-"us"	file	Update Song(file==file name)
 "os"	dir|file	Open song(dir=project directory, file=.pysong file)
-"ni"	file	New item(file==file name)
-"ui"	file	Update an item(file==file name)
+"si"	file	Save/update an item(file==file name)
 "di"	file	Delete item(file==file name)
-"nr"	file	New region(file==file name)
-"ur"	file	Update an region(file==file name)
+"sr"	file	Save/update an region(file==file name)
 "dr"	file	Delete region(file==file name)
 "rr"	file|file	Rename a region (old file | new file)
 "ri"	file|file	Rename an item (old file | new file)
@@ -27,6 +24,7 @@ key	value	notes
 "stop"	""	Stop playback or recording
 "tempo"	int	The new tempo
 "loop"	int	The loop mode qcombobox index #Use a LADSPA port instead?
+"tsig"	int|int	Update the time signature(Not planned to be implemented anytime soon, just a placeholder for future functionality)
 
 "vol"	"int|int"  Track volume, track#|dB
 "solo"	"int|bool"	solo track, track#|bool
@@ -38,6 +36,7 @@ project/
 	instruments/
 		project.pyses
 		*-presets.tsv
+		*.u4ia
 	regions/
 		*.pyreg
 	items/
@@ -57,7 +56,6 @@ project/
 Miscellaneous TODO:
 Context menus?  Stuff like, insert, delete, etc...
 Euphoria: Dynamically allocate per-sample data at sample load
-Create a tabwidget for the main area, and move the item editor to a new tab.  Later I can add audio and MIDI event lists...
 Implement event filter to double-click->reset-to-zero the volume sliders
 Add the preset manager class to Modulex
 Implement insert FX instances of Modulex
@@ -65,7 +63,9 @@ Rename this file to just 'spec.txt'
 Implement the ability to specify a device + settings and stop/start the Jack server.  Then deprecate QJackCtl as a dependency...
 Implement an audio specific widget kit much like the libmodsynth widgets I wrote(yet building upon the experience gained there)
 Keep some sort of in-memory index of the various project files, that can be queried directly...  Maybe even a SQLite or MemcacheDB in-memory database...
-Create song_string_factory, region_string_factory, etc...  methods (classes?) to relieve the burden of properly formatting the file strings from the users who may fork PyDAW.  This should also provide reverse functionality for returning a class that can be used to set parameters
-Once the main interface becomes tabbed, create a rudimentary piano-roll viewer using a QTableWidget, just to demonstrate how it could be accomplished for those who may fork PyDAW
+Create a rudimentary piano-roll viewer using a QTableWidget, just to demonstrate how it could be accomplished for those who may fork PyDAW
+Prevent overlapping notes, duplicate events, etc... in the pydaw_project classes
+Implement undo, etc... functionality in the pydaw_project classes
+Implement a 2-folder working-copy/saved setup, where saving a project moves it to the saved directory, and closing a project deletes the working copy.  If the project does not close cleanly, the working copy will still exist, and the user may be prompted to go with the working copy instead of the saved copy.
 
 
