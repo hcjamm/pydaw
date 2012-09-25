@@ -110,7 +110,6 @@ class region_list_editor:
         self.region_name_lineedit.setText(a_file_name)
         self.region = this_pydaw_project.get_region(a_file_name)
         for f_item in self.region.items:
-            print(f_item.item_name)
             self.table_widget.setItem(f_item.track_num, f_item.bar_num, QtGui.QTableWidgetItem(f_item.item_name))
 
     def cell_clicked(self, x, y):

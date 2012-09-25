@@ -175,7 +175,9 @@ static void run_lms_modulex(LADSPA_Handle instance, unsigned long sample_count,
 char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)
 {
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *)instance;
-
+    v_pydaw_parse_configure_message(pydaw_data, key, value);
+    
+    /*
     if (!strcmp(key, "save")) {	
         printf("configure called with key 'save'\n");
         return NULL; //samplerLoadAll(plugin_data, value);    
@@ -185,6 +187,9 @@ char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value
     }
 
     return strdup("error: unrecognized configure key");
+    */
+    
+    return NULL;
 }
 
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)

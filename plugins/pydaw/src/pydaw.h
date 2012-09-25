@@ -48,6 +48,7 @@ extern "C" {
 #include <string.h>
 #include <pthread.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "pydaw_files.h"
     
 typedef struct st_pynote
@@ -59,16 +60,16 @@ typedef struct st_pynote
     float length;    
 }t_pynote;
 
-t_pynote * g_pynote_get();
+t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length);
 
 typedef struct st_pycc
 {
-    int cc_num;
-    int cc_val;
+    char cc_num;
+    char cc_val;
     float start;
 }t_pycc;
 
-t_pycc * g_pycc_get();
+t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start);
 
 typedef struct st_pyitem
 {
@@ -82,8 +83,7 @@ typedef struct st_pyitem
     int resize_factor;
 }t_pyitem;
 
-t_pyitem * g_pyitem_get();
-
+t_pyitem * g_pyitem_get(char * a_name);
 
 typedef struct st_pyregion
 {
@@ -92,7 +92,7 @@ typedef struct st_pyregion
     int column_count;
 }t_pyregion;
 
-t_pyregion * g_pyregion_get();
+t_pyregion * g_pyregion_get(char * a_name);
 
 typedef struct st_pysong
 {
@@ -101,10 +101,33 @@ typedef struct st_pysong
     int max_regions;
 }t_pysong;
 
-t_pysong * g_pysong_get();
+t_pysong * g_pysong_get(char * a_name);
 
 
-t_pysong * g_pysong_get()
+t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length)
+{
+    t_pynote * f_result = (t_pynote*)malloc(sizeof(t_pynote));
+    
+    f_result->length = a_length;
+    f_result->note = a_note;
+    f_result->start = a_start;
+    f_result->velocity = a_vel;
+    
+    return f_result;
+}
+
+t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start)
+{
+    t_pycc * f_result = (t_pycc*)malloc(sizeof(t_pycc));
+    
+    f_result->cc_num = a_cc_num;
+    f_result->cc_val = a_cc_val;
+    f_result->start = a_start;
+    
+    return f_result;
+}
+
+t_pysong * g_pysong_get(char * a_name)
 {
     t_pysong * f_result = (t_pysong*)malloc(sizeof(t_pysong));
     
@@ -115,7 +138,7 @@ t_pysong * g_pysong_get()
     return f_result;
 }
 
-t_pyregion * g_pyregion_get()
+t_pyregion * g_pyregion_get(char * a_name)
 {
     t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));
     
@@ -143,8 +166,8 @@ t_pyitem * g_pyitem_get(char * a_name)
     f_result->resize_factor = 128;
     f_result->max_ccs = (f_result->resize_factor);
     f_result->max_notes = (f_result->resize_factor);
-    f_result->ccs = (t_pycc*)malloc(sizeof(t_pycc));
-    f_result->notes = (t_pynote*)malloc(sizeof(t_pynote));
+    f_result->ccs = (t_pycc*)malloc(sizeof(t_pycc) * (f_result->max_notes));
+    f_result->notes = (t_pynote*)malloc(sizeof(t_pynote) * (f_result->max_ccs));
     
     return f_result;
 }
@@ -170,7 +193,7 @@ t_pydaw_data * g_pydaw_data_get()
     
     //f_result->mutex = PTHREAD_MUTEX_INITIALIZER;
     f_result->tempo = 140.0f;
-    f_result->pysong = g_pysong_get();
+    //f_result->pysong = g_pysong_get();
     f_result->resize_factor = 512;
     f_result->item_count = 0;
     f_result->max_items = (f_result->resize_factor);
@@ -179,9 +202,9 @@ t_pydaw_data * g_pydaw_data_get()
     return f_result;
 }
 
-void v_pydaw_parse_configure_message(t_pydaw_data*, char*, char*);
+void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
-void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, char* a_key, char* a_value)
+void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, const char* a_value)
 {
     //TODO:  Move the obvious most commonly used ones to the top of the stack...
     if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS))  //Save Song
@@ -240,10 +263,22 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, char* a_key, char* a
     {
         
     }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SOLO)) //Set track solo
+    {
+        
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_MUTE)) //Set track mute
+    {
+        
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_VOL)) //Set track volume
+    {
+        
+    }
     
     else
     {
-        printf("Unknown configure message key: %s, value %s", a_key, a_value);
+        printf("Unknown configure message key: %s, value %s\n", a_key, a_value);
     }
         
     
