@@ -19,8 +19,8 @@ key	value	notes
 "dr"	file	Delete region(file==file name)
 "rr"	file|file	Rename a region (old file | new file)
 "ri"	file|file	Rename an item (old file | new file)
-"play"	""	Begin playback
-"rec"	""	Begin recording
+"play"	int|int	Begin playback at region|bar
+"rec"	int|int	Begin recording at region|bar
 "stop"	""	Stop playback or recording
 "tempo"	int	The new tempo
 "loop"	int	The loop mode qcombobox index #Use a LADSPA port instead?

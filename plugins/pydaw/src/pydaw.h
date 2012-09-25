@@ -29,13 +29,10 @@ extern "C" {
     
 #define PYDAW_CONFIGURE_KEY_SS "ss"
 #define PYDAW_CONFIGURE_KEY_NS "ns"
-#define PYDAW_CONFIGURE_KEY_US "us"
 #define PYDAW_CONFIGURE_KEY_OS "os"
-#define PYDAW_CONFIGURE_KEY_NI "ni"
-#define PYDAW_CONFIGURE_KEY_UI "ui"
+#define PYDAW_CONFIGURE_KEY_SI "si"
 #define PYDAW_CONFIGURE_KEY_DI "di"
-#define PYDAW_CONFIGURE_KEY_NR "nr"
-#define PYDAW_CONFIGURE_KEY_UR "ur"
+#define PYDAW_CONFIGURE_KEY_SR "sr"
 #define PYDAW_CONFIGURE_KEY_DR "dr"
 #define PYDAW_CONFIGURE_KEY_RR "rr"
 #define PYDAW_CONFIGURE_KEY_RI "ri"
@@ -43,11 +40,15 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_REC "rec"
 #define PYDAW_CONFIGURE_KEY_STOP "stop"
 #define PYDAW_CONFIGURE_KEY_LOOP "loop"
-
+#define PYDAW_CONFIGURE_KEY_TSIG "tsig"
+#define PYDAW_CONFIGURE_KEY_VOL "vol"
+#define PYDAW_CONFIGURE_KEY_SOLO "solo"
+#define PYDAW_CONFIGURE_KEY_MUTE "mute"
     
 #include <string.h>
 #include <pthread.h>
 #include <stdio.h>
+#include "pydaw_files.h"
     
 typedef struct st_pynote
 {
@@ -191,7 +192,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, char* a_key, char* a
     {
         
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_US)) //Update Song
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS)) //Update Song
     {
         
     }
@@ -199,11 +200,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, char* a_key, char* a
     {
         
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_NI)) //New Item
-    {
-        
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_UI)) //Update Item
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SI)) //Save Item
     {
         
     }
@@ -211,11 +208,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, char* a_key, char* a
     {
         
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_NR)) //New region
-    {
-        
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_UR)) //Update region
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR)) //Save region
     {
         
     }
