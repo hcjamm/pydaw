@@ -68,16 +68,12 @@ typedef struct st_pynote
     float length;    
 }t_pynote;
 
-t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length);
-
 typedef struct st_pycc
 {
     char cc_num;
     char cc_val;
     float start;
 }t_pycc;
-
-t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start);
 
 typedef struct st_pyitem
 {
@@ -91,16 +87,13 @@ typedef struct st_pyitem
     int cc_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
 }t_pyitem;
 
-t_pyitem * g_pyitem_get(char * a_name);
-
 typedef struct st_pyregion
 {
     int items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool
     int row_count;
-    int column_count;    
+    int column_count;
+    char * name;
 }t_pyregion;
-
-t_pyregion * g_pyregion_get(char * a_name);
 
 typedef struct st_pysong
 {
@@ -109,8 +102,6 @@ typedef struct st_pysong
     int max_regions;
 }t_pysong;
 
-t_pysong * g_pysong_get(char * a_name);
-
 typedef struct st_pytrack
 {
     float volume;
@@ -118,7 +109,35 @@ typedef struct st_pytrack
     int mute;    
 }t_pytrack;
 
+typedef struct st_pydaw_data
+{
+    float tempo;
+    pthread_mutex_t mutex;
+    t_pysong * pysong;
+    t_pyitem * item_pool[PYDAW_MAX_ITEM_COUNT];
+    t_pyregion * region_pool[PYDAW_MAX_REGION_COUNT];
+    t_pytrack * track_pool[PYDAW_MAX_TRACK_COUNT];
+    int item_count;
+    int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
+    int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
+    char * project_name;
+    char * project_folder;
+    char * item_folder;
+    char * region_folder;
+}t_pydaw_data;
+
+void g_pysong_get(t_pydaw_data* a_pydaw);
 t_pytrack * g_pytrack_get();
+void g_pyregion_get(t_pydaw_data* a_pydaw, const char*);
+void g_pyitem_get(t_pydaw_data* a_pydaw, char * a_name);
+t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start);
+t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length);
+t_pydaw_data * g_pydaw_data_get();
+int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name);
+int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name);
+void v_open_project(t_pydaw_data*, char*, char*);
+
+/*End declarations.  Begin implementations.*/
 
 t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length)
 {
@@ -143,21 +162,29 @@ t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start)
     return f_result;
 }
 
-t_pysong * g_pysong_get(char * a_name)
+void g_pysong_get(t_pydaw_data* a_pydaw)
 {
     t_pysong * f_result = (t_pysong*)malloc(sizeof(t_pysong));
     
     f_result->region_count = 0;
     f_result->max_regions = PYDAW_MAX_REGION_COUNT;
     
-    return f_result;
+    if(a_pydaw->pysong)
+    {
+        free(a_pydaw->pysong);
+    }
+    
+    a_pydaw->pysong = f_result;
 }
 
-t_pyregion * g_pyregion_get(char * a_name)
+void g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
 {
     t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));
+    f_result->name = (char*)malloc(sizeof(char) * 32);
+    strcpy(f_result->name, a_name);
     
-    int f_i, f_i2 = 0;
+    int f_i = 0; 
+    int f_i2 = 0;
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
@@ -169,10 +196,40 @@ t_pyregion * g_pyregion_get(char * a_name)
         f_i++;
     }
     
-    return f_result;
+    char * f_full_path = (char*)malloc(sizeof(char) * 256);
+    strcpy(f_full_path, a_pydaw->region_folder);
+    strcat(f_full_path, a_name);
+    strcat(f_full_path, ".pyreg");
+    
+    t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);
+    
+    free(f_full_path);
+
+    f_i = 0;
+
+    while(f_i < 128)
+    {            
+        char * f_x_char = c_iterate_2d_char_array(f_current_string);
+        if(f_current_string->eof)
+        {
+            break;
+        }
+        int f_x = atoi(f_x_char);
+        free(f_x_char);
+        char * f_y_char = c_iterate_2d_char_array(f_current_string);
+        int f_y = atoi(f_y_char);
+        free(f_y_char);
+        char * f_item_name = c_iterate_2d_char_array(f_current_string);            
+        f_result->items[f_x][f_y] = i_get_item_index_from_name(a_pydaw, f_item_name);            
+        free(f_item_name);            
+
+        f_i++;
+    }
+
+    free(f_current_string);
 }
 
-t_pyitem * g_pyitem_get(char * a_name)
+void g_pyitem_get(t_pydaw_data* a_pydaw, char * a_name)
 {
     t_pyitem * f_result = (t_pyitem*)malloc(sizeof(t_pyitem));
     
@@ -180,7 +237,19 @@ t_pyitem * g_pyitem_get(char * a_name)
     f_result->cc_count = 0;
     f_result->note_count = 0;
     
-    return f_result;
+    int f_existing_item_index = i_get_item_index_from_name(a_pydaw, a_name);
+    
+    //TODO:  Populate f_result here from the file
+    
+    if(f_existing_item_index == -1)
+    {
+        a_pydaw->item_pool[(a_pydaw->item_count)] = f_result;
+    }
+    else
+    {
+        free(a_pydaw->item_pool[f_existing_item_index]);
+        a_pydaw->item_pool[f_existing_item_index] = f_result;
+    }    
 }
 
 t_pytrack * g_pytrack_get()
@@ -194,21 +263,6 @@ t_pytrack * g_pytrack_get()
     return f_result;
 }
 
-typedef struct st_pydaw_data
-{
-    float tempo;
-    pthread_mutex_t mutex;
-    t_pysong * pysong;
-    t_pyitem * item_pool[PYDAW_MAX_ITEM_COUNT];
-    t_pyregion * region_pool[PYDAW_MAX_REGION_COUNT];
-    t_pytrack * track_pool[PYDAW_MAX_TRACK_COUNT];
-    int item_count;
-    int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
-    int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
-}t_pydaw_data;
-
-t_pydaw_data * g_pydaw_data_get();
-
 t_pydaw_data * g_pydaw_data_get()
 {
     t_pydaw_data * f_result = (t_pydaw_data*)malloc(sizeof(t_pydaw_data));
@@ -217,6 +271,10 @@ t_pydaw_data * g_pydaw_data_get()
     f_result->tempo = 140.0f;
     //f_result->pysong = g_pysong_get();    
     f_result->item_count = 0;
+    f_result->project_name = (char*)malloc(sizeof(char) * 200);
+    f_result->project_folder = (char*)malloc(sizeof(char) * 200);
+    f_result->item_folder = (char*)malloc(sizeof(char) * 200);
+    f_result->region_folder = (char*)malloc(sizeof(char) * 200);
     
     int f_i = 0;
     
@@ -248,6 +306,43 @@ int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name)
     return -1;
 }
 
+//This will eventually get a real indexing algorithm.  Although generally it shouldn't have noticeably
+//bad performance on a modern CPU because it's only called when the user does something in the UI.
+int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name)
+{
+    int f_i = 0;
+    
+    while(f_i < a_pydaw_data->item_count)
+    {
+        if(!strcmp((a_pydaw_data->region_pool[f_i]->name), a_name))
+        {
+            return f_i;
+        }
+        
+        f_i++;
+    }
+    
+    return -1;
+}
+
+void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
+{
+    strcpy(a_pydaw->project_folder, a_project_folder);
+    strcat(a_pydaw->project_folder, "/");
+    strcpy(a_pydaw->item_folder, a_pydaw->project_folder);
+    strcat(a_pydaw->item_folder, "items/");
+    strcpy(a_pydaw->region_folder, a_pydaw->project_folder);
+    strcat(a_pydaw->region_folder, "regions/");
+    strcpy(a_pydaw->project_name, a_name);
+    
+    if(a_pydaw->pysong)
+    {
+        free(a_pydaw->pysong);
+    }
+    
+    g_pysong_get(a_pydaw);
+}
+
 void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode)
 {
     
@@ -265,17 +360,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
 {
     if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR)) //Save region
     {
-        t_2d_char_array * f_array = g_get_2d_array_from_file(a_value, LMS_LARGE_STRING);
-        
-        int f_i = 0;
-        while(f_i < 6)
-        {
-            char * test = c_iterate_2d_char_array(f_array);
-            printf("test == \"%s\"\n", test); 
-            free(test);
-            f_i++;
-        }
-        g_free_2d_char_array(f_array);
+        printf("%s\n", a_value);
+        g_pyregion_get(a_pydaw, a_value);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SI)) //Save Item
     {
@@ -308,7 +394,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OS)) //Open Song
     {
-        
+        t_1d_char_array * f_arr = c_split_str(a_value, '|', 2, LMS_SMALL_STRING);
+        v_open_project(a_pydaw, f_arr->array[0], f_arr->array[1]);
+        g_free_1d_char_array(f_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_DI)) //Delete Item
     {

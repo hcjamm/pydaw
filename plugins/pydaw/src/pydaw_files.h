@@ -21,30 +21,29 @@ extern "C" {
     
 #include <stdio.h>
     
-char * get_string_from_file(char * a_file, int a_size)
+char * get_string_from_file(const char * a_file, int a_size)
 {
     char * f_buffer = (char*)malloc(sizeof(char) * a_size);
-    FILE * f_file;
-	
-    f_file = fopen(a_file, "r");
-	
-    fread(f_buffer, sizeof(char), sizeof(char) * a_size, f_file);    
-	
-    fclose(f_file);
-    
+    FILE * f_file;	
+    f_file = fopen(a_file, "r");	
+    fread(f_buffer, sizeof(char), sizeof(char) * a_size, f_file);	
+    fclose(f_file);    
     return f_buffer;
 }
 
 typedef struct st_1d_char_array
 {
     char ** array;
-    int x_count;    
+    int x_count;
 }t_1d_char_array;
 
 typedef struct st_2d_char_array
 {
     char * array;  //allocate a continuous chunk of memory, otherwise we would need to free possibly thousands of pointers
     int current_index;
+    int current_row;
+    int current_column;
+    int eof;
 }t_2d_char_array;
 
 void g_free_1d_char_array(t_1d_char_array * a_array)
@@ -69,7 +68,7 @@ void g_free_2d_char_array(t_2d_char_array * a_array)
 
 /* A specialized split function.  Column count and string size will always be known in advance
  for all of the use cases in PyDAW*/
-t_1d_char_array * c_split_str(char * a_input, char a_delim, int a_column_count, int a_string_size)
+t_1d_char_array * c_split_str(const char * a_input, char a_delim, int a_column_count, int a_string_size)
 {
     int f_i = 0;
     int f_current_string_index = 0;
@@ -117,15 +116,16 @@ t_1d_char_array * c_split_str(char * a_input, char a_delim, int a_column_count, 
 
 /* Return a 2d array of strings from a file delimited by "|" and "\n" individual fields are 
  * limited to being the size of LMS_TINY_STRING */
-t_2d_char_array * g_get_2d_array_from_file(char * a_file, int a_size)
+t_2d_char_array * g_get_2d_array_from_file(const char * a_file, int a_size)
 {    
     t_2d_char_array * f_result = (t_2d_char_array*)malloc(sizeof(t_2d_char_array));
     
     f_result->array = get_string_from_file(a_file, a_size);
     f_result->current_index = 0;
-    
-    return f_result;
-    
+    f_result->current_row = 0;
+    f_result->current_column = 0;
+    f_result->eof = 0;
+    return f_result;    
 }
 
 /* Return the next string from the array*/
@@ -136,16 +136,25 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
         
     while(1)
     {
-        if((a_array->array[(a_array->current_index)] == '|') || (a_array->array[(a_array->current_index)] == '\n'))        
+        if(a_array->array[(a_array->current_index)] == '|')
         {   
             f_result[f_i] = '\0';
             a_array->current_index = (a_array->current_index) + 1;
+            a_array->current_column = (a_array->current_column) + 1;
+            break;
+        }
+        else if(a_array->array[(a_array->current_index)] == '\n')
+        {
+            f_result[f_i] = '\0';
+            a_array->current_index = (a_array->current_index) + 1;
+            a_array->current_row = (a_array->current_row) + 1;
+            a_array->current_column = 0;
             break;
         }
         else if(a_array->array[(a_array->current_index)] == '\0')
         {
             f_result[f_i] = '\0';
-            a_array->current_index = (a_array->current_index) + 1;
+            a_array->eof = 1;
             break;
         }
         else
