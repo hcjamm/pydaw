@@ -42,9 +42,8 @@ char * get_string_from_file(char * a_file, int a_size)
 typedef struct st_1d_char_array
 {
     char ** array;
-    int x_count;
-    int y_count;
-}t_2d_char_array;
+    int x_count;    
+}t_1d_char_array;
 
 typedef struct st_2d_char_array
 {
@@ -53,19 +52,56 @@ typedef struct st_2d_char_array
     int y_count;
 }t_2d_char_array;
 
+void g_free_1d_char_array(t_1d_char_array * a_array)
+{
+    int f_i = 0;
+    
+    while(f_i < (a_array->x_count))
+    {
+        free(a_array->array[f_i]);
+        f_i++;
+    }
+    
+    free(a_array->array);    
+    free(a_array);
+}
+
+void g_free_2d_char_array(t_2d_char_array * a_array)
+{
+    int f_i, f_i2 = 0;
+    
+    while(f_i < (a_array->x_count))
+    {
+        f_i2 = 0;
+        
+        while(f_i2 < (a_array->y_count))
+        {
+            free(a_array->array[f_i][f_i2]);
+        }
+        
+        free(a_array->array[f_i]);
+        f_i++;
+    }
+    
+    free(a_array->array);    
+    free(a_array);
+}
+
 /* A specialized split function.  Column count and string size will always be known in advance
  for all of the use cases in PyDAW*/
-char ** c_split_str(char * a_input, char a_delim, int a_column_count, int a_string_size)
+t_1d_char_array * c_split_str(char * a_input, char a_delim, int a_column_count, int a_string_size)
 {
     int f_i = 0;
     int f_current_string_index = 0;
     int f_current_column = 0;
     
-    char ** f_result = (char**)malloc(sizeof(char) * a_column_count);
+    t_1d_char_array * f_result = (t_1d_char_array*)malloc(sizeof(t_1d_char_array));
+    f_result->array = (char**)malloc(sizeof(char) * a_column_count);
+    f_result->x_count = a_column_count;
     
     while(f_i < a_column_count)
     {
-        f_result[f_i] = (char*)malloc(sizeof(char) * a_string_size);
+        f_result->array[f_i] = (char*)malloc(sizeof(char) * a_string_size);
         f_i++;
     }
     
@@ -89,7 +125,7 @@ char ** c_split_str(char * a_input, char a_delim, int a_column_count, int a_stri
         }
         else
         {
-            f_result[f_current_column][f_current_string_index] = a_input[f_i];
+            f_result->array[f_current_column][f_current_string_index] = a_input[f_i];
             f_current_string_index++;
         }
         

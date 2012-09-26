@@ -326,12 +326,11 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_VOL)) //Set track volume
     {
-        printf("%s\n", a_value);
-        char ** f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
-        int f_track_num = atoi(f_val_arr[0]);
-        float f_track_vol = atof(f_val_arr[1]);
-        printf("%s, %s\n", f_val_arr[0], f_val_arr[1]);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        int f_track_num = atoi(f_val_arr->array[0]);
+        float f_track_vol = atof(f_val_arr->array[1]);
         a_pydaw->track_pool[f_track_num]->volume = f_track_vol;
+        g_free_1d_char_array(f_val_arr);
         printf("vol[%i] == %f\n", f_track_num, (a_pydaw->track_pool[f_track_num]->volume));
     }
     
