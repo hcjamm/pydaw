@@ -306,19 +306,20 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PLAY)) //Begin playback
     {
-        
+        v_set_playback_mode(a_pydaw, 1);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC)) //Begin recording
     {
-        
+        v_set_playback_mode(a_pydaw, 2);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_STOP)) //Stop playback or recording
     {
-        
+        v_set_playback_mode(a_pydaw, 0);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_LOOP)) //Set loop mode
     {
-        
+        int f_value = atoi(a_value);
+        v_set_loop_mode(a_pydaw, f_value);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SOLO)) //Set track solo
     {
