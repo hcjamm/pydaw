@@ -157,7 +157,10 @@ int main(int argc, char** argv) {
     //midi_open();
     //snd_seq_close(seq);
     
-    v_pydaw_parse_configure_message(0, "sr", "/home/bob/dssi/pydaw/default-project/regions/region-1.pyreg");
+    t_pydaw_data * f_data = g_pydaw_data_get();
+    f_data->region_folder = "/home/bob/dssi/pydaw/default-project/regions/";
+    v_pydaw_parse_configure_message(f_data, "sr", "region-1");
+    v_pydaw_parse_configure_message(f_data, "sr", "region-1");
     
     return 0; //(EXIT_SUCCESS);
 }
