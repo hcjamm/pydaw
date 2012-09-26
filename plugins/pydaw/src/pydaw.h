@@ -263,20 +263,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, const char* a_value)
 {
-    //TODO:  Move the obvious most commonly used ones to the top of the stack...
-    if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS))  //Save Song
-    {
-        //Nothing for now, placeholder for future functionality
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_NS)) //New Song
-    {
-        
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS)) //Update Song
-    {
-        
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OS)) //Open Song
+    if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR)) //Save region
     {
         
     }
@@ -284,25 +271,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
     {
         
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_DI)) //Delete Item
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS))  //Save Song
     {
-        
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR)) //Save region
-    {
-        
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_DR)) //Delete region
-    {
-        
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RR)) //Rename region
-    {
-        
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RI)) //Rename item
-    {
-        
+        //Nothing for now, placeholder for future functionality
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PLAY)) //Begin playback
     {
@@ -321,6 +292,30 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
         int f_value = atoi(a_value);
         v_set_loop_mode(a_pydaw, f_value);
     }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_NS)) //New Song
+    {
+        
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OS)) //Open Song
+    {
+        
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_DI)) //Delete Item
+    {
+        
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_DR)) //Delete region
+    {
+        
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RR)) //Rename region
+    {
+        
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RI)) //Rename item
+    {
+        
+    }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SOLO)) //Set track solo
     {
         
@@ -331,7 +326,13 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_VOL)) //Set track volume
     {
-        
+        printf("%s\n", a_value);
+        char ** f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        int f_track_num = atoi(f_val_arr[0]);
+        float f_track_vol = atof(f_val_arr[1]);
+        printf("%s, %s\n", f_val_arr[0], f_val_arr[1]);
+        a_pydaw->track_pool[f_track_num]->volume = f_track_vol;
+        printf("vol[%i] == %f\n", f_track_num, (a_pydaw->track_pool[f_track_num]->volume));
     }
     
     else

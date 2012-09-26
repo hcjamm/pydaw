@@ -39,6 +39,13 @@ char * get_string_from_file(char * a_file, int a_size)
     return f_buffer;
 }
 
+typedef struct st_1d_char_array
+{
+    char ** array;
+    int x_count;
+    int y_count;
+}t_2d_char_array;
+
 typedef struct st_2d_char_array
 {
     char *** array;
@@ -51,7 +58,6 @@ typedef struct st_2d_char_array
 char ** c_split_str(char * a_input, char a_delim, int a_column_count, int a_string_size)
 {
     int f_i = 0;
-    int f_index = 0;
     int f_current_string_index = 0;
     int f_current_column = 0;
     
@@ -75,7 +81,7 @@ char ** c_split_str(char * a_input, char a_delim, int a_column_count, int a_stri
                 break;
             }
             f_current_string_index = 0;
-            f_index += a_string_size;
+            
         }
         else if((a_input[f_i] == '\n') || (a_input[f_i] == '\0'))
         {
@@ -83,7 +89,7 @@ char ** c_split_str(char * a_input, char a_delim, int a_column_count, int a_stri
         }
         else
         {
-            f_result[f_current_column][(f_index + f_current_string_index)] = a_input[f_i];
+            f_result[f_current_column][f_current_string_index] = a_input[f_i];
             f_current_string_index++;
         }
         
