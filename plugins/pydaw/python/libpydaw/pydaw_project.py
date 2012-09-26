@@ -217,8 +217,7 @@ class pydaw_region:
     def __str__(self):
         f_result = ""
         for f_item in self.items:
-            f_result += str(f_item.track_num) + "|" + str(f_item.bar_num) + "|" + f_item.item_name + "\n"
-        print("pydaw_region.__str__():\n" + f_result)
+            f_result += str(f_item.track_num) + "|" + str(f_item.bar_num) + "|" + f_item.item_name + "\n"        
         return f_result
 
     @staticmethod

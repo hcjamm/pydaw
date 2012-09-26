@@ -46,9 +46,48 @@ typedef struct st_2d_char_array
     int y_count;
 }t_2d_char_array;
 
+/* A specialized split function.  Column count and string size will always be known in advance
+ for all of the use cases in PyDAW*/
+char * c_split_str(char * a_input, char a_delim, int a_column_count, int a_string_size)
+{
+    int f_i = 0;
+    int f_index = 0;
+    int f_current_string_index = 0;
+    int f_current_column = 0;
+    
+    char * f_result = (char*)malloc(sizeof(char) * a_column_count * a_string_size);
+    
+    while(1)
+    {
+        if(a_input[f_i] == a_delim)
+        {
+            f_current_column++;
+            if(f_current_column >= a_column_count)
+            {
+                break;
+            }
+            f_current_string_index = 0;
+            f_index += a_string_size;
+        }
+        else if((a_input[f_i] == '\n') || (a_input[f_i] == '\0'))
+        {
+            break;
+        }
+        else
+        {
+            f_result[(f_index + f_current_string_index)] = a_input[f_i];
+            f_current_string_index++;
+        }
+        
+        f_i++;
+    }
+    
+    return f_result;
+}
+
 /* Return a 2d array of strings from a file delimited by "|" and "\n" individual fields are 
  * limited to being the size of LMS_TINY_STRING */
-t_2d_char_array * get_2d_array_from_file(char * a_file, int a_size)
+t_2d_char_array * g_get_2d_array_from_file(char * a_file, int a_size)
 {
     char * f_file_chars = get_string_from_file(a_file, a_size);
     

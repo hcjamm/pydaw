@@ -99,7 +99,7 @@ class song_editor:
         self.group_box.setLayout(self.main_vlayout)
 
         self.table_widget = QtGui.QTableWidget()
-        self.table_widget.setColumnCount(100)
+        self.table_widget.setColumnCount(300)
         self.table_widget.setRowCount(1)
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.main_vlayout.addWidget(self.table_widget)
