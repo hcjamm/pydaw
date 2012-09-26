@@ -10,15 +10,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
 #include <alsa/asoundlib.h>
 #include <alsa/seq.h>
 #include <alsa/seq_event.h>
 #include <alsa/seq_midi_event.h>
 #include <alsa/seqmid.h>
-
+*/
 /*Change these to the project you would like to debug*/
-#include "../../plugins/libmodsynth/lib/lms_sequencer.h"
-
+//#include "../../plugins/libmodsynth/lib/lms_sequencer.h"
+#include "../../plugins/pydaw/src/pydaw.h"
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
 #define LMS_DEBUGGER_PROJECT
@@ -153,8 +154,10 @@ int main(int argc, char** argv) {
     }
     */
 
-    midi_open();
+    //midi_open();
     //snd_seq_close(seq);
+    
+    v_pydaw_parse_configure_message(0, "sr", "/home/bob/dssi/pydaw/default-project/regions/region-1.pyreg");
     
     return 0; //(EXIT_SUCCESS);
 }

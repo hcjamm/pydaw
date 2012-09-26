@@ -265,7 +265,11 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
 {
     if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR)) //Save region
     {
+        t_2d_char_array * f_array = g_get_2d_array_from_file(a_value, LMS_LARGE_STRING);
+                
+        printf("array[0][0] == %s\n", f_array->array[0][0]);
         
+        g_free_2d_char_array(f_array);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SI)) //Save Item
     {

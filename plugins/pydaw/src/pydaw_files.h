@@ -31,7 +31,7 @@ char * get_string_from_file(char * a_file, int a_size)
     while (!feof(f_file))
     {
         fgets(f_buffer,a_size,f_file);
-        printf("%s",f_buffer);
+        //printf("%s",f_buffer);
     }
 	
     fclose(f_file);
@@ -70,13 +70,14 @@ void g_free_2d_char_array(t_2d_char_array * a_array)
 {
     int f_i, f_i2 = 0;
     
-    while(f_i < (a_array->x_count))
+    while(f_i < (a_array->y_count))
     {
         f_i2 = 0;
         
-        while(f_i2 < (a_array->y_count))
+        while(f_i2 < (a_array->x_count))
         {
             free(a_array->array[f_i][f_i2]);
+            f_i2++;
         }
         
         free(a_array->array[f_i]);
@@ -144,7 +145,8 @@ t_2d_char_array * g_get_2d_array_from_file(char * a_file, int a_size)
     t_2d_char_array * f_result = (t_2d_char_array*)malloc(sizeof(t_2d_char_array));
     
     f_result->x_count = 0;
-    int f_i = 0;
+    int f_i, f_i2 = 0;
+    
     while(f_i < a_size)  //Count the width of the rows.  It's assumed that every row will have the same column count, if not, the file is malformed
     {
         if(f_file_chars[f_i] == '|')
@@ -175,26 +177,57 @@ t_2d_char_array * g_get_2d_array_from_file(char * a_file, int a_size)
         f_i++;
     }
     
-    f_result->array = (char***)malloc(sizeof(char*) * (f_result->x_count));
+    f_result->array = (char***)malloc(sizeof(char**) * (f_result->y_count));
     
     f_i = 0;
-    int f_i2 = 0;
+    f_i2 = 0;
     
-    while(f_i < (f_result->x_count))
+    while(f_i < (f_result->y_count))
     {
-        f_result->array[f_i] = (char**)malloc(sizeof(char*) * (f_result->y_count));
+        f_result->array[f_i] = (char**)malloc(sizeof(char*) * (f_result->x_count));
         
-        while(f_i2 < (f_result->y_count))
+        while(f_i2 < (f_result->x_count))
         {
             f_result->array[f_i][f_i2] = (char*)malloc(sizeof(char) * LMS_TINY_STRING);
-                        
             f_i2++;
         }
         
         f_i++;
-    }
+    }    
     
-    //TODO:  Populate the array here...
+    f_i = 0;
+    
+    int f_current_column = 0;
+    int f_current_row = 0;
+    int f_current_string_index = 0;
+    
+    while(1)
+    {
+        if(f_file_chars[f_i] == '|')
+        {
+            f_current_column++;
+            
+            f_current_string_index = 0;
+            
+        }
+        else if(f_file_chars[f_i] == '\n')
+        {
+            f_current_string_index = 0;
+            f_current_column = 0;
+            f_current_row++;
+        }
+        else if(f_file_chars[f_i] == '\0')
+        {
+            break;
+        }
+        else
+        {
+            f_result->array[f_current_row][f_current_column][f_current_string_index] = f_file_chars[f_i];
+            f_current_string_index++;
+        }
+        
+        f_i++;
+    }
     
     return f_result;
     

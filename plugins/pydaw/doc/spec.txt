@@ -54,6 +54,7 @@ project/
 #Maybe separate .pyitem into .pynotes, .pyccs and eventually .pyaudio files?
 
 Miscellaneous TODO:
+An indexing algorithm in the C back-end for resolving item name to array index.
 Add an item_editor combobox and a region_editor combobox, then have a default item and region opened when the project opens
 Euphoria: Dynamically allocate per-sample data at sample load
 Implement event filter to double-click->reset-to-zero the volume sliders

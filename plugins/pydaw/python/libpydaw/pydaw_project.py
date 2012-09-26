@@ -112,13 +112,14 @@ class pydaw_project:
         f_file = open(self.items_folder + "/" + a_name + ".pyitem", 'w')
         f_file.write(a_item.__str__())
         f_file.close()
-        self.this_dssi_gui.send_configure("si", a_name)
+        self.this_dssi_gui.send_configure("si", self.items_folder + "/" + a_name + ".pyitem")
 
     def save_region(self, a_name, a_region):
-        f_file = open(self.regions_folder + "/" + a_name + ".pyreg", 'w')
+        f_file_name = self.regions_folder + "/" + a_name + ".pyreg"
+        f_file = open(f_file_name, 'w')
         f_file.write(a_region.__str__())
         f_file.close()
-        self.this_dssi_gui.send_configure("sr", a_name)
+        self.this_dssi_gui.send_configure("sr", f_file_name)
 
     def save_song(self, a_song):
         f_file = open(self.project_folder + "/" + self.project_file + ".pysong", 'w')
