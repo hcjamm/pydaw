@@ -54,7 +54,7 @@ project/
 #Maybe separate .pyitem into .pynotes, .pyccs and eventually .pyaudio files?
 
 Miscellaneous TODO:
-Context menus?  Stuff like, insert, delete, etc...
+Add an item_editor combobox and a region_editor combobox, then have a default item and region opened when the project opens
 Euphoria: Dynamically allocate per-sample data at sample load
 Implement event filter to double-click->reset-to-zero the volume sliders
 Add the preset manager class to Modulex
@@ -63,9 +63,93 @@ Rename this file to just 'spec.txt'
 Implement the ability to specify a device + settings and stop/start the Jack server.  Then deprecate QJackCtl as a dependency...
 Implement an audio specific widget kit much like the libmodsynth widgets I wrote(yet building upon the experience gained there)
 Keep some sort of in-memory index of the various project files, that can be queried directly...  Maybe even a SQLite or MemcacheDB in-memory database...
-Create a rudimentary piano-roll viewer using a QTableWidget, just to demonstrate how it could be accomplished for those who may fork PyDAW
 Prevent overlapping notes, duplicate events, etc... in the pydaw_project classes
 Implement undo, etc... functionality in the pydaw_project classes
 Implement a 2-folder working-copy/saved setup, where saving a project moves it to the saved directory, and closing a project deletes the working copy.  If the project does not close cleanly, the working copy will still exist, and the user may be prompted to go with the working copy instead of the saved copy.
 
 
+Context menus?  Stuff like, insert, delete, etc...
+
+   1 import sys
+   2 from PyQt4.QtCore import Qt
+   3 from PyQt4.QtGui import *
+   4 
+   5 app = QApplication([])
+   6 tableWidget = QTableWidget()
+   7 tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
+   8 
+   9 def openMenu(position): #The signal delivers a QPoint value
+  10 
+  11     menu = QMenu()
+  12     quitAction = menu.addAction("Quit")
+  13     action = menu.exec_(tableWidget.mapToGlobal(position))
+  14     if action == quitAction:
+  15         qApp.quit()
+  16 
+  17 tableWidget.customContextMenuRequested.connect(openMenu)
+  18 tableWidget.show()
+  19 sys.exit(app.exec_()
+
+
+
+
+Create a rudimentary piano-roll viewer using a QTableWidget, just to demonstrate how it could be accomplished for those who may fork PyDAW.  Some relevant code snippets from the internet:
+
+item=new QTableWidgetItem("text for the row header");
+item->setBackground(QBrush(QColor(255,0,0)); //red background
+item->setForeground(QBrush(QColor(0,255,0)); // green text
+my_table->setVerticalHeaderItem(r, item); // item is placed on the header of row r
+
+import sys
+from PyQt4 import QtGui
+from PyQt4 import QtCore
+
+class Button(QtGui.QPushButton):
+
+    def __init__(self, title, parent):
+        super(Button, self).__init__(title, parent)
+
+    def mouseMoveEvent(self, e):
+        if e.buttons() != QtCore.Qt.RightButton:
+            return 
+
+        mimeData = QtCore.QMimeData()
+        drag = QtGui.QDrag(self)
+        drag.setMimeData(mimeData)
+        drag.setHotSpot(e.pos() - self.rect().topLeft())
+
+        dropAction = drag.start(QtCore.Qt.MoveAction)
+
+    def mousePressEvent(self, e):
+        if e.button() == QtCore.Qt.LeftButton:
+            print 'Left Button Pressed'
+
+
+class MyTable(QtGui.QTableWidget):
+
+    def __init__(self, rows, columns, butObject, parent):
+        super(MyTable, self).__init__(rows, columns, parent)
+        self.setAcceptDrops(True)
+        self.butObject = butObject
+
+    def dragEnterEvent(self, e):
+        e.accept()
+
+
+When you drop the button into the table, does the 'print position' work? It should be printing out the coords of the drop position to your shell. I think you need to use those to then insert the button into the table.
+
+Got it working - change your drop event to this:
+
+    position = e.pos()
+
+    print position
+
+    row = self.rowAt(position.y())
+
+    column = self.columnAt(position.x())
+
+    self.setCellWidget(row,column,self.butObject)
+
+    e.setDropAction(QtCore.Qt.MoveAction)
+    e.accept()
+ 

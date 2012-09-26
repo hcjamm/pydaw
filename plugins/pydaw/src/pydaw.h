@@ -45,6 +45,13 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_SOLO "solo"
 #define PYDAW_CONFIGURE_KEY_MUTE "mute"
     
+//arbitrary, I may change these 3 after evaluating memory use vs. probable item count in a real project
+#define PYDAW_MAX_ITEM_COUNT 5000
+#define PYDAW_MAX_REGION_COUNT 300
+#define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 128
+#define PYDAW_MAX_TRACK_COUNT 16
+#define PYDAW_REGION_SIZE 8
+    
 #include <string.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -54,6 +61,7 @@ extern "C" {
 typedef struct st_pynote
 {
     //TODO:  Include the native ALSA types to pass, to avoid having to free them later?
+    //TODO TODO:  It may be more efficient to process as Int?
     char note;
     char velocity;
     float start;
@@ -74,35 +82,43 @@ t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start);
 typedef struct st_pyitem
 {
     char * name;
-    t_pynote * notes;
-    int note_count;
-    int max_notes;
-    t_pycc * ccs;
+    t_pynote * notes[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
+    int note_count;    
+    t_pycc * ccs[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
     int cc_count;
-    int max_ccs;
     int resize_factor;
+    int note_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
+    int cc_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
 }t_pyitem;
 
 t_pyitem * g_pyitem_get(char * a_name);
 
 typedef struct st_pyregion
 {
-    t_pyitem ** items;
+    int items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool
     int row_count;
-    int column_count;
+    int column_count;    
 }t_pyregion;
 
 t_pyregion * g_pyregion_get(char * a_name);
 
 typedef struct st_pysong
 {
-    t_pyregion * regions;
     int region_count;
+    int region_index[PYDAW_MAX_REGION_COUNT];
     int max_regions;
 }t_pysong;
 
 t_pysong * g_pysong_get(char * a_name);
 
+typedef struct st_pytrack
+{
+    float volume;
+    int solo;
+    int mute;    
+}t_pytrack;
+
+t_pytrack * g_pytrack_get();
 
 t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length)
 {
@@ -132,8 +148,7 @@ t_pysong * g_pysong_get(char * a_name)
     t_pysong * f_result = (t_pysong*)malloc(sizeof(t_pysong));
     
     f_result->region_count = 0;
-    f_result->max_regions = 100;
-    f_result->regions = (t_pyregion*)malloc(sizeof(t_pyregion) * (f_result->max_regions));
+    f_result->max_regions = PYDAW_MAX_REGION_COUNT;
     
     return f_result;
 }
@@ -142,17 +157,18 @@ t_pyregion * g_pyregion_get(char * a_name)
 {
     t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));
     
-    //TODO:  Make these not hard-coded
-    f_result->column_count = 8;
-    f_result->row_count = 16;
-    f_result->items = malloc(sizeof(t_pyitem*) * (f_result->row_count));
-
-    int i;
-    for (i = 0; i < (f_result->row_count); i++)
+    int f_i, f_i2 = 0;
+    
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
-      f_result->items[i] = malloc(sizeof(t_pyitem) * (f_result->column_count));
+        while(f_i2 < PYDAW_REGION_SIZE)
+        {
+            f_result->items[f_i][f_i2] = -1;
+            f_i2++;
+        }
+        f_i++;
     }
-            
+    
     return f_result;
 }
 
@@ -163,26 +179,32 @@ t_pyitem * g_pyitem_get(char * a_name)
     f_result->name = a_name;
     f_result->cc_count = 0;
     f_result->note_count = 0;
-    f_result->resize_factor = 128;
-    f_result->max_ccs = (f_result->resize_factor);
-    f_result->max_notes = (f_result->resize_factor);
-    f_result->ccs = (t_pycc*)malloc(sizeof(t_pycc) * (f_result->max_notes));
-    f_result->notes = (t_pynote*)malloc(sizeof(t_pynote) * (f_result->max_ccs));
     
     return f_result;
 }
 
+t_pytrack * g_pytrack_get()
+{
+    t_pytrack * f_result = (t_pytrack*)malloc(sizeof(t_pytrack));
+    
+    f_result->mute = 0;
+    f_result->solo = 0;
+    f_result->volume = 0.0f;
+    
+    return f_result;
+}
 
 typedef struct st_pydaw_data
 {
-    int loop_mode;
     float tempo;
     pthread_mutex_t mutex;
     t_pysong * pysong;
-    t_pyitem * item_pool;
+    t_pyitem * item_pool[PYDAW_MAX_ITEM_COUNT];
+    t_pyregion * region_pool[PYDAW_MAX_REGION_COUNT];
+    t_pytrack * track_pool[PYDAW_MAX_TRACK_COUNT];
     int item_count;
-    int max_items;
-    int resize_factor;
+    int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
+    int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
 }t_pydaw_data;
 
 t_pydaw_data * g_pydaw_data_get();
@@ -193,14 +215,49 @@ t_pydaw_data * g_pydaw_data_get()
     
     //f_result->mutex = PTHREAD_MUTEX_INITIALIZER;
     f_result->tempo = 140.0f;
-    //f_result->pysong = g_pysong_get();
-    f_result->resize_factor = 512;
+    //f_result->pysong = g_pysong_get();    
     f_result->item_count = 0;
-    f_result->max_items = (f_result->resize_factor);
-    f_result->item_pool = (t_pyitem*)malloc(sizeof(t_pyitem) * (f_result->max_items));
-        
+    
+    int f_i = 0;
+    
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {
+        f_result->track_pool[f_i] = g_pytrack_get();
+        f_i++;
+    }        
+            
     return f_result;
 }
+
+//This will eventually get a real indexing algorithm.  Although generally it shouldn't have noticeably
+//bad performance on a modern CPU because it's only called when the user does something in the UI.
+int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name)
+{
+    int f_i = 0;
+    
+    while(f_i < a_pydaw_data->item_count)
+    {
+        if(!strcmp((a_pydaw_data->item_pool[f_i]->name), a_name))
+        {
+            return f_i;
+        }
+        
+        f_i++;
+    }
+    
+    return -1;
+}
+
+void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode)
+{
+    
+}
+
+void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode)
+{
+    
+}
+
 
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
@@ -209,7 +266,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
     //TODO:  Move the obvious most commonly used ones to the top of the stack...
     if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS))  //Save Song
     {
-        
+        //Nothing for now, placeholder for future functionality
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_NS)) //New Song
     {
@@ -280,9 +337,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
     {
         printf("Unknown configure message key: %s, value %s\n", a_key, a_value);
     }
-        
-    
-
 }
 
 #ifdef	__cplusplus
