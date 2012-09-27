@@ -12,6 +12,9 @@
 extern "C" {
 #endif
 
+#include <dirent.h>
+#include <stdlib.h>
+
 /*Standard string sizes.  When in doubt, pick a really big one, it's better to 
  * waste memory than to SEGFAULT...*/
 #define LMS_LARGE_STRING 65536
@@ -170,6 +173,56 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
         f_i++;
     }
     
+    return f_result;
+}
+
+typedef struct st_dir_list
+{
+    char ** dir_list;
+    int dir_count;
+}t_dir_list;
+
+t_dir_list * g_get_dir_list(char * a_dir)
+{    
+    t_dir_list * f_result = (t_dir_list*)malloc(sizeof(t_dir_list));
+    f_result->dir_count = 0;
+    
+    int f_resize_factor = 256;
+    int f_current_max = 256;
+    
+    f_result->dir_list = (char**)malloc(sizeof(char*) * f_current_max);
+    
+    DIR *dir;
+    struct dirent *ent;
+    dir = opendir (a_dir);    
+    if (dir != NULL) 
+    {
+      while ((ent = readdir (dir)) != NULL) 
+      {
+          if((!strcmp(ent->d_name, ".")) || (!strcmp(ent->d_name, "..")))
+          {
+              continue;
+          }
+          
+          f_result->dir_list[(f_result->dir_count)] = (char*)malloc(sizeof(char) * LMS_TINY_STRING);
+          
+            strcpy(f_result->dir_list[(f_result->dir_count)], ent->d_name);
+          
+          f_result->dir_count = (f_result->dir_count) + 1;
+          
+          if((f_result->dir_count) >= f_current_max)
+          {
+              f_current_max += f_resize_factor;
+              f_result->dir_list = realloc(f_result->dir_list, sizeof(char*) * f_current_max);
+          }
+      }
+      closedir (dir);
+    } 
+    else 
+    {
+      return 0;
+    }
+
     return f_result;
 }
 

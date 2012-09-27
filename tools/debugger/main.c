@@ -20,6 +20,7 @@
 /*Change these to the project you would like to debug*/
 //#include "../../plugins/libmodsynth/lib/lms_sequencer.h"
 #include "../../plugins/pydaw/src/pydaw.h"
+#include "../../plugins/pydaw/src/pydaw_files.h"
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
 #define LMS_DEBUGGER_PROJECT
@@ -157,10 +158,24 @@ int main(int argc, char** argv) {
     //midi_open();
     //snd_seq_close(seq);
     
-    t_pydaw_data * f_data = g_pydaw_data_get();
+    /*t_pydaw_data * f_data = g_pydaw_data_get();
     f_data->region_folder = "/home/bob/dssi/pydaw/default-project/regions/";
     v_pydaw_parse_configure_message(f_data, "sr", "region-1");
-    v_pydaw_parse_configure_message(f_data, "sr", "region-1");
+    v_pydaw_parse_configure_message(f_data, "sr", "region-1");*/
+    
+    t_dir_list * f_test = g_get_dir_list("/home/bob/dssi/pydaw/default-project/regions");
+    
+    printf("dir_count: %i\n", f_test->dir_count);
+    
+    int f_i = 0;
+    
+    while(f_i < (f_test->dir_count))
+    {
+        t_1d_char_array * f_arr = c_split_str(f_test->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
+        printf("%s\n", f_arr->array[0]);
+        g_free_1d_char_array(f_arr);
+        f_i++;
+    }
     
     return 0; //(EXIT_SUCCESS);
 }
