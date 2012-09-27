@@ -25,10 +25,12 @@ class pydaw_project:
     def instantiate_session_manager(self):
         self.session_mgr = lms_session(self.instrument_folder + '/' + self.project_file + '.pyses')
 
-    def open_project(self, a_project_folder, a_project_file):
-        self.set_project_folders(a_project_folder, a_project_file)
+    def open_project(self, a_project_file):
+        self.set_project_folders(a_project_file)
+        if not os.path.exists(a_project_file):
+            self.new_project(a_project_file)
         self.instantiate_session_manager()
-        self.this_dssi_gui.send_configure("os", a_project_folder + "|" + a_project_file)
+        self.this_dssi_gui.send_configure("os", self.project_folder + "|" + self.project_file)
 
 
     def new_project(self, a_project_file):
@@ -168,10 +170,10 @@ class pydaw_project:
         self.session_mgr.quit_hander()
         self.this_dssi_gui.stop_server()        
 
-    def __init__(self, a_project_file=None, a_osc_url=None):
+    def __init__(self, a_osc_url=None):
         self.last_item_number = 0
         self.last_region_number = 0
-        self.new_project(a_project_file)
+        #self.new_project(a_project_file)
         self.this_dssi_gui = dssi_gui(a_osc_url)
 
 #The below classes are used to generate the saved file strings that will properly enforce the standard, rather than relying on developers to do it themselves

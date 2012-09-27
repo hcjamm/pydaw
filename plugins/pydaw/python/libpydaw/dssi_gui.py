@@ -14,6 +14,7 @@ class dssi_gui(ServerThread):
     def __init__(self, a_url=None):
         if a_url is None:
             self.with_osc = False
+            return
         else:            
             self.with_osc = True
             self.m_suppressHostUpdate = False
@@ -88,7 +89,7 @@ class dssi_gui(ServerThread):
     
     @make_method(None, None)
     def fallback(path, args, types, src):
-        print "got unknown message '%s' from '%s'" % (path, src.get_url())
-        for a, t in zip(args, types):
-            print "argument of type '%s': %s" % (t, a)
-    
+        if self.with_osc:
+            print "got unknown message '%s' from '%s'" % (path, src.get_url())
+            for a, t in zip(args, types):
+                print "argument of type '%s': %s" % (t, a)        

@@ -56,6 +56,7 @@ extern "C" {
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <dirent.h>
 #include "pydaw_files.h"
     
 typedef struct st_pynote
@@ -164,6 +165,7 @@ t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start)
 
 void g_pysong_get(t_pydaw_data* a_pydaw)
 {
+    printf("g_pysong_get\n");
     t_pysong * f_result = (t_pysong*)malloc(sizeof(t_pysong));
     
     f_result->region_count = 0;
@@ -179,8 +181,10 @@ void g_pysong_get(t_pydaw_data* a_pydaw)
 
 void g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
 {
-    t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));
-    f_result->name = (char*)malloc(sizeof(char) * 32);
+    printf("g_pyregion_get: a_name: \"%s\"\n", a_name);
+    t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));    
+    
+    f_result->name = (char*)malloc(sizeof(char) * 200);
     strcpy(f_result->name, a_name);
     
     int f_i = 0; 
@@ -226,11 +230,12 @@ void g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
         f_i++;
     }
 
-    free(f_current_string);
+    g_free_2d_char_array(f_current_string);
 }
 
 void g_pyitem_get(t_pydaw_data* a_pydaw, char * a_name)
 {
+    printf("g_pyitem_get: a_name: \"%s\"\n", a_name);
     t_pyitem * f_result = (t_pyitem*)malloc(sizeof(t_pyitem));
     
     f_result->name = a_name;
@@ -269,12 +274,11 @@ t_pydaw_data * g_pydaw_data_get()
     
     //f_result->mutex = PTHREAD_MUTEX_INITIALIZER;
     f_result->tempo = 140.0f;
-    //f_result->pysong = g_pysong_get();    
     f_result->item_count = 0;
-    f_result->project_name = (char*)malloc(sizeof(char) * 200);
-    f_result->project_folder = (char*)malloc(sizeof(char) * 200);
-    f_result->item_folder = (char*)malloc(sizeof(char) * 200);
-    f_result->region_folder = (char*)malloc(sizeof(char) * 200);
+    f_result->item_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->project_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->region_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->project_name = (char*)malloc(sizeof(char) * 256);
     
     int f_i = 0;
     
@@ -291,18 +295,20 @@ t_pydaw_data * g_pydaw_data_get()
 //bad performance on a modern CPU because it's only called when the user does something in the UI.
 int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name)
 {
+    printf("i_get_item_index_from_name: a_name: \"%s\"\n", a_name);
     int f_i = 0;
     
     while(f_i < a_pydaw_data->item_count)
     {
         if(!strcmp((a_pydaw_data->item_pool[f_i]->name), a_name))
         {
+            printf("return %i\n", f_i);
             return f_i;
         }
         
         f_i++;
     }
-    
+    printf("return -1\n");
     return -1;
 }
 
@@ -327,19 +333,18 @@ int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name)
 
 void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
 {
+    printf("v_open_project: a_project_folder: %s a_name: \"%s\"\n", a_project_folder, a_name);
     strcpy(a_pydaw->project_folder, a_project_folder);
     strcat(a_pydaw->project_folder, "/");
+    printf("a_pydaw->item_folder: %s\n", a_pydaw->item_folder);
     strcpy(a_pydaw->item_folder, a_pydaw->project_folder);
     strcat(a_pydaw->item_folder, "items/");
+    printf("a_pydaw->item_folder: %s\n", a_pydaw->item_folder);
     strcpy(a_pydaw->region_folder, a_pydaw->project_folder);
     strcat(a_pydaw->region_folder, "regions/");
-    strcpy(a_pydaw->project_name, a_name);
-    
-    if(a_pydaw->pysong)
-    {
-        free(a_pydaw->pysong);
-    }
-    
+    printf("a_pydaw->region_folder: %s\n", a_pydaw->region_folder);
+    strcpy(a_pydaw->project_name, a_name);    
+        
     g_pysong_get(a_pydaw);
 }
 
@@ -358,6 +363,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, const char* a_value)
 {
+    printf("v_pydaw_parse_configure_message:  key: \"%s\", value: \"%s\"\n", a_key, a_value);
+    
     if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR)) //Save region
     {
         printf("%s\n", a_value);
