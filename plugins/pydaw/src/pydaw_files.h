@@ -23,6 +23,7 @@ extern "C" {
     
 char * get_string_from_file(const char * a_file, int a_size)
 {
+    printf("get_string_from_file: a_file: \"%s\" a_size: %i \n", a_file, a_size);
     char * f_buffer = (char*)malloc(sizeof(char) * a_size);
     FILE * f_file;	
     f_file = fopen(a_file, "r");	
@@ -75,7 +76,7 @@ t_1d_char_array * c_split_str(const char * a_input, char a_delim, int a_column_c
     int f_current_column = 0;
     
     t_1d_char_array * f_result = (t_1d_char_array*)malloc(sizeof(t_1d_char_array));
-    f_result->array = (char**)malloc(sizeof(char) * a_column_count);
+    f_result->array = (char**)malloc(sizeof(char*) * a_column_count);
     f_result->x_count = a_column_count;
     
     while(f_i < a_column_count)
@@ -90,9 +91,10 @@ t_1d_char_array * c_split_str(const char * a_input, char a_delim, int a_column_c
     {
         if(a_input[f_i] == a_delim)
         {
+            f_result->array[f_current_column][f_current_string_index] = '\0';
             f_current_column++;
             if(f_current_column >= a_column_count)
-            {
+            {                           
                 break;
             }
             f_current_string_index = 0;
@@ -100,6 +102,7 @@ t_1d_char_array * c_split_str(const char * a_input, char a_delim, int a_column_c
         }
         else if((a_input[f_i] == '\n') || (a_input[f_i] == '\0'))
         {
+            f_result->array[f_current_column][f_current_string_index] = '\0';
             break;
         }
         else
@@ -118,6 +121,7 @@ t_1d_char_array * c_split_str(const char * a_input, char a_delim, int a_column_c
  * limited to being the size of LMS_TINY_STRING */
 t_2d_char_array * g_get_2d_array_from_file(const char * a_file, int a_size)
 {    
+    printf("g_get_2d_array_from_file: a_file: \"%s\" a_size: %i\n", a_file, a_size);
     t_2d_char_array * f_result = (t_2d_char_array*)malloc(sizeof(t_2d_char_array));
     
     f_result->array = get_string_from_file(a_file, a_size);

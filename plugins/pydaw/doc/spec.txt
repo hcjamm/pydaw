@@ -55,6 +55,7 @@ project/
 
 Miscellaneous TODO:
 An indexing algorithm in the C back-end for resolving item name to array index.
+Liblo stuff needs to be initialized before we start setting up anything that send
 Add an item_editor combobox and a region_editor combobox, then have a default item and region opened when the project opens
 Euphoria: Dynamically allocate per-sample data at sample load
 Implement event filter to double-click->reset-to-zero the volume sliders

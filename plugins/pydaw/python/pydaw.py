@@ -651,11 +651,12 @@ def global_open_project(a_project_file):
     #this_pydaw_project.session_mgr.quit_hander()
     global this_pydaw_project    
     if(len(argv) >= 2):
-        this_pydaw_project = pydaw_project(a_project_file, (argv[1]))
+        this_pydaw_project = pydaw_project((argv[1]))
     else:
-        this_pydaw_project = pydaw_project(a_project_file)    
+        this_pydaw_project = pydaw_project()
+    this_pydaw_project.open_project(a_project_file)
     this_song_editor.open_song()
-    this_track_editor.open_tracks()
+    this_track_editor.open_tracks()    
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
 def global_new_project():
