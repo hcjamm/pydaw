@@ -118,6 +118,7 @@ typedef struct st_pydaw_data
     t_pyregion * region_pool[PYDAW_MAX_REGION_COUNT];
     t_pytrack * track_pool[PYDAW_MAX_TRACK_COUNT];
     int item_count;
+    int region_count;    
     int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
     int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
     char * project_name;
@@ -133,8 +134,8 @@ void g_pyitem_get(t_pydaw_data* a_pydaw, char * a_name);
 t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start);
 t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length);
 t_pydaw_data * g_pydaw_data_get();
-int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name);
-int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name);
+int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name);
+int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name);
 void v_open_project(t_pydaw_data*, char*, char*);
 
 /*End declarations.  Begin implementations.*/
@@ -164,7 +165,7 @@ t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start)
 
 void g_pysong_get(t_pydaw_data* a_pydaw)
 {
-    printf("g_pysong_get\n");
+    printf("\ng_pysong_get\n");
     t_pysong * f_result = (t_pysong*)malloc(sizeof(t_pysong));
     
     f_result->region_count = 0;
@@ -180,10 +181,10 @@ void g_pysong_get(t_pydaw_data* a_pydaw)
 
 void g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
 {
-    printf("g_pyregion_get: a_name: \"%s\"\n", a_name);
+    printf("\ng_pyregion_get: a_name: \"%s\"\n", a_name);
     t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));    
     
-    f_result->name = (char*)malloc(sizeof(char) * 200);
+    f_result->name = (char*)malloc(sizeof(char) * 64);
     strcpy(f_result->name, a_name);
     
     int f_i = 0; 
@@ -230,6 +231,19 @@ void g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
     }
 
     g_free_2d_char_array(f_current_string);
+    
+    int f_current_index = i_get_region_index_from_name(a_pydaw, a_name);
+    
+    if(f_current_index == -1)
+    {
+        a_pydaw->region_pool[(a_pydaw->region_count)] = f_result;
+        a_pydaw->region_count = (a_pydaw->region_count) + 1;
+    }
+    else
+    {
+        free(a_pydaw->region_pool[f_current_index]);
+        a_pydaw->region_pool[f_current_index] = f_result;
+    }
 }
 
 void g_pyitem_get(t_pydaw_data* a_pydaw, char * a_name)
@@ -248,6 +262,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw, char * a_name)
     if(f_existing_item_index == -1)
     {
         a_pydaw->item_pool[(a_pydaw->item_count)] = f_result;
+        a_pydaw->item_count = (a_pydaw->item_count) + 1;
     }
     else
     {
@@ -274,6 +289,7 @@ t_pydaw_data * g_pydaw_data_get()
     //f_result->mutex = PTHREAD_MUTEX_INITIALIZER;
     f_result->tempo = 140.0f;
     f_result->item_count = 0;
+    f_result->region_count = 0;
     f_result->item_folder = (char*)malloc(sizeof(char) * 256);
     f_result->project_folder = (char*)malloc(sizeof(char) * 256);
     f_result->region_folder = (char*)malloc(sizeof(char) * 256);
@@ -292,7 +308,7 @@ t_pydaw_data * g_pydaw_data_get()
 
 //This will eventually get a real indexing algorithm.  Although generally it shouldn't have noticeably
 //bad performance on a modern CPU because it's only called when the user does something in the UI.
-int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name)
+int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name)
 {
     printf("i_get_item_index_from_name: a_name: \"%s\"\n", a_name);
     int f_i = 0;
@@ -301,23 +317,23 @@ int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name)
     {
         if(!strcmp((a_pydaw_data->item_pool[f_i]->name), a_name))
         {
-            printf("return %i\n", f_i);
+            printf("return %i for \n", f_i, a_name);
             return f_i;
         }
         
         f_i++;
     }
-    printf("return -1\n");
+    printf("return -1 for \"%s\"\n", a_name);
     return -1;
 }
 
 //This will eventually get a real indexing algorithm.  Although generally it shouldn't have noticeably
 //bad performance on a modern CPU because it's only called when the user does something in the UI.
-int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name)
+int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name)
 {
     int f_i = 0;
     
-    while(f_i < a_pydaw_data->item_count)
+    while(f_i < a_pydaw_data->region_count)
     {
         if(!strcmp((a_pydaw_data->region_pool[f_i]->name), a_name))
         {
@@ -332,19 +348,46 @@ int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, char * a_name)
 
 void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
 {
-    printf("v_open_project: a_project_folder: %s a_name: \"%s\"\n", a_project_folder, a_name);
+    printf("\nv_open_project: a_project_folder: %s a_name: \"%s\"\n", a_project_folder, a_name);
     strcpy(a_pydaw->project_folder, a_project_folder);
     strcat(a_pydaw->project_folder, "/");
-    printf("a_pydaw->item_folder: %s\n", a_pydaw->item_folder);
     strcpy(a_pydaw->item_folder, a_pydaw->project_folder);
     strcat(a_pydaw->item_folder, "items/");
-    printf("a_pydaw->item_folder: %s\n", a_pydaw->item_folder);
+    printf("\na_pydaw->item_folder == %s\n", a_pydaw->item_folder);
     strcpy(a_pydaw->region_folder, a_pydaw->project_folder);
     strcat(a_pydaw->region_folder, "regions/");
-    printf("a_pydaw->region_folder: %s\n", a_pydaw->region_folder);
+    printf("\na_pydaw->region_folder == %s\n\n", a_pydaw->region_folder);
     strcpy(a_pydaw->project_name, a_name);    
         
     g_pysong_get(a_pydaw);
+    
+    int f_i = 0;
+        
+    t_dir_list * f_items = g_get_dir_list(a_pydaw->region_folder);
+    
+    printf("\npyitem file count: %i\n", f_items->dir_count);
+    
+    while(f_i < (f_items->dir_count))
+    {
+        printf("Processing item: %s\n", f_items->dir_list[f_i]);
+        t_1d_char_array * f_arr = c_split_str(f_items->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
+        g_pyitem_get(a_pydaw, f_arr->array[0]);
+        g_free_1d_char_array(f_arr);
+        f_i++;
+    }
+    
+    t_dir_list * f_regions = g_get_dir_list(a_pydaw->region_folder);
+    
+    printf("pyregion file count: %i\n", f_regions->dir_count);
+    
+    while(f_i < (f_regions->dir_count))
+    {
+        printf("Processing region: %s\n", f_items->dir_list[f_i]);
+        t_1d_char_array * f_arr = c_split_str(f_regions->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
+        g_pyregion_get(a_pydaw, f_arr->array[0]);
+        g_free_1d_char_array(f_arr);
+        f_i++;
+    }
 }
 
 void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode)
