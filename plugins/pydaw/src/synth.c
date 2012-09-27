@@ -102,7 +102,7 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
 				   unsigned long s_rate)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) malloc(sizeof(t_pydaw_engine));
-    pydaw_data = g_pydaw_data_get();
+    pydaw_data = g_pydaw_data_get(s_rate);
     
     plugin_data->fs = s_rate;
             

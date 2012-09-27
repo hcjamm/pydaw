@@ -401,10 +401,10 @@ class seq_track:
     def on_pan_change(self, value):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_solo(self, value):
-        this_pydaw_project.this_dssi_gui.send_configure("solo", str(self.track_number) + "|" + str(self.solo_checkbox.isChecked()))
+        this_pydaw_project.this_dssi_gui.send_configure("solo", str(self.track_number) + "|" + bool_to_int(self.solo_checkbox.isChecked()))
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_mute(self, value):
-        this_pydaw_project.this_dssi_gui.send_configure("mute", str(self.track_number) + "|" + str(self.mute_checkbox.isChecked()))
+        this_pydaw_project.this_dssi_gui.send_configure("mute", str(self.track_number) + "|" + bool_to_int(self.mute_checkbox.isChecked()))
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_rec(self, value):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
@@ -504,8 +504,7 @@ class transport_widget:
         self.grid_layout.addWidget(self.rec_button, 0, 2)
         self.grid_layout.addWidget(QtGui.QLabel("BPM:"), 0, 3)
         self.tempo_spinbox = QtGui.QSpinBox()
-        self.tempo_spinbox.setRange(50, 200)
-        self.tempo_spinbox.setValue(140)
+        self.tempo_spinbox.setRange(50, 200)        
         self.tempo_spinbox.valueChanged.connect(self.on_tempo_changed)
         self.grid_layout.addWidget(self.tempo_spinbox, 0, 4)
         self.grid_layout.addWidget(QtGui.QLabel("MIDI Keybd:"), 0, 5)
@@ -656,7 +655,8 @@ def global_open_project(a_project_file):
         this_pydaw_project = pydaw_project()
     this_pydaw_project.open_project(a_project_file)
     this_song_editor.open_song()
-    this_track_editor.open_tracks()    
+    this_track_editor.open_tracks()
+    this_transport.tempo_spinbox.setValue(140)  #Interim code to make the magic happen, this shouldn't be used once PyDAW goes stable, it should be read from a project file
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
 def global_new_project():
@@ -680,6 +680,7 @@ if __name__ == '__main__':
         print arg
 
     app = QtGui.QApplication(sys.argv)
+    app.setWindowIcon(QtGui.QIcon('pydaw.ico'))
     app.aboutToQuit.connect(about_to_quit)
     this_song_editor = song_editor()
     this_region_editor = region_list_editor()

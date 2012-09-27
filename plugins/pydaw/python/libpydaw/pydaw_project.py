@@ -9,6 +9,13 @@ from os import listdir
 from lms_session import lms_session
 from dssi_gui import dssi_gui
 
+""" For sending OSC messages """
+def bool_to_int(a_bool):
+    if a_bool:
+        return "1"
+    else:
+        return "0"   
+
 class pydaw_project:
     def save_project(self):
         self.session_mgr.save_session_file()
@@ -329,14 +336,8 @@ class pydaw_tracks:
 
     def __str__(self):
         f_result = ""
-        for k, v in self.tracks.iteritems():
-            if v.solo: f_solo = "t"
-            else: f_solo = "f"
-            if v.mute: f_mute = "t"
-            else: f_mute = "f"
-            if v.rec: f_rec = "t"
-            else: f_rec = "f"
-            f_result += str(k) + "|" + f_solo + "|" + f_mute + "|" + f_rec + "|" + str(v.vol) + "|" + v.name + "|" + str(v.inst) + "\n"
+        for k, v in self.tracks.iteritems():            
+            f_result += str(k) + "|" + bool_to_int(v.solo) + "|" + bool_to_int(v.mute) + "|" + bool_to_int(v.rec) + "|" + str(v.vol) + "|" + v.name + "|" + str(v.inst) + "\n"
         return f_result
 
     @staticmethod
@@ -346,11 +347,11 @@ class pydaw_tracks:
         for f_line in f_arr:
             if not f_line == "":
                 f_line_arr = f_line.split("|")
-                if f_line_arr[1] == "t": f_solo = True
+                if f_line_arr[1] == "1": f_solo = True
                 else: f_solo = False
-                if f_line_arr[2] == "t": f_mute = True
+                if f_line_arr[2] == "1": f_mute = True
                 else: f_mute = False
-                if f_line_arr[3] == "t": f_rec = True
+                if f_line_arr[3] == "1": f_rec = True
                 else: f_rec = False
                 f_result.add_track(int(f_line_arr[0]), pydaw_track(f_solo, f_mute, f_rec, int(f_line_arr[4]), f_line_arr[5], int(f_line_arr[6])))
         return f_result
