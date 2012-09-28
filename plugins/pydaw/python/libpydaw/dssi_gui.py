@@ -92,4 +92,54 @@ class dssi_gui(ServerThread):
         if self.with_osc:
             print "got unknown message '%s' from '%s'" % (path, src.get_url())
             for a, t in zip(args, types):
-                print "argument of type '%s': %s" % (t, a)        
+                print "argument of type '%s': %s" % (t, a)
+                
+    #methods for sending PyDAW-protocol OSC messages
+    
+    def pydaw_save_song(self):
+        self.send_configure("ss", "TODO")
+    
+    def pydaw_open_song(self):
+        self.send_configure("os", "TODO")
+    
+    def pydaw_save_item(self):
+        self.send_configure("si", "TODO")
+    
+    def pydaw_delete_item(self):
+        self.send_configure("di", "TODO")
+    
+    def pydaw_save_region(self):
+        self.send_configure("sr", "TODO")
+    
+    def pydaw_delete_region(self):
+        self.send_configure("dr", "TODO")
+    
+    def pydaw_rename_item(self):
+        self.send_configure("ri", "TODO")
+    
+    def pydaw_play(self):
+        self.send_configure("play", "TODO")
+    
+    def pydaw_stop(self):
+        self.send_configure("stop", "TODO")
+    
+    def pydaw_rec(self):
+        self.send_configure("rec", "TODO")
+    
+    def pydaw_set_loop_mode(self):
+        self.send_configure("loop", "TODO")
+    
+    def pydaw_set_tempo(self):
+        self.send_configure("tempo", "TODO")
+    
+    def pydaw_set_timesig(self):
+        self.send_configure("tsig", "TODO")
+    
+    def pydaw_set_vol(self):
+        self.send_configure("vol", "TODO")
+    
+    def pydaw_set_solo(self):
+        self.send_configure("solo", "TODO")
+    
+    def pydaw_set_mute(self):
+        self.send_configure("mute", "TODO")
