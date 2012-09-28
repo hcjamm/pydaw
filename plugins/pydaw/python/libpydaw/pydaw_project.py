@@ -14,7 +14,7 @@ def bool_to_int(a_bool):
     if a_bool:
         return "1"
     else:
-        return "0"   
+        return "0"
 
 class pydaw_project:
     def save_project(self):
@@ -37,9 +37,8 @@ class pydaw_project:
         if not os.path.exists(a_project_file):
             self.new_project(a_project_file)
         self.instantiate_session_manager()
-        self.this_dssi_gui.send_configure("os", self.project_folder + "|" + self.project_file)
-
-
+        self.this_dssi_gui.pydaw_open_song(self.project_folder, self.project_file)
+        
     def new_project(self, a_project_file):
         self.set_project_folders(a_project_file)
 
@@ -122,20 +121,20 @@ class pydaw_project:
         f_file = open(self.items_folder + "/" + a_name + ".pyitem", 'w')
         f_file.write(a_item.__str__())
         f_file.close()
-        self.this_dssi_gui.send_configure("si", a_name)
+        self.this_dssi_gui.pydaw_save_item(a_name)
 
     def save_region(self, a_name, a_region):
         f_file_name = self.regions_folder + "/" + a_name + ".pyreg"
         f_file = open(f_file_name, 'w')
         f_file.write(a_region.__str__())
         f_file.close()
-        self.this_dssi_gui.send_configure("sr", a_name)
+        self.this_dssi_gui.pydaw_save_region(a_name)
 
     def save_song(self, a_song):
         f_file = open(self.project_folder + "/" + self.project_file + ".pysong", 'w')
         f_file.write(a_song.__str__())
         f_file.close()
-        self.this_dssi_gui.send_configure("ss", self.project_file)
+        self.this_dssi_gui.pydaw_save_song(self.project_file)
 
     def save_tracks(self, a_tracks):
         f_file = open(self.project_folder + "/" + self.project_file + ".pytracks", 'w')
