@@ -143,7 +143,7 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
         
     while(1)
     {        
-        char a_test = a_array->array[(a_array->current_index)];
+        //char a_test = a_array->array[(a_array->current_index)];
         if(a_array->array[(a_array->current_index)] == '\0')
         {
             f_result[f_i] = '\0';

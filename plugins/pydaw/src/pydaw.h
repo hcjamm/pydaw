@@ -7,17 +7,9 @@
 
 /* Current TODO:
  * 
- * Item specific functions for delete and instantiate from file
- * A type + functions that track notes currently on, so that "stop" configure message can send all_note_off events...
- * A type to encapsulate the global data like tempo, and to process the standard configure messages
- * A function to load files to strings, and to split them into arrays
- * Encapsulate the native ALSA types into the PyDAW types #EDIT:  maybe not, that probably has to be calculated on the fly to support tempo changes
- * Destructor functions for freeing all memory when deleting PyDAW type instances
+ * A type + functions that track notes currently on, so that "stop" configure message can send all_note_off events...  
  * Mutex functionality similar to how Euphoria sample loading works
- * Region->Items should be pointers to a pool of items, not unique items...
  * A track type to encapsulate various track info...
- * Develop a comprehensive strategy for freeing char* types, and other memory management of things that get deleted
- * Perhaps just allocate an array of 10,000 or so items for the item pool and don't allow resizing?   TODO:  Calculate how large that would be
  */
 
 #ifndef PYDAW_H
@@ -124,9 +116,11 @@ typedef struct st_pydaw_data
     char * project_name;
     char * project_folder;
     char * item_folder;
-    char * region_folder;
-    float playback_cursor;
-    float playback_inc;
+    char * region_folder;    
+    float playback_cursor; //only refers to the fractional position within the current bar.    
+    float playback_inc;  //the increment per-sample to iterate through 1 bar, as determined by sample rate and tempo
+    int current_region; //the current region
+    int current_bar; //the current bar(0 to 7), within the current region
     float sample_rate;
 }t_pydaw_data;
 
@@ -392,7 +386,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     {
         f_result->track_pool[f_i] = g_pytrack_get();
         f_i++;
-    }        
+    }
             
     return f_result;
 }
@@ -509,19 +503,22 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
 
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
 {
-    
+    a_pydaw_data->current_bar = a_bar;
+    a_pydaw_data->current_region = a_region;
+    a_pydaw_data->playback_cursor = 0.0f;
+    //TODO:  An  "all notes off" function
 }
 
 void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode)
 {
-    
+    a_pydaw_data->loop_mode = a_mode;
 }
 
 void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
 {
     a_pydaw_data->tempo = a_tempo;
-    
-    a_pydaw_data->playback_inc = 0.1;  //TODO:  The math on this?
+    //This assumes 4/4 timesig, once alternate timesigs are available, replace 0.25f
+    a_pydaw_data->playback_inc = ((1.0f/(a_tempo * 0.25f)) * (a_pydaw_data->sample_rate));
 }
 
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
