@@ -142,12 +142,12 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
     int f_i = 0;    
         
     while(1)
-    {
-        if(a_array->array[(a_array->current_index)] == '|')
-        {   
+    {        
+        char a_test = a_array->array[(a_array->current_index)];
+        if(a_array->array[(a_array->current_index)] == '\0')
+        {
             f_result[f_i] = '\0';
-            a_array->current_index = (a_array->current_index) + 1;
-            a_array->current_column = (a_array->current_column) + 1;
+            a_array->eof = 1;
             break;
         }
         else if(a_array->array[(a_array->current_index)] == '\n')
@@ -158,10 +158,11 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
             a_array->current_column = 0;
             break;
         }
-        else if(a_array->array[(a_array->current_index)] == '\0')
-        {
+        else if(a_array->array[(a_array->current_index)] == '|')
+        {   
             f_result[f_i] = '\0';
-            a_array->eof = 1;
+            a_array->current_index = (a_array->current_index) + 1;
+            a_array->current_column = (a_array->current_column) + 1;
             break;
         }
         else

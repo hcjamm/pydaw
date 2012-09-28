@@ -406,7 +406,7 @@ int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name)
     
     while(f_i < a_pydaw_data->item_count)
     {
-        printf("Comparing %s\n", (a_pydaw_data->item_pool[f_i]->name));
+        //printf("Comparing %s\n", (a_pydaw_data->item_pool[f_i]->name));
         if(!strcmp((a_pydaw_data->item_pool[f_i]->name), a_name))
         {
             printf("return %i for %s\n", f_i, a_name);
@@ -461,6 +461,7 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
     {
         printf("Processing item: %s\n", f_items->dir_list[f_i]);
         t_1d_char_array * f_arr = c_split_str(f_items->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
+        printf("v_open_project calling ");        
         g_pyitem_get(a_pydaw, f_arr->array[0]);
         g_free_1d_char_array(f_arr);
         f_i++;
@@ -474,11 +475,12 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
     {
         printf("Processing region: %s\n", f_items->dir_list[f_i]);
         t_1d_char_array * f_arr = c_split_str(f_regions->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
+        printf("v_open_project calling ");
         g_pyregion_get(a_pydaw, f_arr->array[0]);
         g_free_1d_char_array(f_arr);
         f_i++;
     }
-    
+    printf("v_open_project calling ");
     g_pysong_get(a_pydaw, a_name);
 }
 
@@ -530,14 +532,17 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
     
     if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR)) //Save region
     {
+        printf("v_pydaw_parse_configure_message calling ");
         g_pyregion_get(a_pydaw, a_value);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SI)) //Save Item
     {
+        printf("v_pydaw_parse_configure_message calling ");
         g_pyitem_get(a_pydaw, a_value);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS))  //Save Song
     {
+        printf("v_pydaw_parse_configure_message calling ");
         g_pysong_get(a_pydaw, a_value);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PLAY)) //Begin playback
