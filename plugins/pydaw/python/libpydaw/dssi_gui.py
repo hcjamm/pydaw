@@ -5,6 +5,13 @@ import liblo
 from liblo import *
 from urlparse import urlparse
 
+#TODO:  Move this to a mutual location and rename to bool_to_int_str
+def bool_to_int(a_bool):
+    if a_bool:
+        return "1"
+    else:
+        return "0"
+
 """
 Class for implementing one's own DSSI GUI.  Instantiate this class and 
 call it's functions to send OSC messages to the DSSI plugin's audio/MIDI
@@ -96,20 +103,20 @@ class dssi_gui(ServerThread):
                 
     #methods for sending PyDAW-protocol OSC messages
     
-    def pydaw_save_song(self):
-        self.send_configure("ss", "TODO")
+    def pydaw_save_song(self, a_project_file):
+        self.send_configure("ss", a_project_file)
     
-    def pydaw_open_song(self):
-        self.send_configure("os", "TODO")
+    def pydaw_open_song(self, a_project_folder, a_project_file):
+        self.send_configure("os", a_project_folder + "|" + a_project_file)
     
-    def pydaw_save_item(self):
-        self.send_configure("si", "TODO")
+    def pydaw_save_item(self, a_name):
+        self.send_configure("si", a_name)
     
     def pydaw_delete_item(self):
         self.send_configure("di", "TODO")
     
-    def pydaw_save_region(self):
-        self.send_configure("sr", "TODO")
+    def pydaw_save_region(self, a_name):
+        self.send_configure("sr", a_name)
     
     def pydaw_delete_region(self):
         self.send_configure("dr", "TODO")
@@ -118,28 +125,28 @@ class dssi_gui(ServerThread):
         self.send_configure("ri", "TODO")
     
     def pydaw_play(self):
-        self.send_configure("play", "TODO")
+        self.send_configure("play", "")
     
     def pydaw_stop(self):
-        self.send_configure("stop", "TODO")
+        self.send_configure("stop", "")
     
     def pydaw_rec(self):
-        self.send_configure("rec", "TODO")
+        self.send_configure("rec", "")
     
-    def pydaw_set_loop_mode(self):
-        self.send_configure("loop", "TODO")
+    def pydaw_set_loop_mode(self, a_mode):
+        self.send_configure("loop", str(a_mode))
     
-    def pydaw_set_tempo(self):
-        self.send_configure("tempo", "TODO")
+    def pydaw_set_tempo(self, a_tempo):
+        self.send_configure("tempo", str(a_tempo))
     
     def pydaw_set_timesig(self):
         self.send_configure("tsig", "TODO")
     
-    def pydaw_set_vol(self):
-        self.send_configure("vol", "TODO")
+    def pydaw_set_vol(self, a_track_num, a_vol):
+        self.send_configure("vol", str(a_track_num) + "|" + str(a_vol))
     
-    def pydaw_set_solo(self):
-        self.send_configure("solo", "TODO")
+    def pydaw_set_solo(self, a_track_num, a_bool):
+        self.send_configure("solo", str(a_track_num) + "|" + bool_to_int(a_bool))
     
-    def pydaw_set_mute(self):
-        self.send_configure("mute", "TODO")
+    def pydaw_set_mute(self, a_track_num, a_bool):
+        self.send_configure("mute", str(a_track_num) + "|" + bool_to_int(a_bool))

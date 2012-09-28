@@ -396,15 +396,15 @@ rec_button_group = QtGui.QButtonGroup()
 class seq_track:
     def on_vol_change(self, value):
         self.volume_label.setText(str(value) + " dB")
-        this_pydaw_project.this_dssi_gui.send_configure("vol", str(self.track_number) + "|" + str(self.volume_slider.value()))
+        this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value())
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_pan_change(self, value):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_solo(self, value):
-        this_pydaw_project.this_dssi_gui.send_configure("solo", str(self.track_number) + "|" + bool_to_int(self.solo_checkbox.isChecked()))
+        this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked())
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_mute(self, value):
-        this_pydaw_project.this_dssi_gui.send_configure("mute", str(self.track_number) + "|" + bool_to_int(self.mute_checkbox.isChecked()))
+        this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked())
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_rec(self, value):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
@@ -476,13 +476,13 @@ class seq_track:
 
 class transport_widget:
     def on_play(self):
-        this_pydaw_project.this_dssi_gui.send_configure("play", "")
+        this_pydaw_project.this_dssi_gui.pydaw_play()
     def on_stop(self):
-        this_pydaw_project.this_dssi_gui.send_configure("stop", "")
+        this_pydaw_project.this_dssi_gui.pydaw_stop()
     def on_rec(self):
-        this_pydaw_project.this_dssi_gui.send_configure("rec", "")
+        this_pydaw_project.this_dssi_gui.pydaw_rec()
     def on_tempo_changed(self, a_tempo):
-        this_pydaw_project.this_dssi_gui.send_configure("tempo", str(a_tempo))
+        this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
     def on_loop_mode_changed(self, a_loop_mode):
         this_pydaw_project.this_dssi_gui.send_configure("loop", str(a_loop_mode))
 
