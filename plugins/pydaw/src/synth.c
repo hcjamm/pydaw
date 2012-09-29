@@ -44,7 +44,7 @@ static DSSI_Descriptor *LMSDDescriptor = NULL;
 
 static t_pydaw_data * pydaw_data;
 
-static void run_lms_modulex(LADSPA_Handle instance, unsigned long sample_count,
+static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
 
@@ -123,11 +123,11 @@ static void activateLMS(LADSPA_Handle instance)
 static void runLMSWrapper(LADSPA_Handle instance,
 			 unsigned long sample_count)
 {
-    run_lms_modulex(instance, sample_count, NULL, 0);
+    run_lms_pydaw(instance, sample_count, NULL, 0);
 }
 
 /*This is where parameters are update and the main loop is run.*/
-static void run_lms_modulex(LADSPA_Handle instance, unsigned long sample_count,
+static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
@@ -141,6 +141,11 @@ static void run_lms_modulex(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->pos = 0;
     plugin_data->count= 0;    
     plugin_data->i_mono_out = 0;
+    
+    if (pthread_mutex_trylock(&pydaw_data->mutex)) 
+    {
+	return;
+    }    
         
     while ((plugin_data->pos) < sample_count) 
     {        
@@ -170,6 +175,8 @@ static void run_lms_modulex(LADSPA_Handle instance, unsigned long sample_count,
         
         plugin_data->pos = (plugin_data->pos) + STEP_SIZE;
     }
+    
+    pthread_mutex_unlock(&pydaw_data->mutex);
 }
 
 char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)
