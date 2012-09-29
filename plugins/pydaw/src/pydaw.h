@@ -122,6 +122,7 @@ typedef struct st_pydaw_data
     int current_region; //the current region
     int current_bar; //the current bar(0 to 7), within the current region
     float sample_rate;
+    int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
@@ -372,9 +373,12 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     t_pydaw_data * f_result = (t_pydaw_data*)malloc(sizeof(t_pydaw_data));
     
     //f_result->mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_init(&f_result->mutex, NULL);
     f_result->sample_rate = a_sample_rate;
     f_result->item_count = 0;
     f_result->region_count = 0;
+    f_result->current_sample = 0;
+    f_result->loop_mode = 0;    
     f_result->item_folder = (char*)malloc(sizeof(char) * 256);
     f_result->project_folder = (char*)malloc(sizeof(char) * 256);
     f_result->region_folder = (char*)malloc(sizeof(char) * 256);
