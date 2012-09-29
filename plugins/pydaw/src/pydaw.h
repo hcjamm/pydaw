@@ -124,7 +124,11 @@ typedef struct st_pydaw_data
     int current_bar; //the current bar(0 to 7), within the current region
     float sample_rate;
     int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz
-    snd_seq_t *seq_handle;
+    snd_seq_t *seq_handle;    
+    
+    int queue_id, port_in_id[PYDAW_MAX_TRACK_COUNT], port_out_id[PYDAW_MAX_TRACK_COUNT];    
+    snd_seq_tick_time_t tick;    //[PYDAW_MAX_TRACK_COUNT]????
+    
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
@@ -410,14 +414,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
                   SND_SEQ_PORT_TYPE_APPLICATION)) < 0) {
           fprintf(stderr, "Error creating sequencer port.\n");
         }
-        /*
-        if ((port_in_id = snd_seq_create_simple_port(seq_handle, "miniArp",
-                  SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE,
-                  SND_SEQ_PORT_TYPE_APPLICATION)) < 0) {
-          fprintf(stderr, "Error creating sequencer port.\n");
-          exit(1);
-        }
-        */
         
         /*End ALSA stuff*/
         
@@ -426,6 +422,80 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
             
     return f_result;
 }
+
+void g_pydaw_alsa_start(t_pydaw_data* a_pydaw_data)
+{
+    snd_seq_start_queue(a_pydaw_data->seq_handle, queue_id, NULL);
+    snd_seq_drain_output(a_pydaw_data->seq_handle);
+    //npfd = snd_seq_poll_descriptors_count(seq_handle, POLLIN);
+    //pfd = (struct pollfd *)alloca(npfd * sizeof(struct pollfd));
+    //snd_seq_poll_descriptors(seq_handle, pfd, npfd, POLLIN);
+}
+
+void g_pydaw_alsa_stop(t_pydaw_data* a_pydaw_data)
+{
+    //clear_queue();
+    sleep(2);
+    snd_seq_stop_queue(a_pydaw_data->seq_handle, queue_id, NULL);
+    snd_seq_free_queue(a_pydaw_data->seq_handle, queue_id);
+}
+
+/* 
+
+snd_seq_tick_time_t get_tick() {
+
+  snd_seq_queue_status_t *status;
+  snd_seq_tick_time_t current_tick;
+  
+  snd_seq_queue_status_malloc(&status);
+  snd_seq_get_queue_status(seq_handle, queue_id, status);
+  current_tick = snd_seq_queue_status_get_tick_time(status);
+  snd_seq_queue_status_free(status);
+  return(current_tick);
+}
+
+void init_queue() {
+
+  queue_id = snd_seq_alloc_queue(seq_handle);
+  snd_seq_set_client_pool_output(seq_handle, (seq_len<<1) + 4);
+} 
+ 
+void arpeggio() {
+
+  snd_seq_event_t ev;
+  int l1;
+  double dt;
+ 
+  for (l1 = 0; l1 < seq_len; l1++) {
+    dt = (l1 % 2 == 0) ? (double)swing / 16384.0 : -(double)swing / 16384.0;
+    snd_seq_ev_clear(&ev);
+    snd_seq_ev_set_note(&ev, 0, sequence[2][l1] + transpose, 127, sequence[1][l1]);
+    snd_seq_ev_schedule_tick(&ev, queue_id,  0, tick);
+    snd_seq_ev_set_source(&ev, port_out_id);
+    snd_seq_ev_set_subs(&ev);
+    snd_seq_event_output_direct(seq_handle, &ev);
+    tick += (int)((double)sequence[0][l1] * (1.0 + dt));
+  }
+  snd_seq_ev_clear(&ev);
+  ev.type = SND_SEQ_EVENT_ECHO; 
+  snd_seq_ev_schedule_tick(&ev, queue_id,  0, tick);
+  snd_seq_ev_set_dest(&ev, snd_seq_client_id(seq_handle), port_in_id);
+  snd_seq_event_output_direct(seq_handle, &ev);
+}
+ 
+void clear_queue() 
+ {
+
+    snd_seq_remove_events_t *remove_ev;
+
+    snd_seq_remove_events_malloc(&remove_ev);
+    snd_seq_remove_events_set_queue(remove_ev, queue_id);
+    snd_seq_remove_events_set_condition(remove_ev, SND_SEQ_REMOVE_OUTPUT | SND_SEQ_REMOVE_IGNORE_OFF);
+    snd_seq_remove_events(seq_handle, remove_ev);
+    snd_seq_remove_events_free(remove_ev);
+}
+ */
+
 
 //This will eventually get a real indexing algorithm.  Although generally it shouldn't have noticeably
 //bad performance on a modern CPU because it's only called when the user does something in the UI.
