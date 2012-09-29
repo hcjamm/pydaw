@@ -48,6 +48,7 @@ extern "C" {
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <alsa/asoundlib.h>
 #include "pydaw_files.h"
     
 typedef struct st_pynote
@@ -123,6 +124,7 @@ typedef struct st_pydaw_data
     int current_bar; //the current bar(0 to 7), within the current region
     float sample_rate;
     int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz
+    snd_seq_t *seq_handle;
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
@@ -384,11 +386,41 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->region_folder = (char*)malloc(sizeof(char) * 256);
     f_result->project_name = (char*)malloc(sizeof(char) * 256);
     
+    if (snd_seq_open(&f_result->seq_handle, "default", SND_SEQ_OPEN_OUTPUT, 0) < 0) 
+    {
+      fprintf(stderr, "Error opening ALSA sequencer.\n");
+      exit(1);
+    }
+    
     int f_i = 0;
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
         f_result->track_pool[f_i] = g_pytrack_get();
+        
+        /*ALSA stuff*/
+
+        snd_seq_set_client_name(f_result->seq_handle, "PyDAW");
+        
+        char f_char_arr[12];
+        sprintf(f_char_arr, "pydaw-%i", f_i);
+        
+        if ((port_out_id = snd_seq_create_simple_port(f_result->seq_handle, f_char_arr,
+                  SND_SEQ_PORT_CAP_READ|SND_SEQ_PORT_CAP_SUBS_READ,
+                  SND_SEQ_PORT_TYPE_APPLICATION)) < 0) {
+          fprintf(stderr, "Error creating sequencer port.\n");
+        }
+        /*
+        if ((port_in_id = snd_seq_create_simple_port(seq_handle, "miniArp",
+                  SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE,
+                  SND_SEQ_PORT_TYPE_APPLICATION)) < 0) {
+          fprintf(stderr, "Error creating sequencer port.\n");
+          exit(1);
+        }
+        */
+        
+        /*End ALSA stuff*/
+        
         f_i++;
     }
             
