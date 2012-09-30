@@ -53,7 +53,6 @@ extern "C" {
     
 typedef struct st_pynote
 {
-    //TODO:  Include the native ALSA types to pass, to avoid having to free them later?
     //TODO TODO:  It may be more efficient to process as Int?
     char note;
     char velocity;
@@ -127,7 +126,7 @@ typedef struct st_pydaw_data
     snd_seq_t *seq_handle;    
     
     int queue_id, port_in_id[PYDAW_MAX_TRACK_COUNT], port_out_id[PYDAW_MAX_TRACK_COUNT];    
-    snd_seq_tick_time_t tick;    //[PYDAW_MAX_TRACK_COUNT]????
+    snd_seq_tick_time_t tick[PYDAW_MAX_TRACK_COUNT];
     
 }t_pydaw_data;
 
@@ -423,6 +422,15 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     return f_result;
 }
 
+//Functions adapted from miniArp.c
+void g_pydaw_alsa_start(t_pydaw_data* a_pydaw_data);
+void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data);
+void g_pydaw_alsa_stop(t_pydaw_data* a_pydaw_data);
+snd_seq_tick_time_t g_pydaw_data_get_tick();
+void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data);
+void v_pydaw_schedule_item(t_pydaw_data * a_pydaw_data, int a_item_number, int a_track_number);
+void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data);
+
 void g_pydaw_alsa_start(t_pydaw_data* a_pydaw_data)
 {
     snd_seq_start_queue(a_pydaw_data->seq_handle, queue_id, NULL);
@@ -434,16 +442,14 @@ void g_pydaw_alsa_start(t_pydaw_data* a_pydaw_data)
 
 void g_pydaw_alsa_stop(t_pydaw_data* a_pydaw_data)
 {
-    //clear_queue();
+    v_pydaw_clear_queue(a_pydaw_data);
     sleep(2);
     snd_seq_stop_queue(a_pydaw_data->seq_handle, queue_id, NULL);
     snd_seq_free_queue(a_pydaw_data->seq_handle, queue_id);
 }
 
-/* 
-
-snd_seq_tick_time_t get_tick() {
-
+snd_seq_tick_time_t g_pydaw_data_get_tick()
+{
   snd_seq_queue_status_t *status;
   snd_seq_tick_time_t current_tick;
   
@@ -454,48 +460,47 @@ snd_seq_tick_time_t get_tick() {
   return(current_tick);
 }
 
-void init_queue() {
-
-  queue_id = snd_seq_alloc_queue(seq_handle);
-  snd_seq_set_client_pool_output(seq_handle, (seq_len<<1) + 4);
+void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data)
+{
+  a_pydaw_data->queue_id = snd_seq_alloc_queue(seq_handle);
+  snd_seq_set_client_pool_output(a_pydaw_data->seq_handle, (seq_len<<1) + 4);
 } 
  
-void arpeggio() {
-
+void v_pydaw_schedule_item(t_pydaw_data * a_pydaw_data, int a_item_number, int a_track_number)
+{
   snd_seq_event_t ev;
   int l1;
   double dt;
  
-  for (l1 = 0; l1 < seq_len; l1++) {
+  for (l1 = 0; l1 < (a_pydaw_data->item_count); l1++) {
     dt = (l1 % 2 == 0) ? (double)swing / 16384.0 : -(double)swing / 16384.0;
     snd_seq_ev_clear(&ev);
     snd_seq_ev_set_note(&ev, 0, sequence[2][l1] + transpose, 127, sequence[1][l1]);
-    snd_seq_ev_schedule_tick(&ev, queue_id,  0, tick);
-    snd_seq_ev_set_source(&ev, port_out_id);
+    snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
+    snd_seq_ev_set_source(&ev, a_pydaw_data->port_out_id[a_track_number]);
     snd_seq_ev_set_subs(&ev);
-    snd_seq_event_output_direct(seq_handle, &ev);
-    tick += (int)((double)sequence[0][l1] * (1.0 + dt));
+    snd_seq_event_output_direct(a_pydaw_data->seq_handle, &ev);
+    a_pydaw_data->tick[a_track_number] += (int)((double)sequence[0][l1] * (1.0 + dt));
   }
+  
+  //snd_seq_ev_set_controller
+  
   snd_seq_ev_clear(&ev);
   ev.type = SND_SEQ_EVENT_ECHO; 
-  snd_seq_ev_schedule_tick(&ev, queue_id,  0, tick);
-  snd_seq_ev_set_dest(&ev, snd_seq_client_id(seq_handle), port_in_id);
-  snd_seq_event_output_direct(seq_handle, &ev);
+  snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
+  snd_seq_ev_set_dest(&ev, snd_seq_client_id(a_pydaw_data->seq_handle), port_in_id);
+  snd_seq_event_output_direct(a_pydaw_data->seq_handle, &ev);
 }
- 
-void clear_queue() 
- {
 
+void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data)
+{
     snd_seq_remove_events_t *remove_ev;
-
     snd_seq_remove_events_malloc(&remove_ev);
-    snd_seq_remove_events_set_queue(remove_ev, queue_id);
+    snd_seq_remove_events_set_queue(remove_ev, a_pydaw_data->queue_id);
     snd_seq_remove_events_set_condition(remove_ev, SND_SEQ_REMOVE_OUTPUT | SND_SEQ_REMOVE_IGNORE_OFF);
-    snd_seq_remove_events(seq_handle, remove_ev);
+    snd_seq_remove_events(a_pydaw_data->seq_handle, remove_ev);
     snd_seq_remove_events_free(remove_ev);
 }
- */
-
 
 //This will eventually get a real indexing algorithm.  Although generally it shouldn't have noticeably
 //bad performance on a modern CPU because it's only called when the user does something in the UI.
