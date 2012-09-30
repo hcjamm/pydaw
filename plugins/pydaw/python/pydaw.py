@@ -107,6 +107,7 @@ class song_editor:
 
 class region_list_editor:
     def open_region(self, a_file_name):
+        self.enabled = True
         self.table_widget.clear()
         self.region_name_lineedit.setText(a_file_name)
         self.region = this_pydaw_project.get_region(a_file_name)
@@ -114,6 +115,8 @@ class region_list_editor:
             self.table_widget.setItem(f_item.track_num, f_item.bar_num, QtGui.QTableWidgetItem(f_item.item_name))
 
     def cell_clicked(self, x, y):
+        if not self.enabled:
+            return
         f_item = self.table_widget.item(x, y)
         if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
             if f_item is None:
@@ -175,6 +178,7 @@ class region_list_editor:
         self.table_widget.setItem(x, y, f_item)
 
     def __init__(self):
+        self.enabled = False #Prevents user from editing a region before one has been selected
         self.group_box = QtGui.QGroupBox()
         self.main_vlayout = QtGui.QVBoxLayout()
 
@@ -201,6 +205,7 @@ class region_list_editor:
 class item_list_editor:
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):
+        self.enabled = False
         self.group_box = QtGui.QGroupBox()
         self.main_hlayout = QtGui.QHBoxLayout()
         self.group_box.setLayout(self.main_hlayout)
@@ -225,6 +230,7 @@ class item_list_editor:
         self.ccs_table_widget.setHorizontalHeaderLabels(['Start', 'CC', 'Value'])
 
     def open_item(self, a_item_name):
+        self.enabled = True
         self.notes_table_widget.clear()
         self.ccs_table_widget.clear()
         self.set_headers()
@@ -252,6 +258,8 @@ class item_list_editor:
             self.ccs_table_widget.setItem(k, 2, f_start_item)
             
     def notes_click_handler(self, x, y):
+        if not self.enabled:
+            return
         if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
             self.notes_show_event_dialog(x, y)
         elif this_edit_mode_selector.delete_radiobutton.isChecked():            
@@ -260,6 +268,8 @@ class item_list_editor:
             self.open_item(self.item_name)
     
     def ccs_click_handler(self, x, y):
+        if not self.enabled:
+            return
         if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
             self.ccs_show_event_dialog(x, y)
         elif this_edit_mode_selector.delete_radiobutton.isChecked():
