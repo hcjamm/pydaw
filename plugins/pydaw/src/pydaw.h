@@ -122,7 +122,8 @@ typedef struct st_pydaw_data
     int current_region; //the current region
     int current_bar; //the current bar(0 to 7), within the current region
     float sample_rate;
-    int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz
+    int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz.  Reset to zero on beginning playback
+    int sample_next_bar;  //The sample number at which the next bar will begin when current_sample reaches this value
     snd_seq_t *seq_handle;    
     
     int queue_id, port_in_id[PYDAW_MAX_TRACK_COUNT], port_out_id[PYDAW_MAX_TRACK_COUNT];    
@@ -444,17 +445,17 @@ void g_pydaw_alsa_stop(t_pydaw_data* a_pydaw_data)
 {
     v_pydaw_clear_queue(a_pydaw_data);
     sleep(2);
-    snd_seq_stop_queue(a_pydaw_data->seq_handle, queue_id, NULL);
-    snd_seq_free_queue(a_pydaw_data->seq_handle, queue_id);
+    snd_seq_stop_queue(a_pydaw_data->seq_handle, a_pydaw_data->queue_id, NULL);
+    snd_seq_free_queue(a_pydaw_data->seq_handle, a_pydaw_data->queue_id);
 }
 
-snd_seq_tick_time_t g_pydaw_data_get_tick()
+snd_seq_tick_time_t g_pydaw_data_get_tick(t_pydaw_data * a_pydaw_data)
 {
   snd_seq_queue_status_t *status;
   snd_seq_tick_time_t current_tick;
   
   snd_seq_queue_status_malloc(&status);
-  snd_seq_get_queue_status(seq_handle, queue_id, status);
+  snd_seq_get_queue_status(a_pydaw_data->seq_handle, a_pydaw_data->queue_id, status);
   current_tick = snd_seq_queue_status_get_tick_time(status);
   snd_seq_queue_status_free(status);
   return(current_tick);
@@ -462,7 +463,7 @@ snd_seq_tick_time_t g_pydaw_data_get_tick()
 
 void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data)
 {
-  a_pydaw_data->queue_id = snd_seq_alloc_queue(seq_handle);
+  a_pydaw_data->queue_id = snd_seq_alloc_queue(a_pydaw_data->seq_handle);
   snd_seq_set_client_pool_output(a_pydaw_data->seq_handle, (seq_len<<1) + 4);
 } 
  
@@ -472,7 +473,7 @@ void v_pydaw_schedule_item(t_pydaw_data * a_pydaw_data, int a_item_number, int a
   int l1;
   double dt;
  
-  for (l1 = 0; l1 < (a_pydaw_data->item_count); l1++) {
+  for (l1 = 0; l1 < (a_pydaw_data->item_pool[a_item_number]->note_count); l1++) {
     dt = (l1 % 2 == 0) ? (double)swing / 16384.0 : -(double)swing / 16384.0;
     snd_seq_ev_clear(&ev);
     snd_seq_ev_set_note(&ev, 0, sequence[2][l1] + transpose, 127, sequence[1][l1]);
@@ -485,11 +486,13 @@ void v_pydaw_schedule_item(t_pydaw_data * a_pydaw_data, int a_item_number, int a
   
   //snd_seq_ev_set_controller
   
-  snd_seq_ev_clear(&ev);
-  ev.type = SND_SEQ_EVENT_ECHO; 
-  snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
-  snd_seq_ev_set_dest(&ev, snd_seq_client_id(a_pydaw_data->seq_handle), port_in_id);
-  snd_seq_event_output_direct(a_pydaw_data->seq_handle, &ev);
+  
+  //The echo event causes it to loop, commenting out for now
+  //snd_seq_ev_clear(&ev);
+  //ev.type = SND_SEQ_EVENT_ECHO; 
+  //snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
+  //snd_seq_ev_set_dest(&ev, snd_seq_client_id(a_pydaw_data->seq_handle), port_in_id);
+  //snd_seq_event_output_direct(a_pydaw_data->seq_handle, &ev);
 }
 
 void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data)
@@ -604,9 +607,11 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             //Initiate some sort of mixer fadeout?
             break;
         case 1:  //play
+            a_pydaw_data->current_sample = 0;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
             break;
         case 2:  //record
+            a_pydaw_data->current_sample = 0;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
             break;
     }
