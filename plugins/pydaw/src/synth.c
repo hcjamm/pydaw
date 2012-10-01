@@ -81,9 +81,7 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     t_pydaw_engine *plugin;
 
     plugin = (t_pydaw_engine *) instance;
-    
-    /*Add the ports from step 9 to the connectPortLMS event handler*/
-    
+        
     if((port >= LMS_INPUT_MIN) && (port < LMS_INPUT_MAX))
     {
         plugin->input_arr[(port - LMS_INPUT_MIN)] = data;
@@ -176,6 +174,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
         plugin_data->pos = (plugin_data->pos) + STEP_SIZE;
     }
     
+    pydaw_data->current_sample += sample_count;
     pthread_mutex_unlock(&pydaw_data->mutex);
 }
 
@@ -183,19 +182,7 @@ char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value
 {
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *)instance;
     v_pydaw_parse_configure_message(pydaw_data, key, value);
-    
-    /*
-    if (!strcmp(key, "save")) {	
-        printf("configure called with key 'save'\n");
-        return NULL; //samplerLoadAll(plugin_data, value);    
-    }  else if (!strcmp(key, "lastdir")) {
-        //do nothing, this is only so the plugin host will recall the last sample directory
-        return NULL;
-    }
-
-    return strdup("error: unrecognized configure key");
-    */
-    
+        
     return NULL;
 }
 
@@ -222,7 +209,7 @@ void _init()
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = LMS_PLUGIN_UUID;
 	LMSLDescriptor->Label = LMS_PLUGIN_NAME;
-	LMSLDescriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE | LADSPA_PROPERTY_INPLACE_BROKEN;
+	LMSLDescriptor->Properties = LADSPA_PROPERTY_REALTIME;
 	LMSLDescriptor->Name = LMS_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = LMS_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";
