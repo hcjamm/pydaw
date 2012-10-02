@@ -320,121 +320,131 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->vals.lfo_pitch = *(plugin_data->lfo_pitch);
     plugin_data->vals.lfo_filter = *(plugin_data->lfo_filter);
     
-    /*Events is an array of snd_seq_event_t objects, 
-     event_count is the number of events,
-     and sample_count is the block size          
-     */
+    
+    for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count; plugin_data->event_pos = (plugin_data->event_pos) + 1)
+    {
+        printf("plugin_data->event_pos == %i\n", plugin_data->event_pos);
+        /*Note on event*/
+        if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEON) 
+        {
+            printf("events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEON\n");
+            snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
+
+            printf("n.note == %i\nn.velocity == %i\n n.duration == %i\n", n.note, n.velocity, n.duration);
+
+            printf("events[(plugin_data->event_pos)].time.tick == %i\nevents[(plugin_data->event_pos)].time.time.tv_sec == %i\n", 
+                    events[(plugin_data->event_pos)].time.tick, events[(plugin_data->event_pos)].time.time.tv_sec);
+
+            if(n.note >= POLYPHONY)
+            {
+                continue;
+            }
+
+            if (n.velocity > 0) 
+            {
+                if((plugin_data->ons[n.note]) != -1)
+                {
+                    continue;
+                }
+
+                plugin_data->ons[n.note] =
+                    plugin_data->sampleNo + events[(plugin_data->event_pos)].time.tick;
+                plugin_data->offs[n.note] = -1;
+
+                plugin_data->data[n.note]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + (plugin_data->vals.master_vol)), //-20db to 0db, + master volume (0 to -60)
+                        plugin_data->mono_modules->amp_ptr); 
+                v_svf_velocity_mod(plugin_data->data[n.note]->svf_filter, n.velocity);
+
+                plugin_data->data[n.note]->note_f = (float)n.note;
+                plugin_data->data[n.note]->note = n.note;
+
+                plugin_data->data[n.note]->target_pitch = (plugin_data->data[n.note]->note_f);
+                plugin_data->data[n.note]->last_pitch = (plugin_data->sv_last_note);
+
+                v_rmp_retrigger_glide_t(plugin_data->data[n.note]->glide_env , (plugin_data->vals.master_glide), 
+                        (plugin_data->sv_last_note), (plugin_data->data[n.note]->target_pitch));
+
+                plugin_data->data[n.note]->osc1_linamp = f_db_to_linear_fast((plugin_data->vals.osc1vol), plugin_data->mono_modules->amp_ptr); 
+                plugin_data->data[n.note]->osc2_linamp = f_db_to_linear_fast((plugin_data->vals.osc2vol), plugin_data->mono_modules->amp_ptr);
+                plugin_data->data[n.note]->noise_linamp = f_db_to_linear_fast((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
+
+                v_adsr_retrigger(plugin_data->data[n.note]->adsr_amp);
+                v_adsr_retrigger(plugin_data->data[n.note]->adsr_filter);
+                v_lfs_sync(plugin_data->data[n.note]->lfo1, 0.0f, (plugin_data->vals.lfo_type));
+
+                v_adsr_set_adsr_db(plugin_data->data[n.note]->adsr_amp, (plugin_data->vals.attack), (plugin_data->vals.decay), (plugin_data->vals.sustain), (plugin_data->vals.release));
+                v_adsr_set_adsr(plugin_data->data[n.note]->adsr_filter, (plugin_data->vals.attack_f), (plugin_data->vals.decay_f), (plugin_data->vals.sustain_f), (plugin_data->vals.release_f));
+
+                v_rmp_retrigger((plugin_data->data[n.note]->pitch_env), (plugin_data->vals.pitch_env_time), (plugin_data->vals.pitch_env_amt));  
+
+                v_clp_set_in_gain(plugin_data->data[n.note]->clipper1, plugin_data->vals.dist);
+
+                v_svf_set_res(plugin_data->data[n.note]->svf_filter, plugin_data->vals.res);  
+
+                plugin_data->data[n.note]->noise_amp = f_db_to_linear((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
+
+                v_axf_set_xfade(plugin_data->data[n.note]->dist_dry_wet, plugin_data->vals.dist_wet);       
+
+                v_osc_set_simple_osc_unison_type(plugin_data->data[n.note]->osc_unison1, (int)(plugin_data->vals.osc1type));
+                v_osc_set_simple_osc_unison_type(plugin_data->data[n.note]->osc_unison2, (int)(plugin_data->vals.osc2type));   
+
+                v_osc_set_uni_voice_count(plugin_data->data[n.note]->osc_unison1, plugin_data->vals.master_uni_voice);
+                v_osc_set_uni_voice_count(plugin_data->data[n.note]->osc_unison2, plugin_data->vals.master_uni_voice);                    
+
+                /*Set the last_note property, so the next note can glide from it if glide is turned on*/
+                plugin_data->sv_last_note = (plugin_data->data[n.note]->note_f);
+            } 
+            /*0 velocity, the same as note-off*/
+            else 
+            {
+                snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
+
+                plugin_data->offs[n.note] = 
+                    (plugin_data->sampleNo) + (events[(plugin_data->event_pos)].time.tick);		    
+            }
+        } 
+        /*Note-off event*/
+        else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEOFF) 
+        {
+            printf("events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEOFF\n");
+            snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
+
+            printf("n.note == %i\nn.velocity == %i\n n.duration == %i\n", n.note, n.velocity, n.duration);
+
+            printf("events[(plugin_data->event_pos)].time.tick == %i\nevents[(plugin_data->event_pos)].time.time.tv_sec == %i\n", 
+                    events[(plugin_data->event_pos)].time.tick, events[(plugin_data->event_pos)].time.time.tv_sec);
+
+            plugin_data->offs[n.note] = 
+                    (plugin_data->sampleNo) + (events[(plugin_data->event_pos)].time.tick);
+            //v_voc_note_off(plugin_data->voices, n.note);
+        } 
+        /*Pitch-bend sequencer event, modify the voices pitch*/
+        else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_PITCHBEND) 
+        {
+            plugin_data->sv_pitch_bend_value = 0.00012207f
+                    * (events[(plugin_data->event_pos)].data.control.value) * (plugin_data->vals.master_pb_amt);
+        }
+        else if(events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_STOP)
+        {
+            plugin_data->sv_pitch_bend_value = 0.0f;
+
+            int f_note_off;
+
+            for(f_note_off = 0; f_note_off < POLYPHONY; f_note_off++)
+            {
+                if((plugin_data->ons[f_note_off]) > -1)
+                {
+                    plugin_data->offs[f_note_off] = (plugin_data->sampleNo) + (events[(plugin_data->event_pos)].time.tick);
+                }
+            }
+        }    
+    }
+    
     for (plugin_data->pos = 0; (plugin_data->pos) < sample_count; plugin_data->pos = (plugin_data->pos) + STEP_SIZE) 
     {	        
         v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.timbre));
         v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
-        
-	for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count; plugin_data->event_pos = (plugin_data->event_pos) + 1)
-        {
-            /*Note on event*/
-	    if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEON) 
-            {
-		snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
-
-                if(n.note >= POLYPHONY)
-                {
-                    continue;
-                }
-                
-		if (n.velocity > 0) 
-                {
-                    if((plugin_data->ons[n.note]) != -1)
-                    {
-                        continue;
-                    }
-                    
-                    plugin_data->ons[n.note] =
-			plugin_data->sampleNo + events[(plugin_data->event_pos)].time.tick;
-		    plugin_data->offs[n.note] = -1;
-                    
-		    plugin_data->data[n.note]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + (plugin_data->vals.master_vol)), //-20db to 0db, + master volume (0 to -60)
-                            plugin_data->mono_modules->amp_ptr); 
-                    v_svf_velocity_mod(plugin_data->data[n.note]->svf_filter, n.velocity);
-      
-                    plugin_data->data[n.note]->note_f = (float)n.note;
-                    plugin_data->data[n.note]->note = n.note;
-                    
-                    plugin_data->data[n.note]->target_pitch = (plugin_data->data[n.note]->note_f);
-                    plugin_data->data[n.note]->last_pitch = (plugin_data->sv_last_note);
-                    
-                    v_rmp_retrigger_glide_t(plugin_data->data[n.note]->glide_env , (plugin_data->vals.master_glide), 
-                            (plugin_data->sv_last_note), (plugin_data->data[n.note]->target_pitch));
-                                        
-                    plugin_data->data[n.note]->osc1_linamp = f_db_to_linear_fast((plugin_data->vals.osc1vol), plugin_data->mono_modules->amp_ptr); 
-                    plugin_data->data[n.note]->osc2_linamp = f_db_to_linear_fast((plugin_data->vals.osc2vol), plugin_data->mono_modules->amp_ptr);
-                    plugin_data->data[n.note]->noise_linamp = f_db_to_linear_fast((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
-                    
-                    v_adsr_retrigger(plugin_data->data[n.note]->adsr_amp);
-                    v_adsr_retrigger(plugin_data->data[n.note]->adsr_filter);
-                    v_lfs_sync(plugin_data->data[n.note]->lfo1, 0.0f, (plugin_data->vals.lfo_type));
-                    
-                    v_adsr_set_adsr_db(plugin_data->data[n.note]->adsr_amp, (plugin_data->vals.attack), (plugin_data->vals.decay), (plugin_data->vals.sustain), (plugin_data->vals.release));
-                    v_adsr_set_adsr(plugin_data->data[n.note]->adsr_filter, (plugin_data->vals.attack_f), (plugin_data->vals.decay_f), (plugin_data->vals.sustain_f), (plugin_data->vals.release_f));
-                                        
-                    v_rmp_retrigger((plugin_data->data[n.note]->pitch_env), (plugin_data->vals.pitch_env_time), (plugin_data->vals.pitch_env_amt));  
-                    
-                    v_clp_set_in_gain(plugin_data->data[n.note]->clipper1, plugin_data->vals.dist);
-    
-                    v_svf_set_res(plugin_data->data[n.note]->svf_filter, plugin_data->vals.res);  
-                    
-                    plugin_data->data[n.note]->noise_amp = f_db_to_linear((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
-                    
-                    v_axf_set_xfade(plugin_data->data[n.note]->dist_dry_wet, plugin_data->vals.dist_wet);       
-                    
-                    v_osc_set_simple_osc_unison_type(plugin_data->data[n.note]->osc_unison1, (int)(plugin_data->vals.osc1type));
-                    v_osc_set_simple_osc_unison_type(plugin_data->data[n.note]->osc_unison2, (int)(plugin_data->vals.osc2type));   
-                    
-                    v_osc_set_uni_voice_count(plugin_data->data[n.note]->osc_unison1, plugin_data->vals.master_uni_voice);
-                    v_osc_set_uni_voice_count(plugin_data->data[n.note]->osc_unison2, plugin_data->vals.master_uni_voice);                    
-                                        
-                    /*Set the last_note property, so the next note can glide from it if glide is turned on*/
-                    plugin_data->sv_last_note = (plugin_data->data[n.note]->note_f);
-		} 
-                /*0 velocity, the same as note-off*/
-                else 
-                {
-                    snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
-                    
-                    plugin_data->offs[n.note] = 
-                        (plugin_data->sampleNo) + (events[(plugin_data->event_pos)].time.tick);		    
-		}
-	    } 
-            /*Note-off event*/
-            else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEOFF) 
-            {
-		snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
-                
-                plugin_data->offs[n.note] = 
-                        (plugin_data->sampleNo) + (events[(plugin_data->event_pos)].time.tick);
-                //v_voc_note_off(plugin_data->voices, n.note);
-	    } 
-            /*Pitch-bend sequencer event, modify the voices pitch*/
-            else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_PITCHBEND) 
-            {
-		plugin_data->sv_pitch_bend_value = 0.00012207f
-                        * (events[(plugin_data->event_pos)].data.control.value) * (plugin_data->vals.master_pb_amt);
-	    }
-            else if(events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_STOP)
-            {
-                plugin_data->sv_pitch_bend_value = 0.0f;
-                
-                int f_note_off;
-                
-                for(f_note_off = 0; f_note_off < POLYPHONY; f_note_off++)
-                {
-                    if((plugin_data->ons[f_note_off]) > -1)
-                    {
-                        plugin_data->offs[f_note_off] = (plugin_data->sampleNo) + (events[(plugin_data->event_pos)].time.tick);
-                    }
-                }
-            }    
-	}
-                
+                        
 	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE : sample_count - (plugin_data->pos);
 	
         /*Clear the output buffer*/
