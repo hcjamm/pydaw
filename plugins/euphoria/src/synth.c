@@ -714,7 +714,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
     Sampler *plugin_data = (Sampler *) instance;
     unsigned long pos;
     unsigned long count;
-    unsigned long event_pos;
+    unsigned long event_pos = 0;
     int i, i2, i3;
 
     for (i = 0; i < plugin_data->channels; ++i) {
@@ -772,250 +772,253 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
     int f_note = 60;
     //int f_note_adjusted = 60;
 
-    for (pos = 0, event_pos = 0; pos < sample_count; ) {
-        
-	while (event_pos < event_count
-	       && pos >= events[event_pos].time.tick) {
-            /*Note-on event*/
-	    if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) {
-		snd_seq_ev_note_t n = events[event_pos].data.note;
-                
-                //Code for accepting MIDI only on a user selected MIDI channel.  Not currently implemented
-                //because jack-dssi-host does not accept MIDI on all channels in it's current state
-                /*
-                if(*(plugin_data->global_midi_channel) < 16)
-                {
-                    if((int)(*(plugin_data->global_midi_channel)) != (int)(n.channel))
-                    {
-                        ++event_pos;
-                        printf("Skipping event on channel %i\n", (int)(n.channel));
-                        continue;
-                    }                    
-                }
-                */
-                
-                f_note = n.note;
-                //f_note_adjusted = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
-                
-                if(f_note < 0)
-                {
-                    f_note = 0;
-                }
-                if(f_note > Sampler_NOTES_m1)
-                {
-                    f_note = Sampler_NOTES_m1;
-                }
-                
-                if(f_note < 0)
-                {
-                    f_note = 0;
-                }
-                if(f_note > Sampler_NOTES_m1)
-                {
-                    f_note = Sampler_NOTES_m1;
-                }
-                
-		if (n.velocity > 0) {
-		    plugin_data->ons[f_note] =
-			plugin_data->sampleNo + events[event_pos].time.tick;
-		    plugin_data->offs[f_note] = -1;
-		    plugin_data->velocities[f_note] = n.velocity;
+    while (event_pos < event_count) // && pos >= events[event_pos].time.tick) 
+    {
+        /*Note-on event*/
+        if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) 
+        {
+            snd_seq_ev_note_t n = events[event_pos].data.note;
 
-                    plugin_data->sample_indexes_count[f_note] = 0;
-                    
-                    //Figure out which samples to play and stash all relevant values
-                    for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
+            //Code for accepting MIDI only on a user selected MIDI channel.  Not currently implemented
+            //because jack-dssi-host does not accept MIDI on all channels in it's current state
+            /*
+            if(*(plugin_data->global_midi_channel) < 16)
+            {
+                if((int)(*(plugin_data->global_midi_channel)) != (int)(n.channel))
+                {
+                    ++event_pos;
+                    printf("Skipping event on channel %i\n", (int)(n.channel));
+                    continue;
+                }                    
+            }
+            */
+
+            f_note = n.note;
+            //f_note_adjusted = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
+
+            if(f_note < 0)
+            {
+                f_note = 0;
+            }
+            if(f_note > Sampler_NOTES_m1)
+            {
+                f_note = Sampler_NOTES_m1;
+            }
+
+            if(f_note < 0)
+            {
+                f_note = 0;
+            }
+            if(f_note > Sampler_NOTES_m1)
+            {
+                f_note = Sampler_NOTES_m1;
+            }
+
+            if (n.velocity > 0) {
+                plugin_data->ons[f_note] =
+                    plugin_data->sampleNo + events[event_pos].time.tick;
+                plugin_data->offs[f_note] = -1;
+                plugin_data->velocities[f_note] = n.velocity;
+
+                plugin_data->sample_indexes_count[f_note] = 0;
+
+                //Figure out which samples to play and stash all relevant values
+                for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
+                {
+                    if((f_note >= *(plugin_data->low_note[(plugin_data->loaded_samples[i])])) && 
+                    (f_note <= *(plugin_data->high_note[(plugin_data->loaded_samples[i])])) &&
+                    (plugin_data->velocities[f_note] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])) &&
+                    (plugin_data->velocities[f_note] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
                     {
-                        if((f_note >= *(plugin_data->low_note[(plugin_data->loaded_samples[i])])) && 
-                        (f_note <= *(plugin_data->high_note[(plugin_data->loaded_samples[i])])) &&
-                        (plugin_data->velocities[f_note] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])) &&
-                        (plugin_data->velocities[f_note] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
+                        plugin_data->sample_indexes[f_note][(plugin_data->sample_indexes_count[f_note])] = (plugin_data->loaded_samples[i]);
+                        plugin_data->sample_indexes_count[f_note] = (plugin_data->sample_indexes_count[f_note]) + 1;                            
+
+                        plugin_data->sample_mfx_groups_index[(plugin_data->loaded_samples[i])] = (int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]));
+
+                        plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001)));
+                        plugin_data->sampleLoopStartPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleLoopStarts[(plugin_data->loaded_samples[i])])) * .0001)));
+
+                        /* If loop mode is enabled for this sample, set the sample end to be the same as the
+                           loop end.  Then, in the main loop, we'll recalculate sample_end to be the real sample end once
+                           the note_off event is fired.  Doing it this way greatly reduces the need for extra if-then-else logic
+                           in the main loop */
+                        if(((int)(*(plugin_data->sampleLoopModes[(plugin_data->loaded_samples[i])]))) == 0)
                         {
-                            plugin_data->sample_indexes[f_note][(plugin_data->sample_indexes_count[f_note])] = (plugin_data->loaded_samples[i]);
-                            plugin_data->sample_indexes_count[f_note] = (plugin_data->sample_indexes_count[f_note]) + 1;                            
-                            
-                            plugin_data->sample_mfx_groups_index[(plugin_data->loaded_samples[i])] = (int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]));
-                            
-                            plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001)));
-                            plugin_data->sampleLoopStartPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) * ((*(plugin_data->sampleLoopStarts[(plugin_data->loaded_samples[i])])) * .0001)));
-                            
-                            /* If loop mode is enabled for this sample, set the sample end to be the same as the
-                               loop end.  Then, in the main loop, we'll recalculate sample_end to be the real sample end once
-                               the note_off event is fired.  Doing it this way greatly reduces the need for extra if-then-else logic
-                               in the main loop */
-                            if(((int)(*(plugin_data->sampleLoopModes[(plugin_data->loaded_samples[i])]))) == 0)
-                            {
-                                plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
-                            }
-                            else
-                            {
-                                plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleLoopEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
-                            }
-                            
-                            if((plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]) > ((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]))))
-                            {
-                                plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (float)(plugin_data->sampleCount[(plugin_data->loaded_samples[i])]);
-                            }
-                            
-                            plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->global_midi_octaves_offset) + 2) * 12)
-                                    - (*(plugin_data->sample_pitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->sample_tune[(plugin_data->loaded_samples[i])])) * .01f);
-                            
-                            v_ifh_retrigger(plugin_data->sample_read_heads[f_note][(plugin_data->loaded_samples[i])], 
-                                    (plugin_data->sampleStartPos[(plugin_data->current_sample)]));// 0.0f;
-                            
-                            plugin_data->vel_sens_output[f_note][(plugin_data->loaded_samples[i])] = 
-                                    ((1 -
-                                    (((float)(n.velocity) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
-                                    /
-                                    ((float)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])]) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])]))))))
-                                    * (*(plugin_data->sample_vel_sens[(plugin_data->loaded_samples[i])])) * -1.0f);
-                            
-                            plugin_data->sample_amp[(plugin_data->loaded_samples[i])] = f_db_to_linear(
-                                (*(plugin_data->sample_vol[(plugin_data->loaded_samples[i])])) + 
-                                (plugin_data->vel_sens_output[f_note][(plugin_data->loaded_samples[i])])                        
-                                , plugin_data->amp_ptr);
-                            
-                            switch((int)(*(plugin_data->sample_interpolation_mode[(plugin_data->loaded_samples[i])])))
-                            {
-                                case 0:
-                                    interpolation_modes[(plugin_data->loaded_samples[i])] = run_sampler_interpolation_sinc;
-                                    ratio_function_ptrs[(plugin_data->loaded_samples[i])] = calculate_ratio_sinc;
-                                    break;
-                                case 1:
-                                    interpolation_modes[(plugin_data->loaded_samples[i])] = run_sampler_interpolation_linear;
-                                    ratio_function_ptrs[(plugin_data->loaded_samples[i])] = calculate_ratio_linear;
-                                    break;
-                                case 2:
-                                    interpolation_modes[(plugin_data->loaded_samples[i])] = run_sampler_interpolation_none;
-                                    ratio_function_ptrs[(plugin_data->loaded_samples[i])] = calculate_ratio_none;
-                                    break;
-                            }
+                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
+                        }
+                        else
+                        {
+                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (LMS_SINC_INTERPOLATION_POINTS_DIV2 + ((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - ((int)(((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]) - 5)) * ((*(plugin_data->sampleLoopEnds[(plugin_data->loaded_samples[i])])) * .0001)))));
+                        }
+
+                        if((plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])]) > ((float)((plugin_data->sampleCount[(plugin_data->loaded_samples[i])]))))
+                        {
+                            plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (float)(plugin_data->sampleCount[(plugin_data->loaded_samples[i])]);
+                        }
+
+                        plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->global_midi_octaves_offset) + 2) * 12)
+                                - (*(plugin_data->sample_pitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->sample_tune[(plugin_data->loaded_samples[i])])) * .01f);
+
+                        v_ifh_retrigger(plugin_data->sample_read_heads[f_note][(plugin_data->loaded_samples[i])], 
+                                (plugin_data->sampleStartPos[(plugin_data->current_sample)]));// 0.0f;
+
+                        plugin_data->vel_sens_output[f_note][(plugin_data->loaded_samples[i])] = 
+                                ((1 -
+                                (((float)(n.velocity) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
+                                /
+                                ((float)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])]) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])]))))))
+                                * (*(plugin_data->sample_vel_sens[(plugin_data->loaded_samples[i])])) * -1.0f);
+
+                        plugin_data->sample_amp[(plugin_data->loaded_samples[i])] = f_db_to_linear(
+                            (*(plugin_data->sample_vol[(plugin_data->loaded_samples[i])])) + 
+                            (plugin_data->vel_sens_output[f_note][(plugin_data->loaded_samples[i])])                        
+                            , plugin_data->amp_ptr);
+
+                        switch((int)(*(plugin_data->sample_interpolation_mode[(plugin_data->loaded_samples[i])])))
+                        {
+                            case 0:
+                                interpolation_modes[(plugin_data->loaded_samples[i])] = run_sampler_interpolation_sinc;
+                                ratio_function_ptrs[(plugin_data->loaded_samples[i])] = calculate_ratio_sinc;
+                                break;
+                            case 1:
+                                interpolation_modes[(plugin_data->loaded_samples[i])] = run_sampler_interpolation_linear;
+                                ratio_function_ptrs[(plugin_data->loaded_samples[i])] = calculate_ratio_linear;
+                                break;
+                            case 2:
+                                interpolation_modes[(plugin_data->loaded_samples[i])] = run_sampler_interpolation_none;
+                                ratio_function_ptrs[(plugin_data->loaded_samples[i])] = calculate_ratio_none;
+                                break;
                         }
                     }
-                        
-                    plugin_data->active_polyfx_count[f_note] = 0;
-                    //Determine which PolyFX have been enabled
-                    for(plugin_data->i_dst = 0; (plugin_data->i_dst) < LMS_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
+                }
+
+                plugin_data->active_polyfx_count[f_note] = 0;
+                //Determine which PolyFX have been enabled
+                for(plugin_data->i_dst = 0; (plugin_data->i_dst) < LMS_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
+                {
+                    int f_pfx_combobox_index = (int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)]));
+                    plugin_data->data[f_note]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer(f_pfx_combobox_index); 
+
+                    if(f_pfx_combobox_index != 0)
                     {
-                        int f_pfx_combobox_index = (int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)]));
-                        plugin_data->data[f_note]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer(f_pfx_combobox_index); 
-                        
-                        if(f_pfx_combobox_index != 0)
-                        {
-                            plugin_data->active_polyfx[f_note][(plugin_data->active_polyfx_count[f_note])] = (plugin_data->i_dst);
-                            plugin_data->active_polyfx_count[f_note] = (plugin_data->active_polyfx_count[f_note]) + 1;
-                        }
-                    }    
-                    
-                    //Calculate an index of which mod_matrix controls to process.  This saves expensive iterations and if/then logic in the main loop
-                    for(plugin_data->i_fx_grps = 0; (plugin_data->i_fx_grps) < LMS_EFFECTS_GROUPS_COUNT; plugin_data->i_fx_grps = (plugin_data->i_fx_grps) + 1)
+                        plugin_data->active_polyfx[f_note][(plugin_data->active_polyfx_count[f_note])] = (plugin_data->i_dst);
+                        plugin_data->active_polyfx_count[f_note] = (plugin_data->active_polyfx_count[f_note]) + 1;
+                    }
+                }    
+
+                //Calculate an index of which mod_matrix controls to process.  This saves expensive iterations and if/then logic in the main loop
+                for(plugin_data->i_fx_grps = 0; (plugin_data->i_fx_grps) < LMS_EFFECTS_GROUPS_COUNT; plugin_data->i_fx_grps = (plugin_data->i_fx_grps) + 1)
+                {
+                    for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[f_note]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
                     {
-                        for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[f_note]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
+                        plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])] = 0;
+
+                        for(plugin_data->i_src = 0; (plugin_data->i_src) < LMS_MODULATOR_COUNT; plugin_data->i_src = (plugin_data->i_src) + 1)
                         {
-                            plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])] = 0;
-                            
-                            for(plugin_data->i_src = 0; (plugin_data->i_src) < LMS_MODULATOR_COUNT; plugin_data->i_src = (plugin_data->i_src) + 1)
+                            for(plugin_data->i_ctrl = 0; (plugin_data->i_ctrl) < LMS_CONTROLS_PER_MOD_EFFECT; plugin_data->i_ctrl = (plugin_data->i_ctrl) + 1)
                             {
-                                for(plugin_data->i_ctrl = 0; (plugin_data->i_ctrl) < LMS_CONTROLS_PER_MOD_EFFECT; plugin_data->i_ctrl = (plugin_data->i_ctrl) + 1)
-                                {
-                                    if((*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) != 0)
-                                    {                                        
-                                        plugin_data->polyfx_mod_ctrl_indexes[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])])] = (plugin_data->i_ctrl);
-                                        plugin_data->polyfx_mod_src_index[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])])] = (plugin_data->i_src);
-                                        plugin_data->polyfx_mod_matrix_values[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])])] = 
-                                                (*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) * .01;
-                                        
-                                        plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])] = (plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])]) + 1;
-                                    }
+                                if((*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) != 0)
+                                {                                        
+                                    plugin_data->polyfx_mod_ctrl_indexes[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])])] = (plugin_data->i_ctrl);
+                                    plugin_data->polyfx_mod_src_index[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])])] = (plugin_data->i_src);
+                                    plugin_data->polyfx_mod_matrix_values[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])])] = 
+                                            (*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) * .01;
+
+                                    plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])] = (plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])]) + 1;
                                 }
                             }
                         }
                     }
-                    //Get the noise function pointer
-                    plugin_data->data[f_note]->noise_func_ptr = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
-                    
-                    plugin_data->data[f_note]->noise_index = (plugin_data->mono_modules->noise_current_index);
-                    plugin_data->mono_modules->noise_current_index = (plugin_data->mono_modules->noise_current_index) + 1;
-                    
-                    if((plugin_data->mono_modules->noise_current_index) >= LMS_NOISE_COUNT)
-                    {
-                        plugin_data->mono_modules->noise_current_index = 0;
-                    }
-                    
-                    //const int voice = i_pick_voice(plugin_data->voices, f_note);
-                    
-		    plugin_data->amp = f_db_to_linear_fast(*(plugin_data->master_vol), plugin_data->mono_modules->amp_ptr);                     
-                    
-                    plugin_data->data[f_note]->note_f = (float)f_note;
-                                        
-                    plugin_data->data[f_note]->target_pitch = (plugin_data->data[f_note]->note_f);
-                    plugin_data->data[f_note]->last_pitch = (plugin_data->sv_last_note);
-                    
-                    v_rmp_retrigger_glide_t(plugin_data->data[f_note]->glide_env , (*(plugin_data->master_glide) * .01), 
-                            (plugin_data->sv_last_note), (plugin_data->data[f_note]->target_pitch));
-                                                    
-                    plugin_data->data[f_note]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
-                                        
-                    /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
-                     placing things here that don't need to be modulated as a note is playing*/
-                    
-                    /*Retrigger ADSR envelopes and LFO*/
-                    v_adsr_retrigger(plugin_data->data[f_note]->adsr_amp);
-                    v_adsr_retrigger(plugin_data->data[f_note]->adsr_filter);
-                    v_lfs_sync(plugin_data->data[f_note]->lfo1, 0.0f, *(plugin_data->lfo_type));
-                    
-                    v_adsr_set_adsr_db(plugin_data->data[f_note]->adsr_amp, (*(plugin_data->attack) * .01), (*(plugin_data->decay) * .01), (*(plugin_data->sustain)), (*(plugin_data->release) * .01));
-                    v_adsr_set_adsr(plugin_data->data[f_note]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
-                    
-                    /*Retrigger the pitch envelope*/
-                    v_rmp_retrigger((plugin_data->data[f_note]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1);  
-                    
-                    plugin_data->data[f_note]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
-                                        
-                    /*Set the last_note property, so the next note can glide from it if glide is turned on*/
-                    plugin_data->sv_last_note = (plugin_data->data[f_note]->note_f);
-                    
-                    //TODO:  Create a define for the number of channels
-                    //Move all of the multi-channel functions here
-                    //for(i = 0; i < 2; i++)
-                    //{
-                        
-                    //}
-                    
-		} else {    
-                    plugin_data->offs[f_note] = 
-                        plugin_data->sampleNo + events[event_pos].time.tick;		    
-		}
-	    } /*Note-off event*/
-            else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF )
-            {
-		snd_seq_ev_note_t n = events[event_pos].data.note;
-                f_note = n.note; // + (*(plugin_data->global_midi_octaves_offset) * -12);
-                
-                
-                if(f_note < 0)
-                {
-                    f_note = 0;
                 }
-                if(f_note > Sampler_NOTES_m1)
+                //Get the noise function pointer
+                plugin_data->data[f_note]->noise_func_ptr = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
+
+                plugin_data->data[f_note]->noise_index = (plugin_data->mono_modules->noise_current_index);
+                plugin_data->mono_modules->noise_current_index = (plugin_data->mono_modules->noise_current_index) + 1;
+
+                if((plugin_data->mono_modules->noise_current_index) >= LMS_NOISE_COUNT)
                 {
-                    f_note = Sampler_NOTES_m1;
+                    plugin_data->mono_modules->noise_current_index = 0;
                 }
-                
-		plugin_data->offs[f_note] = 
-		    plugin_data->sampleNo + events[event_pos].time.tick;
-	    }
-            
-            /*Pitch-bend sequencer event, modify the voices pitch*/
-            else if (events[event_pos].type == SND_SEQ_EVENT_PITCHBEND) 
+
+                //const int voice = i_pick_voice(plugin_data->voices, f_note);
+
+                plugin_data->amp = f_db_to_linear_fast(*(plugin_data->master_vol), plugin_data->mono_modules->amp_ptr);                     
+
+                plugin_data->data[f_note]->note_f = (float)f_note;
+
+                plugin_data->data[f_note]->target_pitch = (plugin_data->data[f_note]->note_f);
+                plugin_data->data[f_note]->last_pitch = (plugin_data->sv_last_note);
+
+                v_rmp_retrigger_glide_t(plugin_data->data[f_note]->glide_env , (*(plugin_data->master_glide) * .01), 
+                        (plugin_data->sv_last_note), (plugin_data->data[f_note]->target_pitch));
+
+                plugin_data->data[f_note]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
+
+                /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
+                 placing things here that don't need to be modulated as a note is playing*/
+
+                /*Retrigger ADSR envelopes and LFO*/
+                v_adsr_retrigger(plugin_data->data[f_note]->adsr_amp);
+                v_adsr_retrigger(plugin_data->data[f_note]->adsr_filter);
+                v_lfs_sync(plugin_data->data[f_note]->lfo1, 0.0f, *(plugin_data->lfo_type));
+
+                v_adsr_set_adsr_db(plugin_data->data[f_note]->adsr_amp, (*(plugin_data->attack) * .01), (*(plugin_data->decay) * .01), (*(plugin_data->sustain)), (*(plugin_data->release) * .01));
+                v_adsr_set_adsr(plugin_data->data[f_note]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
+
+                /*Retrigger the pitch envelope*/
+                v_rmp_retrigger((plugin_data->data[f_note]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1);  
+
+                plugin_data->data[f_note]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
+
+                /*Set the last_note property, so the next note can glide from it if glide is turned on*/
+                plugin_data->sv_last_note = (plugin_data->data[f_note]->note_f);
+
+                //TODO:  Create a define for the number of channels
+                //Move all of the multi-channel functions here
+                //for(i = 0; i < 2; i++)
+                //{
+
+                //}
+
+            } 
+            else 
+            {    
+                plugin_data->offs[f_note] = 
+                    plugin_data->sampleNo + events[event_pos].time.tick;		    
+            }
+        } /*Note-off event*/
+        else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF )
+        {
+            snd_seq_ev_note_t n = events[event_pos].data.note;
+            f_note = n.note; // + (*(plugin_data->global_midi_octaves_offset) * -12);
+
+
+            if(f_note < 0)
             {
-		plugin_data->sv_pitch_bend_value = 0.00012207
-                        * events[event_pos].data.control.value * (*(plugin_data->master_pb_amt));
-	    }
+                f_note = 0;
+            }
+            if(f_note > Sampler_NOTES_m1)
+            {
+                f_note = Sampler_NOTES_m1;
+            }
 
-	    ++event_pos;
-	}
+            plugin_data->offs[f_note] = 
+                plugin_data->sampleNo + events[event_pos].time.tick;
+        }
 
+        /*Pitch-bend sequencer event, modify the voices pitch*/
+        else if (events[event_pos].type == SND_SEQ_EVENT_PITCHBEND) 
+        {
+            plugin_data->sv_pitch_bend_value = 0.00012207
+                    * events[event_pos].data.control.value * (*(plugin_data->master_pb_amt));
+        }
+
+        ++event_pos;
+    }
+    
+    for (pos = 0; pos < sample_count; ) {
+        
 	count = sample_count - pos;
 	if (event_pos < event_count &&
 	    events[event_pos].time.tick < sample_count) {
