@@ -721,7 +721,7 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 	memset(plugin_data->output[i], 0, sample_count * sizeof(float));
     }
     
-    if (pthread_mutex_trylock(&plugin_data->mutex)) {
+    if (pthread_mutex_lock(&plugin_data->mutex)) {
 	return;
     }
 
