@@ -1,44 +1,9 @@
-How to install:
-
-	cd lms-filter  #or whatever plugin you want to install
-	perl build.pl --full-build
-	perl build.pl --install
-
-
-How to generate a Makefile to be able to open the project in an IDE like Netbeans:
-
-	cd lms-filter  #or whatever plugin you want to build
-	perl build.pl --full-build
-
-
-How to run a plugin standalone with console debugging:
-	
-	#You must first un-comment the defines for the debug mode you want to use
-	#most are in synth.h, and look like this:
-	#
-	#	#define LMS_DEBUG_MAIN_LOOP
-	#
-	#You should comment them back out when releasing a plugin, as they waste a lot of CPU
-
-	cd lms-filter  #or whatever plugin you want to build
-	perl build.pl --debug
-
 How to debug using GDB and an IDE:
 
 	Create a project in your IDE of choice from the ./debugger/main.c and Makefile(LMS is developed in Netbeans, this functionality has not been tested in other IDEs).
 	Create a project for the plugin you wish to debug if you haven't already done so.
 	Set any breakpoints you wish to set.
 	Begin debugging in your IDE.  Your IDE will allow you to stop at any of your breakpoints and examine the state of your plugin.
-
-
-How to debug by having the plugin write text to the console:
-
-	In synth.h, there are multiple #defines that have been commented out, like:
-
-	#define LMS_DEBUG_MAIN_LOOP
-
-	If you uncomment them, you can print debug output defined in synth.c, etc... to the console.
-
 
 How to create .deb packages:
 	
@@ -53,34 +18,6 @@ How to create .deb packages:
 	cd lms-filter  #or whatever plugin you want to package
 	perl build.pl --deb
 	#answer questions
-
-How to create .rpm packages:
-
-	NOTE:  There is no option currently for packaging all plugins in a single RPM, however, it is planned for later.
-
-	cd lms-filter  #or whatever plugin you want to package
-	perl build.pl --rpm
-	#answer questions
-
-How to answer packaging questions:
-
-	These are some typical answers.  Be careful, packaging fails without properly formatted information:
-
-	0 -  Maintainer: [ "Jeff Hubbard" <jhubbard651@users.sf.net> ]
-	1 -  Summary: [ LMS Comb is a comb filter(sometimes called a phaser or flanger) written using LibModSynth. ]
-	2 -  Name:    [ lms-comb ]
-	3 -  Version: [ 1.0.0 ]
-	4 -  Release: [ 1 ]
-	5 -  License: [ GPL ]
-	6 -  Group:   [ checkinstall ]
-	7 -  Architecture: [ amd64 ]
-	8 -  Source location: [ lms-comb ]
-	9 -  Alternate source location: [  ]
-	10 - Requires: [ qjackctl ]
-	11 - Provides: [ lms-comb ]
-	12 - Conflicts: [  ]
-	13 - Replaces: [  ]
-
 
 How to fork a plugin automatically:
 
