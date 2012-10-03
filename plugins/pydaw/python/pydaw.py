@@ -220,7 +220,6 @@ class item_list_editor:
         self.ccs_table_widget.setRowCount(128)
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
 
-        #self.group_box.setMaximumWidth(900)
         self.main_hlayout.addWidget(self.notes_table_widget)
         self.main_hlayout.addWidget(self.ccs_table_widget)
         self.set_headers()
@@ -230,32 +229,27 @@ class item_list_editor:
         self.ccs_table_widget.setHorizontalHeaderLabels(['Start', 'CC', 'Value'])
 
     def open_item(self, a_item_name):
+        print("open_item")
         self.enabled = True
         self.notes_table_widget.clear()
         self.ccs_table_widget.clear()
         self.set_headers()
         self.item_name = a_item_name
+        self.item = this_pydaw_project.get_item(a_item_name)
+        print(str(len(self.item.notes)))
+        print(str(len(self.item.ccs)))
+        for note in self.item.notes:
+            self.notes_table_widget.setItem(note.editor_index, 0, QtGui.QTableWidgetItem(str(note.start)))
+            self.notes_table_widget.setItem(note.editor_index, 1, QtGui.QTableWidgetItem(str(note.length)))
+            self.notes_table_widget.setItem(note.editor_index, 2, QtGui.QTableWidgetItem(str(note.note)))
+            self.notes_table_widget.setItem(note.editor_index, 3, QtGui.QTableWidgetItem(str(note.note_num)))
+            self.notes_table_widget.setItem(note.editor_index, 4, QtGui.QTableWidgetItem(str(note.velocity)))
+        for cc in self.item.ccs:
+            self.ccs_table_widget.setItem(cc.editor_index, 0, QtGui.QTableWidgetItem(str(cc.start)))            
+            self.ccs_table_widget.setItem(cc.editor_index, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
+            self.ccs_table_widget.setItem(cc.editor_index, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
         if this_region_editor.open_new_items_checkbox.isChecked():
             this_main_window.main_tabwidget.setCurrentIndex(1)
-        self.item = this_pydaw_project.get_item(a_item_name)
-        for k, v in self.item.notes.iteritems():
-            f_start_item = QtGui.QTableWidgetItem(str(v.start))
-            self.notes_table_widget.setItem(k, 0, f_start_item)
-            f_length_item = QtGui.QTableWidgetItem(str(v.length))
-            self.notes_table_widget.setItem(k, 1, f_length_item)
-            f_note_item = QtGui.QTableWidgetItem(str(v.note))
-            self.notes_table_widget.setItem(k, 2, f_note_item)
-            f_note_num_item = QtGui.QTableWidgetItem(str(v.note_num))
-            self.notes_table_widget.setItem(k, 3, f_note_num_item)
-            f_vel_item = QtGui.QTableWidgetItem(str(v.velocity))
-            self.notes_table_widget.setItem(k, 4, f_vel_item)
-        for k, v in self.item.ccs.iteritems():
-            f_cc_item = QtGui.QTableWidgetItem(str(v.cc_num))
-            self.ccs_table_widget.setItem(k, 0, f_cc_item)
-            f_cc_val_item = QtGui.QTableWidgetItem(str(v.cc_val))
-            self.ccs_table_widget.setItem(k, 1, f_cc_val_item)
-            f_start_item = QtGui.QTableWidgetItem(str(v.start))
-            self.ccs_table_widget.setItem(k, 2, f_start_item)
             
     def notes_click_handler(self, x, y):
         if not self.enabled:
@@ -306,7 +300,7 @@ class item_list_editor:
             f_vel_item = QtGui.QTableWidgetItem(str(f_velocity.value()))
             self.notes_table_widget.setItem(x, 4, f_vel_item)
 
-            self.item.add_note(x, pydaw_note(f_start.value(), f_length.value(), f_note_name, f_note_value, f_velocity.value()))
+            self.item.add_note(pydaw_note(x, f_start.value(), f_length.value(), f_note_name, f_note_value, f_velocity.value()))
             this_pydaw_project.save_item(self.item_name, self.item)
             f_window.close()
 
@@ -368,7 +362,7 @@ class item_list_editor:
             self.ccs_table_widget.setItem(x, 1, f_cc_num_item)
             f_cc_val_item = QtGui.QTableWidgetItem(str(f_cc_value.value()))
             self.ccs_table_widget.setItem(x, 2, f_cc_val_item)
-            self.item.add_cc(x, pydaw_cc(f_start.value(), f_cc.value(), f_cc_value.value()))
+            self.item.add_cc(pydaw_cc(x, f_start.value(), f_cc.value(), f_cc_value.value()))
             this_pydaw_project.save_item(self.item_name, self.item)
             f_window.close()
 
@@ -457,7 +451,9 @@ class seq_track:
         self.volume_slider.valueChanged.connect(self.on_vol_change)
         self.hlayout2.addWidget(self.volume_slider)
         self.volume_label = QtGui.QLabel()
-        self.volume_label.setMinimumWidth(48)
+        self.volume_label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.volume_label.setMargin(3)
+        self.volume_label.setMinimumWidth(51)
         self.volume_label.setText("0 dB")
         self.hlayout2.addWidget(self.volume_label)
         self.hlayout3 = QtGui.QHBoxLayout()
