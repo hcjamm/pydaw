@@ -134,19 +134,84 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     /*define our outputs*/
     LADSPA_Data *const output0 = plugin_data->output0;    
     LADSPA_Data *const output1 = plugin_data->output1;    
-    
+        
     /*Reset our iterators to 0*/
     plugin_data->pos = 0;
     plugin_data->count= 0;    
     plugin_data->i_mono_out = 0;
+    int f_i, f_i2 = 0;
     
-    if (pthread_mutex_trylock(&pydaw_data->mutex)) 
+    if (pthread_mutex_lock(&pydaw_data->mutex)) 
     {
 	return;
-    }    
+    }
+       
+    if((pydaw_data->playback_mode) > 0)
+    {
+                
+        pydaw_data->period_size = sample_count;
+
+        while(f_i < PYDAW_MAX_TRACK_COUNT)
+        {
+            //Process the MIDI events.  It will use something like the below:
+
+            /*
+            snd_seq_event_t ev;
+            int l1;
+            double dt;
+
+            for (l1 = 0; l1 < (a_pydaw_data->item_pool[a_item_number]->note_count); l1++) {
+              dt = (l1 % 2 == 0) ? (double)swing / 16384.0 : -(double)swing / 16384.0;
+              snd_seq_ev_clear(&ev);
+              snd_seq_ev_set_note(&ev, 0, sequence[2][l1] + transpose, 127, sequence[1][l1]);
+              snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
+              snd_seq_ev_set_source(&ev, a_pydaw_data->port_out_id[a_track_number]);
+              snd_seq_ev_set_subs(&ev);
+              snd_seq_event_output_direct(a_pydaw_data->seq_handle, &ev);
+              a_pydaw_data->tick[a_track_number] += (int)((double)sequence[0][l1] * (1.0 + dt));
+            }
+
+            //snd_seq_ev_set_controller
+             * */
+
+            f_i++;
+        }
+
+        pydaw_data->playback_cursor = (pydaw_data->playback_cursor) + (pydaw_data->playback_inc);
         
+        if((pydaw_data->playback_cursor) >= 1.0f)
+        {
+            pydaw_data->playback_cursor = 0.0f;
+            
+            if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
+            {
+                pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
+                
+                if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
+                {
+                    pydaw_data->current_bar = 0;
+                    
+                    if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
+                    {
+                        pydaw_data->current_region = (pydaw_data->current_region) + 1;
+                        
+                        if((pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
+                        {
+                            pydaw_data->playback_mode = 0;
+                        }
+                    }
+                }
+            }                        
+        }
+        
+        pydaw_data->current_sample += sample_count;
+    }
+    pthread_mutex_unlock(&pydaw_data->mutex);
+    
+    //Mix together the audio input channels from the plugins
+    
     while ((plugin_data->pos) < sample_count) 
-    {        
+    {
 	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE : sample_count - (plugin_data->pos);	
         
         plugin_data->i_buffer_clear = 0;
@@ -162,7 +227,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
         
         /*The main loop where processing happens*/
         while((plugin_data->i_mono_out) < (plugin_data->count))
-        {   
+        {
             plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
                        
             output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->current_sample0);
@@ -172,10 +237,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
         }
         
         plugin_data->pos = (plugin_data->pos) + STEP_SIZE;
-    }
-    
-    pydaw_data->current_sample += sample_count;
-    pthread_mutex_unlock(&pydaw_data->mutex);
+    }        
 }
 
 char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)
@@ -190,8 +252,7 @@ int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {    
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
     //return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
-    return 0;
-     
+    return 0;     
 }
 
 #ifdef __GNUC__

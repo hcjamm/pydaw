@@ -10,6 +10,8 @@
  * A type + functions that track notes currently on, so that "stop" configure message can send all_note_off events...  
  * Mutex functionality similar to how Euphoria sample loading works
  * A track type to encapsulate various track info...
+ * Use the format of midi_callback() from jack-dssi-host.c to synthesize and write events to the MIDI out ports
+ * 
  */
 
 #ifndef PYDAW_H
@@ -36,6 +38,10 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_VOL "vol"
 #define PYDAW_CONFIGURE_KEY_SOLO "solo"
 #define PYDAW_CONFIGURE_KEY_MUTE "mute"
+
+#define PYDAW_LOOP_MODE_OFF 0
+#define PYDAW_LOOP_MODE_BAR 1
+#define PYDAW_LOOP_MODE_REGION 2
     
 //arbitrary, I may change these 3 after evaluating memory use vs. probable item count in a real project
 #define PYDAW_MAX_ITEM_COUNT 5000
@@ -53,7 +59,7 @@ extern "C" {
     
 typedef struct st_pynote
 {
-    //TODO TODO:  It may be more efficient to process as Int?
+    //TODO:  It may be more efficient to process as Int?
     char note;
     char velocity;
     float start;
@@ -121,9 +127,12 @@ typedef struct st_pydaw_data
     float playback_inc;  //the increment per-sample to iterate through 1 bar, as determined by sample rate and tempo
     int current_region; //the current region
     int current_bar; //the current bar(0 to 7), within the current region
+    int current_bar_start;  //The current bar start in samples
+    int current_bar_end;  //The current bar end in samples
+    int period_size;  //The size of the soundcards sample buffer, ie:  512 samples, 256 samples, etc...
+    int samples_per_bar;
     float sample_rate;
-    int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz.  Reset to zero on beginning playback
-    int sample_next_bar;  //The sample number at which the next bar will begin when current_sample reaches this value
+    int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz.  Reset to zero on beginning playback    
     snd_seq_t *seq_handle;    
     
     int queue_id, port_in_id[PYDAW_MAX_TRACK_COUNT], port_out_id[PYDAW_MAX_TRACK_COUNT];    
@@ -304,13 +313,16 @@ void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name)
     int f_i = 0;
 
     while(f_i < 256)
-    {            
-        char * f_list_pos = c_iterate_2d_char_array(f_current_string);
+    {   
+        char * f_type = c_iterate_2d_char_array(f_current_string);
+        
         if(f_current_string->eof)
         {
             break;
-        }        
-        char * f_type = c_iterate_2d_char_array(f_current_string);
+        }
+        
+        char * f_list_pos = c_iterate_2d_char_array(f_current_string);
+        
         char * f_start = c_iterate_2d_char_array(f_current_string);
         
         if(!strcmp(f_type, "n"))
