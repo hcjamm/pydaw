@@ -145,15 +145,21 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     {
 	return;
     }
+    
+    pydaw_data->period_size = sample_count;
        
     if((pydaw_data->playback_mode) > 0)
     {
-                
-        pydaw_data->period_size = sample_count;
-
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {
             //Process the MIDI events.  It will use something like the below:
+            
+            /* TODO:
+             * 1.  Figure out how to determine which tick of the period to send an event on from the given fractional bar
+             * 2.  A next/last fractional bar, that possible event firings must begin between
+             * 3.  Persistent note/cc event list iterators
+             * 4.  
+             */
 
             /*
             snd_seq_event_t ev;

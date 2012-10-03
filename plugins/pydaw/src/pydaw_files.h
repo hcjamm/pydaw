@@ -128,6 +128,7 @@ t_2d_char_array * g_get_2d_array_from_file(const char * a_file, int a_size)
     t_2d_char_array * f_result = (t_2d_char_array*)malloc(sizeof(t_2d_char_array));
     
     f_result->array = get_string_from_file(a_file, a_size);
+    printf("\n%s\n\n", (f_result->array));
     f_result->current_index = 0;
     f_result->current_row = 0;
     f_result->current_column = 0;

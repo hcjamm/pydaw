@@ -124,7 +124,8 @@ typedef struct st_pydaw_data
     char * item_folder;
     char * region_folder;    
     float playback_cursor; //only refers to the fractional position within the current bar.    
-    float playback_inc;  //the increment per-sample to iterate through 1 bar, as determined by sample rate and tempo
+    float playback_cursor_last; //only refers to the fractional position within the current bar.    
+    float playback_inc;  //the increment per-period to iterate through 1 bar, as determined by sample rate and tempo
     int current_region; //the current region
     int current_bar; //the current bar(0 to 7), within the current region
     int current_bar_start;  //The current bar start in samples
@@ -397,6 +398,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->region_count = 0;
     f_result->current_sample = 0;
     f_result->loop_mode = 0;    
+    f_result->period_size = 512;  //Arbitrary value to avoid a SEGFAULT early on.  TODO:  Find a way to get this from ALSA
     f_result->item_folder = (char*)malloc(sizeof(char) * 256);
     f_result->project_folder = (char*)malloc(sizeof(char) * 256);
     f_result->region_folder = (char*)malloc(sizeof(char) * 256);
@@ -646,7 +648,7 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
 {
     a_pydaw_data->tempo = a_tempo;
     //This assumes 4/4 timesig, once alternate timesigs are available, replace 0.25f
-    a_pydaw_data->playback_inc = ((1.0f/(a_tempo * 0.25f)) * (a_pydaw_data->sample_rate));
+    a_pydaw_data->playback_inc = ((1.0f/(a_tempo * 0.25f)) * (a_pydaw_data->sample_rate) * ((float)(a_pydaw_data->period_size)));
 }
 
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
