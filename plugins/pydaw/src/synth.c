@@ -148,7 +148,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     
     pydaw_data->period_size = sample_count;
        
-    if((pydaw_data->playback_mode) > 0)
+    if((pydaw_data->is_initialized) && ((pydaw_data->playback_mode) > 0))
     {
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {

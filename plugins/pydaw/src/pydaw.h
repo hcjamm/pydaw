@@ -109,6 +109,7 @@ typedef struct st_pytrack
 
 typedef struct st_pydaw_data
 {
+    int is_initialized;
     float tempo;
     pthread_mutex_t mutex;
     t_pysong * pysong;
@@ -393,6 +394,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     
     //f_result->mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_init(&f_result->mutex, NULL);
+    f_result->is_initialized = 0;
     f_result->sample_rate = a_sample_rate;
     f_result->item_count = 0;
     f_result->region_count = 0;
@@ -423,10 +425,10 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         char f_char_arr[12];
         sprintf(f_char_arr, "pydaw-%i", f_i);
         
-        if ((port_out_id = snd_seq_create_simple_port(f_result->seq_handle, f_char_arr,
+        if ((f_result->port_out_id[f_i] = snd_seq_create_simple_port(f_result->seq_handle, f_char_arr,
                   SND_SEQ_PORT_CAP_READ|SND_SEQ_PORT_CAP_SUBS_READ,
                   SND_SEQ_PORT_TYPE_APPLICATION)) < 0) {
-          fprintf(stderr, "Error creating sequencer port.\n");
+          fprintf(stderr, "Error creating sequencer port %s.\n", f_char_arr);
         }
         
         /*End ALSA stuff*/
@@ -448,7 +450,7 @@ void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data);
 
 void g_pydaw_alsa_start(t_pydaw_data* a_pydaw_data)
 {
-    snd_seq_start_queue(a_pydaw_data->seq_handle, queue_id, NULL);
+    snd_seq_start_queue(a_pydaw_data->seq_handle, a_pydaw_data->queue_id, NULL);
     snd_seq_drain_output(a_pydaw_data->seq_handle);
     //npfd = snd_seq_poll_descriptors_count(seq_handle, POLLIN);
     //pfd = (struct pollfd *)alloca(npfd * sizeof(struct pollfd));
@@ -478,11 +480,14 @@ snd_seq_tick_time_t g_pydaw_data_get_tick(t_pydaw_data * a_pydaw_data)
 void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data)
 {
   a_pydaw_data->queue_id = snd_seq_alloc_queue(a_pydaw_data->seq_handle);
-  snd_seq_set_client_pool_output(a_pydaw_data->seq_handle, (seq_len<<1) + 4);
+  snd_seq_set_client_pool_output(a_pydaw_data->seq_handle, 256);  //(seq_len<<1) + 4); //TODO:  Look up how to properly use this???
 } 
  
+
+/* This function will be deprecated and moved into the main loop*/
 void v_pydaw_schedule_item(t_pydaw_data * a_pydaw_data, int a_item_number, int a_track_number)
 {
+  /*
   snd_seq_event_t ev;
   int l1;
   double dt;
@@ -499,7 +504,7 @@ void v_pydaw_schedule_item(t_pydaw_data * a_pydaw_data, int a_item_number, int a
   }
   
   //snd_seq_ev_set_controller
-  
+  */
   
   //The echo event causes it to loop, commenting out for now
   //snd_seq_ev_clear(&ev);
@@ -604,6 +609,7 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
     }
     printf("v_open_project calling ");
     g_pysong_get(a_pydaw, a_name);
+    a_pydaw->is_initialized = 1;
 }
 
 /* void v_set_playback_mode(t_pydaw_data * a_pydaw_data, 
