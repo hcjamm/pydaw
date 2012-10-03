@@ -248,7 +248,9 @@ class pydaw_region:
 
 class pydaw_item:
     def add_note(self, a_note):
-        #TODO:  Check for overlapping notes and return False without appending
+        for note in self.notes:
+            if note.overlaps(a_note):
+                return False  #TODO:  return -1 instead of True, and the offending editor_index when False
         self.notes.append(a_note)
         self.notes.sort()
         return True
@@ -265,7 +267,7 @@ class pydaw_item:
     def add_cc(self, a_cc):
         for cc in self.ccs:
             if a_cc == cc:
-                return False
+                return False #TODO:  return -1 instead of True, and the offending editor_index when False
         self.ccs.append(a_cc)
         self.ccs.sort()
         return True
@@ -317,6 +319,15 @@ class pydaw_note:
         self.velocity = int(a_velocity)
         self.note_num = int(a_note_number)
         self.editor_index = int(a_editor_index)
+        self.end = self.length + self.start
+        
+    def overlaps(self, other):
+        if self.note_num == other.note_num:
+            if other.start > self.start and other.start < self.end:
+                return True
+            elif other.end > self.start:
+                return True
+        return False
 
     @staticmethod
     def from_arr(a_arr):
