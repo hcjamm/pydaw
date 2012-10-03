@@ -228,16 +228,13 @@ class item_list_editor:
         self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note', 'Note#', 'Velocity'])
         self.ccs_table_widget.setHorizontalHeaderLabels(['Start', 'CC', 'Value'])
 
-    def open_item(self, a_item_name):
-        print("open_item")
+    def open_item(self, a_item_name):        
         self.enabled = True
         self.notes_table_widget.clear()
         self.ccs_table_widget.clear()
         self.set_headers()
         self.item_name = a_item_name
-        self.item = this_pydaw_project.get_item(a_item_name)
-        print(str(len(self.item.notes)))
-        print(str(len(self.item.ccs)))
+        self.item = this_pydaw_project.get_item(a_item_name)        
         for note in self.item.notes:
             self.notes_table_widget.setItem(note.editor_index, 0, QtGui.QTableWidgetItem(str(note.start)))
             self.notes_table_widget.setItem(note.editor_index, 1, QtGui.QTableWidgetItem(str(note.length)))
@@ -289,6 +286,10 @@ class item_list_editor:
             f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
             f_note_name = str(f_note.currentText()) + str(f_octave.value())
 
+            if not self.item.add_note(pydaw_note(x, f_start.value(), f_length.value(), f_note_name, f_note_value, f_velocity.value())):
+                QtGui.QMessageBox.warning(f_window, "Error", "Overlapping note events")
+                return
+
             f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))
             self.notes_table_widget.setItem(x, 0, f_start_item)
             f_length_item = QtGui.QTableWidgetItem(str(f_length.value()))
@@ -299,8 +300,7 @@ class item_list_editor:
             self.notes_table_widget.setItem(x, 3, f_note_num)
             f_vel_item = QtGui.QTableWidgetItem(str(f_velocity.value()))
             self.notes_table_widget.setItem(x, 4, f_vel_item)
-
-            self.item.add_note(pydaw_note(x, f_start.value(), f_length.value(), f_note_name, f_note_value, f_velocity.value()))
+            
             this_pydaw_project.save_item(self.item_name, self.item)
             f_window.close()
 
@@ -356,13 +356,16 @@ class item_list_editor:
             f_default_cc_value = int(self.ccs_table_widget.item(x, 2).text())
 
         def cc_ok_handler():
+            if not self.item.add_cc(pydaw_cc(x, f_start.value(), f_cc.value(), f_cc_value.value())):
+                QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
+                return            
+            
             f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))
             self.ccs_table_widget.setItem(x, 0, f_start_item)
             f_cc_num_item = QtGui.QTableWidgetItem(str(f_cc.value()))
             self.ccs_table_widget.setItem(x, 1, f_cc_num_item)
             f_cc_val_item = QtGui.QTableWidgetItem(str(f_cc_value.value()))
-            self.ccs_table_widget.setItem(x, 2, f_cc_val_item)
-            self.item.add_cc(pydaw_cc(x, f_start.value(), f_cc.value(), f_cc_value.value()))
+            self.ccs_table_widget.setItem(x, 2, f_cc_val_item)            
             this_pydaw_project.save_item(self.item_name, self.item)
             f_window.close()
 
