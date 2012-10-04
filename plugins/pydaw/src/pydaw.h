@@ -116,6 +116,8 @@ typedef struct st_pydaw_data
     t_pyitem * item_pool[PYDAW_MAX_ITEM_COUNT];
     t_pyregion * region_pool[PYDAW_MAX_REGION_COUNT];
     t_pytrack * track_pool[PYDAW_MAX_TRACK_COUNT];
+    int track_note_event_indexes[PYDAW_MAX_TRACK_COUNT];
+    int track_cc_event_indexes[PYDAW_MAX_TRACK_COUNT];
     int item_count;
     int region_count;    
     int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
@@ -412,16 +414,18 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
       exit(1);
     }
     
+    snd_seq_set_client_name(f_result->seq_handle, "PyDAW");
+    
     int f_i = 0;
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
         f_result->track_pool[f_i] = g_pytrack_get();
+        f_result->track_note_event_indexes[f_i] = 0;
+        f_result->track_cc_event_indexes[f_i] = 0;
         
         /*ALSA stuff*/
 
-        snd_seq_set_client_name(f_result->seq_handle, "PyDAW");
-        
         char f_char_arr[12];
         sprintf(f_char_arr, "pydaw-%i", f_i);
         
@@ -435,7 +439,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         
         f_i++;
     }
-            
+    
     return f_result;
 }
 
@@ -480,7 +484,7 @@ snd_seq_tick_time_t g_pydaw_data_get_tick(t_pydaw_data * a_pydaw_data)
 void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data)
 {
   a_pydaw_data->queue_id = snd_seq_alloc_queue(a_pydaw_data->seq_handle);
-  snd_seq_set_client_pool_output(a_pydaw_data->seq_handle, 256);  //(seq_len<<1) + 4); //TODO:  Look up how to properly use this???
+  snd_seq_set_client_pool_output(a_pydaw_data->seq_handle, 128);  //(seq_len<<1) + 4); //TODO:  Look up how to properly use this???
 } 
  
 
