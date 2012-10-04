@@ -103,10 +103,8 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
     pydaw_data = g_pydaw_data_get(s_rate);
     
     plugin_data->fs = s_rate;
-            
-    /*LibModSynth additions*/
-    v_init_lms(s_rate);  //initialize any static variables    
-    /*End LibModSynth additions*/
+    
+    v_init_lms(s_rate);
     
     return (LADSPA_Handle) plugin_data;
 }
@@ -116,6 +114,9 @@ static void activateLMS(LADSPA_Handle instance)
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
         
     plugin_data->mono_modules = v_mono_init((plugin_data->fs));  //initialize all monophonic modules    
+    
+    g_pydaw_alsa_start(pydaw_data);
+    v_pydaw_init_queue(pydaw_data);
 }
 
 static void runLMSWrapper(LADSPA_Handle instance,
@@ -124,7 +125,7 @@ static void runLMSWrapper(LADSPA_Handle instance,
     run_lms_pydaw(instance, sample_count, NULL, 0);
 }
 
-/*This is where parameters are update and the main loop is run.*/
+
 static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
@@ -141,43 +142,51 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     pthread_mutex_lock(&pydaw_data->mutex);
     
     pydaw_data->period_size = sample_count;
+    
+    double f_next_period = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));
        
     if((pydaw_data->is_initialized) && ((pydaw_data->playback_mode) > 0))
-    {
+    {                
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {
-            //Process the MIDI events.  It will use something like the below:
             
             /* TODO:
              * 1.  Figure out how to determine which tick of the period to send an event on from the given fractional bar
              * 2.  A next/last fractional bar, that possible event firings must begin between
              * 3.  Persistent note/cc event list iterators
-             * 4.  
              */
-
-            /*
-            snd_seq_event_t ev;
-            int l1;
-            double dt;
-
-            for (l1 = 0; l1 < (a_pydaw_data->item_pool[a_item_number]->note_count); l1++) {
-              dt = (l1 % 2 == 0) ? (double)swing / 16384.0 : -(double)swing / 16384.0;
-              snd_seq_ev_clear(&ev);
-              snd_seq_ev_set_note(&ev, 0, sequence[2][l1] + transpose, 127, sequence[1][l1]);
-              snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
-              snd_seq_ev_set_source(&ev, a_pydaw_data->port_out_id[a_track_number]);
-              snd_seq_ev_set_subs(&ev);
-              snd_seq_event_output_direct(a_pydaw_data->seq_handle, &ev);
-              a_pydaw_data->tick[a_track_number] += (int)((double)sequence[0][l1] * (1.0 + dt));
+            int f_item_index = pydaw_data->region_pool[(pydaw_data->current_region)]->items[f_i][(pydaw_data->current_bar)];
+            
+            if(f_item_index >= 0)
+            {
+                snd_seq_event_t ev;
+                /*
+                while(1)
+                {
+                    snd_seq_ev_clear(&ev);
+                    snd_seq_ev_set_note(&ev, 0, sequence[2][l1] + transpose, 127, sequence[1][l1]);
+                    snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
+                    snd_seq_ev_set_source(&ev, a_pydaw_data->port_out_id[a_track_number]);
+                    snd_seq_ev_set_subs(&ev);
+                    snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
+                }
+                
+                while(1)
+                {
+                    snd_seq_ev_clear(&ev);
+                    snd_seq_ev_set_controller(&ev, 0, sequence[2][l1] + transpose, 127, sequence[1][l1]);
+                    snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
+                    snd_seq_ev_set_source(&ev, a_pydaw_data->port_out_id[a_track_number]);
+                    snd_seq_ev_set_subs(&ev);
+                    snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
+                }
+                */                
             }
-
-            //snd_seq_ev_set_controller
-             * */
-
+                        
             f_i++;
         }
 
-        pydaw_data->playback_cursor = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));
+        pydaw_data->playback_cursor = f_next_period;
         
         if((pydaw_data->playback_cursor) >= 1.0f)
         {
