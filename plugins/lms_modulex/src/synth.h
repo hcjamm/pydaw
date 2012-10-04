@@ -44,8 +44,6 @@ extern "C" {
 /*This is the last control port*/
 #define LMS_LAST_CONTROL_PORT 19
 #define LMS_COUNT 20 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-
-#define STEP_SIZE   16
   
 /*GUI Step 13:  Add a variable for each control in the LMS type*/
 typedef struct {
@@ -78,9 +76,7 @@ typedef struct {
     t_mono_modules * mono_modules;
     
     t_ccm_midi_cc_map * midi_cc_map;
-    int pos;
-    int count;
-    int buffer_pos;
+    
     int i_mono_out;
     int i_buffer_clear;    
     

@@ -170,78 +170,64 @@ static void run_lms_modulex(LADSPA_Handle instance, unsigned long sample_count,
     LADSPA_Data *const output0 = plugin_data->output0;    
     LADSPA_Data *const output1 = plugin_data->output1;    
     
-    /*Reset our iterators to 0*/
-    plugin_data->pos = 0;
-    plugin_data->count= 0;    
-    plugin_data->i_mono_out = 0;
-        
-    while ((plugin_data->pos) < sample_count) 
-    {	
-        plugin_data->mono_modules->fx_func_ptr0 = g_mf3_get_function_pointer((int)(*(plugin_data->fx0_combobox)));
-        plugin_data->mono_modules->fx_func_ptr1 = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
-        plugin_data->mono_modules->fx_func_ptr2 = g_mf3_get_function_pointer((int)(*(plugin_data->fx2_combobox)));
-        plugin_data->mono_modules->fx_func_ptr3 = g_mf3_get_function_pointer((int)(*(plugin_data->fx3_combobox)));
-        
-        v_mf3_set(plugin_data->mono_modules->multieffect0, 
-                *(plugin_data->fx0_knob0), *(plugin_data->fx0_knob1), *(plugin_data->fx0_knob2));
-        
-        v_mf3_set(plugin_data->mono_modules->multieffect1, 
-                *(plugin_data->fx1_knob0), *(plugin_data->fx1_knob1), *(plugin_data->fx1_knob2));
-        
-        v_mf3_set(plugin_data->mono_modules->multieffect2, 
-                *(plugin_data->fx2_knob0), *(plugin_data->fx2_knob1), *(plugin_data->fx2_knob2));
-        
-        v_mf3_set(plugin_data->mono_modules->multieffect3, 
-                *(plugin_data->fx3_knob0), *(plugin_data->fx3_knob1), *(plugin_data->fx3_knob2));
-        
-	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE :	sample_count - (plugin_data->pos);	
-        
-        plugin_data->i_buffer_clear = 0;
-        /*Clear the output buffer*/
-        while((plugin_data->i_buffer_clear)<(plugin_data->count))
-        {
-	    output0[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;                        
-            output1[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;     
-            plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
-	}
-        
-        plugin_data->i_mono_out = 0;
-        
-        /*The main loop where processing happens*/
-        while((plugin_data->i_mono_out) < (plugin_data->count))
-        {   
-            plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
-            
-            plugin_data->mono_modules->current_sample0 = input0[(plugin_data->buffer_pos)];
-            plugin_data->mono_modules->current_sample1 = input1[(plugin_data->buffer_pos)];
-            
-            plugin_data->mono_modules->fx_func_ptr0(plugin_data->mono_modules->multieffect0, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
-            
-            plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect0->output0;
-            plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect0->output1;
-                        
-            plugin_data->mono_modules->fx_func_ptr1(plugin_data->mono_modules->multieffect1, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
-                        
-            plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect1->output0;
-            plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect1->output1;
-            
-            plugin_data->mono_modules->fx_func_ptr2(plugin_data->mono_modules->multieffect2, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
-            
-            plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect2->output0;
-            plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect2->output1;
-                        
-            plugin_data->mono_modules->fx_func_ptr3(plugin_data->mono_modules->multieffect3, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
-                        
-            plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect3->output0;
-            plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect3->output1;
-            
-            output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->current_sample0);
-            output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->current_sample1);
+    plugin_data->mono_modules->fx_func_ptr0 = g_mf3_get_function_pointer((int)(*(plugin_data->fx0_combobox)));
+    plugin_data->mono_modules->fx_func_ptr1 = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
+    plugin_data->mono_modules->fx_func_ptr2 = g_mf3_get_function_pointer((int)(*(plugin_data->fx2_combobox)));
+    plugin_data->mono_modules->fx_func_ptr3 = g_mf3_get_function_pointer((int)(*(plugin_data->fx3_combobox)));
 
-            plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
-        }
-        
-        plugin_data->pos = (plugin_data->pos) + STEP_SIZE;
+    v_mf3_set(plugin_data->mono_modules->multieffect0, 
+            *(plugin_data->fx0_knob0), *(plugin_data->fx0_knob1), *(plugin_data->fx0_knob2));
+
+    v_mf3_set(plugin_data->mono_modules->multieffect1, 
+            *(plugin_data->fx1_knob0), *(plugin_data->fx1_knob1), *(plugin_data->fx1_knob2));
+
+    v_mf3_set(plugin_data->mono_modules->multieffect2, 
+            *(plugin_data->fx2_knob0), *(plugin_data->fx2_knob1), *(plugin_data->fx2_knob2));
+
+    v_mf3_set(plugin_data->mono_modules->multieffect3, 
+            *(plugin_data->fx3_knob0), *(plugin_data->fx3_knob1), *(plugin_data->fx3_knob2));
+
+    plugin_data->i_buffer_clear = 0;
+    /*Clear the output buffer*/
+    while((plugin_data->i_buffer_clear) < sample_count)
+    {
+        output0[(plugin_data->i_buffer_clear)] = 0.0f;                        
+        output1[(plugin_data->i_buffer_clear)] = 0.0f;     
+        plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
+    }
+
+    plugin_data->i_mono_out = 0;
+
+    /*The main loop where processing happens*/
+    while((plugin_data->i_mono_out) < sample_count)
+    {
+        plugin_data->mono_modules->current_sample0 = input0[(plugin_data->i_mono_out)];
+        plugin_data->mono_modules->current_sample1 = input1[(plugin_data->i_mono_out)];
+
+        plugin_data->mono_modules->fx_func_ptr0(plugin_data->mono_modules->multieffect0, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+
+        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect0->output0;
+        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect0->output1;
+
+        plugin_data->mono_modules->fx_func_ptr1(plugin_data->mono_modules->multieffect1, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+
+        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect1->output0;
+        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect1->output1;
+
+        plugin_data->mono_modules->fx_func_ptr2(plugin_data->mono_modules->multieffect2, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+
+        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect2->output0;
+        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect2->output1;
+
+        plugin_data->mono_modules->fx_func_ptr3(plugin_data->mono_modules->multieffect3, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+
+        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect3->output0;
+        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect3->output1;
+
+        output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample0);
+        output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample1);
+
+        plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
     }
 }
 
@@ -252,8 +238,7 @@ static void run_lms_modulex(LADSPA_Handle instance, unsigned long sample_count,
 int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {    
     LMS *plugin_data = (LMS *) instance;
-    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
-     
+    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));     
 }
 
 
