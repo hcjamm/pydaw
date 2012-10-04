@@ -272,7 +272,6 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
     LADSPA_Data *const output1 = plugin_data->output1;
     //t_poly_voice *data = plugin_data->data;
     
-    plugin_data->count= 0;    
     plugin_data->voice = 0;
     
     /*Set the values from synth_vals in RunLMS*/
@@ -440,44 +439,40 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
         }    
     }
     
-    for (plugin_data->pos = 0; (plugin_data->pos) < sample_count; plugin_data->pos = (plugin_data->pos) + STEP_SIZE) 
-    {	        
-        v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.timbre));
-        v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
-                        
-	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE : sample_count - (plugin_data->pos);
-	
-        /*Clear the output buffer*/
-        plugin_data->i_iterator = 0;
-        
-        while((plugin_data->i_iterator)<(plugin_data->count))
+    /*Clear the output buffer*/
+    plugin_data->i_iterator = 0;
+
+    while((plugin_data->i_iterator) < sample_count)
+    {
+        output0[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;                        
+        output1[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;     
+        plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
+    }    
+
+    v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.timbre));
+    v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
+
+    plugin_data->voice = 0; 
+    while ((plugin_data->voice) < POLYPHONY) 
+    {
+        //if (data[voice].state != inactive) 
+        if((plugin_data->data[(plugin_data->voice)]->adsr_amp->stage) != 4)
         {
-	    output0[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;                        
-            output1[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;     
-            plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
-	}
-        
-        plugin_data->voice = 0; 
-	while ((plugin_data->voice) < POLYPHONY) 
-        {
-	    //if (data[voice].state != inactive) 
-            if((plugin_data->data[(plugin_data->voice)]->adsr_amp->stage) != 4)
-            {
-		run_voice(plugin_data,
-                        &(plugin_data->vals),
-                        plugin_data->data[(plugin_data->voice)],
-                        output0 + (plugin_data->pos),
-                        output1 + (plugin_data->pos),
-			  (plugin_data->count)
-                        );
-	    }
-            
-            plugin_data->voice = (plugin_data->voice) + 1; 
-	}
-        
+            run_voice(plugin_data,
+                    &(plugin_data->vals),
+                    plugin_data->data[(plugin_data->voice)],
+                    output0 + (plugin_data->pos),
+                    output1 + (plugin_data->pos),
+                    sample_count
+                    );
+        }
+
+        plugin_data->voice = (plugin_data->voice) + 1; 
+    }
+
     /*TODO:  create a loop here that corresponds to mono effects not processed per-voice*/
         
-    }
+    
     
     plugin_data->sampleNo += sample_count;
 }
@@ -495,13 +490,7 @@ static void run_voice(LMS *plugin_data, synth_vals *vals, t_poly_voice *a_voice,
         
         if (((plugin_data->offs[(a_voice->note)]) >= 0) && (((a_voice->i_voice) + (plugin_data->sampleNo) + (plugin_data->pos)) >= plugin_data->offs[(a_voice->note)])
                 && ((a_voice->adsr_amp->stage) < 3))
-        {
-            //This is here to prevent stuck notes because it was discovered that Muse2
-            //(and by extension LMS DAW) will sometimes send back note_off on a different note
-            //than the note_on was sent, and this code will be invoked constantly with no effect
-            //while the note hangs.  This may cause all of the notes to release at the wrong time, 
-            //but it at least ensures the release does happen on all notes.
-            //TODO: Fix it in LMS DAW
+        {            
             if((plugin_data->ons[(a_voice->note)]) == -1)
             {
                 int f_stuck_note = 0;
