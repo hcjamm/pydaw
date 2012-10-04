@@ -98,10 +98,10 @@ sub run_script
 
 		system("make clean");
 		build($debug_flags);
-
+		`rm -Rf ../bin/*`;
 		`make PREFIX=/usr DESTDIR=$dssi_path install`;
 		#exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; ddd $jack_host");
-		exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; $jack_host $current_dir.so ");
+		exec("ulimit -c unlimited; export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; $jack_host $current_dir.so ");
 	}
 	elsif($ARGV[0] eq "--build-jack-host")
 	{
