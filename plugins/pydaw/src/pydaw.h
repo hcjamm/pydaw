@@ -653,8 +653,7 @@ void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode)
 void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
 {
     a_pydaw_data->tempo = a_tempo;
-    //This assumes 4/4 timesig, once alternate timesigs are available, replace 0.25f
-    a_pydaw_data->playback_inc = ((1.0f/(a_tempo * 0.25f)) * (a_pydaw_data->sample_rate) * ((float)(a_pydaw_data->period_size)));
+    a_pydaw_data->playback_inc = (((a_tempo * 0.25f) / (a_pydaw_data->sample_rate)));
 }
 
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
