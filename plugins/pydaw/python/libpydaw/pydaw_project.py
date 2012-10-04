@@ -402,7 +402,7 @@ class pydaw_tracks:
         f_result = pydaw_tracks()
         f_arr = a_str.split("\n")
         for f_line in f_arr:
-            if not f_line == "":
+            if not f_line == pydaw_terminating_char:
                 f_line_arr = f_line.split("|")
                 if f_line_arr[1] == "1": f_solo = True
                 else: f_solo = False
