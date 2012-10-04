@@ -338,9 +338,9 @@ class pydaw_note:
         
     def overlaps(self, other):
         if self.note_num == other.note_num:
-            if other.start > self.start and other.start < self.end:
+            if other.start >= self.start and other.start < self.end:
                 return True
-            elif other.end > self.start:
+            elif other.start < self.start and other.end > self.start:
                 return True
         return False
 
