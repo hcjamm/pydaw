@@ -135,16 +135,10 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     LADSPA_Data *const output0 = plugin_data->output0;    
     LADSPA_Data *const output1 = plugin_data->output1;    
         
-    /*Reset our iterators to 0*/
-    plugin_data->pos = 0;
-    plugin_data->count= 0;    
-    plugin_data->i_mono_out = 0;
-    int f_i, f_i2 = 0;
+    /*Reset our iterators to 0*/    
+    int f_i = 0;
     
-    if (pthread_mutex_lock(&pydaw_data->mutex)) 
-    {
-	return;
-    }
+    pthread_mutex_lock(&pydaw_data->mutex);
     
     pydaw_data->period_size = sample_count;
        
@@ -204,6 +198,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                         if((pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
                         {
                             pydaw_data->playback_mode = 0;
+                            pydaw_data->current_region = 0;
                         }
                     }
                 }
@@ -216,34 +211,25 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     
     //Mix together the audio input channels from the plugins
     
-    while ((plugin_data->pos) < sample_count) 
+    plugin_data->i_buffer_clear = 0;
+    /*Clear the output buffer*/
+    while((plugin_data->i_buffer_clear) < sample_count)
     {
-	plugin_data->count = (sample_count - (plugin_data->pos)) > STEP_SIZE ? STEP_SIZE : sample_count - (plugin_data->pos);	
-        
-        plugin_data->i_buffer_clear = 0;
-        /*Clear the output buffer*/
-        while((plugin_data->i_buffer_clear)<(plugin_data->count))
-        {
-	    output0[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;                        
-            output1[((plugin_data->pos) + (plugin_data->i_buffer_clear))] = 0.0f;     
-            plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
-	}
-        
-        plugin_data->i_mono_out = 0;
-        
-        /*The main loop where processing happens*/
-        while((plugin_data->i_mono_out) < (plugin_data->count))
-        {
-            plugin_data->buffer_pos = (plugin_data->pos) + (plugin_data->i_mono_out);
-                       
-            output0[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->current_sample0);
-            output1[(plugin_data->buffer_pos)] = (plugin_data->mono_modules->current_sample1);
+        output0[(plugin_data->i_buffer_clear)] = 0.0f;                        
+        output1[(plugin_data->i_buffer_clear)] = 0.0f;     
+        plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
+    }
+    
+    plugin_data->i_mono_out = 0;
 
-            plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
-        }
-        
-        plugin_data->pos = (plugin_data->pos) + STEP_SIZE;
-    }        
+    /*The main loop where processing happens*/
+    while((plugin_data->i_mono_out) < sample_count)
+    {
+        output0[(plugin_data->i_mono_out)] = 0.0f;
+        output1[(plugin_data->i_mono_out)] = 0.0f;
+
+        plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
+    }            
 }
 
 char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)

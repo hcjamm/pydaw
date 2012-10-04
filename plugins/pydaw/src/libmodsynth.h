@@ -82,10 +82,6 @@ t_mono_modules * v_mono_init(float a_sr)
     return a_mono;
 }
 
-/*Define any custom functions here*/
-
-
-
 #ifdef	__cplusplus
 }
 #endif
