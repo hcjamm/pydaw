@@ -22,6 +22,8 @@ extern "C" {
 #define LMS_SMALL_STRING 512
 #define LMS_TINY_STRING 32
     
+#define LMS_TERMINATING_CHAR '\\'
+    
 #include <stdio.h>
     
 char * get_string_from_file(const char * a_file, int a_size)
@@ -145,7 +147,7 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
     while(1)
     {        
         //char a_test = a_array->array[(a_array->current_index)];
-        if(a_array->array[(a_array->current_index)] == '\0')
+        if(a_array->array[(a_array->current_index)] == LMS_TERMINATING_CHAR)
         {
             f_result[f_i] = '\0';
             a_array->eof = 1;

@@ -9,6 +9,8 @@ from os import listdir
 from lms_session import lms_session
 from dssi_gui import dssi_gui
 
+pydaw_terminating_char = "\\"
+
 """ For sending OSC messages """
 def bool_to_int(a_bool):
     if a_bool:
@@ -59,7 +61,7 @@ class pydaw_project:
         try:
             f_file = open(self.project_folder + "/" + self.project_file + ".pysong", "r")
         except:
-            return ""
+            return pydaw_terminating_char
         f_result = f_file.read()
         f_file.close()
         return f_result
@@ -105,11 +107,15 @@ class pydaw_project:
 
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
-        open(self.regions_folder + "/" + a_region_name + ".pyreg", 'w').close()
+        f_file = open(self.regions_folder + "/" + a_region_name + ".pyreg", 'w')
+        f_file.write(pydaw_terminating_char)
+        f_file.close()
 
     def create_empty_item(self, a_item_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
-        open(self.items_folder + "/" + a_item_name + ".pyitem", 'w').close()
+        f_file = open(self.items_folder + "/" + a_item_name + ".pyitem", 'w')
+        f_file.write(pydaw_terminating_char)
+        f_file.close()
 
     def copy_region(self, a_old_region, a_new_region):
         copyfile(self.regions_folder + "/" + a_old_region + ".pyreg", self.regions_folder + "/" + a_new_region + ".pyreg")
@@ -199,13 +205,16 @@ class pydaw_song:
         f_result = ""
         for k, v in self.regions.iteritems():
             f_result += str(k) + "|" + v + "\n"
+        f_result += pydaw_terminating_char
         return f_result
     @staticmethod
     def from_str(a_str):
         f_result = pydaw_song()
         f_arr = a_str.split("\n")
         for f_line in f_arr:
-            if not f_line == "":
+            if f_line == pydaw_terminating_char:
+                break
+            else:
                 f_region = f_line.split("|")
                 f_result.add_region_ref(int(f_region[0]), f_region[1])
         return f_result
@@ -227,7 +236,8 @@ class pydaw_region:
     def __str__(self):
         f_result = ""
         for f_item in self.items:
-            f_result += str(f_item.track_num) + "|" + str(f_item.bar_num) + "|" + f_item.item_name + "\n"        
+            f_result += str(f_item.track_num) + "|" + str(f_item.bar_num) + "|" + f_item.item_name + "\n"
+        f_result += pydaw_terminating_char
         return f_result
 
     @staticmethod
@@ -235,7 +245,9 @@ class pydaw_region:
         f_result = pydaw_region(a_name)
         f_arr = a_str.split("\n")
         for f_line in f_arr:
-            if not f_line == "":
+            if f_line == pydaw_terminating_char:
+                break
+            else:
                 f_item_arr = f_line.split("|")
                 f_result.add_item_ref(int(f_item_arr[0]), int(f_item_arr[1]), f_item_arr[2])
         return f_result
@@ -286,7 +298,9 @@ class pydaw_item:
         f_result = pydaw_item()
         f_arr = a_str.split("\n")
         for f_event_str in f_arr:
-            if not f_event_str == "":
+            if f_event_str == pydaw_terminating_char:
+                break
+            else:
                 f_event_arr = f_event_str.split("|")
                 if f_event_arr[0] == "n":
                     f_result.add_note(pydaw_note.from_arr(f_event_arr))
@@ -306,6 +320,7 @@ class pydaw_item:
             f_result += note.__str__()
         for cc in self.ccs:
             f_result += cc.__str__()
+        f_result += pydaw_terminating_char
         return f_result
 
 class pydaw_note:
@@ -379,6 +394,7 @@ class pydaw_tracks:
         f_result = ""
         for k, v in self.tracks.iteritems():            
             f_result += str(k) + "|" + bool_to_int(v.solo) + "|" + bool_to_int(v.mute) + "|" + bool_to_int(v.rec) + "|" + str(v.vol) + "|" + v.name + "|" + str(v.inst) + "\n"
+        f_result += pydaw_terminating_char
         return f_result
 
     @staticmethod
