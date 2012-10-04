@@ -124,14 +124,14 @@ class dssi_gui(ServerThread):
     def pydaw_rename_item(self):
         self.send_configure("ri", "TODO")
     
-    def pydaw_play(self):
-        self.send_configure("play", "")
+    def pydaw_play(self, a_region_num=0, a_bar=0):
+        self.send_configure("play", str(a_region_num) + "|" + str(a_bar))
     
     def pydaw_stop(self):
         self.send_configure("stop", "")
     
-    def pydaw_rec(self):
-        self.send_configure("rec", "")
+    def pydaw_rec(self, a_region_num=0, a_bar=0):
+        self.send_configure("rec", str(a_region_num) + "|" + str(a_bar))
     
     def pydaw_set_loop_mode(self, a_mode):
         self.send_configure("loop", str(a_mode))
