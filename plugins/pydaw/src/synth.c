@@ -202,7 +202,9 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                         }
                     }
                 }
-            }                        
+            }
+            
+            printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (pydaw_data->current_region), (pydaw_data->current_bar));
         }
         
         pydaw_data->current_sample += sample_count;
@@ -220,16 +222,21 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
         plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
     }
     
-    plugin_data->i_mono_out = 0;
-
-    /*The main loop where processing happens*/
-    while((plugin_data->i_mono_out) < sample_count)
+    int f_i_mix = 0;
+    while(f_i_mix < PYDAW_MAX_TRACK_COUNT)
     {
-        output0[(plugin_data->i_mono_out)] = 0.0f;
-        output1[(plugin_data->i_mono_out)] = 0.0f;
+        int f_i2 = f_i_mix + 1;
+        plugin_data->i_mono_out = 0;
+        /*The main loop where processing happens*/
+        while((plugin_data->i_mono_out) < sample_count)
+        {
+            output0[(plugin_data->i_mono_out)] += *(plugin_data->input_arr[f_i_mix]);
+            output1[(plugin_data->i_mono_out)] += *(plugin_data->input_arr[f_i2]);
 
-        plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
-    }            
+            plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
+        }
+        f_i_mix += 2;
+    }
 }
 
 char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)
