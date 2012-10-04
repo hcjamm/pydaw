@@ -177,7 +177,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
             f_i++;
         }
 
-        pydaw_data->playback_cursor = (pydaw_data->playback_cursor) + (pydaw_data->playback_inc);
+        pydaw_data->playback_cursor = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));
         
         if((pydaw_data->playback_cursor) >= 1.0f)
         {

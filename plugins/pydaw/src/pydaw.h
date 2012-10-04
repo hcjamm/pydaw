@@ -124,9 +124,9 @@ typedef struct st_pydaw_data
     char * project_folder;
     char * item_folder;
     char * region_folder;    
-    float playback_cursor; //only refers to the fractional position within the current bar.    
-    float playback_cursor_last; //only refers to the fractional position within the current bar.    
-    float playback_inc;  //the increment per-period to iterate through 1 bar, as determined by sample rate and tempo
+    double playback_cursor; //only refers to the fractional position within the current bar.    
+    double playback_cursor_last; //only refers to the fractional position within the current bar.    
+    double playback_inc;  //the increment per-period to iterate through 1 bar, as determined by sample rate and tempo
     int current_region; //the current region
     int current_bar; //the current bar(0 to 7), within the current region
     int current_bar_start;  //The current bar start in samples
@@ -653,7 +653,8 @@ void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode)
 void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
 {
     a_pydaw_data->tempo = a_tempo;
-    a_pydaw_data->playback_inc = (((a_tempo * 0.25f) / (a_pydaw_data->sample_rate)));
+    a_pydaw_data->playback_inc = ( (1.0f/(a_pydaw_data->sample_rate)) / (60.0f/(a_tempo * 0.25f)) );
+    printf("a_pydaw_data->playback_inc = %f\n", (a_pydaw_data->playback_inc));
 }
 
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
