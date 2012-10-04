@@ -49,6 +49,7 @@ extern "C" {
 #define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 128
 #define PYDAW_MAX_TRACK_COUNT 16
 #define PYDAW_REGION_SIZE 8
+#define PYDAW_MIDI_NOTE_COUNT 128
     
 #include <string.h>
 #include <pthread.h>
@@ -127,18 +128,18 @@ typedef struct st_pydaw_data
     char * item_folder;
     char * region_folder;    
     double playback_cursor; //only refers to the fractional position within the current bar.    
-    double playback_cursor_last; //only refers to the fractional position within the current bar.    
+    //double playback_cursor_last; //only refers to the fractional position within the current bar.    
     double playback_inc;  //the increment per-period to iterate through 1 bar, as determined by sample rate and tempo
     int current_region; //the current region
     int current_bar; //the current bar(0 to 7), within the current region
     int current_bar_start;  //The current bar start in samples
     int current_bar_end;  //The current bar end in samples
-    int period_size;  //The size of the soundcards sample buffer, ie:  512 samples, 256 samples, etc...
+    //int period_size;  //The size of the soundcards sample buffer, ie:  512 samples, 256 samples, etc...
     int samples_per_bar;
     float sample_rate;
     int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz.  Reset to zero on beginning playback    
     snd_seq_t *seq_handle;    
-    
+    int note_offs[PYDAW_MAX_TRACK_COUNT][PYDAW_MIDI_NOTE_COUNT];  //When a note_on event is fired, a sample number of when to release it is stored here
     int queue_id, port_in_id[PYDAW_MAX_TRACK_COUNT], port_out_id[PYDAW_MAX_TRACK_COUNT];    
     snd_seq_tick_time_t tick[PYDAW_MAX_TRACK_COUNT];
     
@@ -402,7 +403,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->region_count = 0;
     f_result->current_sample = 0;
     f_result->loop_mode = 0;    
-    f_result->period_size = 512;  //Arbitrary value to avoid a SEGFAULT early on.  TODO:  Find a way to get this from ALSA
+    //f_result->period_size = 512;  //Arbitrary value to avoid a SEGFAULT early on.  TODO:  Find a way to get this from ALSA
     f_result->item_folder = (char*)malloc(sizeof(char) * 256);
     f_result->project_folder = (char*)malloc(sizeof(char) * 256);
     f_result->region_folder = (char*)malloc(sizeof(char) * 256);
@@ -423,6 +424,14 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         f_result->track_pool[f_i] = g_pytrack_get();
         f_result->track_note_event_indexes[f_i] = 0;
         f_result->track_cc_event_indexes[f_i] = 0;
+        
+        int f_i2 = 0;
+        
+        while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
+        {
+            f_result->note_offs[f_i][f_i2] = 0;
+            f_i2++;
+        }
         
         /*ALSA stuff*/
 
@@ -486,7 +495,6 @@ void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data)
   a_pydaw_data->queue_id = snd_seq_alloc_queue(a_pydaw_data->seq_handle);
   snd_seq_set_client_pool_output(a_pydaw_data->seq_handle, 128);  //(seq_len<<1) + 4); //TODO:  Look up how to properly use this???
 } 
- 
 
 /* This function will be deprecated and moved into the main loop*/
 void v_pydaw_schedule_item(t_pydaw_data * a_pydaw_data, int a_item_number, int a_track_number)
@@ -623,6 +631,7 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
  */
 void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, int a_bar)
 {
+    //pthread_mutex_lock(&a_pydaw_data->mutex);
     a_pydaw_data->playback_mode = a_mode;
     
     switch(a_mode)
@@ -639,26 +648,36 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
             break;
     }
+    
+    //pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
 {
+    //pthread_mutex_lock(&a_pydaw_data->mutex);
+    
     a_pydaw_data->current_bar = a_bar;
     a_pydaw_data->current_region = a_region;
     a_pydaw_data->playback_cursor = 0.0f;
     //TODO:  An  "all notes off" function
+    
+    //pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
 void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode)
 {
+    //pthread_mutex_lock(&a_pydaw_data->mutex);
     a_pydaw_data->loop_mode = a_mode;
+    //pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
 void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
 {
+    //pthread_mutex_lock(&a_pydaw_data->mutex);
     a_pydaw_data->tempo = a_tempo;
     a_pydaw_data->playback_inc = ( (1.0f/(a_pydaw_data->sample_rate)) / (60.0f/(a_tempo * 0.25f)) );
     printf("a_pydaw_data->playback_inc = %f\n", (a_pydaw_data->playback_inc));
+    //pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);

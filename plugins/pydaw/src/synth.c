@@ -141,12 +141,14 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     
     pthread_mutex_lock(&pydaw_data->mutex);
     
-    pydaw_data->period_size = sample_count;
+    //pydaw_data->period_size = sample_count;
     
     double f_next_period = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));
        
     if((pydaw_data->is_initialized) && ((pydaw_data->playback_mode) > 0))
     {                
+        event_loop_label:
+                
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {
             
@@ -154,13 +156,19 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
              * 1.  Figure out how to determine which tick of the period to send an event on from the given fractional bar
              * 2.  A next/last fractional bar, that possible event firings must begin between
              * 3.  Persistent note/cc event list iterators
+             * 4.  Check if (f_next_period >= 1.0f) earlier, then begin iterating the item.  Until then, there will be issues with timing and missed events
+             * 5.  Calculate note_offs, which currently are not calculated
+             * 6.  A t_pydaw_item_native type that correlates directly to note_on and note_off events?  
+             * Or just shoehorn that into the existing file format???  Or better yet, a local registry of note_off events, also a note_on count, so those with zero can be skipped
+             * which would also be useful for all_note_off kind of events like hitting the stop button...
              */
+            /*
             int f_item_index = pydaw_data->region_pool[(pydaw_data->current_region)]->items[f_i][(pydaw_data->current_bar)];
             
             if(f_item_index >= 0)
             {
                 snd_seq_event_t ev;
-                /*
+                
                 while(1)
                 {
                     snd_seq_ev_clear(&ev);
@@ -180,17 +188,27 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                     snd_seq_ev_set_subs(&ev);
                     snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
                 }
-                */                
+              
             }
-                        
+            */   
+            int f_i2 = 0;
+            
+            while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
+            {
+                
+                f_i2++;
+            }
+            
             f_i++;
         }
-
+        
         pydaw_data->playback_cursor = f_next_period;
         
         if((pydaw_data->playback_cursor) >= 1.0f)
         {
-            pydaw_data->playback_cursor = 0.0f;
+            //Calculate the remainder of this bar that occurs within the sample period
+            pydaw_data->playback_cursor = (pydaw_data->playback_cursor) - 1.0f;
+            f_next_period = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));
             
             if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
             {
@@ -213,7 +231,9 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 }
             }
             
-            printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (pydaw_data->current_region), (pydaw_data->current_bar));
+            printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (pydaw_data->current_region), (pydaw_data->current_bar));            
+            //Use this to go back and process the early parts of the next item
+            //goto event_loop_label;
         }
         
         pydaw_data->current_sample += sample_count;
