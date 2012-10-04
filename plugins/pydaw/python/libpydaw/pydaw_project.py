@@ -97,7 +97,7 @@ class pydaw_project:
         try:
             f_file = open(self.project_folder + "/" + self.project_file + ".pytracks", "r")
         except:
-            return ""
+            return pydaw_terminating_char
         f_result = f_file.read()
         f_file.close()
         return f_result
