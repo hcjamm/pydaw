@@ -78,9 +78,7 @@ printf("debug information");
 
 //maximum voices played at one time
 #define POLYPHONY   90  
-#define STEP_SIZE   16
-    
-    
+
 /*Add a variable for each control in the synth_vals type*/
 typedef struct {    
     /*The variables below this line correspond to GUI controls*/
@@ -241,7 +239,6 @@ typedef struct {
     synth_vals vals;
     
     int pos;
-    int count;
     int event_pos;
     int voice;
     int i_iterator;    
