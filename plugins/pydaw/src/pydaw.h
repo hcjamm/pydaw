@@ -89,8 +89,8 @@ typedef struct st_pyitem
 typedef struct st_pyregion
 {
     int items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool
-    int row_count;
-    int column_count;
+    //int row_count;
+    //int column_count;
     char * name;
 }t_pyregion;
 
@@ -127,14 +127,12 @@ typedef struct st_pydaw_data
     char * project_folder;
     char * item_folder;
     char * region_folder;    
-    double playback_cursor; //only refers to the fractional position within the current bar.    
-    //double playback_cursor_last; //only refers to the fractional position within the current bar.    
+    double playback_cursor; //only refers to the fractional position within the current bar.
     double playback_inc;  //the increment per-period to iterate through 1 bar, as determined by sample rate and tempo
     int current_region; //the current region
     int current_bar; //the current bar(0 to 7), within the current region
     int current_bar_start;  //The current bar start in samples
     int current_bar_end;  //The current bar end in samples
-    //int period_size;  //The size of the soundcards sample buffer, ie:  512 samples, 256 samples, etc...
     int samples_per_bar;
     float sample_rate;
     int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz.  Reset to zero on beginning playback    
@@ -201,7 +199,15 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
     
     int f_i = 0;
     
-    while(f_i < 128)
+    while(f_i < PYDAW_MAX_REGION_COUNT)
+    {
+        f_result->region_index[f_i] = -1;
+        f_i++;
+    }
+    
+    f_i = 0;
+    
+    while(f_i < PYDAW_MAX_REGION_COUNT)
     {            
         char * f_pos_char = c_iterate_2d_char_array(f_current_string);
         if(f_current_string->eof)
@@ -272,7 +278,8 @@ void g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
         int f_y = atoi(f_y_char);
         free(f_y_char);
         char * f_item_name = c_iterate_2d_char_array(f_current_string);            
-        f_result->items[f_x][f_y] = i_get_item_index_from_name(a_pydaw, f_item_name);            
+        f_result->items[f_y][f_x] = i_get_item_index_from_name(a_pydaw, f_item_name);
+        printf("f_x == %i, f_y = %i\n", f_x, f_y);
         free(f_item_name);            
 
         f_i++;
@@ -609,6 +616,8 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
     t_dir_list * f_regions = g_get_dir_list(a_pydaw->region_folder);
     
     printf("pyregion file count: %i\n", f_regions->dir_count);
+    
+    f_i = 0;
     
     while(f_i < (f_regions->dir_count))
     {
