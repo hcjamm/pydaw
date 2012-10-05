@@ -160,6 +160,7 @@ int main(int argc, char** argv) {
     
     t_pydaw_data * f_data = g_pydaw_data_get(44100);
     v_open_project(f_data, "/home/bob/dssi/pydaw/default-project", "default");
+    int f_item_index = f_data->region_pool[(f_data->pysong->region_index[(f_data->current_region)])]->items[0][7];
 
     return 0; //(EXIT_SUCCESS);
 }
