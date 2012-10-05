@@ -148,10 +148,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 
         double f_current_period_beats = (pydaw_data->playback_cursor) * 4.0f;
         double f_next_period_beats = f_next_period * 4.0f;
-            
-        int f_region_index = (pydaw_data->pysong->region_index[(pydaw_data->current_region)]);
-        assert(f_region_index < (pydaw_data->region_count));
-        
+                
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {
             
@@ -165,18 +162,11 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
              * Or just shoehorn that into the existing file format???  Or better yet, a local registry of note_off events, also a note_on count, so those with zero can be skipped
              * which would also be useful for all_note_off kind of events like hitting the stop button...
              */
-            
-            if(f_region_index < 0)
-            {
-                continue;  //region is empty for this track
-            }
-                        
-            int f_item_index = pydaw_data->region_pool[f_region_index]->items[f_i][(pydaw_data->current_bar)];
-                        
-            if(f_item_index >= 0)
+                                    
+            if(0)
             {
                 snd_seq_event_t ev;
-                
+                /*
                 while(1)
                 {
                     if((pydaw_data->track_note_event_indexes[f_i]) >= (pydaw_data->item_pool[f_item_index]->note_count))
@@ -204,6 +194,8 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                         break;
                     }
                 }
+                 * */
+                
                 /*
                 while(1)
                 {

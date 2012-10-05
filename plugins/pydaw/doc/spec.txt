@@ -6,6 +6,17 @@
 # audio/MIDI engine, and communicates with it via a well defined protocol, which will allow easily 
 # replacing the UI with a different UI, as well as safe customization of the UI.
 
+Startup Specifications(to prevent the memory corruption that version 0.0.1 experiences):
+
+	Startup(engine):
+
+		
+
+	Startup(UI):
+
+		
+
+
 OSC configure message keys/values:
 
 	key	value	notes
