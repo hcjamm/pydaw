@@ -594,7 +594,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     def initUI(self):
         QtGui.QMainWindow.__init__(self)
         stylesheet_file = os.getcwd() + "/pydaw/style.txt"
-        print("Opening CSS stylesheet from:  " + stylesheet_file)
+        pydaw_write_log("Opening CSS stylesheet from:  " + stylesheet_file)
         file_handle = open(stylesheet_file, 'r')
         self.setStyleSheet(file_handle.read())
         file_handle.close()
@@ -685,8 +685,9 @@ def about_to_quit():
     this_pydaw_project.quit_handler()
 
 if __name__ == '__main__':
+    pydaw_write_log("\n\n\n***********STARTING***********\n\n")
     for arg in argv:
-        print arg
+        pydaw_write_log("arg:  " + arg)
 
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon('pydaw.ico'))
