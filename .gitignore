@@ -1,3 +1,4 @@
+core
 tools/debugger/debugger
 plugins/lms_jack_oscrolloscope/jack_oscrolloscope
 plugins/lms_modulex/LMS_MODULEX_qt
