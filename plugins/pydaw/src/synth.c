@@ -111,12 +111,8 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
 
 static void activateLMS(LADSPA_Handle instance)
 {
-    t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
-        
-    plugin_data->mono_modules = v_mono_init((plugin_data->fs));  //initialize all monophonic modules    
-    
-    g_pydaw_alsa_start(pydaw_data);
-    v_pydaw_init_queue(pydaw_data);
+    t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;        
+    plugin_data->mono_modules = v_mono_init((plugin_data->fs));    
 }
 
 static void runLMSWrapper(LADSPA_Handle instance,
@@ -154,6 +150,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
         double f_next_period_beats = f_next_period * 4.0f;
             
         int f_region_index = (pydaw_data->pysong->region_index[(pydaw_data->current_region)]);
+        assert(f_region_index < (pydaw_data->region_count));
         
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {
