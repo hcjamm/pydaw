@@ -18,7 +18,9 @@ args:
 
 --build-debug	:  A clean build, with debug symbols.
 
---debug		:  Compile, install and debug, using LMS' console output.  You must uncomment the LMS_XYZ_DEBUG_MODE #defines in synth.h or in the libmodsynth library for console output to be displayed.
+--debug		:  Compile with debug symbols and run, using console output.
+
+--gdb		:  Compile with debug symbols and open in gdb
 
 --coredump	:  Read the most recent core dump for the current plugin directory in GDB(requires that you ran the plugin with --debug and experienced a SEGFAULT)
 
@@ -95,7 +97,7 @@ sub run_script
 	{
 		system("gdb lms-jack-dssi-host core");
 	}
-	elsif($ARGV[0] eq "--debug")
+	elsif($ARGV[0] eq "--debug" or $ARGV[0] eq "--gdb")
 	{
 		check_deps();
 		notify_wait();
@@ -112,8 +114,13 @@ sub run_script
 		`rm -Rf ../bin/*`; #Cleanup the bin directory
 		`rm -Rf ./core`; #Delete any core dumps from previous sessions, gdb seems to be acting up when the previous core dump isn't deleted
 		`make PREFIX=/usr DESTDIR=$dssi_path install`;
-		#exec("export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; ddd $jack_host");
-		exec("ulimit -c unlimited; export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; $local_jack_host $current_dir.so");
+		if($ARGV[0] eq "--debug"){
+			exec("ulimit -c unlimited; export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; $local_jack_host $current_dir.so");
+		} elsif($ARGV[0] eq "--gdb") {
+			print("\n\n\n****Type 'run $current_dir.so' at the (gdb) prompt***\n\n\n");
+			system("ulimit -c unlimited; export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; gdb $local_jack_host");
+		}
+			
 	}
 	elsif($ARGV[0] eq "--build-jack-host")
 	{
