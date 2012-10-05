@@ -62,16 +62,16 @@ extern "C" {
 typedef struct st_pynote
 {
     //TODO:  It may be more efficient to process as Int?
-    char note;
-    char velocity;
+    int note;
+    int velocity;
     float start;
     float length;    
 }t_pynote;
 
 typedef struct st_pycc
 {
-    char cc_num;
-    char cc_val;
+    int cc_num;
+    int cc_val;
     float start;
 }t_pycc;
 
@@ -89,16 +89,14 @@ typedef struct st_pyitem
 
 typedef struct st_pyregion
 {
-    int items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool
-    //int row_count;
-    //int column_count;
+    t_pyitem * items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool    
     char * name;
 }t_pyregion;
 
 typedef struct st_pysong
 {
     int region_count;
-    int region_index[PYDAW_MAX_REGION_COUNT];
+    t_pyregion * regions[PYDAW_MAX_REGION_COUNT];
     int max_regions;
 }t_pysong;
 
@@ -115,13 +113,9 @@ typedef struct st_pydaw_data
     float tempo;
     pthread_mutex_t mutex;
     t_pysong * pysong;
-    t_pyitem * item_pool[PYDAW_MAX_ITEM_COUNT];
-    t_pyregion * region_pool[PYDAW_MAX_REGION_COUNT];
     t_pytrack * track_pool[PYDAW_MAX_TRACK_COUNT];
     int track_note_event_indexes[PYDAW_MAX_TRACK_COUNT];
-    int track_cc_event_indexes[PYDAW_MAX_TRACK_COUNT];
-    int item_count;
-    int region_count;    
+    int track_cc_event_indexes[PYDAW_MAX_TRACK_COUNT];       
     int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
     int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
     char * project_name;
@@ -142,14 +136,14 @@ typedef struct st_pydaw_data
     int queue_id;
     int port_in_id[PYDAW_MAX_TRACK_COUNT];
     int port_out_id[PYDAW_MAX_TRACK_COUNT];    
-    snd_seq_tick_time_t tick[PYDAW_MAX_TRACK_COUNT];
+    //snd_seq_tick_time_t tick[PYDAW_MAX_TRACK_COUNT];
     
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
 t_pytrack * g_pytrack_get();
-void g_pyregion_get(t_pydaw_data* a_pydaw, const char*);
-void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name);
+t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char*);
+t_pyitem * g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name);
 t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start);
 t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length);
 t_pydaw_data * g_pydaw_data_get(float);
@@ -158,6 +152,9 @@ int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_nam
 void v_open_project(t_pydaw_data*, char*, char*);
 void v_set_tempo(t_pydaw_data*,float);
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
+void g_pydaw_alsa_start(t_pydaw_data* a_pydaw_data);
+void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data);
+void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
 /*End declarations.  Begin implementations.*/
 
@@ -206,7 +203,7 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
     
     while(f_i < PYDAW_MAX_REGION_COUNT)
     {
-        f_result->region_index[f_i] = -1;
+        f_result->regions[f_i] = 0;
         f_i++;
     }
     
@@ -221,8 +218,7 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
         }
         int f_pos = atoi(f_pos_char);        
         char * f_region_char = c_iterate_2d_char_array(f_current_string);
-        int f_region_index = i_get_region_index_from_name(a_pydaw, f_region_char);
-        f_result->region_index[f_pos] = f_region_index;
+        f_result->regions[f_pos] = g_pyregion_get(a_pydaw, f_region_char);
         free(f_pos_char);
         free(f_region_char);
         f_i++;
@@ -238,7 +234,7 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
     a_pydaw->pysong = f_result;
 }
 
-void g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
+t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
 {
     char log_buff[200];
     sprintf(log_buff, "\ng_pyregion_get: a_name: \"%s\"\n", a_name);
@@ -256,7 +252,7 @@ void g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
     {        
         while(f_i2 < PYDAW_REGION_SIZE)
         {
-            f_result->items[f_i][f_i2] = -1;
+            f_result->items[f_i][f_i2] = 0;
             f_i2++;
         }
         f_i++;
@@ -288,7 +284,7 @@ void g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
         char * f_item_name = c_iterate_2d_char_array(f_current_string);
         assert(f_y < PYDAW_MAX_TRACK_COUNT);
         assert(f_x < PYDAW_REGION_SIZE);
-        f_result->items[f_y][f_x] = i_get_item_index_from_name(a_pydaw, f_item_name);
+        f_result->items[f_y][f_x] = g_pyitem_get(a_pydaw, f_item_name);
         sprintf(log_buff, "f_x == %i, f_y = %i\n", f_x, f_y);
         pydaw_write_log(log_buff);
         free(f_item_name);            
@@ -298,21 +294,10 @@ void g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
 
     g_free_2d_char_array(f_current_string);
     
-    int f_current_index = i_get_region_index_from_name(a_pydaw, a_name);
-    
-    if(f_current_index == -1)
-    {
-        a_pydaw->region_pool[(a_pydaw->region_count)] = f_result;
-        a_pydaw->region_count = (a_pydaw->region_count) + 1;
-    }
-    else
-    {
-        free(a_pydaw->region_pool[f_current_index]);
-        a_pydaw->region_pool[f_current_index] = f_result;
-    }
+    return f_result;
 }
 
-void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name)
+t_pyitem * g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name)
 {
     char log_buff[200];
     sprintf(log_buff, "g_pyitem_get: a_name: \"%s\"\n", a_name);
@@ -324,9 +309,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name)
     strcpy(f_result->name, a_name);
     f_result->cc_count = 0;
     f_result->note_count = 0;
-    
-    int f_existing_item_index = i_get_item_index_from_name(a_pydaw, a_name);
-    
+        
     char * f_full_path = (char*)malloc(sizeof(char) * 256);
     strcpy(f_full_path, a_pydaw->item_folder);
     strcat(f_full_path, a_name);
@@ -390,16 +373,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name)
 
     g_free_2d_char_array(f_current_string);
         
-    if(f_existing_item_index == -1)
-    {
-        a_pydaw->item_pool[(a_pydaw->item_count)] = f_result;
-        a_pydaw->item_count = (a_pydaw->item_count) + 1;
-    }
-    else
-    {
-        free(a_pydaw->item_pool[f_existing_item_index]);
-        a_pydaw->item_pool[f_existing_item_index] = f_result;
-    }    
+    return f_result;   
 }
 
 t_pytrack * g_pytrack_get()
@@ -413,9 +387,6 @@ t_pytrack * g_pytrack_get()
     return f_result;
 }
 
-void g_pydaw_alsa_start(t_pydaw_data* a_pydaw_data);
-void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data);
-
 t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 {
     t_pydaw_data * f_result = (t_pydaw_data*)malloc(sizeof(t_pydaw_data));
@@ -424,8 +395,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     pthread_mutex_init(&f_result->mutex, NULL);
     f_result->is_initialized = 0;
     f_result->sample_rate = a_sample_rate;
-    f_result->item_count = 0;
-    f_result->region_count = 0;
     f_result->current_sample = 0;
     f_result->loop_mode = 0;    
     //f_result->period_size = 512;  //Arbitrary value to avoid a SEGFAULT early on.  TODO:  Find a way to get this from ALSA
@@ -564,52 +533,6 @@ void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data)
     snd_seq_remove_events_free(remove_ev);
 }
 
-//This will eventually get a real indexing algorithm.  Although generally it shouldn't have noticeably
-//bad performance on a modern CPU because it's only called when the user does something in the UI.
-int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name)
-{
-    char log_buff[200];
-    sprintf(log_buff, "i_get_item_index_from_name: a_name: \"%s\"\n", a_name);
-    pydaw_write_log(log_buff);
-    
-    int f_i = 0;
-    
-    while(f_i < a_pydaw_data->item_count)
-    {
-        //printf("Comparing %s\n", (a_pydaw_data->item_pool[f_i]->name));
-        if(!strcmp((a_pydaw_data->item_pool[f_i]->name), a_name))
-        {
-            sprintf(log_buff, "return %i for %s\n", f_i, a_name);
-            pydaw_write_log(log_buff);
-            return f_i;
-        }
-        
-        f_i++;
-    }
-    sprintf(log_buff, "return -1 for \"%s\"\n", a_name);
-    pydaw_write_log(log_buff);
-    return -1;
-}
-
-//This will eventually get a real indexing algorithm.  Although generally it shouldn't have noticeably
-//bad performance on a modern CPU because it's only called when the user does something in the UI.
-int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name)
-{
-    int f_i = 0;
-    
-    while(f_i < a_pydaw_data->region_count)
-    {
-        if(!strcmp((a_pydaw_data->region_pool[f_i]->name), a_name))
-        {
-            return f_i;
-        }
-        
-        f_i++;
-    }
-    
-    return -1;
-}
-
 void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
 {
     char log_buff[200];
@@ -700,35 +623,29 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
 
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
 {
-    //pthread_mutex_lock(&a_pydaw_data->mutex);
-    
     a_pydaw_data->current_bar = a_bar;
     a_pydaw_data->current_region = a_region;
     a_pydaw_data->playback_cursor = 0.0f;
-    //TODO:  An  "all notes off" function
-    
-    //pthread_mutex_unlock(&a_pydaw_data->mutex);
+    //TODO:  An  "all notes off" function 
 }
 
 void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode)
 {
-    //pthread_mutex_lock(&a_pydaw_data->mutex);
+    pthread_mutex_lock(&a_pydaw_data->mutex);
     a_pydaw_data->loop_mode = a_mode;
-    //pthread_mutex_unlock(&a_pydaw_data->mutex);
+    pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
 void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
 {
-    //pthread_mutex_lock(&a_pydaw_data->mutex);
+    pthread_mutex_lock(&a_pydaw_data->mutex);
     char log_buff[200];
     a_pydaw_data->tempo = a_tempo;
     a_pydaw_data->playback_inc = ( (1.0f/(a_pydaw_data->sample_rate)) / (60.0f/(a_tempo * 0.25f)) );
     sprintf(log_buff, "a_pydaw_data->playback_inc = %f\n", (a_pydaw_data->playback_inc));
     pydaw_write_log(log_buff);
-    //pthread_mutex_unlock(&a_pydaw_data->mutex);
+    pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
-
-void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, const char* a_value)
 {
