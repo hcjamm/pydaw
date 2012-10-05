@@ -14,6 +14,7 @@ extern "C" {
 
 #include <dirent.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /*Standard string sizes.  When in doubt, pick a really big one, it's better to 
  * waste memory than to SEGFAULT...*/
@@ -25,13 +26,32 @@ extern "C" {
 #define LMS_TERMINATING_CHAR '\\'
     
 #include <stdio.h>
+#include <time.h>
+    
+void pydaw_write_log(char * a_string)
+{
+    char buff[256];
+    time_t now = time (0);
+    strftime (buff, 100, "%Y-%m-%d %H:%M:%S.000", localtime (&now));
+
+    strcat(buff, " - ");
+    strcat(buff, a_string);
+    
+    FILE* pFile = fopen("pydaw-engine.log", "a");
+    fprintf(pFile, "%s\n",buff);
+    fclose(pFile);
+}
     
 char * get_string_from_file(const char * a_file, int a_size)
 {
-    printf("get_string_from_file: a_file: \"%s\" a_size: %i \n", a_file, a_size);
+    char log_buff[200];
+    sprintf(log_buff, "get_string_from_file: a_file: \"%s\" a_size: %i \n", a_file, a_size);
+    pydaw_write_log(log_buff);
+    
     char * f_buffer = (char*)malloc(sizeof(char) * a_size);
     FILE * f_file;	
-    f_file = fopen(a_file, "r");	
+    f_file = fopen(a_file, "r");
+    assert(f_file);
     fread(f_buffer, sizeof(char), sizeof(char) * a_size, f_file);	
     fclose(f_file);    
     return f_buffer;
@@ -98,12 +118,8 @@ t_1d_char_array * c_split_str(const char * a_input, char a_delim, int a_column_c
         {
             f_result->array[f_current_column][f_current_string_index] = '\0';
             f_current_column++;
-            if(f_current_column >= a_column_count)
-            {                           
-                break;
-            }
             f_current_string_index = 0;
-            
+            assert(f_current_column < a_column_count);                        
         }
         else if((a_input[f_i] == '\n') || (a_input[f_i] == '\0'))
         {
@@ -126,11 +142,13 @@ t_1d_char_array * c_split_str(const char * a_input, char a_delim, int a_column_c
  * limited to being the size of LMS_TINY_STRING */
 t_2d_char_array * g_get_2d_array_from_file(const char * a_file, int a_size)
 {    
-    printf("g_get_2d_array_from_file: a_file: \"%s\" a_size: %i\n", a_file, a_size);
+    char log_buff[200];
+    sprintf(log_buff, "g_get_2d_array_from_file: a_file: \"%s\" a_size: %i\n", a_file, a_size);
+    pydaw_write_log(log_buff);
     t_2d_char_array * f_result = (t_2d_char_array*)malloc(sizeof(t_2d_char_array));
     
-    f_result->array = get_string_from_file(a_file, a_size);
-    printf("\n%s\n\n", (f_result->array));
+    f_result->array = get_string_from_file(a_file, a_size);    
+    pydaw_write_log(f_result->array);
     f_result->current_index = 0;
     f_result->current_row = 0;
     f_result->current_column = 0;
@@ -166,6 +184,7 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
             f_result[f_i] = '\0';
             a_array->current_index = (a_array->current_index) + 1;
             a_array->current_column = (a_array->current_column) + 1;
+            //assert((a_array->current_column) < (a_array->));  //TODO:  A check for acceptable column counts
             break;
         }
         else
