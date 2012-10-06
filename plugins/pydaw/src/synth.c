@@ -27,7 +27,6 @@ GNU General Public License for more details.
 
 #include "dssi.h"
 #include "ladspa.h"
-#include "sequencer.h"
 
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/amp.h"
@@ -43,6 +42,7 @@ static LADSPA_Descriptor *LMSLDescriptor = NULL;
 static DSSI_Descriptor *LMSDDescriptor = NULL;
 
 static t_pydaw_data * pydaw_data;
+static pthread_t seq_thread;
 
 static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
@@ -112,7 +112,9 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
 static void activateLMS(LADSPA_Handle instance)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;        
-    plugin_data->mono_modules = v_mono_init((plugin_data->fs));    
+    plugin_data->mono_modules = v_mono_init((plugin_data->fs)); 
+    
+    pthread_create(&(seq_thread), NULL, &v_pydaw_main_loop, (void*)pydaw_data);    
 }
 
 static void runLMSWrapper(LADSPA_Handle instance,
@@ -133,151 +135,6 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     LADSPA_Data *const output1 = plugin_data->output1;    
         
     /*Reset our iterators to 0*/    
-    int f_i = 0;
-    
-    pthread_mutex_lock(&pydaw_data->mutex);
-    
-    //pydaw_data->period_size = sample_count;
-    
-    double f_next_period = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));    
-    int f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
-       
-    if((pydaw_data->is_initialized) && ((pydaw_data->playback_mode) > 0))
-    {                
-        //event_loop_label:
-                
-        double f_current_period_beats = (pydaw_data->playback_cursor) * 4.0f;
-        double f_next_period_beats = f_next_period * 4.0f;
-                
-        while(f_i < PYDAW_MAX_TRACK_COUNT)
-        {
-            
-            /* TODO:
-             * 1.  Figure out how to determine which tick of the period to send an event on from the given fractional bar
-             * 2.  A next/last fractional bar, that possible event firings must begin between
-             * 3.  Persistent note/cc event list iterators
-             * 4.  Check if (f_next_period >= 1.0f) earlier, then begin iterating the item.  Until then, there will be issues with timing and missed events
-             * 5.  Calculate note_offs, which currently are not calculated
-             * 6.  A t_pydaw_item_native type that correlates directly to note_on and note_off events?  
-             * Or just shoehorn that into the existing file format???  Or better yet, a local registry of note_off events, also a note_on count, so those with zero can be skipped
-             * which would also be useful for all_note_off kind of events like hitting the stop button...
-             */
-            
-            if((pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_populated[f_i][(pydaw_data->current_bar)]))
-            {
-                snd_seq_event_t ev;
-                
-                t_pyitem f_current_item = *(pydaw_data->pysong->regions[(pydaw_data->current_region)]->items[f_i][(pydaw_data->current_bar)]);
-                
-                while(1)
-                {
-                    if((pydaw_data->track_note_event_indexes[f_i]) >= (f_current_item.note_count))
-                    {
-                        break;
-                    }
-
-                    if(((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) > f_current_period_beats) &&
-                        ((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) < f_next_period_beats))
-                    {
-                        printf("Sending note_on event\n");
-                        snd_seq_ev_clear(&ev);
-                        snd_seq_ev_set_noteon(&ev, 0, f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note, f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->velocity);
-                        snd_seq_ev_schedule_tick(&ev, pydaw_data->queue_id,  0, 0);  //TODO:  That last number is tick, calculate it fractionally so sample/sample_period.
-                        snd_seq_ev_set_source(&ev, pydaw_data->port_out_id[f_i]);
-                        snd_seq_ev_set_subs(&ev);
-                        snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
-                        
-                        pydaw_data->note_offs[f_i][(pydaw_data->track_note_event_indexes[f_i])] = (pydaw_data->current_sample) + 5000;  //TODO:  replace 5000 with a real calculated length
-                                                
-                        pydaw_data->track_note_event_indexes[f_i] = (pydaw_data->track_note_event_indexes[f_i]) + 1;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }                
-                
-                /*
-                while(1)
-                {
-                    snd_seq_ev_clear(&ev);
-                    snd_seq_ev_set_controller(&ev, 0, sequence[2][l1] + transpose, 127, sequence[1][l1]);
-                    snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
-                    snd_seq_ev_set_source(&ev, a_pydaw_data->port_out_id[a_track_number]);
-                    snd_seq_ev_set_subs(&ev);
-                    snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
-                }
-                */   
-                                 
-                int f_i2 = 0;
-                //This is going to be painfully slow scanning all 16x128=2048 entries, but it may not really matter, so I won't prematurely optimize it now.
-                while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
-                {
-                    if((pydaw_data->note_offs[f_i][f_i2]) > (pydaw_data->current_sample) &&
-                       (pydaw_data->note_offs[f_i][f_i2]) < f_next_current_sample)
-                    {
-                        printf("sending note_off\n");
-                        snd_seq_ev_clear(&ev);
-                        snd_seq_ev_set_noteoff(&ev, 0, pydaw_data->note_offs[f_i][f_i2], 0);
-                        snd_seq_ev_schedule_tick(&ev, pydaw_data->queue_id,  0, 0);  //TODO:  That last number is tick, calculate it fractionally so sample/sample_period.
-                        snd_seq_ev_set_source(&ev, pydaw_data->port_out_id[f_i]);
-                        snd_seq_ev_set_subs(&ev);
-                        snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
-                    }
-
-                    f_i2++;
-                }
-            }
-                         
-            f_i++;
-        }
-        
-        pydaw_data->playback_cursor = f_next_period;
-        
-        if((pydaw_data->playback_cursor) >= 1.0f)
-        {
-            //Calculate the remainder of this bar that occurs within the sample period
-            pydaw_data->playback_cursor = (pydaw_data->playback_cursor) - 1.0f;
-            f_next_period = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));
-            
-            int f_i2 = 0;
-            
-            while(f_i2 < PYDAW_MAX_TRACK_COUNT)
-            {
-                pydaw_data->track_note_event_indexes[f_i] = 0;
-                pydaw_data->track_cc_event_indexes[f_i] = 0;
-                f_i2++;
-            }
-            
-            if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
-            {
-                pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
-                
-                if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
-                {
-                    pydaw_data->current_bar = 0;
-                    
-                    if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
-                    {
-                        pydaw_data->current_region = (pydaw_data->current_region) + 1;
-                        
-                        if((pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
-                        {
-                            pydaw_data->playback_mode = 0;
-                            pydaw_data->current_region = 0;
-                        }
-                    }
-                }
-            }
-            
-            printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (pydaw_data->current_region), (pydaw_data->current_bar));            
-            //Use this to go back and process the early parts of the next item
-            //goto event_loop_label;
-        }
-        
-        pydaw_data->current_sample = f_next_current_sample;
-    }
-    pthread_mutex_unlock(&pydaw_data->mutex);
     
     //Mix together the audio input channels from the plugins
     
@@ -409,6 +266,12 @@ __attribute__((destructor)) void fini()
 void _fini()
 #endif
 {
+    pthread_mutex_lock(&pydaw_data->mutex);
+    
+    pydaw_data->running = 0;
+    
+    pthread_mutex_unlock(&pydaw_data->mutex);
+    
     if (LMSLDescriptor) {
 	free((LADSPA_PortDescriptor *) LMSLDescriptor->PortDescriptors);
 	free((char **) LMSLDescriptor->PortNames);
