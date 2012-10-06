@@ -89,7 +89,8 @@ typedef struct st_pyitem
 
 typedef struct st_pyregion
 {
-    t_pyitem * items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool    
+    t_pyitem * items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool
+    int item_populated[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //1(true) if populated at that index, or 0(false) if not.  Put in place because checking for 0 or NULL in the item doesn't seem to work correctly
     char * name;
 }t_pyregion;
 
@@ -246,18 +247,19 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
     strcpy(f_result->name, a_name);
     
     int f_i = 0; 
+        
     int f_i2 = 0;
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {        
         while(f_i2 < PYDAW_REGION_SIZE)
         {
-            f_result->items[f_i][f_i2] = 0;
+            f_result->item_populated[f_i][f_i2] = 0;
             f_i2++;
         }
         f_i++;
     }
-    
+        
     char * f_full_path = (char*)malloc(sizeof(char) * 256);
     strcpy(f_full_path, a_pydaw->region_folder);
     strcat(f_full_path, a_name);
@@ -285,6 +287,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
         assert(f_y < PYDAW_MAX_TRACK_COUNT);
         assert(f_x < PYDAW_REGION_SIZE);
         f_result->items[f_y][f_x] = g_pyitem_get(a_pydaw, f_item_name);
+        f_result->item_populated[f_y][f_x] = 1;
         sprintf(log_buff, "f_x == %i, f_y = %i\n", f_x, f_y);
         pydaw_write_log(log_buff);
         free(f_item_name);            
@@ -493,36 +496,6 @@ void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data)
   snd_seq_set_client_pool_output(a_pydaw_data->seq_handle, 128);  //(seq_len<<1) + 4); //TODO:  Look up how to properly use this???
 } 
 
-/* This function will be deprecated and moved into the main loop*/
-void v_pydaw_schedule_item(t_pydaw_data * a_pydaw_data, int a_item_number, int a_track_number)
-{
-  /*
-  snd_seq_event_t ev;
-  int l1;
-  double dt;
- 
-  for (l1 = 0; l1 < (a_pydaw_data->item_pool[a_item_number]->note_count); l1++) {
-    dt = (l1 % 2 == 0) ? (double)swing / 16384.0 : -(double)swing / 16384.0;
-    snd_seq_ev_clear(&ev);
-    snd_seq_ev_set_note(&ev, 0, sequence[2][l1] + transpose, 127, sequence[1][l1]);
-    snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
-    snd_seq_ev_set_source(&ev, a_pydaw_data->port_out_id[a_track_number]);
-    snd_seq_ev_set_subs(&ev);
-    snd_seq_event_output_direct(a_pydaw_data->seq_handle, &ev);
-    a_pydaw_data->tick[a_track_number] += (int)((double)sequence[0][l1] * (1.0 + dt));
-  }
-  
-  //snd_seq_ev_set_controller
-  */
-  
-  //The echo event causes it to loop, commenting out for now
-  //snd_seq_ev_clear(&ev);
-  //ev.type = SND_SEQ_EVENT_ECHO; 
-  //snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
-  //snd_seq_ev_set_dest(&ev, snd_seq_client_id(a_pydaw_data->seq_handle), port_in_id);
-  //snd_seq_event_output_direct(a_pydaw_data->seq_handle, &ev);
-}
-
 void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data)
 {
     snd_seq_remove_events_t *remove_ev;
@@ -550,45 +523,6 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
     pydaw_write_log(log_buff);
     strcpy(a_pydaw->project_name, a_name);    
     
-    int f_i = 0;
-        
-    t_dir_list * f_items = g_get_dir_list(a_pydaw->item_folder);
-    
-    sprintf(log_buff, "\npyitem file count: %i\n", f_items->dir_count);
-    pydaw_write_log(log_buff);
-    
-    while(f_i < (f_items->dir_count))
-    {
-        sprintf(log_buff, "Processing item: %s\n", f_items->dir_list[f_i]);
-        pydaw_write_log(log_buff);
-        t_1d_char_array * f_arr = c_split_str(f_items->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
-        sprintf(log_buff, "v_open_project calling ");
-        pydaw_write_log(log_buff);
-        g_pyitem_get(a_pydaw, f_arr->array[0]);
-        g_free_1d_char_array(f_arr);
-        f_i++;
-    }
-    
-    t_dir_list * f_regions = g_get_dir_list(a_pydaw->region_folder);
-    
-    sprintf(log_buff, "pyregion file count: %i\n", f_regions->dir_count);
-    pydaw_write_log(log_buff);
-    
-    f_i = 0;
-    
-    while(f_i < (f_regions->dir_count))
-    {
-        sprintf(log_buff, "Processing region: %s\n", f_items->dir_list[f_i]);
-        pydaw_write_log(log_buff);
-        t_1d_char_array * f_arr = c_split_str(f_regions->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
-        sprintf(log_buff, "v_open_project calling ");
-        pydaw_write_log(log_buff);
-        g_pyregion_get(a_pydaw, f_arr->array[0]);
-        g_free_1d_char_array(f_arr);
-        f_i++;
-    }
-    sprintf(log_buff, "v_open_project calling ");
-    pydaw_write_log(log_buff);
     g_pysong_get(a_pydaw, a_name);
     a_pydaw->is_initialized = 1;
 }

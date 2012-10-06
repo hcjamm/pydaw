@@ -162,24 +162,26 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
              * Or just shoehorn that into the existing file format???  Or better yet, a local registry of note_off events, also a note_on count, so those with zero can be skipped
              * which would also be useful for all_note_off kind of events like hitting the stop button...
              */
-                                    
-            if(0)
+            
+            if((pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_populated[f_i][(pydaw_data->current_bar)]))
             {
                 snd_seq_event_t ev;
-                /*
+                
+                t_pyitem f_current_item = *(pydaw_data->pysong->regions[(pydaw_data->current_region)]->items[f_i][(pydaw_data->current_bar)]);
+                
                 while(1)
                 {
-                    if((pydaw_data->track_note_event_indexes[f_i]) >= (pydaw_data->item_pool[f_item_index]->note_count))
+                    if((pydaw_data->track_note_event_indexes[f_i]) >= (f_current_item.note_count))
                     {
                         break;
                     }
 
-                    if(((pydaw_data->item_pool[f_item_index]->notes[(pydaw_data->track_note_event_indexes[f_i])]->start) > f_current_period_beats) &&
-                        ((pydaw_data->item_pool[f_item_index]->notes[(pydaw_data->track_note_event_indexes[f_i])]->start) < f_next_period_beats))
+                    if(((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) > f_current_period_beats) &&
+                        ((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) < f_next_period_beats))
                     {
                         printf("Sending note_on event\n");
                         snd_seq_ev_clear(&ev);
-                        snd_seq_ev_set_noteon(&ev, 0, pydaw_data->item_pool[f_item_index]->notes[(pydaw_data->track_note_event_indexes[f_i])]->note, pydaw_data->item_pool[f_item_index]->notes[(pydaw_data->track_note_event_indexes[f_i])]->velocity);
+                        snd_seq_ev_set_noteon(&ev, 0, f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note, f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->velocity);
                         snd_seq_ev_schedule_tick(&ev, pydaw_data->queue_id,  0, 0);  //TODO:  That last number is tick, calculate it fractionally so sample/sample_period.
                         snd_seq_ev_set_source(&ev, pydaw_data->port_out_id[f_i]);
                         snd_seq_ev_set_subs(&ev);
@@ -193,8 +195,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                     {
                         break;
                     }
-                }
-                 * */
+                }                
                 
                 /*
                 while(1)
