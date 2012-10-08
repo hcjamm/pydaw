@@ -47,7 +47,7 @@ extern "C" {
 #define PYDAW_MAX_ITEM_COUNT 5000
 #define PYDAW_MAX_REGION_COUNT 300
 #define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 128
-#define PYDAW_MAX_TRACK_COUNT 1 //16
+#define PYDAW_MAX_TRACK_COUNT 16
 #define PYDAW_REGION_SIZE 8
 #define PYDAW_MIDI_NOTE_COUNT 128
     
@@ -110,7 +110,6 @@ typedef struct st_pytrack
 
 typedef struct st_pydaw_data
 {
-    int running;
     int is_initialized;
     float tempo;
     pthread_mutex_t mutex;
@@ -139,8 +138,6 @@ typedef struct st_pydaw_data
     int port_in_id[PYDAW_MAX_TRACK_COUNT];
     int port_out_id[PYDAW_MAX_TRACK_COUNT];    
     //snd_seq_tick_time_t tick[PYDAW_MAX_TRACK_COUNT];
-    int npfd, l1;
-    struct pollfd *pfd;
     
 }t_pydaw_data;
 
@@ -156,6 +153,8 @@ int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_nam
 void v_open_project(t_pydaw_data*, char*, char*);
 void v_set_tempo(t_pydaw_data*,float);
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
+void g_pydaw_alsa_start(t_pydaw_data* a_pydaw_data);
+void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data);
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
 /*End declarations.  Begin implementations.*/
@@ -397,7 +396,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     
     //f_result->mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_init(&f_result->mutex, NULL);
-    f_result->running = 1;
     f_result->is_initialized = 0;
     f_result->sample_rate = a_sample_rate;
     f_result->current_sample = 0;
@@ -449,197 +447,11 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         
         f_i++;
     }
-    //was init_queue()
-    f_result->queue_id = snd_seq_alloc_queue(f_result->seq_handle);
-    snd_seq_set_client_pool_output(f_result->seq_handle, 128);  //(seq_len<<1) + 4); //TODO:  Look up how to properly use this???
     
-    snd_seq_start_queue(f_result->seq_handle, f_result->queue_id, NULL);
-    snd_seq_drain_output(f_result->seq_handle);
-    
-    f_result->npfd = snd_seq_poll_descriptors_count(f_result->seq_handle, POLLIN);
-    f_result->pfd = (struct pollfd *)alloca(f_result->npfd * sizeof(struct pollfd));
-    snd_seq_poll_descriptors(f_result->seq_handle, f_result->pfd, f_result->npfd, POLLIN);
+    g_pydaw_alsa_start(f_result);
+    v_pydaw_init_queue(f_result);
     
     return f_result;
-}
-
-void v_pydaw_main_loop(void * arg)
-{
-    t_pydaw_data * pydaw_data = (t_pydaw_data*)arg;
-    
-    while (pydaw_data->running) 
-    {
-        if (poll(pydaw_data->pfd, pydaw_data->npfd, 100000) > 0) 
-        {
-          for (pydaw_data->l1 = 0; pydaw_data->l1 < pydaw_data->npfd; pydaw_data->l1++) 
-          {
-            if (pydaw_data->pfd[pydaw_data->l1].revents > 0)
-            {
-                pthread_mutex_lock(&pydaw_data->mutex);
-
-                int f_i = 0;
-
-                //pydaw_data->period_size = sample_count;
-
-                double f_next_period = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc)); // * ((double)(sample_count)));    //<<<<TODO:  Fix this
-                int f_next_current_sample = ((pydaw_data->current_sample)); // + sample_count); //<<<<<TODO:  Fix this
-
-                if((pydaw_data->is_initialized) && ((pydaw_data->playback_mode) > 0))
-                {   
-                    if (poll(pydaw_data->pfd, pydaw_data->npfd, 100000) > 0) 
-                    {
-                        for (pydaw_data->l1 = 0; pydaw_data->l1 < pydaw_data->npfd; pydaw_data->l1++) 
-                        {
-                            if (pydaw_data->pfd[pydaw_data->l1].revents > 0)
-                            {
-                                //Stuff                    
-
-                                //event_loop_label:
-
-                                double f_current_period_beats = (pydaw_data->playback_cursor) * 4.0f;
-                                double f_next_period_beats = f_next_period * 4.0f;
-
-                                while(f_i < PYDAW_MAX_TRACK_COUNT)
-                                {
-
-                                    /* TODO:
-                                     * 1.  Figure out how to determine which tick of the period to send an event on from the given fractional bar
-                                     * 2.  A next/last fractional bar, that possible event firings must begin between
-                                     * 3.  Persistent note/cc event list iterators
-                                     * 4.  Check if (f_next_period >= 1.0f) earlier, then begin iterating the item.  Until then, there will be issues with timing and missed events
-                                     * 5.  Calculate note_offs, which currently are not calculated
-                                     * 6.  A t_pydaw_item_native type that correlates directly to note_on and note_off events?  
-                                     * Or just shoehorn that into the existing file format???  Or better yet, a local registry of note_off events, also a note_on count, so those with zero can be skipped
-                                     * which would also be useful for all_note_off kind of events like hitting the stop button...
-                                     */
-
-                                    if((pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_populated[f_i][(pydaw_data->current_bar)]))
-                                    {
-                                        snd_seq_event_t ev;
-
-                                        t_pyitem f_current_item = *(pydaw_data->pysong->regions[(pydaw_data->current_region)]->items[f_i][(pydaw_data->current_bar)]);
-
-                                        while(1)
-                                        {
-                                            if((pydaw_data->track_note_event_indexes[f_i]) >= (f_current_item.note_count))
-                                            {
-                                                break;
-                                            }
-
-                                            if(((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) > f_current_period_beats) &&
-                                                ((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) < f_next_period_beats))
-                                            {
-                                                printf("Sending note_on event\n");
-                                                snd_seq_ev_clear(&ev);
-                                                snd_seq_ev_set_noteon(&ev, 0, f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note, f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->velocity);
-                                                snd_seq_ev_schedule_tick(&ev, pydaw_data->queue_id,  0, 0);  //TODO:  That last number is tick, calculate it fractionally so sample/sample_period.
-                                                snd_seq_ev_set_source(&ev, pydaw_data->port_out_id[f_i]);
-                                                snd_seq_ev_set_subs(&ev);
-                                                snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
-
-                                                pydaw_data->note_offs[f_i][(pydaw_data->track_note_event_indexes[f_i])] = (pydaw_data->current_sample) + 5000;  //TODO:  replace 5000 with a real calculated length
-
-                                                pydaw_data->track_note_event_indexes[f_i] = (pydaw_data->track_note_event_indexes[f_i]) + 1;
-                                            }
-                                            else
-                                            {
-                                                break;
-                                            }
-                                        }                
-
-                                        /*
-                                        while(1)
-                                        {
-                                            snd_seq_ev_clear(&ev);
-                                            snd_seq_ev_set_controller(&ev, 0, sequence[2][l1] + transpose, 127, sequence[1][l1]);
-                                            snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
-                                            snd_seq_ev_set_source(&ev, a_pydaw_data->port_out_id[a_track_number]);
-                                            snd_seq_ev_set_subs(&ev);
-                                            snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
-                                        }
-                                        */   
-
-                                        int f_i2 = 0;
-                                        //This is going to be painfully slow scanning all 16x128=2048 entries, but it may not really matter, so I won't prematurely optimize it now.
-                                        while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
-                                        {
-                                            if((pydaw_data->note_offs[f_i][f_i2]) > (pydaw_data->current_sample) &&
-                                               (pydaw_data->note_offs[f_i][f_i2]) < f_next_current_sample)
-                                            {
-                                                printf("sending note_off\n");
-                                                snd_seq_ev_clear(&ev);
-                                                snd_seq_ev_set_noteoff(&ev, 0, pydaw_data->note_offs[f_i][f_i2], 0);
-                                                snd_seq_ev_schedule_tick(&ev, pydaw_data->queue_id,  0, 0);  //TODO:  That last number is tick, calculate it fractionally so sample/sample_period.
-                                                snd_seq_ev_set_source(&ev, pydaw_data->port_out_id[f_i]);
-                                                snd_seq_ev_set_subs(&ev);
-                                                snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
-                                            }
-
-                                            f_i2++;
-                                        }
-                                    }
-
-                                    f_i++;
-                                }
-
-                                pydaw_data->playback_cursor = f_next_period;
-
-                                if((pydaw_data->playback_cursor) >= 1.0f)
-                                {
-                                    //Calculate the remainder of this bar that occurs within the sample period
-                                    pydaw_data->playback_cursor = (pydaw_data->playback_cursor) - 1.0f;
-                                    f_next_period = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc)); // * ((double)(sample_count))); //<<<<TODO: Fix this
-
-                                    int f_i2 = 0;
-
-                                    while(f_i2 < PYDAW_MAX_TRACK_COUNT)
-                                    {
-                                        pydaw_data->track_note_event_indexes[f_i] = 0;
-                                        pydaw_data->track_cc_event_indexes[f_i] = 0;
-                                        f_i2++;
-                                    }
-
-                                    if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
-                                    {
-                                        pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
-
-                                        if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
-                                        {
-                                            pydaw_data->current_bar = 0;
-
-                                            if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
-                                            {
-                                                pydaw_data->current_region = (pydaw_data->current_region) + 1;
-
-                                                if((pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
-                                                {
-                                                    pydaw_data->playback_mode = 0;
-                                                    pydaw_data->current_region = 0;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (pydaw_data->current_region), (pydaw_data->current_bar));            
-                                    //Use this to go back and process the early parts of the next item
-                                    //goto event_loop_label;
-                                }
-
-                                pydaw_data->current_sample = f_next_current_sample;
-
-                                //End stuff
-                            }
-                        }
-                    }
-                }
-                pthread_mutex_unlock(&pydaw_data->mutex);
-            }
-        }
-    }
- }
-
-    
-    
 }
 
 //Functions adapted from miniArp.c
@@ -648,6 +460,15 @@ void g_pydaw_alsa_stop(t_pydaw_data* a_pydaw_data);
 snd_seq_tick_time_t g_pydaw_data_get_tick();
 void v_pydaw_schedule_item(t_pydaw_data * a_pydaw_data, int a_item_number, int a_track_number);
 void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data);
+
+void g_pydaw_alsa_start(t_pydaw_data* a_pydaw_data)
+{
+    snd_seq_start_queue(a_pydaw_data->seq_handle, a_pydaw_data->queue_id, NULL);
+    snd_seq_drain_output(a_pydaw_data->seq_handle);
+    //npfd = snd_seq_poll_descriptors_count(seq_handle, POLLIN);
+    //pfd = (struct pollfd *)alloca(npfd * sizeof(struct pollfd));
+    //snd_seq_poll_descriptors(seq_handle, pfd, npfd, POLLIN);
+}
 
 void g_pydaw_alsa_stop(t_pydaw_data* a_pydaw_data)
 {
@@ -669,6 +490,11 @@ snd_seq_tick_time_t g_pydaw_data_get_tick(t_pydaw_data * a_pydaw_data)
   return(current_tick);
 }
 
+void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data)
+{
+  a_pydaw_data->queue_id = snd_seq_alloc_queue(a_pydaw_data->seq_handle);
+  snd_seq_set_client_pool_output(a_pydaw_data->seq_handle, 128);  //(seq_len<<1) + 4); //TODO:  Look up how to properly use this???
+} 
 
 void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data)
 {
