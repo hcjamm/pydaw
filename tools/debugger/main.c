@@ -162,7 +162,6 @@ int main(int argc, char** argv) {
     v_set_tempo(f_data, 140.0f);
     v_open_project(f_data, "/home/bob/dssi/pydaw/default-project", "default");
     v_pydaw_parse_configure_message(f_data, "play", "0|0");
-    int f_item_index = f_data->region_pool[(f_data->pysong->region_index[(f_data->current_region)])]->items[0][7];    
     return 0; //(EXIT_SUCCESS);
 }
 
