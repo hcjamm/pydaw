@@ -39,6 +39,7 @@ OSC configure message keys/values:
 	"vol"	"int|int"  Track volume, track#|dB
 	"solo"	"int|bool"	solo track, track#|bool
 	"mute"	"int|bool"	mute track, track#|bool
+	"cp"	"int|int"	Change the plugin, track# | int == 0: None, 1: Euphoria, 2: Ray-V
 
 Project structure:
 
