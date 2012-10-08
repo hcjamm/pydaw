@@ -38,6 +38,7 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_VOL "vol"
 #define PYDAW_CONFIGURE_KEY_SOLO "solo"
 #define PYDAW_CONFIGURE_KEY_MUTE "mute"
+#define PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT "cp"
 
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -101,10 +102,11 @@ typedef struct st_pysong
 }t_pysong;
 
 typedef struct st_pytrack
-{
+{    
     float volume;
     int solo;
-    int mute;    
+    int mute;
+    int plugin_index;
 }t_pytrack;
 
 typedef struct st_pydaw_data
@@ -382,6 +384,7 @@ t_pytrack * g_pytrack_get()
     f_result->mute = 0;
     f_result->solo = 0;
     f_result->volume = 0.0f;
+    f_result->plugin_index = 0;
     
     return f_result;
 }
@@ -501,6 +504,11 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
     pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
+void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index)
+{
+    a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
+}
+
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, const char* a_value)
 {
     char log_buff[200];
@@ -605,6 +613,14 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
         g_free_1d_char_array(f_val_arr);
         sprintf(log_buff, "vol[%i] == %f\n", f_track_num, (a_pydaw->track_pool[f_track_num]->volume));
         pydaw_write_log(log_buff);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT)) //Change the plugin
+    {
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        int f_track_num = atoi(f_val_arr->array[0]);
+        int f_plugin_index = atof(f_val_arr->array[1]);
+        
+        g_free_1d_char_array(f_val_arr);
     }
     
     else
