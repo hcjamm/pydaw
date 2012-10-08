@@ -55,7 +55,6 @@ extern "C" {
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <alsa/asoundlib.h>
 #include <assert.h>
 #include "pydaw_files.h"
     
@@ -131,12 +130,9 @@ typedef struct st_pydaw_data
     int current_bar_end;  //The current bar end in samples
     int samples_per_bar;
     float sample_rate;
-    int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz.  Reset to zero on beginning playback    
-    snd_seq_t *seq_handle;    
+    int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz.  Reset to zero on beginning playback        
     int note_offs[PYDAW_MAX_TRACK_COUNT][PYDAW_MIDI_NOTE_COUNT];  //When a note_on event is fired, a sample number of when to release it is stored here
-    int queue_id;
-    int port_in_id[PYDAW_MAX_TRACK_COUNT];
-    int port_out_id[PYDAW_MAX_TRACK_COUNT];    
+    
     //snd_seq_tick_time_t tick[PYDAW_MAX_TRACK_COUNT];
     
 }t_pydaw_data;
@@ -408,14 +404,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->playback_mode = 0;
     f_result->pysong = 0;
     
-    if (snd_seq_open(&f_result->seq_handle, "default", SND_SEQ_OPEN_OUTPUT, 0) < 0) 
-    {
-      fprintf(stderr, "Error opening ALSA sequencer.\n");
-      exit(1);
-    }
-    
-    snd_seq_set_client_name(f_result->seq_handle, "PyDAW");
-    
     int f_i = 0;
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
@@ -432,78 +420,10 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
             f_i2++;
         }
         
-        /*ALSA stuff*/
-
-        char f_char_arr[12];
-        sprintf(f_char_arr, "pydaw-%i", f_i);
-        
-        if ((f_result->port_out_id[f_i] = snd_seq_create_simple_port(f_result->seq_handle, f_char_arr,
-                  SND_SEQ_PORT_CAP_READ|SND_SEQ_PORT_CAP_SUBS_READ,
-                  SND_SEQ_PORT_TYPE_APPLICATION)) < 0) {
-          fprintf(stderr, "Error creating sequencer port %s.\n", f_char_arr);
-        }
-        
-        /*End ALSA stuff*/
-        
         f_i++;
     }
-    
-    g_pydaw_alsa_start(f_result);
-    v_pydaw_init_queue(f_result);
-    
+        
     return f_result;
-}
-
-//Functions adapted from miniArp.c
-void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data);
-void g_pydaw_alsa_stop(t_pydaw_data* a_pydaw_data);
-snd_seq_tick_time_t g_pydaw_data_get_tick();
-void v_pydaw_schedule_item(t_pydaw_data * a_pydaw_data, int a_item_number, int a_track_number);
-void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data);
-
-void g_pydaw_alsa_start(t_pydaw_data* a_pydaw_data)
-{
-    snd_seq_start_queue(a_pydaw_data->seq_handle, a_pydaw_data->queue_id, NULL);
-    snd_seq_drain_output(a_pydaw_data->seq_handle);
-    //npfd = snd_seq_poll_descriptors_count(seq_handle, POLLIN);
-    //pfd = (struct pollfd *)alloca(npfd * sizeof(struct pollfd));
-    //snd_seq_poll_descriptors(seq_handle, pfd, npfd, POLLIN);
-}
-
-void g_pydaw_alsa_stop(t_pydaw_data* a_pydaw_data)
-{
-    v_pydaw_clear_queue(a_pydaw_data);
-    sleep(2);
-    snd_seq_stop_queue(a_pydaw_data->seq_handle, a_pydaw_data->queue_id, NULL);
-    snd_seq_free_queue(a_pydaw_data->seq_handle, a_pydaw_data->queue_id);
-}
-
-snd_seq_tick_time_t g_pydaw_data_get_tick(t_pydaw_data * a_pydaw_data)
-{
-  snd_seq_queue_status_t *status;
-  snd_seq_tick_time_t current_tick;
-  
-  snd_seq_queue_status_malloc(&status);
-  snd_seq_get_queue_status(a_pydaw_data->seq_handle, a_pydaw_data->queue_id, status);
-  current_tick = snd_seq_queue_status_get_tick_time(status);
-  snd_seq_queue_status_free(status);
-  return(current_tick);
-}
-
-void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data)
-{
-  a_pydaw_data->queue_id = snd_seq_alloc_queue(a_pydaw_data->seq_handle);
-  snd_seq_set_client_pool_output(a_pydaw_data->seq_handle, 128);  //(seq_len<<1) + 4); //TODO:  Look up how to properly use this???
-} 
-
-void v_pydaw_clear_queue(t_pydaw_data * a_pydaw_data)
-{
-    snd_seq_remove_events_t *remove_ev;
-    snd_seq_remove_events_malloc(&remove_ev);
-    snd_seq_remove_events_set_queue(remove_ev, a_pydaw_data->queue_id);
-    snd_seq_remove_events_set_condition(remove_ev, SND_SEQ_REMOVE_OUTPUT | SND_SEQ_REMOVE_IGNORE_OFF);
-    snd_seq_remove_events(a_pydaw_data->seq_handle, remove_ev);
-    snd_seq_remove_events_free(remove_ev);
 }
 
 void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)

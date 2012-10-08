@@ -27,7 +27,6 @@ GNU General Public License for more details.
 
 #include "dssi.h"
 #include "ladspa.h"
-#include "sequencer.h"
 
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/amp.h"
@@ -164,9 +163,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
              */
             
             if((pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_populated[f_i][(pydaw_data->current_bar)]))
-            {
-                snd_seq_event_t ev;
-                
+            {                
                 t_pyitem f_current_item = *(pydaw_data->pysong->regions[(pydaw_data->current_region)]->items[f_i][(pydaw_data->current_bar)]);
                 
                 while(1)
@@ -180,12 +177,6 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                         ((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) < f_next_period_beats))
                     {
                         printf("Sending note_on event\n");
-                        snd_seq_ev_clear(&ev);
-                        snd_seq_ev_set_noteon(&ev, 0, f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note, f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->velocity);
-                        snd_seq_ev_schedule_tick(&ev, pydaw_data->queue_id,  0, 0);  //TODO:  That last number is tick, calculate it fractionally so sample/sample_period.
-                        snd_seq_ev_set_source(&ev, pydaw_data->port_out_id[f_i]);
-                        snd_seq_ev_set_subs(&ev);
-                        snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
                         
                         pydaw_data->note_offs[f_i][(pydaw_data->track_note_event_indexes[f_i])] = (pydaw_data->current_sample) + 5000;  //TODO:  replace 5000 with a real calculated length
                                                 
@@ -200,12 +191,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 /*
                 while(1)
                 {
-                    snd_seq_ev_clear(&ev);
-                    snd_seq_ev_set_controller(&ev, 0, sequence[2][l1] + transpose, 127, sequence[1][l1]);
-                    snd_seq_ev_schedule_tick(&ev, a_pydaw_data->queue_id,  0, a_pydaw_data->tick[a_track_number]);
-                    snd_seq_ev_set_source(&ev, a_pydaw_data->port_out_id[a_track_number]);
-                    snd_seq_ev_set_subs(&ev);
-                    snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
+
                 }
                 */   
                                  
@@ -217,12 +203,6 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                        (pydaw_data->note_offs[f_i][f_i2]) < f_next_current_sample)
                     {
                         printf("sending note_off\n");
-                        snd_seq_ev_clear(&ev);
-                        snd_seq_ev_set_noteoff(&ev, 0, pydaw_data->note_offs[f_i][f_i2], 0);
-                        snd_seq_ev_schedule_tick(&ev, pydaw_data->queue_id,  0, 0);  //TODO:  That last number is tick, calculate it fractionally so sample/sample_period.
-                        snd_seq_ev_set_source(&ev, pydaw_data->port_out_id[f_i]);
-                        snd_seq_ev_set_subs(&ev);
-                        snd_seq_event_output_direct(pydaw_data->seq_handle, &ev);
                     }
 
                     f_i2++;
