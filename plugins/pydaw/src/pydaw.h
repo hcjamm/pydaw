@@ -57,6 +57,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <ladspa.h>
 #include "pydaw_files.h"
     
 typedef struct st_pynote
@@ -385,7 +386,8 @@ t_pytrack * g_pytrack_get()
     f_result->solo = 0;
     f_result->volume = 0.0f;
     f_result->plugin_index = 0;
-    
+    LADSPA_Handle * plugin;
+    LADSPA_Handle * insert_effects[5];
     return f_result;
 }
 

@@ -19,7 +19,6 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-#include "../libmodsynth/constants.h"
     
 /*includes for any libmodsynth modules you'll be using*/
 #include "../../libmodsynth/modules/multifx/multifx3knob.h"

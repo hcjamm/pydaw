@@ -21,6 +21,7 @@
 //#include "../../plugins/libmodsynth/lib/lms_sequencer.h"
 #include "../../plugins/pydaw/src/pydaw.h"
 #include "../../plugins/pydaw/src/pydaw_files.h"
+#include "../../plugins/pydaw/src/synth.c"
 
 /*This must be defined in synth.h for the project to be debugged, otherwise you'll get a segfault.
 #define LMS_DEBUGGER_PROJECT
@@ -158,10 +159,26 @@ int main(int argc, char** argv) {
     //midi_open();
     //snd_seq_close(seq);
     
+    /*
     t_pydaw_data * f_data = g_pydaw_data_get(44100);
     v_set_tempo(f_data, 140.0f);
     v_open_project(f_data, "/home/bob/dssi/pydaw/default-project", "default");
     v_pydaw_parse_configure_message(f_data, "play", "0|0");
+    
+     * */
+
+    init();
+    
+    LADSPA_Handle f_handle = instantiateLMS(LMSLDescriptor, 44100);
+    
+    activateLMS(f_handle);
+        
+    v_set_tempo(pydaw_data, 140.0f);
+    v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project", "default");
+    v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
+    
+    run_lms_pydaw(f_handle, 512, NULL, 0);
+    
     return 0; //(EXIT_SUCCESS);
 }
 
