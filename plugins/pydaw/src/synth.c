@@ -128,15 +128,12 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     /*Define our inputs*/
     
     /*define our outputs*/
-    LADSPA_Data *const output0 = plugin_data->output0;    
-    LADSPA_Data *const output1 = plugin_data->output1;    
+    //LADSPA_Data *const output0 = plugin_data->output0;    
+    //LADSPA_Data *const output1 = plugin_data->output1;    
         
-    /*Reset our iterators to 0*/    
     int f_i = 0;
     
     pthread_mutex_lock(&pydaw_data->mutex);
-    
-    //pydaw_data->period_size = sample_count;
     
     double f_next_period = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));    
     int f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
@@ -162,7 +159,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
              * which would also be useful for all_note_off kind of events like hitting the stop button...
              */
             
-            if((pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_populated[f_i][(pydaw_data->current_bar)]))
+            if((pydaw_data->pysong->regions[(pydaw_data->current_region)]) && (pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_populated[f_i][(pydaw_data->current_bar)]))
             {                
                 t_pyitem f_current_item = *(pydaw_data->pysong->regions[(pydaw_data->current_region)]->items[f_i][(pydaw_data->current_bar)]);
                 
@@ -263,19 +260,22 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     
     plugin_data->i_buffer_clear = 0;
     /*Clear the output buffer*/
+    /*
     while((plugin_data->i_buffer_clear) < sample_count)
     {
         output0[(plugin_data->i_buffer_clear)] = 0.0f;                        
         output1[(plugin_data->i_buffer_clear)] = 0.0f;     
         plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
     }
+    */
     
+    /*
     int f_i_mix = 0;
     while(f_i_mix < PYDAW_MAX_TRACK_COUNT)
     {
         int f_i2 = f_i_mix + 1;
         plugin_data->i_mono_out = 0;
-        /*The main loop where processing happens*/
+        
         while((plugin_data->i_mono_out) < sample_count)
         {
             output0[(plugin_data->i_mono_out)] += *(plugin_data->input_arr[f_i_mix]);
@@ -284,7 +284,9 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
         f_i_mix += 2;
+        
     }
+    */
 }
 
 char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)
