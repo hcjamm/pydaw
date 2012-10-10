@@ -211,7 +211,8 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
         if((pydaw_data->playback_cursor) >= 1.0f)
         {
             //Calculate the remainder of this bar that occurs within the sample period
-            pydaw_data->playback_cursor = (pydaw_data->playback_cursor) - 1.0f;
+            //pydaw_data->playback_cursor = (pydaw_data->playback_cursor) - 1.0f;
+            pydaw_data->playback_cursor = 0.0f;
             f_next_period = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));
             
             int f_i2 = 0;
