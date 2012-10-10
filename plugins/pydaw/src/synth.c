@@ -153,10 +153,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
              * 2.  A next/last fractional bar, that possible event firings must begin between
              * 3.  Persistent note/cc event list iterators
              * 4.  Check if (f_next_period >= 1.0f) earlier, then begin iterating the item.  Until then, there will be issues with timing and missed events
-             * 5.  Calculate note_offs, which currently are not calculated
-             * 6.  A t_pydaw_item_native type that correlates directly to note_on and note_off events?  
-             * Or just shoehorn that into the existing file format???  Or better yet, a local registry of note_off events, also a note_on count, so those with zero can be skipped
-             * which would also be useful for all_note_off kind of events like hitting the stop button...
+             * 5.  Calculate note_offs, which currently are not calculated.
              */
             
             if((pydaw_data->pysong->regions[(pydaw_data->current_region)]) && (pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_populated[f_i][(pydaw_data->current_bar)]))
@@ -170,7 +167,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                         break;
                     }
 
-                    if(((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) > f_current_period_beats) &&
+                    if(((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) >= f_current_period_beats) &&
                         ((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) < f_next_period_beats))
                     {
                         printf("Sending note_on event\n");
@@ -196,7 +193,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 //This is going to be painfully slow scanning all 16x128=2048 entries, but it may not really matter, so I won't prematurely optimize it now.
                 while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
                 {
-                    if((pydaw_data->note_offs[f_i][f_i2]) > (pydaw_data->current_sample) &&
+                    if((pydaw_data->note_offs[f_i][f_i2]) >= (pydaw_data->current_sample) &&
                        (pydaw_data->note_offs[f_i][f_i2]) < f_next_current_sample)
                     {
                         printf("sending note_off\n");

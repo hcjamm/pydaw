@@ -421,7 +421,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         
         while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
         {
-            f_result->note_offs[f_i][f_i2] = 0;
+            f_result->note_offs[f_i][f_i2] = -1;
             f_i2++;
         }
         
