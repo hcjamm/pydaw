@@ -218,8 +218,8 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
             
             while(f_i2 < PYDAW_MAX_TRACK_COUNT)
             {
-                pydaw_data->track_note_event_indexes[f_i] = 0;
-                pydaw_data->track_cc_event_indexes[f_i] = 0;
+                pydaw_data->track_note_event_indexes[f_i2] = 0;
+                pydaw_data->track_cc_event_indexes[f_i2] = 0;
                 f_i2++;
             }
             
