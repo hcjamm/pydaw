@@ -177,7 +177,21 @@ int main(int argc, char** argv) {
     v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project", "default");
     v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
     
-    run_lms_pydaw(f_handle, 512, NULL, 0);
+    snd_seq_event_t * f_events = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 32);
+    
+    int i;
+    
+    for(i = 0; i < 3; i++)
+    {
+        f_events[i].data.note.note = 44 + i;
+        f_events[i].type = SND_SEQ_EVENT_NOTEON;
+        f_events[i].time.tick = i;
+    }
+    
+    for(i = 0; i < 1000; i++)
+    {
+        run_lms_pydaw(f_handle, 4096, f_events, 3);
+    }
     
     return 0; //(EXIT_SUCCESS);
 }
