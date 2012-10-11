@@ -5,14 +5,6 @@
  * Types and functions specific the the IO and file system specs of PyDAW 
  */
 
-/* Current TODO:
- * 
- * A type + functions that track notes currently on, so that "stop" configure message can send all_note_off events...  
- * Mutex functionality similar to how Euphoria sample loading works
- * A track type to encapsulate various track info...
- * Use the format of midi_callback() from jack-dssi-host.c to synthesize and write events to the MIDI out ports
- * 
- */
 
 #ifndef PYDAW_H
 #define	PYDAW_H
@@ -59,6 +51,7 @@ extern "C" {
 #include <assert.h>
 #include <ladspa.h>
 #include "pydaw_files.h"
+//#include "jack-dssi-host.c"
     
 typedef struct st_pynote
 {
@@ -108,6 +101,7 @@ typedef struct st_pytrack
     int solo;
     int mute;
     int plugin_index;
+    snd_seq_event_t * event_buffer;
 }t_pytrack;
 
 typedef struct st_pydaw_data
@@ -386,8 +380,8 @@ t_pytrack * g_pytrack_get()
     f_result->solo = 0;
     f_result->volume = 0.0f;
     f_result->plugin_index = 0;
-    LADSPA_Handle * plugin;
-    LADSPA_Handle * insert_effects[5];
+    f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 512);
+    
     return f_result;
 }
 
@@ -508,6 +502,26 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
 
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index)
 {
+    LADSPA_Handle * f_result;
+    
+    switch(a_index)    
+    {
+        case 0:
+            //Nothing
+            break;
+        case 1:  //Euphoria
+            break;
+        case 2:  //Ray-V
+            break;
+    }
+            
+    
+    if((a_pydaw_data->track_pool[a_track_num]->plugin_index) != 0)
+    {
+        //TODO:  Call the destructor?
+        free(a_pydaw_data->track_pool[a_track_num]->plugin);
+    }
+    
     a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
 }
 
@@ -631,6 +645,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
         pydaw_write_log(log_buff);
     }
 }
+
 
 #ifdef	__cplusplus
 }
