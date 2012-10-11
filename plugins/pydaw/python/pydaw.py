@@ -137,7 +137,7 @@ class region_list_editor:
                 this_pydaw_project.create_empty_item(f_new_lineedit.text())
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
-            
+
             this_item_editor.open_item(f_cell_text)
             f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
             self.region.add_item_ref(x, y, f_cell_text)
@@ -228,13 +228,13 @@ class item_list_editor:
         self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note', 'Note#', 'Velocity'])
         self.ccs_table_widget.setHorizontalHeaderLabels(['Start', 'CC', 'Value'])
 
-    def open_item(self, a_item_name):        
+    def open_item(self, a_item_name):
         self.enabled = True
         self.notes_table_widget.clear()
         self.ccs_table_widget.clear()
         self.set_headers()
         self.item_name = a_item_name
-        self.item = this_pydaw_project.get_item(a_item_name)        
+        self.item = this_pydaw_project.get_item(a_item_name)
         for note in self.item.notes:
             self.notes_table_widget.setItem(note.editor_index, 0, QtGui.QTableWidgetItem(str(note.start)))
             self.notes_table_widget.setItem(note.editor_index, 1, QtGui.QTableWidgetItem(str(note.length)))
@@ -242,22 +242,22 @@ class item_list_editor:
             self.notes_table_widget.setItem(note.editor_index, 3, QtGui.QTableWidgetItem(str(note.note_num)))
             self.notes_table_widget.setItem(note.editor_index, 4, QtGui.QTableWidgetItem(str(note.velocity)))
         for cc in self.item.ccs:
-            self.ccs_table_widget.setItem(cc.editor_index, 0, QtGui.QTableWidgetItem(str(cc.start)))            
+            self.ccs_table_widget.setItem(cc.editor_index, 0, QtGui.QTableWidgetItem(str(cc.start)))
             self.ccs_table_widget.setItem(cc.editor_index, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
             self.ccs_table_widget.setItem(cc.editor_index, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
         if this_region_editor.open_new_items_checkbox.isChecked():
             this_main_window.main_tabwidget.setCurrentIndex(1)
-            
+
     def notes_click_handler(self, x, y):
         if not self.enabled:
             return
         if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
             self.notes_show_event_dialog(x, y)
-        elif this_edit_mode_selector.delete_radiobutton.isChecked():            
+        elif this_edit_mode_selector.delete_radiobutton.isChecked():
             self.item.remove_note(x)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
-    
+
     def ccs_click_handler(self, x, y):
         if not self.enabled:
             return
@@ -300,7 +300,7 @@ class item_list_editor:
             self.notes_table_widget.setItem(x, 3, f_note_num)
             f_vel_item = QtGui.QTableWidgetItem(str(f_velocity.value()))
             self.notes_table_widget.setItem(x, 4, f_vel_item)
-            
+
             this_pydaw_project.save_item(self.item_name, self.item)
             f_window.close()
 
@@ -358,14 +358,14 @@ class item_list_editor:
         def cc_ok_handler():
             if not self.item.add_cc(pydaw_cc(x, f_start.value(), f_cc.value(), f_cc_value.value())):
                 QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
-                return            
-            
+                return
+
             f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))
             self.ccs_table_widget.setItem(x, 0, f_start_item)
             f_cc_num_item = QtGui.QTableWidgetItem(str(f_cc.value()))
             self.ccs_table_widget.setItem(x, 1, f_cc_num_item)
             f_cc_val_item = QtGui.QTableWidgetItem(str(f_cc_value.value()))
-            self.ccs_table_widget.setItem(x, 2, f_cc_val_item)            
+            self.ccs_table_widget.setItem(x, 2, f_cc_val_item)
             this_pydaw_project.save_item(self.item_name, self.item)
             f_window.close()
 
@@ -424,6 +424,7 @@ class seq_track:
         else:
             self.track_name_lineedit.setEnabled(False)
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
+        this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
 
     def __init__(self, a_track_num, a_track_text="track"):
         self.track_number = a_track_num
@@ -513,7 +514,7 @@ class transport_widget:
         self.grid_layout.addWidget(self.rec_button, 0, 2)
         self.grid_layout.addWidget(QtGui.QLabel("BPM:"), 0, 3)
         self.tempo_spinbox = QtGui.QSpinBox()
-        self.tempo_spinbox.setRange(50, 200)        
+        self.tempo_spinbox.setRange(50, 200)
         self.tempo_spinbox.valueChanged.connect(self.on_tempo_changed)
         self.grid_layout.addWidget(self.tempo_spinbox, 0, 4)
         self.grid_layout.addWidget(QtGui.QLabel("MIDI Keybd:"), 0, 5)
@@ -657,7 +658,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 #Opens or creates a new project
 def global_open_project(a_project_file):
     #this_pydaw_project.session_mgr.quit_hander()
-    global this_pydaw_project    
+    global this_pydaw_project
     if(len(argv) >= 2):
         this_pydaw_project = pydaw_project((argv[1]))
     else:

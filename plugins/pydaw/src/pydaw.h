@@ -30,7 +30,7 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_VOL "vol"
 #define PYDAW_CONFIGURE_KEY_SOLO "solo"
 #define PYDAW_CONFIGURE_KEY_MUTE "mute"
-#define PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT "cp"
+#define PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT "ci"
 
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -51,10 +51,10 @@ extern "C" {
 #include <assert.h>
 #include <ladspa.h>
 #include "pydaw_files.h"
+#include "pydaw_plugin.h"
     
 typedef struct st_pynote
 {
-    //TODO:  It may be more efficient to process as Int?
     int note;
     int velocity;
     float start;
@@ -101,6 +101,7 @@ typedef struct st_pytrack
     int mute;
     int plugin_index;
     snd_seq_event_t * event_buffer;
+    t_pydaw_plugin * instrument;
 }t_pytrack;
 
 typedef struct st_pydaw_data
@@ -503,21 +504,11 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
 {
     LADSPA_Handle * f_result;
     
-    switch(a_index)    
-    {
-        case 0:
-            //Nothing
-            break;
-        case 1:  //Euphoria
-            break;
-        case 2:  //Ray-V
-            break;
-    }
-            
+    v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
     
-    if((a_pydaw_data->track_pool[a_track_num]->plugin_index) != 0)
+    if(a_index != 0)
     {
-        //TODO:  Call the destructor?
+        a_pydaw_data->track_pool[a_index]->instrument = g_pydaw_plugin_get(a_index);
     }
     
     a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
