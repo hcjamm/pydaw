@@ -51,7 +51,6 @@ extern "C" {
 #include <assert.h>
 #include <ladspa.h>
 #include "pydaw_files.h"
-//#include "jack-dssi-host.c"
     
 typedef struct st_pynote
 {
@@ -519,7 +518,6 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
     if((a_pydaw_data->track_pool[a_track_num]->plugin_index) != 0)
     {
         //TODO:  Call the destructor?
-        free(a_pydaw_data->track_pool[a_track_num]->plugin);
     }
     
     a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
