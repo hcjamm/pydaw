@@ -501,14 +501,12 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
 }
 
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index)
-{
-    LADSPA_Handle * f_result;
-    
-    v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
+{    
+    //v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
     
     if(a_index != 0)
     {
-        a_pydaw_data->track_pool[a_index]->instrument = g_pydaw_plugin_get(a_index);
+        a_pydaw_data->track_pool[a_index]->instrument = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index);
     }
     
     a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
@@ -624,6 +622,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, c
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_plugin_index = atof(f_val_arr->array[1]);
+        
+        v_set_plugin_index(a_pydaw, f_track_num, f_plugin_index);
         
         g_free_1d_char_array(f_val_arr);
     }
