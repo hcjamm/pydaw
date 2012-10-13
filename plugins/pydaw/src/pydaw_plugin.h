@@ -135,6 +135,8 @@ typedef struct st_pydaw_plugin
     float *pluginControlIns, *pluginControlOuts;
     unsigned long *pluginControlInPortNumbers;          /* maps global control in # to instance LADSPA port # */
     
+    int * pluginPortUpdated;
+    
 }t_pydaw_plugin;
 
 t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
@@ -188,10 +190,23 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     printf("f_result->controlIns %i\n", f_result->controlIns);
     printf("f_result->controlOuts %i\n", f_result->controlOuts);
     
+    
+    //f_result->inputPorts = (jack_port_t **)malloc(f_result->insTotal * sizeof(jack_port_t *));
+    f_result->pluginInputBuffers = (float **)malloc(f_result->insTotal * sizeof(float *));
+    f_result->pluginControlIns = (float *)calloc(f_result->controlInsTotal, sizeof(float));
+    //f_result->pluginControlInInstances = (d3h_instance_t **)malloc(f_result->controlInsTotal * sizeof(d3h_instance_t *));
+    f_result->pluginControlInPortNumbers = (unsigned long *)malloc(f_result->controlInsTotal * sizeof(unsigned long));
+    f_result->pluginPortUpdated = (int *)malloc(f_result->controlInsTotal * sizeof(int));
+    //f_result->outputPorts = (jack_port_t **)malloc(f_result->outsTotal * sizeof(jack_port_t *));
+    f_result->pluginOutputBuffers = (float **)malloc(f_result->outsTotal * sizeof(float *));
+    f_result->pluginControlOuts = (float *)calloc(f_result->controlOutsTotal, sizeof(float));
+    
     //TODO:  Count ins and outs from the loop at line 1142.  Or just rely on that we already know it
     
     f_result->ladspa_handle = f_result->descriptor->LADSPA_Plugin->instantiate
             (f_result->descriptor->LADSPA_Plugin, a_sample_rate);
+    
+    
     
     //Errr...  Actually, this probably needs to be part of t_pydaw_data instead, I'll come back to it later
     /*
@@ -223,68 +238,69 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     
     for (j = 0; j < f_result->descriptor->LADSPA_Plugin->PortCount; j++) 
     {
-           LADSPA_PortDescriptor pod =
-               f_result->descriptor->LADSPA_Plugin->PortDescriptors[j];
+        LADSPA_PortDescriptor pod =
+            f_result->descriptor->LADSPA_Plugin->PortDescriptors[j];
 
-           f_result->pluginPortControlInNumbers[j] = -1;
+        f_result->pluginPortControlInNumbers[j] = -1;
 
-           if (LADSPA_IS_PORT_AUDIO(pod)) {
+        if (LADSPA_IS_PORT_AUDIO(pod)) {
 
-               if (LADSPA_IS_PORT_INPUT(pod)) {
-                   f_result->descriptor->LADSPA_Plugin->connect_port
-                       (f_result->ladspa_handle, j, f_result->pluginInputBuffers[in++]);
+            if (LADSPA_IS_PORT_INPUT(pod)) {
+                f_result->descriptor->LADSPA_Plugin->connect_port
+                    (f_result->ladspa_handle, j, f_result->pluginInputBuffers[in++]);
 
-               } else if (LADSPA_IS_PORT_OUTPUT(pod)) {
-                   f_result->descriptor->LADSPA_Plugin->connect_port
-                       (f_result->ladspa_handle, j, f_result->pluginOutputBuffers[out++]);
-               }
+            } else if (LADSPA_IS_PORT_OUTPUT(pod)) {
+                f_result->descriptor->LADSPA_Plugin->connect_port
+                    (f_result->ladspa_handle, j, f_result->pluginOutputBuffers[out++]);
+            }
 
-           } else if (LADSPA_IS_PORT_CONTROL(pod)) {
+        } 
+        else if (LADSPA_IS_PORT_CONTROL(pod)) 
+        {
 
-               if (LADSPA_IS_PORT_INPUT(pod)) {
+            if (LADSPA_IS_PORT_INPUT(pod)) {
 
-                   if (f_result->descriptor->get_midi_controller_for_port) {
+                if (f_result->descriptor->get_midi_controller_for_port) {
 
-                       int controller = f_result->descriptor->
-                           get_midi_controller_for_port(f_result->ladspa_handle, j);
+                    int controller = f_result->descriptor->
+                        get_midi_controller_for_port(f_result->ladspa_handle, j);
 
-                       /*if (controller == 0) {
-                           MB_MESSAGE
-                               ("Buggy plugin: wants mapping for bank MSB\n");
-                       } else if (controller == 32) {
-                           MB_MESSAGE
-                               ("Buggy plugin: wants mapping for bank LSB\n");
-                       } else*/
-                       if (DSSI_IS_CC(controller)) {
-                           f_result->controllerMap[DSSI_CC_NUMBER(controller)]
-                               = controlIn;
-                       }
-                   }
+                    /*if (controller == 0) {
+                        MB_MESSAGE
+                            ("Buggy plugin: wants mapping for bank MSB\n");
+                    } else if (controller == 32) {
+                        MB_MESSAGE
+                            ("Buggy plugin: wants mapping for bank LSB\n");
+                    } else*/
+                    if (DSSI_IS_CC(controller)) {
+                        f_result->controllerMap[DSSI_CC_NUMBER(controller)]
+                            = controlIn;
+                    }
+                }
 
-                   //TODO:  Most of these haven't been alloc'd, this is going to SEGFAULT
-                   //also, plugin input/output buffers need to be initialized too...
-                   
-                   /*
-                   f_result->pluginControlInInstances[controlIn] = instance;
-                    */
-                   f_result->pluginControlInPortNumbers[controlIn] = j;
-                   f_result->pluginPortControlInNumbers[j] = controlIn;
+                //TODO:  Most of these haven't been alloc'd, this is going to SEGFAULT
+                //also, plugin input/output buffers need to be initialized too...
 
-                   f_result->pluginControlIns[controlIn] = get_port_default
-                       (f_result->descriptor->LADSPA_Plugin, j, a_sample_rate);
+                /*
+                f_result->pluginControlInInstances[controlIn] = instance;
+                 */
+                f_result->pluginControlInPortNumbers[controlIn] = j;
+                f_result->pluginPortControlInNumbers[j] = controlIn;
 
-                   f_result->descriptor->LADSPA_Plugin->connect_port
-                       (f_result->ladspa_handle, j, &f_result->pluginControlIns[controlIn++]);
+                f_result->pluginControlIns[controlIn] = get_port_default
+                    (f_result->descriptor->LADSPA_Plugin, j, a_sample_rate);
 
-               } else if (LADSPA_IS_PORT_OUTPUT(pod)) {
-                   f_result->descriptor->LADSPA_Plugin->connect_port
-                       (f_result->ladspa_handle, j, &f_result->pluginControlOuts[controlOut++]);
-               }
-           }
-       }
+                f_result->descriptor->LADSPA_Plugin->connect_port
+                    (f_result->ladspa_handle, j, &f_result->pluginControlIns[controlIn++]);
 
+            } else if (LADSPA_IS_PORT_OUTPUT(pod)) {
+                f_result->descriptor->LADSPA_Plugin->connect_port
+                    (f_result->ladspa_handle, j, &f_result->pluginControlOuts[controlOut++]);
+            }
+        }
+    }
     
-    
+    f_result->descriptor->LADSPA_Plugin->activate(f_result->ladspa_handle);
     
     return f_result;
 }
@@ -296,13 +312,13 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
 
 void v_show_plugin_ui(t_pydaw_plugin * a_plugin)
 {
-    
+        //execlp(filename, filename, oscUrl, dllName, label, instanceTag, projectDirectory, clientName, NULL);
 }
 
-void v_run_plugin(t_pydaw_plugin * a_plugin, snd_seq_event_t * a_event_buffer, 
+void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, snd_seq_event_t * a_event_buffer, 
         int a_event_count)
 {
-    
+    a_plugin->descriptor->run_synth(a_plugin->ladspa_handle, a_sample_count, a_event_buffer, a_event_count);
 }
 
 #ifdef	__cplusplus
