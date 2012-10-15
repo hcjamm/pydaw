@@ -22,6 +22,8 @@ args:
 
 --gdb		:  Compile with debug symbols and open in gdb
 
+--valgrind	:  Compile with debug symbols and run with valgrind
+
 --coredump	:  Read the most recent core dump for the current plugin directory in GDB(requires that you ran the plugin with --debug and experienced a SEGFAULT)
 
 --run		:  Debug using LMS' console output without recompiling.  This assumes the plugin was already compiled and installed before
@@ -97,7 +99,7 @@ sub run_script
 	{
 		system("gdb lms-jack-dssi-host core");
 	}
-	elsif($ARGV[0] eq "--debug" or $ARGV[0] eq "--gdb")
+	elsif($ARGV[0] eq "--debug" or $ARGV[0] eq "--gdb" or $ARGV[0] eq "--valgrind")
 	{
 		check_deps();
 		notify_wait();
@@ -119,6 +121,9 @@ sub run_script
 		} elsif($ARGV[0] eq "--gdb") {
 			print("\n\n\n****Type 'run $current_dir.so' at the (gdb) prompt***\n\n\n");
 			system("ulimit -c unlimited; export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; gdb $local_jack_host");
+		}
+		elsif($ARGV[0] eq "--valgrind") {
+			system("ulimit -c unlimited; export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; valgrind $local_jack_host $current_dir.so");
 		}
 			
 	}
