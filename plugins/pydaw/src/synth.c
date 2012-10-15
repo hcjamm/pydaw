@@ -155,6 +155,14 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
              * 4.  Check if (f_next_period >= 1.0f) earlier, then begin iterating the item.  Until then, there will be issues with timing and missed events
              * 5.  Calculate note_offs, which currently are not calculated.
              */
+         
+            if(pydaw_data->track_pool[f_i]->plugin_index == 0)
+            {
+                f_i++;
+                continue;
+            }
+            
+            pydaw_data->track_pool[f_i]->event_index = 0;
             
             if((pydaw_data->pysong->regions[(pydaw_data->current_region)]) && (pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_populated[f_i][(pydaw_data->current_bar)]))
             {                
@@ -172,6 +180,18 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                     {
                         printf("Sending note_on event\n");
                         
+                        snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
+                        
+                        pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)].type = SND_SEQ_EVENT_NOTEON;
+                        
+                        pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)].data.note.note =
+                                f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note;
+                        
+                        pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)].data.note.velocity =
+                                f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->velocity;
+                        
+                        pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
+                                                                        
                         pydaw_data->note_offs[f_i][(pydaw_data->track_note_event_indexes[f_i])] = (pydaw_data->current_sample) + 5000;  //TODO:  replace 5000 with a real calculated length
                                                 
                         pydaw_data->track_note_event_indexes[f_i] = (pydaw_data->track_note_event_indexes[f_i]) + 1;
@@ -183,7 +203,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 }                
                 
                 /*
-                while(1)
+                while(1)  //CCs???
                 {
 
                 }
@@ -197,6 +217,12 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                        (pydaw_data->note_offs[f_i][f_i2]) < f_next_current_sample)
                     {
                         printf("sending note_off\n");
+                        
+                        pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)].type = SND_SEQ_EVENT_NOTEOFF;
+                        
+                        pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)].data.note.note = f_i2;
+                        
+                        pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
                     }
 
                     f_i2++;
@@ -205,6 +231,11 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                          
             f_i++;
         }
+       
+        /*
+        v_run_plugin(pydaw_data->track_pool[f_i]->instrument, sample_count, 
+                pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);
+        */
         
         pydaw_data->playback_cursor = f_next_period;
         

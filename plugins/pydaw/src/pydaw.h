@@ -101,6 +101,7 @@ typedef struct st_pytrack
     int mute;
     int plugin_index;
     snd_seq_event_t * event_buffer;
+    int event_index;
     t_pydaw_plugin * instrument;
 }t_pytrack;
 
@@ -130,8 +131,6 @@ typedef struct st_pydaw_data
     int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz.  Reset to zero on beginning playback        
     int note_offs[PYDAW_MAX_TRACK_COUNT][PYDAW_MIDI_NOTE_COUNT];  //When a note_on event is fired, a sample number of when to release it is stored here
     
-    //snd_seq_tick_time_t tick[PYDAW_MAX_TRACK_COUNT];
-    
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
@@ -146,8 +145,6 @@ int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_nam
 void v_open_project(t_pydaw_data*, char*, char*);
 void v_set_tempo(t_pydaw_data*,float);
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
-void g_pydaw_alsa_start(t_pydaw_data* a_pydaw_data);
-void v_pydaw_init_queue(t_pydaw_data* a_pydaw_data);
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 
 /*End declarations.  Begin implementations.*/
