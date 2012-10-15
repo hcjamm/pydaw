@@ -378,7 +378,7 @@ t_pytrack * g_pytrack_get()
     f_result->volume = 0.0f;
     f_result->plugin_index = 0;
     f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 512);
-    
+        
     return f_result;
 }
 
