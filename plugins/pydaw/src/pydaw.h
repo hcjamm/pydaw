@@ -500,13 +500,16 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index)
 {    
     //v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
+    t_pydaw_plugin * f_result;
     
     if(a_index != 0)
     {
-        a_pydaw_data->track_pool[a_track_num]->instrument = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index);
+        f_result = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index);
     }
-    
+    pthread_mutex_lock(&a_pydaw_data->mutex);
+    a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
     a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
+    pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, const char* a_value)

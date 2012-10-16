@@ -320,10 +320,7 @@ void v_show_plugin_ui(t_pydaw_plugin * a_plugin)
 void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, snd_seq_event_t * a_event_buffer, 
         int a_event_count)
 {
-    //if(a_plugin)  //TODO:  Ensure this doesn't get called, rather than checking here...
-    //{
-        a_plugin->descriptor->run_synth(a_plugin->ladspa_handle, a_sample_count, a_event_buffer, a_event_count);
-    //}
+    a_plugin->descriptor->run_synth(a_plugin->ladspa_handle, a_sample_count, a_event_buffer, a_event_count); 
 }
 
 #ifdef	__cplusplus
