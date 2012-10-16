@@ -19,6 +19,7 @@ extern "C" {
 #include <alsa/asoundlib.h>
 #include <dlfcn.h>
 #include <math.h>
+#include <stdlib.h>
     
 #define PYDAW_MAX_BUFFER_SIZE 4096
     
@@ -127,11 +128,8 @@ typedef struct st_pydaw_plugin
     
     //lo_server_thread serverThread;
     
-    
-    int insTotal, outsTotal;
     float **pluginInputBuffers, **pluginOutputBuffers;
 
-    int controlInsTotal, controlOutsTotal;
     float *pluginControlIns, *pluginControlOuts;
     unsigned long *pluginControlInPortNumbers;          /* maps global control in # to instance LADSPA port # */
     
@@ -192,21 +190,21 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     
     
     //f_result->inputPorts = (jack_port_t **)malloc(f_result->insTotal * sizeof(jack_port_t *));
-    f_result->pluginInputBuffers = (float **)malloc(f_result->insTotal * sizeof(float *));
-    f_result->pluginControlIns = (float *)calloc(f_result->controlInsTotal, sizeof(float));
+    f_result->pluginInputBuffers = (float **)malloc(f_result->ins * sizeof(float *));
+    f_result->pluginControlIns = (float *)calloc(f_result->controlIns, sizeof(float));
     //f_result->pluginControlInInstances = (d3h_instance_t **)malloc(f_result->controlInsTotal * sizeof(d3h_instance_t *));
-    f_result->pluginControlInPortNumbers = (unsigned long *)malloc(f_result->controlInsTotal * sizeof(unsigned long));
-    f_result->pluginPortUpdated = (int *)malloc(f_result->controlInsTotal * sizeof(int));
+    f_result->pluginControlInPortNumbers = (unsigned long *)malloc(f_result->controlIns * sizeof(unsigned long));
+    f_result->pluginPortUpdated = (int *)malloc(f_result->controlIns * sizeof(int));
     //f_result->outputPorts = (jack_port_t **)malloc(f_result->outsTotal * sizeof(jack_port_t *));
-    f_result->pluginOutputBuffers = (float **)malloc(f_result->outsTotal * sizeof(float *));
-    f_result->pluginControlOuts = (float *)calloc(f_result->controlOutsTotal, sizeof(float));
+    f_result->pluginOutputBuffers = (float **)malloc(f_result->outs * sizeof(float *));
+    f_result->pluginControlOuts = (float *)calloc(f_result->controlOuts, sizeof(float));
     
     //TODO:  Count ins and outs from the loop at line 1142.  Or just rely on that we already know it
     
-    f_result->ladspa_handle = f_result->descriptor->LADSPA_Plugin->instantiate
-            (f_result->descriptor->LADSPA_Plugin, a_sample_rate);
+    f_result->ladspa_handle = f_result->descriptor->LADSPA_Plugin->instantiate(f_result->descriptor->LADSPA_Plugin, a_sample_rate);
     
-    
+    //assert(f_result->ladspa_handle);
+    //printf("&f_result->ladspa_handle == %p\n", &f_result->ladspa_handle);
     
     //Errr...  Actually, this probably needs to be part of t_pydaw_data instead, I'll come back to it later
     /*
@@ -248,10 +246,14 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
             if (LADSPA_IS_PORT_INPUT(pod)) {
                 f_result->descriptor->LADSPA_Plugin->connect_port
                     (f_result->ladspa_handle, j, f_result->pluginInputBuffers[in++]);
+                //This bit was imported from the jack initialization that isn't used anymore...
+                f_result->pluginInputBuffers[in] = (float *)calloc(8192, sizeof(float));
 
             } else if (LADSPA_IS_PORT_OUTPUT(pod)) {
                 f_result->descriptor->LADSPA_Plugin->connect_port
                     (f_result->ladspa_handle, j, f_result->pluginOutputBuffers[out++]);
+                //This bit was imported from the jack initialization that isn't used anymore...
+                f_result->pluginOutputBuffers[out] = (float *)calloc(8192, sizeof(float));                
             }
 
         } 
@@ -312,13 +314,16 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
 
 void v_show_plugin_ui(t_pydaw_plugin * a_plugin)
 {
-        //execlp(filename, filename, oscUrl, dllName, label, instanceTag, projectDirectory, clientName, NULL);
+    //execlp(filename, filename, oscUrl, dllName, label, instanceTag, projectDirectory, clientName, NULL);
 }
 
 void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, snd_seq_event_t * a_event_buffer, 
         int a_event_count)
 {
-    a_plugin->descriptor->run_synth(a_plugin->ladspa_handle, a_sample_count, a_event_buffer, a_event_count);
+    //if(a_plugin)  //TODO:  Ensure this doesn't get called, rather than checking here...
+    //{
+        a_plugin->descriptor->run_synth(a_plugin->ladspa_handle, a_sample_count, a_event_buffer, a_event_count);
+    //}
 }
 
 #ifdef	__cplusplus

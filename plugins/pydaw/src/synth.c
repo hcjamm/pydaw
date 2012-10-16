@@ -128,9 +128,20 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     /*Define our inputs*/
     
     /*define our outputs*/
-    //LADSPA_Data *const output0 = plugin_data->output0;    
-    //LADSPA_Data *const output1 = plugin_data->output1;    
-        
+    LADSPA_Data *const output0 = plugin_data->output0;    
+    LADSPA_Data *const output1 = plugin_data->output1;
+    
+    plugin_data->i_buffer_clear = 0;
+    /*Clear the output buffer*/
+    
+    while((plugin_data->i_buffer_clear) < sample_count)  //TODO:  Consider memset'ing???
+    {
+        output0[(plugin_data->i_buffer_clear)] = 0.0f;                        
+        output1[(plugin_data->i_buffer_clear)] = 0.0f;     
+        plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
+    }
+    
+    
     int f_i = 0;
     
     pthread_mutex_lock(&pydaw_data->mutex);
@@ -221,16 +232,26 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                     }
 
                     f_i2++;
-                }
+                }                
+                v_run_plugin(pydaw_data->track_pool[f_i]->instrument, sample_count, 
+                        pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);
+                
+                
+                //if(pydaw_data->track_pool[f_i]->instrument)
+                //{
+                    int f_i3 = 0;
+
+                    while(f_i3 < sample_count)
+                    {
+                        output0[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[0][f_i3]);
+                        output1[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[1][f_i3]);
+                        f_i3++;
+                    }
+                //}
             }
-                         
+        
             f_i++;
         }
-       
-        /*
-        v_run_plugin(pydaw_data->track_pool[f_i]->instrument, sample_count, 
-                pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);
-        */
         
         pydaw_data->playback_cursor = f_next_period;
         
@@ -282,17 +303,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     
     //Mix together the audio input channels from the plugins
     
-    plugin_data->i_buffer_clear = 0;
-    /*Clear the output buffer*/
-    /*
-    while((plugin_data->i_buffer_clear) < sample_count)
-    {
-        output0[(plugin_data->i_buffer_clear)] = 0.0f;                        
-        output1[(plugin_data->i_buffer_clear)] = 0.0f;     
-        plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
-    }
-    */
-    
+        
     /*
     int f_i_mix = 0;
     while(f_i_mix < PYDAW_MAX_TRACK_COUNT)
