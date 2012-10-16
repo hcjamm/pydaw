@@ -6,11 +6,11 @@ MOC ?= moc
 
 PREFIX ?= /usr/local
 
-BASE_FLAGS     = -O0 -gdwarf-3 -mstackrealign -fsingle-precision-constant -fPIC -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -Wall
+BASE_FLAGS     = -O0 -gdwarf-3 -mstackrealign -fsingle-precision-constant -fPIC -mtune=generic -msse -msse2 -msse3 -mfpmath=sse
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
 BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11 sm) $(CXXFLAGS)
-LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa)
-LINK_CXXFLAGS  = -lm $(shell pkg-config --libs liblo QtCore QtGui x11 sm alsa) $(LDFLAGS)
+LINK_CFLAGS    = -ldl -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa)
+LINK_CXXFLAGS  = -ldl -lm $(shell pkg-config --libs liblo QtCore QtGui x11 sm alsa) $(LDFLAGS)
 
 C_OBJS   = main.o
 CXX_OBJS = main.o

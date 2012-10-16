@@ -503,7 +503,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
     
     if(a_index != 0)
     {
-        a_pydaw_data->track_pool[a_index]->instrument = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index);
+        a_pydaw_data->track_pool[a_track_num]->instrument = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index);
     }
     
     a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
