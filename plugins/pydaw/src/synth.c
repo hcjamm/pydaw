@@ -63,28 +63,36 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
                         int argc, void *data, void *user_data)
 {
     int i;
-    t_pydaw_plugin *instance = NULL;
+    t_pydaw_plugin *instance;
     const char *method;
     unsigned int flen = 0;
     lo_message message;
     lo_address source;
     int send_to_ui = 0;
-
+    char tmp[6];
+    
+    printf("pydaw_osc_message_handler: %s\n", path);
+    
     if (strncmp(path, "/dssi/", 6))
     {
         return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
     }
-    /*
-    for (i = 0; i < instance_count; i++) 
+      
+    flen = 2;
+    
+    
+    for (i = 0; i < PYDAW_MAX_TRACK_COUNT; i++) 
     {
-	flen = strlen(instances[i].friendly_name);
-        if (!strncmp(path + 6, instances[i].friendly_name, flen) &&
-	    *(path + 6 + flen) == '/') { //avoid matching prefix only
-            instance = &instances[i];
+        sprintf(tmp, "%i", i);
+	flen = strlen(tmp);
+        if (!strncmp(path + 6, tmp, flen)
+	    && *(path + 6 + flen) == '/') //avoid matching prefix only
+        { 
+            instance = pydaw_data->track_pool[i]->instrument; //&instances[i];
             break;
         }
     }
-    */
+    
     
     if (!instance)
     {

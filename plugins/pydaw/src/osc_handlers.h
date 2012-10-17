@@ -271,7 +271,7 @@ int pydaw_osc_update_handler(t_pydaw_plugin *instance, lo_arg **argv, lo_address
 
 int pydaw_osc_exiting_handler(t_pydaw_plugin *instance, lo_arg **argv)
 {
-    int i;
+    //int i;
 
     if (instance->uiTarget) 
     {
