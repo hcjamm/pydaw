@@ -130,7 +130,10 @@ typedef struct st_pydaw_data
     float sample_rate;
     int current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz.  Reset to zero on beginning playback        
     int note_offs[PYDAW_MAX_TRACK_COUNT][PYDAW_MIDI_NOTE_COUNT];  //When a note_on event is fired, a sample number of when to release it is stored here
+    lo_server_thread serverThread;
     
+    char osc_path_tmp[1024];  //TODO:  I could probably get rid of this???
+    char * osc_url;
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
@@ -382,6 +385,13 @@ t_pytrack * g_pytrack_get()
     return f_result;
 }
 
+
+void pydaw_osc_error(int num, const char *msg, const char *path)
+{
+    fprintf(stderr, "PyDAW: liblo server error %d in path %s: %s\n",
+	    num, path, msg);
+}
+
 t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 {
     t_pydaw_data * f_result = (t_pydaw_data*)malloc(sizeof(t_pydaw_data));
@@ -418,8 +428,24 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         
         f_i++;
     }
-        
+    
+    /* Create OSC thread */    
+    char *tmp;
+    
+    f_result->serverThread = lo_server_thread_new(NULL, pydaw_osc_error);
+    snprintf((char *)f_result->osc_path_tmp, 31, "/dssi");
+    tmp = lo_server_thread_get_url(f_result->serverThread);
+    f_result->osc_url = (char *)malloc(strlen(tmp) + strlen(f_result->osc_path_tmp));
+    sprintf(f_result->osc_url, "%s%s", tmp, f_result->osc_path_tmp + 1);    
+    free(tmp);
+    
     return f_result;
+}
+
+void v_pydaw_activate_osc_thread(t_pydaw_data * a_pydaw_data, lo_method_handler osc_message_handler)
+{
+    lo_server_thread_add_method(a_pydaw_data->serverThread, NULL, NULL, osc_message_handler, NULL);
+    lo_server_thread_start(a_pydaw_data->serverThread);
 }
 
 void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
@@ -497,6 +523,38 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
     pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
+
+void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
+{
+    char * filename;
+    char oscUrl[256];
+    char * dllName;
+    char * label = "test";
+    char * instanceTag = "test";
+    char * projectDirectory = NULL;
+    char * clientName = "test";
+    
+    switch(a_pydaw_data->track_pool[a_track_num]->plugin_index)
+    {
+        case 1:
+            filename = "/usr/lib/dssi/euphoria/LMS_EUPHORIA_qt";
+            dllName = "euphoria.so";
+            break;
+        case 2:
+            filename = "/usr/lib/dssi/ray_v/LMS_RAYV_qt";
+            dllName = "ray_v.so";
+            break;
+    }
+    
+    char track_number_string[12];
+    sprintf(track_number_string, "/%i", a_track_num);
+    strcpy(oscUrl, a_pydaw_data->osc_url);
+    strcat(oscUrl, track_number_string);
+    
+    execlp(filename, filename, oscUrl, dllName, label, instanceTag, projectDirectory, clientName, NULL);
+}
+
+
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index)
 {    
     //v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
@@ -510,6 +568,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
     a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
     a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
     pthread_mutex_unlock(&a_pydaw_data->mutex);
+    //v_show_plugin_ui(a_pydaw_data, a_track_num);
 }
 
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, const char* a_value)

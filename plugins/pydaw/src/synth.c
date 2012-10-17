@@ -31,7 +31,7 @@ GNU General Public License for more details.
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/amp.h"
 #include "pydaw.h"
-
+#include "osc_handlers.h"
 #include "synth.h"
 #include "meta.h"
 
@@ -42,6 +42,115 @@ static LADSPA_Descriptor *LMSLDescriptor = NULL;
 static DSSI_Descriptor *LMSDDescriptor = NULL;
 
 static t_pydaw_data * pydaw_data;
+
+int pydaw_osc_debug_handler(const char *path, const char *types, lo_arg **argv,
+                      int argc, void *data, void *user_data)
+{
+    int i;
+
+    printf("PyDAW: got unhandled OSC message:\npath: <%s>\n", path);
+    for (i=0; i<argc; i++) 
+    {
+        printf("PyDAW: arg %d '%c' ", i, types[i]);
+        lo_arg_pp(types[i], argv[i]);
+        printf("\n");
+    }
+    
+    return 1;
+}
+
+int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv,
+                        int argc, void *data, void *user_data)
+{
+    int i;
+    t_pydaw_plugin *instance = NULL;
+    const char *method;
+    unsigned int flen = 0;
+    lo_message message;
+    lo_address source;
+    int send_to_ui = 0;
+
+    if (strncmp(path, "/dssi/", 6))
+    {
+        return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
+    }
+    /*
+    for (i = 0; i < instance_count; i++) 
+    {
+	flen = strlen(instances[i].friendly_name);
+        if (!strncmp(path + 6, instances[i].friendly_name, flen) &&
+	    *(path + 6 + flen) == '/') { //avoid matching prefix only
+            instance = &instances[i];
+            break;
+        }
+    }
+    */
+    
+    if (!instance)
+    {
+        return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
+    }
+    
+    method = path + 6 + flen;
+    if (*method != '/' || *(method + 1) == 0)
+    {
+        return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
+    }
+    
+    method++;
+
+    message = (lo_message)data;
+    source = lo_message_get_source(message);
+
+    if (instance->uiSource && instance->uiTarget) 
+    {
+	if (strcmp(lo_address_get_hostname(source),lo_address_get_hostname(instance->uiSource)) 
+                ||
+	    strcmp(lo_address_get_port(source), lo_address_get_port(instance->uiSource))) 
+        {
+	    /* This didn't come from our known UI for this plugin, so send an update to that as well */
+	    send_to_ui = 1;
+	}
+    }
+    
+    if (!strcmp(method, "configure") && argc == 2 && !strcmp(types, "ss")) 
+    {
+	if (send_to_ui) 
+        {
+	    lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
+		    &argv[0]->s, &argv[1]->s);
+	}
+
+        return pydaw_osc_configure_handler(instance, argv);
+    } 
+    else if (!strcmp(method, "control") && argc == 2 && !strcmp(types, "if")) 
+    {
+	if (send_to_ui) 
+        {
+	    lo_send(instance->uiTarget, instance->ui_osc_control_path, "if",
+		    argv[0]->i, argv[1]->f);
+	}
+
+        return pydaw_osc_control_handler(instance, argv);
+
+    } 
+    /*else if (!strcmp(method, "midi") && argc == 1 && !strcmp(types, "m")) 
+    {
+        return pydaw_osc_midi_handler(instance, argv);
+    } */
+    else if (!strcmp(method, "update") && argc == 1 && !strcmp(types, "s")) 
+    {
+        return pydaw_osc_update_handler(instance, argv, source);
+    }
+    /*
+    else if (!strcmp(method, "exiting") && argc == 0) 
+    {
+        return pydaw_osc_exiting_handler(instance, argv);
+    }
+    */
+    
+    return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
+}
 
 static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
@@ -111,7 +220,8 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
 static void activateLMS(LADSPA_Handle instance)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;        
-    plugin_data->mono_modules = v_mono_init((plugin_data->fs));    
+    plugin_data->mono_modules = v_mono_init((plugin_data->fs));  
+    v_pydaw_activate_osc_thread(pydaw_data, pydaw_osc_message_handler);
 }
 
 static void runLMSWrapper(LADSPA_Handle instance,
