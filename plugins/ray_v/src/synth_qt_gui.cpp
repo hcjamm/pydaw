@@ -787,6 +787,10 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
 
 int main(int argc, char **argv)
 {
+    for(int i = 0; i < argc; i++)
+    {
+        cerr << "argv[" << i << "] == " << argv[i] << "\n";
+    }
 
     cerr << "Qt GUI main() called..." << endl;
 
