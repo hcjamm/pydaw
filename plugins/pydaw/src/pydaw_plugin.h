@@ -125,22 +125,20 @@ typedef struct st_pydaw_plugin
     char            *ui_osc_quit_path;
     char            *ui_osc_rate_path;
     char            *ui_osc_show_path;
-    
-    //lo_server_thread serverThread;
-    
+        
     float **pluginInputBuffers, **pluginOutputBuffers;
 
     float *pluginControlIns, *pluginControlOuts;
     unsigned long *pluginControlInPortNumbers;          /* maps global control in # to instance LADSPA port # */
     
-    int * pluginPortUpdated;
-    
+    int * pluginPortUpdated;    
+    //char * friendly_name;
 }t_pydaw_plugin;
 
 t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
 {
-    t_pydaw_plugin * f_result = (t_pydaw_plugin*)malloc(sizeof(t_pydaw_plugin));  //TODO:  posix_memalign instead...
-     
+    t_pydaw_plugin * f_result = (t_pydaw_plugin*)malloc(sizeof(t_pydaw_plugin));  //TODO: posix_memalign instead...
+    
     switch(a_index)
     {
         case 1:
@@ -310,11 +308,6 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
 void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
 {
     free(a_plugin);
-}
-
-void v_show_plugin_ui(t_pydaw_plugin * a_plugin)
-{
-    //execlp(filename, filename, oscUrl, dllName, label, instanceTag, projectDirectory, clientName, NULL);
 }
 
 void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, snd_seq_event_t * a_event_buffer, 
