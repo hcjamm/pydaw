@@ -545,15 +545,15 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
             break;
     }
     
-    char track_number_string[12];
+    char track_number_string[6];
     sprintf(track_number_string, "%i", a_track_num);
-    strcpy(oscUrl, a_pydaw_data->osc_url);
-    strcat(oscUrl, "/");
-    strcat(oscUrl, track_number_string);
+    sprintf(oscUrl, "%s/%i", a_pydaw_data->osc_url, a_track_num);
+    char instruments_folder[256];
+    sprintf(instruments_folder, "%s/instruments", a_pydaw_data->project_folder);
     
     if (fork() == 0) 
     {
-        execlp(filename, filename, oscUrl, dllName, label, track_number_string, a_pydaw_data->project_folder, track_number_string, NULL);
+        execlp(filename, filename, oscUrl, dllName, label, track_number_string, instruments_folder, track_number_string, NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
     }
