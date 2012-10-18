@@ -193,39 +193,19 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     printf("f_result->controlOuts %i\n", f_result->controlOuts);    
     
     //f_result->inputPorts = (jack_port_t **)malloc(f_result->insTotal * sizeof(jack_port_t *));
-    f_result->pluginInputBuffers = (float **)malloc(f_result->ins * sizeof(float *));
-    f_result->pluginControlIns = (float *)calloc(f_result->controlIns, sizeof(float));
+    f_result->pluginInputBuffers = (float**)malloc((f_result->ins) * sizeof(float*));
+    f_result->pluginControlIns = (float*)calloc(f_result->controlIns, sizeof(float));
     //f_result->pluginControlInInstances = (d3h_instance_t **)malloc(f_result->controlInsTotal * sizeof(d3h_instance_t *));
     f_result->pluginControlInPortNumbers = (unsigned long *)malloc(f_result->controlIns * sizeof(unsigned long));
-    f_result->pluginPortUpdated = (int *)malloc(f_result->controlIns * sizeof(int));
+    f_result->pluginPortUpdated = (int*)malloc(f_result->controlIns * sizeof(int));
     //f_result->outputPorts = (jack_port_t **)malloc(f_result->outsTotal * sizeof(jack_port_t *));
-    f_result->pluginOutputBuffers = (float **)malloc(f_result->outs * sizeof(float *));
+    f_result->pluginOutputBuffers = (float**)malloc((f_result->outs) * sizeof(float*));
     f_result->pluginControlOuts = (float *)calloc(f_result->controlOuts, sizeof(float));
     
     //TODO:  Count ins and outs from the loop at line 1142.  Or just rely on that we already know it
     
     f_result->ladspa_handle = f_result->descriptor->LADSPA_Plugin->instantiate(f_result->descriptor->LADSPA_Plugin, a_sample_rate);
-    
-    //assert(f_result->ladspa_handle);
-    //printf("&f_result->ladspa_handle == %p\n", &f_result->ladspa_handle);
-    
-    //Errr...  Actually, this probably needs to be part of t_pydaw_data instead, I'll come back to it later
-    /*
-    char * tmp;
-    
-    f_result->serverThread = lo_server_thread_new(NULL, osc_error);
-    snprintf((char *)osc_path_tmp, 31, "/dssi");
-    tmp = lo_server_thread_get_url(f_result->serverThread);
-    url = (char *)malloc(strlen(tmp) + strlen(osc_path_tmp));
-    sprintf(url, "%s%s", tmp, osc_path_tmp + 1);
-    
-    free(tmp);
-
-    lo_server_thread_add_method(f_result->serverThread, NULL, NULL, osc_message_handler,
-				NULL);
-    lo_server_thread_start(f_result->serverThread);
-    */
-    
+        
     f_result->firstControlIn = 0;
     
     for (j = 0; j < 128; j++) 
@@ -246,17 +226,17 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
 
         if (LADSPA_IS_PORT_AUDIO(pod)) {
 
-            if (LADSPA_IS_PORT_INPUT(pod)) {
+            if (LADSPA_IS_PORT_INPUT(pod)) 
+            {
+                f_result->pluginInputBuffers[in] = (float*)calloc(8192, sizeof(float));
+                f_result->descriptor->LADSPA_Plugin->connect_port(f_result->ladspa_handle, j, f_result->pluginInputBuffers[in]);                                
                 in++;
-                f_result->descriptor->LADSPA_Plugin->connect_port(f_result->ladspa_handle, j, f_result->pluginInputBuffers[in]);
-                //This bit was imported from the jack initialization that isn't used anymore...
-                f_result->pluginInputBuffers[in] = (float *)calloc(8192, sizeof(float));
-
-            } else if (LADSPA_IS_PORT_OUTPUT(pod)) {
+            } 
+            else if (LADSPA_IS_PORT_OUTPUT(pod)) 
+            {
+                f_result->pluginOutputBuffers[out] = (float*)calloc(8192, sizeof(float));
+                f_result->descriptor->LADSPA_Plugin->connect_port(f_result->ladspa_handle, j, f_result->pluginOutputBuffers[out]);                
                 out++;
-                f_result->descriptor->LADSPA_Plugin->connect_port(f_result->ladspa_handle, j, f_result->pluginOutputBuffers[out]);
-                //This bit was imported from the jack initialization that isn't used anymore...
-                f_result->pluginOutputBuffers[out] = (float *)calloc(8192, sizeof(float));                
             }
 
         } 
