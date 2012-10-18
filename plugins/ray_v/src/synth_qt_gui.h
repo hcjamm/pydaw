@@ -169,9 +169,7 @@ protected slots:
     void LFOampChanged(int);
     void LFOpitchChanged(int);
     void LFOcutoffChanged(int);
-    
-    void test_press();
-    void test_release();
+        
     void oscRecv();
     void sessionTimeout();
 protected:
