@@ -93,8 +93,7 @@ class lms_session:
         self.select_instrument[a_instrument_index] = a_index
 
         f_args = ["-a",  "-p", self.project_directory, "-c", self.project_name + "-" + self.instance_names[a_instrument_index]]
-        print(f_args)
-
+        
         if a_index == 0: #Send the quit signal
             f_notify_dir = self.project_directory + lms_notify_directory
             f_quit_file_path = f_notify_dir + self.project_name + "-" + self.instance_names[a_instrument_index] + ".quit"

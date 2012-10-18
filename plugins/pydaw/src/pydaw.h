@@ -433,7 +433,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     char *tmp;
     
     f_result->serverThread = lo_server_thread_new(NULL, pydaw_osc_error);
-    snprintf((char *)f_result->osc_path_tmp, 31, "/dssi");
+    snprintf((char *)f_result->osc_path_tmp, 31, "/dssi/pydaw_plugins");
     tmp = lo_server_thread_get_url(f_result->serverThread);
     f_result->osc_url = (char *)malloc(strlen(tmp) + strlen(f_result->osc_path_tmp));
     sprintf(f_result->osc_url, "%s%s", tmp, f_result->osc_path_tmp + 1);    
@@ -527,31 +527,37 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
 void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
 {
     char * filename;
-    char oscUrl[256];
+    char oscUrl[256];    
     char * dllName;
-    char * label = "test";
-    char * instanceTag = "test";
-    char * projectDirectory = NULL;
-    char * clientName = "test";
-    
+    char * label;
+            
     switch(a_pydaw_data->track_pool[a_track_num]->plugin_index)
     {
         case 1:
             filename = "/usr/lib/dssi/euphoria/LMS_EUPHORIA_qt";
             dllName = "euphoria.so";
+            label = "LMS_EUPHORIA";            
             break;
         case 2:
             filename = "/usr/lib/dssi/ray_v/LMS_RAYV_qt";
             dllName = "ray_v.so";
+            label = "LMS_RAYV";            
             break;
     }
     
     char track_number_string[12];
-    sprintf(track_number_string, "/%i", a_track_num);
+    sprintf(track_number_string, "%i", a_track_num);
     strcpy(oscUrl, a_pydaw_data->osc_url);
+    strcat(oscUrl, "/");
     strcat(oscUrl, track_number_string);
     
-    execlp(filename, filename, oscUrl, dllName, label, instanceTag, projectDirectory, clientName, NULL);
+    if (fork() == 0) 
+    {
+        execlp(filename, filename, oscUrl, dllName, label, track_number_string, NULL); //a_pydaw_data->project_folder, track_number_string, NULL);
+        perror("exec failed");
+        exit(1);  //TODO:  should be getting rid of this???
+    }
+    
 }
 
 
@@ -568,7 +574,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
     a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
     a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
     pthread_mutex_unlock(&a_pydaw_data->mutex);
-    //v_show_plugin_ui(a_pydaw_data, a_track_num);
+    v_show_plugin_ui(a_pydaw_data, a_track_num);
 }
 
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw, const char* a_key, const char* a_value)
