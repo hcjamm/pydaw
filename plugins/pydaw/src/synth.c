@@ -75,6 +75,7 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     
     if (strncmp(path, "/dssi/", 6))
     {
+        printf("\nstrncmp(path, \"/dssi/\", 6)\n\n");
         return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
     }
       
@@ -85,9 +86,10 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     {
         sprintf(tmp, "%i", i);
 	flen = strlen(tmp);
-        if (!strncmp(path + 6, tmp, flen)
-	    && *(path + 6 + flen) == '/') //avoid matching prefix only
+        if (!strncmp(path + 20, tmp, flen)
+	    && *(path + 20 + flen) == '/') //avoid matching prefix only
         { 
+            printf("instance==%i\n", i);
             instance = pydaw_data->track_pool[i]->instrument; //&instances[i];
             break;
         }
@@ -96,12 +98,14 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     
     if (!instance)
     {
+        printf("\n!instance\n");
         return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
     }
     
-    method = path + 6 + flen;
+    method = path + 20 + flen;
     if (*method != '/' || *(method + 1) == 0)
     {
+        printf("\n(*method != '/' || *(method + 1) == 0)\n\n%s\n\n", method);
         return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
     }
     
