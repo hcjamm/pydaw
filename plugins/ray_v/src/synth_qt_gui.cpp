@@ -126,13 +126,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     f_logo_label->setMinimumSize(90, 30);   
     f_logo_label->show();
     m_main_layout->lms_add_widget(f_logo_label);
-    
-    QPushButton *testButton = new QPushButton("Test Note", this);
-    connect(testButton, SIGNAL(pressed()), this, SLOT(test_press()));
-    connect(testButton, SIGNAL(released()), this, SLOT(test_release()));    
         
-    m_main_layout->lms_add_widget(testButton);
-     
     m_main_layout->lms_add_layout();
     
     m_osc1 = new LMS_oscillator_widget(f_info, this, QString("Oscillator 1") , LMS_OSC1_PITCH, LMS_OSC1_TUNE, LMS_OSC1_VOLUME, LMS_OSC1_TYPE, f_osc_types);
@@ -611,12 +605,6 @@ int SynthGUI::i_get_control(int a_port)
     }    
 }
 
-void SynthGUI::test_press()
-{
-    unsigned char noteon[4] = { 0x00, 0x90, 0x2A, 0x66 };
-    lo_send(m_host, m_midiPath, "m", noteon);
-}
-
 void SynthGUI::oscRecv()
 {
     if (osc_server) {
@@ -638,13 +626,6 @@ void SynthGUI::sessionTimeout()
     {
         this->close();
     }        
-}
-
-void SynthGUI::test_release()
-{
-    unsigned char noteoff[4] = { 0x00, 0x90, 0x2A, 0x00 };
-
-    lo_send(m_host, m_midiPath, "m", noteoff);
 }
 
 void SynthGUI::aboutToQuit()
