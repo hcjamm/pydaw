@@ -423,27 +423,6 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     }
     pthread_mutex_unlock(&pydaw_data->mutex);
     
-    //Mix together the audio input channels from the plugins
-    
-        
-    /*
-    int f_i_mix = 0;
-    while(f_i_mix < PYDAW_MAX_TRACK_COUNT)
-    {
-        int f_i2 = f_i_mix + 1;
-        plugin_data->i_mono_out = 0;
-        
-        while((plugin_data->i_mono_out) < sample_count)
-        {
-            output0[(plugin_data->i_mono_out)] += *(plugin_data->input_arr[f_i_mix]);
-            output1[(plugin_data->i_mono_out)] += *(plugin_data->input_arr[f_i2]);
-
-            plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
-        }
-        f_i_mix += 2;
-        
-    }
-    */
 }
 
 char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)
