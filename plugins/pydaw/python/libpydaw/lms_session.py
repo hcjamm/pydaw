@@ -8,9 +8,6 @@
 import os
 import os.path
 
-from time import sleep
-import subprocess
-
 lms_notify_directory = '/notify/'
 lms_delimiter = '|'
 lms_instrument_count = 16
@@ -29,13 +26,11 @@ class lms_session:
             else:
                 self.project_directory += '/' + f_project_path_arr[i]
 
-        self.processes = {}
         self.instance_names = {}
         #This one will probably be deprecated after an initial working prototype is finished
         self.select_instrument = {}
 
-        for i in range(0, lms_instrument_count):
-            self.processes[i] = None
+        for i in range(0, lms_instrument_count):            
             self.instance_names[i] = ''
             self.select_instrument[i] = 0
 
@@ -91,22 +86,13 @@ class lms_session:
 
         #We've passed all of the tests, now run the instrument
         self.select_instrument[a_instrument_index] = a_index
-
-        f_args = ["-a",  "-p", self.project_directory, "-c", self.project_name + "-" + self.instance_names[a_instrument_index]]
-        
+                
         if a_index == 0: #Send the quit signal
             f_notify_dir = self.project_directory + lms_notify_directory
-            f_quit_file_path = f_notify_dir + self.project_name + "-" + self.instance_names[a_instrument_index] + ".quit"
+            f_quit_file_path = f_notify_dir + str(a_instrument_index) + ".quit"
             f_quit_file = open(f_quit_file_path, 'w')
             f_quit_file.write("Created by PyDAW\n")
             f_quit_file.close()
-        #elif a_index == 1 or a_index == 2:
-            #self.processes[a_instrument_index] = subprocess.Popen(['lms-jack-dssi-host', 'euphoria.so'] + f_args)
-        #elif a_index == 2:
-            #self.processes[a_instrument_index] = subprocess.Popen(['lms-jack-dssi-host', 'ray_v.so'] + f_args)
-        #else:
-            #print("Invalid index: " + a_index)
-
 
     def save_session_file(self):
         f_file = open(self.full_project_file_path, 'w')
@@ -124,7 +110,7 @@ class lms_session:
         #Now notify the instruments to save their state
         for f_i in range(0, lms_instrument_count):
             if self.select_instrument[f_i] > 0:
-                f_save_file = open(f_notify_dir + self.project_name + "-" + self.instance_names[f_i] + ".save", 'w')
+                f_save_file = open(f_notify_dir + str(f_i) + ".save", 'w')
                 f_save_file.write("Created by PyDAW\n")
                 #Does flush need to be called here?
                 f_save_file.close()
@@ -135,7 +121,7 @@ class lms_session:
         print("Sending quit notify messages in " + f_notify_dir)
         for f_i in range(0, lms_instrument_count):
             if self.select_instrument[f_i] > 0:
-                f_quit_file_path = f_notify_dir + self.project_name + "-" + self.instance_names[f_i] + ".quit"
+                f_quit_file_path = f_notify_dir + str(f_i) + ".quit"
                 f_quit_file = open(f_quit_file_path, 'w')
                 f_quit_file.write("Created by PyDAW\n")
                 f_quit_file.close()
