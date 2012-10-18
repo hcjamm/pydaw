@@ -71,7 +71,7 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     int send_to_ui = 0;
     char tmp[6];
     
-    printf("pydaw_osc_message_handler: %s\n", path);
+    printf("\npydaw_osc_message_handler: %s\n\n", path);
     
     if (strncmp(path, "/dssi/", 6))
     {

@@ -171,8 +171,14 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
         } 
         else if (LADSPA_IS_PORT_CONTROL(pod)) 
         {
-            if (LADSPA_IS_PORT_INPUT(pod)) ++f_result->controlIns;
-            else if (LADSPA_IS_PORT_OUTPUT(pod)) ++f_result->controlOuts;
+            if (LADSPA_IS_PORT_INPUT(pod)) 
+            {
+                ++f_result->controlIns;
+            }
+            else if (LADSPA_IS_PORT_OUTPUT(pod)) 
+            {
+                ++f_result->controlOuts;
+            }
         }
     }
    
@@ -184,8 +190,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     printf("f_result->in %i\n", f_result->ins);
     printf("f_result->outs %i\n", f_result->outs);
     printf("f_result->controlIns %i\n", f_result->controlIns);
-    printf("f_result->controlOuts %i\n", f_result->controlOuts);
-    
+    printf("f_result->controlOuts %i\n", f_result->controlOuts);    
     
     //f_result->inputPorts = (jack_port_t **)malloc(f_result->insTotal * sizeof(jack_port_t *));
     f_result->pluginInputBuffers = (float **)malloc(f_result->ins * sizeof(float *));
@@ -242,14 +247,14 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
         if (LADSPA_IS_PORT_AUDIO(pod)) {
 
             if (LADSPA_IS_PORT_INPUT(pod)) {
-                f_result->descriptor->LADSPA_Plugin->connect_port
-                    (f_result->ladspa_handle, j, f_result->pluginInputBuffers[in++]);
+                in++;
+                f_result->descriptor->LADSPA_Plugin->connect_port(f_result->ladspa_handle, j, f_result->pluginInputBuffers[in]);
                 //This bit was imported from the jack initialization that isn't used anymore...
                 f_result->pluginInputBuffers[in] = (float *)calloc(8192, sizeof(float));
 
             } else if (LADSPA_IS_PORT_OUTPUT(pod)) {
-                f_result->descriptor->LADSPA_Plugin->connect_port
-                    (f_result->ladspa_handle, j, f_result->pluginOutputBuffers[out++]);
+                out++;
+                f_result->descriptor->LADSPA_Plugin->connect_port(f_result->ladspa_handle, j, f_result->pluginOutputBuffers[out]);
                 //This bit was imported from the jack initialization that isn't used anymore...
                 f_result->pluginOutputBuffers[out] = (float *)calloc(8192, sizeof(float));                
             }
@@ -262,8 +267,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
 
                 if (f_result->descriptor->get_midi_controller_for_port) {
 
-                    int controller = f_result->descriptor->
-                        get_midi_controller_for_port(f_result->ladspa_handle, j);
+                    int controller = f_result->descriptor->get_midi_controller_for_port(f_result->ladspa_handle, j);
 
                     /*if (controller == 0) {
                         MB_MESSAGE
@@ -272,9 +276,9 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
                         MB_MESSAGE
                             ("Buggy plugin: wants mapping for bank LSB\n");
                     } else*/
-                    if (DSSI_IS_CC(controller)) {
-                        f_result->controllerMap[DSSI_CC_NUMBER(controller)]
-                            = controlIn;
+                    if (DSSI_IS_CC(controller)) 
+                    {
+                        f_result->controllerMap[DSSI_CC_NUMBER(controller)] = controlIn;
                     }
                 }
 
