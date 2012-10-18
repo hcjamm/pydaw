@@ -67,8 +67,9 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_hostRequestedQuit(false),
     m_ready(false)
 {
+    cerr << "Entering constructor...\n";
     m_host = lo_address_new(host, port);
-    
+    cerr << "Setting session support...\n";
     is_session = a_is_session;
     project_path = a_project_path;
     instance_name = a_instance_name;    
@@ -82,6 +83,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         this->setWindowTitle(QString("Ray-V  Powered by LibModSynth."));
     }
     
+    cerr << "Building QWidget...\n";
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{border:1px solid white;border-radius:3px; padding:1px;background-color:black;color:white} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
     
@@ -303,7 +305,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         setPreset->start();
     }
     
-    
+    cerr << "Leaving constructor...\n";
 }
 
 void SynthGUI::setFirstPreset()
@@ -820,6 +822,8 @@ int main(int argc, char **argv)
     char *host = lo_url_get_hostname(url);
     char *port = lo_url_get_port(url);
     char *path = lo_url_get_path(url);
+    
+    cerr << "host: " << host << " port: " << port << " path: " << path << "\n";
     
     bool f_is_session = FALSE;
     QString f_project_path = QString("");
