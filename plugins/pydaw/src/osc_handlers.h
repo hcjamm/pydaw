@@ -256,7 +256,7 @@ int pydaw_osc_update_handler(t_pydaw_plugin *instance, lo_arg **argv, lo_address
 	int port = instance->pluginControlInPortNumbers[in];
 	lo_send(instance->uiTarget, instance->ui_osc_control_path, "if", port, instance->pluginControlIns[in]);
 	/* Avoid overloading the GUI if there are lots and lots of ports */
-	if ((i+1) % 50 == 0) usleep(300000);
+	if ((i+1) % 50 == 0) usleep(50000);
     }
 
     /* Send 'show' */
