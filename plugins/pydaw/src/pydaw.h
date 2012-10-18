@@ -553,7 +553,7 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
     
     if (fork() == 0) 
     {
-        execlp(filename, filename, oscUrl, dllName, label, track_number_string, NULL); //a_pydaw_data->project_folder, track_number_string, NULL);
+        execlp(filename, filename, oscUrl, dllName, label, track_number_string, a_pydaw_data->project_folder, track_number_string, NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
     }
