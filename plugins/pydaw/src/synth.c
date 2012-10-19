@@ -154,13 +154,11 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     {
         return pydaw_osc_update_handler(instance, argv, source);
     }
-    /*
     else if (!strcmp(method, "exiting") && argc == 0) 
     {
         return pydaw_osc_exiting_handler(instance, argv);
     }
-    */
-    
+        
     return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
 }
 
