@@ -167,6 +167,9 @@ int main(int argc, char** argv) {
     
      * */
 
+    
+    
+    /*
     init();
     
     LADSPA_Handle f_handle = instantiateLMS(LMSLDescriptor, 44100);
@@ -192,6 +195,10 @@ int main(int argc, char** argv) {
     {
         run_lms_pydaw(f_handle, 4096, f_events, 3);
     }
+    */
+    
+    
+    g_get_2d_array_from_file("/home/bob/dssi/pydaw/default-project/items/item-0.pyitem", 65536);
     
     return 0; //(EXIT_SUCCESS);
 }
