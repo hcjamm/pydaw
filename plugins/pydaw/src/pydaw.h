@@ -134,6 +134,8 @@ typedef struct st_pydaw_data
     
     char osc_path_tmp[1024];  //TODO:  I could probably get rid of this???
     char * osc_url;
+    
+    float samples_per_beat;  //The number of samples per beat, for calculating length
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
@@ -518,6 +520,7 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
     char log_buff[200];
     a_pydaw_data->tempo = a_tempo;
     a_pydaw_data->playback_inc = ( (1.0f/(a_pydaw_data->sample_rate)) / (60.0f/(a_tempo * 0.25f)) );
+    a_pydaw_data->samples_per_beat = (a_pydaw_data->sample_rate)/(a_tempo/60.0f);
     sprintf(log_buff, "a_pydaw_data->playback_inc = %f\n", (a_pydaw_data->playback_inc));
     pydaw_write_log(log_buff);
     pthread_mutex_unlock(&a_pydaw_data->mutex);
