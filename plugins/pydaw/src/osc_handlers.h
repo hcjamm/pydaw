@@ -1,8 +1,7 @@
 /* 
  * File:   osc_handlers.h
- * Author: bob
- *
- * Created on October 16, 2012, 5:34 PM
+ * 
+ *  
  */
 
 #ifndef OSC_HANDLERS_H
