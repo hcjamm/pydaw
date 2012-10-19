@@ -321,7 +321,8 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                         
                         pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
                                                                         
-                        pydaw_data->note_offs[f_i][(f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note)] = (pydaw_data->current_sample) + 5000;  //TODO:  replace 5000 with a real calculated length
+                        pydaw_data->note_offs[f_i][(f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note)] = (pydaw_data->current_sample) + 
+                                ((int)(f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->length * (pydaw_data->samples_per_beat)));
                                                 
                         pydaw_data->track_note_event_indexes[f_i] = (pydaw_data->track_note_event_indexes[f_i]) + 1;
                     }
