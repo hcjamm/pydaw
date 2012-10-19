@@ -263,32 +263,19 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
         plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
     }
     
-    
-    int f_i = 0;
-    
     pthread_mutex_lock(&pydaw_data->mutex);
-    
-    double f_next_period = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));    
-    int f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
-       
+           
     if((pydaw_data->is_initialized) && ((pydaw_data->playback_mode) > 0))
-    {                
-        //event_loop_label:
-                
+    {
+        double f_next_period = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));    
+        int f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
         double f_current_period_beats = (pydaw_data->playback_cursor) * 4.0f;
         double f_next_period_beats = f_next_period * 4.0f;
-                
+     
+        int f_i = 0;
+        
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {
-            
-            /* TODO:
-             * 1.  Figure out how to determine which tick of the period to send an event on from the given fractional bar
-             * 2.  A next/last fractional bar, that possible event firings must begin between
-             * 3.  Persistent note/cc event list iterators
-             * 4.  Check if (f_next_period >= 1.0f) earlier, then begin iterating the item.  Until then, there will be issues with timing and missed events
-             * 5.  Calculate note_offs, which currently are not calculated.
-             */
-         
             if(pydaw_data->track_pool[f_i]->plugin_index == 0)
             {
                 f_i++;
@@ -357,20 +344,16 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                     f_i2++;
                 }                
                 v_run_plugin(pydaw_data->track_pool[f_i]->instrument, sample_count, 
-                        pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);
+                        pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);                
                 
-                
-                //if(pydaw_data->track_pool[f_i]->instrument)
-                //{
-                    int f_i3 = 0;
+                int f_i3 = 0;
 
-                    while(f_i3 < sample_count)
-                    {
-                        output0[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[0][f_i3]);
-                        output1[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[1][f_i3]);
-                        f_i3++;
-                    }
-                //}
+                while(f_i3 < sample_count)
+                {
+                    output0[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[0][f_i3]);
+                    output1[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[1][f_i3]);
+                    f_i3++;
+                }                
             }
         
             f_i++;
