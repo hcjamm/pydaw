@@ -117,8 +117,7 @@ typedef struct st_pydaw_plugin
         
     lo_address       uiTarget;
     lo_address       uiSource;
-    int              ui_initial_show_sent;
-    int              uiNeedsProgramUpdate;
+    int              ui_initial_show_sent;    
     char            *ui_osc_control_path;
     char            *ui_osc_configure_path;
     char            *ui_osc_program_path;
@@ -148,6 +147,17 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
             f_result->lib_handle = dlopen("/usr/lib/dssi/ray_v.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
     }
+        
+    f_result->pluginPrograms = NULL;    
+    f_result->uiTarget = NULL;
+    f_result->uiSource = NULL;
+    f_result->ui_initial_show_sent = 0;
+    f_result->ui_osc_control_path = NULL;
+    f_result->ui_osc_configure_path = NULL;
+    f_result->ui_osc_program_path = NULL;
+    f_result->ui_osc_quit_path = NULL;
+    f_result->ui_osc_rate_path = NULL;
+    f_result->ui_osc_show_path = NULL;
     
     f_result->descfn = (DSSI_Descriptor_Function)dlsym(f_result->lib_handle, "dssi_descriptor");
     
