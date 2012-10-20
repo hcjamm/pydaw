@@ -274,13 +274,19 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
         
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {
+            pydaw_data->track_pool[f_i]->event_index = 0;
+            f_i++;
+        }
+        
+        f_i = 0;
+        
+        while(f_i < PYDAW_MAX_TRACK_COUNT)
+        {
             if(pydaw_data->track_pool[f_i]->plugin_index == 0)
             {
                 f_i++;
                 continue;
             }
-            
-            pydaw_data->track_pool[f_i]->event_index = 0;
             
             if((pydaw_data->pysong->regions[(pydaw_data->current_region)]) && (pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_populated[f_i][(pydaw_data->current_bar)]))
             {                
@@ -315,39 +321,43 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                     {
                         break;
                     }
-                }                
-                
-                /*
-                while(1)  //CCs???
-                {
-
                 }
-                */   
-                                 
-                int f_i2 = 0;
-                //This is going to be painfully slow scanning all 16x128=2048 entries, but it may not really matter, so I won't prematurely optimize it now.
-                while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
-                {
-                    if((pydaw_data->note_offs[f_i][f_i2]) >= (pydaw_data->current_sample) &&
-                       (pydaw_data->note_offs[f_i][f_i2]) < f_next_current_sample)
-                    {
-                        printf("sending note_off\n");
-                        snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
-                        
-                        snd_seq_ev_set_noteoff(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)], 0, f_i2, 0);                        
-                        
-                        pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
-                    }
-
-                    f_i2++;
-                }
-                
             }
         
             f_i++;
         }
+                
+        /*
+        while(1)  //CCs???
+        {
+
+        }
+        */    
         
+        f_i = 0;
         
+        while(f_i < PYDAW_MAX_TRACK_COUNT)
+        {                             
+            int f_i2 = 0;
+            //This is going to be painfully slow scanning all 16x128=2048 entries, but it may not really matter, so I won't prematurely optimize it now.
+            while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
+            {
+                if((pydaw_data->note_offs[f_i][f_i2]) >= (pydaw_data->current_sample) &&
+                   (pydaw_data->note_offs[f_i][f_i2]) < f_next_current_sample)
+                {
+                    printf("sending note_off\n");
+                    snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
+
+                    snd_seq_ev_set_noteoff(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)], 0, f_i2, 0);                        
+
+                    pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
+                }
+
+                f_i2++;
+            }
+            f_i++;
+        }
+                
         f_i = 0;
         int f_i3 = 0;
         
