@@ -42,7 +42,7 @@ void pydaw_write_log(char * a_string)
     fclose(pFile);
 }
     
-char * get_string_from_file(const char * a_file, int a_size, char * a_buf)
+void get_string_from_file(const char * a_file, int a_size, char * a_buf)
 {
     char log_buff[200];
     sprintf(log_buff, "get_string_from_file: a_file: \"%s\" a_size: %i \n", a_file, a_size);
