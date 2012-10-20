@@ -249,14 +249,17 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     LADSPA_Data *const output1 = plugin_data->output1;
     
     plugin_data->i_buffer_clear = 0;
-    /*Clear the output buffer*/
     
+
+    /*Clear the output buffer*/
+/*
     while((plugin_data->i_buffer_clear) < sample_count)  //TODO:  Consider memset'ing???
     {
         output0[(plugin_data->i_buffer_clear)] = 0.0f;                        
         output1[(plugin_data->i_buffer_clear)] = 0.0f;     
         plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
     }
+*/
     
     pthread_mutex_lock(&pydaw_data->mutex);
            
@@ -265,8 +268,8 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
         double f_next_playback_cursor = (pydaw_data->playback_cursor) + ((pydaw_data->playback_inc) * ((double)(sample_count)));    
         int f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
         double f_current_period_beats = (pydaw_data->playback_cursor) * 4.0f;
-        double f_next_period_beats = f_next_playback_cursor * 4.0f;
-     
+        double f_next_period_beats = f_next_playback_cursor * 4.0f;     
+                
         int f_i = 0;
         
         while(f_i < PYDAW_MAX_TRACK_COUNT)
@@ -304,10 +307,38 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                             printf("Sending note_on event\n");
 
                             snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
-
+                            
+                            int f_note_sample_offset = 0;
+                            
+                            /*
+                            //instances where the bar starts in the middle of a sample period
+                            //TODO:  I think that equaling exactly 1.0f might create a weird scenario where 2 note ons are sent
+                            if(f_next_playback_cursor >= 1.0f)
+                            {
+                                f_note_sample_offset = (int)((((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) - f_current_period_beats)
+                                        / (pydaw_data->playback_inc)) * (((1.0f - (pydaw_data->playback_cursor)) / (pydaw_data->playback_inc)) * ((float)sample_count)));
+                            }
+                            //now wrapping around for part
+                            else if((pydaw_data->playback_cursor == 0.0f) && (f_next_playback_cursor < (pydaw_data->playback_inc)))
+                            {
+                                f_note_sample_offset = ((int)((((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) - f_current_period_beats)
+                                        / (pydaw_data->playback_inc)) * ((f_next_playback_cursor / (pydaw_data->playback_inc)) * ((float)sample_count)))
+                                        );//+ ((int)(((1.0f - (pydaw_data->playback_cursor)) / (pydaw_data->playback_inc)) * ((float)sample_count))));
+                            }
+                            else  //Every other time...
+                            {}
+                            */
+                            float f_note_start_diff = (f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) - f_current_period_beats;
+                            float f_note_start_frac = (pydaw_data->playback_inc) / f_note_start_diff;
+                            f_note_sample_offset =  (int)(f_note_start_frac * ((float)sample_count));                            
+                            
+                            printf(" f_note_start_diff = %f, f_note_start_frac = %f, f_note_sample_offset = %i\n", f_note_start_diff, f_note_start_frac, f_note_sample_offset);
+                            
                             snd_seq_ev_set_noteon(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)], 0,
                                     f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note,
                                     f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->velocity);
+                            
+                            pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)].time.tick = f_note_sample_offset;
 
                             pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
 
@@ -335,6 +366,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
 
             pydaw_data->playback_cursor = f_next_playback_cursor;
 
+            //TODO:  I think that equaling exactly 1.0f might create a weird scenario where 2 note ons are sent
             if((pydaw_data->playback_cursor) >= 1.0f)
             {
                 //Calculate the remainder of this bar that occurs within the sample period
