@@ -299,7 +299,10 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                     if((pydaw_data->pysong->regions[f_current_track_region]) && 
                         (pydaw_data->pysong->regions[f_current_track_region]->item_populated[f_i][f_current_track_bar]))
                     {
-                        t_pyitem f_current_item = *(pydaw_data->pysong->regions[(pydaw_data->current_region)]->items[f_i][f_current_track_bar]);
+                        t_pyitem f_current_item = *(pydaw_data->item_pool[
+                                pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][f_current_track_bar]
+                                ]);
+                                //*(pydaw_data->pysong->regions[(pydaw_data->current_region)]->items[f_i][f_current_track_bar]);
 
                         if((pydaw_data->track_note_event_indexes[f_i]) >= (f_current_item.note_count))
                         {
@@ -471,6 +474,9 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 
         pydaw_data->current_sample = f_next_current_sample;
     }
+    
+    /*TODO:  Run the LMS Limiter algorithm here at 0.0db, long release time, to prevent clipping*/
+    
     pthread_mutex_unlock(&pydaw_data->mutex);
     
 }

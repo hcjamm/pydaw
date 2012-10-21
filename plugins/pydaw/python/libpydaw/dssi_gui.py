@@ -111,13 +111,13 @@ class dssi_gui(ServerThread):
         self.send_configure("os", a_project_folder + "|" + a_project_file)
 
     def pydaw_save_item(self, a_name):
-        self.send_configure("si", a_name)
+        self.send_configure("si", str(a_name))
 
     def pydaw_delete_item(self):
         self.send_configure("di", "TODO")
 
     def pydaw_save_region(self, a_name):
-        self.send_configure("sr", a_name)
+        self.send_configure("sr", str(a_name))
 
     def pydaw_delete_region(self):
         self.send_configure("dr", "TODO")

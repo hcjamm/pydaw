@@ -135,6 +135,7 @@ class region_list_editor:
             if f_new_radiobutton.isChecked():
                 f_cell_text = str(f_new_lineedit.text())
                 this_pydaw_project.create_empty_item(f_new_lineedit.text())
+                this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
 

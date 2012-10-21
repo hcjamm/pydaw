@@ -82,7 +82,8 @@ typedef struct st_pyitem
 
 typedef struct st_pyregion
 {
-    t_pyitem * items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool
+    //t_pyitem * items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];    
+    int item_indexes[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool
     int item_populated[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //1(true) if populated at that index, or 0(false) if not.  Put in place because checking for 0 or NULL in the item doesn't seem to work correctly
     char * name;
 }t_pyregion;
@@ -136,21 +137,24 @@ typedef struct st_pydaw_data
     char * osc_url;
     
     float samples_per_beat;  //The number of samples per beat, for calculating length
+    
+    t_pyitem * item_pool[PYDAW_MAX_ITEM_COUNT];
+    int item_count;
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
 t_pytrack * g_pytrack_get();
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char*);
-t_pyitem * g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name);
+void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name);
 t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start);
 t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length);
 t_pydaw_data * g_pydaw_data_get(float);
-int i_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name);
 int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name);
 void v_open_project(t_pydaw_data*, char*, char*);
 void v_set_tempo(t_pydaw_data*,float);
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
+int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_name);
 
 /*End declarations.  Begin implementations.*/
 
@@ -230,7 +234,24 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
     a_pydaw->pysong = f_result;
 }
 
-t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
+
+int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_name)
+{
+    int f_i = 0;
+    
+    while(f_i < a_pydaw_data->item_count)
+    {
+        if(!strcmp(a_name, a_pydaw_data->item_pool[f_i]->name))
+        {
+            return f_i;
+        }
+        f_i++;
+    }
+    
+    return -1;
+}
+
+t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
 {
     char log_buff[200];
     sprintf(log_buff, "\ng_pyregion_get: a_name: \"%s\"\n", a_name);
@@ -256,7 +277,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
     }
         
     char * f_full_path = (char*)malloc(sizeof(char) * 256);
-    strcpy(f_full_path, a_pydaw->region_folder);
+    strcpy(f_full_path, a_pydaw_data->region_folder);
     strcat(f_full_path, a_name);
     strcat(f_full_path, ".pyreg");
     
@@ -281,7 +302,8 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
         char * f_item_name = c_iterate_2d_char_array(f_current_string);
         assert(f_y < PYDAW_MAX_TRACK_COUNT);
         assert(f_x < PYDAW_REGION_SIZE);
-        f_result->items[f_y][f_x] = g_pyitem_get(a_pydaw, f_item_name);
+        f_result->item_indexes[f_y][f_x] = i_pydaw_get_item_index_from_name(a_pydaw_data, f_item_name);
+        assert((f_result->item_indexes[f_y][f_x]) != -1);
         f_result->item_populated[f_y][f_x] = 1;
         sprintf(log_buff, "f_x == %i, f_y = %i\n", f_x, f_y);
         pydaw_write_log(log_buff);
@@ -295,7 +317,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char * a_name)
     return f_result;
 }
 
-t_pyitem * g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name)
+void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
 {
     char log_buff[200];
     sprintf(log_buff, "g_pyitem_get: a_name: \"%s\"\n", a_name);
@@ -309,7 +331,7 @@ t_pyitem * g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name)
     f_result->note_count = 0;
         
     char * f_full_path = (char*)malloc(sizeof(char) * 256);
-    strcpy(f_full_path, a_pydaw->item_folder);
+    strcpy(f_full_path, a_pydaw_data->item_folder);
     strcat(f_full_path, a_name);
     strcat(f_full_path, ".pyitem");
     
@@ -370,8 +392,19 @@ t_pyitem * g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name)
     }
 
     g_free_2d_char_array(f_current_string);
-        
-    return f_result;   
+    
+    int f_item_index = i_pydaw_get_item_index_from_name(a_pydaw_data, a_name);
+    
+    if(f_item_index < 0)
+    {
+        a_pydaw_data->item_pool[(a_pydaw_data->item_count)] = f_result;
+        a_pydaw_data->item_count = (a_pydaw_data->item_count) + 1;
+    }
+    else
+    {
+        free(a_pydaw_data->item_pool[f_item_index]);
+        a_pydaw_data->item_pool[f_item_index] = f_result;        
+    }
 }
 
 t_pytrack * g_pytrack_get()
@@ -403,14 +436,14 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->is_initialized = 0;
     f_result->sample_rate = a_sample_rate;
     f_result->current_sample = 0;
-    f_result->loop_mode = 0;    
-    //f_result->period_size = 512;  //Arbitrary value to avoid a SEGFAULT early on.  TODO:  Find a way to get this from ALSA
+    f_result->loop_mode = 0;
     f_result->item_folder = (char*)malloc(sizeof(char) * 256);
     f_result->project_folder = (char*)malloc(sizeof(char) * 256);
     f_result->region_folder = (char*)malloc(sizeof(char) * 256);
     f_result->project_name = (char*)malloc(sizeof(char) * 256);
     f_result->playback_mode = 0;
     f_result->pysong = 0;
+    f_result->item_count = 0;
     
     int f_i = 0;
     
@@ -465,7 +498,19 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
     strcat(a_pydaw->region_folder, "regions/");
     sprintf(log_buff, "\na_pydaw->region_folder == %s\n\n", a_pydaw->region_folder);
     pydaw_write_log(log_buff);
-    strcpy(a_pydaw->project_name, a_name);    
+    strcpy(a_pydaw->project_name, a_name);
+    
+    t_dir_list * f_item_dir_list = g_get_dir_list(a_pydaw->item_folder);
+    
+    int f_i = 0;
+    
+    while(f_i < f_item_dir_list->dir_count)
+    {
+        t_1d_char_array * f_file_name = c_split_str(f_item_dir_list->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
+        g_pyitem_get(a_pydaw, f_file_name->array[0]);
+        g_free_1d_char_array(f_file_name);
+        f_i++;
+    }    
     
     g_pysong_get(a_pydaw, a_name);
     a_pydaw->is_initialized = 1;
