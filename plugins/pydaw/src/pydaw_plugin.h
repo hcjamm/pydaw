@@ -130,8 +130,13 @@ typedef struct st_pydaw_plugin
     float *pluginControlIns, *pluginControlOuts;
     unsigned long *pluginControlInPortNumbers;          /* maps global control in # to instance LADSPA port # */
     
-    int * pluginPortUpdated;    
-    //char * friendly_name;
+    int * pluginPortUpdated;
+    /* Since there are no plans of allowing 3rd party DSSI plugins, the host will only remember known configure keys
+     that should be recalled by the UI*/
+    char euphoria_load[16384];
+    int euphoria_load_set;
+    char euphoria_last_dir[512];
+    int euphoria_last_dir_set;
 }t_pydaw_plugin;
 
 t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
@@ -147,6 +152,9 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
             f_result->lib_handle = dlopen("/usr/lib/dssi/ray_v.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
     }
+    
+    f_result->euphoria_last_dir_set = 0;
+    f_result->euphoria_load_set = 0;
         
     f_result->pluginPrograms = NULL;    
     f_result->uiTarget = NULL;
