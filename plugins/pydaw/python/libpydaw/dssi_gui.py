@@ -154,3 +154,6 @@ class dssi_gui(ServerThread):
 
     def pydaw_set_instrument_index(self, a_track_num, a_index):
         self.send_configure("ci", str(a_track_num) + "|" + str(a_index))
+        
+    def pydaw_show_ui(self, a_track_num):
+        self.send_configure("su", str(a_track_num))
