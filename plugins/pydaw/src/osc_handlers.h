@@ -101,18 +101,6 @@ int pydaw_osc_configure_handler(t_pydaw_plugin *instance, lo_arg **argv)
     const char *key = (const char *)&argv[0]->s;
     const char *value = (const char *)&argv[1]->s;
     char *message;
-
-    /* This is pretty much the simplest legal implementation of
-     * configure in a DSSI host. */
-
-    /* The host has the option to remember the set of (key,value)
-     * pairs associated with a particular instance, so that if it
-     * wants to restore the "same" instance on another occasion it can
-     * just call configure() on it for each of those pairs and so
-     * restore state without any input from a GUI.  Any real-world GUI
-     * host will probably want to do that.  This host doesn't have any
-     * concept of restoring an instance from one run to the next, so
-     * we don't bother remembering these at all. */
         
     if(!strcmp(key, "load"))
     {
@@ -133,7 +121,11 @@ int pydaw_osc_configure_handler(t_pydaw_plugin *instance, lo_arg **argv)
             printf("PyDAW: on configure '%s' '%s', plugin returned error '%s'\n",key, value, message);
             free(message);
         }
-        lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss", key, value);
+        
+        //TODO:  Would this need to be sent to the UI?  Probably not?
+        //lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss", key, value);        
+        
+        
         /*
 	int n = instance->number;
 	int m = n;
@@ -257,18 +249,6 @@ int pydaw_osc_update_handler(t_pydaw_plugin *instance, lo_arg **argv, lo_address
 	lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
 		"load", instance->euphoria_load);
     }
-
-    /* Send current bank/program  (-FIX- another race...) */
-    /*if (instance->pendingProgramChange < 0) 
-    {
-        unsigned long bank = instance->currentBank;
-        unsigned long program = instance->currentProgram;
-        instance->uiNeedsProgramUpdate = 0;
-        if (instance->uiTarget) {
-            lo_send(instance->uiTarget, instance->ui_osc_program_path, "ii", bank, program);
-        }
-    }
-    */
 
     /* Send control ports */
     for (i = 0; i < instance->controlIns; i++) 

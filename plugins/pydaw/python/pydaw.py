@@ -419,7 +419,7 @@ class seq_track:
     def on_name_changed(self, new_name):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_instrument_change(self, selected_instrument):
-        this_pydaw_project.session_mgr.instrument_index_changed(self.track_number, selected_instrument, str(self.track_name_lineedit.text()))
+        #this_pydaw_project.session_mgr.instrument_index_changed(self.track_number, selected_instrument, str(self.track_name_lineedit.text()))
         if selected_instrument == 0:
             self.track_name_lineedit.setEnabled(True)
         else:
@@ -688,7 +688,7 @@ def global_new_project():
     if(len(argv) >= 2):
         this_pydaw_project = pydaw_project(a_project_file, (argv[1]))
     else:
-        this_pydaw_project = pydaw_project(a_project_file)
+        this_pydaw_project = pydaw_project(a_project_file)    
     this_song_editor.table_widget.clear()
     this_region_editor.table_widget.clear()
     this_item_editor.table_widget.clear()

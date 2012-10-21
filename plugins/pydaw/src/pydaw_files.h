@@ -15,6 +15,7 @@ extern "C" {
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 /*Standard string sizes.  When in doubt, pick a really big one, it's better to 
  * waste memory than to SEGFAULT...*/
@@ -30,7 +31,7 @@ extern "C" {
     
 void pydaw_write_log(char * a_string)
 {
-    char buff[256];
+    char buff[LMS_LARGE_STRING];
     time_t now = time (0);
     strftime (buff, 100, "%Y-%m-%d %H:%M:%S.000", localtime (&now));
 
@@ -253,6 +254,21 @@ void v_pydaw_write_to_file(char * a_file, char * a_string)
     assert(pFile);
     fprintf(pFile, "%s",a_string);
     fclose(pFile);
+}
+
+int i_pydaw_file_exists(char * f_file_name)
+{
+    struct stat sts;
+    
+    //TODO:  Determine if there is a better way to do this
+    if ((stat(f_file_name, &sts)) == -1)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 #ifdef	__cplusplus

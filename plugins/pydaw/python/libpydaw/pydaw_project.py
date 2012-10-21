@@ -6,7 +6,7 @@ A class that contains methods and data for a PyDAW project.
 import sys, os
 from shutil import copyfile
 from os import listdir
-from lms_session import lms_session
+#from lms_session import lms_session #deprecated
 from dssi_gui import dssi_gui
 
 pydaw_terminating_char = "\\"
@@ -20,7 +20,8 @@ def bool_to_int(a_bool):
 
 class pydaw_project:
     def save_project(self):
-        self.session_mgr.save_session_file()
+        self.this_dssi_gui.pydaw_save_tracks()
+        #self.session_mgr.save_session_file()  #deprecated
     def save_project_as(self):
         pass
 
@@ -31,14 +32,15 @@ class pydaw_project:
         self.regions_folder = self.project_folder + "/regions"
         self.items_folder = self.project_folder + "/items"
 
-    def instantiate_session_manager(self):
-        self.session_mgr = lms_session(self.instrument_folder + '/' + self.project_file + '.pyses')
+    #deprecated
+    #def instantiate_session_manager(self):
+        #self.session_mgr = lms_session(self.instrument_folder + '/' + self.project_file + '.pyses')
 
     def open_project(self, a_project_file):
         self.set_project_folders(a_project_file)
         if not os.path.exists(a_project_file):
             self.new_project(a_project_file)
-        self.instantiate_session_manager()
+        #self.instantiate_session_manager() #deprecated
         self.this_dssi_gui.pydaw_open_song(self.project_folder, self.project_file)
         
     def new_project(self, a_project_file):
@@ -54,8 +56,10 @@ class pydaw_project:
         for project_dir in project_folders:
             if not os.path.isdir(project_dir):
                 os.makedirs(project_dir)
-
-        self.instantiate_session_manager()
+        if not os.path.exists(a_project_file):
+            f_file = open(a_project_file, 'w')
+            f_file.write(pydaw_terminating_char)
+            f_file.close()
 
     def get_song_string(self):
         try:
@@ -179,7 +183,7 @@ class pydaw_project:
         return f_result
         
     def quit_handler(self):
-        self.session_mgr.quit_hander()
+        #self.session_mgr.quit_hander() #deprecated
         self.this_dssi_gui.stop_server()        
 
     def __init__(self, a_osc_url=None):

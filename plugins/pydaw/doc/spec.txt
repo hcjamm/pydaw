@@ -41,7 +41,7 @@ OSC configure message keys/values:
 	"mute"	"int|bool"	mute track, track#|bool
 	"cp"	"int|int"	Change the plugin, track# | int == 0: None, 1: Euphoria, 2: Ray-V
 	"su"	int	Show the UI for track[int]
-	"st"	"file path"	Save tracks
+	"st"	""	Save tracks
 
 Project structure:
 

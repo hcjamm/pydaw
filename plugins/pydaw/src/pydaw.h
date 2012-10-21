@@ -158,6 +158,7 @@ void v_set_tempo(t_pydaw_data*,float);
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_name);
+void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index);
 
 /*End declarations.  Begin implementations.*/
 
@@ -194,13 +195,10 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
     f_result->region_count = 0;
     f_result->max_regions = PYDAW_MAX_REGION_COUNT;
     
-    char * f_full_path = (char*)malloc(sizeof(char) * 256);
-    strcpy(f_full_path, a_pydaw->project_folder);
-    strcat(f_full_path, a_name);
-    strcat(f_full_path, ".pysong");
-        
+    char f_full_path[512];
+    sprintf(f_full_path, "%s%s.pysong", a_pydaw->project_folder, a_name);
+            
     t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);    
-    free(f_full_path);
     
     int f_i = 0;
     
@@ -487,8 +485,65 @@ void v_pydaw_activate_osc_thread(t_pydaw_data * a_pydaw_data, lo_method_handler 
     lo_server_thread_start(a_pydaw_data->serverThread);
 }
 
+void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
+{
+    char f_file_name[512];
+
+    sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, a_track_num);
+
+    if(i_pydaw_file_exists(f_file_name))
+    {
+        printf("v_pydaw_open_tracks:  Track exists %s , loading\n", f_file_name);
+
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
+
+        while(!f_2d_array->eof)
+        {
+            char * f_key = c_iterate_2d_char_array(f_2d_array);
+            char * f_value = c_iterate_2d_char_array(f_2d_array);
+
+            if(!strcmp(f_key, "instrument"))  //This must come first to avoid overwriting everything else
+            {
+                //int f_inst_index = atoi(f_value);
+                //v_set_plugin_index(a_pydaw_data, a_track_num, f_inst_index);
+            }
+            else if(!strcmp(f_key, "load"))
+            {
+                strcpy(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load, f_value);
+            }
+            else if(!strcmp(f_key, "lastdir"))
+            {
+                strcpy(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_last_dir, f_value);
+            }
+            else
+            {
+                int f_port_key = atoi(f_key);
+                float f_port_value = atof(f_value);
+                a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_port_key] = f_port_value;
+            }                
+        }
+
+        g_free_2d_char_array(f_2d_array);
+    }
+}
+
+void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
+{
+    int f_i = 0;
+    
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {
+        v_pydaw_open_track(a_pydaw_data, f_i);
+        f_i++;
+    }
+}
+
 void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
 {
+    pthread_mutex_lock(&a_pydaw->mutex);
+    a_pydaw->is_initialized = 1;
+    pthread_mutex_unlock(&a_pydaw->mutex);
+    
     char log_buff[200];
     sprintf(log_buff, "\nv_open_project: a_project_folder: %s a_name: \"%s\"\n", a_project_folder, a_name);
     pydaw_write_log(log_buff);
@@ -518,7 +573,12 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
     }    
     
     g_pysong_get(a_pydaw, a_name);
+    
+    //v_pydaw_open_tracks(a_pydaw);
+    
+    pthread_mutex_lock(&a_pydaw->mutex);
     a_pydaw->is_initialized = 1;
+    pthread_mutex_unlock(&a_pydaw->mutex);
 }
 
 /* void v_set_playback_mode(t_pydaw_data * a_pydaw_data, 
@@ -576,6 +636,56 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
     pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
+void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
+{
+    if(a_pydaw_data->track_pool[a_track_num]->plugin_index == 0)
+    {
+        return;  //Delete the file if exists?
+    }
+
+    char f_string[LMS_LARGE_STRING];
+    sprintf(f_string, "instrument|%i\n", a_pydaw_data->track_pool[a_track_num]->plugin_index);
+
+    if(a_pydaw_data->track_pool[a_track_num]->plugin_index == 1)
+    {
+        if(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_last_dir_set)
+        {
+            char f_last_dir[512];
+            sprintf(f_last_dir, "lastdir|%s\n",
+            a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_last_dir);
+            strcat(f_string, f_last_dir);
+        }
+
+        if(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load_set)
+        {
+            char f_load[8192];
+            sprintf(f_load, "load|%s\n",
+            a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load);
+            strcat(f_string, f_load);
+        }
+    }
+
+    int f_i2 = a_pydaw_data->track_pool[a_track_num]->instrument->firstControlIn;
+
+    while(f_i2 < (a_pydaw_data->track_pool[a_track_num]->instrument->controlIns))
+    {
+        char f_port_entry[64];
+        sprintf(f_port_entry, "%i|%f\n",
+        (int)a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlInPortNumbers[f_i2],
+        a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_i2]
+        );
+        strcat(f_string, f_port_entry);
+        f_i2++;
+    }
+
+    strcat(f_string, "\\");        
+    char f_file_name[512];        
+    sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, a_track_num);
+
+    v_pydaw_write_to_file(f_file_name, f_string);
+}
+
+
 void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
 {
     //TODO:  mutex lock, or engineer some other way to be safe about it
@@ -583,50 +693,7 @@ void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
-        if(a_pydaw_data->track_pool[f_i]->plugin_index == 0)
-        {
-            f_i++;
-            continue;  //Delete the file if exists?
-        }
-        
-        char f_string[LMS_LARGE_STRING];
-        
-        if(a_pydaw_data->track_pool[f_i]->plugin_index == 1)
-        {
-            if(a_pydaw_data->track_pool[f_i]->instrument->euphoria_last_dir_set)
-            {
-                char f_last_dir[512];
-                sprintf(f_last_dir, "lastdir|%s\n",
-                a_pydaw_data->track_pool[f_i]->instrument->euphoria_last_dir);
-            }
-            
-            if(a_pydaw_data->track_pool[f_i]->instrument->euphoria_load_set)
-            {
-                char f_last_dir[512];
-                sprintf(f_last_dir, "load|%s\n",
-                a_pydaw_data->track_pool[f_i]->instrument->euphoria_load);
-            }
-        }
-        
-        int f_i2 = a_pydaw_data->track_pool[f_i]->instrument->firstControlIn;
-        
-        while(f_i2 < (a_pydaw_data->track_pool[f_i]->instrument->controlIns))
-        {
-            char f_port_entry[64];
-            sprintf(f_port_entry, "%i|%f\n",
-            (int)a_pydaw_data->track_pool[f_i]->instrument->pluginControlInPortNumbers[f_i2],
-            a_pydaw_data->track_pool[f_i]->instrument->pluginControlIns[f_i2]
-            );
-            strcat(f_string, f_port_entry);
-            f_i2++;
-        }
-        
-        strcat(f_string, "\\");        
-        char f_file_name[512];        
-        sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, f_i);
-        
-        v_pydaw_write_to_file(f_file_name, f_string);
-                        
+        v_pydaw_save_track(a_pydaw_data, f_i);
         f_i++;
     }
 }
@@ -748,7 +815,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SAVE_TRACKS))
     {
-        
+        v_pydaw_save_tracks(a_pydaw_data);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_DI)) //Delete Item
     {
@@ -803,6 +870,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_plugin_index = atof(f_val_arr->array[1]);
         
         v_set_plugin_index(a_pydaw_data, f_track_num, f_plugin_index);
+        v_pydaw_open_track(a_pydaw_data, f_track_num);  //Opens the .inst file if exists
         
         g_free_1d_char_array(f_val_arr);
     }
