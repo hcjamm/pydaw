@@ -113,6 +113,17 @@ int pydaw_osc_configure_handler(t_pydaw_plugin *instance, lo_arg **argv)
      * host will probably want to do that.  This host doesn't have any
      * concept of restoring an instance from one run to the next, so
      * we don't bother remembering these at all. */
+        
+    if(!strcmp(key, "load"))
+    {
+        instance->euphoria_load_set = 1;
+        strcpy(instance->euphoria_load, value);
+    }
+    else if(!strcmp(key, "lastdir"))
+    {
+        instance->euphoria_last_dir_set = 1;
+        strcpy(instance->euphoria_last_dir, value);
+    }
 
     if (instance->descriptor->configure) 
     {
@@ -235,6 +246,17 @@ int pydaw_osc_update_handler(t_pydaw_plugin *instance, lo_arg **argv, lo_address
 		DSSI_PROJECT_DIRECTORY_KEY, projectDirectory);
     }
     */
+
+    
+    if (instance->euphoria_last_dir_set) {
+	lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
+		"lastdir", instance->euphoria_last_dir);
+    }
+        
+    if (instance->euphoria_load_set) {
+	lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
+		"load", instance->euphoria_load);
+    }
 
     /* Send current bank/program  (-FIX- another race...) */
     /*if (instance->pendingProgramChange < 0) 

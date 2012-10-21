@@ -32,6 +32,7 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_MUTE "mute"
 #define PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT "ci"
 #define PYDAW_CONFIGURE_KEY_SHOW_PLUGIN_UI "su"
+#define PYDAW_CONFIGURE_KEY_SAVE_TRACKS "st"
 
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -120,6 +121,7 @@ typedef struct st_pydaw_data
     int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
     char * project_name;
     char * project_folder;
+    char * instruments_folder;
     char * item_folder;
     char * region_folder;    
     double playback_cursor; //only refers to the fractional position within the current bar.
@@ -439,6 +441,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->current_sample = 0;
     f_result->loop_mode = 0;
     f_result->item_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->instruments_folder = (char*)malloc(sizeof(char) * 256);
     f_result->project_folder = (char*)malloc(sizeof(char) * 256);
     f_result->region_folder = (char*)malloc(sizeof(char) * 256);
     f_result->project_name = (char*)malloc(sizeof(char) * 256);
@@ -489,16 +492,17 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
     char log_buff[200];
     sprintf(log_buff, "\nv_open_project: a_project_folder: %s a_name: \"%s\"\n", a_project_folder, a_name);
     pydaw_write_log(log_buff);
-    strcpy(a_pydaw->project_folder, a_project_folder);
-    strcat(a_pydaw->project_folder, "/");
-    strcpy(a_pydaw->item_folder, a_pydaw->project_folder);
-    strcat(a_pydaw->item_folder, "items/");
+    sprintf(a_pydaw->project_folder, "%s/", a_project_folder);    
+    sprintf(a_pydaw->item_folder, "%sitems/", a_pydaw->project_folder);    
     sprintf(log_buff, "\na_pydaw->item_folder == %s\n", a_pydaw->item_folder);
     pydaw_write_log(log_buff);
-    strcpy(a_pydaw->region_folder, a_pydaw->project_folder);
-    strcat(a_pydaw->region_folder, "regions/");
+    sprintf(a_pydaw->region_folder, "%sregions/", a_pydaw->project_folder);    
     sprintf(log_buff, "\na_pydaw->region_folder == %s\n\n", a_pydaw->region_folder);
     pydaw_write_log(log_buff);
+    sprintf(a_pydaw->instruments_folder, "%sinstruments/", a_pydaw->project_folder);    
+    sprintf(log_buff, "\na_pydaw->instruments_folder == %s\n\n", a_pydaw->instruments_folder);
+    pydaw_write_log(log_buff);
+    
     strcpy(a_pydaw->project_name, a_name);
     
     t_dir_list * f_item_dir_list = g_get_dir_list(a_pydaw->item_folder);
@@ -572,6 +576,60 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
     pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
+void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
+{
+    //TODO:  mutex lock, or engineer some other way to be safe about it
+    int f_i = 0;
+    
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {
+        if(a_pydaw_data->track_pool[f_i]->plugin_index == 0)
+        {
+            f_i++;
+            continue;  //Delete the file if exists?
+        }
+        
+        char f_string[LMS_LARGE_STRING];
+        
+        if(a_pydaw_data->track_pool[f_i]->plugin_index == 1)
+        {
+            if(a_pydaw_data->track_pool[f_i]->instrument->euphoria_last_dir_set)
+            {
+                char f_last_dir[512];
+                sprintf(f_last_dir, "lastdir|%s\n",
+                a_pydaw_data->track_pool[f_i]->instrument->euphoria_last_dir);
+            }
+            
+            if(a_pydaw_data->track_pool[f_i]->instrument->euphoria_load_set)
+            {
+                char f_last_dir[512];
+                sprintf(f_last_dir, "load|%s\n",
+                a_pydaw_data->track_pool[f_i]->instrument->euphoria_load);
+            }
+        }
+        
+        int f_i2 = a_pydaw_data->track_pool[f_i]->instrument->firstControlIn;
+        
+        while(f_i2 < (a_pydaw_data->track_pool[f_i]->instrument->controlIns))
+        {
+            char f_port_entry[64];
+            sprintf(f_port_entry, "%i|%f\n",
+            (int)a_pydaw_data->track_pool[f_i]->instrument->pluginControlInPortNumbers[f_i2],
+            a_pydaw_data->track_pool[f_i]->instrument->pluginControlIns[f_i2]
+            );
+            strcat(f_string, f_port_entry);
+            f_i2++;
+        }
+        
+        strcat(f_string, "\\");        
+        char f_file_name[512];        
+        sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, f_i);
+        
+        v_pydaw_write_to_file(f_file_name, f_string);
+                        
+        f_i++;
+    }
+}
 
 void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
 {
@@ -597,16 +655,15 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
     char track_number_string[6];
     sprintf(track_number_string, "%i", a_track_num);
     sprintf(oscUrl, "%s/%i", a_pydaw_data->osc_url, a_track_num);
-    char instruments_folder[256];
-    sprintf(instruments_folder, "%s/instruments", a_pydaw_data->project_folder);
+    /*char instruments_folder[256];
+    sprintf(instruments_folder, "%sinstruments", a_pydaw_data->project_folder);*/
     
     if (fork() == 0) 
     {
-        execlp(filename, filename, oscUrl, dllName, label, track_number_string, instruments_folder, track_number_string, NULL);
+        execlp(filename, filename, oscUrl, dllName, label, track_number_string, NULL); //instruments_folder, track_number_string, NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
-    }
-    
+    }    
 }
 
 
@@ -688,6 +745,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     {
         int f_track_num = atoi(a_value);
         v_show_plugin_ui(a_pydaw_data, f_track_num);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SAVE_TRACKS))
+    {
+        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_DI)) //Delete Item
     {

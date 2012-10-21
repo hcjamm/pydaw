@@ -247,6 +247,14 @@ t_dir_list * g_get_dir_list(char * a_dir)
     return f_result;
 }
 
+void v_pydaw_write_to_file(char * a_file, char * a_string)
+{    
+    FILE* pFile = fopen(a_file, "w");
+    assert(pFile);
+    fprintf(pFile, "%s",a_string);
+    fclose(pFile);
+}
+
 #ifdef	__cplusplus
 }
 #endif
