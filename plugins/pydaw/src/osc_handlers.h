@@ -259,11 +259,11 @@ int pydaw_osc_update_handler(t_pydaw_plugin *instance, lo_arg **argv, lo_address
     }
 
     /* Send 'show' */
-    if (!instance->ui_initial_show_sent) 
-    {
+    //if (!instance->ui_initial_show_sent) 
+    //{
 	lo_send(instance->uiTarget, instance->ui_osc_show_path, "");
-	instance->ui_initial_show_sent = 1;
-    }
+	//instance->ui_initial_show_sent = 1;
+    //}
 
     return 0;
 }
