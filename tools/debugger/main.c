@@ -108,6 +108,11 @@ int main(int argc, char** argv) {
     LADSPA_Handle f_handle = instantiateLMS(LMSLDescriptor, 44100);
     
     activateLMS(f_handle);
+    
+    t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
+    
+    f_engine->output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8092);
+    f_engine->output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8092);
         
     v_set_tempo(pydaw_data, 140.0f);
     v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project", "default");
