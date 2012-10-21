@@ -69,7 +69,6 @@ QPushButton
 	border-radius: 10px;
 	border-color: white;
 	font: bold 14px;
-	min-width: 60px;
 	padding: 6px;
 	color:white;
 }

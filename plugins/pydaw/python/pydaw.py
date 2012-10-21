@@ -426,6 +426,9 @@ class seq_track:
             self.track_name_lineedit.setEnabled(False)
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
         this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
+    def on_show_ui(self):
+        if self.instrument_combobox.currentIndex() > 0:
+            this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
 
     def __init__(self, a_track_num, a_track_text="track"):
         self.track_number = a_track_num
@@ -466,13 +469,19 @@ class seq_track:
         self.track_name_lineedit = QtGui.QLineEdit()
         self.track_name_lineedit.setText(a_track_text)
         self.track_name_lineedit.setMaxLength(24)
+        self.track_name_lineedit.setMaximumWidth(90)
         self.track_name_lineedit.textChanged.connect(self.on_name_changed)
         self.hlayout3.addWidget(self.track_name_lineedit)
         self.instrument_combobox = QtGui.QComboBox()
         self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V"])
         self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
+        self.instrument_combobox.setMinimumWidth(100)
         self.hlayout3.addWidget(self.instrument_combobox)
-
+        self.ui_button = QtGui.QPushButton("UI")
+        self.ui_button.pressed.connect(self.on_show_ui)
+        self.ui_button.setMaximumWidth(30)
+        self.hlayout3.addWidget(self.ui_button)
+        
     def open_track(self, a_track):
         self.record_radiobutton.setChecked(a_track.rec)
         self.solo_checkbox.setChecked(a_track.solo)

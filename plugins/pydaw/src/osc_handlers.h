@@ -272,6 +272,7 @@ int pydaw_osc_exiting_handler(t_pydaw_plugin *instance, lo_arg **argv)
 {
     //int i;
 
+    /*
     if (instance->uiTarget) 
     {
         lo_address_free(instance->uiTarget);
@@ -282,6 +283,7 @@ int pydaw_osc_exiting_handler(t_pydaw_plugin *instance, lo_arg **argv)
         lo_address_free(instance->uiSource);
         instance->uiSource = NULL;
     }
+    */
     
     /*
     if (instance->plugin) 
