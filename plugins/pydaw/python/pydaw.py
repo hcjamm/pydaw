@@ -570,7 +570,7 @@ class track_editor:
         self.tracks_tablewidget.setHorizontalHeaderLabels(['Tracks'])
         self.tracks = []
         for i in range(0, 16):
-            track = seq_track(a_track_num=i, a_track_text="track" + str(i))
+            track = seq_track(a_track_num=i, a_track_text="track" + str(i + 1))
             self.tracks.append(track)
             self.tracks_tablewidget.insertRow(i)
             self.tracks_tablewidget.setCellWidget(i, 0, track.group_box)
