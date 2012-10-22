@@ -704,6 +704,13 @@ void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
 
 void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
 {
+    if(a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible)
+    {
+        return;
+    }
+    
+    a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible = 1;
+    
     char * filename;
     char oscUrl[256];    
     char * dllName;
@@ -737,10 +744,26 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
     }    
 }
 
+void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
+{
+    int f_i = 0;
+    
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {
+        if((a_pydaw_data->track_pool[f_i]->instrument) && a_pydaw_data->track_pool[f_i]->instrument->ui_visible)
+        {
+            lo_send(a_pydaw_data->track_pool[f_i]->instrument->uiTarget, 
+                a_pydaw_data->track_pool[f_i]->instrument->ui_osc_configure_path, "ss", "pydaw_close_window", "");
+        }
+        
+        f_i++;
+    }
+}
 
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index)
 {    
     //v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
+    
     t_pydaw_plugin * f_result;
     
     if(a_index != 0)
@@ -755,6 +778,13 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
             remove(f_file_name);
         }
     }
+    
+    if((a_pydaw_data->track_pool[a_track_num]->instrument) && a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible)
+    {
+        lo_send(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget, 
+                a_pydaw_data->track_pool[a_track_num]->instrument->ui_osc_configure_path, "ss", "pydaw_close_window", "");
+    }
+    
     pthread_mutex_lock(&a_pydaw_data->mutex);
     a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
     a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
