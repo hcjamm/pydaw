@@ -767,7 +767,25 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
 {       
     t_pydaw_plugin * f_result;
     
-    if(a_index != 0)
+    if(a_index == 0)
+    {
+        pthread_mutex_lock(&a_pydaw_data->mutex);
+
+        if(a_pydaw_data->track_pool[a_track_num]->instrument)
+        {        
+            if(a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible)
+            {
+                lo_send(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget, 
+                        a_pydaw_data->track_pool[a_track_num]->instrument->ui_osc_configure_path, "ss", "pydaw_close_window", "");
+            }
+
+            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
+        }
+        a_pydaw_data->track_pool[a_track_num]->instrument = NULL;
+        a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
+        pthread_mutex_unlock(&a_pydaw_data->mutex);    
+    }
+    else
     {
         f_result = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index);
         
@@ -778,22 +796,23 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
         {
             remove(f_file_name);
         }
-    }
-    
-    if((a_pydaw_data->track_pool[a_track_num]->instrument) && a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible)
-    {
-        lo_send(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget, 
-                a_pydaw_data->track_pool[a_track_num]->instrument->ui_osc_configure_path, "ss", "pydaw_close_window", "");
-    }
-    
-    pthread_mutex_lock(&a_pydaw_data->mutex);
-    if(a_pydaw_data->track_pool[a_track_num]->plugin_index != 0)
-    {
-        v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
-    }
-    a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
-    a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
-    pthread_mutex_unlock(&a_pydaw_data->mutex);    
+
+        pthread_mutex_lock(&a_pydaw_data->mutex);
+
+        if(a_pydaw_data->track_pool[a_track_num]->instrument)
+        {        
+            if(a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible)
+            {
+                lo_send(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget, 
+                        a_pydaw_data->track_pool[a_track_num]->instrument->ui_osc_configure_path, "ss", "pydaw_close_window", "");
+            }
+
+            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
+        }
+        a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
+        a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
+        pthread_mutex_unlock(&a_pydaw_data->mutex);
+    }        
 }
 
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_key, const char* a_value)
