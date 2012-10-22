@@ -388,6 +388,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         plugin_data->sample_amp[f_i] = 1.0f;
         
         plugin_data->sample_paths[f_i] = (char*)malloc(sizeof(char) * 200);
+        lms_strcpy(plugin_data->sample_paths[f_i], "");
         
         plugin_data->adjusted_base_pitch[f_i] = 60.0f;
         plugin_data->sample_rate_ratios[f_i] = 1.0f;
@@ -419,6 +420,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     
     for(f_i = 0; f_i < LMS_MONO_FX_GROUPS_COUNT; f_i++)
     {
+        plugin_data->monofx_channel_index[f_i] = 0;
+        
         for(f_i2 = 0; f_i2 < 4096; f_i2++)
         {
             plugin_data->mono_fx_buffers[f_i][0][f_i2] = 0.0f;
@@ -1381,25 +1384,23 @@ char *samplerClear(Sampler *plugin_data, int a_index)
             }        
         }
     }
-    float *tmpSamples[2]; //, *tmpOld[2];    
+    float *tmpSamples[2], *tmpOld[2];    
 
     tmpSamples[0] = (float*)malloc(sizeof(float));        
     tmpSamples[1] = (float *)malloc(sizeof(float));
     
     pthread_mutex_lock(&plugin_data->mutex);
 
-    //tmpOld[0] = plugin_data->sampleData[0][(a_index)];
-    //tmpOld[1] = plugin_data->sampleData[1][(a_index)];
+    tmpOld[0] = plugin_data->sampleData[0][(a_index)];
+    tmpOld[1] = plugin_data->sampleData[1][(a_index)];
     plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
     plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
     plugin_data->sampleCount[(a_index)] = 0;
 
     pthread_mutex_unlock(&plugin_data->mutex);
-
-    /*
+    
     if (tmpOld[0]) free(tmpOld[0]);
     if (tmpOld[1]) free(tmpOld[1]);
-    */  
     
     return NULL;
 }
