@@ -13,13 +13,18 @@ def bool_to_int(a_bool):
     else:
         return "0"
 
-"""
-Class for implementing one's own DSSI GUI.  Instantiate this class and
-call it's functions to send OSC messages to the DSSI plugin's audio/MIDI
-engine
-"""
+
 class dssi_gui(ServerThread):
-    def __init__(self, a_url=None):
+    """
+    Class for implementing one's own DSSI GUI.  Instantiate this class and
+    call it's functions to send OSC messages to the DSSI plugin's audio/MIDI
+    engine
+    
+    a_url:  The OSC URL to send to.  Format will be something like osc.udp://localhostname:12345/dssi/pydaw/...
+    a_pc_func:  The function with signature(int, int) to be called when the engine returns a playback cursor configure message
+    """
+    def __init__(self, a_url=None, a_pc_func=None):
+        self.pc_func = a_pc_func
         if a_url is None:
             self.with_osc = False
             return
@@ -51,6 +56,9 @@ class dssi_gui(ServerThread):
             self.quit_path = self.base_path + "/quit"
             self.update_path = self.base_path + "/update"
 
+            self.add_method(self.configure_path, 'ss', self.configure_handler)
+            self.add_method(self.control_path, 'if', self.control_handler)
+
             liblo.send(self.target, self.update_path, self.get_url()[:-1] + self.base_path)
             print("Sent " + self.get_url()[:-1] + self.base_path + " to " + self.update_path)
 
@@ -71,29 +79,23 @@ class dssi_gui(ServerThread):
             liblo.send(self.target, self.configure_path, key, value)
         else:
             pydaw_write_log("Running standalone UI without OSC.  Would've sent configure message: key: \"" + str(key) + "\" value: \"" + str(value) + "\"")
-
-    @make_method('/dssi/pydaw/PYDAW/chan00/configure', 'ss')
+    
     def configure_handler(self, path, args):
         s1, s2 = args
-        if self.with_osc:
-            liblo.send(self.target, self.configure_path, s1, s2)
+        print("PyDAW configure_handler called key: " + s1 + " value: " + s2 + "\n")
+        if s1 == "pc":  #playback cursor
+            if not self.pc_func is None:                
+                f_vals = s2.split("|")
+                self.pc_func(int(f_vals[0]), int(f_vals[1]))                
 
-    @make_method('/dssi/pydaw/PYDAW/chan00/control', 'if')
     def control_handler(self, path, args):
         i, f = args
         if self.with_osc:
             liblo.send(target, self.control_path, i, f)
 
-    @make_method('/dssi/pydaw/PYDAW/chan00/sample-rate', 'i')
-    def rate_handler(self, path, args):
-        if self.with_osc:
-            liblo.send(target, self.rate_path, args[0])
-
-    #@make_method('/foo', 'ifs')
-    def debug_handler(self, path, args):
-        # send message "/foo/message1" with int, float and string arguments
-        #liblo.send(target, "/foo/message1", 123, 456.789, "test")
-        pass
+    #def rate_handler(self, path, args):
+    #    if self.with_osc:
+    #        liblo.send(target, self.rate_path, args[0])
 
     @make_method(None, None)
     def fallback(path, args, types, src):
