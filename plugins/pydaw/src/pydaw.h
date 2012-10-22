@@ -493,7 +493,7 @@ void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
 
     if(i_pydaw_file_exists(f_file_name))
     {
-        printf("v_pydaw_open_tracks:  Track exists %s , loading\n", f_file_name);
+        printf("v_pydaw_open_track:  Track exists %s , loading\n", f_file_name);
 
         t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
 
@@ -519,6 +519,9 @@ void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
             {
                 int f_port_key = atoi(f_key);
                 float f_port_value = atof(f_value);
+                
+                assert(f_port_key < (a_pydaw_data->track_pool[a_track_num]->instrument->controlIns));
+                
                 a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_port_key] = f_port_value;
             }                
         }
@@ -665,14 +668,15 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
         }
     }
 
-    int f_i2 = a_pydaw_data->track_pool[a_track_num]->instrument->firstControlIn;
+    int f_i2 = 0;
 
     while(f_i2 < (a_pydaw_data->track_pool[a_track_num]->instrument->controlIns))
     {
         char f_port_entry[64];
+        int f_port = a_pydaw_data->track_pool[a_track_num]->instrument->firstControlIn + f_i2;
         sprintf(f_port_entry, "%i|%f\n",
-        (int)a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlInPortNumbers[f_i2],
-        a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_i2]
+        (int)a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlInPortNumbers[f_port],
+        a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_port]
         );
         strcat(f_string, f_port_entry);
         f_i2++;
@@ -742,6 +746,14 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
     if(a_index != 0)
     {
         f_result = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index);
+        
+        char f_file_name[512];
+        sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, a_track_num);
+
+        if(i_pydaw_file_exists(f_file_name))
+        {
+            remove(f_file_name);
+        }
     }
     pthread_mutex_lock(&a_pydaw_data->mutex);
     a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
