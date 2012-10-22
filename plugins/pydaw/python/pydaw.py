@@ -139,15 +139,20 @@ class region_list_editor:
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
 
-            this_item_editor.open_item(f_cell_text)
+            if f_new_radiobutton.isChecked():
+                this_item_editor.open_item(f_cell_text)
             f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
             self.region.add_item_ref(x, y, f_cell_text)
+            print("self.region.add_item_ref(" + str(x) + ", " + str(y) + ", " + f_cell_text + ")\n")
             self.table_widget.setItem(x, y, f_new_cell)
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             f_window.close()
 
         def note_cancel_handler():
             f_window.close()
+            
+        def copy_combobox_index_changed(a_index):
+            f_copy_radiobutton.setChecked(True)
 
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
@@ -163,6 +168,7 @@ class region_list_editor:
         f_layout.addWidget(f_copy_radiobutton, 1, 0)
         f_copy_combobox = QtGui.QComboBox()
         f_copy_combobox.addItems(this_pydaw_project.get_item_list())
+        f_copy_combobox.currentIndexChanged.connect(copy_combobox_index_changed)
         f_layout.addWidget(QtGui.QLabel("Existing:"), 1, 1)
         f_layout.addWidget(f_copy_combobox, 1, 2)
         f_ok_button = QtGui.QPushButton("OK")
