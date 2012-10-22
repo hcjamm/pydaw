@@ -370,6 +370,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->preview_sample_array_index = 0;
     plugin_data->sampleCount[LMS_MAX_SAMPLE_COUNT] = 0;  //To prevent a SEGFAULT on the first call of the main loop
     plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT] = (char*)malloc(sizeof(char) * 200);
+    plugin_data->sampleData[0][LMS_MAX_SAMPLE_COUNT] = NULL;
+    plugin_data->sampleData[1][LMS_MAX_SAMPLE_COUNT] = NULL;
     lms_strcpy(plugin_data->sample_paths[LMS_MAX_SAMPLE_COUNT], ""); //This is the preview file path
     plugin_data->sample_files = (char*)malloc(sizeof(char) * 10000);
     plugin_data->preview_sample_max_length = s_rate * 5;  //Sets the maximum time to preview a sample to 5 seconds, lest a user unwittlingly tries to preview a 2 hour long sample.
@@ -389,6 +391,9 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         
         plugin_data->sample_paths[f_i] = (char*)malloc(sizeof(char) * 200);
         lms_strcpy(plugin_data->sample_paths[f_i], "");
+        
+        plugin_data->sampleData[0][f_i] = NULL;
+        plugin_data->sampleData[1][f_i] = NULL;
         
         plugin_data->adjusted_base_pitch[f_i] = 60.0f;
         plugin_data->sample_rate_ratios[f_i] = 1.0f;

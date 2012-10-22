@@ -308,6 +308,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         assert(f_x < PYDAW_REGION_SIZE);
         f_result->item_indexes[f_y][f_x] = i_pydaw_get_item_index_from_name(a_pydaw_data, f_item_name);
         assert((f_result->item_indexes[f_y][f_x]) != -1);
+        assert((f_result->item_indexes[f_y][f_x]) < a_pydaw_data->item_count);
         f_result->item_populated[f_y][f_x] = 1;
         sprintf(log_buff, "f_x == %i, f_y = %i\n", f_x, f_y);
         pydaw_write_log(log_buff);
@@ -334,15 +335,13 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     f_result->cc_count = 0;
     f_result->note_count = 0;
         
-    char * f_full_path = (char*)malloc(sizeof(char) * 256);
+    char f_full_path[512];
     strcpy(f_full_path, a_pydaw_data->item_folder);
     strcat(f_full_path, a_name);
     strcat(f_full_path, ".pyitem");
     
     t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);
     
-    free(f_full_path);
-
     int f_i = 0;
 
     while(f_i < 256)
@@ -420,6 +419,7 @@ t_pytrack * g_pytrack_get()
     f_result->volume = 0.0f;
     f_result->plugin_index = 0;
     f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 512);
+    f_result->instrument = NULL;
         
     return f_result;
 }
