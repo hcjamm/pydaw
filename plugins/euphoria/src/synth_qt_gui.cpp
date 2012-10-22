@@ -90,8 +90,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_exitingPath(exitingPath),    
     m_hostRequestedQuit(false),
     m_ready(false)
-{   
-    cerr << "1...";
+{
 #ifndef LMS_DEBUG_STANDALONE
     m_host = lo_address_new(host, port);
 #endif    
@@ -268,8 +267,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_mono_fx_tab = new QWidget();
         m_mono_fx_tab->setObjectName(QString::fromUtf8("m_mono_fx_tab"));
         m_main_tab->addTab(m_mono_fx_tab, QString());
-        
-        cerr << "2...";
         
         m_main_v_layout->addWidget(m_main_tab);
                 
@@ -787,8 +784,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_view_sample_tab_main_vlayout->addLayout(m_sample_end_hlayout);
         
-        cerr << "3...";
-        
         QLabel * m_loop_start_end_label = new QLabel(m_view_sample_tab);
         m_loop_start_end_label->setText(QString("Loop Start/End"));
         m_view_sample_tab_main_vlayout->addWidget(m_loop_start_end_label, -1, Qt::AlignHCenter);
@@ -1145,10 +1140,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         connect(m_lfo->lms_freq_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOfreqChanged(int)));
         connect(m_lfo->lms_type_combobox->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(LFOtypeChanged(int)));
-        
-        
+                
         //MonoFX Tab
-        cerr << "4...";
         
         m_mono_fx_tab_main_layout = new LMS_main_layout(m_mono_fx_tab);
         
@@ -3975,6 +3968,11 @@ int configure_handler(const char *path, const char *types, lo_arg **argv,
     } else if (!strcmp(key, "lastdir")) {
         gui->m_file_selector->lms_last_directory = QString::fromLocal8Bit(value);
         gui->m_file_browser->folder_opened(QString::fromLocal8Bit(value), FALSE);
+    } else if (!strcmp(key, "pydaw_close_window")) {
+        cerr << "Closing window...\n";
+        gui->close();
+	//gui->setHostRequestedQuit(true);
+        //qApp->quit();
     }
 
     return 0;

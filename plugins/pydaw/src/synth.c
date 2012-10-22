@@ -583,6 +583,8 @@ __attribute__((destructor)) void fini()
 void _fini()
 #endif
 {
+    v_pydaw_close_all_uis(pydaw_data);
+    
     if (LMSLDescriptor) {
 	free((LADSPA_PortDescriptor *) LMSLDescriptor->PortDescriptors);
 	free((char **) LMSLDescriptor->PortNames);

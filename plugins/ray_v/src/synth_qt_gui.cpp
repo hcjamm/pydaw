@@ -34,6 +34,7 @@ GNU General Public License for more details.
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/SM/SMlib.h>
+#include <qt4/QtGui/qwidget.h>
 
 static int handle_x11_error(Display *dpy, XErrorEvent *err)
 {
@@ -705,6 +706,19 @@ int program_handler(const char *path, const char *types, lo_arg **argv,
 int configure_handler(const char *path, const char *types, lo_arg **argv,
 		  int argc, void *data, void *user_data)
 {
+    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
+    const char *key = (const char *)&argv[0]->s;
+    const char *value = (const char *)&argv[1]->s;
+
+    cerr << "GUI configure_handler:  Key:  " << QString::fromLocal8Bit(key) << " , Value:" << QString::fromLocal8Bit(value);
+    
+    if (!strcmp(key, "pydaw_close_window")) 
+    {
+        gui->close();
+	//gui->setHostRequestedQuit(true);
+        //qApp->quit();
+    }
+
     return 0;
 }
 

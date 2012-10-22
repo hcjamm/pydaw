@@ -137,6 +137,8 @@ typedef struct st_pydaw_plugin
     int euphoria_load_set;
     char euphoria_last_dir[512];
     int euphoria_last_dir_set;
+    
+    int ui_visible;
 }t_pydaw_plugin;
 
 t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
@@ -152,6 +154,8 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
             f_result->lib_handle = dlopen("/usr/lib/dssi/ray_v.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
     }
+    
+    f_result->ui_visible = 0;
     
     f_result->euphoria_last_dir_set = 0;
     f_result->euphoria_load_set = 0;
