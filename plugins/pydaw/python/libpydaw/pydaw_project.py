@@ -224,14 +224,15 @@ class pydaw_song:
         return f_result
 
 class pydaw_region:
-    def add_item_ref(self, a_bar_num, a_track_num, a_item_name):
-        self.remove_item_ref(a_bar_num, a_track_num)
+    def add_item_ref(self, a_track_num, a_bar_num, a_item_name):
+        self.remove_item_ref(a_track_num, a_bar_num)
         self.items.append(pydaw_region.region_item(a_track_num, a_bar_num, a_item_name))
 
-    def remove_item_ref(self, a_bar_num, a_track_num):
+    def remove_item_ref(self, a_track_num, a_bar_num):
         for f_item in self.items:
             if f_item.bar_num == a_bar_num and f_item.track_num == a_track_num:
                 self.items.remove(f_item)
+                print("remove_item_ref removed bar: " + f_item.bar_num + ", track: " + f_item.track_num)
 
     def __init__(self, a_name):
         self.items = []

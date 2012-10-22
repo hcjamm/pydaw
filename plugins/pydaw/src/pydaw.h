@@ -289,17 +289,20 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     f_i = 0;
 
     while(f_i < 128)
-    {            
-        char * f_x_char = c_iterate_2d_char_array(f_current_string);
+    {   
+        char * f_y_char = c_iterate_2d_char_array(f_current_string);
         if(f_current_string->eof)
         {
+            free(f_y_char);
             break;
         }
-        int f_x = atoi(f_x_char);
-        free(f_x_char);
-        char * f_y_char = c_iterate_2d_char_array(f_current_string);
         int f_y = atoi(f_y_char);
         free(f_y_char);
+        
+        char * f_x_char = c_iterate_2d_char_array(f_current_string);        
+        int f_x = atoi(f_x_char);
+        free(f_x_char);
+        
         char * f_item_name = c_iterate_2d_char_array(f_current_string);
         assert(f_y < PYDAW_MAX_TRACK_COUNT);
         assert(f_x < PYDAW_REGION_SIZE);
