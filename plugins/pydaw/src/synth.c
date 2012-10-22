@@ -89,7 +89,7 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
         if (!strncmp(path + 20, tmp, flen)
 	    && *(path + 20 + flen) == '/') //avoid matching prefix only
         { 
-            printf("instance==%i\n", i);
+            //printf("instance==%i\n", i);
             instance = pydaw_data->track_pool[i]->instrument; //&instances[i];
             break;
         }

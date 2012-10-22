@@ -761,9 +761,7 @@ void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
 }
 
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index)
-{    
-    //v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
-    
+{       
     t_pydaw_plugin * f_result;
     
     if(a_index != 0)
@@ -786,6 +784,10 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
     }
     
     pthread_mutex_lock(&a_pydaw_data->mutex);
+    if(a_pydaw_data->track_pool[a_track_num]->plugin_index != 0)
+    {
+        v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
+    }
     a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
     a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
     pthread_mutex_unlock(&a_pydaw_data->mutex);    

@@ -313,6 +313,12 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
 
 void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
 {
+    /*TODO:  This isn't all of the pointers to be free'd*/
+    //free(a_plugin->pluginControlInPortNumbers);
+    //free(a_plugin->pluginControlIns);
+    //free(a_plugin->pluginControlOuts);
+    //free(a_plugin->pluginPortControlInNumbers);
+    //free(a_plugin->pluginPortUpdated);
     free(a_plugin);
 }
 
