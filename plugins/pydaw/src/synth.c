@@ -297,7 +297,9 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 while(1)
                 {
                     if((pydaw_data->pysong->regions[f_current_track_region]) && 
-                        (pydaw_data->pysong->regions[f_current_track_region]->item_populated[f_i][f_current_track_bar]))
+                        //(pydaw_data->pysong->regions[f_current_track_region]->item_populated[f_i][f_current_track_bar])
+                        (pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][f_current_track_bar] != -1)
+                            )
                     {
                         t_pyitem f_current_item = *(pydaw_data->item_pool[
                                 pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][f_current_track_bar]
@@ -449,30 +451,28 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
         }
                 
         f_i = 0;
-        int f_i3 = 0;
-        
+                
         while(f_i < PYDAW_MAX_TRACK_COUNT)
-        {
-            if(pydaw_data->track_pool[f_i]->plugin_index == 0)
+        {   
+            if(pydaw_data->track_pool[f_i]->plugin_index != 0)
             {
-                f_i++;
-                continue;
-            }
-            
-            v_run_plugin(pydaw_data->track_pool[f_i]->instrument, sample_count, 
-                        pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);
-            
-            while(f_i3 < sample_count)
-            {
-                output0[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[0][f_i3]);
-                output1[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[1][f_i3]);
-                f_i3++;
-            }
+                v_run_plugin(pydaw_data->track_pool[f_i]->instrument, sample_count, 
+                            pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);
+
+                int f_i3 = 0;
+                
+                while(f_i3 < sample_count)
+                {
+                    output0[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[0][f_i3]);
+                    output1[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[1][f_i3]);
+                    f_i3++;
+                }
+            }            
             
             f_i++;
         }
-                
-        pydaw_data->current_sample = f_next_current_sample;
+        //TODO:  Does this need to be moved elsewhere outside of the if statement?
+        pydaw_data->current_sample = f_next_current_sample;  
     }
     
     /*TODO:  Run the LMS Limiter algorithm here at 0.0db, long release time, to prevent clipping*/

@@ -319,7 +319,10 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
     //free(a_plugin->pluginControlOuts);
     //free(a_plugin->pluginPortControlInNumbers);
     //free(a_plugin->pluginPortUpdated);
-    free(a_plugin);
+    if(a_plugin)
+    {
+        free(a_plugin);
+    }
 }
 
 void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, snd_seq_event_t * a_event_buffer, 
