@@ -19,16 +19,17 @@ extern "C" {
 
 /*Standard string sizes.  When in doubt, pick a really big one, it's better to 
  * waste memory than to SEGFAULT...*/
-#define LMS_LARGE_STRING 65536
-#define LMS_MEDIUM_STRING 8192
-#define LMS_SMALL_STRING 512
-#define LMS_TINY_STRING 32
+#define LMS_LARGE_STRING 262144 //65536
+#define LMS_MEDIUM_STRING 65536 //8192
+#define LMS_SMALL_STRING 8192 //512
+#define LMS_TINY_STRING 256 //32
     
 #define LMS_TERMINATING_CHAR '\\'
     
 #include <stdio.h>
 #include <time.h>
     
+/*
 void pydaw_write_log(char * a_string)
 {
     assert(a_string);
@@ -43,12 +44,12 @@ void pydaw_write_log(char * a_string)
     fprintf(pFile, "%s\n",buff);
     fclose(pFile);
 }
-    
+*/
 void get_string_from_file(const char * a_file, int a_size, char * a_buf)
 {
-    char log_buff[200];
-    sprintf(log_buff, "get_string_from_file: a_file: \"%s\" a_size: %i \n", a_file, a_size);
-    pydaw_write_log(log_buff);    
+    //char log_buff[200];
+    //sprintf(log_buff, "get_string_from_file: a_file: \"%s\" a_size: %i \n", a_file, a_size);
+    //pydaw_write_log(log_buff);    
     FILE * f_file;	
     f_file = fopen(a_file, "r");
     assert(f_file);
@@ -141,9 +142,9 @@ t_1d_char_array * c_split_str(const char * a_input, char a_delim, int a_column_c
  * limited to being the size of LMS_TINY_STRING */
 t_2d_char_array * g_get_2d_array_from_file(const char * a_file, int a_size)
 {    
-    char log_buff[200];
-    sprintf(log_buff, "g_get_2d_array_from_file: a_file: \"%s\" a_size: %i\n", a_file, a_size);
-    pydaw_write_log(log_buff);
+    //char log_buff[200];
+    //sprintf(log_buff, "g_get_2d_array_from_file: a_file: \"%s\" a_size: %i\n", a_file, a_size);
+    //pydaw_write_log(log_buff);
     
     t_2d_char_array * f_result = (t_2d_char_array*)malloc(sizeof(t_2d_char_array));
     f_result->array = (char*)malloc(sizeof(char) * a_size);
@@ -152,7 +153,7 @@ t_2d_char_array * g_get_2d_array_from_file(const char * a_file, int a_size)
     f_result->current_column = 0;
     f_result->eof = 0;
     get_string_from_file(a_file, a_size, f_result->array);
-    pydaw_write_log(f_result->array);    
+    //pydaw_write_log(f_result->array);    
     return f_result;    
 }
 
