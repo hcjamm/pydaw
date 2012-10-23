@@ -43,6 +43,7 @@ extern "C" {
 #define PYDAW_MAX_REGION_COUNT 300
 #define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 128
 #define PYDAW_MAX_TRACK_COUNT 16
+#define PYDAW_MAX_EVENT_BUFFER_SIZE 512  //This could probably be made smaller
 #define PYDAW_REGION_SIZE 8
 #define PYDAW_MIDI_NOTE_COUNT 128
     
@@ -426,7 +427,7 @@ t_pytrack * g_pytrack_get()
     f_result->solo = 0;
     f_result->volume = 0.0f;
     f_result->plugin_index = 0;
-    f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 512);
+    f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * PYDAW_MAX_EVENT_BUFFER_SIZE);
             
     f_result->instrument = NULL;
         
