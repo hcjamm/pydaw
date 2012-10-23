@@ -204,7 +204,7 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
     
     while(f_i < PYDAW_MAX_REGION_COUNT)
     {
-        f_result->regions[f_i] = 0;
+        f_result->regions[f_i] = NULL;
         f_i++;
     }
     
