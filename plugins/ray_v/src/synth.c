@@ -444,8 +444,8 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
 
     while((plugin_data->i_iterator) < sample_count)
     {
-        output0[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;                        
-        output1[((plugin_data->pos) + (plugin_data->i_iterator))] = 0.0f;     
+        output0[(plugin_data->i_iterator)] = 0.0f;                        
+        output1[(plugin_data->i_iterator)] = 0.0f;     
         plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
     }    
 
@@ -461,8 +461,8 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
             run_voice(plugin_data,
                     &(plugin_data->vals),
                     plugin_data->data[(plugin_data->voice)],
-                    output0 + (plugin_data->pos),
-                    output1 + (plugin_data->pos),
+                    output0,
+                    output1,
                     sample_count
                     );
         }
@@ -483,12 +483,12 @@ static void run_voice(LMS *plugin_data, synth_vals *vals, t_poly_voice *a_voice,
     for(a_voice->i_voice = 0; (a_voice->i_voice)<count;a_voice->i_voice = (a_voice->i_voice) + 1) 
     {        
         //Delay the note-on event until the sample it was called for
-        if(((plugin_data->sampleNo) + (a_voice->i_voice) + (plugin_data->pos)) < (plugin_data->ons[a_voice->note]))
+        if(((plugin_data->sampleNo) + (a_voice->i_voice)) < (plugin_data->ons[a_voice->note]))
         {
             continue;
         }
         
-        if (((plugin_data->offs[(a_voice->note)]) >= 0) && (((a_voice->i_voice) + (plugin_data->sampleNo) + (plugin_data->pos)) >= plugin_data->offs[(a_voice->note)])
+        if (((plugin_data->offs[(a_voice->note)]) >= 0) && (((a_voice->i_voice) + (plugin_data->sampleNo)) >= plugin_data->offs[(a_voice->note)])
                 && ((a_voice->adsr_amp->stage) < 3))
         {            
             if((plugin_data->ons[(a_voice->note)]) == -1)
