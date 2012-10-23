@@ -653,6 +653,7 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
     }
 
     char f_string[LMS_LARGE_STRING];
+    sprintf(f_string, "");
 
     if(a_pydaw_data->track_pool[a_track_num]->plugin_index == 1)
     {

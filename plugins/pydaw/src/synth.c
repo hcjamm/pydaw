@@ -301,9 +301,8 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                     (pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][f_current_track_bar] != -1)
                         )
                 {
-                    t_pyitem f_current_item = *(pydaw_data->item_pool[
-                            pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][f_current_track_bar]
-                            ]);
+                    t_pyitem f_current_item = 
+                            *(pydaw_data->item_pool[(pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][f_current_track_bar])]);
                             //*(pydaw_data->pysong->regions[(pydaw_data->current_region)]->items[f_i][f_current_track_bar]);
 
                     if((pydaw_data->track_note_event_indexes[f_i]) >= (f_current_item.note_count))
