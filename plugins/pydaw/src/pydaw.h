@@ -136,7 +136,6 @@ typedef struct st_pydaw_data
     int note_offs[PYDAW_MAX_TRACK_COUNT][PYDAW_MIDI_NOTE_COUNT];  //When a note_on event is fired, a sample number of when to release it is stored here
     lo_server_thread serverThread;
     
-    char osc_path_tmp[1024];  //TODO:  I could probably get rid of this???
     char * osc_url;
     
     float samples_per_beat;  //The number of samples per beat, for calculating length
@@ -277,7 +276,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         f_i++;
     }
         
-    char * f_full_path = (char*)malloc(sizeof(char) * 256);
+    char * f_full_path = (char*)malloc(sizeof(char) * 1024);
     strcpy(f_full_path, a_pydaw_data->region_folder);
     strcat(f_full_path, a_name);
     strcat(f_full_path, ".pyreg");
@@ -330,7 +329,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     
     t_pyitem * f_result = (t_pyitem*)malloc(sizeof(t_pyitem));
     
-    f_result->name = (char*)malloc(sizeof(char) * 64);
+    f_result->name = (char*)malloc(sizeof(char) * 256);
     strcpy(f_result->name, a_name);
     f_result->cc_count = 0;
     f_result->note_count = 0;
@@ -343,8 +342,16 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);
     
     int f_i = 0;
+    
+    while(f_i < PYDAW_MAX_EVENTS_PER_ITEM_COUNT)
+    {
+        f_result->notes[(f_result->note_count)] = NULL;
+        f_i++;
+    }
+    
+    f_i = 0;
 
-    while(f_i < 256)
+    while(f_i < PYDAW_MAX_EVENTS_PER_ITEM_COUNT)
     {   
         char * f_type = c_iterate_2d_char_array(f_current_string);
         
@@ -420,6 +427,7 @@ t_pytrack * g_pytrack_get()
     f_result->volume = 0.0f;
     f_result->plugin_index = 0;
     f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 512);
+            
     f_result->instrument = NULL;
         
     return f_result;
@@ -473,11 +481,13 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     /* Create OSC thread */    
     char *tmp;
     
+    char osc_path_tmp[1024];
+    
     f_result->serverThread = lo_server_thread_new(NULL, pydaw_osc_error);
-    snprintf((char *)f_result->osc_path_tmp, 31, "/dssi/pydaw_plugins");
+    snprintf(osc_path_tmp, 31, "/dssi/pydaw_plugins");
     tmp = lo_server_thread_get_url(f_result->serverThread);
-    f_result->osc_url = (char *)malloc(strlen(tmp) + strlen(f_result->osc_path_tmp));
-    sprintf(f_result->osc_url, "%s%s", tmp, f_result->osc_path_tmp + 1);    
+    f_result->osc_url = (char *)malloc(strlen(tmp) + strlen(osc_path_tmp));
+    sprintf(f_result->osc_url, "%s%s", tmp, osc_path_tmp + 1);    
     free(tmp);
     
     return f_result;
@@ -506,19 +516,10 @@ void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
             char * f_key = c_iterate_2d_char_array(f_2d_array);
             char * f_value = c_iterate_2d_char_array(f_2d_array);
 
-            if(!strcmp(f_key, "instrument"))  //This must come first to avoid overwriting everything else
-            {
-                //int f_inst_index = atoi(f_value);
-                //v_set_plugin_index(a_pydaw_data, a_track_num, f_inst_index);
-            }
-            else if(!strcmp(f_key, "load"))
+            if(!strcmp(f_key, "load"))
             {
                 strcpy(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load, f_value);
             }
-            /*else if(!strcmp(f_key, "lastdir"))
-            {
-                strcpy(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_last_dir, f_value);
-            }*/
             else
             {
                 int f_port_key = atoi(f_key);
@@ -651,18 +652,9 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
     }
 
     char f_string[LMS_LARGE_STRING];
-    sprintf(f_string, "instrument|%i\n", a_pydaw_data->track_pool[a_track_num]->plugin_index);
 
     if(a_pydaw_data->track_pool[a_track_num]->plugin_index == 1)
     {
-        /*if(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_last_dir_set)
-        {
-            char f_last_dir[512];
-            sprintf(f_last_dir, "lastdir|%s\n",
-            a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_last_dir);
-            strcat(f_string, f_last_dir);
-        }*/
-
         if(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load_set)
         {
             char f_load[8192];
@@ -737,8 +729,6 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
     char track_number_string[6];
     sprintf(track_number_string, "%i", a_track_num);
     sprintf(oscUrl, "%s/%i", a_pydaw_data->osc_url, a_track_num);
-    /*char instruments_folder[256];
-    sprintf(instruments_folder, "%sinstruments", a_pydaw_data->project_folder);*/
     
     if (fork() == 0) 
     {
