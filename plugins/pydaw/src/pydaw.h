@@ -515,10 +515,10 @@ void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
             {
                 strcpy(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load, f_value);
             }
-            else if(!strcmp(f_key, "lastdir"))
+            /*else if(!strcmp(f_key, "lastdir"))
             {
                 strcpy(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_last_dir, f_value);
-            }
+            }*/
             else
             {
                 int f_port_key = atoi(f_key);
@@ -655,13 +655,13 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
 
     if(a_pydaw_data->track_pool[a_track_num]->plugin_index == 1)
     {
-        if(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_last_dir_set)
+        /*if(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_last_dir_set)
         {
             char f_last_dir[512];
             sprintf(f_last_dir, "lastdir|%s\n",
             a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_last_dir);
             strcat(f_string, f_last_dir);
-        }
+        }*/
 
         if(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load_set)
         {

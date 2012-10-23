@@ -107,11 +107,11 @@ int pydaw_osc_configure_handler(t_pydaw_plugin *instance, lo_arg **argv)
         instance->euphoria_load_set = 1;
         strcpy(instance->euphoria_load, value);
     }
-    else if(!strcmp(key, "lastdir"))
+    /*else if(!strcmp(key, "lastdir"))
     {
         instance->euphoria_last_dir_set = 1;
         strcpy(instance->euphoria_last_dir, value);
-    }
+    }*/
 
     if (instance->descriptor->configure) 
     {
@@ -240,10 +240,10 @@ int pydaw_osc_update_handler(t_pydaw_plugin *instance, lo_arg **argv, lo_address
     */
 
     
-    if (instance->euphoria_last_dir_set) {
+    /*if (instance->euphoria_last_dir_set) {
 	lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
 		"lastdir", instance->euphoria_last_dir);
-    }
+    }*/
         
     if (instance->euphoria_load_set) {
 	lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
