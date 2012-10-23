@@ -238,7 +238,6 @@ typedef struct {
     t_mono_modules * mono_modules;
     synth_vals vals;
     
-    int pos;
     int event_pos;
     int voice;
     int i_iterator;    
