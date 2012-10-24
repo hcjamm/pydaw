@@ -116,13 +116,13 @@ int main(int argc, char** argv) {
         
     v_set_tempo(pydaw_data, 140.0f);
     v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project", "default");
-    v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
-    
+        
     //snd_seq_event_t * f_events = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 32);
     
-    v_set_plugin_index(pydaw_data, 1, 2);
-    v_set_plugin_index(pydaw_data, 3, 1);
-    v_pydaw_save_tracks(pydaw_data);
+    v_set_plugin_index(pydaw_data, 4, 1);
+    v_set_plugin_index(pydaw_data, 3, 2);
+    v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
+    //v_pydaw_save_tracks(pydaw_data);
     
     int i;
     
