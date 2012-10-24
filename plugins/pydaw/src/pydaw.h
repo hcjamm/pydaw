@@ -540,8 +540,7 @@ void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
                 int f_port_key = atoi(f_key);
                 float f_port_value = atof(f_value);
                 
-                /*TODO:  Should this be <= or just < ?  Need to sit down and figure out exactly how the port counts work...*/
-                assert(f_port_key <= (a_pydaw_data->track_pool[a_track_num]->instrument->controlIns));
+                assert(f_port_key < (a_pydaw_data->track_pool[a_track_num]->instrument->controlIns));
                 
                 a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_port_key] = f_port_value;
             }                
@@ -700,10 +699,9 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
 
     while(f_i2 < (a_pydaw_data->track_pool[a_track_num]->instrument->controlIns))
     {
-        char f_port_entry[64];
-        int f_port = a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlInPortNumbers[f_i2];
-        sprintf(f_port_entry, "%i|%f\n", f_port,
-        a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_port]
+        char f_port_entry[64];        
+        sprintf(f_port_entry, "%i|%f\n", f_i2,
+        a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_i2]
         );
         strcat(f_string, f_port_entry);
         f_i2++;

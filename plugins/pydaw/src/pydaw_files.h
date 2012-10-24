@@ -22,7 +22,7 @@ extern "C" {
 #define LMS_LARGE_STRING 262144 //65536
 #define LMS_MEDIUM_STRING 65536 //8192
 #define LMS_SMALL_STRING 8192 //512
-#define LMS_TINY_STRING 256 //32
+#define LMS_TINY_STRING 512 //32
     
 #define LMS_TERMINATING_CHAR '\\'
     
@@ -160,7 +160,7 @@ t_2d_char_array * g_get_2d_array_from_file(const char * a_file, int a_size)
 /* Return the next string from the array*/
 char * c_iterate_2d_char_array(t_2d_char_array* a_array)
 {
-    char * f_result = (char*)malloc(sizeof(char) * LMS_TINY_STRING);
+    char * f_result = (char*)malloc(sizeof(char) * LMS_SMALL_STRING);
     int f_i = 0;    
         
     while(1)

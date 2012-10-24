@@ -119,8 +119,8 @@ int main(int argc, char** argv) {
         
     //snd_seq_event_t * f_events = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 32);
     
-    v_set_plugin_index(pydaw_data, 4, 1);
-    v_set_plugin_index(pydaw_data, 3, 2);
+    v_set_plugin_index(pydaw_data, 2, 2);
+    v_set_plugin_index(pydaw_data, 3, 1);
     v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
     //v_pydaw_save_tracks(pydaw_data);
     
