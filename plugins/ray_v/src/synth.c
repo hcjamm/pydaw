@@ -177,9 +177,9 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     case LMS_PITCH_ENV_TIME:
         plugin->pitch_env_time = data;
         break;
-    case LMS_PROGRAM_CHANGE:
+    /*case LMS_PROGRAM_CHANGE:
         plugin->program = data;
-        break;
+        break;*/
     case LMS_LFO_FREQ:
         plugin->lfo_freq = data;
         break;
@@ -946,7 +946,8 @@ void _init()
 	port_range_hints[LMS_LFO_FILTER].LowerBound = -48;
 	port_range_hints[LMS_LFO_FILTER].UpperBound = 48;
         
-        /*Parameters for program change*/        
+        /*Parameters for program change*/
+        /*
 	port_descriptors[LMS_PROGRAM_CHANGE] = port_descriptors[LMS_ATTACK];
 	port_names[LMS_PROGRAM_CHANGE] = "Program Change";
 	port_range_hints[LMS_PROGRAM_CHANGE].HintDescriptor =
@@ -954,11 +955,8 @@ void _init()
                         LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_PROGRAM_CHANGE].LowerBound = 0; 
 	port_range_hints[LMS_PROGRAM_CHANGE].UpperBound = 127;  // > 127 loads the first preset
+        */
         
-        /*Step 17:  Add LADSPA ports*/
-        
-        
-        /*Here is where the functions in synth.c get pointed to for the host to call*/
 	LMSLDescriptor->activate = activateLMS;
 	LMSLDescriptor->cleanup = cleanupLMS;
 	LMSLDescriptor->connect_port = connectPortLMS;
