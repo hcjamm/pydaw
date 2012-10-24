@@ -534,6 +534,21 @@ void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
                 }
                 
                 strcpy(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load, f_value);
+                a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load_set = 1;
+                                
+                char * message = a_pydaw_data->track_pool[a_track_num]->instrument->descriptor->configure(
+                        a_pydaw_data->track_pool[a_track_num]->instrument->ladspa_handle, "load", f_value);
+                if (message) 
+                {
+                    printf("v_pydaw_open_track: on configure '%s' '%s', plugin returned error '%s'\n","load", f_value, message);
+                    free(message);
+                }
+                
+                if(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget)
+                {
+                        lo_send(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget, 
+                                a_pydaw_data->track_pool[a_track_num]->instrument->ui_osc_configure_path, "ss", "load", f_value);
+                }                
             }
             else
             {
