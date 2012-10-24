@@ -219,8 +219,10 @@ t_dir_list * g_get_dir_list(char * a_dir)
     DIR *dir;
     struct dirent *ent;
     dir = opendir (a_dir);    
-    if (dir != NULL) 
-    {
+    
+    assert(dir != NULL);
+    //if (dir != NULL) 
+    //{
       while ((ent = readdir (dir)) != NULL) 
       {
           if((!strcmp(ent->d_name, ".")) || (!strcmp(ent->d_name, "..")))
@@ -241,12 +243,13 @@ t_dir_list * g_get_dir_list(char * a_dir)
           }
       }
       closedir (dir);
+    /*
     } 
     else 
     {
       return 0;
     }
-
+    */
     return f_result;
 }
 
