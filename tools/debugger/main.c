@@ -113,9 +113,9 @@ int main(int argc, char** argv) {
     
     f_engine->output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8092);
     f_engine->output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8092);
-        
-    v_set_tempo(pydaw_data, 140.0f);
+    
     v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project", "default");
+    v_set_tempo(pydaw_data, 140.0f);
         
     //snd_seq_event_t * f_events = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 32);
     
