@@ -512,11 +512,20 @@ void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
 
         t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
 
-        while(!f_2d_array->eof)
+        while(1)
         {
             char * f_key = c_iterate_2d_char_array(f_2d_array);
+            
+            if(f_2d_array->eof)
+            {
+                break;
+            }
+            
             char * f_value = c_iterate_2d_char_array(f_2d_array);
 
+            assert(strcmp(f_key, ""));
+            assert(strcmp(f_value, ""));
+            
             if(!strcmp(f_key, "load"))
             {                
                 int f_i = 0;
