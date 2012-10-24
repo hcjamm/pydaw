@@ -88,7 +88,7 @@ typedef struct st_pyregion
     //t_pyitem * items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];    
     int item_indexes[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool
     //int item_populated[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //1(true) if populated at that index, or 0(false) if not.  Put in place because checking for 0 or NULL in the item doesn't seem to work correctly
-    char * name;
+    char name[LMS_TINY_STRING];
 }t_pyregion;
 
 typedef struct st_pysong
@@ -253,18 +253,28 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
 {    
     t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));    
     
-    f_result->name = (char*)malloc(sizeof(char) * 64);
     strcpy(f_result->name, a_name);
     
-    int f_i = 0; 
+    int f_i = 0;
+    int f_i2 = 0;
+    
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {
+        f_i2 = 0;
+        while(f_i2 < PYDAW_MAX_TRACK_COUNT)
+        {
+            f_result->item_indexes[f_i][f_i2] = -1;
+            f_i2++;
+        }
+        f_i++;
+    }
+    
     
     char f_full_path[LMS_TINY_STRING];
     sprintf(f_full_path, "%s%s.pyreg", a_pydaw_data->region_folder, a_name);    
     
     t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);
     
-    f_i = 0;
-
     while(f_i < 128)
     {   
         char * f_y_char = c_iterate_2d_char_array(f_current_string);
