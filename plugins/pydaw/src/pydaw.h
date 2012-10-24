@@ -452,6 +452,13 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->is_initialized = 0;
     f_result->sample_rate = a_sample_rate;
     f_result->current_sample = 0;
+    f_result->current_bar = 0;
+    f_result->current_region = 0;
+    f_result->current_bar_end = 0;
+    f_result->current_bar_start = 0;
+    f_result->playback_cursor = 0.0f;
+    f_result->playback_inc = 0.0f;
+    
     f_result->loop_mode = 0;
     f_result->item_folder = (char*)malloc(sizeof(char) * 256);
     f_result->instruments_folder = (char*)malloc(sizeof(char) * 256);
