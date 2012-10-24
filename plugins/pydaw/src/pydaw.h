@@ -87,7 +87,7 @@ typedef struct st_pyregion
 {
     //t_pyitem * items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];    
     int item_indexes[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool
-    int item_populated[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //1(true) if populated at that index, or 0(false) if not.  Put in place because checking for 0 or NULL in the item doesn't seem to work correctly
+    //int item_populated[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //1(true) if populated at that index, or 0(false) if not.  Put in place because checking for 0 or NULL in the item doesn't seem to work correctly
     char * name;
 }t_pyregion;
 
@@ -267,6 +267,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         
     int f_i2 = 0;
     
+    /*
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {        
         while(f_i2 < PYDAW_REGION_SIZE)
@@ -276,8 +277,9 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         }
         f_i++;
     }
-        
-    char * f_full_path = (char*)malloc(sizeof(char) * 1024);
+    */
+    
+    char * f_full_path = (char*)malloc(sizeof(char) * LMS_TINY_STRING);
     strcpy(f_full_path, a_pydaw_data->region_folder);
     strcat(f_full_path, a_name);
     strcat(f_full_path, ".pyreg");
@@ -309,7 +311,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         f_result->item_indexes[f_y][f_x] = i_pydaw_get_item_index_from_name(a_pydaw_data, f_item_name);
         assert((f_result->item_indexes[f_y][f_x]) != -1);
         assert((f_result->item_indexes[f_y][f_x]) < a_pydaw_data->item_count);
-        f_result->item_populated[f_y][f_x] = 1;
+        //f_result->item_populated[f_y][f_x] = 1;
         //sprintf(log_buff, "f_x == %i, f_y = %i\n", f_x, f_y);
         //pydaw_write_log(log_buff);
         free(f_item_name);            

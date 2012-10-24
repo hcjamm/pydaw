@@ -392,7 +392,24 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 f_i2++;
             }
             */
+            
+            pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
+            
+            if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
+            {
+                pydaw_data->current_bar = 0;
 
+                pydaw_data->current_region = (pydaw_data->current_region) + 1;
+
+                if((pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
+                {
+                    pydaw_data->playback_mode = 0;
+                    pydaw_data->current_region = 0;
+                }
+
+            }
+
+            /*
             if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
             {
                 pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
@@ -413,6 +430,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                     }
                 }
             }
+            */
 
             printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (pydaw_data->current_region), (pydaw_data->current_bar));            
             //Use this to go back and process the early parts of the next item
