@@ -120,11 +120,10 @@ int main(int argc, char** argv) {
     //snd_seq_event_t * f_events = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 32);
     
     v_set_plugin_index(pydaw_data, 2, 2);
-    v_set_plugin_index(pydaw_data, 3, 1);
-    v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
+    v_set_plugin_index(pydaw_data, 3, 1);    
     //v_pydaw_save_tracks(pydaw_data);
     
-    int i;
+    int i, i2;
     
     /*
     for(i = 0; i < 3; i++)
@@ -135,11 +134,15 @@ int main(int argc, char** argv) {
     }
     */
     
-    for(i = 0; i < 1000; i++)
+    for(i2 = 0; i2 < 10; i2++)
     {
-        run_lms_pydaw(f_handle, 4096, NULL, 0);
-    }
-        
+        v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
+        for(i = 0; i < 600; i++)
+        {
+            run_lms_pydaw(f_handle, 4096, NULL, 0);
+        }
+        v_pydaw_parse_configure_message(pydaw_data, "stop", "");
+    }   
     /*
     g_get_2d_array_from_file("/home/bob/dssi/pydaw/default-project/items/item-0.pyitem", 65536);
     */
