@@ -31,7 +31,7 @@ printf("debug information");
 */
     
 #define LMS_OUTPUT0  0
-#define LMS_OUTPUT1  36
+#define LMS_OUTPUT1  35
 /*Add ports to the main synthesizer file that the GUI can talk to */
     
 /*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
@@ -66,16 +66,17 @@ printf("debug information");
 #define LMS_MASTER_PITCHBEND_AMT 27
 #define LMS_PITCH_ENV_TIME 28
 #define LMS_PITCH_ENV_AMT 29
-#define LMS_PROGRAM_CHANGE 30
-#define LMS_LFO_FREQ 31
-#define LMS_LFO_TYPE 32
-#define LMS_LFO_AMP 33
-#define LMS_LFO_PITCH 34
-#define LMS_LFO_FILTER 35
+#define LMS_LFO_FREQ 30
+#define LMS_LFO_TYPE 31
+#define LMS_LFO_AMP 32
+#define LMS_LFO_PITCH 33
+#define LMS_LFO_FILTER 34
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 35
-#define LMS_COUNT 37 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define LMS_LAST_CONTROL_PORT 34
+#define LMS_COUNT 36 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
+    
+#define LMS_PROGRAM_CHANGE 37  //Not used as a real port
 //maximum voices played at one time
 #define POLYPHONY   90  
 

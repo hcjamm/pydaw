@@ -483,7 +483,7 @@ void SynthGUI::v_set_control(int a_port, float a_value)
         case LMS_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
         case LMS_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
         case LMS_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;            
-        case LMS_PROGRAM_CHANGE: setProgram(a_value); break;            
+        case LMS_PROGRAM_CHANGE: break; //This screws up host recall //setProgram(a_value); break;            
         case LMS_LFO_FREQ: setLFOfreq(a_value); break;            
         case LMS_LFO_TYPE:  setLFOtype(a_value);  break;            
         case LMS_LFO_AMP: setLFOamp(a_value); break;            
@@ -540,7 +540,7 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case LMS_LFO_AMP: LFOampChanged(a_value); break;
     case LMS_LFO_PITCH: LFOpitchChanged(a_value); break;
     case LMS_LFO_FILTER: LFOcutoffChanged(a_value); break;
-    case LMS_PROGRAM_CHANGE: programChanged(a_value);  break;
+    case LMS_PROGRAM_CHANGE: break; //ignoring this one, there is no reason to set it //programChanged(a_value);  break;
     default:
 #ifdef LMS_DEBUG_MODE_QT
 	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
@@ -777,7 +777,7 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
 
     gui->v_set_control(port, value);  
      
-    gui->v_control_changed(port, value, true);
+    //gui->v_control_changed(port, value, true);
 
     return 0;
 }
