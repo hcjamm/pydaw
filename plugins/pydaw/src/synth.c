@@ -447,8 +447,6 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 if((pydaw_data->note_offs[f_i][f_i2]) >= (pydaw_data->current_sample) &&
                    (pydaw_data->note_offs[f_i][f_i2]) < f_next_current_sample)
                 {
-                    printf("sending note_off\n");
-                    
                     printf("\n\nSending note_off event\nf_i = %i, pydaw_data->note_offs[f_i][f_i2] = %i, pydaw_data->current_sample = %i\n\n", 
                                 f_i, pydaw_data->note_offs[f_i][f_i2], pydaw_data->current_sample);
                     snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
