@@ -12,6 +12,9 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+  
+//Uncomment this to constantly inspect the heap for corruption and throw a SIGABRT upon detection.
+//#define PYDAW_MEMCHECK
     
 #define PYDAW_CONFIGURE_KEY_SS "ss"
 #define PYDAW_CONFIGURE_KEY_OS "os"
@@ -575,7 +578,8 @@ void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
                 int f_port_key = atoi(f_key);
                 float f_port_value = atof(f_value);
                 
-                assert(f_port_key < (a_pydaw_data->track_pool[a_track_num]->instrument->controlIns));
+                //assert(f_port_key < (a_pydaw_data->track_pool[a_track_num]->instrument->controlIns));                
+                //a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_port_key] = f_port_value;
                 
                 a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_port_key] = f_port_value;
             }                
@@ -763,9 +767,12 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
 
     while(f_i2 < (a_pydaw_data->track_pool[a_track_num]->instrument->controlIns))
     {
+        int in = f_i2 + a_pydaw_data->track_pool[a_track_num]->instrument->firstControlIn;
+	//int port = instance->pluginControlInPortNumbers[in];
+	        
         char f_port_entry[64];        
-        sprintf(f_port_entry, "%i|%f\n", f_i2,
-        a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_i2]
+        sprintf(f_port_entry, "%i|%f\n", in, //port,
+        a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[in]
         );
         strcat(f_string, f_port_entry);
         f_i2++;
