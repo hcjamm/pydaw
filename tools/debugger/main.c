@@ -114,13 +114,13 @@ int main(int argc, char** argv) {
     f_engine->output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8092);
     f_engine->output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8092);
     
-    v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project", "default");
     v_set_tempo(pydaw_data, 140.0f);
-        
+    v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project", "default");
+            
     //snd_seq_event_t * f_events = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 32);
     
-    v_set_plugin_index(pydaw_data, 2, 2);
-    v_set_plugin_index(pydaw_data, 3, 1);    
+    v_set_plugin_index(pydaw_data, 0, 2);
+    v_set_plugin_index(pydaw_data, 1, 1);    
     //v_pydaw_save_tracks(pydaw_data);
     
     int i, i2;

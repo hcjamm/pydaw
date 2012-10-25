@@ -260,12 +260,13 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
     
     pthread_mutex_lock(&pydaw_data->mutex);
            
+    int f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
+    
     if((pydaw_data->is_initialized) && ((pydaw_data->playback_mode) > 0))
     {
         double f_sample_period_inc = ((pydaw_data->playback_inc) * ((double)(sample_count)));
         double f_sample_period_inc_beats = f_sample_period_inc * 4.0f;
-        double f_next_playback_cursor = (pydaw_data->playback_cursor) + f_sample_period_inc;
-        int f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
+        double f_next_playback_cursor = (pydaw_data->playback_cursor) + f_sample_period_inc;        
         double f_current_period_beats = (pydaw_data->playback_cursor) * 4.0f;
         double f_next_period_beats = f_next_playback_cursor * 4.0f;
                 
@@ -482,11 +483,12 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
             
             f_i++;
         }
-        //TODO:  Does this need to be moved elsewhere outside of the if statement?
-        pydaw_data->current_sample = f_next_current_sample;  
+                
     }
     
     /*TODO:  Run the LMS Limiter algorithm here at 0.0db, long release time, to prevent clipping*/
+    
+    pydaw_data->current_sample = f_next_current_sample;
     
     pthread_mutex_unlock(&pydaw_data->mutex);
     
