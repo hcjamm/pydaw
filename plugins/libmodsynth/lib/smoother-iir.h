@@ -57,7 +57,7 @@ t_smoother_iir * g_smr_iir_get_smoother()
         return 0;
     }
     
-    f_result->output = 0;
+    f_result->output = 0.0f;
     return f_result;
 }
 
