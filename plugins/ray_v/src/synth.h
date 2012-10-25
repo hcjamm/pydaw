@@ -31,48 +31,48 @@ printf("debug information");
 */
     
 #define LMS_OUTPUT0  0
-#define LMS_OUTPUT1  35
+#define LMS_OUTPUT1  1
 /*Add ports to the main synthesizer file that the GUI can talk to */
     
 /*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
  as they are iterated through*/
-#define LMS_FIRST_CONTROL_PORT 1    
-#define LMS_ATTACK  1
-#define LMS_DECAY   2
-#define LMS_SUSTAIN 3
-#define LMS_RELEASE 4
-#define LMS_TIMBRE  5
-#define LMS_RES  6
-#define LMS_DIST 7
-#define LMS_FILTER_ATTACK  8
-#define LMS_FILTER_DECAY   9
-#define LMS_FILTER_SUSTAIN 10
-#define LMS_FILTER_RELEASE 11
-#define LMS_NOISE_AMP 12
-#define LMS_FILTER_ENV_AMT 13
-#define LMS_DIST_WET 14
-#define LMS_OSC1_TYPE 15
-#define LMS_OSC1_PITCH 16
-#define LMS_OSC1_TUNE 17
-#define LMS_OSC1_VOLUME 18
-#define LMS_OSC2_TYPE 19
-#define LMS_OSC2_PITCH 20
-#define LMS_OSC2_TUNE 21
-#define LMS_OSC2_VOLUME 22
-#define LMS_MASTER_VOLUME 23
-#define LMS_MASTER_UNISON_VOICES 24
-#define LMS_MASTER_UNISON_SPREAD 25
-#define LMS_MASTER_GLIDE 26
-#define LMS_MASTER_PITCHBEND_AMT 27
-#define LMS_PITCH_ENV_TIME 28
-#define LMS_PITCH_ENV_AMT 29
-#define LMS_LFO_FREQ 30
-#define LMS_LFO_TYPE 31
-#define LMS_LFO_AMP 32
-#define LMS_LFO_PITCH 33
-#define LMS_LFO_FILTER 34
+#define LMS_FIRST_CONTROL_PORT 2
+#define LMS_ATTACK  2
+#define LMS_DECAY   3
+#define LMS_SUSTAIN 4
+#define LMS_RELEASE 5
+#define LMS_TIMBRE  6
+#define LMS_RES  7
+#define LMS_DIST 8
+#define LMS_FILTER_ATTACK  9
+#define LMS_FILTER_DECAY   10
+#define LMS_FILTER_SUSTAIN 11
+#define LMS_FILTER_RELEASE 12
+#define LMS_NOISE_AMP 13
+#define LMS_FILTER_ENV_AMT 14
+#define LMS_DIST_WET 15
+#define LMS_OSC1_TYPE 16
+#define LMS_OSC1_PITCH 17
+#define LMS_OSC1_TUNE 18
+#define LMS_OSC1_VOLUME 19
+#define LMS_OSC2_TYPE 20
+#define LMS_OSC2_PITCH 21
+#define LMS_OSC2_TUNE 22
+#define LMS_OSC2_VOLUME 23
+#define LMS_MASTER_VOLUME 24
+#define LMS_MASTER_UNISON_VOICES 25
+#define LMS_MASTER_UNISON_SPREAD 26
+#define LMS_MASTER_GLIDE 27
+#define LMS_MASTER_PITCHBEND_AMT 28
+#define LMS_PITCH_ENV_TIME 29
+#define LMS_PITCH_ENV_AMT 30
+#define LMS_LFO_FREQ 31
+#define LMS_LFO_TYPE 32
+#define LMS_LFO_AMP 33
+#define LMS_LFO_PITCH 34
+#define LMS_LFO_FILTER 35
 /*This is the last control port*/
-#define LMS_LAST_CONTROL_PORT 34
+#define LMS_LAST_CONTROL_PORT 35
 #define LMS_COUNT 36 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
     
