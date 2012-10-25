@@ -208,8 +208,9 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
         a_pydaw->pysong->regions[f_i] = 0;
         f_i++;
     }
-    
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw);
+#endif
     f_i = 0;
     
     while(f_i < PYDAW_MAX_REGION_COUNT)
@@ -228,8 +229,10 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
     }
 
     g_free_2d_char_array(f_current_string);
-        
+    
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw);
+#endif
 }
 
 
@@ -581,7 +584,9 @@ void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
         g_free_2d_char_array(f_2d_array);
     }
     
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
 }
 
 void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
@@ -593,7 +598,10 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
         v_pydaw_open_track(a_pydaw_data, f_i);
         f_i++;
     }
+    
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
 }
 
 void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
@@ -636,7 +644,11 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
     
     pthread_mutex_lock(&a_pydaw->mutex);
     a_pydaw->is_initialized = 1;
+    
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw);
+#endif
+    
     pthread_mutex_unlock(&a_pydaw->mutex);
 }
 
@@ -665,7 +677,10 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             break;
     }
     
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
+    
     pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
@@ -674,7 +689,10 @@ void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
     a_pydaw_data->current_bar = a_bar;
     a_pydaw_data->current_region = a_region;
     a_pydaw_data->playback_cursor = 0.0f;
+    
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
     //TODO:  An  "all notes off" function 
 }
 
@@ -682,7 +700,11 @@ void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode)
 {
     pthread_mutex_lock(&a_pydaw_data->mutex);
     a_pydaw_data->loop_mode = a_mode;
+    
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
+    
     pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
@@ -693,8 +715,10 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
     a_pydaw_data->tempo = a_tempo;
     a_pydaw_data->playback_inc = ( (1.0f/(a_pydaw_data->sample_rate)) / (60.0f/(a_tempo * 0.25f)) );
     a_pydaw_data->samples_per_beat = (a_pydaw_data->sample_rate)/(a_tempo/60.0f);
-    
+
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
     
     pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
@@ -753,7 +777,9 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
 
     v_pydaw_write_to_file(f_file_name, f_string);
     
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
 }
 
 
@@ -768,7 +794,9 @@ void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
         f_i++;
     }
     
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
 }
 
 void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
@@ -803,7 +831,9 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
     sprintf(track_number_string, "%i", a_track_num);
     sprintf(oscUrl, "%s/%i", a_pydaw_data->osc_url, a_track_num);
     
+#ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
     
     if (fork() == 0) 
     {
@@ -857,7 +887,10 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
         }
         a_pydaw_data->track_pool[a_track_num]->instrument = NULL;
         a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
+        
+#ifdef PYDAW_MEMCHECK
         v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
         pthread_mutex_unlock(&a_pydaw_data->mutex);    
     }
     else
@@ -886,11 +919,15 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
         v_pydaw_open_track(a_pydaw_data, a_track_num);  //Opens the .inst file if exists
         
         a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
+        
+#ifdef PYDAW_MEMCHECK
         v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
         pthread_mutex_unlock(&a_pydaw_data->mutex);
     }        
 }
 
+#ifdef PYDAW_MEMCHECK
 /* Check a_pydaw_data for all known indicators of memory integrity, and throw a SIGABRT 
  if it fails.*/
 void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data)
@@ -922,6 +959,7 @@ void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data)
         }
     }
 }
+#endif
 
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_key, const char* a_value)
 {
