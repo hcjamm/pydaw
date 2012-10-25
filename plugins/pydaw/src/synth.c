@@ -298,9 +298,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
             while(1)
             {
                 if((pydaw_data->pysong->regions[f_current_track_region]) && 
-                    //(pydaw_data->pysong->regions[f_current_track_region]->item_populated[f_i][f_current_track_bar])
-                    (pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][f_current_track_bar] != -1)
-                        )
+                    (pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][f_current_track_bar] != -1))
                 {
                     t_pyitem f_current_item = 
                             *(pydaw_data->item_pool[(pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][f_current_track_bar])]);
@@ -352,6 +350,11 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
 
                         pydaw_data->note_offs[f_i][(f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note)] = (pydaw_data->current_sample) + 
                                 ((int)(f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->length * (pydaw_data->samples_per_beat)));
+                        
+                        //This assert will need to be adjusted once playback is allowed to start from anywhere other than bar:0, region:0                        
+                        int f_calculated_sample = ((int)(((((float)(pydaw_data->current_bar))  * 4.0f) +  (f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start)) * pydaw_data->samples_per_beat));
+                        int f_real_sample = (f_note_sample_offset + (pydaw_data->current_sample));
+                        assert(f_calculated_sample == f_real_sample);
 
                         pydaw_data->track_note_event_indexes[f_i] = (pydaw_data->track_note_event_indexes[f_i]) + 1;
                     }
