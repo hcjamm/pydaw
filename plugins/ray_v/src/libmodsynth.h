@@ -219,6 +219,7 @@ t_mono_modules * v_mono_init()
 {
     t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
     a_mono->filter_smoother = g_smr_iir_get_smoother();
+    a_mono->filter_smoother->output = 100.0f;  //To prevent low volume and brightness at the first note-on(s)
     a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
     a_mono->amp_ptr = g_amp_get();
     return a_mono;
