@@ -449,8 +449,8 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
         plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
     }    
 
-    v_smr_iir_run(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.timbre));
-    v_smr_iir_run(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
+    v_smr_iir_run_fast(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.timbre));
+    v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
 
     plugin_data->voice = 0; 
     while ((plugin_data->voice) < POLYPHONY) 
