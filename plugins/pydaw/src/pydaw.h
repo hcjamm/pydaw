@@ -97,7 +97,8 @@ typedef struct st_pyregion
 typedef struct st_pysong
 {
     int region_count;
-    t_pyregion * regions[PYDAW_MAX_REGION_COUNT];    
+    t_pyregion * regions[PYDAW_MAX_REGION_COUNT];
+    char region_names[PYDAW_MAX_REGION_COUNT][LMS_TINY_STRING];
 }t_pysong;
 
 typedef struct st_pytrack
@@ -162,6 +163,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_name);
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index);
 void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data);
+int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a_region_name);
 
 /*End declarations.  Begin implementations.*/
 
@@ -209,6 +211,7 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
     while(f_i < PYDAW_MAX_REGION_COUNT)
     {
         a_pydaw->pysong->regions[f_i] = 0;
+        sprintf(a_pydaw->pysong->region_names[f_i], "__no__region__");
         f_i++;
     }
 #ifdef PYDAW_MEMCHECK
@@ -226,6 +229,7 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
         int f_pos = atoi(f_pos_char);        
         char * f_region_char = c_iterate_2d_char_array(f_current_string);
         a_pydaw->pysong->regions[f_pos] = g_pyregion_get(a_pydaw, f_region_char);
+        strcpy(a_pydaw->pysong->region_names[f_pos], f_region_char);
         free(f_pos_char);
         free(f_region_char);
         f_i++;
@@ -246,6 +250,22 @@ int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_
     while(f_i < a_pydaw_data->item_count)
     {
         if(!strcmp(a_name, a_pydaw_data->item_pool[f_i]->name))
+        {
+            return f_i;
+        }
+        f_i++;
+    }
+    
+    return -1;
+}
+
+int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a_region_name)
+{
+    int f_i = 0;
+    
+    while(f_i < PYDAW_MAX_REGION_COUNT)
+    {
+        if(!strcmp(a_region_name, a_pydaw_data->pysong->region_names[f_i]))
         {
             return f_i;
         }
@@ -977,8 +997,17 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     //pydaw_write_log(log_buff);
     
     if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR)) //Save region
-    {
-        g_pyregion_get(a_pydaw_data, a_value);        
+    {        
+        t_pyregion * f_result = g_pyregion_get(a_pydaw_data, a_value);
+        int f_region_index = i_get_song_index_from_region_name(a_pydaw_data, a_value);
+        
+        pthread_mutex_lock(&a_pydaw_data->mutex);
+        if(a_pydaw_data->pysong->regions[f_region_index])
+        {
+            free(a_pydaw_data->pysong->regions[f_region_index]);
+        }
+        a_pydaw_data->pysong->regions[f_region_index] = f_result;
+        pthread_mutex_unlock(&a_pydaw_data->mutex);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SI)) //Save Item
     {
