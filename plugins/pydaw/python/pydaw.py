@@ -128,7 +128,11 @@ class region_list_editor:
                 else:
                     self.show_cell_dialog(x, y)
         if this_edit_mode_selector.delete_radiobutton.isChecked():
-            pass
+            self.region.remove_item_ref(x, y)
+            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
+            self.table_widget.clear()
+            self.open_region(str(self.region_name_lineedit.text()))
+            
 
     def show_cell_dialog(self, x, y):
         def note_ok_handler():

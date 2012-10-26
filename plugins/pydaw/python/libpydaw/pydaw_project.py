@@ -232,7 +232,7 @@ class pydaw_region:
         for f_item in self.items:
             if f_item.bar_num == a_bar_num and f_item.track_num == a_track_num:
                 self.items.remove(f_item)
-                print("remove_item_ref removed bar: " + f_item.bar_num + ", track: " + f_item.track_num)
+                print("remove_item_ref removed bar: " + str(f_item.bar_num) + ", track: " + str(f_item.track_num))
 
     def __init__(self, a_name):
         self.items = []
