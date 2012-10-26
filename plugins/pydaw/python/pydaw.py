@@ -287,16 +287,22 @@ class item_list_editor:
     def notes_show_event_dialog(self, x, y):
         f_cell = self.notes_table_widget.item(x, y)
         if f_cell is not None:
+            self.is_existing_note = True
             self.default_start = float(self.notes_table_widget.item(x, 0).text())
             self.default_length = float(self.notes_table_widget.item(x, 1).text())
             self.default_note = int(self.notes_table_widget.item(x, 3).text()) % 12
             self.default_octave = (int(self.notes_table_widget.item(x, 3).text()) / 12) - 2
             self.default_velocity = int(self.notes_table_widget.item(x, 4).text())
+        else:
+            self.is_existing_note = False
+            
         def note_ok_handler():
+            if self.is_existing_note:
+                self.item.remove_note(x)
             f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
             f_note_name = str(f_note.currentText()) + str(f_octave.value())
-
-            if not self.item.add_note(pydaw_note(x, f_start.value(), f_length.value(), f_note_name, f_note_value, f_velocity.value())):
+            f_new_note = pydaw_note(x, f_start.value(), f_length.value(), f_note_name, f_note_value, f_velocity.value())
+            if not self.item.add_note(f_new_note):
                 QtGui.QMessageBox.warning(f_window, "Error", "Overlapping note events")
                 return
 
