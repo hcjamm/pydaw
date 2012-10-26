@@ -294,6 +294,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 int f_current_track_bar = pydaw_data->current_bar;
                 double f_track_current_period_beats = f_current_period_beats;
                 double f_track_next_period_beats = f_next_period_beats;
+                double f_track_beats_offset = 0.0f;
 
                 while(1)
                 {
@@ -309,6 +310,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                             {
                                 f_track_current_period_beats = 0.0f;
                                 f_track_next_period_beats = f_track_next_period_beats - 4.0f;
+                                f_track_beats_offset = (f_sample_period_inc * 4.0f) - f_track_next_period_beats;
 
                                 pydaw_data->track_note_event_indexes[f_i] = 0;
                                 pydaw_data->track_cc_event_indexes[f_i] = 0;
@@ -333,7 +335,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                             snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
 
                             int f_note_sample_offset = 0;
-                            float f_note_start_diff = (f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) - f_track_current_period_beats;
+                            float f_note_start_diff = ((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) - f_track_current_period_beats) + f_track_beats_offset;
                             float f_note_start_frac = f_note_start_diff / f_sample_period_inc_beats;
                             f_note_sample_offset =  (int)(f_note_start_frac * ((float)sample_count));                            
 
@@ -384,17 +386,6 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 f_current_period_beats = 0.0f;
                 f_next_period_beats = f_next_period_beats - 4.0f;
 
-                /*
-                int f_i2 = 0;
-
-                while(f_i2 < PYDAW_MAX_TRACK_COUNT)
-                {
-                    pydaw_data->track_note_event_indexes[f_i2] = 0;
-                    pydaw_data->track_cc_event_indexes[f_i2] = 0;
-                    f_i2++;
-                }
-                */
-
                 pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
 
                 if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
@@ -438,7 +429,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                 //Use this to go back and process the early parts of the next item
                 //goto event_loop_label;
             }
-        }
+        } //If playback_mode > 0
         
         int f_i = 0;
 
@@ -488,7 +479,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
             f_i++;
         }
                                          
-    }
+    }//If is initialized
     
     /*TODO:  Run the LMS Limiter algorithm here at 0.0db, long release time, to prevent clipping*/
     
