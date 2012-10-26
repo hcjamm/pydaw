@@ -141,6 +141,61 @@ typedef struct st_pydaw_plugin
     int ui_visible;
 }t_pydaw_plugin;
 
+void setControl(t_pydaw_plugin *instance, long controlIn, snd_seq_event_t *event)
+{
+    long port = instance->pluginControlInPortNumbers[controlIn];
+
+    const LADSPA_Descriptor *p = instance->descriptor->LADSPA_Plugin;
+
+    LADSPA_PortRangeHintDescriptor d = p->PortRangeHints[port].HintDescriptor;
+
+    LADSPA_Data lb = p->PortRangeHints[port].LowerBound ;
+        /* * (LADSPA_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
+	 instance->sample_rate : 1.0f); */
+
+    LADSPA_Data ub = p->PortRangeHints[port].UpperBound ;
+         /*   * (LADSPA_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
+	 sample_rate : 1.0f); */
+
+    float value = (float)event->data.control.value;
+
+    if (!LADSPA_IS_HINT_BOUNDED_BELOW(d)) 
+    {
+	if (!LADSPA_IS_HINT_BOUNDED_ABOVE(d)) {
+	    /* unbounded: might as well leave the value alone. */
+            return;
+	} else {
+	    /* bounded above only. just shift the range. */
+	    value = ub - 127.0f + value;
+	}
+    } 
+    else 
+    {
+	if (!LADSPA_IS_HINT_BOUNDED_ABOVE(d)) {
+	    /* bounded below only. just shift the range. */
+	    value = lb + value;
+	} else {
+	    /* bounded both ends.  more interesting. */
+            if (LADSPA_IS_HINT_LOGARITHMIC(d) && lb > 0.0f && ub > 0.0f) {
+		const float llb = logf(lb);
+		const float lub = logf(ub);
+
+		value = expf(llb + ((lub - llb) * value / 127.0f));
+	    } else {
+		value = lb + ((ub - lb) * value / 127.0f);
+	    }
+	}
+    }
+    if (LADSPA_IS_HINT_INTEGER(d)) 
+    {
+        value = lrintf(value);
+    }
+
+    instance->pluginControlIns[controlIn] = value;
+    instance->pluginPortUpdated[controlIn] = 1;
+}
+
+
 t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
 {
     t_pydaw_plugin * f_result = (t_pydaw_plugin*)malloc(sizeof(t_pydaw_plugin));  //TODO: posix_memalign instead...
