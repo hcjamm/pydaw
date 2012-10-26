@@ -436,6 +436,7 @@ class seq_track:
         this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked())
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_rec(self, value):
+        this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_name_changed(self, new_name):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())

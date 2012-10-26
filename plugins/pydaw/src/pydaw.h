@@ -36,6 +36,7 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT "ci"
 #define PYDAW_CONFIGURE_KEY_SHOW_PLUGIN_UI "su"
 #define PYDAW_CONFIGURE_KEY_SAVE_TRACKS "st"
+#define PYDAW_CONFIGURE_KEY_REC_ARM_TRACK "tr"
 
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -106,6 +107,7 @@ typedef struct st_pytrack
     float volume;
     int solo;
     int mute;
+    int rec;
     int plugin_index;
     snd_seq_event_t * event_buffer;
     int event_index;
@@ -446,6 +448,7 @@ t_pytrack * g_pytrack_get()
     f_result->volume = 0.0f;
     f_result->plugin_index = 0;
     f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * PYDAW_MAX_EVENT_BUFFER_SIZE);
+    f_result->rec = 0;
             
     int f_i = 0;
     
@@ -1093,7 +1096,22 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
         a_pydaw_data->track_pool[f_track_num]->mute = f_mode;
-        g_free_1d_char_array(f_val_arr);        
+        g_free_1d_char_array(f_val_arr);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC_ARM_TRACK)) //Set track record arm
+    {
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        int f_track_num = atoi(f_val_arr->array[0]);
+        int f_mode = atoi(f_val_arr->array[1]);
+        int f_i = 0;
+        //TODO:  This will need to be removed if PyDAW ever supports multiple MIDI input devices, just a quick hack for now
+        while(f_i < PYDAW_MAX_TRACK_COUNT)
+        {
+            a_pydaw_data->track_pool[f_track_num]->rec = 0;
+            f_i++;
+        }
+        a_pydaw_data->track_pool[f_track_num]->rec = f_mode;
+        g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_VOL)) //Set track volume
     {

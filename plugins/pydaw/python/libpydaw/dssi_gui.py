@@ -162,3 +162,10 @@ class dssi_gui(ServerThread):
         
     def pydaw_save_tracks(self):
         self.send_configure("st", "")
+        
+    def pydaw_set_track_rec(self, a_track_num, a_bool):
+        if a_bool:
+            a_value = 1
+        else:
+            a_value = 0
+        self.send_configure("tr", str(a_track_num) + "|" + str(a_value))
