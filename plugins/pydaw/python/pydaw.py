@@ -464,6 +464,7 @@ class seq_track:
         self.hlayout1.addWidget(self.solo_checkbox)
         self.mute_checkbox = QtGui.QCheckBox()
         self.mute_checkbox.setText("Mute")
+        self.mute_checkbox.clicked.connect(self.on_mute)
         self.hlayout1.addWidget(self.mute_checkbox)
         self.record_radiobutton = QtGui.QRadioButton()
         self.record_radiobutton.setText("Rec")

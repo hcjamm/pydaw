@@ -146,6 +146,7 @@ typedef struct st_pydaw_data
     
     t_pyitem * item_pool[PYDAW_MAX_ITEM_COUNT];
     int item_count;
+    int is_soloed;
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
@@ -491,6 +492,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->playback_mode = 0;
     f_result->pysong = NULL;
     f_result->item_count = 0;
+    f_result->is_soloed = 0;
     
     int f_i = 0;
     
