@@ -262,183 +262,186 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
            
     int f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
     
-    if((pydaw_data->is_initialized) && ((pydaw_data->playback_mode) > 0))
+    if(pydaw_data->is_initialized)
     {
-        double f_sample_period_inc = ((pydaw_data->playback_inc) * ((double)(sample_count)));
-        double f_sample_period_inc_beats = f_sample_period_inc * 4.0f;
-        double f_next_playback_cursor = (pydaw_data->playback_cursor) + f_sample_period_inc;        
-        double f_current_period_beats = (pydaw_data->playback_cursor) * 4.0f;
-        double f_next_period_beats = f_next_playback_cursor * 4.0f;
-                
-        int f_i = 0;
-                        
-        while(f_i < PYDAW_MAX_TRACK_COUNT)
+        if((pydaw_data->playback_mode) > 0)
         {
-            pydaw_data->track_pool[f_i]->event_index = 0;
-            f_i++;
-        }
-                
-        f_i = 0;
+            double f_sample_period_inc = ((pydaw_data->playback_inc) * ((double)(sample_count)));
+            double f_sample_period_inc_beats = f_sample_period_inc * 4.0f;
+            double f_next_playback_cursor = (pydaw_data->playback_cursor) + f_sample_period_inc;        
+            double f_current_period_beats = (pydaw_data->playback_cursor) * 4.0f;
+            double f_next_period_beats = f_next_playback_cursor * 4.0f;
 
-        while(f_i < PYDAW_MAX_TRACK_COUNT)
-        {
-            if(pydaw_data->track_pool[f_i]->plugin_index == 0)
+            int f_i = 0;
+
+            while(f_i < PYDAW_MAX_TRACK_COUNT)
             {
+                pydaw_data->track_pool[f_i]->event_index = 0;
                 f_i++;
-                continue;
             }
 
-            int f_current_track_region = pydaw_data->current_region;
-            int f_current_track_bar = pydaw_data->current_bar;
-            double f_track_current_period_beats = f_current_period_beats;
-            double f_track_next_period_beats = f_next_period_beats;
+            f_i = 0;
 
-            while(1)
+            while(f_i < PYDAW_MAX_TRACK_COUNT)
             {
-                if((pydaw_data->pysong->regions[f_current_track_region]) && 
-                    (pydaw_data->pysong->regions[f_current_track_region]->item_indexes[f_i][f_current_track_bar] != -1))
+                if(pydaw_data->track_pool[f_i]->plugin_index == 0)
                 {
-                    t_pyitem f_current_item = 
-                            *(pydaw_data->item_pool[(pydaw_data->pysong->regions[f_current_track_region]->item_indexes[f_i][f_current_track_bar])]);
-                            
-                    if((pydaw_data->track_note_event_indexes[f_i]) >= (f_current_item.note_count))
+                    f_i++;
+                    continue;
+                }
+
+                int f_current_track_region = pydaw_data->current_region;
+                int f_current_track_bar = pydaw_data->current_bar;
+                double f_track_current_period_beats = f_current_period_beats;
+                double f_track_next_period_beats = f_next_period_beats;
+
+                while(1)
+                {
+                    if((pydaw_data->pysong->regions[f_current_track_region]) && 
+                        (pydaw_data->pysong->regions[f_current_track_region]->item_indexes[f_i][f_current_track_bar] != -1))
                     {
-                        if(f_track_next_period_beats >= 4.0f)
+                        t_pyitem f_current_item = 
+                                *(pydaw_data->item_pool[(pydaw_data->pysong->regions[f_current_track_region]->item_indexes[f_i][f_current_track_bar])]);
+
+                        if((pydaw_data->track_note_event_indexes[f_i]) >= (f_current_item.note_count))
                         {
-                            f_track_current_period_beats = 0.0f;
-                            f_track_next_period_beats = f_track_next_period_beats - 4.0f;
-
-                            pydaw_data->track_note_event_indexes[f_i] = 0;
-                            pydaw_data->track_cc_event_indexes[f_i] = 0;
-
-                            f_current_track_bar++;
-
-                            if(f_current_track_bar >= 8)
+                            if(f_track_next_period_beats >= 4.0f)
                             {
-                                f_current_track_bar = 0;
-                                f_current_track_region++;
-                            }                                
+                                f_track_current_period_beats = 0.0f;
+                                f_track_next_period_beats = f_track_next_period_beats - 4.0f;
+
+                                pydaw_data->track_note_event_indexes[f_i] = 0;
+                                pydaw_data->track_cc_event_indexes[f_i] = 0;
+
+                                f_current_track_bar++;
+
+                                if(f_current_track_bar >= 8)
+                                {
+                                    f_current_track_bar = 0;
+                                    f_current_track_region++;
+                                }                                
+                            }
+                            else
+                            {
+                                break;
+                            }                            
+                        }
+
+                        if(((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) >= f_track_current_period_beats) &&
+                            ((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) < f_track_next_period_beats))
+                        {
+                            snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
+
+                            int f_note_sample_offset = 0;
+                            float f_note_start_diff = (f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) - f_track_current_period_beats;
+                            float f_note_start_frac = f_note_start_diff / f_sample_period_inc_beats;
+                            f_note_sample_offset =  (int)(f_note_start_frac * ((float)sample_count));                            
+
+                            printf("\n\nSending note_on event\nf_i = %i, f_note_start_diff = %f, f_sample_period_inc_beats = %f, f_note_start_frac = %f, f_note_sample_offset = %i, sample_count = %i, pydaw_data->current_sample = %i\n\n", 
+                                    f_i, f_note_start_diff, f_sample_period_inc_beats, f_note_start_frac, f_note_sample_offset, (int)sample_count, pydaw_data->current_sample);
+
+                            snd_seq_ev_set_noteon(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)], 0,
+                                    f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note,
+                                    f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->velocity);
+
+                            pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)].time.tick = f_note_sample_offset;
+
+                            pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
+
+                            pydaw_data->note_offs[f_i][(f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note)] = (pydaw_data->current_sample) + 
+                                    ((int)(f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->length * (pydaw_data->samples_per_beat)));
+
+                            //This assert will need to be adjusted once playback is allowed to start from anywhere other than bar:0, region:0                        
+                            int f_calculated_sample = ((int)(((((float)(pydaw_data->current_bar))  * 4.0f) +  (f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start)) * pydaw_data->samples_per_beat));
+                            int f_real_sample = (f_note_sample_offset + (pydaw_data->current_sample));
+                            //assert(f_calculated_sample == f_real_sample);
+
+                            pydaw_data->track_note_event_indexes[f_i] = (pydaw_data->track_note_event_indexes[f_i]) + 1;
                         }
                         else
                         {
                             break;
-                        }                            
-                    }
-
-                    if(((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) >= f_track_current_period_beats) &&
-                        ((f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) < f_track_next_period_beats))
-                    {
-                        snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
-
-                        int f_note_sample_offset = 0;
-                        float f_note_start_diff = (f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start) - f_track_current_period_beats;
-                        float f_note_start_frac = f_note_start_diff / f_sample_period_inc_beats;
-                        f_note_sample_offset =  (int)(f_note_start_frac * ((float)sample_count));                            
-
-                        printf("\n\nSending note_on event\nf_i = %i, f_note_start_diff = %f, f_sample_period_inc_beats = %f, f_note_start_frac = %f, f_note_sample_offset = %i, sample_count = %i, pydaw_data->current_sample = %i\n\n", 
-                                f_i, f_note_start_diff, f_sample_period_inc_beats, f_note_start_frac, f_note_sample_offset, (int)sample_count, pydaw_data->current_sample);
-
-                        snd_seq_ev_set_noteon(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)], 0,
-                                f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note,
-                                f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->velocity);
-
-                        pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)].time.tick = f_note_sample_offset;
-
-                        pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
-
-                        pydaw_data->note_offs[f_i][(f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->note)] = (pydaw_data->current_sample) + 
-                                ((int)(f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->length * (pydaw_data->samples_per_beat)));
-                        
-                        //This assert will need to be adjusted once playback is allowed to start from anywhere other than bar:0, region:0                        
-                        int f_calculated_sample = ((int)(((((float)(pydaw_data->current_bar))  * 4.0f) +  (f_current_item.notes[(pydaw_data->track_note_event_indexes[f_i])]->start)) * pydaw_data->samples_per_beat));
-                        int f_real_sample = (f_note_sample_offset + (pydaw_data->current_sample));
-                        //assert(f_calculated_sample == f_real_sample);
-                        
-                        pydaw_data->track_note_event_indexes[f_i] = (pydaw_data->track_note_event_indexes[f_i]) + 1;
+                        }
                     }
                     else
                     {
                         break;
                     }
-                }
-                else
+                }                
+
+                f_i++;
+            }            
+
+            pydaw_data->playback_cursor = f_next_playback_cursor;
+
+            //TODO:  I think that equaling exactly 1.0f might create a weird scenario where 2 note ons are sent
+            if((pydaw_data->playback_cursor) >= 1.0f)
+            {
+                //Calculate the remainder of this bar that occurs within the sample period
+                //pydaw_data->playback_cursor = (pydaw_data->playback_cursor) - 1.0f;                
+                f_next_playback_cursor = (pydaw_data->playback_cursor) - 1.0f;
+                pydaw_data->playback_cursor = 0.0f;
+                f_current_period_beats = 0.0f;
+                f_next_period_beats = f_next_period_beats - 4.0f;
+
+                /*
+                int f_i2 = 0;
+
+                while(f_i2 < PYDAW_MAX_TRACK_COUNT)
                 {
-                    break;
+                    pydaw_data->track_note_event_indexes[f_i2] = 0;
+                    pydaw_data->track_cc_event_indexes[f_i2] = 0;
+                    f_i2++;
                 }
-            }                
+                */
 
-            f_i++;
-        }            
-
-        pydaw_data->playback_cursor = f_next_playback_cursor;
-
-        //TODO:  I think that equaling exactly 1.0f might create a weird scenario where 2 note ons are sent
-        if((pydaw_data->playback_cursor) >= 1.0f)
-        {
-            //Calculate the remainder of this bar that occurs within the sample period
-            //pydaw_data->playback_cursor = (pydaw_data->playback_cursor) - 1.0f;                
-            f_next_playback_cursor = (pydaw_data->playback_cursor) - 1.0f;
-            pydaw_data->playback_cursor = 0.0f;
-            f_current_period_beats = 0.0f;
-            f_next_period_beats = f_next_period_beats - 4.0f;
-
-            /*
-            int f_i2 = 0;
-
-            while(f_i2 < PYDAW_MAX_TRACK_COUNT)
-            {
-                pydaw_data->track_note_event_indexes[f_i2] = 0;
-                pydaw_data->track_cc_event_indexes[f_i2] = 0;
-                f_i2++;
-            }
-            */
-            
-            pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
-            
-            if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
-            {
-                pydaw_data->current_bar = 0;
-
-                pydaw_data->current_region = (pydaw_data->current_region) + 1;
-
-                if((pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
-                {
-                    pydaw_data->playback_mode = 0;
-                    pydaw_data->current_region = 0;
-                }
-
-            }
-
-            /*
-            if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
-            {
                 pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
 
                 if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
                 {
                     pydaw_data->current_bar = 0;
 
-                    if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
-                    {
-                        pydaw_data->current_region = (pydaw_data->current_region) + 1;
+                    pydaw_data->current_region = (pydaw_data->current_region) + 1;
 
-                        if((pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
+                    if((pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
+                    {
+                        pydaw_data->playback_mode = 0;
+                        pydaw_data->current_region = 0;
+                    }
+
+                }
+
+                /*
+                if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
+                {
+                    pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
+
+                    if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
+                    {
+                        pydaw_data->current_bar = 0;
+
+                        if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
                         {
-                            pydaw_data->playback_mode = 0;
-                            pydaw_data->current_region = 0;
+                            pydaw_data->current_region = (pydaw_data->current_region) + 1;
+
+                            if((pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
+                            {
+                                pydaw_data->playback_mode = 0;
+                                pydaw_data->current_region = 0;
+                            }
                         }
                     }
                 }
-            }
-            */
+                */
 
-            printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (pydaw_data->current_region), (pydaw_data->current_bar));            
-            //Use this to go back and process the early parts of the next item
-            //goto event_loop_label;
+                printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (pydaw_data->current_region), (pydaw_data->current_bar));            
+                //Use this to go back and process the early parts of the next item
+                //goto event_loop_label;
+            }
         }
         
-        f_i = 0;
-        
+        int f_i = 0;
+
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {                             
             int f_i2 = 0;
@@ -456,14 +459,13 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
 
                     pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
                 }
-
                 f_i2++;
             }
             f_i++;
         }
-                
+
         f_i = 0;
-                
+
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {   
             if(pydaw_data->track_pool[f_i]->plugin_index != 0)
@@ -472,18 +474,18 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                             pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);
 
                 int f_i3 = 0;
-                
+
                 while(f_i3 < sample_count)
                 {
                     output0[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[0][f_i3]);
                     output1[f_i3] += (pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[1][f_i3]);
                     f_i3++;
                 }
-            }            
-            
+            }
+
             f_i++;
         }
-                
+                                         
     }
     
     /*TODO:  Run the LMS Limiter algorithm here at 0.0db, long release time, to prevent clipping*/
