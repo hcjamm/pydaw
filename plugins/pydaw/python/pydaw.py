@@ -517,7 +517,7 @@ class seq_track:
 
 class transport_widget:
     def on_play(self):
-        this_pydaw_project.this_dssi_gui.pydaw_play()
+        this_pydaw_project.this_dssi_gui.pydaw_play(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
     def on_stop(self):
         this_pydaw_project.this_dssi_gui.pydaw_stop()
     def on_rec(self):
@@ -559,7 +559,17 @@ class transport_widget:
         self.grid_layout.addWidget(QtGui.QLabel("Loop Mode"), 0, 7)
         self.loop_mode_combobox = QtGui.QComboBox()
         self.loop_mode_combobox.addItems(["Off", "Bar", "Region"])
+        self.loop_mode_combobox.setMinimumWidth(60)
         self.grid_layout.addWidget(self.loop_mode_combobox, 0, 8)
+        self.grid_layout.addWidget(QtGui.QLabel("Region:"), 0, 9)
+        self.region_spinbox = QtGui.QSpinBox()
+        self.region_spinbox.setRange(0, 300)
+        self.grid_layout.addWidget(self.region_spinbox, 0, 10)
+        self.grid_layout.addWidget(QtGui.QLabel("Bar:"), 0, 11)
+        self.bar_spinbox = QtGui.QSpinBox()
+        self.bar_spinbox.setRange(0, 8)
+        self.grid_layout.addWidget(self.bar_spinbox, 0, 12)
+        
 
 class edit_mode_selector:
     def __init__(self):
