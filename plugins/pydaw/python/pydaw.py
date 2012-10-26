@@ -233,7 +233,12 @@ class item_list_editor:
 
         self.main_hlayout.addWidget(self.notes_table_widget)
         self.main_hlayout.addWidget(self.ccs_table_widget)
-        self.set_headers()
+        self.set_headers()        
+        self.default_start = 0.0
+        self.default_length = 1.0
+        self.default_note = 0
+        self.default_octave = 3
+        self.default_velocity = 100
 
     def set_headers(self): #Because clearing the table clears the headers
         self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note', 'Note#', 'Velocity'])
@@ -281,18 +286,12 @@ class item_list_editor:
 
     def notes_show_event_dialog(self, x, y):
         f_cell = self.notes_table_widget.item(x, y)
-        if f_cell is None:
-            f_default_start = 0.0
-            f_default_length = 1.0
-            f_default_note = 0
-            f_default_octave = 3
-            f_default_velocity = 100
-        else:
-            f_default_start = float(self.notes_table_widget.item(x, 0).text())
-            f_default_length = float(self.notes_table_widget.item(x, 1).text())
-            f_default_note = int(self.notes_table_widget.item(x, 3).text()) % 12
-            f_default_octave = (int(self.notes_table_widget.item(x, 3).text()) / 12) - 2
-            f_default_velocity = int(self.notes_table_widget.item(x, 4).text())
+        if f_cell is not None:
+            self.default_start = float(self.notes_table_widget.item(x, 0).text())
+            self.default_length = float(self.notes_table_widget.item(x, 1).text())
+            self.default_note = int(self.notes_table_widget.item(x, 3).text()) % 12
+            self.default_octave = (int(self.notes_table_widget.item(x, 3).text()) / 12) - 2
+            self.default_velocity = int(self.notes_table_widget.item(x, 4).text())
         def note_ok_handler():
             f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
             f_note_name = str(f_note.currentText()) + str(f_octave.value())
@@ -301,10 +300,16 @@ class item_list_editor:
                 QtGui.QMessageBox.warning(f_window, "Error", "Overlapping note events")
                 return
 
+            self.default_start = f_start.value()
+            self.default_length = f_length.value()
+            self.default_note = int(f_note.currentIndex())
+            self.default_octave = int(f_octave.value())
+            self.default_velocity = int(f_velocity.value())
+            
             f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))
             self.notes_table_widget.setItem(x, 0, f_start_item)
             f_length_item = QtGui.QTableWidgetItem(str(f_length.value()))
-            self.notes_table_widget.setItem(x, 1, f_length_item)
+            self.notes_table_widget.setItem(x, 1, f_length_item)                        
             f_note_name_item = QtGui.QTableWidgetItem(f_note_name)
             self.notes_table_widget.setItem(x, 2, f_note_name_item)
             f_note_num = QtGui.QTableWidgetItem(str(f_note_value))
@@ -324,27 +329,27 @@ class item_list_editor:
         f_note_layout = QtGui.QHBoxLayout()
         f_note = QtGui.QComboBox()
         f_note.addItems(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])
-        f_note.setCurrentIndex(f_default_note)
+        f_note.setCurrentIndex(self.default_note)
         f_note_layout.addWidget(f_note)
         f_layout.addWidget(QtGui.QLabel("Note"), 1, 0)
         f_octave = QtGui.QSpinBox()
         f_octave.setRange(-2, 8)
-        f_octave.setValue(f_default_octave)
+        f_octave.setValue(self.default_octave)
         f_note_layout.addWidget(f_octave)
         f_layout.addLayout(f_note_layout, 1, 1)
         f_layout.addWidget(QtGui.QLabel("Start(beats)"), 2, 0)
         f_start = QtGui.QDoubleSpinBox()
         f_start.setRange(0.0, 3.99)
-        f_start.setValue(f_default_start)
+        f_start.setValue(self.default_start)
         f_layout.addWidget(f_start, 2, 1)
         f_layout.addWidget(QtGui.QLabel("Length(beats)"), 3, 0)
         f_length = QtGui.QDoubleSpinBox()
         f_length.setRange(0.1, 16.0)
-        f_length.setValue(f_default_length)
+        f_length.setValue(self.default_length)
         f_layout.addWidget(f_length, 3, 1)
         f_velocity = QtGui.QSpinBox()
         f_velocity.setRange(1, 127)
-        f_velocity.setValue(f_default_velocity)
+        f_velocity.setValue(self.default_velocity)
         f_layout.addWidget(QtGui.QLabel("Velocity"), 4, 0)
         f_layout.addWidget(f_velocity, 4, 1)
         f_ok_button = QtGui.QPushButton("OK")
