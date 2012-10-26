@@ -273,10 +273,24 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
             double f_next_period_beats = f_next_playback_cursor * 4.0f;
 
             int f_i = 0;
-
+            
             while(f_i < PYDAW_MAX_TRACK_COUNT)
             {
                 pydaw_data->track_pool[f_i]->event_index = 0;
+                f_i++;
+            }
+            
+            f_i = 0;
+            
+            pydaw_data->is_soloed = 0;
+            
+            while(f_i < PYDAW_MAX_TRACK_COUNT)
+            {
+                if(pydaw_data->track_pool[f_i]->solo)
+                {
+                    pydaw_data->is_soloed = 1;
+                    break;
+                }
                 f_i++;
             }
 
@@ -284,7 +298,9 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
 
             while(f_i < PYDAW_MAX_TRACK_COUNT)
             {
-                if(pydaw_data->track_pool[f_i]->plugin_index == 0)
+                if((pydaw_data->track_pool[f_i]->plugin_index == 0) ||
+                    (pydaw_data->track_pool[f_i]->mute) ||
+                    ((pydaw_data->is_soloed) && (!pydaw_data->track_pool[f_i]->solo)) )
                 {
                     f_i++;
                     continue;
