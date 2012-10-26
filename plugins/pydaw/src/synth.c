@@ -455,7 +455,9 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
                                 f_i, pydaw_data->note_offs[f_i][f_i2], pydaw_data->current_sample);
                     snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
 
-                    snd_seq_ev_set_noteoff(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)], 0, f_i2, 0);                        
+                    snd_seq_ev_set_noteoff(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)], 0, f_i2, 0);
+                    pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)].time.tick = 
+                            (pydaw_data->note_offs[f_i][f_i2]) - (pydaw_data->current_sample);
 
                     pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
                 }
