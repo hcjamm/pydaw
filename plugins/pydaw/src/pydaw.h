@@ -50,6 +50,7 @@ extern "C" {
 #define PYDAW_MAX_EVENT_BUFFER_SIZE 512  //This could probably be made smaller
 #define PYDAW_REGION_SIZE 8
 #define PYDAW_MIDI_NOTE_COUNT 128
+#define PYDAW_MIDI_RECORD_BUFFER_LENGTH (PYDAW_MAX_REGION_COUNT * PYDAW_REGION_SIZE)  //recording buffer for MIDI, in bars
     
 #include <string.h>
 #include <pthread.h>
@@ -82,7 +83,7 @@ typedef struct st_pyitem
     int note_count;    
     t_pycc * ccs[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
     int cc_count;
-    int resize_factor;
+    //int resize_factor;
     int note_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
     int cc_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
 }t_pyitem;
@@ -147,6 +148,8 @@ typedef struct st_pydaw_data
     float samples_per_beat;  //The number of samples per beat, for calculating length
     
     t_pyitem * item_pool[PYDAW_MAX_ITEM_COUNT];
+    t_pyitem * item_recording_pool[PYDAW_MIDI_RECORD_BUFFER_LENGTH];
+    int item_recording_position;
     int item_count;
     int is_soloed;
 }t_pydaw_data;
@@ -516,6 +519,29 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         f_i++;
     }
     
+    f_result->item_recording_position = 0;
+    f_i = 0;
+    
+    while(f_i < PYDAW_MIDI_RECORD_BUFFER_LENGTH)
+    {
+        f_result->item_recording_pool[f_i] = (t_pyitem*)malloc(sizeof(t_pyitem));
+        int f_i2 = 0;
+        while(f_i2 < PYDAW_MAX_EVENTS_PER_ITEM_COUNT)
+        {
+            f_result->item_recording_pool[f_i]->ccs[f_i2] = g_pycc_get(0, 0, 0.0f);
+            f_result->item_recording_pool[f_i]->cc_index[f_i2] = -1;  //TODO:  is -1 right?  
+            f_result->item_recording_pool[f_i]->note_index[f_i2] = -1;        
+            f_result->item_recording_pool[f_i]->notes[f_i2] = g_pynote_get(60, 100, 0.0f, 1.0f);
+            f_i2++;
+        }
+        f_result->item_recording_pool[f_i]->cc_count = 0;
+        
+        f_result->item_recording_pool[f_i]->name = (char*)malloc(sizeof(char) * LMS_TINY_STRING);
+        strcpy(f_result->item_recording_pool[f_i]->name, "");
+        f_result->item_recording_pool[f_i]->note_count = 0;
+        f_i++;
+    }
+           
     /* Create OSC thread */    
     char *tmp;
     
