@@ -170,6 +170,7 @@ int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index);
 void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data);
 int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a_region_name);
+char * c_pyitem_to_string(t_pyitem* a_pyitem);
 
 /*End declarations.  Begin implementations.*/
 
@@ -340,6 +341,39 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     
     //v_pydaw_assert_memory_integrity(a_pydaw_data);
     
+    return f_result;
+}
+
+/*Mimics the UI's Python __str__ method that creates/saves items...*/
+char * c_pyitem_to_string(t_pyitem* a_pyitem)
+{
+    int f_i = 0;
+    char * f_result = (char*)malloc(sizeof(char) * LMS_LARGE_STRING);
+    strcpy(f_result, "");
+    
+    char f_temp[LMS_TINY_STRING];
+    
+    while(f_i < (a_pyitem->note_count))
+    {
+        /*    def __str__(self):
+        return "n|" + str(self.editor_index) + "|" + str(self.start) + "|" + str(self.length) + "|" + self.note + "|" + str(self.note_num) + "|" + str(self.velocity) + "\n"*/
+        sprintf(f_temp, "n|%i|%f|%f|%s|%i|%i\n", f_i, a_pyitem->notes[f_i]->start, a_pyitem->notes[f_i]->length, 
+                "TODO", a_pyitem->notes[f_i]->note, a_pyitem->notes[f_i]->velocity);
+        strcat(f_result, f_temp);
+        f_i++;
+    }
+    
+    f_i = 0;
+    while(f_i < (a_pyitem->cc_count))
+    {
+        /* def __str__(self):
+        return "c|" + str(self.editor_index) + "|" + str(self.start) + "|" + str(self.cc_num) + "|" + str(self.cc_val) + "\n" */
+        sprintf(f_temp, "c|%i|%f|%i|%i\n", f_i, a_pyitem->ccs[f_i]->start, a_pyitem->ccs[f_i]->cc_num, a_pyitem->ccs[f_i]->cc_val);
+        strcat(f_result, f_temp);
+        f_i++;
+    }
+    
+    strcat(f_result, "\\");
     return f_result;
 }
 
