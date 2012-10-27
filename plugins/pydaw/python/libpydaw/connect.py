@@ -20,7 +20,7 @@ class alsa_port:
         self.client_type = a_client_type.strip()
         self.port_number = a_port_number.strip()
         self.port_name = a_port_name.strip()
-        self.fqname = self.client_name + " " + self.client_number + " " + self.port_name + " " + self.port_number
+        self.fqname = self.client_name + " - " + self.port_name + " | " + self.client_number + self.port_number
         
 class alsa_ports:
     def parse_aconnect(self, a_string):
@@ -37,8 +37,21 @@ class alsa_ports:
             else:
                 port_name = line.split("'")[1]
                 port_number = line.strip().split(" ")[0]
-                f_result.append(alsa_port(client_number, client_name, client_type, port_number, port_name))
+                if not client_name == "System":
+                    f_result.append(alsa_port(client_number, client_name, client_type, port_number, port_name))
         return f_result
+        
+    def connect_to_pydaw(self, a_string):
+        print("Attempting to connect ALSA port " + a_string + " to PyDAW...")        
+        for f_alsa_port in self.input_ports:
+            print(f_alsa_port.client_name)
+            if f_alsa_port.client_name == "PyDAW":
+                print(getoutput("aconnect -x"))
+                f_out_port = a_string.split("|")[1]
+                f_cmd = "aconnect " + f_out_port + " " + str(f_alsa_port.client_number) + str(f_alsa_port.port_number)
+                print(f_cmd)
+                print(getoutput(f_cmd))
+                break
         
     def get_input_fqnames(self):
         f_result = []
@@ -57,9 +70,9 @@ class alsa_ports:
         pass
         
     def __init__(self):
-        input_str = getoutput("aconnect -i")        
+        input_str = getoutput("aconnect -o")        
         self.input_ports = self.parse_aconnect(input_str)        
-        output_str = getoutput("aconnect -o")        
+        output_str = getoutput("aconnect -i")        
         self.output_ports = self.parse_aconnect(output_str)
 
 
