@@ -356,10 +356,8 @@ char * c_pyitem_to_string(t_pyitem* a_pyitem)
     
     while(f_i < (a_pyitem->note_count))
     {
-        /*    def __str__(self):
-        return "n|" + str(self.editor_index) + "|" + str(self.start) + "|" + str(self.length) + "|" + self.note + "|" + str(self.note_num) + "|" + str(self.velocity) + "\n"*/
-        sprintf(f_temp, "n|%i|%f|%f|%s|%i|%i\n", f_i, a_pyitem->notes[f_i]->start, a_pyitem->notes[f_i]->length, 
-                "TODO", a_pyitem->notes[f_i]->note, a_pyitem->notes[f_i]->velocity);
+        sprintf(f_temp, "n|%f|%f|%i|%i\n", a_pyitem->notes[f_i]->start, a_pyitem->notes[f_i]->length, 
+                a_pyitem->notes[f_i]->note, a_pyitem->notes[f_i]->velocity);
         strcat(f_result, f_temp);
         f_i++;
     }
@@ -367,9 +365,7 @@ char * c_pyitem_to_string(t_pyitem* a_pyitem)
     f_i = 0;
     while(f_i < (a_pyitem->cc_count))
     {
-        /* def __str__(self):
-        return "c|" + str(self.editor_index) + "|" + str(self.start) + "|" + str(self.cc_num) + "|" + str(self.cc_val) + "\n" */
-        sprintf(f_temp, "c|%i|%f|%i|%i\n", f_i, a_pyitem->ccs[f_i]->start, a_pyitem->ccs[f_i]->cc_num, a_pyitem->ccs[f_i]->cc_val);
+        sprintf(f_temp, "c|%f|%i|%i\n", a_pyitem->ccs[f_i]->start, a_pyitem->ccs[f_i]->cc_num, a_pyitem->ccs[f_i]->cc_val);
         strcat(f_result, f_temp);
         f_i++;
     }
@@ -379,14 +375,7 @@ char * c_pyitem_to_string(t_pyitem* a_pyitem)
 }
 
 char * c_pyregion_to_string(t_pydaw_data * a_pydaw_data, int a_region_num)
-{
-    /*def __str__(self):
-        f_result = ""
-        for f_item in self.items:
-            f_result += str(f_item.track_num) + "|" + str(f_item.bar_num) + "|" + f_item.item_name + "\n"
-        f_result += pydaw_terminating_char
-        return f_result*/
-    
+{    
     int f_i = 0;
     int f_i2 = 0;
     
@@ -454,15 +443,11 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
             break;
         }
         
-        char * f_list_pos = c_iterate_2d_char_array(f_current_string);
-        
         char * f_start = c_iterate_2d_char_array(f_current_string);
         
         if(!strcmp(f_type, "n"))
         {
             char * f_length = c_iterate_2d_char_array(f_current_string);
-            char * f_note_text = c_iterate_2d_char_array(f_current_string);
-            free(f_note_text);  //This one is ignored
             char * f_note = c_iterate_2d_char_array(f_current_string);
             char * f_vel = c_iterate_2d_char_array(f_current_string);
             assert((f_result->note_count) < PYDAW_MAX_EVENTS_PER_ITEM_COUNT);
@@ -490,7 +475,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
             //sprintf(log_buff, "Invalid event type %s\n", f_type);
             //pydaw_write_log(log_buff);
         }
-        free(f_list_pos);
+        
         free(f_start);
         free(f_type);
         f_i++;

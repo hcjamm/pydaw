@@ -225,11 +225,13 @@ class item_list_editor:
         self.notes_table_widget.setColumnCount(5)
         self.notes_table_widget.setRowCount(128)
         self.notes_table_widget.cellClicked.connect(self.notes_click_handler)
+        self.notes_table_widget.setSortingEnabled(True)
 
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setColumnCount(3)
         self.ccs_table_widget.setRowCount(128)
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
+        self.ccs_table_widget.setSortingEnabled(True)
 
         self.main_hlayout.addWidget(self.notes_table_widget)
         self.main_hlayout.addWidget(self.ccs_table_widget)
@@ -251,18 +253,27 @@ class item_list_editor:
         self.set_headers()
         self.item_name = a_item_name
         self.item = this_pydaw_project.get_item(a_item_name)
+        self.notes_table_widget.setSortingEnabled(False)
+        f_i = 0
         for note in self.item.notes:
-            self.notes_table_widget.setItem(note.editor_index, 0, QtGui.QTableWidgetItem(str(note.start)))
-            self.notes_table_widget.setItem(note.editor_index, 1, QtGui.QTableWidgetItem(str(note.length)))
-            self.notes_table_widget.setItem(note.editor_index, 2, QtGui.QTableWidgetItem(str(note.note)))
-            self.notes_table_widget.setItem(note.editor_index, 3, QtGui.QTableWidgetItem(str(note.note_num)))
-            self.notes_table_widget.setItem(note.editor_index, 4, QtGui.QTableWidgetItem(str(note.velocity)))
+            f_note_str = note_num_to_string(note.note_num)
+            self.notes_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(note.start)))
+            self.notes_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(note.length)))
+            self.notes_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(f_note_str))
+            self.notes_table_widget.setItem(f_i, 3, QtGui.QTableWidgetItem(str(note.note_num)))
+            self.notes_table_widget.setItem(f_i, 4, QtGui.QTableWidgetItem(str(note.velocity)))
+            f_i = f_i + 1
+        self.notes_table_widget.setSortingEnabled(True)
+        self.ccs_table_widget.setSortingEnabled(False)
+        f_i = 0
         for cc in self.item.ccs:
-            self.ccs_table_widget.setItem(cc.editor_index, 0, QtGui.QTableWidgetItem(str(cc.start)))
-            self.ccs_table_widget.setItem(cc.editor_index, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
-            self.ccs_table_widget.setItem(cc.editor_index, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
+            self.ccs_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(cc.start)))
+            self.ccs_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
+            self.ccs_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
+            f_i = f_i + 1
         if this_region_editor.open_new_items_checkbox.isChecked():
             this_main_window.main_tabwidget.setCurrentIndex(1)
+        self.ccs_table_widget.setSortingEnabled(True)
 
     def notes_click_handler(self, x, y):
         if not self.enabled:
@@ -301,7 +312,7 @@ class item_list_editor:
                 self.item.remove_note(x)
             f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
             f_note_name = str(f_note.currentText()) + str(f_octave.value())
-            f_new_note = pydaw_note(x, f_start.value(), f_length.value(), f_note_name, f_note_value, f_velocity.value())
+            f_new_note = pydaw_note(f_start.value(), f_length.value(), f_note_value, f_velocity.value())
             if not self.item.add_note(f_new_note):
                 QtGui.QMessageBox.warning(f_window, "Error", "Overlapping note events")
                 return
@@ -312,6 +323,7 @@ class item_list_editor:
             self.default_octave = int(f_octave.value())
             self.default_velocity = int(f_velocity.value())
             
+            self.notes_table_widget.setSortingEnabled(False)
             f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))
             self.notes_table_widget.setItem(x, 0, f_start_item)
             f_length_item = QtGui.QTableWidgetItem(str(f_length.value()))
@@ -322,6 +334,7 @@ class item_list_editor:
             self.notes_table_widget.setItem(x, 3, f_note_num)
             f_vel_item = QtGui.QTableWidgetItem(str(f_velocity.value()))
             self.notes_table_widget.setItem(x, 4, f_vel_item)
+            self.notes_table_widget.setSortingEnabled(True)
 
             this_pydaw_project.save_item(self.item_name, self.item)
             f_window.close()
@@ -378,10 +391,11 @@ class item_list_editor:
             f_default_cc_value = int(self.ccs_table_widget.item(x, 2).text())
 
         def cc_ok_handler():
-            if not self.item.add_cc(pydaw_cc(x, f_start.value(), f_cc.value(), f_cc_value.value())):
+            if not self.item.add_cc(pydaw_cc(f_start.value(), f_cc.value(), f_cc_value.value())):
                 QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
                 return
 
+            self.ccs_table_widget.setSortingEnabled(False)
             f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))
             self.ccs_table_widget.setItem(x, 0, f_start_item)
             f_cc_num_item = QtGui.QTableWidgetItem(str(f_cc.value()))
@@ -389,6 +403,7 @@ class item_list_editor:
             f_cc_val_item = QtGui.QTableWidgetItem(str(f_cc_value.value()))
             self.ccs_table_widget.setItem(x, 2, f_cc_val_item)
             this_pydaw_project.save_item(self.item_name, self.item)
+            self.ccs_table_widget.setSortingEnabled(True)
             f_window.close()
 
         def cc_cancel_handler():
