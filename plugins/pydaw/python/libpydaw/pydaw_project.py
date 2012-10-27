@@ -11,6 +11,13 @@ from dssi_gui import dssi_gui
 
 pydaw_terminating_char = "\\"
 
+int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+
+def note_num_to_string(a_note_num):    
+    f_note = int(a_note_num) % 12
+    f_octave = (int(a_note_num) / 12) - 2
+    return int_to_note_array[f_note] + str(f_octave)
+
 """ For sending OSC messages """
 def bool_to_int(a_bool):
     if a_bool:
@@ -332,13 +339,11 @@ class pydaw_note:
     def __lt__(self, other):
         return self.start < other.start
     
-    def __init__(self, a_editor_index, a_start, a_length, a_note, a_note_number, a_velocity):
+    def __init__(self, a_start, a_length, a_note_number, a_velocity):
         self.start = float(a_start)
         self.length = float(a_length)
-        self.note = a_note
         self.velocity = int(a_velocity)
-        self.note_num = int(a_note_number)
-        self.editor_index = int(a_editor_index)
+        self.note_num = int(a_note_number)        
         self.end = self.length + self.start
         
     def overlaps(self, other):
@@ -351,7 +356,7 @@ class pydaw_note:
 
     @staticmethod
     def from_arr(a_arr):
-        f_result = pydaw_note(a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6])
+        f_result = pydaw_note(a_arr[1], a_arr[2], a_arr[3], a_arr[4])
         return f_result
 
     @staticmethod
@@ -360,7 +365,7 @@ class pydaw_note:
         return pydaw_note.from_arr(f_arr)
 
     def __str__(self):
-        return "n|" + str(self.editor_index) + "|" + str(self.start) + "|" + str(self.length) + "|" + self.note + "|" + str(self.note_num) + "|" + str(self.velocity) + "\n"
+        return "n|" + str(self.start) + "|" + str(self.length) + "|" + str(self.note_num) + "|" + str(self.velocity) + "\n"
 
 class pydaw_cc:
     def __eq__(self, other):
@@ -369,18 +374,17 @@ class pydaw_cc:
     def __lt__(self, other):
         return self.start < other.start
     
-    def __init__(self, a_editor_index, a_start, a_cc_num, a_cc_val):
+    def __init__(self, a_start, a_cc_num, a_cc_val):
         self.start = float(a_start)
         self.cc_num = int(a_cc_num)
         self.cc_val = int(a_cc_val)
-        self.editor_index = int(a_editor_index)
 
     def __str__(self):
-        return "c|" + str(self.editor_index) + "|" + str(self.start) + "|" + str(self.cc_num) + "|" + str(self.cc_val) + "\n"
+        return "c|" + str(self.start) + "|" + str(self.cc_num) + "|" + str(self.cc_val) + "\n"
 
     @staticmethod
     def from_arr(a_arr):
-        f_result = pydaw_cc(a_arr[1], a_arr[2], a_arr[3], a_arr[4])
+        f_result = pydaw_cc(a_arr[1], a_arr[2], a_arr[3])
         return f_result
 
     @staticmethod
