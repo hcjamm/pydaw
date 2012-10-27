@@ -543,6 +543,8 @@ class transport_widget:
         this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
     def on_loop_mode_changed(self, a_loop_mode):
         this_pydaw_project.this_dssi_gui.send_configure("loop", str(a_loop_mode))
+    def on_keybd_combobox_index_changed(self, a_index):
+        self.alsa_output_ports.connect_to_pydaw(str(self.keybd_combobox.currentText()))
 
     def __init__(self):
         self.group_box = QtGui.QGroupBox()
@@ -572,7 +574,9 @@ class transport_widget:
         self.keybd_combobox = QtGui.QComboBox()
         self.alsa_output_ports = alsa_ports()
         self.keybd_combobox.addItems(self.alsa_output_ports.get_output_fqnames())
+        self.keybd_combobox.currentIndexChanged.connect(self.on_keybd_combobox_index_changed)
         self.grid_layout.addWidget(self.keybd_combobox, 0, 6)
+        self.on_keybd_combobox_index_changed(0)
         self.grid_layout.addWidget(QtGui.QLabel("Loop Mode"), 0, 7)
         self.loop_mode_combobox = QtGui.QComboBox()
         self.loop_mode_combobox.addItems(["Off", "Bar", "Region"])
