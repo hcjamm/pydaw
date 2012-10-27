@@ -171,6 +171,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
 void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data);
 int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a_region_name);
 char * c_pyitem_to_string(t_pyitem* a_pyitem);
+char * c_pyregion_to_string(t_pydaw_data * a_pydaw_data, int a_region_num);
 
 /*End declarations.  Begin implementations.*/
 
@@ -370,6 +371,43 @@ char * c_pyitem_to_string(t_pyitem* a_pyitem)
         return "c|" + str(self.editor_index) + "|" + str(self.start) + "|" + str(self.cc_num) + "|" + str(self.cc_val) + "\n" */
         sprintf(f_temp, "c|%i|%f|%i|%i\n", f_i, a_pyitem->ccs[f_i]->start, a_pyitem->ccs[f_i]->cc_num, a_pyitem->ccs[f_i]->cc_val);
         strcat(f_result, f_temp);
+        f_i++;
+    }
+    
+    strcat(f_result, "\\");
+    return f_result;
+}
+
+char * c_pyregion_to_string(t_pydaw_data * a_pydaw_data, int a_region_num)
+{
+    /*def __str__(self):
+        f_result = ""
+        for f_item in self.items:
+            f_result += str(f_item.track_num) + "|" + str(f_item.bar_num) + "|" + f_item.item_name + "\n"
+        f_result += pydaw_terminating_char
+        return f_result*/
+    
+    int f_i = 0;
+    int f_i2 = 0;
+    
+    char * f_result = (char*)malloc(sizeof(char) * LMS_LARGE_STRING);
+    strcpy(f_result, "");
+    
+    char f_temp[LMS_TINY_STRING];
+    
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {
+        f_i2 = 0;
+        while(f_i2 < PYDAW_REGION_SIZE)
+        {
+            if(a_pydaw_data->pysong->regions[a_region_num]->item_indexes[f_i][f_i2]  != -1)
+            {                
+                sprintf(f_temp, "%i|%i|%s\n", f_i, f_i2, 
+                        a_pydaw_data->item_pool[(a_pydaw_data->pysong->regions[a_region_num]->item_indexes[f_i][f_i2])]->name);
+                strcat(f_result, f_temp);
+            }
+            f_i2++;
+        }
         f_i++;
     }
     
