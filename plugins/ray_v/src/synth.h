@@ -5,8 +5,8 @@
  * Created on February 26, 2012, 8:48 PM
  */
 
-#ifndef SYNTH_H
-#define	SYNTH_H
+#ifndef RAYV_SYNTH_H
+#define	RAYV_SYNTH_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -129,14 +129,14 @@ typedef struct {
 #ifdef LMS_DEBUG_MAIN_LOOP
     int debug_counter;
 #endif
-} synth_vals;
+} t_rayv_synth_vals;
 
 #ifdef LMS_DEBUG_MAIN_LOOP
 
-void dump_debug_synth_vals(synth_vals*);
+void dump_debug_synth_vals(t_rayv_synth_vals*);
 
 /*Any changes to voice_data require this to be changed*/
-void dump_debug_synth_vals(synth_vals * a_data)
+void dump_debug_synth_vals(t_rayv_synth_vals * a_data)
 {
     printf("\n\nRunning dump_debug_synth_vals\n");
     printf("attack == %f\n", a_data->attack);
@@ -237,7 +237,7 @@ typedef struct {
     
     float fs;    
     t_mono_modules * mono_modules;
-    synth_vals vals;
+    t_rayv_synth_vals vals;
     
     int event_pos;
     int voice;
@@ -245,7 +245,7 @@ typedef struct {
     
     float sv_pitch_bend_value;
     float sv_last_note;  //For glide
-} LMS;
+} t_rayv;
 
 
 
@@ -254,5 +254,5 @@ typedef struct {
 }
 #endif
 
-#endif	/* SYNTH_H */
+#endif	/* RAY_VSYNTH_H */
 

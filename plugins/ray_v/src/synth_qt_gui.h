@@ -13,8 +13,8 @@ GNU General Public License for more details.
 
 */
 
-#ifndef _SYNTH_QT_GUI_H_INCLUDED_
-#define _SYNTH_QT_GUI_H_INCLUDED_
+#ifndef RAYV_SYNTH_QT_GUI_H
+#define RAYV_SYNTH_QT_GUI_H
 
 #include <QFrame>
 #include <QDial>

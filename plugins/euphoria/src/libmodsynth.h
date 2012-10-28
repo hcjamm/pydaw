@@ -11,8 +11,8 @@ GNU General Public License for more details.
 
  */
 
-#ifndef LIBMODSYNTH_H
-#define	LIBMODSYNTH_H
+#ifndef EUPHORIA_LIBMODSYNTH_H
+#define	EUPHORIA_LIBMODSYNTH_H
 
 #ifdef	__cplusplus
 extern "C" {

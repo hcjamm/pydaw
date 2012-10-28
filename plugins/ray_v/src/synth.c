@@ -41,7 +41,7 @@ static DSSI_Descriptor *LMSDDescriptor = NULL;
 static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
-static void v_run_rayv_voice(LMS *p, synth_vals *vals, t_poly_voice *d,
+static void v_run_rayv_voice(t_rayv *p, t_rayv_synth_vals *vals, t_poly_voice *d,
 		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count);
 
 int pick_voice(const t_poly_voice *data, int);
@@ -77,9 +77,9 @@ static void v_cleanup_rayv(LADSPA_Handle instance)
 static void v_rayv_connect_port(LADSPA_Handle instance, unsigned long port,
 			  LADSPA_Data * data)
 {
-    LMS *plugin;
+    t_rayv *plugin;
 
-    plugin = (LMS *) instance;
+    plugin = (t_rayv *) instance;
     
     /*Add the ports from step 9 to the connectPortLMS event handler*/
     
@@ -201,7 +201,7 @@ static void v_rayv_connect_port(LADSPA_Handle instance, unsigned long port,
 static LADSPA_Handle g_rayv_instantiate(const LADSPA_Descriptor * descriptor,
 				   unsigned long s_rate)
 {
-    LMS *plugin_data = (LMS *) malloc(sizeof(LMS));
+    t_rayv *plugin_data = (t_rayv *) malloc(sizeof(t_rayv));
     
     plugin_data->fs = s_rate;
     
@@ -236,7 +236,7 @@ static LADSPA_Handle g_rayv_instantiate(const LADSPA_Descriptor * descriptor,
 
 static void v_rayv_activate(LADSPA_Handle instance)
 {
-    LMS *plugin_data = (LMS *) instance;
+    t_rayv *plugin_data = (t_rayv *) instance;
     unsigned int i;
     
     for (i=0; i<POLYPHONY; i++) {
@@ -260,7 +260,7 @@ static void v_rayv_activate(LADSPA_Handle instance)
 static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
-    LMS *plugin_data = (LMS *) instance;
+    t_rayv *plugin_data = (t_rayv *) instance;
     
     LADSPA_Data *const output0 = plugin_data->output0;    
     LADSPA_Data *const output1 = plugin_data->output1;
@@ -471,7 +471,7 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->sampleNo += sample_count;
 }
 
-static void v_run_rayv_voice(LMS *plugin_data, synth_vals *vals, t_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
+static void v_run_rayv_voice(t_rayv *plugin_data, t_rayv_synth_vals *vals, t_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
 {   
     /*Process an audio block*/
     for(a_voice->i_voice = 0; (a_voice->i_voice)<count;a_voice->i_voice = (a_voice->i_voice) + 1) 
@@ -559,7 +559,7 @@ static void v_run_rayv_voice(LMS *plugin_data, synth_vals *vals, t_poly_voice *a
 /*This returns MIDI CCs for the different knobs*/ 
 static int i_rayv_get_controller(LADSPA_Handle instance, unsigned long port)
 {
-    LMS *plugin_data = (LMS *) instance;
+    t_rayv *plugin_data = (t_rayv *) instance;
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
 }
 
