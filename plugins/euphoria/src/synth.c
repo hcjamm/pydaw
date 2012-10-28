@@ -38,7 +38,7 @@ static LADSPA_Descriptor *samplerStereoLDescriptor = NULL;
 
 static DSSI_Descriptor *samplerStereoDDescriptor = NULL;
 
-static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
+static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 		       snd_seq_event_t *events, unsigned long EventCount);
 
 __attribute__ ((visibility("default")))
@@ -496,7 +496,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     return (LADSPA_Handle) plugin_data;
 }
 
-static void activateSampler(LADSPA_Handle instance)
+static void v_euphoria_activate(LADSPA_Handle instance)
 {
     Sampler *plugin_data = (Sampler *) instance;
     unsigned int i;
@@ -716,7 +716,7 @@ static void add_sample_lms_euphoria(Sampler *__restrict plugin_data, int n, unsi
     }
 }
 
-static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
+static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 		       snd_seq_event_t *events, unsigned long event_count)
 {
     Sampler *plugin_data = (Sampler *) instance;
@@ -1108,19 +1108,13 @@ static void run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
     pthread_mutex_unlock(&plugin_data->mutex);
 }
 
-static void runSamplerWrapper(LADSPA_Handle instance,
-			 unsigned long sample_count)
-{
-    run_lms_euphoria(instance, sample_count, NULL, 0);
-}
-
-int getControllerSampler(LADSPA_Handle instance, unsigned long port)
+static int i_euphoria_get_controller(LADSPA_Handle instance, unsigned long port)
 {
     Sampler *plugin_data = (Sampler *) instance;
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));    
 }
 
-char * dssi_configure_message(const char *fmt, ...)
+static char * dssi_configure_message(const char *fmt, ...)
 {
     va_list args;
     char buffer[256];
@@ -1131,7 +1125,7 @@ char * dssi_configure_message(const char *fmt, ...)
     return strdup(buffer);
 }
 
-char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
+static char *c_euphoria_sampler_load(Sampler *plugin_data, const char *path, int a_index)
 {   
     /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
     
@@ -1346,7 +1340,7 @@ char *samplerLoad(Sampler *plugin_data, const char *path, int a_index)
     return NULL;
 }
 
-char *samplerClear(Sampler *plugin_data, int a_index)
+static char *c_euphoria_clear(Sampler *plugin_data, int a_index)
 {
     lms_strcpy(plugin_data->sample_paths[a_index], "");
     
@@ -1411,7 +1405,7 @@ char *samplerClear(Sampler *plugin_data, int a_index)
 }
 
 /* Call samplerLoad for all samples.*/
-char *samplerLoadAll(Sampler *plugin_data, const char *paths)
+static char *c_euphoria_load_all(Sampler *plugin_data, const char *paths)
 {       
     lms_strcpy(plugin_data->sample_files, paths);
     
@@ -1433,11 +1427,11 @@ char *samplerLoadAll(Sampler *plugin_data, const char *paths)
             
             if(f_current_string_index == 0)
             {
-                samplerClear(plugin_data, f_samples_loaded_count);
+                c_euphoria_clear(plugin_data, f_samples_loaded_count);
             }
             else if(strcmp(f_result_string, (plugin_data->sample_paths[f_samples_loaded_count])) != 0)
             {
-                samplerLoad(plugin_data,f_result_string,f_samples_loaded_count);                
+                c_euphoria_sampler_load(plugin_data,f_result_string,f_samples_loaded_count);                
             }
             f_current_string_index = 0;
             f_samples_loaded_count++;
@@ -1448,11 +1442,11 @@ char *samplerLoadAll(Sampler *plugin_data, const char *paths)
             
             if(f_current_string_index == 0)
             {
-                samplerClear(plugin_data, f_samples_loaded_count);
+                c_euphoria_clear(plugin_data, f_samples_loaded_count);
             }
             else
             {
-                samplerLoad(plugin_data,f_result_string,f_samples_loaded_count);
+                c_euphoria_sampler_load(plugin_data,f_result_string,f_samples_loaded_count);
             }
             f_current_string_index = 0;
             f_samples_loaded_count++;
@@ -1471,12 +1465,12 @@ char *samplerLoadAll(Sampler *plugin_data, const char *paths)
     return NULL;
 }
 
-char *samplerConfigure(LADSPA_Handle instance, const char *key, const char *value)
+char *c_euphoria_configure(LADSPA_Handle instance, const char *key, const char *value)
 {
     Sampler *plugin_data = (Sampler *)instance;
 
     if (!strcmp(key, "load")) {	
-        return samplerLoadAll(plugin_data, value);    
+        return c_euphoria_load_all(plugin_data, value);    
     } else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
 	if (plugin_data->projectDir) free(plugin_data->projectDir);
 	plugin_data->projectDir = strdup(value);
@@ -2346,23 +2340,23 @@ void _init()
             f_i++;
         }
         
-	desc->activate = activateSampler;
+	desc->activate = v_euphoria_activate;
 	desc->cleanup = cleanupSampler;
 	desc->connect_port = connectPortSampler;
-	desc->deactivate = activateSampler;
+	desc->deactivate = v_euphoria_activate;
 	desc->instantiate = instantiateSampler;
-	desc->run = runSamplerWrapper;
+	desc->run = NULL;
 	desc->run_adding = NULL;
 	desc->set_run_adding_gain = NULL;
     }
 
     samplerStereoDDescriptor->DSSI_API_Version = 1;
     samplerStereoDDescriptor->LADSPA_Plugin = samplerStereoLDescriptor;
-    samplerStereoDDescriptor->configure = samplerConfigure;
+    samplerStereoDDescriptor->configure = c_euphoria_configure;
     samplerStereoDDescriptor->get_program = NULL;
-    samplerStereoDDescriptor->get_midi_controller_for_port = getControllerSampler;
+    samplerStereoDDescriptor->get_midi_controller_for_port = i_euphoria_get_controller;
     samplerStereoDDescriptor->select_program = NULL;
-    samplerStereoDDescriptor->run_synth = run_lms_euphoria;
+    samplerStereoDDescriptor->run_synth = v_run_lms_euphoria;
     samplerStereoDDescriptor->run_synth_adding = NULL;
     samplerStereoDDescriptor->run_multiple_synths = NULL;
     samplerStereoDDescriptor->run_multiple_synths_adding = NULL;
