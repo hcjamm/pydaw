@@ -38,10 +38,10 @@ GNU General Public License for more details.
 static LADSPA_Descriptor *LMSLDescriptor = NULL;
 static DSSI_Descriptor *LMSDDescriptor = NULL;
 
-static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
+static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
-static void run_voice(LMS *p, synth_vals *vals, t_poly_voice *d,
+static void v_run_rayv_voice(LMS *p, synth_vals *vals, t_poly_voice *d,
 		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count);
 
 int pick_voice(const t_poly_voice *data, int);
@@ -69,12 +69,12 @@ const DSSI_Descriptor *dssi_descriptor(unsigned long index)
     }
 }
 
-static void cleanupLMS(LADSPA_Handle instance)
+static void v_cleanup_rayv(LADSPA_Handle instance)
 {
     free(instance);
 }
 
-static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
+static void v_rayv_connect_port(LADSPA_Handle instance, unsigned long port,
 			  LADSPA_Data * data)
 {
     LMS *plugin;
@@ -198,7 +198,7 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port,
     }
 }
 
-static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
+static LADSPA_Handle g_rayv_instantiate(const LADSPA_Descriptor * descriptor,
 				   unsigned long s_rate)
 {
     LMS *plugin_data = (LMS *) malloc(sizeof(LMS));
@@ -234,7 +234,7 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor,
     return (LADSPA_Handle) plugin_data;
 }
 
-static void activateLMS(LADSPA_Handle instance)
+static void v_rayv_activate(LADSPA_Handle instance)
 {
     LMS *plugin_data = (LMS *) instance;
     unsigned int i;
@@ -257,13 +257,7 @@ static void activateLMS(LADSPA_Handle instance)
     plugin_data->mono_modules = v_mono_init();  //initialize all monophonic modules
 }
 
-static void runLMSWrapper(LADSPA_Handle instance,
-			 unsigned long sample_count)
-{
-    run_lms_ray_v(instance, sample_count, NULL, 0);
-}
-
-static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
+static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
     LMS *plugin_data = (LMS *) instance;
@@ -458,7 +452,7 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
         //if (data[voice].state != inactive) 
         if((plugin_data->data[(plugin_data->voice)]->adsr_amp->stage) != 4)
         {
-            run_voice(plugin_data,
+            v_run_rayv_voice(plugin_data,
                     &(plugin_data->vals),
                     plugin_data->data[(plugin_data->voice)],
                     output0,
@@ -477,7 +471,7 @@ static void run_lms_ray_v(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->sampleNo += sample_count;
 }
 
-static void run_voice(LMS *plugin_data, synth_vals *vals, t_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
+static void v_run_rayv_voice(LMS *plugin_data, synth_vals *vals, t_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
 {   
     /*Process an audio block*/
     for(a_voice->i_voice = 0; (a_voice->i_voice)<count;a_voice->i_voice = (a_voice->i_voice) + 1) 
@@ -563,7 +557,7 @@ static void run_voice(LMS *plugin_data, synth_vals *vals, t_poly_voice *a_voice,
 }
 
 /*This returns MIDI CCs for the different knobs*/ 
-int getControllerLMS(LADSPA_Handle instance, unsigned long port)
+static int i_rayv_get_controller(LADSPA_Handle instance, unsigned long port)
 {
     LMS *plugin_data = (LMS *) instance;
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
@@ -957,12 +951,12 @@ void _init()
 	port_range_hints[LMS_PROGRAM_CHANGE].UpperBound = 127;  // > 127 loads the first preset
         */
         
-	LMSLDescriptor->activate = activateLMS;
-	LMSLDescriptor->cleanup = cleanupLMS;
-	LMSLDescriptor->connect_port = connectPortLMS;
+	LMSLDescriptor->activate = v_rayv_activate;
+	LMSLDescriptor->cleanup = v_cleanup_rayv;
+	LMSLDescriptor->connect_port = v_rayv_connect_port;
 	LMSLDescriptor->deactivate = NULL;
-	LMSLDescriptor->instantiate = instantiateLMS;
-	LMSLDescriptor->run = runLMSWrapper;
+	LMSLDescriptor->instantiate = g_rayv_instantiate;
+	LMSLDescriptor->run = NULL;
 	LMSLDescriptor->run_adding = NULL;
 	LMSLDescriptor->set_run_adding_gain = NULL;
     }
@@ -973,9 +967,9 @@ void _init()
 	LMSDDescriptor->LADSPA_Plugin = LMSLDescriptor;
 	LMSDDescriptor->configure = NULL;  //TODO:  I think this is where the host can set plugin state, etc...
 	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
-	LMSDDescriptor->get_midi_controller_for_port = getControllerLMS;
+	LMSDDescriptor->get_midi_controller_for_port = i_rayv_get_controller;
 	LMSDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
-	LMSDDescriptor->run_synth = run_lms_ray_v;
+	LMSDDescriptor->run_synth = v_run_rayv;
 	LMSDDescriptor->run_synth_adding = NULL;
 	LMSDDescriptor->run_multiple_synths = NULL;
 	LMSDDescriptor->run_multiple_synths_adding = NULL;
