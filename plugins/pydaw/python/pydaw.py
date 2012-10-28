@@ -485,7 +485,7 @@ class seq_track:
         self.record_radiobutton = QtGui.QRadioButton()
         self.record_radiobutton.setText("Rec")
         rec_button_group.addButton(self.record_radiobutton)
-        self.record_radiobutton.clicked.connect(self.on_rec)
+        self.record_radiobutton.toggled.connect(self.on_rec)
         self.hlayout1.addWidget(self.record_radiobutton)
         self.hlayout2 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout2)

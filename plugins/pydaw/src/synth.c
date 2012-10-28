@@ -482,12 +482,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count, sn
         }
                 
         f_i = 0;
-        
-        if(event_count > 0)
-        {
-            printf("event_count == %i\n", (int)event_count);
-        }
-        
+                
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {   
             if(pydaw_data->track_pool[f_i]->rec)
