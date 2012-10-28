@@ -293,9 +293,9 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count, sn
                 }
                 f_i++;
             }
-
+            
+            //Calculate track notes for this period and send them to instruments
             f_i = 0;
-
             while(f_i < PYDAW_MAX_TRACK_COUNT)
             {   
                 /* Situations where the track is effectively muted*/
@@ -328,7 +328,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count, sn
                             t_pyitem f_current_item = 
                                     *(pydaw_data->item_pool[(pydaw_data->pysong->regions[f_current_track_region]->item_indexes[f_i][f_current_track_bar])]);
 
-                            if((pydaw_data->track_note_event_indexes[f_i]) >= (f_current_item.note_count))
+//                            if((pydaw_data->track_note_event_indexes[f_i]) >= (f_current_item.note_count))
                             {
                                 if(f_track_next_period_beats >= 4.0f)
                                 {
@@ -337,7 +337,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count, sn
                                     f_track_beats_offset = (f_sample_period_inc * 4.0f) - f_track_next_period_beats;
 
                                     pydaw_data->track_note_event_indexes[f_i] = 0;
-                                    pydaw_data->track_cc_event_indexes[f_i] = 0;
+                                    //pydaw_data->track_cc_event_indexes[f_i] = 0;
 
                                     f_current_track_bar++;
 
@@ -345,7 +345,9 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count, sn
                                     {
                                         f_current_track_bar = 0;
                                         f_current_track_region++;
-                                    }                                
+                                    }
+                                    
+                                    continue;
                                 }
                                 else
                                 {
@@ -397,7 +399,102 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count, sn
                 }
 
                 f_i++;
-            }            
+            }
+            
+            
+            //Calculate track CCs for this period and update the controller ports
+            f_i = 0;
+            while(f_i < PYDAW_MAX_TRACK_COUNT)
+            {   
+                /* Situations where the track is effectively muted*/
+                if((pydaw_data->track_pool[f_i]->plugin_index == 0) ||
+                    (pydaw_data->track_pool[f_i]->mute) ||
+                    ((pydaw_data->is_soloed) && (!pydaw_data->track_pool[f_i]->solo)) )
+                {
+                    f_i++;
+                    continue;
+                }
+
+                int f_current_track_region = pydaw_data->current_region;
+                int f_current_track_bar = pydaw_data->current_bar;
+                double f_track_current_period_beats = f_current_period_beats;
+                double f_track_next_period_beats = f_next_period_beats;
+                double f_track_beats_offset = 0.0f;
+                
+                if((pydaw_data->playback_mode == 2) && (pydaw_data->track_pool[f_i]->rec))
+                {
+                    
+                }
+                else if(pydaw_data->playback_mode == 1)
+                {
+                    while(1)
+                    {
+                        if((pydaw_data->pysong->regions[f_current_track_region]) && 
+                            (pydaw_data->pysong->regions[f_current_track_region]->item_indexes[f_i][f_current_track_bar] != -1))
+                        {
+                            t_pyitem f_current_item = 
+                                    *(pydaw_data->item_pool[(pydaw_data->pysong->regions[f_current_track_region]->item_indexes[f_i][f_current_track_bar])]);
+
+                            if((pydaw_data->track_cc_event_indexes[f_i]) >= (f_current_item.cc_count))
+                            {
+                                if(f_track_next_period_beats >= 4.0f)
+                                {
+                                    f_track_current_period_beats = 0.0f;
+                                    f_track_next_period_beats = f_track_next_period_beats - 4.0f;
+                                    f_track_beats_offset = (f_sample_period_inc * 4.0f) - f_track_next_period_beats;
+
+                                    //pydaw_data->track_note_event_indexes[f_i] = 0;
+                                    pydaw_data->track_cc_event_indexes[f_i] = 0;
+
+                                    f_current_track_bar++;
+
+                                    if(f_current_track_bar >= 8)
+                                    {
+                                        f_current_track_bar = 0;
+                                        f_current_track_region++;
+                                    }
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
+                                }                            
+                            }
+
+                            if(((f_current_item.ccs[(pydaw_data->track_cc_event_indexes[f_i])]->start) >= f_track_current_period_beats) &&
+                                ((f_current_item.ccs[(pydaw_data->track_cc_event_indexes[f_i])]->start) < f_track_next_period_beats))
+                            {
+                                //
+                                int controller = f_current_item.ccs[(pydaw_data->track_cc_event_indexes[f_i])]->cc_num;
+                                if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
+                                {
+                                    long controlIn = pydaw_data->track_pool[f_i]->instrument->controllerMap[controller];
+                                    if (controlIn >= 0) 
+                                    {
+                                        /* controller is mapped to LADSPA port, update the port */
+                                        snd_seq_event_t f_event;
+                                        f_event.data.control.value = f_current_item.ccs[(pydaw_data->track_cc_event_indexes[f_i])]->cc_val;
+                                        v_pydaw_set_control_from_cc(pydaw_data->track_pool[f_i]->instrument, controlIn, &f_event);
+                                    }
+                                }
+
+                                pydaw_data->track_cc_event_indexes[f_i] = (pydaw_data->track_cc_event_indexes[f_i]) + 1;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                f_i++;
+            }
+            
 
             pydaw_data->playback_cursor = f_next_playback_cursor;
 
