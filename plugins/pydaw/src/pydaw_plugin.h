@@ -141,7 +141,7 @@ typedef struct st_pydaw_plugin
     int ui_visible;
 }t_pydaw_plugin;
 
-void setControl(t_pydaw_plugin *instance, long controlIn, snd_seq_event_t *event)
+void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, long controlIn, snd_seq_event_t *event)
 {
     long port = instance->pluginControlInPortNumbers[controlIn];
 
@@ -319,7 +319,6 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
         } 
         else if (LADSPA_IS_PORT_CONTROL(pod)) 
         {
-
             if (LADSPA_IS_PORT_INPUT(pod)) {
 
                 if (f_result->descriptor->get_midi_controller_for_port) {
@@ -359,6 +358,11 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
                     (f_result->ladspa_handle, j, &f_result->pluginControlOuts[controlOut++]);
             }
         }
+    }
+    int f_i;
+    for (f_i = 0; f_i < f_result->controlIns; f_i++) 
+    {
+        f_result->pluginPortUpdated[f_i] = 0;
     }
     
     f_result->descriptor->LADSPA_Plugin->activate(f_result->ladspa_handle);
