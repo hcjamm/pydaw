@@ -576,7 +576,8 @@ class transport_widget:
         self.keybd_combobox.addItems(self.alsa_output_ports.get_output_fqnames())
         self.keybd_combobox.currentIndexChanged.connect(self.on_keybd_combobox_index_changed)
         self.grid_layout.addWidget(self.keybd_combobox, 0, 6)
-        self.on_keybd_combobox_index_changed(0)
+        if self.keybd_combobox.count() > 0:
+            self.on_keybd_combobox_index_changed(0)
         self.grid_layout.addWidget(QtGui.QLabel("Loop Mode"), 0, 7)
         self.loop_mode_combobox = QtGui.QComboBox()
         self.loop_mode_combobox.addItems(["Off", "Bar", "Region"])
