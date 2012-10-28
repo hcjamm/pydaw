@@ -44,7 +44,6 @@ class alsa_ports:
     def connect_to_pydaw(self, a_string):
         print("Attempting to connect ALSA port " + a_string + " to PyDAW...")        
         for f_alsa_port in self.input_ports:
-            print(f_alsa_port.client_name)
             if f_alsa_port.client_name == "PyDAW":
                 print(getoutput("aconnect -x"))
                 f_out_port = a_string.split("|")[1]

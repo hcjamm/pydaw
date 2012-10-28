@@ -99,9 +99,7 @@ int main(int argc, char** argv) {
     v_set_tempo(f_data, 140.0f);
     v_open_project(f_data, "/home/bob/dssi/pydaw/default-project", "default");
     v_pydaw_parse_configure_message(f_data, "play", "0|0");
-    
-     * */
-
+    */
     
     init();
     
@@ -134,6 +132,8 @@ int main(int argc, char** argv) {
         f_events[i].time.tick = i;
     }
     */
+    
+    v_pydaw_parse_configure_message(pydaw_data, "tr", "4|0");
     
     for(i2 = 0; i2 < 10; i2++)
     {

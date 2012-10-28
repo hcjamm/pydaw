@@ -1186,12 +1186,15 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
-        int f_i = 0;
-        //TODO:  This will need to be removed if PyDAW ever supports multiple MIDI input devices, just a quick hack for now
-        while(f_i < PYDAW_MAX_TRACK_COUNT)
+        if(f_mode)
         {
-            a_pydaw_data->track_pool[f_track_num]->rec = 0;
-            f_i++;
+            //TODO:  This will need to be removed if PyDAW ever supports multiple MIDI input devices, just a quick hack for now
+            int f_i = 0;            
+            while(f_i < PYDAW_MAX_TRACK_COUNT)
+            {
+                a_pydaw_data->track_pool[f_track_num]->rec = 0;
+                f_i++;
+            }
         }
         a_pydaw_data->track_pool[f_track_num]->rec = f_mode;
         g_free_1d_char_array(f_val_arr);
