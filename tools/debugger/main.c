@@ -102,10 +102,10 @@ int main(int argc, char** argv) {
     */
     
     init();
-    
-    LADSPA_Handle f_handle = instantiateLMS(LMSLDescriptor, 44100);
-    
-    activateLMS(f_handle);
+    const LADSPA_Descriptor * f_ldesc = ladspa_descriptor(0);
+    const DSSI_Descriptor * f_ddesc = dssi_descriptor(0);
+    LADSPA_Handle f_handle =  f_ldesc->instantiate(f_ldesc, 44100);
+    f_ldesc->activate(f_handle);
     
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
     
@@ -140,9 +140,9 @@ int main(int argc, char** argv) {
         v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
         for(i = 0; i < 600; i++)
         {
-            v_pydaw_run(f_handle, 4096, NULL, 0);
+            f_ddesc->run_synth(f_handle, 4096, NULL, 0);
         }
-        v_pydaw_parse_configure_message(pydaw_data, "stop", "");
+        f_ddesc->configure(pydaw_data, "stop", "");
     }   
     /*
     g_get_2d_array_from_file("/home/bob/dssi/pydaw/default-project/items/item-0.pyitem", 65536);
