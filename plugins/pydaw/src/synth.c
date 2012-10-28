@@ -328,7 +328,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                             t_pyitem f_current_item = 
                                     *(pydaw_data->item_pool[(pydaw_data->pysong->regions[f_current_track_region]->item_indexes[f_i][f_current_track_bar])]);
 
-//                            if((pydaw_data->track_note_event_indexes[f_i]) >= (f_current_item.note_count))
+                            if((pydaw_data->track_note_event_indexes[f_i]) >= (f_current_item.note_count))
                             {
                                 if(f_track_next_period_beats >= 4.0f)
                                 {
