@@ -1,10 +1,9 @@
-PyDAW is still a work-in-progress, although it's expected to become somewhat
-useful soon.  The current required dependencies in Ubuntu are:
+PyDAW is still a work-in-progress, and not ready for inclusion into the Debian package just yet.  
+The current required dependencies in Ubuntu are:
 
-python-pyglet
+alsa-utils
 python-liblo
-pyqt-tools
+pyqt-tools (TODO:  is this obsolete for use with PyDAW now???)
 python-pyqt4
 python-pyqt4-doc
 
-This is subject to change as the project evolves
