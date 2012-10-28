@@ -7,8 +7,8 @@
  * Created on April 8, 2012, 2:27 PM
  */
 
-#ifndef PORTS_H
-#define	PORTS_H
+#ifndef EUPHORIA_PORTS_H
+#define	EUPHORIA_PORTS_H
 
 //Delimits the file string sent with configure().  Also used in the file saving format
 #define LMS_FILES_STRING_DELIMITER '|'

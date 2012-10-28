@@ -11,8 +11,8 @@ GNU General Public License for more details.
 
  */
 
-#ifndef LIBMODSYNTH_H
-#define	LIBMODSYNTH_H
+#ifndef RAYV_LIBMODSYNTH_H
+#define	RAYV_LIBMODSYNTH_H
 
 #ifdef	__cplusplus
 extern "C" {

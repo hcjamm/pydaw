@@ -12,8 +12,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 */
 
-#ifndef _TRIVIAL_SAMPLER_H_
-#define _TRIVIAL_SAMPLER_H_
+#ifndef EUPHORIA_SYNTH_H
+#define EUPHORIA_SYNTH_H
 
 #include <ladspa.h>
 #include "ports.h"

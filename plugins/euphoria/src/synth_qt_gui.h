@@ -12,8 +12,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.   
 */
 
-#ifndef _TRIVIAL_SAMPLER_QT_GUI_H_INCLUDED_
-#define _TRIVIAL_SAMPLER_QT_GUI_H_INCLUDED_
+#ifndef EUPHORIA_QT_GUI_H
+#define EUPHORIA_QT_GUI_H
 
 #include <QFrame>
 #include <QCheckBox>

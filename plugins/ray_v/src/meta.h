@@ -1,7 +1,7 @@
 /* This file contains global identifier information for the plugin. */
 
-#ifndef META_H
-#define	META_H
+#ifndef RAYV_META_H
+#define	RAYV_META_H
 
 #ifdef	__cplusplus
 extern "C" {

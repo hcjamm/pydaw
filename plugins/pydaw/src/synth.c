@@ -162,7 +162,7 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
 }
 
-static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count,
+static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
 
@@ -188,12 +188,12 @@ const DSSI_Descriptor *dssi_descriptor(unsigned long index)
     }
 }
 
-static void cleanupLMS(LADSPA_Handle instance)
+static void v_pydaw_cleanup(LADSPA_Handle instance)
 {
     free(instance);
 }
 
-static void connectPortLMS(LADSPA_Handle instance, unsigned long port, LADSPA_Data * data)
+static void v_pydaw_connect_port(LADSPA_Handle instance, unsigned long port, LADSPA_Data * data)
 {
     t_pydaw_engine *plugin;
 
@@ -213,7 +213,7 @@ static void connectPortLMS(LADSPA_Handle instance, unsigned long port, LADSPA_Da
     }    
 }
 
-static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor, unsigned long s_rate)
+static LADSPA_Handle g_pydaw_instantiate(const LADSPA_Descriptor * descriptor, unsigned long s_rate)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) malloc(sizeof(t_pydaw_engine));
     pydaw_data = g_pydaw_data_get(s_rate);
@@ -225,7 +225,7 @@ static LADSPA_Handle instantiateLMS(const LADSPA_Descriptor * descriptor, unsign
     return (LADSPA_Handle) plugin_data;
 }
 
-static void activateLMS(LADSPA_Handle instance)
+static void v_pydaw_activate(LADSPA_Handle instance)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;        
     plugin_data->mono_modules = v_mono_init((plugin_data->fs));  
@@ -239,7 +239,7 @@ static void runLMSWrapper(LADSPA_Handle instance, unsigned long sample_count)
 }
 */
 
-static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
+static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
     /*Define our inputs*/
@@ -701,7 +701,7 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count, sn
     
 }
 
-char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)
+char *c_pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)
 {
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *)instance;
     v_pydaw_parse_configure_message(pydaw_data, key, value);
@@ -709,7 +709,7 @@ char *pydaw_configure(LADSPA_Handle instance, const char *key, const char *value
     return NULL;
 }
 
-int getControllerLMS(LADSPA_Handle instance, unsigned long port)
+int i_pydaw_get_controller(LADSPA_Handle instance, unsigned long port)
 {    
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
     //return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
@@ -772,11 +772,11 @@ void _init()
 	port_range_hints[LMS_OUTPUT1].HintDescriptor = 0;
                
         
-	LMSLDescriptor->activate = activateLMS;
-	LMSLDescriptor->cleanup = cleanupLMS;
-	LMSLDescriptor->connect_port = connectPortLMS;
+	LMSLDescriptor->activate = v_pydaw_activate;
+	LMSLDescriptor->cleanup = v_pydaw_cleanup;
+	LMSLDescriptor->connect_port = v_pydaw_connect_port;
 	LMSLDescriptor->deactivate = NULL;
-	LMSLDescriptor->instantiate = instantiateLMS;
+	LMSLDescriptor->instantiate = g_pydaw_instantiate;
 	LMSLDescriptor->run = NULL;
 	LMSLDescriptor->run_adding = NULL;
 	LMSLDescriptor->set_run_adding_gain = NULL;
@@ -786,11 +786,11 @@ void _init()
     if (LMSDDescriptor) {
 	LMSDDescriptor->DSSI_API_Version = 1;
 	LMSDDescriptor->LADSPA_Plugin = LMSLDescriptor;
-	LMSDDescriptor->configure = pydaw_configure;
+	LMSDDescriptor->configure = c_pydaw_configure;
 	LMSDDescriptor->get_program = NULL;
-	LMSDDescriptor->get_midi_controller_for_port = getControllerLMS;
+	LMSDDescriptor->get_midi_controller_for_port = i_pydaw_get_controller;
 	LMSDDescriptor->select_program = NULL;
-	LMSDDescriptor->run_synth = run_lms_pydaw;
+	LMSDDescriptor->run_synth = v_pydaw_run;
 	LMSDDescriptor->run_synth_adding = NULL;
 	LMSDDescriptor->run_multiple_synths = NULL;
 	LMSDDescriptor->run_multiple_synths_adding = NULL;

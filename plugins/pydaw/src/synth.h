@@ -5,8 +5,8 @@
  * Created on February 26, 2012, 8:48 PM
  */
 
-#ifndef SYNTH_H
-#define	SYNTH_H
+#ifndef PYDAW_SYNTH_H
+#define	PYDAW_SYNTH_H
 
 #ifdef	__cplusplus
 extern "C" {

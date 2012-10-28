@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
         v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
         for(i = 0; i < 600; i++)
         {
-            run_lms_pydaw(f_handle, 4096, NULL, 0);
+            v_pydaw_run(f_handle, 4096, NULL, 0);
         }
         v_pydaw_parse_configure_message(pydaw_data, "stop", "");
     }   
