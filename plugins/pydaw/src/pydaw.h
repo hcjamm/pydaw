@@ -610,7 +610,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->osc_url = (char *)malloc(strlen(tmp) + strlen(osc_path_tmp));
     sprintf(f_result->osc_url, "%s%s", tmp, osc_path_tmp + 1);    
     free(tmp);
-    
+        
     //v_pydaw_assert_memory_integrity(f_result);
     
     return f_result;
@@ -780,11 +780,11 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             //Initiate some sort of mixer fadeout?
             break;
         case 1:  //play
-            a_pydaw_data->current_sample = 0;
+            //a_pydaw_data->current_sample = 0;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
             break;
         case 2:  //record
-            a_pydaw_data->current_sample = 0;
+            //a_pydaw_data->current_sample = 0;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
             break;
     }
@@ -801,7 +801,7 @@ void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
     a_pydaw_data->current_bar = a_bar;
     a_pydaw_data->current_region = a_region;
     a_pydaw_data->playback_cursor = 0.0f;
-    a_pydaw_data->current_sample = 0;    
+    //a_pydaw_data->current_sample = 0;    
     
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);

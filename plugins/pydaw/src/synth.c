@@ -232,11 +232,12 @@ static void activateLMS(LADSPA_Handle instance)
     v_pydaw_activate_osc_thread(pydaw_data, pydaw_osc_message_handler);
 }
 
+/*
 static void runLMSWrapper(LADSPA_Handle instance, unsigned long sample_count)
 {
     run_lms_pydaw(instance, sample_count, NULL, 0);
 }
-
+*/
 
 static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
 {
@@ -525,11 +526,27 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count, sn
                     }
                     else if(events[f_i2].type == SND_SEQ_EVENT_CONTROLLER)  //Probably won't work ATM, I think jack-dssi-host doesn't pass this through...
                     {
-                        snd_seq_ev_ctrl_t c = events[f_i2].data.control;
-                        snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
-                        snd_seq_ev_set_controller(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)],
-                                0, c.param, c.value);
-                        pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
+                        int controller = events[f_i2].data.control.param;
+                        if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
+                        {
+                            long controlIn = pydaw_data->track_pool[f_i]->instrument->controllerMap[controller];
+                            if (controlIn >= 0) 
+                            {
+                                /* controller is mapped to LADSPA port, update the port */
+                                v_pydaw_set_control_from_cc(pydaw_data->track_pool[f_i]->instrument, controlIn, &events[f_i2]);
+                            } 
+                            else 
+                            {
+                                /* controller is not mapped, so pass the event through to plugin */
+                                //instanceEventBuffers[i][instanceEventCounts[i]] = *ev;
+                                //instanceEventCounts[i]++;
+                                snd_seq_ev_ctrl_t c = events[f_i2].data.control;                        
+                                snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
+                                snd_seq_ev_set_controller(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)],
+                                        0, c.param, c.value);
+                                pydaw_data->track_pool[f_i]->event_index = (pydaw_data->track_pool[f_i]->event_index) + 1;
+                            }
+                        }
                     }
                     f_i2++;
                 }
@@ -544,6 +561,23 @@ static void run_lms_pydaw(LADSPA_Handle instance, unsigned long sample_count, sn
         {   
             if(pydaw_data->track_pool[f_i]->plugin_index != 0)
             {
+            int f_i2 = 0;    
+            while(f_i2 < (pydaw_data->track_pool[f_i]->instrument->controlIns))
+            {
+                if (pydaw_data->track_pool[f_i]->instrument->pluginPortUpdated[f_i2]) 
+                {
+                    int port = pydaw_data->track_pool[f_i]->instrument->pluginControlInPortNumbers[f_i2];
+                    float value = pydaw_data->track_pool[f_i]->instrument->pluginControlIns[f_i2];
+                    
+                    pydaw_data->track_pool[f_i]->instrument->pluginPortUpdated[f_i2] = 0;
+                    if (pydaw_data->track_pool[f_i]->instrument->uiTarget) 
+                    {
+                        lo_send(pydaw_data->track_pool[f_i]->instrument->uiTarget, pydaw_data->track_pool[f_i]->instrument->ui_osc_control_path, "if", port, value);
+                    }
+                }
+                f_i2++;
+            }
+                
                 v_run_plugin(pydaw_data->track_pool[f_i]->instrument, sample_count, 
                             pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);
 
@@ -582,7 +616,7 @@ int getControllerLMS(LADSPA_Handle instance, unsigned long port)
 {    
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
     //return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
-    return 0;     
+    return -1;     
 }
 
 #ifdef __GNUC__
@@ -646,7 +680,7 @@ void _init()
 	LMSLDescriptor->connect_port = connectPortLMS;
 	LMSLDescriptor->deactivate = NULL;
 	LMSLDescriptor->instantiate = instantiateLMS;
-	LMSLDescriptor->run = runLMSWrapper;
+	LMSLDescriptor->run = NULL;
 	LMSLDescriptor->run_adding = NULL;
 	LMSLDescriptor->set_run_adding_gain = NULL;
     }
