@@ -199,16 +199,16 @@ static void v_pydaw_connect_port(LADSPA_Handle instance, unsigned long port, LAD
 
     plugin = (t_pydaw_engine *) instance;
         
-    if((port >= LMS_INPUT_MIN) && (port < LMS_INPUT_MAX))
+    if((port >= PYDAW_INPUT_MIN) && (port < PYDAW_INPUT_MAX))
     {
-        plugin->input_arr[(port - LMS_INPUT_MIN)] = data;
+        plugin->input_arr[(port - PYDAW_INPUT_MIN)] = data;
     }
     else
     {        
         switch (port) 
         {     
-            case LMS_OUTPUT0: plugin->output0 = data; break;
-            case LMS_OUTPUT1: plugin->output1 = data; break;        
+            case PYDAW_OUTPUT0: plugin->output0 = data; break;
+            case PYDAW_OUTPUT1: plugin->output1 = data; break;        
         }
     }    
 }
@@ -219,9 +219,7 @@ static LADSPA_Handle g_pydaw_instantiate(const LADSPA_Descriptor * descriptor, u
     pydaw_data = g_pydaw_data_get(s_rate);
     
     plugin_data->fs = s_rate;
-    
-    v_init_lms(s_rate);
-    
+        
     return (LADSPA_Handle) plugin_data;
 }
 
@@ -729,13 +727,13 @@ void _init()
     LMSLDescriptor =
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
     if (LMSLDescriptor) {
-        LMSLDescriptor->UniqueID = LMS_PLUGIN_UUID;
-	LMSLDescriptor->Label = LMS_PLUGIN_NAME;
+        LMSLDescriptor->UniqueID = PYDAW_PLUGIN_UUID;
+	LMSLDescriptor->Label = PYDAW_PLUGIN_NAME;
 	LMSLDescriptor->Properties = LADSPA_PROPERTY_REALTIME;
-	LMSLDescriptor->Name = LMS_PLUGIN_LONG_NAME;
-	LMSLDescriptor->Maker = LMS_PLUGIN_DEV;
+	LMSLDescriptor->Name = PYDAW_PLUGIN_LONG_NAME;
+	LMSLDescriptor->Maker = PYDAW_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";
-	LMSLDescriptor->PortCount = LMS_COUNT;
+	LMSLDescriptor->PortCount = PYDAW_COUNT;
 
 	port_descriptors = (LADSPA_PortDescriptor *)
 				calloc(LMSLDescriptor->PortCount, sizeof
@@ -755,7 +753,7 @@ void _init()
         /* Parameters for input */
         int f_i;
         
-        for(f_i = LMS_INPUT_MIN; f_i < LMS_INPUT_MAX; f_i++)
+        for(f_i = PYDAW_INPUT_MIN; f_i < PYDAW_INPUT_MAX; f_i++)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO;
             port_names[f_i] = "Input ";  //TODO:  Give a more descriptive port name
@@ -763,13 +761,13 @@ void _init()
         }
         
 	/* Parameters for output */
-	port_descriptors[LMS_OUTPUT0] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	port_names[LMS_OUTPUT0] = "Output 0";
-	port_range_hints[LMS_OUTPUT0].HintDescriptor = 0;
+	port_descriptors[PYDAW_OUTPUT0] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
+	port_names[PYDAW_OUTPUT0] = "Output 0";
+	port_range_hints[PYDAW_OUTPUT0].HintDescriptor = 0;
 
-        port_descriptors[LMS_OUTPUT1] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	port_names[LMS_OUTPUT1] = "Output 1";
-	port_range_hints[LMS_OUTPUT1].HintDescriptor = 0;
+        port_descriptors[PYDAW_OUTPUT1] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
+	port_names[PYDAW_OUTPUT1] = "Output 1";
+	port_range_hints[PYDAW_OUTPUT1].HintDescriptor = 0;
                
         
 	LMSLDescriptor->activate = v_pydaw_activate;

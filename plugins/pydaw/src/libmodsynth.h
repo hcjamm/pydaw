@@ -19,26 +19,9 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-    
-/*includes for any libmodsynth modules you'll be using*/
+
 #include "../../libmodsynth/modules/multifx/multifx3knob.h"
        
-/*Declare any static variables that should be used globally in LibModSynth
- Note that any constants not requiring dynamically generated data should be declared in constants.h
- */
-static float va_sr_recip;
-static float va_sample_rate;
-
-void v_init_lms(float f_sr);
-
-void v_init_lms(float f_sr)
-{
-    va_sample_rate = f_sr;
-    va_sr_recip = 1.0f/f_sr;    
-}
-
-/*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
- of an instrument, you will most likely want to define all of your modules here*/
 
 typedef struct st_mono_modules
 {
@@ -60,7 +43,6 @@ typedef struct st_mono_modules
     
 
 t_mono_modules * v_mono_init(float);
-
 
 /*Initialize any modules that will be run monophonically*/
 t_mono_modules * v_mono_init(float a_sr)
