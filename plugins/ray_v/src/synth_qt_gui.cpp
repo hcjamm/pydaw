@@ -109,7 +109,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     }
     else
     {        
-        m_program = new LMS_preset_manager(QString(LMS_PLUGIN_NAME), f_default_presets, LMS_PROGRAM_CHANGE, f_info, this);
+        m_program = new LMS_preset_manager(QString(RAYV_PLUGIN_NAME), f_default_presets, LMS_PROGRAM_CHANGE, f_info, this);
     }
     
     connect(m_program->m_program, SIGNAL(currentIndexChanged(int)), this, SLOT(programChanged(int)));

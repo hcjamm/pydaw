@@ -578,11 +578,11 @@ void _init()
     LMSLDescriptor =
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
     if (LMSLDescriptor) {
-        LMSLDescriptor->UniqueID = LMS_PLUGIN_UUID;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
-	LMSLDescriptor->Label = LMS_PLUGIN_NAME;
+        LMSLDescriptor->UniqueID = RAYV_PLUGIN_UUID;  //Arbitrary number I made up, somewhat near the upper end of allowable UIDs
+	LMSLDescriptor->Label = RAYV_PLUGIN_NAME;
 	LMSLDescriptor->Properties = LADSPA_PROPERTY_REALTIME | LADSPA_PROPERTY_HARD_RT_CAPABLE; //0;
-	LMSLDescriptor->Name = LMS_PLUGIN_LONG_NAME;
-	LMSLDescriptor->Maker = LMS_PLUGIN_DEV;
+	LMSLDescriptor->Name = RAYV_PLUGIN_LONG_NAME;
+	LMSLDescriptor->Maker = RAYV_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";
 	LMSLDescriptor->PortCount = LMS_COUNT;
 
