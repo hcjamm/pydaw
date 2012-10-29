@@ -93,7 +93,7 @@ public:
     LMS_mod_matrix * m_sample_table;    
     
     //New mod matrix
-    LMS_mod_matrix * m_polyfx_mod_matrix[LMS_EFFECTS_GROUPS_COUNT];
+    LMS_mod_matrix * m_polyfx_mod_matrix[EUPHORIA_EFFECTS_GROUPS_COUNT];
     
     bool m_suppressHostUpdate;
     
@@ -132,14 +132,14 @@ public:
         
     //End from Ray-V
         
-    int m_sample_starts[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  0 == the very start of the sample, 10000 == the very end
-    int m_sample_ends[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  READ CAREFULLY:  0 == the very end of the sample, 10000 == the very beginning (IT'S INVERTED)
-    int m_sample_loop_starts[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  0 == the very start of the sample, 10000 == the very end
-    int m_sample_loop_ends[LMS_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  READ CAREFULLY:  0 == the very end of the sample, 10000 == the very beginning (IT'S INVERTED)
-    int m_sample_loop_modes[LMS_MAX_SAMPLE_COUNT];
+    int m_sample_starts[EUPHORIA_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  0 == the very start of the sample, 10000 == the very end
+    int m_sample_ends[EUPHORIA_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  READ CAREFULLY:  0 == the very end of the sample, 10000 == the very beginning (IT'S INVERTED)
+    int m_sample_loop_starts[EUPHORIA_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  0 == the very start of the sample, 10000 == the very end
+    int m_sample_loop_ends[EUPHORIA_MAX_SAMPLE_COUNT];  //0 to 10000, not the actual sample number.  READ CAREFULLY:  0 == the very end of the sample, 10000 == the very beginning (IT'S INVERTED)
+    int m_sample_loop_modes[EUPHORIA_MAX_SAMPLE_COUNT];
     
-    int m_mono_fx_values[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT][LMS_PORTS_PER_MOD_EFFECT];
-    int m_sample_selected_monofx_groups[LMS_MAX_SAMPLE_COUNT];
+    int m_mono_fx_values[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT][EUPHORIA_PORTS_PER_MOD_EFFECT];
+    int m_sample_selected_monofx_groups[EUPHORIA_MAX_SAMPLE_COUNT];
         
     QString project_path;
     QString instance_name;
@@ -767,7 +767,7 @@ protected:
     /*The currently selected sample for viewing/editing */
     //int m_selected_sample_index;    
     /*The index of C, C#, D, D#, E, etc... in the QCombobox*/
-    int m_note_indexes [LMS_MAX_SAMPLE_COUNT];
+    int m_note_indexes [EUPHORIA_MAX_SAMPLE_COUNT];
     
     QAction *actionMove_files_to_single_directory;
     QAction *actionSave_instrument_to_file;

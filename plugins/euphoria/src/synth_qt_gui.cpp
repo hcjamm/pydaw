@@ -59,7 +59,7 @@ using std::endl;
 
 lo_server osc_server = 0;
 
-static QTextStream cerr(stderr);
+static QTextStream euphoria_cerr(stderr);
 
 /*Used for outputting sampler parameters to text files*/
 #define LMS_DELIMITER "|"
@@ -127,11 +127,11 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Tune"), -100, 100, 0);  //Tune
     f_sample_table_columns << new LMS_mod_matrix_column(f_interpolation_modes, QString("Mode")); //Interpolation Mode
     
-    m_sample_table = new LMS_mod_matrix(this, LMS_MAX_SAMPLE_COUNT, f_sample_table_columns, LMS_FIRST_SAMPLE_TABLE_PORT, a_style);
+    m_sample_table = new LMS_mod_matrix(this, EUPHORIA_MAX_SAMPLE_COUNT, f_sample_table_columns, LMS_FIRST_SAMPLE_TABLE_PORT, a_style);
         
     m_file_selector = new LMS_file_select(this);
         /*Set all of the array variables that are per-sample*/
-        for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
+        for(int i = 0; i < EUPHORIA_MAX_SAMPLE_COUNT; i++)        
         {           
             QRadioButton * f_rb = (QRadioButton*)m_sample_table->lms_mod_matrix->cellWidget(i , SMP_TB_RADIOBUTTON_INDEX);         
             connect(f_rb, SIGNAL(clicked()), this, SLOT(selectionChanged()));
@@ -848,7 +848,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_sample_graph_hlayout->addItem(m_sample_graph_left_hspacer);
 
-        m_sample_graph = new LMS_sample_graph(LMS_MAX_SAMPLE_COUNT, 300, LMS_SAMPLE_GRAPH_WIDTH, m_view_sample_tab);
+        m_sample_graph = new LMS_sample_graph(EUPHORIA_MAX_SAMPLE_COUNT, 300, LMS_SAMPLE_GRAPH_WIDTH, m_view_sample_tab);
         m_sample_graph_hlayout->addWidget(m_sample_graph->m_sample_graph);
         
         
@@ -879,7 +879,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_selected_sample_index_combobox->setMinimumSize(QSize(160, 0));
         m_selected_sample_index_combobox->setMaximumSize(QSize(160, 16777215));
         
-        for(int f_i = 0; f_i < LMS_MAX_SAMPLE_COUNT; f_i++)
+        for(int f_i = 0; f_i < EUPHORIA_MAX_SAMPLE_COUNT; f_i++)
         {
             m_selected_sample_index_combobox->addItem(QString(""));
         }
@@ -944,7 +944,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         m_selected_sample_index_label->setText(QApplication::translate("MainWindow", "Selected Sample", 0, QApplication::UnicodeUTF8));
 
-        for(int f_i = 0; f_i < LMS_MAX_SAMPLE_COUNT; f_i++)
+        for(int f_i = 0; f_i < EUPHORIA_MAX_SAMPLE_COUNT; f_i++)
         {
             m_sample_starts[f_i] = 0;
             m_sample_ends[f_i] = 0;
@@ -972,7 +972,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         //From Modulex
         
-        m_fx0 = new LMS_multieffect(this, QString("FX1"), a_style, LMS_FX0_KNOB0, LMS_FX0_KNOB1, LMS_FX0_KNOB2, LMS_FX0_COMBOBOX);
+        m_fx0 = new LMS_multieffect(this, QString("FX1"), a_style, EUPHORIA_FX0_KNOB0, EUPHORIA_FX0_KNOB1, EUPHORIA_FX0_KNOB2, EUPHORIA_FX0_COMBOBOX);
         connect(m_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob0Changed(int)));
         connect(m_fx0->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob1Changed(int)));
         connect(m_fx0->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob2Changed(int)));
@@ -980,7 +980,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_main_layout->lms_add_widget(m_fx0->lms_groupbox->lms_groupbox);
 
-        m_fx1 = new LMS_multieffect(this, QString("FX2"), a_style, LMS_FX1_KNOB0, LMS_FX1_KNOB1, LMS_FX1_KNOB2, LMS_FX1_COMBOBOX);
+        m_fx1 = new LMS_multieffect(this, QString("FX2"), a_style, EUPHORIA_FX1_KNOB0, EUPHORIA_FX1_KNOB1, EUPHORIA_FX1_KNOB2, LMS_FX1_COMBOBOX);
         connect(m_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob0Changed(int)));
         connect(m_fx1->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob1Changed(int)));
         connect(m_fx1->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob2Changed(int)));
@@ -1029,7 +1029,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl2"), -100, 100, 0);  
         f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl3"), -100, 100, 0);  
         
-        m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, LMS_MODULATOR_COUNT, f_mod_matrix_columns, LMS_PFXMATRIX_FIRST_PORT, a_style);
+        m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, EUPHORIA_MODULATOR_COUNT, f_mod_matrix_columns, LMS_PFXMATRIX_FIRST_PORT, a_style);
         
         m_polyfx_mod_matrix[0]->lms_mod_matrix->setVerticalHeaderLabels(QStringList() << QString("ADSR Amp") << QString("ADSR 2") << QString("Ramp Env") << QString("LFO"));
         
@@ -1096,7 +1096,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         //End from Modulex
         
-        m_adsr_amp = new LMS_adsr_widget(this, a_style, TRUE, LMS_ATTACK, LMS_DECAY, LMS_SUSTAIN, LMS_RELEASE, QString("ADSR Amp"));
+        m_adsr_amp = new LMS_adsr_widget(this, a_style, TRUE, EUPHORIA_ATTACK, EUPHORIA_DECAY, EUPHORIA_SUSTAIN, EUPHORIA_RELEASE, QString("ADSR Amp"));
         
         m_adsr_amp->lms_release->lms_knob->setMinimum(5);  //overriding the default for this, because we want a low minimum default that won't click
 
@@ -1110,7 +1110,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_groupbox_noise = new LMS_group_box(this, QString("Noise"), a_style);
         m_main_layout->lms_add_widget(m_groupbox_noise->lms_groupbox);
 
-        m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, a_style, lms_kc_integer, LMS_NOISE_AMP);
+        m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, a_style, lms_kc_integer, EUPHORIA_NOISE_AMP);
         m_groupbox_noise->lms_add_h(m_noise_amp);
         connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
         
@@ -1118,7 +1118,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_groupbox_noise->lms_add_h(m_noise_type);
         connect(m_noise_type->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(noise_typeChanged(int)));
         
-        m_adsr_filter = new LMS_adsr_widget(this, a_style, FALSE, LMS_FILTER_ATTACK, LMS_FILTER_DECAY, LMS_FILTER_SUSTAIN, LMS_FILTER_RELEASE, QString("ADSR 2"));
+        m_adsr_filter = new LMS_adsr_widget(this, a_style, FALSE, EUPHORIA_FILTER_ATTACK, EUPHORIA_FILTER_DECAY, EUPHORIA_FILTER_SUSTAIN, EUPHORIA_FILTER_RELEASE, QString("ADSR 2"));
 
         m_main_layout->lms_add_widget(m_adsr_filter->lms_groupbox_adsr->lms_groupbox);
 
@@ -1127,12 +1127,12 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_adsr_filter->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterSustainChanged(int)));
         connect(m_adsr_filter->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));
 
-        m_pitch_env = new LMS_ramp_env(this, a_style, LMS_PITCH_ENV_TIME, -1, -1, FALSE, QString("Ramp Env"), FALSE);
+        m_pitch_env = new LMS_ramp_env(this, a_style, EUPHORIA_PITCH_ENV_TIME, -1, -1, FALSE, QString("Ramp Env"), FALSE);
         m_main_layout->lms_add_widget(m_pitch_env->lms_groupbox->lms_groupbox);
 
         connect(m_pitch_env->lms_time_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvTimeChanged(int)));
 
-        m_lfo = new LMS_lfo_widget(this, a_style, LMS_LFO_FREQ, LMS_LFO_TYPE, f_lfo_types, QString("LFO"));
+        m_lfo = new LMS_lfo_widget(this, a_style, EUPHORIA_LFO_FREQ, EUPHORIA_LFO_TYPE, f_lfo_types, QString("LFO"));
         m_main_layout->lms_add_widget(m_lfo->lms_groupbox->lms_groupbox);
 
         //Overriding the default so we can have a faster LFO
@@ -1155,12 +1155,12 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_mono_fx_tab_selected_group_label = new QLabel();
         m_mono_fx_tab_selected_group_label->setText(QString("FX Group:"));
         
-        for(int f_i = 0; f_i < LMS_MONO_FX_GROUPS_COUNT; f_i++)
+        for(int f_i = 0; f_i < EUPHORIA_MONO_FX_GROUPS_COUNT; f_i++)
         {
             m_mono_fx_tab_selected_group->addItem(QString::number(f_i));
         }
         
-        for(int f_i = 0; f_i < LMS_MAX_SAMPLE_COUNT; f_i++)
+        for(int f_i = 0; f_i < EUPHORIA_MAX_SAMPLE_COUNT; f_i++)
         {
             m_mono_fx_tab_selected_sample->addItem(QString(""));
         }
@@ -1177,7 +1177,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         m_mono_fx_tab_main_layout->lms_add_layout();
         
-        m_mono_fx0 = new LMS_multieffect(this, QString("FX1"), a_style, LMS_FX0_KNOB0, LMS_FX0_KNOB1, LMS_FX0_KNOB2, LMS_FX0_COMBOBOX);
+        m_mono_fx0 = new LMS_multieffect(this, QString("FX1"), a_style, EUPHORIA_FX0_KNOB0, EUPHORIA_FX0_KNOB1, EUPHORIA_FX0_KNOB2, EUPHORIA_FX0_COMBOBOX);
         connect(m_mono_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx0knob0Changed(int)));
         connect(m_mono_fx0->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx0knob1Changed(int)));
         connect(m_mono_fx0->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx0knob2Changed(int)));
@@ -1185,7 +1185,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_mono_fx_tab_main_layout->lms_add_widget(m_mono_fx0->lms_groupbox->lms_groupbox);
 
-        m_mono_fx1 = new LMS_multieffect(this, QString("FX2"), a_style, LMS_FX1_KNOB0, LMS_FX1_KNOB1, LMS_FX1_KNOB2, LMS_FX1_COMBOBOX);
+        m_mono_fx1 = new LMS_multieffect(this, QString("FX2"), a_style, EUPHORIA_FX1_KNOB0, EUPHORIA_FX1_KNOB1, EUPHORIA_FX1_KNOB2, LMS_FX1_COMBOBOX);
         connect(m_mono_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx1knob0Changed(int)));
         connect(m_mono_fx1->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx1knob1Changed(int)));
         connect(m_mono_fx1->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx1knob2Changed(int)));
@@ -1213,8 +1213,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_mono_fx_tab_main_layout->lms_add_layout();  
         
-        m_master = new LMS_master_widget(this, a_style, LMS_MASTER_VOLUME, -1, 
-                -1, LMS_MASTER_GLIDE, LMS_MASTER_PITCHBEND_AMT, QString("Master"), FALSE);
+        m_master = new LMS_master_widget(this, a_style, EUPHORIA_MASTER_VOLUME, -1, 
+                -1, EUPHORIA_MASTER_GLIDE, EUPHORIA_MASTER_PITCHBEND_AMT, QString("Master"), FALSE);
         m_mono_fx_tab_main_layout->lms_add_widget(m_master->lms_groupbox->lms_groupbox);    
         
         m_master->lms_master_volume->lms_knob->setMinimum(-24);
@@ -1261,18 +1261,18 @@ void SamplerGUI::setFirstPreset()
     
     if(QFile::exists(f_path))
     {
-        cerr << QString("Opening ") + f_path + QString("\n");
+        euphoria_cerr << QString("Opening ") + f_path + QString("\n");
         openInstrumentFromFile(f_path);
     }
     else
     {
-        cerr << QString("Did not find ") + f_path + QString(" .  This is to be expected if you are opening the instrument for the first time\n");
+        euphoria_cerr << QString("Did not find ") + f_path + QString(" .  This is to be expected if you are opening the instrument for the first time\n");
     }
 }
 
 void SamplerGUI::clearAllSamples()
 {
-    for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)
+    for(int i = 0; i < EUPHORIA_MAX_SAMPLE_COUNT; i++)
     {
         
         set_selected_sample_combobox_item(i, QString(""));
@@ -1305,7 +1305,7 @@ void SamplerGUI::mapAllSamplesToOneWhiteKey()
     
     int f_white_notes[7] = {2,2,1,2,2,2,1};
     
-    for(f_i = 0; f_i < LMS_MAX_SAMPLE_COUNT; f_i++)
+    for(f_i = 0; f_i < EUPHORIA_MAX_SAMPLE_COUNT; f_i++)
     {
         QString f_current_string = (m_sample_table->lms_mod_matrix->item(f_i, SMP_TB_FILE_PATH_INDEX)->text());
         
@@ -1476,19 +1476,19 @@ void SamplerGUI::setSampleFile(QString files)
 {
     m_suppressHostUpdate = true;
 
-    cerr << "Calling SamplerGUI::setSampleFile with string:\n" << files << "\n";
+    euphoria_cerr << "Calling SamplerGUI::setSampleFile with string:\n" << files << "\n";
     
     m_files = files;    
     
-    files.replace(QString(LMS_FILES_STRING_RELOAD_DELIMITER), QString(LMS_FILES_STRING_DELIMITER));
+    files.replace(QString(EUPHORIA_FILES_STRING_RELOAD_DELIMITER), QString(EUPHORIA_FILES_STRING_DELIMITER));
     
-    QStringList f_file_list = files.split(QString(LMS_FILES_STRING_DELIMITER));
+    QStringList f_file_list = files.split(QString(EUPHORIA_FILES_STRING_DELIMITER));
     
     for(int f_i = 0; f_i < f_file_list.count(); f_i++)
     {
         if(!f_file_list[f_i].isEmpty())
         {
-            cerr << "Setting " << f_file_list[f_i] << " at index " << f_i << "\n";
+            euphoria_cerr << "Setting " << f_file_list[f_i] << " at index " << f_i << "\n";
         }
         
         QTableWidgetItem * f_item = new QTableWidgetItem();
@@ -1583,9 +1583,9 @@ void SamplerGUI::load_files(QStringList paths)
                                 
                 f_sample_index_to_load++;
                 
-                if(f_sample_index_to_load >= LMS_MAX_SAMPLE_COUNT)
+                if(f_sample_index_to_load >= EUPHORIA_MAX_SAMPLE_COUNT)
                 {
-                    cerr << "Multiple sample loading index exceeded LMS_MAX_SAMPLE count, not all samples were loaded\n";
+                    euphoria_cerr << "Multiple sample loading index exceeded LMS_MAX_SAMPLE count, not all samples were loaded\n";
                     break;
                 }
             }
@@ -1611,21 +1611,21 @@ void SamplerGUI::generate_files_string(int a_index)
 {
     files_string = QString("");
         
-    for(int f_i = 0; f_i < LMS_MAX_SAMPLE_COUNT; f_i++)
+    for(int f_i = 0; f_i < EUPHORIA_MAX_SAMPLE_COUNT; f_i++)
     {
         files_string.append(m_sample_table->lms_mod_matrix->item(f_i, SMP_TB_FILE_PATH_INDEX)->text());
         
         if((a_index != -1) && (f_i == a_index))
         {
-            files_string.append(LMS_FILES_STRING_RELOAD_DELIMITER);
+            files_string.append(EUPHORIA_FILES_STRING_RELOAD_DELIMITER);
         }
         else
         {
-            files_string.append(LMS_FILES_STRING_DELIMITER);
+            files_string.append(EUPHORIA_FILES_STRING_DELIMITER);
         }
     }
     
-    files_string.append(preview_file + LMS_FILES_STRING_DELIMITER);
+    files_string.append(preview_file + EUPHORIA_FILES_STRING_DELIMITER);
     
     //cerr << files_string << "\n";
 }
@@ -1702,7 +1702,7 @@ void SamplerGUI::selectionChanged()
     
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
-	lo_send(m_host, m_controlPath, "if", Sampler_SELECTED_SAMPLE, (float)(m_sample_table->lms_selected_column));
+	lo_send(m_host, m_controlPath, "if", EUPHORIA_SELECTED_SAMPLE, (float)(m_sample_table->lms_selected_column));
     }
 #endif    
     
@@ -1868,7 +1868,7 @@ void SamplerGUI::sample_vel_highChanged(int a_control_index)
     int test_value = (m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_get_value());
     int test_port = (m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_port);   
     int ought_to_be_right_port = LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN + a_control_index;
-    cerr << LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN << " " << LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX << " " << SMP_TB_VEL_HIGH_INDEX << "\n";
+    euphoria_cerr << LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN << " " << LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX << " " << SMP_TB_VEL_HIGH_INDEX << "\n";
 #endif
 }
 
@@ -1917,7 +1917,7 @@ void SamplerGUI::pfxmatrix_Changed(int a_port, int a_fx_group, int a_dst, int a_
 	lo_send(m_host, m_controlPath, "if",
                 a_port,
                 //(float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_get_value())
-                (float)(m_polyfx_mod_matrix[a_fx_group]->lms_mm_columns[((a_dst * LMS_CONTROLS_PER_MOD_EFFECT) + a_ctrl)]->controls[a_src]->lms_get_value())
+                (float)(m_polyfx_mod_matrix[a_fx_group]->lms_mm_columns[((a_dst * EUPHORIA_CONTROLS_PER_MOD_EFFECT) + a_ctrl)]->controls[a_src]->lms_get_value())
                 );
     }
 #endif
@@ -1943,7 +1943,7 @@ void SamplerGUI::saveInstrumentToSingleFile(QString a_selected_path)
         
         bool f_paths_are_relative = TRUE;
 
-        for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
+        for(int i = 0; i < EUPHORIA_MAX_SAMPLE_COUNT; i++)        
         {
             if(m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text().isEmpty() || m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text().isNull())
                 continue;
@@ -1951,7 +1951,7 @@ void SamplerGUI::saveInstrumentToSingleFile(QString a_selected_path)
             if(!m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text().startsWith(f_qfileinfo.absolutePath()))
             {
                 f_paths_are_relative = FALSE;
-                cerr << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << " does not begin with " << f_qfileinfo.absolutePath() << "\n";
+                euphoria_cerr << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << " does not begin with " << f_qfileinfo.absolutePath() << "\n";
                 break;
             }
         }
@@ -1966,77 +1966,77 @@ void SamplerGUI::saveInstrumentToSingleFile(QString a_selected_path)
             QTextStream stream( &file );
             
             if(f_paths_are_relative)
-                stream << LMS_FILES_ATTRIBUTE_RELATIVE_PATH << "\n";
+                stream << EUPHORIA_FILES_ATTRIBUTE_RELATIVE_PATH << "\n";
             else
-                stream << LMS_FILES_ATTRIBUTE_ABSOLUTE_PATH << "\n";
+                stream << EUPHORIA_FILES_ATTRIBUTE_ABSOLUTE_PATH << "\n";
             
-            stream << LMS_FILE_FILES_TAG << "\n";
+            stream << EUPHORIA_FILE_FILES_TAG << "\n";
             
-            for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
+            for(int i = 0; i < EUPHORIA_MAX_SAMPLE_COUNT; i++)        
             {        
                 if(f_paths_are_relative)
                 {
                     QDir f_dir(f_qfileinfo.absolutePath());
                                         
-                    stream << i << LMS_FILES_STRING_DELIMITER << 
-                            f_dir.relativeFilePath(m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text()) << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_PITCH_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_START_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_END_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER << 
+                    stream << i << EUPHORIA_FILES_STRING_DELIMITER << 
+                            f_dir.relativeFilePath(m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text()) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_PITCH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_START_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_END_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER << 
                             //new
-                            i_get_control((i + LMS_PITCH_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
-                            i_get_control((i + LMS_TUNE_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
+                            i_get_control((i + LMS_PITCH_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
+                            i_get_control((i + LMS_TUNE_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
                             i_get_control((i + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN))
                             << "\n";
                 }
                 else
                 {
-                    stream << i << LMS_FILES_STRING_DELIMITER << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_PITCH_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_START_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_END_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                    stream << i << EUPHORIA_FILES_STRING_DELIMITER << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_PITCH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_START_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_END_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
                             //new
-                            i_get_control((i + LMS_PITCH_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
-                            i_get_control((i + LMS_TUNE_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
-                            i_get_control((i + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)) << LMS_FILES_STRING_DELIMITER <<
+                            i_get_control((i + LMS_PITCH_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
+                            i_get_control((i + LMS_TUNE_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
+                            i_get_control((i + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
                             
-                            i_get_control((i + LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER <<
-                            i_get_control((i + LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN))  << LMS_FILES_STRING_DELIMITER  <<
+                            i_get_control((i + LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
+                            i_get_control((i + LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER  <<
                             i_get_control((i + LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN))  
                             << "\n";
                 }
             }
             
-            stream << LMS_FILE_CONTROLS_TAG << "\n";
-            stream << LMS_FILE_CONTROLS_TAG_EUP_V1 << "\n";
+            stream << EUPHORIA_FILE_CONTROLS_TAG << "\n";
+            stream << EUPHORIA_FILE_CONTROLS_TAG_EUP_V1 << "\n";
             
-            for(int i = LMS_FIRST_CONTROL_PORT; i < LMS_LAST_REGULAR_CONTROL_PORT; i++)        
+            for(int i = EUPHORIA_FIRST_CONTROL_PORT; i < LMS_LAST_REGULAR_CONTROL_PORT; i++)        
             {   
-                stream << i << LMS_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";
+                stream << i << EUPHORIA_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";
             }   
             
             for(int i = LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN; i < Sampler_Stereo_COUNT; i++)
             {
-                stream << i << LMS_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";
+                stream << i << EUPHORIA_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";
             }
             
             file.close();
         }
         else
         {
-            cerr << "Error opening file for Read/Write, you may not have permissions to that directory\n";
+            euphoria_cerr << "Error opening file for Read/Write, you may not have permissions to that directory\n";
         }
     }
 }
@@ -2061,7 +2061,7 @@ void SamplerGUI::moveSamplesToSingleDirectory()
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
         int f_current_radio_button = m_sample_table->lms_selected_column;
 
-        for(int i = 0; i < LMS_MAX_SAMPLE_COUNT; i++)        
+        for(int i = 0; i < EUPHORIA_MAX_SAMPLE_COUNT; i++)        
         {           
             QString f_current_file_path = m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text();
             
@@ -2120,9 +2120,9 @@ void SamplerGUI::openInstrumentFromFile(QString a_selected_path)
     {
         QString f_clear_all_files = QString("");
         
-        for(int i = 0; i < LMS_TOTAL_SAMPLE_COUNT; i++)
+        for(int i = 0; i < EUPHORIA_TOTAL_SAMPLE_COUNT; i++)
         {
-            f_clear_all_files.append(LMS_FILES_STRING_DELIMITER);
+            f_clear_all_files.append(EUPHORIA_FILES_STRING_DELIMITER);
         }
         
 #ifndef LMS_DEBUG_STANDALONE
@@ -2147,24 +2147,24 @@ void SamplerGUI::openInstrumentFromFile(QString a_selected_path)
         while(!in.atEnd()) {
             QString line = in.readLine();    
             
-            if(line.compare(QString(LMS_FILES_ATTRIBUTE_RELATIVE_PATH)) == 0)
+            if(line.compare(QString(EUPHORIA_FILES_ATTRIBUTE_RELATIVE_PATH)) == 0)
             {
                 f_path_prefix = QFileInfo(f_selected_path).absolutePath();
                 f_use_path_prefix = TRUE;
                 continue;
             }
         
-            if(line.compare(QString(LMS_FILE_FILES_TAG)) == 0)
+            if(line.compare(QString(EUPHORIA_FILE_FILES_TAG)) == 0)
             {
                 f_current_stage = 1; continue;
             }
-            else if(line.compare(QString(LMS_FILE_CONTROLS_TAG)) == 0)
+            else if(line.compare(QString(EUPHORIA_FILE_CONTROLS_TAG)) == 0)
             {
                 f_current_stage = 2; 
                 f_is_current_app_and_control_version = FALSE;  //must be reset each time this tag is found, otherwise you might start reading another sampler's controls
                 continue;
             }
-            else if(line.compare(QString(LMS_FILE_CONTROLS_TAG_EUP_V1)) == 0)
+            else if(line.compare(QString(EUPHORIA_FILE_CONTROLS_TAG_EUP_V1)) == 0)
             {
                 f_is_current_app_and_control_version = TRUE; continue;
             }
@@ -2172,16 +2172,16 @@ void SamplerGUI::openInstrumentFromFile(QString a_selected_path)
             switch(f_current_stage)
             {
                 case 0:{
-                    cerr << "f_current_stage == 0 on line# " << f_line_number << ".  " << line << "\n";
+                    euphoria_cerr << "f_current_stage == 0 on line# " << f_line_number << ".  " << line << "\n";
                 }break;
                 case 1:{
-                    QStringList file_arr = line.split(LMS_FILES_STRING_DELIMITER);
+                    QStringList file_arr = line.split(EUPHORIA_FILES_STRING_DELIMITER);
                     
                     int f_sample_index = file_arr.at(0).toInt();
                     
                     if(file_arr.count() < 2)
                     {
-                        cerr << "Malformed file definition at line# " << f_line_number << ".  " << line << "\n";                        
+                        euphoria_cerr << "Malformed file definition at line# " << f_line_number << ".  " << line << "\n";                        
                     }                    
                     else
                     {
@@ -2201,7 +2201,7 @@ void SamplerGUI::openInstrumentFromFile(QString a_selected_path)
                             
                             if(QFile::exists(f_full_path))
                             {
-                                cerr << "Setting " << file_arr.at(0) << " to " << f_full_path << "\n";
+                                euphoria_cerr << "Setting " << file_arr.at(0) << " to " << f_full_path << "\n";
                                 QTableWidgetItem * f_item = new QTableWidgetItem();
                                 f_item->setText(f_full_path);
                                 f_item->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
@@ -2214,7 +2214,7 @@ void SamplerGUI::openInstrumentFromFile(QString a_selected_path)
                             }
                             else
                             {
-                                cerr << "Invalid file " << line << "  full path: " << f_full_path << "\n";
+                                euphoria_cerr << "Invalid file " << line << "  full path: " << f_full_path << "\n";
                             }
                         }
                     }
@@ -2298,11 +2298,11 @@ void SamplerGUI::openInstrumentFromFile(QString a_selected_path)
                         continue;
                     }
                     
-                    QStringList f_control_port_value_pair = line.split(LMS_FILE_PORT_VALUE_SEPARATOR);
+                    QStringList f_control_port_value_pair = line.split(EUPHORIA_FILE_PORT_VALUE_SEPARATOR);
                     
                     if(f_control_port_value_pair.count() != 2)
                     {
-                        cerr << "Malformed control/port definition at line# " << f_line_number << ".  " << line << "\n";
+                        euphoria_cerr << "Malformed control/port definition at line# " << f_line_number << ".  " << line << "\n";
                         break;
                     }
                     
@@ -2311,7 +2311,7 @@ void SamplerGUI::openInstrumentFromFile(QString a_selected_path)
                 }
                     break;
                 default:{
-                    cerr << "Invalid f_current_stage " << f_current_stage << "\n";
+                    euphoria_cerr << "Invalid f_current_stage " << f_current_stage << "\n";
                 }
                     break;
             }
@@ -2931,37 +2931,37 @@ void SamplerGUI::v_print_port_name_to_cerr(int a_port)
 {
 #ifdef LMS_DEBUG_MODE_QT
     switch (a_port) {
-    case LMS_ATTACK: cerr << "LMS_ATTACK"; break;
-    case LMS_DECAY: cerr << "LMS_DECAY"; break;
-    case LMS_SUSTAIN: cerr << "LMS_SUSTAIN"; break;
-    case LMS_RELEASE: cerr << "LMS_RELEASE"; break;
-    case LMS_TIMBRE: cerr << "LMS_TIMBRE"; break;
-    case LMS_RES: cerr << "LMS_RES"; break;        
-    case LMS_DIST: cerr << "LMS_DIST"; break;
-    case LMS_FILTER_ATTACK: cerr << "LMS_FILTER_ATTACK"; break;
-    case LMS_FILTER_DECAY: cerr << "LMS_FILTER_DECAY"; break;
-    case LMS_FILTER_SUSTAIN: cerr << "LMS_FILTER_SUSTAIN"; break;
-    case LMS_FILTER_RELEASE: cerr << "LMS_FILTER_RELEASE"; break;
-    case LMS_NOISE_AMP: cerr << "LMS_NOISE_AMP"; break;    
-    case LMS_DIST_WET: cerr << "LMS_DIST_WET"; break;            
-    case LMS_FILTER_ENV_AMT: cerr << "LMS_FILTER_ENV_AMT"; break;    
-    case LMS_OSC1_TYPE: cerr << "LMS_OSC1_TYPE"; break;            
-    case LMS_OSC1_PITCH: cerr << "LMS_OSC1_PITCH"; break;    
-    case LMS_OSC1_TUNE: cerr << "LMS_OSC1_TUNE"; break;    
-    case LMS_OSC1_VOLUME: cerr << "LMS_OSC1_VOLUME"; break;        
-    case LMS_OSC2_TYPE: cerr << "LMS_OSC2_TYPE"; break;            
-    case LMS_OSC2_PITCH: cerr << "LMS_OSC2_PITCH"; break;    
-    case LMS_OSC2_TUNE: cerr << "LMS_OSC2_TUNE";  break;    
-    case LMS_OSC2_VOLUME: cerr << "LMS_OSC2_VOLUME"; break;        
-    case LMS_MASTER_VOLUME: cerr << "LMS_MASTER_VOLUME"; break;
-    case LMS_MASTER_UNISON_VOICES: cerr << "LMS_MASTER_UNISON_VOICES"; break;
-    case LMS_MASTER_UNISON_SPREAD: cerr << "LMS_MASTER_UNISON_SPREAD"; break;
-    case LMS_MASTER_GLIDE: cerr << "LMS_MASTER_GLIDE"; break;
-    case LMS_MASTER_PITCHBEND_AMT: cerr << "LMS_MASTER_PITCHBEND_AMT"; break;
-    case LMS_PITCH_ENV_AMT: cerr << "LMS_PITCH_ENV_AMT "; break;
-    case LMS_PITCH_ENV_TIME: cerr << "LMS_PITCH_ENV_TIME ";  break;        
-    case LMS_PROGRAM_CHANGE: cerr << "LMS_PROGRAM_CHANGE "; break;
-    default: cerr << "Warning: received request to set nonexistent port " << a_port ; break;
+    case EUPHORIA_ATTACK: euphoria_cerr << "LMS_ATTACK"; break;
+    case EUPHORIA_DECAY: euphoria_cerr << "LMS_DECAY"; break;
+    case EUPHORIA_SUSTAIN: euphoria_cerr << "LMS_SUSTAIN"; break;
+    case EUPHORIA_RELEASE: euphoria_cerr << "LMS_RELEASE"; break;
+    case LMS_TIMBRE: euphoria_cerr << "LMS_TIMBRE"; break;
+    case LMS_RES: euphoria_cerr << "LMS_RES"; break;        
+    case LMS_DIST: euphoria_cerr << "LMS_DIST"; break;
+    case EUPHORIA_FILTER_ATTACK: euphoria_cerr << "LMS_FILTER_ATTACK"; break;
+    case EUPHORIA_FILTER_DECAY: euphoria_cerr << "LMS_FILTER_DECAY"; break;
+    case EUPHORIA_FILTER_SUSTAIN: euphoria_cerr << "LMS_FILTER_SUSTAIN"; break;
+    case EUPHORIA_FILTER_RELEASE: euphoria_cerr << "LMS_FILTER_RELEASE"; break;
+    case EUPHORIA_NOISE_AMP: euphoria_cerr << "LMS_NOISE_AMP"; break;    
+    case LMS_DIST_WET: euphoria_cerr << "LMS_DIST_WET"; break;            
+    case LMS_FILTER_ENV_AMT: euphoria_cerr << "LMS_FILTER_ENV_AMT"; break;    
+    case LMS_OSC1_TYPE: euphoria_cerr << "LMS_OSC1_TYPE"; break;            
+    case LMS_OSC1_PITCH: euphoria_cerr << "LMS_OSC1_PITCH"; break;    
+    case LMS_OSC1_TUNE: euphoria_cerr << "LMS_OSC1_TUNE"; break;    
+    case LMS_OSC1_VOLUME: euphoria_cerr << "LMS_OSC1_VOLUME"; break;        
+    case LMS_OSC2_TYPE: euphoria_cerr << "LMS_OSC2_TYPE"; break;            
+    case LMS_OSC2_PITCH: euphoria_cerr << "LMS_OSC2_PITCH"; break;    
+    case LMS_OSC2_TUNE: euphoria_cerr << "LMS_OSC2_TUNE";  break;    
+    case LMS_OSC2_VOLUME: euphoria_cerr << "LMS_OSC2_VOLUME"; break;        
+    case EUPHORIA_MASTER_VOLUME: euphoria_cerr << "LMS_MASTER_VOLUME"; break;
+    case LMS_MASTER_UNISON_VOICES: euphoria_cerr << "LMS_MASTER_UNISON_VOICES"; break;
+    case LMS_MASTER_UNISON_SPREAD: euphoria_cerr << "LMS_MASTER_UNISON_SPREAD"; break;
+    case EUPHORIA_MASTER_GLIDE: euphoria_cerr << "LMS_MASTER_GLIDE"; break;
+    case EUPHORIA_MASTER_PITCHBEND_AMT: euphoria_cerr << "LMS_MASTER_PITCHBEND_AMT"; break;
+    case LMS_PITCH_ENV_AMT: euphoria_cerr << "LMS_PITCH_ENV_AMT "; break;
+    case EUPHORIA_PITCH_ENV_TIME: euphoria_cerr << "LMS_PITCH_ENV_TIME ";  break;        
+    case LMS_PROGRAM_CHANGE: euphoria_cerr << "LMS_PROGRAM_CHANGE "; break;
+    default: euphoria_cerr << "Warning: received request to set nonexistent port " << a_port ; break;
     }
 #endif
 }
@@ -2972,32 +2972,32 @@ void SamplerGUI::v_set_control(int port, float a_value)
     if(port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN)
     {
         switch (port) {
-            case Sampler_SELECTED_SAMPLE: setSelection(a_value); break;
-            case LMS_ATTACK: setAttack(a_value); break;
-            case LMS_DECAY: setDecay(a_value); break;
-            case LMS_SUSTAIN: setSustain(a_value); break;
-            case LMS_RELEASE: setRelease(a_value); break;
-            case LMS_FILTER_ATTACK: setFilterAttack(a_value); break;
-            case LMS_FILTER_DECAY: setFilterDecay(a_value); break;
-            case LMS_FILTER_SUSTAIN: setFilterSustain(a_value); break;
-            case LMS_FILTER_RELEASE: setFilterRelease(a_value); break;
-            case LMS_NOISE_AMP: setNoiseAmp(a_value); break;        
+            case EUPHORIA_SELECTED_SAMPLE: setSelection(a_value); break;
+            case EUPHORIA_ATTACK: setAttack(a_value); break;
+            case EUPHORIA_DECAY: setDecay(a_value); break;
+            case EUPHORIA_SUSTAIN: setSustain(a_value); break;
+            case EUPHORIA_RELEASE: setRelease(a_value); break;
+            case EUPHORIA_FILTER_ATTACK: setFilterAttack(a_value); break;
+            case EUPHORIA_FILTER_DECAY: setFilterDecay(a_value); break;
+            case EUPHORIA_FILTER_SUSTAIN: setFilterSustain(a_value); break;
+            case EUPHORIA_FILTER_RELEASE: setFilterRelease(a_value); break;
+            case EUPHORIA_NOISE_AMP: setNoiseAmp(a_value); break;        
             case LMS_NOISE_TYPE: setNoiseType(a_value); break;
-            case LMS_MASTER_VOLUME: setMasterVolume(a_value); break;
-            case LMS_MASTER_GLIDE: setMasterGlide(a_value); break;
-            case LMS_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;            
-            case LMS_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;                
-            case LMS_LFO_FREQ: setLFOfreq(a_value); break;            
-            case LMS_LFO_TYPE:  setLFOtype(a_value);  break;
+            case EUPHORIA_MASTER_VOLUME: setMasterVolume(a_value); break;
+            case EUPHORIA_MASTER_GLIDE: setMasterGlide(a_value); break;
+            case EUPHORIA_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;            
+            case EUPHORIA_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;                
+            case EUPHORIA_LFO_FREQ: setLFOfreq(a_value); break;            
+            case EUPHORIA_LFO_TYPE:  setLFOtype(a_value);  break;
             //From Modulex            
-            case LMS_FX0_KNOB0:	setFX0knob0(a_value); break;
-            case LMS_FX0_KNOB1:	setFX0knob1(a_value); break;        
-            case LMS_FX0_KNOB2:	setFX0knob2(a_value); break;        
-            case LMS_FX0_COMBOBOX: setFX0combobox(a_value); break;
+            case EUPHORIA_FX0_KNOB0:	setFX0knob0(a_value); break;
+            case EUPHORIA_FX0_KNOB1:	setFX0knob1(a_value); break;        
+            case EUPHORIA_FX0_KNOB2:	setFX0knob2(a_value); break;        
+            case EUPHORIA_FX0_COMBOBOX: setFX0combobox(a_value); break;
 
-            case LMS_FX1_KNOB0:	setFX1knob0(a_value); break;
-            case LMS_FX1_KNOB1:	setFX1knob1(a_value); break;        
-            case LMS_FX1_KNOB2:	setFX1knob2(a_value); break;        
+            case EUPHORIA_FX1_KNOB0:	setFX1knob0(a_value); break;
+            case EUPHORIA_FX1_KNOB1:	setFX1knob1(a_value); break;        
+            case EUPHORIA_FX1_KNOB2:	setFX1knob2(a_value); break;        
             case LMS_FX1_COMBOBOX: setFX1combobox(a_value); break;
 
             case LMS_FX2_KNOB0:	setFX2knob0(a_value); break;
@@ -3303,7 +3303,7 @@ void SamplerGUI::v_set_control(int port, float a_value)
     
     else
     {
-        cerr << "v_set_control called with invalid port " << port << "\n";
+        euphoria_cerr << "v_set_control called with invalid port " << port << "\n";
     }
 
 }
@@ -3312,9 +3312,9 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
 {
     
 #ifdef LMS_DEBUG_MODE_QT    
-    cerr << "v_control_changed called.  ";  
+    euphoria_cerr << "v_control_changed called.  ";  
     v_print_port_name_to_cerr(a_port);
-    cerr << "  value: " << a_value << endl;
+    euphoria_cerr << "  value: " << a_value << endl;
 #endif
     
     if(a_suppress_host_update)
@@ -3324,32 +3324,32 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
     {
         switch (port) 
         {
-            case Sampler_SELECTED_SAMPLE: selectionChanged(); break;
-            case LMS_ATTACK: attackChanged(a_value); break;
-            case LMS_DECAY: decayChanged(a_value); break;
-            case LMS_SUSTAIN: sustainChanged(a_value); break;
-            case LMS_RELEASE: releaseChanged(a_value); break;
-            case LMS_FILTER_ATTACK: filterAttackChanged(a_value); break;
-            case LMS_FILTER_DECAY: filterDecayChanged(a_value); break;
-            case LMS_FILTER_SUSTAIN: filterSustainChanged(a_value); break;
-            case LMS_FILTER_RELEASE: filterReleaseChanged(a_value); break;
-            case LMS_NOISE_AMP: noiseAmpChanged(a_value); break;      
+            case EUPHORIA_SELECTED_SAMPLE: selectionChanged(); break;
+            case EUPHORIA_ATTACK: attackChanged(a_value); break;
+            case EUPHORIA_DECAY: decayChanged(a_value); break;
+            case EUPHORIA_SUSTAIN: sustainChanged(a_value); break;
+            case EUPHORIA_RELEASE: releaseChanged(a_value); break;
+            case EUPHORIA_FILTER_ATTACK: filterAttackChanged(a_value); break;
+            case EUPHORIA_FILTER_DECAY: filterDecayChanged(a_value); break;
+            case EUPHORIA_FILTER_SUSTAIN: filterSustainChanged(a_value); break;
+            case EUPHORIA_FILTER_RELEASE: filterReleaseChanged(a_value); break;
+            case EUPHORIA_NOISE_AMP: noiseAmpChanged(a_value); break;      
             case LMS_NOISE_TYPE: noise_typeChanged(a_value); break;      
-            case LMS_MASTER_VOLUME: masterVolumeChanged(a_value); break;
-            case LMS_MASTER_GLIDE: masterGlideChanged(a_value); break;
-            case LMS_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;            
-            case LMS_PITCH_ENV_TIME: pitchEnvTimeChanged(a_value); break;
-            case LMS_LFO_FREQ: LFOfreqChanged(a_value); break;
-            case LMS_LFO_TYPE: LFOtypeChanged(a_value); break;
+            case EUPHORIA_MASTER_VOLUME: masterVolumeChanged(a_value); break;
+            case EUPHORIA_MASTER_GLIDE: masterGlideChanged(a_value); break;
+            case EUPHORIA_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;            
+            case EUPHORIA_PITCH_ENV_TIME: pitchEnvTimeChanged(a_value); break;
+            case EUPHORIA_LFO_FREQ: LFOfreqChanged(a_value); break;
+            case EUPHORIA_LFO_TYPE: LFOtypeChanged(a_value); break;
             //From Modulex            
-            case LMS_FX0_KNOB0:	fx0knob0Changed(a_value); break;
-            case LMS_FX0_KNOB1:	fx0knob1Changed(a_value); break;
-            case LMS_FX0_KNOB2:	fx0knob2Changed(a_value); break;  
-            case LMS_FX0_COMBOBOX:  fx0comboboxChanged(a_value); break;
+            case EUPHORIA_FX0_KNOB0:	fx0knob0Changed(a_value); break;
+            case EUPHORIA_FX0_KNOB1:	fx0knob1Changed(a_value); break;
+            case EUPHORIA_FX0_KNOB2:	fx0knob2Changed(a_value); break;  
+            case EUPHORIA_FX0_COMBOBOX:  fx0comboboxChanged(a_value); break;
 
-            case LMS_FX1_KNOB0:	fx1knob0Changed(a_value); break;
-            case LMS_FX1_KNOB1:	fx1knob1Changed(a_value); break;
-            case LMS_FX1_KNOB2:	fx1knob2Changed(a_value); break;  
+            case EUPHORIA_FX1_KNOB0:	fx1knob0Changed(a_value); break;
+            case EUPHORIA_FX1_KNOB1:	fx1knob1Changed(a_value); break;
+            case EUPHORIA_FX1_KNOB2:	fx1knob2Changed(a_value); break;  
             case LMS_FX1_COMBOBOX:  fx1comboboxChanged(a_value); break;
 
             case LMS_FX2_KNOB0:	fx2knob0Changed(a_value); break;
@@ -3618,7 +3618,7 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
     
     else
     {
-        cerr << "v_control_changed called with invalid port " << port << "\n";
+        euphoria_cerr << "v_control_changed called with invalid port " << port << "\n";
     }
     
     if(a_suppress_host_update)
@@ -3634,33 +3634,33 @@ int SamplerGUI::i_get_control(int port)
     {
         switch (port) 
         {
-            case Sampler_SELECTED_SAMPLE: m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX); return m_sample_table->lms_selected_column;
-            case LMS_ATTACK: return  m_adsr_amp->lms_attack->lms_get_value();
-            case LMS_DECAY:  return m_adsr_amp->lms_decay->lms_get_value();
-            case LMS_SUSTAIN: return m_adsr_amp->lms_sustain->lms_get_value();
-            case LMS_RELEASE: return m_adsr_amp->lms_release->lms_get_value();
-            case LMS_FILTER_ATTACK: return m_adsr_filter->lms_attack->lms_get_value();
-            case LMS_FILTER_DECAY: return m_adsr_filter->lms_decay->lms_get_value();
-            case LMS_FILTER_SUSTAIN: return m_adsr_filter->lms_sustain->lms_get_value();
-            case LMS_FILTER_RELEASE: return m_adsr_filter->lms_release->lms_get_value();
-            case LMS_NOISE_AMP: return m_noise_amp->lms_get_value();
+            case EUPHORIA_SELECTED_SAMPLE: m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX); return m_sample_table->lms_selected_column;
+            case EUPHORIA_ATTACK: return  m_adsr_amp->lms_attack->lms_get_value();
+            case EUPHORIA_DECAY:  return m_adsr_amp->lms_decay->lms_get_value();
+            case EUPHORIA_SUSTAIN: return m_adsr_amp->lms_sustain->lms_get_value();
+            case EUPHORIA_RELEASE: return m_adsr_amp->lms_release->lms_get_value();
+            case EUPHORIA_FILTER_ATTACK: return m_adsr_filter->lms_attack->lms_get_value();
+            case EUPHORIA_FILTER_DECAY: return m_adsr_filter->lms_decay->lms_get_value();
+            case EUPHORIA_FILTER_SUSTAIN: return m_adsr_filter->lms_sustain->lms_get_value();
+            case EUPHORIA_FILTER_RELEASE: return m_adsr_filter->lms_release->lms_get_value();
+            case EUPHORIA_NOISE_AMP: return m_noise_amp->lms_get_value();
             case LMS_NOISE_TYPE: return m_noise_type->lms_get_value();
-            case LMS_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
-            case LMS_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
-            case LMS_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
-            case LMS_PITCH_ENV_TIME: return m_pitch_env->lms_time_knob->lms_get_value();
-            case LMS_LFO_FREQ: return m_lfo->lms_freq_knob->lms_get_value();
-            case LMS_LFO_TYPE: return m_lfo->lms_type_combobox->lms_get_value();
+            case EUPHORIA_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
+            case EUPHORIA_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
+            case EUPHORIA_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
+            case EUPHORIA_PITCH_ENV_TIME: return m_pitch_env->lms_time_knob->lms_get_value();
+            case EUPHORIA_LFO_FREQ: return m_lfo->lms_freq_knob->lms_get_value();
+            case EUPHORIA_LFO_TYPE: return m_lfo->lms_type_combobox->lms_get_value();
             
             //From Modulex            
-            case LMS_FX0_KNOB0: return m_fx0->lms_knob1->lms_get_value();
-            case LMS_FX0_KNOB1: return m_fx0->lms_knob2->lms_get_value();
-            case LMS_FX0_KNOB2: return m_fx0->lms_knob3->lms_get_value();
-            case LMS_FX0_COMBOBOX: return m_fx0->lms_combobox->lms_get_value();
+            case EUPHORIA_FX0_KNOB0: return m_fx0->lms_knob1->lms_get_value();
+            case EUPHORIA_FX0_KNOB1: return m_fx0->lms_knob2->lms_get_value();
+            case EUPHORIA_FX0_KNOB2: return m_fx0->lms_knob3->lms_get_value();
+            case EUPHORIA_FX0_COMBOBOX: return m_fx0->lms_combobox->lms_get_value();
 
-            case LMS_FX1_KNOB0: return m_fx1->lms_knob1->lms_get_value();
-            case LMS_FX1_KNOB1: return m_fx1->lms_knob2->lms_get_value();
-            case LMS_FX1_KNOB2: return m_fx1->lms_knob3->lms_get_value();
+            case EUPHORIA_FX1_KNOB0: return m_fx1->lms_knob1->lms_get_value();
+            case EUPHORIA_FX1_KNOB1: return m_fx1->lms_knob2->lms_get_value();
+            case EUPHORIA_FX1_KNOB2: return m_fx1->lms_knob3->lms_get_value();
             case LMS_FX1_COMBOBOX: return m_fx1->lms_combobox->lms_get_value();
 
             case LMS_FX2_KNOB0: return m_fx2->lms_knob1->lms_get_value();
@@ -3725,7 +3725,7 @@ int SamplerGUI::i_get_control(int port)
 
             case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: return m_global_midi_octaves_offset->lms_get_value();
             //End from PolyFX mod matrix            
-            default: cerr << "i_get_control called with invalid port " << port << "\n"; return 0;
+            default: euphoria_cerr << "i_get_control called with invalid port " << port << "\n"; return 0;
         }    
     }
     else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
@@ -3895,7 +3895,7 @@ int SamplerGUI::i_get_control(int port)
     
     else
     {
-        cerr << "i_get_control called with invalid port " << port << "\n";
+        euphoria_cerr << "i_get_control called with invalid port " << port << "\n";
         return 0;
     }
 }
@@ -3926,40 +3926,40 @@ SamplerGUI::~SamplerGUI()
 }
 
 
-void osc_error(int num, const char *msg, const char *path)
+void euphoria_osc_error(int num, const char *msg, const char *path)
 {
-    cerr << "Error: liblo server error " << num
+    euphoria_cerr << "Error: liblo server error " << num
 	 << " in path \"" << (path ? path : "(null)")
 	 << "\": " << msg << endl;
 }
 
-int debug_handler(const char *path, const char *types, lo_arg **argv,
+int euphoria_debug_handler(const char *path, const char *types, lo_arg **argv,
 	      int argc, void *data, void *user_data)
 {
     int i;
 
-    cerr << "Warning: unhandled OSC message in GUI:" << endl;
+    euphoria_cerr << "Warning: unhandled OSC message in GUI:" << endl;
 
     for (i = 0; i < argc; ++i) {
-	cerr << "arg " << i << ": type '" << types[i] << "': ";
+	euphoria_cerr << "arg " << i << ": type '" << types[i] << "': ";
 #ifndef LMS_DEBUG_STANDALONE        
         lo_arg_pp((lo_type)types[i], argv[i]);
 #endif        
-	cerr << endl;
+	euphoria_cerr << endl;
     }
 
-    cerr << "(path is <" << path << ">)" << endl;
+    euphoria_cerr << "(path is <" << path << ">)" << endl;
     return 1;
 }
 
-int configure_handler(const char *path, const char *types, lo_arg **argv,
+int euphoria_configure_handler(const char *path, const char *types, lo_arg **argv,
 		  int argc, void *data, void *user_data)
 {
     SamplerGUI *gui = static_cast<SamplerGUI *>(user_data);
     const char *key = (const char *)&argv[0]->s;
     const char *value = (const char *)&argv[1]->s;
 
-    cerr << "GUI configure_handler:  Key:  " << QString::fromLocal8Bit(key) << " , Value:" << QString::fromLocal8Bit(value);
+    euphoria_cerr << "GUI configure_handler:  Key:  " << QString::fromLocal8Bit(key) << " , Value:" << QString::fromLocal8Bit(value);
     
     if (!strcmp(key, "load")) {
 	gui->setSampleFile(QString::fromLocal8Bit(value));
@@ -3969,7 +3969,7 @@ int configure_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_file_selector->lms_last_directory = QString::fromLocal8Bit(value);
         gui->m_file_browser->folder_opened(QString::fromLocal8Bit(value), FALSE);
     } else if (!strcmp(key, "pydaw_close_window")) {
-        cerr << "Closing window...\n";
+        euphoria_cerr << "Closing window...\n";
         gui->close();
 	//gui->setHostRequestedQuit(true);
         //qApp->quit();
@@ -3978,13 +3978,13 @@ int configure_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int rate_handler(const char *path, const char *types, lo_arg **argv,
+int euphoria_rate_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     return 0;
 }
 
-int show_handler(const char *path, const char *types, lo_arg **argv,
+int euphoria_show_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     SamplerGUI *gui = static_cast<SamplerGUI *>(user_data);
@@ -4001,7 +4001,7 @@ int show_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int hide_handler(const char *path, const char *types, lo_arg **argv,
+int euphoria_hide_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     SamplerGUI *gui = static_cast<SamplerGUI *>(user_data);
@@ -4009,7 +4009,7 @@ int hide_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int quit_handler(const char *path, const char *types, lo_arg **argv,
+int euphoria_quit_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     SamplerGUI *gui = static_cast<SamplerGUI *>(user_data);
@@ -4018,13 +4018,13 @@ int quit_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int control_handler(const char *path, const char *types, lo_arg **argv,
+int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
 		int argc, void *data, void *user_data)
 {
     SamplerGUI *gui = static_cast<SamplerGUI *>(user_data);
 
     if (argc < 2) {
-	cerr << "Error: too few arguments to control_handler" << endl;
+	euphoria_cerr << "Error: too few arguments to control_handler" << endl;
 	return 1;
     }
 
@@ -4305,7 +4305,7 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
     
     else
     {
-        cerr << "Warning: received request to set nonexistent port " << port << endl;
+        euphoria_cerr << "Warning: received request to set nonexistent port " << port << endl;
     }
 
     return 0;
@@ -4315,7 +4315,7 @@ void SamplerGUI::sessionTimeout()
 {    
     if(lms_session_manager::is_saving(project_path, instance_name))
     {
-        cerr << instance_name << " is saving...\n";
+        euphoria_cerr << instance_name << " is saving...\n";
         
         saveInstrumentToSingleFile(project_path + QString("/") + instance_name + QString(".u4ia"));
     }
@@ -4328,13 +4328,13 @@ void SamplerGUI::sessionTimeout()
 
 int main(int argc, char **argv)
 {
-    cerr << "Euphoria GUI starting..." << endl;
+    euphoria_cerr << "Euphoria GUI starting..." << endl;
 
     QApplication application(argc, argv);
     
 #ifndef LMS_DEBUG_STANDALONE    
     if (application.argc() < 5) {
-	cerr << "usage: "
+	euphoria_cerr << "usage: "
 	     << application.argv()[0] 
 	     << " <osc url>"
 	     << " <plugin dllname>"
@@ -4358,7 +4358,7 @@ int main(int argc, char **argv)
 
     char *label = application.argv()[3];
     bool stereo = false;
-    if (QString(label).toLower() == QString(Sampler_Stereo_LABEL).toLower()) {
+    if (QString(label).toLower() == QString(EUPHORIA_LABEL).toLower()) {
 	stereo = true;
     }
     
@@ -4373,11 +4373,11 @@ int main(int argc, char **argv)
         
         f_is_session = TRUE;
         
-        cerr << f_project_path << "\n" << f_instance_name << "\n";
+        euphoria_cerr << f_project_path << "\n" << f_instance_name << "\n";
     }
     else
     {
-        cerr << QString("argc==") << QString::number(argc) << QString("\n");
+        euphoria_cerr << QString("argc==") << QString::number(argc) << QString("\n");
     }
     
 #else
@@ -4408,14 +4408,14 @@ int main(int argc, char **argv)
     QByteArray myHidePath = QByteArray(path) + "/hide";
     QByteArray myQuitPath = QByteArray(path) + "/quit";
 #ifndef LMS_DEBUG_STANDALONE
-    osc_server = lo_server_new(NULL, osc_error);
-    lo_server_add_method(osc_server, myControlPath, "if", control_handler, &gui);
-    lo_server_add_method(osc_server, myConfigurePath, "ss", configure_handler, &gui);
-    lo_server_add_method(osc_server, myRatePath, "i", rate_handler, &gui);
-    lo_server_add_method(osc_server, myShowPath, "", show_handler, &gui);
-    lo_server_add_method(osc_server, myHidePath, "", hide_handler, &gui);
-    lo_server_add_method(osc_server, myQuitPath, "", quit_handler, &gui);
-    lo_server_add_method(osc_server, NULL, NULL, debug_handler, &gui);
+    osc_server = lo_server_new(NULL, euphoria_osc_error);
+    lo_server_add_method(osc_server, myControlPath, "if", euphoria_control_handler, &gui);
+    lo_server_add_method(osc_server, myConfigurePath, "ss", euphoria_configure_handler, &gui);
+    lo_server_add_method(osc_server, myRatePath, "i", euphoria_rate_handler, &gui);
+    lo_server_add_method(osc_server, myShowPath, "", euphoria_show_handler, &gui);
+    lo_server_add_method(osc_server, myHidePath, "", euphoria_hide_handler, &gui);
+    lo_server_add_method(osc_server, myQuitPath, "", euphoria_quit_handler, &gui);
+    lo_server_add_method(osc_server, NULL, NULL, euphoria_debug_handler, &gui);
 
     lo_address hostaddr = lo_address_new(host, port);
     lo_send(hostaddr,

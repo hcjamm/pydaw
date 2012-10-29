@@ -34,33 +34,33 @@ extern "C" {
     
 #include "ports.h"
     
-#define LMS_SINC_INTERPOLATION_POINTS 25
-#define LMS_SINC_INTERPOLATION_POINTS_DIV2 13
+#define EUPHORIA_SINC_INTERPOLATION_POINTS 25
+#define EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 13
     
-#define LMS_CHANNEL_COUNT 2
+#define EUPHORIA_CHANNEL_COUNT 2
     
 //The number of noise modules to use.  This saves a lot of memory vs. having one per voice, since we don't need 100+ unique noise oscillators
-#define LMS_NOISE_COUNT 16
+#define EUPHORIA_NOISE_COUNT 16
     
 /*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
  of an instrument, you will most likely want to define all of your modules here*/
 
-typedef struct st_mono_modules
+typedef struct st_euphoria_mono_modules
 {
     t_smoother_iir * pitchbend_smoother;
     t_amp * amp_ptr;
     t_sinc_interpolator * sinc_interpolator;
-    t_dco_dc_offset_filter * dc_offset_filters[LMS_CHANNEL_COUNT];
+    t_dco_dc_offset_filter * dc_offset_filters[EUPHORIA_CHANNEL_COUNT];
     
-    t_mf3_multi * multieffect[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT];
-    fp_mf3_run fx_func_ptr[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT];
+    t_mf3_multi * multieffect[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT];
+    fp_mf3_run fx_func_ptr[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT];
     
-    t_white_noise * white_noise1[LMS_NOISE_COUNT];
+    t_white_noise * white_noise1[EUPHORIA_NOISE_COUNT];
     int noise_current_index;
-}t_mono_modules __attribute__((aligned(16)));
+}t_euphoria_mono_modules __attribute__((aligned(16)));
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
-typedef struct st_poly_voice
+typedef struct st_euphoria_poly_voice
 {    
     t_adsr * adsr_filter;
     
@@ -94,27 +94,27 @@ typedef struct st_poly_voice
     
     //From Modulex
     
-    t_mf3_multi * multieffect[LMS_MODULAR_POLYFX_COUNT][LMS_MAX_SAMPLE_COUNT];
-    fp_mf3_run fx_func_ptr[LMS_MODULAR_POLYFX_COUNT];
+    t_mf3_multi * multieffect[EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_MAX_SAMPLE_COUNT];
+    fp_mf3_run fx_func_ptr[EUPHORIA_MODULAR_POLYFX_COUNT];
         
     float modulex_current_sample[2];    
     
-    float * modulator_outputs[LMS_MODULATOR_COUNT];
+    float * modulator_outputs[EUPHORIA_MODULATOR_COUNT];
     
     fp_noise_func_ptr noise_func_ptr;
     
     int noise_index;
     
-}t_poly_voice __attribute__((aligned(16)));
+}t_euphoria_poly_voice __attribute__((aligned(16)));
 
-t_poly_voice * g_poly_init(float);
+t_euphoria_poly_voice * g_euphoria_poly_init(float);
 
 /*initialize all of the modules in an instance of poly_voice*/
 
-t_poly_voice * g_poly_init(float a_sr)
+t_euphoria_poly_voice * g_euphoria_poly_init(float a_sr)
 {    
-    t_poly_voice * f_voice;
-    if(posix_memalign((void**)&(f_voice), 16, (sizeof(t_poly_voice))) != 0)
+    t_euphoria_poly_voice * f_voice;
+    if(posix_memalign((void**)&(f_voice), 16, (sizeof(t_euphoria_poly_voice))) != 0)
     {
         return 0;
     }
@@ -152,10 +152,10 @@ t_poly_voice * g_poly_init(float a_sr)
     
     //From Modulex
     
-    for(f_i = 0; f_i < LMS_MODULAR_POLYFX_COUNT; f_i++)
+    for(f_i = 0; f_i < EUPHORIA_MODULAR_POLYFX_COUNT; f_i++)
     {
         int f_i2;
-        for(f_i2 = 0; f_i2 < LMS_MAX_SAMPLE_COUNT; f_i2++)
+        for(f_i2 = 0; f_i2 < EUPHORIA_MAX_SAMPLE_COUNT; f_i2++)
         {
             f_voice->multieffect[f_i][f_i2] = g_mf3_get(a_sr);    
         }
@@ -175,52 +175,52 @@ t_poly_voice * g_poly_init(float a_sr)
 }
 
 
-void v_poly_note_off(t_poly_voice * a_voice); //, LTS * _instance);
+void v_euphoria_poly_note_off(t_euphoria_poly_voice * a_voice); //, LTS * _instance);
 
 //Define anything that should happen when the user releases a note here
-void v_poly_note_off(t_poly_voice * a_voice) //, LTS * _instance)
+void v_euphoria_poly_note_off(t_euphoria_poly_voice * a_voice) //, LTS * _instance)
 {
     v_adsr_release(a_voice->adsr_amp);
     v_adsr_release(a_voice->adsr_filter);    
 }
 
-t_mono_modules * g_mono_init(float a_sr);
+t_euphoria_mono_modules * g_euphoria_mono_init(float a_sr);
 
 
 /*Initialize any modules that will be run monophonically*/
-t_mono_modules * g_mono_init(float a_sr)
+t_euphoria_mono_modules * g_euphoria_mono_init(float a_sr)
 {
-    t_mono_modules * a_mono;
+    t_euphoria_mono_modules * a_mono;
     
-    if(posix_memalign((void**)&(a_mono), 16, (sizeof(t_mono_modules))) != 0)
+    if(posix_memalign((void**)&(a_mono), 16, (sizeof(t_euphoria_mono_modules))) != 0)
     {
         return 0;
     }
     
     a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
     a_mono->amp_ptr = g_amp_get();
-    a_mono->sinc_interpolator = g_sinc_get(LMS_SINC_INTERPOLATION_POINTS, 2000, 8000.0f, a_sr, 0.6f);
+    a_mono->sinc_interpolator = g_sinc_get(EUPHORIA_SINC_INTERPOLATION_POINTS, 2000, 8000.0f, a_sr, 0.6f);
     a_mono->noise_current_index = 0;
     
     int f_i;
     
-    for(f_i = 0; f_i < LMS_CHANNEL_COUNT; f_i++)
+    for(f_i = 0; f_i < EUPHORIA_CHANNEL_COUNT; f_i++)
     {
         a_mono->dc_offset_filters[f_i] = g_dco_get(a_sr);
     }
     
     int f_i2;
     
-    for(f_i = 0; f_i < LMS_MONO_FX_GROUPS_COUNT; f_i++)
+    for(f_i = 0; f_i < EUPHORIA_MONO_FX_GROUPS_COUNT; f_i++)
     {
-        for(f_i2 = 0; f_i2 < LMS_MONO_FX_COUNT; f_i2++)
+        for(f_i2 = 0; f_i2 < EUPHORIA_MONO_FX_COUNT; f_i2++)
         {
             a_mono->multieffect[f_i][f_i2] = g_mf3_get(a_sr);
             a_mono->fx_func_ptr[f_i][f_i2] = v_mf3_run_off;
         }
     }
     
-    for(f_i = 0; f_i < LMS_NOISE_COUNT; f_i++)
+    for(f_i = 0; f_i < EUPHORIA_NOISE_COUNT; f_i++)
     {
         a_mono->white_noise1[f_i] = g_get_white_noise(a_sr);
     }
