@@ -369,7 +369,7 @@ class pydaw_note:
 
 class pydaw_cc:
     def __eq__(self, other):
-        return ((self.start == other.start) and (self.cc_num == other.cc_num) and (self.cc_val == other.cc_val))
+        return ((self.start == other.start) and (self.cc_num == other.cc_num))
         
     def __lt__(self, other):
         return self.start < other.start
