@@ -279,9 +279,9 @@ class pydaw_item:
         self.notes.sort()
         return True
         
-    def remove_note(self, a_index):
+    def remove_note(self, a_note):
         for i in range(0, len(self.notes)):
-            if self.notes[i].editor_index == a_index:
+            if self.notes[i] == a_note:
                 self.notes.pop(i)
                 break
             
@@ -336,6 +336,9 @@ class pydaw_item:
         return f_result
 
 class pydaw_note:
+    def __eq__(self, other):
+        return((self.start == other.start) and (self.note_num == other.note_num)) #The other values shouldn't need comparison if overlapping note filtering worked
+    
     def __lt__(self, other):
         return self.start < other.start
     

@@ -281,7 +281,7 @@ class item_list_editor:
         if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
             self.notes_show_event_dialog(x, y)
         elif this_edit_mode_selector.delete_radiobutton.isChecked():
-            self.item.remove_note(x)
+            self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
 
