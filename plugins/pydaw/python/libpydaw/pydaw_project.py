@@ -296,9 +296,9 @@ class pydaw_item:
         self.ccs.sort()
         return True
         
-    def remove_cc(self, a_index):
+    def remove_cc(self, a_cc):
         for i in range(0, len(self.ccs)):
-            if self.ccs[i].editor_index == a_index:
+            if self.ccs[i] == a_cc:
                 self.ccs.pop(i)
                 break
             
@@ -369,7 +369,7 @@ class pydaw_note:
 
 class pydaw_cc:
     def __eq__(self, other):
-        return ((self.start == other.start) and (self.cc_num == other.cc_num))
+        return ((self.start == other.start) and (self.cc_num == other.cc_num) and(self.cc_val == other.cc_val))
         
     def __lt__(self, other):
         return self.start < other.start

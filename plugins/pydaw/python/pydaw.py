@@ -291,7 +291,7 @@ class item_list_editor:
         if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
             self.ccs_show_event_dialog(x, y)
         elif this_edit_mode_selector.delete_radiobutton.isChecked():
-            self.item.remove_cc(x)
+            self.item.remove_cc(pydaw_cc(self.ccs_table_widget.item(x, 0).text(), self.ccs_table_widget.item(x, 1).text(), self.ccs_table_widget.item(x, 2).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
 
