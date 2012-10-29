@@ -45,15 +45,15 @@ extern "C" {
 #include <lo/lo.h>
 }
 
-class SynthGUI : public QFrame
+class rayv_gui : public QFrame
 {
     Q_OBJECT
 
 public:
-    SynthGUI(const char * host, const char * port,
+    rayv_gui(const char * host, const char * port,
 	     QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
 	     QByteArray exitingPath, QWidget *w = 0, bool a_is_session = FALSE, QString a_project_path = QString(""), QString a_instance_name = QString(""));
-    virtual ~SynthGUI();
+    virtual ~rayv_gui();
 
     bool ready() const { return m_ready; }
     void setReady(bool ready) { m_ready = ready; }

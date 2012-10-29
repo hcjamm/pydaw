@@ -53,10 +53,10 @@ using std::endl;
 
 lo_server osc_server = 0;
 
-static QTextStream cerr(stderr);
+static QTextStream rayv_cerr(stderr);
 
 
-SynthGUI::SynthGUI(const char * host, const char * port,
+rayv_gui::rayv_gui(const char * host, const char * port,
 		   QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
 		   QByteArray exitingPath, QWidget *w, bool a_is_session, QString a_project_path, QString a_instance_name) :
     QFrame(w),
@@ -68,9 +68,9 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_hostRequestedQuit(false),
     m_ready(false)
 {
-    cerr << "Entering constructor...\n";
+    rayv_cerr << "Entering constructor...\n";
     m_host = lo_address_new(host, port);
-    cerr << "Setting session support...\n";
+    rayv_cerr << "Setting session support...\n";
     is_session = a_is_session;
     project_path = a_project_path;
     instance_name = a_instance_name;    
@@ -84,7 +84,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         this->setWindowTitle(QString("Ray-V  Powered by LibModSynth."));
     }
     
-    cerr << "Building QWidget...\n";
+    rayv_cerr << "Building QWidget...\n";
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{border:1px solid white;border-radius:3px; padding:1px;background-color:black;color:white} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
     
@@ -269,7 +269,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     m_program->lms_add_control(m_lfo_pitch);
     m_program->lms_add_control(m_lfo_cutoff);
         
-    cerr << QString("pending_index_change: ") << m_program->pending_index_change << QString("\n")
+    rayv_cerr << QString("pending_index_change: ") << m_program->pending_index_change << QString("\n")
             << QString("currentIndex: ") << m_program->m_program->currentIndex() << QString("\n");
         
     /*DO NOT remove the code below this line*/
@@ -300,10 +300,10 @@ SynthGUI::SynthGUI(const char * host, const char * port,
         setPreset->start();
     }
     
-    cerr << "Leaving constructor...\n";
+    rayv_cerr << "Leaving constructor...\n";
 }
 
-void SynthGUI::setFirstPreset()
+void rayv_gui::setFirstPreset()
 {
     /* On the surface, this would appear that this is a seriously stupid piece of
      code, but as it turns out, QComboBoxes don't like having their index set during
@@ -315,50 +315,50 @@ void SynthGUI::setFirstPreset()
     
 }
 
-void SynthGUI::lms_set_value(float val, LMS_control * a_ctrl )
+void rayv_gui::lms_set_value(float val, LMS_control * a_ctrl )
 {    
     m_suppressHostUpdate = true;
     a_ctrl->lms_set_value(int(val));
     m_suppressHostUpdate = false;     
 }
 
-void SynthGUI::setAttack(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_attack);}
-void SynthGUI::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_decay); }
-void SynthGUI::setSustain(float a_value){lms_set_value(a_value, m_adsr_amp->lms_sustain);}
-void SynthGUI::setRelease(float a_value){lms_set_value(a_value, m_adsr_amp->lms_release);}
-void SynthGUI::setTimbre(float a_value){lms_set_value(a_value, m_filter->lms_cutoff_knob);}
-void SynthGUI::setRes(float a_value){lms_set_value(a_value, m_filter->lms_res_knob);}
-void SynthGUI::setDist(float a_value){lms_set_value(a_value, m_dist);}
-void SynthGUI::setFilterAttack (float a_value){lms_set_value(a_value, m_adsr_filter->lms_attack);}
-void SynthGUI::setFilterDecay  (float a_value){lms_set_value(a_value, m_adsr_filter->lms_decay);}
-void SynthGUI::setFilterSustain(float a_value){lms_set_value(a_value, m_adsr_filter->lms_sustain);}
-void SynthGUI::setFilterRelease(float a_value){lms_set_value(a_value, m_adsr_filter->lms_release);}
-void SynthGUI::setNoiseAmp(float a_value){lms_set_value(a_value, m_noise_amp);}
-void SynthGUI::setFilterEnvAmt(float a_value){lms_set_value(a_value, m_filter_env_amt);}
-void SynthGUI::setDistWet(float a_value){lms_set_value(a_value, m_dist_wet);}
-void SynthGUI::setOsc1Type(float a_value){lms_set_value(a_value, m_osc1->lms_osc_type_box);}
-void SynthGUI::setOsc1Pitch(float a_value){lms_set_value(a_value, m_osc1->lms_pitch_knob);}
-void SynthGUI::setOsc1Tune(float a_value){lms_set_value(a_value, m_osc1->lms_fine_knob);}
-void SynthGUI::setOsc1Volume(float a_value){lms_set_value(a_value, m_osc1->lms_vol_knob);}
-void SynthGUI::setOsc2Type(float a_value){lms_set_value(a_value, m_osc2->lms_osc_type_box);}
-void SynthGUI::setOsc2Pitch(float a_value){lms_set_value(a_value, m_osc2->lms_pitch_knob);}
-void SynthGUI::setOsc2Tune(float a_value){lms_set_value(a_value, m_osc2->lms_fine_knob);}
-void SynthGUI::setOsc2Volume(float a_value){lms_set_value(a_value, m_osc2->lms_vol_knob);}
-void SynthGUI::setMasterVolume(float a_value){lms_set_value(a_value, m_master->lms_master_volume);}
-void SynthGUI::setMasterUnisonVoices(float a_value){lms_set_value(a_value, m_master->lms_master_unison_voices);}
-void SynthGUI::setMasterUnisonSpread(float a_value){lms_set_value(a_value, m_master->lms_master_unison_spread);}
-void SynthGUI::setMasterGlide(float a_value){lms_set_value(a_value, m_master->lms_master_glide);}
-void SynthGUI::setMasterPitchbendAmt(float a_value){lms_set_value(a_value, m_master->lms_master_pitchbend_amt);}
-void SynthGUI::setPitchEnvAmt(float a_value){lms_set_value(a_value, m_pitch_env->lms_amt_knob);}
-void SynthGUI::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env->lms_time_knob);}
-void SynthGUI::setProgram(float a_value){lms_set_value(a_value, m_program);}
-void SynthGUI::setLFOfreq(float a_value){lms_set_value(a_value, m_lfo->lms_freq_knob);}
-void SynthGUI::setLFOtype(float a_value){lms_set_value(a_value, m_lfo->lms_type_combobox);}
-void SynthGUI::setLFOamp(float a_value){lms_set_value(a_value, m_lfo_amp);}
-void SynthGUI::setLFOpitch(float a_value){lms_set_value(a_value, m_lfo_pitch);}
-void SynthGUI::setLFOcutoff(float a_value){lms_set_value(a_value, m_lfo_cutoff);}
+void rayv_gui::setAttack(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_attack);}
+void rayv_gui::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_decay); }
+void rayv_gui::setSustain(float a_value){lms_set_value(a_value, m_adsr_amp->lms_sustain);}
+void rayv_gui::setRelease(float a_value){lms_set_value(a_value, m_adsr_amp->lms_release);}
+void rayv_gui::setTimbre(float a_value){lms_set_value(a_value, m_filter->lms_cutoff_knob);}
+void rayv_gui::setRes(float a_value){lms_set_value(a_value, m_filter->lms_res_knob);}
+void rayv_gui::setDist(float a_value){lms_set_value(a_value, m_dist);}
+void rayv_gui::setFilterAttack (float a_value){lms_set_value(a_value, m_adsr_filter->lms_attack);}
+void rayv_gui::setFilterDecay  (float a_value){lms_set_value(a_value, m_adsr_filter->lms_decay);}
+void rayv_gui::setFilterSustain(float a_value){lms_set_value(a_value, m_adsr_filter->lms_sustain);}
+void rayv_gui::setFilterRelease(float a_value){lms_set_value(a_value, m_adsr_filter->lms_release);}
+void rayv_gui::setNoiseAmp(float a_value){lms_set_value(a_value, m_noise_amp);}
+void rayv_gui::setFilterEnvAmt(float a_value){lms_set_value(a_value, m_filter_env_amt);}
+void rayv_gui::setDistWet(float a_value){lms_set_value(a_value, m_dist_wet);}
+void rayv_gui::setOsc1Type(float a_value){lms_set_value(a_value, m_osc1->lms_osc_type_box);}
+void rayv_gui::setOsc1Pitch(float a_value){lms_set_value(a_value, m_osc1->lms_pitch_knob);}
+void rayv_gui::setOsc1Tune(float a_value){lms_set_value(a_value, m_osc1->lms_fine_knob);}
+void rayv_gui::setOsc1Volume(float a_value){lms_set_value(a_value, m_osc1->lms_vol_knob);}
+void rayv_gui::setOsc2Type(float a_value){lms_set_value(a_value, m_osc2->lms_osc_type_box);}
+void rayv_gui::setOsc2Pitch(float a_value){lms_set_value(a_value, m_osc2->lms_pitch_knob);}
+void rayv_gui::setOsc2Tune(float a_value){lms_set_value(a_value, m_osc2->lms_fine_knob);}
+void rayv_gui::setOsc2Volume(float a_value){lms_set_value(a_value, m_osc2->lms_vol_knob);}
+void rayv_gui::setMasterVolume(float a_value){lms_set_value(a_value, m_master->lms_master_volume);}
+void rayv_gui::setMasterUnisonVoices(float a_value){lms_set_value(a_value, m_master->lms_master_unison_voices);}
+void rayv_gui::setMasterUnisonSpread(float a_value){lms_set_value(a_value, m_master->lms_master_unison_spread);}
+void rayv_gui::setMasterGlide(float a_value){lms_set_value(a_value, m_master->lms_master_glide);}
+void rayv_gui::setMasterPitchbendAmt(float a_value){lms_set_value(a_value, m_master->lms_master_pitchbend_amt);}
+void rayv_gui::setPitchEnvAmt(float a_value){lms_set_value(a_value, m_pitch_env->lms_amt_knob);}
+void rayv_gui::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env->lms_time_knob);}
+void rayv_gui::setProgram(float a_value){lms_set_value(a_value, m_program);}
+void rayv_gui::setLFOfreq(float a_value){lms_set_value(a_value, m_lfo->lms_freq_knob);}
+void rayv_gui::setLFOtype(float a_value){lms_set_value(a_value, m_lfo->lms_type_combobox);}
+void rayv_gui::setLFOamp(float a_value){lms_set_value(a_value, m_lfo_amp);}
+void rayv_gui::setLFOpitch(float a_value){lms_set_value(a_value, m_lfo_pitch);}
+void rayv_gui::setLFOcutoff(float a_value){lms_set_value(a_value, m_lfo_cutoff);}
 
-void SynthGUI::lms_value_changed(int a_value, LMS_control * a_ctrl)
+void rayv_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {    
     a_ctrl->lms_value_changed(a_value);
 
@@ -367,90 +367,90 @@ void SynthGUI::lms_value_changed(int a_value, LMS_control * a_ctrl)
     }    
 }
 
-void SynthGUI::attackChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_attack);}
-void SynthGUI::decayChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_decay);}
-void SynthGUI::sustainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_sustain);}
-void SynthGUI::releaseChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_release);}
-void SynthGUI::timbreChanged(int a_value){lms_value_changed(a_value, m_filter->lms_cutoff_knob);}
-void SynthGUI::resChanged(int a_value){lms_value_changed(a_value, m_filter->lms_res_knob);}
-void SynthGUI::distChanged(int a_value){lms_value_changed(a_value, m_dist);}
-void SynthGUI::filterAttackChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_attack);}
-void SynthGUI::filterDecayChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_decay);}
-void SynthGUI::filterSustainChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_sustain);}
-void SynthGUI::filterReleaseChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_release);}
-void SynthGUI::noiseAmpChanged(int a_value){lms_value_changed(a_value, m_noise_amp);}
-void SynthGUI::filterEnvAmtChanged(int a_value){lms_value_changed(a_value, m_filter_env_amt);}
-void SynthGUI::distWetChanged(int a_value){lms_value_changed(a_value, m_dist_wet);}
-void SynthGUI::osc1TypeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_osc_type_box);}
-void SynthGUI::osc1PitchChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_pitch_knob);}
-void SynthGUI::osc1TuneChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_fine_knob);}
-void SynthGUI::osc1VolumeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_vol_knob);}
-void SynthGUI::osc2TypeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_osc_type_box);}
-void SynthGUI::osc2PitchChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_pitch_knob);}
-void SynthGUI::osc2TuneChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_fine_knob);}
-void SynthGUI::osc2VolumeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_vol_knob);}
-void SynthGUI::masterVolumeChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_volume);}
-void SynthGUI::masterUnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_voices);}
-void SynthGUI::masterUnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_spread);}
-void SynthGUI::masterGlideChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_glide);}
-void SynthGUI::masterPitchbendAmtChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_pitchbend_amt);}
-void SynthGUI::pitchEnvAmtChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_amt_knob);}
-void SynthGUI::pitchEnvTimeChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_time_knob);}
-void SynthGUI::LFOfreqChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_freq_knob);}
-void SynthGUI::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_type_combobox);}
-void SynthGUI::LFOampChanged(int a_value){lms_value_changed(a_value, m_lfo_amp);}
-void SynthGUI::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
-void SynthGUI::LFOcutoffChanged(int a_value){lms_value_changed(a_value, m_lfo_cutoff);}
-void SynthGUI::programChanged(int a_value){lms_value_changed(a_value, m_program);}
-void SynthGUI::programSaved(){ m_program->programSaved(); }
+void rayv_gui::attackChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_attack);}
+void rayv_gui::decayChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_decay);}
+void rayv_gui::sustainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_sustain);}
+void rayv_gui::releaseChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_release);}
+void rayv_gui::timbreChanged(int a_value){lms_value_changed(a_value, m_filter->lms_cutoff_knob);}
+void rayv_gui::resChanged(int a_value){lms_value_changed(a_value, m_filter->lms_res_knob);}
+void rayv_gui::distChanged(int a_value){lms_value_changed(a_value, m_dist);}
+void rayv_gui::filterAttackChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_attack);}
+void rayv_gui::filterDecayChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_decay);}
+void rayv_gui::filterSustainChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_sustain);}
+void rayv_gui::filterReleaseChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_release);}
+void rayv_gui::noiseAmpChanged(int a_value){lms_value_changed(a_value, m_noise_amp);}
+void rayv_gui::filterEnvAmtChanged(int a_value){lms_value_changed(a_value, m_filter_env_amt);}
+void rayv_gui::distWetChanged(int a_value){lms_value_changed(a_value, m_dist_wet);}
+void rayv_gui::osc1TypeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_osc_type_box);}
+void rayv_gui::osc1PitchChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_pitch_knob);}
+void rayv_gui::osc1TuneChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_fine_knob);}
+void rayv_gui::osc1VolumeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_vol_knob);}
+void rayv_gui::osc2TypeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_osc_type_box);}
+void rayv_gui::osc2PitchChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_pitch_knob);}
+void rayv_gui::osc2TuneChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_fine_knob);}
+void rayv_gui::osc2VolumeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_vol_knob);}
+void rayv_gui::masterVolumeChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_volume);}
+void rayv_gui::masterUnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_voices);}
+void rayv_gui::masterUnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_spread);}
+void rayv_gui::masterGlideChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_glide);}
+void rayv_gui::masterPitchbendAmtChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_pitchbend_amt);}
+void rayv_gui::pitchEnvAmtChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_amt_knob);}
+void rayv_gui::pitchEnvTimeChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_time_knob);}
+void rayv_gui::LFOfreqChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_freq_knob);}
+void rayv_gui::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_type_combobox);}
+void rayv_gui::LFOampChanged(int a_value){lms_value_changed(a_value, m_lfo_amp);}
+void rayv_gui::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
+void rayv_gui::LFOcutoffChanged(int a_value){lms_value_changed(a_value, m_lfo_cutoff);}
+void rayv_gui::programChanged(int a_value){lms_value_changed(a_value, m_program);}
+void rayv_gui::programSaved(){ m_program->programSaved(); }
 
 
-void SynthGUI::v_print_port_name_to_cerr(int a_port)
+void rayv_gui::v_print_port_name_to_cerr(int a_port)
 {
 #ifdef LMS_DEBUG_MODE_QT
     switch (a_port) {
-    case LMS_ATTACK: cerr << "LMS_ATTACK"; break;
-    case LMS_DECAY: cerr << "LMS_DECAY"; break;
-    case LMS_SUSTAIN: cerr << "LMS_SUSTAIN"; break;
-    case LMS_RELEASE: cerr << "LMS_RELEASE"; break;
-    case LMS_TIMBRE: cerr << "LMS_TIMBRE"; break;
-    case LMS_RES: cerr << "LMS_RES"; break;        
-    case LMS_DIST: cerr << "LMS_DIST"; break;
-    case LMS_FILTER_ATTACK: cerr << "LMS_FILTER_ATTACK"; break;
-    case LMS_FILTER_DECAY: cerr << "LMS_FILTER_DECAY"; break;
-    case LMS_FILTER_SUSTAIN: cerr << "LMS_FILTER_SUSTAIN"; break;
-    case LMS_FILTER_RELEASE: cerr << "LMS_FILTER_RELEASE"; break;
-    case LMS_NOISE_AMP: cerr << "LMS_NOISE_AMP"; break;    
-    case LMS_DIST_WET: cerr << "LMS_DIST_WET"; break;            
-    case LMS_FILTER_ENV_AMT: cerr << "LMS_FILTER_ENV_AMT"; break;    
-    case LMS_OSC1_TYPE: cerr << "LMS_OSC1_TYPE"; break;            
-    case LMS_OSC1_PITCH: cerr << "LMS_OSC1_PITCH"; break;    
-    case LMS_OSC1_TUNE: cerr << "LMS_OSC1_TUNE"; break;    
-    case LMS_OSC1_VOLUME: cerr << "LMS_OSC1_VOLUME"; break;        
-    case LMS_OSC2_TYPE: cerr << "LMS_OSC2_TYPE"; break;            
-    case LMS_OSC2_PITCH: cerr << "LMS_OSC2_PITCH"; break;    
-    case LMS_OSC2_TUNE: cerr << "LMS_OSC2_TUNE";  break;    
-    case LMS_OSC2_VOLUME: cerr << "LMS_OSC2_VOLUME"; break;        
-    case LMS_MASTER_VOLUME: cerr << "LMS_MASTER_VOLUME"; break;
-    case LMS_MASTER_UNISON_VOICES: cerr << "LMS_MASTER_UNISON_VOICES"; break;
-    case LMS_MASTER_UNISON_SPREAD: cerr << "LMS_MASTER_UNISON_SPREAD"; break;
-    case LMS_MASTER_GLIDE: cerr << "LMS_MASTER_GLIDE"; break;
-    case LMS_MASTER_PITCHBEND_AMT: cerr << "LMS_MASTER_PITCHBEND_AMT"; break;
-    case LMS_PITCH_ENV_AMT: cerr << "LMS_PITCH_ENV_AMT "; break;
-    case LMS_PITCH_ENV_TIME: cerr << "LMS_PITCH_ENV_TIME ";  break;        
-    case LMS_PROGRAM_CHANGE: cerr << "LMS_PROGRAM_CHANGE "; break;
-    default: cerr << "Warning: received request to set nonexistent port " << a_port ; break;
+    case LMS_ATTACK: rayv_cerr << "LMS_ATTACK"; break;
+    case LMS_DECAY: rayv_cerr << "LMS_DECAY"; break;
+    case LMS_SUSTAIN: rayv_cerr << "LMS_SUSTAIN"; break;
+    case LMS_RELEASE: rayv_cerr << "LMS_RELEASE"; break;
+    case LMS_TIMBRE: rayv_cerr << "LMS_TIMBRE"; break;
+    case LMS_RES: rayv_cerr << "LMS_RES"; break;        
+    case LMS_DIST: rayv_cerr << "LMS_DIST"; break;
+    case LMS_FILTER_ATTACK: rayv_cerr << "LMS_FILTER_ATTACK"; break;
+    case LMS_FILTER_DECAY: rayv_cerr << "LMS_FILTER_DECAY"; break;
+    case LMS_FILTER_SUSTAIN: rayv_cerr << "LMS_FILTER_SUSTAIN"; break;
+    case LMS_FILTER_RELEASE: rayv_cerr << "LMS_FILTER_RELEASE"; break;
+    case LMS_NOISE_AMP: rayv_cerr << "LMS_NOISE_AMP"; break;    
+    case LMS_DIST_WET: rayv_cerr << "LMS_DIST_WET"; break;            
+    case LMS_FILTER_ENV_AMT: rayv_cerr << "LMS_FILTER_ENV_AMT"; break;    
+    case LMS_OSC1_TYPE: rayv_cerr << "LMS_OSC1_TYPE"; break;            
+    case LMS_OSC1_PITCH: rayv_cerr << "LMS_OSC1_PITCH"; break;    
+    case LMS_OSC1_TUNE: rayv_cerr << "LMS_OSC1_TUNE"; break;    
+    case LMS_OSC1_VOLUME: rayv_cerr << "LMS_OSC1_VOLUME"; break;        
+    case LMS_OSC2_TYPE: rayv_cerr << "LMS_OSC2_TYPE"; break;            
+    case LMS_OSC2_PITCH: rayv_cerr << "LMS_OSC2_PITCH"; break;    
+    case LMS_OSC2_TUNE: rayv_cerr << "LMS_OSC2_TUNE";  break;    
+    case LMS_OSC2_VOLUME: rayv_cerr << "LMS_OSC2_VOLUME"; break;        
+    case LMS_MASTER_VOLUME: rayv_cerr << "LMS_MASTER_VOLUME"; break;
+    case LMS_MASTER_UNISON_VOICES: rayv_cerr << "LMS_MASTER_UNISON_VOICES"; break;
+    case LMS_MASTER_UNISON_SPREAD: rayv_cerr << "LMS_MASTER_UNISON_SPREAD"; break;
+    case LMS_MASTER_GLIDE: rayv_cerr << "LMS_MASTER_GLIDE"; break;
+    case LMS_MASTER_PITCHBEND_AMT: rayv_cerr << "LMS_MASTER_PITCHBEND_AMT"; break;
+    case LMS_PITCH_ENV_AMT: rayv_cerr << "LMS_PITCH_ENV_AMT "; break;
+    case LMS_PITCH_ENV_TIME: rayv_cerr << "LMS_PITCH_ENV_TIME ";  break;        
+    case LMS_PROGRAM_CHANGE: rayv_cerr << "LMS_PROGRAM_CHANGE "; break;
+    default: rayv_cerr << "Warning: received request to set nonexistent port " << a_port ; break;
     }
 #endif
 }
 
-void SynthGUI::v_set_control(int a_port, float a_value)
+void rayv_gui::v_set_control(int a_port, float a_value)
 {
 
 #ifdef LMS_DEBUG_MODE_QT    
-    cerr << "v_set_control called.  ";  
+    rayv_cerr << "v_set_control called.  ";  
     v_print_port_name_to_cerr(a_port);
-    cerr << "  value: " << a_value << endl;
+    rayv_cerr << "  value: " << a_value << endl;
 #endif
         
     switch (a_port) {
@@ -493,13 +493,13 @@ void SynthGUI::v_set_control(int a_port, float a_value)
     
 }
 
-void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_update)
+void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_update)
 {
     
 #ifdef LMS_DEBUG_MODE_QT    
-    cerr << "v_control_changed called.  ";  
+    rayv_cerr << "v_control_changed called.  ";  
     v_print_port_name_to_cerr(a_port);
-    cerr << "  value: " << a_value << endl;
+    rayv_cerr << "  value: " << a_value << endl;
 #endif
     
     if(a_suppress_host_update)
@@ -543,7 +543,7 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case LMS_PROGRAM_CHANGE: break; //ignoring this one, there is no reason to set it //programChanged(a_value);  break;
     default:
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << "Warning: received request to set nonexistent port " << a_port << endl;
+	rayv_cerr << "Warning: received request to set nonexistent port " << a_port << endl;
 #endif
         break;
     }
@@ -556,7 +556,7 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
 /*TODO:  For the forseeable future, this will only be used for getting the values to write back to 
  the presets.tsv file;  It should probably return a string that can be re-interpreted into other values for
  complex controls that could have multiple ints, or string values, etc...*/
-int SynthGUI::i_get_control(int a_port)
+int rayv_gui::i_get_control(int a_port)
 {
         /*Add the controls you created to the control handler*/
     
@@ -599,25 +599,25 @@ int SynthGUI::i_get_control(int a_port)
         //return m_program->currentIndex();
     default:
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << "Warning: received request to get nonexistent port " << a_port << endl;
+	rayv_cerr << "Warning: received request to get nonexistent port " << a_port << endl;
 #endif
         return 0;
         break;
     }    
 }
 
-void SynthGUI::oscRecv()
+void rayv_gui::oscRecv()
 {
     if (osc_server) {
 	lo_server_recv_noblock(osc_server, 1);
     }
 }
 
-void SynthGUI::sessionTimeout()
+void rayv_gui::sessionTimeout()
 {    
     if(lms_session_manager::is_saving(project_path, instance_name))
     {
-        cerr << instance_name << " is saving...\n";
+        rayv_cerr << instance_name << " is saving...\n";
         //Currently works by saving the entire preset file
         
         m_program->session_save(project_path, instance_name);
@@ -629,54 +629,54 @@ void SynthGUI::sessionTimeout()
     }        
 }
 
-void SynthGUI::aboutToQuit()
+void rayv_gui::aboutToQuit()
 {
     if (!m_hostRequestedQuit) lo_send(m_host, m_exitingPath, "");
 }
 
-SynthGUI::~SynthGUI()
+rayv_gui::~rayv_gui()
 {
     lo_address_free(m_host);
 }
 
 
-void osc_error(int num, const char *msg, const char *path)
+void rayv_osc_error(int num, const char *msg, const char *path)
 {
 #ifdef LMS_DEBUG_MODE_QT
-    cerr << "Error: liblo server error " << num
+    rayv_cerr << "Error: liblo server error " << num
 	 << " in path \"" << (path ? path : "(null)")
 	 << "\": " << msg << endl;
 #endif
 }
 
-int debug_handler(const char *path, const char *types, lo_arg **argv,
+int rayv_debug_handler(const char *path, const char *types, lo_arg **argv,
 	      int argc, void *data, void *user_data)
 {
     int i;
 #ifdef LMS_DEBUG_MODE_QT
-      cerr << "Warning: unhandled OSC message in GUI:" << endl;
+      rayv_cerr << "Warning: unhandled OSC message in GUI:" << endl;
 #endif
     
 
     for (i = 0; i < argc; ++i) {
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << "arg " << i << ": type '" << types[i] << "': ";
+	rayv_cerr << "arg " << i << ": type '" << types[i] << "': ";
 #endif
         lo_arg_pp((lo_type)types[i], argv[i]);
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << endl;
+	rayv_cerr << endl;
 #endif
     }
 #ifdef LMS_DEBUG_MODE_QT
-    cerr << "(path is <" << path << ">)" << endl;
+    rayv_cerr << "(path is <" << path << ">)" << endl;
 #endif
     return 1;
 }
 
-int program_handler(const char *path, const char *types, lo_arg **argv,
+int rayv_program_handler(const char *path, const char *types, lo_arg **argv,
 	       int argc, void *data, void *user_data)
 {
-    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
+    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
     
     //int bank = 0;
     int program = 0;
@@ -696,21 +696,21 @@ int program_handler(const char *path, const char *types, lo_arg **argv,
     }
     */
 #ifdef LMS_DEBUG_MODE_QT
-    cerr << "Bank:  " << bank << ", Program:  " << program << endl;
+    rayv_cerr << "Bank:  " << bank << ", Program:  " << program << endl;
 #endif
     gui->setProgram(program);
 
     return 0;
 }
 
-int configure_handler(const char *path, const char *types, lo_arg **argv,
+int rayv_configure_handler(const char *path, const char *types, lo_arg **argv,
 		  int argc, void *data, void *user_data)
 {
-    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
+    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
     const char *key = (const char *)&argv[0]->s;
     const char *value = (const char *)&argv[1]->s;
 
-    cerr << "GUI configure_handler:  Key:  " << QString::fromLocal8Bit(key) << " , Value:" << QString::fromLocal8Bit(value);
+    rayv_cerr << "GUI configure_handler:  Key:  " << QString::fromLocal8Bit(key) << " , Value:" << QString::fromLocal8Bit(value);
     
     if (!strcmp(key, "pydaw_close_window")) 
     {
@@ -722,48 +722,48 @@ int configure_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-int rate_handler(const char *path, const char *types, lo_arg **argv,
+int rayv_rate_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     return 0; /* ignore it */
 }
 
-int show_handler(const char *path, const char *types, lo_arg **argv,
+int rayv_show_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
-    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
+    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
     while (!gui->ready()) sleep(1);
     if (gui->isVisible()) gui->raise();
     else gui->show();
     return 0;
 }
 
-int hide_handler(const char *path, const char *types, lo_arg **argv,
+int rayv_hide_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
-    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
+    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
     gui->hide();
     return 0;
 }
 
-int quit_handler(const char *path, const char *types, lo_arg **argv,
+int rayv_quit_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
-    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
+    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
     gui->setHostRequestedQuit(true);
     qApp->quit();
     return 0;
 }
 
-int control_handler(const char *path, const char *types, lo_arg **argv,
+int rayv_control_handler(const char *path, const char *types, lo_arg **argv,
 		int argc, void *data, void *user_data)
 {
-    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
+    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
 
     if (argc < 2) {
         
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << "Error: too few arguments to control_handler" << endl;
+	rayv_cerr << "Error: too few arguments to control_handler" << endl;
 #endif
 	return 1;
     }
@@ -772,7 +772,7 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
     const float value = argv[1]->f;
 
 #ifdef LMS_DEBUG_MODE_QT
-    cerr << "control_handler called.  port:  " << port << " , value " << value << endl;
+    rayv_cerr << "control_handler called.  port:  " << port << " , value " << value << endl;
 #endif
 
     gui->v_set_control(port, value);  
@@ -786,10 +786,10 @@ int main(int argc, char **argv)
 {
     for(int i = 0; i < argc; i++)
     {
-        cerr << "argv[" << i << "] == " << argv[i] << "\n";
+        rayv_cerr << "argv[" << i << "] == " << argv[i] << "\n";
     }
 
-    cerr << "Qt GUI main() called..." << endl;
+    rayv_cerr << "Qt GUI main() called..." << endl;
 
     
     QApplication application(argc, argv);
@@ -797,7 +797,7 @@ int main(int argc, char **argv)
     if (application.argc() < 5)
     {
 
-	cerr << "usage: "
+	rayv_cerr << "usage: "
 	     << application.argv()[0] 
 	     << " <osc url>"
 	     << " <plugin dllname>"
@@ -818,7 +818,7 @@ int main(int argc, char **argv)
     char *port = lo_url_get_port(url);
     char *path = lo_url_get_path(url);
     
-    cerr << "host: " << host << " port: " << port << " path: " << path << "\n";
+    rayv_cerr << "host: " << host << " port: " << port << " path: " << path << "\n";
     
     bool f_is_session = FALSE;
     QString f_project_path = QString("");
@@ -831,14 +831,14 @@ int main(int argc, char **argv)
         
         f_is_session = TRUE;
         
-        cerr << f_project_path << "\n" << f_instance_name << "\n";
+        rayv_cerr << f_project_path << "\n" << f_instance_name << "\n";
     }
     else
     {
-        cerr << QString("argc==") << QString::number(argc) << QString("\n");
+        rayv_cerr << QString("argc==") << QString::number(argc) << QString("\n");
     }
 
-    SynthGUI gui(host, port,
+    rayv_gui gui(host, port,
 		 QByteArray(path) + "/control",
 		 QByteArray(path) + "/midi",
 		 QByteArray(path) + "/program",
@@ -856,17 +856,17 @@ int main(int argc, char **argv)
     QByteArray myHidePath = QByteArray(path) + "/hide";
     QByteArray myQuitPath = QByteArray(path) + "/quit";
 
-    cerr << "Adding lo server methods" << endl;
+    rayv_cerr << "Adding lo server methods" << endl;
 
-    osc_server = lo_server_new(NULL, osc_error);
-    lo_server_add_method(osc_server, myControlPath, "if", control_handler, &gui);
-    lo_server_add_method(osc_server, myProgramPath, "ii", program_handler, &gui);
-    lo_server_add_method(osc_server, myConfigurePath, "ss", configure_handler, &gui);
-    lo_server_add_method(osc_server, myRatePath, "i", rate_handler, &gui);
-    lo_server_add_method(osc_server, myShowPath, "", show_handler, &gui);
-    lo_server_add_method(osc_server, myHidePath, "", hide_handler, &gui);
-    lo_server_add_method(osc_server, myQuitPath, "", quit_handler, &gui);
-    lo_server_add_method(osc_server, NULL, NULL, debug_handler, &gui);
+    osc_server = lo_server_new(NULL, rayv_osc_error);
+    lo_server_add_method(osc_server, myControlPath, "if", rayv_control_handler, &gui);
+    lo_server_add_method(osc_server, myProgramPath, "ii", rayv_program_handler, &gui);
+    lo_server_add_method(osc_server, myConfigurePath, "ss", rayv_configure_handler, &gui);
+    lo_server_add_method(osc_server, myRatePath, "i", rayv_rate_handler, &gui);
+    lo_server_add_method(osc_server, myShowPath, "", rayv_show_handler, &gui);
+    lo_server_add_method(osc_server, myHidePath, "", rayv_hide_handler, &gui);
+    lo_server_add_method(osc_server, myQuitPath, "", rayv_quit_handler, &gui);
+    lo_server_add_method(osc_server, NULL, NULL, rayv_debug_handler, &gui);
 
     lo_address hostaddr = lo_address_new(host, port);
     lo_send(hostaddr,
@@ -878,7 +878,7 @@ int main(int argc, char **argv)
 
     gui.setReady(true);
     
-    cerr << "Starting GUI now..." << endl;
+    rayv_cerr << "Starting GUI now..." << endl;
     
     return application.exec();
 }

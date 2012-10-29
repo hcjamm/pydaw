@@ -229,14 +229,14 @@ typedef struct {
     
     t_ccm_midi_cc_map * midi_cc_map;
     
-    t_poly_voice * data[POLYPHONY];
+    t_rayv_poly_voice * data[POLYPHONY];
     
     long         ons[VOICES_MAX_MIDI_NOTE_NUMBER];
     long         offs[VOICES_MAX_MIDI_NOTE_NUMBER];
     long         sampleNo;
     
     float fs;    
-    t_mono_modules * mono_modules;
+    t_rayv_mono_modules * mono_modules;
     t_rayv_synth_vals vals;
     
     int event_pos;
