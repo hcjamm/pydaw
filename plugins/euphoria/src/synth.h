@@ -23,38 +23,38 @@ GNU General Public License for more details.
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/interpolate-linear.h"
 
-#define Sampler_NOTES 100
-#define Sampler_NOTES_m1 99
-#define Sampler_FRAMES_MAX 1048576
+#define EUPHORIA_NOTES 100
+#define EUPHORIA_NOTES_m1 99
+#define EUPHORIA_FRAMES_MAX 1048576
 //Pad the end of samples with zeroes to ensure you don't get artifacts from samples that have no silence at the end
-#define Sampler_Sample_Padding 100
+#define EUPHORIA_Sample_Padding 100
 
 //How many buffers in between slow indexing operations.  Buffer == users soundcard latency settings, ie: 512 samples
-#define LMS_SLOW_INDEX_COUNT 64
+#define EUPHORIA_SLOW_INDEX_COUNT 64
 
 typedef struct {
     LADSPA_Data *output[2];    
-    LADSPA_Data *basePitch[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *low_note[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *high_note[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_vol[LMS_MAX_SAMPLE_COUNT];     //in decibels    
-    LADSPA_Data *sampleStarts[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sampleEnds[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sampleLoopStarts[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sampleLoopEnds[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sampleLoopModes[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_vel_sens[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_vel_low[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_vel_high[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_pitch[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_tune[LMS_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_interpolation_mode[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *basePitch[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *low_note[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *high_note[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_vol[EUPHORIA_MAX_SAMPLE_COUNT];     //in decibels    
+    LADSPA_Data *sampleStarts[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sampleEnds[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sampleLoopStarts[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sampleLoopEnds[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sampleLoopModes[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_vel_sens[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_vel_low[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_vel_high[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_pitch[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_tune[EUPHORIA_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_interpolation_mode[EUPHORIA_MAX_SAMPLE_COUNT];
     
-    LADSPA_Data *mfx_knobs[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
-    LADSPA_Data *mfx_comboboxes[LMS_MONO_FX_GROUPS_COUNT][LMS_MONO_FX_COUNT];
+    LADSPA_Data *mfx_knobs[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
+    LADSPA_Data *mfx_comboboxes[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT];
     
     //The MonoFX group selected for each sample
-    LADSPA_Data *sample_mfx_groups[LMS_MAX_SAMPLE_COUNT];
+    LADSPA_Data *sample_mfx_groups[EUPHORIA_MAX_SAMPLE_COUNT];
     
     LADSPA_Data *selected_sample;
         
@@ -85,36 +85,36 @@ typedef struct {
     LADSPA_Data *global_midi_octaves_offset;
         
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
-    LADSPA_Data *pfx_mod_knob[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
+    LADSPA_Data *pfx_mod_knob[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
     
-    LADSPA_Data *fx_combobox[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT];
+    LADSPA_Data *fx_combobox[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT];
         
     //PolyFX Mod Matrix
     //Corresponds to the mod matrix spinboxes
-    LADSPA_Data *polyfx_mod_matrix[LMS_EFFECTS_GROUPS_COUNT][LMS_MODULAR_POLYFX_COUNT][LMS_MODULATOR_COUNT][LMS_CONTROLS_PER_MOD_EFFECT];
+    LADSPA_Data *polyfx_mod_matrix[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_MODULATOR_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
     
     //End from PolyFX Mod Matrix
     
     
     int         i_selected_sample;
     int          channels;
-    int         sample_channels[LMS_TOTAL_SAMPLE_COUNT];
-    float       sample_last_interpolated_value[LMS_MAX_SAMPLE_COUNT];
-    float       *sampleData[2][LMS_TOTAL_SAMPLE_COUNT];
-    size_t       sampleCount[LMS_TOTAL_SAMPLE_COUNT];        
-    float       sampleStartPos[LMS_MAX_SAMPLE_COUNT];         
-    float       sampleEndPos[LMS_MAX_SAMPLE_COUNT];
-    float       sampleLoopStartPos[LMS_MAX_SAMPLE_COUNT];   //There is no sampleLoopEndPos because the regular sample end is re-used for this purpose
-    float       sample_amp[LMS_MAX_SAMPLE_COUNT];     //linear, for multiplying
+    int         sample_channels[EUPHORIA_TOTAL_SAMPLE_COUNT];
+    float       sample_last_interpolated_value[EUPHORIA_MAX_SAMPLE_COUNT];
+    float       *sampleData[2][EUPHORIA_TOTAL_SAMPLE_COUNT];
+    size_t       sampleCount[EUPHORIA_TOTAL_SAMPLE_COUNT];        
+    float       sampleStartPos[EUPHORIA_MAX_SAMPLE_COUNT];         
+    float       sampleEndPos[EUPHORIA_MAX_SAMPLE_COUNT];
+    float       sampleLoopStartPos[EUPHORIA_MAX_SAMPLE_COUNT];   //There is no sampleLoopEndPos because the regular sample end is re-used for this purpose
+    float       sample_amp[EUPHORIA_MAX_SAMPLE_COUNT];     //linear, for multiplying
     /*TODO: Initialize these at startup*/
-    int         sample_indexes[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];  //Sample indexes for each note to play
-    int         sample_indexes_count[Sampler_NOTES]; //The count of sample indexes to iterate through
-    float vel_sens_output[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];
+    int         sample_indexes[EUPHORIA_NOTES][EUPHORIA_MAX_SAMPLE_COUNT];  //Sample indexes for each note to play
+    int         sample_indexes_count[EUPHORIA_NOTES]; //The count of sample indexes to iterate through
+    float vel_sens_output[EUPHORIA_NOTES][EUPHORIA_MAX_SAMPLE_COUNT];
     
-    int sample_mfx_groups_index[LMS_MAX_SAMPLE_COUNT];  //Cast to int during note_on
+    int sample_mfx_groups_index[EUPHORIA_MAX_SAMPLE_COUNT];  //Cast to int during note_on
     
     //These 2 calculate which channels are assigned to a sample and should be processed
-    int monofx_channel_index[LMS_MONO_FX_GROUPS_COUNT];
+    int monofx_channel_index[EUPHORIA_MONO_FX_GROUPS_COUNT];
     int monofx_channel_index_count;
         
     int monofx_index_contained;  //Used as a boolean
@@ -125,14 +125,14 @@ typedef struct {
     int monofx_effect_index_count[LMS_MONO_FX_GROUPS_COUNT]; 
     */
         
-    float adjusted_base_pitch[LMS_MAX_SAMPLE_COUNT];
+    float adjusted_base_pitch[EUPHORIA_MAX_SAMPLE_COUNT];
     
     //For sample preview:
     int preview_sample_array_index;
     int preview_sample_max_length;  //Used to set the maximum time to preview a sample to an arbitrary number of samples
     
     /*TODO:  Deprecate these 2?*/
-    int loaded_samples[LMS_MAX_SAMPLE_COUNT];
+    int loaded_samples[EUPHORIA_MAX_SAMPLE_COUNT];
     int loaded_samples_count;
     int i_loaded_samples;
     /*Used as a boolean when determining if a sample has already been loaded*/
@@ -143,41 +143,41 @@ typedef struct {
     int          sampleRate;
     float fs;    //From Ray-V
     float ratio; //Used per-sample;  If voices are ever multithreaded, this will need to be widened...
-    float sample_rate_ratios[LMS_MAX_SAMPLE_COUNT];
-    long         ons[Sampler_NOTES];
-    long         offs[Sampler_NOTES];
-    int         velocities[Sampler_NOTES];    
-    t_int_frac_read_head * sample_read_heads[Sampler_NOTES][LMS_MAX_SAMPLE_COUNT];
+    float sample_rate_ratios[EUPHORIA_MAX_SAMPLE_COUNT];
+    long         ons[EUPHORIA_NOTES];
+    long         offs[EUPHORIA_NOTES];
+    int         velocities[EUPHORIA_NOTES];    
+    t_int_frac_read_head * sample_read_heads[EUPHORIA_NOTES][EUPHORIA_MAX_SAMPLE_COUNT];
     long         sampleNo;
     char        *projectDir;
-    char*       sample_paths[LMS_TOTAL_SAMPLE_COUNT];    
+    char*       sample_paths[EUPHORIA_TOTAL_SAMPLE_COUNT];    
     char*       sample_files;
     
-    float sample[LMS_CHANNEL_COUNT];
+    float sample[EUPHORIA_CHANNEL_COUNT];
     
     //PolyFX modulation streams    
-    int polyfx_mod_ctrl_indexes[Sampler_NOTES][LMS_MODULAR_POLYFX_COUNT][(LMS_CONTROLS_PER_MOD_EFFECT * LMS_MODULATOR_COUNT)]; //The index of the control to mod, currently 0-2
-    int polyfx_mod_counts[Sampler_NOTES][LMS_MODULAR_POLYFX_COUNT];  //How many polyfx_mod_ptrs to iterate through for the current note
-    int polyfx_mod_src_index[Sampler_NOTES][LMS_MODULAR_POLYFX_COUNT][(LMS_CONTROLS_PER_MOD_EFFECT * LMS_MODULATOR_COUNT)];  //The index of the modulation source(LFO, ADSR, etc...) to multiply by
-    float polyfx_mod_matrix_values[Sampler_NOTES][LMS_MODULAR_POLYFX_COUNT][(LMS_CONTROLS_PER_MOD_EFFECT * LMS_MODULATOR_COUNT)];  //The value of the mod_matrix knob, multiplied by .01
+    int polyfx_mod_ctrl_indexes[EUPHORIA_NOTES][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)]; //The index of the control to mod, currently 0-2
+    int polyfx_mod_counts[EUPHORIA_NOTES][EUPHORIA_MODULAR_POLYFX_COUNT];  //How many polyfx_mod_ptrs to iterate through for the current note
+    int polyfx_mod_src_index[EUPHORIA_NOTES][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)];  //The index of the modulation source(LFO, ADSR, etc...) to multiply by
+    float polyfx_mod_matrix_values[EUPHORIA_NOTES][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)];  //The value of the mod_matrix knob, multiplied by .01
     
     //Active PolyFX to process
-    int active_polyfx[Sampler_NOTES][LMS_MODULAR_POLYFX_COUNT];
-    int active_polyfx_count[Sampler_NOTES];
+    int active_polyfx[EUPHORIA_NOTES][EUPHORIA_MODULAR_POLYFX_COUNT];
+    int active_polyfx_count[EUPHORIA_NOTES];
     
     pthread_mutex_t mutex;
-    t_mono_modules * mono_modules;
+    t_euphoria_mono_modules * mono_modules;
     t_amp * amp_ptr;
     t_pit_pitch_core * smp_pit_core;
     t_pit_ratio * smp_pit_ratio;
     t_ccm_midi_cc_map * midi_cc_map;    
-    t_poly_voice * data[Sampler_NOTES];
+    t_euphoria_poly_voice * data[EUPHORIA_NOTES];
     
     long pos_plus_i;  //To avoid redundantly calculating this
     
     //These are used for storing the mono FX buffers from the polyphonic voices.
     //4096 was chosen because AFAIK that's the largest size you can use in qjackctl
-    float mono_fx_buffers[LMS_MONO_FX_GROUPS_COUNT][2][4096];
+    float mono_fx_buffers[EUPHORIA_MONO_FX_GROUPS_COUNT][2][4096];
     
     int i_slow_index;  //For indexing operations that don't need to track realtime events closely
         
@@ -193,7 +193,7 @@ typedef struct {
     
     float sv_pitch_bend_value;
     float sv_last_note;  //For glide
-} Sampler __attribute__((aligned(16)));
+} t_euphoria __attribute__((aligned(16)));
 
 
     
