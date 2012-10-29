@@ -41,10 +41,10 @@ static DSSI_Descriptor *LMSDDescriptor = NULL;
 static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
-static void v_run_rayv_voice(t_rayv *p, t_rayv_synth_vals *vals, t_poly_voice *d,
+static void v_run_rayv_voice(t_rayv *p, t_rayv_synth_vals *vals, t_rayv_poly_voice *d,
 		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count);
 
-int pick_voice(const t_poly_voice *data, int);
+int pick_voice(const t_rayv_poly_voice *data, int);
 
 
 __attribute__ ((visibility("default")))
@@ -228,7 +228,7 @@ static LADSPA_Handle g_rayv_instantiate(const LADSPA_Descriptor * descriptor,
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "ray_v-cc_map.txt");
     
     /*LibModSynth additions*/
-    v_init_lms(s_rate);  //initialize any static variables    
+    v_rayv_init_lms(s_rate);  //initialize any static variables    
     /*End LibModSynth additions*/
     
     return (LADSPA_Handle) plugin_data;
@@ -240,7 +240,7 @@ static void v_rayv_activate(LADSPA_Handle instance)
     unsigned int i;
     
     for (i=0; i<POLYPHONY; i++) {
-        plugin_data->data[i] = g_poly_init();
+        plugin_data->data[i] = g_rayv_poly_init();
         plugin_data->data[i]->note_f = i;        
     }
     plugin_data->sampleNo = 0;
@@ -254,7 +254,7 @@ static void v_rayv_activate(LADSPA_Handle instance)
     plugin_data->sv_pitch_bend_value = 0.0f;
     plugin_data->sv_last_note = 60.0f;  //For glide
     
-    plugin_data->mono_modules = v_mono_init();  //initialize all monophonic modules
+    plugin_data->mono_modules = v_rayv_mono_init();  //initialize all monophonic modules
 }
 
 static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
@@ -471,7 +471,7 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->sampleNo += sample_count;
 }
 
-static void v_run_rayv_voice(t_rayv *plugin_data, t_rayv_synth_vals *vals, t_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
+static void v_run_rayv_voice(t_rayv *plugin_data, t_rayv_synth_vals *vals, t_rayv_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
 {   
     /*Process an audio block*/
     for(a_voice->i_voice = 0; (a_voice->i_voice)<count;a_voice->i_voice = (a_voice->i_voice) + 1) 
@@ -494,7 +494,7 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_rayv_synth_vals *vals, t_pol
                     if((plugin_data->data[f_stuck_note]->adsr_amp->stage) < 3)
                     {
                         plugin_data->ons[f_stuck_note] = -1;
-                        v_poly_note_off(plugin_data->data[f_stuck_note]);
+                        v_rayv_poly_note_off(plugin_data->data[f_stuck_note]);
                         break;  //only unstick one note...
                     }
                 }
@@ -502,7 +502,7 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_rayv_synth_vals *vals, t_pol
             else
             {
                 plugin_data->ons[(a_voice->note)] = -1;
-                v_poly_note_off(a_voice);
+                v_rayv_poly_note_off(a_voice);
             }
 	}        
 
