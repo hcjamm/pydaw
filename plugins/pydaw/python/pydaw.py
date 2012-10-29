@@ -236,11 +236,14 @@ class item_list_editor:
         self.main_hlayout.addWidget(self.notes_table_widget)
         self.main_hlayout.addWidget(self.ccs_table_widget)
         self.set_headers()        
-        self.default_start = 0.0
-        self.default_length = 1.0
-        self.default_note = 0
-        self.default_octave = 3
-        self.default_velocity = 100
+        self.default_note_start = 0.0
+        self.default_note_length = 1.0
+        self.default_note_note = 0
+        self.default_note_octave = 3
+        self.default_note_velocity = 100
+        self.default_cc_num = 0
+        self.default_cc_start = 0.0
+        self.default_cc_val = 0
 
     def set_headers(self): #Because clearing the table clears the headers
         self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note', 'Note#', 'Velocity'])
@@ -299,11 +302,11 @@ class item_list_editor:
         f_cell = self.notes_table_widget.item(x, y)
         if f_cell is not None:
             self.is_existing_note = True
-            self.default_start = float(self.notes_table_widget.item(x, 0).text())
-            self.default_length = float(self.notes_table_widget.item(x, 1).text())
-            self.default_note = int(self.notes_table_widget.item(x, 3).text()) % 12
-            self.default_octave = (int(self.notes_table_widget.item(x, 3).text()) / 12) - 2
-            self.default_velocity = int(self.notes_table_widget.item(x, 4).text())
+            self.default_note_start = float(self.notes_table_widget.item(x, 0).text())
+            self.default_note_length = float(self.notes_table_widget.item(x, 1).text())
+            self.default_note_note = int(self.notes_table_widget.item(x, 3).text()) % 12
+            self.default_note_octave = (int(self.notes_table_widget.item(x, 3).text()) / 12) - 2
+            self.default_note_velocity = int(self.notes_table_widget.item(x, 4).text())
         else:
             self.is_existing_note = False
             
@@ -317,11 +320,11 @@ class item_list_editor:
                 QtGui.QMessageBox.warning(f_window, "Error", "Overlapping note events")
                 return
 
-            self.default_start = f_start.value()
-            self.default_length = f_length.value()
-            self.default_note = int(f_note.currentIndex())
-            self.default_octave = int(f_octave.value())
-            self.default_velocity = int(f_velocity.value())
+            self.default_note_start = f_start.value()
+            self.default_note_length = f_length.value()
+            self.default_note_note = int(f_note.currentIndex())
+            self.default_note_octave = int(f_octave.value())
+            self.default_note_velocity = int(f_velocity.value())
             
             self.notes_table_widget.setSortingEnabled(False)
             f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))
@@ -348,27 +351,27 @@ class item_list_editor:
         f_note_layout = QtGui.QHBoxLayout()
         f_note = QtGui.QComboBox()
         f_note.addItems(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])
-        f_note.setCurrentIndex(self.default_note)
+        f_note.setCurrentIndex(self.default_note_note)
         f_note_layout.addWidget(f_note)
         f_layout.addWidget(QtGui.QLabel("Note"), 1, 0)
         f_octave = QtGui.QSpinBox()
         f_octave.setRange(-2, 8)
-        f_octave.setValue(self.default_octave)
+        f_octave.setValue(self.default_note_octave)
         f_note_layout.addWidget(f_octave)
         f_layout.addLayout(f_note_layout, 1, 1)
         f_layout.addWidget(QtGui.QLabel("Start(beats)"), 2, 0)
         f_start = QtGui.QDoubleSpinBox()
         f_start.setRange(0.0, 3.99)
-        f_start.setValue(self.default_start)
+        f_start.setValue(self.default_note_start)
         f_layout.addWidget(f_start, 2, 1)
         f_layout.addWidget(QtGui.QLabel("Length(beats)"), 3, 0)
         f_length = QtGui.QDoubleSpinBox()
         f_length.setRange(0.1, 16.0)
-        f_length.setValue(self.default_length)
+        f_length.setValue(self.default_note_length)
         f_layout.addWidget(f_length, 3, 1)
         f_velocity = QtGui.QSpinBox()
         f_velocity.setRange(1, 127)
-        f_velocity.setValue(self.default_velocity)
+        f_velocity.setValue(self.default_note_velocity)
         f_layout.addWidget(QtGui.QLabel("Velocity"), 4, 0)
         f_layout.addWidget(f_velocity, 4, 1)
         f_ok_button = QtGui.QPushButton("OK")
@@ -381,22 +384,22 @@ class item_list_editor:
 
     def ccs_show_event_dialog(self, x, y):
         f_cell = self.ccs_table_widget.item(x, y)
-        if f_cell is None:
-            f_default_start = 0.0
-            f_default_cc = 1
-            f_default_cc_value = 64
-        else:
-            f_default_start = float(self.ccs_table_widget.item(x, 0).text())
-            f_default_cc = int(self.ccs_table_widget.item(x, 1).text())
-            f_default_cc_value = int(self.ccs_table_widget.item(x, 2).text())
+        if f_cell is not None:
+            self.default_cc_start = float(self.ccs_table_widget.item(x, 0).text())
+            self.default_cc_num = int(self.ccs_table_widget.item(x, 1).text())
+            self.default_cc_val = int(self.ccs_table_widget.item(x, 2).text())
 
         def cc_ok_handler():
             if not self.item.add_cc(pydaw_cc(f_start.value(), f_cc.value(), f_cc_value.value())):
                 QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
                 return
 
+            self.default_cc_start = f_start.value()
+            self.default_cc_num = f_cc.value()
+            self.default_cc_start = f_start.value()
+            
             self.ccs_table_widget.setSortingEnabled(False)
-            f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))
+            f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))            
             self.ccs_table_widget.setItem(x, 0, f_start_item)
             f_cc_num_item = QtGui.QTableWidgetItem(str(f_cc.value()))
             self.ccs_table_widget.setItem(x, 1, f_cc_num_item)
@@ -414,18 +417,18 @@ class item_list_editor:
         f_window.setLayout(f_layout)
         f_cc = QtGui.QSpinBox()
         f_cc.setRange(1, 127)
-        f_cc.setValue(f_default_cc)
+        f_cc.setValue(self.default_cc_num)
         f_layout.addWidget(QtGui.QLabel("CC"), 0, 0)
         f_layout.addWidget(f_cc, 0, 1)
         f_cc_value = QtGui.QSpinBox()
         f_cc_value.setRange(1, 127)
-        f_cc_value.setValue(f_default_cc_value)
+        f_cc_value.setValue(self.default_cc_val)
         f_layout.addWidget(QtGui.QLabel("Value"), 1, 0)
         f_layout.addWidget(f_cc_value, 1, 1)
         f_layout.addWidget(QtGui.QLabel("Position(beats)"), 2, 0)
         f_start = QtGui.QDoubleSpinBox()
         f_start.setRange(0.0, 3.99)
-        f_start.setValue(f_default_start)
+        f_start.setValue(self.default_cc_start)
         f_layout.addWidget(f_start, 2, 1)
         f_ok_button = QtGui.QPushButton("OK")
         f_layout.addWidget(f_ok_button, 4,0)
