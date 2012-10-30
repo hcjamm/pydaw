@@ -35,9 +35,6 @@ GNU General Public License for more details.
 #include "synth.h"
 #include "meta.h"
 
-#include "../../euphoria/src/synth.h"
-#include "../../ray_v/src/synth.h"
-
 #include <unistd.h>
 #include <alsa/asoundlib.h>
 
@@ -469,17 +466,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                 int controller = f_current_item.ccs[(pydaw_data->track_cc_event_indexes[f_i])]->cc_num;
                                 if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
                                 {
-                                    long controlIn; 
-                                    if((pydaw_data->track_pool[f_i]->plugin_index) == 2)//ray-v
-                                    {
-                                        t_rayv * f_rayv = (t_rayv*)pydaw_data->track_pool[f_i]->instrument->ladspa_handle;
-                                        controlIn = f_rayv->midi_cc_map->cc_map[controller];
-                                    }
-                                    else if ((pydaw_data->track_pool[f_i]->plugin_index) == 1)//euphoria
-                                    {
-                                        t_euphoria * f_euphoria = (t_euphoria*)pydaw_data->track_pool[f_i]->instrument->ladspa_handle;
-                                        controlIn = f_euphoria->midi_cc_map->cc_map[controller];                                                
-                                    }
+                                    long controlIn = pydaw_data->track_pool[f_i]->instrument->controllerMap[controller];
                                     
                                     if (controlIn > 0) //not >= like in the other CC loop, this is raw formatted CCs without that goofy bit-shifting to make it work with ALSA.
                                     {
@@ -487,7 +474,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                         snd_seq_event_t f_event;
                                         f_event.data.control.value = f_current_item.ccs[(pydaw_data->track_cc_event_indexes[f_i])]->cc_val;
                                         //v_pydaw_set_control_from_cc(pydaw_data->track_pool[f_i]->instrument, DSSI_CC_NUMBER(controlIn), &f_event, 0);
-                                        //v_pydaw_set_control_from_cc(pydaw_data->track_pool[f_i]->instrument, controlIn, &f_event, 1);
+                                        v_pydaw_set_control_from_cc(pydaw_data->track_pool[f_i]->instrument, controlIn, &f_event, 0);
                                     }
                                 }
 
