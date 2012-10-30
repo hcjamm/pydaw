@@ -23,7 +23,7 @@ extern "C" {
     
 #define PYDAW_MAX_BUFFER_SIZE 4096
     
-LADSPA_Data get_port_default(const LADSPA_Descriptor *plugin, int port, int sample_rate)
+LADSPA_Data g_pydaw_get_port_default(const LADSPA_Descriptor *plugin, int port, int sample_rate)
 {
     LADSPA_PortRangeHint hint = plugin->PortRangeHints[port];
     float lower = hint.LowerBound *
@@ -141,10 +141,17 @@ typedef struct st_pydaw_plugin
     int ui_visible;
 }t_pydaw_plugin;
 
-void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, long controlIn, snd_seq_event_t *event)
+void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, long controlIn, snd_seq_event_t *event, int a_ci_is_port)
 {
-    long port = instance->pluginControlInPortNumbers[controlIn];
-
+    long port;
+    if(a_ci_is_port)
+    {
+        port = controlIn;
+    }
+    else
+    {
+        port = instance->pluginControlInPortNumbers[controlIn];
+    }
     const LADSPA_Descriptor *p = instance->descriptor->LADSPA_Plugin;
 
     LADSPA_PortRangeHintDescriptor d = p->PortRangeHints[port].HintDescriptor;
@@ -347,7 +354,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
                 f_result->pluginControlInPortNumbers[controlIn] = j;
                 f_result->pluginPortControlInNumbers[j] = controlIn;
 
-                f_result->pluginControlIns[controlIn] = get_port_default
+                f_result->pluginControlIns[controlIn] = g_pydaw_get_port_default
                     (f_result->descriptor->LADSPA_Plugin, j, a_sample_rate);
 
                 f_result->descriptor->LADSPA_Plugin->connect_port
