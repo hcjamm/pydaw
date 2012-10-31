@@ -4088,7 +4088,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][0][0] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx0knob0Changed(gui->m_mono_fx_values[f_value][0][0]);
+            gui->setmonoFX0knob0(gui->m_mono_fx_values[f_value][0][0]);
         }
     }
     else if((port >= LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB1_PORT_RANGE_MAX))
@@ -4097,7 +4097,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][0][1] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx0knob1Changed(gui->m_mono_fx_values[f_value][0][1]);
+            gui->setmonoFX0knob1(gui->m_mono_fx_values[f_value][0][1]);
         }
     }
     else if((port >= LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB2_PORT_RANGE_MAX))
@@ -4106,7 +4106,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][0][2] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx0knob2Changed(gui->m_mono_fx_values[f_value][0][2]);
+            gui->setmonoFX0knob2(gui->m_mono_fx_values[f_value][0][2]);
         }
     }
     else if((port >= LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
@@ -4115,7 +4115,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][0][3] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx0comboboxChanged(gui->m_mono_fx_values[f_value][0][3]);
+            gui->setmonoFX0combobox(gui->m_mono_fx_values[f_value][0][3]);
         }
     }    
     //MonoFX1
@@ -4125,7 +4125,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][1][0] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx1knob0Changed(gui->m_mono_fx_values[f_value][1][0]);
+            gui->setmonoFX1knob0(gui->m_mono_fx_values[f_value][1][0]);
         }
     }
     else if((port >= LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB1_PORT_RANGE_MAX))
@@ -4134,7 +4134,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][1][1] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx1knob1Changed(gui->m_mono_fx_values[f_value][1][1]);
+            gui->setmonoFX1knob1(gui->m_mono_fx_values[f_value][1][1]);
         }
     }
     else if((port >= LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB2_PORT_RANGE_MAX))
@@ -4143,7 +4143,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][1][2] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx1knob2Changed(gui->m_mono_fx_values[f_value][1][2]);
+            gui->setmonoFX1knob2(gui->m_mono_fx_values[f_value][1][2]);
         }
     }
     else if((port >= LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
@@ -4152,7 +4152,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][1][3] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx1comboboxChanged(gui->m_mono_fx_values[f_value][1][3]);
+            gui->setmonoFX1combobox(gui->m_mono_fx_values[f_value][1][3]);
         }
     }
     //MonoFX2
@@ -4162,7 +4162,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][2][0] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx2knob0Changed(gui->m_mono_fx_values[f_value][2][0]);
+            gui->setmonoFX2knob0(gui->m_mono_fx_values[f_value][2][0]);
         }
     }
     else if((port >= LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB1_PORT_RANGE_MAX))
@@ -4171,7 +4171,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][2][1] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx2knob1Changed(gui->m_mono_fx_values[f_value][2][1]);
+            gui->setmonoFX2knob1(gui->m_mono_fx_values[f_value][2][1]);
         }
     }
     else if((port >= LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB2_PORT_RANGE_MAX))
@@ -4180,7 +4180,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][2][2] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx2knob2Changed(gui->m_mono_fx_values[f_value][2][2]);
+            gui->setmonoFX2knob2(gui->m_mono_fx_values[f_value][2][2]);
         }
     }
     else if((port >= LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
@@ -4189,7 +4189,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][2][3] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx2comboboxChanged(gui->m_mono_fx_values[f_value][2][3]);
+            gui->setmonoFX2combobox(gui->m_mono_fx_values[f_value][2][3]);
         }
     }
     
@@ -4200,7 +4200,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][3][0] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx3knob0Changed(gui->m_mono_fx_values[f_value][3][0]);
+            gui->setmonoFX3knob0(gui->m_mono_fx_values[f_value][3][0]);
         }
     }
     else if((port >= LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB1_PORT_RANGE_MAX))
@@ -4209,7 +4209,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][3][1] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx3knob1Changed(gui->m_mono_fx_values[f_value][3][1]);
+            gui->setmonoFX3knob1(gui->m_mono_fx_values[f_value][3][1]);
         }
     }
     else if((port >= LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB2_PORT_RANGE_MAX))
@@ -4218,7 +4218,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][3][2] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx3knob2Changed(gui->m_mono_fx_values[f_value][3][2]);
+            gui->setmonoFX3knob2(gui->m_mono_fx_values[f_value][3][2]);
         }
     }
     else if((port >= LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
@@ -4227,7 +4227,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_mono_fx_values[f_value][3][3] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->monofx3comboboxChanged(gui->m_mono_fx_values[f_value][3][3]);
+            gui->setmonoFX3combobox(gui->m_mono_fx_values[f_value][3][3]);
         }
     }
     
@@ -4237,7 +4237,8 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_sample_selected_monofx_groups[f_value] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            gui->sample_selected_monofx_groupChanged(gui->m_sample_selected_monofx_groups[f_value]);
+            //TODO:  This doesn't actually need to be set, AFAIK...  The below code was incorrect anyways...
+            //gui->sample_selected_monofx_groupChanged(gui->m_sample_selected_monofx_groups[f_value]);
         }
     }        
     
