@@ -2380,8 +2380,15 @@ void SamplerGUI::sample_selected_monofx_groupChanged(int a_value)
     setmonoFX3combobox(m_mono_fx_values[a_value][3][3]);
     
     if (!m_suppressHostUpdate) {
-        m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);        
-        lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), float(a_value));        
+        m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
+        if(a_value >= 0)
+        {
+                lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), float(a_value));        
+        }
+        else
+        {
+            euphoria_cerr  <<  "Attempted to send -1 value from the UI to LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN!!!\n";
+        }
     }    
 }
 
@@ -3921,7 +3928,7 @@ int euphoria_configure_handler(const char *path, const char *types, lo_arg **arg
     const char *value = (const char *)&argv[1]->s;
 
     euphoria_cerr << "GUI configure_handler:  Key:  " << QString::fromLocal8Bit(key) << " , Value:" << QString::fromLocal8Bit(value);
-    
+    gui->m_suppressHostUpdate = TRUE;
     if (!strcmp(key, "load")) {
 	gui->setSampleFile(QString::fromLocal8Bit(value));
     //} else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
@@ -3932,10 +3939,8 @@ int euphoria_configure_handler(const char *path, const char *types, lo_arg **arg
     } else if (!strcmp(key, "pydaw_close_window")) {
         euphoria_cerr << "Closing window...\n";
         gui->close();
-	//gui->setHostRequestedQuit(true);
-        //qApp->quit();
     }
-
+    gui->m_suppressHostUpdate = FALSE;
     return 0;
 }
 
