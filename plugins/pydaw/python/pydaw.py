@@ -312,7 +312,7 @@ class item_list_editor:
             
         def note_ok_handler():
             if self.is_existing_note:
-                self.item.remove_note(x)
+                self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
             f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
             f_note_name = str(f_note.currentText()) + str(f_octave.value())
             f_new_note = pydaw_note(f_start.value(), f_length.value(), f_note_value, f_velocity.value())
