@@ -2419,8 +2419,8 @@ void SamplerGUI::sample_selected_monofx_groupChanged(int a_value)
     setmonoFX3combobox(m_mono_fx_values[a_value][3][3]);
     
     if (!m_suppressHostUpdate) {
-        m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
-        lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), float(a_value));
+        m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);        
+        lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), float(a_value));        
     }    
 }
 
@@ -4031,7 +4031,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
     const int port = argv[0]->i;
     const float value = argv[1]->f;
     
-    
+    gui->m_suppressHostUpdate = TRUE;
     if((port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN))
     {
         gui->v_set_control(port, value);
@@ -4040,33 +4040,25 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
     {
         int f_value = port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN;
         //cerr << "LMS_SAMPLE_PITCH_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
-        gui->m_suppressHostUpdate = TRUE;
         gui->m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[f_value]->lms_set_value(value);
-        gui->m_suppressHostUpdate = FALSE;
     }
     else if((port >= LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN;
         //cerr << "LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
-        gui->m_suppressHostUpdate = TRUE;
         gui->m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[f_value]->lms_set_value(value);
-        gui->m_suppressHostUpdate = FALSE;
     }
     else if((port >= LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN;
         //cerr << "LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
-        gui->m_suppressHostUpdate = TRUE;
         gui->m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[f_value]->lms_set_value(value);
-        gui->m_suppressHostUpdate = FALSE;
     }
     else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN;
         //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
-        gui->m_suppressHostUpdate = TRUE;
         gui->m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[f_value]->lms_set_value(value);
-        gui->m_suppressHostUpdate = FALSE;
     }
     else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
     {
@@ -4082,49 +4074,34 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
     }
     else if((port >= LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN;        
-        gui->m_suppressHostUpdate = TRUE;
+        int f_value = port - LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[f_value]->lms_set_value(value);
-        gui->m_suppressHostUpdate = FALSE;
     }
     else if((port >= LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN;        
-        gui->m_suppressHostUpdate = TRUE;
+        int f_value = port - LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[f_value]->lms_set_value(value);
-        gui->m_suppressHostUpdate = FALSE;
     }
     else if((port >= LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN;        
-        gui->m_suppressHostUpdate = TRUE;
+        int f_value = port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[f_value]->lms_set_value(value);
-        gui->m_suppressHostUpdate = FALSE;
     }
-    //new    
     else if((port >= LMS_PITCH_PORT_RANGE_MIN ) && (port < LMS_PITCH_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_PITCH_PORT_RANGE_MIN;        
-        gui->m_suppressHostUpdate = TRUE;
+        int f_value = port - LMS_PITCH_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[f_value]->lms_set_value(value);
-        gui->m_suppressHostUpdate = FALSE;
     }
     else if((port >= LMS_TUNE_PORT_RANGE_MIN ) && (port < LMS_TUNE_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_TUNE_PORT_RANGE_MIN;        
-        gui->m_suppressHostUpdate = TRUE;
+        int f_value = port - LMS_TUNE_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[f_value]->lms_set_value(value);
-        gui->m_suppressHostUpdate = FALSE;
     }
     else if((port >= LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN;        
-        gui->m_suppressHostUpdate = TRUE;
+        int f_value = port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[f_value]->lms_set_value(value);
-        gui->m_suppressHostUpdate = FALSE;
     }
-    //newer
-    
     else if((port >= LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_LOOP_START_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN;
@@ -4307,7 +4284,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
     {
         euphoria_cerr << "Warning: received request to set nonexistent port " << port << endl;
     }
-
+    gui->m_suppressHostUpdate = FALSE;
     return 0;
 }
 
