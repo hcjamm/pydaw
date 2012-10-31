@@ -41,6 +41,8 @@ static DSSI_Descriptor *samplerStereoDDescriptor = NULL;
 static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 		       snd_seq_event_t *events, unsigned long EventCount);
 
+static inline void v_euphoria_slow_index(t_euphoria*);
+
 __attribute__ ((visibility("default")))
 const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
 {
@@ -365,7 +367,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->loaded_samples_count = 0;
     plugin_data->lin_interpolator = g_lin_get();
     plugin_data->amp = 1.0f;
-    plugin_data->i_slow_index = EUPHORIA_SLOW_INDEX_COUNT;   //Trigger an indexing event on the first running of the main loop
+    plugin_data->i_slow_index = 0;
     
     plugin_data->preview_sample_array_index = 0;
     plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT] = 0;  //To prevent a SEGFAULT on the first call of the main loop
@@ -499,7 +501,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
 static void v_euphoria_activate(LADSPA_Handle instance)
 {
     t_euphoria *plugin_data = (t_euphoria *) instance;
-    unsigned int i;
+    int i;
 
     pthread_mutex_lock(&plugin_data->mutex);
 
@@ -510,6 +512,8 @@ static void v_euphoria_activate(LADSPA_Handle instance)
 	plugin_data->offs[i] = -1;
 	plugin_data->velocities[i] = 0;
     }
+    
+    v_euphoria_slow_index(plugin_data);
 
     pthread_mutex_unlock(&plugin_data->mutex);
 }
@@ -716,6 +720,42 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, u
     }
 }
 
+static inline void v_euphoria_slow_index(t_euphoria* plugin_data)
+{    
+    plugin_data->i_slow_index = 0;
+    plugin_data->monofx_channel_index_count = 0;
+    
+    int i, i2, i3;
+
+    for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
+    {
+        plugin_data->monofx_index_contained = 0;
+
+        for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
+        {
+            if((plugin_data->monofx_channel_index[i2]) == ((int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]))))
+            {
+                plugin_data->monofx_index_contained = 1;
+                break;
+            }
+        }
+
+        if((plugin_data->monofx_index_contained) == 0)
+        {
+            plugin_data->monofx_channel_index[(plugin_data->monofx_channel_index_count)] = (int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]));
+            plugin_data->monofx_channel_index_count = (plugin_data->monofx_channel_index_count) + 1;
+        }
+    }
+
+    for(i2 = 0; i2 < EUPHORIA_MONO_FX_GROUPS_COUNT; i2++)
+    {
+        for(i3 = 0; i3 < EUPHORIA_MONO_FX_COUNT; i3++)
+        {
+            plugin_data->mono_modules->fx_func_ptr[i2][i3] = g_mf3_get_function_pointer((int)(*(plugin_data->mfx_comboboxes[i2][i3])));
+        }
+    }
+}
+
 static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 		       snd_seq_event_t *events, unsigned long event_count)
 {
@@ -743,37 +783,7 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
     
     if((plugin_data->i_slow_index) >= EUPHORIA_SLOW_INDEX_COUNT)
     {
-        plugin_data->i_slow_index = 0;
-        
-        plugin_data->monofx_channel_index_count = 0;        
-        
-        for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
-        {
-            plugin_data->monofx_index_contained = 0;
-            
-            for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
-            {
-                if((plugin_data->monofx_channel_index[i2]) == ((int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]))))
-                {
-                    plugin_data->monofx_index_contained = 1;
-                    break;
-                }
-            }
-            
-            if((plugin_data->monofx_index_contained) == 0)
-            {
-                plugin_data->monofx_channel_index[(plugin_data->monofx_channel_index_count)] = (int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]));
-                plugin_data->monofx_channel_index_count = (plugin_data->monofx_channel_index_count) + 1;
-            }
-        }
-        
-        for(i2 = 0; i2 < EUPHORIA_MONO_FX_GROUPS_COUNT; i2++)
-        {
-            for(i3 = 0; i3 < EUPHORIA_MONO_FX_COUNT; i3++)
-            {
-                plugin_data->mono_modules->fx_func_ptr[i2][i3] = g_mf3_get_function_pointer((int)(*(plugin_data->mfx_comboboxes[i2][i3])));
-            }
-        }          
+        v_euphoria_slow_index(plugin_data);
     }
     
     
