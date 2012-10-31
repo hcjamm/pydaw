@@ -717,7 +717,7 @@ int i_pydaw_get_controller(LADSPA_Handle instance, unsigned long port)
 }
 
 #ifdef __GNUC__
-__attribute__((constructor)) void init()
+__attribute__((constructor)) void v_pydaw_constructor()
 #else
 void _init()
 #endif
@@ -798,7 +798,7 @@ void _init()
 }
 
 #ifdef __GNUC__
-__attribute__((destructor)) void fini()
+__attribute__((destructor)) void v_pydaw_destructor()
 #else
 void _fini()
 #endif
