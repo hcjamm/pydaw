@@ -4,7 +4,7 @@ A class that contains methods and data for a PyDAW project.
 """
 
 import sys, os
-from shutil import copyfile
+from shutil import copyfile, move
 from os import listdir
 #from lms_session import lms_session #deprecated
 from dssi_gui import dssi_gui
@@ -28,9 +28,15 @@ def bool_to_int(a_bool):
 class pydaw_project:
     def save_project(self):
         self.this_dssi_gui.pydaw_save_tracks()
-        #self.session_mgr.save_session_file()  #deprecated
-    def save_project_as(self):
-        pass
+    def save_project_as(self, a_file_name):
+        f_file_name = str(a_file_name)
+        print("Saving project as " + f_file_name + " ...")
+        f_new_project_folder = os.path.dirname(f_file_name)
+        f_cmd = "cp -r " + self.project_folder + "/* " + f_new_project_folder + "/"
+        os.popen(f_cmd)
+        print(f_new_project_folder + "/" + self.project_file + " | " + a_file_name)
+        move(f_new_project_folder + "/" + self.project_file + ".pysong", a_file_name)
+        self.open_project(f_file_name)
 
     def set_project_folders(self, a_project_file):
         self.project_folder = os.path.dirname(a_project_file)
@@ -39,15 +45,11 @@ class pydaw_project:
         self.regions_folder = self.project_folder + "/regions"
         self.items_folder = self.project_folder + "/items"
 
-    #deprecated
-    #def instantiate_session_manager(self):
-        #self.session_mgr = lms_session(self.instrument_folder + '/' + self.project_file + '.pyses')
-
     def open_project(self, a_project_file):
         self.set_project_folders(a_project_file)
         if not os.path.exists(a_project_file):
+            print("project file " + a_project_file + " does not exist, creating as new project")
             self.new_project(a_project_file)
-        #self.instantiate_session_manager() #deprecated
         self.this_dssi_gui.pydaw_open_song(self.project_folder, self.project_file)
         
     def new_project(self, a_project_file):

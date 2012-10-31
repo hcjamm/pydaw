@@ -656,7 +656,9 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_save(self):
         this_pydaw_project.save_project()
     def on_save_as(self):
-        this_pydaw_project.save_project_as()
+        f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", this_pydaw_project.project_file + ".pysong")
+        if f_new_file:        
+            this_pydaw_project.save_project_as(f_new_file)
 
     def __init__(self):
         self.initUI()
@@ -690,10 +692,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_file.addAction(self.save_action)
         self.save_action.triggered.connect(self.on_save)
 
-        #Leaving this off for now, the instruments need an implementation of a .chdir signal before this can work correctly
-        #self.save_as_action = QtGui.QAction("Save As...", self)
-        #self.menu_file.addAction(self.save_as_action)
-        #self.save_as_action.triggered.connect(self.on_save_as)
+        self.save_as_action = QtGui.QAction("Save As...", self)
+        self.menu_file.addAction(self.save_as_action)
+        self.save_as_action.triggered.connect(self.on_save_as)
 
         self.transport_hlayout = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.transport_hlayout)
