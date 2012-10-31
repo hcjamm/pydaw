@@ -81,8 +81,7 @@ static QTextStream euphoria_cerr(stderr);
 
 SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 		       QByteArray controlPath, QByteArray midiPath, QByteArray configurePath,
-		       QByteArray exitingPath, QWidget *w,
-                       bool a_is_session, QString a_project_path, QString a_instance_name) :
+		       QByteArray exitingPath, QWidget *w) :
     QFrame(w),
     m_controlPath(controlPath),
     m_midiPath(midiPath),
@@ -95,10 +94,6 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_host = lo_address_new(host, port);
 #endif    
     this->setStyleSheet("QMessageBox{color:white;background-color:black;}  QDial{background-color:rgb(152, 152, 152);} QTabBar::tab:selected { color:black;background-color:#BBBBBB;} QTableView QTableCornerButton::section {background: black; border: 2px outset white;} QComboBox{color:white; background-color:black;} QTabBar::tab {background-color:black;  border: 2px solid white;  border-bottom-color: #333333; border-top-left-radius: 4px;  border-top-right-radius: 4px;  min-width: 8ex;  padding: 2px; color:white;} QHeaderView::section {background: black; color: white;border:2px solid white;} QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 60px; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QLabel{color:black;background-color:white;border:solid 2px white;border-radius:2px;} QFrame{background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0.273, stop:0 rgba(90, 90, 90, 255), stop:1 rgba(60, 60, 60, 255))} QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #111111, stop: 1 #222222); border: 2px solid white;  border-radius: 10px;  margin-top: 1ex;} QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; color:black; background-color: white; border solid 2px white; border-radius:3px;}");
-    
-    is_session = a_is_session;
-    project_path = a_project_path;
-    instance_name = a_instance_name;    
     
     m_suppressHostUpdate = TRUE;
     m_handle_control_updates = TRUE;
@@ -1233,41 +1228,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     myTimer->setSingleShot(false);
     myTimer->start(0);
 
-    m_suppressHostUpdate = false;
-    
-    if(is_session)
-    {
-        //This checks for any stray notification files and removes them
-        lms_session_manager::is_saving(project_path, instance_name);
-        lms_session_manager::is_quitting(project_path, instance_name);
-        
-        QTimer *sessionTimer = new QTimer(this);
-        connect(sessionTimer, SIGNAL(timeout()), this, SLOT(sessionTimeout()));
-        sessionTimer->setSingleShot(false);
-        sessionTimer->setInterval(5000);
-        sessionTimer->start();
-        
-        QTimer *setPreset = new QTimer(this);
-        connect(setPreset, SIGNAL(timeout()), this, SLOT(setFirstPreset()));
-        setPreset->setSingleShot(TRUE);
-        setPreset->setInterval(9000);
-        setPreset->start();
-    }
-}
-
-void SamplerGUI::setFirstPreset()
-{
-    QString f_path = project_path + QString("/") + instance_name + QString(".u4ia");
-    
-    if(QFile::exists(f_path))
-    {
-        euphoria_cerr << QString("Opening ") + f_path + QString("\n");
-        openInstrumentFromFile(f_path);
-    }
-    else
-    {
-        euphoria_cerr << QString("Did not find ") + f_path + QString(" .  This is to be expected if you are opening the instrument for the first time\n");
-    }
+    m_suppressHostUpdate = false;    
 }
 
 void SamplerGUI::clearAllSamples()
@@ -4288,21 +4249,6 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
     return 0;
 }
 
-void SamplerGUI::sessionTimeout()
-{    
-    if(lms_session_manager::is_saving(project_path, instance_name))
-    {
-        euphoria_cerr << instance_name << " is saving...\n";
-        
-        saveInstrumentToSingleFile(project_path + QString("/") + instance_name + QString(".u4ia"));
-    }
-    
-    if(lms_session_manager::is_quitting(project_path, instance_name))
-    {
-        this->close();
-    }        
-}
-
 int main(int argc, char **argv)
 {
     euphoria_cerr << "Euphoria GUI starting..." << endl;
@@ -4339,24 +4285,6 @@ int main(int argc, char **argv)
 	stereo = true;
     }
     
-        bool f_is_session = FALSE;
-    QString f_project_path = QString("");
-    QString f_instance_name = QString("");
-    
-    if(argc >= 7)
-    {
-        f_project_path = QString(application.argv()[5]);
-        f_instance_name = QString(application.argv()[6]);
-        
-        f_is_session = TRUE;
-        
-        euphoria_cerr << f_project_path << "\n" << f_instance_name << "\n";
-    }
-    else
-    {
-        euphoria_cerr << QString("argc==") << QString::number(argc) << QString("\n");
-    }
-    
 #else
     char *url = "testing";
 
@@ -4373,10 +4301,7 @@ int main(int argc, char **argv)
 		   QByteArray(path) + "/midi",
 		   QByteArray(path) + "/configure",
 		   QByteArray(path) + "/exiting",
-		   0,
-                   f_is_session,
-                   f_project_path,
-                   f_instance_name);
+		   0);
 		 
     QByteArray myControlPath = QByteArray(path) + "/control";
     QByteArray myConfigurePath = QByteArray(path) + "/configure";
