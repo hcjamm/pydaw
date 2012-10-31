@@ -335,14 +335,20 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                     f_track_beats_offset = (f_sample_period_inc * 4.0f) - f_track_next_period_beats;
 
                                     pydaw_data->track_note_event_indexes[f_i] = 0;
-                                    //pydaw_data->track_cc_event_indexes[f_i] = 0;
 
-                                    f_current_track_bar++;
-
-                                    if(f_current_track_bar >= 8)
+                                    if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
                                     {
-                                        f_current_track_bar = 0;
-                                        f_current_track_region++;
+                                        f_current_track_bar++;
+
+                                        if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
+                                        {
+                                            f_current_track_bar = 0;
+
+                                            if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
+                                            {
+                                                f_current_track_region++;
+                                            }
+                                        }
                                     }
                                     
                                     continue;
@@ -397,7 +403,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                 }
 
                 f_i++;
-            }
+            } //while notes
             
             
             //Calculate track CCs for this period and update the controller ports
@@ -444,13 +450,21 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                     //pydaw_data->track_note_event_indexes[f_i] = 0;
                                     pydaw_data->track_cc_event_indexes[f_i] = 0;
 
-                                    f_current_track_bar++;
-
-                                    if(f_current_track_bar >= 8)
+                                    if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
                                     {
-                                        f_current_track_bar = 0;
-                                        f_current_track_region++;
+                                        f_current_track_bar++;
+
+                                        if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
+                                        {
+                                            f_current_track_bar = 0;
+
+                                            if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
+                                            {
+                                                f_current_track_region++;
+                                            }
+                                        }
                                     }
+                                    
                                     continue;
                                 }
                                 else
@@ -493,7 +507,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                 }
 
                 f_i++;
-            }
+            } //while CCs
             
 
             pydaw_data->playback_cursor = f_next_playback_cursor;
@@ -508,23 +522,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                 f_current_period_beats = 0.0f;
                 f_next_period_beats = f_next_period_beats - 4.0f;
 
-                pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
 
-                if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
-                {
-                    pydaw_data->current_bar = 0;
-
-                    pydaw_data->current_region = (pydaw_data->current_region) + 1;
-
-                    if((pydaw_data->current_region) >= PYDAW_MAX_REGION_COUNT)
-                    {
-                        pydaw_data->playback_mode = 0;
-                        pydaw_data->current_region = 0;
-                    }
-
-                }
-
-                /*
                 if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
                 {
                     pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
@@ -545,11 +543,8 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                         }
                     }
                 }
-                */
 
-                printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (pydaw_data->current_region), (pydaw_data->current_bar));            
-                //Use this to go back and process the early parts of the next item
-                //goto event_loop_label;
+                printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (pydaw_data->current_region), (pydaw_data->current_bar));                
             }
         } //If playback_mode > 0
         
