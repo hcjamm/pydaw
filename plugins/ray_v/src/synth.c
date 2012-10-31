@@ -566,7 +566,7 @@ static int i_rayv_get_controller(LADSPA_Handle instance, unsigned long port)
 /*Here we define how all of the LADSPA and DSSI header stuff is setup,
  we also define the ports and the GUI.*/
 #ifdef __GNUC__
-__attribute__((constructor)) void init()
+__attribute__((constructor)) void v_rayv_constructor()
 #else
 void _init()
 #endif
@@ -977,7 +977,7 @@ void _init()
 }
 
 #ifdef __GNUC__
-__attribute__((destructor)) void fini()
+__attribute__((destructor)) void v_rayv_destructor()
 #else
 void _fini()
 #endif

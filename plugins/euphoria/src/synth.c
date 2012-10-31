@@ -1484,7 +1484,7 @@ char *c_euphoria_configure(LADSPA_Handle instance, const char *key, const char *
 }
 
 #ifdef __GNUC__
-__attribute__((constructor)) void init()
+__attribute__((constructor)) void v_euphoria_constructor()
 #else
 void _init()
 #endif
@@ -2363,7 +2363,7 @@ void _init()
 }
 
 #ifdef __GNUC__
-__attribute__((destructor)) void fini()
+__attribute__((destructor)) void v_euphoria_destructor()
 #else
 void _fini()
 #endif
