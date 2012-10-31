@@ -3963,7 +3963,7 @@ int euphoria_configure_handler(const char *path, const char *types, lo_arg **arg
     
     if (!strcmp(key, "load")) {
 	gui->setSampleFile(QString::fromLocal8Bit(value));
-    } else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
+    //} else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
 	//gui->setProjectDirectory(QString::fromLocal8Bit(value));
     } else if (!strcmp(key, "lastdir")) {
         gui->m_file_selector->lms_last_directory = QString::fromLocal8Bit(value);

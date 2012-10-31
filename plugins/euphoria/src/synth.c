@@ -437,7 +437,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     
     
     plugin_data->sampleRate = s_rate;
-    plugin_data->projectDir = 0;
+    //plugin_data->projectDir = 0;
     
     plugin_data->sv_pitch_bend_value = 0.0f;
     plugin_data->sv_last_note = 36.0f;
@@ -1168,7 +1168,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
 	if (filename) ++filename;
 	else filename = path;
 
-	if (*filename && plugin_data->projectDir) {
+	/*if (*filename && plugin_data->projectDir) {
 	    revisedPath = (char *)malloc(strlen(filename) +
 					 strlen(plugin_data->projectDir) + 2);
 	    sprintf(revisedPath, "%s/%s", plugin_data->projectDir, filename);
@@ -1176,7 +1176,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
 	    if (!file) {
 		free(revisedPath);
 	    }
-	}
+	}*/
 
 	if (!file) {
 	    return dssi_configure_message
@@ -1471,10 +1471,10 @@ char *c_euphoria_configure(LADSPA_Handle instance, const char *key, const char *
 
     if (!strcmp(key, "load")) {	
         return c_euphoria_load_all(plugin_data, value);    
-    } else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
+    /*} else if (!strcmp(key, DSSI_PROJECT_DIRECTORY_KEY)) {
 	if (plugin_data->projectDir) free(plugin_data->projectDir);
 	plugin_data->projectDir = strdup(value);
-	return 0;
+	return 0;*/
     } else if (!strcmp(key, "lastdir")) {
         //do nothing, this is only so the plugin host will recall the last sample directory
         return NULL;
