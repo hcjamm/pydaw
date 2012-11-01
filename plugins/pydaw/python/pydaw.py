@@ -553,10 +553,23 @@ class transport_widget:
         this_pydaw_project.this_dssi_gui.pydaw_rec()
     def on_tempo_changed(self, a_tempo):
         this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
+        self.transport.bpm = a_tempo
+        this_pydaw_project.save_transport(self.transport)
     def on_loop_mode_changed(self, a_loop_mode):
         this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
+        self.transport.loop_mode = a_loop_mode
+        this_pydaw_project.save_transport(self.transport)
     def on_keybd_combobox_index_changed(self, a_index):
         self.alsa_output_ports.connect_to_pydaw(str(self.keybd_combobox.currentText()))
+        self.transport.midi_keybd = str(self.keybd_combobox.currentText())
+        this_pydaw_project.save_transport(self.transport)
+    def on_bar_changed(self, a_bar):
+        self.transport.bar = a_bar
+        this_pydaw_project.save_transport(self.transport)
+    def on_region_changed(self, a_region):
+        self.transport.region = a_region
+        this_pydaw_project.save_transport(self.transport)
+        
     def beat_timeout(self):
         if self.loop_mode_combobox.currentIndex() == 1:
             return  #Looping a single bar doesn't require these values to update
@@ -567,8 +580,20 @@ class transport_widget:
             if self.loop_mode_combobox.currentIndex() != 2:
                 self.region_spinbox.setValue(self.region_spinbox.value() + 1)
         self.bar_spinbox.setValue(f_new_bar_value)
+        
+    def open_transport(self):
+        self.transport = this_pydaw_project.get_transport()
+        self.tempo_spinbox.setValue(int(self.transport.bpm))
+        self.region_spinbox.setValue(int(self.transport.region))
+        self.bar_spinbox.setValue(int(self.transport.bar))
+        self.loop_mode_combobox.setCurrentIndex(int(self.transport.loop_mode))
+        for i in range(self.keybd_combobox.count()):
+            if str(self.keybd_combobox.itemText(i)) == self.transport.midi_keybd:
+                self.keybd_combobox.setCurrentIndex(i)
+                break
 
     def __init__(self):
+        self.transport = pydaw_transport()
         self.group_box = QtGui.QGroupBox()
         self.grid_layout = QtGui.QGridLayout()
         self.group_box.setLayout(self.grid_layout)
@@ -597,9 +622,7 @@ class transport_widget:
         self.alsa_output_ports = alsa_ports()
         self.keybd_combobox.addItems(self.alsa_output_ports.get_output_fqnames())
         self.keybd_combobox.currentIndexChanged.connect(self.on_keybd_combobox_index_changed)
-        self.grid_layout.addWidget(self.keybd_combobox, 0, 6)
-        if self.keybd_combobox.count() > 0:
-            self.on_keybd_combobox_index_changed(0)
+        self.grid_layout.addWidget(self.keybd_combobox, 0, 6)        
         self.grid_layout.addWidget(QtGui.QLabel("Loop Mode"), 0, 7)
         self.loop_mode_combobox = QtGui.QComboBox()
         self.loop_mode_combobox.addItems(["Off", "Bar", "Region"])
@@ -609,16 +632,17 @@ class transport_widget:
         self.grid_layout.addWidget(QtGui.QLabel("Region:"), 0, 9)
         self.region_spinbox = QtGui.QSpinBox()
         self.region_spinbox.setRange(0, 300)
+        self.region_spinbox.valueChanged.connect(self.on_region_changed)
         self.grid_layout.addWidget(self.region_spinbox, 0, 10)
         self.grid_layout.addWidget(QtGui.QLabel("Bar:"), 0, 11)
         self.bar_spinbox = QtGui.QSpinBox()
         self.bar_spinbox.setRange(0, 8)
+        self.bar_spinbox.valueChanged.connect(self.on_bar_changed)
         self.grid_layout.addWidget(self.bar_spinbox, 0, 12)
         #This is an awful way to do this, I'll eventually have IPC that goes both directions...
         self.beat_timer = QtCore.QTimer()
         self.beat_timer.timeout.connect(self.beat_timeout)
         
-
 class edit_mode_selector:
     def __init__(self):
         self.groupbox = QtGui.QGroupBox()
@@ -750,7 +774,6 @@ class pydaw_main_window(QtGui.QMainWindow):
 
 #Opens or creates a new project
 def global_open_project(a_project_file):
-    #this_pydaw_project.session_mgr.quit_hander()
     global this_pydaw_project
     if(len(argv) >= 2):
         this_pydaw_project = pydaw_project((argv[1]))
@@ -759,11 +782,10 @@ def global_open_project(a_project_file):
     this_pydaw_project.open_project(a_project_file)
     this_song_editor.open_song()
     this_track_editor.open_tracks()
-    this_transport.tempo_spinbox.setValue(140)  #Interim code to make the magic happen, this shouldn't be used once PyDAW goes stable, it should be read from a project file
+    this_transport.open_transport()
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
-def global_new_project():
-    #this_pydaw_project.session_mgr.quit_hander()
+def global_new_project():    
     global this_pydaw_project
     if(len(argv) >= 2):
         this_pydaw_project = pydaw_project(a_project_file, (argv[1]))
@@ -773,30 +795,31 @@ def global_new_project():
     this_region_editor.table_widget.clear()
     this_item_editor.table_widget.clear()
     this_track_editor.reset()
+    this_transport.open_transport()
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
 def about_to_quit():
     this_pydaw_project.quit_handler()
 
-if __name__ == '__main__':
-    pydaw_write_log("\n\n\n***********STARTING***********\n\n")
-    for arg in argv:
-        pydaw_write_log("arg:  " + arg)
 
-    app = QtGui.QApplication(sys.argv)
-    app.setWindowIcon(QtGui.QIcon('pydaw.ico'))
-    app.aboutToQuit.connect(about_to_quit)
-    this_song_editor = song_editor()
-    this_region_editor = region_list_editor()
-    this_item_editor = item_list_editor()
-    this_transport = transport_widget()
-    this_track_editor = track_editor()
-    this_edit_mode_selector = edit_mode_selector()
+pydaw_write_log("\n\n\n***********STARTING***********\n\n")
+for arg in argv:
+    pydaw_write_log("arg:  " + arg)
+    
+app = QtGui.QApplication(sys.argv)
+app.setWindowIcon(QtGui.QIcon('pydaw.ico'))
+app.aboutToQuit.connect(about_to_quit)
+this_song_editor = song_editor()
+this_region_editor = region_list_editor()
+this_item_editor = item_list_editor()
+this_transport = transport_widget()
+this_track_editor = track_editor()
+this_edit_mode_selector = edit_mode_selector()
 
-    this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
-    this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
+this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
+this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 
-    default_project_file = expanduser("~") + '/dssi/pydaw/default-project/default.pysong'
-    global_open_project(default_project_file)
+default_project_file = expanduser("~") + '/dssi/pydaw/default-project/default.pysong'
+global_open_project(default_project_file)
 
-    sys.exit(app.exec_())
+sys.exit(app.exec_())

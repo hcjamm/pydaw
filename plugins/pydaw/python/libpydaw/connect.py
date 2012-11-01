@@ -20,7 +20,7 @@ class alsa_port:
         self.client_type = a_client_type.strip()
         self.port_number = a_port_number.strip()
         self.port_name = a_port_name.strip()
-        self.fqname = self.client_name + " - " + self.port_name + " | " + self.client_number + self.port_number
+        self.fqname = self.client_name + " - " + self.port_name + " ~ " + self.client_number + self.port_number
         
 class alsa_ports:
     def parse_aconnect(self, a_string):
@@ -46,7 +46,7 @@ class alsa_ports:
         for f_alsa_port in self.input_ports:
             if f_alsa_port.client_name == "PyDAW":
                 print(getoutput("aconnect -x"))
-                f_out_port = a_string.split("|")[1]
+                f_out_port = a_string.split("~")[1]
                 f_cmd = "aconnect " + f_out_port + " " + str(f_alsa_port.client_number) + str(f_alsa_port.port_number)
                 print(f_cmd)
                 print(getoutput(f_cmd))

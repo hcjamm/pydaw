@@ -117,6 +117,20 @@ class pydaw_project:
 
     def get_tracks(self):
         return pydaw_tracks.from_str(self.get_tracks_string())
+        
+    def get_transport(self):
+        try:
+            f_file = open(self.project_folder + "/" + self.project_file + ".pytransport", "r")
+        except:
+            return pydaw_transport()  #defaults
+        f_str = f_file.read()
+        f_file.close()
+        return pydaw_transport.from_str(f_str)
+    
+    def save_transport(self, a_transport):
+        f_file = open(self.project_folder + "/" + self.project_file + ".pytransport", "w")
+        f_file.write(a_transport.__str__())
+        f_file.close()
 
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
@@ -435,3 +449,22 @@ class pydaw_track:
         self.rec = a_rec
         self.vol = a_vol
         self.inst = a_inst
+        
+class pydaw_transport:
+    def __init__(self, a_bpm=140, a_midi_keybd=None, a_loop_mode=0, a_region=0, a_bar=0):
+        self.bpm = a_bpm
+        self.midi_keybd = a_midi_keybd
+        self.loop_mode = a_loop_mode
+        self.region = a_region
+        self.bar = a_bar
+        
+    def __str__(self):
+        return str(self.bpm) + "|" + str(self.midi_keybd) + "|" + str(self.loop_mode) + "|" + str(self.region) + "|" + str(self.bar)
+        
+    @staticmethod
+    def from_str(a_str):
+        f_arr = a_str.split("|")
+        for i in range(len(f_arr)):
+            if f_arr[i] == "":
+                f_arr[i] = None
+        return pydaw_transport(f_arr[0], f_arr[1], f_arr[2], f_arr[3], f_arr[4])
