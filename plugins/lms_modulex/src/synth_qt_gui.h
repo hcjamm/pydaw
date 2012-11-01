@@ -81,6 +81,26 @@ public slots:
     void setFX3knob2 (float val);
     void setFX3combobox (float val);
     
+    void setFX4knob0 (float val);
+    void setFX4knob1 (float val);
+    void setFX4knob2 (float val);
+    void setFX4combobox (float val);
+    
+    void setFX5knob0 (float val);
+    void setFX5knob1 (float val);
+    void setFX5knob2 (float val);
+    void setFX5combobox (float val);
+    
+    void setFX6knob0 (float val);
+    void setFX6knob1 (float val);
+    void setFX6knob2 (float val);
+    void setFX6combobox (float val);
+    
+    void setFX7knob0 (float val);
+    void setFX7knob1 (float val);
+    void setFX7knob2 (float val);
+    void setFX7combobox (float val);
+    
     void aboutToQuit();
     
 protected slots:
@@ -104,7 +124,27 @@ protected slots:
     void fx3knob1Changed(int);
     void fx3knob2Changed(int);
     void fx3comboboxChanged(int);
-        
+
+    void fx4knob0Changed(int);
+    void fx4knob1Changed(int);
+    void fx4knob2Changed(int);
+    void fx4comboboxChanged(int);
+    
+    void fx5knob0Changed(int);
+    void fx5knob1Changed(int);
+    void fx5knob2Changed(int);
+    void fx5comboboxChanged(int);
+    
+    void fx6knob0Changed(int);
+    void fx6knob1Changed(int);
+    void fx6knob2Changed(int);
+    void fx6comboboxChanged(int);
+    
+    void fx7knob0Changed(int);
+    void fx7knob1Changed(int);
+    void fx7knob2Changed(int);
+    void fx7comboboxChanged(int);
+    
     void oscRecv();
 protected:
     
@@ -114,6 +154,10 @@ protected:
     LMS_multieffect * m_fx1;
     LMS_multieffect * m_fx2;
     LMS_multieffect * m_fx3;
+    LMS_multieffect * m_fx4;
+    LMS_multieffect * m_fx5;
+    LMS_multieffect * m_fx6;
+    LMS_multieffect * m_fx7;
     
     lo_address m_host;
     QByteArray m_controlPath;
