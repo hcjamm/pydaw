@@ -70,9 +70,9 @@ $sleep = "sleep 1";
 
 $makefile = "Makefile";
 
-$deps_ubuntu = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ libqt4-dev libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev uuid-dev cmake liblscp-dev libmad0-dev gdb debhelper dh-make build-essential automake autoconf libtool qjackctl";
+$deps_ubuntu = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev g++ libqt4-dev libjack-jackd2-dev libsndfile1-dev libsamplerate0-dev libtool autoconf libsm-dev gdb debhelper dh-make build-essential automake autoconf libtool qjackctl";
 
-$deps_debian = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev libqt4-dev libjack-dev libsndfile1-dev libsamplerate0-dev libsm-dev liblscp-dev libmad0-dev automake autoconf libtool qjackctl";
+$deps_debian = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev libqt4-dev libjack-dev libsndfile1-dev libsamplerate0-dev libsm-dev automake autoconf libtool qjackctl";
 
 #This isn't currently in use, due to the potential for conflicts it may cause.
 $audio_group = "sudo usermod -g audio \$USER";
