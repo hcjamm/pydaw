@@ -781,7 +781,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
         case 2:  //record
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
             break;
-    }
+    }    
     
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
@@ -794,7 +794,16 @@ void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
 {
     a_pydaw_data->current_bar = a_bar;
     a_pydaw_data->current_region = a_region;
-    a_pydaw_data->playback_cursor = 0.0f;    
+    a_pydaw_data->playback_cursor = 0.0f;
+    
+    int f_i = 0;
+    
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {
+        a_pydaw_data->track_cc_event_indexes[f_i] = 0;
+        a_pydaw_data->track_note_event_indexes[f_i] = 0;
+        f_i++;
+    }
     
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
