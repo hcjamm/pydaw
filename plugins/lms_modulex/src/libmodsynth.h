@@ -23,25 +23,8 @@ extern "C" {
     
 /*includes for any libmodsynth modules you'll be using*/
 #include "../../libmodsynth/modules/multifx/multifx3knob.h"
-       
-/*Declare any static variables that should be used globally in LibModSynth
- Note that any constants not requiring dynamically generated data should be declared in constants.h
- */
-static float va_sr_recip;
-static float va_sample_rate;
 
-void v_init_lms(float f_sr);
-
-void v_init_lms(float f_sr)
-{
-    va_sample_rate = f_sr;
-    va_sr_recip = 1.0f/f_sr;    
-}
-
-/*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
- of an instrument, you will most likely want to define all of your modules here*/
-
-typedef struct st_mono_modules
+typedef struct st_modulex_mono_modules
 {
     t_mf3_multi * multieffect0;
     fp_mf3_run fx_func_ptr0;    
@@ -57,16 +40,16 @@ typedef struct st_mono_modules
     
     float current_sample0;
     float current_sample1;
-}t_mono_modules;
+}t_modulex_mono_modules;
     
 
-t_mono_modules * v_mono_init(float);
+t_modulex_mono_modules * v_modulex_mono_init(float);
 
 
 /*Initialize any modules that will be run monophonically*/
-t_mono_modules * v_mono_init(float a_sr)
+t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
 {
-    t_mono_modules * a_mono = (t_mono_modules*)malloc(sizeof(t_mono_modules));
+    t_modulex_mono_modules * a_mono = (t_modulex_mono_modules*)malloc(sizeof(t_modulex_mono_modules));
     a_mono->multieffect0 = g_mf3_get(a_sr);    
     a_mono->fx_func_ptr0 = v_mf3_run_off;
     

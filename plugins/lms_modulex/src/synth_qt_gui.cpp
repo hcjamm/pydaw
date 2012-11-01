@@ -38,7 +38,7 @@ GNU General Public License for more details.
 #include <X11/Xatom.h>
 #include <X11/SM/SMlib.h>
 
-static int handle_x11_error(Display *dpy, XErrorEvent *err)
+static int modulex_handle_x11_error(Display *dpy, XErrorEvent *err)
 {
     char errstr[256];
     XGetErrorText(dpy, err->error_code, errstr, 256);
@@ -53,13 +53,13 @@ static int handle_x11_error(Display *dpy, XErrorEvent *err)
 
 using std::endl;
 
-lo_server osc_server = 0;
+lo_server modulex_osc_server = 0;
 
-static QTextStream cerr(stderr);
+static QTextStream modulex_cerr(stderr);
 
 
 
-SynthGUI::SynthGUI(const char * host, const char * port,
+modulex_gui::modulex_gui(const char * host, const char * port,
 		   QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
 		   QByteArray exitingPath, QWidget *w) :
     QFrame(w),
@@ -84,7 +84,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     f_info->LMS_set_label_style("QLabel{background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
     f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
     
-    m_fx0 = new LMS_multieffect(this, QString("FX1"), f_info, LMS_FX0_KNOB0, LMS_FX0_KNOB1, LMS_FX0_KNOB2, LMS_FX0_COMBOBOX);
+    m_fx0 = new LMS_multieffect(this, QString("FX1"), f_info, MODULEX_FX0_KNOB0, MODULEX_FX0_KNOB1, MODULEX_FX0_KNOB2, MODULEX_FX0_COMBOBOX);
     connect(m_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob0Changed(int)));
     connect(m_fx0->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob1Changed(int)));
     connect(m_fx0->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob2Changed(int)));
@@ -94,7 +94,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_main_layout->lms_add_layout();  
     
-    m_fx1 = new LMS_multieffect(this, QString("FX2"), f_info, LMS_FX1_KNOB0, LMS_FX1_KNOB1, LMS_FX1_KNOB2, LMS_FX1_COMBOBOX);
+    m_fx1 = new LMS_multieffect(this, QString("FX2"), f_info, MODULEX_FX1_KNOB0, MODULEX_FX1_KNOB1, MODULEX_FX1_KNOB2, MODULEX_FX1_COMBOBOX);
     connect(m_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob0Changed(int)));
     connect(m_fx1->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob1Changed(int)));
     connect(m_fx1->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob2Changed(int)));
@@ -104,7 +104,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_main_layout->lms_add_layout();    
     
-    m_fx2 = new LMS_multieffect(this, QString("FX3"), f_info, LMS_FX2_KNOB0, LMS_FX2_KNOB1, LMS_FX2_KNOB2, LMS_FX2_COMBOBOX);
+    m_fx2 = new LMS_multieffect(this, QString("FX3"), f_info, MODULEX_FX2_KNOB0, MODULEX_FX2_KNOB1, MODULEX_FX2_KNOB2, MODULEX_FX2_COMBOBOX);
     connect(m_fx2->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob0Changed(int)));
     connect(m_fx2->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob1Changed(int)));
     connect(m_fx2->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob2Changed(int)));
@@ -114,7 +114,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     
     m_main_layout->lms_add_layout();  
     
-    m_fx3 = new LMS_multieffect(this, QString("FX4"), f_info, LMS_FX3_KNOB0, LMS_FX3_KNOB1, LMS_FX3_KNOB2, LMS_FX3_COMBOBOX);
+    m_fx3 = new LMS_multieffect(this, QString("FX4"), f_info, MODULEX_FX3_KNOB0, MODULEX_FX3_KNOB1, MODULEX_FX3_KNOB2, MODULEX_FX3_COMBOBOX);
     connect(m_fx3->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob0Changed(int)));
     connect(m_fx3->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob1Changed(int)));
     connect(m_fx3->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob2Changed(int)));
@@ -132,34 +132,34 @@ SynthGUI::SynthGUI(const char * host, const char * port,
 
 }
 
-void SynthGUI::lms_set_value(float val, LMS_control * a_ctrl)
+void modulex_gui::lms_set_value(float val, LMS_control * a_ctrl)
 {
     m_suppressHostUpdate = true;
     a_ctrl->lms_set_value(int(val));
     m_suppressHostUpdate = false;
 }
 
-void SynthGUI::setFX0knob0(float val){ lms_set_value(val, m_fx0->lms_knob1); }
-void SynthGUI::setFX0knob1(float val){ lms_set_value(val, m_fx0->lms_knob2); }
-void SynthGUI::setFX0knob2(float val){ lms_set_value(val, m_fx0->lms_knob3); }
-void SynthGUI::setFX0combobox(float val){ lms_set_value(val, m_fx0->lms_combobox); }
+void modulex_gui::setFX0knob0(float val){ lms_set_value(val, m_fx0->lms_knob1); }
+void modulex_gui::setFX0knob1(float val){ lms_set_value(val, m_fx0->lms_knob2); }
+void modulex_gui::setFX0knob2(float val){ lms_set_value(val, m_fx0->lms_knob3); }
+void modulex_gui::setFX0combobox(float val){ lms_set_value(val, m_fx0->lms_combobox); }
 
-void SynthGUI::setFX1knob0(float val){ lms_set_value(val, m_fx1->lms_knob1); }
-void SynthGUI::setFX1knob1(float val){ lms_set_value(val, m_fx1->lms_knob2); }
-void SynthGUI::setFX1knob2(float val){ lms_set_value(val, m_fx1->lms_knob3); }
-void SynthGUI::setFX1combobox(float val){ lms_set_value(val, m_fx1->lms_combobox); }
+void modulex_gui::setFX1knob0(float val){ lms_set_value(val, m_fx1->lms_knob1); }
+void modulex_gui::setFX1knob1(float val){ lms_set_value(val, m_fx1->lms_knob2); }
+void modulex_gui::setFX1knob2(float val){ lms_set_value(val, m_fx1->lms_knob3); }
+void modulex_gui::setFX1combobox(float val){ lms_set_value(val, m_fx1->lms_combobox); }
 
-void SynthGUI::setFX2knob0(float val){ lms_set_value(val, m_fx2->lms_knob1); }
-void SynthGUI::setFX2knob1(float val){ lms_set_value(val, m_fx2->lms_knob2); }
-void SynthGUI::setFX2knob2(float val){ lms_set_value(val, m_fx2->lms_knob3); }
-void SynthGUI::setFX2combobox(float val){ lms_set_value(val, m_fx2->lms_combobox); }
+void modulex_gui::setFX2knob0(float val){ lms_set_value(val, m_fx2->lms_knob1); }
+void modulex_gui::setFX2knob1(float val){ lms_set_value(val, m_fx2->lms_knob2); }
+void modulex_gui::setFX2knob2(float val){ lms_set_value(val, m_fx2->lms_knob3); }
+void modulex_gui::setFX2combobox(float val){ lms_set_value(val, m_fx2->lms_combobox); }
 
-void SynthGUI::setFX3knob0(float val){ lms_set_value(val, m_fx3->lms_knob1); }
-void SynthGUI::setFX3knob1(float val){ lms_set_value(val, m_fx3->lms_knob2); }
-void SynthGUI::setFX3knob2(float val){ lms_set_value(val, m_fx3->lms_knob3); }
-void SynthGUI::setFX3combobox(float val){ lms_set_value(val, m_fx3->lms_combobox); }
+void modulex_gui::setFX3knob0(float val){ lms_set_value(val, m_fx3->lms_knob1); }
+void modulex_gui::setFX3knob1(float val){ lms_set_value(val, m_fx3->lms_knob2); }
+void modulex_gui::setFX3knob2(float val){ lms_set_value(val, m_fx3->lms_knob3); }
+void modulex_gui::setFX3combobox(float val){ lms_set_value(val, m_fx3->lms_combobox); }
 
-void SynthGUI::lms_value_changed(int a_value, LMS_control * a_ctrl)
+void modulex_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {
     a_ctrl->lms_value_changed(a_value);
 
@@ -168,88 +168,88 @@ void SynthGUI::lms_value_changed(int a_value, LMS_control * a_ctrl)
     }
 }
 
-void SynthGUI::fx0knob0Changed(int value){ lms_value_changed(value, m_fx0->lms_knob1); }
-void SynthGUI::fx0knob1Changed(int value){ lms_value_changed(value, m_fx0->lms_knob2); }
-void SynthGUI::fx0knob2Changed(int value){ lms_value_changed(value, m_fx0->lms_knob3); }
-void SynthGUI::fx0comboboxChanged(int value){ lms_value_changed(value, m_fx0->lms_combobox); m_fx0->lms_combobox_changed(); }
+void modulex_gui::fx0knob0Changed(int value){ lms_value_changed(value, m_fx0->lms_knob1); }
+void modulex_gui::fx0knob1Changed(int value){ lms_value_changed(value, m_fx0->lms_knob2); }
+void modulex_gui::fx0knob2Changed(int value){ lms_value_changed(value, m_fx0->lms_knob3); }
+void modulex_gui::fx0comboboxChanged(int value){ lms_value_changed(value, m_fx0->lms_combobox); m_fx0->lms_combobox_changed(); }
 
-void SynthGUI::fx1knob0Changed(int value){ lms_value_changed(value, m_fx1->lms_knob1); }
-void SynthGUI::fx1knob1Changed(int value){ lms_value_changed(value, m_fx1->lms_knob2); }
-void SynthGUI::fx1knob2Changed(int value){ lms_value_changed(value, m_fx1->lms_knob3); }
-void SynthGUI::fx1comboboxChanged(int value){ lms_value_changed(value, m_fx1->lms_combobox); m_fx1->lms_combobox_changed(); }
+void modulex_gui::fx1knob0Changed(int value){ lms_value_changed(value, m_fx1->lms_knob1); }
+void modulex_gui::fx1knob1Changed(int value){ lms_value_changed(value, m_fx1->lms_knob2); }
+void modulex_gui::fx1knob2Changed(int value){ lms_value_changed(value, m_fx1->lms_knob3); }
+void modulex_gui::fx1comboboxChanged(int value){ lms_value_changed(value, m_fx1->lms_combobox); m_fx1->lms_combobox_changed(); }
 
-void SynthGUI::fx2knob0Changed(int value){ lms_value_changed(value, m_fx2->lms_knob1); }
-void SynthGUI::fx2knob1Changed(int value){ lms_value_changed(value, m_fx2->lms_knob2); }
-void SynthGUI::fx2knob2Changed(int value){ lms_value_changed(value, m_fx2->lms_knob3); }
-void SynthGUI::fx2comboboxChanged(int value){ lms_value_changed(value, m_fx2->lms_combobox); m_fx2->lms_combobox_changed(); }
+void modulex_gui::fx2knob0Changed(int value){ lms_value_changed(value, m_fx2->lms_knob1); }
+void modulex_gui::fx2knob1Changed(int value){ lms_value_changed(value, m_fx2->lms_knob2); }
+void modulex_gui::fx2knob2Changed(int value){ lms_value_changed(value, m_fx2->lms_knob3); }
+void modulex_gui::fx2comboboxChanged(int value){ lms_value_changed(value, m_fx2->lms_combobox); m_fx2->lms_combobox_changed(); }
 
-void SynthGUI::fx3knob0Changed(int value){ lms_value_changed(value, m_fx3->lms_knob1); }
-void SynthGUI::fx3knob1Changed(int value){ lms_value_changed(value, m_fx3->lms_knob2); }
-void SynthGUI::fx3knob2Changed(int value){ lms_value_changed(value, m_fx3->lms_knob3); }
-void SynthGUI::fx3comboboxChanged(int value){ lms_value_changed(value, m_fx3->lms_combobox); m_fx3->lms_combobox_changed(); }
+void modulex_gui::fx3knob0Changed(int value){ lms_value_changed(value, m_fx3->lms_knob1); }
+void modulex_gui::fx3knob1Changed(int value){ lms_value_changed(value, m_fx3->lms_knob2); }
+void modulex_gui::fx3knob2Changed(int value){ lms_value_changed(value, m_fx3->lms_knob3); }
+void modulex_gui::fx3comboboxChanged(int value){ lms_value_changed(value, m_fx3->lms_combobox); m_fx3->lms_combobox_changed(); }
 
-void SynthGUI::v_print_port_name_to_cerr(int a_port)
+void modulex_gui::v_print_port_name_to_cerr(int a_port)
 {
 #ifdef LMS_DEBUG_MODE_QT
     switch (a_port) {
-    case LMS_FX0_KNOB0:
-	cerr << "LMS_FX1_KNOB1";
+    case MODULEX_FX0_KNOB0:
+	modulex_cerr << "LMS_FX1_KNOB1";
 	break;
-    case LMS_FX0_KNOB1:
-	cerr << "LMS_FX1_KNOB2";
+    case MODULEX_FX0_KNOB1:
+	modulex_cerr << "LMS_FX1_KNOB2";
 	break;        
     case LMS_DIST:
-	cerr << "LMS_DIST";
+	modulex_cerr << "LMS_DIST";
 	break;
     default:
-	cerr << "Warning: received request to set nonexistent port " << a_port ;
+	modulex_cerr << "Warning: received request to set nonexistent port " << a_port ;
         break;
     }
 #endif
 }
 
-void SynthGUI::v_set_control(int a_port, float a_value)
+void modulex_gui::v_set_control(int a_port, float a_value)
 {
 
 #ifdef LMS_DEBUG_MODE_QT    
-    cerr << "v_set_control called.  ";  
+    modulex_cerr << "v_set_control called.  ";  
     v_print_port_name_to_cerr(a_port);
-    cerr << "  value: " << a_value << endl;
+    modulex_cerr << "  value: " << a_value << endl;
 #endif
     
     /*Add the controls you created to the control handler*/
     
     switch (a_port) 
     {
-        case LMS_FX0_KNOB0:	setFX0knob0(a_value); break;
-        case LMS_FX0_KNOB1:	setFX0knob1(a_value); break;        
-        case LMS_FX0_KNOB2:	setFX0knob2(a_value); break;        
-        case LMS_FX0_COMBOBOX: setFX0combobox(a_value); break;
+        case MODULEX_FX0_KNOB0:	setFX0knob0(a_value); break;
+        case MODULEX_FX0_KNOB1:	setFX0knob1(a_value); break;        
+        case MODULEX_FX0_KNOB2:	setFX0knob2(a_value); break;        
+        case MODULEX_FX0_COMBOBOX: setFX0combobox(a_value); break;
         
-        case LMS_FX1_KNOB0:	setFX1knob0(a_value); break;
-        case LMS_FX1_KNOB1:	setFX1knob1(a_value); break;        
-        case LMS_FX1_KNOB2:	setFX1knob2(a_value); break;        
-        case LMS_FX1_COMBOBOX: setFX1combobox(a_value); break;
+        case MODULEX_FX1_KNOB0:	setFX1knob0(a_value); break;
+        case MODULEX_FX1_KNOB1:	setFX1knob1(a_value); break;        
+        case MODULEX_FX1_KNOB2:	setFX1knob2(a_value); break;        
+        case MODULEX_FX1_COMBOBOX: setFX1combobox(a_value); break;
         
-        case LMS_FX2_KNOB0:	setFX2knob0(a_value); break;
-        case LMS_FX2_KNOB1:	setFX2knob1(a_value); break;        
-        case LMS_FX2_KNOB2:	setFX2knob2(a_value); break;        
-        case LMS_FX2_COMBOBOX: setFX2combobox(a_value); break;
+        case MODULEX_FX2_KNOB0:	setFX2knob0(a_value); break;
+        case MODULEX_FX2_KNOB1:	setFX2knob1(a_value); break;        
+        case MODULEX_FX2_KNOB2:	setFX2knob2(a_value); break;        
+        case MODULEX_FX2_COMBOBOX: setFX2combobox(a_value); break;
         
-        case LMS_FX3_KNOB0:	setFX3knob0(a_value); break;
-        case LMS_FX3_KNOB1:	setFX3knob1(a_value); break;        
-        case LMS_FX3_KNOB2:	setFX3knob2(a_value); break;        
-        case LMS_FX3_COMBOBOX: setFX3combobox(a_value); break;
+        case MODULEX_FX3_KNOB0:	setFX3knob0(a_value); break;
+        case MODULEX_FX3_KNOB1:	setFX3knob1(a_value); break;        
+        case MODULEX_FX3_KNOB2:	setFX3knob2(a_value); break;        
+        case MODULEX_FX3_COMBOBOX: setFX3combobox(a_value); break;
     }
 }
 
-void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_update)
+void modulex_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_update)
 {
     
 #ifdef LMS_DEBUG_MODE_QT    
-    cerr << "v_control_changed called.  ";  
+    modulex_cerr << "v_control_changed called.  ";  
     v_print_port_name_to_cerr(a_port);
-    cerr << "  value: " << a_value << endl;
+    modulex_cerr << "  value: " << a_value << endl;
 #endif
     
     if(a_suppress_host_update)
@@ -257,29 +257,29 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
        /*Add the controls you created to the control handler*/
     
     switch (a_port) {
-        case LMS_FX0_KNOB0:	fx0knob0Changed(a_value); break;
-        case LMS_FX0_KNOB1:	fx0knob1Changed(a_value); break;
-        case LMS_FX0_KNOB2:	fx0knob2Changed(a_value); break;  
-        case LMS_FX0_COMBOBOX:  fx0comboboxChanged(a_value);	break;
+        case MODULEX_FX0_KNOB0:	fx0knob0Changed(a_value); break;
+        case MODULEX_FX0_KNOB1:	fx0knob1Changed(a_value); break;
+        case MODULEX_FX0_KNOB2:	fx0knob2Changed(a_value); break;  
+        case MODULEX_FX0_COMBOBOX:  fx0comboboxChanged(a_value);	break;
         
-        case LMS_FX1_KNOB0:	fx1knob0Changed(a_value); break;
-        case LMS_FX1_KNOB1:	fx1knob1Changed(a_value); break;
-        case LMS_FX1_KNOB2:	fx1knob2Changed(a_value); break;  
-        case LMS_FX1_COMBOBOX:  fx1comboboxChanged(a_value); break;
+        case MODULEX_FX1_KNOB0:	fx1knob0Changed(a_value); break;
+        case MODULEX_FX1_KNOB1:	fx1knob1Changed(a_value); break;
+        case MODULEX_FX1_KNOB2:	fx1knob2Changed(a_value); break;  
+        case MODULEX_FX1_COMBOBOX:  fx1comboboxChanged(a_value); break;
         
-        case LMS_FX2_KNOB0:	fx2knob0Changed(a_value); break;
-        case LMS_FX2_KNOB1:	fx2knob1Changed(a_value); break;
-        case LMS_FX2_KNOB2:	fx2knob2Changed(a_value); break;  
-        case LMS_FX2_COMBOBOX:  fx2comboboxChanged(a_value);	break;
+        case MODULEX_FX2_KNOB0:	fx2knob0Changed(a_value); break;
+        case MODULEX_FX2_KNOB1:	fx2knob1Changed(a_value); break;
+        case MODULEX_FX2_KNOB2:	fx2knob2Changed(a_value); break;  
+        case MODULEX_FX2_COMBOBOX:  fx2comboboxChanged(a_value);	break;
         
-        case LMS_FX3_KNOB0:	fx3knob0Changed(a_value); break;
-        case LMS_FX3_KNOB1:	fx3knob1Changed(a_value); break;
-        case LMS_FX3_KNOB2:	fx3knob2Changed(a_value); break;  
-        case LMS_FX3_COMBOBOX:  fx3comboboxChanged(a_value); break;
+        case MODULEX_FX3_KNOB0:	fx3knob0Changed(a_value); break;
+        case MODULEX_FX3_KNOB1:	fx3knob1Changed(a_value); break;
+        case MODULEX_FX3_KNOB2:	fx3knob2Changed(a_value); break;  
+        case MODULEX_FX3_COMBOBOX:  fx3comboboxChanged(a_value); break;
                 
         default:
 #ifdef LMS_DEBUG_MODE_QT
-            cerr << "Warning: received request to set nonexistent port " << a_port << endl;
+            modulex_cerr << "Warning: received request to set nonexistent port " << a_port << endl;
 #endif
             break;
     }
@@ -291,141 +291,141 @@ void SynthGUI::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
 /*TODO:  For the forseeable future, this will only be used for getting the values to write back to 
  the presets.tsv file;  It should probably return a string that can be re-interpreted into other values for
  complex controls that could have multiple ints, or string values, etc...*/
-int SynthGUI::i_get_control(int a_port)
+int modulex_gui::i_get_control(int a_port)
 {        
     switch (a_port) {
-    case LMS_FX0_KNOB0: return m_fx0->lms_knob1->lms_get_value();
-    case LMS_FX0_KNOB1: return m_fx0->lms_knob2->lms_get_value();
-    case LMS_FX0_KNOB2: return m_fx0->lms_knob3->lms_get_value();
-    case LMS_FX0_COMBOBOX: return m_fx0->lms_combobox->lms_get_value();
+    case MODULEX_FX0_KNOB0: return m_fx0->lms_knob1->lms_get_value();
+    case MODULEX_FX0_KNOB1: return m_fx0->lms_knob2->lms_get_value();
+    case MODULEX_FX0_KNOB2: return m_fx0->lms_knob3->lms_get_value();
+    case MODULEX_FX0_COMBOBOX: return m_fx0->lms_combobox->lms_get_value();
     
-    case LMS_FX1_KNOB0: return m_fx1->lms_knob1->lms_get_value();
-    case LMS_FX1_KNOB1: return m_fx1->lms_knob2->lms_get_value();
-    case LMS_FX1_KNOB2: return m_fx1->lms_knob3->lms_get_value();
-    case LMS_FX1_COMBOBOX: return m_fx1->lms_combobox->lms_get_value();
+    case MODULEX_FX1_KNOB0: return m_fx1->lms_knob1->lms_get_value();
+    case MODULEX_FX1_KNOB1: return m_fx1->lms_knob2->lms_get_value();
+    case MODULEX_FX1_KNOB2: return m_fx1->lms_knob3->lms_get_value();
+    case MODULEX_FX1_COMBOBOX: return m_fx1->lms_combobox->lms_get_value();
     
-    case LMS_FX2_KNOB0: return m_fx2->lms_knob1->lms_get_value();
-    case LMS_FX2_KNOB1: return m_fx2->lms_knob2->lms_get_value();
-    case LMS_FX2_KNOB2: return m_fx2->lms_knob3->lms_get_value();
-    case LMS_FX2_COMBOBOX: return m_fx2->lms_combobox->lms_get_value();
+    case MODULEX_FX2_KNOB0: return m_fx2->lms_knob1->lms_get_value();
+    case MODULEX_FX2_KNOB1: return m_fx2->lms_knob2->lms_get_value();
+    case MODULEX_FX2_KNOB2: return m_fx2->lms_knob3->lms_get_value();
+    case MODULEX_FX2_COMBOBOX: return m_fx2->lms_combobox->lms_get_value();
     
-    case LMS_FX3_KNOB0: return m_fx3->lms_knob1->lms_get_value();
-    case LMS_FX3_KNOB1: return m_fx3->lms_knob2->lms_get_value();
-    case LMS_FX3_KNOB2: return m_fx3->lms_knob3->lms_get_value();
-    case LMS_FX3_COMBOBOX: return m_fx3->lms_combobox->lms_get_value();
+    case MODULEX_FX3_KNOB0: return m_fx3->lms_knob1->lms_get_value();
+    case MODULEX_FX3_KNOB1: return m_fx3->lms_knob2->lms_get_value();
+    case MODULEX_FX3_KNOB2: return m_fx3->lms_knob3->lms_get_value();
+    case MODULEX_FX3_COMBOBOX: return m_fx3->lms_combobox->lms_get_value();
             
     default:
-	cerr << "Warning: received request to get nonexistent port " << a_port << endl;
+	modulex_cerr << "Warning: received request to get nonexistent port " << a_port << endl;
         return 0;
     }
 }
 
-void SynthGUI::oscRecv()
+void modulex_gui::oscRecv()
 {
-    if (osc_server) {
-	lo_server_recv_noblock(osc_server, 1);
+    if (modulex_osc_server) {
+	lo_server_recv_noblock(modulex_osc_server, 1);
     }
 }
 
-void SynthGUI::aboutToQuit()
+void modulex_gui::aboutToQuit()
 {
     if (!m_hostRequestedQuit) lo_send(m_host, m_exitingPath, "");
 }
 
-SynthGUI::~SynthGUI()
+modulex_gui::~modulex_gui()
 {
     lo_address_free(m_host);
 }
 
 
-void osc_error(int num, const char *msg, const char *path)
+void modulex_osc_error(int num, const char *msg, const char *path)
 {
 #ifdef LMS_DEBUG_MODE_QT
-    cerr << "Error: liblo server error " << num
+    modulex_cerr << "Error: liblo server error " << num
 	 << " in path \"" << (path ? path : "(null)")
 	 << "\": " << msg << endl;
 #endif
 }
 
-int debug_handler(const char *path, const char *types, lo_arg **argv,
+int modulex_debug_handler(const char *path, const char *types, lo_arg **argv,
 	      int argc, void *data, void *user_data)
 {
     int i;
 #ifdef LMS_DEBUG_MODE_QT
-      cerr << "Warning: unhandled OSC message in GUI:" << endl;
+      modulex_cerr << "Warning: unhandled OSC message in GUI:" << endl;
 #endif
     
 
     for (i = 0; i < argc; ++i) {
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << "arg " << i << ": type '" << types[i] << "': ";
+	modulex_cerr << "arg " << i << ": type '" << types[i] << "': ";
 #endif
         lo_arg_pp((lo_type)types[i], argv[i]);
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << endl;
+	modulex_cerr << endl;
 #endif
     }
 #ifdef LMS_DEBUG_MODE_QT
-    cerr << "(path is <" << path << ">)" << endl;
+    modulex_cerr << "(path is <" << path << ">)" << endl;
 #endif
     return 1;
 }
 
-int program_handler(const char *path, const char *types, lo_arg **argv,
+int modulex_program_handler(const char *path, const char *types, lo_arg **argv,
 	       int argc, void *data, void *user_data)
 {
     //not implemented on this plugin
     return 0;
 }
 
-int configure_handler(const char *path, const char *types, lo_arg **argv,
+int modulex_configure_handler(const char *path, const char *types, lo_arg **argv,
 		  int argc, void *data, void *user_data)
 {
     return 0;
 }
 
-int rate_handler(const char *path, const char *types, lo_arg **argv,
+int modulex_rate_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     return 0; /* ignore it */
 }
 
-int show_handler(const char *path, const char *types, lo_arg **argv,
+int modulex_show_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
-    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
+    modulex_gui *gui = static_cast<modulex_gui *>(user_data);
     while (!gui->ready()) sleep(1);
     if (gui->isVisible()) gui->raise();
     else gui->show();
     return 0;
 }
 
-int hide_handler(const char *path, const char *types, lo_arg **argv,
+int modulex_hide_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
-    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
+    modulex_gui *gui = static_cast<modulex_gui *>(user_data);
     gui->hide();
     return 0;
 }
 
-int quit_handler(const char *path, const char *types, lo_arg **argv,
+int modulex_quit_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
-    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
+    modulex_gui *gui = static_cast<modulex_gui *>(user_data);
     gui->setHostRequestedQuit(true);
     qApp->quit();
     return 0;
 }
 
-int control_handler(const char *path, const char *types, lo_arg **argv,
+int modulex_control_handler(const char *path, const char *types, lo_arg **argv,
 		int argc, void *data, void *user_data)
 {
-    SynthGUI *gui = static_cast<SynthGUI *>(user_data);
+    modulex_gui *gui = static_cast<modulex_gui *>(user_data);
 
     if (argc < 2) {
         
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << "Error: too few arguments to control_handler" << endl;
+	modulex_cerr << "Error: too few arguments to control_handler" << endl;
 #endif
 	return 1;
     }
@@ -434,27 +434,25 @@ int control_handler(const char *path, const char *types, lo_arg **argv,
     const float value = argv[1]->f;
 
 #ifdef LMS_DEBUG_MODE_QT
-    cerr << "control_handler called.  port:  " << port << " , value " << value << endl;
+    modulex_cerr << "control_handler called.  port:  " << port << " , value " << value << endl;
 #endif
 
     gui->v_set_control(port, value);  
-     
-    gui->v_control_changed(port, value, true);
-
+    
     return 0;
 }
 
 int main(int argc, char **argv)
 {
 #ifdef LMS_DEBUG_MODE_QT
-    cerr << "Qt GUI main() called..." << endl;
+    modulex_cerr << "Qt GUI main() called..." << endl;
 #endif
     
     QApplication application(argc, argv);
 
     if (application.argc() != 5) {
 #ifdef LMS_DEBUG_MODE_QT
-	cerr << "usage: "
+	modulex_cerr << "usage: "
 	     << application.argv()[0] 
 	     << " <osc url>"
 	     << " <plugin dllname>"
@@ -467,7 +465,7 @@ int main(int argc, char **argv)
     }
 
 #ifdef Q_WS_X11
-    XSetErrorHandler(handle_x11_error);
+    XSetErrorHandler(modulex_handle_x11_error);
 #endif
 
     char *url = application.argv()[1];
@@ -476,7 +474,7 @@ int main(int argc, char **argv)
     char *port = lo_url_get_port(url);
     char *path = lo_url_get_path(url);
 
-    SynthGUI gui(host, port,
+    modulex_gui gui(host, port,
 		 QByteArray(path) + "/control",
 		 QByteArray(path) + "/midi",
 		 QByteArray(path) + "/program",
@@ -491,30 +489,30 @@ int main(int argc, char **argv)
     QByteArray myHidePath = QByteArray(path) + "/hide";
     QByteArray myQuitPath = QByteArray(path) + "/quit";
 #ifdef LMS_DEBUG_MODE_QT
-    cerr << "Adding lo server methods" << endl;
+    modulex_cerr << "Adding lo server methods" << endl;
 #endif
-    osc_server = lo_server_new(NULL, osc_error);
-    lo_server_add_method(osc_server, myControlPath, "if", control_handler, &gui);
-    lo_server_add_method(osc_server, myProgramPath, "ii", program_handler, &gui);
-    lo_server_add_method(osc_server, myConfigurePath, "ss", configure_handler, &gui);
-    lo_server_add_method(osc_server, myRatePath, "i", rate_handler, &gui);
-    lo_server_add_method(osc_server, myShowPath, "", show_handler, &gui);
-    lo_server_add_method(osc_server, myHidePath, "", hide_handler, &gui);
-    lo_server_add_method(osc_server, myQuitPath, "", quit_handler, &gui);
-    lo_server_add_method(osc_server, NULL, NULL, debug_handler, &gui);
+    modulex_osc_server = lo_server_new(NULL, modulex_osc_error);
+    lo_server_add_method(modulex_osc_server, myControlPath, "if", modulex_control_handler, &gui);
+    lo_server_add_method(modulex_osc_server, myProgramPath, "ii", modulex_program_handler, &gui);
+    lo_server_add_method(modulex_osc_server, myConfigurePath, "ss", modulex_configure_handler, &gui);
+    lo_server_add_method(modulex_osc_server, myRatePath, "i", modulex_rate_handler, &gui);
+    lo_server_add_method(modulex_osc_server, myShowPath, "", modulex_show_handler, &gui);
+    lo_server_add_method(modulex_osc_server, myHidePath, "", modulex_hide_handler, &gui);
+    lo_server_add_method(modulex_osc_server, myQuitPath, "", modulex_quit_handler, &gui);
+    lo_server_add_method(modulex_osc_server, NULL, NULL, modulex_debug_handler, &gui);
 
     lo_address hostaddr = lo_address_new(host, port);
     lo_send(hostaddr,
 	    QByteArray(path) + "/update",
 	    "s",
-	    (QByteArray(lo_server_get_url(osc_server))+QByteArray(path+1)).data());
+	    (QByteArray(lo_server_get_url(modulex_osc_server))+QByteArray(path+1)).data());
 
     QObject::connect(&application, SIGNAL(aboutToQuit()), &gui, SLOT(aboutToQuit()));
 
     gui.setReady(true);
     
 #ifdef LMS_DEBUG_MODE_QT
-    cerr << "Starting GUI now..." << endl;
+    modulex_cerr << "Starting GUI now..." << endl;
 #endif
     
     return application.exec();
