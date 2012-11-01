@@ -41,9 +41,25 @@ extern "C" {
 #define MODULEX_FX3_KNOB1  17
 #define MODULEX_FX3_KNOB2  18
 #define MODULEX_FX3_COMBOBOX 19
+#define MODULEX_FX4_KNOB0  20
+#define MODULEX_FX4_KNOB1  21
+#define MODULEX_FX4_KNOB2  22
+#define MODULEX_FX4_COMBOBOX 23
+#define MODULEX_FX5_KNOB0  24
+#define MODULEX_FX5_KNOB1  25
+#define MODULEX_FX5_KNOB2  26
+#define MODULEX_FX5_COMBOBOX 27
+#define MODULEX_FX6_KNOB0  28
+#define MODULEX_FX6_KNOB1  29
+#define MODULEX_FX6_KNOB2  30
+#define MODULEX_FX6_COMBOBOX 31
+#define MODULEX_FX7_KNOB0  32
+#define MODULEX_FX7_KNOB1  33
+#define MODULEX_FX7_KNOB2  34
+#define MODULEX_FX7_COMBOBOX 35
 /*This is the last control port*/
-#define MODULEX_LAST_CONTROL_PORT 19
-#define MODULEX_COUNT 20 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define MODULEX_LAST_CONTROL_PORT 35
+#define MODULEX_COUNT 36 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
   
 /*GUI Step 13:  Add a variable for each control in the LMS type*/
 typedef struct {
@@ -72,6 +88,26 @@ typedef struct {
     LADSPA_Data *fx3_knob2;
     LADSPA_Data *fx3_combobox;
         
+    LADSPA_Data *fx4_knob0;
+    LADSPA_Data *fx4_knob1;    
+    LADSPA_Data *fx4_knob2;
+    LADSPA_Data *fx4_combobox;
+        
+    LADSPA_Data *fx5_knob0;
+    LADSPA_Data *fx5_knob1;    
+    LADSPA_Data *fx5_knob2;
+    LADSPA_Data *fx5_combobox;
+        
+    LADSPA_Data *fx6_knob0;
+    LADSPA_Data *fx6_knob1;    
+    LADSPA_Data *fx6_knob2;
+    LADSPA_Data *fx6_combobox;
+        
+    LADSPA_Data *fx7_knob0;
+    LADSPA_Data *fx7_knob1;    
+    LADSPA_Data *fx7_knob2;
+    LADSPA_Data *fx7_combobox;
+    
     float fs;    
     t_modulex_mono_modules * mono_modules;
     
