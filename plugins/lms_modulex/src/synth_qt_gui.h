@@ -14,8 +14,8 @@ GNU General Public License for more details.
 
 */
 
-#ifndef _SYNTH_QT_GUI_H_INCLUDED_
-#define _SYNTH_QT_GUI_H_INCLUDED_
+#ifndef MODULEX_QT_GUI_H_INCLUDED_
+#define MODULEX_QT_GUI_H_INCLUDED_
 
 #include <QFrame>
 #include <QDial>
@@ -35,15 +35,15 @@ extern "C" {
 #include <lo/lo.h>
 }
 
-class SynthGUI : public QFrame
+class modulex_gui : public QFrame
 {
     Q_OBJECT
 
 public:
-    SynthGUI(const char * host, const char * port,
+    modulex_gui(const char * host, const char * port,
 	     QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
 	     QByteArray exitingPath, QWidget *w = 0);
-    virtual ~SynthGUI();
+    virtual ~modulex_gui();
 
     bool ready() const { return m_ready; }
     void setReady(bool ready) { m_ready = ready; }
