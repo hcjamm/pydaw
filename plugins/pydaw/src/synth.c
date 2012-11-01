@@ -515,14 +515,8 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
             //TODO:  I think that equaling exactly 1.0f might create a weird scenario where 2 note ons are sent
             if((pydaw_data->playback_cursor) >= 1.0f)
             {
-                //Calculate the remainder of this bar that occurs within the sample period
-                //pydaw_data->playback_cursor = (pydaw_data->playback_cursor) - 1.0f;                
-                f_next_playback_cursor = (pydaw_data->playback_cursor) - 1.0f;
-                pydaw_data->playback_cursor = 0.0f;
-                f_current_period_beats = 0.0f;
-                f_next_period_beats = f_next_period_beats - 4.0f;
-
-
+                pydaw_data->playback_cursor = (pydaw_data->playback_cursor) - 1.0f;                
+                
                 if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
                 {
                     pydaw_data->current_bar = (pydaw_data->current_bar) + 1;
