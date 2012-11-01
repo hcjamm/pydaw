@@ -134,9 +134,7 @@ typedef struct st_pydaw_data
     double playback_cursor; //only refers to the fractional position within the current bar.
     double playback_inc;  //the increment per-period to iterate through 1 bar, as determined by sample rate and tempo
     int current_region; //the current region
-    int current_bar; //the current bar(0 to 7), within the current region
-    int current_bar_start;  //The current bar start in samples
-    int current_bar_end;  //The current bar end in samples
+    int current_bar; //the current bar(0 to 7), within the current region    
     //int samples_per_bar;
     float sample_rate;
     long current_sample;  //The sample number of the exact point in the song, 0 == bar0/region0, 44100 == 1 second in at 44.1khz.
@@ -541,8 +539,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->current_sample = 0;
     f_result->current_bar = 0;
     f_result->current_region = 0;
-    f_result->current_bar_end = 0;
-    f_result->current_bar_start = 0;
     f_result->playback_cursor = 0.0f;
     f_result->playback_inc = 0.0f;
     
@@ -780,11 +776,9 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             //Initiate some sort of mixer fadeout?
             break;
         case 1:  //play
-            //a_pydaw_data->current_sample = 0;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
             break;
         case 2:  //record
-            //a_pydaw_data->current_sample = 0;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
             break;
     }
@@ -800,8 +794,7 @@ void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
 {
     a_pydaw_data->current_bar = a_bar;
     a_pydaw_data->current_region = a_region;
-    a_pydaw_data->playback_cursor = 0.0f;
-    //a_pydaw_data->current_sample = 0;    
+    a_pydaw_data->playback_cursor = 0.0f;    
     
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
