@@ -2,19 +2,18 @@
 
 $help_text = 
 "
-The LibModSynth interactive packaging script.  http://libmodsynth.sourceforge.net
+The PyDAW interactive packaging script.  https://github.com/j3ffhubb/audiocode
 
-This script is for creating a monolithic debian package for any number of individual plugins defined in the \@plugins array in this script. This script can be used as-is for packaging the LMS Suite for a distro.  If you are a developer using LibModSynth, you should edit the values in this script before running it.
+This script is for creating a monolithic debian package for any number of individual plugins defined in the \@plugins array in this script(including PyDAW itself).
 
 usage:
 perl build-all.pl 
-
 
 --help:  show this help information
 
 ";
 
-$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, liblscp-dev, libmad0-dev, qjackctl"; #, libsdl1.2-dev
+$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsamplerate0-dev, libsm-dev, qjackctl, alsa-utils, python-liblo, python-qt4";
 
 $prompt = 1;
 
@@ -27,10 +26,6 @@ if(defined $ARGV[0])
 		if($ARGV[1] eq "--debian")
 		{
 			$depends = $debian_deps; $os = "debian"; $package_type = "deb";
-		}
-		elsif($ARGV[1] eq "--generic")
-		{
-			$depends = $debian_deps; $os = "install"; $package_type = "install";
 		}
 		else
 		{
@@ -73,11 +68,9 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 'ray_v',
 'lms_delay',
 'euphoria',
-'lms_modulex'
+'lms_modulex',
+'pydaw'
 );
-#Unfinished plugins not yet in the official package:
-#lms_dynamics,
-#lms_reverb
 
 #Plugins in this array will be symlinked to /usr/lib/ladspa, allowing them to be used by
 #hosts that support LADSPA effects but not DSSI.
@@ -87,40 +80,10 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 );
 
 #This is the notes that your package manager will show when browsing your package.  Change this if packaging your own plugins.
-$notes = " LibModSynth is a set of developer tools designed to make it fast and easy to develop high quality DSSI plugins.
- The suite currently includes the following instruments: ";
+$notes = " PyDAW is a Digital Audio Workstation with a UI written in Python and PyQt4, and a high performance back-end written in C.  It comes with a flexible modular sampler called Euphoria, and a retro analog style synthesizer called Ray-V, as well as numerous built-in effects. ";
 
-$first = 1;
-foreach $val (@instruments)
-{
-	if($first)
-	{
-		$first = 0;
-	}
-	else
-	{
-		$notes .= ", "
-	}
-	$notes .= "$val";
-}
-
-$notes .= " and the following effect plugins:  ";
-
-$first = 1;
-foreach $val (@plugins)
-{
-	if($first)
-	{
-		$first = 0;
-	}
-	else
-	{
-		$notes .= ", "
-	}
-	$notes .= "$val";
-}
 #dpkg-deb crashes if EOF happens at the end of a description line
-$notes .= ".\n";
+$notes .= "\n";
 
 #End variables, begin the actual script:
 
@@ -156,7 +119,7 @@ os_choice_label:
 	print "
 Please select the operating system that you are packaging for:
 1. Ubuntu/Debian
-
+(others not yet supported)
 Enter choice [1-1]: ";
 
 $os_choice = <STDIN>;
@@ -245,7 +208,7 @@ if($os ne "install")
 
 foreach $val(@plugins)
 {
-#copy the .so, .la and LMS_qt files to the directory we created
+#copy the .so and XXX_qt files to the directory we created
 print "Compiling $val\n";
 if($debug_build)
 {
