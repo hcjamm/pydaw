@@ -541,7 +541,6 @@ class transport_widget:
         self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_play(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
         f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
-        print("f_playback_inc " + str(f_playback_inc))
         self.beat_timer.start(f_playback_inc)
     def on_stop(self):
         this_pydaw_project.this_dssi_gui.pydaw_stop()
