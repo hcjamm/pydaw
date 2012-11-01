@@ -1,4 +1,10 @@
-cd python
+if -e "./python/pydaw.py"
+then
+	cd ./python
+else
+	cd /usr/lib/dssi/pydaw/python
+fi
+
 echo "PYDAW_qt called..."
 echo "arg1: $1"
 echo "arg2: $2"
