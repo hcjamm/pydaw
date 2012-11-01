@@ -258,7 +258,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
     
     pthread_mutex_lock(&pydaw_data->mutex);
            
-    int f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
+    long f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
     
     if(pydaw_data->is_initialized)
     {
