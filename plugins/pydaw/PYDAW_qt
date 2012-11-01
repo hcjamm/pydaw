@@ -1,9 +1,12 @@
-if -e "./python/pydaw.py"
+if [ -f "$(pwd)/python/pydaw.py" ]
 then
-	cd ./python
+	UI_DIR="$(pwd)/python"
 else
-	cd /usr/lib/dssi/pydaw/python
+	UI_DIR="/usr/lib/dssi/pydaw/python"
 fi
+
+echo "Calling UI from $UI_DIR"
+cd "$UI_DIR"
 
 echo "PYDAW_qt called..."
 echo "arg1: $1"
