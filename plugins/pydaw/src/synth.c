@@ -316,7 +316,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                 {
                     
                 }
-                else if(pydaw_data->playback_mode == 1)
+                else
                 {
                     while(1)
                     {
@@ -429,7 +429,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                 {
                     
                 }
-                else if(pydaw_data->playback_mode == 1)
+                else
                 {
                     while(1)
                     {
