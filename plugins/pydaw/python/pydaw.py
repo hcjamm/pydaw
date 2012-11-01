@@ -537,9 +537,17 @@ class seq_track:
 
 class transport_widget:
     def on_play(self):
+        self.last_region_num = self.region_spinbox.value()
+        self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_play(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
+        f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
+        print("f_playback_inc " + str(f_playback_inc))
+        self.beat_timer.start(f_playback_inc)
     def on_stop(self):
         this_pydaw_project.this_dssi_gui.pydaw_stop()
+        self.beat_timer.stop()
+        self.bar_spinbox.setValue(self.last_bar)
+        self.region_spinbox.setValue(self.last_region_num)
     def on_rec(self):
         this_pydaw_project.this_dssi_gui.pydaw_rec()
     def on_tempo_changed(self, a_tempo):
@@ -548,6 +556,16 @@ class transport_widget:
         this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
     def on_keybd_combobox_index_changed(self, a_index):
         self.alsa_output_ports.connect_to_pydaw(str(self.keybd_combobox.currentText()))
+    def beat_timeout(self):
+        if self.loop_mode_combobox.currentIndex() == 1:
+            return  #Looping a single bar doesn't require these values to update
+        f_new_bar_value = self.bar_spinbox.value() + 1
+        self.region_spinbox.value()
+        if f_new_bar_value >= 8:
+            f_new_bar_value = 0
+            if self.loop_mode_combobox.currentIndex() != 2:
+                self.region_spinbox.setValue(self.region_spinbox.value() + 1)
+        self.bar_spinbox.setValue(f_new_bar_value)
 
     def __init__(self):
         self.group_box = QtGui.QGroupBox()
@@ -595,6 +613,9 @@ class transport_widget:
         self.bar_spinbox = QtGui.QSpinBox()
         self.bar_spinbox.setRange(0, 8)
         self.grid_layout.addWidget(self.bar_spinbox, 0, 12)
+        #This is an awful way to do this, I'll eventually have IPC that goes both directions...
+        self.beat_timer = QtCore.QTimer()
+        self.beat_timer.timeout.connect(self.beat_timeout)
         
 
 class edit_mode_selector:
