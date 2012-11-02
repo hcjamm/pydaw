@@ -57,9 +57,16 @@ extern "C" {
 #define MODULEX_FX7_KNOB1  33
 #define MODULEX_FX7_KNOB2  34
 #define MODULEX_FX7_COMBOBOX 35
+#define LMS_DELAY_TIME  36
+#define LMS_FEEDBACK  37
+#define LMS_DRY  38
+#define LMS_WET  39
+#define LMS_DUCK  40
+#define LMS_CUTOFF  41
+#define LMS_STEREO 42
 /*This is the last control port*/
-#define MODULEX_LAST_CONTROL_PORT 35
-#define MODULEX_COUNT 36 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define MODULEX_LAST_CONTROL_PORT 42
+#define MODULEX_COUNT 43 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
   
 /*GUI Step 13:  Add a variable for each control in the LMS type*/
 typedef struct {
@@ -108,6 +115,14 @@ typedef struct {
     LADSPA_Data *fx7_knob2;
     LADSPA_Data *fx7_combobox;
     
+    LADSPA_Data *delay_time;
+    LADSPA_Data *feedback;
+    LADSPA_Data *dry;
+    LADSPA_Data *wet;
+    LADSPA_Data *duck;
+    LADSPA_Data *cutoff;
+    LADSPA_Data *stereo;
+        
     float fs;    
     t_modulex_mono_modules * mono_modules;
     
