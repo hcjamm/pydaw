@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     v_pydaw_parse_configure_message(f_data, "play", "0|0");
     */
     
-    init();
+    v_pydaw_constructor();
     const LADSPA_Descriptor * f_ldesc = ladspa_descriptor(0);
     const DSSI_Descriptor * f_ddesc = dssi_descriptor(0);
     LADSPA_Handle f_handle =  f_ldesc->instantiate(f_ldesc, 44100);
