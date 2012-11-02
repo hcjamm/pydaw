@@ -1043,6 +1043,7 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
     }    
 }
 
+//TODO:  A 'close all plugins' function that actually frees the plugin memory
 void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
 {
     int f_i = 0;
@@ -1053,6 +1054,12 @@ void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
         {
             lo_send(a_pydaw_data->track_pool[f_i]->instrument->uiTarget, 
                 a_pydaw_data->track_pool[f_i]->instrument->ui_osc_configure_path, "ss", "pydaw_close_window", "");
+        }
+        
+        if((a_pydaw_data->track_pool[f_i]->effect) && a_pydaw_data->track_pool[f_i]->effect->ui_visible)
+        {
+            lo_send(a_pydaw_data->track_pool[f_i]->effect->uiTarget, 
+                a_pydaw_data->track_pool[f_i]->effect->ui_osc_configure_path, "ss", "pydaw_close_window", "");
         }
         
         f_i++;
@@ -1080,24 +1087,12 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
         }
 
         if(a_pydaw_data->track_pool[a_track_num]->instrument)
-        {        
-            if(a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible)
-            {
-                lo_send(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget, 
-                        a_pydaw_data->track_pool[a_track_num]->instrument->ui_osc_configure_path, "ss", "pydaw_close_window", "");
-            }
-
+        {
             v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
         }
         
         if(a_pydaw_data->track_pool[a_track_num]->effect)
-        {        
-            if(a_pydaw_data->track_pool[a_track_num]->effect->ui_visible)
-            {
-                lo_send(a_pydaw_data->track_pool[a_track_num]->effect->uiTarget, 
-                        a_pydaw_data->track_pool[a_track_num]->effect->ui_osc_configure_path, "ss", "pydaw_close_window", "");
-            }
-
+        {
             v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->effect);
         }        
         
