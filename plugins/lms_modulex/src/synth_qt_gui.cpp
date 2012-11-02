@@ -154,31 +154,31 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     delay_groupbox = new LMS_group_box(this, QString("Delay"), f_info);
     m_main_layout->lms_add_widget(delay_groupbox->lms_groupbox);
     
-    m_delaytime  = new LMS_knob_regular(QString("Time"), 10, 100, 1, 50, QString(""), this, f_info, lms_kc_decimal, LMS_DELAY_TIME);
+    m_delaytime  = new LMS_knob_regular(QString("Time"), 10, 100, 1, 50, QString(""), this, f_info, lms_kc_decimal, MODULEX_DELAY_TIME);
     delay_groupbox->lms_add_h(m_delaytime);
     connect(m_delaytime->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(delayTimeChanged(int)));
         
-    m_feedback = new LMS_knob_regular(QString("Feedback"), -20, 0, 1, -12, QString(""), this, f_info, lms_kc_integer, LMS_FEEDBACK);
+    m_feedback = new LMS_knob_regular(QString("Feedback"), -20, 0, 1, -12, QString(""), this, f_info, lms_kc_integer, MODULEX_FEEDBACK);
     delay_groupbox->lms_add_h(m_feedback);
     connect(m_feedback->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(feedbackChanged(int)));
     
-    m_dry = new LMS_knob_regular(QString("Dry"), -30, 0, 1, 0, QString(""), this, f_info, lms_kc_integer, LMS_DRY);
+    m_dry = new LMS_knob_regular(QString("Dry"), -30, 0, 1, 0, QString(""), this, f_info, lms_kc_integer, MODULEX_DRY);
     delay_groupbox->lms_add_h(m_dry);
     connect(m_dry->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(dryChanged(int)));
     
-    m_wet = new LMS_knob_regular(QString("Wet"), -30, 0, 1, -6, QString(""), this, f_info, lms_kc_integer, LMS_WET);
+    m_wet = new LMS_knob_regular(QString("Wet"), -30, 0, 1, -6, QString(""), this, f_info, lms_kc_integer, MODULEX_WET);
     delay_groupbox->lms_add_h(m_wet);
     connect(m_wet->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(wetChanged(int)));
         
-    m_duck = new LMS_knob_regular(QString("Duck"), -40, 0, 1, -6, QString(""), this, f_info, lms_kc_integer, LMS_DUCK);
+    m_duck = new LMS_knob_regular(QString("Duck"), -40, 0, 1, -6, QString(""), this, f_info, lms_kc_integer, MODULEX_DUCK);
     delay_groupbox->lms_add_h(m_duck);
     connect(m_duck->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(duckChanged(int)));
     
-    m_cutoff = new LMS_knob_regular(QString("Cutoff"), 20, 124, 1, -6, QString(""), this, f_info, lms_kc_pitch, LMS_CUTOFF);
+    m_cutoff = new LMS_knob_regular(QString("Cutoff"), 20, 124, 1, -6, QString(""), this, f_info, lms_kc_pitch, MODULEX_CUTOFF);
     delay_groupbox->lms_add_h(m_cutoff);
     connect(m_cutoff->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
     
-    m_stereo = new LMS_knob_regular(QString("Stereo"), 0, 100, 1, 100, QString(""), this, f_info, lms_kc_decimal, LMS_STEREO);
+    m_stereo = new LMS_knob_regular(QString("Stereo"), 0, 100, 1, 100, QString(""), this, f_info, lms_kc_decimal, MODULEX_STEREO);
     delay_groupbox->lms_add_h(m_stereo);
     connect(m_stereo->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(stereoChanged(int)));
         
@@ -454,13 +454,13 @@ void modulex_gui::v_set_control(int a_port, float a_value)
         case MODULEX_FX7_KNOB2:	setFX7knob2(a_value); break;        
         case MODULEX_FX7_COMBOBOX: setFX7combobox(a_value); break;
         
-        case LMS_DELAY_TIME: setDelayTime(a_value); break;
-        case LMS_FEEDBACK: setFeedback(a_value); break;
-        case LMS_DRY: setDry(a_value); break;
-        case LMS_WET: setWet(a_value); break;
-        case LMS_DUCK: setDuck(a_value); break;
-        case LMS_CUTOFF: setCutoff(a_value); break;
-        case LMS_STEREO: setStereo(a_value); break;        
+        case MODULEX_DELAY_TIME: setDelayTime(a_value); break;
+        case MODULEX_FEEDBACK: setFeedback(a_value); break;
+        case MODULEX_DRY: setDry(a_value); break;
+        case MODULEX_WET: setWet(a_value); break;
+        case MODULEX_DUCK: setDuck(a_value); break;
+        case MODULEX_CUTOFF: setCutoff(a_value); break;
+        case MODULEX_STEREO: setStereo(a_value); break;        
     }
 }
 
@@ -519,13 +519,13 @@ void modulex_gui::v_control_changed(int a_port, int a_value, bool a_suppress_hos
         case MODULEX_FX7_KNOB2:	fx7knob2Changed(a_value); break;  
         case MODULEX_FX7_COMBOBOX:  fx7comboboxChanged(a_value); break;
 
-        case LMS_DELAY_TIME: delayTimeChanged(a_value); break;
-        case LMS_FEEDBACK: feedbackChanged(a_value); break;
-        case LMS_DRY: dryChanged(a_value); break;
-        case LMS_WET: wetChanged(a_value); break;
-        case LMS_DUCK: duckChanged(a_value); break;
-        case LMS_CUTOFF: cutoffChanged(a_value); break;
-        case LMS_STEREO: stereoChanged(a_value); break;
+        case MODULEX_DELAY_TIME: delayTimeChanged(a_value); break;
+        case MODULEX_FEEDBACK: feedbackChanged(a_value); break;
+        case MODULEX_DRY: dryChanged(a_value); break;
+        case MODULEX_WET: wetChanged(a_value); break;
+        case MODULEX_DUCK: duckChanged(a_value); break;
+        case MODULEX_CUTOFF: cutoffChanged(a_value); break;
+        case MODULEX_STEREO: stereoChanged(a_value); break;
         
         default:
 #ifdef LMS_DEBUG_MODE_QT
@@ -582,13 +582,13 @@ int modulex_gui::i_get_control(int a_port)
     case MODULEX_FX7_KNOB2: return m_fx7->lms_knob3->lms_get_value();
     case MODULEX_FX7_COMBOBOX: return m_fx7->lms_combobox->lms_get_value();
         
-    case LMS_DELAY_TIME: return m_delaytime->lms_get_value();
-    case LMS_FEEDBACK: return m_feedback->lms_get_value();
-    case LMS_DRY: return m_dry->lms_get_value();
-    case LMS_WET: return m_wet->lms_get_value();
-    case LMS_DUCK: return m_duck->lms_get_value();
-    case LMS_CUTOFF: return m_cutoff->lms_get_value();
-    case LMS_STEREO: return m_stereo->lms_get_value();    
+    case MODULEX_DELAY_TIME: return m_delaytime->lms_get_value();
+    case MODULEX_FEEDBACK: return m_feedback->lms_get_value();
+    case MODULEX_DRY: return m_dry->lms_get_value();
+    case MODULEX_WET: return m_wet->lms_get_value();
+    case MODULEX_DUCK: return m_duck->lms_get_value();
+    case MODULEX_CUTOFF: return m_cutoff->lms_get_value();
+    case MODULEX_STEREO: return m_stereo->lms_get_value();    
     
     default:
 	modulex_cerr << "Warning: received request to get nonexistent port " << a_port << endl;
