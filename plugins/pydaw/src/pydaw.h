@@ -972,8 +972,16 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
     
     char track_number_string[6];
     sprintf(track_number_string, "%i", a_track_num);
-    sprintf(oscUrl, "%s/%i", a_pydaw_data->osc_url, a_track_num);
     
+    if(a_is_fx)
+    {
+        sprintf(oscUrl, "%s/%i-fx", a_pydaw_data->osc_url, a_track_num);
+    }
+    else
+    {
+        sprintf(oscUrl, "%s/%i", a_pydaw_data->osc_url, a_track_num);
+    }
+        
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
 #endif
