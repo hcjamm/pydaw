@@ -885,6 +885,17 @@ void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
     char f_string[LMS_LARGE_STRING];
     f_string[0] = '\0';
     //sprintf(f_string, "");
+    
+    t_pydaw_plugin * f_instance;
+
+    if(a_is_fx)
+    {
+        f_instance = a_pydaw_data->track_pool[a_track_num]->effect;
+    }
+    else
+    {
+        f_instance = a_pydaw_data->track_pool[a_track_num]->instrument;
+    }
 
     if((a_is_fx == 0) && (a_pydaw_data->track_pool[a_track_num]->plugin_index == 1))
     {
@@ -913,14 +924,14 @@ void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
 
     int f_i2 = 0;
 
-    while(f_i2 < (a_pydaw_data->track_pool[a_track_num]->instrument->controlIns))
+    while(f_i2 < (f_instance->controlIns))
     {
-        int in = f_i2 + a_pydaw_data->track_pool[a_track_num]->instrument->firstControlIn;
+        int in = f_i2 + f_instance->firstControlIn;
 	//int port = instance->pluginControlInPortNumbers[in];
 	        
         char f_port_entry[64];        
         sprintf(f_port_entry, "%i|%f\n", in, //port,
-        a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[in]
+        f_instance->pluginControlIns[in]
         );
         strcat(f_string, f_port_entry);
         f_i2++;
