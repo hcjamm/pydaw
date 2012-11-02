@@ -93,6 +93,16 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
             instance = pydaw_data->track_pool[i]->instrument; //&instances[i];
             break;
         }
+        
+        sprintf(tmp, "%i-fx", i);
+	flen = strlen(tmp);
+        if (!strncmp(path + 20, tmp, flen)
+	    && *(path + 20 + flen) == '/') //avoid matching prefix only
+        { 
+            //printf("instance==%i\n", i);
+            instance = pydaw_data->track_pool[i]->effect; //&instances[i];
+            break;
+        }
     }
     
     
