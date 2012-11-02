@@ -169,3 +169,6 @@ class dssi_gui(ServerThread):
         else:
             a_value = 0
         self.send_configure("tr", str(a_track_num) + "|" + str(a_value))
+        
+    def pydaw_show_fx(self, a_track_num):
+        self.send_configure("fx", str(a_track_num))
