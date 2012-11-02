@@ -125,13 +125,13 @@ static void v_modulex_connect_port(LADSPA_Handle instance, unsigned long port,
         case MODULEX_FX7_KNOB2: plugin->fx7_knob2 = data; break;    
         case MODULEX_FX7_COMBOBOX: plugin->fx7_combobox = data; break;     
         
-        case LMS_DELAY_TIME: plugin->delay_time = data; break;
-        case LMS_FEEDBACK: plugin->feedback = data; break;
-        case LMS_DRY: plugin->dry = data;  break;
-        case LMS_WET: plugin->wet = data; break;
-        case LMS_DUCK: plugin->duck = data; break;
-        case LMS_CUTOFF: plugin->cutoff = data; break;
-        case LMS_STEREO: plugin->stereo = data; break;
+        case MODULEX_DELAY_TIME: plugin->delay_time = data; break;
+        case MODULEX_FEEDBACK: plugin->feedback = data; break;
+        case MODULEX_DRY: plugin->dry = data;  break;
+        case MODULEX_WET: plugin->wet = data; break;
+        case MODULEX_DUCK: plugin->duck = data; break;
+        case MODULEX_CUTOFF: plugin->cutoff = data; break;
+        case MODULEX_STEREO: plugin->stereo = data; break;
     }
 }
 
@@ -675,68 +675,68 @@ void _init()
 	port_range_hints[MODULEX_FX7_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
         /* Parameters for delay time */
-	port_descriptors[LMS_DELAY_TIME] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_DELAY_TIME] = "Delay Time";
-	port_range_hints[LMS_DELAY_TIME].HintDescriptor =
+	port_descriptors[MODULEX_DELAY_TIME] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_DELAY_TIME] = "Delay Time";
+	port_range_hints[MODULEX_DELAY_TIME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DELAY_TIME].LowerBound =  10;
-	port_range_hints[LMS_DELAY_TIME].UpperBound =  100;
+	port_range_hints[MODULEX_DELAY_TIME].LowerBound =  10;
+	port_range_hints[MODULEX_DELAY_TIME].UpperBound =  100;
         
         /* Parameters for feedback */
-	port_descriptors[LMS_FEEDBACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_FEEDBACK] = "Feedback";
-	port_range_hints[LMS_FEEDBACK].HintDescriptor =
+	port_descriptors[MODULEX_FEEDBACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_FEEDBACK] = "Feedback";
+	port_range_hints[MODULEX_FEEDBACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FEEDBACK].LowerBound =  -15;
-	port_range_hints[LMS_FEEDBACK].UpperBound =  0;
+	port_range_hints[MODULEX_FEEDBACK].LowerBound =  -15;
+	port_range_hints[MODULEX_FEEDBACK].UpperBound =  0;
 
         /* Parameters for dry */
-	port_descriptors[LMS_DRY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_DRY] = "Dry";
-	port_range_hints[LMS_DRY].HintDescriptor =
+	port_descriptors[MODULEX_DRY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_DRY] = "Dry";
+	port_range_hints[MODULEX_DRY].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DRY].LowerBound =  -30;
-	port_range_hints[LMS_DRY].UpperBound =  0;
+	port_range_hints[MODULEX_DRY].LowerBound =  -30;
+	port_range_hints[MODULEX_DRY].UpperBound =  0;
         
         /* Parameters for wet */
-	port_descriptors[LMS_WET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_WET] = "Wet";
-	port_range_hints[LMS_WET].HintDescriptor =
+	port_descriptors[MODULEX_WET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_WET] = "Wet";
+	port_range_hints[MODULEX_WET].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_WET].LowerBound =  -30;
-	port_range_hints[LMS_WET].UpperBound =  0;
+	port_range_hints[MODULEX_WET].LowerBound =  -30;
+	port_range_hints[MODULEX_WET].UpperBound =  0;
         
         /* Parameters for duck */
-	port_descriptors[LMS_DUCK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_DUCK] = "Duck";
-	port_range_hints[LMS_DUCK].HintDescriptor =
+	port_descriptors[MODULEX_DUCK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_DUCK] = "Duck";
+	port_range_hints[MODULEX_DUCK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DUCK].LowerBound =  -40;
-	port_range_hints[LMS_DUCK].UpperBound =  0;
+	port_range_hints[MODULEX_DUCK].LowerBound =  -40;
+	port_range_hints[MODULEX_DUCK].UpperBound =  0;
         
         /* Parameters for cutoff */
-	port_descriptors[LMS_CUTOFF] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_CUTOFF] = "Cutoff";
-	port_range_hints[LMS_CUTOFF].HintDescriptor =
+	port_descriptors[MODULEX_CUTOFF] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_CUTOFF] = "Cutoff";
+	port_range_hints[MODULEX_CUTOFF].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_CUTOFF].LowerBound =  40;
-	port_range_hints[LMS_CUTOFF].UpperBound =  118;
+	port_range_hints[MODULEX_CUTOFF].LowerBound =  40;
+	port_range_hints[MODULEX_CUTOFF].UpperBound =  118;
         
         
         /* Parameters for stereo */
-	port_descriptors[LMS_STEREO] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_STEREO] = "Stereo";
-	port_range_hints[LMS_STEREO].HintDescriptor =
+	port_descriptors[MODULEX_STEREO] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_STEREO] = "Stereo";
+	port_range_hints[MODULEX_STEREO].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_STEREO].LowerBound =  0;
-	port_range_hints[LMS_STEREO].UpperBound =  100;
+	port_range_hints[MODULEX_STEREO].LowerBound =  0;
+	port_range_hints[MODULEX_STEREO].UpperBound =  100;
         
         
 	LMSLDescriptor->activate = v_modulex_activate;

@@ -57,13 +57,13 @@ extern "C" {
 #define MODULEX_FX7_KNOB1  33
 #define MODULEX_FX7_KNOB2  34
 #define MODULEX_FX7_COMBOBOX 35
-#define LMS_DELAY_TIME  36
-#define LMS_FEEDBACK  37
-#define LMS_DRY  38
-#define LMS_WET  39
-#define LMS_DUCK  40
-#define LMS_CUTOFF  41
-#define LMS_STEREO 42
+#define MODULEX_DELAY_TIME  36
+#define MODULEX_FEEDBACK  37
+#define MODULEX_DRY  38
+#define MODULEX_WET  39
+#define MODULEX_DUCK  40
+#define MODULEX_CUTOFF  41
+#define MODULEX_STEREO 42
 /*This is the last control port*/
 #define MODULEX_LAST_CONTROL_PORT 42
 #define MODULEX_COUNT 43 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
