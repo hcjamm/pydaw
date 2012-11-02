@@ -40,9 +40,10 @@ OSC configure message keys/values:
 	"solo"	"int|bool"	solo track, track#|bool
 	"mute"	"int|bool"	mute track, track#|bool
 	"cp"	"int|int"	Change the plugin, track# | int == 0: None, 1: Euphoria, 2: Ray-V
-	"su"	int	Show the UI for track[int]
+	"su"	int	Show the UI for track(int)
 	"st"	""	Save tracks
 	"tr"	int|int	Record arm a track, int:track#|int:0-not-armed/1-armed
+	"fx"	int	show FX GUI for track(int)
 
 Project structure:
 

@@ -209,6 +209,9 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     
     switch(a_index)
     {
+        case -1:
+            f_result->lib_handle = dlopen("/usr/lib/dssi/lms_modulex.so", RTLD_NOW | RTLD_LOCAL);                  
+            break;
         case 1:
             f_result->lib_handle = dlopen("/usr/lib/dssi/euphoria.so", RTLD_NOW | RTLD_LOCAL);                  
             break;

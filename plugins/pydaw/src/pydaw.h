@@ -37,6 +37,7 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_SHOW_PLUGIN_UI "su"
 #define PYDAW_CONFIGURE_KEY_SAVE_TRACKS "st"
 #define PYDAW_CONFIGURE_KEY_REC_ARM_TRACK "tr"
+#define PYDAW_CONFIGURE_KEY_SHOW_FX_UI "fx"
 
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -113,6 +114,7 @@ typedef struct st_pytrack
     snd_seq_event_t * event_buffer;
     int event_index;
     t_pydaw_plugin * instrument;
+    t_pydaw_plugin * effect;
 }t_pytrack;
 
 typedef struct st_pydaw_data
@@ -517,6 +519,7 @@ t_pytrack * g_pytrack_get()
     }
     
     f_result->instrument = NULL;
+    f_result->effect = NULL;
             
     return f_result;
 }
@@ -917,32 +920,54 @@ void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
 #endif
 }
 
-void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
-{
-    if(a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible)
+void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
+{   
+    if(a_is_fx)
     {
-        return;
+        if(a_pydaw_data->track_pool[a_track_num]->effect->ui_visible)
+        {
+            return;
+        }
+        a_pydaw_data->track_pool[a_track_num]->effect->ui_visible = 1;
+    }
+    else
+    {
+        if(a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible)
+        {
+            return;
+        }
+        a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible = 1;
     }
     
-    a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible = 1;
     
     char * filename;
     char oscUrl[256];    
     char * dllName;
     char * label;
-            
-    switch(a_pydaw_data->track_pool[a_track_num]->plugin_index)
+     
+    
+    if(a_is_fx)
     {
-        case 1:
-            filename = "/usr/lib/dssi/euphoria/LMS_EUPHORIA_qt";
-            dllName = "euphoria.so";
-            label = "LMS_EUPHORIA";            
-            break;
-        case 2:
-            filename = "/usr/lib/dssi/ray_v/LMS_RAYV_qt";
-            dllName = "ray_v.so";
-            label = "LMS_RAYV";            
-            break;
+        filename = "/usr/lib/dssi/lms_modulex/LMS_MODULEX_qt";
+        dllName = "lms_modulex.so";
+        label = "LMS_MODULEX";            
+    }
+    else
+    {
+        switch(a_pydaw_data->track_pool[a_track_num]->plugin_index)
+        {
+            case 1:
+                filename = "/usr/lib/dssi/euphoria/LMS_EUPHORIA_qt";
+                dllName = "euphoria.so";
+                label = "LMS_EUPHORIA";            
+                break;
+            case 2:
+                filename = "/usr/lib/dssi/ray_v/LMS_RAYV_qt";
+                dllName = "ray_v.so";
+                label = "LMS_RAYV";            
+                break;
+        }
+
     }
     
     char track_number_string[6];
@@ -955,7 +980,7 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num)
     
     if (fork() == 0) 
     {
-        execlp(filename, filename, oscUrl, dllName, label, track_number_string, NULL); //instruments_folder, track_number_string, NULL);
+        execlp(filename, filename, oscUrl, dllName, label, track_number_string, NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
     }    
@@ -980,9 +1005,13 @@ void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index)
 {       
     t_pydaw_plugin * f_result;
+    t_pydaw_plugin * f_result_fx;
     
     char f_file_name[512];
     sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, a_track_num);
+    
+    char f_file_name_fx[512];
+    sprintf(f_file_name_fx, "%s%i.pyfx", a_pydaw_data->instruments_folder, a_track_num);
     
     if(a_index == 0)
     {
@@ -1003,7 +1032,20 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
 
             v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
         }
+        
+        if(a_pydaw_data->track_pool[a_track_num]->effect)
+        {        
+            if(a_pydaw_data->track_pool[a_track_num]->effect->ui_visible)
+            {
+                lo_send(a_pydaw_data->track_pool[a_track_num]->effect->uiTarget, 
+                        a_pydaw_data->track_pool[a_track_num]->effect->ui_osc_configure_path, "ss", "pydaw_close_window", "");
+            }
+
+            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->effect);
+        }        
+        
         a_pydaw_data->track_pool[a_track_num]->instrument = NULL;
+        a_pydaw_data->track_pool[a_track_num]->effect = NULL;
         a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
         
 #ifdef PYDAW_MEMCHECK
@@ -1014,11 +1056,13 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
     else
     {
         f_result = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), a_index);
+        f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1);
                 
         /* If switching from a different plugin(but not from no plugin), delete the preset file */
         if(((a_pydaw_data->track_pool[a_track_num]->plugin_index) != 0) && i_pydaw_file_exists(f_file_name))
         {
             remove(f_file_name);
+            //TODO:  the .pyfx file also?
         }
         
         pthread_mutex_lock(&a_pydaw_data->mutex);
@@ -1033,8 +1077,21 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
 
             v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
         }
+        
+        if(a_pydaw_data->track_pool[a_track_num]->effect)
+        {        
+            if(a_pydaw_data->track_pool[a_track_num]->effect->ui_visible)
+            {
+                lo_send(a_pydaw_data->track_pool[a_track_num]->effect->uiTarget, 
+                        a_pydaw_data->track_pool[a_track_num]->effect->ui_osc_configure_path, "ss", "pydaw_close_window", "");
+            }
+
+            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->effect);
+        }
+        
         a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
         v_pydaw_open_track(a_pydaw_data, a_track_num);  //Opens the .inst file if exists
+        a_pydaw_data->track_pool[a_track_num]->effect = f_result_fx;
         
         a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
         
@@ -1145,7 +1202,12 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SHOW_PLUGIN_UI))
     {
         int f_track_num = atoi(a_value);
-        v_show_plugin_ui(a_pydaw_data, f_track_num);
+        v_show_plugin_ui(a_pydaw_data, f_track_num, 0);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SHOW_FX_UI))
+    {
+        int f_track_num = atoi(a_value);
+        v_show_plugin_ui(a_pydaw_data, f_track_num, 1);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SAVE_TRACKS))
     {

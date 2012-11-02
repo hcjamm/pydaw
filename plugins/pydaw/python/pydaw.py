@@ -471,6 +471,10 @@ class seq_track:
     def on_show_ui(self):
         if self.instrument_combobox.currentIndex() > 0:
             this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
+            
+    def on_show_fx(self):
+        if self.instrument_combobox.currentIndex() > 0:
+            this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number)
 
     def __init__(self, a_track_num, a_track_text="track"):
         self.track_number = a_track_num
@@ -524,6 +528,10 @@ class seq_track:
         self.ui_button.pressed.connect(self.on_show_ui)
         self.ui_button.setMaximumWidth(30)
         self.hlayout3.addWidget(self.ui_button)
+        self.fx_button = QtGui.QPushButton("FX")
+        self.fx_button.pressed.connect(self.on_show_fx)
+        self.fx_button.setMaximumWidth(30)
+        self.hlayout3.addWidget(self.fx_button)
         
     def open_track(self, a_track):
         self.record_radiobutton.setChecked(a_track.rec)
@@ -673,7 +681,7 @@ class track_editor:
             self.tracks_tablewidget.setCellWidget(i, 0, track.group_box)
         self.tracks_tablewidget.resizeColumnsToContents()
         self.tracks_tablewidget.resizeRowsToContents()
-        self.tracks_tablewidget.setMaximumWidth(300)
+        self.tracks_tablewidget.setMaximumWidth(336)
 
     def __init__(self):
         self.tracks_tablewidget = QtGui.QTableWidget()
