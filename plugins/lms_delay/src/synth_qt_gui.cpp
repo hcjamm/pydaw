@@ -111,7 +111,7 @@ SynthGUI::SynthGUI(const char * host, const char * port,
     delay_groupbox->lms_add_h(m_cutoff);
     connect(m_cutoff->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
     
-    m_stereo = new LMS_knob_regular(QString("Stereo"), 0, 100, 1, 100, QString(""), this, f_info, lms_kc_decimal, LMS_CUTOFF);
+    m_stereo = new LMS_knob_regular(QString("Stereo"), 0, 100, 1, 100, QString(""), this, f_info, lms_kc_decimal, LMS_STEREO);
     delay_groupbox->lms_add_h(m_stereo);
     connect(m_stereo->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(stereoChanged(int)));
         
