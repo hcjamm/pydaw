@@ -666,20 +666,16 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                 
                 v_run_plugin(pydaw_data->track_pool[f_i]->instrument, sample_count, 
                             pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);
-
-                int f_i3 = 0;
-                //TODO:  Point the output/input to the same block of memory once this is all working and stable?
-                while(f_i3 < sample_count)
-                {
-                    pydaw_data->track_pool[f_i]->effect->pluginInputBuffers[0][f_i3] = pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[0][f_i3];
-                    pydaw_data->track_pool[f_i]->effect->pluginInputBuffers[0][f_i3] = pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[1][f_i3];
-                    f_i3++;
-                }
+                
+                memcpy(pydaw_data->track_pool[f_i]->effect->pluginInputBuffers[0], pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[0], 
+                        sample_count * sizeof(LADSPA_Data));
+                memcpy(pydaw_data->track_pool[f_i]->effect->pluginInputBuffers[1], pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[1], 
+                        sample_count * sizeof(LADSPA_Data));
                 
                 v_run_plugin(pydaw_data->track_pool[f_i]->effect, sample_count, NULL, 0);
                             //pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);
                 
-                f_i3 = 0;
+                int f_i3 = 0;
 
                 while(f_i3 < sample_count)
                 {
