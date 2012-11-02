@@ -172,6 +172,8 @@ void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data);
 int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a_region_name);
 char * c_pyitem_to_string(t_pyitem* a_pyitem);
 char * c_pyregion_to_string(t_pydaw_data * a_pydaw_data, int a_region_num);
+void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx);
+void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx);
 
 /*End declarations.  Begin implementations.*/
 
@@ -623,16 +625,44 @@ void v_pydaw_activate_osc_thread(t_pydaw_data * a_pydaw_data, lo_method_handler 
 
 void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
 {
+    v_pydaw_open_plugin(a_pydaw_data, a_track_num, 0);
+    v_pydaw_open_plugin(a_pydaw_data, a_track_num, 1);
+    
+#ifdef PYDAW_MEMCHECK
+    v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
+}
+
+void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
+{
     char f_file_name[512];
 
-    sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, a_track_num);
-
+    if(a_is_fx)
+    {
+        sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->instruments_folder, a_track_num);
+    }
+    else
+    {
+        sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, a_track_num);
+    }
+    
     if(i_pydaw_file_exists(f_file_name))
     {
         printf("v_pydaw_open_track:  Track exists %s , loading\n", f_file_name);
 
         t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
 
+        t_pydaw_plugin * f_instance;
+        
+        if(a_is_fx)
+        {
+            f_instance = a_pydaw_data->track_pool[a_track_num]->effect;
+        }
+        else
+        {
+            f_instance = a_pydaw_data->track_pool[a_track_num]->instrument;
+        }
+        
         while(1)
         {
             char * f_key = c_iterate_2d_char_array(f_2d_array);
@@ -663,41 +693,37 @@ void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
                     f_i++;
                 }
                 
-                strcpy(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load, f_value);
-                a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load_set = 1;
+                strcpy(f_instance->euphoria_load, f_value);
+                f_instance->euphoria_load_set = 1;
                                 
-                char * message = a_pydaw_data->track_pool[a_track_num]->instrument->descriptor->configure(
-                        a_pydaw_data->track_pool[a_track_num]->instrument->ladspa_handle, "load", f_value);
+                char * message = f_instance->descriptor->configure(
+                        f_instance->ladspa_handle, "load", f_value);
                 if (message) 
                 {
                     printf("v_pydaw_open_track: on configure '%s' '%s', plugin returned error '%s'\n","load", f_value, message);
                     free(message);
                 }
                 
-                if(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget)
+                if(f_instance->uiTarget)
                 {
-                        lo_send(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget, 
-                                a_pydaw_data->track_pool[a_track_num]->instrument->ui_osc_configure_path, "ss", "load", f_value);
-                }                
+                        lo_send(f_instance->uiTarget, 
+                                f_instance->ui_osc_configure_path, "ss", "load", f_value);
+                }
             }
             else
             {
                 int f_port_key = atoi(f_key);
                 float f_port_value = atof(f_value);
                 
-                //assert(f_port_key < (a_pydaw_data->track_pool[a_track_num]->instrument->controlIns));                
-                //a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_port_key] = f_port_value;
+                //assert(f_port_key < (f_instance->controlIns));                
+                //f_instance->pluginControlIns[f_port_key] = f_port_value;
                 
-                a_pydaw_data->track_pool[a_track_num]->instrument->pluginControlIns[f_port_key] = f_port_value;
+                f_instance->pluginControlIns[f_port_key] = f_port_value;
             }                
         }
 
         g_free_2d_char_array(f_2d_array);
     }
-    
-#ifdef PYDAW_MEMCHECK
-    v_pydaw_assert_memory_integrity(a_pydaw_data);
-#endif
 }
 
 void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
@@ -750,9 +776,7 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
     }    
     
     g_pysong_get(a_pydaw, a_name);
-    
-    //v_pydaw_open_tracks(a_pydaw);
-    
+        
     pthread_mutex_lock(&a_pydaw->mutex);
     a_pydaw->is_initialized = 1;
     
@@ -848,11 +872,21 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
         return;  //Delete the file if exists?
     }
 
+    v_pydaw_save_plugin(a_pydaw_data, a_track_num, 0);
+    v_pydaw_save_plugin(a_pydaw_data, a_track_num, 1);
+    
+#ifdef PYDAW_MEMCHECK
+    v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
+}
+
+void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
+{    
     char f_string[LMS_LARGE_STRING];
     f_string[0] = '\0';
     //sprintf(f_string, "");
 
-    if(a_pydaw_data->track_pool[a_track_num]->plugin_index == 1)
+    if((a_is_fx == 0) && (a_pydaw_data->track_pool[a_track_num]->plugin_index == 1))
     {
         if(a_pydaw_data->track_pool[a_track_num]->instrument->euphoria_load_set)
         {
@@ -893,16 +927,20 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
     }
 
     strcat(f_string, "\\");        
-    char f_file_name[512];        
-    sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, a_track_num);
+    char f_file_name[512];
+    
+    if(a_is_fx)
+    {
+        sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->instruments_folder, a_track_num);
+    }
+    else
+    {
+        sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, a_track_num);
+    }
+    
 
     v_pydaw_write_to_file(f_file_name, f_string);
-    
-#ifdef PYDAW_MEMCHECK
-    v_pydaw_assert_memory_integrity(a_pydaw_data);
-#endif
 }
-
 
 void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
 {
@@ -1098,10 +1136,9 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
         }
         
         a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
-        v_pydaw_open_track(a_pydaw_data, a_track_num);  //Opens the .inst file if exists
         a_pydaw_data->track_pool[a_track_num]->effect = f_result_fx;
-        
         a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
+        v_pydaw_open_track(a_pydaw_data, a_track_num);  //Opens the .inst file if exists
         
 #ifdef PYDAW_MEMCHECK
         v_pydaw_assert_memory_integrity(a_pydaw_data);
