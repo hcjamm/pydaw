@@ -66,7 +66,6 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 #Please take care not to create package conflicts for people with the LMS Suite installed.
 @plugins = (
 'ray_v',
-'lms_delay',
 'euphoria',
 'lms_modulex',
 'pydaw'
@@ -75,7 +74,6 @@ $description = "The LMS Suite is a collection of DSSI plugins written using LibM
 #Plugins in this array will be symlinked to /usr/lib/ladspa, allowing them to be used by
 #hosts that support LADSPA effects but not DSSI.
 @ladspa_plugins = (
-'lms_delay',
 'lms_modulex'
 );
 
