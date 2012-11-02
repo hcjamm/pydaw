@@ -148,7 +148,78 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     connect(m_fx7->lms_combobox->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(fx7comboboxChanged(int)));
     
     m_main_layout->lms_add_widget(m_fx7->lms_groupbox->lms_groupbox);
+    m_main_layout->lms_add_layout();
     
+    
+    delay_groupbox = new LMS_group_box(this, QString("Delay"), f_info);
+    m_main_layout->lms_add_widget(delay_groupbox->lms_groupbox);
+    
+    m_delaytime  = new LMS_knob_regular(QString("Time"), 10, 100, 1, 50, QString(""), this, f_info, lms_kc_decimal, LMS_DELAY_TIME);
+    delay_groupbox->lms_add_h(m_delaytime);
+    connect(m_delaytime->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(delayTimeChanged(int)));
+        
+    m_feedback = new LMS_knob_regular(QString("Feedback"), -20, 0, 1, -12, QString(""), this, f_info, lms_kc_integer, LMS_FEEDBACK);
+    delay_groupbox->lms_add_h(m_feedback);
+    connect(m_feedback->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(feedbackChanged(int)));
+    
+    m_dry = new LMS_knob_regular(QString("Dry"), -30, 0, 1, 0, QString(""), this, f_info, lms_kc_integer, LMS_DRY);
+    delay_groupbox->lms_add_h(m_dry);
+    connect(m_dry->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(dryChanged(int)));
+    
+    m_wet = new LMS_knob_regular(QString("Wet"), -30, 0, 1, -6, QString(""), this, f_info, lms_kc_integer, LMS_WET);
+    delay_groupbox->lms_add_h(m_wet);
+    connect(m_wet->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(wetChanged(int)));
+        
+    m_duck = new LMS_knob_regular(QString("Duck"), -40, 0, 1, -6, QString(""), this, f_info, lms_kc_integer, LMS_DUCK);
+    delay_groupbox->lms_add_h(m_duck);
+    connect(m_duck->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(duckChanged(int)));
+    
+    m_cutoff = new LMS_knob_regular(QString("Cutoff"), 20, 124, 1, -6, QString(""), this, f_info, lms_kc_pitch, LMS_CUTOFF);
+    delay_groupbox->lms_add_h(m_cutoff);
+    connect(m_cutoff->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(cutoffChanged(int)));
+    
+    m_stereo = new LMS_knob_regular(QString("Stereo"), 0, 100, 1, 100, QString(""), this, f_info, lms_kc_decimal, LMS_STEREO);
+    delay_groupbox->lms_add_h(m_stereo);
+    connect(m_stereo->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(stereoChanged(int)));
+        
+    QGroupBox * f_gb_bpm = new QGroupBox(this); 
+    f_gb_bpm->setTitle(QString("Tempo Sync"));
+    f_gb_bpm->setAlignment(Qt::AlignHCenter);    
+    QGridLayout *f_gb_bpm_layout = new QGridLayout(f_gb_bpm);
+    
+    m_bpm_spinbox = new QDoubleSpinBox(this);
+    m_bpm_spinbox->setGeometry(QRect(100, 130, 71, 27));
+    m_bpm_spinbox->setDecimals(1);
+    m_bpm_spinbox->setMinimum(60);
+    m_bpm_spinbox->setMaximum(200);
+    m_bpm_spinbox->setSingleStep(0.1);
+    
+    QStringList f_beat_fracs = QStringList() << QString("1/4") << QString("1/3") << QString("1/2") << QString("2/3") << QString("3/4") << QString("1");
+    
+    m_beat_frac = new QComboBox(this); // get_combobox(f_beat_fracs, f_beat_fracs_count , this);
+    m_beat_frac->addItems(f_beat_fracs);
+    
+    m_sync_bpm = new QPushButton(this);
+    m_sync_bpm->setText("Sync");
+    connect(m_sync_bpm, SIGNAL(pressed()), this, SLOT(bpmSyncPressed()));
+    
+    QLabel * f_bpm_label = new QLabel("BPM",  this);
+    f_bpm_label->setMinimumWidth(60);
+    f_bpm_label->setAlignment(Qt::AlignCenter);
+    f_bpm_label->setStyleSheet("color: black; background-color: white; border: 1px solid black;  border-radius: 6px;");
+    
+    QLabel * f_beat_label = new QLabel("Beats",  this);
+    f_beat_label->setMinimumWidth(60);
+    f_beat_label->setAlignment(Qt::AlignCenter);
+    f_beat_label->setStyleSheet("color: black; background-color: white; border: 1px solid black;  border-radius: 6px;");
+    
+    f_gb_bpm_layout->addWidget(f_bpm_label, 0, 0, Qt::AlignCenter);
+    f_gb_bpm_layout->addWidget(m_bpm_spinbox, 1, 0, Qt::AlignCenter);
+    f_gb_bpm_layout->addWidget(f_beat_label, 0, 1, Qt::AlignCenter);
+    f_gb_bpm_layout->addWidget(m_beat_frac, 1, 1, Qt::AlignCenter);
+    f_gb_bpm_layout->addWidget(m_sync_bpm, 2, 1, Qt::AlignCenter);
+    
+    m_main_layout->lms_add_widget(f_gb_bpm);        
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
@@ -207,6 +278,16 @@ void modulex_gui::setFX7knob1(float val){ lms_set_value(val, m_fx7->lms_knob2); 
 void modulex_gui::setFX7knob2(float val){ lms_set_value(val, m_fx7->lms_knob3); }
 void modulex_gui::setFX7combobox(float val){ lms_set_value(val, m_fx7->lms_combobox); }
 
+
+void modulex_gui::setDelayTime(float val){ lms_set_value(val, m_delaytime); }
+void modulex_gui::setFeedback(float val){ lms_set_value(val, m_feedback); }
+void modulex_gui::setDry(float val){ lms_set_value(val, m_dry); }
+void modulex_gui::setWet(float val){ lms_set_value(val, m_wet); }
+void modulex_gui::setDuck(float val){ lms_set_value(val, m_duck); }
+void modulex_gui::setCutoff(float val){ lms_set_value(val, m_cutoff); }
+void modulex_gui::setStereo(float val){ lms_set_value(val, m_stereo); }
+
+
 void modulex_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {
     a_ctrl->lms_value_changed(a_value);
@@ -255,6 +336,50 @@ void modulex_gui::fx7knob0Changed(int value){ lms_value_changed(value, m_fx7->lm
 void modulex_gui::fx7knob1Changed(int value){ lms_value_changed(value, m_fx7->lms_knob2); }
 void modulex_gui::fx7knob2Changed(int value){ lms_value_changed(value, m_fx7->lms_knob3); }
 void modulex_gui::fx7comboboxChanged(int value){ lms_value_changed(value, m_fx7->lms_combobox); m_fx7->lms_combobox_changed(); }
+
+
+void modulex_gui::delayTimeChanged(int value){ lms_value_changed(value, m_delaytime); }
+void modulex_gui::feedbackChanged(int value){ lms_value_changed(value, m_feedback); }
+void modulex_gui::dryChanged(int value){ lms_value_changed(value, m_dry); }
+void modulex_gui::wetChanged(int value){ lms_value_changed(value, m_wet); }
+void modulex_gui::duckChanged(int value){ lms_value_changed(value, m_duck); }
+void modulex_gui::cutoffChanged(int value){ lms_value_changed(value, m_cutoff); }
+void modulex_gui::stereoChanged(int value){ lms_value_changed(value, m_stereo); }
+
+void modulex_gui::bpmSyncPressed()
+{
+    float f_frac = 1.0f;
+    
+    switch(m_beat_frac->currentIndex())            
+    {
+        case 0:  // 1/4
+            f_frac = 0.25f;
+            break;
+        case 1:  // 1/3
+            f_frac = 0.3333f;
+            break;
+        case 2:  // 1/2
+            f_frac = 0.5f;
+            break;
+        case 3:  // 2/3
+            f_frac = 0.6666f;
+            break;
+        case 4:  // 3/4
+            f_frac = 0.75f;
+            break;
+        case 5:  // 1
+            f_frac = 1.0f;
+            break;
+    }
+        
+    float f_seconds_per_beat = 60/(m_bpm_spinbox->value());
+    
+    float f_result = (int)(f_seconds_per_beat * f_frac * 100);
+    
+    m_delaytime->lms_set_value(f_result);
+}
+
+
 
 void modulex_gui::v_print_port_name_to_cerr(int a_port)
 {
@@ -328,6 +453,14 @@ void modulex_gui::v_set_control(int a_port, float a_value)
         case MODULEX_FX7_KNOB1:	setFX7knob1(a_value); break;        
         case MODULEX_FX7_KNOB2:	setFX7knob2(a_value); break;        
         case MODULEX_FX7_COMBOBOX: setFX7combobox(a_value); break;
+        
+        case LMS_DELAY_TIME: setDelayTime(a_value); break;
+        case LMS_FEEDBACK: setFeedback(a_value); break;
+        case LMS_DRY: setDry(a_value); break;
+        case LMS_WET: setWet(a_value); break;
+        case LMS_DUCK: setDuck(a_value); break;
+        case LMS_CUTOFF: setCutoff(a_value); break;
+        case LMS_STEREO: setStereo(a_value); break;        
     }
 }
 
@@ -385,7 +518,15 @@ void modulex_gui::v_control_changed(int a_port, int a_value, bool a_suppress_hos
         case MODULEX_FX7_KNOB1:	fx7knob1Changed(a_value); break;
         case MODULEX_FX7_KNOB2:	fx7knob2Changed(a_value); break;  
         case MODULEX_FX7_COMBOBOX:  fx7comboboxChanged(a_value); break;
-                
+
+        case LMS_DELAY_TIME: delayTimeChanged(a_value); break;
+        case LMS_FEEDBACK: feedbackChanged(a_value); break;
+        case LMS_DRY: dryChanged(a_value); break;
+        case LMS_WET: wetChanged(a_value); break;
+        case LMS_DUCK: duckChanged(a_value); break;
+        case LMS_CUTOFF: cutoffChanged(a_value); break;
+        case LMS_STEREO: stereoChanged(a_value); break;
+        
         default:
 #ifdef LMS_DEBUG_MODE_QT
             modulex_cerr << "Warning: received request to set nonexistent port " << a_port << endl;
@@ -397,9 +538,7 @@ void modulex_gui::v_control_changed(int a_port, int a_value, bool a_suppress_hos
         m_suppressHostUpdate = false;
 }
 
-/*TODO:  For the forseeable future, this will only be used for getting the values to write back to 
- the presets.tsv file;  It should probably return a string that can be re-interpreted into other values for
- complex controls that could have multiple ints, or string values, etc...*/
+
 int modulex_gui::i_get_control(int a_port)
 {        
     switch (a_port) {
@@ -442,7 +581,14 @@ int modulex_gui::i_get_control(int a_port)
     case MODULEX_FX7_KNOB1: return m_fx7->lms_knob2->lms_get_value();
     case MODULEX_FX7_KNOB2: return m_fx7->lms_knob3->lms_get_value();
     case MODULEX_FX7_COMBOBOX: return m_fx7->lms_combobox->lms_get_value();
-            
+        
+    case LMS_DELAY_TIME: return m_delaytime->lms_get_value();
+    case LMS_FEEDBACK: return m_feedback->lms_get_value();
+    case LMS_DRY: return m_dry->lms_get_value();
+    case LMS_WET: return m_wet->lms_get_value();
+    case LMS_DUCK: return m_duck->lms_get_value();
+    case LMS_CUTOFF: return m_cutoff->lms_get_value();
+    case LMS_STEREO: return m_stereo->lms_get_value();    
     
     default:
 	modulex_cerr << "Warning: received request to get nonexistent port " << a_port << endl;

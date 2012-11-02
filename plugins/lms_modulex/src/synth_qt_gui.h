@@ -22,8 +22,10 @@ GNU General Public License for more details.
 #include <QLabel>
 #include <QLayout>
 #include <QGroupBox>
+#include <QLabel>
 #include <QComboBox>
-#include <QPixmap>
+#include <QPushButton>
+#include <QDoubleSpinBox>
 
 #include <string>
 #include <stdlib.h>
@@ -101,6 +103,14 @@ public slots:
     void setFX7knob2 (float val);
     void setFX7combobox (float val);
     
+    void setDelayTime (float val);
+    void setFeedback (float val);
+    void setDry(float val);
+    void setWet(float val);
+    void setDuck(float val);
+    void setCutoff(float val);
+    void setStereo(float val);
+    
     void aboutToQuit();
     
 protected slots:
@@ -145,6 +155,15 @@ protected slots:
     void fx7knob2Changed(int);
     void fx7comboboxChanged(int);
     
+    void delayTimeChanged (int);
+    void feedbackChanged (int);
+    void dryChanged(int);
+    void wetChanged(int);
+    void duckChanged(int);
+    void cutoffChanged(int);
+    void stereoChanged(int);
+    void bpmSyncPressed();
+    
     void oscRecv();
 protected:
     
@@ -158,6 +177,20 @@ protected:
     LMS_multieffect * m_fx5;
     LMS_multieffect * m_fx6;
     LMS_multieffect * m_fx7;
+    
+    LMS_group_box *delay_groupbox;    
+    LMS_knob_regular *m_delaytime;    
+    LMS_knob_regular *m_feedback;    
+    LMS_knob_regular *m_dry;    
+    LMS_knob_regular *m_wet;    
+    LMS_knob_regular *m_duck;    
+    LMS_knob_regular *m_cutoff;    
+    LMS_knob_regular *m_stereo;
+    
+    /*BPM sync box*/
+    QDoubleSpinBox * m_bpm_spinbox;        
+    QComboBox * m_beat_frac;    
+    QPushButton * m_sync_bpm;
     
     lo_address m_host;
     QByteArray m_controlPath;

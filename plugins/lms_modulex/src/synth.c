@@ -123,7 +123,15 @@ static void v_modulex_connect_port(LADSPA_Handle instance, unsigned long port,
         case MODULEX_FX7_KNOB0: plugin->fx7_knob0 = data; break;
         case MODULEX_FX7_KNOB1:	plugin->fx7_knob1 = data; break;    
         case MODULEX_FX7_KNOB2: plugin->fx7_knob2 = data; break;    
-        case MODULEX_FX7_COMBOBOX: plugin->fx7_combobox = data; break;        
+        case MODULEX_FX7_COMBOBOX: plugin->fx7_combobox = data; break;     
+        
+        case LMS_DELAY_TIME: plugin->delay_time = data; break;
+        case LMS_FEEDBACK: plugin->feedback = data; break;
+        case LMS_DRY: plugin->dry = data;  break;
+        case LMS_WET: plugin->wet = data; break;
+        case LMS_DUCK: plugin->duck = data; break;
+        case LMS_CUTOFF: plugin->cutoff = data; break;
+        case LMS_STEREO: plugin->stereo = data; break;
     }
 }
 
@@ -219,6 +227,13 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
     v_mf3_set(plugin_data->mono_modules->multieffect7, 
             *(plugin_data->fx7_knob0), *(plugin_data->fx7_knob1), *(plugin_data->fx7_knob2));
     
+    
+    v_svf_set_cutoff_base(plugin_data->mono_modules->svf0, *(plugin_data->cutoff));
+    v_svf_set_cutoff_base(plugin_data->mono_modules->svf1, *(plugin_data->cutoff));
+            
+    v_svf_set_cutoff(plugin_data->mono_modules->svf0);
+    v_svf_set_cutoff(plugin_data->mono_modules->svf1);
+    
     plugin_data->i_buffer_clear = 0;
     /*Clear the output buffer*/
     while((plugin_data->i_buffer_clear) < sample_count)
@@ -275,9 +290,48 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
         plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect7->output0;
         plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect7->output1;
         
-        output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample0);
-        output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample1);
+        /*TODO
+         * 
+         * Optimize all of these * .01s...
+         * 
+         */
+        
+        if((*(plugin_data->wet)) < -29.0f)
+        {
+            output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample0);
+            output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample1);
+        }
+        else
+        {
+            v_smr_iir_run(plugin_data->mono_modules->time_smoother, (*(plugin_data->delay_time) * .01));
 
+            //Not using ducking for now...  Need to do a better version that uses the new limiter
+            //v_enf_run_env_follower(plugin_data->mono_modules->env_follower, ((plugin_data->mono_modules->current_sample0) + (plugin_data->mono_modules->current_sample1)));
+
+            /*If above the ducking threshold, reduce the wet amount by the same*/
+            /*if((plugin_data->mono_modules->env_follower->output_smoothed) > *(plugin_data->duck))
+            {
+                v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), 
+                        *(plugin_data->feedback),
+                        (*(plugin_data->wet) - ((plugin_data->mono_modules->env_follower->output_smoothed) - *(plugin_data->duck))), 
+                        *(plugin_data->dry), (*(plugin_data->stereo) * .01));
+            }
+            else
+            {*/
+                v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), *(plugin_data->feedback), 
+                        *(plugin_data->wet), *(plugin_data->dry), (*(plugin_data->stereo) * .01));
+            //}
+
+            v_ldl_run_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1));        
+
+            output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->delay->output0);
+            output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->delay->output1);
+
+            plugin_data->mono_modules->delay->feedback0 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf0, (plugin_data->mono_modules->delay->feedback0));
+            plugin_data->mono_modules->delay->feedback1 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf1, (plugin_data->mono_modules->delay->feedback1));
+
+        }
+        
         plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
     }
 }
@@ -619,6 +673,70 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[MODULEX_FX7_COMBOBOX].LowerBound =  0;
 	port_range_hints[MODULEX_FX7_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
+        
+        /* Parameters for delay time */
+	port_descriptors[LMS_DELAY_TIME] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_DELAY_TIME] = "Delay Time";
+	port_range_hints[LMS_DELAY_TIME].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_DELAY_TIME].LowerBound =  10;
+	port_range_hints[LMS_DELAY_TIME].UpperBound =  100;
+        
+        /* Parameters for feedback */
+	port_descriptors[LMS_FEEDBACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_FEEDBACK] = "Feedback";
+	port_range_hints[LMS_FEEDBACK].HintDescriptor =
+			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_FEEDBACK].LowerBound =  -15;
+	port_range_hints[LMS_FEEDBACK].UpperBound =  0;
+
+        /* Parameters for dry */
+	port_descriptors[LMS_DRY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_DRY] = "Dry";
+	port_range_hints[LMS_DRY].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_DRY].LowerBound =  -30;
+	port_range_hints[LMS_DRY].UpperBound =  0;
+        
+        /* Parameters for wet */
+	port_descriptors[LMS_WET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_WET] = "Wet";
+	port_range_hints[LMS_WET].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MINIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_WET].LowerBound =  -30;
+	port_range_hints[LMS_WET].UpperBound =  0;
+        
+        /* Parameters for duck */
+	port_descriptors[LMS_DUCK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_DUCK] = "Duck";
+	port_range_hints[LMS_DUCK].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_DUCK].LowerBound =  -40;
+	port_range_hints[LMS_DUCK].UpperBound =  0;
+        
+        /* Parameters for cutoff */
+	port_descriptors[LMS_CUTOFF] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_CUTOFF] = "Cutoff";
+	port_range_hints[LMS_CUTOFF].HintDescriptor =
+			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_CUTOFF].LowerBound =  40;
+	port_range_hints[LMS_CUTOFF].UpperBound =  118;
+        
+        
+        /* Parameters for stereo */
+	port_descriptors[LMS_STEREO] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[LMS_STEREO] = "Stereo";
+	port_range_hints[LMS_STEREO].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_STEREO].LowerBound =  0;
+	port_range_hints[LMS_STEREO].UpperBound =  100;
         
         
 	LMSLDescriptor->activate = v_modulex_activate;
