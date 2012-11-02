@@ -757,7 +757,7 @@ void _init()
 	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
 	LMSDDescriptor->get_midi_controller_for_port = i_modulex_get_controller;
 	LMSDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
-	LMSDDescriptor->run_synth = NULL;
+	LMSDDescriptor->run_synth = v_modulex_run;
 	LMSDDescriptor->run_synth_adding = NULL;
 	LMSDDescriptor->run_multiple_synths = NULL;
 	LMSDDescriptor->run_multiple_synths_adding = NULL;
