@@ -136,14 +136,18 @@ class region_list_editor:
 
     def show_cell_dialog(self, x, y):
         def note_ok_handler():
-            if f_new_radiobutton.isChecked():
+            if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
                 f_cell_text = str(f_new_lineedit.text())
                 this_pydaw_project.create_empty_item(f_new_lineedit.text())
                 this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
+                
+            if f_copy_from_radiobutton.isChecked():
+                this_pydaw_project.copy_item(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
+                this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
 
-            if f_new_radiobutton.isChecked():
+            if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
                 this_item_editor.open_item(f_cell_text)
             f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
             self.region.add_item_ref(x, y, f_cell_text)
@@ -160,6 +164,8 @@ class region_list_editor:
 
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
+        f_vlayout0 = QtGui.QVBoxLayout()
+        f_vlayout1 = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
         f_new_radiobutton = QtGui.QRadioButton()
         f_new_radiobutton.setChecked(True)
@@ -168,12 +174,17 @@ class region_list_editor:
         f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_item_name())
         f_new_lineedit.setMaxLength(24)
         f_layout.addWidget(f_new_lineedit, 0, 2)
+        f_layout.addLayout(f_vlayout0, 1, 0)        
+        f_copy_from_radiobutton = QtGui.QRadioButton()
+        f_vlayout0.addWidget(f_copy_from_radiobutton)
         f_copy_radiobutton = QtGui.QRadioButton()
-        f_layout.addWidget(f_copy_radiobutton, 1, 0)
+        f_vlayout0.addWidget(f_copy_radiobutton)
         f_copy_combobox = QtGui.QComboBox()
         f_copy_combobox.addItems(this_pydaw_project.get_item_list())
         f_copy_combobox.currentIndexChanged.connect(copy_combobox_index_changed)
-        f_layout.addWidget(QtGui.QLabel("Existing:"), 1, 1)
+        f_layout.addLayout(f_vlayout1, 1, 1)
+        f_vlayout1.addWidget(QtGui.QLabel("Copy from:"))
+        f_vlayout1.addWidget(QtGui.QLabel("Existing:"))
         f_layout.addWidget(f_copy_combobox, 1, 2)
         f_ok_button = QtGui.QPushButton("OK")
         f_layout.addWidget(f_ok_button, 5,0)
@@ -461,7 +472,6 @@ class seq_track:
     def on_name_changed(self, new_name):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_instrument_change(self, selected_instrument):
-        #this_pydaw_project.session_mgr.instrument_index_changed(self.track_number, selected_instrument, str(self.track_name_lineedit.text()))
         if selected_instrument == 0:
             self.track_name_lineedit.setEnabled(True)
         else:
@@ -524,13 +534,18 @@ class seq_track:
         self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
         self.instrument_combobox.setMinimumWidth(100)
         self.hlayout3.addWidget(self.instrument_combobox)
+        f_button_style = "QPushButton { background-color: black; border-style: outset; border-width: 2px;	border-radius: 5px; border-color: white; font: bold 12px; padding: 2px;	color:white;}"
         self.ui_button = QtGui.QPushButton("UI")
         self.ui_button.pressed.connect(self.on_show_ui)
+        self.ui_button.setMinimumWidth(30)
         self.ui_button.setMaximumWidth(30)
+        self.ui_button.setStyleSheet(f_button_style)
         self.hlayout3.addWidget(self.ui_button)
         self.fx_button = QtGui.QPushButton("FX")
         self.fx_button.pressed.connect(self.on_show_fx)
+        self.fx_button.setMinimumWidth(30)
         self.fx_button.setMaximumWidth(30)
+        self.fx_button.setStyleSheet(f_button_style)
         self.hlayout3.addWidget(self.fx_button)
         
     def open_track(self, a_track):

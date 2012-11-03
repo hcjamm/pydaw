@@ -145,23 +145,25 @@ class pydaw_project:
         f_file.close()
 
     def copy_region(self, a_old_region, a_new_region):
-        copyfile(self.regions_folder + "/" + a_old_region + ".pyreg", self.regions_folder + "/" + a_new_region + ".pyreg")
+        copyfile(self.regions_folder + "/" + str(a_old_region) + ".pyreg", self.regions_folder + "/" + str(a_new_region) + ".pyreg")
 
     def copy_item(self, a_old_item, a_new_item):
-        copyfile(self.items_folder + "/" + a_old_item + ".pyitem", self.items_folder + "/" + a_new_item + ".pyitem")
+        copyfile(self.items_folder + "/" + str(a_old_item) + ".pyitem", self.items_folder + "/" + str(a_new_item) + ".pyitem")
 
     def save_item(self, a_name, a_item):
-        f_file = open(self.items_folder + "/" + a_name + ".pyitem", 'w')
+        f_name = str(a_name)
+        f_file = open(self.items_folder + "/" + f_name + ".pyitem", 'w')
         f_file.write(a_item.__str__())
         f_file.close()
-        self.this_dssi_gui.pydaw_save_item(a_name)
+        self.this_dssi_gui.pydaw_save_item(f_name)
 
     def save_region(self, a_name, a_region):
-        f_file_name = self.regions_folder + "/" + a_name + ".pyreg"
+        f_name = str(a_name)
+        f_file_name = self.regions_folder + "/" + f_name + ".pyreg"
         f_file = open(f_file_name, 'w')
         f_file.write(a_region.__str__())
         f_file.close()
-        self.this_dssi_gui.pydaw_save_region(a_name)
+        self.this_dssi_gui.pydaw_save_region(f_name)
 
     def save_song(self, a_song):
         f_file = open(self.project_folder + "/" + self.project_file + ".pysong", 'w')
