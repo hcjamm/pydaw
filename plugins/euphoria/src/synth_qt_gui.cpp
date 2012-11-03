@@ -3936,10 +3936,7 @@ int euphoria_configure_handler(const char *path, const char *types, lo_arg **arg
     } else if (!strcmp(key, "lastdir")) {
         gui->m_file_selector->lms_last_directory = QString::fromLocal8Bit(value);
         gui->m_file_browser->folder_opened(QString::fromLocal8Bit(value), FALSE);
-    } else if (!strcmp(key, "pydaw_close_window")) {
-        euphoria_cerr << "Closing window...\n";
-        gui->close();
-    }
+    } 
     gui->m_suppressHostUpdate = FALSE;
     return 0;
 }

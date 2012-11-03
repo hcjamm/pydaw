@@ -706,19 +706,12 @@ int rayv_program_handler(const char *path, const char *types, lo_arg **argv,
 int rayv_configure_handler(const char *path, const char *types, lo_arg **argv,
 		  int argc, void *data, void *user_data)
 {
-    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
+    //rayv_gui *gui = static_cast<rayv_gui *>(user_data);
     const char *key = (const char *)&argv[0]->s;
     const char *value = (const char *)&argv[1]->s;
 
     rayv_cerr << "GUI configure_handler:  Key:  " << QString::fromLocal8Bit(key) << " , Value:" << QString::fromLocal8Bit(value);
     
-    if (!strcmp(key, "pydaw_close_window")) 
-    {
-        gui->close();
-	//gui->setHostRequestedQuit(true);
-        //qApp->quit();
-    }
-
     return 0;
 }
 
