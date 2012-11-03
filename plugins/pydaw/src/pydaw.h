@@ -1127,7 +1127,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
                         a_pydaw_data->track_pool[a_track_num]->instrument->ui_osc_configure_path, "ss", "pydaw_close_window", "");
             }
 
-            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
+            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_track_num]->instrument);
         }
         
         if(a_pydaw_data->track_pool[a_track_num]->effect)
@@ -1138,7 +1138,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
                         a_pydaw_data->track_pool[a_track_num]->effect->ui_osc_configure_path, "ss", "pydaw_close_window", "");
             }
 
-            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->effect);
+            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_track_num]->effect);
         }
         
         a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
