@@ -350,7 +350,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                     {
                                         f_current_track_bar++;
 
-                                        if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
+                                        if(f_current_track_bar >= PYDAW_REGION_SIZE)
                                         {
                                             f_current_track_bar = 0;
 
@@ -464,7 +464,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                     {
                                         f_current_track_bar++;
 
-                                        if((pydaw_data->current_bar) >= PYDAW_REGION_SIZE)
+                                        if(f_current_track_bar >= PYDAW_REGION_SIZE)
                                         {
                                             f_current_track_bar = 0;
 
