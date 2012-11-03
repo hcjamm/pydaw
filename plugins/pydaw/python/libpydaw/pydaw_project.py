@@ -22,7 +22,7 @@ def beat_frac_text_to_float(f_index):
         return 0.25
     elif f_index == 3:
         return 0.33333333
-    elif f_index == 3:
+    elif f_index == 4:
         return 0.5
     else:
         return 0.25
