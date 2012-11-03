@@ -63,17 +63,16 @@ int main(int argc, char** argv)
     }
     */
     
-    v_pydaw_parse_configure_message(pydaw_data, "tr", "4|0");
+    v_pydaw_parse_configure_message(pydaw_data, "tr", "0|1");
     
-    for(i2 = 0; i2 < 10; i2++)
-    {
-        v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
-        for(i = 0; i < 600; i++)
-        {
-            f_ddesc->run_synth(f_handle, 4096, NULL, 0);
-        }
-        f_ddesc->configure(pydaw_data, "stop", "");
+    v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
+    
+    while(pydaw_data->current_region < 4)
+    {        
+        f_ddesc->run_synth(f_handle, 4096, NULL, 0);     
     }   
+    
+    f_ddesc->configure(pydaw_data, "stop", "");
     /*
     g_get_2d_array_from_file("/home/bob/dssi/pydaw/default-project/items/item-0.pyitem", 65536);
     */
