@@ -3,9 +3,9 @@
 A class that contains methods and data for a PyDAW project.
 """
 
-import sys, os
+import os
 from shutil import copyfile, move
-from os import listdir
+
 #from lms_session import lms_session #deprecated
 from dssi_gui import dssi_gui
 
