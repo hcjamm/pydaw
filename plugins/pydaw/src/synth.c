@@ -545,7 +545,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                 f_track_next_period_beats = f_track_next_period_beats - 4.0f;
                                 f_track_beats_offset = (f_sample_period_inc * 4.0f) - f_track_next_period_beats;
 
-                                pydaw_data->track_current_item_note_event_indexes[f_i] = 0;
+                                pydaw_data->track_current_item_cc_event_indexes[f_i] = 0;
 
                                 if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
                                 {
