@@ -407,7 +407,35 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                         }
                         else
                         {
-                            break;
+                            if(f_track_next_period_beats >= 4.0f)
+                            {
+                                f_track_current_period_beats = 0.0f;
+                                f_track_next_period_beats = f_track_next_period_beats - 4.0f;
+                                f_track_beats_offset = (f_sample_period_inc * 4.0f) - f_track_next_period_beats;
+
+                                pydaw_data->track_note_event_indexes[f_i] = 0;
+
+                                if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
+                                {
+                                    f_current_track_bar++;
+
+                                    if(f_current_track_bar >= PYDAW_REGION_SIZE)
+                                    {
+                                        f_current_track_bar = 0;
+
+                                        if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
+                                        {
+                                            f_current_track_region++;
+                                        }
+                                    }
+                                }
+
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
                     }
                 }
@@ -508,10 +536,38 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                             {
                                 break;
                             }
-                        }
+                        }                        
                         else
                         {
-                            break;
+                            if(f_track_next_period_beats >= 4.0f)
+                            {
+                                f_track_current_period_beats = 0.0f;
+                                f_track_next_period_beats = f_track_next_period_beats - 4.0f;
+                                f_track_beats_offset = (f_sample_period_inc * 4.0f) - f_track_next_period_beats;
+
+                                pydaw_data->track_note_event_indexes[f_i] = 0;
+
+                                if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
+                                {
+                                    f_current_track_bar++;
+
+                                    if(f_current_track_bar >= PYDAW_REGION_SIZE)
+                                    {
+                                        f_current_track_bar = 0;
+
+                                        if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
+                                        {
+                                            f_current_track_region++;
+                                        }
+                                    }
+                                }
+
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
                     }
                 }
