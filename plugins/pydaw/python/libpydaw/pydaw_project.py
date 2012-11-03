@@ -11,6 +11,22 @@ from dssi_gui import dssi_gui
 
 pydaw_terminating_char = "\\"
 
+beat_fracs = ['1/16', '1/8', '1/4', '1/3', '1/2']
+
+def beat_frac_text_to_float(f_index):
+    if f_index == 0:
+        return 0.0625
+    elif f_index == 1:
+        return 0.125
+    elif f_index == 2:
+        return 0.25
+    elif f_index == 3:
+        return 0.33333333
+    elif f_index == 3:
+        return 0.5
+    else:
+        return 0.25
+
 int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 def note_num_to_string(a_note_num):    

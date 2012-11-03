@@ -257,6 +257,7 @@ class item_list_editor:
         self.default_cc_num = 0
         self.default_cc_start = 0.0
         self.default_cc_val = 0
+        self.default_quantize = 2
 
     def set_headers(self): #Because clearing the table clears the headers
         self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note', 'Note#', 'Velocity'])
@@ -328,21 +329,24 @@ class item_list_editor:
                 self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
             f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
             f_note_name = str(f_note.currentText()) + str(f_octave.value())
-            f_new_note = pydaw_note(f_start.value(), f_length.value(), f_note_value, f_velocity.value())
+            f_start_rounded = round(f_start.value(), 4)
+            f_length_rounded = round(f_length.value(), 4)
+            f_new_note = pydaw_note(f_start_rounded, f_length_rounded, f_note_value, f_velocity.value())
             if not self.item.add_note(f_new_note):
                 QtGui.QMessageBox.warning(f_window, "Error", "Overlapping note events")
                 return
-
-            self.default_note_start = f_start.value()
-            self.default_note_length = f_length.value()
+            
+            self.default_note_start = f_start_rounded
+            self.default_note_length = f_length_rounded
             self.default_note_note = int(f_note.currentIndex())
             self.default_note_octave = int(f_octave.value())
             self.default_note_velocity = int(f_velocity.value())
+            self.default_quantize = int(f_quantize_combobox.currentIndex())
             
             self.notes_table_widget.setSortingEnabled(False)
-            f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))
+            f_start_item = QtGui.QTableWidgetItem(str(f_start_rounded))
             self.notes_table_widget.setItem(x, 0, f_start_item)
-            f_length_item = QtGui.QTableWidgetItem(str(f_length.value()))
+            f_length_item = QtGui.QTableWidgetItem(str(f_length_rounded))
             self.notes_table_widget.setItem(x, 1, f_length_item)                        
             f_note_name_item = QtGui.QTableWidgetItem(f_note_name)
             self.notes_table_widget.setItem(x, 2, f_note_name_item)
@@ -357,13 +361,23 @@ class item_list_editor:
 
         def note_cancel_handler():
             f_window.close()
+            
+        def quantize_changed(f_quantize_index):
+            f_frac = beat_frac_text_to_float(f_quantize_index)
+            f_start.setSingleStep(f_frac)
+            f_length.setSingleStep(f_frac)
 
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
+        f_quantize_combobox = QtGui.QComboBox()
+        f_quantize_combobox.addItems(beat_fracs)
+        f_quantize_combobox.currentIndexChanged.connect(quantize_changed)
+        f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 0, 0)
+        f_layout.addWidget(f_quantize_combobox, 0, 1)
         f_note_layout = QtGui.QHBoxLayout()
         f_note = QtGui.QComboBox()
-        f_note.addItems(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])
+        f_note.addItems(int_to_note_array)
         f_note.setCurrentIndex(self.default_note_note)
         f_note_layout.addWidget(f_note)
         f_layout.addWidget(QtGui.QLabel("Note"), 1, 0)
@@ -393,6 +407,7 @@ class item_list_editor:
         f_cancel_button = QtGui.QPushButton("Cancel")
         f_layout.addWidget(f_cancel_button, 5,1)
         f_cancel_button.clicked.connect(note_cancel_handler)
+        f_quantize_combobox.setCurrentIndex(self.default_quantize)
         f_window.exec_()
 
     def ccs_show_event_dialog(self, x, y):
@@ -403,16 +418,18 @@ class item_list_editor:
             self.default_cc_val = int(self.ccs_table_widget.item(x, 2).text())
 
         def cc_ok_handler():
-            if not self.item.add_cc(pydaw_cc(f_start.value(), f_cc.value(), f_cc_value.value())):
+            f_start_rounded = round(f_start.value(), 4)
+            
+            if not self.item.add_cc(pydaw_cc(f_start_rounded, f_cc.value(), f_cc_value.value())):
                 QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
                 return
-
+            
             self.default_cc_start = f_start.value()
             self.default_cc_num = f_cc.value()
-            self.default_cc_start = f_start.value()
+            self.default_cc_start = f_start_rounded
             
             self.ccs_table_widget.setSortingEnabled(False)
-            f_start_item = QtGui.QTableWidgetItem(str(f_start.value()))            
+            f_start_item = QtGui.QTableWidgetItem(str(f_start_rounded))            
             self.ccs_table_widget.setItem(x, 0, f_start_item)
             f_cc_num_item = QtGui.QTableWidgetItem(str(f_cc.value()))
             self.ccs_table_widget.setItem(x, 1, f_cc_num_item)
@@ -424,31 +441,41 @@ class item_list_editor:
 
         def cc_cancel_handler():
             f_window.close()
+        
+        def quantize_changed(f_quantize_index):
+            f_frac = beat_frac_text_to_float(f_quantize_index)
+            f_start.setSingleStep(f_frac)
 
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
+        f_quantize_combobox = QtGui.QComboBox()
+        f_quantize_combobox.addItems(beat_fracs)
+        f_quantize_combobox.currentIndexChanged.connect(quantize_changed)
+        f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 0, 0)
+        f_layout.addWidget(f_quantize_combobox, 0, 1)
         f_cc = QtGui.QSpinBox()
         f_cc.setRange(1, 127)
         f_cc.setValue(self.default_cc_num)
-        f_layout.addWidget(QtGui.QLabel("CC"), 0, 0)
-        f_layout.addWidget(f_cc, 0, 1)
+        f_layout.addWidget(QtGui.QLabel("CC"), 1, 0)
+        f_layout.addWidget(f_cc, 1, 1)
         f_cc_value = QtGui.QSpinBox()
         f_cc_value.setRange(1, 127)
         f_cc_value.setValue(self.default_cc_val)
-        f_layout.addWidget(QtGui.QLabel("Value"), 1, 0)
-        f_layout.addWidget(f_cc_value, 1, 1)
-        f_layout.addWidget(QtGui.QLabel("Position(beats)"), 2, 0)
+        f_layout.addWidget(QtGui.QLabel("Value"), 2, 0)
+        f_layout.addWidget(f_cc_value, 2, 1)
+        f_layout.addWidget(QtGui.QLabel("Position(beats)"), 3, 0)
         f_start = QtGui.QDoubleSpinBox()
         f_start.setRange(0.0, 3.99)
         f_start.setValue(self.default_cc_start)
-        f_layout.addWidget(f_start, 2, 1)
+        f_layout.addWidget(f_start, 3, 1)
         f_ok_button = QtGui.QPushButton("OK")
         f_layout.addWidget(f_ok_button, 4,0)
         f_ok_button.clicked.connect(cc_ok_handler)
         f_cancel_button = QtGui.QPushButton("Cancel")
         f_layout.addWidget(f_cancel_button, 4,1)
         f_cancel_button.clicked.connect(cc_cancel_handler)
+        f_quantize_combobox.setCurrentIndex(self.default_quantize)
         f_window.exec_()
 
 rec_button_group = QtGui.QButtonGroup()
