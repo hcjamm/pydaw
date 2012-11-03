@@ -379,7 +379,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                 float f_note_start_frac = f_note_start_diff / f_sample_period_inc_beats;
                                 f_note_sample_offset =  (int)(f_note_start_frac * ((float)sample_count));                            
 
-                                printf("\n\nSending note_on event\nf_i = %i, f_note_start_diff = %f, f_sample_period_inc_beats = %f, f_note_start_frac = %f, f_note_sample_offset = %i, sample_count = %i, pydaw_data->current_sample = %i\n\n", 
+                                printf("\n\nSending note_on event\nf_i = %i, f_note_start_diff = %f, f_sample_period_inc_beats = %f, f_note_start_frac = %f, f_note_sample_offset = %i, sample_count = %i, pydaw_data->current_sample = %ld\n\n", 
                                         f_i, f_note_start_diff, f_sample_period_inc_beats, f_note_start_frac, f_note_sample_offset, (int)sample_count, pydaw_data->current_sample);
 
                                 snd_seq_ev_set_noteon(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)], 0,
@@ -563,7 +563,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                 if((pydaw_data->note_offs[f_i][f_i2]) >= (pydaw_data->current_sample) &&
                    (pydaw_data->note_offs[f_i][f_i2]) < f_next_current_sample)
                 {
-                    printf("\n\nSending note_off event\nf_i = %i, pydaw_data->note_offs[f_i][f_i2] = %i, pydaw_data->current_sample = %i\n\n", 
+                    printf("\n\nSending note_off event\nf_i = %i, pydaw_data->note_offs[f_i][f_i2] = %ld, pydaw_data->current_sample = %ld\n\n", 
                                 f_i, pydaw_data->note_offs[f_i][f_i2], pydaw_data->current_sample);
                     snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->event_index)]);
 
