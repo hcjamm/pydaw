@@ -112,7 +112,7 @@ typedef struct st_pytrack
     int rec;
     int plugin_index;
     snd_seq_event_t * event_buffer;
-    int event_index;
+    int current_period_event_index;
     t_pydaw_plugin * instrument;
     t_pydaw_plugin * effect;
 }t_pytrack;
@@ -124,8 +124,8 @@ typedef struct st_pydaw_data
     pthread_mutex_t mutex;
     t_pysong * pysong;
     t_pytrack * track_pool[PYDAW_MAX_TRACK_COUNT];
-    int track_note_event_indexes[PYDAW_MAX_TRACK_COUNT];
-    int track_cc_event_indexes[PYDAW_MAX_TRACK_COUNT];       
+    int track_current_item_note_event_indexes[PYDAW_MAX_TRACK_COUNT];
+    int track_current_item_cc_event_indexes[PYDAW_MAX_TRACK_COUNT];       
     int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
     int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
     char * project_name;
@@ -563,8 +563,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
         f_result->track_pool[f_i] = g_pytrack_get();
-        f_result->track_note_event_indexes[f_i] = 0;
-        f_result->track_cc_event_indexes[f_i] = 0;
+        f_result->track_current_item_note_event_indexes[f_i] = 0;
+        f_result->track_current_item_cc_event_indexes[f_i] = 0;
         
         int f_i2 = 0;
         
@@ -827,8 +827,8 @@ void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
-        a_pydaw_data->track_cc_event_indexes[f_i] = 0;
-        a_pydaw_data->track_note_event_indexes[f_i] = 0;
+        a_pydaw_data->track_current_item_cc_event_indexes[f_i] = 0;
+        a_pydaw_data->track_current_item_note_event_indexes[f_i] = 0;
         f_i++;
     }
     
