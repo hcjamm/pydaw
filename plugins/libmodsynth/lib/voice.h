@@ -2,7 +2,8 @@
  * File:   voice.h
  * Author: Jeff Hubbard
  * 
- * Provides a voicing architecture for polyphonic instruments
+ * Provides a voicing architecture for polyphonic instruments, as well as 
+ * sample-accurate note-on and note-off capabilities...
  *
  * Created on April 18, 2012, 5:59 PM
  */
@@ -112,7 +113,8 @@ int i_pick_voice(t_voc_voices *data, int a_current_note, long a_current_sample, 
             data->voices[(data->iterator)].note = a_current_note;
             data->voices[(data->iterator)].n_state = note_state_running;
             data->voices[(data->iterator)].on = a_current_sample + a_tick;
-
+            data->voices[(data->iterator)].off = -1;
+            
             return (data->iterator);
 	}
         
@@ -136,6 +138,7 @@ int i_pick_voice(t_voc_voices *data, int a_current_note, long a_current_sample, 
     data->voices[highest_note_voice].note = a_current_note;
     data->voices[highest_note_voice].on = a_current_sample + a_tick;
     data->voices[highest_note_voice].n_state = note_state_running;
+    data->voices[highest_note_voice].off = -1;
             
     return highest_note_voice;        
 }
@@ -153,6 +156,7 @@ void v_voc_note_off(t_voc_voices * a_voc, int a_note, long a_current_sample, lon
         {
             a_voc->voices[(a_voc->iterator)].n_state = note_state_releasing;
             a_voc->voices[(a_voc->iterator)].off = a_current_sample + a_tick;
+            a_voc->voices[(a_voc->iterator)].on = -1;
         }
                 
         a_voc->iterator  = (a_voc->iterator) + 1;
