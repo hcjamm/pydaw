@@ -18,13 +18,15 @@ GNU General Public License for more details.
 #include <ladspa.h>
 #include "ports.h"
 #include "../../libmodsynth/lib/amp.h"
+#include "../../libmodsynth/lib/voice.h"
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/lib/cc_map.h"
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/interpolate-linear.h"
 
-#define EUPHORIA_NOTES 100
-#define EUPHORIA_NOTES_m1 99
+#define EUPHORIA_NOTES 128
+#define EUPHORIA_NOTES_m1 127
+#define EUPHORIA_POLYPHONY 32
 #define EUPHORIA_FRAMES_MAX 1048576
 //Pad the end of samples with zeroes to ensure you don't get artifacts from samples that have no silence at the end
 #define EUPHORIA_Sample_Padding 100
@@ -107,9 +109,9 @@ typedef struct {
     float       sampleLoopStartPos[EUPHORIA_MAX_SAMPLE_COUNT];   //There is no sampleLoopEndPos because the regular sample end is re-used for this purpose
     float       sample_amp[EUPHORIA_MAX_SAMPLE_COUNT];     //linear, for multiplying
     /*TODO: Initialize these at startup*/
-    int         sample_indexes[EUPHORIA_NOTES][EUPHORIA_MAX_SAMPLE_COUNT];  //Sample indexes for each note to play
-    int         sample_indexes_count[EUPHORIA_NOTES]; //The count of sample indexes to iterate through
-    float vel_sens_output[EUPHORIA_NOTES][EUPHORIA_MAX_SAMPLE_COUNT];
+    int         sample_indexes[EUPHORIA_POLYPHONY][EUPHORIA_MAX_SAMPLE_COUNT];  //Sample indexes for each note to play
+    int         sample_indexes_count[EUPHORIA_POLYPHONY]; //The count of sample indexes to iterate through
+    float vel_sens_output[EUPHORIA_POLYPHONY][EUPHORIA_MAX_SAMPLE_COUNT];
     
     int sample_mfx_groups_index[EUPHORIA_MAX_SAMPLE_COUNT];  //Cast to int during note_on
     
@@ -144,10 +146,11 @@ typedef struct {
     float fs;    //From Ray-V
     float ratio; //Used per-sample;  If voices are ever multithreaded, this will need to be widened...
     float sample_rate_ratios[EUPHORIA_MAX_SAMPLE_COUNT];
-    long         ons[EUPHORIA_NOTES];
-    long         offs[EUPHORIA_NOTES];
-    int         velocities[EUPHORIA_NOTES];    
-    t_int_frac_read_head * sample_read_heads[EUPHORIA_NOTES][EUPHORIA_MAX_SAMPLE_COUNT];
+    //long         ons[EUPHORIA_NOTES];
+    //long         offs[EUPHORIA_NOTES];
+    t_voc_voices * voices;
+    int         velocities[EUPHORIA_POLYPHONY];    
+    t_int_frac_read_head * sample_read_heads[EUPHORIA_POLYPHONY][EUPHORIA_MAX_SAMPLE_COUNT];
     long         sampleNo;
     //char        *projectDir;
     char*       sample_paths[EUPHORIA_TOTAL_SAMPLE_COUNT];    
@@ -156,14 +159,14 @@ typedef struct {
     float sample[EUPHORIA_CHANNEL_COUNT];
     
     //PolyFX modulation streams    
-    int polyfx_mod_ctrl_indexes[EUPHORIA_NOTES][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)]; //The index of the control to mod, currently 0-2
-    int polyfx_mod_counts[EUPHORIA_NOTES][EUPHORIA_MODULAR_POLYFX_COUNT];  //How many polyfx_mod_ptrs to iterate through for the current note
-    int polyfx_mod_src_index[EUPHORIA_NOTES][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)];  //The index of the modulation source(LFO, ADSR, etc...) to multiply by
-    float polyfx_mod_matrix_values[EUPHORIA_NOTES][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)];  //The value of the mod_matrix knob, multiplied by .01
+    int polyfx_mod_ctrl_indexes[EUPHORIA_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)]; //The index of the control to mod, currently 0-2
+    int polyfx_mod_counts[EUPHORIA_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT];  //How many polyfx_mod_ptrs to iterate through for the current note
+    int polyfx_mod_src_index[EUPHORIA_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)];  //The index of the modulation source(LFO, ADSR, etc...) to multiply by
+    float polyfx_mod_matrix_values[EUPHORIA_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)];  //The value of the mod_matrix knob, multiplied by .01
     
     //Active PolyFX to process
-    int active_polyfx[EUPHORIA_NOTES][EUPHORIA_MODULAR_POLYFX_COUNT];
-    int active_polyfx_count[EUPHORIA_NOTES];
+    int active_polyfx[EUPHORIA_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT];
+    int active_polyfx_count[EUPHORIA_POLYPHONY];
     
     pthread_mutex_t mutex;
     t_euphoria_mono_modules * mono_modules;
@@ -171,7 +174,7 @@ typedef struct {
     t_pit_pitch_core * smp_pit_core;
     t_pit_ratio * smp_pit_ratio;
     t_ccm_midi_cc_map * midi_cc_map;    
-    t_euphoria_poly_voice * data[EUPHORIA_NOTES];
+    t_euphoria_poly_voice * data[EUPHORIA_POLYPHONY];
     
     long pos_plus_i;  //To avoid redundantly calculating this
     
