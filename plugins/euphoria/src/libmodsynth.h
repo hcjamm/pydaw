@@ -175,12 +175,19 @@ t_euphoria_poly_voice * g_euphoria_poly_init(float a_sr)
 }
 
 
-void v_euphoria_poly_note_off(t_euphoria_poly_voice * a_voice); //, LTS * _instance);
+void v_euphoria_poly_note_off(t_euphoria_poly_voice * a_voice, int a_fast_release);
 
-//Define anything that should happen when the user releases a note here
-void v_euphoria_poly_note_off(t_euphoria_poly_voice * a_voice) //, LTS * _instance)
+void v_euphoria_poly_note_off(t_euphoria_poly_voice * a_voice, int a_fast_release) //, LTS * _instance)
 {
-    v_adsr_release(a_voice->adsr_amp);
+    if(a_fast_release)
+    {
+        v_adsr_set_fast_release(a_voice->adsr_amp);
+    }
+    else
+    {
+        v_adsr_release(a_voice->adsr_amp);
+    }
+    
     v_adsr_release(a_voice->adsr_filter);    
 }
 
