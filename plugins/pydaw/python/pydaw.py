@@ -396,6 +396,7 @@ class item_list_editor:
             f_frac = beat_frac_text_to_float(f_quantize_index)
             f_start.setSingleStep(f_frac)
             f_length.setSingleStep(f_frac)
+            self.default_quantize = f_quantize_index
 
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
@@ -475,6 +476,7 @@ class item_list_editor:
         def quantize_changed(f_quantize_index):
             f_frac = beat_frac_text_to_float(f_quantize_index)
             f_start.setSingleStep(f_frac)
+            self.default_quantize = f_quantize_index
 
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
@@ -512,10 +514,9 @@ class item_list_editor:
         f_cell = self.pitchbend_table_widget.item(x, y)
         if f_cell is not None:
             self.default_pb_start = float(self.pitchbend_table_widget.item(x, 0).text())            
-            self.default_pb_val = int(self.pitchbend_table_widget.item(x, 2).text())
+            self.default_pb_val = float(self.pitchbend_table_widget.item(x, 1).text())
 
         def pb_ok_handler():
-            self.default_pb_quantize = f_quantize_combobox.currentIndex()
             f_start_rounded = round(f_start.value(), 4)
             
             if not self.item.add_pb(pydaw_pitchbend(f_start_rounded, f_pb.value())):
@@ -540,6 +541,7 @@ class item_list_editor:
         def quantize_changed(f_quantize_index):
             f_frac = beat_frac_text_to_float(f_quantize_index)
             f_start.setSingleStep(f_frac)
+            self.default_pb_quantize = f_quantize_index
 
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
