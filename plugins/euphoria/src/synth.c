@@ -609,7 +609,7 @@ static void run_sampler_interpolation_none(t_euphoria *__restrict plugin_data, i
  * unsigned long pos, //the position in the output buffer
  * unsigned long count) //how many samples to fill in the output buffer
  */
-static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, unsigned long pos, unsigned long count)
+static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, unsigned long count)
 {
     unsigned long i, ch;
 
@@ -763,9 +763,7 @@ static inline void v_euphoria_slow_index(t_euphoria* plugin_data)
 static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 		       snd_seq_event_t *events, unsigned long event_count)
 {
-    t_euphoria *plugin_data = (t_euphoria *) instance;
-    unsigned long pos;
-    unsigned long count;
+    t_euphoria *plugin_data = (t_euphoria *) instance;    
     unsigned long event_pos = 0;
     int i, i2, i3;
 
@@ -991,85 +989,70 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
         ++event_pos;
     }
     
-    for (pos = 0; pos < sample_count; ) 
-    {        
-	count = sample_count - pos;
-	if (event_pos < event_count && events[event_pos].time.tick < sample_count) 
-        {
-	    count = events[event_pos].time.tick - pos;
-	}
-        
-        v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
+    v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
 
-        for(i = 0; i < count; i++)        
-        {
-            for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
-            {            
-                plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][0][i] = 0.0f;
-                plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][1][i] = 0.0f;            
-            }
+    for(i = 0; i < sample_count; i++)
+    {
+        for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
+        {            
+            plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][0][i] = 0.0f;
+            plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][1][i] = 0.0f;            
         }
-        
-	for (i = 0; i < EUPHORIA_POLYPHONY; ++i) 
-        {
-	    if(((plugin_data->data[i]->adsr_amp->stage) < 4) && ((plugin_data->sample_indexes_count[i]) > 0))
-            {    
-                add_sample_lms_euphoria(plugin_data, i, pos, count);                                
-	    }
-	}
-        
-        float f_temp_sample0, f_temp_sample1;
-        
-        for(i = 0; i < count; i++)        
-        {
-            plugin_data->pos_plus_i = pos + i;
-
-            for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
-            {
-                f_temp_sample0 = (plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][0][i]);
-                f_temp_sample1 = (plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][1][i]);
-                
-                
-                for(i3 = 0; i3 < EUPHORIA_MONO_FX_COUNT; i3++)
-                {
-                    v_mf3_set(plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3], (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][0])), (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][1])), (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][2])));
-                    plugin_data->mono_modules->fx_func_ptr[(plugin_data->monofx_channel_index[i2])][i3](plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3], f_temp_sample0, f_temp_sample1);
-
-                    f_temp_sample0 = (plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3]->output0);
-                    f_temp_sample1 = (plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3]->output1);
-                }
-                
-                plugin_data->output[0][(plugin_data->pos_plus_i)] += f_temp_sample0;
-                plugin_data->output[1][(plugin_data->pos_plus_i)] += f_temp_sample1;
-            }            
-        }
-        
-        if(((plugin_data->preview_sample_array_index) < (plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT])) &&
-                ((plugin_data->preview_sample_array_index) <  (plugin_data->preview_sample_max_length)))
-        {
-            for(i = 0; i < count; i++)
-            {
-                plugin_data->pos_plus_i = pos + i;
-                
-                plugin_data->output[0][(plugin_data->pos_plus_i)] += plugin_data->mono_fx_buffers[0][0][i];
-                plugin_data->output[1][(plugin_data->pos_plus_i)] += plugin_data->mono_fx_buffers[0][1][i];
-                
-                //Add the previewing sample
-                plugin_data->output[0][(plugin_data->pos_plus_i)] += (plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
-                plugin_data->output[1][(plugin_data->pos_plus_i)] += (plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
-                
-                plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + 1;
-                
-                if((plugin_data->preview_sample_array_index) >= (plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT]))
-                {
-                    lms_strcpy(plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT], "");
-                    break;
-                }
-            }
-        }
-	pos += count;
     }
 
+    for (i = 0; i < EUPHORIA_POLYPHONY; ++i) 
+    {
+        if(((plugin_data->data[i]->adsr_amp->stage) < 4) && ((plugin_data->sample_indexes_count[i]) > 0))
+        {    
+            add_sample_lms_euphoria(plugin_data, i, sample_count);                                
+        }
+    }
+
+    float f_temp_sample0, f_temp_sample1;
+
+    for(i = 0; i < sample_count; i++)        
+    {
+        for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
+        {
+            f_temp_sample0 = (plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][0][i]);
+            f_temp_sample1 = (plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][1][i]);
+
+            for(i3 = 0; i3 < EUPHORIA_MONO_FX_COUNT; i3++)
+            {
+                v_mf3_set(plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3], (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][0])), (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][1])), (*(plugin_data->mfx_knobs[(plugin_data->monofx_channel_index[i2])][i3][2])));
+                plugin_data->mono_modules->fx_func_ptr[(plugin_data->monofx_channel_index[i2])][i3](plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3], f_temp_sample0, f_temp_sample1);
+
+                f_temp_sample0 = (plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3]->output0);
+                f_temp_sample1 = (plugin_data->mono_modules->multieffect[(plugin_data->monofx_channel_index[i2])][i3]->output1);
+            }
+
+            plugin_data->output[0][i] += f_temp_sample0;
+            plugin_data->output[1][i] += f_temp_sample1;
+        }            
+    }
+
+    if(((plugin_data->preview_sample_array_index) < (plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT])) &&
+            ((plugin_data->preview_sample_array_index) <  (plugin_data->preview_sample_max_length)))
+    {
+        for(i = 0; i < sample_count; i++)
+        {
+            plugin_data->output[0][i] += plugin_data->mono_fx_buffers[0][0][i];
+            plugin_data->output[1][i] += plugin_data->mono_fx_buffers[0][1][i];
+
+            //Add the previewing sample
+            plugin_data->output[0][i] += (plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+            plugin_data->output[1][i] += (plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+
+            plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + 1;
+
+            if((plugin_data->preview_sample_array_index) >= (plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT]))
+            {
+                lms_strcpy(plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT], "");
+                break;
+            }
+        }
+    }
+    
     plugin_data->sampleNo += sample_count;
     pthread_mutex_unlock(&plugin_data->mutex);
 }

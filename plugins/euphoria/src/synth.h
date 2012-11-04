@@ -175,9 +175,7 @@ typedef struct {
     t_pit_ratio * smp_pit_ratio;
     t_ccm_midi_cc_map * midi_cc_map;    
     t_euphoria_poly_voice * data[EUPHORIA_POLYPHONY];
-    
-    long pos_plus_i;  //To avoid redundantly calculating this
-    
+        
     //These are used for storing the mono FX buffers from the polyphonic voices.
     //4096 was chosen because AFAIK that's the largest size you can use in qjackctl
     float mono_fx_buffers[EUPHORIA_MONO_FX_GROUPS_COUNT][2][4096];
