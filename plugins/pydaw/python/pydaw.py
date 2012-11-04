@@ -328,6 +328,8 @@ class item_list_editor:
         if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
             self.ccs_show_event_dialog(x, y)
         elif this_edit_mode_selector.delete_radiobutton.isChecked():
+            if self.ccs_table_widget.item(x, 0) is None:
+                return
             self.item.remove_cc(pydaw_cc(self.ccs_table_widget.item(x, 0).text(), self.ccs_table_widget.item(x, 1).text(), self.ccs_table_widget.item(x, 2).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
@@ -451,22 +453,26 @@ class item_list_editor:
         def cc_ok_handler():
             f_start_rounded = round(f_start.value(), 4)
             
-            if not self.item.add_cc(pydaw_cc(f_start_rounded, f_cc.value(), f_cc_value.value())):
-                QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
-                return
+            if f_draw_line_checkbox.isChecked():
+                self.item.draw_cc_line(f_cc.value(), f_start.value(), f_cc_value.value(), f_end.value(), f_end_value.value())
+            else:
+                if not self.item.add_cc(pydaw_cc(f_start_rounded, f_cc.value(), f_cc_value.value())):
+                    QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
+                    return
             
             self.default_cc_start = f_start.value()
             self.default_cc_num = f_cc.value()
             self.default_cc_start = f_start_rounded
             
-            self.ccs_table_widget.setSortingEnabled(False)
-            f_start_item = QtGui.QTableWidgetItem(str(f_start_rounded))            
-            self.ccs_table_widget.setItem(x, 0, f_start_item)
-            f_cc_num_item = QtGui.QTableWidgetItem(str(f_cc.value()))
-            self.ccs_table_widget.setItem(x, 1, f_cc_num_item)
-            f_cc_val_item = QtGui.QTableWidgetItem(str(f_cc_value.value()))
-            self.ccs_table_widget.setItem(x, 2, f_cc_val_item)
+            #self.ccs_table_widget.setSortingEnabled(False)
+            #f_start_item = QtGui.QTableWidgetItem(str(f_start_rounded))            
+            #self.ccs_table_widget.setItem(x, 0, f_start_item)
+            #f_cc_num_item = QtGui.QTableWidgetItem(str(f_cc.value()))
+            #self.ccs_table_widget.setItem(x, 1, f_cc_num_item)
+            #f_cc_val_item = QtGui.QTableWidgetItem(str(f_cc_value.value()))
+            #self.ccs_table_widget.setItem(x, 2, f_cc_val_item)
             this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
             self.ccs_table_widget.setSortingEnabled(True)
             f_window.close()
 
@@ -492,20 +498,30 @@ class item_list_editor:
         f_layout.addWidget(QtGui.QLabel("CC"), 1, 0)
         f_layout.addWidget(f_cc, 1, 1)
         f_cc_value = QtGui.QSpinBox()
-        f_cc_value.setRange(1, 127)
+        f_cc_value.setRange(0, 127)
         f_cc_value.setValue(self.default_cc_val)
         f_layout.addWidget(QtGui.QLabel("Value"), 2, 0)
         f_layout.addWidget(f_cc_value, 2, 1)
-        f_layout.addWidget(QtGui.QLabel("Position(beats)"), 3, 0)
+        f_layout.addWidget(QtGui.QLabel("Start(beats)"), 3, 0)
         f_start = QtGui.QDoubleSpinBox()
         f_start.setRange(0.0, 3.99)
         f_start.setValue(self.default_cc_start)
         f_layout.addWidget(f_start, 3, 1)
+        f_draw_line_checkbox = QtGui.QCheckBox("Draw line")
+        f_layout.addWidget(f_draw_line_checkbox, 4, 1)
+        f_layout.addWidget(QtGui.QLabel("End(beats)"), 5, 0)
+        f_end = QtGui.QDoubleSpinBox()
+        f_end.setRange(0, 3.99)
+        f_layout.addWidget(f_end, 5, 1)
+        f_layout.addWidget(QtGui.QLabel("End Value"), 6, 0)
+        f_end_value = QtGui.QSpinBox()
+        f_end_value.setRange(0, 127)
+        f_layout.addWidget(f_end_value, 6, 1)
         f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 4,0)
+        f_layout.addWidget(f_ok_button, 7,0)
         f_ok_button.clicked.connect(cc_ok_handler)
         f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 4,1)
+        f_layout.addWidget(f_cancel_button, 7,1)
         f_cancel_button.clicked.connect(cc_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_quantize)
         f_window.exec_()
