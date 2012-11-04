@@ -344,17 +344,17 @@ class pydaw_item:
         f_end = float(a_end)
         f_end_val = int(a_end_val)
         #Pop any events that would overlap
+        f_to_be_removed = []
         for cc in self.ccs:
             if cc.cc_num == f_cc and cc.start >= f_start and cc.start <= f_end:
-                self.ccs.remove(cc)
+                f_to_be_removed.append(cc)
+        for cc in f_to_be_removed:
+            self.ccs.remove(cc)
         
         f_start_diff = f_end - f_start
-        print(str(f_start_diff))
         f_val_diff = f_end_val - f_start_val
-        print(str(f_val_diff))
         f_time_inc = f_start_diff/float(f_val_diff)
-        print(str(f_time_inc))
-        for i in range(0, f_val_diff):
+        for i in range(0, (f_val_diff + 1)):
             self.ccs.append(pydaw_cc(round(f_start, 4), f_cc, f_start_val))
             f_start_val += 1
             f_start += f_time_inc
@@ -374,8 +374,27 @@ class pydaw_item:
                 self.pitchbends.pop(i)
                 break                       
 
-    def draw_pb_line(self):
-        pass
+    def draw_pb_line(self, a_start, a_start_val, a_end, a_end_val, a_curve=0):
+        f_start = float(a_start)
+        f_start_val = float(a_start_val)
+        f_end = float(a_end)
+        f_end_val = float(a_end_val)
+        #Pop any events that would overlap
+        f_to_be_removed = []
+        for pb in self.pitchbends:
+            if pb.start >= f_start and pb.start <= f_end:
+                f_to_be_removed.append(pb)
+        for pb in f_to_be_removed:
+            self.pitchbends.remove(pb)
+        
+        f_start_diff = f_end - f_start        
+        f_val_diff = f_end_val - f_start_val        
+        f_time_inc = f_start_diff/(float(f_val_diff) * 20.0)        
+        for i in range(0, int((f_val_diff * 20) + 1)):
+            self.pitchbends.append(pydaw_pitchbend(round(f_start, 4), f_start_val))
+            f_start_val += 0.05
+            f_start += f_time_inc
+        self.pitchbends.sort()
             
     def get_next_default_cc(self):
         pass

@@ -340,6 +340,8 @@ class item_list_editor:
         if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
             self.pitchbend_show_event_dialog(x, y)
         elif this_edit_mode_selector.delete_radiobutton.isChecked():
+            if self.pitchbend_table_widget.item(x, 0) is None:
+                return
             self.item.remove_pb(pydaw_pitchbend(self.pitchbend_table_widget.item(x, 0).text(), self.pitchbend_table_widget.item(x, 1).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
@@ -462,15 +464,7 @@ class item_list_editor:
             
             self.default_cc_start = f_start.value()
             self.default_cc_num = f_cc.value()
-            self.default_cc_start = f_start_rounded
-            
-            #self.ccs_table_widget.setSortingEnabled(False)
-            #f_start_item = QtGui.QTableWidgetItem(str(f_start_rounded))            
-            #self.ccs_table_widget.setItem(x, 0, f_start_item)
-            #f_cc_num_item = QtGui.QTableWidgetItem(str(f_cc.value()))
-            #self.ccs_table_widget.setItem(x, 1, f_cc_num_item)
-            #f_cc_val_item = QtGui.QTableWidgetItem(str(f_cc_value.value()))
-            #self.ccs_table_widget.setItem(x, 2, f_cc_val_item)
+            self.default_cc_start = f_start_rounded            
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
             self.ccs_table_widget.setSortingEnabled(True)
@@ -534,21 +528,18 @@ class item_list_editor:
 
         def pb_ok_handler():
             f_start_rounded = round(f_start.value(), 4)
-            
-            if not self.item.add_pb(pydaw_pitchbend(f_start_rounded, f_pb.value())):
-                QtGui.QMessageBox.warning(f_window, "Error", "Duplicate pitchbend event")
-                return
+            if f_draw_line_checkbox.isChecked():
+                self.item.draw_pb_line(f_start.value(), f_pb.value(), f_end.value(), f_end_value.value())
+            else:
+                if not self.item.add_pb(pydaw_pitchbend(f_start_rounded, f_pb.value())):
+                    QtGui.QMessageBox.warning(f_window, "Error", "Duplicate pitchbend event")
+                    return
                         
             self.default_pb_start = f_start_rounded
             self.default_pb_val = f_pb.value()
-            
-            self.pitchbend_table_widget.setSortingEnabled(False)
-            f_start_item = QtGui.QTableWidgetItem(str(f_start_rounded))
-            self.pitchbend_table_widget.setItem(x, 0, f_start_item)
-            f_pb_val_item = QtGui.QTableWidgetItem(str(f_pb.value()))
-            self.pitchbend_table_widget.setItem(x, 1, f_pb_val_item)
+                        
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.pitchbend_table_widget.setSortingEnabled(True)
+            self.open_item(self.item_name)
             f_window.close()
 
         def pb_cancel_handler():
@@ -578,11 +569,22 @@ class item_list_editor:
         f_start.setRange(0.0, 3.99)
         f_start.setValue(self.default_pb_start)
         f_layout.addWidget(f_start, 3, 1)
+        f_draw_line_checkbox = QtGui.QCheckBox("Draw line")
+        f_layout.addWidget(f_draw_line_checkbox, 4, 1)
+        f_layout.addWidget(QtGui.QLabel("End(beats)"), 5, 0)
+        f_end = QtGui.QDoubleSpinBox()
+        f_end.setRange(0, 3.99)
+        f_layout.addWidget(f_end, 5, 1)
+        f_layout.addWidget(QtGui.QLabel("End Value"), 6, 0)
+        f_end_value = QtGui.QDoubleSpinBox()
+        f_end_value.setRange(-1, 1)
+        f_end_value.setSingleStep(0.01)
+        f_layout.addWidget(f_end_value, 6, 1)
         f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 4,0)
+        f_layout.addWidget(f_ok_button, 7,0)
         f_ok_button.clicked.connect(pb_ok_handler)
         f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 4,1)
+        f_layout.addWidget(f_cancel_button, 7,1)
         f_cancel_button.clicked.connect(pb_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_pb_quantize)
         f_window.exec_()
@@ -807,7 +809,7 @@ class edit_mode_selector:
         self.groupbox = QtGui.QGroupBox()
         self.hlayout0 = QtGui.QHBoxLayout(self.groupbox)
         self.hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
-        self.add_radiobutton = QtGui.QRadioButton("Add")
+        self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
         self.hlayout0.addWidget(self.add_radiobutton)
         self.delete_radiobutton = QtGui.QRadioButton("Delete")
         self.hlayout0.addWidget(self.delete_radiobutton)
@@ -959,7 +961,6 @@ def global_new_project():
 
 def about_to_quit():
     this_pydaw_project.quit_handler()
-
 
 pydaw_write_log("\n\n\n***********STARTING***********\n\n")
 for arg in argv:
