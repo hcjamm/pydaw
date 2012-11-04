@@ -276,7 +276,7 @@ void v_adsr_run(t_adsr *__restrict a_adsr_ptr)
         {            
             case 0:
                 a_adsr_ptr->output = (a_adsr_ptr->output) + (a_adsr_ptr->a_inc);
-                if((a_adsr_ptr->output) >= 1)
+                if((a_adsr_ptr->output) >= 1.0f)
                 {
                     a_adsr_ptr->stage = 1;
                     //printf("ADSR stage1\n");
@@ -297,9 +297,9 @@ void v_adsr_run(t_adsr *__restrict a_adsr_ptr)
                 /*Currently, this would actually take longer to release if the note off arrives
                  before the decay stage finishes, I may fix it later*/
                 a_adsr_ptr->output =  (a_adsr_ptr->output) + (a_adsr_ptr->r_inc);
-                if((a_adsr_ptr->output) <= 0)
+                if((a_adsr_ptr->output) <= 0.0f)
                 {
-                    a_adsr_ptr->output = 0;
+                    a_adsr_ptr->output = 0.0f;
                     a_adsr_ptr->stage = 4;
                     //printf("ADSR stage4\n");
                 }
