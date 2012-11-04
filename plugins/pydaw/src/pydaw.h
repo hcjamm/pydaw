@@ -495,7 +495,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         else if(!strcmp(f_type, "p")) //pitchbend
         {            
             char * f_pb_val_char = c_iterate_2d_char_array(f_current_string);
-            int f_pb_val = atof(f_pb_val_char) * 16384.0f;  //TODO:  I may need to half that???
+            int f_pb_val = atof(f_pb_val_char) * 8192.0f;
             
             f_result->pitchbends[(f_result->pitchbend_count)] = g_pypitchbend_get(atof(f_start), f_pb_val);
             f_result->pitchbend_count = (f_result->pitchbend_count) + 1;
