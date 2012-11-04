@@ -245,9 +245,17 @@ class item_list_editor:
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
         self.ccs_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.sortItems(0)
+                
+        self.pitchbend_table_widget = QtGui.QTableWidget()
+        self.pitchbend_table_widget.setColumnCount(2)
+        self.pitchbend_table_widget.setRowCount(128)
+        self.pitchbend_table_widget.cellClicked.connect(self.pitchbend_click_handler)
+        self.pitchbend_table_widget.setSortingEnabled(True)
+        self.pitchbend_table_widget.sortItems(0)
 
         self.main_hlayout.addWidget(self.notes_table_widget)
         self.main_hlayout.addWidget(self.ccs_table_widget)
+        self.main_hlayout.addWidget(self.pitchbend_table_widget)
         self.set_headers()        
         self.default_note_start = 0.0
         self.default_note_length = 1.0
@@ -258,15 +266,20 @@ class item_list_editor:
         self.default_cc_start = 0.0
         self.default_cc_val = 0
         self.default_quantize = 2
+        self.default_pb_start = 0
+        self.default_pb_val = 0
+        self.default_pb_quantize = 0
 
     def set_headers(self): #Because clearing the table clears the headers
         self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note', 'Note#', 'Velocity'])
         self.ccs_table_widget.setHorizontalHeaderLabels(['Start', 'CC', 'Value'])
+        self.pitchbend_table_widget.setHorizontalHeaderLabels(['Start', 'Value'])
 
     def open_item(self, a_item_name):
         self.enabled = True
         self.notes_table_widget.clear()
         self.ccs_table_widget.clear()
+        self.pitchbend_table_widget.clear()
         self.set_headers()
         self.item_name = a_item_name
         self.item = this_pydaw_project.get_item(a_item_name)
@@ -288,10 +301,17 @@ class item_list_editor:
             self.ccs_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
             self.ccs_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
             f_i = f_i + 1
+        self.ccs_table_widget.setSortingEnabled(True)
+        self.pitchbend_table_widget.setSortingEnabled(False)
+        f_i = 0
+        for pb in self.item.pitchbends:
+            self.pitchbend_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(pb.start)))
+            self.pitchbend_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(pb.pb_val)))
+            f_i = f_i + 1
+        self.pitchbend_table_widget.setSortingEnabled(True)
         if this_region_editor.open_new_items_checkbox.isChecked():
             this_main_window.main_tabwidget.setCurrentIndex(1)
-        self.ccs_table_widget.setSortingEnabled(True)
-
+        
     def notes_click_handler(self, x, y):
         if not self.enabled:
             return
@@ -309,6 +329,16 @@ class item_list_editor:
             self.ccs_show_event_dialog(x, y)
         elif this_edit_mode_selector.delete_radiobutton.isChecked():
             self.item.remove_cc(pydaw_cc(self.ccs_table_widget.item(x, 0).text(), self.ccs_table_widget.item(x, 1).text(), self.ccs_table_widget.item(x, 2).text()))
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
+
+    def pitchbend_click_handler(self, x, y):
+        if not self.enabled:
+            return
+        if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
+            self.pitchbend_show_event_dialog(x, y)
+        elif this_edit_mode_selector.delete_radiobutton.isChecked():
+            self.item.remove_pb(pydaw_pitchbend(self.pitchbend_table_widget.item(x, 0).text(), self.pitchbend_table_widget.item(x, 1).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
 
@@ -476,6 +506,67 @@ class item_list_editor:
         f_layout.addWidget(f_cancel_button, 4,1)
         f_cancel_button.clicked.connect(cc_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_quantize)
+        f_window.exec_()
+        
+    def pitchbend_show_event_dialog(self, x, y):
+        f_cell = self.pitchbend_table_widget.item(x, y)
+        if f_cell is not None:
+            self.default_pb_start = float(self.pitchbend_table_widget.item(x, 0).text())            
+            self.default_pb_val = int(self.pitchbend_table_widget.item(x, 2).text())
+
+        def pb_ok_handler():
+            self.default_pb_quantize = f_quantize_combobox.currentIndex()
+            f_start_rounded = round(f_start.value(), 4)
+            
+            if not self.item.add_pb(pydaw_pitchbend(f_start_rounded, f_pb.value())):
+                QtGui.QMessageBox.warning(f_window, "Error", "Duplicate pitchbend event")
+                return
+                        
+            self.default_pb_start = f_start_rounded
+            self.default_pb_val = f_pb.value()
+            
+            self.pitchbend_table_widget.setSortingEnabled(False)
+            f_start_item = QtGui.QTableWidgetItem(str(f_start_rounded))
+            self.pitchbend_table_widget.setItem(x, 0, f_start_item)
+            f_pb_val_item = QtGui.QTableWidgetItem(str(f_pb.value()))
+            self.pitchbend_table_widget.setItem(x, 1, f_pb_val_item)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.pitchbend_table_widget.setSortingEnabled(True)
+            f_window.close()
+
+        def pb_cancel_handler():
+            f_window.close()
+        
+        def quantize_changed(f_quantize_index):
+            f_frac = beat_frac_text_to_float(f_quantize_index)
+            f_start.setSingleStep(f_frac)
+
+        f_window = QtGui.QDialog()
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_quantize_combobox = QtGui.QComboBox()
+        f_quantize_combobox.addItems(beat_fracs)
+        f_quantize_combobox.currentIndexChanged.connect(quantize_changed)
+        f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 0, 0)
+        f_layout.addWidget(f_quantize_combobox, 0, 1)
+        f_pb = QtGui.QDoubleSpinBox()
+        f_pb.setSingleStep(0.01)
+        f_pb.setRange(-1, 1)
+        f_pb.setValue(self.default_pb_val)
+        f_layout.addWidget(QtGui.QLabel("Value"), 2, 0)
+        f_layout.addWidget(f_pb, 2, 1)
+        f_layout.addWidget(QtGui.QLabel("Position(beats)"), 3, 0)
+        f_start = QtGui.QDoubleSpinBox()
+        f_start.setRange(0.0, 3.99)
+        f_start.setValue(self.default_pb_start)
+        f_layout.addWidget(f_start, 3, 1)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_layout.addWidget(f_ok_button, 4,0)
+        f_ok_button.clicked.connect(pb_ok_handler)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_layout.addWidget(f_cancel_button, 4,1)
+        f_cancel_button.clicked.connect(pb_cancel_handler)
+        f_quantize_combobox.setCurrentIndex(self.default_pb_quantize)
         f_window.exec_()
 
 rec_button_group = QtGui.QButtonGroup()
