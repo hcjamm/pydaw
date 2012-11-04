@@ -171,12 +171,19 @@ t_rayv_poly_voice * g_rayv_poly_init()
 }
 
 
-void v_rayv_poly_note_off(t_rayv_poly_voice * a_voice); //, LTS * _instance);
+void v_rayv_poly_note_off(t_rayv_poly_voice * a_voice, int a_fast);
 
-//Define anything that should happen when the user releases a note here
-void v_rayv_poly_note_off(t_rayv_poly_voice * a_voice) //, LTS * _instance)
+void v_rayv_poly_note_off(t_rayv_poly_voice * a_voice, int a_fast)
 {
-    v_adsr_release(a_voice->adsr_amp);
+    if(a_fast)
+    {
+        v_adsr_set_fast_release(a_voice->adsr_amp);
+    }
+    else
+    {
+        v_adsr_release(a_voice->adsr_amp);
+    }
+    
     v_adsr_release(a_voice->adsr_filter);    
 }
 

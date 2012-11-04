@@ -443,7 +443,14 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_rayv_synth_vals *vals, t_voc
         
         if ((((a_voice->i_voice) + (plugin_data->sampleNo)) == a_poly_voice.off) && ((a_voice->adsr_amp->stage) < 3))
         {
-            v_rayv_poly_note_off(a_voice);         
+            if(a_poly_voice.n_state == note_state_killed)
+            {
+                v_rayv_poly_note_off(a_voice, 1);
+            }
+            else
+            {
+                v_rayv_poly_note_off(a_voice, 0);
+            }
 	}        
 
         a_voice->current_sample = 0;
