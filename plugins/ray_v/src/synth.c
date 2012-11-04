@@ -423,6 +423,10 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
                     sample_count
                     );
         }
+        else
+        {
+            plugin_data->voices->voices[(plugin_data->i_run_poly_voice)].n_state = note_state_off;
+        }
 
         plugin_data->i_run_poly_voice = (plugin_data->i_run_poly_voice) + 1; 
     }

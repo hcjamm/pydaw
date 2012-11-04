@@ -625,7 +625,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, u
                             
         if(plugin_data->data[n]->adsr_amp->stage == 4)
         {
-            //plugin_data->ons[n] = -1;
+            plugin_data->voices->voices[n].n_state = note_state_off;
             break;
         }
 
@@ -636,19 +636,23 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, u
         f_rmp_run_ramp(plugin_data->data[n]->glide_env);
         
         //Set and run the LFO
-        v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01  );
+        v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01);
         v_lfs_run(plugin_data->data[n]->lfo1);
         
         plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied)
                 +  (plugin_data->mono_modules->pitchbend_smoother->output)  //(plugin_data->sv_pitch_bend_value)
                 + (plugin_data->data[n]->last_pitch);
         
-        
-                 
-	//if (plugin_data->offs[n] >= 0 && pos + i + plugin_data->sampleNo > plugin_data->offs[n]) 
-        if((plugin_data->voices->voices[n].off) == (pos + i + plugin_data->sampleNo)) 
-        {            
-            v_euphoria_poly_note_off(plugin_data->data[n]);
+        if((plugin_data->voices->voices[n].off) == (i + plugin_data->sampleNo)) //pos + 
+        {   
+            if(plugin_data->voices->voices[n].n_state == note_state_killed)
+            {
+                v_euphoria_poly_note_off(plugin_data->data[n], 1);
+            }
+            else
+            {
+                v_euphoria_poly_note_off(plugin_data->data[n], 0);
+            }            
 	}        
                 
         plugin_data->sample[0] = 0.0f;
@@ -717,7 +721,6 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, u
             
             plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;            
         }
-           
     }
 }
 

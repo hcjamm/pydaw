@@ -94,7 +94,8 @@ int i_pick_voice(t_voc_voices *data, int a_current_note, long a_current_sample, 
     /* Look for a duplicate note */
     while ((data->iterator) < (data->count)) 
     {
-	if ((data->voices[(data->iterator)].note == a_current_note) && (data->voices[(data->iterator)].n_state == note_state_running)) 
+	//if ((data->voices[(data->iterator)].note == a_current_note) && (data->voices[(data->iterator)].n_state == note_state_running)) 
+        if ((data->voices[(data->iterator)].note == a_current_note) && (data->voices[(data->iterator)].n_state != note_state_off)) 
         {
                 /*Kill the note if already being used, this is to prevent hung
                  notes in hosts that might not handle MIDI events properly*/
@@ -107,14 +108,14 @@ int i_pick_voice(t_voc_voices *data, int a_current_note, long a_current_sample, 
     
     data->iterator = 0;
     /* Look for an inactive voice */
-    while ((data->iterator) < (data->count)) {
+    while ((data->iterator) < (data->count)) 
+    {
 	if (data->voices[(data->iterator)].n_state == note_state_off) 
         {        
             data->voices[(data->iterator)].note = a_current_note;
             data->voices[(data->iterator)].n_state = note_state_running;
             data->voices[(data->iterator)].on = a_current_sample + a_tick;
-            data->voices[(data->iterator)].off = -1;
-            
+                        
             return (data->iterator);
 	}
         
@@ -126,7 +127,8 @@ int i_pick_voice(t_voc_voices *data, int a_current_note, long a_current_sample, 
     
     data->iterator = 0;
     /* otherwise find for the highest note and replace that */
-    while ((data->iterator) < (data->count)) {
+    while ((data->iterator) < (data->count)) 
+    {
 	if (data->voices[(data->iterator)].note > highest_note) 
         {
 	    highest_note = data->voices[(data->iterator)].note;
@@ -155,8 +157,7 @@ void v_voc_note_off(t_voc_voices * a_voc, int a_note, long a_current_sample, lon
            ((a_voc->voices[(a_voc->iterator)].n_state) == note_state_running))
         {
             a_voc->voices[(a_voc->iterator)].n_state = note_state_releasing;
-            a_voc->voices[(a_voc->iterator)].off = a_current_sample + a_tick;
-            a_voc->voices[(a_voc->iterator)].on = -1;
+            a_voc->voices[(a_voc->iterator)].off = a_current_sample + a_tick;            
         }
                 
         a_voc->iterator  = (a_voc->iterator) + 1;
