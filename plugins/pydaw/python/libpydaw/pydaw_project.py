@@ -335,7 +335,31 @@ class pydaw_item:
             if self.ccs[i] == a_cc:
                 self.ccs.pop(i)
                 break
-
+            
+    #TODO:  A maximum number of events per line?
+    def draw_cc_line(self, a_cc, a_start, a_start_val, a_end, a_end_val, a_curve=0):
+        f_cc = int(a_cc)        
+        f_start = float(a_start)
+        f_start_val = int(a_start_val)
+        f_end = float(a_end)
+        f_end_val = int(a_end_val)
+        #Pop any events that would overlap
+        for cc in self.ccs:
+            if cc.cc_num == f_cc and cc.start >= f_start and cc.start <= f_end:
+                self.ccs.remove(cc)
+        
+        f_start_diff = f_end - f_start
+        print(str(f_start_diff))
+        f_val_diff = f_end_val - f_start_val
+        print(str(f_val_diff))
+        f_time_inc = f_start_diff/float(f_val_diff)
+        print(str(f_time_inc))
+        for i in range(0, f_val_diff):
+            self.ccs.append(pydaw_cc(round(f_start, 4), f_cc, f_start_val))
+            f_start_val += 1
+            f_start += f_time_inc
+        self.ccs.sort()
+    
     def add_pb(self, a_pb):
         for pb in self.pitchbends:
             if a_pb == pb:
@@ -349,6 +373,9 @@ class pydaw_item:
             if self.pitchbends[i] == a_pb:
                 self.pitchbends.pop(i)
                 break                       
+
+    def draw_pb_line(self):
+        pass
             
     def get_next_default_cc(self):
         pass
