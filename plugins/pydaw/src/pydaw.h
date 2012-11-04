@@ -77,6 +77,12 @@ typedef struct st_pycc
     float start;
 }t_pycc;
 
+typedef struct st_pypitchbend
+{
+    int val;
+    float start;
+} t_pypitchbend;
+
 typedef struct st_pyitem
 {
     char * name;
@@ -84,7 +90,8 @@ typedef struct st_pyitem
     int note_count;    
     t_pycc * ccs[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
     int cc_count;
-    //int resize_factor;
+    t_pypitchbend * pitchbends[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
+    int pitchbend_count;
     int note_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
     int cc_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
 }t_pyitem;
@@ -125,7 +132,8 @@ typedef struct st_pydaw_data
     t_pysong * pysong;
     t_pytrack * track_pool[PYDAW_MAX_TRACK_COUNT];
     int track_current_item_note_event_indexes[PYDAW_MAX_TRACK_COUNT];
-    int track_current_item_cc_event_indexes[PYDAW_MAX_TRACK_COUNT];       
+    int track_current_item_cc_event_indexes[PYDAW_MAX_TRACK_COUNT];
+    int track_current_item_pitchbend_event_indexes[PYDAW_MAX_TRACK_COUNT];
     int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
     int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
     char * project_name;
@@ -159,6 +167,7 @@ t_pytrack * g_pytrack_get();
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char*);
 void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name);
 t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start);
+t_pypitchbend * g_pypitchbend_get(float a_start, int a_value);
 t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length);
 t_pydaw_data * g_pydaw_data_get(float);
 int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name);
@@ -196,6 +205,16 @@ t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start)
     f_result->cc_num = a_cc_num;
     f_result->cc_val = a_cc_val;
     f_result->start = a_start;
+    
+    return f_result;
+}
+
+t_pypitchbend * g_pypitchbend_get(float a_start, int a_value)
+{
+    t_pypitchbend * f_result = (t_pypitchbend*)malloc(sizeof(t_pypitchbend));
+    
+    f_result->start = a_start;
+    f_result->val = a_value;
     
     return f_result;
 }
@@ -428,11 +447,13 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     
     int f_i = 0;
     
+    /*  WTF was this??  Clearly wrong, leaving here in case it should've really been something
     while(f_i < PYDAW_MAX_EVENTS_PER_ITEM_COUNT)
     {
         f_result->notes[(f_result->note_count)] = NULL;
         f_i++;
     }
+    */
     
     f_i = 0;
 
@@ -447,7 +468,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         
         char * f_start = c_iterate_2d_char_array(f_current_string);
         
-        if(!strcmp(f_type, "n"))
+        if(!strcmp(f_type, "n"))  //note
         {
             char * f_length = c_iterate_2d_char_array(f_current_string);
             char * f_note = c_iterate_2d_char_array(f_current_string);
@@ -460,7 +481,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
             free(f_note);
             free(f_vel);
         }
-        else if(!strcmp(f_type, "c"))
+        else if(!strcmp(f_type, "c")) //cc
         {
             char * f_cc_num = c_iterate_2d_char_array(f_current_string);
             char * f_cc_val = c_iterate_2d_char_array(f_current_string);
@@ -470,6 +491,16 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
             
             free(f_cc_num);
             free(f_cc_val);
+        }        
+        else if(!strcmp(f_type, "p")) //pitchbend
+        {            
+            char * f_pb_val_char = c_iterate_2d_char_array(f_current_string);
+            int f_pb_val = atof(f_pb_val_char) * 16384.0f;  //TODO:  I may need to half that???
+            
+            f_result->pitchbends[(f_result->pitchbend_count)] = g_pypitchbend_get(atof(f_start), f_pb_val);
+            f_result->pitchbend_count = (f_result->pitchbend_count) + 1;
+            
+            free(f_pb_val_char);
         }
         else
         {
@@ -565,6 +596,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         f_result->track_pool[f_i] = g_pytrack_get();
         f_result->track_current_item_note_event_indexes[f_i] = 0;
         f_result->track_current_item_cc_event_indexes[f_i] = 0;
+        f_result->track_current_item_pitchbend_event_indexes[f_i] = 0;
         
         int f_i2 = 0;
         
@@ -829,6 +861,7 @@ void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
     {
         a_pydaw_data->track_current_item_cc_event_indexes[f_i] = 0;
         a_pydaw_data->track_current_item_note_event_indexes[f_i] = 0;
+        a_pydaw_data->track_current_item_pitchbend_event_indexes[f_i] = 0;
         f_i++;
     }
     

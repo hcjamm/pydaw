@@ -575,6 +575,129 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                 f_i++;
             } //while CCs
             
+            
+            
+            
+            //Calculate track pitchbends for this period and update the controller ports
+            f_i = 0;
+            while(f_i < PYDAW_MAX_TRACK_COUNT)
+            {   
+                /* Situations where the track is effectively muted*/
+                if((pydaw_data->track_pool[f_i]->plugin_index == 0) ||
+                    (pydaw_data->track_pool[f_i]->mute) ||
+                    ((pydaw_data->is_soloed) && (!pydaw_data->track_pool[f_i]->solo)) )
+                {
+                    f_i++;
+                    continue;
+                }
+
+                int f_current_track_region = pydaw_data->current_region;
+                int f_current_track_bar = pydaw_data->current_bar;
+                double f_track_current_period_beats = f_current_period_beats;
+                double f_track_next_period_beats = f_next_period_beats;
+                //double f_track_beats_offset = 0.0f;
+                
+                if((pydaw_data->playback_mode == 2) && (pydaw_data->track_pool[f_i]->rec))
+                {
+                    
+                }
+                else
+                {
+                    while(1)
+                    {
+                        if((pydaw_data->pysong->regions[f_current_track_region]) && 
+                            (pydaw_data->pysong->regions[f_current_track_region]->item_indexes[f_i][f_current_track_bar] != -1))
+                        {
+                            t_pyitem f_current_item = 
+                                    *(pydaw_data->item_pool[(pydaw_data->pysong->regions[f_current_track_region]->item_indexes[f_i][f_current_track_bar])]);
+
+                            if((pydaw_data->track_current_item_pitchbend_event_indexes[f_i]) >= (f_current_item.pitchbend_count))
+                            {
+                                if(f_track_next_period_beats >= 4.0f)
+                                {
+                                    f_track_current_period_beats = 0.0f;
+                                    f_track_next_period_beats = f_track_next_period_beats - 4.0f;
+                                    //f_track_beats_offset = (f_sample_period_inc * 4.0f) - f_track_next_period_beats;
+
+                                    //pydaw_data->track_note_event_indexes[f_i] = 0;
+                                    pydaw_data->track_current_item_pitchbend_event_indexes[f_i] = 0;
+
+                                    if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
+                                    {
+                                        f_current_track_bar++;
+
+                                        if(f_current_track_bar >= PYDAW_REGION_SIZE)
+                                        {
+                                            f_current_track_bar = 0;
+
+                                            if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
+                                            {
+                                                f_current_track_region++;
+                                            }
+                                        }
+                                    }
+                                    
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
+                                }                            
+                            }
+
+                            if(((f_current_item.pitchbends[(pydaw_data->track_current_item_pitchbend_event_indexes[f_i])]->start) >= f_track_current_period_beats) &&
+                                ((f_current_item.pitchbends[(pydaw_data->track_current_item_pitchbend_event_indexes[f_i])]->start) < f_track_next_period_beats))
+                            {
+                                snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)]);
+                                snd_seq_ev_set_pitchbend(
+                                        &pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)],
+                                        0, 
+                                        f_current_item.pitchbends[(pydaw_data->track_current_item_pitchbend_event_indexes[f_i])]->val);
+                                
+                                pydaw_data->track_pool[f_i]->current_period_event_index = (pydaw_data->track_pool[f_i]->current_period_event_index) + 1;                                
+                                pydaw_data->track_current_item_pitchbend_event_indexes[f_i] = (pydaw_data->track_current_item_pitchbend_event_indexes[f_i]) + 1;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }                        
+                        else
+                        {
+                            if(f_track_next_period_beats >= 4.0f)
+                            {
+                                f_track_current_period_beats = 0.0f;
+                                f_track_next_period_beats = f_track_next_period_beats - 4.0f;
+                                //f_track_beats_offset = (f_sample_period_inc * 4.0f) - f_track_next_period_beats;
+
+                                pydaw_data->track_current_item_pitchbend_event_indexes[f_i] = 0;
+
+                                if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
+                                {
+                                    f_current_track_bar++;
+
+                                    if(f_current_track_bar >= PYDAW_REGION_SIZE)
+                                    {
+                                        f_current_track_bar = 0;
+
+                                        if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
+                                        {
+                                            f_current_track_region++;
+                                        }
+                                    }
+                                }
+
+                                continue;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                f_i++;
+            } //while pitchbends
 
             pydaw_data->playback_cursor = f_next_playback_cursor;
             

@@ -335,6 +335,20 @@ class pydaw_item:
             if self.ccs[i] == a_cc:
                 self.ccs.pop(i)
                 break
+
+    def add_pb(self, a_pb):
+        for pb in self.pitchbends:
+            if a_pb == pb:
+                return False #TODO:  return -1 instead of True, and the offending editor_index when False
+        self.pitchbends.append(a_pb)
+        self.pitchbends.sort()
+        return True
+        
+    def remove_pb(self, a_pb):
+        for i in range(0, len(self.pitchbends)):
+            if self.pitchbends[i] == a_pb:
+                self.pitchbends.pop(i)
+                break                       
             
     def get_next_default_cc(self):
         pass
@@ -352,20 +366,26 @@ class pydaw_item:
                     f_result.add_note(pydaw_note.from_arr(f_event_arr))
                 elif f_event_arr[0] == "c":
                     f_result.add_cc(pydaw_cc.from_arr(f_event_arr))
+                elif f_event_arr[0] == "p":
+                    f_result.add_pb(pydaw_pitchbend.from_arr(f_event_arr))
         return f_result
 
     def __init__(self):
         self.notes = []
         self.ccs = []
+        self.pitchbends = []
 
     def __str__(self):
         f_result = ""
         self.notes.sort()
         self.ccs.sort()
+        self.pitchbends.sort()
         for note in self.notes:
             f_result += note.__str__()
         for cc in self.ccs:
             f_result += cc.__str__()
+        for pb in self.pitchbends:
+            f_result += pb.__str__()
         f_result += pydaw_terminating_char
         return f_result
 
@@ -429,6 +449,30 @@ class pydaw_cc:
         f_arr = a_str.split("|")
         return pydaw_note.from_arr(f_arr)
 
+class pydaw_pitchbend:
+    def __eq__(self, other):
+        return ((self.start == other.start) and (self.pb_val == other.pb_val))  #TODO:  get rid of the pb_val comparison?
+        
+    def __lt__(self, other):
+        return self.start < other.start
+    
+    def __init__(self, a_start, a_pb_val):
+        self.start = float(a_start)        
+        self.pb_val = float(a_pb_val)
+
+    def __str__(self):
+        return "p|" + str(self.start) + "|" + str(self.pb_val) + "\n"
+
+    @staticmethod
+    def from_arr(a_arr):
+        f_result = pydaw_pitchbend(a_arr[1], a_arr[2])
+        return f_result
+
+    @staticmethod
+    def from_str(a_str):
+        f_arr = a_str.split("|")
+        return pydaw_note.from_arr(f_arr)
+        
 class pydaw_tracks:
     def add_track(self, a_index, a_track):
         self.tracks[a_index] = a_track
