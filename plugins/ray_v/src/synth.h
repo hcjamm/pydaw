@@ -2,7 +2,6 @@
  * File:   synth.h
  * Author: Jeff Hubbard
  *
- * Created on February 26, 2012, 8:48 PM
  */
 
 #ifndef RAYV_SYNTH_H
@@ -17,25 +16,9 @@ extern "C" {
 #include "../../libmodsynth/lib/voice.h"
 #include "../../libmodsynth/lib/cc_map.h"
     
-/*Comment these out when compiling a stable, production-ready plugin.  
- The debugging code wastes a lot of CPU, and end users don't really need to see it*/
-//#define LMS_DEBUG_NOTE
-//#define LMS_DEBUG_MAIN_LOOP
-//#define LMS_DEBUG_MODE_QT
-
-
-/*Then you can print debug information like this:
-#ifdef LMS_DEBUG_NOTE
-printf("debug information");
-#endif
-*/
-    
 #define LMS_OUTPUT0  0
 #define LMS_OUTPUT1  1
-/*Add ports to the main synthesizer file that the GUI can talk to */
     
-/*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
- as they are iterated through*/
 #define LMS_FIRST_CONTROL_PORT 2
 #define LMS_ATTACK  2
 #define LMS_DECAY   3
@@ -71,7 +54,6 @@ printf("debug information");
 #define LMS_LFO_AMP 33
 #define LMS_LFO_PITCH 34
 #define LMS_LFO_FILTER 35
-/*This is the last control port*/
 #define LMS_LAST_CONTROL_PORT 35
 #define LMS_COUNT 36 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
@@ -125,57 +107,8 @@ typedef struct {
     
     LADSPA_Data noise_amp;
     
-    /*The variables below this line do NOT correspond to GUI controls*/
-#ifdef LMS_DEBUG_MAIN_LOOP
-    int debug_counter;
-#endif
 } t_rayv_synth_vals;
 
-#ifdef LMS_DEBUG_MAIN_LOOP
-
-void dump_debug_synth_vals(t_rayv_synth_vals*);
-
-/*Any changes to voice_data require this to be changed*/
-void dump_debug_synth_vals(t_rayv_synth_vals * a_data)
-{
-    printf("\n\nRunning dump_debug_synth_vals\n");
-    printf("attack == %f\n", a_data->attack);
-    printf("attack_f == %f\n", a_data->attack_f);
-    printf("decay == %f\n", a_data->decay);
-    printf("decay_f == %f\n", a_data->decay_f);
-    printf("dist == %f\n", a_data->dist);
-    printf("dist_wet == %f\n", a_data->dist_wet);
-    printf("filter_env_amt == %f\n", a_data->filter_env_amt);    
-    printf("master_glide == %f\n", a_data->master_glide);    
-    printf("master_pb_amt == %f\n", a_data->master_pb_amt);
-    printf("master_uni_spread == %f\n", a_data->master_uni_spread);
-    printf("master_uni_voice == %f\n", a_data->master_uni_voice);
-    printf("master_vol == %f\n", a_data->master_vol);
-    printf("noise_amp == %f\n", a_data->noise_amp);
-    printf("osc1pitch == %f\n", a_data->osc1pitch);
-    printf("osc1tune == %f\n", a_data->osc1tune);    
-    printf("osc1type == %f\n", a_data->osc1type);   
-    printf("osc1vol == %f\n", a_data->osc1vol);    
-    printf("osc2pitch == %f\n", a_data->osc2pitch);
-    printf("osc2tune == %f\n", a_data->osc2tune);
-    printf("osc2type == %f\n", a_data->osc2type);
-    printf("osc2vol == %f\n", a_data->osc2vol);
-    printf("pitch_env_amt == %f\n", a_data->pitch_env_amt);
-    printf("pitch_env_time == %f\n", a_data->pitch_env_time);    
-    printf("release == %f\n", a_data->release);
-    printf("release_f == %f\n", a_data->release_f);
-    printf("res == %f\n", a_data->res);    
-    printf("sustain == %f\n", a_data->sustain);    
-    printf("sustain_f == %f\n", a_data->sustain_f);
-    printf("timbre == %f\n", a_data->timbre);  
-}
-
-#endif
-
-
-
-
-/*Add a variable for each control in the LMS type*/
 typedef struct {
     LADSPA_Data *output0;
     LADSPA_Data *output1;
