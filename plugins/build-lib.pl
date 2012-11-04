@@ -26,7 +26,7 @@ args:
 
 --coredump	:  Read the most recent core dump for the current plugin directory in GDB(requires that you ran the plugin with --debug and experienced a SEGFAULT)
 
---run		:  Debug using LMS' console output without recompiling.  This assumes the plugin was already compiled and installed before
+--run		:  Compile without debug symbols and with optimizations, and then run.
 
 --deb 		:  Compile and package the plugin into a .deb file (this uses checkinstall, you should use the build-all.pl script instead, using the LibModSynth native packaging system)
 
@@ -99,7 +99,7 @@ sub run_script
 	{
 		system("gdb lms-jack-dssi-host core");
 	}
-	elsif($ARGV[0] eq "--debug" or $ARGV[0] eq "--gdb" or $ARGV[0] eq "--valgrind")
+	elsif($ARGV[0] eq "--debug" or $ARGV[0] eq "--gdb" or $ARGV[0] eq "--valgrind" or $ARGV[0] eq "--run")
 	{
 		check_deps();
 		notify_wait();
@@ -112,11 +112,19 @@ sub run_script
 		
 
 		system("make clean");
-		build($debug_flags);
+		if($ARGV[0] eq "--run")
+		{
+			build($release_flags);
+		}
+		else
+		{
+			build($debug_flags);
+		}
+		
 		`rm -Rf ../bin/*`; #Cleanup the bin directory
 		`rm -Rf ./core`; #Delete any core dumps from previous sessions, gdb seems to be acting up when the previous core dump isn't deleted
 		`make PREFIX=/usr DESTDIR=$dssi_path install`;
-		if($ARGV[0] eq "--debug"){
+		if($ARGV[0] eq "--debug" or $ARGV[0] eq "--run"){
 			exec("ulimit -c unlimited; export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; $local_jack_host $current_dir.so");
 		} elsif($ARGV[0] eq "--gdb") {
 			print("\n\n\n****Type 'run $current_dir.so' at the (gdb) prompt***\n\n\n");
