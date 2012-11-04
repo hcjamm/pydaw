@@ -362,6 +362,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     
     pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
 
+    plugin_data->voices = g_voc_get_voices(EUPHORIA_POLYPHONY);
+    
     plugin_data->i_selected_sample = 0;
     plugin_data->current_sample = 0;
     plugin_data->loaded_samples_count = 0;
@@ -406,7 +408,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     f_i = 0;
     int f_i2;
     
-    while(f_i < EUPHORIA_NOTES)
+    while(f_i < EUPHORIA_POLYPHONY)
     {
         plugin_data->sampleStarts[f_i] = 0;
         plugin_data->sampleEnds[f_i] = 0;
@@ -451,7 +453,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     
     plugin_data->mono_modules = g_euphoria_mono_init(s_rate);
     
-        plugin_data->fs = s_rate;
+    plugin_data->fs = s_rate;
     
     plugin_data->midi_cc_map = g_ccm_get();
     v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_ATTACK, 73, "Attack Amp");    
@@ -507,9 +509,8 @@ static void v_euphoria_activate(LADSPA_Handle instance)
 
     plugin_data->sampleNo = 0;
 
-    for (i = 0; i < EUPHORIA_NOTES; i++) {
-	plugin_data->ons[i] = -1;
-	plugin_data->offs[i] = -1;
+    for (i = 0; i < EUPHORIA_POLYPHONY; i++) 
+    {
 	plugin_data->velocities[i] = 0;
     }
     
@@ -612,10 +613,10 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, u
 {
     unsigned long i, ch;
 
-    for (i = 0; i < count; ++i) {
-
-        //Delay the note-on event until the sample it was called for
-        if(((plugin_data->sampleNo) + i) < (plugin_data->ons[n]))
+    for (i = 0; i < count; ++i) 
+    {
+        //Delay the note-on event until the sample it was called for.  TODO:  just skip and start writing further down the buffer?
+        if(((plugin_data->sampleNo) + i) < (plugin_data->voices->voices[n].on))
             continue;
 
         //Run things that aren't per-channel like envelopes
@@ -624,7 +625,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, u
                             
         if(plugin_data->data[n]->adsr_amp->stage == 4)
         {
-            plugin_data->ons[n] = -1;
+            //plugin_data->ons[n] = -1;
             break;
         }
 
@@ -644,8 +645,8 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, u
         
         
                  
-	if (plugin_data->offs[n] >= 0 &&
-	    pos + i + plugin_data->sampleNo > plugin_data->offs[n]) 
+	//if (plugin_data->offs[n] >= 0 && pos + i + plugin_data->sampleNo > plugin_data->offs[n]) 
+        if((plugin_data->voices->voices[n].off) == (pos + i + plugin_data->sampleNo)) 
         {            
             v_euphoria_poly_note_off(plugin_data->data[n]);
 	}        
@@ -796,60 +797,28 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
         if (events[event_pos].type == SND_SEQ_EVENT_NOTEON) 
         {
             snd_seq_ev_note_t n = events[event_pos].data.note;
-
-            //Code for accepting MIDI only on a user selected MIDI channel.  Not currently implemented
-            //because jack-dssi-host does not accept MIDI on all channels in it's current state
-            /*
-            if(*(plugin_data->global_midi_channel) < 16)
-            {
-                if((int)(*(plugin_data->global_midi_channel)) != (int)(n.channel))
-                {
-                    ++event_pos;
-                    printf("Skipping event on channel %i\n", (int)(n.channel));
-                    continue;
-                }                    
-            }
-            */
-
+            
             f_note = n.note;
-            //f_note_adjusted = n.note + (*(plugin_data->global_midi_octaves_offset) * -12);
-
-            if(f_note < 0)
+            
+            if (n.velocity > 0) 
             {
-                f_note = 0;
-            }
-            if(f_note > EUPHORIA_NOTES_m1)
-            {
-                f_note = EUPHORIA_NOTES_m1;
-            }
+                //plugin_data->ons[f_note] = plugin_data->sampleNo + events[event_pos].time.tick;
+                //plugin_data->offs[f_note] = -1;
+                int f_voice_num = i_pick_voice(plugin_data->voices, f_note, plugin_data->current_sample, events[event_pos].time.tick);
+                plugin_data->velocities[f_voice_num] = n.velocity;
 
-            if(f_note < 0)
-            {
-                f_note = 0;
-            }
-            if(f_note > EUPHORIA_NOTES_m1)
-            {
-                f_note = EUPHORIA_NOTES_m1;
-            }
-
-            if (n.velocity > 0) {
-                plugin_data->ons[f_note] =
-                    plugin_data->sampleNo + events[event_pos].time.tick;
-                plugin_data->offs[f_note] = -1;
-                plugin_data->velocities[f_note] = n.velocity;
-
-                plugin_data->sample_indexes_count[f_note] = 0;
+                plugin_data->sample_indexes_count[f_voice_num] = 0;
 
                 //Figure out which samples to play and stash all relevant values
                 for(i = 0; i  < (plugin_data->loaded_samples_count); i++)
                 {
                     if((f_note >= *(plugin_data->low_note[(plugin_data->loaded_samples[i])])) && 
                     (f_note <= *(plugin_data->high_note[(plugin_data->loaded_samples[i])])) &&
-                    (plugin_data->velocities[f_note] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])) &&
-                    (plugin_data->velocities[f_note] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
+                    (plugin_data->velocities[f_voice_num] <= *(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])])) &&
+                    (plugin_data->velocities[f_voice_num] >= *(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
                     {
-                        plugin_data->sample_indexes[f_note][(plugin_data->sample_indexes_count[f_note])] = (plugin_data->loaded_samples[i]);
-                        plugin_data->sample_indexes_count[f_note] = (plugin_data->sample_indexes_count[f_note]) + 1;                            
+                        plugin_data->sample_indexes[f_voice_num][(plugin_data->sample_indexes_count[f_voice_num])] = (plugin_data->loaded_samples[i]);
+                        plugin_data->sample_indexes_count[f_voice_num] = (plugin_data->sample_indexes_count[f_voice_num]) + 1;                            
 
                         plugin_data->sample_mfx_groups_index[(plugin_data->loaded_samples[i])] = (int)(*(plugin_data->sample_mfx_groups[(plugin_data->loaded_samples[i])]));
 
@@ -877,10 +846,10 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
                         plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->global_midi_octaves_offset) + 2) * 12)
                                 - (*(plugin_data->sample_pitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->sample_tune[(plugin_data->loaded_samples[i])])) * .01f);
 
-                        v_ifh_retrigger(plugin_data->sample_read_heads[f_note][(plugin_data->loaded_samples[i])], 
+                        v_ifh_retrigger(plugin_data->sample_read_heads[f_voice_num][(plugin_data->loaded_samples[i])], 
                                 (plugin_data->sampleStartPos[(plugin_data->current_sample)]));// 0.0f;
 
-                        plugin_data->vel_sens_output[f_note][(plugin_data->loaded_samples[i])] = 
+                        plugin_data->vel_sens_output[f_voice_num][(plugin_data->loaded_samples[i])] = 
                                 ((1 -
                                 (((float)(n.velocity) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
                                 /
@@ -889,7 +858,7 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
 
                         plugin_data->sample_amp[(plugin_data->loaded_samples[i])] = f_db_to_linear(
                             (*(plugin_data->sample_vol[(plugin_data->loaded_samples[i])])) + 
-                            (plugin_data->vel_sens_output[f_note][(plugin_data->loaded_samples[i])])                        
+                            (plugin_data->vel_sens_output[f_voice_num][(plugin_data->loaded_samples[i])])                        
                             , plugin_data->amp_ptr);
 
                         switch((int)(*(plugin_data->sample_interpolation_mode[(plugin_data->loaded_samples[i])])))
@@ -910,87 +879,85 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
                     }
                 }
 
-                plugin_data->active_polyfx_count[f_note] = 0;
+                plugin_data->active_polyfx_count[f_voice_num] = 0;
                 //Determine which PolyFX have been enabled
                 for(plugin_data->i_dst = 0; (plugin_data->i_dst) < EUPHORIA_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
                 {
                     int f_pfx_combobox_index = (int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)]));
-                    plugin_data->data[f_note]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer(f_pfx_combobox_index); 
+                    plugin_data->data[f_voice_num]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer(f_pfx_combobox_index); 
 
                     if(f_pfx_combobox_index != 0)
                     {
-                        plugin_data->active_polyfx[f_note][(plugin_data->active_polyfx_count[f_note])] = (plugin_data->i_dst);
-                        plugin_data->active_polyfx_count[f_note] = (plugin_data->active_polyfx_count[f_note]) + 1;
+                        plugin_data->active_polyfx[f_voice_num][(plugin_data->active_polyfx_count[f_voice_num])] = (plugin_data->i_dst);
+                        plugin_data->active_polyfx_count[f_voice_num] = (plugin_data->active_polyfx_count[f_voice_num]) + 1;
                     }
                 }    
 
                 //Calculate an index of which mod_matrix controls to process.  This saves expensive iterations and if/then logic in the main loop
                 for(plugin_data->i_fx_grps = 0; (plugin_data->i_fx_grps) < EUPHORIA_EFFECTS_GROUPS_COUNT; plugin_data->i_fx_grps = (plugin_data->i_fx_grps) + 1)
                 {
-                    for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[f_note]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
+                    for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[f_voice_num]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
                     {
-                        plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])] = 0;
+                        plugin_data->polyfx_mod_counts[f_voice_num][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])] = 0;
 
                         for(plugin_data->i_src = 0; (plugin_data->i_src) < EUPHORIA_MODULATOR_COUNT; plugin_data->i_src = (plugin_data->i_src) + 1)
                         {
                             for(plugin_data->i_ctrl = 0; (plugin_data->i_ctrl) < EUPHORIA_CONTROLS_PER_MOD_EFFECT; plugin_data->i_ctrl = (plugin_data->i_ctrl) + 1)
                             {
-                                if((*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) != 0)
+                                if((*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) != 0)
                                 {                                        
-                                    plugin_data->polyfx_mod_ctrl_indexes[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])])] = (plugin_data->i_ctrl);
-                                    plugin_data->polyfx_mod_src_index[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])])] = (plugin_data->i_src);
-                                    plugin_data->polyfx_mod_matrix_values[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])])] = 
-                                            (*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) * .01;
+                                    plugin_data->polyfx_mod_ctrl_indexes[f_voice_num][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_voice_num][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])])] = (plugin_data->i_ctrl);
+                                    plugin_data->polyfx_mod_src_index[f_voice_num][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_voice_num][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])])] = (plugin_data->i_src);
+                                    plugin_data->polyfx_mod_matrix_values[f_voice_num][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_voice_num][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])])] = 
+                                            (*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) * .01;
 
-                                    plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])] = (plugin_data->polyfx_mod_counts[f_note][(plugin_data->active_polyfx[f_note][(plugin_data->i_dst)])]) + 1;
+                                    plugin_data->polyfx_mod_counts[f_voice_num][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])] = (plugin_data->polyfx_mod_counts[f_voice_num][(plugin_data->active_polyfx[f_voice_num][(plugin_data->i_dst)])]) + 1;
                                 }
                             }
                         }
                     }
                 }
                 //Get the noise function pointer
-                plugin_data->data[f_note]->noise_func_ptr = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
+                plugin_data->data[f_voice_num]->noise_func_ptr = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
 
-                plugin_data->data[f_note]->noise_index = (plugin_data->mono_modules->noise_current_index);
+                plugin_data->data[f_voice_num]->noise_index = (plugin_data->mono_modules->noise_current_index);
                 plugin_data->mono_modules->noise_current_index = (plugin_data->mono_modules->noise_current_index) + 1;
 
                 if((plugin_data->mono_modules->noise_current_index) >= EUPHORIA_NOISE_COUNT)
                 {
                     plugin_data->mono_modules->noise_current_index = 0;
                 }
-
-                //const int voice = i_pick_voice(plugin_data->voices, f_note);
-
+                
                 plugin_data->amp = f_db_to_linear_fast(*(plugin_data->master_vol), plugin_data->mono_modules->amp_ptr);                     
 
-                plugin_data->data[f_note]->note_f = (float)f_note;
+                plugin_data->data[f_voice_num]->note_f = (float)f_note;
 
-                plugin_data->data[f_note]->target_pitch = (plugin_data->data[f_note]->note_f);
-                plugin_data->data[f_note]->last_pitch = (plugin_data->sv_last_note);
+                plugin_data->data[f_voice_num]->target_pitch = (plugin_data->data[f_voice_num]->note_f);
+                plugin_data->data[f_voice_num]->last_pitch = (plugin_data->sv_last_note);
 
-                v_rmp_retrigger_glide_t(plugin_data->data[f_note]->glide_env , (*(plugin_data->master_glide) * .01), 
-                        (plugin_data->sv_last_note), (plugin_data->data[f_note]->target_pitch));
+                v_rmp_retrigger_glide_t(plugin_data->data[f_voice_num]->glide_env , (*(plugin_data->master_glide) * .01), 
+                        (plugin_data->sv_last_note), (plugin_data->data[f_voice_num]->target_pitch));
 
-                plugin_data->data[f_note]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
+                plugin_data->data[f_voice_num]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
                 /*Here is where we perform any actions that should ONLY happen at note_on, you can save a lot of CPU by
                  placing things here that don't need to be modulated as a note is playing*/
 
                 /*Retrigger ADSR envelopes and LFO*/
-                v_adsr_retrigger(plugin_data->data[f_note]->adsr_amp);
-                v_adsr_retrigger(plugin_data->data[f_note]->adsr_filter);
-                v_lfs_sync(plugin_data->data[f_note]->lfo1, 0.0f, *(plugin_data->lfo_type));
+                v_adsr_retrigger(plugin_data->data[f_voice_num]->adsr_amp);
+                v_adsr_retrigger(plugin_data->data[f_voice_num]->adsr_filter);
+                v_lfs_sync(plugin_data->data[f_voice_num]->lfo1, 0.0f, *(plugin_data->lfo_type));
 
-                v_adsr_set_adsr_db(plugin_data->data[f_note]->adsr_amp, (*(plugin_data->attack) * .01), (*(plugin_data->decay) * .01), (*(plugin_data->sustain)), (*(plugin_data->release) * .01));
-                v_adsr_set_adsr(plugin_data->data[f_note]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
+                v_adsr_set_adsr_db(plugin_data->data[f_voice_num]->adsr_amp, (*(plugin_data->attack) * .01), (*(plugin_data->decay) * .01), (*(plugin_data->sustain)), (*(plugin_data->release) * .01));
+                v_adsr_set_adsr(plugin_data->data[f_voice_num]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
 
                 /*Retrigger the pitch envelope*/
-                v_rmp_retrigger((plugin_data->data[f_note]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1);  
+                v_rmp_retrigger((plugin_data->data[f_voice_num]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1);  
 
-                plugin_data->data[f_note]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
+                plugin_data->data[f_voice_num]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
                 /*Set the last_note property, so the next note can glide from it if glide is turned on*/
-                plugin_data->sv_last_note = (plugin_data->data[f_note]->note_f);
+                plugin_data->sv_last_note = (plugin_data->data[f_voice_num]->note_f);
 
                 //TODO:  Create a define for the number of channels
                 //Move all of the multi-channel functions here
@@ -1001,45 +968,31 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
 
             } 
             else 
-            {    
-                plugin_data->offs[f_note] = 
-                    plugin_data->sampleNo + events[event_pos].time.tick;		    
+            {
+                v_voc_note_off(plugin_data->voices, n.note, plugin_data->sampleNo, events[event_pos].time.tick);
             }
         } /*Note-off event*/
         else if (events[event_pos].type == SND_SEQ_EVENT_NOTEOFF )
         {
             snd_seq_ev_note_t n = events[event_pos].data.note;
-            f_note = n.note; // + (*(plugin_data->global_midi_octaves_offset) * -12);
-
-
-            if(f_note < 0)
-            {
-                f_note = 0;
-            }
-            if(f_note > EUPHORIA_NOTES_m1)
-            {
-                f_note = EUPHORIA_NOTES_m1;
-            }
-
-            plugin_data->offs[f_note] = 
-                plugin_data->sampleNo + events[event_pos].time.tick;
+            f_note = n.note; 
+            v_voc_note_off(plugin_data->voices, n.note, plugin_data->sampleNo, events[event_pos].time.tick);
         }
 
         /*Pitch-bend sequencer event, modify the voices pitch*/
         else if (events[event_pos].type == SND_SEQ_EVENT_PITCHBEND) 
         {
-            plugin_data->sv_pitch_bend_value = 0.00012207
-                    * events[event_pos].data.control.value * (*(plugin_data->master_pb_amt));
+            plugin_data->sv_pitch_bend_value = 0.00012207 * events[event_pos].data.control.value * (*(plugin_data->master_pb_amt));
         }
 
         ++event_pos;
     }
     
-    for (pos = 0; pos < sample_count; ) {
-        
+    for (pos = 0; pos < sample_count; ) 
+    {        
 	count = sample_count - pos;
-	if (event_pos < event_count &&
-	    events[event_pos].time.tick < sample_count) {
+	if (event_pos < event_count && events[event_pos].time.tick < sample_count) 
+        {
 	    count = events[event_pos].time.tick - pos;
 	}
         
@@ -1048,14 +1001,14 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
         for(i = 0; i < count; i++)        
         {
             for(i2 = 0; i2 < (plugin_data->monofx_channel_index_count); i2++)
-            {
-            
+            {            
                 plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][0][i] = 0.0f;
                 plugin_data->mono_fx_buffers[(plugin_data->monofx_channel_index[i2])][1][i] = 0.0f;            
             }
         }
         
-	for (i = 0; i < EUPHORIA_NOTES; ++i) {
+	for (i = 0; i < EUPHORIA_POLYPHONY; ++i) 
+        {
 	    if(((plugin_data->data[i]->adsr_amp->stage) < 4) && ((plugin_data->sample_indexes_count[i]) > 0))
             {    
                 add_sample_lms_euphoria(plugin_data, i, pos, count);                                
