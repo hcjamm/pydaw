@@ -60,7 +60,7 @@ extern "C" {
     
 #define LMS_PROGRAM_CHANGE 37  //Not used as a real port
 //maximum voices played at one time
-#define POLYPHONY   90  
+#define POLYPHONY   16
 
 /*Add a variable for each control in the synth_vals type*/
 typedef struct {    
@@ -163,9 +163,10 @@ typedef struct {
     t_ccm_midi_cc_map * midi_cc_map;
     
     t_rayv_poly_voice * data[POLYPHONY];
+    t_voc_voices * voices;
     
-    long         ons[VOICES_MAX_MIDI_NOTE_NUMBER];
-    long         offs[VOICES_MAX_MIDI_NOTE_NUMBER];
+    //long         ons[VOICES_MAX_MIDI_NOTE_NUMBER];
+    //long         offs[VOICES_MAX_MIDI_NOTE_NUMBER];
     long         sampleNo;
     
     float fs;    
@@ -173,7 +174,7 @@ typedef struct {
     t_rayv_synth_vals vals;
     
     int event_pos;
-    int voice;
+    int i_run_poly_voice;
     int i_iterator;    
     
     float sv_pitch_bend_value;
