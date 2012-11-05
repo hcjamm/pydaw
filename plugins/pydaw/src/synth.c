@@ -385,6 +385,10 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                 snd_seq_ev_set_noteon(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)], 0,
                                         f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->note,
                                         f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->velocity);
+                                
+                                printf("\nsnd_seq_ev_set_noteon(event_buffer[%i], 0, %i, %i)\n", pydaw_data->track_pool[f_i]->current_period_event_index,
+                                        f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->note,
+                                        f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->velocity);
 
                                 pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)].time.tick = f_note_sample_offset;
 
@@ -775,9 +779,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                             {
                                 double f_length = ((double)((pydaw_data->recorded_note_current_beat) - (pydaw_data->recorded_notes_beat_tracker[n.note])))
                                         + (pydaw_data->recorded_notes_start_tracker[n.note]);
-                                
-                                pydaw_data->recorded_notes_velocity_tracker[n.note] = n.velocity;
-                                
+                                                                
                                 printf("\nRecording:  Writing new note_on event f_length == %lf\n\n", f_length);
                                 int f_index = (pydaw_data->recorded_notes_item_tracker[n.note]);                                
                                 pydaw_data->item_pool[f_index]->notes[(pydaw_data->item_pool[f_index]->note_count)] = 
@@ -789,6 +791,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                 /*Reset to -1 to invalidate the events*/
                                 pydaw_data->recorded_notes_item_tracker[n.note] = -1;
                                 pydaw_data->recorded_notes_beat_tracker[n.note] = -1;
+                                pydaw_data->recorded_notes_velocity_tracker[n.note] = -1;
                             }
                         }
                         else if(events[f_i2].type == SND_SEQ_EVENT_PITCHBEND)
