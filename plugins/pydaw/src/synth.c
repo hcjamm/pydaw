@@ -734,7 +734,8 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                     printf("\nRecording:  Creating new empty region at %i\n\n", (pydaw_data->current_region));
                                     pydaw_data->pysong->regions[(pydaw_data->current_region)] = g_pyregion_get_new(pydaw_data);
                                 }
-                                pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][pydaw_data->current_bar] = g_pyitem_get_new(pydaw_data);
+                                pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(pydaw_data);
+                                pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][pydaw_data->current_bar] = (pydaw_data->recording_current_item_pool_index);
                             }
                         }
 
@@ -750,9 +751,8 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
 
                             if(pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                             {
-                                //TODO:  Track this somehow by counting how many bars have elapsed?  Test case:  Holding a note for 1+ bar while recording in loop:bar mode
-                                pydaw_data->recorded_notes_region_tracker[n.note] = (pydaw_data->current_region);
-                                pydaw_data->recorded_notes_bar_tracker[n.note] = (pydaw_data->current_bar);
+                                pydaw_data->recorded_notes_beat_tracker[n.note] = (pydaw_data->recorded_note_current_beat);
+                                pydaw_data->recorded_notes_item_tracker[n.note] = (pydaw_data->recording_current_item_pool_index);
                                 pydaw_data->recorded_notes_start_tracker[n.note] = 
                                         ((pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
                                         * (pydaw_data->playback_inc))) * 4.0f;
@@ -773,24 +773,22 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                             
                             if(pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                             {
-                                //TODO:  Track this somehow by counting how many bars have elapsed?  Test case:  Holding a note for 1+ bar while recording in loop:bar mode
-                                double f_regions = (double)(((pydaw_data->current_region) - (pydaw_data->recorded_notes_region_tracker[n.note])) * 8 * 4);
-                                double f_bars = (double)(((pydaw_data->current_bar) - (pydaw_data->recorded_notes_bar_tracker[n.note])) * 4);
-                                double f_beats = (((pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
-                                        * (pydaw_data->playback_inc))) * 4.0f) - (pydaw_data->recorded_notes_start_tracker[n.note]);
-                                double f_length = f_regions - f_bars - f_beats;
+                                double f_length = ((double)((pydaw_data->recorded_note_current_beat) - (pydaw_data->recorded_notes_beat_tracker[n.note])))
+                                        + (pydaw_data->recorded_notes_start_tracker[n.note]);
                                 
                                 pydaw_data->recorded_notes_velocity_tracker[n.note] = n.velocity;
                                 
                                 printf("\nRecording:  Writing new note_on event f_length == %lf\n\n", f_length);
-                                int f_index = (pydaw_data->pysong->regions[(pydaw_data->recorded_notes_region_tracker[(events[f_i2].data.note.note)])]->item_indexes[f_i][pydaw_data->recorded_notes_bar_tracker[(events[f_i2].data.note.note)]]);
-                                pydaw_data->recorded_notes_region_tracker[(events[f_i2].data.note.note)] = -1;  
-                                pydaw_data->recorded_notes_bar_tracker[(events[f_i2].data.note.note)] = -1;
+                                int f_index = (pydaw_data->recorded_notes_item_tracker[n.note]);                                
                                 pydaw_data->item_pool[f_index]->notes[(pydaw_data->item_pool[f_index]->note_count)] = 
-                                        g_pynote_get(events[f_i2].data.note.note,
+                                        g_pynote_get(n.note,
                                         pydaw_data->recorded_notes_velocity_tracker[events[f_i2].data.note.note],
                                         pydaw_data->recorded_notes_start_tracker[events[f_i2].data.note.note],
                                         f_length);
+                                pydaw_data->item_pool[f_index]->note_count = (pydaw_data->item_pool[f_index]->note_count)  + 1;
+                                /*Reset to -1 to invalidate the events*/
+                                pydaw_data->recorded_notes_item_tracker[n.note] = -1;
+                                pydaw_data->recorded_notes_beat_tracker[n.note] = -1;
                             }
                         }
                         else if(events[f_i2].type == SND_SEQ_EVENT_PITCHBEND)
@@ -802,7 +800,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                             
                             if(pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                             {
-                                int f_index = (pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][pydaw_data->current_bar]);
+                                int f_index = (pydaw_data->recording_current_item_pool_index);
                                 double f_start =
                                         ((pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
                                         * (pydaw_data->playback_inc))) * 4.0f;
@@ -825,7 +823,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                     
                                     if(pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                                     {
-                                        int f_index = (pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][pydaw_data->current_bar]);
+                                        int f_index = (pydaw_data->recording_current_item_pool_index);
                                         double f_start =
                                                 ((pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
                                                 * (pydaw_data->playback_inc))) * 4.0f;
@@ -853,6 +851,8 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
             if((pydaw_data->playback_cursor) >= 1.0f)
             {
                 pydaw_data->recording_in_current_bar = 0;
+                pydaw_data->recorded_note_current_beat = (pydaw_data->recorded_note_current_beat) + 4;
+                
                 pydaw_data->playback_cursor = (pydaw_data->playback_cursor) - 1.0f;                
                 
                 if(pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
