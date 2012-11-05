@@ -710,8 +710,12 @@ class transport_widget:
         self.beat_timer.stop()
         self.bar_spinbox.setValue(self.last_bar)
         self.region_spinbox.setValue(self.last_region_num)
-    def on_rec(self):
+    def on_rec(self):        
+        self.last_region_num = self.region_spinbox.value()
+        self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_rec()
+        f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
+        self.beat_timer.start(f_playback_inc)
     def on_tempo_changed(self, a_tempo):
         this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
         self.transport.bpm = a_tempo
