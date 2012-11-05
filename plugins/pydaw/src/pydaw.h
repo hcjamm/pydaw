@@ -195,8 +195,9 @@ int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index);
 void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data);
 int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a_region_name);
-char * c_pyitem_to_string(t_pyitem* a_pyitem);
-char * c_pyregion_to_string(t_pydaw_data * a_pydaw_data, int a_region_num);
+void v_save_pysong_to_disk(t_pydaw_data * a_pydaw_data);
+void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index);
+void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num);
 void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx);
 void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx);
 int g_pyitem_get_new(t_pydaw_data* a_pydaw_data);
@@ -410,8 +411,33 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     return f_result;
 }
 
+void v_save_pysong_to_disk(t_pydaw_data * a_pydaw_data)
+{
+    int f_i = 0;
+    
+    char f_temp[256];
+    char f_result[LMS_LARGE_STRING];
+    f_result[0] = '\0';
+    
+    while(f_i < PYDAW_MAX_REGION_COUNT)
+    {
+        if(a_pydaw_data->pysong->regions[f_i])
+        {
+            sprintf(f_temp, "%i|%s\n", f_i, a_pydaw_data->pysong->regions[f_i]->name);
+            strcat(f_result, f_temp);
+        }
+        f_i++;
+    }    
+    
+    strcat(f_result, "\\");
+    
+    sprintf(f_temp, "%sdefault.pysong", a_pydaw_data->project_folder);
+    
+    v_pydaw_write_to_file(f_temp, f_result);
+}
+
 /*Mimics the UI's Python __str__ method that creates/saves items...*/
-char * c_pyitem_to_string(t_pyitem* a_pyitem)
+void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
 {
     int f_i = 0;
     char * f_result = (char*)malloc(sizeof(char) * LMS_LARGE_STRING);
@@ -419,27 +445,40 @@ char * c_pyitem_to_string(t_pyitem* a_pyitem)
     
     char f_temp[LMS_TINY_STRING];
     
-    while(f_i < (a_pyitem->note_count))
+    t_pyitem * f_pyitem = a_pydaw_data->item_pool[a_index];
+    
+    while(f_i < (f_pyitem->note_count))
     {
-        sprintf(f_temp, "n|%f|%f|%i|%i\n", a_pyitem->notes[f_i]->start, a_pyitem->notes[f_i]->length, 
-                a_pyitem->notes[f_i]->note, a_pyitem->notes[f_i]->velocity);
+        sprintf(f_temp, "n|%f|%f|%i|%i\n", f_pyitem->notes[f_i]->start, f_pyitem->notes[f_i]->length, 
+                f_pyitem->notes[f_i]->note, f_pyitem->notes[f_i]->velocity);
         strcat(f_result, f_temp);
         f_i++;
     }
     
     f_i = 0;
-    while(f_i < (a_pyitem->cc_count))
+    while(f_i < (f_pyitem->cc_count))
     {
-        sprintf(f_temp, "c|%f|%i|%i\n", a_pyitem->ccs[f_i]->start, a_pyitem->ccs[f_i]->cc_num, a_pyitem->ccs[f_i]->cc_val);
+        sprintf(f_temp, "c|%f|%i|%i\n", f_pyitem->ccs[f_i]->start, f_pyitem->ccs[f_i]->cc_num, f_pyitem->ccs[f_i]->cc_val);
+        strcat(f_result, f_temp);
+        f_i++;
+    }
+        
+    f_i = 0;
+    while(f_i < (f_pyitem->pitchbend_count))
+    {
+        sprintf(f_temp, "p|%f|%f\n", f_pyitem->pitchbends[f_i]->start, (((float)(f_pyitem->pitchbends[f_i]->val)) * 0.00012207f));
         strcat(f_result, f_temp);
         f_i++;
     }
     
     strcat(f_result, "\\");
-    return f_result;
+    
+    sprintf(f_temp, "%s%s.pyitem", a_pydaw_data->item_folder, f_pyitem->name);
+    
+    v_pydaw_write_to_file(f_temp, f_result);
 }
 
-char * c_pyregion_to_string(t_pydaw_data * a_pydaw_data, int a_region_num)
+void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num)
 {    
     int f_i = 0;
     int f_i2 = 0;
@@ -466,7 +505,10 @@ char * c_pyregion_to_string(t_pydaw_data * a_pydaw_data, int a_region_num)
     }
     
     strcat(f_result, "\\");
-    return f_result;
+    
+    sprintf(f_temp, "%s%s.pyregion", a_pydaw_data->region_folder, a_pydaw_data->pysong->regions[a_region_num]->name);
+    
+    v_pydaw_write_to_file(f_temp, f_result);
 }
 
 /*Get an empty pyitem, used for recording.  Returns the item number in the item pool*/
