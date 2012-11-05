@@ -161,13 +161,19 @@ typedef struct st_pydaw_data
         
     int item_count;
     int is_soloed;
-    /*Records which bar note[x] was started on*/
-    int recorded_notes_bar_tracker[PYDAW_MIDI_NOTE_COUNT];
-    /*Records which region note[x] was started on*/
-    int recorded_notes_region_tracker[PYDAW_MIDI_NOTE_COUNT];
+    /*Records which beat since recording started, combined with start forms the exact time*/
+    int recorded_notes_beat_tracker[PYDAW_MIDI_NOTE_COUNT];
+    /*This refers to item index in the item pool*/
+    int recorded_notes_item_tracker[PYDAW_MIDI_NOTE_COUNT];
+    /*Counts the number of beats elapsed since record was pressed.*/
+    int recorded_note_current_beat;
+    /*The position of the note_on in the bar it was first pressed, in beats*/
     double recorded_notes_start_tracker[PYDAW_MIDI_NOTE_COUNT];
     int recorded_notes_velocity_tracker[PYDAW_MIDI_NOTE_COUNT];
+    /*Boolean for whether the current bar has been added to the item pool*/
     int recording_in_current_bar;
+    /*Then index of the item currently being recorded to*/
+    int recording_current_item_pool_index;
     /*Used for suffixing file names when recording...  TODO:  A better system, like the GUI sending a 'track0-blah..' name for more uniqueness*/
     int record_name_index;
 }t_pydaw_data;
@@ -652,6 +658,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->is_soloed = 0;
     f_result->recording_in_current_bar = 0;
     f_result->record_name_index = 0;
+    f_result->recorded_note_current_beat = 0;
+    f_result->recording_current_item_pool_index = -1;
     
     int f_i = 0;
     
@@ -677,8 +685,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     
     while(f_i < PYDAW_MIDI_NOTE_COUNT)
     {
-        f_result->recorded_notes_bar_tracker[f_i] = -1;
-        f_result->recorded_notes_region_tracker[f_i] = -1;
+        f_result->recorded_notes_item_tracker[f_i] = -1;
+        f_result->recorded_notes_beat_tracker[f_i] = -1;
         f_result->recorded_notes_start_tracker[f_i] = 0.0f;
         f_result->recorded_notes_velocity_tracker[f_i] = -1;
         
@@ -891,6 +899,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
             break;
         case 2:  //record
+            a_pydaw_data->recorded_note_current_beat = 0;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
             break;
     }    
