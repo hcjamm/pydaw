@@ -43,6 +43,10 @@ extern "C" {
 #define PYDAW_LOOP_MODE_BAR 1
 #define PYDAW_LOOP_MODE_REGION 2
     
+#define PYDAW_PLAYBACK_MODE_OFF 0
+#define PYDAW_PLAYBACK_MODE_PLAY 1
+#define PYDAW_PLAYBACK_MODE_REC 2
+    
 //arbitrary, I may change these 3 after evaluating memory use vs. probable item count in a real project
 #define PYDAW_MAX_ITEM_COUNT 5000
 #define PYDAW_MAX_REGION_COUNT 300
@@ -98,9 +102,7 @@ typedef struct st_pyitem
 
 typedef struct st_pyregion
 {
-    //t_pyitem * items[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];    
-    int item_indexes[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool
-    //int item_populated[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //1(true) if populated at that index, or 0(false) if not.  Put in place because checking for 0 or NULL in the item doesn't seem to work correctly
+    int item_indexes[PYDAW_MAX_TRACK_COUNT][PYDAW_REGION_SIZE];  //Refers to the index of items in the master item pool 
     char name[LMS_TINY_STRING];
 }t_pyregion;
 
@@ -156,10 +158,18 @@ typedef struct st_pydaw_data
     float samples_per_beat;  //The number of samples per beat, for calculating length
     
     t_pyitem * item_pool[PYDAW_MAX_ITEM_COUNT];
-    t_pyitem * item_recording_pool[PYDAW_MIDI_RECORD_BUFFER_LENGTH];
-    int item_recording_position;
+        
     int item_count;
     int is_soloed;
+    /*Records which bar note[x] was started on*/
+    int recorded_notes_bar_tracker[PYDAW_MIDI_NOTE_COUNT];
+    /*Records which region note[x] was started on*/
+    int recorded_notes_region_tracker[PYDAW_MIDI_NOTE_COUNT];
+    double recorded_notes_start_tracker[PYDAW_MIDI_NOTE_COUNT];
+    int recorded_notes_velocity_tracker[PYDAW_MIDI_NOTE_COUNT];
+    int recording_in_current_bar;
+    /*Used for suffixing file names when recording...  TODO:  A better system, like the GUI sending a 'track0-blah..' name for more uniqueness*/
+    int record_name_index;
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
@@ -183,6 +193,8 @@ char * c_pyitem_to_string(t_pyitem* a_pyitem);
 char * c_pyregion_to_string(t_pydaw_data * a_pydaw_data, int a_region_num);
 void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx);
 void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx);
+int g_pyitem_get_new(t_pydaw_data* a_pydaw_data);
+t_pyregion * g_pyregion_get_new(t_pydaw_data* a_pydaw_data);
 
 /*End declarations.  Begin implementations.*/
 
@@ -302,6 +314,32 @@ int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a
     }
     
     return -1;
+}
+
+/*For getting a new empty region during recording*/
+t_pyregion *  g_pyregion_get_new(t_pydaw_data* a_pydaw_data)
+{
+    t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));    
+    
+    char * f_name = "rec-testing1";  //TODO:  This obviously won't work...
+    
+    strcpy(f_result->name, f_name);
+    
+    int f_i = 0;
+    int f_i2 = 0;
+    
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {
+        f_i2 = 0;
+        while(f_i2 < PYDAW_MAX_TRACK_COUNT)
+        {
+            f_result->item_indexes[f_i][f_i2] = -1;
+            f_i2++;
+        }
+        f_i++;
+    }
+    
+    return f_result;
 }
 
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
@@ -425,19 +463,43 @@ char * c_pyregion_to_string(t_pydaw_data * a_pydaw_data, int a_region_num)
     return f_result;
 }
 
+/*Get an empty pyitem, used for recording.  Returns the item number in the item pool*/
+int g_pyitem_get_new(t_pydaw_data* a_pydaw_data)
+{
+    t_pyitem * f_item = (t_pyitem*)malloc(sizeof(t_pyitem));
+    
+    char f_name_temp[256];
+    f_name_temp[0] = '\0';
+    sprintf(f_name_temp, "rec-%i", a_pydaw_data->record_name_index);
+    
+    //Check for uniqueness of the name...  TODO:  Maybe don't do this right in the middle of the main loop?  Leave them nameless until later?
+    while(i_pydaw_get_item_index_from_name(a_pydaw_data, f_name_temp) != -1)
+    {
+        a_pydaw_data->record_name_index = (a_pydaw_data->record_name_index) + 1;
+        sprintf(f_name_temp, "rec-%i", a_pydaw_data->record_name_index);
+    }
+            
+    f_item->name = (char*)malloc(sizeof(char) * 256);
+    strcpy(f_item->name, f_name_temp);
+    f_item->cc_count = 0;
+    f_item->note_count = 0;
+    
+    a_pydaw_data->item_pool[(a_pydaw_data->item_count)] = f_item;
+    int f_result = (a_pydaw_data->item_count);
+    a_pydaw_data->item_count = (a_pydaw_data->item_count) + 1;
+    return f_result;
+}
+
+
 void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
 {
-    //char log_buff[200];
-    //sprintf(log_buff, "g_pyitem_get: a_name: \"%s\"\n", a_name);
-    //pydaw_write_log(log_buff);
-    
     t_pyitem * f_result = (t_pyitem*)malloc(sizeof(t_pyitem));
     
     f_result->name = (char*)malloc(sizeof(char) * 256);
     strcpy(f_result->name, a_name);
     f_result->cc_count = 0;
     f_result->note_count = 0;
-        
+    
     char f_full_path[512];
     strcpy(f_full_path, a_pydaw_data->item_folder);
     strcat(f_full_path, a_name);
@@ -588,6 +650,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->pysong = NULL;
     f_result->item_count = 0;
     f_result->is_soloed = 0;
+    f_result->recording_in_current_bar = 0;
+    f_result->record_name_index = 0;
     
     int f_i = 0;
     
@@ -609,29 +673,18 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         f_i++;
     }
     
-    f_result->item_recording_position = 0;
     f_i = 0;
     
-    while(f_i < PYDAW_MIDI_RECORD_BUFFER_LENGTH)
+    while(f_i < PYDAW_MIDI_NOTE_COUNT)
     {
-        f_result->item_recording_pool[f_i] = (t_pyitem*)malloc(sizeof(t_pyitem));
-        int f_i2 = 0;
-        while(f_i2 < PYDAW_MAX_EVENTS_PER_ITEM_COUNT)
-        {
-            f_result->item_recording_pool[f_i]->ccs[f_i2] = g_pycc_get(0, 0, 0.0f);
-            f_result->item_recording_pool[f_i]->cc_index[f_i2] = -1;  //TODO:  is -1 right?  
-            f_result->item_recording_pool[f_i]->note_index[f_i2] = -1;        
-            f_result->item_recording_pool[f_i]->notes[f_i2] = g_pynote_get(60, 100, 0.0f, 1.0f);
-            f_i2++;
-        }
-        f_result->item_recording_pool[f_i]->cc_count = 0;
+        f_result->recorded_notes_bar_tracker[f_i] = -1;
+        f_result->recorded_notes_region_tracker[f_i] = -1;
+        f_result->recorded_notes_start_tracker[f_i] = 0.0f;
+        f_result->recorded_notes_velocity_tracker[f_i] = -1;
         
-        f_result->item_recording_pool[f_i]->name = (char*)malloc(sizeof(char) * LMS_TINY_STRING);
-        strcpy(f_result->item_recording_pool[f_i]->name, "");
-        f_result->item_recording_pool[f_i]->note_count = 0;
         f_i++;
     }
-           
+       
     /* Create OSC thread */    
     char *tmp;
     
