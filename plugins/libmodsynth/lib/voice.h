@@ -67,7 +67,7 @@ t_voc_voices * g_voc_get_voices(int a_count)
     
     f_result->count = a_count;
     
-    f_result->voices = (t_voc_single_voice*)malloc(sizeof(t_voc_single_voice*) * a_count);
+    f_result->voices = (t_voc_single_voice*)malloc(sizeof(t_voc_single_voice) * a_count);
     
     f_result->iterator = 0;
     
