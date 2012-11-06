@@ -531,7 +531,6 @@ void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num)
     //Generate a default name if necessary
     if(!a_pydaw_data->pysong->regions[a_region_num]->name)
     {
-        printf("");
         f_i = 0;
         while(f_i < PYDAW_MAX_REGION_COUNT)
         {            

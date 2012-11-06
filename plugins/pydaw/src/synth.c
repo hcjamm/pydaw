@@ -529,8 +529,17 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                         /* controller is mapped to LADSPA port, update the port */
                                         snd_seq_event_t f_event;
                                         f_event.data.control.value = f_current_item.ccs[(pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
-                                        //v_pydaw_set_control_from_cc(pydaw_data->track_pool[f_i]->instrument, DSSI_CC_NUMBER(controlIn), &f_event, 0);
                                         v_pydaw_set_control_from_cc(pydaw_data->track_pool[f_i]->instrument, controlIn, &f_event, 0);
+                                    }
+                                    
+                                    controlIn = pydaw_data->track_pool[f_i]->effect->controllerMap[controller];
+                                    
+                                    if (controlIn > 0) //not >= like in the other CC loop, this is raw formatted CCs without that goofy bit-shifting to make it work with ALSA.
+                                    {
+                                        /* controller is mapped to LADSPA port, update the port */
+                                        snd_seq_event_t f_event;
+                                        f_event.data.control.value = f_current_item.ccs[(pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
+                                        v_pydaw_set_control_from_cc(pydaw_data->track_pool[f_i]->effect, controlIn, &f_event, 0);
                                     }
                                 }
 
@@ -702,9 +711,6 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                 }
                 f_i++;
             } //while pitchbends
-
-            
-            
             
             
             /*TODO:  This being here will prevent notes from passing through when not playing back or recording...  
@@ -828,19 +834,27 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                 {
                                     /* controller is mapped to LADSPA port, update the port */
                                     v_pydaw_set_control_from_cc(pydaw_data->track_pool[f_i]->instrument, controlIn, &events[f_i2], 0);
-                                    
-                                    if(pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
-                                    {
-                                        int f_index = (pydaw_data->recording_current_item_pool_index);
-                                        double f_start =
-                                                ((pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
-                                                * (pydaw_data->playback_inc))) * 4.0f;
-                                        pydaw_data->item_pool[f_index]->ccs[(pydaw_data->item_pool[f_index]->cc_count)] =
-                                                g_pycc_get(events[f_i2].data.control.param, events[f_i2].data.control.value, f_start);
-                                        pydaw_data->item_pool[f_index]->pitchbend_count = (pydaw_data->item_pool[f_index]->pitchbend_count) + 1;
-                                    }
-                                    
-                                }//else:  not mapped...  Consider doing something with it?
+                                                                        
+                                }
+                                
+                                controlIn = pydaw_data->track_pool[f_i]->effect->controllerMap[controller];
+                                if (controlIn >= 0) 
+                                {
+                                    /* controller is mapped to LADSPA port, update the port */
+                                    v_pydaw_set_control_from_cc(pydaw_data->track_pool[f_i]->effect, controlIn, &events[f_i2], 0);
+                                                                        
+                                }
+                                //Record the CC regardless of whether it was mapped or not...
+                                if(pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
+                                {
+                                    int f_index = (pydaw_data->recording_current_item_pool_index);
+                                    double f_start =
+                                            ((pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
+                                            * (pydaw_data->playback_inc))) * 4.0f;
+                                    pydaw_data->item_pool[f_index]->ccs[(pydaw_data->item_pool[f_index]->cc_count)] =
+                                            g_pycc_get(events[f_i2].data.control.param, events[f_i2].data.control.value, f_start);
+                                    pydaw_data->item_pool[f_index]->pitchbend_count = (pydaw_data->item_pool[f_index]->pitchbend_count) + 1;
+                                }
                             }
                         }
                         f_i2++;
@@ -920,23 +934,40 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
         {   
             if(pydaw_data->track_pool[f_i]->plugin_index != 0)
             {
-            int f_i2 = 0;    
-            while(f_i2 < (pydaw_data->track_pool[f_i]->instrument->controlIns))
-            {
-                if (pydaw_data->track_pool[f_i]->instrument->pluginPortUpdated[f_i2]) 
+                int f_i2 = 0;    
+                while(f_i2 < (pydaw_data->track_pool[f_i]->instrument->controlIns))
                 {
-                    int port = pydaw_data->track_pool[f_i]->instrument->pluginControlInPortNumbers[f_i2];
-                    float value = pydaw_data->track_pool[f_i]->instrument->pluginControlIns[f_i2];
-                    
-                    pydaw_data->track_pool[f_i]->instrument->pluginPortUpdated[f_i2] = 0;
-                    if (pydaw_data->track_pool[f_i]->instrument->uiTarget) 
+                    if (pydaw_data->track_pool[f_i]->instrument->pluginPortUpdated[f_i2]) 
                     {
-                        lo_send(pydaw_data->track_pool[f_i]->instrument->uiTarget, pydaw_data->track_pool[f_i]->instrument->ui_osc_control_path, "if", port, value);
+                        int port = pydaw_data->track_pool[f_i]->instrument->pluginControlInPortNumbers[f_i2];
+                        float value = pydaw_data->track_pool[f_i]->instrument->pluginControlIns[f_i2];
+
+                        pydaw_data->track_pool[f_i]->instrument->pluginPortUpdated[f_i2] = 0;
+                        if (pydaw_data->track_pool[f_i]->instrument->uiTarget) 
+                        {
+                            lo_send(pydaw_data->track_pool[f_i]->instrument->uiTarget, pydaw_data->track_pool[f_i]->instrument->ui_osc_control_path, "if", port, value);
+                        }
                     }
+                    f_i2++;
                 }
-                f_i2++;
-            }
-                
+                //Another fine candidate for an inline void function....
+                f_i2 = 0;    
+                while(f_i2 < (pydaw_data->track_pool[f_i]->effect->controlIns))
+                {
+                    if (pydaw_data->track_pool[f_i]->effect->pluginPortUpdated[f_i2]) 
+                    {
+                        int port = pydaw_data->track_pool[f_i]->effect->pluginControlInPortNumbers[f_i2];
+                        float value = pydaw_data->track_pool[f_i]->effect->pluginControlIns[f_i2];
+
+                        pydaw_data->track_pool[f_i]->effect->pluginPortUpdated[f_i2] = 0;
+                        if (pydaw_data->track_pool[f_i]->effect->uiTarget) 
+                        {
+                            lo_send(pydaw_data->track_pool[f_i]->effect->uiTarget, pydaw_data->track_pool[f_i]->effect->ui_osc_control_path, "if", port, value);
+                        }
+                    }
+                    f_i2++;
+                }
+                                
                 v_run_plugin(pydaw_data->track_pool[f_i]->instrument, sample_count, 
                             pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->current_period_event_index);
                 
@@ -946,7 +977,6 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                         sample_count * sizeof(LADSPA_Data));
                 
                 v_run_plugin(pydaw_data->track_pool[f_i]->effect, sample_count, NULL, 0);
-                            //pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->event_index);
                 
                 int f_i3 = 0;
 
