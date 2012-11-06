@@ -242,7 +242,7 @@ class item_list_editor:
 
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setColumnCount(3)
-        self.ccs_table_widget.setRowCount(128)
+        self.ccs_table_widget.setRowCount(256)
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
         self.ccs_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.sortItems(0)
