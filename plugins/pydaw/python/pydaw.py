@@ -22,6 +22,10 @@ from sys import argv
 from os.path import expanduser
 from libpydaw import *
 
+pydaw_item_gradient = 	QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
+pydaw_item_gradient.setColorAt(0, QtGui.QColor(100, 100, 255))
+pydaw_item_gradient.setColorAt(1, QtGui.QColor(127, 127, 255))
+
 class song_editor:
     def open_song(self):
         self.table_widget.clear()
@@ -113,8 +117,10 @@ class region_list_editor:
         self.region_name_lineedit.setText(a_file_name)
         self.region = this_pydaw_project.get_region(a_file_name)
         for f_item in self.region.items:
-            self.table_widget.setItem(f_item.track_num, f_item.bar_num, QtGui.QTableWidgetItem(f_item.item_name))
-
+            f_qtw_item = QtGui.QTableWidgetItem(f_item.item_name)
+            f_qtw_item.setBackground(pydaw_item_gradient)
+            self.table_widget.setItem(f_item.track_num, f_item.bar_num, f_qtw_item)
+            
     def cell_clicked(self, x, y):
         if not self.enabled:
             return
@@ -151,6 +157,7 @@ class region_list_editor:
             if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
                 this_item_editor.open_item(f_cell_text)
             f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
+            f_new_cell.setBackground(pydaw_item_gradient)
             self.region.add_item_ref(x, y, f_cell_text)
             print("self.region.add_item_ref(" + str(x) + ", " + str(y) + ", " + f_cell_text + ")\n")
             self.table_widget.setItem(x, y, f_new_cell)
