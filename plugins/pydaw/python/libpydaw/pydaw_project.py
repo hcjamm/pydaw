@@ -34,12 +34,20 @@ def note_num_to_string(a_note_num):
     f_octave = (int(a_note_num) / 12) - 2
     return int_to_note_array[f_note] + str(f_octave)
 
-""" For sending OSC messages """
 def bool_to_int(a_bool):
+    """ For sending OSC messages """
     if a_bool:
         return "1"
     else:
         return "0"
+
+
+def time_quantize_round(a_input):
+    """Properly quantize time values from QDoubleSpinBoxes that measure beats"""
+    if round(a_input) == round(a_input, 2):
+        return round(a_input)
+    else:
+        return round(a_input, 4)
 
 class pydaw_project:
     def save_project(self):
