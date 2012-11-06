@@ -1267,13 +1267,13 @@ void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
         if((a_pydaw_data->track_pool[f_i]->instrument) && a_pydaw_data->track_pool[f_i]->instrument->ui_visible)
         {
             lo_send(a_pydaw_data->track_pool[f_i]->instrument->uiTarget, 
-                a_pydaw_data->track_pool[f_i]->instrument->ui_osc_configure_path, "ss", "pydaw_close_window", "");
+                a_pydaw_data->track_pool[f_i]->instrument->ui_osc_quit_path, "");
         }
         
         if((a_pydaw_data->track_pool[f_i]->effect) && a_pydaw_data->track_pool[f_i]->effect->ui_visible)
         {
             lo_send(a_pydaw_data->track_pool[f_i]->effect->uiTarget, 
-                a_pydaw_data->track_pool[f_i]->effect->ui_osc_configure_path, "ss", "pydaw_close_window", "");
+                a_pydaw_data->track_pool[f_i]->effect->ui_osc_quit_path, "");
         }
         
         f_i++;
