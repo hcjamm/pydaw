@@ -364,8 +364,8 @@ class item_list_editor:
                 self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
             f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
             f_note_name = str(f_note.currentText()) + str(f_octave.value())
-            f_start_rounded = round(f_start.value(), 4)
-            f_length_rounded = round(f_length.value(), 4)
+            f_start_rounded = time_quantize_round(f_start.value())
+            f_length_rounded = time_quantize_round(f_length.value())
             f_new_note = pydaw_note(f_start_rounded, f_length_rounded, f_note_value, f_velocity.value())
             if not self.item.add_note(f_new_note):
                 QtGui.QMessageBox.warning(f_window, "Error", "Overlapping note events")
@@ -454,7 +454,7 @@ class item_list_editor:
             self.default_cc_val = int(self.ccs_table_widget.item(x, 2).text())
 
         def cc_ok_handler():
-            f_start_rounded = round(f_start.value(), 4)
+            f_start_rounded = time_quantize_round(f_start.value())
             
             if f_draw_line_checkbox.isChecked():
                 self.item.draw_cc_line(f_cc.value(), f_start.value(), f_cc_value.value(), f_end.value(), f_end_value.value())
@@ -528,7 +528,7 @@ class item_list_editor:
             self.default_pb_val = float(self.pitchbend_table_widget.item(x, 1).text())
 
         def pb_ok_handler():
-            f_start_rounded = round(f_start.value(), 4)
+            f_start_rounded = time_quantize_round(f_start.value())
             if f_draw_line_checkbox.isChecked():
                 self.item.draw_pb_line(f_start.value(), f_pb.value(), f_end.value(), f_end_value.value())
             else:
