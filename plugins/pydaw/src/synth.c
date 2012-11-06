@@ -739,6 +739,10 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                     pydaw_data->pysong->regions[(pydaw_data->current_region)] = g_pyregion_get_new(pydaw_data);
                                 }
                                 pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(pydaw_data);
+                                if((pydaw_data->recording_first_item) == -1)
+                                {
+                                    pydaw_data->recording_first_item = (pydaw_data->recording_current_item_pool_index);
+                                }
                                 pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][pydaw_data->current_bar] = (pydaw_data->recording_current_item_pool_index);
                             }
                         }
@@ -778,14 +782,15 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                             if(pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                             {
                                 double f_length = ((double)((pydaw_data->recorded_note_current_beat) - (pydaw_data->recorded_notes_beat_tracker[n.note])))
-                                        + (pydaw_data->recorded_notes_start_tracker[n.note]);
+                                        +  ((((pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
+                                        * (pydaw_data->playback_inc))) * 4.0f) - (pydaw_data->recorded_notes_start_tracker[n.note]));
                                                                 
                                 printf("\nRecording:  Writing new note_on event f_length == %lf\n\n", f_length);
                                 int f_index = (pydaw_data->recorded_notes_item_tracker[n.note]);                                
                                 pydaw_data->item_pool[f_index]->notes[(pydaw_data->item_pool[f_index]->note_count)] = 
                                         g_pynote_get(n.note,
-                                        pydaw_data->recorded_notes_velocity_tracker[events[f_i2].data.note.note],
-                                        pydaw_data->recorded_notes_start_tracker[events[f_i2].data.note.note],
+                                        pydaw_data->recorded_notes_velocity_tracker[n.note],
+                                        pydaw_data->recorded_notes_start_tracker[n.note],
                                         f_length);
                                 pydaw_data->item_pool[f_index]->note_count = (pydaw_data->item_pool[f_index]->note_count)  + 1;
                                 /*Reset to -1 to invalidate the events*/

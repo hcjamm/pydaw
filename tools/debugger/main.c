@@ -44,8 +44,8 @@ int main(int argc, char** argv)
     v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project", "default");
     
     v_set_plugin_index(pydaw_data, 0, 2);
-    v_set_plugin_index(pydaw_data, 1, 1);    
-    v_set_plugin_index(pydaw_data, 2, 2);
+    //v_set_plugin_index(pydaw_data, 1, 1);    
+    //v_set_plugin_index(pydaw_data, 2, 2);
     v_pydaw_parse_configure_message(pydaw_data, "tr", "0|1");    
     v_pydaw_parse_configure_message(pydaw_data, "rec", "0|0");
 #endif    
@@ -60,33 +60,28 @@ int main(int argc, char** argv)
     
 #ifdef DEBUG_EXTERNAL_MIDI
     snd_seq_event_t * f_events = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 32);
-    int i, i2;    
+        
+    snd_seq_ev_set_noteon(&f_events[0], 0, 44, 100);
+    f_events[0].time.tick = 3;
+    snd_seq_ev_set_noteoff(&f_events[1], 0, 44, 0);
+    f_events[1].time.tick = 4000;
+
     
-    for(i = 0; i < 3; i++)
-    {
-        snd_seq_ev_set_noteon(&f_events[i], 0, 44, 100);
-        f_events[i].time.tick = i;
-        snd_seq_ev_set_noteoff(&f_events[i + 3], 0, 44, 0);
-        f_events[i + 3].time.tick = i + 2000;
-    }
-    
-    int f_event_counter = 0;
+    int f_last_bar = 0;
 #endif    
         
-    while(pydaw_data->current_region < 4)
+    while(pydaw_data->current_region < 2)
     {        
 #ifdef DEBUG_EXTERNAL_MIDI
-        if(f_event_counter >= 15)
+        if((pydaw_data->current_bar) != f_last_bar)
         {
-            f_ddesc->run_synth(f_handle, 4096, f_events, 6);
-            f_event_counter = 0;
+            f_ddesc->run_synth(f_handle, 4096, f_events, 2);
+            f_last_bar = (pydaw_data->current_bar);
         }
         else
         {
             f_ddesc->run_synth(f_handle, 4096, NULL, 0);
         }
-        f_event_counter++;
-        
 #else
         f_ddesc->run_synth(f_handle, 4096, NULL, 0);     
 #endif
