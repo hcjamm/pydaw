@@ -247,6 +247,27 @@ static void runLMSWrapper(LADSPA_Handle instance, unsigned long sample_count)
 }
 */
 
+/*TODO:  This should really go into the library instead of here...*/
+static inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin)
+{
+    int f_i = 0;
+    while(f_i < (a_plugin->controlIns))
+    {
+        if (a_plugin->pluginPortUpdated[f_i]) 
+        {
+            int port = a_plugin->pluginControlInPortNumbers[f_i];
+            float value = a_plugin->pluginControlIns[f_i];
+
+            a_plugin->pluginPortUpdated[f_i] = 0;
+            if (a_plugin->uiTarget) 
+            {
+                lo_send(a_plugin->uiTarget, a_plugin->ui_osc_control_path, "if", port, value);
+            }
+        }
+        f_i++;
+    }
+}
+
 static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
@@ -934,40 +955,9 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
         {   
             if(pydaw_data->track_pool[f_i]->plugin_index != 0)
             {
-                int f_i2 = 0;    
-                while(f_i2 < (pydaw_data->track_pool[f_i]->instrument->controlIns))
-                {
-                    if (pydaw_data->track_pool[f_i]->instrument->pluginPortUpdated[f_i2]) 
-                    {
-                        int port = pydaw_data->track_pool[f_i]->instrument->pluginControlInPortNumbers[f_i2];
-                        float value = pydaw_data->track_pool[f_i]->instrument->pluginControlIns[f_i2];
-
-                        pydaw_data->track_pool[f_i]->instrument->pluginPortUpdated[f_i2] = 0;
-                        if (pydaw_data->track_pool[f_i]->instrument->uiTarget) 
-                        {
-                            lo_send(pydaw_data->track_pool[f_i]->instrument->uiTarget, pydaw_data->track_pool[f_i]->instrument->ui_osc_control_path, "if", port, value);
-                        }
-                    }
-                    f_i2++;
-                }
-                //Another fine candidate for an inline void function....
-                f_i2 = 0;    
-                while(f_i2 < (pydaw_data->track_pool[f_i]->effect->controlIns))
-                {
-                    if (pydaw_data->track_pool[f_i]->effect->pluginPortUpdated[f_i2]) 
-                    {
-                        int port = pydaw_data->track_pool[f_i]->effect->pluginControlInPortNumbers[f_i2];
-                        float value = pydaw_data->track_pool[f_i]->effect->pluginControlIns[f_i2];
-
-                        pydaw_data->track_pool[f_i]->effect->pluginPortUpdated[f_i2] = 0;
-                        if (pydaw_data->track_pool[f_i]->effect->uiTarget) 
-                        {
-                            lo_send(pydaw_data->track_pool[f_i]->effect->uiTarget, pydaw_data->track_pool[f_i]->effect->ui_osc_control_path, "if", port, value);
-                        }
-                    }
-                    f_i2++;
-                }
-                                
+                v_pydaw_update_ports(pydaw_data->track_pool[f_i]->instrument);
+                v_pydaw_update_ports(pydaw_data->track_pool[f_i]->effect);
+                                                
                 v_run_plugin(pydaw_data->track_pool[f_i]->instrument, sample_count, 
                             pydaw_data->track_pool[f_i]->event_buffer, pydaw_data->track_pool[f_i]->current_period_event_index);
                 
@@ -978,13 +968,13 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                 
                 v_run_plugin(pydaw_data->track_pool[f_i]->effect, sample_count, NULL, 0);
                 
-                int f_i3 = 0;
+                int f_i2 = 0;
 
-                while(f_i3 < sample_count)
+                while(f_i2 < sample_count)
                 {
-                    output0[f_i3] += (pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[0][f_i3]);
-                    output1[f_i3] += (pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[1][f_i3]);
-                    f_i3++;
+                    output0[f_i2] += (pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[0][f_i2]);
+                    output1[f_i2] += (pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[1][f_i2]);
+                    f_i2++;
                 }
             }
 
