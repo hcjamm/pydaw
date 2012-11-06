@@ -282,6 +282,7 @@ static inline void v_pydaw_process_external_midi(unsigned long sample_count, snd
                             pydaw_data->recording_first_item = (pydaw_data->recording_current_item_pool_index);
                         }
                         pydaw_data->pysong->regions[(pydaw_data->current_region)]->item_indexes[f_i][pydaw_data->current_bar] = (pydaw_data->recording_current_item_pool_index);
+                        pydaw_data->pysong->regions[(pydaw_data->current_region)]->not_yet_saved = 1;
                     }
                 }
 
