@@ -19,10 +19,10 @@ extern "C" {
 
 /*Standard string sizes.  When in doubt, pick a really big one, it's better to 
  * waste memory than to SEGFAULT...*/
-#define LMS_LARGE_STRING  1048576 //65536
-#define LMS_MEDIUM_STRING  262144 //8192
-#define LMS_SMALL_STRING  65536 //512
-#define LMS_TINY_STRING 16384 //32
+#define LMS_LARGE_STRING  65536 //1048576 
+#define LMS_MEDIUM_STRING  32768 //262144 //8192
+#define LMS_SMALL_STRING  16384 //65536 //512
+#define LMS_TINY_STRING 4096 //16384 //32
     
 #define LMS_TERMINATING_CHAR '\\'
     

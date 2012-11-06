@@ -710,7 +710,12 @@ class transport_widget:
         self.beat_timer.stop()
         self.bar_spinbox.setValue(self.last_bar)
         self.region_spinbox.setValue(self.last_region_num)
-    def on_rec(self):        
+        if self.recording:
+            self.recording = False
+            this_song_editor.open_song()
+            this_region_editor.open_region(this_region_editor.region_name_lineedit.text())
+    def on_rec(self):
+        self.recording = True
         self.last_region_num = self.region_spinbox.value()
         self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_rec()
@@ -758,6 +763,7 @@ class transport_widget:
                 break
 
     def __init__(self):
+        self.recording = False
         self.transport = pydaw_transport()
         self.group_box = QtGui.QGroupBox()
         self.grid_layout = QtGui.QGridLayout()
