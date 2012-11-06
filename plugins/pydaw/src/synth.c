@@ -730,7 +730,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                         if(pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                         {
                             /*Don't overwrite the reference to the current item until an event comes through in this bar*/
-                            if(!pydaw_data->recording_in_current_bar)
+                            if(!pydaw_data->recording_in_current_bar && ((events[f_i2].type) != SND_SEQ_EVENT_NOTEOFF))  //Don't create an empty event for note_offs
                             {
                                 pydaw_data->recording_in_current_bar = 1;
                                 if(!pydaw_data->pysong->regions[(pydaw_data->current_region)])
