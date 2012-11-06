@@ -16,6 +16,7 @@ GNU General Public License for more details.
 """
 
 import sys, os
+from time import sleep
 from PyQt4 import QtGui, QtCore
 from sys import argv
 from os.path import expanduser
@@ -711,9 +712,11 @@ class transport_widget:
         self.bar_spinbox.setValue(self.last_bar)
         self.region_spinbox.setValue(self.last_region_num)
         if self.recording:
-            self.recording = False
+            sleep(2)  #Give it some time to flush the recorded items to disk...
+            self.recording = False            
+            if(this_region_editor.enabled):
+                this_region_editor.open_region(this_region_editor.region.name)
             this_song_editor.open_song()
-            this_region_editor.open_region(this_region_editor.region_name_lineedit.text())
     def on_rec(self):
         self.recording = True
         self.last_region_num = self.region_spinbox.value()
