@@ -11,7 +11,7 @@ from dssi_gui import dssi_gui
 
 pydaw_terminating_char = "\\"
 
-beat_fracs = ['1/16', '1/8', '1/4', '1/3', '1/2']
+beat_fracs = ['1/16', '1/8', '1/4', '1/3', '1/2', '1/1']
 
 def beat_frac_text_to_float(f_index):
     if f_index == 0:
@@ -24,6 +24,8 @@ def beat_frac_text_to_float(f_index):
         return 0.33333333
     elif f_index == 4:
         return 0.5
+    elif f_index == 5:
+        return 1.0
     else:
         return 0.25
 
