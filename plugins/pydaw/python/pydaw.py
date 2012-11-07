@@ -128,6 +128,7 @@ class song_editor:
                 if f_item.text() != "":
                     self.song.add_region_ref(i, f_item.text())
         this_pydaw_project.save_song(self.song)
+        self.open_song()
 
 class region_list_editor:
     
