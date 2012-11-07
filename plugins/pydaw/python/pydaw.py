@@ -116,12 +116,26 @@ class song_editor:
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.table_widget.dropEvent = self.table_drop_event
+        self.table_widget.keyPressEvent = self.table_keyPressEvent
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.main_vlayout.addWidget(self.table_widget)
+    
+    def table_keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Delete:
+            for f_item in self.table_widget.selectedIndexes():
+                f_empty = QtGui.QTableWidgetItem() #Clear the item
+                self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
+            self.tablewidget_to_song()
+        else:
+            QtGui.QTableWidget.keyPressEvent(self.table_widget, event)  
     
     def table_drop_event(self, a_event):        
         QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
         a_event.acceptProposedAction()
+        self.tablewidget_to_song()
+        
+    def tablewidget_to_song(self):
+        """ Flush the edited content of the QTableWidget back to the native song class... """
         self.song.regions = {}
         for i in range(0, 300):
             f_item = self.table_widget.item(0, i)
@@ -289,10 +303,20 @@ class region_list_editor:
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.table_widget.dropEvent = self.table_drop_event
+        self.table_widget.keyPressEvent = self.table_keyPressEvent
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.main_vlayout.addWidget(self.table_widget)
         self.last_item_copied = None
         self.reset_tracks()
+    
+    def table_keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Delete:
+            for f_item in self.table_widget.selectedIndexes():
+                f_empty = QtGui.QTableWidgetItem() #Clear the item
+                self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
+            self.tablewidget_to_region()
+        else:
+            QtGui.QTableWidget.keyPressEvent(self.table_widget, event)
         
     def table_drop_event(self, a_event):
         if a_event.pos().x() <= self.table_widget.columnWidth(0) or a_event.pos().x() >= self.table_width:
@@ -300,6 +324,9 @@ class region_list_editor:
             return
         QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
         a_event.acceptProposedAction()
+        
+    def tablewidget_to_region(self):
+        """ Convert an edited QTableWidget to a native region class """
         self.region.items = []
         for i in range(0, 16):
             for i2 in range(1, 9):
