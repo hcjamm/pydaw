@@ -247,7 +247,7 @@ class pydaw_project:
 
 class pydaw_song:
     def add_region_ref(self, a_pos, a_region_name):
-        self.regions[a_pos] = a_region_name #TODO:  It may be best just to go ahead and make a child class, for when other parameters are added later
+        self.regions[int(a_pos)] = str(a_region_name)
 
     def remove_region_ref(self, a_pos):
         if a_pos in self.regions:
