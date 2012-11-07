@@ -27,8 +27,8 @@ pydaw_item_gradient.setColorAt(0, QtGui.QColor(100, 100, 255))
 pydaw_item_gradient.setColorAt(1, QtGui.QColor(127, 127, 255))
 
 pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
-pydaw_region_gradient.setColorAt(0, QtGui.QColor(210, 120, 120))
-pydaw_region_gradient.setColorAt(1, QtGui.QColor(200, 110, 127))
+pydaw_region_gradient.setColorAt(0, QtGui.QColor(220, 120, 120))
+pydaw_region_gradient.setColorAt(1, QtGui.QColor(200, 90, 95))
 
 class song_editor:
     def open_song(self):
