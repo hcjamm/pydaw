@@ -22,16 +22,23 @@ from sys import argv
 from os.path import expanduser
 from libpydaw import *
 
-pydaw_item_gradient = 	QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
+pydaw_item_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
 pydaw_item_gradient.setColorAt(0, QtGui.QColor(100, 100, 255))
 pydaw_item_gradient.setColorAt(1, QtGui.QColor(127, 127, 255))
+
+pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
+pydaw_region_gradient.setColorAt(0, QtGui.QColor(210, 120, 120))
+pydaw_region_gradient.setColorAt(1, QtGui.QColor(200, 110, 127))
 
 class song_editor:
     def open_song(self):
         self.table_widget.clear()
         self.song = this_pydaw_project.get_song()
         for f_pos, f_region in self.song.regions.iteritems():
-            self.table_widget.setItem(0, f_pos, QtGui.QTableWidgetItem(f_region))
+            f_item = QtGui.QTableWidgetItem(f_region)
+            f_item.setTextAlignment(QtCore.Qt.AlignCenter)
+            f_item.setBackground(pydaw_region_gradient)
+            self.table_widget.setItem(0, f_pos, f_item)
 
     def cell_clicked(self, x, y):
         f_cell = self.table_widget.item(x, y)
@@ -40,6 +47,8 @@ class song_editor:
             if f_cell is None:
                 def song_ok_handler():
                     f_new_cell = QtGui.QTableWidgetItem(f_new_lineedit.text())
+                    f_new_cell.setBackground(pydaw_region_gradient)
+                    f_new_cell.setTextAlignment(QtCore.Qt.AlignCenter)
                     if f_new_radiobutton.isChecked():
                         this_pydaw_project.create_empty_region(f_new_lineedit.text())
                     elif f_copy_radiobutton.isChecked():
@@ -98,30 +107,63 @@ class song_editor:
         self.copied_cell = None
         self.song = pydaw_song()
         self.group_box = QtGui.QGroupBox()
-        self.group_box.setMaximumHeight(200)
+        self.group_box.setMaximumHeight(180)
         self.main_vlayout = QtGui.QVBoxLayout()
         self.hlayout0 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout0)
         self.group_box.setLayout(self.main_vlayout)
-
         self.table_widget = QtGui.QTableWidget()
-        self.table_widget.setColumnCount(300)
+        self.table_widget.setColumnCount(300)        
         self.table_widget.setRowCount(1)
+        self.table_widget.setRowHeight(0, 100)        
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.main_vlayout.addWidget(self.table_widget)
 
 class region_list_editor:
+    
+    def open_tracks(self):
+        f_tracks = this_pydaw_project.get_tracks()
+        for key, f_track in f_tracks.tracks.iteritems():
+            self.tracks[key].open_track(f_track)
+
+    def reset_tracks(self):
+        self.tracks = []
+        for i in range(0, 16):
+            track = seq_track(a_track_num=i, a_track_text="track" + str(i + 1))
+            self.tracks.append(track)
+            self.table_widget.setCellWidget(i, 0, track.group_box)        
+        self.table_widget.setColumnWidth(0, 330)
+        f_headers = ['Tracks']
+        for i in range(1, 9):
+            self.table_widget.setColumnWidth(i, 100)
+            f_headers.append(str(i))
+        self.table_widget.setHorizontalHeaderLabels(f_headers)
+        self.table_widget.resizeRowsToContents()
+
+    def clear_items(self):
+        for i in range(16):
+            for i2 in range(1, 9):
+                f_empty_item = QtGui.QTableWidgetItem()
+                self.table_widget.setItem(i, i2, f_empty_item)
+
+    def get_tracks(self):
+        f_result = pydaw_tracks()
+        for f_i in range(0, len(self.tracks)):
+            f_result.add_track(f_i, self.tracks[f_i].get_track())
+        return f_result
+
     def open_region(self, a_file_name):
         self.enabled = True
-        self.table_widget.clear()
+        self.clear_items()
         self.region_name_lineedit.setText(a_file_name)
         self.region = this_pydaw_project.get_region(a_file_name)
         for f_item in self.region.items:
             f_qtw_item = QtGui.QTableWidgetItem(f_item.item_name)
             f_qtw_item.setBackground(pydaw_item_gradient)
-            self.table_widget.setItem(f_item.track_num, f_item.bar_num, f_qtw_item)
+            f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
+            self.table_widget.setItem(f_item.track_num, f_item.bar_num + 1, f_qtw_item)
             
-    def cell_clicked(self, x, y):
+    def cell_clicked(self, x, y):        
         if not self.enabled:
             return
         f_item = self.table_widget.item(x, y)
@@ -135,9 +177,9 @@ class region_list_editor:
                 else:
                     self.show_cell_dialog(x, y)
         if this_edit_mode_selector.delete_radiobutton.isChecked():
-            self.region.remove_item_ref(x, y)
+            self.region.remove_item_ref(x, y - 1)
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
-            self.table_widget.clear()
+            self.clear_items()
             self.open_region(str(self.region_name_lineedit.text()))
             
 
@@ -158,8 +200,9 @@ class region_list_editor:
                 this_item_editor.open_item(f_cell_text)
             f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
             f_new_cell.setBackground(pydaw_item_gradient)
-            self.region.add_item_ref(x, y, f_cell_text)
-            print("self.region.add_item_ref(" + str(x) + ", " + str(y) + ", " + f_cell_text + ")\n")
+            f_new_cell.setTextAlignment(QtCore.Qt.AlignCenter)
+            self.region.add_item_ref(x, y - 1, f_cell_text)
+            print("self.region.add_item_ref(" + str(x) + ", " + str(y - 1) + ", " + f_cell_text + ")\n")
             self.table_widget.setItem(x, y, f_new_cell)
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             f_window.close()
@@ -226,11 +269,12 @@ class region_list_editor:
 
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
-        self.table_widget.setColumnCount(8)
+        self.table_widget.setColumnCount(9)
         self.table_widget.setRowCount(16)
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)
         self.main_vlayout.addWidget(self.table_widget)
+        self.reset_tracks()
 
 class item_list_editor:
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
@@ -629,7 +673,7 @@ class seq_track:
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_rec(self, value):
         this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
-        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
+        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_name_changed(self, new_name):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_instrument_change(self, selected_instrument):
@@ -637,7 +681,7 @@ class seq_track:
             self.track_name_lineedit.setEnabled(True)
         else:
             self.track_name_lineedit.setEnabled(False)
-        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
+        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
         this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
     def on_show_ui(self):
         if self.instrument_combobox.currentIndex() > 0:
@@ -852,36 +896,6 @@ class edit_mode_selector:
         self.hlayout0.addWidget(self.copy_paste_radiobutton)
         self.add_radiobutton.setChecked(True)
 
-class track_editor:
-    def open_tracks(self):
-        f_tracks = this_pydaw_project.get_tracks()
-        for key, f_track in f_tracks.tracks.iteritems():
-            self.tracks[key].open_track(f_track)
-
-    def reset(self):
-        self.tracks_tablewidget.clear()
-        self.tracks_tablewidget.setHorizontalHeaderLabels(['Tracks'])
-        self.tracks = []
-        for i in range(0, 16):
-            track = seq_track(a_track_num=i, a_track_text="track" + str(i + 1))
-            self.tracks.append(track)
-            self.tracks_tablewidget.insertRow(i)
-            self.tracks_tablewidget.setCellWidget(i, 0, track.group_box)
-        self.tracks_tablewidget.resizeColumnsToContents()
-        self.tracks_tablewidget.resizeRowsToContents()
-        self.tracks_tablewidget.setMaximumWidth(336)
-
-    def __init__(self):
-        self.tracks_tablewidget = QtGui.QTableWidget()
-        self.tracks_tablewidget.setColumnCount(1)
-        self.reset()
-
-    def get_tracks(self):
-        f_result = pydaw_tracks()
-        for f_i in range(0, len(self.tracks)):
-            f_result.add_track(f_i, self.tracks[f_i].get_track())
-        return f_result
-
 class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
         f_file = QtGui.QFileDialog.getSaveFileName(parent=this_main_window ,caption='New Project', directory='.', filter='PyDAW Song (*.pysong)')
@@ -952,7 +966,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_tabwidget.addTab(self.song_tab, "Song")
 
         self.main_layout.addWidget(self.main_tabwidget)
-        self.song_tab_hlayout.addWidget(this_track_editor.tracks_tablewidget)
 
         self.song_region_vlayout = QtGui.QVBoxLayout()
         self.song_tab_hlayout.addLayout(self.song_region_vlayout)
@@ -977,7 +990,7 @@ def global_open_project(a_project_file):
         this_pydaw_project = pydaw_project()
     this_pydaw_project.open_project(a_project_file)
     this_song_editor.open_song()
-    this_track_editor.open_tracks()
+    this_region_editor.open_tracks()
     this_transport.open_transport()
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
@@ -990,7 +1003,7 @@ def global_new_project():
     this_song_editor.table_widget.clear()
     this_region_editor.table_widget.clear()
     this_item_editor.table_widget.clear()
-    this_track_editor.reset()
+    this_region_editor.reset()
     this_transport.open_transport()
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
@@ -1008,7 +1021,6 @@ this_song_editor = song_editor()
 this_region_editor = region_list_editor()
 this_item_editor = item_list_editor()
 this_transport = transport_widget()
-this_track_editor = track_editor()
 this_edit_mode_selector = edit_mode_selector()
 
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
