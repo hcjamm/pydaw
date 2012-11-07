@@ -360,11 +360,15 @@ class pydaw_item:
             self.ccs.remove(cc)
         
         f_start_diff = f_end - f_start
-        f_val_diff = f_end_val - f_start_val
-        f_time_inc = f_start_diff/float(f_val_diff)
+        f_val_diff = abs(f_end_val - f_start_val)
+        if f_start_val > f_end_val:
+            f_inc = -1
+        else:
+            f_inc = 1
+        f_time_inc = abs(f_start_diff/float(f_val_diff))
         for i in range(0, (f_val_diff + 1)):
             self.ccs.append(pydaw_cc(round(f_start, 4), f_cc, f_start_val))
-            f_start_val += 1
+            f_start_val += f_inc
             f_start += f_time_inc
         self.ccs.sort()
     
@@ -396,11 +400,15 @@ class pydaw_item:
             self.pitchbends.remove(pb)
         
         f_start_diff = f_end - f_start        
-        f_val_diff = f_end_val - f_start_val        
-        f_time_inc = f_start_diff/(float(f_val_diff) * 20.0)        
+        f_val_diff = abs(f_end_val - f_start_val)
+        if f_start_val > f_end_val:
+            f_inc = -0.05
+        else:
+            f_inc = 0.05
+        f_time_inc = abs(f_start_diff/(float(f_val_diff) * 20.0))
         for i in range(0, int((f_val_diff * 20) + 1)):
             self.pitchbends.append(pydaw_pitchbend(round(f_start, 4), f_start_val))
-            f_start_val += 0.05
+            f_start_val += f_inc
             f_start += f_time_inc
         self.pitchbends.sort()
             
