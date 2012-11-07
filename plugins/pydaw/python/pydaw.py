@@ -257,11 +257,6 @@ class region_list_editor:
         f_cancel_button.clicked.connect(note_cancel_handler)
         f_window.exec_()
 
-    def cell_doubleclicked(self, x, y):
-        f_clip = QtGui.QApplication.clipboard()
-        f_item = QtGui.QTableWidgetItem(f_clip.text())
-        self.table_widget.setItem(x, y, f_item)
-
     def __init__(self):
         self.enabled = False #Prevents user from editing a region before one has been selected
         self.group_box = QtGui.QGroupBox()
@@ -284,7 +279,6 @@ class region_list_editor:
         self.table_widget.setColumnCount(9)
         self.table_widget.setRowCount(16)
         self.table_widget.cellClicked.connect(self.cell_clicked)
-        self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)        
         self.table_widget.setDragDropOverwriteMode(False)
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
