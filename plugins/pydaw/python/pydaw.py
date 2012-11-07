@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 PyDAW is a DAW using Python and Qt for the UI, with a high performance,
-sample-accurate audio/MIDI back end written in C, and suite of high quality 
+sample-accurate audio/MIDI back end written in C, and suite of high quality
 built in plugins.
 
 This program is free software; you can redistribute it and/or modify
@@ -106,17 +106,17 @@ class song_editor:
         self.main_vlayout.addLayout(self.hlayout0)
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
-        self.table_widget.setColumnCount(300)        
+        self.table_widget.setColumnCount(300)
         self.table_widget.setRowCount(1)
-        self.table_widget.setRowHeight(0, 100)        
+        self.table_widget.setRowHeight(0, 100)
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.table_widget.setDragDropOverwriteMode(False)
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.table_widget.dropEvent = self.table_drop_event
         self.main_vlayout.addWidget(self.table_widget)
-    
-    def table_drop_event(self, a_event):        
+
+    def table_drop_event(self, a_event):
         QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
         a_event.acceptProposedAction()
         self.song.regions = {}
@@ -128,7 +128,7 @@ class song_editor:
         this_pydaw_project.save_song(self.song)
 
 class region_list_editor:
-    
+
     def open_tracks(self):
         f_tracks = this_pydaw_project.get_tracks()
         for key, f_track in f_tracks.tracks.iteritems():
@@ -139,7 +139,7 @@ class region_list_editor:
         for i in range(0, 16):
             track = seq_track(a_track_num=i, a_track_text="track" + str(i + 1))
             self.tracks.append(track)
-            self.table_widget.setCellWidget(i, 0, track.group_box)        
+            self.table_widget.setCellWidget(i, 0, track.group_box)
         self.table_widget.setColumnWidth(0, 330)
         f_headers = ['Tracks']
         for i in range(1, 9):
@@ -171,8 +171,8 @@ class region_list_editor:
             f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
             f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
             self.table_widget.setItem(f_item.track_num, f_item.bar_num + 1, f_qtw_item)
-            
-    def cell_clicked(self, x, y):        
+
+    def cell_clicked(self, x, y):
         if not self.enabled:
             return
         f_item = self.table_widget.item(x, y)
@@ -190,7 +190,7 @@ class region_list_editor:
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             self.clear_items()
             self.open_region(str(self.region_name_lineedit.text()))
-            
+
 
     def show_cell_dialog(self, x, y):
         def note_ok_handler():
@@ -200,7 +200,7 @@ class region_list_editor:
                 this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
-                
+
             if f_copy_from_radiobutton.isChecked():
                 this_pydaw_project.copy_item(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
                 this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
@@ -209,7 +209,7 @@ class region_list_editor:
                 this_item_editor.open_item(f_cell_text)
             self.last_item_copied = f_cell_text
             f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
-            f_new_cell.setFlags(f_new_cell.flags() | QtCore.Qt.ItemIsSelectable)            
+            f_new_cell.setFlags(f_new_cell.flags() | QtCore.Qt.ItemIsSelectable)
             f_new_cell.setBackground(pydaw_item_gradient)
             f_new_cell.setTextAlignment(QtCore.Qt.AlignCenter)
             self.region.add_item_ref(x, y - 1, f_cell_text)
@@ -219,7 +219,7 @@ class region_list_editor:
 
         def note_cancel_handler():
             f_window.close()
-            
+
         def copy_combobox_index_changed(a_index):
             f_copy_radiobutton.setChecked(True)
 
@@ -235,13 +235,13 @@ class region_list_editor:
         f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_item_name())
         f_new_lineedit.setMaxLength(24)
         f_layout.addWidget(f_new_lineedit, 0, 2)
-        f_layout.addLayout(f_vlayout0, 1, 0)        
+        f_layout.addLayout(f_vlayout0, 1, 0)
         f_copy_from_radiobutton = QtGui.QRadioButton()
         f_vlayout0.addWidget(f_copy_from_radiobutton)
         f_copy_radiobutton = QtGui.QRadioButton()
         f_vlayout0.addWidget(f_copy_radiobutton)
         f_copy_combobox = QtGui.QComboBox()
-        f_copy_combobox.addItems(this_pydaw_project.get_item_list())        
+        f_copy_combobox.addItems(this_pydaw_project.get_item_list())
         if not self.last_item_copied is None:
             f_copy_combobox.setCurrentIndex(f_copy_combobox.findText(self.last_item_copied))
         f_copy_combobox.currentIndexChanged.connect(copy_combobox_index_changed)
@@ -286,8 +286,8 @@ class region_list_editor:
         self.main_vlayout.addWidget(self.table_widget)
         self.last_item_copied = None
         self.reset_tracks()
-        
-    def table_drop_event(self, a_event):        
+
+    def table_drop_event(self, a_event):
         QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
         a_event.acceptProposedAction()
         self.region.items = []
@@ -297,7 +297,7 @@ class region_list_editor:
                 if not f_item is None:
                     if f_item.text() != "":
                         self.region.add_item_ref(i, i2 - 1, f_item.text())
-        this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)    
+        this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
 
 class item_list_editor:
     def clear_notes(self):
@@ -321,15 +321,15 @@ class item_list_editor:
 
         def transpose_cancel_handler():
             f_window.close()
-            
+
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
-        
+
         f_semitone = QtGui.QSpinBox()
         f_semitone.setRange(-12, 12)
         f_layout.addWidget(QtGui.QLabel("Semitones"), 0, 0)
-        f_layout.addWidget(f_semitone, 0, 1)        
+        f_layout.addWidget(f_semitone, 0, 1)
         f_octave = QtGui.QSpinBox()
         f_octave.setRange(-5, 5)
         f_layout.addWidget(QtGui.QLabel("Octaves"), 1, 0)
@@ -341,7 +341,7 @@ class item_list_editor:
         f_cancel.pressed.connect(transpose_cancel_handler)
         f_layout.addWidget(f_cancel, 2, 1)
         f_window.exec_()
-        
+
     def time_shift_dialog(self):
         def time_shift_ok_handler():
             self.item.time_shift(f_shift.value())
@@ -351,15 +351,15 @@ class item_list_editor:
 
         def time_shift_cancel_handler():
             f_window.close()
-            
+
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
-        
+
         f_shift = QtGui.QDoubleSpinBox()
         f_shift.setRange(-4.0, 4.0)
         f_layout.addWidget(QtGui.QLabel("Shift(beats)"), 0, 0)
-        f_layout.addWidget(f_shift, 0, 1)        
+        f_layout.addWidget(f_shift, 0, 1)
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(time_shift_ok_handler)
         f_layout.addWidget(f_ok, 2, 0)
@@ -393,7 +393,7 @@ class item_list_editor:
         self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 3)
         f_n_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.notes_gridlayout.addItem(f_n_spacer_right, 0, 4, 1, 1)
-        self.notes_vlayout.addLayout(self.notes_gridlayout) 
+        self.notes_vlayout.addLayout(self.notes_gridlayout)
         self.notes_table_widget = QtGui.QTableWidget()
         self.notes_table_widget.setColumnCount(5)
         self.notes_table_widget.setRowCount(128)
@@ -421,7 +421,7 @@ class item_list_editor:
         self.ccs_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.sortItems(0)
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
-        
+
         self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
         self.pb_vlayout = QtGui.QVBoxLayout(self.pb_groupbox)
         self.pb_gridlayout = QtGui.QGridLayout()
@@ -433,7 +433,7 @@ class item_list_editor:
         self.pb_gridlayout.addWidget(self.pb_clear_button, 0, 1)
         f_p_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.pb_gridlayout.addItem(f_p_spacer_right, 0, 2, 1, 1)
-        self.pb_vlayout.addLayout(self.pb_gridlayout)        
+        self.pb_vlayout.addLayout(self.pb_gridlayout)
         self.pitchbend_table_widget = QtGui.QTableWidget()
         self.pitchbend_table_widget.setColumnCount(2)
         self.pitchbend_table_widget.setRowCount(128)
@@ -445,7 +445,7 @@ class item_list_editor:
         self.main_hlayout.addWidget(self.notes_groupbox)
         self.main_hlayout.addWidget(self.ccs_groupbox)
         self.main_hlayout.addWidget(self.pb_groupbox)
-        self.set_headers()        
+        self.set_headers()
         self.default_note_start = 0.0
         self.default_note_length = 1.0
         self.default_note_note = 0
@@ -500,7 +500,7 @@ class item_list_editor:
         self.pitchbend_table_widget.setSortingEnabled(True)
         if this_region_editor.open_new_items_checkbox.isChecked():
             this_main_window.main_tabwidget.setCurrentIndex(1)
-        
+
     def notes_click_handler(self, x, y):
         if not self.enabled:
             return
@@ -546,7 +546,7 @@ class item_list_editor:
             self.default_note_velocity = int(self.notes_table_widget.item(x, 4).text())
         else:
             self.is_existing_note = False
-            
+
         def note_ok_handler():
             if self.is_existing_note:
                 self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
@@ -558,19 +558,19 @@ class item_list_editor:
             if not self.item.add_note(f_new_note):
                 QtGui.QMessageBox.warning(f_window, "Error", "Overlapping note events")
                 return
-            
+
             self.default_note_start = f_start_rounded
             self.default_note_length = f_length_rounded
             self.default_note_note = int(f_note.currentIndex())
             self.default_note_octave = int(f_octave.value())
             self.default_note_velocity = int(f_velocity.value())
             self.default_quantize = int(f_quantize_combobox.currentIndex())
-            
+
             self.notes_table_widget.setSortingEnabled(False)
             f_start_item = QtGui.QTableWidgetItem(str(f_start_rounded))
             self.notes_table_widget.setItem(x, 0, f_start_item)
             f_length_item = QtGui.QTableWidgetItem(str(f_length_rounded))
-            self.notes_table_widget.setItem(x, 1, f_length_item)                        
+            self.notes_table_widget.setItem(x, 1, f_length_item)
             f_note_name_item = QtGui.QTableWidgetItem(f_note_name)
             self.notes_table_widget.setItem(x, 2, f_note_name_item)
             f_note_num = QtGui.QTableWidgetItem(str(f_note_value))
@@ -584,7 +584,7 @@ class item_list_editor:
 
         def note_cancel_handler():
             f_window.close()
-            
+
         def quantize_changed(f_quantize_index):
             f_frac = beat_frac_text_to_float(f_quantize_index)
             f_start.setSingleStep(f_frac)
@@ -643,17 +643,17 @@ class item_list_editor:
 
         def cc_ok_handler():
             f_start_rounded = time_quantize_round(f_start.value())
-            
+
             if f_draw_line_checkbox.isChecked():
                 self.item.draw_cc_line(f_cc.value(), f_start.value(), f_cc_value.value(), f_end.value(), f_end_value.value())
             else:
                 if not self.item.add_cc(pydaw_cc(f_start_rounded, f_cc.value(), f_cc_value.value())):
                     QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
                     return
-            
+
             self.default_cc_start = f_start.value()
             self.default_cc_num = f_cc.value()
-            self.default_cc_start = f_start_rounded            
+            self.default_cc_start = f_start_rounded
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
             self.ccs_table_widget.setSortingEnabled(True)
@@ -661,7 +661,7 @@ class item_list_editor:
 
         def cc_cancel_handler():
             f_window.close()
-        
+
         def quantize_changed(f_quantize_index):
             f_frac = beat_frac_text_to_float(f_quantize_index)
             f_start.setSingleStep(f_frac)
@@ -708,11 +708,11 @@ class item_list_editor:
         f_cancel_button.clicked.connect(cc_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_quantize)
         f_window.exec_()
-        
+
     def pitchbend_show_event_dialog(self, x, y):
         f_cell = self.pitchbend_table_widget.item(x, y)
         if f_cell is not None:
-            self.default_pb_start = float(self.pitchbend_table_widget.item(x, 0).text())            
+            self.default_pb_start = float(self.pitchbend_table_widget.item(x, 0).text())
             self.default_pb_val = float(self.pitchbend_table_widget.item(x, 1).text())
 
         def pb_ok_handler():
@@ -723,17 +723,17 @@ class item_list_editor:
                 if not self.item.add_pb(pydaw_pitchbend(f_start_rounded, f_pb.value())):
                     QtGui.QMessageBox.warning(f_window, "Error", "Duplicate pitchbend event")
                     return
-                        
+
             self.default_pb_start = f_start_rounded
             self.default_pb_val = f_pb.value()
-                        
+
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
             f_window.close()
 
         def pb_cancel_handler():
             f_window.close()
-        
+
         def quantize_changed(f_quantize_index):
             f_frac = beat_frac_text_to_float(f_quantize_index)
             f_start.setSingleStep(f_frac)
@@ -808,7 +808,7 @@ class seq_track:
     def on_show_ui(self):
         if self.instrument_combobox.currentIndex() > 0:
             this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
-            
+
     def on_show_fx(self):
         if self.instrument_combobox.currentIndex() > 0:
             this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number)
@@ -874,7 +874,7 @@ class seq_track:
         self.fx_button.setMaximumWidth(30)
         self.fx_button.setStyleSheet(f_button_style)
         self.hlayout3.addWidget(self.fx_button)
-        
+
     def open_track(self, a_track):
         self.record_radiobutton.setChecked(a_track.rec)
         self.solo_checkbox.setChecked(a_track.solo)
@@ -901,7 +901,7 @@ class transport_widget:
         self.region_spinbox.setValue(self.last_region_num)
         if self.recording:
             sleep(2)  #Give it some time to flush the recorded items to disk...
-            self.recording = False            
+            self.recording = False
             if(this_region_editor.enabled):
                 this_region_editor.open_region(this_region_editor.region.name)
             this_song_editor.open_song()
@@ -930,7 +930,7 @@ class transport_widget:
     def on_region_changed(self, a_region):
         self.transport.region = a_region
         this_pydaw_project.save_transport(self.transport)
-        
+
     def beat_timeout(self):
         if self.loop_mode_combobox.currentIndex() == 1:
             return  #Looping a single bar doesn't require these values to update
@@ -941,7 +941,7 @@ class transport_widget:
             if self.loop_mode_combobox.currentIndex() != 2:
                 self.region_spinbox.setValue(self.region_spinbox.value() + 1)
         self.bar_spinbox.setValue(f_new_bar_value)
-        
+
     def open_transport(self):
         self.transport = this_pydaw_project.get_transport()
         self.tempo_spinbox.setValue(int(self.transport.bpm))
@@ -957,54 +957,58 @@ class transport_widget:
         self.recording = False
         self.transport = pydaw_transport()
         self.group_box = QtGui.QGroupBox()
-        self.grid_layout = QtGui.QGridLayout()
-        self.group_box.setLayout(self.grid_layout)
+        self.vboxlayout = QtGui.QVBoxLayout()
+        self.hboxlayout1 = QtGui.QHBoxLayout()
+        self.hboxlayout2 = QtGui.QHBoxLayout()
+        self.group_box.setLayout(self.vboxlayout)
+        self.vboxlayout.addLayout(self.hboxlayout1)
+        self.vboxlayout.addLayout(self.hboxlayout2)
         self.play_button = QtGui.QPushButton()
         self.play_button.setText("Play")
         self.play_button.setMinimumWidth(75)
         self.play_button.pressed.connect(self.on_play)
-        self.grid_layout.addWidget(self.play_button, 0, 0)
+        self.hboxlayout1.addWidget(self.play_button)
         self.stop_button = QtGui.QPushButton()
         self.stop_button.setText("Stop")
         self.stop_button.setMinimumWidth(75)
         self.stop_button.pressed.connect(self.on_stop)
-        self.grid_layout.addWidget(self.stop_button, 0, 1)
+        self.hboxlayout1.addWidget(self.stop_button)
         self.rec_button = QtGui.QPushButton()
         self.rec_button.setText("Rec")
         self.rec_button.setMinimumWidth(75)
         self.rec_button.pressed.connect(self.on_rec)
-        self.grid_layout.addWidget(self.rec_button, 0, 2)
-        self.grid_layout.addWidget(QtGui.QLabel("BPM:"), 0, 3)
+        self.hboxlayout1.addWidget(self.rec_button)
+        self.hboxlayout1.addWidget(QtGui.QLabel("BPM:"))
         self.tempo_spinbox = QtGui.QSpinBox()
         self.tempo_spinbox.setRange(50, 200)
         self.tempo_spinbox.valueChanged.connect(self.on_tempo_changed)
-        self.grid_layout.addWidget(self.tempo_spinbox, 0, 4)
-        self.grid_layout.addWidget(QtGui.QLabel("MIDI Keybd:"), 0, 5)
+        self.hboxlayout1.addWidget(self.tempo_spinbox)
+        self.hboxlayout2.addWidget(QtGui.QLabel("MIDI Keybd:"))
         self.keybd_combobox = QtGui.QComboBox()
         self.alsa_output_ports = alsa_ports()
         self.keybd_combobox.addItems(self.alsa_output_ports.get_output_fqnames())
         self.keybd_combobox.currentIndexChanged.connect(self.on_keybd_combobox_index_changed)
-        self.grid_layout.addWidget(self.keybd_combobox, 0, 6)        
-        self.grid_layout.addWidget(QtGui.QLabel("Loop Mode"), 0, 7)
+        self.hboxlayout2.addWidget(self.keybd_combobox)
+        self.hboxlayout2.addWidget(QtGui.QLabel("Loop Mode"))
         self.loop_mode_combobox = QtGui.QComboBox()
         self.loop_mode_combobox.addItems(["Off", "Bar", "Region"])
         self.loop_mode_combobox.setMinimumWidth(60)
         self.loop_mode_combobox.currentIndexChanged.connect(self.on_loop_mode_changed)
-        self.grid_layout.addWidget(self.loop_mode_combobox, 0, 8)
-        self.grid_layout.addWidget(QtGui.QLabel("Region:"), 0, 9)
+        self.hboxlayout2.addWidget(self.loop_mode_combobox)
+        self.hboxlayout1.addWidget(QtGui.QLabel("Region:"))
         self.region_spinbox = QtGui.QSpinBox()
         self.region_spinbox.setRange(0, 300)
         self.region_spinbox.valueChanged.connect(self.on_region_changed)
-        self.grid_layout.addWidget(self.region_spinbox, 0, 10)
-        self.grid_layout.addWidget(QtGui.QLabel("Bar:"), 0, 11)
+        self.hboxlayout1.addWidget(self.region_spinbox)
+        self.hboxlayout1.addWidget(QtGui.QLabel("Bar:"))
         self.bar_spinbox = QtGui.QSpinBox()
         self.bar_spinbox.setRange(0, 8)
         self.bar_spinbox.valueChanged.connect(self.on_bar_changed)
-        self.grid_layout.addWidget(self.bar_spinbox, 0, 12)
+        self.hboxlayout1.addWidget(self.bar_spinbox)
         #This is an awful way to do this, I'll eventually have IPC that goes both directions...
         self.beat_timer = QtCore.QTimer()
         self.beat_timer.timeout.connect(self.beat_timeout)
-        
+
 class edit_mode_selector:
     def __init__(self):
         self.groupbox = QtGui.QGroupBox()
@@ -1034,7 +1038,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         this_pydaw_project.save_project()
     def on_save_as(self):
         f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", this_pydaw_project.project_file + ".pysong")
-        if f_new_file:        
+        if f_new_file:
             this_pydaw_project.save_project_as(f_new_file)
 
     def __init__(self):
@@ -1077,7 +1081,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_layout.addLayout(self.transport_hlayout)
 
         self.transport_hlayout.addWidget(this_transport.group_box, alignment=QtCore.Qt.AlignLeft)
-        self.transport_hlayout.addWidget(this_edit_mode_selector.groupbox, alignment=QtCore.Qt.AlignLeft)
+        self.transport_hlayout.addWidget(this_edit_mode_selector.groupbox, alignment=QtCore.Qt.AlignRight)
 
         self.main_tabwidget = QtGui.QTabWidget()
         self.song_tab = QtGui.QWidget()
@@ -1100,9 +1104,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_tabwidget.addTab(self.item_tab, "Item")
 
         self.show()
-    def closeEvent(self, event):        
+    def closeEvent(self, event):
         f_reply = QtGui.QMessageBox.question(self, 'Message',
-            "Save project before quitting?", QtGui.QMessageBox.Yes | 
+            "Save project before quitting?", QtGui.QMessageBox.Yes |
             QtGui.QMessageBox.No | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.No)
 
         if f_reply == QtGui.QMessageBox.Yes:
@@ -1126,12 +1130,12 @@ def global_open_project(a_project_file):
     this_transport.open_transport()
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
-def global_new_project():    
+def global_new_project():
     global this_pydaw_project
     if(len(argv) >= 2):
         this_pydaw_project = pydaw_project(a_project_file, (argv[1]))
     else:
-        this_pydaw_project = pydaw_project(a_project_file)    
+        this_pydaw_project = pydaw_project(a_project_file)
     this_song_editor.table_widget.clear()
     this_region_editor.table_widget.clear()
     this_item_editor.table_widget.clear()
@@ -1145,7 +1149,7 @@ def about_to_quit():
 pydaw_write_log("\n\n\n***********STARTING***********\n\n")
 for arg in argv:
     pydaw_write_log("arg:  " + arg)
-    
+
 app = QtGui.QApplication(sys.argv)
 app.setWindowIcon(QtGui.QIcon('pydaw.ico'))
 app.aboutToQuit.connect(about_to_quit)
