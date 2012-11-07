@@ -1229,6 +1229,8 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
                 dllName = "ray_v.so";
                 label = "LMS_RAYV";            
                 break;
+            default:
+                return;
         }
 
     }
