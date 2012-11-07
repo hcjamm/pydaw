@@ -289,6 +289,36 @@ class item_list_editor:
         self.item.pitchbends = []
         this_pydaw_project.save_item(self.item_name, self.item)
         self.open_item(self.item_name)
+    def transpose_dialog(self):
+        def transpose_ok_handler():
+            self.item.transpose(f_semitone.value(), f_octave.value())
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
+            f_window.close()
+
+        def transpose_cancel_handler():
+            f_window.close()
+            
+        f_window = QtGui.QDialog()
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        
+        f_semitone = QtGui.QSpinBox()
+        f_semitone.setRange(-12, 12)
+        f_layout.addWidget(QtGui.QLabel("Semitones"), 0, 0)
+        f_layout.addWidget(f_semitone, 0, 1)        
+        f_octave = QtGui.QSpinBox()
+        f_octave.setRange(-5, 5)
+        f_layout.addWidget(QtGui.QLabel("Octaves"), 1, 0)
+        f_layout.addWidget(f_octave, 1, 1)
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(transpose_ok_handler)
+        f_layout.addWidget(f_ok, 2, 0)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(transpose_cancel_handler)
+        f_layout.addWidget(f_cancel, 2, 1)
+        f_window.exec_()
+
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):
         self.enabled = False
@@ -301,11 +331,16 @@ class item_list_editor:
         self.notes_gridlayout = QtGui.QGridLayout()
         f_n_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.notes_gridlayout.addItem(f_n_spacer_left, 0, 0, 1, 1)
+        self.notes_transpose_button = QtGui.QPushButton("Transpose")
+        self.notes_transpose_button.setMinimumWidth(90)
+        self.notes_transpose_button.pressed.connect(self.transpose_dialog)
+        self.notes_gridlayout.addWidget(self.notes_transpose_button, 0, 1)
         self.notes_clear_button = QtGui.QPushButton("Clear")
+        self.notes_clear_button.setMinimumWidth(90)
         self.notes_clear_button.pressed.connect(self.clear_notes)
-        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 1)
+        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 2)
         f_n_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.notes_gridlayout.addItem(f_n_spacer_right, 0, 2, 1, 1)
+        self.notes_gridlayout.addItem(f_n_spacer_right, 0, 3, 1, 1)
         self.notes_vlayout.addLayout(self.notes_gridlayout) 
         self.notes_table_widget = QtGui.QTableWidget()
         self.notes_table_widget.setColumnCount(5)
@@ -321,6 +356,7 @@ class item_list_editor:
         f_c_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.ccs_gridlayout.addItem(f_c_spacer_left, 0, 0, 1, 1)
         self.ccs_clear_button = QtGui.QPushButton("Clear")
+        self.ccs_clear_button.setMinimumWidth(90)
         self.ccs_clear_button.pressed.connect(self.clear_ccs)
         self.ccs_gridlayout.addWidget(self.ccs_clear_button, 0, 1)
         f_c_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -340,6 +376,7 @@ class item_list_editor:
         f_p_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.pb_gridlayout.addItem(f_p_spacer_left, 0, 0, 1, 1)
         self.pb_clear_button = QtGui.QPushButton("Clear")
+        self.pb_clear_button.setMinimumWidth(90)
         self.pb_clear_button.pressed.connect(self.clear_pb)
         self.pb_gridlayout.addWidget(self.pb_clear_button, 0, 1)
         f_p_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)

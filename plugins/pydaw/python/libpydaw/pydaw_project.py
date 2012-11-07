@@ -327,6 +327,15 @@ class pydaw_item:
                 self.notes.pop(i)
                 break
             
+    def transpose(self, a_semitones, a_octave=0):
+        f_total = a_semitones + (a_octave * 12)
+        for note in self.notes:
+            note.note_num += f_total
+            if note.note_num < 0:
+                note.note_num = 0
+            elif note.note_num > 127:
+                note.note_num = 127
+            
     def get_next_default_note(self):
         pass
 
