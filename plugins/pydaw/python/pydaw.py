@@ -116,6 +116,7 @@ class song_editor:
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.table_widget.dropEvent = self.table_drop_event
+        self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.main_vlayout.addWidget(self.table_widget)
     
     def table_drop_event(self, a_event):        
@@ -288,6 +289,7 @@ class region_list_editor:
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.table_widget.dropEvent = self.table_drop_event
+        self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.main_vlayout.addWidget(self.table_widget)
         self.last_item_copied = None
         self.reset_tracks()
@@ -407,7 +409,8 @@ class item_list_editor:
         self.notes_table_widget.setRowCount(128)
         self.notes_table_widget.cellClicked.connect(self.notes_click_handler)
         self.notes_table_widget.setSortingEnabled(True)
-        self.notes_table_widget.sortItems(0)
+        self.notes_table_widget.sortItems(0)        
+        self.notes_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.notes_vlayout.addWidget(self.notes_table_widget)
 
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
@@ -428,6 +431,7 @@ class item_list_editor:
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
         self.ccs_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.sortItems(0)
+        self.ccs_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
         
         self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
@@ -448,6 +452,7 @@ class item_list_editor:
         self.pitchbend_table_widget.cellClicked.connect(self.pitchbend_click_handler)
         self.pitchbend_table_widget.setSortingEnabled(True)
         self.pitchbend_table_widget.sortItems(0)
+        self.pitchbend_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.pb_vlayout.addWidget(self.pitchbend_table_widget)
 
         self.main_hlayout.addWidget(self.notes_groupbox)
