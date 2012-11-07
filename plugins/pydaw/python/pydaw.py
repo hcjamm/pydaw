@@ -180,7 +180,7 @@ class region_list_editor:
             f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
             self.table_widget.setItem(f_item.track_num, f_item.bar_num + 1, f_qtw_item)
             
-    def cell_clicked(self, x, y):        
+    def cell_double_clicked(self, x, y):        
         if not self.enabled:
             return
         f_item = self.table_widget.item(x, y)
@@ -191,6 +191,7 @@ class region_list_editor:
                 f_item_name = str(f_item.text())
                 if f_item_name != "":
                     this_item_editor.open_item(f_item_name)
+                    this_main_window.main_tabwidget.setCurrentIndex(1)
                 else:
                     self.show_cell_dialog(x, y)
         if this_edit_mode_selector.delete_radiobutton.isChecked():
@@ -278,15 +279,11 @@ class region_list_editor:
         self.region_name_lineedit = QtGui.QLineEdit("Region0")
         self.region_name_lineedit.setEnabled(False)
         self.hlayout0.addWidget(self.region_name_lineedit)
-        self.open_new_items_checkbox = QtGui.QCheckBox("Open New Items In Editor")
-        self.open_new_items_checkbox.setChecked(True)
-        self.hlayout0.addWidget(self.open_new_items_checkbox)
-
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setColumnCount(9)
         self.table_widget.setRowCount(16)
-        self.table_widget.cellClicked.connect(self.cell_clicked)
+        self.table_widget.cellDoubleClicked.connect(self.cell_double_clicked)
         self.table_widget.setDragDropOverwriteMode(False)
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
@@ -508,9 +505,7 @@ class item_list_editor:
             self.pitchbend_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(pb.start)))
             self.pitchbend_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(pb.pb_val)))
             f_i = f_i + 1
-        self.pitchbend_table_widget.setSortingEnabled(True)
-        if this_region_editor.open_new_items_checkbox.isChecked():
-            this_main_window.main_tabwidget.setCurrentIndex(1)
+        self.pitchbend_table_widget.setSortingEnabled(True)            
         
     def notes_click_handler(self, x, y):
         if not self.enabled:
