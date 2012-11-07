@@ -1264,21 +1264,24 @@ void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
 {
     int f_i = 0;
     
-    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    if(a_pydaw_data)
     {
-        if((a_pydaw_data->track_pool[f_i]->instrument) && a_pydaw_data->track_pool[f_i]->instrument->ui_visible)
+        while(f_i < PYDAW_MAX_TRACK_COUNT)
         {
-            lo_send(a_pydaw_data->track_pool[f_i]->instrument->uiTarget, 
-                a_pydaw_data->track_pool[f_i]->instrument->ui_osc_quit_path, "");
+            if((a_pydaw_data->track_pool[f_i]->instrument) && a_pydaw_data->track_pool[f_i]->instrument->ui_visible)
+            {
+                lo_send(a_pydaw_data->track_pool[f_i]->instrument->uiTarget, 
+                    a_pydaw_data->track_pool[f_i]->instrument->ui_osc_quit_path, "");
+            }
+
+            if((a_pydaw_data->track_pool[f_i]->effect) && a_pydaw_data->track_pool[f_i]->effect->ui_visible)
+            {
+                lo_send(a_pydaw_data->track_pool[f_i]->effect->uiTarget, 
+                    a_pydaw_data->track_pool[f_i]->effect->ui_osc_quit_path, "");
+            }
+
+            f_i++;
         }
-        
-        if((a_pydaw_data->track_pool[f_i]->effect) && a_pydaw_data->track_pool[f_i]->effect->ui_visible)
-        {
-            lo_send(a_pydaw_data->track_pool[f_i]->effect->uiTarget, 
-                a_pydaw_data->track_pool[f_i]->effect->ui_osc_quit_path, "");
-        }
-        
-        f_i++;
     }
 }
 
