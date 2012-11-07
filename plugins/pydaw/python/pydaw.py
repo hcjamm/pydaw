@@ -318,7 +318,32 @@ class item_list_editor:
         f_cancel.pressed.connect(transpose_cancel_handler)
         f_layout.addWidget(f_cancel, 2, 1)
         f_window.exec_()
+        
+    def time_shift_dialog(self):
+        def time_shift_ok_handler():
+            self.item.time_shift(f_shift.value())
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
+            f_window.close()
 
+        def time_shift_cancel_handler():
+            f_window.close()
+            
+        f_window = QtGui.QDialog()
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        
+        f_shift = QtGui.QDoubleSpinBox()
+        f_shift.setRange(-4.0, 4.0)
+        f_layout.addWidget(QtGui.QLabel("Shift(beats)"), 0, 0)
+        f_layout.addWidget(f_shift, 0, 1)        
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(time_shift_ok_handler)
+        f_layout.addWidget(f_ok, 2, 0)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(time_shift_cancel_handler)
+        f_layout.addWidget(f_cancel, 2, 1)
+        f_window.exec_()
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):
         self.enabled = False
@@ -335,12 +360,16 @@ class item_list_editor:
         self.notes_transpose_button.setMinimumWidth(90)
         self.notes_transpose_button.pressed.connect(self.transpose_dialog)
         self.notes_gridlayout.addWidget(self.notes_transpose_button, 0, 1)
+        self.notes_shift_button = QtGui.QPushButton("Shift")
+        self.notes_shift_button.setMinimumWidth(90)
+        self.notes_shift_button.pressed.connect(self.time_shift_dialog)
+        self.notes_gridlayout.addWidget(self.notes_shift_button, 0, 2)
         self.notes_clear_button = QtGui.QPushButton("Clear")
         self.notes_clear_button.setMinimumWidth(90)
         self.notes_clear_button.pressed.connect(self.clear_notes)
-        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 2)
+        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 3)
         f_n_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.notes_gridlayout.addItem(f_n_spacer_right, 0, 3, 1, 1)
+        self.notes_gridlayout.addItem(f_n_spacer_right, 0, 4, 1, 1)
         self.notes_vlayout.addLayout(self.notes_gridlayout) 
         self.notes_table_widget = QtGui.QTableWidget()
         self.notes_table_widget.setColumnCount(5)
