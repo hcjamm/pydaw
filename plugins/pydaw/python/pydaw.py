@@ -277,6 +277,18 @@ class region_list_editor:
         self.reset_tracks()
 
 class item_list_editor:
+    def clear_notes(self):
+        self.item.notes = []
+        this_pydaw_project.save_item(self.item_name, self.item)
+        self.open_item(self.item_name)
+    def clear_ccs(self):
+        self.item.ccs = []
+        this_pydaw_project.save_item(self.item_name, self.item)
+        self.open_item(self.item_name)
+    def clear_pb(self):
+        self.item.pitchbends = []
+        this_pydaw_project.save_item(self.item_name, self.item)
+        self.open_item(self.item_name)
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):
         self.enabled = False
@@ -287,6 +299,13 @@ class item_list_editor:
         self.notes_groupbox = QtGui.QGroupBox("Notes")
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
         self.notes_gridlayout = QtGui.QGridLayout()
+        f_n_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.notes_gridlayout.addItem(f_n_spacer_left, 0, 0, 1, 1)
+        self.notes_clear_button = QtGui.QPushButton("Clear")
+        self.notes_clear_button.pressed.connect(self.clear_notes)
+        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 1)
+        f_n_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.notes_gridlayout.addItem(f_n_spacer_right, 0, 2, 1, 1)
         self.notes_vlayout.addLayout(self.notes_gridlayout) 
         self.notes_table_widget = QtGui.QTableWidget()
         self.notes_table_widget.setColumnCount(5)
@@ -299,6 +318,13 @@ class item_list_editor:
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
         self.ccs_vlayout = QtGui.QVBoxLayout(self.ccs_groupbox)
         self.ccs_gridlayout = QtGui.QGridLayout()
+        f_c_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.ccs_gridlayout.addItem(f_c_spacer_left, 0, 0, 1, 1)
+        self.ccs_clear_button = QtGui.QPushButton("Clear")
+        self.ccs_clear_button.pressed.connect(self.clear_ccs)
+        self.ccs_gridlayout.addWidget(self.ccs_clear_button, 0, 1)
+        f_c_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.ccs_gridlayout.addItem(f_c_spacer_right, 0, 2, 1, 1)
         self.ccs_vlayout.addLayout(self.ccs_gridlayout)
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setColumnCount(3)
@@ -311,6 +337,13 @@ class item_list_editor:
         self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
         self.pb_vlayout = QtGui.QVBoxLayout(self.pb_groupbox)
         self.pb_gridlayout = QtGui.QGridLayout()
+        f_p_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.pb_gridlayout.addItem(f_p_spacer_left, 0, 0, 1, 1)
+        self.pb_clear_button = QtGui.QPushButton("Clear")
+        self.pb_clear_button.pressed.connect(self.clear_pb)
+        self.pb_gridlayout.addWidget(self.pb_clear_button, 0, 1)
+        f_p_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.pb_gridlayout.addItem(f_p_spacer_right, 0, 2, 1, 1)
         self.pb_vlayout.addLayout(self.pb_gridlayout)        
         self.pitchbend_table_widget = QtGui.QTableWidget()
         self.pitchbend_table_widget.setColumnCount(2)
