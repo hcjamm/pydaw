@@ -38,6 +38,7 @@ class song_editor:
             f_item = QtGui.QTableWidgetItem(f_region)
             f_item.setTextAlignment(QtCore.Qt.AlignCenter)
             f_item.setBackground(pydaw_region_gradient)
+            f_item.setFlags(f_item.flags() | QtCore.Qt.ItemIsSelectable)
             self.table_widget.setItem(0, f_pos, f_item)
 
     def cell_clicked(self, x, y):
@@ -49,6 +50,7 @@ class song_editor:
                     f_new_cell = QtGui.QTableWidgetItem(f_new_lineedit.text())
                     f_new_cell.setBackground(pydaw_region_gradient)
                     f_new_cell.setTextAlignment(QtCore.Qt.AlignCenter)
+                    f_new_cell.setFlags(f_new_cell.flags() | QtCore.Qt.ItemIsSelectable)
                     if f_new_radiobutton.isChecked():
                         this_pydaw_project.create_empty_region(f_new_lineedit.text())
                     elif f_copy_radiobutton.isChecked():
@@ -93,15 +95,6 @@ class song_editor:
             this_pydaw_project.save_song(self.song)
             self.table_widget.clear()
             self.open_song()
-        elif this_edit_mode_selector.copy_paste_radiobutton.isChecked():
-            if f_cell is None:
-                if not self.copied_cell is None:
-                    f_new_cell = QtGui.QTableWidgetItem(self.copied_cell)
-                    self.table_widget.setItem(x, y, f_new_cell)
-                    self.song.add_region_ref(y, self.copied_cell)
-                    this_pydaw_project.save_song(self.song)
-            else:
-                self.copied_cell = str(f_cell.text())
 
     def __init__(self):
         self.copied_cell = None
@@ -117,7 +110,22 @@ class song_editor:
         self.table_widget.setRowCount(1)
         self.table_widget.setRowHeight(0, 100)        
         self.table_widget.cellClicked.connect(self.cell_clicked)
+        self.table_widget.setDragDropOverwriteMode(False)
+        self.table_widget.setDragEnabled(True)
+        self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+        self.table_widget.dropEvent = self.table_drop_event
         self.main_vlayout.addWidget(self.table_widget)
+    
+    def table_drop_event(self, a_event):        
+        QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
+        a_event.acceptProposedAction()
+        self.song.regions = {}
+        for i in range(0, 300):
+            f_item = self.table_widget.item(0, i)
+            if not f_item is None:
+                if f_item.text() != "":
+                    self.song.add_region_ref(i, f_item.text())
+        this_pydaw_project.save_song(self.song)
 
 class region_list_editor:
     
@@ -161,13 +169,14 @@ class region_list_editor:
             f_qtw_item = QtGui.QTableWidgetItem(f_item.item_name)
             f_qtw_item.setBackground(pydaw_item_gradient)
             f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
+            f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
             self.table_widget.setItem(f_item.track_num, f_item.bar_num + 1, f_qtw_item)
             
     def cell_clicked(self, x, y):        
         if not self.enabled:
             return
         f_item = self.table_widget.item(x, y)
-        if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
+        if this_edit_mode_selector.add_radiobutton.isChecked():
             if f_item is None:
                 self.show_cell_dialog(x, y)
             else:
@@ -198,12 +207,12 @@ class region_list_editor:
 
             if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
                 this_item_editor.open_item(f_cell_text)
-            f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
             self.last_item_copied = f_cell_text
+            f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
+            f_new_cell.setFlags(f_new_cell.flags() | QtCore.Qt.ItemIsSelectable)            
             f_new_cell.setBackground(pydaw_item_gradient)
             f_new_cell.setTextAlignment(QtCore.Qt.AlignCenter)
             self.region.add_item_ref(x, y - 1, f_cell_text)
-            print("self.region.add_item_ref(" + str(x) + ", " + str(y - 1) + ", " + f_cell_text + ")\n")
             self.table_widget.setItem(x, y, f_new_cell)
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             f_window.close()
@@ -275,10 +284,26 @@ class region_list_editor:
         self.table_widget.setColumnCount(9)
         self.table_widget.setRowCount(16)
         self.table_widget.cellClicked.connect(self.cell_clicked)
-        self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)
+        self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)        
+        self.table_widget.setDragDropOverwriteMode(False)
+        self.table_widget.setDragEnabled(True)
+        self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
+        self.table_widget.dropEvent = self.table_drop_event
         self.main_vlayout.addWidget(self.table_widget)
         self.last_item_copied = None
         self.reset_tracks()
+        
+    def table_drop_event(self, a_event):        
+        QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
+        a_event.acceptProposedAction()
+        self.region.items = []
+        for i in range(0, 16):
+            for i2 in range(1, 9):
+                f_item = self.table_widget.item(i, i2)
+                if not f_item is None:
+                    if f_item.text() != "":
+                        self.region.add_item_ref(i, i2 - 1, f_item.text())
+        this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)    
 
 class item_list_editor:
     def clear_notes(self):
@@ -485,7 +510,7 @@ class item_list_editor:
     def notes_click_handler(self, x, y):
         if not self.enabled:
             return
-        if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
+        if this_edit_mode_selector.add_radiobutton.isChecked():
             self.notes_show_event_dialog(x, y)
         elif this_edit_mode_selector.delete_radiobutton.isChecked():
             self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
@@ -495,7 +520,7 @@ class item_list_editor:
     def ccs_click_handler(self, x, y):
         if not self.enabled:
             return
-        if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
+        if this_edit_mode_selector.add_radiobutton.isChecked():
             self.ccs_show_event_dialog(x, y)
         elif this_edit_mode_selector.delete_radiobutton.isChecked():
             if self.ccs_table_widget.item(x, 0) is None:
@@ -507,7 +532,7 @@ class item_list_editor:
     def pitchbend_click_handler(self, x, y):
         if not self.enabled:
             return
-        if this_edit_mode_selector.add_radiobutton.isChecked() or this_edit_mode_selector.copy_paste_radiobutton.isChecked():
+        if this_edit_mode_selector.add_radiobutton.isChecked():
             self.pitchbend_show_event_dialog(x, y)
         elif this_edit_mode_selector.delete_radiobutton.isChecked():
             if self.pitchbend_table_widget.item(x, 0) is None:
@@ -995,8 +1020,6 @@ class edit_mode_selector:
         self.hlayout0.addWidget(self.add_radiobutton)
         self.delete_radiobutton = QtGui.QRadioButton("Delete")
         self.hlayout0.addWidget(self.delete_radiobutton)
-        self.copy_paste_radiobutton = QtGui.QRadioButton("Copy/Paste")
-        self.hlayout0.addWidget(self.copy_paste_radiobutton)
         self.add_radiobutton.setChecked(True)
 
 class pydaw_main_window(QtGui.QMainWindow):
