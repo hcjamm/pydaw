@@ -108,7 +108,9 @@ class song_editor:
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setColumnCount(300)        
         self.table_widget.setRowCount(1)
-        self.table_widget.setRowHeight(0, 100)        
+        self.table_widget.setRowHeight(0, 100)
+        self.table_widget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.table_widget.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.table_widget.setDragDropOverwriteMode(False)
         self.table_widget.setDragEnabled(True)
@@ -139,7 +141,7 @@ class region_list_editor:
         for i in range(0, 16):
             track = seq_track(a_track_num=i, a_track_text="track" + str(i + 1))
             self.tracks.append(track)
-            self.table_widget.setCellWidget(i, 0, track.group_box)        
+            self.table_widget.setCellWidget(i, 0, track.group_box)  
         self.table_widget.setColumnWidth(0, 330)
         f_headers = ['Tracks']
         for i in range(1, 9):
@@ -147,6 +149,11 @@ class region_list_editor:
             f_headers.append(str(i))
         self.table_widget.setHorizontalHeaderLabels(f_headers)
         self.table_widget.resizeRowsToContents()
+        self.table_widget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.table_widget.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.table_width = 0
+        for i in range(0, 9):
+            self.table_width += self.table_widget.columnWidth(i)
 
     def clear_items(self):
         for i in range(16):
@@ -287,7 +294,10 @@ class region_list_editor:
         self.last_item_copied = None
         self.reset_tracks()
         
-    def table_drop_event(self, a_event):        
+    def table_drop_event(self, a_event):
+        if a_event.pos().x() <= self.table_widget.columnWidth(0) or a_event.pos().x() >= self.table_width:
+            a_event.ignore()
+            return
         QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
         a_event.acceptProposedAction()
         self.region.items = []
