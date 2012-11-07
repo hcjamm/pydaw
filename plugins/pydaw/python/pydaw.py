@@ -199,6 +199,7 @@ class region_list_editor:
             if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
                 this_item_editor.open_item(f_cell_text)
             f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
+            self.last_item_copied = f_cell_text
             f_new_cell.setBackground(pydaw_item_gradient)
             f_new_cell.setTextAlignment(QtCore.Qt.AlignCenter)
             self.region.add_item_ref(x, y - 1, f_cell_text)
@@ -231,7 +232,9 @@ class region_list_editor:
         f_copy_radiobutton = QtGui.QRadioButton()
         f_vlayout0.addWidget(f_copy_radiobutton)
         f_copy_combobox = QtGui.QComboBox()
-        f_copy_combobox.addItems(this_pydaw_project.get_item_list())
+        f_copy_combobox.addItems(this_pydaw_project.get_item_list())        
+        if not self.last_item_copied is None:
+            f_copy_combobox.setCurrentIndex(f_copy_combobox.findText(self.last_item_copied))
         f_copy_combobox.currentIndexChanged.connect(copy_combobox_index_changed)
         f_layout.addLayout(f_vlayout1, 1, 1)
         f_vlayout1.addWidget(QtGui.QLabel("Copy from:"))
@@ -274,6 +277,7 @@ class region_list_editor:
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.table_widget.cellDoubleClicked.connect(self.cell_doubleclicked)
         self.main_vlayout.addWidget(self.table_widget)
+        self.last_item_copied = None
         self.reset_tracks()
 
 class item_list_editor:
