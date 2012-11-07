@@ -1008,7 +1008,7 @@ class transport_widget:
         self.grid_layout.addWidget(self.region_spinbox, 0, 10)
         self.grid_layout.addWidget(QtGui.QLabel("Bar:"), 0, 11)
         self.bar_spinbox = QtGui.QSpinBox()
-        self.bar_spinbox.setRange(0, 8)
+        self.bar_spinbox.setRange(0, 7)
         self.bar_spinbox.valueChanged.connect(self.on_bar_changed)
         self.grid_layout.addWidget(self.bar_spinbox, 0, 12)
         #This is an awful way to do this, I'll eventually have IPC that goes both directions...
