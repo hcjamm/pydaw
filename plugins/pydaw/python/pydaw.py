@@ -1083,6 +1083,18 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_tabwidget.addTab(self.item_tab, "Item")
 
         self.show()
+    def closeEvent(self, event):        
+        f_reply = QtGui.QMessageBox.question(self, 'Message',
+            "Save project before quitting?", QtGui.QMessageBox.Yes | 
+            QtGui.QMessageBox.No | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.No)
+
+        if f_reply == QtGui.QMessageBox.Yes:
+            this_pydaw_project.save_project()
+            event.accept()
+        elif f_reply == QtGui.QMessageBox.Cancel:
+            event.ignore()
+        else:
+            event.accept()
 
 #Opens or creates a new project
 def global_open_project(a_project_file):
