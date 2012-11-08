@@ -968,11 +968,13 @@ class transport_widget:
         f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
         self.beat_timer.start(f_playback_inc)
     def on_tempo_changed(self, a_tempo):
-        this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
+        if not self.suppress_osc:
+            this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
         self.transport.bpm = a_tempo
         this_pydaw_project.save_transport(self.transport)
     def on_loop_mode_changed(self, a_loop_mode):
-        this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
+        if self.suppress_osc:
+            this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
         self.transport.loop_mode = a_loop_mode
         this_pydaw_project.save_transport(self.transport)
     def on_keybd_combobox_index_changed(self, a_index):
@@ -1004,7 +1006,9 @@ class transport_widget:
         this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
         this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)        
         
-    def open_transport(self):
+    def open_transport(self, a_notify_osc=False):
+        if not a_notify_osc:
+            self.suppress_osc = True
         self.transport = this_pydaw_project.get_transport()
         self.tempo_spinbox.setValue(int(self.transport.bpm))
         self.region_spinbox.setValue(int(self.transport.region))
@@ -1014,8 +1018,10 @@ class transport_widget:
             if str(self.keybd_combobox.itemText(i)) == self.transport.midi_keybd:
                 self.keybd_combobox.setCurrentIndex(i)
                 break
+        self.suppress_osc = False
 
     def __init__(self):
+        self.suppress_osc = True
         self.recording = False
         self.transport = pydaw_transport()
         self.group_box = QtGui.QGroupBox()
@@ -1070,6 +1076,7 @@ class transport_widget:
         #This is an awful way to do this, I'll eventually have IPC that goes both directions...
         self.beat_timer = QtCore.QTimer()
         self.beat_timer.timeout.connect(self.beat_timeout)
+        self.suppress_osc = False
         
 class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):

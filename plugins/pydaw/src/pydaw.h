@@ -933,6 +933,8 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
     struct stat f_inst_stat;
     stat((a_pydaw->project_folder), &f_inst_stat);
     
+    //TODO:  Use S_ISREG to test for files...
+        
     if(S_ISDIR(f_proj_stat.st_mode) && S_ISDIR(f_item_stat.st_mode) &&
         S_ISDIR(f_reg_stat.st_mode) && S_ISDIR(f_inst_stat.st_mode))
     {
@@ -947,7 +949,14 @@ void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
             f_i++;
         }    
 
+        //TODO:  This is interim code to avoid breaking PyDAW, this must be read from the transport file:
+        v_set_tempo(a_pydaw, 140.0f);
+        
         g_pysong_get(a_pydaw, a_name);
+    }
+    else  //The project folder(s) don't exist, set any sane defaults here...
+    {
+        v_set_tempo(a_pydaw, 140.0f);
     }
        
     pthread_mutex_lock(&a_pydaw->mutex);

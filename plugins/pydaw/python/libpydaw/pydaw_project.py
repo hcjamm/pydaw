@@ -609,11 +609,12 @@ class pydaw_transport:
         self.bar = a_bar
         
     def __str__(self):
-        return str(self.bpm) + "|" + str(self.midi_keybd) + "|" + str(self.loop_mode) + "|" + str(self.region) + "|" + str(self.bar)
+        return str(self.bpm) + "|" + str(self.midi_keybd) + "|" + str(self.loop_mode) + "|" + str(self.region) + "|" + str(self.bar) + "\n\\"
         
     @staticmethod
     def from_str(a_str):
-        f_arr = a_str.split("|")
+        f_str = a_str.split("\n")[0]
+        f_arr = f_str.split("|")
         for i in range(len(f_arr)):
             if f_arr[i] == "":
                 f_arr[i] = None
