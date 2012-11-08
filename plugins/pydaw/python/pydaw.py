@@ -195,6 +195,13 @@ class region_list_editor:
             f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
             self.table_widget.setItem(f_item.track_num, f_item.bar_num + 1, f_qtw_item)
             
+    def cell_clicked(self, x, y):
+        if not self.enabled:
+            return
+        f_item = self.table_widget.item(x, y)
+        if f_item is None or f_item.text() == "":
+            self.show_cell_dialog(x, y)
+    
     def cell_double_clicked(self, x, y):        
         if not self.enabled:
             return
@@ -209,13 +216,7 @@ class region_list_editor:
                     this_main_window.main_tabwidget.setCurrentIndex(1)
                 else:
                     self.show_cell_dialog(x, y)
-        if this_edit_mode_selector.delete_radiobutton.isChecked():
-            self.region.remove_item_ref(x, y - 1)
-            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
-            self.clear_items()
-            self.open_region(str(self.region_name_lineedit.text()))
-            
-
+        
     def show_cell_dialog(self, x, y):
         def note_ok_handler():
             if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
@@ -299,6 +300,7 @@ class region_list_editor:
         self.table_widget.setColumnCount(9)
         self.table_widget.setRowCount(16)
         self.table_widget.cellDoubleClicked.connect(self.cell_double_clicked)
+        self.table_widget.cellClicked.connect(self.cell_clicked)
         self.table_widget.setDragDropOverwriteMode(False)
         self.table_widget.setDragEnabled(True)
         self.table_widget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
