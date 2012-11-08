@@ -314,10 +314,12 @@ class region_list_editor:
         
     def table_drop_event(self, a_event):
         if a_event.pos().x() <= self.table_widget.columnWidth(0) or a_event.pos().x() >= self.table_width:
+            print("Drop event out of bounds, ignoring...")
             a_event.ignore()
             return
         QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
         a_event.acceptProposedAction()
+        self.tablewidget_to_region()
         
     def tablewidget_to_region(self):
         """ Convert an edited QTableWidget to a native region class """
