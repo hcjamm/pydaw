@@ -1019,6 +1019,23 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
         v_pydaw_open_tracks(a_pydaw_data);
         g_pysong_get(a_pydaw_data, a_name);
     }
+    
+    char f_transport_file[256];  //TODO:  This should be moved to a separate function if the engine ever starts reading more from pytransport
+    sprintf(f_transport_file, "%sdefault.pytransport", a_pydaw_data->project_folder);
+    
+    if(i_pydaw_file_exists(f_transport_file))
+    {
+        printf("v_open_project:  Found transport file, setting tempo from file\n");
+
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_transport_file, LMS_LARGE_STRING);
+        char * f_tempo_str = c_iterate_2d_char_array(f_2d_array);
+        float f_tempo = atof(f_tempo_str);
+        free(f_tempo_str);
+        g_free_2d_char_array(f_2d_array);
+        
+        assert(f_tempo > 30.0f && f_tempo < 300.0f);        
+        v_set_tempo(a_pydaw_data, f_tempo);
+    }
     else  //The project folder(s) don't exist, set any sane defaults here...
     {
         v_set_tempo(a_pydaw_data, 140.0f);
