@@ -146,6 +146,14 @@ class song_editor:
         self.open_song()
 
 class region_list_editor:
+    def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num):
+        """ Adds a properly formatted item.  This is not for creating empty items... """        
+        f_qtw_item = QtGui.QTableWidgetItem(a_name)
+        f_qtw_item.setBackground(pydaw_item_gradient)
+        f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
+        f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
+        self.table_widget.setItem(a_track_num, a_bar_num + 1, f_qtw_item)
+        
     
     def open_tracks(self):
         f_tracks = this_pydaw_project.get_tracks()
@@ -189,12 +197,8 @@ class region_list_editor:
         self.region_name_lineedit.setText(a_file_name)
         self.region = this_pydaw_project.get_region(a_file_name)
         for f_item in self.region.items:
-            f_qtw_item = QtGui.QTableWidgetItem(f_item.item_name)
-            f_qtw_item.setBackground(pydaw_item_gradient)
-            f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
-            f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
-            self.table_widget.setItem(f_item.track_num, f_item.bar_num + 1, f_qtw_item)
-            
+            self.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
+        
     def cell_clicked(self, x, y):
         if not self.enabled:
             return
@@ -233,12 +237,8 @@ class region_list_editor:
             if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
                 this_item_editor.open_item(f_cell_text)
             self.last_item_copied = f_cell_text
-            f_new_cell = QtGui.QTableWidgetItem(f_cell_text)
-            f_new_cell.setFlags(f_new_cell.flags() | QtCore.Qt.ItemIsSelectable)            
-            f_new_cell.setBackground(pydaw_item_gradient)
-            f_new_cell.setTextAlignment(QtCore.Qt.AlignCenter)
-            self.region.add_item_ref(x, y - 1, f_cell_text)
-            self.table_widget.setItem(x, y, f_new_cell)
+            self.add_qtablewidgetitem(f_cell_text, x, y - 1)
+            self.region.add_item_ref(x, y - 1, f_cell_text)            
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             f_window.close()
 
