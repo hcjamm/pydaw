@@ -986,7 +986,7 @@ class transport_widget:
         self.transport.bpm = a_tempo
         this_pydaw_project.save_transport(self.transport)
     def on_loop_mode_changed(self, a_loop_mode):
-        if self.suppress_osc:
+        if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
         self.transport.loop_mode = a_loop_mode
         this_pydaw_project.save_transport(self.transport)
