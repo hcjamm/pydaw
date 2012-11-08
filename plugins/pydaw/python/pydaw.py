@@ -202,18 +202,17 @@ class region_list_editor:
     def cell_double_clicked(self, x, y):        
         if not self.enabled:
             return
-        f_item = self.table_widget.item(x, y)
-        if this_edit_mode_selector.add_radiobutton.isChecked():
-            if f_item is None:
-                self.show_cell_dialog(x, y)
+        f_item = self.table_widget.item(x, y)    
+        if f_item is None:
+            self.show_cell_dialog(x, y)
+        else:
+            f_item_name = str(f_item.text())
+            if f_item_name != "":
+                this_item_editor.open_item(f_item_name)
+                this_main_window.main_tabwidget.setCurrentIndex(1)
             else:
-                f_item_name = str(f_item.text())
-                if f_item_name != "":
-                    this_item_editor.open_item(f_item_name)
-                    this_main_window.main_tabwidget.setCurrentIndex(1)
-                else:
-                    self.show_cell_dialog(x, y)
-        
+                self.show_cell_dialog(x, y)
+    
     def show_cell_dialog(self, x, y):
         def note_ok_handler():
             if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
@@ -403,8 +402,23 @@ class item_list_editor:
     def __init__(self):
         self.enabled = False
         self.group_box = QtGui.QGroupBox()
+        self.main_vlayout = QtGui.QVBoxLayout()
         self.main_hlayout = QtGui.QHBoxLayout()
-        self.group_box.setLayout(self.main_hlayout)
+        self.group_box.setLayout(self.main_vlayout)
+        
+        self.edit_mode_groupbox = QtGui.QGroupBox()
+        self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
+        f_edit_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.edit_mode_hlayout0.addItem(f_edit_spacer)
+        self.edit_mode_hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
+        self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
+        self.edit_mode_hlayout0.addWidget(self.add_radiobutton)
+        self.delete_radiobutton = QtGui.QRadioButton("Delete")
+        self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
+        self.add_radiobutton.setChecked(True)
+        self.main_vlayout.addWidget(self.edit_mode_groupbox, alignment=QtCore.Qt.AlignRight)        
+        
+        self.main_vlayout.addLayout(self.main_hlayout)
 
         self.notes_groupbox = QtGui.QGroupBox("Notes")
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
@@ -537,9 +551,9 @@ class item_list_editor:
     def notes_click_handler(self, x, y):
         if not self.enabled:
             return
-        if this_edit_mode_selector.add_radiobutton.isChecked():
+        if self.add_radiobutton.isChecked():
             self.notes_show_event_dialog(x, y)
-        elif this_edit_mode_selector.delete_radiobutton.isChecked():
+        elif self.delete_radiobutton.isChecked():
             self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
@@ -547,9 +561,9 @@ class item_list_editor:
     def ccs_click_handler(self, x, y):
         if not self.enabled:
             return
-        if this_edit_mode_selector.add_radiobutton.isChecked():
+        if self.add_radiobutton.isChecked():
             self.ccs_show_event_dialog(x, y)
-        elif this_edit_mode_selector.delete_radiobutton.isChecked():
+        elif self.delete_radiobutton.isChecked():
             if self.ccs_table_widget.item(x, 0) is None:
                 return
             self.item.remove_cc(pydaw_cc(self.ccs_table_widget.item(x, 0).text(), self.ccs_table_widget.item(x, 1).text(), self.ccs_table_widget.item(x, 2).text()))
@@ -559,9 +573,9 @@ class item_list_editor:
     def pitchbend_click_handler(self, x, y):
         if not self.enabled:
             return
-        if this_edit_mode_selector.add_radiobutton.isChecked():
+        if self.add_radiobutton.isChecked():
             self.pitchbend_show_event_dialog(x, y)
-        elif this_edit_mode_selector.delete_radiobutton.isChecked():
+        elif self.delete_radiobutton.isChecked():
             if self.pitchbend_table_widget.item(x, 0) is None:
                 return
             self.item.remove_pb(pydaw_pitchbend(self.pitchbend_table_widget.item(x, 0).text(), self.pitchbend_table_widget.item(x, 1).text()))
@@ -1016,18 +1030,18 @@ class transport_widget:
         self.tempo_spinbox.setRange(50, 200)
         self.tempo_spinbox.valueChanged.connect(self.on_tempo_changed)
         self.hlayout1.addWidget(self.tempo_spinbox)
-        self.hlayout2.addWidget(QtGui.QLabel("MIDI In:"))
+        self.hlayout1.addWidget(QtGui.QLabel("MIDI In:"))
         self.keybd_combobox = QtGui.QComboBox()
         self.alsa_output_ports = alsa_ports()
         self.keybd_combobox.addItems(self.alsa_output_ports.get_output_fqnames())
         self.keybd_combobox.currentIndexChanged.connect(self.on_keybd_combobox_index_changed)
-        self.hlayout2.addWidget(self.keybd_combobox)        
-        self.hlayout2.addWidget(QtGui.QLabel("Loop Mode"))
+        self.hlayout1.addWidget(self.keybd_combobox)        
+        self.hlayout1.addWidget(QtGui.QLabel("Loop Mode"))
         self.loop_mode_combobox = QtGui.QComboBox()
         self.loop_mode_combobox.addItems(["Off", "Bar", "Region"])
         self.loop_mode_combobox.setMinimumWidth(60)
         self.loop_mode_combobox.currentIndexChanged.connect(self.on_loop_mode_changed)
-        self.hlayout2.addWidget(self.loop_mode_combobox)
+        self.hlayout1.addWidget(self.loop_mode_combobox)
         self.hlayout1.addWidget(QtGui.QLabel("Region:"))
         self.region_spinbox = QtGui.QSpinBox()
         self.region_spinbox.setRange(0, 300)
@@ -1042,17 +1056,6 @@ class transport_widget:
         self.beat_timer = QtCore.QTimer()
         self.beat_timer.timeout.connect(self.beat_timeout)
         
-class edit_mode_selector:
-    def __init__(self):
-        self.groupbox = QtGui.QGroupBox()
-        self.hlayout0 = QtGui.QHBoxLayout(self.groupbox)
-        self.hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
-        self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
-        self.hlayout0.addWidget(self.add_radiobutton)
-        self.delete_radiobutton = QtGui.QRadioButton("Delete")
-        self.hlayout0.addWidget(self.delete_radiobutton)
-        self.add_radiobutton.setChecked(True)
-
 class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
         f_file = QtGui.QFileDialog.getSaveFileName(parent=this_main_window ,caption='New Project', directory='.', filter='PyDAW Song (*.pysong)')
@@ -1114,8 +1117,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_layout.addLayout(self.transport_hlayout)
 
         self.transport_hlayout.addWidget(this_transport.group_box, alignment=QtCore.Qt.AlignLeft)
-        self.transport_hlayout.addWidget(this_edit_mode_selector.groupbox, alignment=QtCore.Qt.AlignRight)
-
+        
         self.main_tabwidget = QtGui.QTabWidget()
         self.song_tab = QtGui.QWidget()
         self.song_tab_hlayout = QtGui.QHBoxLayout(self.song_tab)
@@ -1190,7 +1192,6 @@ this_song_editor = song_editor()
 this_region_editor = region_list_editor()
 this_item_editor = item_list_editor()
 this_transport = transport_widget()
-this_edit_mode_selector = edit_mode_selector()
 
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
