@@ -66,6 +66,7 @@ extern "C" {
 #include "pydaw_files.h"
 #include "pydaw_plugin.h"
 #include <sys/stat.h>
+#include "../../libmodsynth/lib/amp.h"
     
 typedef struct st_pynote
 {
@@ -118,6 +119,7 @@ typedef struct st_pysong
 typedef struct st_pytrack
 {    
     float volume;
+    float volume_linear;
     int solo;
     int mute;
     int rec;
@@ -181,6 +183,7 @@ typedef struct st_pydaw_data
     int record_name_index_regions;
     /*item_pool_index of the first item recorded during the current record session*/
     int recording_first_item;
+    t_amp * amp_ptr;
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
@@ -207,6 +210,7 @@ void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
 void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx);
 int g_pyitem_get_new(t_pydaw_data* a_pydaw_data);
 t_pyregion * g_pyregion_get_new(t_pydaw_data* a_pydaw_data);
+void v_pydaw_set_track_volume(t_pydaw_data * a_pydaw_data, int a_track_num, float a_vol);
 
 /*End declarations.  Begin implementations.*/
 
@@ -678,6 +682,7 @@ t_pytrack * g_pytrack_get()
     f_result->mute = 0;
     f_result->solo = 0;
     f_result->volume = 0.0f;
+    f_result->volume_linear = 1.0f;
     f_result->plugin_index = 0;
     f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * PYDAW_MAX_EVENT_BUFFER_SIZE);
     f_result->rec = 0;
@@ -733,6 +738,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->recorded_note_current_beat = 0;
     f_result->recording_current_item_pool_index = -1;
     f_result->recording_first_item = -1;
+    
+    f_result->amp_ptr = g_amp_get();
     
     int f_i = 0;
     
@@ -899,8 +906,6 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
 
 void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
 {
-    int f_i = 0;
-    
     char f_file_name[256];    
     sprintf(f_file_name, "%sdefault.pytracks", a_pydaw_data->project_folder);
     
@@ -958,13 +963,15 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             a_pydaw_data->track_pool[f_track_index]->solo = f_solo;
             a_pydaw_data->track_pool[f_track_index]->mute = f_mute;
             a_pydaw_data->track_pool[f_track_index]->rec = f_rec;
-            a_pydaw_data->track_pool[f_track_index]->volume = f_vol;
+            v_pydaw_set_track_volume(a_pydaw_data, f_track_index, f_vol);
             
             v_pydaw_open_track(a_pydaw_data, f_track_index);
         }
 
         g_free_2d_char_array(f_2d_array);
     }
+    
+    int f_i = 0;
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
@@ -1012,10 +1019,8 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
             g_pyitem_get(a_pydaw_data, f_file_name->array[0]);
             g_free_1d_char_array(f_file_name);
             f_i++;
-        }    
-
-        //TODO:  This is interim code to avoid breaking PyDAW, this must be read from the transport file:
-        v_set_tempo(a_pydaw_data, 140.0f);
+        }
+        
         v_pydaw_open_tracks(a_pydaw_data);
         g_pysong_get(a_pydaw_data, a_name);
     }
@@ -1036,7 +1041,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
         assert(f_tempo > 30.0f && f_tempo < 300.0f);        
         v_set_tempo(a_pydaw_data, f_tempo);
     }
-    else  //The project folder(s) don't exist, set any sane defaults here...
+    else  //No transport file, set default tempo
     {
         v_set_tempo(a_pydaw_data, 140.0f);
     }
@@ -1381,6 +1386,12 @@ void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
     }
 }
 
+void v_pydaw_set_track_volume(t_pydaw_data * a_pydaw_data, int a_track_num, float a_vol)
+{
+    a_pydaw_data->track_pool[a_track_num]->volume = a_vol;
+    a_pydaw_data->track_pool[a_track_num]->volume_linear = f_db_to_linear_fast(a_vol, a_pydaw_data->amp_ptr);
+}
+
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index)
 {       
     t_pydaw_plugin * f_result;
@@ -1634,7 +1645,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         float f_track_vol = atof(f_val_arr->array[1]);
-        a_pydaw_data->track_pool[f_track_num]->volume = f_track_vol;
+        v_pydaw_set_track_volume(a_pydaw_data, f_track_num, f_track_vol);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT)) //Change the plugin

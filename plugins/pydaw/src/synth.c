@@ -973,8 +973,8 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
 
                 while(f_i2 < sample_count)
                 {
-                    output0[f_i2] += (pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[0][f_i2]);
-                    output1[f_i2] += (pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[1][f_i2]);
+                    output0[f_i2] += (pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[0][f_i2]) * (pydaw_data->track_pool[f_i]->volume_linear);
+                    output1[f_i2] += (pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[1][f_i2]) * (pydaw_data->track_pool[f_i]->volume_linear);
                     f_i2++;
                 }
             }
