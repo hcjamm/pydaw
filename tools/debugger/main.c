@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     //v_set_plugin_index(pydaw_data, 1, 1);    
     //v_set_plugin_index(pydaw_data, 2, 2);
     //v_pydaw_parse_configure_message(pydaw_data, "tr", "0|1");
-    v_set_tempo(pydaw_data, 140.0f); 
+    //v_set_tempo(pydaw_data, 140.0f); 
     v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
 #endif    
 #ifdef DEBUG_RAYV

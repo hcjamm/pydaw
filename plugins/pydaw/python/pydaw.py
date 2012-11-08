@@ -832,23 +832,23 @@ class seq_track:
         self.volume_label.setText(str(value) + " dB")
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value())
-        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
+        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_pan_change(self, value):
-        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
+        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_solo(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked())
-        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
+        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_mute(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked())
-        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
+        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_name_changed(self, new_name):
-        this_pydaw_project.save_tracks(this_track_editor.get_tracks())
+        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_instrument_change(self, selected_instrument):
         if selected_instrument == 0:
             self.track_name_lineedit.setEnabled(True)
@@ -1229,6 +1229,6 @@ this_main_window = pydaw_main_window() #You must call this after instantiating t
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 
 default_project_file = expanduser("~") + '/dssi/pydaw/default-project/default.pysong'
-global_open_project(default_project_file)
+global_open_project(default_project_file, False)
 
 sys.exit(app.exec_())
