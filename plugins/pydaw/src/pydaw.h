@@ -197,6 +197,7 @@ t_pydaw_data * g_pydaw_data_get(float);
 int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name);
 void v_open_project(t_pydaw_data*, char*, char*);
 void v_set_tempo(t_pydaw_data*,float);
+void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode);
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_name);
@@ -1025,7 +1026,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
         g_pysong_get(a_pydaw_data, a_name);
     }
     
-    char f_transport_file[256];  //TODO:  This should be moved to a separate function if the engine ever starts reading more from pytransport
+    char f_transport_file[256];  //TODO:  This should be moved to a separate function
     sprintf(f_transport_file, "%sdefault.pytransport", a_pydaw_data->project_folder);
     
     if(i_pydaw_file_exists(f_transport_file))
@@ -1036,6 +1037,12 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
         char * f_tempo_str = c_iterate_2d_char_array(f_2d_array);
         float f_tempo = atof(f_tempo_str);
         free(f_tempo_str);
+        char * f_midi_keybd_str = c_iterate_2d_char_array(f_2d_array);
+        free(f_midi_keybd_str);
+        char * f_loop_mode_str =  c_iterate_2d_char_array(f_2d_array);
+        int f_loop_mode = atoi(f_loop_mode_str);
+        assert(f_loop_mode >= 0 && f_loop_mode <= 2);
+        v_set_loop_mode(a_pydaw_data, f_loop_mode);
         g_free_2d_char_array(f_2d_array);
         
         assert(f_tempo > 30.0f && f_tempo < 300.0f);        
