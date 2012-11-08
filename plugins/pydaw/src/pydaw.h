@@ -110,7 +110,6 @@ typedef struct st_pyregion
 
 typedef struct st_pysong
 {
-    int region_count;
     t_pyregion * regions[PYDAW_MAX_REGION_COUNT];
     char region_names[PYDAW_MAX_REGION_COUNT][LMS_TINY_STRING];
 }t_pysong;
@@ -251,9 +250,7 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
     }
     
     a_pydaw->pysong = (t_pysong*)malloc(sizeof(t_pysong));
-    
-    a_pydaw->pysong->region_count = 0;
-    
+        
     char f_full_path[2048];
     sprintf(f_full_path, "%s%s.pysong", a_pydaw->project_folder, a_name);
             
