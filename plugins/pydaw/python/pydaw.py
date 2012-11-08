@@ -945,9 +945,12 @@ class seq_track:
                            self.volume_slider.value(), str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex())
 
 class transport_widget:
-    def init_playback_cursor(self):
-        this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())        
-        this_region_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
+    def init_playback_cursor(self, a_bar=True):
+        this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+        if a_bar:        
+            this_region_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
+        else:
+            this_region_editor.table_widget.clearSelection()
         this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
     def on_play(self):
         self.init_playback_cursor()
@@ -968,7 +971,7 @@ class transport_widget:
                 this_region_editor.open_region(this_region_editor.region.name)
             this_song_editor.open_song()
         this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
-        self.init_playback_cursor()
+        self.init_playback_cursor(a_bar=False)
     def on_rec(self):
         self.init_playback_cursor()
         self.recording = True
