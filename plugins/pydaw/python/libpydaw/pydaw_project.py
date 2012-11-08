@@ -71,12 +71,13 @@ class pydaw_project:
         self.regions_folder = self.project_folder + "/regions"
         self.items_folder = self.project_folder + "/items"
 
-    def open_project(self, a_project_file):
+    def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
         if not os.path.exists(a_project_file):
             print("project file " + a_project_file + " does not exist, creating as new project")
             self.new_project(a_project_file)
-        self.this_dssi_gui.pydaw_open_song(self.project_folder, self.project_file)
+        if a_notify_osc:
+            self.this_dssi_gui.pydaw_open_song(self.project_folder, self.project_file)
         
     def new_project(self, a_project_file):
         self.set_project_folders(a_project_file)

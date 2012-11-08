@@ -65,6 +65,7 @@ extern "C" {
 #include <ladspa.h>
 #include "pydaw_files.h"
 #include "pydaw_plugin.h"
+#include <sys/stat.h>
     
 typedef struct st_pynote
 {
@@ -777,6 +778,11 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     sprintf(f_result->osc_url, "%s%s", tmp, osc_path_tmp + 1);    
     free(tmp);
         
+    char * f_home = getenv("HOME");
+    char f_default_project_folder[512];
+    sprintf(f_default_project_folder, "%s/dssi/pydaw/default-project", f_home);
+    v_open_project(f_result, f_default_project_folder, "default");
+    //free(f_home);  //Not freeing this because it SEGFAULTS for some reason and is tiny....
     //v_pydaw_assert_memory_integrity(f_result);
     
     return f_result;
@@ -909,39 +915,41 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
 void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
 {
     pthread_mutex_lock(&a_pydaw->mutex);
-    a_pydaw->is_initialized = 1;
+    a_pydaw->is_initialized = 0;
     pthread_mutex_unlock(&a_pydaw->mutex);
     
-    //char log_buff[200];
-    //sprintf(log_buff, "\nv_open_project: a_project_folder: %s a_name: \"%s\"\n", a_project_folder, a_name);
-    //pydaw_write_log(log_buff);
     sprintf(a_pydaw->project_folder, "%s/", a_project_folder);    
-    sprintf(a_pydaw->item_folder, "%sitems/", a_pydaw->project_folder);    
-    //sprintf(log_buff, "\na_pydaw->item_folder == %s\n", a_pydaw->item_folder);
-    //pydaw_write_log(log_buff);
-    sprintf(a_pydaw->region_folder, "%sregions/", a_pydaw->project_folder);    
-    //sprintf(log_buff, "\na_pydaw->region_folder == %s\n\n", a_pydaw->region_folder);
-    //pydaw_write_log(log_buff);
+    sprintf(a_pydaw->item_folder, "%sitems/", a_pydaw->project_folder);
+    sprintf(a_pydaw->region_folder, "%sregions/", a_pydaw->project_folder);
     sprintf(a_pydaw->instruments_folder, "%sinstruments/", a_pydaw->project_folder);    
-    //sprintf(log_buff, "\na_pydaw->instruments_folder == %s\n\n", a_pydaw->instruments_folder);
-    //pydaw_write_log(log_buff);
-    
     strcpy(a_pydaw->project_name, a_name);
     
-    t_dir_list * f_item_dir_list = g_get_dir_list(a_pydaw->item_folder);
+    struct stat f_proj_stat;
+    stat((a_pydaw->project_folder), &f_proj_stat);
+    struct stat f_item_stat;
+    stat((a_pydaw->project_folder), &f_item_stat);
+    struct stat f_reg_stat;
+    stat((a_pydaw->project_folder), &f_reg_stat);
+    struct stat f_inst_stat;
+    stat((a_pydaw->project_folder), &f_inst_stat);
     
-    int f_i = 0;
-    
-    while(f_i < f_item_dir_list->dir_count)
+    if(S_ISDIR(f_proj_stat.st_mode) && S_ISDIR(f_item_stat.st_mode) &&
+        S_ISDIR(f_reg_stat.st_mode) && S_ISDIR(f_inst_stat.st_mode))
     {
-        t_1d_char_array * f_file_name = c_split_str(f_item_dir_list->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
-        g_pyitem_get(a_pydaw, f_file_name->array[0]);
-        g_free_1d_char_array(f_file_name);
-        f_i++;
-    }    
-    
-    g_pysong_get(a_pydaw, a_name);
-        
+        t_dir_list * f_item_dir_list = g_get_dir_list(a_pydaw->item_folder);    
+        int f_i = 0;
+
+        while(f_i < f_item_dir_list->dir_count)
+        {
+            t_1d_char_array * f_file_name = c_split_str(f_item_dir_list->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
+            g_pyitem_get(a_pydaw, f_file_name->array[0]);
+            g_free_1d_char_array(f_file_name);
+            f_i++;
+        }    
+
+        g_pysong_get(a_pydaw, a_name);
+    }
+       
     pthread_mutex_lock(&a_pydaw->mutex);
     a_pydaw->is_initialized = 1;
     

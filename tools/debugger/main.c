@@ -40,14 +40,15 @@ int main(int argc, char** argv)
     f_ldesc->activate(f_handle);
 #ifdef DEBUG_PYDAW
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
-    v_set_tempo(pydaw_data, 140.0f);
-    v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project", "default");
     
-    v_set_plugin_index(pydaw_data, 0, 2);
+    
+    //v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project", "default");    
+    //v_set_plugin_index(pydaw_data, 0, 2);
     //v_set_plugin_index(pydaw_data, 1, 1);    
     //v_set_plugin_index(pydaw_data, 2, 2);
-    v_pydaw_parse_configure_message(pydaw_data, "tr", "0|1");    
-    v_pydaw_parse_configure_message(pydaw_data, "rec", "0|0");
+    //v_pydaw_parse_configure_message(pydaw_data, "tr", "0|1");
+    v_set_tempo(pydaw_data, 140.0f); 
+    v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
 #endif    
 #ifdef DEBUG_RAYV
     t_rayv * f_engine = (t_rayv*)f_handle;
