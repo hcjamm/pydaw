@@ -1183,6 +1183,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         if f_reply == QtGui.QMessageBox.Yes:
             this_pydaw_project.save_project()
+            sleep(3)
             event.accept()
         elif f_reply == QtGui.QMessageBox.Cancel:
             event.ignore()
