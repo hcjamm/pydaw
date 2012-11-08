@@ -1168,13 +1168,13 @@ class pydaw_main_window(QtGui.QMainWindow):
             event.accept()
 
 #Opens or creates a new project
-def global_open_project(a_project_file):
+def global_open_project(a_project_file, a_notify_osc=True):
     global this_pydaw_project
     if(len(argv) >= 2):
         this_pydaw_project = pydaw_project((argv[1]))
     else:
         this_pydaw_project = pydaw_project()
-    this_pydaw_project.open_project(a_project_file)
+    this_pydaw_project.open_project(a_project_file, a_notify_osc)
     this_song_editor.open_song()
     this_region_editor.open_tracks()
     this_transport.open_transport()
