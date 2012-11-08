@@ -31,15 +31,19 @@ pydaw_region_gradient.setColorAt(0, QtGui.QColor(220, 120, 120))
 pydaw_region_gradient.setColorAt(1, QtGui.QColor(200, 90, 95))
 
 class song_editor:
+    def add_qtablewidgetitem(self, a_name, a_region_num):
+        """ Adds a properly formatted item.  This is not for creating empty items... """        
+        f_qtw_item = QtGui.QTableWidgetItem(a_name)
+        f_qtw_item.setBackground(pydaw_region_gradient)
+        f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
+        f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
+        self.table_widget.setItem(0, a_region_num, f_qtw_item)
+        
     def open_song(self):
         self.table_widget.clear()
         self.song = this_pydaw_project.get_song()
         for f_pos, f_region in self.song.regions.iteritems():
-            f_item = QtGui.QTableWidgetItem(f_region)
-            f_item.setTextAlignment(QtCore.Qt.AlignCenter)
-            f_item.setBackground(pydaw_region_gradient)
-            f_item.setFlags(f_item.flags() | QtCore.Qt.ItemIsSelectable)
-            self.table_widget.setItem(0, f_pos, f_item)
+            self.add_qtablewidgetitem(f_region, f_pos)
 
     def cell_clicked(self, x, y):
         f_cell = self.table_widget.item(x, y)
@@ -47,16 +51,11 @@ class song_editor:
         if this_edit_mode_selector.add_radiobutton.isChecked():
             if f_cell is None:
                 def song_ok_handler():
-                    f_new_cell = QtGui.QTableWidgetItem(f_new_lineedit.text())
-                    f_new_cell.setBackground(pydaw_region_gradient)
-                    f_new_cell.setTextAlignment(QtCore.Qt.AlignCenter)
-                    f_new_cell.setFlags(f_new_cell.flags() | QtCore.Qt.ItemIsSelectable)
                     if f_new_radiobutton.isChecked():
                         this_pydaw_project.create_empty_region(f_new_lineedit.text())
                     elif f_copy_radiobutton.isChecked():
                         this_pydaw_project.copy_region(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
-
-                    self.table_widget.setItem(x, y, f_new_cell)
+                    self.add_qtablewidgetitem(f_new_lineedit.text(), y)
                     self.song.add_region_ref(y, str(f_new_lineedit.text()))
                     this_region_editor.open_region(f_new_lineedit.text())
                     this_pydaw_project.save_song(self.song)
@@ -152,8 +151,7 @@ class region_list_editor:
         f_qtw_item.setBackground(pydaw_item_gradient)
         f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
         f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
-        self.table_widget.setItem(a_track_num, a_bar_num + 1, f_qtw_item)
-        
+        self.table_widget.setItem(a_track_num, a_bar_num + 1, f_qtw_item)        
     
     def open_tracks(self):
         f_tracks = this_pydaw_project.get_tracks()
