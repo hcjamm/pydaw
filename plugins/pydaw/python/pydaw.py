@@ -935,7 +935,12 @@ class seq_track:
                            self.volume_slider.value(), str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex())
 
 class transport_widget:
+    def init_playback_cursor(self):
+        this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())        
+        this_region_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
+        this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
     def on_play(self):
+        self.init_playback_cursor()
         self.last_region_num = self.region_spinbox.value()
         self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_play(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
@@ -952,7 +957,10 @@ class transport_widget:
             if(this_region_editor.enabled):
                 this_region_editor.open_region(this_region_editor.region.name)
             this_song_editor.open_song()
+        this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+        self.init_playback_cursor()
     def on_rec(self):
+        self.init_playback_cursor()
         self.recording = True
         self.last_region_num = self.region_spinbox.value()
         self.last_bar = self.bar_spinbox.value()
@@ -987,7 +995,14 @@ class transport_widget:
             f_new_bar_value = 0
             if self.loop_mode_combobox.currentIndex() != 2:
                 self.region_spinbox.setValue(self.region_spinbox.value() + 1)
+                f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
+                if f_item and f_item.text() != "":
+                    this_region_editor.open_region(f_item.text())
+                else:
+                    this_region_editor.clear_items()
         self.bar_spinbox.setValue(f_new_bar_value)
+        this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
+        this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)        
         
     def open_transport(self):
         self.transport = this_pydaw_project.get_transport()
