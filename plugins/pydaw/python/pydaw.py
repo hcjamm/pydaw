@@ -830,18 +830,22 @@ rec_button_group = QtGui.QButtonGroup()
 class seq_track:
     def on_vol_change(self, value):
         self.volume_label.setText(str(value) + " dB")
-        this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value())
+        if not self.suppress_osc:
+            this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value())
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_pan_change(self, value):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_solo(self, value):
-        this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked())
+        if not self.suppress_osc:
+            this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked())
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_mute(self, value):
-        this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked())
+        if not self.suppress_osc:
+            this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked())
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
     def on_rec(self, value):
-        this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
+        if not self.suppress_osc:
+            this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_name_changed(self, new_name):
         this_pydaw_project.save_tracks(this_track_editor.get_tracks())
@@ -851,7 +855,8 @@ class seq_track:
         else:
             self.track_name_lineedit.setEnabled(False)
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-        this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
+        if not self.suppress_osc:
+            this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
     def on_show_ui(self):
         if self.instrument_combobox.currentIndex() > 0:
             this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
@@ -861,6 +866,7 @@ class seq_track:
             this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number)
 
     def __init__(self, a_track_num, a_track_text="track"):
+        self.suppress_osc = True
         self.track_number = a_track_num
         self.group_box = QtGui.QGroupBox()
         self.main_vlayout = QtGui.QVBoxLayout()
@@ -921,14 +927,18 @@ class seq_track:
         self.fx_button.setMaximumWidth(30)
         self.fx_button.setStyleSheet(f_button_style)
         self.hlayout3.addWidget(self.fx_button)
+        self.suppress_osc = False
         
-    def open_track(self, a_track):
+    def open_track(self, a_track, a_notify_osc=False):
+        if not a_notify_osc:
+            self.suppress_osc = True
         self.record_radiobutton.setChecked(a_track.rec)
         self.solo_checkbox.setChecked(a_track.solo)
         self.mute_checkbox.setChecked(a_track.mute)
         self.track_name_lineedit.setText(a_track.name)
         self.volume_slider.setValue(a_track.vol)
         self.instrument_combobox.setCurrentIndex(a_track.inst)
+        self.suppress_osc = False
 
     def get_track(self):
         return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.record_radiobutton.isChecked(),

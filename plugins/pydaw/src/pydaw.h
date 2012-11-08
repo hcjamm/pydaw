@@ -901,6 +901,71 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
 {
     int f_i = 0;
     
+    char f_file_name[256];    
+    sprintf(f_file_name, "%sdefault.pytracks", a_pydaw_data->project_folder);
+    
+    if(i_pydaw_file_exists(f_file_name))
+    {
+        printf("v_pydaw_open_tracks:  File exists %s , loading\n", f_file_name);
+
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
+
+        while(1)
+        {
+            char * f_track_index_str = c_iterate_2d_char_array(f_2d_array);
+            
+            if(f_2d_array->eof)
+            {
+                free(f_track_index_str);
+                break;
+            }
+            
+            char * f_solo_str = c_iterate_2d_char_array(f_2d_array);
+            char * f_mute_str = c_iterate_2d_char_array(f_2d_array);
+            char * f_rec_str = c_iterate_2d_char_array(f_2d_array);
+            char * f_vol_str = c_iterate_2d_char_array(f_2d_array);
+            char * f_name_str = c_iterate_2d_char_array(f_2d_array);
+            char * f_plugin_index_str = c_iterate_2d_char_array(f_2d_array);
+
+            int f_track_index = atoi(f_track_index_str);
+            free(f_track_index_str);
+            assert(f_track_index >= 0 && f_track_index < PYDAW_MAX_TRACK_COUNT);
+            
+            int f_solo = atoi(f_solo_str);
+            free(f_solo_str);
+            assert(f_solo == 0 || f_solo == 1);
+            
+            int f_mute = atoi(f_mute_str);
+            free(f_mute_str);
+            assert(f_mute == 0 || f_mute == 1);
+            
+            int f_rec = atoi(f_rec_str);
+            free(f_rec_str);
+            assert(f_rec == 0 || f_rec == 1);
+            
+            int f_vol = atoi(f_vol_str);
+            free(f_vol_str);
+            assert(f_vol < 24 && f_vol > -150);
+            
+            free(f_name_str);  //Not yet used...
+            
+            int f_plugin_index = atoi(f_plugin_index_str);
+            free(f_plugin_index_str);
+            assert(f_plugin_index >= 0 && f_plugin_index <= 2);   //TODO:  change this if adding more plugin instruments...
+                        
+            a_pydaw_data->track_pool[f_track_index]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted
+            v_set_plugin_index(a_pydaw_data, f_track_index, f_plugin_index);
+            a_pydaw_data->track_pool[f_track_index]->solo = f_solo;
+            a_pydaw_data->track_pool[f_track_index]->mute = f_mute;
+            a_pydaw_data->track_pool[f_track_index]->rec = f_rec;
+            a_pydaw_data->track_pool[f_track_index]->volume = f_vol;
+            
+            v_pydaw_open_track(a_pydaw_data, f_track_index);
+        }
+
+        g_free_2d_char_array(f_2d_array);
+    }
+    
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
         v_pydaw_open_track(a_pydaw_data, f_i);
@@ -912,61 +977,61 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
 #endif
 }
 
-void v_open_project(t_pydaw_data* a_pydaw, char* a_project_folder, char* a_name)
+void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_name)
 {
-    pthread_mutex_lock(&a_pydaw->mutex);
-    a_pydaw->is_initialized = 0;
-    pthread_mutex_unlock(&a_pydaw->mutex);
+    pthread_mutex_lock(&a_pydaw_data->mutex);
+    a_pydaw_data->is_initialized = 0;
+    pthread_mutex_unlock(&a_pydaw_data->mutex);
     
-    sprintf(a_pydaw->project_folder, "%s/", a_project_folder);    
-    sprintf(a_pydaw->item_folder, "%sitems/", a_pydaw->project_folder);
-    sprintf(a_pydaw->region_folder, "%sregions/", a_pydaw->project_folder);
-    sprintf(a_pydaw->instruments_folder, "%sinstruments/", a_pydaw->project_folder);    
-    strcpy(a_pydaw->project_name, a_name);
+    sprintf(a_pydaw_data->project_folder, "%s/", a_project_folder);    
+    sprintf(a_pydaw_data->item_folder, "%sitems/", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->region_folder, "%sregions/", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->instruments_folder, "%sinstruments/", a_pydaw_data->project_folder);    
+    strcpy(a_pydaw_data->project_name, a_name);
     
     struct stat f_proj_stat;
-    stat((a_pydaw->project_folder), &f_proj_stat);
+    stat((a_pydaw_data->project_folder), &f_proj_stat);
     struct stat f_item_stat;
-    stat((a_pydaw->project_folder), &f_item_stat);
+    stat((a_pydaw_data->project_folder), &f_item_stat);
     struct stat f_reg_stat;
-    stat((a_pydaw->project_folder), &f_reg_stat);
+    stat((a_pydaw_data->project_folder), &f_reg_stat);
     struct stat f_inst_stat;
-    stat((a_pydaw->project_folder), &f_inst_stat);
+    stat((a_pydaw_data->project_folder), &f_inst_stat);
     
     //TODO:  Use S_ISREG to test for files...
         
     if(S_ISDIR(f_proj_stat.st_mode) && S_ISDIR(f_item_stat.st_mode) &&
         S_ISDIR(f_reg_stat.st_mode) && S_ISDIR(f_inst_stat.st_mode))
     {
-        t_dir_list * f_item_dir_list = g_get_dir_list(a_pydaw->item_folder);    
+        t_dir_list * f_item_dir_list = g_get_dir_list(a_pydaw_data->item_folder);    
         int f_i = 0;
 
         while(f_i < f_item_dir_list->dir_count)
         {
             t_1d_char_array * f_file_name = c_split_str(f_item_dir_list->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
-            g_pyitem_get(a_pydaw, f_file_name->array[0]);
+            g_pyitem_get(a_pydaw_data, f_file_name->array[0]);
             g_free_1d_char_array(f_file_name);
             f_i++;
         }    
 
         //TODO:  This is interim code to avoid breaking PyDAW, this must be read from the transport file:
-        v_set_tempo(a_pydaw, 140.0f);
-        
-        g_pysong_get(a_pydaw, a_name);
+        v_set_tempo(a_pydaw_data, 140.0f);
+        v_pydaw_open_tracks(a_pydaw_data);
+        g_pysong_get(a_pydaw_data, a_name);
     }
     else  //The project folder(s) don't exist, set any sane defaults here...
     {
-        v_set_tempo(a_pydaw, 140.0f);
+        v_set_tempo(a_pydaw_data, 140.0f);
     }
        
-    pthread_mutex_lock(&a_pydaw->mutex);
-    a_pydaw->is_initialized = 1;
+    pthread_mutex_lock(&a_pydaw_data->mutex);
+    a_pydaw_data->is_initialized = 1;
     
 #ifdef PYDAW_MEMCHECK
-    v_pydaw_assert_memory_integrity(a_pydaw);
+    v_pydaw_assert_memory_integrity(a_pydaw_data);
 #endif
     
-    pthread_mutex_unlock(&a_pydaw->mutex);
+    pthread_mutex_unlock(&a_pydaw_data->mutex);
 }
 
 /* void v_set_playback_mode(t_pydaw_data * a_pydaw_data, 
