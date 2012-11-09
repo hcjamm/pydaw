@@ -94,7 +94,7 @@ class song_editor:
         self.copied_cell = None
         self.song = pydaw_song()
         self.group_box = QtGui.QGroupBox()
-        self.group_box.setMaximumHeight(145)
+        self.group_box.setMaximumHeight(138)
         self.main_vlayout = QtGui.QVBoxLayout()
         self.hlayout0 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout0)
