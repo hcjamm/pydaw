@@ -3,20 +3,21 @@ QWidget
 	background-color:rgb(93, 93, 93);
 }
 
-QLineEdit, QRadioButton, QCheckBox, QSpinBox
+QRadioButton, QCheckBox
 {
-	background-color:white;
+	background-color:transparent;
+	color:white;
+}
+
+QLineEdit, QSpinBox
+{
+	background-color: white;
+	color:black;
 }
 
 QTableWidget
 {
 	color:white;
-}
-
-QMessageBox
-{
-	color:white;
-	background-color:black;
 }
 
 QDial
@@ -80,7 +81,7 @@ QAbstractItemView
 
 QLabel
 {
-	color:black;
+	color:white;
 	background-color:white;
 	border:solid 2px white;
 	border-radius:2px;
@@ -108,6 +109,11 @@ QGroupBox::title
 	background-color: white;
 	border solid 2px white;
 	border-radius:3px;
+}
+
+QSlider
+{
+	background:transparent;
 }
 
 QSlider::groove:horizontal 
