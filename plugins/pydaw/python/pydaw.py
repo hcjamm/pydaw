@@ -127,6 +127,7 @@ class song_editor:
         QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
         a_event.acceptProposedAction()
         self.tablewidget_to_song()
+        self.table_widget.clearSelection()
         
     def tablewidget_to_song(self):
         """ Flush the edited content of the QTableWidget back to the native song class... """
@@ -325,6 +326,7 @@ class region_list_editor:
         QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
         a_event.acceptProposedAction()
         self.tablewidget_to_region()
+        self.table_widget.clearSelection()
         
     def tablewidget_to_region(self):
         """ Convert an edited QTableWidget to a native region class """
