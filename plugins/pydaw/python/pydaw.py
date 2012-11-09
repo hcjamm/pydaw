@@ -15,7 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import sys, os
+import sys, os, re
 from time import sleep
 from PyQt4 import QtGui, QtCore
 from sys import argv
@@ -1192,7 +1192,15 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cc_map_label = QtGui.QLabel("Below you can edit the MIDI CC maps for PyDAW's plugins.  You must restart PyDAW for changes to take effect.  Maps will not populate until you've started the plugin for the first time.")
         f_cc_map_main_vlayout.addWidget(f_cc_map_label)
         f_cc_map_hlayout = QtGui.QHBoxLayout()
-        f_cc_map_main_vlayout.addLayout(f_cc_map_hlayout)        
+        f_cc_map_main_vlayout.addLayout(f_cc_map_hlayout)
+        self.cc_map_rayv = pydaw_cc_map_editor(2)
+        f_cc_map_hlayout.addWidget(self.cc_map_rayv.groupbox)
+        self.cc_map_euphoria = pydaw_cc_map_editor(1)
+        f_cc_map_hlayout.addWidget(self.cc_map_euphoria.groupbox)
+        self.cc_map_modulex = pydaw_cc_map_editor(-1)
+        f_cc_map_hlayout.addWidget(self.cc_map_modulex.groupbox)
+        f_ccs_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        f_cc_map_hlayout.addItem(f_ccs_spacer)
         self.main_tabwidget.addTab(self.cc_map_tab, "CC Maps")
 
         self.show()
@@ -1210,20 +1218,26 @@ class pydaw_main_window(QtGui.QMainWindow):
             event.accept()
 
 class pydaw_cc_map_editor:
+    def on_save():
+        pass
+    
     def __init__(self, a_index):
         if a_index == -1:
             f_name = "Modulex"
+            self.file_name = expanduser("~") + "/dssi/lms_modulex-cc_map.txt"
         elif a_index == 1:
             f_name = "Euphoria"
+            self.file_name = expanduser("~") + "/dssi/euphoria-cc_map.txt"
         elif a_index == 2:
             f_name = "Ray-V"
+            self.file_name = expanduser("~") + "/dssi/ray_v-cc_map.txt"
         else:
             assert(0)
         self.groupbox = QtGui.QGroupBox(f_name)
         self.groupbox.setMaximumWidth(420)
         f_vlayout = QtGui.QVBoxLayout(self.groupbox)
         self.cc_table = QtGui.QTableWidget(127, 3)
-        self.cc_table.setAl
+        self.cc_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.cc_table.setHorizontalHeaderLabels(["CC", "Description", "LADSPA Port"])
         f_vlayout.addWidget(self.cc_table)
         f_button_layout = QtGui.QHBoxLayout()
@@ -1232,9 +1246,25 @@ class pydaw_cc_map_editor:
         f_button_layout.addItem(f_button_spacer)
         f_save_button = QtGui.QPushButton("Save")
         f_button_layout.addWidget(f_save_button)
-        f_cc_map_hlayout.addWidget(f_groupbox)
-        f_ccs_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        f_cc_map_hlayout.addItem(f_ccs_spacer)
+        try:
+            f_cc_map_text = open(self.file_name, "r").read()
+        except:
+            return  #If we can't open the file, then it likely doesn't exist, and we won't bother trying to edit it
+        
+        f_cc_map_arr = f_cc_map_text.split("\n")
+        f_row_index = 0
+        for f_line in f_cc_map_arr:
+            if not re.match(r'[0-1][0-9][0-9]-[0-9][0-9][0-9] "*"', f_line) is None:
+                f_line_arr = f_line.split("-")
+                f_cc_num = f_line_arr[0]
+                f_line_arr2 = f_line_arr[1].split(" ")
+                f_ladspa_port = f_line_arr2[0]
+                if f_ladspa_port != "000":
+                    f_desc = f_line_arr2[1].strip('"')
+                    self.cc_table.setItem(f_row_index, 0, QtGui.QTableWidgetItem(f_cc_num))
+                    self.cc_table.setItem(f_row_index, 1, QtGui.QTableWidgetItem(f_desc))
+                    self.cc_table.setItem(f_row_index, 2, QtGui.QTableWidgetItem(f_ladspa_port))
+                    f_row_index += 1
 
 #Opens or creates a new project
 def global_open_project(a_project_file, a_notify_osc=True):
