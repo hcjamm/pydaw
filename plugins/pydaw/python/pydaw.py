@@ -1219,7 +1219,28 @@ class pydaw_main_window(QtGui.QMainWindow):
 
 class pydaw_cc_map_editor:
     def on_save(self):
-        pass
+        f_result_dict = {}
+        for i in range(0, 128):
+            f_cc_num_str = str(i)
+            for i in range(len(f_cc_num_str), 3):
+                f_cc_num_str = "0" + f_cc_num_str
+            f_result_dict[f_cc_num_str] = ["000", "empty"]
+        for i in range(0, 128):
+            if not self.cc_table.item(i, 0) is None:
+                f_cc_num_str = str(self.cc_table.item(i, 0).text())
+                for i in range(len(f_cc_num_str), 3):
+                    f_cc_num_str = "0" + f_cc_num_str
+                f_result_dict[f_cc_num_str] = [str(self.cc_table.item(i, 2).text()), str(self.cc_table.item(i, 1).text())]        
+        f_result = '''"This is a MIDI CC mapping file.  The first 3 digits are the MIDI CC number,  do not edit them.  
+The 2nd 3 digits are the LADSPA port number, you may change these from any value from 001 to 999.  
+Any additional text must be enclosed in quotation marks."
+
+'''
+        for k, v in sorted(f_result_dict.iteritems()):
+            f_result += str(k) + "-" + str(v[0]) + '"' + str(v[1]) + '"' + "\n"
+        f_handle = open(self.file_name, "w")
+        f_handle.write(f_result)
+        f_handle.close()        
     
     def on_click(self, x, y):
         f_cell = self.cc_table.item(x, y)
@@ -1285,6 +1306,7 @@ class pydaw_cc_map_editor:
         f_button_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         f_button_layout.addItem(f_button_spacer)
         f_save_button = QtGui.QPushButton("Save")
+        f_save_button.pressed.connect(self.on_save)
         f_button_layout.addWidget(f_save_button)
         try:
             f_cc_map_text = open(self.file_name, "r").read()
@@ -1297,7 +1319,7 @@ class pydaw_cc_map_editor:
             if not re.match(r'[0-1][0-9][0-9]-[0-9][0-9][0-9] "*"', f_line) is None:
                 f_line_arr = f_line.split("-")
                 f_cc_num = f_line_arr[0]
-                f_line_arr2 = f_line_arr[1].split(" ")
+                f_line_arr2 = f_line_arr[1].split(" ", 1)                
                 f_ladspa_port = f_line_arr2[0]
                 if f_ladspa_port != "000":
                     f_desc = f_line_arr2[1].strip('"')
