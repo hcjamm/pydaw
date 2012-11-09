@@ -1096,6 +1096,12 @@ void _fini()
 {
     v_pydaw_close_all_uis(pydaw_data);
     
+    sleep(3);
+    printf("Destructor locking mutex...\n");
+    pthread_mutex_lock(&pydaw_data->quit_mutex);
+    printf("Destructor unlocking mutex...\n\n\n");
+    pthread_mutex_unlock(&pydaw_data->quit_mutex);
+    
     if (LMSLDescriptor) {
 	free((LADSPA_PortDescriptor *) LMSLDescriptor->PortDescriptors);
 	free((char **) LMSLDescriptor->PortNames);

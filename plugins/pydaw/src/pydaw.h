@@ -184,6 +184,8 @@ typedef struct st_pydaw_data
     /*item_pool_index of the first item recorded during the current record session*/
     int recording_first_item;
     t_amp * amp_ptr;
+    
+    pthread_mutex_t quit_mutex;  //must be acquired to free memory, to protect saving on exit...
 }t_pydaw_data;
 
 void g_pysong_get(t_pydaw_data*, const char*);
@@ -713,8 +715,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
 {
     t_pydaw_data * f_result = (t_pydaw_data*)malloc(sizeof(t_pydaw_data));
     
-    //f_result->mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_init(&f_result->mutex, NULL);
+    pthread_mutex_init(&f_result->quit_mutex, NULL);
     f_result->is_initialized = 0;
     f_result->sample_rate = a_sample_rate;
     f_result->current_sample = 0;
@@ -1277,7 +1279,7 @@ void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
 
 void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
 {
-    //TODO:  mutex lock, or engineer some other way to be safe about it
+    pthread_mutex_lock(&a_pydaw_data->quit_mutex);
     int f_i = 0;
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
@@ -1285,6 +1287,9 @@ void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
         v_pydaw_save_track(a_pydaw_data, f_i);
         f_i++;
     }
+    
+    printf("Saving tracks complete\n");
+    pthread_mutex_unlock(&a_pydaw_data->quit_mutex);
     
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
