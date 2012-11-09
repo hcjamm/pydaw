@@ -1218,8 +1218,47 @@ class pydaw_main_window(QtGui.QMainWindow):
             event.accept()
 
 class pydaw_cc_map_editor:
-    def on_save():
+    def on_save(self):
         pass
+    
+    def on_click(self, x, y):
+        f_cell = self.cc_table.item(x, y)
+        if f_cell is None or str(f_cell.text()) == "":
+            return
+        
+        def cc_ok_handler():
+            f_cc_num_str = str(f_cc.value())
+            for i in range(len(f_cc_num_str), 3):
+                f_cc_num_str = "0" + f_cc_num_str
+            self.cc_table.setItem(x, 0, QtGui.QTableWidgetItem(f_cc_num_str))
+            f_window.close()
+
+        def cc_cancel_handler():
+            f_window.close()
+        
+        def quantize_changed(f_quantize_index):
+            f_frac = beat_frac_text_to_float(f_quantize_index)
+            f_start.setSingleStep(f_frac)
+            self.default_quantize = f_quantize_index
+
+        f_default_cc_num = int(self.cc_table.item(x, 0).text())            
+        
+        f_window = QtGui.QDialog()
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_cc = QtGui.QSpinBox()
+        f_cc.setRange(1, 127)
+        f_cc.setValue(f_default_cc_num)
+        f_layout.addWidget(QtGui.QLabel("CC"), 1, 0)
+        f_layout.addWidget(f_cc, 1, 1)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_layout.addWidget(f_ok_button, 7,0)
+        f_ok_button.clicked.connect(cc_ok_handler)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_layout.addWidget(f_cancel_button, 7,1)
+        f_cancel_button.clicked.connect(cc_cancel_handler)
+        f_window.exec_()
+        
     
     def __init__(self, a_index):
         if a_index == -1:
@@ -1239,6 +1278,7 @@ class pydaw_cc_map_editor:
         self.cc_table = QtGui.QTableWidget(127, 3)
         self.cc_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.cc_table.setHorizontalHeaderLabels(["CC", "Description", "LADSPA Port"])
+        self.cc_table.cellClicked.connect(self.on_click)
         f_vlayout.addWidget(self.cc_table)
         f_button_layout = QtGui.QHBoxLayout()
         f_vlayout.addLayout(f_button_layout)
