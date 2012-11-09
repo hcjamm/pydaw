@@ -850,6 +850,7 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
             
             if(f_2d_array->eof)
             {
+                free(f_key);
                 break;
             }
             
