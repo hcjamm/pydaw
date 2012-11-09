@@ -430,6 +430,7 @@ class item_list_editor:
         self.main_vlayout.addLayout(self.main_hlayout)
 
         self.notes_groupbox = QtGui.QGroupBox("Notes")
+        self.notes_groupbox.setMinimumWidth(573)
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
         self.notes_gridlayout = QtGui.QGridLayout()
         f_n_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -455,11 +456,12 @@ class item_list_editor:
         self.notes_table_widget.cellClicked.connect(self.notes_click_handler)
         self.notes_table_widget.setSortingEnabled(True)
         self.notes_table_widget.sortItems(0)        
-        self.notes_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.notes_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)        
         self.notes_vlayout.addWidget(self.notes_table_widget)
 
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
         self.ccs_groupbox.setMaximumWidth(370)
+        self.ccs_groupbox.setMinimumWidth(370)
         self.ccs_vlayout = QtGui.QVBoxLayout(self.ccs_groupbox)
         self.ccs_gridlayout = QtGui.QGridLayout()
         f_c_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -1178,8 +1180,18 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.item_tab = QtGui.QWidget()
         self.item_tab_hlayout = QtGui.QHBoxLayout(self.item_tab)
         self.item_tab_hlayout.addWidget(this_item_editor.group_box)
+        f_item_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.item_tab_hlayout.addItem(f_item_spacer)
 
         self.main_tabwidget.addTab(self.item_tab, "Item")
+        #Begin CC Map tab
+        self.cc_map_tab = QtGui.QWidget()
+        f_cc_map_main_vlayout = QtGui.QVBoxLayout(self.cc_map_tab)
+        f_cc_map_label = QtGui.QLabel("Below you can edit the MIDI CC maps for PyDAW's plugins.  You must restart PyDAW for changes to take effect.  Maps will not populate until you've started the plugin for the first time.")
+        f_cc_map_main_vlayout.addWidget(f_cc_map_label)
+        f_cc_map_hlayout = QtGui.QHBoxLayout()
+        f_cc_map_main_vlayout.addLayout(f_cc_map_hlayout)        
+        self.main_tabwidget.addTab(self.cc_map_tab, "CC Maps")
 
         self.show()
     def closeEvent(self, event):        
@@ -1194,6 +1206,33 @@ class pydaw_main_window(QtGui.QMainWindow):
             event.ignore()
         else:
             event.accept()
+
+class pydaw_cc_map_editor:
+    def __init__(self, a_index):
+        if a_index == -1:
+            f_name = "Modulex"
+        elif a_index == 1:
+            f_name = "Euphoria"
+        elif a_index == 2:
+            f_name = "Ray-V"
+        else:
+            assert(0)
+        self.groupbox = QtGui.QGroupBox(f_name)
+        self.groupbox.setMaximumWidth(420)
+        f_vlayout = QtGui.QVBoxLayout(self.groupbox)
+        self.cc_table = QtGui.QTableWidget(127, 3)
+        self.cc_table.setAl
+        self.cc_table.setHorizontalHeaderLabels(["CC", "Description", "LADSPA Port"])
+        f_vlayout.addWidget(self.cc_table)
+        f_button_layout = QtGui.QHBoxLayout()
+        f_vlayout.addLayout(f_button_layout)
+        f_button_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        f_button_layout.addItem(f_button_spacer)
+        f_save_button = QtGui.QPushButton("Save")
+        f_button_layout.addWidget(f_save_button)
+        f_cc_map_hlayout.addWidget(f_groupbox)
+        f_ccs_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        f_cc_map_hlayout.addItem(f_ccs_spacer)
 
 #Opens or creates a new project
 def global_open_project(a_project_file, a_notify_osc=True):
