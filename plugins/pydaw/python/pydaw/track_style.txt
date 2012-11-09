@@ -1,0 +1,40 @@
+padding: 0 1px;
+
+QGroupBox::title 
+{
+	margin: 0px;
+	height: 0px;
+	padding: 0 0px;
+	color:black;
+	border solid 1px white;
+}
+
+QGroupBox 
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #111111, stop: 1 #222222);
+	border: 1px solid white;
+	border-radius: 10px;
+}
+
+QRadioButton::indicator 
+{
+	width: 24px;
+	height: 24px;
+}
+
+QCheckBox::indicator
+{
+	width: 24px;
+	height: 24px;
+}
+
+QLineEdit
+{
+	padding:2px;
+}
+
+QLabel
+{
+	background-color:transparent;
+	color:white;
+}
