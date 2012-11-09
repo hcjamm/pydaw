@@ -452,6 +452,7 @@ class item_list_editor:
         self.notes_vlayout.addWidget(self.notes_table_widget)
 
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
+        self.ccs_groupbox.setMaximumWidth(370)
         self.ccs_vlayout = QtGui.QVBoxLayout(self.ccs_groupbox)
         self.ccs_gridlayout = QtGui.QGridLayout()
         f_c_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -469,10 +470,11 @@ class item_list_editor:
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
         self.ccs_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.sortItems(0)
-        self.ccs_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.ccs_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)        
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
         
         self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
+        self.pb_groupbox.setMaximumWidth(270)
         self.pb_vlayout = QtGui.QVBoxLayout(self.pb_groupbox)
         self.pb_gridlayout = QtGui.QGridLayout()
         f_p_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
