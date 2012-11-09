@@ -23,17 +23,6 @@ QSpinBox, QDoubleSpinBox
 	font-size: 28px;
 }
 
-QSpinBox::up-arrow:disabled,
-QSpinBox::up-arrow:off,  
-QDoubleSpinBox::up-arrow:disabled,
-QDoubleSpinBox::up-arrow:off,
- QSpinBox::down-arrow:disabled,
-QSpinBox::down-arrow:off,  
-QDoubleSpinBox::down-arrow:disabled,
-QDoubleSpinBox::down-arrow:off  {
-image: url();
-}
-
 QTableWidget
 {
 	color:white;
