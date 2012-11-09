@@ -1,0 +1,10 @@
+QRadioButton::indicator::unchecked 
+{
+	image: url(pydaw/record-off.png);
+}
+
+QRadioButton::indicator::checked 
+{
+	image: url(pydaw/record-on.png);
+}
+

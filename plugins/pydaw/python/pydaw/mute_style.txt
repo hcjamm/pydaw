@@ -1,0 +1,10 @@
+QCheckBox::indicator::unchecked 
+{
+	image: url(pydaw/mute-off.png);
+}
+
+QCheckBox::indicator::checked 
+{
+	image: url(pydaw/mute-on.png);
+}
+

@@ -1,0 +1,10 @@
+QCheckBox::indicator::unchecked 
+{
+	image: url(pydaw/solo-off.png);
+}
+
+QCheckBox::indicator::checked 
+{
+	image: url(pydaw/solo-on.png);
+}
+
