@@ -26,9 +26,9 @@ pydaw_item_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF
 pydaw_item_gradient.setColorAt(0, QtGui.QColor(100, 100, 255))
 pydaw_item_gradient.setColorAt(1, QtGui.QColor(127, 127, 255))
 
-pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
+pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(80, 80))
 pydaw_region_gradient.setColorAt(0, QtGui.QColor(220, 120, 120))
-pydaw_region_gradient.setColorAt(1, QtGui.QColor(200, 90, 95))
+pydaw_region_gradient.setColorAt(1, QtGui.QColor(195, 90, 95))
 
 class song_editor:
     def add_qtablewidgetitem(self, a_name, a_region_num):
@@ -94,7 +94,7 @@ class song_editor:
         self.copied_cell = None
         self.song = pydaw_song()
         self.group_box = QtGui.QGroupBox()
-        self.group_box.setMaximumHeight(180)
+        self.group_box.setMaximumHeight(150)
         self.main_vlayout = QtGui.QVBoxLayout()
         self.hlayout0 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout0)
@@ -102,7 +102,7 @@ class song_editor:
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setColumnCount(300)        
         self.table_widget.setRowCount(1)
-        self.table_widget.setRowHeight(0, 100)
+        self.table_widget.setRowHeight(0, 75)
         self.table_widget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.table_widget.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.table_widget.cellClicked.connect(self.cell_clicked)
@@ -154,10 +154,14 @@ class region_list_editor:
             self.tracks[key].open_track(f_track)
 
     def reset_tracks(self):
+        f_track_ss_handle = open("pydaw/track_style.txt", "r")
+        f_track_stylesheet = f_track_ss_handle.read()
+        f_track_ss_handle.close()
         self.tracks = []
         for i in range(0, 16):
             track = seq_track(a_track_num=i, a_track_text="track" + str(i + 1))
             self.tracks.append(track)
+            track.group_box.setStyleSheet(f_track_stylesheet)
             self.table_widget.setCellWidget(i, 0, track.group_box)  
         self.table_widget.setColumnWidth(0, 330)
         f_headers = ['Tracks']
@@ -194,6 +198,7 @@ class region_list_editor:
         
     def cell_clicked(self, x, y):
         if not self.enabled:
+            QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first.")
             return
         f_item = self.table_widget.item(x, y)
         if f_item is None or f_item.text() == "":
@@ -872,7 +877,7 @@ class seq_track:
     def __init__(self, a_track_num, a_track_text="track"):
         self.suppress_osc = True
         self.track_number = a_track_num
-        self.group_box = QtGui.QGroupBox()
+        self.group_box = QtGui.QGroupBox()        
         self.main_vlayout = QtGui.QVBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
         self.hlayout1 = QtGui.QHBoxLayout()
@@ -902,7 +907,7 @@ class seq_track:
         self.volume_label = QtGui.QLabel()
         self.volume_label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.volume_label.setMargin(3)
-        self.volume_label.setMinimumWidth(51)
+        self.volume_label.setMinimumWidth(54)
         self.volume_label.setText("0 dB")
         self.hlayout2.addWidget(self.volume_label)
         self.hlayout3 = QtGui.QHBoxLayout()
@@ -1077,7 +1082,7 @@ class transport_widget:
         self.hlayout1.addWidget(QtGui.QLabel("Loop Mode"))
         self.loop_mode_combobox = QtGui.QComboBox()
         self.loop_mode_combobox.addItems(["Off", "Bar", "Region"])
-        self.loop_mode_combobox.setMinimumWidth(60)
+        self.loop_mode_combobox.setMinimumWidth(90)
         self.loop_mode_combobox.currentIndexChanged.connect(self.on_loop_mode_changed)
         self.hlayout1.addWidget(self.loop_mode_combobox)
         self.hlayout1.addWidget(QtGui.QLabel("Region:"))
