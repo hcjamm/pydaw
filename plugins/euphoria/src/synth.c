@@ -610,16 +610,18 @@ static void run_sampler_interpolation_none(t_euphoria *__restrict plugin_data, i
  * unsigned long pos, //the position in the output buffer
  * unsigned long count) //how many samples to fill in the output buffer
  */
-static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, unsigned long count)
+static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, long count)
 {
-    unsigned long i, ch;
-
-    for (i = 0; i < count; ++i) 
+    int ch;
+    long i = 0;
+    
+    if((plugin_data->voices->voices[n].on) > (plugin_data->sampleNo))
     {
-        //Delay the note-on event until the sample it was called for.  TODO:  just skip and start writing further down the buffer?
-        if(((plugin_data->sampleNo) + i) < (plugin_data->voices->voices[n].on))
-            continue;
-
+        i = ((plugin_data->voices->voices[n].on) - (plugin_data->sampleNo));
+    }    
+        
+    for (; i < count; ++i) 
+    {
         //Run things that aren't per-channel like envelopes
                 
         v_adsr_run(plugin_data->data[n]->adsr_amp);        
@@ -806,7 +808,7 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
             {
                 //plugin_data->ons[f_note] = plugin_data->sampleNo + events[event_pos].time.tick;
                 //plugin_data->offs[f_note] = -1;
-                int f_voice_num = i_pick_voice(plugin_data->voices, f_note, plugin_data->current_sample, events[event_pos].time.tick);
+                int f_voice_num = i_pick_voice(plugin_data->voices, f_note, (plugin_data->sampleNo), events[event_pos].time.tick);
                 plugin_data->velocities[f_voice_num] = n.velocity;
 
                 plugin_data->sample_indexes_count[f_voice_num] = 0;
