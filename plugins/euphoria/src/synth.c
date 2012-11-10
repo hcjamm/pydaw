@@ -392,6 +392,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         plugin_data->high_note[f_i] = 0;
         plugin_data->sample_vol[f_i] = 0;
         plugin_data->sample_amp[f_i] = 1.0f;
+        plugin_data->sampleEndPos[f_i] = 0.0f;
+        plugin_data->sample_last_interpolated_value[f_i] = 0.0f;
         
         plugin_data->sample_paths[f_i] = (char*)malloc(sizeof(char) * 200);
         lms_strcpy(plugin_data->sample_paths[f_i], "");
@@ -528,8 +530,7 @@ static fp_calculate_ratio ratio_function_ptrs[EUPHORIA_MAX_SAMPLE_COUNT];
 static fp_run_sampler_interpolation interpolation_modes[EUPHORIA_MAX_SAMPLE_COUNT];
 
 static inline int check_sample_bounds(t_euphoria *__restrict plugin_data, int n)
-{
-    
+{    
     if ((plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number) >=  plugin_data->sampleEndPos[(plugin_data->current_sample)])
     {
         if(((int)(*(plugin_data->sampleLoopModes[(plugin_data->current_sample)]))) > 0)
@@ -876,6 +877,8 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
                                 interpolation_modes[(plugin_data->loaded_samples[i])] = run_sampler_interpolation_none;
                                 ratio_function_ptrs[(plugin_data->loaded_samples[i])] = calculate_ratio_none;
                                 break;
+                            default:
+                                printf("Error, invalid interpolation mode %i\n", ((int)(*(plugin_data->sample_interpolation_mode[(plugin_data->loaded_samples[i])]))));
                         }
                     }
                 }
