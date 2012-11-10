@@ -1542,9 +1542,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
     {        
         t_pydaw_plugin * f_inst = a_pydaw_data->track_pool[a_track_num]->instrument;
         t_pydaw_plugin * f_fx = a_pydaw_data->track_pool[a_track_num]->effect;
-        
-        pthread_mutex_lock(&a_pydaw_data->mutex);
-                
+                        
         if(i_pydaw_file_exists(f_file_name))
         {
             remove(f_file_name);
@@ -1554,9 +1552,12 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
             remove(f_file_name_fx);
         }
         
+        pthread_mutex_lock(&a_pydaw_data->mutex);
+                
         a_pydaw_data->track_pool[a_track_num]->instrument = NULL;
         a_pydaw_data->track_pool[a_track_num]->effect = NULL;
         a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;        
+        a_pydaw_data->track_pool[a_track_num]->current_period_event_index = 0;
         
 #ifdef PYDAW_MEMCHECK
         v_pydaw_assert_memory_integrity(a_pydaw_data);
@@ -1591,12 +1592,12 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
         t_pydaw_plugin * f_inst = a_pydaw_data->track_pool[a_track_num]->instrument;
         t_pydaw_plugin * f_fx = a_pydaw_data->track_pool[a_track_num]->effect;
                 
-        pthread_mutex_lock(&a_pydaw_data->mutex);
-        
+        pthread_mutex_lock(&a_pydaw_data->mutex);        
         
         a_pydaw_data->track_pool[a_track_num]->instrument = f_result;
         a_pydaw_data->track_pool[a_track_num]->effect = f_result_fx;
         a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
+        a_pydaw_data->track_pool[a_track_num]->current_period_event_index = 0;
         v_pydaw_open_track(a_pydaw_data, a_track_num);  //Opens the .inst file if exists
         
 #ifdef PYDAW_MEMCHECK
@@ -1680,11 +1681,15 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SI)) //Save Item
     {
+        pthread_mutex_lock(&a_pydaw_data->mutex);
         g_pyitem_get(a_pydaw_data, a_value);
+        pthread_mutex_unlock(&a_pydaw_data->mutex);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS))  //Save Song
     {
+        pthread_mutex_lock(&a_pydaw_data->mutex);
         g_pysong_get(a_pydaw_data, a_value);
+        pthread_mutex_unlock(&a_pydaw_data->mutex);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PLAY)) //Begin playback
     {
@@ -1756,7 +1761,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
+        pthread_mutex_lock(&a_pydaw_data->mutex);
         a_pydaw_data->track_pool[f_track_num]->solo = f_mode;
+        pthread_mutex_unlock(&a_pydaw_data->mutex);
         g_free_1d_char_array(f_val_arr);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_MUTE)) //Set track mute
@@ -1764,7 +1771,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
+        pthread_mutex_lock(&a_pydaw_data->mutex);
         a_pydaw_data->track_pool[f_track_num]->mute = f_mode;
+        pthread_mutex_unlock(&a_pydaw_data->mutex);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC_ARM_TRACK)) //Set track record arm
@@ -1782,7 +1791,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 f_i++;
             }
         }
+        pthread_mutex_lock(&a_pydaw_data->mutex);
         a_pydaw_data->track_pool[f_track_num]->rec = f_mode;
+        pthread_mutex_unlock(&a_pydaw_data->mutex);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_VOL)) //Set track volume
@@ -1790,7 +1801,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         float f_track_vol = atof(f_val_arr->array[1]);
+        pthread_mutex_lock(&a_pydaw_data->mutex);
         v_pydaw_set_track_volume(a_pydaw_data, f_track_num, f_track_vol);
+        pthread_mutex_lock(&a_pydaw_data->mutex);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT)) //Change the plugin
