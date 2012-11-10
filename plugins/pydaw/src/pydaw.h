@@ -237,10 +237,57 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
 int g_pyitem_get_new(t_pydaw_data* a_pydaw_data);
 t_pyregion * g_pyregion_get_new(t_pydaw_data* a_pydaw_data);
 void v_pydaw_set_track_volume(t_pydaw_data * a_pydaw_data, int a_track_num, float a_vol);
-t_pydaw_work_queue_item * g_pydaw_work_queue_item_get();
-
-
+inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin);
 void * v_pydaw_worker_thread(void*);
+void * v_pydaw_init_worker_threads(t_pydaw_data*);
+
+void * v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
+{
+    int f_i = 0;
+    pthread_mutex_init(&a_pydaw_data->track_cond_mutex, NULL);
+    pthread_cond_init(&a_pydaw_data->track_cond, NULL);
+    a_pydaw_data->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN );    
+    a_pydaw_data->track_block_mutexes = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t) * (a_pydaw_data->track_worker_thread_count));
+    a_pydaw_data->track_worker_threads = (pthread_t*)malloc(sizeof(pthread_t) * (a_pydaw_data->track_worker_thread_count));
+    a_pydaw_data->track_work_queues = (t_pydaw_work_queue_item**)malloc(sizeof(t_pydaw_work_queue_item*) * (a_pydaw_data->track_worker_thread_count));
+    a_pydaw_data->track_work_queue_counts = (int*)malloc(sizeof(int) * (a_pydaw_data->track_worker_thread_count));
+    a_pydaw_data->track_thread_quit_notifier = (int*)malloc(sizeof(int) * (a_pydaw_data->track_worker_thread_count));
+
+    while(f_i < (a_pydaw_data->track_worker_thread_count))
+    {
+        pthread_mutex_init(&a_pydaw_data->track_block_mutexes[f_i], NULL);
+        a_pydaw_data->track_work_queues[f_i] = (t_pydaw_work_queue_item*)malloc(sizeof(t_pydaw_work_queue_item) * 32);  //Max 32 work items per thread...
+        a_pydaw_data->track_work_queue_counts[f_i] = 0;
+        a_pydaw_data->track_thread_quit_notifier[f_i] = 0;
+        t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)malloc(sizeof(t_pydaw_thread_args));
+        f_args->pydaw_data = a_pydaw_data;
+        f_args->thread_num = f_i;
+        pthread_create(&a_pydaw_data->track_worker_threads[f_i], NULL, v_pydaw_worker_thread, (void*)f_args);        
+        f_i++;
+    }
+}
+
+inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin)
+{
+    int f_i = 0;
+    while(f_i < (a_plugin->controlIns))
+    {
+        if (a_plugin->pluginPortUpdated[f_i]) 
+        {
+            int port = a_plugin->pluginControlInPortNumbers[f_i];
+            float value = a_plugin->pluginControlIns[f_i];
+
+            a_plugin->pluginPortUpdated[f_i] = 0;
+            if (a_plugin->uiTarget) 
+            {
+                lo_send(a_plugin->uiTarget, a_plugin->ui_osc_control_path, "if", port, value);
+            }
+        }
+        f_i++;
+    }
+}
+
+
 
 void * v_pydaw_worker_thread(void* a_arg)
 {
@@ -262,6 +309,10 @@ void * v_pydaw_worker_thread(void* a_arg)
         while(f_i < f_args->pydaw_data->track_work_queue_counts[f_args->thread_num])
         {
             t_pydaw_work_queue_item f_item = f_args->pydaw_data->track_work_queues[f_args->thread_num][f_i];
+            
+            v_pydaw_update_ports(f_args->pydaw_data->track_pool[f_item.track_number]->instrument);
+            v_pydaw_update_ports(f_args->pydaw_data->track_pool[f_item.track_number]->effect);
+            
             v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->instrument, f_item.sample_count, 
                     f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
                     f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
@@ -814,35 +865,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->amp_ptr = g_amp_get();    
     
     int f_i = 0;
-    
-    /*Begin threading stuff*/
-    
-    pthread_mutex_init(&f_result->track_cond_mutex, NULL);
-    pthread_cond_init(&f_result->track_cond, NULL);
-    f_result->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN );    
-    f_result->track_block_mutexes = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t) * (f_result->track_worker_thread_count));
-    f_result->track_worker_threads = (pthread_t*)malloc(sizeof(pthread_t) * (f_result->track_worker_thread_count));
-    f_result->track_work_queues = (t_pydaw_work_queue_item**)malloc(sizeof(t_pydaw_work_queue_item*) * (f_result->track_worker_thread_count));
-    f_result->track_work_queue_counts = (int*)malloc(sizeof(int) * (f_result->track_worker_thread_count));
-    f_result->track_thread_quit_notifier = (int*)malloc(sizeof(int) * (f_result->track_worker_thread_count));
-    
-    while(f_i < (f_result->track_worker_thread_count))
-    {
-        pthread_mutex_init(&f_result->track_block_mutexes[f_i], NULL);
-        f_result->track_work_queues[f_i] = (t_pydaw_work_queue_item*)malloc(sizeof(t_pydaw_work_queue_item) * 32);  //Max 32 work items per thread...
-        f_result->track_work_queue_counts[f_i] = 0;
-        f_result->track_thread_quit_notifier[f_i] = 0;
-        t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)malloc(sizeof(t_pydaw_thread_args));
-        f_args->pydaw_data = f_result;
-        f_args->thread_num = f_i;
-        pthread_create(&f_result->track_worker_threads[f_i], NULL, v_pydaw_worker_thread, (void*)f_args);        
-        f_i++;
-    }
-        
-    /*End threading stuff*/
-
-    
-    f_i = 0;
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
