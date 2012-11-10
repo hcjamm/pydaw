@@ -618,8 +618,7 @@ class item_list_editor:
         def note_ok_handler():
             if self.is_existing_note:
                 self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
-            f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
-            f_note_name = str(f_note.currentText()) + str(f_octave.value())
+            f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)            
             f_start_rounded = time_quantize_round(f_start.value())
             f_length_rounded = time_quantize_round(f_length.value())
             f_new_note = pydaw_note(f_start_rounded, f_length_rounded, f_note_value, f_velocity.value())
@@ -633,22 +632,14 @@ class item_list_editor:
             self.default_note_octave = int(f_octave.value())
             self.default_note_velocity = int(f_velocity.value())
             self.default_quantize = int(f_quantize_combobox.currentIndex())
-            
-            self.notes_table_widget.setSortingEnabled(False)
-            f_start_item = QtGui.QTableWidgetItem(str(f_start_rounded))
-            self.notes_table_widget.setItem(x, 0, f_start_item)
-            f_length_item = QtGui.QTableWidgetItem(str(f_length_rounded))
-            self.notes_table_widget.setItem(x, 1, f_length_item)                        
-            f_note_name_item = QtGui.QTableWidgetItem(f_note_name)
-            self.notes_table_widget.setItem(x, 2, f_note_name_item)
-            f_note_num = QtGui.QTableWidgetItem(str(f_note_value))
-            self.notes_table_widget.setItem(x, 3, f_note_num)
-            f_vel_item = QtGui.QTableWidgetItem(str(f_velocity.value()))
-            self.notes_table_widget.setItem(x, 4, f_vel_item)
-            self.notes_table_widget.setSortingEnabled(True)
-
             this_pydaw_project.save_item(self.item_name, self.item)
-            f_window.close()
+            
+            self.open_item(self.item_name)            
+            
+            if not f_add_another.isChecked():
+                f_window.close()
+            else:
+                self.is_existing_note = False
 
         def note_cancel_handler():
             f_window.close()
@@ -658,7 +649,7 @@ class item_list_editor:
             f_start.setSingleStep(f_frac)
             f_length.setSingleStep(f_frac)
             self.default_quantize = f_quantize_index
-
+        
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -693,11 +684,13 @@ class item_list_editor:
         f_velocity.setValue(self.default_note_velocity)
         f_layout.addWidget(QtGui.QLabel("Velocity"), 4, 0)
         f_layout.addWidget(f_velocity, 4, 1)
-        f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 5,0)
+        f_add_another = QtGui.QCheckBox("Add another?")
+        f_layout.addWidget(f_add_another, 5, 1)
+        f_ok_button = QtGui.QPushButton("OK")        
+        f_layout.addWidget(f_ok_button, 6,0)
         f_ok_button.clicked.connect(note_ok_handler)
         f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 5,1)
+        f_layout.addWidget(f_cancel_button, 6,1)
         f_cancel_button.clicked.connect(note_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_quantize)
         f_window.exec_()
@@ -724,8 +717,8 @@ class item_list_editor:
             self.default_cc_start = f_start_rounded            
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
-            self.ccs_table_widget.setSortingEnabled(True)
-            f_window.close()
+            if not f_add_another.isChecked():
+                f_window.close()
 
         def cc_cancel_handler():
             f_window.close()
@@ -768,11 +761,13 @@ class item_list_editor:
         f_end_value = QtGui.QSpinBox()
         f_end_value.setRange(0, 127)
         f_layout.addWidget(f_end_value, 6, 1)
+        f_add_another = QtGui.QCheckBox("Add another?")
+        f_layout.addWidget(f_add_another, 7, 1)
         f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 7,0)
+        f_layout.addWidget(f_ok_button, 8, 0)
         f_ok_button.clicked.connect(cc_ok_handler)
         f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 7,1)
+        f_layout.addWidget(f_cancel_button, 8, 1)
         f_cancel_button.clicked.connect(cc_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_quantize)
         f_window.exec_()
@@ -797,7 +792,8 @@ class item_list_editor:
                         
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
-            f_window.close()
+            if not f_add_another.isChecked():
+                f_window.close()
 
         def pb_cancel_handler():
             f_window.close()
@@ -837,11 +833,13 @@ class item_list_editor:
         f_end_value.setRange(-1, 1)
         f_end_value.setSingleStep(0.01)
         f_layout.addWidget(f_end_value, 6, 1)
+        f_add_another = QtGui.QCheckBox("Add another?")
+        f_layout.addWidget(f_add_another, 7, 1)
         f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 7,0)
+        f_layout.addWidget(f_ok_button, 8,0)
         f_ok_button.clicked.connect(pb_ok_handler)
         f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 7,1)
+        f_layout.addWidget(f_cancel_button, 8,1)
         f_cancel_button.clicked.connect(pb_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_pb_quantize)
         f_window.exec_()
