@@ -1242,7 +1242,7 @@ Any additional text must be enclosed in quotation marks."
 
 '''
         for k, v in sorted(f_result_dict.iteritems()):
-            f_result += str(k) + "-" + str(v[0]) + '"' + str(v[1]) + '"' + "\n"
+            f_result += str(k) + "-" + str(v[0]) + ' "' + str(v[1]) + '"' + "\n"
         f_handle = open(self.file_name, "w")
         f_handle.write(f_result)
         f_handle.close()        
