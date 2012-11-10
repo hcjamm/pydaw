@@ -1,0 +1,79 @@
+****PyDAW Features****
+
+
+PyDAW is a mix between a conventional DAW, a tracker, a drum machine, and pots & pans + a wooden spoon.
+
+PyDAW is designed specifically for people making MIDI-based electronic music.  Cubase and it's many DAW clones take multitrack recording software and shoehorn in the ability to use MIDI and plugins, then throw a piano roll editor(and sometimes a notation editor) which may look pretty, but don't offer an effortless workflow for composing MIDI-based music from scratch.  PyDAW does the opposite:  MIDI is first and foremost, then shoehorns in 2nd rate features for recording a band, etc...
+
+A full suite of high quality plugins, including an integrated sampler, synthesizer and effects(does not support any 3rd party plugins, nor are there plans to)
+
+High precision audio/MIDI engine.  MIDI in the host is capable of sub-sample accuracy, plugins are limited to being sample accurate.  External ALSA MIDI is recorded with sample accuracy (dependent on the accuracy of the device)
+
+Powerful multithreaded plugin host with an intelligent scheduler and event-loop based worker threads.  Tests showed near linear scaling across at least 8 cores.
+
+
+****Sampler Features****
+
+32 voices, up to 32 samples, and up to 32 mono effects groups(effects groups can be shared)
+1 polyphonic effects groups per instance, with mod
+
+Interpolation modes:  High Quality(33pt SINC), Low Quality(Linear) and No Interpolation(for drum samples, etc...).  I'm contemplating an even higher quality High Quality mode.
+
+
+****Minimum system requirements****
+
+Dual core CPU supporting SSE3 (most Athlon64 CPUs and all later AMD CPUs, Intel Pentium4 or later)
+2GB RAM
+
+
+****Recommended system****
+
+3.0ghz+ quad core(Phenom II, Nehalem or later)
+8GB RAM
+
+
+****Ultimate system****
+
+AMD FX series 8-core
+8GB+ RAM
+Fast SSD
+
+
+****FAQ and known issues, in a Q&A format****
+
+Q: My L337 Intel processor can't adequately run PyDAW, your software sucks
+A: Turn off hyperthreading
+
+Q: But the hardware review sites said that hyperthreading is like having twice as many cores for free
+A: No, it's not, and fine, don't turn it off...
+
+Q: What's the best soundcard for running PyDAW?
+A: I'm running a Focusrite Saffire Pro 14 Firewire and it works reasonably well..  Any card that's known to work well with Jack should be fine.
+
+Q: What's a good MIDI controller?
+A: I use an M-Audio Oxygen 49, and have had no problems with it.  Please note that PyDAW currently only supports ALSA MIDI, and not Jack MIDI(although you may be able to hack it with 3rd party utilities).
+
+Q: What's the best CPU for running PyDAW?
+A: It's been thoroughly tested on AMD FX, Trinity and Llano CPUs, and Intel Ivy Bridge, and less thoroughly on a few older platforms.  All of the CPUs basically tie in instructions-per-clock-per-core(even when compiled with -march=native there are no improvements past SSE3), so it comes down to who gives you the most cores and highest clocks.  Having said that, like any other DAW, any quad core ever made should be adequate for anybody's needs.
+
+Q: The UI sucks, and the choice in colors makes me question your sexual orientation.
+A: I'm not a graphic designer by trade, so you won't hurt my feelings by sending me a patch to fix some of the less pleasing aspects of the color theme, like that awful gap above the track groupbox that drives me nuts that I don't know how to fix...
+
+Q: Why don't you allow 3rd party plugins?
+A: Stability, integration, and the ability to guarantee dead-on-balls sample-accurate MIDI timing.  3rd party plugins can choose to ignore my attempts to trigger the note on an exact sample.  PyDAW will continue to become more tightly integrated over time, and I will continue to add more native plugins.
+
+Q: PyDAW won't start
+A: You probably haven't configured Jack correctly.  This differs per soundcard(among other factors), Google is your friend.
+
+Q: Should I be using Jack realtime mode?
+A: In theory, probably, in practice, I'm not sure if it matters that much.  I had stability issues with running Jack in realtime mode, so I'm not currently running it that way myself.  YMMV.
+
+Q: PyDAW and it's plugins are showing up in other hosts as DSSI plugins, can I use them in other hosts?
+A: PyDAW has no means of syncing transport, so it's useless as a plugin.  The other plugins, while technically usable, have some non-standard extensions that may hinder your ability to use them.  Eventually the plugin's source code will be integrated into PyDAW's source for performance reasons(among others), so I wouldn't recommend relying on anything in PyDAW as a DSSI plugin in a different host.
+
+Q: Is PyDAW written in Python.
+A: Yes, the entire UI is written in Python(a mere ~1400 lines of Python as of the time of this writing), using PyQt and only standard Qt widgets.  The audio/MIDI/plugin-hosting engine is written in C, however the 2 are completely separate, and it's possible(even relatively easy) to write a brand new UI for it, using libpydaw for sending OSC messages.  The plugin UI's are not written in Python, they are written in C++.
+
+Q: What is the license for PyDAW?
+A: GNU GPL v3.  The very few 3rd party libraries and components used may fall under a different license.
+
