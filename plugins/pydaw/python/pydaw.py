@@ -168,7 +168,7 @@ class region_list_editor:
             self.tracks.append(track)
             track.group_box.setStyleSheet(f_track_stylesheet)
             self.table_widget.setCellWidget(i, 0, track.group_box)  
-        self.table_widget.setColumnWidth(0, 380)
+        self.table_widget.setColumnWidth(0, 390)
         f_headers = ['Tracks']
         for i in range(1, 9):
             self.table_widget.setColumnWidth(i, 100)
@@ -888,8 +888,6 @@ class seq_track:
         self.group_box = QtGui.QGroupBox()        
         self.main_vlayout = QtGui.QVBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
-        self.hlayout1 = QtGui.QHBoxLayout()
-        self.main_vlayout.addLayout(self.hlayout1)
         self.hlayout2 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout2)
         self.volume_slider = QtGui.QSlider()
@@ -934,16 +932,16 @@ class seq_track:
         self.hlayout3.addWidget(self.fx_button)
         self.solo_checkbox = QtGui.QCheckBox()        
         self.solo_checkbox.clicked.connect(self.on_solo)
-        self.solo_checkbox.setStyleSheet("QCheckBox::indicator::unchecked{image: url(pydaw/solo-off.png);}QCheckBox::indicator::checked{image: url(pydaw/solo-on.png);}")
+        self.solo_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/solo-off.png);}QCheckBox::indicator::checked{image: url(pydaw/solo-on.png);}")
         self.hlayout3.addWidget(self.solo_checkbox)
         self.mute_checkbox = QtGui.QCheckBox()        
         self.mute_checkbox.clicked.connect(self.on_mute)
-        self.mute_checkbox.setStyleSheet("QCheckBox::indicator::unchecked{image: url(pydaw/mute-off.png);}QCheckBox::indicator::checked{image: url(pydaw/mute-on.png);}")
+        self.mute_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/mute-off.png);}QCheckBox::indicator::checked{image: url(pydaw/mute-on.png);}")
         self.hlayout3.addWidget(self.mute_checkbox)
         self.record_radiobutton = QtGui.QRadioButton()        
         rec_button_group.addButton(self.record_radiobutton)
         self.record_radiobutton.toggled.connect(self.on_rec)
-        self.record_radiobutton.setStyleSheet("QRadioButton::indicator::unchecked{image: url(pydaw/record-off.png);}QRadioButton::indicator::checked{image: url(pydaw/record-on.png);}")
+        self.record_radiobutton.setStyleSheet("QRadioButton{ padding: 0px; } QRadioButton::indicator::unchecked{image: url(pydaw/record-off.png);}QRadioButton::indicator::checked{image: url(pydaw/record-on.png);}")
         self.hlayout3.addWidget(self.record_radiobutton)
         self.suppress_osc = False
         
