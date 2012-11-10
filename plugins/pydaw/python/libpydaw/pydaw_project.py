@@ -11,6 +11,15 @@ from dssi_gui import dssi_gui
 
 pydaw_terminating_char = "\\"
 
+pydaw_bad_chars = ["|", "\\", "~"]
+
+def pydaw_remove_bad_chars(a_str):
+    """ Remove any characters that have special meaning to PyDAW """
+    f_str = str(a_str)
+    for f_char in pydaw_bad_chars:
+        f_str = f_str.replace(f_char, "")
+    return f_str
+
 beat_fracs = ['1/16', '1/8', '1/4', '1/3', '1/2', '1/1']
 
 def beat_frac_text_to_float(f_index):

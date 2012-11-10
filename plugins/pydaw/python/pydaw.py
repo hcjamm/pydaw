@@ -861,6 +861,7 @@ class seq_track:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_name_changed(self):
+        self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_instrument_change(self, selected_instrument):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
