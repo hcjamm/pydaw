@@ -66,6 +66,7 @@ extern "C" {
 #include "pydaw_files.h"
 #include "pydaw_plugin.h"
 #include <sys/stat.h>
+#include <unistd.h>
 #include "../../libmodsynth/lib/amp.h"
     
 typedef struct st_pynote
@@ -130,6 +131,12 @@ typedef struct st_pytrack
     t_pydaw_plugin * effect;
 }t_pytrack;
 
+typedef struct
+{
+    int track_number;
+    int sample_count;    
+}t_pydaw_work_queue_item;
+
 typedef struct st_pydaw_data
 {
     int is_initialized;
@@ -186,7 +193,23 @@ typedef struct st_pydaw_data
     t_amp * amp_ptr;
     
     pthread_mutex_t quit_mutex;  //must be acquired to free memory, to protect saving on exit...
+    
+    pthread_mutex_t track_cond_mutex;  //For signaling to process the instruments
+    pthread_cond_t track_cond;   //For broadcasting to the threads that it's time to process the tracks
+    pthread_mutex_t * track_block_mutexes;  //For preventing the main thread from continuing until the workers finish
+    pthread_t * track_worker_threads;
+    t_pydaw_work_queue_item ** track_work_queues;
+    int * track_work_queue_counts;
+    int track_worker_thread_count;
+    int * track_thread_quit_notifier;
+    
 }t_pydaw_data;
+
+typedef struct 
+{
+    t_pydaw_data * pydaw_data;
+    int thread_num;
+}t_pydaw_thread_args;
 
 void g_pysong_get(t_pydaw_data*, const char*);
 t_pytrack * g_pytrack_get();
@@ -214,6 +237,52 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
 int g_pyitem_get_new(t_pydaw_data* a_pydaw_data);
 t_pyregion * g_pyregion_get_new(t_pydaw_data* a_pydaw_data);
 void v_pydaw_set_track_volume(t_pydaw_data * a_pydaw_data, int a_track_num, float a_vol);
+t_pydaw_work_queue_item * g_pydaw_work_queue_item_get();
+
+
+void * v_pydaw_worker_thread(void*);
+
+void * v_pydaw_worker_thread(void* a_arg)
+{
+    t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)(a_arg);
+    
+    while(1)
+    {
+        pthread_cond_wait(&f_args->pydaw_data->track_cond, &f_args->pydaw_data->track_cond_mutex);
+        
+        if(f_args->pydaw_data->track_thread_quit_notifier[f_args->thread_num])
+        {            
+            printf("worker thread %i exiting...\n", f_args->thread_num);
+            break;
+        }
+        
+        pthread_mutex_lock(&f_args->pydaw_data->track_block_mutexes[f_args->thread_num]);
+        
+        int f_i = 0;
+        while(f_i < f_args->pydaw_data->track_work_queue_counts[f_args->thread_num])
+        {
+            t_pydaw_work_queue_item f_item = f_args->pydaw_data->track_work_queues[f_args->thread_num][f_i];
+            v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->instrument, f_item.sample_count, 
+                    f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
+                    f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
+                        
+            memcpy(f_args->pydaw_data->track_pool[f_item.track_number]->effect->pluginInputBuffers[0], 
+                    f_args->pydaw_data->track_pool[f_item.track_number]->instrument->pluginOutputBuffers[0], 
+                    f_item.sample_count * sizeof(LADSPA_Data));
+            memcpy(f_args->pydaw_data->track_pool[f_item.track_number]->effect->pluginInputBuffers[1], 
+                    f_args->pydaw_data->track_pool[f_item.track_number]->instrument->pluginOutputBuffers[1], 
+                    f_item.sample_count * sizeof(LADSPA_Data));
+            
+            v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->effect, f_item.sample_count, 
+                    f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
+                    f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
+                        
+            f_i++;
+        }
+        
+        pthread_mutex_unlock(&f_args->pydaw_data->track_block_mutexes[f_args->thread_num]);
+    }
+}
 
 /*End declarations.  Begin implementations.*/
 
@@ -742,9 +811,38 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->recording_current_item_pool_index = -1;
     f_result->recording_first_item = -1;
     
-    f_result->amp_ptr = g_amp_get();
+    f_result->amp_ptr = g_amp_get();    
     
     int f_i = 0;
+    
+    /*Begin threading stuff*/
+    
+    pthread_mutex_init(&f_result->track_cond_mutex, NULL);
+    pthread_cond_init(&f_result->track_cond, NULL);
+    f_result->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN );    
+    f_result->track_block_mutexes = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t) * (f_result->track_worker_thread_count));
+    f_result->track_worker_threads = (pthread_t*)malloc(sizeof(pthread_t) * (f_result->track_worker_thread_count));
+    f_result->track_work_queues = (t_pydaw_work_queue_item**)malloc(sizeof(t_pydaw_work_queue_item*) * (f_result->track_worker_thread_count));
+    f_result->track_work_queue_counts = (int*)malloc(sizeof(int) * (f_result->track_worker_thread_count));
+    f_result->track_thread_quit_notifier = (int*)malloc(sizeof(int) * (f_result->track_worker_thread_count));
+    
+    while(f_i < (f_result->track_worker_thread_count))
+    {
+        pthread_mutex_init(&f_result->track_block_mutexes[f_i], NULL);
+        f_result->track_work_queues[f_i] = (t_pydaw_work_queue_item*)malloc(sizeof(t_pydaw_work_queue_item) * 32);  //Max 32 work items per thread...
+        f_result->track_work_queue_counts[f_i] = 0;
+        f_result->track_thread_quit_notifier[f_i] = 0;
+        t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)malloc(sizeof(t_pydaw_thread_args));
+        f_args->pydaw_data = f_result;
+        f_args->thread_num = f_i;
+        pthread_create(&f_result->track_worker_threads[f_i], NULL, v_pydaw_worker_thread, (void*)f_args);        
+        f_i++;
+    }
+        
+    /*End threading stuff*/
+
+    
+    f_i = 0;
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
