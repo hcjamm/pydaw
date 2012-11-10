@@ -254,15 +254,23 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
     a_pydaw_data->track_thread_quit_notifier = (int*)malloc(sizeof(int) * (a_pydaw_data->track_worker_thread_count));
 
     while(f_i < (a_pydaw_data->track_worker_thread_count))
-    {
+    {        
         pthread_mutex_init(&a_pydaw_data->track_block_mutexes[f_i], NULL);
         a_pydaw_data->track_work_queues[f_i] = (t_pydaw_work_queue_item*)malloc(sizeof(t_pydaw_work_queue_item) * 32);  //Max 32 work items per thread...
         a_pydaw_data->track_work_queue_counts[f_i] = 0;
         a_pydaw_data->track_thread_quit_notifier[f_i] = 0;
         t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)malloc(sizeof(t_pydaw_thread_args));
         f_args->pydaw_data = a_pydaw_data;
-        f_args->thread_num = f_i;
-        pthread_create(&a_pydaw_data->track_worker_threads[f_i], NULL, v_pydaw_worker_thread, (void*)f_args);        
+        f_args->thread_num = f_i;     
+        
+        pthread_attr_t threadAttr;
+        struct sched_param param;
+        pthread_attr_init(&threadAttr);
+        pthread_attr_setstacksize(&threadAttr, 32768);
+        pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
+        pthread_create(&a_pydaw_data->track_worker_threads[f_i], &threadAttr, v_pydaw_worker_thread, (void*)f_args);
+        pthread_attr_destroy(&threadAttr);
+        
         f_i++;
     }
 }
@@ -291,6 +299,19 @@ inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin)
 
 void * v_pydaw_worker_thread(void* a_arg)
 {
+    struct sched_param param;
+    int policy;
+    pthread_t thread_id = pthread_self();
+    pthread_getschedparam(thread_id, &policy, &param);
+
+    printf("existing policy=%1d, priority=%1d\r\n",
+    policy,param.sched_priority);
+    //..This yields policy=SCHED_OTHER, priority=0..
+
+    policy = SCHED_RR;
+    param.sched_priority = 90;
+    pthread_setschedparam(thread_id, policy, &param);
+    
     t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)(a_arg);
     
     while(1)
