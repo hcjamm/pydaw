@@ -62,6 +62,9 @@ class song_editor:
 
             def song_cancel_handler():
                 f_window.close()
+                            
+            def on_name_changed():
+                f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
 
             f_window = QtGui.QDialog()
             f_layout = QtGui.QGridLayout()
@@ -72,6 +75,7 @@ class song_editor:
             f_layout.addWidget(QtGui.QLabel("New:"), 0, 1)
             f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_region_name())
             f_new_lineedit.setMaxLength(24)
+            f_new_lineedit.editingFinished.connect(on_name_changed)
             f_layout.addWidget(f_new_lineedit, 0, 2)
             f_copy_radiobutton = QtGui.QRadioButton()
             f_layout.addWidget(f_copy_radiobutton, 1, 0)
@@ -245,6 +249,9 @@ class region_list_editor:
             
         def copy_combobox_index_changed(a_index):
             f_copy_radiobutton.setChecked(True)
+            
+        def on_name_changed():
+            f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
 
         f_window = QtGui.QDialog()
         f_layout = QtGui.QGridLayout()
@@ -256,6 +263,7 @@ class region_list_editor:
         f_layout.addWidget(f_new_radiobutton, 0, 0)
         f_layout.addWidget(QtGui.QLabel("New:"), 0, 1)
         f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_item_name())
+        f_new_lineedit.editingFinished.connect(on_name_changed)
         f_new_lineedit.setMaxLength(24)
         f_layout.addWidget(f_new_lineedit, 0, 2)
         f_layout.addLayout(f_vlayout0, 1, 0)        
