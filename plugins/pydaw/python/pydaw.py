@@ -65,6 +65,9 @@ class song_editor:
                             
             def on_name_changed():
                 f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
+                
+            def on_current_index_changed(a_index):
+                f_copy_radiobutton.setChecked(True)
 
             f_window = QtGui.QDialog()
             f_layout = QtGui.QGridLayout()
@@ -81,6 +84,7 @@ class song_editor:
             f_layout.addWidget(f_copy_radiobutton, 1, 0)
             f_copy_combobox = QtGui.QComboBox()
             f_copy_combobox.addItems(this_pydaw_project.get_region_list())
+            f_copy_combobox.currentIndexChanged.connect(on_current_index_changed)
             f_layout.addWidget(QtGui.QLabel("Copy from:"), 1, 1)
             f_layout.addWidget(f_copy_combobox, 1, 2)
             f_ok_button = QtGui.QPushButton("OK")
