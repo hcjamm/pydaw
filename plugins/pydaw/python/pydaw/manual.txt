@@ -1,0 +1,70 @@
+(this manual is still very much a work-in-progress)
+
+****Concepts****
+
+A project contains tracks(MIDI/plugin) and a song
+A song contains regions, which are 8-bar long groups of items
+regions contain items
+items contain notes, CC automation and pitchbend automation
+
+A song contains 16 MIDI/plugin tracks that you can select Euphoria(sampler) or Ray-V(synth) from.  Each track also has one instance of Modulex, which contains 8 multieffect units and one delay unit.
+
+One MIDI keyboard can be used at at time, selected from "MIDI In:" on the transport.  Only one track can record MIDI at a time, clicking the [R] button on one track disables it on any others.
+
+Projects are currently immediately saved with each item/region/song change, there is no undo...  Saving from the file or quit menu only saves the instrument state.  This will eventually change.
+
+
+****Editing****
+
+Click to add regions to the song editor or items to the region editor or notes/CCs/pitchbend to the item editor
+
+Double-click an item to open it
+
+Click (or CTRL+click or SHIFT+click) and drag to move items
+
+Click and then the Delete key to remove items
+
+
+****Items****
+
+Can only be 1 bar in length, HOWEVER, the notes contained with the item can be much longer than 1 bar...  
+
+When adding a reference to an existing items, the 2 are identical, and changing one will result in changing the other...  When copying from an existing item, changes to the new item will not be reflected in the old item, and vice-versa.
+
+
+****Getting Started****
+
+1. Open PyDAW
+2. Change the instrument combobox on track1 to open a plugin
+3. Click on the first cell in the song editor at the top, create a region and name it something(like intro-1, outro, chorus, bridge, etc...)
+4. Click on the first cell on track1 in the region editor, and create an item and name it appropriate(drum-loop1, synth-loop1, etc...)
+5. Click on track1's [FX ] button, and fiddle with the knobs(or open samples in Euphoria)
+6. Double click on the item you created in step4 to open in the item editor.
+7. Add some notes
+8. Change the 'loop mode' combobox on the transport to bar loop mode
+9. Click the play button, you should now hear your MIDI item looping
+
+
+****Recording****
+
+1. Click the [R] button on the track you wish to record(open a plugin on that track if you haven't already done so)
+2. Select your MIDI device from the 'MIDI In' dropdown on the transport
+3. Play a few notes to verify that it works(you can also move some knobs, the pitchbend wheel)
+4. Press the record button on the transport panel, and play some notes
+5. Hit the stop button when finished, and wait a few seconds for PyDAW to re-sync
+6. You should now see the items you recorded
+
+
+****Automation****
+
+1. Done using conventional MIDI CCs, which can be edited on the CC map tab to match your MIDI controller
+
+Changing playback start position:
+
+Use the 'Region' and 'Bar' boxes on the transport panel
+
+
+****Tips & Tricks****
+
+1.  Use Euphoria's "Map all samples to 1 white key" option in the menu to create drum patches.
+2.  Use the 'bar' and 'region' controls in the transport panel to change the position that playback starts from

@@ -1138,8 +1138,28 @@ class pydaw_main_window(QtGui.QMainWindow):
         if f_new_file:        
             this_pydaw_project.save_project_as(f_new_file)
 
+    def on_user_manual(self):
+        self.show_help_file("pydaw/manual.txt")
+    
+    def on_about(self):
+        self.show_help_file("pydaw/about.txt")
+
     def __init__(self):
         self.initUI()
+        
+    def show_help_file(self, a_file):
+        f_window = QtGui.QDialog()
+        f_window.setWindowTitle(a_file)
+        f_window.setMinimumHeight(600)
+        f_window.setMinimumWidth(600)
+        f_text_edit = QtGui.QTextEdit()
+        f_text_edit.setAutoFormatting(QtGui.QTextEdit.AutoAll)
+        f_text_edit.setText(open(a_file).read())
+        f_text_edit.setReadOnly(True)        
+        f_layout = QtGui.QVBoxLayout()
+        f_window.setLayout(f_layout)
+        f_layout.addWidget(f_text_edit)        
+        f_window.exec_()
 
     def initUI(self):
         QtGui.QMainWindow.__init__(self)
@@ -1173,6 +1193,16 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.save_as_action = QtGui.QAction("Save As...", self)
         self.menu_file.addAction(self.save_as_action)
         self.save_as_action.triggered.connect(self.on_save_as)
+
+        self.menu_help = self.menu_bar.addMenu("&Help")
+        
+        self.manual_action = QtGui.QAction("User Manual...", self)
+        self.menu_help.addAction(self.manual_action)
+        self.manual_action.triggered.connect(self.on_user_manual)
+        
+        self.about_action = QtGui.QAction("About...", self)
+        self.menu_help.addAction(self.about_action)
+        self.about_action.triggered.connect(self.on_about)
 
         self.transport_hlayout = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.transport_hlayout)
