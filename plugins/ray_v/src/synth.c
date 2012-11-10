@@ -436,15 +436,15 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 
 static void v_run_rayv_voice(t_rayv *plugin_data, t_rayv_synth_vals *vals, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
 {   
-    /*Process an audio block*/
-    for(a_voice->i_voice = 0; (a_voice->i_voice)<count;a_voice->i_voice = (a_voice->i_voice) + 1) 
-    {        
-        //Delay the note-on event until the sample it was called for  TODO:  skip this and just start writing further down the buffer
-        if(((plugin_data->sampleNo) + (a_voice->i_voice)) < (a_poly_voice.on))
-        {
-            continue;
-        }
-        
+    a_voice->i_voice = 0;
+    
+    if((plugin_data->sampleNo) < (a_poly_voice.on))
+    {
+        a_voice->i_voice =  (a_poly_voice.on) - (plugin_data->sampleNo);
+    }
+    
+    for(; (a_voice->i_voice)<count;a_voice->i_voice = (a_voice->i_voice) + 1) 
+    {           
         if ((((a_voice->i_voice) + (plugin_data->sampleNo)) == a_poly_voice.off) && ((a_voice->adsr_amp->stage) < 3))
         {
             if(a_poly_voice.n_state == note_state_killed)
