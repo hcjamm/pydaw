@@ -1549,6 +1549,10 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
         {
             remove(f_file_name);
         }
+        if(i_pydaw_file_exists(f_file_name_fx))
+        {
+            remove(f_file_name_fx);
+        }
         
         a_pydaw_data->track_pool[a_track_num]->instrument = NULL;
         a_pydaw_data->track_pool[a_track_num]->effect = NULL;
@@ -1578,7 +1582,10 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
         if(((a_pydaw_data->track_pool[a_track_num]->plugin_index) != 0) && i_pydaw_file_exists(f_file_name))
         {
             remove(f_file_name);
-            //TODO:  the .pyfx file also?
+        }
+        if(((a_pydaw_data->track_pool[a_track_num]->plugin_index) != 0) && i_pydaw_file_exists(f_file_name_fx))
+        {
+            remove(f_file_name_fx);
         }
         
         t_pydaw_plugin * f_inst = a_pydaw_data->track_pool[a_track_num]->instrument;
