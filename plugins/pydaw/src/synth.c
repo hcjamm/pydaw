@@ -38,6 +38,9 @@ GNU General Public License for more details.
 #include <unistd.h>
 #include <alsa/asoundlib.h>
 
+//Print detailed information about the MIDI data being sent from PyDAW
+//#define PYDAW_PRINT_DEBUG_INFO
+
 static LADSPA_Descriptor *LMSLDescriptor = NULL;
 static DSSI_Descriptor *LMSDDescriptor = NULL;
 
@@ -274,7 +277,9 @@ static inline void v_pydaw_process_external_midi(unsigned long sample_count, snd
                         pydaw_data->recording_in_current_bar = 1;
                         if(!pydaw_data->pysong->regions[(pydaw_data->current_region)])
                         {
+#ifdef PYDAW_PRINT_DEBUG_INFO
                             printf("\nRecording:  Creating new empty region at %i\n\n", (pydaw_data->current_region));
+#endif
                             pydaw_data->pysong->regions[(pydaw_data->current_region)] = g_pyregion_get_new(pydaw_data);
                         }
                         pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(pydaw_data);
@@ -305,8 +310,9 @@ static inline void v_pydaw_process_external_midi(unsigned long sample_count, snd
                                 ((pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
                                 * (pydaw_data->playback_inc))) * 4.0f;
                         pydaw_data->recorded_notes_velocity_tracker[n.note] = n.velocity;
-
+#ifdef PYDAW_PRINT_DEBUG_INFO
                         printf("\nRecording:  Initiating new note_on event\n\n");
+#endif
                     }
                 }
                 else if(events[f_i2].type == SND_SEQ_EVENT_NOTEOFF)
@@ -324,8 +330,9 @@ static inline void v_pydaw_process_external_midi(unsigned long sample_count, snd
                         double f_length = ((double)((pydaw_data->recorded_note_current_beat) - (pydaw_data->recorded_notes_beat_tracker[n.note])))
                                 +  ((((pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
                                 * (pydaw_data->playback_inc))) * 4.0f) - (pydaw_data->recorded_notes_start_tracker[n.note]));
-
+#ifdef PYDAW_PRINT_DEBUG_INFO
                         printf("\nRecording:  Writing new note_on event f_length == %lf\n\n", f_length);
+#endif
                         int f_index = (pydaw_data->recorded_notes_item_tracker[n.note]);                                
                         pydaw_data->item_pool[f_index]->notes[(pydaw_data->item_pool[f_index]->note_count)] = 
                                 g_pynote_get(n.note,
@@ -360,7 +367,9 @@ static inline void v_pydaw_process_external_midi(unsigned long sample_count, snd
                 else if(events[f_i2].type == SND_SEQ_EVENT_CONTROLLER)
                 {
                     int controller = events[f_i2].data.control.param;
+#ifdef PYDAW_PRINT_DEBUG_INFO
                     printf("\n\nALSA MIDI CC event:  c.param == %i, c.value == %i\n\n", events[f_i2].data.control.param, events[f_i2].data.control.value);
+#endif
                     if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
                     {
                         long controlIn = pydaw_data->track_pool[f_i]->instrument->controllerMap[controller];
@@ -529,17 +538,18 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                                 float f_note_start_diff = ((f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->start) - f_track_current_period_beats) + f_track_beats_offset;
                                 float f_note_start_frac = f_note_start_diff / f_sample_period_inc_beats;
                                 f_note_sample_offset =  (int)(f_note_start_frac * ((float)sample_count));                            
-
+#ifdef PYDAW_PRINT_DEBUG_INFO
                                 printf("\n\nSending note_on event\nf_i = %i, f_note_start_diff = %f, f_sample_period_inc_beats = %f, f_note_start_frac = %f, f_note_sample_offset = %i, sample_count = %i, pydaw_data->current_sample = %ld\n\n", 
                                         f_i, f_note_start_diff, f_sample_period_inc_beats, f_note_start_frac, f_note_sample_offset, (int)sample_count, pydaw_data->current_sample);
-
+#endif
                                 snd_seq_ev_set_noteon(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)], 0,
                                         f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->note,
                                         f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->velocity);
-                                
+#ifdef PYDAW_PRINT_DEBUG_INFO                                
                                 printf("\nsnd_seq_ev_set_noteon(event_buffer[%i], 0, %i, %i)\n", pydaw_data->track_pool[f_i]->current_period_event_index,
                                         f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->note,
                                         f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->velocity);
+#endif                            
 
                                 pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)].time.tick = f_note_sample_offset;
 
@@ -894,8 +904,9 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                         }
                     }
                 }
-
+#ifdef PYDAW_PRINT_DEBUG_INFO
                 printf("pydaw_data->current_region == %i, pydaw_data->current_bar == %i\n", (pydaw_data->current_region), (pydaw_data->current_bar));                
+#endif
             }
         } //If playback_mode > 0
         else
@@ -915,8 +926,10 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                 if((pydaw_data->note_offs[f_i][f_i2]) >= (pydaw_data->current_sample) &&
                    (pydaw_data->note_offs[f_i][f_i2]) < f_next_current_sample)
                 {
+#ifdef PYDAW_PRINT_DEBUG_INFO                    
                     printf("\n\nSending note_off event\nf_i = %i, pydaw_data->note_offs[f_i][f_i2] = %ld, pydaw_data->current_sample = %ld\n\n", 
                                 f_i, pydaw_data->note_offs[f_i][f_i2], pydaw_data->current_sample);
+#endif                    
                     snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)]);
 
                     snd_seq_ev_set_noteoff(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)], 0, f_i2, 0);
@@ -1125,9 +1138,16 @@ void _fini()
     v_pydaw_close_all_uis(pydaw_data);
     
     sleep(3);
+#ifdef PYDAW_PRINT_DEBUG_INFO    
     printf("Destructor locking mutex...\n");
+#endif
+    
     pthread_mutex_lock(&pydaw_data->quit_mutex);
+    
+#ifdef PYDAW_PRINT_DEBUG_INFO    
     printf("Destructor unlocking mutex...\n\n\n");
+#endif
+    
     pthread_mutex_unlock(&pydaw_data->quit_mutex);
     
     int f_i = 0;
