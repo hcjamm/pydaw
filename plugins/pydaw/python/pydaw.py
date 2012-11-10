@@ -164,7 +164,7 @@ class region_list_editor:
             self.tracks.append(track)
             track.group_box.setStyleSheet(f_track_stylesheet)
             self.table_widget.setCellWidget(i, 0, track.group_box)  
-        self.table_widget.setColumnWidth(0, 350)
+        self.table_widget.setColumnWidth(0, 380)
         f_headers = ['Tracks']
         for i in range(1, 9):
             self.table_widget.setColumnWidth(i, 100)
@@ -860,23 +860,18 @@ class seq_track:
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-    def on_name_changed(self, new_name):
+    def on_name_changed(self):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_instrument_change(self, selected_instrument):
-        if selected_instrument == 0:
-            self.track_name_lineedit.setEnabled(True)
-        else:
-            self.track_name_lineedit.setEnabled(False)
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
     def on_show_ui(self):
         if self.instrument_combobox.currentIndex() > 0:
-            this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
-            
+            this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)            
     def on_show_fx(self):
         if self.instrument_combobox.currentIndex() > 0:
-            this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number)
+            this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number)    
 
     def __init__(self, a_track_num, a_track_text="track"):
         self.suppress_osc = True
@@ -907,7 +902,8 @@ class seq_track:
         self.track_name_lineedit.setText(a_track_text)
         self.track_name_lineedit.setMaxLength(24)
         self.track_name_lineedit.setMaximumWidth(90)
-        self.track_name_lineedit.textChanged.connect(self.on_name_changed)
+        self.track_name_lineedit.setMinimumWidth(90)
+        self.track_name_lineedit.editingFinished.connect(self.on_name_changed)
         self.hlayout3.addWidget(self.track_name_lineedit)
         self.instrument_combobox = QtGui.QComboBox()
         self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V"])
