@@ -770,17 +770,13 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
     unsigned long event_pos = 0;
     int i, i2, i3;
 
-    for (i = 0; i < plugin_data->channels; ++i) {
+    for (i = 0; i < plugin_data->channels; ++i)
+    {
 	memset(plugin_data->output[i], 0, sample_count * sizeof(float));
     }
     
-    if (pthread_mutex_lock(&plugin_data->mutex)) {
-	return;
-    }
-
-    if (!plugin_data->sampleData || !plugin_data->sampleCount) {
-	plugin_data->sampleNo += sample_count;
-	pthread_mutex_unlock(&plugin_data->mutex);
+    if (pthread_mutex_lock(&plugin_data->mutex))
+    {
 	return;
     }
     
@@ -789,11 +785,9 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
     if((plugin_data->i_slow_index) >= EUPHORIA_SLOW_INDEX_COUNT)
     {
         v_euphoria_slow_index(plugin_data);
-    }
-    
+    }    
     
     int f_note = 60;
-    //int f_note_adjusted = 60;
 
     while (event_pos < event_count) // && pos >= events[event_pos].time.tick) 
     {
@@ -806,8 +800,6 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
             
             if (n.velocity > 0) 
             {
-                //plugin_data->ons[f_note] = plugin_data->sampleNo + events[event_pos].time.tick;
-                //plugin_data->offs[f_note] = -1;
                 int f_voice_num = i_pick_voice(plugin_data->voices, f_note, (plugin_data->sampleNo), events[event_pos].time.tick);
                 plugin_data->velocities[f_voice_num] = n.velocity;
 
