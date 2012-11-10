@@ -1102,6 +1102,27 @@ void _fini()
     printf("Destructor unlocking mutex...\n\n\n");
     pthread_mutex_unlock(&pydaw_data->quit_mutex);
     
+    int f_i = 0;
+    while(f_i < pydaw_data->track_worker_thread_count)
+    {
+        pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);        
+        pydaw_data->track_thread_quit_notifier[f_i] = 1;        
+        pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
+        f_i++;
+    }
+    
+    pthread_mutex_lock(&pydaw_data->track_cond_mutex);
+    pthread_cond_broadcast(&pydaw_data->track_cond);
+    pthread_mutex_unlock(&pydaw_data->track_cond_mutex);
+    
+    f_i = 0;
+    while(f_i < pydaw_data->track_worker_thread_count)
+    {
+        pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);
+        pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
+        f_i++;
+    }
+        
     if (LMSLDescriptor) {
 	free((LADSPA_PortDescriptor *) LMSLDescriptor->PortDescriptors);
 	free((char **) LMSLDescriptor->PortNames);
