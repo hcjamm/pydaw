@@ -1547,12 +1547,12 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
 
         if(a_pydaw_data->track_pool[a_track_num]->instrument)
         {
-            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->instrument);
+            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_track_num]->instrument);
         }
         
         if(a_pydaw_data->track_pool[a_track_num]->effect)
         {
-            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_index]->effect);
+            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_track_num]->effect);
         }        
         
         a_pydaw_data->track_pool[a_track_num]->instrument = NULL;

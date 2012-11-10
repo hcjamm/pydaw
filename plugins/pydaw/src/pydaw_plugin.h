@@ -381,35 +381,35 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
 }
 
 void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
-{
-    /*TODO:  This isn't all of the pointers to be free'd*/
-    //free(a_plugin->pluginControlInPortNumbers);
-    //free(a_plugin->pluginControlIns);
-    //free(a_plugin->pluginControlOuts);
-    //free(a_plugin->pluginPortControlInNumbers);
-    //free(a_plugin->pluginPortUpdated);
-    if (a_plugin->uiTarget) {
+{    
+    if(a_plugin)
+    {
+        if (a_plugin->uiTarget) {
         lo_send(a_plugin->uiTarget, a_plugin->ui_osc_quit_path, "");
         lo_address_free(a_plugin->uiTarget);
         a_plugin->uiTarget = NULL;
-    }
+        }
 
-    if (a_plugin->uiSource) {
-        lo_address_free(a_plugin->uiSource);
-        a_plugin->uiSource = NULL;
-    }
+        if (a_plugin->uiSource) {
+            lo_address_free(a_plugin->uiSource);
+            a_plugin->uiSource = NULL;
+        }
 
-    if (a_plugin->descriptor->LADSPA_Plugin->deactivate) {
-        a_plugin->descriptor->LADSPA_Plugin->deactivate(a_plugin->ladspa_handle);
-    }
+        if (a_plugin->descriptor->LADSPA_Plugin->deactivate) 
+        {
+            a_plugin->descriptor->LADSPA_Plugin->deactivate(a_plugin->ladspa_handle);
+        }
 
-    if (a_plugin->descriptor->LADSPA_Plugin->cleanup) {
-        a_plugin->descriptor->LADSPA_Plugin->cleanup(a_plugin->ladspa_handle);
-    }
-    
-    if(a_plugin)
-    {
+        if (a_plugin->descriptor->LADSPA_Plugin->cleanup) 
+        {
+            a_plugin->descriptor->LADSPA_Plugin->cleanup(a_plugin->ladspa_handle);
+        }
+
         free(a_plugin);
+    }
+    else
+    {
+        printf("Error, attempted to free NULL plugin with v_free_pydaw_plugin()\n");
     }
 }
 
