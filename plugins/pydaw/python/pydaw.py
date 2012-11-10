@@ -437,7 +437,15 @@ class item_list_editor:
         self.delete_radiobutton = QtGui.QRadioButton("Delete")
         self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
         self.add_radiobutton.setChecked(True)
-        self.main_vlayout.addWidget(self.edit_mode_groupbox, alignment=QtCore.Qt.AlignRight)        
+        self.editing_hboxlayout = QtGui.QHBoxLayout()
+        self.main_vlayout.addLayout(self.editing_hboxlayout)
+        self.item_name_line_edit = QtGui.QLineEdit()
+        self.item_name_line_edit.setMaximumWidth(200)
+        self.item_name_line_edit.setEnabled(False)
+        self.editing_hboxlayout.addWidget(QtGui.QLabel("Editing Item:"))
+        self.editing_hboxlayout.addWidget(self.item_name_line_edit)
+        self.editing_hboxlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        self.editing_hboxlayout.addWidget(self.edit_mode_groupbox, alignment=QtCore.Qt.AlignRight)
         
         self.main_vlayout.addLayout(self.main_hlayout)
 
@@ -540,6 +548,7 @@ class item_list_editor:
 
     def open_item(self, a_item_name):
         self.enabled = True
+        self.item_name_line_edit.setText(a_item_name)
         self.notes_table_widget.clear()
         self.ccs_table_widget.clear()
         self.pitchbend_table_widget.clear()
