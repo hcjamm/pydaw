@@ -1013,35 +1013,50 @@ class seq_track:
 
 class transport_widget:
     def init_playback_cursor(self, a_bar=True):
-        this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+        if this_song_editor.table_widget.item(0, self.region_spinbox.value()) is not None:
+            this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
         if a_bar:        
             this_region_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
         else:
             this_region_editor.table_widget.clearSelection()
         this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
     def on_play(self):
+        if self.is_recording:
+            self.rec_button.setChecked(True)
+            return
+        if self.is_playing:
+            self.region_spinbox.setValue(self.last_region_num)
+            self.bar_spinbox.setValue(self.last_bar)            
+        self.is_playing = True
         self.init_playback_cursor()
         self.last_region_num = self.region_spinbox.value()
         self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_play(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
-        f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
+        f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))        
+        self.beat_timer.stop()
         self.beat_timer.start(f_playback_inc)
     def on_stop(self):
+        if not self.is_playing and not self.is_recording:
+            return
         this_pydaw_project.this_dssi_gui.pydaw_stop()
         self.beat_timer.stop()
         self.bar_spinbox.setValue(self.last_bar)
         self.region_spinbox.setValue(self.last_region_num)
-        if self.recording:
+        if self.is_recording:
             sleep(2)  #Give it some time to flush the recorded items to disk...
-            self.recording = False            
+            self.is_recording = False            
             if(this_region_editor.enabled):
                 this_region_editor.open_region(this_region_editor.region.name)
             this_song_editor.open_song()
+        self.is_playing = False            
         this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
         self.init_playback_cursor(a_bar=False)
     def on_rec(self):
+        if self.is_playing:
+            self.play_button.setChecked(True)
+            return
         self.init_playback_cursor()
-        self.recording = True
+        self.is_recording = True
         self.last_region_num = self.region_spinbox.value()
         self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_rec()
@@ -1103,7 +1118,8 @@ class transport_widget:
 
     def __init__(self):
         self.suppress_osc = True
-        self.recording = False
+        self.is_recording = False
+        self.is_playing = False
         self.last_bar = 0
         self.transport = pydaw_transport()
         self.group_box = QtGui.QGroupBox()
