@@ -23,6 +23,8 @@ extern "C" {
     
 #define PYDAW_MAX_BUFFER_SIZE 4096
     
+//#define PYDAW_PLUGIN_MEMCHECK
+
 LADSPA_Data g_pydaw_get_port_default(const LADSPA_Descriptor *plugin, int port, int sample_rate)
 {
     LADSPA_PortRangeHint hint = plugin->PortRangeHints[port];
@@ -141,6 +143,10 @@ typedef struct st_pydaw_plugin
     int ui_visible;
 }t_pydaw_plugin;
 
+#ifdef PYDAW_PLUGIN_MEMCHECK    
+void v_pydaw_plugin_memcheck(t_pydaw_plugin * a_plugin);
+#endif
+
 void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, long controlIn, snd_seq_event_t *event, int a_ci_is_port)
 {
     long port;
@@ -200,6 +206,10 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, long controlIn, snd_s
 
     instance->pluginControlIns[controlIn] = value;
     instance->pluginPortUpdated[controlIn] = 1;
+    
+#ifdef PYDAW_PLUGIN_MEMCHECK
+    v_pydaw_plugin_memcheck(instance);
+#endif
 }
 
 
@@ -377,6 +387,10 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     
     f_result->descriptor->LADSPA_Plugin->activate(f_result->ladspa_handle);
     
+#ifdef PYDAW_PLUGIN_MEMCHECK
+    v_pydaw_plugin_memcheck(f_result);
+#endif
+    
     return f_result;
 }
 
@@ -404,6 +418,10 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
         {
             a_plugin->descriptor->LADSPA_Plugin->cleanup(a_plugin->ladspa_handle);
         }
+        
+#ifdef PYDAW_PLUGIN_MEMCHECK
+    v_pydaw_plugin_memcheck(a_plugin);
+#endif
 
         free(a_plugin);
     }
@@ -416,9 +434,23 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
 void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, snd_seq_event_t * a_event_buffer, 
         int a_event_count)
 {
-    a_plugin->descriptor->run_synth(a_plugin->ladspa_handle, a_sample_count, a_event_buffer, a_event_count); 
+    a_plugin->descriptor->run_synth(a_plugin->ladspa_handle, a_sample_count, a_event_buffer, a_event_count);
+
+#ifdef PYDAW_PLUGIN_MEMCHECK
+    v_pydaw_plugin_memcheck(a_plugin);
+#endif
 }
 
+#ifdef PYDAW_PLUGIN_MEMCHECK
+/*Check for known symptoms of memory corruption*/
+void v_pydaw_plugin_memcheck(t_pydaw_plugin * a_plugin)
+{
+    if(a_plugin)
+    {
+        assert((a_plugin->euphoria_load_set == 0) || (a_plugin->euphoria_load_set == 1));
+    }
+}
+#endif
 #ifdef	__cplusplus
 }
 #endif
