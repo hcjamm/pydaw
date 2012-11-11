@@ -1089,10 +1089,11 @@ class transport_widget:
     def open_transport(self, a_notify_osc=False):
         if not a_notify_osc:
             self.suppress_osc = True
-        self.transport = this_pydaw_project.get_transport()
+        self.transport = this_pydaw_project.get_transport()        
         self.tempo_spinbox.setValue(int(self.transport.bpm))
         self.region_spinbox.setValue(int(self.transport.region))
         self.bar_spinbox.setValue(int(self.transport.bar))
+        self.last_bar = int(self.transport.bar)
         self.loop_mode_combobox.setCurrentIndex(int(self.transport.loop_mode))
         for i in range(self.keybd_combobox.count()):
             if str(self.keybd_combobox.itemText(i)) == self.transport.midi_keybd:
@@ -1103,6 +1104,7 @@ class transport_widget:
     def __init__(self):
         self.suppress_osc = True
         self.recording = False
+        self.last_bar = 0
         self.transport = pydaw_transport()
         self.group_box = QtGui.QGroupBox()
         self.vlayout = QtGui.QVBoxLayout()
