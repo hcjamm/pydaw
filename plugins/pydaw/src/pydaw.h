@@ -245,6 +245,7 @@ void v_pydaw_set_track_volume(t_pydaw_data * a_pydaw_data, int a_track_num, floa
 inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin);
 void * v_pydaw_worker_thread(void*);
 void v_pydaw_init_worker_threads(t_pydaw_data*);
+void v_open_default_project(t_pydaw_data * a_data);
 
 void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
 {
@@ -947,15 +948,19 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->osc_url = (char *)malloc(strlen(tmp) + strlen(osc_path_tmp));
     sprintf(f_result->osc_url, "%s%s", tmp, osc_path_tmp + 1);    
     free(tmp);
-        
-    char * f_home = getenv("HOME");
-    char f_default_project_folder[512];
-    sprintf(f_default_project_folder, "%s/dssi/pydaw/default-project", f_home);
-    v_open_project(f_result, f_default_project_folder, "default");
-    //free(f_home);  //Not freeing this because it SEGFAULTS for some reason and is tiny....
+    
     //v_pydaw_assert_memory_integrity(f_result);
     
     return f_result;
+}
+
+void v_open_default_project(t_pydaw_data * a_data)
+{
+    char * f_home = getenv("HOME");
+    char f_default_project_folder[512];
+    sprintf(f_default_project_folder, "%s/dssi/pydaw/default-project", f_home);
+    v_open_project(a_data, f_default_project_folder, "default");
+    //free(f_home);  //Not freeing this because it SEGFAULTS for some reason and is tiny....
 }
 
 void v_pydaw_activate_osc_thread(t_pydaw_data * a_pydaw_data, lo_method_handler osc_message_handler)
@@ -1160,19 +1165,23 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
     sprintf(a_pydaw_data->instruments_folder, "%sinstruments/", a_pydaw_data->project_folder);    
     strcpy(a_pydaw_data->project_name, a_name);
     
+    char f_song_file[512];    
+    sprintf(f_song_file, "%sdefault.pysong", a_pydaw_data->project_folder);
+    
     struct stat f_proj_stat;
     stat((a_pydaw_data->project_folder), &f_proj_stat);
     struct stat f_item_stat;
-    stat((a_pydaw_data->project_folder), &f_item_stat);
+    stat((a_pydaw_data->item_folder), &f_item_stat);
     struct stat f_reg_stat;
-    stat((a_pydaw_data->project_folder), &f_reg_stat);
+    stat((a_pydaw_data->region_folder), &f_reg_stat);
     struct stat f_inst_stat;
-    stat((a_pydaw_data->project_folder), &f_inst_stat);
+    stat((a_pydaw_data->instruments_folder), &f_inst_stat);
+    struct stat f_song_file_stat;
+    stat(f_song_file, &f_song_file_stat);
     
-    //TODO:  Use S_ISREG to test for files...
-        
     if(S_ISDIR(f_proj_stat.st_mode) && S_ISDIR(f_item_stat.st_mode) &&
-        S_ISDIR(f_reg_stat.st_mode) && S_ISDIR(f_inst_stat.st_mode))
+        S_ISDIR(f_reg_stat.st_mode) && S_ISDIR(f_inst_stat.st_mode) &&
+        S_ISREG(f_song_file_stat.st_mode))
     {
         t_dir_list * f_item_dir_list = g_get_dir_list(a_pydaw_data->item_folder);    
         int f_i = 0;
@@ -1187,6 +1196,10 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
         
         v_pydaw_open_tracks(a_pydaw_data);
         g_pysong_get(a_pydaw_data, a_name);
+    }
+    else
+    {
+        printf("Song file and project directory structure not found, not loading project.  This is to be expected if launching PyDAW for the first time\n");
     }
     
     char f_transport_file[256];  //TODO:  This should be moved to a separate function
@@ -1213,6 +1226,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
     }
     else  //No transport file, set default tempo
     {
+        printf("No transport file found, defaulting to 140.0 BPM\n");
         v_set_tempo(a_pydaw_data, 140.0f);
     }
        
