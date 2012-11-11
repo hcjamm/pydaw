@@ -1042,20 +1042,6 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
                 
                 strcpy(f_instance->euphoria_load, f_value);
                 f_instance->euphoria_load_set = 1;
-                                
-                char * message = f_instance->descriptor->configure(
-                        f_instance->ladspa_handle, "load", f_value);
-                if (message) 
-                {
-                    printf("v_pydaw_open_track: on configure '%s' '%s', plugin returned error '%s'\n","load", f_value, message);
-                    free(message);
-                }
-                
-                if(f_instance->uiTarget)
-                {
-                        lo_send(f_instance->uiTarget, 
-                                f_instance->ui_osc_configure_path, "ss", "load", f_value);
-                }
             }
             else
             {
@@ -1070,6 +1056,21 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
         }
 
         g_free_2d_char_array(f_2d_array);
+        
+        if(f_instance->euphoria_load_set)
+        {
+            char * message = f_instance->descriptor->configure(f_instance->ladspa_handle, "load", f_instance->euphoria_load);
+            if (message) 
+            {
+                printf("v_pydaw_open_track: on configure '%s' '%s', plugin returned error '%s'\n","load", f_instance->euphoria_load, message);
+                free(message);
+            }
+
+            if(f_instance->uiTarget)
+            {
+                    lo_send(f_instance->uiTarget, f_instance->ui_osc_configure_path, "ss", "load", f_instance->euphoria_load);
+            }
+        }
     }
 }
 
