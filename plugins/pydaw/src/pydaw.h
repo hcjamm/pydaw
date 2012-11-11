@@ -1355,6 +1355,7 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
 
 void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
 {    
+    pthread_mutex_lock(&a_pydaw_data->track_pool[a_track_num]->mutex);
     char f_string[LMS_LARGE_STRING];
     f_string[0] = '\0';
     //sprintf(f_string, "");
@@ -1421,7 +1422,8 @@ void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
     {
         sprintf(f_file_name, "%s%i.pyinst", a_pydaw_data->instruments_folder, a_track_num);
     }
-    
+
+    pthread_mutex_unlock(&a_pydaw_data->track_pool[a_track_num]->mutex);
 
     v_pydaw_write_to_file(f_file_name, f_string);
 }
