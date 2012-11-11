@@ -13,6 +13,9 @@
 extern "C" {
 #endif
   
+//Required for sched.h
+#define __USE_GNU
+    
 //Uncomment this to constantly inspect the heap for corruption and throw a SIGABRT upon detection.
 //#define PYDAW_MEMCHECK
     
@@ -66,6 +69,7 @@ extern "C" {
 #include "pydaw_files.h"
 #include "pydaw_plugin.h"
 #include <sys/stat.h>
+#include <sched.h>
 #include <unistd.h>
 #include "../../libmodsynth/lib/amp.h"
     
@@ -266,8 +270,10 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
         
         pthread_attr_t threadAttr;
         struct sched_param param;
+        param.__sched_priority = 90;
         pthread_attr_init(&threadAttr);
-        pthread_attr_setstacksize(&threadAttr, 32768);
+        pthread_attr_setschedparam(&threadAttr, &param);
+        pthread_attr_setstacksize(&threadAttr, 8388608); 
         pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
         pthread_create(&a_pydaw_data->track_worker_threads[f_i], &threadAttr, v_pydaw_worker_thread, (void*)f_args);
         pthread_attr_destroy(&threadAttr);
@@ -296,8 +302,6 @@ inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin)
     }
 }
 
-
-
 void * v_pydaw_worker_thread(void* a_arg)
 {
     struct sched_param param;
@@ -312,8 +316,16 @@ void * v_pydaw_worker_thread(void* a_arg)
     policy = SCHED_RR;
     param.sched_priority = 90;
     pthread_setschedparam(thread_id, policy, &param);
-    
+       
     t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)(a_arg);
+        
+    cpu_set_t cpuset;    
+    CPU_ZERO(&cpuset);
+    CPU_SET(f_args->thread_num, &cpuset);
+
+    //pthread_t current_thread = pthread_self();    
+    //pthread_setaffinity_np(current_thread, sizeof(cpu_set_t), &cpuset);
+    sched_setaffinity(0, sizeof(cpu_set_t), &cpuset);
     
     while(1)
     {
@@ -1779,12 +1791,16 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SHOW_PLUGIN_UI))
     {
         int f_track_num = atoi(a_value);
+        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         v_show_plugin_ui(a_pydaw_data, f_track_num, 0);
+        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SHOW_FX_UI))
     {
         int f_track_num = atoi(a_value);
+        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         v_show_plugin_ui(a_pydaw_data, f_track_num, 1);
+        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SAVE_TRACKS))
     {
@@ -1812,8 +1828,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
         pthread_mutex_lock(&a_pydaw_data->mutex);
+        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         a_pydaw_data->track_pool[f_track_num]->solo = f_mode;
         pthread_mutex_unlock(&a_pydaw_data->mutex);
+        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_MUTE)) //Set track mute
@@ -1821,9 +1839,11 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
+        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         pthread_mutex_lock(&a_pydaw_data->mutex);
         a_pydaw_data->track_pool[f_track_num]->mute = f_mode;
         pthread_mutex_unlock(&a_pydaw_data->mutex);
+        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC_ARM_TRACK)) //Set track record arm
@@ -1841,9 +1861,11 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 f_i++;
             }
         }
+        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         pthread_mutex_lock(&a_pydaw_data->mutex);
         a_pydaw_data->track_pool[f_track_num]->rec = f_mode;
         pthread_mutex_unlock(&a_pydaw_data->mutex);
+        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_VOL)) //Set track volume
@@ -1851,9 +1873,11 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         float f_track_vol = atof(f_val_arr->array[1]);
+        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         pthread_mutex_lock(&a_pydaw_data->mutex);
         v_pydaw_set_track_volume(a_pydaw_data, f_track_num, f_track_vol);
         pthread_mutex_lock(&a_pydaw_data->mutex);
+        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT)) //Change the plugin
