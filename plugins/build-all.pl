@@ -46,21 +46,19 @@ $debug_build = 0;
 #This is only for printing out extra debug information when running this script.  0 == no debugging, 1 == debugging
 $debug_mode = 0;
 
-#Change this if you are compiling your own suite of plugins:
-$short_name = "lms_suite";
+$short_name = "pydaw";
 
 $deb_name = replace_underscore_with_dash($short_name);
 
 build_all_debug("\$deb_name == $deb_name");
 
-#These are to replace the original packages that the LMS Suite came in.  You can remove these from your own plugins.
 $replaces = "";
 
 #You can probably leave this empty, otherwise you should probably know if any packages conflict
 $conflicts = "";
 
 #This is a standard description for the package, change this if packaging your own plugins
-$description = "The LMS Suite is a collection of DSSI plugins written using LibModSynth.";
+$description = "PyDAW is a digital audio workstation with robust MIDI capabilities and a full suite of instrument and effects plugins";
 
 #add any new plugins here, or remove all of them if you are not going to redistribute the official LMS plugins.
 #Please take care not to create package conflicts for people with the LMS Suite installed.
@@ -385,24 +383,14 @@ close (MYFILE);
 #Create the copyright file.  TODO: add an option to specify if this is re-packaged, or a derivative work
 
 $copyright_file = 
-"This package was created automatically with the LibModSynth 
+"This package was created automatically with the PyDAW 
 built-in packaging script:  build-all.pl, by the following:
 
 $maintainer
 
-LibModSynth is licensed under the GNU GPL version 3.  If this package 
-is a derivative work, it must be licensed under a compatible license,
-with the full source code available for download.
-If not, please send a message to jhubbard651\@users.sf.net.
+PyDAW is licensed under the GNU GPL version 3.
 
 See /usr/share/common-licenses/GPL-3
-
-Check out the LibModSynth project and view it's source code at:
-
-http://libmodsynth.sourceforge.net/
-
-LibModSynth is Copyright (c) 2012 Jeff Hubbard
-Any derivative works are the copyright of their respective owners
 ";
 
 open (MYFILE, ">>$doc_dir/copyright");
@@ -418,37 +406,6 @@ if(system("cp -Rf ../doc/* $doc_dir/"))
 else
 {
 	`rm -Rf $doc_dir/*~`;
-}
-
-if($prompt)
-{
-	package_label:
-	print "
-The plugins have been compiled and built.  Would you like to package them now?  If you need to modify the files in $debian_dir first, you should choose 'n', and modify them manually.  Once you've done this, you can build the packages with the following commands:
-
-	cd $base_dir
-	dpkg-deb --build $os
-
-Build the packages now?  ([y]/n)
-";
-
-	$ack = <STDIN>;
-
-	chomp($ack);
-	$ack = lc($ack);
-
-	if(($ack eq 'y') || ($ack eq ''))
-	{
-	#do nothing
-	}
-	elsif($ack eq 'n')
-	{
-	exit;
-	}
-	else
-	{
-	goto package_label;
-	}
 }
 
 $package_name = "$short_name-$version-$arch.$package_type";
