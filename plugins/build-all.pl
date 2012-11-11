@@ -88,40 +88,17 @@ $notes .= "\n";
 
 if($prompt)
 {
-ack_label:
-	print "
-This will build all of the plugins and package them.  You must edit the list of plugins in this script to include any new ones, or exclude any old ones.  Please take care when packaging the existing LMS plugins not to create package conflicts.  
-If you wish only to build a single plugin, use the build.pl scripts in that plugin's directory.  If you wish to package your own collection of LMS-derived plugins, you should edit the \@plugins and \@instruments array in this script to include only your plugins.
+#os_choice_label:
+#	print "
+#Please select the operating system that you are packaging for:
+#1. Ubuntu/Debian
+#(others not yet supported)
+#Enter choice [1-1]: ";
 
-Proceed?  (y/[n]): ";
+#$os_choice = <STDIN>;
+#chomp($os_choice);
 
-	$ack = <STDIN>;
-
-	chomp($ack);
-	$ack = lc($ack);
-
-	if($ack eq 'y')
-	{
-	#do nothing
-	}
-	elsif(($ack eq 'n') || ($ack eq ''))
-	{
-	exit;
-	}
-	else
-	{
-	goto ack_label;
-	}
-
-os_choice_label:
-	print "
-Please select the operating system that you are packaging for:
-1. Ubuntu/Debian
-(others not yet supported)
-Enter choice [1-1]: ";
-
-$os_choice = <STDIN>;
-chomp($os_choice);
+$os_choice = "1";
 
 if($os_choice eq "1")
 {
