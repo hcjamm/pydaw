@@ -15,7 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import sys, os, re
+import sys, os, re, operator
 from time import sleep
 from PyQt4 import QtGui, QtCore
 from sys import argv
@@ -320,15 +320,55 @@ class region_list_editor:
         self.main_vlayout.addWidget(self.table_widget)
         self.last_item_copied = None
         self.reset_tracks()
+        self.clipboard = []
     
     def table_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
-            for f_item in self.table_widget.selectedIndexes():
-                f_empty = QtGui.QTableWidgetItem() #Clear the item
-                self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
+            self.delete_selected()
+        elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
+            self.copy_selected()
+        elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
+            f_selected_cells = self.table_widget.selectedIndexes()
+            if len(f_selected_cells) == 0:
+                return
+            f_base_row = f_selected_cells[0].row()
+            f_base_column = f_selected_cells[0].column() - 1
+            for f_item in self.clipboard:
+                f_column = f_item[1] + f_base_column
+                if f_column >= 8 or f_column < 0:
+                    continue                
+                f_row = f_item[0] + f_base_row
+                if f_row >= 16 or f_row < 0:
+                    continue
+                self.add_qtablewidgetitem(f_item[2], f_row, f_column)
             self.tablewidget_to_region()
+        elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
+            self.copy_selected()
+            self.delete_selected()
         else:
             QtGui.QTableWidget.keyPressEvent(self.table_widget, event)
+        
+    def delete_selected(self):
+        for f_item in self.table_widget.selectedIndexes():
+            f_empty = QtGui.QTableWidgetItem() #Clear the item
+            self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
+        self.tablewidget_to_region()
+    
+    def copy_selected(self):
+        self.clipboard = []  #Clear the clipboard
+        for f_item in self.table_widget.selectedIndexes():            
+            f_cell = self.table_widget.item(f_item.row(), f_item.column())
+            if not f_cell is None:
+                self.clipboard.append([int(f_item.row()), int(f_item.column()) - 1, str(f_cell.text())])
+        if len(self.clipboard) > 0:            
+            self.clipboard.sort(key=operator.itemgetter(0))
+            f_row_offset = self.clipboard[0][0]
+            for f_item in self.clipboard:
+                f_item[0] -= f_row_offset
+            self.clipboard.sort(key=operator.itemgetter(1))
+            f_column_offset = self.clipboard[0][1]
+            for f_item in self.clipboard:
+                f_item[1] -= f_column_offset
         
     def table_drop_event(self, a_event):
         if a_event.pos().x() <= self.table_widget.columnWidth(0) or a_event.pos().x() >= self.table_width:
