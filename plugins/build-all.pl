@@ -408,6 +408,11 @@ else
 	`rm -Rf $doc_dir/*~`;
 }
 
+#Not doing this for now, although Ubuntu 12.10 seems to want it.  Changing ownership to root/root didn't work unless sudo'ed...
+#I would expect the package manager to do this on it's own, whether during package creation or afterwards...
+#system("sudo chown -R root $package_dir ; sudo chgrp -R root $package_dir");
+system("chmod -R 755 $package_dir");
+
 $package_name = "$short_name-$version-$arch.$package_type";
 
 `cd $base_dir ; dpkg-deb --build $os ; rm $package_name ; mv $os.deb $package_name`;
