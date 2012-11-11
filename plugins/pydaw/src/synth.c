@@ -532,31 +532,25 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
                             if(((f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->start) >= f_track_current_period_beats) &&
                                 ((f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->start) < f_track_next_period_beats))
                             {
-                                
-                                if((pydaw_data->note_offs[f_i][(f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->note)]) 
-                                        >= (pydaw_data->current_sample))                                    
-                                {  //There's already a note_off scheduled ahead of this one, process it immediately to avoid hung notes
-#ifdef PYDAW_PRINT_DEBUG_INFO                    
-                                     printf("\n\nSending note_off event\nf_i = %i, pydaw_data->note_offs[f_i][f_i2] = %ld, pydaw_data->current_sample = %ld\n\n", 
-                                                 f_i, pydaw_data->note_offs[f_i][f_i2], pydaw_data->current_sample);
-#endif                
-                                     
-                                     snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)]);
-
-                                     snd_seq_ev_set_noteoff(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)], 0, 
-                                             (f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->note), 0);
-                                     pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)].time.tick = 
-                                             (pydaw_data->current_sample);
-
-                                     pydaw_data->track_pool[f_i]->current_period_event_index = (pydaw_data->track_pool[f_i]->current_period_event_index) + 1;
-                                }
-                                
-                                snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)]);
-
                                 int f_note_sample_offset = 0;
                                 float f_note_start_diff = ((f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->start) - f_track_current_period_beats) + f_track_beats_offset;
                                 float f_note_start_frac = f_note_start_diff / f_sample_period_inc_beats;
-                                f_note_sample_offset =  (int)(f_note_start_frac * ((float)sample_count));                            
+                                f_note_sample_offset =  (int)(f_note_start_frac * ((float)sample_count));
+                                
+                                if((pydaw_data->note_offs[f_i][(f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->note)]) 
+                                        >= (pydaw_data->current_sample))                                    
+                                {  //There's already a note_off scheduled ahead of this one, process it immediately to avoid hung notes                                    
+                                    snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)]);
+
+                                    snd_seq_ev_set_noteoff(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)], 0, 
+                                            (f_current_item.notes[(pydaw_data->track_current_item_note_event_indexes[f_i])]->note), 0);
+                                    pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)].time.tick = f_note_sample_offset;
+
+                                    pydaw_data->track_pool[f_i]->current_period_event_index = (pydaw_data->track_pool[f_i]->current_period_event_index) + 1;
+                                }
+                                
+                                snd_seq_ev_clear(&pydaw_data->track_pool[f_i]->event_buffer[(pydaw_data->track_pool[f_i]->current_period_event_index)]);
+                                                           
 #ifdef PYDAW_PRINT_DEBUG_INFO
                                 printf("\n\nSending note_on event\nf_i = %i, f_note_start_diff = %f, f_sample_period_inc_beats = %f, f_note_start_frac = %f, f_note_sample_offset = %i, sample_count = %i, pydaw_data->current_sample = %ld\n\n", 
                                         f_i, f_note_start_diff, f_sample_period_inc_beats, f_note_start_frac, f_note_sample_offset, (int)sample_count, pydaw_data->current_sample);
