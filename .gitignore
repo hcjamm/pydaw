@@ -13,7 +13,7 @@ plugins/*/*.so
 plugins/*/src/moc_synth_qt_gui.cpp
 bin
 *.dep.inc
-plugins/lms_suite
+plugins/pydaw-build
 plugins/maintainer.txt
 *nbproject*
 *.o

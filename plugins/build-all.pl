@@ -152,7 +152,7 @@ require 'build-lib.pl';
 check_deps();
 
 #Here are the directories used for the install, you can modify them if needed.
-$base_dir = "$short_name";
+$base_dir = "$short_name-build";
 $package_dir = "$base_dir/$os";
 
 $bin_dir = "$package_dir/usr/bin";
