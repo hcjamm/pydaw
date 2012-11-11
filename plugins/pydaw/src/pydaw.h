@@ -273,7 +273,7 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
         param.__sched_priority = 90;
         pthread_attr_init(&threadAttr);
         pthread_attr_setschedparam(&threadAttr, &param);
-        pthread_attr_setstacksize(&threadAttr, 8388608); 
+        pthread_attr_setstacksize(&threadAttr, 16777216); //8388608); 
         pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
         pthread_create(&a_pydaw_data->track_worker_threads[f_i], &threadAttr, v_pydaw_worker_thread, (void*)f_args);
         pthread_attr_destroy(&threadAttr);
