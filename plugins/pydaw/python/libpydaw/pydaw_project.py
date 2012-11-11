@@ -18,6 +18,7 @@ def pydaw_remove_bad_chars(a_str):
     f_str = str(a_str)
     for f_char in pydaw_bad_chars:
         f_str = f_str.replace(f_char, "")
+    f_str = f_str.replace(' ', '_')
     return f_str
 
 beat_fracs = ['1/16', '1/8', '1/4', '1/3', '1/2', '1/1']
