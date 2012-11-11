@@ -3,14 +3,13 @@
 
 PyDAW is a mix between a conventional DAW, a tracker, a drum machine, and pots & pans + a wooden spoon.
 
-PyDAW is designed specifically for people making MIDI-based electronic music.  Cubase and it's many DAW clones take multitrack recording software and shoehorn in the ability to use MIDI and plugins, then throw a piano roll editor(and sometimes a notation editor) which may look pretty, but don't offer an effortless workflow for composing MIDI-based music from scratch.  PyDAW does the opposite:  MIDI is first and foremost, then shoehorns in 2nd rate features for recording a band, etc...
+PyDAW is designed specifically for people making MIDI-based electronic music.  Cubase and it's many DAW clones take multitrack audio recording software and shoehorn in the ability to use MIDI and plugins, then throw a piano roll editor(and sometimes a notation editor) which may look pretty, but don't offer an effortless workflow for composing MIDI-based music from scratch.  PyDAW does the opposite:  MIDI is first and foremost, then shoehorns in 2nd rate features for recording a band, composing a symphony etc...  It's better to be the best tool for one particular job than the jack-of-all-trades-and-master-of-none...
 
-A full suite of high quality plugins, including an integrated sampler, synthesizer and effects(does not support any 3rd party plugins, nor are there plans to)
+A full suite of high quality plugins, including an integrated sampler, synthesizer and effects(does not support any 3rd party plugins, nor are there plans to do so)
 
 High precision audio/MIDI engine.  MIDI in the host is capable of sub-sample accuracy, plugins are limited to being sample accurate.  External ALSA MIDI is recorded with sample accuracy (dependent on the accuracy of the device)
 
-Powerful multithreaded plugin host with an intelligent scheduler and event-loop based worker threads.  Tests showed near linear scaling across at least 8 cores.
-
+Powerful multithreaded plugin host with an intelligent scheduler and up to 4 event-loop based worker threads(dependent on the number of CPU cores).
 
 ****Sampler Features****
 
@@ -28,7 +27,7 @@ Dual core CPU supporting SSE3 (most Athlon64 CPUs and all later AMD CPUs, Intel 
 
 ****Recommended system****
 
-3.0ghz+ quad core(Phenom II, Nehalem or later)
+3.0ghz+ quad core(Phenom II, Nehalem generations or later)
 8GB RAM
 
 
@@ -54,13 +53,13 @@ Q: What's a good MIDI controller?
 A: I use an M-Audio Oxygen 49, and have had no problems with it.  Please note that PyDAW currently only supports ALSA MIDI, and not Jack MIDI(although you may be able to hack it with 3rd party utilities).
 
 Q: What's the best CPU for running PyDAW?
-A: It's been thoroughly tested on AMD FX, Trinity and Llano CPUs, and Intel Ivy Bridge, and less thoroughly on a few older platforms.  All of the CPUs basically tie in instructions-per-clock-per-core(even when compiled with -march=native there are no improvements past SSE3), so it comes down to who gives you the most cores and highest clocks.  Having said that, like any other DAW, any quad core ever made should be adequate for anybody's needs.
+A: It's been thoroughly tested on AMD FX, Trinity and Llano CPUs, and Intel Ivy Bridge, and less thoroughly on a few older platforms.  All of the CPUs basically tie in instructions-per-clock-per-core(even when compiled with -march=native, no platform showed improvements past SSE3), so it comes down to who gives you the most cores and highest clocks.  Having said that, like any other DAW, any quad core ever made should be adequate for anybody's needs.  PyDAW will currently only use up to 4 cores for running plugins, however, additional real cores can assist with running the UI and processing background tasks(which happens constantly), therefore I'd say an 8 core CPU is not overkill...
 
 Q: The UI sucks, and the choice in colors makes me question your sexual orientation.
 A: I'm not a graphic designer by trade, so you won't hurt my feelings by sending me a patch to fix some of the less pleasing aspects of the color theme, like that awful gap above the track groupbox that drives me nuts that I don't know how to fix...
 
 Q: Why don't you allow 3rd party plugins?
-A: Stability, integration, and the ability to guarantee dead-on-balls sample-accurate MIDI timing.  3rd party plugins can choose to ignore my attempts to trigger the note on an exact sample.  PyDAW will continue to become more tightly integrated over time, and I will continue to add more native plugins.
+A: Stability, integration, and the ability to guarantee dead-on-balls sample-accurate MIDI timing.  3rd party plugins can choose to ignore my attempts to trigger the note on an exact sample.  PyDAW will continue to become more tightly integrated over time, and I will continue to add more native plugins, and expand the existing effects processor.
 
 Q: PyDAW won't start
 A: You probably haven't configured Jack correctly.  This differs per soundcard(among other factors), Google is your friend.
