@@ -1149,40 +1149,43 @@ __attribute__((destructor)) void v_pydaw_destructor()
 void _fini()
 #endif
 {
-    v_pydaw_close_all_uis(pydaw_data);
-    
-    sleep(3);
-#ifdef PYDAW_PRINT_DEBUG_INFO    
-    printf("Destructor locking mutex...\n");
-#endif
-    
-    pthread_mutex_lock(&pydaw_data->quit_mutex);
-    
-#ifdef PYDAW_PRINT_DEBUG_INFO    
-    printf("Destructor unlocking mutex...\n\n\n");
-#endif
-    
-    pthread_mutex_unlock(&pydaw_data->quit_mutex);
-    
-    int f_i = 0;
-    while(f_i < pydaw_data->track_worker_thread_count)
+    if(pydaw_data)
     {
-        pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);        
-        pydaw_data->track_thread_quit_notifier[f_i] = 1;        
-        pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
-        f_i++;
-    }
-    
-    pthread_mutex_lock(&pydaw_data->track_cond_mutex);
-    pthread_cond_broadcast(&pydaw_data->track_cond);
-    pthread_mutex_unlock(&pydaw_data->track_cond_mutex);
-    
-    f_i = 0;
-    while(f_i < pydaw_data->track_worker_thread_count)
-    {
-        pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);
-        pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
-        f_i++;
+        v_pydaw_close_all_uis(pydaw_data);
+
+        sleep(3);
+#ifdef PYDAW_PRINT_DEBUG_INFO    
+        printf("Destructor locking mutex...\n");
+#endif
+
+        pthread_mutex_lock(&pydaw_data->quit_mutex);
+
+#ifdef PYDAW_PRINT_DEBUG_INFO    
+        printf("Destructor unlocking mutex...\n\n\n");
+#endif
+
+        pthread_mutex_unlock(&pydaw_data->quit_mutex);
+
+        int f_i = 0;
+        while(f_i < pydaw_data->track_worker_thread_count)
+        {
+            pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);        
+            pydaw_data->track_thread_quit_notifier[f_i] = 1;        
+            pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
+            f_i++;
+        }
+
+        pthread_mutex_lock(&pydaw_data->track_cond_mutex);
+        pthread_cond_broadcast(&pydaw_data->track_cond);
+        pthread_mutex_unlock(&pydaw_data->track_cond_mutex);
+
+        f_i = 0;
+        while(f_i < pydaw_data->track_worker_thread_count)
+        {
+            pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);
+            pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
+            f_i++;
+        }
     }
         
     if (LMSLDescriptor) {
