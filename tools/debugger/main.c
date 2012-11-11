@@ -70,9 +70,9 @@ int main(int argc, char** argv)
     
     int f_last_bar = 0;
 #endif    
-        
+    
     while(pydaw_data->current_region < 2)
-    {        
+    {   
 #ifdef DEBUG_EXTERNAL_MIDI
         if((pydaw_data->current_bar) != f_last_bar)
         {
@@ -82,10 +82,10 @@ int main(int argc, char** argv)
         else
         {
             f_ddesc->run_synth(f_handle, 4096, NULL, 0);
-        }
+        }        
 #else
         f_ddesc->run_synth(f_handle, 4096, NULL, 0);     
-#endif
+#endif        
     }   
     
 #ifdef DEBUG_PYDAW

@@ -129,6 +129,7 @@ typedef struct st_pytrack
     int current_period_event_index;
     t_pydaw_plugin * instrument;
     t_pydaw_plugin * effect;
+    pthread_mutex_t mutex;
 }t_pytrack;
 
 typedef struct
@@ -843,7 +844,11 @@ t_pytrack * g_pytrack_get()
     
     f_result->instrument = NULL;
     f_result->effect = NULL;
+    
+    f_result->current_period_event_index = 0;    
             
+    pthread_mutex_init(&f_result->mutex, NULL);
+    
     return f_result;
 }
 
@@ -1550,6 +1555,7 @@ void v_pydaw_set_track_volume(t_pydaw_data * a_pydaw_data, int a_track_num, floa
 
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_index)
 {       
+    pthread_mutex_lock(&a_pydaw_data->track_pool[a_track_num]->mutex);  //Prevent multiple simultaneus operations from running in parallel, without blocking the main thread
     t_pydaw_plugin * f_result;
     t_pydaw_plugin * f_result_fx;
     
@@ -1641,9 +1647,11 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
             {
                 lo_send(f_fx->uiTarget, f_fx->ui_osc_quit_path, "");
             }
-            v_free_pydaw_plugin(a_pydaw_data->track_pool[a_track_num]->effect);
+            v_free_pydaw_plugin(f_fx);
         }        
-    }        
+    }
+    
+    pthread_mutex_unlock(&a_pydaw_data->track_pool[a_track_num]->mutex);
 }
 
 #ifdef PYDAW_MEMCHECK
@@ -1654,6 +1662,25 @@ void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data)
     int f_i = 0;
     int f_i2 = 0;
     int f_i3 = 0;
+    
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {
+        if(a_pydaw_data->track_pool[f_i]->instrument)
+        {
+            assert((a_pydaw_data->track_pool[f_i]->instrument->euphoria_load_set == 0) ||
+                    (a_pydaw_data->track_pool[f_i]->instrument->euphoria_load_set == 1));
+        }
+        
+        if(a_pydaw_data->track_pool[f_i]->effect)
+        {
+            assert((a_pydaw_data->track_pool[f_i]->effect->euphoria_load_set == 0) ||
+                    (a_pydaw_data->track_pool[f_i]->effect->euphoria_load_set == 1));
+        }
+        
+        f_i++;
+    }
+
+    f_i = 0;
     
     if(a_pydaw_data->pysong)
     {
