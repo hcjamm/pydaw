@@ -580,7 +580,7 @@ class item_list_editor:
         self.default_cc_num = 0
         self.default_cc_start = 0.0
         self.default_cc_val = 0
-        self.default_quantize = 2
+        self.default_quantize = 5
         self.default_pb_start = 0
         self.default_pb_val = 0
         self.default_pb_quantize = 0
