@@ -40,7 +40,7 @@ class song_editor:
         self.table_widget.setItem(0, a_region_num, f_qtw_item)
         
     def open_song(self):
-        self.table_widget.clear()
+        self.table_widget.clearContents()
         self.song = this_pydaw_project.get_song()
         for f_pos, f_region in self.song.regions.iteritems():
             self.add_qtablewidgetitem(f_region, f_pos)
@@ -121,6 +121,10 @@ class song_editor:
         self.table_widget.keyPressEvent = self.table_keyPressEvent
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.main_vlayout.addWidget(self.table_widget)
+        f_headers_arr = []
+        for i in range(0, 300):
+            f_headers_arr.append(str(i))            
+        self.table_widget.setHorizontalHeaderLabels(f_headers_arr)
     
     def table_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
@@ -174,8 +178,8 @@ class region_list_editor:
             self.table_widget.setCellWidget(i, 0, track.group_box)  
         self.table_widget.setColumnWidth(0, 390)
         f_headers = ['Tracks']
-        for i in range(1, 9):
-            self.table_widget.setColumnWidth(i, 100)
+        for i in range(0, 8):
+            self.table_widget.setColumnWidth(i + 1, 100)
             f_headers.append(str(i))
         self.table_widget.setHorizontalHeaderLabels(f_headers)
         self.table_widget.resizeRowsToContents()
