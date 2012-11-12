@@ -117,8 +117,7 @@ typedef struct st_pyregion
 
 typedef struct st_pysong
 {
-    t_pyregion * regions[PYDAW_MAX_REGION_COUNT];
-    char region_names[PYDAW_MAX_REGION_COUNT][LMS_TINY_STRING];
+    t_pyregion * regions[PYDAW_MAX_REGION_COUNT];    
 }t_pysong;
 
 typedef struct st_pytrack
@@ -420,42 +419,44 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
     
     a_pydaw->pysong = (t_pysong*)malloc(sizeof(t_pysong));
         
-    char f_full_path[2048];
-    sprintf(f_full_path, "%s%s.pysong", a_pydaw->project_folder, a_name);
-            
-    t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);    
-    
     int f_i = 0;
     
     while(f_i < PYDAW_MAX_REGION_COUNT)
     {
-        a_pydaw->pysong->regions[f_i] = 0;
-        sprintf(a_pydaw->pysong->region_names[f_i], "__no__region__");
+        a_pydaw->pysong->regions[f_i] = 0;        
         f_i++;
     }
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw);
 #endif
-    f_i = 0;
     
-    while(f_i < PYDAW_MAX_REGION_COUNT)
-    {            
-        char * f_pos_char = c_iterate_2d_char_array(f_current_string);
-        if(f_current_string->eof)
-        {
-            break;
-        }
-        int f_pos = atoi(f_pos_char);        
-        char * f_region_char = c_iterate_2d_char_array(f_current_string);
-        a_pydaw->pysong->regions[f_pos] = g_pyregion_get(a_pydaw, f_region_char);
-        strcpy(a_pydaw->pysong->region_names[f_pos], f_region_char);
-        free(f_pos_char);
-        free(f_region_char);
-        f_i++;
-    }
+    char f_full_path[2048];
+    sprintf(f_full_path, "%s%s.pysong", a_pydaw->project_folder, a_name);
+    
+    if(i_pydaw_file_exists(f_full_path))
+    {
+        f_i = 0;
 
-    g_free_2d_char_array(f_current_string);
-    
+        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);        
+
+        while(f_i < PYDAW_MAX_REGION_COUNT)
+        {            
+            char * f_pos_char = c_iterate_2d_char_array(f_current_string);
+            if(f_current_string->eof)
+            {
+                break;
+            }
+            int f_pos = atoi(f_pos_char);        
+            char * f_region_char = c_iterate_2d_char_array(f_current_string);
+            a_pydaw->pysong->regions[f_pos] = g_pyregion_get(a_pydaw, f_region_char);
+            strcpy(a_pydaw->pysong->regions[f_pos]->name, f_region_char);
+            free(f_pos_char);
+            free(f_region_char);
+            f_i++;
+        }
+
+        g_free_2d_char_array(f_current_string);
+    }
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw);
 #endif
@@ -486,9 +487,12 @@ int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a
     
     while(f_i < PYDAW_MAX_REGION_COUNT)
     {
-        if(!strcmp(a_region_name, a_pydaw_data->pysong->region_names[f_i]))
+        if(a_pydaw_data->pysong->regions[f_i])
         {
-            return f_i;
+            if(!strcmp(a_region_name, a_pydaw_data->pysong->regions[f_i]->name))
+            {
+                return f_i;
+            }
         }
         f_i++;
     }
@@ -1184,6 +1188,8 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
     struct stat f_song_file_stat;
     stat(f_song_file, &f_song_file_stat);
     
+    g_pysong_get(a_pydaw_data, a_name);
+    
     if(S_ISDIR(f_proj_stat.st_mode) && S_ISDIR(f_item_stat.st_mode) &&
         S_ISDIR(f_reg_stat.st_mode) && S_ISDIR(f_inst_stat.st_mode) &&
         S_ISREG(f_song_file_stat.st_mode))
@@ -1199,8 +1205,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
             f_i++;
         }
         
-        v_pydaw_open_tracks(a_pydaw_data);
-        g_pysong_get(a_pydaw_data, a_name);
+        v_pydaw_open_tracks(a_pydaw_data);        
     }
     else
     {
