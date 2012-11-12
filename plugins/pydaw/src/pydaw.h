@@ -1475,21 +1475,28 @@ void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
 
 void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
 {   
+    if(a_pydaw_data->track_pool[a_track_num]->plugin_index == 0)
+    {
+        return;
+    }
+    
     if(a_is_fx)
     {
-        if(a_pydaw_data->track_pool[a_track_num]->effect->ui_visible)
+        if(a_pydaw_data->track_pool[a_track_num]->effect->uiTarget)
         {
+            lo_send(a_pydaw_data->track_pool[a_track_num]->effect->uiTarget, 
+                    a_pydaw_data->track_pool[a_track_num]->effect->ui_osc_show_path, "");
             return;
         }
-        a_pydaw_data->track_pool[a_track_num]->effect->ui_visible = 1;
     }
     else
     {
-        if(a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible)
+        if(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget)
         {
+            lo_send(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget, 
+                    a_pydaw_data->track_pool[a_track_num]->instrument->ui_osc_show_path, "");
             return;
-        }
-        a_pydaw_data->track_pool[a_track_num]->instrument->ui_visible = 1;
+        }        
     }
     
     
@@ -1558,13 +1565,13 @@ void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
     {
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {
-            if((a_pydaw_data->track_pool[f_i]->instrument) && a_pydaw_data->track_pool[f_i]->instrument->ui_visible)
+            if((a_pydaw_data->track_pool[f_i]->instrument) && a_pydaw_data->track_pool[f_i]->instrument->uiTarget)
             {
                 lo_send(a_pydaw_data->track_pool[f_i]->instrument->uiTarget, 
                     a_pydaw_data->track_pool[f_i]->instrument->ui_osc_quit_path, "");
             }
 
-            if((a_pydaw_data->track_pool[f_i]->effect) && a_pydaw_data->track_pool[f_i]->effect->ui_visible)
+            if((a_pydaw_data->track_pool[f_i]->effect) && a_pydaw_data->track_pool[f_i]->effect->uiTarget)
             {
                 lo_send(a_pydaw_data->track_pool[f_i]->effect->uiTarget, 
                     a_pydaw_data->track_pool[f_i]->effect->ui_osc_quit_path, "");
@@ -1662,7 +1669,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
         
         if(f_inst)
         {        
-            if(f_inst->ui_visible)
+            if(f_inst->uiTarget)
             {
                 lo_send(f_inst->uiTarget, f_inst->ui_osc_quit_path, "");
             }
@@ -1671,7 +1678,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
         
         if(f_fx)
         {        
-            if(f_fx->ui_visible)
+            if(f_fx->uiTarget)
             {
                 lo_send(f_fx->uiTarget, f_fx->ui_osc_quit_path, "");
             }

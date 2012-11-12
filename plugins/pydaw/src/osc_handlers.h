@@ -274,13 +274,13 @@ int pydaw_osc_exiting_handler(t_pydaw_plugin *instance, lo_arg **argv)
 {
     //int i;
 
-    instance->ui_visible = 0;
-    /*
+    
     if (instance->uiTarget) 
     {
         lo_address_free(instance->uiTarget);
         instance->uiTarget = NULL;
     }
+    /*
     if (instance->uiSource) 
     {
         lo_address_free(instance->uiSource);
