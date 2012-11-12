@@ -1015,6 +1015,8 @@ class transport_widget:
     def init_playback_cursor(self, a_bar=True):
         if this_song_editor.table_widget.item(0, self.region_spinbox.value()) is not None:
             this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+        else:
+            this_region_editor.clear_items()
         if a_bar:        
             this_region_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
         else:
@@ -1060,7 +1062,7 @@ class transport_widget:
         self.is_recording = True
         self.last_region_num = self.region_spinbox.value()
         self.last_bar = self.bar_spinbox.value()
-        this_pydaw_project.this_dssi_gui.pydaw_rec()
+        this_pydaw_project.this_dssi_gui.pydaw_rec(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
         f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
         self.beat_timer.start(f_playback_inc)
     def on_tempo_changed(self, a_tempo):
