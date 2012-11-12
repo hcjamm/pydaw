@@ -1416,7 +1416,7 @@ void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
                 {
                     break;
                 }
-                else if(f_temp[f_i] == '|')
+                else if((f_temp[f_i] == '|') || (f_temp[f_i] == '>'))  //'>' being the 'reload' character...
                 {
                     f_temp[f_i] = '~';
                 }
