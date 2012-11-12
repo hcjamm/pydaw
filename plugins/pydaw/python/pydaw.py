@@ -1094,7 +1094,7 @@ class transport_widget:
             if self.loop_mode_combobox.currentIndex() != 2:
                 self.region_spinbox.setValue(self.region_spinbox.value() + 1)
                 f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
-                if f_item and f_item.text() != "":
+                if not f_item is None and f_item.text() != "":
                     this_region_editor.open_region(f_item.text())
                 else:
                     this_region_editor.clear_items()
