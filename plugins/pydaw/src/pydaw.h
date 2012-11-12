@@ -574,9 +574,6 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         f_result->item_indexes[f_y][f_x] = i_pydaw_get_item_index_from_name(a_pydaw_data, f_item_name);
         assert((f_result->item_indexes[f_y][f_x]) != -1);
         assert((f_result->item_indexes[f_y][f_x]) < a_pydaw_data->item_count);
-        //f_result->item_populated[f_y][f_x] = 1;
-        //sprintf(log_buff, "f_x == %i, f_y = %i\n", f_x, f_y);
-        //pydaw_write_log(log_buff);
         free(f_item_name);            
 
         f_i++;
@@ -816,8 +813,6 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         else
         {
             printf("Invalid event type %s\n", f_type);
-            //sprintf(log_buff, "Invalid event type %s\n", f_type);
-            //pydaw_write_log(log_buff);
         }
         
         free(f_start);
@@ -839,8 +834,6 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         free(a_pydaw_data->item_pool[f_item_index]);
         a_pydaw_data->item_pool[f_item_index] = f_result;        
     }
-    
-    //v_pydaw_assert_memory_integrity(a_pydaw_data);
 }
 
 t_pytrack * g_pytrack_get()
@@ -957,8 +950,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     sprintf(f_result->osc_url, "%s%s", tmp, osc_path_tmp + 1);    
     free(tmp);
     
-    //v_pydaw_assert_memory_integrity(f_result);
-    
     return f_result;
 }
 
@@ -1056,8 +1047,7 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_
                 int f_port_key = atoi(f_key);
                 float f_port_value = atof(f_value);
                 
-                //assert(f_port_key < (f_instance->controlIns));                
-                //f_instance->pluginControlIns[f_port_key] = f_port_value;
+                //assert(f_port_key < (f_instance->controlIns));
                 
                 f_instance->pluginControlIns[f_port_key] = f_port_value;
             }                
@@ -1188,8 +1178,6 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
     struct stat f_song_file_stat;
     stat(f_song_file, &f_song_file_stat);
     
-    g_pysong_get(a_pydaw_data, a_name);
-    
     if(S_ISDIR(f_proj_stat.st_mode) && S_ISDIR(f_item_stat.st_mode) &&
         S_ISDIR(f_reg_stat.st_mode) && S_ISDIR(f_inst_stat.st_mode) &&
         S_ISREG(f_song_file_stat.st_mode))
@@ -1204,12 +1192,14 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
             g_free_1d_char_array(f_file_name);
             f_i++;
         }
-        
+    
+        g_pysong_get(a_pydaw_data, a_name);
         v_pydaw_open_tracks(a_pydaw_data);        
     }
     else
     {
         printf("Song file and project directory structure not found, not loading project.  This is to be expected if launching PyDAW for the first time\n");
+        g_pysong_get(a_pydaw_data, a_name);  //Loads empty...  TODO:  Make this a separate function for getting an empty pysong or loading a file into one...
     }
     
     char f_transport_file[256];  //TODO:  This should be moved to a separate function
