@@ -1085,24 +1085,34 @@ class transport_widget:
     def on_region_changed(self, a_region):
         self.transport.region = a_region
         this_pydaw_project.save_transport(self.transport)
-        
+    def on_follow_cursor_check_changed(self):
+        self.beat_timeout()
+        f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
+        if not f_item is None and f_item.text() != "":
+            this_region_editor.open_region(f_item.text())
+        else:
+            this_region_editor.clear_items()
+        if self.is_playing or self.is_recording:
+            this_region_editor.table_widget.clearSelection()
     def beat_timeout(self):
         if self.loop_mode_combobox.currentIndex() == 1:
             return  #Looping a single bar doesn't require these values to update
         f_new_bar_value = self.bar_spinbox.value() + 1
-        self.region_spinbox.value()
+        #self.region_spinbox.value()
         if f_new_bar_value >= 8:
             f_new_bar_value = 0
             if self.loop_mode_combobox.currentIndex() != 2:
-                self.region_spinbox.setValue(self.region_spinbox.value() + 1)
-                f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
-                if not f_item is None and f_item.text() != "":
-                    this_region_editor.open_region(f_item.text())
-                else:
-                    this_region_editor.clear_items()
+                self.region_spinbox.setValue(self.region_spinbox.value() + 1)                
+                if self.follow_checkbox.isChecked():
+                    f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
+                    if not f_item is None and f_item.text() != "":
+                        this_region_editor.open_region(f_item.text())
+                    else:
+                        this_region_editor.clear_items()
         self.bar_spinbox.setValue(f_new_bar_value)
-        this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
-        this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)        
+        if self.follow_checkbox.isChecked():
+            this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
+            this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)  
         
     def open_transport(self, a_notify_osc=False):
         if not a_notify_osc:
@@ -1167,11 +1177,17 @@ class transport_widget:
         self.keybd_combobox.currentIndexChanged.connect(self.on_keybd_combobox_index_changed)
         f_loop_midi_gridlayout.addWidget(self.keybd_combobox, 0, 1)
         f_loop_midi_gridlayout.addWidget(QtGui.QLabel("Loop Mode:"), 1, 0)
+        f_lower_ctrl_layout = QtGui.QHBoxLayout()
         self.loop_mode_combobox = QtGui.QComboBox()
         self.loop_mode_combobox.addItems(["Off", "Bar", "Region"])
         self.loop_mode_combobox.setMinimumWidth(90)
         self.loop_mode_combobox.currentIndexChanged.connect(self.on_loop_mode_changed)
-        f_loop_midi_gridlayout.addWidget(self.loop_mode_combobox, 1, 1)
+        f_lower_ctrl_layout.addWidget(self.loop_mode_combobox)
+        self.follow_checkbox = QtGui.QCheckBox("Follow cursor?")
+        self.follow_checkbox.setChecked(True)
+        self.follow_checkbox.clicked.connect(self.on_follow_cursor_check_changed)
+        f_lower_ctrl_layout.addWidget(self.follow_checkbox)
+        f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout, 1, 1)
         self.hlayout1.addLayout(f_loop_midi_gridlayout)
         #This is an awful way to do this, I'll eventually have IPC that goes both directions...
         self.beat_timer = QtCore.QTimer()
