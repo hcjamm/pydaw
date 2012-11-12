@@ -1048,8 +1048,9 @@ class transport_widget:
             if(this_region_editor.enabled):
                 this_region_editor.open_region(this_region_editor.region.name)
             this_song_editor.open_song()
-        self.is_playing = False            
-        this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+        self.is_playing = False
+        if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
+            this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
         self.init_playback_cursor(a_bar=False)
     def on_rec(self):
         if self.is_playing:
