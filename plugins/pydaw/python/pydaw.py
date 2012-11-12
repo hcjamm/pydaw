@@ -1013,6 +1013,8 @@ class seq_track:
 
 class transport_widget:
     def init_playback_cursor(self, a_bar=True):
+        if not self.follow_checkbox.isChecked():
+            return
         if this_song_editor.table_widget.item(0, self.region_spinbox.value()) is not None:
             this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
         else:
@@ -1086,13 +1088,15 @@ class transport_widget:
         self.transport.region = a_region
         this_pydaw_project.save_transport(self.transport)
     def on_follow_cursor_check_changed(self):
-        self.beat_timeout()
-        f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
-        if not f_item is None and f_item.text() != "":
-            this_region_editor.open_region(f_item.text())
+        if self.follow_checkbox.isChecked():
+            f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
+            if not f_item is None and f_item.text() != "":
+                this_region_editor.open_region(f_item.text())
+            else:
+                this_region_editor.clear_items()
+            this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
+            this_region_editor.table_widget.selectColumn(self.bar_spinbox.value())
         else:
-            this_region_editor.clear_items()
-        if self.is_playing or self.is_recording:
             this_region_editor.table_widget.clearSelection()
     def beat_timeout(self):
         if self.loop_mode_combobox.currentIndex() == 1:
