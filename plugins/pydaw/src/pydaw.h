@@ -1900,7 +1900,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         pthread_mutex_lock(&a_pydaw_data->mutex);
         v_pydaw_set_track_volume(a_pydaw_data, f_track_num, f_track_vol);
-        pthread_mutex_lock(&a_pydaw_data->mutex);
+        pthread_mutex_unlock(&a_pydaw_data->mutex);
         pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }
