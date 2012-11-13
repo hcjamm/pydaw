@@ -11,7 +11,7 @@ from dssi_gui import dssi_gui
 
 pydaw_terminating_char = "\\"
 
-pydaw_bad_chars = ["|", "\\", "~"]
+pydaw_bad_chars = ["|", "\\", "~", "."]
 
 def pydaw_remove_bad_chars(a_str):
     """ Remove any characters that have special meaning to PyDAW """
