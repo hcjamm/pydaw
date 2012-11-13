@@ -153,7 +153,7 @@ typedef struct st_pydaw_data
     int track_current_item_pitchbend_event_indexes[PYDAW_MAX_TRACK_COUNT];
     int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
     int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
-    char * project_name;
+    //char * project_name;
     char * project_folder;
     char * instruments_folder;
     char * item_folder;
@@ -215,7 +215,7 @@ typedef struct
     int thread_num;
 }t_pydaw_thread_args;
 
-void g_pysong_get(t_pydaw_data*, const char*);
+void g_pysong_get(t_pydaw_data*);
 t_pytrack * g_pytrack_get();
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char*);
 void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name);
@@ -224,7 +224,7 @@ t_pypitchbend * g_pypitchbend_get(float a_start, int a_value);
 t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length);
 t_pydaw_data * g_pydaw_data_get(float);
 int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name);
-void v_open_project(t_pydaw_data*, char*, char*);
+void v_open_project(t_pydaw_data*, const char*);
 void v_set_tempo(t_pydaw_data*,float);
 void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode);
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
@@ -410,7 +410,7 @@ t_pypitchbend * g_pypitchbend_get(float a_start, int a_value)
     return f_result;
 }
 
-void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
+void g_pysong_get(t_pydaw_data* a_pydaw)
 {    
     if(a_pydaw->pysong)
     {
@@ -431,7 +431,7 @@ void g_pysong_get(t_pydaw_data* a_pydaw, const char * a_name)
 #endif
     
     char f_full_path[2048];
-    sprintf(f_full_path, "%s%s.pysong", a_pydaw->project_folder, a_name);
+    sprintf(f_full_path, "%sdefault.pysong", a_pydaw->project_folder);
     
     if(i_pydaw_file_exists(f_full_path))
     {
@@ -892,7 +892,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->instruments_folder = (char*)malloc(sizeof(char) * 256);
     f_result->project_folder = (char*)malloc(sizeof(char) * 256);
     f_result->region_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->project_name = (char*)malloc(sizeof(char) * 256);
+    //f_result->project_name = (char*)malloc(sizeof(char) * 256);
     f_result->playback_mode = 0;
     f_result->pysong = NULL;
     f_result->item_count = 0;
@@ -958,7 +958,7 @@ void v_open_default_project(t_pydaw_data * a_data)
     char * f_home = getenv("HOME");
     char f_default_project_folder[512];
     sprintf(f_default_project_folder, "%s/dssi/pydaw/default-project", f_home);
-    v_open_project(a_data, f_default_project_folder, "default");
+    v_open_project(a_data, f_default_project_folder);
     //free(f_home);  //Not freeing this because it SEGFAULTS for some reason and is tiny....
 }
 
@@ -1152,7 +1152,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
 #endif
 }
 
-void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_name)
+void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
 {
     pthread_mutex_lock(&a_pydaw_data->mutex);
     a_pydaw_data->is_initialized = 0;
@@ -1162,7 +1162,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
     sprintf(a_pydaw_data->item_folder, "%sitems/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->region_folder, "%sregions/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->instruments_folder, "%sinstruments/", a_pydaw_data->project_folder);    
-    strcpy(a_pydaw_data->project_name, a_name);
+    //strcpy(a_pydaw_data->project_name, a_name);
     
     char f_song_file[512];    
     sprintf(f_song_file, "%sdefault.pysong", a_pydaw_data->project_folder);
@@ -1193,13 +1193,13 @@ void v_open_project(t_pydaw_data* a_pydaw_data, char* a_project_folder, char* a_
             f_i++;
         }
     
-        g_pysong_get(a_pydaw_data, a_name);
+        g_pysong_get(a_pydaw_data);
         v_pydaw_open_tracks(a_pydaw_data);        
     }
     else
     {
         printf("Song file and project directory structure not found, not loading project.  This is to be expected if launching PyDAW for the first time\n");
-        g_pysong_get(a_pydaw_data, a_name);  //Loads empty...  TODO:  Make this a separate function for getting an empty pysong or loading a file into one...
+        g_pysong_get(a_pydaw_data);  //Loads empty...  TODO:  Make this a separate function for getting an empty pysong or loading a file into one...
     }
     
     char f_transport_file[256];  //TODO:  This should be moved to a separate function
@@ -1771,7 +1771,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS))  //Save Song
     {
         pthread_mutex_lock(&a_pydaw_data->mutex);
-        g_pysong_get(a_pydaw_data, a_value);
+        g_pysong_get(a_pydaw_data);
         pthread_mutex_unlock(&a_pydaw_data->mutex);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PLAY)) //Begin playback
@@ -1800,10 +1800,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         v_set_loop_mode(a_pydaw_data, f_value);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OS)) //Open Song
-    {
-        t_1d_char_array * f_arr = c_split_str(a_value, '|', 2, LMS_SMALL_STRING);
-        v_open_project(a_pydaw_data, f_arr->array[0], f_arr->array[1]);
-        g_free_1d_char_array(f_arr);
+    {        
+        v_open_project(a_pydaw_data, a_value);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_TEMPO)) //Change tempo
     {

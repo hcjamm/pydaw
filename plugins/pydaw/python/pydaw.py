@@ -1207,21 +1207,21 @@ class transport_widget:
         
 class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
-        f_file = QtGui.QFileDialog.getSaveFileName(parent=this_main_window ,caption='New Project', directory='.', filter='PyDAW Song (*.pysong)')
+        f_file = QtGui.QFileDialog.getSaveFileName(parent=this_main_window ,caption='New Project', directory='.', filter='PyDAW Project (*.pydaw)')
         if not f_file is None and not str(f_file) == "":
             f_file = str(f_file)
-            if not f_file.endswith(".pysong"):
-                f_file += ".pysong"
+            if not f_file.endswith(".pydaw"):
+                f_file += ".pydaw"
             global_new_project(f_file)
             global_open_project(f_file)
     def on_open(self):
-        f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open Project', directory='.', filter='PyDAW Song (*.pysong)')
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open Project', directory='.', filter='PyDAW Project (*.pydaw)')
         if not f_file is None and not str(f_file) == "":
             global_open_project(str(f_file))
     def on_save(self):
         this_pydaw_project.save_project()
     def on_save_as(self):
-        f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", this_pydaw_project.project_file + ".pysong")
+        f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", this_pydaw_project.project_file + ".pydaw")
         if f_new_file:        
             this_pydaw_project.save_project_as(f_new_file)
 
@@ -1476,9 +1476,9 @@ def global_new_project(a_project_file):
     print("global_new_project(" + a_project_file + ")")
     global this_pydaw_project
     if(len(argv) >= 2):
-        this_pydaw_project = pydaw_project(a_project_file, (argv[1]))
+        this_pydaw_project = pydaw_project(argv[1])
     else:
-        this_pydaw_project = pydaw_project(a_project_file)    
+        this_pydaw_project = pydaw_project()    
     this_song_editor.table_widget.clear()
     this_region_editor.table_widget.clear()
     this_item_editor.clear_ccs()
@@ -1506,7 +1506,7 @@ this_transport = transport_widget()
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 
-default_project_file = expanduser("~") + '/dssi/pydaw/default-project/default.pysong'
+default_project_file = expanduser("~") + '/dssi/pydaw/default-project/default.pydaw'
 global_open_project(default_project_file, False)
 
 sys.exit(app.exec_())

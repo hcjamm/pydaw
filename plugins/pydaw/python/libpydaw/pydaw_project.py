@@ -87,7 +87,7 @@ class pydaw_project:
             print("project file " + a_project_file + " does not exist, creating as new project")
             self.new_project(a_project_file)
         if a_notify_osc:
-            self.this_dssi_gui.pydaw_open_song(self.project_folder, self.project_file)
+            self.this_dssi_gui.pydaw_open_song(self.project_folder)
         
     def new_project(self, a_project_file):
         self.set_project_folders(a_project_file)
@@ -104,12 +104,16 @@ class pydaw_project:
                 os.makedirs(project_dir)
         if not os.path.exists(a_project_file):
             f_file = open(a_project_file, 'w')
+            f_file.write("This file does is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
+            f_file.close()
+        if not os.path.exists(self.project_folder + "/default.pysong"):
+            f_file = open(a_project_file, 'w')
             f_file.write(pydaw_terminating_char)
             f_file.close()
 
     def get_song_string(self):
         try:
-            f_file = open(self.project_folder + "/" + self.project_file + ".pysong", "r")
+            f_file = open(self.project_folder + "/default.pysong", "r")
         except:
             return pydaw_terminating_char
         f_result = f_file.read()
@@ -145,7 +149,7 @@ class pydaw_project:
 
     def get_tracks_string(self):
         try:
-            f_file = open(self.project_folder + "/" + self.project_file + ".pytracks", "r")
+            f_file = open(self.project_folder + "/default.pytracks", "r")
         except:
             return pydaw_terminating_char
         f_result = f_file.read()
@@ -157,7 +161,7 @@ class pydaw_project:
         
     def get_transport(self):
         try:
-            f_file = open(self.project_folder + "/" + self.project_file + ".pytransport", "r")
+            f_file = open(self.project_folder + "/default.pytransport", "r")
         except:
             return pydaw_transport()  #defaults
         f_str = f_file.read()
@@ -165,7 +169,7 @@ class pydaw_project:
         return pydaw_transport.from_str(f_str)
     
     def save_transport(self, a_transport):
-        f_file = open(self.project_folder + "/" + self.project_file + ".pytransport", "w")
+        f_file = open(self.project_folder + "/default.pytransport", "w")
         f_file.write(a_transport.__str__())
         f_file.close()
 
@@ -203,13 +207,13 @@ class pydaw_project:
         self.this_dssi_gui.pydaw_save_region(f_name)
 
     def save_song(self, a_song):
-        f_file = open(self.project_folder + "/" + self.project_file + ".pysong", 'w')
+        f_file = open(self.project_folder + "/default.pysong", 'w')
         f_file.write(a_song.__str__())
         f_file.close()
-        self.this_dssi_gui.pydaw_save_song(self.project_file)
+        self.this_dssi_gui.pydaw_save_song()
 
     def save_tracks(self, a_tracks):
-        f_file = open(self.project_folder + "/" + self.project_file + ".pytracks", 'w')
+        f_file = open(self.project_folder + "/default.pytracks", 'w')
         f_file.write(a_tracks.__str__())
         f_file.close()
         #Is there a need for a configure message here?
@@ -251,7 +255,6 @@ class pydaw_project:
     def __init__(self, a_osc_url=None):
         self.last_item_number = 0
         self.last_region_number = 0
-        #self.new_project(a_project_file)
         self.this_dssi_gui = dssi_gui(a_osc_url)
 
 #The below classes are used to generate the saved file strings that will properly enforce the standard, rather than relying on developers to do it themselves
