@@ -1141,12 +1141,7 @@ class transport_widget:
         if self.follow_checkbox.isChecked():
             this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
             this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)  
-    
-    def clear_new(self):
-        self.region_spinbox.setValue(0)
-        self.bar_spinbox.setValue(0)
-        #self.tempo_spinbox.setValue(140)
-        #self.follow_checkbox.setChecked(True)
+
     def open_transport(self, a_notify_osc=False):
         if not a_notify_osc:
             self.suppress_osc = True
@@ -1489,8 +1484,9 @@ def set_default_project(a_project_path):
 def global_close_all():    
     this_region_editor.clear_new()
     this_item_editor.clear_new()
-    this_transport.clear_new()
     
+def set_window_title():
+    this_main_window.setWindowTitle('PyDAW - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + ".pydaw")
 #Opens or creates a new project
 def global_open_project(a_project_file, a_notify_osc=True):
     global_close_all()
@@ -1504,7 +1500,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
     this_region_editor.open_tracks()
     this_transport.open_transport()
     set_default_project(a_project_file)
-    #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
+    set_window_title()
 
 def global_new_project(a_project_file):
     global_close_all()
@@ -1518,8 +1514,9 @@ def global_new_project(a_project_file):
     this_pydaw_project.save_project()
     this_song_editor.open_song()
     this_pydaw_project.save_song(this_song_editor.song)
+    this_transport.open_transport()
     set_default_project(a_project_file)
-    #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
+    set_window_title()
 
 def about_to_quit():
     this_pydaw_project.quit_handler()
