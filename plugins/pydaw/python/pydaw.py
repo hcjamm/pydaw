@@ -306,7 +306,7 @@ class region_list_editor:
         self.region_num_label = QtGui.QLabel()
         self.region_num_label.setText("Region:")
         self.hlayout0.addWidget(self.region_num_label)
-        self.region_name_lineedit = QtGui.QLineEdit("Region0")
+        self.region_name_lineedit = QtGui.QLineEdit()
         self.region_name_lineedit.setEnabled(False)
         self.hlayout0.addWidget(self.region_name_lineedit)
         self.group_box.setLayout(self.main_vlayout)
@@ -1213,7 +1213,6 @@ class pydaw_main_window(QtGui.QMainWindow):
             if not f_file.endswith(".pydaw"):
                 f_file += ".pydaw"
             global_new_project(f_file)
-            global_open_project(f_file)
     def on_open(self):
         f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open Project', directory='.', filter='PyDAW Project (*.pydaw)')
         if not f_file is None and not str(f_file) == "":
@@ -1459,33 +1458,39 @@ Any additional text must be enclosed in quotation marks."
                     self.cc_table.setItem(f_row_index, 2, QtGui.QTableWidgetItem(f_ladspa_port))
                     f_row_index += 1
 
-#Opens or creates a new project
-def global_open_project(a_project_file, a_notify_osc=True):
-    global this_pydaw_project
-    if(len(argv) >= 2):
-        this_pydaw_project = pydaw_project((argv[1]))
-    else:
-        this_pydaw_project = pydaw_project()
-    this_pydaw_project.open_project(a_project_file, a_notify_osc)
-    this_song_editor.open_song()
-    this_region_editor.open_tracks()
-    this_transport.open_transport()
-    #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
-
-def global_new_project(a_project_file):
-    print("global_new_project(" + a_project_file + ")")
-    global this_pydaw_project
-    if(len(argv) >= 2):
-        this_pydaw_project = pydaw_project(argv[1])
-    else:
-        this_pydaw_project = pydaw_project()    
+def global_close_all():
     this_song_editor.table_widget.clear()
     this_region_editor.table_widget.clear()
     this_item_editor.clear_ccs()
     this_item_editor.clear_notes()
     this_item_editor.clear_pb()
     this_region_editor.reset_tracks()
+    
+#Opens or creates a new project
+def global_open_project(a_project_file, a_notify_osc=True):
+    global_close_all()
+    global this_pydaw_project
+    if(len(argv) >= 2):
+        this_pydaw_project = pydaw_project((argv[1]))
+    else:
+        this_pydaw_project = pydaw_project()
+    this_pydaw_project.open_project(a_project_file, a_notify_osc)
+    this_song_editor.open_song()    
+    this_region_editor.open_tracks()
     this_transport.open_transport()
+    #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
+
+def global_new_project(a_project_file):
+    global_close_all()
+    global this_pydaw_project
+    if(len(argv) >= 2):
+        this_pydaw_project = pydaw_project(argv[1])
+    else:
+        this_pydaw_project = pydaw_project()
+    this_pydaw_project.new_project(a_project_file)
+    this_transport.open_transport()
+    this_pydaw_project.save_project()
+    this_pydaw_project.save_song(this_song_editor.song)
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
 def about_to_quit():
@@ -1507,6 +1512,9 @@ this_main_window = pydaw_main_window() #You must call this after instantiating t
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 
 default_project_file = expanduser("~") + '/dssi/pydaw/default-project/default.pydaw'
-global_open_project(default_project_file, False)
+if os.path.exists(default_project_file):
+    global_open_project(default_project_file, False)
+else:
+    global_new_project(default_project_file, False)
 
 sys.exit(app.exec_())
