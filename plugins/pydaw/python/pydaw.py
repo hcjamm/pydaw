@@ -1490,6 +1490,7 @@ def global_new_project(a_project_file):
     this_pydaw_project.new_project(a_project_file)
     this_transport.open_transport()
     this_pydaw_project.save_project()
+    this_song_editor.song = pydaw_song()
     this_pydaw_project.save_song(this_song_editor.song)
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 

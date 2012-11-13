@@ -89,7 +89,7 @@ class pydaw_project:
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
         
-    def new_project(self, a_project_file):
+    def new_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
 
         project_folders = [
@@ -110,6 +110,8 @@ class pydaw_project:
             f_file = open(a_project_file, 'w')
             f_file.write(pydaw_terminating_char)
             f_file.close()
+        if a_notify_osc:
+            self.this_dssi_gui.pydaw_open_song(self.project_folder)
 
     def get_song_string(self):
         try:
