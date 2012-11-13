@@ -71,8 +71,8 @@ class pydaw_project:
         f_cmd = "cp -r " + self.project_folder + "/* " + f_new_project_folder + "/"
         os.popen(f_cmd)
         print(f_new_project_folder + "/" + self.project_file + " | " + a_file_name)
-        move(f_new_project_folder + "/" + self.project_file + ".pysong", a_file_name)
-        self.open_project(f_file_name)
+        move(f_new_project_folder + "/" + self.project_file + ".pydaw", a_file_name)
+        self.set_project_folders(f_file_name)
 
     def set_project_folders(self, a_project_file):
         self.project_folder = os.path.dirname(a_project_file)
