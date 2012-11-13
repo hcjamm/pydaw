@@ -110,11 +110,11 @@ class dssi_gui(ServerThread):
 
     #methods for sending PyDAW-protocol OSC messages
 
-    def pydaw_save_song(self, a_project_file):
-        self.send_configure("ss", a_project_file)
+    def pydaw_save_song(self):
+        self.send_configure("ss", "")
 
-    def pydaw_open_song(self, a_project_folder, a_project_file):
-        self.send_configure("os", a_project_folder + "|" + a_project_file)
+    def pydaw_open_song(self, a_project_folder):
+        self.send_configure("os", a_project_folder)
 
     def pydaw_save_item(self, a_name):
         self.send_configure("si", str(a_name))

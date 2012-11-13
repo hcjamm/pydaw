@@ -21,8 +21,8 @@ OSC configure message keys/values:
 
 	key	value	notes
 
-	"ss"	file	Save song(file == file name)
-	"os"	dir|file	Open song(dir=project directory, file=.pysong file(without extension))
+	"ss"	""	Save song
+	"os"	dir	Open song(dir=project directory, file=.pysong file(without extension))
 	"si"	file	Save/update an item(file==file name)
 	"di"	file	Delete item(file==file name)
 	"sr"	file	Save/update an region(file==file name)
