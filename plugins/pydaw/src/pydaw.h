@@ -1183,6 +1183,19 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     sprintf(a_pydaw_data->instruments_folder, "%sinstruments/", a_pydaw_data->project_folder);    
     //strcpy(a_pydaw_data->project_name, a_name);
     
+    int f_i = 0;
+    
+    while(f_i < a_pydaw_data->item_count)
+    {
+        if(a_pydaw_data->item_pool[f_i])
+        {
+            free(a_pydaw_data->item_pool[f_i]);
+        }
+        f_i++;
+    }
+        
+    a_pydaw_data->item_count = 0;
+    
     char f_song_file[512];    
     sprintf(f_song_file, "%sdefault.pysong", a_pydaw_data->project_folder);
     
@@ -1202,7 +1215,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         S_ISREG(f_song_file_stat.st_mode))
     {
         t_dir_list * f_item_dir_list = g_get_dir_list(a_pydaw_data->item_folder);    
-        int f_i = 0;
+        f_i = 0;
 
         while(f_i < f_item_dir_list->dir_count)
         {

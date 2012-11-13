@@ -1150,7 +1150,7 @@ class transport_widget:
     def open_transport(self, a_notify_osc=False):
         if not a_notify_osc:
             self.suppress_osc = True
-        self.transport = this_pydaw_project.get_transport()        
+        self.transport = this_pydaw_project.get_transport()    
         self.tempo_spinbox.setValue(int(self.transport.bpm))
         self.region_spinbox.setValue(int(self.transport.region))
         self.bar_spinbox.setValue(int(self.transport.bar))
