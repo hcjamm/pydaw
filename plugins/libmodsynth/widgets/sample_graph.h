@@ -101,7 +101,7 @@ public:
 
                 int m = lms_graph_height / 2;
 
-                paint.setPen(Qt::black);
+                paint.setPen(QColor::fromRgb(30, 20, 20, 0));
                 paint.drawLine(bin, m, bin, int(m - m * peak[0]));
                 if (peak[0] > silent && peak[1] > silent) {
                     paint.drawLine(bin, m, bin, int(m + m * peak[1]));
@@ -113,7 +113,7 @@ public:
                     paint.drawLine(bin, m, bin, int(m + m * mean[1]));
                 }
 
-                paint.setPen(Qt::black);
+                paint.setPen(QColor::fromRgb(30, 20, 20, 0));
                 paint.drawPoint(bin, int(m - m * peak[0]));
                 if (peak[0] > silent && peak[1] > silent) {
                     paint.drawPoint(bin, int(m + m * peak[1]));
