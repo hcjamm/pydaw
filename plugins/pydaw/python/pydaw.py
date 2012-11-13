@@ -1240,6 +1240,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", this_pydaw_project.project_file + ".pydaw")
         if f_new_file:        
             this_pydaw_project.save_project_as(f_new_file)
+            set_window_title()
+            set_default_project(f_new_file)
 
     def on_user_manual(self):
         self.show_help_file("pydaw/manual.txt")
@@ -1478,7 +1480,7 @@ Any additional text must be enclosed in quotation marks."
 def set_default_project(a_project_path):
     f_def_file = expanduser("~") + '/dssi/pydaw/last-project.txt'
     f_handle = open(f_def_file, 'w')
-    f_handle.write(a_project_path)
+    f_handle.write(str(a_project_path))
     f_handle.close()
 
 def global_close_all():    
