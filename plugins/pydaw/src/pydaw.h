@@ -1138,7 +1138,26 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
 
         g_free_2d_char_array(f_2d_array);
     }
+    else   //ensure everything is closed...
+    {
+        int f_i = 0;
     
+        while(f_i < PYDAW_MAX_TRACK_COUNT)
+        {
+            a_pydaw_data->track_pool[f_i]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted
+            v_set_plugin_index(a_pydaw_data, f_i, 0);
+            a_pydaw_data->track_pool[f_i]->solo = 0;
+            a_pydaw_data->track_pool[f_i]->mute = 0;
+            a_pydaw_data->track_pool[f_i]->rec = 0;
+            v_pydaw_set_track_volume(a_pydaw_data, f_i, 0.0f);            
+            v_pydaw_open_track(a_pydaw_data, f_i);
+            
+            f_i++;
+        }
+    }
+    
+    //WTF was this here for?  I'm leaving it here because it's so confusing to even look at...
+    /*
     int f_i = 0;
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
@@ -1146,7 +1165,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
         v_pydaw_open_track(a_pydaw_data, f_i);
         f_i++;
     }
-    
+    */
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
 #endif
