@@ -1458,6 +1458,12 @@ Any additional text must be enclosed in quotation marks."
                     self.cc_table.setItem(f_row_index, 2, QtGui.QTableWidgetItem(f_ladspa_port))
                     f_row_index += 1
 
+def set_default_project(a_project_path):
+    f_def_file = expanduser("~") + '/dssi/pydaw/last-project.txt'
+    f_handle = open(f_def_file, 'w')
+    f_handle.write(a_project_path)
+    f_handle.close()
+
 def global_close_all():
     this_song_editor.table_widget.clear()
     this_region_editor.table_widget.clear()
@@ -1478,6 +1484,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
     this_song_editor.open_song()    
     this_region_editor.open_tracks()
     this_transport.open_transport()
+    set_default_project(a_project_file)
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
 def global_new_project(a_project_file):
@@ -1492,6 +1499,7 @@ def global_new_project(a_project_file):
     this_pydaw_project.save_project()
     this_song_editor.song = pydaw_song()
     this_pydaw_project.save_song(this_song_editor.song)
+    set_default_project(a_project_file)
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
 def about_to_quit():
@@ -1512,7 +1520,15 @@ this_transport = transport_widget()
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 
-default_project_file = expanduser("~") + '/dssi/pydaw/default-project/default.pydaw'
+f_def_file = expanduser("~") + '/dssi/pydaw/last-project.txt'
+if os.path.exists(f_def_file):
+    f_handle = open(f_def_file, 'r')
+    default_project_file = f_handle.read()
+    f_handle.close()
+    if not os.path.exists(default_project_file):
+        default_project_file = expanduser("~") + '/dssi/pydaw/default-project/default.pydaw'
+else:
+    default_project_file = expanduser("~") + '/dssi/pydaw/default-project/default.pydaw'
 if os.path.exists(default_project_file):
     global_open_project(default_project_file, False)
 else:
