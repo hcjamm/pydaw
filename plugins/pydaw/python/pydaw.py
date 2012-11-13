@@ -38,8 +38,9 @@ class song_editor:
         f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
         f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
         self.table_widget.setItem(0, a_region_num, f_qtw_item)
-        
+    
     def open_song(self):
+        """ This method clears the existing song from the editor and opens the one currently in this_pydaw_project """
         self.table_widget.clearContents()
         self.song = this_pydaw_project.get_song()
         for f_pos, f_region in self.song.regions.iteritems():
@@ -99,7 +100,6 @@ class song_editor:
             this_transport.region_spinbox.setValue(y)
     
     def __init__(self):
-        self.copied_cell = None
         self.song = pydaw_song()
         self.group_box = QtGui.QGroupBox()
         self.group_box.setMaximumHeight(138)
@@ -161,7 +161,16 @@ class region_list_editor:
         f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
         self.table_widget.setItem(a_track_num, a_bar_num + 1, f_qtw_item)        
     
+    def clear_new(self):
+        """ Reset the region editor state to empty """
+        self.clear_items()
+        self.reset_tracks()
+        self.enabled = False
+        self.region_name_lineedit.setText("")
+        self.region = None
+    
     def open_tracks(self):
+        self.reset_tracks()
         f_tracks = this_pydaw_project.get_tracks()
         for key, f_track in f_tracks.tracks.iteritems():
             self.tracks[key].open_track(f_track)
@@ -411,6 +420,14 @@ class item_list_editor:
             self.item.pitchbends = []
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+    
+    def clear_new(self):
+        self.enabled = False
+        self.item_name_line_edit.setText("")
+        self.ccs_table_widget.clearContents()
+        self.notes_table_widget.clearContents()
+        self.pitchbend_table_widget.clearContents()
+        
     def transpose_dialog(self):
         def transpose_ok_handler():
             self.item.transpose(f_semitone.value(), f_octave.value())
@@ -1124,7 +1141,12 @@ class transport_widget:
         if self.follow_checkbox.isChecked():
             this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
             this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)  
-        
+    
+    def clear_new(self):
+        self.region_spinbox.setValue(0)
+        self.bar_spinbox.setValue(0)
+        #self.tempo_spinbox.setValue(140)
+        #self.follow_checkbox.setChecked(True)
     def open_transport(self, a_notify_osc=False):
         if not a_notify_osc:
             self.suppress_osc = True
@@ -1464,13 +1486,10 @@ def set_default_project(a_project_path):
     f_handle.write(a_project_path)
     f_handle.close()
 
-def global_close_all():
-    this_song_editor.table_widget.clear()
-    this_region_editor.table_widget.clear()
-    this_item_editor.clear_ccs()
-    this_item_editor.clear_notes()
-    this_item_editor.clear_pb()
-    this_region_editor.reset_tracks()
+def global_close_all():    
+    this_region_editor.clear_new()
+    this_item_editor.clear_new()
+    this_transport.clear_new()
     
 #Opens or creates a new project
 def global_open_project(a_project_file, a_notify_osc=True):
@@ -1495,9 +1514,9 @@ def global_new_project(a_project_file):
     else:
         this_pydaw_project = pydaw_project()
     this_pydaw_project.new_project(a_project_file)
-    this_transport.open_transport()
+    this_pydaw_project.save_transport(this_transport.transport)
     this_pydaw_project.save_project()
-    this_song_editor.song = pydaw_song()
+    this_song_editor.open_song()
     this_pydaw_project.save_song(this_song_editor.song)
     set_default_project(a_project_file)
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
