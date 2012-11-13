@@ -397,17 +397,20 @@ class region_list_editor:
 
 class item_list_editor:
     def clear_notes(self):
-        self.item.notes = []
-        this_pydaw_project.save_item(self.item_name, self.item)
-        self.open_item(self.item_name)
+        if self.enabled:
+            self.item.notes = []
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
     def clear_ccs(self):
-        self.item.ccs = []
-        this_pydaw_project.save_item(self.item_name, self.item)
-        self.open_item(self.item_name)
+        if self.enabled:
+            self.item.ccs = []
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
     def clear_pb(self):
-        self.item.pitchbends = []
-        this_pydaw_project.save_item(self.item_name, self.item)
-        self.open_item(self.item_name)
+        if self.enabled:
+            self.item.pitchbends = []
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
     def transpose_dialog(self):
         def transpose_ok_handler():
             self.item.transpose(f_semitone.value(), f_octave.value())
@@ -1209,9 +1212,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_file = str(f_file)
             if not f_file.endswith(".pysong"):
                 f_file += ".pysong"
-            global_open_project(str(f_file))
-            global_new_project()
-        #this_pydaw_project.new_project()
+            global_new_project(f_file)
+            global_open_project(f_file)
     def on_open(self):
         f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open Project', directory='.', filter='PyDAW Song (*.pysong)')
         if not f_file is None and not str(f_file) == "":
@@ -1470,7 +1472,8 @@ def global_open_project(a_project_file, a_notify_osc=True):
     this_transport.open_transport()
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 
-def global_new_project():    
+def global_new_project(a_project_file):
+    print("global_new_project(" + a_project_file + ")")
     global this_pydaw_project
     if(len(argv) >= 2):
         this_pydaw_project = pydaw_project(a_project_file, (argv[1]))
@@ -1478,8 +1481,10 @@ def global_new_project():
         this_pydaw_project = pydaw_project(a_project_file)    
     this_song_editor.table_widget.clear()
     this_region_editor.table_widget.clear()
-    this_item_editor.table_widget.clear()
-    this_region_editor.reset()
+    this_item_editor.clear_ccs()
+    this_item_editor.clear_notes()
+    this_item_editor.clear_pb()
+    this_region_editor.reset_tracks()
     this_transport.open_transport()
     #this_main_window.setWindowTitle('PyDAW - ' + self.project_file)
 

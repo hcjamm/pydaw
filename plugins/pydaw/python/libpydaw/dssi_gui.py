@@ -42,6 +42,10 @@ class dssi_gui(ServerThread):
             except liblo.AddressError, err:
                 print str(err)
                 sys.exit()
+            except:
+                print("Unable to start OSC with " + str(o.port))
+                self.with_osc = False
+                return
 
             self.base_path = str.split(a_url, str(o.port))[1]
             print("base_path = " + self.base_path)
