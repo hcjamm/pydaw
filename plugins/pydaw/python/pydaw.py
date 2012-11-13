@@ -1532,6 +1532,6 @@ else:
 if os.path.exists(default_project_file):
     global_open_project(default_project_file, False)
 else:
-    global_new_project(default_project_file, False)
+    global_new_project(default_project_file)
 
 sys.exit(app.exec_())
