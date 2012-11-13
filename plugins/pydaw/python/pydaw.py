@@ -1548,7 +1548,7 @@ if os.path.exists(f_def_file):
 else:
     default_project_file = expanduser("~") + '/dssi/pydaw/default-project/default.pydaw'
 if os.path.exists(default_project_file):
-    global_open_project(default_project_file, False)
+    global_open_project(default_project_file)
 else:
     global_new_project(default_project_file)
 
