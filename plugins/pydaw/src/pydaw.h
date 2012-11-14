@@ -41,6 +41,7 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_SAVE_TRACKS "st"
 #define PYDAW_CONFIGURE_KEY_REC_ARM_TRACK "tr"
 #define PYDAW_CONFIGURE_KEY_SHOW_FX_UI "fx"
+#define PYDAW_CONFIGURE_KEY_TRACK_NAME "tn"
 
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -133,6 +134,7 @@ typedef struct st_pytrack
     t_pydaw_plugin * instrument;
     t_pydaw_plugin * effect;
     pthread_mutex_t mutex;
+    char name[64];
 }t_pytrack;
 
 typedef struct
@@ -847,6 +849,7 @@ t_pytrack * g_pytrack_get()
     f_result->plugin_index = 0;
     f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * PYDAW_MAX_EVENT_BUFFER_SIZE);
     f_result->rec = 0;
+    f_result->name[0] = '\0';
             
     int f_i = 0;
     
@@ -1120,7 +1123,8 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             free(f_vol_str);
             assert(f_vol < 24 && f_vol > -150);
             
-            free(f_name_str);  //Not yet used...
+            strcpy(a_pydaw_data->track_pool[f_track_index]->name, f_name_str);
+            free(f_name_str);
             
             int f_plugin_index = atoi(f_plugin_index_str);
             free(f_plugin_index_str);
@@ -1535,14 +1539,14 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
     char * filename;
     char oscUrl[256];    
     char * dllName;
-    char * label;
+    //char * label;
      
     
     if(a_is_fx)
     {
         filename = "/usr/lib/dssi/lms_modulex/LMS_MODULEX_qt";
         dllName = "lms_modulex.so";
-        label = "LMS_MODULEX";            
+        //label = "LMS_MODULEX";            
     }
     else
     {
@@ -1551,12 +1555,12 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
             case 1:
                 filename = "/usr/lib/dssi/euphoria/LMS_EUPHORIA_qt";
                 dllName = "euphoria.so";
-                label = "LMS_EUPHORIA";            
+                //label = "LMS_EUPHORIA";            
                 break;
             case 2:
                 filename = "/usr/lib/dssi/ray_v/LMS_RAYV_qt";
                 dllName = "ray_v.so";
-                label = "LMS_RAYV";            
+                //label = "LMS_RAYV";            
                 break;
             default:
                 return;
@@ -1582,7 +1586,7 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
     
     if (fork() == 0) 
     {
-        execlp(filename, filename, oscUrl, dllName, label, track_number_string, NULL);
+        execlp(filename, filename, oscUrl, dllName, a_pydaw_data->track_pool[a_track_num]->name, track_number_string, NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
     }    
@@ -1894,6 +1898,15 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         pthread_mutex_lock(&a_pydaw_data->mutex);
         a_pydaw_data->track_pool[f_track_num]->mute = f_mode;
         pthread_mutex_unlock(&a_pydaw_data->mutex);
+        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        g_free_1d_char_array(f_val_arr);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_TRACK_NAME)) //Set track name
+    {
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        int f_track_num = atoi(f_val_arr->array[0]);        
+        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        strcpy(a_pydaw_data->track_pool[f_track_num]->name, f_val_arr->array[1]);
         pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }
