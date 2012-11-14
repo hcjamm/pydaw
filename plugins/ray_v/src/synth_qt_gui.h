@@ -52,7 +52,7 @@ class rayv_gui : public QFrame
 public:
     rayv_gui(const char * host, const char * port,
 	     QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
-	     QByteArray exitingPath, QWidget *w = 0, bool a_is_session = FALSE, QString a_project_path = QString(""), QString a_instance_name = QString(""));
+	     QByteArray exitingPath, QWidget *w = 0);
     virtual ~rayv_gui();
 
     bool ready() const { return m_ready; }
@@ -69,12 +69,7 @@ public:
     
     void lms_value_changed(int, LMS_control *);
     void lms_set_value(float, LMS_control *);
-    
-    QString project_path;
-    QString instance_name;
-    
-    bool is_session;
-        
+            
 public slots:
     /*Event handlers for setting knob values*/
     void setAttack (float);
@@ -121,7 +116,6 @@ public slots:
     void setLFOcutoff(float);
     
     void aboutToQuit();
-    void setFirstPreset();
     
 protected slots:
     /*Event handlers for receiving changed knob values*/
@@ -171,7 +165,6 @@ protected slots:
     void LFOcutoffChanged(int);
         
     void oscRecv();
-    void sessionTimeout();
 protected:
     
     LMS_main_layout * m_main_layout;
