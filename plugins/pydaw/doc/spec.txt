@@ -44,6 +44,7 @@ OSC configure message keys/values:
 	"st"	""	Save tracks
 	"tr"	int|int	Record arm a track, int:track#|int:0-not-armed/1-armed
 	"fx"	int	show FX GUI for track(int)
+	"tn"	int|string	Set track[int]->name to string
 
 Project structure:
 
