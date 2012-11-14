@@ -371,7 +371,7 @@ class region_list_editor:
         self.clipboard = []  #Clear the clipboard
         for f_item in self.table_widget.selectedIndexes():            
             f_cell = self.table_widget.item(f_item.row(), f_item.column())
-            if not f_cell is None:
+            if not f_cell is None and not str(f_cell.text()) == "":
                 self.clipboard.append([int(f_item.row()), int(f_item.column()) - 1, str(f_cell.text())])
         if len(self.clipboard) > 0:            
             self.clipboard.sort(key=operator.itemgetter(0))
