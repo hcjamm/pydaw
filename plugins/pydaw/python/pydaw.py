@@ -222,6 +222,8 @@ class region_list_editor:
         if not self.enabled:
             QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first.")
             return
+        if (this_transport.is_playing or this_transport.is_recording) and this_transport.follow_checkbox.isChecked():
+            this_transport.follow_checkbox.setChecked(False)
         f_item = self.table_widget.item(x, y)
         if f_item is None or f_item.text() == "":
             self.show_cell_dialog(x, y)
