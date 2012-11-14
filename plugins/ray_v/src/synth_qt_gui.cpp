@@ -58,7 +58,7 @@ static QTextStream rayv_cerr(stderr);
 
 rayv_gui::rayv_gui(const char * host, const char * port,
 		   QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
-		   QByteArray exitingPath, QWidget *w, bool a_is_session, QString a_project_path, QString a_instance_name) :
+		   QByteArray exitingPath, QWidget *w) :
     QFrame(w),
     m_controlPath(controlPath),
     m_midiPath(midiPath),
@@ -71,12 +71,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     rayv_cerr << "Entering constructor...\n";
     m_host = lo_address_new(host, port);
     rayv_cerr << "Setting session support...\n";
-    is_session = a_is_session;
-    project_path = a_project_path;
-    instance_name = a_instance_name;    
-    
-    this->setWindowTitle(QString("PyDAW - Ray-V ") + a_instance_name);
-        
+            
     rayv_cerr << "Building QWidget...\n";
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{border:1px solid white;border-radius:3px; padding:1px;background-color:black;color:white} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
@@ -96,15 +91,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
         
     m_main_layout = new LMS_main_layout(this);
     
-    if(is_session)
-    {
-        m_program = new LMS_preset_manager(instance_name, f_default_presets, LMS_PROGRAM_CHANGE, f_info, this, project_path);        
-    }
-    else
-    {        
-        m_program = new LMS_preset_manager(QString(RAYV_PLUGIN_NAME), f_default_presets, LMS_PROGRAM_CHANGE, f_info, this);
-    }
-    
+    m_program = new LMS_preset_manager(QString(RAYV_PLUGIN_NAME), f_default_presets, LMS_PROGRAM_CHANGE, f_info, this);
+        
     connect(m_program->m_program, SIGNAL(currentIndexChanged(int)), this, SLOT(programChanged(int)));
     connect(m_program->m_prog_save, SIGNAL(pressed()), this, SLOT(programSaved()));
     
@@ -273,39 +261,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     myTimer->start(0);
     
     m_suppressHostUpdate = false;
-    
-    if(is_session)
-    {
-        //This checks for any stray notification files and removes them
-        lms_session_manager::is_saving(project_path, instance_name);
-        lms_session_manager::is_quitting(project_path, instance_name);
-        
-        QTimer *sessionTimer = new QTimer(this);
-        connect(sessionTimer, SIGNAL(timeout()), this, SLOT(sessionTimeout()));
-        sessionTimer->setSingleShot(false);
-        sessionTimer->setInterval(5000);
-        sessionTimer->start();
-        
-        QTimer *setPreset = new QTimer(this);
-        connect(setPreset, SIGNAL(timeout()), this, SLOT(setFirstPreset()));
-        setPreset->setSingleShot(TRUE);
-        setPreset->setInterval(2000);
-        setPreset->start();
-    }
-    
+   
     rayv_cerr << "Leaving constructor...\n";
-}
-
-void rayv_gui::setFirstPreset()
-{
-    /* On the surface, this would appear that this is a seriously stupid piece of
-     code, but as it turns out, QComboBoxes don't like having their index set during
-     a window constructor, they will ignore the change and emit no signals;  So we
-     catch it here 5 seconds after loading the window, then this should never evaluate
-     to TRUE again...*/
-    
-    m_program->m_program->setCurrentIndex((m_program->pending_index_change));
-    
 }
 
 void rayv_gui::lms_set_value(float val, LMS_control * a_ctrl )
@@ -606,22 +563,6 @@ void rayv_gui::oscRecv()
     }
 }
 
-void rayv_gui::sessionTimeout()
-{    
-    if(lms_session_manager::is_saving(project_path, instance_name))
-    {
-        rayv_cerr << instance_name << " is saving...\n";
-        //Currently works by saving the entire preset file
-        
-        m_program->session_save(project_path, instance_name);
-    }
-    
-    if(lms_session_manager::is_quitting(project_path, instance_name))
-    {
-        this->close();
-    }        
-}
-
 void rayv_gui::aboutToQuit()
 {
     if (!m_hostRequestedQuit) lo_send(m_host, m_exitingPath, "");
@@ -805,34 +746,16 @@ int main(int argc, char **argv)
     char *path = lo_url_get_path(url);
     
     rayv_cerr << "host: " << host << " port: " << port << " path: " << path << "\n";
-    
-    bool f_is_session = FALSE;
-    QString f_project_path = QString("");
-    QString f_instance_name = QString("");
-    
-    if(argc >= 7)
-    {
-        f_project_path = QString(application.argv()[5]);
-        f_instance_name = QString(application.argv()[6]);
         
-        f_is_session = TRUE;
-        
-        rayv_cerr << f_project_path << "\n" << f_instance_name << "\n";
-    }
-    else
-    {
-        rayv_cerr << QString("argc==") << QString::number(argc) << QString("\n");
-    }
+    rayv_cerr << QString("argc==") << QString::number(argc) << QString("\n");
+    
 
     rayv_gui gui(host, port,
 		 QByteArray(path) + "/control",
 		 QByteArray(path) + "/midi",
 		 QByteArray(path) + "/program",
 		 QByteArray(path) + "/exiting",
-		 0,
-                 f_is_session,
-                 f_project_path,
-                 f_instance_name);
+		 0);
  
     QByteArray myControlPath = QByteArray(path) + "/control";
     QByteArray myProgramPath = QByteArray(path) + "/program";
@@ -862,6 +785,7 @@ int main(int argc, char **argv)
 
     QObject::connect(&application, SIGNAL(aboutToQuit()), &gui, SLOT(aboutToQuit()));
 
+    gui.setWindowTitle(QString("PyDAW - Ray-V - ") + application.argv()[3]);
     gui.setReady(true);
     
     rayv_cerr << "Starting GUI now..." << endl;
