@@ -264,8 +264,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_main_tab->addTab(m_mono_fx_tab, QString());
         
         m_main_v_layout->addWidget(m_main_tab);
-                
-        this->setWindowTitle(QApplication::translate("Frame", "PyDAW - Euphoria", 0, QApplication::UnicodeUTF8));
+        
         m_main_tab->setTabText(m_main_tab->indexOf(m_sample_tab), QApplication::translate("Frame", "Samples", 0, QApplication::UnicodeUTF8));
         m_main_tab->setTabText(m_main_tab->indexOf(m_poly_fx_tab), QApplication::translate("Frame", "Poly FX", 0, QApplication::UnicodeUTF8));
         m_main_tab->setTabText(m_main_tab->indexOf(m_mono_fx_tab), QApplication::translate("Frame", "Mono FX", 0, QApplication::UnicodeUTF8));
@@ -4331,6 +4330,9 @@ int main(int argc, char **argv)
     QObject::connect(&application, SIGNAL(aboutToQuit()), &gui, SLOT(aboutToQuit()));
 
     gui.setReady(true);
+    
+    gui.setWindowTitle(QString("PyDAW - Euphoria - ") +  application.argv()[3]);
+    
 #ifdef LMS_DEBUG_STANDALONE
     gui.show();
 #endif

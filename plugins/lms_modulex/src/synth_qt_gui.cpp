@@ -71,8 +71,6 @@ modulex_gui::modulex_gui(const char * host, const char * port,
 {
     m_host = lo_address_new(host, port);
     
-    this->setWindowTitle(QString("LMS Modulex - Modular Effects Unit"));
-    
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{border:1px solid white;border-radius:3px; padding:1px;background-color:black;color:white} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
 
@@ -787,6 +785,7 @@ int main(int argc, char **argv)
 
     gui.setReady(true);
     
+    gui.setWindowTitle(QString("PyDAW - Modulex - ") +  application.argv()[3]);
 #ifdef LMS_DEBUG_MODE_QT
     modulex_cerr << "Starting GUI now..." << endl;
 #endif
