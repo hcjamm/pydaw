@@ -485,6 +485,68 @@ class item_list_editor:
         f_cancel.pressed.connect(time_shift_cancel_handler)
         f_layout.addWidget(f_cancel, 2, 1)
         f_window.exec_()
+
+    def on_template_open(self):
+        if not self.enabled:
+            return
+        f_path= expanduser("~") + "/dssi/pydaw/item_templates/" + str(self.template_combobox.currentText()) + ".pyitem"
+        if not os.path.isfile(f_path):
+            QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "Cannot find specified template")
+        else:
+            f_item_handle = open(f_path, "r")
+            f_item = pydaw_item.from_str(f_item_handle.read())
+            f_item_handle.close()
+            self.item = f_item
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
+    
+    def on_template_save_as(self):
+        if not self.enabled:
+            return
+        def time_shift_ok_handler():
+            if str(f_name.text()) == "":
+                QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
+                return
+            f_path= expanduser("~") + "/dssi/pydaw/item_templates/" + str(f_name.text()) + ".pyitem"
+            f_handle = open(f_path, "w")
+            f_handle.write(self.item.__str__())
+            f_handle.close()
+            self.load_templates()
+            f_window.close()
+
+        def time_shift_cancel_handler():
+            f_window.close()
+        
+        def f_name_text_changed():
+            f_name.setText(pydaw_remove_bad_chars(f_name.text()))
+            
+        f_window = QtGui.QDialog()
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        
+        f_name = QtGui.QLineEdit()
+        f_name.textChanged.connect(f_name_text_changed)
+        f_layout.addWidget(QtGui.QLabel("Name:"), 0, 0)
+        f_layout.addWidget(f_name, 0, 1)        
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(time_shift_ok_handler)
+        f_layout.addWidget(f_ok, 2, 0)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(time_shift_cancel_handler)
+        f_layout.addWidget(f_cancel, 2, 1)
+        f_window.exec_()        
+        
+    def load_templates(self):
+        self.template_combobox.clear()
+        f_path= expanduser("~") + "/dssi/pydaw/item_templates"
+        if not os.path.isdir(f_path):
+            os.mkdir(f_path)
+        else:
+            f_file_list = os.listdir(f_path)
+            for f_name in f_file_list:
+                if f_name.endswith(".pyitem"):
+                    self.template_combobox.addItem(f_name.split(".")[0])
+        
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):
         self.enabled = False
@@ -494,9 +556,8 @@ class item_list_editor:
         self.group_box.setLayout(self.main_vlayout)
         
         self.edit_mode_groupbox = QtGui.QGroupBox()
-        self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
-        f_edit_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.edit_mode_hlayout0.addItem(f_edit_spacer)
+        self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)        
+        self.edit_mode_hlayout0.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         self.edit_mode_hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
         self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
         self.edit_mode_hlayout0.addWidget(self.add_radiobutton)
@@ -510,6 +571,19 @@ class item_list_editor:
         self.item_name_line_edit.setEnabled(False)
         self.editing_hboxlayout.addWidget(QtGui.QLabel("Editing Item:"))
         self.editing_hboxlayout.addWidget(self.item_name_line_edit)
+        self.editing_hboxlayout.addWidget(QtGui.QLabel("Templates:"))
+        self.template_save_as = QtGui.QPushButton("Save as...")
+        self.template_save_as.setMinimumWidth(90)
+        self.template_save_as.pressed.connect(self.on_template_save_as)
+        self.editing_hboxlayout.addWidget(self.template_save_as)
+        self.template_open = QtGui.QPushButton("Open")
+        self.template_open.setMinimumWidth(90)
+        self.template_open.pressed.connect(self.on_template_open)
+        self.editing_hboxlayout.addWidget(self.template_open)
+        self.template_combobox = QtGui.QComboBox()
+        self.template_combobox.setMinimumWidth(150)
+        self.editing_hboxlayout.addWidget(self.template_combobox)
+        self.load_templates()
         self.editing_hboxlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         self.editing_hboxlayout.addWidget(self.edit_mode_groupbox, alignment=QtCore.Qt.AlignRight)
         
