@@ -1918,7 +1918,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
     else   //ensure everything is closed...
     {
         int f_i = 0;
-    
+        
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {
             a_pydaw_data->track_pool[f_i]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted
@@ -1926,6 +1926,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             a_pydaw_data->track_pool[f_i]->solo = 0;
             a_pydaw_data->track_pool[f_i]->mute = 0;
             a_pydaw_data->track_pool[f_i]->rec = 0;
+            sprintf(a_pydaw_data->track_pool[f_i]->name, "track%i", (f_i + 1));             
             v_pydaw_set_track_volume(a_pydaw_data, f_i, 0.0f);            
             v_pydaw_open_track(a_pydaw_data, f_i);
             
