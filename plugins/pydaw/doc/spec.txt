@@ -34,7 +34,6 @@ OSC configure message keys/values:
 	"stop"	""	Stop playback or recording
 	"tempo"	int	The new tempo
 	"loop"	int	The loop mode qcombobox index #Use a LADSPA port instead?
-	"tsig"	int|int	Update the time signature(Not planned to be implemented anytime soon, just a placeholder for future functionality)
 
 	"vol"	"int|int"  Track volume, track#|dB
 	"solo"	"int|bool"	solo track, track#|bool
@@ -45,6 +44,9 @@ OSC configure message keys/values:
 	"tr"	int|int	Record arm a track, int:track#|int:0-not-armed/1-armed
 	"fx"	int	show FX GUI for track(int)
 	"tn"	int|string	Set track[int]->name to string
+
+	"preview" path	Preview a .wav or other supported sample format....  (not yet implemented)
+	"or"	start-region|start-bar|start-beat|end-region|end-bar|end-beat|file-path		offline render to .wav file
 
 Project structure:
 

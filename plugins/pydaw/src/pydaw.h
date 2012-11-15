@@ -35,7 +35,6 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_STOP "stop"
 #define PYDAW_CONFIGURE_KEY_LOOP "loop"
 #define PYDAW_CONFIGURE_KEY_TEMPO "tempo"
-#define PYDAW_CONFIGURE_KEY_TSIG "tsig"
 #define PYDAW_CONFIGURE_KEY_VOL "vol"
 #define PYDAW_CONFIGURE_KEY_SOLO "solo"
 #define PYDAW_CONFIGURE_KEY_MUTE "mute"
@@ -45,7 +44,10 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_REC_ARM_TRACK "tr"
 #define PYDAW_CONFIGURE_KEY_SHOW_FX_UI "fx"
 #define PYDAW_CONFIGURE_KEY_TRACK_NAME "tn"
-
+    
+#define PYDAW_CONFIGURE_KEY_PREVIEW_SAMPLE "preview"
+#define PYDAW_CONFIGURE_KEY_OFFLINE_RENDER "or"
+    
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
 #define PYDAW_LOOP_MODE_REGION 2
@@ -2722,8 +2724,26 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         v_set_plugin_index(a_pydaw_data, f_track_num, f_plugin_index);
         
         g_free_1d_char_array(f_val_arr);
+    }    
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PREVIEW_SAMPLE)) //Preview a sample
+    {
+        printf("Sample preview not yet implemented");
     }
-    
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OFFLINE_RENDER)) //Render a project to .wav file
+    {
+        printf("Offline render not yet implemented");
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 7, LMS_TINY_STRING);
+        int f_start_region = atoi(f_val_arr->array[0]);
+        int f_start_bar = atoi(f_val_arr->array[1]);
+        int f_start_beat = atoi(f_val_arr->array[2]);
+        int f_end_region = atoi(f_val_arr->array[3]);
+        int f_end_bar = atoi(f_val_arr->array[4]);
+        int f_end_beat = atoi(f_val_arr->array[5]);
+        char * f_file_out = f_val_arr->array[5];
+        //TODO:  Call a function here with the above variables
+        
+        g_free_1d_char_array(f_val_arr);
+    }
     else
     {
         printf("Unknown configure message key: %s, value %s\n", a_key, a_value);
