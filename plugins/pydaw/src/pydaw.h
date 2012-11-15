@@ -2739,7 +2739,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_end_region = atoi(f_val_arr->array[3]);
         int f_end_bar = atoi(f_val_arr->array[4]);
         int f_end_beat = atoi(f_val_arr->array[5]);
-        char * f_file_out = f_val_arr->array[5];
+        char * f_file_out = f_val_arr->array[6];
         //TODO:  Call a function here with the above variables
         
         g_free_1d_char_array(f_val_arr);
