@@ -252,14 +252,8 @@ static void runLMSWrapper(LADSPA_Handle instance, unsigned long sample_count)
 static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
-    /*Define our inputs*/
     
-    /*define our outputs*/
-    //LADSPA_Data *const output0 = plugin_data->output0;    
-    //LADSPA_Data *const output1 = plugin_data->output1;
-    
-    plugin_data->i_buffer_clear = 0;
-    
+    plugin_data->i_buffer_clear = 0;    
     /*Clear the output buffer*/
     while((plugin_data->i_buffer_clear) < sample_count)  //TODO:  Consider memset'ing???
     {
@@ -269,24 +263,21 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
         plugin_data->output1[(plugin_data->i_buffer_clear)] = 0.0f;
         plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
     }
-    
-    pthread_mutex_lock(&pydaw_data->main_mutex);
-           
-    long f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
-    
+        
     int f_lock_result = pthread_mutex_trylock(&pydaw_data->offline_mutex);
     
     if(f_lock_result == 0)  //Don't try to process the main loop if another process, ie:  offline rendering of a project, has locked it
     {
+        pthread_mutex_lock(&pydaw_data->main_mutex);
+        long f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
         v_pydaw_run_main_loop(pydaw_data, sample_count, events, event_count, f_next_current_sample, plugin_data->output0, plugin_data->output1);
         /*TODO:  Run the LMS Limiter algorithm here at 0.0db, long release time, to prevent clipping*/
-        pthread_mutex_unlock(&pydaw_data->offline_mutex);        
+        
+        pydaw_data->current_sample = f_next_current_sample;
+        
+        pthread_mutex_unlock(&pydaw_data->main_mutex);
+        pthread_mutex_unlock(&pydaw_data->offline_mutex);
     }
-    
-    pydaw_data->current_sample = f_next_current_sample;
-    
-    pthread_mutex_unlock(&pydaw_data->main_mutex);
-    
 }
 
 char *c_pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)

@@ -46,7 +46,7 @@ OSC configure message keys/values:
 	"tn"	int|string	Set track[int]->name to string
 
 	"preview" path	Preview a .wav or other supported sample format....  (not yet implemented)
-	"or"	start-region|start-bar|start-beat|end-region|end-bar|end-beat|file-path		offline render to .wav file
+	"or"	start-region|start-bar|end-region|end-bar|file-path	offline render project to .wav file
 
 Project structure:
 
