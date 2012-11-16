@@ -2557,37 +2557,57 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
 {
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
     
-    float * f_output0 = (float*)malloc(sizeof(float) * 25000000);   //25 million enough?  TODO calculate this from actual length...
-    float * f_output1 = (float*)malloc(sizeof(float) * 25000000);
-    
-
-    const int format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
-    const int channels = 2;
-    const int sampleRate = (int)(a_pydaw_data->sample_rate);    
+    float * f_output = (float*)malloc(sizeof(float) * 50000000);   //50 million enough?  TODO calculate this from actual length...
+        
     //SndfileHandle outfile(a_file_out, SFM_WRITE, format, channels, sampleRate);
     //if (not outfile) return -1;
-
+    SF_INFO f_sf_info;
+    f_sf_info.channels = 2;
+    f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+    f_sf_info.frames = 25000000;
+    f_sf_info.samplerate = (int)(a_pydaw_data->sample_rate);
+        
+    SNDFILE * f_sndfile = sf_open(a_file_out, SFM_WRITE, &f_sf_info);
+    
     long f_size = 0;
     long f_block_size = 4096;
+    long f_block_size_x_2 = 8192;
     long f_next_sample_block = 0;
-    LADSPA_Data * f_buffer0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
-    LADSPA_Data * f_buffer1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
+    LADSPA_Data * f_buffer0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * f_block_size_x_2);
+    LADSPA_Data * f_buffer1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * f_block_size_x_2);
     
+    int f_old_loop_mode = a_pydaw_data->loop_mode;  //We must set it back afterwards, or the UI will be wrong...
     v_set_loop_mode(a_pydaw_data, PYDAW_LOOP_MODE_OFF);
-    v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);
+    v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);    
         
     while(((a_pydaw_data->current_region) < a_end_region) && ((a_pydaw_data->current_bar) < a_end_bar))
     {
         f_next_sample_block = (a_pydaw_data->current_sample) + f_block_size;
         v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1);
         a_pydaw_data->current_sample = f_next_sample_block;
-        f_size += f_block_size;
+                
+        int f_i = 0;
+             
+        /*Interleave the samples...*/
+        while(f_i < f_block_size)
+        {
+            f_output[f_size] = f_buffer0[f_i];
+            f_size++;
+            f_output[f_size] = f_buffer1[f_i];
+            f_size++;
+            
+            f_i++;
+        }        
     }
     
-    //outfile.write(&sample[0], size);
+    v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_OFF, a_start_region, a_start_bar);
+    v_set_loop_mode(a_pydaw_data, f_old_loop_mode);
     
-    free(f_output0);
-    free(f_output1);
+    sf_write_float(f_sndfile, f_output, f_size);
+    
+    free(f_buffer0);
+    free(f_buffer1);
+    free(f_output);    
     
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
 }
