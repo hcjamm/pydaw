@@ -1199,7 +1199,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
             
 	    for (j = 0; j < 2; ++j) {
 		//if (j == 1 && info.channels < 2) {
-                if (j == 1 && info.channels <= 2) {
+                if (j == 1 && info.channels == 1) {
 		    tmpSamples[j][f_i] = tmpSamples[0][f_i];
 		} else {
 		    f_temp_sample = //(tmpFrames[(f_i - LMS_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j]);
