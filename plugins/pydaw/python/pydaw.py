@@ -462,7 +462,8 @@ class item_list_editor:
         
     def time_shift_dialog(self):
         def time_shift_ok_handler():
-            self.item.time_shift(f_shift.value())
+            self.events_follow_default = f_events_follow_notes.isChecked()
+            self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked())
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
             f_window.close()
@@ -477,7 +478,10 @@ class item_list_editor:
         f_shift = QtGui.QDoubleSpinBox()
         f_shift.setRange(-4.0, 4.0)
         f_layout.addWidget(QtGui.QLabel("Shift(beats)"), 0, 0)
-        f_layout.addWidget(f_shift, 0, 1)        
+        f_layout.addWidget(f_shift, 0, 1)
+        f_events_follow_notes = QtGui.QCheckBox("CCs and pitchbend follow notes?")
+        f_events_follow_notes.setChecked(self.events_follow_default)
+        f_layout.addWidget(f_events_follow_notes, 1, 1)
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(time_shift_ok_handler)
         f_layout.addWidget(f_ok, 2, 0)
@@ -503,7 +507,7 @@ class item_list_editor:
     def on_template_save_as(self):
         if not self.enabled:
             return
-        def time_shift_ok_handler():
+        def ok_handler():
             if str(f_name.text()) == "":
                 QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
                 return
@@ -514,7 +518,7 @@ class item_list_editor:
             self.load_templates()
             f_window.close()
 
-        def time_shift_cancel_handler():
+        def cancel_handler():
             f_window.close()
         
         def f_name_text_changed():
@@ -529,10 +533,10 @@ class item_list_editor:
         f_layout.addWidget(QtGui.QLabel("Name:"), 0, 0)
         f_layout.addWidget(f_name, 0, 1)        
         f_ok = QtGui.QPushButton("OK")
-        f_ok.pressed.connect(time_shift_ok_handler)
+        f_ok.pressed.connect(ok_handler)
         f_layout.addWidget(f_ok, 2, 0)
         f_cancel = QtGui.QPushButton("Cancel")
-        f_cancel.pressed.connect(time_shift_cancel_handler)
+        f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 2, 1)
         f_window.exec_()        
         
@@ -550,6 +554,7 @@ class item_list_editor:
     #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):
         self.enabled = False
+        self.events_follow_default = True
         self.group_box = QtGui.QGroupBox()
         self.main_vlayout = QtGui.QVBoxLayout()
         self.main_hlayout = QtGui.QHBoxLayout()

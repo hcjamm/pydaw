@@ -355,7 +355,7 @@ class pydaw_item:
             elif note.note_num > 127:
                 note.note_num = 127
                 
-    def time_shift(self, a_shift):
+    def time_shift(self, a_shift, a_events_move_with_item=False):
         """ Move all items forward or backwards by a_shift number of beats, wrapping if before or after the item"""
         f_shift = float(a_shift)
         if f_shift < -4.0:
@@ -367,7 +367,22 @@ class pydaw_item:
             if note.start < 0.0:
                 note.start += 4.0
             elif note.start > 4.0:
-                note.note_num -= 4.0
+                note.start -= 4.0
+        if a_events_move_with_item:
+            for cc in self.ccs:
+                cc.start += f_shift
+                if cc.start < 0.0:
+                    cc.start += 4.0
+                elif cc.start > 4.0:
+                    cc.start -= 4.0
+            for pb in self.pitchbends:
+                pb.start += f_shift
+                if pb.start < 0.0:
+                    pb.start += 4.0
+                elif pb.start > 4.0:
+                    pb.start -= 4.0
+                        
+            
             
     def get_next_default_note(self):
         pass
