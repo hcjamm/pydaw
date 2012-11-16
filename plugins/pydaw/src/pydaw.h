@@ -77,6 +77,7 @@ extern "C" {
 #include <sys/stat.h>
 #include <sched.h>
 #include <unistd.h>
+#include <sndfile.h>
 #include "../../libmodsynth/lib/amp.h"
     
 typedef struct st_pynote
@@ -256,7 +257,8 @@ void v_open_default_project(t_pydaw_data * a_data);
 inline void v_pydaw_process_external_midi(t_pydaw_data * pydaw_data, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count);
 inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, unsigned long sample_count, 
         snd_seq_event_t *events, unsigned long event_count, long f_next_current_sample, LADSPA_Data *output0, LADSPA_Data *output1);
-
+void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, int a_end_region, 
+        int a_end_bar, char * a_file_out);
 /*End declarations.  Begin implementations.*/
 
 void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
@@ -2549,6 +2551,48 @@ void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data)
 }
 #endif
 
+
+void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, int a_end_region, 
+        int a_end_bar, char * a_file_out)
+{
+    pthread_mutex_lock(&a_pydaw_data->offline_mutex);
+    
+    float * f_output0 = (float*)malloc(sizeof(float) * 25000000);   //25 million enough?  TODO calculate this from actual length...
+    float * f_output1 = (float*)malloc(sizeof(float) * 25000000);
+    
+
+    const int format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+    const int channels = 2;
+    const int sampleRate = (int)(a_pydaw_data->sample_rate);    
+    //SndfileHandle outfile(a_file_out, SFM_WRITE, format, channels, sampleRate);
+    //if (not outfile) return -1;
+
+    long f_size = 0;
+    long f_block_size = 4096;
+    long f_next_sample_block = 0;
+    LADSPA_Data * f_buffer0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
+    LADSPA_Data * f_buffer1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
+    
+    v_set_loop_mode(a_pydaw_data, PYDAW_LOOP_MODE_OFF);
+    v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);
+        
+    while(((a_pydaw_data->current_region) < a_end_region) && ((a_pydaw_data->current_bar) < a_end_bar))
+    {
+        f_next_sample_block = (a_pydaw_data->current_sample) + f_block_size;
+        v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1);
+        a_pydaw_data->current_sample = f_next_sample_block;
+        f_size += f_block_size;
+    }
+    
+    //outfile.write(&sample[0], size);
+    
+    free(f_output0);
+    free(f_output1);
+    
+    pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
+}
+
+
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_key, const char* a_value)
 {
     //char log_buff[200];
@@ -2735,13 +2779,11 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 7, LMS_TINY_STRING);
         int f_start_region = atoi(f_val_arr->array[0]);
         int f_start_bar = atoi(f_val_arr->array[1]);
-        int f_start_beat = atoi(f_val_arr->array[2]);
-        int f_end_region = atoi(f_val_arr->array[3]);
-        int f_end_bar = atoi(f_val_arr->array[4]);
-        int f_end_beat = atoi(f_val_arr->array[5]);
-        char * f_file_out = f_val_arr->array[6];
+        int f_end_region = atoi(f_val_arr->array[2]);
+        int f_end_bar = atoi(f_val_arr->array[3]);
+        char * f_file_out = f_val_arr->array[4];
         //TODO:  Call a function here with the above variables
-        
+        v_pydaw_offline_render(a_pydaw_data, f_start_region, f_start_bar, f_end_region, f_end_bar, f_file_out);
         g_free_1d_char_array(f_val_arr);
     }
     else
