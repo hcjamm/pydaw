@@ -2580,20 +2580,31 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     v_set_loop_mode(a_pydaw_data, PYDAW_LOOP_MODE_OFF);
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);    
         
-    while(((a_pydaw_data->current_region) < a_end_region) && ((a_pydaw_data->current_bar) < a_end_bar))
+    while(((a_pydaw_data->current_region) < a_end_region) || ((a_pydaw_data->current_bar) < a_end_bar))
     {
+        int f_i = 0;
+    
+        while(f_i < f_block_size)
+        {
+            f_buffer0[f_i] = 0.0f;
+            f_buffer1[f_i] = 0.0f;
+            f_i++;
+        }
+        
         f_next_sample_block = (a_pydaw_data->current_sample) + f_block_size;
         v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1);
         a_pydaw_data->current_sample = f_next_sample_block;
-                
-        int f_i = 0;
+        
+        f_i = 0;
              
         /*Interleave the samples...*/
         while(f_i < f_block_size)
         {
             f_output[f_size] = f_buffer0[f_i];
+            f_buffer0[f_i] = 0.0f;
             f_size++;
             f_output[f_size] = f_buffer1[f_i];
+            f_buffer1[f_i] = 0.0f;
             f_size++;
             
             f_i++;
