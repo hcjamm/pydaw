@@ -312,9 +312,7 @@ Hit enter to accept the auto-generated default version number:  $version
 		open (MYFILE, ">$short_name-version.txt");
 		print MYFILE "$version";
 		close (MYFILE);
-	}
-
-	
+	}	
 }
 
 
@@ -417,7 +415,16 @@ $package_name = "$short_name-$version-$arch.$package_type";
 
 `cd $base_dir ; dpkg-deb --build $os ; rm $package_name ; mv $os.deb $package_name`;
 
-print "\n\nComplete.  Your package is now located at:\n $base_dir/$package_name\n\n";
+if($prompt)
+{
+	print "\n\nComplete.  Your package is now located at:\n $base_dir/$package_name\n\nInstall now?y/[n]";
+	$install_answer = <STDIN>;
+	chomp($install_answer);
+
+	if($install_answer eq "y"){
+		system("sudo dpkg -i $base_dir/$package_name");
+	}	
+}
 
 sub build_all_debug
 {
