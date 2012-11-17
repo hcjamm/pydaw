@@ -179,3 +179,6 @@ class dssi_gui(ServerThread):
         
     def pydaw_save_track_name(self, a_track_num, a_new_name):
         self.send_configure("tn", str(a_track_num) + "|" + str(a_new_name))
+        
+    def pydaw_offline_render(self, a_start_region, a_start_bar, a_end_region, a_end_bar, a_file_name):
+        self.send_configure("or", str(a_start_region) + "|" + str(a_start_bar) + "|" + str(a_end_region) + "|" + str(a_end_bar) + "|" + str(a_file_name))    
