@@ -148,7 +148,7 @@ inline float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
 
 inline float f_get_saw(t_osc_core * a_core)
 {
-    return (((a_core->output) * 2) - 1);
+    return (((a_core->output) * 2.0f) - 1.0f);
 }
 
 inline float f_get_sine(t_osc_core * a_core)
@@ -161,24 +161,24 @@ inline float f_get_square(t_osc_core * a_core)
 {
     if((a_core->output) >= .5)
     {
-        return 1;
+        return 1.0f;
     }
     else
     {
-        return -1;
+        return -1.0f;
     }
 }
 
 inline float f_get_triangle(t_osc_core * a_core)
 {
-    float f_ramp = ((a_core->output) * 4) - 2;
-    if(f_ramp > 1)
+    float f_ramp = ((a_core->output) * 4.0f) - 2.0f;
+    if(f_ramp > 1.0f)
     {
-        return 2 - f_ramp;
+        return 2.0f - f_ramp;
     }
-    else if(f_ramp < -1)
+    else if(f_ramp < -1.0f)
     {
-        return (2 + f_ramp) * -1;
+        return (2.0f + f_ramp) * -1.0f;
     }
     else
     {
@@ -190,7 +190,7 @@ inline float f_get_triangle(t_osc_core * a_core)
 //Return zero if the oscillator is turned off.  A function pointer should point here if the oscillator is turned off.
 inline float f_get_osc_off(t_osc_core * a_core)
 {
-    return 0;
+    return 0.0f;
 }
 
 /* void v_osc_set_simple_osc_unison_type(t_osc_simple_unison * a_osc_ptr, int a_index)
