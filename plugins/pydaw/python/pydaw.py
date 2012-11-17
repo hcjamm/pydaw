@@ -71,6 +71,7 @@ class song_editor:
                 f_copy_radiobutton.setChecked(True)
 
             f_window = QtGui.QDialog()
+            f_window.setWindowTitle("Add region to song...")
             f_layout = QtGui.QGridLayout()
             f_window.setLayout(f_layout)
             f_new_radiobutton = QtGui.QRadioButton()
@@ -220,7 +221,7 @@ class region_list_editor:
         
     def cell_clicked(self, x, y):
         if not self.enabled:
-            QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first.")
+            QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first by clicking in the song editor above.")
             return
         if (this_transport.is_playing or this_transport.is_recording) and this_transport.follow_checkbox.isChecked():
             this_transport.follow_checkbox.setChecked(False)
@@ -273,6 +274,7 @@ class region_list_editor:
             f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
 
         f_window = QtGui.QDialog()
+        f_window.setWindowTitle("Add item reference to region...")
         f_layout = QtGui.QGridLayout()
         f_vlayout0 = QtGui.QVBoxLayout()
         f_vlayout1 = QtGui.QVBoxLayout()
@@ -441,6 +443,7 @@ class item_list_editor:
             f_window.close()
             
         f_window = QtGui.QDialog()
+        f_window.setWindowTitle("Transpose")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         
@@ -459,8 +462,13 @@ class item_list_editor:
         f_cancel.pressed.connect(transpose_cancel_handler)
         f_layout.addWidget(f_cancel, 2, 1)
         f_window.exec_()
-        
+
+    def show_not_enabled_warning(self):
+        QtGui.QMessageBox.warning(this_main_window, "", "You must open an item first by double-clicking on one in the region editor on the 'Song' tab.")
     def time_shift_dialog(self):
+        if not self.enabled:
+            self.show_not_enabled_warning()
+            return
         def time_shift_ok_handler():
             self.events_follow_default = f_events_follow_notes.isChecked()
             self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked())
@@ -472,6 +480,7 @@ class item_list_editor:
             f_window.close()
             
         f_window = QtGui.QDialog()
+        f_window.setWindowTitle("Time Shift")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         
@@ -492,6 +501,7 @@ class item_list_editor:
 
     def on_template_open(self):
         if not self.enabled:
+            self.show_not_enabled_warning()
             return
         f_path= expanduser("~") + "/dssi/pydaw/item_templates/" + str(self.template_combobox.currentText()) + ".pyitem"
         if not os.path.isfile(f_path):
@@ -506,6 +516,7 @@ class item_list_editor:
     
     def on_template_save_as(self):
         if not self.enabled:
+            self.show_not_enabled_warning()
             return
         def ok_handler():
             if str(f_name.text()) == "":
@@ -525,6 +536,7 @@ class item_list_editor:
             f_name.setText(pydaw_remove_bad_chars(f_name.text()))
             
         f_window = QtGui.QDialog()
+        f_window.setWindowTitle("Save item as template...")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         
@@ -729,6 +741,7 @@ class item_list_editor:
         
     def notes_click_handler(self, x, y):
         if not self.enabled:
+            self.show_not_enabled_warning()
             return
         if self.add_radiobutton.isChecked():
             self.notes_show_event_dialog(x, y)
@@ -739,6 +752,7 @@ class item_list_editor:
 
     def ccs_click_handler(self, x, y):
         if not self.enabled:
+            self.show_not_enabled_warning()
             return
         if self.add_radiobutton.isChecked():
             self.ccs_show_event_dialog(x, y)
@@ -751,6 +765,7 @@ class item_list_editor:
 
     def pitchbend_click_handler(self, x, y):
         if not self.enabled:
+            self.show_not_enabled_warning()
             return
         if self.add_radiobutton.isChecked():
             self.pitchbend_show_event_dialog(x, y)
@@ -809,6 +824,7 @@ class item_list_editor:
             self.default_quantize = f_quantize_index
         
         f_window = QtGui.QDialog()
+        f_window.setWindowTitle("Notes")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_quantize_combobox = QtGui.QComboBox()
@@ -887,6 +903,7 @@ class item_list_editor:
             self.default_quantize = f_quantize_index
 
         f_window = QtGui.QDialog()
+        f_window.setWindowTitle("CCs")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_quantize_combobox = QtGui.QComboBox()
@@ -962,6 +979,7 @@ class item_list_editor:
             self.default_pb_quantize = f_quantize_index
 
         f_window = QtGui.QDialog()
+        f_window.setWindowTitle("Pitchbend")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_quantize_combobox = QtGui.QComboBox()
@@ -1368,6 +1386,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_start_bar.setRange(0, 8)
         f_start_hlayout.addWidget(f_start_bar)
         
+        f_layout.addWidget(QtGui.QLabel("End:"), 2, 0) 
         f_end_hlayout = QtGui.QHBoxLayout()
         f_layout.addLayout(f_end_hlayout, 2, 1)
         f_end_hlayout.addWidget(QtGui.QLabel("Region:"))
@@ -1379,12 +1398,15 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_end_bar.setRange(0, 8)
         f_end_hlayout.addWidget(f_end_bar)
         
+        f_ok_layout = QtGui.QHBoxLayout()
+        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(ok_handler)
-        f_layout.addWidget(f_ok, 9, 0)
+        f_ok_layout.addWidget(f_ok)
+        f_layout.addLayout(f_ok_layout, 9, 1)
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(cancel_handler)
-        f_layout.addWidget(f_cancel, 9, 1)
+        f_layout.addWidget(f_cancel, 9, 2)
         f_window.exec_()        
         
     
@@ -1479,9 +1501,8 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.item_tab = QtGui.QWidget()
         self.item_tab_hlayout = QtGui.QHBoxLayout(self.item_tab)
-        self.item_tab_hlayout.addWidget(this_item_editor.group_box)
-        f_item_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.item_tab_hlayout.addItem(f_item_spacer)
+        self.item_tab_hlayout.addWidget(this_item_editor.group_box)        
+        self.item_tab_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
 
         self.main_tabwidget.addTab(self.item_tab, "Item")
         #Begin CC Map tab
