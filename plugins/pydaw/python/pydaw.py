@@ -1325,6 +1325,69 @@ class pydaw_main_window(QtGui.QMainWindow):
             set_window_title()
             set_default_project(f_new_file)
 
+    def on_offline_render(self):
+        def ok_handler():
+            if str(f_name.text()) == "":
+                QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
+                return
+            #TODO:  Check that the end is actually after the start....
+            this_pydaw_project.this_dssi_gui.pydaw_offline_render(f_start_region.value(), f_start_bar.value(), f_end_region.value(), f_end_bar.value(), f_name.text())
+            f_window.close()
+
+        def cancel_handler():
+            f_window.close()
+        
+        def file_name_select():
+            f_file_name = QtGui.QFileDialog.getSaveFileName(f_window, "Select a file name to save to...")
+            if not f_file_name is None and not str(f_file_name) == "":
+                f_name.setText(f_file_name)
+            
+        f_window = QtGui.QDialog()
+        f_window.setWindowTitle("Offline Render")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        
+        f_name = QtGui.QLineEdit()
+        f_name.setReadOnly(True)
+        f_name.setMinimumWidth(360)
+        f_layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
+        f_layout.addWidget(f_name, 0, 1)
+        f_select_file = QtGui.QPushButton("Select")
+        f_select_file.pressed.connect(file_name_select)
+        f_layout.addWidget(f_select_file, 0, 2)
+        
+        f_layout.addWidget(QtGui.QLabel("Start:"), 1, 0)   
+        f_start_hlayout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_start_hlayout, 1, 1)
+        f_start_hlayout.addWidget(QtGui.QLabel("Region:"))
+        f_start_region = QtGui.QSpinBox()
+        f_start_region.setRange(0, 298)
+        f_start_hlayout.addWidget(f_start_region)
+        f_start_hlayout.addWidget(QtGui.QLabel("Bar:"))
+        f_start_bar = QtGui.QSpinBox()
+        f_start_bar.setRange(0, 8)
+        f_start_hlayout.addWidget(f_start_bar)
+        
+        f_end_hlayout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_end_hlayout, 2, 1)
+        f_end_hlayout.addWidget(QtGui.QLabel("Region:"))
+        f_end_region = QtGui.QSpinBox()
+        f_end_region.setRange(0, 298)
+        f_end_hlayout.addWidget(f_end_region)
+        f_end_hlayout.addWidget(QtGui.QLabel("Bar:"))
+        f_end_bar = QtGui.QSpinBox()
+        f_end_bar.setRange(0, 8)
+        f_end_hlayout.addWidget(f_end_bar)
+        
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(ok_handler)
+        f_layout.addWidget(f_ok, 9, 0)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(cancel_handler)
+        f_layout.addWidget(f_cancel, 9, 1)
+        f_window.exec_()        
+        
+    
     def on_user_manual(self):
         self.show_help_file("pydaw/manual.txt")
     
@@ -1381,6 +1444,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_file.addAction(self.save_as_action)
         self.save_as_action.triggered.connect(self.on_save_as)
 
+        self.offline_render_action = QtGui.QAction("Offline Render...", self)
+        self.menu_file.addAction(self.offline_render_action)
+        self.offline_render_action.triggered.connect(self.on_offline_render)
+        
         self.menu_help = self.menu_bar.addMenu("&Help")
         
         self.manual_action = QtGui.QAction("User Manual...", self)
