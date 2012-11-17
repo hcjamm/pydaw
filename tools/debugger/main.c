@@ -12,7 +12,7 @@
 
 #define DEBUG_PYDAW
 //#define DEBUG_RAYV
-#define DEBUG_EXTERNAL_MIDI
+//#define DEBUG_EXTERNAL_MIDI
 
 #ifdef DEBUG_PYDAW
 #include "../../plugins/pydaw/src/synth.c"
@@ -41,20 +41,21 @@ int main(int argc, char** argv)
 #ifdef DEBUG_PYDAW
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
     
-    
-    //v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project", "default");    
+    v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project/");    
     //v_set_plugin_index(pydaw_data, 0, 2);
     //v_set_plugin_index(pydaw_data, 1, 1);    
     //v_set_plugin_index(pydaw_data, 2, 2);
     //v_pydaw_parse_configure_message(pydaw_data, "tr", "0|1");
     //v_set_tempo(pydaw_data, 140.0f); 
-    v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
+    //v_pydaw_parse_configure_message(pydaw_data, "play", "0|0");
 #endif    
 #ifdef DEBUG_RAYV
     t_rayv * f_engine = (t_rayv*)f_handle;
 #endif
-    f_engine->output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8092);
-    f_engine->output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8092);
+    
+
+    f_engine->output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 1048576/4);
+    f_engine->output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 1048576/4);
     
     float * f_control_ins = (float*)malloc(sizeof(float) * 3000);
     set_ladspa_ports(f_ddesc, f_handle, f_control_ins);
@@ -71,6 +72,9 @@ int main(int argc, char** argv)
     int f_last_bar = 0;
 #endif    
     
+    v_pydaw_offline_render(pydaw_data, 0, 0, 1, 0, "testicles.wav");
+    
+    /*
     while(pydaw_data->current_region < 2)
     {   
 #ifdef DEBUG_EXTERNAL_MIDI
@@ -91,7 +95,7 @@ int main(int argc, char** argv)
 #ifdef DEBUG_PYDAW
     f_ddesc->configure(pydaw_data, "stop", "");
 #endif
-    
+    */
     
     return 0; //(EXIT_SUCCESS);
 }

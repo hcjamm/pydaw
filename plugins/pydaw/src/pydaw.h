@@ -2560,8 +2560,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     float * f_output = (float*)malloc(sizeof(float) * 50000000);   //50 million enough?  TODO calculate this from actual length...
        
     long f_size = 0;
-    long f_block_size = 4096;
-    long f_block_size_x_2 = 8192;
+    long f_block_size = 1048576/8;
+    long f_block_size_x_2 = 1048576/4;
     long f_next_sample_block = 0;
     float * f_buffer0 = (float*)malloc(sizeof(float) * f_block_size_x_2);
     float * f_buffer1 = (float*)malloc(sizeof(float) * f_block_size_x_2);
@@ -2570,7 +2570,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     v_set_loop_mode(a_pydaw_data, PYDAW_LOOP_MODE_OFF);
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);    
     
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    //pthread_mutex_lock(&a_pydaw_data->main_mutex);
     while(((a_pydaw_data->current_region) < a_end_region) || ((a_pydaw_data->current_bar) < a_end_bar))
     {
         int f_i = 0;
@@ -2588,28 +2588,30 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
         
         f_i = 0;            
         /*Interleave the samples...*/
+        //(tmpFrames[(f_i - EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j]));
+        //(tmpFrames[(f_i) * info.channels + j]));
         while(f_i < f_block_size)
         {
-            f_output[f_size] = f_buffer0[f_i];            
-            f_size++;
-            f_output[f_size] = f_buffer1[f_i];            
-            f_size++;            
+            f_output[f_size] = f_buffer0[f_i];
+            f_size++;  //This actually is correct, there shouldn't be another ++ after the 2nd one, f_size is counting frames..
+            f_output[f_size] = f_buffer1[f_i];                        
             f_i++;
         }        
     }
-    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    //pthread_mutex_unlock(&a_pydaw_data->main_mutex);
     
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_OFF, a_start_region, a_start_bar);
     v_set_loop_mode(a_pydaw_data, f_old_loop_mode);
     
     SF_INFO f_sf_info;
     f_sf_info.channels = 2;
-    f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;  //SF_FORMAT_PCM_24;
-    f_sf_info.frames = f_size;
+    f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;  //SF_FORMAT_FLOAT
+    //f_sf_info.frames = f_size;
     f_sf_info.samplerate = (int)(a_pydaw_data->sample_rate);
             
     SNDFILE * f_sndfile = sf_open(a_file_out, SFM_WRITE, &f_sf_info);
-    sf_write_float(f_sndfile, f_output, f_size);
+    printf("%i\n", (int)(sf_writef_float(f_sndfile, f_output, f_size)));
+    sf_close(f_sndfile);
     
     free(f_buffer0);
     free(f_buffer1);
