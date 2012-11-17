@@ -43,23 +43,4 @@ plugins/maintainer.txt
 *deps_installed.txt
 
 */build/*
-/plugins/lms_splashscreen/build/
-/plugins/lms_splashscreen/dist/
-
-plugins/lms_session_manager/lms_session_mgr
-plugins/lms_session_manager/moc_main_form.cpp
-
-plugins/lms_splashscreen/lms_splashscreen
-plugins/protractor/Makefile
-plugins/protractor/configure
-plugins/protractor/qtractor.mak
-plugins/protractor/qtractor.spec
-plugins/protractor/src/.moc/
-plugins/protractor/src/.ui/
-plugins/protractor/src/Makefile
-plugins/protractor/src/config.h
-plugins/protractor/src/qrc_qtractor.cpp
-plugins/protractor/src/qtractor
-plugins/protractor/src/qtractor.desktop
-plugins/protractor/src/qtractor.mak
-plugins/protractor/src/src.pri
+plugins/*version.txt
