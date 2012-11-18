@@ -27,6 +27,7 @@ int main(int argc, char** argv)
     f_ldesc->activate(f_handle);
 
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
+    pydaw_data->sample_count = 512;
     
     v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project");    
 
