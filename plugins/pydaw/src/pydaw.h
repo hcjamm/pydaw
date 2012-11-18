@@ -20,7 +20,7 @@ extern "C" {
 //#define PYDAW_MEMCHECK
     
 //Print detailed information about the MIDI data being sent from PyDAW
-//#define PYDAW_PRINT_DEBUG_INFO
+#define PYDAW_PRINT_DEBUG_INFO
     
 #define PYDAW_CONFIGURE_KEY_SS "ss"
 #define PYDAW_CONFIGURE_KEY_OS "os"
@@ -2560,7 +2560,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     float * f_output = (float*)malloc(sizeof(float) * 20000000);   //TODO: calculate this from actual length...
        
     long f_size = 0;
-    long f_block_size = 4096;    
+    long f_block_size = 8192;    
     long f_next_sample_block = 0;
     float * f_buffer0 = (float*)malloc(sizeof(float) * f_block_size);
     float * f_buffer1 = (float*)malloc(sizeof(float) * f_block_size);
@@ -2569,7 +2569,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     v_set_loop_mode(a_pydaw_data, PYDAW_LOOP_MODE_OFF);
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);    
     
-    //pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    
     while(((a_pydaw_data->current_region) < a_end_region) || ((a_pydaw_data->current_bar) < a_end_bar))
     {
         int f_i = 0;
@@ -2581,9 +2581,11 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
             f_i++;
         }
         
-        f_next_sample_block = (a_pydaw_data->current_sample) + f_block_size;
-        v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1);
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        f_next_sample_block = (a_pydaw_data->current_sample) + f_block_size;        
+        v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1);        
         a_pydaw_data->current_sample = f_next_sample_block;
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         
         f_i = 0;        
         /*Interleave the samples...*/
@@ -2595,11 +2597,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
             f_size++;
             f_i++;
         }
-        
-        
     }
-    //pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-    
+        
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_OFF, a_start_region, a_start_bar);
     v_set_loop_mode(a_pydaw_data, f_old_loop_mode);
     
@@ -2802,7 +2801,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OFFLINE_RENDER)) //Render a project to .wav file
     {
-        printf("Offline render not yet implemented");
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 7, LMS_TINY_STRING);
         int f_start_region = atoi(f_val_arr->array[0]);
         int f_start_bar = atoi(f_val_arr->array[1]);
