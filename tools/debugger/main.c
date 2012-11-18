@@ -37,7 +37,7 @@ int main(int argc, char** argv)
     float * f_control_ins = (float*)malloc(sizeof(float) * 3000);
     set_ladspa_ports(f_ddesc, f_handle, f_control_ins);
    
-    v_pydaw_offline_render(pydaw_data, 0, 0, 0, 2, "test.wav");
+    v_pydaw_offline_render(pydaw_data, 0, 0, 1, 2, "test.wav");
     
     return 0; //(EXIT_SUCCESS);
 }
