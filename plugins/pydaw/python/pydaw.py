@@ -16,7 +16,7 @@ GNU General Public License for more details.
 """
 
 import sys, os, re, operator
-from time import sleep
+from time import sleep, time
 from PyQt4 import QtGui, QtCore
 from sys import argv
 from os.path import expanduser
@@ -1343,18 +1343,59 @@ class pydaw_main_window(QtGui.QMainWindow):
             set_window_title()
             set_default_project(f_new_file)
 
+    def show_offline_rendering_wait_window(self, a_file_name):
+        f_file_name = str(a_file_name)
+        def ok_handler():
+            f_window.close()
+
+        def cancel_handler():
+            f_window.close()
+        
+        def timeout_handler():
+            if os.path.isfile(f_file_name):
+                f_ok.setEnabled(True)
+                f_timer.stop()
+                f_time_label.setText("Finished in " + str(f_time_label.text()))
+            else:
+                f_elapsed_time = time() - f_start_time
+                f_time_label.setText(str(round(f_elapsed_time, 1)))
+            
+        f_start_time = time()
+        f_window = QtGui.QDialog()
+        f_window.setWindowTitle("Rendering to .wav, please wait")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_time_label = QtGui.QLabel("")
+        f_time_label.setMinimumWidth(360)
+        f_layout.addWidget(f_time_label, 1, 1)
+        f_timer = QtCore.QTimer()
+        f_timer.timeout.connect(timeout_handler)
+        
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(ok_handler)
+        f_ok.setEnabled(False)
+        f_layout.addWidget(f_ok)
+        f_layout.addWidget(f_ok, 2, 2)
+        #f_cancel = QtGui.QPushButton("Cancel")
+        #f_cancel.pressed.connect(cancel_handler)
+        #f_layout.addWidget(f_cancel, 9, 2)
+        #TODO:  Send a 'cancel_offline_render' message to the engine...
+        f_timer.start(200)
+        f_window.exec_()
+
     def on_offline_render(self):
         def ok_handler():
             if str(f_name.text()) == "":
                 QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
                 return
-            if (f_end_region.value() > f_start_region.value()) or \
+            if (f_end_region.value() < f_start_region.value()) or \
             ((f_end_region.value() == f_start_region.value()) and (f_start_bar.value() <= f_end_region.value())):
                 QtGui.QMessageBox.warning(f_window, "Error", "End point is before start point.")
                 return
             #TODO:  Check that the end is actually after the start....
             this_pydaw_project.this_dssi_gui.pydaw_offline_render(f_start_region.value(), f_start_bar.value(), f_end_region.value(), f_end_bar.value(), f_name.text())
             f_window.close()
+            self.show_offline_rendering_wait_window(f_name.text())
 
         def cancel_handler():
             f_window.close()
