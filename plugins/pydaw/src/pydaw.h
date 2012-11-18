@@ -145,12 +145,12 @@ typedef struct st_pytrack
 
 typedef struct
 {
-    int track_number;
-    int sample_count;    
+    int track_number;    
 }t_pydaw_work_queue_item;
 
 typedef struct st_pydaw_data
 {
+    long sample_count;   //set from the Jack buffer size every time the main loop is called..
     float tempo;
     pthread_mutex_t main_mutex;
     t_pysong * pysong;
@@ -259,6 +259,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, unsigned long sampl
         snd_seq_event_t *events, unsigned long event_count, long f_next_current_sample, LADSPA_Data *output0, LADSPA_Data *output1);
 void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, int a_end_region, 
         int a_end_bar, char * a_file_out);
+inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data);
+void v_pydaw_process_plugins_single_threaded(t_pydaw_data * a_pydaw_data);
 /*End declarations.  Begin implementations.*/
 
 void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
@@ -321,6 +323,40 @@ inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin)
     }
 }
 
+/*Mostly for offline rendering, where the performance hit is acceptable, but race conditions and possible data corruption are not...*/
+void v_pydaw_process_plugins_single_threaded(t_pydaw_data * a_pydaw_data)
+{
+    int f_i = 0;
+    
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {
+        if(a_pydaw_data->track_pool[f_i]->plugin_index > 0)
+        {            
+            v_pydaw_update_ports(a_pydaw_data->track_pool[f_i]->instrument);
+            v_pydaw_update_ports(a_pydaw_data->track_pool[f_i]->effect);
+            
+            v_run_plugin(a_pydaw_data->track_pool[f_i]->instrument, (a_pydaw_data->sample_count), 
+                    a_pydaw_data->track_pool[f_i]->event_buffer, 
+                    a_pydaw_data->track_pool[f_i]->current_period_event_index);
+                        
+            memcpy(a_pydaw_data->track_pool[f_i]->effect->pluginInputBuffers[0], 
+                    a_pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[0], 
+                    (a_pydaw_data->sample_count) * sizeof(LADSPA_Data));
+            memcpy(a_pydaw_data->track_pool[f_i]->effect->pluginInputBuffers[1], 
+                    a_pydaw_data->track_pool[f_i]->instrument->pluginOutputBuffers[1], 
+                    (a_pydaw_data->sample_count) * sizeof(LADSPA_Data));
+            
+            v_run_plugin(a_pydaw_data->track_pool[f_i]->effect, (a_pydaw_data->sample_count), 
+                    a_pydaw_data->track_pool[f_i]->event_buffer, 
+                    a_pydaw_data->track_pool[f_i]->current_period_event_index);
+                        
+            a_pydaw_data->track_pool[f_i]->current_period_event_index = 0;
+            
+        }
+        f_i++;
+    }
+}
+
 void * v_pydaw_worker_thread(void* a_arg)
 {
     t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)(a_arg);
@@ -366,18 +402,18 @@ void * v_pydaw_worker_thread(void* a_arg)
             v_pydaw_update_ports(f_args->pydaw_data->track_pool[f_item.track_number]->instrument);
             v_pydaw_update_ports(f_args->pydaw_data->track_pool[f_item.track_number]->effect);
             
-            v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->instrument, f_item.sample_count, 
+            v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->instrument, (f_args->pydaw_data->sample_count), 
                     f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
                     f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
                         
             memcpy(f_args->pydaw_data->track_pool[f_item.track_number]->effect->pluginInputBuffers[0], 
                     f_args->pydaw_data->track_pool[f_item.track_number]->instrument->pluginOutputBuffers[0], 
-                    f_item.sample_count * sizeof(LADSPA_Data));
+                    (f_args->pydaw_data->sample_count) * sizeof(LADSPA_Data));
             memcpy(f_args->pydaw_data->track_pool[f_item.track_number]->effect->pluginInputBuffers[1], 
                     f_args->pydaw_data->track_pool[f_item.track_number]->instrument->pluginOutputBuffers[1], 
-                    f_item.sample_count * sizeof(LADSPA_Data));
+                    (f_args->pydaw_data->sample_count) * sizeof(LADSPA_Data));
             
-            v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->effect, f_item.sample_count, 
+            v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
                     f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
                     f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
                         
@@ -548,9 +584,62 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
     }
 }
 
+inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
+{
+    int f_i = 0;
+
+    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    
+    while(f_i < (a_pydaw_data->track_worker_thread_count))
+    {
+        a_pydaw_data->track_work_queue_counts[f_i] = 0;            
+        f_i++;
+    }
+
+    f_i = 0;
+    int f_thread_index = 0;
+
+    /*Schedule all Euphoria instances on their own core if possible because it can use more CPU than Ray-V*/
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {   
+        if(a_pydaw_data->track_pool[f_i]->plugin_index == 1)
+        {
+            a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
+            a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
+            f_thread_index++;
+            if(f_thread_index >= a_pydaw_data->track_worker_thread_count)
+            {
+                f_thread_index = 0;
+            }
+        }
+        f_i++;
+    }
+
+    f_i = 0;
+
+    /*Now schedule all Ray-V tracks*/
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {   
+        if(a_pydaw_data->track_pool[f_i]->plugin_index == 2)
+        {
+            a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
+            a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
+            f_thread_index++;
+            if(f_thread_index >= a_pydaw_data->track_worker_thread_count)
+            {
+                f_thread_index = 0;
+            }
+        }
+        f_i++;
+    }
+
+    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+}
+
 inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sample_count, 
         snd_seq_event_t *events, unsigned long event_count, long f_next_current_sample, LADSPA_Data *output0, LADSPA_Data *output1)
 {
+    a_pydaw_data->sample_count = sample_count;
     if((a_pydaw_data->playback_mode) > 0)
         {
             double f_sample_period_inc = ((a_pydaw_data->playback_inc) * ((double)(sample_count)));
@@ -1070,77 +1159,26 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
             }
             f_i++;
         }
-                
-        f_i = 0;
-
-        while(f_i < (a_pydaw_data->track_worker_thread_count))
+        
+        if(a_pydaw_data->is_offline_rendering)
         {
-            a_pydaw_data->track_work_queue_counts[f_i] = 0;            
-            f_i++;
+            v_pydaw_process_plugins_single_threaded(a_pydaw_data);
         }
-        
-        f_i = 0;
-        int f_thread_index = 0;
-        
-        /*Schedule all Euphoria instances on their own core if possible because it can use more CPU than Ray-V*/
-        while(f_i < PYDAW_MAX_TRACK_COUNT)
-        {   
-            if(a_pydaw_data->track_pool[f_i]->plugin_index == 1)
-            {
-                a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].sample_count = sample_count;
-                a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
-                a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
-                f_thread_index++;
-                if(f_thread_index >= a_pydaw_data->track_worker_thread_count)
-                {
-                    f_thread_index = 0;
-                }
-            }
-            f_i++;
-        }
-        
-        f_i = 0;
-        
-        /*Now schedule all Ray-V tracks*/
-        while(f_i < PYDAW_MAX_TRACK_COUNT)
-        {   
-            if(a_pydaw_data->track_pool[f_i]->plugin_index == 2)
-            {
-                a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].sample_count = sample_count;
-                a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
-                a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
-                f_thread_index++;
-                if(f_thread_index >= a_pydaw_data->track_worker_thread_count)
-                {
-                    f_thread_index = 0;
-                }
-            }
-            f_i++;
-        }
-        
-        //Work has been scheduled, notify the worker threads
-        pthread_mutex_lock(&a_pydaw_data->track_cond_mutex);
-        pthread_cond_broadcast(&a_pydaw_data->track_cond);
-        pthread_mutex_unlock(&a_pydaw_data->track_cond_mutex);
-        
-        f_i = 0;
-        //A ghetto pthread_join for threads that never finish...
-        while(f_i < (a_pydaw_data->track_worker_thread_count))
-        {
-            if(a_pydaw_data->is_offline_rendering)
-            {
-                struct timespec tim, tim2;
-                tim.tv_sec = 0;
-                tim.tv_nsec = 100000;
+        else
+        {                    
+            //notify the worker threads
+            pthread_mutex_lock(&a_pydaw_data->track_cond_mutex);
+            pthread_cond_broadcast(&a_pydaw_data->track_cond);
+            pthread_mutex_unlock(&a_pydaw_data->track_cond_mutex);
 
-                if(nanosleep(&tim , &tim2) < 0 )   
-                {
-                   printf("Nano sleep system call failed \n");
-                }
+            f_i = 0;
+            //A ghetto pthread_join for threads that never finish...
+            while(f_i < (a_pydaw_data->track_worker_thread_count))
+            {            
+                pthread_mutex_lock(&a_pydaw_data->track_block_mutexes[f_i]);
+                pthread_mutex_unlock(&a_pydaw_data->track_block_mutexes[f_i]);
+                f_i++;
             }
-            pthread_mutex_lock(&a_pydaw_data->track_block_mutexes[f_i]);
-            pthread_mutex_unlock(&a_pydaw_data->track_block_mutexes[f_i]);
-            f_i++;
         }
         
         f_i = 0;
@@ -2504,6 +2542,8 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
     }
     
     pthread_mutex_unlock(&a_pydaw_data->track_pool[a_track_num]->mutex);
+    
+    v_pydaw_schedule_work(a_pydaw_data);
 }
 
 #ifdef PYDAW_MEMCHECK
