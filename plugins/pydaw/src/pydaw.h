@@ -215,6 +215,7 @@ typedef struct st_pydaw_data
     int * track_thread_quit_notifier;
     
     pthread_mutex_t offline_mutex;  //used to prevent the main loop from processing during certain events...
+    int is_offline_rendering;  //Used to artificially inject sleep into the loop to prevent a race condition
 }t_pydaw_data;
 
 typedef struct 
@@ -348,14 +349,14 @@ void * v_pydaw_worker_thread(void* a_arg)
     while(1)
     {
         pthread_cond_wait(&f_args->pydaw_data->track_cond, &f_args->pydaw_data->track_cond_mutex);
+        pthread_mutex_lock(&f_args->pydaw_data->track_block_mutexes[f_args->thread_num]);
         
         if(f_args->pydaw_data->track_thread_quit_notifier[f_args->thread_num])
         {            
             printf("worker thread %i exiting...\n", f_args->thread_num);
+            pthread_mutex_unlock(&f_args->pydaw_data->track_block_mutexes[f_args->thread_num]);
             break;
         }
-        
-        pthread_mutex_lock(&f_args->pydaw_data->track_block_mutexes[f_args->thread_num]);
         
         int f_i = 0;
         while(f_i < f_args->pydaw_data->track_work_queue_counts[f_args->thread_num])
@@ -1118,13 +1119,25 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         }
         
         //Work has been scheduled, notify the worker threads
+        pthread_mutex_lock(&a_pydaw_data->track_cond_mutex);
         pthread_cond_broadcast(&a_pydaw_data->track_cond);
-        
+        pthread_mutex_unlock(&a_pydaw_data->track_cond_mutex);
         
         f_i = 0;
         //A ghetto pthread_join for threads that never finish...
         while(f_i < (a_pydaw_data->track_worker_thread_count))
         {
+            if(a_pydaw_data->is_offline_rendering)
+            {
+                struct timespec tim, tim2;
+                tim.tv_sec = 0;
+                tim.tv_nsec = 100000;
+
+                if(nanosleep(&tim , &tim2) < 0 )   
+                {
+                   printf("Nano sleep system call failed \n");
+                }
+            }
             pthread_mutex_lock(&a_pydaw_data->track_block_mutexes[f_i]);
             pthread_mutex_unlock(&a_pydaw_data->track_block_mutexes[f_i]);
             f_i++;
@@ -1678,7 +1691,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->recording_current_item_pool_index = -1;
     f_result->recording_first_item = -1;
     
-    f_result->amp_ptr = g_amp_get();    
+    f_result->amp_ptr = g_amp_get();
+    f_result->is_offline_rendering = 0;
     
     int f_i = 0;
     
@@ -2550,11 +2564,12 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
         int a_end_bar, char * a_file_out)
 {
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
+    a_pydaw_data->is_offline_rendering = 1;
         
     float * f_output = (float*)malloc(sizeof(float) * 20000000);   //TODO: calculate this from actual length...
        
     long f_size = 0;
-    long f_block_size = 8192;    
+    long f_block_size = 512;    
     long f_next_sample_block = 0;
     float * f_buffer0 = (float*)malloc(sizeof(float) * f_block_size);
     float * f_buffer1 = (float*)malloc(sizeof(float) * f_block_size);
@@ -2609,6 +2624,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     free(f_buffer1);
     free(f_output);    
         
+    a_pydaw_data->is_offline_rendering = 0;
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
 }
 

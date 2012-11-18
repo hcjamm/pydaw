@@ -280,7 +280,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
     }
     else
     {
-        printf("offline_mutex unavailable, not running main loop...\n");
+        //printf("offline_mutex unavailable, not running main loop...\n");
     }
 }
 
