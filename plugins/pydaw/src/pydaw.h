@@ -2653,7 +2653,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     
     SF_INFO f_sf_info;
     f_sf_info.channels = 2;
-    f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
+    f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
     f_sf_info.samplerate = (int)(a_pydaw_data->sample_rate);
             
     SNDFILE * f_sndfile = sf_open(a_file_out, SFM_WRITE, &f_sf_info);
