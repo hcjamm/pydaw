@@ -278,6 +278,10 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
         pthread_mutex_unlock(&pydaw_data->main_mutex);
         pthread_mutex_unlock(&pydaw_data->offline_mutex);
     }
+    else
+    {
+        printf("offline_mutex unavailable, not running main loop...\n");
+    }
 }
 
 char *c_pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)
