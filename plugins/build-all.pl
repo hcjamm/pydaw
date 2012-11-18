@@ -411,7 +411,16 @@ else
 #system("sudo chown -R root $package_dir ; sudo chgrp -R root $package_dir");
 system("chmod -R 755 $package_dir");
 
-$package_name = "$short_name-$version-$arch.$package_type";
+if($debug_build)
+{
+$debug_suffix = "-debug-only"
+}
+else
+{
+$debug_suffix = ""
+}
+
+$package_name = "$short_name-$version-$arch$debug_suffix.$package_type";
 
 `cd $base_dir ; dpkg-deb --build $os ; rm $package_name ; mv $os.deb $package_name`;
 
