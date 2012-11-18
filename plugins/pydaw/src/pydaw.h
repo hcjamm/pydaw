@@ -151,7 +151,6 @@ typedef struct
 
 typedef struct st_pydaw_data
 {
-    int is_initialized;
     float tempo;
     pthread_mutex_t main_mutex;
     t_pysong * pysong;
@@ -381,6 +380,8 @@ void * v_pydaw_worker_thread(void* a_arg)
                     f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
                     f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
                         
+            f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index = 0;
+                                    
             f_i++;
         }
         
@@ -558,15 +559,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
             double f_next_period_beats = f_next_playback_cursor * 4.0f;
 
             int f_i = 0;
-            
-            while(f_i < PYDAW_MAX_TRACK_COUNT)
-            {
-                a_pydaw_data->track_pool[f_i]->current_period_event_index = 0;
-                f_i++;
-            }
-            
-            f_i = 0;
-            
+                        
             a_pydaw_data->is_soloed = 0;
             
             while(f_i < PYDAW_MAX_TRACK_COUNT)
@@ -1660,8 +1653,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     
     pthread_mutex_init(&f_result->main_mutex, NULL);
     pthread_mutex_init(&f_result->quit_mutex, NULL);
-    pthread_mutex_init(&f_result->offline_mutex, NULL);
-    f_result->is_initialized = 0;
+    pthread_mutex_init(&f_result->offline_mutex, NULL);    
     f_result->sample_rate = a_sample_rate;
     f_result->current_sample = 0;
     f_result->current_bar = 0;
