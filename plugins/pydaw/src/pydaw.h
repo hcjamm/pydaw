@@ -880,8 +880,6 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
             } //while CCs
             
             
-            
-            
             //Calculate track pitchbends for this period and update the controller ports
             f_i = 0;
             while(f_i < PYDAW_MAX_TRACK_COUNT)
@@ -1060,6 +1058,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
     #ifdef PYDAW_PRINT_DEBUG_INFO                    
                         printf("\n\nSending note_off event\nf_i = %i, pydaw_data->note_offs[f_i][f_i2] = %ld, pydaw_data->current_sample = %ld\n\n", 
                                     f_i, a_pydaw_data->note_offs[f_i][f_i2], a_pydaw_data->current_sample);
+                        
+                        assert(((a_pydaw_data->note_offs[f_i][f_i2]) >= (a_pydaw_data->current_sample)) || ((a_pydaw_data->note_offs[f_i][f_i2]) == -1));
     #endif                    
                         snd_seq_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
 
@@ -1068,6 +1068,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                                 (a_pydaw_data->note_offs[f_i][f_i2]) - (a_pydaw_data->current_sample);
 
                         a_pydaw_data->track_pool[f_i]->current_period_event_index = (a_pydaw_data->track_pool[f_i]->current_period_event_index) + 1;
+                        
+                        a_pydaw_data->note_offs[f_i][f_i2] = -1;
                     }
                     f_i2++;
                 }
