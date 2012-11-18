@@ -1,5 +1,6 @@
 core
 tools/debugger/debugger
+tools/debugger/*.wav
 plugins/lms_jack_oscrolloscope/jack_oscrolloscope
 plugins/lms_modulex/LMS_MODULEX_qt
 plugins/euphoria/LMS_EUPHORIA_qt
