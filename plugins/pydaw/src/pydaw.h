@@ -2606,10 +2606,18 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
     a_pydaw_data->is_offline_rendering = 1;
         
-    float * f_output = (float*)malloc(sizeof(float) * 20000000);   //TODO: calculate this from actual length...
+    int f_region_count = a_end_region - a_start_region;
+    int f_bar_count = a_end_bar - a_start_bar;
+    
+    int f_beat_total = ((f_region_count * 8) + f_bar_count) * 4;
+    
+    double f_sample_count = a_pydaw_data->samples_per_beat * ((double)f_beat_total);
+    long f_sample_count_long = (((long)f_sample_count) * 2) + 100000;
+    
+    float * f_output = (float*)malloc(sizeof(float) * f_sample_count_long);
        
     long f_size = 0;
-    long f_block_size = 512;    
+    long f_block_size = (a_pydaw_data->sample_count);    
     long f_next_sample_block = 0;
     float * f_buffer0 = (float*)malloc(sizeof(float) * f_block_size);
     float * f_buffer1 = (float*)malloc(sizeof(float) * f_block_size);
