@@ -89,7 +89,7 @@ LADSPA_Data get_port_default(const LADSPA_Descriptor *plugin, int port, int samp
     return 0.0f;
 }
 
-void set_ladspa_ports(const DSSI_Descriptor * a_ddesc, const LADSPA_Handle * a_handle, float * a_control_ins)
+void set_ladspa_ports(const DSSI_Descriptor * a_ddesc, LADSPA_Handle * a_handle, float * a_control_ins)
 {   
     int in, out, controlIn, controlOut, j;
     
