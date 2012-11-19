@@ -213,6 +213,7 @@ typedef struct st_pydaw_data
     int * track_work_queue_counts;
     int track_worker_thread_count;
     int * track_thread_quit_notifier;
+    int * track_thread_is_finished;
     
     pthread_mutex_t offline_mutex;  //used to prevent the main loop from processing during certain events...
     int is_offline_rendering;  //Used to artificially inject sleep into the loop to prevent a race condition
@@ -278,12 +279,14 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
     a_pydaw_data->track_work_queues = (t_pydaw_work_queue_item**)malloc(sizeof(t_pydaw_work_queue_item*) * (a_pydaw_data->track_worker_thread_count));
     a_pydaw_data->track_work_queue_counts = (int*)malloc(sizeof(int) * (a_pydaw_data->track_worker_thread_count));
     a_pydaw_data->track_thread_quit_notifier = (int*)malloc(sizeof(int) * (a_pydaw_data->track_worker_thread_count));
+    a_pydaw_data->track_thread_is_finished = (int*)malloc(sizeof(int) * (a_pydaw_data->track_worker_thread_count));
 
     while(f_i < (a_pydaw_data->track_worker_thread_count))
     {        
         pthread_mutex_init(&a_pydaw_data->track_block_mutexes[f_i], NULL);
         a_pydaw_data->track_work_queues[f_i] = (t_pydaw_work_queue_item*)malloc(sizeof(t_pydaw_work_queue_item) * 32);  //Max 32 work items per thread...
         a_pydaw_data->track_work_queue_counts[f_i] = 0;
+        a_pydaw_data->track_thread_is_finished[f_i] = 0;
         a_pydaw_data->track_thread_quit_notifier[f_i] = 0;
         t_pydaw_thread_args * f_args = (t_pydaw_thread_args*)malloc(sizeof(t_pydaw_thread_args));
         f_args->pydaw_data = a_pydaw_data;
@@ -422,6 +425,7 @@ void * v_pydaw_worker_thread(void* a_arg)
             f_i++;
         }
         
+        f_args->pydaw_data->track_thread_is_finished[f_args->thread_num] = 1;
         pthread_mutex_unlock(&f_args->pydaw_data->track_block_mutexes[f_args->thread_num]);
     }
     
@@ -1166,6 +1170,13 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         }
         else
         {                    
+            f_i = 0;
+            
+            while(f_i < (a_pydaw_data->track_worker_thread_count))
+            {
+                a_pydaw_data->track_thread_is_finished[f_i] = 0;
+                f_i++;
+            }
             //notify the worker threads
             pthread_mutex_lock(&a_pydaw_data->track_cond_mutex);
             pthread_cond_broadcast(&a_pydaw_data->track_cond);
@@ -1176,6 +1187,11 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
             while(f_i < (a_pydaw_data->track_worker_thread_count))
             {            
                 pthread_mutex_lock(&a_pydaw_data->track_block_mutexes[f_i]);
+                if(a_pydaw_data->track_thread_is_finished[f_i] == 0)
+                {
+                    pthread_mutex_unlock(&a_pydaw_data->track_block_mutexes[f_i]);
+                    continue;  //Meaning we somehow beat the thread to the mutex, don't proceed, unlock the mutex and wait again for it...
+                }
                 pthread_mutex_unlock(&a_pydaw_data->track_block_mutexes[f_i]);
                 f_i++;
             }
