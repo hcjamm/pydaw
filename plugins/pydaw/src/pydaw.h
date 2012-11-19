@@ -1464,6 +1464,36 @@ void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
     
     t_pyitem * f_pyitem = a_pydaw_data->item_pool[a_index];
     
+    /*Sort the item first, otherwise they can be out of order due to note_release being the trigger for writing an event, rather than start time*/
+    
+    while(1)
+    {
+        int f_no_changes = 1;
+        
+        f_i = 0;
+        /*Use the Bubble Sort algorithm.  It's generally complete garbage, but in this instance, where the list is going to be
+         pseudo-sorted to begin with, it's actually very efficient, likely only making 3 passes at most, 1 or 2 passes typically*/
+        while(f_i < (f_pyitem->note_count - 1))
+        {        
+            if((f_pyitem->notes[f_i]->start) > (f_pyitem->notes[f_i + 1]->start))
+            {
+                t_pynote * f_greater = f_pyitem->notes[f_i];
+                t_pynote * f_lesser = f_pyitem->notes[f_i + 1];
+                f_pyitem->notes[f_i] = f_lesser;
+                f_pyitem->notes[f_i + 1] = f_greater;
+                f_no_changes = 0;
+            }
+
+            f_i++;
+        }
+        
+        if(f_no_changes)
+        {
+            break;
+        }
+    }
+    
+    f_i = 0;    
     while(f_i < (f_pyitem->note_count))
     {
         sprintf(f_temp, "n|%f|%f|%i|%i\n", f_pyitem->notes[f_i]->start, f_pyitem->notes[f_i]->length, 
