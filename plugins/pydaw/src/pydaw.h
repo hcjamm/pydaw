@@ -1377,6 +1377,8 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     
     t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);
     
+    f_i = 0;
+    
     while(f_i < 128)
     {   
         char * f_y_char = c_iterate_2d_char_array(f_current_string);
