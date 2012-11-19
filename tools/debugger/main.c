@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     //Run it a few times to get the kinks out...  Ideally this shouldn't have to be done, though...
     while(f_i < 100)
     {
-        f_ddesc->run_synth(f_handle, 512, NULL, 0);
+        f_ddesc->run_synth(f_handle, 4096, NULL, 0);
         f_i++;
     }
    
