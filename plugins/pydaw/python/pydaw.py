@@ -556,7 +556,7 @@ class item_list_editor:
         self.template_combobox.clear()
         f_path= expanduser("~") + "/dssi/pydaw/item_templates"
         if not os.path.isdir(f_path):
-            os.mkdir(f_path)
+            os.makedirs(f_path)
         else:
             f_file_list = os.listdir(f_path)
             for f_name in f_file_list:
