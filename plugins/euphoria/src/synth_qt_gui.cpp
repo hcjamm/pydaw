@@ -1426,7 +1426,7 @@ void SamplerGUI::setSampleFile(QString files)
     
     QStringList f_file_list = files.split(QString(EUPHORIA_FILES_STRING_DELIMITER));
     
-    for(int f_i = 0; f_i < f_file_list.count(); f_i++)
+    for(int f_i = 0; (f_i < f_file_list.count()) && (f_i < EUPHORIA_MAX_SAMPLE_COUNT); f_i++)
     {
         if(!f_file_list[f_i].isEmpty())
         {
