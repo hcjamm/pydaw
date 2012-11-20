@@ -206,7 +206,7 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
         //End PolyFX mod matrix
         
         //case LMS_GLOBAL_MIDI_CHANNEL: plugin->global_midi_channel = data; break;
-        case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: plugin->global_midi_octaves_offset = data; break;
+        //case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: plugin->global_midi_octaves_offset = data; break;
         case LMS_NOISE_TYPE: plugin->noise_type = data; break;
         default:
             break;
@@ -839,7 +839,7 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
                             plugin_data->sampleEndPos[(plugin_data->loaded_samples[i])] = (float)(plugin_data->sampleCount[(plugin_data->loaded_samples[i])]);
                         }
 
-                        plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->global_midi_octaves_offset) + 2) * 12)
+                        plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])]))
                                 - (*(plugin_data->sample_pitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->sample_tune[(plugin_data->loaded_samples[i])])) * .01f);
 
                         v_ifh_retrigger(plugin_data->sample_read_heads[f_voice_num][(plugin_data->loaded_samples[i])], 
@@ -1960,14 +1960,14 @@ void _init()
         
         //End from PolyFX mod matrix
         
-	port_descriptors[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	/*port_descriptors[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = "Global MIDI Offset(Octaves)";
 	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].HintDescriptor =
                         LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].LowerBound =  -3;
 	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].UpperBound =  3;
-        
+        */
         port_descriptors[LMS_NOISE_TYPE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_NOISE_TYPE] = "Noise Type";
 	port_range_hints[LMS_NOISE_TYPE].HintDescriptor =

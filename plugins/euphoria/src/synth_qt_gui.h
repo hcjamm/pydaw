@@ -227,7 +227,7 @@ public slots:
     
     void setSelectedMonoFX(float val);
     
-    void set_global_midi_octaves_offset(float val);
+    //void set_global_midi_octaves_offset(float val);
     //void set_global_midi_channel(float val);
     
     void aboutToQuit();
@@ -639,10 +639,9 @@ protected slots:
     void fx3knob0Changed(int);
     void fx3knob1Changed(int);
     void fx3knob2Changed(int);
-    void fx3comboboxChanged(int);
+    void fx3comboboxChanged(int);    
     
-    
-    void global_midi_octaves_offsetChanged(int);
+    //void global_midi_octaves_offsetChanged(int);
     
     //void global_midi_channelChanged(int);
     
@@ -718,9 +717,9 @@ protected:
     
     //End from Modulex
     
-    LMS_group_box *m_global_midi_settings_groupbox;
-    LMS_spinbox *m_global_midi_octaves_offset;
-    LMS_combobox *m_global_midi_channel;
+    //LMS_group_box *m_global_midi_settings_groupbox;
+    //LMS_spinbox *m_global_midi_octaves_offset;
+    //LMS_combobox *m_global_midi_channel;
     
     //From Ray-V PolyFX
     
