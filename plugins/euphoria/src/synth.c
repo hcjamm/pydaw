@@ -1031,21 +1031,29 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
     if(((plugin_data->preview_sample_array_index) < (plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT])) &&
             ((plugin_data->preview_sample_array_index) <  (plugin_data->preview_sample_max_length)))
     {
-        for(i = 0; i < sample_count; i++)
+        if((plugin_data->sampleNo) == 0)  //Workaround for the last previewed sample playing on project startup.  This will be removed when the preview functionality gets reworked
         {
-            plugin_data->output[0][i] += plugin_data->mono_fx_buffers[0][0][i];
-            plugin_data->output[1][i] += plugin_data->mono_fx_buffers[0][1][i];
-
-            //Add the previewing sample
-            plugin_data->output[0][i] += (plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
-            plugin_data->output[1][i] += (plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
-
-            plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + 1;
-
-            if((plugin_data->preview_sample_array_index) >= (plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT]))
+            plugin_data->preview_sample_array_index = plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT];
+            lms_strcpy(plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT], "");
+        }
+        else
+        {
+            for(i = 0; i < sample_count; i++)
             {
-                lms_strcpy(plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT], "");
-                break;
+                plugin_data->output[0][i] += plugin_data->mono_fx_buffers[0][0][i];
+                plugin_data->output[1][i] += plugin_data->mono_fx_buffers[0][1][i];
+
+                //Add the previewing sample
+                plugin_data->output[0][i] += (plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+                plugin_data->output[1][i] += (plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+
+                plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + 1;
+
+                if((plugin_data->preview_sample_array_index) >= (plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT]))
+                {
+                    lms_strcpy(plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT], "");
+                    break;
+                }
             }
         }
     }
