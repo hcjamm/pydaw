@@ -1164,12 +1164,12 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
             f_i++;
         }
         
-        if(a_pydaw_data->is_offline_rendering)
-        {
-            v_pydaw_process_plugins_single_threaded(a_pydaw_data);
-        }
-        else
-        {                    
+        //if(a_pydaw_data->is_offline_rendering)
+        //{
+        //   v_pydaw_process_plugins_single_threaded(a_pydaw_data);
+        //}
+        //else
+        //{                    
             f_i = 0;
             
             while(f_i < (a_pydaw_data->track_worker_thread_count))
@@ -1195,7 +1195,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                 pthread_mutex_unlock(&a_pydaw_data->track_block_mutexes[f_i]);
                 f_i++;
             }
-        }
+        //}
         
         f_i = 0;
 
