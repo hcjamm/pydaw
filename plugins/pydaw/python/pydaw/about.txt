@@ -18,6 +18,14 @@ Powerful multithreaded plugin host with an intelligent scheduler and up to 4 eve
 
 Interpolation modes:  High Quality(33pt SINC), Low Quality(Linear) and No Interpolation(for drum samples, etc...).  I'm contemplating an even higher quality High Quality mode.
 
+****Guiding Principles of the PyDAW Project****
+
+1.  PyDAW is a walled-garden approach to MIDI-centric music production, to ensure that everything is sample-accurate and works together flawlessly, rather than devolving into a constant stream of mailing list and bug tracker reports between other projects who may have poor code quality anyways...
+2.  Efficient multithreading:  Many existing Linux hosts either use bad, unstable, or non-existent multithreading, PyDAW uses an optimal approach to low-latency multithreading without sacrificing stability.
+3.  PyDAW's built-in plugins will continue to grow in number, but will be carefully planned out by what will actually be useful.  Other developers may create plugins for PyDAW, but they will need to be approved and thoroughly tested to be pulled into the official PyDAW Git repo.  Think of it as a similar approach to what Linus does with the Linux kernel.
+4.  Sound quality:  CPU intensive algorithms will be employed everywhere they make sense.  PyDAW is meant for high-end machines, I don't develop software for netbooks, it's not unreasonable to expect every user to have a quad-core and 4GB of RAM if they are truly serious about their music.  PyDAW is for enthusiasts and professionals, hobbyists may have to settle for poor usability or use lesser quality software if they can't pony up $500 for any entry level quad core...
+5.  Hardware-like:  Every control must map well to hardware controllers, no ridiculously overdone GUI widgets, knobs and sliders are preferred everywhere.  The sound has been tweaked for extra hardware-like qualities, as much as can be done reasonably.
+6.  Stability:  PyDAW must always be completely crash-proof under any reasonable conditions, and will be regularly tested with tools such as Valgrind, etc...  using the built-in automated testing framework...  PyDAW must be suitable for live use.  My experience with other Linux DAWs was that they can and will crash during normal activities, which is why I developed PyDAW.
 
 ****Minimum system requirements****
 
@@ -62,13 +70,13 @@ Q: Why don't you allow 3rd party plugins?
 A: Stability, integration, and the ability to guarantee dead-on-balls sample-accurate MIDI timing.  3rd party plugins can choose to ignore my attempts to trigger the note on an exact sample.  PyDAW will continue to become more tightly integrated over time, and I will continue to add more native plugins, and expand the existing effects processor.
 
 Q: PyDAW won't start
-A: You probably haven't configured Jack correctly.  This differs per soundcard(among other factors), Google is your friend.
+A: You probably haven't configured Jack correctly.  This differs per soundcard(among other factors), Google is your friend, and for now the way to do that is QJackCtl.
 
 Q: Should I be using Jack realtime mode?
 A: In theory, probably, in practice, I'm not sure if it matters that much.  I had stability issues with running Jack in realtime mode, so I'm not currently running it that way myself.  YMMV.
 
 Q: PyDAW and it's plugins are showing up in other hosts as DSSI plugins, can I use them in other hosts?
-A: PyDAW has no means of syncing transport, so it's useless as a plugin.  The other plugins, while technically usable, have some non-standard extensions that may hinder your ability to use them.  Eventually the plugin's source code will be integrated into PyDAW's source for performance reasons(among others), so I wouldn't recommend relying on anything in PyDAW as a DSSI plugin in a different host.
+A: PyDAW has no means of syncing transport, so it's useless as a plugin.  The other plugins, while technically usable, have some non-standard extensions that may hinder your ability to use all of their features.  Eventually the plugin's source code will be integrated into PyDAW's source for performance reasons(among others), so I wouldn't recommend relying on anything in PyDAW as a DSSI plugin in a different host.
 
 Q: Is PyDAW written in Python.
 A: Yes, the entire UI is written in Python(a mere ~1400 lines of Python as of the time of this writing), using PyQt and only standard Qt widgets.  The audio/MIDI/plugin-hosting engine is written in C, however the 2 are completely separate, and it's possible(even relatively easy) to write a brand new UI for it, using libpydaw for sending OSC messages.  The plugin UI's are not written in Python, they are written in C++.
