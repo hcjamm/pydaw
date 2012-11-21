@@ -4,7 +4,7 @@ CC  ?= gcc
 CXX ?= g++
 MOC ?= moc
 
-PREFIX ?= /usr/local
+PREFIX ?= /usr
 
 BASE_FLAGS     =  -mstackrealign -fsingle-precision-constant -fPIC -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -Wall -Isrc
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
