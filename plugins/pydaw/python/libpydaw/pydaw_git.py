@@ -4,7 +4,7 @@
 A Git-based undo/redo system for PyDAW
 """
 
-import subprocess, sys
+import subprocess, sys, os
 from PyQt4 import QtGui, QtCore
 
 class pydaw_git_repo:
@@ -101,16 +101,20 @@ class pydaw_git_log_widget(QtGui.QWidget):
             self.ui_callback()
         self.populate_table()
 
-def pydaw_git_show_window(a_repo_dir="/home/bob/repotest"):
+def pydaw_git_show_window(a_repo_dir=None):
     f_qapp = QtGui.QApplication([])
-    f_window = QtGui.QMainWindow()    
-    f_pydaw_git = pydaw_git_repo(a_repo_dir)
+    f_window = QtGui.QMainWindow()
+    f_repo_dir = a_repo_dir
+    if f_repo_dir is None:        
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=f_window ,caption='Open PyDAW project file...', directory='.', filter='PyDAW Project (*.pydaw)')
+        if f_file is None or str(f_file) == "":
+            return
+        else:
+            f_repo_dir = os.path.dirname(str(f_file))    
+    f_pydaw_git = pydaw_git_repo(f_repo_dir)
     f_pydaw_git_widget = pydaw_git_log_widget(f_pydaw_git)
-    f_window.setGeometry(QtCore.QRect(f_window.x(), f_window.y(), 800, 600))
-    f_window.setCentralWidget(f_pydaw_git_widget)
-    f_pydaw_git.git_init()
-    f_pydaw_git.git_add("test.txt")
-    f_pydaw_git.git_commit("test.txt", "testing")
+    f_window.setGeometry(QtCore.QRect(f_window.x(), f_window.y(), 1000, 600))
+    f_window.setCentralWidget(f_pydaw_git_widget)    
     f_pydaw_git_widget.populate_table()
     f_window.show()
     sys.exit(f_qapp.exec_())
