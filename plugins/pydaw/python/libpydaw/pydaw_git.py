@@ -5,7 +5,7 @@ A Git-based undo/redo system for PyDAW
 """
 
 import subprocess, sys
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 class pydaw_git_repo:
     """ Class to manage the project folder as a Git repository """
@@ -22,6 +22,11 @@ class pydaw_git_repo:
         p = subprocess.Popen(cmd, cwd=self.repo_dir)
         p.wait()
     
+    def git_rm(self, file_name):
+        cmd = ['git', 'rm', file_name]
+        p = subprocess.Popen(cmd, cwd=self.repo_dir)
+        p.wait()
+        
     def git_commit(self, a_file_name, a_message):
         cmd = ['git', 'commit', a_file_name, "-m", a_message]
         p = subprocess.Popen(cmd, cwd=self.repo_dir)
@@ -33,7 +38,7 @@ class pydaw_git_repo:
         p.wait()
         
     def git_revert(self, a_commit):
-        cmd = ['git', 'revert', a_commit]
+        cmd = ['git', 'revert', "--no-edit", a_commit]
         p = subprocess.Popen(cmd, cwd=self.repo_dir)
         p.wait()
         
@@ -47,7 +52,7 @@ class pydaw_git_repo:
         out, err = p.communicate()
         return str(out)
     
-class pydaw_git_log_widget(QtGui.QWidget):
+class pydaw_git_log_widget(QtGui.QWidget):    
     def __init__(self, a_git_repo, a_ui_callback=None):
         QtGui.QWidget.__init__(self)
         self.ui_callback = a_ui_callback
@@ -58,10 +63,18 @@ class pydaw_git_log_widget(QtGui.QWidget):
         self.table_widget.setHorizontalHeaderLabels(["Time", "Message", "Hash"])
         self.main_vlayout.addWidget(self.table_widget)
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.revert_action = QtGui.QAction("revert single action", self)
+        self.revert_action.triggered.connect(self.on_revert)
+        self.table_widget.addAction(self.revert_action)
+        self.revert_to_action = QtGui.QAction("revert project to", self)
+        self.revert_to_action.triggered.connect(self.on_revert_to)
+        self.table_widget.addAction(self.revert_to_action)
         
-    def populate_table(self, a_str):
+    def populate_table(self):
         self.table_widget.setRowCount(0)
-        f_arr = str(a_str).split("\ncommit ")        
+        f_str = self.git_repo.git_log()
+        f_arr = str(f_str).split("\ncommit ")        
         for f_commit in f_arr:
             f_commit_arr = f_commit.split("\n")            
             f_index = self.table_widget.rowCount()
@@ -74,18 +87,23 @@ class pydaw_git_log_widget(QtGui.QWidget):
 
     def on_revert(self):
         """ Event handler for when the user reverts a single commit """
-        if not self.updated_callback is None:
-            self.updated_callback()
+        self.git_repo.git_revert(str(self.table_widget.item(self.table_widget.currentRow(), 2).text()))
+        self.git_repo.git_commit("-a", "Revert " + str(self.table_widget.item(self.table_widget.currentRow(), 1).text()))
+        if not self.ui_callback is None:
+            self.ui_callback()
+        self.populate_table()
         
     def on_revert_to(self):
         """ Event handler for when the user reverts the entire project back to a particular commit """
-        if not self.updated_callback is None:
-            self.updated_callback()
+        self.git_repo.git_revert(str(self.table_widget.item(self.table_widget.currentRow(), 2).text()) + "..HEAD")
+        self.git_repo.git_commit("-a", "Revert to " + str(self.table_widget.item(self.table_widget.currentRow(), 0).text()))
+        if not self.ui_callback is None:
+            self.ui_callback()
+        self.populate_table()
 
 def pydaw_git_show_window(a_repo_dir="/home/bob/repotest"):
     f_qapp = QtGui.QApplication([])
     f_window = QtGui.QMainWindow()    
-    from PyQt4 import QtCore    
     f_pydaw_git = pydaw_git_repo(a_repo_dir)
     f_pydaw_git_widget = pydaw_git_log_widget(f_pydaw_git)
     f_window.setGeometry(QtCore.QRect(f_window.x(), f_window.y(), 800, 600))
@@ -93,7 +111,7 @@ def pydaw_git_show_window(a_repo_dir="/home/bob/repotest"):
     f_pydaw_git.git_init()
     f_pydaw_git.git_add("test.txt")
     f_pydaw_git.git_commit("test.txt", "testing")
-    f_pydaw_git_widget.populate_table(f_pydaw_git.git_log())
+    f_pydaw_git_widget.populate_table()
     f_window.show()
     sys.exit(f_qapp.exec_())
     
