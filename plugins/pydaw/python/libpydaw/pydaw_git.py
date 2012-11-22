@@ -64,10 +64,10 @@ class pydaw_git_log_widget(QtGui.QWidget):
         self.main_vlayout.addWidget(self.table_widget)
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
-        self.revert_action = QtGui.QAction("revert single action", self)
+        self.revert_action = QtGui.QAction("revert single action (experimental, dangerous)", self)
         self.revert_action.triggered.connect(self.on_revert)
         self.table_widget.addAction(self.revert_action)
-        self.revert_to_action = QtGui.QAction("revert project to", self)
+        self.revert_to_action = QtGui.QAction("revert project to (safer)", self)
         self.revert_to_action.triggered.connect(self.on_revert_to)
         self.table_widget.addAction(self.revert_to_action)
         
