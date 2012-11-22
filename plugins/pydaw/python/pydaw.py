@@ -1476,7 +1476,17 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 9, 2)
         f_window.exec_()        
-        
+    
+    def on_undo_history(self):
+        f_window = QtGui.QDialog()
+        f_window.setWindowTitle("Undo history")
+        f_layout = QtGui.QVBoxLayout()
+        f_window.setLayout(f_layout)
+        f_widget = pydaw_git_log_widget(this_pydaw_project.git_repo, global_ui_refresh_callback)
+        f_widget.populate_table()
+        f_layout.addWidget(f_widget)
+        f_window.setGeometry(QtCore.QRect(f_window.x(), f_window.y(), 900, 720))
+        f_window.exec_()        
     
     def on_user_manual(self):
         self.show_help_file("pydaw/manual.txt")
@@ -1537,6 +1547,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.offline_render_action = QtGui.QAction("Offline Render...", self)
         self.menu_file.addAction(self.offline_render_action)
         self.offline_render_action.triggered.connect(self.on_offline_render)
+        
+        self.menu_edit = self.menu_bar.addMenu("&Edit")
+        
+        self.undo_history_action = QtGui.QAction("Undo History...", self)
+        self.menu_edit.addAction(self.undo_history_action)
+        self.undo_history_action.triggered.connect(self.on_undo_history)        
         
         self.menu_help = self.menu_bar.addMenu("&Help")
         
@@ -1724,6 +1740,14 @@ def set_default_project(a_project_path):
 def global_close_all():    
     this_region_editor.clear_new()
     this_item_editor.clear_new()
+    
+def global_ui_refresh_callback():
+    """ Use this to re-open all existing items/regions/song in their editors when the files have been changed externally"""
+    if this_item_editor.enabled:    
+        this_item_editor.open_item(this_item_editor.item_name)
+    if this_region_editor.enabled:
+        this_region_editor.open_region(this_region_editor.region_name_lineedit.text())
+    this_song_editor.open_song()
     
 def set_window_title():
     this_main_window.setWindowTitle('PyDAW - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + ".pydaw")
