@@ -5,10 +5,11 @@ A class that contains methods and data for a PyDAW project.
 
 import os
 from shutil import copyfile, move
+from time import sleep
 
 #from lms_session import lms_session #deprecated
 from dssi_gui import dssi_gui
-
+from pydaw_git import pydaw_git_repo
 pydaw_terminating_char = "\\"
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
@@ -64,6 +65,16 @@ def time_quantize_round(a_input):
 class pydaw_project:
     def save_project(self):
         self.this_dssi_gui.pydaw_save_tracks()
+        sleep(3)
+        self.git_repo.git_add(self.instrument_folder + "/*")
+        self.git_repo.git_commit("-a", "Saved plugin state")
+    
+    def record_stop_git_commit(self):
+        """ This should be called once recording has stopped to catch-up Git """
+        self.git_repo.git_add(self.regions_folder + "/*")
+        self.git_repo.git_add(self.items_folder + "/*")
+        self.git_repo.git_commit("-a", "Save recorded items/regions")
+        
     def save_project_as(self, a_file_name):
         f_file_name = str(a_file_name)
         print("Saving project as " + f_file_name + " ...")
@@ -74,6 +85,7 @@ class pydaw_project:
         move(f_new_project_folder + "/" + self.project_file + ".pydaw", a_file_name)
         self.set_project_folders(f_file_name)
         self.this_dssi_gui.pydaw_open_song(self.project_folder)
+        self.git_repo.repo_dir = self.project_folder
 
     def set_project_folders(self, a_project_file):
         self.project_folder = os.path.dirname(a_project_file)
@@ -87,6 +99,8 @@ class pydaw_project:
         if not os.path.exists(a_project_file):
             print("project file " + a_project_file + " does not exist, creating as new project")
             self.new_project(a_project_file)
+        else:
+            self.git_repo = pydaw_git_repo(self.project_folder)
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
         
@@ -107,10 +121,31 @@ class pydaw_project:
             f_file = open(a_project_file, 'w')
             f_file.write("This file does is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
             f_file.close()
-        if not os.path.exists(self.project_folder + "/default.pysong"):
-            f_file = open(a_project_file, 'w')
+            
+        f_pysong_file = self.project_folder + "/default.pysong"
+        if not os.path.exists(f_pysong_file):
+            f_file = open(f_pysong_file, 'w')
             f_file.write(pydaw_terminating_char)
             f_file.close()
+        f_pytransport_file = self.project_folder + "/default.pytransport"
+        if not os.path.exists(f_pytransport_file):
+            f_file = open(f_pytransport_file, 'w')
+            f_file.write("140|None|0|0|0\n\\")
+            f_file.close()        
+        f_pytracks_file = self.project_folder + "/default.pytracks"
+        if not os.path.exists(f_pytracks_file):
+            f_file = open(f_pytracks_file, 'w')
+            for i in range(16):
+                f_file.write(str(i) + "|0|0|0|0|track" + str(i + 1) + "|0\n")
+            f_file.write(pydaw_terminating_char)
+            f_file.close()
+        self.git_repo = pydaw_git_repo(self.project_folder)
+        self.git_repo.git_init()
+        self.git_repo.git_add(f_pysong_file)
+        self.git_repo.git_add(f_pytracks_file)
+        self.git_repo.git_add(f_pytransport_file)
+        self.git_repo.git_add(a_project_file)
+        self.git_repo.git_commit("-a", "Created new project")
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
 
@@ -172,34 +207,50 @@ class pydaw_project:
         return pydaw_transport.from_str(f_str)
     
     def save_transport(self, a_transport):
-        f_file = open(self.project_folder + "/default.pytransport", "w")
+        f_file_name = self.project_folder + "/default.pytransport"
+        f_file = open(f_file_name, "w")
         f_file.write(a_transport.__str__())
         f_file.close()
+        self.git_repo.git_commit(f_file_name, "Save transport settings...")
 
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
-        f_file = open(self.regions_folder + "/" + a_region_name + ".pyreg", 'w')
+        f_file_name = self.regions_folder + "/" + a_region_name + ".pyreg"
+        f_file = open(f_file_name, 'w')
         f_file.write(pydaw_terminating_char)
         f_file.close()
+        self.git_repo.git_add(f_file_name)
+        self.git_repo.git_commit(f_file_name, "Created empty region " + a_region_name)
 
     def create_empty_item(self, a_item_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
-        f_file = open(self.items_folder + "/" + a_item_name + ".pyitem", 'w')
+        f_file_name = self.items_folder + "/" + a_item_name + ".pyitem"
+        f_file = open(f_file_name, 'w')
         f_file.write(pydaw_terminating_char)
         f_file.close()
-
+        self.git_repo.git_add(f_file_name)
+        self.git_repo.git_commit(f_file_name, "Created empty item " + a_item_name)
+        
     def copy_region(self, a_old_region, a_new_region):
-        copyfile(self.regions_folder + "/" + str(a_old_region) + ".pyreg", self.regions_folder + "/" + str(a_new_region) + ".pyreg")
+        f_new_file = self.regions_folder + "/" + str(a_new_region) + ".pyreg"
+        copyfile(self.regions_folder + "/" + str(a_old_region) + ".pyreg", f_new_file)        
+        self.git_repo.git_add(f_new_file)
+        self.git_repo.git_commit(f_new_file, "Created new region " + a_new_region + " copying from " + a_old_region)
 
     def copy_item(self, a_old_item, a_new_item):
-        copyfile(self.items_folder + "/" + str(a_old_item) + ".pyitem", self.items_folder + "/" + str(a_new_item) + ".pyitem")
-
+        f_new_file = self.items_folder + "/" + str(a_new_item) + ".pyitem"
+        copyfile(self.items_folder + "/" + str(a_old_item) + ".pyitem", f_new_file)
+        self.git_repo.git_add(f_new_file)
+        self.git_repo.git_commit(f_new_file, "Created new item " + a_new_item + " copying from " + a_old_item)
+        
     def save_item(self, a_name, a_item):
         f_name = str(a_name)
-        f_file = open(self.items_folder + "/" + f_name + ".pyitem", 'w')
+        f_file_name = self.items_folder + "/" + f_name + ".pyitem"
+        f_file = open(f_file_name, 'w')
         f_file.write(a_item.__str__())
         f_file.close()
         self.this_dssi_gui.pydaw_save_item(f_name)
+        self.git_repo.git_commit(f_file_name, "Edited item " + f_name)
 
     def save_region(self, a_name, a_region):
         f_name = str(a_name)
@@ -208,28 +259,33 @@ class pydaw_project:
         f_file.write(a_region.__str__())
         f_file.close()
         self.this_dssi_gui.pydaw_save_region(f_name)
+        self.git_repo.git_commit(f_file_name, "Edited region " + f_name)
 
     def save_song(self, a_song):
-        f_file = open(self.project_folder + "/default.pysong", 'w')
+        f_file_name = self.project_folder + "/default.pysong"
+        f_file = open(f_file_name, 'w')
         f_file.write(a_song.__str__())
         f_file.close()
         self.this_dssi_gui.pydaw_save_song()
+        self.git_repo.git_commit(f_file_name, "Edited song")
 
     def save_tracks(self, a_tracks):
-        f_file = open(self.project_folder + "/default.pytracks", 'w')
+        f_file_name = self.project_folder + "/default.pytracks"
+        f_file = open(f_file_name, 'w')
         f_file.write(a_tracks.__str__())
         f_file.close()
-        #Is there a need for a configure message here?
+        #Is there a need for a configure message here?        
+        self.git_repo.git_commit(f_file_name, "Edited song")
 
     def get_next_default_item_name(self):
-        for i in range(self.last_item_number, 10000):
+        for i in range((self.last_item_number - 1), 10000):
             f_result = self.items_folder + "/item-" + str(i) + ".pyitem"
             if not os.path.isfile(f_result):
                 self.last_item_number = i
                 return "item-" + str(i)
 
     def get_next_default_region_name(self):
-        for i in range(self.last_region_number, 10000):
+        for i in range((self.last_region_number - 1), 10000):
             f_result = self.regions_folder + "/region-" + str(i) + ".pyreg"
             if not os.path.isfile(f_result):
                 self.last_item_number = i
@@ -256,11 +312,9 @@ class pydaw_project:
         self.this_dssi_gui.stop_server()        
 
     def __init__(self, a_osc_url=None):
-        self.last_item_number = 0
-        self.last_region_number = 0
+        self.last_item_number = 1
+        self.last_region_number = 1
         self.this_dssi_gui = dssi_gui(a_osc_url)
-
-#The below classes are used to generate the saved file strings that will properly enforce the standard, rather than relying on developers to do it themselves
 
 class pydaw_song:
     def add_region_ref(self, a_pos, a_region_name):

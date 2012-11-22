@@ -1026,7 +1026,8 @@ class seq_track:
     def on_vol_change(self, value):
         self.volume_label.setText(str(value) + " dB")
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value())
+            this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value())        
+    def on_vol_released(self):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_pan_change(self, value):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
@@ -1071,6 +1072,7 @@ class seq_track:
         self.volume_slider.setValue(0)
         self.volume_slider.setOrientation(QtCore.Qt.Horizontal)
         self.volume_slider.valueChanged.connect(self.on_vol_change)
+        self.volume_slider.sliderReleased.connect(self.on_vol_released)
         self.hlayout2.addWidget(self.volume_slider)
         self.volume_label = QtGui.QLabel()
         self.volume_label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
@@ -1176,6 +1178,7 @@ class transport_widget:
             if(this_region_editor.enabled):
                 this_region_editor.open_region(this_region_editor.region.name)
             this_song_editor.open_song()
+            this_pydaw_project.record_stop_git_commit()
         self.is_playing = False
         if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
             this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
