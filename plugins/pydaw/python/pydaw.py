@@ -1171,8 +1171,8 @@ class transport_widget:
         self.bar_spinbox.setValue(self.last_bar)
         self.region_spinbox.setValue(self.last_region_num)
         if self.is_recording:
-            sleep(2)  #Give it some time to flush the recorded items to disk...
-            self.is_recording = False            
+            self.is_recording = False
+            sleep(2)  #Give it some time to flush the recorded items to disk...                
             if(this_region_editor.enabled):
                 this_region_editor.open_region(this_region_editor.region.name)
             this_song_editor.open_song()
