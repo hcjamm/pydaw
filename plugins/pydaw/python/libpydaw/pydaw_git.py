@@ -5,6 +5,7 @@ A Git-based undo/redo system for PyDAW
 """
 
 import subprocess, sys, os
+from commands import getoutput
 from PyQt4 import QtGui, QtCore
 
 class pydaw_git_repo:
@@ -43,13 +44,15 @@ class pydaw_git_repo:
         p.wait()
         
     def git_log(self, a_max_entries=0):        
-        cmd = ['git', 'rev-list', '--all', '--pretty']
-        if a_max_entries > 0:
-            cmd.append("--max-count=" + str(a_max_entries))
-        p = subprocess.Popen(cmd, cwd=self.repo_dir, stdout=subprocess.PIPE)
-        p.wait()
-        p.stdout.flush()
-        out, err = p.communicate()
+        cmd = 'cd "' + self.repo_dir + '" ; git rev-list --all --pretty'
+        if int(a_max_entries) > 0:
+            cmd += " --max-count=" + str(a_max_entries)        
+        out = getoutput(cmd)
+        return str(out)
+    
+    def git_show(self, a_commit_hash):
+        cmd = 'cd "' + self.repo_dir + '" ; git show ' + a_commit_hash           
+        out = getoutput(cmd)
         return str(out)
     
 class pydaw_git_log_widget(QtGui.QWidget):    
@@ -64,6 +67,9 @@ class pydaw_git_log_widget(QtGui.QWidget):
         self.main_vlayout.addWidget(self.table_widget)
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.show_action = QtGui.QAction("show changes...", self)
+        self.show_action.triggered.connect(self.on_show)
+        self.table_widget.addAction(self.show_action)
         self.revert_action = QtGui.QAction("revert single action (experimental, dangerous)", self)
         self.revert_action.triggered.connect(self.on_revert)
         self.table_widget.addAction(self.revert_action)
@@ -84,6 +90,18 @@ class pydaw_git_log_widget(QtGui.QWidget):
             f_commit_hash = f_commit_arr[0].split(" ")
             self.table_widget.setItem(f_index, 2, QtGui.QTableWidgetItem(f_commit_hash[len(f_commit_hash) - 1]))
         self.table_widget.resizeColumnsToContents()
+    
+    def on_show(self):
+        f_hash = str(self.table_widget.item(self.table_widget.currentRow(), 2).text())
+        f_result = self.git_repo.git_show(f_hash)
+        f_dialog = QtGui.QDialog(self)
+        f_dialog.setGeometry(self.x(), self.y(), 600, 600)
+        f_layout = QtGui.QVBoxLayout()
+        f_dialog.setLayout(f_layout)
+        f_textedit = QtGui.QTextEdit()
+        f_textedit.insertPlainText(f_result)
+        f_layout.addWidget(f_textedit)
+        f_dialog.exec_()
 
     def on_revert(self):
         """ Event handler for when the user reverts a single commit """
