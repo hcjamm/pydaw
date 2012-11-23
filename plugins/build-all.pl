@@ -236,17 +236,9 @@ else
 	system("cd lms-jack-dssi-host ; make clean ;  perl build.pl --build-jack-host-debug ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host");
 }
 
-if($os eq "install")
-{
-	print "
+build_all_debug("Building pydaw_jack_oscrolloscope");
 
-Complete.  You can now install $short_name by running the following command as root:
-
-cp -R \"$package_dir/*\" /
-
-";
-	exit;
-}
+system("cd pydaw_jack_oscrolloscope ; make clean ; make ; cp pydaw_jack_oscrolloscope ../$bin_dir/pydaw_jack_oscrolloscope");
 
 maintainer_label:
 
