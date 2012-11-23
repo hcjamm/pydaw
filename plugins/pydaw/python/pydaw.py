@@ -1754,7 +1754,9 @@ def global_ui_refresh_callback():
         this_item_editor.open_item(this_item_editor.item_name)
     if this_region_editor.enabled:
         this_region_editor.open_region(this_region_editor.region_name_lineedit.text())
+    this_region_editor.open_tracks()
     this_song_editor.open_song()
+    this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder)  #Re-open the project so that any changes can be caught by the back-end
     
 def set_window_title():
     this_main_window.setWindowTitle('PyDAW - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + ".pydaw")
