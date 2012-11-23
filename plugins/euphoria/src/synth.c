@@ -1110,8 +1110,11 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     SF_INFO info;
     SNDFILE *file;
     size_t samples = 0;
-    float *tmpFrames, *tmpSamples[2]; //, *tmpOld[2];
+    float *tmpFrames, *tmpSamples[2], *tmpOld[2];
     char *revisedPath = 0;
+    
+    tmpOld[0] = 0;
+    tmpOld[1] = 0;
     
     info.format = 0;
     file = sf_open(path, SFM_READ, &info);
@@ -1236,8 +1239,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     free(tmpFrames);
     
     pthread_mutex_lock(&plugin_data->mutex);
-
-    /*
+    
     if(plugin_data->sampleData[0][(a_index)])
     {
         tmpOld[0] = plugin_data->sampleData[0][(a_index)];
@@ -1247,7 +1249,6 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     {
         tmpOld[1] = plugin_data->sampleData[1][(a_index)];
     }
-    */
     
     plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
     plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
@@ -1272,7 +1273,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     }
     
     pthread_mutex_unlock(&plugin_data->mutex);
-    /*
+    
     if (tmpOld[0]) 
     {
         free(tmpOld[0]);
@@ -1282,7 +1283,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     {
         free(tmpOld[1]);
     }
-    */
+    
     //printf("%s: loaded %s (%ld samples from original %ld channels resampled from %ld frames at %ld Hz)\n", Sampler_Stereo_LABEL, path, (long)samples, (long)info.channels, (long)info.frames, (long)info.samplerate);
 
     if (revisedPath) {
