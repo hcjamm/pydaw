@@ -12,6 +12,16 @@ to use of the API.
 """
 
 from commands import getoutput
+import subprocess
+from time import sleep
+
+def launch_jack_oscrolloscope():
+    f_processes = getoutput("ps -ef")
+    if not "pydaw_jack_oscrolloscope" in f_processes:
+        subprocess.Popen(['pydaw_jack_oscrolloscope', '-n', '2', '-x', '960', '-y', '360'])
+        sleep(2)
+    getoutput("jack_connect PyDAW:'PyDAW out_1' jack_oscrolloscope:in_1")
+    getoutput("jack_connect PyDAW:'PyDAW out_2' jack_oscrolloscope:in_2")
 
 class alsa_port:
     def __init__(self, a_client_number, a_client_name, a_client_type, a_port_number, a_port_name):
