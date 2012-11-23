@@ -19,8 +19,8 @@ extern "C" {
 //Uncomment this to constantly inspect the heap for known signs of corruption and throw a SIGABRT upon detection.
 //#define PYDAW_MEMCHECK
     
-//Print detailed information about the MIDI data being sent from PyDAW
-#define PYDAW_PRINT_DEBUG_INFO
+//Print detailed information about the MIDI data being sent from PyDAW, or alternately pass in from 'make' with -DPYDAW_PRINT_DEBUG_INFO
+//#define PYDAW_PRINT_DEBUG_INFO
     
 #define PYDAW_CONFIGURE_KEY_SS "ss"
 #define PYDAW_CONFIGURE_KEY_OS "os"
