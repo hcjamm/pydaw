@@ -1,6 +1,6 @@
 PREFIX =	/usr
 
-CFLAGS +=	$(shell sdl-config --cflags) $(shell pkg-config --cflags jack) -W -Wall -std=gnu99
+CFLAGS +=	$(shell sdl-config --cflags) $(shell pkg-config --cflags jack) -W -std=gnu99
 LIBS =		$(shell sdl-config --libs) $(shell pkg-config --libs jack) -lGL -lX11
 
 CFLAGS +=	-O3
@@ -20,9 +20,8 @@ $(BIN): $(OBJS)
 clean:
 		rm -f $(BIN) $(OBJS) .dep
 
-install: $(BIN)
-	/usr/bin/install -m 755 $(BIN) $(PREFIX)/bin
-
+install:
+	install -m 755 $(BIN) $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
 
 dep:
 	rm -f .dep; \
