@@ -1320,6 +1320,11 @@ class transport_widget:
         self.follow_checkbox.setChecked(True)
         self.follow_checkbox.clicked.connect(self.on_follow_cursor_check_changed)
         f_lower_ctrl_layout.addWidget(self.follow_checkbox)
+        self.scope_button = QtGui.QPushButton("Scope")
+        self.scope_button.pressed.connect(launch_jack_oscrolloscope)
+        f_button_style = "QPushButton { background-color: black; border-style: outset; border-width: 2px;	border-radius: 5px; border-color: white; font: bold 12px; padding: 2px;	color:white;}"
+        self.scope_button.setStyleSheet(f_button_style)
+        f_lower_ctrl_layout.addWidget(self.scope_button)
         f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout, 1, 1)
         self.hlayout1.addLayout(f_loop_midi_gridlayout)
         #This is an awful way to do this, I'll eventually have IPC that goes both directions...
