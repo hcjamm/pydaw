@@ -78,6 +78,7 @@ extern "C" {
 #include <sched.h>
 #include <unistd.h>
 #include <sndfile.h>
+#include <time.h>
 #include "../../libmodsynth/lib/amp.h"
     
 typedef struct st_pynote
@@ -262,7 +263,14 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
         int a_end_bar, char * a_file_out);
 inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data);
 void v_pydaw_process_plugins_single_threaded(t_pydaw_data * a_pydaw_data);
+void v_pydaw_print_benchmark(char * a_message, clock_t a_start);
 /*End declarations.  Begin implementations.*/
+
+/* Create a clock_t with clock() when beginning some work, and use this function to print the completion time*/
+void v_pydaw_print_benchmark(char * a_message, clock_t a_start)
+{
+    printf ( "\n\nCompleted %s in %f seconds\n", a_message, ( (double)clock() - a_start ) / CLOCKS_PER_SEC );
+}
 
 void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
 {
@@ -2049,6 +2057,8 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
 
 void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
 {
+    clock_t f_start = clock();
+    
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
     
     sprintf(a_pydaw_data->project_folder, "%s/", a_project_folder);    
@@ -2141,6 +2151,8 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     v_pydaw_assert_memory_integrity(a_pydaw_data);
 #endif
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
+    
+    v_pydaw_print_benchmark("v_open_project", f_start);
 }
 
 /* void v_set_playback_mode(t_pydaw_data * a_pydaw_data, 
@@ -2673,7 +2685,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     int f_old_loop_mode = a_pydaw_data->loop_mode;  //We must set it back afterwards, or the UI will be wrong...
     v_set_loop_mode(a_pydaw_data, PYDAW_LOOP_MODE_OFF);
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);    
-    
+        
+    clock_t f_start = clock();
     
     while(((a_pydaw_data->current_region) < a_end_region) || ((a_pydaw_data->current_bar) < a_end_bar))
     {
@@ -2704,6 +2717,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
         }
     }
         
+    v_pydaw_print_benchmark("v_pydaw_offline_render (to RAM)", f_start);
+    
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_OFF, a_start_region, a_start_bar);
     v_set_loop_mode(a_pydaw_data, f_old_loop_mode);
     
