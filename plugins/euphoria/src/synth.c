@@ -675,14 +675,8 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, l
             
             plugin_data->data[n]->noise_sample = ((plugin_data->data[n]->noise_func_ptr(plugin_data->mono_modules->white_noise1[(plugin_data->data[n]->noise_index)])) * (plugin_data->data[n]->noise_linamp)); //add noise
             
-            for (ch = 0; ch < (plugin_data->channels); ++ch) 
-            {
-                if((ch == 2) && ((plugin_data->sample_channels[(plugin_data->current_sample)]) == 1))
-                {
-                    plugin_data->sample[ch] += (plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)]);
-                    continue;
-                }
-                
+            for (ch = 0; ch < (plugin_data->sample_channels[(plugin_data->i_loaded_samples)]); ++ch) 
+            {                
                 interpolation_modes[(plugin_data->current_sample)](plugin_data, n, ch);
 
                 plugin_data->sample[ch] += plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)];
@@ -692,6 +686,13 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, l
                 plugin_data->sample[ch] = (plugin_data->sample[ch]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp) * (plugin_data->sample_amp[(plugin_data->current_sample)]); // * (plugin_data->data[n]->lfo_amp_output);
 
                 plugin_data->data[n]->modulex_current_sample[ch] = (plugin_data->sample[ch]);
+                
+                
+                if((plugin_data->sample_channels[(plugin_data->current_sample)]) == 1)
+                {
+                    plugin_data->data[n]->modulex_current_sample[1] = plugin_data->sample[0];
+                    break;
+                }
             }
                         
             //Modular PolyFX, processed from the index created during note_on
@@ -1111,8 +1112,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     SNDFILE *file;
     size_t samples = 0;
     float *tmpFrames, *tmpSamples[2], *tmpOld[2];
-    char *revisedPath = 0;
-    
+        
     tmpOld[0] = 0;
     tmpOld[1] = 0;
     
@@ -1124,17 +1124,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
 	const char *filename = strrchr(path, '/');
 	if (filename) ++filename;
 	else filename = path;
-
-	/*if (*filename && plugin_data->projectDir) {
-	    revisedPath = (char *)malloc(strlen(filename) +
-					 strlen(plugin_data->projectDir) + 2);
-	    sprintf(revisedPath, "%s/%s", plugin_data->projectDir, filename);
-	    file = sf_open(revisedPath, SFM_READ, &info);
-	    if (!file) {
-		free(revisedPath);
-	    }
-	}*/
-
+        
 	if (!file) {
 	    return dssi_configure_message
 		("error: unable to load sample file '%s'", path);
@@ -1165,6 +1155,12 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     {
         plugin_data->sample_rate_ratios[(a_index)] = 1.0f;
     }
+           
+    int f_adjusted_channel_count = 1;
+    if(info.channels >= 2)    
+    {
+        f_adjusted_channel_count = 2;
+    }
 
     int f_actual_array_size = (samples + EUPHORIA_SINC_INTERPOLATION_POINTS + 1 + EUPHORIA_Sample_Padding);
     
@@ -1175,10 +1171,13 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
         printf("Call to posix_memalign failed for tmpSamples[0]\n");
         return NULL;
     }
-    if(posix_memalign((void**)(&(tmpSamples[1])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
+    if(f_adjusted_channel_count > 1)
     {
-        printf("Call to posix_memalign failed for tmpSamples[1]\n");
-        return NULL;
+        if(posix_memalign((void**)(&(tmpSamples[1])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
+        {
+            printf("Call to posix_memalign failed for tmpSamples[1]\n");
+            return NULL;
+        }
     }
     
     int f_i, j;
@@ -1208,31 +1207,29 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
                 f_fade_out_envelope -= f_fade_out_dec;
             }
             
-	    for (j = 0; j < 2; ++j) {
-		//if (j == 1 && info.channels < 2) {
-                if (j == 1 && info.channels == 1) {
-		    tmpSamples[j][f_i] = tmpSamples[0][f_i];
-		} else {
-		    f_temp_sample = //(tmpFrames[(f_i - LMS_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j]);
-                            f_dco_run(plugin_data->mono_modules->dc_offset_filters[j], 
-                            (tmpFrames[(f_i - EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j]));
-                    
-                    if(f_i >= f_fade_out_start)
-                    {
-                        tmpSamples[j][f_i] = f_temp_sample * f_fade_out_envelope;
-                    }
-                    else
-                    {
-                        tmpSamples[j][f_i] = f_temp_sample;
-                    }
-                    
-		}
+	    for (j = 0; j < f_adjusted_channel_count; ++j) 
+            {
+                f_temp_sample = //(tmpFrames[(f_i - LMS_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j]);
+                        f_dco_run(plugin_data->mono_modules->dc_offset_filters[j], 
+                        (tmpFrames[(f_i - EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2) * info.channels + j]));
+
+                if(f_i >= f_fade_out_start)
+                {
+                    tmpSamples[j][f_i] = f_temp_sample * f_fade_out_envelope;
+                }
+                else
+                {
+                    tmpSamples[j][f_i] = f_temp_sample;
+                }
             }
         }
         else
         {
             tmpSamples[0][f_i] = 0.0f;
-            tmpSamples[1][f_i] = 0.0f;
+            if(f_adjusted_channel_count > 1)
+            {
+                tmpSamples[1][f_i] = 0.0f;
+            }
         }            
     }
         
@@ -1251,20 +1248,18 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     }
     
     plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
-    plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
+    
+    if(f_adjusted_channel_count > 1)
+    {
+        plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
+    }
+    
     plugin_data->sampleCount[(a_index)] = (samples + EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + EUPHORIA_Sample_Padding - 20);  //-20 to ensure we don't read past the end of the array
     
-    if((info.channels) >= 2)
-    {
-        plugin_data->sample_channels[(a_index)] = 2;
-    }
-    else
-    {
-        plugin_data->sample_channels[(a_index)] = 1;
-    }
+    plugin_data->sample_channels[(a_index)] = f_adjusted_channel_count;
+    
     lms_strcpy(plugin_data->sample_paths[(a_index)], path);
-    
-    
+        
     //The last index is reserved for previewing samples for the UI;
     //Reset the array indexer so it will play from the beginning.
     if(a_index == EUPHORIA_MAX_SAMPLE_COUNT)
@@ -1284,14 +1279,6 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
         free(tmpOld[1]);
     }
     
-    //printf("%s: loaded %s (%ld samples from original %ld channels resampled from %ld frames at %ld Hz)\n", Sampler_Stereo_LABEL, path, (long)samples, (long)info.channels, (long)info.frames, (long)info.samplerate);
-
-    if (revisedPath) {
-	char *message = dssi_configure_message("warning: sample file '%s' not found: loading from '%s' instead", path, revisedPath);
-	free(revisedPath);
-	return message;
-    }
-
     return NULL;
 }
 
