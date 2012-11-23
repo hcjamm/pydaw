@@ -13,7 +13,7 @@ perl build-all.pl
 
 ";
 
-$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsm-dev, qjackctl, alsa-utils, python-liblo, python-qt4, git";
+$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsm-dev, qjackctl, alsa-utils, python-liblo, python-qt4, git, libsdl1.2-dev";
 
 $prompt = 1;
 

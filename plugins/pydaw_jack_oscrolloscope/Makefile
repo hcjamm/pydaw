@@ -1,12 +1,12 @@
-PREFIX =	/usr/local
+PREFIX =	/usr
 
 CFLAGS +=	$(shell sdl-config --cflags) $(shell pkg-config --cflags jack) -W -Wall -std=gnu99
 LIBS =		$(shell sdl-config --libs) $(shell pkg-config --libs jack) -lGL -lX11
 
-CFLAGS +=	-O2
+CFLAGS +=	-O3
 
 OBJS =		main.o video.o audio.o waves.o
-BIN =		jack_oscrolloscope
+BIN =		pydaw_jack_oscrolloscope
 
 
 all:		$(BIN)
