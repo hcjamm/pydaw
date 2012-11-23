@@ -809,10 +809,10 @@ class item_list_editor:
             
             self.open_item(self.item_name)            
             
-            if not f_add_another.isChecked():
+            if self.is_existing_note:
                 f_window.close()
-            else:
-                self.is_existing_note = False
+            elif not f_add_another.isChecked():
+                f_window.close()
 
         def note_cancel_handler():
             f_window.close()
@@ -858,8 +858,9 @@ class item_list_editor:
         f_velocity.setValue(self.default_note_velocity)
         f_layout.addWidget(QtGui.QLabel("Velocity"), 4, 0)
         f_layout.addWidget(f_velocity, 4, 1)
-        f_add_another = QtGui.QCheckBox("Add another?")
-        f_layout.addWidget(f_add_another, 5, 1)
+        if not self.is_existing_note:
+            f_add_another = QtGui.QCheckBox("Add another?")
+            f_layout.addWidget(f_add_another, 5, 1)
         f_ok_button = QtGui.QPushButton("OK")        
         f_layout.addWidget(f_ok_button, 6,0)
         f_ok_button.clicked.connect(note_ok_handler)
