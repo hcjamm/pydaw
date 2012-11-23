@@ -1210,10 +1210,12 @@ class transport_widget:
         this_pydaw_project.save_transport(self.transport)
     def on_bar_changed(self, a_bar):
         self.transport.bar = a_bar
-        this_pydaw_project.save_transport(self.transport)
+        if not self.is_playing and not self.is_recording:
+            this_pydaw_project.save_transport(self.transport)
     def on_region_changed(self, a_region):
         self.transport.region = a_region
-        this_pydaw_project.save_transport(self.transport)
+        if not self.is_playing and not self.is_recording:
+            this_pydaw_project.save_transport(self.transport)
     def on_follow_cursor_check_changed(self):
         if self.follow_checkbox.isChecked():
             f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
