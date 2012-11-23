@@ -15,6 +15,7 @@
 #include "ladspa_ports.h"
 #include <unistd.h>
 #include <alsa/asoundlib.h>
+#include <time.h>
 
 
 int main(int argc, char** argv) 
@@ -47,7 +48,11 @@ int main(int argc, char** argv)
         f_i++;
     }
    
+    clock_t start = clock();
+
     v_pydaw_offline_render(pydaw_data, 0, 0, 1, 2, "test.wav");
+    
+    printf ( "\n\nCompleted v_pydaw_offline_render in %f seconds\n", ( (double)clock() - start ) / CLOCKS_PER_SEC );
     
     return 0; //(EXIT_SUCCESS);
 }
