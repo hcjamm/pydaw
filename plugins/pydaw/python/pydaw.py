@@ -334,6 +334,16 @@ class region_list_editor:
         self.table_widget.dropEvent = self.table_drop_event
         self.table_widget.keyPressEvent = self.table_keyPressEvent
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.copy_action = QtGui.QAction("Copy (CTRL+C)", self.table_widget)
+        self.copy_action.triggered.connect(self.copy_selected)
+        self.table_widget.addAction(self.copy_action)
+        self.paste_action = QtGui.QAction("Paste (CTRL+V)", self.table_widget)
+        self.paste_action.triggered.connect(self.paste_clipboard)
+        self.table_widget.addAction(self.paste_action)
+        self.delete_action = QtGui.QAction("Delete (Del)", self.table_widget)
+        self.delete_action.triggered.connect(self.delete_selected)
+        self.table_widget.addAction(self.delete_action)        
         self.main_vlayout.addWidget(self.table_widget)
         self.last_item_copied = None
         self.reset_tracks()
@@ -345,25 +355,28 @@ class region_list_editor:
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.copy_selected()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
-            f_selected_cells = self.table_widget.selectedIndexes()
-            if len(f_selected_cells) == 0:
-                return
-            f_base_row = f_selected_cells[0].row()
-            f_base_column = f_selected_cells[0].column() - 1
-            for f_item in self.clipboard:
-                f_column = f_item[1] + f_base_column
-                if f_column >= 8 or f_column < 0:
-                    continue                
-                f_row = f_item[0] + f_base_row
-                if f_row >= 16 or f_row < 0:
-                    continue
-                self.add_qtablewidgetitem(f_item[2], f_row, f_column)
-            self.tablewidget_to_region()
+            self.paste_clipboard()
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.copy_selected()
             self.delete_selected()
         else:
             QtGui.QTableWidget.keyPressEvent(self.table_widget, event)
+
+    def paste_clipboard(self):
+        f_selected_cells = self.table_widget.selectedIndexes()
+        if len(f_selected_cells) == 0:
+            return
+        f_base_row = f_selected_cells[0].row()
+        f_base_column = f_selected_cells[0].column() - 1
+        for f_item in self.clipboard:
+            f_column = f_item[1] + f_base_column
+            if f_column >= 8 or f_column < 0:
+                continue                
+            f_row = f_item[0] + f_base_row
+            if f_row >= 16 or f_row < 0:
+                continue
+            self.add_qtablewidgetitem(f_item[2], f_row, f_column)
+        self.tablewidget_to_region()
         
     def delete_selected(self):
         for f_item in self.table_widget.selectedIndexes():
