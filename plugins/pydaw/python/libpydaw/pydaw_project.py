@@ -275,7 +275,7 @@ class pydaw_project:
         f_file.write(a_tracks.__str__())
         f_file.close()
         #Is there a need for a configure message here?        
-        self.git_repo.git_commit(f_file_name, "Edited song")
+        self.git_repo.git_commit(f_file_name, "Edited tracks")
 
     def get_next_default_item_name(self):
         for i in range((self.last_item_number - 1), 10000):
