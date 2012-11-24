@@ -29,9 +29,9 @@ public:
             QString a_label)
     {
         lms_groupbox_adsr = new LMS_group_box(a_parent, a_label, a_style);        
-        lms_attack =  new LMS_knob_regular(QString("Attack"), 1, 100, 1, 1, QString(".01"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_decimal, a_attack_port);
+        lms_attack =  new LMS_knob_regular(QString("Attack"), 10, 100, 1, 1, QString(".01"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_log_time, a_attack_port);
         lms_groupbox_adsr->lms_add_h(lms_attack);
-        lms_decay =  new LMS_knob_regular(QString("Decay"), 1, 100, 1, 1, QString(".01"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_decimal, a_decay_port);
+        lms_decay =  new LMS_knob_regular(QString("Decay"), 10, 100, 1, 1, QString(".01"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_log_time, a_decay_port);
         lms_groupbox_adsr->lms_add_h(lms_decay);
         
         if(a_sustain_in_db)
@@ -44,7 +44,7 @@ public:
         }
         
         lms_groupbox_adsr->lms_add_h(lms_sustain);
-        lms_release = new LMS_knob_regular(QString("Release"), 1, 400, 1, 50, QString(".5"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_decimal, a_release_port);
+        lms_release = new LMS_knob_regular(QString("Release"), 10, 200, 1, 50, QString(".5"), lms_groupbox_adsr->lms_groupbox, a_style, lms_kc_log_time, a_release_port);
         lms_groupbox_adsr->lms_add_h(lms_release);
     }
     

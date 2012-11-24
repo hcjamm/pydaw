@@ -267,18 +267,24 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
     
     /*Set the values from synth_vals in RunLMS*/
     plugin_data->vals.attack = *(plugin_data->attack) * .01;
-    plugin_data->vals.decay = *(plugin_data->decay) * .01; 
+    plugin_data->vals.attack = (plugin_data->vals.attack) * (plugin_data->vals.attack);
+    plugin_data->vals.decay = *(plugin_data->decay) * .01;
+    plugin_data->vals.decay = (plugin_data->vals.decay) * (plugin_data->vals.decay);
     plugin_data->vals.sustain = *(plugin_data->sustain);
     plugin_data->vals.release = *(plugin_data->release) * .01;
+    plugin_data->vals.release = (plugin_data->vals.release) * (plugin_data->vals.release);
     plugin_data->vals.timbre = *(plugin_data->timbre);
     
     plugin_data->vals.res = *(plugin_data->res);
     plugin_data->vals.dist = *(plugin_data->dist);
 
     plugin_data->vals.attack_f = *(plugin_data->attack_f) * .01;
+    plugin_data->vals.attack_f = (plugin_data->vals.attack_f) * (plugin_data->vals.attack_f);
     plugin_data->vals.decay_f = *(plugin_data->decay_f) * .01; 
+    plugin_data->vals.decay_f = (plugin_data->vals.decay_f) * (plugin_data->vals.decay_f);
     plugin_data->vals.sustain_f = *(plugin_data->sustain_f) * .01;
     plugin_data->vals.release_f = *(plugin_data->release_f) * .01;
+    plugin_data->vals.release_f = (plugin_data->vals.release_f) * (plugin_data->vals.release_f);
     
     plugin_data->vals.noise_amp = *(plugin_data->noise_amp);
     
@@ -569,7 +575,7 @@ void _init()
 	port_range_hints[LMS_ATTACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_ATTACK].LowerBound = 1; 
+	port_range_hints[LMS_ATTACK].LowerBound = 10; 
 	port_range_hints[LMS_ATTACK].UpperBound = 100; 
 
 	/* Parameters for decay */
@@ -579,7 +585,7 @@ void _init()
 			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 			
-	port_range_hints[LMS_DECAY].LowerBound = 1; 
+	port_range_hints[LMS_DECAY].LowerBound = 10; 
 	port_range_hints[LMS_DECAY].UpperBound = 100; 
 
 	/* Parameters for sustain */
@@ -597,8 +603,8 @@ void _init()
 	port_range_hints[LMS_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW | 
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_RELEASE].LowerBound = 1; 
-	port_range_hints[LMS_RELEASE].UpperBound = 400; 
+	port_range_hints[LMS_RELEASE].LowerBound = 10; 
+	port_range_hints[LMS_RELEASE].UpperBound = 200; 
 
 	/* Parameters for timbre */
 	port_descriptors[LMS_TIMBRE] = port_descriptors[LMS_ATTACK];
@@ -634,7 +640,7 @@ void _init()
 	port_range_hints[LMS_FILTER_ATTACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_ATTACK].LowerBound = 1; 
+	port_range_hints[LMS_FILTER_ATTACK].LowerBound = 10; 
 	port_range_hints[LMS_FILTER_ATTACK].UpperBound = 100; 
 
 	/* Parameters for decay_f */
@@ -643,7 +649,7 @@ void _init()
 	port_range_hints[LMS_FILTER_DECAY].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_DECAY].LowerBound = 1;
+	port_range_hints[LMS_FILTER_DECAY].LowerBound = 10;
 	port_range_hints[LMS_FILTER_DECAY].UpperBound = 100;
 
 	/* Parameters for sustain_f */
@@ -661,8 +667,8 @@ void _init()
 	port_range_hints[LMS_FILTER_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW  |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_RELEASE].LowerBound = 1; 
-	port_range_hints[LMS_FILTER_RELEASE].UpperBound = 400; 
+	port_range_hints[LMS_FILTER_RELEASE].LowerBound = 10; 
+	port_range_hints[LMS_FILTER_RELEASE].UpperBound = 200; 
 
         
         /*Parameters for noise_amp*/        
