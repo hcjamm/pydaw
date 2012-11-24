@@ -23,7 +23,7 @@ public:
                 
         lms_freq_knob = new LMS_knob_regular(QString("Freq"), 10, 400, 1, 200, QString("0"), lms_groupbox->lms_groupbox, a_style, lms_kc_decimal, a_freq_port);
         lms_groupbox->lms_add_h(lms_freq_knob);
-        lms_type_combobox = new LMS_combobox(QString("Type"), lms_groupbox->lms_groupbox, a_types, a_type_port, a_style);
+        lms_type_combobox = new LMS_combobox(QString("Type"), lms_groupbox->lms_groupbox, a_types, a_type_port, a_style);        
         lms_groupbox->lms_add_h(lms_type_combobox);        
     }
     
