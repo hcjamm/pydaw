@@ -1315,11 +1315,18 @@ void SamplerGUI::sampleStartChanged(int a_value)
                 
                 m_sample_start_hslider->setValue((m_sample_starts[(m_sample_table->lms_selected_column)]));
             }
+            else
+            {
+                m_sample_starts[(m_sample_table->lms_selected_column)] = a_value;
+            }
             
             m_sample_end_hslider->setValue((m_sample_ends[(m_sample_table->lms_selected_column)]));
         }
-        
-        m_sample_starts[(m_sample_table->lms_selected_column)] = a_value;
+        else
+        {
+            m_sample_starts[(m_sample_table->lms_selected_column)] = a_value;
+        }
+                
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_START_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_starts[(m_sample_table->lms_selected_column)]));
@@ -1344,11 +1351,18 @@ void SamplerGUI::sampleEndChanged(int a_value)
             
             m_sample_end_hslider->setValue((m_sample_ends[(m_sample_table->lms_selected_column)]));
         }
+        else
+        {
+            m_sample_ends[(m_sample_table->lms_selected_column)] = a_value;
+        }
 
         m_sample_start_hslider->setValue((m_sample_starts[(m_sample_table->lms_selected_column)]));
     }
+    else
+    {
+        m_sample_ends[(m_sample_table->lms_selected_column)] = a_value;
+    }    
     
-    m_sample_ends[(m_sample_table->lms_selected_column)] = a_value;
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_END_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_ends[(m_sample_table->lms_selected_column)]));
@@ -1373,11 +1387,18 @@ void SamplerGUI::sampleLoopStartChanged(int a_value)
                 
                 m_sample_loop_start_hslider->setValue((m_sample_loop_starts[(m_sample_table->lms_selected_column)]));
             }
+            else
+            {
+                m_sample_loop_starts[(m_sample_table->lms_selected_column)] = a_value;
+            }
             
             m_sample_loop_end_hslider->setValue((m_sample_loop_ends[(m_sample_table->lms_selected_column)]));
         }
+        else
+        {
+            m_sample_loop_starts[(m_sample_table->lms_selected_column)] = a_value;
+        }
         
-        m_sample_loop_starts[(m_sample_table->lms_selected_column)] = a_value;
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_loop_starts[(m_sample_table->lms_selected_column)]));
@@ -1402,11 +1423,18 @@ void SamplerGUI::sampleLoopEndChanged(int a_value)
             
             m_sample_loop_end_hslider->setValue((m_sample_loop_ends[(m_sample_table->lms_selected_column)]));
         }
+        else
+        {
+            m_sample_loop_ends[(m_sample_table->lms_selected_column)] = a_value;
+        }
 
         m_sample_loop_start_hslider->setValue((m_sample_loop_starts[(m_sample_table->lms_selected_column)]));
     }
+    else
+    {
+        m_sample_loop_ends[(m_sample_table->lms_selected_column)] = a_value;
+    }
     
-    m_sample_loop_ends[(m_sample_table->lms_selected_column)] = a_value;
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_loop_ends[(m_sample_table->lms_selected_column)]));
