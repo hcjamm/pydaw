@@ -386,6 +386,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     int f_i = 0;
     while(f_i < EUPHORIA_MAX_SAMPLE_COUNT)
     {
+        plugin_data->sampleStarts[f_i] = 0;
+        plugin_data->sampleEnds[f_i] = 0;
         plugin_data->sampleCount[f_i] = 0;
         plugin_data->basePitch[f_i] = 0;
         plugin_data->low_note[f_i] = 0;
@@ -411,9 +413,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     int f_i2;
     
     while(f_i < EUPHORIA_POLYPHONY)
-    {
-        plugin_data->sampleStarts[f_i] = 0;
-        plugin_data->sampleEnds[f_i] = 0;
+    {        
         plugin_data->sample_indexes_count[f_i] = 0;
         plugin_data->data[f_i] = g_euphoria_poly_init(s_rate);
         
@@ -846,6 +846,15 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
                         v_ifh_retrigger(plugin_data->sample_read_heads[f_voice_num][(plugin_data->loaded_samples[i])], 
                                 (plugin_data->sampleStartPos[(plugin_data->current_sample)]));// 0.0f;
 
+                        printf("\n\n\ni == %i\n", i);
+                        printf("f_voice_num == %i\n", f_voice_num);
+                        printf("plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] == %f\n", plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])]);
+                        printf("\n", );
+                        printf("(plugin_data->loaded_samples[i]) == %i\n", (plugin_data->loaded_samples[i]));
+                        printf("plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] == %f\n", plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]);                        
+                        printf("((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001) == %f\n", ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001));
+                        //printf("\n", );
+                        
                         plugin_data->vel_sens_output[f_voice_num][(plugin_data->loaded_samples[i])] = 
                                 ((1 -
                                 (((float)(n.velocity) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))

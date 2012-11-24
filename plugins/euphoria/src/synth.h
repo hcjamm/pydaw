@@ -152,7 +152,6 @@ typedef struct {
     int         velocities[EUPHORIA_POLYPHONY];    
     t_int_frac_read_head * sample_read_heads[EUPHORIA_POLYPHONY][EUPHORIA_MAX_SAMPLE_COUNT];
     long         sampleNo;
-    //char        *projectDir;
     char*       sample_paths[EUPHORIA_TOTAL_SAMPLE_COUNT];    
     char*       sample_files;
     
