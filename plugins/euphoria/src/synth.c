@@ -845,14 +845,6 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
 
                         v_ifh_retrigger(plugin_data->sample_read_heads[f_voice_num][(plugin_data->loaded_samples[i])],
                                 (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]));// 0.0f;
-
-                        printf("\n\n\ni == %i\n", i);
-                        printf("f_voice_num == %i\n", f_voice_num);
-                        printf("plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] == %f\n", plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])]);                        
-                        printf("(plugin_data->loaded_samples[i]) == %i\n", (plugin_data->loaded_samples[i]));
-                        printf("plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] == %f\n", plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]);                        
-                        printf("((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001) == %f\n", ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001));
-                        //printf("\n", );
                         
                         plugin_data->vel_sens_output[f_voice_num][(plugin_data->loaded_samples[i])] = 
                                 ((1 -
