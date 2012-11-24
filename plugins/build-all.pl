@@ -418,7 +418,7 @@ $package_name = "$short_name-$version-$arch$debug_suffix.$package_type";
 
 if($prompt)
 {
-	print "\n\nComplete.  Your package is now located at:\n $base_dir/$package_name\n\nInstall now?y/[n]";
+	print "\n\nComplete.  Your package is now located at:\n $base_dir/$package_name\n\nInstall now?  y/[n]: ";
 	$install_answer = <STDIN>;
 	chomp($install_answer);
 
