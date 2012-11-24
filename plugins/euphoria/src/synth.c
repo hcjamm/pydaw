@@ -843,13 +843,12 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
                         plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] = (*(plugin_data->basePitch[(plugin_data->loaded_samples[i])]))
                                 - (*(plugin_data->sample_pitch[(plugin_data->loaded_samples[i])])) - ((*(plugin_data->sample_tune[(plugin_data->loaded_samples[i])])) * .01f);
 
-                        v_ifh_retrigger(plugin_data->sample_read_heads[f_voice_num][(plugin_data->loaded_samples[i])], 
-                                (plugin_data->sampleStartPos[(plugin_data->current_sample)]));// 0.0f;
+                        v_ifh_retrigger(plugin_data->sample_read_heads[f_voice_num][(plugin_data->loaded_samples[i])],
+                                (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]));// 0.0f;
 
                         printf("\n\n\ni == %i\n", i);
                         printf("f_voice_num == %i\n", f_voice_num);
-                        printf("plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] == %f\n", plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])]);
-                        printf("\n", );
+                        printf("plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])] == %f\n", plugin_data->adjusted_base_pitch[(plugin_data->loaded_samples[i])]);                        
                         printf("(plugin_data->loaded_samples[i]) == %i\n", (plugin_data->loaded_samples[i]));
                         printf("plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])] == %f\n", plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]);                        
                         printf("((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001) == %f\n", ((*(plugin_data->sampleStarts[(plugin_data->loaded_samples[i])])) * .0001));
