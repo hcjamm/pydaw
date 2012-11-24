@@ -341,6 +341,9 @@ class region_list_editor:
         self.paste_action = QtGui.QAction("Paste (CTRL+V)", self.table_widget)
         self.paste_action.triggered.connect(self.paste_clipboard)
         self.table_widget.addAction(self.paste_action)
+        self.unlink_action = QtGui.QAction("Unlink (CTRL+D)", self.table_widget)
+        self.unlink_action.triggered.connect(self.on_unlink_item)
+        self.table_widget.addAction(self.unlink_action)
         self.delete_action = QtGui.QAction("Delete (Del)", self.table_widget)
         self.delete_action.triggered.connect(self.delete_selected)
         self.table_widget.addAction(self.delete_action)        
@@ -359,8 +362,53 @@ class region_list_editor:
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.copy_selected()
             self.delete_selected()
+        elif event.key() == QtCore.Qt.Key_D and event.modifiers() == QtCore.Qt.ControlModifier:
+            self.on_unlink_item()
         else:
             QtGui.QTableWidget.keyPressEvent(self.table_widget, event)
+
+    def on_unlink_item(self):
+        """ Rename a single instance of an item and make it into a new item """
+        if self.table_widget.currentItem() is None or str(self.table_widget.currentItem().text()) == "":
+            return
+        x = self.table_widget.currentRow()
+        y = self.table_widget.currentColumn()
+        
+        def note_ok_handler():
+            f_cell_text = str(f_new_lineedit.text())
+            this_pydaw_project.create_empty_item(f_new_lineedit.text())
+            this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
+            this_pydaw_project.copy_item(str(self.table_widget.currentItem().text()), str(f_new_lineedit.text()))
+            this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
+            this_item_editor.open_item(f_cell_text)
+            self.last_item_copied = f_cell_text
+            self.add_qtablewidgetitem(f_cell_text, x, y - 1)
+            self.region.add_item_ref(x, y - 1, f_cell_text)            
+            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
+            f_window.close()
+
+        def note_cancel_handler():
+            f_window.close()
+            
+        def on_name_changed():
+            f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
+
+        f_window = QtGui.QDialog()
+        f_window.setWindowTitle("Copy and unlink item...")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_item_name())
+        f_new_lineedit.editingFinished.connect(on_name_changed)
+        f_new_lineedit.setMaxLength(24)
+        f_layout.addWidget(QtGui.QLabel("New name:"), 0, 0)
+        f_layout.addWidget(f_new_lineedit, 0, 1)        
+        f_ok_button = QtGui.QPushButton("OK")
+        f_layout.addWidget(f_ok_button, 5,0)
+        f_ok_button.clicked.connect(note_ok_handler)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_layout.addWidget(f_cancel_button, 5,1)
+        f_cancel_button.clicked.connect(note_cancel_handler)
+        f_window.exec_()
 
     def paste_clipboard(self):
         f_selected_cells = self.table_widget.selectedIndexes()
@@ -759,6 +807,8 @@ class item_list_editor:
         if self.add_radiobutton.isChecked():
             self.notes_show_event_dialog(x, y)
         elif self.delete_radiobutton.isChecked():
+            if self.notes_table_widget.item(x, 0) is None or str(self.notes_table_widget.item(x, 0).text()) == "":
+                return
             self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
