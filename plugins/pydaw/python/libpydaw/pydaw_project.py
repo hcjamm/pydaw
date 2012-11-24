@@ -207,11 +207,12 @@ class pydaw_project:
         return pydaw_transport.from_str(f_str)
     
     def save_transport(self, a_transport):
-        f_file_name = self.project_folder + "/default.pytransport"
-        f_file = open(f_file_name, "w")
-        f_file.write(a_transport.__str__())
-        f_file.close()
-        self.git_repo.git_commit(f_file_name, "Save transport settings...")
+        if not self.suppress_updates:
+            f_file_name = self.project_folder + "/default.pytransport"
+            f_file = open(f_file_name, "w")
+            f_file.write(a_transport.__str__())
+            f_file.close()        
+            self.git_repo.git_commit(f_file_name, "Save transport settings...")
 
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
@@ -244,38 +245,42 @@ class pydaw_project:
         self.git_repo.git_commit(f_new_file, "Created new item " + a_new_item + " copying from " + a_old_item)
         
     def save_item(self, a_name, a_item):
-        f_name = str(a_name)
-        f_file_name = self.items_folder + "/" + f_name + ".pyitem"
-        f_file = open(f_file_name, 'w')
-        f_file.write(a_item.__str__())
-        f_file.close()
-        self.this_dssi_gui.pydaw_save_item(f_name)
-        self.git_repo.git_commit(f_file_name, "Edited item " + f_name)
+        if not self.suppress_updates:
+            f_name = str(a_name)
+            f_file_name = self.items_folder + "/" + f_name + ".pyitem"
+            f_file = open(f_file_name, 'w')
+            f_file.write(a_item.__str__())
+            f_file.close()
+            self.this_dssi_gui.pydaw_save_item(f_name)
+            self.git_repo.git_commit(f_file_name, "Edited item " + f_name)
 
     def save_region(self, a_name, a_region):
-        f_name = str(a_name)
-        f_file_name = self.regions_folder + "/" + f_name + ".pyreg"
-        f_file = open(f_file_name, 'w')
-        f_file.write(a_region.__str__())
-        f_file.close()
-        self.this_dssi_gui.pydaw_save_region(f_name)
-        self.git_repo.git_commit(f_file_name, "Edited region " + f_name)
+        if not self.suppress_updates:
+            f_name = str(a_name)
+            f_file_name = self.regions_folder + "/" + f_name + ".pyreg"
+            f_file = open(f_file_name, 'w')
+            f_file.write(a_region.__str__())
+            f_file.close()        
+            self.this_dssi_gui.pydaw_save_region(f_name)
+            self.git_repo.git_commit(f_file_name, "Edited region " + f_name)
 
     def save_song(self, a_song):
-        f_file_name = self.project_folder + "/default.pysong"
-        f_file = open(f_file_name, 'w')
-        f_file.write(a_song.__str__())
-        f_file.close()
-        self.this_dssi_gui.pydaw_save_song()
-        self.git_repo.git_commit(f_file_name, "Edited song")
+        if not self.suppress_updates:
+            f_file_name = self.project_folder + "/default.pysong"
+            f_file = open(f_file_name, 'w')
+            f_file.write(a_song.__str__())
+            f_file.close()
+            self.this_dssi_gui.pydaw_save_song()
+            self.git_repo.git_commit(f_file_name, "Edited song")
 
     def save_tracks(self, a_tracks):
-        f_file_name = self.project_folder + "/default.pytracks"
-        f_file = open(f_file_name, 'w')
-        f_file.write(a_tracks.__str__())
-        f_file.close()
-        #Is there a need for a configure message here?        
-        self.git_repo.git_commit('-a', "Edited tracks")
+        if not self.suppress_updates:
+            f_file_name = self.project_folder + "/default.pytracks"
+            f_file = open(f_file_name, 'w')
+            f_file.write(a_tracks.__str__())
+            f_file.close()    
+            #Is there a need for a configure message here?        
+            self.git_repo.git_commit('-a', "Edited tracks")
 
     def get_next_default_item_name(self):
         for i in range((self.last_item_number - 1), 10000):
@@ -315,6 +320,7 @@ class pydaw_project:
         self.last_item_number = 1
         self.last_region_number = 1
         self.this_dssi_gui = dssi_gui(a_osc_url)
+        self.suppress_updates = False
 
 class pydaw_song:
     def add_region_ref(self, a_pos, a_region_name):

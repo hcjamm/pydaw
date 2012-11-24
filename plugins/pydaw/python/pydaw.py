@@ -175,7 +175,7 @@ class region_list_editor:
         f_tracks = this_pydaw_project.get_tracks()
         for key, f_track in f_tracks.tracks.iteritems():
             self.tracks[key].open_track(f_track)
-
+        
     def reset_tracks(self):
         f_track_ss_handle = open("pydaw/track_style.txt", "r")
         f_track_stylesheet = f_track_ss_handle.read()
@@ -1832,12 +1832,14 @@ def global_open_project(a_project_file, a_notify_osc=True):
         this_pydaw_project = pydaw_project((argv[1]))
     else:
         this_pydaw_project = pydaw_project()
+    this_pydaw_project.suppress_updates = True
     this_pydaw_project.open_project(a_project_file, a_notify_osc)
     this_song_editor.open_song()    
     this_region_editor.open_tracks()
     this_transport.open_transport()
     set_default_project(a_project_file)
     set_window_title()
+    this_pydaw_project.suppress_updates = False
 
 def global_new_project(a_project_file):
     global_close_all()
