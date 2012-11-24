@@ -33,7 +33,7 @@ public:
     /* The overload for running standalone */
     LMS_preset_manager(QString a_plugin_name, QString a_default_presets, int a_lms_port, LMS_style_info * a_style_info, QWidget * a_parent)
     {
-        QString f_preset_path = QDir::homePath() + QString("/dssi");
+        QString f_preset_path = QDir::homePath() + QString("/pydaw");
         
         instantiate(a_plugin_name, a_default_presets, a_lms_port, a_style_info, a_parent, f_preset_path);
     }
@@ -157,7 +157,7 @@ public:
 
         presets_tab_delimited[m_program->currentIndex()] = f_result;
 
-        QString f_file_path = QDir::homePath() + "/dssi/" + lms_plugin_name + LMS_PRESETS_EXT;
+        QString f_file_path = QDir::homePath() + "/pydaw/" + lms_plugin_name + LMS_PRESETS_EXT;
 
         write_presets_to_file(f_file_path);
         

@@ -1839,7 +1839,7 @@ void v_open_default_project(t_pydaw_data * a_data)
 {
     char * f_home = getenv("HOME");
     char f_default_project_folder[512];
-    sprintf(f_default_project_folder, "%s/dssi/pydaw/default-project", f_home);
+    sprintf(f_default_project_folder, "%s/pydaw/default-project", f_home);
     v_open_project(a_data, f_default_project_folder);
     //free(f_home);  //Not freeing this because it SEGFAULTS for some reason and is tiny....
 }

@@ -55,7 +55,7 @@ public:
         
         lms_editor_path = QString("/usr/bin/audacity");
         
-        QString f_global_config_path(QDir::homePath() + QString("/dssi/lms_global_wave_editor.txt"));
+        QString f_global_config_path(QDir::homePath() + QString("/pydaw/lms_global_wave_editor.txt"));
 
         //QByteArray ba = f_global_config_path.toLocal8Bit();
         
@@ -143,7 +143,7 @@ public:
         if(!QFile::exists(lms_editor_path))
         {
             QMessageBox::warning(lms_file_path, QString("No Wave Editor Found"), QString("Could not locate ") + lms_editor_path +
-            QString(" or another suitable wave editor.  Please edit ~/dssi/lms_global_wave_editor.txt with your wave editor of choice, or install Audacity."));
+            QString(" or another suitable wave editor.  Please edit ~/pydaw/lms_global_wave_editor.txt with your wave editor of choice, or install Audacity."));
             return;
         }
         
