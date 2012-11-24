@@ -283,14 +283,16 @@ class pydaw_project:
             self.git_repo.git_commit('-a', "Edited tracks")
 
     def get_next_default_item_name(self):
-        for i in range((self.last_item_number - 1), 10000):
+        self.last_item_number -= 1
+        for i in range(self.last_item_number, 10000):
             f_result = self.items_folder + "/item-" + str(i) + ".pyitem"
             if not os.path.isfile(f_result):
                 self.last_item_number = i
                 return "item-" + str(i)
 
     def get_next_default_region_name(self):
-        for i in range((self.last_region_number - 1), 10000):
+        self.last_region_number -= 1
+        for i in range(self.last_region_number, 10000):
             f_result = self.regions_folder + "/region-" + str(i) + ".pyreg"
             if not os.path.isfile(f_result):
                 self.last_item_number = i
