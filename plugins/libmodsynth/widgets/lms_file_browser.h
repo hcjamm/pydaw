@@ -166,7 +166,7 @@ public:
         m_preview_pushButton->setText(QString("Preview"));
         m_load_pushButton->setText(QString("Load"));
         
-        f_global_config_path = QString(QDir::homePath() + QString("/dssi/lms_file_browser_bookmarks.txt"));
+        f_global_config_path = QString(QDir::homePath() + QString("/pydaw/lms_file_browser_bookmarks.txt"));
         
         if(QFile::exists(f_global_config_path))
         {

@@ -196,7 +196,7 @@ char * c_ccm_3_char_ptr(char* a_arr, int a_pos)
 
 /* void v_ccm_read_file_to_array(t_ccm_midi_cc_map* a_ccm, char * a_file_name)
  * 
- * Check for the existence of a_file_name in ~/dssi, creating the directory and/or the
+ * Check for the existence of a_file_name in ~/pydaw, creating the directory and/or the
  * file if needed.  If the file exists, read it into a_ccm, if not, read the default
  * values in a_ccm set by calling v_ccm_set_cc in the plugin's constructor.
  * 
@@ -208,7 +208,7 @@ void v_ccm_read_file_to_array(t_ccm_midi_cc_map* a_ccm, char * a_file_name)
     char * f_home = getenv("HOME");
     char * f_path = (char*)malloc(sizeof(char) * 200);
     char * f_file = (char*)malloc(sizeof(char) * 200);
-    sprintf(f_path, "%s/dssi", f_home);
+    sprintf(f_path, "%s/pydaw", f_home);
     sprintf(f_file, "%s/%s", f_path, a_file_name);
     printf("f_file == %s\n", f_file);
     
