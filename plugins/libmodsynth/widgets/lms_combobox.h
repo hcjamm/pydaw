@@ -33,6 +33,7 @@ class LMS_combobox : public LMS_control
             lms_layout = new QVBoxLayout();
             lms_label = new QLabel(a_parent);
             lms_label->setText(a_label);
+            lms_label->setAlignment(Qt::AlignCenter);
                         
             if(a_style_info->lms_use_label_style)
             {

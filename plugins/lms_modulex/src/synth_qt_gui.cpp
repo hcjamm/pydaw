@@ -37,6 +37,7 @@ GNU General Public License for more details.
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/SM/SMlib.h>
+#include <qt4/QtGui/qspinbox.h>
 
 static int modulex_handle_x11_error(Display *dpy, XErrorEvent *err)
 {
@@ -71,8 +72,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
 {
     m_host = lo_address_new(host, port);
     
-    /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
-    this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{border:1px solid white;border-radius:3px; padding:1px;background-color:black;color:white} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
+    this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{background-color:black; color:white; border:solid 1px white;} QComboBox:editable{background-color:black; color:white;} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px; width:100px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
 
     m_main_layout = new LMS_main_layout(this);
     
@@ -191,14 +191,16 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     m_bpm_spinbox->setMinimum(60);
     m_bpm_spinbox->setMaximum(200);
     m_bpm_spinbox->setSingleStep(0.1);
+    m_bpm_spinbox->setValue(140.0f);
     
     QStringList f_beat_fracs = QStringList() << QString("1/4") << QString("1/3") << QString("1/2") << QString("2/3") << QString("3/4") << QString("1");
     
     m_beat_frac = new QComboBox(this); // get_combobox(f_beat_fracs, f_beat_fracs_count , this);
     m_beat_frac->addItems(f_beat_fracs);
-    
+        
     m_sync_bpm = new QPushButton(this);
     m_sync_bpm->setText("Sync");
+    m_sync_bpm->setMaximumWidth(60);
     connect(m_sync_bpm, SIGNAL(pressed()), this, SLOT(bpmSyncPressed()));
     
     QLabel * f_bpm_label = new QLabel("BPM",  this);
@@ -217,7 +219,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     f_gb_bpm_layout->addWidget(m_beat_frac, 1, 1, Qt::AlignCenter);
     f_gb_bpm_layout->addWidget(m_sync_bpm, 2, 1, Qt::AlignCenter);
     
-    m_main_layout->lms_add_widget(f_gb_bpm);        
+    m_main_layout->lms_add_widget(f_gb_bpm);
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
