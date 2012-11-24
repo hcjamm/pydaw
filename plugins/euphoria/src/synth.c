@@ -947,8 +947,15 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
                 v_adsr_retrigger(plugin_data->data[f_voice_num]->adsr_filter);
                 v_lfs_sync(plugin_data->data[f_voice_num]->lfo1, 0.0f, *(plugin_data->lfo_type));
 
-                v_adsr_set_adsr_db(plugin_data->data[f_voice_num]->adsr_amp, (*(plugin_data->attack) * .01), (*(plugin_data->decay) * .01), (*(plugin_data->sustain)), (*(plugin_data->release) * .01));
-                v_adsr_set_adsr(plugin_data->data[f_voice_num]->adsr_filter, (*(plugin_data->attack_f) * .01), (*(plugin_data->decay_f) * .01), (*(plugin_data->sustain_f) * .01), (*(plugin_data->release_f) * .01));
+                float f_attack_a = (*(plugin_data->attack) * .01);  f_attack_a *= f_attack_a;
+                float f_decay_a = (*(plugin_data->decay) * .01);  f_decay_a *= f_decay_a;
+                float f_release_a = (*(plugin_data->release) * .01); f_release_a *= f_release_a;
+                v_adsr_set_adsr_db(plugin_data->data[f_voice_num]->adsr_amp, f_attack_a, f_decay_a, (*(plugin_data->sustain)), f_release_a);
+                
+                float f_attack_f = (*(plugin_data->attack_f) * .01);  f_attack_f *= f_attack_f;
+                float f_decay_f = (*(plugin_data->decay_f) * .01);  f_decay_f *= f_decay_f;
+                float f_release_f = (*(plugin_data->release_f) * .01); f_release_f *= f_release_f;
+                v_adsr_set_adsr(plugin_data->data[f_voice_num]->adsr_filter, f_attack_f, f_decay_f, (*(plugin_data->sustain_f) * .01), f_release_f);
 
                 /*Retrigger the pitch envelope*/
                 v_rmp_retrigger((plugin_data->data[f_voice_num]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1);  
@@ -1493,7 +1500,7 @@ void _init()
 	port_range_hints[EUPHORIA_ATTACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[EUPHORIA_ATTACK].LowerBound = 1; 
+	port_range_hints[EUPHORIA_ATTACK].LowerBound = 10; 
 	port_range_hints[EUPHORIA_ATTACK].UpperBound = 100; 
 
 	/* Parameters for decay */
@@ -1502,7 +1509,7 @@ void _init()
 	port_range_hints[EUPHORIA_DECAY].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[EUPHORIA_DECAY].LowerBound = 1; 
+	port_range_hints[EUPHORIA_DECAY].LowerBound = 10; 
 	port_range_hints[EUPHORIA_DECAY].UpperBound = 100; 
 
 	/* Parameters for sustain */
@@ -1520,8 +1527,8 @@ void _init()
 	port_range_hints[EUPHORIA_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MINIMUM | 
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[EUPHORIA_RELEASE].LowerBound = 5; 
-	port_range_hints[EUPHORIA_RELEASE].UpperBound = 400; 
+	port_range_hints[EUPHORIA_RELEASE].LowerBound = 10; 
+	port_range_hints[EUPHORIA_RELEASE].UpperBound = 200; 
                 
 	/* Parameters for attack_f */
 	port_descriptors[EUPHORIA_FILTER_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1529,7 +1536,7 @@ void _init()
 	port_range_hints[EUPHORIA_FILTER_ATTACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[EUPHORIA_FILTER_ATTACK].LowerBound = 1; 
+	port_range_hints[EUPHORIA_FILTER_ATTACK].LowerBound = 10; 
 	port_range_hints[EUPHORIA_FILTER_ATTACK].UpperBound = 100; 
 
 	/* Parameters for decay_f */
@@ -1538,7 +1545,7 @@ void _init()
 	port_range_hints[EUPHORIA_FILTER_DECAY].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[EUPHORIA_FILTER_DECAY].LowerBound = 1;
+	port_range_hints[EUPHORIA_FILTER_DECAY].LowerBound = 10;
 	port_range_hints[EUPHORIA_FILTER_DECAY].UpperBound = 100;
 
 	/* Parameters for sustain_f */
@@ -1556,8 +1563,8 @@ void _init()
 	port_range_hints[EUPHORIA_FILTER_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW  |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[EUPHORIA_FILTER_RELEASE].LowerBound = 1; 
-	port_range_hints[EUPHORIA_FILTER_RELEASE].UpperBound = 400; 
+	port_range_hints[EUPHORIA_FILTER_RELEASE].LowerBound = 10; 
+	port_range_hints[EUPHORIA_FILTER_RELEASE].UpperBound = 200; 
 
         
         /*Parameters for noise_amp*/        
