@@ -144,12 +144,12 @@ static LADSPA_Handle g_modulex_instantiate(const LADSPA_Descriptor * descriptor,
     
     plugin_data->midi_cc_map = g_ccm_get();
     
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB0, 93, "FX0Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB1, 94, "FX0Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB2, 95, "FX0Knob2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB0, 75, "FX0Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB1, 76, "FX0Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB2, 97, "FX0Knob2");
     
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB0, 96, "FX1Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB1, 97, "FX1Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB0, 77, "FX1Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB1, 7, "FX1Knob1");
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB2, 98, "FX1Knob2");
     
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX2_KNOB0, 99, "FX2Knob0");

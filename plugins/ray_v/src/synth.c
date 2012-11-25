@@ -206,24 +206,19 @@ static LADSPA_Handle g_rayv_instantiate(const LADSPA_Descriptor * descriptor,
     plugin_data->fs = s_rate;
     
     plugin_data->midi_cc_map = g_ccm_get();
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_ATTACK, 73, "Attack Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RELEASE, 72, "Release Amp");    
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_TIMBRE, 74, "Filter Cutoff");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES, 71, "Res");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DIST, 70, "Distortion Gain");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ENV_AMT, 70, "Filter Env Amt");
     v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DIST_WET, 91, "Distortion Wet");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ATTACK, 15, "Attack Filter");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_RELEASE, 78, "Release Filter");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_NOISE_AMP, 25, "Noise Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ENV_AMT, 26, "Filter Env Amt");    
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MASTER_GLIDE, 20, "Glide Time");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FREQ, 21, "LFO Freq");    
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_TYPE, 22, "LFO Type");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_AMT, 9, "Pitch Env Amt");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_TIME, 75, "Pitch Env Time");    
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_AMP, 76, "LFO Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_PITCH, 77, "LFO Pitch");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FILTER, 7, "LFO Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_AMT, 20, "Pitch Env Amt");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_TIME, 21, "Pitch Env Time");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_ATTACK, 22, "Attack Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RELEASE, 5, "Release Amp");    
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_NOISE_AMP, 73, "Noise Amp");       
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FREQ, 72, "LFO Freq");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_AMP, 15, "LFO Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_PITCH, 78, "LFO Pitch");
+    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FILTER, 9, "LFO Filter");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "ray_v-cc_map.txt");
     
