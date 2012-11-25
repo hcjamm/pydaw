@@ -4,7 +4,6 @@ import sys
 import liblo
 from liblo import *
 from urlparse import urlparse
-from log import pydaw_write_log
 
 #TODO:  Move this to a mutual location and rename to bool_to_int_str
 def bool_to_int(a_bool):
@@ -67,7 +66,7 @@ class dssi_gui(ServerThread):
             print("Sent " + self.get_url()[:-1] + self.base_path + " to " + self.update_path)
 
     def stop_server(self):
-        pydaw_write_log("stop_server called")
+        print("stop_server called")
         if self.with_osc:
             liblo.send(self.target, self.exit_path)
             self.stop()
@@ -76,13 +75,13 @@ class dssi_gui(ServerThread):
         if self.with_osc:
             liblo.send(self.target, self.control_path, port_number, port_value)
         else:
-            pydaw_write_log("Running standalone UI without OSC.  Would've sent control message: key:" + str(port_number) + " value: " + str(port_value))
+            print("Running standalone UI without OSC.  Would've sent control message: key:" + str(port_number) + " value: " + str(port_value))
 
     def send_configure(self, key, value):
         if self.with_osc:
             liblo.send(self.target, self.configure_path, key, value)
         else:
-            pydaw_write_log("Running standalone UI without OSC.  Would've sent configure message: key: \"" + str(key) + "\" value: \"" + str(value) + "\"")
+            print("Running standalone UI without OSC.  Would've sent configure message: key: \"" + str(key) + "\" value: \"" + str(value) + "\"")
     
     def configure_handler(self, path, args):
         s1, s2 = args
