@@ -119,7 +119,6 @@ static pthread_mutex_t midiEventBufferMutex = PTHREAD_MUTEX_INITIALIZER;
 LADSPA_Data get_port_default(const LADSPA_Descriptor *plugin, int port);
 
 void osc_error(int num, const char *m, const char *path);
-void session_callback (jack_session_event_t *event, void *arg);
 
 int osc_message_handler(const char *path, const char *types, lo_arg **argv, int
 		      argc, void *data, void *user_data) ;
@@ -1095,6 +1094,7 @@ main(int argc, char **argv)
     if ((jackClient = jack_client_open(clientName, JackNullOption, &status)) == 0) {
         fprintf(stderr, "\n%s: Error: Failed to connect to JACK server\n",
             myName);
+        system("/usr/bin/zenity --info --text=\"Failed to start Jack server.  Please ensure that you have properly configured your soundcard in QJackCtl, and are able to start Jack manually from the QJackCtl panel.\n\nIf you are trying to use 'realtime' mode, you may need to open a terminal first, run the following command, and then reboot:\n\nsudo usermod -g audio $USER\n\nAlternately, if you are having problems with jackd, you may need to kill the Jack daemon with\n\nps -ef | grep jackd\nkill -9 [PID of jackd from the first command]\" --height=600");
         return 1;
     }
     if (status & JackNameNotUnique) {
@@ -1102,10 +1102,6 @@ main(int argc, char **argv)
 	clientName[clientLen] = '\0';
     }
     
-    jack_set_session_callback (jackClient, session_callback, NULL);
-    
-    
-
     sample_rate = jack_get_sample_rate(jackClient);
 
     inputPorts = (jack_port_t **)malloc(insTotal * sizeof(jack_port_t *));
@@ -2013,29 +2009,6 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
 
     return osc_debug_handler(path, types, argv, argc, data, user_data);
 }
-
-void session_callback (jack_session_event_t *event, void *arg)
-{
-        char retval[100];
-        printf ("session notification\n");
-        printf ("path %s, uuid %s, type: %s\n", event->session_dir, event->client_uuid, event->type == JackSessionSave ? "save" : "quit");
-
-        //char * f_result = (char*)malloc(100000);
-                
-        snprintf (retval, 100, "jack_simple_session_client %s", event->client_uuid);
-        event->command_line = strdup (retval);
-
-        jack_session_reply( jackClient, event );
-
-        if (event->type == JackSessionSaveAndQuit) {
-                //simple_quit = 1;
-            exiting = 1;
-        }
-
-        jack_session_event_free (event);
-}
-
-
 
 void jack_shutdown(void *arg)
 {
