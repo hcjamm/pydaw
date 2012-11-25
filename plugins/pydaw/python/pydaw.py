@@ -1663,7 +1663,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         #Begin CC Map tab
         self.cc_map_tab = QtGui.QWidget()
         f_cc_map_main_vlayout = QtGui.QVBoxLayout(self.cc_map_tab)
-        f_cc_map_label = QtGui.QLabel("Below you can edit the MIDI CC maps for PyDAW's plugins.  You must restart PyDAW for changes to take effect.  Maps will not populate until you've started the plugin for the first time.")
+        f_cc_map_label = QtGui.QLabel("Below you can edit the MIDI CC maps for PyDAW's plugins. All CCs are sent to both Ray-V/Euphoria and Modulex, \nso the first 2 can overlap each other, but neither should overlap with Modulex.  \nYou must restart PyDAW for changes to the CC maps to take effect.  Maps will not populate until you've started\nthe plugin for the first time, and then restarted PyDAW..")
+        f_cc_map_label.setMaximumWidth(1200)
         f_cc_map_main_vlayout.addWidget(f_cc_map_label)
         f_cc_map_hlayout = QtGui.QHBoxLayout()
         f_cc_map_main_vlayout.addLayout(f_cc_map_hlayout)
