@@ -21,7 +21,8 @@
 
 enum LMS_KNOB_CONVERSION
 {
-    lms_kc_integer, lms_kc_decimal, lms_kc_pitch, lms_kc_none, lms_kc_127_pitch, lms_kc_127_zero_to_x, lms_kc_log_time
+    lms_kc_integer, lms_kc_decimal, lms_kc_pitch, lms_kc_none, lms_kc_127_pitch, 
+    lms_kc_127_zero_to_x, lms_kc_log_time, lms_kc_127_zero_to_x_int
 };
 
 class LMS_knob_regular : public LMS_control
@@ -115,39 +116,45 @@ class LMS_knob_regular : public LMS_control
         
         void lms_value_changed(int a_value)
         {
-                switch(lms_conv_type)
-                {
-                    case lms_kc_decimal:
-                        lms_value->setText(QString::number(((float)a_value) * .01 ));
-                        break;
-                    case lms_kc_integer:
-                        lms_value->setText(QString::number(a_value));
-                        break;
-                    case lms_kc_none:
-                        //Do nothing
-                        break;
-                    case lms_kc_pitch:
-                        lms_value->setText(QString::number(
-                       ((int)(440*pow(2,((float)(a_value-57))*.0833333)))
-                        ));
-                        break;
-                    case lms_kc_127_pitch:
-                        lms_value->setText(QString::number(
-                       ((int)(440*pow(2,((float)(((a_value * 0.818897638) + 20) -57))*.0833333)))
-                        ));
-                        break;
-                    case lms_kc_127_zero_to_x:
-                        lms_value->setText(QString::number((((float)a_value) * label_value_127_multiply_by) - label_value_127_add_to));
-                        break;
-                    case lms_kc_log_time:
-                        float f_dec_value = ((float)(a_value)) * 0.01;
-                        f_dec_value = f_dec_value * f_dec_value;
-                        f_dec_value = ((int)(f_dec_value * 100.0f)) / 100.0f;
-                        lms_value->setText(QString::number(f_dec_value));
-                        break;
-                }
-        }
-        
+            float f_dec_value;
+            switch(lms_conv_type)
+            {
+                case lms_kc_decimal:
+                    lms_value->setText(QString::number(((float)a_value) * .01 ));
+                    break;
+                case lms_kc_integer:
+                    lms_value->setText(QString::number(a_value));
+                    break;
+                case lms_kc_none:
+                    //Do nothing
+                    break;
+                case lms_kc_pitch:
+                    lms_value->setText(QString::number(
+                   ((int)(440*pow(2,((float)(a_value-57))*.0833333)))
+                    ));
+                    break;
+                case lms_kc_127_pitch:
+                    lms_value->setText(QString::number(
+                   ((int)(440*pow(2,((float)(((a_value * 0.818897638) + 20) -57))*.0833333)))
+                    ));
+                    break;
+                case lms_kc_127_zero_to_x:
+                    f_dec_value = (((float)a_value) * label_value_127_multiply_by) - label_value_127_add_to;
+                    f_dec_value = ((int)(f_dec_value * 10.0f)) * 0.1f;
+                    lms_value->setText(QString::number(f_dec_value));
+                    break;
+                case lms_kc_127_zero_to_x_int:
+                    f_dec_value = (((float)a_value) * label_value_127_multiply_by) - label_value_127_add_to;                        
+                    lms_value->setText(QString::number(((int)f_dec_value)));
+                    break;
+                case lms_kc_log_time:
+                    f_dec_value = ((float)(a_value)) * 0.01;
+                    f_dec_value = f_dec_value * f_dec_value;
+                    f_dec_value = ((int)(f_dec_value * 100.0f)) * 0.01f;
+                    lms_value->setText(QString::number(f_dec_value));
+                    break;
+            }
+        }        
                 
         QVBoxLayout * lms_layout;
         QLabel * lms_label;
