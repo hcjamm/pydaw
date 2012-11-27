@@ -1258,28 +1258,23 @@ t_pypitchbend * g_pypitchbend_get(float a_start, int a_value)
     return f_result;
 }
 
-void g_pysong_get(t_pydaw_data* a_pydaw)
-{    
-    if(a_pydaw->pysong)
-    {
-        free(a_pydaw->pysong);
-    }
-    
-    a_pydaw->pysong = (t_pysong*)malloc(sizeof(t_pysong));
+void g_pysong_get(t_pydaw_data* a_pydaw_data)
+{   
+    t_pysong * f_result = (t_pysong*)malloc(sizeof(t_pysong));
         
     int f_i = 0;
     
     while(f_i < PYDAW_MAX_REGION_COUNT)
     {
-        a_pydaw->pysong->regions[f_i] = 0;        
+        f_result->regions[f_i] = 0;        
         f_i++;
     }
 #ifdef PYDAW_MEMCHECK
-    v_pydaw_assert_memory_integrity(a_pydaw);
+    v_pydaw_assert_memory_integrity(a_pydaw_data);
 #endif
     
     char f_full_path[2048];
-    sprintf(f_full_path, "%sdefault.pysong", a_pydaw->project_folder);
+    sprintf(f_full_path, "%sdefault.pysong", a_pydaw_data->project_folder);
     
     if(i_pydaw_file_exists(f_full_path))
     {
@@ -1296,8 +1291,8 @@ void g_pysong_get(t_pydaw_data* a_pydaw)
             }
             int f_pos = atoi(f_pos_char);        
             char * f_region_char = c_iterate_2d_char_array(f_current_string);
-            a_pydaw->pysong->regions[f_pos] = g_pyregion_get(a_pydaw, f_region_char);
-            strcpy(a_pydaw->pysong->regions[f_pos]->name, f_region_char);
+            f_result->regions[f_pos] = g_pyregion_get(a_pydaw_data, f_region_char);
+            strcpy(f_result->regions[f_pos]->name, f_region_char);
             free(f_pos_char);
             free(f_region_char);
             f_i++;
@@ -1305,8 +1300,20 @@ void g_pysong_get(t_pydaw_data* a_pydaw)
 
         g_free_2d_char_array(f_current_string);
     }
+    
+    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    
+    if(a_pydaw_data->pysong)
+    {
+        free(a_pydaw_data->pysong);
+    }
+    
+    a_pydaw_data->pysong = f_result;
+    
+    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    
 #ifdef PYDAW_MEMCHECK
-    v_pydaw_assert_memory_integrity(a_pydaw);
+    v_pydaw_assert_memory_integrity(a_pydaw_data);
 #endif
 }
 
@@ -2756,6 +2763,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         if(a_pydaw_data->pysong->regions[f_region_index])
         {
             free(a_pydaw_data->pysong->regions[f_region_index]);
+            a_pydaw_data->pysong->regions[f_region_index] = NULL;
         }
         a_pydaw_data->pysong->regions[f_region_index] = f_result;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);        
@@ -2767,10 +2775,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS))  //Save Song
-    {
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        g_pysong_get(a_pydaw_data);
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    {        
+        g_pysong_get(a_pydaw_data);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PLAY)) //Begin playback
     {
