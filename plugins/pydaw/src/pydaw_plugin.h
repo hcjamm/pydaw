@@ -139,6 +139,8 @@ typedef struct st_pydaw_plugin
     int euphoria_load_set;
     //char euphoria_last_dir[512];
     //int euphoria_last_dir_set;    
+    
+    int showing_ui;  //Used to prevent a race condition where the UI can be shown twice
 }t_pydaw_plugin;
 
 #ifdef PYDAW_PLUGIN_MEMCHECK    
@@ -241,6 +243,8 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     f_result->ui_osc_quit_path = NULL;
     f_result->ui_osc_rate_path = NULL;
     f_result->ui_osc_show_path = NULL;
+    
+    f_result->showing_ui = 0;
     
     f_result->descfn = (DSSI_Descriptor_Function)dlsym(f_result->lib_handle, "dssi_descriptor");
     

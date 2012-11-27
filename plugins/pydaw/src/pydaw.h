@@ -2397,18 +2397,32 @@ void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
 
 void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
 {   
+    pthread_mutex_lock(&a_pydaw_data->track_pool[a_track_num]->mutex);
+        
     if(a_pydaw_data->track_pool[a_track_num]->plugin_index == 0)
     {
+        pthread_mutex_unlock(&a_pydaw_data->track_pool[a_track_num]->mutex);
         return;
     }
     
     if(a_is_fx)
-    {
+    {        
         if(a_pydaw_data->track_pool[a_track_num]->effect->uiTarget)
         {
             lo_send(a_pydaw_data->track_pool[a_track_num]->effect->uiTarget, 
                     a_pydaw_data->track_pool[a_track_num]->effect->ui_osc_show_path, "");
+            pthread_mutex_unlock(&a_pydaw_data->track_pool[a_track_num]->mutex);
             return;
+        }
+                
+        if(a_pydaw_data->track_pool[a_track_num]->effect->showing_ui)
+        {
+            pthread_mutex_unlock(&a_pydaw_data->track_pool[a_track_num]->mutex);
+            return;
+        }
+        else
+        {
+            a_pydaw_data->track_pool[a_track_num]->effect->showing_ui = 1;
         }
     }
     else
@@ -2417,10 +2431,23 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
         {
             lo_send(a_pydaw_data->track_pool[a_track_num]->instrument->uiTarget, 
                     a_pydaw_data->track_pool[a_track_num]->instrument->ui_osc_show_path, "");
+            pthread_mutex_unlock(&a_pydaw_data->track_pool[a_track_num]->mutex);
             return;
-        }        
+        }
+        
+        if(a_pydaw_data->track_pool[a_track_num]->instrument->showing_ui)
+        {
+            pthread_mutex_unlock(&a_pydaw_data->track_pool[a_track_num]->mutex);
+            return;
+        }
+        else
+        {
+            a_pydaw_data->track_pool[a_track_num]->instrument->showing_ui = 1;
+        }
     }
     
+    
+    pthread_mutex_unlock(&a_pydaw_data->track_pool[a_track_num]->mutex);
     
     char * filename;
     char oscUrl[256];    
@@ -2814,16 +2841,12 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SHOW_PLUGIN_UI))
     {
         int f_track_num = atoi(a_value);
-        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        v_show_plugin_ui(a_pydaw_data, f_track_num, 0);
-        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        v_show_plugin_ui(a_pydaw_data, f_track_num, 0);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SHOW_FX_UI))
     {
-        int f_track_num = atoi(a_value);
-        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        v_show_plugin_ui(a_pydaw_data, f_track_num, 1);
-        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        int f_track_num = atoi(a_value);        
+        v_show_plugin_ui(a_pydaw_data, f_track_num, 1);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SAVE_TRACKS))
     {
