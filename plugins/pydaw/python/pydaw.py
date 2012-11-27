@@ -133,6 +133,9 @@ class song_editor:
                 f_empty = QtGui.QTableWidgetItem() #Clear the item
                 self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
             self.tablewidget_to_song()
+            this_region_editor.clear_items()
+            this_region_editor.region_name_lineedit.setText("")
+            this_region_editor.enabled = False
         else:
             QtGui.QTableWidget.keyPressEvent(self.table_widget, event)  
     
