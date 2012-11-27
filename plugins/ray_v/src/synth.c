@@ -41,7 +41,7 @@ static DSSI_Descriptor *LMSDDescriptor = NULL;
 static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
-static void v_run_rayv_voice(t_rayv *p, t_rayv_synth_vals *vals, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *d,
+static void v_run_rayv_voice(t_rayv *p, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *d,
 		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count);
 
 int pick_voice(const t_rayv_poly_voice *data, int);
@@ -234,9 +234,9 @@ static void v_rayv_activate(LADSPA_Handle instance)
     t_rayv *plugin_data = (t_rayv *) instance;
     unsigned int i;
     
-    plugin_data->voices = g_voc_get_voices(POLYPHONY);    
+    plugin_data->voices = g_voc_get_voices(RAYV_POLYPHONY);    
     
-    for (i=0; i<POLYPHONY; i++) {
+    for (i=0; i<RAYV_POLYPHONY; i++) {
         plugin_data->data[i] = g_rayv_poly_init();
         plugin_data->data[i]->note_f = i;        
     }
@@ -260,58 +260,6 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
     
     plugin_data->i_run_poly_voice = 0;
     
-    /*Set the values from synth_vals in RunLMS*/
-    plugin_data->vals.attack = *(plugin_data->attack) * .01;
-    plugin_data->vals.attack = (plugin_data->vals.attack) * (plugin_data->vals.attack);
-    plugin_data->vals.decay = *(plugin_data->decay) * .01;
-    plugin_data->vals.decay = (plugin_data->vals.decay) * (plugin_data->vals.decay);
-    plugin_data->vals.sustain = *(plugin_data->sustain);
-    plugin_data->vals.release = *(plugin_data->release) * .01;
-    plugin_data->vals.release = (plugin_data->vals.release) * (plugin_data->vals.release);
-    plugin_data->vals.timbre = *(plugin_data->timbre);
-    
-    plugin_data->vals.res = *(plugin_data->res);
-    plugin_data->vals.dist = *(plugin_data->dist);
-
-    plugin_data->vals.attack_f = *(plugin_data->attack_f) * .01;
-    plugin_data->vals.attack_f = (plugin_data->vals.attack_f) * (plugin_data->vals.attack_f);
-    plugin_data->vals.decay_f = *(plugin_data->decay_f) * .01; 
-    plugin_data->vals.decay_f = (plugin_data->vals.decay_f) * (plugin_data->vals.decay_f);
-    plugin_data->vals.sustain_f = *(plugin_data->sustain_f) * .01;
-    plugin_data->vals.release_f = *(plugin_data->release_f) * .01;
-    plugin_data->vals.release_f = (plugin_data->vals.release_f) * (plugin_data->vals.release_f);
-    
-    plugin_data->vals.noise_amp = *(plugin_data->noise_amp);
-    
-    plugin_data->vals.dist_wet = *(plugin_data->dist_wet) * .01;    
-    plugin_data->vals.filter_env_amt = *(plugin_data->filter_env_amt);
-    plugin_data->vals.master_vol = *(plugin_data->master_vol);
-    
-    plugin_data->vals.osc1pitch = *(plugin_data->osc1pitch);
-    plugin_data->vals.osc1tune = *(plugin_data->osc1tune) * .01;
-    plugin_data->vals.osc1type = *(plugin_data->osc1type);
-    plugin_data->vals.osc1vol = *(plugin_data->osc1vol);
-    
-    plugin_data->vals.osc2pitch = *(plugin_data->osc2pitch);
-    plugin_data->vals.osc2tune = *(plugin_data->osc2tune) * .01;
-    plugin_data->vals.osc2type = *(plugin_data->osc2type);
-    plugin_data->vals.osc2vol = *(plugin_data->osc2vol);
-    
-    plugin_data->vals.master_uni_voice = *(plugin_data->master_uni_voice);
-    plugin_data->vals.master_uni_spread = *(plugin_data->master_uni_spread) * .01;
-    plugin_data->vals.master_glide = *(plugin_data->master_glide) * .01;
-    plugin_data->vals.master_pb_amt = *(plugin_data->master_pb_amt);
-    
-    plugin_data->vals.pitch_env_amt = *(plugin_data->pitch_env_amt);
-    plugin_data->vals.pitch_env_time = *(plugin_data->pitch_env_time) * .01;
-    
-    plugin_data->vals.lfo_freq = *(plugin_data->lfo_freq) * .01;
-    plugin_data->vals.lfo_type = *(plugin_data->lfo_type);
-    plugin_data->vals.lfo_amp = *(plugin_data->lfo_amp);
-    plugin_data->vals.lfo_pitch = *(plugin_data->lfo_pitch);
-    plugin_data->vals.lfo_filter = *(plugin_data->lfo_filter);
-    
-    
     for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count; plugin_data->event_pos = (plugin_data->event_pos) + 1)
     {
         //printf("plugin_data->event_pos == %i\n", plugin_data->event_pos);
@@ -330,7 +278,7 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
             {
                 int f_voice = i_pick_voice(plugin_data->voices, n.note, plugin_data->sampleNo, events[(plugin_data->event_pos)].time.tick);
                 
-                plugin_data->data[f_voice]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + (plugin_data->vals.master_vol)), //-20db to 0db, + master volume (0 to -60)
+                plugin_data->data[f_voice]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + (*(plugin_data->master_vol))), //-20db to 0db, + master volume (0 to -60)
                         plugin_data->mono_modules->amp_ptr); 
                 v_svf_velocity_mod(plugin_data->data[f_voice]->svf_filter, n.velocity);
 
@@ -340,35 +288,50 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
                 plugin_data->data[f_voice]->target_pitch = (plugin_data->data[f_voice]->note_f);
                 plugin_data->data[f_voice]->last_pitch = (plugin_data->sv_last_note);
 
-                v_rmp_retrigger_glide_t(plugin_data->data[f_voice]->glide_env , (plugin_data->vals.master_glide), 
+                v_rmp_retrigger_glide_t(plugin_data->data[f_voice]->glide_env , (*(plugin_data->master_glide) * 0.01f), 
                         (plugin_data->sv_last_note), (plugin_data->data[f_voice]->target_pitch));
 
-                plugin_data->data[f_voice]->osc1_linamp = f_db_to_linear_fast((plugin_data->vals.osc1vol), plugin_data->mono_modules->amp_ptr); 
-                plugin_data->data[f_voice]->osc2_linamp = f_db_to_linear_fast((plugin_data->vals.osc2vol), plugin_data->mono_modules->amp_ptr);
-                plugin_data->data[f_voice]->noise_linamp = f_db_to_linear_fast((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
+                plugin_data->data[f_voice]->osc1_linamp = f_db_to_linear_fast(*(plugin_data->osc1vol), plugin_data->mono_modules->amp_ptr); 
+                plugin_data->data[f_voice]->osc2_linamp = f_db_to_linear_fast(*(plugin_data->osc2vol), plugin_data->mono_modules->amp_ptr);
+                plugin_data->data[f_voice]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
-                v_lfs_sync(plugin_data->data[f_voice]->lfo1, 0.0f, (plugin_data->vals.lfo_type));
+                v_lfs_sync(plugin_data->data[f_voice]->lfo1, 0.0f, *(plugin_data->lfo_type));
 
-                v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp, (plugin_data->vals.attack), (plugin_data->vals.decay), (plugin_data->vals.sustain), (plugin_data->vals.release));
-                v_adsr_set_adsr(plugin_data->data[f_voice]->adsr_filter, (plugin_data->vals.attack_f), (plugin_data->vals.decay_f), (plugin_data->vals.sustain_f), (plugin_data->vals.release_f));
+                float f_attack = *(plugin_data->attack) * .01;
+                f_attack = (f_attack) * (f_attack);
+                float f_decay = *(plugin_data->decay) * .01;
+                f_decay = (f_decay) * (f_decay);
+                float f_release = *(plugin_data->release) * .01;
+                f_release = (f_release) * (f_release);                
+                
+                v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp, (f_attack), (f_decay), *(plugin_data->sustain), (f_release));
+                
+                float f_attack_f = *(plugin_data->attack_f) * .01;
+                f_attack_f = (f_attack_f) * (f_attack_f);
+                float f_decay_f = *(plugin_data->decay_f) * .01; 
+                f_decay_f = (f_decay_f) * (f_decay_f);                
+                float f_release_f = *(plugin_data->release_f) * .01;
+                f_release_f = (f_release_f) * (f_release_f);
+                
+                v_adsr_set_adsr(plugin_data->data[f_voice]->adsr_filter, (f_attack_f), (f_decay_f), *(plugin_data->sustain_f) * 0.01f, (f_release_f));
 
-                v_rmp_retrigger((plugin_data->data[f_voice]->pitch_env), (plugin_data->vals.pitch_env_time), (plugin_data->vals.pitch_env_amt));  
+                v_rmp_retrigger((plugin_data->data[f_voice]->pitch_env), *(plugin_data->pitch_env_time) * 0.01f, *(plugin_data->pitch_env_amt));  
 
-                v_clp_set_in_gain(plugin_data->data[f_voice]->clipper1, plugin_data->vals.dist);
+                v_clp_set_in_gain(plugin_data->data[f_voice]->clipper1, *plugin_data->dist);
 
-                v_svf_set_res(plugin_data->data[f_voice]->svf_filter, plugin_data->vals.res);  
+                v_svf_set_res(plugin_data->data[f_voice]->svf_filter, *plugin_data->res);  
 
-                plugin_data->data[f_voice]->noise_amp = f_db_to_linear((plugin_data->vals.noise_amp), plugin_data->mono_modules->amp_ptr);
+                plugin_data->data[f_voice]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
-                v_axf_set_xfade(plugin_data->data[f_voice]->dist_dry_wet, plugin_data->vals.dist_wet);       
+                v_axf_set_xfade(plugin_data->data[f_voice]->dist_dry_wet, *(plugin_data->dist_wet) * 0.01f);       
 
-                v_osc_set_simple_osc_unison_type(plugin_data->data[f_voice]->osc_unison1, (int)(plugin_data->vals.osc1type));
-                v_osc_set_simple_osc_unison_type(plugin_data->data[f_voice]->osc_unison2, (int)(plugin_data->vals.osc2type));   
+                v_osc_set_simple_osc_unison_type(plugin_data->data[f_voice]->osc_unison1, (int)(*plugin_data->osc1type));
+                v_osc_set_simple_osc_unison_type(plugin_data->data[f_voice]->osc_unison2, (int)(*plugin_data->osc2type));   
 
-                v_osc_set_uni_voice_count(plugin_data->data[f_voice]->osc_unison1, plugin_data->vals.master_uni_voice);
-                v_osc_set_uni_voice_count(plugin_data->data[f_voice]->osc_unison2, plugin_data->vals.master_uni_voice);                    
+                v_osc_set_uni_voice_count(plugin_data->data[f_voice]->osc_unison1, *plugin_data->master_uni_voice);
+                v_osc_set_uni_voice_count(plugin_data->data[f_voice]->osc_unison2, *plugin_data->master_uni_voice);                    
 
                 /*Set the last_note property, so the next note can glide from it if glide is turned on*/
                 plugin_data->sv_last_note = (plugin_data->data[f_voice]->note_f);
@@ -392,7 +355,7 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
         else if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_PITCHBEND) 
         {
             plugin_data->sv_pitch_bend_value = 0.00012207f
-                    * (events[(plugin_data->event_pos)].data.control.value) * (plugin_data->vals.master_pb_amt);
+                    * (events[(plugin_data->event_pos)].data.control.value) * (*plugin_data->master_pb_amt);
         }        
     }
     
@@ -406,17 +369,16 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
         plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
     }    
 
-    v_smr_iir_run_fast(plugin_data->mono_modules->filter_smoother, (plugin_data->vals.timbre));
+    v_smr_iir_run_fast(plugin_data->mono_modules->filter_smoother, (*plugin_data->timbre));
     v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
     
     plugin_data->i_run_poly_voice = 0; 
-    while ((plugin_data->i_run_poly_voice) < POLYPHONY) 
+    while ((plugin_data->i_run_poly_voice) < RAYV_POLYPHONY) 
     {
         //if (data[voice].state != inactive) 
         if((plugin_data->data[(plugin_data->i_run_poly_voice)]->adsr_amp->stage) != 4)        
         {
-            v_run_rayv_voice(plugin_data,
-                    &(plugin_data->vals),
+            v_run_rayv_voice(plugin_data,                    
                     plugin_data->voices->voices[(plugin_data->i_run_poly_voice)],
                     plugin_data->data[(plugin_data->i_run_poly_voice)],                    
                     output0,
@@ -435,7 +397,7 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->sampleNo += sample_count;
 }
 
-static void v_run_rayv_voice(t_rayv *plugin_data, t_rayv_synth_vals *vals, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
+static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
 {   
     a_voice->i_voice = 0;
     
@@ -463,20 +425,20 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_rayv_synth_vals *vals, t_voc
         f_rmp_run_ramp(a_voice->pitch_env);
         f_rmp_run_ramp(a_voice->glide_env);
 
-        v_lfs_set(a_voice->lfo1, vals->lfo_freq);
+        v_lfs_set(a_voice->lfo1, *plugin_data->lfo_freq);
         v_lfs_run(a_voice->lfo1);
-        a_voice->lfo_amp_output = f_db_to_linear_fast((((vals->lfo_amp) * (a_voice->lfo1->output)) - (f_lms_abs((vals->lfo_amp)) * 0.5)), a_voice->amp_ptr);
-        a_voice->lfo_filter_output = (vals->lfo_filter) * (a_voice->lfo1->output);
-        a_voice->lfo_pitch_output = (vals->lfo_pitch) * (a_voice->lfo1->output);
+        a_voice->lfo_amp_output = f_db_to_linear_fast((((*plugin_data->lfo_amp) * (a_voice->lfo1->output)) - (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)), a_voice->amp_ptr);
+        a_voice->lfo_filter_output = (*plugin_data->lfo_filter) * (a_voice->lfo1->output);
+        a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo1->output);
 
         a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + (a_voice->pitch_env->output_multiplied) 
                 + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch);
        
-        v_osc_set_unison_pitch(a_voice->osc_unison1, vals->master_uni_spread,   
-                ((a_voice->base_pitch) + (vals->osc1pitch) + (vals->osc1tune) + (a_voice->lfo_pitch_output)));
+        v_osc_set_unison_pitch(a_voice->osc_unison1, (*plugin_data->master_uni_spread) * 0.01f,
+                ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) + (a_voice->lfo_pitch_output)));
         
-        v_osc_set_unison_pitch(a_voice->osc_unison2, vals->master_uni_spread, 
-                ((a_voice->base_pitch) + (vals->osc2pitch) + (vals->osc2tune) + (a_voice->lfo_pitch_output)));
+        v_osc_set_unison_pitch(a_voice->osc_unison2, (*plugin_data->master_uni_spread) * 0.01f,
+                ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) + (a_voice->lfo_pitch_output)));
 
         a_voice->current_sample += f_osc_run_unison_osc(a_voice->osc_unison1) * (a_voice->osc1_linamp);
         
@@ -491,7 +453,7 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_rayv_synth_vals *vals, t_voc
         v_svf_set_cutoff_base(a_voice->svf_filter,  (plugin_data->mono_modules->filter_smoother->output));//vals->timbre);
 
         v_svf_add_cutoff_mod(a_voice->svf_filter, 
-                (((a_voice->adsr_filter->output) * (vals->filter_env_amt)) + (a_voice->lfo_filter_output)));        
+                (((a_voice->adsr_filter->output) * (*plugin_data->filter_env_amt)) + (a_voice->lfo_filter_output)));        
 
         v_svf_set_cutoff(a_voice->svf_filter);
         

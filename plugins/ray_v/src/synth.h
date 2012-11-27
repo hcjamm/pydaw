@@ -59,55 +59,7 @@ extern "C" {
 
     
 #define LMS_PROGRAM_CHANGE 37  //Not used as a real port
-//maximum voices played at one time
-#define POLYPHONY   16
-
-/*Add a variable for each control in the synth_vals type*/
-typedef struct {    
-    /*The variables below this line correspond to GUI controls*/
-    LADSPA_Data attack;
-    LADSPA_Data decay;
-    LADSPA_Data sustain;
-    LADSPA_Data release;    
-    LADSPA_Data dist;
-    LADSPA_Data dist_wet;
-    
-    LADSPA_Data attack_f;
-    LADSPA_Data decay_f;
-    LADSPA_Data sustain_f;
-    LADSPA_Data release_f;
-    LADSPA_Data filter_env_amt;
-    LADSPA_Data timbre;
-    LADSPA_Data res;
-    
-    LADSPA_Data osc1pitch;
-    LADSPA_Data osc1tune;
-    LADSPA_Data osc1type;
-    LADSPA_Data osc1vol;
-    
-    LADSPA_Data osc2pitch;
-    LADSPA_Data osc2tune;
-    LADSPA_Data osc2type;
-    LADSPA_Data osc2vol;
-    
-    LADSPA_Data master_vol;       
-    LADSPA_Data master_uni_voice;
-    LADSPA_Data master_uni_spread;
-    LADSPA_Data master_glide;
-    LADSPA_Data master_pb_amt;
-    
-    LADSPA_Data pitch_env_amt;
-    LADSPA_Data pitch_env_time;
-    
-    LADSPA_Data lfo_freq;
-    LADSPA_Data lfo_type;
-    LADSPA_Data lfo_amp;
-    LADSPA_Data lfo_pitch;
-    LADSPA_Data lfo_filter;
-    
-    LADSPA_Data noise_amp;
-    
-} t_rayv_synth_vals;
+#define RAYV_POLYPHONY   16
 
 typedef struct {
     LADSPA_Data *output0;
@@ -162,7 +114,7 @@ typedef struct {
     
     t_ccm_midi_cc_map * midi_cc_map;
     
-    t_rayv_poly_voice * data[POLYPHONY];
+    t_rayv_poly_voice * data[RAYV_POLYPHONY];
     t_voc_voices * voices;
     
     //long         ons[VOICES_MAX_MIDI_NOTE_NUMBER];
@@ -171,8 +123,7 @@ typedef struct {
     
     float fs;    
     t_rayv_mono_modules * mono_modules;
-    t_rayv_synth_vals vals;
-    
+        
     int event_pos;
     int i_run_poly_voice;
     int i_iterator;    
