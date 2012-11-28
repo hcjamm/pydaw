@@ -376,7 +376,7 @@ void _init()
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = MODULEX_PLUGIN_UUID;
 	LMSLDescriptor->Label = MODULEX_PLUGIN_NAME;
-	LMSLDescriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE | LADSPA_PROPERTY_INPLACE_BROKEN;
+	LMSLDescriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
 	LMSLDescriptor->Name = MODULEX_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = MODULEX_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";
@@ -421,32 +421,31 @@ void _init()
 	port_range_hints[MODULEX_FX0_KNOB0].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX0_KNOB0].LowerBound =  0;
-	port_range_hints[MODULEX_FX0_KNOB0].UpperBound =  127;
-        
+	port_range_hints[MODULEX_FX0_KNOB0].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX0_KNOB0].UpperBound =  127.0f;
         	
 	port_descriptors[MODULEX_FX0_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX0_KNOB1] = "FX0 Knob1";
 	port_range_hints[MODULEX_FX0_KNOB1].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX0_KNOB1].LowerBound =  0;
-	port_range_hints[MODULEX_FX0_KNOB1].UpperBound =  127;
+	port_range_hints[MODULEX_FX0_KNOB1].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX0_KNOB1].UpperBound =  127.0f;
         	
 	port_descriptors[MODULEX_FX0_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX0_KNOB2] = "FX0 Knob2";
 	port_range_hints[MODULEX_FX0_KNOB2].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX0_KNOB2].LowerBound =  0;
-	port_range_hints[MODULEX_FX0_KNOB2].UpperBound =  127;
+	port_range_hints[MODULEX_FX0_KNOB2].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX0_KNOB2].UpperBound =  127.0f;
         
 	port_descriptors[MODULEX_FX0_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX0_COMBOBOX] = "FX0 Type";
 	port_range_hints[MODULEX_FX0_COMBOBOX].HintDescriptor =
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX0_COMBOBOX].LowerBound =  0;
+	port_range_hints[MODULEX_FX0_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX0_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
         	
@@ -455,67 +454,64 @@ void _init()
 	port_range_hints[MODULEX_FX1_KNOB0].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX1_KNOB0].LowerBound =  0;
-	port_range_hints[MODULEX_FX1_KNOB0].UpperBound =  127;
-        
+	port_range_hints[MODULEX_FX1_KNOB0].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX1_KNOB0].UpperBound =  127.0f;        
         	
 	port_descriptors[MODULEX_FX1_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX1_KNOB1] = "FX1 Knob1";
 	port_range_hints[MODULEX_FX1_KNOB1].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX1_KNOB1].LowerBound =  0;
-	port_range_hints[MODULEX_FX1_KNOB1].UpperBound =  127;
+	port_range_hints[MODULEX_FX1_KNOB1].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX1_KNOB1].UpperBound =  127.0f;
         	
 	port_descriptors[MODULEX_FX1_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX1_KNOB2] = "FX1 Knob2";
 	port_range_hints[MODULEX_FX1_KNOB2].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX1_KNOB2].LowerBound =  0;
-	port_range_hints[MODULEX_FX1_KNOB2].UpperBound =  127;
+	port_range_hints[MODULEX_FX1_KNOB2].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX1_KNOB2].UpperBound =  127.0f;
         
 	port_descriptors[MODULEX_FX1_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX1_COMBOBOX] = "FX1 Type";
 	port_range_hints[MODULEX_FX1_COMBOBOX].HintDescriptor =
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX1_COMBOBOX].LowerBound =  0;
+	port_range_hints[MODULEX_FX1_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX1_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-        
-        
+               
         
         port_descriptors[MODULEX_FX2_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX2_KNOB0] = "FX2 Knob0";
 	port_range_hints[MODULEX_FX2_KNOB0].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX2_KNOB0].LowerBound =  0;
-	port_range_hints[MODULEX_FX2_KNOB0].UpperBound =  127;
-        
-        	
+	port_range_hints[MODULEX_FX2_KNOB0].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX2_KNOB0].UpperBound =  127.0f;
+                	
 	port_descriptors[MODULEX_FX2_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX2_KNOB1] = "FX2 Knob1";
 	port_range_hints[MODULEX_FX2_KNOB1].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX2_KNOB1].LowerBound =  0;
-	port_range_hints[MODULEX_FX2_KNOB1].UpperBound =  127;
+	port_range_hints[MODULEX_FX2_KNOB1].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX2_KNOB1].UpperBound =  127.0f;
         	
 	port_descriptors[MODULEX_FX2_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX2_KNOB2] = "FX2 Knob2";
 	port_range_hints[MODULEX_FX2_KNOB2].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX2_KNOB2].LowerBound =  0;
-	port_range_hints[MODULEX_FX2_KNOB2].UpperBound =  127;
+	port_range_hints[MODULEX_FX2_KNOB2].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX2_KNOB2].UpperBound =  127.0f;
         
 	port_descriptors[MODULEX_FX2_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX2_COMBOBOX] = "FX2 Type";
 	port_range_hints[MODULEX_FX2_COMBOBOX].HintDescriptor =
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX2_COMBOBOX].LowerBound =  0;
+	port_range_hints[MODULEX_FX2_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX2_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
         	
@@ -524,36 +520,32 @@ void _init()
 	port_range_hints[MODULEX_FX3_KNOB0].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX3_KNOB0].LowerBound =  0;
-	port_range_hints[MODULEX_FX3_KNOB0].UpperBound =  127;
-        
+	port_range_hints[MODULEX_FX3_KNOB0].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX3_KNOB0].UpperBound =  127.0f;        
         	
 	port_descriptors[MODULEX_FX3_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX3_KNOB1] = "FX3 Knob1";
 	port_range_hints[MODULEX_FX3_KNOB1].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX3_KNOB1].LowerBound =  0;
-	port_range_hints[MODULEX_FX3_KNOB1].UpperBound =  127;
+	port_range_hints[MODULEX_FX3_KNOB1].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX3_KNOB1].UpperBound =  127.0f;
         	
 	port_descriptors[MODULEX_FX3_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX3_KNOB2] = "FX3 Knob2";
 	port_range_hints[MODULEX_FX3_KNOB2].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX3_KNOB2].LowerBound =  0;
-	port_range_hints[MODULEX_FX3_KNOB2].UpperBound =  127;
+	port_range_hints[MODULEX_FX3_KNOB2].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX3_KNOB2].UpperBound =  127.0f;
         
 	port_descriptors[MODULEX_FX3_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX3_COMBOBOX] = "FX3 Type";
 	port_range_hints[MODULEX_FX3_COMBOBOX].HintDescriptor =
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX3_COMBOBOX].LowerBound =  0;
+	port_range_hints[MODULEX_FX3_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX3_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-        
-        
-        
         
         
 	port_descriptors[MODULEX_FX4_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -561,42 +553,40 @@ void _init()
 	port_range_hints[MODULEX_FX4_KNOB0].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX4_KNOB0].LowerBound =  0;
-	port_range_hints[MODULEX_FX4_KNOB0].UpperBound =  127;
-        
-        	
+	port_range_hints[MODULEX_FX4_KNOB0].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX4_KNOB0].UpperBound =  127.0f;
+                	
 	port_descriptors[MODULEX_FX4_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX4_KNOB1] = "FX4 Knob1";
 	port_range_hints[MODULEX_FX4_KNOB1].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX4_KNOB1].LowerBound =  0;
-	port_range_hints[MODULEX_FX4_KNOB1].UpperBound =  127;
+	port_range_hints[MODULEX_FX4_KNOB1].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX4_KNOB1].UpperBound =  127.0f;
         	
 	port_descriptors[MODULEX_FX4_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX4_KNOB2] = "FX4 Knob2";
 	port_range_hints[MODULEX_FX4_KNOB2].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX4_KNOB2].LowerBound =  0;
-	port_range_hints[MODULEX_FX4_KNOB2].UpperBound =  127;
+	port_range_hints[MODULEX_FX4_KNOB2].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX4_KNOB2].UpperBound =  127.0f;
         
 	port_descriptors[MODULEX_FX4_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX4_COMBOBOX] = "FX0 Type";
 	port_range_hints[MODULEX_FX4_COMBOBOX].HintDescriptor =
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX4_COMBOBOX].LowerBound =  0;
+	port_range_hints[MODULEX_FX4_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX4_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-        
-        	
+                	
 	port_descriptors[MODULEX_FX5_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX5_KNOB0] = "FX5 Knob0";
 	port_range_hints[MODULEX_FX5_KNOB0].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX5_KNOB0].LowerBound =  0;
-	port_range_hints[MODULEX_FX5_KNOB0].UpperBound =  127;
+	port_range_hints[MODULEX_FX5_KNOB0].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX5_KNOB0].UpperBound =  127.0f;
         
         	
 	port_descriptors[MODULEX_FX5_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -604,58 +594,56 @@ void _init()
 	port_range_hints[MODULEX_FX5_KNOB1].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX5_KNOB1].LowerBound =  0;
-	port_range_hints[MODULEX_FX5_KNOB1].UpperBound =  127;
+	port_range_hints[MODULEX_FX5_KNOB1].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX5_KNOB1].UpperBound =  127.0f;
         	
 	port_descriptors[MODULEX_FX5_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX5_KNOB2] = "FX5 Knob2";
 	port_range_hints[MODULEX_FX5_KNOB2].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX5_KNOB2].LowerBound =  0;
-	port_range_hints[MODULEX_FX5_KNOB2].UpperBound =  127;
+	port_range_hints[MODULEX_FX5_KNOB2].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX5_KNOB2].UpperBound =  127.0f;
         
 	port_descriptors[MODULEX_FX5_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX5_COMBOBOX] = "FX5 Type";
 	port_range_hints[MODULEX_FX5_COMBOBOX].HintDescriptor =
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX5_COMBOBOX].LowerBound =  0;
+	port_range_hints[MODULEX_FX5_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX5_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-        
-        
+                
         
         port_descriptors[MODULEX_FX6_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX6_KNOB0] = "FX6 Knob0";
 	port_range_hints[MODULEX_FX6_KNOB0].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX6_KNOB0].LowerBound =  0;
-	port_range_hints[MODULEX_FX6_KNOB0].UpperBound =  127;
-        
+	port_range_hints[MODULEX_FX6_KNOB0].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX6_KNOB0].UpperBound =  127.0f;        
         	
 	port_descriptors[MODULEX_FX6_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX6_KNOB1] = "FX6 Knob1";
 	port_range_hints[MODULEX_FX6_KNOB1].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX6_KNOB1].LowerBound =  0;
-	port_range_hints[MODULEX_FX6_KNOB1].UpperBound =  127;
+	port_range_hints[MODULEX_FX6_KNOB1].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX6_KNOB1].UpperBound =  127.0f;
         	
 	port_descriptors[MODULEX_FX6_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX6_KNOB2] = "FX6 Knob2";
 	port_range_hints[MODULEX_FX6_KNOB2].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX6_KNOB2].LowerBound =  0;
-	port_range_hints[MODULEX_FX6_KNOB2].UpperBound =  127;
+	port_range_hints[MODULEX_FX6_KNOB2].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX6_KNOB2].UpperBound =  127.0f;
         
 	port_descriptors[MODULEX_FX6_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX6_COMBOBOX] = "FX6 Type";
 	port_range_hints[MODULEX_FX6_COMBOBOX].HintDescriptor =
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX6_COMBOBOX].LowerBound =  0;
+	port_range_hints[MODULEX_FX6_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX6_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
         	
@@ -664,32 +652,31 @@ void _init()
 	port_range_hints[MODULEX_FX7_KNOB0].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX7_KNOB0].LowerBound =  0;
-	port_range_hints[MODULEX_FX7_KNOB0].UpperBound =  127;
+	port_range_hints[MODULEX_FX7_KNOB0].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX7_KNOB0].UpperBound =  127.0f;
         
-        	
 	port_descriptors[MODULEX_FX7_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX7_KNOB1] = "FX7 Knob1";
 	port_range_hints[MODULEX_FX7_KNOB1].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX7_KNOB1].LowerBound =  0;
-	port_range_hints[MODULEX_FX7_KNOB1].UpperBound =  127;
+	port_range_hints[MODULEX_FX7_KNOB1].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX7_KNOB1].UpperBound =  127.0f;
         	
 	port_descriptors[MODULEX_FX7_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX7_KNOB2] = "FX7 Knob2";
 	port_range_hints[MODULEX_FX7_KNOB2].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX7_KNOB2].LowerBound =  0;
-	port_range_hints[MODULEX_FX7_KNOB2].UpperBound =  127;
+	port_range_hints[MODULEX_FX7_KNOB2].LowerBound =  0.0f;
+	port_range_hints[MODULEX_FX7_KNOB2].UpperBound =  127.0f;
         
 	port_descriptors[MODULEX_FX7_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_FX7_COMBOBOX] = "FX7 Type";
 	port_range_hints[MODULEX_FX7_COMBOBOX].HintDescriptor =
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FX7_COMBOBOX].LowerBound =  0;
+	port_range_hints[MODULEX_FX7_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[MODULEX_FX7_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
         /* Parameters for delay time */
@@ -698,8 +685,8 @@ void _init()
 	port_range_hints[MODULEX_DELAY_TIME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_DELAY_TIME].LowerBound =  10;
-	port_range_hints[MODULEX_DELAY_TIME].UpperBound =  100;
+	port_range_hints[MODULEX_DELAY_TIME].LowerBound =  10.0f;
+	port_range_hints[MODULEX_DELAY_TIME].UpperBound =  100.0f;
         
         /* Parameters for feedback */
 	port_descriptors[MODULEX_FEEDBACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -707,8 +694,8 @@ void _init()
 	port_range_hints[MODULEX_FEEDBACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_FEEDBACK].LowerBound =  -15;
-	port_range_hints[MODULEX_FEEDBACK].UpperBound =  0;
+	port_range_hints[MODULEX_FEEDBACK].LowerBound =  -15.0f;
+	port_range_hints[MODULEX_FEEDBACK].UpperBound =  0.0f;
 
         /* Parameters for dry */
 	port_descriptors[MODULEX_DRY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -716,8 +703,8 @@ void _init()
 	port_range_hints[MODULEX_DRY].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_DRY].LowerBound =  -30;
-	port_range_hints[MODULEX_DRY].UpperBound =  0;
+	port_range_hints[MODULEX_DRY].LowerBound =  -30.0f;
+	port_range_hints[MODULEX_DRY].UpperBound =  0.0f;
         
         /* Parameters for wet */
 	port_descriptors[MODULEX_WET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -725,8 +712,8 @@ void _init()
 	port_range_hints[MODULEX_WET].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_WET].LowerBound =  -30;
-	port_range_hints[MODULEX_WET].UpperBound =  0;
+	port_range_hints[MODULEX_WET].LowerBound =  -30.0f;
+	port_range_hints[MODULEX_WET].UpperBound =  0.0f;
         
         /* Parameters for duck */
 	port_descriptors[MODULEX_DUCK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -734,8 +721,8 @@ void _init()
 	port_range_hints[MODULEX_DUCK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_DUCK].LowerBound =  -40;
-	port_range_hints[MODULEX_DUCK].UpperBound =  0;
+	port_range_hints[MODULEX_DUCK].LowerBound =  -40.0f;
+	port_range_hints[MODULEX_DUCK].UpperBound =  0.0f;
         
         /* Parameters for cutoff */
 	port_descriptors[MODULEX_CUTOFF] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -743,18 +730,17 @@ void _init()
 	port_range_hints[MODULEX_CUTOFF].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_CUTOFF].LowerBound =  40;
-	port_range_hints[MODULEX_CUTOFF].UpperBound =  118;
-        
-        
+	port_range_hints[MODULEX_CUTOFF].LowerBound =  40.0f;
+	port_range_hints[MODULEX_CUTOFF].UpperBound =  118.0f;
+                
         /* Parameters for stereo */
 	port_descriptors[MODULEX_STEREO] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_STEREO] = "Stereo";
 	port_range_hints[MODULEX_STEREO].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_STEREO].LowerBound =  0;
-	port_range_hints[MODULEX_STEREO].UpperBound =  100;
+	port_range_hints[MODULEX_STEREO].LowerBound =  0.0f;
+	port_range_hints[MODULEX_STEREO].UpperBound =  100.0f;
         
         
 	LMSLDescriptor->activate = v_modulex_activate;

@@ -20,8 +20,7 @@ extern "C" {
 #define MODULEX_INPUT1  1    
 #define MODULEX_OUTPUT0  2
 #define MODULEX_OUTPUT1  3
-/*GUI Step 11:  Add ports to the main synthesizer file that the GUI can talk to */
-    
+
 /*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
  as they are iterated through*/
 #define MODULEX_FIRST_CONTROL_PORT 4
