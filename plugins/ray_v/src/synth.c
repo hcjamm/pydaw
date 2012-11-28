@@ -44,9 +44,6 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 static void v_run_rayv_voice(t_rayv *p, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *d,
 		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count);
 
-int pick_voice(const t_rayv_poly_voice *data, int);
-
-
 __attribute__ ((visibility("default")))
 const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
 {
@@ -84,115 +81,115 @@ static void v_rayv_connect_port(LADSPA_Handle instance, unsigned long port,
     /*Add the ports from step 9 to the connectPortLMS event handler*/
     
     switch (port) {
-    case LMS_OUTPUT0:
+    case RAYV_OUTPUT0:
 	plugin->output0 = data;
 	break;
-    case LMS_OUTPUT1:
+    case RAYV_OUTPUT1:
 	plugin->output1 = data;
 	break;
-    case LMS_ATTACK:
+    case RAYV_ATTACK:
 	plugin->attack = data;
 	break;
-    case LMS_DECAY:
+    case RAYV_DECAY:
 	plugin->decay = data;
 	break;
-    case LMS_SUSTAIN:
+    case RAYV_SUSTAIN:
 	plugin->sustain = data;
 	break;
-    case LMS_RELEASE:
+    case RAYV_RELEASE:
 	plugin->release = data;
 	break;
-    case LMS_TIMBRE:
+    case RAYV_TIMBRE:
 	plugin->timbre = data;              
 	break;
-    case LMS_RES:
+    case RAYV_RES:
 	plugin->res = data;              
 	break;
-    case LMS_DIST:
+    case RAYV_DIST:
 	plugin->dist = data;              
 	break;
-    case LMS_FILTER_ATTACK:
+    case RAYV_FILTER_ATTACK:
 	plugin->attack_f = data;
 	break;
-    case LMS_FILTER_DECAY:
+    case RAYV_FILTER_DECAY:
 	plugin->decay_f = data;
 	break;
-    case LMS_FILTER_SUSTAIN:
+    case RAYV_FILTER_SUSTAIN:
 	plugin->sustain_f = data;
 	break;
-    case LMS_FILTER_RELEASE:
+    case RAYV_FILTER_RELEASE:
 	plugin->release_f = data;
 	break;
-    case LMS_NOISE_AMP:
+    case RAYV_NOISE_AMP:
         plugin->noise_amp = data;
         break;
-    case LMS_DIST_WET:
+    case RAYV_DIST_WET:
         plugin->dist_wet = data;
         break;
-    case LMS_FILTER_ENV_AMT:
+    case RAYV_FILTER_ENV_AMT:
         plugin->filter_env_amt = data;
         break;
-    case LMS_MASTER_VOLUME:
+    case RAYV_MASTER_VOLUME:
         plugin->master_vol = data;
         break;
-    case LMS_OSC1_PITCH:
+    case RAYV_OSC1_PITCH:
         plugin->osc1pitch = data;
         break;
-    case LMS_OSC1_TUNE:
+    case RAYV_OSC1_TUNE:
         plugin->osc1tune = data;
         break;
-    case LMS_OSC1_TYPE:
+    case RAYV_OSC1_TYPE:
         plugin->osc1type = data;
         break;
-    case LMS_OSC1_VOLUME:
+    case RAYV_OSC1_VOLUME:
         plugin->osc1vol = data;
         break;
-    case LMS_OSC2_PITCH:
+    case RAYV_OSC2_PITCH:
         plugin->osc2pitch = data;
         break;
-    case LMS_OSC2_TUNE:
+    case RAYV_OSC2_TUNE:
         plugin->osc2tune = data;
         break;
-    case LMS_OSC2_TYPE:
+    case RAYV_OSC2_TYPE:
         plugin->osc2type = data;
         break;
-    case LMS_OSC2_VOLUME:
+    case RAYV_OSC2_VOLUME:
         plugin->osc2vol = data;
         break;
-    case LMS_MASTER_UNISON_VOICES:
+    case RAYV_MASTER_UNISON_VOICES:
         plugin->master_uni_voice = data;
         break;
-    case LMS_MASTER_UNISON_SPREAD:
+    case RAYV_MASTER_UNISON_SPREAD:
         plugin->master_uni_spread = data;        
         break;
-    case LMS_MASTER_GLIDE:
+    case RAYV_MASTER_GLIDE:
         plugin->master_glide = data;
         break;
-    case LMS_MASTER_PITCHBEND_AMT:
+    case RAYV_MASTER_PITCHBEND_AMT:
         plugin->master_pb_amt = data;
         break;
-    case LMS_PITCH_ENV_AMT:
+    case RAYV_PITCH_ENV_AMT:
         plugin->pitch_env_amt = data;
         break;
-    case LMS_PITCH_ENV_TIME:
+    case RAYV_PITCH_ENV_TIME:
         plugin->pitch_env_time = data;
         break;
     /*case LMS_PROGRAM_CHANGE:
         plugin->program = data;
         break;*/
-    case LMS_LFO_FREQ:
+    case RAYV_LFO_FREQ:
         plugin->lfo_freq = data;
         break;
-    case LMS_LFO_TYPE:
+    case RAYV_LFO_TYPE:
         plugin->lfo_type = data;
         break;
-    case LMS_LFO_AMP:
+    case RAYV_LFO_AMP:
         plugin->lfo_amp = data;
         break;
-    case LMS_LFO_PITCH:
+    case RAYV_LFO_PITCH:
         plugin->lfo_pitch = data;
         break;
-    case LMS_LFO_FILTER:
+    case RAYV_LFO_FILTER:
         plugin->lfo_filter = data;
         break;
     }
@@ -206,19 +203,19 @@ static LADSPA_Handle g_rayv_instantiate(const LADSPA_Descriptor * descriptor,
     plugin_data->fs = s_rate;
     
     plugin_data->midi_cc_map = g_ccm_get();
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_TIMBRE, 74, "Filter Cutoff");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RES, 71, "Res");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_FILTER_ENV_AMT, 70, "Filter Env Amt");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_DIST_WET, 91, "Distortion Wet");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_AMT, 20, "Pitch Env Amt");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_PITCH_ENV_TIME, 21, "Pitch Env Time");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_ATTACK, 22, "Attack Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_RELEASE, 5, "Release Amp");    
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_NOISE_AMP, 73, "Noise Amp");       
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FREQ, 72, "LFO Freq");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_AMP, 15, "LFO Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_PITCH, 78, "LFO Pitch");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_LFO_FILTER, 9, "LFO Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_TIMBRE, 74, "Filter Cutoff");
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_RES, 71, "Res");
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_FILTER_ENV_AMT, 70, "Filter Env Amt");
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_DIST_WET, 91, "Distortion Wet");
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_PITCH_ENV_AMT, 20, "Pitch Env Amt");
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_PITCH_ENV_TIME, 21, "Pitch Env Time");
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_ATTACK, 22, "Attack Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_RELEASE, 5, "Release Amp");    
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_NOISE_AMP, 73, "Noise Amp");       
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_LFO_FREQ, 72, "LFO Freq");
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_LFO_AMP, 15, "LFO Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_LFO_PITCH, 78, "LFO Pitch");
+    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_LFO_FILTER, 9, "LFO Filter");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "ray_v-cc_map.txt");
     
@@ -425,7 +422,7 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
         f_rmp_run_ramp(a_voice->pitch_env);
         f_rmp_run_ramp(a_voice->glide_env);
 
-        v_lfs_set(a_voice->lfo1, *plugin_data->lfo_freq);
+        v_lfs_set(a_voice->lfo1, (*plugin_data->lfo_freq) * 0.01f);
         v_lfs_run(a_voice->lfo1);
         a_voice->lfo_amp_output = f_db_to_linear_fast((((*plugin_data->lfo_amp) * (a_voice->lfo1->output)) - (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)), a_voice->amp_ptr);
         a_voice->lfo_filter_output = (*plugin_data->lfo_filter) * (a_voice->lfo1->output);
@@ -498,7 +495,7 @@ void _init()
 	LMSLDescriptor->Name = RAYV_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = RAYV_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";
-	LMSLDescriptor->PortCount = LMS_COUNT;
+	LMSLDescriptor->PortCount = RAYV_COUNT;
 
 	port_descriptors = (LADSPA_PortDescriptor *)
 				calloc(LMSLDescriptor->PortCount, sizeof
@@ -516,343 +513,343 @@ void _init()
 	LMSLDescriptor->PortNames = (const char **) port_names;
 
 	/* Parameters for output */
-	port_descriptors[LMS_OUTPUT0] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	port_names[LMS_OUTPUT0] = "Output 0";
-	port_range_hints[LMS_OUTPUT0].HintDescriptor = 0;
+	port_descriptors[RAYV_OUTPUT0] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
+	port_names[RAYV_OUTPUT0] = "Output 0";
+	port_range_hints[RAYV_OUTPUT0].HintDescriptor = 0;
 
-        port_descriptors[LMS_OUTPUT1] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	port_names[LMS_OUTPUT1] = "Output 1";
-	port_range_hints[LMS_OUTPUT1].HintDescriptor = 0;
+        port_descriptors[RAYV_OUTPUT1] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
+	port_names[RAYV_OUTPUT1] = "Output 1";
+	port_range_hints[RAYV_OUTPUT1].HintDescriptor = 0;
         
         /*Define the LADSPA ports for the plugin in the class constructor*/
         
 	/* Parameters for attack */
-	port_descriptors[LMS_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_ATTACK] = "Attack time (s)";
-	port_range_hints[LMS_ATTACK].HintDescriptor =
+	port_descriptors[RAYV_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[RAYV_ATTACK] = "Attack time (s)";
+	port_range_hints[RAYV_ATTACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_ATTACK].LowerBound = 10.0f; 
-	port_range_hints[LMS_ATTACK].UpperBound = 100.0f; 
+	port_range_hints[RAYV_ATTACK].LowerBound = 10.0f; 
+	port_range_hints[RAYV_ATTACK].UpperBound = 100.0f; 
 
 	/* Parameters for decay */
-	port_descriptors[LMS_DECAY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_DECAY] = "Decay time (s)";
-	port_range_hints[LMS_DECAY].HintDescriptor =
+	port_descriptors[RAYV_DECAY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[RAYV_DECAY] = "Decay time (s)";
+	port_range_hints[RAYV_DECAY].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 			
-	port_range_hints[LMS_DECAY].LowerBound = 10.0f; 
-	port_range_hints[LMS_DECAY].UpperBound = 100.0f; 
+	port_range_hints[RAYV_DECAY].LowerBound = 10.0f; 
+	port_range_hints[RAYV_DECAY].UpperBound = 100.0f; 
 
 	/* Parameters for sustain */
-	port_descriptors[LMS_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_SUSTAIN] = "Sustain level (%)";
-	port_range_hints[LMS_SUSTAIN].HintDescriptor =
+	port_descriptors[RAYV_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[RAYV_SUSTAIN] = "Sustain level (%)";
+	port_range_hints[RAYV_SUSTAIN].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_SUSTAIN].LowerBound = -60.0f;
-	port_range_hints[LMS_SUSTAIN].UpperBound = 0.0f;
+	port_range_hints[RAYV_SUSTAIN].LowerBound = -60.0f;
+	port_range_hints[RAYV_SUSTAIN].UpperBound = 0.0f;
 
 	/* Parameters for release */
-	port_descriptors[LMS_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_RELEASE] = "Release time (s)";
-	port_range_hints[LMS_RELEASE].HintDescriptor =
+	port_descriptors[RAYV_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[RAYV_RELEASE] = "Release time (s)";
+	port_range_hints[RAYV_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW | 
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_RELEASE].LowerBound = 10.0f; 
-	port_range_hints[LMS_RELEASE].UpperBound = 200.0f; 
+	port_range_hints[RAYV_RELEASE].LowerBound = 10.0f; 
+	port_range_hints[RAYV_RELEASE].UpperBound = 200.0f; 
 
 	/* Parameters for timbre */
-	port_descriptors[LMS_TIMBRE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_TIMBRE] = "Timbre";
-	port_range_hints[LMS_TIMBRE].HintDescriptor =
+	port_descriptors[RAYV_TIMBRE] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_TIMBRE] = "Timbre";
+	port_range_hints[RAYV_TIMBRE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_TIMBRE].LowerBound =  20.0f;
-	port_range_hints[LMS_TIMBRE].UpperBound =  124.0f;
+	port_range_hints[RAYV_TIMBRE].LowerBound =  20.0f;
+	port_range_hints[RAYV_TIMBRE].UpperBound =  124.0f;
         
         /* Parameters for res */
-	port_descriptors[LMS_RES] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_RES] = "Res";
-	port_range_hints[LMS_RES].HintDescriptor =
+	port_descriptors[RAYV_RES] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_RES] = "Res";
+	port_range_hints[RAYV_RES].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_RES].LowerBound =  -30.0f;
-	port_range_hints[LMS_RES].UpperBound =  0.0f;
+	port_range_hints[RAYV_RES].LowerBound =  -30.0f;
+	port_range_hints[RAYV_RES].UpperBound =  0.0f;
         
         
         /* Parameters for dist */
-	port_descriptors[LMS_DIST] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_DIST] = "Dist";
-	port_range_hints[LMS_DIST].HintDescriptor =
+	port_descriptors[RAYV_DIST] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_DIST] = "Dist";
+	port_range_hints[RAYV_DIST].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DIST].LowerBound =  -6.0f;
-	port_range_hints[LMS_DIST].UpperBound =  36.0f;
+	port_range_hints[RAYV_DIST].LowerBound =  -6.0f;
+	port_range_hints[RAYV_DIST].UpperBound =  36.0f;
                 
 	/* Parameters for attack_f */
-	port_descriptors[LMS_FILTER_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_FILTER_ATTACK] = "Attack time (s) filter";
-	port_range_hints[LMS_FILTER_ATTACK].HintDescriptor =
+	port_descriptors[RAYV_FILTER_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[RAYV_FILTER_ATTACK] = "Attack time (s) filter";
+	port_range_hints[RAYV_FILTER_ATTACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_ATTACK].LowerBound = 10.0f;
-	port_range_hints[LMS_FILTER_ATTACK].UpperBound = 100.0f;
+	port_range_hints[RAYV_FILTER_ATTACK].LowerBound = 10.0f;
+	port_range_hints[RAYV_FILTER_ATTACK].UpperBound = 100.0f;
 
 	/* Parameters for decay_f */
-	port_descriptors[LMS_FILTER_DECAY] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_FILTER_DECAY] = "Decay time (s) filter";
-	port_range_hints[LMS_FILTER_DECAY].HintDescriptor =
+	port_descriptors[RAYV_FILTER_DECAY] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_FILTER_DECAY] = "Decay time (s) filter";
+	port_range_hints[RAYV_FILTER_DECAY].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_DECAY].LowerBound = 10.0f;
-	port_range_hints[LMS_FILTER_DECAY].UpperBound = 100.0f;
+	port_range_hints[RAYV_FILTER_DECAY].LowerBound = 10.0f;
+	port_range_hints[RAYV_FILTER_DECAY].UpperBound = 100.0f;
 
 	/* Parameters for sustain_f */
-	port_descriptors[LMS_FILTER_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_FILTER_SUSTAIN] = "Sustain level (%) filter";
-	port_range_hints[LMS_FILTER_SUSTAIN].HintDescriptor =
+	port_descriptors[RAYV_FILTER_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[RAYV_FILTER_SUSTAIN] = "Sustain level (%) filter";
+	port_range_hints[RAYV_FILTER_SUSTAIN].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_SUSTAIN].LowerBound = 0.0f; 
-	port_range_hints[LMS_FILTER_SUSTAIN].UpperBound = 100.0f; 
+	port_range_hints[RAYV_FILTER_SUSTAIN].LowerBound = 0.0f; 
+	port_range_hints[RAYV_FILTER_SUSTAIN].UpperBound = 100.0f; 
         
 	/* Parameters for release_f */
-	port_descriptors[LMS_FILTER_RELEASE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_FILTER_RELEASE] = "Release time (s) filter";
-	port_range_hints[LMS_FILTER_RELEASE].HintDescriptor =
+	port_descriptors[RAYV_FILTER_RELEASE] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_FILTER_RELEASE] = "Release time (s) filter";
+	port_range_hints[RAYV_FILTER_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW  |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_RELEASE].LowerBound = 10.0f; 
-	port_range_hints[LMS_FILTER_RELEASE].UpperBound = 200.0f; 
+	port_range_hints[RAYV_FILTER_RELEASE].LowerBound = 10.0f; 
+	port_range_hints[RAYV_FILTER_RELEASE].UpperBound = 200.0f; 
 
         
         /*Parameters for noise_amp*/        
-	port_descriptors[LMS_NOISE_AMP] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_NOISE_AMP] = "Dist";
-	port_range_hints[LMS_NOISE_AMP].HintDescriptor =
+	port_descriptors[RAYV_NOISE_AMP] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_NOISE_AMP] = "Dist";
+	port_range_hints[RAYV_NOISE_AMP].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_NOISE_AMP].LowerBound =  -60.0f;
-	port_range_hints[LMS_NOISE_AMP].UpperBound =  0.0f;
+	port_range_hints[RAYV_NOISE_AMP].LowerBound =  -60.0f;
+	port_range_hints[RAYV_NOISE_AMP].UpperBound =  0.0f;
         
         
         
         /*Parameters for filter env amt*/        
-	port_descriptors[LMS_FILTER_ENV_AMT] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_FILTER_ENV_AMT] = "Filter Env Amt";
-	port_range_hints[LMS_FILTER_ENV_AMT].HintDescriptor =
+	port_descriptors[RAYV_FILTER_ENV_AMT] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_FILTER_ENV_AMT] = "Filter Env Amt";
+	port_range_hints[RAYV_FILTER_ENV_AMT].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_FILTER_ENV_AMT].LowerBound =  -36.0f;
-	port_range_hints[LMS_FILTER_ENV_AMT].UpperBound =  36.0f;
+	port_range_hints[RAYV_FILTER_ENV_AMT].LowerBound =  -36.0f;
+	port_range_hints[RAYV_FILTER_ENV_AMT].UpperBound =  36.0f;
         
         /*Parameters for dist wet*/        
-	port_descriptors[LMS_DIST_WET] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_DIST_WET] = "Dist Wet";
-	port_range_hints[LMS_DIST_WET].HintDescriptor =
+	port_descriptors[RAYV_DIST_WET] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_DIST_WET] = "Dist Wet";
+	port_range_hints[RAYV_DIST_WET].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_DIST_WET].LowerBound =  0.0f; 
-	port_range_hints[LMS_DIST_WET].UpperBound =  100.0f;
+	port_range_hints[RAYV_DIST_WET].LowerBound =  0.0f; 
+	port_range_hints[RAYV_DIST_WET].UpperBound =  100.0f;
         
         
         /*Parameters for osc1type*/        
-	port_descriptors[LMS_OSC1_TYPE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC1_TYPE] = "Osc 1 Type";
-	port_range_hints[LMS_OSC1_TYPE].HintDescriptor =
+	port_descriptors[RAYV_OSC1_TYPE] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_OSC1_TYPE] = "Osc 1 Type";
+	port_range_hints[RAYV_OSC1_TYPE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_OSC1_TYPE].LowerBound =  0.0f;
-	port_range_hints[LMS_OSC1_TYPE].UpperBound =  5.0f;
+	port_range_hints[RAYV_OSC1_TYPE].LowerBound =  0.0f;
+	port_range_hints[RAYV_OSC1_TYPE].UpperBound =  5.0f;
         
         
         /*Parameters for osc1pitch*/        
-	port_descriptors[LMS_OSC1_PITCH] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC1_PITCH] = "Osc 1 Pitch";
-	port_range_hints[LMS_OSC1_PITCH].HintDescriptor =
+	port_descriptors[RAYV_OSC1_PITCH] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_OSC1_PITCH] = "Osc 1 Pitch";
+	port_range_hints[RAYV_OSC1_PITCH].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_OSC1_PITCH].LowerBound =  -12.0f;
-	port_range_hints[LMS_OSC1_PITCH].UpperBound =  12.0f;
+	port_range_hints[RAYV_OSC1_PITCH].LowerBound =  -12.0f;
+	port_range_hints[RAYV_OSC1_PITCH].UpperBound =  12.0f;
         
         
         /*Parameters for osc1tune*/        
-	port_descriptors[LMS_OSC1_TUNE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC1_TUNE] = "Osc 1 Tune";
-	port_range_hints[LMS_OSC1_TUNE].HintDescriptor =
+	port_descriptors[RAYV_OSC1_TUNE] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_OSC1_TUNE] = "Osc 1 Tune";
+	port_range_hints[RAYV_OSC1_TUNE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_OSC1_TUNE].LowerBound = -100.0f;
-	port_range_hints[LMS_OSC1_TUNE].UpperBound =  100.0f;
+	port_range_hints[RAYV_OSC1_TUNE].LowerBound = -100.0f;
+	port_range_hints[RAYV_OSC1_TUNE].UpperBound =  100.0f;
         
         
         /*Parameters for osc1vol*/        
-	port_descriptors[LMS_OSC1_VOLUME] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC1_VOLUME] = "Osc 1 Vol";
-	port_range_hints[LMS_OSC1_VOLUME].HintDescriptor =
+	port_descriptors[RAYV_OSC1_VOLUME] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_OSC1_VOLUME] = "Osc 1 Vol";
+	port_range_hints[RAYV_OSC1_VOLUME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_OSC1_VOLUME].LowerBound =  -60.0f;
-	port_range_hints[LMS_OSC1_VOLUME].UpperBound =  0.0f;
+	port_range_hints[RAYV_OSC1_VOLUME].LowerBound =  -60.0f;
+	port_range_hints[RAYV_OSC1_VOLUME].UpperBound =  0.0f;
         
         
         
         /*Parameters for osc2type*/        
-	port_descriptors[LMS_OSC2_TYPE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC2_TYPE] = "Osc 2 Type";
-	port_range_hints[LMS_OSC2_TYPE].HintDescriptor =
+	port_descriptors[RAYV_OSC2_TYPE] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_OSC2_TYPE] = "Osc 2 Type";
+	port_range_hints[RAYV_OSC2_TYPE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_OSC2_TYPE].LowerBound =  0.0f;
-	port_range_hints[LMS_OSC2_TYPE].UpperBound =  4.0f;
+	port_range_hints[RAYV_OSC2_TYPE].LowerBound =  0.0f;
+	port_range_hints[RAYV_OSC2_TYPE].UpperBound =  4.0f;
         
         
         /*Parameters for osc2pitch*/        
-	port_descriptors[LMS_OSC2_PITCH] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC2_PITCH] = "Osc 2 Pitch";
-	port_range_hints[LMS_OSC2_PITCH].HintDescriptor =
+	port_descriptors[RAYV_OSC2_PITCH] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_OSC2_PITCH] = "Osc 2 Pitch";
+	port_range_hints[RAYV_OSC2_PITCH].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_OSC2_PITCH].LowerBound =  -12.0f;
-	port_range_hints[LMS_OSC2_PITCH].UpperBound =  12.0f;
+	port_range_hints[RAYV_OSC2_PITCH].LowerBound =  -12.0f;
+	port_range_hints[RAYV_OSC2_PITCH].UpperBound =  12.0f;
         
         
         /*Parameters for osc2tune*/        
-	port_descriptors[LMS_OSC2_TUNE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC2_TUNE] = "Osc 2 Tune";
-	port_range_hints[LMS_OSC2_TUNE].HintDescriptor =
+	port_descriptors[RAYV_OSC2_TUNE] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_OSC2_TUNE] = "Osc 2 Tune";
+	port_range_hints[RAYV_OSC2_TUNE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_OSC2_TUNE].LowerBound = -100.0f;
-	port_range_hints[LMS_OSC2_TUNE].UpperBound = 100.0f; 
+	port_range_hints[RAYV_OSC2_TUNE].LowerBound = -100.0f;
+	port_range_hints[RAYV_OSC2_TUNE].UpperBound = 100.0f; 
         
         
         /*Parameters for osc2vol*/        
-	port_descriptors[LMS_OSC2_VOLUME] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_OSC2_VOLUME] = "Osc 2 Vol";
-	port_range_hints[LMS_OSC2_VOLUME].HintDescriptor =
+	port_descriptors[RAYV_OSC2_VOLUME] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_OSC2_VOLUME] = "Osc 2 Vol";
+	port_range_hints[RAYV_OSC2_VOLUME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW |  LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_OSC2_VOLUME].LowerBound =  -60.0f;
-	port_range_hints[LMS_OSC2_VOLUME].UpperBound =  0.0f;
+	port_range_hints[RAYV_OSC2_VOLUME].LowerBound =  -60.0f;
+	port_range_hints[RAYV_OSC2_VOLUME].UpperBound =  0.0f;
         
         
         /*Parameters for master vol*/        
-	port_descriptors[LMS_MASTER_VOLUME] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_VOLUME] = "Master Vol";
-	port_range_hints[LMS_MASTER_VOLUME].HintDescriptor =
+	port_descriptors[RAYV_MASTER_VOLUME] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_MASTER_VOLUME] = "Master Vol";
+	port_range_hints[RAYV_MASTER_VOLUME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_MASTER_VOLUME].LowerBound =  -60.0f;
-	port_range_hints[LMS_MASTER_VOLUME].UpperBound =  12.0f;
+	port_range_hints[RAYV_MASTER_VOLUME].LowerBound =  -60.0f;
+	port_range_hints[RAYV_MASTER_VOLUME].UpperBound =  12.0f;
         
         
         
         /*Parameters for master unison voices*/        
-	port_descriptors[LMS_MASTER_UNISON_VOICES] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_UNISON_VOICES] = "Master Unison";
-	port_range_hints[LMS_MASTER_UNISON_VOICES].HintDescriptor =
+	port_descriptors[RAYV_MASTER_UNISON_VOICES] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_MASTER_UNISON_VOICES] = "Master Unison";
+	port_range_hints[RAYV_MASTER_UNISON_VOICES].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_MASTER_UNISON_VOICES].LowerBound =  1.0f;
-	port_range_hints[LMS_MASTER_UNISON_VOICES].UpperBound =  7.0f;
+	port_range_hints[RAYV_MASTER_UNISON_VOICES].LowerBound =  1.0f;
+	port_range_hints[RAYV_MASTER_UNISON_VOICES].UpperBound =  7.0f;
         
         
         /*Parameters for master unison spread*/        
-	port_descriptors[LMS_MASTER_UNISON_SPREAD] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_UNISON_SPREAD] = "Master Unison Spread";
-	port_range_hints[LMS_MASTER_UNISON_SPREAD].HintDescriptor =
+	port_descriptors[RAYV_MASTER_UNISON_SPREAD] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_MASTER_UNISON_SPREAD] = "Master Unison Spread";
+	port_range_hints[RAYV_MASTER_UNISON_SPREAD].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_MASTER_UNISON_SPREAD].LowerBound =  0.0f;
-	port_range_hints[LMS_MASTER_UNISON_SPREAD].UpperBound =  100.0f;
+	port_range_hints[RAYV_MASTER_UNISON_SPREAD].LowerBound =  0.0f;
+	port_range_hints[RAYV_MASTER_UNISON_SPREAD].UpperBound =  100.0f;
         
         
         /*Parameters for master glide*/        
-	port_descriptors[LMS_MASTER_GLIDE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_GLIDE] = "Master Glide";
-	port_range_hints[LMS_MASTER_GLIDE].HintDescriptor =
+	port_descriptors[RAYV_MASTER_GLIDE] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_MASTER_GLIDE] = "Master Glide";
+	port_range_hints[RAYV_MASTER_GLIDE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_MASTER_GLIDE].LowerBound =  0.0f;
-	port_range_hints[LMS_MASTER_GLIDE].UpperBound =  200.0f;
+	port_range_hints[RAYV_MASTER_GLIDE].LowerBound =  0.0f;
+	port_range_hints[RAYV_MASTER_GLIDE].UpperBound =  200.0f;
         
         
         /*Parameters for master pitchbend amt*/        
-	port_descriptors[LMS_MASTER_PITCHBEND_AMT] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_MASTER_PITCHBEND_AMT] = "Pitchbend Amt";
-	port_range_hints[LMS_MASTER_PITCHBEND_AMT].HintDescriptor =
+	port_descriptors[RAYV_MASTER_PITCHBEND_AMT] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_MASTER_PITCHBEND_AMT] = "Pitchbend Amt";
+	port_range_hints[RAYV_MASTER_PITCHBEND_AMT].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_MASTER_PITCHBEND_AMT].LowerBound =  1.0f;
-	port_range_hints[LMS_MASTER_PITCHBEND_AMT].UpperBound =  36.0f;
+	port_range_hints[RAYV_MASTER_PITCHBEND_AMT].LowerBound =  1.0f;
+	port_range_hints[RAYV_MASTER_PITCHBEND_AMT].UpperBound =  36.0f;
         
         
         /*Parameters for pitch env amt*/        
-	port_descriptors[LMS_PITCH_ENV_AMT] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_PITCH_ENV_AMT] = "Pitch Env Amt";
-	port_range_hints[LMS_PITCH_ENV_AMT].HintDescriptor =
+	port_descriptors[RAYV_PITCH_ENV_AMT] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_PITCH_ENV_AMT] = "Pitch Env Amt";
+	port_range_hints[RAYV_PITCH_ENV_AMT].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_PITCH_ENV_AMT].LowerBound =  -36.0f;
-	port_range_hints[LMS_PITCH_ENV_AMT].UpperBound =   36.0f;
+	port_range_hints[RAYV_PITCH_ENV_AMT].LowerBound =  -36.0f;
+	port_range_hints[RAYV_PITCH_ENV_AMT].UpperBound =   36.0f;
         
         
         /*Parameters for pitch env time*/        
-	port_descriptors[LMS_PITCH_ENV_TIME] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_PITCH_ENV_TIME] = "Pitch Env Time";
-	port_range_hints[LMS_PITCH_ENV_TIME].HintDescriptor =
+	port_descriptors[RAYV_PITCH_ENV_TIME] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_PITCH_ENV_TIME] = "Pitch Env Time";
+	port_range_hints[RAYV_PITCH_ENV_TIME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_PITCH_ENV_TIME].LowerBound = 0.0f; 
-	port_range_hints[LMS_PITCH_ENV_TIME].UpperBound = 200.0f;
+	port_range_hints[RAYV_PITCH_ENV_TIME].LowerBound = 0.0f; 
+	port_range_hints[RAYV_PITCH_ENV_TIME].UpperBound = 200.0f;
         
         /*Parameters for LFO Freq*/        
-	port_descriptors[LMS_LFO_FREQ] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_LFO_FREQ] = "LFO Freq";
-	port_range_hints[LMS_LFO_FREQ].HintDescriptor =
+	port_descriptors[RAYV_LFO_FREQ] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_LFO_FREQ] = "LFO Freq";
+	port_range_hints[RAYV_LFO_FREQ].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_LFO_FREQ].LowerBound = 10.0f;
-	port_range_hints[LMS_LFO_FREQ].UpperBound = 400.0f;
+	port_range_hints[RAYV_LFO_FREQ].LowerBound = 10.0f;
+	port_range_hints[RAYV_LFO_FREQ].UpperBound = 400.0f;
         
         /*Parameters for LFO Type*/        
-	port_descriptors[LMS_LFO_TYPE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_LFO_TYPE] = "LFO Type";
-	port_range_hints[LMS_LFO_TYPE].HintDescriptor =
+	port_descriptors[RAYV_LFO_TYPE] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_LFO_TYPE] = "LFO Type";
+	port_range_hints[RAYV_LFO_TYPE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_LFO_TYPE].LowerBound = 0.0f; 
-	port_range_hints[LMS_LFO_TYPE].UpperBound = 2.0f;
+	port_range_hints[RAYV_LFO_TYPE].LowerBound = 0.0f; 
+	port_range_hints[RAYV_LFO_TYPE].UpperBound = 2.0f;
         
         /*Parameters for LFO Amp*/
-	port_descriptors[LMS_LFO_AMP] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_LFO_AMP] = "LFO Amp";
-	port_range_hints[LMS_LFO_AMP].HintDescriptor =
+	port_descriptors[RAYV_LFO_AMP] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_LFO_AMP] = "LFO Amp";
+	port_range_hints[RAYV_LFO_AMP].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_LFO_AMP].LowerBound = -24.0f;
-	port_range_hints[LMS_LFO_AMP].UpperBound = 24.0f;
+	port_range_hints[RAYV_LFO_AMP].LowerBound = -24.0f;
+	port_range_hints[RAYV_LFO_AMP].UpperBound = 24.0f;
         
         /*Parameters for LFO Pitch*/
-	port_descriptors[LMS_LFO_PITCH] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_LFO_PITCH] = "LFO Pitch";
-	port_range_hints[LMS_LFO_PITCH].HintDescriptor =
+	port_descriptors[RAYV_LFO_PITCH] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_LFO_PITCH] = "LFO Pitch";
+	port_range_hints[RAYV_LFO_PITCH].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_LFO_PITCH].LowerBound = -36.0f;
-	port_range_hints[LMS_LFO_PITCH].UpperBound = 36.0f;
+	port_range_hints[RAYV_LFO_PITCH].LowerBound = -36.0f;
+	port_range_hints[RAYV_LFO_PITCH].UpperBound = 36.0f;
         
         /*Parameters for LFO Filter*/
-	port_descriptors[LMS_LFO_FILTER] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_LFO_FILTER] = "LFO Filter";
-	port_range_hints[LMS_LFO_FILTER].HintDescriptor =
+	port_descriptors[RAYV_LFO_FILTER] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_LFO_FILTER] = "LFO Filter";
+	port_range_hints[RAYV_LFO_FILTER].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_LFO_FILTER].LowerBound = -48.0f;
-	port_range_hints[LMS_LFO_FILTER].UpperBound = 48.0f;
+	port_range_hints[RAYV_LFO_FILTER].LowerBound = -48.0f;
+	port_range_hints[RAYV_LFO_FILTER].UpperBound = 48.0f;
         
         /*Parameters for program change*/
         /*

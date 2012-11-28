@@ -16,49 +16,49 @@ extern "C" {
 #include "../../libmodsynth/lib/voice.h"
 #include "../../libmodsynth/lib/cc_map.h"
     
-#define LMS_OUTPUT0  0
-#define LMS_OUTPUT1  1
+#define RAYV_OUTPUT0  0
+#define RAYV_OUTPUT1  1
     
-#define LMS_FIRST_CONTROL_PORT 2
-#define LMS_ATTACK  2
-#define LMS_DECAY   3
-#define LMS_SUSTAIN 4
-#define LMS_RELEASE 5
-#define LMS_TIMBRE  6
-#define LMS_RES  7
-#define LMS_DIST 8
-#define LMS_FILTER_ATTACK  9
-#define LMS_FILTER_DECAY   10
-#define LMS_FILTER_SUSTAIN 11
-#define LMS_FILTER_RELEASE 12
-#define LMS_NOISE_AMP 13
-#define LMS_FILTER_ENV_AMT 14
-#define LMS_DIST_WET 15
-#define LMS_OSC1_TYPE 16
-#define LMS_OSC1_PITCH 17
-#define LMS_OSC1_TUNE 18
-#define LMS_OSC1_VOLUME 19
-#define LMS_OSC2_TYPE 20
-#define LMS_OSC2_PITCH 21
-#define LMS_OSC2_TUNE 22
-#define LMS_OSC2_VOLUME 23
-#define LMS_MASTER_VOLUME 24
-#define LMS_MASTER_UNISON_VOICES 25
-#define LMS_MASTER_UNISON_SPREAD 26
-#define LMS_MASTER_GLIDE 27
-#define LMS_MASTER_PITCHBEND_AMT 28
-#define LMS_PITCH_ENV_TIME 29
-#define LMS_PITCH_ENV_AMT 30
-#define LMS_LFO_FREQ 31
-#define LMS_LFO_TYPE 32
-#define LMS_LFO_AMP 33
-#define LMS_LFO_PITCH 34
-#define LMS_LFO_FILTER 35
-#define LMS_LAST_CONTROL_PORT 35
-#define LMS_COUNT 36 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define RAYV_FIRST_CONTROL_PORT 2
+#define RAYV_ATTACK  2
+#define RAYV_DECAY   3
+#define RAYV_SUSTAIN 4
+#define RAYV_RELEASE 5
+#define RAYV_TIMBRE  6
+#define RAYV_RES  7
+#define RAYV_DIST 8
+#define RAYV_FILTER_ATTACK  9
+#define RAYV_FILTER_DECAY   10
+#define RAYV_FILTER_SUSTAIN 11
+#define RAYV_FILTER_RELEASE 12
+#define RAYV_NOISE_AMP 13
+#define RAYV_FILTER_ENV_AMT 14
+#define RAYV_DIST_WET 15
+#define RAYV_OSC1_TYPE 16
+#define RAYV_OSC1_PITCH 17
+#define RAYV_OSC1_TUNE 18
+#define RAYV_OSC1_VOLUME 19
+#define RAYV_OSC2_TYPE 20
+#define RAYV_OSC2_PITCH 21
+#define RAYV_OSC2_TUNE 22
+#define RAYV_OSC2_VOLUME 23
+#define RAYV_MASTER_VOLUME 24
+#define RAYV_MASTER_UNISON_VOICES 25
+#define RAYV_MASTER_UNISON_SPREAD 26
+#define RAYV_MASTER_GLIDE 27
+#define RAYV_MASTER_PITCHBEND_AMT 28
+#define RAYV_PITCH_ENV_TIME 29
+#define RAYV_PITCH_ENV_AMT 30
+#define RAYV_LFO_FREQ 31
+#define RAYV_LFO_TYPE 32
+#define RAYV_LFO_AMP 33
+#define RAYV_LFO_PITCH 34
+#define RAYV_LFO_FILTER 35
+#define RAYV_LAST_CONTROL_PORT 35
+#define RAYV_COUNT 36 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
     
-#define LMS_PROGRAM_CHANGE 37  //Not used as a real port
+#define RAYV_PROGRAM_CHANGE 37  //Not used as a real port
 #define RAYV_POLYPHONY   16
 
 typedef struct {
