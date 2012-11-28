@@ -409,7 +409,35 @@ else
 $debug_suffix = ""
 }
 
-$package_name = "$short_name-$version-$arch$debug_suffix.$package_type";
+$build_suffix = "";
+
+if(-e "build-suffix.txt")
+{
+	open FILE, "build-suffix.txt";
+	$build_suffix = join("", <FILE>); 
+	close FILE;
+	chomp($build_suffix);
+}
+else
+{
+	if($prompt)
+	{
+		print "\nYou may enter an optional build suffix.  Usually this will be the operating system you are compiling for on this machine, for example: ubuntu12.10 \n\n";
+		print "\nPlease enter a build suffix, or hit 'enter' to leave blank:\n";
+		$build_suffix = <STDIN>;
+		chomp($build_suffix);
+		if($build_suffix ne "")
+		{
+			$build_suffix = "-" . $build_suffix;
+		}
+
+		open (MYFILE, ">>build-suffix.txt");
+		print MYFILE "$build_suffix";
+		close (MYFILE); 
+	}
+}
+
+$package_name = "$short_name-$version-$arch$debug_suffix$build_suffix.$package_type";
 
 `cd $base_dir ; fakeroot dpkg-deb --build $os ; rm $package_name ; mv $os.deb $package_name`;
 
