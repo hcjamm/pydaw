@@ -225,6 +225,11 @@ class region_list_editor:
         self.region = this_pydaw_project.get_region(a_file_name)
         if self.region.region_length_bars > 0:
             self.set_region_length(self.region.region_length_bars)
+            self.length_alternate_spinbox.setValue(self.region.region_length_bars)
+            self.length_alternate_radiobutton.setChecked(True)
+        else:
+            self.length_alternate_spinbox.setValue(8)
+            self.length_default_radiobutton.setChecked(True)
         self.enabled = True
         for f_item in self.region.items:
             self.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
@@ -327,6 +332,7 @@ class region_list_editor:
             self.set_region_length(self.region.region_length_bars)
         else:
             self.region.region_length_bars = 0
+            self.set_region_length()
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
 
     def __init__(self):

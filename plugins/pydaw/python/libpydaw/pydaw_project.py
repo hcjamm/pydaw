@@ -371,6 +371,8 @@ class pydaw_region:
 
     def __str__(self):
         f_result = ""
+        if self.region_length_bars > 0:
+            f_result += "L|" + str(self.region_length_bars) + "|0\n"
         for f_item in self.items:
             f_result += str(f_item.track_num) + "|" + str(f_item.bar_num) + "|" + f_item.item_name + "\n"
         f_result += pydaw_terminating_char
@@ -385,6 +387,9 @@ class pydaw_region:
                 break
             else:
                 f_item_arr = f_line.split("|")
+                if f_item_arr[0] == "L":
+                    f_result.region_length_bars = int(f_item_arr[1])
+                    continue
                 f_result.add_item_ref(int(f_item_arr[0]), int(f_item_arr[1]), f_item_arr[2])
         return f_result
 
