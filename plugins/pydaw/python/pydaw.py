@@ -207,10 +207,15 @@ class region_list_editor:
             self.table_width += self.table_widget.columnWidth(i)
 
     def clear_items(self):
+        self.table_widget.setColumnCount(9)
         for i in range(16):
             for i2 in range(1, 9):
                 f_empty_item = QtGui.QTableWidgetItem()
                 self.table_widget.setItem(i, i2, f_empty_item)
+        self.region_name_lineedit.setText("")
+        self.enabled = False
+        self.length_alternate_spinbox.setValue(8)
+        self.length_default_radiobutton.setChecked(True)
 
     def get_tracks(self):
         f_result = pydaw_tracks()
