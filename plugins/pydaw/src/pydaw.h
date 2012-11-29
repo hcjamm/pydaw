@@ -1455,7 +1455,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     
     f_i = 0;
     
-    while(f_i < 128)
+    while(f_i < 264)
     {   
         char * f_y_char = c_iterate_2d_char_array(f_current_string);
         if(f_current_string->eof)
@@ -1463,6 +1463,22 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
             free(f_y_char);
             break;
         }
+        
+        if(!strcmp("L", f_y_char))
+        {            
+            free(f_y_char);
+            char * f_bars_char = c_iterate_2d_char_array(f_current_string);
+            int f_bars = atoi(f_bars_char);
+            f_result->region_length_bars = f_bars;
+            free(f_bars_char);
+            
+            char * f_beats_char = c_iterate_2d_char_array(f_current_string);
+            int f_beats = atoi(f_beats_char);
+            f_result->region_length_beats = f_beats;
+            free(f_beats_char);
+            continue;
+        }
+        
         int f_y = atoi(f_y_char);
         free(f_y_char);
         
