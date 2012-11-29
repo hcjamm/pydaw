@@ -367,6 +367,7 @@ class pydaw_region:
     def __init__(self, a_name):
         self.items = []
         self.name = a_name
+        self.region_length_bars = 0  #0 == default length for project
 
     def __str__(self):
         f_result = ""

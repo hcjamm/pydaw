@@ -190,8 +190,12 @@ class region_list_editor:
             track.group_box.setStyleSheet(f_track_stylesheet)
             self.table_widget.setCellWidget(i, 0, track.group_box)  
         self.table_widget.setColumnWidth(0, 390)
+        self.set_region_length()
+        
+    def set_region_length(self, a_length=8):
+        self.table_widget.setColumnCount(a_length + 1)
         f_headers = ['Tracks']
-        for i in range(0, 8):
+        for i in range(0, a_length):
             self.table_widget.setColumnWidth(i + 1, 100)
             f_headers.append(str(i))
         self.table_widget.setHorizontalHeaderLabels(f_headers)
@@ -199,7 +203,7 @@ class region_list_editor:
         self.table_widget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.table_widget.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.table_width = 0
-        for i in range(0, 9):
+        for i in range(0, a_length + 1):
             self.table_width += self.table_widget.columnWidth(i)
 
     def clear_items(self):
@@ -215,10 +219,13 @@ class region_list_editor:
         return f_result
 
     def open_region(self, a_file_name):
-        self.enabled = True
+        self.enabled = False
         self.clear_items()
         self.region_name_lineedit.setText(a_file_name)
         self.region = this_pydaw_project.get_region(a_file_name)
+        if self.region.region_length_bars > 0:
+            self.set_region_length(self.region.region_length_bars)
+        self.enabled = True
         for f_item in self.region.items:
             self.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
         
@@ -312,6 +319,16 @@ class region_list_editor:
         f_cancel_button.clicked.connect(note_cancel_handler)
         f_window.exec_()
 
+    def update_region_length(self, a_value=None):
+        if not self.enabled:
+            return
+        if self.length_alternate_radiobutton.isChecked():
+            self.region.region_length_bars = self.length_alternate_spinbox.value()
+            self.set_region_length(self.region.region_length_bars)
+        else:
+            self.region.region_length_bars = 0
+        this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
+
     def __init__(self):
         self.enabled = False #Prevents user from editing a region before one has been selected
         self.group_box = QtGui.QGroupBox()
@@ -325,6 +342,19 @@ class region_list_editor:
         self.region_name_lineedit = QtGui.QLineEdit()
         self.region_name_lineedit.setEnabled(False)
         self.hlayout0.addWidget(self.region_name_lineedit)
+        self.hlayout0.addWidget(QtGui.QLabel("Region Length:"))
+        self.length_default_radiobutton = QtGui.QRadioButton("default")
+        self.length_default_radiobutton.setChecked(True)
+        self.length_default_radiobutton.toggled.connect(self.update_region_length)
+        self.hlayout0.addWidget(self.length_default_radiobutton)
+        self.length_alternate_radiobutton = QtGui.QRadioButton()
+        self.length_alternate_radiobutton.toggled.connect(self.update_region_length)
+        self.hlayout0.addWidget(self.length_alternate_radiobutton)
+        self.length_alternate_spinbox = QtGui.QSpinBox()
+        self.length_alternate_spinbox.setRange(4, 16)
+        self.length_alternate_spinbox.setValue(8)
+        self.length_alternate_spinbox.valueChanged.connect(self.update_region_length)
+        self.hlayout0.addWidget(self.length_alternate_spinbox)
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setColumnCount(9)
