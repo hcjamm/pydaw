@@ -47,6 +47,11 @@ class song_editor:
             self.add_qtablewidgetitem(f_region, f_pos)
 
     def cell_clicked(self, x, y):
+        f_is_playing = False
+        if (this_transport.is_playing or this_transport.is_recording) and this_transport.follow_checkbox.isChecked():
+            f_is_playing = True
+            this_transport.follow_checkbox.setChecked(False)
+            this_region_editor.table_widget.clearSelection()
         f_cell = self.table_widget.item(x, y)
         
         if f_cell is None:
@@ -98,7 +103,8 @@ class song_editor:
             f_window.exec_()
         else:
             this_region_editor.open_region(str(f_cell.text()))
-            this_transport.region_spinbox.setValue(y)
+            if not f_is_playing:
+                this_transport.region_spinbox.setValue(y)
     
     def __init__(self):
         self.song = pydaw_song()
