@@ -226,9 +226,11 @@ class region_list_editor:
         if self.region.region_length_bars > 0:
             self.set_region_length(self.region.region_length_bars)
             self.length_alternate_spinbox.setValue(self.region.region_length_bars)
+            this_transport.bar_spinbox.setRange(0, (self.region.region_length_bars) - 1)
             self.length_alternate_radiobutton.setChecked(True)
         else:
             self.length_alternate_spinbox.setValue(8)
+            this_transport.bar_spinbox.setRange(0, 7)
             self.length_default_radiobutton.setChecked(True)
         self.enabled = True
         for f_item in self.region.items:
@@ -1335,7 +1337,10 @@ class transport_widget:
             return  #Looping a single bar doesn't require these values to update
         f_new_bar_value = self.bar_spinbox.value() + 1
         #self.region_spinbox.value()
-        if f_new_bar_value >= 8:
+        f_region_length = 8
+        if this_region_editor.region.region_length_bars > 0:
+            f_region_length = this_region_editor.region.region_length_bars
+        if f_new_bar_value >= f_region_length:
             f_new_bar_value = 0
             if self.loop_mode_combobox.currentIndex() != 2:
                 self.region_spinbox.setValue(self.region_spinbox.value() + 1)                
