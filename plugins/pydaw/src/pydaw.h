@@ -674,26 +674,28 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         int f_region_length_bars = a_pydaw_data->default_region_length_bars;        
         //double f_bar_length = (double)(a_pydaw_data->default_bar_length);
         
-        if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->bar_length)
+        if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
         {
-            //f_bar_length = (double)(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->bar_length);
-        }
-        
-        if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars)
-        {
-            f_region_length_bars = a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars;
-                        
-            if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_beats)
+            if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->bar_length)
             {
-                f_region_length_bars++;
-                
-                if((a_pydaw_data->current_bar) == (f_region_length_bars - 1))
-                {                
-                    //f_bar_length = (double)(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_beats);
+                //f_bar_length = (double)(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->bar_length);
+            }
+
+            if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars)
+            {
+                f_region_length_bars = a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars;
+
+                if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_beats)
+                {
+                    f_region_length_bars++;
+
+                    if((a_pydaw_data->current_bar) == (f_region_length_bars - 1))
+                    {                
+                        //f_bar_length = (double)(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_beats);
+                    }
                 }
             }
         }
-        
         int f_i = 0;
 
         a_pydaw_data->is_soloed = 0;
