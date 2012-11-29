@@ -1282,6 +1282,7 @@ class transport_widget:
         self.beat_timer.stop()
         self.bar_spinbox.setValue(self.last_bar)
         self.region_spinbox.setValue(self.last_region_num)
+        self.init_playback_cursor(a_bar=False)
         if self.is_recording:
             self.is_recording = False
             sleep(2)  #Give it some time to flush the recorded items to disk...                
@@ -1291,14 +1292,13 @@ class transport_widget:
             this_pydaw_project.record_stop_git_commit()
         self.is_playing = False
         if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
-            this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
-        self.init_playback_cursor(a_bar=False)
+            this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())        
     def on_rec(self):
         if self.is_playing:
             self.play_button.setChecked(True)
             return
-        self.init_playback_cursor()
         self.is_recording = True
+        self.init_playback_cursor()        
         self.last_region_num = self.region_spinbox.value()
         self.last_bar = self.bar_spinbox.value()
         this_pydaw_project.this_dssi_gui.pydaw_rec(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
