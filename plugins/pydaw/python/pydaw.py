@@ -45,6 +45,10 @@ class song_editor:
         self.song = this_pydaw_project.get_song()
         for f_pos, f_region in self.song.regions.iteritems():
             self.add_qtablewidgetitem(f_region, f_pos)
+        f_headers_arr = []
+        for i in range(0, 300):
+            f_headers_arr.append(str(i))            
+        self.table_widget.setHorizontalHeaderLabels(f_headers_arr)
 
     def cell_clicked(self, x, y):
         f_is_playing = False
@@ -128,11 +132,7 @@ class song_editor:
         self.table_widget.keyPressEvent = self.table_keyPressEvent
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.main_vlayout.addWidget(self.table_widget)
-        f_headers_arr = []
-        for i in range(0, 300):
-            f_headers_arr.append(str(i))            
-        self.table_widget.setHorizontalHeaderLabels(f_headers_arr)
-    
+            
     def table_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
             for f_item in self.table_widget.selectedIndexes():
