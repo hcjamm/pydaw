@@ -218,6 +218,10 @@ class region_list_editor:
             for i2 in range(1, 9):
                 f_empty_item = QtGui.QTableWidgetItem()
                 self.table_widget.setItem(i, i2, f_empty_item)
+        for i in range(16):
+            f_item = QtGui.QTableWidgetItem()
+            f_item.setFlags(f_item.flags() & ~QtCore.Qt.ItemIsEditable & ~QtCore.Qt.ItemIsSelectable & ~QtCore.Qt.ItemIsEnabled);
+            self.table_widget.setItem(i, 0, f_item)
         self.region_name_lineedit.setText("")
         self.enabled = False
         self.length_alternate_spinbox.setValue(8)
