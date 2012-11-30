@@ -557,6 +557,22 @@ class item_list_editor:
                 f_result.append(pydaw_note(self.notes_table_widget.item(i, 0).text(), self.notes_table_widget.item(i, 1).text(), self.notes_table_widget.item(i, 3).text(), self.notes_table_widget.item(i, 4).text()))        
         return f_result
         
+    def get_ccs_table_selected_rows(self):
+        f_result = []        
+        for i in range(0, self.ccs_table_widget.rowCount()):
+            f_item = self.ccs_table_widget.item(i, 0)
+            if not f_item is None and f_item.isSelected():
+                f_result.append(pydaw_cc(self.ccs_table_widget.item(i, 0).text(), self.ccs_table_widget.item(i, 1).text(), self.ccs_table_widget.item(i, 2).text()))        
+        return f_result
+        
+    def get_pbs_table_selected_rows(self):
+        f_result = []        
+        for i in range(0, self.pitchbend_table_widget.rowCount()):
+            f_item = self.pitchbend_table_widget.item(i, 0)
+            if not f_item is None and f_item.isSelected():
+                f_result.append(pydaw_pitchbend(self.pitchbend_table_widget.item(i, 0).text(), self.pitchbend_table_widget.item(i, 1).text()))        
+        return f_result
+        
     def transpose_dialog(self):
         if not self.enabled:
             self.show_not_enabled_warning()
@@ -605,6 +621,7 @@ class item_list_editor:
 
     def show_not_enabled_warning(self):
         QtGui.QMessageBox.warning(this_main_window, "", "You must open an item first by double-clicking on one in the region editor on the 'Song' tab.")
+        
     def time_shift_dialog(self):
         if not self.enabled:
             self.show_not_enabled_warning()
@@ -789,6 +806,7 @@ class item_list_editor:
         self.notes_table_widget.sortItems(0)        
         self.notes_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.notes_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.notes_table_widget.keyPressEvent = self.notes_keyPressEvent
         self.notes_vlayout.addWidget(self.notes_table_widget)
 
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
@@ -812,6 +830,8 @@ class item_list_editor:
         self.ccs_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.sortItems(0)
         self.ccs_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.ccs_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.ccs_table_widget.keyPressEvent = self.ccs_keyPressEvent
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
         
         self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
@@ -834,6 +854,8 @@ class item_list_editor:
         self.pitchbend_table_widget.setSortingEnabled(True)
         self.pitchbend_table_widget.sortItems(0)
         self.pitchbend_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.pitchbend_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.pitchbend_table_widget.keyPressEvent = self.pbs_keyPressEvent
         self.pb_vlayout.addWidget(self.pitchbend_table_widget)
 
         self.main_hlayout.addWidget(self.notes_groupbox)
@@ -893,6 +915,39 @@ class item_list_editor:
             self.pitchbend_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(pb.pb_val)))
             f_i = f_i + 1
         self.pitchbend_table_widget.setSortingEnabled(True)            
+                
+    def notes_keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Delete:
+            if self.multiselect_radiobutton.isChecked():
+                f_notes = self.get_notes_table_selected_rows()
+                for f_note in f_notes:
+                    self.item.remove_note(f_note)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)        
+        else:
+            QtGui.QTableWidget.keyPressEvent(self.table_widget, event)  
+    
+    def ccs_keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Delete:
+            if self.multiselect_radiobutton.isChecked():
+                f_ccs = self.get_ccs_table_selected_rows()
+                for f_cc in f_ccs:
+                    self.item.remove_cc(f_cc)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)        
+        else:
+            QtGui.QTableWidget.keyPressEvent(self.table_widget, event)  
+        
+    def pbs_keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Delete:
+            if self.multiselect_radiobutton.isChecked():
+                f_pbs = self.get_pbs_table_selected_rows()
+                for f_pb in f_pbs:
+                    self.item.remove_pb(f_pb)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)        
+        else:
+            QtGui.QTableWidget.keyPressEvent(self.table_widget, event)        
         
     def notes_click_handler(self, x, y):
         if not self.enabled:
@@ -911,7 +966,7 @@ class item_list_editor:
         if not self.enabled:
             self.show_not_enabled_warning()
             return
-        if self.add_radiobutton.isChecked() or self.multiselect_radiobutton.isChecked():  #Because multiselect doesn't do anything for this table
+        if self.add_radiobutton.isChecked():
             self.ccs_show_event_dialog(x, y)
         elif self.delete_radiobutton.isChecked():
             if self.ccs_table_widget.item(x, 0) is None:
@@ -924,7 +979,7 @@ class item_list_editor:
         if not self.enabled:
             self.show_not_enabled_warning()
             return
-        if self.add_radiobutton.isChecked() or self.multiselect_radiobutton.isChecked():  #Because multiselect doesn't do anything for this table
+        if self.add_radiobutton.isChecked():
             self.pitchbend_show_event_dialog(x, y)
         elif self.delete_radiobutton.isChecked():
             if self.pitchbend_table_widget.item(x, 0) is None:
