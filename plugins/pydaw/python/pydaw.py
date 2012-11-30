@@ -548,10 +548,29 @@ class item_list_editor:
         self.ccs_table_widget.clearContents()
         self.notes_table_widget.clearContents()
         self.pitchbend_table_widget.clearContents()
+    
+    def get_notes_table_selected_rows(self):
+        f_result = []        
+        for i in range(0, self.notes_table_widget.rowCount()):
+            f_item = self.notes_table_widget.item(i, 0)
+            if not f_item is None and f_item.isSelected():
+                f_result.append(pydaw_note(self.notes_table_widget.item(i, 0).text(), self.notes_table_widget.item(i, 1).text(), self.notes_table_widget.item(i, 3).text(), self.notes_table_widget.item(i, 4).text()))        
+        return f_result
         
     def transpose_dialog(self):
+        f_multiselect = False
+        if self.multiselect_radiobutton.isChecked():
+            f_ms_rows = self.get_notes_table_selected_rows()
+            if len(f_ms_rows) == 0:
+                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
+            else:
+                f_multiselect = True
+        
         def transpose_ok_handler():
-            self.item.transpose(f_semitone.value(), f_octave.value())
+            if f_multiselect:
+                self.item.transpose(f_semitone.value(), f_octave.value(), f_ms_rows)
+            else:
+                self.item.transpose(f_semitone.value(), f_octave.value())
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
             f_window.close()
@@ -695,6 +714,8 @@ class item_list_editor:
         self.edit_mode_hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
         self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
         self.edit_mode_hlayout0.addWidget(self.add_radiobutton)
+        self.multiselect_radiobutton = QtGui.QRadioButton("Multiselect")
+        self.edit_mode_hlayout0.addWidget(self.multiselect_radiobutton)
         self.delete_radiobutton = QtGui.QRadioButton("Delete")
         self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
         self.add_radiobutton.setChecked(True)
@@ -750,7 +771,8 @@ class item_list_editor:
         self.notes_table_widget.cellClicked.connect(self.notes_click_handler)
         self.notes_table_widget.setSortingEnabled(True)
         self.notes_table_widget.sortItems(0)        
-        self.notes_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)        
+        self.notes_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.notes_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.notes_vlayout.addWidget(self.notes_table_widget)
 
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
@@ -773,7 +795,7 @@ class item_list_editor:
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
         self.ccs_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.sortItems(0)
-        self.ccs_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)        
+        self.ccs_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
         
         self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
@@ -873,7 +895,7 @@ class item_list_editor:
         if not self.enabled:
             self.show_not_enabled_warning()
             return
-        if self.add_radiobutton.isChecked():
+        if self.add_radiobutton.isChecked() or self.multiselect_radiobutton.isChecked():  #Because multiselect doesn't do anything for this table
             self.ccs_show_event_dialog(x, y)
         elif self.delete_radiobutton.isChecked():
             if self.ccs_table_widget.item(x, 0) is None:
@@ -886,7 +908,7 @@ class item_list_editor:
         if not self.enabled:
             self.show_not_enabled_warning()
             return
-        if self.add_radiobutton.isChecked():
+        if self.add_radiobutton.isChecked() or self.multiselect_radiobutton.isChecked():  #Because multiselect doesn't do anything for this table
             self.pitchbend_show_event_dialog(x, y)
         elif self.delete_radiobutton.isChecked():
             if self.pitchbend_table_widget.item(x, 0) is None:
