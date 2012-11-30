@@ -558,6 +558,10 @@ class item_list_editor:
         return f_result
         
     def transpose_dialog(self):
+        if not self.enabled:
+            self.show_not_enabled_warning()
+            return
+            
         f_multiselect = False
         if self.multiselect_radiobutton.isChecked():
             f_ms_rows = self.get_notes_table_selected_rows()
@@ -605,9 +609,21 @@ class item_list_editor:
         if not self.enabled:
             self.show_not_enabled_warning()
             return
+            
+        f_multiselect = False
+        if self.multiselect_radiobutton.isChecked():
+            f_ms_rows = self.get_notes_table_selected_rows()
+            if len(f_ms_rows) == 0:
+                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
+            else:
+                f_multiselect = True
+                
         def time_shift_ok_handler():
             self.events_follow_default = f_events_follow_notes.isChecked()
-            self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked())
+            if f_multiselect:
+                self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked(), f_ms_rows)
+            else:
+                self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked())
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
             f_window.close()
