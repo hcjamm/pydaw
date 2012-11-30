@@ -434,27 +434,53 @@ class pydaw_item:
             elif note.note_num > 127:
                 note.note_num = 127
                 
-    def time_shift(self, a_shift, a_events_move_with_item=False):
+    def time_shift(self, a_shift, a_events_move_with_item=False, a_notes=None):
         """ Move all items forward or backwards by a_shift number of beats, wrapping if before or after the item"""
         f_shift = float(a_shift)
         if f_shift < -4.0:
             f_shift = -4.0
         elif f_shift > 4.0:
             f_shift = 4.0
-        for note in self.notes:
+            
+        f_notes = []
+        f_ccs = []
+        f_pbs = []
+        
+        
+        if a_notes is None:
+            f_notes = self.notes
+            f_ccs = self.ccs
+            f_pbs = self.pitchbends
+        else:
+            for i in range(len(a_notes)):
+                for f_note in self.notes:
+                    if f_note == a_notes[i]:
+                        if a_events_move_with_item:
+                            f_start = f_note.start
+                            f_end = f_note.start + f_note.length
+                            for f_cc in self.ccs:
+                                if f_cc.start >= f_start and f_cc.start <= f_end:
+                                    f_ccs.append(f_cc)
+                            for f_pb in self.pitchbends:
+                                if f_pb.start >= f_start and f_pb.start <= f_end:
+                                    f_pbs.append(f_pb)
+                        f_notes.append(f_note)
+                        break            
+            
+        for note in f_notes:
             note.start += f_shift
             if note.start < 0.0:
                 note.start += 4.0
             elif note.start > 4.0:
                 note.start -= 4.0
         if a_events_move_with_item:
-            for cc in self.ccs:
+            for cc in f_ccs:
                 cc.start += f_shift
                 if cc.start < 0.0:
                     cc.start += 4.0
                 elif cc.start > 4.0:
                     cc.start -= 4.0
-            for pb in self.pitchbends:
+            for pb in f_pbs:
                 pb.start += f_shift
                 if pb.start < 0.0:
                     pb.start += 4.0
