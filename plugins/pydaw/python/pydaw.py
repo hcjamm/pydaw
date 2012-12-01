@@ -1761,10 +1761,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     
     def on_about(self):
         self.show_help_file("pydaw/about.txt")
-
-    def __init__(self):
-        self.initUI()
-        
+            
     def show_help_file(self, a_file):
         f_window = QtGui.QDialog()
         f_window.setWindowTitle(a_file)
@@ -1779,7 +1776,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_layout.addWidget(f_text_edit)        
         f_window.exec_()
 
-    def initUI(self):
+    def __init__(self):
         QtGui.QMainWindow.__init__(self)
         stylesheet_file = os.getcwd() + "/pydaw/style.txt"
         file_handle = open(stylesheet_file, 'r')
@@ -1872,10 +1869,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cc_map_hlayout.addWidget(self.cc_map_modulex.groupbox)
         f_ccs_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         f_cc_map_hlayout.addItem(f_ccs_spacer)
-        self.main_tabwidget.addTab(self.cc_map_tab, "CC Maps")
-
+        self.main_tabwidget.addTab(self.cc_map_tab, "CC Maps")        
         self.show()
-    def closeEvent(self, event):        
+    
+    def closeEvent(self, event):
         f_reply = QtGui.QMessageBox.question(self, 'Message',
             "Save project before quitting?", QtGui.QMessageBox.Yes | 
             QtGui.QMessageBox.No | QtGui.QMessageBox.Cancel, QtGui.QMessageBox.No)
