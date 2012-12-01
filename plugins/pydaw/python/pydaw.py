@@ -927,7 +927,7 @@ class item_list_editor:
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)        
         else:
-            QtGui.QTableWidget.keyPressEvent(self.table_widget, event)  
+            QtGui.QTableWidget.keyPressEvent(self.notes_table_widget, event)  
     
     def ccs_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
@@ -938,7 +938,7 @@ class item_list_editor:
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)        
         else:
-            QtGui.QTableWidget.keyPressEvent(self.table_widget, event)  
+            QtGui.QTableWidget.keyPressEvent(self.ccs_table_widget, event)  
         
     def pbs_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
@@ -949,7 +949,7 @@ class item_list_editor:
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)        
         else:
-            QtGui.QTableWidget.keyPressEvent(self.table_widget, event)        
+            QtGui.QTableWidget.keyPressEvent(self.pitchbend_table_widget, event)        
         
     def notes_click_handler(self, x, y):
         if not self.enabled:
