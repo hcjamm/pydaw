@@ -249,7 +249,8 @@ class region_list_editor:
             self.length_default_radiobutton.setChecked(True)
         self.enabled = True
         for f_item in self.region.items:
-            self.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
+            if f_item.bar_num < self.region.region_length_bars or (self.region.region_length_bars == 0 and f_item.bar_num < 8):
+                self.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
         
     def cell_clicked(self, x, y):
         if not self.enabled:
@@ -350,7 +351,8 @@ class region_list_editor:
         else:
             self.region.region_length_bars = 0
             self.set_region_length()
-        this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
+        this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)        
+        self.open_region(self.region_name_lineedit.text())
 
     def __init__(self):
         self.enabled = False #Prevents user from editing a region before one has been selected
