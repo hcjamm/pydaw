@@ -876,6 +876,10 @@ class item_list_editor:
         self.default_pb_start = 0
         self.default_pb_val = 0
         self.default_pb_quantize = 0
+        
+        self.notes_clipboard = []
+        self.ccs_clipboard = []
+        self.pbs_clipboard = []
 
     def set_headers(self): #Because clearing the table clears the headers
         self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note', 'Note#', 'Velocity'])
@@ -925,7 +929,20 @@ class item_list_editor:
                 for f_note in f_notes:
                     self.item.remove_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)        
+            self.open_item(self.item_name)
+        elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
+            self.notes_clipboard = self.get_notes_table_selected_rows()
+        elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
+            for f_note in self.notes_clipboard:
+                self.item.add_note(f_note)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
+        elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:            
+            self.notes_clipboard = self.get_notes_table_selected_rows()
+            for f_note in self.notes_clipboard:
+                self.item.remove_note(f_note)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
         else:
             QtGui.QTableWidget.keyPressEvent(self.notes_table_widget, event)  
     
@@ -936,7 +953,20 @@ class item_list_editor:
                 for f_cc in f_ccs:
                     self.item.remove_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)        
+            self.open_item(self.item_name)
+        elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
+            self.ccs_clipboard = self.get_ccs_table_selected_rows()
+        elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
+            for f_cc in self.ccs_clipboard:
+                self.item.add_cc(f_cc)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
+        elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:            
+            self.ccs_clipboard = self.get_ccs_table_selected_rows()
+            for f_cc in self.ccs_clipboard:
+                self.item.remove_cc(f_cc)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
         else:
             QtGui.QTableWidget.keyPressEvent(self.ccs_table_widget, event)  
         
@@ -947,7 +977,20 @@ class item_list_editor:
                 for f_pb in f_pbs:
                     self.item.remove_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)        
+            self.open_item(self.item_name)
+        elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
+            self.pbs_clipboard = self.get_pbs_table_selected_rows()
+        elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
+            for f_pb in self.pbs_clipboard:
+                self.item.add_pb(f_pb)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
+        elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:            
+            self.pbs_clipboard = self.get_pbs_table_selected_rows()
+            for f_pb in self.pbs_clipboard:
+                self.item.remove_pb(f_pb)
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
         else:
             QtGui.QTableWidget.keyPressEvent(self.pitchbend_table_widget, event)        
         
