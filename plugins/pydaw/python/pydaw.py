@@ -1544,7 +1544,7 @@ class transport_widget:
         f_new_bar_value = self.bar_spinbox.value() + 1
         #self.region_spinbox.value()
         f_region_length = 8
-        if this_region_editor.region.region_length_bars > 0:
+        if this_region_editor.region is not None and this_region_editor.region.region_length_bars > 0:
             f_region_length = this_region_editor.region.region_length_bars
         if f_new_bar_value >= f_region_length:
             f_new_bar_value = 0
