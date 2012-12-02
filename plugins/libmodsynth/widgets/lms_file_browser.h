@@ -185,10 +185,16 @@ public:
                 
                 QStringList f_line_arr = f_line.split(QString(LMS_file_browser_bookmark_delimiter));
                 
-                //TODO:  Check f_line_arr
+                if(f_line_arr.count() != 2)
+                {
+                    continue;
+                }
                 
-                hashtable.insert(f_line_arr.at(0), f_line_arr.at(1));
-                m_bookmarks_listWidget->addItem(new QListWidgetItem(f_line_arr.at(0), m_bookmarks_listWidget));
+                if(QDir(f_line_arr.at(1) + QString("/") + f_line_arr.at(0)).exists())
+                {                    
+                    hashtable.insert(f_line_arr.at(0), f_line_arr.at(1));
+                    m_bookmarks_listWidget->addItem(new QListWidgetItem(f_line_arr.at(0), m_bookmarks_listWidget));
+                }
             }
 
             f_file.close();
