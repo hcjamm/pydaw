@@ -1754,11 +1754,13 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_window.close()
         
         def file_name_select():
-            f_file_name = str(QtGui.QFileDialog.getSaveFileName(f_window, "Select a file name to save to..."))
-            if not f_file_name.endswith(".wav"):
-                f_file_name += ".wav"
-            if not f_file_name is None and not str(f_file_name) == "":
-                f_name.setText(f_file_name)
+            f_file_name = str(QtGui.QFileDialog.getSaveFileName(f_window, "Select a file name to save to...", self.last_offline_dir))            
+            if not f_file_name is None and f_file_name != "":            
+                if not f_file_name.endswith(".wav"):
+                    f_file_name += ".wav"
+                if not f_file_name is None and not str(f_file_name) == "":
+                    f_name.setText(f_file_name)
+                self.last_offline_dir = os.path.dirname(f_file_name)
             
         f_start_reg = 0
         f_end_reg = 0
@@ -1825,6 +1827,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 9, 2)
+        self.last_offline_dir = expanduser("~")
         f_window.exec_()        
     
     def on_undo_history(self):
