@@ -113,6 +113,7 @@ typedef struct st_pyitem
     int pitchbend_count;
     int note_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
     int cc_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
+    int uid;
 }t_pyitem;
 
 typedef struct st_pyregion
@@ -1480,6 +1481,29 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
             free(f_beats_char);
             continue;
         }
+        if(!strcmp("T", f_y_char))  //per-region tempo, not yet implemented
+        {            
+            free(f_y_char);
+            char * f_tempo_char = c_iterate_2d_char_array(f_current_string);
+            f_result->alternate_tempo = 1;
+            f_result->tempo = atof(f_tempo_char);
+            free(f_tempo_char);
+            
+            char * f_null_char = c_iterate_2d_char_array(f_current_string);            
+            free(f_null_char);
+            continue;
+        }
+        if(!strcmp("B", f_y_char))  //per-region bar length in beats, not yet implemented
+        {            
+            free(f_y_char);
+            char * f_len_char = c_iterate_2d_char_array(f_current_string);            
+            f_result->bar_length = atoi(f_len_char);
+            free(f_len_char);
+            
+            char * f_null_char = c_iterate_2d_char_array(f_current_string);            
+            free(f_null_char);
+            continue;
+        }
         
         int f_y = atoi(f_y_char);
         free(f_y_char);
@@ -1725,7 +1749,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         }
         
         char * f_start = c_iterate_2d_char_array(f_current_string);
-        
+                        
         if(!strcmp(f_type, "n"))  //note
         {
             char * f_length = c_iterate_2d_char_array(f_current_string);
@@ -1759,6 +1783,13 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
             f_result->pitchbend_count = (f_result->pitchbend_count) + 1;
             
             free(f_pb_val_char);
+        }
+        else if(!strcmp("U", f_type))  //item UID, not yet implemented
+        {            
+            free(f_type);
+            char * f_uid_char = c_iterate_2d_char_array(f_current_string);            
+            f_result->uid = atoi(f_uid_char);
+            free(f_uid_char);            
         }
         else
         {
