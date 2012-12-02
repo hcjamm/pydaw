@@ -511,7 +511,7 @@ class pydaw_item:
             note.start += f_shift
             if note.start < 0.0:
                 note.start += 4.0
-            elif note.start > 4.0:
+            elif note.start >= 4.0:
                 note.start -= 4.0
             
             if f_is_quantized:
@@ -525,13 +525,13 @@ class pydaw_item:
                 cc.start += f_shift_adjusted
                 if cc.start < 0.0:
                     cc.start += 4.0
-                elif cc.start > 4.0:
+                elif cc.start >= 4.0:
                     cc.start -= 4.0                
             for pb in f_pbs:
                 pb.start += f_shift_adjusted
                 if pb.start < 0.0:
                     pb.start += 4.0
-                elif pb.start > 4.0:
+                elif pb.start >= 4.0:
                     pb.start -= 4.0
             
     def get_next_default_note(self):
