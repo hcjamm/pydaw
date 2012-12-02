@@ -627,8 +627,7 @@ class item_list_editor:
     def time_shift_dialog(self):
         if not self.enabled:
             self.show_not_enabled_warning()
-            return
-            
+            return        
         f_multiselect = False
         if self.multiselect_radiobutton.isChecked():
             f_ms_rows = self.get_notes_table_selected_rows()
@@ -638,11 +637,15 @@ class item_list_editor:
                 f_multiselect = True
                 
         def time_shift_ok_handler():
+            if f_quantize_checkbox.isChecked():
+                f_quantize_index = f_quantize_combobox.currentIndex()
+            else:
+                f_quantize_index = None
             self.events_follow_default = f_events_follow_notes.isChecked()
             if f_multiselect:
-                self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked(), f_ms_rows)
+                self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked(), f_ms_rows, a_quantize=f_quantize_index)
             else:
-                self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked())
+                self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked(), a_quantize=f_quantize_index)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
             f_window.close()
@@ -662,12 +665,18 @@ class item_list_editor:
         f_events_follow_notes = QtGui.QCheckBox("CCs and pitchbend follow notes?")
         f_events_follow_notes.setChecked(self.events_follow_default)
         f_layout.addWidget(f_events_follow_notes, 1, 1)
+        f_quantize_checkbox = QtGui.QCheckBox("Quantize?(beats)")
+        f_layout.addWidget(f_quantize_checkbox, 2, 0)
+        f_quantize_combobox = QtGui.QComboBox()
+        f_quantize_combobox.addItems(beat_fracs)
+        f_quantize_combobox.setCurrentIndex(5)
+        f_layout.addWidget(f_quantize_combobox, 2, 1)
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(time_shift_ok_handler)
-        f_layout.addWidget(f_ok, 2, 0)
+        f_layout.addWidget(f_ok, 3, 0)
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(time_shift_cancel_handler)
-        f_layout.addWidget(f_cancel, 2, 1)
+        f_layout.addWidget(f_cancel, 3, 1)
         f_window.exec_()
         
     def length_shift_dialog(self):
@@ -683,7 +692,7 @@ class item_list_editor:
             else:
                 f_multiselect = True
                 
-        def time_shift_ok_handler():
+        def length_shift_ok_handler():
             if f_multiselect:
                 self.item.length_shift(f_shift.value(), f_min_max.value(), f_ms_rows)
             else:
@@ -692,7 +701,7 @@ class item_list_editor:
             self.open_item(self.item_name)
             f_window.close()
 
-        def time_shift_cancel_handler():
+        def length_shift_cancel_handler():
             f_window.close()
             
         f_window = QtGui.QDialog()
@@ -712,10 +721,10 @@ class item_list_editor:
         f_layout.addWidget(f_min_max, 1, 1)
         
         f_ok = QtGui.QPushButton("OK")
-        f_ok.pressed.connect(time_shift_ok_handler)
+        f_ok.pressed.connect(length_shift_ok_handler)
         f_layout.addWidget(f_ok, 2, 0)
         f_cancel = QtGui.QPushButton("Cancel")
-        f_cancel.pressed.connect(time_shift_cancel_handler)
+        f_cancel.pressed.connect(length_shift_cancel_handler)
         f_layout.addWidget(f_cancel, 2, 1)
         f_window.exec_()
 
