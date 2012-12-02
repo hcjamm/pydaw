@@ -2278,11 +2278,22 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             }
             pthread_mutex_lock(&a_pydaw_data->main_mutex);
             a_pydaw_data->playback_mode = a_mode;
+            int f_i = 0;
+            //Send zero pitchbend messages so the plugins pitch isn't off next time playback starts
+            while(f_i < PYDAW_MAX_TRACK_COUNT)
+            {
+                if(a_pydaw_data->track_pool[f_i]->plugin_index > 0)
+                {
+                    snd_seq_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
+                    snd_seq_ev_set_pitchbend(
+                            &a_pydaw_data->track_pool[f_i]->event_buffer[0], 0, 0);
+                    a_pydaw_data->track_pool[f_i]->current_period_event_index = 1;                    
+                }
+                f_i++;
+            }
             pthread_mutex_unlock(&a_pydaw_data->main_mutex);
             if(f_was_recording)  //Things must be saved in the order of:  items|regions|song, otherwise it will SEGFAULT from not having a name yet...
-            {
-                int f_i;
-                
+            {   
                 if(a_pydaw_data->recording_current_item_pool_index != -1)  //Don't do it if we never recorded an item...
                 {
                     f_i = (a_pydaw_data->recording_first_item);
