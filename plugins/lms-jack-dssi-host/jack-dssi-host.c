@@ -1094,7 +1094,7 @@ main(int argc, char **argv)
     if ((jackClient = jack_client_open(clientName, JackNullOption, &status)) == 0) {
         fprintf(stderr, "\n%s: Error: Failed to connect to JACK server\n",
             myName);
-        system("/usr/bin/zenity --info --text=\"Failed to start Jack server.  Please ensure that you have properly configured your soundcard in QJackCtl, and are able to start Jack manually from the QJackCtl panel.\n\nIf you are trying to use 'realtime' mode, you may need to open a terminal first, run the following command, and then reboot:\n\nsudo usermod -g audio $USER\n\nAlternately, if you are having problems with jackd, you may need to kill the Jack daemon with\n\nps -ef | grep jackd\nkill -9 [PID of jackd from the first command]\" --height=600");
+        system("python -c \"from PyQt4 import QtGui ; import sys ; app = QtGui.QApplication(sys.argv) ; QtGui.QMessageBox.warning(None, 'Error', 'Failed to start Jack server.  Please ensure that you have properly configured your soundcard in QJackCtl, and are able to start Jack manually from the QJackCtl panel.\\n\\nIf you are trying to use realtime mode, you may need to open a terminal first, run the following command, and then reboot:\\n\\nsudo usermod -g audio $USER\\n\\nAlternately, if you are having problems with jackd, you may need to kill the Jack daemon with\\n\\nps -ef | grep jackd\\nkill -9 [PID of jackd from the first command]') ; sys.exit()\"");
         return 1;
     }
     if (status & JackNameNotUnique) {
