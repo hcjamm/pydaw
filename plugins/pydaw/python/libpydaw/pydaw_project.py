@@ -516,7 +516,7 @@ class pydaw_item:
             
             if f_is_quantized:
                 f_new_start = round(note.start * f_quantize_multiple) * f_quantized_value                
-                f_shift_adjusted = f_shift + (f_new_start - note.start)
+                f_shift_adjusted = f_shift - (note.start - f_new_start)
                 note.start = f_new_start
             else:
                 f_shift_adjusted = f_shift
