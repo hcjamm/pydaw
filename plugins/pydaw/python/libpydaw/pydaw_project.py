@@ -434,7 +434,7 @@ class pydaw_item:
             elif note.note_num > 127:
                 note.note_num = 127
            
-    def length_shift(self, a_length, a_min_max=0.5, a_notes=None):
+    def length_shift(self, a_length, a_min_max=0.5, a_notes=None, a_quantize=None):
         """ Note lengths are clipped at up to a_min_max if a_length > 0, or down to a_min_max if a_length < 0"""
         f_notes = []
         
@@ -449,6 +449,13 @@ class pydaw_item:
 
         f_length = float(a_length)
         f_min_max = float(a_min_max)
+                
+        if a_quantize is None:
+            f_is_quantized = False
+        else:
+            f_is_quantized = True
+            f_quantized_value = beat_frac_text_to_float(a_quantize)
+            f_quantize_multiple = 1.0/f_quantized_value
         
         for f_note in f_notes:
             f_note.length += f_length
@@ -456,6 +463,9 @@ class pydaw_item:
                 f_note.length = f_min_max
             elif f_length > 0 and f_note.length > f_min_max:
                 f_note.length = f_min_max
+            if f_is_quantized:
+                f_note.length = round(f_note.length * f_quantize_multiple) * f_quantized_value
+                
         self.fix_overlaps()
                 
     def fix_overlaps(self):
@@ -515,7 +525,7 @@ class pydaw_item:
                 note.start -= 4.0
             
             if f_is_quantized:
-                f_new_start = round(note.start * f_quantize_multiple) * f_quantized_value                
+                f_new_start = round(note.start * f_quantize_multiple) * f_quantized_value
                 f_shift_adjusted = f_shift - (note.start - f_new_start)
                 note.start = f_new_start
             else:

@@ -659,6 +659,7 @@ class item_list_editor:
         f_window.setLayout(f_layout)
         
         f_shift = QtGui.QDoubleSpinBox()
+        f_shift.setSingleStep(0.25)
         f_shift.setRange(-4.0, 4.0)
         f_layout.addWidget(QtGui.QLabel("Shift(beats)"), 0, 0)
         f_layout.addWidget(f_shift, 0, 1)
@@ -693,10 +694,14 @@ class item_list_editor:
                 f_multiselect = True
                 
         def length_shift_ok_handler():
-            if f_multiselect:
-                self.item.length_shift(f_shift.value(), f_min_max.value(), f_ms_rows)
+            if f_quantize_checkbox.isChecked():
+                f_quantize_index = f_quantize_combobox.currentIndex()
             else:
-                self.item.length_shift(f_shift.value(), f_min_max.value())
+                f_quantize_index = None
+            if f_multiselect:
+                self.item.length_shift(f_shift.value(), f_min_max.value(), f_ms_rows, a_quantize=f_quantize_index)
+            else:
+                self.item.length_shift(f_shift.value(), f_min_max.value(), a_quantize=f_quantize_index)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
             f_window.close()
@@ -710,6 +715,7 @@ class item_list_editor:
         f_window.setLayout(f_layout)
         
         f_shift = QtGui.QDoubleSpinBox()
+        f_shift.setSingleStep(0.25)
         f_shift.setRange(-16.0, 16.0)
         f_layout.addWidget(QtGui.QLabel("Shift(beats)"), 0, 0)
         f_layout.addWidget(f_shift, 0, 1)
@@ -720,12 +726,19 @@ class item_list_editor:
         f_layout.addWidget(QtGui.QLabel("Min/Max(beats)"), 1, 0)
         f_layout.addWidget(f_min_max, 1, 1)
         
+        f_quantize_checkbox = QtGui.QCheckBox("Quantize?(beats)")
+        f_layout.addWidget(f_quantize_checkbox, 2, 0)
+        f_quantize_combobox = QtGui.QComboBox()
+        f_quantize_combobox.addItems(beat_fracs)
+        f_quantize_combobox.setCurrentIndex(5)
+        f_layout.addWidget(f_quantize_combobox, 2, 1)
+        
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(length_shift_ok_handler)
-        f_layout.addWidget(f_ok, 2, 0)
+        f_layout.addWidget(f_ok, 3, 0)
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(length_shift_cancel_handler)
-        f_layout.addWidget(f_cancel, 2, 1)
+        f_layout.addWidget(f_cancel, 3, 1)
         f_window.exec_()
 
 
