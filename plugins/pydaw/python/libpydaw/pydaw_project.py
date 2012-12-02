@@ -433,7 +433,27 @@ class pydaw_item:
                 note.note_num = 0
             elif note.note_num > 127:
                 note.note_num = 127
-                
+           
+    def length_shift(self, a_length, a_minimum=0.015625, a_notes=None):
+        f_notes = []
+        
+        if a_notes is None:
+            f_notes = self.notes
+        else:
+            for i in range(len(a_notes)):
+                for f_note in self.notes:
+                    if f_note == a_notes[i]:
+                        f_notes.append(f_note)
+                        break
+
+        f_length = float(a_length)
+        f_min = float(a_minimum)
+        
+        for f_note in f_notes:
+            f_note.length += f_length
+            if f_note.length < f_min:
+                f_note.length = f_min
+            
     def time_shift(self, a_shift, a_events_move_with_item=False, a_notes=None):
         """ Move all items forward or backwards by a_shift number of beats, wrapping if before or after the item"""
         f_shift = float(a_shift)
@@ -445,7 +465,6 @@ class pydaw_item:
         f_notes = []
         f_ccs = []
         f_pbs = []
-        
         
         if a_notes is None:
             f_notes = self.notes
