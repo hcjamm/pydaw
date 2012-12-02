@@ -698,10 +698,16 @@ class item_list_editor:
                 f_quantize_index = f_quantize_combobox.currentIndex()
             else:
                 f_quantize_index = None
-            if f_multiselect:
-                self.item.length_shift(f_shift.value(), f_min_max.value(), f_ms_rows, a_quantize=f_quantize_index)
+                
+            if f_min_max_checkbox.isChecked():
+                f_min_max_value = f_min_max.value()
             else:
-                self.item.length_shift(f_shift.value(), f_min_max.value(), a_quantize=f_quantize_index)
+                f_min_max_value = None
+                
+            if f_multiselect:
+                self.item.length_shift(f_shift.value(), f_min_max_value, f_ms_rows, a_quantize=f_quantize_index)
+            else:
+                self.item.length_shift(f_shift.value(), f_min_max_value, a_quantize=f_quantize_index)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
             f_window.close()
@@ -723,7 +729,8 @@ class item_list_editor:
         f_min_max = QtGui.QDoubleSpinBox()
         f_min_max.setRange(0.01, 16.0)
         f_min_max.setValue(1.0)
-        f_layout.addWidget(QtGui.QLabel("Min/Max(beats)"), 1, 0)
+        f_min_max_checkbox = QtGui.QCheckBox("Min/Max(beats)")
+        f_layout.addWidget(f_min_max_checkbox, 1, 0)
         f_layout.addWidget(f_min_max, 1, 1)
         
         f_quantize_checkbox = QtGui.QCheckBox("Quantize?(beats)")
