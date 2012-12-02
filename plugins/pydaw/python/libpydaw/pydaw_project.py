@@ -468,7 +468,7 @@ class pydaw_item:
                         if f_note_end > f_note2.start:
                             f_note.length = f_note2.start - f_note.start
             
-    def time_shift(self, a_shift, a_events_move_with_item=False, a_notes=None):
+    def time_shift(self, a_shift, a_events_move_with_item=False, a_notes=None, a_quantize=None):
         """ Move all items forward or backwards by a_shift number of beats, wrapping if before or after the item"""
         f_shift = float(a_shift)
         if f_shift < -4.0:
@@ -479,6 +479,13 @@ class pydaw_item:
         f_notes = []
         f_ccs = []
         f_pbs = []
+        
+        if a_quantize is None:
+            f_is_quantized = False
+        else:
+            f_is_quantized = True
+            f_quantized_value = beat_frac_text_to_float(a_quantize)
+            f_quantize_multiple = 1.0/f_quantized_value
         
         if a_notes is None:
             f_notes = self.notes
@@ -506,15 +513,22 @@ class pydaw_item:
                 note.start += 4.0
             elif note.start > 4.0:
                 note.start -= 4.0
+            
+            if f_is_quantized:
+                f_new_start = round(note.start * f_quantize_multiple) * f_quantized_value                
+                f_shift_adjusted = f_shift + (f_new_start - note.start)
+                note.start = f_new_start
+            else:
+                f_shift_adjusted = f_shift
         if a_events_move_with_item:
             for cc in f_ccs:
-                cc.start += f_shift
+                cc.start += f_shift_adjusted
                 if cc.start < 0.0:
                     cc.start += 4.0
                 elif cc.start > 4.0:
-                    cc.start -= 4.0
+                    cc.start -= 4.0                
             for pb in f_pbs:
-                pb.start += f_shift
+                pb.start += f_shift_adjusted
                 if pb.start < 0.0:
                     pb.start += 4.0
                 elif pb.start > 4.0:
