@@ -685,9 +685,9 @@ class item_list_editor:
                 
         def time_shift_ok_handler():
             if f_multiselect:
-                self.item.length_shift(f_shift.value(), a_notes=f_ms_rows)
+                self.item.length_shift(f_shift.value(), f_min_max.value(), f_ms_rows)
             else:
-                self.item.length_shift(f_shift.value())
+                self.item.length_shift(f_shift.value(), f_min_max.value())
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
             f_window.close()
@@ -696,7 +696,7 @@ class item_list_editor:
             f_window.close()
             
         f_window = QtGui.QDialog()
-        f_window.setWindowTitle("Time Shift")
+        f_window.setWindowTitle("Length Shift")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         
@@ -704,6 +704,13 @@ class item_list_editor:
         f_shift.setRange(-16.0, 16.0)
         f_layout.addWidget(QtGui.QLabel("Shift(beats)"), 0, 0)
         f_layout.addWidget(f_shift, 0, 1)
+        
+        f_min_max = QtGui.QDoubleSpinBox()
+        f_min_max.setRange(0.01, 16.0)
+        f_min_max.setValue(1.0)
+        f_layout.addWidget(QtGui.QLabel("Min/Max(beats)"), 1, 0)
+        f_layout.addWidget(f_min_max, 1, 1)
+        
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(time_shift_ok_handler)
         f_layout.addWidget(f_ok, 2, 0)

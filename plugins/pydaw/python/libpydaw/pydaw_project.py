@@ -434,7 +434,8 @@ class pydaw_item:
             elif note.note_num > 127:
                 note.note_num = 127
            
-    def length_shift(self, a_length, a_minimum=0.015625, a_notes=None):
+    def length_shift(self, a_length, a_min_max=0.5, a_notes=None):
+        """ Note lengths are clipped at up to a_min_max if a_length > 0, or down to a_min_max if a_length < 0"""
         f_notes = []
         
         if a_notes is None:
@@ -447,12 +448,25 @@ class pydaw_item:
                         break
 
         f_length = float(a_length)
-        f_min = float(a_minimum)
+        f_min_max = float(a_min_max)
         
         for f_note in f_notes:
             f_note.length += f_length
-            if f_note.length < f_min:
-                f_note.length = f_min
+            if f_length < 0 and f_note.length < f_min_max:
+                f_note.length = f_min_max
+            elif f_length > 0 and f_note.length > f_min_max:
+                f_note.length = f_min_max
+        self.fix_overlaps()
+                
+    def fix_overlaps(self):
+        """ Truncate the lengths of any notes that overlap the start of another note """
+        for f_note in self.notes:
+            for f_note2 in self.notes:
+                if f_note != f_note2:
+                    if f_note.note_num == f_note2.note_num and f_note2.start > f_note.start:
+                        f_note_end = f_note.start + f_note.length
+                        if f_note_end > f_note2.start:
+                            f_note.length = f_note2.start - f_note.start
             
     def time_shift(self, a_shift, a_events_move_with_item=False, a_notes=None):
         """ Move all items forward or backwards by a_shift number of beats, wrapping if before or after the item"""
