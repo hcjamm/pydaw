@@ -669,6 +669,49 @@ class item_list_editor:
         f_cancel.pressed.connect(time_shift_cancel_handler)
         f_layout.addWidget(f_cancel, 2, 1)
         f_window.exec_()
+        
+    def length_shift_dialog(self):
+        if not self.enabled:
+            self.show_not_enabled_warning()
+            return
+            
+        f_multiselect = False
+        if self.multiselect_radiobutton.isChecked():
+            f_ms_rows = self.get_notes_table_selected_rows()
+            if len(f_ms_rows) == 0:
+                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
+            else:
+                f_multiselect = True
+                
+        def time_shift_ok_handler():
+            if f_multiselect:
+                self.item.length_shift(f_shift.value(), a_notes=f_ms_rows)
+            else:
+                self.item.length_shift(f_shift.value())
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
+            f_window.close()
+
+        def time_shift_cancel_handler():
+            f_window.close()
+            
+        f_window = QtGui.QDialog()
+        f_window.setWindowTitle("Time Shift")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        
+        f_shift = QtGui.QDoubleSpinBox()
+        f_shift.setRange(-16.0, 16.0)
+        f_layout.addWidget(QtGui.QLabel("Shift(beats)"), 0, 0)
+        f_layout.addWidget(f_shift, 0, 1)
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(time_shift_ok_handler)
+        f_layout.addWidget(f_ok, 2, 0)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(time_shift_cancel_handler)
+        f_layout.addWidget(f_cancel, 2, 1)
+        f_window.exec_()
+
 
     def on_template_open(self):
         if not self.enabled:
@@ -793,12 +836,15 @@ class item_list_editor:
         self.notes_shift_button.setMinimumWidth(90)
         self.notes_shift_button.pressed.connect(self.time_shift_dialog)
         self.notes_gridlayout.addWidget(self.notes_shift_button, 0, 2)
+        self.notes_length_button = QtGui.QPushButton("Length")
+        self.notes_length_button.setMinimumWidth(90)
+        self.notes_length_button.pressed.connect(self.length_shift_dialog)
+        self.notes_gridlayout.addWidget(self.notes_length_button, 0, 3)
         self.notes_clear_button = QtGui.QPushButton("Clear")
         self.notes_clear_button.setMinimumWidth(90)
         self.notes_clear_button.pressed.connect(self.clear_notes)
-        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 3)
-        f_n_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.notes_gridlayout.addItem(f_n_spacer_right, 0, 4, 1, 1)
+        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 4)        
+        self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 5, 1, 1)
         self.notes_vlayout.addLayout(self.notes_gridlayout) 
         self.notes_table_widget = QtGui.QTableWidget()
         self.notes_table_widget.setColumnCount(5)
