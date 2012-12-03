@@ -1055,8 +1055,15 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
 
                 //Add the previewing sample
                 plugin_data->output[0][i] += (plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
-                plugin_data->output[1][i] += (plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
-
+                if(plugin_data->sample_channels[(EUPHORIA_MAX_SAMPLE_COUNT)] > 1)
+                {
+                    plugin_data->output[1][i] += (plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+                }
+                else
+                {
+                    plugin_data->output[1][i] += (plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+                }
+                
                 plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + 1;
 
                 if((plugin_data->preview_sample_array_index) >= (plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT]))
@@ -1261,6 +1268,10 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     if(f_adjusted_channel_count > 1)
     {
         plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
+    }
+    else
+    {
+        plugin_data->sampleData[1][(a_index)] = 0;
     }
     
     plugin_data->sampleCount[(a_index)] = (samples + EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + EUPHORIA_Sample_Padding - 20);  //-20 to ensure we don't read past the end of the array
