@@ -1767,7 +1767,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                     
         for i in range(300):
             f_item = this_song_editor.table_widget.item(0, i)
-            if not f_item is None or f_item.text() != "":
+            if not f_item is None and f_item.text() != "":
                 f_start_reg = i
                 break
         
