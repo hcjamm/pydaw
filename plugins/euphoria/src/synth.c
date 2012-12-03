@@ -1345,17 +1345,14 @@ static char *c_euphoria_clear(t_euphoria *plugin_data, int a_index)
             }        
         }
     }
-    float *tmpSamples[2], *tmpOld[2];    
-
-    tmpSamples[0] = (float*)malloc(sizeof(float));        
-    tmpSamples[1] = (float *)malloc(sizeof(float));
+    float *tmpOld[2];    
     
     pthread_mutex_lock(&plugin_data->mutex);
 
     tmpOld[0] = plugin_data->sampleData[0][(a_index)];
     tmpOld[1] = plugin_data->sampleData[1][(a_index)];
-    plugin_data->sampleData[0][(a_index)] = tmpSamples[0];
-    plugin_data->sampleData[1][(a_index)] = tmpSamples[1];
+    plugin_data->sampleData[0][(a_index)] = 0;
+    plugin_data->sampleData[1][(a_index)] = 0;
     plugin_data->sampleCount[(a_index)] = 0;
 
     pthread_mutex_unlock(&plugin_data->mutex);
