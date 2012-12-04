@@ -537,6 +537,9 @@ class pydaw_item:
                 note.start = f_new_start
             else:
                 f_shift_adjusted = f_shift
+        
+        self.fix_overlaps()
+        
         if a_events_move_with_item:
             for cc in f_ccs:
                 cc.start += f_shift_adjusted
