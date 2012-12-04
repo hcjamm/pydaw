@@ -629,11 +629,11 @@ class pydaw_item:
         f_start_diff = f_end - f_start        
         f_val_diff = abs(f_end_val - f_start_val)
         if f_start_val > f_end_val:
-            f_inc = -0.05
+            f_inc = -0.025
         else:
-            f_inc = 0.05
-        f_time_inc = abs(f_start_diff/(float(f_val_diff) * 20.0))
-        for i in range(0, int((f_val_diff * 20) + 1)):
+            f_inc = 0.025
+        f_time_inc = abs(f_start_diff/(float(f_val_diff) * 40.0))
+        for i in range(0, int((f_val_diff * 40) + 1)):
             self.pitchbends.append(pydaw_pitchbend(round(f_start, 4), f_start_val))
             f_start_val += f_inc
             f_start += f_time_inc
