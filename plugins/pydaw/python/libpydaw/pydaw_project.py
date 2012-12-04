@@ -587,13 +587,8 @@ class pydaw_item:
         f_start_val = int(a_start_val)
         f_end = float(a_end)
         f_end_val = int(a_end_val)
-        #Pop any events that would overlap
-        f_to_be_removed = []
-        for cc in self.ccs:
-            if cc.cc_num == f_cc and cc.start >= f_start and cc.start <= f_end:
-                f_to_be_removed.append(cc)
-        for cc in f_to_be_removed:
-            self.ccs.remove(cc)
+        #Remove any events that would overlap
+        self.remove_cc_range(f_cc, f_start, f_end)
         
         f_start_diff = f_end - f_start
         f_val_diff = abs(f_end_val - f_start_val)
@@ -636,13 +631,8 @@ class pydaw_item:
         f_start_val = float(a_start_val)
         f_end = float(a_end)
         f_end_val = float(a_end_val)
-        #Pop any events that would overlap
-        f_to_be_removed = []
-        for pb in self.pitchbends:
-            if pb.start >= f_start and pb.start <= f_end:
-                f_to_be_removed.append(pb)
-        for pb in f_to_be_removed:
-            self.pitchbends.remove(pb)
+        #Remove any events that would overlap
+        self.remove_pb_range(f_start, f_end)
         
         f_start_diff = f_end - f_start        
         f_val_diff = abs(f_end_val - f_start_val)
