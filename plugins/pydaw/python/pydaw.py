@@ -430,32 +430,36 @@ class region_list_editor:
 
     def on_draw_ccs(self):        
         def ccs_ok_handler():
-            if str(f_new_lineedit.text()).strip() == "":
+            f_unlink_base_name = pydaw_remove_bad_chars(f_new_lineedit.text())
+            if f_unlink_base_name == "":
                 QtGui.QMessageBox.warning(self.table_widget, "Error", "New/Unlink Prefix cannot be empty.")
                 return
             f_item_list = []
             f_item_names = []  #doing this as 2 separate lists because AFAIK ordering isn't guaranteed in a dict?
-            f_unlink_base_name = str(f_new_lineedit.text())                        
+            
             f_track_num = f_track_combobox.currentIndex()
-            for i in range(f_start_bar.value(), f_end_bar.value()):
-                f_item = self.table_widget.item(i, f_track_num)
-                f_item_text = str(f_item.text())
-                if f_item is None or f_item_text == "":  #Create the item
+            for i in range(f_start_bar.value() + 1, f_end_bar.value() + 1):
+                f_item = self.table_widget.item(i, f_track_num)                
+                if f_item is None or str(f_item.text()) == "":  #Create the item
                     f_new_item_name = this_pydaw_project.get_next_default_item_name(f_unlink_base_name)
+                    print(f_new_item_name)
                     this_pydaw_project.create_empty_item(f_new_item_name)
                     this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_item_name)
                     f_item_list.append(this_pydaw_project.get_item(f_new_item_name))
                     f_item_names.append(f_new_item_name)
-                    self.region.add_item_ref(f_track_num, i, f_new_item_name)
-                elif f_unlink_items.isChecked():
+                    self.region.add_item_ref(f_track_num, i - 1, f_new_item_name)
+                elif f_unlink_items.isChecked():  #item exists and we are unlinking it
                     f_new_item_name = this_pydaw_project.get_next_default_item_name(f_unlink_base_name)
-                    this_pydaw_project.copy_item(str(self.table_widget.currentItem().text()), str(f_new_lineedit.text()))
+                    print(f_new_item_name)
+                    f_item_text = str(f_item.text())
+                    this_pydaw_project.copy_item(f_item_text, f_new_item_name)
                     this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
                     f_item_list[f_new_item_name] = this_pydaw_project.get_item(f_new_item_name)
                     f_item_list.append(this_pydaw_project.get_item(f_new_item_name))
                     f_item_names.append(f_new_item_name)
-                    self.region.add_item_ref(f_track_num, i, f_new_item_name)
+                    self.region.add_item_ref(f_track_num, i - 1, f_new_item_name)
                 else:
+                    f_item_text = str(f_item.text())
                     f_item_list.append(this_pydaw_project.get_item(f_item_text))
                     f_item_names.append(f_item_text)
             
@@ -514,7 +518,7 @@ class region_list_editor:
         f_layout.addWidget(f_end_val, 7, 1)
         f_unlink_items = QtGui.QCheckBox("Unlink items first?")
         f_layout.addWidget(f_unlink_items, 8, 1)
-        f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_item_name())
+        f_new_lineedit = QtGui.QLineEdit()
         f_new_lineedit.editingFinished.connect(on_name_changed)
         f_new_lineedit.setMaxLength(24)
         f_new_lineedit.setText("unlinked")

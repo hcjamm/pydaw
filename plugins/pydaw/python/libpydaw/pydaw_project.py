@@ -289,18 +289,20 @@ class pydaw_project:
                 return True
         return False
 
-    def get_next_default_item_name(self, a_item_name="item"):
+    def get_next_default_item_name(self, a_item_name="item"):                
         f_item_name = str(a_item_name)
+        print(f_item_name)
         if f_item_name == "item":
             f_start = self.last_item_number
         else:
             f_start = 1        
         for i in range(f_start, 10000):
             f_result = self.items_folder + "/" + f_item_name + "-" + str(i) + ".pyitem"
-            if not os.path.isfile(f_result):
+            print(f_result)
+            if not os.path.exists(f_result):
                 if f_item_name == "item":
                     self.last_item_number = i
-                return "item-" + str(i)
+                return f_item_name + "-" + str(i)
 
     def get_next_default_region_name(self):
         self.last_region_number -= 1
@@ -415,13 +417,13 @@ def pydaw_draw_multi_item_cc_line(a_cc_num, a_start_val, a_end_val, a_items=[]):
     for f_item in a_items:
         f_item.remove_cc_range(a_cc_num)
     f_bar_count = float(len(a_items))
-    f_inc = float(a_end_val - a_start_val)/(f_bar_count * 4)
+    f_inc = (f_bar_count * 4.0) / float(a_end_val - a_start_val)
     
     i2 = 0.0    
     f_cc_val = float(a_start_val)
     for f_item in a_items:
         while True:
-            f_item.add_cc(pydaw_cc(i2, a_cc_num, f_cc_val))
+            f_item.add_cc(pydaw_cc(round(i2, 4), a_cc_num, f_cc_val))
             f_cc_val += 1
             i2 += f_inc
             if i2 >= 4.0:
