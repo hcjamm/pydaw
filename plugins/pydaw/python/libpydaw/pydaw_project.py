@@ -163,7 +163,7 @@ class pydaw_project:
 
     def get_region_string(self, a_region_name):
         try:
-            f_file = open(self.regions_folder + "/" + a_region_name + ".pyreg", "r")
+            f_file = open(self.regions_folder + "/" + str(a_region_name) + ".pyreg", "r")
         except:
             return ""
         f_result = f_file.read()
@@ -282,12 +282,24 @@ class pydaw_project:
             #Is there a need for a configure message here?        
             self.git_repo.git_commit('-a', "Edited tracks")
 
-    def get_next_default_item_name(self):
-        self.last_item_number -= 1
-        for i in range(self.last_item_number, 10000):
-            f_result = self.items_folder + "/item-" + str(i) + ".pyitem"
+    def item_exists(self, a_item_name):
+        f_list = self.get_item_list()
+        for f_item in f_list:
+            if f_item == a_item_name:
+                return True
+        return False
+
+    def get_next_default_item_name(self, a_item_name="item"):
+        f_item_name = str(a_item_name)
+        if f_item_name == "item":
+            f_start = self.last_item_number
+        else:
+            f_start = 1        
+        for i in range(f_start, 10000):
+            f_result = self.items_folder + "/" + f_item_name + "-" + str(i) + ".pyitem"
             if not os.path.isfile(f_result):
-                self.last_item_number = i
+                if f_item_name == "item":
+                    self.last_item_number = i
                 return "item-" + str(i)
 
     def get_next_default_region_name(self):
@@ -295,7 +307,7 @@ class pydaw_project:
         for i in range(self.last_region_number, 10000):
             f_result = self.regions_folder + "/region-" + str(i) + ".pyreg"
             if not os.path.isfile(f_result):
-                self.last_item_number = i
+                self.last_region_number = i + 1                
                 return "region-" + str(i)
 
     def get_item_list(self):
@@ -319,8 +331,8 @@ class pydaw_project:
         self.this_dssi_gui.stop_server()        
 
     def __init__(self, a_osc_url=None):
-        self.last_item_number = 1
-        self.last_region_number = 1
+        self.last_item_number = 2
+        self.last_region_number = 2
         self.this_dssi_gui = dssi_gui(a_osc_url)
         self.suppress_updates = False
 
@@ -398,6 +410,23 @@ class pydaw_region:
             self.track_num = a_track_num
             self.bar_num = a_bar_num
             self.item_name = a_item_name
+
+def pydaw_draw_multi_item_cc_line(a_cc_num, a_start_val, a_end_val, a_items=[]):
+    for f_item in a_items:
+        f_item.remove_cc_range(a_cc_num)
+    f_bar_count = float(len(a_items))
+    f_inc = float(a_end_val - a_start_val)/(f_bar_count * 4)
+    
+    i2 = 0.0    
+    f_cc_val = float(a_start_val)
+    for f_item in a_items:
+        while True:
+            f_item.add_cc(pydaw_cc(i2, a_cc_num, f_cc_val))
+            f_cc_val += 1
+            i2 += f_inc
+            if i2 >= 4.0:
+                i2 -= 4.0
+                break        
 
 class pydaw_item:
     def add_note(self, a_note):
@@ -571,7 +600,7 @@ class pydaw_item:
                 self.ccs.pop(i)
                 break
     
-    def remove_cc_range(self, a_cc_num, a_start_beat, a_end_beat):
+    def remove_cc_range(self, a_cc_num, a_start_beat=0.0, a_end_beat=4.0):
         """ Delete all pitchbends greater than a_start_beat and less than a_end_beat """
         f_ccs_to_delete = []
         for cc in self.ccs:
@@ -617,7 +646,7 @@ class pydaw_item:
                 self.pitchbends.pop(i)
                 break                       
 
-    def remove_pb_range(self, a_start_beat, a_end_beat):
+    def remove_pb_range(self, a_start_beat=0.0, a_end_beat=4.0):
         """ Delete all pitchbends greater than a_start_beat and less than a_end_beat """
         f_pbs_to_delete = []
         for pb in self.pitchbends:
