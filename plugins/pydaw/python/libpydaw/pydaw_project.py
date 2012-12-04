@@ -570,6 +570,15 @@ class pydaw_item:
             if self.ccs[i] == a_cc:
                 self.ccs.pop(i)
                 break
+    
+    def remove_cc_range(self, a_cc_num, a_start_beat, a_end_beat):
+        """ Delete all pitchbends greater than a_start_beat and less than a_end_beat """
+        f_ccs_to_delete = []
+        for cc in self.ccs:
+            if cc.cc_num == a_cc_num and cc.start >= a_start_beat and cc.start <= a_end_beat:
+                f_ccs_to_delete.append(cc)
+        for cc in f_ccs_to_delete:
+            self.remove_cc(cc)            
             
     #TODO:  A maximum number of events per line?
     def draw_cc_line(self, a_cc, a_start, a_start_val, a_end, a_end_val, a_curve=0):
@@ -612,6 +621,15 @@ class pydaw_item:
             if self.pitchbends[i] == a_pb:
                 self.pitchbends.pop(i)
                 break                       
+
+    def remove_pb_range(self, a_start_beat, a_end_beat):
+        """ Delete all pitchbends greater than a_start_beat and less than a_end_beat """
+        f_pbs_to_delete = []
+        for pb in self.pitchbends:
+            if pb.start >= a_start_beat and pb.start <= a_end_beat:
+                f_pbs_to_delete.append(pb)
+        for pb in f_pbs_to_delete:
+            self.remove_pb(pb)
 
     def draw_pb_line(self, a_start, a_start_val, a_end, a_end_val, a_curve=0):
         f_start = float(a_start)
