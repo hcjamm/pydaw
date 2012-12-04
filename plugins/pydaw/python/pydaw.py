@@ -1162,6 +1162,12 @@ class item_list_editor:
             f_length.setSingleStep(f_frac)
             self.default_quantize = f_quantize_index
         
+        def add_another_clicked(a_checked):
+            if a_checked:
+                f_cancel_button.setText("Close")
+            else:
+                f_cancel_button.setText("Cancel")
+        
         f_window = QtGui.QDialog()
         f_window.setWindowTitle("Notes")
         f_layout = QtGui.QGridLayout()
@@ -1199,6 +1205,7 @@ class item_list_editor:
         f_layout.addWidget(f_velocity, 4, 1)
         if not self.is_existing_note:
             f_add_another = QtGui.QCheckBox("Add another?")
+            f_add_another.toggled.connect(add_another_clicked)
             f_layout.addWidget(f_add_another, 5, 1)
         f_ok_button = QtGui.QPushButton("OK")        
         f_layout.addWidget(f_ok_button, 6,0)
@@ -1241,6 +1248,13 @@ class item_list_editor:
             f_frac = beat_frac_text_to_float(f_quantize_index)
             f_start.setSingleStep(f_frac)
             self.default_quantize = f_quantize_index
+            
+        
+        def add_another_clicked(a_checked):
+            if a_checked:
+                f_cancel_button.setText("Close")
+            else:
+                f_cancel_button.setText("Cancel")        
 
         f_window = QtGui.QDialog()
         f_window.setWindowTitle("CCs")
@@ -1277,6 +1291,7 @@ class item_list_editor:
         f_end_value.setRange(0, 127)
         f_layout.addWidget(f_end_value, 6, 1)
         f_add_another = QtGui.QCheckBox("Add another?")
+        f_add_another.toggled.connect(add_another_clicked)
         f_layout.addWidget(f_add_another, 7, 1)
         f_ok_button = QtGui.QPushButton("OK")
         f_layout.addWidget(f_ok_button, 8, 0)
@@ -1318,6 +1333,12 @@ class item_list_editor:
             f_start.setSingleStep(f_frac)
             self.default_pb_quantize = f_quantize_index
 
+        def add_another_clicked(a_checked):
+            if a_checked:
+                f_cancel_button.setText("Close")
+            else:
+                f_cancel_button.setText("Cancel")
+        
         f_window = QtGui.QDialog()
         f_window.setWindowTitle("Pitchbend")
         f_layout = QtGui.QGridLayout()
@@ -1350,6 +1371,7 @@ class item_list_editor:
         f_end_value.setSingleStep(0.01)
         f_layout.addWidget(f_end_value, 6, 1)
         f_add_another = QtGui.QCheckBox("Add another?")
+        f_add_another.toggled.connect(add_another_clicked)
         f_layout.addWidget(f_add_another, 7, 1)
         f_ok_button = QtGui.QPushButton("OK")
         f_layout.addWidget(f_ok_button, 8,0)
