@@ -439,8 +439,10 @@ class region_list_editor:
             
             f_track_num = f_track_combobox.currentIndex()
             for i in range(f_start_bar.value() + 1, f_end_bar.value() + 1):
-                f_item = self.table_widget.item(i, f_track_num)                
+                print(str(i))
+                f_item = self.table_widget.item(f_track_num, i)
                 if f_item is None or str(f_item.text()) == "":  #Create the item
+                    print("Creating item")
                     f_new_item_name = this_pydaw_project.get_next_default_item_name(f_unlink_base_name)
                     print(f_new_item_name)
                     this_pydaw_project.create_empty_item(f_new_item_name)
@@ -449,16 +451,17 @@ class region_list_editor:
                     f_item_names.append(f_new_item_name)
                     self.region.add_item_ref(f_track_num, i - 1, f_new_item_name)
                 elif f_unlink_items.isChecked():  #item exists and we are unlinking it
+                    print("Unlinking item")
                     f_new_item_name = this_pydaw_project.get_next_default_item_name(f_unlink_base_name)
                     print(f_new_item_name)
                     f_item_text = str(f_item.text())
                     this_pydaw_project.copy_item(f_item_text, f_new_item_name)
-                    this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
-                    f_item_list[f_new_item_name] = this_pydaw_project.get_item(f_new_item_name)
+                    this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_item_name)
                     f_item_list.append(this_pydaw_project.get_item(f_new_item_name))
                     f_item_names.append(f_new_item_name)
                     self.region.add_item_ref(f_track_num, i - 1, f_new_item_name)
                 else:
+                    print("Else")
                     f_item_text = str(f_item.text())
                     f_item_list.append(this_pydaw_project.get_item(f_item_text))
                     f_item_names.append(f_item_text)
