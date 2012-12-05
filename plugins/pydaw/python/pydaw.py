@@ -412,6 +412,7 @@ class region_list_editor:
         self.last_item_copied = None
         self.reset_tracks()
         self.clipboard = []
+        self.last_cc_line_num = 1
     
     def table_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
@@ -430,6 +431,7 @@ class region_list_editor:
 
     def on_draw_ccs(self):        
         def ccs_ok_handler():
+            self.last_cc_line_num = f_cc_num.value()
             f_unlink_base_name = pydaw_remove_bad_chars(f_new_lineedit.text())
             if f_unlink_base_name == "":
                 QtGui.QMessageBox.warning(self.table_widget, "Error", "New/Unlink Prefix cannot be empty.")
@@ -509,6 +511,7 @@ class region_list_editor:
         f_layout.addWidget(f_end_bar, 2, 1)
         f_cc_num = QtGui.QSpinBox()
         f_cc_num.setRange(1, 127)
+        f_cc_num.setValue(self.last_cc_line_num)
         f_layout.addWidget(QtGui.QLabel("CC Num:"), 5, 0)
         f_layout.addWidget(f_cc_num, 5, 1)
         f_start_val = QtGui.QSpinBox()
