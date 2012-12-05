@@ -333,8 +333,8 @@ class pydaw_project:
         self.this_dssi_gui.stop_server()        
 
     def __init__(self, a_osc_url=None):
-        self.last_item_number = 2
-        self.last_region_number = 2
+        self.last_item_number = 1
+        self.last_region_number = 1
         self.this_dssi_gui = dssi_gui(a_osc_url)
         self.suppress_updates = False
 
