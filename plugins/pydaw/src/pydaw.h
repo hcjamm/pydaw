@@ -606,7 +606,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
                                     * (a_pydaw_data->playback_inc))) * 4.0f;
                             a_pydaw_data->item_pool[f_index]->ccs[(a_pydaw_data->item_pool[f_index]->cc_count)] =
                                     g_pycc_get(events[f_i2].data.control.param, events[f_i2].data.control.value, f_start);
-                            a_pydaw_data->item_pool[f_index]->pitchbend_count = (a_pydaw_data->item_pool[f_index]->pitchbend_count) + 1;
+                            a_pydaw_data->item_pool[f_index]->cc_count = (a_pydaw_data->item_pool[f_index]->cc_count) + 1;
                         }
                     }
                 }
