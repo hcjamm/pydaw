@@ -47,6 +47,7 @@ OSC configure message keys/values:
 
 	"preview" path	Preview a .wav or other supported sample format....  (not yet implemented)
 	"or"	start-region|start-bar|end-region|end-bar|file-path	offline render project to .wav file
+	"bs"	track|bus	set the mixing bus to assign the track output to
 
 Project structure:
 

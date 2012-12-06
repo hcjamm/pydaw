@@ -48,6 +48,8 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_PREVIEW_SAMPLE "preview"
 #define PYDAW_CONFIGURE_KEY_OFFLINE_RENDER "or"
     
+#define PYDAW_CONFIGURE_KEY_SET_TRACK_BUS "bs"
+    
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
 #define PYDAW_LOOP_MODE_REGION 2
@@ -3185,10 +3187,22 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_end_region = atoi(f_val_arr->array[2]);
         int f_end_bar = atoi(f_val_arr->array[3]);
         char * f_file_out = f_val_arr->array[4];
-        //TODO:  Call a function here with the above variables
+        
         v_pydaw_offline_render(a_pydaw_data, f_start_region, f_start_bar, f_end_region, f_end_bar, f_file_out);
         g_free_1d_char_array(f_val_arr);
     }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SET_TRACK_BUS)) //Set the bus number for specified track
+    {
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        int f_track_num = atoi(f_val_arr->array[0]);
+        int f_bus_num = atoi(f_val_arr->array[1]);
+        
+        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        a_pydaw_data->track_pool[f_track_num]->bus_num = f_bus_num;
+        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        
+        g_free_1d_char_array(f_val_arr);
+    }       
     else
     {
         printf("Unknown configure message key: %s, value %s\n", a_key, a_value);

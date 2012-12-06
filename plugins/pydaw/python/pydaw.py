@@ -1542,7 +1542,10 @@ class seq_track:
             this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)            
     def on_show_fx(self):
         if not self.is_instrument or self.instrument_combobox.currentIndex() > 0:
-            this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number)    
+            this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number)
+    def on_bus_changed(self, a_value=0):
+        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+        this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex())
 
     def __init__(self, a_track_num, a_track_text="track", a_instrument=True):
         self.is_instrument = a_instrument
@@ -1592,6 +1595,7 @@ class seq_track:
             self.bus_combobox = QtGui.QComboBox()
             self.bus_combobox.addItems(['M', '1','2','3','4'])
             self.bus_combobox.setMinimumWidth(49)
+            self.bus_combobox.currentIndexChanged.connect(self.on_bus_changed)
             self.hlayout2.addWidget(QtGui.QLabel("Bus:"))
             self.hlayout2.addWidget(self.bus_combobox)
         else:
@@ -1633,7 +1637,7 @@ class seq_track:
     def get_track(self):
         if self.is_instrument:
             return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.record_radiobutton.isChecked(),
-                           self.volume_slider.value(), str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex())
+                           self.volume_slider.value(), str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex(), self.bus_combobox.currentIndex())
         else:
             return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.record_radiobutton.isChecked(),
                            self.volume_slider.value(), str(self.track_name_lineedit.text()), -1)
