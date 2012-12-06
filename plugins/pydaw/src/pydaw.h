@@ -1239,6 +1239,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         
         while(f_i < PYDAW_BUS_TRACK_COUNT)
         {
+            v_pydaw_update_ports(a_pydaw_data->track_pool[f_i]->effect);
+            
             int f_i2 = 0;
             while(f_i2 < sample_count)
             {
