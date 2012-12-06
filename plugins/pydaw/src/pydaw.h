@@ -60,7 +60,11 @@ extern "C" {
 #define PYDAW_MAX_ITEM_COUNT 5000
 #define PYDAW_MAX_REGION_COUNT 300
 #define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 128
-#define PYDAW_MAX_TRACK_COUNT 16
+    
+#define PYDAW_REGULAR_TRACK_COUNT 16
+#define PYDAW_BUS_TRACK_COUNT 5
+#define PYDAW_MAX_TRACK_COUNT (PYDAW_REGULAR_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT)
+    
 #define PYDAW_MAX_EVENT_BUFFER_SIZE 512  //This could probably be made smaller
 #define PYDAW_MAX_REGION_SIZE 16
 #define PYDAW_MIDI_NOTE_COUNT 128
@@ -143,7 +147,8 @@ typedef struct st_pytrack
     int solo;
     int mute;
     int rec;
-    int plugin_index;
+    int plugin_index;  //-1 == bus track, 0 == off, 1 == Euphoria, 2 == Ray-V
+    int bus_num;
     snd_seq_event_t * event_buffer;
     int current_period_event_index;
     t_pydaw_plugin * instrument;
@@ -620,7 +625,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
         f_i++;
     }
 
-    f_i = 0;
+    f_i = PYDAW_BUS_TRACK_COUNT;
     int f_thread_index = 0;
 
     /*Schedule all Euphoria instances on their own core if possible because it can use more CPU than Ray-V*/
@@ -639,7 +644,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
         f_i++;
     }
 
-    f_i = 0;
+    f_i = PYDAW_BUS_TRACK_COUNT;
 
     /*Now schedule all Ray-V tracks*/
     while(f_i < PYDAW_MAX_TRACK_COUNT)
@@ -1177,7 +1182,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
 
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {   
-        if((a_pydaw_data->track_pool[f_i]->plugin_index) > 0)
+        if((a_pydaw_data->track_pool[f_i]->plugin_index) > 0)  //TODO:  When/if effects can ever accept MIDI notes, this will actually result in hung notes...
         {
             int f_i2 = 0;
 
@@ -1828,6 +1833,7 @@ t_pytrack * g_pytrack_get()
     f_result->plugin_index = 0;
     f_result->event_buffer = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * PYDAW_MAX_EVENT_BUFFER_SIZE);
     f_result->rec = 0;
+    f_result->bus_num = 0;
     f_result->name[0] = '\0';
             
     int f_i = 0;
@@ -1957,7 +1963,12 @@ void v_pydaw_activate_osc_thread(t_pydaw_data * a_pydaw_data, lo_method_handler 
 
 void v_pydaw_open_track(t_pydaw_data * a_pydaw_data, int a_track_num)
 {
-    v_pydaw_open_plugin(a_pydaw_data, a_track_num, 0);
+    //Don't open the instrument plugin if it's a bus track
+    if((a_pydaw_data->track_pool[a_track_num]->plugin_index) != -1)
+    {
+        v_pydaw_open_plugin(a_pydaw_data, a_track_num, 0);
+    }
+    
     v_pydaw_open_plugin(a_pydaw_data, a_track_num, 1);
     
 #ifdef PYDAW_MEMCHECK
@@ -2086,6 +2097,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             char * f_vol_str = c_iterate_2d_char_array(f_2d_array);
             char * f_name_str = c_iterate_2d_char_array(f_2d_array);
             char * f_plugin_index_str = c_iterate_2d_char_array(f_2d_array);
+            char * f_bus_num_str = c_iterate_2d_char_array(f_2d_array);
 
             int f_track_index = atoi(f_track_index_str);
             free(f_track_index_str);
@@ -2106,20 +2118,25 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             int f_vol = atoi(f_vol_str);
             free(f_vol_str);
             assert(f_vol < 24 && f_vol > -150);
-            
+                        
             strcpy(a_pydaw_data->track_pool[f_track_index]->name, f_name_str);
             free(f_name_str);
             
             int f_plugin_index = atoi(f_plugin_index_str);
             free(f_plugin_index_str);
-            assert(f_plugin_index >= 0 && f_plugin_index <= 2);   //TODO:  change this if adding more plugin instruments...
-                        
+            assert(f_plugin_index >= -1 && f_plugin_index <= 2);   //TODO:  change this if adding more plugin instruments...
+            
+            int f_bus_num = atoi(f_bus_num_str);
+            free(f_bus_num_str);
+            assert(f_bus_num >= 0 && f_bus_num < PYDAW_BUS_TRACK_COUNT);
+            
             a_pydaw_data->track_pool[f_track_index]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted
             v_set_plugin_index(a_pydaw_data, f_track_index, f_plugin_index);
             a_pydaw_data->track_pool[f_track_index]->solo = f_solo;
             a_pydaw_data->track_pool[f_track_index]->mute = f_mute;
             a_pydaw_data->track_pool[f_track_index]->rec = f_rec;
             v_pydaw_set_track_volume(a_pydaw_data, f_track_index, f_vol);
+            a_pydaw_data->track_pool[f_track_index]->bus_num = f_bus_num;
             
             v_pydaw_open_track(a_pydaw_data, f_track_index);
         }
@@ -2402,7 +2419,11 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, int a_track_num)
         return;  //Delete the file if exists?
     }
 
-    v_pydaw_save_plugin(a_pydaw_data, a_track_num, 0);
+    if(a_pydaw_data->track_pool[a_track_num]->plugin_index != -1)
+    {
+        v_pydaw_save_plugin(a_pydaw_data, a_track_num, 0);
+    }
+    
     v_pydaw_save_plugin(a_pydaw_data, a_track_num, 1);
     
 #ifdef PYDAW_MEMCHECK
@@ -2658,7 +2679,35 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
     char f_file_name_fx[512];
     sprintf(f_file_name_fx, "%s%i.pyfx", a_pydaw_data->instruments_folder, a_track_num);
     
-    if(a_index == 0)
+    if(a_index == -1)  //bus track
+    {
+        f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1);
+        
+        t_pydaw_plugin * f_fx = a_pydaw_data->track_pool[a_track_num]->effect;
+                
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);        
+        
+        a_pydaw_data->track_pool[a_track_num]->instrument = 0;
+        a_pydaw_data->track_pool[a_track_num]->effect = f_result_fx;
+        a_pydaw_data->track_pool[a_track_num]->plugin_index = a_index;
+        a_pydaw_data->track_pool[a_track_num]->current_period_event_index = 0;
+        v_pydaw_open_track(a_pydaw_data, a_track_num);  //Opens the .inst file if exists
+        
+#ifdef PYDAW_MEMCHECK
+        v_pydaw_assert_memory_integrity(a_pydaw_data);
+#endif
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        
+        if(f_fx)
+        {        
+            if(f_fx->uiTarget)
+            {
+                lo_send(f_fx->uiTarget, f_fx->ui_osc_quit_path, "");
+            }
+            v_free_pydaw_plugin(f_fx);
+        }
+    }
+    if(a_index == 0)  //empty
     {        
         t_pydaw_plugin * f_inst = a_pydaw_data->track_pool[a_track_num]->instrument;
         t_pydaw_plugin * f_fx = a_pydaw_data->track_pool[a_track_num]->effect;
@@ -2741,7 +2790,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
                 lo_send(f_fx->uiTarget, f_fx->ui_osc_quit_path, "");
             }
             v_free_pydaw_plugin(f_fx);
-        }        
+        }
     }
     
     pthread_mutex_unlock(&a_pydaw_data->track_pool[a_track_num]->mutex);

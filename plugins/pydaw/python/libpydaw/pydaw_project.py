@@ -135,8 +135,11 @@ class pydaw_project:
         f_pytracks_file = self.project_folder + "/default.pytracks"
         if not os.path.exists(f_pytracks_file):
             f_file = open(f_pytracks_file, 'w')
-            for i in range(16):
-                f_file.write(str(i) + "|0|0|0|0|track" + str(i + 1) + "|0\n")
+            f_file.write("0|0|0|0|0|Master|-1|0\n")
+            for i in range(1, 5):
+                f_file.write(str(i) + "|0|0|0|0|Bus" + str(i + 1) + "|-1|0\n")
+            for i in range(5, 16):
+                f_file.write(str(i) + "|0|0|0|0|track" + str(i - 5) + "|0|0\n")
             f_file.write(pydaw_terminating_char)
             f_file.close()
         self.git_repo = pydaw_git_repo(self.project_folder)
@@ -822,7 +825,7 @@ class pydaw_tracks:
     def __str__(self):
         f_result = ""
         for k, v in self.tracks.iteritems():            
-            f_result += str(k) + "|" + bool_to_int(v.solo) + "|" + bool_to_int(v.mute) + "|" + bool_to_int(v.rec) + "|" + str(v.vol) + "|" + v.name + "|" + str(v.inst) + "\n"
+            f_result += str(k) + "|" + bool_to_int(v.solo) + "|" + bool_to_int(v.mute) + "|" + bool_to_int(v.rec) + "|" + str(v.vol) + "|" + v.name + "|" + str(v.inst) + "|" + str(v.bus_num) + "\n"
         f_result += pydaw_terminating_char
         return f_result
 
@@ -843,13 +846,14 @@ class pydaw_tracks:
         return f_result
 
 class pydaw_track:
-    def __init__(self, a_solo, a_mute, a_rec, a_vol, a_name, a_inst):
-        self.name = a_name
+    def __init__(self, a_solo, a_mute, a_rec, a_vol, a_name, a_inst, a_bus_num=0):
+        self.name = str(a_name)
         self.solo = a_solo
         self.mute = a_mute
         self.rec = a_rec
         self.vol = a_vol
         self.inst = a_inst
+        self.bus_num = a_bus_num
         
 class pydaw_transport:
     def __init__(self, a_bpm=140, a_midi_keybd=None, a_loop_mode=0, a_region=0, a_bar=0):

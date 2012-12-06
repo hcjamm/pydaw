@@ -190,8 +190,15 @@ class region_list_editor:
         f_track_stylesheet = f_track_ss_handle.read()
         f_track_ss_handle.close()
         self.tracks = []
-        for i in range(0, 16):
-            track = seq_track(a_track_num=i, a_track_text="track" + str(i + 1))
+        for i in range(0, self.bus_count):
+            track = seq_track(a_track_num=i, a_track_text="Bus" + str(i), a_instrument=False);
+            self.tracks.append(track)
+            track.group_box.setStyleSheet(f_track_stylesheet)
+            self.table_widget.setCellWidget(i, 0, track.group_box)
+        self.tracks[0].track_name_lineedit.setText("Master")
+        
+        for i in range(self.bus_count, self.track_total):
+            track = seq_track(a_track_num=i, a_track_text="track" + str(i - self.bus_count))
             self.tracks.append(track)
             track.group_box.setStyleSheet(f_track_stylesheet)
             self.table_widget.setCellWidget(i, 0, track.group_box)  
@@ -214,11 +221,11 @@ class region_list_editor:
 
     def clear_items(self):
         self.table_widget.setColumnCount(9)
-        for i in range(16):
-            for i2 in range(1, 9):
+        for i in range(self.table_widget.rowCount()):
+            for i2 in range(1, self.table_widget.columnCount()):
                 f_empty_item = QtGui.QTableWidgetItem()
                 self.table_widget.setItem(i, i2, f_empty_item)
-        for i in range(16):
+        for i in range(self.table_widget.rowCount()):
             f_item = QtGui.QTableWidgetItem()
             f_item.setFlags(f_item.flags() & ~QtCore.Qt.ItemIsEditable & ~QtCore.Qt.ItemIsSelectable & ~QtCore.Qt.ItemIsEnabled);
             self.table_widget.setItem(i, 0, f_item)
@@ -355,6 +362,10 @@ class region_list_editor:
         self.open_region(self.region_name_lineedit.text())
 
     def __init__(self):
+        self.regular_track_count = 16
+        self.bus_count = 5
+        self.track_total = self.regular_track_count + self.bus_count
+        
         self.enabled = False #Prevents user from editing a region before one has been selected
         self.group_box = QtGui.QGroupBox()
         self.main_vlayout = QtGui.QVBoxLayout()
@@ -383,7 +394,7 @@ class region_list_editor:
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.setColumnCount(9)
-        self.table_widget.setRowCount(16)
+        self.table_widget.setRowCount(self.track_total)
         self.table_widget.cellDoubleClicked.connect(self.cell_double_clicked)
         self.table_widget.cellClicked.connect(self.cell_clicked)
         self.table_widget.setDragDropOverwriteMode(False)
@@ -592,7 +603,7 @@ class region_list_editor:
             if f_column >= 8 or f_column < 0:
                 continue                
             f_row = f_item[0] + f_base_row
-            if f_row >= 16 or f_row < 0:
+            if f_row >= self.track_total or f_row < 0:
                 continue
             self.add_qtablewidgetitem(f_item[2], f_row, f_column)
         self.tablewidget_to_region()
@@ -632,8 +643,8 @@ class region_list_editor:
     def tablewidget_to_region(self):
         """ Convert an edited QTableWidget to a native region class """
         self.region.items = []
-        for i in range(0, 16):
-            for i2 in range(1, 9):
+        for i in range(0, self.track_total):
+            for i2 in range(1, self.table_widget.columnCount):
                 f_item = self.table_widget.item(i, i2)
                 if not f_item is None:
                     if f_item.text() != "":
@@ -1530,10 +1541,11 @@ class seq_track:
         if self.instrument_combobox.currentIndex() > 0:
             this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)            
     def on_show_fx(self):
-        if self.instrument_combobox.currentIndex() > 0:
+        if not self.is_instrument or self.instrument_combobox.currentIndex() > 0:
             this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number)    
 
-    def __init__(self, a_track_num, a_track_text="track"):
+    def __init__(self, a_track_num, a_track_text="track", a_instrument=True):
+        self.is_instrument = a_instrument
         self.suppress_osc = True
         self.track_number = a_track_num
         self.group_box = QtGui.QGroupBox()        
@@ -1564,18 +1576,27 @@ class seq_track:
         self.track_name_lineedit.setMinimumWidth(90)
         self.track_name_lineedit.editingFinished.connect(self.on_name_changed)
         self.hlayout3.addWidget(self.track_name_lineedit)
-        self.instrument_combobox = QtGui.QComboBox()
-        self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V"])
-        self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
-        self.instrument_combobox.setMinimumWidth(100)
-        self.hlayout3.addWidget(self.instrument_combobox)
         f_button_style = "QPushButton { background-color: black; border-style: outset; border-width: 2px;	border-radius: 5px; border-color: white; font: bold 12px; padding: 2px;	color:white;}"
-        self.ui_button = QtGui.QPushButton("UI")
-        self.ui_button.pressed.connect(self.on_show_ui)
-        self.ui_button.setMinimumWidth(30)
-        self.ui_button.setMaximumWidth(30)
-        self.ui_button.setStyleSheet(f_button_style)
-        self.hlayout3.addWidget(self.ui_button)
+        if a_instrument:
+            self.instrument_combobox = QtGui.QComboBox()
+            self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V"])
+            self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
+            self.instrument_combobox.setMinimumWidth(100)
+            self.hlayout3.addWidget(self.instrument_combobox)        
+            self.ui_button = QtGui.QPushButton("UI")
+            self.ui_button.pressed.connect(self.on_show_ui)
+            self.ui_button.setMinimumWidth(30)
+            self.ui_button.setMaximumWidth(30)
+            self.ui_button.setStyleSheet(f_button_style)
+            self.hlayout3.addWidget(self.ui_button)
+            self.bus_combobox = QtGui.QComboBox()
+            self.bus_combobox.addItems(['M', '1','2','3','4'])
+            self.bus_combobox.setMinimumWidth(49)
+            self.hlayout2.addWidget(QtGui.QLabel("Bus:"))
+            self.hlayout2.addWidget(self.bus_combobox)
+        else:
+            self.track_name_lineedit.setReadOnly(True)
+            self.hlayout3.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         self.fx_button = QtGui.QPushButton("FX")
         self.fx_button.pressed.connect(self.on_show_fx)
         self.fx_button.setMinimumWidth(30)
@@ -1605,12 +1626,17 @@ class seq_track:
         self.mute_checkbox.setChecked(a_track.mute)
         self.track_name_lineedit.setText(a_track.name)
         self.volume_slider.setValue(a_track.vol)
-        self.instrument_combobox.setCurrentIndex(a_track.inst)
+        if self.is_instrument:
+            self.instrument_combobox.setCurrentIndex(a_track.inst)
         self.suppress_osc = False
 
     def get_track(self):
-        return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.record_radiobutton.isChecked(),
+        if self.is_instrument:
+            return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.record_radiobutton.isChecked(),
                            self.volume_slider.value(), str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex())
+        else:
+            return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.record_radiobutton.isChecked(),
+                           self.volume_slider.value(), str(self.track_name_lineedit.text()), -1)
 
 class transport_widget:
     def init_playback_cursor(self, a_bar=True):
