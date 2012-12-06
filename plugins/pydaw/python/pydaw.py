@@ -644,7 +644,7 @@ class region_list_editor:
         """ Convert an edited QTableWidget to a native region class """
         self.region.items = []
         for i in range(0, self.track_total):
-            for i2 in range(1, self.table_widget.columnCount):
+            for i2 in range(1, self.table_widget.columnCount()):
                 f_item = self.table_widget.item(i, i2)
                 if not f_item is None:
                     if f_item.text() != "":
