@@ -235,6 +235,8 @@ typedef struct st_pydaw_data
     int default_region_length_bars;
     int default_region_length_beats;
     int default_bar_length;
+    
+    float bus_buffers[PYDAW_BUS_TRACK_COUNT][2][PYDAW_MAX_BUFFER_SIZE];
 }t_pydaw_data;
 
 typedef struct 
@@ -1230,6 +1232,20 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         pthread_mutex_lock(&a_pydaw_data->track_cond_mutex);
         pthread_cond_broadcast(&a_pydaw_data->track_cond);
         pthread_mutex_unlock(&a_pydaw_data->track_cond_mutex);
+        
+        f_i = 0;
+        
+        while(f_i < PYDAW_BUS_TRACK_COUNT)
+        {
+            int f_i2 = 0;
+            while(f_i2 < sample_count)
+            {
+                a_pydaw_data->bus_buffers[f_i][0][f_i2] = 0.0f;
+                a_pydaw_data->bus_buffers[f_i][1][f_i2] = 0.0f;
+                f_i2++;
+            }            
+            f_i++;
+        }
 
         f_i = 0;
         //A ghetto pthread_join for threads that never finish...
@@ -1246,7 +1262,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         }
     //}
 
-    f_i = 0;
+    
+    f_i = PYDAW_BUS_TRACK_COUNT;
 
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {   
@@ -1256,14 +1273,59 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
 
             while(f_i2 < sample_count)
             {
-                output0[f_i2] += (a_pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[0][f_i2]) * (a_pydaw_data->track_pool[f_i]->volume_linear);
-                output1[f_i2] += (a_pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[1][f_i2]) * (a_pydaw_data->track_pool[f_i]->volume_linear);
+                a_pydaw_data->bus_buffers[(a_pydaw_data->track_pool[f_i]->bus_num)][0][f_i2] += (a_pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[0][f_i2]) * (a_pydaw_data->track_pool[f_i]->volume_linear);
+                a_pydaw_data->bus_buffers[(a_pydaw_data->track_pool[f_i]->bus_num)][1][f_i2] += (a_pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[1][f_i2]) * (a_pydaw_data->track_pool[f_i]->volume_linear);
                 f_i2++;
             }
         }
 
         f_i++;
     }
+    
+        
+    f_i = 1;
+
+    while(f_i < PYDAW_BUS_TRACK_COUNT)
+    {
+        memcpy(a_pydaw_data->track_pool[f_i]->effect->pluginInputBuffers[0], 
+            a_pydaw_data->bus_buffers[f_i][0],
+            (a_pydaw_data->sample_count) * sizeof(LADSPA_Data));
+        memcpy(a_pydaw_data->track_pool[f_i]->effect->pluginInputBuffers[1], 
+            a_pydaw_data->bus_buffers[f_i][1],
+            (a_pydaw_data->sample_count) * sizeof(LADSPA_Data));
+        
+        v_run_plugin(a_pydaw_data->track_pool[f_i]->effect, sample_count, a_pydaw_data->track_pool[f_i]->event_buffer, a_pydaw_data->track_pool[f_i]->current_period_event_index);
+        
+        int f_i2 = 0;
+        
+        while(f_i2 < sample_count)
+        {
+            a_pydaw_data->bus_buffers[0][0][f_i2] += (a_pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[0][f_i2]) * (a_pydaw_data->track_pool[f_i]->volume_linear);
+            a_pydaw_data->bus_buffers[0][1][f_i2] += (a_pydaw_data->track_pool[f_i]->effect->pluginOutputBuffers[1][f_i2]) * (a_pydaw_data->track_pool[f_i]->volume_linear);
+            f_i2++;
+        }
+        
+        f_i++;
+    }
+
+    
+    memcpy(a_pydaw_data->track_pool[0]->effect->pluginInputBuffers[0], 
+            a_pydaw_data->bus_buffers[0][0],
+            (a_pydaw_data->sample_count) * sizeof(LADSPA_Data));
+    memcpy(a_pydaw_data->track_pool[0]->effect->pluginInputBuffers[1], 
+        a_pydaw_data->bus_buffers[0][1],
+        (a_pydaw_data->sample_count) * sizeof(LADSPA_Data));
+
+    v_run_plugin(a_pydaw_data->track_pool[0]->effect, sample_count, a_pydaw_data->track_pool[0]->event_buffer, a_pydaw_data->track_pool[0]->current_period_event_index);
+    
+    int f_i2 = 0;
+
+    while(f_i2 < sample_count)
+    {
+        output0[f_i2] += (a_pydaw_data->track_pool[0]->effect->pluginOutputBuffers[0][f_i2]) * (a_pydaw_data->track_pool[0]->volume_linear);
+        output1[f_i2] += (a_pydaw_data->track_pool[0]->effect->pluginOutputBuffers[1][f_i2]) * (a_pydaw_data->track_pool[0]->volume_linear);
+        f_i2++;
+    }    
 }
 
 t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length)
@@ -1903,7 +1965,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
-        f_result->track_pool[f_i] = g_pytrack_get();
+        f_result->track_pool[f_i] = g_pytrack_get();        
         f_result->track_current_item_note_event_indexes[f_i] = 0;
         f_result->track_current_item_cc_event_indexes[f_i] = 0;
         f_result->track_current_item_pitchbend_event_indexes[f_i] = 0;
@@ -1916,6 +1978,14 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
             f_i2++;
         }
         
+        f_i++;
+    }
+    
+    f_i = 0;
+    
+    while(f_i < PYDAW_BUS_TRACK_COUNT)
+    {
+        v_set_plugin_index(f_result, f_i, -1);
         f_i++;
     }
     
