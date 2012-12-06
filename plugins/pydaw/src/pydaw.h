@@ -285,8 +285,19 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
 inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data);
 void v_pydaw_process_plugins_single_threaded(t_pydaw_data * a_pydaw_data);
 void v_pydaw_print_benchmark(char * a_message, clock_t a_start);
+void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data);
 /*End declarations.  Begin implementations.*/
 
+void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data)
+{
+    int f_i = 0;
+    
+    while(f_i < PYDAW_BUS_TRACK_COUNT)
+    {
+        v_set_plugin_index(a_pydaw_data, f_i, -1);
+        f_i++;
+    }
+}
 /* Create a clock_t with clock() when beginning some work, and use this function to print the completion time*/
 void v_pydaw_print_benchmark(char * a_message, clock_t a_start)
 {
@@ -1984,15 +1995,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         
         f_i++;
     }
-    
-    f_i = 0;
-    
-    while(f_i < PYDAW_BUS_TRACK_COUNT)
-    {
-        v_set_plugin_index(f_result, f_i, -1);
-        f_i++;
-    }
-    
+        
     f_i = 0;
     
     while(f_i < PYDAW_MIDI_NOTE_COUNT)
@@ -2231,7 +2234,11 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             if(f_i < PYDAW_BUS_TRACK_COUNT)
             {
                 v_set_plugin_index(a_pydaw_data, f_i, 0);
-            }            
+            }
+            else
+            {
+                v_set_plugin_index(a_pydaw_data, f_i, -1);
+            }
             a_pydaw_data->track_pool[f_i]->solo = 0;
             a_pydaw_data->track_pool[f_i]->mute = 0;
             a_pydaw_data->track_pool[f_i]->rec = 0;
@@ -2319,6 +2326,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     {
         printf("Song file and project directory structure not found, not loading project.  This is to be expected if launching PyDAW for the first time\n");
         g_pysong_get(a_pydaw_data);  //Loads empty...  TODO:  Make this a separate function for getting an empty pysong or loading a file into one...
+        v_pydaw_init_busses(a_pydaw_data);
     }
     
     char f_transport_file[256];  //TODO:  This should be moved to a separate function
