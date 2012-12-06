@@ -101,7 +101,7 @@ LADSPA_Data g_pydaw_get_port_default(const LADSPA_Descriptor *plugin, int port, 
 typedef struct st_pydaw_plugin
 {
     void * lib_handle;
-    float buffer[2][PYDAW_MAX_BUFFER_SIZE];  //Buffer for writing the audio output to(and reading from???)
+    //float buffer[2][PYDAW_MAX_BUFFER_SIZE];  //Buffer for writing the audio output to(and reading from???)
     
     DSSI_Descriptor_Function descfn;
     
