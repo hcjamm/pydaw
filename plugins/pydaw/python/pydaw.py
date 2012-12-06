@@ -1580,6 +1580,11 @@ class seq_track:
         self.track_name_lineedit.editingFinished.connect(self.on_name_changed)
         self.hlayout3.addWidget(self.track_name_lineedit)
         f_button_style = "QPushButton { background-color: black; border-style: outset; border-width: 2px;	border-radius: 5px; border-color: white; font: bold 12px; padding: 2px;	color:white;}"
+        self.fx_button = QtGui.QPushButton("FX")
+        self.fx_button.pressed.connect(self.on_show_fx)
+        self.fx_button.setMinimumWidth(30)
+        self.fx_button.setMaximumWidth(30)
+        self.fx_button.setStyleSheet(f_button_style)
         if a_instrument:
             self.instrument_combobox = QtGui.QComboBox()
             self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V"])
@@ -1598,23 +1603,20 @@ class seq_track:
             self.bus_combobox.currentIndexChanged.connect(self.on_bus_changed)
             self.hlayout2.addWidget(QtGui.QLabel("Bus:"))
             self.hlayout2.addWidget(self.bus_combobox)
+            self.hlayout3.addWidget(self.fx_button)
+            self.solo_checkbox = QtGui.QCheckBox()        
+            self.solo_checkbox.clicked.connect(self.on_solo)
+            self.solo_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/solo-off.png);}QCheckBox::indicator::checked{image: url(pydaw/solo-on.png);}")
+            self.hlayout3.addWidget(self.solo_checkbox)
+            self.mute_checkbox = QtGui.QCheckBox()        
+            self.mute_checkbox.clicked.connect(self.on_mute)
+            self.mute_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/mute-off.png);}QCheckBox::indicator::checked{image: url(pydaw/mute-on.png);}")
+            self.hlayout3.addWidget(self.mute_checkbox)            
         else:
             self.track_name_lineedit.setReadOnly(True)
             self.hlayout3.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
-        self.fx_button = QtGui.QPushButton("FX")
-        self.fx_button.pressed.connect(self.on_show_fx)
-        self.fx_button.setMinimumWidth(30)
-        self.fx_button.setMaximumWidth(30)
-        self.fx_button.setStyleSheet(f_button_style)
-        self.hlayout3.addWidget(self.fx_button)
-        self.solo_checkbox = QtGui.QCheckBox()        
-        self.solo_checkbox.clicked.connect(self.on_solo)
-        self.solo_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/solo-off.png);}QCheckBox::indicator::checked{image: url(pydaw/solo-on.png);}")
-        self.hlayout3.addWidget(self.solo_checkbox)
-        self.mute_checkbox = QtGui.QCheckBox()        
-        self.mute_checkbox.clicked.connect(self.on_mute)
-        self.mute_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/mute-off.png);}QCheckBox::indicator::checked{image: url(pydaw/mute-on.png);}")
-        self.hlayout3.addWidget(self.mute_checkbox)
+            self.hlayout3.addWidget(self.fx_button)
+        
         self.record_radiobutton = QtGui.QRadioButton()        
         rec_button_group.addButton(self.record_radiobutton)
         self.record_radiobutton.toggled.connect(self.on_rec)
@@ -1625,13 +1627,13 @@ class seq_track:
     def open_track(self, a_track, a_notify_osc=False):
         if not a_notify_osc:
             self.suppress_osc = True
-        self.record_radiobutton.setChecked(a_track.rec)
-        self.solo_checkbox.setChecked(a_track.solo)
-        self.mute_checkbox.setChecked(a_track.mute)
+        self.record_radiobutton.setChecked(a_track.rec)        
         self.track_name_lineedit.setText(a_track.name)
         self.volume_slider.setValue(a_track.vol)
         if self.is_instrument:
             self.instrument_combobox.setCurrentIndex(a_track.inst)
+            self.solo_checkbox.setChecked(a_track.solo)
+            self.mute_checkbox.setChecked(a_track.mute)
         self.suppress_osc = False
 
     def get_track(self):
@@ -1639,7 +1641,7 @@ class seq_track:
             return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.record_radiobutton.isChecked(),
                            self.volume_slider.value(), str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex(), self.bus_combobox.currentIndex())
         else:
-            return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.record_radiobutton.isChecked(),
+            return pydaw_track(False, False, self.record_radiobutton.isChecked(),
                            self.volume_slider.value(), str(self.track_name_lineedit.text()), -1)
 
 class transport_widget:
