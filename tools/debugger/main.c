@@ -17,7 +17,7 @@
 #include <alsa/asoundlib.h>
 
 #define DEBUGGER_SIMULATE_EXTERNAL_MIDI
-#define DEBUGGER_SIMULATE_RECORD
+//#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw/default-project to work without crashing...
 
 int main(int argc, char** argv) 
 {

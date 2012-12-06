@@ -240,6 +240,7 @@ static void v_pydaw_activate(LADSPA_Handle instance)
     plugin_data->mono_modules = v_mono_init((plugin_data->fs));  
     v_pydaw_activate_osc_thread(pydaw_data, pydaw_osc_message_handler);
     v_pydaw_init_worker_threads(pydaw_data);
+    //v_pydaw_init_busses(pydaw_data);
     v_open_default_project(pydaw_data);
 }
 
