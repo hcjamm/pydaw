@@ -2202,8 +2202,12 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             free(f_bus_num_str);
             assert(f_bus_num >= 0 && f_bus_num < PYDAW_BUS_TRACK_COUNT);
             
-            a_pydaw_data->track_pool[f_track_index]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted
-            v_set_plugin_index(a_pydaw_data, f_track_index, f_plugin_index);
+            if(a_pydaw_data->track_pool[f_track_index]->plugin_index != -1)
+            {
+                a_pydaw_data->track_pool[f_track_index]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted
+                v_set_plugin_index(a_pydaw_data, f_track_index, f_plugin_index);
+            }
+            
             a_pydaw_data->track_pool[f_track_index]->solo = f_solo;
             a_pydaw_data->track_pool[f_track_index]->mute = f_mute;
             a_pydaw_data->track_pool[f_track_index]->rec = f_rec;
@@ -2222,11 +2226,14 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {
             a_pydaw_data->track_pool[f_i]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted
-            v_set_plugin_index(a_pydaw_data, f_i, 0);
+            if(f_i < PYDAW_BUS_TRACK_COUNT)
+            {
+                v_set_plugin_index(a_pydaw_data, f_i, 0);
+            }            
             a_pydaw_data->track_pool[f_i]->solo = 0;
             a_pydaw_data->track_pool[f_i]->mute = 0;
             a_pydaw_data->track_pool[f_i]->rec = 0;
-            sprintf(a_pydaw_data->track_pool[f_i]->name, "track%i", (f_i + 1));             
+            sprintf(a_pydaw_data->track_pool[f_i]->name, "track%i", (f_i + 1));  //TODO:  Move this to the above 'if' statement so the bus tracks can be named differently       
             v_pydaw_set_track_volume(a_pydaw_data, f_i, 0.0f);            
             v_pydaw_open_track(a_pydaw_data, f_i);
             
