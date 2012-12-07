@@ -436,16 +436,16 @@ def pydaw_draw_multi_item_cc_line(a_cc_num, a_start_val, a_end_val, a_items=[]):
     f_cc_val = int(a_start_val)
             
     for f_item in a_items:
-        while True:
+        while True:            
+            if i2 > 4.0:
+                i2 -= 4.0
+                break
             f_beat_pos = round(i2, 4)
             if f_beat_pos == 4.0:
                 f_beat_pos = 3.999
             f_item.add_cc(pydaw_cc(f_beat_pos, a_cc_num, f_cc_val))
             f_cc_val += f_cc_inc
-            i2 += f_inc
-            if i2 >= 4.0:
-                i2 -= 4.0
-                break        
+            i2 += f_inc  
 
 class pydaw_item:
     def add_note(self, a_note):
