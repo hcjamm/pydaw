@@ -426,6 +426,9 @@ def pydaw_draw_multi_item_cc_line(a_cc_num, a_start_val, a_end_val, a_items=[]):
         f_cc_inc = 1
         f_val_diff = a_end_val - a_start_val
         
+    if f_val_diff == 0:
+        return        
+        
     f_bar_count = float(len(a_items))
     f_inc = (f_bar_count * 4.0) / float(f_val_diff)
     
