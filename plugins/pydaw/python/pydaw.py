@@ -447,6 +447,9 @@ class region_list_editor:
             if f_unlink_base_name == "":
                 QtGui.QMessageBox.warning(self.table_widget, "Error", "New/Unlink Prefix cannot be empty.")
                 return
+            if f_end_val.value() == f_start_val.value():
+                QtGui.QMessageBox.warning(self.table_widget, "Error", "End value is the same as start value.")
+                return
             f_item_list = []
             f_item_names = []  #doing this as 2 separate lists because AFAIK ordering isn't guaranteed in a dict?
             
