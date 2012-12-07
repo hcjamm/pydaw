@@ -966,7 +966,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                             {
                                 long controlIn = a_pydaw_data->track_pool[f_i]->instrument->controllerMap[controller];
 
-                                if (controlIn > 0) //not >= like in the other CC loop, this is raw formatted CCs without that goofy bit-shifting to make it work with ALSA.
+                                if (controlIn >= 0)
                                 {
                                     /* controller is mapped to LADSPA port, update the port */
                                     snd_seq_event_t f_event;
@@ -976,7 +976,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
 
                                 controlIn = a_pydaw_data->track_pool[f_i]->effect->controllerMap[controller];
 
-                                if (controlIn > 0) //not >= like in the other CC loop, this is raw formatted CCs without that goofy bit-shifting to make it work with ALSA.
+                                if (controlIn >= 0)
                                 {
                                     /* controller is mapped to LADSPA port, update the port */
                                     snd_seq_event_t f_event;
