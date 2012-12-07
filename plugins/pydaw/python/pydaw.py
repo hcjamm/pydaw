@@ -260,9 +260,12 @@ class region_list_editor:
             if f_item.bar_num < self.region.region_length_bars or (self.region.region_length_bars == 0 and f_item.bar_num < 8):
                 self.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
         
+    def warn_no_region_selected(self):        
+        QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first by clicking in the song editor above.")
+        
     def cell_clicked(self, x, y):
         if not self.enabled:
-            QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first by clicking in the song editor above.")
+            self.warn_no_region_selected()
             return
         if (this_transport.is_playing or this_transport.is_recording) and this_transport.follow_checkbox.isChecked():
             this_transport.follow_checkbox.setChecked(False)
@@ -272,6 +275,7 @@ class region_list_editor:
     
     def cell_double_clicked(self, x, y):        
         if not self.enabled:
+            self.warn_no_region_selected()
             return
         f_item = self.table_widget.item(x, y)    
         if f_item is None:
@@ -442,7 +446,11 @@ class region_list_editor:
         else:
             QtGui.QTableWidget.keyPressEvent(self.table_widget, event)
 
-    def on_draw_ccs(self):        
+    def on_draw_ccs(self):
+        if not self.enabled:
+            self.warn_no_region_selected()
+            return
+            
         def ccs_ok_handler():
             self.last_cc_line_num = f_cc_num.value()
             f_unlink_base_name = pydaw_remove_bad_chars(f_new_lineedit.text())
@@ -553,6 +561,10 @@ class region_list_editor:
 
     def on_unlink_item(self):
         """ Rename a single instance of an item and make it into a new item """
+        if not self.enabled:
+            self.warn_no_region_selected()
+            return
+            
         if self.table_widget.currentItem() is None or str(self.table_widget.currentItem().text()) == "":
             return
         x = self.table_widget.currentRow()
@@ -595,6 +607,9 @@ class region_list_editor:
         f_window.exec_()
 
     def paste_clipboard(self):
+        if not self.enabled:
+            self.warn_no_region_selected()
+            return
         f_selected_cells = self.table_widget.selectedIndexes()
         if len(f_selected_cells) == 0:
             return
@@ -611,12 +626,20 @@ class region_list_editor:
         self.tablewidget_to_region()
         
     def delete_selected(self):
+        if not self.enabled:
+            self.warn_no_region_selected()
+            return
+            
         for f_item in self.table_widget.selectedIndexes():
             f_empty = QtGui.QTableWidgetItem() #Clear the item
             self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
         self.tablewidget_to_region()
     
     def copy_selected(self):
+        if not self.enabled:
+            self.warn_no_region_selected()
+            return
+
         self.clipboard = []  #Clear the clipboard
         for f_item in self.table_widget.selectedIndexes():            
             f_cell = self.table_widget.item(f_item.row(), f_item.column())
