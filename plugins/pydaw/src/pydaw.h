@@ -309,11 +309,16 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
     int f_i = 0;
     pthread_mutex_init(&a_pydaw_data->track_cond_mutex, NULL);
     pthread_cond_init(&a_pydaw_data->track_cond, NULL);
-    a_pydaw_data->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN );    
+    a_pydaw_data->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN ) - 1;    
     if((a_pydaw_data->track_worker_thread_count) > 4)
     {
         a_pydaw_data->track_worker_thread_count = 4;
     }
+    else if((a_pydaw_data->track_worker_thread_count) <= 0)
+    {
+        a_pydaw_data->track_worker_thread_count = 1;
+    }
+    
     a_pydaw_data->track_block_mutexes = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t) * (a_pydaw_data->track_worker_thread_count));
     a_pydaw_data->track_worker_threads = (pthread_t*)malloc(sizeof(pthread_t) * (a_pydaw_data->track_worker_thread_count));
     a_pydaw_data->track_work_queues = (t_pydaw_work_queue_item**)malloc(sizeof(t_pydaw_work_queue_item*) * (a_pydaw_data->track_worker_thread_count));
