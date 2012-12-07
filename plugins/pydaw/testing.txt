@@ -1,0 +1,9 @@
+Manual regression tests for certifying a PyDAW release:
+
+1.  Recording:  Verify that notes, CCs and pitchbends record correctly
+2.  Playback:  Verify that each plugins(and track type) can play back correctly notes, CCs and pitchbends
+3.  Project saving:  Verify that instrument state is recalled as it was saved for each plugin/track-type...
+4.  Delete the ~/pydaw folder and launch a brand new project
+5.  Valgrind a full, busy project...
+6.  Test all of the editing functionality in the song, region and item editors...
+
