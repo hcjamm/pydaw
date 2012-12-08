@@ -31,13 +31,13 @@ inline float f_lms_sqrt(float, t_lin_interpolater*);
  */
 inline float f_lms_abs(float a_input)
 {
-    if(a_input > 0)
+    if(a_input > 0.0f)
     {
         return a_input;
     }
     else
     {
-        return a_input * -1;
+        return a_input * -1.0f;
     }
 }
 
@@ -182,7 +182,7 @@ float arr_sqrt [arr_sqrt_count] = {
  */
 inline float f_lms_sqrt(float a_input, t_lin_interpolater* a_lin)
 {
-    return f_linear_interpolate_arr(arr_sqrt, (a_input * 100), a_lin);
+    return f_linear_interpolate_arr(arr_sqrt, (a_input * 100.0f), a_lin);
 }
 
 

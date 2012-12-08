@@ -328,9 +328,9 @@ t_delay_tap * g_dly_get_tap()
     
     f_result->read_head = 0;
     f_result->delay_samples = 0;
-    f_result->delay_seconds  = 0;
-    f_result->delay_beats = 0;
-    f_result->output = 0;
+    f_result->delay_seconds  = 0.0f;
+    f_result->delay_beats = 0.0f;
+    f_result->output = 0.0f;
     f_result->delay_pitch = 20.0123f;  //To ensure it doesn't accidentally match the first time
     f_result->delay_hz = 20.2021f;
     

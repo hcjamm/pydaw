@@ -69,7 +69,7 @@ inline float f_linear_to_db_linear(float,t_amp*);
  */
 inline float f_db_to_linear(float a_db,t_amp *__restrict a_amp)
 {
-    a_amp->result = pow ( 10.0, (0.05 * a_db) );
+    a_amp->result = pow ( 10.0f, (0.05f * a_db) );
     return a_amp->result;
 }
 
@@ -79,7 +79,7 @@ inline float f_db_to_linear(float a_db,t_amp *__restrict a_amp)
  */
 inline float f_linear_to_db(float a_linear,t_amp *__restrict a_amp)
 {
-    a_amp->result = 20.0 * log10 ( a_linear );
+    a_amp->result = 20.0f * log10 ( a_linear );
     return a_amp->result;
 }
 
