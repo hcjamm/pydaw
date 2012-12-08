@@ -105,7 +105,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     a_style->LMS_set_label_style(QString("QLabel{color:black;background-color:white;border:solid 2px white;border-radius:2px; text-align : center;}"), 64);
     //a_style->LMS_set_value_style("")
     
-    QStringList f_interpolation_modes = QStringList() << QString("High Quality") << QString("Low Quality") << QString("None");
+    QStringList f_interpolation_modes = QStringList() << QString("Pitched") << QString("Percussion") << QString("No Pitch");
     
     QList <LMS_mod_matrix_column*> f_sample_table_columns;
         
