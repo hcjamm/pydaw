@@ -49,8 +49,8 @@ t_opl_one_pole * g_opl_get_one_pole(float);
 inline void v_opl_set_coeff(t_opl_one_pole* a_opl, float a_cutoff)
 {
     a_opl->cutoff = f_pit_midi_note_to_hz_fast(a_cutoff, a_opl->pitch_core);
-    a_opl->x = exp(-2.0*PI*((a_opl->cutoff)*(a_opl->sr_recip)));
-    a_opl->a0 = 1.0-(a_opl->x);
+    a_opl->x = exp(-2.0f*PI*((a_opl->cutoff)*(a_opl->sr_recip)));
+    a_opl->a0 = 1.0f-(a_opl->x);
     a_opl->b1 = -(a_opl->x);
 }
 
@@ -65,8 +65,8 @@ inline void v_opl_set_coeff(t_opl_one_pole* a_opl, float a_cutoff)
 inline void v_opl_set_coeff_slow(t_opl_one_pole* a_opl, float a_cutoff)
 {
     a_opl->cutoff = f_pit_midi_note_to_hz(a_cutoff);
-    a_opl->x = exp(-2.0*PI*((a_opl->cutoff)*(a_opl->sr_recip)));
-    a_opl->a0 = 1.0-(a_opl->x);
+    a_opl->x = exp(-2.0f*PI*((a_opl->cutoff)*(a_opl->sr_recip)));
+    a_opl->a0 = 1.0f-(a_opl->x);
     a_opl->b1 = -(a_opl->x);
 }
 
@@ -80,8 +80,8 @@ inline void v_opl_set_coeff_slow(t_opl_one_pole* a_opl, float a_cutoff)
 inline void v_opl_set_coeff_hz(t_opl_one_pole* a_opl, float a_cutoff)
 {
     a_opl->cutoff = a_cutoff;
-    a_opl->x = exp(-2.0*PI*((a_opl->cutoff)*(a_opl->sr_recip)));
-    a_opl->a0 = 1.0-(a_opl->x);
+    a_opl->x = exp(-2.0f*PI*((a_opl->cutoff)*(a_opl->sr_recip)));
+    a_opl->a0 = 1.0f-(a_opl->x);
     a_opl->b1 = -(a_opl->x);
 }
 
@@ -118,10 +118,10 @@ t_opl_one_pole * g_opl_get_one_pole(float a_sr)
 {
     t_opl_one_pole * f_result = (t_opl_one_pole*)malloc(sizeof(t_opl_one_pole));
     
-    f_result->a0 = 0;    
-    f_result->b1 = 0;
-    f_result->output = 0;
-    f_result->cutoff = 1000;
+    f_result->a0 = 0.0f;    
+    f_result->b1 = 0.0f;
+    f_result->output = 0.0f;
+    f_result->cutoff = 1000.0f;
     f_result->sample_rate = a_sr;
     f_result->sr_recip = 1.0f/a_sr;
     f_result->pitch_core = g_pit_get();

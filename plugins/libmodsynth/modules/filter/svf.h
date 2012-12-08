@@ -166,13 +166,13 @@ t_svf_kernel * g_svf_get_filter_kernel()
         return 0;
     }
         
-        f_result->bp = 0;    
-        f_result->hp = 0;
-        f_result->lp = 0;    
-        f_result->lp_m1 = 0;
-        f_result->filter_input = 0;
-        f_result->filter_last_input = 0;  
-        f_result->bp_m1 = 0;
+        f_result->bp = 0.0f;    
+        f_result->hp = 0.0f;
+        f_result->lp = 0.0f;    
+        f_result->lp_m1 = 0.0f;
+        f_result->filter_input = 0.0f;
+        f_result->filter_last_input = 0.0f;  
+        f_result->bp_m1 = 0.0f;
         
         return f_result;
 }
@@ -254,7 +254,7 @@ inline void v_svf_set_input_value(t_state_variable_filter *__restrict a_svf, t_s
 {        
     a_kernel->filter_input = a_input_value;
     
-    a_svf->oversample_iterator = 0;
+    a_svf->oversample_iterator = 0.0f;
     
     while((a_svf->oversample_iterator) < 1.0f)
     {
@@ -371,8 +371,8 @@ inline void v_svf_velocity_mod(t_state_variable_filter*,float);
  */
 inline void v_svf_velocity_mod(t_state_variable_filter*__restrict a_svf, float a_velocity)
 {
-    a_svf->velocity_cutoff = ((a_velocity) * .2) - 24;
-    a_svf->velocity_mod_amt = a_velocity * 0.007874016;
+    a_svf->velocity_cutoff = ((a_velocity) * .2f) - 24.0f;
+    a_svf->velocity_mod_amt = a_velocity * 0.007874016f;
 #ifdef SVF_DEBUG_MODE
     printf("svf->velocity:  %f\n", (a_svf->velocity_cutoff));
 #endif
@@ -404,7 +404,7 @@ inline void v_svf_set_cutoff(t_state_variable_filter *__restrict a_svf)
     
     a_svf->cutoff_last = (a_svf->cutoff_note);
          
-    a_svf->cutoff_mod = 0;
+    a_svf->cutoff_mod = 0.0f;
     
     a_svf->cutoff_hz = f_pit_midi_note_to_hz_fast((a_svf->cutoff_note), a_svf->pitch_core); //_svf->cutoff_smoother->last_value);
     
@@ -412,8 +412,8 @@ inline void v_svf_set_cutoff(t_state_variable_filter *__restrict a_svf)
 
     /*prevent the filter from exploding numerically, this does artificially cap the cutoff frequency to below what you set it to
      if you lower the oversampling rate of the filter.*/
-    if((a_svf->cutoff_filter) > .8)
-        a_svf->cutoff_filter = .8;  
+    if((a_svf->cutoff_filter) > .8f)
+        a_svf->cutoff_filter = .8f;  
 }
 
 /* void v_svf_set_res(
@@ -429,20 +429,20 @@ void v_svf_set_res(t_state_variable_filter *__restrict a_svf, float a_db)
     
     
     
-    if(a_db < -100)
+    if(a_db < -100.0f)
     {
-        a_svf->filter_res_db = -100;
+        a_svf->filter_res_db = -100.0f;
     }
-    else if (a_db > -.5)
+    else if (a_db > -.5f)
     {
-        a_svf->filter_res_db = -.5;
+        a_svf->filter_res_db = -.5f;
     }
     else
     {
         a_svf->filter_res_db = a_db;
     }
 
-       a_svf->filter_res = (1 - (f_db_to_linear_fast((a_svf->filter_res_db), a_svf->amp_ptr))) * 2;
+       a_svf->filter_res = (1.0f - (f_db_to_linear_fast((a_svf->filter_res_db), a_svf->amp_ptr))) * 2.0f;
 }
 
 
@@ -470,19 +470,19 @@ t_state_variable_filter * g_svf_get(float a_sample_rate)
         f_i++;
     }
     
-    f_svf->cutoff_note = 60;
-    f_svf->cutoff_hz = 1000;
-    f_svf->cutoff_filter = .7;
-    f_svf->filter_res = .25;
-    f_svf->filter_res_db = -12;        
+    f_svf->cutoff_note = 60.0f;
+    f_svf->cutoff_hz = 1000.0f;
+    f_svf->cutoff_filter = 0.7f;
+    f_svf->filter_res = 0.25f;
+    f_svf->filter_res_db = -12.0f;        
       
-    f_svf->cutoff_base = 78; 
-    f_svf->cutoff_mod = 0;
-    f_svf->cutoff_last = 81;
-    f_svf->filter_res_db = -21;
-    f_svf->filter_res = .5;
-    f_svf->velocity_cutoff = 0;    
-    f_svf->velocity_mod_amt = 1;
+    f_svf->cutoff_base = 78.0f; 
+    f_svf->cutoff_mod = 0.0f;
+    f_svf->cutoff_last = 81.0f;
+    f_svf->filter_res_db = -21.0f;
+    f_svf->filter_res = 0.5f;
+    f_svf->velocity_cutoff = 0.0f;    
+    f_svf->velocity_mod_amt = 1.0f;
     
     f_svf->gain_db = 0.0f;
     f_svf->gain_linear = 1.0f;
@@ -494,9 +494,9 @@ t_state_variable_filter * g_svf_get(float a_sample_rate)
         f_svf->samples_ran = 0;    
 #endif
     
-    v_svf_set_cutoff_base(f_svf, 75);
-    v_svf_add_cutoff_mod(f_svf, 0);
-    v_svf_set_res(f_svf, -12);
+    v_svf_set_cutoff_base(f_svf, 75.0f);
+    v_svf_add_cutoff_mod(f_svf, 0.0f);
+    v_svf_set_res(f_svf, -12.0f);
     v_svf_set_cutoff(f_svf);
         
     return f_svf;
