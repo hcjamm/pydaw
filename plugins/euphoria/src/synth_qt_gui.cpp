@@ -2388,7 +2388,8 @@ void SamplerGUI::sample_selected_monofx_groupChanged(int a_value)
     setmonoFX3knob2(m_mono_fx_values[a_value][3][2]);
     setmonoFX3combobox(m_mono_fx_values[a_value][3][3]);
     
-    if (!m_suppressHostUpdate) {
+    if (!m_suppressHostUpdate) 
+    {
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
         if(a_value >= 0)
         {
@@ -4249,8 +4250,7 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         gui->m_sample_selected_monofx_groups[f_value] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
-            //TODO:  This doesn't actually need to be set, AFAIK...  The below code was incorrect anyways...
-            //gui->sample_selected_monofx_groupChanged(gui->m_sample_selected_monofx_groups[f_value]);
+            gui->sample_selected_monofx_groupChanged(gui->m_sample_selected_monofx_groups[f_value]);            
         }
     }        
     
