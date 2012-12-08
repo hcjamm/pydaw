@@ -168,13 +168,15 @@ t_sinc_interpolator * g_sinc_get(int a_points, int a_samples_per_point, double a
         f_result->sinc_table[i_int] = 0.0f;
     }
     
-    float f_normalize = (a_normalize_to / f_high_value);
-    
-    for(i_int = 0; i_int < f_array_size; i_int++)
+    if(a_normalize_to >= 0.0f)
     {
-        f_result->sinc_table[i_int] = (f_result->sinc_table[i_int]) * f_normalize;
-    }        
-    
+        float f_normalize = (a_normalize_to / f_high_value);
+
+        for(i_int = 0; i_int < f_array_size; i_int++)
+        {
+            f_result->sinc_table[i_int] = (f_result->sinc_table[i_int]) * f_normalize;
+        }        
+    }
     f_result->linear_interpolate = g_lin_get();
     
     return f_result;
