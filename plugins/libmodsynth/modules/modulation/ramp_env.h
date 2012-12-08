@@ -42,13 +42,13 @@ t_ramp_env * g_rmp_get_ramp_env(float);
 
 inline void f_rmp_run_ramp(t_ramp_env*__restrict a_rmp_ptr)
 {
-    if((a_rmp_ptr->output_multiplier) == 0 )
+    if((a_rmp_ptr->output_multiplier) == 0.0f )
     {
-        a_rmp_ptr->output_multiplied = 0;
+        a_rmp_ptr->output_multiplied = 0.0f;
         return;
     }
     
-    if((a_rmp_ptr->output) == 1)
+    if((a_rmp_ptr->output) == 1.0f)
     {
         a_rmp_ptr->output_multiplied = (a_rmp_ptr->output_multiplier);
         return;
@@ -56,9 +56,9 @@ inline void f_rmp_run_ramp(t_ramp_env*__restrict a_rmp_ptr)
     
     a_rmp_ptr->output = (a_rmp_ptr->output) + (a_rmp_ptr->ramp_inc);
     
-    if((a_rmp_ptr->output) >= 1)
+    if((a_rmp_ptr->output) >= 1.0f)
     {
-        a_rmp_ptr->output = 1;
+        a_rmp_ptr->output = 1.0f;
         a_rmp_ptr->output_multiplied = (a_rmp_ptr->output_multiplier);
         return;
     }        
@@ -76,15 +76,15 @@ void v_rmp_set_time(t_ramp_env*__restrict a_rmp_ptr,float a_time)
 {
     a_rmp_ptr->ramp_time = a_time;
        
-    if((a_rmp_ptr->ramp_time) <= .01)
+    if((a_rmp_ptr->ramp_time) <= .01f)
     {
-        a_rmp_ptr->output = 1;
+        a_rmp_ptr->output = 1.0f;
         a_rmp_ptr->output_multiplied = (a_rmp_ptr->output_multiplier);
         return;
     }
     else
     {
-        a_rmp_ptr->output = 0;
+        a_rmp_ptr->output = 0.0f;
         a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) / (a_rmp_ptr->ramp_time);
     }
 }
@@ -96,19 +96,19 @@ void v_rmp_set_time(t_ramp_env*__restrict a_rmp_ptr,float a_time)
  */
 void v_rmp_retrigger(t_ramp_env*__restrict a_rmp_ptr, float a_time, float a_multiplier)
 {
-    a_rmp_ptr->output = 0;
+    a_rmp_ptr->output = 0.0f;
     a_rmp_ptr->ramp_time = a_time;
     a_rmp_ptr->output_multiplier = a_multiplier;
         
-    if((a_rmp_ptr->ramp_time) <= .05)
+    if((a_rmp_ptr->ramp_time) <= .05f)
     {
-        a_rmp_ptr->output = 1;
+        a_rmp_ptr->output = 1.0f;
         a_rmp_ptr->output_multiplied = (a_rmp_ptr->output_multiplier);
         return;
     }
     else
     {
-        a_rmp_ptr->output = 0;
+        a_rmp_ptr->output = 0.0f;
         a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) / (a_rmp_ptr->ramp_time);
     }
     
@@ -122,15 +122,15 @@ void v_rmp_retrigger_glide_t(t_ramp_env*__restrict a_rmp_ptr, float a_time, floa
     a_rmp_ptr->output_multiplier = a_next_note - a_current_note;
         
     /*Turn off if true*/
-    if((a_rmp_ptr->ramp_time) <= .05)
+    if((a_rmp_ptr->ramp_time) <= .05f)
     {
-        a_rmp_ptr->output = 1;
+        a_rmp_ptr->output = 1.0f;
         a_rmp_ptr->output_multiplied = (a_rmp_ptr->output_multiplier);
         return;
     }
     else
     {
-        a_rmp_ptr->output = 0;
+        a_rmp_ptr->output = 0.0f;
         a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) / (a_rmp_ptr->ramp_time);
     }
         
@@ -139,20 +139,20 @@ void v_rmp_retrigger_glide_t(t_ramp_env*__restrict a_rmp_ptr, float a_time, floa
 /*Glide with constant rate in seconds-per-octave*/
 void v_rmp_retrigger_glide_r(t_ramp_env*__restrict a_rmp_ptr, float a_time, float a_current_note, float a_next_note)
 {
-    a_rmp_ptr->output = 0;
+    a_rmp_ptr->output = 0.0f;
     a_rmp_ptr->output_multiplier = a_next_note - a_current_note;
-    a_rmp_ptr->ramp_time = a_time * (a_rmp_ptr->output_multiplier) * .083333;
+    a_rmp_ptr->ramp_time = a_time * (a_rmp_ptr->output_multiplier) * .083333f;
         
     /*Turn off if true*/
-    if((a_rmp_ptr->ramp_time) <= .05)
+    if((a_rmp_ptr->ramp_time) <= .05f)
     {
-        a_rmp_ptr->output = 1;
+        a_rmp_ptr->output = 1.0f;
         a_rmp_ptr->output_multiplied = (a_rmp_ptr->output_multiplier);
         return;
     }
     else
     {
-        a_rmp_ptr->output = 0;
+        a_rmp_ptr->output = 0.0f;
         a_rmp_ptr->ramp_inc = (a_rmp_ptr->sr_recip) / (a_rmp_ptr->ramp_time);
     }
 }
@@ -165,12 +165,12 @@ t_ramp_env * g_rmp_get_ramp_env(float a_sr)
 {
     t_ramp_env * f_result = (t_ramp_env*)malloc(sizeof(t_ramp_env));
     f_result->sr = a_sr;
-    f_result->sr_recip = 1/a_sr;
-    f_result->output_multiplied = 0;
-    f_result->output_multiplier = 1;
-    f_result->ramp_inc = .01;
-    f_result->ramp_time = .05;
-    f_result->output = 0;
+    f_result->sr_recip = 1.0f/a_sr;
+    f_result->output_multiplied = 0.0f;
+    f_result->output_multiplier = 1.0f;
+    f_result->ramp_inc = .01f;
+    f_result->ramp_time = .05f;
+    f_result->output = 0.0f;
     
     return f_result;
 }
