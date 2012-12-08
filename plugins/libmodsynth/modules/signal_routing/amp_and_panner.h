@@ -40,8 +40,8 @@ void v_app_set(t_amp_and_panner* a_app,float a_db,float a_pan)
     
     a_app->amp_linear = f_db_to_linear_fast(a_db , a_app->amp_ptr);
     
-    a_app->amp_linear0 = (f_sine_fast_run(((a_pan * .5f) + 0.25f), a_app->linear_interpolator) * 0.5f + 1) * (a_app->amp_linear);
-    a_app->amp_linear1 = (f_sine_fast_run((0.75f - (a_pan * 0.5f)), a_app->linear_interpolator) * 0.5f + 1) * (a_app->amp_linear);    
+    a_app->amp_linear0 = (f_sine_fast_run(((a_pan * .5f) + 0.25f), a_app->linear_interpolator) * 0.5f + 1.0f) * (a_app->amp_linear);
+    a_app->amp_linear1 = (f_sine_fast_run((0.75f - (a_pan * 0.5f)), a_app->linear_interpolator) * 0.5f + 1.0f) * (a_app->amp_linear);    
 }
 
 void v_app_run(t_amp_and_panner* a_app, float a_in0, float a_in1)
