@@ -187,21 +187,16 @@ class region_list_editor:
             self.tracks[key].open_track(f_track)
         
     def reset_tracks(self):
-        f_track_ss_handle = open("pydaw/track_style.txt", "r")
-        f_track_stylesheet = f_track_ss_handle.read()
-        f_track_ss_handle.close()
         self.tracks = []
         for i in range(0, self.bus_count):
             track = seq_track(a_track_num=i, a_track_text="Bus" + str(i), a_instrument=False);
             self.tracks.append(track)
-            track.group_box.setStyleSheet(f_track_stylesheet)
             self.table_widget.setCellWidget(i, 0, track.group_box)
         self.tracks[0].track_name_lineedit.setText("Master")
         
         for i in range(self.bus_count, self.track_total):
             track = seq_track(a_track_num=i, a_track_text="track" + str(i - self.bus_count))
             self.tracks.append(track)
-            track.group_box.setStyleSheet(f_track_stylesheet)
             self.table_widget.setCellWidget(i, 0, track.group_box)  
         self.table_widget.setColumnWidth(0, 390)
         self.set_region_length()
@@ -1576,7 +1571,8 @@ class seq_track:
         self.is_instrument = a_instrument
         self.suppress_osc = True
         self.track_number = a_track_num
-        self.group_box = QtGui.QGroupBox()        
+        self.group_box = QtGui.QGroupBox()
+        self.group_box.setObjectName("seqtrack")
         self.main_vlayout = QtGui.QVBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
         self.hlayout2 = QtGui.QHBoxLayout()
@@ -1603,13 +1599,12 @@ class seq_track:
         self.track_name_lineedit.setMaximumWidth(90)
         self.track_name_lineedit.setMinimumWidth(90)
         self.track_name_lineedit.editingFinished.connect(self.on_name_changed)
-        self.hlayout3.addWidget(self.track_name_lineedit)
-        f_button_style = "QPushButton { background-color: black; border-style: outset; border-width: 2px;	border-radius: 5px; border-color: white; font: bold 12px; padding: 2px;	color:white;}"
+        self.hlayout3.addWidget(self.track_name_lineedit)        
         self.fx_button = QtGui.QPushButton("FX")
         self.fx_button.pressed.connect(self.on_show_fx)
-        self.fx_button.setMinimumWidth(30)
-        self.fx_button.setMaximumWidth(30)
-        self.fx_button.setStyleSheet(f_button_style)
+        self.fx_button.setObjectName("fxbutton")
+        self.fx_button.setMinimumWidth(22)
+        self.fx_button.setMaximumWidth(22)
         if a_instrument:
             self.instrument_combobox = QtGui.QComboBox()
             self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V"])
@@ -1618,9 +1613,9 @@ class seq_track:
             self.hlayout3.addWidget(self.instrument_combobox)        
             self.ui_button = QtGui.QPushButton("UI")
             self.ui_button.pressed.connect(self.on_show_ui)
-            self.ui_button.setMinimumWidth(30)
-            self.ui_button.setMaximumWidth(30)
-            self.ui_button.setStyleSheet(f_button_style)
+            self.ui_button.setObjectName("uibutton")
+            self.ui_button.setMinimumWidth(22)
+            self.ui_button.setMaximumWidth(22)
             self.hlayout3.addWidget(self.ui_button)
             self.bus_combobox = QtGui.QComboBox()
             self.bus_combobox.addItems(['M', '1','2','3','4'])
@@ -1631,7 +1626,7 @@ class seq_track:
             self.hlayout3.addWidget(self.fx_button)
             self.solo_checkbox = QtGui.QCheckBox()        
             self.solo_checkbox.clicked.connect(self.on_solo)
-            self.solo_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/solo-off.png);}QCheckBox::indicator::checked{image: url(pydaw/solo-on.png);}")
+            self.solo_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/solo-off.png);}QCheckBox::indicator::checked{image: url(pydaw/solo-on.png);}")                        
             self.hlayout3.addWidget(self.solo_checkbox)
             self.mute_checkbox = QtGui.QCheckBox()        
             self.mute_checkbox.clicked.connect(self.on_mute)
@@ -1856,9 +1851,7 @@ class transport_widget:
         self.follow_checkbox.clicked.connect(self.on_follow_cursor_check_changed)
         f_lower_ctrl_layout.addWidget(self.follow_checkbox)
         self.scope_button = QtGui.QPushButton("Scope")
-        self.scope_button.pressed.connect(launch_jack_oscrolloscope)
-        f_button_style = "QPushButton { background-color: black; border-style: outset; border-width: 2px;	border-radius: 5px; border-color: white; font: bold 12px; padding: 2px;	color:white;}"
-        self.scope_button.setStyleSheet(f_button_style)
+        self.scope_button.pressed.connect(launch_jack_oscrolloscope)        
         f_lower_ctrl_layout.addWidget(self.scope_button)
         f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout, 1, 1)
         self.hlayout1.addLayout(f_loop_midi_gridlayout)
@@ -2055,6 +2048,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
+        self.setObjectName("mainwindow")
         stylesheet_file = os.getcwd() + "/pydaw/style.txt"
         file_handle = open(stylesheet_file, 'r')
         self.setStyleSheet(file_handle.read())
