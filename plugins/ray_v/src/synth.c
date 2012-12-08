@@ -443,7 +443,7 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
         
         a_voice->current_sample += (f_run_white_noise(a_voice->white_noise1) * (a_voice->noise_linamp)); //white noise
         
-        v_adsr_run(a_voice->adsr_amp);        
+        v_adsr_run_db(a_voice->adsr_amp);        
         
         v_adsr_run(a_voice->adsr_filter);
         

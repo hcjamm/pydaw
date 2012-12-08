@@ -626,7 +626,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, l
     {
         //Run things that aren't per-channel like envelopes
                 
-        v_adsr_run(plugin_data->data[n]->adsr_amp);        
+        v_adsr_run_db(plugin_data->data[n]->adsr_amp);        
                             
         if(plugin_data->data[n]->adsr_amp->stage == 4)
         {
