@@ -1,4 +1,4 @@
-QWidget
+QWidget#mainwindow, QMessageBox
 {
 	background-color:rgb(93, 93, 93);
 }
@@ -75,10 +75,10 @@ QPushButton
 	background-color: black;
 	border-style: outset;
 	border-width: 2px;
-	border-radius: 10px;
+	border-radius: 4px;
 	border-color: white;
-	font: bold 14px;
-	padding: 6px;
+	font: bold 12px;
+	padding: 2px;
 	color:white;
 }
 
@@ -185,4 +185,44 @@ QSlider::handle:horizontal:disabled
 	border-radius: 4px;
 }
 
+padding: 0 1px;
+
+QGroupBox#seqtrack::title 
+{
+	margin: 0px;
+	height: 0px;
+	padding: 0 0px;
+	color:black;
+	border solid 1px white;
+}
+
+QGroupBox#seqtrack
+{
+	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #111111, stop: 1 #222222);
+	border: 1px solid white;
+	border-radius: 10px;
+}
+
+QRadioButton#seqtrack::indicator 
+{
+	width: 24px;
+	height: 24px;
+}
+
+QCheckBox#seqtrack::indicator
+{
+	width: 24px;
+	height: 24px;
+}
+
+QLineEdit#seqtrack
+{
+	padding:2px;
+}
+
+QLabel#seqtrack
+{
+	background-color:transparent;
+	color:white;
+}
 
