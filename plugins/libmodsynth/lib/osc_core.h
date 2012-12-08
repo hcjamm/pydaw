@@ -33,7 +33,7 @@ t_osc_core * g_get_osc_core();
 t_osc_core * g_get_osc_core()
 {
     t_osc_core * f_result = (t_osc_core*)malloc(sizeof(t_osc_core)); 
-    f_result->output = 0;    
+    f_result->output = 0.0f;    
     f_result->linear = g_lin_get();
     return f_result;
 }
@@ -47,9 +47,9 @@ void v_run_osc(t_osc_core *a_core, float a_inc)
 {
     a_core->output = (a_core->output) + a_inc;
     
-    if(a_core->output >= 1)
+    if(a_core->output >= 1.0f)
     {
-        a_core->output = (a_core->output - 1);
+        a_core->output = (a_core->output - 1.0f);
     }    
 }
 

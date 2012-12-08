@@ -55,9 +55,9 @@ t_pit_ratio * g_pit_ratio()
 {
     t_pit_ratio * f_result = (t_pit_ratio*)malloc(sizeof(t_pit_ratio));
     
-    f_result->hz = 1;
-    f_result->hz_recip = 1;
-    f_result->pitch = 12.345432;  //ensures that it won't coincidentally be the pitch
+    f_result->hz = 1.0f;
+    f_result->hz_recip = 1.0f;
+    f_result->pitch = 12.345432f;  //ensures that it won't coincidentally be the pitch
     
     return f_result;
 }
@@ -77,7 +77,7 @@ inline float f_pit_midi_note_to_ratio_fast(float, float, t_pit_pitch_core*, t_pi
  * Convert midi note number to hz*/
 inline float f_pit_midi_note_to_hz(float a_midi_note_number)
 {
-    return (base_a4*pow(2,(a_midi_note_number-57)*.0833333));
+    return (base_a4*pow(2,(a_midi_note_number-57)*.0833333f));
     
 }
 
@@ -87,7 +87,7 @@ inline float f_pit_midi_note_to_hz(float a_midi_note_number)
  * Convert hz to midi note number*/
 inline float f_pit_hz_to_midi_note(float _hz)
 {
-     return ((12*log2(_hz*base_a4_recip))+57);    
+     return ((12.0f*log2(_hz*base_a4_recip))+57.0f);    
 }
 
 /* inline float f_pit_midi_note_to_samples(
@@ -247,15 +247,15 @@ float arr_pit_p2f [arr_pit_p2f_count] = {
  */
 inline float f_pit_midi_note_to_hz_fast(float a_midi_note_number, t_pit_pitch_core*__restrict a_pit)
 {
-    a_pit->arr_index = (a_midi_note_number * 20) - 1;
+    a_pit->arr_index = (a_midi_note_number * 20.0f) - 1.0f;
     
     if((a_pit->arr_index) > arr_pit_p2f_count_limit)
     {
         a_pit->arr_index = arr_pit_p2f_count_limit ;
     }    
-    else if(a_pit->arr_index < 0)
+    else if(a_pit->arr_index < 0.0f)
     {
-        a_pit->arr_index = 0;
+        a_pit->arr_index = 0.0f;
     }
     
     return f_linear_interpolate_arr(arr_pit_p2f, (a_pit->arr_index), a_pit->linear);
@@ -274,7 +274,7 @@ inline float f_pit_midi_note_to_ratio_fast(float a_base_pitch, float a_transpose
     {
         a_ratio->pitch = a_base_pitch;
         a_ratio->hz = f_pit_midi_note_to_hz_fast(a_base_pitch, a_pit);
-        a_ratio->hz_recip = 1/(a_ratio->hz);
+        a_ratio->hz_recip = 1.0f/(a_ratio->hz);
     }
     
     return (a_ratio->hz_recip) * f_pit_midi_note_to_hz_fast(a_transposed_pitch, a_pit);

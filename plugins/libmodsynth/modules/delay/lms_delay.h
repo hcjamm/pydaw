@@ -70,12 +70,12 @@ t_lms_delay * g_ldl_get_delay(float a_seconds, float a_sr)
     f_result->delay1 = g_dly_get_delay(a_seconds, a_sr);
     f_result->tap0 = g_dly_get_tap();
     f_result->tap1 = g_dly_get_tap();
-    f_result->output0 = 0;
-    f_result->output1 = 0;
-    f_result->feedback0 = 0;
-    f_result->feedback1 = 0;
-    f_result->feedback_db = -50;
-    f_result->feedback_linear = 0;    
+    f_result->output0 = 0.0f;
+    f_result->output1 = 0.0f;
+    f_result->feedback0 = 0.0f;
+    f_result->feedback1 = 0.0f;
+    f_result->feedback_db = -50.0f;
+    f_result->feedback_linear = 0.0f;    
     f_result->dw0 = g_dw_get_dry_wet();
     f_result->dw1 = g_dw_get_dry_wet();
     f_result->stereo_xfade0 = g_axf_get_audio_xfade(-3.0f);
@@ -83,7 +83,7 @@ t_lms_delay * g_ldl_get_delay(float a_seconds, float a_sr)
     
     f_result->feeback_env_follower = g_enf_get_env_follower(a_sr);
     f_result->input_env_follower = g_enf_get_env_follower(a_sr);    
-    f_result->combined_inputs = 0;
+    f_result->combined_inputs = 0.0f;
     
     f_result->amp_ptr = g_amp_get();
     
@@ -103,7 +103,7 @@ inline void v_ldl_run_delay(t_lms_delay* a_dly, float a_in0, float a_in1)
     /*Automatically reduce feedback if delay volume is too high*/
     if((a_dly->feeback_env_follower->output_smoothed) > -3.0f)
     {
-        a_dly->feedback_linear = f_db_to_linear(((-3.0f - (a_dly->feeback_env_follower->output_smoothed)) * 0.3), a_dly->amp_ptr);
+        a_dly->feedback_linear = f_db_to_linear(((-3.0f - (a_dly->feeback_env_follower->output_smoothed)) * 0.3f), a_dly->amp_ptr);
     }
     
     v_dly_run_delay(a_dly->delay0, 
