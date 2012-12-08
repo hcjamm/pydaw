@@ -87,7 +87,7 @@ inline void v_osc_set_uni_voice_count(t_osc_simple_unison* a_osc_ptr, int a_valu
         a_osc_ptr->voice_count = a_value;
     }
     
-    a_osc_ptr->adjusted_amp = (1 / (float)(a_osc_ptr->voice_count)) + ((a_osc_ptr->voice_count - 1) * .06);
+    a_osc_ptr->adjusted_amp = (1.0f / (float)(a_osc_ptr->voice_count)) + (((float)(a_osc_ptr->voice_count - 1)) * .06f);
 }
 
 
@@ -107,7 +107,7 @@ inline void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spre
         if(a_spread != (a_osc_ptr->uni_spread))
         {
             a_osc_ptr->uni_spread = a_spread;
-            a_osc_ptr->bottom_pitch = -.5 * a_spread;
+            a_osc_ptr->bottom_pitch = -0.5f * a_spread;
             a_osc_ptr->pitch_inc = a_spread / ((float)(a_osc_ptr->voice_count));
         }
         
@@ -132,7 +132,7 @@ inline void v_osc_set_unison_pitch(t_osc_simple_unison * a_osc_ptr, float a_spre
 inline float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
 {
     a_osc_ptr->i_run_unison = 0;
-    a_osc_ptr->current_sample = 0;
+    a_osc_ptr->current_sample = 0.0f;
         
     while((a_osc_ptr->i_run_unison) < (a_osc_ptr->voice_count))
     {
@@ -159,7 +159,7 @@ inline float f_get_sine(t_osc_core * a_core)
 
 inline float f_get_square(t_osc_core * a_core)
 {
-    if((a_core->output) >= .5)
+    if((a_core->output) >= 0.5f)
     {
         return 1.0f;
     }
@@ -275,7 +275,7 @@ t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
         f_i++;
     }
         
-    v_osc_set_unison_pitch(f_result, .5, 60);
+    v_osc_set_unison_pitch(f_result, .5f, 60.0f);
     
     f_i = 0;
     

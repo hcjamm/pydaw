@@ -86,10 +86,10 @@ t_lfs_lfo * g_lfs_get(float a_sr)
         return 0;
     }
     
-    f_result->inc = 0;
+    f_result->inc = 0.0f;
     f_result->osc_core = g_get_osc_core();
     f_result->osc_ptr = f_get_osc_off;
-    f_result->output = 0;
+    f_result->output = 0.0f;
     f_result->sr = a_sr;
     f_result->sr_recip = 1.0f/a_sr;
     

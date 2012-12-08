@@ -69,11 +69,11 @@ t_dw_dry_wet* g_dw_get_dry_wet()
         return 0;
     }
     
-    f_result->wet_db = -50;
-    f_result->wet_linear = 0;
-    f_result->dry_db = 0;
-    f_result->dry_linear = 1;
-    f_result->output = 0;
+    f_result->wet_db = -50.0f;
+    f_result->wet_linear = 0.0f;
+    f_result->dry_db = 0.0f;
+    f_result->dry_linear = 1.0f;
+    f_result->output = 0.0f;
     f_result->amp_ptr = g_amp_get();
     
     return f_result;
