@@ -60,7 +60,7 @@ inline void v_cmb_set_input(t_comb_filter*__restrict a_cmb_ptr,float a_value)
 {    
     a_cmb_ptr->delay_pointer = (a_cmb_ptr->input_pointer) - (a_cmb_ptr->delay_samples);
     
-    if((a_cmb_ptr->delay_pointer) < 0)
+    if((a_cmb_ptr->delay_pointer) < 0.0f)
     {
         a_cmb_ptr->delay_pointer = (a_cmb_ptr->delay_pointer) + (a_cmb_ptr->buffer_size);
     }
@@ -166,7 +166,7 @@ t_comb_filter * g_cmb_get_comb_filter(float a_sr)
     
     int f_i = 0;
     
-    f_result->buffer_size = (int)((a_sr / 20) + 300);  //Allocate enough memory to accomodate 20hz filter frequency
+    f_result->buffer_size = (int)((a_sr / 20.0f) + 300);  //Allocate enough memory to accomodate 20hz filter frequency
     
     if(posix_memalign((void**)(&(f_result->input_buffer)), 16, (sizeof(float) * (f_result->buffer_size))) != 0)
     {
@@ -198,7 +198,7 @@ t_comb_filter * g_cmb_get_comb_filter(float a_sr)
 #endif
     
     v_cmb_set_all(f_result,-6.0f, -6.0f, 66.0f);
-    v_cmb_set_input(f_result, 0);
+    v_cmb_set_input(f_result, 0.0f);
             
     return f_result;
 }

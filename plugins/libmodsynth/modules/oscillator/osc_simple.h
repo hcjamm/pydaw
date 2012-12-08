@@ -294,7 +294,7 @@ t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
         f_i++;
     }
     
-    v_osc_set_unison_pitch(f_result, .2, 60);
+    v_osc_set_unison_pitch(f_result, .2, 60.0f);
     
     return f_result;
 }

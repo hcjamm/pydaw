@@ -54,7 +54,7 @@ void v_clp_set_clip_sym(t_clipper * a_clp, float a_db)
 #endif
 
     a_clp->clip_high = f_value;
-    a_clp->clip_low = (f_value * -1);
+    a_clp->clip_low = (f_value * -1.0f);
 }
 
 /*void v_clp_set_in_gain(
@@ -81,11 +81,11 @@ t_clipper * g_clp_get_clipper()
         return 0;
     }
     
-    f_result->clip_high = 1;
-    f_result->clip_low = -1;
-    f_result->input_gain_linear = 1;
-    f_result->in_db = 0;
-    f_result->result = 0;
+    f_result->clip_high = 1.0f;
+    f_result->clip_low = -1.0f;
+    f_result->input_gain_linear = 1.0f;
+    f_result->in_db = 0.0f;
+    f_result->result = 0.0f;
     f_result->clip_db = 7654567.0f;  //A nonsensical value for the sake of forcing a change on the first comparison
     f_result->amp_ptr = g_amp_get();
     
