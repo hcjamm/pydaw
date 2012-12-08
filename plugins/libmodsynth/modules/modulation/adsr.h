@@ -76,9 +76,9 @@ void v_adsr_set_a_time(t_adsr*__restrict a_adsr_ptr, float a_time)
     
     a_adsr_ptr->a_time = a_time;
     
-    if(a_time <= 0)
+    if(a_time <= 0.0f)
     {
-        a_adsr_ptr->a_inc = 1;
+        a_adsr_ptr->a_inc = 1.0f;
     }
     else
     {
@@ -98,7 +98,7 @@ void v_adsr_set_d_time(t_adsr*__restrict a_adsr_ptr, float a_time)
     if((a_adsr_ptr->d_time) == a_time)
         return;
     
-    if(a_time <= 0)
+    if(a_time <= 0.0f)
     {
         a_adsr_ptr->d_time = .05;
     }
@@ -109,7 +109,7 @@ void v_adsr_set_d_time(t_adsr*__restrict a_adsr_ptr, float a_time)
     
     //printf("Setting D time to %f\n", (a_adsr_ptr->d_time));
     
-    a_adsr_ptr->d_inc = ((a_adsr_ptr->sr_recip) / (a_adsr_ptr->d_time)) * -1;    
+    a_adsr_ptr->d_inc = ((a_adsr_ptr->sr_recip) / (a_adsr_ptr->d_time)) * -1.0f;    
 }
 
 /* void v_adsr_set_r_time(
@@ -123,16 +123,16 @@ void v_adsr_set_r_time(t_adsr*__restrict a_adsr_ptr, float a_time)
     if((a_adsr_ptr->r_time) == a_time)
         return;
     
-    if(a_time <= 0)
+    if(a_time <= 0.0f)
     {
-        a_adsr_ptr->r_time = .05;
+        a_adsr_ptr->r_time = .05f;
     }
     else
     {
         a_adsr_ptr->r_time = a_time;        
     }    
     
-    a_adsr_ptr->r_inc = ((a_adsr_ptr->sr_recip) / (a_adsr_ptr->r_time)) * -1;
+    a_adsr_ptr->r_inc = ((a_adsr_ptr->sr_recip) / (a_adsr_ptr->r_time)) * -1.0f;
     
     //printf("Setting R time to %f\n", (a_adsr_ptr->r_time));
     
@@ -146,8 +146,8 @@ void v_adsr_set_r_time(t_adsr*__restrict a_adsr_ptr, float a_time)
  */
 void v_adsr_set_fast_release(t_adsr*__restrict a_adsr_ptr)
 {
-    a_adsr_ptr->r_time = .05;
-    a_adsr_ptr->r_inc = -.0002;
+    a_adsr_ptr->r_time = .05f;
+    a_adsr_ptr->r_inc = -.0002f;
     a_adsr_ptr->stage = 3;
 }
 
@@ -159,12 +159,12 @@ void v_adsr_set_s_value(t_adsr*__restrict a_adsr_ptr, float a_value)
 {
     a_adsr_ptr->s_value = a_value;
     
-    if((a_adsr_ptr->s_value) <= 0)
+    if((a_adsr_ptr->s_value) <= 0.0f)
     {
-        a_adsr_ptr->s_value = .001;
+        a_adsr_ptr->s_value = .001f;
     }
     
-    a_adsr_ptr->d_recip = (1.0f/(1-(a_adsr_ptr->s_value)));
+    a_adsr_ptr->d_recip = (1.0f/(1.0f-(a_adsr_ptr->s_value)));
     a_adsr_ptr->r_recip = (1.0f/(a_adsr_ptr->s_value));
     
     //printf("Setting S value to %f\n", (a_adsr_ptr->s_value));
@@ -273,7 +273,7 @@ t_adsr * g_adsr_get_adsr(float a_sr_recip)
     
     v_adsr_set_a_time(f_result, .05);
     v_adsr_set_d_time(f_result, .5);
-    v_adsr_set_s_value_db(f_result, -12);
+    v_adsr_set_s_value_db(f_result, -12.0f);
     v_adsr_set_r_time(f_result, .5);
     
     return f_result;
