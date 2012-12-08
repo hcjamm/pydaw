@@ -17,6 +17,10 @@ extern "C" {
 #include "../../constants.h"
 #include "../../lib/amp.h"
 
+#define ADSR_DB 24.0f    
+#define ADSR_DB_THRESHOLD -24.0f
+#define ADSR_DB_THRESHOLD_LINEAR 0.063095
+
 /*TODO:  Add an option to start the attack at -20db or so...*/
 typedef struct st_adsr
 {
@@ -24,19 +28,20 @@ typedef struct st_adsr
     float a_time;
     float d_inc;
     float d_time;
-    float s_value;
-    
+    float s_value;    
     float d_recip;
-    float r_recip;
-    
+    float r_recip;    
     float r_inc;
     float r_time;
     
-    float sr_recip;
-        
-    int stage;  //0=a,1=d,2=s,3=r,4=inactive
-    
+    float sr_recip;        
+    int stage;  //0=a,1=d,2=s,3=r,4=inactive    
     float output;
+    
+    float output_db;
+    float a_inc_db;
+    float d_inc_db;
+    float r_inc_db;
     
     t_amp * amp_ptr;
 }t_adsr;
@@ -54,6 +59,7 @@ void v_adsr_set_adsr(t_adsr*, float, float, float, float);
 void v_adsr_retrigger(t_adsr *);
 void v_adsr_release(t_adsr *);
 void v_adsr_run(t_adsr *);
+void v_adsr_run_db(t_adsr *);
 
 t_adsr * g_adsr_get_adsr(float);
 
@@ -206,6 +212,10 @@ void v_adsr_set_adsr_db(t_adsr*__restrict a_adsr_ptr, float a_a, float a_d, floa
     v_adsr_set_d_time(a_adsr_ptr, a_d);
     v_adsr_set_s_value_db(a_adsr_ptr, a_s);
     v_adsr_set_r_time(a_adsr_ptr, a_r);
+    
+    a_adsr_ptr->a_inc_db = (a_adsr_ptr->a_inc) * ADSR_DB;
+    a_adsr_ptr->d_inc_db = (a_adsr_ptr->d_inc) * ADSR_DB;
+    a_adsr_ptr->r_inc_db = (a_adsr_ptr->r_inc) * ADSR_DB;
 }
 
 /* void v_adsr_retrigger(t_adsr * a_adsr_ptr)
@@ -215,8 +225,8 @@ void v_adsr_set_adsr_db(t_adsr*__restrict a_adsr_ptr, float a_a, float a_d, floa
 void v_adsr_retrigger(t_adsr *__restrict a_adsr_ptr)
 {
     a_adsr_ptr->stage = 0;
-    a_adsr_ptr->output = 0;    
-    
+    a_adsr_ptr->output = 0.0f;
+    a_adsr_ptr->output_db = ADSR_DB_THRESHOLD;
 }
 
 /* void v_adsr_release(t_adsr * a_adsr_ptr)
@@ -254,7 +264,12 @@ t_adsr * g_adsr_get_adsr(float a_sr_recip)
     f_result->r_inc = -100.5f;
     f_result->r_recip = -100.5f;
     f_result->r_time = -100.5f;
-    f_result->s_value = -100.5f;    
+    f_result->s_value = -100.5f;
+    
+    f_result->output_db = -100.5f;
+    f_result->a_inc_db = 0.1f;
+    f_result->d_inc_db = 0.1f;
+    f_result->r_inc_db = 0.1f;
     
     v_adsr_set_a_time(f_result, .05);
     v_adsr_set_d_time(f_result, .5);
@@ -297,6 +312,69 @@ void v_adsr_run(t_adsr *__restrict a_adsr_ptr)
                 /*Currently, this would actually take longer to release if the note off arrives
                  before the decay stage finishes, I may fix it later*/
                 a_adsr_ptr->output =  (a_adsr_ptr->output) + (a_adsr_ptr->r_inc);
+                if((a_adsr_ptr->output) <= 0.0f)
+                {
+                    a_adsr_ptr->output = 0.0f;
+                    a_adsr_ptr->stage = 4;
+                    //printf("ADSR stage4\n");
+                }
+                break;
+        }
+    }
+}
+
+void v_adsr_run_db(t_adsr *__restrict a_adsr_ptr)
+{
+    if((a_adsr_ptr->stage) != 4)
+    {         
+        switch(a_adsr_ptr->stage)
+        {            
+            case 0:
+                if((a_adsr_ptr->output) < ADSR_DB_THRESHOLD_LINEAR)
+                {
+                    a_adsr_ptr->output = (a_adsr_ptr->output) + (a_adsr_ptr->a_inc);
+                }
+                else
+                {
+                    a_adsr_ptr->output_db = (a_adsr_ptr->output_db) + (a_adsr_ptr->a_inc_db);
+                    a_adsr_ptr->output = f_db_to_linear((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
+                }
+                
+                if((a_adsr_ptr->output) >= 1.0f)
+                {
+                    a_adsr_ptr->stage = 1;                    
+                }
+                break;
+            case 1:
+                if((a_adsr_ptr->output) < ADSR_DB_THRESHOLD_LINEAR)
+                {
+                    a_adsr_ptr->output =  (a_adsr_ptr->output) + (a_adsr_ptr->d_inc);
+                }
+                else
+                {
+                    a_adsr_ptr->output_db = (a_adsr_ptr->output_db) + (a_adsr_ptr->d_inc_db);
+                    a_adsr_ptr->output = f_db_to_linear((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
+                }
+                
+                if((a_adsr_ptr->output) <= (a_adsr_ptr->s_value))
+                {
+                    a_adsr_ptr->stage = 2;                    
+                }
+                break;
+            case 2:
+                //Do nothing, we are sustaining
+                break;
+            case 3:
+                if((a_adsr_ptr->output) < ADSR_DB_THRESHOLD_LINEAR)
+                {
+                    a_adsr_ptr->output =  (a_adsr_ptr->output) + (a_adsr_ptr->r_inc);
+                }
+                else
+                {
+                    a_adsr_ptr->output_db = (a_adsr_ptr->output_db) + (a_adsr_ptr->r_inc_db);
+                    a_adsr_ptr->output = f_db_to_linear((a_adsr_ptr->output_db), a_adsr_ptr->amp_ptr);
+                }
+                                
                 if((a_adsr_ptr->output) <= 0.0f)
                 {
                     a_adsr_ptr->output = 0.0f;
