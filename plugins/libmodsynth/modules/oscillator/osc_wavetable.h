@@ -18,8 +18,6 @@ extern "C" {
 #include "../../lib/osc_core.h"
 #include "../../constants.h"
 #include "../../lib/pitch_core.h"
-/*This is eventually going to be replaced with SINC interpolation, this is only
- for getting a functional prototype going first.*/
 #include "../../lib/interpolate-linear.h"
     
 
@@ -100,7 +98,7 @@ void v_osc_set_uni_voice_count(t_osc_wav_unison* a_osc_ptr, int a_value)
         a_osc_ptr->voice_count = a_value;
     }
     
-    a_osc_ptr->adjusted_amp = (1 / (float)(a_osc_ptr->voice_count)) + ((a_osc_ptr->voice_count - 1) * .06);
+    a_osc_ptr->adjusted_amp = (1.0f / (float)(a_osc_ptr->voice_count)) + ((a_osc_ptr->voice_count - 1) * .06f);
 }
 
 
@@ -126,7 +124,7 @@ void v_osc_set_unison_pitch(t_osc_wav_unison * a_osc_ptr, float a_spread, float 
         if(a_spread != (a_osc_ptr->uni_spread))
         {
             a_osc_ptr->uni_spread = a_spread;
-            a_osc_ptr->bottom_pitch = -.5 * a_spread;
+            a_osc_ptr->bottom_pitch = -0.5f * a_spread;
             a_osc_ptr->pitch_inc = a_spread / ((float)(a_osc_ptr->voice_count));
         }
         
@@ -150,7 +148,7 @@ void v_osc_set_unison_pitch(t_osc_wav_unison * a_osc_ptr, float a_spread, float 
 //Return zero if the oscillator is turned off.  A function pointer should point here if the oscillator is turned off.
 float f_osc_wav_run_unison_off(t_osc_wav_unison * a_osc_ptr, t_wavetable* a_wavetable)
 {
-    return 0;
+    return 0.0f;
 }
 
 /* float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
@@ -160,7 +158,7 @@ float f_osc_wav_run_unison_off(t_osc_wav_unison * a_osc_ptr, t_wavetable* a_wave
 float f_osc_wav_run_unison(t_osc_wav_unison * a_osc_ptr, t_wavetable* a_wavetable)
 {
     a_osc_ptr->i_run_unison = 0;
-    a_osc_ptr->current_sample = 0;
+    a_osc_ptr->current_sample = 0.0f;
         
     while((a_osc_ptr->i_run_unison) < (a_osc_ptr->voice_count))
     {
@@ -185,8 +183,7 @@ void v_osc_note_on_sync_phases(t_osc_wav_unison * a_osc_ptr)
     
     while(f_i < a_osc_ptr->voice_count)
     {
-        a_osc_ptr->osc_cores[f_i]->output = a_osc_ptr->phases[f_i];
-        
+        a_osc_ptr->osc_cores[f_i]->output = a_osc_ptr->phases[f_i];        
         f_i++;
     }
 }
@@ -195,9 +192,9 @@ t_osc_wav * g_osc_get_osc_wav()
 {
     t_osc_wav * f_result = (t_osc_wav*)malloc(sizeof(t_osc_wav));
     
-    f_result->inc = 0;
-    f_result->last_pitch = 20;
-    f_result->output = 0;
+    f_result->inc = 0.0f;
+    f_result->last_pitch = 20.0f;
+    f_result->output = 0.0f;
         
     return f_result;
 }
@@ -209,10 +206,10 @@ t_osc_simple_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
     t_osc_wav_unison * f_result = (t_osc_wav_unison*)malloc(sizeof(t_osc_wav_unison));
     
     v_osc_set_uni_voice_count(f_result, OSC_UNISON_MAX_VOICES);        
-    f_result->sr_recip = 1 / a_sample_rate;
-    f_result->adjusted_amp = 1;
-    f_result->bottom_pitch = -0.1;
-    f_result->current_sample = 0;
+    f_result->sr_recip = 1.0f / a_sample_rate;
+    f_result->adjusted_amp = 1.0f;
+    f_result->bottom_pitch = -0.1f;
+    f_result->current_sample = 0.0f;
     f_result->i_run_unison = 0;
     f_result->pitch_inc = 0.1f;
     f_result->uni_spread = 0.1f;
@@ -248,7 +245,7 @@ t_osc_simple_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
         f_i++;
     }
     
-    v_osc_set_unison_pitch(f_result, .2, 60);
+    v_osc_set_unison_pitch(f_result, .2f, 60.0f);
     
     return f_result;
 }
