@@ -81,6 +81,7 @@ void print_to_c_array(float * a_buffer, int a_count, char * a_name)
     sf_close(f_sndfile);    
 }
 
+
 int main(int argc, char** argv) 
 {
     float * tmp = (float*)malloc(sizeof(float) * 10000);
@@ -91,15 +92,13 @@ int main(int argc, char** argv)
     f_osc->voice_inc[0] =  WT_HZ * f_osc->sr_recip;
     
     t_state_variable_filter * f_svf = g_svf_get(WT_SR);
-    float f_note_pitch = f_pit_hz_to_midi_note(WT_HZ * 4);
+    float f_note_pitch = f_pit_hz_to_midi_note(WT_HZ * 4.0f);
     t_pit_pitch_core * f_pitch_core = g_pit_get();
     float f_converted_fast_hz = f_pit_midi_note_to_hz_fast(f_note_pitch, f_pitch_core);
     v_svf_set_cutoff_base(f_svf, f_note_pitch);
     v_svf_set_res(f_svf, -0.1f);
     v_svf_set_cutoff(f_svf);
-        
-    /*Supersaw-style HP'd saw wave*/
-    
+       
     int f_i = 0;
     
     while(f_i < 1000000)
@@ -109,9 +108,46 @@ int main(int argc, char** argv)
         f_i++;
     }
     
+    
+    /*Raw saw wave, mostly as a reference waveform*/
+    
     f_i = 0;
     
     f_osc->osc_cores[0]->output = 0.0f;
+    
+    while(f_i < WT_FRAMES_PER_CYCLE)
+    {        
+        tmp[f_i] = f_osc_run_unison_osc(f_osc);
+        f_i++;
+    }
+    
+    print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "plain_saw");    
+    
+    /*Supersaw-style HP'd saw wave*/
+    
+    f_i = 0;
+    //Reset the phase by running it directly through the filter, so as not to disrupt the filter's state
+    if(f_osc->osc_cores[0]->output >= 0.5f)
+    {
+        while(f_osc->osc_cores[0]->output > 0.5f)
+        {
+            v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc));
+        }
+        
+        while(f_osc->osc_cores[0]->output < 0.5f)
+        {
+            v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc));
+        }
+    }
+    else
+    {
+        while(f_osc->osc_cores[0]->output < 0.5f)
+        {
+            v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc));
+        }
+    }
+    
+    f_i = 0;
     
     while(f_i < WT_FRAMES_PER_CYCLE)
     {        
