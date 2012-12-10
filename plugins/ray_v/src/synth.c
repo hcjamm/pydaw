@@ -326,6 +326,8 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 
                 v_osc_set_simple_osc_unison_type(plugin_data->data[f_voice]->osc_unison1, (int)(*plugin_data->osc1type));
                 v_osc_set_simple_osc_unison_type(plugin_data->data[f_voice]->osc_unison2, (int)(*plugin_data->osc2type));   
+                v_osc_note_on_sync_phases(plugin_data->data[f_voice]->osc_unison1);
+                v_osc_note_on_sync_phases(plugin_data->data[f_voice]->osc_unison2);
 
                 v_osc_set_uni_voice_count(plugin_data->data[f_voice]->osc_unison1, *plugin_data->master_uni_voice);
                 v_osc_set_uni_voice_count(plugin_data->data[f_voice]->osc_unison2, *plugin_data->master_uni_voice);                    
