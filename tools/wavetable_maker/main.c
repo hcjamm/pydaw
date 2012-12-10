@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sndfile.h>
 #include "../../plugins/libmodsynth/modules/oscillator/osc_simple.h"
 #include "../../plugins/libmodsynth/modules/oscillator/noise.h"
 #include "../../plugins/libmodsynth/modules/filter/svf.h"
@@ -63,7 +64,21 @@ void print_to_c_array(float * a_buffer, int a_count, char * a_name)
         }
         printf("\n");        
     }
-    printf("};");
+    printf("};\n\n\n");
+    
+    /*Now output to a sndfile so it can be analyzed in a wave editor*/
+        
+    SF_INFO f_sf_info;
+    f_sf_info.channels = 1;
+    f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+    f_sf_info.samplerate = (int)(WT_SR);
+            
+    char f_file_out[512];
+    sprintf(f_file_out, "%s.wav", a_name);
+    
+    SNDFILE * f_sndfile = sf_open(f_file_out, SFM_WRITE, &f_sf_info);
+    sf_writef_float(f_sndfile, a_buffer, a_count);
+    sf_close(f_sndfile);    
 }
 
 int main(int argc, char** argv) 
