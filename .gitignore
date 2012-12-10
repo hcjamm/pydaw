@@ -1,3 +1,5 @@
+tools/wavetable_maker/*.wav
+tools/wavetable_maker/wt.h
 tools/wavetable_maker/test.txt
 plugins/way_v/WAY_V_qt
 tools/wavetable_maker/wtgen
