@@ -91,22 +91,35 @@ int main(int argc, char** argv)
     f_osc->voice_inc[0] =  WT_HZ * f_osc->sr_recip;
     
     t_state_variable_filter * f_svf = g_svf_get(WT_SR);
-    v_svf_set_cutoff_base(f_svf, f_pit_hz_to_midi_note(WT_HZ));
+    float f_note_pitch = f_pit_hz_to_midi_note(WT_HZ * 4);
+    t_pit_pitch_core * f_pitch_core = g_pit_get();
+    float f_converted_fast_hz = f_pit_midi_note_to_hz_fast(f_note_pitch, f_pitch_core);
+    v_svf_set_cutoff_base(f_svf, f_note_pitch);
+    v_svf_set_res(f_svf, -0.1f);
     v_svf_set_cutoff(f_svf);
         
     /*Supersaw-style HP'd saw wave*/
     
     int f_i = 0;
     
-    while(f_i < WT_FRAMES_PER_CYCLE)
+    while(f_i < 1000000)
     {
-        tmp[f_i] = f_osc_run_unison_osc(f_osc);
-        tmp[f_i] = v_svf_run_2_pole_hp(f_svf, tmp[f_i]);        
+        //f_osc_run_unison_osc(f_osc);
+        v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc));
         f_i++;
     }
     
-    print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "superbsaw");
+    f_i = 0;
     
+    f_osc->osc_cores[0]->output = 0.0f;
+    
+    while(f_i < WT_FRAMES_PER_CYCLE)
+    {        
+        tmp[f_i] = v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc));
+        f_i++;
+    }
+    
+    print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "superbsaw");    
         
     return 0; //(EXIT_SUCCESS);
 }
