@@ -687,7 +687,7 @@ void _init()
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_TYPE].LowerBound =  0.0f;
-	port_range_hints[WAYV_OSC1_TYPE].UpperBound =  1.0f;
+	port_range_hints[WAYV_OSC1_TYPE].UpperBound =  2.0f;
         
         
         /*Parameters for osc1pitch*/        
@@ -728,7 +728,7 @@ void _init()
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_TYPE].LowerBound =  0.0f;
-	port_range_hints[WAYV_OSC2_TYPE].UpperBound =  1.0f;
+	port_range_hints[WAYV_OSC2_TYPE].UpperBound =  2.0f;
         
         
         /*Parameters for osc2pitch*/        
