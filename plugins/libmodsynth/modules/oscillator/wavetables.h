@@ -230,42 +230,61 @@ float superbsaw_array[superbsaw_count] = {
 
 
 #define WT_TOTAL_WAVETABLE_COUNT 2
+#define WT_HZ 40.0f
+#define WT_FRAMES_PER_CYCLE 1200
+#define WT_SR 48000.0f
+#define WT_HZ_RECIP (1.0f/WT_HZ)
 
 typedef struct st_wavetable
 {
-int length;
-float hz_recip;  //TODO:  I'm sure I had some brilliant mathematical wizardry behind this variable that was going to save a lot of CPU, but what was it?
-float * wavetable;
+    int length;
+    float hz_recip;  
+    float * wavetable;
 }t_wavetable;
 
-typedef struct {
-t_wavetable ** tables;
-int f_count;
+t_wavetable * g_wavetable_get();
+
+t_wavetable * g_wavetable_get()
+{
+    t_wavetable * f_result;
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_wavetable))) != 0){return 0;}
+    if(posix_memalign((void**)&f_result->wavetable, 16, (sizeof(float) * WT_FRAMES_PER_CYCLE)) != 0){return 0;}
+    f_result->hz_recip = WT_HZ_RECIP;
+    f_result->length = WT_FRAMES_PER_CYCLE;
+    return f_result;
+}
+
+typedef struct 
+{
+    t_wavetable ** tables;
+    int f_count;
 }t_wt_wavetables;
 
-t_wt_wavetables * g_wt_wavetables_get();
+t_wt_wavetables * g_wt_wavetables_get(float);
 
-t_wt_wavetables * g_wt_wavetables_get()
+t_wt_wavetables * g_wt_wavetables_get(float a_sr)
 {
-int f_i = 0;
-t_wt_wavetables * f_result;
-if(posix_memalign((void**)&f_result, 16, (sizeof(t_wt_wavetables))) != 0){return 0;}
-f_result->f_count = WT_TOTAL_WAVETABLE_COUNT;
-if(posix_memalign((void**)&f_result->tables, 16, (sizeof(t_wavetable) * WT_TOTAL_WAVETABLE_COUNT)) != 0){return 0;}
-if(posix_memalign((void**)&f_result->tables[0]->wavetable, 16, (sizeof(float) * 1200)) != 0){return 0;}
-f_i = 0;
-while(f_i < 1200)
-{
-f_result->tables[f_i] = plain_saw_array[f_i]; 
-f_i++;
-}if(posix_memalign((void**)&f_result->tables[1], 16, (sizeof(float) * 1200)) != 0){return 0;}
-f_i = 0;
-while(f_i < 1200)
-{
-f_result->tables[f_i] = superbsaw_array[f_i]; 
-f_i++;
-}
-return f_result;
+    int f_i = 0;
+    t_wt_wavetables * f_result;
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_wt_wavetables))) != 0){return 0;}
+    f_result->f_count = WT_TOTAL_WAVETABLE_COUNT;
+    if(posix_memalign((void**)&f_result->tables, 16, (sizeof(t_wavetable) * WT_TOTAL_WAVETABLE_COUNT)) != 0){return 0;}
+
+    f_i = 0;
+    while(f_i < WT_FRAMES_PER_CYCLE)
+    {
+        f_result->tables[f_i]->wavetable[f_i] = plain_saw_array[f_i]; 
+        f_i++;
+    }
+
+    f_i = 0;
+    while(f_i < WT_FRAMES_PER_CYCLE)
+    {
+        f_result->tables[1]->wavetable[f_i] = superbsaw_array[f_i]; 
+        f_i++;
+    }
+
+    return f_result;
 }
 
 
