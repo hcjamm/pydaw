@@ -35,16 +35,7 @@ extern "C" {
 #include "../../libmodsynth/lib/smoother-iir.h"
 #include "../../libmodsynth/modules/oscillator/lfo_simple.h"
 #include "../../libmodsynth/modules/oscillator/osc_wavetable.h"
-   
-/*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
- require less CPU time than running through if or switch statements.
- Functions from the library that have their own parameters (such as a pointer to 
- their associated struct type as a parameter) should declare their own function pointer types*/
-typedef float (*fp_funcptr_audio_generic)();
-    
-/*Declare any static variables that should be used globally in LibModSynth
- Note that any constants not requiring dynamically generated data should be declared in constants.h
- */
+
 static float va_rayv_sr_recip;
 static float va_rayv_sample_rate;
 
@@ -89,20 +80,13 @@ typedef struct st_rayv_poly_voice
     t_smoother_linear * glide_smoother;
     t_ramp_env * glide_env;
     
-    t_ramp_env * pitch_env;
-    
-    float last_pitch;  //For simplicity, this is used whether glide is turned on or not
-    
-    float base_pitch;  //base pitch for all oscillators, to avoid redundant calculations
-    
-    float target_pitch;
-    
-    float filter_output;  //For assigning the filter output to
-    
-    float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.
-    
-    t_lfs_lfo * lfo1;
-    
+    t_ramp_env * pitch_env;    
+    float last_pitch;  //For simplicity, this is used whether glide is turned on or not    
+    float base_pitch;  //base pitch for all oscillators, to avoid redundant calculations    
+    float target_pitch;    
+    float filter_output;  //For assigning the filter output to    
+    float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.    
+    t_lfs_lfo * lfo1;    
     float lfo_amp_output, lfo_pitch_output, lfo_filter_output;
     
     t_amp * amp_ptr;
@@ -131,7 +115,7 @@ t_rayv_poly_voice * g_rayv_poly_init()
     f_voice->osc_unison2 = g_osc_get_osc_simple_unison(va_rayv_sample_rate);
     f_voice->osc_wavtable1 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
     f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
-    f_voice->wavetables = g_wt_wavetables_get(va_rayv_sample_rate);    
+    f_voice->wavetables = g_wt_wavetables_get();    
     
     f_voice->svf_filter = g_svf_get(va_rayv_sample_rate);
     f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
