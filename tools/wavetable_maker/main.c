@@ -20,6 +20,7 @@
 #include "../../plugins/libmodsynth/modules/oscillator/osc_simple.h"
 #include "../../plugins/libmodsynth/modules/oscillator/noise.h"
 #include "../../plugins/libmodsynth/modules/filter/svf.h"
+#include "../../plugins/libmodsynth/modules/filter/peak_eq.h"
 #include "../../plugins/libmodsynth/lib/pitch_core.h"
 
 #define FLOATS_PER_LINE 12
@@ -98,6 +99,9 @@ int main(int argc, char** argv)
     float * tmp = (float*)malloc(sizeof(float) * 10000);
     
     t_white_noise * f_noise = g_get_white_noise(WT_SR);
+    
+    t_pkq_peak_eq * f_eq1 = g_pkq_get(WT_SR);
+    t_pkq_peak_eq * f_eq2 = g_pkq_get(WT_SR);
     
     t_osc_simple_unison * f_osc = g_osc_get_osc_simple_unison(WT_SR);
     v_osc_set_uni_voice_count(f_osc, 1);
@@ -193,24 +197,33 @@ int main(int argc, char** argv)
     }
         
     f_i = 0;
+    
+    v_pkq_calc_coeffs(f_eq1, 90.0f, 6.0f, 6.0f);
     //Reset the phase by running it directly through the filter, so as not to disrupt the filter's state
     if(f_osc->osc_cores[0]->output >= 0.5f)
     {
         while(f_osc->osc_cores[0]->output > 0.5f)
         {
-            v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc));
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc)),
+                0.0f);
+            
         }
         
         while(f_osc->osc_cores[0]->output < 0.5f)
         {
-            v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc));
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc)),
+                0.0f);
         }
     }
     else
     {
         while(f_osc->osc_cores[0]->output < 0.5f)
         {
-            v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc));
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc)),
+                0.0f);
         }
     }
     
@@ -218,7 +231,12 @@ int main(int argc, char** argv)
     
     while(f_i < WT_FRAMES_PER_CYCLE)
     {        
-        tmp[f_i] = v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc) + f_run_pink_noise(f_noise));
+        float f_current_sample = f_osc_run_unison_osc(f_osc) + (f_run_pink_noise(f_noise) * 0.5f);        
+        v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_current_sample),
+                0.0f);
+        tmp[f_i] = f_eq1->output0;
+                
         f_i++;
     }
         
