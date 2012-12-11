@@ -233,12 +233,11 @@ float superbsaw_array[superbsaw_count] = {
 #define WT_HZ 40.0f
 #define WT_FRAMES_PER_CYCLE 1200
 #define WT_SR 48000.0f
-#define WT_HZ_RECIP (1.0f/WT_HZ)
+//#define WT_HZ_RECIP (1.0f/WT_HZ)
 
 typedef struct st_wavetable
 {
     int length;
-    float hz_recip;  
     float * wavetable;
 }t_wavetable;
 
@@ -248,8 +247,7 @@ t_wavetable * g_wavetable_get()
 {
     t_wavetable * f_result;
     if(posix_memalign((void**)&f_result, 16, (sizeof(t_wavetable))) != 0){return 0;}
-    if(posix_memalign((void**)&f_result->wavetable, 16, (sizeof(float) * WT_FRAMES_PER_CYCLE)) != 0){return 0;}
-    f_result->hz_recip = WT_HZ_RECIP;
+    if(posix_memalign((void**)&f_result->wavetable, 16, (sizeof(float) * WT_FRAMES_PER_CYCLE)) != 0){return 0;}    
     f_result->length = WT_FRAMES_PER_CYCLE;
     return f_result;
 }
@@ -260,9 +258,9 @@ typedef struct
     int f_count;
 }t_wt_wavetables;
 
-t_wt_wavetables * g_wt_wavetables_get(float);
+t_wt_wavetables * g_wt_wavetables_get();
 
-t_wt_wavetables * g_wt_wavetables_get(float a_sr)
+t_wt_wavetables * g_wt_wavetables_get()
 {
     int f_i = 0;
     t_wt_wavetables * f_result;

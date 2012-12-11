@@ -48,9 +48,9 @@ typedef struct st_osc_wav_unison
     float pitch_inc;
     float voice_inc [OSC_UNISON_MAX_VOICES];
     t_osc_core * osc_cores [OSC_UNISON_MAX_VOICES];
-    float * selected_wavetable;
-    float selected_wavetable_hz_recip;
+    float * selected_wavetable;    
     int selected_wavetable_sample_count;
+    float selected_wavetable_sample_count_float;
     float phases [OSC_UNISON_MAX_VOICES];  //Restart the oscillators at the same phase on each note-on    
     float uni_spread;                
     float adjusted_amp;  //Set this with unison voices to prevent excessive volume     
@@ -71,16 +71,16 @@ inline float f_osc_wav_run_unison(t_osc_wav_unison *);
 inline float f_osc_wav_run_unison_off(t_osc_wav_unison *);
 inline void v_osc_wav_run(t_osc_core *,t_wavetable*,t_lin_interpolater*);
 inline void v_osc_wav_note_on_sync_phases(t_osc_wav_unison *);
-inline void v_osc_wav_set_waveform(t_osc_wav_unison*, float *, int, float);
+inline void v_osc_wav_set_waveform(t_osc_wav_unison*, float *, int);
 t_osc_wav * g_osc_get_osc_wav();
 t_osc_wav_unison * g_osc_get_osc_wav_unison(float);
 
 
-inline void v_osc_wav_set_waveform(t_osc_wav_unison* a_osc_wav, float * a_waveform, int a_sample_count, float a_hz_recip)
+inline void v_osc_wav_set_waveform(t_osc_wav_unison* a_osc_wav, float * a_waveform, int a_sample_count)
 {
     a_osc_wav->selected_wavetable = a_waveform;
     a_osc_wav->selected_wavetable_sample_count = a_sample_count;
-    a_osc_wav->selected_wavetable_hz_recip = a_hz_recip;
+    a_osc_wav->selected_wavetable_sample_count_float = (float)(a_sample_count);
 }
 
 /* void v_osc_wav_set_uni_voice_count(
@@ -121,7 +121,7 @@ void v_osc_wav_set_unison_pitch(t_osc_wav_unison * a_osc_ptr, float a_spread, fl
 {
     if((a_osc_ptr->voice_count) == 1)
     {
-        a_osc_ptr->voice_inc[0] =  f_pit_midi_note_to_hz_fast(a_pitch, a_osc_ptr->pitch_core) * (a_osc_ptr->selected_wavetable_hz_recip);
+        a_osc_ptr->voice_inc[0] =  f_pit_midi_note_to_hz_fast(a_pitch, a_osc_ptr->pitch_core) * (a_osc_ptr->sr_recip);
     }
     else
     {        
@@ -139,7 +139,7 @@ void v_osc_wav_set_unison_pitch(t_osc_wav_unison * a_osc_ptr, float a_spread, fl
             a_osc_ptr->voice_inc[(a_osc_ptr->i_uni_pitch)] =  f_pit_midi_note_to_hz_fast(
                     (a_pitch + (a_osc_ptr->bottom_pitch) + (a_osc_ptr->pitch_inc * ((float)(a_osc_ptr->i_uni_pitch))))
                     , a_osc_ptr->pitch_core) 
-                    * (a_osc_ptr->selected_wavetable_hz_recip);
+                    * (a_osc_ptr->sr_recip);
             
             a_osc_ptr->i_uni_pitch = (a_osc_ptr->i_uni_pitch) + 1;
         }
@@ -168,10 +168,10 @@ float f_osc_wav_run_unison(t_osc_wav_unison * a_osc_ptr)
     {
         //v_run_osc((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]), (a_osc_ptr->voice_inc[(a_osc_ptr->i_run_unison)]));
         //a_osc_ptr->current_sample = (a_osc_ptr->current_sample) + a_osc_ptr->osc_type((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]));
-        v_run_osc((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]), (a_osc_ptr->voice_inc[(a_osc_ptr->i_run_unison)]));
+        v_run_osc(a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)], (a_osc_ptr->voice_inc[(a_osc_ptr->i_run_unison)]));
         a_osc_ptr->current_sample = (a_osc_ptr->current_sample) + 
                 f_linear_interpolate_ptr_wrap(a_osc_ptr->selected_wavetable, a_osc_ptr->selected_wavetable_sample_count, 
-                ((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]->output) * (a_osc_ptr->selected_wavetable_sample_count)), a_osc_ptr->linear_interpolator);
+                ((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]->output) * (a_osc_ptr->selected_wavetable_sample_count_float)), a_osc_ptr->linear_interpolator);
     
         a_osc_ptr->i_run_unison = (a_osc_ptr->i_run_unison) + 1;
     }
@@ -218,8 +218,10 @@ t_osc_wav_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
     f_result->pitch_inc = 0.1f;
     f_result->uni_spread = 0.1f;
     f_result->voice_count = 1;
-    
+    f_result->i_uni_pitch = 0;
+        
     f_result->pitch_core = g_pit_get();
+    f_result->linear_interpolator = g_lin_get();
         
     int f_i = 0;
     
@@ -242,6 +244,7 @@ t_osc_wav_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
     
     f_result->selected_wavetable = 0;
     f_result->selected_wavetable_sample_count = 0;
+    f_result->selected_wavetable_sample_count_float = 0.0f;
     
     return f_result;
 }
