@@ -183,7 +183,7 @@ int main(int argc, char** argv)
     
     sprintf(f_tmp_mem, "if(posix_memalign((void**)&f_result->tables[%i], 16, (sizeof(float) * %i)) != 0){return 0;}\n", f_wav_count, WT_FRAMES_PER_CYCLE);
     strcat(f_type, f_tmp_mem);
-    sprintf(f_tmp_iter, "f_i = 0;\nwhile(f_i < %i)\n{\nf_result->tables[f_i] = %s_array[f_i]; \nf_i++;\n}", WT_FRAMES_PER_CYCLE, "plain_saw");
+    sprintf(f_tmp_iter, "f_i = 0;\nwhile(f_i < %i)\n{\nf_result->tables[f_i] = %s_array[f_i]; \nf_i++;\n}", WT_FRAMES_PER_CYCLE, "superbsaw");
     strcat(f_type, f_tmp_iter);
     
     f_wav_count++;

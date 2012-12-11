@@ -34,6 +34,7 @@ extern "C" {
 #include "../../libmodsynth/modules/modulation/ramp_env.h"
 #include "../../libmodsynth/lib/smoother-iir.h"
 #include "../../libmodsynth/modules/oscillator/lfo_simple.h"
+//#include "../../libmodsynth/modules/oscillator/osc_wavetable.h"
    
 /*A call to an audio function that requires no parameters.  Use this for GUI switches when possible, as it will
  require less CPU time than running through if or switch statements.
