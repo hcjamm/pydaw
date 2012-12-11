@@ -3,6 +3,11 @@
  * Author: Jeff Hubbard
  * 
  * Generate wavetables and print as C arrays.
+ * 
+ * You may be interested to know that this is how it was done back in the 
+ * early days of digital hardware(and probably still today), and that this 
+ * methodology will produce far better results than ie:  sampling ye olden 
+ * vintage hardware and trimming the samples by hand.
  *
  * Created on March 12, 2012, 7:46 PM
  */
@@ -11,6 +16,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sndfile.h>
+#include <string.h>
 #include "../../plugins/libmodsynth/modules/oscillator/osc_simple.h"
 #include "../../plugins/libmodsynth/modules/oscillator/noise.h"
 #include "../../plugins/libmodsynth/modules/filter/svf.h"
@@ -41,7 +47,7 @@ void print_to_c_array(float * a_buffer, int a_count, char * a_name)
     
     f_i = 0;
     
-    float f_normalize = 1.0f/f_highest;
+    float f_normalize = 0.99f/f_highest;
     
     while(f_i < a_count)
     {
@@ -84,6 +90,17 @@ void print_to_c_array(float * a_buffer, int a_count, char * a_name)
 
 int main(int argc, char** argv) 
 {
+    int f_wav_count = 0;
+    
+    char f_tmp_mem[1024];
+    char f_tmp_iter[1024];
+    
+    char f_type[10000] = "\n\ntypedef struct {\nfloat ** tables;\n}t_wt_wavetables;\n\n";
+    strcat(f_type, "t_wt_wavetables * g_wt_wavetables_get();\n\n");
+    strcat(f_type, "t_wt_wavetables * g_wt_wavetables_get()\n{\nint f_i = 0;\n");
+    strcat(f_type, "t_wt_wavetables * f_result;\nif(posix_memalign((void**)&f_result, 16, (sizeof(t_wt_wavetables))) != 0){return 0;}\n");
+    strcat(f_type, "if(posix_memalign((void**)&f_result->tables, 16, (sizeof(float) * WT_TOTAL_WAVETABLE_COUNT)) != 0){return 0;}\n");
+    
     float * tmp = (float*)malloc(sizeof(float) * 10000);
     
     t_osc_simple_unison * f_osc = g_osc_get_osc_simple_unison(WT_SR);
@@ -123,6 +140,13 @@ int main(int argc, char** argv)
     
     print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "plain_saw");    
     
+    sprintf(f_tmp_mem, "if(posix_memalign((void**)&f_result->tables[%i], 16, (sizeof(float) * %i)) != 0){return 0;}\n", f_wav_count, WT_FRAMES_PER_CYCLE);    
+    strcat(f_type, f_tmp_mem);
+    sprintf(f_tmp_iter, "f_i = 0;\nwhile(f_i < %i)\n{\nf_result->tables[f_i] = %s_array[f_i]; \nf_i++;\n}", WT_FRAMES_PER_CYCLE, "plain_saw");
+    strcat(f_type, f_tmp_iter);
+    
+    f_wav_count++;
+    
     /*Supersaw-style HP'd saw wave*/
     
     f_i = 0;
@@ -154,9 +178,22 @@ int main(int argc, char** argv)
         tmp[f_i] = v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc));
         f_i++;
     }
-    
-    print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "superbsaw");    
         
+    print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "superbsaw");  
+    
+    sprintf(f_tmp_mem, "if(posix_memalign((void**)&f_result->tables[%i], 16, (sizeof(float) * %i)) != 0){return 0;}\n", f_wav_count, WT_FRAMES_PER_CYCLE);
+    strcat(f_type, f_tmp_mem);
+    sprintf(f_tmp_iter, "f_i = 0;\nwhile(f_i < %i)\n{\nf_result->tables[f_i] = %s_array[f_i]; \nf_i++;\n}", WT_FRAMES_PER_CYCLE, "plain_saw");
+    strcat(f_type, f_tmp_iter);
+    
+    f_wav_count++;
+    
+    strcat(f_type, "\nreturn f_result;\n}\n\n");
+    
+    printf("\n\n#define WT_TOTAL_WAVETABLE_COUNT %i\n\n", f_wav_count);
+    
+    printf("%s", f_type);
+    
     return 0; //(EXIT_SUCCESS);
 }
 
