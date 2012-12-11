@@ -71,6 +71,9 @@ typedef struct st_rayv_poly_voice
 {    
     t_osc_simple_unison * osc_unison1;
     t_osc_simple_unison * osc_unison2;
+    t_osc_wav_unison * osc_wavtable1;
+    t_osc_wav_unison * osc_wavtable2;
+    t_wt_wavetables * wavetables;
     
     t_state_variable_filter * svf_filter;
     fp_svf_run_filter svf_function;
@@ -126,8 +129,10 @@ t_rayv_poly_voice * g_rayv_poly_init()
     
     f_voice->osc_unison1 = g_osc_get_osc_simple_unison(va_rayv_sample_rate);    
     f_voice->osc_unison2 = g_osc_get_osc_simple_unison(va_rayv_sample_rate);
+    f_voice->osc_wavtable1 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
+    f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
+    f_voice->wavetables = g_wt_wavetables_get(va_rayv_sample_rate);    
     
-        
     f_voice->svf_filter = g_svf_get(va_rayv_sample_rate);
     f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
         

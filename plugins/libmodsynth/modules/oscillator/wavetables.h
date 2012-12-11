@@ -270,13 +270,15 @@ t_wt_wavetables * g_wt_wavetables_get(float a_sr)
     f_result->f_count = WT_TOTAL_WAVETABLE_COUNT;
     if(posix_memalign((void**)&f_result->tables, 16, (sizeof(t_wavetable) * WT_TOTAL_WAVETABLE_COUNT)) != 0){return 0;}
 
+    f_result->tables[0] = g_wavetable_get();
     f_i = 0;
     while(f_i < WT_FRAMES_PER_CYCLE)
     {
-        f_result->tables[f_i]->wavetable[f_i] = plain_saw_array[f_i]; 
+        f_result->tables[0]->wavetable[f_i] = plain_saw_array[f_i]; 
         f_i++;
     }
 
+    f_result->tables[1] = g_wavetable_get();
     f_i = 0;
     while(f_i < WT_FRAMES_PER_CYCLE)
     {
