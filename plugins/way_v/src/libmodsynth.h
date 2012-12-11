@@ -59,9 +59,7 @@ typedef struct st_rayv_mono_modules
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
 typedef struct st_rayv_poly_voice
-{    
-    t_osc_simple_unison * osc_unison1;
-    t_osc_simple_unison * osc_unison2;
+{
     t_osc_wav_unison * osc_wavtable1;
     t_osc_wav_unison * osc_wavtable2;
     t_wt_wavetables * wavetables;
@@ -109,10 +107,6 @@ t_rayv_poly_voice * g_rayv_poly_init()
 {
     t_rayv_poly_voice * f_voice = (t_rayv_poly_voice*)malloc(sizeof(t_rayv_poly_voice));
     
-    /*TODO:  Remove some of the set values, they were from the early days and aren't needed anymore*/
-    
-    f_voice->osc_unison1 = g_osc_get_osc_simple_unison(va_rayv_sample_rate);    
-    f_voice->osc_unison2 = g_osc_get_osc_simple_unison(va_rayv_sample_rate);
     f_voice->osc_wavtable1 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
     f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
     f_voice->wavetables = g_wt_wavetables_get();    
