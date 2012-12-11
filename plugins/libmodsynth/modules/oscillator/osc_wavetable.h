@@ -220,10 +220,7 @@ t_osc_wav_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
     f_result->voice_count = 1;
     
     f_result->pitch_core = g_pit_get();
-    f_result->selected_wavetable_sample_count = 1;
-    float f_temp = 0.0f;
-    f_result->selected_wavetable = &f_temp;
-    
+        
     int f_i = 0;
     
     while(f_i < (OSC_UNISON_MAX_VOICES))
@@ -232,23 +229,12 @@ t_osc_wav_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
         //f_result->osc_wavs[f_i] = 
         f_i++;
     }
-        
-    v_osc_wav_set_unison_pitch(f_result, .5, 60);
-    
-    f_i = 0;
-    
-    //Prevent phasing artifacts from the oscillators starting at the same phase.
-    while(f_i < 200000)
-    {
-        f_osc_wav_run_unison(f_result);
-        f_i++;
-    }
-    
+           
     f_i = 0;
         
     while(f_i < (OSC_UNISON_MAX_VOICES))
     {
-        f_result->phases[f_i] = f_result->osc_cores[f_i]->output;
+        f_result->phases[f_i] = 0.0f;  //TODO:  get some good values for this
         f_i++;
     }
     
