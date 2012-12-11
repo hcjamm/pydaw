@@ -19,6 +19,7 @@ extern "C" {
 #include "../../constants.h"
 #include "../../lib/pitch_core.h"
 #include "../../lib/interpolate-linear.h"
+#include "wavetables.h"
     
 
 /*C doesn't like dynamic arrays, so we have to define this at compile time.  
@@ -61,29 +62,22 @@ typedef struct st_osc_wav_unison
 }t_osc_wav_unison;
 
 
-typedef struct st_wavetable
-{
-    int length;
-    float hz_recip;
-    float * wavetable;
-}t_wavetable;
-
 typedef float (*fp_get_osc_wav_func_ptr)(t_osc_wav*,t_wavetable*);
 
-inline void v_osc_set_uni_voice_count(t_osc_wav_unison*, int);
-inline void v_osc_set_unison_pitch(t_osc_wav_unison *, float, float, float);
+inline void v_osc_wav_set_uni_voice_count(t_osc_wav_unison*, int);
+inline void v_osc_wav_set_unison_pitch(t_osc_wav_unison *, float, float, float);
 inline float f_osc_wav_run_unison(t_osc_wav_unison *,t_wavetable*);
 inline float f_osc_wav_run_unison_off(t_osc_wav_unison *,t_wavetable*);
-static inline void v_osc_wav_run(t_osc_core *,t_wavetable*,t_lin_interpolater*);
-inline void v_osc_note_on_sync_phases(t_osc_wav_unison *);
+inline void v_osc_wav_run(t_osc_core *,t_wavetable*,t_lin_interpolater*);
+inline void v_osc_wav_note_on_sync_phases(t_osc_wav_unison *);
 t_osc_wav * g_osc_get_osc_wav();
 t_osc_wav_unison * g_osc_get_osc_wav_unison(float);
 
-/* void v_osc_set_uni_voice_count(
+/* void v_osc_wav_set_uni_voice_count(
  * t_osc_simple_unison* a_osc_ptr, 
  * int a_value) //the number of unison voices this oscillator should use
  */
-void v_osc_set_uni_voice_count(t_osc_wav_unison* a_osc_ptr, int a_value)
+void v_osc_wav_set_uni_voice_count(t_osc_wav_unison* a_osc_ptr, int a_value)
 {
     if(a_value > (OSC_UNISON_MAX_VOICES))
     {
@@ -113,7 +107,7 @@ void v_osc_set_uni_voice_count(t_osc_wav_unison* a_osc_ptr, int a_value)
  * 
  * This avoids division in the main loop
  */
-void v_osc_set_unison_pitch(t_osc_wav_unison * a_osc_ptr, float a_spread, float a_pitch, float a_wav_recip)
+void v_osc_wav_set_unison_pitch(t_osc_wav_unison * a_osc_ptr, float a_spread, float a_pitch, float a_wav_recip)
 {
     if((a_osc_ptr->voice_count) == 1)
     {
@@ -177,7 +171,7 @@ float f_osc_wav_run_unison(t_osc_wav_unison * a_osc_ptr, t_wavetable* a_wavetabl
 
 
 /*Resync the oscillators at note_on to hopefully avoid phasing artifacts*/
-void v_osc_note_on_sync_phases(t_osc_wav_unison * a_osc_ptr)
+void v_osc_wav_note_on_sync_phases(t_osc_wav_unison * a_osc_ptr)
 {
     int f_i = 0;
     
@@ -201,7 +195,7 @@ t_osc_wav * g_osc_get_osc_wav()
 
 /* t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
  */
-t_osc_simple_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
+t_osc_wav_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
 {
     t_osc_wav_unison * f_result = (t_osc_wav_unison*)malloc(sizeof(t_osc_wav_unison));
     
@@ -222,11 +216,11 @@ t_osc_simple_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
     while(f_i < (OSC_UNISON_MAX_VOICES))
     {
         f_result->osc_cores[f_i] =  g_get_osc_core(); 
-        f_result->osc_wavs[f_i] = 
+        //f_result->osc_wavs[f_i] = 
         f_i++;
     }
         
-    v_osc_set_unison_pitch(f_result, .5, 60);
+    v_osc_wav_set_unison_pitch(f_result, .5, 60);
     
     f_i = 0;
     
@@ -245,7 +239,7 @@ t_osc_simple_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
         f_i++;
     }
     
-    v_osc_set_unison_pitch(f_result, .2f, 60.0f);
+    v_osc_wav_set_unison_pitch(f_result, .2f, 60.0f);
     
     return f_result;
 }
