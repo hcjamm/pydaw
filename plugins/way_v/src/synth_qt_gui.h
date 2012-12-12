@@ -25,6 +25,7 @@ GNU General Public License for more details.
 #include <QComboBox>
 #include <QPushButton>
 #include <QPixmap>
+#include <QTabWidget>
 
 #include <string>
 #include <stdlib.h>
@@ -147,6 +148,10 @@ protected slots:
     
     void oscRecv();
 protected:
+    QVBoxLayout * m_window_layout;
+    QTabWidget * m_tab_widget;
+    QWidget * m_osc_tab;
+    QWidget * m_polyfx_tab;
     
     LMS_main_layout * m_main_layout;
     

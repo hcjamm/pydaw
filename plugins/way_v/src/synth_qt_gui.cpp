@@ -86,7 +86,18 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     f_info->LMS_set_label_style("QLabel{background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
     f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
         
-    m_main_layout = new LMS_main_layout(this);
+    m_tab_widget = new QTabWidget(this);
+    
+    m_window_layout = new QVBoxLayout();
+    this->setLayout(m_window_layout);
+    m_window_layout->addWidget(m_tab_widget);
+    
+    m_osc_tab = new QWidget();
+    m_tab_widget->addTab(m_osc_tab, QString("Oscillators"));
+    m_main_layout = new LMS_main_layout(m_osc_tab);
+    
+    m_polyfx_tab = new QWidget();
+    m_tab_widget->addTab(m_polyfx_tab, QString("PolyFX"));
     
     m_program = new LMS_preset_manager(QString(WAYV_PLUGIN_NAME), f_default_presets, WAYV_PROGRAM_CHANGE, f_info, this);
         
@@ -195,11 +206,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_program->lms_add_control(m_master->lms_master_unison_spread);
     m_program->lms_add_control(m_master->lms_master_glide);
     m_program->lms_add_control(m_master->lms_master_pitchbend_amt);
-        
-    rayv_cerr << QString("pending_index_change: ") << m_program->pending_index_change << QString("\n")
-            << QString("currentIndex: ") << m_program->m_program->currentIndex() << QString("\n");
-        
-    /*DO NOT remove the code below this line*/
+       
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
@@ -207,8 +214,6 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     myTimer->start(0);
     
     m_suppressHostUpdate = false;
-   
-    rayv_cerr << "Leaving constructor...\n";
 }
 
 void rayv_gui::lms_set_value(float val, LMS_control * a_ctrl )
