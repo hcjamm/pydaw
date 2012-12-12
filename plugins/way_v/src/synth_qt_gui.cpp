@@ -129,18 +129,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_adsr_amp->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));        
     connect(m_adsr_amp->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));        
     connect(m_adsr_amp->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));    
-    
-    m_groupbox_distortion = new LMS_group_box(this, QString("Distortion"), f_info);
-    m_main_layout->lms_add_widget(m_groupbox_distortion->lms_groupbox);
-    
-    m_dist = new LMS_knob_regular(QString("Gain"), -6, 36, 1, 12, QString("12"), m_groupbox_distortion->lms_groupbox, f_info, lms_kc_integer, WAYV_DIST);
-    m_groupbox_distortion->lms_add_h(m_dist);
-    connect(m_dist->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(distChanged(int)));
-    
-    m_dist_wet = new LMS_knob_regular(QString("Wet"), 0, 100, 1, 0, QString(""), m_groupbox_distortion->lms_groupbox, f_info, lms_kc_none, WAYV_DIST_WET);
-    m_groupbox_distortion->lms_add_h(m_dist_wet);
-    connect(m_dist_wet->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(distWetChanged(int)));
-    
+        
     m_groupbox_noise = new LMS_group_box(this, QString("Noise"), f_info);
     m_main_layout->lms_add_widget(m_groupbox_noise->lms_groupbox);
         
@@ -158,26 +147,6 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_osc2->lms_vol_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2VolumeChanged(int)));    
     connect(m_osc2->lms_osc_type_box->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
     
-    m_adsr_filter = new LMS_adsr_widget(this, f_info, FALSE, WAYV_FILTER_ATTACK, WAYV_FILTER_DECAY, WAYV_FILTER_SUSTAIN, WAYV_FILTER_RELEASE, QString("ADSR Filter"));
-    
-    m_main_layout->lms_add_widget(m_adsr_filter->lms_groupbox_adsr->lms_groupbox);
-    
-    connect(m_adsr_filter->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(filterAttackChanged(int)));
-    connect(m_adsr_filter->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(filterDecayChanged(int))); 
-    connect(m_adsr_filter->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterSustainChanged(int)));
-    connect(m_adsr_filter->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));
-        
-    m_filter = new LMS_filter_widget(this, f_info, WAYV_TIMBRE, WAYV_RES, -1, FALSE);
-        
-    m_main_layout->lms_add_widget(m_filter->lms_groupbox->lms_groupbox);
-    
-    connect(m_filter->lms_cutoff_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(timbreChanged(int)));
-    connect(m_filter->lms_res_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(resChanged(int)));
-        
-    m_filter_env_amt  = new LMS_knob_regular(QString("Env Amt"), -36, 36, 1, 0, QString("0"), m_filter->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, WAYV_FILTER_ENV_AMT);
-    m_filter->lms_groupbox->lms_add_h(m_filter_env_amt);
-    connect(m_filter_env_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(filterEnvAmtChanged(int)));
-    
     m_main_layout->lms_add_layout();
     
     m_master = new LMS_master_widget(this, f_info, WAYV_MASTER_VOLUME, WAYV_MASTER_UNISON_VOICES, 
@@ -190,46 +159,13 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    
     connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
     
-    m_pitch_env = new LMS_ramp_env(this, f_info, WAYV_PITCH_ENV_TIME, WAYV_PITCH_ENV_AMT, -1, FALSE, QString("Pitch Env"), TRUE);
-    m_main_layout->lms_add_widget(m_pitch_env->lms_groupbox->lms_groupbox);
-    
-    connect(m_pitch_env->lms_amt_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvAmtChanged(int)));
-    connect(m_pitch_env->lms_time_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvTimeChanged(int)));
-    
-    m_lfo = new LMS_lfo_widget(this, f_info, WAYV_LFO_FREQ, WAYV_LFO_TYPE, f_lfo_types, QString("LFO"));
-    m_main_layout->lms_add_widget(m_lfo->lms_groupbox->lms_groupbox);
-            
-    connect(m_lfo->lms_freq_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOfreqChanged(int)));
-    connect(m_lfo->lms_type_combobox->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(LFOtypeChanged(int)));
-    
-    m_lfo_amp  = new LMS_knob_regular(QString("Amp"), -24, 24, 1, 0, QString("0"), m_lfo->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, WAYV_LFO_AMP);
-    m_lfo->lms_groupbox->lms_add_h(m_lfo_amp);
-    connect(m_lfo_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOampChanged(int)));
-    
-    m_lfo_pitch = new LMS_knob_regular(QString("Pitch"), -36, 36, 1, 0, QString("0"), m_lfo->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, WAYV_LFO_PITCH);
-    m_lfo->lms_groupbox->lms_add_h(m_lfo_pitch);
-    connect(m_lfo_pitch->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOpitchChanged(int)));
-    
-    m_lfo_cutoff  = new LMS_knob_regular(QString("Filter"), -48, 48, 1, 0, QString("0"), m_lfo->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, WAYV_LFO_FILTER);
-    m_lfo->lms_groupbox->lms_add_h(m_lfo_cutoff);
-    connect(m_lfo_cutoff->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOcutoffChanged(int)));    
-    
     /*Add the knobs to the preset module*/
     
     m_program->lms_add_control(m_adsr_amp->lms_attack);
     m_program->lms_add_control(m_adsr_amp->lms_decay);
     m_program->lms_add_control(m_adsr_amp->lms_sustain);
     m_program->lms_add_control(m_adsr_amp->lms_release);    
-    m_program->lms_add_control(m_filter->lms_cutoff_knob);
-    m_program->lms_add_control(m_filter->lms_res_knob);
-    m_program->lms_add_control(m_dist);        
-    m_program->lms_add_control(m_adsr_filter->lms_attack);
-    m_program->lms_add_control(m_adsr_filter->lms_decay);
-    m_program->lms_add_control(m_adsr_filter->lms_sustain);
-    m_program->lms_add_control(m_adsr_filter->lms_release);    
     m_program->lms_add_control(m_noise_amp);
-    m_program->lms_add_control(m_filter_env_amt);
-    m_program->lms_add_control(m_dist_wet);    
     m_program->lms_add_control(m_osc1->lms_osc_type_box);
     m_program->lms_add_control(m_osc1->lms_pitch_knob);
     m_program->lms_add_control(m_osc1->lms_fine_knob);
@@ -243,13 +179,6 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_program->lms_add_control(m_master->lms_master_unison_spread);
     m_program->lms_add_control(m_master->lms_master_glide);
     m_program->lms_add_control(m_master->lms_master_pitchbend_amt);
-    m_program->lms_add_control(m_pitch_env->lms_time_knob);
-    m_program->lms_add_control(m_pitch_env->lms_amt_knob);
-    m_program->lms_add_control(m_lfo->lms_freq_knob);
-    m_program->lms_add_control(m_lfo->lms_type_combobox);
-    m_program->lms_add_control(m_lfo_amp);
-    m_program->lms_add_control(m_lfo_pitch);
-    m_program->lms_add_control(m_lfo_cutoff);
         
     rayv_cerr << QString("pending_index_change: ") << m_program->pending_index_change << QString("\n")
             << QString("currentIndex: ") << m_program->m_program->currentIndex() << QString("\n");
@@ -277,16 +206,7 @@ void rayv_gui::setAttack(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_
 void rayv_gui::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_decay); }
 void rayv_gui::setSustain(float a_value){lms_set_value(a_value, m_adsr_amp->lms_sustain);}
 void rayv_gui::setRelease(float a_value){lms_set_value(a_value, m_adsr_amp->lms_release);}
-void rayv_gui::setTimbre(float a_value){lms_set_value(a_value, m_filter->lms_cutoff_knob);}
-void rayv_gui::setRes(float a_value){lms_set_value(a_value, m_filter->lms_res_knob);}
-void rayv_gui::setDist(float a_value){lms_set_value(a_value, m_dist);}
-void rayv_gui::setFilterAttack (float a_value){lms_set_value(a_value, m_adsr_filter->lms_attack);}
-void rayv_gui::setFilterDecay  (float a_value){lms_set_value(a_value, m_adsr_filter->lms_decay);}
-void rayv_gui::setFilterSustain(float a_value){lms_set_value(a_value, m_adsr_filter->lms_sustain);}
-void rayv_gui::setFilterRelease(float a_value){lms_set_value(a_value, m_adsr_filter->lms_release);}
 void rayv_gui::setNoiseAmp(float a_value){lms_set_value(a_value, m_noise_amp);}
-void rayv_gui::setFilterEnvAmt(float a_value){lms_set_value(a_value, m_filter_env_amt);}
-void rayv_gui::setDistWet(float a_value){lms_set_value(a_value, m_dist_wet);}
 void rayv_gui::setOsc1Type(float a_value){lms_set_value(a_value, m_osc1->lms_osc_type_box);}
 void rayv_gui::setOsc1Pitch(float a_value){lms_set_value(a_value, m_osc1->lms_pitch_knob);}
 void rayv_gui::setOsc1Tune(float a_value){lms_set_value(a_value, m_osc1->lms_fine_knob);}
@@ -300,14 +220,7 @@ void rayv_gui::setMasterUnisonVoices(float a_value){lms_set_value(a_value, m_mas
 void rayv_gui::setMasterUnisonSpread(float a_value){lms_set_value(a_value, m_master->lms_master_unison_spread);}
 void rayv_gui::setMasterGlide(float a_value){lms_set_value(a_value, m_master->lms_master_glide);}
 void rayv_gui::setMasterPitchbendAmt(float a_value){lms_set_value(a_value, m_master->lms_master_pitchbend_amt);}
-void rayv_gui::setPitchEnvAmt(float a_value){lms_set_value(a_value, m_pitch_env->lms_amt_knob);}
-void rayv_gui::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env->lms_time_knob);}
 void rayv_gui::setProgram(float a_value){lms_set_value(a_value, m_program);}
-void rayv_gui::setLFOfreq(float a_value){lms_set_value(a_value, m_lfo->lms_freq_knob);}
-void rayv_gui::setLFOtype(float a_value){lms_set_value(a_value, m_lfo->lms_type_combobox);}
-void rayv_gui::setLFOamp(float a_value){lms_set_value(a_value, m_lfo_amp);}
-void rayv_gui::setLFOpitch(float a_value){lms_set_value(a_value, m_lfo_pitch);}
-void rayv_gui::setLFOcutoff(float a_value){lms_set_value(a_value, m_lfo_cutoff);}
 
 void rayv_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {    
@@ -322,16 +235,7 @@ void rayv_gui::attackChanged(int a_value){lms_value_changed(a_value, m_adsr_amp-
 void rayv_gui::decayChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_decay);}
 void rayv_gui::sustainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_sustain);}
 void rayv_gui::releaseChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_release);}
-void rayv_gui::timbreChanged(int a_value){lms_value_changed(a_value, m_filter->lms_cutoff_knob);}
-void rayv_gui::resChanged(int a_value){lms_value_changed(a_value, m_filter->lms_res_knob);}
-void rayv_gui::distChanged(int a_value){lms_value_changed(a_value, m_dist);}
-void rayv_gui::filterAttackChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_attack);}
-void rayv_gui::filterDecayChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_decay);}
-void rayv_gui::filterSustainChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_sustain);}
-void rayv_gui::filterReleaseChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_release);}
 void rayv_gui::noiseAmpChanged(int a_value){lms_value_changed(a_value, m_noise_amp);}
-void rayv_gui::filterEnvAmtChanged(int a_value){lms_value_changed(a_value, m_filter_env_amt);}
-void rayv_gui::distWetChanged(int a_value){lms_value_changed(a_value, m_dist_wet);}
 void rayv_gui::osc1TypeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_osc_type_box);}
 void rayv_gui::osc1PitchChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_pitch_knob);}
 void rayv_gui::osc1TuneChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_fine_knob);}
@@ -345,13 +249,6 @@ void rayv_gui::masterUnisonVoicesChanged(int a_value){lms_value_changed(a_value,
 void rayv_gui::masterUnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_spread);}
 void rayv_gui::masterGlideChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_glide);}
 void rayv_gui::masterPitchbendAmtChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_pitchbend_amt);}
-void rayv_gui::pitchEnvAmtChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_amt_knob);}
-void rayv_gui::pitchEnvTimeChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_time_knob);}
-void rayv_gui::LFOfreqChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_freq_knob);}
-void rayv_gui::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_type_combobox);}
-void rayv_gui::LFOampChanged(int a_value){lms_value_changed(a_value, m_lfo_amp);}
-void rayv_gui::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
-void rayv_gui::LFOcutoffChanged(int a_value){lms_value_changed(a_value, m_lfo_cutoff);}
 void rayv_gui::programChanged(int a_value){lms_value_changed(a_value, m_program);}
 void rayv_gui::programSaved(){ m_program->programSaved(); }
 
@@ -409,16 +306,7 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case WAYV_DECAY: setDecay(a_value); break;
         case WAYV_SUSTAIN: setSustain(a_value); break;
         case WAYV_RELEASE: setRelease(a_value); break;
-        case WAYV_TIMBRE: setTimbre(a_value); break;
-        case WAYV_RES: setRes(a_value); break;
-        case WAYV_DIST: setDist(a_value); break;
-        case WAYV_FILTER_ATTACK: setFilterAttack(a_value); break;
-        case WAYV_FILTER_DECAY: setFilterDecay(a_value); break;
-        case WAYV_FILTER_SUSTAIN: setFilterSustain(a_value); break;
-        case WAYV_FILTER_RELEASE: setFilterRelease(a_value); break;
-        case WAYV_NOISE_AMP: setNoiseAmp(a_value); break;    
-        case WAYV_DIST_WET: setDistWet(a_value); break;
-        case WAYV_FILTER_ENV_AMT: setFilterEnvAmt(a_value); break;    
+        case WAYV_NOISE_AMP: setNoiseAmp(a_value); break;
         case WAYV_OSC1_TYPE: setOsc1Type(a_value); break;            
         case WAYV_OSC1_PITCH: setOsc1Pitch(a_value);  break;    
         case WAYV_OSC1_TUNE: setOsc1Tune(a_value); break;    
@@ -432,14 +320,7 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case WAYV_MASTER_UNISON_SPREAD: setMasterUnisonSpread(a_value); break;
         case WAYV_MASTER_GLIDE: setMasterGlide(a_value); break;
         case WAYV_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
-        case WAYV_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
-        case WAYV_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;            
-        case WAYV_PROGRAM_CHANGE: break; //This screws up host recall //setProgram(a_value); break;            
-        case WAYV_LFO_FREQ: setLFOfreq(a_value); break;            
-        case WAYV_LFO_TYPE:  setLFOtype(a_value);  break;            
-        case WAYV_LFO_AMP: setLFOamp(a_value); break;            
-        case WAYV_LFO_PITCH: setLFOpitch(a_value); break;            
-        case WAYV_LFO_FILTER: setLFOcutoff(a_value); break;
+        case WAYV_PROGRAM_CHANGE: break; //This screws up host recall //setProgram(a_value); break;                    
     }
     
 }
@@ -461,16 +342,7 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case WAYV_DECAY: decayChanged(a_value); break;
     case WAYV_SUSTAIN: sustainChanged(a_value); break;
     case WAYV_RELEASE: releaseChanged(a_value); break;
-    case WAYV_TIMBRE: timbreChanged(a_value); break;
-    case WAYV_RES: resChanged(a_value); break;        
-    case WAYV_DIST: distChanged(a_value); break;
-    case WAYV_FILTER_ATTACK: filterAttackChanged(a_value); break;
-    case WAYV_FILTER_DECAY: filterDecayChanged(a_value); break;
-    case WAYV_FILTER_SUSTAIN: filterSustainChanged(a_value); break;
-    case WAYV_FILTER_RELEASE: filterReleaseChanged(a_value); break;
     case WAYV_NOISE_AMP: noiseAmpChanged(a_value); break;    
-    case WAYV_DIST_WET: distWetChanged(a_value); break;
-    case WAYV_FILTER_ENV_AMT: filterEnvAmtChanged(a_value); break;    
     case WAYV_OSC1_TYPE: osc1TypeChanged(a_value);  break;            
     case WAYV_OSC1_PITCH:  osc1PitchChanged(a_value);  break;    
     case WAYV_OSC1_TUNE: osc1TuneChanged(a_value); break;    
@@ -484,13 +356,6 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case WAYV_MASTER_UNISON_SPREAD: masterUnisonSpreadChanged(a_value); break;
     case WAYV_MASTER_GLIDE: masterGlideChanged(a_value); break;
     case WAYV_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;
-    case WAYV_PITCH_ENV_AMT: pitchEnvAmtChanged(a_value); break;
-    case WAYV_PITCH_ENV_TIME: pitchEnvTimeChanged(a_value); break;
-    case WAYV_LFO_FREQ: LFOfreqChanged(a_value); break;
-    case WAYV_LFO_TYPE: LFOtypeChanged(a_value); break;
-    case WAYV_LFO_AMP: LFOampChanged(a_value); break;
-    case WAYV_LFO_PITCH: LFOpitchChanged(a_value); break;
-    case WAYV_LFO_FILTER: LFOcutoffChanged(a_value); break;
     case WAYV_PROGRAM_CHANGE: break; //ignoring this one, there is no reason to set it //programChanged(a_value);  break;
     default:
 #ifdef LMS_DEBUG_MODE_QT
@@ -516,16 +381,7 @@ int rayv_gui::i_get_control(int a_port)
     case WAYV_DECAY:  return m_adsr_amp->lms_decay->lms_get_value();
     case WAYV_SUSTAIN: return m_adsr_amp->lms_sustain->lms_get_value();
     case WAYV_RELEASE: return m_adsr_amp->lms_release->lms_get_value();
-    case WAYV_TIMBRE: return  m_filter->lms_cutoff_knob->lms_get_value();
-    case WAYV_RES: return m_filter->lms_res_knob->lms_get_value();        
-    case WAYV_DIST: return m_dist->lms_get_value();
-    case WAYV_FILTER_ATTACK: return m_adsr_filter->lms_attack->lms_get_value();
-    case WAYV_FILTER_DECAY: return m_adsr_filter->lms_decay->lms_get_value();
-    case WAYV_FILTER_SUSTAIN: return m_adsr_filter->lms_sustain->lms_get_value();
-    case WAYV_FILTER_RELEASE: return m_adsr_filter->lms_release->lms_get_value();
     case WAYV_NOISE_AMP: return m_noise_amp->lms_get_value();
-    case WAYV_DIST_WET: return m_dist_wet->lms_get_value();
-    case WAYV_FILTER_ENV_AMT: return m_filter_env_amt->lms_get_value();
     case WAYV_OSC1_TYPE: return m_osc1->lms_osc_type_box->lms_get_value();
     case WAYV_OSC1_PITCH: return m_osc1->lms_pitch_knob->lms_get_value();
     case WAYV_OSC1_TUNE: return  m_osc1->lms_fine_knob->lms_get_value();
@@ -539,13 +395,6 @@ int rayv_gui::i_get_control(int a_port)
     case WAYV_MASTER_UNISON_SPREAD: return m_master->lms_master_unison_spread->lms_get_value();
     case WAYV_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
     case WAYV_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
-    case WAYV_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
-    case WAYV_PITCH_ENV_TIME: return m_pitch_env->lms_time_knob->lms_get_value();
-    case WAYV_LFO_FREQ: return m_lfo->lms_freq_knob->lms_get_value();
-    case WAYV_LFO_TYPE: return m_lfo->lms_type_combobox->lms_get_value();
-    case WAYV_LFO_AMP: return m_lfo_amp->lms_get_value();
-    case WAYV_LFO_PITCH: return m_lfo_pitch->lms_get_value();
-    case WAYV_LFO_FILTER: return m_lfo_cutoff->lms_get_value();
     //case LMS_PROGRAM_CHANGE:
         //return m_program->currentIndex();
     default:
