@@ -76,19 +76,9 @@ public slots:
     void setDecay  (float);
     void setSustain(float);
     void setRelease(float);
-    void setTimbre (float);
-    void setRes (float);
-    void setDist (float);
-        
-    void setFilterAttack (float);
-    void setFilterDecay  (float);
-    void setFilterSustain(float);
-    void setFilterRelease(float);
     
     void setNoiseAmp(float);
     
-    void setFilterEnvAmt(float);
-    void setDistWet(float);
     void setOsc1Type(float);
     void setOsc1Pitch(float);
     void setOsc1Tune(float);
@@ -103,17 +93,8 @@ public slots:
     void setMasterUnisonSpread(float);
     void setMasterGlide(float);
     void setMasterPitchbendAmt(float);
-    
-    void setPitchEnvTime(float);
-    void setPitchEnvAmt(float);
-    
+   
     void setProgram(float);    
-    
-    void setLFOfreq(float);
-    void setLFOtype(float);
-    void setLFOamp(float);
-    void setLFOpitch(float);
-    void setLFOcutoff(float);
     
     void aboutToQuit();
     
@@ -123,20 +104,9 @@ protected slots:
     void decayChanged  (int);
     void sustainChanged(int);
     void releaseChanged(int);
-    void timbreChanged (int);
-    void resChanged (int);
-    void distChanged (int);
-        
-    void filterAttackChanged (int);
-    void filterDecayChanged  (int);
-    void filterSustainChanged(int);
-    void filterReleaseChanged(int);
     
     void noiseAmpChanged(int);
-
     
-    void filterEnvAmtChanged(int);
-    void distWetChanged(int);
     void osc1TypeChanged(int);
     void osc1PitchChanged(int);
     void osc1TuneChanged(int);
@@ -152,42 +122,20 @@ protected slots:
     void masterGlideChanged(int);
     void masterPitchbendAmtChanged(int);
     
-    void pitchEnvTimeChanged(int);
-    void pitchEnvAmtChanged(int);
-    
     void programChanged(int);
     void programSaved();
     
-    void LFOfreqChanged(int);
-    void LFOtypeChanged(int);
-    void LFOampChanged(int);
-    void LFOpitchChanged(int);
-    void LFOcutoffChanged(int);
-        
     void oscRecv();
 protected:
     
     LMS_main_layout * m_main_layout;
     
-    LMS_adsr_widget * m_adsr_amp;
-    LMS_adsr_widget * m_adsr_filter;
+    LMS_adsr_widget * m_adsr_amp;    
     LMS_oscillator_widget * m_osc1;
     LMS_oscillator_widget * m_osc2;    
-    LMS_filter_widget * m_filter;
-    LMS_knob_regular * m_filter_env_amt;
-    LMS_ramp_env * m_pitch_env;
-    
-    LMS_lfo_widget * m_lfo;
-    LMS_knob_regular *m_lfo_amp;
-    LMS_knob_regular *m_lfo_pitch;
-    LMS_knob_regular *m_lfo_cutoff;
     
     LMS_master_widget * m_master;
-    
-    LMS_group_box * m_groupbox_distortion;
-    LMS_knob_regular *m_dist;
-    LMS_knob_regular *m_dist_wet;
-        
+            
     LMS_group_box * m_groupbox_noise;
     LMS_knob_regular *m_noise_amp;
         

@@ -99,35 +99,8 @@ static void v_wayv_connect_port(LADSPA_Handle instance, unsigned long port,
     case WAYV_RELEASE:
 	plugin->release = data;
 	break;
-    case WAYV_TIMBRE:
-	plugin->timbre = data;              
-	break;
-    case WAYV_RES:
-	plugin->res = data;              
-	break;
-    case WAYV_DIST:
-	plugin->dist = data;              
-	break;
-    case WAYV_FILTER_ATTACK:
-	plugin->attack_f = data;
-	break;
-    case WAYV_FILTER_DECAY:
-	plugin->decay_f = data;
-	break;
-    case WAYV_FILTER_SUSTAIN:
-	plugin->sustain_f = data;
-	break;
-    case WAYV_FILTER_RELEASE:
-	plugin->release_f = data;
-	break;
     case WAYV_NOISE_AMP:
         plugin->noise_amp = data;
-        break;
-    case WAYV_DIST_WET:
-        plugin->dist_wet = data;
-        break;
-    case WAYV_FILTER_ENV_AMT:
-        plugin->filter_env_amt = data;
         break;
     case WAYV_MASTER_VOLUME:
         plugin->master_vol = data;
@@ -168,30 +141,9 @@ static void v_wayv_connect_port(LADSPA_Handle instance, unsigned long port,
     case WAYV_MASTER_PITCHBEND_AMT:
         plugin->master_pb_amt = data;
         break;
-    case WAYV_PITCH_ENV_AMT:
-        plugin->pitch_env_amt = data;
-        break;
-    case WAYV_PITCH_ENV_TIME:
-        plugin->pitch_env_time = data;
-        break;
     /*case LMS_PROGRAM_CHANGE:
         plugin->program = data;
-        break;*/
-    case WAYV_LFO_FREQ:
-        plugin->lfo_freq = data;
-        break;
-    case WAYV_LFO_TYPE:
-        plugin->lfo_type = data;
-        break;
-    case WAYV_LFO_AMP:
-        plugin->lfo_amp = data;
-        break;
-    case WAYV_LFO_PITCH:
-        plugin->lfo_pitch = data;
-        break;
-    case WAYV_LFO_FILTER:
-        plugin->lfo_filter = data;
-        break;
+        break;*/    
     }
 }
 
@@ -203,19 +155,9 @@ static LADSPA_Handle g_wayv_instantiate(const LADSPA_Descriptor * descriptor,
     plugin_data->fs = s_rate;
     
     plugin_data->midi_cc_map = g_ccm_get();
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_TIMBRE, 74, "Filter Cutoff");
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_RES, 71, "Res");
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_FILTER_ENV_AMT, 70, "Filter Env Amt");
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_DIST_WET, 91, "Distortion Wet");
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_PITCH_ENV_AMT, 20, "Pitch Env Amt");
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_PITCH_ENV_TIME, 21, "Pitch Env Time");
     v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_ATTACK, 22, "Attack Amp");
     v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_RELEASE, 5, "Release Amp");    
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_NOISE_AMP, 73, "Noise Amp");       
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_FREQ, 72, "LFO Freq");
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_AMP, 15, "LFO Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_PITCH, 78, "LFO Pitch");
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_FILTER, 9, "LFO Filter");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_NOISE_AMP, 73, "Noise Amp");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "ray_v-cc_map.txt");
     
@@ -277,8 +219,7 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                 
                 plugin_data->data[f_voice]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + (*(plugin_data->master_vol))), //-20db to 0db, + master volume (0 to -60)
                         plugin_data->mono_modules->amp_ptr); 
-                v_svf_velocity_mod(plugin_data->data[f_voice]->svf_filter, n.velocity);
-
+                
                 plugin_data->data[f_voice]->note_f = (float)n.note;
                 plugin_data->data[f_voice]->note = n.note;
 
@@ -293,8 +234,6 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                 plugin_data->data[f_voice]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
-                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
-                v_lfs_sync(plugin_data->data[f_voice]->lfo1, 0.0f, *(plugin_data->lfo_type));
 
                 float f_attack = *(plugin_data->attack) * .01;
                 f_attack = (f_attack) * (f_attack);
@@ -305,25 +244,8 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                 
                 v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp, (f_attack), (f_decay), *(plugin_data->sustain), (f_release));
                 
-                float f_attack_f = *(plugin_data->attack_f) * .01;
-                f_attack_f = (f_attack_f) * (f_attack_f);
-                float f_decay_f = *(plugin_data->decay_f) * .01; 
-                f_decay_f = (f_decay_f) * (f_decay_f);                
-                float f_release_f = *(plugin_data->release_f) * .01;
-                f_release_f = (f_release_f) * (f_release_f);
-                
-                v_adsr_set_adsr(plugin_data->data[f_voice]->adsr_filter, (f_attack_f), (f_decay_f), *(plugin_data->sustain_f) * 0.01f, (f_release_f));
-
-                v_rmp_retrigger((plugin_data->data[f_voice]->pitch_env), *(plugin_data->pitch_env_time) * 0.01f, *(plugin_data->pitch_env_amt));  
-
-                v_clp_set_in_gain(plugin_data->data[f_voice]->clipper1, *plugin_data->dist);
-
-                v_svf_set_res(plugin_data->data[f_voice]->svf_filter, *plugin_data->res);  
-
                 plugin_data->data[f_voice]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
-                v_axf_set_xfade(plugin_data->data[f_voice]->dist_dry_wet, *(plugin_data->dist_wet) * 0.01f);       
-                
                 int f_osc_type1 = (int)(*plugin_data->osc1type);
                 
                 v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable1, 
@@ -375,7 +297,6 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
         plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
     }    
 
-    v_smr_iir_run_fast(plugin_data->mono_modules->filter_smoother, (*plugin_data->timbre));
     v_smr_iir_run_fast(plugin_data->mono_modules->pitchbend_smoother, (plugin_data->sv_pitch_bend_value));
     
     plugin_data->i_run_poly_voice = 0; 
@@ -428,23 +349,16 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
 
         a_voice->current_sample = 0;
         
-        f_rmp_run_ramp(a_voice->pitch_env);
         f_rmp_run_ramp(a_voice->glide_env);
-
-        v_lfs_set(a_voice->lfo1, (*plugin_data->lfo_freq) * 0.01f);
-        v_lfs_run(a_voice->lfo1);
-        a_voice->lfo_amp_output = f_db_to_linear_fast((((*plugin_data->lfo_amp) * (a_voice->lfo1->output)) - (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)), a_voice->amp_ptr);
-        a_voice->lfo_filter_output = (*plugin_data->lfo_filter) * (a_voice->lfo1->output);
-        a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo1->output);
-
-        a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + (a_voice->pitch_env->output_multiplied) 
+        
+        a_voice->base_pitch = (a_voice->glide_env->output_multiplied) //+ (a_voice->pitch_env->output_multiplied) 
                 + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch);
                
         v_osc_wav_set_unison_pitch(a_voice->osc_wavtable1, (*plugin_data->master_uni_spread) * 0.01f,
-                ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) + (a_voice->lfo_pitch_output)));
+                ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
        
         v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (*plugin_data->master_uni_spread) * 0.01f,
-                ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) + (a_voice->lfo_pitch_output)));
+                ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
         
         a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable1);        
         a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2);
@@ -452,22 +366,8 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         a_voice->current_sample += (f_run_white_noise(a_voice->white_noise1) * (a_voice->noise_linamp)); //white noise
         
         v_adsr_run_db(a_voice->adsr_amp);        
-        
-        v_adsr_run(a_voice->adsr_filter);
-        
-        v_svf_set_cutoff_base(a_voice->svf_filter,  (plugin_data->mono_modules->filter_smoother->output));//vals->timbre);
-
-        v_svf_add_cutoff_mod(a_voice->svf_filter, 
-                (((a_voice->adsr_filter->output) * (*plugin_data->filter_env_amt)) + (a_voice->lfo_filter_output)));        
-
-        v_svf_set_cutoff(a_voice->svf_filter);
-        
-        a_voice->filter_output = a_voice->svf_function(a_voice->svf_filter, (a_voice->current_sample));
-
-        a_voice->current_sample = f_axf_run_xfade((a_voice->dist_dry_wet), (a_voice->filter_output), 
-                f_clp_clip(a_voice->clipper1, (a_voice->filter_output)));
-        
-        a_voice->current_sample = (a_voice->current_sample) * (a_voice->adsr_amp->output) * (a_voice->amp) * (a_voice->lfo_amp_output);
+                
+        a_voice->current_sample = (a_voice->current_sample) * (a_voice->adsr_amp->output) * (a_voice->amp);
         
         /*Run the envelope and assign to the output buffers*/
         out0[(a_voice->i_voice)] += (a_voice->current_sample);
@@ -568,71 +468,6 @@ void _init()
 	port_range_hints[WAYV_RELEASE].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE].UpperBound = 200.0f; 
 
-	/* Parameters for timbre */
-	port_descriptors[WAYV_TIMBRE] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_TIMBRE] = "Timbre";
-	port_range_hints[WAYV_TIMBRE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_TIMBRE].LowerBound =  20.0f;
-	port_range_hints[WAYV_TIMBRE].UpperBound =  124.0f;
-        
-        /* Parameters for res */
-	port_descriptors[WAYV_RES] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_RES] = "Res";
-	port_range_hints[WAYV_RES].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_RES].LowerBound =  -30.0f;
-	port_range_hints[WAYV_RES].UpperBound =  0.0f;
-        
-        
-        /* Parameters for dist */
-	port_descriptors[WAYV_DIST] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_DIST] = "Dist";
-	port_range_hints[WAYV_DIST].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_DIST].LowerBound =  -6.0f;
-	port_range_hints[WAYV_DIST].UpperBound =  36.0f;
-                
-	/* Parameters for attack_f */
-	port_descriptors[WAYV_FILTER_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_FILTER_ATTACK] = "Attack time (s) filter";
-	port_range_hints[WAYV_FILTER_ATTACK].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FILTER_ATTACK].LowerBound = 10.0f;
-	port_range_hints[WAYV_FILTER_ATTACK].UpperBound = 100.0f;
-
-	/* Parameters for decay_f */
-	port_descriptors[WAYV_FILTER_DECAY] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_FILTER_DECAY] = "Decay time (s) filter";
-	port_range_hints[WAYV_FILTER_DECAY].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FILTER_DECAY].LowerBound = 10.0f;
-	port_range_hints[WAYV_FILTER_DECAY].UpperBound = 100.0f;
-
-	/* Parameters for sustain_f */
-	port_descriptors[WAYV_FILTER_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_FILTER_SUSTAIN] = "Sustain level (%) filter";
-	port_range_hints[WAYV_FILTER_SUSTAIN].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FILTER_SUSTAIN].LowerBound = 0.0f; 
-	port_range_hints[WAYV_FILTER_SUSTAIN].UpperBound = 100.0f; 
-        
-	/* Parameters for release_f */
-	port_descriptors[WAYV_FILTER_RELEASE] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_FILTER_RELEASE] = "Release time (s) filter";
-	port_range_hints[WAYV_FILTER_RELEASE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW  |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FILTER_RELEASE].LowerBound = 10.0f; 
-	port_range_hints[WAYV_FILTER_RELEASE].UpperBound = 200.0f; 
-
-        
         /*Parameters for noise_amp*/        
 	port_descriptors[WAYV_NOISE_AMP] = port_descriptors[WAYV_ATTACK];
 	port_names[WAYV_NOISE_AMP] = "Dist";
@@ -641,27 +476,7 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_NOISE_AMP].LowerBound =  -60.0f;
 	port_range_hints[WAYV_NOISE_AMP].UpperBound =  0.0f;
-        
-        
-        
-        /*Parameters for filter env amt*/        
-	port_descriptors[WAYV_FILTER_ENV_AMT] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_FILTER_ENV_AMT] = "Filter Env Amt";
-	port_range_hints[WAYV_FILTER_ENV_AMT].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FILTER_ENV_AMT].LowerBound =  -36.0f;
-	port_range_hints[WAYV_FILTER_ENV_AMT].UpperBound =  36.0f;
-        
-        /*Parameters for dist wet*/        
-	port_descriptors[WAYV_DIST_WET] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_DIST_WET] = "Dist Wet";
-	port_range_hints[WAYV_DIST_WET].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_DIST_WET].LowerBound =  0.0f; 
-	port_range_hints[WAYV_DIST_WET].UpperBound =  100.0f;
-        
+                
         
         /*Parameters for osc1type*/        
 	port_descriptors[WAYV_OSC1_TYPE] = port_descriptors[WAYV_ATTACK];
@@ -793,72 +608,7 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].LowerBound =  1.0f;
 	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].UpperBound =  36.0f;
-        
-        
-        /*Parameters for pitch env amt*/        
-	port_descriptors[WAYV_PITCH_ENV_AMT] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_PITCH_ENV_AMT] = "Pitch Env Amt";
-	port_range_hints[WAYV_PITCH_ENV_AMT].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_PITCH_ENV_AMT].LowerBound =  -36.0f;
-	port_range_hints[WAYV_PITCH_ENV_AMT].UpperBound =   36.0f;
-        
-        
-        /*Parameters for pitch env time*/        
-	port_descriptors[WAYV_PITCH_ENV_TIME] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_PITCH_ENV_TIME] = "Pitch Env Time";
-	port_range_hints[WAYV_PITCH_ENV_TIME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_PITCH_ENV_TIME].LowerBound = 0.0f; 
-	port_range_hints[WAYV_PITCH_ENV_TIME].UpperBound = 200.0f;
-        
-        /*Parameters for LFO Freq*/        
-	port_descriptors[WAYV_LFO_FREQ] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_LFO_FREQ] = "LFO Freq";
-	port_range_hints[WAYV_LFO_FREQ].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_LFO_FREQ].LowerBound = 10.0f;
-	port_range_hints[WAYV_LFO_FREQ].UpperBound = 400.0f;
-        
-        /*Parameters for LFO Type*/        
-	port_descriptors[WAYV_LFO_TYPE] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_LFO_TYPE] = "LFO Type";
-	port_range_hints[WAYV_LFO_TYPE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_LFO_TYPE].LowerBound = 0.0f; 
-	port_range_hints[WAYV_LFO_TYPE].UpperBound = 2.0f;
-        
-        /*Parameters for LFO Amp*/
-	port_descriptors[WAYV_LFO_AMP] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_LFO_AMP] = "LFO Amp";
-	port_range_hints[WAYV_LFO_AMP].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_LFO_AMP].LowerBound = -24.0f;
-	port_range_hints[WAYV_LFO_AMP].UpperBound = 24.0f;
-        
-        /*Parameters for LFO Pitch*/
-	port_descriptors[WAYV_LFO_PITCH] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_LFO_PITCH] = "LFO Pitch";
-	port_range_hints[WAYV_LFO_PITCH].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_LFO_PITCH].LowerBound = -36.0f;
-	port_range_hints[WAYV_LFO_PITCH].UpperBound = 36.0f;
-        
-        /*Parameters for LFO Filter*/
-	port_descriptors[WAYV_LFO_FILTER] = port_descriptors[WAYV_ATTACK];
-	port_names[WAYV_LFO_FILTER] = "LFO Filter";
-	port_range_hints[WAYV_LFO_FILTER].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_LFO_FILTER].LowerBound = -48.0f;
-	port_range_hints[WAYV_LFO_FILTER].UpperBound = 48.0f;
-        
+                        
         /*Parameters for program change*/
         /*
 	port_descriptors[LMS_PROGRAM_CHANGE] = port_descriptors[LMS_ATTACK];

@@ -51,8 +51,7 @@ void v_rayv_init_lms(float f_sr)
  of an instrument, you will most likely want to define all of your modules here*/
 
 typedef struct st_rayv_mono_modules
-{
-    t_smoother_iir * filter_smoother;
+{    
     t_smoother_iir * pitchbend_smoother;
     t_amp * amp_ptr;
 }t_rayv_mono_modules;
@@ -64,28 +63,17 @@ typedef struct st_rayv_poly_voice
     t_osc_wav_unison * osc_wavtable2;
     t_wt_wavetables * wavetables;
     
-    t_state_variable_filter * svf_filter;
-    fp_svf_run_filter svf_function;
-    
-    t_clipper * clipper1;
-    t_audio_xfade * dist_dry_wet;
-    
-    t_adsr * adsr_filter;
     t_white_noise * white_noise1;
     t_adsr * adsr_amp;       
     float noise_amp;
     
     t_smoother_linear * glide_smoother;
     t_ramp_env * glide_env;
-    
-    t_ramp_env * pitch_env;    
+        
     float last_pitch;  //For simplicity, this is used whether glide is turned on or not    
     float base_pitch;  //base pitch for all oscillators, to avoid redundant calculations    
-    float target_pitch;    
-    float filter_output;  //For assigning the filter output to    
+    float target_pitch;
     float current_sample; //This corresponds to the current sample being processed on this voice.  += this to the output buffer when finished.    
-    t_lfs_lfo * lfo1;    
-    float lfo_amp_output, lfo_pitch_output, lfo_filter_output;
     
     t_amp * amp_ptr;
 
@@ -111,21 +99,13 @@ t_rayv_poly_voice * g_rayv_poly_init()
     f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
     f_voice->wavetables = g_wt_wavetables_get();    
     
-    f_voice->svf_filter = g_svf_get(va_rayv_sample_rate);
-    f_voice->svf_function = svf_get_run_filter_ptr(1, SVF_FILTER_TYPE_LP);
-        
-    f_voice->clipper1 = g_clp_get_clipper();    
-    f_voice->dist_dry_wet = g_axf_get_audio_xfade(-3);
-        
     f_voice->adsr_amp = g_adsr_get_adsr(va_rayv_sr_recip);        
-    f_voice->adsr_filter = g_adsr_get_adsr(va_rayv_sr_recip);
-        
+            
     f_voice->white_noise1 = g_get_white_noise(va_rayv_sample_rate);    
     f_voice->noise_amp = 0;
         
     f_voice->glide_env = g_rmp_get_ramp_env(va_rayv_sample_rate);    
-    f_voice->pitch_env = g_rmp_get_ramp_env(va_rayv_sample_rate);
-    
+        
     //f_voice->real_pitch = 60.0f;
     
     f_voice->target_pitch = 66.0f;
@@ -133,14 +113,6 @@ t_rayv_poly_voice * g_rayv_poly_init()
     f_voice->base_pitch = 66.0f;
     
     f_voice->current_sample = 0.0f;
-    
-    f_voice->filter_output = 0.0f;
-    
-    f_voice->lfo1 = g_lfs_get(va_rayv_sample_rate);
-    
-    f_voice->lfo_amp_output = 0.0f;
-    f_voice->lfo_filter_output = 0.0f;
-    f_voice->lfo_pitch_output = 0.0f;
     
     f_voice->amp_ptr = g_amp_get();
     
@@ -167,8 +139,6 @@ void v_rayv_poly_note_off(t_rayv_poly_voice * a_voice, int a_fast)
     {
         v_adsr_release(a_voice->adsr_amp);
     }
-    
-    v_adsr_release(a_voice->adsr_filter);    
 }
 
 t_rayv_mono_modules * v_rayv_mono_init();
@@ -177,9 +147,7 @@ t_rayv_mono_modules * v_rayv_mono_init();
 /*Initialize any modules that will be run monophonically*/
 t_rayv_mono_modules * v_rayv_mono_init()
 {
-    t_rayv_mono_modules * a_mono = (t_rayv_mono_modules*)malloc(sizeof(t_rayv_mono_modules));
-    a_mono->filter_smoother = g_smr_iir_get_smoother();
-    a_mono->filter_smoother->output = 100.0f;  //To prevent low volume and brightness at the first note-on(s)
+    t_rayv_mono_modules * a_mono = (t_rayv_mono_modules*)malloc(sizeof(t_rayv_mono_modules));    
     a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
     a_mono->amp_ptr = g_amp_get();
     return a_mono;
