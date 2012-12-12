@@ -121,21 +121,14 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_osc1->lms_vol_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc1VolumeChanged(int)));        
     connect(m_osc1->lms_osc_type_box->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc1TypeChanged(int)));
 
-    m_adsr_amp = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK, WAYV_DECAY, WAYV_SUSTAIN, WAYV_RELEASE, QString("ADSR Amp"));
+    m_adsr_amp1 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK1, WAYV_DECAY1, WAYV_SUSTAIN1, WAYV_RELEASE1, QString("ADSR Amp"));    
+    m_main_layout->lms_add_widget(m_adsr_amp1->lms_groupbox_adsr->lms_groupbox);
     
-    m_main_layout->lms_add_widget(m_adsr_amp->lms_groupbox_adsr->lms_groupbox);
+    connect(m_adsr_amp1->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attack1Changed(int)));    
+    connect(m_adsr_amp1->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decay1Changed(int)));        
+    connect(m_adsr_amp1->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustain1Changed(int)));        
+    connect(m_adsr_amp1->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(release1Changed(int)));    
     
-    connect(m_adsr_amp->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));    
-    connect(m_adsr_amp->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));        
-    connect(m_adsr_amp->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));        
-    connect(m_adsr_amp->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));    
-        
-    m_groupbox_noise = new LMS_group_box(this, QString("Noise"), f_info);
-    m_main_layout->lms_add_widget(m_groupbox_noise->lms_groupbox);
-        
-    m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, f_info, lms_kc_integer, WAYV_NOISE_AMP);
-    m_groupbox_noise->lms_add_h(m_noise_amp);
-    connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
     
     m_main_layout->lms_add_layout();    
     
@@ -146,6 +139,14 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_osc2->lms_fine_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2TuneChanged(int)));
     connect(m_osc2->lms_vol_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2VolumeChanged(int)));    
     connect(m_osc2->lms_osc_type_box->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
+        
+    m_adsr_amp2 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK2, WAYV_DECAY2, WAYV_SUSTAIN2, WAYV_RELEASE2, QString("ADSR Amp"));    
+    m_main_layout->lms_add_widget(m_adsr_amp2->lms_groupbox_adsr->lms_groupbox);
+    
+    connect(m_adsr_amp2->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attack2Changed(int)));    
+    connect(m_adsr_amp2->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decay2Changed(int)));        
+    connect(m_adsr_amp2->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustain2Changed(int)));        
+    connect(m_adsr_amp2->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(release2Changed(int)));    
     
     m_main_layout->lms_add_layout();
     
@@ -159,6 +160,21 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    
     connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
     
+    m_adsr_amp = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK, WAYV_DECAY, WAYV_SUSTAIN, WAYV_RELEASE, QString("ADSR Amp"));    
+    m_main_layout->lms_add_widget(m_adsr_amp->lms_groupbox_adsr->lms_groupbox);
+    
+    connect(m_adsr_amp->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));    
+    connect(m_adsr_amp->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));        
+    connect(m_adsr_amp->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));        
+    connect(m_adsr_amp->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));    
+    
+    m_groupbox_noise = new LMS_group_box(this, QString("Noise"), f_info);
+    m_main_layout->lms_add_widget(m_groupbox_noise->lms_groupbox);
+        
+    m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, f_info, lms_kc_integer, WAYV_NOISE_AMP);
+    m_groupbox_noise->lms_add_h(m_noise_amp);
+    connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
+
     /*Add the knobs to the preset module*/
     
     m_program->lms_add_control(m_adsr_amp->lms_attack);
@@ -206,6 +222,17 @@ void rayv_gui::setAttack(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_
 void rayv_gui::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_decay); }
 void rayv_gui::setSustain(float a_value){lms_set_value(a_value, m_adsr_amp->lms_sustain);}
 void rayv_gui::setRelease(float a_value){lms_set_value(a_value, m_adsr_amp->lms_release);}
+
+void rayv_gui::setAttack1(float a_value){ lms_set_value(a_value, m_adsr_amp1->lms_attack);}
+void rayv_gui::setDecay1(float a_value){ lms_set_value(a_value, m_adsr_amp1->lms_decay); }
+void rayv_gui::setSustain1(float a_value){lms_set_value(a_value, m_adsr_amp1->lms_sustain);}
+void rayv_gui::setRelease1(float a_value){lms_set_value(a_value, m_adsr_amp1->lms_release);}
+
+void rayv_gui::setAttack2(float a_value){ lms_set_value(a_value, m_adsr_amp2->lms_attack);}
+void rayv_gui::setDecay2(float a_value){ lms_set_value(a_value, m_adsr_amp2->lms_decay); }
+void rayv_gui::setSustain2(float a_value){lms_set_value(a_value, m_adsr_amp2->lms_sustain);}
+void rayv_gui::setRelease2(float a_value){lms_set_value(a_value, m_adsr_amp2->lms_release);}
+
 void rayv_gui::setNoiseAmp(float a_value){lms_set_value(a_value, m_noise_amp);}
 void rayv_gui::setOsc1Type(float a_value){lms_set_value(a_value, m_osc1->lms_osc_type_box);}
 void rayv_gui::setOsc1Pitch(float a_value){lms_set_value(a_value, m_osc1->lms_pitch_knob);}
@@ -235,6 +262,17 @@ void rayv_gui::attackChanged(int a_value){lms_value_changed(a_value, m_adsr_amp-
 void rayv_gui::decayChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_decay);}
 void rayv_gui::sustainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_sustain);}
 void rayv_gui::releaseChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_release);}
+
+void rayv_gui::attack1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_attack);}
+void rayv_gui::decay1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_decay);}
+void rayv_gui::sustain1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_sustain);}
+void rayv_gui::release1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_release);}
+
+void rayv_gui::attack2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_attack);}
+void rayv_gui::decay2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_decay);}
+void rayv_gui::sustain2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_sustain);}
+void rayv_gui::release2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_release);}
+
 void rayv_gui::noiseAmpChanged(int a_value){lms_value_changed(a_value, m_noise_amp);}
 void rayv_gui::osc1TypeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_osc_type_box);}
 void rayv_gui::osc1PitchChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_pitch_knob);}
@@ -306,6 +344,17 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case WAYV_DECAY: setDecay(a_value); break;
         case WAYV_SUSTAIN: setSustain(a_value); break;
         case WAYV_RELEASE: setRelease(a_value); break;
+        
+        case WAYV_ATTACK1: setAttack1(a_value); break;
+        case WAYV_DECAY1: setDecay1(a_value); break;
+        case WAYV_SUSTAIN1: setSustain1(a_value); break;
+        case WAYV_RELEASE1: setRelease1(a_value); break;
+        
+        case WAYV_ATTACK2: setAttack2(a_value); break;
+        case WAYV_DECAY2: setDecay2(a_value); break;
+        case WAYV_SUSTAIN2: setSustain2(a_value); break;
+        case WAYV_RELEASE2: setRelease2(a_value); break;
+        
         case WAYV_NOISE_AMP: setNoiseAmp(a_value); break;
         case WAYV_OSC1_TYPE: setOsc1Type(a_value); break;            
         case WAYV_OSC1_PITCH: setOsc1Pitch(a_value);  break;    
@@ -342,6 +391,17 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case WAYV_DECAY: decayChanged(a_value); break;
     case WAYV_SUSTAIN: sustainChanged(a_value); break;
     case WAYV_RELEASE: releaseChanged(a_value); break;
+    
+    case WAYV_ATTACK1: attack1Changed(a_value); break;
+    case WAYV_DECAY1: decay1Changed(a_value); break;
+    case WAYV_SUSTAIN1: sustain1Changed(a_value); break;
+    case WAYV_RELEASE1: release1Changed(a_value); break;
+    
+    case WAYV_ATTACK2: attack2Changed(a_value); break;
+    case WAYV_DECAY2: decay2Changed(a_value); break;
+    case WAYV_SUSTAIN2: sustain2Changed(a_value); break;
+    case WAYV_RELEASE2: release2Changed(a_value); break;
+    
     case WAYV_NOISE_AMP: noiseAmpChanged(a_value); break;    
     case WAYV_OSC1_TYPE: osc1TypeChanged(a_value);  break;            
     case WAYV_OSC1_PITCH:  osc1PitchChanged(a_value);  break;    

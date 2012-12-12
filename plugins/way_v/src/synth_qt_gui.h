@@ -77,6 +77,16 @@ public slots:
     void setSustain(float);
     void setRelease(float);
     
+    void setAttack1 (float);
+    void setDecay1  (float);
+    void setSustain1(float);
+    void setRelease1(float);
+    
+    void setAttack2 (float);
+    void setDecay2  (float);
+    void setSustain2(float);
+    void setRelease2(float);
+    
     void setNoiseAmp(float);
     
     void setOsc1Type(float);
@@ -105,6 +115,16 @@ protected slots:
     void sustainChanged(int);
     void releaseChanged(int);
     
+    void attack1Changed (int);
+    void decay1Changed  (int);
+    void sustain1Changed(int);
+    void release1Changed(int);
+    
+    void attack2Changed (int);
+    void decay2Changed  (int);
+    void sustain2Changed(int);
+    void release2Changed(int);
+    
     void noiseAmpChanged(int);
     
     void osc1TypeChanged(int);
@@ -130,9 +150,11 @@ protected:
     
     LMS_main_layout * m_main_layout;
     
-    LMS_adsr_widget * m_adsr_amp;    
+    LMS_adsr_widget * m_adsr_amp;
     LMS_oscillator_widget * m_osc1;
     LMS_oscillator_widget * m_osc2;    
+    LMS_adsr_widget * m_adsr_amp1;
+    LMS_adsr_widget * m_adsr_amp2;
     
     LMS_master_widget * m_master;
             

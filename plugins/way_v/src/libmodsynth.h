@@ -64,7 +64,9 @@ typedef struct st_rayv_poly_voice
     t_wt_wavetables * wavetables;
     
     t_white_noise * white_noise1;
-    t_adsr * adsr_amp;       
+    t_adsr * adsr_amp;
+    t_adsr * adsr_amp1;
+    t_adsr * adsr_amp2;
     float noise_amp;
     
     t_smoother_linear * glide_smoother;
@@ -99,7 +101,9 @@ t_rayv_poly_voice * g_rayv_poly_init()
     f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
     f_voice->wavetables = g_wt_wavetables_get();    
     
-    f_voice->adsr_amp = g_adsr_get_adsr(va_rayv_sr_recip);        
+    f_voice->adsr_amp = g_adsr_get_adsr(va_rayv_sr_recip);
+    f_voice->adsr_amp1 = g_adsr_get_adsr(va_rayv_sr_recip);
+    f_voice->adsr_amp2 = g_adsr_get_adsr(va_rayv_sr_recip);
             
     f_voice->white_noise1 = g_get_white_noise(va_rayv_sample_rate);    
     f_voice->noise_amp = 0;
@@ -139,6 +143,9 @@ void v_rayv_poly_note_off(t_rayv_poly_voice * a_voice, int a_fast)
     {
         v_adsr_release(a_voice->adsr_amp);
     }
+    
+    v_adsr_release(a_voice->adsr_amp1);
+    v_adsr_release(a_voice->adsr_amp2);
 }
 
 t_rayv_mono_modules * v_rayv_mono_init();

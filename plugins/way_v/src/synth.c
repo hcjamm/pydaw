@@ -99,6 +99,33 @@ static void v_wayv_connect_port(LADSPA_Handle instance, unsigned long port,
     case WAYV_RELEASE:
 	plugin->release = data;
 	break;
+        
+    case WAYV_ATTACK1:
+	plugin->attack1 = data;
+	break;
+    case WAYV_DECAY1:
+	plugin->decay1 = data;
+	break;
+    case WAYV_SUSTAIN1:
+	plugin->sustain1 = data;
+	break;
+    case WAYV_RELEASE1:
+	plugin->release1 = data;
+	break;
+        
+    case WAYV_ATTACK2:
+	plugin->attack2 = data;
+	break;
+    case WAYV_DECAY2:
+	plugin->decay2 = data;
+	break;
+    case WAYV_SUSTAIN2:
+	plugin->sustain2 = data;
+	break;
+    case WAYV_RELEASE2:
+	plugin->release2 = data;
+	break;
+        
     case WAYV_NOISE_AMP:
         plugin->noise_amp = data;
         break;
@@ -234,15 +261,40 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                 plugin_data->data[f_voice]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
+                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp1);
+                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp2);
 
-                float f_attack = *(plugin_data->attack) * .01;
+                float f_attack = *(plugin_data->attack) * .01f;
                 f_attack = (f_attack) * (f_attack);
-                float f_decay = *(plugin_data->decay) * .01;
+                float f_decay = *(plugin_data->decay) * .01f;
                 f_decay = (f_decay) * (f_decay);
-                float f_release = *(plugin_data->release) * .01;
-                f_release = (f_release) * (f_release);                
+                float f_release = *(plugin_data->release) * .01f;
+                f_release = (f_release) * (f_release);   
                 
                 v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp, (f_attack), (f_decay), *(plugin_data->sustain), (f_release));
+                
+                
+                float f_attack1 = *(plugin_data->attack1) * .01f;
+                f_attack1 = (f_attack1) * (f_attack1);
+                float f_decay1 = *(plugin_data->decay1) * .01f;
+                f_decay1 = (f_decay1) * (f_decay1);
+                float f_release1 = *(plugin_data->release1) * .01f;
+                f_release1 = (f_release1) * (f_release1);   
+                
+                v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp1, (f_attack1), (f_decay1), *(plugin_data->sustain1), (f_release1));
+                
+
+
+                float f_attack2 = *(plugin_data->attack2) * .01f;
+                f_attack2 = (f_attack2) * (f_attack2);
+                float f_decay2 = *(plugin_data->decay2) * .01f;
+                f_decay2 = (f_decay2) * (f_decay2);
+                float f_release2 = *(plugin_data->release2) * .01f;
+                f_release2 = (f_release2) * (f_release2);   
+                
+                v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp2, (f_attack2), (f_decay2), *(plugin_data->sustain2), (f_release2));
+                                
+                
                 
                 plugin_data->data[f_voice]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
@@ -360,12 +412,15 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (*plugin_data->master_uni_spread) * 0.01f,
                 ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
         
-        a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable1);        
-        a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2);
+        v_adsr_run_db(a_voice->adsr_amp1);
+        v_adsr_run_db(a_voice->adsr_amp2);
+        
+        a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->adsr_amp1->output);
+        a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->adsr_amp2->output);
         
         a_voice->current_sample += (f_run_white_noise(a_voice->white_noise1) * (a_voice->noise_linamp)); //white noise
         
-        v_adsr_run_db(a_voice->adsr_amp);        
+        v_adsr_run_db(a_voice->adsr_amp);
                 
         a_voice->current_sample = (a_voice->current_sample) * (a_voice->adsr_amp->output) * (a_voice->amp);
         
@@ -468,6 +523,87 @@ void _init()
 	port_range_hints[WAYV_RELEASE].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE].UpperBound = 200.0f; 
 
+        
+        
+	/* Parameters for attack */
+	port_descriptors[WAYV_ATTACK1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[WAYV_ATTACK1] = "Attack time (s)";
+	port_range_hints[WAYV_ATTACK1].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MINIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_ATTACK1].LowerBound = 10.0f; 
+	port_range_hints[WAYV_ATTACK1].UpperBound = 100.0f; 
+
+	/* Parameters for decay */
+	port_descriptors[WAYV_DECAY1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[WAYV_DECAY1] = "Decay time (s)";
+	port_range_hints[WAYV_DECAY1].HintDescriptor =
+			LADSPA_HINT_DEFAULT_LOW |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+			
+	port_range_hints[WAYV_DECAY1].LowerBound = 10.0f; 
+	port_range_hints[WAYV_DECAY1].UpperBound = 100.0f; 
+
+	/* Parameters for sustain */
+	port_descriptors[WAYV_SUSTAIN1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[WAYV_SUSTAIN1] = "Sustain level (%)";
+	port_range_hints[WAYV_SUSTAIN1].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_SUSTAIN1].LowerBound = -60.0f;
+	port_range_hints[WAYV_SUSTAIN1].UpperBound = 0.0f;
+
+	/* Parameters for release */
+	port_descriptors[WAYV_RELEASE1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[WAYV_RELEASE1] = "Release time (s)";
+	port_range_hints[WAYV_RELEASE1].HintDescriptor =
+			LADSPA_HINT_DEFAULT_LOW | 
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_RELEASE1].LowerBound = 10.0f; 
+	port_range_hints[WAYV_RELEASE1].UpperBound = 200.0f; 
+        
+        
+        
+        
+	/* Parameters for attack */
+	port_descriptors[WAYV_ATTACK2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[WAYV_ATTACK2] = "Attack time (s)";
+	port_range_hints[WAYV_ATTACK2].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MINIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_ATTACK2].LowerBound = 10.0f; 
+	port_range_hints[WAYV_ATTACK2].UpperBound = 100.0f; 
+
+	/* Parameters for decay */
+	port_descriptors[WAYV_DECAY2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[WAYV_DECAY2] = "Decay time (s)";
+	port_range_hints[WAYV_DECAY2].HintDescriptor =
+			LADSPA_HINT_DEFAULT_LOW |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+			
+	port_range_hints[WAYV_DECAY2].LowerBound = 10.0f; 
+	port_range_hints[WAYV_DECAY2].UpperBound = 100.0f; 
+
+	/* Parameters for sustain */
+	port_descriptors[WAYV_SUSTAIN2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[WAYV_SUSTAIN2] = "Sustain level (%)";
+	port_range_hints[WAYV_SUSTAIN2].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_SUSTAIN2].LowerBound = -60.0f;
+	port_range_hints[WAYV_SUSTAIN2].UpperBound = 0.0f;
+
+	/* Parameters for release */
+	port_descriptors[WAYV_RELEASE2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[WAYV_RELEASE2] = "Release time (s)";
+	port_range_hints[WAYV_RELEASE2].HintDescriptor =
+			LADSPA_HINT_DEFAULT_LOW | 
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_RELEASE2].LowerBound = 10.0f; 
+	port_range_hints[WAYV_RELEASE2].UpperBound = 200.0f; 
+        
+        
+        
         /*Parameters for noise_amp*/        
 	port_descriptors[WAYV_NOISE_AMP] = port_descriptors[WAYV_ATTACK];
 	port_names[WAYV_NOISE_AMP] = "Dist";
