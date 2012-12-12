@@ -26,6 +26,7 @@ GNU General Public License for more details.
 #include <QComboBox>
 #include <QPushButton>
 #include <QDoubleSpinBox>
+#include <QSpinBox>
 
 #include <string>
 #include <stdlib.h>
