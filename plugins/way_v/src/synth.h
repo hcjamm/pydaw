@@ -38,10 +38,18 @@ extern "C" {
 #define WAYV_MASTER_UNISON_SPREAD 17
 #define WAYV_MASTER_GLIDE 18
 #define WAYV_MASTER_PITCHBEND_AMT 19
-#define WAYV_LAST_CONTROL_PORT 19
-#define WAYV_COUNT 20 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define WAYV_ATTACK1  20
+#define WAYV_DECAY1   21
+#define WAYV_SUSTAIN1 22
+#define WAYV_RELEASE1 23
+#define WAYV_ATTACK2  24
+#define WAYV_DECAY2   25
+#define WAYV_SUSTAIN2 26
+#define WAYV_RELEASE2 27
+#define WAYV_LAST_CONTROL_PORT 27
+#define WAYV_COUNT 28 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
     
-#define WAYV_PROGRAM_CHANGE 21  //Not used as a real port
+#define WAYV_PROGRAM_CHANGE 29  //Not used as a real port
 #define WAYV_POLYPHONY   16
 
 typedef struct {
@@ -52,6 +60,17 @@ typedef struct {
     LADSPA_Data *decay;
     LADSPA_Data *sustain;
     LADSPA_Data *release;    
+    
+    LADSPA_Data *attack1;
+    LADSPA_Data *decay1;
+    LADSPA_Data *sustain1;
+    LADSPA_Data *release1;    
+    
+    LADSPA_Data *attack2;
+    LADSPA_Data *decay2;
+    LADSPA_Data *sustain2;
+    LADSPA_Data *release2;    
+    
     LADSPA_Data pitch;
         
     LADSPA_Data *osc1pitch;
