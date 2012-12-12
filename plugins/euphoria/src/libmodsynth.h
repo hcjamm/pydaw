@@ -206,7 +206,7 @@ t_euphoria_mono_modules * g_euphoria_mono_init(float a_sr)
     
     a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
     a_mono->amp_ptr = g_amp_get();
-    a_mono->sinc_interpolator = g_sinc_get(EUPHORIA_SINC_INTERPOLATION_POINTS, 2000, 8000.0f, a_sr, 0.6f);
+    a_mono->sinc_interpolator = g_sinc_get(EUPHORIA_SINC_INTERPOLATION_POINTS, 2000, 8000.0f, a_sr, 0.42f);
     a_mono->noise_current_index = 0;
     
     int f_i;

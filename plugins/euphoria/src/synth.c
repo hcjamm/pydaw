@@ -367,7 +367,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->i_selected_sample = 0;
     plugin_data->current_sample = 0;
     plugin_data->loaded_samples_count = 0;
-    plugin_data->lin_interpolator = g_lin_get();
+    plugin_data->cubic_interpolator = g_cubic_get();
     plugin_data->amp = 1.0f;
     plugin_data->i_slow_index = 0;
     
@@ -593,11 +593,11 @@ static void run_sampler_interpolation_sinc(t_euphoria *__restrict plugin_data, i
 
 static void run_sampler_interpolation_linear(t_euphoria *__restrict plugin_data, int n, int ch)
 {
-    plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = f_linear_interpolate_ptr_ifh(
+    plugin_data->sample_last_interpolated_value[(plugin_data->current_sample)] = f_cubic_interpolate_ptr_ifh(
             plugin_data->sampleData[ch][(plugin_data->current_sample)],
             (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->whole_number),
             (plugin_data->sample_read_heads[n][(plugin_data->current_sample)]->fraction),
-            plugin_data->lin_interpolator);
+            plugin_data->cubic_interpolator);            
 }
 
 
@@ -2105,7 +2105,7 @@ void _init()
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Mode";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 3;
             
             f_i++;
