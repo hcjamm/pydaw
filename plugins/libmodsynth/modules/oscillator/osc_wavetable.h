@@ -18,6 +18,7 @@ extern "C" {
 #include "../../constants.h"
 #include "../../lib/pitch_core.h"
 #include "../../lib/interpolate-linear.h"
+#include "../../lib/interpolate-cubic.h"
 #include "wavetables.h"
     
 
@@ -59,7 +60,8 @@ typedef struct st_osc_wav_unison
     float current_sample;  //current output sample for the entire oscillator
     t_pit_pitch_core * pitch_core;
     /*This will be replaced with a SINC interpolator once the wavetable oscillator is working*/
-    t_lin_interpolater * linear_interpolator;
+    //t_lin_interpolater * linear_interpolator;
+    t_cubic_interpolater * cubic_interpolator;
 }t_osc_wav_unison;
 
 
@@ -170,8 +172,10 @@ float f_osc_wav_run_unison(t_osc_wav_unison * a_osc_ptr)
         //a_osc_ptr->current_sample = (a_osc_ptr->current_sample) + a_osc_ptr->osc_type((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]));
         v_run_osc(a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)], (a_osc_ptr->voice_inc[(a_osc_ptr->i_run_unison)]));
         a_osc_ptr->current_sample = (a_osc_ptr->current_sample) + 
-                f_linear_interpolate_ptr_wrap(a_osc_ptr->selected_wavetable, a_osc_ptr->selected_wavetable_sample_count, 
-                ((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]->output) * (a_osc_ptr->selected_wavetable_sample_count_float)), a_osc_ptr->linear_interpolator);
+                f_cubic_interpolate_ptr_wrap(a_osc_ptr->selected_wavetable, a_osc_ptr->selected_wavetable_sample_count, 
+                ((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]->output) * (a_osc_ptr->selected_wavetable_sample_count_float)), a_osc_ptr->cubic_interpolator);
+                /*f_linear_interpolate_ptr_wrap(a_osc_ptr->selected_wavetable, a_osc_ptr->selected_wavetable_sample_count, 
+                ((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]->output) * (a_osc_ptr->selected_wavetable_sample_count_float)), a_osc_ptr->linear_interpolator);*/
     
         a_osc_ptr->i_run_unison = (a_osc_ptr->i_run_unison) + 1;
     }
@@ -221,7 +225,8 @@ t_osc_wav_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
     f_result->i_uni_pitch = 0;
         
     f_result->pitch_core = g_pit_get();
-    f_result->linear_interpolator = g_lin_get();
+    //f_result->linear_interpolator = g_lin_get();
+    f_result->cubic_interpolator = g_cubic_get();
         
     int f_i = 0;
     
