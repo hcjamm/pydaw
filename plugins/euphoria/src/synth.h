@@ -23,6 +23,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/cc_map.h"
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/interpolate-linear.h"
+#include "../../libmodsynth/lib/interpolate-cubic.h"
 
 #define EUPHORIA_NOTES 128
 #define EUPHORIA_NOTES_m1 127
@@ -189,7 +190,7 @@ typedef struct {
     
     float amp;  //linear amplitude, from the master volume knob
     
-    t_lin_interpolater * lin_interpolator;
+    t_cubic_interpolater * cubic_interpolator;
     
     float sv_pitch_bend_value;
     float sv_last_note;  //For glide
