@@ -124,6 +124,34 @@ inline float f_cubic_interpolate_ptr(float * a_table, float a_ptr, t_cubic_inter
 }
 */
 
+
+/* inline float f_cubic_interpolate_ptr_ifh(
+ * float * a_table, 
+ * int a_table_size, 
+ * int a_whole_number, 
+ * float a_frac, 
+ * t_lin_interpolater * a_lin)
+ * 
+ * For use with the read_head type in Euphoria Sampler
+ */
+inline float f_cubic_interpolate_ptr_ifh(float * a_table, int a_whole_number, float a_frac, t_cubic_interpolater * a_cubic)
+{        
+    a_cubic->int_pos = a_whole_number;
+    a_cubic->int_pos_plus1 = (a_cubic->int_pos) + 1;
+    a_cubic->int_pos_minus1 = (a_cubic->int_pos) - 1;
+    a_cubic->int_pos_minus2 = (a_cubic->int_pos) - 2;
+    
+    a_cubic->mu = a_frac;
+    
+    a_cubic->mu2 = (a_cubic->mu) * (a_cubic->mu);
+    a_cubic->a0 = a_table[a_cubic->int_pos_plus1] - a_table[a_cubic->int_pos] - a_table[a_cubic->int_pos_minus2] + a_table[a_cubic->int_pos_minus1];
+    a_cubic->a1 = a_table[a_cubic->int_pos_minus2] - a_table[a_cubic->int_pos_minus1] - a_cubic->a0;
+    a_cubic->a2 = a_table[a_cubic->int_pos] - a_table[a_cubic->int_pos_minus2];
+    a_cubic->a3 = a_table[a_cubic->int_pos_minus1];
+
+    return(a_cubic->a0*a_cubic->mu*a_cubic->mu2+a_cubic->a1*a_cubic->mu2+a_cubic->a2*a_cubic->mu+a_cubic->a3);        
+}
+
 #ifdef	__cplusplus
 }
 #endif
