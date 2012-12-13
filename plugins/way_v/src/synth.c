@@ -482,7 +482,25 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                 //Get the noise function pointer
                 plugin_data->data[f_voice]->noise_func_ptr = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
 
+                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
+                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
+                v_lfs_sync(plugin_data->data[f_voice]->lfo1, 0.0f, *(plugin_data->lfo_type));
+
+                float f_attack_a = (*(plugin_data->attack) * .01);  f_attack_a *= f_attack_a;
+                float f_decay_a = (*(plugin_data->decay) * .01);  f_decay_a *= f_decay_a;
+                float f_release_a = (*(plugin_data->release) * .01); f_release_a *= f_release_a;
+                v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp, f_attack_a, f_decay_a, (*(plugin_data->sustain)), f_release_a);
                 
+                float f_attack_f = (*(plugin_data->attack_f) * .01);  f_attack_f *= f_attack_f;
+                float f_decay_f = (*(plugin_data->decay_f) * .01);  f_decay_f *= f_decay_f;
+                float f_release_f = (*(plugin_data->release_f) * .01); f_release_f *= f_release_f;
+                v_adsr_set_adsr(plugin_data->data[f_voice]->adsr_filter, f_attack_f, f_decay_f, (*(plugin_data->sustain_f) * .01), f_release_f);
+
+                /*Retrigger the pitch envelope*/
+                v_rmp_retrigger((plugin_data->data[f_voice]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1);  
+
+                plugin_data->data[f_voice]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
+
                 
             } 
             /*0 velocity, the same as note-off*/
@@ -596,6 +614,28 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         
         a_voice->modulex_current_sample[0] = (a_voice->current_sample);
         a_voice->modulex_current_sample[1] = (a_voice->current_sample);
+        
+        //Run things that aren't per-channel like envelopes
+                
+        v_adsr_run_db(plugin_data->data[n]->adsr_amp);        
+                  
+        /*
+        if(plugin_data->data[n]->adsr_amp->stage == 4)
+        {
+            plugin_data->voices->voices[n].n_state = note_state_off;
+            break;
+        }
+        */
+
+        v_adsr_run(plugin_data->data[n]->adsr_filter);
+        
+        //Run the glide module            
+        f_rmp_run_ramp(plugin_data->data[n]->ramp_env);
+        f_rmp_run_ramp(plugin_data->data[n]->glide_env);
+        
+        //Set and run the LFO
+        v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01);
+        v_lfs_run(plugin_data->data[n]->lfo1);
         
         //Modular PolyFX, processed from the index created during note_on
         for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[n]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
