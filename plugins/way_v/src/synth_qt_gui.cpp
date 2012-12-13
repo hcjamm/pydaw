@@ -175,16 +175,6 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_adsr_amp_main->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustainMainChanged(int)));        
     connect(m_adsr_amp_main->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(releaseMainChanged(int)));    
     
-    m_groupbox_noise = new LMS_group_box(this, QString("Noise"), f_info);
-    m_oscillator_layout->lms_add_widget(m_groupbox_noise->lms_groupbox);
-        
-    m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, f_info, lms_kc_integer, WAYV_NOISE_AMP);
-    m_groupbox_noise->lms_add_h(m_noise_amp);
-    connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
-
-    
-    
-    
     m_main_layout = new LMS_main_layout(m_poly_fx_tab);
         
     //From Modulex
