@@ -725,10 +725,7 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case EUPHORIA_FILTER_SUSTAIN: setFilterSustain(a_value); break;
         case EUPHORIA_FILTER_RELEASE: setFilterRelease(a_value); break;
         case EUPHORIA_NOISE_AMP: setNoiseAmp(a_value); break;        
-        case LMS_NOISE_TYPE: setNoiseType(a_value); break;
-        case EUPHORIA_MASTER_VOLUME: setMasterVolume(a_value); break;
-        case EUPHORIA_MASTER_GLIDE: setMasterGlide(a_value); break;
-        case EUPHORIA_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;            
+        case LMS_NOISE_TYPE: setNoiseType(a_value); break;       
         case EUPHORIA_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;                
         case EUPHORIA_LFO_FREQ: setLFOfreq(a_value); break;            
         case EUPHORIA_LFO_TYPE:  setLFOtype(a_value);  break;
@@ -862,10 +859,7 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case EUPHORIA_FILTER_SUSTAIN: filterSustainChanged(a_value); break;
     case EUPHORIA_FILTER_RELEASE: filterReleaseChanged(a_value); break;
     case EUPHORIA_NOISE_AMP: noiseAmpChanged(a_value); break;      
-    case LMS_NOISE_TYPE: noise_typeChanged(a_value); break;      
-    case EUPHORIA_MASTER_VOLUME: masterVolumeChanged(a_value); break;
-    case EUPHORIA_MASTER_GLIDE: masterGlideChanged(a_value); break;
-    case EUPHORIA_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;            
+    case LMS_NOISE_TYPE: noise_typeChanged(a_value); break;             
     case EUPHORIA_PITCH_ENV_TIME: pitchEnvTimeChanged(a_value); break;
     case EUPHORIA_LFO_FREQ: LFOfreqChanged(a_value); break;
     case EUPHORIA_LFO_TYPE: LFOtypeChanged(a_value); break;
