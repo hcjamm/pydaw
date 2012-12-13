@@ -35,6 +35,7 @@ extern "C" {
 #include "../../libmodsynth/lib/smoother-iir.h"
 #include "../../libmodsynth/modules/oscillator/lfo_simple.h"
 #include "../../libmodsynth/modules/oscillator/osc_wavetable.h"
+#include "../../libmodsynth/modules/multifx/multifx3knob.h"
 
 static float va_rayv_sr_recip;
 static float va_rayv_sample_rate;
