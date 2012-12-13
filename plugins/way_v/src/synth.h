@@ -230,8 +230,13 @@ typedef struct {
     //Corresponds to the mod matrix spinboxes
     LADSPA_Data *polyfx_mod_matrix[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_MODULATOR_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
     
-    
-    
+    int active_polyfx[WAYV_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT];
+    int active_polyfx_count[WAYV_POLYPHONY];
+        
+    int polyfx_mod_ctrl_indexes[WAYV_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)]; //The index of the control to mod, currently 0-2
+    int polyfx_mod_counts[WAYV_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT];  //How many polyfx_mod_ptrs to iterate through for the current note
+    int polyfx_mod_src_index[WAYV_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)];  //The index of the modulation source(LFO, ADSR, etc...) to multiply by
+    float polyfx_mod_matrix_values[WAYV_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)];  //The value of the mod_matrix knob, multiplied by .01
     
     
     t_ccm_midi_cc_map * midi_cc_map;
@@ -250,6 +255,11 @@ typedef struct {
     
     float sv_pitch_bend_value;
     float sv_last_note;  //For glide
+    
+    int i_fx_grps;
+    int i_dst;
+    int i_src;    
+    int i_ctrl;
 } t_wayv;
 
 
