@@ -115,6 +115,9 @@ typedef struct st_rayv_poly_voice
     float filter_output;
     float noise_sample;
     
+    int osc1_on;
+    int osc2_on;
+    
 }t_rayv_poly_voice;
 
 t_rayv_poly_voice * g_rayv_poly_init(float a_sr);
@@ -155,9 +158,8 @@ t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
     f_voice->noise_linamp = 1.0f;
     f_voice->i_voice = 0;
     
-    
-    
-    
+    f_voice->osc1_on = 0;
+    f_voice->osc2_on = 0;
     
     
         int f_i = 0;

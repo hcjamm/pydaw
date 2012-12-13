@@ -72,7 +72,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{background-color:black; color:white; border:solid 1px white;} QComboBox:editable {background-color:black; color:white;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
     
-    QStringList f_osc_types = QStringList() << "Plain Saw" << "SuperbSaw" << "Viral Saw";
+    QStringList f_osc_types = QStringList() << "Plain Saw" << "SuperbSaw" << "Viral Saw" << "Off";
         
     QStringList f_lfo_types = QStringList() << "Off" << "Sine" << "Triangle";
         
