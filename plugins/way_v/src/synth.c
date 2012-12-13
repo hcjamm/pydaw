@@ -327,7 +327,7 @@ static void v_wayv_activate(LADSPA_Handle instance)
     plugin_data->voices = g_voc_get_voices(WAYV_POLYPHONY);    
     
     for (i=0; i<WAYV_POLYPHONY; i++) {
-        plugin_data->data[i] = g_rayv_poly_init();
+        plugin_data->data[i] = g_rayv_poly_init(plugin_data->fs);
         plugin_data->data[i]->note_f = i;        
     }
     plugin_data->sampleNo = 0;
@@ -384,7 +384,7 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                 plugin_data->data[f_voice]->osc2_linamp = f_db_to_linear_fast(*(plugin_data->osc2vol), plugin_data->mono_modules->amp_ptr);
                 plugin_data->data[f_voice]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
-                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
+                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_main);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp1);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp2);
 
@@ -395,7 +395,7 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                 float f_release = *(plugin_data->release_main) * .01f;
                 f_release = (f_release) * (f_release);   
                 
-                v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp, (f_attack), (f_decay), *(plugin_data->sustain_main), (f_release));
+                v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_main, (f_attack), (f_decay), *(plugin_data->sustain_main), (f_release));
                 
                 
                 float f_attack1 = *(plugin_data->attack1) * .01f;
@@ -439,6 +439,51 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
 
                 /*Set the last_note property, so the next note can glide from it if glide is turned on*/
                 plugin_data->sv_last_note = (plugin_data->data[f_voice]->note_f);
+                
+                
+                plugin_data->active_polyfx_count[f_voice] = 0;
+                //Determine which PolyFX have been enabled
+                for(plugin_data->i_dst = 0; (plugin_data->i_dst) < EUPHORIA_MODULAR_POLYFX_COUNT; plugin_data->i_dst = (plugin_data->i_dst) + 1)
+                {
+                    int f_pfx_combobox_index = (int)(*(plugin_data->fx_combobox[0][(plugin_data->i_dst)]));
+                    plugin_data->data[f_voice]->fx_func_ptr[(plugin_data->i_dst)] = g_mf3_get_function_pointer(f_pfx_combobox_index); 
+
+                    if(f_pfx_combobox_index != 0)
+                    {
+                        plugin_data->active_polyfx[f_voice][(plugin_data->active_polyfx_count[f_voice])] = (plugin_data->i_dst);
+                        plugin_data->active_polyfx_count[f_voice] = (plugin_data->active_polyfx_count[f_voice]) + 1;
+                    }
+                }    
+
+                //Calculate an index of which mod_matrix controls to process.  This saves expensive iterations and if/then logic in the main loop
+                for(plugin_data->i_fx_grps = 0; (plugin_data->i_fx_grps) < EUPHORIA_EFFECTS_GROUPS_COUNT; plugin_data->i_fx_grps = (plugin_data->i_fx_grps) + 1)
+                {
+                    for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[f_voice]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
+                    {
+                        plugin_data->polyfx_mod_counts[f_voice][(plugin_data->active_polyfx[f_voice][(plugin_data->i_dst)])] = 0;
+
+                        for(plugin_data->i_src = 0; (plugin_data->i_src) < EUPHORIA_MODULATOR_COUNT; plugin_data->i_src = (plugin_data->i_src) + 1)
+                        {
+                            for(plugin_data->i_ctrl = 0; (plugin_data->i_ctrl) < EUPHORIA_CONTROLS_PER_MOD_EFFECT; plugin_data->i_ctrl = (plugin_data->i_ctrl) + 1)
+                            {
+                                if((*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_voice][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) != 0)
+                                {                                        
+                                    plugin_data->polyfx_mod_ctrl_indexes[f_voice][(plugin_data->active_polyfx[f_voice][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_voice][(plugin_data->active_polyfx[f_voice][(plugin_data->i_dst)])])] = (plugin_data->i_ctrl);
+                                    plugin_data->polyfx_mod_src_index[f_voice][(plugin_data->active_polyfx[f_voice][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_voice][(plugin_data->active_polyfx[f_voice][(plugin_data->i_dst)])])] = (plugin_data->i_src);
+                                    plugin_data->polyfx_mod_matrix_values[f_voice][(plugin_data->active_polyfx[f_voice][(plugin_data->i_dst)])][(plugin_data->polyfx_mod_counts[f_voice][(plugin_data->active_polyfx[f_voice][(plugin_data->i_dst)])])] = 
+                                            (*(plugin_data->polyfx_mod_matrix[(plugin_data->i_fx_grps)][(plugin_data->active_polyfx[f_voice][(plugin_data->i_dst)])][(plugin_data->i_src)][(plugin_data->i_ctrl)])) * .01;
+
+                                    plugin_data->polyfx_mod_counts[f_voice][(plugin_data->active_polyfx[f_voice][(plugin_data->i_dst)])] = (plugin_data->polyfx_mod_counts[f_voice][(plugin_data->active_polyfx[f_voice][(plugin_data->i_dst)])]) + 1;
+                                }
+                            }
+                        }
+                    }
+                }
+                //Get the noise function pointer
+                plugin_data->data[f_voice]->noise_func_ptr = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
+
+                
+                
             } 
             /*0 velocity, the same as note-off*/
             else 
@@ -479,7 +524,7 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
     while ((plugin_data->i_run_poly_voice) < WAYV_POLYPHONY) 
     {
         //if (data[voice].state != inactive) 
-        if((plugin_data->data[(plugin_data->i_run_poly_voice)]->adsr_amp->stage) != 4)        
+        if((plugin_data->data[(plugin_data->i_run_poly_voice)]->adsr_main->stage) != 4)        
         {
             v_run_wayv_voice(plugin_data,                    
                     plugin_data->voices->voices[(plugin_data->i_run_poly_voice)],
@@ -511,7 +556,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
     
     for(; (a_voice->i_voice)<count;a_voice->i_voice = (a_voice->i_voice) + 1) 
     {           
-        if ((((a_voice->i_voice) + (plugin_data->sampleNo)) == a_poly_voice.off) && ((a_voice->adsr_amp->stage) < 3))
+        if ((((a_voice->i_voice) + (plugin_data->sampleNo)) == a_poly_voice.off) && ((a_voice->adsr_main->stage) < 3))
         {
             if(a_poly_voice.n_state == note_state_killed)
             {
@@ -544,9 +589,9 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         
         a_voice->current_sample += (f_run_white_noise(a_voice->white_noise1) * (a_voice->noise_linamp)); //white noise
         
-        v_adsr_run_db(a_voice->adsr_amp);
+        v_adsr_run_db(a_voice->adsr_main);
                 
-        a_voice->current_sample = (a_voice->current_sample) * (a_voice->adsr_amp->output) * (a_voice->amp);
+        a_voice->current_sample = (a_voice->current_sample) * (a_voice->adsr_main->output) * (a_voice->amp);
         
         /*Run the envelope and assign to the output buffers*/
         out0[(a_voice->i_voice)] += (a_voice->current_sample);
