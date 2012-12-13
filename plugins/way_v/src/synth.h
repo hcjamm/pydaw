@@ -218,9 +218,7 @@ typedef struct {
     
     LADSPA_Data *program;
     
-    
-    
-    
+       
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
     LADSPA_Data *pfx_mod_knob[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
     

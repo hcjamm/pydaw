@@ -424,19 +424,26 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
 
                 int f_osc_type1 = (int)(*plugin_data->osc1type);
                 
-                v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable1, 
-                        plugin_data->data[f_voice]->wavetables->tables[f_osc_type1]->wavetable,
-                        plugin_data->data[f_voice]->wavetables->tables[f_osc_type1]->length);
+                if(f_osc_type1 < WT_TOTAL_WAVETABLE_COUNT)
+                {
+                    plugin_data->data[f_voice]->osc1_on = 1;
+                    v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable1, 
+                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type1]->wavetable,
+                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type1]->length);
+                    v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable1, *plugin_data->master_uni_voice);
+                }
                 
-                int f_osc_type2 = 0;  // (int)(*plugin_data->osc2type);  //TODO: Fix this once the UI is proper again...
+                int f_osc_type2 = (int)(*plugin_data->osc2type);
                 
-                v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable2, 
-                        plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->wavetable,
-                        plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->length);
+                if(f_osc_type2 < WT_TOTAL_WAVETABLE_COUNT)
+                {
+                    plugin_data->data[f_voice]->osc2_on = 1;
+                    v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable2, 
+                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->wavetable,
+                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->length);
+                    v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable2, *plugin_data->master_uni_voice);
+                }                
                 
-                v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable1, *plugin_data->master_uni_voice);
-                v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable2, *plugin_data->master_uni_voice);
-
                 /*Set the last_note property, so the next note can glide from it if glide is turned on*/
                 plugin_data->sv_last_note = (plugin_data->data[f_voice]->note_f);
                 
@@ -594,17 +601,21 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         a_voice->base_pitch = (a_voice->glide_env->output_multiplied) //+ (a_voice->pitch_env->output_multiplied) 
                 + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch);
                
-        v_osc_wav_set_unison_pitch(a_voice->osc_wavtable1, (*plugin_data->master_uni_spread) * 0.01f,
-                ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
-       
-        v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (*plugin_data->master_uni_spread) * 0.01f,
-                ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));
+        if(a_voice->osc1_on)
+        {
+            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable1, (*plugin_data->master_uni_spread) * 0.01f,
+                    ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));       
+            v_adsr_run_db(a_voice->adsr_amp1);                
+            a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->adsr_amp1->output) * (a_voice->osc1_linamp);
+        }
         
-        v_adsr_run_db(a_voice->adsr_amp1);
-        v_adsr_run_db(a_voice->adsr_amp2);
-        
-        a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->adsr_amp1->output);
-        a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->adsr_amp2->output);
+        if(a_voice->osc2_on)
+        {
+            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (*plugin_data->master_uni_spread) * 0.01f,
+                    ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
+            v_adsr_run_db(a_voice->adsr_amp2);
+            a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->adsr_amp2->output) * (a_voice->osc2_linamp);
+        }
         
         a_voice->current_sample += (f_run_white_noise(a_voice->white_noise1) * (a_voice->noise_linamp)); //white noise
         
@@ -860,7 +871,7 @@ void _init()
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_TYPE].LowerBound =  0.0f;
-	port_range_hints[WAYV_OSC1_TYPE].UpperBound =  2.0f;
+	port_range_hints[WAYV_OSC1_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
         
         
         /*Parameters for osc1pitch*/        
@@ -901,7 +912,7 @@ void _init()
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_TYPE].LowerBound =  0.0f;
-	port_range_hints[WAYV_OSC2_TYPE].UpperBound =  2.0f;
+	port_range_hints[WAYV_OSC2_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
         
         
         /*Parameters for osc2pitch*/        
