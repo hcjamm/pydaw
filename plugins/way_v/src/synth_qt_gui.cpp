@@ -359,7 +359,28 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_program->lms_add_control(m_adsr_amp_main->lms_decay);
     m_program->lms_add_control(m_adsr_amp_main->lms_sustain);
     m_program->lms_add_control(m_adsr_amp_main->lms_release);    
+    m_program->lms_add_control(m_adsr_amp->lms_attack);
+    m_program->lms_add_control(m_adsr_amp->lms_decay);
+    m_program->lms_add_control(m_adsr_amp->lms_sustain);
+    m_program->lms_add_control(m_adsr_amp->lms_release);
+    m_program->lms_add_control(m_adsr_filter->lms_attack);
+    m_program->lms_add_control(m_adsr_filter->lms_decay);
+    m_program->lms_add_control(m_adsr_filter->lms_sustain);
+    m_program->lms_add_control(m_adsr_filter->lms_release);
+    m_program->lms_add_control(m_adsr_amp1->lms_attack);
+    m_program->lms_add_control(m_adsr_amp1->lms_decay);
+    m_program->lms_add_control(m_adsr_amp1->lms_sustain);
+    m_program->lms_add_control(m_adsr_amp1->lms_release);
+    m_program->lms_add_control(m_adsr_amp2->lms_attack);
+    m_program->lms_add_control(m_adsr_amp2->lms_decay);
+    m_program->lms_add_control(m_adsr_amp2->lms_sustain);
+    m_program->lms_add_control(m_adsr_amp2->lms_release);
+    m_program->lms_add_control(m_lfo->lms_freq_knob);
+    m_program->lms_add_control(m_lfo->lms_type_combobox);
+    
     m_program->lms_add_control(m_noise_amp);
+    m_program->lms_add_control(m_noise_type);
+    m_program->lms_add_control(m_pitch_env->lms_time_knob);
     m_program->lms_add_control(m_osc1->lms_osc_type_box);
     m_program->lms_add_control(m_osc1->lms_pitch_knob);
     m_program->lms_add_control(m_osc1->lms_fine_knob);
