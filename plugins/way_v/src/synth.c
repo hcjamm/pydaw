@@ -42,7 +42,7 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
 static void v_run_wayv_voice(t_wayv *p, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *d,
-		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count);
+		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count, int n);
 
 __attribute__ ((visibility("default")))
 const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
@@ -531,7 +531,8 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                     plugin_data->data[(plugin_data->i_run_poly_voice)],                    
                     output0,
                     output1,
-                    sample_count
+                    sample_count,
+                    plugin_data->i_run_poly_voice
                     );
         }
         else
@@ -545,7 +546,7 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
     plugin_data->sampleNo += sample_count;
 }
 
-static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count)
+static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *a_voice, LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count, int n)
 {   
     a_voice->i_voice = 0;
     
@@ -593,9 +594,38 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
                 
         a_voice->current_sample = (a_voice->current_sample) * (a_voice->adsr_main->output) * (a_voice->amp);
         
+        a_voice->modulex_current_sample[0] = (a_voice->current_sample);
+        a_voice->modulex_current_sample[1] = (a_voice->current_sample);
+        
+        //Modular PolyFX, processed from the index created during note_on
+        for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[n]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
+        {            
+            v_mf3_set(a_voice->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])],
+                *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][0]), *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][1]), *(plugin_data->pfx_mod_knob[0][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][2])); 
+
+            int f_mod_test;
+
+            for(f_mod_test = 0; f_mod_test < (plugin_data->polyfx_mod_counts[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]); f_mod_test++)
+            {
+                v_mf3_mod_single(
+                        a_voice->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])],
+                        *(a_voice->modulator_outputs[(plugin_data->polyfx_mod_src_index[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test])]),
+                        (plugin_data->polyfx_mod_matrix_values[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test]),
+                        (plugin_data->polyfx_mod_ctrl_indexes[n][(plugin_data->active_polyfx[n][(plugin_data->i_dst)])][f_mod_test])
+                        );
+            }
+
+            a_voice->fx_func_ptr[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])](a_voice->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])], (a_voice->modulex_current_sample[0]), (a_voice->modulex_current_sample[1])); 
+
+            a_voice->modulex_current_sample[0] = a_voice->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]->output0;
+            a_voice->modulex_current_sample[1] = a_voice->multieffect[(plugin_data->active_polyfx[n][(plugin_data->i_dst)])]->output1;
+
+        }
+        
+        
         /*Run the envelope and assign to the output buffers*/
-        out0[(a_voice->i_voice)] += (a_voice->current_sample);
-        out1[(a_voice->i_voice)] += (a_voice->current_sample);                
+        out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]);
+        out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]);       
     }
 }
 
