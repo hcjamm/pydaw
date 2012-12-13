@@ -301,7 +301,7 @@ static LADSPA_Handle g_wayv_instantiate(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_RELEASE, 5, "Release Amp");    
     v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_NOISE_AMP, 73, "Noise Amp");
     
-    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "ray_v-cc_map.txt");
+    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "way_v-cc_map.txt");
     
     /*LibModSynth additions*/
     v_rayv_init_lms(s_rate);  //initialize any static variables    
