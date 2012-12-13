@@ -65,8 +65,7 @@ typedef struct {
     LADSPA_Data *decay;
     LADSPA_Data *sustain;
     LADSPA_Data *release;
-    LADSPA_Data pitch;
-    
+        
     LADSPA_Data *attack_f;
     LADSPA_Data *decay_f;
     LADSPA_Data *sustain_f;

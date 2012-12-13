@@ -41,6 +41,8 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/ui_modules/lfo.h"
 #include "../../libmodsynth/widgets/ui_modules/master.h"
 #include "../../libmodsynth/widgets/lms_session_manager.h"
+#include "../../libmodsynth/widgets/ui_modules/multieffect_basic.h"
+#include "../../libmodsynth/widgets/mod_matrix.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -61,6 +63,7 @@ public:
 
     void setHostRequestedQuit(bool r) { m_hostRequestedQuit = r; }
     
+    LMS_mod_matrix * m_polyfx_mod_matrix[1]; //[EUPHORIA_EFFECTS_GROUPS_COUNT];
     
     void v_set_control(int, float);
     void v_control_changed(int, int, bool);
@@ -70,13 +73,15 @@ public:
     
     void lms_value_changed(int, LMS_control *);
     void lms_set_value(float, LMS_control *);
+    
+    bool m_suppressHostUpdate;
             
 public slots:
     /*Event handlers for setting knob values*/
-    void setAttack (float);
-    void setDecay  (float);
-    void setSustain(float);
-    void setRelease(float);
+    void setAttackMain (float);
+    void setDecayMain  (float);
+    void setSustainMain(float);
+    void setReleaseMain(float);
     
     void setAttack1 (float);
     void setDecay1  (float);
@@ -98,23 +103,63 @@ public slots:
     void setOsc2Pitch(float);
     void setOsc2Tune(float);
     void setOsc2Volume(float);
+    
+   
+    void setProgram(float);    
+    
+    
+    void setAttack (float);
+    void setDecay  (float);
+    void setSustain(float);
+    void setRelease(float);
+            
+    void setFilterAttack (float);
+    void setFilterDecay  (float);
+    void setFilterSustain(float);
+    void setFilterRelease(float);
+
+    void setNoiseType(float);
+    
     void setMasterVolume(float);
     
     void setMasterUnisonVoices(float);
     void setMasterUnisonSpread(float);
     void setMasterGlide(float);
     void setMasterPitchbendAmt(float);
-   
-    void setProgram(float);    
+    
+    void setPitchEnvTime(float);
+        
+    void setLFOfreq(float);
+    void setLFOtype(float);
+        
+    void setFX0knob0 (float val);
+    void setFX0knob1 (float val);
+    void setFX0knob2 (float val);
+    void setFX0combobox (float val);
+    
+    void setFX1knob0 (float val);
+    void setFX1knob1 (float val);
+    void setFX1knob2 (float val);
+    void setFX1combobox (float val);
+    
+    void setFX2knob0 (float val);
+    void setFX2knob1 (float val);
+    void setFX2knob2 (float val);
+    void setFX2combobox (float val);
+    
+    void setFX3knob0 (float val);
+    void setFX3knob1 (float val);
+    void setFX3knob2 (float val);
+    void setFX3combobox (float val);
     
     void aboutToQuit();
     
 protected slots:
     /*Event handlers for receiving changed knob values*/
-    void attackChanged (int);
-    void decayChanged  (int);
-    void sustainChanged(int);
-    void releaseChanged(int);
+    void attackMainChanged (int);
+    void decayMainChanged  (int);
+    void sustainMainChanged(int);
+    void releaseMainChanged(int);
     
     void attack1Changed (int);
     void decay1Changed  (int);
@@ -147,15 +192,113 @@ protected slots:
     void programSaved();
     
     void oscRecv();
+    
+    
+    void attackChanged (int);
+    void decayChanged  (int);
+    void sustainChanged(int);
+    void releaseChanged(int);
+            
+    void filterAttackChanged (int);
+    void filterDecayChanged  (int);
+    void filterSustainChanged(int);
+    void filterReleaseChanged(int);
+        
+    void noise_typeChanged(int);
+    
+    void pitchEnvTimeChanged(int);
+        
+    void LFOfreqChanged(int);
+    void LFOtypeChanged(int);
+    
+    void fx0knob0Changed(int);
+    void fx0knob1Changed(int);
+    void fx0knob2Changed(int);
+    void fx0comboboxChanged(int);
+    
+    void fx1knob0Changed(int);
+    void fx1knob1Changed(int);
+    void fx1knob2Changed(int);
+    void fx1comboboxChanged(int);
+    
+    void fx2knob0Changed(int);
+    void fx2knob1Changed(int);
+    void fx2knob2Changed(int);
+    void fx2comboboxChanged(int);
+    
+    void fx3knob0Changed(int);
+    void fx3knob1Changed(int);
+    void fx3knob2Changed(int);
+    void fx3comboboxChanged(int);    
+    
+    
+    void pfxmatrix_grp0dst0src0ctrl0Changed(int);
+    void pfxmatrix_grp0dst0src0ctrl1Changed(int);
+    void pfxmatrix_grp0dst0src0ctrl2Changed(int);
+    void pfxmatrix_grp0dst0src1ctrl0Changed(int);
+    void pfxmatrix_grp0dst0src1ctrl1Changed(int);
+    void pfxmatrix_grp0dst0src1ctrl2Changed(int);
+    void pfxmatrix_grp0dst0src2ctrl0Changed(int);
+    void pfxmatrix_grp0dst0src2ctrl1Changed(int);
+    void pfxmatrix_grp0dst0src2ctrl2Changed(int);
+    void pfxmatrix_grp0dst0src3ctrl0Changed(int);
+    void pfxmatrix_grp0dst0src3ctrl1Changed(int);
+    void pfxmatrix_grp0dst0src3ctrl2Changed(int);
+    void pfxmatrix_grp0dst1src0ctrl0Changed(int);
+    void pfxmatrix_grp0dst1src0ctrl1Changed(int);
+    void pfxmatrix_grp0dst1src0ctrl2Changed(int);
+    void pfxmatrix_grp0dst1src1ctrl0Changed(int);
+    void pfxmatrix_grp0dst1src1ctrl1Changed(int);
+    void pfxmatrix_grp0dst1src1ctrl2Changed(int);
+    void pfxmatrix_grp0dst1src2ctrl0Changed(int);
+    void pfxmatrix_grp0dst1src2ctrl1Changed(int);
+    void pfxmatrix_grp0dst1src2ctrl2Changed(int);
+    void pfxmatrix_grp0dst1src3ctrl0Changed(int);
+    void pfxmatrix_grp0dst1src3ctrl1Changed(int);
+    void pfxmatrix_grp0dst1src3ctrl2Changed(int);
+    void pfxmatrix_grp0dst2src0ctrl0Changed(int);
+    void pfxmatrix_grp0dst2src0ctrl1Changed(int);
+    void pfxmatrix_grp0dst2src0ctrl2Changed(int);
+    void pfxmatrix_grp0dst2src1ctrl0Changed(int);
+    void pfxmatrix_grp0dst2src1ctrl1Changed(int);
+    void pfxmatrix_grp0dst2src1ctrl2Changed(int);
+    void pfxmatrix_grp0dst2src2ctrl0Changed(int);
+    void pfxmatrix_grp0dst2src2ctrl1Changed(int);
+    void pfxmatrix_grp0dst2src2ctrl2Changed(int);
+    void pfxmatrix_grp0dst2src3ctrl0Changed(int);
+    void pfxmatrix_grp0dst2src3ctrl1Changed(int);
+    void pfxmatrix_grp0dst2src3ctrl2Changed(int);
+    void pfxmatrix_grp0dst3src0ctrl0Changed(int);
+    void pfxmatrix_grp0dst3src0ctrl1Changed(int);
+    void pfxmatrix_grp0dst3src0ctrl2Changed(int);
+    void pfxmatrix_grp0dst3src1ctrl0Changed(int);
+    void pfxmatrix_grp0dst3src1ctrl1Changed(int);
+    void pfxmatrix_grp0dst3src1ctrl2Changed(int);
+    void pfxmatrix_grp0dst3src2ctrl0Changed(int);
+    void pfxmatrix_grp0dst3src2ctrl1Changed(int);
+    void pfxmatrix_grp0dst3src2ctrl2Changed(int);
+    void pfxmatrix_grp0dst3src3ctrl0Changed(int);
+    void pfxmatrix_grp0dst3src3ctrl1Changed(int);
+    void pfxmatrix_grp0dst3src3ctrl2Changed(int);
+    
+    
 protected:
+    void pfxmatrix_Changed(int,int,int,int,int);
+    
     QVBoxLayout * m_window_layout;
     QTabWidget * m_tab_widget;
     QWidget * m_osc_tab;
-    QWidget * m_polyfx_tab;
     
-    LMS_main_layout * m_main_layout;
+    QWidget *m_poly_fx_tab;
     
-    LMS_adsr_widget * m_adsr_amp;
+    LMS_multieffect * m_fx0;
+    LMS_multieffect * m_fx1;
+    LMS_multieffect * m_fx2;
+    LMS_multieffect * m_fx3;
+    
+    LMS_main_layout * m_oscillator_layout;
+    
+    LMS_adsr_widget * m_adsr_amp_main;
     LMS_oscillator_widget * m_osc1;
     LMS_oscillator_widget * m_osc2;    
     LMS_adsr_widget * m_adsr_amp1;
@@ -163,9 +306,19 @@ protected:
     
     LMS_master_widget * m_master;
             
+    LMS_main_layout * m_main_layout;
+    
+    LMS_adsr_widget * m_adsr_amp;
+    LMS_adsr_widget * m_adsr_filter;        
+    
+    LMS_ramp_env * m_pitch_env;
+    
+    LMS_lfo_widget * m_lfo;
+            
     LMS_group_box * m_groupbox_noise;
     LMS_knob_regular *m_noise_amp;
-        
+    LMS_combobox *m_noise_type;
+            
     LMS_preset_manager * m_program;
     
     lo_address m_host;
@@ -173,8 +326,7 @@ protected:
     QByteArray m_midiPath;
     QByteArray m_programPath;
     QByteArray m_exitingPath;
-
-    bool m_suppressHostUpdate;
+    
     bool m_hostRequestedQuit;
     bool m_ready;    
 };
