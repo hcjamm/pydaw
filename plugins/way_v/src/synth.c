@@ -197,15 +197,6 @@ static void v_wayv_connect_port(LADSPA_Handle instance, unsigned long port,
     case EUPHORIA_NOISE_AMP:
         plugin->noise_amp = data;
         break;
-    case EUPHORIA_MASTER_VOLUME:
-        plugin->master_vol = data;
-        break;
-    case EUPHORIA_MASTER_GLIDE:
-        plugin->master_glide = data;
-        break;
-    case EUPHORIA_MASTER_PITCHBEND_AMT:
-        plugin->master_pb_amt = data;
-        break;
     case EUPHORIA_PITCH_ENV_TIME:
         plugin->pitch_env_time = data;
         break;
@@ -1078,33 +1069,6 @@ void _init()
 	port_range_hints[EUPHORIA_NOISE_AMP].LowerBound =  -60;
 	port_range_hints[EUPHORIA_NOISE_AMP].UpperBound =  0;
                 
-        /*Parameters for master vol*/        
-	port_descriptors[EUPHORIA_MASTER_VOLUME] = port_descriptors[EUPHORIA_ATTACK];
-	port_names[EUPHORIA_MASTER_VOLUME] = "Master Vol";
-	port_range_hints[EUPHORIA_MASTER_VOLUME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[EUPHORIA_MASTER_VOLUME].LowerBound =  -24;
-	port_range_hints[EUPHORIA_MASTER_VOLUME].UpperBound =  24;
-                        
-        /*Parameters for master glide*/        
-	port_descriptors[EUPHORIA_MASTER_GLIDE] = port_descriptors[EUPHORIA_ATTACK];
-	port_names[EUPHORIA_MASTER_GLIDE] = "Master Glide";
-	port_range_hints[EUPHORIA_MASTER_GLIDE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[EUPHORIA_MASTER_GLIDE].LowerBound =  0;
-	port_range_hints[EUPHORIA_MASTER_GLIDE].UpperBound =  200;
-        
-        
-        /*Parameters for master pitchbend amt*/        
-	port_descriptors[EUPHORIA_MASTER_PITCHBEND_AMT] = port_descriptors[EUPHORIA_ATTACK];
-	port_names[EUPHORIA_MASTER_PITCHBEND_AMT] = "Pitchbend Amt";
-	port_range_hints[EUPHORIA_MASTER_PITCHBEND_AMT].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[EUPHORIA_MASTER_PITCHBEND_AMT].LowerBound =  1;
-	port_range_hints[EUPHORIA_MASTER_PITCHBEND_AMT].UpperBound =  36;
         
         /*Parameters for pitch env time*/        
 	port_descriptors[EUPHORIA_PITCH_ENV_TIME] = port_descriptors[EUPHORIA_ATTACK];
