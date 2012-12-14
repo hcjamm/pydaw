@@ -114,9 +114,15 @@ int main(int argc, char** argv)
     t_pit_pitch_core * f_pitch_core = g_pit_get();
     float f_converted_fast_hz = f_pit_midi_note_to_hz_fast(f_note_pitch, f_pitch_core);
     v_svf_set_cutoff_base(f_svf, f_filter_cutoff);
-    v_svf_set_res(f_svf, -0.1f);
+    v_svf_set_res(f_svf, -3.0f);
     v_svf_set_cutoff(f_svf);
-       
+    
+    t_state_variable_filter * f_svf_lp = g_svf_get(WT_SR);
+    v_svf_set_cutoff_base(f_svf_lp, f_pit_hz_to_midi_note(9000));
+    v_svf_set_res(f_svf_lp, -9.0f);
+    v_svf_set_cutoff(f_svf_lp);
+    
+    
     int f_i = 0;
             
     /*Raw saw wave, mostly as a reference waveform*/
@@ -231,7 +237,7 @@ int main(int argc, char** argv)
     
     while(f_i < WT_FRAMES_PER_CYCLE)
     {        
-        float f_current_sample = f_osc_run_unison_osc(f_osc) + (f_run_pink_noise(f_noise) * 0.5f);        
+        float f_current_sample = f_osc_run_unison_osc(f_osc) + (f_run_pink_noise(f_noise) * 0.25f);        
         v_pkq_run(f_eq1, 
                 v_svf_run_2_pole_hp(f_svf, f_current_sample),
                 0.0f);
@@ -242,6 +248,239 @@ int main(int argc, char** argv)
         
     print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "viralsaw");  
         
+    f_wav_count++;
+    
+    
+    /*A softer saw suitable for pads that aren't meant to be very bright*/
+    
+    v_svf_set_cutoff_base(f_svf, f_filter_cutoff);
+    v_svf_set_res(f_svf, -6.0f);
+    v_svf_set_cutoff(f_svf);
+    v_osc_set_uni_voice_count(f_osc, 1);
+    v_osc_set_unison_pitch(f_osc, 0.5f, f_note_pitch);
+    
+    f_i = 0;
+    
+    while(f_i < 1000000)
+    {
+        //f_osc_run_unison_osc(f_osc);
+        v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc) + f_run_pink_noise(f_noise));
+        f_i++;
+    }
+        
+    f_i = 0;
+    
+    v_pkq_calc_coeffs(f_eq1, f_pit_hz_to_midi_note(3600.0f), 6.0f, -6.0f);
+    //Reset the phase by running it directly through the filter, so as not to disrupt the filter's state
+    if(f_osc->osc_cores[0]->output >= 0.5f)
+    {
+        while(f_osc->osc_cores[0]->output > 0.5f)
+        {
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc)),
+                0.0f);
+            v_svf_run_4_pole_lp(f_svf_lp, f_eq1->output0);            
+        }
+        
+        while(f_osc->osc_cores[0]->output < 0.5f)
+        {
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc)),
+                0.0f);
+            v_svf_run_4_pole_lp(f_svf_lp, f_eq1->output0);
+        }
+    }
+    else
+    {
+        while(f_osc->osc_cores[0]->output < 0.5f)
+        {
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc)),
+                0.0f);
+            v_svf_run_4_pole_lp(f_svf_lp, f_eq1->output0);
+        }
+    }
+    
+    f_i = 0;
+    
+    while(f_i < WT_FRAMES_PER_CYCLE)
+    {        
+        float f_current_sample = f_osc_run_unison_osc(f_osc) + (f_run_pink_noise(f_noise) * 0.25f);        
+        v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_current_sample),
+                0.0f);
+        tmp[f_i] = v_svf_run_4_pole_lp(f_svf_lp, f_eq1->output0);
+                
+        f_i++;
+    }
+        
+    print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "soft_saw");  
+    
+    f_wav_count++;
+    
+    
+    
+    /*An aggressive and fuzzy sounding square*/
+    
+    v_svf_set_cutoff_base(f_svf, f_filter_cutoff);
+    v_svf_set_res(f_svf, -6.0f);
+    v_svf_set_cutoff(f_svf);
+    v_osc_set_uni_voice_count(f_osc, 1);
+    v_osc_set_unison_pitch(f_osc, 0.5f, f_note_pitch);
+    v_osc_set_simple_osc_unison_type(f_osc, 1);
+    
+    f_i = 0;
+    
+    while(f_i < 1000000)
+    {
+        //f_osc_run_unison_osc(f_osc);
+        v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc) + f_run_white_noise(f_noise));
+        f_i++;
+    }
+        
+    f_i = 0;
+    
+    v_pkq_calc_coeffs(f_eq1, f_pit_hz_to_midi_note(600.0f), 6.0f, -6.0f);
+    v_pkq_calc_coeffs(f_eq2, f_pit_hz_to_midi_note(7000.0f), 6.0f, 6.0f);
+    //Reset the phase by running it directly through the filter, so as not to disrupt the filter's state
+    if(f_osc->osc_cores[0]->output >= 0.5f)
+    {
+        while(f_osc->osc_cores[0]->output > 0.5f)
+        {
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc) + (f_run_white_noise(f_noise) * 0.25f)),
+                0.0f);
+            v_pkq_run(f_eq2, 
+                f_eq1->output0,
+                0.0f);
+            v_svf_run_4_pole_lp(f_svf_lp, f_eq2->output0); 
+        }
+        
+        while(f_osc->osc_cores[0]->output < 0.5f)
+        {            
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc) + (f_run_white_noise(f_noise) * 0.25f)),
+                0.0f);
+            v_pkq_run(f_eq2, 
+                f_eq1->output0,
+                0.0f);
+            v_svf_run_4_pole_lp(f_svf_lp, f_eq2->output0);
+        }
+    }
+    else
+    {
+        while(f_osc->osc_cores[0]->output < 0.5f)
+        {            
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc) + (f_run_white_noise(f_noise) * 0.25f)),
+                0.0f);
+            v_pkq_run(f_eq2, 
+                f_eq1->output0,
+                0.0f);
+            v_svf_run_4_pole_lp(f_svf_lp, f_eq2->output0);
+        }
+    }
+    
+    f_i = 0;
+    
+    while(f_i < WT_FRAMES_PER_CYCLE)
+    {        
+        float f_current_sample = f_osc_run_unison_osc(f_osc) + (f_run_white_noise(f_noise) * 0.25f);        
+        v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_current_sample),
+                0.0f);
+        v_pkq_run(f_eq2, 
+                f_eq1->output0,
+                0.0f);
+        tmp[f_i] = f_eq2->output0; //v_svf_run_4_pole_lp(f_svf_lp, f_eq2->output0);
+                
+        f_i++;
+    }
+        
+    print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "evil_square");  
+    
+    f_wav_count++;
+    
+    
+    /*A soft square*/
+    
+    v_svf_set_cutoff_base(f_svf, f_filter_cutoff);
+    v_svf_set_res(f_svf, -6.0f);
+    v_svf_set_cutoff(f_svf);
+    v_osc_set_uni_voice_count(f_osc, 1);
+    v_osc_set_unison_pitch(f_osc, 0.5f, f_note_pitch);
+    v_osc_set_simple_osc_unison_type(f_osc, 1);
+    
+    f_i = 0;
+    
+    while(f_i < 1000000)
+    {
+        //f_osc_run_unison_osc(f_osc);
+        v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc) + f_run_white_noise(f_noise));
+        f_i++;
+    }
+        
+    f_i = 0;
+    
+    v_pkq_calc_coeffs(f_eq1, f_pit_hz_to_midi_note(1200.0f), 6.0f, 6.0f);
+    v_pkq_calc_coeffs(f_eq2, f_pit_hz_to_midi_note(3600.0f), 6.0f, -6.0f);
+    //Reset the phase by running it directly through the filter, so as not to disrupt the filter's state
+    if(f_osc->osc_cores[0]->output >= 0.5f)
+    {
+        while(f_osc->osc_cores[0]->output > 0.5f)
+        {
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc)),
+                0.0f);
+            v_pkq_run(f_eq2, 
+                f_eq1->output0,
+                0.0f);
+            v_svf_run_4_pole_lp(f_svf_lp, f_eq2->output0); 
+        }
+        
+        while(f_osc->osc_cores[0]->output < 0.5f)
+        {            
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc)),
+                0.0f);
+            v_pkq_run(f_eq2, 
+                f_eq1->output0,
+                0.0f);
+            v_svf_run_4_pole_lp(f_svf_lp, f_eq2->output0);
+        }
+    }
+    else
+    {
+        while(f_osc->osc_cores[0]->output < 0.5f)
+        {            
+            v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_osc_run_unison_osc(f_osc)),
+                0.0f);
+            v_pkq_run(f_eq2, 
+                f_eq1->output0,
+                0.0f);
+            v_svf_run_4_pole_lp(f_svf_lp, f_eq2->output0);
+        }
+    }
+    
+    f_i = 0;
+    
+    while(f_i < WT_FRAMES_PER_CYCLE)
+    {        
+        float f_current_sample = f_osc_run_unison_osc(f_osc) + (f_run_white_noise(f_noise) * 0.25f);        
+        v_pkq_run(f_eq1, 
+                v_svf_run_2_pole_hp(f_svf, f_current_sample),
+                0.0f);
+        v_pkq_run(f_eq2, 
+                f_eq1->output0,
+                0.0f);
+        tmp[f_i] = v_svf_run_4_pole_lp(f_svf_lp, f_eq2->output0);
+                
+        f_i++;
+    }
+        
+    print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "soft_square");  
+    
     f_wav_count++;
     
     
