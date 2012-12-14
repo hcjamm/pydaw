@@ -401,6 +401,7 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                     f_release1 = (f_release1) * (f_release1);   
 
                     v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp1, (f_attack1), (f_decay1), *(plugin_data->sustain1), (f_release1));
+                    v_osc_wav_note_on_sync_phases(plugin_data->data[f_voice]->osc_wavtable1);
                 }
 
                 plugin_data->data[f_voice]->adsr_amp2_on = (int)(*(plugin_data->adsr2_checked));
@@ -415,6 +416,7 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                     f_release2 = (f_release2) * (f_release2);   
 
                     v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp2, (f_attack2), (f_decay2), *(plugin_data->sustain2), (f_release2));
+                    v_osc_wav_note_on_sync_phases(plugin_data->data[f_voice]->osc_wavtable2);
                 }               
                 
                 
