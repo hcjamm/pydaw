@@ -114,6 +114,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     f_logo_label->setText(f_logo_text);
     f_logo_label->setMinimumSize(90, 30);   
     f_logo_label->show();
+    m_oscillator_layout->lms_add_spacer();
     m_oscillator_layout->lms_add_widget(f_logo_label);
     
         
