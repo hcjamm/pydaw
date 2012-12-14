@@ -64,6 +64,7 @@ $description = "PyDAW is a digital audio workstation with robust MIDI capabiliti
 #Please take care not to create package conflicts for people with the LMS Suite installed.
 @plugins = (
 'ray_v',
+'way_v',
 'euphoria',
 'lms_modulex',
 'pydaw'
