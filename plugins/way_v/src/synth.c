@@ -280,8 +280,8 @@ static void v_wayv_connect_port(LADSPA_Handle instance, unsigned long port,
     //case LMS_GLOBAL_MIDI_CHANNEL: plugin->global_midi_channel = data; break;
     //case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: plugin->global_midi_octaves_offset = data; break;
     case LMS_NOISE_TYPE: plugin->noise_type = data; break;
-
-        
+    case WAYV_ADSR1_CHECKBOX: plugin->adsr1_checked = data; break;
+    case WAYV_ADSR2_CHECKBOX: plugin->adsr2_checked = data; break;
         
     /*case LMS_PROGRAM_CHANGE:
         plugin->program = data;
@@ -389,26 +389,33 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                 v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_main, (f_attack), (f_decay), *(plugin_data->sustain_main), (f_release));
                 
                 
-                float f_attack1 = *(plugin_data->attack1) * .01f;
-                f_attack1 = (f_attack1) * (f_attack1);
-                float f_decay1 = *(plugin_data->decay1) * .01f;
-                f_decay1 = (f_decay1) * (f_decay1);
-                float f_release1 = *(plugin_data->release1) * .01f;
-                f_release1 = (f_release1) * (f_release1);   
+                plugin_data->data[f_voice]->adsr_amp1_on = (int)(*(plugin_data->adsr1_checked));
                 
-                v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp1, (f_attack1), (f_decay1), *(plugin_data->sustain1), (f_release1));
-                
+                if(plugin_data->data[f_voice]->adsr_amp1_on)
+                {
+                    float f_attack1 = *(plugin_data->attack1) * .01f;
+                    f_attack1 = (f_attack1) * (f_attack1);
+                    float f_decay1 = *(plugin_data->decay1) * .01f;
+                    f_decay1 = (f_decay1) * (f_decay1);
+                    float f_release1 = *(plugin_data->release1) * .01f;
+                    f_release1 = (f_release1) * (f_release1);   
 
+                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp1, (f_attack1), (f_decay1), *(plugin_data->sustain1), (f_release1));
+                }
 
-                float f_attack2 = *(plugin_data->attack2) * .01f;
-                f_attack2 = (f_attack2) * (f_attack2);
-                float f_decay2 = *(plugin_data->decay2) * .01f;
-                f_decay2 = (f_decay2) * (f_decay2);
-                float f_release2 = *(plugin_data->release2) * .01f;
-                f_release2 = (f_release2) * (f_release2);   
-                
-                v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp2, (f_attack2), (f_decay2), *(plugin_data->sustain2), (f_release2));
-                                
+                plugin_data->data[f_voice]->adsr_amp2_on = (int)(*(plugin_data->adsr2_checked));
+
+                if(plugin_data->data[f_voice]->adsr_amp2_on)
+                {
+                    float f_attack2 = *(plugin_data->attack2) * .01f;
+                    f_attack2 = (f_attack2) * (f_attack2);
+                    float f_decay2 = *(plugin_data->decay2) * .01f;
+                    f_decay2 = (f_decay2) * (f_decay2);
+                    float f_release2 = *(plugin_data->release2) * .01f;
+                    f_release2 = (f_release2) * (f_release2);   
+
+                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp2, (f_attack2), (f_decay2), *(plugin_data->sustain2), (f_release2));
+                }               
                 
                 
                 plugin_data->data[f_voice]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
@@ -596,16 +603,30 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         {
             v_osc_wav_set_unison_pitch(a_voice->osc_wavtable1, (*plugin_data->master_uni_spread) * 0.01f,
                     ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));       
-            v_adsr_run_db(a_voice->adsr_amp1);                
-            a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->adsr_amp1->output) * (a_voice->osc1_linamp);
+            if(a_voice->adsr_amp1_on)
+            {
+                v_adsr_run_db(a_voice->adsr_amp1);                
+                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->adsr_amp1->output) * (a_voice->osc1_linamp);
+            }
+            else
+            {
+                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->osc1_linamp);
+            }
         }
         
         if(a_voice->osc2_on)
         {
             v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (*plugin_data->master_uni_spread) * 0.01f,
                     ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
-            v_adsr_run_db(a_voice->adsr_amp2);
-            a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->adsr_amp2->output) * (a_voice->osc2_linamp);
+            if(a_voice->adsr_amp1_on)
+            {
+                v_adsr_run_db(a_voice->adsr_amp2);
+                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->adsr_amp2->output) * (a_voice->osc2_linamp);
+            }
+            else
+            {
+                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->osc2_linamp);
+            }
         }
         
         a_voice->current_sample += (f_run_white_noise(a_voice->white_noise1) * (a_voice->noise_linamp)); //white noise
@@ -620,14 +641,6 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         //Run things that aren't per-channel like envelopes
                 
         v_adsr_run_db(plugin_data->data[n]->adsr_amp);        
-                  
-        /*
-        if(plugin_data->data[n]->adsr_amp->stage == 4)
-        {
-            plugin_data->voices->voices[n].n_state = note_state_off;
-            break;
-        }
-        */
 
         v_adsr_run(plugin_data->data[n]->adsr_filter);
         
@@ -1445,6 +1458,21 @@ void _init()
 	port_range_hints[LMS_NOISE_TYPE].LowerBound =  0;
 	port_range_hints[LMS_NOISE_TYPE].UpperBound =  2;
         
+        port_descriptors[WAYV_ADSR1_CHECKBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[WAYV_ADSR1_CHECKBOX] = "ADSR1 Checkbox";
+	port_range_hints[WAYV_ADSR1_CHECKBOX].HintDescriptor =
+                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_ADSR1_CHECKBOX].LowerBound =  0;
+	port_range_hints[WAYV_ADSR1_CHECKBOX].UpperBound =  1;
+        
+        port_descriptors[WAYV_ADSR2_CHECKBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[WAYV_ADSR2_CHECKBOX] = "ADSR2 Checkbox";
+	port_range_hints[WAYV_ADSR2_CHECKBOX].HintDescriptor =
+                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_ADSR2_CHECKBOX].LowerBound =  0;
+	port_range_hints[WAYV_ADSR2_CHECKBOX].UpperBound =  1;
         
         /*Parameters for program change*/
         /*

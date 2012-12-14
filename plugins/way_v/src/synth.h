@@ -214,6 +214,9 @@ typedef struct {
     LADSPA_Data *lfo_freq;
     LADSPA_Data *lfo_type;
     
+    LADSPA_Data * adsr1_checked;
+    LADSPA_Data * adsr2_checked;
+    
     LADSPA_Data *program;
     
        

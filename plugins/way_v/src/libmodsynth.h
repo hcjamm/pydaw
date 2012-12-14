@@ -72,7 +72,9 @@ typedef struct st_rayv_poly_voice
     t_white_noise * white_noise1;
     t_adsr * adsr_main;
     t_adsr * adsr_amp1;
+    int adsr_amp1_on;
     t_adsr * adsr_amp2;
+    int adsr_amp2_on;
     float noise_amp;
     
     t_smoother_linear * glide_smoother;
@@ -192,6 +194,9 @@ t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
     f_voice->noise_sample = 0.0f;
     f_voice->noise_linamp = 1.0f;
     f_voice->i_voice = 0;
+    
+    f_voice->adsr_amp1_on = 0;
+    f_voice->adsr_amp2_on = 0;
     
     //From Modulex
     
