@@ -400,6 +400,9 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_program->lms_add_control(m_master->lms_master_glide);
     m_program->lms_add_control(m_master->lms_master_pitchbend_amt);
     
+    m_program->lms_add_control(m_adsr_amp1_checkbox);
+    m_program->lms_add_control(m_adsr_amp2_checkbox);
+    
     m_program->lms_add_control(m_fx0->lms_knob1);
     m_program->lms_add_control(m_fx0->lms_knob2);
     m_program->lms_add_control(m_fx0->lms_knob3);
@@ -465,8 +468,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_program->lms_add_control(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[3]);
     m_program->lms_add_control(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]);
     m_program->lms_add_control(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]);
-
-       
+    
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
