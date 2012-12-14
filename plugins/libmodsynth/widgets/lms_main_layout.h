@@ -10,13 +10,14 @@
 #ifndef LMS_MAIN_LAYOUT_H
 #define	LMS_MAIN_LAYOUT_H
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QString>
 #include <QLabel>
 #include <QDial>
 #include <QList>
+#include <QSpacerItem>
 
 class LMS_main_layout
 {
@@ -44,6 +45,11 @@ class LMS_main_layout
             lms_h_layouts.append(f_new);
             lms_layout->addLayout(f_new, -1);
             lms_row_index++;
+        }
+        
+        void lms_add_spacer()
+        {
+            lms_h_layouts.at(lms_row_index)->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
         }
 };
 
