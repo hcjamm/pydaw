@@ -137,6 +137,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_adsr_amp1_checkbox = new LMS_checkbox(this, f_info, WAYV_ADSR1_CHECKBOX, QString("On"));    
     connect(m_adsr_amp1_checkbox->lms_checkbox, SIGNAL(toggled(bool)), this, SLOT(adsr1checkChanged(bool)));
     m_adsr_amp1->lms_groupbox_adsr->lms_add_h(m_adsr_amp1_checkbox);
+    m_oscillator_layout->lms_add_spacer();
     
     m_oscillator_layout->lms_add_layout();    
     
@@ -150,6 +151,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
         
     m_adsr_amp2 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK2, WAYV_DECAY2, WAYV_SUSTAIN2, WAYV_RELEASE2, QString("ADSR Osc2"));    
     m_oscillator_layout->lms_add_widget(m_adsr_amp2->lms_groupbox_adsr->lms_groupbox);
+    m_oscillator_layout->lms_add_spacer();
     
     connect(m_adsr_amp2->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attack2Changed(int)));    
     connect(m_adsr_amp2->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decay2Changed(int)));        
@@ -179,6 +181,19 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_adsr_amp_main->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decayMainChanged(int)));        
     connect(m_adsr_amp_main->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustainMainChanged(int)));        
     connect(m_adsr_amp_main->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(releaseMainChanged(int)));    
+    
+    
+    m_groupbox_noise = new LMS_group_box(this, QString("Noise"), f_info);
+    m_oscillator_layout->lms_add_widget(m_groupbox_noise->lms_groupbox);
+
+    m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, f_info, lms_kc_integer, EUPHORIA_NOISE_AMP);
+    m_groupbox_noise->lms_add_h(m_noise_amp);
+    connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
+
+    m_noise_type = new LMS_combobox(QString("Type"), this, QStringList() << QString("Off") << QString("White") << QString("Pink"), LMS_NOISE_TYPE, f_info);
+    m_groupbox_noise->lms_add_h(m_noise_type);
+    connect(m_noise_type->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(noise_typeChanged(int)));
+
     
     m_main_layout = new LMS_main_layout(m_poly_fx_tab);
         
@@ -243,7 +258,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
 
     m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, EUPHORIA_MODULATOR_COUNT, f_mod_matrix_columns, LMS_PFXMATRIX_FIRST_PORT, f_info);
 
-    m_polyfx_mod_matrix[0]->lms_mod_matrix->setVerticalHeaderLabels(QStringList() << QString("ADSR Amp") << QString("ADSR 2") << QString("Ramp Env") << QString("LFO"));
+    m_polyfx_mod_matrix[0]->lms_mod_matrix->setVerticalHeaderLabels(QStringList() << QString("ADSR 1") << QString("ADSR 2") << QString("Ramp Env") << QString("LFO"));
 
     m_main_layout->lms_add_widget(m_polyfx_mod_matrix[0]->lms_mod_matrix);
 
@@ -308,7 +323,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
 
     //End from Modulex
 
-    m_adsr_amp = new LMS_adsr_widget(this, f_info, TRUE, EUPHORIA_ATTACK, EUPHORIA_DECAY, EUPHORIA_SUSTAIN, EUPHORIA_RELEASE, QString("ADSR Amp"));
+    m_adsr_amp = new LMS_adsr_widget(this, f_info, TRUE, EUPHORIA_ATTACK, EUPHORIA_DECAY, EUPHORIA_SUSTAIN, EUPHORIA_RELEASE, QString("ADSR 1"));
 
     m_adsr_amp->lms_release->lms_knob->setMinimum(5);  //overriding the default for this, because we want a low minimum default that won't click
 
@@ -318,17 +333,6 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_adsr_amp->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decayChanged(int)));        
     connect(m_adsr_amp->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));        
     connect(m_adsr_amp->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));    
-
-    m_groupbox_noise = new LMS_group_box(this, QString("Noise"), f_info);
-    m_main_layout->lms_add_widget(m_groupbox_noise->lms_groupbox);
-
-    m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, f_info, lms_kc_integer, EUPHORIA_NOISE_AMP);
-    m_groupbox_noise->lms_add_h(m_noise_amp);
-    connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
-
-    m_noise_type = new LMS_combobox(QString("Type"), this, QStringList() << QString("Off") << QString("White") << QString("Pink"), LMS_NOISE_TYPE, f_info);
-    m_groupbox_noise->lms_add_h(m_noise_type);
-    connect(m_noise_type->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(noise_typeChanged(int)));
 
     m_adsr_filter = new LMS_adsr_widget(this, f_info, FALSE, EUPHORIA_FILTER_ATTACK, EUPHORIA_FILTER_DECAY, EUPHORIA_FILTER_SUSTAIN, EUPHORIA_FILTER_RELEASE, QString("ADSR 2"));
 
