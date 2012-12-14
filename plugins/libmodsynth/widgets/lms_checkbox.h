@@ -1,12 +1,12 @@
 /* 
- * File:   lms_spinbox.h
+ * File:   lms_checkbox.h
  * Author: Jeff Hubbard
  *
  * 
  */
 
-#ifndef LMS_SPINBOX_H
-#define	LMS_SPINBOX_H
+#ifndef LMS_CHECKBOX_H
+#define	LMS_CHECKBOX_H
 
 #include <QLabel>
 #include <QCheckBox>
@@ -114,5 +114,5 @@ class LMS_checkbox : public LMS_control
         ~LMS_checkbox(){};
 };
 
-#endif	/* LMS_SPINBOX_H */
+#endif	/* LMS_CHECKBOX_H */
 
