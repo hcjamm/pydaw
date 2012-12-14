@@ -17,26 +17,26 @@ extern "C" {
 #include "../../libmodsynth/lib/cc_map.h"
     
 //Total number of LFOs, ADSRs, other envelopes, etc...  Used for the PolyFX mod matrix
-#define EUPHORIA_MODULATOR_COUNT 4
+#define WAYV_MODULATOR_COUNT 4
 //How many modular PolyFX
-#define EUPHORIA_MODULAR_POLYFX_COUNT 4
+#define WAYV_MODULAR_POLYFX_COUNT 4
 //How many ports per PolyFX, 3 knobs and a combobox
-#define EUPHORIA_PORTS_PER_MOD_EFFECT 4
+#define WAYV_PORTS_PER_MOD_EFFECT 4
 //How many knobs per PolyFX, 3 knobs
-#define EUPHORIA_CONTROLS_PER_MOD_EFFECT 3
+#define WAYV_CONTROLS_PER_MOD_EFFECT 3
 //How many groups of effects.  This will become useful when each sample has an "effects group" choice  
 //EDIT:  This may or may not ever come to fruition with my new strategy.  Delete this and re-arrange everywhere it's used...
-#define EUPHORIA_EFFECTS_GROUPS_COUNT 1
+#define WAYV_EFFECTS_GROUPS_COUNT 1
 
     
 #define WAYV_OUTPUT0  0
 #define WAYV_OUTPUT1  1
     
 #define WAYV_FIRST_CONTROL_PORT 2
-#define WAYV_ATTACK  2
-#define WAYV_DECAY   3
-#define WAYV_SUSTAIN 4
-#define WAYV_RELEASE 5
+#define WAYV_ATTACK_MAIN  2
+#define WAYV_DECAY_MAIN   3
+#define WAYV_SUSTAIN_MAIN 4
+#define WAYV_RELEASE_MAIN 5
 #define WAYV_NOISE_AMP 6
 #define WAYV_OSC1_TYPE 7
 #define WAYV_OSC1_PITCH 8
@@ -62,35 +62,35 @@ extern "C" {
     
     
     
-#define EUPHORIA_ATTACK  28
-#define EUPHORIA_DECAY   29
-#define EUPHORIA_SUSTAIN 30
-#define EUPHORIA_RELEASE 31
-#define EUPHORIA_FILTER_ATTACK  32
-#define EUPHORIA_FILTER_DECAY   33
-#define EUPHORIA_FILTER_SUSTAIN 34
-#define EUPHORIA_FILTER_RELEASE 35
-#define EUPHORIA_NOISE_AMP 36
-#define EUPHORIA_PITCH_ENV_TIME 37
-#define EUPHORIA_LFO_FREQ 38
-#define EUPHORIA_LFO_TYPE 39
+#define WAYV_ATTACK_PFX1  28
+#define WAYV_DECAY_PFX1   29
+#define WAYV_SUSTAIN_PFX1 30
+#define WAYV_RELEASE_PFX1 31
+#define WAYV_ATTACK_PFX2  32
+#define WAYV_DECAY_PFX2   33
+#define WAYV_SUSTAIN_PFX2 34
+#define WAYV_RELEASE_PFX2 35
+#define LMS_NOISE_TYPE 36
+#define WAYV_RAMP_ENV_TIME 37
+#define WAYV_LFO_FREQ 38
+#define WAYV_LFO_TYPE 39
 //From Modulex
-#define EUPHORIA_FX0_KNOB0  40
-#define EUPHORIA_FX0_KNOB1 41
-#define EUPHORIA_FX0_KNOB2  42
-#define EUPHORIA_FX0_COMBOBOX 43
-#define EUPHORIA_FX1_KNOB0  44
-#define EUPHORIA_FX1_KNOB1  45
-#define EUPHORIA_FX1_KNOB2  46
-#define LMS_FX1_COMBOBOX 47
-#define LMS_FX2_KNOB0  48
-#define LMS_FX2_KNOB1  49
-#define LMS_FX2_KNOB2  50
-#define LMS_FX2_COMBOBOX 51
-#define LMS_FX3_KNOB0  52
-#define LMS_FX3_KNOB1  53
-#define LMS_FX3_KNOB2  54
-#define LMS_FX3_COMBOBOX 55
+#define WAYV_FX0_KNOB0  40
+#define WAYV_FX0_KNOB1 41
+#define WAYV_FX0_KNOB2  42
+#define WAYV_FX0_COMBOBOX 43
+#define WAYV_FX1_KNOB0  44
+#define WAYV_FX1_KNOB1  45
+#define WAYV_FX1_KNOB2  46
+#define WAYV_FX1_COMBOBOX 47
+#define WAYV_FX2_KNOB0  48
+#define WAYV_FX2_KNOB1  49
+#define WAYV_FX2_KNOB2  50
+#define WAYV_FX2_COMBOBOX 51
+#define WAYV_FX3_KNOB0  52
+#define WAYV_FX3_KNOB1  53
+#define WAYV_FX3_KNOB2  54
+#define WAYV_FX3_COMBOBOX 55
 //PolyFX Mod Matrix
 #define LMS_PFXMATRIX_FIRST_PORT 56
 
@@ -145,8 +145,6 @@ extern "C" {
 
 //End PolyFX Mod Matrix
 
-//#define LMS_GLOBAL_MIDI_OCTAVES_OFFSET 82
-#define LMS_NOISE_TYPE 104
 #define WAYV_ADSR1_CHECKBOX 105
 #define WAYV_ADSR2_CHECKBOX 106
     
@@ -221,21 +219,21 @@ typedef struct {
     
        
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
-    LADSPA_Data *pfx_mod_knob[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
+    LADSPA_Data *pfx_mod_knob[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
     
-    LADSPA_Data *fx_combobox[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT];
+    LADSPA_Data *fx_combobox[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT];
         
     //PolyFX Mod Matrix
     //Corresponds to the mod matrix spinboxes
-    LADSPA_Data *polyfx_mod_matrix[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_MODULATOR_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
+    LADSPA_Data *polyfx_mod_matrix[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_MODULATOR_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
     
-    int active_polyfx[WAYV_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT];
+    int active_polyfx[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT];
     int active_polyfx_count[WAYV_POLYPHONY];
         
-    int polyfx_mod_ctrl_indexes[WAYV_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)]; //The index of the control to mod, currently 0-2
-    int polyfx_mod_counts[WAYV_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT];  //How many polyfx_mod_ptrs to iterate through for the current note
-    int polyfx_mod_src_index[WAYV_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)];  //The index of the modulation source(LFO, ADSR, etc...) to multiply by
-    float polyfx_mod_matrix_values[WAYV_POLYPHONY][EUPHORIA_MODULAR_POLYFX_COUNT][(EUPHORIA_CONTROLS_PER_MOD_EFFECT * EUPHORIA_MODULATOR_COUNT)];  //The value of the mod_matrix knob, multiplied by .01
+    int polyfx_mod_ctrl_indexes[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT][(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)]; //The index of the control to mod, currently 0-2
+    int polyfx_mod_counts[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT];  //How many polyfx_mod_ptrs to iterate through for the current note
+    int polyfx_mod_src_index[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT][(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)];  //The index of the modulation source(LFO, ADSR, etc...) to multiply by
+    float polyfx_mod_matrix_values[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT][(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)];  //The value of the mod_matrix knob, multiplied by .01
     
     
     t_ccm_midi_cc_map * midi_cc_map;

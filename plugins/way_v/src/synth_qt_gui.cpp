@@ -179,7 +179,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    
     connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
     
-    m_adsr_amp_main = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK, WAYV_DECAY, WAYV_SUSTAIN, WAYV_RELEASE, QString("ADSR Master"));    
+    m_adsr_amp_main = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK_MAIN, WAYV_DECAY_MAIN, WAYV_SUSTAIN_MAIN, WAYV_RELEASE_MAIN, QString("ADSR Master"));    
     m_adsr_amp_main->lms_sustain->lms_knob->setMinimum(-30);
     m_oscillator_layout->lms_add_widget(m_adsr_amp_main->lms_groupbox_adsr->lms_groupbox);
     
@@ -192,7 +192,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_groupbox_noise = new LMS_group_box(this, QString("Noise"), f_info);
     m_oscillator_layout->lms_add_widget(m_groupbox_noise->lms_groupbox);
 
-    m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, f_info, lms_kc_integer, EUPHORIA_NOISE_AMP);
+    m_noise_amp = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 30, QString(""), m_groupbox_noise->lms_groupbox, f_info, lms_kc_integer, WAYV_NOISE_AMP);
     m_groupbox_noise->lms_add_h(m_noise_amp);
     connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
 
@@ -205,7 +205,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
         
     //From Modulex
 
-    m_fx0 = new LMS_multieffect(this, QString("FX1"), f_info, EUPHORIA_FX0_KNOB0, EUPHORIA_FX0_KNOB1, EUPHORIA_FX0_KNOB2, EUPHORIA_FX0_COMBOBOX);
+    m_fx0 = new LMS_multieffect(this, QString("FX1"), f_info, WAYV_FX0_KNOB0, WAYV_FX0_KNOB1, WAYV_FX0_KNOB2, WAYV_FX0_COMBOBOX);
     connect(m_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob0Changed(int)));
     connect(m_fx0->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob1Changed(int)));
     connect(m_fx0->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob2Changed(int)));
@@ -213,7 +213,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
 
     m_main_layout->lms_add_widget(m_fx0->lms_groupbox->lms_groupbox);
 
-    m_fx1 = new LMS_multieffect(this, QString("FX2"), f_info, EUPHORIA_FX1_KNOB0, EUPHORIA_FX1_KNOB1, EUPHORIA_FX1_KNOB2, LMS_FX1_COMBOBOX);
+    m_fx1 = new LMS_multieffect(this, QString("FX2"), f_info, WAYV_FX1_KNOB0, WAYV_FX1_KNOB1, WAYV_FX1_KNOB2, WAYV_FX1_COMBOBOX);
     connect(m_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob0Changed(int)));
     connect(m_fx1->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob1Changed(int)));
     connect(m_fx1->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob2Changed(int)));
@@ -223,7 +223,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
 
     m_main_layout->lms_add_layout();    
 
-    m_fx2 = new LMS_multieffect(this, QString("FX3"), f_info, LMS_FX2_KNOB0, LMS_FX2_KNOB1, LMS_FX2_KNOB2, LMS_FX2_COMBOBOX);
+    m_fx2 = new LMS_multieffect(this, QString("FX3"), f_info, WAYV_FX2_KNOB0, WAYV_FX2_KNOB1, WAYV_FX2_KNOB2, WAYV_FX2_COMBOBOX);
     connect(m_fx2->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob0Changed(int)));
     connect(m_fx2->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob1Changed(int)));
     connect(m_fx2->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob2Changed(int)));
@@ -231,7 +231,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
 
     m_main_layout->lms_add_widget(m_fx2->lms_groupbox->lms_groupbox);
 
-    m_fx3 = new LMS_multieffect(this, QString("FX4"), f_info, LMS_FX3_KNOB0, LMS_FX3_KNOB1, LMS_FX3_KNOB2, LMS_FX3_COMBOBOX);
+    m_fx3 = new LMS_multieffect(this, QString("FX4"), f_info, WAYV_FX3_KNOB0, WAYV_FX3_KNOB1, WAYV_FX3_KNOB2, WAYV_FX3_COMBOBOX);
     connect(m_fx3->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob0Changed(int)));
     connect(m_fx3->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob1Changed(int)));
     connect(m_fx3->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob2Changed(int)));
@@ -262,7 +262,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl2"), -100, 100, 0);  
     f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl3"), -100, 100, 0);  
 
-    m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, EUPHORIA_MODULATOR_COUNT, f_mod_matrix_columns, LMS_PFXMATRIX_FIRST_PORT, f_info);
+    m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, WAYV_MODULATOR_COUNT, f_mod_matrix_columns, LMS_PFXMATRIX_FIRST_PORT, f_info);
 
     m_polyfx_mod_matrix[0]->lms_mod_matrix->setVerticalHeaderLabels(QStringList() << QString("ADSR 1") << QString("ADSR 2") << QString("Ramp Env") << QString("LFO"));
 
@@ -329,7 +329,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
 
     //End from Modulex
 
-    m_adsr_amp = new LMS_adsr_widget(this, f_info, TRUE, EUPHORIA_ATTACK, EUPHORIA_DECAY, EUPHORIA_SUSTAIN, EUPHORIA_RELEASE, QString("ADSR 1"));
+    m_adsr_amp = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK_PFX1, WAYV_DECAY_PFX1, WAYV_SUSTAIN_PFX1, WAYV_RELEASE_PFX1, QString("ADSR 1"));
 
     m_adsr_amp->lms_release->lms_knob->setMinimum(5);  //overriding the default for this, because we want a low minimum default that won't click
     m_adsr_amp->lms_sustain->lms_knob->setMinimum(-30);
@@ -341,7 +341,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_adsr_amp->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustainChanged(int)));        
     connect(m_adsr_amp->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(releaseChanged(int)));    
 
-    m_adsr_filter = new LMS_adsr_widget(this, f_info, FALSE, EUPHORIA_FILTER_ATTACK, EUPHORIA_FILTER_DECAY, EUPHORIA_FILTER_SUSTAIN, EUPHORIA_FILTER_RELEASE, QString("ADSR 2"));
+    m_adsr_filter = new LMS_adsr_widget(this, f_info, FALSE, WAYV_ATTACK_PFX2, WAYV_DECAY_PFX2, WAYV_SUSTAIN_PFX2, WAYV_RELEASE_PFX2, QString("ADSR 2"));
 
     m_main_layout->lms_add_widget(m_adsr_filter->lms_groupbox_adsr->lms_groupbox);
 
@@ -350,12 +350,12 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_adsr_filter->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterSustainChanged(int)));
     connect(m_adsr_filter->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));
 
-    m_pitch_env = new LMS_ramp_env(this, f_info, EUPHORIA_PITCH_ENV_TIME, -1, -1, FALSE, QString("Ramp Env"), FALSE);
+    m_pitch_env = new LMS_ramp_env(this, f_info, WAYV_RAMP_ENV_TIME, -1, -1, FALSE, QString("Ramp Env"), FALSE);
     m_main_layout->lms_add_widget(m_pitch_env->lms_groupbox->lms_groupbox);
 
     connect(m_pitch_env->lms_time_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvTimeChanged(int)));
 
-    m_lfo = new LMS_lfo_widget(this, f_info, EUPHORIA_LFO_FREQ, EUPHORIA_LFO_TYPE, f_lfo_types, QString("LFO"));
+    m_lfo = new LMS_lfo_widget(this, f_info, WAYV_LFO_FREQ, WAYV_LFO_TYPE, f_lfo_types, QString("LFO"));
     m_main_layout->lms_add_widget(m_lfo->lms_groupbox->lms_groupbox);
 
     //Overriding the default so we can have a faster LFO
@@ -501,7 +501,7 @@ void rayv_gui::pfxmatrix_Changed(int a_port, int a_fx_group, int a_dst, int a_ct
 	lo_send(m_host, m_controlPath, "if",
                 a_port,
                 //(float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_get_value())
-                (float)(m_polyfx_mod_matrix[a_fx_group]->lms_mm_columns[((a_dst * EUPHORIA_CONTROLS_PER_MOD_EFFECT) + a_ctrl)]->controls[a_src]->lms_get_value())
+                (float)(m_polyfx_mod_matrix[a_fx_group]->lms_mm_columns[((a_dst * WAYV_CONTROLS_PER_MOD_EFFECT) + a_ctrl)]->controls[a_src]->lms_get_value())
                 );
     }
 #endif
@@ -762,10 +762,10 @@ void rayv_gui::v_print_port_name_to_cerr(int a_port)
 {
 #ifdef LMS_DEBUG_MODE_QT
     switch (a_port) {
-    case WAYV_ATTACK: rayv_cerr << "LMS_ATTACK"; break;
-    case WAYV_DECAY: rayv_cerr << "LMS_DECAY"; break;
-    case WAYV_SUSTAIN: rayv_cerr << "LMS_SUSTAIN"; break;
-    case WAYV_RELEASE: rayv_cerr << "LMS_RELEASE"; break;
+    case WAYV_ATTACK_MAIN: rayv_cerr << "LMS_ATTACK"; break;
+    case WAYV_DECAY_MAIN: rayv_cerr << "LMS_DECAY"; break;
+    case WAYV_SUSTAIN_MAIN: rayv_cerr << "LMS_SUSTAIN"; break;
+    case WAYV_RELEASE_MAIN: rayv_cerr << "LMS_RELEASE"; break;
     case WAYV_TIMBRE: rayv_cerr << "LMS_TIMBRE"; break;
     case WAYV_RES: rayv_cerr << "LMS_RES"; break;        
     case WAYV_DIST: rayv_cerr << "LMS_DIST"; break;
@@ -807,10 +807,10 @@ void rayv_gui::v_set_control(int a_port, float a_value)
 #endif
         
     switch (a_port) {
-        case WAYV_ATTACK: setAttackMain(a_value); break;
-        case WAYV_DECAY: setDecayMain(a_value); break;
-        case WAYV_SUSTAIN: setSustainMain(a_value); break;
-        case WAYV_RELEASE: setReleaseMain(a_value); break;
+        case WAYV_ATTACK_MAIN: setAttackMain(a_value); break;
+        case WAYV_DECAY_MAIN: setDecayMain(a_value); break;
+        case WAYV_SUSTAIN_MAIN: setSustainMain(a_value); break;
+        case WAYV_RELEASE_MAIN: setReleaseMain(a_value); break;
         
         case WAYV_ATTACK1: setAttack1(a_value); break;
         case WAYV_DECAY1: setDecay1(a_value); break;
@@ -838,39 +838,38 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case WAYV_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
         case WAYV_PROGRAM_CHANGE: break; //This screws up host recall //setProgram(a_value); break;   
         
-        case EUPHORIA_ATTACK: setAttack(a_value); break;
-        case EUPHORIA_DECAY: setDecay(a_value); break;
-        case EUPHORIA_SUSTAIN: setSustain(a_value); break;
-        case EUPHORIA_RELEASE: setRelease(a_value); break;
-        case EUPHORIA_FILTER_ATTACK: setFilterAttack(a_value); break;
-        case EUPHORIA_FILTER_DECAY: setFilterDecay(a_value); break;
-        case EUPHORIA_FILTER_SUSTAIN: setFilterSustain(a_value); break;
-        case EUPHORIA_FILTER_RELEASE: setFilterRelease(a_value); break;
-        case EUPHORIA_NOISE_AMP: setNoiseAmp(a_value); break;        
+        case WAYV_ATTACK_PFX1: setAttack(a_value); break;
+        case WAYV_DECAY_PFX1: setDecay(a_value); break;
+        case WAYV_SUSTAIN_PFX1: setSustain(a_value); break;
+        case WAYV_RELEASE_PFX1: setRelease(a_value); break;
+        case WAYV_ATTACK_PFX2: setFilterAttack(a_value); break;
+        case WAYV_DECAY_PFX2: setFilterDecay(a_value); break;
+        case WAYV_SUSTAIN_PFX2: setFilterSustain(a_value); break;
+        case WAYV_RELEASE_PFX2: setFilterRelease(a_value); break;        
         case LMS_NOISE_TYPE: setNoiseType(a_value); break;       
-        case EUPHORIA_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;                
-        case EUPHORIA_LFO_FREQ: setLFOfreq(a_value); break;            
-        case EUPHORIA_LFO_TYPE:  setLFOtype(a_value);  break;
+        case WAYV_RAMP_ENV_TIME: setPitchEnvTime(a_value); break;                
+        case WAYV_LFO_FREQ: setLFOfreq(a_value); break;            
+        case WAYV_LFO_TYPE:  setLFOtype(a_value);  break;
         //From Modulex            
-        case EUPHORIA_FX0_KNOB0:	setFX0knob0(a_value); break;
-        case EUPHORIA_FX0_KNOB1:	setFX0knob1(a_value); break;        
-        case EUPHORIA_FX0_KNOB2:	setFX0knob2(a_value); break;        
-        case EUPHORIA_FX0_COMBOBOX: setFX0combobox(a_value); break;
+        case WAYV_FX0_KNOB0:	setFX0knob0(a_value); break;
+        case WAYV_FX0_KNOB1:	setFX0knob1(a_value); break;        
+        case WAYV_FX0_KNOB2:	setFX0knob2(a_value); break;        
+        case WAYV_FX0_COMBOBOX: setFX0combobox(a_value); break;
 
-        case EUPHORIA_FX1_KNOB0:	setFX1knob0(a_value); break;
-        case EUPHORIA_FX1_KNOB1:	setFX1knob1(a_value); break;        
-        case EUPHORIA_FX1_KNOB2:	setFX1knob2(a_value); break;        
-        case LMS_FX1_COMBOBOX: setFX1combobox(a_value); break;
+        case WAYV_FX1_KNOB0:	setFX1knob0(a_value); break;
+        case WAYV_FX1_KNOB1:	setFX1knob1(a_value); break;        
+        case WAYV_FX1_KNOB2:	setFX1knob2(a_value); break;        
+        case WAYV_FX1_COMBOBOX: setFX1combobox(a_value); break;
 
-        case LMS_FX2_KNOB0:	setFX2knob0(a_value); break;
-        case LMS_FX2_KNOB1:	setFX2knob1(a_value); break;        
-        case LMS_FX2_KNOB2:	setFX2knob2(a_value); break;        
-        case LMS_FX2_COMBOBOX: setFX2combobox(a_value); break;
+        case WAYV_FX2_KNOB0:	setFX2knob0(a_value); break;
+        case WAYV_FX2_KNOB1:	setFX2knob1(a_value); break;        
+        case WAYV_FX2_KNOB2:	setFX2knob2(a_value); break;        
+        case WAYV_FX2_COMBOBOX: setFX2combobox(a_value); break;
 
-        case LMS_FX3_KNOB0:	setFX3knob0(a_value); break;
-        case LMS_FX3_KNOB1:	setFX3knob1(a_value); break;        
-        case LMS_FX3_KNOB2:	setFX3knob2(a_value); break;        
-        case LMS_FX3_COMBOBOX: setFX3combobox(a_value); break;
+        case WAYV_FX3_KNOB0:	setFX3knob0(a_value); break;
+        case WAYV_FX3_KNOB1:	setFX3knob1(a_value); break;        
+        case WAYV_FX3_KNOB2:	setFX3knob2(a_value); break;        
+        case WAYV_FX3_COMBOBOX: setFX3combobox(a_value); break;
         //End from Modulex            
         //From PolyFX mod matrix
         case LMS_PFXMATRIX_GRP0DST0SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[0]->lms_get_widget()))->setValue(a_value); break;
@@ -939,10 +938,10 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
         m_suppressHostUpdate = true;      
     
     switch (a_port) {
-    case WAYV_ATTACK: attackMainChanged(a_value); break;
-    case WAYV_DECAY: decayMainChanged(a_value); break;
-    case WAYV_SUSTAIN: sustainMainChanged(a_value); break;
-    case WAYV_RELEASE: releaseMainChanged(a_value); break;
+    case WAYV_ATTACK_MAIN: attackMainChanged(a_value); break;
+    case WAYV_DECAY_MAIN: decayMainChanged(a_value); break;
+    case WAYV_SUSTAIN_MAIN: sustainMainChanged(a_value); break;
+    case WAYV_RELEASE_MAIN: releaseMainChanged(a_value); break;
     
     case WAYV_ATTACK1: attack1Changed(a_value); break;
     case WAYV_DECAY1: decay1Changed(a_value); break;
@@ -972,39 +971,38 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     
     
     
-    case EUPHORIA_ATTACK: attackChanged(a_value); break;
-    case EUPHORIA_DECAY: decayChanged(a_value); break;
-    case EUPHORIA_SUSTAIN: sustainChanged(a_value); break;
-    case EUPHORIA_RELEASE: releaseChanged(a_value); break;
-    case EUPHORIA_FILTER_ATTACK: filterAttackChanged(a_value); break;
-    case EUPHORIA_FILTER_DECAY: filterDecayChanged(a_value); break;
-    case EUPHORIA_FILTER_SUSTAIN: filterSustainChanged(a_value); break;
-    case EUPHORIA_FILTER_RELEASE: filterReleaseChanged(a_value); break;
-    case EUPHORIA_NOISE_AMP: noiseAmpChanged(a_value); break;      
+    case WAYV_ATTACK_PFX1: attackChanged(a_value); break;
+    case WAYV_DECAY_PFX1: decayChanged(a_value); break;
+    case WAYV_SUSTAIN_PFX1: sustainChanged(a_value); break;
+    case WAYV_RELEASE_PFX1: releaseChanged(a_value); break;
+    case WAYV_ATTACK_PFX2: filterAttackChanged(a_value); break;
+    case WAYV_DECAY_PFX2: filterDecayChanged(a_value); break;
+    case WAYV_SUSTAIN_PFX2: filterSustainChanged(a_value); break;
+    case WAYV_RELEASE_PFX2: filterReleaseChanged(a_value); break;    
     case LMS_NOISE_TYPE: noise_typeChanged(a_value); break;             
-    case EUPHORIA_PITCH_ENV_TIME: pitchEnvTimeChanged(a_value); break;
-    case EUPHORIA_LFO_FREQ: LFOfreqChanged(a_value); break;
-    case EUPHORIA_LFO_TYPE: LFOtypeChanged(a_value); break;
+    case WAYV_RAMP_ENV_TIME: pitchEnvTimeChanged(a_value); break;
+    case WAYV_LFO_FREQ: LFOfreqChanged(a_value); break;
+    case WAYV_LFO_TYPE: LFOtypeChanged(a_value); break;
     //From Modulex            
-    case EUPHORIA_FX0_KNOB0:	fx0knob0Changed(a_value); break;
-    case EUPHORIA_FX0_KNOB1:	fx0knob1Changed(a_value); break;
-    case EUPHORIA_FX0_KNOB2:	fx0knob2Changed(a_value); break;  
-    case EUPHORIA_FX0_COMBOBOX:  fx0comboboxChanged(a_value); break;
+    case WAYV_FX0_KNOB0:	fx0knob0Changed(a_value); break;
+    case WAYV_FX0_KNOB1:	fx0knob1Changed(a_value); break;
+    case WAYV_FX0_KNOB2:	fx0knob2Changed(a_value); break;  
+    case WAYV_FX0_COMBOBOX:  fx0comboboxChanged(a_value); break;
 
-    case EUPHORIA_FX1_KNOB0:	fx1knob0Changed(a_value); break;
-    case EUPHORIA_FX1_KNOB1:	fx1knob1Changed(a_value); break;
-    case EUPHORIA_FX1_KNOB2:	fx1knob2Changed(a_value); break;  
-    case LMS_FX1_COMBOBOX:  fx1comboboxChanged(a_value); break;
+    case WAYV_FX1_KNOB0:	fx1knob0Changed(a_value); break;
+    case WAYV_FX1_KNOB1:	fx1knob1Changed(a_value); break;
+    case WAYV_FX1_KNOB2:	fx1knob2Changed(a_value); break;  
+    case WAYV_FX1_COMBOBOX:  fx1comboboxChanged(a_value); break;
 
-    case LMS_FX2_KNOB0:	fx2knob0Changed(a_value); break;
-    case LMS_FX2_KNOB1:	fx2knob1Changed(a_value); break;
-    case LMS_FX2_KNOB2:	fx2knob2Changed(a_value); break;  
-    case LMS_FX2_COMBOBOX:  fx2comboboxChanged(a_value); break;
+    case WAYV_FX2_KNOB0:	fx2knob0Changed(a_value); break;
+    case WAYV_FX2_KNOB1:	fx2knob1Changed(a_value); break;
+    case WAYV_FX2_KNOB2:	fx2knob2Changed(a_value); break;  
+    case WAYV_FX2_COMBOBOX:  fx2comboboxChanged(a_value); break;
 
-    case LMS_FX3_KNOB0:	fx3knob0Changed(a_value); break;
-    case LMS_FX3_KNOB1:	fx3knob1Changed(a_value); break;
-    case LMS_FX3_KNOB2:	fx3knob2Changed(a_value); break;  
-    case LMS_FX3_COMBOBOX:  fx3comboboxChanged(a_value); break;
+    case WAYV_FX3_KNOB0:	fx3knob0Changed(a_value); break;
+    case WAYV_FX3_KNOB1:	fx3knob1Changed(a_value); break;
+    case WAYV_FX3_KNOB2:	fx3knob2Changed(a_value); break;  
+    case WAYV_FX3_COMBOBOX:  fx3comboboxChanged(a_value); break;
     //End from Modulex
     //From PolyFX mod matrix
     case LMS_PFXMATRIX_GRP0DST0SRC0CTRL0:  pfxmatrix_grp0dst0src0ctrl0Changed(a_value); break;
@@ -1079,10 +1077,10 @@ int rayv_gui::i_get_control(int a_port)
         /*Add the controls you created to the control handler*/
     
     switch (a_port) {
-    case WAYV_ATTACK: return  m_adsr_amp_main->lms_attack->lms_get_value();
-    case WAYV_DECAY:  return m_adsr_amp_main->lms_decay->lms_get_value();
-    case WAYV_SUSTAIN: return m_adsr_amp_main->lms_sustain->lms_get_value();
-    case WAYV_RELEASE: return m_adsr_amp_main->lms_release->lms_get_value();
+    case WAYV_ATTACK_MAIN: return  m_adsr_amp_main->lms_attack->lms_get_value();
+    case WAYV_DECAY_MAIN:  return m_adsr_amp_main->lms_decay->lms_get_value();
+    case WAYV_SUSTAIN_MAIN: return m_adsr_amp_main->lms_sustain->lms_get_value();
+    case WAYV_RELEASE_MAIN: return m_adsr_amp_main->lms_release->lms_get_value();
     case WAYV_NOISE_AMP: return m_noise_amp->lms_get_value();
     case WAYV_OSC1_TYPE: return m_osc1->lms_osc_type_box->lms_get_value();
     case WAYV_OSC1_PITCH: return m_osc1->lms_pitch_knob->lms_get_value();
