@@ -118,6 +118,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_oscillator_layout->lms_add_layout();
     
     m_osc1 = new LMS_oscillator_widget(f_info, this, QString("Oscillator 1") , WAYV_OSC1_PITCH, WAYV_OSC1_TUNE, WAYV_OSC1_VOLUME, WAYV_OSC1_TYPE, f_osc_types);
+    m_osc1->lms_vol_knob->lms_knob->setMinimum(-30);
     
     m_oscillator_layout->lms_add_widget(m_osc1->lms_groupbox->lms_groupbox);
     
@@ -127,6 +128,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_osc1->lms_osc_type_box->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc1TypeChanged(int)));
 
     m_adsr_amp1 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK1, WAYV_DECAY1, WAYV_SUSTAIN1, WAYV_RELEASE1, QString("ADSR Osc1"));    
+    m_adsr_amp1->lms_sustain->lms_knob->setMinimum(-30);
     m_oscillator_layout->lms_add_widget(m_adsr_amp1->lms_groupbox_adsr->lms_groupbox);
     
     connect(m_adsr_amp1->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attack1Changed(int)));    
@@ -142,6 +144,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_oscillator_layout->lms_add_layout();    
     
     m_osc2 = new LMS_oscillator_widget(f_info, this, QString("Oscillator 2"), WAYV_OSC2_PITCH, WAYV_OSC2_TUNE, WAYV_OSC2_VOLUME, WAYV_OSC2_TYPE, f_osc_types);    
+    m_osc2->lms_vol_knob->lms_knob->setMinimum(-30);
     
     m_oscillator_layout->lms_add_widget(m_osc2->lms_groupbox->lms_groupbox);
     connect(m_osc2->lms_pitch_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2PitchChanged(int)));
@@ -149,7 +152,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_osc2->lms_vol_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2VolumeChanged(int)));    
     connect(m_osc2->lms_osc_type_box->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
         
-    m_adsr_amp2 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK2, WAYV_DECAY2, WAYV_SUSTAIN2, WAYV_RELEASE2, QString("ADSR Osc2"));    
+    m_adsr_amp2 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK2, WAYV_DECAY2, WAYV_SUSTAIN2, WAYV_RELEASE2, QString("ADSR Osc2"));   
+    m_adsr_amp2->lms_sustain->lms_knob->setMinimum(-30);
     m_oscillator_layout->lms_add_widget(m_adsr_amp2->lms_groupbox_adsr->lms_groupbox);
     m_oscillator_layout->lms_add_spacer();
     
@@ -166,6 +170,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     
     m_master = new LMS_master_widget(this, f_info, WAYV_MASTER_VOLUME, WAYV_MASTER_UNISON_VOICES, 
             WAYV_MASTER_UNISON_SPREAD, WAYV_MASTER_GLIDE, WAYV_MASTER_PITCHBEND_AMT, QString("Master"));
+    m_master->lms_master_volume->lms_knob->setMinimum(-30);
     m_oscillator_layout->lms_add_widget(m_master->lms_groupbox->lms_groupbox);    
     
     connect(m_master->lms_master_volume->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterVolumeChanged(int)));    
@@ -175,6 +180,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
     
     m_adsr_amp_main = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK, WAYV_DECAY, WAYV_SUSTAIN, WAYV_RELEASE, QString("ADSR Master"));    
+    m_adsr_amp_main->lms_sustain->lms_knob->setMinimum(-30);
     m_oscillator_layout->lms_add_widget(m_adsr_amp_main->lms_groupbox_adsr->lms_groupbox);
     
     connect(m_adsr_amp_main->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attackMainChanged(int)));    
@@ -326,7 +332,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_adsr_amp = new LMS_adsr_widget(this, f_info, TRUE, EUPHORIA_ATTACK, EUPHORIA_DECAY, EUPHORIA_SUSTAIN, EUPHORIA_RELEASE, QString("ADSR 1"));
 
     m_adsr_amp->lms_release->lms_knob->setMinimum(5);  //overriding the default for this, because we want a low minimum default that won't click
-
+    m_adsr_amp->lms_sustain->lms_knob->setMinimum(-30);
+    
     m_main_layout->lms_add_widget(m_adsr_amp->lms_groupbox_adsr->lms_groupbox);
 
     connect(m_adsr_amp->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attackChanged(int)));    
