@@ -49,7 +49,12 @@ class LMS_main_layout
         
         void lms_add_spacer()
         {
-            lms_h_layouts.at(lms_row_index)->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+            lms_h_layouts.at(lms_row_index)->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        }
+        
+        void lms_add_vertical_spacer()
+        {
+            lms_h_layouts.at(lms_row_index)->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
         }
 };
 
