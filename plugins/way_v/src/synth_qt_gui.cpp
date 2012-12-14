@@ -200,6 +200,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_groupbox_noise->lms_add_h(m_noise_type);
     connect(m_noise_type->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(noise_typeChanged(int)));
 
+    m_oscillator_layout->lms_add_layout();
+    m_oscillator_layout->lms_add_vertical_spacer();
     
     m_main_layout = new LMS_main_layout(m_poly_fx_tab);
         
