@@ -955,7 +955,7 @@ void _init()
 	port_descriptors[WAYV_MASTER_VOLUME] = port_descriptors[WAYV_ATTACK];
 	port_names[WAYV_MASTER_VOLUME] = "Master Vol";
 	port_range_hints[WAYV_MASTER_VOLUME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
+			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_MASTER_VOLUME].LowerBound =  -30.0f;
 	port_range_hints[WAYV_MASTER_VOLUME].UpperBound =  12.0f;
