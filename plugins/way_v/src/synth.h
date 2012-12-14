@@ -147,14 +147,15 @@ extern "C" {
 
 //#define LMS_GLOBAL_MIDI_OCTAVES_OFFSET 82
 #define LMS_NOISE_TYPE 104
-
+#define WAYV_ADSR1_CHECKBOX 105
+#define WAYV_ADSR2_CHECKBOX 106
     
     
     
-#define WAYV_LAST_CONTROL_PORT 104
-#define WAYV_COUNT 105 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define WAYV_LAST_CONTROL_PORT 106
+#define WAYV_COUNT 107 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
     
-#define WAYV_PROGRAM_CHANGE 106  //Not used as a real port
+#define WAYV_PROGRAM_CHANGE 109  //Not used as a real port
 #define WAYV_POLYPHONY   16
 
 typedef struct {
