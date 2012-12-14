@@ -128,7 +128,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_osc1->lms_vol_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc1VolumeChanged(int)));        
     connect(m_osc1->lms_osc_type_box->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc1TypeChanged(int)));
 
-    m_adsr_amp1 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK1, WAYV_DECAY1, WAYV_SUSTAIN1, WAYV_RELEASE1, QString("ADSR Amp"));    
+    m_adsr_amp1 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK1, WAYV_DECAY1, WAYV_SUSTAIN1, WAYV_RELEASE1, QString("ADSR Osc1"));    
     m_oscillator_layout->lms_add_widget(m_adsr_amp1->lms_groupbox_adsr->lms_groupbox);
     
     connect(m_adsr_amp1->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attack1Changed(int)));    
@@ -147,7 +147,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_osc2->lms_vol_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2VolumeChanged(int)));    
     connect(m_osc2->lms_osc_type_box->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
         
-    m_adsr_amp2 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK2, WAYV_DECAY2, WAYV_SUSTAIN2, WAYV_RELEASE2, QString("ADSR Amp"));    
+    m_adsr_amp2 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK2, WAYV_DECAY2, WAYV_SUSTAIN2, WAYV_RELEASE2, QString("ADSR Osc2"));    
     m_oscillator_layout->lms_add_widget(m_adsr_amp2->lms_groupbox_adsr->lms_groupbox);
     
     connect(m_adsr_amp2->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attack2Changed(int)));    
@@ -167,7 +167,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    
     connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
     
-    m_adsr_amp_main = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK, WAYV_DECAY, WAYV_SUSTAIN, WAYV_RELEASE, QString("ADSR Amp"));    
+    m_adsr_amp_main = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK, WAYV_DECAY, WAYV_SUSTAIN, WAYV_RELEASE, QString("ADSR Master"));    
     m_oscillator_layout->lms_add_widget(m_adsr_amp_main->lms_groupbox_adsr->lms_groupbox);
     
     connect(m_adsr_amp_main->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attackMainChanged(int)));    
