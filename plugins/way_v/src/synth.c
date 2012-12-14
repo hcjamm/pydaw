@@ -767,7 +767,7 @@ void _init()
 	port_range_hints[WAYV_SUSTAIN].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_SUSTAIN].LowerBound = -60.0f;
+	port_range_hints[WAYV_SUSTAIN].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN].UpperBound = 0.0f;
 
 	/* Parameters for release */
@@ -806,7 +806,7 @@ void _init()
 	port_range_hints[WAYV_SUSTAIN1].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_SUSTAIN1].LowerBound = -60.0f;
+	port_range_hints[WAYV_SUSTAIN1].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN1].UpperBound = 0.0f;
 
 	/* Parameters for release */
@@ -846,7 +846,7 @@ void _init()
 	port_range_hints[WAYV_SUSTAIN2].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_SUSTAIN2].LowerBound = -60.0f;
+	port_range_hints[WAYV_SUSTAIN2].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN2].UpperBound = 0.0f;
 
 	/* Parameters for release */
@@ -906,7 +906,7 @@ void _init()
 	port_range_hints[WAYV_OSC1_VOLUME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_OSC1_VOLUME].LowerBound =  -60.0f;
+	port_range_hints[WAYV_OSC1_VOLUME].LowerBound =  -30.0f;
 	port_range_hints[WAYV_OSC1_VOLUME].UpperBound =  0.0f;
         
         
@@ -947,7 +947,7 @@ void _init()
 	port_range_hints[WAYV_OSC2_VOLUME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW |  LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_OSC2_VOLUME].LowerBound =  -60.0f;
+	port_range_hints[WAYV_OSC2_VOLUME].LowerBound =  -30.0f;
 	port_range_hints[WAYV_OSC2_VOLUME].UpperBound =  0.0f;
         
         
@@ -957,7 +957,7 @@ void _init()
 	port_range_hints[WAYV_MASTER_VOLUME].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_MASTER_VOLUME].LowerBound =  -60.0f;
+	port_range_hints[WAYV_MASTER_VOLUME].LowerBound =  -30.0f;
 	port_range_hints[WAYV_MASTER_VOLUME].UpperBound =  12.0f;
         
         
