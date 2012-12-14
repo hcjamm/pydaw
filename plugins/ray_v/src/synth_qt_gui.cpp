@@ -96,6 +96,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_program->m_prog_save, SIGNAL(pressed()), this, SLOT(programSaved()));
     
     m_main_layout->lms_add_widget(m_program->lms_group_box);
+    m_main_layout->lms_add_spacer();
     
     QLabel * f_logo_label = new QLabel("", this);    
     f_logo_label->setTextFormat(Qt::RichText);
