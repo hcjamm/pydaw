@@ -33,6 +33,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/presets.h"
 #include "../../libmodsynth/widgets/group_box.h"
 #include "../../libmodsynth/widgets/lms_combobox.h"
+#include "../../libmodsynth/widgets/lms_checkbox.h"
 #include "../../libmodsynth/widgets/lms_main_layout.h"
 #include "../../libmodsynth/widgets/ui_modules/adsr.h"
 #include "../../libmodsynth/widgets/ui_modules/oscillator.h"
@@ -87,11 +88,13 @@ public slots:
     void setDecay1  (float);
     void setSustain1(float);
     void setRelease1(float);
+    void setADSR1checked(float);
     
     void setAttack2 (float);
     void setDecay2  (float);
     void setSustain2(float);
     void setRelease2(float);
+    void setADSR2checked(float);
     
     void setNoiseAmp(float);
     
@@ -111,7 +114,7 @@ public slots:
     void setAttack (float);
     void setDecay  (float);
     void setSustain(float);
-    void setRelease(float);
+    void setRelease(float);    
             
     void setFilterAttack (float);
     void setFilterDecay  (float);
@@ -165,11 +168,13 @@ protected slots:
     void decay1Changed  (int);
     void sustain1Changed(int);
     void release1Changed(int);
+    void adsr1checkChanged(bool);
     
     void attack2Changed (int);
     void decay2Changed  (int);
     void sustain2Changed(int);
     void release2Changed(int);
+    void adsr2checkChanged(bool);
     
     void noiseAmpChanged(int);
     
@@ -300,9 +305,12 @@ protected:
     
     LMS_adsr_widget * m_adsr_amp_main;
     LMS_oscillator_widget * m_osc1;
-    LMS_oscillator_widget * m_osc2;    
+    LMS_oscillator_widget * m_osc2;
+    
     LMS_adsr_widget * m_adsr_amp1;
+    LMS_checkbox * m_adsr_amp1_checkbox;
     LMS_adsr_widget * m_adsr_amp2;
+    LMS_checkbox * m_adsr_amp2_checkbox;
     
     LMS_master_widget * m_master;
             
