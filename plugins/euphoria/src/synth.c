@@ -960,7 +960,7 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
                 v_adsr_set_adsr(plugin_data->data[f_voice_num]->adsr_filter, f_attack_f, f_decay_f, (*(plugin_data->sustain_f) * .01), f_release_f);
 
                 /*Retrigger the pitch envelope*/
-                v_rmp_retrigger((plugin_data->data[f_voice_num]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1);  
+                v_rmp_retrigger((plugin_data->data[f_voice_num]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1.0f);  
 
                 plugin_data->data[f_voice_num]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
