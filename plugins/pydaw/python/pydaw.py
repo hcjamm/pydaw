@@ -1611,7 +1611,7 @@ class seq_track:
         self.fx_button.setMaximumWidth(22)
         if a_instrument:
             self.instrument_combobox = QtGui.QComboBox()
-            self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V"])
+            self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V", "Way-V"])
             self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
             self.instrument_combobox.setMinimumWidth(100)
             self.hlayout3.addWidget(self.instrument_combobox)        
