@@ -483,7 +483,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
 
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {
-        if(a_pydaw_data->track_pool[f_i]->rec)
+        if(a_pydaw_data->track_pool[f_i]->rec  && ((a_pydaw_data->track_pool[f_i]->plugin_index) != 0))
         {
             int f_i2 = 0;
 
