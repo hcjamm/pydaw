@@ -365,9 +365,14 @@ rayv_gui::rayv_gui(const char * host, const char * port,
 
     connect(m_lfo->lms_freq_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOfreqChanged(int)));
     connect(m_lfo->lms_type_combobox->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(LFOtypeChanged(int)));
-
     
+    m_lfo_amp  = new LMS_knob_regular(QString("Amp"), -24, 24, 1, 0, QString("0"), m_lfo->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, WAYV_LFO_AMP);
+    m_lfo->lms_groupbox->lms_add_h(m_lfo_amp);
+    connect(m_lfo_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOampChanged(int)));
     
+    m_lfo_pitch = new LMS_knob_regular(QString("Pitch"), -36, 36, 1, 0, QString("0"), m_lfo->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, WAYV_LFO_PITCH);
+    m_lfo->lms_groupbox->lms_add_h(m_lfo_pitch);
+    connect(m_lfo_pitch->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOpitchChanged(int)));
     
     
     
@@ -482,6 +487,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_program->lms_add_control(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]);
     m_program->lms_add_control(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]);
     
+    m_program->lms_add_control(m_lfo_amp);
+    m_program->lms_add_control(m_lfo_pitch);
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
@@ -602,11 +609,8 @@ void rayv_gui::pfxmatrix_grp0dst3src3ctrl0Changed(int a_value){pfxmatrix_Changed
 void rayv_gui::pfxmatrix_grp0dst3src3ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC3CTRL1, 0, 3, 1, 3);}
 void rayv_gui::pfxmatrix_grp0dst3src3ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC3CTRL2, 0, 3, 2, 3);}
 
-
-
-
-
-
+void rayv_gui::LFOampChanged(int a_value){lms_value_changed(a_value, m_lfo_amp);}
+void rayv_gui::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
 
 
 
@@ -689,10 +693,8 @@ void rayv_gui::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env
 void rayv_gui::setLFOfreq(float a_value){lms_set_value(a_value, m_lfo->lms_freq_knob);}
 void rayv_gui::setLFOtype(float a_value){lms_set_value(a_value, m_lfo->lms_type_combobox);}
 
-
-
-
-
+void rayv_gui::setLFOamp(float a_value){lms_set_value(a_value, m_lfo_amp);}
+void rayv_gui::setLFOpitch(float a_value){lms_set_value(a_value, m_lfo_pitch);}
 
 
 void rayv_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
@@ -923,6 +925,8 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]->lms_get_widget()))->setValue(a_value); break;
         case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]->lms_get_widget()))->setValue(a_value); break;
 
+        case WAYV_LFO_AMP: setLFOamp(a_value); break;            
+        case WAYV_LFO_PITCH: setLFOpitch(a_value); break;      
     }
     
 }
@@ -1056,8 +1060,8 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1:  pfxmatrix_grp0dst3src3ctrl1Changed(a_value); break;
     case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2:  pfxmatrix_grp0dst3src3ctrl2Changed(a_value); break;
 
-    
-    
+    case WAYV_LFO_AMP: LFOampChanged(a_value); break;
+    case WAYV_LFO_PITCH: LFOpitchChanged(a_value); break;    
     
     default:
 #ifdef LMS_DEBUG_MODE_QT
@@ -1097,6 +1101,9 @@ int rayv_gui::i_get_control(int a_port)
     case WAYV_MASTER_UNISON_SPREAD: return m_master->lms_master_unison_spread->lms_get_value();
     case WAYV_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
     case WAYV_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
+    
+    case WAYV_LFO_AMP: return m_lfo_amp->lms_get_value();
+    case WAYV_LFO_PITCH: return m_lfo_pitch->lms_get_value();
     //case LMS_PROGRAM_CHANGE:
         //return m_program->currentIndex();
     default:

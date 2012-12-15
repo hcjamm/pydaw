@@ -279,10 +279,9 @@ static void v_wayv_connect_port(LADSPA_Handle instance, unsigned long port,
     case LMS_NOISE_TYPE: plugin->noise_type = data; break;
     case WAYV_ADSR1_CHECKBOX: plugin->adsr1_checked = data; break;
     case WAYV_ADSR2_CHECKBOX: plugin->adsr2_checked = data; break;
-        
-    /*case LMS_PROGRAM_CHANGE:
-        plugin->program = data;
-        break;*/    
+    
+    case WAYV_LFO_AMP: plugin->lfo_amp = data; break;
+    case WAYV_LFO_PITCH: plugin->lfo_pitch = data; break;    
     }
 }
 
@@ -594,9 +593,22 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         a_voice->current_sample = 0;
         
         f_rmp_run_ramp(a_voice->glide_env);
+                        
+        v_adsr_run_db(plugin_data->data[n]->adsr_amp);        
+
+        v_adsr_run(plugin_data->data[n]->adsr_filter);
+                
+        f_rmp_run_ramp(plugin_data->data[n]->ramp_env);        
+        
+        //Set and run the LFO
+        v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01);
+        v_lfs_run(plugin_data->data[n]->lfo1);
+        
+        a_voice->lfo_amp_output = f_db_to_linear_fast((((*plugin_data->lfo_amp) * (a_voice->lfo1->output)) - (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)), a_voice->amp_ptr);        
+        a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo1->output);        
         
         a_voice->base_pitch = (a_voice->glide_env->output_multiplied) //+ (a_voice->pitch_env->output_multiplied) 
-                + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch);
+                + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
                
         if(a_voice->osc1_on)
         {
@@ -632,24 +644,10 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         
         v_adsr_run_db(a_voice->adsr_main);
                 
-        a_voice->current_sample = (a_voice->current_sample) * (a_voice->adsr_main->output) * (a_voice->amp);
+        a_voice->current_sample = (a_voice->current_sample) * (a_voice->adsr_main->output) * (a_voice->amp) * (a_voice->lfo_amp_output);
         
         a_voice->modulex_current_sample[0] = (a_voice->current_sample);
         a_voice->modulex_current_sample[1] = (a_voice->current_sample);
-        
-        //Run things that aren't per-channel like envelopes
-                
-        v_adsr_run_db(plugin_data->data[n]->adsr_amp);        
-
-        v_adsr_run(plugin_data->data[n]->adsr_filter);
-        
-        //Run the glide module            
-        f_rmp_run_ramp(plugin_data->data[n]->ramp_env);
-        f_rmp_run_ramp(plugin_data->data[n]->glide_env);
-        
-        //Set and run the LFO
-        v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01);
-        v_lfs_run(plugin_data->data[n]->lfo1);
         
         //Modular PolyFX, processed from the index created during note_on
         for(plugin_data->i_dst = 0; (plugin_data->i_dst) < (plugin_data->active_polyfx_count[n]); plugin_data->i_dst = (plugin_data->i_dst) + 1)
@@ -1472,6 +1470,26 @@ void _init()
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ADSR2_CHECKBOX].LowerBound =  0;
 	port_range_hints[WAYV_ADSR2_CHECKBOX].UpperBound =  1;
+        
+        
+        /*Parameters for LFO Amp*/
+	port_descriptors[WAYV_LFO_AMP] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_names[WAYV_LFO_AMP] = "LFO Amp";
+	port_range_hints[WAYV_LFO_AMP].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_LFO_AMP].LowerBound = -24.0f;
+	port_range_hints[WAYV_LFO_AMP].UpperBound = 24.0f;
+        
+        /*Parameters for LFO Pitch*/
+	port_descriptors[WAYV_LFO_PITCH] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_names[WAYV_LFO_PITCH] = "LFO Pitch";
+	port_range_hints[WAYV_LFO_PITCH].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_LFO_PITCH].LowerBound = -36.0f;
+	port_range_hints[WAYV_LFO_PITCH].UpperBound = 36.0f;
+        
         
         /*Parameters for program change*/
         /*
