@@ -259,6 +259,8 @@ class region_list_editor:
         QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first by clicking in the song editor above.")
         
     def cell_clicked(self, x, y):
+        if y == 0:
+            return
         if not self.enabled:
             self.warn_no_region_selected()
             return
@@ -1571,7 +1573,9 @@ class seq_track:
         self.is_instrument = a_instrument
         self.suppress_osc = True
         self.track_number = a_track_num
-        self.group_box = QtGui.QGroupBox()
+        self.group_box = QtGui.QWidget()
+        self.group_box.setAutoFillBackground(True)
+        self.group_box.setPalette(QtGui.QPalette(QtCore.Qt.black))
         self.group_box.setObjectName("seqtrack")
         self.main_vlayout = QtGui.QVBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
