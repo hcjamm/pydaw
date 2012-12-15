@@ -259,7 +259,7 @@ class region_list_editor:
         QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first by clicking in the song editor above.")
         
     def cell_clicked(self, x, y):
-        if y == 0:
+        if y <= 0:
             return
         if not self.enabled:
             self.warn_no_region_selected()
