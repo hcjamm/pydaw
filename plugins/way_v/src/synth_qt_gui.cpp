@@ -352,10 +352,12 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_adsr_filter->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterSustainChanged(int)));
     connect(m_adsr_filter->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));
 
-    m_pitch_env = new LMS_ramp_env(this, f_info, WAYV_RAMP_ENV_TIME, -1, -1, FALSE, QString("Ramp Env"), FALSE);
+    m_pitch_env = new LMS_ramp_env(this, f_info, WAYV_RAMP_ENV_TIME, RAYV_PITCH_ENV_AMT, -1, FALSE, QString("Ramp Env"), TRUE);
+    m_pitch_env->lms_amt_knob->lms_label->setText(QString("Pitch"));
     m_main_layout->lms_add_widget(m_pitch_env->lms_groupbox->lms_groupbox);
 
     connect(m_pitch_env->lms_time_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvTimeChanged(int)));
+    connect(m_pitch_env->lms_amt_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvAmtChanged(int)));
 
     m_lfo = new LMS_lfo_widget(this, f_info, WAYV_LFO_FREQ, WAYV_LFO_TYPE, f_lfo_types, QString("LFO"));
     m_main_layout->lms_add_widget(m_lfo->lms_groupbox->lms_groupbox);
@@ -489,6 +491,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     
     m_program->lms_add_control(m_lfo_amp);
     m_program->lms_add_control(m_lfo_pitch);
+    
+    m_program->lms_add_control(m_pitch_env->lms_amt_knob);
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
@@ -690,6 +694,7 @@ void rayv_gui::setMasterUnisonSpread(float a_value){lms_set_value(a_value, m_mas
 void rayv_gui::setMasterGlide(float a_value){lms_set_value(a_value, m_master->lms_master_glide);}
 void rayv_gui::setMasterPitchbendAmt(float a_value){lms_set_value(a_value, m_master->lms_master_pitchbend_amt);}
 void rayv_gui::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env->lms_time_knob);}
+void rayv_gui::setPitchEnvAmt(float a_value){lms_set_value(a_value, m_pitch_env->lms_amt_knob);}
 void rayv_gui::setLFOfreq(float a_value){lms_set_value(a_value, m_lfo->lms_freq_knob);}
 void rayv_gui::setLFOtype(float a_value){lms_set_value(a_value, m_lfo->lms_type_combobox);}
 
@@ -733,10 +738,6 @@ void rayv_gui::programChanged(int a_value){lms_value_changed(a_value, m_program)
 void rayv_gui::programSaved(){ m_program->programSaved(); }
 
 
-
-
-
-
 void rayv_gui::attackChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_attack);}
 void rayv_gui::decayChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_decay);}
 void rayv_gui::sustainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_sustain);}
@@ -753,6 +754,7 @@ void rayv_gui::masterUnisonSpreadChanged(int a_value){lms_value_changed(a_value,
 void rayv_gui::masterGlideChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_glide);}
 void rayv_gui::masterPitchbendAmtChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_pitchbend_amt);}
 void rayv_gui::pitchEnvTimeChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_time_knob);}
+void rayv_gui::pitchEnvAmtChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_amt_knob);}
 void rayv_gui::LFOfreqChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_freq_knob);}
 void rayv_gui::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_type_combobox);}
 
@@ -927,6 +929,8 @@ void rayv_gui::v_set_control(int a_port, float a_value)
 
         case WAYV_LFO_AMP: setLFOamp(a_value); break;            
         case WAYV_LFO_PITCH: setLFOpitch(a_value); break;      
+        
+        case RAYV_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
     }
     
 }
@@ -1062,6 +1066,7 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
 
     case WAYV_LFO_AMP: LFOampChanged(a_value); break;
     case WAYV_LFO_PITCH: LFOpitchChanged(a_value); break;    
+    case RAYV_PITCH_ENV_AMT: pitchEnvAmtChanged(a_value); break;
     
     default:
 #ifdef LMS_DEBUG_MODE_QT
@@ -1104,6 +1109,7 @@ int rayv_gui::i_get_control(int a_port)
     
     case WAYV_LFO_AMP: return m_lfo_amp->lms_get_value();
     case WAYV_LFO_PITCH: return m_lfo_pitch->lms_get_value();
+    case RAYV_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
     //case LMS_PROGRAM_CHANGE:
         //return m_program->currentIndex();
     default:

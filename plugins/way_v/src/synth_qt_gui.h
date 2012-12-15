@@ -158,6 +158,8 @@ public slots:
     void setLFOamp(float);
     void setLFOpitch(float);
     
+    void setPitchEnvAmt(float);
+    
     void aboutToQuit();
     
 protected slots:
@@ -291,6 +293,7 @@ protected slots:
     
     void LFOampChanged(int);
     void LFOpitchChanged(int);
+    void pitchEnvAmtChanged(int);
     
 protected:
     void pfxmatrix_Changed(int,int,int,int,int);
