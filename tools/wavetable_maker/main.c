@@ -484,6 +484,68 @@ int main(int argc, char** argv)
     f_wav_count++;
     
     
+    
+    /*A pink noise glitch*/
+    
+    v_svf_set_cutoff_base(f_svf, f_note_pitch);
+    v_svf_set_res(f_svf, -6.0f);
+    v_svf_set_cutoff(f_svf);
+    v_osc_set_uni_voice_count(f_osc, 1);
+    v_osc_set_unison_pitch(f_osc, 0.5f, f_note_pitch);
+    v_osc_set_simple_osc_unison_type(f_osc, 1);
+    
+    f_i = 0;
+    
+    while(f_i < 1000000)
+    {
+        //f_osc_run_unison_osc(f_osc);
+        v_svf_run_2_pole_hp(f_svf, f_run_pink_noise(f_noise));
+        f_i++;
+    }
+    
+    f_i = 0;
+    
+    while(f_i < WT_FRAMES_PER_CYCLE)
+    {   
+        tmp[f_i] = v_svf_run_2_pole_hp(f_svf, f_run_pink_noise(f_noise));                
+        f_i++;
+    }
+        
+    print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "pink_glitch");  
+    
+    f_wav_count++;
+        
+    
+    /*A white noise glitch*/
+    
+    v_svf_set_cutoff_base(f_svf, f_note_pitch);
+    v_svf_set_res(f_svf, -6.0f);
+    v_svf_set_cutoff(f_svf);
+    v_osc_set_uni_voice_count(f_osc, 1);
+    v_osc_set_unison_pitch(f_osc, 0.5f, f_note_pitch);
+    v_osc_set_simple_osc_unison_type(f_osc, 1);
+    
+    f_i = 0;
+    
+    while(f_i < 1000000)
+    {
+        //f_osc_run_unison_osc(f_osc);
+        v_svf_run_2_pole_hp(f_svf, f_run_white_noise(f_noise));
+        f_i++;
+    }
+        
+    f_i = 0;
+    
+    while(f_i < WT_FRAMES_PER_CYCLE)
+    {   
+        tmp[f_i] = v_svf_run_2_pole_hp(f_svf, f_run_white_noise(f_noise));                
+        f_i++;
+    }
+        
+    print_to_c_array(tmp, WT_FRAMES_PER_CYCLE, "white_glitch");  
+    
+    f_wav_count++;
+    
     /*End waveforms*/
     
     printf("\n\n#define WT_TOTAL_WAVETABLE_COUNT %i\n\n", f_wav_count);
