@@ -149,10 +149,10 @@ extern "C" {
 #define WAYV_ADSR2_CHECKBOX 106
 #define WAYV_LFO_AMP 107
 #define WAYV_LFO_PITCH 108
+#define RAYV_PITCH_ENV_AMT 109
     
-    
-#define WAYV_LAST_CONTROL_PORT 108
-#define WAYV_COUNT 109 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define WAYV_LAST_CONTROL_PORT 109
+#define WAYV_COUNT 110 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
     
 #define WAYV_PROGRAM_CHANGE 120  //Not used as a real port
 #define WAYV_POLYPHONY   16
@@ -209,6 +209,7 @@ typedef struct {
     LADSPA_Data *master_pb_amt;
         
     LADSPA_Data *pitch_env_time;
+    LADSPA_Data *pitch_env_amt;
     
     LADSPA_Data *lfo_freq;
     LADSPA_Data *lfo_type;

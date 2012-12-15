@@ -281,7 +281,9 @@ static void v_wayv_connect_port(LADSPA_Handle instance, unsigned long port,
     case WAYV_ADSR2_CHECKBOX: plugin->adsr2_checked = data; break;
     
     case WAYV_LFO_AMP: plugin->lfo_amp = data; break;
-    case WAYV_LFO_PITCH: plugin->lfo_pitch = data; break;    
+    case WAYV_LFO_PITCH: plugin->lfo_pitch = data; break;
+    
+    case RAYV_PITCH_ENV_AMT: plugin->pitch_env_amt = data; break;
     }
 }
 
@@ -500,7 +502,7 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                 v_adsr_set_adsr(plugin_data->data[f_voice]->adsr_filter, f_attack_f, f_decay_f, (*(plugin_data->sustain_f) * .01), f_release_f);
 
                 /*Retrigger the pitch envelope*/
-                v_rmp_retrigger((plugin_data->data[f_voice]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1);  
+                v_rmp_retrigger((plugin_data->data[f_voice]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1.0f);  
 
                 plugin_data->data[f_voice]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
@@ -607,7 +609,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         a_voice->lfo_amp_output = f_db_to_linear_fast((((*plugin_data->lfo_amp) * (a_voice->lfo1->output)) - (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)), a_voice->amp_ptr);        
         a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo1->output);        
         
-        a_voice->base_pitch = (a_voice->glide_env->output_multiplied) //+ (a_voice->pitch_env->output_multiplied) 
+        a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + ((a_voice->ramp_env->output_multiplied) * (*plugin_data->pitch_env_amt))
                 + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
                
         if(a_voice->osc1_on)
@@ -1491,6 +1493,15 @@ void _init()
 	port_range_hints[WAYV_LFO_PITCH].UpperBound = 36.0f;
         
         
+        /*Parameters for pitch env amt*/        
+	port_descriptors[RAYV_PITCH_ENV_AMT] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_names[RAYV_PITCH_ENV_AMT] = "Pitch Env Amt";
+	port_range_hints[RAYV_PITCH_ENV_AMT].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[RAYV_PITCH_ENV_AMT].LowerBound =  -36.0f;
+	port_range_hints[RAYV_PITCH_ENV_AMT].UpperBound =   36.0f;
+                
         /*Parameters for program change*/
         /*
 	port_descriptors[LMS_PROGRAM_CHANGE] = port_descriptors[LMS_ATTACK];
