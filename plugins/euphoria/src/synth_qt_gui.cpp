@@ -100,7 +100,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_creating_instrument_file = FALSE;
     m_suppress_selected_sample_changed = FALSE;
     
-    LMS_style_info * a_style = new LMS_style_info(64);
+    LMS_style_info * a_style = new LMS_style_info(55);
     a_style->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
     a_style->LMS_set_label_style(QString("QLabel{color:black;background-color:white;border:solid 2px white;border-radius:2px; text-align : center;}"), 64);
     //a_style->LMS_set_value_style("")
