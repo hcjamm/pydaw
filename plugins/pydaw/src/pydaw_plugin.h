@@ -228,6 +228,9 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
         case 2:
             f_result->lib_handle = dlopen("/usr/lib/dssi/ray_v.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
+        case 3:
+            f_result->lib_handle = dlopen("/usr/lib/dssi/way_v.so", RTLD_NOW | RTLD_LOCAL);                  
+            break;
     }
     
     //f_result->euphoria_last_dir_set = 0;

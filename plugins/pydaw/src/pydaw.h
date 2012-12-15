@@ -648,7 +648,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     f_i = PYDAW_BUS_TRACK_COUNT;
     int f_thread_index = 0;
 
-    /*Schedule all Euphoria instances on their own core if possible because it can use more CPU than Ray-V*/
+    /*Schedule all Euphoria instances on their own core if possible because it can use more CPU than Ray-V or Way-V*/
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {   
         if(a_pydaw_data->track_pool[f_i]->plugin_index == 1)
@@ -664,6 +664,24 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
         f_i++;
     }
 
+    f_i = PYDAW_BUS_TRACK_COUNT;
+    
+    /*Schedule all Way-V instances on their own core if possible because it can use more CPU than Ray-V*/
+    while(f_i < PYDAW_MAX_TRACK_COUNT)
+    {   
+        if(a_pydaw_data->track_pool[f_i]->plugin_index == 3)
+        {
+            a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
+            a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
+            f_thread_index++;
+            if(f_thread_index >= a_pydaw_data->track_worker_thread_count)
+            {
+                f_thread_index = 0;
+            }
+        }
+        f_i++;
+    }
+    
     f_i = PYDAW_BUS_TRACK_COUNT;
 
     /*Now schedule all Ray-V tracks*/
@@ -2206,7 +2224,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             
             int f_plugin_index = atoi(f_plugin_index_str);
             free(f_plugin_index_str);
-            assert(f_plugin_index >= -1 && f_plugin_index <= 2);   //TODO:  change this if adding more plugin instruments...
+            assert(f_plugin_index >= -1 && f_plugin_index <= 3);   //TODO:  change this if adding more plugin instruments...
             
             int f_bus_num = atoi(f_bus_num_str);
             free(f_bus_num_str);
@@ -2698,6 +2716,11 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
                 filename = "/usr/lib/dssi/ray_v/LMS_RAYV_qt";
                 dllName = "ray_v.so";
                 //label = "LMS_RAYV";            
+                break;
+            case 3:
+                filename = "/usr/lib/dssi/way_v/WAY_V_qt";
+                dllName = "way_v.so";
+                //label = "WAY_V";            
                 break;
             default:
                 return;
