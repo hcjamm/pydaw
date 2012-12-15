@@ -108,6 +108,8 @@ typedef struct st_rayv_poly_voice
     
     t_lfs_lfo * lfo1;
     
+    float lfo_amp_output, lfo_pitch_output;
+    
     t_adsr * adsr_filter;
     
     t_adsr * adsr_amp;
@@ -163,8 +165,10 @@ t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
     f_voice->osc1_on = 0;
     f_voice->osc2_on = 0;
     
+    f_voice->lfo_amp_output = 0.0f;
+    f_voice->lfo_pitch_output = 0.0f;
     
-        int f_i = 0;
+    int f_i = 0;
    
     float f_sr_recip = 1.0f/a_sr;
 

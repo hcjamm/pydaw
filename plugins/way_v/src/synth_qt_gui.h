@@ -155,6 +155,9 @@ public slots:
     void setFX3knob2 (float val);
     void setFX3combobox (float val);
     
+    void setLFOamp(float);
+    void setLFOpitch(float);
+    
     void aboutToQuit();
     
 protected slots:
@@ -286,6 +289,8 @@ protected slots:
     void pfxmatrix_grp0dst3src3ctrl1Changed(int);
     void pfxmatrix_grp0dst3src3ctrl2Changed(int);
     
+    void LFOampChanged(int);
+    void LFOpitchChanged(int);
     
 protected:
     void pfxmatrix_Changed(int,int,int,int,int);
@@ -322,7 +327,10 @@ protected:
     LMS_ramp_env * m_pitch_env;
     
     LMS_lfo_widget * m_lfo;
-            
+        
+    LMS_knob_regular *m_lfo_amp;
+    LMS_knob_regular *m_lfo_pitch;
+    
     LMS_group_box * m_groupbox_noise;
     LMS_knob_regular *m_noise_amp;
     LMS_combobox *m_noise_type;
