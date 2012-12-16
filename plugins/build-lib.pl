@@ -26,6 +26,8 @@ args:
 
 --coredump	:  Read the most recent core dump for the current plugin directory in GDB(requires that you ran the plugin with --debug and experienced a SEGFAULT)
 
+--coredump-ui	:  Read the most recent core dump for the current plugin directory in GDB(requires that you ran the plugin with --debug and experienced a SEGFAULT).  This loads the core dump for instances where the GUI has crashed.
+
 --run		:  Compile without debug symbols and with optimizations, and then run.
 
 --deb 		:  Compile and package the plugin into a .deb file (this uses checkinstall, you should use the build-all.pl script instead, using the LibModSynth native packaging system)
@@ -98,6 +100,10 @@ sub run_script
 	elsif($ARGV[0] eq "--coredump")
 	{
 		system("gdb lms-jack-dssi-host core");
+	}
+	elsif($ARGV[0] eq "--coredump-ui")
+	{
+		system("gdb *_qt core");
 	}
 	elsif($ARGV[0] eq "--debug" or $ARGV[0] eq "--gdb" or $ARGV[0] eq "--valgrind" or $ARGV[0] eq "--run")
 	{
