@@ -184,26 +184,13 @@ t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
         
     f_voice->glide_env = g_rmp_get_ramp_env(a_sr);    
     f_voice->ramp_env = g_rmp_get_ramp_env(a_sr);
-    
-    //f_voice->real_pitch = 60.0f;
-    
-    f_voice->target_pitch = 66.0f;
-    f_voice->last_pitch = 66.0f;
-    f_voice->base_pitch = 66.0f;
-    
-    f_voice->current_sample = 0.0f;
-    
+        
     f_voice->filter_output = 0.0f;
     
     f_voice->lfo1 = g_lfs_get(a_sr);
         
-    f_voice->amp_ptr = g_amp_get();
-    
-    f_voice->note_f = 1.0f;
     f_voice->noise_sample = 0.0f;
-    f_voice->noise_linamp = 1.0f;
-    f_voice->i_voice = 0;
-    
+        
     f_voice->adsr_amp1_on = 0;
     f_voice->adsr_amp2_on = 0;
     
