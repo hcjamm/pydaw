@@ -40,11 +40,11 @@ args:
 
 --scm-add-show	:  Display a list of files that should be added to an alternative source code management system such as SVN, Mercurial, CVS, etc...  This only displays the files you should be adding, it does not add them for you.
 
---build-jack-host  :  This is for compiling the jack-dssi-host.  The user should never have to run this, the script will run it automatically when needed.
+--build-jack-host  :  This is for compiling the lms-jack-dssi-host.  The user should never have to run this, the script will run it automatically when needed.
 
---build-jack-host-debug  :  This is for compiling the jack-dssi-host with debug symbols.
+--build-jack-host-debug  :  This is for compiling the lms-jack-dssi-host with debug symbols.
 
-Note that you can also debug using the included debugger project and GDB, using the IDE of your choice.  See doc/instructions.txt for details.  GDB is more suitable for using breakpoints to step through code, whereas the console output is more suitable for getting a glimpse of what's going on in your plugin while you are using it in jack-dssi-host.
+Note that you can also debug using the included debugger project and GDB, using the IDE of your choice.  See doc/instructions.txt for details.  GDB is more suitable for using breakpoints to step through code, whereas the console output is more suitable for getting a glimpse of what's going on in your plugin while you are using it in lms-jack-dssi-host.
 
 There should be one build.pl script in each plugin directory.
 
@@ -53,7 +53,7 @@ There should be one build.pl script in each plugin directory.
 
 $plugin_path = "/usr/local/lib/dssi";
 $jack_host_dir = "../lms-jack-dssi-host";
-$jack_host = "$jack_host_dir/jack-dssi-host";
+$jack_host = "$jack_host_dir/lms-jack-dssi-host";
 $debug_dir = "../bin";
 
 unless(-e $debug_dir)
