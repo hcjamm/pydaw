@@ -284,6 +284,9 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 
                 plugin_data->data[f_voice]->target_pitch = (plugin_data->data[f_voice]->note_f);
                 plugin_data->data[f_voice]->last_pitch = (plugin_data->sv_last_note);
+                
+                plugin_data->data[f_voice]->osc1_pitch_adjust = (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f);
+                plugin_data->data[f_voice]->osc2_pitch_adjust = (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f);
 
                 v_rmp_retrigger_glide_t(plugin_data->data[f_voice]->glide_env , (*(plugin_data->master_glide) * 0.01f), 
                         (plugin_data->sv_last_note), (plugin_data->data[f_voice]->target_pitch));
@@ -431,13 +434,13 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
         a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo1->output);
 
         a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + (a_voice->pitch_env->output_multiplied) 
-                + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch);
+                + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
        
         v_osc_set_unison_pitch(a_voice->osc_unison1, (*plugin_data->master_uni_spread) * 0.01f,
-                ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) + (a_voice->lfo_pitch_output)));
+                ((a_voice->base_pitch) + (a_voice->osc1_pitch_adjust) ));
         
         v_osc_set_unison_pitch(a_voice->osc_unison2, (*plugin_data->master_uni_spread) * 0.01f,
-                ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) + (a_voice->lfo_pitch_output)));
+                ((a_voice->base_pitch) + (a_voice->osc2_pitch_adjust)));
 
         a_voice->current_sample += f_osc_run_unison_osc(a_voice->osc_unison1) * (a_voice->osc1_linamp);
         
