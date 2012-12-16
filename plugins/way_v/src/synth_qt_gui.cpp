@@ -80,6 +80,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
             << "Evil Square" << "Punchy Square" << "Soft Square" 
             //Glitchy and distorted waves
             << "Pink Glitch" << "White Glitch" << "Acid" << "Screetch"
+            //Sine and triangle-like waves
+            << "Thick Bass" << "Rattler" << "Deep Saw"
             << "Off";
         
     QStringList f_lfo_types = QStringList() << "Off" << "Sine" << "Triangle";
