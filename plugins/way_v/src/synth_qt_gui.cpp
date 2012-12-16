@@ -105,7 +105,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
 
     m_oscillator_layout = new LMS_main_layout(m_osc_tab);
     
-    m_program = new LMS_preset_manager(QString(WAYV_PLUGIN_NAME), f_default_presets, WAYV_PROGRAM_CHANGE, f_info, this);
+    m_program = new LMS_preset_manager(QString(WAYV_PLUGIN_NAME), f_default_presets, -1, f_info, this);
         
     connect(m_program->m_program, SIGNAL(currentIndexChanged(int)), this, SLOT(programChanged(int)));
     connect(m_program->m_prog_save, SIGNAL(pressed()), this, SLOT(programSaved()));
@@ -766,7 +766,7 @@ void rayv_gui::osc2TypeChanged(int a_value){lms_value_changed(a_value, m_osc2->l
 void rayv_gui::osc2PitchChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_pitch_knob);}
 void rayv_gui::osc2TuneChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_fine_knob);}
 void rayv_gui::osc2VolumeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_vol_knob);}
-void rayv_gui::programChanged(int a_value){lms_value_changed(a_value, m_program);}
+void rayv_gui::programChanged(int a_value){ m_program->lms_value_changed(a_value);}
 void rayv_gui::programSaved(){ m_program->programSaved(); }
 
 
@@ -878,7 +878,6 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case WAYV_OSC2_UNISON_SPREAD: setOsc2UnisonSpread(a_value); break;
         case WAYV_MASTER_GLIDE: setMasterGlide(a_value); break;
         case WAYV_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
-        case WAYV_PROGRAM_CHANGE: break; //This screws up host recall //setProgram(a_value); break;   
         
         case WAYV_ATTACK_PFX1: setAttack(a_value); break;
         case WAYV_DECAY_PFX1: setDecay(a_value); break;
@@ -1015,9 +1014,6 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case WAYV_OSC2_UNISON_SPREAD: osc2UnisonSpreadChanged(a_value); break;
     case WAYV_MASTER_GLIDE: masterGlideChanged(a_value); break;
     case WAYV_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;
-    case WAYV_PROGRAM_CHANGE: break; //ignoring this one, there is no reason to set it //programChanged(a_value);  break;
-    
-    
     
     case WAYV_ATTACK_PFX1: attackChanged(a_value); break;
     case WAYV_DECAY_PFX1: decayChanged(a_value); break;
