@@ -32,7 +32,7 @@ lms-jack-dssi-host: $(C_OBJS)
 
 install:
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 644 lms-jack-dssi-host $(DESTDIR)$(PREFIX)/bin
+	install -m 555 lms-jack-dssi-host $(DESTDIR)$(PREFIX)/bin
 
 clean:
 	rm -f *.o lms-jack-dssi-host
