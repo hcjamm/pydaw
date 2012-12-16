@@ -441,8 +441,6 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_program->lms_add_control(m_osc2->lms_fine_knob);
     m_program->lms_add_control(m_osc2->lms_vol_knob);    
     m_program->lms_add_control(m_master->lms_master_volume);
-    m_program->lms_add_control(m_master->lms_master_unison_voices);
-    m_program->lms_add_control(m_master->lms_master_unison_spread);
     m_program->lms_add_control(m_master->lms_master_glide);
     m_program->lms_add_control(m_master->lms_master_pitchbend_amt);
     
@@ -516,9 +514,15 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_program->lms_add_control(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]);
     
     m_program->lms_add_control(m_lfo_amp);
-    m_program->lms_add_control(m_lfo_pitch);
-    
+    m_program->lms_add_control(m_lfo_pitch);    
     m_program->lms_add_control(m_pitch_env->lms_amt_knob);
+    
+    m_program->lms_add_control(m_osc1_uni_voices);
+    m_program->lms_add_control(m_osc1_uni_spread);
+    
+    m_program->lms_add_control(m_osc2_uni_voices);
+    m_program->lms_add_control(m_osc2_uni_spread);
+    
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
