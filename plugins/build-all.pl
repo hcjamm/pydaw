@@ -275,6 +275,12 @@ else
 	}
 }
 
+$pydaw_exec = "$package_dir/usr/bin/pydaw";
+open (MYFILE, ">$pydaw_exec");
+print MYFILE "lms-jack-dssi-host pydaw.so";
+close (MYFILE);
+`chmod +x $pydaw_exec`;
+
 if(-e "$short_name-version.txt")
 {
 	open FILE, "$short_name-version.txt"; # or `rm maintainer.txt` && goto maintainer_label; #die "Couldn't open file: $!"; 
