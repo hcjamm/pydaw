@@ -47,8 +47,8 @@ extern "C" {
 #define WAYV_OSC2_TUNE 13
 #define WAYV_OSC2_VOLUME 14
 #define WAYV_MASTER_VOLUME 15
-#define WAYV_MASTER_UNISON_VOICES 16
-#define WAYV_MASTER_UNISON_SPREAD 17
+#define WAYV_OSC1_UNISON_VOICES 16
+#define WAYV_OSC1_UNISON_SPREAD 17
 #define WAYV_MASTER_GLIDE 18
 #define WAYV_MASTER_PITCHBEND_AMT 19
 #define WAYV_ATTACK1  20
@@ -150,9 +150,11 @@ extern "C" {
 #define WAYV_LFO_AMP 107
 #define WAYV_LFO_PITCH 108
 #define RAYV_PITCH_ENV_AMT 109
+#define WAYV_OSC2_UNISON_VOICES 110
+#define WAYV_OSC2_UNISON_SPREAD 111
     
-#define WAYV_LAST_CONTROL_PORT 109
-#define WAYV_COUNT 110 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define WAYV_LAST_CONTROL_PORT 111
+#define WAYV_COUNT 112 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
     
 #define WAYV_PROGRAM_CHANGE 120  //Not used as a real port
 #define WAYV_POLYPHONY   16
@@ -203,8 +205,12 @@ typedef struct {
     LADSPA_Data *noise_amp;
     LADSPA_Data *noise_type;
         
-    LADSPA_Data *master_uni_voice;
-    LADSPA_Data *master_uni_spread;
+    LADSPA_Data *osc1_uni_voice;
+    LADSPA_Data *osc1_uni_spread;
+    LADSPA_Data *osc2_uni_voice;
+    LADSPA_Data *osc2_uni_spread;
+    
+    
     LADSPA_Data *master_glide;
     LADSPA_Data *master_pb_amt;
         
