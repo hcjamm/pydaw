@@ -226,15 +226,15 @@ close (MYFILE);
 
 }
 
-build_all_debug("Building jack-dssi-host");
+build_all_debug("Building lms-jack-dssi-host");
 
 if($debug_build)
 {
-	system("cd lms-jack-dssi-host ; make clean ; perl build.pl --build-jack-host ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host");
+	system("cd lms-jack-dssi-host ; make clean ; build.pl --build-jack-host ; cp lms-jack-dssi-host ../$bin_dir/lms-jack-dssi-host");
 }
 else
 {
-	system("cd lms-jack-dssi-host ; make clean ;  perl build.pl --build-jack-host-debug ; cp jack-dssi-host ../$bin_dir/lms-jack-dssi-host");
+	system("cd lms-jack-dssi-host ; make clean ;  perl build.pl --build-jack-host-debug ; cp lms-jack-dssi-host ../$bin_dir/lms-jack-dssi-host");
 }
 
 build_all_debug("Building pydaw_jack_oscrolloscope");
