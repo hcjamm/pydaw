@@ -306,6 +306,8 @@ static LADSPA_Handle g_wayv_instantiate(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_ATTACK_MAIN, 73, "Attack");
     v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_RELEASE_MAIN, 72, "Release");
     v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_FREQ, 15, "LFO Speed");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_AMP, 78, "Tremolo");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_PITCH, 9, "Vibrato");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "way_v-cc_map.txt");
     
