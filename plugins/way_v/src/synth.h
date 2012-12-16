@@ -156,7 +156,6 @@ extern "C" {
 #define WAYV_LAST_CONTROL_PORT 111
 #define WAYV_COUNT 112 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
     
-#define WAYV_PROGRAM_CHANGE 120  //Not used as a real port
 #define WAYV_POLYPHONY   16
 
 typedef struct {
@@ -225,9 +224,7 @@ typedef struct {
     
     LADSPA_Data *lfo_amp;
     LADSPA_Data *lfo_pitch;
-    
-    LADSPA_Data *program;
-    
+        
        
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
     LADSPA_Data *pfx_mod_knob[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
