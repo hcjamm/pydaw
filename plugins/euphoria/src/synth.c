@@ -685,7 +685,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, l
                 
                 plugin_data->sample[ch] += (plugin_data->data[n]->noise_sample);
 
-                plugin_data->sample[ch] = (plugin_data->sample[ch]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp) * (plugin_data->sample_amp[(plugin_data->current_sample)]); // * (plugin_data->data[n]->lfo_amp_output);
+                plugin_data->sample[ch] = (plugin_data->sample[ch]) * (plugin_data->sample_amp[(plugin_data->current_sample)]); // * (plugin_data->data[n]->lfo_amp_output);
 
                 plugin_data->data[n]->modulex_current_sample[ch] = (plugin_data->sample[ch]);
                 
@@ -722,8 +722,8 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, l
 
             }
 
-            plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][0][i] += plugin_data->data[n]->modulex_current_sample[0];
-            plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][1][i] += plugin_data->data[n]->modulex_current_sample[1];            
+            plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][0][i] += (plugin_data->data[n]->modulex_current_sample[0]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp);
+            plugin_data->mono_fx_buffers[(plugin_data->sample_mfx_groups_index[(plugin_data->current_sample)])][1][i] += (plugin_data->data[n]->modulex_current_sample[1]) * (plugin_data->data[n]->adsr_amp->output) * (plugin_data->amp);
             
             plugin_data->i_loaded_samples = (plugin_data->i_loaded_samples) + 1;            
         }
