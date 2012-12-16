@@ -90,7 +90,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
         
     m_main_layout = new LMS_main_layout(this);
     
-    m_program = new LMS_preset_manager(QString(RAYV_PLUGIN_NAME), f_default_presets, RAYV_PROGRAM_CHANGE, f_info, this);
+    m_program = new LMS_preset_manager(QString(RAYV_PLUGIN_NAME), f_default_presets, -1, f_info, this);
         
     connect(m_program->m_program, SIGNAL(currentIndexChanged(int)), this, SLOT(programChanged(int)));
     connect(m_program->m_prog_save, SIGNAL(pressed()), this, SLOT(programSaved()));
@@ -351,7 +351,7 @@ void rayv_gui::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms
 void rayv_gui::LFOampChanged(int a_value){lms_value_changed(a_value, m_lfo_amp);}
 void rayv_gui::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
 void rayv_gui::LFOcutoffChanged(int a_value){lms_value_changed(a_value, m_lfo_cutoff);}
-void rayv_gui::programChanged(int a_value){lms_value_changed(a_value, m_program);}
+void rayv_gui::programChanged(int a_value){m_program->lms_value_changed(a_value);}
 void rayv_gui::programSaved(){ m_program->programSaved(); }
 
 
@@ -433,7 +433,6 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case RAYV_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
         case RAYV_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
         case RAYV_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;            
-        case RAYV_PROGRAM_CHANGE: break; //This screws up host recall //setProgram(a_value); break;            
         case RAYV_LFO_FREQ: setLFOfreq(a_value); break;            
         case RAYV_LFO_TYPE:  setLFOtype(a_value);  break;            
         case RAYV_LFO_AMP: setLFOamp(a_value); break;            
@@ -490,7 +489,6 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case RAYV_LFO_AMP: LFOampChanged(a_value); break;
     case RAYV_LFO_PITCH: LFOpitchChanged(a_value); break;
     case RAYV_LFO_FILTER: LFOcutoffChanged(a_value); break;
-    case RAYV_PROGRAM_CHANGE: break; //ignoring this one, there is no reason to set it //programChanged(a_value);  break;
     default:
 #ifdef LMS_DEBUG_MODE_QT
 	rayv_cerr << "Warning: received request to set nonexistent port " << a_port << endl;

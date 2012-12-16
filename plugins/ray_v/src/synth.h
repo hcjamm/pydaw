@@ -57,8 +57,6 @@ extern "C" {
 #define RAYV_LAST_CONTROL_PORT 35
 #define RAYV_COUNT 36 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
-    
-#define RAYV_PROGRAM_CHANGE 37  //Not used as a real port
 #define RAYV_POLYPHONY   16
 
 typedef struct {
@@ -109,8 +107,6 @@ typedef struct {
     LADSPA_Data *lfo_amp;
     LADSPA_Data *lfo_pitch;
     LADSPA_Data *lfo_filter;
-    
-    LADSPA_Data *program;
     
     t_ccm_midi_cc_map * midi_cc_map;
     
