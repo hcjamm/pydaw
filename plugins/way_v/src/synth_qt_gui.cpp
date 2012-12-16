@@ -78,8 +78,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
             << "Plain Saw" << "SuperbSaw" << "Viral Saw" << "Soft Saw" << "Mid Saw" << "Lush Saw"
             //Square-like waves
             << "Evil Square" << "Punchy Square" << "Soft Square" 
-            //Glitchy waves
-            << "Pink Glitch" << "White Glitch" 
+            //Glitchy and distorted waves
+            << "Pink Glitch" << "White Glitch" << "Acid" << "Screetch"
             << "Off";
         
     QStringList f_lfo_types = QStringList() << "Off" << "Sine" << "Triangle";
