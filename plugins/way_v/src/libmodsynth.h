@@ -69,6 +69,8 @@ typedef struct st_rayv_poly_voice
     t_osc_wav_unison * osc_wavtable2;
     t_wt_wavetables * wavetables;
     
+    float osc1_uni_spread, osc2_uni_spread;
+    
     t_white_noise * white_noise1;
     t_adsr * adsr_main;
     t_adsr * adsr_amp1;
@@ -135,6 +137,9 @@ t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
     f_voice->osc_wavtable1 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
     f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
     f_voice->wavetables = g_wt_wavetables_get();    
+    
+    f_voice->osc1_uni_spread = 0.0f;
+    f_voice->osc2_uni_spread = 0.0f;
     
     f_voice->adsr_main = g_adsr_get_adsr(va_rayv_sr_recip);
     f_voice->adsr_amp1 = g_adsr_get_adsr(va_rayv_sr_recip);

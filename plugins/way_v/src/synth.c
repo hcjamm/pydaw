@@ -503,6 +503,9 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                 //Get the noise function pointer
                 plugin_data->data[f_voice]->noise_func_ptr = fp_get_noise_func_ptr((int)(*(plugin_data->noise_type)));
 
+                plugin_data->data[f_voice]->osc1_uni_spread = (*plugin_data->osc1_uni_spread) * 0.01f;
+                plugin_data->data[f_voice]->osc2_uni_spread = (*plugin_data->osc2_uni_spread) * 0.01f;
+                
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
                 v_lfs_sync(plugin_data->data[f_voice]->lfo1, 0.0f, *(plugin_data->lfo_type));
@@ -630,7 +633,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
                
         if(a_voice->osc1_on)
         {
-            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable1, (*plugin_data->osc1_uni_spread) * 0.01f,
+            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable1, (a_voice->osc1_uni_spread),
                     ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));       
             if(a_voice->adsr_amp1_on)
             {
@@ -645,7 +648,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         
         if(a_voice->osc2_on)
         {
-            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (*plugin_data->osc2_uni_spread) * 0.01f,
+            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (a_voice->osc2_uni_spread),
                     ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
             if(a_voice->adsr_amp1_on)
             {
