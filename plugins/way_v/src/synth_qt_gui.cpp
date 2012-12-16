@@ -127,6 +127,14 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_osc1 = new LMS_oscillator_widget(f_info, this, QString("Oscillator 1") , WAYV_OSC1_PITCH, WAYV_OSC1_TUNE, WAYV_OSC1_VOLUME, WAYV_OSC1_TYPE, f_osc_types);
     m_osc1->lms_vol_knob->lms_knob->setMinimum(-30);
     
+    m_osc1_uni_voices = new LMS_knob_regular(QString("Unison"), 1, 7, 1, 30, QString(""), m_osc1->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC1_UNISON_VOICES);
+    m_osc1->lms_groupbox->lms_add_h(m_osc1_uni_voices);
+    connect(m_osc1_uni_voices->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc1UnisonVoicesChanged(int)));    
+    
+    m_osc1_uni_spread = new LMS_knob_regular(QString("Spread"), 0, 100, 1, 30, QString(""), m_osc1->lms_groupbox->lms_groupbox, f_info, lms_kc_decimal, WAYV_OSC1_UNISON_SPREAD);
+    m_osc1->lms_groupbox->lms_add_h(m_osc1_uni_spread);
+    connect(m_osc1_uni_spread->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(osc1UnisonSpreadChanged(int)));
+    
     m_oscillator_layout->lms_add_widget(m_osc1->lms_groupbox->lms_groupbox);
     
     connect(m_osc1->lms_pitch_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc1PitchChanged(int)));
@@ -153,6 +161,15 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_osc2 = new LMS_oscillator_widget(f_info, this, QString("Oscillator 2"), WAYV_OSC2_PITCH, WAYV_OSC2_TUNE, WAYV_OSC2_VOLUME, WAYV_OSC2_TYPE, f_osc_types);    
     m_osc2->lms_vol_knob->lms_knob->setMinimum(-30);
     
+    m_osc2_uni_voices = new LMS_knob_regular(QString("Unison"), 1, 7, 1, 30, QString(""), m_osc1->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC2_UNISON_VOICES);
+    m_osc2->lms_groupbox->lms_add_h(m_osc2_uni_voices);
+    connect(m_osc2_uni_voices->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc2UnisonVoicesChanged(int)));    
+    
+    m_osc2_uni_spread = new LMS_knob_regular(QString("Spread"), 0, 100, 1, 30, QString(""), m_osc1->lms_groupbox->lms_groupbox, f_info, lms_kc_decimal, WAYV_OSC2_UNISON_SPREAD);
+    m_osc2->lms_groupbox->lms_add_h(m_osc2_uni_spread);
+    connect(m_osc2_uni_spread->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(osc2UnisonSpreadChanged(int)));
+    
+    
     m_oscillator_layout->lms_add_widget(m_osc2->lms_groupbox->lms_groupbox);
     connect(m_osc2->lms_pitch_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2PitchChanged(int)));
     connect(m_osc2->lms_fine_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2TuneChanged(int)));
@@ -175,14 +192,12 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     
     m_oscillator_layout->lms_add_layout();
     
-    m_master = new LMS_master_widget(this, f_info, WAYV_MASTER_VOLUME, WAYV_MASTER_UNISON_VOICES, 
-            WAYV_MASTER_UNISON_SPREAD, WAYV_MASTER_GLIDE, WAYV_MASTER_PITCHBEND_AMT, QString("Master"));
+    m_master = new LMS_master_widget(this, f_info, WAYV_MASTER_VOLUME, -1, 
+            -1, WAYV_MASTER_GLIDE, WAYV_MASTER_PITCHBEND_AMT, QString("Master"), FALSE);
     m_master->lms_master_volume->lms_knob->setMinimum(-30);
     m_oscillator_layout->lms_add_widget(m_master->lms_groupbox->lms_groupbox);    
     
-    connect(m_master->lms_master_volume->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterVolumeChanged(int)));    
-    connect(m_master->lms_master_unison_voices->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( masterUnisonVoicesChanged(int)));    
-    connect(m_master->lms_master_unison_spread->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterUnisonSpreadChanged(int)));
+    connect(m_master->lms_master_volume->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterVolumeChanged(int)));
     connect(m_master->lms_master_glide->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterGlideChanged(int)));    
     connect(m_master->lms_master_pitchbend_amt->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(masterPitchbendAmtChanged(int)));
     
@@ -697,8 +712,10 @@ void rayv_gui::setFilterRelease(float a_value){lms_set_value(a_value, m_adsr_fil
 void rayv_gui::setNoiseAmp(float a_value){lms_set_value(a_value, m_noise_amp);}
 void rayv_gui::setNoiseType(float a_value){lms_set_value(a_value, m_noise_type);}
 void rayv_gui::setMasterVolume(float a_value){lms_set_value(a_value, m_master->lms_master_volume);}
-void rayv_gui::setMasterUnisonVoices(float a_value){lms_set_value(a_value, m_master->lms_master_unison_voices);}
-void rayv_gui::setMasterUnisonSpread(float a_value){lms_set_value(a_value, m_master->lms_master_unison_spread);}
+void rayv_gui::setOsc1UnisonVoices(float a_value){lms_set_value(a_value, m_osc1_uni_voices);}
+void rayv_gui::setOsc1UnisonSpread(float a_value){lms_set_value(a_value, m_osc1_uni_spread);}
+void rayv_gui::setOsc2UnisonVoices(float a_value){lms_set_value(a_value, m_osc2_uni_voices);}
+void rayv_gui::setOsc2UnisonSpread(float a_value){lms_set_value(a_value, m_osc2_uni_spread);}
 void rayv_gui::setMasterGlide(float a_value){lms_set_value(a_value, m_master->lms_master_glide);}
 void rayv_gui::setMasterPitchbendAmt(float a_value){lms_set_value(a_value, m_master->lms_master_pitchbend_amt);}
 void rayv_gui::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env->lms_time_knob);}
@@ -757,8 +774,10 @@ void rayv_gui::filterReleaseChanged(int a_value){lms_value_changed(a_value, m_ad
 void rayv_gui::noiseAmpChanged(int a_value){lms_value_changed(a_value, m_noise_amp);}
 void rayv_gui::noise_typeChanged(int a_value){lms_value_changed(a_value, m_noise_type);}
 void rayv_gui::masterVolumeChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_volume);}
-void rayv_gui::masterUnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_voices);}
-void rayv_gui::masterUnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_unison_spread);}
+void rayv_gui::osc1UnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_osc1_uni_voices);}
+void rayv_gui::osc1UnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_osc1_uni_spread);}
+void rayv_gui::osc2UnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_osc2_uni_voices);}
+void rayv_gui::osc2UnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_osc2_uni_spread);}
 void rayv_gui::masterGlideChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_glide);}
 void rayv_gui::masterPitchbendAmtChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_pitchbend_amt);}
 void rayv_gui::pitchEnvTimeChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_time_knob);}
@@ -799,8 +818,8 @@ void rayv_gui::v_print_port_name_to_cerr(int a_port)
     case WAYV_OSC2_TUNE: rayv_cerr << "LMS_OSC2_TUNE";  break;    
     case WAYV_OSC2_VOLUME: rayv_cerr << "LMS_OSC2_VOLUME"; break;        
     case WAYV_MASTER_VOLUME: rayv_cerr << "LMS_MASTER_VOLUME"; break;
-    case WAYV_MASTER_UNISON_VOICES: rayv_cerr << "LMS_MASTER_UNISON_VOICES"; break;
-    case WAYV_MASTER_UNISON_SPREAD: rayv_cerr << "LMS_MASTER_UNISON_SPREAD"; break;
+    case WAYV_OSC1_UNISON_VOICES: rayv_cerr << "LMS_MASTER_UNISON_VOICES"; break;
+    case WAYV_OSC1_UNISON_SPREAD: rayv_cerr << "LMS_MASTER_UNISON_SPREAD"; break;
     case WAYV_MASTER_GLIDE: rayv_cerr << "LMS_MASTER_GLIDE"; break;
     case WAYV_MASTER_PITCHBEND_AMT: rayv_cerr << "LMS_MASTER_PITCHBEND_AMT"; break;
     case WAYV_PITCH_ENV_AMT: rayv_cerr << "LMS_PITCH_ENV_AMT "; break;
@@ -846,8 +865,10 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case WAYV_OSC2_TUNE: setOsc2Tune(a_value); break;    
         case WAYV_OSC2_VOLUME: setOsc2Volume(a_value); break;        
         case WAYV_MASTER_VOLUME: setMasterVolume(a_value); break;    
-        case WAYV_MASTER_UNISON_VOICES: setMasterUnisonVoices(a_value); break;
-        case WAYV_MASTER_UNISON_SPREAD: setMasterUnisonSpread(a_value); break;
+        case WAYV_OSC1_UNISON_VOICES: setOsc1UnisonVoices(a_value); break;
+        case WAYV_OSC1_UNISON_SPREAD: setOsc1UnisonSpread(a_value); break;
+        case WAYV_OSC2_UNISON_VOICES: setOsc2UnisonVoices(a_value); break;
+        case WAYV_OSC2_UNISON_SPREAD: setOsc2UnisonSpread(a_value); break;
         case WAYV_MASTER_GLIDE: setMasterGlide(a_value); break;
         case WAYV_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
         case WAYV_PROGRAM_CHANGE: break; //This screws up host recall //setProgram(a_value); break;   
@@ -981,8 +1002,10 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case WAYV_OSC2_TUNE: osc2TuneChanged(a_value); break;    
     case WAYV_OSC2_VOLUME: osc2VolumeChanged(a_value); break;
     case WAYV_MASTER_VOLUME: masterVolumeChanged(a_value); break;
-    case WAYV_MASTER_UNISON_VOICES: masterUnisonVoicesChanged(a_value); break;
-    case WAYV_MASTER_UNISON_SPREAD: masterUnisonSpreadChanged(a_value); break;
+    case WAYV_OSC1_UNISON_VOICES: osc1UnisonVoicesChanged(a_value); break;
+    case WAYV_OSC1_UNISON_SPREAD: osc1UnisonSpreadChanged(a_value); break;
+    case WAYV_OSC2_UNISON_VOICES: osc2UnisonVoicesChanged(a_value); break;
+    case WAYV_OSC2_UNISON_SPREAD: osc2UnisonSpreadChanged(a_value); break;
     case WAYV_MASTER_GLIDE: masterGlideChanged(a_value); break;
     case WAYV_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;
     case WAYV_PROGRAM_CHANGE: break; //ignoring this one, there is no reason to set it //programChanged(a_value);  break;
@@ -1110,8 +1133,10 @@ int rayv_gui::i_get_control(int a_port)
     case WAYV_OSC2_TUNE: return m_osc2->lms_fine_knob->lms_get_value();
     case WAYV_OSC2_VOLUME: return m_osc2->lms_vol_knob->lms_get_value();
     case WAYV_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
-    case WAYV_MASTER_UNISON_VOICES: return m_master->lms_master_unison_voices->lms_get_value();
-    case WAYV_MASTER_UNISON_SPREAD: return m_master->lms_master_unison_spread->lms_get_value();
+    case WAYV_OSC1_UNISON_VOICES: return m_osc1_uni_voices->lms_get_value();
+    case WAYV_OSC1_UNISON_SPREAD: return m_osc1_uni_spread->lms_get_value();
+    case WAYV_OSC2_UNISON_VOICES: return m_osc2_uni_voices->lms_get_value();
+    case WAYV_OSC2_UNISON_SPREAD: return m_osc2_uni_spread->lms_get_value();
     case WAYV_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
     case WAYV_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
     

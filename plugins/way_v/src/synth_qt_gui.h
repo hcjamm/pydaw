@@ -125,8 +125,11 @@ public slots:
     
     void setMasterVolume(float);
     
-    void setMasterUnisonVoices(float);
-    void setMasterUnisonSpread(float);
+    void setOsc1UnisonVoices(float);
+    void setOsc1UnisonSpread(float);
+    void setOsc2UnisonVoices(float);
+    void setOsc2UnisonSpread(float);
+    
     void setMasterGlide(float);
     void setMasterPitchbendAmt(float);
     
@@ -193,8 +196,11 @@ protected slots:
     void osc2VolumeChanged(int);
     void masterVolumeChanged(int);
     
-    void masterUnisonVoicesChanged(int);
-    void masterUnisonSpreadChanged(int);
+    void osc1UnisonVoicesChanged(int);
+    void osc1UnisonSpreadChanged(int);
+    void osc2UnisonVoicesChanged(int);
+    void osc2UnisonSpreadChanged(int);
+    
     void masterGlideChanged(int);
     void masterPitchbendAmtChanged(int);
     
@@ -313,7 +319,11 @@ protected:
     
     LMS_adsr_widget * m_adsr_amp_main;
     LMS_oscillator_widget * m_osc1;
+    LMS_knob_regular *m_osc1_uni_voices;
+    LMS_knob_regular *m_osc1_uni_spread;
     LMS_oscillator_widget * m_osc2;
+    LMS_knob_regular *m_osc2_uni_voices;
+    LMS_knob_regular *m_osc2_uni_spread;
     
     LMS_adsr_widget * m_adsr_amp1;
     LMS_checkbox * m_adsr_amp1_checkbox;

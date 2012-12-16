@@ -156,11 +156,17 @@ static void v_wayv_connect_port(LADSPA_Handle instance, unsigned long port,
     case WAYV_OSC2_VOLUME:
         plugin->osc2vol = data;
         break;
-    case WAYV_MASTER_UNISON_VOICES:
-        plugin->master_uni_voice = data;
+    case WAYV_OSC1_UNISON_VOICES:
+        plugin->osc1_uni_voice = data;
         break;
-    case WAYV_MASTER_UNISON_SPREAD:
-        plugin->master_uni_spread = data;        
+    case WAYV_OSC1_UNISON_SPREAD:
+        plugin->osc1_uni_spread = data;        
+        break;
+    case WAYV_OSC2_UNISON_VOICES:
+        plugin->osc2_uni_voice = data;
+        break;
+    case WAYV_OSC2_UNISON_SPREAD:
+        plugin->osc2_uni_spread = data;        
         break;
     case WAYV_MASTER_GLIDE:
         plugin->master_glide = data;
@@ -438,7 +444,7 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                     v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable1, 
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type1]->wavetable,
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type1]->length);
-                    v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable1, *plugin_data->master_uni_voice);
+                    v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable1, *plugin_data->osc1_uni_voice);
                 }
                 
                 int f_osc_type2 = (int)(*plugin_data->osc2type);
@@ -449,7 +455,7 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                     v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable2, 
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->wavetable,
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->length);
-                    v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable2, *plugin_data->master_uni_voice);
+                    v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable2, *plugin_data->osc2_uni_voice);
                 }                
                 
                 /*Set the last_note property, so the next note can glide from it if glide is turned on*/
@@ -624,7 +630,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
                
         if(a_voice->osc1_on)
         {
-            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable1, (*plugin_data->master_uni_spread) * 0.01f,
+            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable1, (*plugin_data->osc1_uni_spread) * 0.01f,
                     ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));       
             if(a_voice->adsr_amp1_on)
             {
@@ -639,7 +645,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         
         if(a_voice->osc2_on)
         {
-            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (*plugin_data->master_uni_spread) * 0.01f,
+            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (*plugin_data->osc2_uni_spread) * 0.01f,
                     ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
             if(a_voice->adsr_amp1_on)
             {
@@ -970,23 +976,23 @@ void _init()
         
         
         /*Parameters for master unison voices*/        
-	port_descriptors[WAYV_MASTER_UNISON_VOICES] = port_descriptors[WAYV_ATTACK_MAIN];
-	port_names[WAYV_MASTER_UNISON_VOICES] = "Master Unison";
-	port_range_hints[WAYV_MASTER_UNISON_VOICES].HintDescriptor =
+	port_descriptors[WAYV_OSC1_UNISON_VOICES] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_names[WAYV_OSC1_UNISON_VOICES] = "Master Unison";
+	port_range_hints[WAYV_OSC1_UNISON_VOICES].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_MASTER_UNISON_VOICES].LowerBound =  1.0f;
-	port_range_hints[WAYV_MASTER_UNISON_VOICES].UpperBound =  7.0f;
+	port_range_hints[WAYV_OSC1_UNISON_VOICES].LowerBound =  1.0f;
+	port_range_hints[WAYV_OSC1_UNISON_VOICES].UpperBound =  7.0f;
         
         
         /*Parameters for master unison spread*/        
-	port_descriptors[WAYV_MASTER_UNISON_SPREAD] = port_descriptors[WAYV_ATTACK_MAIN];
-	port_names[WAYV_MASTER_UNISON_SPREAD] = "Master Unison Spread";
-	port_range_hints[WAYV_MASTER_UNISON_SPREAD].HintDescriptor =
+	port_descriptors[WAYV_OSC1_UNISON_SPREAD] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_names[WAYV_OSC1_UNISON_SPREAD] = "Master Unison Spread";
+	port_range_hints[WAYV_OSC1_UNISON_SPREAD].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_MASTER_UNISON_SPREAD].LowerBound =  0.0f;
-	port_range_hints[WAYV_MASTER_UNISON_SPREAD].UpperBound =  100.0f;
+	port_range_hints[WAYV_OSC1_UNISON_SPREAD].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC1_UNISON_SPREAD].UpperBound =  100.0f;
         
         
         /*Parameters for master glide*/        
@@ -1512,16 +1518,25 @@ void _init()
 	port_range_hints[RAYV_PITCH_ENV_AMT].LowerBound =  -36.0f;
 	port_range_hints[RAYV_PITCH_ENV_AMT].UpperBound =   36.0f;
                 
-        /*Parameters for program change*/
-        /*
-	port_descriptors[LMS_PROGRAM_CHANGE] = port_descriptors[LMS_ATTACK];
-	port_names[LMS_PROGRAM_CHANGE] = "Program Change";
-	port_range_hints[LMS_PROGRAM_CHANGE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | 
-                        LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_PROGRAM_CHANGE].LowerBound = 0; 
-	port_range_hints[LMS_PROGRAM_CHANGE].UpperBound = 127;  // > 127 loads the first preset
-        */
+        /*Parameters for master unison voices*/        
+	port_descriptors[WAYV_OSC2_UNISON_VOICES] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_names[WAYV_OSC2_UNISON_VOICES] = "Master Unison";
+	port_range_hints[WAYV_OSC2_UNISON_VOICES].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC2_UNISON_VOICES].LowerBound =  1.0f;
+	port_range_hints[WAYV_OSC2_UNISON_VOICES].UpperBound =  7.0f;
+        
+        
+        /*Parameters for master unison spread*/        
+	port_descriptors[WAYV_OSC2_UNISON_SPREAD] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_names[WAYV_OSC2_UNISON_SPREAD] = "Master Unison Spread";
+	port_range_hints[WAYV_OSC2_UNISON_SPREAD].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC2_UNISON_SPREAD].LowerBound =  0.0f;
+	port_range_hints[WAYV_OSC2_UNISON_SPREAD].UpperBound =  100.0f;
+        
         
 	LMSLDescriptor->activate = v_wayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_wayv;
