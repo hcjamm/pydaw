@@ -73,7 +73,14 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{background-color:black; color:white; border:solid 1px white;} QComboBox:editable {background-color:black; color:white;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
     
-    QStringList f_osc_types = QStringList() << "Plain Saw" << "SuperbSaw" << "Viral Saw" << "Soft Saw" << "Evil Square" << "Soft Square" << "Pink Glitch" << "White Glitch" << "Off";
+    QStringList f_osc_types = QStringList() 
+            //Saw-like waves
+            << "Plain Saw" << "SuperbSaw" << "Viral Saw" << "Soft Saw" << "Mid Saw" << "Lush Saw"
+            //Square-like waves
+            << "Evil Square" << "Punchy Square" << "Soft Square" 
+            //Glitchy waves
+            << "Pink Glitch" << "White Glitch" 
+            << "Off";
         
     QStringList f_lfo_types = QStringList() << "Off" << "Sine" << "Triangle";
         
@@ -197,6 +204,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
 
     m_noise_type = new LMS_combobox(QString("Type"), this, QStringList() << QString("Off") << QString("White") << QString("Pink"), LMS_NOISE_TYPE, f_info);
+    m_noise_type->lms_combobox->setMinimumWidth(64);
     m_groupbox_noise->lms_add_h(m_noise_type);
     connect(m_noise_type->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(noise_typeChanged(int)));
 
