@@ -656,7 +656,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         
         v_adsr_run_db(a_voice->adsr_main);
                 
-        a_voice->current_sample = (a_voice->current_sample) * (a_voice->adsr_main->output) * (a_voice->amp) * (a_voice->lfo_amp_output);
+        a_voice->current_sample = (a_voice->current_sample) * (a_voice->amp) * (a_voice->lfo_amp_output);
         
         a_voice->modulex_current_sample[0] = (a_voice->current_sample);
         a_voice->modulex_current_sample[1] = (a_voice->current_sample);
@@ -688,8 +688,8 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         
         
         /*Run the envelope and assign to the output buffers*/
-        out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]);
-        out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]);       
+        out0[(a_voice->i_voice)] += (a_voice->modulex_current_sample[0]) * (a_voice->adsr_main->output);
+        out1[(a_voice->i_voice)] += (a_voice->modulex_current_sample[1]) * (a_voice->adsr_main->output);       
     }
 }
 
