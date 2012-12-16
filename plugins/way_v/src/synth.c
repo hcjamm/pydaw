@@ -295,9 +295,17 @@ static LADSPA_Handle g_wayv_instantiate(const LADSPA_Descriptor * descriptor,
     plugin_data->fs = s_rate;
     
     plugin_data->midi_cc_map = g_ccm_get();
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_ATTACK_MAIN, 22, "Attack Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_RELEASE_MAIN, 5, "Release Amp");    
-    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_NOISE_AMP, 73, "Noise Amp");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_FX0_KNOB0, 74, "FX1 knob 1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_FX0_KNOB1, 71, "FX1 knob 2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_FX0_KNOB2, 70, "FX1 knob 3");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_FX1_KNOB0, 91, "FX2 knob 1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_FX1_KNOB1, 20, "FX2 knob 2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_FX1_KNOB2, 21, "FX2 knob 3");    
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_FX2_KNOB0, 22, "FX3 knob 1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_FX2_KNOB1, 5, "FX3 knob 2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_ATTACK_MAIN, 73, "Attack");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_RELEASE_MAIN, 72, "Release");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_FREQ, 15, "LFO Speed");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "way_v-cc_map.txt");
     
