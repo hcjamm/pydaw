@@ -259,7 +259,7 @@ class region_list_editor:
         QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first by clicking in the song editor above.")
         
     def cell_clicked(self, x, y):
-        if y <= 0:
+        if y <= 0 or x < 0:
             return
         if not self.enabled:
             self.warn_no_region_selected()
@@ -561,8 +561,12 @@ class region_list_editor:
         if not self.enabled:
             self.warn_no_region_selected()
             return
-            
-        if self.table_widget.currentItem() is None or str(self.table_widget.currentItem().text()) == "":
+           
+        f_current_item = self.table_widget.currentItem()           
+        x = self.table_widget.currentRow()
+        y = self.table_widget.currentColumn()
+        
+        if f_current_item is None or str(f_current_item.text()) == "" or x < 0 or y < 1:
             return
         x = self.table_widget.currentRow()
         y = self.table_widget.currentColumn()
@@ -571,7 +575,7 @@ class region_list_editor:
             f_cell_text = str(f_new_lineedit.text())
             this_pydaw_project.create_empty_item(f_new_lineedit.text())
             this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
-            this_pydaw_project.copy_item(str(self.table_widget.currentItem().text()), str(f_new_lineedit.text()))
+            this_pydaw_project.copy_item(str(f_current_item.text()), str(f_new_lineedit.text()))
             this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
             this_item_editor.open_item(f_cell_text)
             self.last_item_copied = f_cell_text
