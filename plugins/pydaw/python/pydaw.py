@@ -2145,7 +2145,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 
         self.item_scrollarea = QtGui.QScrollArea()
         self.item_tab.setMinimumWidth(1290)
-        self.item_tab.setMinimumHeight(1200)        
+        self.item_tab.setMinimumHeight(8700)        
         self.item_scrollarea.setWidget(self.item_tab)        
         self.main_tabwidget.addTab(self.item_scrollarea, "Item")        
         
