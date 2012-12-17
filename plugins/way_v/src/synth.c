@@ -436,9 +436,9 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                 
                 plugin_data->data[f_voice]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
-                int f_osc_type1 = (int)(*plugin_data->osc1type);
+                int f_osc_type1 = (int)(*plugin_data->osc1type) - 1;
                 
-                if(f_osc_type1 < WT_TOTAL_WAVETABLE_COUNT)
+                if(f_osc_type1 >= 0)
                 {
                     plugin_data->data[f_voice]->osc1_on = 1;
                     v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable1, 
@@ -447,9 +447,9 @@ static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
                     v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable1, *plugin_data->osc1_uni_voice);
                 }
                 
-                int f_osc_type2 = (int)(*plugin_data->osc2type);
+                int f_osc_type2 = (int)(*plugin_data->osc2type) - 1;
                 
-                if(f_osc_type2 < WT_TOTAL_WAVETABLE_COUNT)
+                if(f_osc_type2 >= 0)
                 {
                     plugin_data->data[f_voice]->osc2_on = 1;
                     v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable2, 
@@ -890,7 +890,7 @@ void _init()
 	port_descriptors[WAYV_OSC1_TYPE] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC1_TYPE] = "Osc 1 Type";
 	port_range_hints[WAYV_OSC1_TYPE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
+			LADSPA_HINT_DEFAULT_1 |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_TYPE].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC1_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
@@ -931,7 +931,7 @@ void _init()
 	port_descriptors[WAYV_OSC2_TYPE] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC2_TYPE] = "Osc 2 Type";
 	port_range_hints[WAYV_OSC2_TYPE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_TYPE].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
