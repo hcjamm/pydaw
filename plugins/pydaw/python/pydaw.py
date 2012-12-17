@@ -1035,6 +1035,7 @@ class item_list_editor:
         self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 5, 1, 1)
         self.notes_vlayout.addLayout(self.notes_gridlayout) 
         self.notes_table_widget = QtGui.QTableWidget()
+        self.notes_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.notes_table_widget.setColumnCount(5)
         self.notes_table_widget.setRowCount(128)
         self.notes_table_widget.cellClicked.connect(self.notes_click_handler)
@@ -1060,6 +1061,7 @@ class item_list_editor:
         self.ccs_gridlayout.addItem(f_c_spacer_right, 0, 2, 1, 1)
         self.ccs_vlayout.addLayout(self.ccs_gridlayout)
         self.ccs_table_widget = QtGui.QTableWidget()
+        self.ccs_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.ccs_table_widget.setColumnCount(3)
         self.ccs_table_widget.setRowCount(256)
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
@@ -1084,6 +1086,7 @@ class item_list_editor:
         self.pb_gridlayout.addItem(f_p_spacer_right, 0, 2, 1, 1)
         self.pb_vlayout.addLayout(self.pb_gridlayout)        
         self.pitchbend_table_widget = QtGui.QTableWidget()
+        self.pitchbend_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.pitchbend_table_widget.setColumnCount(2)
         self.pitchbend_table_widget.setRowCount(128)
         self.pitchbend_table_widget.cellClicked.connect(self.pitchbend_click_handler)
@@ -2146,10 +2149,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cc_map_hlayout.addWidget(self.cc_map_rayv.groupbox)
         self.cc_map_euphoria = pydaw_cc_map_editor(1)
         f_cc_map_hlayout.addWidget(self.cc_map_euphoria.groupbox)
+        self.cc_map_wayv = pydaw_cc_map_editor(3)
+        f_cc_map_hlayout.addWidget(self.cc_map_wayv.groupbox)
         self.cc_map_modulex = pydaw_cc_map_editor(-1)
-        f_cc_map_hlayout.addWidget(self.cc_map_modulex.groupbox)
-        f_ccs_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        f_cc_map_hlayout.addItem(f_ccs_spacer)
+        f_cc_map_hlayout.addWidget(self.cc_map_modulex.groupbox)        
+        f_cc_map_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         self.main_tabwidget.addTab(self.cc_map_tab, "CC Maps")        
         self.show()
     
@@ -2240,12 +2244,16 @@ Any additional text must be enclosed in quotation marks."
         elif a_index == 2:
             f_name = "Ray-V"
             self.file_name = expanduser("~") + "/pydaw/ray_v-cc_map.txt"
+        elif a_index == 3:
+            f_name = "Way-V"
+            self.file_name = expanduser("~") + "/pydaw/way_v-cc_map.txt"
         else:
             assert(0)
         self.groupbox = QtGui.QGroupBox(f_name)
         self.groupbox.setMaximumWidth(420)
         f_vlayout = QtGui.QVBoxLayout(self.groupbox)
         self.cc_table = QtGui.QTableWidget(127, 3)
+        self.cc_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.cc_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.cc_table.setHorizontalHeaderLabels(["CC", "Description", "LADSPA Port"])
         self.cc_table.cellClicked.connect(self.on_click)
