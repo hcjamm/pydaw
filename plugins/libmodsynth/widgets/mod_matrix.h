@@ -82,6 +82,8 @@ public:
         lms_mod_matrix->setColumnCount(lms_mm_columns.count());
         lms_mod_matrix->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         lms_mod_matrix->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        lms_mod_matrix->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+        lms_mod_matrix->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
         
         QStringList f_headers;
         
