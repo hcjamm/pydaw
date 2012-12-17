@@ -1,4 +1,4 @@
-QWidget#mainwindow, QMessageBox
+QWidget#mainwindow, QWidget#ccmaptabwidget,  QMessageBox
 {
 	background-color:rgb(93, 93, 93);
 }
