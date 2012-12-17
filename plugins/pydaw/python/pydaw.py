@@ -2138,11 +2138,18 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.song_region_vlayout.addWidget(this_region_editor.group_box)
 
         self.item_tab = QtGui.QWidget()
+        self.item_tab.setObjectName("itemtabwidget")
         self.item_tab_hlayout = QtGui.QHBoxLayout(self.item_tab)
         self.item_tab_hlayout.addWidget(this_item_editor.group_box)        
         self.item_tab_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
-
-        self.main_tabwidget.addTab(self.item_tab, "Item")
+                
+        self.item_scrollarea = QtGui.QScrollArea()
+        self.item_tab.setMinimumWidth(1290)
+        self.item_tab.setMinimumHeight(1200)        
+        self.item_scrollarea.setWidget(self.item_tab)        
+        self.main_tabwidget.addTab(self.item_scrollarea, "Item")        
+        
+        
         #Begin CC Map tab
         self.cc_map_tab = QtGui.QWidget()
         self.cc_map_tab.setObjectName("ccmaptabwidget")
@@ -2170,7 +2177,7 @@ the plugin for the first time, and then restarted PyDAW.""")
         self.cc_map_tab.setMinimumHeight(4100)
         self.cc_map_scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.cc_map_scrollarea.setWidget(self.cc_map_tab)        
-        self.main_tabwidget.addTab(self.cc_map_scrollarea, "CC Maps")        
+        self.main_tabwidget.addTab(self.cc_map_scrollarea, "CC Maps")
         self.show()
     
     def closeEvent(self, event):
