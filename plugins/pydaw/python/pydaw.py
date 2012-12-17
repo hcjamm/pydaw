@@ -1079,6 +1079,7 @@ class item_list_editor:
         
         self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
         self.pb_groupbox.setMaximumWidth(270)
+        self.pb_groupbox.setMinimumWidth(270)
         self.pb_vlayout = QtGui.QVBoxLayout(self.pb_groupbox)
         self.pb_gridlayout = QtGui.QGridLayout()
         f_p_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
