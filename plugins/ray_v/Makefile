@@ -2,7 +2,7 @@
 
 CC  ?= gcc
 CXX ?= g++
-MOC ?= moc
+MOC ?= moc-qt4
 
 PREFIX ?= /usr
 
