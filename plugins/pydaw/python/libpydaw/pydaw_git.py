@@ -17,6 +17,12 @@ class pydaw_git_repo:
         cmd = ['git', 'init']
         p = subprocess.Popen(cmd, cwd=self.repo_dir)
         p.wait()
+        cmd = ['git', 'config', 'user.name', 'pydaw user']
+        p = subprocess.Popen(cmd, cwd=self.repo_dir)
+        p.wait()        
+        cmd = ['git', 'config', 'user.email', 'pydaw@pydaw.sourceforge.net']
+        p = subprocess.Popen(cmd, cwd=self.repo_dir)
+        p.wait()
     
     def git_add(self, file_name):
         cmd = ['git', 'add', file_name]
