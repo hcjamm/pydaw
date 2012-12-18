@@ -1,16 +1,15 @@
-#This is a pseudo-script to help with installing or packaging for RPM.  Eventually this will be replaced 
-#with a real script like the one I already have for Ubuntu/Debian systems
-
 #dependencies
 sudo yum install qjackctl PyQt4 pyliblo git gcc ladspa-devel alsa-lib-devel liblo-devel libsndfile-devel libSM-devel gcc-c++ audacity qt-devel SDL-devel jack-audio-connection-kit-devel
 
-#Create a link for the Qt meta-object compiler if not exists.
-#TODO:  Do I need to && with -l ?
-#TODO#2:  Bake this logic into the Makefiles
-if [!-e /usr/bin/moc]; then
-    sudo ln -s /usr/bin/moc-qt4 /usr/bin/moc
-fi
+#Now run:
+#make clean
+#make
 
+#Or to compile with debug symbols:
+#make debug
 
-#cd into the directories and make their files now...  Whenever I put a top-level Makefile in to 
-#build all child applications, then I'll include it here.
+#followed by this command as root
+#make install
+
+#or this command if packaging
+#make DESTDIR=/your/packaging/dir install
