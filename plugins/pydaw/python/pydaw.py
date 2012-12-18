@@ -111,14 +111,12 @@ class song_editor:
                 this_transport.region_spinbox.setValue(y)
     
     def __init__(self):
-        self.song = pydaw_song()
-        self.group_box = QtGui.QGroupBox()
-        self.group_box.setMaximumHeight(138)
+        self.song = pydaw_song()        
         self.main_vlayout = QtGui.QVBoxLayout()
         self.hlayout0 = QtGui.QHBoxLayout()
-        self.main_vlayout.addLayout(self.hlayout0)
-        self.group_box.setLayout(self.main_vlayout)
+        self.main_vlayout.addLayout(self.hlayout0)        
         self.table_widget = QtGui.QTableWidget()
+        self.table_widget.setMaximumHeight(108)
         self.table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.table_widget.verticalHeader().setVisible(False)
         self.table_widget.setAutoScroll(True)        
@@ -373,10 +371,10 @@ class region_list_editor:
         
         self.enabled = False #Prevents user from editing a region before one has been selected
         self.group_box = QtGui.QGroupBox()
-        self.main_vlayout = QtGui.QVBoxLayout()
+        self.main_vlayout = QtGui.QGridLayout()
 
         self.hlayout0 = QtGui.QHBoxLayout()
-        self.main_vlayout.addLayout(self.hlayout0)
+        self.main_vlayout.addLayout(self.hlayout0, 1, 0)
         self.region_num_label = QtGui.QLabel()
         self.region_num_label.setText("Region:")
         self.hlayout0.addWidget(self.region_num_label)
@@ -429,7 +427,7 @@ class region_list_editor:
         self.draw_ccs_action = QtGui.QAction("Draw CC Automation (CTRL+F)", self.table_widget)
         self.draw_ccs_action.triggered.connect(self.on_draw_ccs)
         self.table_widget.addAction(self.draw_ccs_action)
-        self.main_vlayout.addWidget(self.table_widget)
+        self.main_vlayout.addWidget(self.table_widget, 2, 0)
         self.last_item_copied = None
         self.reset_tracks()
         self.clipboard = []
@@ -2133,10 +2131,10 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.song_region_vlayout = QtGui.QVBoxLayout()
         self.song_tab_hlayout.addLayout(self.song_region_vlayout)
-
-        self.song_region_vlayout.addWidget(this_song_editor.group_box)
+        
         self.song_region_vlayout.addWidget(this_region_editor.group_box)
-
+        this_region_editor.main_vlayout.addWidget(this_song_editor.table_widget, 0, 0)
+        
         self.item_tab = QtGui.QWidget()
         self.item_tab.setObjectName("itemtabwidget")
         self.item_tab_hlayout = QtGui.QHBoxLayout(self.item_tab)
