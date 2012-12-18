@@ -28,10 +28,12 @@ pydaw.so: $(C_OBJS)
 # --------------------------------------------------------------
 
 install:
+	install -d $(DESTDIR)$(PREFIX)/bin
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
 	install -m 644 pydaw.so $(DESTDIR)$(PREFIX)/lib/dssi
 	install -m 755 PYDAW_qt $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
+	install -m 755 pydaw $(DESTDIR)$(PREFIX)/bin
 	cp -R python $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
 
 clean:
