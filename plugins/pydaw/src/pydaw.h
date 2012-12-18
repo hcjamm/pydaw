@@ -2824,7 +2824,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, int a_track_num, int a_inde
             v_free_pydaw_plugin(f_fx);
         }
     }
-    if(a_index == 0)  //empty
+    else if(a_index == 0)  //empty
     {        
         t_pydaw_plugin * f_inst = a_pydaw_data->track_pool[a_track_num]->instrument;
         t_pydaw_plugin * f_fx = a_pydaw_data->track_pool[a_track_num]->effect;
