@@ -2138,7 +2138,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 
         self.item_scrollarea = QtGui.QScrollArea()
         self.item_tab.setMinimumWidth(1290)
-        self.item_tab.setMinimumHeight(8700)        
+        self.item_tab.setMinimumHeight(7950)        
         self.item_scrollarea.setWidget(self.item_tab)        
         self.main_tabwidget.addTab(self.item_scrollarea, "Item")        
         
@@ -2268,19 +2268,22 @@ Any additional text must be enclosed in quotation marks."
         self.groupbox = QtGui.QGroupBox(f_name)
         self.groupbox.setMaximumWidth(420)
         f_vlayout = QtGui.QVBoxLayout(self.groupbox)
-        self.cc_table = QtGui.QTableWidget(127, 3)        
-        self.cc_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.cc_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.cc_table.setHorizontalHeaderLabels(["CC", "Description", "LADSPA Port"])
-        self.cc_table.cellClicked.connect(self.on_click)
-        f_vlayout.addWidget(self.cc_table)
+        
         f_button_layout = QtGui.QHBoxLayout()
         f_vlayout.addLayout(f_button_layout)
         f_button_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         f_button_layout.addItem(f_button_spacer)
         f_save_button = QtGui.QPushButton("Save")
         f_save_button.pressed.connect(self.on_save)
-        f_button_layout.addWidget(f_save_button)
+        f_button_layout.addWidget(f_save_button)        
+        
+        self.cc_table = QtGui.QTableWidget(127, 3)        
+        self.cc_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.cc_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.cc_table.setHorizontalHeaderLabels(["CC", "Description", "LADSPA Port"])
+        self.cc_table.cellClicked.connect(self.on_click)
+        f_vlayout.addWidget(self.cc_table)
+        
         try:
             f_cc_map_text = open(self.file_name, "r").read()
         except:
