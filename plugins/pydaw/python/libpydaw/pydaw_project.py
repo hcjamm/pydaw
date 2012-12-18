@@ -137,9 +137,9 @@ class pydaw_project:
             f_file = open(f_pytracks_file, 'w')
             f_file.write("0|0|0|0|0|Master|-1|0\n")
             for i in range(1, 5):
-                f_file.write(str(i) + "|0|0|0|0|Bus" + str(i + 1) + "|-1|0\n")
+                f_file.write(str(i) + "|0|0|0|0|Bus" + str(i) + "|-1|0\n")
             for i in range(5, 21):
-                f_file.write(str(i) + "|0|0|0|0|track" + str(i - 5) + "|0|0\n")
+                f_file.write(str(i) + "|0|0|0|0|track" + str(i - 4) + "|0|0\n")
             f_file.write(pydaw_terminating_char)
             f_file.close()
         self.git_repo = pydaw_git_repo(self.project_folder)

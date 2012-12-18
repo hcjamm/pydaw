@@ -198,7 +198,7 @@ class region_list_editor:
         self.tracks[0].track_name_lineedit.setText("Master")
         
         for i in range(self.bus_count, self.track_total):
-            track = seq_track(a_track_num=i, a_track_text="track" + str(i - self.bus_count))
+            track = seq_track(a_track_num=i, a_track_text="track" + str(i - self.bus_count + 1))
             self.tracks.append(track)
             self.table_widget.setCellWidget(i, 0, track.group_box)  
         self.table_widget.setColumnWidth(0, 390)
