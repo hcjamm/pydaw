@@ -291,6 +291,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl3"), -100, 100, 0);  
 
     m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, WAYV_MODULATOR_COUNT, f_mod_matrix_columns, LMS_PFXMATRIX_FIRST_PORT, f_info);
+    m_polyfx_mod_matrix[0]->lms_mod_matrix->setMinimumHeight(165);
+    m_polyfx_mod_matrix[0]->lms_mod_matrix->setMaximumHeight(165);
 
     m_polyfx_mod_matrix[0]->lms_mod_matrix->setVerticalHeaderLabels(QStringList() << QString("ADSR 1") << QString("ADSR 2") << QString("Ramp Env") << QString("LFO"));
 
