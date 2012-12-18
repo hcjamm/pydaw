@@ -85,7 +85,7 @@ public:
         if(a_value == 0)
             return;
         
-        if(a_value < 0 || a_value > 128)
+        if(a_value < 0 || a_value >= 128)
         {
             QMessageBox::warning(lms_group_box, QString("Warning"), QString("presets.h::lms_value_changed called with invalid a_value: ") + QString::number(a_value));
             return;
@@ -259,7 +259,7 @@ public:
 
         int f_count = 0;
         
-        while(f_count < 129) 
+        while(f_count < 128) 
         {
             if(in->atEnd())
             {
