@@ -110,7 +110,7 @@ typedef struct st_rayv_poly_voice
     
     t_lfs_lfo * lfo1;
     
-    float lfo_amp_output, lfo_pitch_output;
+    float lfo_amount_output, lfo_amp_output, lfo_pitch_output;
     
     t_adsr * adsr_filter;
     
@@ -170,6 +170,7 @@ t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
     f_voice->osc1_on = 0;
     f_voice->osc2_on = 0;
     
+    f_voice->lfo_amount_output = 0.0f;
     f_voice->lfo_amp_output = 0.0f;
     f_voice->lfo_pitch_output = 0.0f;
     
@@ -207,7 +208,7 @@ t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
     f_voice->modulator_outputs[0] = &(f_voice->adsr_main->output);
     f_voice->modulator_outputs[1] = &(f_voice->adsr_filter->output);
     f_voice->modulator_outputs[2] = &(f_voice->ramp_env->output);
-    f_voice->modulator_outputs[3] = &(f_voice->lfo1->output);
+    f_voice->modulator_outputs[3] = &(f_voice->lfo_amount_output);
     
     f_voice->noise_func_ptr = f_run_noise_off;
     

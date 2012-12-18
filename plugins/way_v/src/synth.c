@@ -290,6 +290,7 @@ static void v_wayv_connect_port(LADSPA_Handle instance, unsigned long port,
     case WAYV_LFO_PITCH: plugin->lfo_pitch = data; break;
     
     case RAYV_PITCH_ENV_AMT: plugin->pitch_env_amt = data; break;
+    case WAYV_LFO_AMOUNT: plugin->lfo_amount = data; break;
     }
 }
 
@@ -314,6 +315,7 @@ static LADSPA_Handle g_wayv_instantiate(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_FREQ, 15, "LFO Speed");
     v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_AMP, 78, "Tremolo");
     v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_PITCH, 9, "Vibrato");
+    v_ccm_set_cc(plugin_data->midi_cc_map, WAYV_LFO_AMOUNT, 1, "LFO Amount");
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "way_v-cc_map.txt");
     
@@ -625,8 +627,10 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         v_lfs_set(plugin_data->data[n]->lfo1,  (*(plugin_data->lfo_freq)) * .01);
         v_lfs_run(plugin_data->data[n]->lfo1);
         
-        a_voice->lfo_amp_output = f_db_to_linear_fast((((*plugin_data->lfo_amp) * (a_voice->lfo1->output)) - (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)), a_voice->amp_ptr);        
-        a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo1->output);        
+        a_voice->lfo_amount_output = (a_voice->lfo1->output) * ((*plugin_data->lfo_amount) * 0.01f);
+        
+        a_voice->lfo_amp_output = f_db_to_linear_fast((((*plugin_data->lfo_amp) * (a_voice->lfo_amount_output)) - (f_lms_abs((*plugin_data->lfo_amp)) * 0.5)), a_voice->amp_ptr);        
+        a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo_amount_output);        
         
         a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + ((a_voice->ramp_env->output_multiplied) * (*plugin_data->pitch_env_amt))
                 + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
@@ -1540,6 +1544,14 @@ void _init()
 	port_range_hints[WAYV_OSC2_UNISON_SPREAD].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_UNISON_SPREAD].UpperBound =  100.0f;
         
+        /*Parameters for LFO Amount*/
+	port_descriptors[WAYV_LFO_AMOUNT] = port_descriptors[WAYV_ATTACK_MAIN];
+	port_names[WAYV_LFO_AMOUNT] = "LFO Amount";
+	port_range_hints[WAYV_LFO_AMOUNT].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_LFO_AMOUNT].LowerBound = 0.0f;
+	port_range_hints[WAYV_LFO_AMOUNT].UpperBound = 100.0f;
         
 	LMSLDescriptor->activate = v_wayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_wayv;
