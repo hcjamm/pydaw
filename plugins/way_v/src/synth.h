@@ -152,9 +152,10 @@ extern "C" {
 #define RAYV_PITCH_ENV_AMT 109
 #define WAYV_OSC2_UNISON_VOICES 110
 #define WAYV_OSC2_UNISON_SPREAD 111
+#define WAYV_LFO_AMOUNT 112
     
-#define WAYV_LAST_CONTROL_PORT 111
-#define WAYV_COUNT 112 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define WAYV_LAST_CONTROL_PORT 112
+#define WAYV_COUNT 113 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
     
 #define WAYV_POLYPHONY   16
 
@@ -224,6 +225,7 @@ typedef struct {
     
     LADSPA_Data *lfo_amp;
     LADSPA_Data *lfo_pitch;
+    LADSPA_Data *lfo_amount;
         
        
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
