@@ -84,6 +84,12 @@ public:
         /*We intentionally leave the first preset empty*/
         if(a_value == 0)
             return;
+        
+        if(a_value < 0 || a_value > 128)
+        {
+            QMessageBox::warning(lms_group_box, QString("Warning"), QString("presets.h::lms_value_changed called with invalid a_value: ") + QString::number(a_value));
+            return;
+        }
 
         if(presets_tab_delimited[a_value].compare("empty") != 0)
         {
