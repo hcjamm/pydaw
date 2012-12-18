@@ -77,7 +77,7 @@ $description = "PyDAW is a digital audio workstation with robust MIDI capabiliti
 );
 
 #This is the notes that your package manager will show when browsing your package.  Change this if packaging your own plugins.
-$notes = " PyDAW is a Digital Audio Workstation with a UI written in Python and PyQt4, and a high performance back-end written in C.  It comes with a flexible modular sampler called Euphoria, and a retro analog style synthesizer called Ray-V, as well as numerous built-in effects. ";
+$notes = " PyDAW is a Digital Audio Workstation with a UI written in Python and PyQt4, and a high performance back-end written in C.  It comes with a flexible modular sampler called Euphoria, a modular wavetable synthesizer called Way-V, and a retro analog style synthesizer called Ray-V, as well as numerous built-in effects. ";
 
 #dpkg-deb crashes if EOF happens at the end of a description line
 $notes .= "\n";
