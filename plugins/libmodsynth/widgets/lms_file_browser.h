@@ -72,6 +72,7 @@ public:
         m_folder_path_lineedit->setReadOnly(TRUE);
                 
         m_bookmarks_listWidget = new QListWidget(a_parent);
+        m_bookmarks_listWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         m_bookmarks_listWidget->setObjectName(QString::fromUtf8("m_bookmarks_listWidget"));
         m_bookmarks_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         m_bookmarks_listWidget->setMaximumWidth(240);
@@ -100,6 +101,7 @@ public:
         m_file_browser_verticalLayout->addWidget(m_folder_path_lineedit);
 
         m_folders_listWidget = new QListWidget(a_parent);
+        m_folders_listWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         m_folders_listWidget->setObjectName(QString::fromUtf8("m_folders_listWidget"));
         m_folders_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         m_folders_listWidget->setMaximumWidth(240);
@@ -131,6 +133,7 @@ public:
         m_file_browser_verticalLayout->addWidget(m_files_label);
 
         m_files_listWidget = new QListWidget(a_parent);
+        m_files_listWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         m_files_listWidget->setObjectName(QString::fromUtf8("m_files_listWidget"));
         m_files_listWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
         m_files_listWidget->setMaximumWidth(240);
