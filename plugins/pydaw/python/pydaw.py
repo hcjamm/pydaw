@@ -2122,17 +2122,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.transport_hlayout.addWidget(this_transport.group_box, alignment=QtCore.Qt.AlignLeft)
         
         self.main_tabwidget = QtGui.QTabWidget()
-        self.song_tab = QtGui.QWidget()
-        self.song_tab_hlayout = QtGui.QHBoxLayout(self.song_tab)
-
-        self.main_tabwidget.addTab(self.song_tab, "Song")
-
+        
         self.main_layout.addWidget(self.main_tabwidget)
 
-        self.song_region_vlayout = QtGui.QVBoxLayout()
-        self.song_tab_hlayout.addLayout(self.song_region_vlayout)
-        
-        self.song_region_vlayout.addWidget(this_region_editor.group_box)
+        self.main_tabwidget.addTab(this_region_editor.group_box, "Song")                
         this_region_editor.main_vlayout.addWidget(this_song_editor.table_widget, 0, 0)
         
         self.item_tab = QtGui.QWidget()
