@@ -67,11 +67,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_hostRequestedQuit(false),
     m_ready(false)
 {
-    rayv_cerr << "Entering constructor...\n";
     m_host = lo_address_new(host, port);
-    rayv_cerr << "Setting session support...\n";
-            
-    rayv_cerr << "Building QWidget...\n";
+    
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
     this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{background-color:black; color:white; border:solid 1px white;} QComboBox:editable {background-color:black; color:white;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
     
@@ -249,20 +246,13 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_program->lms_add_control(m_lfo_amp);
     m_program->lms_add_control(m_lfo_pitch);
     m_program->lms_add_control(m_lfo_cutoff);
-        
-    rayv_cerr << QString("pending_index_change: ") << m_program->pending_index_change << QString("\n")
-            << QString("currentIndex: ") << m_program->m_program->currentIndex() << QString("\n");
-        
-    /*DO NOT remove the code below this line*/
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
     myTimer->setSingleShot(false);
     myTimer->start(0);
     
-    m_suppressHostUpdate = false;
-   
-    rayv_cerr << "Leaving constructor...\n";
+    m_suppressHostUpdate = false;   
 }
 
 void rayv_gui::lms_set_value(float val, LMS_control * a_ctrl )

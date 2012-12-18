@@ -24,7 +24,6 @@
 #include "group_box.h"
 #include "lms_control.h"
 
-#define LMS_INDEX_IDENTIFIER QString("LMS_CURRENT_INDEX=")
 #define LMS_PRESETS_EXT QString("-presets.tsv")
 
 class LMS_preset_manager : public LMS_control
@@ -54,8 +53,6 @@ public:
     QString lms_plugin_name;
     QList<LMS_control*> lms_controls;
     QWidget * lms_parent;
-    
-    int pending_index_change;
     
     void lms_add_control(LMS_control * a_control)
     {
@@ -173,9 +170,7 @@ public:
         {
                 f_result2.append(presets_tab_delimited[f_i] + "\n");
         }
-        
-        f_result2.append(LMS_INDEX_IDENTIFIER + QString::number(m_program->currentIndex()));
-        
+                
         return f_result2;
     }
     
@@ -256,8 +251,6 @@ public:
 
         QTextStream * in = new QTextStream(f_file);
 
-        pending_index_change = 0;
-
         int f_count = 0;
         
         while(f_count < 129) 
@@ -270,13 +263,7 @@ public:
             else
             {
                 QString line = in->readLine();
-                
-                if(line.startsWith(LMS_INDEX_IDENTIFIER, Qt::CaseInsensitive))
-                {
-                    pending_index_change = line.split(QString("=")).at(1).toInt();
-                    continue;
-                }
-                
+                                
                 QStringList fields = line.split("\t");
                 f_programs_list.append(fields.at(0));
                 presets_tab_delimited.append(line);
