@@ -1,9 +1,7 @@
-PREFIX =	/usr
+PREFIX ?=	/usr
 
-CFLAGS +=	$(shell sdl-config --cflags) $(shell pkg-config --cflags jack) -W -std=gnu99
+CFLAGS =	-O3 $(shell sdl-config --cflags) $(shell pkg-config --cflags jack) -W -std=gnu99
 LIBS =		$(shell sdl-config --libs) $(shell pkg-config --libs jack) -lGL -lX11 -lm
-
-CFLAGS +=	-O3
 
 OBJS =		main.o video.o audio.o waves.o
 BIN =		pydaw_jack_oscrolloscope
