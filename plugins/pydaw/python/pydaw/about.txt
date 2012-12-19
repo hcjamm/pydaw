@@ -55,7 +55,7 @@ Q: But the hardware review sites said that hyperthreading is like having twice a
 A: No, it's not, and fine, don't turn it off...
 
 Q: What's the best soundcard for running PyDAW?
-A: I'm running a Focusrite Saffire Pro 14 Firewire and it works reasonably well..  Any card that's known to work well with Jack should be fine.
+A: I'm running a Focusrite Saffire Pro 14 Firewire and it works well, it's never crashed on me..  Any card that's known to work well with Jack should be fine.  However, not all interfaces work well with Jack/ALSA(especially laptop onboard audio).  I have a laptop with onboard audio that crashes Jack, but that works reliably with my EMU and Numark USB soundcards, so a proper audio interface is strongly suggested.
 
 Q: What's a good MIDI controller?
 A: I use an M-Audio Oxygen 49, and have had no problems with it.  Please note that PyDAW currently only supports ALSA MIDI, and not Jack MIDI(although you may be able to hack it with 3rd party utilities).
