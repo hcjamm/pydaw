@@ -85,7 +85,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     m_main_layout = new LMS_main_layout(m_fx_tab);
     m_delay_layout = new LMS_main_layout(m_delay_tab);
     
-    LMS_style_info * f_info = new LMS_style_info(60);
+    LMS_style_info * f_info = new LMS_style_info(51);
     f_info->LMS_set_label_style("QLabel{background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
     f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
     
