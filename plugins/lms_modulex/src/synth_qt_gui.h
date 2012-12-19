@@ -27,6 +27,7 @@ GNU General Public License for more details.
 #include <QPushButton>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
+#include <QTabWidget>
 
 #include <string>
 #include <stdlib.h>
@@ -168,7 +169,11 @@ protected slots:
     void oscRecv();
 protected:
     
-    /*Declare a QLabel and QDial for each knob.  Also declare any other controls that set/receive values here*/
+    QTabWidget * m_tab_widget;
+    QVBoxLayout * m_main_vboxlayout;
+    QWidget * m_fx_tab;
+    QWidget * m_delay_tab;
+    LMS_main_layout * m_delay_layout;    
     LMS_main_layout * m_main_layout;
     LMS_multieffect * m_fx0;
     LMS_multieffect * m_fx1;

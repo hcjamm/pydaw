@@ -73,7 +73,17 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     
     this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{background-color:black; color:white; border:solid 1px white;} QComboBox:editable{background-color:black; color:white;} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px; width:100px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
 
-    m_main_layout = new LMS_main_layout(this);
+    m_main_vboxlayout = new QVBoxLayout();
+    this->setLayout(m_main_vboxlayout);
+    m_tab_widget = new QTabWidget(this);    
+    m_fx_tab = new QWidget(this);
+    m_delay_tab = new QWidget(this);
+    m_main_vboxlayout->addWidget(m_tab_widget);
+    m_tab_widget->addTab(m_fx_tab, QString("FX"));
+    m_tab_widget->addTab(m_delay_tab, QString("Delay"));
+        
+    m_main_layout = new LMS_main_layout(m_fx_tab);
+    m_delay_layout = new LMS_main_layout(m_delay_tab);
     
     LMS_style_info * f_info = new LMS_style_info(60);
     f_info->LMS_set_label_style("QLabel{background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
@@ -149,7 +159,8 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     
     
     delay_groupbox = new LMS_group_box(this, QString("Delay"), f_info);
-    m_main_layout->lms_add_widget(delay_groupbox->lms_groupbox);
+    delay_groupbox->lms_groupbox->setMaximumHeight(150);
+    m_delay_layout->lms_add_widget(delay_groupbox->lms_groupbox);
     
     m_delaytime  = new LMS_knob_regular(QString("Time"), 10, 100, 1, 50, QString(""), this, f_info, lms_kc_decimal, MODULEX_DELAY_TIME);
     delay_groupbox->lms_add_h(m_delaytime);
@@ -180,6 +191,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     connect(m_stereo->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(stereoChanged(int)));
         
     QGroupBox * f_gb_bpm = new QGroupBox(this); 
+    f_gb_bpm->setMaximumHeight(150);
     f_gb_bpm->setTitle(QString("Tempo Sync"));
     f_gb_bpm->setAlignment(Qt::AlignHCenter);    
     QGridLayout *f_gb_bpm_layout = new QGridLayout(f_gb_bpm);
@@ -218,7 +230,9 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     f_gb_bpm_layout->addWidget(m_beat_frac, 1, 1, Qt::AlignCenter);
     f_gb_bpm_layout->addWidget(m_sync_bpm, 2, 1, Qt::AlignCenter);
     
-    m_main_layout->lms_add_widget(f_gb_bpm);
+    m_delay_layout->lms_add_widget(f_gb_bpm);
+    m_delay_layout->lms_add_layout();
+    m_delay_layout->lms_add_vertical_spacer();
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
