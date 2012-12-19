@@ -1,17 +1,17 @@
-(this manual is still very much a work-in-progress)
-
 ****Concepts****
 
-A project contains tracks(MIDI/plugin) and a song
+A project contains busses, tracks(MIDI/plugin) and a song
+busses mix together tracks and optionally apply effects
+tracks host instruments and effects
 A song contains regions, which are 8-bar long groups of items
 regions contain items
-items contain notes, CC automation and pitchbend automation
+items contain notes, CC automation and pitchbend automation, and output to instruments/effects busses or tracks
 
 A song contains 16 MIDI/plugin tracks that you can select Euphoria(sampler) or Ray-V(synth) from.  Each track also has one instance of Modulex, which contains 8 multieffect units and one delay unit.
 
 One MIDI keyboard can be used at at time, selected from "MIDI In:" on the transport.  Only one track can record MIDI at a time, clicking the [R] button on one track disables it on any others.
 
-Projects are currently immediately saved with each item/region/song change, there is no undo...  Saving from the file or quit menu only saves the instrument state.  This will eventually change.
+Projects are currently immediately saved with each item/region/song change, there is no undo...  Saving from the file or quit menu only saves the instrument state.
 
 
 ****Editing****
@@ -20,7 +20,7 @@ Click to add regions to the song editor or items to the region editor or notes/C
 
 Double-click an item to open it
 
-Click (or CTRL+click or SHIFT+click) and drag to move items
+Click (or CTRL+click or SHIFT+click to select multiple) and drag to move items
 
 Click and then the Delete key to remove items
 
