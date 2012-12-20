@@ -14,13 +14,12 @@ plugins/lms_delay/LMS_DELAY_qt
 plugins/ray_v/LMS_RAYV_qt
 *.pyc
 *.qm
-*jack-dssi-host
-plugins/protractor/src/.svn/*
+lms-jack-dssi-host
 plugins/*/*.so
 plugins/*/src/moc_synth_qt_gui.cpp
 bin
-*.dep.inc
-plugins/pydaw-build
+plugins/pydaw-build/debian/usr/bin
+plugins/pydaw-build/debian/usr/lib
 plugins/maintainer.txt
 *nbproject*
 *.o
@@ -48,6 +47,5 @@ plugins/maintainer.txt
 *.moc.cpp
 *.patch
 *deps_installed.txt
-
 */build/*
 plugins/*version.txt
