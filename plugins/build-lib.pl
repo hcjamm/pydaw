@@ -61,8 +61,8 @@ unless(-e $debug_dir)
 `mkdir $debug_dir`;
 }
 
-$debug_flags = ' debug';
-$release_flags = '';
+$debug_flags = ' CFLAGS+=" -O0 -g -gdwarf-3 " ';
+$release_flags = ' CFLAGS+=" -O3 " ';
 
 $current_dir = get_current_dir();
 $dssi_path = `cd $debug_dir ; pwd`;
