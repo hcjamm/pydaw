@@ -148,20 +148,11 @@ if($prompt)
 	}	
 }
 
-sub build_all_debug
-{
-	if($debug_mode)
-	{
-		print "\nDebug Info:\n" . $_[0] . "\n";
-	}
-}
 
 #This is because debian packages will only accept dashes in package names
 sub replace_underscore_with_dash
 {
 	$result = $_[0];
-
 	$result =~ s/_/-/g;
-
 	return $result;
 }
