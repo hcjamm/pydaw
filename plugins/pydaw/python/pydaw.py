@@ -1638,7 +1638,7 @@ class seq_track:
             self.hlayout3.addWidget(self.ui_button)
             self.bus_combobox = QtGui.QComboBox()
             self.bus_combobox.addItems(['M', '1','2','3','4'])
-            self.bus_combobox.setMinimumWidth(49)
+            self.bus_combobox.setMinimumWidth(54)
             self.bus_combobox.currentIndexChanged.connect(self.on_bus_changed)
             self.hlayout2.addWidget(QtGui.QLabel("Bus:"))
             self.hlayout2.addWidget(self.bus_combobox)
