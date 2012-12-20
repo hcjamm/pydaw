@@ -13,123 +13,7 @@ perl build-all.pl
 
 ";
 
-$debian_deps = "liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsm-dev, qjackctl, alsa-utils, python-liblo, python-qt4, git, libsdl1.2-dev, ffado-mixer-qt4, ffado-tools, ffado-dbus-server, audacity";
-
-$prompt = 1;
-
-if(defined $ARGV[0])
-{
-	if($ARGV[0] eq "-y")
-	{
-		$prompt = 0;
-
-		if($ARGV[1] eq "--debian")
-		{
-			$depends = $debian_deps; $os = "debian"; $package_type = "deb";
-		}
-		else
-		{
-			print $help_text;
-			print "Invalid operating system argument: \"" . $ARGV[$i] . "\"\n\n";
-			exit 1;
-		}
-	}
-	else
-	{
-		print $help_text;
-		exit;
-	}
-}
-
-$debug_build = 0;
-
-#This is only for printing out extra debug information when running this script.  0 == no debugging, 1 == debugging
-$debug_mode = 0;
-
 $short_name = "pydaw";
-
-$deb_name = replace_underscore_with_dash($short_name);
-
-build_all_debug("\$deb_name == $deb_name");
-
-$replaces = "";
-
-#You can probably leave this empty, otherwise you should probably know if any packages conflict
-$conflicts = "";
-
-#This is a standard description for the package, change this if packaging your own plugins
-$description = "PyDAW is a digital audio workstation with robust MIDI capabilities and a full suite of instrument and effects plugins";
-
-#add any new plugins here, or remove all of them if you are not going to redistribute the official LMS plugins.
-#Please take care not to create package conflicts for people with the LMS Suite installed.
-@plugins = (
-'ray_v',
-'way_v',
-'euphoria',
-'lms_modulex',
-'pydaw'
-);
-
-#Plugins in this array will be symlinked to /usr/lib/ladspa, allowing them to be used by
-#hosts that support LADSPA effects but not DSSI.
-@ladspa_plugins = (
-'lms_modulex'
-);
-
-#This is the notes that your package manager will show when browsing your package.  Change this if packaging your own plugins.
-$notes = " PyDAW is a Digital Audio Workstation with a UI written in Python and PyQt4, and a high performance back-end written in C.  It comes with a flexible modular sampler called Euphoria, a modular wavetable synthesizer called Way-V, and a retro analog style synthesizer called Ray-V, as well as numerous built-in effects. ";
-
-#dpkg-deb crashes if EOF happens at the end of a description line
-$notes .= "\n";
-
-#End variables, begin the actual script:
-
-
-if($prompt)
-{
-#os_choice_label:
-#	print "
-#Please select the operating system that you are packaging for:
-#1. Ubuntu/Debian
-#(others not yet supported)
-#Enter choice [1-1]: ";
-
-#$os_choice = <STDIN>;
-#chomp($os_choice);
-
-$os_choice = "1";
-
-if($os_choice eq "1")
-{
-	$depends = $debian_deps; $os = "debian"; $package_type = "deb";
-}
-else
-{
-	print "\n\nInvalid OS choice: $os_choice .  Please select the number of the OS(1, 2, etc...)\n";
-	goto os_choice_label;
-}
-
-build_debug_label:
-	print "
-Build plugins with debug symbols?(makes them much slower, but allows for debugging):
-1. Yes
-2. No
-Enter choice [1-2]: ";
-
-$debug_choice = <STDIN>;
-chomp($debug_choice);
-
-if($debug_choice eq "1")
-{
-	$debug_build = 1;
-}
-else
-{
-#Do nothing
-}
-
-}
-
 
 $arch = `uname -i`;
 chomp($arch);
@@ -152,134 +36,9 @@ require 'build-lib.pl';
 #Attempt to install dependencies first
 check_deps();
 
-#Here are the directories used for the install, you can modify them if needed.
-$base_dir = "$short_name-build";
-$package_dir = "$base_dir/$os";
-
-$bin_dir = "$package_dir/usr/bin";
-#$plugin_dir = "$package_dir/usr/lib/dssi";
-$doc_dir = "$package_dir/usr/share/doc/$short_name";
-$debian_dir = "$package_dir/DEBIAN";
-#At some point, this script may include switches for different distros, which will automatically set these as appropriate.
-#The current values below are valid for Ubuntu, and likely most Debian variants
-$icon_dir = "$package_dir/usr/share/pixmaps";
-$desktop_dir = "$package_dir/usr/share/applications";
-
-
 #Create a clean folder for the plugins to go in
-`rm -Rf $package_dir`;
-`mkdir -p $package_dir`;
-#`mkdir -p $plugin_dir`;
-`mkdir -p $bin_dir`;
-`mkdir -p $doc_dir`;
-`mkdir -p $icon_dir`;
-`mkdir -p $desktop_dir`;
-
-if($os ne "install")
-{
-	`mkdir -p $debian_dir`;
-}
-
-foreach $val(@plugins)
-{
-#copy the .so and XXX_qt files to the directory we created
-print "Compiling $val\n";
-if($debug_build)
-{
-	system("cd $val ; make clean; make CFLAGS+=\" -O0 -g -gdwarf-3 \"");
-}
-else
-{
-	system("cd $val ; make clean; make CFLAGS+=\" -O3 \"");
-}
-
-print "Copying files\n";
-system("cd $val ; make PREFIX=/usr DESTDIR=../$package_dir install");
-
-#Plugins with their own icon can use a file called icon.png in the base directory instead of the LMS icon
-if(-e "$val/icon.png")
-{
-	`cp $val/icon.png $icon_dir/$val.png`;
-	$icon_name = "$val.png";
-}
-else
-{
-	`cp ../img/libmodsynth.png $icon_dir/libmodsynth.png`;	
-	$icon_name = "libmodsynth.png";
-}
-
-#TODO:  Copy a .desktop file to the desktop_dir
-
-$desktop_text = 
-"[Desktop Entry]
-Name=$val
-Comment=$description
-Exec=lms-jack-dssi-host \"$val.so\"
-Icon=$icon_name
-Terminal=false
-Type=Application
-Categories=Audio;AudioEditing;";
-
-open (MYFILE, ">>$desktop_dir/$val.desktop");
-print MYFILE "$desktop_text";
-close (MYFILE);
-
-}
-
-build_all_debug("Building lms-jack-dssi-host");
-
-if($debug_build)
-{
-	system("cd lms-jack-dssi-host ; make clean ; build.pl --build-jack-host ; cp lms-jack-dssi-host ../$bin_dir/lms-jack-dssi-host");
-}
-else
-{
-	system("cd lms-jack-dssi-host ; make clean ;  perl build.pl --build-jack-host-debug ; cp lms-jack-dssi-host ../$bin_dir/lms-jack-dssi-host");
-}
-
-build_all_debug("Building pydaw_jack_oscrolloscope");
-
-system("cd pydaw_jack_oscrolloscope ; make clean ; make ; cp pydaw_jack_oscrolloscope ../$bin_dir/pydaw_jack_oscrolloscope");
-
-maintainer_label:
-
-if(-e "maintainer.txt")
-{
-	open FILE, "maintainer.txt"; # or `rm maintainer.txt` && goto maintainer_label; #die "Couldn't open file: $!"; 
-	$maintainer = join("", <FILE>); 
-	close FILE;
-	chomp($maintainer);
-}
-else
-{
-	if($prompt)
-	{
-		print "\nThe following questions are required for the package maintainer meta-data.\n\n";
-		print "\nPlease enter your first and last name:\n";
-		my $name = <STDIN>;
-		print "\nPlease enter your email:\n";
-		my $email = <STDIN>;
-
-		chomp($email);
-		chomp($name);
-
-		$maintainer = "$name <$email>";
-
-		open (MYFILE, ">>maintainer.txt");
-		print MYFILE "$maintainer";
-		close (MYFILE); 
-	}
-	else
-	{
-		$maintainer = "No Maintainer <nobody\@maintainer.org>";
-	}
-}
-
-$pydaw_exec = "$package_dir/usr/bin/pydaw";
-open (MYFILE, ">$pydaw_exec");
-print MYFILE "lms-jack-dssi-host pydaw.so";
-close (MYFILE);
-`chmod +x $pydaw_exec`;
+`rm -Rf pydaw-build/debian/usr/bin pydaw-build/debian/usr/lib`;
+system("make && make DESTDIR=\$(pwd)/pydaw-build/debian");
 
 if(-e "$short_name-version.txt")
 {
@@ -320,101 +79,31 @@ $size = (split(" ", $size))[0];
 chomp($size);
 
 $debian_control = "
-Package: $deb_name
+Package: pydaw
 Priority: extra
 Section: sound
 Installed-Size: $size
-Maintainer: $maintainer
-Architecture: $arch
+Maintainer: Jeff Hubbard <jhubbard651\@users.sf.net>
+Architecture: amd64
 Version: $version
-Depends: $depends
-Provides: $deb_name
-Conflicts: $conflicts
-Replaces: $replaces
-Description: $description
-$notes";
+Depends: liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsm-dev, qjackctl, alsa-utils, python-liblo, python-qt4, git, libsdl1.2-dev, ffado-mixer-qt4, ffado-tools, ffado-dbus-server, audacity
+Provides: pydaw
+Conflicts: 
+Replaces: 
+Description: PyDAW is a digital audio workstation with robust MIDI capabilities and a full suite of instrument and effects plugins.
+ It comes with a flexible modular sampler, a modular wavetable synthesizer, and a retro analog style synthesizer called Ray-V, as well as numerous built-in effects.
+";
 
-open (MYFILE, ">>$debian_dir/control");
+open (MYFILE, ">>pydaw-build/debian/DEBIAN/control");
 print MYFILE "$debian_control";
 close (MYFILE); 
 
-#Create the DEBIAN/conffiles file.  TODO:  look into deprecating this, it probably won't ever be needed
-open (MYFILE, ">>$debian_dir/conffiles");
-print MYFILE "";   #TODO:  Find out what this file is for, and when/if something should ever go in it
-close (MYFILE);
-
-#Create the DEBIAN/postinst script
-$postinst = 
-"#!/usr/bin/perl
-#This removes locally compiled/installed copys of the plugins, to avoid conflicts in DSSI hosts
-
-";
-
-foreach $val(@plugins)
-{
-	#Remove the local versions of the plugin to avoid conflict
-	$postinst .= "`rm -Rf /usr/local/lib/dssi/$val*`;\n";
-}
-
-foreach $val(@ladspa_plugins)
-{
-#symlink the effects to the LADSPA plugin directory so that they can be used by LADSPA hosts
-$postinst .= 
-"`cd /usr/lib/ladspa ; rm -Rf $val.so $val.la $val`;
-`ln -s /usr/lib/dssi/$val /usr/lib/ladspa/$val`;
-`ln -s /usr/lib/dssi/$val.so /usr/lib/ladspa/$val.so`;
-`ln -s /usr/lib/dssi/$val.la /usr/lib/ladspa/$val.la`;\n";
-}
-
-$postinst .= "exit 0;";
-
-open (MYFILE, ">>$debian_dir/postinst");
-print MYFILE "$postinst";
-close (MYFILE); 
-
-`chmod 555 "$debian_dir/postinst"`;
+`chmod 555 "pydaw-build/debian/DEBIAN/postinst"`;
 
 #Create the DEBIAN/md5sums file
-`cd $package_dir; find . -type f ! -regex '.*\.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > DEBIAN/md5sums`;
+`cd pydaw-build/debian; find . -type f ! -regex '.*\.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > DEBIAN/md5sums`;
 
-#Create the copyright file.  TODO: add an option to specify if this is re-packaged, or a derivative work
-
-$copyright_file = 
-"This package was created automatically with the PyDAW 
-built-in packaging script:  build-all.pl, by the following:
-
-$maintainer
-
-PyDAW is licensed under the GNU GPL version 3.
-
-See /usr/share/common-licenses/GPL-3
-";
-
-open (MYFILE, ">>$doc_dir/copyright");
-#open (MYFILE, ">>$debian_dir/copyright");  #Debian says put it here, but I haven't found a single other package that does in Ubuntu, so I'm going to do what everybody else is doing
-print MYFILE "$copyright_file";
-close (MYFILE);
-
-#Copy any documentation to the $doc_dir
-if(system("cp -Rf ../doc/* $doc_dir/"))
-{
-	print "Errors encountered while copying to $doc_dir";
-}
-else
-{
-	`rm -Rf $doc_dir/*~`;
-}
-
-system("chmod -R 755 $package_dir ; chmod 644 $debian_dir/md5sums ; chmod 644 $debian_dir/conffiles");
-
-if($debug_build)
-{
-$debug_suffix = "-debug-only"
-}
-else
-{
-$debug_suffix = ""
-}
+system("chmod -R 755 pydaw-build/debian/usr ; chmod 644 pydaw-build/debian/DEBIAN/md5sums ; chmod 644 $debian_dir/conffiles");
 
 $build_suffix = "";
 
@@ -444,9 +133,9 @@ else
 	}
 }
 
-$package_name = "$short_name-$version-$arch$debug_suffix$build_suffix.$package_type";
+$package_name = "pydaw-$version-$arch$build_suffix.deb";
 
-`cd $base_dir ; fakeroot dpkg-deb --build $os ; rm $package_name ; mv $os.deb $package_name`;
+`cd pydaw-build ; fakeroot dpkg-deb --build debian ; rm $package_name ; mv debian.deb $package_name`;
 
 if($prompt)
 {
