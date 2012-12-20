@@ -48,4 +48,3 @@ plugins/maintainer.txt
 *.patch
 *deps_installed.txt
 */build/*
-plugins/*version.txt
