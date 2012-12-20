@@ -44,7 +44,7 @@ class LMS_combobox : public LMS_control
             lms_combobox = new QComboBox(a_parent);
             lms_combobox->insertItems(0, a_items);
                                     
-            lms_value = new QLabel(a_parent);
+            //lms_value = new QLabel(a_parent);
             //lms_value->setText(a_label_value);
               
             lms_combobox->setMinimumWidth((a_style_info->lms_knob_size));
@@ -52,7 +52,7 @@ class LMS_combobox : public LMS_control
                         
             lms_layout->addWidget(lms_label, 0, Qt::AlignTop);
             lms_layout->addWidget(lms_combobox, -1, Qt::AlignCenter);
-            lms_layout->addWidget(lms_value, 1, Qt::AlignCenter);
+            lms_layout->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
                                     
             lms_port = a_lms_port;   
         }

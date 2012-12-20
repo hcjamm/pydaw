@@ -13,6 +13,7 @@ GNU General Public License for more details.
  */
 
 #include "synth_qt_gui.h"
+#include "../../libmodsynth/widgets/default_style.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -93,7 +94,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 #ifndef LMS_DEBUG_STANDALONE
     m_host = lo_address_new(host, port);
 #endif    
-    this->setStyleSheet("QMessageBox{color:white;background-color:black;}  QDial{background-color:rgb(152, 152, 152);} QTabBar::tab:selected { color:black;background-color:#BBBBBB;} QTableView QTableCornerButton::section {background: black; border: 2px outset white;} QComboBox{color:white; background-color:black;} QTabBar::tab {background-color:black;  border: 2px solid white;  border-bottom-color: #333333; border-top-left-radius: 4px;  border-top-right-radius: 4px;  min-width: 8ex;  padding: 2px; color:white;} QHeaderView::section {background: black; color: white;border:2px solid white;} QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 60px; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QLabel{color:black;background-color:white;border:solid 2px white;border-radius:2px;} QFrame{background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0.273, stop:0 rgba(90, 90, 90, 255), stop:1 rgba(60, 60, 60, 255))} QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #111111, stop: 1 #222222); border: 2px solid white;  border-radius: 10px;  margin-top: 1ex;} QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; color:black; background-color: white; border solid 2px white; border-radius:3px;}");
+    
+    this->setStyleSheet(PYDAW_DEFAULT_QSS_STYLE);
     
     m_suppressHostUpdate = TRUE;
     m_handle_control_updates = TRUE;
@@ -101,8 +103,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_suppress_selected_sample_changed = FALSE;
     
     LMS_style_info * a_style = new LMS_style_info(55);
-    a_style->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
-    a_style->LMS_set_label_style(QString("QLabel{color:black;background-color:white;border:solid 2px white;border-radius:2px; text-align : center;}"), 64);
+    //a_style->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
+    //a_style->LMS_set_label_style(QString("QLabel{color:black;background-color:white;border:solid 2px white;border-radius:2px; text-align : center;}"), 64);
     //a_style->LMS_set_value_style("")
     
     QStringList f_interpolation_modes = QStringList() << QString("Pitched") << QString("Percussion") << QString("No Pitch");
@@ -123,7 +125,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     f_sample_table_columns << new LMS_mod_matrix_column(f_interpolation_modes, QString("Mode")); //Interpolation Mode
     
     m_sample_table = new LMS_mod_matrix(this, EUPHORIA_MAX_SAMPLE_COUNT, f_sample_table_columns, LMS_FIRST_SAMPLE_TABLE_PORT, a_style);
-        
+    
     m_file_selector = new LMS_file_select(this);
         /*Set all of the array variables that are per-sample*/
         for(int i = 0; i < EUPHORIA_MAX_SAMPLE_COUNT; i++)        
@@ -185,7 +187,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_main_v_layout->addWidget(menubar);
         m_main_tab = new QTabWidget(this);
         m_main_tab->setObjectName(QString::fromUtf8("m_main_tab"));
-        m_main_tab->setStyleSheet(QString::fromUtf8(""));
+        //m_main_tab->setStyleSheet(QString::fromUtf8(""));
         m_sample_tab = new QWidget();
         m_sample_tab->setObjectName(QString::fromUtf8("m_sample_tab"));
         m_sample_tab_horizontalLayout = new QHBoxLayout(m_sample_tab);
@@ -196,7 +198,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         horizontalLayout = new QHBoxLayout(m_smp_tab_scrollAreaWidgetContents);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         
-        m_smp_tab_scrollAreaWidgetContents->setStyleSheet(QString("QTableView::item { border: 1px solid white; } QTableWidget::setShowGrid{border: 1px solid white;} QWidget{background-color:black; color:white} QComboBox{background-color:black; color:white; border:solid 1px white;} QComboBox:editable {background-color:black; color:white;} QSpinBox{color:black;background-color:white;}"));
+        //m_smp_tab_scrollAreaWidgetContents->setStyleSheet(QString("QTableView::item { border: 1px solid white; } QTableWidget::setShowGrid{border: 1px solid white;} QWidget{background-color:black; color:white} QComboBox{background-color:black; color:white; border:solid 1px white;} QComboBox:editable {background-color:black; color:white;} QSpinBox{color:black;background-color:white;}"));
 
         
         //m_smp_tab_main_verticalLayout->addLayout(m_loop_start_end_Layout);
@@ -252,7 +254,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_main_tab->setTabText(m_main_tab->indexOf(m_mono_fx_tab), QApplication::translate("Frame", "Mono FX", 0, QApplication::UnicodeUTF8));
         
         m_main_tab->setCurrentIndex(0);
-
+        
         m_sample_table->lms_mod_matrix->resizeColumnsToContents();
                 
         //m_sample_table->lms_mod_matrix->horizontalHeader()->setStretchLastSection(TRUE);
@@ -697,7 +699,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         m_view_sample_tab = new QWidget();
         m_view_sample_tab->setObjectName(QString::fromUtf8("m_view_sample_tab"));  
-        m_view_sample_tab->setStyleSheet(QString("color : white; background-color : black;"));
+        //m_view_sample_tab->setStyleSheet(QString("color : white; background-color : black;"));
         m_main_tab->addTab(m_view_sample_tab, QString());                
         m_main_tab->setTabText(m_main_tab->indexOf(m_view_sample_tab), QApplication::translate("Frame", "View", 0, QApplication::UnicodeUTF8));
                 
@@ -1091,6 +1093,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
         
         m_noise_type = new LMS_combobox(QString("Type"), this, QStringList() << QString("Off") << QString("White") << QString("Pink"), LMS_NOISE_TYPE, a_style);
+        m_noise_type->lms_combobox->setMinimumWidth(87);
         m_groupbox_noise->lms_add_h(m_noise_type);
         connect(m_noise_type->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(noise_typeChanged(int)));
         
@@ -1478,7 +1481,7 @@ void SamplerGUI::setSampleFile(QString files)
         m_sample_graph->generatePreview(f_file_list[f_i], f_i);
     }
 
-    m_sample_table->lms_mod_matrix->resizeColumnsToContents();
+    m_sample_table->lms_mod_matrix->resizeColumnsToContents();        
     
     selectionChanged();
     

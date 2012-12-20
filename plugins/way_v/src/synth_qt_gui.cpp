@@ -14,7 +14,7 @@ GNU General Public License for more details.
 */
 
 #include "synth_qt_gui.h"
-
+#include "../../libmodsynth/widgets/default_style.h"
 #include <QApplication>
 #include <QPushButton>
 #include <QTimer>
@@ -69,9 +69,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_ready(false)
 {    
     m_host = lo_address_new(host, port);
-        
-    /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
-    this->setStyleSheet("QMessageBox{color:white;background-color:black;}  QDial{background-color:rgb(152, 152, 152);} QTabBar::tab:selected { color:black;background-color:#BBBBBB;} QTableView QTableCornerButton::section {background: black; border: 2px outset white;} QComboBox{color:white; background-color:black;} QTabBar::tab {background-color:black;  border: 2px solid white;  border-bottom-color: #333333; border-top-left-radius: 4px;  border-top-right-radius: 4px;  min-width: 8ex;  padding: 2px; color:white;} QHeaderView::section {background: black; color: white;border:2px solid white;} QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 60px; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QLabel{color:black;background-color:white;border:solid 2px white;border-radius:2px;} QFrame{background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0.273, stop:0 rgba(90, 90, 90, 255), stop:1 rgba(60, 60, 60, 255))} QGroupBox {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #111111, stop: 1 #222222); border: 2px solid white;  border-radius: 10px;  margin-top: 1ex;} QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px; color:black; background-color: white; border solid 2px white; border-radius:3px;}");
+
+    this->setStyleSheet(PYDAW_DEFAULT_QSS_STYLE);
     
     QStringList f_osc_types = QStringList() 
             << "Off"
@@ -89,9 +88,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     QString f_default_presets = QString("empty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\n");
         
     LMS_style_info * f_info = new LMS_style_info(51);
-    f_info->LMS_set_label_style("QLabel{background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
-    f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
-        
+            
     m_tab_widget = new QTabWidget(this);
     
     m_window_layout = new QVBoxLayout();
@@ -221,7 +218,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
 
     m_noise_type = new LMS_combobox(QString("Type"), this, QStringList() << QString("Off") << QString("White") << QString("Pink"), LMS_NOISE_TYPE, f_info);
-    m_noise_type->lms_combobox->setMinimumWidth(64);
+    m_noise_type->lms_combobox->setMinimumWidth(87);
     m_groupbox_noise->lms_add_h(m_noise_type);
     connect(m_noise_type->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(noise_typeChanged(int)));
 
