@@ -38,7 +38,7 @@ check_deps();
 
 #Create a clean folder for the plugins to go in
 `rm -Rf pydaw-build/debian/usr/bin pydaw-build/debian/usr/lib`;
-system("make && make DESTDIR=\$(pwd)/pydaw-build/debian");
+system("make clean && make && make DESTDIR=\$(pwd)/pydaw-build/debian install");
 
 if(-e "$short_name-version.txt")
 {
@@ -55,26 +55,23 @@ else
 	$version .= "-1";
 }
 
-if($prompt)
-{
-	print 
+
+print 
 "Please enter the version number of this release.  
 The format should be something like:  1.1.3-1 or 12.04-1
 Hit enter to accept the auto-generated default version number:  $version
 [version number]:";
-	$version_answer = <STDIN>;
-	chomp($version_answer);
+$version_answer = <STDIN>;
+chomp($version_answer);
 
-	if($version_answer ne ""){
-		$version = $version_answer;
-		open (MYFILE, ">$short_name-version.txt");
-		print MYFILE "$version";
-		close (MYFILE);
-	}	
-}
+if($version_answer ne ""){
+	$version = $version_answer;
+	open (MYFILE, ">$short_name-version.txt");
+	print MYFILE "$version";
+	close (MYFILE);
+}	
 
-
-$size = `du -s $package_dir/usr`;
+$size = `du -s pydaw-build/debian/usr`;
 $size = (split(" ", $size))[0];
 chomp($size);
 
@@ -94,16 +91,17 @@ Description: PyDAW is a digital audio workstation with robust MIDI capabilities 
  It comes with a flexible modular sampler, a modular wavetable synthesizer, and a retro analog style synthesizer called Ray-V, as well as numerous built-in effects.
 ";
 
-open (MYFILE, ">>pydaw-build/debian/DEBIAN/control");
+open (MYFILE, ">pydaw-build/debian/DEBIAN/control");
 print MYFILE "$debian_control";
 close (MYFILE); 
 
-`chmod 555 "pydaw-build/debian/DEBIAN/postinst"`;
+`chmod 755 pydaw-build/debian/DEBIAN/control`;
+`chmod 755 "pydaw-build/debian/DEBIAN/postinst"`;
 
 #Create the DEBIAN/md5sums file
 `cd pydaw-build/debian; find . -type f ! -regex '.*\.hg.*' ! -regex '.*?debian-binary.*' ! -regex '.*?DEBIAN.*' -printf '%P ' | xargs md5sum > DEBIAN/md5sums`;
 
-system("chmod -R 755 pydaw-build/debian/usr ; chmod 644 pydaw-build/debian/DEBIAN/md5sums ; chmod 644 $debian_dir/conffiles");
+system("chmod -R 755 pydaw-build/debian/usr ; chmod 644 pydaw-build/debian/DEBIAN/md5sums");
 
 $build_suffix = "";
 
@@ -116,38 +114,34 @@ if(-e "build-suffix.txt")
 }
 else
 {
-	if($prompt)
-	{
-		print "\nYou may enter an optional build suffix.  Usually this will be the operating system you are compiling for on this machine, for example: ubuntu12.10 \n\n";
-		print "\nPlease enter a build suffix, or hit 'enter' to leave blank:\n";
-		$build_suffix = <STDIN>;
-		chomp($build_suffix);
-		if($build_suffix ne "")
-		{
-			$build_suffix = "-" . $build_suffix;
-		}
 
-		open (MYFILE, ">>build-suffix.txt");
-		print MYFILE "$build_suffix";
-		close (MYFILE); 
+	print "\nYou may enter an optional build suffix.  Usually this will be the operating system you are compiling for on this machine, for example: ubuntu12.10 \n\n";
+	print "\nPlease enter a build suffix, or hit 'enter' to leave blank:\n";
+	$build_suffix = <STDIN>;
+	chomp($build_suffix);
+	if($build_suffix ne "")
+	{
+		$build_suffix = "-" . $build_suffix;
 	}
+
+	open (MYFILE, ">>build-suffix.txt");
+	print MYFILE "$build_suffix";
+	close (MYFILE); 
+
 }
 
 $package_name = "pydaw-$version-$arch$build_suffix.deb";
 
 `cd pydaw-build ; fakeroot dpkg-deb --build debian ; rm $package_name ; mv debian.deb $package_name`;
 
-if($prompt)
-{
-	print "\n\nComplete.  Your package is now located at:\n $base_dir/$package_name\n\nInstall now?  y/[n]: ";
-	$install_answer = <STDIN>;
-	chomp($install_answer);
 
-	if($install_answer eq "y"){
-		system("sudo dpkg -i $base_dir/$package_name");
-	}	
+print "\n\nComplete.  Your package is now located at:\n pydaw-build/$package_name\n\nInstall now?  y/[n]: ";
+$install_answer = <STDIN>;
+chomp($install_answer);
+
+if($install_answer eq "y"){
+	system("sudo dpkg -i pydaw-build/$package_name");
 }
-
 
 #This is because debian packages will only accept dashes in package names
 sub replace_underscore_with_dash
