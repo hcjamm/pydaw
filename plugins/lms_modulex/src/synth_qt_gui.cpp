@@ -15,6 +15,7 @@ GNU General Public License for more details.
 
 
 #include "synth_qt_gui.h"
+#include "../../libmodsynth/widgets/default_style.h"
 
 #include <QApplication>
 #include <QTextStream>
@@ -71,7 +72,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
 {
     m_host = lo_address_new(host, port);
     
-    this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{background-color:black; color:white; border:solid 1px white;} QComboBox:editable{background-color:black; color:white;} QComboBox::drop-down{color:white;background-color:black;padding:2px;border-radius:2px; width:100px;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
+    this->setStyleSheet(PYDAW_DEFAULT_QSS_STYLE);
 
     m_main_vboxlayout = new QVBoxLayout();
     this->setLayout(m_main_vboxlayout);
@@ -86,8 +87,8 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     m_delay_layout = new LMS_main_layout(m_delay_tab);
     
     LMS_style_info * f_info = new LMS_style_info(51);
-    f_info->LMS_set_label_style("QLabel{background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
-    f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
+    //f_info->LMS_set_label_style("QLabel{background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
+    //f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
     
     m_fx0 = new LMS_multieffect(this, QString("FX1"), f_info, MODULEX_FX0_KNOB0, MODULEX_FX0_KNOB1, MODULEX_FX0_KNOB2, MODULEX_FX0_COMBOBOX);
     connect(m_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob0Changed(int)));
@@ -206,8 +207,10 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     
     QStringList f_beat_fracs = QStringList() << QString("1/4") << QString("1/3") << QString("1/2") << QString("2/3") << QString("3/4") << QString("1");
     
-    m_beat_frac = new QComboBox(this); // get_combobox(f_beat_fracs, f_beat_fracs_count , this);
+    m_beat_frac = new QComboBox(this);
+    m_beat_frac->setMinimumWidth(75);
     m_beat_frac->addItems(f_beat_fracs);
+    m_beat_frac->setCurrentIndex(2);
         
     m_sync_bpm = new QPushButton(this);
     m_sync_bpm->setText("Sync");
@@ -217,12 +220,12 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     QLabel * f_bpm_label = new QLabel("BPM",  this);
     f_bpm_label->setMinimumWidth(60);
     f_bpm_label->setAlignment(Qt::AlignCenter);
-    f_bpm_label->setStyleSheet("color: black; background-color: white; border: 1px solid black;  border-radius: 6px;");
+    //f_bpm_label->setStyleSheet("color: black; background-color: white; border: 1px solid black;  border-radius: 6px;");
     
     QLabel * f_beat_label = new QLabel("Beats",  this);
     f_beat_label->setMinimumWidth(60);
     f_beat_label->setAlignment(Qt::AlignCenter);
-    f_beat_label->setStyleSheet("color: black; background-color: white; border: 1px solid black;  border-radius: 6px;");
+    //f_beat_label->setStyleSheet("color: black; background-color: white; border: 1px solid black;  border-radius: 6px;");
     
     f_gb_bpm_layout->addWidget(f_bpm_label, 0, 0, Qt::AlignCenter);
     f_gb_bpm_layout->addWidget(m_bpm_spinbox, 1, 0, Qt::AlignCenter);

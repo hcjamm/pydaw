@@ -14,6 +14,7 @@ GNU General Public License for more details.
 */
 
 #include "synth_qt_gui.h"
+#include "../../libmodsynth/widgets/default_style.h"
 
 #include <QApplication>
 #include <QPushButton>
@@ -70,7 +71,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_host = lo_address_new(host, port);
     
     /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
-    this->setStyleSheet("QPushButton {background-color: black; border-style: outset; border-width: 2px; border-radius: 10px;border-color: white;font: bold 14px; min-width: 10em; padding: 6px; color:white;}  QAbstractItemView {outline: none;} QComboBox{background-color:black; color:white; border:solid 1px white;} QComboBox:editable {background-color:black; color:white;} QDial{background-color:rgb(152, 152, 152);} QFrame{background-color:rgb(0,0,0);} QGroupBox {color: white; border: 2px solid gray;  border-radius: 10px;  margin-top: 1ex; } QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top center; padding: 0 3px;} QMessageBox{color:white;background-color:black;}");
+    this->setStyleSheet(PYDAW_DEFAULT_QSS_STYLE);
     
     QStringList f_osc_types = QStringList() << "Saw" << "Square" << "Triangle" << "Sine" << "Off";
         
@@ -82,8 +83,8 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     QString f_default_presets = QString("empty\nclassic 5th pad\t68\t95\t-8\t153\t90\t-15\t15\t94\t100\t4\t166\t-19\t36\t1\t0\t0\t0\t0\t0\t7\t0\t0\t-14\t5\t42\t1\t18\t38\t0\t10\t0\t0\t0\t0\n303 acid lead\t41\t58\t-9\t47\t70\t0\t36\t37\t95\t1\t99\t-30\t36\t100\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t1\t10\t1\t18\t1\t0\t10\t0\t0\t0\t0\nhoover\t39\t53\t-9\t45\t124\t-16\t15\t12\t29\t1\t99\t-12\t0\t1\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t4\t42\t1\t18\t73\t-26\t10\t0\t0\t0\t0\nbendy saw\t10\t49\t-3\t16\t124\t-16\t15\t100\t100\t1\t162\t-60\t0\t1\t0\t0\t0\t0\t4\t0\t0\t0\t-16\t1\t42\t54\t36\t1\t0\t10\t0\t0\t0\t0\nsupersaw lead\t10\t49\t-3\t61\t124\t-15\t36\t10\t33\t1\t162\t-12\t0\t1\t0\t0\t0\t-6\t4\t0\t0\t0\t-16\t5\t41\t1\t17\t1\t0\t10\t0\t0\t0\t0\n3rd Plucks\t10\t49\t-20\t124\t90\t-9\t36\t10\t29\t1\t73\t-12\t36\t1\t0\t0\t0\t-6\t0\t5\t0\t0\t-16\t5\t50\t1\t17\t1\t0\t10\t0\t0\t0\t0\nsquare lead\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-12\t36\t1\t1\t0\t0\t-6\t4\t0\t0\t0\t-16\t4\t50\t1\t17\t1\t0\t0\t0\t0\t0\t0\ntriangle kick drum\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-37\t36\t1\t2\t0\t0\t-6\t4\t0\t0\t0\t-5\t4\t50\t1\t17\t8\t-24\t0\t0\t0\t0\t0\nnoise snare\t10\t51\t-30\t14\t99\t-6\t36\t21\t38\t1\t73\t-3\t36\t100\t4\t0\t0\t-6\t4\t0\t0\t0\t-18\t4\t50\t1\t17\t17\t-24\t10\t0\t0\t0\t0\nelectro open hihat\t39\t49\t-30\t14\t95\t-3\t36\t36\t43\t1\t73\t-3\t36\t100\t4\t0\t0\t-6\t4\t0\t0\t0\t-18\t4\t50\t1\t17\t17\t-24\t10\t0\t0\t0\t0\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\n");
         
     LMS_style_info * f_info = new LMS_style_info(64);
-    f_info->LMS_set_label_style("QLabel{background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
-    f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
+    //f_info->LMS_set_label_style("QLabel{color: black; background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
+    //f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
         
     m_main_layout = new LMS_main_layout(this);
     

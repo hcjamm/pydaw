@@ -40,7 +40,7 @@ class LMS_note_selector : public LMS_control
             
             lms_note = new QComboBox(lms_widget);
             lms_note->addItems(f_notes_list);
-            lms_note->setMinimumWidth(56);
+            lms_note->setMinimumWidth(75);
                         
             lms_layout->addWidget(lms_note, -1);
             lms_layout->addWidget(lms_octave, -1);

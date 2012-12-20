@@ -31,7 +31,7 @@ public:
         lms_vol_knob = new LMS_knob_regular(QString("Vol"), -60, 0, 1, 0, QString("0"), lms_groupbox->lms_groupbox, a_style, lms_kc_integer, a_vol_port);
         lms_groupbox->lms_add_h(lms_vol_knob);
         lms_osc_type_box = new LMS_combobox(QString("Type"), lms_groupbox->lms_groupbox, a_osc_types, a_type_port, a_style);        
-        lms_osc_type_box->lms_combobox->setMinimumWidth(96);
+        lms_osc_type_box->lms_combobox->setMinimumWidth(114);
         lms_groupbox->lms_add_h(lms_osc_type_box);
     }
     
