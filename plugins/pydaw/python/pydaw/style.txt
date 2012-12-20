@@ -594,6 +594,12 @@ border: 1px solid #444;
 }
 QCheckBox::indicator:checked
 {
-background-color:white;
+background-color: qradialgradient(
+cx: 0.5, cy: 0.5,
+fx: 0.5, fy: 0.5,
+radius: 1.0,
+stop: 0.25 #ffaa00,
+stop: 0.3 #323232
+);
 }
 
