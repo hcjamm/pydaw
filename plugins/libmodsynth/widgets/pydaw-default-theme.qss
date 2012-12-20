@@ -7,7 +7,7 @@ border-radius: 3px;
 opacity: 100;
 }
 
-QWidget
+QWidget, QTableCornerButton::section
 {
 color: #b1b1b1;
 background-color: #323232;
@@ -178,8 +178,9 @@ border-bottom-right-radius: 3px;
 
 QSpinBox, QDoubleSpinBox
 {
-color: black;
-background-color: white;
+background-color: darkgray;
+color: white;
+border: 1px solid white;
 }
 
 QGroupBox:focus
