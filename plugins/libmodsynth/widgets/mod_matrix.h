@@ -106,6 +106,7 @@ public:
                         LMS_combobox * f_cb = new LMS_combobox(a_parent, lms_mm_columns[f_i]->lms_combobox_items, f_port, a_style);
                         lms_mm_columns[f_i]->controls.append(f_cb);
                         lms_mod_matrix->setCellWidget(f_i2, f_i, f_cb->lms_get_widget());
+                        f_cb->lms_combobox->setMinimumWidth(120);
                         f_port++;
                     }
                         break;

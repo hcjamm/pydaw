@@ -125,6 +125,9 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     f_sample_table_columns << new LMS_mod_matrix_column(f_interpolation_modes, QString("Mode")); //Interpolation Mode
     
     m_sample_table = new LMS_mod_matrix(this, EUPHORIA_MAX_SAMPLE_COUNT, f_sample_table_columns, LMS_FIRST_SAMPLE_TABLE_PORT, a_style);
+    m_sample_table->lms_mod_matrix->verticalHeader()->setResizeMode(QHeaderView::Fixed);
+    m_sample_table->lms_mod_matrix->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
+    
     
     m_file_selector = new LMS_file_select(this);
         /*Set all of the array variables that are per-sample*/
