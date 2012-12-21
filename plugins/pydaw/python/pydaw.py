@@ -1627,8 +1627,9 @@ class seq_track:
         if a_instrument:
             self.instrument_combobox = QtGui.QComboBox()
             self.instrument_combobox.addItems(["None", "Euphoria", "Ray-V", "Way-V"])
-            self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)
-            self.instrument_combobox.setMinimumWidth(100)
+            self.instrument_combobox.currentIndexChanged.connect(self.on_instrument_change)            
+            self.instrument_combobox.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            self.instrument_combobox.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
             self.hlayout3.addWidget(self.instrument_combobox)        
             self.ui_button = QtGui.QPushButton("UI")
             self.ui_button.pressed.connect(self.on_show_ui)
