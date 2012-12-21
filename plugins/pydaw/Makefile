@@ -27,6 +27,11 @@ pydaw.so: $(C_OBJS)
 
 # --------------------------------------------------------------
 
+strip:
+	strip pydaw.so
+
+# --------------------------------------------------------------
+
 install:
 	rm -rf python/*.pyc python/libpydaw/*.pyc python/*~ python/libpydaw/*~
 	install -d $(DESTDIR)$(PREFIX)/bin

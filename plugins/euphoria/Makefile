@@ -38,6 +38,12 @@ src/moc_synth_qt_gui.cpp: src/synth_qt_gui.h
 
 # --------------------------------------------------------------
 
+strip:
+	strip LMS_EUPHORIA_qt
+	strip euphoria.so
+
+# --------------------------------------------------------------
+
 install:
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi/euphoria

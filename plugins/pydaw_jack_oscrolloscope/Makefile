@@ -18,6 +18,9 @@ $(BIN): $(OBJS)
 clean:
 		rm -f $(BIN) $(OBJS) .dep
 
+strip:
+	strip $(BIN)
+
 install:
 	install -m 755 $(BIN) $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
 

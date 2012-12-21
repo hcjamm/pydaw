@@ -39,6 +39,12 @@ src/moc_synth_qt_gui.cpp: src/synth_qt_gui.h
 
 # --------------------------------------------------------------
 
+strip:
+	strip lms_modulex.so
+	strip LMS_MODULEX_qt
+
+# --------------------------------------------------------------
+
 install:
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi/lms_modulex
