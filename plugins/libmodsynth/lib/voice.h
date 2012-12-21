@@ -85,8 +85,7 @@ t_voc_voices * g_voc_get_voices(int a_count)
 /* int i_pick_voice(
  * t_voc_voices *data, 
  * int a_current_note)
- * 
- * You must check whether the function returns -1(duplicate note), if so, do not attempt to fire off a voice. 
+ *  
  */
 int i_pick_voice(t_voc_voices *data, int a_current_note, long a_current_sample, long a_tick)
 {   
@@ -95,10 +94,11 @@ int i_pick_voice(t_voc_voices *data, int a_current_note, long a_current_sample, 
     while ((data->iterator) < (data->count)) 
     {
 	//if ((data->voices[(data->iterator)].note == a_current_note) && (data->voices[(data->iterator)].n_state == note_state_running)) 
-        if ((data->voices[(data->iterator)].note == a_current_note) && (data->voices[(data->iterator)].n_state != note_state_off)) 
+        if ((data->voices[(data->iterator)].note == a_current_note) && 
+                ((data->voices[(data->iterator)].n_state == note_state_releasing) || 
+                (data->voices[(data->iterator)].n_state == note_state_running)))
         {
-                /*Kill the note if already being used, this is to prevent hung
-                 notes in hosts that might not handle MIDI events properly*/
+                /*Kill the voice with this same note if already being used*/
                 data->voices[(data->iterator)].n_state = note_state_killed;
                 data->voices[(data->iterator)].off = a_current_sample;
 	}
