@@ -34,7 +34,7 @@ install:
 	make -C lms_modulex PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	make -C way_v PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	make -C pydaw_jack_oscrolloscope PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
-	cp -r usr $(DESTDIR)
+	cp -r usr/ $(DESTDIR)$(PREFIX)
 
 clean:
 	make -C pydaw clean
