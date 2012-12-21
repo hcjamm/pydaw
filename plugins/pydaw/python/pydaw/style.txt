@@ -79,55 +79,12 @@ QSlider::handle:horizontal:disabled
 	border-radius: 4px;
 }
 
-QGroupBox#seqtrack::title 
-{
-	margin: 0px;
-	height: 0px;
-	padding: 0 0px;
-	color:black;
-	border solid 1px white;
-}
-
-QGroupBox#seqtrack
-{
-	background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #111111, stop: 1 #222222);
-	border: 1px solid white;
-	border-radius: 10px;
-}
-
-QRadioButton#seqtrack::indicator 
-{
-	width: 24px;
-	height: 24px;
-}
-
-QCheckBox#seqtrack::indicator
-{
-	width: 24px;
-	height: 24px;
-}
-
 QFrame
 {
 	background-color:qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0.273, stop:0 rgba(90, 90, 90, 255), stop:1 rgba(60, 60, 60, 255))
 }
 
-QLineEdit#seqtrack
-{
-	padding:2px;
-}
-
-QLabel#seqtrack
-{
-	background-color:transparent;
-	color:white;
-}
-
-
-
 /*merged from regular theme*/
-
-
 
 QToolTip
 {
@@ -233,7 +190,7 @@ QWidget:focus
 /*border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);*/
 }
 
-QLineEdit
+QLineEdit, QLineEdit:disabled
 {
 color:white;
 background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #4d4d4d, stop: 0 #646464, stop: 1 #5d5d5d);
