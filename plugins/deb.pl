@@ -37,7 +37,8 @@ require 'build-lib.pl';
 check_deps();
 
 #Create a clean folder for the plugins to go in
-`rm -Rf pydaw-build/debian/usr/bin pydaw-build/debian/usr/lib`;
+`rm -Rf pydaw-build/debian/usr`;
+`mkdir pydaw-build/debian/usr`;
 system("make clean && make && make DESTDIR=\$(pwd)/pydaw-build/debian install");
 
 if(-e "$short_name-version.txt")
