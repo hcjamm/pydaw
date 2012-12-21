@@ -281,7 +281,6 @@ QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
  background: white;
 }
 
-
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
 {
  background: none;
@@ -351,6 +350,7 @@ padding-left: 4px;
 border: 1px solid #6c6c6c;
 spacing: 3px; /* spacing between items in the tool bar */
 }
+
 QToolBar::handle
 {
 spacing: 3px; /* spacing between items in the tool bar */
@@ -372,6 +372,7 @@ border: 2px solid grey;
 border-radius: 5px;
 text-align: center;
 }
+
 QProgressBar::chunk
 {
 background-color: #d7801a;
@@ -390,16 +391,19 @@ padding-top: 3px;
 padding-bottom: 2px;
 margin-right: -1px;
 }
+
 QTabWidget::pane 
 {
 border: 1px solid #444;
 top: 1px;
 }
+
 QTabBar::tab:last
 {
 margin-right: 0; /* the last selected tab has nothing to overlap with on the right */
 border-top-right-radius: 3px;
 }
+
 QTabBar::tab:first:!selected
 {
 margin-left: 0px; /* the last selected tab has nothing to overlap with on the right */
@@ -413,12 +417,14 @@ border-bottom-style: solid;
 margin-top: 3px;
 background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:1 #212121, stop:.4 #343434);
 }
+
 QTabBar::tab:selected
 {
 border-top-left-radius: 3px;
 border-top-right-radius: 3px;
 margin-bottom: 0px;
 }
+
 QTabBar::tab:!selected:hover
 {
 /*border-top: 2px solid #ffaa00;
@@ -427,12 +433,14 @@ border-top-left-radius: 3px;
 border-top-right-radius: 3px;
 background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:1 #212121, stop:0.4 #343434, stop:0.2 #343434, stop:0.1 #ffaa00);
 }
+
 QRadioButton::indicator:checked, QRadioButton::indicator:unchecked{
 color: #b1b1b1;
 background-color: #323232;
 border: 1px solid #b1b1b1;
 border-radius: 6px;
 }
+
 QRadioButton::indicator:checked
 {
 background-color: qradialgradient(
@@ -451,16 +459,20 @@ border: 1px solid #b1b1b1;
 width: 9px;
 height: 9px;
 }
+
 QRadioButton::indicator
 {
+margin-left: 6px;
 width: 15px;
 height: 15px;
 border-radius: 6px;
 }
+
 QRadioButton::indicator:hover, QCheckBox::indicator:hover
 {
 border: 1px solid #ffaa00;
 }
+
 QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
 {
 border: 1px solid #444;
