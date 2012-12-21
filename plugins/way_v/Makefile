@@ -39,6 +39,12 @@ src/moc_synth_qt_gui.cpp: src/synth_qt_gui.h
 
 # --------------------------------------------------------------
 
+strip:
+	strip way_v.so
+	strip WAY_V_qt
+
+# --------------------------------------------------------------
+
 install:
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi/way_v

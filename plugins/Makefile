@@ -26,6 +26,16 @@ debug:
 
 # --------------------------------------------------------------
 
+strip:
+	make -C pydaw strip
+	make -C lms-jack-dssi-host strip
+	make -C euphoria strip
+	make -C ray_v strip
+	make -C lms_modulex strip
+	make -C way_v strip
+	make -C pydaw_jack_oscrolloscope strip
+
+# --------------------------------------------------------------
 install:
 	make -C pydaw PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	make -C lms-jack-dssi-host PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install

@@ -38,6 +38,12 @@ src/moc_synth_qt_gui.cpp: src/synth_qt_gui.h
 
 # --------------------------------------------------------------
 
+strip:
+	strip ray_v.so
+	strip LMS_RAYV_qt
+
+# --------------------------------------------------------------
+
 install:
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi/ray_v

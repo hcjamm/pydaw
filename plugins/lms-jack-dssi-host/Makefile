@@ -30,6 +30,11 @@ lms-jack-dssi-host: $(C_OBJS)
 
 # --------------------------------------------------------------
 
+strip:
+	strip lms-jack-dssi-host
+
+# --------------------------------------------------------------
+
 install:
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 755 lms-jack-dssi-host $(DESTDIR)$(PREFIX)/bin
