@@ -97,7 +97,8 @@ opacity: 100;
 
 QWidget
 {
-color: #b1b1b1;
+/*color: #b1b1b1;*/
+color: white;
 background-color: #323232;
 }
 
@@ -176,7 +177,8 @@ color: #000000;
 
 QWidget:disabled
 {
-color: #404040;
+/*color: #404040;*/
+color: white;
 background-color: #323232;
 }
 
