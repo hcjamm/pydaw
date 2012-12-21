@@ -20,8 +20,7 @@ lms-jack-dssi-host
 plugins/*/*.so
 plugins/*/src/moc_synth_qt_gui.cpp
 bin
-plugins/pydaw-build/debian/usr/bin
-plugins/pydaw-build/debian/usr/lib
+plugins/pydaw-build/debian/usr
 plugins/maintainer.txt
 *nbproject*
 *.o
