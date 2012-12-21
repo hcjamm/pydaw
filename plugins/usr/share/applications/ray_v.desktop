@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=ray_v
+Name=PyDAW Ray-V
 Comment=PyDAW is a digital audio workstation with robust MIDI capabilities and a full suite of instrument and effects plugins
 Exec=lms-jack-dssi-host "ray_v.so"
 Icon=ray_v.png
