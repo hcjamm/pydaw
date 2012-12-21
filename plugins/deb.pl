@@ -84,12 +84,12 @@ Installed-Size: $size
 Maintainer: Jeff Hubbard <jhubbard651\@users.sf.net>
 Architecture: amd64
 Version: $version
-Depends: liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsm-dev, qjackctl, alsa-utils, python-liblo, python-qt4, git, libsdl1.2-dev, ffado-mixer-qt4, ffado-tools, ffado-dbus-server, audacity
+Depends: liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsm-dev, qjackctl, alsa-utils, python-liblo, python-qt4, git, libsdl1.2-dev, ffado-mixer-qt4, ffado-tools, ffado-dbus-server, audacity, python
 Provides: pydaw
 Conflicts: 
 Replaces: 
-Description: PyDAW is a digital audio workstation with robust MIDI capabilities and a full suite of instrument and effects plugins.
- It comes with a flexible modular sampler, a modular wavetable synthesizer, and a retro analog style synthesizer called Ray-V, as well as numerous built-in effects.
+Description: A digital audio workstation with robust MIDI capabilities and a full suite of instrument and effects plugins.
+ PyDAW comes with a modular sampler, a modular wavetable synthesizer, and an analog style synthesizer, as well as numerous built-in effects.
 ";
 
 open (MYFILE, ">pydaw-build/debian/DEBIAN/control");

@@ -28,6 +28,7 @@ pydaw.so: $(C_OBJS)
 # --------------------------------------------------------------
 
 install:
+	rm -rf python/*.pyc python/libpydaw/*.pyc python/*~ python/libpydaw/*~
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi
 	install -d $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
