@@ -9,7 +9,8 @@ opacity: 100;
 
 QWidget, QTableCornerButton::section
 {
-color: #b1b1b1;
+/*color: #b1b1b1;*/
+color: white;
 background-color: #323232;
 }
 
@@ -140,6 +141,11 @@ border-style: solid;
 border: 1px solid #1e1e1e;
 border-radius: 5;
 */
+}
+
+QComboBox:!editable,  QComboBox:!editable:on, QComboBox::drop-down:editable:on, QComboBox:editable
+{
+color: white;
 }
 
 QComboBox:hover,QPushButton:hover
