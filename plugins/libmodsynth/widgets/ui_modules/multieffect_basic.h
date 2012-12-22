@@ -50,9 +50,9 @@ public:
         switch(lms_combobox->lms_get_value())
         {
             case 0: //Off
-                lms_knob1->lms_label->setText(QString("Off"));
-                lms_knob2->lms_label->setText(QString("Off"));
-                lms_knob3->lms_label->setText(QString("Off"));
+                lms_knob1->lms_label->setText(QString(""));
+                lms_knob2->lms_label->setText(QString(""));
+                lms_knob3->lms_label->setText(QString(""));
                 lms_knob1->lms_conv_type = lms_kc_none;
                 lms_knob2->lms_conv_type = lms_kc_none;
                 lms_knob3->lms_conv_type = lms_kc_none;
