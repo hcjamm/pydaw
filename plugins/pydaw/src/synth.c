@@ -254,18 +254,7 @@ static void runLMSWrapper(LADSPA_Handle instance, unsigned long sample_count)
 static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
-    
-    plugin_data->i_buffer_clear = 0;    
-    /*Clear the output buffer*/
-    while((plugin_data->i_buffer_clear) < sample_count)  //TODO:  Consider memset'ing???
-    {
-        //output0[(plugin_data->i_buffer_clear)] = 0.0f;
-        //output1[(plugin_data->i_buffer_clear)] = 0.0f;
-        plugin_data->output0[(plugin_data->i_buffer_clear)] = 0.0f;
-        plugin_data->output1[(plugin_data->i_buffer_clear)] = 0.0f;
-        plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
-    }
-        
+               
     int f_lock_result = pthread_mutex_trylock(&pydaw_data->offline_mutex);
     
     if(f_lock_result == 0)  //Don't try to process the main loop if another process, ie:  offline rendering of a project, has locked it
@@ -282,7 +271,15 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
     }
     else
     {
-        //printf("offline_mutex unavailable, not running main loop...\n");
+        /*Clear the output buffer*/
+        plugin_data->i_buffer_clear = 0;    
+        
+        while((plugin_data->i_buffer_clear) < sample_count)
+        {
+            plugin_data->output0[(plugin_data->i_buffer_clear)] = 0.0f;
+            plugin_data->output1[(plugin_data->i_buffer_clear)] = 0.0f;
+            plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
+        }
     }
 }
 
