@@ -628,7 +628,7 @@ class region_list_editor:
         f_base_column = f_selected_cells[0].column() - 1
         for f_item in self.clipboard:
             f_column = f_item[1] + f_base_column
-            if f_column >= 8 or f_column < 0:
+            if f_column >= self.region.region_length_bars or f_column < 0:
                 continue                
             f_row = f_item[0] + f_base_row
             if f_row >= self.track_total or f_row < 0:
