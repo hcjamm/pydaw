@@ -81,7 +81,7 @@ class song_editor:
             def on_current_index_changed(a_index):
                 f_copy_radiobutton.setChecked(True)
 
-            f_window = QtGui.QDialog()
+            f_window = QtGui.QDialog(this_main_window)
             f_window.setWindowTitle("Add region to song...")
             f_layout = QtGui.QGridLayout()
             f_window.setLayout(f_layout)
@@ -320,7 +320,7 @@ class region_list_editor:
         def on_name_changed():
             f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
 
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Add item reference to region...")
         f_layout = QtGui.QGridLayout()
         f_vlayout0 = QtGui.QVBoxLayout()
@@ -518,7 +518,7 @@ class region_list_editor:
             if f_end_bar.value() <= f_start_bar.value():
                 f_end_bar.setValue(f_start_bar.value() + 1)
 
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Draw multi-item CCs...")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -602,7 +602,7 @@ class region_list_editor:
         def on_name_changed():
             f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
 
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Copy and unlink item...")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -762,7 +762,7 @@ class item_list_editor:
         def transpose_cancel_handler():
             f_window.close()
             
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Transpose")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -815,7 +815,7 @@ class item_list_editor:
         def time_shift_cancel_handler():
             f_window.close()
             
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Time Shift")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -877,7 +877,7 @@ class item_list_editor:
         def length_shift_cancel_handler():
             f_window.close()
             
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Length Shift")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -947,7 +947,7 @@ class item_list_editor:
         def f_name_text_changed():
             f_name.setText(pydaw_remove_bad_chars(f_name.text()))
             
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Save item as template...")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -1334,7 +1334,7 @@ class item_list_editor:
             else:
                 f_cancel_button.setText("Cancel")
         
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Notes")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -1345,6 +1345,7 @@ class item_list_editor:
         f_layout.addWidget(f_quantize_combobox, 0, 1)
         f_note_layout = QtGui.QHBoxLayout()
         f_note = QtGui.QComboBox()
+        f_note.setMinimumWidth(66)
         f_note.addItems(int_to_note_array)
         f_note.setCurrentIndex(self.default_note_note)
         f_note_layout.addWidget(f_note)
@@ -1422,7 +1423,7 @@ class item_list_editor:
             else:
                 f_cancel_button.setText("Cancel")        
 
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("CCs")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -1505,7 +1506,7 @@ class item_list_editor:
             else:
                 f_cancel_button.setText("Cancel")
         
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Pitchbend")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -1924,7 +1925,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_time_label.setText(str(round(f_elapsed_time, 1)))
             
         f_start_time = time()
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Rendering to .wav, please wait")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -1987,7 +1988,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_end_reg = i
                 break
             
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Offline Render")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -2041,7 +2042,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()        
     
     def on_undo_history(self):
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Undo history")
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
@@ -2058,7 +2059,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.show_help_file("pydaw/about.txt")
             
     def show_help_file(self, a_file):
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle(a_file)
         f_window.setMinimumHeight(600)
         f_window.setMinimumWidth(600)
@@ -2239,7 +2240,7 @@ Any additional text must be enclosed in quotation marks."
 
         f_default_cc_num = int(self.cc_table.item(x, 0).text())            
         
-        f_window = QtGui.QDialog()
+        f_window = QtGui.QDialog(this_main_window)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_cc = QtGui.QSpinBox()
