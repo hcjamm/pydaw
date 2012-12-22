@@ -68,6 +68,8 @@ class song_editor:
                 self.song.add_region_ref(y, str(f_new_lineedit.text()))
                 this_region_editor.open_region(f_new_lineedit.text())
                 this_pydaw_project.save_song(self.song)
+                if not f_is_playing:
+                    this_transport.region_spinbox.setValue(y)
                 f_window.close()
 
             def song_cancel_handler():
