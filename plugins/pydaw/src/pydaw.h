@@ -1360,8 +1360,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
 
     while(f_i2 < sample_count)
     {
-        output0[f_i2] += (a_pydaw_data->track_pool[0]->effect->pluginOutputBuffers[0][f_i2]) * (a_pydaw_data->track_pool[0]->volume_linear);
-        output1[f_i2] += (a_pydaw_data->track_pool[0]->effect->pluginOutputBuffers[1][f_i2]) * (a_pydaw_data->track_pool[0]->volume_linear);
+        output0[f_i2] = (a_pydaw_data->track_pool[0]->effect->pluginOutputBuffers[0][f_i2]) * (a_pydaw_data->track_pool[0]->volume_linear);
+        output1[f_i2] = (a_pydaw_data->track_pool[0]->effect->pluginOutputBuffers[1][f_i2]) * (a_pydaw_data->track_pool[0]->volume_linear);
         f_i2++;
     }    
 }
