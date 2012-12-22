@@ -2974,14 +2974,29 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
 {
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
     a_pydaw_data->is_offline_rendering = 1;
-        
-    int f_region_count = a_end_region - a_start_region;
+    
     int f_bar_count = a_end_bar - a_start_bar;
     
-    int f_beat_total = ((f_region_count * 8) + f_bar_count) * 4;
+    int f_i = a_start_region;
+    int f_beat_total = 0;
+    
+    while(f_i < a_end_region)
+    {
+        if((a_pydaw_data->pysong->regions[f_i]) && (a_pydaw_data->pysong->regions[f_i]->region_length_bars))
+        {
+            f_beat_total += a_pydaw_data->pysong->regions[f_i]->region_length_bars * 4;
+        }
+        else
+        {
+            f_beat_total += (8 * 4);
+        }
+        f_i++;
+    }
+    
+    f_beat_total += f_bar_count * 4;
     
     double f_sample_count = a_pydaw_data->samples_per_beat * ((double)f_beat_total);
-    long f_sample_count_long = (((long)f_sample_count) * 2) + 100000;
+    long f_sample_count_long = (((long)f_sample_count) * 2) + 6000000;
     
     float * f_output = (float*)malloc(sizeof(float) * f_sample_count_long);
        
@@ -2999,7 +3014,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     
     while(((a_pydaw_data->current_region) < a_end_region) || ((a_pydaw_data->current_bar) < a_end_bar))
     {
-        int f_i = 0;
+        f_i = 0;
     
         while(f_i < f_block_size)
         {
@@ -3027,6 +3042,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     }
         
     v_pydaw_print_benchmark("v_pydaw_offline_render (to RAM)", f_start);
+    printf("f_size = %ld\nf_sample_count_long = %ld\n(f_sample_count_long - f_size) = %ld\n", 
+            f_size, f_sample_count_long, (f_sample_count_long - f_size));
     
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_OFF, a_start_region, a_start_bar);
     v_set_loop_mode(a_pydaw_data, f_old_loop_mode);
