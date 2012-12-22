@@ -9,9 +9,13 @@ QSpinBox, QDoubleSpinBox
 	background-color: black;
 	color: white;
 	border: 1px solid gray;
-	font-size: 28px;
+	font-size: 18px;
 }
 
+QSpinBox#large_spinbox, QDoubleSpinBox#large_spinbox
+{
+	font-size: 24px;
+}
 
 QSlider
 {
