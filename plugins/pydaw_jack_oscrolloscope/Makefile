@@ -22,7 +22,8 @@ strip:
 	strip $(BIN)
 
 install:
-	install -m 755 $(BIN) $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
+	install -d $(DESTDIR)$(PREFIX)/bin
+	install -m 755 $(BIN) $(DESTDIR)$(PREFIX)/bin
 
 dep:
 	rm -f .dep; \
