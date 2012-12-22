@@ -857,9 +857,8 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(m_selected_sample_index_combobox->sizePolicy().hasHeightForWidth());
         m_selected_sample_index_combobox->setSizePolicy(sizePolicy1);
-        m_selected_sample_index_combobox->setMinimumSize(QSize(160, 0));
-        m_selected_sample_index_combobox->setMaximumSize(QSize(160, 16777215));
-        
+        m_selected_sample_index_combobox->setMinimumSize(QSize(320, 0));
+                
         for(int f_i = 0; f_i < EUPHORIA_MAX_SAMPLE_COUNT; f_i++)
         {
             m_selected_sample_index_combobox->addItem(QString(""));
