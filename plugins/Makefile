@@ -22,7 +22,7 @@ debug:
 	make -C ray_v CFLAGS+=" -O0 -g -gdwarf-3 "
 	make -C lms_modulex CFLAGS+=" -O0 -g -gdwarf-3 "
 	make -C way_v CFLAGS+=" -O0 -g -gdwarf-3 "
-	make -C pydaw_jack_oscrolloscope CFLAGS+=" -O0 -g -gdwarf-3 "
+	make -C pydaw_jack_oscrolloscope
 
 # --------------------------------------------------------------
 
