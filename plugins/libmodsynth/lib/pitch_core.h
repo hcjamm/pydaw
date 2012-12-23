@@ -104,7 +104,7 @@ inline float f_pit_midi_note_to_samples(float a_midi_note_number, float a_sample
 
 /*Arrays*/
 
-#define arr_pit_p2f_count_limit 2500
+#define arr_pit_p2f_count_limit 2500.0f
 
 #define arr_pit_p2f_count 2521
 #define arr_pit_p2f_count_m1 2520
