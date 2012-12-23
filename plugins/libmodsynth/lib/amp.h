@@ -87,6 +87,7 @@ inline float f_linear_to_db(float a_linear,t_amp *__restrict a_amp)
 /*Arrays*/
 
 #define arr_amp_db2a_count 545
+#define arr_amp_db2a_count_m1_f 544.0f;
 
 float arr_amp_db2a [arr_amp_db2a_count] = {
 0.000010, 0.000010, 0.000011, 0.000011, 0.000011, 0.000012, 0.000012, 0.000012, 0.000013, 0.000013, 0.000013, 0.000014, 0.000014,
@@ -149,12 +150,12 @@ inline float f_db_to_linear_fast(float a_db, t_amp *__restrict a_amp)
             
     if((a_amp->result) >= arr_amp_db2a_count)
     {
-        a_amp->result = arr_amp_db2a_count - 1;
+        a_amp->result = arr_amp_db2a_count_m1_f;
     }
     
-    if(a_db < 0)
+    if((a_amp->result) < 0.0f)
     {
-        a_db = 0;
+        a_amp->result = 0.0f;
     }
     
     return f_linear_interpolate_arr(arr_amp_db2a, (a_amp->result), a_amp->linear);
