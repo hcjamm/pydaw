@@ -13,6 +13,7 @@
 
 #include <QApplication>
 #include <QTableWidget>
+#include <QHeaderView>
 #include <QStringList>
 #include <QList>
 #include <QRadioButton>
@@ -84,6 +85,8 @@ public:
         lms_mod_matrix->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         lms_mod_matrix->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
         lms_mod_matrix->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+        lms_mod_matrix->verticalHeader()->setResizeMode(QHeaderView::Fixed);
+        lms_mod_matrix->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
         
         QStringList f_headers;
         
