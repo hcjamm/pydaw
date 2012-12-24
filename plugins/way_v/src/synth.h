@@ -248,7 +248,7 @@ typedef struct {
     
     t_ccm_midi_cc_map * midi_cc_map;
     
-    t_rayv_poly_voice * data[WAYV_POLYPHONY];
+    t_wayv_poly_voice * data[WAYV_POLYPHONY];
     t_voc_voices * voices;
     
     long         sampleNo;

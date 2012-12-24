@@ -124,15 +124,15 @@ typedef struct st_rayv_poly_voice
     int osc1_on;
     int osc2_on;
     
-}t_rayv_poly_voice;
+}t_wayv_poly_voice;
 
-t_rayv_poly_voice * g_rayv_poly_init(float a_sr);
+t_wayv_poly_voice * g_rayv_poly_init(float a_sr);
 
 /*initialize all of the modules in an instance of poly_voice*/
 
-t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
+t_wayv_poly_voice * g_rayv_poly_init(float a_sr)
 {
-    t_rayv_poly_voice * f_voice = (t_rayv_poly_voice*)malloc(sizeof(t_rayv_poly_voice));
+    t_wayv_poly_voice * f_voice = (t_wayv_poly_voice*)malloc(sizeof(t_wayv_poly_voice));
     
     f_voice->osc_wavtable1 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
     f_voice->osc_wavtable2 = g_osc_get_osc_wav_unison(va_rayv_sample_rate);
@@ -221,9 +221,9 @@ t_rayv_poly_voice * g_rayv_poly_init(float a_sr)
 }
 
 
-void v_rayv_poly_note_off(t_rayv_poly_voice * a_voice, int a_fast);
+void v_wayv_poly_note_off(t_wayv_poly_voice * a_voice, int a_fast);
 
-void v_rayv_poly_note_off(t_rayv_poly_voice * a_voice, int a_fast)
+void v_wayv_poly_note_off(t_wayv_poly_voice * a_voice, int a_fast)
 {
     if(a_fast)
     {
