@@ -328,13 +328,21 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
 
             if (LADSPA_IS_PORT_INPUT(pod)) 
             {
-                f_result->pluginInputBuffers[in] = (float*)calloc(8192, sizeof(float));
+                if(posix_memalign((void**)(&f_result->pluginInputBuffers[in]), 16, (sizeof(float) * 8192)) != 0)
+                {
+                    return 0;
+                }
+
                 f_result->descriptor->LADSPA_Plugin->connect_port(f_result->ladspa_handle, j, f_result->pluginInputBuffers[in]);                                
                 in++;
             } 
             else if (LADSPA_IS_PORT_OUTPUT(pod)) 
             {
-                f_result->pluginOutputBuffers[out] = (float*)calloc(8192, sizeof(float));
+                if(posix_memalign((void**)(&f_result->pluginOutputBuffers[out]), 16, (sizeof(float) * 8192)) != 0)
+                {
+                    return 0;
+                }
+
                 f_result->descriptor->LADSPA_Plugin->connect_port(f_result->ladspa_handle, j, f_result->pluginOutputBuffers[out]);                
                 out++;
             }
