@@ -204,12 +204,6 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
     t_modulex *plugin_data = (t_modulex *) instance;
-    /*Define our inputs*/
-    LADSPA_Data *const input0 = plugin_data->input0;    
-    LADSPA_Data *const input1 = plugin_data->input1;
-    /*define our outputs*/
-    LADSPA_Data *const output0 = plugin_data->output0;    
-    LADSPA_Data *const output1 = plugin_data->output1;    
     
     plugin_data->mono_modules->fx_func_ptr0 = g_mf3_get_function_pointer((int)(*(plugin_data->fx0_combobox)));
     plugin_data->mono_modules->fx_func_ptr1 = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
@@ -256,8 +250,8 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
     /*Clear the output buffer*/
     while((plugin_data->i_buffer_clear) < sample_count)
     {
-        output0[(plugin_data->i_buffer_clear)] = 0.0f;                        
-        output1[(plugin_data->i_buffer_clear)] = 0.0f;     
+        plugin_data->output0[(plugin_data->i_buffer_clear)] = 0.0f;                        
+        plugin_data->output1[(plugin_data->i_buffer_clear)] = 0.0f;     
         plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
     }
 
@@ -265,8 +259,8 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
 
     while((plugin_data->i_mono_out) < sample_count)
     {
-        plugin_data->mono_modules->current_sample0 = input0[(plugin_data->i_mono_out)];
-        plugin_data->mono_modules->current_sample1 = input1[(plugin_data->i_mono_out)];
+        plugin_data->mono_modules->current_sample0 = plugin_data->input0[(plugin_data->i_mono_out)];
+        plugin_data->mono_modules->current_sample1 = plugin_data->input1[(plugin_data->i_mono_out)];
 
         plugin_data->mono_modules->fx_func_ptr0(plugin_data->mono_modules->multieffect0, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
 
@@ -316,8 +310,8 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
         
         if((*(plugin_data->wet)) < -29.0f)
         {
-            output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample0);
-            output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample1);
+            plugin_data->output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample0);
+            plugin_data->output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample1);
         }
         else
         {
@@ -342,8 +336,8 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
 
             v_ldl_run_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1));        
 
-            output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->delay->output0);
-            output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->delay->output1);
+            plugin_data->output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->delay->output0);
+            plugin_data->output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->delay->output1);
 
             plugin_data->mono_modules->delay->feedback0 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf0, (plugin_data->mono_modules->delay->feedback0));
             plugin_data->mono_modules->delay->feedback1 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf1, (plugin_data->mono_modules->delay->feedback1));
