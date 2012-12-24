@@ -130,15 +130,25 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
 t_lim_limiter * g_lim_get(float srate)
 {
     t_lim_limiter * f_result;
-    posix_memalign((void**)&f_result, 16, sizeof(t_lim_limiter));
+    if(posix_memalign((void**)&f_result, 16, sizeof(t_lim_limiter)) != 0)
+    {
+        return 0;
+    }
     
     f_result->holdtime = ((int)(srate/LMS_HOLD_TIME_DIVISOR));
     
     f_result->buffer_size = (f_result->holdtime); // (int)(srate*0.003f);
     f_result->buffer_index = 0;
     
-    posix_memalign((void**)&f_result->buffer0, 16, (sizeof(float) * (f_result->buffer_size)));
-    posix_memalign((void**)&f_result->buffer1, 16, (sizeof(float) * (f_result->buffer_size)));
+    if(posix_memalign((void**)&f_result->buffer0, 16, (sizeof(float) * (f_result->buffer_size))) != 0)
+    {
+        return 0;
+    }
+    
+    if(posix_memalign((void**)&f_result->buffer1, 16, (sizeof(float) * (f_result->buffer_size))) != 0)
+    {
+        return 0;
+    }
     
     f_result->amp_ptr = g_amp_get();
     
