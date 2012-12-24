@@ -250,11 +250,7 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t *events, unsigned long event_count)
 {
     t_rayv *plugin_data = (t_rayv *) instance;
-    
-    LADSPA_Data *const output0 = plugin_data->output0;    
-    LADSPA_Data *const output1 = plugin_data->output1;
-    //t_poly_voice *data = plugin_data->data;
-    
+        
     plugin_data->i_run_poly_voice = 0;
     
     for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count; plugin_data->event_pos = (plugin_data->event_pos) + 1)
@@ -366,8 +362,8 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 
     while((plugin_data->i_iterator) < sample_count)
     {
-        output0[(plugin_data->i_iterator)] = 0.0f;                        
-        output1[(plugin_data->i_iterator)] = 0.0f;     
+        plugin_data->output0[(plugin_data->i_iterator)] = 0.0f;                        
+        plugin_data->output1[(plugin_data->i_iterator)] = 0.0f;     
         plugin_data->i_iterator = (plugin_data->i_iterator) + 1;
     }    
 
@@ -383,8 +379,8 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
             v_run_rayv_voice(plugin_data,                    
                     plugin_data->voices->voices[(plugin_data->i_run_poly_voice)],
                     plugin_data->data[(plugin_data->i_run_poly_voice)],                    
-                    output0,
-                    output1,
+                    plugin_data->output0,
+                    plugin_data->output1,
                     sample_count
                     );
         }
