@@ -176,7 +176,8 @@ public:
                 lms_knob2->lms_label->setText(QString("Amp"));
                 lms_knob3->lms_label->setText(QString("unused"));
                 lms_knob1->lms_conv_type = lms_kc_none;
-                lms_knob2->lms_conv_type = lms_kc_none;                
+                lms_knob2->lms_conv_type = lms_kc_127_zero_to_x;
+                lms_knob2->lms_set_127_min_max(-30.0f, 6.0f);
                 lms_knob3->lms_conv_type = lms_kc_none;
                 lms_knob1->lms_value->setText(QString(""));
                 lms_knob2->lms_value->setText(QString(""));
