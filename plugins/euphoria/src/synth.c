@@ -368,6 +368,7 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->current_sample = 0;
     plugin_data->loaded_samples_count = 0;
     plugin_data->cubic_interpolator = g_cubic_get();
+    plugin_data->linear_interpolator = g_lin_get();
     plugin_data->amp = 1.0f;
     plugin_data->i_slow_index = 0;
     
@@ -378,7 +379,8 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
     plugin_data->sampleData[1][EUPHORIA_MAX_SAMPLE_COUNT] = NULL;
     lms_strcpy(plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT], ""); //This is the preview file path
     plugin_data->sample_files = (char*)malloc(sizeof(char) * 10000);
-    plugin_data->preview_sample_max_length = s_rate * 5;  //Sets the maximum time to preview a sample to 5 seconds, lest a user unwittlingly tries to preview a 2 hour long sample.
+    plugin_data->preview_sample_max_length = s_rate * 5.0f;  //Sets the maximum time to preview a sample to 5 seconds, lest a user unwittlingly tries to preview a 2 hour long sample.
+    plugin_data->preview_length = 0.0f;
     
     plugin_data->smp_pit_core = g_pit_get();
     plugin_data->smp_pit_ratio = g_pit_ratio();
@@ -1038,7 +1040,7 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
         }            
     }
 
-    if(((plugin_data->preview_sample_array_index) < (plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT])) &&
+    if(((plugin_data->preview_sample_array_index) < (plugin_data->preview_length)) &&
             ((plugin_data->preview_sample_array_index) <  (plugin_data->preview_sample_max_length)))
     {
         if((plugin_data->sampleNo) == 0)  //Workaround for the last previewed sample playing on project startup.  This will be removed when the preview functionality gets reworked
@@ -1054,19 +1056,23 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
                 plugin_data->output[1][i] += plugin_data->mono_fx_buffers[0][1][i];
 
                 //Add the previewing sample
-                plugin_data->output[0][i] += (plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+                plugin_data->output[0][i] += f_linear_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
+                            (plugin_data->preview_sample_array_index), plugin_data->linear_interpolator);
+                
                 if(plugin_data->sample_channels[(EUPHORIA_MAX_SAMPLE_COUNT)] > 1)
                 {
-                    plugin_data->output[1][i] += (plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+                    plugin_data->output[1][i] += f_linear_interpolate_ptr(plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)], 
+                            (plugin_data->preview_sample_array_index), plugin_data->linear_interpolator);
                 }
                 else
                 {
-                    plugin_data->output[1][i] += (plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)][(plugin_data->preview_sample_array_index)]);
+                    plugin_data->output[1][i] += f_linear_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
+                            (plugin_data->preview_sample_array_index), plugin_data->linear_interpolator);
                 }
                 
-                plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + 1;
+                plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + (plugin_data->sample_rate_ratios[EUPHORIA_MAX_SAMPLE_COUNT]);
 
-                if((plugin_data->preview_sample_array_index) >= (plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT]))
+                if((plugin_data->preview_sample_array_index) >= (plugin_data->preview_length))
                 {
                     lms_strcpy(plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT], "");
                     break;
@@ -1284,7 +1290,8 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     //Reset the array indexer so it will play from the beginning.
     if(a_index == EUPHORIA_MAX_SAMPLE_COUNT)
     {
-        plugin_data->preview_sample_array_index = 0;
+        plugin_data->preview_sample_array_index = 0.0f;
+        plugin_data->preview_length = (float)(plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT]);
     }
     
     pthread_mutex_unlock(&plugin_data->mutex);
