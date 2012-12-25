@@ -124,7 +124,7 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     }
 
     a_lim->output0 = (a_lim->buffer0[(a_lim->buffer_index)]) * (a_lim->gain) * (a_lim->autogain);
-    a_lim->output1 = (a_lim->buffer0[(a_lim->buffer_index)]) * (a_lim->gain) * (a_lim->autogain);
+    a_lim->output1 = (a_lim->buffer1[(a_lim->buffer_index)]) * (a_lim->gain) * (a_lim->autogain);
 }
 
 t_lim_limiter * g_lim_get(float srate)
