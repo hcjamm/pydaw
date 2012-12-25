@@ -130,8 +130,11 @@ typedef struct {
     float adjusted_base_pitch[EUPHORIA_MAX_SAMPLE_COUNT];
     
     //For sample preview:
-    int preview_sample_array_index;
-    int preview_sample_max_length;  //Used to set the maximum time to preview a sample to an arbitrary number of samples
+    float preview_sample_array_index;
+    float preview_sample_max_length;  //Used to set the maximum time to preview a sample to an arbitrary number of samples
+    float preview_length;
+    
+    t_lin_interpolater * linear_interpolator;
     
     /*TODO:  Deprecate these 2?*/
     int loaded_samples[EUPHORIA_MAX_SAMPLE_COUNT];
@@ -146,8 +149,7 @@ typedef struct {
     float fs;    //From Ray-V
     float ratio; //Used per-sample;  If voices are ever multithreaded, this will need to be widened...
     float sample_rate_ratios[EUPHORIA_MAX_SAMPLE_COUNT];
-    //long         ons[EUPHORIA_NOTES];
-    //long         offs[EUPHORIA_NOTES];
+    
     t_voc_voices * voices;
     int         velocities[EUPHORIA_POLYPHONY];    
     t_int_frac_read_head * sample_read_heads[EUPHORIA_POLYPHONY][EUPHORIA_MAX_SAMPLE_COUNT];
