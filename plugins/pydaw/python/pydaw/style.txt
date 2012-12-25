@@ -17,6 +17,16 @@ QSpinBox#large_spinbox, QDoubleSpinBox#large_spinbox
 	font-size: 24px;
 }
 
+QSpinBox::up-button, QDoubleSpinBox::up-button
+{
+border-image: url(pydaw/spinbox-up.png);
+}
+
+QSpinBox::down-button, QDoubleSpinBox::down-button
+{
+border-image: url(pydaw/spinbox-down.png);
+}
+
 QSlider
 {
 	background:transparent;
@@ -261,6 +271,11 @@ border-left-color: darkgray;
 border-left-style: solid; /* just a single line */
 border-top-right-radius: 3px; /* same radius as the QComboBox */
 border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow
+{
+image: url(pydaw/drop-down.png);
 }
 
 QGroupBox:focus
