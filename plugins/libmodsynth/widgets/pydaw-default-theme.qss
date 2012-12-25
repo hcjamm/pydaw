@@ -182,11 +182,26 @@ border-top-right-radius: 3px; /* same radius as the QComboBox */
 border-bottom-right-radius: 3px;
 }
 
+QComboBox::down-arrow
+{
+image: url(/usr/lib/dssi/pydaw/python/pydaw/drop-down.png);
+}
+
 QSpinBox, QDoubleSpinBox
 {
 background-color: darkgray;
 color: white;
 border: 1px solid white;
+}
+
+QSpinBox::up-button, QDoubleSpinBox::up-button
+{
+border-image: url(/usr/lib/dssi/pydaw/python/pydaw/spinbox-up.png);
+}
+
+QSpinBox::down-button, QDoubleSpinBox::down-button
+{
+border-image: url(/usr/lib/dssi/pydaw/python/pydaw/spinbox-down.png);
 }
 
 QGroupBox:focus
