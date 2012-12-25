@@ -28,7 +28,7 @@ GNU General Public License for more details.
 #define EUPHORIA_NOTES 128
 #define EUPHORIA_NOTES_m1 127
 #define EUPHORIA_POLYPHONY 32
-#define EUPHORIA_FRAMES_MAX 1048576
+#define EUPHORIA_FRAMES_MAX 16777216
 //Pad the end of samples with zeroes to ensure you don't get artifacts from samples that have no silence at the end
 #define EUPHORIA_Sample_Padding 100
 
