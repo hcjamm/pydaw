@@ -2421,6 +2421,21 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
                 
                 v_save_pysong_to_disk(a_pydaw_data);
             }
+            f_i = 0;
+            long early_noteoff = (a_pydaw_data->current_sample) + 20000;
+            while(f_i < PYDAW_MAX_TRACK_COUNT)
+            {
+                int f_i2 = 0;
+                while(f_i2 < PYDAW_MIDI_NOTE_COUNT)
+                {
+                    if((a_pydaw_data->note_offs[f_i][f_i2]) > early_noteoff)
+                    {
+                        a_pydaw_data->note_offs[f_i][f_i2] = early_noteoff;
+                    }
+                    f_i2++;
+                }
+                f_i++;
+            }
             //Initiate some sort of mixer fadeout?
         }
             break;
