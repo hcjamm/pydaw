@@ -455,14 +455,15 @@ border-top-right-radius: 3px;
 background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:1 #212121, stop:0.4 #343434, stop:0.2 #343434, stop:0.1 #ffaa00);
 }
 
-QRadioButton::indicator:checked, QRadioButton::indicator:unchecked{
+QRadioButton::indicator:checked, QRadioButton::indicator:unchecked
+{
 color: #b1b1b1;
 background-color: #323232;
 border: 1px solid #b1b1b1;
 border-radius: 6px;
 }
 
-QRadioButton::indicator:checked
+QRadioButton::indicator:checked, QCheckBox::indicator:checked
 {
 background-color: qradialgradient(
 cx: 0.5, cy: 0.5,
@@ -473,7 +474,8 @@ stop: 0.3 #323232
 );
 }
 
-QCheckBox::indicator{
+QCheckBox::indicator
+{
 color: #b1b1b1;
 background-color: #323232;
 border: 1px solid #b1b1b1;
