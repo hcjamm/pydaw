@@ -971,6 +971,9 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case WAYV_LFO_AMP: setLFOamp(a_value); break;            
         case WAYV_LFO_PITCH: setLFOpitch(a_value); break;      
         
+        case WAYV_ADSR1_CHECKBOX: setADSR1checked(a_value); break;
+        case WAYV_ADSR2_CHECKBOX: setADSR2checked(a_value); break;
+        
         case RAYV_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
     }
     
@@ -1104,6 +1107,9 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1:  pfxmatrix_grp0dst3src3ctrl1Changed(a_value); break;
     case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2:  pfxmatrix_grp0dst3src3ctrl2Changed(a_value); break;
 
+    case WAYV_ADSR1_CHECKBOX: adsr1checkChanged(a_value); break;
+    case WAYV_ADSR2_CHECKBOX: adsr2checkChanged(a_value); break;
+        
     case WAYV_LFO_AMOUNT: LFOamountChanged(a_value); break;
     case WAYV_LFO_AMP: LFOampChanged(a_value); break;
     case WAYV_LFO_PITCH: LFOpitchChanged(a_value); break;    
