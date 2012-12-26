@@ -693,6 +693,7 @@ class pydaw_item:
             self.pitchbends.append(pydaw_pitchbend(round(f_start, 4), f_start_val))
             f_start_val += f_inc
             f_start += f_time_inc
+        self.pitchbends[(len(self.pitchbends) - 1)].pb_val = f_end_val #Ensure that the last value is what the user wanted it to be
         self.pitchbends.sort()
             
     def get_next_default_cc(self):
