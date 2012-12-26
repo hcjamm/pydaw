@@ -61,9 +61,9 @@ QSlider::add-page:horizontal
 QSlider::handle:horizontal
 {
 	image: url(pydaw/h-fader.png);
-	margin-top: -4px;
-	margin-bottom: -4px;
-	border-radius: 4px;
+	margin-top: -7px;
+	margin-bottom: -7px;
+	border: 2px solid transparent;
 }
 
 QSlider::sub-page:horizontal:disabled 
@@ -76,13 +76,6 @@ QSlider::add-page:horizontal:disabled
 {
 	background: #eee;
 	border-color: #999;
-}
-
-QSlider::handle:horizontal:disabled 
-{
-	background: #eee;
-	border: 1px solid #aaa;
-	border-radius: 4px;
 }
 
 QFrame
@@ -240,7 +233,7 @@ border-radius: 5;
 */
 }
 
-QComboBox:hover,QPushButton:hover,QLineEdit:hover,QSlider:hover,QSpinBox:hover,QDoubleSpinBox:hover
+QComboBox:hover,QPushButton:hover,QLineEdit:hover,QSlider:hover,QSpinBox:hover,QDoubleSpinBox:hover, QSlider::handle:horizontal:hover
 {
 border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);
 }
