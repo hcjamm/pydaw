@@ -30,6 +30,7 @@ border-image: url(pydaw/spinbox-down.png);
 QSlider
 {
 	background:transparent;
+	border: 2px solid transparent;
 }
 
 QSlider::groove:horizontal 
