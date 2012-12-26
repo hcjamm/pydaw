@@ -1678,11 +1678,12 @@ class seq_track:
             self.suppress_osc = True
         self.record_radiobutton.setChecked(a_track.rec)        
         self.track_name_lineedit.setText(a_track.name)
-        self.volume_slider.setValue(a_track.vol)
+        self.volume_slider.setValue(a_track.vol)        
         if self.is_instrument:
             self.instrument_combobox.setCurrentIndex(a_track.inst)
             self.solo_checkbox.setChecked(a_track.solo)
             self.mute_checkbox.setChecked(a_track.mute)
+            self.bus_combobox.setCurrentIndex(a_track.bus_num)
         self.suppress_osc = False
 
     def get_track(self):
