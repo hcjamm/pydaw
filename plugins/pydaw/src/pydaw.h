@@ -590,14 +590,18 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
 #endif
                     if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
                     {
-                        long controlIn = a_pydaw_data->track_pool[f_i]->instrument->controllerMap[controller];
-                        if (controlIn >= 0) 
+                        long controlIn;
+                        if(a_pydaw_data->track_pool[f_i]->instrument)
                         {
-                            /* controller is mapped to LADSPA port, update the port */
-                            v_pydaw_set_control_from_cc(a_pydaw_data->track_pool[f_i]->instrument, controlIn, &events[f_i2], 0);
+                            controlIn = a_pydaw_data->track_pool[f_i]->instrument->controllerMap[controller];
+                            
+                            if (controlIn >= 0) 
+                            {
+                                /* controller is mapped to LADSPA port, update the port */
+                                v_pydaw_set_control_from_cc(a_pydaw_data->track_pool[f_i]->instrument, controlIn, &events[f_i2], 0);
 
+                            }
                         }
-
                         controlIn = a_pydaw_data->track_pool[f_i]->effect->controllerMap[controller];
                         if (controlIn >= 0) 
                         {
@@ -732,7 +736,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                 }
             }
         }
-        int f_i = 0;
+        int f_i = PYDAW_BUS_TRACK_COUNT;
 
         a_pydaw_data->is_soloed = 0;
 
@@ -747,7 +751,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         }
 
         //Calculate track notes for this period and send them to instruments
-        f_i = 0;
+        f_i = PYDAW_BUS_TRACK_COUNT;
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {   
             /* Situations where the track is effectively muted*/
@@ -910,9 +914,10 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {   
             /* Situations where the track is effectively muted*/
-            if((a_pydaw_data->track_pool[f_i]->plugin_index == 0) ||
+            if( (f_i >= PYDAW_BUS_TRACK_COUNT) &&
+                ((a_pydaw_data->track_pool[f_i]->plugin_index == 0) ||
                 (a_pydaw_data->track_pool[f_i]->mute) ||
-                ((a_pydaw_data->is_soloed) && (!a_pydaw_data->track_pool[f_i]->solo)) )
+                ((a_pydaw_data->is_soloed) && (!a_pydaw_data->track_pool[f_i]->solo)) ))
             {
                 f_i++;
                 continue;
@@ -979,14 +984,18 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                             int controller = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_num;
                             if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
                             {
-                                long controlIn = a_pydaw_data->track_pool[f_i]->instrument->controllerMap[controller];
-
-                                if (controlIn >= 0)
+                                long controlIn;
+                                if(a_pydaw_data->track_pool[f_i]->instrument)
                                 {
-                                    /* controller is mapped to LADSPA port, update the port */
-                                    snd_seq_event_t f_event;
-                                    f_event.data.control.value = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
-                                    v_pydaw_set_control_from_cc(a_pydaw_data->track_pool[f_i]->instrument, controlIn, &f_event, 0);
+                                    controlIn = a_pydaw_data->track_pool[f_i]->instrument->controllerMap[controller];
+
+                                    if (controlIn >= 0)
+                                    {
+                                        /* controller is mapped to LADSPA port, update the port */
+                                        snd_seq_event_t f_event;
+                                        f_event.data.control.value = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
+                                        v_pydaw_set_control_from_cc(a_pydaw_data->track_pool[f_i]->instrument, controlIn, &f_event, 0);
+                                    }
                                 }
 
                                 controlIn = a_pydaw_data->track_pool[f_i]->effect->controllerMap[controller];
@@ -1047,7 +1056,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
 
 
         //Calculate track pitchbends for this period and update the controller ports
-        f_i = 0;
+        f_i = PYDAW_BUS_TRACK_COUNT;
         while(f_i < PYDAW_MAX_TRACK_COUNT)
         {   
             /* Situations where the track is effectively muted*/
@@ -3164,6 +3173,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
+        assert(f_mode == 0 || f_mode == 1);
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         a_pydaw_data->track_pool[f_track_num]->solo = f_mode;
@@ -3176,6 +3186,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
+        assert(f_mode == 0 || f_mode == 1);
         pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         a_pydaw_data->track_pool[f_track_num]->mute = f_mode;
@@ -3197,6 +3208,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
+        assert(f_mode == 0 || f_mode == 1);
         if(f_mode)
         {
             //TODO:  This will need to be removed if PyDAW ever supports multiple MIDI input devices, just a quick hack for now
