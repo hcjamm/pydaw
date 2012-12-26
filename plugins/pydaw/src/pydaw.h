@@ -1217,7 +1217,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         v_pydaw_process_external_midi(a_pydaw_data, sample_count, events, event_count);  //Process external MIDI if playback/recording are stopped...
     }        
 
-    int f_i = 0;
+    int f_i = PYDAW_BUS_TRACK_COUNT;
 
     while(f_i < PYDAW_MAX_TRACK_COUNT)
     {   
