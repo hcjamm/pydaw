@@ -846,7 +846,7 @@ class pydaw_tracks:
                 else: f_mute = False
                 if f_line_arr[3] == "1": f_rec = True
                 else: f_rec = False
-                f_result.add_track(int(f_line_arr[0]), pydaw_track(f_solo, f_mute, f_rec, int(f_line_arr[4]), f_line_arr[5], int(f_line_arr[6])))
+                f_result.add_track(int(f_line_arr[0]), pydaw_track(f_solo, f_mute, f_rec, int(f_line_arr[4]), f_line_arr[5], int(f_line_arr[6]), int(f_line_arr[7])))
         return f_result
 
 class pydaw_track:
