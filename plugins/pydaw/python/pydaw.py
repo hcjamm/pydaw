@@ -22,6 +22,8 @@ from sys import argv
 from os.path import expanduser
 from libpydaw import *
 
+global_pydaw_version_string = "pydaw2"
+
 pydaw_item_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
 pydaw_item_gradient.setColorAt(0, QtGui.QColor(100, 100, 255))
 pydaw_item_gradient.setColorAt(1, QtGui.QColor(127, 127, 255))
@@ -918,7 +920,7 @@ class item_list_editor:
         if not self.enabled:
             self.show_not_enabled_warning()
             return
-        f_path= expanduser("~") + "/pydaw/item_templates/" + str(self.template_combobox.currentText()) + ".pyitem"
+        f_path= expanduser("~") + "/" + global_pydaw_version_string + "/item_templates/" + str(self.template_combobox.currentText()) + ".pyitem"
         if not os.path.isfile(f_path):
             QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "Cannot find specified template")
         else:
@@ -937,7 +939,7 @@ class item_list_editor:
             if str(f_name.text()) == "":
                 QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
                 return
-            f_path= expanduser("~") + "/pydaw/item_templates/" + str(f_name.text()) + ".pyitem"
+            f_path= expanduser("~") + "/" + global_pydaw_version_string + "/item_templates/" + str(f_name.text()) + ".pyitem"
             f_handle = open(f_path, "w")
             f_handle.write(self.item.__str__())
             f_handle.close()
@@ -969,7 +971,7 @@ class item_list_editor:
         
     def load_templates(self):
         self.template_combobox.clear()
-        f_path= expanduser("~") + "/pydaw/item_templates"
+        f_path= expanduser("~") + "/" + global_pydaw_version_string + "/item_templates"
         if not os.path.isdir(f_path):
             os.makedirs(f_path)
         else:
@@ -2271,16 +2273,16 @@ Any additional text must be enclosed in quotation marks."
     def __init__(self, a_index):
         if a_index == -1:
             f_name = "Modulex"
-            self.file_name = expanduser("~") + "/pydaw/lms_modulex-cc_map.txt"
+            self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/lms_modulex-cc_map.txt"
         elif a_index == 1:
             f_name = "Euphoria"
-            self.file_name = expanduser("~") + "/pydaw/euphoria-cc_map.txt"
+            self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/euphoria-cc_map.txt"
         elif a_index == 2:
             f_name = "Ray-V"
-            self.file_name = expanduser("~") + "/pydaw/ray_v-cc_map.txt"
+            self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/ray_v-cc_map.txt"
         elif a_index == 3:
             f_name = "Way-V"
-            self.file_name = expanduser("~") + "/pydaw/way_v-cc_map.txt"
+            self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/way_v-cc_map.txt"
         else:
             assert(0)
         self.groupbox = QtGui.QGroupBox(f_name)
@@ -2323,7 +2325,7 @@ Any additional text must be enclosed in quotation marks."
                     f_row_index += 1
 
 def set_default_project(a_project_path):
-    f_def_file = expanduser("~") + '/pydaw/last-project.txt'
+    f_def_file = expanduser("~") + "/" + global_pydaw_version_string + "/last-project.txt"
     f_handle = open(f_def_file, 'w')
     f_handle.write(str(a_project_path))
     f_handle.close()
@@ -2391,15 +2393,15 @@ this_transport = transport_widget()
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 
-f_def_file = expanduser("~") + '/pydaw/last-project.txt'
+f_def_file = expanduser("~") + "/" + global_pydaw_version_string + "/last-project.txt"
 if os.path.exists(f_def_file):
     f_handle = open(f_def_file, 'r')
     default_project_file = f_handle.read()
     f_handle.close()
     if not os.path.exists(default_project_file):
-        default_project_file = expanduser("~") + '/pydaw/default-project/default.pydaw'
+        default_project_file = expanduser("~") + "/" + global_pydaw_version_string + "/default-project/default.pydaw"
 else:
-    default_project_file = expanduser("~") + '/pydaw/default-project/default.pydaw'
+    default_project_file = expanduser("~") + "/" + global_pydaw_version_string + "/default-project/default.pydaw"
 if os.path.exists(default_project_file):
     global_open_project(default_project_file)
 else:

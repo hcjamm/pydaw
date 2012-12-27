@@ -1,4 +1,3 @@
-
 #!/usr/bin/make -f
 
 CC  ?= gcc
@@ -18,18 +17,12 @@ CXX_OBJS = src/synth_qt_gui.o src/moc_synth_qt_gui.o
 
 # --------------------------------------------------------------
 
-all: lms_modulex.so LMS_MODULEX_qt
-
-lms_modulex.so: $(C_OBJS)
-	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
+all: LMS_MODULEX_qt
 
 LMS_MODULEX_qt: $(CXX_OBJS)
 	$(CXX) $(CXX_OBJS) $(LINK_CXXFLAGS) -o $@
 
 # --------------------------------------------------------------
-
-.c.o:
-	$(CC) -c $< $(BUILD_CFLAGS) -o $@
 
 .cpp.o:
 	$(CXX) -c $< $(BUILD_CXXFLAGS) -o $@
@@ -40,16 +33,15 @@ src/moc_synth_qt_gui.cpp: src/synth_qt_gui.h
 # --------------------------------------------------------------
 
 strip:
-	strip lms_modulex.so
 	strip LMS_MODULEX_qt
 
 # --------------------------------------------------------------
 
 install:
-	install -d $(DESTDIR)$(PREFIX)/lib/dssi
-	install -d $(DESTDIR)$(PREFIX)/lib/dssi/lms_modulex
-	install -m 644 lms_modulex.so $(DESTDIR)$(PREFIX)/lib/dssi
-	install -m 755 LMS_MODULEX_qt $(DESTDIR)$(PREFIX)/lib/dssi/lms_modulex
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2/lms_modulex
+	install -m 755 LMS_MODULEX_qt $(DESTDIR)$(PREFIX)/lib/pydaw2/lms_modulex
 
 clean:
-	rm -f src/*.o src/moc_*.cpp *.so LMS_MODULEX_qt
+	rm -f src/*.o src/moc_*.cpp LMS_MODULEX_qt
+

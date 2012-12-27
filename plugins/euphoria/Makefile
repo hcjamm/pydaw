@@ -12,23 +12,16 @@ BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x1
 LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile)
 LINK_CXXFLAGS  = -lm -pthread $(shell pkg-config --libs liblo QtCore QtGui x11 sm sndfile) $(LDFLAGS)
 
-C_OBJS   = src/synth.o
 CXX_OBJS = src/synth_qt_gui.o src/moc_synth_qt_gui.o
 
 # --------------------------------------------------------------
 
-all: euphoria.so LMS_EUPHORIA_qt
-
-euphoria.so: $(C_OBJS)
-	$(CC) $(C_OBJS) $(LINK_CFLAGS)  -o $@
+all: LMS_EUPHORIA_qt
 
 LMS_EUPHORIA_qt: $(CXX_OBJS)
 	$(CXX) $(CXX_OBJS) $(LINK_CXXFLAGS) -o $@
 
 # --------------------------------------------------------------
-
-.c.o:
-	$(CC) -c $< $(BUILD_CFLAGS) -o $@
 
 .cpp.o:
 	$(CXX) -c $< $(BUILD_CXXFLAGS) -o $@
@@ -40,16 +33,14 @@ src/moc_synth_qt_gui.cpp: src/synth_qt_gui.h
 
 strip:
 	strip LMS_EUPHORIA_qt
-	strip euphoria.so
 
 # --------------------------------------------------------------
 
 install:
-	install -d $(DESTDIR)$(PREFIX)/lib/dssi
-	install -d $(DESTDIR)$(PREFIX)/lib/dssi/euphoria
-	install -m 644 euphoria.so $(DESTDIR)$(PREFIX)/lib/dssi
-	install -m 755 LMS_EUPHORIA_qt $(DESTDIR)$(PREFIX)/lib/dssi/euphoria
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2/euphoria
+	install -m 755 LMS_EUPHORIA_qt $(DESTDIR)$(PREFIX)/lib/pydaw2/euphoria
 
 clean:
-	rm -f src/*.o src/moc_*.cpp *.so LMS_EUPHORIA_qt
+	rm -f src/*.o src/moc_*.cpp LMS_EUPHORIA_qt
 
