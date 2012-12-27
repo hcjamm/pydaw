@@ -13,8 +13,8 @@ GNU General Public License for more details.
 
 */
 
-#ifndef RAYV_SYNTH_QT_GUI_H
-#define RAYV_SYNTH_QT_GUI_H
+#ifndef WAYV_SYNTH_QT_GUI_H
+#define WAYV_SYNTH_QT_GUI_H
 
 #include <QFrame>
 #include <QDial>
@@ -49,15 +49,15 @@ extern "C" {
 #include <lo/lo.h>
 }
 
-class rayv_gui : public QFrame
+class wayv_gui : public QFrame
 {
     Q_OBJECT
 
 public:
-    rayv_gui(const char * host, const char * port,
+    wayv_gui(const char * host, const char * port,
 	     QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
 	     QByteArray exitingPath, QWidget *w = 0);
-    virtual ~rayv_gui();
+    virtual ~wayv_gui();
 
     bool ready() const { return m_ready; }
     void setReady(bool ready) { m_ready = ready; }
@@ -364,4 +364,4 @@ protected:
 };
 
 
-#endif
+#endif  //WAYV_SYNTH_QT_GUI_H

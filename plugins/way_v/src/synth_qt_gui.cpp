@@ -53,10 +53,10 @@ using std::endl;
 
 lo_server osc_server = 0;
 
-static QTextStream rayv_cerr(stderr);
+static QTextStream wayv_cerr(stderr);
 
 
-rayv_gui::rayv_gui(const char * host, const char * port,
+wayv_gui::wayv_gui(const char * host, const char * port,
 		   QByteArray controlPath, QByteArray midiPath, QByteArray programPath,
 		   QByteArray exitingPath, QWidget *w) :
     QFrame(w),
@@ -287,7 +287,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl2"), -100, 100, 0);  
     f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl3"), -100, 100, 0);  
 
-    m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, WAYV_MODULATOR_COUNT, f_mod_matrix_columns, LMS_PFXMATRIX_FIRST_PORT, f_info);
+    m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, WAYV_MODULATOR_COUNT, f_mod_matrix_columns, WAVV_PFXMATRIX_FIRST_PORT, f_info);
     m_polyfx_mod_matrix[0]->lms_mod_matrix->setMinimumHeight(165);
     m_polyfx_mod_matrix[0]->lms_mod_matrix->setMaximumHeight(165);
 
@@ -377,7 +377,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_adsr_filter->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterSustainChanged(int)));
     connect(m_adsr_filter->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(filterReleaseChanged(int)));
 
-    m_pitch_env = new LMS_ramp_env(this, f_info, WAYV_RAMP_ENV_TIME, RAYV_PITCH_ENV_AMT, -1, FALSE, QString("Ramp Env"), TRUE);
+    m_pitch_env = new LMS_ramp_env(this, f_info, WAYV_RAMP_ENV_TIME, WAYV_PITCH_ENV_AMT, -1, FALSE, QString("Ramp Env"), TRUE);
     m_pitch_env->lms_amt_knob->lms_label->setText(QString("Pitch"));
     m_main_layout->lms_add_widget(m_pitch_env->lms_groupbox->lms_groupbox);
 
@@ -539,7 +539,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
 
 
 
-void rayv_gui::pfxmatrix_Changed(int a_port, int a_fx_group, int a_dst, int a_ctrl, int a_src)
+void wayv_gui::pfxmatrix_Changed(int a_port, int a_fx_group, int a_dst, int a_ctrl, int a_src)
 {
     //m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_value_changed(0);    
 #ifndef LMS_DEBUG_STANDALONE
@@ -557,27 +557,27 @@ void rayv_gui::pfxmatrix_Changed(int a_port, int a_fx_group, int a_dst, int a_ct
 
 
 
-void rayv_gui::fx0knob0Changed(int value){ lms_value_changed(value, m_fx0->lms_knob1); }
-void rayv_gui::fx0knob1Changed(int value){ lms_value_changed(value, m_fx0->lms_knob2); }
-void rayv_gui::fx0knob2Changed(int value){ lms_value_changed(value, m_fx0->lms_knob3); }
-void rayv_gui::fx0comboboxChanged(int value){ lms_value_changed(value, m_fx0->lms_combobox); m_fx0->lms_combobox_changed(); }
+void wayv_gui::fx0knob0Changed(int value){ lms_value_changed(value, m_fx0->lms_knob1); }
+void wayv_gui::fx0knob1Changed(int value){ lms_value_changed(value, m_fx0->lms_knob2); }
+void wayv_gui::fx0knob2Changed(int value){ lms_value_changed(value, m_fx0->lms_knob3); }
+void wayv_gui::fx0comboboxChanged(int value){ lms_value_changed(value, m_fx0->lms_combobox); m_fx0->lms_combobox_changed(); }
 
-void rayv_gui::fx1knob0Changed(int value){ lms_value_changed(value, m_fx1->lms_knob1); }
-void rayv_gui::fx1knob1Changed(int value){ lms_value_changed(value, m_fx1->lms_knob2); }
-void rayv_gui::fx1knob2Changed(int value){ lms_value_changed(value, m_fx1->lms_knob3); }
-void rayv_gui::fx1comboboxChanged(int value){ lms_value_changed(value, m_fx1->lms_combobox); m_fx1->lms_combobox_changed(); }
+void wayv_gui::fx1knob0Changed(int value){ lms_value_changed(value, m_fx1->lms_knob1); }
+void wayv_gui::fx1knob1Changed(int value){ lms_value_changed(value, m_fx1->lms_knob2); }
+void wayv_gui::fx1knob2Changed(int value){ lms_value_changed(value, m_fx1->lms_knob3); }
+void wayv_gui::fx1comboboxChanged(int value){ lms_value_changed(value, m_fx1->lms_combobox); m_fx1->lms_combobox_changed(); }
 
-void rayv_gui::fx2knob0Changed(int value){ lms_value_changed(value, m_fx2->lms_knob1); }
-void rayv_gui::fx2knob1Changed(int value){ lms_value_changed(value, m_fx2->lms_knob2); }
-void rayv_gui::fx2knob2Changed(int value){ lms_value_changed(value, m_fx2->lms_knob3); }
-void rayv_gui::fx2comboboxChanged(int value){ lms_value_changed(value, m_fx2->lms_combobox); m_fx2->lms_combobox_changed(); }
+void wayv_gui::fx2knob0Changed(int value){ lms_value_changed(value, m_fx2->lms_knob1); }
+void wayv_gui::fx2knob1Changed(int value){ lms_value_changed(value, m_fx2->lms_knob2); }
+void wayv_gui::fx2knob2Changed(int value){ lms_value_changed(value, m_fx2->lms_knob3); }
+void wayv_gui::fx2comboboxChanged(int value){ lms_value_changed(value, m_fx2->lms_combobox); m_fx2->lms_combobox_changed(); }
 
-void rayv_gui::fx3knob0Changed(int value){ lms_value_changed(value, m_fx3->lms_knob1); }
-void rayv_gui::fx3knob1Changed(int value){ lms_value_changed(value, m_fx3->lms_knob2); }
-void rayv_gui::fx3knob2Changed(int value){ lms_value_changed(value, m_fx3->lms_knob3); }
-void rayv_gui::fx3comboboxChanged(int value){ lms_value_changed(value, m_fx3->lms_combobox); m_fx3->lms_combobox_changed(); }
+void wayv_gui::fx3knob0Changed(int value){ lms_value_changed(value, m_fx3->lms_knob1); }
+void wayv_gui::fx3knob1Changed(int value){ lms_value_changed(value, m_fx3->lms_knob2); }
+void wayv_gui::fx3knob2Changed(int value){ lms_value_changed(value, m_fx3->lms_knob3); }
+void wayv_gui::fx3comboboxChanged(int value){ lms_value_changed(value, m_fx3->lms_combobox); m_fx3->lms_combobox_changed(); }
 
-void rayv_gui::adsr1checkChanged(bool a_value)
+void wayv_gui::adsr1checkChanged(bool a_value)
 {
     int value = 0;
     if(a_value)
@@ -587,7 +587,7 @@ void rayv_gui::adsr1checkChanged(bool a_value)
     lms_value_changed(value, m_adsr_amp1_checkbox);
 }
 
-void rayv_gui::adsr2checkChanged(bool a_value)
+void wayv_gui::adsr2checkChanged(bool a_value)
 {
     int value = 0;
     if(a_value)
@@ -597,149 +597,149 @@ void rayv_gui::adsr2checkChanged(bool a_value)
     lms_value_changed(value, m_adsr_amp2_checkbox);
 }
 
-void rayv_gui::pfxmatrix_grp0dst0src0ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC0CTRL0, 0, 0, 0, 0);}
-void rayv_gui::pfxmatrix_grp0dst0src0ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC0CTRL1, 0, 0, 1, 0);}
-void rayv_gui::pfxmatrix_grp0dst0src0ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC0CTRL2, 0, 0, 2, 0);}
-void rayv_gui::pfxmatrix_grp0dst0src1ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC1CTRL0, 0, 0, 0, 1);}
-void rayv_gui::pfxmatrix_grp0dst0src1ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC1CTRL1, 0, 0, 1, 1);}
-void rayv_gui::pfxmatrix_grp0dst0src1ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC1CTRL2, 0, 0, 2, 1);}
-void rayv_gui::pfxmatrix_grp0dst0src2ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC2CTRL0, 0, 0, 0, 2);}
-void rayv_gui::pfxmatrix_grp0dst0src2ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC2CTRL1, 0, 0, 1, 2);}
-void rayv_gui::pfxmatrix_grp0dst0src2ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC2CTRL2, 0, 0, 2, 2);}
-void rayv_gui::pfxmatrix_grp0dst0src3ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC3CTRL0, 0, 0, 0, 3);}
-void rayv_gui::pfxmatrix_grp0dst0src3ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC3CTRL1, 0, 0, 1, 3);}
-void rayv_gui::pfxmatrix_grp0dst0src3ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC3CTRL2, 0, 0, 2, 3);}
-void rayv_gui::pfxmatrix_grp0dst1src0ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC0CTRL0, 0, 1, 0, 0);}
-void rayv_gui::pfxmatrix_grp0dst1src0ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC0CTRL1, 0, 1, 1, 0);}
-void rayv_gui::pfxmatrix_grp0dst1src0ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC0CTRL2, 0, 1, 2, 0);}
-void rayv_gui::pfxmatrix_grp0dst1src1ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC1CTRL0, 0, 1, 0, 1);}
-void rayv_gui::pfxmatrix_grp0dst1src1ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC1CTRL1, 0, 1, 1, 1);}
-void rayv_gui::pfxmatrix_grp0dst1src1ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC1CTRL2, 0, 1, 2, 1);}
-void rayv_gui::pfxmatrix_grp0dst1src2ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC2CTRL0, 0, 1, 0, 2);}
-void rayv_gui::pfxmatrix_grp0dst1src2ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC2CTRL1, 0, 1, 1, 2);}
-void rayv_gui::pfxmatrix_grp0dst1src2ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC2CTRL2, 0, 1, 2, 2);}
-void rayv_gui::pfxmatrix_grp0dst1src3ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC3CTRL0, 0, 1, 0, 3);}
-void rayv_gui::pfxmatrix_grp0dst1src3ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC3CTRL1, 0, 1, 1, 3);}
-void rayv_gui::pfxmatrix_grp0dst1src3ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC3CTRL2, 0, 1, 2, 3);}
-void rayv_gui::pfxmatrix_grp0dst2src0ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC0CTRL0, 0, 2, 0, 0);}
-void rayv_gui::pfxmatrix_grp0dst2src0ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC0CTRL1, 0, 2, 1, 0);}
-void rayv_gui::pfxmatrix_grp0dst2src0ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC0CTRL2, 0, 2, 2, 0);}
-void rayv_gui::pfxmatrix_grp0dst2src1ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC1CTRL0, 0, 2, 0, 1);}
-void rayv_gui::pfxmatrix_grp0dst2src1ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC1CTRL1, 0, 2, 1, 1);}
-void rayv_gui::pfxmatrix_grp0dst2src1ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC1CTRL2, 0, 2, 2, 1);}
-void rayv_gui::pfxmatrix_grp0dst2src2ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC2CTRL0, 0, 2, 0, 2);}
-void rayv_gui::pfxmatrix_grp0dst2src2ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC2CTRL1, 0, 2, 1, 2);}
-void rayv_gui::pfxmatrix_grp0dst2src2ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC2CTRL2, 0, 2, 2, 2);}
-void rayv_gui::pfxmatrix_grp0dst2src3ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC3CTRL0, 0, 2, 0, 3);}
-void rayv_gui::pfxmatrix_grp0dst2src3ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC3CTRL1, 0, 2, 1, 3);}
-void rayv_gui::pfxmatrix_grp0dst2src3ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC3CTRL2, 0, 2, 2, 3);}
-void rayv_gui::pfxmatrix_grp0dst3src0ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC0CTRL0, 0, 3, 0, 0);}
-void rayv_gui::pfxmatrix_grp0dst3src0ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC0CTRL1, 0, 3, 1, 0);}
-void rayv_gui::pfxmatrix_grp0dst3src0ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC0CTRL2, 0, 3, 2, 0);}
-void rayv_gui::pfxmatrix_grp0dst3src1ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC1CTRL0, 0, 3, 0, 1);}
-void rayv_gui::pfxmatrix_grp0dst3src1ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC1CTRL1, 0, 3, 1, 1);}
-void rayv_gui::pfxmatrix_grp0dst3src1ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC1CTRL2, 0, 3, 2, 1);}
-void rayv_gui::pfxmatrix_grp0dst3src2ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC2CTRL0, 0, 3, 0, 2);}
-void rayv_gui::pfxmatrix_grp0dst3src2ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC2CTRL1, 0, 3, 1, 2);}
-void rayv_gui::pfxmatrix_grp0dst3src2ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC2CTRL2, 0, 3, 2, 2);}
-void rayv_gui::pfxmatrix_grp0dst3src3ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC3CTRL0, 0, 3, 0, 3);}
-void rayv_gui::pfxmatrix_grp0dst3src3ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC3CTRL1, 0, 3, 1, 3);}
-void rayv_gui::pfxmatrix_grp0dst3src3ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC3CTRL2, 0, 3, 2, 3);}
+void wayv_gui::pfxmatrix_grp0dst0src0ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0, 0, 0, 0, 0);}
+void wayv_gui::pfxmatrix_grp0dst0src0ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC0CTRL1, 0, 0, 1, 0);}
+void wayv_gui::pfxmatrix_grp0dst0src0ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC0CTRL2, 0, 0, 2, 0);}
+void wayv_gui::pfxmatrix_grp0dst0src1ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC1CTRL0, 0, 0, 0, 1);}
+void wayv_gui::pfxmatrix_grp0dst0src1ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC1CTRL1, 0, 0, 1, 1);}
+void wayv_gui::pfxmatrix_grp0dst0src1ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC1CTRL2, 0, 0, 2, 1);}
+void wayv_gui::pfxmatrix_grp0dst0src2ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC2CTRL0, 0, 0, 0, 2);}
+void wayv_gui::pfxmatrix_grp0dst0src2ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC2CTRL1, 0, 0, 1, 2);}
+void wayv_gui::pfxmatrix_grp0dst0src2ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC2CTRL2, 0, 0, 2, 2);}
+void wayv_gui::pfxmatrix_grp0dst0src3ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC3CTRL0, 0, 0, 0, 3);}
+void wayv_gui::pfxmatrix_grp0dst0src3ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC3CTRL1, 0, 0, 1, 3);}
+void wayv_gui::pfxmatrix_grp0dst0src3ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC3CTRL2, 0, 0, 2, 3);}
+void wayv_gui::pfxmatrix_grp0dst1src0ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC0CTRL0, 0, 1, 0, 0);}
+void wayv_gui::pfxmatrix_grp0dst1src0ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC0CTRL1, 0, 1, 1, 0);}
+void wayv_gui::pfxmatrix_grp0dst1src0ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC0CTRL2, 0, 1, 2, 0);}
+void wayv_gui::pfxmatrix_grp0dst1src1ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC1CTRL0, 0, 1, 0, 1);}
+void wayv_gui::pfxmatrix_grp0dst1src1ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC1CTRL1, 0, 1, 1, 1);}
+void wayv_gui::pfxmatrix_grp0dst1src1ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC1CTRL2, 0, 1, 2, 1);}
+void wayv_gui::pfxmatrix_grp0dst1src2ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC2CTRL0, 0, 1, 0, 2);}
+void wayv_gui::pfxmatrix_grp0dst1src2ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC2CTRL1, 0, 1, 1, 2);}
+void wayv_gui::pfxmatrix_grp0dst1src2ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC2CTRL2, 0, 1, 2, 2);}
+void wayv_gui::pfxmatrix_grp0dst1src3ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC3CTRL0, 0, 1, 0, 3);}
+void wayv_gui::pfxmatrix_grp0dst1src3ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC3CTRL1, 0, 1, 1, 3);}
+void wayv_gui::pfxmatrix_grp0dst1src3ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST1SRC3CTRL2, 0, 1, 2, 3);}
+void wayv_gui::pfxmatrix_grp0dst2src0ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC0CTRL0, 0, 2, 0, 0);}
+void wayv_gui::pfxmatrix_grp0dst2src0ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC0CTRL1, 0, 2, 1, 0);}
+void wayv_gui::pfxmatrix_grp0dst2src0ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC0CTRL2, 0, 2, 2, 0);}
+void wayv_gui::pfxmatrix_grp0dst2src1ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC1CTRL0, 0, 2, 0, 1);}
+void wayv_gui::pfxmatrix_grp0dst2src1ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC1CTRL1, 0, 2, 1, 1);}
+void wayv_gui::pfxmatrix_grp0dst2src1ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC1CTRL2, 0, 2, 2, 1);}
+void wayv_gui::pfxmatrix_grp0dst2src2ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC2CTRL0, 0, 2, 0, 2);}
+void wayv_gui::pfxmatrix_grp0dst2src2ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC2CTRL1, 0, 2, 1, 2);}
+void wayv_gui::pfxmatrix_grp0dst2src2ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC2CTRL2, 0, 2, 2, 2);}
+void wayv_gui::pfxmatrix_grp0dst2src3ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC3CTRL0, 0, 2, 0, 3);}
+void wayv_gui::pfxmatrix_grp0dst2src3ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC3CTRL1, 0, 2, 1, 3);}
+void wayv_gui::pfxmatrix_grp0dst2src3ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST2SRC3CTRL2, 0, 2, 2, 3);}
+void wayv_gui::pfxmatrix_grp0dst3src0ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC0CTRL0, 0, 3, 0, 0);}
+void wayv_gui::pfxmatrix_grp0dst3src0ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC0CTRL1, 0, 3, 1, 0);}
+void wayv_gui::pfxmatrix_grp0dst3src0ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC0CTRL2, 0, 3, 2, 0);}
+void wayv_gui::pfxmatrix_grp0dst3src1ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC1CTRL0, 0, 3, 0, 1);}
+void wayv_gui::pfxmatrix_grp0dst3src1ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC1CTRL1, 0, 3, 1, 1);}
+void wayv_gui::pfxmatrix_grp0dst3src1ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC1CTRL2, 0, 3, 2, 1);}
+void wayv_gui::pfxmatrix_grp0dst3src2ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC2CTRL0, 0, 3, 0, 2);}
+void wayv_gui::pfxmatrix_grp0dst3src2ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC2CTRL1, 0, 3, 1, 2);}
+void wayv_gui::pfxmatrix_grp0dst3src2ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC2CTRL2, 0, 3, 2, 2);}
+void wayv_gui::pfxmatrix_grp0dst3src3ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC3CTRL0, 0, 3, 0, 3);}
+void wayv_gui::pfxmatrix_grp0dst3src3ctrl1Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC3CTRL1, 0, 3, 1, 3);}
+void wayv_gui::pfxmatrix_grp0dst3src3ctrl2Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2, 0, 3, 2, 3);}
 
-void rayv_gui::LFOamountChanged(int a_value){lms_value_changed(a_value, m_lfo_amount);}
-void rayv_gui::LFOampChanged(int a_value){lms_value_changed(a_value, m_lfo_amp);}
-void rayv_gui::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
+void wayv_gui::LFOamountChanged(int a_value){lms_value_changed(a_value, m_lfo_amount);}
+void wayv_gui::LFOampChanged(int a_value){lms_value_changed(a_value, m_lfo_amp);}
+void wayv_gui::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
 
 
 
-void rayv_gui::lms_set_value(float val, LMS_control * a_ctrl )
+void wayv_gui::lms_set_value(float val, LMS_control * a_ctrl )
 {    
     m_suppressHostUpdate = true;
     a_ctrl->lms_set_value(int(val));
     m_suppressHostUpdate = false;     
 }
 
-void rayv_gui::setAttackMain(float a_value){ lms_set_value(a_value, m_adsr_amp_main->lms_attack);}
-void rayv_gui::setDecayMain(float a_value){ lms_set_value(a_value, m_adsr_amp_main->lms_decay); }
-void rayv_gui::setSustainMain(float a_value){lms_set_value(a_value, m_adsr_amp_main->lms_sustain);}
-void rayv_gui::setReleaseMain(float a_value){lms_set_value(a_value, m_adsr_amp_main->lms_release);}
+void wayv_gui::setAttackMain(float a_value){ lms_set_value(a_value, m_adsr_amp_main->lms_attack);}
+void wayv_gui::setDecayMain(float a_value){ lms_set_value(a_value, m_adsr_amp_main->lms_decay); }
+void wayv_gui::setSustainMain(float a_value){lms_set_value(a_value, m_adsr_amp_main->lms_sustain);}
+void wayv_gui::setReleaseMain(float a_value){lms_set_value(a_value, m_adsr_amp_main->lms_release);}
 
-void rayv_gui::setAttack1(float a_value){ lms_set_value(a_value, m_adsr_amp1->lms_attack);}
-void rayv_gui::setDecay1(float a_value){ lms_set_value(a_value, m_adsr_amp1->lms_decay); }
-void rayv_gui::setSustain1(float a_value){lms_set_value(a_value, m_adsr_amp1->lms_sustain);}
-void rayv_gui::setRelease1(float a_value){lms_set_value(a_value, m_adsr_amp1->lms_release);}
+void wayv_gui::setAttack1(float a_value){ lms_set_value(a_value, m_adsr_amp1->lms_attack);}
+void wayv_gui::setDecay1(float a_value){ lms_set_value(a_value, m_adsr_amp1->lms_decay); }
+void wayv_gui::setSustain1(float a_value){lms_set_value(a_value, m_adsr_amp1->lms_sustain);}
+void wayv_gui::setRelease1(float a_value){lms_set_value(a_value, m_adsr_amp1->lms_release);}
 
-void rayv_gui::setAttack2(float a_value){ lms_set_value(a_value, m_adsr_amp2->lms_attack);}
-void rayv_gui::setDecay2(float a_value){ lms_set_value(a_value, m_adsr_amp2->lms_decay); }
-void rayv_gui::setSustain2(float a_value){lms_set_value(a_value, m_adsr_amp2->lms_sustain);}
-void rayv_gui::setRelease2(float a_value){lms_set_value(a_value, m_adsr_amp2->lms_release);}
+void wayv_gui::setAttack2(float a_value){ lms_set_value(a_value, m_adsr_amp2->lms_attack);}
+void wayv_gui::setDecay2(float a_value){ lms_set_value(a_value, m_adsr_amp2->lms_decay); }
+void wayv_gui::setSustain2(float a_value){lms_set_value(a_value, m_adsr_amp2->lms_sustain);}
+void wayv_gui::setRelease2(float a_value){lms_set_value(a_value, m_adsr_amp2->lms_release);}
 
-void rayv_gui::setOsc1Type(float a_value){lms_set_value(a_value, m_osc1->lms_osc_type_box);}
-void rayv_gui::setOsc1Pitch(float a_value){lms_set_value(a_value, m_osc1->lms_pitch_knob);}
-void rayv_gui::setOsc1Tune(float a_value){lms_set_value(a_value, m_osc1->lms_fine_knob);}
-void rayv_gui::setOsc1Volume(float a_value){lms_set_value(a_value, m_osc1->lms_vol_knob);}
-void rayv_gui::setOsc2Type(float a_value){lms_set_value(a_value, m_osc2->lms_osc_type_box);}
-void rayv_gui::setOsc2Pitch(float a_value){lms_set_value(a_value, m_osc2->lms_pitch_knob);}
-void rayv_gui::setOsc2Tune(float a_value){lms_set_value(a_value, m_osc2->lms_fine_knob);}
-void rayv_gui::setOsc2Volume(float a_value){lms_set_value(a_value, m_osc2->lms_vol_knob);}
-void rayv_gui::setProgram(float a_value){lms_set_value(a_value, m_program);}
-
-
-void rayv_gui::setADSR1checked(float a_value){lms_set_value(a_value, m_adsr_amp1_checkbox);}
-void rayv_gui::setADSR2checked(float a_value){lms_set_value(a_value, m_adsr_amp2_checkbox);}
+void wayv_gui::setOsc1Type(float a_value){lms_set_value(a_value, m_osc1->lms_osc_type_box);}
+void wayv_gui::setOsc1Pitch(float a_value){lms_set_value(a_value, m_osc1->lms_pitch_knob);}
+void wayv_gui::setOsc1Tune(float a_value){lms_set_value(a_value, m_osc1->lms_fine_knob);}
+void wayv_gui::setOsc1Volume(float a_value){lms_set_value(a_value, m_osc1->lms_vol_knob);}
+void wayv_gui::setOsc2Type(float a_value){lms_set_value(a_value, m_osc2->lms_osc_type_box);}
+void wayv_gui::setOsc2Pitch(float a_value){lms_set_value(a_value, m_osc2->lms_pitch_knob);}
+void wayv_gui::setOsc2Tune(float a_value){lms_set_value(a_value, m_osc2->lms_fine_knob);}
+void wayv_gui::setOsc2Volume(float a_value){lms_set_value(a_value, m_osc2->lms_vol_knob);}
+void wayv_gui::setProgram(float a_value){lms_set_value(a_value, m_program);}
 
 
-void rayv_gui::setFX0knob0(float val){ lms_set_value(val, m_fx0->lms_knob1); }
-void rayv_gui::setFX0knob1(float val){ lms_set_value(val, m_fx0->lms_knob2); }
-void rayv_gui::setFX0knob2(float val){ lms_set_value(val, m_fx0->lms_knob3); }
-void rayv_gui::setFX0combobox(float val){ lms_set_value(val, m_fx0->lms_combobox); }
-
-void rayv_gui::setFX1knob0(float val){ lms_set_value(val, m_fx1->lms_knob1); }
-void rayv_gui::setFX1knob1(float val){ lms_set_value(val, m_fx1->lms_knob2); }
-void rayv_gui::setFX1knob2(float val){ lms_set_value(val, m_fx1->lms_knob3); }
-void rayv_gui::setFX1combobox(float val){ lms_set_value(val, m_fx1->lms_combobox); }
-
-void rayv_gui::setFX2knob0(float val){ lms_set_value(val, m_fx2->lms_knob1); }
-void rayv_gui::setFX2knob1(float val){ lms_set_value(val, m_fx2->lms_knob2); }
-void rayv_gui::setFX2knob2(float val){ lms_set_value(val, m_fx2->lms_knob3); }
-void rayv_gui::setFX2combobox(float val){ lms_set_value(val, m_fx2->lms_combobox); }
-
-void rayv_gui::setFX3knob0(float val){ lms_set_value(val, m_fx3->lms_knob1); }
-void rayv_gui::setFX3knob1(float val){ lms_set_value(val, m_fx3->lms_knob2); }
-void rayv_gui::setFX3knob2(float val){ lms_set_value(val, m_fx3->lms_knob3); }
-void rayv_gui::setFX3combobox(float val){ lms_set_value(val, m_fx3->lms_combobox); }
+void wayv_gui::setADSR1checked(float a_value){lms_set_value(a_value, m_adsr_amp1_checkbox);}
+void wayv_gui::setADSR2checked(float a_value){lms_set_value(a_value, m_adsr_amp2_checkbox);}
 
 
+void wayv_gui::setFX0knob0(float val){ lms_set_value(val, m_fx0->lms_knob1); }
+void wayv_gui::setFX0knob1(float val){ lms_set_value(val, m_fx0->lms_knob2); }
+void wayv_gui::setFX0knob2(float val){ lms_set_value(val, m_fx0->lms_knob3); }
+void wayv_gui::setFX0combobox(float val){ lms_set_value(val, m_fx0->lms_combobox); }
+
+void wayv_gui::setFX1knob0(float val){ lms_set_value(val, m_fx1->lms_knob1); }
+void wayv_gui::setFX1knob1(float val){ lms_set_value(val, m_fx1->lms_knob2); }
+void wayv_gui::setFX1knob2(float val){ lms_set_value(val, m_fx1->lms_knob3); }
+void wayv_gui::setFX1combobox(float val){ lms_set_value(val, m_fx1->lms_combobox); }
+
+void wayv_gui::setFX2knob0(float val){ lms_set_value(val, m_fx2->lms_knob1); }
+void wayv_gui::setFX2knob1(float val){ lms_set_value(val, m_fx2->lms_knob2); }
+void wayv_gui::setFX2knob2(float val){ lms_set_value(val, m_fx2->lms_knob3); }
+void wayv_gui::setFX2combobox(float val){ lms_set_value(val, m_fx2->lms_combobox); }
+
+void wayv_gui::setFX3knob0(float val){ lms_set_value(val, m_fx3->lms_knob1); }
+void wayv_gui::setFX3knob1(float val){ lms_set_value(val, m_fx3->lms_knob2); }
+void wayv_gui::setFX3knob2(float val){ lms_set_value(val, m_fx3->lms_knob3); }
+void wayv_gui::setFX3combobox(float val){ lms_set_value(val, m_fx3->lms_combobox); }
 
 
-void rayv_gui::setAttack(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_attack);}
-void rayv_gui::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_decay); }
-void rayv_gui::setSustain(float a_value){lms_set_value(a_value, m_adsr_amp->lms_sustain);}
-void rayv_gui::setRelease(float a_value){lms_set_value(a_value, m_adsr_amp->lms_release);}
-void rayv_gui::setFilterAttack (float a_value){lms_set_value(a_value, m_adsr_filter->lms_attack);}
-void rayv_gui::setFilterDecay  (float a_value){lms_set_value(a_value, m_adsr_filter->lms_decay);}
-void rayv_gui::setFilterSustain(float a_value){lms_set_value(a_value, m_adsr_filter->lms_sustain);}
-void rayv_gui::setFilterRelease(float a_value){lms_set_value(a_value, m_adsr_filter->lms_release);}
-void rayv_gui::setNoiseAmp(float a_value){lms_set_value(a_value, m_noise_amp);}
-void rayv_gui::setNoiseType(float a_value){lms_set_value(a_value, m_noise_type);}
-void rayv_gui::setMasterVolume(float a_value){lms_set_value(a_value, m_master->lms_master_volume);}
-void rayv_gui::setOsc1UnisonVoices(float a_value){lms_set_value(a_value, m_osc1_uni_voices);}
-void rayv_gui::setOsc1UnisonSpread(float a_value){lms_set_value(a_value, m_osc1_uni_spread);}
-void rayv_gui::setOsc2UnisonVoices(float a_value){lms_set_value(a_value, m_osc2_uni_voices);}
-void rayv_gui::setOsc2UnisonSpread(float a_value){lms_set_value(a_value, m_osc2_uni_spread);}
-void rayv_gui::setMasterGlide(float a_value){lms_set_value(a_value, m_master->lms_master_glide);}
-void rayv_gui::setMasterPitchbendAmt(float a_value){lms_set_value(a_value, m_master->lms_master_pitchbend_amt);}
-void rayv_gui::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env->lms_time_knob);}
-void rayv_gui::setPitchEnvAmt(float a_value){lms_set_value(a_value, m_pitch_env->lms_amt_knob);}
-void rayv_gui::setLFOfreq(float a_value){lms_set_value(a_value, m_lfo->lms_freq_knob);}
-void rayv_gui::setLFOtype(float a_value){lms_set_value(a_value, m_lfo->lms_type_combobox);}
-
-void rayv_gui::setLFOamount(float a_value){lms_set_value(a_value, m_lfo_amount);}
-void rayv_gui::setLFOamp(float a_value){lms_set_value(a_value, m_lfo_amp);}
-void rayv_gui::setLFOpitch(float a_value){lms_set_value(a_value, m_lfo_pitch);}
 
 
-void rayv_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
+void wayv_gui::setAttack(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_attack);}
+void wayv_gui::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_decay); }
+void wayv_gui::setSustain(float a_value){lms_set_value(a_value, m_adsr_amp->lms_sustain);}
+void wayv_gui::setRelease(float a_value){lms_set_value(a_value, m_adsr_amp->lms_release);}
+void wayv_gui::setFilterAttack (float a_value){lms_set_value(a_value, m_adsr_filter->lms_attack);}
+void wayv_gui::setFilterDecay  (float a_value){lms_set_value(a_value, m_adsr_filter->lms_decay);}
+void wayv_gui::setFilterSustain(float a_value){lms_set_value(a_value, m_adsr_filter->lms_sustain);}
+void wayv_gui::setFilterRelease(float a_value){lms_set_value(a_value, m_adsr_filter->lms_release);}
+void wayv_gui::setNoiseAmp(float a_value){lms_set_value(a_value, m_noise_amp);}
+void wayv_gui::setNoiseType(float a_value){lms_set_value(a_value, m_noise_type);}
+void wayv_gui::setMasterVolume(float a_value){lms_set_value(a_value, m_master->lms_master_volume);}
+void wayv_gui::setOsc1UnisonVoices(float a_value){lms_set_value(a_value, m_osc1_uni_voices);}
+void wayv_gui::setOsc1UnisonSpread(float a_value){lms_set_value(a_value, m_osc1_uni_spread);}
+void wayv_gui::setOsc2UnisonVoices(float a_value){lms_set_value(a_value, m_osc2_uni_voices);}
+void wayv_gui::setOsc2UnisonSpread(float a_value){lms_set_value(a_value, m_osc2_uni_spread);}
+void wayv_gui::setMasterGlide(float a_value){lms_set_value(a_value, m_master->lms_master_glide);}
+void wayv_gui::setMasterPitchbendAmt(float a_value){lms_set_value(a_value, m_master->lms_master_pitchbend_amt);}
+void wayv_gui::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env->lms_time_knob);}
+void wayv_gui::setPitchEnvAmt(float a_value){lms_set_value(a_value, m_pitch_env->lms_amt_knob);}
+void wayv_gui::setLFOfreq(float a_value){lms_set_value(a_value, m_lfo->lms_freq_knob);}
+void wayv_gui::setLFOtype(float a_value){lms_set_value(a_value, m_lfo->lms_type_combobox);}
+
+void wayv_gui::setLFOamount(float a_value){lms_set_value(a_value, m_lfo_amount);}
+void wayv_gui::setLFOamp(float a_value){lms_set_value(a_value, m_lfo_amp);}
+void wayv_gui::setLFOpitch(float a_value){lms_set_value(a_value, m_lfo_pitch);}
+
+
+void wayv_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {    
     a_ctrl->lms_value_changed(a_value);
 
@@ -748,107 +748,107 @@ void rayv_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
     }    
 }
 
-void rayv_gui::attackMainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp_main->lms_attack);}
-void rayv_gui::decayMainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp_main->lms_decay);}
-void rayv_gui::sustainMainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp_main->lms_sustain);}
-void rayv_gui::releaseMainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp_main->lms_release);}
+void wayv_gui::attackMainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp_main->lms_attack);}
+void wayv_gui::decayMainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp_main->lms_decay);}
+void wayv_gui::sustainMainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp_main->lms_sustain);}
+void wayv_gui::releaseMainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp_main->lms_release);}
 
-void rayv_gui::attack1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_attack);}
-void rayv_gui::decay1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_decay);}
-void rayv_gui::sustain1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_sustain);}
-void rayv_gui::release1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_release);}
+void wayv_gui::attack1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_attack);}
+void wayv_gui::decay1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_decay);}
+void wayv_gui::sustain1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_sustain);}
+void wayv_gui::release1Changed(int a_value){lms_value_changed(a_value, m_adsr_amp1->lms_release);}
 
-void rayv_gui::attack2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_attack);}
-void rayv_gui::decay2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_decay);}
-void rayv_gui::sustain2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_sustain);}
-void rayv_gui::release2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_release);}
+void wayv_gui::attack2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_attack);}
+void wayv_gui::decay2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_decay);}
+void wayv_gui::sustain2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_sustain);}
+void wayv_gui::release2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_release);}
 
-void rayv_gui::osc1TypeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_osc_type_box);}
-void rayv_gui::osc1PitchChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_pitch_knob);}
-void rayv_gui::osc1TuneChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_fine_knob);}
-void rayv_gui::osc1VolumeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_vol_knob);}
-void rayv_gui::osc2TypeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_osc_type_box);}
-void rayv_gui::osc2PitchChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_pitch_knob);}
-void rayv_gui::osc2TuneChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_fine_knob);}
-void rayv_gui::osc2VolumeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_vol_knob);}
-void rayv_gui::programChanged(int a_value){ m_program->lms_value_changed(a_value);}
-void rayv_gui::programSaved(){ m_program->programSaved(); }
-
-
-void rayv_gui::attackChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_attack);}
-void rayv_gui::decayChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_decay);}
-void rayv_gui::sustainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_sustain);}
-void rayv_gui::releaseChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_release);}
-void rayv_gui::filterAttackChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_attack);}
-void rayv_gui::filterDecayChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_decay);}
-void rayv_gui::filterSustainChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_sustain);}
-void rayv_gui::filterReleaseChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_release);}
-void rayv_gui::noiseAmpChanged(int a_value){lms_value_changed(a_value, m_noise_amp);}
-void rayv_gui::noise_typeChanged(int a_value){lms_value_changed(a_value, m_noise_type);}
-void rayv_gui::masterVolumeChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_volume);}
-void rayv_gui::osc1UnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_osc1_uni_voices);}
-void rayv_gui::osc1UnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_osc1_uni_spread);}
-void rayv_gui::osc2UnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_osc2_uni_voices);}
-void rayv_gui::osc2UnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_osc2_uni_spread);}
-void rayv_gui::masterGlideChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_glide);}
-void rayv_gui::masterPitchbendAmtChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_pitchbend_amt);}
-void rayv_gui::pitchEnvTimeChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_time_knob);}
-void rayv_gui::pitchEnvAmtChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_amt_knob);}
-void rayv_gui::LFOfreqChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_freq_knob);}
-void rayv_gui::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_type_combobox);}
+void wayv_gui::osc1TypeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_osc_type_box);}
+void wayv_gui::osc1PitchChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_pitch_knob);}
+void wayv_gui::osc1TuneChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_fine_knob);}
+void wayv_gui::osc1VolumeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_vol_knob);}
+void wayv_gui::osc2TypeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_osc_type_box);}
+void wayv_gui::osc2PitchChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_pitch_knob);}
+void wayv_gui::osc2TuneChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_fine_knob);}
+void wayv_gui::osc2VolumeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_vol_knob);}
+void wayv_gui::programChanged(int a_value){ m_program->lms_value_changed(a_value);}
+void wayv_gui::programSaved(){ m_program->programSaved(); }
 
 
+void wayv_gui::attackChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_attack);}
+void wayv_gui::decayChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_decay);}
+void wayv_gui::sustainChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_sustain);}
+void wayv_gui::releaseChanged(int a_value){lms_value_changed(a_value, m_adsr_amp->lms_release);}
+void wayv_gui::filterAttackChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_attack);}
+void wayv_gui::filterDecayChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_decay);}
+void wayv_gui::filterSustainChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_sustain);}
+void wayv_gui::filterReleaseChanged(int a_value){lms_value_changed(a_value, m_adsr_filter->lms_release);}
+void wayv_gui::noiseAmpChanged(int a_value){lms_value_changed(a_value, m_noise_amp);}
+void wayv_gui::noise_typeChanged(int a_value){lms_value_changed(a_value, m_noise_type);}
+void wayv_gui::masterVolumeChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_volume);}
+void wayv_gui::osc1UnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_osc1_uni_voices);}
+void wayv_gui::osc1UnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_osc1_uni_spread);}
+void wayv_gui::osc2UnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_osc2_uni_voices);}
+void wayv_gui::osc2UnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_osc2_uni_spread);}
+void wayv_gui::masterGlideChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_glide);}
+void wayv_gui::masterPitchbendAmtChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_pitchbend_amt);}
+void wayv_gui::pitchEnvTimeChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_time_knob);}
+void wayv_gui::pitchEnvAmtChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_amt_knob);}
+void wayv_gui::LFOfreqChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_freq_knob);}
+void wayv_gui::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_type_combobox);}
 
 
 
 
 
-void rayv_gui::v_print_port_name_to_cerr(int a_port)
+
+
+void wayv_gui::v_print_port_name_to_cerr(int a_port)
 {
 #ifdef LMS_DEBUG_MODE_QT
     switch (a_port) {
-    case WAYV_ATTACK_MAIN: rayv_cerr << "LMS_ATTACK"; break;
-    case WAYV_DECAY_MAIN: rayv_cerr << "LMS_DECAY"; break;
-    case WAYV_SUSTAIN_MAIN: rayv_cerr << "LMS_SUSTAIN"; break;
-    case WAYV_RELEASE_MAIN: rayv_cerr << "LMS_RELEASE"; break;
-    case WAYV_TIMBRE: rayv_cerr << "LMS_TIMBRE"; break;
-    case WAYV_RES: rayv_cerr << "LMS_RES"; break;        
-    case WAYV_DIST: rayv_cerr << "LMS_DIST"; break;
-    case WAYV_FILTER_ATTACK: rayv_cerr << "LMS_FILTER_ATTACK"; break;
-    case WAYV_FILTER_DECAY: rayv_cerr << "LMS_FILTER_DECAY"; break;
-    case WAYV_FILTER_SUSTAIN: rayv_cerr << "LMS_FILTER_SUSTAIN"; break;
-    case WAYV_FILTER_RELEASE: rayv_cerr << "LMS_FILTER_RELEASE"; break;
-    case WAYV_NOISE_AMP: rayv_cerr << "LMS_NOISE_AMP"; break;    
-    case WAYV_DIST_WET: rayv_cerr << "LMS_DIST_WET"; break;            
-    case WAYV_FILTER_ENV_AMT: rayv_cerr << "LMS_FILTER_ENV_AMT"; break;    
-    case WAYV_OSC1_TYPE: rayv_cerr << "LMS_OSC1_TYPE"; break;            
-    case WAYV_OSC1_PITCH: rayv_cerr << "LMS_OSC1_PITCH"; break;    
-    case WAYV_OSC1_TUNE: rayv_cerr << "LMS_OSC1_TUNE"; break;    
-    case WAYV_OSC1_VOLUME: rayv_cerr << "LMS_OSC1_VOLUME"; break;        
-    case WAYV_OSC2_TYPE: rayv_cerr << "LMS_OSC2_TYPE"; break;            
-    case WAYV_OSC2_PITCH: rayv_cerr << "LMS_OSC2_PITCH"; break;    
-    case WAYV_OSC2_TUNE: rayv_cerr << "LMS_OSC2_TUNE";  break;    
-    case WAYV_OSC2_VOLUME: rayv_cerr << "LMS_OSC2_VOLUME"; break;        
-    case WAYV_MASTER_VOLUME: rayv_cerr << "LMS_MASTER_VOLUME"; break;
-    case WAYV_OSC1_UNISON_VOICES: rayv_cerr << "LMS_MASTER_UNISON_VOICES"; break;
-    case WAYV_OSC1_UNISON_SPREAD: rayv_cerr << "LMS_MASTER_UNISON_SPREAD"; break;
-    case WAYV_MASTER_GLIDE: rayv_cerr << "LMS_MASTER_GLIDE"; break;
-    case WAYV_MASTER_PITCHBEND_AMT: rayv_cerr << "LMS_MASTER_PITCHBEND_AMT"; break;
-    case WAYV_PITCH_ENV_AMT: rayv_cerr << "LMS_PITCH_ENV_AMT "; break;
-    case WAYV_PITCH_ENV_TIME: rayv_cerr << "LMS_PITCH_ENV_TIME ";  break;        
-    case WAYV_PROGRAM_CHANGE: rayv_cerr << "LMS_PROGRAM_CHANGE "; break;
-    default: rayv_cerr << "Warning: received request to set nonexistent port " << a_port ; break;
+    case WAYV_ATTACK_MAIN: wayv_cerr << "LMS_ATTACK"; break;
+    case WAYV_DECAY_MAIN: wayv_cerr << "LMS_DECAY"; break;
+    case WAYV_SUSTAIN_MAIN: wayv_cerr << "LMS_SUSTAIN"; break;
+    case WAYV_RELEASE_MAIN: wayv_cerr << "LMS_RELEASE"; break;
+    case WAYV_TIMBRE: wayv_cerr << "LMS_TIMBRE"; break;
+    case WAYV_RES: wayv_cerr << "LMS_RES"; break;        
+    case WAYV_DIST: wayv_cerr << "LMS_DIST"; break;
+    case WAYV_FILTER_ATTACK: wayv_cerr << "LMS_FILTER_ATTACK"; break;
+    case WAYV_FILTER_DECAY: wayv_cerr << "LMS_FILTER_DECAY"; break;
+    case WAYV_FILTER_SUSTAIN: wayv_cerr << "LMS_FILTER_SUSTAIN"; break;
+    case WAYV_FILTER_RELEASE: wayv_cerr << "LMS_FILTER_RELEASE"; break;
+    case WAYV_NOISE_AMP: wayv_cerr << "LMS_NOISE_AMP"; break;    
+    case WAYV_DIST_WET: wayv_cerr << "LMS_DIST_WET"; break;            
+    case WAYV_FILTER_ENV_AMT: wayv_cerr << "LMS_FILTER_ENV_AMT"; break;    
+    case WAYV_OSC1_TYPE: wayv_cerr << "LMS_OSC1_TYPE"; break;            
+    case WAYV_OSC1_PITCH: wayv_cerr << "LMS_OSC1_PITCH"; break;    
+    case WAYV_OSC1_TUNE: wayv_cerr << "LMS_OSC1_TUNE"; break;    
+    case WAYV_OSC1_VOLUME: wayv_cerr << "LMS_OSC1_VOLUME"; break;        
+    case WAYV_OSC2_TYPE: wayv_cerr << "LMS_OSC2_TYPE"; break;            
+    case WAYV_OSC2_PITCH: wayv_cerr << "LMS_OSC2_PITCH"; break;    
+    case WAYV_OSC2_TUNE: wayv_cerr << "LMS_OSC2_TUNE";  break;    
+    case WAYV_OSC2_VOLUME: wayv_cerr << "LMS_OSC2_VOLUME"; break;        
+    case WAYV_MASTER_VOLUME: wayv_cerr << "LMS_MASTER_VOLUME"; break;
+    case WAYV_OSC1_UNISON_VOICES: wayv_cerr << "LMS_MASTER_UNISON_VOICES"; break;
+    case WAYV_OSC1_UNISON_SPREAD: wayv_cerr << "LMS_MASTER_UNISON_SPREAD"; break;
+    case WAYV_MASTER_GLIDE: wayv_cerr << "LMS_MASTER_GLIDE"; break;
+    case WAYV_MASTER_PITCHBEND_AMT: wayv_cerr << "LMS_MASTER_PITCHBEND_AMT"; break;
+    case WAYV_PITCH_ENV_AMT: wayv_cerr << "LMS_PITCH_ENV_AMT "; break;
+    case WAYV_PITCH_ENV_TIME: wayv_cerr << "LMS_PITCH_ENV_TIME ";  break;        
+    case WAYV_PROGRAM_CHANGE: wayv_cerr << "LMS_PROGRAM_CHANGE "; break;
+    default: wayv_cerr << "Warning: received request to set nonexistent port " << a_port ; break;
     }
 #endif
 }
 
-void rayv_gui::v_set_control(int a_port, float a_value)
+void wayv_gui::v_set_control(int a_port, float a_value)
 {
 
 #ifdef LMS_DEBUG_MODE_QT    
-    rayv_cerr << "v_set_control called.  ";  
+    wayv_cerr << "v_set_control called.  ";  
     v_print_port_name_to_cerr(a_port);
-    rayv_cerr << "  value: " << a_value << endl;
+    wayv_cerr << "  value: " << a_value << endl;
 #endif
         
     switch (a_port) {
@@ -918,54 +918,54 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case WAYV_FX3_COMBOBOX: setFX3combobox(a_value); break;
         //End from Modulex            
         //From PolyFX mod matrix
-        case LMS_PFXMATRIX_GRP0DST0SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST0SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST0SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST0SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST0SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST0SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST0SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST0SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST0SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST0SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST0SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST0SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST1SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST2SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-        case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+        case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]->lms_get_widget()))->setValue(a_value); break;
 
         case WAYV_LFO_AMOUNT: setLFOamount(a_value); break;            
         case WAYV_LFO_AMP: setLFOamp(a_value); break;            
@@ -974,18 +974,18 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case WAYV_ADSR1_CHECKBOX: setADSR1checked(a_value); break;
         case WAYV_ADSR2_CHECKBOX: setADSR2checked(a_value); break;
         
-        case RAYV_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
+        case WAYV_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
     }
     
 }
 
-void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_update)
+void wayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_update)
 {
     
 #ifdef LMS_DEBUG_MODE_QT    
-    rayv_cerr << "v_control_changed called.  ";  
+    wayv_cerr << "v_control_changed called.  ";  
     v_print_port_name_to_cerr(a_port);
-    rayv_cerr << "  value: " << a_value << endl;
+    wayv_cerr << "  value: " << a_value << endl;
 #endif
     
     if(a_suppress_host_update)
@@ -1058,54 +1058,54 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case WAYV_FX3_COMBOBOX:  fx3comboboxChanged(a_value); break;
     //End from Modulex
     //From PolyFX mod matrix
-    case LMS_PFXMATRIX_GRP0DST0SRC0CTRL0:  pfxmatrix_grp0dst0src0ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST0SRC0CTRL1:  pfxmatrix_grp0dst0src0ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST0SRC0CTRL2:  pfxmatrix_grp0dst0src0ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST0SRC1CTRL0:  pfxmatrix_grp0dst0src1ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST0SRC1CTRL1:  pfxmatrix_grp0dst0src1ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST0SRC1CTRL2:  pfxmatrix_grp0dst0src1ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST0SRC2CTRL0:  pfxmatrix_grp0dst0src2ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST0SRC2CTRL1:  pfxmatrix_grp0dst0src2ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST0SRC2CTRL2:  pfxmatrix_grp0dst0src2ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST0SRC3CTRL0:  pfxmatrix_grp0dst0src3ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST0SRC3CTRL1:  pfxmatrix_grp0dst0src3ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST0SRC3CTRL2:  pfxmatrix_grp0dst0src3ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC0CTRL0:  pfxmatrix_grp0dst1src0ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC0CTRL1:  pfxmatrix_grp0dst1src0ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC0CTRL2:  pfxmatrix_grp0dst1src0ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC1CTRL0:  pfxmatrix_grp0dst1src1ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC1CTRL1:  pfxmatrix_grp0dst1src1ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC1CTRL2:  pfxmatrix_grp0dst1src1ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC2CTRL0:  pfxmatrix_grp0dst1src2ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC2CTRL1:  pfxmatrix_grp0dst1src2ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC2CTRL2:  pfxmatrix_grp0dst1src2ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC3CTRL0:  pfxmatrix_grp0dst1src3ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC3CTRL1:  pfxmatrix_grp0dst1src3ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST1SRC3CTRL2:  pfxmatrix_grp0dst1src3ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC0CTRL0:  pfxmatrix_grp0dst2src0ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC0CTRL1:  pfxmatrix_grp0dst2src0ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC0CTRL2:  pfxmatrix_grp0dst2src0ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC1CTRL0:  pfxmatrix_grp0dst2src1ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC1CTRL1:  pfxmatrix_grp0dst2src1ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC1CTRL2:  pfxmatrix_grp0dst2src1ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC2CTRL0:  pfxmatrix_grp0dst2src2ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC2CTRL1:  pfxmatrix_grp0dst2src2ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC2CTRL2:  pfxmatrix_grp0dst2src2ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC3CTRL0:  pfxmatrix_grp0dst2src3ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC3CTRL1:  pfxmatrix_grp0dst2src3ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST2SRC3CTRL2:  pfxmatrix_grp0dst2src3ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC0CTRL0:  pfxmatrix_grp0dst3src0ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC0CTRL1:  pfxmatrix_grp0dst3src0ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC0CTRL2:  pfxmatrix_grp0dst3src0ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC1CTRL0:  pfxmatrix_grp0dst3src1ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC1CTRL1:  pfxmatrix_grp0dst3src1ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC1CTRL2:  pfxmatrix_grp0dst3src1ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC2CTRL0:  pfxmatrix_grp0dst3src2ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC2CTRL1:  pfxmatrix_grp0dst3src2ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC2CTRL2:  pfxmatrix_grp0dst3src2ctrl2Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC3CTRL0:  pfxmatrix_grp0dst3src3ctrl0Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1:  pfxmatrix_grp0dst3src3ctrl1Changed(a_value); break;
-    case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2:  pfxmatrix_grp0dst3src3ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0:  pfxmatrix_grp0dst0src0ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL1:  pfxmatrix_grp0dst0src0ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC0CTRL2:  pfxmatrix_grp0dst0src0ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL0:  pfxmatrix_grp0dst0src1ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL1:  pfxmatrix_grp0dst0src1ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC1CTRL2:  pfxmatrix_grp0dst0src1ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL0:  pfxmatrix_grp0dst0src2ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL1:  pfxmatrix_grp0dst0src2ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC2CTRL2:  pfxmatrix_grp0dst0src2ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL0:  pfxmatrix_grp0dst0src3ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL1:  pfxmatrix_grp0dst0src3ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST0SRC3CTRL2:  pfxmatrix_grp0dst0src3ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL0:  pfxmatrix_grp0dst1src0ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL1:  pfxmatrix_grp0dst1src0ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC0CTRL2:  pfxmatrix_grp0dst1src0ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL0:  pfxmatrix_grp0dst1src1ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL1:  pfxmatrix_grp0dst1src1ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC1CTRL2:  pfxmatrix_grp0dst1src1ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL0:  pfxmatrix_grp0dst1src2ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL1:  pfxmatrix_grp0dst1src2ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC2CTRL2:  pfxmatrix_grp0dst1src2ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL0:  pfxmatrix_grp0dst1src3ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL1:  pfxmatrix_grp0dst1src3ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST1SRC3CTRL2:  pfxmatrix_grp0dst1src3ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL0:  pfxmatrix_grp0dst2src0ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL1:  pfxmatrix_grp0dst2src0ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC0CTRL2:  pfxmatrix_grp0dst2src0ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL0:  pfxmatrix_grp0dst2src1ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL1:  pfxmatrix_grp0dst2src1ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC1CTRL2:  pfxmatrix_grp0dst2src1ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL0:  pfxmatrix_grp0dst2src2ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL1:  pfxmatrix_grp0dst2src2ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC2CTRL2:  pfxmatrix_grp0dst2src2ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL0:  pfxmatrix_grp0dst2src3ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL1:  pfxmatrix_grp0dst2src3ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST2SRC3CTRL2:  pfxmatrix_grp0dst2src3ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL0:  pfxmatrix_grp0dst3src0ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL1:  pfxmatrix_grp0dst3src0ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC0CTRL2:  pfxmatrix_grp0dst3src0ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL0:  pfxmatrix_grp0dst3src1ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL1:  pfxmatrix_grp0dst3src1ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC1CTRL2:  pfxmatrix_grp0dst3src1ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL0:  pfxmatrix_grp0dst3src2ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL1:  pfxmatrix_grp0dst3src2ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC2CTRL2:  pfxmatrix_grp0dst3src2ctrl2Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL0:  pfxmatrix_grp0dst3src3ctrl0Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL1:  pfxmatrix_grp0dst3src3ctrl1Changed(a_value); break;
+    case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2:  pfxmatrix_grp0dst3src3ctrl2Changed(a_value); break;
 
     case WAYV_ADSR1_CHECKBOX: adsr1checkChanged(a_value); break;
     case WAYV_ADSR2_CHECKBOX: adsr2checkChanged(a_value); break;
@@ -1113,11 +1113,11 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case WAYV_LFO_AMOUNT: LFOamountChanged(a_value); break;
     case WAYV_LFO_AMP: LFOampChanged(a_value); break;
     case WAYV_LFO_PITCH: LFOpitchChanged(a_value); break;    
-    case RAYV_PITCH_ENV_AMT: pitchEnvAmtChanged(a_value); break;
+    case WAYV_PITCH_ENV_AMT: pitchEnvAmtChanged(a_value); break;
     
     default:
 #ifdef LMS_DEBUG_MODE_QT
-	rayv_cerr << "Warning: received request to set nonexistent port " << a_port << endl;
+	wayv_cerr << "Warning: received request to set nonexistent port " << a_port << endl;
 #endif
         break;
     }
@@ -1130,7 +1130,7 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
 /*TODO:  For the forseeable future, this will only be used for getting the values to write back to 
  the presets.tsv file;  It should probably return a string that can be re-interpreted into other values for
  complex controls that could have multiple ints, or string values, etc...*/
-int rayv_gui::i_get_control(int a_port)
+int wayv_gui::i_get_control(int a_port)
 {
         /*Add the controls you created to the control handler*/
     
@@ -1159,73 +1159,73 @@ int rayv_gui::i_get_control(int a_port)
     case WAYV_LFO_AMOUNT: return m_lfo_amount->lms_get_value();
     case WAYV_LFO_AMP: return m_lfo_amp->lms_get_value();
     case WAYV_LFO_PITCH: return m_lfo_pitch->lms_get_value();
-    case RAYV_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
+    case WAYV_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
     //case LMS_PROGRAM_CHANGE:
         //return m_program->currentIndex();
     default:
 #ifdef LMS_DEBUG_MODE_QT
-	rayv_cerr << "Warning: received request to get nonexistent port " << a_port << endl;
+	wayv_cerr << "Warning: received request to get nonexistent port " << a_port << endl;
 #endif
         return 0;
         break;
     }    
 }
 
-void rayv_gui::oscRecv()
+void wayv_gui::oscRecv()
 {
     if (osc_server) {
 	lo_server_recv_noblock(osc_server, 1);
     }
 }
 
-void rayv_gui::aboutToQuit()
+void wayv_gui::aboutToQuit()
 {
     if (!m_hostRequestedQuit) lo_send(m_host, m_exitingPath, "");
 }
 
-rayv_gui::~rayv_gui()
+wayv_gui::~wayv_gui()
 {
     lo_address_free(m_host);
 }
 
 
-void rayv_osc_error(int num, const char *msg, const char *path)
+void wayv_osc_error(int num, const char *msg, const char *path)
 {
 #ifdef LMS_DEBUG_MODE_QT
-    rayv_cerr << "Error: liblo server error " << num
+    wayv_cerr << "Error: liblo server error " << num
 	 << " in path \"" << (path ? path : "(null)")
 	 << "\": " << msg << endl;
 #endif
 }
 
-int rayv_debug_handler(const char *path, const char *types, lo_arg **argv,
+int wayv_debug_handler(const char *path, const char *types, lo_arg **argv,
 	      int argc, void *data, void *user_data)
 {
     int i;
 #ifdef LMS_DEBUG_MODE_QT
-      rayv_cerr << "Warning: unhandled OSC message in GUI:" << endl;
+      wayv_cerr << "Warning: unhandled OSC message in GUI:" << endl;
 #endif
     
 
     for (i = 0; i < argc; ++i) {
 #ifdef LMS_DEBUG_MODE_QT
-	rayv_cerr << "arg " << i << ": type '" << types[i] << "': ";
+	wayv_cerr << "arg " << i << ": type '" << types[i] << "': ";
 #endif
         lo_arg_pp((lo_type)types[i], argv[i]);
 #ifdef LMS_DEBUG_MODE_QT
-	rayv_cerr << endl;
+	wayv_cerr << endl;
 #endif
     }
 #ifdef LMS_DEBUG_MODE_QT
-    rayv_cerr << "(path is <" << path << ">)" << endl;
+    wayv_cerr << "(path is <" << path << ">)" << endl;
 #endif
     return 1;
 }
 
-int rayv_program_handler(const char *path, const char *types, lo_arg **argv,
+int wayv_program_handler(const char *path, const char *types, lo_arg **argv,
 	       int argc, void *data, void *user_data)
 {
-    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
+    wayv_gui *gui = static_cast<wayv_gui *>(user_data);
     
     //int bank = 0;
     int program = 0;
@@ -1245,67 +1245,67 @@ int rayv_program_handler(const char *path, const char *types, lo_arg **argv,
     }
     */
 #ifdef LMS_DEBUG_MODE_QT
-    rayv_cerr << "Bank:  " << bank << ", Program:  " << program << endl;
+    wayv_cerr << "Bank:  " << bank << ", Program:  " << program << endl;
 #endif
     gui->setProgram(program);
 
     return 0;
 }
 
-int rayv_configure_handler(const char *path, const char *types, lo_arg **argv,
+int wayv_configure_handler(const char *path, const char *types, lo_arg **argv,
 		  int argc, void *data, void *user_data)
 {
     //rayv_gui *gui = static_cast<rayv_gui *>(user_data);
     const char *key = (const char *)&argv[0]->s;
     const char *value = (const char *)&argv[1]->s;
 
-    rayv_cerr << "GUI configure_handler:  Key:  " << QString::fromLocal8Bit(key) << " , Value:" << QString::fromLocal8Bit(value);
+    wayv_cerr << "GUI configure_handler:  Key:  " << QString::fromLocal8Bit(key) << " , Value:" << QString::fromLocal8Bit(value);
     
     return 0;
 }
 
-int rayv_rate_handler(const char *path, const char *types, lo_arg **argv,
+int wayv_rate_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
     return 0; /* ignore it */
 }
 
-int rayv_show_handler(const char *path, const char *types, lo_arg **argv,
+int wayv_show_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
-    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
+    wayv_gui *gui = static_cast<wayv_gui *>(user_data);
     while (!gui->ready()) sleep(1);
     if (gui->isVisible()) gui->raise();
     else gui->show();
     return 0;
 }
 
-int rayv_hide_handler(const char *path, const char *types, lo_arg **argv,
+int wayv_hide_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
-    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
+    wayv_gui *gui = static_cast<wayv_gui *>(user_data);
     gui->hide();
     return 0;
 }
 
-int rayv_quit_handler(const char *path, const char *types, lo_arg **argv,
+int wayv_quit_handler(const char *path, const char *types, lo_arg **argv,
 	     int argc, void *data, void *user_data)
 {
-    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
+    wayv_gui *gui = static_cast<wayv_gui *>(user_data);
     gui->setHostRequestedQuit(true);
     qApp->quit();
     return 0;
 }
 
-int rayv_control_handler(const char *path, const char *types, lo_arg **argv,
+int wayv_control_handler(const char *path, const char *types, lo_arg **argv,
 		int argc, void *data, void *user_data)
 {
-    rayv_gui *gui = static_cast<rayv_gui *>(user_data);
+    wayv_gui *gui = static_cast<wayv_gui *>(user_data);
 
     if (argc < 2) {
         
 #ifdef LMS_DEBUG_MODE_QT
-	rayv_cerr << "Error: too few arguments to control_handler" << endl;
+	wayv_cerr << "Error: too few arguments to control_handler" << endl;
 #endif
 	return 1;
     }
@@ -1314,7 +1314,7 @@ int rayv_control_handler(const char *path, const char *types, lo_arg **argv,
     const float value = argv[1]->f;
 
 #ifdef LMS_DEBUG_MODE_QT
-    rayv_cerr << "control_handler called.  port:  " << port << " , value " << value << endl;
+    wayv_cerr << "control_handler called.  port:  " << port << " , value " << value << endl;
 #endif
 
     gui->v_set_control(port, value);  
@@ -1328,10 +1328,10 @@ int main(int argc, char **argv)
 {
     for(int i = 0; i < argc; i++)
     {
-        rayv_cerr << "argv[" << i << "] == " << argv[i] << "\n";
+        wayv_cerr << "argv[" << i << "] == " << argv[i] << "\n";
     }
 
-    rayv_cerr << "Qt GUI main() called..." << endl;
+    wayv_cerr << "Qt GUI main() called..." << endl;
 
     
     QApplication application(argc, argv);
@@ -1339,7 +1339,7 @@ int main(int argc, char **argv)
     if (application.argc() < 5)
     {
 
-	rayv_cerr << "usage: "
+	wayv_cerr << "usage: "
 	     << application.argv()[0] 
 	     << " <osc url>"
 	     << " <plugin dllname>"
@@ -1360,12 +1360,12 @@ int main(int argc, char **argv)
     char *port = lo_url_get_port(url);
     char *path = lo_url_get_path(url);
     
-    rayv_cerr << "host: " << host << " port: " << port << " path: " << path << "\n";
+    wayv_cerr << "host: " << host << " port: " << port << " path: " << path << "\n";
         
-    rayv_cerr << QString("argc==") << QString::number(argc) << QString("\n");
+    wayv_cerr << QString("argc==") << QString::number(argc) << QString("\n");
     
 
-    rayv_gui gui(host, port,
+    wayv_gui gui(host, port,
 		 QByteArray(path) + "/control",
 		 QByteArray(path) + "/midi",
 		 QByteArray(path) + "/program",
@@ -1380,17 +1380,17 @@ int main(int argc, char **argv)
     QByteArray myHidePath = QByteArray(path) + "/hide";
     QByteArray myQuitPath = QByteArray(path) + "/quit";
 
-    rayv_cerr << "Adding lo server methods" << endl;
+    wayv_cerr << "Adding lo server methods" << endl;
 
-    osc_server = lo_server_new(NULL, rayv_osc_error);
-    lo_server_add_method(osc_server, myControlPath, "if", rayv_control_handler, &gui);
-    lo_server_add_method(osc_server, myProgramPath, "ii", rayv_program_handler, &gui);
-    lo_server_add_method(osc_server, myConfigurePath, "ss", rayv_configure_handler, &gui);
-    lo_server_add_method(osc_server, myRatePath, "i", rayv_rate_handler, &gui);
-    lo_server_add_method(osc_server, myShowPath, "", rayv_show_handler, &gui);
-    lo_server_add_method(osc_server, myHidePath, "", rayv_hide_handler, &gui);
-    lo_server_add_method(osc_server, myQuitPath, "", rayv_quit_handler, &gui);
-    lo_server_add_method(osc_server, NULL, NULL, rayv_debug_handler, &gui);
+    osc_server = lo_server_new(NULL, wayv_osc_error);
+    lo_server_add_method(osc_server, myControlPath, "if", wayv_control_handler, &gui);
+    lo_server_add_method(osc_server, myProgramPath, "ii", wayv_program_handler, &gui);
+    lo_server_add_method(osc_server, myConfigurePath, "ss", wayv_configure_handler, &gui);
+    lo_server_add_method(osc_server, myRatePath, "i", wayv_rate_handler, &gui);
+    lo_server_add_method(osc_server, myShowPath, "", wayv_show_handler, &gui);
+    lo_server_add_method(osc_server, myHidePath, "", wayv_hide_handler, &gui);
+    lo_server_add_method(osc_server, myQuitPath, "", wayv_quit_handler, &gui);
+    lo_server_add_method(osc_server, NULL, NULL, wayv_debug_handler, &gui);
 
     lo_address hostaddr = lo_address_new(host, port);
     lo_send(hostaddr,
@@ -1403,7 +1403,7 @@ int main(int argc, char **argv)
     gui.setWindowTitle(QString("PyDAW - Way-V - ") + application.argv()[3]);
     gui.setReady(true);
     
-    rayv_cerr << "Starting GUI now..." << endl;
+    wayv_cerr << "Starting GUI now..." << endl;
     
     return application.exec();
 }
