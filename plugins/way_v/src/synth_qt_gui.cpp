@@ -1255,7 +1255,7 @@ int wayv_program_handler(const char *path, const char *types, lo_arg **argv,
 int wayv_configure_handler(const char *path, const char *types, lo_arg **argv,
 		  int argc, void *data, void *user_data)
 {
-    //rayv_gui *gui = static_cast<rayv_gui *>(user_data);
+    //wayv_gui *gui = static_cast<wayv_gui *>(user_data);
     const char *key = (const char *)&argv[0]->s;
     const char *value = (const char *)&argv[1]->s;
 

@@ -124,7 +124,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     f_sample_table_columns << new LMS_mod_matrix_column(spinbox, QString("Tune"), -100, 100, 0);  //Tune
     f_sample_table_columns << new LMS_mod_matrix_column(f_interpolation_modes, QString("Mode")); //Interpolation Mode
     
-    m_sample_table = new LMS_mod_matrix(this, EUPHORIA_MAX_SAMPLE_COUNT, f_sample_table_columns, LMS_FIRST_SAMPLE_TABLE_PORT, a_style);
+    m_sample_table = new LMS_mod_matrix(this, EUPHORIA_MAX_SAMPLE_COUNT, f_sample_table_columns, EUPHORIA_FIRST_SAMPLE_TABLE_PORT, a_style);
     m_sample_table->lms_mod_matrix->verticalHeader()->setResizeMode(QHeaderView::Fixed);
     m_sample_table->lms_mod_matrix->horizontalHeader()->setResizeMode(QHeaderView::Fixed);
     
@@ -960,7 +960,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_main_layout->lms_add_widget(m_fx0->lms_groupbox->lms_groupbox);
 
-        m_fx1 = new LMS_multieffect(this, QString("FX2"), a_style, EUPHORIA_FX1_KNOB0, EUPHORIA_FX1_KNOB1, EUPHORIA_FX1_KNOB2, LMS_FX1_COMBOBOX);
+        m_fx1 = new LMS_multieffect(this, QString("FX2"), a_style, EUPHORIA_FX1_KNOB0, EUPHORIA_FX1_KNOB1, EUPHORIA_FX1_KNOB2, EUPHORIA_FX1_COMBOBOX);
         connect(m_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob0Changed(int)));
         connect(m_fx1->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob1Changed(int)));
         connect(m_fx1->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob2Changed(int)));
@@ -970,7 +970,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_main_layout->lms_add_layout();    
 
-        m_fx2 = new LMS_multieffect(this, QString("FX3"), a_style, LMS_FX2_KNOB0, LMS_FX2_KNOB1, LMS_FX2_KNOB2, LMS_FX2_COMBOBOX);
+        m_fx2 = new LMS_multieffect(this, QString("FX3"), a_style, EUPHORIA_FX2_KNOB0, EUPHORIA_FX2_KNOB1, EUPHORIA_FX2_KNOB2, EUPHORIA_FX2_COMBOBOX);
         connect(m_fx2->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob0Changed(int)));
         connect(m_fx2->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob1Changed(int)));
         connect(m_fx2->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob2Changed(int)));
@@ -978,7 +978,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_main_layout->lms_add_widget(m_fx2->lms_groupbox->lms_groupbox);
 
-        m_fx3 = new LMS_multieffect(this, QString("FX4"), a_style, LMS_FX3_KNOB0, LMS_FX3_KNOB1, LMS_FX3_KNOB2, LMS_FX3_COMBOBOX);
+        m_fx3 = new LMS_multieffect(this, QString("FX4"), a_style, EUPHORIA_FX3_KNOB0, EUPHORIA_FX3_KNOB1, EUPHORIA_FX3_KNOB2, EUPHORIA_FX3_COMBOBOX);
         connect(m_fx3->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob0Changed(int)));
         connect(m_fx3->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob1Changed(int)));
         connect(m_fx3->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob2Changed(int)));
@@ -1009,7 +1009,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl2"), -100, 100, 0);  
         f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl3"), -100, 100, 0);  
         
-        m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, EUPHORIA_MODULATOR_COUNT, f_mod_matrix_columns, LMS_PFXMATRIX_FIRST_PORT, a_style);
+        m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, EUPHORIA_MODULATOR_COUNT, f_mod_matrix_columns, EUPHORIA_PFXMATRIX_FIRST_PORT, a_style);
         
         m_polyfx_mod_matrix[0]->lms_mod_matrix->setVerticalHeaderLabels(QStringList() << QString("ADSR Amp") << QString("ADSR 2") << QString("Ramp Env") << QString("LFO"));
         
@@ -1094,7 +1094,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_groupbox_noise->lms_add_h(m_noise_amp);
         connect(m_noise_amp->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(noiseAmpChanged(int)));
         
-        m_noise_type = new LMS_combobox(QString("Type"), this, QStringList() << QString("Off") << QString("White") << QString("Pink"), LMS_NOISE_TYPE, a_style);
+        m_noise_type = new LMS_combobox(QString("Type"), this, QStringList() << QString("Off") << QString("White") << QString("Pink"), EUPHORIA_NOISE_TYPE, a_style);
         m_noise_type->lms_combobox->setMinimumWidth(87);
         m_groupbox_noise->lms_add_h(m_noise_type);
         connect(m_noise_type->lms_combobox,  SIGNAL(currentIndexChanged(int)), this, SLOT(noise_typeChanged(int)));
@@ -1166,7 +1166,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_mono_fx_tab_main_layout->lms_add_widget(m_mono_fx0->lms_groupbox->lms_groupbox);
 
-        m_mono_fx1 = new LMS_multieffect(this, QString("FX2"), a_style, EUPHORIA_FX1_KNOB0, EUPHORIA_FX1_KNOB1, EUPHORIA_FX1_KNOB2, LMS_FX1_COMBOBOX);
+        m_mono_fx1 = new LMS_multieffect(this, QString("FX2"), a_style, EUPHORIA_FX1_KNOB0, EUPHORIA_FX1_KNOB1, EUPHORIA_FX1_KNOB2, EUPHORIA_FX1_COMBOBOX);
         connect(m_mono_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx1knob0Changed(int)));
         connect(m_mono_fx1->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx1knob1Changed(int)));
         connect(m_mono_fx1->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx1knob2Changed(int)));
@@ -1176,7 +1176,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_mono_fx_tab_main_layout->lms_add_layout();    
 
-        m_mono_fx2 = new LMS_multieffect(this, QString("FX3"), a_style, LMS_FX2_KNOB0, LMS_FX2_KNOB1, LMS_FX2_KNOB2, LMS_FX2_COMBOBOX);
+        m_mono_fx2 = new LMS_multieffect(this, QString("FX3"), a_style, EUPHORIA_FX2_KNOB0, EUPHORIA_FX2_KNOB1, EUPHORIA_FX2_KNOB2, EUPHORIA_FX2_COMBOBOX);
         connect(m_mono_fx2->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx2knob0Changed(int)));
         connect(m_mono_fx2->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx2knob1Changed(int)));
         connect(m_mono_fx2->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx2knob2Changed(int)));
@@ -1184,7 +1184,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
 
         m_mono_fx_tab_main_layout->lms_add_widget(m_mono_fx2->lms_groupbox->lms_groupbox);
 
-        m_mono_fx3 = new LMS_multieffect(this, QString("FX4"), a_style, LMS_FX3_KNOB0, LMS_FX3_KNOB1, LMS_FX3_KNOB2, LMS_FX3_COMBOBOX);
+        m_mono_fx3 = new LMS_multieffect(this, QString("FX4"), a_style, EUPHORIA_FX3_KNOB0, EUPHORIA_FX3_KNOB1, EUPHORIA_FX3_KNOB2, EUPHORIA_FX3_COMBOBOX);
         connect(m_mono_fx3->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx3knob0Changed(int)));
         connect(m_mono_fx3->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx3knob1Changed(int)));
         connect(m_mono_fx3->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(monofx3knob2Changed(int)));
@@ -1298,7 +1298,7 @@ void SamplerGUI::loopModeChanged(int a_value)
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) 
     {
-	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(a_value));
+	lo_send(m_host, m_controlPath, "if", (EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(a_value));
     }
 #endif        
 }
@@ -1334,7 +1334,7 @@ void SamplerGUI::sampleStartChanged(int a_value)
                 
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
-	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_START_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_starts[(m_sample_table->lms_selected_column)]));
+	lo_send(m_host, m_controlPath, "if", (EUPHORIA_SAMPLE_START_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_starts[(m_sample_table->lms_selected_column)]));
     }
 #endif    
 }
@@ -1370,7 +1370,7 @@ void SamplerGUI::sampleEndChanged(int a_value)
     
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
-	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_END_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_ends[(m_sample_table->lms_selected_column)]));
+	lo_send(m_host, m_controlPath, "if", (EUPHORIA_SAMPLE_END_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_ends[(m_sample_table->lms_selected_column)]));
     }
 #endif    
 }
@@ -1406,7 +1406,7 @@ void SamplerGUI::sampleLoopStartChanged(int a_value)
         
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
-	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_loop_starts[(m_sample_table->lms_selected_column)]));
+	lo_send(m_host, m_controlPath, "if", (EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_loop_starts[(m_sample_table->lms_selected_column)]));
     }
 #endif    
 }
@@ -1442,7 +1442,7 @@ void SamplerGUI::sampleLoopEndChanged(int a_value)
     
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
-	lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_loop_ends[(m_sample_table->lms_selected_column)]));
+	lo_send(m_host, m_controlPath, "if", (EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), (float)(m_sample_loop_ends[(m_sample_table->lms_selected_column)]));
     }
 #endif    
 }
@@ -1812,7 +1812,7 @@ void SamplerGUI::sample_vel_sensChanged(int a_control_index)
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",                 
-                (LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN + a_control_index), 
+                (EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN + a_control_index), 
                 (float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[a_control_index]->lms_get_value()));
     }
 #endif
@@ -1824,7 +1824,7 @@ void SamplerGUI::sample_vel_lowChanged(int a_control_index)
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",                 
-                (LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN + a_control_index), 
+                (EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN + a_control_index), 
                 (float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[a_control_index]->lms_get_value()));
     }
 #endif
@@ -1836,14 +1836,14 @@ void SamplerGUI::sample_vel_highChanged(int a_control_index)
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",
-                (LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN + a_control_index),
+                (EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN + a_control_index),
                 (float)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_get_value()));
     }
 #else
     int test_value = (m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_get_value());
     int test_port = (m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[a_control_index]->lms_port);   
-    int ought_to_be_right_port = LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN + a_control_index;
-    euphoria_cerr << LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN << " " << LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX << " " << SMP_TB_VEL_HIGH_INDEX << "\n";
+    int ought_to_be_right_port = EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN + a_control_index;
+    euphoria_cerr << EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN << " " << EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MAX << " " << SMP_TB_VEL_HIGH_INDEX << "\n";
 #endif
 }
 
@@ -1854,7 +1854,7 @@ void SamplerGUI::sample_pitchChanged(int a_control_index)
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",
-                (LMS_PITCH_PORT_RANGE_MIN + a_control_index),
+                (EUPHORIA_PITCH_PORT_RANGE_MIN + a_control_index),
                 (float)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[a_control_index]->lms_get_value()));
     }
 #endif
@@ -1866,7 +1866,7 @@ void SamplerGUI::sample_tuneChanged(int a_control_index)
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",
-                (LMS_TUNE_PORT_RANGE_MIN + a_control_index),
+                (EUPHORIA_TUNE_PORT_RANGE_MIN + a_control_index),
                 (float)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[a_control_index]->lms_get_value()));
     }
 #endif
@@ -1878,7 +1878,7 @@ void SamplerGUI::sample_interpolation_modeChanged(int a_control_index)
 #ifndef LMS_DEBUG_STANDALONE
     if (!m_suppressHostUpdate) {        
 	lo_send(m_host, m_controlPath, "if",
-                (LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN + a_control_index),
+                (EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN + a_control_index),
                 (float)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[a_control_index]->lms_get_value()));
     }
 #endif
@@ -1955,41 +1955,41 @@ void SamplerGUI::saveInstrumentToSingleFile(QString a_selected_path)
                                         
                     stream << i << EUPHORIA_FILES_STRING_DELIMITER << 
                             f_dir.relativeFilePath(m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text()) << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_PITCH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
                              i_get_control((i + LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_START_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_END_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + EUPHORIA_SAMPLE_START_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + EUPHORIA_SAMPLE_END_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER << 
                             //new
-                            i_get_control((i + LMS_PITCH_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
-                            i_get_control((i + LMS_TUNE_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
-                            i_get_control((i + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN))
+                            i_get_control((i + EUPHORIA_PITCH_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
+                            i_get_control((i + EUPHORIA_TUNE_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
+                            i_get_control((i + EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN))
                             << "\n";
                 }
                 else
                 {
                     stream << i << EUPHORIA_FILES_STRING_DELIMITER << m_sample_table->lms_mod_matrix->item(i, SMP_TB_FILE_PATH_INDEX)->text() << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_PITCH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
                              i_get_control((i + LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_START_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_END_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
-                             i_get_control((i + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
-                             i_get_control((i + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + EUPHORIA_SAMPLE_START_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + EUPHORIA_SAMPLE_END_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                             i_get_control((i + EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER << 
+                             i_get_control((i + EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
                             //new
-                            i_get_control((i + LMS_PITCH_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
-                            i_get_control((i + LMS_TUNE_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
-                            i_get_control((i + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
+                            i_get_control((i + EUPHORIA_PITCH_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
+                            i_get_control((i + EUPHORIA_TUNE_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
+                            i_get_control((i + EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)) << EUPHORIA_FILES_STRING_DELIMITER <<
                             
-                            i_get_control((i + LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
-                            i_get_control((i + LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER  <<
-                            i_get_control((i + LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN))  
+                            i_get_control((i + EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER <<
+                            i_get_control((i + EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN))  << EUPHORIA_FILES_STRING_DELIMITER  <<
+                            i_get_control((i + EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN))  
                             << "\n";
                 }
             }
@@ -1997,12 +1997,12 @@ void SamplerGUI::saveInstrumentToSingleFile(QString a_selected_path)
             stream << EUPHORIA_FILE_CONTROLS_TAG << "\n";
             stream << EUPHORIA_FILE_CONTROLS_TAG_EUP_V1 << "\n";
             
-            for(int i = EUPHORIA_FIRST_CONTROL_PORT; i < LMS_LAST_REGULAR_CONTROL_PORT; i++)        
+            for(int i = EUPHORIA_FIRST_CONTROL_PORT; i < EUPHORIA_LAST_REGULAR_CONTROL_PORT; i++)        
             {   
                 stream << i << EUPHORIA_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";
             }   
             
-            for(int i = LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN; i < Sampler_Stereo_COUNT; i++)
+            for(int i = EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN; i < EUPHORIA_PORT_COUNT; i++)
             {
                 stream << i << EUPHORIA_FILE_PORT_VALUE_SEPARATOR << i_get_control(i) << "\n";
             }
@@ -2202,15 +2202,15 @@ void SamplerGUI::openInstrumentFromFile(QString a_selected_path)
                         switch(i)
                         {
                             case 2:
-                                f_port_number = (f_sample_index + LMS_SAMPLE_PITCH_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 3:
-                                f_port_number = (f_sample_index + LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 4:
-                                f_port_number = (f_sample_index + LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 5:
@@ -2218,47 +2218,47 @@ void SamplerGUI::openInstrumentFromFile(QString a_selected_path)
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 6:
-                                f_port_number = (f_sample_index + LMS_SAMPLE_START_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_SAMPLE_START_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 7:
-                                f_port_number = (f_sample_index + LMS_SAMPLE_END_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_SAMPLE_END_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 8:
-                                f_port_number = (f_sample_index + LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 9:
-                                f_port_number = (f_sample_index + LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 10:
-                                f_port_number = (f_sample_index + LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 11:
-                                f_port_number = (f_sample_index + LMS_PITCH_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_PITCH_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 12:
-                                f_port_number = (f_sample_index + LMS_TUNE_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_TUNE_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;                        
                             case 13:
-                                f_port_number = (f_sample_index + LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;                                                        
                             case 14:
-                                f_port_number = (f_sample_index + LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 15:
-                                f_port_number = (f_sample_index + LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;
                             case 16:
-                                f_port_number = (f_sample_index + LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN);
+                                f_port_number = (f_sample_index + EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN);
                                 v_set_control(f_port_number, f_port_value);
                                 break;                        
                         }
@@ -2339,25 +2339,25 @@ void SamplerGUI::fx3knob2Changed(int value){ lms_value_changed(value, m_fx3->lms
 void SamplerGUI::fx3comboboxChanged(int value){ lms_value_changed(value, m_fx3->lms_combobox); m_fx3->lms_combobox_changed(); }
 
 
-void SamplerGUI::monofx0knob0Changed(int value){ lms_monofx_value_changed(value, m_mono_fx0->lms_knob1, (LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][0][0] = value;}
-void SamplerGUI::monofx0knob1Changed(int value){ lms_monofx_value_changed(value, m_mono_fx0->lms_knob2, (LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][0][1] = value;}
-void SamplerGUI::monofx0knob2Changed(int value){ lms_monofx_value_changed(value, m_mono_fx0->lms_knob3, (LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][0][2] = value;}
-void SamplerGUI::monofx0comboboxChanged(int value){ lms_monofx_value_changed(value, m_mono_fx0->lms_combobox, (LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx0->lms_combobox_changed(); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][0][3] = value;}
+void SamplerGUI::monofx0knob0Changed(int value){ lms_monofx_value_changed(value, m_mono_fx0->lms_knob1, (EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][0][0] = value;}
+void SamplerGUI::monofx0knob1Changed(int value){ lms_monofx_value_changed(value, m_mono_fx0->lms_knob2, (EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][0][1] = value;}
+void SamplerGUI::monofx0knob2Changed(int value){ lms_monofx_value_changed(value, m_mono_fx0->lms_knob3, (EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][0][2] = value;}
+void SamplerGUI::monofx0comboboxChanged(int value){ lms_monofx_value_changed(value, m_mono_fx0->lms_combobox, (EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx0->lms_combobox_changed(); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][0][3] = value;}
 
-void SamplerGUI::monofx1knob0Changed(int value){ lms_monofx_value_changed(value, m_mono_fx1->lms_knob1, (LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][1][0] = value;}
-void SamplerGUI::monofx1knob1Changed(int value){ lms_monofx_value_changed(value, m_mono_fx1->lms_knob2, (LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][1][1] = value;}
-void SamplerGUI::monofx1knob2Changed(int value){ lms_monofx_value_changed(value, m_mono_fx1->lms_knob3, (LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][1][2] = value;}
-void SamplerGUI::monofx1comboboxChanged(int value){ lms_monofx_value_changed(value, m_mono_fx1->lms_combobox, (LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx1->lms_combobox_changed(); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][1][3] = value;}
+void SamplerGUI::monofx1knob0Changed(int value){ lms_monofx_value_changed(value, m_mono_fx1->lms_knob1, (EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][1][0] = value;}
+void SamplerGUI::monofx1knob1Changed(int value){ lms_monofx_value_changed(value, m_mono_fx1->lms_knob2, (EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][1][1] = value;}
+void SamplerGUI::monofx1knob2Changed(int value){ lms_monofx_value_changed(value, m_mono_fx1->lms_knob3, (EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][1][2] = value;}
+void SamplerGUI::monofx1comboboxChanged(int value){ lms_monofx_value_changed(value, m_mono_fx1->lms_combobox, (EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx1->lms_combobox_changed(); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][1][3] = value;}
 
-void SamplerGUI::monofx2knob0Changed(int value){ lms_monofx_value_changed(value, m_mono_fx2->lms_knob1, (LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][2][0] = value;}
-void SamplerGUI::monofx2knob1Changed(int value){ lms_monofx_value_changed(value, m_mono_fx2->lms_knob2, (LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][2][1] = value;}
-void SamplerGUI::monofx2knob2Changed(int value){ lms_monofx_value_changed(value, m_mono_fx2->lms_knob3, (LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][2][2] = value;}
-void SamplerGUI::monofx2comboboxChanged(int value){ lms_monofx_value_changed(value, m_mono_fx2->lms_combobox, (LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx2->lms_combobox_changed(); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][2][3] = value;}
+void SamplerGUI::monofx2knob0Changed(int value){ lms_monofx_value_changed(value, m_mono_fx2->lms_knob1, (EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][2][0] = value;}
+void SamplerGUI::monofx2knob1Changed(int value){ lms_monofx_value_changed(value, m_mono_fx2->lms_knob2, (EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][2][1] = value;}
+void SamplerGUI::monofx2knob2Changed(int value){ lms_monofx_value_changed(value, m_mono_fx2->lms_knob3, (EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][2][2] = value;}
+void SamplerGUI::monofx2comboboxChanged(int value){ lms_monofx_value_changed(value, m_mono_fx2->lms_combobox, (EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx2->lms_combobox_changed(); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][2][3] = value;}
 
-void SamplerGUI::monofx3knob0Changed(int value){ lms_monofx_value_changed(value, m_mono_fx3->lms_knob1, (LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][3][0] = value;}
-void SamplerGUI::monofx3knob1Changed(int value){ lms_monofx_value_changed(value, m_mono_fx3->lms_knob2, (LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][3][1] = value;}
-void SamplerGUI::monofx3knob2Changed(int value){ lms_monofx_value_changed(value, m_mono_fx3->lms_knob3, (LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][3][2] = value;}
-void SamplerGUI::monofx3comboboxChanged(int value){ lms_monofx_value_changed(value, m_mono_fx3->lms_combobox, (LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx3->lms_combobox_changed(); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][3][3] = value;}
+void SamplerGUI::monofx3knob0Changed(int value){ lms_monofx_value_changed(value, m_mono_fx3->lms_knob1, (EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][3][0] = value;}
+void SamplerGUI::monofx3knob1Changed(int value){ lms_monofx_value_changed(value, m_mono_fx3->lms_knob2, (EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][3][1] = value;}
+void SamplerGUI::monofx3knob2Changed(int value){ lms_monofx_value_changed(value, m_mono_fx3->lms_knob3, (EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][3][2] = value;}
+void SamplerGUI::monofx3comboboxChanged(int value){ lms_monofx_value_changed(value, m_mono_fx3->lms_combobox, (EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN + (m_mono_fx_tab_selected_group->currentIndex()))); m_mono_fx3->lms_combobox_changed(); m_mono_fx_values[(m_mono_fx_tab_selected_group->currentIndex())][3][3] = value;}
 
 void SamplerGUI::lms_monofx_value_changed(int a_value, LMS_control * a_ctrl, int a_port)
 {    
@@ -2398,7 +2398,7 @@ void SamplerGUI::sample_selected_monofx_groupChanged(int a_value)
         m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
         if(a_value >= 0)
         {
-                lo_send(m_host, m_controlPath, "if", (LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), float(a_value));        
+                lo_send(m_host, m_controlPath, "if", (EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN + (m_sample_table->lms_selected_column)), float(a_value));        
         }
         else
         {
@@ -2733,54 +2733,54 @@ void SamplerGUI::sample_interpolation_mode30Changed(int a_value){sample_interpol
 void SamplerGUI::sample_interpolation_mode31Changed(int a_value){sample_interpolation_modeChanged(31);}
 
 //From PolyFX mod matrix
-void SamplerGUI::pfxmatrix_grp0dst0src0ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC0CTRL0, 0, 0, 0, 0);}
-void SamplerGUI::pfxmatrix_grp0dst0src0ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC0CTRL1, 0, 0, 1, 0);}
-void SamplerGUI::pfxmatrix_grp0dst0src0ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC0CTRL2, 0, 0, 2, 0);}
-void SamplerGUI::pfxmatrix_grp0dst0src1ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC1CTRL0, 0, 0, 0, 1);}
-void SamplerGUI::pfxmatrix_grp0dst0src1ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC1CTRL1, 0, 0, 1, 1);}
-void SamplerGUI::pfxmatrix_grp0dst0src1ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC1CTRL2, 0, 0, 2, 1);}
-void SamplerGUI::pfxmatrix_grp0dst0src2ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC2CTRL0, 0, 0, 0, 2);}
-void SamplerGUI::pfxmatrix_grp0dst0src2ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC2CTRL1, 0, 0, 1, 2);}
-void SamplerGUI::pfxmatrix_grp0dst0src2ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC2CTRL2, 0, 0, 2, 2);}
-void SamplerGUI::pfxmatrix_grp0dst0src3ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC3CTRL0, 0, 0, 0, 3);}
-void SamplerGUI::pfxmatrix_grp0dst0src3ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC3CTRL1, 0, 0, 1, 3);}
-void SamplerGUI::pfxmatrix_grp0dst0src3ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST0SRC3CTRL2, 0, 0, 2, 3);}
-void SamplerGUI::pfxmatrix_grp0dst1src0ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC0CTRL0, 0, 1, 0, 0);}
-void SamplerGUI::pfxmatrix_grp0dst1src0ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC0CTRL1, 0, 1, 1, 0);}
-void SamplerGUI::pfxmatrix_grp0dst1src0ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC0CTRL2, 0, 1, 2, 0);}
-void SamplerGUI::pfxmatrix_grp0dst1src1ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC1CTRL0, 0, 1, 0, 1);}
-void SamplerGUI::pfxmatrix_grp0dst1src1ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC1CTRL1, 0, 1, 1, 1);}
-void SamplerGUI::pfxmatrix_grp0dst1src1ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC1CTRL2, 0, 1, 2, 1);}
-void SamplerGUI::pfxmatrix_grp0dst1src2ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC2CTRL0, 0, 1, 0, 2);}
-void SamplerGUI::pfxmatrix_grp0dst1src2ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC2CTRL1, 0, 1, 1, 2);}
-void SamplerGUI::pfxmatrix_grp0dst1src2ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC2CTRL2, 0, 1, 2, 2);}
-void SamplerGUI::pfxmatrix_grp0dst1src3ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC3CTRL0, 0, 1, 0, 3);}
-void SamplerGUI::pfxmatrix_grp0dst1src3ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC3CTRL1, 0, 1, 1, 3);}
-void SamplerGUI::pfxmatrix_grp0dst1src3ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST1SRC3CTRL2, 0, 1, 2, 3);}
-void SamplerGUI::pfxmatrix_grp0dst2src0ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC0CTRL0, 0, 2, 0, 0);}
-void SamplerGUI::pfxmatrix_grp0dst2src0ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC0CTRL1, 0, 2, 1, 0);}
-void SamplerGUI::pfxmatrix_grp0dst2src0ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC0CTRL2, 0, 2, 2, 0);}
-void SamplerGUI::pfxmatrix_grp0dst2src1ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC1CTRL0, 0, 2, 0, 1);}
-void SamplerGUI::pfxmatrix_grp0dst2src1ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC1CTRL1, 0, 2, 1, 1);}
-void SamplerGUI::pfxmatrix_grp0dst2src1ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC1CTRL2, 0, 2, 2, 1);}
-void SamplerGUI::pfxmatrix_grp0dst2src2ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC2CTRL0, 0, 2, 0, 2);}
-void SamplerGUI::pfxmatrix_grp0dst2src2ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC2CTRL1, 0, 2, 1, 2);}
-void SamplerGUI::pfxmatrix_grp0dst2src2ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC2CTRL2, 0, 2, 2, 2);}
-void SamplerGUI::pfxmatrix_grp0dst2src3ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC3CTRL0, 0, 2, 0, 3);}
-void SamplerGUI::pfxmatrix_grp0dst2src3ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC3CTRL1, 0, 2, 1, 3);}
-void SamplerGUI::pfxmatrix_grp0dst2src3ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST2SRC3CTRL2, 0, 2, 2, 3);}
-void SamplerGUI::pfxmatrix_grp0dst3src0ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC0CTRL0, 0, 3, 0, 0);}
-void SamplerGUI::pfxmatrix_grp0dst3src0ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC0CTRL1, 0, 3, 1, 0);}
-void SamplerGUI::pfxmatrix_grp0dst3src0ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC0CTRL2, 0, 3, 2, 0);}
-void SamplerGUI::pfxmatrix_grp0dst3src1ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC1CTRL0, 0, 3, 0, 1);}
-void SamplerGUI::pfxmatrix_grp0dst3src1ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC1CTRL1, 0, 3, 1, 1);}
-void SamplerGUI::pfxmatrix_grp0dst3src1ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC1CTRL2, 0, 3, 2, 1);}
-void SamplerGUI::pfxmatrix_grp0dst3src2ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC2CTRL0, 0, 3, 0, 2);}
-void SamplerGUI::pfxmatrix_grp0dst3src2ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC2CTRL1, 0, 3, 1, 2);}
-void SamplerGUI::pfxmatrix_grp0dst3src2ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC2CTRL2, 0, 3, 2, 2);}
-void SamplerGUI::pfxmatrix_grp0dst3src3ctrl0Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC3CTRL0, 0, 3, 0, 3);}
-void SamplerGUI::pfxmatrix_grp0dst3src3ctrl1Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC3CTRL1, 0, 3, 1, 3);}
-void SamplerGUI::pfxmatrix_grp0dst3src3ctrl2Changed(int a_value){pfxmatrix_Changed(LMS_PFXMATRIX_GRP0DST3SRC3CTRL2, 0, 3, 2, 3);}
+void SamplerGUI::pfxmatrix_grp0dst0src0ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0, 0, 0, 0, 0);}
+void SamplerGUI::pfxmatrix_grp0dst0src0ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1, 0, 0, 1, 0);}
+void SamplerGUI::pfxmatrix_grp0dst0src0ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2, 0, 0, 2, 0);}
+void SamplerGUI::pfxmatrix_grp0dst0src1ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0, 0, 0, 0, 1);}
+void SamplerGUI::pfxmatrix_grp0dst0src1ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1, 0, 0, 1, 1);}
+void SamplerGUI::pfxmatrix_grp0dst0src1ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2, 0, 0, 2, 1);}
+void SamplerGUI::pfxmatrix_grp0dst0src2ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0, 0, 0, 0, 2);}
+void SamplerGUI::pfxmatrix_grp0dst0src2ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1, 0, 0, 1, 2);}
+void SamplerGUI::pfxmatrix_grp0dst0src2ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2, 0, 0, 2, 2);}
+void SamplerGUI::pfxmatrix_grp0dst0src3ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0, 0, 0, 0, 3);}
+void SamplerGUI::pfxmatrix_grp0dst0src3ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1, 0, 0, 1, 3);}
+void SamplerGUI::pfxmatrix_grp0dst0src3ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2, 0, 0, 2, 3);}
+void SamplerGUI::pfxmatrix_grp0dst1src0ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0, 0, 1, 0, 0);}
+void SamplerGUI::pfxmatrix_grp0dst1src0ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1, 0, 1, 1, 0);}
+void SamplerGUI::pfxmatrix_grp0dst1src0ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2, 0, 1, 2, 0);}
+void SamplerGUI::pfxmatrix_grp0dst1src1ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0, 0, 1, 0, 1);}
+void SamplerGUI::pfxmatrix_grp0dst1src1ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1, 0, 1, 1, 1);}
+void SamplerGUI::pfxmatrix_grp0dst1src1ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2, 0, 1, 2, 1);}
+void SamplerGUI::pfxmatrix_grp0dst1src2ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0, 0, 1, 0, 2);}
+void SamplerGUI::pfxmatrix_grp0dst1src2ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1, 0, 1, 1, 2);}
+void SamplerGUI::pfxmatrix_grp0dst1src2ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2, 0, 1, 2, 2);}
+void SamplerGUI::pfxmatrix_grp0dst1src3ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0, 0, 1, 0, 3);}
+void SamplerGUI::pfxmatrix_grp0dst1src3ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1, 0, 1, 1, 3);}
+void SamplerGUI::pfxmatrix_grp0dst1src3ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2, 0, 1, 2, 3);}
+void SamplerGUI::pfxmatrix_grp0dst2src0ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0, 0, 2, 0, 0);}
+void SamplerGUI::pfxmatrix_grp0dst2src0ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1, 0, 2, 1, 0);}
+void SamplerGUI::pfxmatrix_grp0dst2src0ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2, 0, 2, 2, 0);}
+void SamplerGUI::pfxmatrix_grp0dst2src1ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0, 0, 2, 0, 1);}
+void SamplerGUI::pfxmatrix_grp0dst2src1ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1, 0, 2, 1, 1);}
+void SamplerGUI::pfxmatrix_grp0dst2src1ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2, 0, 2, 2, 1);}
+void SamplerGUI::pfxmatrix_grp0dst2src2ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0, 0, 2, 0, 2);}
+void SamplerGUI::pfxmatrix_grp0dst2src2ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1, 0, 2, 1, 2);}
+void SamplerGUI::pfxmatrix_grp0dst2src2ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2, 0, 2, 2, 2);}
+void SamplerGUI::pfxmatrix_grp0dst2src3ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0, 0, 2, 0, 3);}
+void SamplerGUI::pfxmatrix_grp0dst2src3ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1, 0, 2, 1, 3);}
+void SamplerGUI::pfxmatrix_grp0dst2src3ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2, 0, 2, 2, 3);}
+void SamplerGUI::pfxmatrix_grp0dst3src0ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0, 0, 3, 0, 0);}
+void SamplerGUI::pfxmatrix_grp0dst3src0ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1, 0, 3, 1, 0);}
+void SamplerGUI::pfxmatrix_grp0dst3src0ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2, 0, 3, 2, 0);}
+void SamplerGUI::pfxmatrix_grp0dst3src1ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0, 0, 3, 0, 1);}
+void SamplerGUI::pfxmatrix_grp0dst3src1ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1, 0, 3, 1, 1);}
+void SamplerGUI::pfxmatrix_grp0dst3src1ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2, 0, 3, 2, 1);}
+void SamplerGUI::pfxmatrix_grp0dst3src2ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0, 0, 3, 0, 2);}
+void SamplerGUI::pfxmatrix_grp0dst3src2ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1, 0, 3, 1, 2);}
+void SamplerGUI::pfxmatrix_grp0dst3src2ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2, 0, 3, 2, 2);}
+void SamplerGUI::pfxmatrix_grp0dst3src3ctrl0Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0, 0, 3, 0, 3);}
+void SamplerGUI::pfxmatrix_grp0dst3src3ctrl1Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1, 0, 3, 1, 3);}
+void SamplerGUI::pfxmatrix_grp0dst3src3ctrl2Changed(int a_value){pfxmatrix_Changed(EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2, 0, 3, 2, 3);}
 
 /*End synth_qt_gui.cpp Autogenerated slots*/
 
@@ -2953,7 +2953,7 @@ void SamplerGUI::v_print_port_name_to_cerr(int a_port)
 void SamplerGUI::v_set_control(int port, float a_value)
 {
 
-    if(port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN)
+    if(port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN)
     {
         switch (port) {
             case EUPHORIA_SELECTED_SAMPLE: setSelection(a_value); break;
@@ -2966,7 +2966,7 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case EUPHORIA_FILTER_SUSTAIN: setFilterSustain(a_value); break;
             case EUPHORIA_FILTER_RELEASE: setFilterRelease(a_value); break;
             case EUPHORIA_NOISE_AMP: setNoiseAmp(a_value); break;        
-            case LMS_NOISE_TYPE: setNoiseType(a_value); break;
+            case EUPHORIA_NOISE_TYPE: setNoiseType(a_value); break;
             case EUPHORIA_MASTER_VOLUME: setMasterVolume(a_value); break;
             case EUPHORIA_MASTER_GLIDE: setMasterGlide(a_value); break;
             case EUPHORIA_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;            
@@ -2982,141 +2982,141 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case EUPHORIA_FX1_KNOB0:	setFX1knob0(a_value); break;
             case EUPHORIA_FX1_KNOB1:	setFX1knob1(a_value); break;        
             case EUPHORIA_FX1_KNOB2:	setFX1knob2(a_value); break;        
-            case LMS_FX1_COMBOBOX: setFX1combobox(a_value); break;
+            case EUPHORIA_FX1_COMBOBOX: setFX1combobox(a_value); break;
 
-            case LMS_FX2_KNOB0:	setFX2knob0(a_value); break;
-            case LMS_FX2_KNOB1:	setFX2knob1(a_value); break;        
-            case LMS_FX2_KNOB2:	setFX2knob2(a_value); break;        
-            case LMS_FX2_COMBOBOX: setFX2combobox(a_value); break;
+            case EUPHORIA_FX2_KNOB0:	setFX2knob0(a_value); break;
+            case EUPHORIA_FX2_KNOB1:	setFX2knob1(a_value); break;        
+            case EUPHORIA_FX2_KNOB2:	setFX2knob2(a_value); break;        
+            case EUPHORIA_FX2_COMBOBOX: setFX2combobox(a_value); break;
 
-            case LMS_FX3_KNOB0:	setFX3knob0(a_value); break;
-            case LMS_FX3_KNOB1:	setFX3knob1(a_value); break;        
-            case LMS_FX3_KNOB2:	setFX3knob2(a_value); break;        
-            case LMS_FX3_COMBOBOX: setFX3combobox(a_value); break;
+            case EUPHORIA_FX3_KNOB0:	setFX3knob0(a_value); break;
+            case EUPHORIA_FX3_KNOB1:	setFX3knob1(a_value); break;        
+            case EUPHORIA_FX3_KNOB2:	setFX3knob2(a_value); break;        
+            case EUPHORIA_FX3_COMBOBOX: setFX3combobox(a_value); break;
             //End from Modulex            
             //From PolyFX mod matrix
-            case LMS_PFXMATRIX_GRP0DST0SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[0]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[1]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[2]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]->lms_get_widget()))->setValue(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[0]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[1]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[2]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]->lms_get_widget()))->setValue(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2: ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]->lms_get_widget()))->setValue(a_value); break;
             //End PolyFX mod matrix
             //case LMS_GLOBAL_MIDI_CHANNEL: set_global_midi_channel(a_value); break;
             //case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: set_global_midi_octaves_offset(a_value); break;
         }
     
     }
-    else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MAX))
     {
-        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[(port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN)]))->lms_set_value(a_value);
+        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[(port - EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN)]))->lms_set_value(a_value);
     }
-    else if((port >= LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MAX))
     {
-        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[(port - LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)]))->lms_set_value(a_value);
+        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[(port - EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN)]))->lms_set_value(a_value);
     }    
-    else if((port >= LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
     {
-        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[(port - LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)]))->lms_set_value(a_value);
+        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[(port - EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN)]))->lms_set_value(a_value);
     }
-    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX))
+    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VOLUME_PORT_RANGE_MAX))
     {
         ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[(port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
     }
-    else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_START_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_START_PORT_RANGE_MAX))
     {
-        m_sample_starts[(port - LMS_SAMPLE_START_PORT_RANGE_MIN)] = a_value;
+        m_sample_starts[(port - EUPHORIA_SAMPLE_START_PORT_RANGE_MIN)] = a_value;
     }
-    else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_END_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_END_PORT_RANGE_MAX))
     {
-        m_sample_ends[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)] = a_value;
+        m_sample_ends[(port - EUPHORIA_SAMPLE_END_PORT_RANGE_MIN)] = a_value;
     }
-    else if((port >= LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
     {
-        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[(port - LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
+        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[(port - EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
     }
-    else if((port >= LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
     {
-        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[(port - LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
+        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[(port - EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
     }
-    else if((port >= LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
     {
-        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[(port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
+        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[(port - EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
     }
     //new
-    else if((port >= LMS_PITCH_PORT_RANGE_MIN) && (port < LMS_PITCH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_PITCH_PORT_RANGE_MAX))
     {
-        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[(port - LMS_PITCH_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
+        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[(port - EUPHORIA_PITCH_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
     }
-    else if((port >= LMS_TUNE_PORT_RANGE_MIN) && (port < LMS_TUNE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_TUNE_PORT_RANGE_MIN) && (port < EUPHORIA_TUNE_PORT_RANGE_MAX))
     {
-        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[(port - LMS_TUNE_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
+        ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[(port - EUPHORIA_TUNE_PORT_RANGE_MIN)]->lms_get_widget()))->setValue(a_value);
     }
-    else if((port >= LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
     {
-        ((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[(port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)]->lms_get_widget()))->setCurrentIndex(a_value);
+        ((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[(port - EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)]->lms_get_widget()))->setCurrentIndex(a_value);
     }
     //even newer
     
-    else if((port >= LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_START_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MAX))
     {
-        m_sample_loop_starts[(port - LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN)] = a_value;
+        m_sample_loop_starts[(port - EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN)] = a_value;
     }
-    else if((port >= LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_END_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MAX))
     {
-        m_sample_loop_ends[(port - LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN)] = a_value;
+        m_sample_loop_ends[(port - EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN)] = a_value;
     }
-    else if((port >= LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
     {
-        m_sample_loop_modes[(port - LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN)] = a_value;
+        m_sample_loop_modes[(port - EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN)] = a_value;
     }
     
     //MonoFX0
-    else if((port >= LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][0][0] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3124,9 +3124,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX0knob0(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][0][1] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3134,9 +3134,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX0knob1(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][0][2] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3144,9 +3144,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX0knob2(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][0][3] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3155,9 +3155,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
         }
     }    
     //MonoFX1
-    else if((port >= LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][1][0] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3165,9 +3165,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX1knob0(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][1][1] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3175,9 +3175,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX1knob1(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][1][2] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3185,9 +3185,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX1knob2(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][1][3] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3196,9 +3196,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
         }
     }
     //MonoFX2
-    else if((port >= LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][2][0] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3206,9 +3206,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX2knob0(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][2][1] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3216,9 +3216,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX2knob1(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][2][2] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3226,9 +3226,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX2knob2(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][2][3] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3238,9 +3238,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
     }
     
     //MonoFX3
-    else if((port >= LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][3][0] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3248,9 +3248,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX3knob0(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][3][1] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3258,9 +3258,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX3knob1(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][3][2] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3268,9 +3268,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
             setmonoFX3knob2(a_value);
         }
     }
-    else if((port >= LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN;
         m_mono_fx_values[f_value][3][3] = a_value;
         
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
@@ -3279,9 +3279,9 @@ void SamplerGUI::v_set_control(int port, float a_value)
         }        
     }
         
-    else if((port >= LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN;
         m_sample_selected_monofx_groups[f_value] = a_value;
     }        
     
@@ -3304,7 +3304,7 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
     if(a_suppress_host_update)
         m_suppressHostUpdate = true;      
     
-    if((port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN))
+    if((port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN))
     {
         switch (port) 
         {
@@ -3318,7 +3318,7 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case EUPHORIA_FILTER_SUSTAIN: filterSustainChanged(a_value); break;
             case EUPHORIA_FILTER_RELEASE: filterReleaseChanged(a_value); break;
             case EUPHORIA_NOISE_AMP: noiseAmpChanged(a_value); break;      
-            case LMS_NOISE_TYPE: noise_typeChanged(a_value); break;      
+            case EUPHORIA_NOISE_TYPE: noise_typeChanged(a_value); break;      
             case EUPHORIA_MASTER_VOLUME: masterVolumeChanged(a_value); break;
             case EUPHORIA_MASTER_GLIDE: masterGlideChanged(a_value); break;
             case EUPHORIA_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;            
@@ -3334,265 +3334,265 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case EUPHORIA_FX1_KNOB0:	fx1knob0Changed(a_value); break;
             case EUPHORIA_FX1_KNOB1:	fx1knob1Changed(a_value); break;
             case EUPHORIA_FX1_KNOB2:	fx1knob2Changed(a_value); break;  
-            case LMS_FX1_COMBOBOX:  fx1comboboxChanged(a_value); break;
+            case EUPHORIA_FX1_COMBOBOX:  fx1comboboxChanged(a_value); break;
 
-            case LMS_FX2_KNOB0:	fx2knob0Changed(a_value); break;
-            case LMS_FX2_KNOB1:	fx2knob1Changed(a_value); break;
-            case LMS_FX2_KNOB2:	fx2knob2Changed(a_value); break;  
-            case LMS_FX2_COMBOBOX:  fx2comboboxChanged(a_value); break;
+            case EUPHORIA_FX2_KNOB0:	fx2knob0Changed(a_value); break;
+            case EUPHORIA_FX2_KNOB1:	fx2knob1Changed(a_value); break;
+            case EUPHORIA_FX2_KNOB2:	fx2knob2Changed(a_value); break;  
+            case EUPHORIA_FX2_COMBOBOX:  fx2comboboxChanged(a_value); break;
 
-            case LMS_FX3_KNOB0:	fx3knob0Changed(a_value); break;
-            case LMS_FX3_KNOB1:	fx3knob1Changed(a_value); break;
-            case LMS_FX3_KNOB2:	fx3knob2Changed(a_value); break;  
-            case LMS_FX3_COMBOBOX:  fx3comboboxChanged(a_value); break;
+            case EUPHORIA_FX3_KNOB0:	fx3knob0Changed(a_value); break;
+            case EUPHORIA_FX3_KNOB1:	fx3knob1Changed(a_value); break;
+            case EUPHORIA_FX3_KNOB2:	fx3knob2Changed(a_value); break;  
+            case EUPHORIA_FX3_COMBOBOX:  fx3comboboxChanged(a_value); break;
             //End from Modulex
             //From PolyFX mod matrix
-            case LMS_PFXMATRIX_GRP0DST0SRC0CTRL0:  pfxmatrix_grp0dst0src0ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC0CTRL1:  pfxmatrix_grp0dst0src0ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC0CTRL2:  pfxmatrix_grp0dst0src0ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC1CTRL0:  pfxmatrix_grp0dst0src1ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC1CTRL1:  pfxmatrix_grp0dst0src1ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC1CTRL2:  pfxmatrix_grp0dst0src1ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC2CTRL0:  pfxmatrix_grp0dst0src2ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC2CTRL1:  pfxmatrix_grp0dst0src2ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC2CTRL2:  pfxmatrix_grp0dst0src2ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC3CTRL0:  pfxmatrix_grp0dst0src3ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC3CTRL1:  pfxmatrix_grp0dst0src3ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST0SRC3CTRL2:  pfxmatrix_grp0dst0src3ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC0CTRL0:  pfxmatrix_grp0dst1src0ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC0CTRL1:  pfxmatrix_grp0dst1src0ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC0CTRL2:  pfxmatrix_grp0dst1src0ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC1CTRL0:  pfxmatrix_grp0dst1src1ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC1CTRL1:  pfxmatrix_grp0dst1src1ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC1CTRL2:  pfxmatrix_grp0dst1src1ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC2CTRL0:  pfxmatrix_grp0dst1src2ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC2CTRL1:  pfxmatrix_grp0dst1src2ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC2CTRL2:  pfxmatrix_grp0dst1src2ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC3CTRL0:  pfxmatrix_grp0dst1src3ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC3CTRL1:  pfxmatrix_grp0dst1src3ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST1SRC3CTRL2:  pfxmatrix_grp0dst1src3ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC0CTRL0:  pfxmatrix_grp0dst2src0ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC0CTRL1:  pfxmatrix_grp0dst2src0ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC0CTRL2:  pfxmatrix_grp0dst2src0ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC1CTRL0:  pfxmatrix_grp0dst2src1ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC1CTRL1:  pfxmatrix_grp0dst2src1ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC1CTRL2:  pfxmatrix_grp0dst2src1ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC2CTRL0:  pfxmatrix_grp0dst2src2ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC2CTRL1:  pfxmatrix_grp0dst2src2ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC2CTRL2:  pfxmatrix_grp0dst2src2ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC3CTRL0:  pfxmatrix_grp0dst2src3ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC3CTRL1:  pfxmatrix_grp0dst2src3ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST2SRC3CTRL2:  pfxmatrix_grp0dst2src3ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC0CTRL0:  pfxmatrix_grp0dst3src0ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC0CTRL1:  pfxmatrix_grp0dst3src0ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC0CTRL2:  pfxmatrix_grp0dst3src0ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC1CTRL0:  pfxmatrix_grp0dst3src1ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC1CTRL1:  pfxmatrix_grp0dst3src1ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC1CTRL2:  pfxmatrix_grp0dst3src1ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC2CTRL0:  pfxmatrix_grp0dst3src2ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC2CTRL1:  pfxmatrix_grp0dst3src2ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC2CTRL2:  pfxmatrix_grp0dst3src2ctrl2Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC3CTRL0:  pfxmatrix_grp0dst3src3ctrl0Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1:  pfxmatrix_grp0dst3src3ctrl1Changed(a_value); break;
-            case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2:  pfxmatrix_grp0dst3src3ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0:  pfxmatrix_grp0dst0src0ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1:  pfxmatrix_grp0dst0src0ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2:  pfxmatrix_grp0dst0src0ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0:  pfxmatrix_grp0dst0src1ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1:  pfxmatrix_grp0dst0src1ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2:  pfxmatrix_grp0dst0src1ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0:  pfxmatrix_grp0dst0src2ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1:  pfxmatrix_grp0dst0src2ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2:  pfxmatrix_grp0dst0src2ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0:  pfxmatrix_grp0dst0src3ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1:  pfxmatrix_grp0dst0src3ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2:  pfxmatrix_grp0dst0src3ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0:  pfxmatrix_grp0dst1src0ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1:  pfxmatrix_grp0dst1src0ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2:  pfxmatrix_grp0dst1src0ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0:  pfxmatrix_grp0dst1src1ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1:  pfxmatrix_grp0dst1src1ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2:  pfxmatrix_grp0dst1src1ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0:  pfxmatrix_grp0dst1src2ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1:  pfxmatrix_grp0dst1src2ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2:  pfxmatrix_grp0dst1src2ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0:  pfxmatrix_grp0dst1src3ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1:  pfxmatrix_grp0dst1src3ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2:  pfxmatrix_grp0dst1src3ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0:  pfxmatrix_grp0dst2src0ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1:  pfxmatrix_grp0dst2src0ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2:  pfxmatrix_grp0dst2src0ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0:  pfxmatrix_grp0dst2src1ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1:  pfxmatrix_grp0dst2src1ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2:  pfxmatrix_grp0dst2src1ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0:  pfxmatrix_grp0dst2src2ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1:  pfxmatrix_grp0dst2src2ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2:  pfxmatrix_grp0dst2src2ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0:  pfxmatrix_grp0dst2src3ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1:  pfxmatrix_grp0dst2src3ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2:  pfxmatrix_grp0dst2src3ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0:  pfxmatrix_grp0dst3src0ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1:  pfxmatrix_grp0dst3src0ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2:  pfxmatrix_grp0dst3src0ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0:  pfxmatrix_grp0dst3src1ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1:  pfxmatrix_grp0dst3src1ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2:  pfxmatrix_grp0dst3src1ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0:  pfxmatrix_grp0dst3src2ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1:  pfxmatrix_grp0dst3src2ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2:  pfxmatrix_grp0dst3src2ctrl2Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0:  pfxmatrix_grp0dst3src3ctrl0Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1:  pfxmatrix_grp0dst3src3ctrl1Changed(a_value); break;
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2:  pfxmatrix_grp0dst3src3ctrl2Changed(a_value); break;
             
             //case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: global_midi_octaves_offsetChanged(a_value); break;
         }
     
     }
-    else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MAX))
     {
-        sample_noteChanged((port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN));
+        sample_noteChanged((port - EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN));
     }
-    else if((port >= LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MAX))
     {
-        sample_lnoteChanged((port - LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN));
+        sample_lnoteChanged((port - EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN));
     }    
-    else if((port >= LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
     {
-        sample_hnoteChanged((port - LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN));
+        sample_hnoteChanged((port - EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN));
     }
-    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX))
+    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VOLUME_PORT_RANGE_MAX))
     {
         sample_volChanged((port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN));
     }
-    else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_START_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_START_PORT_RANGE_MAX))
     {   
         if (!m_suppressHostUpdate) 
         {
                 lo_send(m_host, m_controlPath, "if", port, float(a_value));
         }        
     }
-    else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_END_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_END_PORT_RANGE_MAX))
     {
         if (!m_suppressHostUpdate) 
         {
                 lo_send(m_host, m_controlPath, "if", port, float(a_value));
         }
     }
-    else if((port >= LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
     {
-        sample_vel_sensChanged((port - LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN));
+        sample_vel_sensChanged((port - EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN));
     }
-    else if((port >= LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
     {
-        sample_vel_lowChanged((port - LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN));
+        sample_vel_lowChanged((port - EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN));
     }
-    else if((port >= LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
     {
-        sample_vel_highChanged((port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN));
+        sample_vel_highChanged((port - EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN));
     }
     //new    
-    else if((port >= LMS_PITCH_PORT_RANGE_MIN) && (port < LMS_PITCH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_PITCH_PORT_RANGE_MAX))
     {
-        sample_pitchChanged((port - LMS_PITCH_PORT_RANGE_MIN));
+        sample_pitchChanged((port - EUPHORIA_PITCH_PORT_RANGE_MIN));
     }
-    else if((port >= LMS_TUNE_PORT_RANGE_MIN) && (port < LMS_TUNE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_TUNE_PORT_RANGE_MIN) && (port < EUPHORIA_TUNE_PORT_RANGE_MAX))
     {
-        sample_tuneChanged((port - LMS_TUNE_PORT_RANGE_MIN));
+        sample_tuneChanged((port - EUPHORIA_TUNE_PORT_RANGE_MIN));
     }
-    else if((port >= LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
     {
-        sample_interpolation_modeChanged((port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN));
+        sample_interpolation_modeChanged((port - EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN));
     }
     
     
     //MonoFX0
-    else if((port >= LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx0knob0Changed(m_mono_fx_values[f_value][0][0]);
         }
     }
-    else if((port >= LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx0knob1Changed(m_mono_fx_values[f_value][0][1]);
         }        
     }
-    else if((port >= LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx0knob2Changed(m_mono_fx_values[f_value][0][2]);
         }        
     }
-    else if((port >= LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx0comboboxChanged(m_mono_fx_values[f_value][0][3]);
         }        
     }
     //MonoFX1
-    else if((port >= LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx1knob0Changed(m_mono_fx_values[f_value][1][0]);
         }
     }
-    else if((port >= LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx1knob1Changed(m_mono_fx_values[f_value][1][1]);
         }        
     }
-    else if((port >= LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx1knob2Changed(m_mono_fx_values[f_value][1][2]);
         }        
     }
-    else if((port >= LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx1comboboxChanged(m_mono_fx_values[f_value][1][3]);
         }        
     }
     //MonoFX2
-    else if((port >= LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx2knob0Changed(m_mono_fx_values[f_value][2][0]);
         }
     }
-    else if((port >= LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx2knob1Changed(m_mono_fx_values[f_value][2][1]);
         }        
     }
-    else if((port >= LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx2knob2Changed(m_mono_fx_values[f_value][2][2]);
         }        
     }
-    else if((port >= LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx2comboboxChanged(m_mono_fx_values[f_value][2][3]);
         }        
     }
     //MonoFX3
-    else if((port >= LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx3knob0Changed(m_mono_fx_values[f_value][3][0]);
         }
     }
-    else if((port >= LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx3knob1Changed(m_mono_fx_values[f_value][3][1]);
         }        
     }
-    else if((port >= LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx3knob2Changed(m_mono_fx_values[f_value][3][2]);
         }        
     }
-    else if((port >= LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             monofx3comboboxChanged(m_mono_fx_values[f_value][3][3]);
         }        
     }
     
-    else if((port >= LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN;
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             sample_selected_monofx_groupChanged(m_sample_selected_monofx_groups[f_value]);
@@ -3614,7 +3614,7 @@ int SamplerGUI::i_get_control(int port)
 {
     /*Add the controls you created to the control handler*/
     
-    if((port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN))
+    if((port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN))
     {
         switch (port) 
         {
@@ -3628,7 +3628,7 @@ int SamplerGUI::i_get_control(int port)
             case EUPHORIA_FILTER_SUSTAIN: return m_adsr_filter->lms_sustain->lms_get_value();
             case EUPHORIA_FILTER_RELEASE: return m_adsr_filter->lms_release->lms_get_value();
             case EUPHORIA_NOISE_AMP: return m_noise_amp->lms_get_value();
-            case LMS_NOISE_TYPE: return m_noise_type->lms_get_value();
+            case EUPHORIA_NOISE_TYPE: return m_noise_type->lms_get_value();
             case EUPHORIA_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
             case EUPHORIA_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
             case EUPHORIA_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
@@ -3645,131 +3645,131 @@ int SamplerGUI::i_get_control(int port)
             case EUPHORIA_FX1_KNOB0: return m_fx1->lms_knob1->lms_get_value();
             case EUPHORIA_FX1_KNOB1: return m_fx1->lms_knob2->lms_get_value();
             case EUPHORIA_FX1_KNOB2: return m_fx1->lms_knob3->lms_get_value();
-            case LMS_FX1_COMBOBOX: return m_fx1->lms_combobox->lms_get_value();
+            case EUPHORIA_FX1_COMBOBOX: return m_fx1->lms_combobox->lms_get_value();
 
-            case LMS_FX2_KNOB0: return m_fx2->lms_knob1->lms_get_value();
-            case LMS_FX2_KNOB1: return m_fx2->lms_knob2->lms_get_value();
-            case LMS_FX2_KNOB2: return m_fx2->lms_knob3->lms_get_value();
-            case LMS_FX2_COMBOBOX: return m_fx2->lms_combobox->lms_get_value();
+            case EUPHORIA_FX2_KNOB0: return m_fx2->lms_knob1->lms_get_value();
+            case EUPHORIA_FX2_KNOB1: return m_fx2->lms_knob2->lms_get_value();
+            case EUPHORIA_FX2_KNOB2: return m_fx2->lms_knob3->lms_get_value();
+            case EUPHORIA_FX2_COMBOBOX: return m_fx2->lms_combobox->lms_get_value();
 
-            case LMS_FX3_KNOB0: return m_fx3->lms_knob1->lms_get_value();
-            case LMS_FX3_KNOB1: return m_fx3->lms_knob2->lms_get_value();
-            case LMS_FX3_KNOB2: return m_fx3->lms_knob3->lms_get_value();
-            case LMS_FX3_COMBOBOX: return m_fx3->lms_combobox->lms_get_value();
+            case EUPHORIA_FX3_KNOB0: return m_fx3->lms_knob1->lms_get_value();
+            case EUPHORIA_FX3_KNOB1: return m_fx3->lms_knob2->lms_get_value();
+            case EUPHORIA_FX3_KNOB2: return m_fx3->lms_knob3->lms_get_value();
+            case EUPHORIA_FX3_COMBOBOX: return m_fx3->lms_combobox->lms_get_value();
             //End from Modulex
             //From PolyFX mod matrix
-            case LMS_PFXMATRIX_GRP0DST0SRC0CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST0SRC0CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST0SRC0CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST0SRC1CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST0SRC1CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST0SRC1CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST0SRC2CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST0SRC2CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST0SRC2CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST0SRC3CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[3]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST0SRC3CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[3]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST0SRC3CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[3]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC0CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC0CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC0CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC1CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC1CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC1CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC2CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC2CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC2CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC3CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[3]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC3CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[3]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST1SRC3CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[3]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC0CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC0CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC0CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC1CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC1CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC1CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC2CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC2CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC2CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC3CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[3]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC3CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[3]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST2SRC3CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[3]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC0CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC0CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC0CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[0]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC1CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC1CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC1CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[1]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC2CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC2CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC2CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[2]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC3CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[3]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC3CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]->lms_get_widget()))->value();
-            case LMS_PFXMATRIX_GRP0DST3SRC3CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC0CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC1CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC2CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[0]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[1]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST0SRC3CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[2]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC0CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC1CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC2CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[3]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[4]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST1SRC3CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[5]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC0CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC1CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC2CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[6]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[7]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST2SRC3CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[8]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC0CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[0]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC1CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[1]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[2]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[9]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[10]->controls[3]->lms_get_widget()))->value();
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2: return ((QSpinBox*)(m_polyfx_mod_matrix[0]->lms_mm_columns[11]->controls[3]->lms_get_widget()))->value();
 
             //case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: return m_global_midi_octaves_offset->lms_get_value();
             //End from PolyFX mod matrix            
             default: euphoria_cerr << "i_get_control called with invalid port " << port << "\n"; return 0;
         }    
     }
-    else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MAX))
     {
-        return ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[(port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN)]))->lms_get_value();
+        return ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[(port - EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN)]))->lms_get_value();
     }
-    else if((port >= LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MAX))
     {
-        return ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[(port - LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN)]))->lms_get_value();
+        return ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[(port - EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN)]))->lms_get_value();
     }    
-    else if((port >= LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
     {
-        return ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[(port - LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN)]))->lms_get_value();
+        return ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[(port - EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN)]))->lms_get_value();
     }
-    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX))
+    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VOLUME_PORT_RANGE_MAX))
     {
         return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[(port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN)]->lms_get_widget()))->value();
     }    
-    else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_START_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_START_PORT_RANGE_MAX))
     {
-        return m_sample_starts[(port - LMS_SAMPLE_START_PORT_RANGE_MIN)];
+        return m_sample_starts[(port - EUPHORIA_SAMPLE_START_PORT_RANGE_MIN)];
     }        
-    else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_END_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_END_PORT_RANGE_MAX))
     {
-        return m_sample_ends[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)];
+        return m_sample_ends[(port - EUPHORIA_SAMPLE_END_PORT_RANGE_MIN)];
     }
-    else if((port >= LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
     {
-        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[(port - LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN)]->lms_get_widget()))->value();
+        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[(port - EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN)]->lms_get_widget()))->value();
     }
-    else if((port >= LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
     {
-        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[(port - LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN)]->lms_get_widget()))->value();
+        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[(port - EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN)]->lms_get_widget()))->value();
     }
-    else if((port >= LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
     {
-        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[(port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)]->lms_get_widget()))->value();
+        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[(port - EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN)]->lms_get_widget()))->value();
     }
     //new
-    else if((port >= LMS_PITCH_PORT_RANGE_MIN) && (port < LMS_PITCH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_PITCH_PORT_RANGE_MAX))
     {
-        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[(port - LMS_PITCH_PORT_RANGE_MIN)]->lms_get_widget()))->value();
+        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[(port - EUPHORIA_PITCH_PORT_RANGE_MIN)]->lms_get_widget()))->value();
     }
-    else if((port >= LMS_TUNE_PORT_RANGE_MIN) && (port < LMS_TUNE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_TUNE_PORT_RANGE_MIN) && (port < EUPHORIA_TUNE_PORT_RANGE_MAX))
     {
-        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[(port - LMS_TUNE_PORT_RANGE_MIN)]->lms_get_widget()))->value();
+        return ((QSpinBox*)(m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[(port - EUPHORIA_TUNE_PORT_RANGE_MIN)]->lms_get_widget()))->value();
     }
-    else if((port >= LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
     {
-        return ((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[(port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)]->lms_get_widget()))->currentIndex();
+        return ((QComboBox*)(m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[(port - EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN)]->lms_get_widget()))->currentIndex();
     }
     //newer
         
-    else if((port >= LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_START_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MAX))
     {
-        return m_sample_loop_starts[(port - LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN)];
+        return m_sample_loop_starts[(port - EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN)];
     }   
-    else if((port >= LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_END_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MAX))
     {
-        return m_sample_loop_ends[(port - LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN)];
+        return m_sample_loop_ends[(port - EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN)];
     }
     /*
     else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
@@ -3781,99 +3781,99 @@ int SamplerGUI::i_get_control(int port)
         return m_sample_ends[(port - LMS_SAMPLE_END_PORT_RANGE_MIN)];
     }
     */
-    else if((port >= LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN) && (port < LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
     {
-        return m_sample_loop_modes[(port - LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN)];
+        return m_sample_loop_modes[(port - EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN)];
     }
     //MonoFX0
-    else if((port >= LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][0][0];
     }
-    else if((port >= LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][0][1];
     }
-    else if((port >= LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][0][2];
     }
-    else if((port >= LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][0][3];
     }    
     //MonoFX1
-    else if((port >= LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][1][0];
     }
-    else if((port >= LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][1][1];
     }
-    else if((port >= LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][1][2];
     }
-    else if((port >= LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][1][3];
     }
     //MonoFX2
-    else if((port >= LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][2][0];
     }
-    else if((port >= LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][2][1];
     }
-    else if((port >= LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][2][2];
     }
-    else if((port >= LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][2][3];
     }
     
     //MonoFX3
-    else if((port >= LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][3][0];
     }
-    else if((port >= LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][3][1];
     }
-    else if((port >= LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][3][2];
     }
-    else if((port >= LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][3][3];
     }
     
-    else if((port >= LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN;
         return m_sample_selected_monofx_groups[f_value];
     }        
     
@@ -4011,125 +4011,125 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
     const float value = argv[1]->f;
     
     gui->m_suppressHostUpdate = TRUE;
-    if((port < LMS_SAMPLE_PITCH_PORT_RANGE_MIN))
+    if((port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN))
     {
         gui->v_set_control(port, value);
     }
-    else if((port >= LMS_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < LMS_SAMPLE_PITCH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_PITCH_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN;
         //cerr << "LMS_SAMPLE_PITCH_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
         gui->m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[f_value]->lms_set_value(value);
     }
-    else if((port >= LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_LOW_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN) && (port < EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN;
         //cerr << "LMS_PLAY_PITCH_LOW_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
         gui->m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[f_value]->lms_set_value(value);
     }
-    else if((port >= LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < LMS_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN) && (port < EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN;
         //cerr << "LMS_PLAY_PITCH_HIGH_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
         gui->m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[f_value]->lms_set_value(value);
     }
-    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VOLUME_PORT_RANGE_MAX))
+    else if((port >= LMS_SAMPLE_VOLUME_PORT_RANGE_MIN ) && (port < EUPHORIA_SAMPLE_VOLUME_PORT_RANGE_MAX))
     {
         int f_value = port - LMS_SAMPLE_VOLUME_PORT_RANGE_MIN;
         //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
         gui->m_sample_table->lms_mm_columns[SMP_TB_VOLUME_INDEX]->controls[f_value]->lms_set_value(value);
     }
-    else if((port >= LMS_SAMPLE_START_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_START_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_START_PORT_RANGE_MIN ) && (port < EUPHORIA_SAMPLE_START_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_START_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_START_PORT_RANGE_MIN;
         //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
         gui->m_sample_starts[f_value] = (int)value;
     }
-    else if((port >= LMS_SAMPLE_END_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_END_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_END_PORT_RANGE_MIN ) && (port < EUPHORIA_SAMPLE_END_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_END_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_END_PORT_RANGE_MIN;
         //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
         gui->m_sample_ends[f_value] = (int)value;
     }
-    else if((port >= LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN ) && (port < EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_VEL_SENS_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_VEL_SENS_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_VEL_SENS_INDEX]->controls[f_value]->lms_set_value(value);
     }
-    else if((port >= LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN ) && (port < EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_VEL_LOW_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_VEL_LOW_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_VEL_LOW_INDEX]->controls[f_value]->lms_set_value(value);
     }
-    else if((port >= LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN ) && (port < EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_VEL_HIGH_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_VEL_HIGH_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_VEL_HIGH_INDEX]->controls[f_value]->lms_set_value(value);
     }
-    else if((port >= LMS_PITCH_PORT_RANGE_MIN ) && (port < LMS_PITCH_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_PITCH_PORT_RANGE_MIN ) && (port < EUPHORIA_PITCH_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_PITCH_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_PITCH_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_PITCH_INDEX]->controls[f_value]->lms_set_value(value);
     }
-    else if((port >= LMS_TUNE_PORT_RANGE_MIN ) && (port < LMS_TUNE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_TUNE_PORT_RANGE_MIN ) && (port < EUPHORIA_TUNE_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_TUNE_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_TUNE_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_TUNE_INDEX]->controls[f_value]->lms_set_value(value);
     }
-    else if((port >= LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN ) && (port < EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN;
         gui->m_sample_table->lms_mm_columns[SMP_TB_INTERPOLATION_MODE_INDEX]->controls[f_value]->lms_set_value(value);
     }
-    else if((port >= LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_LOOP_START_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN ) && (port < EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_LOOP_START_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_LOOP_START_PORT_RANGE_MIN;
         //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
         gui->m_sample_loop_starts[f_value] = (int)value;
     }
-    else if((port >= LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_LOOP_END_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN ) && (port < EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_LOOP_END_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN;
         //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
         gui->m_sample_loop_ends[f_value] = (int)value;
     }
-    else if((port >= LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN ) && (port < LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN ) && (port < EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_LOOP_MODE_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN;
         //cerr << "LMS_SAMPLE_VOLUME_PORT_RANGE_MIN Port " << port << " f_value " << f_value  << endl;
         gui->m_sample_loop_modes[f_value] = (int)value;
     }
     //MonoFX0
-    else if((port >= LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][0][0] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX0knob0(gui->m_mono_fx_values[f_value][0][0]);
         }
     }
-    else if((port >= LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][0][1] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX0knob1(gui->m_mono_fx_values[f_value][0][1]);
         }
     }
-    else if((port >= LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][0][2] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX0knob2(gui->m_mono_fx_values[f_value][0][2]);
         }
     }
-    else if((port >= LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX0_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][0][3] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
@@ -4137,36 +4137,36 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         }
     }    
     //MonoFX1
-    else if((port >= LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][1][0] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX1knob0(gui->m_mono_fx_values[f_value][1][0]);
         }
     }
-    else if((port >= LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][1][1] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX1knob1(gui->m_mono_fx_values[f_value][1][1]);
         }
     }
-    else if((port >= LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][1][2] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX1knob2(gui->m_mono_fx_values[f_value][1][2]);
         }
     }
-    else if((port >= LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX1_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][1][3] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
@@ -4174,36 +4174,36 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         }
     }
     //MonoFX2
-    else if((port >= LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][2][0] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX2knob0(gui->m_mono_fx_values[f_value][2][0]);
         }
     }
-    else if((port >= LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][2][1] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX2knob1(gui->m_mono_fx_values[f_value][2][1]);
         }
     }
-    else if((port >= LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][2][2] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX2knob2(gui->m_mono_fx_values[f_value][2][2]);
         }
     }
-    else if((port >= LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][2][3] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
@@ -4212,36 +4212,36 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
     }
     
     //MonoFX3
-    else if((port >= LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB0_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB0_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][3][0] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX3knob0(gui->m_mono_fx_values[f_value][3][0]);
         }
     }
-    else if((port >= LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB1_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB1_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][3][1] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX3knob1(gui->m_mono_fx_values[f_value][3][1]);
         }
     }
-    else if((port >= LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_KNOB2_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_KNOB2_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][3][2] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
             gui->setmonoFX3knob2(gui->m_mono_fx_values[f_value][3][2]);
         }
     }
-    else if((port >= LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_MONO_FX3_COMBOBOX_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN;
         gui->m_mono_fx_values[f_value][3][3] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
@@ -4249,9 +4249,9 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
         }
     }
     
-    else if((port >= LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
+    else if((port >= EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
     {
-        int f_value = port - LMS_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN;
+        int f_value = port - EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN;
         gui->m_sample_selected_monofx_groups[f_value] = (int)value;
         if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
         {
