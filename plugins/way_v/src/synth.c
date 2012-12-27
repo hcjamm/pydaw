@@ -35,36 +35,15 @@ GNU General Public License for more details.
 #include "synth.h"
 #include "meta.h"
 
-static LADSPA_Descriptor *LMSLDescriptor = NULL;
-static DSSI_Descriptor *LMSDDescriptor = NULL;
-
 static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
 static void v_run_wayv_voice(t_wayv *, t_voc_single_voice, t_wayv_poly_voice *,
 		      LADSPA_Data *, LADSPA_Data *, unsigned int, int );
 
-__attribute__ ((visibility("default")))
-const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
-{
-    switch (index) {
-    case 0:
-	return LMSLDescriptor;
-    default:
-	return NULL;
-    }
-}
+const LADSPA_Descriptor *wayv_ladspa_descriptor(unsigned long index);
+const DSSI_Descriptor *wayv_dssi_descriptor(unsigned long index);
 
-__attribute__ ((visibility("default")))
-const DSSI_Descriptor *dssi_descriptor(unsigned long index)
-{
-    switch (index) {
-    case 0:
-	return LMSDDescriptor;
-    default:
-	return NULL;
-    }
-}
 
 static void v_cleanup_wayv(LADSPA_Handle instance)
 {
@@ -320,7 +299,7 @@ static LADSPA_Handle g_wayv_instantiate(const LADSPA_Descriptor * descriptor,
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "way_v-cc_map.txt");
     
     /*LibModSynth additions*/
-    v_rayv_init_lms(s_rate);  //initialize any static variables    
+    v_wayv_init(s_rate);  //initialize any static variables    
     /*End LibModSynth additions*/
     
     return (LADSPA_Handle) plugin_data;
@@ -334,7 +313,7 @@ static void v_wayv_activate(LADSPA_Handle instance)
     plugin_data->voices = g_voc_get_voices(WAYV_POLYPHONY);    
     
     for (i=0; i<WAYV_POLYPHONY; i++) {
-        plugin_data->data[i] = g_rayv_poly_init(plugin_data->fs);
+        plugin_data->data[i] = g_wayv_poly_init(plugin_data->fs);
         plugin_data->data[i]->note_f = i;        
     }
     plugin_data->sampleNo = 0;
@@ -343,7 +322,7 @@ static void v_wayv_activate(LADSPA_Handle instance)
     plugin_data->sv_pitch_bend_value = 0.0f;
     plugin_data->sv_last_note = 60.0f;  //For glide
     
-    plugin_data->mono_modules = v_rayv_mono_init();  //initialize all monophonic modules
+    plugin_data->mono_modules = v_wayv_mono_init();  //initialize all monophonic modules
 }
 
 static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
@@ -703,20 +682,17 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
 }
 
 /*This returns MIDI CCs for the different knobs*/ 
-static int i_rayv_get_controller(LADSPA_Handle instance, unsigned long port)
+static int i_wayv_get_controller(LADSPA_Handle instance, unsigned long port)
 {
     t_wayv *plugin_data = (t_wayv *) instance;
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
 }
 
-/*Here we define how all of the LADSPA and DSSI header stuff is setup,
- we also define the ports and the GUI.*/
-#ifdef __GNUC__
-__attribute__((constructor)) void v_wayv_constructor()
-#else
-void _init()
-#endif
+
+const LADSPA_Descriptor *wayv_ladspa_descriptor(unsigned long index)
 {
+    LADSPA_Descriptor *LMSLDescriptor = NULL;
+    
     char **port_names;
     LADSPA_PortDescriptor *port_descriptors;
     LADSPA_PortRangeHint *port_range_hints;
@@ -1459,15 +1435,7 @@ void _init()
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100;
         
         //End from PolyFX mod matrix
-        
-	/*port_descriptors[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = "Global MIDI Offset(Octaves)";
-	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_INTEGER |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].LowerBound =  -3;
-	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].UpperBound =  3;
-        */
+        	
         port_descriptors[LMS_NOISE_TYPE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_NOISE_TYPE] = "Noise Type";
 	port_range_hints[LMS_NOISE_TYPE].HintDescriptor =
@@ -1559,26 +1527,35 @@ void _init()
 	LMSLDescriptor->set_run_adding_gain = NULL;
     }
 
+    return LMSLDescriptor;
+}
+
+const DSSI_Descriptor *wayv_dssi_descriptor(unsigned long index)
+{
+    DSSI_Descriptor *LMSDDescriptor = NULL;
+    
     LMSDDescriptor = (DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
-    if (LMSDDescriptor) {
+    
+    if (LMSDDescriptor) 
+    {
 	LMSDDescriptor->DSSI_API_Version = 1;
-	LMSDDescriptor->LADSPA_Plugin = LMSLDescriptor;
+	LMSDDescriptor->LADSPA_Plugin = wayv_ladspa_descriptor(0);
 	LMSDDescriptor->configure = NULL;  //TODO:  I think this is where the host can set plugin state, etc...
 	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
-	LMSDDescriptor->get_midi_controller_for_port = i_rayv_get_controller;
+	LMSDDescriptor->get_midi_controller_for_port = i_wayv_get_controller;
 	LMSDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
 	LMSDDescriptor->run_synth = v_run_wayv;
 	LMSDDescriptor->run_synth_adding = NULL;
 	LMSDDescriptor->run_multiple_synths = NULL;
 	LMSDDescriptor->run_multiple_synths_adding = NULL;
     }
+        
+    return LMSDDescriptor;    
 }
 
-#ifdef __GNUC__
-__attribute__((destructor)) void v_wayv_destructor()
-#else
-void _fini()
-#endif
+
+/*
+void v_wayv_destructor()
 {
     if (LMSLDescriptor) {
 	free((LADSPA_PortDescriptor *) LMSLDescriptor->PortDescriptors);
@@ -1590,3 +1567,4 @@ void _fini()
 	free(LMSDDescriptor);
     }
 }
+*/

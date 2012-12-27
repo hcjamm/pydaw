@@ -35,8 +35,8 @@ GNU General Public License for more details.
 #include "synth.h"
 #include "meta.h"
 
-static LADSPA_Descriptor *LMSLDescriptor = NULL;
-static DSSI_Descriptor *LMSDDescriptor = NULL;
+
+
 
 static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
@@ -44,27 +44,8 @@ static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
 static void v_run_rayv_voice(t_rayv *p, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *d,
 		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count);
 
-__attribute__ ((visibility("default")))
-const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
-{
-    switch (index) {
-    case 0:
-	return LMSLDescriptor;
-    default:
-	return NULL;
-    }
-}
-
-__attribute__ ((visibility("default")))
-const DSSI_Descriptor *dssi_descriptor(unsigned long index)
-{
-    switch (index) {
-    case 0:
-	return LMSDDescriptor;
-    default:
-	return NULL;
-    }
-}
+const LADSPA_Descriptor *rayv_ladspa_descriptor(unsigned long index);
+const DSSI_Descriptor *rayv_dssi_descriptor(unsigned long index);
 
 static void v_cleanup_rayv(LADSPA_Handle instance)
 {
@@ -475,14 +456,9 @@ static int i_rayv_get_controller(LADSPA_Handle instance, unsigned long port)
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
 }
 
-/*Here we define how all of the LADSPA and DSSI header stuff is setup,
- we also define the ports and the GUI.*/
-#ifdef __GNUC__
-__attribute__((constructor)) void v_rayv_constructor()
-#else
-void _init()
-#endif
+const LADSPA_Descriptor *rayv_ladspa_descriptor(unsigned long index)
 {
+    LADSPA_Descriptor *LMSLDescriptor = NULL;
     char **port_names;
     LADSPA_PortDescriptor *port_descriptors;
     LADSPA_PortRangeHint *port_range_hints;
@@ -873,10 +849,20 @@ void _init()
 	LMSLDescriptor->set_run_adding_gain = NULL;
     }
 
+    return LMSLDescriptor;
+    
+}
+
+
+const DSSI_Descriptor *rayv_dssi_descriptor(unsigned long index)
+{
+    DSSI_Descriptor *LMSDDescriptor = NULL;
+    
+    
     LMSDDescriptor = (DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
     if (LMSDDescriptor) {
 	LMSDDescriptor->DSSI_API_Version = 1;
-	LMSDDescriptor->LADSPA_Plugin = LMSLDescriptor;
+	LMSDDescriptor->LADSPA_Plugin = rayv_ladspa_descriptor(0);
 	LMSDDescriptor->configure = NULL;  //TODO:  I think this is where the host can set plugin state, etc...
 	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
 	LMSDDescriptor->get_midi_controller_for_port = i_rayv_get_controller;
@@ -886,13 +872,13 @@ void _init()
 	LMSDDescriptor->run_multiple_synths = NULL;
 	LMSDDescriptor->run_multiple_synths_adding = NULL;
     }
+    
+    return LMSDDescriptor;    
 }
 
-#ifdef __GNUC__
-__attribute__((destructor)) void v_rayv_destructor()
-#else
-void _fini()
-#endif
+
+/*
+void v_rayv_destructor()
 {
     if (LMSLDescriptor) {
 	free((LADSPA_PortDescriptor *) LMSLDescriptor->PortDescriptors);
@@ -904,3 +890,4 @@ void _fini()
 	free(LMSDDescriptor);
     }
 }
+*/

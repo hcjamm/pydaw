@@ -20,6 +20,11 @@ extern "C" {
 #include <dlfcn.h>
 #include <math.h>
 #include <stdlib.h>
+
+#include "../../lms_modulex/src/synth.c"
+#include "../../euphoria/src/synth.c"
+#include "../../way_v/src/synth.c"
+#include "../../ray_v/src/synth.c"
     
 #define PYDAW_MAX_BUFFER_SIZE 4096
     
@@ -100,9 +105,8 @@ LADSPA_Data g_pydaw_get_port_default(const LADSPA_Descriptor *plugin, int port, 
 
 typedef struct st_pydaw_plugin
 {
-    void * lib_handle;
-    //float buffer[2][PYDAW_MAX_BUFFER_SIZE];  //Buffer for writing the audio output to(and reading from???)
-    
+    //void * lib_handle;
+        
     DSSI_Descriptor_Function descfn;
     
     LADSPA_Handle ladspa_handle;
@@ -220,16 +224,20 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     switch(a_index)
     {
         case -1:
-            f_result->lib_handle = dlopen("/usr/lib/dssi/lms_modulex.so", RTLD_NOW | RTLD_LOCAL);                  
+            f_result->descfn = (DSSI_Descriptor_Function)modulex_dssi_descriptor;
+            //f_result->lib_handle = dlopen("/usr/lib/dssi/lms_modulex.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
         case 1:
-            f_result->lib_handle = dlopen("/usr/lib/dssi/euphoria.so", RTLD_NOW | RTLD_LOCAL);                  
+            f_result->descfn = (DSSI_Descriptor_Function)euphoria_dssi_descriptor;
+            //f_result->lib_handle = dlopen("/usr/lib/dssi/euphoria.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
         case 2:
-            f_result->lib_handle = dlopen("/usr/lib/dssi/ray_v.so", RTLD_NOW | RTLD_LOCAL);                  
+            f_result->descfn = (DSSI_Descriptor_Function)rayv_dssi_descriptor;
+            //f_result->lib_handle = dlopen("/usr/lib/dssi/ray_v.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
         case 3:
-            f_result->lib_handle = dlopen("/usr/lib/dssi/way_v.so", RTLD_NOW | RTLD_LOCAL);                  
+            f_result->descfn = (DSSI_Descriptor_Function)wayv_dssi_descriptor;
+            //f_result->lib_handle = dlopen("/usr/lib/dssi/way_v.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
     }
     
@@ -248,8 +256,8 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     f_result->ui_osc_show_path = NULL;
     
     f_result->showing_ui = 0;
-    
-    f_result->descfn = (DSSI_Descriptor_Function)dlsym(f_result->lib_handle, "dssi_descriptor");
+        
+    //f_result->descfn = (DSSI_Descriptor_Function)dlsym(f_result->lib_handle, "dssi_descriptor");
     
     f_result->descriptor = f_result->descfn(0);
     

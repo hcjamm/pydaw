@@ -1,8 +1,8 @@
 
 /* This file contains global identifier information for the plugin. */
 
-#ifndef META_H
-#define	META_H
+#ifndef WAYV_META_H
+#define	WAYV_META_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -18,4 +18,4 @@ extern "C" {
 }
 #endif
 
-#endif	/* META_H */
+#endif	/* WAYV_META_H */

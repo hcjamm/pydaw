@@ -254,7 +254,7 @@ typedef struct {
     long         sampleNo;
     
     float fs;    
-    t_rayv_mono_modules * mono_modules;
+    t_wayv_mono_modules * mono_modules;
         
     int event_pos;
     int i_run_poly_voice;

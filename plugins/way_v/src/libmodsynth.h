@@ -11,8 +11,8 @@ GNU General Public License for more details.
 
  */
 
-#ifndef RAYV_LIBMODSYNTH_H
-#define	RAYV_LIBMODSYNTH_H
+#ifndef WAYV_LIBMODSYNTH_H
+#define	WAYV_LIBMODSYNTH_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -45,9 +45,9 @@ extern "C" {
 static float va_rayv_sr_recip;
 static float va_rayv_sample_rate;
 
-void v_rayv_init_lms(float f_sr);
+void v_wayv_init(float f_sr);
 
-void v_rayv_init_lms(float f_sr)
+void v_wayv_init(float f_sr)
 {
     va_rayv_sample_rate = f_sr;
     va_rayv_sr_recip = 1.0f/f_sr;    
@@ -56,14 +56,14 @@ void v_rayv_init_lms(float f_sr)
 /*Define any modules here that will be used monophonically, ie:  NOT per voice here.  If you are making an effect plugin instead
  of an instrument, you will most likely want to define all of your modules here*/
 
-typedef struct st_rayv_mono_modules
+typedef struct
 {    
     t_smoother_iir * pitchbend_smoother;
     t_amp * amp_ptr;
-}t_rayv_mono_modules;
+}t_wayv_mono_modules;
     
 /*define static variables for libmodsynth modules.  Once instance of this type will be created for each polyphonic voice.*/
-typedef struct st_rayv_poly_voice
+typedef struct
 {
     t_osc_wav_unison * osc_wavtable1;
     t_osc_wav_unison * osc_wavtable2;
@@ -126,11 +126,11 @@ typedef struct st_rayv_poly_voice
     
 }t_wayv_poly_voice;
 
-t_wayv_poly_voice * g_rayv_poly_init(float a_sr);
+t_wayv_poly_voice * g_wayv_poly_init(float a_sr);
 
 /*initialize all of the modules in an instance of poly_voice*/
 
-t_wayv_poly_voice * g_rayv_poly_init(float a_sr)
+t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
 {
     t_wayv_poly_voice * f_voice = (t_wayv_poly_voice*)malloc(sizeof(t_wayv_poly_voice));
     
@@ -238,13 +238,13 @@ void v_wayv_poly_note_off(t_wayv_poly_voice * a_voice, int a_fast)
     v_adsr_release(a_voice->adsr_amp2);
 }
 
-t_rayv_mono_modules * v_rayv_mono_init();
+t_wayv_mono_modules * v_wayv_mono_init();
 
 
 /*Initialize any modules that will be run monophonically*/
-t_rayv_mono_modules * v_rayv_mono_init()
+t_wayv_mono_modules * v_wayv_mono_init()
 {
-    t_rayv_mono_modules * a_mono = (t_rayv_mono_modules*)malloc(sizeof(t_rayv_mono_modules));    
+    t_wayv_mono_modules * a_mono = (t_wayv_mono_modules*)malloc(sizeof(t_wayv_mono_modules));    
     a_mono->pitchbend_smoother = g_smr_iir_get_smoother();
     a_mono->amp_ptr = g_amp_get();
     return a_mono;
