@@ -34,36 +34,13 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/lms_math.h"
 #include "../../libmodsynth/lib/strings.h"
 
-static LADSPA_Descriptor *samplerStereoLDescriptor = NULL;
-
-static DSSI_Descriptor *samplerStereoDDescriptor = NULL;
-
 static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
 		       snd_seq_event_t *events, unsigned long EventCount);
 
 static inline void v_euphoria_slow_index(t_euphoria*);
 
-__attribute__ ((visibility("default")))
-const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
-{
-    switch (index) {
-    case 0:
-	return samplerStereoLDescriptor;
-    default:
-	return NULL;
-    }
-}
-
-__attribute__ ((visibility("default")))
-const DSSI_Descriptor *dssi_descriptor(unsigned long index)
-{
-    switch (index) {
-    case 0:
-	return samplerStereoDDescriptor;    
-    default:
-	return NULL;
-    }
-}
+const LADSPA_Descriptor *euphoria_ladspa_descriptor(unsigned long index);
+const DSSI_Descriptor *euphoria_dssi_descriptor(unsigned long index);
 
 static void cleanupSampler(LADSPA_Handle instance)
 {
@@ -1449,26 +1426,20 @@ char *c_euphoria_configure(LADSPA_Handle instance, const char *key, const char *
     return strdup("error: unrecognized configure key");
 }
 
-#ifdef __GNUC__
-__attribute__((constructor)) void v_euphoria_constructor()
-#else
-void _init()
-#endif
+const LADSPA_Descriptor *euphoria_ladspa_descriptor(unsigned long index)
 {
+    LADSPA_Descriptor *euphoriaLDescriptor = NULL;
+
     char **port_names;
     LADSPA_PortDescriptor *port_descriptors;
     LADSPA_PortRangeHint *port_range_hints;
     int channels;
 
-    samplerStereoLDescriptor =
-	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
-
-    samplerStereoDDescriptor =
-	(DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
+    euphoriaLDescriptor = (LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
 
     for (channels = 1; channels <= 2; ++channels) {
 
-	LADSPA_Descriptor *desc = samplerStereoLDescriptor;
+	LADSPA_Descriptor *desc = euphoriaLDescriptor;
 
 	desc->UniqueID = channels;
 	desc->Label = EUPHORIA_PLUGIN_NAME;
@@ -2315,32 +2286,42 @@ void _init()
 	desc->run_adding = NULL;
 	desc->set_run_adding_gain = NULL;
     }
-
-    samplerStereoDDescriptor->DSSI_API_Version = 1;
-    samplerStereoDDescriptor->LADSPA_Plugin = samplerStereoLDescriptor;
-    samplerStereoDDescriptor->configure = c_euphoria_configure;
-    samplerStereoDDescriptor->get_program = NULL;
-    samplerStereoDDescriptor->get_midi_controller_for_port = i_euphoria_get_controller;
-    samplerStereoDDescriptor->select_program = NULL;
-    samplerStereoDDescriptor->run_synth = v_run_lms_euphoria;
-    samplerStereoDDescriptor->run_synth_adding = NULL;
-    samplerStereoDDescriptor->run_multiple_synths = NULL;
-    samplerStereoDDescriptor->run_multiple_synths_adding = NULL;
+    
+    return euphoriaLDescriptor;
 }
 
-#ifdef __GNUC__
-__attribute__((destructor)) void v_euphoria_destructor()
-#else
-void _fini()
-#endif
+const DSSI_Descriptor *euphoria_dssi_descriptor(unsigned long index)
 {
-    if (samplerStereoLDescriptor) {
-	free((LADSPA_PortDescriptor *) samplerStereoLDescriptor->PortDescriptors);
-	free((char **) samplerStereoLDescriptor->PortNames);
-	free((LADSPA_PortRangeHint *) samplerStereoLDescriptor->PortRangeHints);
-	free(samplerStereoLDescriptor);
+    DSSI_Descriptor *euphoriaDDescriptor = NULL;
+    
+    euphoriaDDescriptor = (DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
+    
+    euphoriaDDescriptor->DSSI_API_Version = 1;
+    euphoriaDDescriptor->LADSPA_Plugin = euphoria_ladspa_descriptor(0);
+    euphoriaDDescriptor->configure = c_euphoria_configure;
+    euphoriaDDescriptor->get_program = NULL;
+    euphoriaDDescriptor->get_midi_controller_for_port = i_euphoria_get_controller;
+    euphoriaDDescriptor->select_program = NULL;
+    euphoriaDDescriptor->run_synth = v_run_lms_euphoria;
+    euphoriaDDescriptor->run_synth_adding = NULL;
+    euphoriaDDescriptor->run_multiple_synths = NULL;
+    euphoriaDDescriptor->run_multiple_synths_adding = NULL;
+    
+    return euphoriaDDescriptor; 
+}
+
+
+/*
+void v_euphoria_destructor()
+{
+    if (euphoriaLDescriptor) {
+	free((LADSPA_PortDescriptor *) euphoriaLDescriptor->PortDescriptors);
+	free((char **) euphoriaLDescriptor->PortNames);
+	free((LADSPA_PortRangeHint *) euphoriaLDescriptor->PortRangeHints);
+	free(euphoriaLDescriptor);
     }
-    if (samplerStereoDDescriptor) {
-	free(samplerStereoDDescriptor);
+    if (euphoriaDDescriptor) {
+	free(euphoriaDDescriptor);
     }
 }
+*/

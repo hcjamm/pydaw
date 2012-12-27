@@ -35,42 +35,19 @@ GNU General Public License for more details.
 #include "synth.h"
 #include "meta.h"
 
-static LADSPA_Descriptor *LMSLDescriptor = NULL;
-static DSSI_Descriptor *LMSDDescriptor = NULL;
 
 static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
 		  snd_seq_event_t * events, unsigned long EventCount);
 
-
-__attribute__ ((visibility("default")))
-const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
-{
-    switch (index) {
-    case 0:
-	return LMSLDescriptor;
-    default:
-	return NULL;
-    }
-}
-
-__attribute__ ((visibility("default")))
-const DSSI_Descriptor *dssi_descriptor(unsigned long index)
-{
-    switch (index) {
-    case 0:
-	return LMSDDescriptor;
-    default:
-	return NULL;
-    }
-}
+LADSPA_Descriptor *modulex_ladspa_descriptor(long index);
+DSSI_Descriptor *modulex_dssi_descriptor(long index);
 
 static void v_modulex_cleanup(LADSPA_Handle instance)
 {
     free(instance);
 }
 
-static void v_modulex_connect_port(LADSPA_Handle instance, unsigned long port,
-			  LADSPA_Data * data)
+static void v_modulex_connect_port(LADSPA_Handle instance, unsigned long port, LADSPA_Data * data)
 {
     t_modulex *plugin;
 
@@ -355,19 +332,19 @@ int i_modulex_get_controller(LADSPA_Handle instance, unsigned long port)
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));     
 }
 
-#ifdef __GNUC__
-__attribute__((constructor)) void v_modulex_init()
-#else
-void _init()
-#endif
+
+LADSPA_Descriptor *modulex_ladspa_descriptor(long index)
 {
+    LADSPA_Descriptor *LMSLDescriptor = NULL;
+    
     char **port_names;
     LADSPA_PortDescriptor *port_descriptors;
     LADSPA_PortRangeHint *port_range_hints;
 
     LMSLDescriptor =
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
-    if (LMSLDescriptor) {
+    if (LMSLDescriptor) 
+    {
         LMSLDescriptor->UniqueID = MODULEX_PLUGIN_UUID;
 	LMSLDescriptor->Label = MODULEX_PLUGIN_NAME;
 	LMSLDescriptor->Properties = LADSPA_PROPERTY_HARD_RT_CAPABLE;
@@ -734,8 +711,7 @@ void _init()
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[MODULEX_STEREO].LowerBound =  0.0f;
-	port_range_hints[MODULEX_STEREO].UpperBound =  100.0f;
-        
+	port_range_hints[MODULEX_STEREO].UpperBound =  100.0f;        
         
 	LMSLDescriptor->activate = v_modulex_activate;
 	LMSLDescriptor->cleanup = v_modulex_cleanup;
@@ -746,27 +722,36 @@ void _init()
 	LMSLDescriptor->run_adding = NULL;
 	LMSLDescriptor->set_run_adding_gain = NULL;
     }
+        
+    return LMSLDescriptor;    
+}
 
+
+DSSI_Descriptor *modulex_dssi_descriptor(long index)
+{
+    DSSI_Descriptor *LMSDDescriptor = NULL;
+    
     LMSDDescriptor = (DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
-    if (LMSDDescriptor) {
+    if (LMSDDescriptor) 
+    {
 	LMSDDescriptor->DSSI_API_Version = 1;
-	LMSDDescriptor->LADSPA_Plugin = LMSLDescriptor;
-	LMSDDescriptor->configure = NULL;  //TODO:  I think this is where the host can set plugin state, etc...
-	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
+	LMSDDescriptor->LADSPA_Plugin = modulex_ladspa_descriptor(0);
+	LMSDDescriptor->configure = NULL;
+	LMSDDescriptor->get_program = NULL;
 	LMSDDescriptor->get_midi_controller_for_port = i_modulex_get_controller;
-	LMSDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
+	LMSDDescriptor->select_program = NULL;
 	LMSDDescriptor->run_synth = v_modulex_run;
 	LMSDDescriptor->run_synth_adding = NULL;
 	LMSDDescriptor->run_multiple_synths = NULL;
 	LMSDDescriptor->run_multiple_synths_adding = NULL;
     }
+        
+    return LMSDDescriptor;    
 }
 
-#ifdef __GNUC__
-__attribute__((destructor)) void v_modulex_destructor()
-#else
-void _fini()
-#endif
+
+/*
+void v_modulex_destructor()
 {
     if (LMSLDescriptor) {
 	free((LADSPA_PortDescriptor *) LMSLDescriptor->PortDescriptors);
@@ -778,3 +763,4 @@ void _fini()
 	free(LMSDDescriptor);
     }
 }
+*/
