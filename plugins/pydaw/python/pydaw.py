@@ -1812,10 +1812,11 @@ class transport_widget:
             self.suppress_osc = True
         self.transport = this_pydaw_project.get_transport()    
         self.tempo_spinbox.setValue(int(self.transport.bpm))
-        self.region_spinbox.setValue(int(self.transport.region))
-        f_region_item = this_song_editor.table_widget.item(0, int(self.transport.region))
+        self.region_spinbox.setValue(int(self.transport.region))        
+        f_region_item = this_song_editor.table_widget.item(0, int(self.transport.region))        
         if f_region_item and str(f_region_item.text()) != "":
-            this_region_editor.open_region(str(f_region_item.text()))            
+            this_song_editor.table_widget.setItemSelected(f_region_item, True)
+            this_region_editor.open_region(str(f_region_item.text()))
         self.bar_spinbox.setValue(int(self.transport.bar))
         self.last_bar = int(self.transport.bar)
         self.loop_mode_combobox.setCurrentIndex(int(self.transport.loop_mode))
