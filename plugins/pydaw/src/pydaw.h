@@ -2036,7 +2036,7 @@ void v_open_default_project(t_pydaw_data * a_data)
 {
     char * f_home = getenv("HOME");
     char f_default_project_folder[512];
-    sprintf(f_default_project_folder, "%s/pydaw/default-project", f_home);
+    sprintf(f_default_project_folder, "%s/pydaw2/default-project", f_home);
     v_open_project(a_data, f_default_project_folder);
     //free(f_home);  //Not freeing this because it SEGFAULTS for some reason and is tiny....
 }
@@ -2700,28 +2700,24 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
     
     if(a_is_fx)
     {
-        filename = "/usr/lib/dssi/lms_modulex/LMS_MODULEX_qt";
-        dllName = "lms_modulex.so";
-        //label = "LMS_MODULEX";            
+        filename = "/usr/lib/pydaw2/lms_modulex/LMS_MODULEX_qt";
+        dllName = "lms_modulex.so";       
     }
     else
     {
         switch(a_pydaw_data->track_pool[a_track_num]->plugin_index)
         {
             case 1:
-                filename = "/usr/lib/dssi/euphoria/LMS_EUPHORIA_qt";
+                filename = "/usr/lib/pydaw2/euphoria/LMS_EUPHORIA_qt";
                 dllName = "euphoria.so";
-                //label = "LMS_EUPHORIA";            
                 break;
             case 2:
-                filename = "/usr/lib/dssi/ray_v/LMS_RAYV_qt";
+                filename = "/usr/lib/pydaw2/ray_v/LMS_RAYV_qt";
                 dllName = "ray_v.so";
-                //label = "LMS_RAYV";            
                 break;
             case 3:
-                filename = "/usr/lib/dssi/way_v/WAY_V_qt";
+                filename = "/usr/lib/pydaw2/way_v/WAY_V_qt";
                 dllName = "way_v.so";
-                //label = "WAY_V";            
                 break;
             default:
                 return;
@@ -2747,13 +2743,13 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
     
     if (fork() == 0) 
     {
+        printf("filename == %s\n", filename);
         execlp(filename, filename, oscUrl, dllName, a_pydaw_data->track_pool[a_track_num]->name, track_number_string, NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
     }    
 }
 
-//TODO:  A 'close all plugins' function that actually frees the plugin memory
 void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
 {
     int f_i = 0;

@@ -32,7 +32,7 @@ public:
     /* The overload for running standalone */
     LMS_preset_manager(QString a_plugin_name, QString a_default_presets, int a_lms_port, LMS_style_info * a_style_info, QWidget * a_parent)
     {
-        QString f_preset_path = QDir::homePath() + QString("/pydaw");
+        QString f_preset_path = QDir::homePath() + QString("/pydaw2");
         
         instantiate(a_plugin_name, a_default_presets, a_lms_port, a_style_info, a_parent, f_preset_path);
     }
