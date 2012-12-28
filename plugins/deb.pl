@@ -2,18 +2,16 @@
 
 $help_text = 
 "
-The PyDAW interactive packaging script.  https://github.com/j3ffhubb/audiocode
-
-This script is for creating a monolithic debian package for any number of individual plugins defined in the \@plugins array in this script(including PyDAW itself).
+This script is for creating a monolithic debian package for PyDAW
 
 usage:
-perl build-all.pl 
+perl deb.pl 
 
 --help:  show this help information
 
 ";
 
-$short_name = "pydaw";
+$short_name = "pydaw2";
 
 $arch = `uname -i`;
 chomp($arch);
@@ -77,7 +75,7 @@ $size = (split(" ", $size))[0];
 chomp($size);
 
 $debian_control = "
-Package: pydaw
+Package: $short_name
 Priority: extra
 Section: sound
 Installed-Size: $size
@@ -85,10 +83,10 @@ Maintainer: Jeff Hubbard <jhubbard651\@users.sf.net>
 Architecture: $arch
 Version: $version
 Depends: liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsm-dev, qjackctl, alsa-utils, python-liblo, python-qt4, git, libsdl1.2-dev, ffado-mixer-qt4, ffado-tools, ffado-dbus-server, audacity, python
-Provides: pydaw
+Provides: $short_name
 Conflicts: 
 Replaces: 
-Description: A digital audio workstation with robust MIDI capabilities and a full suite of instrument and effects plugins.
+Description: A digital audio workstation with a full suite of instrument and effects plugins.
  PyDAW comes with a modular sampler, a modular wavetable synthesizer, and an analog style synthesizer, as well as numerous built-in effects.
 ";
 
@@ -131,7 +129,7 @@ else
 
 }
 
-$package_name = "pydaw-$version-$arch$build_suffix.deb";
+$package_name = "$short_name-$version-$arch$build_suffix.deb";
 
 `cd pydaw-build ; fakeroot dpkg-deb --build debian ; rm $package_name ; mv debian.deb $package_name`;
 
