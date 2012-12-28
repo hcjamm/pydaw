@@ -1,3 +1,4 @@
+plugins/pydaw/pydaw2
 plugins/pydaw-build/debian/DEBIAN/control
 plugins/pydaw-build/debian/DEBIAN/md5sums
 tools/wavetable_maker/wavs/*.wav
