@@ -1,31 +1,6 @@
 /* -*- c-basic-offset: 4 -*-  vi:set ts=8 sts=4 sw=4: */
 
-/* jack-dssi-host.c
- *
- * DSSI Soft Synth Interface
- *
- * This is a host for DSSI plugins.  It listens for MIDI events on an
- * ALSA sequencer port, delivers them to DSSI synths and outputs the
- * result via JACK.
- *
- * This program expects the names of up to 16 DSSI synth plugins, in
- * the form '<dll-name>:<label>',* to be provided on the command line.
- * If just '<dll-name>' is provided, the first plugin in the DLL is
- * is used.  MIDI channels are assigned to each plugin instance, in
- * order, beginning with channel 0 (zero-based).  A plugin may be
- * easily instantiated multiple times by preceding its name and label
- * with a dash followed immediately by the desired number of instances,
- * e.g. '-3 my_plugins.so:zoomy' would create three instances of the
- * 'zoomy' plugin.
- */
-
-/*
- * Copyright 2004, 2009 Chris Cannam, Steve Harris and Sean Bolton.
- * 
- * Permission to use, copy, modify, distribute, and sell this software
- * for any purpose is hereby granted without fee, provided that the
- * above copyright notice and this permission notice are included in
- * all copies or substantial portions of the software.
+/* The main binary for PyDAW...
  */
 
 #define _BSD_SOURCE    1
@@ -110,7 +85,7 @@ int exiting = 0;
 static int verbose = 0;
 static int autoconnect = 1;
 static int load_guis = 1;
-const char *myName = NULL;
+const char *myName = "pydaw";
 
 #define EVENT_BUFFER_SIZE 1024
 static snd_seq_event_t midiEventBuffer[EVENT_BUFFER_SIZE]; /* ring buffer */
@@ -131,6 +106,7 @@ void start_gui()
 {
     if (fork() == 0) 
     {
+        printf("start_gui with osc path %s\n", osc_path_tmp);
         execlp("/usr/lib/pydaw2/pydaw/PYDAW_qt", "/usr/lib/pydaw2/pydaw/PYDAW_qt", osc_path_tmp, "pydaw.so", "pydaw2", "pydaw", NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
@@ -672,9 +648,9 @@ main(int argc, char **argv)
 
     plugin = (d3h_plugin_t *)calloc(1, sizeof(d3h_plugin_t));
     plugin->number = plugin_count;
-    plugin->label = "PyDAW2";
+    plugin->label = "pydaw";
     dll = (d3h_dll_t *)calloc(1, sizeof(d3h_dll_t));
-    dll->name = "pydaw2";
+    dll->name = "pydaw";
     dll->directory = "/usr/lib/pydaw2";
     dll->descfn = (DSSI_Descriptor_Function)dssi_descriptor; 
     j = 0;
@@ -713,54 +689,48 @@ main(int argc, char **argv)
 
     reps = 1;
     /* set up instances */
-    for (j = 0; j < reps; j++) {
-        if (instance_count < D3H_MAX_INSTANCES) 
-        {
-            instance = &instances[instance_count];
+    
+    instance = &instances[instance_count];
 
-            instance->plugin = plugin;
-            instance->channel = instance_count;
-            instance->inactive = 1;
-            tmp = (char *)malloc(strlen(plugin->dll->name) +
-                                 strlen(plugin->label) + 9);
-            instance->friendly_name = tmp;
-            strcpy(tmp, plugin->dll->name);
-            if (strlen(tmp) > 3 &&
-                !strcasecmp(tmp + strlen(tmp) - 3, ".so")) {
-                tmp = tmp + strlen(tmp) - 3;
-            } else {
-                tmp = tmp + strlen(tmp);
-            }
-            sprintf(tmp, "/%s/chan%02d", plugin->label, instance->channel);
-            instance->pluginProgramCount = 0;
-            instance->pluginPrograms = NULL;
-            instance->currentBank = 0;
-            instance->currentProgram = 0;
-            instance->pendingBankLSB = -1;
-            instance->pendingBankMSB = -1;
-            instance->pendingProgramChange = -1;
-            instance->uiTarget = NULL;
-            instance->uiSource = NULL;
-            instance->ui_initial_show_sent = 0;
-            instance->uiNeedsProgramUpdate = 0;
-            instance->ui_osc_control_path = NULL;
-            instance->ui_osc_program_path = NULL;
-            instance->ui_osc_quit_path = NULL;
-            instance->ui_osc_rate_path = NULL;
-            instance->ui_osc_show_path = NULL;
-
-            insTotal += plugin->ins;
-            outsTotal += plugin->outs;
-            controlInsTotal += plugin->controlIns;
-            controlOutsTotal += plugin->controlOuts;
-
-            plugin->instances++;
-            instance_count++;
-        } else {
-            fprintf(stderr, "%s: too many plugin instances specified\n", myName);
-            return 2;
-        }
+    instance->plugin = plugin;
+    instance->channel = instance_count;
+    instance->inactive = 1;
+    tmp = (char *)malloc(strlen(plugin->dll->name) +
+                         strlen(plugin->label) + 9);
+    instance->friendly_name = tmp;
+    strcpy(tmp, plugin->dll->name);
+    if (strlen(tmp) > 3 &&
+        !strcasecmp(tmp + strlen(tmp) - 3, ".so")) {
+        tmp = tmp + strlen(tmp) - 3;
+    } else {
+        tmp = tmp + strlen(tmp);
     }
+    sprintf(tmp, "/%s/chan%02d", plugin->label, instance->channel);
+    instance->pluginProgramCount = 0;
+    instance->pluginPrograms = NULL;
+    instance->currentBank = 0;
+    instance->currentProgram = 0;
+    instance->pendingBankLSB = -1;
+    instance->pendingBankMSB = -1;
+    instance->pendingProgramChange = -1;
+    instance->uiTarget = NULL;
+    instance->uiSource = NULL;
+    instance->ui_initial_show_sent = 0;
+    instance->uiNeedsProgramUpdate = 0;
+    instance->ui_osc_control_path = NULL;
+    instance->ui_osc_program_path = NULL;
+    instance->ui_osc_quit_path = NULL;
+    instance->ui_osc_rate_path = NULL;
+    instance->ui_osc_show_path = NULL;
+
+    insTotal += plugin->ins;
+    outsTotal += plugin->outs;
+    controlInsTotal += plugin->controlIns;
+    controlOutsTotal += plugin->controlOuts;
+
+    plugin->instances++;
+    instance_count++;
+
     reps = 1;
 
 
@@ -931,13 +901,12 @@ main(int argc, char **argv)
     tmp = lo_server_thread_get_url(serverThread);
     url = (char *)malloc(strlen(tmp) + strlen(osc_path_tmp));
     sprintf(url, "%s%s", tmp, osc_path_tmp + 1);
-    if (verbose) {
-	printf("%s: registering %s\n", myName, url);
-    }
+    
+    printf("Registering %s\n", url);
+    
     free(tmp);
 
-    lo_server_thread_add_method(serverThread, NULL, NULL, osc_message_handler,
-				NULL);
+    lo_server_thread_add_method(serverThread, NULL, NULL, osc_message_handler, NULL);
     lo_server_thread_start(serverThread);
 
     /* Connect and activate plugins */
@@ -1024,25 +993,6 @@ main(int argc, char **argv)
     assert(controlIn == controlInsTotal);
     assert(controlOut == controlOutsTotal);
 
-    /* Look up synth programs */
-
-    for (i = 0; i < instance_count; i++) {
-        instance = &instances[i];
-
-        query_programs(instance);
-        
-        if (instance->plugin->descriptor->select_program &&
-            instance->pluginProgramCount > 0) {
-
-	    /* select program at index 0 */
-            unsigned long bank = instance->pluginPrograms[0].Bank;
-            instance->pendingBankMSB = bank / 128;
-            instance->pendingBankLSB = bank % 128;
-            instance->pendingProgramChange = instance->pluginPrograms[0].Program;
-	    instance->uiNeedsProgramUpdate = 1;
-        }
-    }
-
     /* Create ALSA MIDI port */
 
 
@@ -1097,6 +1047,10 @@ main(int argc, char **argv)
     signal(SIGQUIT, signalHandler);
     pthread_sigmask(SIG_UNBLOCK, &_signals, 0);
 
+    snprintf(osc_path_tmp, 1024, "%s/%s", url, "pydaw"); //instances[i].friendly_name);
+    
+    printf("\n%s: OSC URL is:\n%s\n\n", myName, osc_path_tmp);
+    
     start_gui();
 
     MB_MESSAGE("Ready\n");
@@ -1256,8 +1210,7 @@ void osc_error(int num, const char *msg, const char *path)
 	    myName, num, path, msg);
 }
 
-int
-osc_midi_handler(d3h_instance_t *instance, lo_arg **argv)
+int osc_midi_handler(d3h_instance_t *instance, lo_arg **argv)
 {
     static snd_midi_event_t *alsaCoder = NULL;
     static snd_seq_event_t alsaEncodeBuffer[10];
@@ -1321,8 +1274,7 @@ osc_midi_handler(d3h_instance_t *instance, lo_arg **argv)
     return 0;
 }
 
-int
-osc_control_handler(d3h_instance_t *instance, lo_arg **argv)
+int osc_control_handler(d3h_instance_t *instance, lo_arg **argv)
 {
     int port = argv[0]->i;
     LADSPA_Data value = argv[1]->f;
@@ -1346,8 +1298,7 @@ osc_control_handler(d3h_instance_t *instance, lo_arg **argv)
     return 0;
 }
 
-int
-osc_program_handler(d3h_instance_t *instance, lo_arg **argv)
+int osc_program_handler(d3h_instance_t *instance, lo_arg **argv)
 {
     int bank = argv[0]->i;
     int program = argv[1]->i;
@@ -1380,8 +1331,7 @@ osc_program_handler(d3h_instance_t *instance, lo_arg **argv)
     return 0;
 }
 
-int
-osc_configure_handler(d3h_instance_t *instance, lo_arg **argv)
+int osc_configure_handler(d3h_instance_t *instance, lo_arg **argv)
 {
     const char *key = (const char *)&argv[0]->s;
     const char *value = (const char *)&argv[1]->s;
@@ -1542,8 +1492,7 @@ osc_update_handler(d3h_instance_t *instance, lo_arg **argv, lo_address source)
     return 0;
 }
 
-int
-osc_exiting_handler(d3h_instance_t *instance, lo_arg **argv)
+int osc_exiting_handler(d3h_instance_t *instance, lo_arg **argv)
 {
     int i;
 
@@ -1618,28 +1567,39 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
     int send_to_ui = 0;
 
     if (strncmp(path, "/dssi/", 6))
+    {
+        printf("if (strncmp(path, \"/dssi/\", 6))\n");
         return osc_debug_handler(path, types, argv, argc, data, user_data);
-
+    }
+    
+    instance = &instances[0];
+    /*
     for (i = 0; i < instance_count; i++) {
 	flen = strlen(instances[i].friendly_name);
         if (!strncmp(path + 6, instances[i].friendly_name, flen) &&
-	    *(path + 6 + flen) == '/') { /* avoid matching prefix only */
+	    *(path + 6 + flen) == '/') {
             instance = &instances[i];
             break;
         }
     }
     if (!instance)
+    {
+        printf("!instance\n");
         return osc_debug_handler(path, types, argv, argc, data, user_data);
-
-    /* no -- see comment in osc_exiting_handler */
-    /*
-    if (instance->inactive) 
-	return 0;
+    }
     */
+           
+    
     method = path + 6 + flen;
+    /*
     if (*method != '/' || *(method + 1) == 0)
+    {
+        printf("(*method != '/' || *(method + 1) == 0)\n%s\n", method);
         return osc_debug_handler(path, types, argv, argc, data, user_data);
+    }
     method++;
+    */
+    
 
     message = (lo_message)data;
     source = lo_message_get_source(message);
@@ -1655,7 +1615,7 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
 	}
     }
 
-    if (!strcmp(method, "configure") && argc == 2 && !strcmp(types, "ss")) {
+    if (!strcmp(method, "pydaw/configure") && argc == 2 && !strcmp(types, "ss")) {
 
 	if (send_to_ui) {
 	    lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
@@ -1664,33 +1624,7 @@ int osc_message_handler(const char *path, const char *types, lo_arg **argv,
 
         return osc_configure_handler(instance, argv);
 
-    } else if (!strcmp(method, "control") && argc == 2 && !strcmp(types, "if")) {
-
-	if (send_to_ui) {
-	    lo_send(instance->uiTarget, instance->ui_osc_control_path, "if",
-		    argv[0]->i, argv[1]->f);
-	}
-
-        return osc_control_handler(instance, argv);
-
-    } else if (!strcmp(method, "midi") && argc == 1 && !strcmp(types, "m")) {
-
-        return osc_midi_handler(instance, argv);
-
-    } else if (!strcmp(method, "program") && argc == 2 && !strcmp(types, "ii")) {
-
-	if (send_to_ui) {
-	    lo_send(instance->uiTarget, instance->ui_osc_program_path, "ii",
-		    argv[0]->i, argv[1]->i);
-	}
-	
-        return osc_program_handler(instance, argv);
-
-    } else if (!strcmp(method, "update") && argc == 1 && !strcmp(types, "s")) {
-
-        return osc_update_handler(instance, argv, source);
-
-    } else if (!strcmp(method, "exiting") && argc == 0) {
+    } else if (!strcmp(method, "pydaw/exiting") && argc == 0) {
 
         return osc_exiting_handler(instance, argv);
     }
