@@ -2743,7 +2743,6 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, int a_track_num, int a_is_fx)
     
     if (fork() == 0) 
     {
-        printf("filename == %s\n", filename);
         execlp(filename, filename, oscUrl, dllName, a_pydaw_data->track_pool[a_track_num]->name, track_number_string, NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???

@@ -7,17 +7,17 @@ MOC ?= moc-qt4
 
 PREFIX ?= /usr
 
-BASE_FLAGS     = -ffast-math -floop-optimize -fPIC -msse -msse2 -msse3 -mfpmath=sse -Wall -Isrc -I.
-BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
-LINK_CFLAGS    = -shared -lm -ldl $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile)
+BASE_FLAGS     = -O0 -gdwarf-3 -ffast-math -fPIC -mstackrealign -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fprefetch-loop-arrays -floop-optimize -fsingle-precision-constant -Wall -Isrc -I.
+BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS) $(shell pkg-config --cflags alsa jack liblo) -I./dssi
+LINK_CFLAGS    = -lm -ldl $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile jack)
 
-C_OBJS   = src/synth.o
+C_OBJS   = src/jack-dssi-host.o src/message_buffer.o
 
 # --------------------------------------------------------------
 
-all: pydaw.so
+all: pydaw2
 
-pydaw.so: $(C_OBJS)
+pydaw2: $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
 
 # --------------------------------------------------------------
@@ -28,19 +28,18 @@ pydaw.so: $(C_OBJS)
 # --------------------------------------------------------------
 
 strip:
-	strip pydaw.so
+	strip pydaw2
 
 # --------------------------------------------------------------
 
 install:
 	rm -rf python/*.pyc python/libpydaw/*.pyc python/*~ python/libpydaw/*~
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -d $(DESTDIR)$(PREFIX)/lib/dssi
-	install -d $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
-	install -m 644 pydaw.so $(DESTDIR)$(PREFIX)/lib/dssi
-	install -m 755 PYDAW_qt $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
-	install -m 755 pydaw $(DESTDIR)$(PREFIX)/bin
-	cp -R python $(DESTDIR)$(PREFIX)/lib/dssi/pydaw
+	install -m 755 pydaw2 $(DESTDIR)$(PREFIX)/bin
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2/pydaw
+	install -m 755 PYDAW_qt $(DESTDIR)$(PREFIX)/lib/pydaw2/pydaw
+	cp -R python $(DESTDIR)$(PREFIX)/lib/pydaw2/pydaw
 
 clean:
-	rm -f src/*.o *.so python/*.pyc
+	rm -f src/*.o *.so python/*.pyc pydaw2
