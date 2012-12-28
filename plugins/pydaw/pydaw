@@ -1,2 +1,0 @@
-#shell script for launching PyDAW from the terminal by typing 'pydaw'
-lms-jack-dssi-host pydaw.so
