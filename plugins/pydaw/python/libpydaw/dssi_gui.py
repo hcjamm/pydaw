@@ -185,3 +185,11 @@ class dssi_gui(ServerThread):
     def pydaw_set_bus(self, a_track_num, a_bus_num):
         self.send_configure("bs", str(a_track_num) + "|" + str(a_bus_num))
     
+    def pydaw_save_audio_tracks(self):
+        self.send_configure("as", "")
+    
+    def pydaw_show_audio_fx(self, a_track):
+        self.send_configure("af", str(a_track))
+    
+    def pydaw_save_audio_input_tracks(self):
+        self.send_configure("ai", "")
