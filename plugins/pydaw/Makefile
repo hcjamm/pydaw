@@ -7,7 +7,7 @@ MOC ?= moc-qt4
 
 PREFIX ?= /usr
 
-BASE_FLAGS     = -O0 -gdwarf-3 -ffast-math -fPIC -mstackrealign -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fprefetch-loop-arrays -floop-optimize -fsingle-precision-constant -Wall -Isrc -I.
+BASE_FLAGS     = -ffast-math -fPIC -mstackrealign -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fprefetch-loop-arrays -floop-optimize -fsingle-precision-constant -Wall -Isrc -I.
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS) $(shell pkg-config --cflags alsa jack liblo) -I./dssi
 LINK_CFLAGS    = -lm -ldl $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile jack)
 
@@ -16,6 +16,12 @@ C_OBJS   = src/jack-dssi-host.o src/message_buffer.o
 # --------------------------------------------------------------
 
 all: pydaw2
+
+debug:
+	make CFLAGS+=" -O0 -g -gdwarf-3 "
+
+release:
+	make CFLAGS+=" -O3 "
 
 pydaw2: $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
