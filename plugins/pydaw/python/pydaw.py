@@ -798,41 +798,38 @@ class audio_list_editor:
 
     def __init__(self):
         self.input_total = 4
+        self.bus_total = 4
         self.track_total = 8
         
         self.enabled = False #Prevents user from editing a region before one has been selected
+        self.tab_widget = QtGui.QTabWidget()        
         self.group_box = QtGui.QGroupBox()
+        self.tab_widget.addTab(self.group_box, "Tracks")
         self.main_vlayout = QtGui.QVBoxLayout()
-        self.hlayout0 = QtGui.QHBoxLayout()
-        self.scroll_area = QtGui.QScrollArea()
-        self.scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-        self.hlayout1 = QtGui.QHBoxLayout()
-        self.scroll_area.setLayout(self.hlayout1)
-        self.main_vlayout.addLayout(self.hlayout0)
-        self.main_vlayout.addWidget(self.scroll_area)
+                        
         self.group_box.setLayout(self.main_vlayout)
-        self.audio_tracks_table_widget = QtGui.QTableWidget()        
-        self.audio_tracks_table_widget.setColumnCount(2)
-        self.audio_tracks_table_widget.setHorizontalHeaderLabels(["Audio Tracks", "Audio Inputs"])
+        self.audio_tracks_table_widget = QtGui.QTableWidget()
+        self.main_vlayout.addWidget(self.audio_tracks_table_widget)
+        self.audio_tracks_table_widget.setColumnCount(3)
+        self.audio_tracks_table_widget.setHorizontalHeaderLabels(["Audio Tracks", "Audio Inputs", "Track Busses"])
         self.audio_tracks_table_widget.verticalHeader().setVisible(False)
-        self.audio_tracks_table_widget.setRowCount(self.track_total)        
-        self.audio_tracks_table_widget.cellClicked.connect(self.cell_clicked)
+        self.audio_tracks_table_widget.setRowCount(self.track_total)
+        self.audio_tracks_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_tracks_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.audio_tracks_table_widget.setMinimumHeight(900)
-        self.audio_tracks_table_widget.setMaximumWidth(804)
-        self.hlayout1.addWidget(self.audio_tracks_table_widget)
+                
+        self.items_groupbox = QtGui.QGroupBox()
+        self.tab_widget.addTab(self.items_groupbox, "Items")
+        self.items_vlayout = QtGui.QVBoxLayout()
+        self.items_groupbox.setLayout(self.items_vlayout)        
         
         self.audio_items_table_widget = QtGui.QTableWidget()
         self.audio_items_table_widget.setColumnCount(9)
         self.audio_items_table_widget.setHorizontalHeaderLabels(["Path", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", "Length", "Mode", "Pitch"])
         self.audio_items_table_widget.setRowCount(32)
         self.audio_items_table_widget.cellClicked.connect(self.cell_clicked)
-        self.hlayout1.addWidget(self.audio_items_table_widget)
+        self.items_vlayout.addWidget(self.audio_items_table_widget)
         
-        #self.hlayout1.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
-        self.reset_tracks()
-        
+        self.reset_tracks()        
 
 class audio_track:
     def on_vol_change(self, value):
@@ -874,7 +871,7 @@ class audio_track:
         self.group_box = QtGui.QWidget()
         self.group_box.setAutoFillBackground(True)
         self.group_box.setPalette(QtGui.QPalette(QtCore.Qt.black))
-        self.group_box.setMinimumHeight(90)
+        #self.group_box.setMinimumHeight(90)
         self.group_box.setMinimumWidth(330)
         #self.group_box.setObjectName("seqtrack")
         self.main_vlayout = QtGui.QVBoxLayout()
@@ -964,7 +961,7 @@ class audio_input_track:
         self.group_box = QtGui.QWidget()
         self.group_box.setAutoFillBackground(True)
         self.group_box.setPalette(QtGui.QPalette(QtCore.Qt.black))
-        self.group_box.setMinimumHeight(90)
+        #self.group_box.setMinimumHeight(90)
         self.group_box.setMinimumWidth(330)
         #self.group_box.setObjectName("seqtrack")
         self.main_vlayout = QtGui.QVBoxLayout()
@@ -2483,7 +2480,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.item_scrollarea.setWidget(self.item_tab)        
         self.main_tabwidget.addTab(self.item_scrollarea, "Item")        
         
-        self.main_tabwidget.addTab(this_audio_editor.group_box, "Audio")
+        self.main_tabwidget.addTab(this_audio_editor.tab_widget, "Audio")
                 
         #Begin CC Map tab
         self.cc_map_tab = QtGui.QWidget()
