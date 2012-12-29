@@ -47,7 +47,7 @@ static snd_seq_t *alsaClient;
 static jack_client_t *jackClient;
 static jack_port_t **inputPorts, **outputPorts;
 
-static d3h_dll_t     *dlls;
+//static d3h_dll_t     *dlls;
 
 static d3h_plugin_t  *plugins;
 static int            plugin_count = 0;
@@ -84,7 +84,7 @@ static sigset_t _signals;
 int exiting = 0;
 static int verbose = 0;
 static int autoconnect = 1;
-static int load_guis = 1;
+//static int load_guis = 1;
 const char *myName = "pydaw";
 
 #define EVENT_BUFFER_SIZE 1024
@@ -619,9 +619,9 @@ main(int argc, char **argv)
     d3h_dll_t *dll;
     d3h_plugin_t *plugin;
     d3h_instance_t *instance;
-    void *pluginObject;
+    /*void *pluginObject;
     char *dllName;
-    char *label;
+    char *label;*/
     const char **ports;
     char *tmp;
     char *url;
@@ -1558,7 +1558,7 @@ int osc_debug_handler(const char *path, const char *types, lo_arg **argv,
 int osc_message_handler(const char *path, const char *types, lo_arg **argv,
                         int argc, void *data, void *user_data)
 {
-    int i;
+    //int i;
     d3h_instance_t *instance = NULL;
     const char *method;
     unsigned int flen = 0;
