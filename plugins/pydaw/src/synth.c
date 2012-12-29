@@ -82,7 +82,7 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     flen = 2;
     
     
-    for (i = 0; i < PYDAW_MAX_TRACK_COUNT; i++) 
+    for (i = 0; i < PYDAW_MIDI_TRACK_COUNT; i++) 
     {
         sprintf(tmp, "%i", i);
 	flen = strlen(tmp);
