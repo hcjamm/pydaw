@@ -2,7 +2,7 @@ if [ -f "$(pwd)/python/pydaw.py" ]
 then
 	UI_DIR="$(pwd)/python"
 else
-	UI_DIR="/usr/lib/dssi/pydaw/python"
+	UI_DIR="/usr/lib/pydaw2/pydaw/python"
 fi
 
 echo "Calling UI from $UI_DIR"

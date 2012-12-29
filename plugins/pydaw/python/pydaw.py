@@ -695,7 +695,6 @@ class region_list_editor:
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)    
 
 
-
 class audio_list_editor:    
     def open_tracks(self):
         self.reset_tracks()
@@ -705,12 +704,18 @@ class audio_list_editor:
         
     def reset_tracks(self):
         self.tracks = []
+        self.inputs = []
         for i in range(0, self.track_total):
             track = audio_track(a_track_num=i, a_track_text="track" + str(i))
             self.tracks.append(track)
-            self.table_widget.setCellWidget(i, 0, track.group_box)  
-        self.table_widget.setColumnWidth(0, 390)
-        self.table_widget.resizeRowsToContents()
+            self.audio_tracks_table_widget.setCellWidget(i, 0, track.group_box)
+        for i in range(self.input_total):
+            f_input = audio_input_track(i)
+            self.inputs.append(f_input)
+            self.audio_tracks_table_widget.setCellWidget(i, 1, f_input.group_box)
+        self.audio_tracks_table_widget.setColumnWidth(0, 390)
+        self.audio_tracks_table_widget.setColumnWidth(1, 390)
+        self.audio_tracks_table_widget.resizeRowsToContents()
             
     def get_tracks(self):
         f_result = pydaw_audio_tracks()
@@ -719,7 +724,7 @@ class audio_list_editor:
         return f_result
     
     def cell_clicked(self, x, y):
-        f_item = self.table_widget.item(x, y)
+        f_item = self.audio_tracks_table_widget.item(x, y)
         if f_item is None or f_item.text() == "":
             self.show_cell_dialog(x, y)
     
@@ -727,7 +732,7 @@ class audio_list_editor:
         if not self.enabled:
             self.warn_no_region_selected()
             return
-        f_item = self.table_widget.item(x, y)    
+        f_item = self.audio_tracks_table_widget.item(x, y)    
         if f_item is None:
             self.show_cell_dialog(x, y)
         else:
@@ -805,7 +810,7 @@ class audio_list_editor:
         f_window.exec_()
 
     def __init__(self):
-        self.bus_count = 5
+        self.input_total = 4
         self.track_total = 8
         
         self.enabled = False #Prevents user from editing a region before one has been selected
@@ -813,28 +818,34 @@ class audio_list_editor:
         self.main_vlayout = QtGui.QVBoxLayout()
         self.hlayout0 = QtGui.QHBoxLayout()
         self.scroll_area = QtGui.QScrollArea()
-        self.scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.hlayout1 = QtGui.QHBoxLayout()
         self.scroll_area.setLayout(self.hlayout1)
         self.main_vlayout.addLayout(self.hlayout0)
         self.main_vlayout.addWidget(self.scroll_area)
         self.group_box.setLayout(self.main_vlayout)
-        self.table_widget = QtGui.QTableWidget()        
-        self.table_widget.setColumnCount(1)
-        self.table_widget.setHorizontalHeaderLabels(["Audio Tracks"])
-        self.table_widget.verticalHeader().setVisible(False)
-        self.table_widget.setRowCount(self.track_total)
-        self.table_widget.cellDoubleClicked.connect(self.cell_double_clicked)
-        self.table_widget.cellClicked.connect(self.cell_clicked)
-        self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.table_widget.setMinimumHeight(1200)
-        self.table_widget.setMaximumWidth(406)
-        self.hlayout1.addWidget(self.table_widget)
-        self.hlayout1.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        self.audio_tracks_table_widget = QtGui.QTableWidget()        
+        self.audio_tracks_table_widget.setColumnCount(2)
+        self.audio_tracks_table_widget.setHorizontalHeaderLabels(["Audio Tracks", "Audio Inputs"])
+        self.audio_tracks_table_widget.verticalHeader().setVisible(False)
+        self.audio_tracks_table_widget.setRowCount(self.track_total)
+        self.audio_tracks_table_widget.cellDoubleClicked.connect(self.cell_double_clicked)
+        self.audio_tracks_table_widget.cellClicked.connect(self.cell_clicked)
+        self.audio_tracks_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.audio_tracks_table_widget.setMinimumHeight(900)
+        self.audio_tracks_table_widget.setMaximumWidth(804)
+        self.hlayout1.addWidget(self.audio_tracks_table_widget)
+        
+        self.audio_items_table_widget = QtGui.QTableWidget()
+        self.audio_items_table_widget.setColumnCount(9)
+        self.audio_items_table_widget.setHorizontalHeaderLabels(["Path", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", "Length", "Mode", "Pitch"])
+        self.audio_items_table_widget.setRowCount(32)
+        self.hlayout1.addWidget(self.audio_items_table_widget)
+        
+        #self.hlayout1.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         self.reset_tracks()
         
-
 
 class audio_track:
     def on_vol_change(self, value):
@@ -942,6 +953,77 @@ class audio_track:
 
     def get_track(self):        
         return pydaw_audio_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.volume_slider.value(), str(self.track_name_lineedit.text()), self.bus_combobox.currentIndex())
+
+
+
+class audio_input_track:
+    def on_vol_change(self, value):
+        self.volume_label.setText(str(value) + " dB")
+        if not self.suppress_osc:
+            this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value())        
+    def on_vol_released(self):
+        this_pydaw_project.save_tracks(this_region_editor.get_tracks())    
+    def on_rec(self, value):
+        if not self.suppress_osc:
+            this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
+        this_pydaw_project.save_tracks(this_region_editor.get_tracks())    
+    def on_bus_changed(self, a_value=0):
+        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+        this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex())
+
+    def __init__(self, a_track_num):
+        self.suppress_osc = True
+        self.track_number = a_track_num
+        self.group_box = QtGui.QWidget()
+        self.group_box.setAutoFillBackground(True)
+        self.group_box.setPalette(QtGui.QPalette(QtCore.Qt.black))
+        self.group_box.setMinimumHeight(90)
+        self.group_box.setMinimumWidth(330)
+        #self.group_box.setObjectName("seqtrack")
+        self.main_vlayout = QtGui.QVBoxLayout()
+        self.group_box.setLayout(self.main_vlayout)
+        self.hlayout2 = QtGui.QHBoxLayout()
+        self.main_vlayout.addLayout(self.hlayout2)
+        self.volume_slider = QtGui.QSlider()
+        self.volume_slider.setMinimum(-50)
+        self.volume_slider.setMaximum(12)
+        self.volume_slider.setValue(0)
+        self.volume_slider.setOrientation(QtCore.Qt.Horizontal)
+        self.volume_slider.valueChanged.connect(self.on_vol_change)
+        self.volume_slider.sliderReleased.connect(self.on_vol_released)
+        self.hlayout2.addWidget(self.volume_slider)
+        self.volume_label = QtGui.QLabel()
+        self.volume_label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.volume_label.setMargin(3)
+        self.volume_label.setMinimumWidth(54)
+        self.volume_label.setText("0 dB")
+        self.hlayout2.addWidget(self.volume_label)
+        self.hlayout3 = QtGui.QHBoxLayout()
+        self.main_vlayout.addLayout(self.hlayout3)        
+        #self.hlayout3.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))        
+        self.bus_combobox = QtGui.QComboBox()
+        self.bus_combobox.addItems(['M', '1','2','3','4'])
+        self.bus_combobox.setMinimumWidth(54)
+        self.bus_combobox.currentIndexChanged.connect(self.on_bus_changed)
+        self.hlayout3.addWidget(QtGui.QLabel("Bus:"))
+        self.hlayout3.addWidget(self.bus_combobox)        
+        self.rec_checkbox = QtGui.QCheckBox()        
+        self.rec_checkbox.clicked.connect(self.on_rec)
+        self.rec_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/rec-off.png);}QCheckBox::indicator::checked{image: url(pydaw/rec-on.png);}")
+        self.hlayout3.addWidget(self.rec_checkbox)        
+        self.suppress_osc = False
+        
+    def open_track(self, a_track, a_notify_osc=False):
+        if not a_notify_osc:
+            self.suppress_osc = True        
+        self.volume_slider.setValue(a_track.vol)    
+        self.rec_checkbox.setChecked(a_track.rec)        
+        #self.bus_combobox.setCurrentIndex(a_track.bus_num)
+        self.suppress_osc = False
+
+    def get_track(self):        
+        return pydaw_audio_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.volume_slider.value(), str(self.track_name_lineedit.text()), self.bus_combobox.currentIndex())
+
 
 
 class item_list_editor:
