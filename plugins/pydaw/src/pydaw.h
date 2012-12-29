@@ -302,9 +302,17 @@ void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data)
     
     while(f_i < PYDAW_BUS_TRACK_COUNT)
     {
-        v_set_plugin_index(a_pydaw_data, a_pydaw_data->track_pool[f_i], -1);
+        v_set_plugin_index(a_pydaw_data, a_pydaw_data->bus_pool[f_i], -1);
         f_i++;
     }
+    
+    f_i = 0;
+    
+    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+    {
+        v_set_plugin_index(a_pydaw_data, a_pydaw_data->audio_track_pool[f_i], -1);
+        f_i++;
+    }    
 }
 /* Create a clock_t with clock() when beginning some work, and use this function to print the completion time*/
 void v_pydaw_print_benchmark(char * a_message, clock_t a_start)
@@ -1999,7 +2007,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     while(f_i < PYDAW_AUDIO_TRACK_COUNT)
     {        
         f_result->audio_track_pool[f_i] = g_pytrack_get(f_i);
-        v_set_plugin_index(f_result, f_result->audio_track_pool[f_i], -1);
         f_i++;
     }
     
@@ -2008,7 +2015,6 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     while(f_i < PYDAW_BUS_TRACK_COUNT)
     {
         f_result->bus_pool[f_i] = g_pytrack_get(f_i);
-        v_set_plugin_index(f_result, f_result->bus_pool[f_i], -1);
         f_i++;
     }
     
@@ -2340,6 +2346,8 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     struct stat f_song_file_stat;
     stat(f_song_file, &f_song_file_stat);
     
+    v_pydaw_init_busses(a_pydaw_data);
+    
     if(S_ISDIR(f_proj_stat.st_mode) && S_ISDIR(f_item_stat.st_mode) &&
         S_ISDIR(f_reg_stat.st_mode) && S_ISDIR(f_inst_stat.st_mode) &&
         S_ISREG(f_song_file_stat.st_mode))
@@ -2356,13 +2364,12 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         }
     
         g_pysong_get(a_pydaw_data);
-        v_pydaw_open_tracks(a_pydaw_data);        
+        v_pydaw_open_tracks(a_pydaw_data);
     }
     else
     {
         printf("Song file and project directory structure not found, not loading project.  This is to be expected if launching PyDAW for the first time\n");
-        g_pysong_get(a_pydaw_data);  //Loads empty...  TODO:  Make this a separate function for getting an empty pysong or loading a file into one...
-        v_pydaw_init_busses(a_pydaw_data);
+        g_pysong_get(a_pydaw_data);  //Loads empty...  TODO:  Make this a separate function for getting an empty pysong or loading a file into one...        
     }
     
     char f_transport_file[256];  //TODO:  This should be moved to a separate function
