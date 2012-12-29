@@ -194,15 +194,9 @@ class region_list_editor:
             self.tracks[key].open_track(f_track)
         
     def reset_tracks(self):
-        self.tracks = []
-        for i in range(0, self.bus_count):
-            track = seq_track(a_track_num=i, a_track_text="Bus" + str(i), a_instrument=False);
-            self.tracks.append(track)
-            self.table_widget.setCellWidget(i, 0, track.group_box)
-        self.tracks[0].track_name_lineedit.setText("Master")
-        
-        for i in range(self.bus_count, self.track_total):
-            track = seq_track(a_track_num=i, a_track_text="track" + str(i - self.bus_count + 1))
+        self.tracks = []        
+        for i in range(0, self.track_total):
+            track = seq_track(a_track_num=i, a_track_text="track" + str(i + 1))
             self.tracks.append(track)
             self.table_widget.setCellWidget(i, 0, track.group_box)  
         self.table_widget.setColumnWidth(0, 390)
@@ -370,10 +364,8 @@ class region_list_editor:
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)        
         self.open_region(self.region_name_lineedit.text())
 
-    def __init__(self):
-        self.regular_track_count = 16
-        self.bus_count = 5
-        self.track_total = self.regular_track_count + self.bus_count
+    def __init__(self):                
+        self.track_total = 16
         
         self.enabled = False #Prevents user from editing a region before one has been selected
         self.group_box = QtGui.QGroupBox()
@@ -695,7 +687,7 @@ class region_list_editor:
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)    
 
 
-class audio_list_editor:    
+class audio_list_editor:
     def open_tracks(self):
         self.reset_tracks()
         f_tracks = this_pydaw_project.get_audio_tracks()
@@ -709,16 +701,24 @@ class audio_list_editor:
     def reset_tracks(self):
         self.tracks = []
         self.inputs = []
+        self.busses = []        
+                
         for i in range(0, self.track_total):
-            track = audio_track(a_track_num=i, a_track_text="track" + str(i))
+            track = audio_track(a_track_num=i, a_track_text="track" + str(i + 1))
             self.tracks.append(track)
             self.audio_tracks_table_widget.setCellWidget(i, 0, track.group_box)
         for i in range(self.input_total):
             f_input = audio_input_track(i)
             self.inputs.append(f_input)
             self.audio_tracks_table_widget.setCellWidget(i, 1, f_input.group_box)
+        for i in range(0, self.bus_total):
+            track = seq_track(a_track_num=i, a_track_text="Bus" + str(i), a_instrument=False);
+            self.busses.append(track)
+            self.audio_tracks_table_widget.setCellWidget(i, 2, track.group_box)
+        self.busses[0].track_name_lineedit.setText("Master")
         self.audio_tracks_table_widget.setColumnWidth(0, 390)
         self.audio_tracks_table_widget.setColumnWidth(1, 390)
+        self.audio_tracks_table_widget.setColumnWidth(2, 390)
         self.audio_tracks_table_widget.resizeRowsToContents()
             
     def get_tracks(self):
@@ -797,12 +797,15 @@ class audio_list_editor:
         f_window.exec_()
 
     def __init__(self):
-        self.input_total = 4
-        self.bus_total = 4
+        self.input_total = 5
+        self.bus_total = 5
         self.track_total = 8
         
         self.enabled = False #Prevents user from editing a region before one has been selected
-        self.tab_widget = QtGui.QTabWidget()        
+        self.tab_widget = QtGui.QTabWidget()
+        # TODO:  Revisit this when I've made a separate style for it based on this:
+        # QTabBar::tab:top, QTabBar::tab:bottom, QTabBar::tab:left, QTabBar::tab:right
+        #self.tab_widget.setTabPosition(QtGui.QTabWidget.West)
         self.group_box = QtGui.QGroupBox()
         self.tab_widget.addTab(self.group_box, "Tracks")
         self.main_vlayout = QtGui.QVBoxLayout()
@@ -815,12 +818,13 @@ class audio_list_editor:
         self.audio_tracks_table_widget.verticalHeader().setVisible(False)
         self.audio_tracks_table_widget.setRowCount(self.track_total)
         self.audio_tracks_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.audio_tracks_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_tracks_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-                
+        
         self.items_groupbox = QtGui.QGroupBox()
         self.tab_widget.addTab(self.items_groupbox, "Items")
         self.items_vlayout = QtGui.QVBoxLayout()
-        self.items_groupbox.setLayout(self.items_vlayout)        
+        self.items_groupbox.setLayout(self.items_vlayout)
         
         self.audio_items_table_widget = QtGui.QTableWidget()
         self.audio_items_table_widget.setColumnCount(9)
@@ -828,6 +832,11 @@ class audio_list_editor:
         self.audio_items_table_widget.setRowCount(32)
         self.audio_items_table_widget.cellClicked.connect(self.cell_clicked)
         self.items_vlayout.addWidget(self.audio_items_table_widget)
+        
+        self.ccs_groupbox = QtGui.QGroupBox()
+        self.tab_widget.addTab(self.ccs_groupbox, "Automation")
+        self.ccs_vlayout = QtGui.QVBoxLayout()
+        self.ccs_groupbox.setLayout(self.ccs_vlayout)
         
         self.reset_tracks()        
 
@@ -993,7 +1002,7 @@ class audio_input_track:
         self.hlayout3.addWidget(self.bus_combobox)        
         self.rec_checkbox = QtGui.QCheckBox()        
         self.rec_checkbox.clicked.connect(self.on_rec)
-        self.rec_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/rec-off.png);}QCheckBox::indicator::checked{image: url(pydaw/rec-on.png);}")
+        self.rec_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/record-off.png);}QCheckBox::indicator::checked{image: url(pydaw/record-on.png);}")
         self.hlayout3.addWidget(self.rec_checkbox)        
         self.suppress_osc = False
         
