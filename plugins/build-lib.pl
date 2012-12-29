@@ -1,28 +1,14 @@
 #!/usr/bin/perl
 
-#This script should not be invoked by itself, it is a library for each plugin's build.pl script
-
-#usage:
-#require "../build-lib.pl"
-#(call subs)
-
 $help_text = "
-The LibModSynth build helper script.  http://libmodsynth.sourceforge.net
-
 Usage:
 
 perl build.pl [args]
 
 args:
---full-build 	:  A clean build, rebuilding all autotools files, does not install
-
---build-debug	:  A clean build, with debug symbols.
-
 --debug		:  Compile with debug symbols and run, using console output.
 
 --gdb		:  Compile with debug symbols and open in gdb
-
---valgrind	:  Compile with debug symbols and run with valgrind
 
 --coredump	:  Read the most recent core dump for the current plugin directory in GDB(requires that you ran the plugin with --debug and experienced a SEGFAULT)
 
@@ -30,24 +16,9 @@ args:
 
 --run		:  Compile without debug symbols and with optimizations, and then run.
 
---deb 		:  Compile and package the plugin into a .deb file (this uses checkinstall, you should use the build-all.pl script instead, using the LibModSynth native packaging system)
-
 --deps		:  Install all dependencies.  Some operating systems are not yet supported
 
 --fork 		:  Fork the current plugin into a new plugin, with updated meta-data and Makefile
-
---git-add	:  Adds the appropriate files to a git repository for a forked plugin using 'git add [files]'.  Use this to avoid adding unnecessary GNU autotools files to a git repository.
-
---scm-add-show	:  Display a list of files that should be added to an alternative source code management system such as SVN, Mercurial, CVS, etc...  This only displays the files you should be adding, it does not add them for you.
-
---build-jack-host  :  This is for compiling the lms-jack-dssi-host.  The user should never have to run this, the script will run it automatically when needed.
-
---build-jack-host-debug  :  This is for compiling the lms-jack-dssi-host with debug symbols.
-
-Note that you can also debug using the included debugger project and GDB, using the IDE of your choice.  See doc/instructions.txt for details.  GDB is more suitable for using breakpoints to step through code, whereas the console output is more suitable for getting a glimpse of what's going on in your plugin while you are using it in lms-jack-dssi-host.
-
-There should be one build.pl script in each plugin directory.
-
 ";
 
 
@@ -76,28 +47,11 @@ $deps_ubuntu = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2
 
 $deps_debian = "sudo apt-get install -y liblo-dev dssi-dev ladspa-sdk libasound2-dev libqt4-dev libjack-dev libsndfile1-dev libsm-dev automake autoconf libtool qjackctl alsa-utils python-liblo python-qt4 git libsdl1.2-dev ffado-mixer-qt4 ffado-tools ffado-dbus-server";
 
-#This isn't currently in use, due to the potential for conflicts it may cause.
 $audio_group = "sudo usermod -g audio \$USER";
 
-#TODO:  Check for dependencies when running the other arguments, place a file when installed
-#TODO:  Place a file in the plugin directory once the first build has been run
 sub run_script
 {
-	if($ARGV[0] eq "--build")
-	{
-		check_deps();
-		notify_wait();
-		first_build($release_flags);
-		notify_done();
-	}
-	if($ARGV[0] eq "--build-debug")
-	{
-		check_deps();
-		notify_wait();
-		first_build($debug_flags);
-		notify_done();
-	}
-	elsif($ARGV[0] eq "--coredump")
+	if($ARGV[0] eq "--coredump")
 	{
 		system("gdb lms-jack-dssi-host core");
 	}
@@ -109,60 +63,26 @@ sub run_script
 	{
 		check_deps();
 		notify_wait();
-		$local_jack_host = "./lms-jack-dssi-host";
-		if(! -e $local_jack_host)
-		{
-			system("cd $jack_host_dir ; perl build.pl --build-jack-host-debug ");
-			system("cp -f $jack_host $local_jack_host");
-		}
 		
-
 		system("make clean");
 		if($ARGV[0] eq "--run")
 		{
-			build($release_flags);
+			system("make");
 		}
 		else
 		{
-			build($debug_flags);
+			system("make debug");
 		}
 		
 		`rm -Rf ../bin/*`; #Cleanup the bin directory
 		`rm -Rf ./core`; #Delete any core dumps from previous sessions, gdb seems to be acting up when the previous core dump isn't deleted
 		`make PREFIX=/usr DESTDIR=$dssi_path install`;
 		if($ARGV[0] eq "--debug" or $ARGV[0] eq "--run"){
-			exec("ulimit -c unlimited; export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; $local_jack_host $current_dir.so");
+			exec("ulimit -c unlimited; ./pydaw2");
 		} elsif($ARGV[0] eq "--gdb") {
 			print("\n\n\n****Type 'run $current_dir.so' at the (gdb) prompt***\n\n\n");
-			system("ulimit -c unlimited; export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; gdb $local_jack_host");
-		}
-		elsif($ARGV[0] eq "--valgrind") {
-			system("ulimit -c unlimited; export DSSI_PATH=\"$dssi_path/usr/lib/dssi\" ; valgrind $local_jack_host $current_dir.so");
-		}
-			
-	}
-	elsif($ARGV[0] eq "--build-jack-host")
-	{
-		check_deps();
-		notify_wait();
-
-		build_jack_host($release_flags);
-
-		notify_done();
-	}
-	elsif($ARGV[0] eq "--build-jack-host-debug")
-	{
-		check_deps();
-		notify_wait();
-
-		build_jack_host($debug_flags);
-
-		notify_done();
-	}
-	elsif($ARGV[0] eq "--deb")
-	{
-		build_package("debian");
-		notify_done();
+			system("ulimit -c unlimited; gdb ./pydaw2");
+		}			
 	}
 	elsif($ARGV[0] eq "--deps")
 	{
@@ -172,19 +92,10 @@ sub run_script
 	{
 		fork_plugin();
 	}
-	elsif($ARGV[0] eq "--git-add")
-	{
-		system("git add src/dssi.h src/libmodsynth.h Makefile src/synth.c src/synth.h src/synth_qt_gui.cpp src/meta.h src/synth_qt_gui.h build.pl");
-	}
-	elsif($ARGV[0] eq "--scm-add-show")
-	{
-		print "\n\n add src/dssi.h src/libmodsynth.h Makefile src/synth.c src/synth.h src/synth_qt_gui.cpp src/meta.h src/synth_qt_gui.h build.pl\n\n";
-	}
 	else
 	{
 		print $help_text . 'Invalid argument:  $ARGV[0] eq "' . $ARGV[0] . "\"\n\n";
 	}
-
 }
 sub notify_wait
 {
@@ -194,60 +105,6 @@ print "\nPlease wait, this could take a few minutes...\n\n";
 sub notify_done
 {
 print "\n\nFinished.\n\n";
-}
-
-sub first_build
-{
-check_deps();
-clean();
-build($_[0]);
-}
-
-sub clean
-{
-#`$clean`;
-`make clean`;
-`$sleep`;
-}
-
-#The first argument passed in is any additional CFLAGS
-sub build
-{
-#system("moc -o src/synth_qt_gui.moc.cpp src/synth_qt_gui.h");
-$make = 'make ';
-
-
-if(defined $_[0])
-{
-	$make .= $_[0];
-}
-
-$make_result = system($make);
-
-if($make_result)
-{
-	print "\n\nError, \$make_result == $make_result
-Cannot compile, aborting script, please check your code for errors\n\n";
-	exit;
-}
-
-}
-
-
-sub build_jack_host
-{
-system("make clean");
-
-if(defined $_[0])
-{
-	$make = "make " . $_[0];
-	system("$make");
-}
-else
-{
-	system("make");
-}
-
 }
 
 #This isn't a real check, it only tests to see if the script attempted to install the dependencies.  Valid on Ubuntu only.
