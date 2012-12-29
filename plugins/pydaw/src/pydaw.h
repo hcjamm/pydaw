@@ -49,6 +49,11 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_OFFLINE_RENDER "or"
     
 #define PYDAW_CONFIGURE_KEY_SET_TRACK_BUS "bs"
+
+#define PYDAW_CONFIGURE_KEY_AUDIO_LOAD "al"
+#define PYDAW_CONFIGURE_KEY_AUDIO_SAVE "as"
+#define PYDAW_CONFIGURE_KEY_AUDIO_SHOW_FX "af"
+#define PYDAW_CONFIGURE_KEY_AUDIO_INPUT_SAVE "ai"
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -3116,6 +3121,25 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         v_set_playback_mode(a_pydaw_data, 2, f_region, f_bar);
         g_free_1d_char_array(f_arr);
     }
+    
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_LOAD)) //Reload the audio items list
+    {
+        
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_SAVE)) //Save audio tracks
+    {
+        
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_SHOW_FX)) //Show audio tracks effects plugin GUI
+    {
+        
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_INPUT_SAVE)) //Stop playback or recording
+    {
+        
+    }
+    
+        
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_STOP)) //Stop playback or recording
     {
         v_set_playback_mode(a_pydaw_data, 0, -1, -1);
