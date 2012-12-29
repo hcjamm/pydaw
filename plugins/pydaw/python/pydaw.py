@@ -701,6 +701,10 @@ class audio_list_editor:
         f_tracks = this_pydaw_project.get_audio_tracks()
         for key, f_track in f_tracks.tracks.iteritems():
             self.tracks[key].open_track(f_track)
+            
+        f_inputs = this_pydaw_project.get_audio_inputs()
+        for key, f_track in f_inputs.tracks.iteritems():
+            self.inputs[key].open_track(f_track)
         
     def reset_tracks(self):
         self.tracks = []
@@ -727,22 +731,7 @@ class audio_list_editor:
         f_item = self.audio_tracks_table_widget.item(x, y)
         if f_item is None or f_item.text() == "":
             self.show_cell_dialog(x, y)
-    
-    def cell_double_clicked(self, x, y):        
-        if not self.enabled:
-            self.warn_no_region_selected()
-            return
-        f_item = self.audio_tracks_table_widget.item(x, y)    
-        if f_item is None:
-            self.show_cell_dialog(x, y)
-        else:
-            f_item_name = str(f_item.text())
-            if f_item_name != "":
-                this_item_editor.open_item(f_item_name)
-                this_main_window.main_tabwidget.setCurrentIndex(1)
-            else:
-                self.show_cell_dialog(x, y)
-    
+        
     def show_cell_dialog(self, x, y):
         def note_ok_handler():
             if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
@@ -794,8 +783,6 @@ class audio_list_editor:
         f_vlayout0.addWidget(f_copy_radiobutton)
         f_copy_combobox = QtGui.QComboBox()
         f_copy_combobox.addItems(this_pydaw_project.get_item_list())        
-        if not self.last_item_copied is None:
-            f_copy_combobox.setCurrentIndex(f_copy_combobox.findText(self.last_item_copied))
         f_copy_combobox.currentIndexChanged.connect(copy_combobox_index_changed)
         f_layout.addLayout(f_vlayout1, 1, 1)
         f_vlayout1.addWidget(QtGui.QLabel("Copy from:"))
@@ -829,8 +816,7 @@ class audio_list_editor:
         self.audio_tracks_table_widget.setColumnCount(2)
         self.audio_tracks_table_widget.setHorizontalHeaderLabels(["Audio Tracks", "Audio Inputs"])
         self.audio_tracks_table_widget.verticalHeader().setVisible(False)
-        self.audio_tracks_table_widget.setRowCount(self.track_total)
-        self.audio_tracks_table_widget.cellDoubleClicked.connect(self.cell_double_clicked)
+        self.audio_tracks_table_widget.setRowCount(self.track_total)        
         self.audio_tracks_table_widget.cellClicked.connect(self.cell_clicked)
         self.audio_tracks_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.audio_tracks_table_widget.setMinimumHeight(900)
@@ -841,6 +827,7 @@ class audio_list_editor:
         self.audio_items_table_widget.setColumnCount(9)
         self.audio_items_table_widget.setHorizontalHeaderLabels(["Path", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", "Length", "Mode", "Pitch"])
         self.audio_items_table_widget.setRowCount(32)
+        self.audio_items_table_widget.cellClicked.connect(self.cell_clicked)
         self.hlayout1.addWidget(self.audio_items_table_widget)
         
         #self.hlayout1.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
@@ -876,7 +863,7 @@ class audio_track:
             this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)    
     def on_show_fx(self):
         if not self.is_instrument or self.instrument_combobox.currentIndex() > 0:
-            this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number)
+            this_pydaw_project.this_dssi_gui.pydaw_show_audio_fx(self.track_number)
     def on_bus_changed(self, a_value=0):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
         this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex())
@@ -2233,20 +2220,20 @@ class transport_widget:
         
 class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
-        f_file = QtGui.QFileDialog.getSaveFileName(parent=this_main_window ,caption='New Project', directory='.', filter='PyDAW Project (*.pydaw)')
+        f_file = QtGui.QFileDialog.getSaveFileName(parent=this_main_window ,caption='New Project', directory='.', filter='PyDAW Project (*.' + global_pydaw_version_string + ')')
         if not f_file is None and not str(f_file) == "":
             f_file = str(f_file)
-            if not f_file.endswith(".pydaw"):
-                f_file += ".pydaw"
+            if not f_file.endswith("." + global_pydaw_version_string):
+                f_file += "." + global_pydaw_version_string
             global_new_project(f_file)
     def on_open(self):
-        f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open Project', directory='.', filter='PyDAW Project (*.pydaw)')
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open Project', directory='.', filter='PyDAW Project (*.' + global_pydaw_version_string + ')')
         if not f_file is None and not str(f_file) == "":
             global_open_project(str(f_file))
     def on_save(self):
         this_pydaw_project.save_project()
     def on_save_as(self):
-        f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", this_pydaw_project.project_file + ".pydaw")
+        f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", this_pydaw_project.project_file + "." + global_pydaw_version_string)
         if f_new_file:        
             this_pydaw_project.save_project_as(f_new_file)
             set_window_title()
@@ -2680,7 +2667,7 @@ def global_ui_refresh_callback():
     this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder)  #Re-open the project so that any changes can be caught by the back-end
     
 def set_window_title():
-    this_main_window.setWindowTitle('PyDAW - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + ".pydaw")
+    this_main_window.setWindowTitle('PyDAW2 - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
 #Opens or creates a new project
 def global_open_project(a_project_file, a_notify_osc=True):
     global_close_all()
@@ -2735,9 +2722,9 @@ if os.path.exists(f_def_file):
     default_project_file = f_handle.read()
     f_handle.close()
     if not os.path.exists(default_project_file):
-        default_project_file = expanduser("~") + "/" + global_pydaw_version_string + "/default-project/default.pydaw"
+        default_project_file = expanduser("~") + "/" + global_pydaw_version_string + "/default-project/default." + global_pydaw_version_string
 else:
-    default_project_file = expanduser("~") + "/" + global_pydaw_version_string + "/default-project/default.pydaw"
+    default_project_file = expanduser("~") + "/" + global_pydaw_version_string + "/default-project/default." + global_pydaw_version_string
 if os.path.exists(default_project_file):
     global_open_project(default_project_file)
 else:

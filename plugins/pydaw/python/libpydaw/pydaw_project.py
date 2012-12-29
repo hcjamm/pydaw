@@ -82,7 +82,7 @@ class pydaw_project:
         f_cmd = "cp -r " + self.project_folder + "/* " + f_new_project_folder + "/"
         os.popen(f_cmd)
         print(f_new_project_folder + "/" + self.project_file + " | " + a_file_name)
-        move(f_new_project_folder + "/" + self.project_file + ".pydaw", a_file_name)
+        move(f_new_project_folder + "/" + self.project_file + ".pydaw2", a_file_name)
         self.set_project_folders(f_file_name)
         self.this_dssi_gui.pydaw_open_song(self.project_folder)
         self.git_repo.repo_dir = self.project_folder
@@ -131,7 +131,7 @@ class pydaw_project:
         if not os.path.exists(f_pytransport_file):
             f_file = open(f_pytransport_file, 'w')
             f_file.write("140|None|0|0|0\n\\")
-            f_file.close()        
+            f_file.close()
         f_pytracks_file = self.project_folder + "/default.pytracks"
         if not os.path.exists(f_pytracks_file):
             f_file = open(f_pytracks_file, 'w')
@@ -140,6 +140,20 @@ class pydaw_project:
                 f_file.write(str(i) + "|0|0|0|0|Bus" + str(i) + "|-1|0\n")
             for i in range(5, 21):
                 f_file.write(str(i) + "|0|0|0|0|track" + str(i - 4) + "|0|0\n")
+            f_file.write(pydaw_terminating_char)
+            f_file.close()
+        f_pyaudio_file = self.project_folder + "/default.pyaudio"
+        if not os.path.exists(f_pyaudio_file):
+            f_file = open(f_pyaudio_file, 'w')
+            for i in range(8):
+                f_file.write(str(i) + "|0|0|0|track" + str(i) + "|0\n")
+            f_file.write(pydaw_terminating_char)
+            f_file.close()
+        f_pyinput_file = self.project_folder + "/default.pyinput"
+        if not os.path.exists(f_pyinput_file):
+            f_file = open(f_pyinput_file, 'w')
+            for i in range(4):
+                f_file.write(str(i) + "|0|0|0\n")
             f_file.write(pydaw_terminating_char)
             f_file.close()
         self.git_repo = pydaw_git_repo(self.project_folder)
@@ -199,7 +213,32 @@ class pydaw_project:
 
     def get_tracks(self):
         return pydaw_tracks.from_str(self.get_tracks_string())
+    
+    def get_audio_tracks_string(self):
+        try:
+            f_file = open(self.project_folder + "/default.pyaudio", "r")
+        except:
+            return pydaw_terminating_char
+        f_result = f_file.read()
+        f_file.close()
+        return f_result
+
+    def get_audio_tracks(self):
+        return pydaw_audio_tracks.from_str(self.get_audio_tracks_string())
         
+    
+    def get_audio_input_tracks_string(self):
+        try:
+            f_file = open(self.project_folder + "/default.pyinput", "r")
+        except:
+            return pydaw_terminating_char
+        f_result = f_file.read()
+        f_file.close()
+        return f_result
+
+    def get_audio_input_tracks(self):
+        return pydaw_audio_input_tracks.from_str(self.get_audio_input_tracks_string())
+    
     def get_transport(self):
         try:
             f_file = open(self.project_folder + "/default.pytransport", "r")
