@@ -135,11 +135,8 @@ class pydaw_project:
         f_pytracks_file = self.project_folder + "/default.pytracks"
         if not os.path.exists(f_pytracks_file):
             f_file = open(f_pytracks_file, 'w')
-            f_file.write("0|0|0|0|0|Master|-1|0\n")
-            for i in range(1, 5):
-                f_file.write(str(i) + "|0|0|0|0|Bus" + str(i) + "|-1|0\n")
-            for i in range(5, 21):
-                f_file.write(str(i) + "|0|0|0|0|track" + str(i - 4) + "|0|0\n")
+            for i in range(16):
+                f_file.write(str(i) + "|0|0|0|0|track" + str(i + 1) + "|0|0\n")
             f_file.write(pydaw_terminating_char)
             f_file.close()
         f_pyaudio_file = self.project_folder + "/default.pyaudio"
@@ -148,11 +145,21 @@ class pydaw_project:
             for i in range(8):
                 f_file.write(str(i) + "|0|0|0|track" + str(i) + "|0\n")
             f_file.write(pydaw_terminating_char)
+            f_file.close()            
+        
+        f_pybus_file = self.project_folder + "/default.pybus"
+        if not os.path.exists(f_pybus_file):
+            f_file = open(f_pybus_file, 'w')
+            f_file.write("0|0|0|0|0|Master|-1|0\n")
+            for i in range(1, 5):
+                f_file.write(str(i) + "|0|0|0|0|Bus" + str(i) + "|-1|0\n")                
+            f_file.write(pydaw_terminating_char)
             f_file.close()
+            
         f_pyinput_file = self.project_folder + "/default.pyinput"
         if not os.path.exists(f_pyinput_file):
             f_file = open(f_pyinput_file, 'w')
-            for i in range(4):
+            for i in range(5):
                 f_file.write(str(i) + "|0|0|0\n")
             f_file.write(pydaw_terminating_char)
             f_file.close()
