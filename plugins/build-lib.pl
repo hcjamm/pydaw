@@ -59,7 +59,7 @@ sub run_script
 	{
 		system("gdb *_qt core");
 	}
-	elsif($ARGV[0] eq "--debug" or $ARGV[0] eq "--gdb" or $ARGV[0] eq "--valgrind" or $ARGV[0] eq "--run")
+	elsif($ARGV[0] eq "--debug" or $ARGV[0] eq "--gdb" or $ARGV[0] eq "--run")
 	{
 		check_deps();
 		notify_wait();

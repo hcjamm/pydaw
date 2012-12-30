@@ -148,8 +148,8 @@ class dssi_gui(ServerThread):
     def pydaw_set_timesig(self):
         self.send_configure("tsig", "TODO")
 
-    def pydaw_set_vol(self, a_track_num, a_vol):
-        self.send_configure("vol", str(a_track_num) + "|" + str(a_vol))
+    def pydaw_set_vol(self, a_track_num, a_vol, a_type):
+        self.send_configure("vol", str(a_track_num) + "|" + str(a_vol) + "|" + str(a_type))
 
     def pydaw_set_solo(self, a_track_num, a_bool):
         self.send_configure("solo", str(a_track_num) + "|" + bool_to_int(a_bool))
@@ -173,8 +173,8 @@ class dssi_gui(ServerThread):
             a_value = 0
         self.send_configure("tr", str(a_track_num) + "|" + str(a_value))
         
-    def pydaw_show_fx(self, a_track_num):
-        self.send_configure("fx", str(a_track_num))
+    def pydaw_show_fx(self, a_track_num, a_track_type):
+        self.send_configure("fx", str(a_track_num) + "|" + str(a_track_type))
         
     def pydaw_save_track_name(self, a_track_num, a_new_name):
         self.send_configure("tn", str(a_track_num) + "|" + str(a_new_name))
@@ -185,11 +185,12 @@ class dssi_gui(ServerThread):
     def pydaw_set_bus(self, a_track_num, a_bus_num):
         self.send_configure("bs", str(a_track_num) + "|" + str(a_bus_num))
     
+    
     def pydaw_save_audio_tracks(self):
         self.send_configure("as", "")
+        
+    def pydaw_save_input_tracks(self):
+        self.send_configure("is", "")
     
-    def pydaw_show_audio_fx(self, a_track):
-        self.send_configure("af", str(a_track))
+        
     
-    def pydaw_save_audio_input_tracks(self):
-        self.send_configure("ai", "")
