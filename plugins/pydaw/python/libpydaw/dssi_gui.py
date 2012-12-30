@@ -148,14 +148,14 @@ class dssi_gui(ServerThread):
     def pydaw_set_timesig(self):
         self.send_configure("tsig", "TODO")
 
-    def pydaw_set_vol(self, a_track_num, a_vol, a_type):
-        self.send_configure("vol", str(a_track_num) + "|" + str(a_vol) + "|" + str(a_type))
+    def pydaw_set_vol(self, a_track_num, a_vol, a_track_type):
+        self.send_configure("vol", str(a_track_num) + "|" + str(a_vol) + "|" + str(a_track_type))
 
-    def pydaw_set_solo(self, a_track_num, a_bool):
-        self.send_configure("solo", str(a_track_num) + "|" + bool_to_int(a_bool))
+    def pydaw_set_solo(self, a_track_num, a_bool, a_track_type):
+        self.send_configure("solo", str(a_track_num) + "|" + bool_to_int(a_bool) + "|" + str(a_track_type))
 
-    def pydaw_set_mute(self, a_track_num, a_bool):
-        self.send_configure("mute", str(a_track_num) + "|" + bool_to_int(a_bool))
+    def pydaw_set_mute(self, a_track_num, a_bool, a_track_type):
+        self.send_configure("mute", str(a_track_num) + "|" + bool_to_int(a_bool) + "|" + str(a_track_type))
 
     def pydaw_set_instrument_index(self, a_track_num, a_index):
         self.send_configure("ci", str(a_track_num) + "|" + str(a_index))

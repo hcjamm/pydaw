@@ -849,11 +849,11 @@ class audio_track:
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())    
     def on_solo(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked())
+            this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked(), 2)
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_mute(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked())
+            this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 2)
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_rec(self, value):
         if not self.suppress_osc:
@@ -1895,11 +1895,11 @@ class seq_track:
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_solo(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked())
+            this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked(), 0)
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_mute(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked())
+            this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 0)
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_rec(self, value):
         if not self.suppress_osc:

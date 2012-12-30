@@ -3246,26 +3246,50 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SOLO)) //Set track solo
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
         assert(f_mode == 0 || f_mode == 1);
+        int f_track_type = atoi(f_val_arr->array[2]);
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        a_pydaw_data->track_pool[f_track_num]->solo = f_mode;
+        switch(f_track_type)
+        {
+            case 0:  //MIDI
+                a_pydaw_data->track_pool[f_track_num]->solo = f_mode;
+                break;
+            case 2:  //Audio
+                a_pydaw_data->audio_track_pool[f_track_num]->solo = f_mode;
+                break;
+            default:
+                assert(0);
+                break;
+        }
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_MUTE)) //Set track mute
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_mode = atoi(f_val_arr->array[1]);
         assert(f_mode == 0 || f_mode == 1);
+        int f_track_type = atoi(f_val_arr->array[2]);
         pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        a_pydaw_data->track_pool[f_track_num]->mute = f_mode;
+        switch(f_track_type)
+        {
+            case 0:  //MIDI
+                a_pydaw_data->track_pool[f_track_num]->mute = f_mode;
+                break;
+            case 2:  //Audio
+                a_pydaw_data->audio_track_pool[f_track_num]->mute = f_mode;
+                break;
+            default:
+                assert(0);
+                break;
+        }        
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
