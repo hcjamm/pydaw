@@ -688,15 +688,16 @@ class region_list_editor:
 
 
 class audio_list_editor:
-    def open_tracks(self):
-        self.reset_tracks()
+    def open_tracks(self):        
         f_tracks = this_pydaw_project.get_audio_tracks()
         for key, f_track in f_tracks.tracks.iteritems():
-            self.tracks[key].open_track(f_track)
-            
+            self.tracks[key].open_track(f_track)            
         f_inputs = this_pydaw_project.get_audio_inputs()
         for key, f_track in f_inputs.tracks.iteritems():
             self.inputs[key].open_track(f_track)
+    
+    def open_items(self):
+        pass
         
     def reset_tracks(self):
         self.tracks = []
@@ -733,67 +734,109 @@ class audio_list_editor:
             self.show_cell_dialog(x, y)
         
     def show_cell_dialog(self, x, y):
-        def note_ok_handler():
-            if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
-                f_cell_text = str(f_new_lineedit.text())
-                this_pydaw_project.create_empty_item(f_new_lineedit.text())
-                this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
-            elif f_copy_radiobutton.isChecked():
-                f_cell_text = str(f_copy_combobox.currentText())
-                
-            if f_copy_from_radiobutton.isChecked():
-                this_pydaw_project.copy_item(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
-                this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
-
-            if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
-                this_item_editor.open_item(f_cell_text)
-            self.last_item_copied = f_cell_text
-            self.add_qtablewidgetitem(f_cell_text, x, y - 1)
-            self.region.add_item_ref(x, y - 1, f_cell_text)            
-            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
-            f_window.close()
-
-        def note_cancel_handler():
+        def ok_handler():
+            if str(f_name.text()) == "":
+                QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
+                return
+            if (f_end_region.value() < f_start_region.value()) or \
+               ((f_end_region.value() == f_start_region.value()) and \
+               ((f_start_bar.value() < f_end_bar.value()) or \
+               ((f_start_bar.value() == f_end_bar.value()) and \
+               (f_start_beat.value() <= f_end_beat.value())))):
+                QtGui.QMessageBox.warning(f_window, "Error", "End point is before start point.")
+                return            
+            
+            #this_pydaw_project.save_audio_items()
+            self.open_items()
             f_window.close()
             
-        def copy_combobox_index_changed(a_index):
-            f_copy_radiobutton.setChecked(True)
-            
-        def on_name_changed():
-            f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
-
+        def cancel_handler():
+            f_window.close()
+        
+        def file_name_select():
+            f_file_name = str(QtGui.QFileDialog.getOpenFileName(f_window, "Select a file name to save to...", self.last_open_dir, filter=".wav files(*.wav)"))
+            if not f_file_name is None and f_file_name != "":                
+                if not f_file_name is None and not str(f_file_name) == "":
+                    f_name.setText(f_file_name)
+                self.last_open_dir = os.path.dirname(f_file_name)
+                    
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Add item reference to region...")
+        f_window.setWindowTitle("Add an audio item..")
         f_layout = QtGui.QGridLayout()
-        f_vlayout0 = QtGui.QVBoxLayout()
-        f_vlayout1 = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
-        f_new_radiobutton = QtGui.QRadioButton()
-        f_new_radiobutton.setChecked(True)
-        f_layout.addWidget(f_new_radiobutton, 0, 0)
-        f_layout.addWidget(QtGui.QLabel("New:"), 0, 1)
-        f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_item_name())
-        f_new_lineedit.editingFinished.connect(on_name_changed)
-        f_new_lineedit.setMaxLength(24)
-        f_layout.addWidget(f_new_lineedit, 0, 2)
-        f_layout.addLayout(f_vlayout0, 1, 0)        
-        f_copy_from_radiobutton = QtGui.QRadioButton()
-        f_vlayout0.addWidget(f_copy_from_radiobutton)
-        f_copy_radiobutton = QtGui.QRadioButton()
-        f_vlayout0.addWidget(f_copy_radiobutton)
-        f_copy_combobox = QtGui.QComboBox()
-        f_copy_combobox.addItems(this_pydaw_project.get_item_list())        
-        f_copy_combobox.currentIndexChanged.connect(copy_combobox_index_changed)
-        f_layout.addLayout(f_vlayout1, 1, 1)
-        f_vlayout1.addWidget(QtGui.QLabel("Copy from:"))
-        f_vlayout1.addWidget(QtGui.QLabel("Existing:"))
-        f_layout.addWidget(f_copy_combobox, 1, 2)
-        f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 5,0)
-        f_ok_button.clicked.connect(note_ok_handler)
-        f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 5,1)
-        f_cancel_button.clicked.connect(note_cancel_handler)
+        
+        f_name = QtGui.QLineEdit()
+        f_name.setReadOnly(True)
+        f_name.setMinimumWidth(360)
+        f_layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
+        f_layout.addWidget(f_name, 0, 1)
+        f_select_file = QtGui.QPushButton("Select")
+        f_select_file.pressed.connect(file_name_select)
+        f_layout.addWidget(f_select_file, 0, 2)
+        
+        f_layout.addWidget(QtGui.QLabel("Start:"), 1, 0)   
+        f_start_hlayout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_start_hlayout, 1, 1)
+        f_start_hlayout.addWidget(QtGui.QLabel("Region:"))
+        f_start_region = QtGui.QSpinBox()
+        f_start_region.setRange(0, 298)        
+        f_start_hlayout.addWidget(f_start_region)
+        f_start_hlayout.addWidget(QtGui.QLabel("Bar:"))        
+        f_start_bar = QtGui.QSpinBox()
+        f_start_bar.setRange(0, 8)
+        f_start_hlayout.addWidget(f_start_bar)
+        f_start_hlayout.addWidget(QtGui.QLabel("Beat:"))
+        f_start_beat = QtGui.QDoubleSpinBox()
+        f_start_beat.setRange(0, 4)
+        f_start_hlayout.addWidget(f_start_beat)
+        
+        f_layout.addWidget(QtGui.QLabel("End:"), 2, 0) 
+        f_end_hlayout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_end_hlayout, 2, 1)
+        f_end_sample_length = QtGui.QRadioButton("Sample Length")
+        f_end_sample_length.setChecked(True)
+        f_end_hlayout.addWidget(f_end_sample_length)
+        f_end_musical_time = QtGui.QRadioButton("At:")
+        f_end_hlayout.addWidget(f_end_musical_time)
+        f_end_hlayout.addWidget(QtGui.QLabel("Region:"))
+        f_end_region = QtGui.QSpinBox()
+        f_end_region.setRange(0, 298)        
+        f_end_hlayout.addWidget(f_end_region)
+        f_end_hlayout.addWidget(QtGui.QLabel("Bar:"))
+        f_end_bar = QtGui.QSpinBox()
+        f_end_bar.setRange(0, 8)
+        f_end_bar.setValue(1)
+        f_end_hlayout.addWidget(f_end_bar)
+        f_end_hlayout.addWidget(QtGui.QLabel("Beats:"))
+        f_end_beat = QtGui.QDoubleSpinBox()
+        f_end_beat.setRange(0, 4)
+        f_end_beat.setValue(1)
+        f_end_hlayout.addWidget(f_end_beat)
+        
+        f_layout.addWidget(QtGui.QLabel("Time Stretching:"), 3, 0) 
+        f_timestretch_hlayout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_timestretch_hlayout, 3, 1)
+        f_timestretch_hlayout.addWidget(QtGui.QLabel("Mode:"))
+        f_timestretch_mode = QtGui.QComboBox()
+        f_timestretch_mode.setMinimumWidth(132)
+        f_timestretch_hlayout.addWidget(f_timestretch_mode)
+        f_timestretch_mode.addItems(["None", "Pitch", "Time + Pitch"])
+        f_timestretch_hlayout.addWidget(QtGui.QLabel("Pitch Shift:"))
+        f_pitch_shift = QtGui.QDoubleSpinBox()
+        f_pitch_shift.setRange(-36, 36)
+        f_timestretch_hlayout.addWidget(f_pitch_shift)
+        f_timestretch_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+        
+        f_ok_layout = QtGui.QHBoxLayout()
+        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(ok_handler)
+        f_ok_layout.addWidget(f_ok)
+        f_layout.addLayout(f_ok_layout, 9, 1)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(cancel_handler)
+        f_layout.addWidget(f_cancel, 9, 2)
+        self.last_offline_dir = expanduser("~")
         f_window.exec_()
 
     def __init__(self):
@@ -802,6 +845,7 @@ class audio_list_editor:
         self.track_total = 8
         
         self.enabled = False #Prevents user from editing a region before one has been selected
+        self.last_open_dir = ""
         self.tab_widget = QtGui.QTabWidget()
         # TODO:  Revisit this when I've made a separate style for it based on this:
         # QTabBar::tab:top, QTabBar::tab:bottom, QTabBar::tab:left, QTabBar::tab:right
@@ -2383,7 +2427,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 9, 2)
         self.last_offline_dir = expanduser("~")
-        f_window.exec_()        
+        f_window.exec_()
     
     def on_undo_history(self):
         f_window = QtGui.QDialog(this_main_window)
