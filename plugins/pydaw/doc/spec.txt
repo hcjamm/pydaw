@@ -46,7 +46,10 @@ OSC configure message keys/values:
 	"al"	""	Reload audio tracks(the sequenced audio parts/loaded files)
 	"as"	""	Save audio tracks(the tracks, ie:  volume, name, mute, solo...)
 	"af"	int	Open the FX GUI for audio_track[int]
-	"ai"	""	Save the audio input busses(rec arm, default audio track, mono/stereo/mixed, etc...)
+	"av"	int|int	Modify volume for audio track int to int	
+
+	"is"	""	Save the audio input busses(rec arm, default audio track, mono/stereo/mixed, etc...)
+	"iv"	int|int	Modify volume for audio input track int to int	
 
 Project structure:
 
