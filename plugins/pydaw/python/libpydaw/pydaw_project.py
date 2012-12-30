@@ -168,7 +168,10 @@ class pydaw_project:
         self.git_repo.git_add(f_pysong_file)
         self.git_repo.git_add(f_pytracks_file)
         self.git_repo.git_add(f_pytransport_file)
-        self.git_repo.git_add(a_project_file)
+        self.git_repo.git_add(a_project_file)        
+        self.git_repo.git_add(f_pyaudio_file)
+        self.git_repo.git_add(f_pybus_file)
+        self.git_repo.git_add(f_pyinput_file)
         self.git_repo.git_commit("-a", "Created new project")
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
