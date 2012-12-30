@@ -2288,14 +2288,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
         while(f_i < PYDAW_MIDI_TRACK_COUNT)
         {
             a_pydaw_data->track_pool[f_i]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted
-            /*if(f_i < PYDAW_BUS_TRACK_COUNT)
-            {
-                v_set_plugin_index(a_pydaw_data, f_i, 0);
-            }
-            else
-            {*/
-                //v_set_plugin_index(a_pydaw_data, f_i, -1);
-            //}
+            
             v_set_plugin_index(a_pydaw_data, a_pydaw_data->track_pool[f_i], 0);
             
             a_pydaw_data->track_pool[f_i]->solo = 0;

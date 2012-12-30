@@ -93,6 +93,10 @@ class pydaw_project:
         self.instrument_folder = self.project_folder + "/instruments"
         self.regions_folder = self.project_folder + "/regions"
         self.items_folder = self.project_folder + "/items"
+        self.audio_folder = self.project_folder + "/audio",
+        self.samples_folder = self.project_folder + "/samples",  #Placeholder for future functionality
+        self.audiofx_folder = self.project_folder + "/audiofx",
+        self.busfx_folder = self.project_folder + "/busfx"
 
     def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
@@ -108,10 +112,9 @@ class pydaw_project:
         self.set_project_folders(a_project_file)
 
         project_folders = [
-            self.project_folder,
-            self.instrument_folder,
-            self.regions_folder,
-            self.items_folder
+            self.project_folder, self.instrument_folder, self.regions_folder,
+            self.items_folder, self.audio_folder, self.samples_folder, 
+            self.audiofx_folder, self.busfx_folder
             ]
 
         for project_dir in project_folders:
@@ -145,8 +148,13 @@ class pydaw_project:
             for i in range(8):
                 f_file.write(str(i) + "|0|0|0|track" + str(i) + "|0\n")
             f_file.write(pydaw_terminating_char)
-            f_file.close()            
-        
+            f_file.close()
+            
+        f_pyaudio_item_file = self.project_folder + "/default.pyaudioitem"
+        if not os.path.exists(f_pyaudio_item_file):
+            f_file = open(f_pyaudio_item_file, 'w')            
+            f_file.write(pydaw_terminating_char)
+            f_file.close()
         f_pybus_file = self.project_folder + "/default.pybus"
         if not os.path.exists(f_pybus_file):
             f_file = open(f_pybus_file, 'w')
@@ -170,6 +178,7 @@ class pydaw_project:
         self.git_repo.git_add(f_pytransport_file)
         self.git_repo.git_add(a_project_file)        
         self.git_repo.git_add(f_pyaudio_file)
+        self.git_repo.git_add(f_pyaudio_item_file)
         self.git_repo.git_add(f_pybus_file)
         self.git_repo.git_add(f_pyinput_file)
         self.git_repo.git_commit("-a", "Created new project")
@@ -224,6 +233,18 @@ class pydaw_project:
     def get_tracks(self):
         return pydaw_tracks.from_str(self.get_tracks_string())
     
+    def get_bus_tracks_string(self):
+        try:
+            f_file = open(self.project_folder + "/default.pybus", "r")
+        except:
+            return pydaw_terminating_char
+        f_result = f_file.read()
+        f_file.close()
+        return f_result
+
+    def get_bus_tracks(self):
+        return pydaw_busses.from_str(self.get_audio_tracks_string())    
+    
     def get_audio_tracks_string(self):
         try:
             f_file = open(self.project_folder + "/default.pyaudio", "r")
@@ -235,8 +256,7 @@ class pydaw_project:
 
     def get_audio_tracks(self):
         return pydaw_audio_tracks.from_str(self.get_audio_tracks_string())
-        
-    
+            
     def get_audio_input_tracks_string(self):
         try:
             f_file = open(self.project_folder + "/default.pyinput", "r")
@@ -248,6 +268,18 @@ class pydaw_project:
 
     def get_audio_input_tracks(self):
         return pydaw_audio_input_tracks.from_str(self.get_audio_input_tracks_string())
+
+    def get_audio_items_string(self):
+        try:
+            f_file = open(self.project_folder + "/default.pyinput", "r")
+        except:
+            return pydaw_terminating_char
+        f_result = f_file.read()
+        f_file.close()
+        return f_result
+
+    def get_audio_items(self):
+        return pydaw_audio_items.from_str(self.get_audio_items_string())    
     
     def get_transport(self):
         try:
@@ -332,8 +364,44 @@ class pydaw_project:
             f_file.write(a_tracks.__str__())
             f_file.close()    
             #Is there a need for a configure message here?        
-            self.git_repo.git_commit('-a', "Edited tracks")
+            self.git_repo.git_commit('-a', "Edited MIDI tracks")
 
+    def save_busses(self, a_tracks):
+        if not self.suppress_updates:
+            f_file_name = self.project_folder + "/default.pybus"
+            f_file = open(f_file_name, 'w')
+            f_file.write(a_tracks.__str__())
+            f_file.close()    
+            #Is there a need for a configure message here?
+            self.git_repo.git_commit('-a', "Edited busses")
+
+    def save_audio_tracks(self, a_tracks):
+        if not self.suppress_updates:
+            f_file_name = self.project_folder + "/default.pyaudio"
+            f_file = open(f_file_name, 'w')
+            f_file.write(a_tracks.__str__())
+            f_file.close()    
+            #Is there a need for a configure message here?
+            self.git_repo.git_commit('-a', "Edited audio tracks")
+
+    def save_audio_inputs(self, a_tracks):
+        if not self.suppress_updates:
+            f_file_name = self.project_folder + "/default.pyinput"
+            f_file = open(f_file_name, 'w')
+            f_file.write(a_tracks.__str__())
+            f_file.close()    
+            #Is there a need for a configure message here?
+            self.git_repo.git_commit('-a', "Edited audio inputs")
+
+    def save_audio_items(self, a_tracks):
+        if not self.suppress_updates:
+            f_file_name = self.project_folder + "/default.pyaudio"
+            f_file = open(f_file_name, 'w')
+            f_file.write(a_tracks.__str__())
+            f_file.close()    
+            #Is there a need for a configure message here?
+            self.git_repo.git_commit('-a', "Edited audio items")
+            
     def item_exists(self, a_item_name):
         f_list = self.get_item_list()
         for f_item in f_list:
@@ -381,7 +449,6 @@ class pydaw_project:
         return f_result
         
     def quit_handler(self):
-        #self.session_mgr.quit_hander() #deprecated
         self.this_dssi_gui.stop_server()        
 
     def __init__(self, a_osc_url=None):
@@ -908,6 +975,34 @@ class pydaw_track:
         self.inst = a_inst
         self.bus_num = a_bus_num
 
+class pydaw_busses:
+    def add_bus(self, a_bus):
+        self.busses.append(a_bus)
+        
+    def __init__(self):
+        self.busses = []
+    
+    def __str__(self):
+        f_result = ""
+        for f_bus in self.busses:
+            f_result += str(f_bus)
+        f_result += pydaw_terminating_char
+    
+    @staticmethod
+    def from_str(a_str):
+        f_result = pydaw_busses()
+        f_lines = a_str.split("\n")
+        for f_line in f_lines:
+            if f_line == pydaw_terminating_char:
+                return f_result
+            f_result.add_bus(pydaw_bus(f_line))
+    
+class pydaw_bus:
+    def __init__(self, a_vol=0):
+        self.vol = int(a_vol)
+    
+    def __str__(self):
+        return str(self.vol) + "\n" 
 
 class pydaw_audio_tracks:
     def add_track(self, a_index, a_track):
