@@ -944,6 +944,62 @@ class pydaw_audio_track:
         self.mute = a_mute
         self.vol = a_vol
         self.bus_num = a_bus_num
+        
+class pydaw_audio_items:
+    def __init__(self):
+        self.items = []
+    
+    def add_item(self, a_item):
+        self.items.append(a_item)
+        self.items.sort()
+    
+    @staticmethod
+    def from_str(a_str):
+        f_result = pydaw_audio_items()
+        f_lines = a_str.split("\n")
+        for f_line in f_lines:
+            if f_line == pydaw_terminating_char:
+                return f_result
+            f_arr = f_line.split("|")
+            f_result.add_item(pydaw_audio_item.from_arr(f_arr))
+            
+    def __str__(self):
+        self.items.sort()
+        f_result = ""
+        for f_item in self.items():
+            f_result += str(f_item)
+        f_result += pydaw_terminating_char
+        return f_result
+
+class pydaw_audio_item:
+    def __init__(self, a_file, a_start_region, a_start_bar, a_start_beat, a_end_mode, \
+    a_end_region, a_end_bar, a_end_beat, a_timestretch_mode, a_pitch_shift):
+        self.file = str(a_file)
+        self.start_region = int(a_start_region)
+        self.start_bar = int(a_start_bar)
+        self.start_beat = float(a_start_beat)
+        self.end_mode = int(a_end_mode)
+        self.end_region = int(a_end_region)
+        self.end_bar = int(a_end_bar)
+        self.end_beat = float(a_end_beat)
+        self.time_stretch_mode = int(a_timestretch_mode)
+        self.pitch_shift = float(a_pitch_shift)
+    
+    def __lt__(self, other):
+        if self.start_region < other.start_region:
+            return True
+        elif self.start_region == other.start_region and \
+        ((self.start_bar < other.start_bar) or 
+        ((self.start_bar == other.start_bar) and \
+        self.start_beat < other.start_beat)):
+            return True
+        else:
+            return False
+    
+    def __str__(self):
+        return self.file + "|" + str(self.start_region) + "|" + str(self.start_bar) \
+        + str(self.start_beat) + "|" + str(self.end_region) + "|" + str(self.end_bar) \
+        + str(self.end_beat) + "|" + str(self.time_stretch_mode) + "|" + str(self.pitch_shift) + "\n"
 
 class pydaw_audio_input_tracks:
     def add_track(self, a_index, a_track):
