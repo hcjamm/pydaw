@@ -248,6 +248,7 @@ class region_list_editor:
             this_transport.bar_spinbox.setRange(0, (self.region.region_length_bars) - 1)
             self.length_alternate_radiobutton.setChecked(True)
         else:
+            self.set_region_length()
             self.length_alternate_spinbox.setValue(8)
             this_transport.bar_spinbox.setRange(0, 7)
             self.length_default_radiobutton.setChecked(True)
