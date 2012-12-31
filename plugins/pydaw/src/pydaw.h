@@ -193,7 +193,13 @@ typedef struct st_pydaw_data
     char * project_folder;
     char * instruments_folder;
     char * item_folder;
-    char * region_folder;    
+    char * region_folder;
+    
+    char * busfx_folder;
+    char * audio_folder;
+    char * audiofx_folder;
+    char * samples_folder;
+    
     double playback_cursor; //only refers to the fractional position within the current bar.
     double playback_inc;  //the increment per-period to iterate through 1 bar, as determined by sample rate and tempo
     int current_region; //the current region
@@ -280,7 +286,7 @@ int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a
 void v_save_pysong_to_disk(t_pydaw_data * a_pydaw_data);
 void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index);
 void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num);
-void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is_fx);
+void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is_fx, int a_type);
 void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is_fx);
 int g_pyitem_get_new(t_pydaw_data* a_pydaw_data);
 t_pyregion * g_pyregion_get_new(t_pydaw_data* a_pydaw_data);
@@ -1988,6 +1994,12 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->project_folder = (char*)malloc(sizeof(char) * 256);
     f_result->region_folder = (char*)malloc(sizeof(char) * 256);
     //f_result->project_name = (char*)malloc(sizeof(char) * 256);
+    
+    f_result->busfx_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->audio_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->audiofx_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->samples_folder = (char*)malloc(sizeof(char) * 256);    
+    
     f_result->playback_mode = 0;
     f_result->pysong = NULL;
     f_result->item_count = 0;
@@ -2316,7 +2328,13 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     sprintf(a_pydaw_data->project_folder, "%s/", a_project_folder);    
     sprintf(a_pydaw_data->item_folder, "%sitems/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->region_folder, "%sregions/", a_pydaw_data->project_folder);
-    sprintf(a_pydaw_data->instruments_folder, "%sinstruments/", a_pydaw_data->project_folder);    
+    sprintf(a_pydaw_data->instruments_folder, "%sinstruments/", a_pydaw_data->project_folder);
+    
+    sprintf(a_pydaw_data->audio_folder, "%saudio/", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->audiofx_folder, "%saudiofx/", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->busfx_folder, "%sbusfx/", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->samples_folder, "%ssamples/", a_pydaw_data->project_folder);
+    
     //strcpy(a_pydaw_data->project_name, a_name);
     
     int f_i = 0;
@@ -2559,7 +2577,7 @@ void v_set_tempo(t_pydaw_data * a_pydaw_data, float a_tempo)
     pthread_mutex_unlock(&a_pydaw_data->main_mutex);
 }
 
-void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, t_pytrack * a_track)
+void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_type)
 {
     if(a_track->plugin_index == 0)
     {
@@ -2568,17 +2586,17 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, t_pytrack * a_track)
 
     if(a_track->plugin_index != -1)
     {
-        v_pydaw_save_plugin(a_pydaw_data, a_track, 0);
+        v_pydaw_save_plugin(a_pydaw_data, a_track, 0, a_type);
     }
     
-    v_pydaw_save_plugin(a_pydaw_data, a_track, 1);
+    v_pydaw_save_plugin(a_pydaw_data, a_track, 1, a_type);
     
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
 #endif
 }
 
-void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is_fx)
+void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is_fx, int a_type)
 {    
     pthread_mutex_lock(&a_track->mutex);
     char f_string[LMS_LARGE_STRING];
@@ -2628,7 +2646,7 @@ void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
         int in = f_i2 + f_instance->firstControlIn;
 	//int port = instance->pluginControlInPortNumbers[in];
 	        
-        char f_port_entry[64];        
+        char f_port_entry[64];
         sprintf(f_port_entry, "%i|%f\n", in, //port,
         f_instance->pluginControlIns[in]
         );
@@ -2641,7 +2659,21 @@ void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
         
     if(a_is_fx)
     {
-        sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->instruments_folder, a_track->track_num);
+        switch(a_type)
+        {
+            case 0: //MIDI track
+                sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->instruments_folder, a_track->track_num);
+                break;
+            case 1: //Bus track
+                sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->busfx_folder, a_track->track_num);
+                break;
+            case 2: //audio track
+                sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->audiofx_folder, a_track->track_num);
+                break;
+            default:
+                assert(0);
+                break;
+        }        
     }
     else
     {
@@ -2660,7 +2692,23 @@ void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
     
     while(f_i < PYDAW_MIDI_TRACK_COUNT)
     {
-        v_pydaw_save_track(a_pydaw_data, a_pydaw_data->track_pool[f_i]);
+        v_pydaw_save_track(a_pydaw_data, a_pydaw_data->track_pool[f_i], 0);
+        f_i++;
+    }
+    
+    f_i = 0;
+    
+    while(f_i < PYDAW_BUS_TRACK_COUNT)
+    {
+        v_pydaw_save_track(a_pydaw_data, a_pydaw_data->bus_pool[f_i], 1);
+        f_i++;
+    }
+    
+    f_i = 0;
+    
+    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+    {
+        v_pydaw_save_track(a_pydaw_data, a_pydaw_data->audio_track_pool[f_i], 2);
         f_i++;
     }
     
