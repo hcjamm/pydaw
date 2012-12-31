@@ -168,6 +168,7 @@ typedef struct st_pytrack
     pthread_mutex_t mutex;
     char name[64];
     int track_num;  //Track number for the pool of tracks it is in, for example: 0-15 for midi tracks
+    int track_type;  //0 == MIDI/plugin-instrument, 1 == Bus, 2 == Audio
 }t_pytrack;
 
 typedef struct
@@ -266,7 +267,7 @@ typedef struct
 }t_pydaw_thread_args;
 
 void g_pysong_get(t_pydaw_data*);
-t_pytrack * g_pytrack_get(int);
+t_pytrack * g_pytrack_get(int,int);
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char*);
 void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name);
 t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start);
@@ -1934,11 +1935,12 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     }
 }
 
-t_pytrack * g_pytrack_get(int a_track_num)
+t_pytrack * g_pytrack_get(int a_track_num, int a_track_type)
 {
     t_pytrack * f_result = (t_pytrack*)malloc(sizeof(t_pytrack));
     
     f_result->track_num = a_track_num;
+    f_result->track_type = a_track_type;
     f_result->mute = 0;
     f_result->solo = 0;
     f_result->volume = 0.0f;
@@ -2022,7 +2024,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     
     while(f_i < PYDAW_AUDIO_TRACK_COUNT)
     {        
-        f_result->audio_track_pool[f_i] = g_pytrack_get(f_i);
+        f_result->audio_track_pool[f_i] = g_pytrack_get(f_i, 2);
         f_i++;
     }
     
@@ -2030,7 +2032,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     
     while(f_i < PYDAW_BUS_TRACK_COUNT)
     {
-        f_result->bus_pool[f_i] = g_pytrack_get(f_i);        
+        f_result->bus_pool[f_i] = g_pytrack_get(f_i, 1);        
         sprintf(f_result->bus_pool[f_i]->name, "Bus%i", f_i);        
         f_i++;
     }
@@ -2049,7 +2051,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     
     while(f_i < PYDAW_MIDI_TRACK_COUNT)
     {
-        f_result->track_pool[f_i] = g_pytrack_get(f_i);        
+        f_result->track_pool[f_i] = g_pytrack_get(f_i, 0);        
         f_result->track_current_item_note_event_indexes[f_i] = 0;
         f_result->track_current_item_cc_event_indexes[f_i] = 0;
         f_result->track_current_item_pitchbend_event_indexes[f_i] = 0;
