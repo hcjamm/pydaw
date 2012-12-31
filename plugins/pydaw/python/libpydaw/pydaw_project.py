@@ -93,9 +93,9 @@ class pydaw_project:
         self.instrument_folder = self.project_folder + "/instruments"
         self.regions_folder = self.project_folder + "/regions"
         self.items_folder = self.project_folder + "/items"
-        self.audio_folder = self.project_folder + "/audio",
-        self.samples_folder = self.project_folder + "/samples",  #Placeholder for future functionality
-        self.audiofx_folder = self.project_folder + "/audiofx",
+        self.audio_folder = self.project_folder + "/audio"
+        self.samples_folder = self.project_folder + "/samples"  #Placeholder for future functionality
+        self.audiofx_folder = self.project_folder + "/audiofx"
         self.busfx_folder = self.project_folder + "/busfx"
 
     def open_project(self, a_project_file, a_notify_osc=True):
@@ -118,6 +118,7 @@ class pydaw_project:
             ]
 
         for project_dir in project_folders:
+            print(project_dir)
             if not os.path.isdir(project_dir):
                 os.makedirs(project_dir)
         if not os.path.exists(a_project_file):
