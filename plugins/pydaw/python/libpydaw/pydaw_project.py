@@ -977,16 +977,16 @@ class pydaw_track:
         self.bus_num = a_bus_num
 
 class pydaw_busses:
-    def add_bus(self, a_bus):
-        self.busses.append(a_bus)
+    def add_bus(self, a_index, a_bus):
+        self.busses[a_index] = a_bus
         
     def __init__(self):
-        self.busses = []
+        self.busses = {}
     
     def __str__(self):
         f_result = ""
-        for f_bus in self.busses:
-            f_result += str(f_bus)
+        for k, f_bus in self.busses.iteritems():
+            f_result += str(k) + "|" + str(f_bus)
         f_result += pydaw_terminating_char
     
     @staticmethod
@@ -1043,12 +1043,11 @@ class pydaw_audio_track:
         
 class pydaw_audio_items:
     def __init__(self):
-        self.items = []
+        self.items = {}
     
     def add_item(self, a_item):
         self.items.append(a_item)
-        self.items.sort()
-    
+            
     @staticmethod
     def from_str(a_str):
         f_result = pydaw_audio_items()
@@ -1107,7 +1106,7 @@ class pydaw_audio_input_tracks:
     def __str__(self):
         f_result = ""
         for k, v in self.tracks.iteritems():            
-            f_result += str(k) + "|" + bool_to_int(v.rec) + "|" + str(v.vol) + str(v.default_audio_track) + "\n"
+            f_result += str(k) + "|" + bool_to_int(v.rec) + "|" + str(v.vol) + "|" + str(v.input) + "|" + str(v.input) + "\n"
         f_result += pydaw_terminating_char
         return f_result
 
@@ -1120,14 +1119,15 @@ class pydaw_audio_input_tracks:
                 f_line_arr = f_line.split("|")
                 if f_line_arr[1] == "1": f_rec = True
                 else: f_rec = False
-                f_result.add_track(int(f_line_arr[0]), pydaw_audio_input_track(f_rec, int(f_line_arr[2]), f_line_arr[3]))
+                f_result.add_track(int(f_line_arr[0]), pydaw_audio_input_track(f_rec, int(f_line_arr[2]), f_line_arr[3], f_line_arr[4]))
         return f_result
 
 class pydaw_audio_input_track:
-    def __init__(self, a_rec, a_vol, a_default_audio_track):
-        self.default_audio_track = a_default_audio_track
+    def __init__(self, a_rec, a_vol, a_output, a_input="None"):
+        self.input = a_input
+        self.output = a_output
         self.rec = a_rec
-        self.vol = a_vol
+        self.vol = a_vol        
         
 class pydaw_transport:
     def __init__(self, a_bpm=140, a_midi_keybd=None, a_loop_mode=0, a_region=0, a_bar=0):
