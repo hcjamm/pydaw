@@ -689,10 +689,13 @@ class region_list_editor:
 
 
 class audio_list_editor:
-    def open_tracks(self):        
+    def open_tracks(self):
+        f_busses = this_pydaw_project.get_busses()
+        for key, f_track in f_busses.tracks.iteritems():
+            self.busses[key].open_track(f_track)
         f_tracks = this_pydaw_project.get_audio_tracks()
         for key, f_track in f_tracks.tracks.iteritems():
-            self.tracks[key].open_track(f_track)            
+            self.tracks[key].open_track(f_track)
         f_inputs = this_pydaw_project.get_audio_inputs()
         for key, f_track in f_inputs.tracks.iteritems():
             self.inputs[key].open_track(f_track)
@@ -923,10 +926,8 @@ class audio_track:
         self.track_number = a_track_num
         self.group_box = QtGui.QWidget()
         self.group_box.setAutoFillBackground(True)
-        self.group_box.setPalette(QtGui.QPalette(QtCore.Qt.black))
-        #self.group_box.setMinimumHeight(90)
-        self.group_box.setMinimumWidth(330)
-        #self.group_box.setObjectName("seqtrack")
+        self.group_box.setPalette(QtGui.QPalette(QtCore.Qt.black))        
+        self.group_box.setMinimumWidth(330)        
         self.main_vlayout = QtGui.QVBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
         self.hlayout2 = QtGui.QHBoxLayout()
@@ -1003,10 +1004,10 @@ class audio_input_track:
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())    
+        this_pydaw_project.save_audio_inputs(this_audio_editor.get_inputs())
     def on_bus_changed(self, a_value=0):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-        this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex())
+        this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.output_combobox.currentIndex())
 
     def __init__(self, a_track_num):
         self.suppress_osc = True
@@ -1038,12 +1039,12 @@ class audio_input_track:
         self.hlayout3 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout3)        
         #self.hlayout3.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))        
-        self.bus_combobox = QtGui.QComboBox()
-        self.bus_combobox.addItems(['M', '1','2','3','4'])
-        self.bus_combobox.setMinimumWidth(54)
-        self.bus_combobox.currentIndexChanged.connect(self.on_bus_changed)
-        self.hlayout3.addWidget(QtGui.QLabel("Bus:"))
-        self.hlayout3.addWidget(self.bus_combobox)        
+        self.output_combobox = QtGui.QComboBox()
+        self.output_combobox.addItems(['1','2','3','4','5','6','7','8'])
+        self.output_combobox.setMinimumWidth(54)
+        self.output_combobox.currentIndexChanged.connect(self.on_bus_changed)
+        self.hlayout3.addWidget(QtGui.QLabel("Output:"))
+        self.hlayout3.addWidget(self.output_combobox)        
         self.rec_checkbox = QtGui.QCheckBox()        
         self.rec_checkbox.clicked.connect(self.on_rec)
         self.rec_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/record-off.png);}QCheckBox::indicator::checked{image: url(pydaw/record-on.png);}")
@@ -1055,7 +1056,7 @@ class audio_input_track:
             self.suppress_osc = True        
         self.volume_slider.setValue(a_track.vol)    
         self.rec_checkbox.setChecked(a_track.rec)        
-        #self.bus_combobox.setCurrentIndex(a_track.bus_num)
+        self.bus_combobox.setCurrentIndex(a_track.bus_num)
         self.suppress_osc = False
 
     def get_track(self):        
