@@ -1105,14 +1105,16 @@ class pydaw_audio_item:
     
     def __str__(self):
         return self.file + "|" + str(self.start_region) + "|" + str(self.start_bar) \
-        + "|" + str(self.start_beat) + "|" + str(self.end_region) + "|" + str(self.end_bar) \
+        + "|" + str(self.start_beat) + "|" + str(self.end_mode) + "|" + str(self.end_region) + "|" + str(self.end_bar) \
         + "|" + str(self.end_beat) + "|" + str(self.time_stretch_mode) + "|" + str(self.pitch_shift) \
         + "|" + str(self.uid) + "\n"
     
     @staticmethod
     def from_arr(a_arr):
-        return pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
+        f_result = pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
         a_arr[7], a_arr[8], a_arr[9])
+        f_result.uid = a_arr[10]
+        return f_result
 
 class pydaw_audio_input_tracks:
     def add_track(self, a_index, a_track):
