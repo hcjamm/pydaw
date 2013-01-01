@@ -75,6 +75,8 @@ class pydaw_project:
         self.this_dssi_gui.pydaw_save_tracks()
         sleep(3)
         self.git_repo.git_add(self.instrument_folder + "/*")
+        self.git_repo.git_add(self.audiofx_folder + "/*")
+        self.git_repo.git_add(self.busfx_folder + "/*")
         self.git_repo.git_commit("-a", "Saved plugin state")
     
     def record_stop_git_commit(self):
