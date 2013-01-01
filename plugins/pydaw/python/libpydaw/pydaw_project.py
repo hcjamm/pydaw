@@ -141,22 +141,25 @@ class pydaw_project:
             f_file.close()
         f_pytransport_file = self.project_folder + "/default.pytransport"
         if not os.path.exists(f_pytransport_file):
+            f_transport_instance = pydaw_transport()
             f_file = open(f_pytransport_file, 'w')
-            f_file.write("140|None|0|0|0\n\\")
+            f_file.write(str(f_transport_instance))
             f_file.close()
         f_pytracks_file = self.project_folder + "/default.pytracks"
         if not os.path.exists(f_pytracks_file):
             f_file = open(f_pytracks_file, 'w')
+            f_midi_tracks_instance = pydaw_tracks()
             for i in range(16):
-                f_file.write(str(i) + "|0|0|0|0|track" + str(i + 1) + "|0|0\n")
-            f_file.write(pydaw_terminating_char)
+                f_midi_tracks_instance.add_track(i, pydaw_track(0,0,0,0,"track"+str(i),0))
+            f_file.write(str(f_midi_tracks_instance))            
             f_file.close()
         f_pyaudio_file = self.project_folder + "/default.pyaudio"
         if not os.path.exists(f_pyaudio_file):
             f_file = open(f_pyaudio_file, 'w')
+            f_pyaudio_instance = pydaw_audio_tracks()
             for i in range(8):
-                f_file.write(str(i) + "|0|0|0|track" + str(i) + "|0\n")
-            f_file.write(pydaw_terminating_char)
+                f_pyaudio_instance.add_track(i, pydaw_audio_track(0,0,0,"track"+str(i)))
+            f_file.write(str(f_pyaudio_instance))            
             f_file.close()
             
         f_pyaudio_item_file = self.project_folder + "/default.pyaudioitem"
@@ -167,19 +170,21 @@ class pydaw_project:
         f_pybus_file = self.project_folder + "/default.pybus"
         if not os.path.exists(f_pybus_file):
             f_file = open(f_pybus_file, 'w')
-            f_file.write("0|0|0|0|0|Master|-1|0\n")
-            for i in range(1, 5):
-                f_file.write(str(i) + "|0|0|0|0|Bus" + str(i) + "|-1|0\n")                
-            f_file.write(pydaw_terminating_char)
+            f_pybus_instance = pydaw_busses()            
+            for i in range(5):
+                f_pybus_instance.add_bus(i, pydaw_bus())
+            f_file.write(str(f_pybus_instance))            
             f_file.close()
             
         f_pyinput_file = self.project_folder + "/default.pyinput"
         if not os.path.exists(f_pyinput_file):
             f_file = open(f_pyinput_file, 'w')
+            f_input_instance = pydaw_audio_input_tracks()
             for i in range(5):
-                f_file.write(str(i) + "|0|0|0\n")
-            f_file.write(pydaw_terminating_char)
+                f_input_instance.add_track(i, pydaw_audio_input_track(0,0,0))
+            f_file.write(str(f_input_instance))            
             f_file.close()
+            
         self.git_repo = pydaw_git_repo(self.project_folder)
         self.git_repo.git_init()
         self.git_repo.git_add(f_pysong_file)
