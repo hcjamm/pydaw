@@ -137,6 +137,7 @@ def pydaw_git_show_window(a_repo_dir=None):
             f_repo_dir = os.path.dirname(str(f_file))    
     f_pydaw_git = pydaw_git_repo(f_repo_dir)
     f_pydaw_git_widget = pydaw_git_log_widget(f_pydaw_git)
+    f_window.setWindowTitle("Undo History")
     f_window.setGeometry(QtCore.QRect(f_window.x(), f_window.y(), 1000, 600))
     f_window.setCentralWidget(f_pydaw_git_widget)    
     f_pydaw_git_widget.populate_table()
