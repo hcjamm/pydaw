@@ -49,13 +49,8 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_OFFLINE_RENDER "or"
     
 #define PYDAW_CONFIGURE_KEY_SET_TRACK_BUS "bs"
+#define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD "ai"    
 
-#define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD "ai"
-    
-#define PYDAW_CONFIGURE_KEY_AUDIO_SAVE "as"
-#define PYDAW_CONFIGURE_KEY_AUDIO_SHOW_FX "af"
-    
-#define PYDAW_CONFIGURE_KEY_AUDIO_INPUT_SAVE "is"
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -3355,15 +3350,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     {
         
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_SAVE)) //Save audio tracks
-    {
-        
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_INPUT_SAVE)) //Stop playback or recording
-    {
-        
-    }
-    
         
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_STOP)) //Stop playback or recording
     {
@@ -3485,10 +3471,23 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_TRACK_NAME)) //Set track name
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
-        int f_track_num = atoi(f_val_arr->array[0]);        
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
+        int f_track_num = atoi(f_val_arr->array[0]);
+        int f_track_type = atoi(f_val_arr->array[2]);
         pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        strcpy(a_pydaw_data->track_pool[f_track_num]->name, f_val_arr->array[1]);
+        switch(f_track_type)
+        {
+            case 0:
+                strcpy(a_pydaw_data->track_pool[f_track_num]->name, f_val_arr->array[1]);
+                break;
+            case 2:
+                strcpy(a_pydaw_data->audio_track_pool[f_track_num]->name, f_val_arr->array[1]);
+                break;
+            default:
+                assert(0);
+                break;
+        }
+        
         pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }

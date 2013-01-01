@@ -43,19 +43,13 @@ OSC configure message keys/values:
 	"st"	""	Save tracks
 	"tr"	int|int	Record arm a track, int:track#|int:0-not-armed/1-armed
 	"fx"	int|int	show FX GUI for track(int)|track_type
-	"tn"	int|string	Set track[int]->name to string
+	"tn"	int|string|int	Set track[int]->name to string of track_type(int)
 
 	"preview" path	Preview a .wav or other supported sample format....  (not yet implemented)
 	"or"	start-region|start-bar|end-region|end-bar|file-path	offline render project to .wav file
 	"bs"	track|bus	set the mixing bus to assign the track output to
-
 	"ai"	""	Reload audio items(the sequenced audio parts/loaded files)
-	"as"	""	Save audio tracks(the tracks, ie:  volume, name, mute, solo...)
-	"af"	int	Open the FX GUI for audio_track[int]
-	"av"	int|int	Modify volume for audio track int to int
 
-	"is"	""	Save the audio input busses(rec arm, default audio track, mono/stereo/mixed, etc...)
-	"iv"	int|int	Modify volume for audio input track int to int	
 
 Project structure:
 
