@@ -730,11 +730,16 @@ class audio_list_editor:
         self.audio_tracks_table_widget.setColumnWidth(2, 390)
         self.audio_tracks_table_widget.resizeRowsToContents()
             
-    def get_tracks(self):
-        f_result = pydaw_audio_tracks()
-        for f_i in range(0, len(self.tracks)):
-            f_result.add_track(f_i, self.tracks[f_i].get_track())
-        return f_result
+    def get_audio_tracks(self):
+        return self.tracks
+        #TODO:  why was I doing this in the other class???
+        #f_result = pydaw_audio_tracks()
+        #for f_i in range(0, len(self.tracks)):
+        #    f_result.add_track(f_i, self.tracks[f_i].get_track())
+        #return f_result
+    
+    def get_audio_inputs(self):
+        return self.aud
     
     def cell_clicked(self, x, y):
         f_item = self.audio_tracks_table_widget.item(x, y)
@@ -905,31 +910,33 @@ class audio_track:
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_vol(self.track_number, self.volume_slider.value(), 2)        
     def on_vol_released(self):
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())    
+        f_tracks = this_pydaw_project.get_audio_tracks()
+        f_tracks.tracks[self.track_number].vol = self.volume_slider.value()
+        this_pydaw_project.save_audio_tracks(f_tracks)
     def on_solo(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked(), 2)
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+        this_pydaw_project.save_audio_tracks(this_region_editor.get_tracks())
     def on_mute(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 2)
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+        this_pydaw_project.save_audio_tracks(this_region_editor.get_tracks())
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+        this_pydaw_project.save_audio_tracks(this_region_editor.get_tracks())
     def on_name_changed(self):
         self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+        this_pydaw_project.save_audio_tracks(this_region_editor.get_tracks())
         this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text())
     def on_instrument_change(self, selected_instrument):
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+        this_pydaw_project.save_audio_tracks(this_region_editor.get_tracks())
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)    
     def on_show_fx(self):        
         this_pydaw_project.this_dssi_gui.pydaw_show_audio_fx(self.track_number, 2)
     def on_bus_changed(self, a_value=0):
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+        this_pydaw_project.save_audio_tracks(this_region_editor.get_tracks())
         this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex())
 
     def __init__(self, a_track_num, a_track_text="track"):        
