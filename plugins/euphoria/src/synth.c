@@ -1033,18 +1033,18 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
                 plugin_data->output[1][i] += plugin_data->mono_fx_buffers[0][1][i];
 
                 //Add the previewing sample
-                plugin_data->output[0][i] += f_linear_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
-                            (plugin_data->preview_sample_array_index), plugin_data->linear_interpolator);
+                plugin_data->output[0][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
+                            (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
                 
                 if(plugin_data->sample_channels[(EUPHORIA_MAX_SAMPLE_COUNT)] > 1)
                 {
-                    plugin_data->output[1][i] += f_linear_interpolate_ptr(plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)], 
-                            (plugin_data->preview_sample_array_index), plugin_data->linear_interpolator);
+                    plugin_data->output[1][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)], 
+                            (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
                 }
                 else
                 {
-                    plugin_data->output[1][i] += f_linear_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
-                            (plugin_data->preview_sample_array_index), plugin_data->linear_interpolator);
+                    plugin_data->output[1][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
+                            (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
                 }
                 
                 plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + (plugin_data->sample_rate_ratios[EUPHORIA_MAX_SAMPLE_COUNT]);
@@ -1162,9 +1162,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     }
 
     int f_actual_array_size = (samples + EUPHORIA_SINC_INTERPOLATION_POINTS + 1 + EUPHORIA_Sample_Padding);
-    
-    //tmpSamples[0] = (float *)malloc((f_actual_array_size) * sizeof(float));
-    //tmpSamples[1] = (float *)malloc((f_actual_array_size) * sizeof(float));
+
     if(posix_memalign((void**)(&(tmpSamples[0])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
     {
         printf("Call to posix_memalign failed for tmpSamples[0]\n");
@@ -1267,7 +1265,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     //Reset the array indexer so it will play from the beginning.
     if(a_index == EUPHORIA_MAX_SAMPLE_COUNT)
     {
-        plugin_data->preview_sample_array_index = 0.0f;
+        plugin_data->preview_sample_array_index = (float)(EUPHORIA_SINC_INTERPOLATION_POINTS_DIV2 + EUPHORIA_Sample_Padding);
         plugin_data->preview_length = (float)(plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT]);
     }
     
