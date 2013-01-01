@@ -99,7 +99,7 @@ inline float f_cubic_interpolate_ptr_wrap(float * a_table, int a_table_size, flo
     a_cubic->a2 = a_table[a_cubic->int_pos] - a_table[a_cubic->int_pos_minus2];
     a_cubic->a3 = a_table[a_cubic->int_pos_minus1];
 
-    return(a_cubic->a0*a_cubic->mu*a_cubic->mu2+a_cubic->a1*a_cubic->mu2+a_cubic->a2*a_cubic->mu+a_cubic->a3);        
+    return(a_cubic->a0*a_cubic->mu*a_cubic->mu2+a_cubic->a1*a_cubic->mu2+a_cubic->a2*a_cubic->mu+a_cubic->a3);
 }
 
 /* inline float f_cubic_interpolate_ptr_wrap(
@@ -112,17 +112,23 @@ inline float f_cubic_interpolate_ptr_wrap(float * a_table, int a_table_size, flo
  * THIS DOES NOT CHECK THAT YOU PROVIDED A VALID POSITION
  */
 
-/*
-inline float f_cubic_interpolate_ptr(float * a_table, float a_ptr, t_cubic_interpolater * a_lin)
+inline float f_cubic_interpolate_ptr(float * a_table, float a_ptr, t_cubic_interpolater * a_cubic)
 {        
-    a_lin->int_pos = (int)a_ptr;
-    a_lin->int_pos_plus_1 = (a_lin->int_pos) + 1;
-        
-    a_lin->pos = a_ptr - (a_lin->int_pos);
+    a_cubic->int_pos = (int)a_ptr;
+    a_cubic->int_pos_plus1 = (a_cubic->int_pos) + 1;
+    a_cubic->int_pos_minus1 = (a_cubic->int_pos) - 1;
+    a_cubic->int_pos_minus2 = (a_cubic->int_pos) - 2;
     
-    return (((a_table[(a_lin->int_pos)]) - (a_table[(a_lin->int_pos_plus_1)])) * (a_lin->pos)) + (a_table[(a_lin->int_pos_plus_1)]);
+    a_cubic->mu = a_ptr - (a_cubic->int_pos);
+    
+    a_cubic->mu2 = (a_cubic->mu) * (a_cubic->mu);
+    a_cubic->a0 = a_table[a_cubic->int_pos_plus1] - a_table[a_cubic->int_pos] - a_table[a_cubic->int_pos_minus2] + a_table[a_cubic->int_pos_minus1];
+    a_cubic->a1 = a_table[a_cubic->int_pos_minus2] - a_table[a_cubic->int_pos_minus1] - a_cubic->a0;
+    a_cubic->a2 = a_table[a_cubic->int_pos] - a_table[a_cubic->int_pos_minus2];
+    a_cubic->a3 = a_table[a_cubic->int_pos_minus1];
+
+    return(a_cubic->a0*a_cubic->mu*a_cubic->mu2+a_cubic->a1*a_cubic->mu2+a_cubic->a2*a_cubic->mu+a_cubic->a3);
 }
-*/
 
 
 /* inline float f_cubic_interpolate_ptr_ifh(
