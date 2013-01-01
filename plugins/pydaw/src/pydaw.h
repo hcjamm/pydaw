@@ -2130,7 +2130,18 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
     
     if(a_is_fx)
     {
-        sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->instruments_folder, a_track->track_num);
+        switch(a_track->track_type)
+        {
+            case 0:  //MIDI
+                sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->instruments_folder, a_track->track_num);
+                break;
+            case 1:  //Bus
+                sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->busfx_folder, a_track->track_num);
+                break;
+            case 2:  //Audio
+                sprintf(f_file_name, "%s%i.pyfx", a_pydaw_data->audiofx_folder, a_track->track_num);
+                break;
+        }        
     }
     else
     {
@@ -2311,6 +2322,141 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             sprintf(a_pydaw_data->track_pool[f_i]->name, "track%i", (f_i + 1));  //TODO:  Move this to the above 'if' statement so the bus tracks can be named differently       
             v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->track_pool[f_i], 0.0f);            
             v_pydaw_open_track(a_pydaw_data, a_pydaw_data->track_pool[f_i]);
+            
+            f_i++;
+        }
+    }
+    
+    sprintf(f_file_name, "%sdefault.pybus", a_pydaw_data->project_folder);
+    
+    if(i_pydaw_file_exists(f_file_name))
+    {
+        printf("v_pydaw_open_tracks:  File exists %s , loading\n", f_file_name);
+
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
+
+        while(1)
+        {
+            char * f_track_index_str = c_iterate_2d_char_array(f_2d_array);
+            
+            if(f_2d_array->eof)
+            {
+                free(f_track_index_str);
+                break;
+            }
+            
+            char * f_vol_str = c_iterate_2d_char_array(f_2d_array);            
+                        
+            int f_track_index = atoi(f_track_index_str);
+            free(f_track_index_str);
+            assert(f_track_index >= 0 && f_track_index < PYDAW_BUS_TRACK_COUNT);
+                        
+            int f_vol = atoi(f_vol_str);
+            free(f_vol_str);
+            assert(f_vol < 24 && f_vol > -150);
+                        
+            v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->bus_pool[f_track_index], f_vol);
+                        
+            v_pydaw_open_track(a_pydaw_data, a_pydaw_data->bus_pool[f_track_index]);
+        }
+
+        g_free_2d_char_array(f_2d_array);
+    }
+    else   //ensure everything is closed...
+    {
+        int f_i = 0;
+        
+        while(f_i < PYDAW_BUS_TRACK_COUNT)
+        {
+            a_pydaw_data->bus_pool[f_i]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted
+            
+            v_set_plugin_index(a_pydaw_data, a_pydaw_data->bus_pool[f_i], 0);
+            
+            a_pydaw_data->bus_pool[f_i]->solo = 0;
+            a_pydaw_data->bus_pool[f_i]->mute = 0;
+            a_pydaw_data->bus_pool[f_i]->rec = 0;
+            sprintf(a_pydaw_data->bus_pool[f_i]->name, "Bus%i", (f_i + 1));  //TODO:  Move this to the above 'if' statement so the bus tracks can be named differently       
+            v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->bus_pool[f_i], 0.0f);            
+            v_pydaw_open_track(a_pydaw_data, a_pydaw_data->bus_pool[f_i]);
+            
+            f_i++;
+        }
+        sprintf(a_pydaw_data->bus_pool[0]->name, "Master");
+    }    
+    
+    sprintf(f_file_name, "%sdefault.pyaudio", a_pydaw_data->project_folder);
+    
+    if(i_pydaw_file_exists(f_file_name))
+    {
+        printf("v_pydaw_open_tracks:  File exists %s , loading\n", f_file_name);
+
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
+
+        while(1)
+        {
+            char * f_track_index_str = c_iterate_2d_char_array(f_2d_array);
+            
+            if(f_2d_array->eof)
+            {
+                free(f_track_index_str);
+                break;
+            }
+            
+            char * f_solo_str = c_iterate_2d_char_array(f_2d_array);
+            char * f_mute_str = c_iterate_2d_char_array(f_2d_array);            
+            char * f_vol_str = c_iterate_2d_char_array(f_2d_array);
+            char * f_name_str = c_iterate_2d_char_array(f_2d_array);            
+            char * f_bus_num_str = c_iterate_2d_char_array(f_2d_array);
+
+            int f_track_index = atoi(f_track_index_str);
+            free(f_track_index_str);
+            assert(f_track_index >= 0 && f_track_index < PYDAW_AUDIO_TRACK_COUNT);
+            
+            int f_solo = atoi(f_solo_str);
+            free(f_solo_str);
+            assert(f_solo == 0 || f_solo == 1);
+            
+            int f_mute = atoi(f_mute_str);
+            free(f_mute_str);
+            assert(f_mute == 0 || f_mute == 1);
+            
+            int f_vol = atoi(f_vol_str);
+            free(f_vol_str);
+            assert(f_vol < 24 && f_vol > -150);
+                        
+            strcpy(a_pydaw_data->audio_track_pool[f_track_index]->name, f_name_str);
+            free(f_name_str);
+            
+            int f_bus_num = atoi(f_bus_num_str);
+            free(f_bus_num_str);
+            assert(f_bus_num >= 0 && f_bus_num < PYDAW_BUS_TRACK_COUNT);
+            
+            a_pydaw_data->audio_track_pool[f_track_index]->solo = f_solo;
+            a_pydaw_data->audio_track_pool[f_track_index]->mute = f_mute;            
+            v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->audio_track_pool[f_track_index], f_vol);
+            a_pydaw_data->audio_track_pool[f_track_index]->bus_num = f_bus_num;
+            
+            v_pydaw_open_track(a_pydaw_data, a_pydaw_data->audio_track_pool[f_track_index]);
+        }
+
+        g_free_2d_char_array(f_2d_array);
+    }
+    else   //ensure everything is closed...
+    {
+        int f_i = 0;
+        
+        while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+        {
+            //a_pydaw_data->audio_track_pool[f_i]->plugin_index = 0;  //Must set it to zero to prevent the state file from being deleted
+            
+            v_set_plugin_index(a_pydaw_data, a_pydaw_data->audio_track_pool[f_i], 0);
+            
+            a_pydaw_data->audio_track_pool[f_i]->solo = 0;
+            a_pydaw_data->audio_track_pool[f_i]->mute = 0;
+            a_pydaw_data->audio_track_pool[f_i]->rec = 0;
+            sprintf(a_pydaw_data->audio_track_pool[f_i]->name, "track%i", (f_i + 1));  //TODO:  Move this to the above 'if' statement so the bus tracks can be named differently       
+            v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->audio_track_pool[f_i], 0.0f);            
+            v_pydaw_open_track(a_pydaw_data, a_pydaw_data->audio_track_pool[f_i]);
             
             f_i++;
         }
