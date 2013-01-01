@@ -91,6 +91,7 @@ extern "C" {
 #include <sndfile.h>
 #include <time.h>
 #include "../../libmodsynth/lib/amp.h"
+#include "pydaw_audio_tracks.h"
     
 typedef struct st_pynote
 {
