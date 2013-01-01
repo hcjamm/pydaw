@@ -705,6 +705,7 @@ class audio_list_editor:
         self.audio_items_table_widget.clearContents()
         for i in range(len(self.audio_items.items)):
             self.audio_items_table_widget.setItem(i, 0, QtGui.QTableWidgetItem(self.audio_items.items[i].file))
+        self.audio_items_table_widget.resizeColumnsToContents()
         
     def reset_tracks(self):
         self.tracks = []
@@ -745,13 +746,14 @@ class audio_list_editor:
             if str(f_name.text()) == "":
                 QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
                 return
-            if (f_end_region.value() < f_start_region.value()) or \
-               ((f_end_region.value() == f_start_region.value()) and \
-               ((f_start_bar.value() < f_end_bar.value()) or \
-               ((f_start_bar.value() == f_end_bar.value()) and \
-               (f_start_beat.value() <= f_end_beat.value())))):
-                QtGui.QMessageBox.warning(f_window, "Error", "End point is before start point.")
-                return            
+            if f_end_musical_time.isChecked():
+                if (f_end_region.value() < f_start_region.value()) or \
+                   ((f_end_region.value() == f_start_region.value()) and \
+                   ((f_start_bar.value() < f_end_bar.value()) or \
+                   ((f_start_bar.value() == f_end_bar.value()) and \
+                   (f_start_beat.value() <= f_end_beat.value())))):
+                    QtGui.QMessageBox.warning(f_window, "Error", "End point is before start point.")
+                    return
             
             if f_end_sample_length.isChecked(): f_end_mode = 0
             else: f_end_mode = 1
