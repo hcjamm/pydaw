@@ -3,7 +3,7 @@
 A class that contains methods and data for a PyDAW project.
 """
 
-import os
+import os, random
 from shutil import copyfile, move
 from time import sleep
 
@@ -41,6 +41,14 @@ def beat_frac_text_to_float(f_index):
         return 0.25
 
 int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+
+def pydaw_gen_uid():
+    """Generated an integer uid.  Adding together multiple random numbers gives a far less uniform distribution of 
+    numbers, more of a natural white noise kind of sample graph than a brick-wall digital white noise... """
+    f_result = 5
+    for i in range(6):   
+        f_result += random.randint(6, 50000000)
+    return f_result
 
 def note_num_to_string(a_note_num):    
     f_note = int(a_note_num) % 12
@@ -272,7 +280,7 @@ class pydaw_project:
 
     def get_audio_items_string(self):
         try:
-            f_file = open(self.project_folder + "/default.pyinput", "r")
+            f_file = open(self.project_folder + "/default.pyaudioitem", "r")
         except:
             return pydaw_terminating_char
         f_result = f_file.read()
@@ -396,7 +404,7 @@ class pydaw_project:
 
     def save_audio_items(self, a_tracks):
         if not self.suppress_updates:
-            f_file_name = self.project_folder + "/default.pyaudio"
+            f_file_name = self.project_folder + "/default.pyaudioitem"
             f_file = open(f_file_name, 'w')
             f_file.write(a_tracks.__str__())
             f_file.close()    
@@ -988,6 +996,7 @@ class pydaw_busses:
         for k, f_bus in self.busses.iteritems():
             f_result += str(k) + "|" + str(f_bus)
         f_result += pydaw_terminating_char
+        return f_result
     
     @staticmethod
     def from_str(a_str):
@@ -1043,7 +1052,7 @@ class pydaw_audio_track:
         
 class pydaw_audio_items:
     def __init__(self):
-        self.items = {}
+        self.items = []
     
     def add_item(self, a_item):
         self.items.append(a_item)
@@ -1058,10 +1067,9 @@ class pydaw_audio_items:
             f_arr = f_line.split("|")
             f_result.add_item(pydaw_audio_item.from_arr(f_arr))
             
-    def __str__(self):
-        self.items.sort()
+    def __str__(self):        
         f_result = ""
-        for f_item in self.items():
+        for f_item in self.items:
             f_result += str(f_item)
         f_result += pydaw_terminating_char
         return f_result
@@ -1079,6 +1087,7 @@ class pydaw_audio_item:
         self.end_beat = float(a_end_beat)
         self.time_stretch_mode = int(a_timestretch_mode)
         self.pitch_shift = float(a_pitch_shift)
+        self.uid = pydaw_gen_uid()
     
     def __lt__(self, other):
         if self.start_region < other.start_region:
@@ -1091,10 +1100,19 @@ class pydaw_audio_item:
         else:
             return False
     
+    def __eq__(self, other):
+        return self.uid == other.uid
+    
     def __str__(self):
         return self.file + "|" + str(self.start_region) + "|" + str(self.start_bar) \
-        + str(self.start_beat) + "|" + str(self.end_region) + "|" + str(self.end_bar) \
-        + str(self.end_beat) + "|" + str(self.time_stretch_mode) + "|" + str(self.pitch_shift) + "\n"
+        + "|" + str(self.start_beat) + "|" + str(self.end_region) + "|" + str(self.end_bar) \
+        + "|" + str(self.end_beat) + "|" + str(self.time_stretch_mode) + "|" + str(self.pitch_shift) \
+        + "|" + str(self.uid) + "\n"
+    
+    @staticmethod
+    def from_arr(a_arr):
+        return pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
+        a_arr[7], a_arr[8], a_arr[9])
 
 class pydaw_audio_input_tracks:
     def add_track(self, a_index, a_track):

@@ -701,7 +701,10 @@ class audio_list_editor:
             self.inputs[key].open_track(f_track)
     
     def open_items(self):
-        pass
+        self.audio_items = this_pydaw_project.get_audio_items()
+        self.audio_items_table_widget.clearContents()
+        for i in range(len(self.audio_items.items)):
+            self.audio_items_table_widget.setItem(i, 0, QtGui.QTableWidgetItem(self.audio_items.items[i].file))
         
     def reset_tracks(self):
         self.tracks = []
@@ -750,7 +753,13 @@ class audio_list_editor:
                 QtGui.QMessageBox.warning(f_window, "Error", "End point is before start point.")
                 return            
             
-            #this_pydaw_project.save_audio_items()
+            if f_end_sample_length.isChecked(): f_end_mode = 0
+            else: f_end_mode = 1
+            
+            self.audio_items.add_item(pydaw_audio_item(f_name.text(), f_start_region.value(), f_start_bar.value(), f_start_beat.value(), 
+                    f_end_mode, f_end_region.value(), f_end_bar.value(), f_end_beat.value(), f_timestretch_mode.currentIndex(), 
+                    f_pitch_shift.value()))
+            this_pydaw_project.save_audio_items(self.audio_items)
             self.open_items()
             f_window.close()
             
@@ -885,7 +894,7 @@ class audio_list_editor:
         self.tab_widget.addTab(self.ccs_groupbox, "Automation")
         self.ccs_vlayout = QtGui.QVBoxLayout()
         self.ccs_groupbox.setLayout(self.ccs_vlayout)
-        
+                
         self.reset_tracks()        
 
 class audio_track:
@@ -2740,6 +2749,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
     this_region_editor.open_tracks()
     this_transport.open_transport()
     set_default_project(a_project_file)
+    this_audio_editor.open_items()
     set_window_title()
     this_pydaw_project.suppress_updates = False
 
@@ -2755,8 +2765,9 @@ def global_new_project(a_project_file):
     this_pydaw_project.save_project()
     this_song_editor.open_song()
     this_pydaw_project.save_song(this_song_editor.song)
+    this_audio_editor.open_items()
     this_transport.open_transport()
-    set_default_project(a_project_file)
+    set_default_project(a_project_file)    
     set_window_title()
 
 def about_to_quit():
