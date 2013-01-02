@@ -13,16 +13,12 @@ def bool_to_int(a_bool):
         return "0"
 
 
-class dssi_gui(ServerThread):
-    """
-    Class for implementing one's own DSSI GUI.  Instantiate this class and
-    call it's functions to send OSC messages to the DSSI plugin's audio/MIDI
-    engine
-    
-    a_url:  The OSC URL to send to.  Format will be something like osc.udp://localhostname:12345/dssi/pydaw/...
-    a_pc_func:  The function with signature(int, int) to be called when the engine returns a playback cursor configure message
-    """
+class dssi_gui(ServerThread):    
     def __init__(self, a_url=None, a_pc_func=None):
+        """    
+        a_url:  The OSC URL to send to.  Format will be something like osc.udp://localhostname:12345/dssi/pydaw/...
+        a_pc_func:  The function with signature(int, int) to be called when the engine returns a playback cursor configure message
+        """
         self.pc_func = a_pc_func
         if a_url is None:
             self.with_osc = False

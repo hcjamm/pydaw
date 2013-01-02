@@ -63,13 +63,13 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
                         int argc, void *data, void *user_data)
 {
     int i;
-    t_pydaw_plugin *instance;
+    t_pydaw_plugin *instance = 0;
     const char *method;
     unsigned int flen = 0;
     lo_message message;
     lo_address source;
     int send_to_ui = 0;
-    char tmp[6];
+    char tmp[32];
     
     //printf("\npydaw_osc_message_handler: %s\n\n", path);
     
@@ -79,48 +79,80 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
         return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
     }
       
-    flen = 2;
-    
+    flen = 2;    
     
     for (i = 0; i < PYDAW_MIDI_TRACK_COUNT; i++) 
     {
-        sprintf(tmp, "%i", i);
+        sprintf(tmp, "%i-mi", i);
 	flen = strlen(tmp);
-        if (!strncmp(path + 20, tmp, flen)
-	    && *(path + 20 + flen) == '/') //avoid matching prefix only
-        { 
-            //printf("instance==%i\n", i);
+        if (!strncmp(path + 20, tmp, flen) && *(path + 20 + flen) == '/') //avoid matching prefix only
+        {
             instance = pydaw_data->track_pool[i]->instrument; //&instances[i];
             break;
         }
         
-        sprintf(tmp, "%i-fx", i);
+        sprintf(tmp, "%i-mfx", i);
 	flen = strlen(tmp);
-        if (!strncmp(path + 20, tmp, flen)
-	    && *(path + 20 + flen) == '/') //avoid matching prefix only
-        { 
-            //printf("instance==%i\n", i);
+        if (!strncmp(path + 20, tmp, flen) && *(path + 20 + flen) == '/') //avoid matching prefix only
+        {
             instance = pydaw_data->track_pool[i]->effect; //&instances[i];
             break;
         }
     }
     
+    if(!instance)  //Try the audio tracks
+    {        
+        for (i = 0; i < PYDAW_AUDIO_TRACK_COUNT; i++) 
+        {     
+            sprintf(tmp, "%i-afx", i);
+            flen = strlen(tmp);
+            if (!strncmp(path + 20, tmp, flen) && *(path + 20 + flen) == '/') //avoid matching prefix only
+            {
+                instance = pydaw_data->audio_track_pool[i]->effect;
+                break;
+            }
+        }
+    }
+    
+    if(!instance)  //Try the bus tracks
+    {        
+        for (i = 0; i < PYDAW_BUS_TRACK_COUNT; i++) 
+        {     
+            sprintf(tmp, "%i-bfx", i);
+            flen = strlen(tmp);
+            if (!strncmp(path + 20, tmp, flen) && *(path + 20 + flen) == '/') //avoid matching prefix only
+            {
+                instance = pydaw_data->bus_pool[i]->effect;
+                break;
+            }
+        }
+    }    
     
     if (!instance)
     {
         printf("\n!instance\n");
         return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
-    }
+    }    
     
     method = path + 20 + flen;
-    if (*method != '/' || *(method + 1) == 0)
+    
+    if (*method != '/')
     {
-        printf("\n(*method != '/' || *(method + 1) == 0)\n\n%s\n\n", method);
+        printf("\n(*method != '/')\n\n%s\n\n", method);
         return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
     }
+    else if(*(method + 1) == 0)
+    {
+        printf("\n(*(method + 1) == 0)\n\n%s\n\n", method);
+        return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
+    }
+    /*else
+    {
+        printf("method == %s\n", method);
+    }*/
     
-    method++;
-
+    method++;    
+    
     message = (lo_message)data;
     source = lo_message_get_source(message);
 
@@ -155,11 +187,7 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
 
         return pydaw_osc_control_handler(instance, argv);
 
-    } 
-    /*else if (!strcmp(method, "midi") && argc == 1 && !strcmp(types, "m")) 
-    {
-        return pydaw_osc_midi_handler(instance, argv);
-    } */
+    }
     else if (!strcmp(method, "update") && argc == 1 && !strcmp(types, "s")) 
     {
         return pydaw_osc_update_handler(instance, argv, source);
@@ -168,7 +196,10 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     {
         return pydaw_osc_exiting_handler(instance, argv);
     }
-        
+    else
+    {
+        printf("Did not match any known method: %s\n", method);
+    }
     return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
 }
 
