@@ -1086,9 +1086,11 @@ class pydaw_audio_items:
         return f_result
 
 class pydaw_audio_item:
-    def __init__(self, a_file, a_start_region, a_start_bar, a_start_beat, a_end_mode, \
+    def __init__(self, a_file, a_sample_start, a_sample_end, a_start_region, a_start_bar, a_start_beat, a_end_mode, \
     a_end_region, a_end_bar, a_end_beat, a_timestretch_mode, a_pitch_shift, a_output_track):
         self.file = str(a_file)
+        self.sample_start = a_sample_start  #TODO:  int() these once I have a way of getting frame count...
+        self.sample_end = a_sample_end
         self.start_region = int(a_start_region)
         self.start_bar = int(a_start_bar)
         self.start_beat = float(a_start_beat)
@@ -1099,18 +1101,17 @@ class pydaw_audio_item:
         self.time_stretch_mode = int(a_timestretch_mode)
         self.pitch_shift = float(a_pitch_shift)
         self.output_track = a_output_track
-        #self.uid = pydaw_gen_uid()
-           
+                   
     def __str__(self):
-        return self.file + "|" + str(self.start_region) + "|" + str(self.start_bar) \
-        + "|" + str(self.start_beat) + "|" + str(self.end_mode) + "|" + str(self.end_region) + "|" + str(self.end_bar) \
-        + "|" + str(self.end_beat) + "|" + str(self.time_stretch_mode) + "|" + str(self.pitch_shift) \
-        + "|" + str(self.output_track) + "\n"
+        return self.file + "|" + str(self.sample_start) + "|" + str(self.sample_end) + "|" + str(self.start_region) \
+        + "|" + str(self.start_bar) + "|" + str(self.start_beat) + "|" + str(self.end_mode) + "|" + str(self.end_region) \
+        + "|" + str(self.end_bar) + "|" + str(self.end_beat) + "|" + str(self.time_stretch_mode) \
+        + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "\n"
         
     @staticmethod
     def from_arr(a_arr):
         f_result = pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
-        a_arr[7], a_arr[8], a_arr[9], a_arr[10])        
+        a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12])        
         return f_result
 
 class pydaw_audio_input_tracks:
