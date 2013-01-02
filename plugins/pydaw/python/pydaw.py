@@ -703,8 +703,21 @@ class audio_list_editor:
     def open_items(self):
         self.audio_items = this_pydaw_project.get_audio_items()
         self.audio_items_table_widget.clearContents()
-        for i in range(len(self.audio_items.items)):
-            self.audio_items_table_widget.setItem(i, 0, QtGui.QTableWidgetItem(self.audio_items.items[i].file))
+        for k, v in self.audio_items.items.iteritems():
+            self.audio_items_table_widget.setItem(k, 0, QtGui.QTableWidgetItem(str(v.file)))
+            #TODO:  Sample start
+            #TODO:  Sample end
+            self.audio_items_table_widget.setItem(k, 3, QtGui.QTableWidgetItem(str(v.start_region)))
+            self.audio_items_table_widget.setItem(k, 4, QtGui.QTableWidgetItem(str(v.start_bar)))
+            self.audio_items_table_widget.setItem(k, 5, QtGui.QTableWidgetItem(str(v.start_beat)))
+            self.audio_items_table_widget.setItem(k, 6, QtGui.QTableWidgetItem(str(v.end_mode)))
+            self.audio_items_table_widget.setItem(k, 7, QtGui.QTableWidgetItem(str(v.end_region)))
+            self.audio_items_table_widget.setItem(k, 8, QtGui.QTableWidgetItem(str(v.end_bar)))
+            self.audio_items_table_widget.setItem(k, 9, QtGui.QTableWidgetItem(str(v.end_beat)))
+            
+            self.audio_items_table_widget.setItem(k, 10, QtGui.QTableWidgetItem(str(v.time_stretch_mode)))
+            self.audio_items_table_widget.setItem(k, 11, QtGui.QTableWidgetItem(str(v.pitch_shift)))
+            self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.output_track)))
         self.audio_items_table_widget.resizeColumnsToContents()
         
     def reset_tracks(self):
@@ -752,9 +765,9 @@ class audio_list_editor:
             if f_end_sample_length.isChecked(): f_end_mode = 0
             else: f_end_mode = 1
             
-            self.audio_items.add_item(pydaw_audio_item(f_name.text(), f_start_region.value(), f_start_bar.value(), f_start_beat.value(), 
+            self.audio_items.add_item(x, pydaw_audio_item(f_name.text(), f_start_region.value(), f_start_bar.value(), f_start_beat.value(), 
                     f_end_mode, f_end_region.value(), f_end_bar.value(), f_end_beat.value(), f_timestretch_mode.currentIndex(), 
-                    f_pitch_shift.value()))
+                    f_pitch_shift.value(), f_output_combobox.currentIndex()))
             this_pydaw_project.save_audio_items(self.audio_items)
             self.open_items()
             f_window.close()
@@ -836,6 +849,13 @@ class audio_list_editor:
         f_timestretch_hlayout.addWidget(f_pitch_shift)
         f_timestretch_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
         
+        f_output_hlayout = QtGui.QHBoxLayout()
+        f_output_hlayout.addWidget(QtGui.QLabel("Audio Track:"))
+        f_output_combobox = QtGui.QComboBox()
+        f_output_combobox.addItems(["1","2","3","4","5","6","7","8"])
+        f_output_hlayout.addWidget(f_output_combobox)
+        f_layout.addLayout(f_output_hlayout, 4, 1)
+        
         f_ok_layout = QtGui.QHBoxLayout()
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton("OK")
@@ -880,8 +900,9 @@ class audio_list_editor:
         self.items_groupbox.setLayout(self.items_vlayout)
         
         self.audio_items_table_widget = QtGui.QTableWidget()
-        self.audio_items_table_widget.setColumnCount(9)
-        self.audio_items_table_widget.setHorizontalHeaderLabels(["Path", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", "Length", "Mode", "Pitch"])
+        self.audio_items_table_widget.setColumnCount(13)
+        self.audio_items_table_widget.setHorizontalHeaderLabels(["Path", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", \
+        "End Mode", "End Region", "End Bar", "End Beat", "Timestretch Mode", "Pitch", "Audio Track"])
         self.audio_items_table_widget.setRowCount(32)
         self.audio_items_table_widget.cellClicked.connect(self.cell_clicked)
         self.items_vlayout.addWidget(self.audio_items_table_widget)
