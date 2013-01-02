@@ -705,8 +705,8 @@ class audio_list_editor:
         self.audio_items_table_widget.clearContents()
         for k, v in self.audio_items.items.iteritems():
             self.audio_items_table_widget.setItem(k, 0, QtGui.QTableWidgetItem(str(v.file)))
-            #TODO:  Sample start
-            #TODO:  Sample end
+            self.audio_items_table_widget.setItem(k, 1, QtGui.QTableWidgetItem(str(v.sample_start)))
+            self.audio_items_table_widget.setItem(k, 2, QtGui.QTableWidgetItem(str(v.sample_end)))
             self.audio_items_table_widget.setItem(k, 3, QtGui.QTableWidgetItem(str(v.start_region)))
             self.audio_items_table_widget.setItem(k, 4, QtGui.QTableWidgetItem(str(v.start_bar)))
             self.audio_items_table_widget.setItem(k, 5, QtGui.QTableWidgetItem(str(v.start_beat)))
@@ -765,9 +765,9 @@ class audio_list_editor:
             if f_end_sample_length.isChecked(): f_end_mode = 0
             else: f_end_mode = 1
             
-            self.audio_items.add_item(x, pydaw_audio_item(f_name.text(), f_start_region.value(), f_start_bar.value(), f_start_beat.value(), 
-                    f_end_mode, f_end_region.value(), f_end_bar.value(), f_end_beat.value(), f_timestretch_mode.currentIndex(), 
-                    f_pitch_shift.value(), f_output_combobox.currentIndex()))
+            self.audio_items.add_item(x, pydaw_audio_item(f_name.text(), f_sample_start.value(), f_sample_end.value(), f_start_region.value(), 
+                    f_start_bar.value(), f_start_beat.value(), f_end_mode, f_end_region.value(), f_end_bar.value(), f_end_beat.value(), 
+                    f_timestretch_mode.currentIndex(), f_pitch_shift.value(), f_output_combobox.currentIndex()))
             this_pydaw_project.save_audio_items(self.audio_items)
             self.open_items()
             f_window.close()
@@ -783,6 +783,7 @@ class audio_list_editor:
                 self.last_open_dir = os.path.dirname(f_file_name)
                     
         f_window = QtGui.QDialog(this_main_window)
+        f_window.setMinimumWidth(800)
         f_window.setWindowTitle("Add an audio item..")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -796,9 +797,23 @@ class audio_list_editor:
         f_select_file.pressed.connect(file_name_select)
         f_layout.addWidget(f_select_file, 0, 2)
         
-        f_layout.addWidget(QtGui.QLabel("Start:"), 1, 0)   
+        f_sample_start_end_vlayout = QtGui.QVBoxLayout()
+        f_layout.addWidget(QtGui.QLabel("Start/End:"), 1, 0)
+        f_layout.addLayout(f_sample_start_end_vlayout, 1, 1)
+        f_sample_start = QtGui.QSlider(QtCore.Qt.Horizontal)
+        f_sample_start.setRange(0, 990)
+        f_sample_start_end_vlayout.addWidget(f_sample_start)
+        f_sample_end = QtGui.QSlider(QtCore.Qt.Horizontal)
+        f_sample_end.setRange(10, 1000)
+        f_sample_end.setValue(1000)
+        f_sample_start_end_vlayout.addWidget(f_sample_end)
+        f_sample_graph = QtGui.QLabel()        
+        f_sample_graph.setMinimumHeight(300)
+        f_sample_start_end_vlayout.addWidget(f_sample_graph)
+        
+        f_layout.addWidget(QtGui.QLabel("Start:"), 3, 0)
         f_start_hlayout = QtGui.QHBoxLayout()
-        f_layout.addLayout(f_start_hlayout, 1, 1)
+        f_layout.addLayout(f_start_hlayout, 3, 1)
         f_start_hlayout.addWidget(QtGui.QLabel("Region:"))
         f_start_region = QtGui.QSpinBox()
         f_start_region.setRange(0, 298)        
@@ -812,9 +827,9 @@ class audio_list_editor:
         f_start_beat.setRange(0, 4)
         f_start_hlayout.addWidget(f_start_beat)
         
-        f_layout.addWidget(QtGui.QLabel("End:"), 2, 0) 
+        f_layout.addWidget(QtGui.QLabel("End:"), 5, 0) 
         f_end_hlayout = QtGui.QHBoxLayout()
-        f_layout.addLayout(f_end_hlayout, 2, 1)
+        f_layout.addLayout(f_end_hlayout, 5, 1)
         f_end_sample_length = QtGui.QRadioButton("Sample Length")
         f_end_sample_length.setChecked(True)
         f_end_hlayout.addWidget(f_end_sample_length)
@@ -835,9 +850,9 @@ class audio_list_editor:
         f_end_beat.setValue(1)
         f_end_hlayout.addWidget(f_end_beat)
         
-        f_layout.addWidget(QtGui.QLabel("Time Stretching:"), 3, 0) 
+        f_layout.addWidget(QtGui.QLabel("Time Stretching:"), 7, 0) 
         f_timestretch_hlayout = QtGui.QHBoxLayout()
-        f_layout.addLayout(f_timestretch_hlayout, 3, 1)
+        f_layout.addLayout(f_timestretch_hlayout, 7, 1)
         f_timestretch_hlayout.addWidget(QtGui.QLabel("Mode:"))
         f_timestretch_mode = QtGui.QComboBox()
         f_timestretch_mode.setMinimumWidth(132)
@@ -854,17 +869,18 @@ class audio_list_editor:
         f_output_combobox = QtGui.QComboBox()
         f_output_combobox.addItems(["1","2","3","4","5","6","7","8"])
         f_output_hlayout.addWidget(f_output_combobox)
-        f_layout.addLayout(f_output_hlayout, 4, 1)
+        f_layout.addWidget(QtGui.QLabel("Output:"), 9, 0)
+        f_layout.addLayout(f_output_hlayout, 9, 1)
         
         f_ok_layout = QtGui.QHBoxLayout()
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(ok_handler)
         f_ok_layout.addWidget(f_ok)
-        f_layout.addLayout(f_ok_layout, 9, 1)
+        f_layout.addLayout(f_ok_layout, 11, 1)
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(cancel_handler)
-        f_layout.addWidget(f_cancel, 9, 2)
+        f_layout.addWidget(f_cancel, 11, 2)
         self.last_offline_dir = expanduser("~")
         f_window.exec_()
 

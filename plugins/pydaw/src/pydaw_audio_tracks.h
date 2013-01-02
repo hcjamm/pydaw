@@ -94,7 +94,7 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sample_rate)
     return f_result;
 }
 
-void v_audio_items_load(t_pydaw_audio_items *plugin_data, const char *path, int a_index)
+void v_audio_items_load(t_pydaw_audio_items *a_audio_items, const char *a_path, int a_index)
 {   
     /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
             
@@ -107,16 +107,16 @@ void v_audio_items_load(t_pydaw_audio_items *plugin_data, const char *path, int 
     tmpOld[1] = 0;
     
     info.format = 0;
-    file = sf_open(path, SFM_READ, &info);
+    file = sf_open(a_path, SFM_READ, &info);
 
     if (!file) {
 
-	const char *filename = strrchr(path, '/');
+	const char *filename = strrchr(a_path, '/');
 	if (filename) ++filename;
-	else filename = path;
+	else filename = a_path;
         
 	if (!file) {
-            printf("error: unable to load sample file '%s'", path);
+            printf("error: unable to load sample file '%s'", a_path);
 	    return;
 	}
     }
@@ -127,15 +127,15 @@ void v_audio_items_load(t_pydaw_audio_items *plugin_data, const char *path, int 
     sf_readf_float(file, tmpFrames, info.frames);
     sf_close(file);
 
-    if ((int)(info.samplerate) != (int)(plugin_data->sample_rate)) 
+    if ((int)(info.samplerate) != (int)(a_audio_items->sample_rate)) 
     {	
-	double ratio = (double)(info.samplerate)/(double)(plugin_data->sample_rate);
+	double ratio = (double)(info.samplerate)/(double)(a_audio_items->sample_rate);
 	
-        plugin_data->items[(a_index)]->ratio = (float)ratio;
+        a_audio_items->items[(a_index)]->ratio = (float)ratio;
     }
     else
     {
-        plugin_data->items[(a_index)]->ratio = 1.0f;
+        a_audio_items->items[(a_index)]->ratio = 1.0f;
     }
            
     int f_adjusted_channel_count = 1;
@@ -210,32 +210,32 @@ void v_audio_items_load(t_pydaw_audio_items *plugin_data, const char *path, int 
     
     //pthread_mutex_lock(&plugin_data->mutex);
     
-    if(plugin_data->items[a_index]->samples[0])
+    if(a_audio_items->items[a_index]->samples[0])
     {
-        tmpOld[0] = plugin_data->items[a_index]->samples[0];
+        tmpOld[0] = a_audio_items->items[a_index]->samples[0];
     }
     
-    if(plugin_data->items[a_index]->samples[1])
+    if(a_audio_items->items[a_index]->samples[1])
     {
-        tmpOld[1] = plugin_data->items[a_index]->samples[1];
+        tmpOld[1] = a_audio_items->items[a_index]->samples[1];
     }
     
-    plugin_data->items[a_index]->samples[0] = tmpSamples[0];
+    a_audio_items->items[a_index]->samples[0] = tmpSamples[0];
     
     if(f_adjusted_channel_count > 1)
     {
-        plugin_data->items[a_index]->samples[1] = tmpSamples[1];
+        a_audio_items->items[a_index]->samples[1] = tmpSamples[1];
     }
     else
     {
-        plugin_data->items[a_index]->samples[1] = 0;
+        a_audio_items->items[a_index]->samples[1] = 0;
     }
     
-    plugin_data->items[a_index]->length = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2 - 20);  //-20 to ensure we don't read past the end of the array
+    a_audio_items->items[a_index]->length = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2 - 20);  //-20 to ensure we don't read past the end of the array
     
-    plugin_data->items[a_index]->channels = f_adjusted_channel_count;
+    a_audio_items->items[a_index]->channels = f_adjusted_channel_count;
     
-    sprintf(plugin_data->items[a_index]->path, "%s", path);
+    sprintf(a_audio_items->items[a_index]->path, "%s", a_path);
         
     //pthread_mutex_unlock(&plugin_data->mutex);
     
@@ -282,17 +282,65 @@ void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_
         while(f_i < PYDAW_MAX_REGION_COUNT)
         {            
             char * f_index_char = c_iterate_2d_char_array(f_current_string);
+            int f_index = atoi(f_index_char);
+            free(f_index_char);
+            
             if(f_current_string->eof)
-            {
-                free(f_index_char);
+            {                
                 break;
             }
-            
-            int f_index = atoi(f_index_char);
+                       
             
             char * f_file_name_char = c_iterate_2d_char_array(f_current_string);
             
             
+            char * f_sample_start_char = c_iterate_2d_char_array(f_current_string);
+            //Not used yet...
+            free(f_sample_start_char);
+            
+            char * f_sample_end_char = c_iterate_2d_char_array(f_current_string);
+            //Not used yet...
+            free(f_sample_end_char);
+            
+            char * f_start_region_char = c_iterate_2d_char_array(f_current_string);
+            int f_start_region = atoi(f_start_region_char);
+            free(f_start_region_char);
+            
+            char * f_start_bar_char = c_iterate_2d_char_array(f_current_string);
+            int f_start_bar = atoi(f_start_region_char);
+            free(f_start_bar_char);
+            
+            char * f_start_beat_char = c_iterate_2d_char_array(f_current_string);
+            float f_start_beat = atof(f_start_region_char);
+            free(f_start_beat_char);
+            
+            char * f_end_mode_char = c_iterate_2d_char_array(f_current_string);
+            int f_end_mode = atoi(f_end_mode_char);
+            free(f_end_mode_char);
+            
+            char * f_end_region_char = c_iterate_2d_char_array(f_current_string);
+            int f_end_region = atoi(f_end_region_char);
+            free(f_end_region_char);
+            
+            char * f_end_bar_char = c_iterate_2d_char_array(f_current_string);
+            int f_end_bar = atoi(f_end_region_char);
+            free(f_end_bar_char);
+            
+            char * f_end_beat_char = c_iterate_2d_char_array(f_current_string);
+            float f_end_beat = atof(f_end_region_char);
+            free(f_end_beat_char);
+            
+            char * f_time_stretch_mode_char = c_iterate_2d_char_array(f_current_string);
+            int f_time_stretch_mode = atoi(f_time_stretch_mode_char);
+            free(f_time_stretch_mode_char);
+            
+            char * f_pitch_shift_char = c_iterate_2d_char_array(f_current_string);
+            float f_pitch_shift = atof(f_pitch_shift_char);
+            free(f_pitch_shift_char);
+            
+            char * f_audio_track_output_char = c_iterate_2d_char_array(f_current_string);
+            int f_audio_track_output = atoi(f_audio_track_output_char);
+            free(f_audio_track_output_char);
             
             free(f_file_name_char);
             
@@ -303,7 +351,7 @@ void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_
     }
     else
     {
-        
+        printf("Error:  v_audio_items_load_all:  a_file: \"%s\" does not exist\n", a_file);
     }
 }
 
