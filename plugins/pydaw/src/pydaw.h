@@ -253,7 +253,8 @@ typedef struct st_pydaw_data
     int default_region_length_bars;
     int default_region_length_beats;
     int default_bar_length;
-    
+    t_pydaw_audio_items * audio_items;
+    char audio_items_file[256];
 }t_pydaw_data;
 
 typedef struct 
@@ -2016,6 +2017,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->default_region_length_beats = 0;
     f_result->default_bar_length = 4;
     
+    f_result->audio_items = g_pydaw_audio_items_get(a_sample_rate);
+    
     int f_i = 0;
     
     while(f_i < PYDAW_AUDIO_TRACK_COUNT)
@@ -2479,6 +2482,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     sprintf(a_pydaw_data->busfx_folder, "%sbusfx/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->samples_folder, "%ssamples/", a_pydaw_data->project_folder);
     
+    sprintf(a_pydaw_data->audio_items_file, "%sdefault.pyaudioitem", a_pydaw_data->project_folder);
     //strcpy(a_pydaw_data->project_name, a_name);
     
     int f_i = 0;
@@ -2561,6 +2565,11 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         printf("No transport file found, defaulting to 140.0 BPM\n");
         v_set_tempo(a_pydaw_data, 140.0f);
     }
+    
+    if(i_pydaw_file_exists(a_pydaw_data->audio_items_file))
+    {
+        v_audio_items_load_all(a_pydaw_data->audio_items, a_pydaw_data->audio_items_file);
+    }    
        
     
 #ifdef PYDAW_MEMCHECK
@@ -3384,7 +3393,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD)) //Reload the audio items list
     {
-        
+        v_audio_items_load_all(a_pydaw_data->audio_items, a_pydaw_data->audio_items_file);
     }
         
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_STOP)) //Stop playback or recording
