@@ -713,8 +713,7 @@ class audio_list_editor:
             self.audio_items_table_widget.setItem(k, 6, QtGui.QTableWidgetItem(str(v.end_mode)))
             self.audio_items_table_widget.setItem(k, 7, QtGui.QTableWidgetItem(str(v.end_region)))
             self.audio_items_table_widget.setItem(k, 8, QtGui.QTableWidgetItem(str(v.end_bar)))
-            self.audio_items_table_widget.setItem(k, 9, QtGui.QTableWidgetItem(str(v.end_beat)))
-            
+            self.audio_items_table_widget.setItem(k, 9, QtGui.QTableWidgetItem(str(v.end_beat)))            
             self.audio_items_table_widget.setItem(k, 10, QtGui.QTableWidgetItem(str(v.time_stretch_mode)))
             self.audio_items_table_widget.setItem(k, 11, QtGui.QTableWidgetItem(str(v.pitch_shift)))
             self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.output_track)))
@@ -769,6 +768,7 @@ class audio_list_editor:
                     f_start_bar.value(), f_start_beat.value(), f_end_mode, f_end_region.value(), f_end_bar.value(), f_end_beat.value(), 
                     f_timestretch_mode.currentIndex(), f_pitch_shift.value(), f_output_combobox.currentIndex()))
             this_pydaw_project.save_audio_items(self.audio_items)
+            this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items()
             self.open_items()
             f_window.close()
             

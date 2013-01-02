@@ -40,6 +40,9 @@ typedef struct
     int timestretch_mode;  //tentatively: 0 == none, 1 == pitch, 2 == time+pitch
     float pitch_shift;
     t_int_frac_read_head * sample_read_head;
+    float sample_start;
+    float sample_end;
+    int audio_track_output;
 } t_pydaw_audio_item;
 
 typedef struct 
@@ -279,7 +282,7 @@ void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_
 
         t_2d_char_array * f_current_string = g_get_2d_array_from_file(a_file, LMS_LARGE_STRING);        
         
-        while(f_i < PYDAW_MAX_REGION_COUNT)
+        while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
         {            
             char * f_index_char = c_iterate_2d_char_array(f_current_string);
             int f_index = atoi(f_index_char);
@@ -293,53 +296,58 @@ void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_
             
             char * f_file_name_char = c_iterate_2d_char_array(f_current_string);
             
+            if(strcmp(f_file_name_char, a_pydaw_audio_items->items[f_index]->path))
+            {
+                v_audio_items_load(a_pydaw_audio_items, f_file_name_char, f_index);
+            }
             
             char * f_sample_start_char = c_iterate_2d_char_array(f_current_string);
-            //Not used yet...
+            float f_sample_start = atof(f_sample_start_char) * 0.001f;
+            a_pydaw_audio_items->items[f_index]->sample_start = f_sample_start;
             free(f_sample_start_char);
             
             char * f_sample_end_char = c_iterate_2d_char_array(f_current_string);
-            //Not used yet...
+            a_pydaw_audio_items->items[f_index]->sample_end = atof(f_sample_start_char) * 0.001f;            
             free(f_sample_end_char);
             
             char * f_start_region_char = c_iterate_2d_char_array(f_current_string);
-            int f_start_region = atoi(f_start_region_char);
+            a_pydaw_audio_items->items[f_index]->start_region = atoi(f_start_region_char);            
             free(f_start_region_char);
             
             char * f_start_bar_char = c_iterate_2d_char_array(f_current_string);
-            int f_start_bar = atoi(f_start_region_char);
+            a_pydaw_audio_items->items[f_index]->start_bar = atoi(f_start_bar_char);            
             free(f_start_bar_char);
             
             char * f_start_beat_char = c_iterate_2d_char_array(f_current_string);
-            float f_start_beat = atof(f_start_region_char);
+            a_pydaw_audio_items->items[f_index]->start_beat = atof(f_start_beat_char);            
             free(f_start_beat_char);
             
             char * f_end_mode_char = c_iterate_2d_char_array(f_current_string);
-            int f_end_mode = atoi(f_end_mode_char);
+            a_pydaw_audio_items->items[f_index]->end_mode = atoi(f_end_mode_char);
             free(f_end_mode_char);
             
             char * f_end_region_char = c_iterate_2d_char_array(f_current_string);
-            int f_end_region = atoi(f_end_region_char);
+            a_pydaw_audio_items->items[f_index]->end_region = atoi(f_end_region_char);
             free(f_end_region_char);
             
             char * f_end_bar_char = c_iterate_2d_char_array(f_current_string);
-            int f_end_bar = atoi(f_end_region_char);
+            a_pydaw_audio_items->items[f_index]->end_bar = atoi(f_end_bar_char);
             free(f_end_bar_char);
             
             char * f_end_beat_char = c_iterate_2d_char_array(f_current_string);
-            float f_end_beat = atof(f_end_region_char);
+            a_pydaw_audio_items->items[f_index]->end_beat = atof(f_end_beat_char);
             free(f_end_beat_char);
             
             char * f_time_stretch_mode_char = c_iterate_2d_char_array(f_current_string);
-            int f_time_stretch_mode = atoi(f_time_stretch_mode_char);
+            a_pydaw_audio_items->items[f_index]->timestretch_mode = atoi(f_time_stretch_mode_char);
             free(f_time_stretch_mode_char);
             
             char * f_pitch_shift_char = c_iterate_2d_char_array(f_current_string);
-            float f_pitch_shift = atof(f_pitch_shift_char);
+            a_pydaw_audio_items->items[f_index]->pitch_shift = atof(f_pitch_shift_char);
             free(f_pitch_shift_char);
             
             char * f_audio_track_output_char = c_iterate_2d_char_array(f_current_string);
-            int f_audio_track_output = atoi(f_audio_track_output_char);
+            a_pydaw_audio_items->items[f_index]->audio_track_output = atoi(f_audio_track_output_char);
             free(f_audio_track_output_char);
             
             free(f_file_name_char);
