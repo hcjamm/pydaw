@@ -960,7 +960,7 @@ class audio_track:
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)    
     def on_show_fx(self):        
-        this_pydaw_project.this_dssi_gui.pydaw_show_audio_fx(self.track_number, 2)
+        this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 2)
     def on_bus_changed(self, a_value=0):
         this_pydaw_project.save_audio_tracks(this_region_editor.get_tracks())
         this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex())

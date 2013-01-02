@@ -2956,11 +2956,22 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is
     
     if(a_is_fx)
     {
-        sprintf(oscUrl, "%s/%i-fx", a_pydaw_data->osc_url, a_track->track_num);
+        switch(a_track->track_type)
+        {
+            case 0: //MIDI
+                sprintf(oscUrl, "%s/%i-mfx", a_pydaw_data->osc_url, a_track->track_num);
+                break;
+            case 1: //Bus
+                sprintf(oscUrl, "%s/%i-bfx", a_pydaw_data->osc_url, a_track->track_num);
+                break;
+            case 2: //Audio
+                sprintf(oscUrl, "%s/%i-afx", a_pydaw_data->osc_url, a_track->track_num);
+                break;
+        }        
     }
     else
     {
-        sprintf(oscUrl, "%s/%i", a_pydaw_data->osc_url, a_track->track_num);
+        sprintf(oscUrl, "%s/%i-mi", a_pydaw_data->osc_url, a_track->track_num);
     }
         
 #ifdef PYDAW_MEMCHECK
@@ -2997,7 +3008,31 @@ void v_pydaw_close_all_uis(t_pydaw_data * a_pydaw_data)
 
             f_i++;
         }
-    }
+        
+        f_i = 0;
+        
+        while(f_i < PYDAW_BUS_TRACK_COUNT)
+        {
+            if((a_pydaw_data->bus_pool[f_i]->effect) && a_pydaw_data->bus_pool[f_i]->effect->uiTarget)
+            {
+                lo_send(a_pydaw_data->bus_pool[f_i]->effect->uiTarget, 
+                    a_pydaw_data->bus_pool[f_i]->effect->ui_osc_quit_path, "");
+            }
+            f_i++;
+        }
+        
+        f_i = 0;
+        
+        while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+        {
+            if((a_pydaw_data->audio_track_pool[f_i]->effect) && a_pydaw_data->audio_track_pool[f_i]->effect->uiTarget)
+            {
+                lo_send(a_pydaw_data->audio_track_pool[f_i]->effect->uiTarget, 
+                    a_pydaw_data->audio_track_pool[f_i]->effect->ui_osc_quit_path, "");
+            }
+            f_i++;
+        }
+    }    
 }
 
 void v_pydaw_set_track_volume(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, float a_vol)
