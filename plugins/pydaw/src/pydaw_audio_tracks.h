@@ -14,7 +14,10 @@ extern "C" {
     
 #include <sndfile.h>
 #include "../../libmodsynth/lib/interpolate-cubic.h"
-
+//Imported only for t_int_frac_read_head... TODO:  Fork that into it's own file...
+#include "../../libmodsynth/lib/interpolate-sinc.h"
+#include "pydaw_files.h"
+    
 #define PYDAW_MAX_AUDIO_ITEM_COUNT 32
 #define PYDAW_AUDIO_ITEM_PADDING 64
 #define PYDAW_AUDIO_ITEM_PADDING_DIV2 32
@@ -36,6 +39,7 @@ typedef struct
     float end_beat;
     int timestretch_mode;  //tentatively: 0 == none, 1 == pitch, 2 == time+pitch
     float pitch_shift;
+    t_int_frac_read_head * sample_read_head;
 } t_pydaw_audio_item;
 
 typedef struct 
@@ -63,7 +67,9 @@ t_pydaw_audio_item * g_pydaw_audio_item_get()
     f_result->length = 0;
     f_result->samples[0] = 0;
     f_result->samples[1] = 0;
-    
+    f_result->sample_read_head = g_ifh_get();
+    f_result->ratio = 1.0f;
+    f_result->uid = -1;
     return f_result;
 }
 
@@ -265,9 +271,40 @@ void v_audio_items_sample_clear(t_pydaw_audio_items *plugin_data, int a_index)
 }
 
 /*Load/Reload samples from file...*/
-void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, const char * a_file)
+void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_file)
 {
-    //TODO
+    if(i_pydaw_file_exists(a_file))
+    {
+        int f_i = 0;
+
+        t_2d_char_array * f_current_string = g_get_2d_array_from_file(a_file, LMS_LARGE_STRING);        
+        
+        while(f_i < PYDAW_MAX_REGION_COUNT)
+        {            
+            char * f_index_char = c_iterate_2d_char_array(f_current_string);
+            if(f_current_string->eof)
+            {
+                free(f_index_char);
+                break;
+            }
+            
+            int f_index = atoi(f_index_char);
+            
+            char * f_file_name_char = c_iterate_2d_char_array(f_current_string);
+            
+            
+            
+            free(f_file_name_char);
+            
+            f_i++;
+        }
+
+        g_free_2d_char_array(f_current_string);
+    }
+    else
+    {
+        
+    }
 }
 
 
