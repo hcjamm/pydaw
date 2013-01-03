@@ -396,7 +396,7 @@ inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin)
     }
 }
 
-/*Mostly for offline rendering, where the performance hit is acceptable, but race conditions and possible data corruption are not...*/
+/*Not currently in use, nor is the code up-to-date...*/
 void v_pydaw_process_plugins_single_threaded(t_pydaw_data * a_pydaw_data)
 {
     int f_i = 0;
@@ -472,19 +472,25 @@ void * v_pydaw_worker_thread(void* a_arg)
         {
             t_pydaw_work_queue_item f_item = f_args->pydaw_data->track_work_queues[f_args->thread_num][f_i];
             
-            v_pydaw_update_ports(f_args->pydaw_data->track_pool[f_item.track_number]->instrument);
-            v_pydaw_update_ports(f_args->pydaw_data->track_pool[f_item.track_number]->effect);
-            
-            v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->instrument, (f_args->pydaw_data->sample_count), 
-                    f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
-                    f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
-                        
-            v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
-                    f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
-                    f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
-                        
-            f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index = 0;
-                                    
+            if(f_item.track_type == 0)  //MIDI/plugin-instrument
+            {
+                v_pydaw_update_ports(f_args->pydaw_data->track_pool[f_item.track_number]->instrument);
+                v_pydaw_update_ports(f_args->pydaw_data->track_pool[f_item.track_number]->effect);
+
+                v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->instrument, (f_args->pydaw_data->sample_count), 
+                        f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
+                        f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
+
+                v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
+                        f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
+                        f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index);
+
+                f_args->pydaw_data->track_pool[f_item.track_number]->current_period_event_index = 0;
+            }
+            else if(f_item.track_type == 2)  //Audio track
+            {
+                //TODO
+            }
             f_i++;
         }
         
@@ -676,6 +682,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
         if(a_pydaw_data->track_pool[f_i]->plugin_index == 1)
         {
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
+            a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 0;
             a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
             f_thread_index++;
             if(f_thread_index >= a_pydaw_data->track_worker_thread_count)
@@ -694,6 +701,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
         if(a_pydaw_data->track_pool[f_i]->plugin_index == 3)
         {
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
+            a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 0;
             a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
             f_thread_index++;
             if(f_thread_index >= a_pydaw_data->track_worker_thread_count)
@@ -712,6 +720,25 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
         if(a_pydaw_data->track_pool[f_i]->plugin_index == 2)
         {
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
+            a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 0;
+            a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
+            f_thread_index++;
+            if(f_thread_index >= a_pydaw_data->track_worker_thread_count)
+            {
+                f_thread_index = 0;
+            }
+        }
+        f_i++;
+    }
+    
+    f_i = 0;
+    /*Now schedule the audio tracks*/    
+    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+    {   
+        if(a_pydaw_data->track_pool[f_i]->plugin_index == 2)
+        {
+            a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
+            a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 2;
             a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
             f_thread_index++;
             if(f_thread_index >= a_pydaw_data->track_worker_thread_count)
@@ -774,6 +801,20 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                 break;
             }
             f_i++;
+        }
+        
+        f_i = 0;
+        if(a_pydaw_data->is_soloed == 0)
+        {
+            while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+            {
+                if(a_pydaw_data->audio_track_pool[f_i]->solo)
+                {
+                    a_pydaw_data->is_soloed = 1;
+                    break;
+                }
+                f_i++;
+            }
         }
 
         //Calculate track notes for this period and send them to instruments
