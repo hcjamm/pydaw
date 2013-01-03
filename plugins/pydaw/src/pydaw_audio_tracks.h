@@ -16,9 +16,13 @@ extern "C" {
 #include "../../libmodsynth/lib/interpolate-cubic.h"
 //Imported only for t_int_frac_read_head... TODO:  Fork that into it's own file...
 #include "../../libmodsynth/lib/interpolate-sinc.h"
+#include "../../libmodsynth/lib/voice.h"
+#include "../../libmodsynth/modules/modulation/adsr.h"
 #include "pydaw_files.h"
     
 #define PYDAW_MAX_AUDIO_ITEM_COUNT 32
+#define PYDAW_MAX_AUDIO_ITEM_POLY_VOICE_COUNT 64
+
 #define PYDAW_AUDIO_ITEM_PADDING 64
 #define PYDAW_AUDIO_ITEM_PADDING_DIV2 32
     
@@ -39,30 +43,28 @@ typedef struct
     int end_bar;
     float end_beat;
     int timestretch_mode;  //tentatively: 0 == none, 1 == pitch, 2 == time+pitch
-    float pitch_shift;
-    t_int_frac_read_head * sample_read_head;
+    float pitch_shift;    
     float sample_start;
     float sample_end;
-    int audio_track_output;  //The audio track whose Modulex instance to write the samples to       
-    long on;
-    long off;
-} t_pydaw_audio_item;
+    int audio_track_output;  //The audio track whose Modulex instance to write the samples to    
+    float item_sample_rate;
+    t_int_frac_read_head * sample_read_head;
+    t_adsr * adsr;
+} t_pydaw_audio_item __attribute__((aligned(16)));
 
 typedef struct 
 {
     t_pydaw_audio_item * items[PYDAW_MAX_AUDIO_ITEM_COUNT];
     int sample_rate;
-    t_cubic_interpolater * cubic_interpolator;
+    t_cubic_interpolater * cubic_interpolator;    
+    t_voc_voices * voices;
 } t_pydaw_audio_items;
 
 
-
-t_pydaw_audio_item * g_pydaw_audio_item_get();
+t_pydaw_audio_item * g_pydaw_audio_item_get(float);
 t_pydaw_audio_items * g_pydaw_audio_items_get(int);
-void v_pydaw_audio_items_set_playback_cursor(t_pydaw_audio_items*, int, int, float, long, float);
-void v_pydaw_audio_items_run(t_pydaw_audio_items*, int, float*, float*, int);
 
-t_pydaw_audio_item * g_pydaw_audio_item_get()
+t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
 {
     t_pydaw_audio_item * f_result;
     
@@ -72,19 +74,21 @@ t_pydaw_audio_item * g_pydaw_audio_item_get()
     }
     
     f_result->path[0] = '\0';
-    f_result->bool_sample_loaded = 0;
-    f_result->on = -1;
-    f_result->off = -1;
+    f_result->bool_sample_loaded = 0;    
     f_result->length = 0;
     f_result->samples[0] = 0;
-    f_result->samples[1] = 0;
-    f_result->sample_read_head = g_ifh_get();
+    f_result->samples[1] = 0;    
     f_result->ratio = 1.0f;
     f_result->uid = -1;
+    
+    f_result->adsr = g_adsr_get_adsr(a_sr);
+    v_adsr_set_adsr(f_result->adsr, 0.01f, 0.2f, 1.0f, 0.1f);
+    f_result->sample_read_head = g_ifh_get();
+        
     return f_result;
 }
 
-t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sample_rate)
+t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sr)
 {
     t_pydaw_audio_items * f_result;
     
@@ -93,12 +97,13 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sample_rate)
         return 0;
     }
     
-    f_result->sample_rate = a_sample_rate;
+    f_result->sample_rate = a_sr;
+    f_result->voices = g_voc_get_voices(PYDAW_MAX_AUDIO_ITEM_POLY_VOICE_COUNT);
     int f_i = 0;
     
     while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
     {
-        f_result->items[f_i] = g_pydaw_audio_item_get();
+        f_result->items[f_i] = g_pydaw_audio_item_get((float)(a_sr));
         f_i++;
     }
     
@@ -244,6 +249,8 @@ void v_audio_items_load(t_pydaw_audio_items *a_audio_items, const char *a_path, 
     
     a_audio_items->items[a_index]->length = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2 - 20);  //-20 to ensure we don't read past the end of the array
     
+    a_audio_items->items[a_index]->item_sample_rate = info.samplerate;
+    
     a_audio_items->items[a_index]->channels = f_adjusted_channel_count;
     
     sprintf(a_audio_items->items[a_index]->path, "%s", a_path);
@@ -373,68 +380,6 @@ void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_
     }
 }
 
-
-void v_pydaw_audio_items_set_playback_cursor(t_pydaw_audio_items* a_audio_items, int a_region, int a_bar, 
-        float a_beat, long a_sample_count, float a_samples_per_beat)
-{
-    int f_i = 0;
-    
-    float f_playback_beats = (((float)a_region) * 4.0f * 8.0f) + (((float)a_bar) * 4.0f) + a_beat;
-    
-    while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
-    {
-        if(a_audio_items->items[f_i]->bool_sample_loaded)
-        {
-            float f_sample_start_beats = (((float)a_audio_items->items[f_i]->start_region) * 4.0f * 8.0f) + 
-            (((float)a_audio_items->items[f_i]->start_bar) * 4.0f) + (a_audio_items->items[f_i]->start_beat);
-
-            float f_sample_end_beats = (((float)a_audio_items->items[f_i]->end_region) * 4.0f * 8.0f) + 
-            (((float)a_audio_items->items[f_i]->end_bar) * 4.0f) + (a_audio_items->items[f_i]->end_beat);
-
-            f_sample_start_beats -= f_playback_beats;
-            f_sample_end_beats -= f_playback_beats;
-
-            v_ifh_retrigger(a_audio_items->items[f_i]->sample_read_head, 0);
-        }
-        f_i++;
-    }
-}
-
-inline void v_pydaw_audio_items_run(t_pydaw_audio_items* a_audio_items, int a_sample_count, float* a_output0, 
-        float* a_output1, int a_audio_track_num)
-{
-    int f_i = 0;
-    int f_i2 = 0;
-    
-    while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
-    {
-        if((a_audio_items->items[f_i]->audio_track_output) == a_audio_track_num)
-        {
-            //TODO:  Make this sample accurate...
-            f_i2 = 0;
-            
-            while(f_i2 < a_sample_count)
-            {
-                a_output0[f_i2] += f_cubic_interpolate_ptr_ifh(
-                (a_audio_items->items[f_i]->samples[0]),
-                (a_audio_items->items[f_i]->sample_read_head->whole_number),
-                (a_audio_items->items[f_i]->sample_read_head->fraction),
-                (a_audio_items->cubic_interpolator));
-
-                a_output1[f_i2] += f_cubic_interpolate_ptr_ifh(
-                (a_audio_items->items[f_i]->samples[1]),
-                (a_audio_items->items[f_i]->sample_read_head->whole_number),
-                (a_audio_items->items[f_i]->sample_read_head->fraction),
-                (a_audio_items->cubic_interpolator));
-                
-                v_ifh_run(a_audio_items->items[f_i]->sample_read_head, a_audio_items->items[f_i]->ratio);
-                
-                f_i2++;
-            }
-        }
-        f_i++;
-    }
-}
 
 #ifdef	__cplusplus
 }
