@@ -169,7 +169,8 @@ typedef struct st_pytrack
 
 typedef struct
 {
-    int track_number;    
+    int track_number;
+    int track_type;  //Valid types:  0 == MIDI, 2 == Audio  (1==Bus is not valid for this purpose)
 }t_pydaw_work_queue_item;
 
 typedef struct st_pydaw_data
