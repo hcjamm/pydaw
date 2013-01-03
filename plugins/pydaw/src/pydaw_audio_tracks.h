@@ -24,6 +24,7 @@ extern "C" {
     
 typedef struct 
 {
+    int bool_sample_loaded;
     char path[512];
     float * samples[2];
     int channels;
@@ -42,7 +43,9 @@ typedef struct
     t_int_frac_read_head * sample_read_head;
     float sample_start;
     float sample_end;
-    int audio_track_output;
+    int audio_track_output;  //The audio track whose Modulex instance to write the samples to       
+    long on;
+    long off;
 } t_pydaw_audio_item;
 
 typedef struct 
@@ -56,6 +59,8 @@ typedef struct
 
 t_pydaw_audio_item * g_pydaw_audio_item_get();
 t_pydaw_audio_items * g_pydaw_audio_items_get(int);
+void v_pydaw_audio_items_set_playback_cursor(t_pydaw_audio_items*, int, int, float, long, float);
+void v_pydaw_audio_items_run(t_pydaw_audio_items*, int, float*, float*, int);
 
 t_pydaw_audio_item * g_pydaw_audio_item_get()
 {
@@ -67,6 +72,9 @@ t_pydaw_audio_item * g_pydaw_audio_item_get()
     }
     
     f_result->path[0] = '\0';
+    f_result->bool_sample_loaded = 0;
+    f_result->on = -1;
+    f_result->off = -1;
     f_result->length = 0;
     f_result->samples[0] = 0;
     f_result->samples[1] = 0;
@@ -240,6 +248,7 @@ void v_audio_items_load(t_pydaw_audio_items *a_audio_items, const char *a_path, 
     
     sprintf(a_audio_items->items[a_index]->path, "%s", a_path);
         
+    a_audio_items->items[a_index]->bool_sample_loaded = 1;
     //pthread_mutex_unlock(&plugin_data->mutex);
     
     if (tmpOld[0]) 
@@ -256,6 +265,7 @@ void v_audio_items_load(t_pydaw_audio_items *a_audio_items, const char *a_path, 
 void v_audio_items_sample_clear(t_pydaw_audio_items *plugin_data, int a_index)
 {
     plugin_data->items[a_index]->path[0] = '\0';
+    plugin_data->items[a_index]->bool_sample_loaded = 0;
         
     float *tmpOld[2];    
     
@@ -363,6 +373,68 @@ void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_
     }
 }
 
+
+void v_pydaw_audio_items_set_playback_cursor(t_pydaw_audio_items* a_audio_items, int a_region, int a_bar, 
+        float a_beat, long a_sample_count, float a_samples_per_beat)
+{
+    int f_i = 0;
+    
+    float f_playback_beats = (((float)a_region) * 4.0f * 8.0f) + (((float)a_bar) * 4.0f) + a_beat;
+    
+    while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+    {
+        if(a_audio_items->items[f_i]->bool_sample_loaded)
+        {
+            float f_sample_start_beats = (((float)a_audio_items->items[f_i]->start_region) * 4.0f * 8.0f) + 
+            (((float)a_audio_items->items[f_i]->start_bar) * 4.0f) + (a_audio_items->items[f_i]->start_beat);
+
+            float f_sample_end_beats = (((float)a_audio_items->items[f_i]->end_region) * 4.0f * 8.0f) + 
+            (((float)a_audio_items->items[f_i]->end_bar) * 4.0f) + (a_audio_items->items[f_i]->end_beat);
+
+            f_sample_start_beats -= f_playback_beats;
+            f_sample_end_beats -= f_playback_beats;
+
+            v_ifh_retrigger(a_audio_items->items[f_i]->sample_read_head, 0);
+        }
+        f_i++;
+    }
+}
+
+inline void v_pydaw_audio_items_run(t_pydaw_audio_items* a_audio_items, int a_sample_count, float* a_output0, 
+        float* a_output1, int a_audio_track_num)
+{
+    int f_i = 0;
+    int f_i2 = 0;
+    
+    while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+    {
+        if((a_audio_items->items[f_i]->audio_track_output) == a_audio_track_num)
+        {
+            //TODO:  Make this sample accurate...
+            f_i2 = 0;
+            
+            while(f_i2 < a_sample_count)
+            {
+                a_output0[f_i2] += f_cubic_interpolate_ptr_ifh(
+                (a_audio_items->items[f_i]->samples[0]),
+                (a_audio_items->items[f_i]->sample_read_head->whole_number),
+                (a_audio_items->items[f_i]->sample_read_head->fraction),
+                (a_audio_items->cubic_interpolator));
+
+                a_output1[f_i2] += f_cubic_interpolate_ptr_ifh(
+                (a_audio_items->items[f_i]->samples[1]),
+                (a_audio_items->items[f_i]->sample_read_head->whole_number),
+                (a_audio_items->items[f_i]->sample_read_head->fraction),
+                (a_audio_items->cubic_interpolator));
+                
+                v_ifh_run(a_audio_items->items[f_i]->sample_read_head, a_audio_items->items[f_i]->ratio);
+                
+                f_i2++;
+            }
+        }
+        f_i++;
+    }
+}
 
 #ifdef	__cplusplus
 }
