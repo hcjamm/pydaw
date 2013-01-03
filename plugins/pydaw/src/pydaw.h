@@ -1418,6 +1418,46 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
     }    
 }
 
+
+
+
+inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_count, float* a_output0, 
+        float* a_output1, int a_audio_track_num)
+{    
+    int f_i = 0;
+    int f_i2 = 0;
+    
+    while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+    {
+        if((a_pydaw_data->audio_items->items[f_i]->audio_track_output) == a_audio_track_num)
+        {
+            f_i2 = 0;
+            
+            while((f_i2 < a_sample_count) && 
+                    ((a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number) <  (a_pydaw_data->audio_items->items[f_i]->length)))
+            {
+                a_output0[f_i2] += f_cubic_interpolate_ptr_ifh(
+                (a_pydaw_data->audio_items->items[f_i]->samples[0]),
+                (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
+                (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
+                (a_pydaw_data->audio_items->cubic_interpolator));
+
+                a_output1[f_i2] += f_cubic_interpolate_ptr_ifh(
+                (a_pydaw_data->audio_items->items[f_i]->samples[1]),
+                (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
+                (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
+                (a_pydaw_data->audio_items->cubic_interpolator));
+                
+                v_ifh_run(a_pydaw_data->audio_items->items[f_i]->sample_read_head, a_pydaw_data->audio_items->items[f_i]->ratio);
+                
+                f_i2++;
+            }
+        }
+        f_i++;
+    }    
+}
+
+
 t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length)
 {
     t_pynote * f_result = (t_pynote*)malloc(sizeof(t_pynote));
