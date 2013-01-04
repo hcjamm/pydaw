@@ -329,7 +329,7 @@ void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_
             free(f_sample_start_char);
             
             char * f_sample_end_char = c_iterate_2d_char_array(f_current_string);
-            a_pydaw_audio_items->items[f_index]->sample_end = atof(f_sample_start_char) * 0.001f;            
+            a_pydaw_audio_items->items[f_index]->sample_end = atof(f_sample_end_char) * 0.001f;            
             free(f_sample_end_char);
             
             char * f_start_region_char = c_iterate_2d_char_array(f_current_string);
