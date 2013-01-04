@@ -1090,8 +1090,8 @@ class pydaw_audio_item:
     def __init__(self, a_file, a_sample_start, a_sample_end, a_start_region, a_start_bar, a_start_beat, a_end_mode, \
     a_end_region, a_end_bar, a_end_beat, a_timestretch_mode, a_pitch_shift, a_output_track):
         self.file = str(a_file)
-        self.sample_start = a_sample_start  #TODO:  int() these once I have a way of getting frame count...
-        self.sample_end = a_sample_end
+        self.sample_start = int(a_sample_start)  #TODO:  int() these once I have a way of getting frame count...
+        self.sample_end = int(a_sample_end)
         self.start_region = int(a_start_region)
         self.start_bar = int(a_start_bar)
         self.start_beat = float(a_start_beat)
@@ -1101,7 +1101,7 @@ class pydaw_audio_item:
         self.end_beat = float(a_end_beat)
         self.time_stretch_mode = int(a_timestretch_mode)
         self.pitch_shift = float(a_pitch_shift)
-        self.output_track = a_output_track
+        self.output_track = int(a_output_track)
                    
     def __str__(self):
         return self.file + "|" + str(self.sample_start) + "|" + str(self.sample_end) + "|" + str(self.start_region) \

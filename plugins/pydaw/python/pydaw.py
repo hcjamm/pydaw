@@ -743,11 +743,20 @@ class audio_list_editor:
         self.audio_tracks_table_widget.resizeRowsToContents()
    
     def cell_clicked(self, x, y):
-        f_item = self.audio_tracks_table_widget.item(x, y)
-        if f_item is None or f_item.text() == "":
-            self.show_cell_dialog(x, y)
+        print(str(x) + "|" + str(y))
+        f_item = self.audio_items_table_widget.item(x, 0)
+        if f_item is None or f_item.text() == "":            
+            self.show_cell_dialog(x, y, None)
+        else:
+            self.show_cell_dialog(x, y, pydaw_audio_item(self.audio_items_table_widget.item(x, 0).text(),
+              self.audio_items_table_widget.item(x, 1).text(), self.audio_items_table_widget.item(x, 2).text(),
+              self.audio_items_table_widget.item(x, 3).text(), self.audio_items_table_widget.item(x, 4).text(),
+              self.audio_items_table_widget.item(x, 5).text(), self.audio_items_table_widget.item(x, 6).text(),
+              self.audio_items_table_widget.item(x, 7).text(), self.audio_items_table_widget.item(x, 8).text(),
+              self.audio_items_table_widget.item(x, 9).text(), self.audio_items_table_widget.item(x, 10).text(),
+              self.audio_items_table_widget.item(x, 11).text(), self.audio_items_table_widget.item(x, 12).text()))
         
-    def show_cell_dialog(self, x, y):
+    def show_cell_dialog(self, x, y, a_item=None):
         def ok_handler():
             if str(f_name.text()) == "":
                 QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
@@ -881,7 +890,23 @@ class audio_list_editor:
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 11, 2)
-        self.last_offline_dir = expanduser("~")
+        
+        if not a_item is None:
+            f_name.setText(a_item.file)
+            f_sample_start.setValue(a_item.sample_start)
+            f_sample_end.setValue(a_item.sample_end)
+            f_start_region.setValue(a_item.start_region)
+            f_start_bar.setValue(a_item.start_bar)
+            f_start_beat.setValue(a_item.start_beat)
+            if a_item.end_mode == 1:
+                f_end_musical_time.setChecked(True)
+            f_end_region.setValue(a_item.end_region)
+            f_end_bar.setValue(a_item.end_bar)
+            f_end_beat.setValue(a_item.end_beat)
+            f_timestretch_mode.setCurrentIndex(a_item.time_stretch_mode)
+            f_pitch_shift.setValue(a_item.pitch_shift)
+            f_output_combobox.setCurrentIndex(a_item.output_track)
+        
         f_window.exec_()
 
     def __init__(self):
@@ -890,7 +915,7 @@ class audio_list_editor:
         self.track_total = 8
         
         self.enabled = False #Prevents user from editing a region before one has been selected
-        self.last_open_dir = ""
+        self.last_open_dir = expanduser("~")
         self.tab_widget = QtGui.QTabWidget()
         # TODO:  Revisit this when I've made a separate style for it based on this:
         # QTabBar::tab:top, QTabBar::tab:bottom, QTabBar::tab:left, QTabBar::tab:right
