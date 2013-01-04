@@ -299,6 +299,7 @@ void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_
 {
     if(i_pydaw_file_exists(a_file))
     {
+        printf("v_audio_items_load_all: loading a_file: \"%s\"\n", a_file);
         int f_i = 0;
 
         t_2d_char_array * f_current_string = g_get_2d_array_from_file(a_file, LMS_LARGE_STRING);        
