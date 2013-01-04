@@ -101,6 +101,8 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sr)
     
     f_result->sample_rate = a_sr;
     f_result->voices = g_voc_get_voices(PYDAW_MAX_AUDIO_ITEM_POLY_VOICE_COUNT);
+    f_result->cubic_interpolator = g_cubic_get();
+    
     int f_i = 0;
     
     while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
