@@ -1438,12 +1438,51 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
     while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
     {
         if((a_pydaw_data->audio_items->items[f_i]->audio_track_output) == a_audio_track_num)
-        {
-            f_i2 = 0;
+        {   
+            int f_current_track_region = a_pydaw_data->current_region;
+            int f_current_track_bar = a_pydaw_data->current_bar;
+            double f_track_current_period_beats = (a_pydaw_data->ml_current_period_beats);
+            double f_track_next_period_beats = (a_pydaw_data->ml_next_period_beats);
+            //double f_track_beats_offset = 0.0f;
+
+            double f_adjusted_song_pos_beats = 
+            (((double)(f_current_track_region)) * 4.0f * 8.0f) +
+            (((double)(f_current_track_bar)) * 4.0f);
             
-            while((f_i2 < a_sample_count) && 
-                    ((a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number) <  (a_pydaw_data->audio_items->items[f_i]->length)))
+            double f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats + f_track_next_period_beats;
+            
+            f_adjusted_song_pos_beats += f_track_current_period_beats;
+                       
+            if((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) < f_adjusted_next_song_pos_beats)
             {
+                continue;
+            }
+                        
+            if(a_pydaw_data->audio_items->items[f_i]->end_mode == 1)
+            {
+                if((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) < f_adjusted_song_pos_beats)
+                {
+                    break;
+                }
+            }
+
+            if((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) > f_adjusted_song_pos_beats)
+            {
+                
+            }
+            else if((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) < f_adjusted_next_song_pos_beats)
+            {
+                
+            }
+            else
+            {
+                f_i2 = 0;
+            }
+
+
+            while((f_i2 < a_sample_count) && 
+            ((a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number) <  (a_pydaw_data->audio_items->items[f_i]->length)))
+            {                                
                 a_output0[f_i2] += f_cubic_interpolate_ptr_ifh(
                 (a_pydaw_data->audio_items->items[f_i]->samples[0]),
                 (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
@@ -1455,11 +1494,13 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                 (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
                 (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
                 (a_pydaw_data->audio_items->cubic_interpolator));
-                
+
                 v_ifh_run(a_pydaw_data->audio_items->items[f_i]->sample_read_head, a_pydaw_data->audio_items->items[f_i]->ratio);
-                
+
                 f_i2++;
             }
+
+            
         }
         f_i++;
     }    

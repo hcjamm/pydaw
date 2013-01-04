@@ -38,6 +38,8 @@ typedef struct
     int start_region;
     int start_bar;
     float start_beat;
+    double adjusted_start_beat;
+    double adjusted_end_beat;
     int end_mode;  //0 == full sample length, 1 == musical end time
     int end_region;
     int end_bar;
@@ -368,6 +370,16 @@ void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_
             free(f_audio_track_output_char);
             
             free(f_file_name_char);
+            
+            a_pydaw_audio_items->items[f_index]->adjusted_start_beat = 
+                    (((double)(a_pydaw_audio_items->items[f_index]->start_region)) * 4.0f * 8.0f) +
+                    (((double)(a_pydaw_audio_items->items[f_index]->start_bar)) * 4.0f) +
+                    (a_pydaw_audio_items->items[f_index]->start_beat);
+            
+            a_pydaw_audio_items->items[f_index]->adjusted_end_beat = 
+                (((double)(a_pydaw_audio_items->items[f_index]->end_region)) * 4.0f * 8.0f) +
+                (((double)(a_pydaw_audio_items->items[f_index]->end_bar)) * 4.0f) +
+                (a_pydaw_audio_items->items[f_index]->end_beat);
             
             f_i++;
         }
