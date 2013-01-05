@@ -1517,7 +1517,7 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                         
             if(a_pydaw_data->audio_items->items[f_i]->end_mode == 1)
             {
-                if((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) < f_adjusted_song_pos_beats)
+                if((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) <= f_adjusted_song_pos_beats)
                 {
                     f_i++;
                     continue;
@@ -1527,10 +1527,11 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
             int f_adjusted_sample_count = a_sample_count;
             f_i2 = 0;
             
-            if((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) > f_adjusted_song_pos_beats)
+            if(((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) >= f_adjusted_song_pos_beats) &&
+                ((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) < f_adjusted_next_song_pos_beats))
             {
                 double test1 = (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) - f_adjusted_song_pos_beats;
-                double test2 = f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats;
+                double test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
                 double test3 = (test1 / test2) * ((double)(a_sample_count));
                 f_i2 = (int)test3;
                 v_ifh_retrigger(a_pydaw_data->audio_items->items[f_i]->sample_read_head, PYDAW_AUDIO_ITEM_PADDING_DIV2);
@@ -1550,14 +1551,7 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                 double test3 = (test1 / test2) * ((double)(a_sample_count));
                 f_adjusted_sample_count = (int)test3;
             }
-                       
             
-            //multiply beats-per-sample * beats past start * ratio
-
-            //Wait a minute...  What about abusing the wrapped version of cubic_interpolate and 
-            //fudging the array pointer to start XYZ samples from where it really starts to make loop modes easier???
-            //Maybe also add a variant that uses double, as the ifh stuff might be more trouble that it's worth..
-
             while((f_i2 < f_adjusted_sample_count) && 
             ((a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number) <  (a_pydaw_data->audio_items->items[f_i]->length)))
             {   
