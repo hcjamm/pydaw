@@ -1527,6 +1527,7 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
             int f_adjusted_sample_count = a_sample_count;
             f_i2 = 0;
             
+            
             if(((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) >= f_adjusted_song_pos_beats) &&
                 ((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) < f_adjusted_next_song_pos_beats))
             {
@@ -1534,13 +1535,7 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                 double test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
                 double test3 = (test1 / test2) * ((double)(a_sample_count));
                 f_i2 = (int)test3;
-                v_ifh_retrigger(a_pydaw_data->audio_items->items[f_i]->sample_read_head, PYDAW_AUDIO_ITEM_PADDING_DIV2);
-            }
-            else
-            {
-                double test1 = f_adjusted_song_pos_beats - (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat);
-                double test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->audio_items->items[f_i]->ratio);
-                v_ifh_retrigger_double(a_pydaw_data->audio_items->items[f_i]->sample_read_head, test2 + PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);
+                v_ifh_retrigger(a_pydaw_data->audio_items->items[f_i]->sample_read_head, PYDAW_AUDIO_ITEM_PADDING_DIV2);                
             }
             
             if((a_pydaw_data->audio_items->items[f_i]->end_mode == 1) &&
@@ -2800,13 +2795,41 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     v_pydaw_print_benchmark("v_open_project", f_start);
 }
 
+/* Moved to it's own function for re-usability, because the mutex must be held when calling*/
+void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
+{
+    int f_i = 0;
+
+    double f_adjusted_song_pos_beats = 
+        (((double)(a_region)) * 4.0f * 8.0f) +
+        (((double)(a_bar)) * 4.0f);
+    
+    while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+    {
+        if((a_pydaw_data->audio_items->items[f_i]->bool_sample_loaded) == 0)
+        {
+            f_i++;
+            continue;
+        }
+
+        if(((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) < f_adjusted_song_pos_beats) &&
+            ((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) > f_adjusted_song_pos_beats))
+        {            
+            double test1 = f_adjusted_song_pos_beats - (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat);
+            double test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->audio_items->items[f_i]->ratio);
+            v_ifh_retrigger_double(a_pydaw_data->audio_items->items[f_i]->sample_read_head, test2 + PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);
+        }
+        f_i++;
+    }    
+}
+
 /* void v_set_playback_mode(t_pydaw_data * a_pydaw_data, 
  * int a_mode, //
  * int a_region, //The region index to start playback on
  * int a_bar) //The bar index (with a_region) to start playback on
  */
 void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, int a_bar)
-{   
+{
     switch(a_mode)
     {
         case 0: //stop
@@ -2877,6 +2900,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             pthread_mutex_lock(&a_pydaw_data->main_mutex);
             a_pydaw_data->playback_mode = a_mode;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
+            v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_region, a_bar);
             pthread_mutex_unlock(&a_pydaw_data->main_mutex);
             break;
         case 2:  //record
@@ -2892,6 +2916,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             a_pydaw_data->recording_in_current_bar = 0;
             a_pydaw_data->recording_current_item_pool_index = -1;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
+            v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_region, a_bar);
             pthread_mutex_unlock(&a_pydaw_data->main_mutex);
             break;
     }    
