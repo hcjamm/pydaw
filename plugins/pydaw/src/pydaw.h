@@ -1547,7 +1547,7 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                     ((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) < f_adjusted_next_song_pos_beats))
             {
                 double test1 = (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) - f_adjusted_song_pos_beats;
-                double test2 = f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats;
+                double test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
                 double test3 = (test1 / test2) * ((double)(a_sample_count));
                 f_adjusted_sample_count = (int)test3;
             }
