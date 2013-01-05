@@ -88,8 +88,15 @@ void g_free_1d_char_array(t_1d_char_array * a_array)
 
 void g_free_2d_char_array(t_2d_char_array * a_array)
 {    
-    free(a_array->array);    
-    free(a_array);
+    if(a_array->array)
+    {
+        free(a_array->array);    
+    }
+    
+    if(a_array)
+    {
+        free(a_array);
+    }
 }
 
 /* A specialized split function.  Column count and string size will always be known in advance
@@ -138,22 +145,24 @@ t_1d_char_array * c_split_str(const char * a_input, char a_delim, int a_column_c
     return f_result;
 }
 
-/* Return a 2d array of strings from a file delimited by "|" and "\n" individual fields are 
- * limited to being the size of LMS_TINY_STRING */
-t_2d_char_array * g_get_2d_array_from_file(const char * a_file, int a_size)
-{    
-    //char log_buff[200];
-    //sprintf(log_buff, "g_get_2d_array_from_file: a_file: \"%s\" a_size: %i\n", a_file, a_size);
-    //pydaw_write_log(log_buff);
-    
+/* You must assign something to x->array before trying to read. */
+t_2d_char_array * g_get_2d_array(int a_size)
+{
     t_2d_char_array * f_result = (t_2d_char_array*)malloc(sizeof(t_2d_char_array));
     f_result->array = (char*)malloc(sizeof(char) * a_size);
     f_result->current_index = 0;
     f_result->current_row = 0;
     f_result->current_column = 0;
     f_result->eof = 0;
-    get_string_from_file(a_file, a_size, f_result->array);
-    //pydaw_write_log(f_result->array);    
+    return f_result;
+}
+
+/* Return a 2d array of strings from a file delimited by "|" and "\n" individual fields are 
+ * limited to being the size of LMS_TINY_STRING */
+t_2d_char_array * g_get_2d_array_from_file(const char * a_file, int a_size)
+{
+    t_2d_char_array * f_result = g_get_2d_array(a_size);
+    get_string_from_file(a_file, a_size, f_result->array);    
     return f_result;    
 }
 

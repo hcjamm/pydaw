@@ -3612,11 +3612,21 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }    
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_ALL)) //Reload the entire audio items list
     {
+        pthread_mutex_lock(&a_pydaw_data->offline_mutex);
         v_audio_items_load_all(a_pydaw_data->audio_items, a_pydaw_data->audio_items_file);
+        pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_SINGLE)) //Load/Reload a single audio item, or update it's settings
     {
-        //TODO
+        t_2d_char_array * f_arr = g_get_2d_array(LMS_SMALL_STRING);
+        sprintf(f_arr->array, "%s", a_value);
+        t_pydaw_audio_item * f_item = g_audio_item_load_single(a_pydaw_data->audio_items->sample_rate, f_arr);        
+        assert(f_item);
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        t_pydaw_audio_item * f_old = a_pydaw_data->audio_items->items[f_item->index];
+        a_pydaw_data->audio_items->items[f_item->index] = f_item;
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        v_pydaw_audio_item_free(f_old);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH)) //Create a .pygraph file for each .wav...
     {
