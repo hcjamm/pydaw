@@ -25,6 +25,7 @@ extern "C" {
 
 #define PYDAW_AUDIO_ITEM_PADDING 64
 #define PYDAW_AUDIO_ITEM_PADDING_DIV2 32
+#define PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT 32.0f
     
 typedef struct 
 {
