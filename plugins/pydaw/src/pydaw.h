@@ -3845,13 +3845,27 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SET_TRACK_BUS)) //Set the bus number for specified track
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
         int f_bus_num = atoi(f_val_arr->array[1]);
-        
-        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        a_pydaw_data->track_pool[f_track_num]->bus_num = f_bus_num;
-        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        int f_track_type = atoi(f_val_arr->array[2]);
+                
+        switch(f_track_type)
+        {
+            case 0:  //MIDI track
+                pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+                a_pydaw_data->track_pool[f_track_num]->bus_num = f_bus_num;
+                pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+                break;
+            case 2:  //Audio track
+                pthread_mutex_lock(&a_pydaw_data->audio_track_pool[f_track_num]->mutex);
+                a_pydaw_data->audio_track_pool[f_track_num]->bus_num = f_bus_num;
+                pthread_mutex_unlock(&a_pydaw_data->audio_track_pool[f_track_num]->mutex);
+                break;
+            default:
+                assert(0);
+                break;
+        }
         
         g_free_1d_char_array(f_val_arr);
     }       

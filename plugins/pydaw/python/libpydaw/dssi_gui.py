@@ -178,8 +178,8 @@ class dssi_gui(ServerThread):
     def pydaw_offline_render(self, a_start_region, a_start_bar, a_end_region, a_end_bar, a_file_name):
         self.send_configure("or", str(a_start_region) + "|" + str(a_start_bar) + "|" + str(a_end_region) + "|" + str(a_end_bar) + "|" + str(a_file_name))
     
-    def pydaw_set_bus(self, a_track_num, a_bus_num):
-        self.send_configure("bs", str(a_track_num) + "|" + str(a_bus_num))
+    def pydaw_set_bus(self, a_track_num, a_bus_num, a_track_type):
+        self.send_configure("bs", str(a_track_num) + "|" + str(a_bus_num) + "|" + str(a_track_type))
     
     def pydaw_reload_audio_items(self):
         self.send_configure("ai", "")
