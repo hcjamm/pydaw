@@ -220,6 +220,13 @@ void v_ifh_retrigger(t_int_frac_read_head* a_ifh, int a_pos)
     a_ifh->fraction = 0.0f;
 }
 
+
+void v_ifh_retrigger_double(t_int_frac_read_head* a_ifh, double a_pos)
+{
+    a_ifh->whole_number = (int)a_pos;
+    a_ifh->fraction = a_pos - ((double)a_ifh->whole_number);
+}
+
 t_int_frac_read_head * g_ifh_get()
 {
     t_int_frac_read_head * f_result;

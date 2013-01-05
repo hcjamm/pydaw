@@ -1540,7 +1540,7 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
             {
                 double test1 = f_adjusted_song_pos_beats - (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat);
                 double test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->audio_items->items[f_i]->ratio);
-                v_ifh_retrigger(a_pydaw_data->audio_items->items[f_i]->sample_read_head, ((int)test2) + PYDAW_AUDIO_ITEM_PADDING_DIV2);
+                v_ifh_retrigger_double(a_pydaw_data->audio_items->items[f_i]->sample_read_head, test2 + PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);
             }
             
             if((a_pydaw_data->audio_items->items[f_i]->end_mode == 1) &&
