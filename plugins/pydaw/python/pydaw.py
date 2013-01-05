@@ -985,7 +985,7 @@ class audio_track:
     def on_show_fx(self):        
         this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 2)
     def on_bus_changed(self, a_value=0):        
-        this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex())
+        this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex(), 2)
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].bus_num = self.bus_combobox.currentIndex()
         this_pydaw_project.save_audio_tracks(f_tracks)
@@ -2046,7 +2046,7 @@ class seq_track:
                 this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 1)
     def on_bus_changed(self, a_value=0):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-        this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex())
+        this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex(), 0)
 
     def __init__(self, a_track_num, a_track_text="track", a_instrument=True):
         self.is_instrument = a_instrument
