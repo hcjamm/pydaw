@@ -862,8 +862,7 @@ class audio_list_editor:
         f_end_hlayout.addWidget(f_end_bar)
         f_end_hlayout.addWidget(QtGui.QLabel("Beats:"))
         f_end_beat = QtGui.QDoubleSpinBox()
-        f_end_beat.setRange(0, 3.99)
-        f_end_beat.setValue(1)
+        f_end_beat.setRange(0, 3.99)        
         f_end_hlayout.addWidget(f_end_beat)
         
         f_layout.addWidget(QtGui.QLabel("Time Stretching:"), 7, 0) 

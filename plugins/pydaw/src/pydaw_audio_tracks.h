@@ -243,6 +243,8 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
         (((double)(f_result->end_bar)) * 4.0f) +
         (f_result->end_beat);
     
+    f_result->adsr->stage = 4;
+    
     return f_result;
 }
 

@@ -1488,14 +1488,17 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                 continue;
             }
                         
+            
             if(a_pydaw_data->audio_items->items[f_i]->end_mode == 1)
             {
-                if((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) <= f_adjusted_song_pos_beats)
+                // + 2.0f ensures that the ADSR envelope has had adequate time to finish running
+                if((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) < (f_adjusted_song_pos_beats + 2.0f))
                 {
                     f_i++;
                     continue;
                 }
             }
+            
 
             int f_adjusted_sample_count = a_sample_count;
             f_i2 = 0;
@@ -1518,52 +1521,70 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                 double test1 = (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) - f_adjusted_song_pos_beats;
                 double test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
                 double test3 = (test1 / test2) * ((double)(a_sample_count));
+                
                 f_adjusted_sample_count = (int)test3;
             }
             
-            while((f_i2 < f_adjusted_sample_count) && 
-            ((a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number) <  (a_pydaw_data->audio_items->items[f_i]->length)))
-            {   
-                if(a_pydaw_data->audio_items->items[f_i]->channels == 1)
+            if((a_pydaw_data->audio_items->items[f_i]->adsr->stage) != 4)
+            {
+                while(1)
                 {
-                    float f_tmp_sample = f_cubic_interpolate_ptr_ifh(
-                    (a_pydaw_data->audio_items->items[f_i]->samples[0]),
-                    (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
-                    (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
-                    (a_pydaw_data->audio_items->cubic_interpolator)) * 
-                    (a_pydaw_data->audio_items->items[f_i]->adsr->output);
+                    while((f_i2 < f_adjusted_sample_count) && 
+                    ((a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number) <  (a_pydaw_data->audio_items->items[f_i]->length)))
+                    {   
+                        if(a_pydaw_data->audio_items->items[f_i]->channels == 1)
+                        {
+                            float f_tmp_sample = f_cubic_interpolate_ptr_ifh(
+                            (a_pydaw_data->audio_items->items[f_i]->samples[0]),
+                            (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
+                            (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
+                            (a_pydaw_data->audio_items->cubic_interpolator)) * 
+                            (a_pydaw_data->audio_items->items[f_i]->adsr->output);
 
-                    a_output0[f_i2] += f_tmp_sample;
-                    a_output1[f_i2] += f_tmp_sample;
-                }
-                else if(a_pydaw_data->audio_items->items[f_i]->channels == 2)
-                {
-                    a_output0[f_i2] += f_cubic_interpolate_ptr_ifh(
-                    (a_pydaw_data->audio_items->items[f_i]->samples[0]),
-                    (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
-                    (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
-                    (a_pydaw_data->audio_items->cubic_interpolator)) * 
-                    (a_pydaw_data->audio_items->items[f_i]->adsr->output);
+                            a_output0[f_i2] += f_tmp_sample;
+                            a_output1[f_i2] += f_tmp_sample;
+                        }
+                        else if(a_pydaw_data->audio_items->items[f_i]->channels == 2)
+                        {
+                            a_output0[f_i2] += f_cubic_interpolate_ptr_ifh(
+                            (a_pydaw_data->audio_items->items[f_i]->samples[0]),
+                            (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
+                            (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
+                            (a_pydaw_data->audio_items->cubic_interpolator)) * 
+                            (a_pydaw_data->audio_items->items[f_i]->adsr->output);
 
-                    a_output1[f_i2] += f_cubic_interpolate_ptr_ifh(
-                    (a_pydaw_data->audio_items->items[f_i]->samples[1]),
-                    (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
-                    (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
-                    (a_pydaw_data->audio_items->cubic_interpolator)) * 
-                    (a_pydaw_data->audio_items->items[f_i]->adsr->output);
-                }
-                else
-                {
-                    //TODO:  Catch this during load and do something then...
-                    printf("Error: v_pydaw_audio_items_run, invalid number of channels %i\n", a_pydaw_data->audio_items->items[f_i]->channels);
-                }
-                                
-                v_ifh_run(a_pydaw_data->audio_items->items[f_i]->sample_read_head, a_pydaw_data->audio_items->items[f_i]->ratio);
-                v_adsr_run_db(a_pydaw_data->audio_items->items[f_i]->adsr);
+                            a_output1[f_i2] += f_cubic_interpolate_ptr_ifh(
+                            (a_pydaw_data->audio_items->items[f_i]->samples[1]),
+                            (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
+                            (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
+                            (a_pydaw_data->audio_items->cubic_interpolator)) * 
+                            (a_pydaw_data->audio_items->items[f_i]->adsr->output);
+                        }
+                        else
+                        {
+                            //TODO:  Catch this during load and do something then...
+                            printf("Error: v_pydaw_audio_items_run, invalid number of channels %i\n", a_pydaw_data->audio_items->items[f_i]->channels);
+                        }
 
-                f_i2++;
-            }            
-        }
+                        v_ifh_run(a_pydaw_data->audio_items->items[f_i]->sample_read_head, a_pydaw_data->audio_items->items[f_i]->ratio);
+                        v_adsr_run_db(a_pydaw_data->audio_items->items[f_i]->adsr);
+
+                        f_i2++;
+                    }
+
+                    if(f_adjusted_sample_count != a_sample_count)  //This would mean that there is an ADSR release in this cycle
+                    {
+                        v_adsr_release(a_pydaw_data->audio_items->items[f_i]->adsr);
+                        f_adjusted_sample_count = a_sample_count;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                } //while(1)
+            }  //if stage
+        } //if this track_num
         f_i++;
     }    
 }
