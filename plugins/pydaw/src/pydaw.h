@@ -1476,12 +1476,12 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
 inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_count, float* a_output0, 
         float* a_output1, int a_audio_track_num)
 {    
-    /* For now we're not going to worry about this, but at some point it will be removed and the ADSR
-     envelope will smoothly fade the samples in and out...*/
+    /*
     if((a_pydaw_data->playback_mode) == PYDAW_PLAYBACK_MODE_OFF)
     {
         return;
     }
+    */
     
     int f_i = 0;
     int f_i2 = 0;
@@ -1530,7 +1530,8 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                 double test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
                 double test3 = (test1 / test2) * ((double)(a_sample_count));
                 f_i2 = (int)test3;
-                v_ifh_retrigger(a_pydaw_data->audio_items->items[f_i]->sample_read_head, PYDAW_AUDIO_ITEM_PADDING_DIV2);                
+                v_ifh_retrigger(a_pydaw_data->audio_items->items[f_i]->sample_read_head, PYDAW_AUDIO_ITEM_PADDING_DIV2); 
+                v_adsr_retrigger(a_pydaw_data->audio_items->items[f_i]->adsr);
             }
             
             if((a_pydaw_data->audio_items->items[f_i]->end_mode == 1) &&
@@ -1551,7 +1552,8 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                     (a_pydaw_data->audio_items->items[f_i]->samples[0]),
                     (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
                     (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
-                    (a_pydaw_data->audio_items->cubic_interpolator));
+                    (a_pydaw_data->audio_items->cubic_interpolator)) * 
+                    (a_pydaw_data->audio_items->items[f_i]->adsr->output);
 
                     a_output0[f_i2] += f_tmp_sample;
                     a_output1[f_i2] += f_tmp_sample;
@@ -1562,13 +1564,15 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                     (a_pydaw_data->audio_items->items[f_i]->samples[0]),
                     (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
                     (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
-                    (a_pydaw_data->audio_items->cubic_interpolator));
+                    (a_pydaw_data->audio_items->cubic_interpolator)) * 
+                    (a_pydaw_data->audio_items->items[f_i]->adsr->output);
 
                     a_output1[f_i2] += f_cubic_interpolate_ptr_ifh(
                     (a_pydaw_data->audio_items->items[f_i]->samples[1]),
                     (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
                     (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
-                    (a_pydaw_data->audio_items->cubic_interpolator));
+                    (a_pydaw_data->audio_items->cubic_interpolator)) * 
+                    (a_pydaw_data->audio_items->items[f_i]->adsr->output);
                 }
                 else
                 {
@@ -1577,6 +1581,7 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                 }
                                 
                 v_ifh_run(a_pydaw_data->audio_items->items[f_i]->sample_read_head, a_pydaw_data->audio_items->items[f_i]->ratio);
+                v_adsr_run_db(a_pydaw_data->audio_items->items[f_i]->adsr);
 
                 f_i2++;
             }            
@@ -2814,6 +2819,7 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
             double test1 = f_adjusted_song_pos_beats - (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat);
             double test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->audio_items->items[f_i]->ratio);
             v_ifh_retrigger_double(a_pydaw_data->audio_items->items[f_i]->sample_read_head, test2 + PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);
+            v_adsr_retrigger(a_pydaw_data->audio_items->items[f_i]->adsr);
         }
         f_i++;
     }    
@@ -2848,6 +2854,18 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
                             &a_pydaw_data->track_pool[f_i]->event_buffer[0], 0, 0);
                     a_pydaw_data->track_pool[f_i]->current_period_event_index = 1;                    
                 }
+                f_i++;
+            }
+            f_i = 0;
+            //Fade out the playing audio tracks
+            while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+            {
+                if((a_pydaw_data->audio_items->items[f_i]->bool_sample_loaded) == 0)
+                {
+                    f_i++;
+                    continue;
+                }
+                v_adsr_release(a_pydaw_data->audio_items->items[f_i]->adsr);
                 f_i++;
             }
             pthread_mutex_unlock(&a_pydaw_data->main_mutex);
