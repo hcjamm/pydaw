@@ -1068,6 +1068,9 @@ class pydaw_audio_items:
     
     def add_item(self, a_index, a_item):
         self.items[int(a_index)] = a_item
+    
+    def remove_item(self, a_index):
+        self.items.pop(int(a_index))
             
     @staticmethod
     def from_str(a_str):
@@ -1077,7 +1080,9 @@ class pydaw_audio_items:
             if f_line == pydaw_terminating_char:
                 return f_result
             f_arr = f_line.split("|")            
-            f_result.add_item(f_arr[0], pydaw_audio_item.from_arr(f_arr[1:]))
+            f_result.add_item(int(f_arr[0]), pydaw_audio_item.from_arr(f_arr[1:]))
+        print("pydaw_audio_items.from_str:  Warning:  no pydaw_terminating_char")
+        return f_result
             
     def __str__(self):        
         f_result = ""

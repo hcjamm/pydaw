@@ -792,7 +792,14 @@ class audio_list_editor:
                 if not f_file_name is None and not str(f_file_name) == "":
                     f_name.setText(f_file_name)
                 self.last_open_dir = os.path.dirname(f_file_name)
-                    
+                   
+        def clear_handler():
+            this_pydaw_project.this_dssi_gui.pydaw_clear_single_audio_item(x)            
+            self.audio_items.remove_item(x)
+            this_pydaw_project.save_audio_items(self.audio_items)
+            self.open_items()
+            f_window.close()
+        
         f_window = QtGui.QDialog(this_main_window)
         f_window.setMinimumWidth(800)
         f_window.setWindowTitle("Add an audio item..")
@@ -884,6 +891,10 @@ class audio_list_editor:
         f_layout.addLayout(f_output_hlayout, 9, 1)
         
         f_ok_layout = QtGui.QHBoxLayout()
+        if not a_item is None:
+            f_clear_button = QtGui.QPushButton("Clear Item")
+            f_clear_button.pressed.connect(clear_handler)
+            f_ok_layout.addWidget(f_clear_button)
         f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(ok_handler)
