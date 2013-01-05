@@ -287,6 +287,7 @@ t_pydaw_data * g_pydaw_data_get(float);
 int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name);
 void v_open_project(t_pydaw_data*, const char*);
 void v_set_tempo(t_pydaw_data*,float);
+void v_pydaw_set_is_soloed(t_pydaw_data * a_pydaw_data);
 void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode);
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
@@ -516,11 +517,15 @@ void * v_pydaw_worker_thread(void* a_arg)
                 
                 v_pydaw_update_ports(f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect);
                 
-                v_pydaw_audio_items_run(f_args->pydaw_data, (f_args->pydaw_data->sample_count), 
-                        f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[0],
-                        f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[1],
-                        f_item.track_number);
-                
+                if((!f_args->pydaw_data->audio_track_pool[f_item.track_number]->mute) &&
+                    ((!f_args->pydaw_data->is_soloed) ||
+                    ((f_args->pydaw_data->is_soloed) && (f_args->pydaw_data->audio_track_pool[f_item.track_number]->solo))))
+                {
+                    v_pydaw_audio_items_run(f_args->pydaw_data, (f_args->pydaw_data->sample_count), 
+                            f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[0],
+                            f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect->pluginInputBuffers[1],
+                            f_item.track_number);
+                }
                 v_run_plugin(f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
                         f_args->pydaw_data->audio_track_pool[f_item.track_number]->event_buffer, 
                         f_args->pydaw_data->audio_track_pool[f_item.track_number]->current_period_event_index);
@@ -823,35 +828,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
             }
         }
         int f_i = 0;
-
-        a_pydaw_data->is_soloed = 0;
-
-        while(f_i < PYDAW_MIDI_TRACK_COUNT)
-        {
-            if(a_pydaw_data->track_pool[f_i]->solo)
-            {
-                a_pydaw_data->is_soloed = 1;
-                break;
-            }
-            f_i++;
-        }
         
-        f_i = 0;
-        if(a_pydaw_data->is_soloed == 0)
-        {
-            while(f_i < PYDAW_AUDIO_TRACK_COUNT)
-            {
-                if(a_pydaw_data->audio_track_pool[f_i]->solo)
-                {
-                    a_pydaw_data->is_soloed = 1;
-                    break;
-                }
-                f_i++;
-            }
-        }
-
         //Calculate track notes for this period and send them to instruments
-        f_i = 0;
         while(f_i < PYDAW_MIDI_TRACK_COUNT)
         {   
             /* Situations where the track is effectively muted*/
@@ -2786,6 +2764,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         v_audio_items_load_all(a_pydaw_data->audio_items, a_pydaw_data->audio_items_file);
     }    
        
+    v_pydaw_set_is_soloed(a_pydaw_data);
     
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
@@ -2960,6 +2939,36 @@ void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
     v_pydaw_assert_memory_integrity(a_pydaw_data);
 #endif
     //TODO:  An  "all notes off" function 
+}
+
+void v_pydaw_set_is_soloed(t_pydaw_data * a_pydaw_data)
+{
+    int f_i = 0;
+    a_pydaw_data->is_soloed = 0;
+
+    while(f_i < PYDAW_MIDI_TRACK_COUNT)
+    {
+        if(a_pydaw_data->track_pool[f_i]->solo)
+        {
+            a_pydaw_data->is_soloed = 1;
+            break;
+        }
+        f_i++;
+    }
+
+    if(a_pydaw_data->is_soloed == 0)
+    {
+        f_i = 0;
+        while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+        {
+            if(a_pydaw_data->audio_track_pool[f_i]->solo)
+            {
+                a_pydaw_data->is_soloed = 1;
+                break;
+            }
+            f_i++;
+        }
+    }
 }
 
 void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode)
@@ -3779,6 +3788,15 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
             default:
                 assert(0);
                 break;
+        }
+        
+        if(f_mode == 1)
+        {
+            a_pydaw_data->is_soloed = 1;
+        }
+        else
+        {
+            v_pydaw_set_is_soloed(a_pydaw_data);
         }
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
