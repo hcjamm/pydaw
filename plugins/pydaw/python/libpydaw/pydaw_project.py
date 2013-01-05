@@ -1057,10 +1057,10 @@ class pydaw_audio_tracks:
 class pydaw_audio_track:
     def __init__(self, a_solo, a_mute, a_vol, a_name, a_bus_num=0):
         self.name = str(a_name)
-        self.solo = a_solo
-        self.mute = a_mute
-        self.vol = a_vol
-        self.bus_num = a_bus_num
+        self.solo = bool(a_solo)
+        self.mute = bool(a_mute)
+        self.vol = int(a_vol)
+        self.bus_num = int(a_bus_num)
         
 class pydaw_audio_items:
     def __init__(self):
