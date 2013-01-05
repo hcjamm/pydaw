@@ -2813,7 +2813,8 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
         }
 
         if(((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) < f_adjusted_song_pos_beats) &&
-            ((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) > f_adjusted_song_pos_beats))
+            (((a_pydaw_data->audio_items->items[f_i]->end_mode) == 0) ||
+            ((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) > f_adjusted_song_pos_beats)))
         {            
             double test1 = f_adjusted_song_pos_beats - (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat);
             double test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->audio_items->items[f_i]->ratio);
