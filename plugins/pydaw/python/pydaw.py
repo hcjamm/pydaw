@@ -687,6 +687,8 @@ class region_list_editor:
                         self.region.add_item_ref(i, i2 - 1, f_item.text())
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)    
 
+global_timestretch_modes = ["None", "Pitch", "Time + Pitch"]
+global_audio_track_names = ["1","2","3","4","5","6","7","8"]   #To be replaced with their real names at some point
 
 class audio_list_editor:
     def open_tracks(self):
@@ -705,8 +707,8 @@ class audio_list_editor:
         self.audio_items_table_widget.clearContents()
         for k, v in self.audio_items.items.iteritems():
             self.audio_items_table_widget.setItem(k, 0, QtGui.QTableWidgetItem(str(v.file)))
-            self.audio_items_table_widget.setItem(k, 1, QtGui.QTableWidgetItem(str(v.sample_start)))
-            self.audio_items_table_widget.setItem(k, 2, QtGui.QTableWidgetItem(str(v.sample_end)))
+            self.audio_items_table_widget.setItem(k, 1, QtGui.QTableWidgetItem(str(float(v.sample_start) * 0.1)))
+            self.audio_items_table_widget.setItem(k, 2, QtGui.QTableWidgetItem(str(float(v.sample_end) * 0.1)))
             self.audio_items_table_widget.setItem(k, 3, QtGui.QTableWidgetItem(str(v.start_region)))
             self.audio_items_table_widget.setItem(k, 4, QtGui.QTableWidgetItem(str(v.start_bar)))
             self.audio_items_table_widget.setItem(k, 5, QtGui.QTableWidgetItem(str(v.start_beat)))
@@ -714,9 +716,9 @@ class audio_list_editor:
             self.audio_items_table_widget.setItem(k, 7, QtGui.QTableWidgetItem(str(v.end_region)))
             self.audio_items_table_widget.setItem(k, 8, QtGui.QTableWidgetItem(str(v.end_bar)))
             self.audio_items_table_widget.setItem(k, 9, QtGui.QTableWidgetItem(str(v.end_beat)))            
-            self.audio_items_table_widget.setItem(k, 10, QtGui.QTableWidgetItem(str(v.time_stretch_mode)))
+            self.audio_items_table_widget.setItem(k, 10, QtGui.QTableWidgetItem(str(global_timestretch_modes[v.time_stretch_mode])))
             self.audio_items_table_widget.setItem(k, 11, QtGui.QTableWidgetItem(str(v.pitch_shift)))
-            self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.output_track)))
+            self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(global_audio_track_names[v.output_track])))
         self.audio_items_table_widget.resizeColumnsToContents()
         
     def reset_tracks(self):
@@ -748,12 +750,16 @@ class audio_list_editor:
             self.show_cell_dialog(x, y, None)
         else:
             self.show_cell_dialog(x, y, pydaw_audio_item(self.audio_items_table_widget.item(x, 0).text(),
-              self.audio_items_table_widget.item(x, 1).text(), self.audio_items_table_widget.item(x, 2).text(),
-              self.audio_items_table_widget.item(x, 3).text(), self.audio_items_table_widget.item(x, 4).text(),
-              self.audio_items_table_widget.item(x, 5).text(), self.audio_items_table_widget.item(x, 6).text(),
-              self.audio_items_table_widget.item(x, 7).text(), self.audio_items_table_widget.item(x, 8).text(),
-              self.audio_items_table_widget.item(x, 9).text(), self.audio_items_table_widget.item(x, 10).text(),
-              self.audio_items_table_widget.item(x, 11).text(), self.audio_items_table_widget.item(x, 12).text()))
+                int(float(self.audio_items_table_widget.item(x, 1).text()) * 10.0), 
+                int(float(self.audio_items_table_widget.item(x, 2).text()) * 10.0),
+                self.audio_items_table_widget.item(x, 3).text(), self.audio_items_table_widget.item(x, 4).text(),
+                self.audio_items_table_widget.item(x, 5).text(), self.audio_items_table_widget.item(x, 6).text(),
+                self.audio_items_table_widget.item(x, 7).text(), self.audio_items_table_widget.item(x, 8).text(),
+                self.audio_items_table_widget.item(x, 9).text(), 
+                global_timestretch_modes.index(str(self.audio_items_table_widget.item(x, 10).text())),
+                self.audio_items_table_widget.item(x, 11).text(), 
+                global_audio_track_names.index(str(self.audio_items_table_widget.item(x, 12).text()))
+                ))
         
     def show_cell_dialog(self, x, y, a_item=None):
         def ok_handler():
@@ -872,7 +878,7 @@ class audio_list_editor:
         f_timestretch_mode = QtGui.QComboBox()
         f_timestretch_mode.setMinimumWidth(132)
         f_timestretch_hlayout.addWidget(f_timestretch_mode)
-        f_timestretch_mode.addItems(["None", "Pitch", "Time + Pitch"])
+        f_timestretch_mode.addItems(global_timestretch_modes)
         f_timestretch_hlayout.addWidget(QtGui.QLabel("Pitch Shift:"))
         f_pitch_shift = QtGui.QDoubleSpinBox()
         f_pitch_shift.setRange(-36, 36)
@@ -882,7 +888,7 @@ class audio_list_editor:
         f_output_hlayout = QtGui.QHBoxLayout()
         f_output_hlayout.addWidget(QtGui.QLabel("Audio Track:"))
         f_output_combobox = QtGui.QComboBox()
-        f_output_combobox.addItems(["1","2","3","4","5","6","7","8"])
+        f_output_combobox.addItems(global_audio_track_names)
         f_output_hlayout.addWidget(f_output_combobox)
         f_layout.addWidget(QtGui.QLabel("Output:"), 9, 0)
         f_layout.addLayout(f_output_hlayout, 9, 1)
