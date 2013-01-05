@@ -32,8 +32,8 @@ typedef struct st_adsr
     float d_inc;
     float d_time;
     float s_value;    
-    float d_recip;
-    float r_recip;    
+    //float d_recip;
+    //float r_recip;    
     float r_inc;
     float r_time;
     
@@ -167,8 +167,8 @@ void v_adsr_set_s_value(t_adsr*__restrict a_adsr_ptr, float a_value)
         a_adsr_ptr->s_value = .001f;
     }
     
-    a_adsr_ptr->d_recip = (1.0f/(1.0f-(a_adsr_ptr->s_value)));
-    a_adsr_ptr->r_recip = (1.0f/(a_adsr_ptr->s_value));
+    //a_adsr_ptr->d_recip = (1.0f/(1.0f-(a_adsr_ptr->s_value)));
+    //a_adsr_ptr->r_recip = (1.0f/(a_adsr_ptr->s_value));
     
     //printf("Setting S value to %f\n", (a_adsr_ptr->s_value));
 }
@@ -262,10 +262,10 @@ t_adsr * g_adsr_get_adsr(float a_sr_recip)
     f_result->a_inc = -100.5f;
     f_result->a_time = -100.5f;
     f_result->d_inc = -100.5f;
-    f_result->d_recip = -100.5f;
+    //f_result->d_recip = -100.5f;
     f_result->d_time =  -100.5f;
     f_result->r_inc = -100.5f;
-    f_result->r_recip = -100.5f;
+    //f_result->r_recip = -100.5f;
     f_result->r_time = -100.5f;
     f_result->s_value = -100.5f;
     
