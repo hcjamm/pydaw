@@ -743,7 +743,6 @@ class audio_list_editor:
         self.audio_tracks_table_widget.resizeRowsToContents()
    
     def cell_clicked(self, x, y):
-        print(str(x) + "|" + str(y))
         f_item = self.audio_items_table_widget.item(x, 0)
         if f_item is None or f_item.text() == "":            
             self.show_cell_dialog(x, y, None)
@@ -762,12 +761,11 @@ class audio_list_editor:
                 QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
                 return
             if f_end_musical_time.isChecked():
-                if (f_end_region.value() < f_start_region.value()) or \
-                   ((f_end_region.value() == f_start_region.value()) and \
-                   ((f_start_bar.value() < f_end_bar.value()) or \
-                   ((f_start_bar.value() == f_end_bar.value()) and \
-                   (f_start_beat.value() <= f_end_beat.value())))):
-                    QtGui.QMessageBox.warning(f_window, "Error", "End point is before start point.")
+                f_start_beat_total = float((f_start_region.value() * 8 * 4) + (f_start_bar.value() * 4)) + f_start_beat.value()
+                f_end_beat_total = float((f_end_region.value() * 8 * 4) + (f_end_bar.value() * 4)) + f_end_beat.value()
+                if f_start_beat_total >= f_end_beat_total:
+                    QtGui.QMessageBox.warning(f_window, "Error", "End point is less than or equal to start point.")
+                    print("audio items:  start==" + str(f_start_beat_total) + "|" + "end==" + str(f_end_beat_total))
                     return
             
             if f_end_sample_length.isChecked(): f_end_mode = 0
@@ -799,7 +797,7 @@ class audio_list_editor:
             this_pydaw_project.save_audio_items(self.audio_items)
             self.open_items()
             f_window.close()
-        
+                
         f_window = QtGui.QDialog(this_main_window)
         f_window.setMinimumWidth(800)
         f_window.setWindowTitle("Add an audio item..")
@@ -842,7 +840,7 @@ class audio_list_editor:
         f_start_hlayout.addWidget(f_start_bar)
         f_start_hlayout.addWidget(QtGui.QLabel("Beat:"))
         f_start_beat = QtGui.QDoubleSpinBox()
-        f_start_beat.setRange(0, 4)
+        f_start_beat.setRange(0, 3.99)
         f_start_hlayout.addWidget(f_start_beat)
         
         f_layout.addWidget(QtGui.QLabel("End:"), 5, 0) 
@@ -864,7 +862,7 @@ class audio_list_editor:
         f_end_hlayout.addWidget(f_end_bar)
         f_end_hlayout.addWidget(QtGui.QLabel("Beats:"))
         f_end_beat = QtGui.QDoubleSpinBox()
-        f_end_beat.setRange(0, 4)
+        f_end_beat.setRange(0, 3.99)
         f_end_beat.setValue(1)
         f_end_hlayout.addWidget(f_end_beat)
         
@@ -954,6 +952,8 @@ class audio_list_editor:
         self.items_groupbox.setLayout(self.items_vlayout)
         
         self.audio_items_table_widget = QtGui.QTableWidget()
+        self.audio_items_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.audio_items_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_items_table_widget.setColumnCount(13)
         self.audio_items_table_widget.setHorizontalHeaderLabels(["Path", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", \
         "End Mode", "End Region", "End Bar", "End Beat", "Timestretch Mode", "Pitch", "Audio Track"])
