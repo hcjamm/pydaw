@@ -49,7 +49,9 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_OFFLINE_RENDER "or"
     
 #define PYDAW_CONFIGURE_KEY_SET_TRACK_BUS "bs"
-#define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD "ai"    
+#define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_ALL "ai"    
+#define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_SINGLE "as" 
+#define PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH "sg" 
 
     
 #define PYDAW_LOOP_MODE_OFF 0
@@ -3607,13 +3609,19 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_bar = atoi(f_arr->array[1]);
         v_set_playback_mode(a_pydaw_data, 2, f_region, f_bar);
         g_free_1d_char_array(f_arr);
-    }
-    
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD)) //Reload the entire audio items list
+    }    
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_ALL)) //Reload the entire audio items list
     {
         v_audio_items_load_all(a_pydaw_data->audio_items, a_pydaw_data->audio_items_file);
     }
-        
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_SINGLE)) //Load/Reload a single audio item, or update it's settings
+    {
+        //TODO
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH)) //Create a .pygraph file for each .wav...
+    {
+        //TODO
+    }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_STOP)) //Stop playback or recording
     {
         v_set_playback_mode(a_pydaw_data, 0, -1, -1);
