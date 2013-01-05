@@ -318,6 +318,7 @@ void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data);
 
 inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_count, float* a_output0, 
         float* a_output1, int a_audio_track_num);
+void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
 /*End declarations.  Begin implementations.*/
 
 void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data)
@@ -1485,6 +1486,14 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
     int f_i = 0;
     int f_i2 = 0;
     
+    double f_adjusted_song_pos_beats = 
+    (((double)(a_pydaw_data->current_region)) * 4.0f * 8.0f) +
+    (((double)(a_pydaw_data->current_bar)) * 4.0f);
+
+    double f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats + (a_pydaw_data->ml_next_period_beats);
+
+    f_adjusted_song_pos_beats += (a_pydaw_data->ml_current_period_beats);
+    
     while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
     {
         if((a_pydaw_data->audio_items->items[f_i]->bool_sample_loaded) == 0)
@@ -1494,21 +1503,7 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
         }
         
         if((a_pydaw_data->audio_items->items[f_i]->audio_track_output) == a_audio_track_num)
-        {   
-            int f_current_track_region = a_pydaw_data->current_region;
-            int f_current_track_bar = a_pydaw_data->current_bar;
-            double f_track_current_period_beats = (a_pydaw_data->ml_current_period_beats);
-            double f_track_next_period_beats = (a_pydaw_data->ml_next_period_beats);
-            //double f_track_beats_offset = 0.0f;
-
-            double f_adjusted_song_pos_beats = 
-            (((double)(f_current_track_region)) * 4.0f * 8.0f) +
-            (((double)(f_current_track_bar)) * 4.0f);
-            
-            double f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats + f_track_next_period_beats;
-            
-            f_adjusted_song_pos_beats += f_track_current_period_beats;
-                       
+        {              
             if((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) >= f_adjusted_next_song_pos_beats)
             {
                 f_i++;
