@@ -806,7 +806,7 @@ class audio_list_editor:
                 
         f_window = QtGui.QDialog(this_main_window)
         f_window.setMinimumWidth(800)
-        f_window.setWindowTitle("Add an audio item..")
+        f_window.setWindowTitle("Add/edit an audio item..")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         
@@ -823,9 +823,11 @@ class audio_list_editor:
         f_layout.addWidget(QtGui.QLabel("Start/End:"), 1, 0)
         f_layout.addLayout(f_sample_start_end_vlayout, 1, 1)
         f_sample_start = QtGui.QSlider(QtCore.Qt.Horizontal)
+        f_sample_start.setObjectName("wavleft")
         f_sample_start.setRange(0, 990)
         f_sample_start_end_vlayout.addWidget(f_sample_start)
         f_sample_end = QtGui.QSlider(QtCore.Qt.Horizontal)
+        f_sample_end.setObjectName("wavright")
         f_sample_end.setRange(10, 1000)
         f_sample_end.setValue(1000)
         f_sample_start_end_vlayout.addWidget(f_sample_end)
