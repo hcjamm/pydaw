@@ -773,11 +773,13 @@ class audio_list_editor:
             if f_end_sample_length.isChecked(): f_end_mode = 0
             else: f_end_mode = 1
             
-            self.audio_items.add_item(x, pydaw_audio_item(f_name.text(), f_sample_start.value(), f_sample_end.value(), f_start_region.value(), 
+            f_new_item = pydaw_audio_item(f_name.text(), f_sample_start.value(), f_sample_end.value(), f_start_region.value(), 
                     f_start_bar.value(), f_start_beat.value(), f_end_mode, f_end_region.value(), f_end_bar.value(), f_end_beat.value(), 
-                    f_timestretch_mode.currentIndex(), f_pitch_shift.value(), f_output_combobox.currentIndex()))
-            this_pydaw_project.save_audio_items(self.audio_items)
-            this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items()
+                    f_timestretch_mode.currentIndex(), f_pitch_shift.value(), f_output_combobox.currentIndex())
+            
+            this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(x, f_new_item)
+            self.audio_items.add_item(x, f_new_item)
+            this_pydaw_project.save_audio_items(self.audio_items)            
             self.open_items()
             f_window.close()
             
