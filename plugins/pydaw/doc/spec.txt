@@ -48,7 +48,9 @@ OSC configure message keys/values:
 	"preview" path	Preview a .wav or other supported sample format....  (not yet implemented)
 	"or"	start-region|start-bar|end-region|end-bar|file-path	offline render project to .wav file
 	"bs"	track|bus	set the mixing bus to assign the track output to
-	"ai"	""	Reload audio items(the sequenced audio parts/loaded files)
+	"as"	"file-line"	Reload a single audio item, index and all data pulled from the corresponding line in the default.pydaudioitem file.
+	"sg"	"file"	Generate a sample-graph for "file"
+	"ai"	""	Reload all audio items(the sequenced audio parts/loaded files)
 
 
 Project structure:
