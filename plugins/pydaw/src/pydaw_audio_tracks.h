@@ -142,10 +142,15 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sr)
     return f_result;
 }
 
-t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_current_string)
+/* t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_current_string, t_pydaw_audio_items * a_items)
+ *
+ *  Pass in zero for a_items to not re-use the existing item without reloading the wave.  DO pass it in if you wish to update 
+ * the item without reloading.
+ */
+t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_current_string, t_pydaw_audio_items * a_items)
 {
-    t_pydaw_audio_item * f_result = g_pydaw_audio_item_get(a_sr);
-
+    t_pydaw_audio_item * f_result;
+        
     char * f_index_char = c_iterate_2d_char_array(f_current_string);        
 
     if(f_current_string->eof)
@@ -156,6 +161,16 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
 
     int f_index = atoi(f_index_char);
     free(f_index_char);
+    
+    if(a_items)
+    {
+        f_result = a_items->items[f_index];
+    }
+    else
+    {
+        f_result = g_pydaw_audio_item_get(a_sr);
+    }
+    
     f_result->index = f_index;
 
     char * f_file_name_char = c_iterate_2d_char_array(f_current_string);
@@ -417,7 +432,7 @@ void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_
         
         while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
         {            
-            t_pydaw_audio_item * f_new =  g_audio_item_load_single(a_pydaw_audio_items->sample_rate, f_current_string);
+            t_pydaw_audio_item * f_new =  g_audio_item_load_single(a_pydaw_audio_items->sample_rate, f_current_string, 0);
             if(!f_new)  //EOF'd...
             {
                 break;

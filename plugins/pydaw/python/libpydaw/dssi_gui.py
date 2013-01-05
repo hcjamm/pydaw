@@ -187,7 +187,14 @@ class dssi_gui(ServerThread):
     def pydaw_load_single_audio_item(self, a_index, a_item):
         """ a_item should be a valid pydaw_audio_item """
         self.send_configure("as", str(a_index) + "|" + str(a_item))
-    
+
+    def pydaw_clear_single_audio_item(self, a_index):
+        self.send_configure("ac", str(a_index) + "|" + str(a_item))
+
+    def pydaw_update_single_audio_item(self, a_index, a_item):
+        """ a_item should be a valid pydaw_audio_item """
+        self.send_configure("au", str(a_index) + "|" + str(a_item))        
+        
     def pydaw_generate_sample_graph(self, a_file):
         self.send_configure("sg", "")
     
