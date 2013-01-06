@@ -108,6 +108,7 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
     f_result->samples[1] = 0;    
     f_result->ratio = 1.0f;
     f_result->uid = -1;
+    f_result->adjusted_start_beat = 99999999.0f;
     
     f_result->adsr = g_adsr_get_adsr(1.0f/a_sr);
     v_adsr_set_adsr_db(f_result->adsr, 0.003f, 0.1f, 0.0f, 0.2f);
