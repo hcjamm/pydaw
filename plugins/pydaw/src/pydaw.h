@@ -1525,6 +1525,44 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                 f_adjusted_sample_count = (int)test3;
             }
             
+            int f_is_looping = 0;
+            int f_region_length;
+            
+            //The below overwrites the above if{} block is they both happen to be active at the same time...
+            if((a_pydaw_data->ml_next_period_beats) >= 4.0f)
+            {   
+                if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_BAR)
+                {
+                    f_is_looping = 1;
+                }
+                else if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_REGION)
+                {
+                    f_region_length = 8;
+                    
+                    if(a_pydaw_data->pysong->regions[a_pydaw_data->current_region])                    
+                    {
+                        if(a_pydaw_data->pysong->regions[a_pydaw_data->current_region]->region_length_bars > 0)
+                        {
+                            f_region_length = a_pydaw_data->pysong->regions[a_pydaw_data->current_region]->region_length_bars;
+                        }
+                    }
+                    
+                    if(a_pydaw_data->current_bar == (f_region_length - 1))
+                    {
+                        f_is_looping = 1;
+                    }
+                }
+                
+                if(f_is_looping)
+                {
+                    double test1 = f_adjusted_next_song_pos_beats - 4.0f;
+                    double test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
+                    double test3 = (test1 / test2) * ((double)(a_sample_count));
+
+                    f_adjusted_sample_count = (int)test3;
+                }
+            }
+            
             if((a_pydaw_data->audio_items->items[f_i]->adsr->stage) != 4)
             {
                 while(1)
@@ -1572,9 +1610,39 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                         f_i2++;
                     }
 
-                    if(f_adjusted_sample_count != a_sample_count)  //This would mean that there is an ADSR release in this cycle
+                    if(f_adjusted_sample_count != a_sample_count)  //This would mean that there is an ADSR release or loop event in this cycle
                     {
-                        v_adsr_release(a_pydaw_data->audio_items->items[f_i]->adsr);
+                        if(f_is_looping)
+                        {
+                            double test1;
+                            
+                            if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_BAR)
+                            {
+                                test1 = f_adjusted_next_song_pos_beats - 4.0f - (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat);                                
+                            }
+                            else if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_REGION)
+                            {
+                                float f_beat_count = (float)((f_region_length * 4));
+                                test1 = f_adjusted_next_song_pos_beats - f_beat_count - (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat);
+                            }
+                                                                                    
+                            if(test1 < 0.0f)  //meaning the audio item starts in mid-region...
+                            {
+                                printf("test1 < 0.0f");
+                                v_adsr_release(a_pydaw_data->audio_items->items[f_i]->adsr);
+                            }
+                            else
+                            {
+                                double test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->audio_items->items[f_i]->ratio);
+                                v_ifh_retrigger_double(a_pydaw_data->audio_items->items[f_i]->sample_read_head, test2 + PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);                                
+                                //v_adsr_retrigger(a_pydaw_data->audio_items->items[f_i]->adsr);                                
+                            }                            
+                        }
+                        else
+                        {
+                            v_adsr_release(a_pydaw_data->audio_items->items[f_i]->adsr);
+                        }
+                        
                         f_adjusted_sample_count = a_sample_count;
                     }
                     else
