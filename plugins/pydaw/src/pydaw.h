@@ -1511,7 +1511,7 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                 double test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
                 double test3 = (test1 / test2) * ((double)(a_sample_count));
                 f_i2 = (int)test3;
-                v_ifh_retrigger(a_pydaw_data->audio_items->items[f_i]->sample_read_head, PYDAW_AUDIO_ITEM_PADDING_DIV2); 
+                v_ifh_retrigger(a_pydaw_data->audio_items->items[f_i]->sample_read_head, a_pydaw_data->audio_items->items[f_i]->sample_start_offset); 
                 v_adsr_retrigger(a_pydaw_data->audio_items->items[f_i]->adsr);
             }
             
@@ -1561,7 +1561,8 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                 while(1)
                 {
                     while((f_i2 < f_adjusted_sample_count) && 
-                    ((a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number) <  (a_pydaw_data->audio_items->items[f_i]->length)))
+                    ((a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number) <  (a_pydaw_data->audio_items->items[f_i]->sample_end_offset)))
+                            //(a_pydaw_data->audio_items->items[f_i]->length)))
                     {   
                         if(a_pydaw_data->audio_items->items[f_i]->channels == 1)
                         {
@@ -1626,7 +1627,8 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                             else
                             {
                                 double test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->audio_items->items[f_i]->ratio);
-                                v_ifh_retrigger_double(a_pydaw_data->audio_items->items[f_i]->sample_read_head, test2 + PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);                                
+                                v_ifh_retrigger_double(a_pydaw_data->audio_items->items[f_i]->sample_read_head, test2 + 
+                                        a_pydaw_data->audio_items->items[f_i]->sample_start_offset_float); //PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);                                
                                 //v_adsr_retrigger(a_pydaw_data->audio_items->items[f_i]->adsr);                                
                             }                            
                         }
