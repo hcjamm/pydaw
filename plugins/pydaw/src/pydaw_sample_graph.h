@@ -31,6 +31,7 @@ extern "C" {
  * meta|filename|value   (value should be a full "/home/me/l337samples/cowbell.wav" file path)
  * meta|channels|value   (values should be 1 or 2, PyDAW doesn't support more than 2 channels)
  * meta|timestamp|value  (UNIX time(?))  The time that the graph was made, to compare against file modified time
+ * meta|count|value      (value is the number of peaks in the file)
  * 
  * Value lines:
  * p|channel|(h/l)|value(float)  (peak, channel, high/low peak, and the value: 1.0 to -1.0...
@@ -93,6 +94,8 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
     f_low_peak[0] = 1.0f;
     f_low_peak[1] = 1.0f;
     
+    int f_count = 0;
+    
     int f_i, j;
     
     float f_temp_sample = 0.0f;
@@ -120,7 +123,7 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
             
             for (j = 0; j < f_adjusted_channel_count; ++j)
             {
-                sprintf(f_temp_char, "p|%i|h|%f\np|%i|l|%f\n", j, f_high_peak[j], j, f_low_peak[j]);                
+                sprintf(f_temp_char, "p|%i|h|%f\np|%i|l|%f\n", j, f_high_peak[j], j, f_low_peak[j]);
             }
             
             strcat(f_result, f_temp_char);
@@ -129,13 +132,19 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
             f_high_peak[1] = -1.0f;
             f_low_peak[0] = 1.0f;
             f_low_peak[1] = 1.0f;
+            
+            f_count++;
         }
     }
         
     sf_close(sndfile);
     free(tmpFrames);
     
-    strcat(f_result, "\\");
+    f_count++;
+    
+    sprintf(f_temp_char, "meta|count|%i\n\\", f_count);
+    
+    strcat(f_result, f_temp_char);
     
     FILE * f = fopen(a_file_out,"wb");
     
