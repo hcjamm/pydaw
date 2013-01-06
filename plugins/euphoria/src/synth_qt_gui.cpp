@@ -722,7 +722,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_start_hlayout->addItem(m_sample_start_left_hspacer);
 
         m_sample_start_hslider = new QSlider(m_view_sample_tab);
-        m_sample_start_hslider->setObjectName(QString::fromUtf8("m_sample_start_hslider"));
+        m_sample_start_hslider->setObjectName(QString("wavleft"));
         m_sample_start_hslider->setMinimumSize(QSize(LMS_SAMPLE_GRAPH_WIDTH, 0));
         m_sample_start_hslider->setMaximum(10000);
         m_sample_start_hslider->setOrientation(Qt::Horizontal);
@@ -744,7 +744,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_end_hlayout->addItem(m_sample_end_left_hspacer);
 
         m_sample_end_hslider = new QSlider(m_view_sample_tab);
-        m_sample_end_hslider->setObjectName(QString::fromUtf8("m_sample_end_hslider"));
+        m_sample_end_hslider->setObjectName(QString("wavright"));
         m_sample_end_hslider->setMinimumSize(QSize(LMS_SAMPLE_GRAPH_WIDTH, 0));
         m_sample_end_hslider->setLayoutDirection(Qt::RightToLeft);
         m_sample_end_hslider->setMaximum(10000);
@@ -778,7 +778,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_loop_start_hlayout->addItem(m_sample_loop_start_left_hspacer);
         
         m_sample_loop_start_hslider = new QSlider(m_view_sample_tab);
-        m_sample_loop_start_hslider->setObjectName(QString::fromUtf8("m_sample_loop_start_hslider"));
+        m_sample_loop_start_hslider->setObjectName(QString("wavleft"));
         m_sample_loop_start_hslider->setMinimumSize(QSize(LMS_SAMPLE_GRAPH_WIDTH, 0));
         m_sample_loop_start_hslider->setMaximum(10000);
         m_sample_loop_start_hslider->setOrientation(Qt::Horizontal);
@@ -800,7 +800,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_sample_loop_end_hlayout->addItem(m_sample_loop_end_left_hspacer);
 
         m_sample_loop_end_hslider = new QSlider(m_view_sample_tab);
-        m_sample_loop_end_hslider->setObjectName(QString::fromUtf8("m_sample_loop_end_hslider"));
+        m_sample_loop_end_hslider->setObjectName(QString("wavright"));
         m_sample_loop_end_hslider->setMinimumSize(QSize(LMS_SAMPLE_GRAPH_WIDTH, 0));
         m_sample_loop_end_hslider->setLayoutDirection(Qt::RightToLeft);
         m_sample_loop_end_hslider->setMaximum(10000);
