@@ -969,12 +969,13 @@ class audio_list_editor:
         self.items_groupbox.setLayout(self.items_vlayout)
         
         self.audio_items_table_widget = QtGui.QTableWidget()
-        self.audio_items_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.audio_items_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.audio_items_table_widget.setColumnCount(13)
+        self.audio_items_table_widget.setColumnCount(13)        
         self.audio_items_table_widget.setHorizontalHeaderLabels(["Path", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", \
         "End Mode", "End Region", "End Bar", "End Beat", "Timestretch Mode", "Pitch", "Audio Track"])
         self.audio_items_table_widget.setRowCount(32)
+        self.audio_items_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.audio_items_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+                
         self.audio_items_table_widget.cellClicked.connect(self.cell_clicked)
         self.items_vlayout.addWidget(self.audio_items_table_widget)
         
