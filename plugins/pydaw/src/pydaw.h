@@ -96,6 +96,7 @@ extern "C" {
 #include <time.h>
 #include "../../libmodsynth/lib/amp.h"
 #include "pydaw_audio_tracks.h"
+#include "pydaw_sample_graph.h"
     
 typedef struct st_pynote
 {
@@ -201,6 +202,7 @@ typedef struct st_pydaw_data
     char * audio_folder;
     char * audiofx_folder;
     char * samples_folder;
+    char * samplegraph_folder;
     
     double playback_cursor; //only refers to the fractional position within the current bar.
     double playback_inc;  //the increment per-period to iterate through 1 bar, as determined by sample rate and tempo
@@ -2273,7 +2275,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->busfx_folder = (char*)malloc(sizeof(char) * 256);
     f_result->audio_folder = (char*)malloc(sizeof(char) * 256);
     f_result->audiofx_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->samples_folder = (char*)malloc(sizeof(char) * 256);    
+    f_result->samples_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->samplegraph_folder = (char*)malloc(sizeof(char) * 256);
     
     f_result->playback_mode = 0;
     f_result->pysong = NULL;
@@ -2763,6 +2766,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     sprintf(a_pydaw_data->audiofx_folder, "%saudiofx/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->busfx_folder, "%sbusfx/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->samples_folder, "%ssamples/", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->samplegraph_folder, "%ssamplegraph/", a_pydaw_data->project_folder);
     
     sprintf(a_pydaw_data->audio_items_file, "%sdefault.pyaudioitem", a_pydaw_data->project_folder);
     //strcpy(a_pydaw_data->project_name, a_name);
@@ -3792,7 +3796,11 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH)) //Create a .pygraph file for each .wav...
     {
-        //TODO
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        char f_file_name_tmp[256];
+        sprintf(f_file_name_tmp, "%s%s.pygraph", a_pydaw_data->samplegraph_folder, f_val_arr->array[1]);        
+        v_pydaw_generate_sample_graph(f_val_arr->array[0], f_file_name_tmp);
+        g_free_1d_char_array(f_val_arr);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_STOP)) //Stop playback or recording
     {

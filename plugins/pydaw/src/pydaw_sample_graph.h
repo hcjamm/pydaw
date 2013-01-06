@@ -22,11 +22,13 @@ extern "C" {
 
 #define PYDAW_SAMPLE_GRAPH_MAX_SIZE 2097152
     
-/* The file format:
+/* void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out);
+ * The file format:
  * Tag lines:
  * meta|attr.name|value1|...
  * 
  * Valid meta attributes:
+ * meta|filename|value   (value should be a full "/home/me/l337samples/cowbell.wav" file path)
  * meta|channels|value   (values should be 1 or 2, PyDAW doesn't support more than 2 channels)
  * meta|timestamp|value  (UNIX time(?))  The time that the graph was made, to compare against file modified time
  * 
@@ -45,7 +47,7 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
     char * f_result = (char*)malloc(sizeof(char) * PYDAW_SAMPLE_GRAPH_MAX_SIZE);    
     f_result[0] = '\0';
     
-    sprintf(f_result, "meta|timestamp|%ld\n", time(0));
+    sprintf(f_result, "meta|filename|%s\nmeta|timestamp|%ld\n", a_file_in, time(0));
     
     char f_temp_char[256];
     f_temp_char[0] = '\0';
@@ -76,7 +78,8 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
         f_adjusted_channel_count = 2;
     }
     
-    sprintf("meta|channels|%i\n", f_adjusted_channel_count);
+    sprintf(f_temp_char, "meta|channels|%i\n", f_adjusted_channel_count);
+    strcat(f_result, f_temp_char);
 
     int f_actual_array_size = (samples);
         
@@ -101,11 +104,11 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
             f_temp_sample = (tmpFrames[f_i * info.channels + j]);
             if(f_temp_sample > f_high_peak[j])
             {
-                
+                f_high_peak[j] = f_temp_sample;
             }
             else if(f_temp_sample < f_low_peak[j])
             {
-                
+                f_low_peak[j] = f_temp_sample;
             }
         }
         
@@ -131,12 +134,14 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
         
     sf_close(sndfile);
     free(tmpFrames);
-        
+    
+    strcat(f_result, "\\");
+    
     FILE * f = fopen(a_file_out,"wb");
     
     if(f)
     {
-        fprintf(f, f_result);
+        fprintf(f, "%s", f_result);
         fflush(f);
         fclose(f);
     }

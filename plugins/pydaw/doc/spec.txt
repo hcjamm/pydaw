@@ -52,20 +52,25 @@ OSC configure message keys/values:
 	"as"	"file-line"	Reload a single audio item, index and all data pulled from the corresponding line in the default.pydaudioitem file.
 	"ac"	int	Clear the sample at index[int]
 	"au"	"file-line"  Update the file at file-line, but do not reload the sample...
-	"sg"	"file"	Generate a sample-graph for "file"
+	"sg"	"file|uid"	Generate a sample-graph for "file", assigning it to uid.pygraph in the project/samplegraph/
 	"ai"	""	Reload all audio items(the sequenced audio parts/loaded files)
 
 
 Project structure:
 
 	project/
+		audio/*.wav
+		audiofx/*.pyfx
+		busfx/*.pyfx
 		instruments/
-			*.pyinst
-			*.pyfx
-		regions/
-			*.pyreg
-		items/
-			*.pyitem
+			    *.pyinst
+			    *.pyfx
+		items/*.pyitem
+		regions/*.pyreg
+		samplegraph/*.pygraph
+		samples/????
+
+		default.pygraphs #a uid-to-file-path dictionary
 		default.pysong #regions
 		default.pytracks #midi track
 		default.pyaudio #audio tracks

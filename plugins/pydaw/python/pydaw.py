@@ -796,6 +796,8 @@ class audio_list_editor:
                 if not f_file_name is None and not str(f_file_name) == "":
                     f_name.setText(f_file_name)
                 self.last_open_dir = os.path.dirname(f_file_name)
+                print(str(os.path.getmtime(str(f_file_name))))
+                this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(str(f_file_name), pydaw_gen_uid())
                    
         def clear_handler():
             this_pydaw_project.this_dssi_gui.pydaw_clear_single_audio_item(x)            

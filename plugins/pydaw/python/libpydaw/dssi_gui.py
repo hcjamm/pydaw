@@ -195,6 +195,6 @@ class dssi_gui(ServerThread):
         """ a_item should be a valid pydaw_audio_item """
         self.send_configure("au", str(a_index) + "|" + str(a_item))        
         
-    def pydaw_generate_sample_graph(self, a_file):
-        self.send_configure("sg", "")
+    def pydaw_generate_sample_graph(self, a_file, a_uid):
+        self.send_configure("sg", str(a_file) + "|" + str(a_uid))
     
