@@ -803,6 +803,14 @@ class audio_list_editor:
             this_pydaw_project.save_audio_items(self.audio_items)
             self.open_items()
             f_window.close()
+        
+        def sample_start_changed(a_val=None):
+            if f_sample_end.value() < f_sample_start.value() + 10:
+                f_sample_end.setValue(f_sample_start.value() + 10)
+
+        def sample_end_changed(a_val=None):
+            if f_sample_start.value() > f_sample_end.value() - 10:
+                f_sample_start.setValue(f_sample_end.value() - 10)
                 
         f_window = QtGui.QDialog(this_main_window)
         f_window.setMinimumWidth(800)
@@ -824,10 +832,12 @@ class audio_list_editor:
         f_layout.addLayout(f_sample_start_end_vlayout, 1, 1)
         f_sample_start = QtGui.QSlider(QtCore.Qt.Horizontal)
         f_sample_start.setObjectName("wavleft")
+        f_sample_start.valueChanged.connect(sample_start_changed)
         f_sample_start.setRange(0, 990)
         f_sample_start_end_vlayout.addWidget(f_sample_start)
         f_sample_end = QtGui.QSlider(QtCore.Qt.Horizontal)
         f_sample_end.setObjectName("wavright")
+        f_sample_end.valueChanged.connect(sample_end_changed)
         f_sample_end.setRange(10, 1000)
         f_sample_end.setValue(1000)
         f_sample_start_end_vlayout.addWidget(f_sample_end)
