@@ -240,19 +240,18 @@ static void v_pydaw_connect_port(LADSPA_Handle instance, unsigned long port, LAD
 
     plugin = (t_pydaw_engine *) instance;
 
-    /*
     if((port >= PYDAW_INPUT_MIN) && (port < PYDAW_INPUT_MAX))
     {
         plugin->input_arr[(port - PYDAW_INPUT_MIN)] = data;
     }
     else
-    {*/
+    {
         switch (port) 
         {     
             case PYDAW_OUTPUT0: plugin->output0 = data; break;
             case PYDAW_OUTPUT1: plugin->output1 = data; break;        
         }
-    //}    
+    }
 }
 
 static LADSPA_Handle g_pydaw_instantiate(const LADSPA_Descriptor * descriptor, unsigned long s_rate)
@@ -366,7 +365,7 @@ void _init()
 	LMSLDescriptor->PortNames = (const char **) port_names;
 
         /* Parameters for input */
-        /*int f_i;
+        int f_i;
         
         for(f_i = PYDAW_INPUT_MIN; f_i < PYDAW_INPUT_MAX; f_i++)
         {
@@ -374,8 +373,7 @@ void _init()
             port_names[f_i] = "Input ";  //TODO:  Give a more descriptive port name
             port_range_hints[f_i].HintDescriptor = 0;
         }
-        */
-        
+                
 	/* Parameters for output */
 	port_descriptors[PYDAW_OUTPUT0] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
 	port_names[PYDAW_OUTPUT0] = "Output 0";
