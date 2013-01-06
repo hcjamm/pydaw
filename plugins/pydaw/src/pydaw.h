@@ -3632,10 +3632,11 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     double f_sample_count = a_pydaw_data->samples_per_beat * ((double)f_beat_total);
     long f_sample_count_long = (((long)f_sample_count) * 2) + 6000000;
     
-    float * f_output = (float*)malloc(sizeof(float) * f_sample_count_long);
-       
     long f_size = 0;
     long f_block_size = (a_pydaw_data->sample_count);    
+    
+    float * f_output = (float*)malloc(sizeof(float) * (f_block_size * 2)); //f_sample_count_long);
+    
     long f_next_sample_block = 0;
     float * f_buffer0 = (float*)malloc(sizeof(float) * f_block_size);
     float * f_buffer1 = (float*)malloc(sizeof(float) * f_block_size);
@@ -3644,11 +3645,19 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     v_set_loop_mode(a_pydaw_data, PYDAW_LOOP_MODE_OFF);
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);    
         
+    SF_INFO f_sf_info;
+    f_sf_info.channels = 2;
+    f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+    f_sf_info.samplerate = (int)(a_pydaw_data->sample_rate);
+            
+    SNDFILE * f_sndfile = sf_open(a_file_out, SFM_WRITE, &f_sf_info);
+    
     clock_t f_start = clock();
     
     while(((a_pydaw_data->current_region) < a_end_region) || ((a_pydaw_data->current_bar) < a_end_bar))
     {
         f_i = 0;
+        f_size = 0;
     
         while(f_i < f_block_size)
         {
@@ -3673,6 +3682,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
             f_size++;
             f_i++;
         }
+        
+        sf_writef_float(f_sndfile, f_output, f_block_size);
     }
         
     v_pydaw_print_benchmark("v_pydaw_offline_render (to RAM)", f_start);
@@ -3681,14 +3692,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_OFF, a_start_region, a_start_bar);
     v_set_loop_mode(a_pydaw_data, f_old_loop_mode);
-    
-    SF_INFO f_sf_info;
-    f_sf_info.channels = 2;
-    f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
-    f_sf_info.samplerate = (int)(a_pydaw_data->sample_rate);
-            
-    SNDFILE * f_sndfile = sf_open(a_file_out, SFM_WRITE, &f_sf_info);
-    printf("%i\n", (int)(sf_writef_float(f_sndfile, f_output, f_size/2)));
+        
+    //printf("%i\n", (int)(sf_writef_float(f_sndfile, f_output, f_size/2)));
     sf_close(f_sndfile);
     
     free(f_buffer0);
