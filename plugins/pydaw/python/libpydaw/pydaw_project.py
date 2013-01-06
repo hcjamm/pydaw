@@ -107,7 +107,7 @@ class pydaw_project:
         self.samples_folder = self.project_folder + "/samples"  #Placeholder for future functionality
         self.audiofx_folder = self.project_folder + "/audiofx"
         self.busfx_folder = self.project_folder + "/busfx"
-        self.pixmap_folder = self.project_folder + "/pixmap"
+        self.samplegraph_folder = self.project_folder + "/samplegraph"
 
     def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
@@ -125,7 +125,7 @@ class pydaw_project:
         project_folders = [
             self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder, 
-            self.audiofx_folder, self.busfx_folder, self.pixmap_folder
+            self.audiofx_folder, self.busfx_folder, self.samplegraph_folder
             ]
 
         for project_dir in project_folders:
