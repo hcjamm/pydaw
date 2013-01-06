@@ -986,7 +986,13 @@ class audio_list_editor:
         self.ccs_vlayout = QtGui.QVBoxLayout()
         self.ccs_groupbox.setLayout(self.ccs_vlayout)
                 
-        self.reset_tracks()        
+        self.reset_tracks()
+    
+    def get_inputs(self):
+        f_result = pydaw_audio_input_tracks()
+        for f_i in range(len(self.inputs)):
+            f_result.add_track(f_i, self.inputs[f_i].get_track())
+        return f_result
 
 class audio_track:
     def on_vol_change(self, value):
@@ -1144,11 +1150,12 @@ class audio_input_track:
         self.main_vlayout.addLayout(self.hlayout3)        
         #self.hlayout3.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))        
         self.output_combobox = QtGui.QComboBox()
-        self.output_combobox.addItems(['1','2','3','4','5','6','7','8'])
-        self.output_combobox.setMinimumWidth(54)
+        self.output_combobox.addItems(global_audio_track_names)
+        self.output_combobox.setMinimumWidth(150)
         self.output_combobox.currentIndexChanged.connect(self.on_bus_changed)
-        self.hlayout3.addWidget(QtGui.QLabel("Output:"))
-        self.hlayout3.addWidget(self.output_combobox)        
+        self.hlayout3.addWidget(QtGui.QLabel("Out:"))
+        self.hlayout3.addWidget(self.output_combobox)
+        self.hlayout3.addItem(QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding))
         self.rec_checkbox = QtGui.QCheckBox()        
         self.rec_checkbox.clicked.connect(self.on_rec)
         self.rec_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/record-off.png);}QCheckBox::indicator::checked{image: url(pydaw/record-on.png);}")
@@ -1164,7 +1171,7 @@ class audio_input_track:
         self.suppress_osc = False
 
     def get_track(self):        
-        return pydaw_audio_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.volume_slider.value(), str(self.track_name_lineedit.text()), self.bus_combobox.currentIndex())
+        return pydaw_audio_input_track(self.rec_checkbox.isChecked(), self.volume_slider.value(), self.output_combobox.currentIndex())
 
 
 
