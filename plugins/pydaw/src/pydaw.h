@@ -2284,6 +2284,12 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->recording_current_item_pool_index = -1;
     f_result->recording_first_item = -1;
     
+    f_result->ml_current_period_beats = 0.0f;
+    f_result->ml_next_period_beats = 0.0f;
+    f_result->ml_next_playback_cursor = 0.0f;
+    f_result->ml_sample_period_inc = 0.0f;
+    f_result->ml_sample_period_inc_beats = 0.0f;
+    
     f_result->amp_ptr = g_amp_get();
     f_result->is_offline_rendering = 0;
     
