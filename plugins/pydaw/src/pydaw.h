@@ -1526,8 +1526,7 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
             }
             
             int f_is_looping = 0;
-            int f_region_length;
-            
+                        
             //The below overwrites the above if{} block is they both happen to be active at the same time...
             if((a_pydaw_data->ml_next_period_beats) >= 4.0f)
             {   
@@ -1536,18 +1535,12 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                     f_is_looping = 1;
                 }
                 else if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_REGION)
-                {
-                    f_region_length = 8;
-                    
-                    if(a_pydaw_data->pysong->regions[a_pydaw_data->current_region])                    
-                    {
-                        if(a_pydaw_data->pysong->regions[a_pydaw_data->current_region]->region_length_bars > 0)
-                        {
-                            f_region_length = a_pydaw_data->pysong->regions[a_pydaw_data->current_region]->region_length_bars;
-                        }
-                    }
-                    
-                    if(a_pydaw_data->current_bar == (f_region_length - 1))
+                {                    
+                    /*The current bar will already be reset to zero here from the main loop...  
+                     * This fixes a bug where region-looped audio items restart a bar early...
+                     * There's the added bonus of not needing to track region length here, so I won't try to 'fix' it...
+                     */
+                    if(a_pydaw_data->current_bar == 0)  //(f_region_length - 1))
                     {
                         f_is_looping = 1;
                     }
@@ -1621,9 +1614,8 @@ inline void v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_co
                                 test1 = f_adjusted_next_song_pos_beats - 4.0f - (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat);                                
                             }
                             else if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_REGION)
-                            {
-                                float f_beat_count = (float)((f_region_length * 4));
-                                test1 = f_adjusted_next_song_pos_beats - f_beat_count - (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat);
+                            {                                
+                                test1 = f_adjusted_next_song_pos_beats - 4.0f - (a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat);
                             }
                                                                                     
                             if(test1 < 0.0f)  //meaning the audio item starts in mid-region...
