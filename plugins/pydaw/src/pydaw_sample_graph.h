@@ -17,6 +17,7 @@ extern "C" {
 #include <sndfile.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 //#include <sys/stat.h>
 
 #define PYDAW_SAMPLE_GRAPH_MAX_SIZE 2097152
@@ -27,6 +28,7 @@ extern "C" {
  * 
  * Valid meta attributes:
  * meta|channels|value   (values should be 1 or 2, PyDAW doesn't support more than 2 channels)
+ * meta|timestamp|value  (UNIX time(?))  The time that the graph was made, to compare against file modified time
  * 
  * Value lines:
  * p|channel|(h/l)|value(float)  (peak, channel, high/low peak, and the value: 1.0 to -1.0...
@@ -42,6 +44,8 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
 {
     char * f_result = (char*)malloc(sizeof(char) * PYDAW_SAMPLE_GRAPH_MAX_SIZE);    
     f_result[0] = '\0';
+    
+    sprintf(f_result, "meta|timestamp|%ld\n", time(0));
     
     char f_temp_char[256];
     f_temp_char[0] = '\0';
@@ -71,6 +75,8 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
     {
         f_adjusted_channel_count = 2;
     }
+    
+    sprintf("meta|channels|%i\n", f_adjusted_channel_count);
 
     int f_actual_array_size = (samples);
         
@@ -111,9 +117,10 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
             
             for (j = 0; j < f_adjusted_channel_count; ++j)
             {
-                sprintf("p|%i|h|%f\n", j, f_high_peak[j]);
-                sprintf("p|%i|l|%f\n", j, f_low_peak[j]);
+                sprintf(f_temp_char, "p|%i|h|%f\np|%i|l|%f\n", j, f_high_peak[j], j, f_low_peak[j]);                
             }
+            
+            strcat(f_result, f_temp_char);
             
             f_high_peak[0] = -1.0f;
             f_high_peak[1] = -1.0f;
