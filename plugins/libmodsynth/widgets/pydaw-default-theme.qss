@@ -14,6 +14,36 @@ color: white;
 background-color: #323232;
 }
 
+
+QSlider#wavleft, QSlider#wavleft::groove:horizontal, QSlider#wavleft::sub-page:horizontal, QSlider#wavleft::add-page:horizontal
+{
+background:transparent;
+border: 2px solid transparent;
+}
+
+QSlider#wavleft::handle:horizontal
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/wav-slider-left.png);
+margin-top: -7px;
+margin-bottom: -7px;
+border: 2px solid transparent;
+}
+
+
+QSlider#wavright, QSlider#wavright::groove:horizontal, QSlider#wavright::sub-page:horizontal, QSlider#wavright::add-page:horizontal
+{
+background:transparent;
+border: 2px solid transparent;
+}
+
+QSlider#wavright::handle:horizontal
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/wav-slider-right.png);
+margin-top: -7px;
+margin-bottom: -7px;
+border: 2px solid transparent;
+}
+
 QGroupBox
 {
 color: white; 
@@ -184,7 +214,7 @@ border-bottom-right-radius: 3px;
 
 QComboBox::down-arrow
 {
-image: url(/usr/lib/dssi/pydaw/python/pydaw/drop-down.png);
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/drop-down.png);
 }
 
 QSpinBox, QDoubleSpinBox
@@ -196,12 +226,12 @@ border: 1px solid white;
 
 QSpinBox::up-button, QDoubleSpinBox::up-button
 {
-border-image: url(/usr/lib/dssi/pydaw/python/pydaw/spinbox-up.png);
+border-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/spinbox-up.png);
 }
 
 QSpinBox::down-button, QDoubleSpinBox::down-button
 {
-border-image: url(/usr/lib/dssi/pydaw/python/pydaw/spinbox-down.png);
+border-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/spinbox-down.png);
 }
 
 QGroupBox:focus
