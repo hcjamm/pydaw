@@ -688,7 +688,7 @@ class region_list_editor:
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)    
 
 global_timestretch_modes = ["None", "Pitch", "Time + Pitch"]
-global_audio_track_names = ["1","2","3","4","5","6","7","8"]   #To be replaced with their real names at some point
+global_audio_track_names = ["1","2","3","4","5","6","7","8"]  #To be fixed with actual names...  Although previous attempts have been problematic...
 
 class audio_list_editor:
     def open_tracks(self):
@@ -900,8 +900,10 @@ class audio_list_editor:
         f_output_hlayout = QtGui.QHBoxLayout()
         f_output_hlayout.addWidget(QtGui.QLabel("Audio Track:"))
         f_output_combobox = QtGui.QComboBox()
+        f_output_combobox.setMinimumWidth(360)
         f_output_combobox.addItems(global_audio_track_names)
         f_output_hlayout.addWidget(f_output_combobox)
+        f_output_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
         f_layout.addWidget(QtGui.QLabel("Output:"), 9, 0)
         f_layout.addLayout(f_output_hlayout, 9, 1)
         
@@ -1012,7 +1014,7 @@ class audio_track:
         this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 2)
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].name = self.track_name_lineedit.text()
-        this_pydaw_project.save_audio_tracks(f_tracks)
+        this_pydaw_project.save_audio_tracks(f_tracks)        
     def on_show_fx(self):        
         this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 2)
     def on_bus_changed(self, a_value=0):        
@@ -1105,7 +1107,7 @@ class audio_input_track:
         this_pydaw_project.save_audio_inputs(f_tracks)  
     def on_rec(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
+            this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.rec_checkbox.isChecked())
         this_pydaw_project.save_audio_inputs(this_audio_editor.get_inputs())
     def on_bus_changed(self, a_value=0):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
