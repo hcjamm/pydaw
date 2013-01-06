@@ -16,12 +16,10 @@ extern "C" {
 #include "../../libmodsynth/lib/interpolate-cubic.h"
 //Imported only for t_int_frac_read_head... TODO:  Fork that into it's own file...
 #include "../../libmodsynth/lib/interpolate-sinc.h"
-#include "../../libmodsynth/lib/voice.h"
 #include "../../libmodsynth/modules/modulation/adsr.h"
 #include "pydaw_files.h"
     
 #define PYDAW_MAX_AUDIO_ITEM_COUNT 32
-#define PYDAW_MAX_AUDIO_ITEM_POLY_VOICE_COUNT 64
 
 #define PYDAW_AUDIO_ITEM_PADDING 64
 #define PYDAW_AUDIO_ITEM_PADDING_DIV2 32
@@ -61,7 +59,6 @@ typedef struct
     t_pydaw_audio_item * items[PYDAW_MAX_AUDIO_ITEM_COUNT];
     int sample_rate;
     t_cubic_interpolater * cubic_interpolator;    
-    t_voc_voices * voices;
 } t_pydaw_audio_items;
 
 
@@ -130,7 +127,6 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sr)
     }
     
     f_result->sample_rate = a_sr;
-    f_result->voices = g_voc_get_voices(PYDAW_MAX_AUDIO_ITEM_POLY_VOICE_COUNT);
     f_result->cubic_interpolator = g_cubic_get();
     
     int f_i = 0;
