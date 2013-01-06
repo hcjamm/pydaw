@@ -20,22 +20,41 @@ extern "C" {
 //#include <sys/stat.h>
 
 #define PYDAW_SAMPLE_GRAPH_MAX_SIZE 2097152
+    
+/* The file format:
+ * Tag lines:
+ * meta|attr.name|value1|...
+ * 
+ * Valid meta attributes:
+ * meta|channels|value   (values should be 1 or 2, PyDAW doesn't support more than 2 channels)
+ * 
+ * Value lines:
+ * p|channel|(h/l)|value(float)  (peak, channel, high/low peak, and the value: 1.0 to -1.0...
+ * 
+ * EOF char:  '\'
+ */
 
+//TODO:  A sample graph generator benchmark???
+    
 void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out);
 
 void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
 {
-    char * f_result = (char*)malloc(sizeof(char) * PYDAW_SAMPLE_GRAPH_MAX_SIZE);
+    char * f_result = (char*)malloc(sizeof(char) * PYDAW_SAMPLE_GRAPH_MAX_SIZE);    
+    f_result[0] = '\0';
+    
+    char f_temp_char[256];
+    f_temp_char[0] = '\0';
         
     SF_INFO info;
-    SNDFILE *file;
+    SNDFILE *sndfile;
     size_t samples = 0;
-    float *tmpFrames, *tmpSamples[2];
+    float *tmpFrames;
     
     info.format = 0;
-    file = sf_open(a_file_in, SFM_READ, &info);
+    sndfile = sf_open(a_file_in, SFM_READ, &info);
 
-    if (!file) 
+    if (!sndfile) 
     {
         printf("error: unable to load sample file '%s'", a_file_in);
         return;
@@ -44,8 +63,8 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
     samples = info.frames;
 
     tmpFrames = (float *)malloc(info.frames * info.channels * sizeof(float));
-    sf_readf_float(file, tmpFrames, info.frames);
-    sf_close(file);
+    sf_readf_float(sndfile, tmpFrames, info.frames);
+    sf_close(sndfile);
            
     int f_adjusted_channel_count = 1;
     if(info.channels >= 2)    
@@ -54,20 +73,16 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
     }
 
     int f_actual_array_size = (samples);
-
-    if(posix_memalign((void**)(&(tmpSamples[0])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
-    {
-        printf("Call to posix_memalign failed for tmpSamples[0]\n");
-        return;
-    }
-    if(f_adjusted_channel_count > 1)
-    {
-        if(posix_memalign((void**)(&(tmpSamples[1])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
-        {
-            printf("Call to posix_memalign failed for tmpSamples[1]\n");
-            return;
-        }
-    }
+        
+    int f_peak_count = (info.samplerate) / 10;
+    int f_peak_counter = 0;
+    
+    float f_high_peak[2], f_low_peak[2];
+    
+    f_high_peak[0] = -1.0f;
+    f_high_peak[1] = -1.0f;
+    f_low_peak[0] = 1.0f;
+    f_low_peak[1] = 1.0f;
     
     int f_i, j;
     
@@ -78,16 +93,40 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
         for (j = 0; j < f_adjusted_channel_count; ++j) 
         {
             f_temp_sample = (tmpFrames[f_i * info.channels + j]);
-            tmpSamples[j][f_i] = f_temp_sample;            
+            if(f_temp_sample > f_high_peak[j])
+            {
+                
+            }
+            else if(f_temp_sample < f_low_peak[j])
+            {
+                
+            }
         }
-
+        
+        f_peak_counter++;
+        
+        if(f_peak_counter >= f_peak_count)
+        {
+            f_peak_counter = 0;
+            
+            for (j = 0; j < f_adjusted_channel_count; ++j)
+            {
+                sprintf("p|%i|h|%f\n", j, f_high_peak[j]);
+                sprintf("p|%i|l|%f\n", j, f_low_peak[j]);
+            }
+            
+            f_high_peak[0] = -1.0f;
+            f_high_peak[1] = -1.0f;
+            f_low_peak[0] = 1.0f;
+            f_low_peak[1] = 1.0f;
+        }
     }
         
+    sf_close(sndfile);
     free(tmpFrames);
-    
-    
-    FILE * f = fopen(a_file_out,"wb");
         
+    FILE * f = fopen(a_file_out,"wb");
+    
     if(f)
     {
         fprintf(f, f_result);
@@ -96,7 +135,7 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
     }
     else
     {
-        printf("cc_map.h:  Cannot open %s for writing, path is either invalid or you do not have the rights to open it.\n", a_file_out);
+        printf("v_pydaw_generate_sample_graph:  Cannot open '%s' for writing, path is either invalid or you do not have the rights to open it.\n", a_file_out);
     }
 }
 
