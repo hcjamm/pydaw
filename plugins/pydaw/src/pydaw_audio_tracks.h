@@ -47,6 +47,9 @@ typedef struct
     float pitch_shift;    
     float sample_start;
     float sample_end;
+    int sample_start_offset;
+    float sample_start_offset_float;
+    int sample_end_offset;
     int audio_track_output;  //The audio track whose Modulex instance to write the samples to    
     float item_sample_rate;
     t_int_frac_read_head * sample_read_head;
@@ -183,11 +186,16 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     float f_sample_start = atof(f_sample_start_char) * 0.001f;
     f_result->sample_start = f_sample_start;
     free(f_sample_start_char);
+    
+    f_result->sample_start_offset = (int)((f_result->sample_start * ((float)f_result->length))) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
+    f_result->sample_start_offset_float = (float)(f_result->sample_start_offset);
 
     char * f_sample_end_char = c_iterate_2d_char_array(f_current_string);
     f_result->sample_end = atof(f_sample_end_char) * 0.001f;            
     free(f_sample_end_char);
 
+    f_result->sample_end_offset = (int)((f_result->sample_end * ((float)f_result->length))) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
+    
     char * f_start_region_char = c_iterate_2d_char_array(f_current_string);
     f_result->start_region = atoi(f_start_region_char);            
     free(f_start_region_char);
