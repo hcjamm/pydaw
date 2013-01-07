@@ -87,6 +87,8 @@ class pydaw_sample_graph:
                     self.low_peaks[int(f_line_arr[1])].append(float(f_line_arr[3]))
                 else:
                     print("Invalid sample_graph [2] value " + f_line_arr[2] )
+        for f_list in self.low_peaks:
+            f_list.reverse()
             
     def is_valid(self):
         return (self.uid is not None) and (self.file is not None) and (self.timestamp is not None) \
@@ -131,11 +133,11 @@ class pydaw_render_widget(QtGui.QWidget):
 
         self.paths = paths
         self.setPenColor(QtGui.QColor(QtCore.Qt.lightGray))
-        self.setFillGradient(QtGui.QColor.fromRgb(222, 222, 143), QtGui.QColor.fromRgb(141, 141, 93))
+        self.setFillGradient(QtGui.QColor.fromRgb(204, 204, 143), QtGui.QColor.fromRgb(132, 132, 93))
         self.penWidth = 1
         self.rotationAngle = 0
         self.setBackgroundRole(QtGui.QPalette.Base)
-        self.setPenWidth(0.3)
+        self.setPenWidth(0.2)
         self.setStyleSheet("background-color:black;")
 
     def minimumSizeHint(self):
