@@ -2070,9 +2070,10 @@ class seq_track:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_name_changed(self):
-        self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-        this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 0)
+        if self.is_instrument:
+            self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
+            this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+            this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 0)
     def on_instrument_change(self, selected_instrument):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
         if not self.suppress_osc:
