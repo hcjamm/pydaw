@@ -92,17 +92,22 @@ class pydaw_sample_graph:
         return (self.uid is not None) and (self.file is not None) and (self.timestamp is not None) \
         and (self.channels is not None) and (self.count is not None)
     
+    
+    #BIG TODO:  Make path into a list, then pass it to pydaw_render widget and render multiple channels...
     def create_sample_graph(self, a_height, a_width):
         f_width_inc = float(a_width) / self.count
         f_width_pos = 0.0
         f_result = QtGui.QPainterPath()
         for f_i in range(self.channels):
-            f_result.moveTo(0.0, 50.0)  #TODO:  Calculate where to move this to...
+            f_section = float(a_height) / float(self.channels)
+            f_section_div2 = f_section * 0.5
+            f_section_div4 = f_section * 0.25
+            f_result.moveTo(0.0, f_section_div2 * float(self.channels + 1))
             for f_peak in self.high_peaks[f_i]:
-                f_result.lineTo(f_width_pos, f_peak)  #TODO:  These will need to be multiplied by other values
+                f_result.lineTo(f_width_pos, f_peak * f_section_div4)
                 f_width_pos += f_width_inc
-            for f_peak in self.low_peaks[f_i]:                
-                f_result.lineTo(f_width_pos, f_peak)  #TODO:  These will need to be multiplied by other values
+            for f_peak in self.low_peaks[f_i]:
+                f_result.lineTo(f_width_pos, (f_peak * f_section_div4) + f_section_div2)
                 f_width_pos -= f_width_inc
             f_result.closeSubpath()
         return pydaw_render_widget(f_result)
@@ -118,16 +123,17 @@ class pydaw_render_widget(QtGui.QWidget):
         super(pydaw_render_widget, self).__init__(parent)
 
         self.path = path
-
+        self.setPenColor(QtGui.QColor(QtCore.Qt.darkBlue))
+        self.setFillGradient(QtGui.QColor(QtCore.Qt.black), QtGui.QColor(QtCore.Qt.lightGray))
         self.penWidth = 1
         self.rotationAngle = 0
         self.setBackgroundRole(QtGui.QPalette.Base)
 
     def minimumSizeHint(self):
-        return QtCore.QSize(50, 50)
+        return QtCore.QSize(200, 100)
 
     def sizeHint(self):
-        return QtCore.QSize(100, 100)
+        return QtCore.QSize(800, 300)
 
     def setFillRule(self, rule):
         self.path.setFillRule(rule)
@@ -165,3 +171,11 @@ class pydaw_render_widget(QtGui.QWidget):
         gradient.setColorAt(1.0, self.fillColor2)
         painter.setBrush(QtGui.QBrush(gradient))
         painter.drawPath(self.path)
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    f_graph = pydaw_sample_graph("test.pygraph")    
+    f_test = f_graph.create_sample_graph(300,300)
+    f_test.show()
+    sys.exit(app.exec_())
