@@ -96,15 +96,11 @@ class pydaw_sample_graph:
     
     
     #BIG TODO:  Make path into a list, then pass it to pydaw_render widget and render multiple channels...
-    def create_sample_graph(self):
-        print(str(self.count))
-        print(str(self.channels))
+    def create_sample_graph(self):        
         f_width_inc = 100.0 / self.count
-        f_section = 100.0 / float(self.channels)
-        print(str(f_section))
+        f_section = 100.0 / float(self.channels)        
         f_section_div2 = f_section * 0.5
-        print(str(f_section_div2))
-        
+                
         f_paths = []
 
         for f_i in range(self.channels):
