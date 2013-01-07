@@ -21,6 +21,7 @@ extern "C" {
 //#include <sys/stat.h>
 
 #define PYDAW_SAMPLE_GRAPH_MAX_SIZE 2097152
+#define PYDAW_SAMPLE_GRAPH_POINTS_PER_SAMPLE 300.0f
     
 /* void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out);
  * The file format:
@@ -84,7 +85,13 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
 
     int f_actual_array_size = (samples);
         
-    int f_peak_count = (info.samplerate) / 10;
+    int f_peak_count = (int)(((float)info.frames) / PYDAW_SAMPLE_GRAPH_POINTS_PER_SAMPLE);
+    
+    if(f_peak_count < 1)
+    {
+        f_peak_count = 1;
+    }
+    
     int f_peak_counter = 0;
     
     float f_high_peak[2], f_low_peak[2];
@@ -124,10 +131,9 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
             for (j = 0; j < f_adjusted_channel_count; ++j)
             {
                 sprintf(f_temp_char, "p|%i|h|%f\np|%i|l|%f\n", j, f_high_peak[j], j, f_low_peak[j]);
+                strcat(f_result, f_temp_char);
             }
-            
-            strcat(f_result, f_temp_char);
-            
+                                    
             f_high_peak[0] = -1.0f;
             f_high_peak[1] = -1.0f;
             f_low_peak[0] = 1.0f;
