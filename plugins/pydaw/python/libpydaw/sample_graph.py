@@ -1,4 +1,5 @@
 from PyQt4 import QtGui, QtCore
+import os
 
 class pydaw_sample_graphs:
     def __init__(self, a_sg_dir):        
@@ -15,9 +16,23 @@ class pydaw_sample_graphs:
     def get_sample_graph(self, a_file_name):
         f_file_name = str(a_file_name)
         if self.lookup.has_key(f_file_name):
-            return pydaw_sample_graph(self.sg_dir + "/" + str(self.lookup[f_file_name]) + ".pygraph")
+            f_pygraph_file = self.sg_dir + "/" + str(self.lookup[f_file_name]) + ".pygraph"
+            f_result = pydaw_sample_graph(f_pygraph_file)
+            #The below has a corner case of the user could be generating a graph for a huge file, and has
+            #triggered this for a 2nd time but the graph isn't finished...  but sample graph generation is lightning quick on my PC, 
+            #I need to test it on a slower PC with a mechanical hard drive...
+            if not f_result.check_mtime() or not os.path.isfile(f_pygraph_file):
+                self.lookup.pop(f_file_name)
+                os.system('rm "' + f_pygraph_file + '"')
+                return None
+            else:
+                return f_result
         else:
             return None
+    
+    def add_ref(self, a_file_name, a_uid):
+        """ Add a reference to a .pygraph that is being created or has been created"""
+        self.lookup[str(a_file_name)] = int(a_uid)
     
     @staticmethod
     def from_str(a_str, a_sg_dir):
@@ -51,7 +66,7 @@ class pydaw_sample_graph:
                 if f_line_arr[1] == "filename":
                     self.file = f_line_arr[2]
                 elif f_line_arr[1] == "timestamp":
-                    self.timestamp = f_line_arr[2]
+                    self.timestamp = int(f_line_arr[2])
                 elif f_line_arr[1] == "channels":
                     self.channels = int(f_line_arr[2])
                 elif f_line_arr[1] == "count":
@@ -82,6 +97,11 @@ class pydaw_sample_graph:
                 f_width_pos -= f_width_inc
             f_result.closeSubpath()
         return pydaw_render_widget(f_result)
+        
+    def check_mtime(self):
+        """ Returns False if the sample graph is older than the file modified time """
+        f_file_mtime = int(os.path.getmtime(self.file))
+        return self.timestamp > f_file_mtime
 
     
 class pydaw_render_widget(QtGui.QWidget):
@@ -135,4 +155,4 @@ class pydaw_render_widget(QtGui.QWidget):
         gradient.setColorAt(0.0, self.fillColor1)
         gradient.setColorAt(1.0, self.fillColor2)
         painter.setBrush(QtGui.QBrush(gradient))
-        painter.drawPath(self.path)        
+        painter.drawPath(self.path)
