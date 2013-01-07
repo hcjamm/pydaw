@@ -10,6 +10,7 @@ from time import sleep
 #from lms_session import lms_session #deprecated
 from dssi_gui import dssi_gui
 from pydaw_git import pydaw_git_repo
+
 pydaw_terminating_char = "\\"
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
@@ -108,6 +109,8 @@ class pydaw_project:
         self.audiofx_folder = self.project_folder + "/audiofx"
         self.busfx_folder = self.project_folder + "/busfx"
         self.samplegraph_folder = self.project_folder + "/samplegraph"
+        self.audio_automation_folder = self.project_folder + "/audio_automation"
+        self.bus_automation_folder = self.project_folder + "/bus_automation"
 
     def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
@@ -125,7 +128,8 @@ class pydaw_project:
         project_folders = [
             self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder, 
-            self.audiofx_folder, self.busfx_folder, self.samplegraph_folder
+            self.audiofx_folder, self.busfx_folder, self.samplegraph_folder,
+            self.audio_automation_folder, self.bus_automation_folder
             ]
 
         for project_dir in project_folders:
