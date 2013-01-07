@@ -21,7 +21,7 @@ class pydaw_sample_graphs:
             #The below has a corner case of the user could be generating a graph for a huge file, and has
             #triggered this for a 2nd time but the graph isn't finished...  but sample graph generation is lightning quick on my PC, 
             #I need to test it on a slower PC with a mechanical hard drive...
-            if not f_result.check_mtime() or not os.path.isfile(f_pygraph_file):
+            if not f_result.is_valid() or not f_result.check_mtime():
                 self.lookup.pop(f_file_name)
                 os.system('rm "' + f_pygraph_file + '"')
                 return None
@@ -48,6 +48,7 @@ class pydaw_sample_graphs:
     
 class pydaw_sample_graph:
     def __init__(self, a_file_name):
+        f_file_name = str(a_file_name)
         self.uid = None
         self.file = None
         self.timestamp = None
@@ -55,7 +56,15 @@ class pydaw_sample_graph:
         self.high_peaks = ([],[])
         self.low_peaks = ([],[])
         self.count = None
-        f_file = open(a_file_name, "r")
+        
+        if not os.path.isfile(f_file_name):
+            return
+            
+        try:
+            f_file = open(f_file_name, "r")
+        except:
+            return
+        
         f_line_arr = f_file.readlines()
         f_file.close()
         for f_line in f_line_arr:
