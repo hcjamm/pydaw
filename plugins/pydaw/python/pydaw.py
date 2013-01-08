@@ -21,7 +21,8 @@ from PyQt4 import QtGui, QtCore
 from sys import argv
 from os.path import expanduser
 from libpydaw import *
-#from pydaw.sample_graph import pydaw_sample_graphs, pydaw_sample_graph
+
+import sip
 
 global_pydaw_version_string = "pydaw2"
 
@@ -814,9 +815,12 @@ class audio_list_editor:
             if f_graph is None:  #We must generate one and wait                
                 f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
                 f_ai_sample_graph.setParent(None)
-                f_ai_sample_graph.deleteLater()
+                sip.delete(f_ai_sample_graph)
+                #f_ai_sample_graph.deleteLater()
                 f_ai_sample_graph = None
                 f_ai_sample_graph = QtGui.QLabel("Generating preview...")
+                f_ai_sample_graph.setMinimumHeight(300)
+                f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
                 global f_sg_wait_uid
                 global f_sg_wait_file_name
                 f_sg_wait_file_name = a_file_name
@@ -825,16 +829,16 @@ class audio_list_editor:
                 f_samplegraphs.add_ref(a_file_name, f_sg_wait_uid)
                 this_pydaw_project.save_samplegraphs(f_samplegraphs)
                 global f_sg_timer
-                f_sg_timer.start(1000)
+                f_sg_timer.start(200)
             else:
                 try:                    
                     f_ai_sample_graph.setParent(None)
-                    f_ai_sample_graph.deleteLater()
+                    sip.delete(f_ai_sample_graph)
                     f_ai_sample_graph = None
                 except:
                     print("Failed:  f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)")                
                 f_ai_sample_graph = f_graph.create_sample_graph()
-                f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)            
+                f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
         
         def file_name_select():
             f_file_name = str(QtGui.QFileDialog.getOpenFileName(f_window, "Select a file name to save to...", self.last_open_dir, filter=".wav files(*.wav)"))
