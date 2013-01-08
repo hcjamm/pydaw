@@ -772,8 +772,7 @@ class audio_list_editor:
                 self.audio_items_table_widget.item(x, 7).text(), self.audio_items_table_widget.item(x, 8).text(),
                 self.audio_items_table_widget.item(x, 9).text(),
                 global_timestretch_modes.index(str(self.audio_items_table_widget.item(x, 10).text())),
-                self.audio_items_table_widget.item(x, 11).text(),
-                global_audio_track_names.index(str(self.audio_items_table_widget.item(x, 12).text()))
+                self.audio_items_table_widget.item(x, 11).text(), self.audio_items_table_widget.item(x, 12).text()
                 ))
 
     def show_cell_dialog(self, x, y, a_item=None):
