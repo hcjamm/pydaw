@@ -46,14 +46,14 @@ def beat_frac_text_to_float(f_index):
 int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 def pydaw_gen_uid():
-    """Generated an integer uid.  Adding together multiple random numbers gives a far less uniform distribution of 
+    """Generated an integer uid.  Adding together multiple random numbers gives a far less uniform distribution of
     numbers, more of a natural white noise kind of sample graph than a brick-wall digital white noise... """
     f_result = 5
-    for i in range(6):   
+    for i in range(6):
         f_result += random.randint(6, 50000000)
     return f_result
 
-def note_num_to_string(a_note_num):    
+def note_num_to_string(a_note_num):
     f_note = int(a_note_num) % 12
     f_octave = (int(a_note_num) / 12) - 2
     return int_to_note_array[f_note] + str(f_octave)
@@ -81,13 +81,13 @@ class pydaw_project:
         self.git_repo.git_add(self.audiofx_folder + "/*")
         self.git_repo.git_add(self.busfx_folder + "/*")
         self.git_repo.git_commit("-a", "Saved plugin state")
-    
+
     def record_stop_git_commit(self):
         """ This should be called once recording has stopped to catch-up Git """
         self.git_repo.git_add(self.regions_folder + "/*")
         self.git_repo.git_add(self.items_folder + "/*")
         self.git_repo.git_commit("-a", "Save recorded items/regions")
-        
+
     def save_project_as(self, a_file_name):
         f_file_name = str(a_file_name)
         print("Saving project as " + f_file_name + " ...")
@@ -123,13 +123,13 @@ class pydaw_project:
             self.git_repo = pydaw_git_repo(self.project_folder)
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
-        
+
     def new_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
 
         project_folders = [
             self.project_folder, self.instrument_folder, self.regions_folder,
-            self.items_folder, self.audio_folder, self.samples_folder, 
+            self.items_folder, self.audio_folder, self.samples_folder,
             self.audiofx_folder, self.busfx_folder, self.samplegraph_folder,
             self.audio_automation_folder, self.bus_automation_folder
             ]
@@ -142,7 +142,7 @@ class pydaw_project:
             f_file = open(a_project_file, 'w')
             f_file.write("This file does is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
             f_file.close()
-            
+
         f_pysong_file = self.project_folder + "/default.pysong"
         if not os.path.exists(f_pysong_file):
             f_file = open(f_pysong_file, 'w')
@@ -160,7 +160,7 @@ class pydaw_project:
             f_midi_tracks_instance = pydaw_tracks()
             for i in range(16):
                 f_midi_tracks_instance.add_track(i, pydaw_track(0,0,0,0,"track"+str(i + 1),0))
-            f_file.write(str(f_midi_tracks_instance))            
+            f_file.write(str(f_midi_tracks_instance))
             f_file.close()
         f_pyaudio_file = self.project_folder + "/default.pyaudio"
         if not os.path.exists(f_pyaudio_file):
@@ -168,32 +168,32 @@ class pydaw_project:
             f_pyaudio_instance = pydaw_audio_tracks()
             for i in range(8):
                 f_pyaudio_instance.add_track(i, pydaw_audio_track(0,0,0,"track"+str(i + 1)))
-            f_file.write(str(f_pyaudio_instance))            
+            f_file.write(str(f_pyaudio_instance))
             f_file.close()
-            
+
         f_pyaudio_item_file = self.project_folder + "/default.pyaudioitem"
         if not os.path.exists(f_pyaudio_item_file):
-            f_file = open(f_pyaudio_item_file, 'w')            
+            f_file = open(f_pyaudio_item_file, 'w')
             f_file.write(pydaw_terminating_char)
             f_file.close()
         f_pybus_file = self.project_folder + "/default.pybus"
         if not os.path.exists(f_pybus_file):
             f_file = open(f_pybus_file, 'w')
-            f_pybus_instance = pydaw_busses()            
+            f_pybus_instance = pydaw_busses()
             for i in range(5):
                 f_pybus_instance.add_bus(i, pydaw_bus())
-            f_file.write(str(f_pybus_instance))            
+            f_file.write(str(f_pybus_instance))
             f_file.close()
-            
+
         f_pyinput_file = self.project_folder + "/default.pyinput"
         if not os.path.exists(f_pyinput_file):
             f_file = open(f_pyinput_file, 'w')
             f_input_instance = pydaw_audio_input_tracks()
             for i in range(5):
                 f_input_instance.add_track(i, pydaw_audio_input_track(0,0,0))
-            f_file.write(str(f_input_instance))            
+            f_file.write(str(f_input_instance))
             f_file.close()
-            
+
         f_pysamplegraphs_file = self.project_folder + "/default.pygraphs"
         if not os.path.exists(f_pysamplegraphs_file):
             f_file = open(f_pysamplegraphs_file, 'w')
@@ -205,19 +205,19 @@ class pydaw_project:
             f_file = open(f_git_ignore_file, 'w')
             f_file.write("default.pygraphs\nsamplegraph/*.pygraph\nsamples/*\naudio/*\n")
             f_file.close()
-                
-            
+
+
         self.git_repo = pydaw_git_repo(self.project_folder)
         self.git_repo.git_init()
         self.git_repo.git_add(f_pysong_file)
         self.git_repo.git_add(f_pytracks_file)
         self.git_repo.git_add(f_pytransport_file)
-        self.git_repo.git_add(a_project_file)        
+        self.git_repo.git_add(a_project_file)
         self.git_repo.git_add(f_pyaudio_file)
         self.git_repo.git_add(f_pyaudio_item_file)
         self.git_repo.git_add(f_pybus_file)
         self.git_repo.git_add(f_pyinput_file)
-        self.git_repo.git_add(f_git_ignore_file)        
+        self.git_repo.git_add(f_git_ignore_file)
         self.git_repo.git_commit("-a", "Created new project")
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
@@ -269,7 +269,7 @@ class pydaw_project:
 
     def get_tracks(self):
         return pydaw_tracks.from_str(self.get_tracks_string())
-    
+
     def get_bus_tracks_string(self):
         try:
             f_file = open(self.project_folder + "/default.pybus", "r")
@@ -280,8 +280,8 @@ class pydaw_project:
         return f_result
 
     def get_bus_tracks(self):
-        return pydaw_busses.from_str(self.get_bus_tracks_string())    
-    
+        return pydaw_busses.from_str(self.get_bus_tracks_string())
+
     def get_audio_tracks_string(self):
         try:
             f_file = open(self.project_folder + "/default.pyaudio", "r")
@@ -293,7 +293,7 @@ class pydaw_project:
 
     def get_audio_tracks(self):
         return pydaw_audio_tracks.from_str(self.get_audio_tracks_string())
-            
+
     def get_audio_input_tracks_string(self):
         try:
             f_file = open(self.project_folder + "/default.pyinput", "r")
@@ -316,8 +316,8 @@ class pydaw_project:
         return f_result
 
     def get_audio_items(self):
-        return pydaw_audio_items.from_str(self.get_audio_items_string())    
-    
+        return pydaw_audio_items.from_str(self.get_audio_items_string())
+
     def get_samplegraphs_string(self):
         try:
             f_file = open(self.project_folder + "/default.pygraphs", "r")
@@ -326,10 +326,10 @@ class pydaw_project:
         f_result = f_file.read()
         f_file.close()
         return f_result
-    
+
     def get_samplegraphs(self):
         return pydaw_sample_graphs.from_str(self.get_samplegraphs_string(), self.samplegraph_folder)
-    
+
     def get_transport(self):
         try:
             f_file = open(self.project_folder + "/default.pytransport", "r")
@@ -338,13 +338,13 @@ class pydaw_project:
         f_str = f_file.read()
         f_file.close()
         return pydaw_transport.from_str(f_str)
-    
+
     def save_transport(self, a_transport):
         if not self.suppress_updates:
             f_file_name = self.project_folder + "/default.pytransport"
             f_file = open(f_file_name, "w")
             f_file.write(a_transport.__str__())
-            f_file.close()        
+            f_file.close()
             self.git_repo.git_commit(f_file_name, "Save transport settings...")
 
     def create_empty_region(self, a_region_name):
@@ -364,10 +364,10 @@ class pydaw_project:
         f_file.close()
         self.git_repo.git_add(f_file_name)
         self.git_repo.git_commit(f_file_name, "Created empty item " + a_item_name)
-        
+
     def copy_region(self, a_old_region, a_new_region):
         f_new_file = self.regions_folder + "/" + str(a_new_region) + ".pyreg"
-        copyfile(self.regions_folder + "/" + str(a_old_region) + ".pyreg", f_new_file)        
+        copyfile(self.regions_folder + "/" + str(a_old_region) + ".pyreg", f_new_file)
         self.git_repo.git_add(f_new_file)
         self.git_repo.git_commit(f_new_file, "Created new region " + a_new_region + " copying from " + a_old_region)
 
@@ -376,7 +376,7 @@ class pydaw_project:
         copyfile(self.items_folder + "/" + str(a_old_item) + ".pyitem", f_new_file)
         self.git_repo.git_add(f_new_file)
         self.git_repo.git_commit(f_new_file, "Created new item " + a_new_item + " copying from " + a_old_item)
-        
+
     def save_item(self, a_name, a_item):
         if not self.suppress_updates:
             f_name = str(a_name)
@@ -393,7 +393,7 @@ class pydaw_project:
             f_file_name = self.regions_folder + "/" + f_name + ".pyreg"
             f_file = open(f_file_name, 'w')
             f_file.write(a_region.__str__())
-            f_file.close()        
+            f_file.close()
             self.this_dssi_gui.pydaw_save_region(f_name)
             self.git_repo.git_commit(f_file_name, "Edited region " + f_name)
 
@@ -411,8 +411,8 @@ class pydaw_project:
             f_file_name = self.project_folder + "/default.pytracks"
             f_file = open(f_file_name, 'w')
             f_file.write(a_tracks.__str__())
-            f_file.close()    
-            #Is there a need for a configure message here?        
+            f_file.close()
+            #Is there a need for a configure message here?
             self.git_repo.git_commit('-a', "Edited MIDI tracks")
 
     def save_busses(self, a_tracks):
@@ -420,7 +420,7 @@ class pydaw_project:
             f_file_name = self.project_folder + "/default.pybus"
             f_file = open(f_file_name, 'w')
             f_file.write(a_tracks.__str__())
-            f_file.close()    
+            f_file.close()
             #Is there a need for a configure message here?
             self.git_repo.git_commit('-a', "Edited busses")
 
@@ -429,7 +429,7 @@ class pydaw_project:
             f_file_name = self.project_folder + "/default.pyaudio"
             f_file = open(f_file_name, 'w')
             f_file.write(a_tracks.__str__())
-            f_file.close()    
+            f_file.close()
             #Is there a need for a configure message here?
             self.git_repo.git_commit('-a', "Edited audio tracks")
 
@@ -438,7 +438,7 @@ class pydaw_project:
             f_file_name = self.project_folder + "/default.pyinput"
             f_file = open(f_file_name, 'w')
             f_file.write(a_tracks.__str__())
-            f_file.close()    
+            f_file.close()
             #Is there a need for a configure message here?
             self.git_repo.git_commit('-a', "Edited audio inputs")
 
@@ -447,18 +447,18 @@ class pydaw_project:
             f_file_name = self.project_folder + "/default.pyaudioitem"
             f_file = open(f_file_name, 'w')
             f_file.write(a_tracks.__str__())
-            f_file.close()    
+            f_file.close()
             #Is there a need for a configure message here?
             self.git_repo.git_commit('-a', "Edited audio items")
-    
+
     def save_samplegraphs(self, a_tracks):
         if not self.suppress_updates:
             f_file_name = self.project_folder + "/default.pygraphs"
             f_file = open(f_file_name, 'w')
             f_file.write(str(a_tracks))
-            f_file.close()            
-            #self.git_repo.git_commit('-a', "Edited sample graphs")            
-            
+            f_file.close()
+            #self.git_repo.git_commit('-a', "Edited sample graphs")
+
     def item_exists(self, a_item_name):
         f_list = self.get_item_list()
         for f_item in f_list:
@@ -466,13 +466,13 @@ class pydaw_project:
                 return True
         return False
 
-    def get_next_default_item_name(self, a_item_name="item"):                
+    def get_next_default_item_name(self, a_item_name="item"):
         f_item_name = str(a_item_name)
         print(f_item_name)
         if f_item_name == "item":
             f_start = self.last_item_number
         else:
-            f_start = 1        
+            f_start = 1
         for i in range(f_start, 10000):
             f_result = self.items_folder + "/" + f_item_name + "-" + str(i) + ".pyitem"
             print(f_result)
@@ -486,7 +486,7 @@ class pydaw_project:
         for i in range(self.last_region_number, 10000):
             f_result = self.regions_folder + "/region-" + str(i) + ".pyreg"
             if not os.path.isfile(f_result):
-                self.last_region_number = i + 1                
+                self.last_region_number = i + 1
                 return "region-" + str(i)
 
     def get_item_list(self):
@@ -504,9 +504,9 @@ class pydaw_project:
                 f_result.append(files.split(".pyreg")[0])
         f_result.sort()
         return f_result
-        
+
     def quit_handler(self):
-        self.this_dssi_gui.stop_server()        
+        self.this_dssi_gui.stop_server()
 
     def __init__(self, a_osc_url=None):
         self.last_item_number = 1
@@ -594,22 +594,22 @@ def pydaw_draw_multi_item_cc_line(a_cc_num, a_start_val, a_end_val, a_items=[]):
         f_item.remove_cc_range(a_cc_num)
     if a_start_val > a_end_val:
         f_cc_inc = -1
-        f_val_diff = a_start_val - a_end_val        
+        f_val_diff = a_start_val - a_end_val
     else:
         f_cc_inc = 1
         f_val_diff = a_end_val - a_start_val
-        
+
     if f_val_diff == 0:
-        return        
-        
+        return
+
     f_bar_count = float(len(a_items))
     f_inc = (f_bar_count * 4.0) / float(f_val_diff)
-    
-    i2 = 0.0    
+
+    i2 = 0.0
     f_cc_val = int(a_start_val)
-            
+
     for f_item in a_items:
-        while True:            
+        while True:
             if i2 > 4.0:
                 i2 -= 4.0
                 break
@@ -618,7 +618,7 @@ def pydaw_draw_multi_item_cc_line(a_cc_num, a_start_val, a_end_val, a_items=[]):
                 f_beat_pos = 3.999
             f_item.add_cc(pydaw_cc(f_beat_pos, a_cc_num, f_cc_val))
             f_cc_val += f_cc_inc
-            i2 += f_inc  
+            i2 += f_inc
 
 class pydaw_item:
     def add_note(self, a_note):
@@ -628,17 +628,17 @@ class pydaw_item:
         self.notes.append(a_note)
         self.notes.sort()
         return True
-        
+
     def remove_note(self, a_note):
         for i in range(0, len(self.notes)):
             if self.notes[i] == a_note:
                 self.notes.pop(i)
                 break
-            
+
     def transpose(self, a_semitones, a_octave=0, a_notes=None):
         f_total = a_semitones + (a_octave * 12)
         f_notes = []
-        
+
         if a_notes is None:
             f_notes = self.notes
         else:
@@ -647,18 +647,18 @@ class pydaw_item:
                     if f_note == a_notes[i]:
                         f_notes.append(f_note)
                         break
-        
-        for note in f_notes:                
+
+        for note in f_notes:
             note.note_num += f_total
             if note.note_num < 0:
                 note.note_num = 0
             elif note.note_num > 127:
                 note.note_num = 127
-           
+
     def length_shift(self, a_length, a_min_max=None, a_notes=None, a_quantize=None):
         """ Note lengths are clipped at up to a_min_max if a_length > 0, or down to a_min_max if a_length < 0"""
         f_notes = []
-        
+
         if a_notes is None:
             f_notes = self.notes
         else:
@@ -669,7 +669,7 @@ class pydaw_item:
                         break
 
         f_length = float(a_length)
-        
+
         if not a_min_max is None:
             f_min_max = float(a_min_max)
         else:
@@ -677,14 +677,14 @@ class pydaw_item:
                 f_min_max = 0.01
             else:
                 f_min_max = 100
-                
+
         if a_quantize is None:
             f_is_quantized = False
         else:
             f_is_quantized = True
             f_quantized_value = beat_frac_text_to_float(a_quantize)
             f_quantize_multiple = 1.0/f_quantized_value
-        
+
         for f_note in f_notes:
             f_note.length += f_length
             if f_is_quantized:
@@ -692,10 +692,10 @@ class pydaw_item:
             if f_length < 0 and f_note.length < f_min_max:
                 f_note.length = f_min_max
             elif f_length > 0 and f_note.length > f_min_max:
-                f_note.length = f_min_max            
-                
+                f_note.length = f_min_max
+
         self.fix_overlaps()
-                
+
     def fix_overlaps(self):
         """ Truncate the lengths of any notes that overlap the start of another note """
         for f_note in self.notes:
@@ -705,7 +705,7 @@ class pydaw_item:
                         f_note_end = f_note.start + f_note.length
                         if f_note_end > f_note2.start:
                             f_note.length = f_note2.start - f_note.start
-            
+
     def time_shift(self, a_shift, a_events_move_with_item=False, a_notes=None, a_quantize=None):
         """ Move all items forward or backwards by a_shift number of beats, wrapping if before or after the item"""
         f_shift = float(a_shift)
@@ -713,18 +713,18 @@ class pydaw_item:
             f_shift = -4.0
         elif f_shift > 4.0:
             f_shift = 4.0
-            
+
         f_notes = []
         f_ccs = []
         f_pbs = []
-        
+
         if a_quantize is None:
             f_is_quantized = False
         else:
             f_is_quantized = True
             f_quantized_value = beat_frac_text_to_float(a_quantize)
             f_quantize_multiple = 1.0/f_quantized_value
-        
+
         if a_notes is None:
             f_notes = self.notes
             f_ccs = self.ccs
@@ -743,38 +743,38 @@ class pydaw_item:
                                 if f_pb.start >= f_start and f_pb.start <= f_end:
                                     f_pbs.append(f_pb)
                         f_notes.append(f_note)
-                        break            
-            
+                        break
+
         for note in f_notes:
             note.start += f_shift
             if note.start < 0.0:
                 note.start += 4.0
             elif note.start >= 4.0:
                 note.start -= 4.0
-            
+
             if f_is_quantized:
                 f_new_start = round(note.start * f_quantize_multiple) * f_quantized_value
                 f_shift_adjusted = f_shift - (note.start - f_new_start)
                 note.start = f_new_start
             else:
                 f_shift_adjusted = f_shift
-        
+
         self.fix_overlaps()
-        
+
         if a_events_move_with_item:
             for cc in f_ccs:
                 cc.start += f_shift_adjusted
                 if cc.start < 0.0:
                     cc.start += 4.0
                 elif cc.start >= 4.0:
-                    cc.start -= 4.0                
+                    cc.start -= 4.0
             for pb in f_pbs:
                 pb.start += f_shift_adjusted
                 if pb.start < 0.0:
                     pb.start += 4.0
                 elif pb.start >= 4.0:
                     pb.start -= 4.0
-            
+
     def get_next_default_note(self):
         pass
 
@@ -785,13 +785,13 @@ class pydaw_item:
         self.ccs.append(a_cc)
         self.ccs.sort()
         return True
-        
+
     def remove_cc(self, a_cc):
         for i in range(0, len(self.ccs)):
             if self.ccs[i] == a_cc:
                 self.ccs.pop(i)
                 break
-    
+
     def remove_cc_range(self, a_cc_num, a_start_beat=0.0, a_end_beat=4.0):
         """ Delete all pitchbends greater than a_start_beat and less than a_end_beat """
         f_ccs_to_delete = []
@@ -799,18 +799,18 @@ class pydaw_item:
             if cc.cc_num == a_cc_num and cc.start >= a_start_beat and cc.start <= a_end_beat:
                 f_ccs_to_delete.append(cc)
         for cc in f_ccs_to_delete:
-            self.remove_cc(cc)            
-            
+            self.remove_cc(cc)
+
     #TODO:  A maximum number of events per line?
     def draw_cc_line(self, a_cc, a_start, a_start_val, a_end, a_end_val, a_curve=0):
-        f_cc = int(a_cc)        
+        f_cc = int(a_cc)
         f_start = float(a_start)
         f_start_val = int(a_start_val)
         f_end = float(a_end)
         f_end_val = int(a_end_val)
         #Remove any events that would overlap
         self.remove_cc_range(f_cc, f_start, f_end)
-        
+
         f_start_diff = f_end - f_start
         f_val_diff = abs(f_end_val - f_start_val)
         if f_start_val > f_end_val:
@@ -823,7 +823,7 @@ class pydaw_item:
             f_start_val += f_inc
             f_start += f_time_inc
         self.ccs.sort()
-    
+
     def add_pb(self, a_pb):
         for pb in self.pitchbends:
             if a_pb == pb:
@@ -831,12 +831,12 @@ class pydaw_item:
         self.pitchbends.append(a_pb)
         self.pitchbends.sort()
         return True
-        
+
     def remove_pb(self, a_pb):
         for i in range(0, len(self.pitchbends)):
             if self.pitchbends[i] == a_pb:
                 self.pitchbends.pop(i)
-                break                       
+                break
 
     def remove_pb_range(self, a_start_beat=0.0, a_end_beat=4.0):
         """ Delete all pitchbends greater than a_start_beat and less than a_end_beat """
@@ -854,8 +854,8 @@ class pydaw_item:
         f_end_val = float(a_end_val)
         #Remove any events that would overlap
         self.remove_pb_range(f_start, f_end)
-        
-        f_start_diff = f_end - f_start        
+
+        f_start_diff = f_end - f_start
         f_val_diff = abs(f_end_val - f_start_val)
         if f_start_val > f_end_val:
             f_inc = -0.025
@@ -868,7 +868,7 @@ class pydaw_item:
             f_start += f_time_inc
         self.pitchbends[(len(self.pitchbends) - 1)].pb_val = f_end_val #Ensure that the last value is what the user wanted it to be
         self.pitchbends.sort()
-            
+
     def get_next_default_cc(self):
         pass
 
@@ -911,17 +911,17 @@ class pydaw_item:
 class pydaw_note:
     def __eq__(self, other):
         return((self.start == other.start) and (self.note_num == other.note_num)) #The other values shouldn't need comparison if overlapping note filtering worked
-    
+
     def __lt__(self, other):
         return self.start < other.start
-    
+
     def __init__(self, a_start, a_length, a_note_number, a_velocity):
         self.start = float(a_start)
         self.length = float(a_length)
         self.velocity = int(a_velocity)
-        self.note_num = int(a_note_number)        
+        self.note_num = int(a_note_number)
         self.end = self.length + self.start
-        
+
     def overlaps(self, other):
         if self.note_num == other.note_num:
             if other.start >= self.start and other.start < self.end:
@@ -946,10 +946,10 @@ class pydaw_note:
 class pydaw_cc:
     def __eq__(self, other):
         return ((self.start == other.start) and (self.cc_num == other.cc_num) and (self.cc_val == other.cc_val))
-        
+
     def __lt__(self, other):
         return self.start < other.start
-    
+
     def __init__(self, a_start, a_cc_num, a_cc_val):
         self.start = float(a_start)
         self.cc_num = int(a_cc_num)
@@ -971,12 +971,12 @@ class pydaw_cc:
 class pydaw_pitchbend:
     def __eq__(self, other):
         return ((self.start == other.start) and (self.pb_val == other.pb_val))  #TODO:  get rid of the pb_val comparison?
-        
+
     def __lt__(self, other):
         return self.start < other.start
-    
+
     def __init__(self, a_start, a_pb_val):
-        self.start = float(a_start)        
+        self.start = float(a_start)
         self.pb_val = float(a_pb_val)
 
     def __str__(self):
@@ -991,7 +991,7 @@ class pydaw_pitchbend:
     def from_str(a_str):
         f_arr = a_str.split("|")
         return pydaw_note.from_arr(f_arr)
-        
+
 class pydaw_tracks:
     def add_track(self, a_index, a_track):
         self.tracks[a_index] = a_track
@@ -1001,7 +1001,7 @@ class pydaw_tracks:
 
     def __str__(self):
         f_result = ""
-        for k, v in self.tracks.iteritems():            
+        for k, v in self.tracks.iteritems():
             f_result += str(k) + "|" + bool_to_int(v.solo) + "|" + bool_to_int(v.mute) + "|" + bool_to_int(v.rec) + "|" + str(v.vol) + "|" + v.name + "|" + str(v.inst) + "|" + str(v.bus_num) + "\n"
         f_result += pydaw_terminating_char
         return f_result
@@ -1035,21 +1035,21 @@ class pydaw_track:
 class pydaw_busses:
     def add_bus(self, a_index, a_bus):
         self.busses[int(a_index)] = a_bus
-    
+
     def add_bus_from_str(self, a_str):
         f_arr = a_str.split("|")
         self.add_bus(f_arr[0], pydaw_bus(int(f_arr[1])))
-        
+
     def __init__(self):
         self.busses = {}
-    
+
     def __str__(self):
         f_result = ""
         for k, f_bus in self.busses.iteritems():
             f_result += str(k) + "|" + str(f_bus)
         f_result += pydaw_terminating_char
         return f_result
-    
+
     @staticmethod
     def from_str(a_str):
         f_result = pydaw_busses()
@@ -1058,13 +1058,13 @@ class pydaw_busses:
             if f_line == pydaw_terminating_char:
                 return f_result
             f_result.add_bus_from_str(f_line)
-    
+
 class pydaw_bus:
     def __init__(self, a_vol=0):
         self.vol = int(a_vol)
-    
+
     def __str__(self):
-        return str(self.vol) + "\n" 
+        return str(self.vol) + "\n"
 
 class pydaw_audio_tracks:
     def add_track(self, a_index, a_track):
@@ -1075,7 +1075,7 @@ class pydaw_audio_tracks:
 
     def __str__(self):
         f_result = ""
-        for k, v in self.tracks.iteritems():            
+        for k, v in self.tracks.iteritems():
             f_result += str(k) + "|" + bool_to_int(v.solo) + "|" + bool_to_int(v.mute) + "|" + str(v.vol) + "|" + v.name + "|" + str(v.bus_num) + "\n"
         f_result += pydaw_terminating_char
         return f_result
@@ -1101,17 +1101,17 @@ class pydaw_audio_track:
         self.mute = bool(a_mute)
         self.vol = int(a_vol)
         self.bus_num = int(a_bus_num)
-        
+
 class pydaw_audio_items:
     def __init__(self):
         self.items = {}
-    
+
     def add_item(self, a_index, a_item):
         self.items[int(a_index)] = a_item
-    
+
     def remove_item(self, a_index):
         self.items.pop(int(a_index))
-            
+
     @staticmethod
     def from_str(a_str):
         f_result = pydaw_audio_items()
@@ -1119,12 +1119,12 @@ class pydaw_audio_items:
         for f_line in f_lines:
             if f_line == pydaw_terminating_char:
                 return f_result
-            f_arr = f_line.split("|")            
+            f_arr = f_line.split("|")
             f_result.add_item(int(f_arr[0]), pydaw_audio_item.from_arr(f_arr[1:]))
         print("pydaw_audio_items.from_str:  Warning:  no pydaw_terminating_char")
         return f_result
-            
-    def __str__(self):        
+
+    def __str__(self):
         f_result = ""
         for k, f_item in self.items.iteritems():
             f_result += str(k) + "|" + str(f_item)
@@ -1147,17 +1147,17 @@ class pydaw_audio_item:
         self.time_stretch_mode = int(a_timestretch_mode)
         self.pitch_shift = float(a_pitch_shift)
         self.output_track = int(a_output_track)
-                   
+
     def __str__(self):
         return self.file + "|" + str(self.sample_start) + "|" + str(self.sample_end) + "|" + str(self.start_region) \
         + "|" + str(self.start_bar) + "|" + str(self.start_beat) + "|" + str(self.end_mode) + "|" + str(self.end_region) \
         + "|" + str(self.end_bar) + "|" + str(self.end_beat) + "|" + str(self.time_stretch_mode) \
         + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "\n"
-        
+
     @staticmethod
     def from_arr(a_arr):
         f_result = pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
-        a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12])        
+        a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12])
         return f_result
 
 class pydaw_audio_input_tracks:
@@ -1169,7 +1169,7 @@ class pydaw_audio_input_tracks:
 
     def __str__(self):
         f_result = ""
-        for k, v in self.tracks.iteritems():            
+        for k, v in self.tracks.iteritems():
             f_result += str(k) + "|" + str(v)
         f_result += pydaw_terminating_char
         return f_result
@@ -1192,10 +1192,10 @@ class pydaw_audio_input_track:
         self.output = int(a_output)
         self.rec = int(a_rec)
         self.vol = int(a_vol)
-    
+
     def __str__(self):
         return bool_to_int(self.rec) + "|" + str(self.vol) + "|" + str(self.output) + "|" + str(self.input) + "\n"
-        
+
 class pydaw_transport:
     def __init__(self, a_bpm=140, a_midi_keybd=None, a_loop_mode=0, a_region=0, a_bar=0):
         self.bpm = a_bpm
@@ -1203,10 +1203,10 @@ class pydaw_transport:
         self.loop_mode = a_loop_mode
         self.region = a_region
         self.bar = a_bar
-        
+
     def __str__(self):
         return str(self.bpm) + "|" + str(self.midi_keybd) + "|" + str(self.loop_mode) + "|" + str(self.region) + "|" + str(self.bar) + "\n\\"
-        
+
     @staticmethod
     def from_str(a_str):
         f_str = a_str.split("\n")[0]

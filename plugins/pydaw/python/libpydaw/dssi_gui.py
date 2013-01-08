@@ -13,9 +13,9 @@ def bool_to_int(a_bool):
         return "0"
 
 
-class dssi_gui(ServerThread):    
+class dssi_gui(ServerThread):
     def __init__(self, a_url=None, a_pc_func=None):
-        """    
+        """
         a_url:  The OSC URL to send to.  Format will be something like osc.udp://localhostname:12345/dssi/pydaw/...
         a_pc_func:  The function with signature(int, int) to be called when the engine returns a playback cursor configure message
         """
@@ -78,14 +78,14 @@ class dssi_gui(ServerThread):
             liblo.send(self.target, self.configure_path, key, value)
         else:
             print("Running standalone UI without OSC.  Would've sent configure message: key: \"" + str(key) + "\" value: \"" + str(value) + "\"")
-    
+
     def configure_handler(self, path, args):
         s1, s2 = args
         print("PyDAW configure_handler called key: " + s1 + " value: " + s2 + "\n")
         if s1 == "pc":  #playback cursor
-            if not self.pc_func is None:                
+            if not self.pc_func is None:
                 f_vals = s2.split("|")
-                self.pc_func(int(f_vals[0]), int(f_vals[1]))                
+                self.pc_func(int(f_vals[0]), int(f_vals[1]))
 
     def control_handler(self, path, args):
         i, f = args
@@ -155,35 +155,35 @@ class dssi_gui(ServerThread):
 
     def pydaw_set_instrument_index(self, a_track_num, a_index):
         self.send_configure("ci", str(a_track_num) + "|" + str(a_index))
-        
+
     def pydaw_show_ui(self, a_track_num):
         self.send_configure("su", str(a_track_num))
-        
+
     def pydaw_save_tracks(self):
         self.send_configure("st", "")
-        
+
     def pydaw_set_track_rec(self, a_track_num, a_bool):
         if a_bool:
             a_value = 1
         else:
             a_value = 0
         self.send_configure("tr", str(a_track_num) + "|" + str(a_value))
-        
+
     def pydaw_show_fx(self, a_track_num, a_track_type):
         self.send_configure("fx", str(a_track_num) + "|" + str(a_track_type))
-        
+
     def pydaw_save_track_name(self, a_track_num, a_new_name, a_type):
         self.send_configure("tn", str(a_track_num) + "|" + str(a_new_name) + "|" + str(a_type))
-        
+
     def pydaw_offline_render(self, a_start_region, a_start_bar, a_end_region, a_end_bar, a_file_name):
         self.send_configure("or", str(a_start_region) + "|" + str(a_start_bar) + "|" + str(a_end_region) + "|" + str(a_end_bar) + "|" + str(a_file_name))
-    
+
     def pydaw_set_bus(self, a_track_num, a_bus_num, a_track_type):
         self.send_configure("bs", str(a_track_num) + "|" + str(a_bus_num) + "|" + str(a_track_type))
-    
+
     def pydaw_reload_audio_items(self):
         self.send_configure("ai", "")
-    
+
     def pydaw_load_single_audio_item(self, a_index, a_item):
         """ a_item should be a valid pydaw_audio_item """
         self.send_configure("as", str(a_index) + "|" + str(a_item))
@@ -193,8 +193,7 @@ class dssi_gui(ServerThread):
 
     def pydaw_update_single_audio_item(self, a_index, a_item):
         """ a_item should be a valid pydaw_audio_item """
-        self.send_configure("au", str(a_index) + "|" + str(a_item))        
-        
+        self.send_configure("au", str(a_index) + "|" + str(a_item))
+
     def pydaw_generate_sample_graph(self, a_file, a_uid):
         self.send_configure("sg", str(a_file) + "|" + str(a_uid))
-    
