@@ -802,32 +802,38 @@ class audio_list_editor:
                 f_graph = f_samplegraphs.get_sample_graph(f_sg_wait_file_name)
                 f_sg_wait_file_name = None
                 f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
+                f_ai_sample_graph = None
                 f_ai_sample_graph = f_graph.create_sample_graph()
                 f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
-                
+          
+        def create_sample_graph(a_file_name):
+            f_graph = f_samplegraphs.get_sample_graph(a_file_name)
+            global f_ai_sample_graph
+            if f_graph is None:  #We must generate one and wait                
+                f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
+                f_ai_sample_graph = None
+                f_ai_sample_graph = QtGui.QLabel("Generating preview...")
+                global f_sg_wait_uid
+                global f_sg_wait_file_name
+                f_sg_wait_file_name = f_file_name
+                f_sg_wait_uid = pydaw_gen_uid()
+                this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(f_file_name, f_sg_wait_uid)
+                f_samplegraphs.add_ref(f_file_name, f_sg_wait_uid)
+                this_pydaw_project.save_samplegraphs(f_samplegraphs)
+                global f_sg_timer
+                f_sg_timer.start(1000)
+            else:                
+                f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
+                f_ai_sample_graph = None
+                f_ai_sample_graph = f_graph.create_sample_graph()
+                f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)            
         
         def file_name_select():
             f_file_name = str(QtGui.QFileDialog.getOpenFileName(f_window, "Select a file name to save to...", self.last_open_dir, filter=".wav files(*.wav)"))
             if not f_file_name is None and not f_file_name == "":                
                 f_name.setText(f_file_name)
-                self.last_open_dir = os.path.dirname(f_file_name)                
-                f_graph = f_samplegraphs.get_sample_graph(f_file_name)
-                if f_graph is None:  #We must generate one and wait
-                    global f_ai_sample_graph
-                    f_ai_sample_graph.setText("Generating preview...")
-                    global f_sg_wait_uid
-                    global f_sg_wait_file_name
-                    f_sg_wait_file_name = f_file_name
-                    f_sg_wait_uid = pydaw_gen_uid()
-                    this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(f_file_name, f_sg_wait_uid)
-                    f_samplegraphs.add_ref(f_file_name, f_sg_wait_uid)
-                    this_pydaw_project.save_samplegraphs(f_samplegraphs)
-                    global f_sg_timer
-                    f_sg_timer.start(1000)
-                else:
-                    f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
-                    f_ai_sample_graph = f_graph.create_sample_graph()
-                    f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
+                self.last_open_dir = os.path.dirname(f_file_name)
+                create_sample_graph(f_file_name)
                    
         def clear_handler():
             this_pydaw_project.this_dssi_gui.pydaw_clear_single_audio_item(x)            
@@ -976,6 +982,7 @@ class audio_list_editor:
         
         if not a_item is None:
             f_name.setText(a_item.file)
+            create_sample_graph(a_item.file)
             f_sample_start.setValue(a_item.sample_start)
             f_sample_end.setValue(a_item.sample_end)
             f_start_region.setValue(a_item.start_region)
