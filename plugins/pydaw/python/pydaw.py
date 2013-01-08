@@ -2490,7 +2490,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             set_default_project(f_new_file)
 
     def show_offline_rendering_wait_window(self, a_file_name):
-        f_file_name = str(a_file_name)
+        f_file_name = str(a_file_name) + ".finished"
         def ok_handler():
             f_window.close()
 
@@ -2502,6 +2502,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_ok.setEnabled(True)
                 f_timer.stop()
                 f_time_label.setText("Finished in " + str(f_time_label.text()))
+                os.system('rm "' + f_file_name + '"')
             else:
                 f_elapsed_time = time() - f_start_time
                 f_time_label.setText(str(round(f_elapsed_time, 1)))
