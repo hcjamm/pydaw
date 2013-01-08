@@ -293,13 +293,11 @@ class region_list_editor:
             if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
                 f_cell_text = str(f_new_lineedit.text())
                 this_pydaw_project.create_empty_item(f_new_lineedit.text())
-                this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
 
             if f_copy_from_radiobutton.isChecked():
                 this_pydaw_project.copy_item(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
-                this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
 
             if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
                 this_item_editor.open_item(f_cell_text)
@@ -481,7 +479,6 @@ class region_list_editor:
                     f_new_item_name = this_pydaw_project.get_next_default_item_name(f_unlink_base_name)
                     print(f_new_item_name)
                     this_pydaw_project.create_empty_item(f_new_item_name)
-                    this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_item_name)
                     f_item_list.append(this_pydaw_project.get_item(f_new_item_name))
                     f_item_names.append(f_new_item_name)
                     self.region.add_item_ref(f_track_num, i - 1, f_new_item_name)
@@ -490,7 +487,6 @@ class region_list_editor:
                     print(f_new_item_name)
                     f_item_text = str(f_item.text())
                     this_pydaw_project.copy_item(f_item_text, f_new_item_name)
-                    this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_item_name)
                     f_item_list.append(this_pydaw_project.get_item(f_new_item_name))
                     f_item_names.append(f_new_item_name)
                     self.region.add_item_ref(f_track_num, i - 1, f_new_item_name)
@@ -503,7 +499,6 @@ class region_list_editor:
 
             for i in range(len(f_item_list)):
                 this_pydaw_project.save_item(f_item_names[i], f_item_list[i])
-                this_pydaw_project.this_dssi_gui.pydaw_save_item(f_item_names[i])
 
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             self.open_region(self.region_name_lineedit.text())
@@ -587,9 +582,7 @@ class region_list_editor:
         def note_ok_handler():
             f_cell_text = str(f_new_lineedit.text())
             this_pydaw_project.create_empty_item(f_new_lineedit.text())
-            this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
             this_pydaw_project.copy_item(str(f_current_item.text()), str(f_new_lineedit.text()))
-            this_pydaw_project.this_dssi_gui.pydaw_save_item(f_new_lineedit.text())
             this_item_editor.open_item(f_cell_text)
             self.last_item_copied = f_cell_text
             self.add_qtablewidgetitem(f_cell_text, x, y - 1)
