@@ -689,8 +689,21 @@ class region_list_editor:
                         self.region.add_item_ref(i, i2 - 1, f_item.text())
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
 
-global_timestretch_modes = ["None", "Pitch", "Time + Pitch"]
-global_audio_track_names = ["1","2","3","4","5","6","7","8"]  #To be fixed with actual names...  Although previous attempts have been problematic...
+def global_update_audio_track_comboboxes(a_index=None, a_value=None):
+    if not a_index is None and not a_value is None:
+        global_audio_track_names[int(a_index)] = str(a_value)
+    global global_suppress_audio_track_combobox_changes
+    global_suppress_audio_track_combobox_changes = True
+    for f_cbox in global_audio_track_comboboxes:
+        f_current_index = f_cbox.currentIndex()
+        f_cbox.clear()
+        f_cbox.addItems(['test', 'test2'])  #This is to ensure that the text clears, which apparently won't happen automatically
+        f_cbox.setCurrentIndex(1)
+        f_cbox.clear()
+        f_cbox.addItems(global_audio_track_names.values())
+        f_cbox.setCurrentIndex(f_current_index)
+
+    global_suppress_audio_track_combobox_changes = False
 
 class audio_list_editor:
     def open_tracks(self):
@@ -720,7 +733,7 @@ class audio_list_editor:
             self.audio_items_table_widget.setItem(k, 9, QtGui.QTableWidgetItem(str(v.end_beat)))
             self.audio_items_table_widget.setItem(k, 10, QtGui.QTableWidgetItem(str(global_timestretch_modes[v.time_stretch_mode])))
             self.audio_items_table_widget.setItem(k, 11, QtGui.QTableWidgetItem(str(v.pitch_shift)))
-            self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(global_audio_track_names[v.output_track])))
+            self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.output_track)))
         self.audio_items_table_widget.resizeColumnsToContents()
 
     def reset_tracks(self):
@@ -976,7 +989,7 @@ class audio_list_editor:
         f_output_hlayout.addWidget(QtGui.QLabel("Audio Track:"))
         f_output_combobox = QtGui.QComboBox()
         f_output_combobox.setMinimumWidth(360)
-        f_output_combobox.addItems(global_audio_track_names)
+        f_output_combobox.addItems(global_audio_track_names.values())
         f_output_hlayout.addWidget(f_output_combobox)
         f_output_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
         f_layout.addWidget(QtGui.QLabel("Output:"), 9, 0)
@@ -1096,6 +1109,7 @@ class audio_track:
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].name = self.track_name_lineedit.text()
         this_pydaw_project.save_audio_tracks(f_tracks)
+        global_update_audio_track_comboboxes(self.track_number, self.track_name_lineedit.text())
     def on_show_fx(self):
         this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 2)
     def on_bus_changed(self, a_value=0):
@@ -1190,9 +1204,10 @@ class audio_input_track:
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.rec_checkbox.isChecked())
         this_pydaw_project.save_audio_inputs(this_audio_editor.get_inputs())
-    def on_bus_changed(self, a_value=0):
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-        this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.output_combobox.currentIndex())
+    def on_output_changed(self, a_value=0):
+        if not global_suppress_audio_track_combobox_changes:
+            this_pydaw_project.save_audio_inputs(this_audio_editor.get_inputs())
+            #this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.output_combobox.currentIndex())
 
     def __init__(self, a_track_num):
         self.suppress_osc = True
@@ -1225,11 +1240,14 @@ class audio_input_track:
         self.main_vlayout.addLayout(self.hlayout3)
         #self.hlayout3.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         self.output_combobox = QtGui.QComboBox()
-        self.output_combobox.addItems(global_audio_track_names)
+        self.output_combobox.addItems(global_audio_track_names.values())
         self.output_combobox.setMinimumWidth(150)
-        self.output_combobox.currentIndexChanged.connect(self.on_bus_changed)
+        self.output_combobox.currentIndexChanged.connect(self.on_output_changed)
         self.hlayout3.addWidget(QtGui.QLabel("Out:"))
         self.hlayout3.addWidget(self.output_combobox)
+
+        global_audio_track_comboboxes.append(self.output_combobox)
+
         self.hlayout3.addItem(QtGui.QSpacerItem(10,10,QtGui.QSizePolicy.Expanding))
         self.rec_checkbox = QtGui.QCheckBox()
         self.rec_checkbox.clicked.connect(self.on_rec)
@@ -2935,6 +2953,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
     set_default_project(a_project_file)
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
+    global_update_audio_track_comboboxes()
     set_window_title()
     this_pydaw_project.suppress_updates = False
 
@@ -2960,6 +2979,14 @@ def about_to_quit():
     this_pydaw_project.quit_handler()
 
 app = QtGui.QApplication(sys.argv)
+
+global_timestretch_modes = ["None", "Pitch", "Time + Pitch"]
+global_audio_track_names = {0:"Track1", 1:"Track2", 2:"Track3", 3:"Track4", 4:"Track5", 5:"Track6", 6:"Track7", 7:"Track8"}
+global_suppress_audio_track_combobox_changes = False
+global_audio_track_comboboxes = []
+global_ai_sg_at_combobox = QtGui.QComboBox()
+global_audio_track_comboboxes.append(global_ai_sg_at_combobox)
+
 app.setWindowIcon(QtGui.QIcon('pydaw.ico'))
 app.aboutToQuit.connect(about_to_quit)
 this_song_editor = song_editor()
