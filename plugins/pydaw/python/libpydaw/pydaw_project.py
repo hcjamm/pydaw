@@ -357,13 +357,15 @@ class pydaw_project:
         self.git_repo.git_commit(f_file_name, "Created empty region " + a_region_name)
 
     def create_empty_item(self, a_item_name):
+        f_item_name = str(a_item_name)
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
-        f_file_name = self.items_folder + "/" + a_item_name + ".pyitem"
+        f_file_name = self.items_folder + "/" + f_item_name + ".pyitem"
         f_file = open(f_file_name, 'w')
         f_file.write(pydaw_terminating_char)
         f_file.close()
         self.git_repo.git_add(f_file_name)
-        self.git_repo.git_commit(f_file_name, "Created empty item " + a_item_name)
+        self.git_repo.git_commit(f_file_name, "Created empty item " + f_item_name)
+        self.this_dssi_gui.pydaw_save_item(f_item_name)
 
     def copy_region(self, a_old_region, a_new_region):
         f_new_file = self.regions_folder + "/" + str(a_new_region) + ".pyreg"
@@ -372,10 +374,12 @@ class pydaw_project:
         self.git_repo.git_commit(f_new_file, "Created new region " + a_new_region + " copying from " + a_old_region)
 
     def copy_item(self, a_old_item, a_new_item):
-        f_new_file = self.items_folder + "/" + str(a_new_item) + ".pyitem"
+        f_new_item = str(a_new_item)
+        f_new_file = self.items_folder + "/" + f_new_item + ".pyitem"
         copyfile(self.items_folder + "/" + str(a_old_item) + ".pyitem", f_new_file)
         self.git_repo.git_add(f_new_file)
-        self.git_repo.git_commit(f_new_file, "Created new item " + a_new_item + " copying from " + a_old_item)
+        self.git_repo.git_commit(f_new_file, "Created new item " + f_new_item + " copying from " + a_old_item)
+        self.this_dssi_gui.pydaw_save_item(f_new_item)
 
     def save_item(self, a_name, a_item):
         if not self.suppress_updates:
@@ -457,7 +461,6 @@ class pydaw_project:
             f_file = open(f_file_name, 'w')
             f_file.write(str(a_tracks))
             f_file.close()
-            #self.git_repo.git_commit('-a', "Edited sample graphs")
 
     def item_exists(self, a_item_name):
         f_list = self.get_item_list()
