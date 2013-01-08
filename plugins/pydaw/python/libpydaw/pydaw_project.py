@@ -199,6 +199,13 @@ class pydaw_project:
             f_file = open(f_pysamplegraphs_file, 'w')
             f_file.write(pydaw_terminating_char)
             f_file.close()
+
+        f_git_ignore_file = self.project_folder + "/.gitignore"
+        if not os.path.exists(f_git_ignore_file):
+            f_file = open(f_git_ignore_file, 'w')
+            f_file.write("default.pygraphs\nsamplegraph/*.pygraph\nsamples/*\naudio/*\n")
+            f_file.close()
+                
             
         self.git_repo = pydaw_git_repo(self.project_folder)
         self.git_repo.git_init()
@@ -210,7 +217,7 @@ class pydaw_project:
         self.git_repo.git_add(f_pyaudio_item_file)
         self.git_repo.git_add(f_pybus_file)
         self.git_repo.git_add(f_pyinput_file)
-        self.git_repo.git_add(f_pysamplegraphs_file)        
+        self.git_repo.git_add(f_git_ignore_file)        
         self.git_repo.git_commit("-a", "Created new project")
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
