@@ -3696,14 +3696,20 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_OFF, a_start_region, a_start_bar);
     v_set_loop_mode(a_pydaw_data, f_old_loop_mode);
-        
-    //printf("%i\n", (int)(sf_writef_float(f_sndfile, f_output, f_size/2)));
+    
     sf_close(f_sndfile);
     
     free(f_buffer0);
     free(f_buffer1);
     free(f_output);    
-        
+    
+    char f_tmp_finished[256];
+    
+    sprintf(f_tmp_finished, "%s.finished", a_file_out);
+    
+    FILE * f_finished = fopen(f_tmp_finished, "w");    
+    fclose(f_finished);
+    
     a_pydaw_data->is_offline_rendering = 0;
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
 }
