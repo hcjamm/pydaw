@@ -11,6 +11,8 @@ from time import sleep
 from dssi_gui import dssi_gui
 from pydaw_git import pydaw_git_repo
 
+from libpydaw.sample_graph import pydaw_sample_graphs
+
 pydaw_terminating_char = "\\"
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
@@ -192,6 +194,12 @@ class pydaw_project:
             f_file.write(str(f_input_instance))            
             f_file.close()
             
+        f_pysamplegraphs_file = self.project_folder + "/default.pygraphs"
+        if not os.path.exists(f_pysamplegraphs_file):
+            f_file = open(f_pysamplegraphs_file, 'w')
+            f_file.write(pydaw_terminating_char)
+            f_file.close()
+            
         self.git_repo = pydaw_git_repo(self.project_folder)
         self.git_repo.git_init()
         self.git_repo.git_add(f_pysong_file)
@@ -202,6 +210,7 @@ class pydaw_project:
         self.git_repo.git_add(f_pyaudio_item_file)
         self.git_repo.git_add(f_pybus_file)
         self.git_repo.git_add(f_pyinput_file)
+        self.git_repo.git_add(f_pysamplegraphs_file)        
         self.git_repo.git_commit("-a", "Created new project")
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
@@ -301,6 +310,18 @@ class pydaw_project:
 
     def get_audio_items(self):
         return pydaw_audio_items.from_str(self.get_audio_items_string())    
+    
+    def get_samplegraphs_string(self):
+        try:
+            f_file = open(self.project_folder + "/default.pygraphs", "r")
+        except:
+            return pydaw_terminating_char
+        f_result = f_file.read()
+        f_file.close()
+        return f_result
+    
+    def get_samplegraphs(self):
+        return pydaw_sample_graphs.from_str(self.get_samplegraphs_string(), self.samplegraph_folder)
     
     def get_transport(self):
         try:
@@ -422,6 +443,14 @@ class pydaw_project:
             f_file.close()    
             #Is there a need for a configure message here?
             self.git_repo.git_commit('-a', "Edited audio items")
+    
+    def save_samplegraphs(self, a_tracks):
+        if not self.suppress_updates:
+            f_file_name = self.project_folder + "/default.pygraphs"
+            f_file = open(f_file_name, 'w')
+            f_file.write(str(a_tracks))
+            f_file.close()            
+            #self.git_repo.git_commit('-a', "Edited sample graphs")            
             
     def item_exists(self, a_item_name):
         f_list = self.get_item_list()

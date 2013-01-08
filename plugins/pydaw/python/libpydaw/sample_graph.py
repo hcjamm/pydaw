@@ -8,7 +8,7 @@ class pydaw_sample_graphs:
     
     def __str__(self):
         f_result = ""
-        for k, v in self.graphs.iteritems():
+        for k, v in self.lookup.iteritems():
             f_result += str(k) + "|" + str(v) + "\n"
         f_result += "\\"
         return f_result
@@ -21,23 +21,25 @@ class pydaw_sample_graphs:
             #The below has a corner case of the user could be generating a graph for a huge file, and has
             #triggered this for a 2nd time but the graph isn't finished...  but sample graph generation is lightning quick on my PC, 
             #I need to test it on a slower PC with a mechanical hard drive...
-            if not f_result.is_valid() or not f_result.check_mtime():
+            if not f_result.is_valid() or f_result.check_mtime():
+                print("Not valid, or else mtime is newer than graph time, deleting sample graph...")
                 self.lookup.pop(f_file_name)
                 os.system('rm "' + f_pygraph_file + '"')
                 return None
             else:
                 return f_result
-        else:
+        else:            
             return None
     
     def add_ref(self, a_file_name, a_uid):
         """ Add a reference to a .pygraph that is being created or has been created"""
-        self.lookup[str(a_file_name)] = int(a_uid)
+        f_file_name = str(a_file_name) #.strip([" ", "\n"])
+        print("pydaw_sample_graphs.add_ref() : " + f_file_name)
+        self.lookup[f_file_name] = int(a_uid)
     
     @staticmethod
     def from_str(a_str, a_sg_dir):
-        f_result = pydaw_sample_graphs()
-        f_result.sg_dir = a_sg_dir
+        f_result = pydaw_sample_graphs(a_sg_dir)        
         f_arr = a_str.split("\n")
         for f_line in f_arr:
             if f_line == "\\":
@@ -48,8 +50,7 @@ class pydaw_sample_graphs:
     
 class pydaw_sample_graph:
     def __init__(self, a_file_name):
-        f_file_name = str(a_file_name)
-        self.uid = None
+        f_file_name = str(a_file_name)        
         self.file = None
         self.timestamp = None
         self.channels = None
@@ -73,7 +74,8 @@ class pydaw_sample_graph:
                 break
             elif f_line_arr[0] == "meta":
                 if f_line_arr[1] == "filename":
-                    self.file = f_line_arr[2]
+                    self.file = str(f_line_arr[2])
+                    print("self.file == " + self.file)                    
                 elif f_line_arr[1] == "timestamp":
                     self.timestamp = int(f_line_arr[2])
                 elif f_line_arr[1] == "channels":
@@ -91,8 +93,11 @@ class pydaw_sample_graph:
             f_list.reverse()
             
     def is_valid(self):
-        return (self.uid is not None) and (self.file is not None) and (self.timestamp is not None) \
+        f_result = (self.file is not None) and (self.timestamp is not None) \
         and (self.channels is not None) and (self.count is not None)
+        if not f_result:
+            print("pydaw_sample_graph.is_valid() : " + str(self.file) + " failed the validity check...")
+        return f_result
     
     
     #BIG TODO:  Make path into a list, then pass it to pydaw_render widget and render multiple channels...
@@ -119,8 +124,13 @@ class pydaw_sample_graph:
         
     def check_mtime(self):
         """ Returns False if the sample graph is older than the file modified time """
-        f_file_mtime = int(os.path.getmtime(self.file))
-        return self.timestamp > f_file_mtime
+        try:
+            f_test = os.stat(self.file)
+            f_result = self.timestamp > int(f_test.st_mtime)
+            return f_result
+        except:
+            print("Error getting mtime")
+            return False
 
     
 class pydaw_render_widget(QtGui.QWidget):
