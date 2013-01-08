@@ -366,6 +366,10 @@ class region_list_editor:
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
         self.open_region(self.region_name_lineedit.text())
 
+    def column_clicked(self, a_val):
+        if a_val > 0:
+            this_transport.bar_spinbox.setValue(a_val - 1)
+
     def __init__(self):
         self.track_total = 16
 
@@ -399,6 +403,7 @@ class region_list_editor:
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
         self.table_widget.verticalHeader().setVisible(False)
+        self.table_widget.horizontalHeader().sectionClicked.connect(self.column_clicked)
         self.table_widget.setMinimumHeight(360)
         self.table_widget.setAutoScroll(True)
         self.table_widget.setAutoScrollMargin(1)
