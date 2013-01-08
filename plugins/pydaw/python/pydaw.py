@@ -802,6 +802,8 @@ class audio_list_editor:
                 f_graph = f_samplegraphs.get_sample_graph(f_sg_wait_file_name)
                 f_sg_wait_file_name = None
                 f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
+                f_ai_sample_graph.setParent(None)
+                f_ai_sample_graph.deleteLater()
                 f_ai_sample_graph = None
                 f_ai_sample_graph = f_graph.create_sample_graph()
                 f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
@@ -811,20 +813,26 @@ class audio_list_editor:
             global f_ai_sample_graph
             if f_graph is None:  #We must generate one and wait                
                 f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
+                f_ai_sample_graph.setParent(None)
+                f_ai_sample_graph.deleteLater()
                 f_ai_sample_graph = None
                 f_ai_sample_graph = QtGui.QLabel("Generating preview...")
                 global f_sg_wait_uid
                 global f_sg_wait_file_name
-                f_sg_wait_file_name = f_file_name
+                f_sg_wait_file_name = a_file_name
                 f_sg_wait_uid = pydaw_gen_uid()
-                this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(f_file_name, f_sg_wait_uid)
-                f_samplegraphs.add_ref(f_file_name, f_sg_wait_uid)
+                this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(a_file_name, f_sg_wait_uid)
+                f_samplegraphs.add_ref(a_file_name, f_sg_wait_uid)
                 this_pydaw_project.save_samplegraphs(f_samplegraphs)
                 global f_sg_timer
                 f_sg_timer.start(1000)
-            else:                
-                f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
-                f_ai_sample_graph = None
+            else:
+                try:                    
+                    f_ai_sample_graph.setParent(None)
+                    f_ai_sample_graph.deleteLater()
+                    f_ai_sample_graph = None
+                except:
+                    print("Failed:  f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)")                
                 f_ai_sample_graph = f_graph.create_sample_graph()
                 f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)            
         
@@ -900,8 +908,12 @@ class audio_list_editor:
         f_sample_end.setValue(1000)
         f_sample_start_end_vlayout.addWidget(f_sample_end)
         global f_ai_sample_graph
-        f_ai_sample_graph = QtGui.QLabel()        
-        f_ai_sample_graph.setMinimumHeight(300)
+        if not a_item is None:
+            print("Loading a_item.file : " + a_item.file)
+            create_sample_graph(a_item.file)
+        else:
+            f_ai_sample_graph = QtGui.QLabel()        
+            f_ai_sample_graph.setMinimumHeight(300)
         f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
         
         f_layout.addWidget(QtGui.QLabel("Start:"), 3, 0)
@@ -981,8 +993,7 @@ class audio_list_editor:
         f_layout.addWidget(f_cancel, 11, 2)
         
         if not a_item is None:
-            f_name.setText(a_item.file)
-            create_sample_graph(a_item.file)
+            f_name.setText(a_item.file)            
             f_sample_start.setValue(a_item.sample_start)
             f_sample_end.setValue(a_item.sample_end)
             f_start_region.setValue(a_item.start_region)

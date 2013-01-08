@@ -139,13 +139,13 @@ class pydaw_render_widget(QtGui.QWidget):
 
         self.paths = paths
         self.setPenColor(QtGui.QColor(QtCore.Qt.lightGray))
-        self.setFillGradient(QtGui.QColor.fromRgb(204, 204, 143), QtGui.QColor.fromRgb(132, 132, 93))
+        self.setFillGradient(QtGui.QColor.fromRgb(190, 192, 123), QtGui.QColor.fromRgb(132, 132, 93))
         self.penWidth = 1
         self.rotationAngle = 0
         self.setBackgroundRole(QtGui.QPalette.Base)
         self.setPenWidth(0.2)
         self.setStyleSheet("background-color:black;")
-
+        
     def minimumSizeHint(self):
         return QtCore.QSize(200, 100)
 
@@ -184,7 +184,7 @@ class pydaw_render_widget(QtGui.QWidget):
 
         painter.setPen(QtGui.QPen(self.penColor, self.penWidth,
                 QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
-        gradient = QtGui.QLinearGradient(0, 0, 0, 100)
+        gradient = QtGui.QLinearGradient(20, 20, 80, 80)
         gradient.setColorAt(0.0, self.fillColor1)
         gradient.setColorAt(1.0, self.fillColor2)
         painter.setBrush(QtGui.QBrush(gradient))
