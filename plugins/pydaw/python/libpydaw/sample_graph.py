@@ -82,10 +82,15 @@ class pydaw_sample_graph:
                 elif f_line_arr[1] == "count":
                     self.count = int(f_line_arr[2])
             elif f_line_arr[0] == "p":
+                f_p_val = float(f_line_arr[3])
+                if f_p_val > 1.0:
+                    f_p_val = 1.0
+                elif f_p_val < -1.0:
+                    f_p_val = -1.0
                 if f_line_arr[2] == "h":
-                    self.high_peaks[int(f_line_arr[1])].append(float(f_line_arr[3]))
+                    self.high_peaks[int(f_line_arr[1])].append(f_p_val)
                 elif f_line_arr[2] == "l":
-                    self.low_peaks[int(f_line_arr[1])].append(float(f_line_arr[3]))
+                    self.low_peaks[int(f_line_arr[1])].append(f_p_val)
                 else:
                     print("Invalid sample_graph [2] value " + f_line_arr[2] )
         for f_list in self.low_peaks:
@@ -101,7 +106,7 @@ class pydaw_sample_graph:
 
     #BIG TODO:  Make path into a list, then pass it to pydaw_render widget and render multiple channels...
     def create_sample_graph(self):
-        f_width_inc = 100.0 / self.count
+        f_width_inc = 98.0 / self.count
         f_section = 100.0 / float(self.channels)
         f_section_div2 = f_section * 0.5
 
@@ -109,8 +114,8 @@ class pydaw_sample_graph:
 
         for f_i in range(self.channels):
             f_result = QtGui.QPainterPath()
-            f_width_pos = 0.0
-            f_result.moveTo(0.0, f_section * f_i)
+            f_width_pos = 1.0
+            f_result.moveTo(f_width_pos, (f_section * f_i) + f_section_div2)
             for f_peak in self.high_peaks[f_i]:
                 f_result.lineTo(f_width_pos, f_section_div2 - (f_peak * f_section_div2) + (f_section * f_i))
                 f_width_pos += f_width_inc
