@@ -21,6 +21,7 @@ from PyQt4 import QtGui, QtCore
 from sys import argv
 from os.path import expanduser
 from libpydaw import *
+#from pydaw.sample_graph import pydaw_sample_graphs, pydaw_sample_graph
 
 global_pydaw_version_string = "pydaw2"
 
@@ -789,15 +790,44 @@ class audio_list_editor:
             
         def cancel_handler():
             f_window.close()
+            
+        def wait_for_samplegraph():            
+            global f_sg_wait_uid            
+            f_file_name = this_pydaw_project.samplegraph_folder + "/" + str(f_sg_wait_uid) + ".pygraph"
+            if os.path.isfile(f_file_name):
+                global f_sg_timer
+                f_sg_timer.stop()
+                global f_ai_sample_graph
+                global f_sg_wait_file_name
+                f_graph = f_samplegraphs.get_sample_graph(f_sg_wait_file_name)
+                f_sg_wait_file_name = None
+                f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
+                f_ai_sample_graph = f_graph.create_sample_graph()
+                f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
+                
         
         def file_name_select():
             f_file_name = str(QtGui.QFileDialog.getOpenFileName(f_window, "Select a file name to save to...", self.last_open_dir, filter=".wav files(*.wav)"))
-            if not f_file_name is None and f_file_name != "":                
-                if not f_file_name is None and not str(f_file_name) == "":
-                    f_name.setText(f_file_name)
-                self.last_open_dir = os.path.dirname(f_file_name)
-                print(str(os.path.getmtime(str(f_file_name))))
-                this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(str(f_file_name), pydaw_gen_uid())
+            if not f_file_name is None and not f_file_name == "":                
+                f_name.setText(f_file_name)
+                self.last_open_dir = os.path.dirname(f_file_name)                
+                f_graph = f_samplegraphs.get_sample_graph(f_file_name)
+                if f_graph is None:  #We must generate one and wait
+                    global f_ai_sample_graph
+                    f_ai_sample_graph.setText("Generating preview...")
+                    global f_sg_wait_uid
+                    global f_sg_wait_file_name
+                    f_sg_wait_file_name = f_file_name
+                    f_sg_wait_uid = pydaw_gen_uid()
+                    this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(f_file_name, f_sg_wait_uid)
+                    f_samplegraphs.add_ref(f_file_name, f_sg_wait_uid)
+                    this_pydaw_project.save_samplegraphs(f_samplegraphs)
+                    global f_sg_timer
+                    f_sg_timer.start(1000)
+                else:
+                    f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
+                    f_ai_sample_graph = f_graph.create_sample_graph()
+                    f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
                    
         def clear_handler():
             this_pydaw_project.this_dssi_gui.pydaw_clear_single_audio_item(x)            
@@ -814,7 +844,27 @@ class audio_list_editor:
             if f_sample_start.value() > f_sample_end.value() - 10:
                 f_sample_start.setValue(f_sample_end.value() - 10)
                 
+        def f_quitting(a_val=None):
+            try:
+                global f_sg_timer
+                f_sg_timer.stop()
+            except:
+                pass
+                
+        f_samplegraphs = this_pydaw_project.get_samplegraphs()
+                        
+        global f_sg_timer
+        f_sg_timer = QtCore.QTimer()        
+        f_sg_timer.timeout.connect(wait_for_samplegraph)
+        
+        global f_sg_wait_uid
+        f_sg_wait_uid = None
+        
+        global f_sg_wait_file_name
+        f_sg_wait_file_name = None
+        
         f_window = QtGui.QDialog(this_main_window)
+        f_window.finished.connect(f_quitting)
         f_window.setMinimumWidth(800)
         f_window.setWindowTitle("Add/edit an audio item..")
         f_layout = QtGui.QGridLayout()
@@ -843,9 +893,10 @@ class audio_list_editor:
         f_sample_end.setRange(10, 1000)
         f_sample_end.setValue(1000)
         f_sample_start_end_vlayout.addWidget(f_sample_end)
-        f_sample_graph = QtGui.QLabel()        
-        f_sample_graph.setMinimumHeight(300)
-        f_sample_start_end_vlayout.addWidget(f_sample_graph)
+        global f_ai_sample_graph
+        f_ai_sample_graph = QtGui.QLabel()        
+        f_ai_sample_graph.setMinimumHeight(300)
+        f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
         
         f_layout.addWidget(QtGui.QLabel("Start:"), 3, 0)
         f_start_hlayout = QtGui.QHBoxLayout()
