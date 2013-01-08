@@ -74,8 +74,7 @@ class pydaw_sample_graph:
                 break
             elif f_line_arr[0] == "meta":
                 if f_line_arr[1] == "filename":
-                    self.file = str(f_line_arr[2])
-                    print("self.file == " + self.file)                    
+                    self.file = str(f_line_arr[2])                    
                 elif f_line_arr[1] == "timestamp":
                     self.timestamp = int(f_line_arr[2])
                 elif f_line_arr[1] == "channels":
