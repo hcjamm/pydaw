@@ -11,13 +11,11 @@
 #include <config.h>
 #endif
 
-#include <ladspa.h>
-#include "dssi.h"
+#include "../../include/pydaw2/pydaw_plugin.h"
 #include <alsa/asoundlib.h>
 #include <alsa/seq.h>
 #include <jack/jack.h>
 #include <jack/session.h>
-//#include <jack/jslist.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

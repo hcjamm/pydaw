@@ -82,7 +82,7 @@ Installed-Size: $size
 Maintainer: Jeff Hubbard <jhubbard651\@users.sf.net>
 Architecture: $arch
 Version: $version
-Depends: liblo-dev, dssi-dev, ladspa-sdk, libasound2-dev, libqt4-dev, libsndfile1-dev, libsm-dev, qjackctl, alsa-utils, python-liblo, python-qt4, git, libsdl1.2-dev, ffado-mixer-qt4, ffado-tools, ffado-dbus-server, audacity, python
+Depends: liblo-dev, libasound2-dev, libqt4-dev, libsndfile1-dev, libsm-dev, qjackctl, alsa-utils, python-liblo, python-qt4, git, libsdl1.2-dev, ffado-mixer-qt4, ffado-tools, ffado-dbus-server, audacity, python
 Provides: $short_name
 Conflicts: 
 Replaces: 

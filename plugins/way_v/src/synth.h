@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#include "ladspa.h"
+#include "../../include/pydaw2/pydaw_plugin.h"
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/voice.h"
 #include "../../libmodsynth/lib/cc_map.h"

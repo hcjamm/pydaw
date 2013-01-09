@@ -12,9 +12,8 @@
 extern "C" {
 #endif
 
-#include "dssi.h"
+#include "../../include/pydaw2/pydaw_plugin.h"
 #include "pydaw.h"
-#include <ladspa.h>
 #include <lo/lo.h>
 #include <alsa/asoundlib.h>
 #include <dlfcn.h>
