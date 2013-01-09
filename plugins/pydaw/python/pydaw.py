@@ -2343,9 +2343,9 @@ class transport_widget:
         this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
     def on_spacebar(self):
         if self.is_playing or self.is_recording:
-            self.on_stop()
+            self.stop_button.click()
         else:
-            self.on_play()
+            self.play_button.click()
     def on_play(self):
         if self.is_recording:
             self.rec_button.setChecked(True)
