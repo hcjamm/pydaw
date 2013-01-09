@@ -2767,10 +2767,10 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.menu_edit = self.menu_bar.addMenu("&Edit")
 
-        #self.undo_action = QtGui.QAction("Undo", self)
-        #self.menu_edit.addAction(self.undo_action)
-        #self.undo_action.triggered.connect(self.on_undo)
-        #self.undo_action.setShortcut(QtGui.QKeySequence.Undo)
+        self.undo_action = QtGui.QAction("Undo", self)
+        self.menu_edit.addAction(self.undo_action)
+        self.undo_action.triggered.connect(self.on_undo)
+        self.undo_action.setShortcut(QtGui.QKeySequence.Undo)
 
         self.undo_history_action = QtGui.QAction("Undo History...", self)
         self.menu_edit.addAction(self.undo_history_action)
@@ -3000,6 +3000,7 @@ def global_ui_refresh_callback():
     this_audio_editor.open_tracks()
     this_region_editor.open_tracks()
     this_song_editor.open_song()
+    this_transport.open_transport()
     this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder)  #Re-open the project so that any changes can be caught by the back-end
 
 def set_window_title():

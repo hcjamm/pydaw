@@ -47,9 +47,7 @@ class pydaw_git_repo:
 
     def undo(self):
         """ Currently only a naive undo that undoes the last action, not one that iterates through changes... """
-        cmd = ['git', 'revert', 'HEAD', '--no-edit']
-        p = subprocess.Popen(cmd, cwd=self.repo_dir)
-        p.wait()
+        self.git_revert("HEAD")
 
     def git_checkout(self, a_commit):
         cmd = ['git', 'checkout', a_commit]
