@@ -2692,6 +2692,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.last_offline_dir = expanduser("~")
         f_window.exec_()
 
+    def on_undo(self):
+        this_pydaw_project.git_repo.undo()
+        global_ui_refresh_callback()
+
     def on_undo_history(self):
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Undo history")
@@ -2762,6 +2766,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.offline_render_action.triggered.connect(self.on_offline_render)
 
         self.menu_edit = self.menu_bar.addMenu("&Edit")
+
+        #self.undo_action = QtGui.QAction("Undo", self)
+        #self.menu_edit.addAction(self.undo_action)
+        #self.undo_action.triggered.connect(self.on_undo)
+        #self.undo_action.setShortcut(QtGui.QKeySequence.Undo)
 
         self.undo_history_action = QtGui.QAction("Undo History...", self)
         self.menu_edit.addAction(self.undo_history_action)
@@ -2974,13 +2983,18 @@ def set_default_project(a_project_path):
 def global_close_all():
     this_region_editor.clear_new()
     this_item_editor.clear_new()
+    this_song_editor.table_widget.clearContents()
+    this_audio_editor.audio_items_table_widget.clearContents()
 
 def global_ui_refresh_callback():
     """ Use this to re-open all existing items/regions/song in their editors when the files have been changed externally"""
-    if this_item_editor.enabled:
+    global_close_all()
+    if this_item_editor.enabled and os.path.isfile(this_pydaw_project.items_folder + "/" + this_item_editor.item_name + ".pyitem"):
         this_item_editor.open_item(this_item_editor.item_name)
-    if this_region_editor.enabled:
+    if this_region_editor.enabled and os.path.isfile(this_pydaw_project.regions_folder + "/" + str(this_region_editor.region_name_lineedit.text()) + ".pyreg"):
         this_region_editor.open_region(this_region_editor.region_name_lineedit.text())
+    this_audio_editor.open_items()
+    this_audio_editor.open_tracks()
     this_region_editor.open_tracks()
     this_song_editor.open_song()
     this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder)  #Re-open the project so that any changes can be caught by the back-end
