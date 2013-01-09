@@ -66,8 +66,10 @@ class song_editor:
             def song_ok_handler():
                 if f_new_radiobutton.isChecked():
                     this_pydaw_project.create_empty_region(f_new_lineedit.text())
+                    this_pydaw_project.git_repo.git_commit("-a", "Create empty region '" + str(f_new_lineedit.text()) + "' at " + str(y))
                 elif f_copy_radiobutton.isChecked():
                     this_pydaw_project.copy_region(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
+                    this_pydaw_project.git_repo.git_commit("-a", "Create new region '" + str(f_new_lineedit.text()) + "' at " + str(y) + " copying from " + str(f_copy_combobox.currentText()))
                 self.add_qtablewidgetitem(f_new_lineedit.text(), y)
                 self.song.add_region_ref(y, str(f_new_lineedit.text()))
                 this_region_editor.open_region(f_new_lineedit.text())
@@ -144,13 +146,16 @@ class song_editor:
 
     def table_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
+            f_commit_msg = "Deleted region references at "
             for f_item in self.table_widget.selectedIndexes():
+                f_commit_msg += str(f_item.column())
                 f_empty = QtGui.QTableWidgetItem() #Clear the item
                 self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
             self.tablewidget_to_song()
             this_region_editor.clear_items()
             this_region_editor.region_name_lineedit.setText("")
             this_region_editor.enabled = False
+            this_pydaw_project.git_repo.git_commit("-a", f_commit_msg)
         else:
             QtGui.QTableWidget.keyPressEvent(self.table_widget, event)
 
@@ -159,6 +164,7 @@ class song_editor:
         a_event.acceptProposedAction()
         self.tablewidget_to_song()
         self.table_widget.clearSelection()
+        this_pydaw_project.git_repo.git_commit("-a", "Drag-n-drop song item(s)")
 
     def tablewidget_to_song(self):
         """ Flush the edited content of the QTableWidget back to the native song class... """
@@ -293,11 +299,14 @@ class region_list_editor:
             if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
                 f_cell_text = str(f_new_lineedit.text())
                 this_pydaw_project.create_empty_item(f_new_lineedit.text())
+                this_pydaw_project.git_repo.git_commit("-a", "Create new item '" + f_cell_text + "'")
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
+                this_pydaw_project.git_repo.git_commit("-a", "Add reference to item '" + f_cell_text + "' in region '" + str(self.region_name_lineedit.text()))
 
             if f_copy_from_radiobutton.isChecked():
                 this_pydaw_project.copy_item(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
+                this_pydaw_project.git_repo.git_commit("-a", "Create item '" + str(f_new_lineedit.text()) + "' copying from item '" + str(f_copy_combobox.currentText()) + "'")
 
             if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
                 this_item_editor.open_item(f_cell_text)
@@ -358,9 +367,11 @@ class region_list_editor:
         if self.length_alternate_radiobutton.isChecked():
             self.region.region_length_bars = self.length_alternate_spinbox.value()
             self.set_region_length(self.region.region_length_bars)
+            this_pydaw_project.git_repo.git_commit("-a", "Set region '" + str(self.region_name_lineedit.text()) + "' length to " + str(self.length_alternate_spinbox.value()))
         else:
             self.region.region_length_bars = 0
             self.set_region_length()
+            this_pydaw_project.git_repo.git_commit("-a", "Set region '" + str(self.region_name_lineedit.text()) + "' length to default value")
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
         self.open_region(self.region_name_lineedit.text())
 
@@ -502,6 +513,7 @@ class region_list_editor:
 
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             self.open_region(self.region_name_lineedit.text())
+            this_pydaw_project.git_repo.git_commit("-a", "Draw CC line in region " + str(self.region_name_lineedit.text()))
             f_window.close()
 
         def ccs_cancel_handler():
@@ -588,6 +600,7 @@ class region_list_editor:
             self.add_qtablewidgetitem(f_cell_text, x, y - 1)
             self.region.add_item_ref(x, y - 1, f_cell_text)
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
+            this_pydaw_project.git_repo.git_commit("-a", "Unlink item '" +  str(f_current_item.text()) + "' as '" + str(f_new_lineedit.text()) + "'")
             f_window.close()
 
         def note_cancel_handler():
@@ -796,6 +809,7 @@ class audio_list_editor:
             self.audio_items.add_item(x, f_new_item)
             this_pydaw_project.save_audio_items(self.audio_items)
             self.open_items()
+            this_pydaw_project.git_repo.git_commit("-a", "Update audio items")
             f_window.close()
 
         def cancel_handler():
@@ -1087,18 +1101,21 @@ class audio_track:
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].vol = self.volume_slider.value()
         this_pydaw_project.save_audio_tracks(f_tracks)
+        this_pydaw_project.git_repo.git_commit("-a", "Set audio track " + str(self.track_number) + " to " + str(self.volume_slider.value()))
     def on_solo(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked(), 2)
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].solo = self.solo_checkbox.isChecked()
         this_pydaw_project.save_audio_tracks(f_tracks)
+        this_pydaw_project.git_repo.git_commit("-a", "Set audio track " + str(self.track_number) + " soloed to " + str(self.solo_checkbox.isChecked()))
     def on_mute(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 2)
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].mute = self.mute_checkbox.isChecked()
         this_pydaw_project.save_audio_tracks(f_tracks)
+        this_pydaw_project.git_repo.git_commit("-a", "Set audio track " + str(self.track_number) + " muted to " + str(self.mute_checkbox.isChecked()))
     def on_name_changed(self):
         self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
         this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 2)
@@ -1106,6 +1123,7 @@ class audio_track:
         f_tracks.tracks[self.track_number].name = self.track_name_lineedit.text()
         this_pydaw_project.save_audio_tracks(f_tracks)
         global_update_audio_track_comboboxes(self.track_number, self.track_name_lineedit.text())
+        this_pydaw_project.git_repo.git_commit("-a", "Set audio track " + str(self.track_number) + " name to " + str(self.track_name_lineedit.text()))
     def on_show_fx(self):
         this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 2)
     def on_bus_changed(self, a_value=0):
@@ -1113,6 +1131,7 @@ class audio_track:
         f_tracks = this_pydaw_project.get_audio_tracks()
         f_tracks.tracks[self.track_number].bus_num = self.bus_combobox.currentIndex()
         this_pydaw_project.save_audio_tracks(f_tracks)
+        this_pydaw_project.git_repo.git_commit("-a", "Set audio track " + str(self.track_number) + " bus to " + str(self.track_name_lineedit.text()))
 
     def __init__(self, a_track_num, a_track_text="track"):
         self.suppress_osc = True
@@ -1196,14 +1215,17 @@ class audio_input_track:
         f_tracks = this_pydaw_project.get_audio_input_tracks()
         f_tracks.tracks[self.track_number].vol = self.volume_slider.value()
         this_pydaw_project.save_audio_inputs(f_tracks)
+        this_pydaw_project.git_repo.git_commit("-a", "Set audio input " + str(self.track_number) + " volume to " + str(self.volume_slider.value()))
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.rec_checkbox.isChecked())
         this_pydaw_project.save_audio_inputs(this_audio_editor.get_inputs())
+        this_pydaw_project.git_repo.git_commit("-a", "Set audio input " + str(self.track_number) + " record to " + str(self.rec_checkbox.isChecked()))
     def on_output_changed(self, a_value=0):
         if not global_suppress_audio_track_combobox_changes:
             this_pydaw_project.save_audio_inputs(this_audio_editor.get_inputs())
             #this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.output_combobox.currentIndex())
+            this_pydaw_project.git_repo.git_commit("-a", "Set audio input " + str(self.track_number) + " output to " + str(self.output_combobox.currentIndex()))
 
     def __init__(self, a_track_num):
         self.suppress_osc = True
@@ -1332,6 +1354,7 @@ class item_list_editor:
                 self.item.transpose(f_semitone.value(), f_octave.value())
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Transpose item '" + self.item_name + "'")
             f_window.close()
 
         def transpose_cancel_handler():
@@ -1385,6 +1408,7 @@ class item_list_editor:
                 self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked(), a_quantize=f_quantize_index)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Time shift item '" + self.item_name + "'")
             f_window.close()
 
         def time_shift_cancel_handler():
@@ -1447,6 +1471,7 @@ class item_list_editor:
                 self.item.length_shift(f_shift.value(), f_min_max_value, a_quantize=f_quantize_index)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Length shift item '" + self.item_name + "'")
             f_window.close()
 
         def length_shift_cancel_handler():
@@ -1500,6 +1525,7 @@ class item_list_editor:
             self.item = f_item
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Open template '" + str(self.template_combobox.currentText()) + "' as item '" + self.item_name + "'")
 
     def on_template_save_as(self):
         if not self.enabled:
@@ -1753,6 +1779,7 @@ class item_list_editor:
                     self.item.remove_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Delete notes from item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.notes_clipboard = self.get_notes_table_selected_rows()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
@@ -1760,12 +1787,14 @@ class item_list_editor:
                 self.item.add_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Paste notes into item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.notes_clipboard = self.get_notes_table_selected_rows()
             for f_note in self.notes_clipboard:
                 self.item.remove_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Cut notes from item '" + self.item_name + "'")
         else:
             QtGui.QTableWidget.keyPressEvent(self.notes_table_widget, event)
 
@@ -1777,6 +1806,7 @@ class item_list_editor:
                     self.item.remove_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Delete CCs from item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.ccs_clipboard = self.get_ccs_table_selected_rows()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
@@ -1784,12 +1814,14 @@ class item_list_editor:
                 self.item.add_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Paste CCs into item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.ccs_clipboard = self.get_ccs_table_selected_rows()
             for f_cc in self.ccs_clipboard:
                 self.item.remove_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Cut CCs from item '" + self.item_name + "'")
         else:
             QtGui.QTableWidget.keyPressEvent(self.ccs_table_widget, event)
 
@@ -1801,6 +1833,7 @@ class item_list_editor:
                     self.item.remove_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Delete pitchbends from item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.pbs_clipboard = self.get_pbs_table_selected_rows()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
@@ -1808,12 +1841,14 @@ class item_list_editor:
                 self.item.add_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Paste pitchbends into item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.pbs_clipboard = self.get_pbs_table_selected_rows()
             for f_pb in self.pbs_clipboard:
                 self.item.remove_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Cut pitchbends from item '" + self.item_name + "'")
         else:
             QtGui.QTableWidget.keyPressEvent(self.pitchbend_table_widget, event)
 
@@ -1829,6 +1864,7 @@ class item_list_editor:
             self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Delete note from item '" + self.item_name + "'")
 
     def ccs_click_handler(self, x, y):
         if not self.enabled:
@@ -1842,6 +1878,7 @@ class item_list_editor:
             self.item.remove_cc(pydaw_cc(self.ccs_table_widget.item(x, 0).text(), self.ccs_table_widget.item(x, 1).text(), self.ccs_table_widget.item(x, 2).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Delete CC from item '" + self.item_name + "'")
 
     def pitchbend_click_handler(self, x, y):
         if not self.enabled:
@@ -1855,6 +1892,7 @@ class item_list_editor:
             self.item.remove_pb(pydaw_pitchbend(self.pitchbend_table_widget.item(x, 0).text(), self.pitchbend_table_widget.item(x, 1).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Delete pitchbend from item '" + self.item_name + "'")
 
     def notes_show_event_dialog(self, x, y):
         f_cell = self.notes_table_widget.item(x, y)
@@ -1888,6 +1926,7 @@ class item_list_editor:
             this_pydaw_project.save_item(self.item_name, self.item)
 
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Update notes for item '" + self.item_name + "'")
 
             if self.is_existing_note:
                 f_window.close()
@@ -1980,6 +2019,7 @@ class item_list_editor:
             self.default_cc_start = f_start_rounded
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Update CCs for item '" + self.item_name + "'")
             if not f_add_another.isChecked():
                 f_window.close()
 
@@ -2064,6 +2104,7 @@ class item_list_editor:
 
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Update pitchbends for item '" + self.item_name + "'")
             if not f_add_another.isChecked():
                 f_window.close()
 
@@ -2138,33 +2179,40 @@ class seq_track:
     def on_vol_released(self):
         if self.is_instrument:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+            this_pydaw_project.git_repo.git_commit("-a", "Set volume for MIDI track " + str(self.track_number) + " to " + str(self.volume_slider.value()))
         else:
             f_tracks = this_pydaw_project.get_bus_tracks()
             f_tracks.busses[self.track_number].vol = self.volume_slider.value()
             this_pydaw_project.save_busses(f_tracks)
+            this_pydaw_project.git_repo.git_commit("-a", "Set volume for bus track " + str(self.track_number) + " to " + str(self.volume_slider.value()))
     def on_pan_change(self, value):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
     def on_solo(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked(), 0)
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+        this_pydaw_project.git_repo.git_commit("-a", "Set solo for MIDI track " + str(self.track_number) + " to " + str(self.solo_checkbox.isChecked()))
     def on_mute(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 0)
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+        this_pydaw_project.git_repo.git_commit("-a", "Set mute for MIDI track " + str(self.track_number) + " to " + str(self.mute_checkbox.isChecked()))
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+        this_pydaw_project.git_repo.git_commit("-a", "Set rec for MIDI track " + str(self.track_number) + " to " + str(self.record_radiobutton.isChecked()))
     def on_name_changed(self):
         if self.is_instrument:
             self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
             this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 0)
+            this_pydaw_project.git_repo.git_commit("-a", "Set name for MIDI track " + str(self.track_number) + " to " + str(self.track_name_lineedit.text()))
     def on_instrument_change(self, selected_instrument):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
+        this_pydaw_project.git_repo.git_commit("-a", "Set instrument for MIDI track " + str(self.track_number) + " to " + str(self.instrument_combobox.currentText()))
     def on_show_ui(self):
         if self.instrument_combobox.currentIndex() > 0:
             this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
@@ -2177,6 +2225,7 @@ class seq_track:
     def on_bus_changed(self, a_value=0):
         this_pydaw_project.save_tracks(this_region_editor.get_tracks())
         this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex(), 0)
+        this_pydaw_project.git_repo.git_commit("-a", "Set bus for MIDI track " + str(self.track_number) + " to " + str(self.bus_combobox.currentIndex()))
 
     def __init__(self, a_track_num, a_track_text="track", a_instrument=True):
         self.is_instrument = a_instrument
@@ -2341,23 +2390,28 @@ class transport_widget:
             this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
         self.transport.bpm = a_tempo
         this_pydaw_project.save_transport(self.transport)
+        this_pydaw_project.git_repo.git_commit("-a", "Set project tempo to " + str(a_tempo))
     def on_loop_mode_changed(self, a_loop_mode):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
         self.transport.loop_mode = a_loop_mode
         this_pydaw_project.save_transport(self.transport)
+        this_pydaw_project.git_repo.git_commit("-a", "Set project loop mode to " + str(self.loop_mode_combobox.itemText(a_loop_mode)))
     def on_keybd_combobox_index_changed(self, a_index):
         self.alsa_output_ports.connect_to_pydaw(str(self.keybd_combobox.currentText()))
         self.transport.midi_keybd = str(self.keybd_combobox.currentText())
         this_pydaw_project.save_transport(self.transport)
+        this_pydaw_project.git_repo.git_commit("-a", "Set project MIDI in device to " + str(self.keybd_combobox.itemText(a_index)))
     def on_bar_changed(self, a_bar):
         self.transport.bar = a_bar
         if not self.is_playing and not self.is_recording:
             this_pydaw_project.save_transport(self.transport)
+            this_pydaw_project.git_repo.git_commit("-a", "Set project playback bar to " + str(a_bar))
     def on_region_changed(self, a_region):
         self.transport.region = a_region
         if not self.is_playing and not self.is_recording:
             this_pydaw_project.save_transport(self.transport)
+            this_pydaw_project.git_repo.git_commit("-a", "Set project playback bar to " + str(a_region))
     def on_follow_cursor_check_changed(self):
         if self.follow_checkbox.isChecked():
             f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
