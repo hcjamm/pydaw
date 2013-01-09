@@ -2,11 +2,11 @@
 """
 Methods for querying and connecting ALSA and Jack ports.
 
-The ways things are done in this file are about as fundametally wrong as you 
+The ways things are done in this file are about as fundametally wrong as you
 could possibly do them.  The reason for this is that it takes a lot less time
-to hack the output of CLI utilities than it does to decipher terrible 
+to hack the output of CLI utilities than it does to decipher terrible
 documentation that lacks basic examples of how to do tasks fundamental
-to use of the API.  
+to use of the API.
 
 
 """
@@ -18,7 +18,7 @@ from time import sleep
 def launch_jack_oscrolloscope():
     f_processes = getoutput("ps -ef")
     if not "pydaw_jack_oscrolloscope" in f_processes:
-        subprocess.Popen(['pydaw_jack_oscrolloscope', '-n', '2', '-x', '960', '-y', '360'])
+        subprocess.Popen(['/usr/lib/pydaw2/pydaw_jack_oscrolloscope', '-n', '2', '-x', '960', '-y', '360'])
         sleep(2)
     getoutput("jack_connect PyDAW:'PyDAW out_1' jack_oscrolloscope:in_1")
     getoutput("jack_connect PyDAW:'PyDAW out_2' jack_oscrolloscope:in_2")
@@ -31,7 +31,7 @@ class alsa_port:
         self.port_number = a_port_number.strip()
         self.port_name = a_port_name.strip()
         self.fqname = self.client_name + " - " + self.port_name + " ~ " + self.client_number + self.port_number
-        
+
 class alsa_ports:
     def parse_aconnect(self, a_string):
         arr = a_string.split("\n")
@@ -50,9 +50,9 @@ class alsa_ports:
                 if not client_name == "System":
                     f_result.append(alsa_port(client_number, client_name, client_type, port_number, port_name))
         return f_result
-        
+
     def connect_to_pydaw(self, a_string):
-        print("Attempting to connect ALSA port " + a_string + " to PyDAW...")        
+        print("Attempting to connect ALSA port " + a_string + " to PyDAW...")
         for f_alsa_port in self.input_ports:
             if f_alsa_port.client_name == "PyDAW":
                 print(getoutput("aconnect -x"))
@@ -61,27 +61,27 @@ class alsa_ports:
                 print(f_cmd)
                 print(getoutput(f_cmd))
                 break
-        
+
     def get_input_fqnames(self):
         f_result = []
         for port in self.input_ports:
             f_result.append(port.fqname)
         return f_result
-        
+
     def get_output_fqnames(self):
         f_result = []
         for port in self.output_ports:
             f_result.append(port.fqname)
         return f_result
-        
+
     def connect_ports(a_port_out_name, a_port_in_name):
-        #command will be aconnect [client#]:[port#] [client#]:[port#], like aconnect 23:0 44:1 , where the first is sender, and 2nd receiver     
+        #command will be aconnect [client#]:[port#] [client#]:[port#], like aconnect 23:0 44:1 , where the first is sender, and 2nd receiver
         pass
-        
+
     def __init__(self):
-        input_str = getoutput("aconnect -o")        
-        self.input_ports = self.parse_aconnect(input_str)        
-        output_str = getoutput("aconnect -i")        
+        input_str = getoutput("aconnect -o")
+        self.input_ports = self.parse_aconnect(input_str)
+        output_str = getoutput("aconnect -i")
         self.output_ports = self.parse_aconnect(output_str)
 
 
