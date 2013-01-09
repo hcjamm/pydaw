@@ -2988,11 +2988,14 @@ def global_close_all():
 
 def global_ui_refresh_callback():
     """ Use this to re-open all existing items/regions/song in their editors when the files have been changed externally"""
-    global_close_all()
     if this_item_editor.enabled and os.path.isfile(this_pydaw_project.items_folder + "/" + this_item_editor.item_name + ".pyitem"):
         this_item_editor.open_item(this_item_editor.item_name)
+    else:
+        this_item_editor.clear_new()
     if this_region_editor.enabled and os.path.isfile(this_pydaw_project.regions_folder + "/" + str(this_region_editor.region_name_lineedit.text()) + ".pyreg"):
         this_region_editor.open_region(this_region_editor.region_name_lineedit.text())
+    else:
+        this_region_editor.clear_new()
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
     this_region_editor.open_tracks()

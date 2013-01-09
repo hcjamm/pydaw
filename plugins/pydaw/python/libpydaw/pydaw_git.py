@@ -36,6 +36,7 @@ class pydaw_git_repo:
         p.wait()
 
     def git_commit(self, a_file_name, a_message, a_is_undo=False):
+        #print("git commit " + a_file_name + " " + a_message)
         cmd = ['git', 'commit', a_file_name, "-m", a_message]
         p = subprocess.Popen(cmd, cwd=self.repo_dir)
         p.wait()
