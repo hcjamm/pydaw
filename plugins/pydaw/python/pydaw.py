@@ -2341,6 +2341,11 @@ class transport_widget:
         else:
             this_region_editor.table_widget.clearSelection()
         this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
+    def on_spacebar(self):
+        if self.is_playing or self.is_recording:
+            self.on_stop()
+        else:
+            self.on_play()
     def on_play(self):
         if self.is_recording:
             self.rec_button.setChecked(True)
@@ -2727,6 +2732,9 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_layout.addWidget(f_text_edit)
         f_window.exec_()
 
+    def on_spacebar(self):
+        this_transport.on_spacebar()
+
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         self.setObjectName("mainwindow")
@@ -2740,6 +2748,11 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.main_layout = QtGui.QVBoxLayout()
         self.central_widget.setLayout(self.main_layout)
+
+        self.spacebar_action = QtGui.QAction(self)
+        self.addAction(self.spacebar_action)
+        self.spacebar_action.triggered.connect(self.on_spacebar)
+        self.spacebar_action.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space))
 
         #The context menus
         self.menu_bar = self.menuBar()
