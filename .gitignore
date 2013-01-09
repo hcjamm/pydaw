@@ -28,6 +28,7 @@ plugins/maintainer.txt
 *.la
 *.lo
 *~
+tools/debugger/test.wav.finished
 *.log
 *.libs*
 *.deps*
