@@ -345,7 +345,6 @@ class pydaw_project:
             f_file = open(f_file_name, "w")
             f_file.write(a_transport.__str__())
             f_file.close()
-            self.git_repo.git_commit(f_file_name, "Save transport settings...")
 
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
@@ -354,7 +353,6 @@ class pydaw_project:
         f_file.write(pydaw_terminating_char)
         f_file.close()
         self.git_repo.git_add(f_file_name)
-        self.git_repo.git_commit(f_file_name, "Created empty region " + a_region_name)
 
     def create_empty_item(self, a_item_name):
         f_item_name = str(a_item_name)
@@ -364,21 +362,18 @@ class pydaw_project:
         f_file.write(pydaw_terminating_char)
         f_file.close()
         self.git_repo.git_add(f_file_name)
-        self.git_repo.git_commit(f_file_name, "Created empty item " + f_item_name)
         self.this_dssi_gui.pydaw_save_item(f_item_name)
 
     def copy_region(self, a_old_region, a_new_region):
         f_new_file = self.regions_folder + "/" + str(a_new_region) + ".pyreg"
         copyfile(self.regions_folder + "/" + str(a_old_region) + ".pyreg", f_new_file)
         self.git_repo.git_add(f_new_file)
-        self.git_repo.git_commit(f_new_file, "Created new region " + a_new_region + " copying from " + a_old_region)
 
     def copy_item(self, a_old_item, a_new_item):
         f_new_item = str(a_new_item)
         f_new_file = self.items_folder + "/" + f_new_item + ".pyitem"
         copyfile(self.items_folder + "/" + str(a_old_item) + ".pyitem", f_new_file)
         self.git_repo.git_add(f_new_file)
-        self.git_repo.git_commit(f_new_file, "Created new item " + f_new_item + " copying from " + a_old_item)
         self.this_dssi_gui.pydaw_save_item(f_new_item)
 
     def save_item(self, a_name, a_item):
@@ -389,7 +384,6 @@ class pydaw_project:
             f_file.write(a_item.__str__())
             f_file.close()
             self.this_dssi_gui.pydaw_save_item(f_name)
-            self.git_repo.git_commit(f_file_name, "Edited item " + f_name)
 
     def save_region(self, a_name, a_region):
         if not self.suppress_updates:
@@ -399,7 +393,6 @@ class pydaw_project:
             f_file.write(a_region.__str__())
             f_file.close()
             self.this_dssi_gui.pydaw_save_region(f_name)
-            self.git_repo.git_commit(f_file_name, "Edited region " + f_name)
 
     def save_song(self, a_song):
         if not self.suppress_updates:
@@ -408,7 +401,6 @@ class pydaw_project:
             f_file.write(a_song.__str__())
             f_file.close()
             self.this_dssi_gui.pydaw_save_song()
-            self.git_repo.git_commit(f_file_name, "Edited song")
 
     def save_tracks(self, a_tracks):
         if not self.suppress_updates:
@@ -417,7 +409,6 @@ class pydaw_project:
             f_file.write(a_tracks.__str__())
             f_file.close()
             #Is there a need for a configure message here?
-            self.git_repo.git_commit('-a', "Edited MIDI tracks")
 
     def save_busses(self, a_tracks):
         if not self.suppress_updates:
@@ -426,7 +417,6 @@ class pydaw_project:
             f_file.write(a_tracks.__str__())
             f_file.close()
             #Is there a need for a configure message here?
-            self.git_repo.git_commit('-a', "Edited busses")
 
     def save_audio_tracks(self, a_tracks):
         if not self.suppress_updates:
@@ -435,7 +425,6 @@ class pydaw_project:
             f_file.write(a_tracks.__str__())
             f_file.close()
             #Is there a need for a configure message here?
-            self.git_repo.git_commit('-a', "Edited audio tracks")
 
     def save_audio_inputs(self, a_tracks):
         if not self.suppress_updates:
@@ -444,7 +433,6 @@ class pydaw_project:
             f_file.write(a_tracks.__str__())
             f_file.close()
             #Is there a need for a configure message here?
-            self.git_repo.git_commit('-a', "Edited audio inputs")
 
     def save_audio_items(self, a_tracks):
         if not self.suppress_updates:
@@ -453,7 +441,6 @@ class pydaw_project:
             f_file.write(a_tracks.__str__())
             f_file.close()
             #Is there a need for a configure message here?
-            self.git_repo.git_commit('-a', "Edited audio items")
 
     def save_samplegraphs(self, a_tracks):
         if not self.suppress_updates:
