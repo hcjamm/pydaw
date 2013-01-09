@@ -15,7 +15,7 @@ GNU General Public License for more details.
 #ifndef EUPHORIA_SYNTH_H
 #define EUPHORIA_SYNTH_H
 
-#include <ladspa.h>
+#include "../../include/pydaw2/pydaw_plugin.h"
 #include "ports.h"
 #include "../../libmodsynth/lib/amp.h"
 #include "../../libmodsynth/lib/voice.h"

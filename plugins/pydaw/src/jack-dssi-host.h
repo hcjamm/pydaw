@@ -21,7 +21,7 @@
 #ifndef _JACK_DSSI_HOST_H
 #define _JACK_DSSI_HOST_H
 
-#include "dssi.h"
+#include "../../include/pydaw2/pydaw_plugin.h"
 #include <lo/lo.h>
 
 #define D3H_MAX_CHANNELS   16  /* MIDI limit */

@@ -23,8 +23,7 @@ GNU General Public License for more details.
 #include <stdio.h>
 #include <math.h>
 
-#include "dssi.h"
-#include "ladspa.h"
+#include "../../include/pydaw2/pydaw_plugin.h"
 
 #include <sndfile.h>
 #include <pthread.h>

@@ -12,8 +12,7 @@
 extern "C" {
 #endif
 
-#include <dssi.h>
-#include <ladspa.h>
+#include "../../plugins/include/pydaw2/pydaw_plugin.h"
 #include <math.h>
     
 LADSPA_Data get_port_default(const LADSPA_Descriptor *plugin, int port, int sample_rate)

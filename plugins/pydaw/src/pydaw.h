@@ -86,7 +86,6 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <ladspa.h>
 #include "pydaw_files.h"
 #include "pydaw_plugin.h"
 #include <sys/stat.h>

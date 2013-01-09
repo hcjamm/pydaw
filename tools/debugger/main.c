@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 #include "../../plugins/pydaw/src/synth.c"
-#include <dssi.h>
+#include "../../plugins/include/pydaw2/pydaw_plugin.h"
 #include "ladspa_ports.h"
 #include <unistd.h>
 #include <alsa/asoundlib.h>

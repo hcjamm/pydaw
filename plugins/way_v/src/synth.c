@@ -25,8 +25,7 @@ GNU General Public License for more details.
 #include <math.h>
 #include <stdio.h>
 
-#include "dssi.h"
-#include "ladspa.h"
+#include "../../include/pydaw2/pydaw_plugin.h"
 
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/amp.h"
