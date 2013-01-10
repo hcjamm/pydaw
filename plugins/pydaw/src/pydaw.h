@@ -53,7 +53,9 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_SINGLE "as"
 #define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_CLEAR_SINGLE "ac"
 #define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_UPDATE_SINGLE "au"
-#define PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH "sg" 
+#define PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH "sg"
+    
+#define PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS "ua"
 
     
 #define PYDAW_LOOP_MODE_OFF 0
@@ -96,6 +98,7 @@ extern "C" {
 #include "../../libmodsynth/lib/amp.h"
 #include "pydaw_audio_tracks.h"
 #include "pydaw_sample_graph.h"
+#include "pydaw_audio_inputs.h"
     
 typedef struct st_pynote
 {
@@ -190,6 +193,7 @@ typedef struct st_pydaw_data
     t_pytrack * track_pool[PYDAW_MIDI_TRACK_COUNT];
     t_pytrack * bus_pool[PYDAW_BUS_TRACK_COUNT];
     t_pytrack * audio_track_pool[PYDAW_AUDIO_TRACK_COUNT];
+    t_pyaudio_input * audio_inputs[PYDAW_AUDIO_INPUT_TRACK_COUNT];
     int track_current_item_note_event_indexes[PYDAW_MIDI_TRACK_COUNT];
     int track_current_item_cc_event_indexes[PYDAW_MIDI_TRACK_COUNT];
     int track_current_item_pitchbend_event_indexes[PYDAW_MIDI_TRACK_COUNT];
@@ -265,14 +269,16 @@ typedef struct st_pydaw_data
     int default_bar_length;
     t_pydaw_audio_items * audio_items;
     char audio_items_file[256];
-    
-    
+        
     //Main-loop variables, prefixed with ml_
     double ml_sample_period_inc;
     double ml_sample_period_inc_beats;
     double ml_next_playback_cursor;
     double ml_current_period_beats;
     double ml_next_period_beats;
+    
+    float ** input_buffers;
+    int input_buffers_active;
 }t_pydaw_data;
 
 typedef struct 
@@ -314,7 +320,8 @@ void v_pydaw_init_worker_threads(t_pydaw_data*);
 void v_open_default_project(t_pydaw_data * a_data);
 inline void v_pydaw_process_external_midi(t_pydaw_data * pydaw_data, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count);
 inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, unsigned long sample_count, 
-        snd_seq_event_t *events, unsigned long event_count, long f_next_current_sample, LADSPA_Data *output0, LADSPA_Data *output1);
+        snd_seq_event_t *events, unsigned long event_count, long f_next_current_sample, 
+        LADSPA_Data *output0, LADSPA_Data *output1, LADSPA_Data **a_input_buffers);
 void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, int a_end_region, 
         int a_end_bar, char * a_file_out);
 inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data);
@@ -325,6 +332,8 @@ void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data);
 inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_count, float* a_output0, 
         float* a_output1, int a_audio_track_num);
 void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
+
+void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data);
 /*End declarations.  Begin implementations.*/
 
 void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data)
@@ -932,9 +941,12 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
 }
 
 inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sample_count, 
-        snd_seq_event_t *events, unsigned long event_count, long f_next_current_sample, LADSPA_Data *output0, LADSPA_Data *output1)
+        snd_seq_event_t *events, unsigned long event_count, long f_next_current_sample, 
+        LADSPA_Data *output0, LADSPA_Data *output1, LADSPA_Data **a_input_buffers)
 {
     a_pydaw_data->sample_count = sample_count;
+    a_pydaw_data->input_buffers = a_input_buffers;
+    
     if((a_pydaw_data->playback_mode) > 0)
     {
         a_pydaw_data->ml_sample_period_inc = ((a_pydaw_data->playback_inc) * ((double)(sample_count)));
@@ -1540,6 +1552,28 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
     double f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats + (a_pydaw_data->ml_next_period_beats);
 
     f_adjusted_song_pos_beats += (a_pydaw_data->ml_current_period_beats);
+    
+    if(a_pydaw_data->input_buffers_active)
+    {
+        while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
+        {
+            if((a_pydaw_data->audio_inputs[f_i]->rec) && 
+                ((a_pydaw_data->audio_inputs[f_i]->output_track) == a_audio_track_num))
+            {
+                f_i2 = 0;
+                while(f_i2 < a_sample_count)
+                {   
+                    a_output0[f_i2] += a_pydaw_data->input_buffers[(a_pydaw_data->audio_inputs[f_i]->input_port[0])][f_i2];
+                    a_output1[f_i2] += a_pydaw_data->input_buffers[(a_pydaw_data->audio_inputs[f_i]->input_port[1])][f_i2];
+                    f_i2++;
+                }
+            }
+            f_i++;
+        }
+
+        f_i = 0;
+        f_i2 = 0;
+    }
     
     while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
     {
@@ -2379,7 +2413,19 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     
     f_result->audio_items = g_pydaw_audio_items_get(a_sample_rate);
     
+    f_result->input_buffers_active = 0;
+    
     int f_i = 0;
+    
+    while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
+    {
+        f_result->audio_inputs[f_i] = g_pyaudio_input_get();
+        f_result->audio_inputs[f_i]->input_port[0] = f_i * 2;
+        f_result->audio_inputs[f_i]->input_port[1] = (f_i * 2) + 1;
+        f_i++;
+    }
+    
+    f_i = 0;
     
     while(f_i < PYDAW_AUDIO_TRACK_COUNT)
     {        
@@ -2932,6 +2978,8 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         v_audio_items_load_all(a_pydaw_data->audio_items, a_pydaw_data->audio_items_file);
     }    
        
+    v_pydaw_update_audio_inputs(a_pydaw_data);
+    
     v_pydaw_set_is_soloed(a_pydaw_data);
     
     v_pydaw_set_bus_counters(a_pydaw_data);
@@ -3630,6 +3678,72 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
     
 }
 
+void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data)
+{
+    char f_inputs_file[256];
+    sprintf(f_inputs_file, "%sdefault.pyinput", a_pydaw_data->project_folder);
+    
+    if(i_pydaw_file_exists(f_inputs_file))
+    {
+        int f_i = 0;
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_inputs_file, LMS_LARGE_STRING);
+        
+        while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
+        {
+            char * f_index_str = c_iterate_2d_char_array(f_2d_array);
+
+            if(!strcmp(f_index_str, "\\"))
+            {
+                free(f_index_str);            
+                break;
+            }
+
+            int f_index = atoi(f_index_str);
+            free(f_index_str);
+            
+            char * f_rec_str = c_iterate_2d_char_array(f_2d_array);
+            int f_rec = atoi(f_rec_str);
+            free(f_rec_str);
+            
+            char * f_vol_str = c_iterate_2d_char_array(f_2d_array);
+            int f_vol = atoi(f_vol_str);
+            free(f_vol_str);
+            
+            char * f_out_str = c_iterate_2d_char_array(f_2d_array);
+            int f_out = atoi(f_out_str);
+            free(f_out_str);
+                        
+            char * f_in_str = c_iterate_2d_char_array(f_2d_array);
+            free(f_in_str);  //Not used yet
+            
+            a_pydaw_data->audio_inputs[f_index]->rec = f_rec;
+            a_pydaw_data->audio_inputs[f_index]->output_track = f_out;
+                        
+            a_pydaw_data->audio_inputs[f_index]->vol = f_vol;            
+            a_pydaw_data->audio_inputs[f_index]->vol_linear = f_db_to_linear_fast(f_vol, a_pydaw_data->amp_ptr);
+            
+            f_i++;
+        }
+        
+        g_free_2d_char_array(f_2d_array);
+    }
+    else 
+    {        
+        printf("%s not found, setting default values\n", f_inputs_file);
+        
+        int f_i = 0;        
+        while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
+        {
+            a_pydaw_data->audio_inputs[f_i]->rec = 0;
+            a_pydaw_data->audio_inputs[f_i]->output_track = 0;
+                        
+            a_pydaw_data->audio_inputs[f_i]->vol = 0.0f;
+            a_pydaw_data->audio_inputs[f_i]->vol_linear = 1.0f;
+            f_i++;
+        }
+    }
+}
+
 #ifdef PYDAW_MEMCHECK
 /* Check a_pydaw_data for all known indicators of memory integrity, and throw a SIGABRT 
  if it fails.*/
@@ -3689,6 +3803,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
 {
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
     a_pydaw_data->is_offline_rendering = 1;
+    a_pydaw_data->input_buffers_active = 0;
     
     int f_bar_count = a_end_bar - a_start_bar;
     
@@ -3749,7 +3864,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
         
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         f_next_sample_block = (a_pydaw_data->current_sample) + f_block_size;        
-        v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1);        
+        v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1, 0);        
         a_pydaw_data->current_sample = f_next_sample_block;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         
@@ -4078,7 +4193,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 v_pydaw_set_track_volume(a_pydaw_data,  a_pydaw_data->audio_track_pool[f_track_num], f_track_vol);
                 break;            
             case 3:  //Audio Input
-                //TODO
+                a_pydaw_data->audio_inputs[f_track_num]->vol = f_track_vol;            
+                a_pydaw_data->audio_inputs[f_track_num]->vol_linear = f_db_to_linear_fast(f_track_vol, a_pydaw_data->amp_ptr);
                 break;
             default:
                 assert(0);
@@ -4088,6 +4204,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS)) //Change the plugin
+    {
+        v_pydaw_update_audio_inputs(a_pydaw_data);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CHANGE_INSTRUMENT)) //Change the plugin
     {
