@@ -11,7 +11,7 @@ BASE_FLAGS     = -ffast-math -fPIC -mstackrealign -mtune=generic -msse -msse2 -m
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS) $(shell pkg-config --cflags alsa jack liblo)
 LINK_CFLAGS    = -lm -ldl $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile jack)
 
-C_OBJS   = src/jack-dssi-host.o src/message_buffer.o
+C_OBJS   = src/main.o src/message_buffer.o
 
 # --------------------------------------------------------------
 
