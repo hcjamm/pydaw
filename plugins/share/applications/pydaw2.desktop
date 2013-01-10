@@ -2,7 +2,7 @@
 Name=PyDAW2
 Comment=PyDAW2 is a digital audio workstation with a full suite of instrument and effects plugins
 Exec=pydaw2
-Icon=pydaw.png
+Icon=pydaw2.png
 Terminal=false
 Type=Application
 Categories=Audio;AudioEditing;
