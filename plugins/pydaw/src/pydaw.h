@@ -172,10 +172,7 @@ typedef struct st_pytrack
     
     int bus_count;  //Only for busses, the count of plugins writing to the buffer
     int bus_counter __attribute__((aligned(16)));  //This is reset to bus_count each cycle and the bus track processed when count reaches 0
-    int bus_buffer_state __attribute__((aligned(16))); //0 = Not ready, 1 = being cleared, 2 = ready
-    
-    //Only for audio tracks, used to determine whether to process the track or not
-    int has_audio_items;
+    int bus_buffer_state __attribute__((aligned(16))); //0 = Not ready, 1 = being cleared, 2 = ready    
 }t_pytrack;
 
 typedef struct
@@ -2303,9 +2300,7 @@ t_pytrack * g_pytrack_get(int a_track_num, int a_track_type)
     f_result->bus_buffer_state = 0;
     f_result->bus_count = 0;
     f_result->bus_counter = 0;
-    
-    f_result->has_audio_items = 0;
-    
+        
     int f_i = 0;
     
     while(f_i < PYDAW_MAX_EVENT_BUFFER_SIZE)    
