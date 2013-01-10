@@ -52,7 +52,7 @@ t_amp * g_amp_get()
     }
     
     f_result->linear = g_lin_get();
-    f_result->result = 0;
+    f_result->result = 0.0f;
     
     return f_result;
 }
@@ -87,7 +87,7 @@ inline float f_linear_to_db(float a_linear,t_amp *__restrict a_amp)
 /*Arrays*/
 
 #define arr_amp_db2a_count 545
-#define arr_amp_db2a_count_m1_f 544.0f;
+#define arr_amp_db2a_count_m1_f 544.0f
 
 float arr_amp_db2a [arr_amp_db2a_count] = {
 0.000010, 0.000010, 0.000011, 0.000011, 0.000011, 0.000012, 0.000012, 0.000012, 0.000013, 0.000013, 0.000013, 0.000014, 0.000014,
@@ -146,9 +146,9 @@ float arr_amp_db2a [arr_amp_db2a_count] = {
  */
 inline float f_db_to_linear_fast(float a_db, t_amp *__restrict a_amp)
 {
-    a_amp->result = ((a_db + 100.0f) * 4) - 1;
+    a_amp->result = ((a_db + 100.0f) * 4.0f) - 1.0f;
             
-    if((a_amp->result) >= arr_amp_db2a_count)
+    if((a_amp->result) > arr_amp_db2a_count_m1_f)
     {
         a_amp->result = arr_amp_db2a_count_m1_f;
     }
@@ -163,6 +163,8 @@ inline float f_db_to_linear_fast(float a_db, t_amp *__restrict a_amp)
 
 
 #define arr_amp_a2db_count 400
+#define arr_amp_a2db_count_float 400.0f
+#define arr_amp_a2db_count_float_m1 399.0f
 
 float arr_amp_a2db [arr_amp_a2db_count] = {
 -100 ,-40.000000,-33.979401,-30.457575,-27.958801,-26.020601,-24.436975, -23.098040,-21.938202,-20.915152,-20.000002,-19.172148,-18.416376,
@@ -209,16 +211,16 @@ float arr_amp_a2db [arr_amp_a2db_count] = {
  */
 inline float f_linear_to_db_fast(float a_input, t_amp *__restrict a_amp)
 {
-    a_amp->result = (a_input  * 100);
+    a_amp->result = (a_input  * 100.0f);
             
-    if((a_amp->result) >= arr_amp_a2db_count)
+    if((a_amp->result) >= arr_amp_a2db_count_float)
     {
-        a_amp->result = arr_amp_a2db_count - 1;
+        a_amp->result = arr_amp_a2db_count_float_m1;
     }
     
-    if((a_amp->result) < 0)
+    if((a_amp->result) < 0.0f)
     {
-        a_amp->result = 0;
+        a_amp->result = 0.0f;
     }
     
     return f_linear_interpolate_arr(arr_amp_a2db, (a_amp->result), a_amp->linear);
@@ -232,7 +234,7 @@ inline float f_linear_to_db_fast(float a_input, t_amp *__restrict a_amp)
  */
 inline float f_linear_to_db_linear(float a_input, t_amp *__restrict a_amp)
 {
-    a_amp->result = ((a_input) * 30) - 30;
+    a_amp->result = ((a_input) * 30.0f) - 30.0f;
     
     return f_db_to_linear_fast((a_amp->result), a_amp);
 }
