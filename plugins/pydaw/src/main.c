@@ -34,7 +34,7 @@
 
 #include <lo/lo.h>
 
-#include "jack-dssi-host.h"
+#include "main.h"
 
 #include "message_buffer.h"
 
