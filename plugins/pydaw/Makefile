@@ -7,7 +7,7 @@ MOC ?= moc-qt4
 
 PREFIX ?= /usr
 
-BASE_FLAGS     = -ffast-math -fPIC -mstackrealign -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fprefetch-loop-arrays -ftree-vectorize -floop-optimize -fsingle-precision-constant -Wall -Isrc -I.
+BASE_FLAGS     = -ffast-math -fPIC -mstackrealign -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -fprefetch-loop-arrays -floop-optimize -fsingle-precision-constant -Wall -Isrc -I.
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS) $(shell pkg-config --cflags alsa jack liblo) -I./dssi
 LINK_CFLAGS    = -lm -ldl $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile jack)
 
