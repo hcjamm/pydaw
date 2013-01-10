@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     while(f_i < 100)
     {
 #ifdef DEBUGGER_SIMULATE_EXTERNAL_MIDI
-        f_ddesc->run_synth(f_handle, 4096, f_midi_events, 4);
+        f_ddesc->run_synth(f_handle, 512, f_midi_events, 4);
 #else
         f_ddesc->run_synth(f_handle, 4096, NULL, 0);
 #endif
