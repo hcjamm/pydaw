@@ -76,6 +76,7 @@ int main(int argc, char** argv)
     
     v_pydaw_offline_render(pydaw_data, 0, 0, 10, 2, "test.wav");
     
-    return 0; //(EXIT_SUCCESS);
+    exit(0);
+    //return 0;     
 }
 
