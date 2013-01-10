@@ -55,6 +55,8 @@ OSC configure message keys/values:
 	"sg"	"file|uid"	Generate a sample-graph for "file", assigning it to uid.pygraph in the project/samplegraph/
 	"ai"	""	Reload all audio items(the sequenced audio parts/loaded files)
 
+	"ua"	""	Update audio inputs configuration from .pyinput file
+
 
 Project structure:
 

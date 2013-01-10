@@ -31,11 +31,11 @@ extern "C" {
 #define PYDAW_FIRST_CONTROL_PORT (PYDAW_OUTPUT1 + 1)
 /*This is the last control port*/
 #define PYDAW_LAST_CONTROL_PORT (PYDAW_FIRST_CONTROL_PORT)
-#define PYDAW_COUNT  (PYDAW_FIRST_CONTROL_PORT) /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define PYDAW_COUNT  (PYDAW_LAST_CONTROL_PORT) /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
   
 /*GUI Step 13:  Add a variable for each control in the LMS type*/
 typedef struct {
-    LADSPA_Data *input_arr[PYDAW_INPUT_COUNT];
+    LADSPA_Data **input_arr;
     
     LADSPA_Data *output0;
     LADSPA_Data *output1;

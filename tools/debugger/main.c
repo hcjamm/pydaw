@@ -18,6 +18,7 @@
 
 #define DEBUGGER_SIMULATE_EXTERNAL_MIDI
 //#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw/default-project to work without crashing...
+#define DEBUGGER_SAMPLE_COUNT 512
 
 int main(int argc, char** argv) 
 {
@@ -36,10 +37,26 @@ int main(int argc, char** argv)
     f_engine->output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
     f_engine->output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
     
+    int f_i = 0;
+    
+    while(f_i < PYDAW_INPUT_COUNT)
+    {
+        f_engine->input_arr[f_i] = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
+        
+        int f_i2 = 0;
+        while(f_i2 < DEBUGGER_SAMPLE_COUNT)
+        {
+            f_engine->input_arr[f_i][f_i2] = 0.0f;
+            f_i2++;
+        }
+        
+        f_i++;
+    }
+    
     float * f_control_ins = (float*)malloc(sizeof(float) * 3000);
     set_ladspa_ports(f_ddesc, f_handle, f_control_ins);
     
-    int f_i = 0;
+    f_i = 0;
     
     snd_seq_event_t * f_midi_events = (snd_seq_event_t*)malloc(sizeof(snd_seq_event_t) * 512);
     snd_seq_ev_clear(&f_midi_events[0]);
@@ -63,9 +80,9 @@ int main(int argc, char** argv)
     while(f_i < 100)
     {
 #ifdef DEBUGGER_SIMULATE_EXTERNAL_MIDI
-        f_ddesc->run_synth(f_handle, 512, f_midi_events, 4);
+        f_ddesc->run_synth(f_handle, DEBUGGER_SAMPLE_COUNT, f_midi_events, 4);
 #else
-        f_ddesc->run_synth(f_handle, 4096, NULL, 0);
+        f_ddesc->run_synth(f_handle, DEBUGGER_SAMPLE_COUNT, NULL, 0);
 #endif
         f_i++;
     }

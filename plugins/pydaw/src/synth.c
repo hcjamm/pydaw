@@ -256,6 +256,8 @@ static void v_pydaw_connect_port(LADSPA_Handle instance, unsigned long port, LAD
 static LADSPA_Handle g_pydaw_instantiate(const LADSPA_Descriptor * descriptor, unsigned long s_rate)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) malloc(sizeof(t_pydaw_engine));
+    plugin_data->input_arr = (LADSPA_Data**)malloc(sizeof(LADSPA_Data*) * PYDAW_INPUT_COUNT);
+    
     pydaw_data = g_pydaw_data_get(s_rate);
     
     plugin_data->fs = s_rate;
@@ -289,8 +291,10 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
     if(f_lock_result == 0)  //Don't try to process the main loop if another process, ie:  offline rendering of a project, has locked it
     {
         pthread_mutex_lock(&pydaw_data->main_mutex);
+        pydaw_data->input_buffers_active = 1;
         long f_next_current_sample = ((pydaw_data->current_sample) + sample_count);
-        v_pydaw_run_main_loop(pydaw_data, sample_count, events, event_count, f_next_current_sample, plugin_data->output0, plugin_data->output1);
+        v_pydaw_run_main_loop(pydaw_data, sample_count, events, event_count, f_next_current_sample, 
+                plugin_data->output0, plugin_data->output1, plugin_data->input_arr);
         /*TODO:  Run the LMS Limiter algorithm here at 0.0db, long release time, to prevent clipping*/
         
         pydaw_data->current_sample = f_next_current_sample;
