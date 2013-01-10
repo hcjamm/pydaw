@@ -161,9 +161,9 @@ inline void v_mf3_set(t_mf3_multi*__restrict a_mf3, float a_control0, float a_co
  */
 inline void v_mf3_mod(t_mf3_multi*__restrict a_mf3,float a_mod, float a_amt0, float a_amt1, float a_amt2)
 {    
-    a_mf3->mod_value[0] = (a_mf3->mod_value[0]) + (a_mod * a_amt0 * .01);
-    a_mf3->mod_value[1] = (a_mf3->mod_value[1]) + (a_mod * a_amt1 * .01);
-    a_mf3->mod_value[2] = (a_mf3->mod_value[2]) + (a_mod * a_amt2 * .01);
+    a_mf3->mod_value[0] = (a_mf3->mod_value[0]) + (a_mod * a_amt0 * .01f);
+    a_mf3->mod_value[1] = (a_mf3->mod_value[1]) + (a_mod * a_amt1 * .01f);
+    a_mf3->mod_value[2] = (a_mf3->mod_value[2]) + (a_mod * a_amt2 * .01f);
 }
 
 /* inline void v_mf3_mod_single(
@@ -179,40 +179,40 @@ inline void v_mf3_mod_single(t_mf3_multi*__restrict a_mf3,float a_mod, float a_a
 
 inline void v_mf3_commit_mod(t_mf3_multi*__restrict a_mf3)
 {
-    a_mf3->control[0] = (a_mf3->control[0]) + ((a_mf3->mod_value[0]) * 127);
+    a_mf3->control[0] = (a_mf3->control[0]) + ((a_mf3->mod_value[0]) * 127.0f);
     
-    if((a_mf3->control[0]) > 127)
+    if((a_mf3->control[0]) > 127.0f)
     {
-        a_mf3->control[0] = 127;
+        a_mf3->control[0] = 127.0f;
     }
     
-    if((a_mf3->control[0]) < 0)
+    if((a_mf3->control[0]) < 0.0f)
     {
-        a_mf3->control[0] = 0;
+        a_mf3->control[0] = 0.0f;
     }
     
-    a_mf3->control[1] = (a_mf3->control[1]) + ((a_mf3->mod_value[1]) * 127);
+    a_mf3->control[1] = (a_mf3->control[1]) + ((a_mf3->mod_value[1]) * 127.0f);
         
-    if((a_mf3->control[1]) > 127)
+    if((a_mf3->control[1]) > 127.0f)
     {
-        a_mf3->control[1] = 127;
+        a_mf3->control[1] = 127.0f;
     }
     
-    if((a_mf3->control[1]) < 0)
+    if((a_mf3->control[1]) < 0.0f)
     {
-        a_mf3->control[1] = 0;
+        a_mf3->control[1] = 0.0f;
     }
     
-    a_mf3->control[2] = (a_mf3->control[2]) + ((a_mf3->mod_value[2]) * 127);
+    a_mf3->control[2] = (a_mf3->control[2]) + ((a_mf3->mod_value[2]) * 127.0f);
              
-    if((a_mf3->control[2]) > 127)
+    if((a_mf3->control[2]) > 127.0f)
     {
-        a_mf3->control[2] = 127;
+        a_mf3->control[2] = 127.0f;
     }
     
-    if((a_mf3->control[2]) < 0)
+    if((a_mf3->control[2]) < 0.0f)
     {
-        a_mf3->control[2] = 0;
+        a_mf3->control[2] = 0.0f;
     }
 }
 
@@ -290,11 +290,11 @@ inline void v_mf3_run_eq(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {   
     v_mf3_commit_mod(a_mf3);    
     //cutoff
-    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.818897638) + 20);
+    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.818897638) + 20.0f);
     //width
     a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.047244094) + 2.5f;
     //gain
-    a_mf3->control_value[2] = (a_mf3->control[2]) * 0.377952756 - 24;
+    a_mf3->control_value[2] = (a_mf3->control[2]) * 0.377952756 - 24.0f;
     
     v_pkq_calc_coeffs(a_mf3->eq0, a_mf3->control_value[0], a_mf3->control_value[1], a_mf3->control_value[2]);
     
@@ -307,9 +307,9 @@ inline void v_mf3_run_eq(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 inline void v_mf3_run_dist(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
-    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.283464567);
-    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.007874016);
-    a_mf3->control_value[2] = (((a_mf3->control[2]) * 0.094488189) - 12);
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.283464567f);
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.007874016f);
+    a_mf3->control_value[2] = (((a_mf3->control[2]) * 0.094488189f) - 12.0f);
     a_mf3->outgain = f_db_to_linear((a_mf3->control_value[2]), a_mf3->amp_ptr);
     v_clp_set_in_gain(a_mf3->clipper, (a_mf3->control_value[0]));
     v_axf_set_xfade(a_mf3->xfader, (a_mf3->control_value[1]));
@@ -324,9 +324,9 @@ inline void v_mf3_run_comb(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in
     v_mf3_commit_mod(a_mf3);
     
     //cutoff
-    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.692913386) + 20);
+    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.692913386) + 20.0f);
     //res
-    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.157480315) - 20;
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.157480315) - 20.0f;
     
     v_cmb_set_all(a_mf3->comb_filter0, (a_mf3->control_value[1]), (a_mf3->control_value[1]), 
                     (a_mf3->control_value[0]));
@@ -345,8 +345,8 @@ inline void v_mf3_run_amp_panner(t_mf3_multi*__restrict a_mf3, float a_in0, floa
 {
     v_mf3_commit_mod(a_mf3);
     
-    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.007874016);    
-    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.283464567) - 30;
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.007874016f);    
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.283464567f) - 30.0f;
     
     v_app_set(a_mf3->amp_and_panner, (a_mf3->control_value[1]), (a_mf3->control_value[0]));
     v_app_run(a_mf3->amp_and_panner, a_in0, a_in1);
@@ -359,9 +359,9 @@ inline void f_mfx_transform_svf_filter(t_mf3_multi*__restrict a_mf3)
 {
     v_mf3_commit_mod(a_mf3);    
     //cutoff
-    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.818897638) + 20);
+    a_mf3->control_value[0] = (((a_mf3->control[0]) * 0.818897638) + 20.0f);
     //res
-    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.236220472) - 30;
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.236220472) - 30.0f;
     
     v_svf_set_cutoff_base(a_mf3->svf0, (a_mf3->control_value[0]));    
     v_svf_set_res(a_mf3->svf0, (a_mf3->control_value[1]));    
