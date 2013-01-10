@@ -32,9 +32,6 @@
 extern "C" {
 #endif
 
-/*This should be commented out if releasing a plugin, it will waste a lot of CPU printing debug information to the console that users shouldn't need.*/
-//#define SVF_DEBUG_MODE
-
 #include "../../lib/pitch_core.h"
 #include "../../lib/amp.h"
 #include "../../lib/interpolate-linear.h"
@@ -49,20 +46,9 @@ extern "C" {
 #define SVF_FILTER_TYPE_EQ 3
 #define SVF_FILTER_TYPE_NOTCH 4
     
-/*The maximum number of filter kernels to cascade.  Multiply this times 2 to get the number of poles the filter will have.
- To people using the library or forking the plugins I've written:  
+/*The maximum number of filter kernels to cascade.
  */
 #define SVF_MAX_CASCADE 2
-/*I set this to only 2 for a reason;  People don't want or need more than 4 poles in their filter, it's just not musical.
- You may also be wondering why I used separate methods for getting 2 or 4 poles, rather than using language features like iteration for unlimited scalability.
- There reasons are:
- a.  People really don't need more than 4 poles if they actually want to sound good
- b.  It saves a whole lot of CPU not using these features, especially since no reasonable person is going to create a 16 pole filter
- 
- The official aim of LibModSynth is to create quality plugins that are easy to to make music with, not monstrosities with
- way too many knobs and buttons.  You are strongly discouraged (but still completely within your rights) from making
- plugins that are overly complicated, and encouraged to make plugins that sound good, and offer simplied, easy-to-use controls*/
-
 
 /*Changing this only affects initialization of the filter, you must still change the code in v_svf_set_input_value()*/
 #define SVF_OVERSAMPLE_MULTIPLIER 4
@@ -90,10 +76,6 @@ typedef struct st_state_variable_filter
     t_svf_kernel * filter_kernels [SVF_MAX_CASCADE];
     t_amp * amp_ptr;
     t_pit_pitch_core * pitch_core;
-#ifdef SVF_DEBUG_MODE
-    int samples_ran;
-#endif
-    
 } t_state_variable_filter; 
 
 //Used to switch between values, uses much less CPU than a switch statement at every tick of the samplerate clock
@@ -122,6 +104,8 @@ inline float v_svf_run_2_pole_eq(t_state_variable_filter*, float);
 inline float v_svf_run_4_pole_eq(t_state_variable_filter*, float);
 
 inline float v_svf_run_no_filter(t_state_variable_filter*, float);
+
+inline float v_svf_run_2_pole_allpass(t_state_variable_filter*, float);
 
 inline void v_svf_set_eq(t_state_variable_filter*, float);
 inline void v_svf_set_eq4(t_state_variable_filter*, float);
@@ -269,12 +253,7 @@ inline void v_svf_set_input_value(t_state_variable_filter *__restrict a_svf, t_s
     a_kernel->bp_m1 = f_remove_denormal((a_kernel->bp));
     a_kernel->lp_m1 = f_remove_denormal((a_kernel->lp));
     
-    a_kernel->filter_last_input = a_input_value;
-     
-    
-#ifdef SVF_DEBUG_MODE
-   
-#endif
+    a_kernel->filter_last_input = a_input_value;     
 }
 
 
@@ -344,6 +323,13 @@ inline float v_svf_run_4_pole_notch(t_state_variable_filter*__restrict a_svf, fl
     return (a_svf->filter_kernels[1]->hp) + (a_svf->filter_kernels[1]->lp);
 }
 
+inline float v_svf_run_2_pole_allpass(t_state_variable_filter*__restrict a_svf, float a_input)
+{
+    v_svf_set_input_value(a_svf, (a_svf->filter_kernels[0]), a_input);
+    
+    return (a_svf->filter_kernels[0]->hp) + (a_svf->filter_kernels[0]->lp)  + (a_svf->filter_kernels[0]->bp);
+}
+
 inline float v_svf_run_2_pole_eq(t_state_variable_filter*__restrict a_svf, float a_input)
 {
     v_svf_set_input_value(a_svf, (a_svf->filter_kernels[0]), a_input);
@@ -373,9 +359,6 @@ inline void v_svf_velocity_mod(t_state_variable_filter*__restrict a_svf, float a
 {
     a_svf->velocity_cutoff = ((a_velocity) * .2f) - 24.0f;
     a_svf->velocity_mod_amt = a_velocity * 0.007874016f;
-#ifdef SVF_DEBUG_MODE
-    printf("svf->velocity:  %f\n", (a_svf->velocity_cutoff));
-#endif
 }
 
 /* inline void v_svf_set_cutoff_base(t_state_variable_filter* a_svf, float a_midi_note_number)
@@ -490,9 +473,6 @@ t_state_variable_filter * g_svf_get(float a_sample_rate)
     f_svf->amp_ptr = g_amp_get();
     f_svf->pitch_core = g_pit_get();
     f_svf->oversample_iterator = 0.0f;
-#ifdef SVF_DEBUG_MODE    
-        f_svf->samples_ran = 0;    
-#endif
     
     v_svf_set_cutoff_base(f_svf, 75.0f);
     v_svf_add_cutoff_mod(f_svf, 0.0f);
