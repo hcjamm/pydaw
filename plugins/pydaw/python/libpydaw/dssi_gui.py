@@ -197,3 +197,6 @@ class dssi_gui(ServerThread):
 
     def pydaw_generate_sample_graph(self, a_file, a_uid):
         self.send_configure("sg", str(a_file) + "|" + str(a_uid))
+
+    def pydaw_update_audio_inputs(self):
+        self.send_configure("ua", "")

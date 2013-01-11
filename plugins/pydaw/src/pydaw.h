@@ -1560,6 +1560,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
             if((a_pydaw_data->audio_inputs[f_i]->rec) && 
                 ((a_pydaw_data->audio_inputs[f_i]->output_track) == a_audio_track_num))
             {
+                f_return_value = 1;
                 f_i2 = 0;
                 while(f_i2 < a_sample_count)
                 {   

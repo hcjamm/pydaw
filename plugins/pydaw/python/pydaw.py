@@ -1218,13 +1218,17 @@ class audio_input_track:
         this_pydaw_project.git_repo.git_commit("-a", "Set audio input " + str(self.track_number) + " volume to " + str(self.volume_slider.value()))
     def on_rec(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.rec_checkbox.isChecked())
-        this_pydaw_project.save_audio_inputs(this_audio_editor.get_inputs())
-        this_pydaw_project.git_repo.git_commit("-a", "Set audio input " + str(self.track_number) + " record to " + str(self.rec_checkbox.isChecked()))
+            f_tracks = this_pydaw_project.get_audio_input_tracks()
+            f_tracks.tracks[self.track_number].rec = self.rec_checkbox.isChecked()
+            this_pydaw_project.save_audio_inputs(f_tracks)
+            this_pydaw_project.this_dssi_gui.pydaw_update_audio_inputs()
+            this_pydaw_project.git_repo.git_commit("-a", "Set audio input " + str(self.track_number) + " record to " + str(self.rec_checkbox.isChecked()))
     def on_output_changed(self, a_value=0):
-        if not global_suppress_audio_track_combobox_changes:
-            this_pydaw_project.save_audio_inputs(this_audio_editor.get_inputs())
-            #this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.output_combobox.currentIndex())
+        if not global_suppress_audio_track_combobox_changes and not self.suppress_osc:
+            f_tracks = this_pydaw_project.get_audio_input_tracks()
+            f_tracks.tracks[self.track_number].rec = bool_to_int(self.rec_checkbox.isChecked())
+            this_pydaw_project.save_audio_inputs(f_tracks)
+            this_pydaw_project.this_dssi_gui.pydaw_update_audio_inputs()
             this_pydaw_project.git_repo.git_commit("-a", "Set audio input " + str(self.track_number) + " output to " + str(self.output_combobox.currentIndex()))
 
     def __init__(self, a_track_num):
@@ -3054,6 +3058,7 @@ def global_new_project(a_project_file):
     this_audio_editor.open_tracks()
     this_transport.open_transport()
     set_default_project(a_project_file)
+    global_update_audio_track_comboboxes()
     set_window_title()
 
 def about_to_quit():
