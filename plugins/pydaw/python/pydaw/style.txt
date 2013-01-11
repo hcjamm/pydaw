@@ -78,6 +78,7 @@ QRadioButton#play_button::indicator
 width:48px;
 height:48px;
 border-radius:10px;
+border 2px solid white;
 }
 
 QRadioButton#play_button::indicator::unchecked
@@ -90,13 +91,15 @@ QRadioButton#play_button::indicator::checked
 image: url(/usr/lib/pydaw2/pydaw/python/pydaw/play-on.png);
 }
 
-/*Stop button/*
+/*Stop button*/
+
 
 QRadioButton#stop_button::indicator
 {
 width:48px;
 height:48px;
 border-radius:10px;
+border 2px solid white;
 }
 
 QRadioButton#stop_button::indicator::unchecked
@@ -109,6 +112,8 @@ QRadioButton#stop_button::indicator::checked
 image: url(/usr/lib/pydaw2/pydaw/python/pydaw/stop-off.png);
 }
 
+
+
 /*Rec button*/
 
 QRadioButton#rec_button::indicator
@@ -116,6 +121,7 @@ QRadioButton#rec_button::indicator
 width:48px;
 height:48px;
 border-radius: 10px;
+border 2px solid white;
 }
 
 QRadioButton#rec_button::indicator::unchecked
