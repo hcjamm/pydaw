@@ -65,6 +65,11 @@ def bool_to_int(a_bool):
     else:
         return "0"
 
+def int_to_bool(a_int):
+    if int(a_int) == 0:
+        return False
+    else:
+        return True
 
 def time_quantize_round(a_input):
     """Properly quantize time values from QDoubleSpinBoxes that measure beats"""
@@ -298,6 +303,7 @@ class pydaw_project:
         try:
             f_file = open(self.project_folder + "/default.pyinput", "r")
         except:
+            print("get_audio_input_tracks_string() could not open file, returning empty")
             return pydaw_terminating_char
         f_result = f_file.read()
         f_file.close()
@@ -1169,18 +1175,18 @@ class pydaw_audio_input_tracks:
         f_result = pydaw_audio_input_tracks()
         f_arr = a_str.split("\n")
         for f_line in f_arr:
-            if not f_line == pydaw_terminating_char:
+            if f_line == pydaw_terminating_char:
+                break
+            else:
                 f_line_arr = f_line.split("|")
-                if f_line_arr[1] == "1": f_rec = True
-                else: f_rec = False
-                f_result.add_track(int(f_line_arr[0]), pydaw_audio_input_track(f_rec, int(f_line_arr[2]), f_line_arr[3], f_line_arr[4]))
+                f_result.add_track(int(f_line_arr[0]), pydaw_audio_input_track(f_line_arr[1], int(f_line_arr[2]), f_line_arr[3], f_line_arr[4]))
         return f_result
 
 class pydaw_audio_input_track:
     def __init__(self, a_rec, a_vol, a_output, a_input="None"):
         self.input = str(a_input)
         self.output = int(a_output)
-        self.rec = int(a_rec)
+        self.rec = bool(a_rec)
         self.vol = int(a_vol)
 
     def __str__(self):
