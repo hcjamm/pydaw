@@ -4,6 +4,132 @@ QWidget#mainwindow, QWidget#ccmaptabwidget, QWidget#itemtabwidget, QMessageBox
 }
 
 
+/*Solo checkbox*/
+QCheckBox#solo_checkbox
+{ 
+padding: 0px; 
+} 
+
+QCheckBox#solo_checkbox::indicator::unchecked
+{ 
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/solo-off.png);
+}
+
+QCheckBox#solo_checkbox::indicator::checked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/solo-on.png);
+}
+
+/*Mute checkbox*/
+
+QCheckBox#mute_checkbox
+{
+padding: 0px;
+}
+
+QCheckBox#mute_checkbox::indicator::unchecked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/mute-off.png);
+}
+
+QCheckBox#mute_checkbox::indicator::checked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/mute-on.png);
+}
+
+/*Rec arm track radiobutton*/
+
+QRadioButton#rec_arm_radiobutton
+{
+padding: 0px;
+}
+
+QRadioButton#rec_arm_radiobutton::indicator::unchecked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/record-off.png);
+}
+
+QRadioButton#rec_arm_radiobutton::indicator::checked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/record-on.png);
+}
+
+/*Rec arm checkbox*/
+
+QCheckBox#rec_arm_checkbox
+{
+padding: 0px;
+}
+
+QCheckBox#rec_arm_checkbox::indicator::unchecked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/record-off.png);
+}
+
+QCheckBox#rec_arm_checkbox::indicator::checked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/record-on.png);
+}
+
+/*Play button*/
+
+QRadioButton#play_button::indicator
+{
+width:48px;
+height:48px;
+border-radius:10px;
+}
+
+QRadioButton#play_button::indicator::unchecked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/play-off.png);
+}
+
+QRadioButton#play_button::indicator::checked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/play-on.png);
+}
+
+/*Stop button/*
+
+QRadioButton#stop_button::indicator
+{
+width:48px;
+height:48px;
+border-radius:10px;
+}
+
+QRadioButton#stop_button::indicator::unchecked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/stop-off.png);
+}
+
+QRadioButton#stop_button::indicator::checked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/stop-off.png);
+}
+
+/*Rec button*/
+
+QRadioButton#rec_button::indicator
+{
+width:48px;
+height:48px;
+border-radius: 10px;
+}
+
+QRadioButton#rec_button::indicator::unchecked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/rec-off.png);
+}
+
+QRadioButton#rec_button::indicator::checked
+{
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/rec-on.png);
+}
+
+/*End Rec button*/
+
 QSpinBox, QDoubleSpinBox
 {
 	background-color: black;
