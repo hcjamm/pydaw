@@ -13,7 +13,6 @@ GNU General Public License for more details.
  */
 
 #include "synth_qt_gui.h"
-#include "../../libmodsynth/widgets/default_style.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -93,7 +92,10 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_host = lo_address_new(host, port);
 #endif    
     
-    this->setStyleSheet(PYDAW_DEFAULT_QSS_STYLE);
+    QFile f_stylesheet_file("/usr/lib/pydaw2/pydaw/python/pydaw/style.txt");    
+    f_stylesheet_file.open(QIODevice::ReadOnly | QIODevice::Text);
+    this->setStyleSheet(f_stylesheet_file.readAll());
+    f_stylesheet_file.close();
     
     m_suppressHostUpdate = TRUE;
     m_handle_control_updates = TRUE;

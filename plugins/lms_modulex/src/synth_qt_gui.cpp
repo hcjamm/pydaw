@@ -15,7 +15,6 @@ GNU General Public License for more details.
 
 
 #include "synth_qt_gui.h"
-#include "../../libmodsynth/widgets/default_style.h"
 
 #include <QApplication>
 #include <QTextStream>
@@ -72,7 +71,10 @@ modulex_gui::modulex_gui(const char * host, const char * port,
 {
     m_host = lo_address_new(host, port);
     
-    this->setStyleSheet(PYDAW_DEFAULT_QSS_STYLE);
+    QFile f_stylesheet_file("/usr/lib/pydaw2/pydaw/python/pydaw/style.txt");    
+    f_stylesheet_file.open(QIODevice::ReadOnly | QIODevice::Text);
+    this->setStyleSheet(f_stylesheet_file.readAll());
+    f_stylesheet_file.close();
 
     m_main_vboxlayout = new QVBoxLayout();
     this->setLayout(m_main_vboxlayout);

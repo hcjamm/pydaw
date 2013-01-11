@@ -19,12 +19,12 @@ QSpinBox#large_spinbox, QDoubleSpinBox#large_spinbox
 
 QSpinBox::up-button, QDoubleSpinBox::up-button
 {
-border-image: url(pydaw/spinbox-up.png);
+border-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/spinbox-up.png);
 }
 
 QSpinBox::down-button, QDoubleSpinBox::down-button
 {
-border-image: url(pydaw/spinbox-down.png);
+border-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/spinbox-down.png);
 }
 
 QSlider
@@ -60,7 +60,7 @@ QSlider::add-page:horizontal
 
 QSlider::handle:horizontal
 {
-	image: url(pydaw/h-fader.png);
+	image: url(/usr/lib/pydaw2/pydaw/python/pydaw/h-fader.png);
 	margin-top: -7px;
 	margin-bottom: -7px;
 	border: 2px solid transparent;
@@ -88,7 +88,7 @@ QSlider#wavleft, QSlider#wavleft::groove:horizontal, QSlider#wavleft::sub-page:h
 
 QSlider#wavleft::handle:horizontal
 {
-	image: url(pydaw/wav-slider-left.png);
+	image: url(/usr/lib/pydaw2/pydaw/python/pydaw/wav-slider-left.png);
 	margin-top: -7px;
 	margin-bottom: -7px;
 	border: 2px solid transparent;
@@ -103,7 +103,7 @@ QSlider#wavright, QSlider#wavright::groove:horizontal, QSlider#wavright::sub-pag
 
 QSlider#wavright::handle:horizontal
 {
-	image: url(pydaw/wav-slider-right.png);
+	image: url(/usr/lib/pydaw2/pydaw/python/pydaw/wav-slider-right.png);
 	margin-top: -7px;
 	margin-bottom: -7px;
 	border: 2px solid transparent;
@@ -255,6 +255,7 @@ background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #2d2d2d, 
 
 QComboBox
 {
+color: black;
 border: 1px solid white;
 border-radius: 6px;
 background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e6e6e6, stop: 0.1 #929292, stop: 0.5 #dedede, stop: 0.9 #dadada, stop: 1 #d6d6d6);
@@ -265,9 +266,13 @@ QComboBox:hover,QPushButton:hover,QLineEdit:hover,QSlider:hover,QSpinBox:hover,Q
 border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);
 }
 
-
+QComboBox:off
+{
+color:white;
+}
 QComboBox:on
 {
+color: white;
 padding-top: 3px;
 padding-left: 4px;
 background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #2d2d2d, stop: 0.1 #2b2b2b, stop: 0.5 #292929, stop: 0.9 #282828, stop: 1 #252525);
@@ -282,7 +287,7 @@ selection-background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0
 
 QComboBox::drop-down
 {
-color: white;
+color: black;
 subcontrol-origin: padding;
 subcontrol-position: top right;
 width: 15px;
@@ -296,7 +301,7 @@ border-bottom-right-radius: 3px;
 
 QComboBox::down-arrow
 {
-image: url(pydaw/drop-down.png);
+image: url(/usr/lib/pydaw2/pydaw/python/pydaw/drop-down.png);
 }
 
 QGroupBox:focus
@@ -571,6 +576,7 @@ border-radius: 6px;
 
 QRadioButton::indicator
 {
+margin-left: 6px;
 width: 18px;
 height: 18px;
 border-radius: 6px;
