@@ -1086,12 +1086,6 @@ class audio_list_editor:
 
         self.reset_tracks()
 
-    def get_inputs(self):
-        f_result = pydaw_audio_input_tracks()
-        for f_i in range(len(self.inputs)):
-            f_result.add_track(f_i, self.inputs[f_i].get_track())
-        return f_result
-
 class audio_track:
     def on_vol_change(self, value):
         self.volume_label.setText(str(value) + " dB")
@@ -1226,7 +1220,7 @@ class audio_input_track:
     def on_output_changed(self, a_value=0):
         if not global_suppress_audio_track_combobox_changes and not self.suppress_osc:
             f_tracks = this_pydaw_project.get_audio_input_tracks()
-            f_tracks.tracks[self.track_number].rec = bool_to_int(self.rec_checkbox.isChecked())
+            f_tracks.tracks[self.track_number].output = self.output_combobox.currentIndex()
             this_pydaw_project.save_audio_inputs(f_tracks)
             this_pydaw_project.this_dssi_gui.pydaw_update_audio_inputs()
             this_pydaw_project.git_repo.git_commit("-a", "Set audio input " + str(self.track_number) + " output to " + str(self.output_combobox.currentIndex()))
@@ -1284,10 +1278,6 @@ class audio_input_track:
         self.rec_checkbox.setChecked(a_track.rec)
         self.output_combobox.setCurrentIndex(a_track.output)
         self.suppress_osc = False
-
-    def get_track(self):
-        return pydaw_audio_input_track(self.rec_checkbox.isChecked(), self.volume_slider.value(), self.output_combobox.currentIndex())
-
 
 
 class item_list_editor:

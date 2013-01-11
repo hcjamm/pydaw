@@ -436,7 +436,7 @@ class pydaw_project:
         if not self.suppress_updates:
             f_file_name = self.project_folder + "/default.pyinput"
             f_file = open(f_file_name, 'w')
-            f_file.write(a_tracks.__str__())
+            f_file.write(str(a_tracks))
             f_file.close()
             #Is there a need for a configure message here?
 
@@ -1179,7 +1179,7 @@ class pydaw_audio_input_tracks:
                 break
             else:
                 f_line_arr = f_line.split("|")
-                f_result.add_track(int(f_line_arr[0]), pydaw_audio_input_track(f_line_arr[1], int(f_line_arr[2]), f_line_arr[3], f_line_arr[4]))
+                f_result.add_track(int(f_line_arr[0]), pydaw_audio_input_track(int_to_bool(f_line_arr[1]), int(f_line_arr[2]), int(f_line_arr[3]), f_line_arr[4]))
         return f_result
 
 class pydaw_audio_input_track:
