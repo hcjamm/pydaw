@@ -28,8 +28,6 @@ GNU General Public License for more details.
 #include <cstdlib>
 #include <iostream>
 #include <unistd.h>
-#include <quuid.h>
-#include "dssi.h"
 #include <QFont>
 
 #define LMS_SAMPLE_GRAPH_WIDTH 1100
