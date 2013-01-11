@@ -2189,13 +2189,13 @@ class seq_track:
     def on_mute(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 0)
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-        this_pydaw_project.git_repo.git_commit("-a", "Set mute for MIDI track " + str(self.track_number) + " to " + str(self.mute_checkbox.isChecked()))
+            this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+            this_pydaw_project.git_repo.git_commit("-a", "Set mute for MIDI track " + str(self.track_number) + " to " + str(self.mute_checkbox.isChecked()))
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-        this_pydaw_project.git_repo.git_commit("-a", "Set rec for MIDI track " + str(self.track_number) + " to " + str(self.record_radiobutton.isChecked()))
+            this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+            this_pydaw_project.git_repo.git_commit("-a", "Set rec for MIDI track " + str(self.track_number) + " to " + str(self.record_radiobutton.isChecked()))
     def on_name_changed(self):
         if self.is_instrument:
             self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
@@ -2203,10 +2203,10 @@ class seq_track:
             this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 0)
             this_pydaw_project.git_repo.git_commit("-a", "Set name for MIDI track " + str(self.track_number) + " to " + str(self.track_name_lineedit.text()))
     def on_instrument_change(self, selected_instrument):
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
         if not self.suppress_osc:
+            this_pydaw_project.save_tracks(this_region_editor.get_tracks())
             this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
-        this_pydaw_project.git_repo.git_commit("-a", "Set instrument for MIDI track " + str(self.track_number) + " to " + str(self.instrument_combobox.currentText()))
+            this_pydaw_project.git_repo.git_commit("-a", "Set instrument for MIDI track " + str(self.track_number) + " to " + str(self.instrument_combobox.currentText()))
     def on_show_ui(self):
         if self.instrument_combobox.currentIndex() > 0:
             this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
@@ -2387,23 +2387,24 @@ class transport_widget:
     def on_tempo_changed(self, a_tempo):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
-        self.transport.bpm = a_tempo
-        this_pydaw_project.save_transport(self.transport)
-        this_pydaw_project.git_repo.git_commit("-a", "Set project tempo to " + str(a_tempo))
+            self.transport.bpm = a_tempo
+            this_pydaw_project.save_transport(self.transport)
+            this_pydaw_project.git_repo.git_commit("-a", "Set project tempo to " + str(a_tempo))
     def on_loop_mode_changed(self, a_loop_mode):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
-        self.transport.loop_mode = a_loop_mode
-        this_pydaw_project.save_transport(self.transport)
-        this_pydaw_project.git_repo.git_commit("-a", "Set project loop mode to " + str(self.loop_mode_combobox.itemText(a_loop_mode)))
+            self.transport.loop_mode = a_loop_mode
+            this_pydaw_project.save_transport(self.transport)
+            this_pydaw_project.git_repo.git_commit("-a", "Set project loop mode to " + str(self.loop_mode_combobox.itemText(a_loop_mode)))
     def on_keybd_combobox_index_changed(self, a_index):
         self.alsa_output_ports.connect_to_pydaw(str(self.keybd_combobox.currentText()))
-        self.transport.midi_keybd = str(self.keybd_combobox.currentText())
-        this_pydaw_project.save_transport(self.transport)
-        this_pydaw_project.git_repo.git_commit("-a", "Set project MIDI in device to " + str(self.keybd_combobox.itemText(a_index)))
+        if not self.suppress_osc:
+            self.transport.midi_keybd = str(self.keybd_combobox.currentText())
+            this_pydaw_project.save_transport(self.transport)
+            this_pydaw_project.git_repo.git_commit("-a", "Set project MIDI in device to " + str(self.keybd_combobox.itemText(a_index)))
     def on_bar_changed(self, a_bar):
         self.transport.bar = a_bar
-        if not self.is_playing and not self.is_recording:
+        if not self.suppress_osc and not self.is_playing and not self.is_recording:
             this_pydaw_project.save_transport(self.transport)
             this_pydaw_project.git_repo.git_commit("-a", "Set project playback bar to " + str(a_bar))
     def on_region_changed(self, a_region):
@@ -2848,6 +2849,7 @@ the plugin for the first time, and then restarted PyDAW.""")
         self.cc_map_scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.cc_map_scrollarea.setWidget(self.cc_map_tab)
         self.main_tabwidget.addTab(self.cc_map_scrollarea, "CC Maps")
+
         self.show()
 
     def closeEvent(self, event):
