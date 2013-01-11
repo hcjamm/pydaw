@@ -14,7 +14,6 @@ GNU General Public License for more details.
 */
 
 #include "synth_qt_gui.h"
-#include "../../libmodsynth/widgets/default_style.h"
 
 #include <QApplication>
 #include <QPushButton>
@@ -70,8 +69,10 @@ rayv_gui::rayv_gui(const char * host, const char * port,
 {
     m_host = lo_address_new(host, port);
     
-    /*Set the CSS style that will "cascade" on the other controls.  Other control's styles can be overridden by running their own setStyleSheet method*/
-    this->setStyleSheet(PYDAW_DEFAULT_QSS_STYLE);
+    QFile f_stylesheet_file("/usr/lib/pydaw2/pydaw/python/pydaw/style.txt");    
+    f_stylesheet_file.open(QIODevice::ReadOnly | QIODevice::Text);
+    this->setStyleSheet(f_stylesheet_file.readAll());
+    f_stylesheet_file.close();
     
     QStringList f_osc_types = QStringList() << "Saw" << "Square" << "Triangle" << "Sine" << "Off";
         
