@@ -2283,11 +2283,11 @@ class seq_track:
             self.hlayout3.addWidget(self.fx_button)
             self.solo_checkbox = QtGui.QCheckBox()
             self.solo_checkbox.clicked.connect(self.on_solo)
-            self.solo_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/solo-off.png);}QCheckBox::indicator::checked{image: url(pydaw/solo-on.png);}")
+            self.solo_checkbox.setObjectName("solo_checkbox")
             self.hlayout3.addWidget(self.solo_checkbox)
             self.mute_checkbox = QtGui.QCheckBox()
             self.mute_checkbox.clicked.connect(self.on_mute)
-            self.mute_checkbox.setStyleSheet("QCheckBox{ padding: 0px; } QCheckBox::indicator::unchecked{ image: url(pydaw/mute-off.png);}QCheckBox::indicator::checked{image: url(pydaw/mute-on.png);}")
+            self.mute_checkbox.setObjectName("mute_checkbox")
             self.hlayout3.addWidget(self.mute_checkbox)
         else:
             self.track_name_lineedit.setReadOnly(True)
