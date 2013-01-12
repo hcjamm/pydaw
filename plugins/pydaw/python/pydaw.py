@@ -2757,18 +2757,22 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.new_action = QtGui.QAction("New", self)
         self.menu_file.addAction(self.new_action)
         self.new_action.triggered.connect(self.on_new)
+        self.new_action.setShortcut(QtGui.QKeySequence.New)
 
         self.open_action = QtGui.QAction("Open", self)
         self.menu_file.addAction(self.open_action)
         self.open_action.triggered.connect(self.on_open)
+        self.open_action.setShortcut(QtGui.QKeySequence.Open)
 
         self.save_action = QtGui.QAction("Save", self)
         self.menu_file.addAction(self.save_action)
         self.save_action.triggered.connect(self.on_save)
+        self.save_action.setShortcut(QtGui.QKeySequence.Save)
 
         self.save_as_action = QtGui.QAction("Save As...", self)
         self.menu_file.addAction(self.save_as_action)
         self.save_as_action.triggered.connect(self.on_save_as)
+        self.save_as_action.setShortcut(QtGui.QKeySequence.SaveAs)
 
         self.offline_render_action = QtGui.QAction("Offline Render...", self)
         self.menu_file.addAction(self.offline_render_action)
