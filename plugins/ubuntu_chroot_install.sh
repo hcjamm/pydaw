@@ -26,12 +26,12 @@ perl deb.pl
 
 echo "PyDAW installation complete, cleaning up now..."
 
-#Create the DNS fix startup script so that internet will  work properly in Mint...
-#TODO:  Is this applicable to Ubuntu or not???
-dns_fix_script=/etc/profile.d/pydaw-dns-fix.sh
-echo "dns-fix" > $dns_fix_script
-chmod +x $dns_fix_script
-chmod 755 $dns_fix_script
+# At login, create the DNS fix startup script so that internet will  work properly in Mint...
+# Also create desktop icons for live users...
+pydaw_live_script=/etc/profile.d/pydaw-live.sh
+cp distro/mint/pydaw-live.sh "$pydaw_live_script"
+chmod +x "$pydaw_live_script"
+chmod 755 "$pydaw_live_script"
 
 #TODO:  Remove some of the no-longer-needed build dependencies to conserve space now???
 
