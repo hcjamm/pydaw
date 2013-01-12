@@ -2736,6 +2736,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.setObjectName("mainwindow")
         stylesheet_file = os.getcwd() + "/pydaw/style.txt"
+        print("Opening stylesheet from " + stylesheet_file)
         file_handle = open(stylesheet_file, 'r')
         self.setStyleSheet(file_handle.read())
         file_handle.close()
