@@ -1189,6 +1189,7 @@ class audio_track:
         if not a_notify_osc:
             self.suppress_osc = True
         self.track_name_lineedit.setText(a_track.name)
+        global_update_audio_track_comboboxes(self.track_number, a_track.name)
         self.volume_slider.setValue(a_track.vol)
         self.solo_checkbox.setChecked(a_track.solo)
         self.mute_checkbox.setChecked(a_track.mute)
@@ -3059,7 +3060,7 @@ def about_to_quit():
 app = QtGui.QApplication(sys.argv)
 
 global_timestretch_modes = ["None", "Pitch", "Time + Pitch"]
-global_audio_track_names = {0:"Track1", 1:"Track2", 2:"Track3", 3:"Track4", 4:"Track5", 5:"Track6", 6:"Track7", 7:"Track8"}
+global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4", 4:"track5", 5:"track6", 6:"track7", 7:"track8"}
 global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []
 global_ai_sg_at_combobox = QtGui.QComboBox()
