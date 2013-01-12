@@ -15,6 +15,7 @@
 #include <QString>
 #include <QLabel>
 #include <QDial>
+#include <QPainter>
 #include <math.h>
 
 #include "lms_control.h"
@@ -23,6 +24,50 @@ enum LMS_KNOB_CONVERSION
 {
     lms_kc_integer, lms_kc_decimal, lms_kc_pitch, lms_kc_none, lms_kc_127_pitch, 
     lms_kc_127_zero_to_x, lms_kc_log_time, lms_kc_127_zero_to_x_int
+};
+
+class lms_pixmap_knob : public QDial
+{
+public:
+    lms_pixmap_knob(QWidget *parent)
+     : QDial(parent)
+    {
+         setParent(parent);
+    }
+    void set_pixmap_knob(int a_size)
+    {
+        QPixmap f_pixmap("/usr/lib/pydaw2/pydaw/python/pydaw/pydaw-knob.png");
+        pixmap_size = a_size - 5;
+        pixmap = f_pixmap.scaled(pixmap_size, pixmap_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    }
+    QPixmap pixmap;
+    int pixmap_size;
+protected:
+    void paintEvent(QPaintEvent *ev)
+    {
+        QPainter p(this);               
+                
+        p.setRenderHints(QPainter::HighQualityAntialiasing | QPainter::SmoothPixmapTransform);
+        // xc and yc are the center of the widget's rect.
+        qreal xc = width() * 0.5;
+        qreal yc = height() * 0.5;
+
+        // translates the coordinate system by xc and yc
+        p.translate(xc, yc);
+
+        float f_rotate_value = (((float)(this->value() - this->minimum())) / ((float)(this->maximum() - this->minimum()))) * 300.0f;
+        p.rotate(f_rotate_value);
+        
+        // we need to move the rectangle that we draw by rx and ry so it's in the center.
+        qreal rx = -(pixmap_size * 0.5);
+        qreal ry = -(pixmap_size * 0.5);
+        
+        p.drawPixmap(rx, ry, this->pixmap);
+        //p.drawRect(QRect(rx, ry, 13, 17));
+        
+        
+    }
+
 };
 
 class LMS_knob_regular : public LMS_control
@@ -47,7 +92,8 @@ class LMS_knob_regular : public LMS_control
             lms_label = new QLabel(a_parent);            
             lms_label->setText(a_label);
             lms_label->setAlignment(Qt::AlignCenter);
-            lms_knob = new QDial(a_parent);
+            lms_knob = new lms_pixmap_knob(a_parent); //QDial(a_parent);
+            lms_knob->set_pixmap_knob(a_style_info->lms_knob_size);
             lms_knob->setMinimum(a_min);
             lms_knob->setMaximum(a_max);
             lms_knob->setSingleStep(a_step_size);
@@ -95,7 +141,7 @@ class LMS_knob_regular : public LMS_control
         LMS_knob_regular(int a_min, int a_max, int a_step_size, int a_value, 
         QWidget *a_parent, LMS_style_info * a_style_info, int a_lms_port)
         {
-            lms_knob = new QDial(a_parent);
+            lms_knob = new lms_pixmap_knob(a_parent);
             lms_knob->setMinimum(a_min);
             lms_knob->setMaximum(a_max);
             lms_knob->setSingleStep(a_step_size);
@@ -158,7 +204,7 @@ class LMS_knob_regular : public LMS_control
                 
         QVBoxLayout * lms_layout;
         QLabel * lms_label;
-        QDial * lms_knob;        
+        lms_pixmap_knob * lms_knob;        
         QLabel * lms_value;
         LMS_KNOB_CONVERSION lms_conv_type;
         
