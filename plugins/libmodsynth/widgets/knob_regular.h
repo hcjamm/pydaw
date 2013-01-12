@@ -55,7 +55,7 @@ protected:
         // translates the coordinate system by xc and yc
         p.translate(xc, yc);
 
-        float f_rotate_value = (((float)(this->value() - this->minimum())) / ((float)(this->maximum() - this->minimum()))) * 300.0f;
+        float f_rotate_value = (((float)(this->value() - this->minimum())) / ((float)(this->maximum() - this->minimum()))) * 270.0f;
         p.rotate(f_rotate_value);
         
         // we need to move the rectangle that we draw by rx and ry so it's in the center.
