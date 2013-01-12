@@ -436,6 +436,8 @@ void _fini()
             pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
             f_i++;
         }
+        
+        pydaw_data->audio_recording_quit_notifier = 1;
 
         pthread_mutex_lock(&pydaw_data->track_cond_mutex);
         pthread_cond_broadcast(&pydaw_data->track_cond);

@@ -279,6 +279,9 @@ typedef struct st_pydaw_data
     
     float ** input_buffers;
     int input_buffers_active;
+    
+    pthread_t audio_recording_thread;
+    int audio_recording_quit_notifier;
 }t_pydaw_data;
 
 typedef struct 
@@ -332,8 +335,9 @@ void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data);
 inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_count, float* a_output0, 
         float* a_output1, int a_audio_track_num);
 void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
-
 void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data);
+
+void * v_pydaw_audio_recording_thread(void* a_arg);
 /*End declarations.  Begin implementations.*/
 
 void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data)
@@ -405,6 +409,19 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
         
         f_i++;
     }
+    
+    a_pydaw_data->audio_recording_quit_notifier = 0;
+    
+    /*The worker thread for flushing recorded audio from memory to disk*/
+    pthread_attr_t threadAttr;
+    struct sched_param param;
+    param.__sched_priority = 90;
+    pthread_attr_init(&threadAttr);
+    pthread_attr_setschedparam(&threadAttr, &param);
+    pthread_attr_setstacksize(&threadAttr, 8388608); 
+    pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
+    pthread_create(&a_pydaw_data->audio_recording_thread, &threadAttr, v_pydaw_audio_recording_thread, (void*)a_pydaw_data);
+    pthread_attr_destroy(&threadAttr);
 }
 
 inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin)
@@ -519,6 +536,42 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * a_pydaw_data, t_pytrack * a
     a_pydaw_data->bus_pool[(bus_num)]->bus_counter =
             (a_pydaw_data->bus_pool[(bus_num)]->bus_counter) - 1;
 
+}
+
+void * v_pydaw_audio_recording_thread(void* a_arg)
+{
+    t_pydaw_data * a_pydaw_data = (t_pydaw_data*)(a_arg);
+    
+    while(1)
+    {        
+        if(a_pydaw_data->audio_recording_quit_notifier)
+        {            
+            printf("audio recording thread exiting...\n");            
+            break;
+        }
+        
+        if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
+        {
+            int f_i = 0;
+                        
+            while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
+            {
+                if((a_pydaw_data->audio_inputs[f_i]->rec) &&
+                    (a_pydaw_data->audio_inputs[f_i]->flush_last_buffer_pending))
+                {
+                    
+                    a_pydaw_data->audio_inputs[f_i]->flush_last_buffer_pending = 0;
+                }
+                f_i++;
+            }
+        }
+        else
+        {
+            usleep(100000);
+        }
+    }
+    
+    return (void*)1;
 }
 
 void * v_pydaw_worker_thread(void* a_arg)
