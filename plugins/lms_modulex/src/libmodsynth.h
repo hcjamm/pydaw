@@ -33,30 +33,9 @@ extern "C" {
 
 typedef struct st_modulex_mono_modules
 {
-    t_mf3_multi * multieffect0;
-    fp_mf3_run fx_func_ptr0;    
-    
-    t_mf3_multi * multieffect1;
-    fp_mf3_run fx_func_ptr1;    
-    
-    t_mf3_multi * multieffect2;
-    fp_mf3_run fx_func_ptr2;    
-    
-    t_mf3_multi * multieffect3;
-    fp_mf3_run fx_func_ptr3;    
-    
-    t_mf3_multi * multieffect4;
-    fp_mf3_run fx_func_ptr4;    
-    
-    t_mf3_multi * multieffect5;
-    fp_mf3_run fx_func_ptr5;    
-    
-    t_mf3_multi * multieffect6;
-    fp_mf3_run fx_func_ptr6;    
-    
-    t_mf3_multi * multieffect7;
-    fp_mf3_run fx_func_ptr7;    
-    
+    t_mf3_multi * multieffect[8];
+    fp_mf3_run fx_func_ptr[8];
+        
     t_lms_delay * delay;
     t_state_variable_filter * svf0;
     t_state_variable_filter * svf1;
@@ -75,29 +54,15 @@ t_modulex_mono_modules * v_modulex_mono_init(float);
 t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
 {
     t_modulex_mono_modules * a_mono = (t_modulex_mono_modules*)malloc(sizeof(t_modulex_mono_modules));
-    a_mono->multieffect0 = g_mf3_get(a_sr);    
-    a_mono->fx_func_ptr0 = v_mf3_run_off;
     
-    a_mono->multieffect1 = g_mf3_get(a_sr);    
-    a_mono->fx_func_ptr1 = v_mf3_run_off;
+    int f_i = 0;
     
-    a_mono->multieffect2 = g_mf3_get(a_sr);    
-    a_mono->fx_func_ptr2 = v_mf3_run_off;
-    
-    a_mono->multieffect3 = g_mf3_get(a_sr);    
-    a_mono->fx_func_ptr3 = v_mf3_run_off;
-    
-    a_mono->multieffect4 = g_mf3_get(a_sr);    
-    a_mono->fx_func_ptr4 = v_mf3_run_off;
-    
-    a_mono->multieffect5 = g_mf3_get(a_sr);    
-    a_mono->fx_func_ptr5 = v_mf3_run_off;
-    
-    a_mono->multieffect6 = g_mf3_get(a_sr);    
-    a_mono->fx_func_ptr6 = v_mf3_run_off;
-    
-    a_mono->multieffect7 = g_mf3_get(a_sr);    
-    a_mono->fx_func_ptr7 = v_mf3_run_off;
+    while(f_i < 8)
+    {
+        a_mono->multieffect[f_i] = g_mf3_get(a_sr);    
+        a_mono->fx_func_ptr[f_i] = v_mf3_run_off;
+        f_i++;
+    }
     
     a_mono->delay = g_ldl_get_delay(1, a_sr);
     a_mono->svf0 = g_svf_get(a_sr);

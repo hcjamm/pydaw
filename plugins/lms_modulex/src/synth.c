@@ -61,45 +61,45 @@ static void v_modulex_connect_port(LADSPA_Handle instance, unsigned long port, L
         case MODULEX_OUTPUT0: plugin->output0 = data; break;
         case MODULEX_OUTPUT1: plugin->output1 = data; break;   
 
-        case MODULEX_FX0_KNOB0: plugin->fx0_knob0 = data; break;
-        case MODULEX_FX0_KNOB1:	plugin->fx0_knob1 = data; break;    
-        case MODULEX_FX0_KNOB2: plugin->fx0_knob2 = data; break;    
-        case MODULEX_FX0_COMBOBOX: plugin->fx0_combobox = data; break;    
+        case MODULEX_FX0_KNOB0: plugin->fx_knob0[0] = data; break;
+        case MODULEX_FX0_KNOB1:	plugin->fx_knob1[0] = data; break;    
+        case MODULEX_FX0_KNOB2: plugin->fx_knob2[0] = data; break;    
+        case MODULEX_FX0_COMBOBOX: plugin->fx_combobox[0] = data; break;    
 
-        case MODULEX_FX1_KNOB0: plugin->fx1_knob0 = data; break;
-        case MODULEX_FX1_KNOB1:	plugin->fx1_knob1 = data; break;    
-        case MODULEX_FX1_KNOB2: plugin->fx1_knob2 = data; break;    
-        case MODULEX_FX1_COMBOBOX: plugin->fx1_combobox = data; break;    
+        case MODULEX_FX1_KNOB0: plugin->fx_knob0[1] = data; break;
+        case MODULEX_FX1_KNOB1:	plugin->fx_knob1[1] = data; break;    
+        case MODULEX_FX1_KNOB2: plugin->fx_knob2[1] = data; break;    
+        case MODULEX_FX1_COMBOBOX: plugin->fx_combobox[1] = data; break;    
 
-        case MODULEX_FX2_KNOB0: plugin->fx2_knob0 = data; break;
-        case MODULEX_FX2_KNOB1:	plugin->fx2_knob1 = data; break;    
-        case MODULEX_FX2_KNOB2: plugin->fx2_knob2 = data; break;    
-        case MODULEX_FX2_COMBOBOX: plugin->fx2_combobox = data; break;    
+        case MODULEX_FX2_KNOB0: plugin->fx_knob0[2] = data; break;
+        case MODULEX_FX2_KNOB1:	plugin->fx_knob1[2] = data; break;    
+        case MODULEX_FX2_KNOB2: plugin->fx_knob2[2] = data; break;    
+        case MODULEX_FX2_COMBOBOX: plugin->fx_combobox[2] = data; break;    
 
-        case MODULEX_FX3_KNOB0: plugin->fx3_knob0 = data; break;
-        case MODULEX_FX3_KNOB1:	plugin->fx3_knob1 = data; break;    
-        case MODULEX_FX3_KNOB2: plugin->fx3_knob2 = data; break;    
-        case MODULEX_FX3_COMBOBOX: plugin->fx3_combobox = data; break;
+        case MODULEX_FX3_KNOB0: plugin->fx_knob0[3] = data; break;
+        case MODULEX_FX3_KNOB1:	plugin->fx_knob1[3] = data; break;    
+        case MODULEX_FX3_KNOB2: plugin->fx_knob2[3] = data; break;    
+        case MODULEX_FX3_COMBOBOX: plugin->fx_combobox[3] = data; break;
         
-        case MODULEX_FX4_KNOB0: plugin->fx4_knob0 = data; break;
-        case MODULEX_FX4_KNOB1:	plugin->fx4_knob1 = data; break;    
-        case MODULEX_FX4_KNOB2: plugin->fx4_knob2 = data; break;    
-        case MODULEX_FX4_COMBOBOX: plugin->fx4_combobox = data; break;    
+        case MODULEX_FX4_KNOB0: plugin->fx_knob0[4] = data; break;
+        case MODULEX_FX4_KNOB1:	plugin->fx_knob1[4] = data; break;    
+        case MODULEX_FX4_KNOB2: plugin->fx_knob2[4] = data; break;    
+        case MODULEX_FX4_COMBOBOX: plugin->fx_combobox[4] = data; break;    
 
-        case MODULEX_FX5_KNOB0: plugin->fx5_knob0 = data; break;
-        case MODULEX_FX5_KNOB1:	plugin->fx5_knob1 = data; break;    
-        case MODULEX_FX5_KNOB2: plugin->fx5_knob2 = data; break;    
-        case MODULEX_FX5_COMBOBOX: plugin->fx5_combobox = data; break;    
+        case MODULEX_FX5_KNOB0: plugin->fx_knob0[5] = data; break;
+        case MODULEX_FX5_KNOB1:	plugin->fx_knob1[5] = data; break;    
+        case MODULEX_FX5_KNOB2: plugin->fx_knob2[5] = data; break;    
+        case MODULEX_FX5_COMBOBOX: plugin->fx_combobox[5] = data; break;    
 
-        case MODULEX_FX6_KNOB0: plugin->fx6_knob0 = data; break;
-        case MODULEX_FX6_KNOB1:	plugin->fx6_knob1 = data; break;    
-        case MODULEX_FX6_KNOB2: plugin->fx6_knob2 = data; break;    
-        case MODULEX_FX6_COMBOBOX: plugin->fx6_combobox = data; break;    
+        case MODULEX_FX6_KNOB0: plugin->fx_knob0[6] = data; break;
+        case MODULEX_FX6_KNOB1:	plugin->fx_knob1[6] = data; break;    
+        case MODULEX_FX6_KNOB2: plugin->fx_knob2[6] = data; break;    
+        case MODULEX_FX6_COMBOBOX: plugin->fx_combobox[6] = data; break;    
 
-        case MODULEX_FX7_KNOB0: plugin->fx7_knob0 = data; break;
-        case MODULEX_FX7_KNOB1:	plugin->fx7_knob1 = data; break;    
-        case MODULEX_FX7_KNOB2: plugin->fx7_knob2 = data; break;    
-        case MODULEX_FX7_COMBOBOX: plugin->fx7_combobox = data; break;     
+        case MODULEX_FX7_KNOB0: plugin->fx_knob0[7] = data; break;
+        case MODULEX_FX7_KNOB1:	plugin->fx_knob1[7] = data; break;    
+        case MODULEX_FX7_KNOB2: plugin->fx_knob2[7] = data; break;    
+        case MODULEX_FX7_COMBOBOX: plugin->fx_combobox[7] = data; break;     
         
         case MODULEX_DELAY_TIME: plugin->delay_time = data; break;
         case MODULEX_FEEDBACK: plugin->feedback = data; break;
@@ -167,7 +167,9 @@ static void v_modulex_activate(LADSPA_Handle instance)
 {
     t_modulex *plugin_data = (t_modulex *) instance;
         
-    plugin_data->mono_modules = v_modulex_mono_init((plugin_data->fs));  //initialize all monophonic modules    
+    plugin_data->mono_modules = v_modulex_mono_init((plugin_data->fs));  //initialize all monophonic modules
+    
+    plugin_data->i_slow_index = MODULEX_SLOW_INDEX_ITERATIONS;
 }
 
 static void v_modulex_run_wrapper(LADSPA_Handle instance,
@@ -181,40 +183,34 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
 {
     t_modulex *plugin_data = (t_modulex *) instance;
     
-    plugin_data->mono_modules->fx_func_ptr0 = g_mf3_get_function_pointer((int)(*(plugin_data->fx0_combobox)));
-    plugin_data->mono_modules->fx_func_ptr1 = g_mf3_get_function_pointer((int)(*(plugin_data->fx1_combobox)));
-    plugin_data->mono_modules->fx_func_ptr2 = g_mf3_get_function_pointer((int)(*(plugin_data->fx2_combobox)));
-    plugin_data->mono_modules->fx_func_ptr3 = g_mf3_get_function_pointer((int)(*(plugin_data->fx3_combobox)));
+    int f_i = 0;
     
-    plugin_data->mono_modules->fx_func_ptr4 = g_mf3_get_function_pointer((int)(*(plugin_data->fx4_combobox)));
-    plugin_data->mono_modules->fx_func_ptr5 = g_mf3_get_function_pointer((int)(*(plugin_data->fx5_combobox)));
-    plugin_data->mono_modules->fx_func_ptr6 = g_mf3_get_function_pointer((int)(*(plugin_data->fx6_combobox)));
-    plugin_data->mono_modules->fx_func_ptr7 = g_mf3_get_function_pointer((int)(*(plugin_data->fx7_combobox)));
+    if(plugin_data->i_slow_index >= MODULEX_SLOW_INDEX_ITERATIONS)
+    {
+        plugin_data->i_slow_index = 0;
+        
+        while(f_i < 8)
+        {
+            plugin_data->mono_modules->fx_func_ptr[f_i] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[f_i])));
+            f_i++;
+        }
+    }
+    else
+    {
+        plugin_data->i_slow_index = (plugin_data->i_slow_index) + 1;
+    }
 
-    v_mf3_set(plugin_data->mono_modules->multieffect0, 
-            *(plugin_data->fx0_knob0), *(plugin_data->fx0_knob1), *(plugin_data->fx0_knob2));
-
-    v_mf3_set(plugin_data->mono_modules->multieffect1, 
-            *(plugin_data->fx1_knob0), *(plugin_data->fx1_knob1), *(plugin_data->fx1_knob2));
-
-    v_mf3_set(plugin_data->mono_modules->multieffect2, 
-            *(plugin_data->fx2_knob0), *(plugin_data->fx2_knob1), *(plugin_data->fx2_knob2));
-
-    v_mf3_set(plugin_data->mono_modules->multieffect3, 
-            *(plugin_data->fx3_knob0), *(plugin_data->fx3_knob1), *(plugin_data->fx3_knob2));
+    f_i = 0;
     
-    v_mf3_set(plugin_data->mono_modules->multieffect4, 
-            *(plugin_data->fx4_knob0), *(plugin_data->fx4_knob1), *(plugin_data->fx4_knob2));
-
-    v_mf3_set(plugin_data->mono_modules->multieffect5, 
-            *(plugin_data->fx5_knob0), *(plugin_data->fx5_knob1), *(plugin_data->fx5_knob2));
-
-    v_mf3_set(plugin_data->mono_modules->multieffect6, 
-            *(plugin_data->fx6_knob0), *(plugin_data->fx6_knob1), *(plugin_data->fx6_knob2));
-
-    v_mf3_set(plugin_data->mono_modules->multieffect7, 
-            *(plugin_data->fx7_knob0), *(plugin_data->fx7_knob1), *(plugin_data->fx7_knob2));
-    
+    while(f_i < 8)
+    {
+        if(plugin_data->mono_modules->fx_func_ptr[f_i] != v_mf3_run_off)
+        {
+            v_mf3_set(plugin_data->mono_modules->multieffect[f_i], 
+                    *(plugin_data->fx_knob0[f_i]), *(plugin_data->fx_knob1[f_i]), *(plugin_data->fx_knob2[f_i]));
+        }
+        f_i++;
+    }
     
     v_svf_set_cutoff_base(plugin_data->mono_modules->svf0, *(plugin_data->cutoff));
     v_svf_set_cutoff_base(plugin_data->mono_modules->svf1, *(plugin_data->cutoff));
@@ -238,46 +234,17 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
         plugin_data->mono_modules->current_sample0 = plugin_data->input0[(plugin_data->i_mono_out)];
         plugin_data->mono_modules->current_sample1 = plugin_data->input1[(plugin_data->i_mono_out)];
 
-        plugin_data->mono_modules->fx_func_ptr0(plugin_data->mono_modules->multieffect0, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
-
-        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect0->output0;
-        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect0->output1;
-
-        plugin_data->mono_modules->fx_func_ptr1(plugin_data->mono_modules->multieffect1, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
-
-        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect1->output0;
-        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect1->output1;
-
-        plugin_data->mono_modules->fx_func_ptr2(plugin_data->mono_modules->multieffect2, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
-
-        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect2->output0;
-        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect2->output1;
+        f_i = 0;
         
-        plugin_data->mono_modules->fx_func_ptr3(plugin_data->mono_modules->multieffect3, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+        while(f_i < 8)
+        {
+            plugin_data->mono_modules->fx_func_ptr[f_i](plugin_data->mono_modules->multieffect[f_i], (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
 
-        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect3->output0;
-        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect3->output1;
-        
-        plugin_data->mono_modules->fx_func_ptr4(plugin_data->mono_modules->multieffect4, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
-
-        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect4->output0;
-        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect4->output1;
-
-        plugin_data->mono_modules->fx_func_ptr5(plugin_data->mono_modules->multieffect5, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
-
-        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect5->output0;
-        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect5->output1;
-
-        plugin_data->mono_modules->fx_func_ptr6(plugin_data->mono_modules->multieffect6, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
-
-        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect6->output0;
-        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect6->output1;
-
-        plugin_data->mono_modules->fx_func_ptr7(plugin_data->mono_modules->multieffect7, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
-
-        plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect7->output0;
-        plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect7->output1;
-        
+            plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect[f_i]->output0;
+            plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect[f_i]->output1;
+            f_i++;
+        }
+                
         /*TODO
          * 
          * Optimize all of these * .01s...

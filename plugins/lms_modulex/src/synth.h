@@ -16,6 +16,8 @@ extern "C" {
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/cc_map.h"
    
+#define MODULEX_SLOW_INDEX_ITERATIONS 50
+    
 #define MODULEX_INPUT0  0
 #define MODULEX_INPUT1  1    
 #define MODULEX_OUTPUT0  2
@@ -74,45 +76,10 @@ typedef struct {
     LADSPA_Data *output0;
     LADSPA_Data *output1;
     
-    LADSPA_Data *fx0_knob0;
-    LADSPA_Data *fx0_knob1;    
-    LADSPA_Data *fx0_knob2;
-    LADSPA_Data *fx0_combobox;
-        
-    LADSPA_Data *fx1_knob0;
-    LADSPA_Data *fx1_knob1;    
-    LADSPA_Data *fx1_knob2;
-    LADSPA_Data *fx1_combobox;
-        
-    LADSPA_Data *fx2_knob0;
-    LADSPA_Data *fx2_knob1;    
-    LADSPA_Data *fx2_knob2;
-    LADSPA_Data *fx2_combobox;
-        
-    LADSPA_Data *fx3_knob0;
-    LADSPA_Data *fx3_knob1;    
-    LADSPA_Data *fx3_knob2;
-    LADSPA_Data *fx3_combobox;
-        
-    LADSPA_Data *fx4_knob0;
-    LADSPA_Data *fx4_knob1;    
-    LADSPA_Data *fx4_knob2;
-    LADSPA_Data *fx4_combobox;
-        
-    LADSPA_Data *fx5_knob0;
-    LADSPA_Data *fx5_knob1;    
-    LADSPA_Data *fx5_knob2;
-    LADSPA_Data *fx5_combobox;
-        
-    LADSPA_Data *fx6_knob0;
-    LADSPA_Data *fx6_knob1;    
-    LADSPA_Data *fx6_knob2;
-    LADSPA_Data *fx6_combobox;
-        
-    LADSPA_Data *fx7_knob0;
-    LADSPA_Data *fx7_knob1;    
-    LADSPA_Data *fx7_knob2;
-    LADSPA_Data *fx7_combobox;
+    LADSPA_Data *fx_knob0[8];
+    LADSPA_Data *fx_knob1[8];    
+    LADSPA_Data *fx_knob2[8];
+    LADSPA_Data *fx_combobox[8];
     
     LADSPA_Data *delay_time;
     LADSPA_Data *feedback;
@@ -129,6 +96,8 @@ typedef struct {
     
     int i_mono_out;
     int i_buffer_clear;    
+    
+    int i_slow_index;
     
 } t_modulex;
 
