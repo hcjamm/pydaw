@@ -13,7 +13,7 @@ C_OBJS   = main.o
 all: debugger
 
 profile:
-	make CFLAGS+=" -pg "
+	make CFLAGS+=" -pg " LDFLAGS+=" -pg "
 
 debugger: $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
