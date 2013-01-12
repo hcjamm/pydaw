@@ -2605,9 +2605,10 @@ class pydaw_main_window(QtGui.QMainWindow):
                 QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
                 return
             if (f_end_region.value() < f_start_region.value()) or \
-            ((f_end_region.value() == f_start_region.value()) and (f_start_bar.value() <= f_end_region.value())):
+            ((f_end_region.value() == f_start_region.value()) and (f_start_bar.value() >= f_end_bar.value())):
                 QtGui.QMessageBox.warning(f_window, "Error", "End point is before start point.")
                 return
+
             #TODO:  Check that the end is actually after the start....
             this_pydaw_project.this_dssi_gui.pydaw_offline_render(f_start_region.value(), f_start_bar.value(), f_end_region.value(), f_end_bar.value(), f_name.text())
             f_window.close()
