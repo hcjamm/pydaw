@@ -3071,7 +3071,7 @@ global_audio_track_comboboxes = []
 global_ai_sg_at_combobox = QtGui.QComboBox()
 global_audio_track_comboboxes.append(global_ai_sg_at_combobox)
 
-app.setWindowIcon(QtGui.QIcon('pydaw.ico'))
+app.setWindowIcon(QtGui.QIcon('/usr/share/pixmaps/pydaw2.png'))
 app.aboutToQuit.connect(about_to_quit)
 this_song_editor = song_editor()
 this_region_editor = region_list_editor()
