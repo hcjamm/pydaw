@@ -245,18 +245,18 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
             f_i++;
         }
                 
-        /*TODO
-         * 
-         * Optimize all of these * .01s...
-         * 
-         */
+                
+        plugin_data->output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample0);
+        plugin_data->output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample1);
+                        
+        plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
+    }
+    
+    if((*(plugin_data->wet)) > -29.0f)
+    {
+        plugin_data->i_mono_out = 0;
         
-        if((*(plugin_data->wet)) < -29.0f)
-        {
-            plugin_data->output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample0);
-            plugin_data->output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample1);
-        }
-        else
+        while((plugin_data->i_mono_out) < sample_count)
         {
             v_smr_iir_run(plugin_data->mono_modules->time_smoother, (*(plugin_data->delay_time) * .01));
 
@@ -277,18 +277,22 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
                         *(plugin_data->wet), *(plugin_data->dry), (*(plugin_data->stereo) * .01));
             //}
 
-            v_ldl_run_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1));        
+            v_ldl_run_delay(plugin_data->mono_modules->delay, 
+                    (plugin_data->output0[(plugin_data->i_mono_out)]), (plugin_data->output0[(plugin_data->i_mono_out)]));        
 
             plugin_data->output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->delay->output0);
             plugin_data->output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->delay->output1);
 
-            plugin_data->mono_modules->delay->feedback0 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf0, (plugin_data->mono_modules->delay->feedback0));
-            plugin_data->mono_modules->delay->feedback1 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf1, (plugin_data->mono_modules->delay->feedback1));
+            plugin_data->mono_modules->delay->feedback0 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf0, 
+                    (plugin_data->mono_modules->delay->feedback0));
+            plugin_data->mono_modules->delay->feedback1 = v_svf_run_2_pole_lp(plugin_data->mono_modules->svf1, 
+                    (plugin_data->mono_modules->delay->feedback1));
 
+            plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
-        
-        plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
     }
+
+    
 }
 
 
