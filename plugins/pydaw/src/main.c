@@ -838,8 +838,21 @@ main(int argc, char **argv)
 	    inputPorts[in] = jack_port_register(jackClient, portName,
 						JACK_DEFAULT_AUDIO_TYPE,
 						JackPortIsInput, 0);
-	    pluginInputBuffers[in] =
-		(float *)calloc(jack_get_buffer_size(jackClient), sizeof(float));
+            
+            jack_nframes_t f_frame_count = jack_get_buffer_size(jackClient);
+            if(posix_memalign((void**)(&pluginInputBuffers[in]), 16, (sizeof(float) * f_frame_count)) != 0)
+            {
+                return 0;
+            }
+            
+            int f_i = 0;
+            while(f_i < f_frame_count)
+            {
+                pluginInputBuffers[in][f_i] = 0.0f;
+                f_i++;
+            }
+	    /*pluginInputBuffers[in] =
+		(float *)calloc(jack_get_buffer_size(jackClient), sizeof(float));*/
 	    ++in;
 	}
 	for (j = 0; j < instances[i].plugin->outs; ++j) {
@@ -863,8 +876,23 @@ main(int argc, char **argv)
 	    outputPorts[out] = jack_port_register(jackClient, portName,
 						  JACK_DEFAULT_AUDIO_TYPE,
 						  JackPortIsOutput, 0);
-	    pluginOutputBuffers[out] =
-		(float *)calloc(jack_get_buffer_size(jackClient), sizeof(float));
+	    
+            
+            jack_nframes_t f_frame_count = jack_get_buffer_size(jackClient);
+            if(posix_memalign((void**)(&pluginOutputBuffers[out]), 16, (sizeof(float) * f_frame_count)) != 0)
+            {
+                return 0;
+            }
+            
+            int f_i = 0;
+            while(f_i < f_frame_count)
+            {
+                pluginOutputBuffers[out][f_i] = 0.0f;
+                f_i++;
+            }
+            
+            /*pluginOutputBuffers[out] =
+		(float *)calloc(jack_get_buffer_size(jackClient), sizeof(float));*/
 	    ++out;
 	}
     }
