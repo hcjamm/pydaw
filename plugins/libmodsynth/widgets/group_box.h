@@ -23,6 +23,7 @@ class LMS_group_box
         {
             lms_groupbox = new QGroupBox(a_parent);
             lms_groupbox->setTitle(a_title);
+            lms_groupbox->setObjectName("plugin_groupbox");
             lms_layout = new QGridLayout(lms_groupbox);
             
             if(a_style_info->lms_use_groupbox_style)

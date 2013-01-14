@@ -103,13 +103,13 @@ class LMS_knob_regular : public LMS_control
             
             if(a_style_info->lms_use_label_style)
             {
-                lms_label->setStyleSheet((a_style_info->lms_label_style));
+                //lms_label->setStyleSheet((a_style_info->lms_label_style));
                 lms_label->setMinimumWidth(a_style_info->lms_label_width);
             }
             
             if(a_style_info->lms_use_value_style)
             {
-                lms_value->setStyleSheet((a_style_info->lms_value_style));
+                //lms_value->setStyleSheet((a_style_info->lms_value_style));
             }
                         
             lms_knob->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));

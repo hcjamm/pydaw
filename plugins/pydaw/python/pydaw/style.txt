@@ -8,6 +8,11 @@ QWidget#mainwindow, QWidget#ccmaptabwidget, QWidget#itemtabwidget, QMessageBox
 	background-color:rgb(93, 93, 93);
 }
 
+QLabel, QCheckBox
+{
+background-color: transparent;
+}
+
 /*Solo checkbox*/
 QCheckBox#solo_checkbox
 { 
@@ -273,9 +278,18 @@ QGroupBox
 {
 color: white; 
 border: 2px solid gray;  
-border-radius: 10px;  
+border-radius: 10px;
 margin-top: 1ex; 
 } 
+
+
+QGroupBox#plugin_groupbox
+{
+background-color  :  qlineargradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #111111, stop: 0.1 #222222, stop: 0.5 #333333, stop: 0.9 #494949, stop: 1 #4d4d4d);
+border: 2px solid white;
+border-radius: 18px;
+margin-top: 1ex;
+}
 
 QGroupBox::title 
 { 
