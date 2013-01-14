@@ -188,10 +188,17 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
     if(plugin_data->i_slow_index >= MODULEX_SLOW_INDEX_ITERATIONS)
     {
         plugin_data->i_slow_index = 0;
+        plugin_data->is_on = 0;
         
         while(f_i < 8)
         {
             plugin_data->mono_modules->fx_func_ptr[f_i] = g_mf3_get_function_pointer((int)(*(plugin_data->fx_combobox[f_i])));
+            
+            if(plugin_data->mono_modules->fx_func_ptr[f_i] != v_mf3_run_off)
+            {
+                plugin_data->is_on = 1;
+            }
+            
             f_i++;
         }
     }
@@ -212,48 +219,41 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
         f_i++;
     }
     
-    v_svf_set_cutoff_base(plugin_data->mono_modules->svf0, *(plugin_data->cutoff));
-    v_svf_set_cutoff_base(plugin_data->mono_modules->svf1, *(plugin_data->cutoff));
-            
-    v_svf_set_cutoff(plugin_data->mono_modules->svf0);
-    v_svf_set_cutoff(plugin_data->mono_modules->svf1);
-    
-    plugin_data->i_buffer_clear = 0;
-    /*Clear the output buffer*/
-    while((plugin_data->i_buffer_clear) < sample_count)
+    if(plugin_data->is_on)
     {
-        plugin_data->output0[(plugin_data->i_buffer_clear)] = 0.0f;                        
-        plugin_data->output1[(plugin_data->i_buffer_clear)] = 0.0f;     
-        plugin_data->i_buffer_clear = (plugin_data->i_buffer_clear) + 1;
-    }
+        plugin_data->i_mono_out = 0;
 
-    plugin_data->i_mono_out = 0;
-
-    while((plugin_data->i_mono_out) < sample_count)
-    {
-        plugin_data->mono_modules->current_sample0 = plugin_data->input0[(plugin_data->i_mono_out)];
-        plugin_data->mono_modules->current_sample1 = plugin_data->input1[(plugin_data->i_mono_out)];
-
-        f_i = 0;
-        
-        while(f_i < 8)
+        while((plugin_data->i_mono_out) < sample_count)
         {
-            plugin_data->mono_modules->fx_func_ptr[f_i](plugin_data->mono_modules->multieffect[f_i], (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+            plugin_data->mono_modules->current_sample0 = plugin_data->input0[(plugin_data->i_mono_out)];
+            plugin_data->mono_modules->current_sample1 = plugin_data->input1[(plugin_data->i_mono_out)];
 
-            plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect[f_i]->output0;
-            plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect[f_i]->output1;
-            f_i++;
+            f_i = 0;
+
+            while(f_i < 8)
+            {
+                plugin_data->mono_modules->fx_func_ptr[f_i](plugin_data->mono_modules->multieffect[f_i], (plugin_data->mono_modules->current_sample0), (plugin_data->mono_modules->current_sample1)); 
+
+                plugin_data->mono_modules->current_sample0 = plugin_data->mono_modules->multieffect[f_i]->output0;
+                plugin_data->mono_modules->current_sample1 = plugin_data->mono_modules->multieffect[f_i]->output1;
+                f_i++;
+            }
+
+            plugin_data->output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample0);
+            plugin_data->output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample1);
+
+            plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
-                
-                
-        plugin_data->output0[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample0);
-        plugin_data->output1[(plugin_data->i_mono_out)] = (plugin_data->mono_modules->current_sample1);
-                        
-        plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
     }
     
     if((*(plugin_data->wet)) > -29.0f)
     {
+        v_svf_set_cutoff_base(plugin_data->mono_modules->svf0, *(plugin_data->cutoff));
+        v_svf_set_cutoff_base(plugin_data->mono_modules->svf1, *(plugin_data->cutoff));
+
+        v_svf_set_cutoff(plugin_data->mono_modules->svf0);
+        v_svf_set_cutoff(plugin_data->mono_modules->svf1);
+
         plugin_data->i_mono_out = 0;
         
         while((plugin_data->i_mono_out) < sample_count)

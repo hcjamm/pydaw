@@ -98,6 +98,7 @@ typedef struct {
     int i_buffer_clear;    
     
     int i_slow_index;
+    int is_on;
     
 } t_modulex;
 
