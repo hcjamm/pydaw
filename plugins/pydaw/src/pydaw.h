@@ -3630,6 +3630,14 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
     {
         f_result_fx = g_pydaw_plugin_get((int)(a_pydaw_data->sample_rate), -1);
         
+        free(f_result_fx->pluginOutputBuffers[0]);
+        free(f_result_fx->pluginOutputBuffers[1]);
+        
+        f_result_fx->pluginOutputBuffers = f_result_fx->pluginInputBuffers;
+        
+        f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 2, f_result_fx->pluginOutputBuffers[0]);
+        f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 3, f_result_fx->pluginOutputBuffers[1]);
+        
         t_pydaw_plugin * f_fx = a_track->effect;
                 
         pthread_mutex_lock(&a_pydaw_data->main_mutex);        
@@ -3697,10 +3705,16 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
         
         free(f_result_fx->pluginInputBuffers[0]);
         free(f_result_fx->pluginInputBuffers[1]);
+        free(f_result_fx->pluginOutputBuffers[0]);
+        free(f_result_fx->pluginOutputBuffers[1]);
         
         f_result_fx->pluginInputBuffers = f_result->pluginOutputBuffers;
+        f_result_fx->pluginOutputBuffers = f_result_fx->pluginInputBuffers;
+        
         f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 0, f_result_fx->pluginInputBuffers[0]);
         f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 1, f_result_fx->pluginInputBuffers[1]);
+        f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 2, f_result_fx->pluginOutputBuffers[0]);
+        f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 3, f_result_fx->pluginOutputBuffers[1]);
                 
         /* If switching from a different plugin(but not from no plugin), delete the preset file */
         if(((a_track->plugin_index) != 0) && i_pydaw_file_exists(f_file_name))
