@@ -1598,13 +1598,36 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
     int f_i = 0;
     int f_i2 = 0;
     
-    double f_adjusted_song_pos_beats = 
-    (((double)(a_pydaw_data->current_region)) * 4.0f * 8.0f) +
-    (((double)(a_pydaw_data->current_bar)) * 4.0f);
+    double f_adjusted_song_pos_beats;
+    double f_adjusted_next_song_pos_beats;
+    
+    if((a_pydaw_data->ml_next_period_beats) >= 4.0f)
+    {
+        int f_region_tmp = (a_pydaw_data->current_region);
+        int f_bar_tmp = (a_pydaw_data->current_bar) - 1;
+        
+        if(f_bar_tmp < 0)
+        {
+            f_region_tmp -= 1;
+            f_bar_tmp += 7;   //TODO:  GRAB THE REAL REGION LENGTH - 1
+        }
+        
+        f_adjusted_song_pos_beats = 
+        (((double)(f_region_tmp)) * 4.0f * 8.0f) +
+        (((double)(f_bar_tmp)) * 4.0f)
+        + (a_pydaw_data->ml_current_period_beats);
 
-    double f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats + (a_pydaw_data->ml_next_period_beats);
+        f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats + ((a_pydaw_data->ml_sample_period_inc) * 4.0f);
+    }
+    else
+    {
+        f_adjusted_song_pos_beats = 
+        (((double)(a_pydaw_data->current_region)) * 4.0f * 8.0f) +
+        (((double)(a_pydaw_data->current_bar)) * 4.0f)
+        + (a_pydaw_data->ml_current_period_beats);
 
-    f_adjusted_song_pos_beats += (a_pydaw_data->ml_current_period_beats);
+        f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats + (a_pydaw_data->ml_sample_period_inc);
+    }
     
     if(a_pydaw_data->input_buffers_active)
     {
