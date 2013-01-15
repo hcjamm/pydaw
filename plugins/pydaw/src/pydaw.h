@@ -209,6 +209,7 @@ typedef struct st_pydaw_data
     
     char * busfx_folder;
     char * audio_folder;
+    char * audio_tmp_folder;
     char * audiofx_folder;
     char * samples_folder;
     char * samplegraph_folder;
@@ -2551,6 +2552,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     
     f_result->busfx_folder = (char*)malloc(sizeof(char) * 256);
     f_result->audio_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->audio_tmp_folder = (char*)malloc(sizeof(char) * 256);
     f_result->audiofx_folder = (char*)malloc(sizeof(char) * 256);
     f_result->samples_folder = (char*)malloc(sizeof(char) * 256);
     f_result->samplegraph_folder = (char*)malloc(sizeof(char) * 256);
@@ -3052,6 +3054,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     sprintf(a_pydaw_data->instruments_folder, "%sinstruments/", a_pydaw_data->project_folder);
     
     sprintf(a_pydaw_data->audio_folder, "%saudio/", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->audio_tmp_folder, "%saudio/tmp", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->audiofx_folder, "%saudiofx/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->busfx_folder, "%sbusfx/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->samples_folder, "%ssamples/", a_pydaw_data->project_folder);
@@ -3916,7 +3919,7 @@ void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data)
             
             char f_tmp_file_name[128];
             
-            sprintf(f_tmp_file_name, "%srecorded-%i.wav", a_pydaw_data->audio_folder, f_index);
+            sprintf(f_tmp_file_name, "%s/%i.wav", a_pydaw_data->audio_tmp_folder, f_index);
             
             v_pydaw_audio_input_record_set(a_pydaw_data->audio_inputs[f_index], f_tmp_file_name);
             

@@ -112,6 +112,7 @@ class pydaw_project:
         self.regions_folder = self.project_folder + "/regions"
         self.items_folder = self.project_folder + "/items"
         self.audio_folder = self.project_folder + "/audio"
+        self.audio_tmp_folder = self.project_folder + "/audio/tmp"
         self.samples_folder = self.project_folder + "/samples"  #Placeholder for future functionality
         self.audiofx_folder = self.project_folder + "/audiofx"
         self.busfx_folder = self.project_folder + "/busfx"
@@ -136,7 +137,7 @@ class pydaw_project:
             self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder,
             self.audiofx_folder, self.busfx_folder, self.samplegraph_folder,
-            self.audio_automation_folder, self.bus_automation_folder
+            self.audio_automation_folder, self.bus_automation_folder, self.audio_tmp_folder
             ]
 
         for project_dir in project_folders:
@@ -1099,6 +1100,12 @@ class pydaw_audio_track:
         self.bus_num = int(a_bus_num)
 
 class pydaw_audio_items:
+    """ Return the next available index, or -1 if none are available """
+    def get_next_index(self):
+        for i in range(32):
+            if not self.items.has_key(i):
+                return i
+        return -1
     def __init__(self):
         self.items = {}
 
