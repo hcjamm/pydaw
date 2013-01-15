@@ -2356,6 +2356,73 @@ class transport_widget:
         f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
         self.beat_timer.stop()
         self.beat_timer.start(f_playback_inc)
+
+    def show_audio_recording_dialog(self):
+        f_inputs = this_pydaw_project.get_audio_input_tracks()
+        f_audio_items = this_pydaw_project.get_audio_items()
+        f_result_list = []
+        for f_i in range(5):
+            if f_inputs.tracks[f_i].rec == 1:
+                if os.path.isfile(this_pydaw_project.audio_tmp_folder + "/" + str(f_i) + ".wav"):
+                    f_result_list.append(f_i)
+                else:
+                    print("Error:  Track " + str(f_i) + " was record-armed, but no .wav found")
+        if len(f_result_list) > 0:
+            for f_item_number in f_result_list:
+                def ok_handler():
+                    f_file_name = str(f_name.text())
+                    if f_file_name is None or f_file_name == "":
+                        QtGui.QMessageBox.warning(f_window, "Error", "You must select a name for the file")
+                        return
+                    os.system('mv "' + this_pydaw_project.audio_tmp_folder + "/" + str(f_item_number) + '.wav" "' + f_file_name + '"')
+                    if f_next_index != -1 and f_import.isChecked():
+                        f_audio_items.add_item(f_next_index, pydaw_audio_item(f_file_name, 0, 1000, self.last_region_num, self.last_bar, \
+                        0.0, 0, 0, 0, 0.0, 0, 0.0, f_inputs[f_item_number].output))
+                    this_pydaw_project.save_audio_inputs(f_inputs)
+                    this_pydaw_project.git_repo.git_commit("-a", "Record audio item " + f_file_name)
+                    f_window.close()
+
+                def cancel_handler():
+                    os.system('rm "' + this_pydaw_project.audio_tmp_folder + "/" + str(f_item_number) + '.wav"')
+                    f_window.close()
+
+                def file_dialog():
+                    f_file_name = str(QtGui.QFileDialog.getSaveFileName(f_window, "Select a file name to save to...", self.last_open_dir, filter=".wav files(*.wav)"))
+                    if not f_file_name is None and not f_file_name == "":
+                        if not f_file_name.endswith(".wav"):
+                            f_file_name = f_file_name + ".wav"
+                        f_name.setText(f_file_name)
+                        self.last_open_dir = os.path.dirname(f_file_name)
+                        create_sample_graph(f_file_name)
+
+                f_next_index = f_audio_items.get_next_index()
+
+                f_window = QtGui.QDialog(this_main_window)
+                f_window.setWindowTitle("Save recorded file for audio input " + str(f_item_number))
+                f_layout = QtGui.QGridLayout()
+                f_window.setLayout(f_layout)
+                f_layout.addWidget(QtGui.QLabel("File Name"), 0, 0)
+                f_name = QtGui.QLineEdit()
+                f_layout.addWidget(f_name, 0, 1)
+                f_name.setReadOnly(True)
+                f_name.setMinimumWidth(420)
+                f_file_button = QtGui.QPushButton("Select File Name...")
+                f_file_button.clicked.connect(file_dialog)
+                f_layout.addWidget(f_file_button, 0, 2)
+                if f_next_index == -1:
+                    f_layout.addWidget(QtGui.QLabel("Cannot import into project, no available slots in item tab."), 1, 1)
+                else:
+                    f_import = QtGui.QCheckBox("Import into project?")
+                    f_import.setChecked(True)
+                    f_layout.addWidget(f_import, 1, 1)
+                f_ok_button = QtGui.QPushButton("Save File")
+                f_ok_button.clicked.connect(ok_handler)
+                f_layout.addWidget(f_ok_button, 8,2)
+                f_cancel_button = QtGui.QPushButton("Discard File")
+                f_layout.addWidget(f_cancel_button, 8,3)
+                f_cancel_button.clicked.connect(cancel_handler)
+                f_window.exec_()
+
     def on_stop(self):
         if not self.is_playing and not self.is_recording:
             return
@@ -2371,6 +2438,7 @@ class transport_widget:
                 this_region_editor.open_region(this_region_editor.region.name)
             this_song_editor.open_song()
             this_pydaw_project.record_stop_git_commit()
+            self.show_audio_recording_dialog()
         self.is_playing = False
         if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
             this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
@@ -2471,6 +2539,7 @@ class transport_widget:
         self.is_recording = False
         self.is_playing = False
         self.last_bar = 0
+        self.last_open_dir = expanduser("~")
         self.transport = pydaw_transport()
         self.group_box = QtGui.QGroupBox()
         self.vlayout = QtGui.QVBoxLayout()
