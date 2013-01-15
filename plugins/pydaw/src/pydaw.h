@@ -282,6 +282,7 @@ typedef struct st_pydaw_data
     
     float ** input_buffers;
     int input_buffers_active;
+    pthread_mutex_t audio_inputs_mutex;
     
     pthread_t audio_recording_thread;
     int audio_recording_quit_notifier;
@@ -545,10 +546,15 @@ void * v_pydaw_audio_recording_thread(void* a_arg)
 {
     t_pydaw_data * a_pydaw_data = (t_pydaw_data*)(a_arg);
     
+    sleep(3);
+    
     while(1)
     {        
+        pthread_mutex_lock(&a_pydaw_data->audio_inputs_mutex);
+        
         if(a_pydaw_data->audio_recording_quit_notifier)
         {            
+            pthread_mutex_unlock(&a_pydaw_data->audio_inputs_mutex);
             printf("audio recording thread exiting...\n");            
             break;
         }
@@ -624,7 +630,7 @@ void * v_pydaw_audio_recording_thread(void* a_arg)
             
             usleep(10000);
         }
-        
+        pthread_mutex_unlock(&a_pydaw_data->audio_inputs_mutex);
     }
     
     return (void*)1;
@@ -2553,6 +2559,9 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     pthread_mutex_init(&f_result->main_mutex, NULL);
     pthread_mutex_init(&f_result->quit_mutex, NULL);
     pthread_mutex_init(&f_result->offline_mutex, NULL);    
+    pthread_mutex_init(&f_result->audio_inputs_mutex, NULL);
+    
+    
     f_result->sample_rate = a_sample_rate;
     f_result->current_sample = 0;
     f_result->current_bar = 0;
@@ -3900,6 +3909,7 @@ void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data)
         int f_i = 0;
         t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_inputs_file, LMS_LARGE_STRING);
         
+        pthread_mutex_lock(&a_pydaw_data->audio_inputs_mutex);
         while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
         {
             char * f_index_str = c_iterate_2d_char_array(f_2d_array);
@@ -3942,13 +3952,13 @@ void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data)
             
             f_i++;
         }
-        
+        pthread_mutex_unlock(&a_pydaw_data->audio_inputs_mutex);
         g_free_2d_char_array(f_2d_array);
     }
     else 
     {        
         printf("%s not found, setting default values\n", f_inputs_file);
-        
+        pthread_mutex_lock(&a_pydaw_data->audio_inputs_mutex);
         int f_i = 0;        
         while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
         {
@@ -3959,6 +3969,7 @@ void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data)
             a_pydaw_data->audio_inputs[f_i]->vol_linear = 1.0f;
             f_i++;
         }
+        pthread_mutex_unlock(&a_pydaw_data->audio_inputs_mutex);
     }
 }
 
