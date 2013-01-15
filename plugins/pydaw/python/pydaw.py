@@ -2377,8 +2377,8 @@ class transport_widget:
                     os.system('mv "' + this_pydaw_project.audio_tmp_folder + "/" + str(f_item_number) + '.wav" "' + f_file_name + '"')
                     if f_next_index != -1 and f_import.isChecked():
                         f_audio_items.add_item(f_next_index, pydaw_audio_item(f_file_name, 0, 1000, self.last_region_num, self.last_bar, \
-                        0.0, 0, 0, 0, 0.0, 0, 0.0, f_inputs[f_item_number].output))
-                    this_pydaw_project.save_audio_inputs(f_inputs)
+                        0.0, 0, 0, 0, 0.0, 0, 0.0, f_inputs.tracks[f_item_number].output))
+                    this_pydaw_project.save_audio_items(f_audio_items)
                     this_pydaw_project.git_repo.git_commit("-a", "Record audio item " + f_file_name)
                     f_window.close()
 
@@ -2393,7 +2393,6 @@ class transport_widget:
                             f_file_name = f_file_name + ".wav"
                         f_name.setText(f_file_name)
                         self.last_open_dir = os.path.dirname(f_file_name)
-                        create_sample_graph(f_file_name)
 
                 f_next_index = f_audio_items.get_next_index()
 
@@ -2422,6 +2421,7 @@ class transport_widget:
                 f_layout.addWidget(f_cancel_button, 8,3)
                 f_cancel_button.clicked.connect(cancel_handler)
                 f_window.exec_()
+        this_audio_editor.open_items()
 
     def on_stop(self):
         if not self.is_playing and not self.is_recording:
