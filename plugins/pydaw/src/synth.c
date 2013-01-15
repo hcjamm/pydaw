@@ -305,6 +305,7 @@ static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_
     else
     {
         /*Clear the output buffer*/
+        pydaw_data->input_buffers_active = 0;
         plugin_data->i_buffer_clear = 0;    
         
         while((plugin_data->i_buffer_clear) < sample_count)

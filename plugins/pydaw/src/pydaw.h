@@ -22,6 +22,8 @@ extern "C" {
 //Print detailed information about the MIDI data being sent from PyDAW, or alternately pass in from 'make' with -DPYDAW_PRINT_DEBUG_INFO
 //#define PYDAW_PRINT_DEBUG_INFO
     
+//#define PYDAW_DEBUG_RECORDING
+    
 #define PYDAW_CONFIGURE_KEY_SS "ss"
 #define PYDAW_CONFIGURE_KEY_OS "os"
 #define PYDAW_CONFIGURE_KEY_SI "si"
@@ -553,26 +555,58 @@ void * v_pydaw_audio_recording_thread(void* a_arg)
         if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
         {
             int f_i = 0;
+            int f_flushed_buffer = 0;
                         
             while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
             {
                 if((a_pydaw_data->audio_inputs[f_i]->rec) &&
                     (a_pydaw_data->audio_inputs[f_i]->flush_last_buffer_pending))
-                {   
+                {
+                    f_flushed_buffer = 1;
+                    printf("Flushing record buffer of %i frames\n",
+                            ((a_pydaw_data->audio_inputs[f_i]->buffer_iterator[(a_pydaw_data->audio_inputs[f_i]->buffer_to_flush)]) / 2));
+                    
                     sf_writef_float(a_pydaw_data->audio_inputs[f_i]->sndfile, 
                             a_pydaw_data->audio_inputs[f_i]->rec_buffers[(a_pydaw_data->audio_inputs[f_i]->buffer_to_flush)], 
-                            a_pydaw_data->audio_inputs[f_i]->buffer_iterator[(a_pydaw_data->audio_inputs[f_i]->buffer_to_flush)]);
+                            ((a_pydaw_data->audio_inputs[f_i]->buffer_iterator[(a_pydaw_data->audio_inputs[f_i]->buffer_to_flush)]) / 2) );
                  
                     a_pydaw_data->audio_inputs[f_i]->flush_last_buffer_pending = 0;
                     a_pydaw_data->audio_inputs[f_i]->buffer_iterator[(a_pydaw_data->audio_inputs[f_i]->buffer_to_flush)] = 0;
                 }
+                                
                 f_i++;
+            }
+            
+            if(!f_flushed_buffer)
+            {
+                usleep(10000);
             }
         }
         else
         {
-            usleep(100000);
+            int f_i = 0;
+            
+            while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
+            {
+                //I guess the main mutex keeps this concurrent, as the set_playback_mode has to grab it before
+                //setting the recording_stopped flag, which means we won't wind up with half-a-buffer, even if this
+                //thread uses lockless techniques while running fast-and-loose with the data...  TODO:  verify that this is safe...                
+                if(a_pydaw_data->audio_inputs[f_i]->recording_stopped)
+                {
+                    sf_writef_float(a_pydaw_data->audio_inputs[f_i]->sndfile, 
+                            a_pydaw_data->audio_inputs[f_i]->rec_buffers[(a_pydaw_data->audio_inputs[f_i]->current_buffer)], 
+                            ((a_pydaw_data->audio_inputs[f_i]->buffer_iterator[(a_pydaw_data->audio_inputs[f_i]->current_buffer)]) / 2) );
+                                     
+                    sf_close(a_pydaw_data->audio_inputs[f_i]->sndfile);                    
+                    a_pydaw_data->audio_inputs[f_i]->recording_stopped = 0;
+                    a_pydaw_data->audio_inputs[f_i]->sndfile = 0;
+                }
+                f_i++;
+            }
+            
+            usleep(10000);
         }
+        
     }
     
     return (void*)1;
@@ -1635,6 +1669,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
     
     if(a_pydaw_data->input_buffers_active)
     {
+        f_i = 0;
         while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
         {
             if((a_pydaw_data->audio_inputs[f_i]->rec) && 
@@ -1648,8 +1683,9 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     float f_tmp_samples[2];
                     
                     if(((a_pydaw_data->audio_inputs[f_i]->buffer_iterator[(a_pydaw_data->audio_inputs[f_i]->current_buffer)]) 
-                                + a_sample_count ) >= PYDAW_AUDIO_INPUT_REC_BUFFER_SIZE)
+                                + (a_sample_count * 2) ) >= PYDAW_AUDIO_INPUT_REC_BUFFER_SIZE)
                     {
+                        printf("Switching buffers");
                         a_pydaw_data->audio_inputs[f_i]->flush_last_buffer_pending = 1;
                         a_pydaw_data->audio_inputs[f_i]->buffer_to_flush = (a_pydaw_data->audio_inputs[f_i]->current_buffer);
                         
@@ -1702,10 +1738,10 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
             }
             f_i++;
         }
-
-        f_i = 0;
-        f_i2 = 0;
     }
+        
+    f_i = 0;
+    f_i2 = 0;
     
     while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
     {
@@ -3226,8 +3262,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
                 {
                     if(a_pydaw_data->audio_inputs[f_i]->rec)
                     {
-                        sf_close(a_pydaw_data->audio_inputs[f_i]->sndfile);                        
-                        a_pydaw_data->audio_inputs[f_i]->sndfile = 0;
+                        a_pydaw_data->audio_inputs[f_i]->recording_stopped = 1;                        
                     }
                     f_i++;
                 }
@@ -4002,8 +4037,21 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     
     int f_old_loop_mode = a_pydaw_data->loop_mode;  //We must set it back afterwards, or the UI will be wrong...
     v_set_loop_mode(a_pydaw_data, PYDAW_LOOP_MODE_OFF);
+    
+#ifdef PYDAW_DEBUG_RECORDING
+    f_i = 0;
+    a_pydaw_data->input_buffers = (float**)malloc(sizeof(float*) * PYDAW_AUDIO_INPUT_TRACK_COUNT);
+    
+    while(f_i < (PYDAW_AUDIO_INPUT_TRACK_COUNT * 2))
+    {
+        a_pydaw_data->input_buffers[f_i] = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);        
+        f_i++;
+    }
+    a_pydaw_data->input_buffers_active = 1;
+    v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_REC, a_start_region, a_start_bar);
+#else    
     v_set_playback_mode(a_pydaw_data, PYDAW_PLAYBACK_MODE_PLAY, a_start_region, a_start_bar);    
-        
+#endif   
     SF_INFO f_sf_info;
     f_sf_info.channels = 2;
     f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
@@ -4027,7 +4075,11 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
         
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         f_next_sample_block = (a_pydaw_data->current_sample) + f_block_size;        
-        v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1, 0);        
+#ifdef PYDAW_DEBUG_RECORDING        
+        v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1, a_pydaw_data->input_buffers);
+#else
+        v_pydaw_run_main_loop(a_pydaw_data, f_block_size, NULL, 0, f_next_sample_block, f_buffer0, f_buffer1, 0);
+#endif
         a_pydaw_data->current_sample = f_next_sample_block;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         

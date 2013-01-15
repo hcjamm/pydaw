@@ -32,6 +32,7 @@ typedef struct
     int current_buffer;
     int flush_last_buffer_pending;
     int buffer_to_flush;
+    int recording_stopped;
 }t_pyaudio_input;
 
 t_pyaudio_input * g_pyaudio_input_get(float);
@@ -50,6 +51,8 @@ t_pyaudio_input * g_pyaudio_input_get(float a_sr)
     f_result->sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
     f_result->sf_info.samplerate = (int)(a_sr);
     
+    f_result->sndfile = 0;
+    
     f_result->rec = 0;
     f_result->current_buffer = 0;
     f_result->buffer_to_flush = 0;
@@ -57,6 +60,7 @@ t_pyaudio_input * g_pyaudio_input_get(float a_sr)
     f_result->output_track = 0;
     f_result->vol = 0.0f;
     f_result->vol_linear = 1.0f;
+    f_result->recording_stopped = 0;
     
     return f_result;
 }
@@ -69,8 +73,11 @@ void v_pydaw_audio_input_record_set(t_pyaudio_input * a_audio_input, char * a_fi
     }
     else
     {
-        sf_close(a_audio_input->sndfile);        
-        a_audio_input->sndfile = 0;
+        if(a_audio_input->sndfile)
+        {
+            sf_close(a_audio_input->sndfile);        
+            a_audio_input->sndfile = 0;
+        }
     }
 }
 
