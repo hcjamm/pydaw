@@ -605,6 +605,23 @@ void * v_pydaw_audio_recording_thread(void* a_arg)
                 f_i++;
             }
             
+            //Re-create the sndfile if it no longer exists, that means the UI has moved it from the tmp folder...
+            f_i = 0;
+            while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
+            {
+                if(a_pydaw_data->audio_inputs[f_i]->rec)
+                {
+                    char f_file_name[256];
+                    sprintf(f_file_name, "%s%i.wav", a_pydaw_data->audio_tmp_folder, f_i);
+                    
+                    if(!i_pydaw_file_exists(f_file_name))
+                    {
+                        v_pydaw_audio_input_record_set(a_pydaw_data->audio_inputs[f_i], f_file_name);
+                    }
+                }
+                f_i++;
+            }
+            
             usleep(10000);
         }
         
@@ -3054,7 +3071,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     sprintf(a_pydaw_data->instruments_folder, "%sinstruments/", a_pydaw_data->project_folder);
     
     sprintf(a_pydaw_data->audio_folder, "%saudio/", a_pydaw_data->project_folder);
-    sprintf(a_pydaw_data->audio_tmp_folder, "%saudio/tmp", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->audio_tmp_folder, "%saudio/tmp/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->audiofx_folder, "%saudiofx/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->busfx_folder, "%sbusfx/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->samples_folder, "%ssamples/", a_pydaw_data->project_folder);
@@ -3919,7 +3936,7 @@ void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data)
             
             char f_tmp_file_name[128];
             
-            sprintf(f_tmp_file_name, "%s/%i.wav", a_pydaw_data->audio_tmp_folder, f_index);
+            sprintf(f_tmp_file_name, "%s%i.wav", a_pydaw_data->audio_tmp_folder, f_index);
             
             v_pydaw_audio_input_record_set(a_pydaw_data->audio_inputs[f_index], f_tmp_file_name);
             
