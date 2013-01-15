@@ -2360,6 +2360,7 @@ class transport_widget:
     def show_audio_recording_dialog(self):
         f_inputs = this_pydaw_project.get_audio_input_tracks()
         f_audio_items = this_pydaw_project.get_audio_items()
+        f_samplegraphs = this_pydaw_project.get_samplegraphs()
         f_result_list = []
         for f_i in range(5):
             if f_inputs.tracks[f_i].rec == 1:
@@ -2380,6 +2381,10 @@ class transport_widget:
                         0.0, 0, 0, 0, 0.0, 0, 0.0, f_inputs.tracks[f_item_number].output))
                     this_pydaw_project.save_audio_items(f_audio_items)
                     this_pydaw_project.git_repo.git_commit("-a", "Record audio item " + f_file_name)
+                    f_sg_uid = pydaw_gen_uid()
+                    this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(f_file_name, f_sg_uid)
+                    f_samplegraphs.add_ref(f_file_name, f_sg_uid)
+                    this_pydaw_project.save_samplegraphs(f_samplegraphs)
                     f_window.close()
 
                 def cancel_handler():
