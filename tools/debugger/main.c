@@ -17,7 +17,7 @@
 #include <alsa/asoundlib.h>
 
 #define DEBUGGER_SIMULATE_EXTERNAL_MIDI
-//#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw/default-project to work without crashing...
+//#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw2/default-project to work without crashing...
 #define DEBUGGER_SAMPLE_COUNT 512
 
 int main(int argc, char** argv) 
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
         
     //It's not necessary to call this, it gets called anyways at startup...  Only use it to load an alternate project
-    //v_open_project(pydaw_data, "/home/bob/dssi/pydaw/default-project");    
+    //v_open_project(pydaw_data, "/home/cletus/pydaw2/default-project/default.pydaw2");
 
     f_engine->output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
     f_engine->output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
     v_set_playback_mode(pydaw_data, 0, 0, 0);
 #endif
     
-    v_pydaw_offline_render(pydaw_data, 0, 0, 10, 2, "test.wav");
+    v_pydaw_offline_render(pydaw_data, 0, 0, 0, 1, "test.wav");
     
     exit(0);
     //return 0;     
