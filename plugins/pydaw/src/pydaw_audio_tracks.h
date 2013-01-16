@@ -13,6 +13,7 @@ extern "C" {
 #endif
     
 #include <sndfile.h>
+#include "../../libmodsynth/lib/amp.h"
 #include "../../libmodsynth/lib/interpolate-cubic.h"
 //Imported only for t_int_frac_read_head... TODO:  Fork that into it's own file...
 #include "../../libmodsynth/lib/interpolate-sinc.h"
@@ -55,6 +56,9 @@ typedef struct
     t_int_frac_read_head * sample_read_head;
     t_adsr * adsr;
     int index;
+    float vol;
+    float vol_linear;
+    t_amp * amp_ptr;
 } t_pydaw_audio_item __attribute__((aligned(16)));
 
 typedef struct 
@@ -117,6 +121,10 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
     v_adsr_set_adsr_db(f_result->adsr, 0.003f, 0.1f, 0.0f, 0.2f);
     v_adsr_retrigger(f_result->adsr);
     f_result->sample_read_head = g_ifh_get();
+    
+    f_result->amp_ptr = g_amp_get();
+    f_result->vol = 0.0f;
+    f_result->vol_linear = 1.0f;
         
     return f_result;
 }
@@ -236,6 +244,11 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     f_result->audio_track_output = atoi(f_audio_track_output_char);
     free(f_audio_track_output_char);
 
+    char * f_vol_char = c_iterate_2d_char_array(f_current_string);
+    f_result->vol = atof(f_vol_char);
+    f_result->vol_linear = f_db_to_linear_fast(f_result->vol, f_result->amp_ptr);
+    free(f_vol_char);
+    
     free(f_file_name_char);
 
     f_result->adjusted_start_beat = 
