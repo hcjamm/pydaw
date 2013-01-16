@@ -885,6 +885,9 @@ class audio_list_editor:
             if f_sample_start.value() > f_sample_end.value() - 10:
                 f_sample_start.setValue(f_sample_end.value() - 10)
 
+        def sample_vol_changed(a_val=None):
+            f_sample_vol_label.setText(str(f_sample_vol_slider.value()) + "dB")
+
         def f_quitting(a_val=None):
             try:
                 global f_sg_timer
@@ -942,6 +945,16 @@ class audio_list_editor:
             f_ai_sample_graph = QtGui.QLabel()
             f_ai_sample_graph.setMinimumHeight(300)
         f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
+
+        f_sample_vol_layout = QtGui.QVBoxLayout()
+        f_sample_vol_slider = QtGui.QSlider(QtCore.Qt.Vertical)
+        f_sample_vol_slider.setRange(-24, 24)
+        f_sample_vol_slider.setValue(0)
+        f_sample_vol_slider.valueChanged.connect(sample_vol_changed)
+        f_sample_vol_layout.addWidget(f_sample_vol_slider)
+        f_sample_vol_label = QtGui.QLabel("0db")
+        f_sample_vol_layout.addWidget(f_sample_vol_label)
+        f_layout.addLayout(f_sample_vol_layout, 1, 2)
 
         f_layout.addWidget(QtGui.QLabel("Start:"), 3, 0)
         f_start_hlayout = QtGui.QHBoxLayout()
