@@ -545,24 +545,26 @@ inline void v_pydaw_sum_track_outputs(t_pydaw_data * a_pydaw_data, t_pytrack * a
 void * v_pydaw_audio_recording_thread(void* a_arg)
 {
     t_pydaw_data * a_pydaw_data = (t_pydaw_data*)(a_arg);
+    char f_file_name[256];
     
-    sleep(3);
+    sleep(3);    
     
     while(1)
     {        
-        pthread_mutex_lock(&a_pydaw_data->audio_inputs_mutex);
+        int f_flushed_buffer = 0;
+        int f_did_something = 0;
         
         if(a_pydaw_data->audio_recording_quit_notifier)
-        {            
-            pthread_mutex_unlock(&a_pydaw_data->audio_inputs_mutex);
+        {        
             printf("audio recording thread exiting...\n");            
             break;
         }
         
+        pthread_mutex_lock(&a_pydaw_data->audio_inputs_mutex);
+        
         if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
         {
-            int f_i = 0;
-            int f_flushed_buffer = 0;
+            int f_i = 0;            
                         
             while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
             {
@@ -583,16 +585,11 @@ void * v_pydaw_audio_recording_thread(void* a_arg)
                                 
                 f_i++;
             }
-            
-            if(!f_flushed_buffer)
-            {
-                usleep(10000);
-            }
         }
         else
         {
             int f_i = 0;
-            
+                        
             while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
             {
                 //I guess the main mutex keeps this concurrent, as the set_playback_mode has to grab it before
@@ -600,6 +597,7 @@ void * v_pydaw_audio_recording_thread(void* a_arg)
                 //thread uses lockless techniques while running fast-and-loose with the data...  TODO:  verify that this is safe...                
                 if(a_pydaw_data->audio_inputs[f_i]->recording_stopped)
                 {
+                    f_did_something = 1;
                     sf_writef_float(a_pydaw_data->audio_inputs[f_i]->sndfile, 
                             a_pydaw_data->audio_inputs[f_i]->rec_buffers[(a_pydaw_data->audio_inputs[f_i]->current_buffer)], 
                             ((a_pydaw_data->audio_inputs[f_i]->buffer_iterator[(a_pydaw_data->audio_inputs[f_i]->current_buffer)]) / 2) );
@@ -613,11 +611,13 @@ void * v_pydaw_audio_recording_thread(void* a_arg)
             
             //Re-create the sndfile if it no longer exists, that means the UI has moved it from the tmp folder...
             f_i = 0;
+                        
             while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
             {
                 if(a_pydaw_data->audio_inputs[f_i]->rec)
                 {
-                    char f_file_name[256];
+                    f_did_something = 1;
+                                        
                     sprintf(f_file_name, "%s%i.wav", a_pydaw_data->audio_tmp_folder, f_i);
                     
                     if(!i_pydaw_file_exists(f_file_name))
@@ -628,9 +628,14 @@ void * v_pydaw_audio_recording_thread(void* a_arg)
                 f_i++;
             }
             
+        }
+        
+        pthread_mutex_unlock(&a_pydaw_data->audio_inputs_mutex);
+        
+        if(!f_flushed_buffer || !f_did_something)
+        {
             usleep(10000);
         }
-        pthread_mutex_unlock(&a_pydaw_data->audio_inputs_mutex);
     }
     
     return (void*)1;
