@@ -422,14 +422,31 @@ void _fini()
     if(pydaw_data)
     {
         v_pydaw_close_all_uis(pydaw_data);
-
+        pydaw_data->audio_recording_quit_notifier = 1;
+        
         sleep(3);
 
         //This ensures that the destructor doesn't start freeing memory before save-on-exit finishes...
         pthread_mutex_lock(&pydaw_data->quit_mutex);
         pthread_mutex_unlock(&pydaw_data->quit_mutex);
-
+        
         int f_i = 0;
+
+        char tmp_sndfile_name[256];
+        
+        while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
+        {
+            if(pydaw_data->audio_inputs[f_i]->sndfile)
+            {
+                sf_close(pydaw_data->audio_inputs[f_i]->sndfile);
+                sprintf(tmp_sndfile_name, "%s%i.wav", pydaw_data->audio_tmp_folder, f_i);
+                printf("Deleting %s\n", tmp_sndfile_name);
+                remove(tmp_sndfile_name);
+            }
+            f_i++;
+        }
+        
+        f_i = 0;
         while(f_i < pydaw_data->track_worker_thread_count)
         {
             pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);        
@@ -438,8 +455,6 @@ void _fini()
             f_i++;
         }
         
-        pydaw_data->audio_recording_quit_notifier = 1;
-
         pthread_mutex_lock(&pydaw_data->track_cond_mutex);
         pthread_cond_broadcast(&pydaw_data->track_cond);
         pthread_mutex_unlock(&pydaw_data->track_cond_mutex);

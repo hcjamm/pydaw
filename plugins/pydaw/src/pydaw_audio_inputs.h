@@ -14,6 +14,8 @@ extern "C" {
 
 #include <sndfile.h>
 #include <pthread.h>
+#include <stdio.h>
+#include "pydaw_files.h"
 
 //8 megabyte interleaved buffer per audio input
 #define PYDAW_AUDIO_INPUT_REC_BUFFER_SIZE 8388608
@@ -67,18 +69,21 @@ t_pyaudio_input * g_pyaudio_input_get(float a_sr)
 
 void v_pydaw_audio_input_record_set(t_pyaudio_input * a_audio_input, char * a_file_out)
 {
+    if(a_audio_input->sndfile)
+    {
+        sf_close(a_audio_input->sndfile);        
+        a_audio_input->sndfile = 0;
+    }
+    
+    if(i_pydaw_file_exists(a_file_out))
+    {
+        remove(a_file_out);
+    }
+    
     if(a_audio_input->rec)
     {
         a_audio_input->sndfile = sf_open(a_file_out, SFM_WRITE, &a_audio_input->sf_info);
-    }
-    else
-    {
-        if(a_audio_input->sndfile)
-        {
-            sf_close(a_audio_input->sndfile);        
-            a_audio_input->sndfile = 0;
-        }
-    }
+    }    
 }
 
 
