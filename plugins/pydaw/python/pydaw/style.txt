@@ -207,17 +207,40 @@ QSlider::handle:horizontal
 	border: 2px solid transparent;
 }
 
-QSlider::sub-page:horizontal:disabled 
+
+QSlider::groove:vertical 
 {
-	background: #bbb;
-	border-color: #999;
+	border: 1px solid #bbb;
+	background: white;
+	width: 10px;
+	border-radius: 4px;
 }
 
-QSlider::add-page:horizontal:disabled 
+QSlider::sub-page:vertical 
 {
-	background: #eee;
-	border-color: #999;
+	background: #fff;
+	border: 1px solid #777;
+	width: 10px;
+	border-radius: 4px;
 }
+
+QSlider::add-page:vertical 
+{
+	background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1, stop: 0 #66e, stop: 1 #bbf);
+	background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1, stop: 0 #bbf, stop: 1 #55f);
+	border: 1px solid #777;
+	width: 10px;
+	border-radius: 4px;
+}
+
+QSlider::handle:vertical
+{
+	image: url(/usr/lib/pydaw2/pydaw/python/pydaw/v-fader.png);
+	margin-left: -7px;
+	margin-right: -7px;
+	border: 2px solid transparent;
+}
+
 
 
 
@@ -411,7 +434,8 @@ border-radius: 6px;
 background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e6e6e6, stop: 0.1 #929292, stop: 0.5 #dedede, stop: 0.9 #dadada, stop: 1 #d6d6d6);
 }
 
-QComboBox:hover,QPushButton:hover,QLineEdit:hover,QSlider:hover,QSpinBox:hover,QDoubleSpinBox:hover, QSlider::handle:horizontal:hover
+QComboBox:hover,QPushButton:hover,QLineEdit:hover,QSlider:hover,QSpinBox:hover,QDoubleSpinBox:hover, QSlider::handle:horizontal:hover,
+QSlider::handle:vertical:hover
 {
 border: 2px solid QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);
 }
