@@ -744,6 +744,7 @@ class audio_list_editor:
             self.audio_items_table_widget.setItem(k, 10, QtGui.QTableWidgetItem(str(global_timestretch_modes[v.time_stretch_mode])))
             self.audio_items_table_widget.setItem(k, 11, QtGui.QTableWidgetItem(str(v.pitch_shift)))
             self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.output_track)))
+            self.audio_items_table_widget.setItem(k, 13, QtGui.QTableWidgetItem(str(v.vol)))
         self.audio_items_table_widget.resizeColumnsToContents()
 
     def reset_tracks(self):
@@ -782,7 +783,8 @@ class audio_list_editor:
                 self.audio_items_table_widget.item(x, 7).text(), self.audio_items_table_widget.item(x, 8).text(),
                 self.audio_items_table_widget.item(x, 9).text(),
                 global_timestretch_modes.index(str(self.audio_items_table_widget.item(x, 10).text())),
-                self.audio_items_table_widget.item(x, 11).text(), self.audio_items_table_widget.item(x, 12).text()
+                self.audio_items_table_widget.item(x, 11).text(), self.audio_items_table_widget.item(x, 12).text(),
+                self.audio_items_table_widget.item(x, 13).text()
                 ))
 
     def show_cell_dialog(self, x, y, a_item=None):
@@ -803,7 +805,7 @@ class audio_list_editor:
 
             f_new_item = pydaw_audio_item(f_name.text(), f_sample_start.value(), f_sample_end.value(), f_start_region.value(),
                     f_start_bar.value(), f_start_beat.value(), f_end_mode, f_end_region.value(), f_end_bar.value(), f_end_beat.value(),
-                    f_timestretch_mode.currentIndex(), f_pitch_shift.value(), f_output_combobox.currentIndex())
+                    f_timestretch_mode.currentIndex(), f_pitch_shift.value(), f_output_combobox.currentIndex(), f_sample_vol_slider.value())
 
             this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(x, f_new_item)
             self.audio_items.add_item(x, f_new_item)
@@ -940,11 +942,17 @@ class audio_list_editor:
         global f_ai_sample_graph
         if not a_item is None:
             print("Loading a_item.file : " + a_item.file)
-            create_sample_graph(a_item.file)
+            try:
+                create_sample_graph(a_item.file)
+            except:
+                pass
         else:
             f_ai_sample_graph = QtGui.QLabel()
             f_ai_sample_graph.setMinimumHeight(300)
-        f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
+        try:
+            f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
+        except:
+            print("Error creating sample_graph, if you are running in GUI debug-only mode this was to be expected")
 
         f_sample_vol_layout = QtGui.QVBoxLayout()
         f_sample_vol_slider = QtGui.QSlider(QtCore.Qt.Vertical)
@@ -1047,6 +1055,7 @@ class audio_list_editor:
             f_timestretch_mode.setCurrentIndex(a_item.time_stretch_mode)
             f_pitch_shift.setValue(a_item.pitch_shift)
             f_output_combobox.setCurrentIndex(a_item.output_track)
+            f_sample_vol_slider.setValue(a_item.vol)
 
         f_window.exec_()
 
@@ -1082,9 +1091,9 @@ class audio_list_editor:
         self.items_groupbox.setLayout(self.items_vlayout)
 
         self.audio_items_table_widget = QtGui.QTableWidget()
-        self.audio_items_table_widget.setColumnCount(13)
+        self.audio_items_table_widget.setColumnCount(14)
         self.audio_items_table_widget.setHorizontalHeaderLabels(["Path", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", \
-        "End Mode", "End Region", "End Bar", "End Beat", "Timestretch Mode", "Pitch", "Audio Track"])
+        "End Mode", "End Region", "End Bar", "End Beat", "Timestretch Mode", "Pitch", "Audio Track", "Volume"])
         self.audio_items_table_widget.setRowCount(32)
         self.audio_items_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_items_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
@@ -2391,7 +2400,7 @@ class transport_widget:
                     os.system('mv "' + this_pydaw_project.audio_tmp_folder + "/" + str(f_item_number) + '.wav" "' + f_file_name + '"')
                     if f_next_index != -1 and f_import.isChecked():
                         f_audio_items.add_item(f_next_index, pydaw_audio_item(f_file_name, 0, 1000, self.last_region_num, self.last_bar, \
-                        0.0, 0, 0, 0, 0.0, 0, 0.0, f_inputs.tracks[f_item_number].output))
+                        0.0, 0, 0, 0, 0.0, 0, 0.0, f_inputs.tracks[f_item_number].output), 0)
                     this_pydaw_project.save_audio_items(f_audio_items)
                     this_pydaw_project.git_repo.git_commit("-a", "Record audio item " + f_file_name)
                     f_sg_uid = pydaw_gen_uid()

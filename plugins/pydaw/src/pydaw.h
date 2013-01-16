@@ -1714,7 +1714,6 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     if(((a_pydaw_data->audio_inputs[f_i]->buffer_iterator[(a_pydaw_data->audio_inputs[f_i]->current_buffer)]) 
                                 + (a_sample_count * 2) ) >= PYDAW_AUDIO_INPUT_REC_BUFFER_SIZE)
                     {
-                        printf("Switching buffers");
                         a_pydaw_data->audio_inputs[f_i]->flush_last_buffer_pending = 1;
                         a_pydaw_data->audio_inputs[f_i]->buffer_to_flush = (a_pydaw_data->audio_inputs[f_i]->current_buffer);
                         
@@ -1873,7 +1872,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
                             (a_pydaw_data->audio_items->cubic_interpolator)) * 
-                            (a_pydaw_data->audio_items->items[f_i]->adsr->output);
+                            (a_pydaw_data->audio_items->items[f_i]->adsr->output) *
+                            (a_pydaw_data->audio_items->items[f_i]->vol_linear);
 
                             a_output0[f_i2] += f_tmp_sample;
                             a_output1[f_i2] += f_tmp_sample;
@@ -1885,14 +1885,16 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
                             (a_pydaw_data->audio_items->cubic_interpolator)) * 
-                            (a_pydaw_data->audio_items->items[f_i]->adsr->output);
+                            (a_pydaw_data->audio_items->items[f_i]->adsr->output) *
+                            (a_pydaw_data->audio_items->items[f_i]->vol_linear);
 
                             a_output1[f_i2] += f_cubic_interpolate_ptr_ifh(
                             (a_pydaw_data->audio_items->items[f_i]->samples[1]),
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
                             (a_pydaw_data->audio_items->cubic_interpolator)) * 
-                            (a_pydaw_data->audio_items->items[f_i]->adsr->output);
+                            (a_pydaw_data->audio_items->items[f_i]->adsr->output) *
+                            (a_pydaw_data->audio_items->items[f_i]->vol_linear);
                         }
                         else
                         {
