@@ -1219,3 +1219,27 @@ class pydaw_transport:
             if f_arr[i] == "":
                 f_arr[i] = None
         return pydaw_transport(f_arr[0], f_arr[1], f_arr[2], f_arr[3], f_arr[4])
+
+
+class pydaw_song_level_ccs:
+    def add_cc(self, a_cc):
+        pass
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def from_str(a_str):
+        f_result = pydaw_song_level_ccs()
+        #TODO
+        return f_result
+
+class pydaw_song_level_cc:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def from_str(a_str):
+        f_result = pydaw_song_level_ccs()
+        #TODO
+        return f_result
