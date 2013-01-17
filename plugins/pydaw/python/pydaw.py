@@ -1175,16 +1175,16 @@ class audio_list_editor:
         if self.enabled:
             self.ccs_table_widget.clearContents()
             if self.track_type_combobox.currentIndex() == 0:
-                f_ccs = this_pydaw_project.get_audio_automation(self.track_select_combobox.currentIndex())
+                self.item = this_pydaw_project.get_audio_automation(self.track_select_combobox.currentIndex())
             elif self.track_type_combobox.currentIndex() == 1:
-                f_ccs = this_pydaw_project.get_bus_automation(self.track_select_combobox.currentIndex())
+                self.item = this_pydaw_project.get_bus_automation(self.track_select_combobox.currentIndex())
             self.ccs_table_widget.setSortingEnabled(False)
-            for i in range(len(f_ccs.items)):
-                self.ccs_table_widget.setItem(i, 0, QtGui.QTableWidgetItem(f_ccs.items[i].region))
-                self.ccs_table_widget.setItem(i, 1, QtGui.QTableWidgetItem(f_ccs.items[i].bar))
-                self.ccs_table_widget.setItem(i, 2, QtGui.QTableWidgetItem(f_ccs.items[i].beat))
-                self.ccs_table_widget.setItem(i, 3, QtGui.QTableWidgetItem(f_ccs.items[i].cc))
-                self.ccs_table_widget.setItem(i, 4, QtGui.QTableWidgetItem(f_ccs.items[i].value))
+            for i in range(len(self.item.items)):
+                self.ccs_table_widget.setItem(i, 0, QtGui.QTableWidgetItem(self.item.items[i].region))
+                self.ccs_table_widget.setItem(i, 1, QtGui.QTableWidgetItem(self.item.items[i].bar))
+                self.ccs_table_widget.setItem(i, 2, QtGui.QTableWidgetItem(self.item.items[i].beat))
+                self.ccs_table_widget.setItem(i, 3, QtGui.QTableWidgetItem(self.item.items[i].cc))
+                self.ccs_table_widget.setItem(i, 4, QtGui.QTableWidgetItem(self.item.items[i].value))
             self.ccs_table_widget.setSortingEnabled(True)
             self.ccs_table_widget.sortItems(0)
 
@@ -1201,16 +1201,25 @@ class audio_list_editor:
             f_start_rounded = time_quantize_round(f_start.value())
 
             if f_draw_line_checkbox.isChecked():
-                self.item.draw_cc_line(f_cc.value(), f_start.value(), f_cc_value.value(), f_end.value(), f_end_value.value())
+                self.item.draw_cc_line(f_cc.value(), f_cc_value.value(), f_start_region.value(), f_start_bar.value(), \
+                f_start.value(), f_end_value.value(), f_end_region.value(), f_end_bar.value(), f_end.value())
             else:
-                if not self.item.add_cc(pydaw_cc(f_start_rounded, f_cc.value(), f_cc_value.value())):
+                if not self.item.add_cc(pydaw_song_level_cc(f_start_region.value(), f_start_bar.value(), f_start_rounded, f_cc.value(), f_cc_value.value())):
                     QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
                     return
 
             self.default_cc_num = f_cc.value()
+            self.default_cc_start_region = f_start_region.value()
+            self.default_cc_start_bar = f_start_bar.value()
             self.default_cc_start = f_start_rounded
-            this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+
+            if self.track_type_combobox.currentIndex == 0:
+                this_pydaw_project.save_audio_automation(self.track_select_combobox.currentIndex(), self.item)
+            elif self.track_type_combobox.currentIndex == 1:
+                this_pydaw_project.save_bus_automation(self.track_select_combobox.currentIndex(), self.item)
+
+            self.automation_track_changed() #which is essentially 'open_item' for this class...
+
             this_pydaw_project.git_repo.git_commit("-a", "Update CCs for item '" + self.item_name + "'")
             if not f_add_another.isChecked():
                 f_window.close()
@@ -3352,6 +3361,7 @@ def global_ui_refresh_callback():
         this_region_editor.clear_new()
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
+    this_audio_editor.automation_track_changed()
     this_region_editor.open_tracks()
     this_song_editor.open_song()
     this_transport.open_transport()
@@ -3375,6 +3385,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
     set_default_project(a_project_file)
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
+    this_audio_editor.automation_track_changed()
     global_update_audio_track_comboboxes()
     set_window_title()
     this_pydaw_project.suppress_updates = False
@@ -3393,6 +3404,7 @@ def global_new_project(a_project_file):
     this_pydaw_project.save_song(this_song_editor.song)
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
+    this_audio_editor.automation_track_changed()
     this_transport.open_transport()
     set_default_project(a_project_file)
     global_update_audio_track_comboboxes()
