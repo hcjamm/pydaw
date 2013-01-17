@@ -1163,6 +1163,9 @@ class audio_list_editor:
 
         self.reset_tracks()
 
+        self.default_cc_start_region = 0
+        self.default_cc_start_bar = 0
+        self.default_cc_start = 0.0
         self.default_cc_num = 0
         self.default_quantize = 5
 
@@ -1188,9 +1191,11 @@ class audio_list_editor:
     def ccs_show_event_dialog(self, x, y):
         f_cell = self.ccs_table_widget.item(x, y)
         if f_cell is not None:
-            self.default_cc_start = float(self.ccs_table_widget.item(x, 0).text())
-            self.default_cc_num = int(self.ccs_table_widget.item(x, 1).text())
-            self.default_cc_val = int(self.ccs_table_widget.item(x, 2).text())
+            self.default_cc_start_region = int(self.ccs_table_widget.item(x, 0).text())
+            self.default_cc_start_bar = int(self.ccs_table_widget.item(x, 1).text())
+            self.default_cc_start = float(self.ccs_table_widget.item(x, 2).text())
+            self.default_cc_num = int(self.ccs_table_widget.item(x, 3).text())
+            self.default_cc_val = int(self.ccs_table_widget.item(x, 4).text())
 
         def cc_ok_handler():
             f_start_rounded = time_quantize_round(f_start.value())
@@ -1248,16 +1253,20 @@ class audio_list_editor:
         f_start_region = QtGui.QSpinBox()
         f_start_region.setRange(0, 299)
         f_layout.addWidget(f_start_region, 3, 1)
+        f_start_region.setValue(self.default_cc_start_region)
 
         f_layout.addWidget(QtGui.QLabel("Start(bar)"), 4, 0)
         f_start_bar = QtGui.QSpinBox()
         f_start_bar.setRange(0, 15)
         f_layout.addWidget(f_start_bar, 4, 1)
+        f_start_bar.setValue(self.default_cc_start_bar)
 
         f_layout.addWidget(QtGui.QLabel("Start(beats)"), 5, 0)
         f_start = QtGui.QDoubleSpinBox()
         f_start.setRange(0.0, 3.99)
         f_layout.addWidget(f_start, 5, 1)
+        f_start.setValue(self.default_cc_start)
+
         f_draw_line_checkbox = QtGui.QCheckBox("Draw line")
         f_layout.addWidget(f_draw_line_checkbox, 10, 1)
         f_layout.addWidget(QtGui.QLabel("End Value"), 11, 0)
