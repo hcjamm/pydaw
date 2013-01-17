@@ -62,9 +62,9 @@ Project structure:
 
 	project/
 		audio/*.wav
-		audioautomation/*.pyauto
+		audio_automation/*.pyauto
 		audiofx/*.pyfx
-		busautomation/*.pyauto
+		bus_automation/*.pyauto
 		busfx/*.pyfx
 		instruments/
 			    *.pyinst
