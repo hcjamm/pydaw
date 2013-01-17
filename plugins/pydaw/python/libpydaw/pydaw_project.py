@@ -216,6 +216,9 @@ class pydaw_project:
             f_file.write("default.pygraphs\nsamplegraph/*.pygraph\nsamples/*\naudio/*\n")
             f_file.close()
 
+        self.git_repo = pydaw_git_repo(self.project_folder)
+        self.git_repo.git_init()
+
         for i in range(pydaw_audio_track_count):
             f_automation_file = self.audio_automation_folder + "/" + str(i) + ".pyauto"
             if not os.path.exists(f_automation_file):
@@ -232,8 +235,6 @@ class pydaw_project:
                 f_file.close()
                 self.git_repo.git_add(f_automation_file)
 
-        self.git_repo = pydaw_git_repo(self.project_folder)
-        self.git_repo.git_init()
         self.git_repo.git_add(f_pysong_file)
         self.git_repo.git_add(f_pytracks_file)
         self.git_repo.git_add(f_pytransport_file)
@@ -1295,10 +1296,12 @@ class pydaw_song_level_ccs:
                 break
             f_line_arr = f_line.split("|")
             f_result.add_cc(pydaw_song_level_cc(f_line_arr[0], f_line_arr[1], f_line_arr[2], f_line_arr[3], f_line_arr[4]))
+        f_result.items.sort()
         return f_result
 
     def __str__(self):
         f_result = ""
+        self.items.sort()
         for f_item in self.items:
             f_result += str(f_item)
         f_result += pydaw_terminating_char
