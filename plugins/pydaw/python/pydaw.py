@@ -752,15 +752,15 @@ class audio_list_editor:
         self.inputs = []
         self.busses = []
 
-        for i in range(0, self.track_total):
+        for i in range(pydaw_audio_track_count):
             track = audio_track(a_track_num=i, a_track_text="track" + str(i + 1))
             self.tracks.append(track)
             self.audio_tracks_table_widget.setCellWidget(i, 0, track.group_box)
-        for i in range(self.input_total):
+        for i in range(pydaw_audio_input_count):
             f_input = audio_input_track(i)
             self.inputs.append(f_input)
             self.audio_tracks_table_widget.setCellWidget(i, 1, f_input.group_box)
-        for i in range(0, self.bus_total):
+        for i in range(pydaw_bus_count):
             track = seq_track(a_track_num=i, a_track_text="Bus" + str(i), a_instrument=False);
             self.busses.append(track)
             self.audio_tracks_table_widget.setCellWidget(i, 2, track.group_box)
@@ -1060,10 +1060,6 @@ class audio_list_editor:
         f_window.exec_()
 
     def __init__(self):
-        self.input_total = 5
-        self.bus_total = 5
-        self.track_total = 8
-
         self.enabled = False #Prevents user from editing a region before one has been selected
         self.last_open_dir = expanduser("~")
         self.tab_widget = QtGui.QTabWidget()
@@ -1080,7 +1076,7 @@ class audio_list_editor:
         self.audio_tracks_table_widget.setColumnCount(3)
         self.audio_tracks_table_widget.setHorizontalHeaderLabels(["Audio Tracks", "Audio Inputs", "Track Busses"])
         self.audio_tracks_table_widget.verticalHeader().setVisible(False)
-        self.audio_tracks_table_widget.setRowCount(self.track_total)
+        self.audio_tracks_table_widget.setRowCount(pydaw_audio_track_count)
         self.audio_tracks_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_tracks_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_tracks_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -1118,21 +1114,39 @@ class audio_list_editor:
 
         self.track_type_combobox = QtGui.QComboBox()
         self.track_type_combobox.setMinimumWidth(110)
+        self.track_type_combobox.currentIndexChanged.connect(self.automation_track_changed)
         self.track_type_combobox.addItems(["Audio", "Bus"])
         self.ccs_gridlayout.addWidget(QtGui.QLabel("Track Type:"), 0, 2)
         self.ccs_gridlayout.addWidget(self.track_type_combobox, 0, 3)
 
         self.track_select_combobox = QtGui.QComboBox()
         self.track_select_combobox.setMinimumWidth(240)
+        self.track_select_combobox.currentIndexChanged.connect(self.automation_track_changed)
         self.track_select_combobox.addItems(["test", "test2"])
         self.ccs_gridlayout.addWidget(QtGui.QLabel("Track:"), 0, 4)
         self.ccs_gridlayout.addWidget(self.track_select_combobox, 0, 5)
 
         self.ccs_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 7, 1, 1)
+
         self.ccs_clear_button = QtGui.QPushButton("Clear")
         self.ccs_clear_button.setMinimumWidth(90)
         #self.ccs_clear_button.pressed.connect(self.clear_ccs)
         self.ccs_gridlayout.addWidget(self.ccs_clear_button, 0, 9)
+
+        self.edit_mode_groupbox = QtGui.QGroupBox()
+        self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
+        self.edit_mode_hlayout0.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        self.edit_mode_hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
+        self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
+        self.edit_mode_hlayout0.addWidget(self.add_radiobutton)
+        self.multiselect_radiobutton = QtGui.QRadioButton("Multiselect")
+        self.edit_mode_hlayout0.addWidget(self.multiselect_radiobutton)
+        self.delete_radiobutton = QtGui.QRadioButton("Delete")
+        self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
+        self.add_radiobutton.setChecked(True)
+
+        self.ccs_gridlayout.addWidget(self.edit_mode_groupbox, 0, 10)
+
         self.ccs_vlayout.addLayout(self.ccs_gridlayout)
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
@@ -1147,11 +1161,29 @@ class audio_list_editor:
         self.ccs_table_widget.keyPressEvent = self.ccs_keyPressEvent
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
 
-
         self.reset_tracks()
 
+        self.default_cc_num = 0
+        self.default_quantize = 5
+
+        self.enabled = True
+
     def automation_track_changed(self, a_val=None):
-        pass
+        if self.enabled:
+            self.ccs_table_widget.clearContents()
+            if self.track_type_combobox.currentIndex() == 0:
+                f_ccs = this_pydaw_project.get_audio_automation(self.track_select_combobox.currentIndex())
+            elif self.track_type_combobox.currentIndex() == 1:
+                f_ccs = this_pydaw_project.get_bus_automation(self.track_select_combobox.currentIndex())
+            self.ccs_table_widget.setSortingEnabled(False)
+            for i in range(len(f_ccs.items)):
+                self.ccs_table_widget.setItem(i, 0, QtGui.QTableWidgetItem(f_ccs.items[i].region))
+                self.ccs_table_widget.setItem(i, 1, QtGui.QTableWidgetItem(f_ccs.items[i].bar))
+                self.ccs_table_widget.setItem(i, 2, QtGui.QTableWidgetItem(f_ccs.items[i].beat))
+                self.ccs_table_widget.setItem(i, 3, QtGui.QTableWidgetItem(f_ccs.items[i].cc))
+                self.ccs_table_widget.setItem(i, 4, QtGui.QTableWidgetItem(f_ccs.items[i].value))
+            self.ccs_table_widget.setSortingEnabled(True)
+            self.ccs_table_widget.sortItems(0)
 
     def ccs_show_event_dialog(self, x, y):
         f_cell = self.ccs_table_widget.item(x, y)
@@ -1170,7 +1202,6 @@ class audio_list_editor:
                     QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
                     return
 
-            self.default_cc_start = f_start.value()
             self.default_cc_num = f_cc.value()
             self.default_cc_start = f_start_rounded
             this_pydaw_project.save_item(self.item_name, self.item)
@@ -1210,32 +1241,53 @@ class audio_list_editor:
         f_layout.addWidget(f_cc, 1, 1)
         f_cc_value = QtGui.QSpinBox()
         f_cc_value.setRange(0, 127)
-        f_cc_value.setValue(self.default_cc_val)
         f_layout.addWidget(QtGui.QLabel("Value"), 2, 0)
         f_layout.addWidget(f_cc_value, 2, 1)
-        f_layout.addWidget(QtGui.QLabel("Start(beats)"), 3, 0)
+
+        f_layout.addWidget(QtGui.QLabel("Start(Region)"), 3, 0)
+        f_start_region = QtGui.QSpinBox()
+        f_start_region.setRange(0, 299)
+        f_layout.addWidget(f_start_region, 3, 1)
+
+        f_layout.addWidget(QtGui.QLabel("Start(bar)"), 4, 0)
+        f_start_bar = QtGui.QSpinBox()
+        f_start_bar.setRange(0, 15)
+        f_layout.addWidget(f_start_bar, 4, 1)
+
+        f_layout.addWidget(QtGui.QLabel("Start(beats)"), 5, 0)
         f_start = QtGui.QDoubleSpinBox()
         f_start.setRange(0.0, 3.99)
-        f_start.setValue(self.default_cc_start)
-        f_layout.addWidget(f_start, 3, 1)
+        f_layout.addWidget(f_start, 5, 1)
         f_draw_line_checkbox = QtGui.QCheckBox("Draw line")
-        f_layout.addWidget(f_draw_line_checkbox, 4, 1)
-        f_layout.addWidget(QtGui.QLabel("End(beats)"), 5, 0)
-        f_end = QtGui.QDoubleSpinBox()
-        f_end.setRange(0, 3.99)
-        f_layout.addWidget(f_end, 5, 1)
-        f_layout.addWidget(QtGui.QLabel("End Value"), 6, 0)
+        f_layout.addWidget(f_draw_line_checkbox, 10, 1)
+        f_layout.addWidget(QtGui.QLabel("End Value"), 11, 0)
         f_end_value = QtGui.QSpinBox()
         f_end_value.setRange(0, 127)
-        f_layout.addWidget(f_end_value, 6, 1)
+        f_layout.addWidget(f_end_value, 11, 1)
+
+        f_layout.addWidget(QtGui.QLabel("End(region)"), 12, 0)
+        f_end_region = QtGui.QSpinBox()
+        f_end_region.setRange(0, 299)
+        f_layout.addWidget(f_end_region, 12, 1)
+
+        f_layout.addWidget(QtGui.QLabel("End(bar)"), 13, 0)
+        f_end_bar = QtGui.QSpinBox()
+        f_end_bar.setRange(0, 15)
+        f_layout.addWidget(f_end_bar, 13, 1)
+
+        f_layout.addWidget(QtGui.QLabel("End(beats)"), 15, 0)
+        f_end = QtGui.QDoubleSpinBox()
+        f_end.setRange(0, 3.99)
+        f_layout.addWidget(f_end, 15, 1)
+
         f_add_another = QtGui.QCheckBox("Add another?")
         f_add_another.toggled.connect(add_another_clicked)
-        f_layout.addWidget(f_add_another, 7, 1)
+        f_layout.addWidget(f_add_another, 18, 1)
         f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 8, 0)
+        f_layout.addWidget(f_ok_button, 19, 0)
         f_ok_button.clicked.connect(cc_ok_handler)
         f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 8, 1)
+        f_layout.addWidget(f_cancel_button, 19, 1)
         f_cancel_button.clicked.connect(cc_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_quantize)
         f_window.exec_()
