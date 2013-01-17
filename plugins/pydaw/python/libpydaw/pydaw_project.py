@@ -13,6 +13,10 @@ from pydaw_git import pydaw_git_repo
 
 from libpydaw.sample_graph import pydaw_sample_graphs
 
+pydaw_bus_count = 5
+pydaw_audio_track_count = 8
+pydaw_audio_input_count = 5
+
 pydaw_terminating_char = "\\"
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
@@ -212,6 +216,21 @@ class pydaw_project:
             f_file.write("default.pygraphs\nsamplegraph/*.pygraph\nsamples/*\naudio/*\n")
             f_file.close()
 
+        for i in range(pydaw_audio_track_count):
+            f_automation_file = self.audio_automation_folder + "/" + str(i) + ".pyauto"
+            if not os.path.exists(f_automation_file):
+                f_file = open(f_automation_file, 'w')
+                f_file.write(pydaw_terminating_char)
+                f_file.close()
+                self.git_repo.git_add(f_automation_file)
+
+        for i in range(pydaw_bus_count):
+            f_automation_file = self.bus_automation_folder + "/" + str(i) + ".pyauto"
+            if not os.path.exists(f_automation_file):
+                f_file = open(f_automation_file, 'w')
+                f_file.write(pydaw_terminating_char)
+                f_file.close()
+                self.git_repo.git_add(f_automation_file)
 
         self.git_repo = pydaw_git_repo(self.project_folder)
         self.git_repo.git_init()
@@ -287,6 +306,30 @@ class pydaw_project:
 
     def get_bus_tracks(self):
         return pydaw_busses.from_str(self.get_bus_tracks_string())
+
+    def get_audio_automation_string(self, a_track_num):
+        try:
+            f_file = open(self.audio_automation_folder + "/" + str(a_track_num) + ".pyauto", "r")
+        except:
+            return pydaw_terminating_char
+        f_result = f_file.read()
+        f_file.close()
+        return f_result
+
+    def get_audio_automation(self, a_track_num):
+        return pydaw_song_level_ccs.from_str(self.get_audio_automation_string(a_track_num))
+
+    def get_bus_automation_string(self, a_track_num):
+        try:
+            f_file = open(self.bus_automation_folder + "/" + str(a_track_num) + ".pyauto", "r")
+        except:
+            return pydaw_terminating_char
+        f_result = f_file.read()
+        f_file.close()
+        return f_result
+
+    def get_bus_automation(self, a_track_num):
+        return pydaw_song_level_ccs.from_str(self.get_bus_automation_string(a_track_num))
 
     def get_audio_tracks_string(self):
         try:
@@ -424,6 +467,20 @@ class pydaw_project:
             f_file.write(a_tracks.__str__())
             f_file.close()
             #Is there a need for a configure message here?
+
+    def save_audio_automation(self, a_track_num, a_ccs):
+        if not self.suppress_updates:
+            f_file_name = self.audio_automation_folder + "/" + str(a_track_num) + ".pyauto"
+            f_file = open(f_file_name, 'w')
+            f_file.write(str(a_ccs))
+            f_file.close()
+
+    def save_bus_automation(self, a_track_num, a_ccs):
+        if not self.suppress_updates:
+            f_file_name = self.bus_automation_folder + "/" + str(a_track_num) + ".pyauto"
+            f_file = open(f_file_name, 'w')
+            f_file.write(str(a_ccs))
+            f_file.close()
 
     def save_audio_tracks(self, a_tracks):
         if not self.suppress_updates:
@@ -1223,23 +1280,53 @@ class pydaw_transport:
 
 class pydaw_song_level_ccs:
     def add_cc(self, a_cc):
-        pass
+        self.items.append(a_cc)
+        self.items.sort()
 
     def __init__(self):
-        pass
+        self.items = []
 
     @staticmethod
     def from_str(a_str):
         f_result = pydaw_song_level_ccs()
-        #TODO
+        f_arr = a_str.split("\n")
+        for f_line in f_arr:
+            if f_line == pydaw_terminating_char:
+                break
+            f_line_arr = f_line.split("|")
+            f_result.add_cc(pydaw_song_level_cc(f_line_arr[0], f_line_arr[1], f_line_arr[2], f_line_arr[3], f_line_arr[4]))
+        return f_result
+
+    def __str__(self):
+        f_result = ""
+        for f_item in self.items:
+            f_result += str(f_item)
+        f_result += pydaw_terminating_char
         return f_result
 
 class pydaw_song_level_cc:
-    def __init__(self):
-        pass
+    def __init__(self, a_region, a_bar, a_beat, a_cc, a_val):
+        self.region = int(a_region)
+        self.bar = int(a_bar)
+        self.beat = float(a_beat)
+        self.cc = int(a_cc)
+        self.value = int(a_val)
 
-    @staticmethod
-    def from_str(a_str):
-        f_result = pydaw_song_level_ccs()
-        #TODO
-        return f_result
+    def __lt__(self, other):
+        if self.region < other.region:
+            return True
+        elif self.region == other.region:
+            if self.bar < other.bar:
+                return True
+            elif self.bar == other.bar:
+                if self.beat <= other.beat:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        else:
+            return False
+
+    def __str__(self):
+        return str(self.region) + "|" + str(self.bar) + "|" + str(self.beat) + "|" + str(self.cc) + "|" + str(self.value) + "\n"

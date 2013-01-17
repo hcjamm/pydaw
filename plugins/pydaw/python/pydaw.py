@@ -1115,14 +1115,24 @@ class audio_list_editor:
         self.ccs_groupbox.setMaximumWidth(510)
         self.ccs_groupbox.setMinimumWidth(510)
         self.ccs_gridlayout = QtGui.QGridLayout()
-        f_c_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.ccs_gridlayout.addItem(f_c_spacer_left, 0, 0, 1, 1)
+
+        self.track_type_combobox = QtGui.QComboBox()
+        self.track_type_combobox.setMinimumWidth(110)
+        self.track_type_combobox.addItems(["Audio", "Bus"])
+        self.ccs_gridlayout.addWidget(QtGui.QLabel("Track Type:"), 0, 2)
+        self.ccs_gridlayout.addWidget(self.track_type_combobox, 0, 3)
+
+        self.track_select_combobox = QtGui.QComboBox()
+        self.track_select_combobox.setMinimumWidth(240)
+        self.track_select_combobox.addItems(["test", "test2"])
+        self.ccs_gridlayout.addWidget(QtGui.QLabel("Track:"), 0, 4)
+        self.ccs_gridlayout.addWidget(self.track_select_combobox, 0, 5)
+
+        self.ccs_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 7, 1, 1)
         self.ccs_clear_button = QtGui.QPushButton("Clear")
         self.ccs_clear_button.setMinimumWidth(90)
         #self.ccs_clear_button.pressed.connect(self.clear_ccs)
-        self.ccs_gridlayout.addWidget(self.ccs_clear_button, 0, 1)
-        f_c_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.ccs_gridlayout.addItem(f_c_spacer_right, 0, 2, 1, 1)
+        self.ccs_gridlayout.addWidget(self.ccs_clear_button, 0, 9)
         self.ccs_vlayout.addLayout(self.ccs_gridlayout)
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
@@ -1140,6 +1150,8 @@ class audio_list_editor:
 
         self.reset_tracks()
 
+    def automation_track_changed(self, a_val=None):
+        pass
 
     def ccs_show_event_dialog(self, x, y):
         f_cell = self.ccs_table_widget.item(x, y)
