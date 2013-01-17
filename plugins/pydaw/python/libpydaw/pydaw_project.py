@@ -1280,6 +1280,9 @@ class pydaw_transport:
 
 
 class pydaw_song_level_ccs:
+    def draw_cc_line(self, a_cc, a_start_val, a_start_region, a_start_bar, a_start_beat, a_end_val, a_end_region, a_end_bar, a_end_beat):
+        assert(False)
+
     def add_cc(self, a_cc):
         self.items.append(a_cc)
         self.items.sort()
@@ -1330,6 +1333,9 @@ class pydaw_song_level_cc:
                 return False
         else:
             return False
+
+    def __eq__(self, other):
+        return self.region == other.region and self.bar == other.bar and self.beat == other.beat and self.cc == other.cc and self.value == other.value
 
     def __str__(self):
         return str(self.region) + "|" + str(self.bar) + "|" + str(self.beat) + "|" + str(self.cc) + "|" + str(self.value) + "\n"
