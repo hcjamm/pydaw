@@ -57,6 +57,9 @@ OSC configure message keys/values:
 
 	"ua"	""	Update audio inputs configuration from .pyinput file
 
+	"sa"	int	Reload song-level audio automation for track[int]
+	"sb"	int	Reload song-level bus automation for track[int]
+
 
 Project structure:
 

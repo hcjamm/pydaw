@@ -1281,11 +1281,35 @@ class pydaw_transport:
 
 class pydaw_song_level_ccs:
     def draw_cc_line(self, a_cc, a_start_val, a_start_region, a_start_bar, a_start_beat, a_end_val, a_end_region, a_end_bar, a_end_beat):
-        assert(False)
+        """ This is just copied and pasted from the pydaw_item class, need to re-work it..  """
+        f_cc = int(a_cc)
+        f_start = float(a_start)
+        f_start_val = int(a_start_val)
+        f_end = float(a_end)
+        f_end_val = int(a_end_val)
+        #Remove any events that would overlap
+        self.remove_cc_range(f_cc, f_start, f_end)
+
+        f_start_diff = f_end - f_start
+        f_val_diff = abs(f_end_val - f_start_val)
+        if f_start_val > f_end_val:
+            f_inc = -1
+        else:
+            f_inc = 1
+        f_time_inc = abs(f_start_diff/float(f_val_diff))
+        for i in range(0, (f_val_diff + 1)):
+            self.ccs.append(pydaw_cc(round(f_start, 4), f_cc, f_start_val))
+            f_start_val += f_inc
+            f_start += f_time_inc
+        self.ccs.sort()
 
     def add_cc(self, a_cc):
+        for f_cc in self.items:
+            if f_cc == a_cc:
+                return False
         self.items.append(a_cc)
         self.items.sort()
+        return True
 
     def __init__(self):
         self.items = []
