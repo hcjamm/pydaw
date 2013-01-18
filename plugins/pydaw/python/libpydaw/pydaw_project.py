@@ -1280,15 +1280,29 @@ class pydaw_transport:
 
 
 class pydaw_song_level_ccs:
+    def remove_cc_range(self, a_cc_num, a_start, a_end):
+        """ Delete all CCs between a_start and _end, which should be pydaw_song_level_cc instances """
+        f_ccs_to_delete = []
+        for cc in self.items:
+            if cc.cc_num == a_cc_num and cc >= a_start and cc <= a_end:
+                f_ccs_to_delete.append(cc)
+        for cc in f_ccs_to_delete:
+            self.remove_cc(cc)
+
     def draw_cc_line(self, a_cc, a_start_val, a_start_region, a_start_bar, a_start_beat, a_end_val, a_end_region, a_end_bar, a_end_beat):
-        """ This is just copied and pasted from the pydaw_item class, need to re-work it..  """
         f_cc = int(a_cc)
-        f_start = float(a_start)
+        f_start = float(((a_start_region * 8 * 4) + (a_start_bar * 4))) + a_start_beat
         f_start_val = int(a_start_val)
-        f_end = float(a_end)
+        f_end = float(((a_end_region * 8 * 4) + (a_end_bar * 4))) + a_end_beat
         f_end_val = int(a_end_val)
+
+        f_first_cc = pydaw_song_level_cc(a_start_region, a_start_bar, a_start_beat, a_cc, a_start_val)
+        f_last_cc = pydaw_song_level_cc(a_end_region, a_end_bar, a_end_beat, a_cc, a_end_val)
         #Remove any events that would overlap
-        self.remove_cc_range(f_cc, f_start, f_end)
+        self.remove_cc_range(f_cc, f_first_cc, f_last_cc)
+
+        self.add_cc(f_first_cc)
+        self.add_cc(f_last_cc)
 
         f_start_diff = f_end - f_start
         f_val_diff = abs(f_end_val - f_start_val)
@@ -1298,7 +1312,12 @@ class pydaw_song_level_ccs:
             f_inc = 1
         f_time_inc = abs(f_start_diff/float(f_val_diff))
         for i in range(0, (f_val_diff + 1)):
-            self.ccs.append(pydaw_cc(round(f_start, 4), f_cc, f_start_val))
+            f_new_start_region = 0 #TODO
+            f_new_start_bar = 0 #TODO
+            f_new_start_beat = 0 #TODO
+            f_new_value = 0 #TODO
+            #self.items.append(pydaw_cc(round(f_start, 4), f_cc, f_start_val))
+            self.items.append(pydaw_song_level_cc(f_new_start_region, f_new_start_bar, f_new_start_beat, a_cc, f_new_value))
             f_start_val += f_inc
             f_start += f_time_inc
         self.ccs.sort()
@@ -1357,6 +1376,9 @@ class pydaw_song_level_cc:
                 return False
         else:
             return False
+
+    def __gt__(self, other):
+        return not self == other and not self < other
 
     def __eq__(self, other):
         return self.region == other.region and self.bar == other.bar and self.beat == other.beat and self.cc == other.cc and self.value == other.value
