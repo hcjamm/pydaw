@@ -58,6 +58,8 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH "sg"
     
 #define PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS "ua"
+    
+#define PYDAW_CONFIGURE_KEY_RELOAD_SONG_LEVEL_AUTOMATION "sa"
 
     
 #define PYDAW_LOOP_MODE_OFF 0
@@ -73,7 +75,7 @@ extern "C" {
 #define PYDAW_MAX_REGION_COUNT 300
 #define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 128
     
-#define PYDAW_MAX_EVENTS_PER_AUDIO_TRACK_COUNT 2048
+#define PYDAW_MAX_EVENTS_PER_TRACK_COUNT 2048  //Song-level CC events
     
 #define PYDAW_BUS_TRACK_COUNT 5
 #define PYDAW_AUDIO_INPUT_TRACK_COUNT 5
@@ -157,6 +159,22 @@ typedef struct st_pysong
     int default_bar_length;
 }t_pysong;
 
+typedef struct
+{
+    int cc_num;
+    int cc_val;
+    int region;
+    int bar;
+    float beat;
+}t_pydaw_song_level_cc;
+
+typedef struct 
+{
+    int count;
+    int current_index;
+    t_pydaw_song_level_cc * events[PYDAW_MAX_EVENTS_PER_TRACK_COUNT];
+}t_pydaw_song_level_automation;
+
 typedef struct st_pytrack
 {    
     float volume;
@@ -208,6 +226,8 @@ typedef struct st_pydaw_data
     char * region_folder;
     
     char * busfx_folder;
+    char * bus_automation_folder;
+    char * audio_automation_folder;
     char * audio_folder;
     char * audio_tmp_folder;
     char * audiofx_folder;
@@ -342,6 +362,10 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
 void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data);
 
 void * v_pydaw_audio_recording_thread(void* a_arg);
+
+t_pydaw_song_level_cc * g_pydaw_song_level_cc_get(int, int, float, int, int);
+t_pydaw_song_level_automation * g_pydaw_song_level_automation_get(t_pydaw_data*, int, int);
+
 /*End declarations.  Begin implementations.*/
 
 void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data)
@@ -2050,6 +2074,47 @@ void g_pysong_get(t_pydaw_data* a_pydaw_data)
 #endif
 }
 
+t_pydaw_song_level_cc * g_pydaw_song_level_cc_get(int a_region, int a_bar, float a_beat, int a_cc, int a_val)
+{
+    t_pydaw_song_level_cc * f_result = (t_pydaw_song_level_cc*)malloc(sizeof(t_pydaw_song_level_cc));
+    
+    f_result->region = a_region;
+    f_result->bar = a_bar;
+    f_result->beat = a_beat;
+    f_result->cc_num = a_cc;
+    f_result->cc_val = a_val;
+    
+    return f_result;
+}
+
+t_pydaw_song_level_automation * g_pydaw_song_level_automation_get(t_pydaw_data* a_pydaw_data, int a_type, int a_track)
+{
+    t_pydaw_song_level_automation * f_result = (t_pydaw_song_level_automation*)malloc(sizeof(t_pydaw_song_level_automation));
+    
+    f_result->count = 0;
+    f_result->current_index = 0;
+    
+    char f_file_name[256];
+    f_file_name[0] = '\0';
+    
+    switch(a_type)
+    {
+        case 1:  //Bus
+            sprintf(f_file_name, "%s%i.pyauto", a_pydaw_data->bus_automation_folder);
+            break;
+        case 2:  //Audio
+            sprintf(f_file_name, "%s%i.pyauto", a_pydaw_data->audio_automation_folder);
+            break;
+    }
+    
+    if(i_pydaw_file_exists(f_file_name))
+    {
+        
+    }
+    
+    return f_result;
+}
+
 
 int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_name)
 {
@@ -2589,6 +2654,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->audiofx_folder = (char*)malloc(sizeof(char) * 256);
     f_result->samples_folder = (char*)malloc(sizeof(char) * 256);
     f_result->samplegraph_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->bus_automation_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->audio_automation_folder = (char*)malloc(sizeof(char) * 256);
     
     f_result->playback_mode = 0;
     f_result->pysong = NULL;
@@ -3094,6 +3161,11 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     sprintf(a_pydaw_data->samplegraph_folder, "%ssamplegraph/", a_pydaw_data->project_folder);
     
     sprintf(a_pydaw_data->audio_items_file, "%sdefault.pyaudioitem", a_pydaw_data->project_folder);
+    
+    sprintf(a_pydaw_data->audio_automation_folder, "%saudio_automation/", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->bus_automation_folder, "%sbus_automation/", a_pydaw_data->project_folder);
+    
+    
     //strcpy(a_pydaw_data->project_name, a_name);
     
     int f_i = 0;
@@ -4353,6 +4425,30 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RI)) //Rename item
     {
         //Probably won't be implemented anytime soon...
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RELOAD_SONG_LEVEL_AUTOMATION))
+    {
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
+        int f_track_type = atoi(f_val_arr->array[0]);
+        int f_track_num = atoi(f_val_arr->array[1]);
+                
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        switch(f_track_type)
+        {
+            case 1:  //Bus
+                //TODO
+                break;
+            case 2:  //Audio
+                //TODO
+                break;
+            default:
+                assert(0);
+                break;
+        }        
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        g_free_1d_char_array(f_val_arr); 
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SOLO)) //Set track solo
     {
