@@ -1151,13 +1151,13 @@ class audio_list_editor:
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.ccs_table_widget.setColumnCount(5)
-        self.ccs_table_widget.setRowCount(2048)
+        self.ccs_table_widget.setRowCount(100)
         self.ccs_table_widget.setHorizontalHeaderLabels(["Region", "Bar", "Beat", "CC", "Value"])
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
-        self.ccs_table_widget.setSortingEnabled(True)
-        self.ccs_table_widget.sortItems(0)
+        #self.ccs_table_widget.setSortingEnabled(True)
+        #self.ccs_table_widget.sortItems(0)
         self.ccs_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.ccs_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        #self.ccs_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.ccs_table_widget.keyPressEvent = self.ccs_keyPressEvent
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
 
@@ -1178,14 +1178,20 @@ class audio_list_editor:
                 self.item = this_pydaw_project.get_audio_automation(self.track_select_combobox.currentIndex())
             elif self.track_type_combobox.currentIndex() == 1:
                 self.item = this_pydaw_project.get_bus_automation(self.track_select_combobox.currentIndex())
+            else:
+                print("automation_track_changed(): Invalid index")
+                return
             self.ccs_table_widget.setSortingEnabled(False)
             for i in range(len(self.item.items)):
-                self.ccs_table_widget.setItem(i, 0, QtGui.QTableWidgetItem(self.item.items[i].region))
-                self.ccs_table_widget.setItem(i, 1, QtGui.QTableWidgetItem(self.item.items[i].bar))
-                self.ccs_table_widget.setItem(i, 2, QtGui.QTableWidgetItem(self.item.items[i].beat))
-                self.ccs_table_widget.setItem(i, 3, QtGui.QTableWidgetItem(self.item.items[i].cc))
-                self.ccs_table_widget.setItem(i, 4, QtGui.QTableWidgetItem(self.item.items[i].value))
+                print(str(i))
+                self.ccs_table_widget.setItem(i, 0, QtGui.QTableWidgetItem(str(self.item.items[i].region)))
+                self.ccs_table_widget.setItem(i, 1, QtGui.QTableWidgetItem(str(self.item.items[i].bar)))
+                self.ccs_table_widget.setItem(i, 2, QtGui.QTableWidgetItem(str(self.item.items[i].beat)))
+                self.ccs_table_widget.setItem(i, 3, QtGui.QTableWidgetItem(str(self.item.items[i].cc)))
+                self.ccs_table_widget.setItem(i, 4, QtGui.QTableWidgetItem(str(self.item.items[i].value)))
             self.ccs_table_widget.setSortingEnabled(True)
+            self.ccs_table_widget.sortItems(2)  #This creates a proper ordering by time, since Qt uses a "stable sort"
+            self.ccs_table_widget.sortItems(1)
             self.ccs_table_widget.sortItems(0)
 
     def ccs_show_event_dialog(self, x, y):
@@ -1213,14 +1219,15 @@ class audio_list_editor:
             self.default_cc_start_bar = f_start_bar.value()
             self.default_cc_start = f_start_rounded
 
-            if self.track_type_combobox.currentIndex == 0:
+            if self.track_type_combobox.currentIndex() == 0:
                 this_pydaw_project.save_audio_automation(self.track_select_combobox.currentIndex(), self.item)
-            elif self.track_type_combobox.currentIndex == 1:
+            elif self.track_type_combobox.currentIndex() == 1:
                 this_pydaw_project.save_bus_automation(self.track_select_combobox.currentIndex(), self.item)
 
             self.automation_track_changed() #which is essentially 'open_item' for this class...
 
-            this_pydaw_project.git_repo.git_commit("-a", "Update CCs for item '" + self.item_name + "'")
+            this_pydaw_project.git_repo.git_commit("-a", "Update song-level CCs for " + str(self.track_type_combobox.currentIndex()) + "|" + \
+            str(self.track_select_combobox.currentIndex()) + "'")
             if not f_add_another.isChecked():
                 f_window.close()
 
@@ -1309,7 +1316,6 @@ class audio_list_editor:
         f_cancel_button.clicked.connect(cc_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_quantize)
         f_window.exec_()
-
 
 
     def ccs_click_handler(self, x, y):
