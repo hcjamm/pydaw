@@ -2100,16 +2100,54 @@ t_pydaw_song_level_automation * g_pydaw_song_level_automation_get(t_pydaw_data* 
     switch(a_type)
     {
         case 1:  //Bus
-            sprintf(f_file_name, "%s%i.pyauto", a_pydaw_data->bus_automation_folder);
+            sprintf(f_file_name, "%s%i.pyauto", a_pydaw_data->bus_automation_folder, a_track);
             break;
         case 2:  //Audio
-            sprintf(f_file_name, "%s%i.pyauto", a_pydaw_data->audio_automation_folder);
+            sprintf(f_file_name, "%s%i.pyauto", a_pydaw_data->audio_automation_folder, a_track);
             break;
     }
     
     if(i_pydaw_file_exists(f_file_name))
     {
+        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
         
+        int f_i = 0;
+        
+        while(f_i < PYDAW_MAX_EVENTS_PER_TRACK_COUNT)
+        {
+            char * f_region_char = c_iterate_2d_char_array(f_current_string);
+            
+            if(f_current_string->eof)
+            {
+                free(f_region_char);
+                break;
+            }
+            
+            int f_region = atoi(f_region_char);
+            free(f_region_char);
+            
+            char * f_bar_char = c_iterate_2d_char_array(f_current_string);        
+            int f_bar = atoi(f_bar_char);
+            free(f_bar_char);
+            
+            char * f_beat_char = c_iterate_2d_char_array(f_current_string);        
+            float f_beat = atoi(f_beat_char);
+            free(f_beat_char);
+            
+            char * f_cc_num_char = c_iterate_2d_char_array(f_current_string);        
+            int f_cc_num = atoi(f_cc_num_char);
+            free(f_cc_num_char);
+
+            char * f_cc_val_char = c_iterate_2d_char_array(f_current_string);        
+            int f_cc_val = atoi(f_cc_val_char);
+            free(f_cc_val_char);
+            
+            f_result->events[(f_result->current_index)] = g_pydaw_song_level_cc_get(f_region, f_bar, f_beat, f_cc_num, f_cc_val);
+            
+            f_result->current_index = (f_result->current_index) + 1;
+
+            f_i++;
+        }
     }
     
     return f_result;
