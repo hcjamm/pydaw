@@ -195,7 +195,9 @@ typedef struct st_pytrack
     
     int bus_count;  //Only for busses, the count of plugins writing to the buffer
     int bus_counter __attribute__((aligned(16)));  //This is reset to bus_count each cycle and the bus track processed when count reaches 0
-    int bus_buffer_state __attribute__((aligned(16))); //0 = Not ready, 1 = being cleared, 2 = ready    
+    int bus_buffer_state __attribute__((aligned(16))); //0 = Not ready, 1 = being cleared, 2 = ready
+    
+    t_pydaw_song_level_automation * song_level_automation;
 }t_pytrack;
 
 typedef struct
@@ -365,6 +367,7 @@ void * v_pydaw_audio_recording_thread(void* a_arg);
 
 t_pydaw_song_level_cc * g_pydaw_song_level_cc_get(int, int, float, int, int);
 t_pydaw_song_level_automation * g_pydaw_song_level_automation_get(t_pydaw_data*, int, int);
+void v_pydaw_song_level_automation_free(t_pydaw_song_level_automation *);
 
 /*End declarations.  Begin implementations.*/
 
@@ -2142,17 +2145,39 @@ t_pydaw_song_level_automation * g_pydaw_song_level_automation_get(t_pydaw_data* 
             int f_cc_val = atoi(f_cc_val_char);
             free(f_cc_val_char);
             
-            f_result->events[(f_result->current_index)] = g_pydaw_song_level_cc_get(f_region, f_bar, f_beat, f_cc_num, f_cc_val);
+            f_result->events[(f_result->count)] = g_pydaw_song_level_cc_get(f_region, f_bar, f_beat, f_cc_num, f_cc_val);
             
-            f_result->current_index = (f_result->current_index) + 1;
+            f_result->count = (f_result->count) + 1;
 
             f_i++;
         }
+    }
+    else
+    {
+        printf("No song-level automation found for %i|%i, loading empty automation item\n", a_type, a_track);
     }
     
     return f_result;
 }
 
+void v_pydaw_song_level_automation_free(t_pydaw_song_level_automation * a_automation)
+{
+    if(a_automation)
+    {
+        int f_i = 0;
+
+        while(f_i < (a_automation->count))
+        {
+            if(a_automation->events[f_i])
+            {
+                free(a_automation->events[f_i]);
+            }
+            f_i++;
+        }
+
+        free(a_automation);
+    }
+}
 
 int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_name)
 {
@@ -4469,16 +4494,19 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
         int f_track_type = atoi(f_val_arr->array[0]);
         int f_track_num = atoi(f_val_arr->array[1]);
-                
+        t_pydaw_song_level_automation * f_result = g_pydaw_song_level_automation_get(a_pydaw_data, f_track_type, f_track_num);
+        t_pydaw_song_level_automation * f_old;
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         switch(f_track_type)
         {
             case 1:  //Bus
-                //TODO
+                f_old = a_pydaw_data->bus_pool[f_track_num]->song_level_automation;
+                a_pydaw_data->bus_pool[f_track_num]->song_level_automation = f_result;
                 break;
             case 2:  //Audio
-                //TODO
+                f_old = a_pydaw_data->audio_track_pool[f_track_num]->song_level_automation;
+                a_pydaw_data->audio_track_pool[f_track_num]->song_level_automation = f_result;
                 break;
             default:
                 assert(0);
@@ -4486,7 +4514,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         }        
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        g_free_1d_char_array(f_val_arr); 
+        g_free_1d_char_array(f_val_arr);
+        v_pydaw_song_level_automation_free(f_old);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SOLO)) //Set track solo
     {
