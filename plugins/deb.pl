@@ -37,6 +37,11 @@ check_deps();
 #Create a clean folder for the plugins to go in
 `rm -Rf pydaw-build/debian/usr`;
 `mkdir pydaw-build/debian/usr`;
+#Delete gedit backup files and Python compile-cache files
+system('find . -type f -name *~ -exec rm -f {} \\;');
+system('find . -type f -name *.pyc -exec rm -f {} \\;');
+
+
 system("make clean && make && make strip && make DESTDIR=\$(pwd)/pydaw-build/debian install");
 
 if(-e "$short_name-version.txt")
