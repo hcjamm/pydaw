@@ -173,7 +173,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         
         if (this->objectName().isEmpty())
         this->setObjectName(QString::fromUtf8("Frame"));
-        this->resize(1200, 700);
+        this->resize(1200, 680);
         QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
