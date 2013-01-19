@@ -484,7 +484,6 @@ class region_list_editor:
 
             f_track_num = f_track_combobox.currentIndex()
             for i in range(f_start_bar.value() + 1, f_end_bar.value() + 1):
-                print(str(i))
                 f_item = self.table_widget.item(f_track_num, i)
                 if f_item is None or str(f_item.text()) == "":  #Create the item
                     f_new_item_name = this_pydaw_project.get_next_default_item_name(f_unlink_base_name)
@@ -1205,7 +1204,6 @@ class audio_list_editor:
                 return
             self.ccs_table_widget.setSortingEnabled(False)
             for i in range(len(self.item.items)):
-                print(str(i))
                 self.ccs_table_widget.setItem(i, 0, QtGui.QTableWidgetItem(str(self.item.items[i].region)))
                 self.ccs_table_widget.setItem(i, 1, QtGui.QTableWidgetItem(str(self.item.items[i].bar)))
                 self.ccs_table_widget.setItem(i, 2, QtGui.QTableWidgetItem(str(self.item.items[i].beat)))
@@ -3089,10 +3087,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_user_manual(self):
-        self.show_help_file("pydaw/manual.txt")
-
-    def on_about(self):
-        self.show_help_file("pydaw/about.txt")
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://pydaw.org/wiki/index.php?title=PyDAW2_Manual"))
 
     def show_help_file(self, a_file):
         f_window = QtGui.QDialog(this_main_window)
@@ -3172,13 +3167,9 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.menu_help = self.menu_bar.addMenu("&Help")
 
-        self.manual_action = QtGui.QAction("User Manual...", self)
+        self.manual_action = QtGui.QAction("Online User Manual(in your browser)...", self)
         self.menu_help.addAction(self.manual_action)
         self.manual_action.triggered.connect(self.on_user_manual)
-
-        self.about_action = QtGui.QAction("About...", self)
-        self.menu_help.addAction(self.about_action)
-        self.about_action.triggered.connect(self.on_about)
 
         self.transport_hlayout = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.transport_hlayout)
