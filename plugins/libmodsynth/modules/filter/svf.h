@@ -380,14 +380,13 @@ inline void v_svf_add_cutoff_mod(t_state_variable_filter*__restrict a_svf, float
 inline void v_svf_set_cutoff(t_state_variable_filter *__restrict a_svf)
 {             
     a_svf->cutoff_note = (a_svf->cutoff_base) + ((a_svf->cutoff_mod) * (a_svf->velocity_mod_amt)) + (a_svf->velocity_cutoff);
-     
+    a_svf->cutoff_mod = 0.0f;
+    
     /*It hasn't changed since last time, return*/    
     if((a_svf->cutoff_note) == (a_svf->cutoff_last))
         return; 
     
     a_svf->cutoff_last = (a_svf->cutoff_note);
-         
-    a_svf->cutoff_mod = 0.0f;
     
     a_svf->cutoff_hz = f_pit_midi_note_to_hz_fast((a_svf->cutoff_note), a_svf->pitch_core); //_svf->cutoff_smoother->last_value);
     
@@ -395,8 +394,8 @@ inline void v_svf_set_cutoff(t_state_variable_filter *__restrict a_svf)
 
     /*prevent the filter from exploding numerically, this does artificially cap the cutoff frequency to below what you set it to
      if you lower the oversampling rate of the filter.*/
-    if((a_svf->cutoff_filter) > .8f)
-        a_svf->cutoff_filter = .8f;  
+    if((a_svf->cutoff_filter) > 0.8f)
+        a_svf->cutoff_filter = 0.8f;  
 }
 
 /* void v_svf_set_res(
