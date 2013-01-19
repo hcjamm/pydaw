@@ -25,6 +25,7 @@ from libpydaw import *
 import sip
 
 global_pydaw_version_string = "pydaw2"
+global_pydaw_file_type_string = 'PyDAW2 Project (*.pydaw2)'
 
 pydaw_item_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
 pydaw_item_gradient.setColorAt(0, QtGui.QColor(100, 100, 255))
@@ -2916,14 +2917,14 @@ class transport_widget:
 
 class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
-        f_file = QtGui.QFileDialog.getSaveFileName(parent=this_main_window ,caption='New Project', directory='.', filter='PyDAW Project (*.' + global_pydaw_version_string + ')')
+        f_file = QtGui.QFileDialog.getSaveFileName(parent=this_main_window ,caption='New Project', directory='.', filter=global_pydaw_file_type_string)
         if not f_file is None and not str(f_file) == "":
             f_file = str(f_file)
             if not f_file.endswith("." + global_pydaw_version_string):
                 f_file += "." + global_pydaw_version_string
             global_new_project(f_file)
     def on_open(self):
-        f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open Project', directory='.', filter='PyDAW Project (*.' + global_pydaw_version_string + ')')
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open Project', directory='.', filter=global_pydaw_file_type_string)
         if not f_file is None and not str(f_file) == "":
             global_open_project(str(f_file))
     def on_save(self):
