@@ -21,12 +21,12 @@ padding: 0px;
 
 QCheckBox#solo_checkbox::indicator::unchecked
 { 
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/solo-off.png);
+image: url(/usr/lib/pydaw2/themes/default/solo-off.png);
 }
 
 QCheckBox#solo_checkbox::indicator::checked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/solo-on.png);
+image: url(/usr/lib/pydaw2/themes/default/solo-on.png);
 }
 
 /*Mute checkbox*/
@@ -38,12 +38,12 @@ padding: 0px;
 
 QCheckBox#mute_checkbox::indicator::unchecked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/mute-off.png);
+image: url(/usr/lib/pydaw2/themes/default/mute-off.png);
 }
 
 QCheckBox#mute_checkbox::indicator::checked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/mute-on.png);
+image: url(/usr/lib/pydaw2/themes/default/mute-on.png);
 }
 
 /*Rec arm track radiobutton*/
@@ -55,12 +55,12 @@ padding: 0px;
 
 QRadioButton#rec_arm_radiobutton::indicator::unchecked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/record-off.png);
+image: url(/usr/lib/pydaw2/themes/default/record-off.png);
 }
 
 QRadioButton#rec_arm_radiobutton::indicator::checked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/record-on.png);
+image: url(/usr/lib/pydaw2/themes/default/record-on.png);
 }
 
 /*Rec arm checkbox*/
@@ -72,12 +72,12 @@ padding: 0px;
 
 QCheckBox#rec_arm_checkbox::indicator::unchecked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/record-off.png);
+image: url(/usr/lib/pydaw2/themes/default/record-off.png);
 }
 
 QCheckBox#rec_arm_checkbox::indicator::checked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/record-on.png);
+image: url(/usr/lib/pydaw2/themes/default/record-on.png);
 }
 
 /*Play button*/
@@ -92,12 +92,12 @@ border 2px solid white;
 
 QRadioButton#play_button::indicator::unchecked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/play-off.png);
+image: url(/usr/lib/pydaw2/themes/default/play-off.png);
 }
 
 QRadioButton#play_button::indicator::checked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/play-on.png);
+image: url(/usr/lib/pydaw2/themes/default/play-on.png);
 }
 
 /*Stop button*/
@@ -113,12 +113,12 @@ border 2px solid white;
 
 QRadioButton#stop_button::indicator::unchecked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/stop-off.png);
+image: url(/usr/lib/pydaw2/themes/default/stop-off.png);
 }
 
 QRadioButton#stop_button::indicator::checked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/stop-off.png);
+image: url(/usr/lib/pydaw2/themes/default/stop-off.png);
 }
 
 
@@ -135,12 +135,12 @@ border 2px solid white;
 
 QRadioButton#rec_button::indicator::unchecked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/rec-off.png);
+image: url(/usr/lib/pydaw2/themes/default/rec-off.png);
 }
 
 QRadioButton#rec_button::indicator::checked
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/rec-on.png);
+image: url(/usr/lib/pydaw2/themes/default/rec-on.png);
 }
 
 /*End Rec button*/
@@ -160,12 +160,12 @@ QSpinBox#large_spinbox, QDoubleSpinBox#large_spinbox
 
 QSpinBox::up-button, QDoubleSpinBox::up-button
 {
-border-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/spinbox-up.png);
+border-image: url(/usr/lib/pydaw2/themes/default/spinbox-up.png);
 }
 
 QSpinBox::down-button, QDoubleSpinBox::down-button
 {
-border-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/spinbox-down.png);
+border-image: url(/usr/lib/pydaw2/themes/default/spinbox-down.png);
 }
 
 QSlider
@@ -201,7 +201,7 @@ QSlider::add-page:horizontal
 
 QSlider::handle:horizontal
 {
-	image: url(/usr/lib/pydaw2/pydaw/python/pydaw/h-fader.png);
+	image: url(/usr/lib/pydaw2/themes/default/h-fader.png);
 	margin-top: -7px;
 	margin-bottom: -7px;
 	border: 2px solid transparent;
@@ -235,7 +235,7 @@ QSlider::add-page:vertical
 
 QSlider::handle:vertical
 {
-	image: url(/usr/lib/pydaw2/pydaw/python/pydaw/v-fader.png);
+	image: url(/usr/lib/pydaw2/themes/default/v-fader.png);
 	margin-left: -7px;
 	margin-right: -7px;
 	border: 2px solid transparent;
@@ -252,7 +252,7 @@ QSlider#wavleft, QSlider#wavleft::groove:horizontal, QSlider#wavleft::sub-page:h
 
 QSlider#wavleft::handle:horizontal
 {
-	image: url(/usr/lib/pydaw2/pydaw/python/pydaw/wav-slider-left.png);
+	image: url(/usr/lib/pydaw2/themes/default/wav-slider-left.png);
 	margin-top: -7px;
 	margin-bottom: -7px;
 	border: 2px solid transparent;
@@ -267,7 +267,7 @@ QSlider#wavright, QSlider#wavright::groove:horizontal, QSlider#wavright::sub-pag
 
 QSlider#wavright::handle:horizontal
 {
-	image: url(/usr/lib/pydaw2/pydaw/python/pydaw/wav-slider-right.png);
+	image: url(/usr/lib/pydaw2/themes/default/wav-slider-right.png);
 	margin-top: -7px;
 	margin-bottom: -7px;
 	border: 2px solid transparent;
@@ -475,7 +475,7 @@ border-bottom-right-radius: 3px;
 
 QComboBox::down-arrow
 {
-image: url(/usr/lib/pydaw2/pydaw/python/pydaw/drop-down.png);
+image: url(/usr/lib/pydaw2/themes/default/drop-down.png);
 }
 
 QGroupBox:focus
