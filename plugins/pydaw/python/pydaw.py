@@ -3430,7 +3430,7 @@ def global_new_project(a_project_file):
         this_pydaw_project = pydaw_project()
     this_pydaw_project.new_project(a_project_file)
     this_pydaw_project.save_transport(this_transport.transport)
-    this_pydaw_project.save_project()
+    #this_pydaw_project.save_project()  #Commenting out because AFAIK there would be nothing to save???
     this_song_editor.open_song()
     this_pydaw_project.save_song(this_song_editor.song)
     this_audio_editor.open_items()
