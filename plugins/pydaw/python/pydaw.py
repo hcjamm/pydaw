@@ -2917,20 +2917,20 @@ class transport_widget:
 
 class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
-        f_file = QtGui.QFileDialog.getSaveFileName(parent=this_main_window ,caption='New Project', directory='.', filter=global_pydaw_file_type_string)
+        f_file = QtGui.QFileDialog.getSaveFileName(parent=self ,caption='New Project', directory=expanduser("~"), filter=global_pydaw_file_type_string)
         if not f_file is None and not str(f_file) == "":
             f_file = str(f_file)
             if not f_file.endswith("." + global_pydaw_version_string):
                 f_file += "." + global_pydaw_version_string
             global_new_project(f_file)
     def on_open(self):
-        f_file = QtGui.QFileDialog.getOpenFileName(parent=this_main_window ,caption='Open Project', directory='.', filter=global_pydaw_file_type_string)
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open Project', directory=expanduser("~"), filter=global_pydaw_file_type_string)
         if not f_file is None and not str(f_file) == "":
             global_open_project(str(f_file))
     def on_save(self):
         this_pydaw_project.save_project()
     def on_save_as(self):
-        f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", this_pydaw_project.project_file + "." + global_pydaw_version_string)
+        f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", directory=expanduser("~") + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
         if f_new_file:
             this_pydaw_project.save_project_as(f_new_file)
             set_window_title()
