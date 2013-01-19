@@ -3089,6 +3089,9 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_user_manual(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://pydaw.org/wiki/index.php?title=PyDAW2_Manual"))
 
+    def on_website(self):
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://pydaw.org/"))
+
     def show_help_file(self, a_file):
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle(a_file)
@@ -3167,7 +3170,11 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.menu_help = self.menu_bar.addMenu("&Help")
 
-        self.manual_action = QtGui.QAction("Online User Manual(in your browser)...", self)
+        self.website_action = QtGui.QAction("PyDAW Website...", self)
+        self.menu_help.addAction(self.website_action)
+        self.website_action.triggered.connect(self.on_website)
+
+        self.manual_action = QtGui.QAction("Online User Manual...", self)
         self.menu_help.addAction(self.manual_action)
         self.manual_action.triggered.connect(self.on_user_manual)
 
