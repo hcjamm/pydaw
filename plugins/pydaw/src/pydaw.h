@@ -3323,6 +3323,21 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     
     v_pydaw_set_bus_counters(a_pydaw_data);
     
+    //Load the song-level automation for each track
+    f_i = 0;
+    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+    {
+        a_pydaw_data->audio_track_pool[f_i]->song_level_automation = g_pydaw_song_level_automation_get(a_pydaw_data, 2, f_i);
+        f_i++;
+    }
+    
+    f_i = 0;
+    while(f_i < PYDAW_BUS_TRACK_COUNT)
+    {
+        a_pydaw_data->audio_track_pool[f_i]->song_level_automation = g_pydaw_song_level_automation_get(a_pydaw_data, 1, f_i);
+        f_i++;
+    }
+    
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
 #endif
