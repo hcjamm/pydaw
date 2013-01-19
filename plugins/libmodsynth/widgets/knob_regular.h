@@ -36,7 +36,7 @@ public:
     }
     void set_pixmap_knob(int a_size)
     {
-        QPixmap f_pixmap("/usr/lib/pydaw2/pydaw/python/pydaw/pydaw-knob.png");
+        QPixmap f_pixmap("/usr/lib/pydaw2/themes/default/pydaw-knob.png");
         pixmap_size = a_size - 5;
         pixmap = f_pixmap.scaled(pixmap_size, pixmap_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }

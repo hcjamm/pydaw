@@ -70,7 +70,7 @@ wayv_gui::wayv_gui(const char * host, const char * port,
 {    
     m_host = lo_address_new(host, port);
 
-    QFile f_stylesheet_file("/usr/lib/pydaw2/pydaw/python/pydaw/style.txt");    
+    QFile f_stylesheet_file("/usr/lib/pydaw2/themes/default/style.txt");    
     f_stylesheet_file.open(QIODevice::ReadOnly | QIODevice::Text);
     this->setStyleSheet(f_stylesheet_file.readAll());
     f_stylesheet_file.close();
