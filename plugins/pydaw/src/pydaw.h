@@ -301,6 +301,11 @@ typedef struct st_pydaw_data
     double ml_next_playback_cursor;
     double ml_current_period_beats;
     double ml_next_period_beats;
+    //New additions, to eventually replace some of the older variables
+    int ml_next_region;
+    int ml_next_bar;
+    double ml_next_beat;
+    int ml_starting_new_bar;  //1 if a new bar starts in this sample period, 0 otherwise
     
     float ** input_buffers;
     int input_buffers_active;
@@ -816,7 +821,6 @@ void * v_pydaw_worker_thread(void* a_arg)
  */
 inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pytrack *a_pytrack)
 {
-    /*
     while(1)
     {
         if((a_pytrack->song_level_automation->current_index) >= (a_pytrack->song_level_automation->current_index))
@@ -828,9 +832,73 @@ inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pyt
         int f_bar = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->bar;
         float f_beat = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->beat;
         
-        
+        if(f_region < a_pydaw_data->current_region)
+        {
+            a_pytrack->song_level_automation->current_index = (a_pytrack->song_level_automation->current_index) + 1;
+            continue;
+        }
+        else if(f_region == a_pydaw_data->current_region)
+        {
+            if(f_bar < a_pydaw_data->current_bar)
+            {
+                a_pytrack->song_level_automation->current_index = (a_pytrack->song_level_automation->current_index) + 1;
+                continue;
+            }
+            else if(f_bar == a_pydaw_data->current_bar)
+            {
+                if(f_beat < a_pydaw_data->ml_current_period_beats)
+                {
+                    a_pytrack->song_level_automation->current_index = (a_pytrack->song_level_automation->current_index) + 1;
+                    continue;
+                }
+                else if((f_beat >= a_pydaw_data->ml_current_period_beats) &&
+                    (f_beat < a_pydaw_data->ml_next_period_beats))
+                {                    
+                    
+                    int controller = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->cc_num;
+                    if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
+                    {
+                        long controlIn;
+                        if(a_pytrack->instrument)
+                        {
+                            controlIn = a_pytrack->instrument->controllerMap[controller];
+
+                            if (controlIn >= 0)
+                            {
+                                /* controller is mapped to LADSPA port, update the port */
+                                snd_seq_event_t f_event;
+                                f_event.data.control.value = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->cc_val;
+                                v_pydaw_set_control_from_cc(a_pytrack->instrument, controlIn, &f_event, 0);
+                            }
+                        }
+
+                        controlIn = a_pytrack->effect->controllerMap[controller];
+
+                        if (controlIn >= 0)
+                        {
+                            /* controller is mapped to LADSPA port, update the port */
+                            snd_seq_event_t f_event;
+                            f_event.data.control.value = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->cc_val;
+                            v_pydaw_set_control_from_cc(a_pytrack->effect, controlIn, &f_event, 0);
+                        }
+                    }                   
+                    
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+        else
+        {
+            break;
+        }
     }
-    **/
 }
 
 inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
@@ -1116,6 +1184,33 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         a_pydaw_data->ml_next_playback_cursor = (a_pydaw_data->playback_cursor) + (a_pydaw_data->ml_sample_period_inc);
         a_pydaw_data->ml_current_period_beats = (a_pydaw_data->playback_cursor) * 4.0f;
         a_pydaw_data->ml_next_period_beats = (a_pydaw_data->ml_next_playback_cursor) * 4.0f;
+        
+        //Big TODO:  Replace some  of the math below with these pre-calculated variables...
+        if((a_pydaw_data->ml_next_period_beats) > 4.0f)  //Should it be >= ???
+        {
+            a_pydaw_data->ml_starting_new_bar = 1;
+            a_pydaw_data->ml_next_beat = (a_pydaw_data->ml_next_period_beats) - 4.0f;
+            a_pydaw_data->ml_next_bar = (a_pydaw_data->current_bar) + 1;
+            a_pydaw_data->ml_next_region = (a_pydaw_data->current_region);
+            int f_region_length = (a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars);
+            if(f_region_length == 0)
+            {
+                f_region_length = 8;
+            }
+            if((a_pydaw_data->ml_next_bar) >= f_region_length)
+            {
+                a_pydaw_data->ml_next_bar = 0;
+                a_pydaw_data->ml_next_region = (a_pydaw_data->ml_next_region) + 1;
+            }
+        }
+        else
+        {
+            a_pydaw_data->ml_starting_new_bar = 0;
+            a_pydaw_data->ml_next_region = a_pydaw_data->current_region;
+            a_pydaw_data->ml_next_bar = a_pydaw_data->current_bar;
+            a_pydaw_data->ml_next_beat = a_pydaw_data->ml_next_period_beats;
+        }
+        
 
         int f_region_length_bars = a_pydaw_data->default_region_length_bars;        
         //double f_bar_length = (double)(a_pydaw_data->default_bar_length);
@@ -2752,6 +2847,11 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->ml_sample_period_inc = 0.0f;
     f_result->ml_sample_period_inc_beats = 0.0f;
     
+    f_result->ml_next_region = 0;
+    f_result->ml_next_bar = 0;
+    f_result->ml_next_beat = 0.0;
+    f_result->ml_starting_new_bar = 0;
+    
     f_result->amp_ptr = g_amp_get();
     f_result->is_offline_rendering = 0;
     
@@ -3349,7 +3449,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     f_i = 0;
     while(f_i < PYDAW_BUS_TRACK_COUNT)
     {
-        a_pydaw_data->audio_track_pool[f_i]->song_level_automation = g_pydaw_song_level_automation_get(a_pydaw_data, 1, f_i);
+        a_pydaw_data->bus_pool[f_i]->song_level_automation = g_pydaw_song_level_automation_get(a_pydaw_data, 1, f_i);
         f_i++;
     }
     
@@ -3359,6 +3459,23 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
     
     v_pydaw_print_benchmark("v_open_project", f_start);
+}
+
+void v_pydaw_reset_song_level_automation(t_pydaw_data* a_pydaw_data)
+{
+    int f_i = 0;
+    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+    {
+        a_pydaw_data->audio_track_pool[f_i]->song_level_automation->current_index = 0;
+        f_i++;
+    }
+    
+    f_i = 0;
+    while(f_i < PYDAW_BUS_TRACK_COUNT)
+    {
+        a_pydaw_data->bus_pool[f_i]->song_level_automation->current_index = 0;
+        f_i++;
+    }
 }
 
 /* Moved to it's own function for re-usability, because the mutex must be held when calling*/
@@ -3490,6 +3607,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             pthread_mutex_lock(&a_pydaw_data->main_mutex);
             a_pydaw_data->playback_mode = a_mode;
             v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
+            v_pydaw_reset_song_level_automation(a_pydaw_data);
             v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_region, a_bar);
             pthread_mutex_unlock(&a_pydaw_data->main_mutex);
             break;
