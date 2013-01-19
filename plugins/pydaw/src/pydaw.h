@@ -368,6 +368,7 @@ void * v_pydaw_audio_recording_thread(void* a_arg);
 t_pydaw_song_level_cc * g_pydaw_song_level_cc_get(int, int, float, int, int);
 t_pydaw_song_level_automation * g_pydaw_song_level_automation_get(t_pydaw_data*, int, int);
 void v_pydaw_song_level_automation_free(t_pydaw_song_level_automation *);
+inline void v_pydaw_run_song_level_automation(t_pydaw_data *, t_pytrack*);
 
 /*End declarations.  Begin implementations.*/
 
@@ -739,6 +740,7 @@ void * v_pydaw_worker_thread(void* a_arg)
                     f_i2++;
                 }
                 
+                v_pydaw_run_song_level_automation(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number]);
                 v_pydaw_update_ports(f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect);
                 
                 if((!f_args->pydaw_data->audio_track_pool[f_item.track_number]->mute) &&
@@ -772,29 +774,20 @@ void * v_pydaw_worker_thread(void* a_arg)
                 
             }
             else if(f_item.track_type == 1)  //Bus track
-            {                
-                //buffer won't get cleared, must zero it.  TODO:  Could just be skipped altogether???
+            {
                 if((f_args->pydaw_data->bus_pool[f_item.track_number]->bus_count) == 0)
                 {
-                    /*int f_i2 = 0;
-
-                    while(f_i2 < f_args->pydaw_data->sample_count)
-                    {
-                        f_args->pydaw_data->bus_pool[(f_item.track_number)]->effect->pluginInputBuffers[0][f_i2] = 0.0f;
-                        f_args->pydaw_data->bus_pool[(f_item.track_number)]->effect->pluginInputBuffers[1][f_i2] = 0.0f;
-                        f_i2++;
-                    }*/
-                    
                     f_args->pydaw_data->bus_pool[0]->bus_counter = (f_args->pydaw_data->bus_pool[0]->bus_counter) - 1;
                 }
                 else
                 {                
                     while((f_args->pydaw_data->bus_pool[f_item.track_number]->bus_counter) > 0)
                     {
-                        //Spin endlessly, this will munch CPU, but typically less than it would
+                        //Spin endlessly, this will munch CPU, but typically less latency than
                         //with yet another Mutex lock, and this basically indicates the core is idle anyways..
                     }
-
+                    
+                    v_pydaw_run_song_level_automation(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number]);
                     v_pydaw_update_ports(f_args->pydaw_data->bus_pool[f_item.track_number]->effect);
 
                     v_run_plugin(f_args->pydaw_data->bus_pool[f_item.track_number]->effect, (f_args->pydaw_data->sample_count), 
@@ -816,6 +809,28 @@ void * v_pydaw_worker_thread(void* a_arg)
     }
     
     return (void*)1;
+}
+
+/* TODO:  A function that seeks to the first event at the current playback cursor?
+ * It may not really matter, though...  but I do need to reset it at the start of playback...
+ */
+inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pytrack *a_pytrack)
+{
+    /*
+    while(1)
+    {
+        if((a_pytrack->song_level_automation->current_index) >= (a_pytrack->song_level_automation->current_index))
+        {
+            break;
+        }
+        
+        int f_region = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->region;
+        int f_bar = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->bar;
+        float f_beat = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->beat;
+        
+        
+    }
+    **/
 }
 
 inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
