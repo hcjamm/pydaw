@@ -823,7 +823,7 @@ inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pyt
 {
     while(1)
     {
-        if((a_pytrack->song_level_automation->current_index) >= (a_pytrack->song_level_automation->current_index))
+        if((a_pytrack->song_level_automation->current_index) >= (a_pytrack->song_level_automation->count))
         {
             break;
         }
@@ -881,7 +881,9 @@ inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pyt
                             f_event.data.control.value = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->cc_val;
                             v_pydaw_set_control_from_cc(a_pytrack->effect, controlIn, &f_event, 0);
                         }
-                    }                   
+                    }
+                    
+                    a_pytrack->song_level_automation->current_index = (a_pytrack->song_level_automation->current_index) + 1;
                     
                 }
                 else
