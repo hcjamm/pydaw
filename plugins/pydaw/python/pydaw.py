@@ -704,6 +704,16 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
         global_audio_track_names[int(a_index)] = str(a_value)
     global global_suppress_audio_track_combobox_changes
     global_suppress_audio_track_combobox_changes = True
+    if this_audio_editor.track_type_combobox.currentIndex() == 0:
+        this_audio_editor.enabled = False
+        f_tmp_index = this_audio_editor.track_select_combobox.currentIndex()
+        this_audio_editor.track_select_combobox.clear()
+        this_audio_editor.track_select_combobox.addItems(['test', 'test2'])  #This is to ensure that the text clears, which apparently won't happen automatically
+        this_audio_editor.track_select_combobox.setCurrentIndex(1)
+        this_audio_editor.track_select_combobox.clear()
+        this_audio_editor.track_select_combobox.addItems(global_audio_track_names.values())
+        this_audio_editor.track_select_combobox.setCurrentIndex(f_tmp_index)
+        this_audio_editor.enabled = True
     for f_cbox in global_audio_track_comboboxes:
         f_current_index = f_cbox.currentIndex()
         f_cbox.clear()
@@ -714,6 +724,8 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
         f_cbox.setCurrentIndex(f_current_index)
 
     global_suppress_audio_track_combobox_changes = False
+
+global_bus_track_names = ['Master', 'Bus1', 'Bus2', 'Bus3', 'Bus4']
 
 class audio_list_editor:
     def open_tracks(self):
@@ -1105,8 +1117,6 @@ class audio_list_editor:
         self.ccs_hlayout.addLayout(self.ccs_vlayout)
         self.ccs_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
 
-
-
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
         self.ccs_groupbox.setMaximumWidth(510)
         self.ccs_groupbox.setMinimumWidth(510)
@@ -1114,7 +1124,7 @@ class audio_list_editor:
 
         self.track_type_combobox = QtGui.QComboBox()
         self.track_type_combobox.setMinimumWidth(110)
-        self.track_type_combobox.currentIndexChanged.connect(self.automation_track_changed)
+        self.track_type_combobox.currentIndexChanged.connect(self.automation_track_type_changed)
         self.track_type_combobox.addItems(["Audio", "Bus"])
         self.ccs_gridlayout.addWidget(QtGui.QLabel("Track Type:"), 0, 2)
         self.ccs_gridlayout.addWidget(self.track_type_combobox, 0, 3)
@@ -1122,7 +1132,7 @@ class audio_list_editor:
         self.track_select_combobox = QtGui.QComboBox()
         self.track_select_combobox.setMinimumWidth(240)
         self.track_select_combobox.currentIndexChanged.connect(self.automation_track_changed)
-        self.track_select_combobox.addItems(["test", "test2"])
+        #self.track_select_combobox.addItems(global_bus_track_names)
         self.ccs_gridlayout.addWidget(QtGui.QLabel("Track:"), 0, 4)
         self.ccs_gridlayout.addWidget(self.track_select_combobox, 0, 5)
 
@@ -1170,6 +1180,18 @@ class audio_list_editor:
         self.default_quantize = 5
 
         self.enabled = True
+
+    def automation_track_type_changed(self, a_val=None):
+        if self.enabled:
+            self.enabled = False
+            self.track_select_combobox.clear()
+            if self.track_type_combobox.currentIndex() == 0:
+                self.track_select_combobox.addItems(global_audio_track_names.values())  #TODO:  This won't refresh with the name changes...
+            elif self.track_type_combobox.currentIndex() == 1:
+                self.track_select_combobox.addItems(global_bus_track_names)
+            self.track_select_combobox.setCurrentIndex(0)
+            self.enabled = True
+            self.automation_track_changed()
 
     def automation_track_changed(self, a_val=None):
         if self.enabled:
@@ -1228,6 +1250,10 @@ class audio_list_editor:
 
             this_pydaw_project.git_repo.git_commit("-a", "Update song-level CCs for " + str(self.track_type_combobox.currentIndex()) + "|" + \
             str(self.track_select_combobox.currentIndex()) + "'")
+
+            this_pydaw_project.this_dssi_gui.pydaw_reload_song_level_automation(self.track_type_combobox.currentIndex(), \
+            self.track_select_combobox.currentIndex())
+
             if not f_add_another.isChecked():
                 f_window.close()
 
@@ -3367,7 +3393,7 @@ def global_ui_refresh_callback():
         this_region_editor.clear_new()
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
-    this_audio_editor.automation_track_changed()
+    this_audio_editor.automation_track_type_changed()
     this_region_editor.open_tracks()
     this_song_editor.open_song()
     this_transport.open_transport()
@@ -3391,7 +3417,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
     set_default_project(a_project_file)
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
-    this_audio_editor.automation_track_changed()
+    this_audio_editor.automation_track_type_changed()
     global_update_audio_track_comboboxes()
     set_window_title()
     this_pydaw_project.suppress_updates = False
@@ -3410,7 +3436,7 @@ def global_new_project(a_project_file):
     this_pydaw_project.save_song(this_song_editor.song)
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
-    this_audio_editor.automation_track_changed()
+    this_audio_editor.automation_track_type_changed()
     this_transport.open_transport()
     set_default_project(a_project_file)
     global_update_audio_track_comboboxes()
@@ -3421,7 +3447,7 @@ def about_to_quit():
 
 app = QtGui.QApplication(sys.argv)
 
-global_timestretch_modes = ["None", "Pitch", "Time + Pitch"]
+global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch"]
 global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4", 4:"track5", 5:"track6", 6:"track7", 7:"track8"}
 global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []

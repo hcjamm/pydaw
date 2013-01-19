@@ -201,8 +201,5 @@ class dssi_gui(ServerThread):
     def pydaw_update_audio_inputs(self):
         self.send_configure("ua", "")
 
-    def pydaw_reload_audio_automation(self, a_audio_track_num):
-        self.send_configure("sa", str(a_audio_track_num))
-
-    def pydaw_reload_bus_automation(self, a_bus_num):
-        self.send_configure("sb", str(a_bus_num))
+    def pydaw_reload_song_level_automation(self, a_track_type, a_track_num):
+        self.send_configure("sa", str(a_track_type) + "|" + str(a_track_num))

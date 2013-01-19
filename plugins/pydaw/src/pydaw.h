@@ -1752,6 +1752,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
     pthread_cond_broadcast(&a_pydaw_data->track_cond);
     pthread_mutex_unlock(&a_pydaw_data->track_cond_mutex);
     
+    v_pydaw_run_song_level_automation(a_pydaw_data, a_pydaw_data->bus_pool[0]);
     v_pydaw_update_ports(a_pydaw_data->bus_pool[0]->effect);
     
     f_i = 0;
