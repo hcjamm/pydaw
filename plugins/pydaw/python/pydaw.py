@@ -2607,16 +2607,16 @@ class seq_track:
             self.mute_checkbox.clicked.connect(self.on_mute)
             self.mute_checkbox.setObjectName("mute_checkbox")
             self.hlayout3.addWidget(self.mute_checkbox)
+            self.record_radiobutton = QtGui.QRadioButton()
+            rec_button_group.addButton(self.record_radiobutton)
+            self.record_radiobutton.toggled.connect(self.on_rec)
+            self.record_radiobutton.setObjectName("rec_arm_radiobutton")
+            self.hlayout3.addWidget(self.record_radiobutton)
         else:
             self.track_name_lineedit.setReadOnly(True)
             self.hlayout3.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
             self.hlayout3.addWidget(self.fx_button)
 
-        self.record_radiobutton = QtGui.QRadioButton()
-        rec_button_group.addButton(self.record_radiobutton)
-        self.record_radiobutton.toggled.connect(self.on_rec)
-        self.record_radiobutton.setObjectName("rec_arm_radiobutton")
-        self.hlayout3.addWidget(self.record_radiobutton)
         self.suppress_osc = False
 
     def open_track(self, a_track, a_notify_osc=False):
