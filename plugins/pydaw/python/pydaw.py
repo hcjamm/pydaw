@@ -1154,7 +1154,7 @@ class audio_list_editor:
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.ccs_table_widget.setColumnCount(5)
-        self.ccs_table_widget.setRowCount(100)
+        self.ccs_table_widget.setRowCount(2048)
         self.ccs_table_widget.setHorizontalHeaderLabels(["Region", "Bar", "Beat", "CC", "Value"])
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
         #self.ccs_table_widget.setSortingEnabled(True)
