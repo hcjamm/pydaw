@@ -376,6 +376,9 @@ t_pydaw_song_level_automation * g_pydaw_song_level_automation_get(t_pydaw_data*,
 void v_pydaw_song_level_automation_free(t_pydaw_song_level_automation *);
 inline void v_pydaw_run_song_level_automation(t_pydaw_data *, t_pytrack*);
 
+inline float v_pydaw_count_beats(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, float a_start_beat,
+        int a_end_region, int a_end_bar, float a_end_beat);
+
 /*End declarations.  Begin implementations.*/
 
 void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data)
@@ -1988,8 +1991,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
             
 
             int f_adjusted_sample_count = a_sample_count;
-            f_i2 = 0;
-            
+            f_i2 = 0;            
             
             if(((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) >= f_adjusted_song_pos_beats) &&
                 ((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) < f_adjusted_next_song_pos_beats))
@@ -2011,36 +2013,14 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                 
                 f_adjusted_sample_count = (int)test3;
             }
-            
-            int f_is_looping = 0;
-                        
-            //The below overwrites the above if{} block is they both happen to be active at the same time...
-            if((a_pydaw_data->ml_next_period_beats) >= 4.0f)
-            {   
-                if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_BAR)
-                {
-                    f_is_looping = 1;
-                }
-                else if(a_pydaw_data->loop_mode == PYDAW_LOOP_MODE_REGION)
-                {                    
-                    /*The current bar will already be reset to zero here from the main loop...  
-                     * This fixes a bug where region-looped audio items restart a bar early...
-                     * There's the added bonus of not needing to track region length here, so I won't try to 'fix' it...
-                     */
-                    if(a_pydaw_data->current_bar == 0)  //(f_region_length - 1))
-                    {
-                        f_is_looping = 1;
-                    }
-                }
-                
-                if(f_is_looping)
-                {
-                    double test1 = f_adjusted_next_song_pos_beats - 4.0f;
-                    double test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
-                    double test3 = (test1 / test2) * ((double)(a_sample_count));
+                                    
+            if(a_pydaw_data->ml_is_looping)
+            {
+                double test1 = f_adjusted_next_song_pos_beats - 4.0f;
+                double test2 = f_adjusted_next_song_pos_beats - f_adjusted_song_pos_beats;
+                double test3 = (test1 / test2) * ((double)(a_sample_count));
 
-                    f_adjusted_sample_count = (int)test3;
-                }
+                f_adjusted_sample_count = (int)test3;
             }
             
             if((a_pydaw_data->audio_items->items[f_i]->adsr->stage) != 4)
@@ -2096,7 +2076,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
 
                     if(f_adjusted_sample_count != a_sample_count)  //This would mean that there is an ADSR release or loop event in this cycle
                     {
-                        if(f_is_looping)
+                        if(a_pydaw_data->ml_is_looping)
                         {
                             double test1;
                             
@@ -3545,8 +3525,9 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
     int f_i = 0;
 
     double f_adjusted_song_pos_beats = 
-        (((double)(a_region)) * 4.0f * 8.0f) +
-        (((double)(a_bar)) * 4.0f);
+        v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_region, a_bar, 0.0f);
+        /*(((double)(a_region)) * 4.0f * 8.0f) +
+        (((double)(a_bar)) * 4.0f);*/
     
     while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
     {
@@ -4377,6 +4358,32 @@ void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data)
 }
 #endif
 
+/*Count the number of beats between 2 points in time...*/
+inline float v_pydaw_count_beats(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, float a_start_beat, 
+        int a_end_region, int a_end_bar, float a_end_beat)
+{
+    int f_bar_count = a_end_bar - a_start_bar;
+    
+    int f_i = a_start_region;
+    int f_beat_total = 0;
+    
+    while(f_i < a_end_region)
+    {
+        if((a_pydaw_data->pysong->regions[f_i]) && (a_pydaw_data->pysong->regions[f_i]->region_length_bars))
+        {
+            f_beat_total += a_pydaw_data->pysong->regions[f_i]->region_length_bars * 4;
+        }
+        else
+        {
+            f_beat_total += (8 * 4);
+        }
+        f_i++;
+    }
+    
+    f_beat_total += f_bar_count * 4;
+    
+    return ((float)(f_beat_total)) + (a_end_beat - a_start_beat);
+}
 
 void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, int a_end_region, 
         int a_end_bar, char * a_file_out)
