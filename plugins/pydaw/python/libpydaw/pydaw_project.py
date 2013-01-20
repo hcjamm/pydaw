@@ -98,6 +98,7 @@ class pydaw_project:
         self.git_repo.git_commit("-a", "Save recorded items/regions")
 
     def save_project_as(self, a_file_name):
+        self.save_project()  #This is necessary to capture the plugin states before copying everything over...  Otherwise the instruments and effects may not be what they were at this time...
         f_file_name = str(a_file_name)
         print("Saving project as " + f_file_name + " ...")
         f_new_project_folder = os.path.dirname(f_file_name)
