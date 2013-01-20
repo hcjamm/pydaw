@@ -496,8 +496,11 @@ inline void v_pydaw_set_bus_counters(t_pydaw_data * a_pydaw_data)
     
     while(f_i < PYDAW_MIDI_TRACK_COUNT)
     {
-        a_pydaw_data->bus_pool[(a_pydaw_data->track_pool[f_i]->bus_num)]->bus_count = 
-                (a_pydaw_data->bus_pool[(a_pydaw_data->track_pool[f_i]->bus_num)]->bus_count) + 1;
+        if((a_pydaw_data->track_pool[f_i]->plugin_index) > 0)
+        {
+            a_pydaw_data->bus_pool[(a_pydaw_data->track_pool[f_i]->bus_num)]->bus_count = 
+                    (a_pydaw_data->bus_pool[(a_pydaw_data->track_pool[f_i]->bus_num)]->bus_count) + 1;
+        }
         f_i++;
     }
     
@@ -1194,7 +1197,13 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
             a_pydaw_data->ml_next_beat = (a_pydaw_data->ml_next_period_beats) - 4.0f;
             a_pydaw_data->ml_next_bar = (a_pydaw_data->current_bar) + 1;
             a_pydaw_data->ml_next_region = (a_pydaw_data->current_region);
-            int f_region_length = (a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars);
+            
+            int f_region_length = 8;
+            if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
+            {
+                f_region_length = (a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars);
+            }
+            
             if(f_region_length == 0)
             {
                 f_region_length = 8;
@@ -3439,8 +3448,6 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     
     v_pydaw_set_is_soloed(a_pydaw_data);
     
-    v_pydaw_set_bus_counters(a_pydaw_data);
-    
     //Load the song-level automation for each track
     f_i = 0;
     while(f_i < PYDAW_AUDIO_TRACK_COUNT)
@@ -3455,6 +3462,8 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         a_pydaw_data->bus_pool[f_i]->song_level_automation = g_pydaw_song_level_automation_get(a_pydaw_data, 1, f_i);
         f_i++;
     }
+    
+    v_pydaw_schedule_work(a_pydaw_data);
     
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
@@ -4812,18 +4821,19 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         switch(f_track_type)
         {
             case 0:  //MIDI track
-                pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+                pthread_mutex_lock(&a_pydaw_data->main_mutex);
                 a_pydaw_data->track_pool[f_track_num]->bus_num = f_bus_num;
                 v_pydaw_set_bus_counters(a_pydaw_data);
-                pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
                 break;
             case 2:  //Audio track
-                pthread_mutex_lock(&a_pydaw_data->audio_track_pool[f_track_num]->mutex);
+                pthread_mutex_lock(&a_pydaw_data->main_mutex);
                 a_pydaw_data->audio_track_pool[f_track_num]->bus_num = f_bus_num;
                 v_pydaw_set_bus_counters(a_pydaw_data);
-                pthread_mutex_unlock(&a_pydaw_data->audio_track_pool[f_track_num]->mutex);
+                pthread_mutex_unlock(&a_pydaw_data->main_mutex);
                 break;
             default:
+                printf("PYDAW_CONFIGURE_KEY_SET_TRACK_BUS:  Invalid track type %i\n\n", f_track_type);
                 assert(0);
                 break;
         }
