@@ -182,7 +182,7 @@ typedef struct st_pytrack
     int solo;
     int mute;
     int rec;
-    int plugin_index;  //-1 == bus track, 0 == off, 1 == Euphoria, 2 == Ray-V
+    int plugin_index;  //-1 == bus track, 0 == off, 1 == Euphoria, 2 == Ray-V, 3 == Way-V
     int bus_num;
     snd_seq_event_t * event_buffer;
     int current_period_event_index;
@@ -306,6 +306,7 @@ typedef struct st_pydaw_data
     int ml_next_bar;
     double ml_next_beat;
     int ml_starting_new_bar;  //1 if a new bar starts in this sample period, 0 otherwise
+    int ml_is_looping;  //0 if false, or 1 if the next bar loops.  Consumers of this value should check for the ->loop_mode variable..
     
     float ** input_buffers;
     int input_buffers_active;
@@ -1208,32 +1209,50 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         a_pydaw_data->ml_current_period_beats = (a_pydaw_data->playback_cursor) * 4.0f;
         a_pydaw_data->ml_next_period_beats = (a_pydaw_data->ml_next_playback_cursor) * 4.0f;
         
-        //Big TODO:  Replace some  of the math below with these pre-calculated variables...
+        a_pydaw_data->ml_next_bar = (a_pydaw_data->current_bar);
+        a_pydaw_data->ml_next_region = (a_pydaw_data->current_region);
+        
         if((a_pydaw_data->ml_next_period_beats) > 4.0f)  //Should it be >= ???
         {
             a_pydaw_data->ml_starting_new_bar = 1;
-            a_pydaw_data->ml_next_beat = (a_pydaw_data->ml_next_period_beats) - 4.0f;
-            a_pydaw_data->ml_next_bar = (a_pydaw_data->current_bar) + 1;
-            a_pydaw_data->ml_next_region = (a_pydaw_data->current_region);
+            a_pydaw_data->ml_next_beat = (a_pydaw_data->ml_next_period_beats) - 4.0f;            
             
-            int f_region_length = 8;
-            if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
+            if(a_pydaw_data->loop_mode != PYDAW_LOOP_MODE_BAR)
             {
-                f_region_length = (a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars);
+                a_pydaw_data->ml_next_bar = (a_pydaw_data->current_bar) + 1;
+                
+                int f_region_length = 8;
+                if(a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
+                {
+                    f_region_length = (a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->region_length_bars);
+                }
+
+                if(f_region_length == 0)
+                {
+                    f_region_length = 8;
+                }
+
+                if((a_pydaw_data->ml_next_bar) >= f_region_length)
+                {
+                    a_pydaw_data->ml_next_bar = 0;
+                    if(a_pydaw_data->loop_mode != PYDAW_LOOP_MODE_REGION)
+                    {
+                        a_pydaw_data->ml_next_region = (a_pydaw_data->ml_next_region) + 1;
+                    }
+                    else
+                    {
+                        a_pydaw_data->ml_is_looping = 1;
+                    }
+                }                
             }
-            
-            if(f_region_length == 0)
+            else
             {
-                f_region_length = 8;
-            }
-            if((a_pydaw_data->ml_next_bar) >= f_region_length)
-            {
-                a_pydaw_data->ml_next_bar = 0;
-                a_pydaw_data->ml_next_region = (a_pydaw_data->ml_next_region) + 1;
+                a_pydaw_data->ml_is_looping = 1;
             }
         }
         else
         {
+            a_pydaw_data->ml_is_looping = 0;
             a_pydaw_data->ml_starting_new_bar = 0;
             a_pydaw_data->ml_next_region = a_pydaw_data->current_region;
             a_pydaw_data->ml_next_bar = a_pydaw_data->current_bar;
@@ -2881,6 +2900,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->ml_next_bar = 0;
     f_result->ml_next_beat = 0.0;
     f_result->ml_starting_new_bar = 0;
+    f_result->ml_is_looping = 0;
     
     f_result->amp_ptr = g_amp_get();
     f_result->is_offline_rendering = 0;
