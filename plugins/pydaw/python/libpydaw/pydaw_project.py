@@ -1281,6 +1281,12 @@ class pydaw_transport:
 
 
 class pydaw_song_level_ccs:
+    def remove_cc(self, a_cc):
+        for i in range(len(self.items)):
+            if self.items[i] == a_cc:
+                self.items.pop(i)
+                break
+
     def remove_cc_range(self, a_cc_num, a_start, a_end):
         """ Delete all CCs between a_start and _end, which should be pydaw_song_level_cc instances """
         f_ccs_to_delete = []

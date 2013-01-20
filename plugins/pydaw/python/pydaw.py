@@ -1160,7 +1160,7 @@ class audio_list_editor:
         #self.ccs_table_widget.setSortingEnabled(True)
         #self.ccs_table_widget.sortItems(0)
         self.ccs_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        #self.ccs_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.ccs_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.ccs_table_widget.keyPressEvent = self.ccs_keyPressEvent
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
 
@@ -1345,10 +1345,22 @@ class audio_list_editor:
         elif self.delete_radiobutton.isChecked():
             if self.ccs_table_widget.item(x, 0) is None:
                 return
-            self.item.remove_cc(pydaw_cc(self.ccs_table_widget.item(x, 0).text(), self.ccs_table_widget.item(x, 1).text(), self.ccs_table_widget.item(x, 2).text()))
-            this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
-            this_pydaw_project.git_repo.git_commit("-a", "Delete CC from item '" + self.item_name + "'")
+            self.item.remove_cc(pydaw_song_level_cc(self.ccs_table_widget.item(x, 0).text(), self.ccs_table_widget.item(x, 1).text(), \
+            self.ccs_table_widget.item(x, 2).text(), self.ccs_table_widget.item(x, 3).text(), self.ccs_table_widget.item(x, 4).text()))
+
+            if self.track_type_combobox.currentIndex() == 0:
+                this_pydaw_project.save_audio_automation(self.track_select_combobox.currentIndex(), self.item)
+            elif self.track_type_combobox.currentIndex() == 1:
+                this_pydaw_project.save_bus_automation(self.track_select_combobox.currentIndex(), self.item)
+
+            self.automation_track_changed() #which is essentially 'open_item' for this class...
+
+            this_pydaw_project.git_repo.git_commit("-a", "Deleted CC for " + str(self.track_type_combobox.currentIndex()) + "|" + \
+            str(self.track_select_combobox.currentIndex()) + "'")
+
+            this_pydaw_project.this_dssi_gui.pydaw_reload_song_level_automation(self.track_type_combobox.currentIndex(), \
+            self.track_select_combobox.currentIndex())
+
 
     def ccs_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
