@@ -5,11 +5,13 @@
 #    sudo apt-get install mintconstructor
 #    sudo /usr/lib/linuxmint/mintConstructor/mintConstructor.py
 
-cd ~
-apt-get -y install git
-https://github.com/j3ffhubb/audiocode.git
+#This script assumes that the following have already happened:
+#cd ~
+#apt-get -y install git
+#git clone https://github.com/j3ffhubb/audiocode.git
+#cd audiocode/plugins
+git pull
 apt-get -y install audacity  #Because for some reason Linux Mint refuses to install it as a dependency of PyDAW
-cd audiocode/plugins
 
 #This next line will require user interaction, so it is not yet suitable for continuous integration style
 #nightly builds.  OTOH, I have no reason to want to provide nightly builds, and the questions being asked
