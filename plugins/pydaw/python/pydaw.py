@@ -1133,7 +1133,7 @@ class audio_list_editor:
 
         self.ccs_clear_button = QtGui.QPushButton("Clear")
         self.ccs_clear_button.setMinimumWidth(90)
-        #self.ccs_clear_button.pressed.connect(self.clear_ccs)
+        self.ccs_clear_button.pressed.connect(self.clear_ccs)
         self.ccs_gridlayout.addWidget(self.ccs_clear_button, 0, 9)
 
         self.edit_mode_groupbox = QtGui.QGroupBox()
@@ -1171,6 +1171,8 @@ class audio_list_editor:
         self.default_cc_start = 0.0
         self.default_cc_num = 0
         self.default_quantize = 5
+
+        self.ccs_clipboard = []
 
         self.enabled = True
 
@@ -1335,6 +1337,14 @@ class audio_list_editor:
         f_quantize_combobox.setCurrentIndex(self.default_quantize)
         f_window.exec_()
 
+    def get_ccs_table_selected_rows(self):
+        f_result = []
+        for i in range(0, self.ccs_table_widget.rowCount()):
+            f_item = self.ccs_table_widget.item(i, 0)
+            if not f_item is None and f_item.isSelected():
+                f_result.append(pydaw_song_level_cc(self.ccs_table_widget.item(i, 0).text(), self.ccs_table_widget.item(i, 1).text(), \
+                self.ccs_table_widget.item(i, 2).text(), self.ccs_table_widget.item(i, 3).text(), self.ccs_table_widget.item(i, 4).text()))
+        return f_result
 
     def ccs_click_handler(self, x, y):
         if not self.enabled:
@@ -1347,20 +1357,19 @@ class audio_list_editor:
                 return
             self.item.remove_cc(pydaw_song_level_cc(self.ccs_table_widget.item(x, 0).text(), self.ccs_table_widget.item(x, 1).text(), \
             self.ccs_table_widget.item(x, 2).text(), self.ccs_table_widget.item(x, 3).text(), self.ccs_table_widget.item(x, 4).text()))
-
-            if self.track_type_combobox.currentIndex() == 0:
-                this_pydaw_project.save_audio_automation(self.track_select_combobox.currentIndex(), self.item)
-            elif self.track_type_combobox.currentIndex() == 1:
-                this_pydaw_project.save_bus_automation(self.track_select_combobox.currentIndex(), self.item)
-
-            self.automation_track_changed() #which is essentially 'open_item' for this class...
-
-            this_pydaw_project.git_repo.git_commit("-a", "Deleted CC for " + str(self.track_type_combobox.currentIndex()) + "|" + \
+            self.save_and_load("Deleted CC for " + str(self.track_type_combobox.currentIndex()) + "|" + \
             str(self.track_select_combobox.currentIndex()) + "'")
 
-            this_pydaw_project.this_dssi_gui.pydaw_reload_song_level_automation(self.track_type_combobox.currentIndex(), \
-            self.track_select_combobox.currentIndex())
-
+    def save_and_load(self, a_message):
+        """In the interest of DRY principles, consolidate saving and loading to a function, since this class has so many steps """
+        if self.track_type_combobox.currentIndex() == 0:
+            this_pydaw_project.save_audio_automation(self.track_select_combobox.currentIndex(), self.item)
+        elif self.track_type_combobox.currentIndex() == 1:
+            this_pydaw_project.save_bus_automation(self.track_select_combobox.currentIndex(), self.item)
+        self.automation_track_changed() #which is essentially 'open_item' for this class...
+        this_pydaw_project.git_repo.git_commit("-a", a_message)
+        this_pydaw_project.this_dssi_gui.pydaw_reload_song_level_automation(self.track_type_combobox.currentIndex(), \
+        self.track_select_combobox.currentIndex())
 
     def ccs_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
@@ -1368,32 +1377,29 @@ class audio_list_editor:
                 f_ccs = self.get_ccs_table_selected_rows()
                 for f_cc in f_ccs:
                     self.item.remove_cc(f_cc)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
-            this_pydaw_project.git_repo.git_commit("-a", "Delete CCs from item '" + self.item_name + "'")
+            self.save_and_load("Deleted CC for " + str(self.track_type_combobox.currentIndex()) + "|" + \
+            str(self.track_select_combobox.currentIndex()) + "'")
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.ccs_clipboard = self.get_ccs_table_selected_rows()
         elif event.key() == QtCore.Qt.Key_V and event.modifiers() == QtCore.Qt.ControlModifier:
             for f_cc in self.ccs_clipboard:
                 self.item.add_cc(f_cc)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
-            this_pydaw_project.git_repo.git_commit("-a", "Paste CCs into item '" + self.item_name + "'")
+            self.save_and_load("Pasted CCs into " + str(self.track_type_combobox.currentIndex()) + "|" + \
+            str(self.track_select_combobox.currentIndex()) + "'")
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.ccs_clipboard = self.get_ccs_table_selected_rows()
             for f_cc in self.ccs_clipboard:
                 self.item.remove_cc(f_cc)
-            this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
-            this_pydaw_project.git_repo.git_commit("-a", "Cut CCs from item '" + self.item_name + "'")
+            self.save_and_load("Cut CCs from " + str(self.track_type_combobox.currentIndex()) + "|" + \
+            str(self.track_select_combobox.currentIndex()) + "'")
         else:
             QtGui.QTableWidget.keyPressEvent(self.ccs_table_widget, event)
 
     def clear_ccs(self):
         if self.enabled:
-            self.item.ccs = []
-            this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.item.items = []
+            self.save_and_load("Deleted CC for " + str(self.track_type_combobox.currentIndex()) + "|" + \
+            str(self.track_select_combobox.currentIndex()) + "'")
 
 class audio_track:
     def on_vol_change(self, value):
