@@ -874,8 +874,7 @@ inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pyt
                 }
                 else if((f_beat >= a_pydaw_data->ml_current_period_beats) &&
                     (f_beat < a_pydaw_data->ml_next_period_beats))
-                {                    
-                    
+                {   
                     int controller = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->cc_num;
                     if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
                     {
@@ -917,7 +916,7 @@ inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pyt
                 break;
             }
         }
-        else
+        else if(f_region > a_pydaw_data->current_region)
         {
             break;
         }
@@ -2274,7 +2273,7 @@ t_pydaw_song_level_automation * g_pydaw_song_level_automation_get(t_pydaw_data* 
             free(f_bar_char);
             
             char * f_beat_char = c_iterate_2d_char_array(f_current_string);        
-            float f_beat = atoi(f_beat_char);
+            float f_beat = atof(f_beat_char);
             free(f_beat_char);
             
             char * f_cc_num_char = c_iterate_2d_char_array(f_current_string);        
@@ -3228,7 +3227,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
                 break;
             }
             
-            char * f_vol_str = c_iterate_2d_char_array(f_2d_array);            
+            char * f_vol_str = c_iterate_2d_char_array(f_2d_array);
                         
             int f_track_index = atoi(f_track_index_str);
             free(f_track_index_str);
@@ -3237,7 +3236,13 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             int f_vol = atoi(f_vol_str);
             free(f_vol_str);
             assert(f_vol < 24 && f_vol > -150);
+            
+            char * f_rec_str = c_iterate_2d_char_array(f_2d_array);
+            int f_rec = atoi(f_rec_str);
+            free(f_rec_str);
                         
+            a_pydaw_data->bus_pool[f_track_index]->rec = f_rec;
+            
             v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->bus_pool[f_track_index], f_vol);
                         
             v_pydaw_open_track(a_pydaw_data, a_pydaw_data->bus_pool[f_track_index]);
@@ -3290,7 +3295,8 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             char * f_vol_str = c_iterate_2d_char_array(f_2d_array);
             char * f_name_str = c_iterate_2d_char_array(f_2d_array);            
             char * f_bus_num_str = c_iterate_2d_char_array(f_2d_array);
-
+            char * f_rec_str = c_iterate_2d_char_array(f_2d_array);
+            
             int f_track_index = atoi(f_track_index_str);
             free(f_track_index_str);
             assert(f_track_index >= 0 && f_track_index < PYDAW_AUDIO_TRACK_COUNT);
@@ -3313,6 +3319,10 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             int f_bus_num = atoi(f_bus_num_str);
             free(f_bus_num_str);
             assert(f_bus_num >= 0 && f_bus_num < PYDAW_BUS_TRACK_COUNT);
+            
+            int f_rec = atoi(f_rec_str);
+            free(f_rec_str);                        
+            a_pydaw_data->audio_track_pool[f_track_index]->rec = f_rec;
             
             a_pydaw_data->audio_track_pool[f_track_index]->solo = f_solo;
             a_pydaw_data->audio_track_pool[f_track_index]->mute = f_mute;            
