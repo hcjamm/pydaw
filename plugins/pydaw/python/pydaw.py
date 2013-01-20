@@ -1087,6 +1087,8 @@ class audio_list_editor:
         self.audio_tracks_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_tracks_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_tracks_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.audio_tracks_table_widget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        #self.table_widget.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
 
         self.items_groupbox = QtGui.QGroupBox()
         self.items_vlayout = QtGui.QVBoxLayout()
