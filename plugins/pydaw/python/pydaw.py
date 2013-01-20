@@ -1074,12 +1074,7 @@ class audio_list_editor:
     def __init__(self):
         self.enabled = False #Prevents user from editing a region before one has been selected
         self.last_open_dir = expanduser("~")
-        self.tab_widget = QtGui.QTabWidget()
-        # TODO:  Revisit this when I've made a separate style for it based on this:
-        # QTabBar::tab:top, QTabBar::tab:bottom, QTabBar::tab:left, QTabBar::tab:right
-        #self.tab_widget.setTabPosition(QtGui.QTabWidget.West)
         self.group_box = QtGui.QGroupBox()
-        self.tab_widget.addTab(self.group_box, "Tracks")
         self.main_vlayout = QtGui.QVBoxLayout()
 
         self.group_box.setLayout(self.main_vlayout)
@@ -1094,7 +1089,6 @@ class audio_list_editor:
         self.audio_tracks_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
 
         self.items_groupbox = QtGui.QGroupBox()
-        self.tab_widget.addTab(self.items_groupbox, "Items")
         self.items_vlayout = QtGui.QVBoxLayout()
         self.items_groupbox.setLayout(self.items_vlayout)
 
@@ -1110,7 +1104,6 @@ class audio_list_editor:
         self.items_vlayout.addWidget(self.audio_items_table_widget)
 
         self.ccs_tab = QtGui.QGroupBox()
-        self.tab_widget.addTab(self.ccs_tab, "Automation")
         self.ccs_hlayout = QtGui.QHBoxLayout()
         self.ccs_tab.setLayout(self.ccs_hlayout)
         self.ccs_vlayout = QtGui.QVBoxLayout()
@@ -3190,7 +3183,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.main_layout.addWidget(self.main_tabwidget)
 
-        self.main_tabwidget.addTab(this_region_editor.group_box, "Song")
+        self.main_tabwidget.addTab(this_region_editor.group_box, "Song/MIDI")
         this_region_editor.main_vlayout.addWidget(this_song_editor.table_widget, 0, 0)
 
         self.item_tab = QtGui.QWidget()
@@ -3203,9 +3196,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.item_tab.setMinimumWidth(1290)
         self.item_tab.setMinimumHeight(7950)
         self.item_scrollarea.setWidget(self.item_tab)
-        self.main_tabwidget.addTab(self.item_scrollarea, "Item")
+        self.main_tabwidget.addTab(self.item_scrollarea, "MIDI Item")
 
-        self.main_tabwidget.addTab(this_audio_editor.tab_widget, "Audio")
+        self.main_tabwidget.addTab(this_audio_editor.group_box, "Tracks")
+        self.main_tabwidget.addTab(this_audio_editor.items_groupbox, "Audio Items")
+        self.main_tabwidget.addTab(this_audio_editor.ccs_tab, "Automation")
 
         #Begin CC Map tab
         self.cc_map_tab = QtGui.QWidget()
