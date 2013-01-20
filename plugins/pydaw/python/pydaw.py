@@ -1247,7 +1247,7 @@ class audio_list_editor:
             this_pydaw_project.git_repo.git_commit("-a", "Update song-level CCs for " + str(self.track_type_combobox.currentIndex()) + "|" + \
             str(self.track_select_combobox.currentIndex()) + "'")
 
-            this_pydaw_project.this_dssi_gui.pydaw_reload_song_level_automation(self.track_type_combobox.currentIndex(), \
+            this_pydaw_project.this_dssi_gui.pydaw_reload_song_level_automation(self.get_track_type(), \
             self.track_select_combobox.currentIndex())
 
             if not f_add_another.isChecked():
@@ -1362,6 +1362,16 @@ class audio_list_editor:
             self.save_and_load("Deleted CC for " + str(self.track_type_combobox.currentIndex()) + "|" + \
             str(self.track_select_combobox.currentIndex()) + "'")
 
+    def get_track_type(self):
+        """ Return the PyDAW track type int value from the track type combobox index """
+        f_index = self.track_type_combobox.currentIndex()
+        if f_index == 0:
+            return 2
+        elif f_index == 1:
+            return 1
+        else:
+            assert(False)
+
     def save_and_load(self, a_message):
         """In the interest of DRY principles, consolidate saving and loading to a function, since this class has so many steps """
         if self.track_type_combobox.currentIndex() == 0:
@@ -1370,7 +1380,7 @@ class audio_list_editor:
             this_pydaw_project.save_bus_automation(self.track_select_combobox.currentIndex(), self.item)
         self.automation_track_changed() #which is essentially 'open_item' for this class...
         this_pydaw_project.git_repo.git_commit("-a", a_message)
-        this_pydaw_project.this_dssi_gui.pydaw_reload_song_level_automation(self.track_type_combobox.currentIndex(), \
+        this_pydaw_project.this_dssi_gui.pydaw_reload_song_level_automation(self.get_track_type(), \
         self.track_select_combobox.currentIndex())
 
     def ccs_keyPressEvent(self, event):

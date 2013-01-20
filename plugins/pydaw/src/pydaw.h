@@ -852,28 +852,29 @@ inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pyt
         int f_region = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->region;
         int f_bar = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->bar;
         float f_beat = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->beat;
-        
+               
         if(f_region < a_pydaw_data->current_region)
         {
             a_pytrack->song_level_automation->current_index = (a_pytrack->song_level_automation->current_index) + 1;
             continue;
         }
-        else if(f_region == a_pydaw_data->current_region)
+        else if((f_region == a_pydaw_data->current_region) || (f_region == a_pydaw_data->ml_next_region))
         {
             if(f_bar < a_pydaw_data->current_bar)
             {
                 a_pytrack->song_level_automation->current_index = (a_pytrack->song_level_automation->current_index) + 1;
                 continue;
             }
-            else if(f_bar == a_pydaw_data->current_bar)
+            else if((f_bar == a_pydaw_data->current_bar) || (f_bar == a_pydaw_data->ml_next_bar))
             {
-                if(f_beat < a_pydaw_data->ml_current_period_beats)
+                if((!a_pydaw_data->ml_starting_new_bar) && (f_beat < a_pydaw_data->ml_current_period_beats))
                 {
                     a_pytrack->song_level_automation->current_index = (a_pytrack->song_level_automation->current_index) + 1;
                     continue;
                 }
-                else if((f_beat >= a_pydaw_data->ml_current_period_beats) &&
-                    (f_beat < a_pydaw_data->ml_next_period_beats))
+                else if(((!a_pydaw_data->ml_starting_new_bar) && (f_beat >= a_pydaw_data->ml_current_period_beats) &&
+                    (f_beat < a_pydaw_data->ml_next_period_beats)) || 
+                        ((a_pydaw_data->ml_starting_new_bar) && (f_beat < a_pydaw_data->ml_next_period_beats)))
                 {   
                     int controller = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->cc_num;
                     if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
@@ -899,7 +900,7 @@ inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pyt
                             /* controller is mapped to LADSPA port, update the port */
                             snd_seq_event_t f_event;
                             f_event.data.control.value = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->cc_val;
-                            v_pydaw_set_control_from_cc(a_pytrack->effect, controlIn, &f_event, 0);
+                            v_pydaw_set_control_from_cc(a_pytrack->effect, controlIn, &f_event, 0);                            
                         }
                     }
                     
