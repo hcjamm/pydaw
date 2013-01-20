@@ -2693,7 +2693,7 @@ class transport_widget:
                     os.system('mv "' + this_pydaw_project.audio_tmp_folder + "/" + str(f_item_number) + '.wav" "' + f_file_name + '"')
                     if f_next_index != -1 and f_import.isChecked():
                         f_audio_items.add_item(f_next_index, pydaw_audio_item(f_file_name, 0, 1000, self.last_region_num, self.last_bar, \
-                        0.0, 0, 0, 0, 0.0, 0, 0.0, f_inputs.tracks[f_item_number].output), 0)
+                        0.0, 0, 0, 0, 0.0, 0, 0.0, f_inputs.tracks[f_item_number].output, 0))
                     this_pydaw_project.save_audio_items(f_audio_items)
                     this_pydaw_project.git_repo.git_commit("-a", "Record audio item " + f_file_name)
                     f_sg_uid = pydaw_gen_uid()
