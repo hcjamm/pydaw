@@ -2942,7 +2942,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         this_pydaw_project.save_project()
     def on_save_as(self):
         f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", directory=expanduser("~") + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
-        if f_new_file:
+        if not f_new_file is None and not str(f_new_file) == "":
+            f_new_file = str(f_new_file)
+            if not f_new_file.endswith("." + global_pydaw_version_string):
+                f_new_file += "." + global_pydaw_version_string
             this_pydaw_project.save_project_as(f_new_file)
             set_window_title()
             set_default_project(f_new_file)
