@@ -1302,9 +1302,6 @@ class pydaw_song_level_ccs:
         #Remove any events that would overlap
         self.remove_cc_range(f_cc, f_first_cc, f_last_cc)
 
-        self.add_cc(f_first_cc)
-        self.add_cc(f_last_cc)
-
         f_start_diff = f_end - f_start
         f_val_diff = abs(f_end_val - f_start_val)
         if f_start_val > f_end_val:
@@ -1312,16 +1309,26 @@ class pydaw_song_level_ccs:
         else:
             f_inc = 1
         f_time_inc = abs(f_start_diff/float(f_val_diff))
+
+        f_new_start_region = a_start_region
+        f_new_start_bar = a_start_bar
+        f_new_start_beat = a_start_beat
+
+        f_start_val += f_inc
+
         for i in range(0, (f_val_diff + 1)):
-            f_new_start_region = 0 #TODO
-            f_new_start_bar = 0 #TODO
-            f_new_start_beat = 0 #TODO
-            f_new_value = 0 #TODO
             #self.items.append(pydaw_cc(round(f_start, 4), f_cc, f_start_val))
-            self.items.append(pydaw_song_level_cc(f_new_start_region, f_new_start_bar, f_new_start_beat, a_cc, f_new_value))
+            self.items.append(pydaw_song_level_cc(f_new_start_region, f_new_start_bar, f_new_start_beat, a_cc, f_start_val))
             f_start_val += f_inc
-            f_start += f_time_inc
-        self.ccs.sort()
+            f_new_start_beat += f_time_inc
+            f_new_start_beat = round(f_new_start_beat, 4)
+            while f_new_start_beat >= 4.0:
+                f_new_start_beat -= 4.0
+                f_new_start_bar += 1
+                if f_new_start_bar >= 8:
+                    f_new_start_bar = 0
+                    f_new_start_region += 1
+        self.items.sort()
 
     def add_cc(self, a_cc):
         for f_cc in self.items:
