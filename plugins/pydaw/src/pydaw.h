@@ -1865,22 +1865,39 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
         if(f_bar_tmp < 0)
         {
             f_region_tmp -= 1;
-            f_bar_tmp += 7;   //TODO:  GRAB THE REAL REGION LENGTH - 1
+            int f_bar_add = 7;
+            if(a_pydaw_data->pysong->regions[f_region_tmp])
+            {
+                f_bar_add = a_pydaw_data->pysong->regions[f_region_tmp]->region_length_bars;
+                if(f_bar_add == 0)
+                {
+                    f_bar_add = 7;
+                }
+                else
+                {
+                    f_bar_add -= 1;
+                }
+            }
+            f_bar_tmp += 7;   
+            //TODO:  GRAB THE REAL REGION LENGTH - 1            
         }
         
         f_adjusted_song_pos_beats = 
-        (((double)(f_region_tmp)) * 4.0f * 8.0f) +
+                v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, f_region_tmp, f_bar_tmp, a_pydaw_data->ml_current_period_beats);
+        /*(((double)(f_region_tmp)) * 4.0f * 8.0f) +
         (((double)(f_bar_tmp)) * 4.0f)
-        + (a_pydaw_data->ml_current_period_beats);
+        + (a_pydaw_data->ml_current_period_beats);*/
 
         f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats + ((a_pydaw_data->ml_sample_period_inc) * 4.0f);
     }
     else
     {
         f_adjusted_song_pos_beats = 
-        (((double)(a_pydaw_data->current_region)) * 4.0f * 8.0f) +
+        v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->current_region, a_pydaw_data->current_bar, 
+                a_pydaw_data->ml_current_period_beats);
+        /*(((double)(a_pydaw_data->current_region)) * 4.0f * 8.0f) +
         (((double)(a_pydaw_data->current_bar)) * 4.0f)
-        + (a_pydaw_data->ml_current_period_beats);
+        + (a_pydaw_data->ml_current_period_beats);*/
 
         f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats + (a_pydaw_data->ml_sample_period_inc);
     }
@@ -3526,9 +3543,7 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
 
     double f_adjusted_song_pos_beats = 
         v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_region, a_bar, 0.0f);
-        /*(((double)(a_region)) * 4.0f * 8.0f) +
-        (((double)(a_bar)) * 4.0f);*/
-    
+        
     while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
     {
         if((a_pydaw_data->audio_items->items[f_i]->bool_sample_loaded) == 0)
