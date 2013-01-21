@@ -521,7 +521,7 @@ inline void v_pydaw_set_bus_counters(t_pydaw_data * a_pydaw_data)
     
     while(f_i < PYDAW_BUS_TRACK_COUNT)    
     {
-        if(a_pydaw_data->bus_pool[f_i]->bus_counter > 0)
+        if(a_pydaw_data->bus_pool[f_i]->bus_count > 0)
         {
                 a_pydaw_data->bus_pool[0]->bus_count = (a_pydaw_data->bus_pool[0]->bus_count) + 1;
         }
