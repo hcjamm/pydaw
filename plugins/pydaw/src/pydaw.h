@@ -1832,14 +1832,12 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
     f_i = 0;
     //A ghetto pthread_join for threads that never finish...
     while(f_i < (a_pydaw_data->track_worker_thread_count))
-    {            
-        pthread_mutex_lock(&a_pydaw_data->track_block_mutexes[f_i]);
+    {        
         if(a_pydaw_data->track_thread_is_finished[f_i] == 0)
-        {
-            pthread_mutex_unlock(&a_pydaw_data->track_block_mutexes[f_i]);
-            continue;  //Meaning we somehow beat the thread to the mutex, don't proceed, unlock the mutex and wait again for it...
+        {            
+            continue;  //spin until it is finished...
         }
-        pthread_mutex_unlock(&a_pydaw_data->track_block_mutexes[f_i]);
+        
         f_i++;
     }
     
