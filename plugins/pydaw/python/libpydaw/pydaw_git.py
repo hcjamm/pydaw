@@ -21,7 +21,7 @@ class pydaw_git_repo:
         cmd = ['git', 'config', 'user.name', 'pydaw user']
         p = subprocess.Popen(cmd, cwd=self.repo_dir)
         p.wait()
-        cmd = ['git', 'config', 'user.email', 'pydaw@pydaw.sourceforge.net']
+        cmd = ['git', 'config', 'user.email', 'pydaw@pydaw.org']
         p = subprocess.Popen(cmd, cwd=self.repo_dir)
         p.wait()
 
