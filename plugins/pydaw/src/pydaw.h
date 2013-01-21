@@ -486,7 +486,6 @@ inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin)
     }
 }
 
-/*Grab the main mutex before calling this if not already held...*/
 inline void v_pydaw_set_bus_counters(t_pydaw_data * a_pydaw_data)
 {    
     int f_i = 0;
@@ -522,7 +521,10 @@ inline void v_pydaw_set_bus_counters(t_pydaw_data * a_pydaw_data)
     
     while(f_i < PYDAW_BUS_TRACK_COUNT)    
     {
-        a_pydaw_data->bus_pool[0]->bus_count = (a_pydaw_data->bus_pool[0]->bus_count) + 1;
+        if(a_pydaw_data->bus_pool[f_i]->bus_counter > 0)
+        {
+                a_pydaw_data->bus_pool[0]->bus_count = (a_pydaw_data->bus_pool[0]->bus_count) + 1;
+        }
         f_i++;
     }
     
@@ -531,6 +533,7 @@ inline void v_pydaw_set_bus_counters(t_pydaw_data * a_pydaw_data)
     while(f_i < PYDAW_BUS_TRACK_COUNT)
     {
         a_pydaw_data->bus_pool[f_i]->bus_counter = (a_pydaw_data->bus_pool[f_i]->bus_count);
+        printf("bus[%i] count == %i\n", f_i, a_pydaw_data->bus_pool[f_i]->bus_count);
         f_i++;
     }
     
@@ -1097,7 +1100,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
 {
     int f_i = 0;
     
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    v_pydaw_set_bus_counters(a_pydaw_data);
         
     while(f_i < (a_pydaw_data->track_worker_thread_count))
     {
@@ -1113,6 +1116,8 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     {   
         if(a_pydaw_data->track_pool[f_i]->plugin_index == 1)
         {
+            printf("Schedule Euphoria instance at %i on %i\n", f_i, f_thread_index);
+            
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 0;
             a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
@@ -1132,6 +1137,8 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     {   
         if(a_pydaw_data->track_pool[f_i]->plugin_index == 3)
         {
+            printf("Schedule Way-V instance at %i on %i\n", f_i, f_thread_index);
+            
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 0;
             a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
@@ -1151,6 +1158,8 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     {   
         if(a_pydaw_data->track_pool[f_i]->plugin_index == 2)
         {
+            printf("Schedule Ray-V instance at %i on %i\n", f_i, f_thread_index);
+            
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 0;
             a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
@@ -1166,7 +1175,9 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     f_i = 0;
     /*Now schedule the audio tracks*/    
     while(f_i < PYDAW_AUDIO_TRACK_COUNT)
-    {        
+    {
+        printf("Schedule audio track instance at %i on %i\n", f_i, f_thread_index);
+        
         a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
         a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 2;
         a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;
@@ -1183,23 +1194,24 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     f_i = 1;
     /*Schedule bus tracks last, because they must be processed last*/
     while(f_i < PYDAW_BUS_TRACK_COUNT)
-    {        
-        a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
-        a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 1;
-        a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;     
-        f_thread_index++;
-        
-        if(f_thread_index >= a_pydaw_data->track_worker_thread_count)
+    {
+        if(a_pydaw_data->bus_pool[f_i]->bus_count > 0)
         {
-            f_thread_index = 0;
+            printf("Schedule bus track instance at %i on %i\n", f_i, f_thread_index);
+            
+            a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
+            a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 1;
+            a_pydaw_data->track_work_queue_counts[f_thread_index] = (a_pydaw_data->track_work_queue_counts[f_thread_index]) + 1;     
+            f_thread_index++;
+
+            if(f_thread_index >= a_pydaw_data->track_worker_thread_count)
+            {
+                f_thread_index = 0;
+            }
         }
 
         f_i++;
-    }
-    
-    v_pydaw_set_bus_counters(a_pydaw_data);
-    
-    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    }    
 }
 
 inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sample_count, 
@@ -3181,7 +3193,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             free(f_vol_str);
             assert(f_vol < 24 && f_vol > -150);
                         
-            strcpy(a_pydaw_data->track_pool[f_track_index]->name, f_name_str);
+            sprintf(a_pydaw_data->track_pool[f_track_index]->name, "%s", f_name_str);
             free(f_name_str);
             
             int f_plugin_index = atoi(f_plugin_index_str);
@@ -3386,7 +3398,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     clock_t f_start = clock();
     
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
-    
+        
     sprintf(a_pydaw_data->project_folder, "%s/", a_project_folder);    
     sprintf(a_pydaw_data->item_folder, "%sitems/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->region_folder, "%sregions/", a_pydaw_data->project_folder);
@@ -3516,7 +3528,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
-#endif
+#endif    
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
     
     v_pydaw_print_benchmark("v_open_project", f_start);
@@ -4240,15 +4252,7 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
         }
     }
     
-    pthread_mutex_unlock(&a_track->mutex);
-    
-    /*
-    if(a_index != -1)
-    {
-        v_pydaw_schedule_work(a_pydaw_data);
-    }
-    **/
-    
+    pthread_mutex_unlock(&a_track->mutex);        
 }
 
 void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data)
@@ -4902,13 +4906,15 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
             case 0:  //MIDI track
                 pthread_mutex_lock(&a_pydaw_data->main_mutex);
                 a_pydaw_data->track_pool[f_track_num]->bus_num = f_bus_num;
-                v_pydaw_set_bus_counters(a_pydaw_data);
+                v_pydaw_schedule_work(a_pydaw_data);
+                //v_pydaw_set_bus_counters(a_pydaw_data);
                 pthread_mutex_unlock(&a_pydaw_data->main_mutex);
                 break;
             case 2:  //Audio track
                 pthread_mutex_lock(&a_pydaw_data->main_mutex);
                 a_pydaw_data->audio_track_pool[f_track_num]->bus_num = f_bus_num;
-                v_pydaw_set_bus_counters(a_pydaw_data);
+                v_pydaw_schedule_work(a_pydaw_data);
+                //v_pydaw_set_bus_counters(a_pydaw_data);
                 pthread_mutex_unlock(&a_pydaw_data->main_mutex);
                 break;
             default:

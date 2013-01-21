@@ -72,8 +72,10 @@ def bool_to_int(a_bool):
 def int_to_bool(a_int):
     if int(a_int) == 0:
         return False
-    else:
+    elif int(a_int) == 1:
         return True
+    else:
+        assert(False)
 
 def time_quantize_round(a_input):
     """Properly quantize time values from QDoubleSpinBoxes that measure beats"""
@@ -1058,7 +1060,7 @@ class pydaw_tracks:
     def __str__(self):
         f_result = ""
         for k, v in self.tracks.iteritems():
-            f_result += str(k) + "|" + bool_to_int(v.solo) + "|" + bool_to_int(v.mute) + "|" + bool_to_int(v.rec) + "|" + str(v.vol) + "|" + v.name + "|" + str(v.inst) + "|" + str(v.bus_num) + "\n"
+            f_result += str(k) + "|" + str(v)
         f_result += pydaw_terminating_char
         return f_result
 
@@ -1069,24 +1071,22 @@ class pydaw_tracks:
         for f_line in f_arr:
             if not f_line == pydaw_terminating_char:
                 f_line_arr = f_line.split("|")
-                if f_line_arr[1] == "1": f_solo = True
-                else: f_solo = False
-                if f_line_arr[2] == "1": f_mute = True
-                else: f_mute = False
-                if f_line_arr[3] == "1": f_rec = True
-                else: f_rec = False
-                f_result.add_track(int(f_line_arr[0]), pydaw_track(f_solo, f_mute, f_rec, int(f_line_arr[4]), f_line_arr[5], int(f_line_arr[6]), int(f_line_arr[7])))
+                f_result.add_track(int(f_line_arr[0]), pydaw_track(int_to_bool(f_line_arr[1]), int_to_bool(f_line_arr[2]), int_to_bool(f_line_arr[3]), int(f_line_arr[4]), f_line_arr[5], int(f_line_arr[6]), int(f_line_arr[7])))
         return f_result
 
 class pydaw_track:
     def __init__(self, a_solo, a_mute, a_rec, a_vol, a_name, a_inst, a_bus_num=0):
         self.name = str(a_name)
-        self.solo = a_solo
-        self.mute = a_mute
-        self.rec = a_rec
-        self.vol = a_vol
-        self.inst = a_inst
-        self.bus_num = a_bus_num
+        self.solo = bool(a_solo)
+        self.mute = bool(a_mute)
+        self.rec = bool(a_rec)
+        self.vol = int(a_vol)
+        self.inst = int(a_inst)
+        self.bus_num = int(a_bus_num)
+
+    def __str__(self):
+        return bool_to_int(self.solo) + "|" + bool_to_int(self.mute) + "|" + bool_to_int(self.rec) + "|" + str(self.vol) + "|" + self.name + "|" + \
+        str(self.inst) + "|" + str(self.bus_num) + "\n"
 
 class pydaw_busses:
     def add_bus(self, a_index, a_bus):
