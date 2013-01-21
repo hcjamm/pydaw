@@ -2534,6 +2534,7 @@ class seq_track:
         if not self.suppress_osc:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
             this_pydaw_project.this_dssi_gui.pydaw_set_instrument_index(self.track_number, selected_instrument)
+            sleep(0.3)
             this_pydaw_project.git_repo.git_commit("-a", "Set instrument for MIDI track " + str(self.track_number) + " to " + str(self.instrument_combobox.currentText()))
     def on_show_ui(self):
         if self.instrument_combobox.currentIndex() > 0:
