@@ -277,8 +277,8 @@ typedef struct st_pydaw_data
     
     pthread_mutex_t quit_mutex;  //must be acquired to free memory, to protect saving on exit...
     
-    pthread_mutex_t track_cond_mutex;  //For signaling to process the instruments
-    pthread_cond_t track_cond;   //For broadcasting to the threads that it's time to process the tracks
+    //pthread_mutex_t * track_cond_mutex;  //For signaling to process the instruments
+    pthread_cond_t * track_cond;   //For broadcasting to the threads that it's time to process the tracks
     pthread_mutex_t * track_block_mutexes;  //For preventing the main thread from continuing until the workers finish
     pthread_t * track_worker_threads;
     t_pydaw_work_queue_item ** track_work_queues;
@@ -409,8 +409,7 @@ void v_pydaw_print_benchmark(char * a_message, clock_t a_start)
 void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
 {
     int f_i = 0;
-    pthread_mutex_init(&a_pydaw_data->track_cond_mutex, NULL);
-    pthread_cond_init(&a_pydaw_data->track_cond, NULL);
+    
     a_pydaw_data->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN ) - 1;    
     if((a_pydaw_data->track_worker_thread_count) > 4)
     {
@@ -428,8 +427,14 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
     a_pydaw_data->track_thread_quit_notifier = (int*)malloc(sizeof(int) * (a_pydaw_data->track_worker_thread_count));
     a_pydaw_data->track_thread_is_finished = (int*)malloc(sizeof(int) * (a_pydaw_data->track_worker_thread_count));
 
+    //a_pydaw_data->track_cond_mutex = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t) * (a_pydaw_data->track_worker_thread_count));
+    a_pydaw_data->track_cond = (pthread_cond_t*)malloc(sizeof(pthread_cond_t) * (a_pydaw_data->track_worker_thread_count));
+    
     while(f_i < (a_pydaw_data->track_worker_thread_count))
-    {        
+    {
+        //pthread_mutex_init(&a_pydaw_data->track_cond_mutex[f_i], NULL);
+        pthread_cond_init(&a_pydaw_data->track_cond[f_i], NULL);
+    
         pthread_mutex_init(&a_pydaw_data->track_block_mutexes[f_i], NULL);
         a_pydaw_data->track_work_queues[f_i] = (t_pydaw_work_queue_item*)malloc(sizeof(t_pydaw_work_queue_item) * 32);  //Max 32 work items per thread...
         a_pydaw_data->track_work_queue_counts[f_i] = 0;
@@ -719,13 +724,11 @@ void * v_pydaw_worker_thread(void* a_arg)
     
     while(1)
     {
-        pthread_cond_wait(&f_args->pydaw_data->track_cond, &f_args->pydaw_data->track_cond_mutex);
-        pthread_mutex_lock(&f_args->pydaw_data->track_block_mutexes[f_args->thread_num]);
-        
+        pthread_cond_wait(&f_args->pydaw_data->track_cond[f_args->thread_num], &f_args->pydaw_data->track_block_mutexes[f_args->thread_num]);
+                
         if(f_args->pydaw_data->track_thread_quit_notifier[f_args->thread_num])
         {            
-            printf("worker thread %i exiting...\n", f_args->thread_num);
-            pthread_mutex_unlock(&f_args->pydaw_data->track_block_mutexes[f_args->thread_num]);
+            printf("worker thread %i exiting...\n", f_args->thread_num);            
             break;
         }
         
@@ -836,8 +839,7 @@ void * v_pydaw_worker_thread(void* a_arg)
             f_i++;
         }
         
-        f_args->pydaw_data->track_thread_is_finished[f_args->thread_num] = 1;
-        pthread_mutex_unlock(&f_args->pydaw_data->track_block_mutexes[f_args->thread_num]);
+        f_args->pydaw_data->track_thread_is_finished[f_args->thread_num] = 1;        
     }
     
     return (void*)1;
@@ -1816,10 +1818,14 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         f_i++;
     }
     //notify the worker threads
-    pthread_mutex_lock(&a_pydaw_data->track_cond_mutex);
-    pthread_cond_broadcast(&a_pydaw_data->track_cond);
-    pthread_mutex_unlock(&a_pydaw_data->track_cond_mutex);
-    
+    f_i = 0;
+    while(f_i < a_pydaw_data->track_worker_thread_count)
+    {
+        pthread_mutex_lock(&a_pydaw_data->track_block_mutexes[f_i]);
+        pthread_cond_broadcast(&a_pydaw_data->track_cond[f_i]);
+        pthread_mutex_unlock(&a_pydaw_data->track_block_mutexes[f_i]);
+        f_i++;
+    }
     v_pydaw_run_song_level_automation(a_pydaw_data, a_pydaw_data->bus_pool[0]);
     v_pydaw_update_ports(a_pydaw_data->bus_pool[0]->effect);
     

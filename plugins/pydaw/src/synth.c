@@ -455,9 +455,14 @@ void _fini()
             f_i++;
         }
         
-        pthread_mutex_lock(&pydaw_data->track_cond_mutex);
-        pthread_cond_broadcast(&pydaw_data->track_cond);
-        pthread_mutex_unlock(&pydaw_data->track_cond_mutex);
+        f_i = 0;
+        while(f_i < pydaw_data->track_worker_thread_count)
+        {
+            pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);
+            pthread_cond_broadcast(&pydaw_data->track_cond[f_i]);
+            pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
+            f_i++;
+        }
 
         f_i = 0;
         while(f_i < pydaw_data->track_worker_thread_count)
