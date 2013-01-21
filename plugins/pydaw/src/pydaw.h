@@ -4869,7 +4869,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     {
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
-        int f_plugin_index = atof(f_val_arr->array[1]);        
+        int f_plugin_index = atoi(f_val_arr->array[1]);
         v_set_plugin_index(a_pydaw_data,  a_pydaw_data->track_pool[f_track_num], f_plugin_index);
         
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
