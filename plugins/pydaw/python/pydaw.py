@@ -1019,7 +1019,7 @@ class audio_list_editor:
         f_layout.addLayout(f_timestretch_hlayout, 7, 1)
         f_timestretch_hlayout.addWidget(QtGui.QLabel("Mode:"))
         f_timestretch_mode = QtGui.QComboBox()
-        f_timestretch_mode.setMinimumWidth(132)
+        f_timestretch_mode.setMinimumWidth(190)
         f_timestretch_hlayout.addWidget(f_timestretch_mode)
         f_timestretch_mode.addItems(global_timestretch_modes)
         f_timestretch_hlayout.addWidget(QtGui.QLabel("Pitch Shift:"))
