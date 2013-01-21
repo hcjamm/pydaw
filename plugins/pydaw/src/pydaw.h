@@ -303,6 +303,9 @@ typedef struct st_pydaw_data
     double ml_current_period_beats;
     double ml_next_period_beats;
     //New additions, to eventually replace some of the older variables
+    int ml_current_region;
+    int ml_current_bar;
+    double ml_current_beat;
     int ml_next_region;
     int ml_next_bar;
     double ml_next_beat;
@@ -1231,9 +1234,13 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
         a_pydaw_data->ml_current_period_beats = (a_pydaw_data->playback_cursor) * 4.0f;
         a_pydaw_data->ml_next_period_beats = (a_pydaw_data->ml_next_playback_cursor) * 4.0f;
         
+        a_pydaw_data->ml_current_region = (a_pydaw_data->current_region);
+        a_pydaw_data->ml_current_bar = (a_pydaw_data->current_bar);
+        a_pydaw_data->ml_current_beat = (a_pydaw_data->ml_current_period_beats);
+        
         a_pydaw_data->ml_next_bar = (a_pydaw_data->current_bar);
         a_pydaw_data->ml_next_region = (a_pydaw_data->current_region);
-        
+                        
         if((a_pydaw_data->ml_next_period_beats) > 4.0f)  //Should it be >= ???
         {
             a_pydaw_data->ml_starting_new_bar = 1;
@@ -1875,51 +1882,11 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
     int f_i = 0;
     int f_i2 = 0;
     
-    double f_adjusted_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->current_region, a_pydaw_data->current_bar, 
-                a_pydaw_data->ml_current_period_beats);
+    double f_adjusted_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_current_region, a_pydaw_data->ml_current_bar, 
+                a_pydaw_data->ml_current_beat);
     double f_adjusted_next_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar, 
                 a_pydaw_data->ml_next_beat);
-    
-    /*
-    if((a_pydaw_data->ml_next_period_beats) >= 4.0f)
-    {
-        int f_region_tmp = (a_pydaw_data->current_region);
-        int f_bar_tmp = (a_pydaw_data->current_bar) - 1;
-        
-        if(f_bar_tmp < 0)
-        {
-            f_region_tmp -= 1;
-            int f_bar_add = 7;
-            if(a_pydaw_data->pysong->regions[f_region_tmp])
-            {
-                f_bar_add = a_pydaw_data->pysong->regions[f_region_tmp]->region_length_bars;
-                if(f_bar_add == 0)
-                {
-                    f_bar_add = 7;
-                }
-                else
-                {
-                    f_bar_add -= 1;
-                }
-            }
-            f_bar_tmp += 7;
-        }
-        
-        f_adjusted_song_pos_beats = 
-                v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, f_region_tmp, f_bar_tmp, a_pydaw_data->ml_current_period_beats);
-        
-        f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats + ((a_pydaw_data->ml_sample_period_inc) * 4.0f);
-    }
-    else
-    {
-        f_adjusted_song_pos_beats = 
-        v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->current_region, a_pydaw_data->current_bar, 
-                a_pydaw_data->ml_current_period_beats);
-        
-        f_adjusted_next_song_pos_beats = f_adjusted_song_pos_beats + (a_pydaw_data->ml_sample_period_inc);
-    }
-    */
-    
+            
     if(a_pydaw_data->input_buffers_active)
     {
         f_i = 0;
