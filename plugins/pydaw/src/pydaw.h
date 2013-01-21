@@ -1974,6 +1974,10 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
         {              
             f_return_value = 1;
             
+            a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f,
+                    a_pydaw_data->audio_items->items[f_i]->start_region, a_pydaw_data->audio_items->items[f_i]->start_bar, 
+                    a_pydaw_data->audio_items->items[f_i]->start_beat);
+            
             if((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) >= f_adjusted_next_song_pos_beats)
             {
                 f_i++;
@@ -1981,8 +1985,12 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
             }
                         
             
-            if(a_pydaw_data->audio_items->items[f_i]->end_mode == 1)
+            if(a_pydaw_data->audio_items->items[f_i]->end_mode == 1)            
             {
+                a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f,
+                    a_pydaw_data->audio_items->items[f_i]->end_region, a_pydaw_data->audio_items->items[f_i]->end_bar, 
+                    a_pydaw_data->audio_items->items[f_i]->end_beat);
+                
                 // + 2.0f ensures that the ADSR envelope has had adequate time to finish running
                 if((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) < (f_adjusted_song_pos_beats + 2.0f))
                 {

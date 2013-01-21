@@ -251,6 +251,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     
     free(f_file_name_char);
 
+    /*
     f_result->adjusted_start_beat = 
             (((double)(f_result->start_region)) * 4.0f * 8.0f) +
             (((double)(f_result->start_bar)) * 4.0f) +
@@ -260,6 +261,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
         (((double)(f_result->end_region)) * 4.0f * 8.0f) +
         (((double)(f_result->end_bar)) * 4.0f) +
         (f_result->end_beat);
+    */
     
     f_result->adsr->stage = 4;
     
