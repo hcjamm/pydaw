@@ -939,6 +939,12 @@ inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pyt
             break;
         }
     }
+    
+    //Reset the index to zero if we're looping, and let it find itself from zero again at next run
+    if(a_pydaw_data->ml_is_looping)
+    {
+        a_pytrack->song_level_automation->current_index = 0;
+    }
 }
 
 inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
