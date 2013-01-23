@@ -3,7 +3,7 @@ A lightweight clone of Git, since a few of Git's behaviors are undesirable
 for an undo/redo system.  Uses sqlite3 for storing diffs...
 """
 
-import sqlite3, difflib, os
+import sqlite3, difflib, os, time
 
 #BIG TODO:  Paths must be relative to the project directory, otherwise
 #the folders can't ever be moved...
@@ -16,20 +16,29 @@ class pydaw_history:
         self.project_dir = a_project_dir
         self.history_dir = a_project_dir + "history"  #TODO:  Does it need a preceding slash?
         self.db_file = self.history_dir + "/history.db"
+        self.files_list = self.history_dir + "/files.txt"
         self.tracked_files = []
 
         if not os.path.isdir(self.history_dir):
             os.mkdir(self.history_dir)
 
         if not os.path.isfile(self.db_file):
-            pass  #TODO Create the db and tables, including the schemas...
-        else:
-            pass  #TODO:  Load the existing data...
+            self.db_exec(
+            ["CREATE TABLE pydaw_commits (commit_timestamp integer, commit_message text, commit_instance blob)"] #blob or text?
+            ) #TDOO:  Create indexes and primary key?
+
+        if os.path.isfile(self.files_list):
+            f_file_handle = open(self.files_list)
+            f_lines = f_file_handle.readlines()
+            f_file_handle.close()
+            for f_line in f_lines:
+                self.add_file(f_line)
 
     def add_file(self, a_file_name):  #Specifies that a_file_name should be tracked
         f_result = pydaw_history_file(a_file_name)
         if not self.files_contains(f_result):
             self.tracked_files.append(f_result)
+        #TODO:  Flush to a text file list?  Or a database table?
 
     def add_folder(self, a_dir, a_ext=None):
         f_list = os.listdir(a_dir)
@@ -48,13 +57,34 @@ class pydaw_history:
                 f_diff_text = difflib.unified_diff(f_file.file_text.split("\n"), f_file_text)
                 #TODO:  Check that there is an actual difference
                 f_result.diffs.append(pydaw_history_diff(f_file.file_name, f_diff_text))
-        #TODO:  Flush to the database using variable binding...
+        f_conn = sqlite3.connect(self.db_file)
+        f_cursor = f_conn.cursor()
+        f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?, ?)", int(time.time()), a_message, f_result.serialize())
+        f_conn.close()
 
     def files_contains(self, a_file):
         for f_file in self.tracked_files:
             if a_file == a_file:
                 return True
         return False
+
+    def list_commits(self, a_count=0):
+        pass
+
+    def revert_single(self, a_timestamp):
+        pass
+
+    def revert_to(self, a_timestamp):
+        pass
+
+    def db_exec(self, a_queries=[]):
+        """ TODO:  Try as persistent connection, also try/except, return True/False and print information... """
+        f_conn = sqlite3.connect(self.db_file)
+        f_cursor = f_conn.cursor()
+        for f_query in a_queries:
+            f_cursor.execute(f_query)
+        f_conn.close()
+
 
 
 class pydaw_history_file:
@@ -81,4 +111,4 @@ class pydaw_history_diff:
         self.diff = a_diff
 
 if __name__ == "__main__":
-    pass  #TODO:  Some awesome standalone test...
+    print("Parsed OK...")  #TODO:  Some awesome standalone test...
