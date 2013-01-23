@@ -1868,6 +1868,12 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
     
     a_pydaw_data->bus_pool[0]->bus_buffer_state = 0;
     a_pydaw_data->bus_pool[0]->bus_counter = (a_pydaw_data->bus_pool[0]->bus_count);
+    
+    if(a_pydaw_data->ml_is_looping)
+    {
+        printf("Looping audio items at %i, %i\n", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
+        v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
+    }
 }
 
 
@@ -3543,6 +3549,11 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
 
     double f_adjusted_song_pos_beats = 
         v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_region, a_bar, 0.0f);
+    
+    if(f_adjusted_song_pos_beats < 0.0f)  //clip at zero, lest it somehow by rounding error is -0.0000001
+    {
+        f_adjusted_song_pos_beats = 0.0f;
+    }
         
     while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
     {
@@ -3552,7 +3563,7 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
             continue;
         }
 
-        if(((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) < f_adjusted_song_pos_beats) &&
+        if(((a_pydaw_data->audio_items->items[f_i]->adjusted_start_beat) <= f_adjusted_song_pos_beats) &&
             (((a_pydaw_data->audio_items->items[f_i]->end_mode) == 0) ||
             ((a_pydaw_data->audio_items->items[f_i]->adjusted_end_beat) > f_adjusted_song_pos_beats)))
         {            
