@@ -1292,12 +1292,14 @@ class pydaw_song_level_ccs:
 
     def remove_cc_range(self, a_cc_num, a_start, a_end):
         """ Delete all CCs between a_start and _end, which should be pydaw_song_level_cc instances """
+        f_cc_num = int(a_cc_num)
         f_ccs_to_delete = []
         for cc in self.items:
-            if cc.cc_num == a_cc_num and cc >= a_start and cc <= a_end:
+            if cc.cc == f_cc_num and  cc > a_start and cc < a_end:
                 f_ccs_to_delete.append(cc)
         for cc in f_ccs_to_delete:
             self.remove_cc(cc)
+        self.items.sort()
 
     def draw_cc_line(self, a_cc, a_start_val, a_start_region, a_start_bar, a_start_beat, a_end_val, a_end_region, a_end_bar, a_end_beat):
         f_cc = int(a_cc)
@@ -1387,7 +1389,7 @@ class pydaw_song_level_cc:
             if self.bar < other.bar:
                 return True
             elif self.bar == other.bar:
-                if self.beat <= other.beat:
+                if self.beat < other.beat:
                     return True
                 else:
                     return False
@@ -1397,7 +1399,7 @@ class pydaw_song_level_cc:
             return False
 
     def __gt__(self, other):
-        return not self == other and not self < other
+        return not self < other
 
     def __eq__(self, other):
         return self.region == other.region and self.bar == other.bar and self.beat == other.beat and self.cc == other.cc and self.value == other.value
