@@ -26,7 +26,7 @@ perl deb.pl
 #  http://community.linuxmint.com/tutorial/view/918
 #Some of the commands might be obsolete now
 
-echo "PyDAW installation complete, cleaning up now..."
+echo -e "\n\n\n******PyDAW installation complete, cleaning up now...******\n\n\n"
 
 # At login, create the DNS fix startup script so that internet will  work properly in Mint...
 # Also create desktop icons for live users...
