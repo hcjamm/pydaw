@@ -1224,7 +1224,7 @@ class audio_list_editor:
         def cc_ok_handler():
             f_start_rounded = time_quantize_round(f_start.value())
 
-            if f_draw_line_checkbox.isChecked():
+            if f_draw_line_checkbox.isChecked() and f_cc_value.value() != f_end_value.value():
                 self.item.draw_cc_line(f_cc.value(), f_cc_value.value(), f_start_region.value(), f_start_bar.value(), \
                 f_start.value(), f_end_value.value(), f_end_region.value(), f_end_bar.value(), f_end.value())
             else:
