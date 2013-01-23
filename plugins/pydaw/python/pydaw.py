@@ -878,7 +878,7 @@ class audio_list_editor:
                 f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
 
         def file_name_select():
-            f_file_name = str(QtGui.QFileDialog.getOpenFileName(f_window, "Select a file name to save to...", self.last_open_dir, filter=".wav files(*.wav)"))
+            f_file_name = str(QtGui.QFileDialog.getOpenFileName(f_window, "Select a .wav file to open...", self.last_open_dir, filter=".wav files(*.wav)"))
             if not f_file_name is None and not f_file_name == "":
                 f_name.setText(f_file_name)
                 self.last_open_dir = os.path.dirname(f_file_name)
