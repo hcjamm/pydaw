@@ -1172,6 +1172,7 @@ class audio_list_editor:
         self.default_cc_start_bar = 0
         self.default_cc_start = 0.0
         self.default_cc_num = 0
+        self.default_cc_value = 0
         self.default_quantize = 5
 
         self.ccs_clipboard = []
@@ -1236,6 +1237,7 @@ class audio_list_editor:
             self.default_cc_start_region = f_start_region.value()
             self.default_cc_start_bar = f_start_bar.value()
             self.default_cc_start = f_start_rounded
+            self.default_cc_value = f_cc_value.value()
 
             if self.track_type_combobox.currentIndex() == 0:
                 this_pydaw_project.save_audio_automation(self.track_select_combobox.currentIndex(), self.item)
@@ -1284,6 +1286,7 @@ class audio_list_editor:
         f_layout.addWidget(f_cc, 1, 1)
         f_cc_value = QtGui.QSpinBox()
         f_cc_value.setRange(0, 127)
+        f_cc_value.setValue(self.default_cc_value)
         f_layout.addWidget(QtGui.QLabel("Value"), 2, 0)
         f_layout.addWidget(f_cc_value, 2, 1)
 
