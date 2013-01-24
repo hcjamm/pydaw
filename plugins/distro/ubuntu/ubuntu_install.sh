@@ -15,7 +15,10 @@ apt-get -y install audacity  #Because for some reason it refuses to install it a
 #This next line will require user interaction, so it is not yet suitable for continuous integration style
 #nightly builds.  OTOH, I have no reason to want to provide nightly builds, and the questions being asked
 #probably should be answered by a human being anyways, so it's all good...
+
+cd ../..
 perl deb.pl
+cd distro/ubuntu
 
 #So, assuming you answered 'yes' and 'yes' to "install dependencies?" and "install PyDAW now?", you should
 #now have a functional PyDAW installation with all dependencies, and QJackCtl and Audacity, until I eventually
