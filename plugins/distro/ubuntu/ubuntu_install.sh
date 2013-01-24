@@ -24,8 +24,6 @@ cd distro/ubuntu
 #now have a functional PyDAW installation with all dependencies, and QJackCtl and Audacity, until I eventually
 #deprecate those in favor of native PyDAW equivalents...
 
-cp ./sources.list /etc/apt/sources.list
-
 # create desktop icons for live users...
 pydaw_live_script=/etc/profile.d/pydaw-live.sh
 cp ./pydaw-live.sh "$pydaw_live_script"
