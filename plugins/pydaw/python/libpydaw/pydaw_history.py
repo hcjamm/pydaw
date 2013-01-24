@@ -18,7 +18,7 @@ class pydaw_history:
         self.project_dir = a_project_dir
         self.history_dir = a_project_dir + "history"  #TODO:  Does it need a preceding slash?
         self.db_file = self.history_dir + "/history.db"
-        self.files_list = self.history_dir + "/files.txt"
+        self.files_list_path = self.history_dir + "/files.txt"
         self.tracked_files = []
 
         if not os.path.isdir(self.history_dir):
@@ -29,12 +29,18 @@ class pydaw_history:
             ["CREATE TABLE pydaw_commits (commit_timestamp integer, commit_message text, commit_diff text)"] #blob or text?
             ) #TDOO:  Create indexes and primary key?
 
-        if os.path.isfile(self.files_list):
-            f_file_handle = open(self.files_list)
+        if os.path.isfile(self.files_list_path):
+            f_file_handle = open(self.files_list_path)
             f_lines = f_file_handle.readlines()
             f_file_handle.close()
             for f_line in f_lines:
                 self.add_file(f_line)
+
+    def mark_file_as_modified(self, a_file_name):
+        for f_file in self.tracked_files:
+            if f_file.file_name == a_file_name:
+                f_file.modified = True
+                break
 
     def add_file(self, a_file_name):  #Specifies that a_file_name should be tracked
         f_result = pydaw_history_file(a_file_name)
@@ -48,6 +54,8 @@ class pydaw_history:
             if os.path.isfile(f_file):
                 if a_ext is None or f_file.endswith(a_ext):
                     self.add_file(f_file)
+                else:
+                    self.mark_file_as_modified(f_file)  #for instrument/effect state files
 
     def commit(self, a_message):  #I guess this should always be like a git commit -a ....  for this purpose?
         f_result = pydaw_history_commit(a_message)
@@ -58,10 +66,12 @@ class pydaw_history:
                 f_file_handle.close()
                 f_diff_text = difflib.unified_diff(f_file.file_text.split("\n"), f_file_text.split("\n"))
                 #TODO:  Check that there is an actual difference
-                f_result.diffs.append("\n".join(f_diff_text))
+                f_result.diffs.append(self.list_join(f_diff_text))
+                f_file.modified = False
         f_conn = sqlite3.connect(self.db_file)
         f_cursor = f_conn.cursor()
         f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?, ?)", (int(time.time()), a_message, str(f_result)))
+        f_conn.commit()
         f_conn.close()
 
     def files_contains(self, a_file):
@@ -75,6 +85,13 @@ class pydaw_history:
         if a_count > 0:
             f_query += " LIMIT " + str(a_count)
         return self.db_exec([f_query], True)
+
+    def list_join(self, a_list):
+        """ Join a list using newlines, since "\n".join([]) seems not to work very well """
+        f_result = ""
+        for f_line in a_list:
+            f_result += f_line + "\n"
+        return f_result
 
     def revert_single(self, a_timestamp):
         pass
@@ -150,11 +167,12 @@ if __name__ == "__main__":
 
     testfile = testdir + "test.txt"
 
-    f_file = open(testfile, "a")
-    f_file.write("""test
-    test1
-    test2""")
-    f_file.close()
+    for i in range(100):
+        f_file = open(testfile, "a")
+        f_file.write("test\ntest1\ntest2")
+        f_file.close()
+        test_history.add_file(testfile)
+        test_history.mark_file_as_modified(testfile)
+        test_history.commit("Test commit")
 
-    test_history.add_file(testfile)
-    test_history.commit("Test commit")
+    test_history.db_exec(["VACUUM"])
