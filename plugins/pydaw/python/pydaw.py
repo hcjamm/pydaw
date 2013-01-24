@@ -1444,7 +1444,7 @@ class audio_track:
         self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
         this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 2)
         f_tracks = this_pydaw_project.get_audio_tracks()
-        f_tracks.tracks[self.track_number].name = self.track_name_lineedit.text()
+        f_tracks.tracks[self.track_number].name = str(self.track_name_lineedit.text())
         this_pydaw_project.save_audio_tracks(f_tracks)
         global_update_audio_track_comboboxes(self.track_number, self.track_name_lineedit.text())
         this_pydaw_project.git_repo.git_commit("-a", "Set audio track " + str(self.track_number) + " name to " + str(self.track_name_lineedit.text()))
