@@ -588,6 +588,8 @@ class region_list_editor:
 
         if f_current_item is None or str(f_current_item.text()) == "" or x < 0 or y < 1:
             return
+
+        f_current_item_text = str(f_current_item.text())
         x = self.table_widget.currentRow()
         y = self.table_widget.currentColumn()
 
@@ -600,7 +602,7 @@ class region_list_editor:
             self.add_qtablewidgetitem(f_cell_text, x, y - 1)
             self.region.add_item_ref(x, y - 1, f_cell_text)
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
-            this_pydaw_project.git_repo.git_commit("-a", "Unlink item '" +  str(f_current_item.text()) + "' as '" + str(f_new_lineedit.text()) + "'")
+            this_pydaw_project.git_repo.git_commit("-a", "Unlink item '" +  f_current_item_text + "' as '" + f_cell_text + "'")
             f_window.close()
 
         def note_cancel_handler():
