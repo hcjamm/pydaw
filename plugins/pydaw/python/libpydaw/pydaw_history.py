@@ -5,7 +5,7 @@ for an undo/redo system.  Uses sqlite3 for storing diffs...
 
 import sqlite3, difflib, os, time
 
-pydaw_diff_separator = "---pydaw_diff_separator---"
+pydaw_diff_separator = "\n---pydaw_diff_separator---\n"
 
 #BIG TODO:  Paths must be relative to the project directory, otherwise
 #the folders can't ever be moved...
@@ -14,7 +14,7 @@ pydaw_diff_separator = "---pydaw_diff_separator---"
 #also need to add that to the PyDAW spec file...
 
 class pydaw_history:
-    def __init__(self, a_project_dir, a_file_name):
+    def __init__(self, a_project_dir):
         self.project_dir = a_project_dir
         self.history_dir = a_project_dir + "history"  #TODO:  Does it need a preceding slash?
         self.db_file = self.history_dir + "/history.db"
@@ -26,7 +26,7 @@ class pydaw_history:
 
         if not os.path.isfile(self.db_file):
             self.db_exec(
-            ["CREATE TABLE pydaw_commits (commit_timestamp integer, commit_message text, commit_diff blob)"] #blob or text?
+            ["CREATE TABLE pydaw_commits (commit_timestamp integer, commit_message text, commit_diff text)"] #blob or text?
             ) #TDOO:  Create indexes and primary key?
 
         if os.path.isfile(self.files_list):
@@ -50,18 +50,18 @@ class pydaw_history:
                     self.add_file(f_file)
 
     def commit(self, a_message):  #I guess this should always be like a git commit -a ....  for this purpose?
-        f_result = pydaw_history_commit()
+        f_result = pydaw_history_commit(a_message)
         for f_file in self.tracked_files:
             if f_file.modified:
                 f_file_handle = open(f_file.file_name, "r")
-                f_file_text = f_file_handle.readlines()
+                f_file_text = f_file_handle.read()
                 f_file_handle.close()
-                f_diff_text = difflib.unified_diff(f_file.file_text.split("\n"), f_file_text)
+                f_diff_text = difflib.unified_diff(f_file.file_text.split("\n"), f_file_text.split("\n"))
                 #TODO:  Check that there is an actual difference
-                f_result.diffs.append(f_diff_text)
+                f_result.diffs.append("\n".join(f_diff_text))
         f_conn = sqlite3.connect(self.db_file)
         f_cursor = f_conn.cursor()
-        f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?, ?)", int(time.time()), a_message, str(f_result))
+        f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?, ?)", (int(time.time()), a_message, str(f_result)))
         f_conn.close()
 
     def files_contains(self, a_file):
@@ -93,6 +93,7 @@ class pydaw_history:
             f_conn.close()
             return f_result
         else:
+            f_conn.commit()
             f_conn.close()
 
     def patch(self, a_reverse=True):
@@ -139,4 +140,21 @@ class pydaw_history_commit:
         return f_result
 
 if __name__ == "__main__":
-    print("Parsed OK...")  #TODO:  Some awesome standalone test...
+    print("Parsed OK...")
+    testdir = os.path.dirname(os.path.realpath(__file__)) + "/history_test/"
+    if os.path.isdir(testdir):
+        os.system('rm -r "' + testdir + '"')
+
+    os.mkdir(testdir)
+    test_history = pydaw_history(testdir)
+
+    testfile = testdir + "test.txt"
+
+    f_file = open(testfile, "a")
+    f_file.write("""test
+    test1
+    test2""")
+    f_file.close()
+
+    test_history.add_file(testfile)
+    test_history.commit("Test commit")
