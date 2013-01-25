@@ -541,7 +541,7 @@ inline void v_pydaw_set_bus_counters(t_pydaw_data * a_pydaw_data)
     while(f_i < PYDAW_BUS_TRACK_COUNT)
     {
         a_pydaw_data->bus_pool[f_i]->bus_counter = (a_pydaw_data->bus_pool[f_i]->bus_count);
-        printf("bus[%i] count == %i\n", f_i, a_pydaw_data->bus_pool[f_i]->bus_count);
+        //printf("bus[%i] count == %i\n", f_i, a_pydaw_data->bus_pool[f_i]->bus_count);
         f_i++;
     }
     
@@ -1127,7 +1127,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     {   
         if(a_pydaw_data->track_pool[f_i]->plugin_index == 1)
         {
-            printf("Schedule Euphoria instance at %i on %i\n", f_i, f_thread_index);
+            //printf("Schedule Euphoria instance at %i on %i\n", f_i, f_thread_index);
             
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 0;
@@ -1148,7 +1148,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     {   
         if(a_pydaw_data->track_pool[f_i]->plugin_index == 3)
         {
-            printf("Schedule Way-V instance at %i on %i\n", f_i, f_thread_index);
+            //printf("Schedule Way-V instance at %i on %i\n", f_i, f_thread_index);
             
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 0;
@@ -1169,7 +1169,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     {   
         if(a_pydaw_data->track_pool[f_i]->plugin_index == 2)
         {
-            printf("Schedule Ray-V instance at %i on %i\n", f_i, f_thread_index);
+            //printf("Schedule Ray-V instance at %i on %i\n", f_i, f_thread_index);
             
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 0;
@@ -1187,7 +1187,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     /*Now schedule the audio tracks*/    
     while(f_i < PYDAW_AUDIO_TRACK_COUNT)
     {
-        printf("Schedule audio track instance at %i on %i\n", f_i, f_thread_index);
+        //printf("Schedule audio track instance at %i on %i\n", f_i, f_thread_index);
         
         a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
         a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 2;
@@ -1208,7 +1208,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     {
         if(a_pydaw_data->bus_pool[f_i]->bus_count > 0)
         {
-            printf("Schedule bus track instance at %i on %i\n", f_i, f_thread_index);
+            //printf("Schedule bus track instance at %i on %i\n", f_i, f_thread_index);
             
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_number = f_i;
             a_pydaw_data->track_work_queues[f_thread_index][a_pydaw_data->track_work_queue_counts[f_thread_index]].track_type = 1;
@@ -1871,7 +1871,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
     
     if(a_pydaw_data->ml_is_looping)
     {
-        printf("Looping audio items at %i, %i\n", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
+        //printf("Looping audio items at %i, %i\n", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
         v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
     }
 }
@@ -2113,7 +2113,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                                                                                     
                             if(test1 < 0.0f)  //meaning the audio item starts in mid-region...
                             {
-                                printf("test1 < 0.0f");
+                                //printf("test1 < 0.0f");
                                 v_adsr_release(a_pydaw_data->audio_items->items[f_i]->adsr);
                             }
                             else
@@ -2315,7 +2315,7 @@ t_pydaw_song_level_automation * g_pydaw_song_level_automation_get(t_pydaw_data* 
     }
     else
     {
-        printf("No song-level automation found for %i|%i, loading empty automation item\n", a_type, a_track);
+        //printf("No song-level automation found for %i|%i, loading empty automation item\n", a_type, a_track);
     }
     
     return f_result;
