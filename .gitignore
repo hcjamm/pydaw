@@ -1,3 +1,4 @@
+plugins/pydaw/python/libpydaw/history_test*
 tools/debugger/gmon.out
 tools/debugger/profiling.txt
 plugins/pydaw/pydaw2
