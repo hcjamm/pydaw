@@ -1,9 +1,12 @@
 """
 A lightweight clone of Git, since a few of Git's behaviors are undesirable
 for an undo/redo system.  Uses sqlite3 for storing diffs...
+
+THIS FILE IS NOT YET FINISHED OR USED, AND MAY CHANGE DRASTICALLY BEFORE
+BEING IMPLEMENTED AS THE MAIN UNDO/REDO MECHANISM
 """
 
-import sqlite3, difflib, os, time
+import sqlite3, difflib, os, time, re
 
 #BIG TODO:  Paths must be relative to the project directory, otherwise
 #the folders can't ever be moved...
@@ -67,10 +70,11 @@ class pydaw_history:
                 f_file_handle = open(f_file.file_name, "r")
                 f_file_text = f_file_handle.read()
                 f_file_handle.close()
-                f_diff_text = difflib.unified_diff(f_file.file_text.split("\n"), f_file_text.split("\n"))
+                f_diff_text = list(difflib.unified_diff(f_file.file_text.split("\n"), f_file_text.split("\n")))
                 #TODO:  Check that there is an actual difference
                 f_file.modified = False
-                f_cursor.execute("INSERT INTO pydaw_diffs VALUES(?, ?, ?)", (f_timestamp, f_file.file_name, self.list_join(f_diff_text)))
+                f_cursor.execute("INSERT INTO pydaw_diffs VALUES(?, ?, ?)", (f_timestamp, f_file.file_name, self.list_join(f_diff_text[2:])))
+                f_file.file_text = f_file_text
         f_conn.commit()
         f_conn.close()
 
@@ -113,8 +117,24 @@ class pydaw_history:
             f_conn.commit()
             f_conn.close()
 
-    def patch(self, a_reverse=True):
-        pass
+    def patch(self, a_patch, a_file, a_reverse=True):
+        f_patch_lines = a_patch.split("\n")
+        f_file_handle = open(a_file, "r")
+        f_file_lines = f_file_handle.read()
+        f_file_current_line = 0
+        f_file_handle.close()
+        f_result = ""
+        for f_line in f_patch_lines:
+            if re.match("@@*@@", f_line) is not None: #context line
+                pass
+            else:
+                if f_line.startswith("+"):
+                    pass
+                elif f_line.startswith("-"):
+                    pass
+                else:
+                    pass
+        return f_result
 
 #TODO:  Adapt this function as a Python version of the UNIX 'patch' utility
 #Also a reverse of this function...
@@ -156,11 +176,28 @@ if __name__ == "__main__":
 
     testfile = testdir + "test.txt"
 
-    f_file = open(testfile, "a")
+    f_file = open(testfile, "w")
     f_file.write("test\ntest1\ntest2")
     f_file.close()
     test_history.add_file(testfile)
     test_history.mark_file_as_modified(testfile)
     test_history.commit("Test commit")
+
+    f_file = open(testfile, "a")
+    f_file.write("test3\ntest4\ntest6")
+    f_file.close()
+    test_history.add_file(testfile)
+    test_history.mark_file_as_modified(testfile)
+    test_history.commit("Test commit 2")
+
+
+    f_file = open(testfile, "w")
+    f_file.write("test444\ntest1\ntest2\ntestaaaa4444")
+    f_file.close()
+    test_history.add_file(testfile)
+    test_history.mark_file_as_modified(testfile)
+    test_history.commit("Test commit 7")
+
+
 
     test_history.db_exec(["VACUUM"])
