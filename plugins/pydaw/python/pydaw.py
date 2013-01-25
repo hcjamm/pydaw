@@ -3204,14 +3204,15 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.menu_edit = self.menu_bar.addMenu("&Edit")
 
-        self.undo_action = QtGui.QAction("Undo", self)
-        self.menu_edit.addAction(self.undo_action)
-        self.undo_action.triggered.connect(self.on_undo)
-        self.undo_action.setShortcut(QtGui.QKeySequence.Undo)
+        #self.undo_action = QtGui.QAction("Undo", self)
+        #self.menu_edit.addAction(self.undo_action)
+        #self.undo_action.triggered.connect(self.on_undo)
+        #self.undo_action.setShortcut(QtGui.QKeySequence.Undo)
 
         self.undo_history_action = QtGui.QAction("Undo History...", self)
         self.menu_edit.addAction(self.undo_history_action)
         self.undo_history_action.triggered.connect(self.on_undo_history)
+        self.undo_history_action.setShortcut(QtGui.QKeySequence.Undo)
 
         self.menu_help = self.menu_bar.addMenu("&Help")
 
