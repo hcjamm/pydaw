@@ -1034,6 +1034,7 @@ class audio_list_editor:
         f_timestretch_hlayout.addWidget(QtGui.QLabel("Time Stretch:"))
         f_timestretch_amt = QtGui.QDoubleSpinBox()
         f_timestretch_amt.setRange(0.2, 4.0)
+        f_timestretch_amt.setSingleStep(0.1)
         f_timestretch_amt.setValue(1.0)
         f_timestretch_hlayout.addWidget(f_timestretch_amt)
 
