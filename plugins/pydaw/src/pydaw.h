@@ -2898,6 +2898,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->ml_sample_period_inc = 0.0f;
     f_result->ml_sample_period_inc_beats = 0.0f;
     
+    f_result->ml_current_region = 0;
     f_result->ml_next_region = 0;
     f_result->ml_next_bar = 0;
     f_result->ml_next_beat = 0.0;
