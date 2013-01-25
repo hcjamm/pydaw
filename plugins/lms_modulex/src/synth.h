@@ -65,9 +65,21 @@ extern "C" {
 #define MODULEX_DUCK  40
 #define MODULEX_CUTOFF  41
 #define MODULEX_STEREO 42
+    
+#define MODULEX_VOL_SLIDER 43
+    
+#define MODULEX_REVERB_TIME 44
+#define MODULEX_REVERB_WET 45
+#define MODULEX_REVERB_COLOR 46
+    
+#define MODULEX_COMPRESSOR_THRESH 47
+#define MODULEX_COMPRESSOR_GAIN 48
+#define MODULEX_COMPRESSOR_RATIO 49
+#define MODULEX_COMPRESSOR_KNEE 50
+    
 /*This is the last control port*/
-#define MODULEX_LAST_CONTROL_PORT 42
-#define MODULEX_COUNT 43 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define MODULEX_LAST_CONTROL_PORT 50
+#define MODULEX_COUNT 51 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
   
 /*GUI Step 13:  Add a variable for each control in the LMS type*/
 typedef struct {
@@ -88,6 +100,17 @@ typedef struct {
     LADSPA_Data *duck;
     LADSPA_Data *cutoff;
     LADSPA_Data *stereo;
+    
+    LADSPA_Data *vol_slider;
+    
+    LADSPA_Data *reverb_time;
+    LADSPA_Data *reverb_wet;
+    LADSPA_Data *reverb_color;
+    
+    LADSPA_Data *compressor_thresh;
+    LADSPA_Data *compressor_gain;
+    LADSPA_Data *compressor_ratio;
+    LADSPA_Data *compressor_knee;
         
     float fs;    
     t_modulex_mono_modules * mono_modules;

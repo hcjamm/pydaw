@@ -108,6 +108,15 @@ static void v_modulex_connect_port(LADSPA_Handle instance, unsigned long port, L
         case MODULEX_DUCK: plugin->duck = data; break;
         case MODULEX_CUTOFF: plugin->cutoff = data; break;
         case MODULEX_STEREO: plugin->stereo = data; break;
+        
+        case MODULEX_REVERB_TIME: plugin->reverb_time = data; break;
+        case MODULEX_REVERB_WET: plugin->reverb_wet = data; break;
+        case MODULEX_REVERB_COLOR: plugin->reverb_color = data; break;
+
+        case MODULEX_COMPRESSOR_THRESH: plugin->compressor_thresh = data; break;
+        case MODULEX_COMPRESSOR_GAIN: plugin->compressor_gain = data; break;
+        case MODULEX_COMPRESSOR_RATIO: plugin->compressor_ratio = data; break;
+        case MODULEX_COMPRESSOR_KNEE: plugin->compressor_knee = data; break;
     }
 }
 
@@ -120,12 +129,14 @@ static LADSPA_Handle g_modulex_instantiate(const LADSPA_Descriptor * descriptor,
     
     plugin_data->midi_cc_map = g_ccm_get();
     
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_VOL_SLIDER, 7, "Volume Slider");
+    
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB0, 75, "FX0Knob0");
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB1, 76, "FX0Knob1");
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB2, 97, "FX0Knob2");
     
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB0, 77, "FX1Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB1, 7, "FX1Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB1, 119, "FX1Knob1");
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB2, 98, "FX1Knob2");
     
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX2_KNOB0, 99, "FX2Knob0");
@@ -682,6 +693,75 @@ LADSPA_Descriptor *modulex_ladspa_descriptor(long index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[MODULEX_STEREO].LowerBound =  0.0f;
 	port_range_hints[MODULEX_STEREO].UpperBound =  100.0f;        
+        
+        
+        port_descriptors[MODULEX_VOL_SLIDER] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_VOL_SLIDER] = "Volume Slider";
+	port_range_hints[MODULEX_VOL_SLIDER].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[MODULEX_VOL_SLIDER].LowerBound =  -50.0f;
+	port_range_hints[MODULEX_VOL_SLIDER].UpperBound =  0.0f;
+        
+        
+        port_descriptors[MODULEX_REVERB_TIME] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_REVERB_TIME] = "Reverb Time";
+	port_range_hints[MODULEX_REVERB_TIME].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[MODULEX_REVERB_TIME].LowerBound =  0.0f;
+	port_range_hints[MODULEX_REVERB_TIME].UpperBound =  100.0f;
+        
+        port_descriptors[MODULEX_REVERB_WET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_REVERB_WET] = "Reverb Wet";
+	port_range_hints[MODULEX_REVERB_WET].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MINIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[MODULEX_REVERB_WET].LowerBound =  0.0f;
+	port_range_hints[MODULEX_REVERB_WET].UpperBound =  100.0f;
+        
+        port_descriptors[MODULEX_REVERB_COLOR] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_REVERB_COLOR] = "Reverb Color";
+	port_range_hints[MODULEX_REVERB_COLOR].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[MODULEX_REVERB_COLOR].LowerBound =  0.0f;
+	port_range_hints[MODULEX_REVERB_COLOR].UpperBound =  100.0f;
+        
+        
+        port_descriptors[MODULEX_COMPRESSOR_THRESH] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_COMPRESSOR_THRESH] = "Compressor Threshold";
+	port_range_hints[MODULEX_COMPRESSOR_THRESH].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[MODULEX_COMPRESSOR_THRESH].LowerBound =  -24.0f;
+	port_range_hints[MODULEX_COMPRESSOR_THRESH].UpperBound =  0.0f;        
+        
+        port_descriptors[MODULEX_COMPRESSOR_GAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_COMPRESSOR_GAIN] = "Compressor Gain";
+	port_range_hints[MODULEX_COMPRESSOR_GAIN].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MIDDLE |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[MODULEX_COMPRESSOR_GAIN].LowerBound =  -24.0f;
+	port_range_hints[MODULEX_COMPRESSOR_GAIN].UpperBound =  24.0f;
+        
+        port_descriptors[MODULEX_COMPRESSOR_RATIO] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_COMPRESSOR_RATIO] = "Compressor Ratio";
+	port_range_hints[MODULEX_COMPRESSOR_RATIO].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MINIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[MODULEX_COMPRESSOR_RATIO].LowerBound =  1.0f;
+	port_range_hints[MODULEX_COMPRESSOR_RATIO].UpperBound =  12.0f;
+        
+        port_descriptors[MODULEX_COMPRESSOR_KNEE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_COMPRESSOR_KNEE] = "Compressor Knee";
+	port_range_hints[MODULEX_COMPRESSOR_KNEE].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MAXIMUM |
+			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[MODULEX_COMPRESSOR_KNEE].LowerBound =  0.0f;
+	port_range_hints[MODULEX_COMPRESSOR_KNEE].UpperBound =  100.0f;
+                
+        
         
 	LMSLDescriptor->activate = v_modulex_activate;
 	LMSLDescriptor->cleanup = v_modulex_cleanup;
