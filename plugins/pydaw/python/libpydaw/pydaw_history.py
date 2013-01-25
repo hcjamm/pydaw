@@ -5,8 +5,6 @@ for an undo/redo system.  Uses sqlite3 for storing diffs...
 
 import sqlite3, difflib, os, time
 
-pydaw_diff_separator = "\n---pydaw_diff_separator---\n"
-
 #BIG TODO:  Paths must be relative to the project directory, otherwise
 #the folders can't ever be moved...
 
@@ -26,7 +24,8 @@ class pydaw_history:
 
         if not os.path.isfile(self.db_file):
             self.db_exec(
-            ["CREATE TABLE pydaw_commits (commit_timestamp integer, commit_message text, commit_diff text)"] #blob or text?
+            ["CREATE TABLE pydaw_commits (commit_timestamp integer, commit_message text)",
+             "CREATE TABLE pydaw_diffs (commit_timestamp integer, commit_file, commit_diff text)"] #blob or text?
             ) #TDOO:  Create indexes and primary key?
 
         if os.path.isfile(self.files_list_path):
@@ -58,7 +57,11 @@ class pydaw_history:
                     self.mark_file_as_modified(f_file)  #for instrument/effect state files
 
     def commit(self, a_message):  #I guess this should always be like a git commit -a ....  for this purpose?
-        f_result = pydaw_history_commit(a_message)
+        f_conn = sqlite3.connect(self.db_file)
+        f_cursor = f_conn.cursor()
+        f_timestamp = int(time.time())
+        f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?)", (f_timestamp, a_message))
+
         for f_file in self.tracked_files:
             if f_file.modified:
                 f_file_handle = open(f_file.file_name, "r")
@@ -66,11 +69,8 @@ class pydaw_history:
                 f_file_handle.close()
                 f_diff_text = difflib.unified_diff(f_file.file_text.split("\n"), f_file_text.split("\n"))
                 #TODO:  Check that there is an actual difference
-                f_result.diffs.append(self.list_join(f_diff_text))
                 f_file.modified = False
-        f_conn = sqlite3.connect(self.db_file)
-        f_cursor = f_conn.cursor()
-        f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?, ?)", (int(time.time()), a_message, str(f_result)))
+                f_cursor.execute("INSERT INTO pydaw_diffs VALUES(?, ?, ?)", (f_timestamp, f_file.file_name, self.list_join(f_diff_text)))
         f_conn.commit()
         f_conn.close()
 
@@ -81,7 +81,7 @@ class pydaw_history:
         return False
 
     def list_commits(self, a_count=0):
-        f_query = "SELECT commit_timestamp, commit_message FROM pydaw_commits ORDER BY commmit_timestamp DESC"
+        f_query = "SELECT * FROM pydaw_commits ORDER BY commmit_timestamp DESC"
         if a_count > 0:
             f_query += " LIMIT " + str(a_count)
         return self.db_exec([f_query], True)
@@ -145,17 +145,6 @@ class pydaw_history_file:
     def __eq__(self, other):
         return self.file_name == other.file_name
 
-class pydaw_history_commit:
-    def __init__(self, a_message):
-        self.message = a_message
-        self.diffs = []
-
-    def __str__(self):
-        f_result = ""
-        for f_diff in self.diffs:
-            f_result += pydaw_diff_separator + f_diff
-        return f_result
-
 if __name__ == "__main__":
     print("Parsed OK...")
     testdir = os.path.dirname(os.path.realpath(__file__)) + "/history_test/"
@@ -167,12 +156,11 @@ if __name__ == "__main__":
 
     testfile = testdir + "test.txt"
 
-    for i in range(100):
-        f_file = open(testfile, "a")
-        f_file.write("test\ntest1\ntest2")
-        f_file.close()
-        test_history.add_file(testfile)
-        test_history.mark_file_as_modified(testfile)
-        test_history.commit("Test commit")
+    f_file = open(testfile, "a")
+    f_file.write("test\ntest1\ntest2")
+    f_file.close()
+    test_history.add_file(testfile)
+    test_history.mark_file_as_modified(testfile)
+    test_history.commit("Test commit")
 
     test_history.db_exec(["VACUUM"])
