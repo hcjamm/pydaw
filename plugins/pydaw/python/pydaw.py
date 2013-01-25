@@ -757,8 +757,9 @@ class audio_list_editor:
             self.audio_items_table_widget.setItem(k, 9, QtGui.QTableWidgetItem(str(v.end_beat)))
             self.audio_items_table_widget.setItem(k, 10, QtGui.QTableWidgetItem(str(global_timestretch_modes[v.time_stretch_mode])))
             self.audio_items_table_widget.setItem(k, 11, QtGui.QTableWidgetItem(str(v.pitch_shift)))
-            self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.output_track)))
-            self.audio_items_table_widget.setItem(k, 13, QtGui.QTableWidgetItem(str(v.vol)))
+            self.audio_items_table_widget.setItem(k, 13, QtGui.QTableWidgetItem(str(v.output_track)))
+            self.audio_items_table_widget.setItem(k, 14, QtGui.QTableWidgetItem(str(v.vol)))
+            self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.timestretch_amt)))
         self.audio_items_table_widget.resizeColumnsToContents()
 
     def reset_tracks(self):
@@ -797,8 +798,8 @@ class audio_list_editor:
                 self.audio_items_table_widget.item(x, 7).text(), self.audio_items_table_widget.item(x, 8).text(),
                 self.audio_items_table_widget.item(x, 9).text(),
                 global_timestretch_modes.index(str(self.audio_items_table_widget.item(x, 10).text())),
-                self.audio_items_table_widget.item(x, 11).text(), self.audio_items_table_widget.item(x, 12).text(),
-                self.audio_items_table_widget.item(x, 13).text()
+                self.audio_items_table_widget.item(x, 11).text(), self.audio_items_table_widget.item(x, 13).text(),
+                self.audio_items_table_widget.item(x, 14).text(), self.audio_items_table_widget.item(x, 12).text()
                 ))
 
     def show_cell_dialog(self, x, y, a_item=None):
@@ -819,7 +820,8 @@ class audio_list_editor:
 
             f_new_item = pydaw_audio_item(f_name.text(), f_sample_start.value(), f_sample_end.value(), f_start_region.value(),
                     f_start_bar.value(), f_start_beat.value(), f_end_mode, f_end_region.value(), f_end_bar.value(), f_end_beat.value(),
-                    f_timestretch_mode.currentIndex(), f_pitch_shift.value(), f_output_combobox.currentIndex(), f_sample_vol_slider.value())
+                    f_timestretch_mode.currentIndex(), f_pitch_shift.value(), f_output_combobox.currentIndex(), f_sample_vol_slider.value(),
+                    f_timestretch_amt.value())
 
             this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(x, f_new_item)
             self.audio_items.add_item(x, f_new_item)
@@ -1028,6 +1030,13 @@ class audio_list_editor:
         f_pitch_shift = QtGui.QDoubleSpinBox()
         f_pitch_shift.setRange(-36, 36)
         f_timestretch_hlayout.addWidget(f_pitch_shift)
+
+        f_timestretch_hlayout.addWidget(QtGui.QLabel("Time Stretch:"))
+        f_timestretch_amt = QtGui.QDoubleSpinBox()
+        f_timestretch_amt.setRange(0.2, 4.0)
+        f_timestretch_amt.setValue(1.0)
+        f_timestretch_hlayout.addWidget(f_timestretch_amt)
+
         f_timestretch_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
         f_output_hlayout = QtGui.QHBoxLayout()
@@ -1068,6 +1077,7 @@ class audio_list_editor:
             f_end_beat.setValue(a_item.end_beat)
             f_timestretch_mode.setCurrentIndex(a_item.time_stretch_mode)
             f_pitch_shift.setValue(a_item.pitch_shift)
+            f_timestretch_amt.setValue(a_item.timestretch_amt)
             f_output_combobox.setCurrentIndex(a_item.output_track)
             f_sample_vol_slider.setValue(a_item.vol)
 
@@ -1097,9 +1107,9 @@ class audio_list_editor:
         self.items_groupbox.setLayout(self.items_vlayout)
 
         self.audio_items_table_widget = QtGui.QTableWidget()
-        self.audio_items_table_widget.setColumnCount(14)
+        self.audio_items_table_widget.setColumnCount(15)
         self.audio_items_table_widget.setHorizontalHeaderLabels(["Path", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", \
-        "End Mode", "End Region", "End Bar", "End Beat", "Timestretch Mode", "Pitch", "Audio Track", "Volume"])
+        "End Mode", "End Region", "End Bar", "End Beat", "Timestretch Mode", "Pitch", "Timestretch", "Audio Track", "Volume"])
         self.audio_items_table_widget.setRowCount(32)
         self.audio_items_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_items_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
@@ -3481,7 +3491,7 @@ def about_to_quit():
 
 app = QtGui.QApplication(sys.argv)
 
-global_timestretch_modes = ["None", "Pitch(affecting time)"] #, "Time(affecting pitch"]
+global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch"]
 global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4", 4:"track5", 5:"track6", 6:"track7", 7:"track8"}
 global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []

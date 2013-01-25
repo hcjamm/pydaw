@@ -59,6 +59,11 @@ typedef struct
     int index;
     float vol;
     float vol_linear;
+    
+    float timestretch_amt;
+    int sample_fade_in;
+    int sample_fade_out;
+    
     t_amp * amp_ptr;
     t_pit_pitch_core * pitch_core_ptr;
     t_pit_ratio * pitch_ratio_ptr;
@@ -254,6 +259,18 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     f_result->vol_linear = f_db_to_linear_fast(f_result->vol, f_result->amp_ptr);
     free(f_vol_char);
     
+    char * f_timestretch_amt_char = c_iterate_2d_char_array(f_current_string);
+    f_result->timestretch_amt = atof(f_timestretch_amt_char);
+    free(f_timestretch_amt_char);
+    
+    char * f_fade_in_char = c_iterate_2d_char_array(f_current_string);
+    f_result->sample_fade_in = atoi(f_fade_in_char);
+    free(f_fade_in_char);
+        
+    char * f_fade_out_char = c_iterate_2d_char_array(f_current_string);
+    f_result->sample_fade_out = atoi(f_fade_out_char);
+    free(f_fade_out_char);
+    
     free(f_file_name_char);
 
     switch(f_result->timestretch_mode)
@@ -276,9 +293,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
             break;
         case 2:  //Time affecting pitch
         {
-            //This is trickier to calculate than pitch-affecting-time because it's tied to 
-            //relative song position, which isn't represented here and could change at any time...
-            //This might not make it into the 2.0 release, but can come later in the 2.0 series.
+            f_result->ratio *= (f_result->timestretch_amt);
         }
             break;
     }
