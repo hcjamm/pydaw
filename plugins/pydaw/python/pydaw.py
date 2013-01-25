@@ -3481,7 +3481,7 @@ def about_to_quit():
 
 app = QtGui.QApplication(sys.argv)
 
-global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch"]
+global_timestretch_modes = ["None", "Pitch(affecting time)"] #, "Time(affecting pitch"]
 global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4", 4:"track5", 5:"track6", 6:"track7", 7:"track8"}
 global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []

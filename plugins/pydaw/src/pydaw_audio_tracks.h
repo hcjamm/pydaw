@@ -14,6 +14,7 @@ extern "C" {
     
 #include <sndfile.h>
 #include "../../libmodsynth/lib/amp.h"
+#include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/lib/interpolate-cubic.h"
 //Imported only for t_int_frac_read_head... TODO:  Fork that into it's own file...
 #include "../../libmodsynth/lib/interpolate-sinc.h"
@@ -59,6 +60,8 @@ typedef struct
     float vol;
     float vol_linear;
     t_amp * amp_ptr;
+    t_pit_pitch_core * pitch_core_ptr;
+    t_pit_ratio * pitch_ratio_ptr;
 } t_pydaw_audio_item __attribute__((aligned(16)));
 
 typedef struct 
@@ -123,6 +126,8 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
     f_result->sample_read_head = g_ifh_get();
     
     f_result->amp_ptr = g_amp_get();
+    f_result->pitch_core_ptr = g_pit_get();
+    f_result->pitch_ratio_ptr = g_pit_ratio();
     f_result->vol = 0.0f;
     f_result->vol_linear = 1.0f;
         
@@ -251,17 +256,32 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     
     free(f_file_name_char);
 
-    /*
-    f_result->adjusted_start_beat = 
-            (((double)(f_result->start_region)) * 4.0f * 8.0f) +
-            (((double)(f_result->start_bar)) * 4.0f) +
-            (f_result->start_beat);
-
-    f_result->adjusted_end_beat = 
-        (((double)(f_result->end_region)) * 4.0f * 8.0f) +
-        (((double)(f_result->end_bar)) * 4.0f) +
-        (f_result->end_beat);
-    */
+    switch(f_result->timestretch_mode)
+    {
+        case 0:  //None
+            break;
+        case 1:  //Pitch affecting time
+        {
+            if((f_result->pitch_shift) >= 0.0f)
+            {
+                f_result->ratio *= f_pit_midi_note_to_ratio_fast(0.0f, (f_result->pitch_shift), 
+                        f_result->pitch_core_ptr, f_result->pitch_ratio_ptr);
+            }
+            else
+            {
+                f_result->ratio *= f_pit_midi_note_to_ratio_fast(((f_result->pitch_shift) * -1.0f), 0.0f, 
+                        f_result->pitch_core_ptr, f_result->pitch_ratio_ptr);
+            }
+        }
+            break;
+        case 2:  //Time affecting pitch
+        {
+            //This is trickier to calculate than pitch-affecting-time because it's tied to 
+            //relative song position, which isn't represented here and could change at any time...
+            //This might not make it into the 2.0 release, but can come later in the 2.0 series.
+        }
+            break;
+    }
     
     f_result->adsr->stage = 4;
     
