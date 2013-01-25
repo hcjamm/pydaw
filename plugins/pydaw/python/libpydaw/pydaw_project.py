@@ -1198,7 +1198,8 @@ class pydaw_audio_items:
 
 class pydaw_audio_item:
     def __init__(self, a_file, a_sample_start, a_sample_end, a_start_region, a_start_bar, a_start_beat, a_end_mode, \
-    a_end_region, a_end_bar, a_end_beat, a_timestretch_mode, a_pitch_shift, a_output_track, a_vol):
+    a_end_region, a_end_bar, a_end_beat, a_timestretch_mode, a_pitch_shift, a_output_track, a_vol, a_timestretch_amt=1.0, \
+    a_fade_in=0, a_fade_out=1000):
         self.file = str(a_file)
         self.sample_start = int(a_sample_start)  #TODO:  int() these once I have a way of getting frame count...
         self.sample_end = int(a_sample_end)
@@ -1213,17 +1214,21 @@ class pydaw_audio_item:
         self.pitch_shift = float(a_pitch_shift)
         self.output_track = int(a_output_track)
         self.vol = int(a_vol)
+        self.timestretch_amt = float(a_timestretch_amt)
+        self.fade_in = int(a_fade_in)
+        self.fade_out = int(a_fade_out)
 
     def __str__(self):
         return self.file + "|" + str(self.sample_start) + "|" + str(self.sample_end) + "|" + str(self.start_region) \
         + "|" + str(self.start_bar) + "|" + str(self.start_beat) + "|" + str(self.end_mode) + "|" + str(self.end_region) \
         + "|" + str(self.end_bar) + "|" + str(self.end_beat) + "|" + str(self.time_stretch_mode) \
-        + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "\n"
+        + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(self.timestretch_amt) \
+        + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "\n"
 
     @staticmethod
     def from_arr(a_arr):
         f_result = pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
-        a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12], a_arr[13])
+        a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12], a_arr[13], a_arr[14], a_arr[15], a_arr[16])
         return f_result
 
 class pydaw_audio_input_tracks:
