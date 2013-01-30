@@ -34,6 +34,7 @@ GNU General Public License for more details.
 
 #include "../../libmodsynth/widgets/lms_main_layout.h"
 #include "../../libmodsynth/widgets/ui_modules/multieffect_basic.h"
+#include "../../libmodsynth/widgets/lms_slider.h"
 
 extern "C" {
 #include <lo/lo.h>
@@ -113,6 +114,8 @@ public slots:
     void setCutoff(float val);
     void setStereo(float val);
     
+    void setVolume(float val);
+    
     void aboutToQuit();
     
 protected slots:
@@ -166,11 +169,14 @@ protected slots:
     void stereoChanged(int);
     void bpmSyncPressed();
     
+    void volumeChanged(int);
+    
     void oscRecv();
 protected:
     
     QTabWidget * m_tab_widget;
     QVBoxLayout * m_main_vboxlayout;
+    QHBoxLayout * m_main_hboxlayout;
     QWidget * m_fx_tab;
     QWidget * m_delay_tab;
     LMS_main_layout * m_delay_layout;    
@@ -192,6 +198,8 @@ protected:
     LMS_knob_regular *m_duck;    
     LMS_knob_regular *m_cutoff;    
     LMS_knob_regular *m_stereo;
+    
+    LMS_slider * m_volume_slider;
     
     /*BPM sync box*/
     QDoubleSpinBox * m_bpm_spinbox;        

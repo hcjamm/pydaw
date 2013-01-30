@@ -24,6 +24,7 @@ extern "C" {
 /*includes for any libmodsynth modules you'll be using*/
 #include "../../libmodsynth/modules/multifx/multifx3knob.h"
 #include "../../libmodsynth/lib/osc_core.h"
+#include "../../libmodsynth/lib/amp.h"
 #include "../../libmodsynth/lib/pitch_core.h"
 #include "../../libmodsynth/lib/smoother-linear.h"
 #include "../../libmodsynth/lib/smoother-iir.h"
@@ -44,6 +45,8 @@ typedef struct st_modulex_mono_modules
     
     float current_sample0;
     float current_sample1;
+    
+    t_amp * amp_ptr;    
 }t_modulex_mono_modules;
     
 
@@ -63,6 +66,8 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
         a_mono->fx_func_ptr[f_i] = v_mf3_run_off;
         f_i++;
     }
+    
+    a_mono->amp_ptr = g_amp_get();
     
     a_mono->delay = g_ldl_get_delay(1, a_sr);
     a_mono->svf0 = g_svf_get(a_sr);
