@@ -45,15 +45,18 @@ class LMS_slider : public LMS_control
             lms_slider->setMinimum(a_min);
             lms_slider->setMaximum(a_max);
             lms_slider->setSingleStep(a_step_size);
-            lms_slider->setValue(a_value);
+            lms_slider->setValue(a_value);            
+            lms_slider->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            
+            lms_slider->setMinimumHeight(460);
             
             if(a_vertical)
             {
-                lms_slider->setOrientation(Vertical);
+                lms_slider->setOrientation(Qt::Vertical);
             }
             else
             {
-                lms_slider->setOrientation(Horizontal);
+                lms_slider->setOrientation(Qt::Horizontal);
             }
             
             lms_value = new QLabel(a_parent);
@@ -69,13 +72,10 @@ class LMS_slider : public LMS_control
             {
                 lms_value->setStyleSheet((a_style_info->lms_value_style));
             }
-                        
-            lms_slider->setMinimumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
-            lms_slider->setMaximumSize((a_style_info->lms_knob_size),(a_style_info->lms_knob_size));
                                                 
-            lms_layout->addWidget(lms_label, -1, Qt::AlignCenter);
-            lms_layout->addWidget(lms_slider, -1, Qt::AlignCenter);
-            lms_layout->addWidget(lms_value, -1, Qt::AlignCenter);
+            lms_layout->addWidget(lms_label, -1, Qt::AlignTop | Qt::AlignCenter);
+            lms_layout->addWidget(lms_slider, 0, Qt::AlignCenter);
+            lms_layout->addWidget(lms_value, -1, Qt::AlignBottom | Qt::AlignCenter);
             
             lms_port = a_lms_port;
             
