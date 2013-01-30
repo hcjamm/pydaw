@@ -490,7 +490,7 @@ void modulex_gui::v_set_control(int a_port, float a_value)
         case MODULEX_CUTOFF: setCutoff(a_value); break;
         case MODULEX_STEREO: setStereo(a_value); break;
         
-        case MODULEX_VOL_SLIDER: setVolume(a_value);
+        case MODULEX_VOL_SLIDER: setVolume(a_value); break;
     }
 }
 
@@ -557,6 +557,8 @@ void modulex_gui::v_control_changed(int a_port, int a_value, bool a_suppress_hos
         case MODULEX_CUTOFF: cutoffChanged(a_value); break;
         case MODULEX_STEREO: stereoChanged(a_value); break;
         
+        case MODULEX_VOL_SLIDER:  volumeChanged(a_value); break;
+        
         default:
 #ifdef LMS_DEBUG_MODE_QT
             modulex_cerr << "Warning: received request to set nonexistent port " << a_port << endl;
@@ -619,6 +621,8 @@ int modulex_gui::i_get_control(int a_port)
     case MODULEX_DUCK: return m_duck->lms_get_value();
     case MODULEX_CUTOFF: return m_cutoff->lms_get_value();
     case MODULEX_STEREO: return m_stereo->lms_get_value();    
+    
+    case MODULEX_VOL_SLIDER: return m_volume_slider->lms_get_value();
     
     default:
 	modulex_cerr << "Warning: received request to get nonexistent port " << a_port << endl;
