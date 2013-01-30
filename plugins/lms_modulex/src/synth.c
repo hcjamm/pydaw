@@ -109,6 +109,8 @@ static void v_modulex_connect_port(LADSPA_Handle instance, unsigned long port, L
         case MODULEX_CUTOFF: plugin->cutoff = data; break;
         case MODULEX_STEREO: plugin->stereo = data; break;
         
+        case MODULEX_VOL_SLIDER: plugin->vol_slider = data; break;
+        
         case MODULEX_REVERB_TIME: plugin->reverb_time = data; break;
         case MODULEX_REVERB_WET: plugin->reverb_wet = data; break;
         case MODULEX_REVERB_COLOR: plugin->reverb_color = data; break;
@@ -303,6 +305,17 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
         }
     }
 
+    if((*plugin_data->vol_slider) != 0.0)
+    {
+        int f_i = 0;
+        float f_vol_linear = f_db_to_linear_fast((*plugin_data->vol_slider), plugin_data->mono_modules->amp_ptr);
+        while(f_i < sample_count)
+        {
+            plugin_data->output0[f_i] *= f_vol_linear;
+            plugin_data->output1[f_i] *= f_vol_linear;
+            f_i++;
+        }
+    }
     
 }
 

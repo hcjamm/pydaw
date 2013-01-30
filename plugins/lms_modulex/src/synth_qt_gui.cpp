@@ -76,8 +76,11 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     this->setStyleSheet(f_stylesheet_file.readAll());
     f_stylesheet_file.close();
 
+    m_main_hboxlayout = new QHBoxLayout();
     m_main_vboxlayout = new QVBoxLayout();
-    this->setLayout(m_main_vboxlayout);
+    this->setLayout(m_main_hboxlayout);
+    m_main_hboxlayout->addLayout(m_main_vboxlayout);
+            
     m_tab_widget = new QTabWidget(this);    
     m_fx_tab = new QWidget(this);
     m_delay_tab = new QWidget(this);
@@ -91,6 +94,10 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     LMS_style_info * f_info = new LMS_style_info(51);
     //f_info->LMS_set_label_style("QLabel{background-color: white; border: 1px solid black;  border-radius: 6px;}", 60);
     //f_info->LMS_set_value_style(QString("color : white; background-color: rgba(0,0,0,0);"), 64);
+        
+    m_volume_slider = new LMS_slider(QString("Volume"), -50, 0, 1, 0, QString("0"), this, f_info, MODULEX_VOL_SLIDER, TRUE);
+    m_main_hboxlayout->addLayout(m_volume_slider->lms_layout, -1);
+    connect(m_volume_slider->lms_slider, SIGNAL(valueChanged(int)), this, SLOT(volumeChanged(int)));
     
     m_fx0 = new LMS_multieffect(this, QString("FX1"), f_info, MODULEX_FX0_KNOB0, MODULEX_FX0_KNOB1, MODULEX_FX0_KNOB2, MODULEX_FX0_COMBOBOX);
     connect(m_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob0Changed(int)));
@@ -305,6 +312,7 @@ void modulex_gui::setDuck(float val){ lms_set_value(val, m_duck); }
 void modulex_gui::setCutoff(float val){ lms_set_value(val, m_cutoff); }
 void modulex_gui::setStereo(float val){ lms_set_value(val, m_stereo); }
 
+void modulex_gui::setVolume(float val){ lms_set_value(val, m_volume_slider); }
 
 void modulex_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {
@@ -363,6 +371,8 @@ void modulex_gui::wetChanged(int value){ lms_value_changed(value, m_wet); }
 void modulex_gui::duckChanged(int value){ lms_value_changed(value, m_duck); }
 void modulex_gui::cutoffChanged(int value){ lms_value_changed(value, m_cutoff); }
 void modulex_gui::stereoChanged(int value){ lms_value_changed(value, m_stereo); }
+
+void modulex_gui::volumeChanged(int value){ lms_value_changed(value, m_volume_slider); }
 
 void modulex_gui::bpmSyncPressed()
 {
@@ -478,7 +488,9 @@ void modulex_gui::v_set_control(int a_port, float a_value)
         case MODULEX_WET: setWet(a_value); break;
         case MODULEX_DUCK: setDuck(a_value); break;
         case MODULEX_CUTOFF: setCutoff(a_value); break;
-        case MODULEX_STEREO: setStereo(a_value); break;        
+        case MODULEX_STEREO: setStereo(a_value); break;
+        
+        case MODULEX_VOL_SLIDER: setVolume(a_value);
     }
 }
 
