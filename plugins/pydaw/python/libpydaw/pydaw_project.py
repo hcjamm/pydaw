@@ -693,6 +693,52 @@ class pydaw_item:
                 self.notes.pop(i)
                 break
 
+    def quantize(self, a_beat_frac, a_events_move_with_item=False, a_notes=None):
+        f_notes = []
+        f_ccs = []
+        f_pbs = []
+
+        if a_notes is None:
+            f_notes = self.notes
+            f_ccs = self.ccs
+            f_pbs = self.pitchbends
+        else:
+            for i in range(len(a_notes)):
+                for f_note in self.notes:
+                    if f_note == a_notes[i]:
+                        if a_events_move_with_item:
+                            f_start = f_note.start
+                            f_end = f_note.start + f_note.length
+                            for f_cc in self.ccs:
+                                if f_ccs.start >= f_start and f_cc.start <= f_end:
+                                    f_ccs.append(f_cc)
+                            for f_pb in self.pitchbends:
+                                if f_pb.start >= f_start and f_pb.start <= f_end:
+                                    f_pbs.append(f_pb)
+                        f_notes.append(f_note)
+                        break
+
+        f_quantized_value = beat_frac_text_to_float(a_beat_frac)
+        f_quantize_multiple = 1.0/f_quantized_value
+
+        for note in f_notes:
+            f_new_start = round(note.start * f_quantize_multiple) * f_quantized_value
+            note.start = f_new_start
+            shift_adjust = note.start - f_new_start
+            f_new_length = round(note.length * f_quantize_multiple) * f_quantized_value
+            if f_new_length == 0.0:
+                f_new_length = f_quantized_value
+            note.length = f_new_length
+
+        self.fix_overlaps()
+
+        if a_events_move_with_item:
+            for cc in f_ccs:
+                cc.start -= shift_adjust
+            for pb in f_pbs:
+                pb.start -= shift_adjust
+
+
     def transpose(self, a_semitones, a_octave=0, a_notes=None):
         f_total = a_semitones + (a_octave * 12)
         f_notes = []
