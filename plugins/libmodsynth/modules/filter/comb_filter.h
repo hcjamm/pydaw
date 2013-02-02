@@ -131,9 +131,9 @@ inline void v_cmb_set_all(t_comb_filter*__restrict a_cmb_ptr, float a_wet_db, fl
     /*Set feedback_linear, but only if it's changed since last time*/    
     if((a_cmb_ptr->feedback_db) != a_feedback_db)
     {
-        if(a_feedback_db > -1.0f)
+        if(a_feedback_db > -0.1f)
         {
-            a_cmb_ptr->feedback_db = -1.0f;
+            a_cmb_ptr->feedback_db = -0.1f;
         }
         else
         {
