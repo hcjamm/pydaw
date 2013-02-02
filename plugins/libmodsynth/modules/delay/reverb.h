@@ -100,6 +100,11 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
 {
     t_rvb_reverb * f_result;
     
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_rvb_reverb))) != 0)
+    {
+        return 0;
+    }
+    
     int f_i = 0;
         
     f_result->color = 0.0f;
@@ -129,7 +134,7 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     {
         f_result->output[f_i] = 0.0f;
         
-        f_result->hp = g_svf_get(a_sr);
+        f_result->hp[f_i] = g_svf_get(a_sr);
                 
         int f_i2 = 0;
         
