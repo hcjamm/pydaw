@@ -58,7 +58,7 @@ void v_rvb_reverb_set(t_rvb_reverb * a_reverb, float a_time, float a_wet, float 
     if(a_wet != (a_reverb->wet))
     {
         a_reverb->wet = a_wet;
-        a_reverb->wet_linear = f_db_to_linear_fast(a_wet, a_reverb->amp);
+        //a_reverb->wet_linear = f_db_to_linear_fast(a_wet, a_reverb->amp);
     }
     
     if(a_color != (a_reverb->color))
@@ -75,9 +75,11 @@ inline void v_rvb_reverb_run(t_rvb_reverb * a_reverb, float a_input0, float a_in
     a_reverb->output[1] = 0.0f;
     
     while((a_reverb->iter1) < PYDAW_REVERB_TAP_COUNT)
-    {
-        v_cmb_set_input(a_reverb->taps[0][(a_reverb->iter1)], a_input0);
-        v_cmb_set_input(a_reverb->taps[1][(a_reverb->iter1)], a_input1);
+    {        
+        v_cmb_set_input(a_reverb->taps[0][(a_reverb->iter1)], 
+                v_svf_run_2_pole_lp(a_reverb->lp[0][(a_reverb->iter1)], a_input0));
+        v_cmb_set_input(a_reverb->taps[1][(a_reverb->iter1)], 
+                v_svf_run_2_pole_lp(a_reverb->lp[1][(a_reverb->iter1)], a_input1));
     
         a_reverb->output[0] += (a_reverb->taps[0][(a_reverb->iter1)]->output_sample);
         a_reverb->output[1] += (a_reverb->taps[1][(a_reverb->iter1)]->output_sample);
@@ -93,7 +95,10 @@ inline void v_rvb_reverb_run(t_rvb_reverb * a_reverb, float a_input0, float a_in
         a_reverb->output[1] = v_svf_run_2_pole_allpass(a_reverb->diffusers[1][(a_reverb->iter1)], a_reverb->output[1]);
         
         a_reverb->iter1 = (a_reverb->iter1) + 1;
-    }        
+    }
+    
+    a_reverb->output[0] = v_svf_run_2_pole_hp(a_reverb->hp[0], a_reverb->output[0]);
+    a_reverb->output[1] = v_svf_run_2_pole_hp(a_reverb->hp[1], a_reverb->output[1]);
 }
 
 t_rvb_reverb * g_rvb_reverb_get(float a_sr)
@@ -111,19 +116,19 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     f_result->iter1 = 0;
     f_result->time = 1.0f;
     f_result->wet = -40.0f;
-    f_result->wet_linear = 0.0f;
+    f_result->wet_linear = 1.0f;
     
     f_result->amp = g_amp_get();
     f_result->pitch_core = g_pit_get();
     
-    f_result->comb_tunings[0] = f_pit_hz_to_midi_note(1557.0f);
-    f_result->comb_tunings[1] = f_pit_hz_to_midi_note(1617.0f);
-    f_result->comb_tunings[2] = f_pit_hz_to_midi_note(1491.0f);
-    f_result->comb_tunings[3] = f_pit_hz_to_midi_note(1422.0f);
-    f_result->comb_tunings[4] = f_pit_hz_to_midi_note(1277.0f);
-    f_result->comb_tunings[5] = f_pit_hz_to_midi_note(1356.0f);
-    f_result->comb_tunings[6] = f_pit_hz_to_midi_note(1188.0f);
-    f_result->comb_tunings[7] = f_pit_hz_to_midi_note(1116.0f);
+    f_result->comb_tunings[0] = 24.0f; //f_pit_hz_to_midi_note(1557.0f);
+    f_result->comb_tunings[1] = 25.0f; // f_pit_hz_to_midi_note(1617.0f);
+    f_result->comb_tunings[2] = 26.0f; // f_pit_hz_to_midi_note(1491.0f);
+    f_result->comb_tunings[3] = 27.0f; // f_pit_hz_to_midi_note(1422.0f);
+    f_result->comb_tunings[4] = 28.0f; // f_pit_hz_to_midi_note(1277.0f);
+    f_result->comb_tunings[5] = 29.0f; // f_pit_hz_to_midi_note(1356.0f);
+    f_result->comb_tunings[6] = 30.0f; // f_pit_hz_to_midi_note(1188.0f);
+    f_result->comb_tunings[7] = 31.0f; // f_pit_hz_to_midi_note(1116.0f);
         
     f_result->allpass_tunings[0] = f_pit_hz_to_midi_note(225.0f);
     f_result->allpass_tunings[1] = f_pit_hz_to_midi_note(556.0f);
@@ -135,6 +140,9 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
         f_result->output[f_i] = 0.0f;
         
         f_result->hp[f_i] = g_svf_get(a_sr);
+        v_svf_set_cutoff_base(f_result->hp[f_i], 36.0f);
+        v_svf_set_res(f_result->hp[f_i], -24.0f);
+        v_svf_set_cutoff(f_result->hp[f_i]);
                 
         int f_i2 = 0;
         
@@ -142,10 +150,10 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
         {
             f_result->taps[f_i][f_i2] = g_cmb_get_comb_filter(a_sr);
             f_result->lp[f_i][f_i2] = g_svf_get(a_sr);
-            v_svf_set_cutoff_base(f_result->lp[f_i][f_i2], 10000.0f);
+            v_svf_set_cutoff_base(f_result->lp[f_i][f_i2], 100.0f);
             v_svf_set_cutoff(f_result->lp[f_i][f_i2]);
             
-            v_cmb_set_all(f_result->taps[f_i][f_i2], 0.0f, -3.0f, f_result->comb_tunings[f_i2]);
+            v_cmb_set_all(f_result->taps[f_i][f_i2], 0.0f, -0.1f, f_result->comb_tunings[f_i2]);
             f_i2++;
         }
         
@@ -155,6 +163,7 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
         {
             f_result->diffusers[f_i][f_i2] = g_svf_get(a_sr);
             v_svf_set_cutoff_base(f_result->diffusers[f_i][f_i2], f_result->allpass_tunings[f_i2]);
+            v_svf_set_res(f_result->diffusers[f_i][f_i2], -6.0f);
             v_svf_set_cutoff(f_result->diffusers[f_i][f_i2]);
             f_i2++;
         }
