@@ -1672,11 +1672,58 @@ class item_list_editor:
                 f_result.append(pydaw_pitchbend(self.pitchbend_table_widget.item(i, 0).text(), self.pitchbend_table_widget.item(i, 1).text()))
         return f_result
 
+    def quantize_dialog(self):
+        if not self.enabled:
+            self.show_not_enabled_warning()
+            return
+        f_multiselect = False
+        if self.multiselect_radiobutton.isChecked():
+            f_ms_rows = self.get_notes_table_selected_rows()
+            if len(f_ms_rows) == 0:
+                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
+            else:
+                f_multiselect = True
+                
+        def quantize_ok_handler():
+            f_quantize_index = f_quantize_combobox.currentIndex()
+            self.events_follow_default = f_events_follow_notes.isChecked()
+            if f_multiselect:
+                self.item.quantize(f_quantize_index, f_events_follow_notes.isChecked(), f_ms_rows)
+            else:
+                self.item.quantize(f_quantize_index, f_events_follow_notes.isChecked())
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Quantize item '" + self.item_name + "'")
+            f_window.close()
+            
+        def quantize_cancel_handler():
+            f_window.close()
+            
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Quantize")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        
+        f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 0, 0)
+        f_quantize_combobox = QtGui.QComboBox()
+        f_quantize_combobox.addItems(beat_fracs)
+        f_quantize_combobox.setCurrentIndex(5)
+        f_layout.addWidget(f_quantize_combobox, 0, 1)
+        f_events_follow_notes = QtGui.QCheckBox("CCs and pitchbend follow notes?")
+        f_events_follow_notes.setChecked(self.events_follow_default)
+        f_layout.addWidget(f_events_follow_notes, 1, 1)
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(quantize_ok_handler)
+        f_layout.addWidget(f_ok, 3, 0)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(quantize_cancel_handler)
+        f_layout.addWidget(f_cancel, 3, 1)
+        f_window.exec_()
+           
     def transpose_dialog(self):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
-
         f_multiselect = False
         if self.multiselect_radiobutton.isChecked():
             f_ms_rows = self.get_notes_table_selected_rows()
@@ -1783,7 +1830,6 @@ class item_list_editor:
         if not self.enabled:
             self.show_not_enabled_warning()
             return
-
         f_multiselect = False
         if self.multiselect_radiobutton.isChecked():
             f_ms_rows = self.get_notes_table_selected_rows()
@@ -1965,23 +2011,28 @@ class item_list_editor:
         self.notes_gridlayout = QtGui.QGridLayout()
         f_n_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.notes_gridlayout.addItem(f_n_spacer_left, 0, 0, 1, 1)
+        self.notes_quantize_button = QtGui.QPushButton("Quantize")
+        self.notes_quantize_button.setMinimumWidth(90)
+        self.notes_quantize_button.pressed.connect(self.quantize_dialog)
+        self.notes_gridlayout.addWidget(self.notes_quantize_button, 0, 1)
         self.notes_transpose_button = QtGui.QPushButton("Transpose")
         self.notes_transpose_button.setMinimumWidth(90)
         self.notes_transpose_button.pressed.connect(self.transpose_dialog)
-        self.notes_gridlayout.addWidget(self.notes_transpose_button, 0, 1)
+        self.notes_gridlayout.addWidget(self.notes_transpose_button, 0, 2)
         self.notes_shift_button = QtGui.QPushButton("Shift")
         self.notes_shift_button.setMinimumWidth(90)
         self.notes_shift_button.pressed.connect(self.time_shift_dialog)
-        self.notes_gridlayout.addWidget(self.notes_shift_button, 0, 2)
+        self.notes_gridlayout.addWidget(self.notes_shift_button, 0, 3)
         self.notes_length_button = QtGui.QPushButton("Length")
         self.notes_length_button.setMinimumWidth(90)
         self.notes_length_button.pressed.connect(self.length_shift_dialog)
-        self.notes_gridlayout.addWidget(self.notes_length_button, 0, 3)
+        self.notes_gridlayout.addWidget(self.notes_length_button, 0, 4)
         self.notes_clear_button = QtGui.QPushButton("Clear")
         self.notes_clear_button.setMinimumWidth(90)
         self.notes_clear_button.pressed.connect(self.clear_notes)
-        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 4)
-        self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 5, 1, 1)
+        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 5)
+        f_c_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.notes_gridlayout.addItem(f_c_spacer_right, 0, 6, 1, 1)
         self.notes_vlayout.addLayout(self.notes_gridlayout)
         self.notes_table_widget = QtGui.QTableWidget()
         self.notes_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
