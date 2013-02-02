@@ -114,6 +114,10 @@ public slots:
     void setCutoff(float val);
     void setStereo(float val);
     
+    void setReverbTime(float val);
+    void setReverbWet(float val);
+    void setReverbColor(float val);
+    
     void setVolume(float val);
     
     void aboutToQuit();
@@ -169,6 +173,10 @@ protected slots:
     void stereoChanged(int);
     void bpmSyncPressed();
     
+    void reverbTimeChanged(int);
+    void reverbColorChanged(int);
+    void reverbWetChanged(int);
+    
     void volumeChanged(int);
     
     void oscRecv();
@@ -198,6 +206,11 @@ protected:
     LMS_knob_regular *m_duck;    
     LMS_knob_regular *m_cutoff;    
     LMS_knob_regular *m_stereo;
+        
+    LMS_group_box *reverb_groupbox;    
+    LMS_knob_regular *m_reverb_time;    
+    LMS_knob_regular *m_reverb_color;    
+    LMS_knob_regular *m_reverb_wet;
     
     LMS_slider * m_volume_slider;
     

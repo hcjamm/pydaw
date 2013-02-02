@@ -31,6 +31,8 @@ extern "C" {
 #include "../../libmodsynth/modules/delay/lms_delay.h"
 #include "../../libmodsynth/modules/filter/svf.h"
 #include "../../libmodsynth/modules/modulation/env_follower.h"
+    
+#include "../../libmodsynth/modules/delay/reverb.h"
 
 typedef struct st_modulex_mono_modules
 {
@@ -42,6 +44,8 @@ typedef struct st_modulex_mono_modules
     t_state_variable_filter * svf1;
     t_smoother_iir * time_smoother;
     t_enf_env_follower * env_follower;
+    
+    t_rvb_reverb * reverb;
     
     float current_sample0;
     float current_sample1;
@@ -76,6 +80,8 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
     v_svf_set_res(a_mono->svf1, -18);
     a_mono->time_smoother = g_smr_iir_get_smoother();
     a_mono->env_follower = g_enf_get_env_follower(a_sr);
+    
+    a_mono->reverb = g_rvb_reverb_get(a_sr);
     
     return a_mono;
 }

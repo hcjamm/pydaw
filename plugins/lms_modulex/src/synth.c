@@ -31,6 +31,8 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/amp.h"
 #include "../../libmodsynth/modules/filter/svf.h"
 
+#include "../../libmodsynth/modules/delay/reverb.h"
+
 #include "synth.h"
 #include "meta.h"
 
@@ -302,6 +304,25 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
                     (plugin_data->mono_modules->delay->feedback1));
 
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
+        }
+    }
+        
+    if((*plugin_data->reverb_wet) > 0.1f)
+    {
+        v_rvb_reverb_set(plugin_data->mono_modules->reverb, (*plugin_data->reverb_time) * 0.01f, (*plugin_data->reverb_wet) * 0.01f, 
+                (*plugin_data->reverb_color) * 0.01f);
+        
+        int f_i = 0;
+        while(f_i < sample_count)
+        {
+            v_rvb_reverb_run(plugin_data->mono_modules->reverb, 
+                plugin_data->output0[f_i],
+                plugin_data->output1[f_i]);
+            
+            plugin_data->output0[f_i] += plugin_data->mono_modules->reverb->output;
+            plugin_data->output1[f_i] += plugin_data->mono_modules->reverb->output;
+            
+            f_i++;
         }
     }
 

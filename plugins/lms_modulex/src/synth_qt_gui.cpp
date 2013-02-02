@@ -244,6 +244,26 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     
     m_delay_layout->lms_add_widget(f_gb_bpm);
     m_delay_layout->lms_add_layout();
+    
+    
+    reverb_groupbox = new LMS_group_box(this, QString("Reverb"), f_info);
+    reverb_groupbox->lms_groupbox->setMaximumHeight(150);
+    m_delay_layout->lms_add_widget(reverb_groupbox->lms_groupbox);
+    
+    m_reverb_time  = new LMS_knob_regular(QString("Time"), 0, 100, 1, 50, QString(""), this, f_info, lms_kc_decimal, MODULEX_REVERB_TIME);
+    reverb_groupbox->lms_add_h(m_reverb_time);
+    connect(m_reverb_time->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(reverbTimeChanged(int)));
+        
+    m_reverb_wet = new LMS_knob_regular(QString("Wet"), 0, 100, 1, 0, QString(""), this, f_info, lms_kc_decimal, MODULEX_REVERB_WET);
+    reverb_groupbox->lms_add_h(m_reverb_wet);
+    connect(m_reverb_wet->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(reverbWetChanged(int)));
+    
+    m_reverb_color = new LMS_knob_regular(QString("Color"), 0, 100, 1, 100, QString(""), this, f_info, lms_kc_decimal, MODULEX_REVERB_COLOR);
+    reverb_groupbox->lms_add_h(m_reverb_color);
+    connect(m_reverb_color->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(reverbColorChanged(int)));
+    
+    
+    m_delay_layout->lms_add_layout();
     m_delay_layout->lms_add_vertical_spacer();
     
     QTimer *myTimer = new QTimer(this);
@@ -312,6 +332,10 @@ void modulex_gui::setDuck(float val){ lms_set_value(val, m_duck); }
 void modulex_gui::setCutoff(float val){ lms_set_value(val, m_cutoff); }
 void modulex_gui::setStereo(float val){ lms_set_value(val, m_stereo); }
 
+void modulex_gui::setReverbTime(float val){ lms_set_value(val, m_reverb_time); }
+void modulex_gui::setReverbWet(float val){ lms_set_value(val, m_reverb_wet); }
+void modulex_gui::setReverbColor(float val){ lms_set_value(val, m_reverb_color); }
+
 void modulex_gui::setVolume(float val){ lms_set_value(val, m_volume_slider); }
 
 void modulex_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
@@ -371,6 +395,10 @@ void modulex_gui::wetChanged(int value){ lms_value_changed(value, m_wet); }
 void modulex_gui::duckChanged(int value){ lms_value_changed(value, m_duck); }
 void modulex_gui::cutoffChanged(int value){ lms_value_changed(value, m_cutoff); }
 void modulex_gui::stereoChanged(int value){ lms_value_changed(value, m_stereo); }
+
+void modulex_gui::reverbTimeChanged(int value){ lms_value_changed(value, m_reverb_time); }
+void modulex_gui::reverbWetChanged(int value){ lms_value_changed(value, m_reverb_wet); }
+void modulex_gui::reverbColorChanged(int value){ lms_value_changed(value, m_reverb_color); }
 
 void modulex_gui::volumeChanged(int value){ lms_value_changed(value, m_volume_slider); }
 
@@ -490,6 +518,10 @@ void modulex_gui::v_set_control(int a_port, float a_value)
         case MODULEX_CUTOFF: setCutoff(a_value); break;
         case MODULEX_STEREO: setStereo(a_value); break;
         
+        case MODULEX_REVERB_TIME: setReverbTime(a_value); break;
+        case MODULEX_REVERB_WET: setReverbWet(a_value); break;
+        case MODULEX_REVERB_COLOR: setReverbColor(a_value); break;
+        
         case MODULEX_VOL_SLIDER: setVolume(a_value); break;
     }
 }
@@ -557,6 +589,10 @@ void modulex_gui::v_control_changed(int a_port, int a_value, bool a_suppress_hos
         case MODULEX_CUTOFF: cutoffChanged(a_value); break;
         case MODULEX_STEREO: stereoChanged(a_value); break;
         
+        case MODULEX_REVERB_TIME: reverbTimeChanged(a_value); break;
+        case MODULEX_REVERB_WET: reverbWetChanged(a_value); break;
+        case MODULEX_REVERB_COLOR: reverbColorChanged(a_value); break;
+        
         case MODULEX_VOL_SLIDER:  volumeChanged(a_value); break;
         
         default:
@@ -620,7 +656,11 @@ int modulex_gui::i_get_control(int a_port)
     case MODULEX_WET: return m_wet->lms_get_value();
     case MODULEX_DUCK: return m_duck->lms_get_value();
     case MODULEX_CUTOFF: return m_cutoff->lms_get_value();
-    case MODULEX_STEREO: return m_stereo->lms_get_value();    
+    case MODULEX_STEREO: return m_stereo->lms_get_value();
+    
+    case MODULEX_REVERB_TIME: return m_reverb_time->lms_get_value();
+    case MODULEX_REVERB_WET: return m_reverb_wet->lms_get_value();
+    case MODULEX_REVERB_COLOR: return m_reverb_color->lms_get_value();
     
     case MODULEX_VOL_SLIDER: return m_volume_slider->lms_get_value();
     
