@@ -73,7 +73,7 @@ void v_rvb_reverb_set(t_rvb_reverb * a_reverb, float a_time, float a_wet, float 
     if(a_wet != (a_reverb->wet))
     {
         a_reverb->wet = a_wet;
-        a_reverb->wet_linear =  a_wet; // f_db_to_linear_fast(a_wet, a_reverb->amp);
+        a_reverb->wet_linear =  a_wet * (a_reverb->volume_factor); // f_db_to_linear_fast(a_wet, a_reverb->amp);
     }
     
     if(a_color != (a_reverb->color))
@@ -95,6 +95,7 @@ inline void v_rvb_reverb_run(t_rvb_reverb * a_reverb, float a_input0, float a_in
         
     float f_tmp_sample = v_svf_run_2_pole_lp(a_reverb->lp, (a_input0 + a_input1));
     f_tmp_sample = v_svf_run_2_pole_hp(a_reverb->hp, f_tmp_sample);
+    f_tmp_sample *= (a_reverb->wet_linear);
     
     while((a_reverb->iter1) < PYDAW_REVERB_TAP_COUNT)
     {        
@@ -112,9 +113,7 @@ inline void v_rvb_reverb_run(t_rvb_reverb * a_reverb, float a_input0, float a_in
         a_reverb->output = v_svf_run_2_pole_allpass(a_reverb->diffusers[(a_reverb->iter1)], a_reverb->output);
                 
         a_reverb->iter1 = (a_reverb->iter1) + 1;
-    }
-    
-    a_reverb->output *= (a_reverb->wet_linear) * (a_reverb->volume_factor);
+    }        
 }
 
 t_rvb_reverb * g_rvb_reverb_get(float a_sr)
