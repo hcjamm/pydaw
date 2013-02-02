@@ -4,6 +4,8 @@
  * 
  * A simple digital reverb built with off-the-shelf parts from the rest of the library.
  * The focus is on quality, CPU efficiency, and a minimal number of controls(targeting only time, wet and color knobs)
+ * 
+ * A memory and CPU optimized version will come after the overall sound is good...
  *
  * Created on January 10, 2013, 8:29 AM
  */
@@ -50,8 +52,7 @@ void v_rvb_reverb_set(t_rvb_reverb * a_reverb, float a_time, float a_wet, float 
 {
     if(a_time != (a_reverb->time))
     {
-        a_reverb->time = a_time;
-        
+        a_reverb->time = a_time;        
     }
     
     if(a_wet != (a_reverb->wet))
@@ -86,7 +87,7 @@ inline void v_rvb_reverb_run(t_rvb_reverb * a_reverb, float a_input0, float a_in
     
     a_reverb->iter1 = 0;
     
-    while((a_reverb->iter1) < PYDAW_REVERB_TAP_COUNT)
+    while((a_reverb->iter1) < PYDAW_REVERB_DIFFUSER_COUNT)
     {
         a_reverb->output[0] = v_svf_run_2_pole_allpass(a_reverb->diffusers[0][(a_reverb->iter1)], a_reverb->output[0]);
         a_reverb->output[1] = v_svf_run_2_pole_allpass(a_reverb->diffusers[1][(a_reverb->iter1)], a_reverb->output[1]);
@@ -100,8 +101,7 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     t_rvb_reverb * f_result;
     
     int f_i = 0;
-    int f_i2 = 0;
-    
+        
     f_result->color = 0.0f;
     f_result->iter1 = 0;
     f_result->time = 1.0f;
@@ -110,30 +110,6 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     
     f_result->amp = g_amp_get();
     f_result->pitch_core = g_pit_get();
-    
-    while(f_i < PYDAW_REVERB_CHANNELS)
-    {
-        f_result->output[f_i] = 0.0f;
-        
-        f_result->hp = g_svf_get(a_sr);
-                
-        while(f_i2 < PYDAW_REVERB_TAP_COUNT)
-        {
-            f_result->taps[f_i][f_i2] = g_cmb_get_comb_filter(a_sr);
-            f_result->lp[f_i][f_i2] = g_svf_get(a_sr);
-            f_i2++;
-        }
-        
-        f_i2 = 0;
-        
-        while(f_i2 < PYDAW_REVERB_DIFFUSER_COUNT)
-        {
-            f_result->diffusers[f_i][f_i2] = g_svf_get(a_sr);
-            f_i2++;
-        }
-        
-        f_i++;
-    }
     
     f_result->comb_tunings[0] = f_pit_hz_to_midi_note(1557.0f);
     f_result->comb_tunings[1] = f_pit_hz_to_midi_note(1617.0f);
@@ -148,6 +124,38 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     f_result->allpass_tunings[1] = f_pit_hz_to_midi_note(556.0f);
     f_result->allpass_tunings[2] = f_pit_hz_to_midi_note(441.0f);
     f_result->allpass_tunings[3] = f_pit_hz_to_midi_note(341.0f);
+    
+    while(f_i < PYDAW_REVERB_CHANNELS)
+    {
+        f_result->output[f_i] = 0.0f;
+        
+        f_result->hp = g_svf_get(a_sr);
+                
+        int f_i2 = 0;
+        
+        while(f_i2 < PYDAW_REVERB_TAP_COUNT)
+        {
+            f_result->taps[f_i][f_i2] = g_cmb_get_comb_filter(a_sr);
+            f_result->lp[f_i][f_i2] = g_svf_get(a_sr);
+            v_svf_set_cutoff_base(f_result->lp[f_i][f_i2], 10000.0f);
+            v_svf_set_cutoff(f_result->lp[f_i][f_i2]);
+            
+            v_cmb_set_all(f_result->taps[f_i][f_i2], 0.0f, -3.0f, f_result->comb_tunings[f_i2]);
+            f_i2++;
+        }
+        
+        f_i2 = 0;
+        
+        while(f_i2 < PYDAW_REVERB_DIFFUSER_COUNT)
+        {
+            f_result->diffusers[f_i][f_i2] = g_svf_get(a_sr);
+            v_svf_set_cutoff_base(f_result->diffusers[f_i][f_i2], f_result->allpass_tunings[f_i2]);
+            v_svf_set_cutoff(f_result->diffusers[f_i][f_i2]);
+            f_i2++;
+        }
+        
+        f_i++;
+    }
     
     return f_result;    
 }
