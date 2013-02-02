@@ -93,7 +93,8 @@ inline void v_rvb_reverb_run(t_rvb_reverb * a_reverb, float a_input0, float a_in
     
     a_reverb->output = 0.0f;
         
-    float f_tmp_sample = v_svf_run_2_pole_lp(a_reverb->lp, (a_input0 + a_input1) * (a_reverb->volume_factor));
+    float f_tmp_sample = v_svf_run_2_pole_lp(a_reverb->lp, (a_input0 + a_input1));
+    f_tmp_sample = v_svf_run_2_pole_hp(a_reverb->hp, f_tmp_sample);
     
     while((a_reverb->iter1) < PYDAW_REVERB_TAP_COUNT)
     {        
@@ -113,7 +114,7 @@ inline void v_rvb_reverb_run(t_rvb_reverb * a_reverb, float a_input0, float a_in
         a_reverb->iter1 = (a_reverb->iter1) + 1;
     }
     
-    a_reverb->output = v_svf_run_2_pole_hp(a_reverb->hp, a_reverb->output) * (a_reverb->wet_linear);    
+    a_reverb->output *= (a_reverb->wet_linear) * (a_reverb->volume_factor);
 }
 
 t_rvb_reverb * g_rvb_reverb_get(float a_sr)
@@ -143,15 +144,15 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     f_result->comb_tunings[6] = 30.0f;
     f_result->comb_tunings[7] = 31.0f;
         
-    f_result->allpass_tunings[0] = 33.0f; //45.0f;
-    f_result->allpass_tunings[1] = 40.0f; //52.0f;
-    f_result->allpass_tunings[2] = 47.0f; //57.0f;
-    f_result->allpass_tunings[3] = 54.0f; //62.0f;
+    f_result->allpass_tunings[0] = 33.0f;
+    f_result->allpass_tunings[1] = 40.0f;
+    f_result->allpass_tunings[2] = 47.0f;
+    f_result->allpass_tunings[3] = 54.0f;
     
     f_result->output = 0.0f;
 
     f_result->hp = g_svf_get(a_sr);
-    v_svf_set_cutoff_base(f_result->hp, 36.0f);
+    v_svf_set_cutoff_base(f_result->hp, 42.0f);
     v_svf_set_res(f_result->hp, -24.0f);
     v_svf_set_cutoff(f_result->hp);
 
@@ -174,10 +175,12 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     {
         f_result->diffusers[f_i2] = g_svf_get(a_sr);
         v_svf_set_cutoff_base(f_result->diffusers[f_i2], f_result->allpass_tunings[f_i2]);
-        v_svf_set_res(f_result->diffusers[f_i2], -3.0f);
+        v_svf_set_res(f_result->diffusers[f_i2], -1.0f);
         v_svf_set_cutoff(f_result->diffusers[f_i2]);
         f_i2++;
     }
+    
+    v_rvb_reverb_set(f_result, 0.5f, 0.0f, 0.5f);
     
     return f_result;    
 }
