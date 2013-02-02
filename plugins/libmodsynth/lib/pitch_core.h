@@ -77,7 +77,7 @@ inline float f_pit_midi_note_to_ratio_fast(float, float, t_pit_pitch_core*, t_pi
  * Convert midi note number to hz*/
 inline float f_pit_midi_note_to_hz(float a_midi_note_number)
 {
-    return (base_a4*pow(2,(a_midi_note_number-57)*.0833333f));
+    return (base_a4*pow(2.0f,(a_midi_note_number-57.0f)*.0833333f));
     
 }
 
@@ -85,9 +85,9 @@ inline float f_pit_midi_note_to_hz(float a_midi_note_number)
  * float _hz) //typical range:  20 to 20000
  * 
  * Convert hz to midi note number*/
-inline float f_pit_hz_to_midi_note(float _hz)
+inline float f_pit_hz_to_midi_note(float a_hz)
 {
-     return ((12.0f*log2(_hz*base_a4_recip))+57.0f);    
+     return ((12.0f*log2(a_hz*base_a4_recip))+57.0f);    
 }
 
 /* inline float f_pit_midi_note_to_samples(
