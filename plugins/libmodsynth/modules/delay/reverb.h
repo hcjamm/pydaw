@@ -34,10 +34,12 @@ typedef struct
     float output[PYDAW_REVERB_CHANNELS];    
     t_state_variable_filter * diffusers[PYDAW_REVERB_CHANNELS][PYDAW_REVERB_DIFFUSER_COUNT];
     t_state_variable_filter * hp[PYDAW_REVERB_CHANNELS];
-    t_state_variable_filter * lp[PYDAW_REVERB_CHANNELS]; //[PYDAW_REVERB_TAP_COUNT];
+    t_state_variable_filter * lp[PYDAW_REVERB_CHANNELS][PYDAW_REVERB_TAP_COUNT];
     t_comb_filter * taps[PYDAW_REVERB_CHANNELS][PYDAW_REVERB_TAP_COUNT];
     t_pit_pitch_core * pitch_core;
     t_amp * amp;
+    float comb_tunings[PYDAW_REVERB_TAP_COUNT];
+    float allpass_tunings[PYDAW_REVERB_DIFFUSER_COUNT];
 } t_rvb_reverb;
 
 t_rvb_reverb * g_rvb_reverb_get(float);
@@ -48,12 +50,14 @@ void v_rvb_reverb_set(t_rvb_reverb * a_reverb, float a_time, float a_wet, float 
 {
     if(a_time != (a_reverb->time))
     {
+        a_reverb->time = a_time;
         
     }
     
     if(a_wet != (a_reverb->wet))
     {
-        
+        a_reverb->wet = a_wet;
+        a_reverb->wet_linear = f_db_to_linear_fast(a_wet, a_reverb->amp);
     }
     
     if(a_color != (a_reverb->color))
@@ -112,11 +116,11 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
         f_result->output[f_i] = 0.0f;
         
         f_result->hp = g_svf_get(a_sr);
-        f_result->lp = g_svf_get(a_sr);
-        
+                
         while(f_i2 < PYDAW_REVERB_TAP_COUNT)
         {
             f_result->taps[f_i][f_i2] = g_cmb_get_comb_filter(a_sr);
+            f_result->lp[f_i][f_i2] = g_svf_get(a_sr);
             f_i2++;
         }
         
@@ -130,6 +134,20 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
         
         f_i++;
     }
+    
+    f_result->comb_tunings[0] = f_pit_hz_to_midi_note(1557.0f);
+    f_result->comb_tunings[1] = f_pit_hz_to_midi_note(1617.0f);
+    f_result->comb_tunings[2] = f_pit_hz_to_midi_note(1491.0f);
+    f_result->comb_tunings[3] = f_pit_hz_to_midi_note(1422.0f);
+    f_result->comb_tunings[4] = f_pit_hz_to_midi_note(1277.0f);
+    f_result->comb_tunings[5] = f_pit_hz_to_midi_note(1356.0f);
+    f_result->comb_tunings[6] = f_pit_hz_to_midi_note(1188.0f);
+    f_result->comb_tunings[7] = f_pit_hz_to_midi_note(1116.0f);
+        
+    f_result->allpass_tunings[0] = f_pit_hz_to_midi_note(225.0f);
+    f_result->allpass_tunings[1] = f_pit_hz_to_midi_note(556.0f);
+    f_result->allpass_tunings[2] = f_pit_hz_to_midi_note(441.0f);
+    f_result->allpass_tunings[3] = f_pit_hz_to_midi_note(341.0f);
     
     return f_result;    
 }
