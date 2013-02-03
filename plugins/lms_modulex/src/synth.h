@@ -73,9 +73,9 @@ extern "C" {
 #define MODULEX_REVERB_COLOR 46
     
 #define MODULEX_COMPRESSOR_THRESH 47
-#define MODULEX_COMPRESSOR_GAIN 48
+#define MODULEX_COMPRESSOR_ATTACK 48
 #define MODULEX_COMPRESSOR_RATIO 49
-#define MODULEX_COMPRESSOR_KNEE 50
+#define MODULEX_COMPRESSOR_RELEASE 50
     
 /*This is the last control port*/
 #define MODULEX_LAST_CONTROL_PORT 50
@@ -108,9 +108,9 @@ typedef struct {
     LADSPA_Data *reverb_color;
     
     LADSPA_Data *compressor_thresh;
-    LADSPA_Data *compressor_gain;
+    LADSPA_Data *compressor_attack;
     LADSPA_Data *compressor_ratio;
-    LADSPA_Data *compressor_knee;
+    LADSPA_Data * compressor_release;
         
     float fs;    
     t_modulex_mono_modules * mono_modules;

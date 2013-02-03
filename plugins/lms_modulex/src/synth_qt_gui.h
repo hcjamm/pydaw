@@ -117,7 +117,12 @@ public slots:
     void setReverbTime(float val);
     void setReverbWet(float val);
     void setReverbColor(float val);
-    
+    /*
+    void setCompressorThresh(float val);
+    void setCompressorRatio(float val);
+    void setCompressorAttack(float val);
+    void setCompressorRelease(float val);
+    */
     void setVolume(float val);
     
     void aboutToQuit();
@@ -176,7 +181,12 @@ protected slots:
     void reverbTimeChanged(int);
     void reverbColorChanged(int);
     void reverbWetChanged(int);
-    
+    /*
+    void compressorThreshChanged(int);
+    void compressorRatioChanged(int);
+    void compressorAttackChanged(int);
+    void compressorReleaseChanged(int);
+    */
     void volumeChanged(int);
     
     void oscRecv();
@@ -211,6 +221,15 @@ protected:
     LMS_knob_regular *m_reverb_time;    
     LMS_knob_regular *m_reverb_color;    
     LMS_knob_regular *m_reverb_wet;
+    
+    
+    /*QWidget * m_compressor_tab;
+    LMS_main_layout * m_compressor_layout;  
+    LMS_group_box *compressor_groupbox;
+    LMS_knob_regular *m_compressor_thresh;
+    LMS_knob_regular *m_compressor_ratio;
+    LMS_knob_regular *m_compressor_attack;
+    LMS_knob_regular *m_compressor_release;*/
     
     LMS_slider * m_volume_slider;
     

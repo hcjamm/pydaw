@@ -262,9 +262,25 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     reverb_groupbox->lms_add_h(m_reverb_color);
     connect(m_reverb_color->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(reverbColorChanged(int)));
     
-    
     m_delay_layout->lms_add_layout();
     m_delay_layout->lms_add_vertical_spacer();
+    
+    
+    
+    /*
+    m_compressor_tab = new QWidget(this);    
+    m_tab_widget->addTab(m_compressor_tab, QString("Compressor"));
+    
+    m_compressor_layout = new LMS_main_layout(m_compressor_tab);    
+    
+    compressor_groupbox = new LMS_group_box(this, QString("Compressor"), f_info);
+    compressor_groupbox->lms_groupbox->setMaximumHeight(150);
+    m_compressor_layout->lms_add_widget(compressor_groupbox->lms_groupbox);
+    
+    m_compressor_thresh  = new LMS_knob_regular(QString("Thresh"), -24, 0, 1, 50, QString(""), this, f_info, lms_kc_integer, MODULEX_REVERB_TIME);
+    compressor_groupbox->lms_add_h(m_compressor_thresh);
+    connect(m_compressor_thresh->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(compressorThreshChanged(int)));
+    */
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));

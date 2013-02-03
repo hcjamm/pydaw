@@ -33,6 +33,7 @@ extern "C" {
 #include "../../libmodsynth/modules/modulation/env_follower.h"
     
 #include "../../libmodsynth/modules/delay/reverb.h"
+//#include "../../libmodsynth/modules/dynamics/compressor.h"
 
 typedef struct st_modulex_mono_modules
 {
@@ -46,6 +47,7 @@ typedef struct st_modulex_mono_modules
     t_enf_env_follower * env_follower;
     
     t_rvb_reverb * reverb;
+    //t_cmp_compressor * compressor;
     
     float current_sample0;
     float current_sample1;
@@ -82,6 +84,7 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
     a_mono->env_follower = g_enf_get_env_follower(a_sr);
     
     a_mono->reverb = g_rvb_reverb_get(a_sr);
+    //a_mono->compressor = g_cmp_get(a_sr);
     
     return a_mono;
 }
