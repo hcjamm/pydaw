@@ -203,7 +203,7 @@ class region_list_editor:
 
     def reset_tracks(self):
         self.tracks = []
-        for i in range(0, self.track_total):
+        for i in range(0, pydaw_midi_track_count):
             track = seq_track(a_track_num=i, a_track_text="track" + str(i + 1))
             self.tracks.append(track)
             self.table_widget.setCellWidget(i, 0, track.group_box)
@@ -407,8 +407,6 @@ class region_list_editor:
             this_transport.bar_spinbox.setValue(a_val - 1)
 
     def __init__(self):
-        self.track_total = 16
-
         self.enabled = False #Prevents user from editing a region before one has been selected
         self.group_box = QtGui.QGroupBox()
         self.main_vlayout = QtGui.QGridLayout()
@@ -444,7 +442,7 @@ class region_list_editor:
         self.table_widget.setAutoScroll(True)
         self.table_widget.setAutoScrollMargin(1)
         self.table_widget.setColumnCount(9)
-        self.table_widget.setRowCount(self.track_total)
+        self.table_widget.setRowCount(pydaw_midi_track_count)
         self.table_widget.cellDoubleClicked.connect(self.cell_double_clicked)
         self.table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
@@ -498,13 +496,13 @@ class region_list_editor:
             QtGui.QTableWidget.keyPressEvent(self.table_widget, event)
 
     def edit_group(self):
-        f_result = {}
-        for f_item in self.table_widget.selectedItems():
-            if not f_item is None and not str(f_item.text()) == "":
-                f_item_name = str(f_item.text())
-                f_result[f_item_name] = f_item_name
-        f_list = f_result.keys()
-        this_item_editor.open_item(f_list[0], f_list)
+        f_result = []
+        for i in range(pydaw_midi_track_count):
+            for i2 in range(1, self.region_length + 1):
+                f_item = self.table_widget.item(i, i2)
+                if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
+                    f_result.append(str(f_item.text()))
+        this_item_editor.open_item(f_result[0], f_result)
         this_main_window.main_tabwidget.setCurrentIndex(1)
 
     def on_draw_ccs(self):
@@ -686,7 +684,7 @@ class region_list_editor:
             if f_column >= f_region_length or f_column < 0:
                 continue
             f_row = f_item[0] + f_base_row
-            if f_row >= self.track_total or f_row < 0:
+            if f_row >= pydaw_midi_track_count or f_row < 0:
                 continue
             self.add_qtablewidgetitem(f_item[2], f_row, f_column)
         self.tablewidget_to_region()
@@ -734,7 +732,7 @@ class region_list_editor:
     def tablewidget_to_region(self):
         """ Convert an edited QTableWidget to a native region class """
         self.region.items = []
-        for i in range(0, self.track_total):
+        for i in range(0, pydaw_midi_track_count):
             for i2 in range(1, self.table_widget.columnCount()):
                 f_item = self.table_widget.item(i, i2)
                 if not f_item is None:
