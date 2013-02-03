@@ -637,7 +637,7 @@ class region_list_editor:
 
         def note_ok_handler():
             f_cell_text = str(f_new_lineedit.text())
-            this_pydaw_project.create_empty_item(f_new_lineedit.text())
+            #this_pydaw_project.create_empty_item(f_new_lineedit.text())
             this_pydaw_project.copy_item(str(f_current_item.text()), str(f_new_lineedit.text()))
             this_item_editor.open_item(f_cell_text, [f_cell_text])
             self.last_item_copied = f_cell_text
@@ -672,22 +672,20 @@ class region_list_editor:
 
     def on_auto_unlink_selected(self):
         """ Currently adds an automatic -N suffix, but this behavior may be changed later"""
-        f_result = {}
         for i in range(pydaw_midi_track_count):
             for i2 in range(1, self.region_length + 1):
                 f_item = self.table_widget.item(i, i2)
                 if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
-                    f_result[str(f_item.text())] = (i, i2 - 1)
-        if len(f_result) > 0:
-            for k, v in f_result.iteritems():
-                f_name_suffix = 1
-                while this_pydaw_project.item_exists(k + "-" + str(f_name_suffix)):
-                    f_name_suffix += 1
-                f_cell_text = k + "-" + str(f_name_suffix)
-                self.add_qtablewidgetitem(f_cell_text, v[0], v[1])
-                self.region.add_item_ref(v[0], v[1], f_cell_text)
-            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
-            this_pydaw_project.git_repo.git_commit("-a", "Auto-Unlink items '")
+                    f_item_name = str(f_item.text())
+                    f_name_suffix = 1
+                    while this_pydaw_project.item_exists(f_item_name + "-" + str(f_name_suffix)):
+                        f_name_suffix += 1
+                    f_cell_text = f_item_name + "-" + str(f_name_suffix)
+                    this_pydaw_project.copy_item(f_item_name, f_cell_text)
+                    self.add_qtablewidgetitem(f_cell_text, i, i2 - 1)
+                    self.region.add_item_ref(i, i2 - 1, f_cell_text)
+        this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
+        this_pydaw_project.git_repo.git_commit("-a", "Auto-Unlink items")
 
     def paste_clipboard(self):
         if not self.enabled:
