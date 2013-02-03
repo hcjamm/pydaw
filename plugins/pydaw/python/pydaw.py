@@ -375,7 +375,7 @@ class region_list_editor:
         f_layout.addWidget(f_copy_combobox, 1, 2)
         f_layout.addWidget(QtGui.QLabel("Item Count:"), 2, 1)
         f_item_count = QtGui.QSpinBox()
-        f_item_count.setRange(1, self.region_length - y)
+        f_item_count.setRange(1, self.region_length - y + 1)
         f_item_count.setToolTip("Only used for 'New'")
         f_layout.addWidget(f_item_count, 2, 2)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
