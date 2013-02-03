@@ -151,7 +151,7 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
     f_result->output = 0.0f;
 
     f_result->hp = g_svf_get(a_sr);
-    v_svf_set_cutoff_base(f_result->hp, 42.0f);
+    v_svf_set_cutoff_base(f_result->hp, 60.0f);
     v_svf_set_res(f_result->hp, -24.0f);
     v_svf_set_cutoff(f_result->hp);
 
