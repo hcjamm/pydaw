@@ -118,9 +118,9 @@ static void v_modulex_connect_port(LADSPA_Handle instance, unsigned long port, L
         case MODULEX_REVERB_COLOR: plugin->reverb_color = data; break;
 
         case MODULEX_COMPRESSOR_THRESH: plugin->compressor_thresh = data; break;
-        case MODULEX_COMPRESSOR_GAIN: plugin->compressor_gain = data; break;
+        case MODULEX_COMPRESSOR_ATTACK: plugin->compressor_attack = data; break;
         case MODULEX_COMPRESSOR_RATIO: plugin->compressor_ratio = data; break;
-        case MODULEX_COMPRESSOR_KNEE: plugin->compressor_knee = data; break;
+        case MODULEX_COMPRESSOR_RELEASE: plugin->compressor_release = data; break;
     }
 }
 
@@ -325,6 +325,21 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
             f_i++;
         }
     }
+    
+    /*if((*plugin_data->compressor_ratio) > 1.0f)
+    {
+        v_cmp_set(plugin_data->mono_modules->compressor, *plugin_data->compressor_thresh, -0.0f, 
+                    *plugin_data->compressor_attack * 0.01f, *plugin_data->compressor_release * 0.01f);
+        
+        int f_i = 0;
+        while(f_i < sample_count)
+        {
+            v_cmp_run(plugin_data->mono_modules->compressor, plugin_data->output0[f_i], plugin_data->output1[f_i]);
+            plugin_data->output0[f_i] = plugin_data->mono_modules->compressor->output0;
+            plugin_data->output1[f_i] = plugin_data->mono_modules->compressor->output1;
+            f_i++;
+        }
+    }*/
 
     if((*plugin_data->vol_slider) != 0.0)
     {
@@ -771,13 +786,13 @@ LADSPA_Descriptor *modulex_ladspa_descriptor(long index)
 	port_range_hints[MODULEX_COMPRESSOR_THRESH].LowerBound =  -24.0f;
 	port_range_hints[MODULEX_COMPRESSOR_THRESH].UpperBound =  0.0f;        
         
-        port_descriptors[MODULEX_COMPRESSOR_GAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[MODULEX_COMPRESSOR_GAIN] = "Compressor Gain";
-	port_range_hints[MODULEX_COMPRESSOR_GAIN].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
+        port_descriptors[MODULEX_COMPRESSOR_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_COMPRESSOR_ATTACK] = "Compressor Attack";
+	port_range_hints[MODULEX_COMPRESSOR_ATTACK].HintDescriptor =
+			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_COMPRESSOR_GAIN].LowerBound =  -24.0f;
-	port_range_hints[MODULEX_COMPRESSOR_GAIN].UpperBound =  24.0f;
+	port_range_hints[MODULEX_COMPRESSOR_ATTACK].LowerBound =  0.0f;
+	port_range_hints[MODULEX_COMPRESSOR_ATTACK].UpperBound =  100.0f;
         
         port_descriptors[MODULEX_COMPRESSOR_RATIO] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[MODULEX_COMPRESSOR_RATIO] = "Compressor Ratio";
@@ -787,13 +802,13 @@ LADSPA_Descriptor *modulex_ladspa_descriptor(long index)
 	port_range_hints[MODULEX_COMPRESSOR_RATIO].LowerBound =  1.0f;
 	port_range_hints[MODULEX_COMPRESSOR_RATIO].UpperBound =  12.0f;
         
-        port_descriptors[MODULEX_COMPRESSOR_KNEE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[MODULEX_COMPRESSOR_KNEE] = "Compressor Knee";
-	port_range_hints[MODULEX_COMPRESSOR_KNEE].HintDescriptor =
+        port_descriptors[MODULEX_COMPRESSOR_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[MODULEX_COMPRESSOR_RELEASE] = "Compressor Release";
+	port_range_hints[MODULEX_COMPRESSOR_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_COMPRESSOR_KNEE].LowerBound =  0.0f;
-	port_range_hints[MODULEX_COMPRESSOR_KNEE].UpperBound =  100.0f;
+	port_range_hints[MODULEX_COMPRESSOR_RELEASE].LowerBound =  0.0f;
+	port_range_hints[MODULEX_COMPRESSOR_RELEASE].UpperBound =  100.0f;
                 
         
         
