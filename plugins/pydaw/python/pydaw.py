@@ -211,6 +211,7 @@ class region_list_editor:
         self.set_region_length()
 
     def set_region_length(self, a_length=8):
+        self.region_length = a_length
         self.table_widget.setColumnCount(a_length + 1)
         f_headers = ['Tracks']
         for i in range(0, a_length):
@@ -290,31 +291,49 @@ class region_list_editor:
         else:
             f_item_name = str(f_item.text())
             if f_item_name != "":
-                this_item_editor.open_item(f_item_name)
+                this_item_editor.open_item(f_item_name, [f_item_name])
                 this_main_window.main_tabwidget.setCurrentIndex(1)
             else:
                 self.show_cell_dialog(x, y)
 
     def show_cell_dialog(self, x, y):
         def note_ok_handler():
-            if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
+            if (f_new_radiobutton.isChecked() and f_item_count.value() == 1):
                 f_cell_text = str(f_new_lineedit.text())
-                this_pydaw_project.create_empty_item(f_new_lineedit.text())
-                this_pydaw_project.git_repo.git_commit("-a", "Create new item '" + f_cell_text + "'")
+                this_pydaw_project.create_empty_item(f_cell_text)
+                this_item_editor.open_item(f_cell_text, [f_cell_text])
+                self.add_qtablewidgetitem(f_cell_text, x, y - 1)
+                self.region.add_item_ref(x, y - 1, f_cell_text)
+                this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
+            elif f_new_radiobutton.isChecked() and f_item_count.value() > 1:
+                f_name_suffix = 1
+                f_cell_text = str(f_new_lineedit.text())
+                f_item_list = []
+                for i in range(f_item_count.value()):
+                    while this_pydaw_project.item_exists(f_cell_text + "-" + str(f_name_suffix)):
+                        f_name_suffix += 1
+                    f_item_name = f_cell_text + "-" + str(f_name_suffix)
+                    f_item_list.append(f_item_name)
+                    this_pydaw_project.create_empty_item(f_item_name)
+                    self.add_qtablewidgetitem(f_item_name, x, y - 1 + i)
+                    self.region.add_item_ref(x, y - 1 + i, f_item_name)
+                this_item_editor.open_item(f_item_list[0], f_item_list)
+                this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
-                this_pydaw_project.git_repo.git_commit("-a", "Add reference to item '" + f_cell_text + "' in region '" + str(self.region_name_lineedit.text()))
+                self.add_qtablewidgetitem(f_cell_text, x, y - 1)
+                self.region.add_item_ref(x, y - 1, f_cell_text)
+                this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
+            elif f_copy_from_radiobutton.isChecked():
+                f_cell_text = str(f_new_lineedit.text())
+                this_pydaw_project.copy_item(str(f_copy_combobox.currentText()), f_cell_text)
+                self.add_qtablewidgetitem(f_cell_text, x, y - 1)
+                self.region.add_item_ref(x, y - 1, f_cell_text)
+                this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
 
-            if f_copy_from_radiobutton.isChecked():
-                this_pydaw_project.copy_item(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
-                this_pydaw_project.git_repo.git_commit("-a", "Create item '" + str(f_new_lineedit.text()) + "' copying from item '" + str(f_copy_combobox.currentText()) + "'")
-
-            if f_new_radiobutton.isChecked() or f_copy_from_radiobutton.isChecked():
-                this_item_editor.open_item(f_cell_text)
+            this_pydaw_project.git_repo.git_commit("-a", "Add reference(s) to item (group) '" + f_cell_text + "' in region '" + str(self.region_name_lineedit.text()))
             self.last_item_copied = f_cell_text
-            self.add_qtablewidgetitem(f_cell_text, x, y - 1)
-            self.region.add_item_ref(x, y - 1, f_cell_text)
-            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
+
             f_window.close()
 
         def note_cancel_handler():
@@ -354,11 +373,18 @@ class region_list_editor:
         f_vlayout1.addWidget(QtGui.QLabel("Copy from:"))
         f_vlayout1.addWidget(QtGui.QLabel("Existing:"))
         f_layout.addWidget(f_copy_combobox, 1, 2)
+        f_layout.addWidget(QtGui.QLabel("Item Count:"), 2, 1)
+        f_item_count = QtGui.QSpinBox()
+        f_item_count.setRange(1, self.region_length - y)
+        f_item_count.setToolTip("Only used for 'New'")
+        f_layout.addWidget(f_item_count, 2, 2)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_ok_cancel_layout, 5, 2)
         f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 5,0)
+        f_ok_cancel_layout.addWidget(f_ok_button)
         f_ok_button.clicked.connect(note_ok_handler)
         f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 5,1)
+        f_ok_cancel_layout.addWidget(f_cancel_button)
         f_cancel_button.clicked.connect(note_cancel_handler)
         f_window.exec_()
 
@@ -430,6 +456,11 @@ class region_list_editor:
         self.table_widget.keyPressEvent = self.table_keyPressEvent
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+
+        self.edit_group_action = QtGui.QAction("Edit Selected Items as Group", self.table_widget)
+        self.edit_group_action.triggered.connect(self.edit_group)
+        self.table_widget.addAction(self.edit_group_action)
+
         self.copy_action = QtGui.QAction("Copy (CTRL+C)", self.table_widget)
         self.copy_action.triggered.connect(self.copy_selected)
         self.table_widget.addAction(self.copy_action)
@@ -465,6 +496,16 @@ class region_list_editor:
             self.on_unlink_item()
         else:
             QtGui.QTableWidget.keyPressEvent(self.table_widget, event)
+
+    def edit_group(self):
+        f_result = {}
+        for f_item in self.table_widget.selectedItems():
+            if not f_item is None and not str(f_item.text()) == "":
+                f_item_name = str(f_item.text())
+                f_result[f_item_name] = f_item_name
+        f_list = f_result.keys()
+        this_item_editor.open_item(f_list[0], f_list)
+        this_main_window.main_tabwidget.setCurrentIndex(1)
 
     def on_draw_ccs(self):
         if not self.enabled:
@@ -597,7 +638,7 @@ class region_list_editor:
             f_cell_text = str(f_new_lineedit.text())
             this_pydaw_project.create_empty_item(f_new_lineedit.text())
             this_pydaw_project.copy_item(str(f_current_item.text()), str(f_new_lineedit.text()))
-            this_item_editor.open_item(f_cell_text)
+            this_item_editor.open_item(f_cell_text, [f_cell_text])
             self.last_item_copied = f_cell_text
             self.add_qtablewidgetitem(f_cell_text, x, y - 1)
             self.region.add_item_ref(x, y - 1, f_cell_text)
@@ -1643,7 +1684,9 @@ class item_list_editor:
 
     def clear_new(self):
         self.enabled = False
-        self.item_name_line_edit.setText("")
+        #self.item_name_line_edit.setText("")
+        self.item_name_combobox.clear()
+        self.item_name_combobox.clearEditText()
         self.ccs_table_widget.clearContents()
         self.notes_table_widget.clearContents()
         self.pitchbend_table_widget.clearContents()
@@ -1683,7 +1726,7 @@ class item_list_editor:
                 QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
             else:
                 f_multiselect = True
-                
+
         def quantize_ok_handler():
             f_quantize_index = f_quantize_combobox.currentIndex()
             self.events_follow_default = f_events_follow_notes.isChecked()
@@ -1695,15 +1738,15 @@ class item_list_editor:
             self.open_item(self.item_name)
             this_pydaw_project.git_repo.git_commit("-a", "Quantize item '" + self.item_name + "'")
             f_window.close()
-            
+
         def quantize_cancel_handler():
             f_window.close()
-            
+
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Quantize")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
-        
+
         f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 0, 0)
         f_quantize_combobox = QtGui.QComboBox()
         f_quantize_combobox.addItems(beat_fracs)
@@ -1719,7 +1762,7 @@ class item_list_editor:
         f_cancel.pressed.connect(quantize_cancel_handler)
         f_layout.addWidget(f_cancel, 3, 1)
         f_window.exec_()
-           
+
     def transpose_dialog(self):
         if not self.enabled:
             self.show_not_enabled_warning()
@@ -1982,11 +2025,18 @@ class item_list_editor:
         self.add_radiobutton.setChecked(True)
         self.editing_hboxlayout = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.editing_hboxlayout)
-        self.item_name_line_edit = QtGui.QLineEdit()
-        self.item_name_line_edit.setMaximumWidth(200)
-        self.item_name_line_edit.setEnabled(False)
+        #self.item_name_line_edit = QtGui.QLineEdit()
+        #self.item_name_line_edit.setMaximumWidth(200)
+        #self.item_name_line_edit.setEnabled(False)
         self.editing_hboxlayout.addWidget(QtGui.QLabel("Editing Item:"))
-        self.editing_hboxlayout.addWidget(self.item_name_line_edit)
+        #self.editing_hboxlayout.addWidget(self.item_name_line_edit)
+        self.item_name_combobox = QtGui.QComboBox()
+        self.item_name_combobox.setMinimumWidth(150)
+        self.item_name_combobox.setEditable(False)
+        self.item_name_combobox.currentIndexChanged.connect(self.item_index_changed)
+        self.item_index_enabled = True
+        self.editing_hboxlayout.addWidget(self.item_name_combobox)
+
         self.editing_hboxlayout.addWidget(QtGui.QLabel("Templates:"))
         self.template_save_as = QtGui.QPushButton("Save as...")
         self.template_save_as.setMinimumWidth(90)
@@ -2124,14 +2174,27 @@ class item_list_editor:
         self.ccs_table_widget.setHorizontalHeaderLabels(['Start', 'CC', 'Value'])
         self.pitchbend_table_widget.setHorizontalHeaderLabels(['Start', 'Value'])
 
-    def open_item(self, a_item_name):
+    def item_index_changed(self, a_index=None):
+        if self.item_index_enabled:
+            self.open_item(self.item_name_combobox.currentText())
+
+    def open_item(self, a_item_name, a_items=None):
         self.enabled = True
-        self.item_name_line_edit.setText(a_item_name)
+        self.item_name = str(a_item_name)
+        #self.item_name_line_edit.setText(self.item_name)
+
+        if a_items is not None:
+            self.item_index_enabled = False
+            self.item_name_combobox.clear()
+            self.item_name_combobox.clearEditText()
+            self.item_name_combobox.addItems(a_items)
+            self.item_name_combobox.setCurrentIndex(self.item_name_combobox.findText(a_item_name))
+            self.item_index_enabled = True
+
         self.notes_table_widget.clear()
         self.ccs_table_widget.clear()
         self.pitchbend_table_widget.clear()
         self.set_headers()
-        self.item_name = a_item_name
         self.item = this_pydaw_project.get_item(a_item_name)
         self.notes_table_widget.setSortingEnabled(False)
         f_i = 0
