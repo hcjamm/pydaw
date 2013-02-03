@@ -465,9 +465,12 @@ class region_list_editor:
         self.paste_action = QtGui.QAction("Paste (CTRL+V)", self.table_widget)
         self.paste_action.triggered.connect(self.paste_clipboard)
         self.table_widget.addAction(self.paste_action)
-        self.unlink_action = QtGui.QAction("Unlink (CTRL+D)", self.table_widget)
+        self.unlink_action = QtGui.QAction("Unlink Single Item(CTRL+D)", self.table_widget)
         self.unlink_action.triggered.connect(self.on_unlink_item)
         self.table_widget.addAction(self.unlink_action)
+        self.unlink_selected_action = QtGui.QAction("Auto-Unlink Selected Items", self.table_widget)
+        self.unlink_selected_action.triggered.connect(self.on_auto_unlink_selected)
+        self.table_widget.addAction(self.unlink_selected_action)
         self.delete_action = QtGui.QAction("Delete (Del)", self.table_widget)
         self.delete_action.triggered.connect(self.delete_selected)
         self.table_widget.addAction(self.delete_action)
@@ -666,6 +669,25 @@ class region_list_editor:
         f_layout.addWidget(f_cancel_button, 5,1)
         f_cancel_button.clicked.connect(note_cancel_handler)
         f_window.exec_()
+
+    def on_auto_unlink_selected(self):
+        """ Currently adds an automatic -N suffix, but this behavior may be changed later"""
+        f_result = {}
+        for i in range(pydaw_midi_track_count):
+            for i2 in range(1, self.region_length + 1):
+                f_item = self.table_widget.item(i, i2)
+                if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
+                    f_result[str(f_item.text())] = (i, i2 - 1)
+        if len(f_result) > 0:
+            for k, v in f_result.iteritems():
+                f_name_suffix = 1
+                while this_pydaw_project.item_exists(k + "-" + str(f_name_suffix)):
+                    f_name_suffix += 1
+                f_cell_text = k + "-" + str(f_name_suffix)
+                self.add_qtablewidgetitem(f_cell_text, v[0], v[1])
+                self.region.add_item_ref(v[0], v[1], f_cell_text)
+            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
+            this_pydaw_project.git_repo.git_commit("-a", "Auto-Unlink items '")
 
     def paste_clipboard(self):
         if not self.enabled:
