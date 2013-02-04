@@ -29,6 +29,8 @@ GNU General Public License for more details.
 #include <unistd.h>
 #include <QFont>
 
+#include "../../libmodsynth/widgets/style_loader.h"
+
 #define LMS_SAMPLE_GRAPH_WIDTH 1100
 
 #ifdef Q_WS_X11
@@ -92,10 +94,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
     m_host = lo_address_new(host, port);
 #endif    
     
-    QFile f_stylesheet_file("/usr/lib/pydaw2/themes/default/style.txt");
-    f_stylesheet_file.open(QIODevice::ReadOnly | QIODevice::Text);
-    this->setStyleSheet(f_stylesheet_file.readAll());
-    f_stylesheet_file.close();
+    this->setStyleSheet(pydaw_load_style());
     
     m_suppressHostUpdate = TRUE;
     m_handle_control_updates = TRUE;
