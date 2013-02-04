@@ -54,7 +54,7 @@ inline float f_linear_interpolate_ptr_ifh(float * a_table, int a_whole_number, f
  */
 inline float f_linear_interpolate(float a_a, float a_b, float a_position)
 {    
-    return (((a_a - a_b) * a_position) + a_a);
+    return (((a_a - a_b) * a_position) + a_b);
 }
 
 /* inline float f_linear_interpolate_arr(
