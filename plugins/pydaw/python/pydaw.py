@@ -27,6 +27,31 @@ import sip
 global_pydaw_version_string = "pydaw2"
 global_pydaw_file_type_string = 'PyDAW2 Project (*.pydaw2)'
 
+def pydaw_linear_interpolate_gradient(a_pos):
+    f_frac = a_pos % 1
+    f_int = int(a_pos - f_frac)
+    if f_int >= len(pydaw_rainbow_gradient) - 1:
+        f_int -= len(pydaw_rainbow_gradient)
+    f_red = ((pydaw_rainbow_gradient[f_int][0] - pydaw_rainbow_gradient[f_int + 1][0]) * f_frac) + pydaw_rainbow_gradient[f_int + 1][0]
+    f_green = ((pydaw_rainbow_gradient[f_int][0] - pydaw_rainbow_gradient[f_int + 1][1]) * f_frac) + pydaw_rainbow_gradient[f_int + 1][1]
+    f_blue = ((pydaw_rainbow_gradient[f_int][0] - pydaw_rainbow_gradient[f_int + 1][2]) * f_frac) + pydaw_rainbow_gradient[f_int + 1][2]
+    return (f_red, f_green, f_blue)
+
+pydaw_rainbow_gradient = [(180.0, 180.0, 60.0), (120.120, 60.0, 180.0), (180.0, 60.0, 180.0), (180.0, 60.0, 60.0), (60.0, 180.0, 60.0), (60.0, 180.0, 180.0)]
+
+pydaw_rainbow_inc = float(len(pydaw_rainbow_gradient))/float(pydaw_midi_track_count)
+f_rainbox_pos = 0.0
+
+pydaw_track_gradients = []
+for i in range(pydaw_midi_track_count):
+    f_colors = pydaw_linear_interpolate_gradient(f_rainbox_pos)
+    f_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 100))
+    f_gradient.setColorAt(0, QtGui.QColor(f_colors[0], f_colors[1], f_colors[2]))
+    f_rainbox_pos += pydaw_rainbow_inc
+    f_colors = pydaw_linear_interpolate_gradient(f_rainbox_pos)
+    f_gradient.setColorAt(1, QtGui.QColor(f_colors[0], f_colors[1], f_colors[2]))
+    pydaw_track_gradients.append(f_gradient)
+
 pydaw_item_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
 pydaw_item_gradient.setColorAt(0, QtGui.QColor(100, 100, 255))
 pydaw_item_gradient.setColorAt(1, QtGui.QColor(127, 127, 255))
@@ -182,7 +207,8 @@ class region_list_editor:
     def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num):
         """ Adds a properly formatted item.  This is not for creating empty items... """
         f_qtw_item = QtGui.QTableWidgetItem(a_name)
-        f_qtw_item.setBackground(pydaw_item_gradient)
+        #f_qtw_item.setBackground(pydaw_item_gradient)
+        f_qtw_item.setBackground(pydaw_track_gradients[a_track_num])
         f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
         f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
         self.table_widget.setItem(a_track_num, a_bar_num + 1, f_qtw_item)
