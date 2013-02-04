@@ -39,11 +39,11 @@ def pydaw_linear_interpolate_gradient(a_pos):
 
 pydaw_g_hi = 190.0
 pydaw_g_lo = 30.0
-pydaw_rainbow_gradient = [(pydaw_g_hi, pydaw_g_lo, pydaw_g_lo),
-                          (pydaw_g_hi, pydaw_g_hi, pydaw_g_lo),
-                          (pydaw_g_lo, pydaw_g_hi, pydaw_g_lo),
+pydaw_rainbow_gradient = [(pydaw_g_lo, pydaw_g_hi, pydaw_g_lo),
                           (pydaw_g_lo, pydaw_g_lo, pydaw_g_hi),
-                          (pydaw_g_hi, pydaw_g_lo, pydaw_g_hi)]
+                          (pydaw_g_hi, pydaw_g_lo, pydaw_g_hi),
+                          (pydaw_g_hi, pydaw_g_lo, pydaw_g_lo),
+                          (pydaw_g_hi, pydaw_g_hi, pydaw_g_lo)]
 
 pydaw_rainbow_inc = 1.0 # (float(len(pydaw_rainbow_gradient))/float(pydaw_midi_track_count))
 f_rainbox_pos = 0.0
