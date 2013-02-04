@@ -3262,6 +3262,13 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.setGeometry(QtCore.QRect(f_window.x(), f_window.y(), 900, 720))
         f_window.exec_()
 
+    def on_open_theme(self):
+        f_file = str(QtGui.QFileDialog.getOpenFileName(self, "Open a theme file", "/usr/lib/pydaw2/themes", "PyDAW Style(style.txt)"))
+        if not f_file is None and not f_file == "":
+            f_style = pydaw_read_file_text(f_file)
+            pydaw_write_file_text(self.user_style_file, f_file)
+            self.setStyleSheet(f_style)
+
     def on_user_manual(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://pydaw.org/wiki/index.php?title=PyDAW2_Manual"))
 
@@ -3288,12 +3295,18 @@ class pydaw_main_window(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         self.setObjectName("mainwindow")
-        #stylesheet_file = os.getcwd() + "/pydaw/style.txt"
-        stylesheet_file = "/usr/lib/pydaw2/themes/default/style.txt"
-        print("Opening stylesheet from " + stylesheet_file)
-        file_handle = open(stylesheet_file, 'r')
-        self.setStyleSheet(file_handle.read())
-        file_handle.close()
+        default_stylesheet_file = "/usr/lib/pydaw2/themes/default/style.txt"
+        self.user_style_file = expanduser("~") + "/pydaw2/default-style.txt"
+        if os.path.isfile(self.user_style_file):
+            f_current_style_file_text = pydaw_read_file_text(self.user_style_file)
+            if os.path.isfile(f_current_style_file_text):
+                f_style = pydaw_read_file_text(f_current_style_file_text)
+            else:
+                f_style = pydaw_read_file_text(default_stylesheet_file)
+        else:
+            f_style = pydaw_read_file_text(default_stylesheet_file)
+
+        self.setStyleSheet(f_style)
 
         self.central_widget = QtGui.QWidget()
         self.setCentralWidget(self.central_widget)
@@ -3345,6 +3358,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.menu_edit.addAction(self.undo_history_action)
         self.undo_history_action.triggered.connect(self.on_undo_history)
         self.undo_history_action.setShortcut(QtGui.QKeySequence.Undo)
+
+        self.menu_appearance = self.menu_bar.addMenu("&Appearance")
+
+        self.open_theme_action = QtGui.QAction("Open Theme...", self)
+        self.menu_appearance.addAction(self.open_theme_action)
+        self.open_theme_action.triggered.connect(self.on_open_theme)
 
         self.menu_help = self.menu_bar.addMenu("&Help")
 

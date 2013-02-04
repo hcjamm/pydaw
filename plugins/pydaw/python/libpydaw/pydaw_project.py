@@ -50,6 +50,17 @@ def beat_frac_text_to_float(f_index):
 
 int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
+def pydaw_read_file_text(a_file):
+    f_handle = open(str(a_file))
+    f_result = f_handle.read()
+    f_handle.close()
+    return f_result
+
+def pydaw_write_file_text(a_file, a_text):
+    f_handle = open(str(a_file), "w")
+    f_handle.write(str(a_text))
+    f_handle.close()
+
 def pydaw_gen_uid():
     """Generated an integer uid.  Adding together multiple random numbers gives a far less uniform distribution of
     numbers, more of a natural white noise kind of sample graph than a brick-wall digital white noise... """

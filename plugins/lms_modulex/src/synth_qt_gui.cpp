@@ -32,6 +32,8 @@ GNU General Public License for more details.
 #include "synth.h"
 #include "meta.h"
 
+#include "../../libmodsynth/widgets/style_loader.h"
+
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -71,11 +73,8 @@ modulex_gui::modulex_gui(const char * host, const char * port,
 {
     m_host = lo_address_new(host, port);
     
-    QFile f_stylesheet_file("/usr/lib/pydaw2/themes/default/style.txt");
-    f_stylesheet_file.open(QIODevice::ReadOnly | QIODevice::Text);
-    this->setStyleSheet(f_stylesheet_file.readAll());
-    f_stylesheet_file.close();
-
+    this->setStyleSheet(pydaw_load_style());
+    
     m_main_hboxlayout = new QHBoxLayout();
     m_main_vboxlayout = new QVBoxLayout();
     this->setLayout(m_main_hboxlayout);
