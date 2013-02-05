@@ -37,8 +37,8 @@ def pydaw_linear_interpolate_gradient(a_pos):
     f_blue = ((pydaw_rainbow_gradient[f_int][0] - pydaw_rainbow_gradient[f_int + 1][2]) * f_frac) + pydaw_rainbow_gradient[f_int + 1][2]
     return (f_red, f_green, f_blue)
 
-pydaw_g_hi = 190.0
-pydaw_g_lo = 30.0
+pydaw_g_hi = 210.0
+pydaw_g_lo = 60.0
 pydaw_rainbow_gradient = [(pydaw_g_lo, pydaw_g_hi, pydaw_g_lo),
                           (pydaw_g_lo, pydaw_g_lo, pydaw_g_hi),
                           (pydaw_g_hi, pydaw_g_lo, pydaw_g_hi),
@@ -46,7 +46,7 @@ pydaw_rainbow_gradient = [(pydaw_g_lo, pydaw_g_hi, pydaw_g_lo),
                           (pydaw_g_hi, pydaw_g_hi, pydaw_g_lo)]
 
 pydaw_rainbow_inc = 1.0 # (float(len(pydaw_rainbow_gradient))/float(pydaw_midi_track_count))
-f_rainbox_pos = 0.0
+f_rainbox_pos = 0.5
 
 pydaw_track_gradients = []
 
