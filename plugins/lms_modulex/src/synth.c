@@ -306,10 +306,14 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
             plugin_data->i_mono_out = (plugin_data->i_mono_out) + 1;
         }
     }
-        
-    if((*plugin_data->reverb_wet) > 0.1f)
-    {
-        v_rvb_reverb_set(plugin_data->mono_modules->reverb, (*plugin_data->reverb_time) * 0.01f, (*plugin_data->reverb_wet) * 0.01f, 
+    
+    v_sml_run(plugin_data->mono_modules->reverb_smoother, (*plugin_data->reverb_wet));
+    
+    if((plugin_data->mono_modules->reverb_smoother->last_value) > 0.005f)
+    {                
+        v_rvb_reverb_set(plugin_data->mono_modules->reverb, (*plugin_data->reverb_time) * 0.01f, 
+                f_db_to_linear_fast(((plugin_data->mono_modules->reverb_smoother->last_value) * 0.4f) - 40.0f, 
+                plugin_data->mono_modules->amp_ptr),
                 (*plugin_data->reverb_color) * 0.01f);
         
         int f_i = 0;
@@ -341,9 +345,12 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
         }
     }*/
 
-    if((*plugin_data->vol_slider) != 0.0)
-    {
-        int f_i = 0;
+    
+    v_sml_run(plugin_data->mono_modules->volume_smoother, (*plugin_data->vol_slider));
+    
+    if((plugin_data->mono_modules->volume_smoother->last_value) < -0.05f)
+    {        
+        int f_i = 0;        
         float f_vol_linear = f_db_to_linear_fast((*plugin_data->vol_slider), plugin_data->mono_modules->amp_ptr);
         while(f_i < sample_count)
         {
