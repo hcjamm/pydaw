@@ -66,8 +66,8 @@ pydaw_item_gradient.setColorAt(0, QtGui.QColor(100, 100, 255))
 pydaw_item_gradient.setColorAt(1, QtGui.QColor(127, 127, 255))
 
 pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(80, 80))
-pydaw_region_gradient.setColorAt(0, QtGui.QColor(220, 120, 120))
-pydaw_region_gradient.setColorAt(1, QtGui.QColor(195, 90, 95))
+pydaw_region_gradient.setColorAt(0, QtGui.QColor(190, 170, 40))
+pydaw_region_gradient.setColorAt(1, QtGui.QColor(230, 221, 45))
 
 class song_editor:
     def add_qtablewidgetitem(self, a_name, a_region_num):
