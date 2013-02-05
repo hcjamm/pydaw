@@ -5,8 +5,6 @@
  * A simple digital reverb built with off-the-shelf parts from the rest of the library.
  * The focus is on quality, CPU efficiency, and a minimal number of controls(targeting only time, wet and color knobs)
  * 
- * A memory and CPU optimized version will come after the overall sound is good...
- *
  * Created on January 10, 2013, 8:29 AM
  */
 
@@ -42,6 +40,9 @@ typedef struct
     t_amp * amp;
     float comb_tunings[PYDAW_REVERB_TAP_COUNT];
     float allpass_tunings[PYDAW_REVERB_DIFFUSER_COUNT];
+    int predelay_counter;
+    int predelay_size;
+    float * predelay_buffer;
 } t_rvb_reverb;
 
 t_rvb_reverb * g_rvb_reverb_get(float);
@@ -113,7 +114,16 @@ inline void v_rvb_reverb_run(t_rvb_reverb * a_reverb, float a_input0, float a_in
         a_reverb->output = v_svf_run_2_pole_allpass(a_reverb->diffusers[(a_reverb->iter1)], a_reverb->output);
                 
         a_reverb->iter1 = (a_reverb->iter1) + 1;
-    }        
+    }
+    
+    a_reverb->predelay_buffer[(a_reverb->predelay_counter)] = a_reverb->output;
+    a_reverb->predelay_counter = (a_reverb->predelay_counter) + 1;
+    if((a_reverb->predelay_counter) >= (a_reverb->predelay_size))
+    {
+        a_reverb->predelay_counter = 0;
+    }
+    a_reverb->output = a_reverb->predelay_buffer[(a_reverb->predelay_counter)];
+    
 }
 
 t_rvb_reverb * g_rvb_reverb_get(float a_sr)
@@ -176,6 +186,21 @@ t_rvb_reverb * g_rvb_reverb_get(float a_sr)
         v_svf_set_cutoff_base(f_result->diffusers[f_i2], f_result->allpass_tunings[f_i2]);
         v_svf_set_res(f_result->diffusers[f_i2], -1.0f);
         v_svf_set_cutoff(f_result->diffusers[f_i2]);
+        f_i2++;
+    }
+    
+    f_result->predelay_counter = 0;
+    f_result->predelay_size = (int)(a_sr * 0.01f);
+        
+    if(posix_memalign((void**)&f_result->predelay_buffer, 16, (sizeof(float) * f_result->predelay_size)) != 0)
+    {
+        return 0;
+    }
+    
+    f_i2 = 0;
+    while(f_i2 < (f_result->predelay_size))
+    {
+        f_result->predelay_buffer[f_i2] = 0.0f;
         f_i2++;
     }
     
