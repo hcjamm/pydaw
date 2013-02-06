@@ -421,10 +421,10 @@ void _fini()
 {
     if(pydaw_data)
     {
-        v_pydaw_close_all_uis(pydaw_data);
         pydaw_data->audio_recording_quit_notifier = 1;
+        v_pydaw_close_all_uis(pydaw_data);        
         
-        sleep(3);
+        sleep(2);
 
         //This ensures that the destructor doesn't start freeing memory before save-on-exit finishes...
         pthread_mutex_lock(&pydaw_data->quit_mutex);
@@ -449,9 +449,9 @@ void _fini()
         f_i = 0;
         while(f_i < pydaw_data->track_worker_thread_count)
         {
-            pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);        
+            //pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);        
             pydaw_data->track_thread_quit_notifier[f_i] = 1;        
-            pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
+            //pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
             f_i++;
         }
         
@@ -464,11 +464,14 @@ void _fini()
             f_i++;
         }
 
+        sleep(2);
+        
         f_i = 0;
         while(f_i < pydaw_data->track_worker_thread_count)
         {
-            pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);
-            pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
+            assert(pydaw_data->track_thread_quit_notifier[f_i] == 2);  //abort the application rather than hang indefinitely
+            //pthread_mutex_lock(&pydaw_data->track_block_mutexes[f_i]);
+            //pthread_mutex_unlock(&pydaw_data->track_block_mutexes[f_i]);
             f_i++;
         }
     }
