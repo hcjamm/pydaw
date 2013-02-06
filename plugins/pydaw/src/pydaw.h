@@ -859,7 +859,7 @@ inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pyt
     {
         //Temporary infinite loop detection...
         f_test++;
-        assert(f_test < 100);
+        assert(f_test < 2100);
         
         if((a_pytrack->song_level_automation->current_index) >= (a_pytrack->song_level_automation->count))
         {
