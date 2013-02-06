@@ -3447,7 +3447,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         """Below you can edit the MIDI CC maps for PyDAW's plugins. All CCs are sent to both Ray-V/Euphoria/Way-V and Modulex,
 so the first 3 CC maps can overlap each other, but none of them should overlap with Modulex.
 You must restart PyDAW for changes to the CC maps to take effect.  Maps will not populate until you've started
-the plugin for the first time, and then restarted PyDAW.""")
+the plugin for the first time, and then restarted PyDAW.
+
+IMPORTANT:  Changing these will affect any existing CC automation you have in any projects.  The next major release
+of PyDAW will not have this limitation, and will feature MIDI learn and the ability to automate parameters by
+name instead of MIDI CC number""")
         f_cc_map_label.setMaximumWidth(1200)
         f_cc_map_main_vlayout.addWidget(f_cc_map_label)
         f_cc_map_hlayout = QtGui.QHBoxLayout()
