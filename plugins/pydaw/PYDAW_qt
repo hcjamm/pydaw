@@ -1,5 +1,4 @@
-if [ -f "$(pwd)/python/pydaw.py" ]
-then
+if [ -f "$(pwd)/python/pydaw.py" ]; then
 	UI_DIR="$(pwd)/python"
 else
 	UI_DIR="/usr/lib/pydaw2/pydaw/python"
@@ -14,5 +13,10 @@ echo "arg2: $2"
 echo "arg3: $3"
 echo "arg4: $4"
 echo "arg5: $5"
-python pydaw.py $1
+
+if [ -e /usr/bin/python2 ]; then
+	python2 pydaw.py $1
+else
+	python pydaw.py $1
+fi
 
