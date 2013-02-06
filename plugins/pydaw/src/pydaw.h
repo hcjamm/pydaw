@@ -731,7 +731,8 @@ void * v_pydaw_worker_thread(void* a_arg)
                 
         if(f_args->pydaw_data->track_thread_quit_notifier[f_args->thread_num])
         {            
-            printf("worker thread %i exiting...\n", f_args->thread_num);            
+            f_args->pydaw_data->track_thread_quit_notifier[f_args->thread_num] = 2;
+            printf("worker thread %i exiting...\n", f_args->thread_num);
             break;
         }
         
