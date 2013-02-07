@@ -3535,6 +3535,8 @@ Any additional text must be enclosed in quotation marks."
         f_default_cc_num = int(self.cc_table.item(x, 0).text())
 
         f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Set CC for Control")
+        f_window.setMinimumWidth(240)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_cc = QtGui.QSpinBox()
