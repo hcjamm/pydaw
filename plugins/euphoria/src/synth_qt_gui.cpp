@@ -28,6 +28,7 @@ GNU General Public License for more details.
 #include <iostream>
 #include <unistd.h>
 #include <QFont>
+#include <QDebug>
 
 #include "../../libmodsynth/widgets/style_loader.h"
 
@@ -38,6 +39,7 @@ GNU General Public License for more details.
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/SM/SMlib.h>
+#include <qt4/QtCore/qglobal.h>
 
 static int handle_x11_error(Display *dpy, XErrorEvent *err)
 {
@@ -930,6 +932,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
             m_sample_loop_starts[f_i] = 0;
             m_sample_loop_ends[f_i] = 0;
             m_sample_loop_modes[f_i] = 0;
+            m_sample_selected_monofx_groups[f_i] = 0;
         }
 
         
@@ -1655,12 +1658,12 @@ void SamplerGUI::reloadSample()
 }
 
 void SamplerGUI::selectionChanged()
-{
+{    
     if(m_suppress_selected_sample_changed)
     {
         return;
     }
-    
+        
     m_suppress_selected_sample_changed = TRUE;
     
     m_sample_table->find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX);
@@ -2817,7 +2820,8 @@ void SamplerGUI::lms_set_value(float val, LMS_control * a_ctrl )
 void SamplerGUI::setSelectedMonoFX(float val)
 { 
     m_suppressHostUpdate = true;
-    m_mono_fx_tab_selected_group->setCurrentIndex(int(val));
+    m_mono_fx_tab_selected_group->setCurrentIndex(int(val));    
+    qDebug() << QString("setSelectedMonoFX:  ") << int(val);
     m_suppressHostUpdate = false;         
 }
 
