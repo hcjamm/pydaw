@@ -1810,10 +1810,12 @@ class item_list_editor:
         f_layout.addWidget(f_events_follow_notes, 1, 1)
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(quantize_ok_handler)
-        f_layout.addWidget(f_ok, 3, 0)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_ok_cancel_layout.addWidget(f_ok)
+        f_layout.addLayout(f_ok_cancel_layout, 3, 1)
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(quantize_cancel_handler)
-        f_layout.addWidget(f_cancel, 3, 1)
+        f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
     def transpose_dialog(self):
@@ -1916,10 +1918,12 @@ class item_list_editor:
         f_layout.addWidget(f_quantize_combobox, 2, 1)
         f_ok = QtGui.QPushButton("OK")
         f_ok.pressed.connect(time_shift_ok_handler)
-        f_layout.addWidget(f_ok, 3, 0)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_ok_cancel_layout.addWidget(f_ok)
+        f_layout.addLayout(f_ok_cancel_layout, 3, 1)
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(time_shift_cancel_handler)
-        f_layout.addWidget(f_cancel, 3, 1)
+        f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
     def length_shift_dialog(self):
