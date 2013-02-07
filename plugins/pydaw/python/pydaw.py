@@ -3331,6 +3331,12 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_spacebar(self):
         this_transport.on_spacebar()
 
+    def tab_changed(self):
+        if this_audio_editor.delete_radiobutton.isChecked():
+            this_audio_editor.add_radiobutton.setChecked(True)
+        if this_item_editor.delete_radiobutton.isChecked():
+            this_item_editor.add_radiobutton.setChecked(True)
+
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         self.setObjectName("mainwindow")
@@ -3421,6 +3427,8 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         #The tabs
         self.main_tabwidget = QtGui.QTabWidget()
+
+        self.main_tabwidget.currentChanged.connect(self.tab_changed)
 
         self.main_layout.addWidget(self.main_tabwidget)
 
