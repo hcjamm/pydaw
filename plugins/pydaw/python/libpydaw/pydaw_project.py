@@ -705,6 +705,49 @@ class pydaw_item:
                 self.notes.pop(i)
                 break
 
+    def velocity_mod(self, a_amt, a_start_beat=0.0, a_end_beat=4.0, a_line=False, a_end=127, a_add=False, a_notes=None):
+        """ velocity_mod
+        (self, a_amt, #The amount to add or subtract
+         a_start_beat=0.0, #modify values with a start at >= this, and...
+         a_end_beat=4.0, # <= to this.
+         a_line=False, # draw a line to a_end, otherwise all events are modified by a_amt
+         a_end=127, #not used unless a_line=True
+         a_add=False, #True to add/subtract from each value, False to assign
+         a_notes=None) #Process all notes if None, or selected if a list of notes is provided
+
+         Modify the velocity of a range of notes
+         """
+        f_notes = []
+
+        if a_notes is None:
+            f_notes = self.notes
+        else:
+            for i in range(len(a_notes)):
+                for f_note in self.notes:
+                    if f_note == a_notes[i]:
+                        f_notes.append(f_note)
+                        break
+
+        f_range_beats = a_end_beat - a_start_beat
+
+        for note in f_notes:
+            if note.start >= a_start_beat and note.end <= a_end_beat:
+                if a_line:
+                    f_value = int(((a_amt - a_end) * ((note.start - a_start_beat)/f_range_beats)) + a_end)
+                else:
+                    f_value = int(a_amt)
+
+                if a_add:
+                    note.velocity += f_value
+                else:
+                    note.velocity = f_value
+
+                if note.velocity > 127:
+                    note.velocity = 127
+                elif note.velocity < 1:
+                    note.velocity = 1
+
+
     def quantize(self, a_beat_frac, a_events_move_with_item=False, a_notes=None):
         f_notes = []
         f_ccs = []

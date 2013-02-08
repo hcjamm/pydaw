@@ -1818,6 +1818,76 @@ class item_list_editor:
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
+    def velocity_dialog(self):
+        if not self.enabled:
+            self.show_not_enabled_warning()
+            return
+        f_multiselect = False
+        if self.multiselect_radiobutton.isChecked():
+            f_ms_rows = self.get_notes_table_selected_rows()
+            if len(f_ms_rows) == 0:
+                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
+            else:
+                f_multiselect = True
+
+        def ok_handler():
+            if f_multiselect:
+                self.item.velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
+                f_end_amount.value(), f_add_values.isChecked(), f_ms_rows)
+            else:
+                self.item.velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
+                f_end_amount.value(), f_add_values.isChecked())
+            this_pydaw_project.save_item(self.item_name, self.item)
+            self.open_item(self.item_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Quantize item '" + self.item_name + "'")
+            f_window.close()
+
+        def cancel_handler():
+            f_window.close()
+
+        f_window = QtGui.QDialog(this_main_window)
+        #f_window.setMinimumWidth(420)
+        f_window.setWindowTitle("Velocity Mod")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+
+        f_layout.addWidget(QtGui.QLabel("Amount"), 0, 0)
+        f_amount = QtGui.QSpinBox()
+        f_amount.setRange(-127, 127)
+        f_layout.addWidget(f_amount, 0, 1)
+        f_draw_line = QtGui.QCheckBox("Draw line?")
+        f_layout.addWidget(f_draw_line, 1, 1)
+
+        f_layout.addWidget(QtGui.QLabel("End Amount"), 2, 0)
+        f_end_amount = QtGui.QSpinBox()
+        f_end_amount.setRange(-127, 127)
+        f_layout.addWidget(f_end_amount, 2, 1)
+
+        f_layout.addWidget(QtGui.QLabel("Start Beat"), 3, 0)
+        f_start_beat = QtGui.QDoubleSpinBox()
+        f_start_beat.setRange(0.0, 3.99)
+        f_layout.addWidget(f_start_beat, 3, 1)
+
+        f_layout.addWidget(QtGui.QLabel("End Beat"), 4, 0)
+        f_end_beat = QtGui.QDoubleSpinBox()
+        f_end_beat.setRange(0.01, 4.0)
+        f_end_beat.setValue(4.0)
+        f_layout.addWidget(f_end_beat, 4, 1)
+
+        f_add_values = QtGui.QCheckBox("Add Values?")
+        f_add_values.setToolTip("Check this to add Amount to the existing value, or leave\nunchecked to set the value to Amount.")
+        f_layout.addWidget(f_add_values, 5, 1)
+
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(ok_handler)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_ok_cancel_layout.addWidget(f_ok)
+        f_layout.addLayout(f_ok_cancel_layout, 10, 1)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(cancel_handler)
+        f_ok_cancel_layout.addWidget(f_cancel)
+        f_window.exec_()
+
     def transpose_dialog(self):
         if not self.enabled:
             self.show_not_enabled_warning()
@@ -2116,28 +2186,36 @@ class item_list_editor:
         self.notes_groupbox.setMinimumWidth(573)
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
         self.notes_gridlayout = QtGui.QGridLayout()
-        f_n_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.notes_gridlayout.addItem(f_n_spacer_left, 0, 0, 1, 1)
+
+        f_button_width = 82
         self.notes_quantize_button = QtGui.QPushButton("Quantize")
-        self.notes_quantize_button.setMinimumWidth(90)
+        self.notes_quantize_button.setMinimumWidth(f_button_width)
         self.notes_quantize_button.pressed.connect(self.quantize_dialog)
         self.notes_gridlayout.addWidget(self.notes_quantize_button, 0, 1)
         self.notes_transpose_button = QtGui.QPushButton("Transpose")
-        self.notes_transpose_button.setMinimumWidth(90)
+        self.notes_transpose_button.setMinimumWidth(f_button_width)
         self.notes_transpose_button.pressed.connect(self.transpose_dialog)
         self.notes_gridlayout.addWidget(self.notes_transpose_button, 0, 2)
         self.notes_shift_button = QtGui.QPushButton("Shift")
-        self.notes_shift_button.setMinimumWidth(90)
+        self.notes_shift_button.setMinimumWidth(f_button_width)
         self.notes_shift_button.pressed.connect(self.time_shift_dialog)
         self.notes_gridlayout.addWidget(self.notes_shift_button, 0, 3)
         self.notes_length_button = QtGui.QPushButton("Length")
-        self.notes_length_button.setMinimumWidth(90)
+        self.notes_length_button.setMinimumWidth(f_button_width)
         self.notes_length_button.pressed.connect(self.length_shift_dialog)
         self.notes_gridlayout.addWidget(self.notes_length_button, 0, 4)
+
+        self.notes_velocity_button = QtGui.QPushButton("Velocity")
+        self.notes_velocity_button.setMinimumWidth(f_button_width)
+        self.notes_velocity_button.pressed.connect(self.velocity_dialog)
+        self.notes_gridlayout.addWidget(self.notes_velocity_button, 0, 5)
+
+        self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 6)
+
         self.notes_clear_button = QtGui.QPushButton("Clear")
-        self.notes_clear_button.setMinimumWidth(90)
+        self.notes_clear_button.setMinimumWidth(f_button_width)
         self.notes_clear_button.pressed.connect(self.clear_notes)
-        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 5)
+        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 7)
         f_c_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.notes_gridlayout.addItem(f_c_spacer_right, 0, 6, 1, 1)
         self.notes_vlayout.addLayout(self.notes_gridlayout)
@@ -2161,7 +2239,7 @@ class item_list_editor:
         f_c_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.ccs_gridlayout.addItem(f_c_spacer_left, 0, 0, 1, 1)
         self.ccs_clear_button = QtGui.QPushButton("Clear")
-        self.ccs_clear_button.setMinimumWidth(90)
+        self.ccs_clear_button.setMinimumWidth(f_button_width)
         self.ccs_clear_button.pressed.connect(self.clear_ccs)
         self.ccs_gridlayout.addWidget(self.ccs_clear_button, 0, 1)
         f_c_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -2187,7 +2265,7 @@ class item_list_editor:
         f_p_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.pb_gridlayout.addItem(f_p_spacer_left, 0, 0, 1, 1)
         self.pb_clear_button = QtGui.QPushButton("Clear")
-        self.pb_clear_button.setMinimumWidth(90)
+        self.pb_clear_button.setMinimumWidth(f_button_width)
         self.pb_clear_button.pressed.connect(self.clear_pb)
         self.pb_gridlayout.addWidget(self.pb_clear_button, 0, 1)
         f_p_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
