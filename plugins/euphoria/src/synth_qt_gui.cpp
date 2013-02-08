@@ -3599,7 +3599,7 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
         if(f_value == (m_mono_fx_tab_selected_group->currentIndex()))
         {
             sample_selected_monofx_groupChanged(m_sample_selected_monofx_groups[f_value]);
-        }
+        }        
     }        
     
     
@@ -4255,10 +4255,11 @@ int euphoria_control_handler(const char *path, const char *types, lo_arg **argv,
     else if((port >= EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX))
     {
         int f_value = port - EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN;
-        gui->m_sample_selected_monofx_groups[f_value] = (int)value;
-        if(f_value == (gui->m_mono_fx_tab_selected_group->currentIndex()))
+        gui->m_sample_selected_monofx_groups[f_value] = (int)value;        
+        if(f_value == (gui->m_mono_fx_tab_selected_sample->currentIndex()))
         {
-            gui->sample_selected_monofx_groupChanged(gui->m_sample_selected_monofx_groups[f_value]);            
+            //gui->sample_selected_monofx_groupChanged(gui->m_sample_selected_monofx_groups[f_value]);
+            gui->setSelectedMonoFX(gui->m_sample_selected_monofx_groups[f_value]);
         }
     }        
     

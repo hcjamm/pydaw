@@ -126,6 +126,7 @@ public:
     void lms_set_value(float, LMS_control *);
     void load_files(QStringList);
         
+    QComboBox *m_mono_fx_tab_selected_sample;
     QComboBox *m_mono_fx_tab_selected_group;
         
     //End from Ray-V
@@ -778,8 +779,7 @@ protected:
     QWidget *m_poly_fx_tab;
     QWidget *m_mono_fx_tab;
     LMS_main_layout *m_mono_fx_tab_main_layout;
-    QHBoxLayout *m_mono_fx_tab_selected_hlayout;
-    QComboBox *m_mono_fx_tab_selected_sample;
+    QHBoxLayout *m_mono_fx_tab_selected_hlayout;    
     QLabel *m_mono_fx_tab_selected_sample_label;
     QLabel *m_mono_fx_tab_selected_group_label;
     
