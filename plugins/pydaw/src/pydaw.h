@@ -896,7 +896,7 @@ inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pyt
                 }
                 else if(((!a_pydaw_data->ml_starting_new_bar) && (f_beat >= a_pydaw_data->ml_current_period_beats) &&
                     (f_beat < a_pydaw_data->ml_next_period_beats)) || 
-                        ((a_pydaw_data->ml_starting_new_bar) && (f_beat < a_pydaw_data->ml_next_period_beats)))
+                        ((a_pydaw_data->ml_starting_new_bar) && (f_beat < a_pydaw_data->ml_next_beat)))
                 {   
                     a_pytrack->song_level_automation->started = 1;
                     int controller = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->cc_num;
