@@ -39,7 +39,6 @@ GNU General Public License for more details.
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/SM/SMlib.h>
-#include <qt4/QtCore/qglobal.h>
 
 static int handle_x11_error(Display *dpy, XErrorEvent *err)
 {
