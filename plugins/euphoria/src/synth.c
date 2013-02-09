@@ -33,13 +33,13 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/lms_math.h"
 #include "../../libmodsynth/lib/strings.h"
 
-static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
-		       snd_seq_event_t *events, unsigned long EventCount);
+static void v_run_lms_euphoria(LADSPA_Handle instance, int sample_count,
+		       snd_seq_event_t *events, int EventCount);
 
 static inline void v_euphoria_slow_index(t_euphoria*);
 
-const LADSPA_Descriptor *euphoria_ladspa_descriptor(unsigned long index);
-const DSSI_Descriptor *euphoria_dssi_descriptor(unsigned long index);
+const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index);
+const DSSI_Descriptor *euphoria_dssi_descriptor(int index);
 
 static void cleanupSampler(LADSPA_Handle instance)
 {
@@ -47,7 +47,7 @@ static void cleanupSampler(LADSPA_Handle instance)
     free(plugin);
 }
 
-static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
+static void connectPortSampler(LADSPA_Handle instance, int port,
 			       LADSPA_Data * data)
 {
     t_euphoria *plugin;
@@ -327,7 +327,7 @@ static void connectPortSampler(LADSPA_Handle instance, unsigned long port,
 }
 
 static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
-					unsigned long s_rate)
+					int s_rate)
 {
     t_euphoria *plugin_data; // = (Sampler *) malloc(sizeof(Sampler));
     
@@ -587,10 +587,10 @@ static void run_sampler_interpolation_none(t_euphoria *__restrict plugin_data, i
 
 /* static void addSample(Sampler *plugin_data, 
  * int n, //The note number
- * unsigned long pos, //the position in the output buffer
- * unsigned long count) //how many samples to fill in the output buffer
+ * int pos, //the position in the output buffer
+ * int count) //how many samples to fill in the output buffer
  */
-static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, long count)
+static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, int count)
 {
     int ch;
     long i = 0;
@@ -744,11 +744,11 @@ static inline void v_euphoria_slow_index(t_euphoria* plugin_data)
     }
 }
 
-static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_count,
-		       snd_seq_event_t *events, unsigned long event_count)
+static void v_run_lms_euphoria(LADSPA_Handle instance, int sample_count,
+		       snd_seq_event_t *events, int event_count)
 {
     t_euphoria *plugin_data = (t_euphoria *) instance;    
-    unsigned long event_pos = 0;
+    int event_pos = 0;
     int i, i2, i3;
 
     for (i = 0; i < plugin_data->channels; ++i)
@@ -1061,7 +1061,7 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, unsigned long sample_coun
     pthread_mutex_unlock(&plugin_data->mutex);
 }
 
-static int i_euphoria_get_controller(LADSPA_Handle instance, unsigned long port)
+static int i_euphoria_get_controller(LADSPA_Handle instance, int port)
 {
     t_euphoria *plugin_data = (t_euphoria *) instance;
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));    
@@ -1423,7 +1423,7 @@ char *c_euphoria_configure(LADSPA_Handle instance, const char *key, const char *
     return strdup("error: unrecognized configure key");
 }
 
-const LADSPA_Descriptor *euphoria_ladspa_descriptor(unsigned long index)
+const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 {
     LADSPA_Descriptor *euphoriaLDescriptor = NULL;
 
@@ -2287,7 +2287,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(unsigned long index)
     return euphoriaLDescriptor;
 }
 
-const DSSI_Descriptor *euphoria_dssi_descriptor(unsigned long index)
+const DSSI_Descriptor *euphoria_dssi_descriptor(int index)
 {
     DSSI_Descriptor *euphoriaDDescriptor = NULL;
     

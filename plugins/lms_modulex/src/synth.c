@@ -37,18 +37,18 @@ GNU General Public License for more details.
 #include "meta.h"
 
 
-static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
-		  snd_seq_event_t * events, unsigned long EventCount);
+static void v_modulex_run(LADSPA_Handle instance, int sample_count,
+		  snd_seq_event_t * events, int EventCount);
 
-LADSPA_Descriptor *modulex_ladspa_descriptor(long index);
-DSSI_Descriptor *modulex_dssi_descriptor(long index);
+LADSPA_Descriptor *modulex_ladspa_descriptor(int index);
+DSSI_Descriptor *modulex_dssi_descriptor(int index);
 
 static void v_modulex_cleanup(LADSPA_Handle instance)
 {
     free(instance);
 }
 
-static void v_modulex_connect_port(LADSPA_Handle instance, unsigned long port, LADSPA_Data * data)
+static void v_modulex_connect_port(LADSPA_Handle instance, int port, LADSPA_Data * data)
 {
     t_modulex *plugin;
 
@@ -125,7 +125,7 @@ static void v_modulex_connect_port(LADSPA_Handle instance, unsigned long port, L
 }
 
 static LADSPA_Handle g_modulex_instantiate(const LADSPA_Descriptor * descriptor,
-				   unsigned long s_rate)
+				   int s_rate)
 {
     t_modulex *plugin_data = (t_modulex *) malloc(sizeof(t_modulex));
     
@@ -188,13 +188,13 @@ static void v_modulex_activate(LADSPA_Handle instance)
 }
 
 static void v_modulex_run_wrapper(LADSPA_Handle instance,
-			 unsigned long sample_count)
+			 int sample_count)
 {
     v_modulex_run(instance, sample_count, NULL, 0);
 }
 
-static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
-		  snd_seq_event_t *events, unsigned long event_count)
+static void v_modulex_run(LADSPA_Handle instance, int sample_count,
+		  snd_seq_event_t *events, int event_count)
 {
     t_modulex *plugin_data = (t_modulex *) instance;
     
@@ -363,14 +363,14 @@ static void v_modulex_run(LADSPA_Handle instance, unsigned long sample_count,
 }
 
 
-int i_modulex_get_controller(LADSPA_Handle instance, unsigned long port)
+int i_modulex_get_controller(LADSPA_Handle instance, int port)
 {    
     t_modulex *plugin_data = (t_modulex *) instance;
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));     
 }
 
 
-LADSPA_Descriptor *modulex_ladspa_descriptor(long index)
+LADSPA_Descriptor *modulex_ladspa_descriptor(int index)
 {
     LADSPA_Descriptor *LMSLDescriptor = NULL;
     
@@ -833,7 +833,7 @@ LADSPA_Descriptor *modulex_ladspa_descriptor(long index)
 }
 
 
-DSSI_Descriptor *modulex_dssi_descriptor(long index)
+DSSI_Descriptor *modulex_dssi_descriptor(int index)
 {
     DSSI_Descriptor *LMSDDescriptor = NULL;
     

@@ -365,7 +365,7 @@ typedef struct _LADSPA_Descriptor {
 
   /* This indicates the number of ports (input AND output) present on
      the plugin. */
-  unsigned long PortCount;
+  int PortCount;
 
   /* This member indicates an array of port descriptors. Valid indices
      vary from 0 to PortCount-1. */
@@ -396,8 +396,7 @@ typedef struct _LADSPA_Descriptor {
 
      Note that instance initialisation should generally occur in
      activate() rather than here. */
-  LADSPA_Handle (*instantiate)(const struct _LADSPA_Descriptor * Descriptor,
-                               unsigned long                     SampleRate);
+  LADSPA_Handle (*instantiate)(const struct _LADSPA_Descriptor * Descriptor, int SampleRate);
 
   /* This member is a function pointer that connects a port on an
      instantiated plugin to a memory location at which a block of data
@@ -425,9 +424,7 @@ typedef struct _LADSPA_Descriptor {
      for both input and output (see LADSPA_PROPERTY_INPLACE_BROKEN).
      However, overlapped buffers or use of a single buffer for both
      audio and control data may result in unexpected behaviour. */
-   void (*connect_port)(LADSPA_Handle Instance,
-                        unsigned long Port,
-                        LADSPA_Data * DataLocation);
+   void (*connect_port)(LADSPA_Handle Instance, int Port, LADSPA_Data * DataLocation);
 
   /* This member is a function pointer that initialises a plugin
      instance and activates it for use. This is separated from
@@ -464,8 +461,7 @@ typedef struct _LADSPA_Descriptor {
      If the plugin has the property LADSPA_PROPERTY_HARD_RT_CAPABLE
      then there are various things that the plugin should not do
      within the run() or run_adding() functions (see above). */
-  void (*run)(LADSPA_Handle Instance,
-              unsigned long SampleCount);
+  void (*run)(LADSPA_Handle Instance, int SampleCount);
 
   /* This method is a function pointer that runs an instance of a
      plugin for a block. This has identical behaviour to run() except
@@ -480,8 +476,7 @@ typedef struct _LADSPA_Descriptor {
      run_adding() is optional. When it is not provided by a plugin,
      this function pointer must be set to NULL. When it is provided,
      the function set_run_adding_gain() must be provided also. */
-  void (*run_adding)(LADSPA_Handle Instance,
-                     unsigned long SampleCount);
+  void (*run_adding)(LADSPA_Handle Instance, int SampleCount);
 
   /* This method is a function pointer that sets the output gain for
      use when run_adding() is called (see above). If this function is
@@ -548,11 +543,11 @@ typedef struct _LADSPA_Descriptor {
    returning NULL, so the plugin count can be determined by checking
    for the least index that results in NULL being returned. */
 
-const LADSPA_Descriptor * ladspa_descriptor(unsigned long Index);
+const LADSPA_Descriptor * ladspa_descriptor(int Index);
 
 /* Datatype corresponding to the ladspa_descriptor() function. */
 typedef const LADSPA_Descriptor * 
-(*LADSPA_Descriptor_Function)(unsigned long Index);
+(*LADSPA_Descriptor_Function)(int Index);
 
 /**********************************************************************/
 
@@ -565,13 +560,13 @@ typedef struct _DSSI_Program_Descriptor {
         MIDI-style separation of bank LSB and MSB values.  There is no
         restriction on the set of available banks: the numbers do not
         need to be contiguous, there does not need to be a bank 0, etc. */
-    unsigned long Bank;
+    int Bank;
 
     /** Program number (unique within its bank) for this program.
 	There is no restriction on the set of available programs: the
 	numbers do not need to be contiguous, there does not need to
 	be a program 0, etc. */
-    unsigned long Program;
+    int Program;
 
     /** Name of the program. */
     const char * Name;
@@ -697,8 +692,7 @@ typedef struct _DSSI_Descriptor {
      * range, so that the host can use it to query the number of
      * programs as well as their properties.
      */
-    const DSSI_Program_Descriptor *(*get_program)(LADSPA_Handle Instance,
-						  unsigned long Index);
+    const DSSI_Program_Descriptor *(*get_program)(LADSPA_Handle Instance, int Index);
     
     /**
      * select_program()
@@ -728,8 +722,8 @@ typedef struct _DSSI_Descriptor {
      * which a DSSI plugin is allowed to modify its own input ports.)
      */
     void (*select_program)(LADSPA_Handle Instance,
-			   unsigned long Bank,
-			   unsigned long Program);
+			   int Bank,
+			   int Program);
 
     /**
      * get_midi_controller_for_port()
@@ -758,7 +752,7 @@ typedef struct _DSSI_Descriptor {
      * controllers 0 or 32 (MIDI Bank Select MSB and LSB).
      */
     int (*get_midi_controller_for_port)(LADSPA_Handle Instance,
-					unsigned long Port);
+					int Port);
 
     /**
      * run_synth()
@@ -808,9 +802,9 @@ typedef struct _DSSI_Descriptor {
      * select controller to a plugin via run_synth.
      */
     void (*run_synth)(LADSPA_Handle    Instance,
-		      unsigned long    SampleCount,
+		      int    SampleCount,
 		      snd_seq_event_t *Events,
-		      unsigned long    EventCount);
+		      int    EventCount);
 
     /**
      * run_synth_adding()
@@ -822,9 +816,9 @@ typedef struct _DSSI_Descriptor {
      * that does not provide it must set this member to NULL.
      */
     void (*run_synth_adding)(LADSPA_Handle    Instance,
-			     unsigned long    SampleCount,
+			     int    SampleCount,
 			     snd_seq_event_t *Events,
-			     unsigned long    EventCount);
+			     int    EventCount);
 
     /**
      * run_multiple_synths()
@@ -858,11 +852,11 @@ typedef struct _DSSI_Descriptor {
      * to aid simplistic hosts, even where it would be less efficient
      * to use it.
      */
-    void (*run_multiple_synths)(unsigned long     InstanceCount,
+    void (*run_multiple_synths)(int     InstanceCount,
                                 LADSPA_Handle    *Instances,
-                                unsigned long     SampleCount,
+                                int     SampleCount,
                                 snd_seq_event_t **Events,
-                                unsigned long    *EventCounts);
+                                int    *EventCounts);
 
     /**
      * run_multiple_synths_adding()
@@ -874,11 +868,11 @@ typedef struct _DSSI_Descriptor {
      * run_adding() functions, and is equally optional.  A plugin
      * that does not provide it must set this member to NULL.
      */
-    void (*run_multiple_synths_adding)(unsigned long     InstanceCount,
+    void (*run_multiple_synths_adding)(int     InstanceCount,
                                        LADSPA_Handle    *Instances,
-                                       unsigned long     SampleCount,
+                                       int     SampleCount,
                                        snd_seq_event_t **Events,
-                                       unsigned long    *EventCounts);
+                                       int    *EventCounts);
 } DSSI_Descriptor;
 
 /**
@@ -901,9 +895,9 @@ typedef struct _DSSI_Descriptor {
  *   of a distinct plugin type.
  */
 
-const DSSI_Descriptor *dssi_descriptor(unsigned long Index);
+const DSSI_Descriptor *dssi_descriptor(int Index);
   
-typedef const DSSI_Descriptor *(*DSSI_Descriptor_Function)(unsigned long Index);
+typedef const DSSI_Descriptor *(*DSSI_Descriptor_Function)(int Index);
 
 /*
  * Macros to specify particular MIDI controllers in return values from
