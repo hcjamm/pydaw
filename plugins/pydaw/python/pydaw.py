@@ -1830,6 +1830,21 @@ class item_list_editor:
             else:
                 f_multiselect = True
 
+        f_start_beat_val = 3.99
+        f_end_beat_val = 0.0
+        if f_multiselect:
+            for f_note in f_ms_rows:
+                if f_note.start < f_start_beat_val:
+                    f_start_beat_val = f_note.start
+                elif f_note.start > f_end_beat_val:
+                    f_end_beat_val = f_note.start
+        else:
+            for f_note in self.item.notes:
+                if f_note.start < f_start_beat_val:
+                    f_start_beat_val = f_note.start
+                elif f_note.start > f_end_beat_val:
+                    f_end_beat_val = f_note.start
+
         def ok_handler():
             if f_multiselect:
                 self.item.velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
@@ -1866,12 +1881,13 @@ class item_list_editor:
         f_layout.addWidget(QtGui.QLabel("Start Beat"), 3, 0)
         f_start_beat = QtGui.QDoubleSpinBox()
         f_start_beat.setRange(0.0, 3.99)
+        f_start_beat.setValue(f_start_beat_val)
         f_layout.addWidget(f_start_beat, 3, 1)
 
         f_layout.addWidget(QtGui.QLabel("End Beat"), 4, 0)
         f_end_beat = QtGui.QDoubleSpinBox()
         f_end_beat.setRange(0.01, 4.0)
-        f_end_beat.setValue(4.0)
+        f_end_beat.setValue(f_end_beat_val)
         f_layout.addWidget(f_end_beat, 4, 1)
 
         f_add_values = QtGui.QCheckBox("Add Values?")
