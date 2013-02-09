@@ -1839,14 +1839,13 @@ class item_list_editor:
                 f_end_amount.value(), f_add_values.isChecked())
             this_pydaw_project.save_item(self.item_name, self.item)
             self.open_item(self.item_name)
-            this_pydaw_project.git_repo.git_commit("-a", "Quantize item '" + self.item_name + "'")
+            this_pydaw_project.git_repo.git_commit("-a", "Velocity mod item '" + self.item_name + "'")
             f_window.close()
 
         def cancel_handler():
             f_window.close()
 
         f_window = QtGui.QDialog(this_main_window)
-        #f_window.setMinimumWidth(420)
         f_window.setWindowTitle("Velocity Mod")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
@@ -1854,6 +1853,7 @@ class item_list_editor:
         f_layout.addWidget(QtGui.QLabel("Amount"), 0, 0)
         f_amount = QtGui.QSpinBox()
         f_amount.setRange(-127, 127)
+        f_amount.setValue(64)
         f_layout.addWidget(f_amount, 0, 1)
         f_draw_line = QtGui.QCheckBox("Draw line?")
         f_layout.addWidget(f_draw_line, 1, 1)
