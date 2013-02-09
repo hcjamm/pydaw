@@ -202,12 +202,12 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
 }
 
-static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count,
-		  snd_seq_event_t * events, unsigned long EventCount);
+static void v_pydaw_run(LADSPA_Handle instance, int sample_count,
+		  snd_seq_event_t * events, int EventCount);
 
 
 __attribute__ ((visibility("default")))
-const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
+const LADSPA_Descriptor *ladspa_descriptor(int index)
 {
     switch (index) {
     case 0:
@@ -218,7 +218,7 @@ const LADSPA_Descriptor *ladspa_descriptor(unsigned long index)
 }
 
 __attribute__ ((visibility("default")))
-const DSSI_Descriptor *dssi_descriptor(unsigned long index)
+const DSSI_Descriptor *dssi_descriptor(int index)
 {
     switch (index) {
     case 0:
@@ -233,7 +233,7 @@ static void v_pydaw_cleanup(LADSPA_Handle instance)
     free(instance);
 }
 
-static void v_pydaw_connect_port(LADSPA_Handle instance, unsigned long port, LADSPA_Data * data)
+static void v_pydaw_connect_port(LADSPA_Handle instance, int port, LADSPA_Data * data)
 {
     t_pydaw_engine *plugin;
 
@@ -253,7 +253,7 @@ static void v_pydaw_connect_port(LADSPA_Handle instance, unsigned long port, LAD
     }
 }
 
-static LADSPA_Handle g_pydaw_instantiate(const LADSPA_Descriptor * descriptor, unsigned long s_rate)
+static LADSPA_Handle g_pydaw_instantiate(const LADSPA_Descriptor * descriptor, int s_rate)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) malloc(sizeof(t_pydaw_engine));
     plugin_data->input_arr = (LADSPA_Data**)malloc(sizeof(LADSPA_Data*) * PYDAW_INPUT_COUNT);
@@ -276,13 +276,13 @@ static void v_pydaw_activate(LADSPA_Handle instance)
 }
 
 /*
-static void runLMSWrapper(LADSPA_Handle instance, unsigned long sample_count)
+static void runLMSWrapper(LADSPA_Handle instance, int sample_count)
 {
     run_lms_pydaw(instance, sample_count, NULL, 0);
 }
 */
 
-static void v_pydaw_run(LADSPA_Handle instance, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
+static void v_pydaw_run(LADSPA_Handle instance, int sample_count, snd_seq_event_t *events, int event_count)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
                
@@ -325,7 +325,7 @@ char *c_pydaw_configure(LADSPA_Handle instance, const char *key, const char *val
     return NULL;
 }
 
-int i_pydaw_get_controller(LADSPA_Handle instance, unsigned long port)
+int i_pydaw_get_controller(LADSPA_Handle instance, int port)
 {    
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
     //return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));

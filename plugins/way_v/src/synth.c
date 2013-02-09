@@ -34,14 +34,14 @@ GNU General Public License for more details.
 #include "synth.h"
 #include "meta.h"
 
-static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
-		  snd_seq_event_t * events, unsigned long EventCount);
+static void v_run_wayv(LADSPA_Handle instance, int sample_count,
+		  snd_seq_event_t * events, int EventCount);
 
 static void v_run_wayv_voice(t_wayv *, t_voc_single_voice, t_wayv_poly_voice *,
 		      LADSPA_Data *, LADSPA_Data *, unsigned int, int );
 
-const LADSPA_Descriptor *wayv_ladspa_descriptor(unsigned long index);
-const DSSI_Descriptor *wayv_dssi_descriptor(unsigned long index);
+const LADSPA_Descriptor *wayv_ladspa_descriptor(int index);
+const DSSI_Descriptor *wayv_dssi_descriptor(int index);
 
 
 static void v_cleanup_wayv(LADSPA_Handle instance)
@@ -49,7 +49,7 @@ static void v_cleanup_wayv(LADSPA_Handle instance)
     free(instance);
 }
 
-static void v_wayv_connect_port(LADSPA_Handle instance, unsigned long port,
+static void v_wayv_connect_port(LADSPA_Handle instance, int port,
 			  LADSPA_Data * data)
 {
     t_wayv *plugin;
@@ -273,7 +273,7 @@ static void v_wayv_connect_port(LADSPA_Handle instance, unsigned long port,
 }
 
 static LADSPA_Handle g_wayv_instantiate(const LADSPA_Descriptor * descriptor,
-				   unsigned long s_rate)
+				   int s_rate)
 {
     t_wayv *plugin_data = (t_wayv *) malloc(sizeof(t_wayv));
     
@@ -324,8 +324,8 @@ static void v_wayv_activate(LADSPA_Handle instance)
     plugin_data->mono_modules = v_wayv_mono_init();  //initialize all monophonic modules
 }
 
-static void v_run_wayv(LADSPA_Handle instance, unsigned long sample_count,
-		  snd_seq_event_t *events, unsigned long event_count)
+static void v_run_wayv(LADSPA_Handle instance, int sample_count,
+		  snd_seq_event_t *events, int event_count)
 {
     t_wayv *plugin_data = (t_wayv *) instance;
     
@@ -681,14 +681,14 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
 }
 
 /*This returns MIDI CCs for the different knobs*/ 
-static int i_wayv_get_controller(LADSPA_Handle instance, unsigned long port)
+static int i_wayv_get_controller(LADSPA_Handle instance, int port)
 {
     t_wayv *plugin_data = (t_wayv *) instance;
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
 }
 
 
-const LADSPA_Descriptor *wayv_ladspa_descriptor(unsigned long index)
+const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
 {
     LADSPA_Descriptor *LMSLDescriptor = NULL;
     
@@ -1529,7 +1529,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(unsigned long index)
     return LMSLDescriptor;
 }
 
-const DSSI_Descriptor *wayv_dssi_descriptor(unsigned long index)
+const DSSI_Descriptor *wayv_dssi_descriptor(int index)
 {
     DSSI_Descriptor *LMSDDescriptor = NULL;
     

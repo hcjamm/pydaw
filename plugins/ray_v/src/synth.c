@@ -37,21 +37,21 @@ GNU General Public License for more details.
 
 
 
-static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
-		  snd_seq_event_t * events, unsigned long EventCount);
+static void v_run_rayv(LADSPA_Handle instance, int sample_count,
+		  snd_seq_event_t * events, int EventCount);
 
 static void v_run_rayv_voice(t_rayv *p, t_voc_single_voice a_poly_voice, t_rayv_poly_voice *d,
 		      LADSPA_Data *out0, LADSPA_Data *out1, unsigned int count);
 
-const LADSPA_Descriptor *rayv_ladspa_descriptor(unsigned long index);
-const DSSI_Descriptor *rayv_dssi_descriptor(unsigned long index);
+const LADSPA_Descriptor *rayv_ladspa_descriptor(int index);
+const DSSI_Descriptor *rayv_dssi_descriptor(int index);
 
 static void v_cleanup_rayv(LADSPA_Handle instance)
 {
     free(instance);
 }
 
-static void v_rayv_connect_port(LADSPA_Handle instance, unsigned long port,
+static void v_rayv_connect_port(LADSPA_Handle instance, int port,
 			  LADSPA_Data * data)
 {
     t_rayv *plugin;
@@ -176,7 +176,7 @@ static void v_rayv_connect_port(LADSPA_Handle instance, unsigned long port,
 }
 
 static LADSPA_Handle g_rayv_instantiate(const LADSPA_Descriptor * descriptor,
-				   unsigned long s_rate)
+				   int s_rate)
 {
     t_rayv *plugin_data = (t_rayv *) malloc(sizeof(t_rayv));
     
@@ -226,8 +226,8 @@ static void v_rayv_activate(LADSPA_Handle instance)
     plugin_data->mono_modules = v_rayv_mono_init();  //initialize all monophonic modules
 }
 
-static void v_run_rayv(LADSPA_Handle instance, unsigned long sample_count,
-		  snd_seq_event_t *events, unsigned long event_count)
+static void v_run_rayv(LADSPA_Handle instance, int sample_count,
+		  snd_seq_event_t *events, int event_count)
 {
     t_rayv *plugin_data = (t_rayv *) instance;
         
@@ -449,13 +449,13 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
 }
 
 /*This returns MIDI CCs for the different knobs*/ 
-static int i_rayv_get_controller(LADSPA_Handle instance, unsigned long port)
+static int i_rayv_get_controller(LADSPA_Handle instance, int port)
 {
     t_rayv *plugin_data = (t_rayv *) instance;
     return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
 }
 
-const LADSPA_Descriptor *rayv_ladspa_descriptor(unsigned long index)
+const LADSPA_Descriptor *rayv_ladspa_descriptor(int index)
 {
     LADSPA_Descriptor *LMSLDescriptor = NULL;
     char **port_names;
@@ -853,7 +853,7 @@ const LADSPA_Descriptor *rayv_ladspa_descriptor(unsigned long index)
 }
 
 
-const DSSI_Descriptor *rayv_dssi_descriptor(unsigned long index)
+const DSSI_Descriptor *rayv_dssi_descriptor(int index)
 {
     DSSI_Descriptor *LMSDDescriptor = NULL;
     
