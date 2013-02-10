@@ -105,7 +105,7 @@ void start_gui()
     if (fork() == 0) 
     {
         printf("start_gui with osc path %s\n", osc_path_tmp);
-        execlp("/usr/lib/pydaw2/pydaw/PYDAW_qt", "/usr/lib/pydaw2/pydaw/PYDAW_qt", osc_path_tmp, "pydaw.so", "pydaw2", "pydaw", NULL);
+        execlp("/usr/lib/pydaw2/pydaw/PYDAW_qt", "/usr/lib/pydaw2/pydaw/PYDAW_qt", osc_path_tmp, "pydaw.so", "pydaw2", "pydaw", (char*)NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
     }
