@@ -57,7 +57,7 @@ static int            instance_count = 0;
 
 static LADSPA_Handle    *instanceHandles;
 static snd_seq_event_t **instanceEventBuffers;
-static unsigned long    *instanceEventCounts;
+static int    *instanceEventCounts;
 
 static int insTotal, outsTotal;
 static float **pluginInputBuffers, **pluginOutputBuffers;
@@ -596,7 +596,7 @@ void query_programs(d3h_instance_t *instance)
 		instance->pluginPrograms[i].Program = descriptor->Program;
 		instance->pluginPrograms[i].Name = strdup(descriptor->Name);
 		if (verbose) {
-		    printf("%s: %s program %d is MIDI bank %lu program %lu, named '%s'\n",
+		    printf("%s: %s program %d is MIDI bank %i program %i, named '%s'\n",
 			   myName, instance->friendly_name, i,
 			   instance->pluginPrograms[i].Bank,
 			   instance->pluginPrograms[i].Program,
@@ -791,8 +791,7 @@ main(int argc, char **argv)
                                               sizeof(LADSPA_Handle));
     instanceEventBuffers = (snd_seq_event_t **)malloc(instance_count *
                                                       sizeof(snd_seq_event_t *));
-    instanceEventCounts = (unsigned long *)malloc(instance_count *
-                                                  sizeof(unsigned long));
+    instanceEventCounts = (int*)malloc(instance_count * sizeof(int));
 
     for (i = 0; i < instance_count; i++) {
         instanceEventBuffers[i] = (snd_seq_event_t *)malloc(EVENT_BUFFER_SIZE *
