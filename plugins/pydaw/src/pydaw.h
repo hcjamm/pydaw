@@ -4052,7 +4052,7 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is
     
     if (fork() == 0) 
     {
-        execlp(filename, filename, oscUrl, dllName, a_track->name, track_number_string, NULL);
+        execlp(filename, filename, oscUrl, dllName, a_track->name, track_number_string, (char*)NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
     }    
