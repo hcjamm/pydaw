@@ -14,7 +14,7 @@ extern "C" {
 #endif
   
 //Required for sched.h
-#define __USE_GNU
+//#define __USE_GNU
     
 //Uncomment this to constantly inspect the heap for known signs of corruption and throw a SIGABRT upon detection.
 //#define PYDAW_MEMCHECK
