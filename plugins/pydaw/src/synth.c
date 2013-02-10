@@ -413,11 +413,8 @@ void _init()
     }
 }
 
-#ifdef __GNUC__
-__attribute__((destructor)) void v_pydaw_destructor()
-#else
-void _fini()
-#endif
+
+void v_pydaw_destructor()
 {
     if(pydaw_data)
     {

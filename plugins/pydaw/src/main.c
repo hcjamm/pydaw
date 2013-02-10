@@ -1147,12 +1147,15 @@ main(int argc, char **argv)
 	}
     }
 
+    v_pydaw_destructor();
+    
     sleep(1);
     sigemptyset (&_signals);
     sigaddset(&_signals, SIGHUP);
     pthread_sigmask(SIG_BLOCK, &_signals, 0);
     kill(0, SIGHUP);
-
+   
+    printf("PyDAW main() returning\n");
     return 0;
 }
 
