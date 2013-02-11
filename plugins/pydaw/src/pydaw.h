@@ -414,10 +414,15 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
 {
     int f_i = 0;
     
-    a_pydaw_data->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN ) - 1;    
+    a_pydaw_data->track_worker_thread_count = sysconf( _SC_NPROCESSORS_ONLN );
+    
     if((a_pydaw_data->track_worker_thread_count) > 4)
     {
         a_pydaw_data->track_worker_thread_count = 4;
+    }
+    else if((a_pydaw_data->track_worker_thread_count) == 4)
+    {
+        a_pydaw_data->track_worker_thread_count = 3;
     }
     else if((a_pydaw_data->track_worker_thread_count) <= 0)
     {
