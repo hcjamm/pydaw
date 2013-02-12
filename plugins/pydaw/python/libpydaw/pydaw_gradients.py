@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Provides the various standard gradients that aren't part of the CSS theme
+
+Run standalone to generate gradients for use in Qt-CSS
 """
 
 from PyQt4 import QtGui, QtCore
@@ -14,6 +16,8 @@ def pydaw_linear_interpolate_gradient(a_pos):
     f_red = ((pydaw_rainbow_gradient[f_int][0] - pydaw_rainbow_gradient[f_int + 1][0]) * f_frac) + pydaw_rainbow_gradient[f_int + 1][0]
     f_green = ((pydaw_rainbow_gradient[f_int][0] - pydaw_rainbow_gradient[f_int + 1][1]) * f_frac) + pydaw_rainbow_gradient[f_int + 1][1]
     f_blue = ((pydaw_rainbow_gradient[f_int][0] - pydaw_rainbow_gradient[f_int + 1][2]) * f_frac) + pydaw_rainbow_gradient[f_int + 1][2]
+    if __name__ == "__main__":
+        print("rgba(" + str(f_red) + ", " + str(f_green) + ", " + str(f_blue) + ", 255.0)")
     return (f_red, f_green, f_blue)
 
 pydaw_g_hi = 210.0
@@ -43,5 +47,3 @@ for i in range(pydaw_midi_track_count):
 pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
 pydaw_region_gradient.setColorAt(0, QtGui.QColor(190, 170, 40))
 pydaw_region_gradient.setColorAt(1, QtGui.QColor(230, 221, 45))
-
-
