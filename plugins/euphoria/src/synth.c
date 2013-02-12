@@ -1050,7 +1050,7 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, int sample_count,
 
                 if((plugin_data->preview_sample_array_index) >= (plugin_data->preview_length))
                 {
-                    lms_strcpy(plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT], "");
+                    plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT][0] = '\0';
                     break;
                 }
             }
