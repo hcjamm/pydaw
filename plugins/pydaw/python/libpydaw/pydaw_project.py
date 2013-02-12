@@ -11,7 +11,7 @@ from time import sleep
 from dssi_gui import dssi_gui
 from pydaw_git import pydaw_git_repo
 
-from libpydaw.sample_graph import pydaw_sample_graphs
+from sample_graph import pydaw_sample_graphs
 
 pydaw_bus_count = 5
 pydaw_audio_track_count = 8
