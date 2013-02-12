@@ -40,3 +40,8 @@ for i in range(pydaw_midi_track_count):
     if f_rainbox_pos >= len(pydaw_rainbow_gradient):
         f_rainbox_pos -= len(pydaw_rainbow_gradient)
 
+pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
+pydaw_region_gradient.setColorAt(0, QtGui.QColor(190, 170, 40))
+pydaw_region_gradient.setColorAt(1, QtGui.QColor(230, 221, 45))
+
+
