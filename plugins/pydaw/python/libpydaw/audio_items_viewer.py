@@ -26,7 +26,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
-        self.setPos(self.pos().x(), self.mouse_y_pos)
+        f_pos = self.pos().x()
+        if f_pos < 0:
+            f_pos = 0
+        self.setPos(f_pos, self.mouse_y_pos)
 
     def mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
@@ -75,9 +78,12 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_length = self.f_seconds_to_regions(a_seconds) * self.px_per_region
         self.draw_item(f_start, f_length, a_name, a_track_num)
 
-    def draw_item_musical_time(self, a_start_region, a_start_bar, a_start_beat, a_end_region, a_end_bar, a_end_beat, a_name, a_track_num):
+    def draw_item_musical_time(self, a_start_region, a_start_bar, a_start_beat, a_end_region, a_end_bar, a_end_beat, a_seconds, a_name, a_track_num):
         f_start = (a_start_region + (((a_start_bar * self.item_length) + a_start_beat) / self.beats_per_region)) * self.px_per_region
         f_length = ((a_end_region + (((a_end_bar * self.item_length) + a_end_beat) / self.beats_per_region))  * self.px_per_region) - f_start
+        f_length_seconds = self.f_seconds_to_regions(a_seconds) * self.px_per_region
+        if f_length_seconds < f_length:
+            f_length = f_length_seconds
         self.draw_item(f_start, f_length, a_name, a_track_num)
 
     def clear_drawn_items(self):
@@ -101,7 +107,7 @@ if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     view = audio_items_viewer()
     for i in range(32):
-        #view.draw_item_musical_time(0, 0, 0, i + 1, 0, 0, "Item-" + str(i), i)
-        view.draw_item_seconds(0, 0, 0, (i + 1) * 10.0, "Item-" + str(i), i)
+        view.draw_item_musical_time(0, 0, 0, i + 1, 0, 0, 120, "Item-" + str(i), i)
+        #view.draw_item_seconds(0, 0, 0, (i + 1) * 10.0, "Item-" + str(i), i)
     view.show()
     sys.exit(app.exec_())
