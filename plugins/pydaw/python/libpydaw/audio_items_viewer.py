@@ -8,11 +8,29 @@ from PyQt4 import QtGui, QtCore
 from pydaw_gradients import *
 
 class audio_viewer_item(QtGui.QGraphicsRectItem):
-    def __init__(self, a_length, a_height, a_name, a):
+    def __init__(self, a_length, a_height, a_name, a_track_num, a_y_pos):
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_length, a_height)
         self.label = QtGui.QGraphicsSimpleTextItem(a_name, parent=self)
         self.label.setPos(10, 5)
         self.label.setBrush(QtCore.Qt.white)
+        #These 2 will allow moving the item, but mouseMoveEvent and others will need to be overridden
+        #in order for the items to be snapped into their grid positions...
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+        self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
+        self.track_num = a_track_num
+        self.mouse_y_pos = a_y_pos
+
+    #def mousePressEvent(self, a_event):
+    #    QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+
+    def mouseMoveEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
+        self.setPos(self.pos().x(), self.mouse_y_pos)
+
+    def mouseReleaseEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
+        #...and here we would call functionality to change the start/end point...
 
 class audio_items_viewer(QtGui.QGraphicsView):
     def __init__(self, a_item_length=4, a_region_length=8, a_bpm=140.0, a_px_per_region=200):
@@ -54,7 +72,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def draw_item_seconds(self, a_start_region, a_start_bar, a_start_beat, a_seconds, a_name, a_track_num):
         f_start = (a_start_region + (((a_start_bar * self.item_length) + a_start_beat) / self.beats_per_region)) * self.px_per_region
-        f_length = self.f_seconds_to_regions(a_length) * self.px_per_region
+        f_length = self.f_seconds_to_regions(a_seconds) * self.px_per_region
         self.draw_item(f_start, f_length, a_name, a_track_num)
 
     def draw_item_musical_time(self, a_start_region, a_start_bar, a_start_beat, a_end_region, a_end_bar, a_end_beat, a_name, a_track_num):
@@ -72,7 +90,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_height = 65
         f_padding = 2
         f_track_num = self.ruler_height + f_padding + (f_height + f_padding) * self.track
-        f_audio_item = audio_viewer_item(a_length, f_height, a_name, a_track_num)
+        f_audio_item = audio_viewer_item(a_length, f_height, a_name, a_track_num, f_track_num)
         f_audio_item.setPos(a_start, f_track_num)
         f_audio_item.setBrush(pydaw_track_gradients[self.track % len(pydaw_track_gradients)])
         self.scene.addItem(f_audio_item)
@@ -83,6 +101,7 @@ if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     view = audio_items_viewer()
     for i in range(32):
-        view.draw_item_musical_time(0, 0, 0, i + 1, 0, 0, "Item-" + str(i), i)
+        #view.draw_item_musical_time(0, 0, 0, i + 1, 0, 0, "Item-" + str(i), i)
+        view.draw_item_seconds(0, 0, 0, (i + 1) * 10.0, "Item-" + str(i), i)
     view.show()
     sys.exit(app.exec_())
