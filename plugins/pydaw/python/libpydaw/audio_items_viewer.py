@@ -1,6 +1,5 @@
 """
-A viewer for all audio items in the song.  This will eventually feature
-editing capabilities as well.
+A viewer for all audio items in the song.
 """
 
 import sys
@@ -13,16 +12,16 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.label = QtGui.QGraphicsSimpleTextItem(a_name, parent=self)
         self.label.setPos(10, 5)
         self.label.setBrush(QtCore.Qt.white)
-        #These 2 will allow moving the item, but mouseMoveEvent and others will need to be overridden
-        #in order for the items to be snapped into their grid positions...
+        self.label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
+        #self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)  #This caused problems with multiselect + moving items
         self.track_num = a_track_num
         self.mouse_y_pos = a_y_pos
 
-    #def mousePressEvent(self, a_event):
-    #    QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+    def mousePressEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+        self.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
@@ -33,10 +32,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
-        #...and here we would call functionality to change the start/end point...
+        self.setGraphicsEffect(None)
+        f_pos_x = self.pos().x()
+        self.setPos(f_pos_x, self.mouse_y_pos)
+        print(str(f_pos_x))
+        #...and here we would call functionality to change the start point
 
 class audio_items_viewer(QtGui.QGraphicsView):
-    def __init__(self, a_item_length=4, a_region_length=8, a_bpm=140.0, a_px_per_region=200):
+    def __init__(self, a_item_length=4, a_region_length=8, a_bpm=140.0, a_px_per_region=100):
         self.item_length = float(a_item_length)
         self.region_length = float(a_region_length)
         QtGui.QGraphicsView.__init__(self)
@@ -46,12 +49,12 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.track = 0
         self.set_bpm(a_bpm)
         self.ruler_height = 20
-        self.set_zoom(a_px_per_region)
+        self.px_per_region = a_px_per_region
         self.draw_headers()
 
-    def set_zoom(self, a_px_per_region):
-        """ You must clear and re-draw the items for this to take effect  """
-        self.px_per_region = a_px_per_region
+    def set_zoom(self, a_scale):
+        """ a_scale == number from 1.0 to 6.0 """
+        self.scale(a_scale, 1.0)
 
     def set_bpm(self, a_bpm):
         self.bps = a_bpm / 60.0
@@ -70,6 +73,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         for i in range(0, f_total_regions):
             #f_tick = QtGui.QGraphicsLineItem(self.px_per_region*i, 0, self.px_per_region*i, self.ruler_height, f_ruler)
             f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
+            f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_number.setPos(self.px_per_region*(i), 2)
             f_number.setBrush(QtCore.Qt.white)
 
@@ -102,12 +106,12 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scene.addItem(f_audio_item)
         self.track += 1
 
-
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     view = audio_items_viewer()
     for i in range(32):
         view.draw_item_musical_time(0, 0, 0, i + 1, 0, 0, 120, "Item-" + str(i), i)
         #view.draw_item_seconds(0, 0, 0, (i + 1) * 10.0, "Item-" + str(i), i)
+    view.set_zoom(2.0)
     view.show()
     sys.exit(app.exec_())
