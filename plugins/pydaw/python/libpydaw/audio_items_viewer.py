@@ -19,6 +19,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.track_num = a_track_num
         self.mouse_y_pos = a_y_pos
 
+    def mouseDoubleClickEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
+        print("Here's where we'll open the item properties dialog for track " + str(self.track_num))
+
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
         self.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
