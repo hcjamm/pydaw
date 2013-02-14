@@ -42,6 +42,7 @@ install:
 	make -C pydaw_jack_oscrolloscope PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	cp -r share $(DESTDIR)$(PREFIX)
 	cp -r themes $(DESTDIR)$(PREFIX)/lib/pydaw2
+	install -m 755 pydaw2-version.txt $(DESTDIR)$(PREFIX)/lib/pydaw2
 
 clean:
 	make -C pydaw clean

@@ -3360,6 +3360,18 @@ class pydaw_main_window(QtGui.QMainWindow):
             pydaw_write_file_text(self.user_style_file, f_file)
             self.setStyleSheet(f_style)
 
+    def on_version(self):
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Version Info")
+        f_window.setFixedSize(150, 80)
+        f_layout = QtGui.QVBoxLayout()
+        f_window.setLayout(f_layout)
+        f_version = QtGui.QLabel(pydaw_read_file_text("/usr/lib/pydaw2/pydaw2-version.txt"))
+        #f_git_version = QtGui.QLabel("git revision")
+        f_layout.addWidget(f_version)
+        #f_layout.addWidget(f_git_version)
+        f_window.exec_()
+
     def on_user_manual(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://pydaw.org/wiki/index.php?title=PyDAW2_Manual"))
 
@@ -3471,6 +3483,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.manual_action = QtGui.QAction("Online User Manual...", self)
         self.menu_help.addAction(self.manual_action)
         self.manual_action.triggered.connect(self.on_user_manual)
+
+        self.version_action = QtGui.QAction("Version Info...", self)
+        self.menu_help.addAction(self.version_action)
+        self.version_action.triggered.connect(self.on_version)
 
         self.transport_hlayout = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.transport_hlayout)
