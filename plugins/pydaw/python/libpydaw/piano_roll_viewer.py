@@ -7,13 +7,11 @@ from PyQt4 import QtGui, QtCore
 from pydaw_gradients import *
 
 global_piano_roll_snap = True
-global_piano_roll_snap_value = 1.0
+global_piano_roll_snap_value = 1000.0 / 16.0 #TOOD: Make this into a function
 global_piano_keys_width = 34  #Width of the piano keys in px
 global_piano_roll_header_height = 20
-global_piano_roll_pixels_per_beat = 100000 #TODO:  the real value
 
-pydaw_note_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))  # I might have the 10 and 0 switched up, LOL...
-#pydaw_note_gradient.setColorAt(0, QtGui.QColor(180, 150, 33))
+pydaw_note_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
 pydaw_note_gradient.setColorAt(0, QtGui.QColor(163, 136, 30))
 pydaw_note_gradient.setColorAt(1, QtGui.QColor(230, 221, 45))
 
@@ -40,12 +38,10 @@ class note_item(QtGui.QGraphicsRectItem):
             f_pos_x = global_piano_keys_width
         if f_pos_y < global_piano_roll_header_height:
             f_pos_y = global_piano_roll_header_height
-        f_pos_y = int((f_pos_y - self.o_pos.y())/self.note_height) * self.note_height
+        f_pos_y = (int((f_pos_y - global_piano_roll_header_height)/self.note_height) * self.note_height) + global_piano_roll_header_height
         if global_piano_roll_snap:
-            f_pos_x = int((f_pos_x - self.o_pos.x())/global_piano_roll_snap_value) * global_piano_roll_snap_value
-        else:
-            f_pos_x -= self.o_pos.x()
-        self.setPos(self.o_pos.x()+f_pos_x, self.o_pos.y()+f_pos_y)
+            f_pos_x = (int((f_pos_x - global_piano_keys_width)/global_piano_roll_snap_value) * global_piano_roll_snap_value) + global_piano_keys_width
+        self.setPos(f_pos_x, f_pos_y)
 
     def mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
@@ -181,7 +177,7 @@ class piano_roll_viewer(QtGui.QGraphicsView):
         f_note_item = note_item(f_length, self.note_height)
         f_note_item.setPos(f_start, f_note)
         f_vel_opacity = QtGui.QGraphicsOpacityEffect()
-        f_vel_opacity.setOpacity(a_velocity/127.0)
+        f_vel_opacity.setOpacity((a_velocity * 0.007874016 * 0.6) + 0.4)
         f_note_item.setGraphicsEffect(f_vel_opacity)
         self.scene.addItem(f_note_item)
 
@@ -189,6 +185,6 @@ if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     view = piano_roll_viewer()
     view.draw_note(60, 2.0625, 0.25, 127)
-    view.draw_note(120, 1, 0.5, 100)
+    view.draw_note(120, 1, 0.5, 10)
     view.show()
     sys.exit(app.exec_())
