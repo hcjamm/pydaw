@@ -2,7 +2,7 @@
  * File:   pydaw_sample_graph.h
  * Author: JeffH
  * 
- * For generating the forthcoming .pygraph sample graph analysis file format...
+ * For generating the .pygraph sample graph analysis file format...
  * 
  * Created on January 5, 2013, 11:14 PM
  */
@@ -33,6 +33,7 @@ extern "C" {
  * meta|channels|value   (values should be 1 or 2, PyDAW doesn't support more than 2 channels)
  * meta|timestamp|value  (UNIX time(?))  The time that the graph was made, to compare against file modified time
  * meta|count|value      (value is the number of peaks in the file)
+ * meta|length|value      (value is the length of the file in seconds)
  * 
  * Value lines:
  * p|channel|(h/l)|value(float)  (peak, channel, high/low peak, and the value: 1.0 to -1.0...
@@ -81,6 +82,9 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
     }
     
     sprintf(f_temp_char, "meta|channels|%i\n", f_adjusted_channel_count);
+    strcat(f_result, f_temp_char);
+    
+    sprintf(f_temp_char, "meta|length|%f\n", ((float)info.frames)/((float)(info.samplerate)));
     strcat(f_result, f_temp_char);
 
     int f_actual_array_size = (samples);

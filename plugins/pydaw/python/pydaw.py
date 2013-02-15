@@ -781,6 +781,206 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
 
 global_bus_track_names = ['Master', 'Bus1', 'Bus2', 'Bus3', 'Bus4']
 
+
+
+
+class audio_viewer_item(QtGui.QGraphicsRectItem):
+    def __init__(self, a_length, a_height, a_name, a_track_num, a_y_pos, a_audio_item):
+        QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_length, a_height)
+        f_name_arr = a_name.split("/")
+        f_name = f_name_arr[len(f_name_arr) - 1]
+        self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
+        self.label.setPos(10, 5)
+        self.label.setBrush(QtCore.Qt.white)
+        self.label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+        self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
+        #self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)  #This caused problems with multiselect + moving items
+        self.track_num = a_track_num
+        self.mouse_y_pos = a_y_pos
+        self.audio_item = a_audio_item
+
+    def pos_to_musical_time(self, a_pos):
+        f_pos_raw = a_pos * 0.01
+        f_pos_region = int(f_pos_raw)
+        f_pos_bars_raw = (f_pos_raw - float(f_pos_region)) * 8.0
+        f_pos_bars = int(f_pos_bars_raw)
+        f_pos_beats = f_pos_bars_raw - float(f_pos_bars)
+        return(f_pos_region, f_pos_bars, f_pos_beats)
+
+    def mouseDoubleClickEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
+
+    def mousePressEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+        self.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
+
+    def mouseMoveEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
+        f_pos = self.pos().x()
+        if f_pos < 0:
+            f_pos = 0
+        self.setPos(f_pos, self.mouse_y_pos)
+
+    def mouseReleaseEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
+        self.setGraphicsEffect(None)
+        f_pos_x = self.pos().x()
+        if this_audio_items_viewer.snap_enabled:
+            f_pos_x *= this_audio_items_viewer.snap_divisor_recip
+            f_pos_x = round(f_pos_x, 0)
+            f_pos_x *= this_audio_items_viewer.snap_multiplier
+            print("f_pos_x:" + str(f_pos_x))
+        self.setPos(f_pos_x, self.mouse_y_pos)
+        f_audio_items = this_pydaw_project.get_audio_items()
+        f_item = f_audio_items.items[self.track_num]
+        f_start_result = self.pos_to_musical_time(f_pos_x)
+        f_item.start_region = f_start_result[0]
+        f_item.start_bar = f_start_result[1]
+        f_item.start_beat = f_start_result[2]
+        if f_item.end_mode == 1:
+            f_end_result = self.pos_to_musical_time(f_pos_x + self.rect().width())
+            f_item.end_region = f_end_result[0]
+            f_item.end_bar = f_end_result[1]
+            f_item.end_beat = f_end_result[2]
+        this_pydaw_project.save_audio_items(f_audio_items)
+        this_pydaw_project.this_dssi_gui.pydaw_update_single_audio_item(self.track_num, f_item)
+        self.audio_item = f_item
+        this_audio_editor.open_items(False)
+
+class audio_items_viewer(QtGui.QGraphicsView):
+    def __init__(self, a_item_length=4, a_region_length=8, a_bpm=140.0):
+        self.item_length = float(a_item_length)
+        self.region_length = float(a_region_length)
+        QtGui.QGraphicsView.__init__(self)
+        self.scene = QtGui.QGraphicsScene(self)
+        self.scene.setBackgroundBrush(QtGui.QColor(90,90,90))
+        self.setScene(self.scene)
+        self.audio_items = []
+        self.track = 0
+        self.gradient_index = 0
+        self.set_bpm(a_bpm)
+        self.ruler_height = 20
+        self.px_per_region = 100
+        self.draw_headers()
+        self.setAlignment(QtCore.Qt.AlignTop)
+        self.snap_enabled = False
+        self.snap_multiplier = 1.0
+        self.snap_divisor_recip = 1.0
+
+    def set_snap(self, a_index):
+        print("set_snap: " + str(a_index))
+        if a_index == 0:
+            self.snap_enabled = False
+        elif a_index == 1:
+            self.snap_enabled = True
+            self.snap_multiplier = 100
+            self.snap_divisor_recip = 0.01
+        elif a_index == 2:
+            self.snap_enabled = True
+            self.snap_multiplier = 12.5
+            self.snap_divisor_recip = 0.08
+
+    def set_zoom(self, a_scale):
+        """ a_scale == number from 1.0 to 6.0 """
+        self.scale(a_scale, 1.0)
+
+    def set_bpm(self, a_bpm):
+        self.bps = a_bpm / 60.0
+        self.beats_per_region = self.item_length * self.region_length
+        self.regions_per_second = self.bps / self.beats_per_region
+
+    def f_seconds_to_regions(self, a_track_seconds):
+        '''converts seconds to regions'''
+        return a_track_seconds * self.regions_per_second
+
+    def draw_headers(self):
+        f_total_regions = 300
+        f_size = self.px_per_region * f_total_regions
+        f_ruler = QtGui.QGraphicsRectItem(0, 0, f_size, self.ruler_height)
+        self.scene.addItem(f_ruler)
+        for i in range(0, f_total_regions):
+            #f_tick = QtGui.QGraphicsLineItem(self.px_per_region*i, 0, self.px_per_region*i, self.ruler_height, f_ruler)
+            f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
+            f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+            f_number.setPos(self.px_per_region*(i), 2)
+            f_number.setBrush(QtCore.Qt.white)
+
+    def draw_item_seconds(self, a_start_region, a_start_bar, a_start_beat, a_seconds, a_name, a_track_num, a_audio_item):
+        f_start = (a_start_region + (((a_start_bar * self.item_length) + a_start_beat) / self.beats_per_region)) * self.px_per_region
+        f_length = self.f_seconds_to_regions(a_seconds) * self.px_per_region
+        self.draw_item(f_start, f_length, a_name, a_track_num, a_audio_item)
+
+    def draw_item_musical_time(self, a_start_region, a_start_bar, a_start_beat, a_end_region, a_end_bar, a_end_beat, a_seconds, a_name, a_track_num, a_audio_item):
+        f_start = (a_start_region + (((a_start_bar * self.item_length) + a_start_beat) / self.beats_per_region)) * self.px_per_region
+        f_length = ((a_end_region + (((a_end_bar * self.item_length) + a_end_beat) / self.beats_per_region))  * self.px_per_region) - f_start
+        f_length_seconds = self.f_seconds_to_regions(a_seconds) * self.px_per_region
+        if f_length_seconds < f_length:
+            f_length = f_length_seconds
+        self.draw_item(f_start, f_length, a_name, a_track_num, a_audio_item)
+
+    def clear_drawn_items(self):
+        self.track = 0
+        self.gradient_index = 0
+        self.audio_items = []
+        self.scene.clear()
+        self.draw_headers()
+
+    def draw_item(self, a_start, a_length, a_name, a_track_num, a_audio_item):
+        '''a_start in seconds, a_length in seconds'''
+        f_height = 65
+        f_padding = 2
+        f_track_num = self.ruler_height + f_padding + (f_height + f_padding) * self.track
+        f_audio_item = audio_viewer_item(a_length, f_height, a_name, a_track_num, f_track_num, a_audio_item)
+        self.audio_items.append(f_audio_item)
+        f_audio_item.setPos(a_start, f_track_num)
+        f_audio_item.setBrush(pydaw_track_gradients[self.gradient_index])
+        self.gradient_index += 1
+        if self.gradient_index >=  len(pydaw_track_gradients):
+            self.gradient_index = 0
+        self.scene.addItem(f_audio_item)
+        self.track += 1
+
+class audio_items_viewer_widget():
+    def __init__(self):
+        self.widget = QtGui.QWidget()
+        self.vlayout = QtGui.QVBoxLayout()
+        self.widget.setLayout(self.vlayout)
+        self.controls_grid_layout = QtGui.QGridLayout()
+        self.controls_grid_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 30)
+        self.vlayout.addLayout(self.controls_grid_layout)
+        self.vlayout.addWidget(this_audio_items_viewer)
+        self.snap_combobox = QtGui.QComboBox()
+        self.snap_combobox.setMinimumWidth(150)
+        self.snap_combobox.addItems(["None", "Region", "Bar"])
+        self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
+        self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
+        self.snap_combobox.currentIndexChanged.connect(self.set_snap)
+        self.h_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.h_zoom_slider.setRange(0, 100)
+        self.h_zoom_slider.setMaximumWidth(600)
+        self.h_zoom_slider.setValue(0)
+        self.last_scale_value = 0
+        self.h_zoom_slider.valueChanged.connect(self.set_zoom)
+        self.controls_grid_layout.addWidget(QtGui.QLabel("Zoom:"), 0, 49)
+        self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
+
+    def set_snap(self, a_val=None):
+        this_audio_items_viewer.set_snap(self.snap_combobox.currentIndex())
+
+    def set_zoom(self, a_val=None):
+        """ This is a ridiculously convoluted way to do this, but I see no other way in the Qt docs.  When
+        Scaling, 1.0 does not return to it's original scale, and QSlider skips values when moved quickly, making
+        it necessary to interpolate the inbetween values"""
+        if self.last_scale_value > self.h_zoom_slider.value():
+            for i in range(self.h_zoom_slider.value(), self.last_scale_value):
+                this_audio_items_viewer.set_zoom(0.97)
+        else:
+            for i in range(self.last_scale_value, self.h_zoom_slider.value()):
+                this_audio_items_viewer.set_zoom(1.03)
+        self.last_scale_value = self.h_zoom_slider.value()
+
+
 class audio_list_editor:
     def open_tracks(self):
         f_busses = this_pydaw_project.get_bus_tracks()
@@ -793,9 +993,15 @@ class audio_list_editor:
         for key, f_track in f_inputs.tracks.iteritems():
             self.inputs[key].open_track(f_track)
 
-    def open_items(self):
+    def open_items(self, a_update_viewer=True):
         self.audio_items = this_pydaw_project.get_audio_items()
         self.audio_items_table_widget.clearContents()
+
+        if a_update_viewer:
+            this_audio_items_viewer.clear_drawn_items()
+
+        f_samplegraphs = this_pydaw_project.get_samplegraphs()
+
         for k, v in self.audio_items.items.iteritems():
             self.audio_items_table_widget.setItem(k, 0, QtGui.QTableWidgetItem(str(v.file)))
             self.audio_items_table_widget.setItem(k, 1, QtGui.QTableWidgetItem(str(float(v.sample_start) * 0.1)))
@@ -812,6 +1018,16 @@ class audio_list_editor:
             self.audio_items_table_widget.setItem(k, 13, QtGui.QTableWidgetItem(str(v.output_track)))
             self.audio_items_table_widget.setItem(k, 14, QtGui.QTableWidgetItem(str(v.vol)))
             self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.timestretch_amt)))
+            if a_update_viewer:
+                f_temp_seconds = f_samplegraphs.get_sample_graph(v.file).length_in_seconds
+                if v.end_mode == 0:
+                    pass
+                    this_audio_items_viewer.draw_item_seconds(v.start_region, v.start_bar, v.start_beat, f_temp_seconds, v.file, k, v)
+                elif v.end_mode == 1:
+                    this_audio_items_viewer.draw_item_musical_time(v.start_region, v.start_bar, v.start_beat, v.end_region, v.end_bar, \
+                    v.end_beat, f_temp_seconds, v.file, k, v)
+                else:
+                    print("Invalid end mode, not drawing audio item")
         self.audio_items_table_widget.resizeColumnsToContents()
 
     def reset_tracks(self):
@@ -3516,7 +3732,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_tabwidget.addTab(self.item_scrollarea, "MIDI Item")
 
         self.main_tabwidget.addTab(this_audio_editor.group_box, "Tracks")
-        self.main_tabwidget.addTab(this_audio_editor.items_groupbox, "Audio Items")
+        self.main_tabwidget.addTab(this_audio_editor.items_groupbox, "Audio Items List")
+        self.main_tabwidget.addTab(this_audio_items_viewer_widget.widget, "Audio Items Viewer")
         self.main_tabwidget.addTab(this_audio_editor.ccs_tab, "Automation")
 
         #Begin CC Map tab
@@ -3779,6 +3996,8 @@ this_region_editor = region_list_editor()
 this_audio_editor = audio_list_editor()
 this_item_editor = item_list_editor()
 this_transport = transport_widget()
+this_audio_items_viewer = audio_items_viewer()
+this_audio_items_viewer_widget = audio_items_viewer_widget()
 
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)

@@ -50,7 +50,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scene = QtGui.QGraphicsScene(self)
         self.scene.setBackgroundBrush(QtGui.QColor(90,90,90))
         self.setScene(self.scene)
+        self.audio_items = []
         self.track = 0
+        self.gradient_index = 0
         self.set_bpm(a_bpm)
         self.ruler_height = 20
         self.px_per_region = a_px_per_region
@@ -96,6 +98,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def clear_drawn_items(self):
         self.track = 0
+        self.gradient_index = 0
+        self.audio_items = []
         self.scene.clear()
         self.draw_headers()
 
@@ -105,8 +109,12 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_padding = 2
         f_track_num = self.ruler_height + f_padding + (f_height + f_padding) * self.track
         f_audio_item = audio_viewer_item(a_length, f_height, a_name, a_track_num, f_track_num)
+        self.audio_items.append(f_audio_item)
         f_audio_item.setPos(a_start, f_track_num)
-        f_audio_item.setBrush(pydaw_track_gradients[self.track % len(pydaw_track_gradients)])
+        f_audio_item.setBrush(pydaw_track_gradients[self.gradient_index])
+        self.gradient_index += 1
+        if self.gradient_index >=  len(pydaw_track_gradients):
+            self.gradient_index = 0
         self.scene.addItem(f_audio_item)
         self.track += 1
 
