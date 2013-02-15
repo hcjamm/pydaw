@@ -57,6 +57,7 @@ class pydaw_sample_graph:
         self.high_peaks = ([],[])
         self.low_peaks = ([],[])
         self.count = None
+        self.length_in_seconds = None
 
         if not os.path.isfile(f_file_name):
             return
@@ -81,6 +82,8 @@ class pydaw_sample_graph:
                     self.channels = int(f_line_arr[2])
                 elif f_line_arr[1] == "count":
                     self.count = int(f_line_arr[2])
+                elif f_line_arr[1] == "length":
+                    self.length_in_seconds = float(f_line_arr[2])
             elif f_line_arr[0] == "p":
                 f_p_val = float(f_line_arr[3])
                 if f_p_val > 1.0:
