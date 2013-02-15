@@ -799,6 +799,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.track_num = a_track_num
         self.mouse_y_pos = a_y_pos
         self.audio_item = a_audio_item
+        self.setToolTip("Double click to open editor dialog, or click and drag to move")
 
     def pos_to_musical_time(self, a_pos):
         f_pos_raw = a_pos * 0.01
@@ -811,6 +812,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def mouseDoubleClickEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
         this_audio_editor.show_cell_dialog(self.track_num, 0, self.audio_item)
+        a_event.accept()
 
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
@@ -957,6 +959,9 @@ class audio_items_viewer_widget():
         self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
+        self.add_item_button = QtGui.QPushButton("Add Item")
+        self.controls_grid_layout.addWidget(self.add_item_button, 0, 2)
+        self.add_item_button.pressed.connect(self.add_item)
         self.h_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.h_zoom_slider.setRange(0, 100)
         self.h_zoom_slider.setMaximumWidth(600)
@@ -965,6 +970,14 @@ class audio_items_viewer_widget():
         self.h_zoom_slider.valueChanged.connect(self.set_zoom)
         self.controls_grid_layout.addWidget(QtGui.QLabel("Zoom:"), 0, 49)
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
+
+    def add_item(self):
+        f_audio_items = this_pydaw_project.get_audio_items()
+        for i in range(pydaw_max_audio_item_count):
+            if not f_audio_items.items.has_key(i):
+                this_audio_editor.show_cell_dialog(i, 0)
+                break
+        #TODO:  QMessageBox if no available slots
 
     def set_snap(self, a_val=None):
         this_audio_items_viewer.set_snap(self.snap_combobox.currentIndex())

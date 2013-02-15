@@ -17,6 +17,7 @@ pydaw_bus_count = 5
 pydaw_audio_track_count = 8
 pydaw_audio_input_count = 5
 pydaw_midi_track_count = 16
+pydaw_max_audio_item_count = 32
 
 pydaw_terminating_char = "\\"
 
