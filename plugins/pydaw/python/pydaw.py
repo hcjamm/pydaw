@@ -810,6 +810,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def mouseDoubleClickEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
+        this_audio_editor.show_cell_dialog(self.track_num, 0, self.audio_item)
 
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
