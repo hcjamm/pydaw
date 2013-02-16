@@ -1565,6 +1565,12 @@ class audio_list_editor:
             else:
                 f_cancel_button.setText("Cancel")
 
+        def control_changed(a_val=None):
+            f_control_str = str(f_control_combobox.currentText())
+            if f_control_str != '':
+                f_value = int(global_cc_maps["Modulex"][f_control_str])
+                f_cc.setValue(f_value)
+
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("CCs")
         f_layout = QtGui.QGridLayout()
@@ -1574,33 +1580,41 @@ class audio_list_editor:
         f_quantize_combobox.currentIndexChanged.connect(quantize_changed)
         f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 0, 0)
         f_layout.addWidget(f_quantize_combobox, 0, 1)
+
+        f_control_combobox = QtGui.QComboBox()
+        f_layout.addWidget(QtGui.QLabel("Control"), 3, 0)
+        f_layout.addWidget(f_control_combobox, 3, 1)
+
+        f_control_combobox.addItems(global_cc_maps["Modulex"].keys())
+        f_control_combobox.currentIndexChanged.connect(control_changed)
+
         f_cc = QtGui.QSpinBox()
         f_cc.setRange(1, 127)
         f_cc.setValue(self.default_cc_num)
-        f_layout.addWidget(QtGui.QLabel("CC"), 1, 0)
-        f_layout.addWidget(f_cc, 1, 1)
+        f_layout.addWidget(QtGui.QLabel("CC"), 4, 0)
+        f_layout.addWidget(f_cc, 4, 1)
         f_cc_value = QtGui.QSpinBox()
         f_cc_value.setRange(0, 127)
         f_cc_value.setValue(self.default_cc_value)
-        f_layout.addWidget(QtGui.QLabel("Value"), 2, 0)
-        f_layout.addWidget(f_cc_value, 2, 1)
+        f_layout.addWidget(QtGui.QLabel("Value"), 5, 0)
+        f_layout.addWidget(f_cc_value, 5, 1)
 
-        f_layout.addWidget(QtGui.QLabel("Start(Region)"), 3, 0)
+        f_layout.addWidget(QtGui.QLabel("Start(Region)"), 6, 0)
         f_start_region = QtGui.QSpinBox()
         f_start_region.setRange(0, 299)
-        f_layout.addWidget(f_start_region, 3, 1)
+        f_layout.addWidget(f_start_region, 6, 1)
         f_start_region.setValue(self.default_cc_start_region)
 
-        f_layout.addWidget(QtGui.QLabel("Start(bar)"), 4, 0)
+        f_layout.addWidget(QtGui.QLabel("Start(bar)"), 7, 0)
         f_start_bar = QtGui.QSpinBox()
         f_start_bar.setRange(0, 15)
-        f_layout.addWidget(f_start_bar, 4, 1)
+        f_layout.addWidget(f_start_bar, 7, 1)
         f_start_bar.setValue(self.default_cc_start_bar)
 
-        f_layout.addWidget(QtGui.QLabel("Start(beats)"), 5, 0)
+        f_layout.addWidget(QtGui.QLabel("Start(beats)"), 8, 0)
         f_start = QtGui.QDoubleSpinBox()
         f_start.setRange(0.0, 3.99)
-        f_layout.addWidget(f_start, 5, 1)
+        f_layout.addWidget(f_start, 8, 1)
         f_start.setValue(self.default_cc_start)
 
         f_draw_line_checkbox = QtGui.QCheckBox("Draw line")
@@ -3160,7 +3174,6 @@ class item_list_editor:
         f_layout.addWidget(f_plugin_combobox, 2, 1)
 
         f_control_combobox = QtGui.QComboBox()
-        f_control_combobox.addItems(global_cc_maps.keys())
         f_layout.addWidget(QtGui.QLabel("Control"), 3, 0)
         f_layout.addWidget(f_control_combobox, 3, 1)
 
