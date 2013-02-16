@@ -1998,7 +1998,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.setPos(f_pos_x, f_pos_y)
         f_new_note_start = (f_pos_x - global_piano_keys_width) * 0.001 * 4.0
         f_new_note_num = int(global_piano_roll_note_count - ((f_pos_y - global_piano_roll_header_height) / global_piano_roll_note_height))
-        self.note_item.start = f_new_note_start
+        self.note_item.set_start(f_new_note_start)
         self.note_item.note_num = f_new_note_num
         this_item_editor.item.fix_overlaps()
         this_pydaw_project.save_item(this_item_editor.item_name, this_item_editor.item)

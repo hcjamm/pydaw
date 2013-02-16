@@ -19,6 +19,8 @@ pydaw_audio_input_count = 5
 pydaw_midi_track_count = 16
 pydaw_max_audio_item_count = 32
 
+pydaw_min_note_length = 1.0/128.0  #Anything smaller gets deleted when doing a transform
+
 pydaw_terminating_char = "\\"
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
@@ -852,18 +854,39 @@ class pydaw_item:
                 f_note.length = f_min_max
             elif f_length > 0 and f_note.length > f_min_max:
                 f_note.length = f_min_max
+            f_note.set_end()
 
         self.fix_overlaps()
 
     def fix_overlaps(self):
         """ Truncate the lengths of any notes that overlap the start of another note """
+        f_to_delete = []
         for f_note in self.notes:
-            for f_note2 in self.notes:
-                if f_note != f_note2:
-                    if f_note.note_num == f_note2.note_num and f_note2.start > f_note.start:
-                        f_note_end = f_note.start + f_note.length
-                        if f_note_end > f_note2.start:
-                            f_note.length = f_note2.start - f_note.start
+            if f_note not in f_to_delete:
+                for f_note2 in self.notes:
+                    if f_note != f_note2 and f_note2 not in f_to_delete:
+                        if f_note.note_num == f_note2.note_num:
+                            if f_note2.start == f_note.start:
+                                if f_note2.length == f_note.length:
+                                    f_to_delete.append(f_note2)
+                                elif f_note2.length > f_note.length:
+                                    f_note2.length = f_note2.length - f_note.length
+                                    f_note2.start = f_note.end
+                                    f_note2.set_end()
+                                else:
+                                    f_note.length = f_note.length - f_note2.length
+                                    f_note.start = f_note2.end
+                                    f_note.set_end()
+                            elif f_note2.start > f_note.start:
+                                if f_note.end > f_note2.start:
+                                    f_note.length = f_note2.start - f_note.start
+                                    f_note.set_end()
+        for f_note in self.notes:
+            if f_note.length < pydaw_min_note_length:
+                f_to_delete.append(f_note)
+        for f_note in f_to_delete:
+            self.notes.remove(f_note)
+
 
     def time_shift(self, a_shift, a_events_move_with_item=False, a_notes=None, a_quantize=None):
         """ Move all items forward or backwards by a_shift number of beats, wrapping if before or after the item"""
@@ -1069,17 +1092,29 @@ class pydaw_item:
 
 class pydaw_note:
     def __eq__(self, other):
-        return((self.start == other.start) and (self.note_num == other.note_num)) #The other values shouldn't need comparison if overlapping note filtering worked
+        return((self.start == other.start) and (self.note_num == other.note_num) and (self.length == other.length) and \
+        (self.velocity == other.velocity))
 
     def __lt__(self, other):
         return self.start < other.start
+
+    def set_start(self, a_start):
+        self.start = float(a_start)
+        self.set_end()
+
+    def set_length(self, a_length):
+        self.length = float(a_length)
+        self.set_end()
+
+    def set_end(self):
+        self.end = self.length + self.start
 
     def __init__(self, a_start, a_length, a_note_number, a_velocity):
         self.start = float(a_start)
         self.length = float(a_length)
         self.velocity = int(a_velocity)
         self.note_num = int(a_note_number)
-        self.end = self.length + self.start
+        self.set_end()
 
     def overlaps(self, other):
         if self.note_num == other.note_num:
