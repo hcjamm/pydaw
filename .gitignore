@@ -1,3 +1,4 @@
+tools/debugger/profile.txt
 *.project
 *.cproject
 plugins/pydaw/python/libpydaw/history_test*
