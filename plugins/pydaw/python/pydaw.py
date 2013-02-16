@@ -3133,6 +3133,17 @@ class item_list_editor:
             else:
                 f_cancel_button.setText("Cancel")
 
+        def plugin_changed(a_val=None):
+            f_control_combobox.clear()
+            f_control_combobox.addItems(global_cc_maps[str(f_plugin_combobox.currentText())].keys())
+
+        def control_changed(a_val=None):
+            f_plugin_str = str(f_plugin_combobox.currentText())
+            f_control_str = str(f_control_combobox.currentText())
+            if f_plugin_str != '' and f_control_str != '':
+                f_value = int(global_cc_maps[f_plugin_str][f_control_str])
+                f_cc.setValue(f_value)
+
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("CCs")
         f_layout = QtGui.QGridLayout()
@@ -3140,41 +3151,56 @@ class item_list_editor:
         f_quantize_combobox = QtGui.QComboBox()
         f_quantize_combobox.addItems(beat_fracs)
         f_quantize_combobox.currentIndexChanged.connect(quantize_changed)
-        f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 0, 0)
-        f_layout.addWidget(f_quantize_combobox, 0, 1)
+        f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 1, 0)
+        f_layout.addWidget(f_quantize_combobox, 1, 1)
+
+        f_plugin_combobox = QtGui.QComboBox()
+        f_plugin_combobox.addItems(global_cc_maps.keys())
+        f_layout.addWidget(QtGui.QLabel("Plugin"), 2, 0)
+        f_layout.addWidget(f_plugin_combobox, 2, 1)
+
+        f_control_combobox = QtGui.QComboBox()
+        f_control_combobox.addItems(global_cc_maps.keys())
+        f_layout.addWidget(QtGui.QLabel("Control"), 3, 0)
+        f_layout.addWidget(f_control_combobox, 3, 1)
+
+        plugin_changed()
+        f_plugin_combobox.currentIndexChanged.connect(plugin_changed)
+        f_control_combobox.currentIndexChanged.connect(control_changed)
+
         f_cc = QtGui.QSpinBox()
         f_cc.setRange(1, 127)
         f_cc.setValue(self.default_cc_num)
-        f_layout.addWidget(QtGui.QLabel("CC"), 1, 0)
-        f_layout.addWidget(f_cc, 1, 1)
+        f_layout.addWidget(QtGui.QLabel("CC"), 5, 0)
+        f_layout.addWidget(f_cc, 5, 1)
         f_cc_value = QtGui.QSpinBox()
         f_cc_value.setRange(0, 127)
         f_cc_value.setValue(self.default_cc_val)
-        f_layout.addWidget(QtGui.QLabel("Value"), 2, 0)
-        f_layout.addWidget(f_cc_value, 2, 1)
-        f_layout.addWidget(QtGui.QLabel("Start(beats)"), 3, 0)
+        f_layout.addWidget(QtGui.QLabel("Value"), 6, 0)
+        f_layout.addWidget(f_cc_value, 6, 1)
+        f_layout.addWidget(QtGui.QLabel("Start(beats)"), 7, 0)
         f_start = QtGui.QDoubleSpinBox()
         f_start.setRange(0.0, 3.99)
         f_start.setValue(self.default_cc_start)
-        f_layout.addWidget(f_start, 3, 1)
+        f_layout.addWidget(f_start, 7, 1)
         f_draw_line_checkbox = QtGui.QCheckBox("Draw line")
-        f_layout.addWidget(f_draw_line_checkbox, 4, 1)
-        f_layout.addWidget(QtGui.QLabel("End(beats)"), 5, 0)
+        f_layout.addWidget(f_draw_line_checkbox, 9, 1)
+        f_layout.addWidget(QtGui.QLabel("End(beats)"), 12, 0)
         f_end = QtGui.QDoubleSpinBox()
         f_end.setRange(0, 3.99)
-        f_layout.addWidget(f_end, 5, 1)
-        f_layout.addWidget(QtGui.QLabel("End Value"), 6, 0)
+        f_layout.addWidget(f_end, 12, 1)
+        f_layout.addWidget(QtGui.QLabel("End Value"), 13, 0)
         f_end_value = QtGui.QSpinBox()
         f_end_value.setRange(0, 127)
-        f_layout.addWidget(f_end_value, 6, 1)
+        f_layout.addWidget(f_end_value, 13, 1)
         f_add_another = QtGui.QCheckBox("Add another?")
         f_add_another.toggled.connect(add_another_clicked)
-        f_layout.addWidget(f_add_another, 7, 1)
+        f_layout.addWidget(f_add_another, 14, 1)
         f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 8, 0)
+        f_layout.addWidget(f_ok_button, 15, 0)
         f_ok_button.clicked.connect(cc_ok_handler)
         f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 8, 1)
+        f_layout.addWidget(f_cancel_button, 15, 1)
         f_cancel_button.clicked.connect(cc_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_quantize)
         f_window.exec_()
@@ -4098,6 +4124,8 @@ name instead of MIDI CC number""")
         else:
             event.accept()
 
+global_cc_maps = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modulex":{}}  #A dict of dicts, with key/value pair:  control-name:control-value
+
 class pydaw_cc_map_editor:
     def on_save(self):
         f_result_dict = {}
@@ -4216,6 +4244,7 @@ Any additional text must be enclosed in quotation marks."
                     self.cc_table.setItem(f_row_index, 0, QtGui.QTableWidgetItem(f_cc_num))
                     self.cc_table.setItem(f_row_index, 1, QtGui.QTableWidgetItem(f_desc))
                     self.cc_table.setItem(f_row_index, 2, QtGui.QTableWidgetItem(f_ladspa_port))
+                    global_cc_maps[f_name][f_desc] = f_cc_num
                     f_row_index += 1
 
 def set_default_project(a_project_path):
