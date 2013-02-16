@@ -2007,7 +2007,10 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         f_pos_x = self.pos().x()
         f_pos_y = self.pos().y()
         if self.is_resizing:
-            self.resize_rect.setWidth(self.resize_rect.width() + (a_event.pos().x() - self.resize_last_mouse_pos))
+            f_adjusted_width = self.resize_rect.width() + (a_event.pos().x() - self.resize_last_mouse_pos)
+            if f_adjusted_width < 12.0:
+                f_adjusted_width = 12.0
+            self.resize_rect.setWidth(f_adjusted_width)
             self.resize_last_mouse_pos = a_event.pos().x()
             self.setRect(self.resize_rect)
             self.setPos(self.resize_pos)
@@ -2030,8 +2033,13 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.setBrush(self.o_brush)
         f_pos_x = self.pos().x()
         f_pos_y = self.pos().y()
-        #self.setPos(f_pos_x, f_pos_y)
         if self.is_resizing:
+            if global_piano_roll_snap:
+                f_adjusted_width = (round(self.resize_rect.width()/global_piano_roll_snap_value) * global_piano_roll_snap_value)
+                if f_adjusted_width == 0.0:
+                    f_adjusted_width = global_piano_roll_snap_value
+                self.resize_rect.setWidth(f_adjusted_width)
+                self.setRect(self.resize_rect)
             f_new_note_length = ((f_pos_x + self.rect().width() - global_piano_keys_width) * 0.001 * 4.0) - self.resize_start_pos
             if f_new_note_length < pydaw_min_note_length:
                 f_new_note_length = pydaw_min_note_length
