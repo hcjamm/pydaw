@@ -733,9 +733,7 @@ class pydaw_item:
 
         f_range_beats = a_end_beat - a_start_beat
 
-        print(str(len(f_notes)))
         for note in f_notes:
-            print(note)
             if note.start >= a_start_beat and note.start <= a_end_beat:
                 if a_line:
                     f_frac = ((note.start - a_start_beat)/f_range_beats)
