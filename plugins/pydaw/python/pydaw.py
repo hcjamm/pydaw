@@ -2265,6 +2265,7 @@ class piano_roll_editor_widget():
         self.controls_grid_layout.addWidget(QtGui.QLabel("Snap (beats):"), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
+        self.snap_combobox.setCurrentIndex(1)
         self.add_item_button = QtGui.QPushButton("Add Note")
         self.controls_grid_layout.addWidget(self.add_item_button, 0, 2)
         self.add_item_button.pressed.connect(self.add_note)
@@ -3157,6 +3158,14 @@ class item_list_editor:
             f_length.setSingleStep(f_frac)
             self.default_quantize = f_quantize_index
 
+        def length_changed(a_val=None):
+            f_frac = beat_frac_text_to_float(f_quantize_combobox.currentIndex())
+            if f_length.value() < f_frac:
+                f_length.setValue(f_frac)
+            else:
+                f_val = round(f_length.value()/f_frac) * f_frac
+                f_length.setValue(f_val)
+
         def add_another_clicked(a_checked):
             if a_checked:
                 f_cancel_button.setText("Close")
@@ -3191,9 +3200,10 @@ class item_list_editor:
         f_layout.addWidget(f_start, 2, 1)
         f_layout.addWidget(QtGui.QLabel("Length(beats)"), 3, 0)
         f_length = QtGui.QDoubleSpinBox()
-        f_length.setRange(0.1, 16.0)
+        f_length.setRange(0.01, 16.0)
         f_length.setValue(self.default_note_length)
         f_layout.addWidget(f_length, 3, 1)
+        f_length.valueChanged.connect(length_changed)
         f_velocity = QtGui.QSpinBox()
         f_velocity.setRange(1, 127)
         f_velocity.setValue(self.default_note_velocity)
