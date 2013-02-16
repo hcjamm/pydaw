@@ -1962,6 +1962,29 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.note_height = a_note_height
         self.setToolTip("Double-click to edit note properties, click and drag to move")
         self.note_item = a_note_item
+        self.setAcceptHoverEvents(True)
+        self.resize_start_pos = 0.0
+        self.is_resizing = False
+
+    def mouse_is_at_end(self, a_pos):
+        return (a_pos.x() > (self.rect().width() * 0.8))
+
+    def hoverMoveEvent(self, a_event):
+        QtGui.QGraphicsRectItem.hoverMoveEvent(self, a_event)
+        if self.mouse_is_at_end(a_event.pos()):
+            QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.SizeHorCursor))
+        else:
+            QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+
+    def hoverEnterEvent(self, a_event):
+        QtGui.QGraphicsRectItem.hoverEnterEvent(self, a_event)
+        this_piano_roll_editor.click_enabled = False
+
+    def hoverLeaveEvent(self, a_event):
+        QtGui.QGraphicsRectItem.hoverLeaveEvent(self, a_event)
+        this_piano_roll_editor.click_enabled = True
+        #QtGui.QApplication.restoreOverrideCursor()
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
 
     def mouseDoubleClickEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
@@ -1972,37 +1995,57 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.o_brush = self.brush()
         self.setBrush(QtGui.QColor(255,200,100))
         self.o_pos = self.pos()
+        if self.mouse_is_at_end(a_event.pos()):
+            self.is_resizing = True
+            self.resize_start_pos = self.note_item.start
+            self.resize_pos = self.pos()
+            self.resize_rect = self.rect()
+            self.resize_last_mouse_pos = a_event.pos().x()
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
         f_pos_x = self.pos().x()
         f_pos_y = self.pos().y()
-        if f_pos_x < global_piano_keys_width:
-            f_pos_x = global_piano_keys_width
-        elif f_pos_x > global_piano_roll_grid_max_start_time:
-            f_pos_x = global_piano_roll_grid_max_start_time
-        if f_pos_y < global_piano_roll_header_height:
-            f_pos_y = global_piano_roll_header_height
-        elif f_pos_y > global_piano_roll_total_height:
-            f_pos_y = global_piano_roll_total_height
-        f_pos_y = (int((f_pos_y - global_piano_roll_header_height)/self.note_height) * self.note_height) + global_piano_roll_header_height
-        if global_piano_roll_snap:
-            f_pos_x = (int((f_pos_x - global_piano_keys_width)/global_piano_roll_snap_value) * global_piano_roll_snap_value) + global_piano_keys_width
-        self.setPos(f_pos_x, f_pos_y)
+        if self.is_resizing:
+            self.resize_rect.setWidth(self.resize_rect.width() + (a_event.pos().x() - self.resize_last_mouse_pos))
+            self.resize_last_mouse_pos = a_event.pos().x()
+            self.setRect(self.resize_rect)
+            self.setPos(self.resize_pos)
+        else:
+            if f_pos_x < global_piano_keys_width:
+                f_pos_x = global_piano_keys_width
+            elif f_pos_x > global_piano_roll_grid_max_start_time:
+                f_pos_x = global_piano_roll_grid_max_start_time
+            if f_pos_y < global_piano_roll_header_height:
+                f_pos_y = global_piano_roll_header_height
+            elif f_pos_y > global_piano_roll_total_height:
+                f_pos_y = global_piano_roll_total_height
+            f_pos_y = (int((f_pos_y - global_piano_roll_header_height)/self.note_height) * self.note_height) + global_piano_roll_header_height
+            if global_piano_roll_snap:
+                f_pos_x = (int((f_pos_x - global_piano_keys_width)/global_piano_roll_snap_value) * global_piano_roll_snap_value) + global_piano_keys_width
+            self.setPos(f_pos_x, f_pos_y)
 
     def mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         self.setBrush(self.o_brush)
         f_pos_x = self.pos().x()
         f_pos_y = self.pos().y()
-        self.setPos(f_pos_x, f_pos_y)
-        f_new_note_start = (f_pos_x - global_piano_keys_width) * 0.001 * 4.0
-        f_new_note_num = int(global_piano_roll_note_count - ((f_pos_y - global_piano_roll_header_height) / global_piano_roll_note_height))
-        self.note_item.set_start(f_new_note_start)
-        self.note_item.note_num = f_new_note_num
+        #self.setPos(f_pos_x, f_pos_y)
+        if self.is_resizing:
+            f_new_note_length = ((f_pos_x + self.rect().width() - global_piano_keys_width) * 0.001 * 4.0) - self.resize_start_pos
+            if f_new_note_length < pydaw_min_note_length:
+                f_new_note_length = pydaw_min_note_length
+            self.note_item.set_length(f_new_note_length)
+        else:
+            f_new_note_start = (f_pos_x - global_piano_keys_width) * 0.001 * 4.0
+            f_new_note_num = int(global_piano_roll_note_count - ((f_pos_y - global_piano_roll_header_height) / global_piano_roll_note_height))
+            self.note_item.set_start(f_new_note_start)
+            self.note_item.note_num = f_new_note_num
         this_item_editor.item.fix_overlaps()
         this_pydaw_project.save_item(this_item_editor.item_name, this_item_editor.item)
         this_item_editor.open_item(this_item_editor.item_name, this_item_editor.multi_item_list)
+        self.is_resizing = False
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
 
 class piano_key_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_piano_width, a_note_height, a_parent):
@@ -2052,6 +2095,12 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
         self.right_click = False
         self.left_click = False
+        self.click_enabled = True
+
+    def mousePressEvent(self, a_event):
+        QtGui.QGraphicsView.mousePressEvent(self, a_event)
+        if self.click_enabled:
+            print("Click worked")
 
     def draw_header(self):
         self.header = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.header_height)
