@@ -1960,7 +1960,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setBrush(pydaw_note_gradient)
         self.note_height = a_note_height
-        self.setToolTip("Double-click to edit note properties, click and drag to move")
+        self.setToolTip("Double-click to edit note properties, click and drag to move,\nclick and drag the end to change length, and Shift+click to delete")
         self.note_item = a_note_item
         self.setAcceptHoverEvents(True)
         self.resize_start_pos = 0.0
@@ -1993,15 +1993,20 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
 
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
-        self.o_brush = self.brush()
-        self.setBrush(QtGui.QColor(255,200,100))
-        self.o_pos = self.pos()
-        if self.mouse_is_at_end(a_event.pos()):
-            self.is_resizing = True
-            self.resize_start_pos = self.note_item.start
-            self.resize_pos = self.pos()
-            self.resize_rect = self.rect()
-            self.resize_last_mouse_pos = a_event.pos().x()
+        if a_event.modifiers() == QtCore.Qt.ShiftModifier:
+            this_item_editor.item.remove_note(self.note_item)
+            this_pydaw_project.save_item(this_item_editor.item_name, this_item_editor.item)
+            this_item_editor.open_item(this_item_editor.item_name, this_item_editor.multi_item_list)
+        else:
+            self.o_brush = self.brush()
+            self.setBrush(QtGui.QColor(255,200,100))
+            self.o_pos = self.pos()
+            if self.mouse_is_at_end(a_event.pos()):
+                self.is_resizing = True
+                self.resize_start_pos = self.note_item.start
+                self.resize_pos = self.pos()
+                self.resize_rect = self.rect()
+                self.resize_last_mouse_pos = a_event.pos().x()
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
