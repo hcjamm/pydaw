@@ -725,15 +725,17 @@ class pydaw_item:
         if a_notes is None:
             f_notes = self.notes
         else:
-            for i in range(len(a_notes)):
-                for f_note in self.notes:
-                    if f_note == a_notes[i]:
-                        f_notes.append(f_note)
+            for f_note in a_notes:
+                for f_note2 in self.notes:
+                    if f_note2 == f_note:
+                        f_notes.append(f_note2)
                         break
 
         f_range_beats = a_end_beat - a_start_beat
 
+        print(str(len(f_notes)))
         for note in f_notes:
+            print(note)
             if note.start >= a_start_beat and note.start <= a_end_beat:
                 if a_line:
                     f_frac = ((note.start - a_start_beat)/f_range_beats)
