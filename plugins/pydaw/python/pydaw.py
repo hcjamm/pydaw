@@ -1922,11 +1922,11 @@ class audio_input_track:
 
 global_piano_roll_snap = False
 global_piano_roll_grid_width = 1000.0
-global_piano_roll_grid_max_start_time = 999.0
+global_piano_keys_width = 34  #Width of the piano keys in px
+global_piano_roll_grid_max_start_time = 999.0 + global_piano_keys_width
 global_piano_roll_note_height = 15
 global_piano_roll_snap_value = global_piano_roll_grid_width / 16.0
 global_piano_roll_note_count = 120
-global_piano_keys_width = 34  #Width of the piano keys in px
 global_piano_roll_header_height = 20
 global_piano_roll_total_height = 1000  #gets updated by the piano roll to it's real value
 
@@ -1971,6 +1971,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
 
     def hoverMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.hoverMoveEvent(self, a_event)
+        this_piano_roll_editor.click_enabled = False
         if self.mouse_is_at_end(a_event.pos()):
             QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.SizeHorCursor))
         else:
@@ -2054,6 +2055,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         this_item_editor.open_item(this_item_editor.item_name, this_item_editor.multi_item_list)
         self.is_resizing = False
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        this_piano_roll_editor.click_enabled = True
 
 class piano_key_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_piano_width, a_note_height, a_parent):
@@ -2090,11 +2092,12 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.padding = 2
         self.piano_height = self.note_height * self.total_notes
         global global_piano_roll_total_height
-        global_piano_roll_total_height = self.piano_height - self.note_height + global_piano_roll_header_height
+        global_piano_roll_total_height = self.piano_height + global_piano_roll_header_height
 
         QtGui.QGraphicsView.__init__(self)
         self.scene = QtGui.QGraphicsScene(self)
         self.scene.setBackgroundBrush(QtGui.QColor(100,100,100))
+        self.scene.mousePressEvent = self.sceneMousePressEvent
         self.setAlignment(QtCore.Qt.AlignLeft)
         self.setScene(self.scene)
         self.draw_header()
@@ -2105,10 +2108,24 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.left_click = False
         self.click_enabled = True
 
-    def mousePressEvent(self, a_event):
-        QtGui.QGraphicsView.mousePressEvent(self, a_event)
+    def sceneMousePressEvent(self, a_event):
         if self.click_enabled:
-            print("Click worked")
+            f_pos_x = a_event.scenePos().x()
+            f_pos_y = a_event.scenePos().y()
+            if f_pos_x > global_piano_keys_width and f_pos_x < global_piano_roll_grid_max_start_time and \
+            f_pos_y > global_piano_roll_header_height and f_pos_y < global_piano_roll_total_height:
+                f_note = int(self.total_notes - ((f_pos_y - global_piano_roll_header_height) / self.note_height)) + 1
+                if global_piano_roll_snap:
+                    f_beat = (round((f_pos_x - global_piano_keys_width)/global_piano_roll_snap_value) * global_piano_roll_snap_value) * 0.001 * 4.0
+                else:
+                    f_beat = (f_pos_x - global_piano_keys_width) * 0.001 * 4.0
+                this_item_editor.item.add_note(pydaw_note(f_beat, 0.1, f_note, 100))
+                this_pydaw_project.save_item(this_item_editor.item_name, this_item_editor.item)
+                this_item_editor.open_item(this_item_editor.item_name, this_item_editor.multi_item_list)
+
+            QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
+        else:
+            QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
 
     def draw_header(self):
         self.header = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.header_height)
@@ -2133,7 +2150,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         for i in range(self.end_octave-self.start_octave, self.start_octave-self.start_octave, -1):
             for j in range(self.notes_in_octave, 0, -1):
                 f_key = piano_key_item(self.piano_width, self.note_height, self.piano)
-                f_key.setPos(0, self.note_height*(j) + self.octave_height*(i-1))
+                f_key.setPos(0, self.note_height * (j) + self.octave_height*(i-1))
                 if j == 12:
                     f_label = QtGui.QGraphicsSimpleTextItem("%s%d" % (f_labels[j-1], self.end_octave-i), f_key)
                     f_label.setPos(4, 0)
