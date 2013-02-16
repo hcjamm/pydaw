@@ -1906,6 +1906,280 @@ class audio_input_track:
         self.suppress_osc = False
 
 
+global_piano_roll_snap = False
+global_piano_roll_grid_width = 1000.0
+global_piano_roll_grid_max_start_time = 999.0
+global_piano_roll_note_height = 15
+global_piano_roll_snap_value = global_piano_roll_grid_width / 16.0
+global_piano_roll_note_count = 120
+global_piano_keys_width = 34  #Width of the piano keys in px
+global_piano_roll_header_height = 20
+global_piano_roll_total_height = 1000  #gets updated by the piano roll to it's real value
+
+pydaw_note_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
+pydaw_note_gradient.setColorAt(0, QtGui.QColor(163, 136, 30))
+pydaw_note_gradient.setColorAt(1, QtGui.QColor(230, 221, 45))
+
+
+def pydaw_set_piano_roll_quantize(a_index):
+    global global_piano_roll_snap
+    global global_piano_roll_snap_value
+    if a_index == 0:
+        global_piano_roll_snap = False
+    elif a_index == 1:
+        global_piano_roll_snap_value = global_piano_roll_grid_width / 16.0
+        global_piano_roll_snap = True
+    elif a_index == 2:
+        global_piano_roll_snap_value = global_piano_roll_grid_width / 12.0
+        global_piano_roll_snap = True
+    elif a_index == 3:
+        global_piano_roll_snap_value = global_piano_roll_grid_width / 8.0
+        global_piano_roll_snap = True
+    elif a_index == 4:
+        global_piano_roll_snap_value = global_piano_roll_grid_width / 4.0
+        global_piano_roll_snap = True
+
+class piano_roll_note_item(QtGui.QGraphicsRectItem):
+    def __init__(self, a_length, a_note_height, a_note, a_note_item):
+        QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_length, a_note_height)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+        self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
+        self.setBrush(pydaw_note_gradient)
+        self.note_height = a_note_height
+        self.setToolTip("Double-click to edit note properties, click and drag to move")
+        self.note_item = a_note_item
+
+    def mouseDoubleClickEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
+        this_item_editor.notes_show_event_dialog(None, None, self.note_item)
+
+    def mousePressEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+        self.o_brush = self.brush()
+        self.setBrush(QtGui.QColor(255,200,100))
+        self.o_pos = self.pos()
+
+    def mouseMoveEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
+        f_pos_x = self.pos().x()
+        f_pos_y = self.pos().y()
+        if f_pos_x < global_piano_keys_width:
+            f_pos_x = global_piano_keys_width
+        elif f_pos_x > global_piano_roll_grid_max_start_time:
+            f_pos_x = global_piano_roll_grid_max_start_time
+        if f_pos_y < global_piano_roll_header_height:
+            f_pos_y = global_piano_roll_header_height
+        elif f_pos_y > global_piano_roll_total_height:
+            f_pos_y = global_piano_roll_total_height
+        f_pos_y = (int((f_pos_y - global_piano_roll_header_height)/self.note_height) * self.note_height) + global_piano_roll_header_height
+        if global_piano_roll_snap:
+            f_pos_x = (int((f_pos_x - global_piano_keys_width)/global_piano_roll_snap_value) * global_piano_roll_snap_value) + global_piano_keys_width
+        self.setPos(f_pos_x, f_pos_y)
+
+    def mouseReleaseEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
+        self.setBrush(self.o_brush)
+        f_pos_x = self.pos().x()
+        f_pos_y = self.pos().y()
+        self.setPos(f_pos_x, f_pos_y)
+        f_new_note_start = (f_pos_x - global_piano_keys_width) * 0.001 * 4.0
+        f_new_note_num = int(global_piano_roll_note_count - ((f_pos_y - global_piano_roll_header_height) / global_piano_roll_note_height))
+        self.note_item.start = f_new_note_start
+        self.note_item.note_num = f_new_note_num
+        this_item_editor.item.fix_overlaps()
+        this_pydaw_project.save_item(this_item_editor.item_name, this_item_editor.item)
+        this_item_editor.open_item(this_item_editor.item_name, this_item_editor.multi_item_list)
+
+class piano_key_item(QtGui.QGraphicsRectItem):
+    def __init__(self, a_piano_width, a_note_height, a_parent):
+        QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_piano_width, a_note_height, a_parent)
+        self.setAcceptHoverEvents(True)
+        self.hover_brush = QtGui.QColor(200,200,200)
+
+    def hoverEnterEvent(self, a_event):
+        QtGui.QGraphicsRectItem.hoverEnterEvent(self, a_event)
+        self.o_brush = self.brush()
+        self.setBrush(self.hover_brush)
+
+    def hoverLeaveEvent(self, a_event):
+        QtGui.QGraphicsRectItem.hoverLeaveEvent(self, a_event)
+        self.setBrush(self.o_brush)
+
+class piano_roll_editor(QtGui.QGraphicsView):
+    def __init__(self, a_item_length=4, a_grid_div=16):
+        self.item_length = float(a_item_length)
+        self.viewer_width = 1000
+        self.grid_div = a_grid_div
+
+        self.end_octave = 8
+        self.start_octave = -2
+        self.notes_in_octave = 12
+        self.total_notes = global_piano_roll_note_count #(self.end_octave - self.start_octave) * self.notes_in_octave + 1 #for C8
+        self.note_height = global_piano_roll_note_height
+        self.octave_height = self.notes_in_octave * self.note_height
+
+        self.header_height = global_piano_roll_header_height
+
+        self.piano_height = self.note_height*self.total_notes
+        self.piano_width = 32
+        self.padding = 2
+        self.piano_height = self.note_height * self.total_notes
+        global global_piano_roll_total_height
+        global_piano_roll_total_height = self.piano_height - self.note_height + global_piano_roll_header_height
+
+        QtGui.QGraphicsView.__init__(self)
+        self.scene = QtGui.QGraphicsScene(self)
+        self.scene.setBackgroundBrush(QtGui.QColor(100,100,100))
+        self.setAlignment(QtCore.Qt.AlignLeft)
+        self.setScene(self.scene)
+        self.draw_header()
+        self.draw_piano()
+        self.draw_grid()
+
+        self.right_click = False
+        self.left_click = False
+
+    def draw_header(self):
+        self.header = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.header_height)
+        self.header.setPos(self.piano_width + self.padding, 0)
+        self.scene.addItem(self.header)
+        self.beat_width = self.viewer_width / self.item_length
+        self.value_width = self.beat_width / self.grid_div
+
+    def draw_piano(self):
+        f_labels = ['B', 'Bb', 'A', 'Ab', 'G', 'Gb', 'F', 'E', 'Eb', 'D', 'Db', 'C']
+        f_black_notes = [2, 4, 6, 9, 11]
+        f_piano_label = QtGui.QFont()
+        f_piano_label.setPointSize(8)
+        self.piano = QtGui.QGraphicsRectItem(0, 0, self.piano_width, self.piano_height)
+        self.piano.setPos(0, self.header_height)
+        self.scene.addItem(self.piano)
+        f_key = piano_key_item(self.piano_width, self.note_height, self.piano)
+        f_label = QtGui.QGraphicsSimpleTextItem("C8", f_key)
+        f_label.setPos(4, 0)
+        f_label.setFont(f_piano_label)
+        f_key.setBrush(QtGui.QColor(255,255,255))
+        for i in range(self.end_octave-self.start_octave, self.start_octave-self.start_octave, -1):
+            for j in range(self.notes_in_octave, 0, -1):
+                f_key = piano_key_item(self.piano_width, self.note_height, self.piano)
+                f_key.setPos(0, self.note_height*(j) + self.octave_height*(i-1))
+                if j == 12:
+                    f_label = QtGui.QGraphicsSimpleTextItem("%s%d" % (f_labels[j-1], self.end_octave-i), f_key)
+                    f_label.setPos(4, 0)
+                    f_label.setFont(f_piano_label)
+                if j in f_black_notes:
+                    f_key.setBrush(QtGui.QColor(0,0,0))
+                else:
+                    f_key.setBrush(QtGui.QColor(255,255,255))
+
+    def draw_grid(self):
+        for i in range(self.end_octave-self.start_octave, self.start_octave-self.start_octave, -1):
+            for j in range(self.notes_in_octave, 0, -1):
+                f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.note_height, self.piano)
+                f_note_bar.setPos(self.piano_width + self.padding,  self.note_height*(j) + self.octave_height*(i-1))
+                #basic implementation of zth's "show scales", there are a few transparency issues
+                #if j not in f_black_notes:
+                #    f_note_bar.setBrush(QtGui.QColor(230,230,230,100))
+        f_beat_pen = QtGui.QPen()
+        f_beat_pen.setWidth(2)
+        f_line_pen = QtGui.QPen()
+        f_line_pen.setColor(QtGui.QColor(0,0,0,40))
+        for i in range(0, int(self.item_length)+1):
+            f_beat = QtGui.QGraphicsLineItem(0, 0, 0, self.piano_height+self.header_height-f_beat_pen.width(), self.header)
+            f_beat.setPos(self.beat_width * i, 0.5*f_beat_pen.width())
+            f_beat.setPen(f_beat_pen)
+            if i < self.item_length:
+                f_number = QtGui.QGraphicsSimpleTextItem(str(i), self.header)
+                f_number.setPos(self.beat_width * i + 5, 2)
+                f_number.setBrush(QtCore.Qt.white)
+                for j in range(0, self.grid_div):
+                    f_line = QtGui.QGraphicsLineItem(0, 0, 0, self.piano_height, self.header)
+                    if float(j) == self.grid_div / 2.0:
+                        f_line.setLine(0, 0, 0, self.piano_height)
+                        f_line.setPos((self.beat_width*i)+(self.value_width*j), self.header_height)
+                    else:
+                        f_line.setPos((self.beat_width*i)+(self.value_width*j), self.header_height)
+                        f_line.setPen(f_line_pen)
+
+    def set_zoom(self, a_scale):
+        self.scale(a_scale, 1.0)
+
+    def clear_drawn_items(self):
+        self.scene.clear()
+        self.draw_header()
+        self.draw_piano()
+        self.draw_grid()
+
+    def draw_item(self, a_item):
+        """ Draw all notes in an instance of the pydaw_item class"""
+        self.clear_drawn_items()
+        for f_note in a_item.notes:
+            self.draw_note(f_note)
+
+    def draw_note(self, a_note):
+        """ a_note is an instance of the pydaw_note class"""
+        f_start = self.piano_width + self.padding + self.beat_width*(a_note.start)
+        f_length = self.beat_width*(a_note.length * 0.25 * self.item_length)
+        f_note = self.header_height + self.note_height * (self.total_notes - a_note.note_num)
+        f_note_item = piano_roll_note_item(f_length, self.note_height, a_note.note_num, a_note)
+        f_note_item.setPos(f_start, f_note)
+        f_vel_opacity = QtGui.QGraphicsOpacityEffect()
+        f_vel_opacity.setOpacity((a_note.velocity * 0.007874016 * 0.6) + 0.4)
+        f_note_item.setGraphicsEffect(f_vel_opacity)
+        self.scene.addItem(f_note_item)
+
+
+
+class piano_roll_editor_widget():
+    def __init__(self):
+        self.widget = QtGui.QWidget()
+        self.vlayout = QtGui.QVBoxLayout()
+        self.widget.setLayout(self.vlayout)
+        self.controls_grid_layout = QtGui.QGridLayout()
+        self.controls_grid_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 30)
+        self.vlayout.addLayout(self.controls_grid_layout)
+        self.vlayout.addWidget(this_piano_roll_editor)
+        self.snap_combobox = QtGui.QComboBox()
+        self.snap_combobox.setMinimumWidth(150)
+        self.snap_combobox.addItems(["None", "1/4", "1/3", "1/2", "1"])
+        self.controls_grid_layout.addWidget(QtGui.QLabel("Snap (beats):"), 0, 0)
+        self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
+        self.snap_combobox.currentIndexChanged.connect(self.set_snap)
+        self.add_item_button = QtGui.QPushButton("Add Note")
+        self.controls_grid_layout.addWidget(self.add_item_button, 0, 2)
+        self.add_item_button.pressed.connect(self.add_note)
+        #self.h_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        #self.h_zoom_slider.setRange(0, 100)
+        #self.h_zoom_slider.setMaximumWidth(600)
+        #self.h_zoom_slider.setValue(0)
+        #self.last_scale_value = 0
+        #self.h_zoom_slider.valueChanged.connect(self.set_zoom)
+        #self.controls_grid_layout.addWidget(QtGui.QLabel("Zoom:"), 0, 49)
+        #self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
+
+    def add_note(self):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
+        this_item_editor.notes_show_event_dialog(len(this_item_editor.item.notes), 0)
+
+    def set_snap(self, a_val=None):
+        pydaw_set_piano_roll_quantize(self.snap_combobox.currentIndex())
+
+    def set_zoom(self, a_val=None):
+        """ This is a ridiculously convoluted way to do this, but I see no other way in the Qt docs.  When
+        Scaling, 1.0 does not return to it's original scale, and QSlider skips values when moved quickly, making
+        it necessary to interpolate the inbetween values"""
+        if self.last_scale_value > self.h_zoom_slider.value():
+            for i in range(self.h_zoom_slider.value(), self.last_scale_value):
+                this_audio_items_viewer.set_zoom(0.97)
+        else:
+            for i in range(self.last_scale_value, self.h_zoom_slider.value()):
+                this_audio_items_viewer.set_zoom(1.03)
+        self.last_scale_value = self.h_zoom_slider.value()
+
+
+
 class item_list_editor:
     def clear_notes(self):
         if self.enabled:
@@ -1931,6 +2205,7 @@ class item_list_editor:
         self.ccs_table_widget.clearContents()
         self.notes_table_widget.clearContents()
         self.pitchbend_table_widget.clearContents()
+        this_piano_roll_editor.clear_drawn_items()
 
     def get_notes_table_selected_rows(self):
         f_result = []
@@ -2338,7 +2613,17 @@ class item_list_editor:
     def __init__(self):
         self.enabled = False
         self.events_follow_default = True
+
+        self.widget = QtGui.QWidget()
+        self.master_vlayout = QtGui.QVBoxLayout()
+        self.widget.setLayout(self.master_vlayout)
+        self.tab_widget = QtGui.QTabWidget()
+
+        self.notes_tab = QtGui.QGroupBox()
+        self.tab_widget.addTab(self.notes_tab, "Notes")
+
         self.group_box = QtGui.QGroupBox()
+        self.tab_widget.addTab(self.group_box, "Automation")
         self.main_vlayout = QtGui.QVBoxLayout()
         self.main_hlayout = QtGui.QHBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
@@ -2355,12 +2640,12 @@ class item_list_editor:
         self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
         self.add_radiobutton.setChecked(True)
         self.editing_hboxlayout = QtGui.QHBoxLayout()
-        self.main_vlayout.addLayout(self.editing_hboxlayout)
-        #self.item_name_line_edit = QtGui.QLineEdit()
-        #self.item_name_line_edit.setMaximumWidth(200)
-        #self.item_name_line_edit.setEnabled(False)
+
+        #self.main_vlayout.addLayout(self.editing_hboxlayout)
+        self.master_vlayout.addLayout(self.editing_hboxlayout)
+        self.master_vlayout.addWidget(self.tab_widget)
+
         self.editing_hboxlayout.addWidget(QtGui.QLabel("Editing Item:"))
-        #self.editing_hboxlayout.addWidget(self.item_name_line_edit)
         self.item_name_combobox = QtGui.QComboBox()
         self.item_name_combobox.setMinimumWidth(150)
         self.item_name_combobox.setEditable(False)
@@ -2386,8 +2671,9 @@ class item_list_editor:
 
         self.main_vlayout.addLayout(self.main_hlayout)
 
-        self.notes_groupbox = QtGui.QGroupBox("Notes")
-        self.notes_groupbox.setMinimumWidth(573)
+        self.notes_groupbox = QtGui.QGroupBox("Note Tools")
+        self.notes_groupbox.setMinimumWidth(591)
+        self.notes_groupbox.setMaximumWidth(591)
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
         self.notes_gridlayout = QtGui.QGridLayout()
 
@@ -2435,9 +2721,14 @@ class item_list_editor:
         self.notes_table_widget.keyPressEvent = self.notes_keyPressEvent
         self.notes_vlayout.addWidget(self.notes_table_widget)
 
+        self.notes_hlayout = QtGui.QHBoxLayout()
+        self.notes_tab.setLayout(self.notes_hlayout)
+        self.notes_hlayout.addWidget(self.notes_groupbox)
+        self.notes_hlayout.addWidget(this_piano_roll_editor_widget.widget)
+
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
-        self.ccs_groupbox.setMaximumWidth(370)
-        self.ccs_groupbox.setMinimumWidth(370)
+        self.ccs_groupbox.setMaximumWidth(390)
+        self.ccs_groupbox.setMinimumWidth(390)
         self.ccs_vlayout = QtGui.QVBoxLayout(self.ccs_groupbox)
         self.ccs_gridlayout = QtGui.QGridLayout()
         f_c_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -2462,8 +2753,8 @@ class item_list_editor:
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
 
         self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
-        self.pb_groupbox.setMaximumWidth(270)
-        self.pb_groupbox.setMinimumWidth(270)
+        self.pb_groupbox.setMaximumWidth(300)
+        self.pb_groupbox.setMinimumWidth(300)
         self.pb_vlayout = QtGui.QVBoxLayout(self.pb_groupbox)
         self.pb_gridlayout = QtGui.QGridLayout()
         f_p_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -2487,9 +2778,10 @@ class item_list_editor:
         self.pitchbend_table_widget.keyPressEvent = self.pbs_keyPressEvent
         self.pb_vlayout.addWidget(self.pitchbend_table_widget)
 
-        self.main_hlayout.addWidget(self.notes_groupbox)
+        #self.main_hlayout.addWidget(self.notes_groupbox)
         self.main_hlayout.addWidget(self.ccs_groupbox)
         self.main_hlayout.addWidget(self.pb_groupbox)
+        self.main_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
         self.set_headers()
         self.default_note_start = 0.0
         self.default_note_length = 1.0
@@ -2521,6 +2813,7 @@ class item_list_editor:
         self.enabled = True
         self.item_name = str(a_item_name)
         #self.item_name_line_edit.setText(self.item_name)
+        self.multi_item_list = a_items
 
         if a_items is not None:
             self.item_index_enabled = False
@@ -2561,6 +2854,7 @@ class item_list_editor:
             self.pitchbend_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(pb.pb_val)))
             f_i = f_i + 1
         self.pitchbend_table_widget.setSortingEnabled(True)
+        this_piano_roll_editor.draw_item(self.item)
 
     def notes_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
@@ -2685,21 +2979,31 @@ class item_list_editor:
             self.open_item(self.item_name)
             this_pydaw_project.git_repo.git_commit("-a", "Delete pitchbend from item '" + self.item_name + "'")
 
-    def notes_show_event_dialog(self, x, y):
-        f_cell = self.notes_table_widget.item(x, y)
-        if f_cell is not None:
+    def notes_show_event_dialog(self, x, y, a_note=None):
+        if a_note is not None:
             self.is_existing_note = True
-            self.default_note_start = float(self.notes_table_widget.item(x, 0).text())
-            self.default_note_length = float(self.notes_table_widget.item(x, 1).text())
-            self.default_note_note = int(self.notes_table_widget.item(x, 3).text()) % 12
-            self.default_note_octave = (int(self.notes_table_widget.item(x, 3).text()) / 12) - 2
-            self.default_note_velocity = int(self.notes_table_widget.item(x, 4).text())
+            f_note_item = a_note
+            self.default_note_start = a_note.start
+            self.default_note_length = a_note.length
+            self.default_note_note = a_note.note_num % 12
+            self.default_note_octave = (a_note.note_num / 12) - 2
+            self.default_note_velocity = a_note.velocity
         else:
-            self.is_existing_note = False
+            f_cell = self.notes_table_widget.item(x, y)
+            if f_cell is not None:
+                f_note_item = pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text())
+                self.is_existing_note = True
+                self.default_note_start = float(self.notes_table_widget.item(x, 0).text())
+                self.default_note_length = float(self.notes_table_widget.item(x, 1).text())
+                self.default_note_note = int(self.notes_table_widget.item(x, 3).text()) % 12
+                self.default_note_octave = (int(self.notes_table_widget.item(x, 3).text()) / 12) - 2
+                self.default_note_velocity = int(self.notes_table_widget.item(x, 4).text())
+            else:
+                self.is_existing_note = False
 
         def note_ok_handler():
             if self.is_existing_note:
-                self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
+                self.item.remove_note(f_note_item)
             f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
             f_start_rounded = time_quantize_round(f_start.value())
             f_length_rounded = time_quantize_round(f_length.value())
@@ -3733,21 +4037,17 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_tabwidget.addTab(this_region_editor.group_box, "Song/MIDI")
         this_region_editor.main_vlayout.addWidget(this_song_editor.table_widget, 0, 0)
 
-        self.item_tab = QtGui.QWidget()
-        self.item_tab.setObjectName("itemtabwidget")
-        self.item_tab_hlayout = QtGui.QHBoxLayout(self.item_tab)
-        self.item_tab_hlayout.addWidget(this_item_editor.group_box)
-        self.item_tab_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
-
-        self.item_scrollarea = QtGui.QScrollArea()
-        self.item_tab.setMinimumWidth(1290)
-        self.item_tab.setMinimumHeight(7950)
-        self.item_scrollarea.setWidget(self.item_tab)
-        self.main_tabwidget.addTab(self.item_scrollarea, "MIDI Item")
+        self.main_tabwidget.addTab(this_item_editor.widget, "MIDI Item")
 
         self.main_tabwidget.addTab(this_audio_editor.group_box, "Tracks")
-        self.main_tabwidget.addTab(this_audio_editor.items_groupbox, "Audio Items List")
-        self.main_tabwidget.addTab(this_audio_items_viewer_widget.widget, "Audio Items Viewer")
+
+        self.audio_items_tab = QtGui.QTabWidget()
+
+        self.audio_items_tab.addTab(this_audio_items_viewer_widget.widget, "Viewer")
+        self.audio_items_tab.addTab(this_audio_editor.items_groupbox, "Item List")
+
+        self.main_tabwidget.addTab(self.audio_items_tab, "Audio Items")
+
         self.main_tabwidget.addTab(this_audio_editor.ccs_tab, "Automation")
 
         #Begin CC Map tab
@@ -4008,6 +4308,8 @@ app.aboutToQuit.connect(about_to_quit)
 this_song_editor = song_editor()
 this_region_editor = region_list_editor()
 this_audio_editor = audio_list_editor()
+this_piano_roll_editor = piano_roll_editor()
+this_piano_roll_editor_widget = piano_roll_editor_widget()
 this_item_editor = item_list_editor()
 this_transport = transport_widget()
 this_audio_items_viewer = audio_items_viewer()

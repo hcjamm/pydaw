@@ -6,23 +6,49 @@ import sys
 from PyQt4 import QtGui, QtCore
 from pydaw_gradients import *
 
-global_piano_roll_snap = True
-global_piano_roll_snap_value = 1000.0 / 16.0 #TOOD: Make this into a function
+global_piano_roll_snap = False
+global_piano_roll_grid_width = 1000.0
+global_piano_roll_grid_max_start_time = 999.0
+global_piano_roll_note_height = 15
+global_piano_roll_snap_value = global_piano_roll_grid_width / 16.0
+global_piano_roll_note_count = 120
 global_piano_keys_width = 34  #Width of the piano keys in px
 global_piano_roll_header_height = 20
+global_piano_roll_total_height = 1000  #gets updated by the piano roll to it's real value
 
 pydaw_note_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
 pydaw_note_gradient.setColorAt(0, QtGui.QColor(163, 136, 30))
 pydaw_note_gradient.setColorAt(1, QtGui.QColor(230, 221, 45))
 
+global_piano_roll_quantize_choices = ["None", "1/4", "1/3", "1/2", "1"]
+
+def pydaw_set_piano_roll_quantize(a_index):
+    global global_piano_roll_snap
+    global global_piano_roll_snap_value
+    if a_index == 0:
+        global_piano_roll_snap = False
+    elif a_index == 1:
+        global_piano_roll_snap_value = global_piano_roll_grid_width / 16.0
+        global_piano_roll_snap = True
+    elif a_index == 2:
+        global_piano_roll_snap_value = global_piano_roll_grid_width / 12.0
+        global_piano_roll_snap = True
+    elif a_index == 3:
+        global_piano_roll_snap_value = global_piano_roll_grid_width / 8.0
+        global_piano_roll_snap = True
+    elif a_index == 4:
+        global_piano_roll_snap_value = global_piano_roll_grid_width / 4.0
+        global_piano_roll_snap = True
+
 class note_item(QtGui.QGraphicsRectItem):
-    def __init__(self, a_length, a_note_height):
+    def __init__(self, a_length, a_note_height, a_note):
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_length, a_note_height)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setBrush(pydaw_note_gradient)
         self.note_height = a_note_height
         self.setToolTip("Double-click to edit note properties, click and drag to move")
+        self.note = a_note
 
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
@@ -36,8 +62,12 @@ class note_item(QtGui.QGraphicsRectItem):
         f_pos_y = self.pos().y()
         if f_pos_x < global_piano_keys_width:
             f_pos_x = global_piano_keys_width
+        elif f_pos_x > global_piano_roll_grid_max_start_time:
+            f_pos_x = global_piano_roll_grid_max_start_time
         if f_pos_y < global_piano_roll_header_height:
             f_pos_y = global_piano_roll_header_height
+        elif f_pos_y > global_piano_roll_total_height:
+            f_pos_y = global_piano_roll_total_height
         f_pos_y = (int((f_pos_y - global_piano_roll_header_height)/self.note_height) * self.note_height) + global_piano_roll_header_height
         if global_piano_roll_snap:
             f_pos_x = (int((f_pos_x - global_piano_keys_width)/global_piano_roll_snap_value) * global_piano_roll_snap_value) + global_piano_keys_width
@@ -49,6 +79,10 @@ class note_item(QtGui.QGraphicsRectItem):
         f_pos_x = self.pos().x()
         f_pos_y = self.pos().y()
         self.setPos(f_pos_x, f_pos_y)
+        f_new_note_start = (f_pos_x - global_piano_keys_width) * 0.001 * 4.0
+        f_new_note_num = int(global_piano_roll_note_count - ((f_pos_y - global_piano_roll_header_height) / global_piano_roll_note_height))
+        print(str(f_new_note_start))
+        print(str(f_new_note_num))
 
 class piano_key_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_piano_width, a_note_height, a_parent):
@@ -74,8 +108,8 @@ class piano_roll_viewer(QtGui.QGraphicsView):
         self.end_octave = 8
         self.start_octave = -2
         self.notes_in_octave = 12
-        self.total_notes = (self.end_octave - self.start_octave) * self.notes_in_octave + 1 #for C8
-        self.note_height = 15
+        self.total_notes = global_piano_roll_note_count #(self.end_octave - self.start_octave) * self.notes_in_octave + 1 #for C8
+        self.note_height = global_piano_roll_note_height
         self.octave_height = self.notes_in_octave * self.note_height
 
         self.header_height = global_piano_roll_header_height
@@ -84,6 +118,8 @@ class piano_roll_viewer(QtGui.QGraphicsView):
         self.piano_width = 32
         self.padding = 2
         self.piano_height = self.note_height * self.total_notes
+        global global_piano_roll_total_height
+        global_piano_roll_total_height = self.piano_height - self.note_height + global_piano_roll_header_height
 
         QtGui.QGraphicsView.__init__(self)
         self.scene = QtGui.QGraphicsScene(self)
@@ -148,7 +184,7 @@ class piano_roll_viewer(QtGui.QGraphicsView):
             f_beat.setPos(self.beat_width * i, 0.5*f_beat_pen.width())
             f_beat.setPen(f_beat_pen)
             if i < self.item_length:
-                f_number = QtGui.QGraphicsSimpleTextItem("%d" % (i+1), self.header)
+                f_number = QtGui.QGraphicsSimpleTextItem(str(i), self.header)
                 f_number.setPos(self.beat_width * i + 5, 2)
                 f_number.setBrush(QtCore.Qt.white)
                 for j in range(0, self.grid_div):
@@ -169,22 +205,28 @@ class piano_roll_viewer(QtGui.QGraphicsView):
         self.draw_piano()
         self.draw_grid()
 
-    def draw_note(self, a_note, a_start, a_length, a_velocity):
-        '''a_note is the midi number, a_start is 1-4.99, a_length is in beats, a_velocity is 0-127'''
-        f_start = self.piano_width + self.padding + self.beat_width*(a_start - 1)
-        f_length = self.beat_width*(a_length*self.item_length)
-        f_note = self.header_height + self.note_height * (self.total_notes - a_note - 1)
-        f_note_item = note_item(f_length, self.note_height)
+    def draw_item(self, a_item):
+        """ Draw all notes in an instance of the pydaw_item class"""
+        for f_note in a_item.notes:
+            self.draw_note(f_note)
+
+    def draw_note(self, a_note):
+        """ a_note is an instance of the pydaw_note class"""
+        f_start = self.piano_width + self.padding + self.beat_width*(a_note.start)
+        f_length = self.beat_width*(a_note.length * 0.25 * self.item_length)
+        f_note = self.header_height + self.note_height * (self.total_notes - a_note.note_num - 1)
+        f_note_item = note_item(f_length, self.note_height, a_note.note_num)
         f_note_item.setPos(f_start, f_note)
         f_vel_opacity = QtGui.QGraphicsOpacityEffect()
-        f_vel_opacity.setOpacity((a_velocity * 0.007874016 * 0.6) + 0.4)
+        f_vel_opacity.setOpacity((a_note.velocity * 0.007874016 * 0.6) + 0.4)
         f_note_item.setGraphicsEffect(f_vel_opacity)
         self.scene.addItem(f_note_item)
 
 if __name__ == '__main__':
+    from pydaw_project import *
     app = QtGui.QApplication(sys.argv)
+    pydaw_set_piano_roll_quantize(3)
     view = piano_roll_viewer()
-    view.draw_note(60, 2.0625, 0.25, 127)
-    view.draw_note(120, 1, 0.5, 10)
+    view.draw_note(pydaw_note(0.0, 1.0, 84, 100))
     view.show()
     sys.exit(app.exec_())
