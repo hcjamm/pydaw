@@ -2,26 +2,25 @@
 A piano roll viewer that will eventually become a piano roll editor
 """
 
-import sys
 from PyQt4 import QtGui, QtCore
+from pydaw_project import *
 
 global_automation_point_diameter = 15.0
-global_automation_point_radius = 7.5
-
+global_automation_point_radius = global_automation_point_diameter * 0.5
 global_automation_ruler_width = 24
 global_automation_width = 800
 global_automation_height = 300
+
 global_automation_total_height = global_automation_ruler_width +  global_automation_height - global_automation_point_radius
 global_automation_total_width = global_automation_ruler_width + global_automation_width - global_automation_point_radius
 global_automation_min_height = global_automation_ruler_width - global_automation_point_radius
 
-#global_automation_gradient = QtGui.QRadialGradient(-6, -6, 15)
-global_automation_gradient = QtGui.QLinearGradient(0, 1, 15, 15)
+global_automation_gradient = QtGui.QLinearGradient(0, 0, global_automation_point_diameter, global_automation_point_diameter)
 global_automation_gradient.setColorAt(0, QtGui.QColor(240, 10, 10))
-global_automation_gradient.setColorAt(1, QtGui.QColor(250, 120, 120))
+global_automation_gradient.setColorAt(1, QtGui.QColor(250, 90, 90))
 
 class automation_item(QtGui.QGraphicsEllipseItem):
-    def __init__(self, a_time, a_value):
+    def __init__(self, a_time, a_value, a_cc, a_view):
         QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, global_automation_point_diameter, global_automation_point_diameter)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
@@ -32,6 +31,8 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         f_pen.setWidth(2)
         f_pen.setColor(QtGui.QColor(170,0,0))
         self.setPen(f_pen)
+        self.cc_item = a_cc
+        self.parent_view = a_view
 
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mousePressEvent(self, a_event)
@@ -50,9 +51,13 @@ class automation_item(QtGui.QGraphicsEllipseItem):
             self.setPos(self.pos().x(), global_automation_total_height)
 
     def mouseReleaseEvent(self, a_event):
-        #self.setPos(self.pos())
         QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, a_event)
         self.setGraphicsEffect(None)
+        for f_point in self.parent_view.automation_points:
+            if f_point.isSelected():
+                f_cc_start = ((f_point.pos().x() - global_automation_min_height) / global_automation_width) * 4.0
+                f_cc_val = 127.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 127.0)
+                print(str(f_cc_start) + "|" + str(f_cc_val))
 
 class automation_viewer(QtGui.QGraphicsView):
     def __init__(self, a_item_length=4, a_grid_div=16):
@@ -81,6 +86,19 @@ class automation_viewer(QtGui.QGraphicsView):
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
+        self.cc_num = 1
+
+    def keyPressEvent(self, a_event):
+        QtGui.QGraphicsScene.keyPressEvent(self.scene, a_event)
+        if a_event.key() == QtCore.Qt.Key_Delete:
+            f_to_be_deleted = []
+            for f_point in self.automation_points:
+                if f_point.isSelected():
+                    f_to_be_deleted.append(f_point)
+            for f_point in f_to_be_deleted:
+                self.automation_points.remove(f_point)
+            self.clear_drawn_items()
+            #TODO:  Properly hook into the PyDAW MIDI item and redraw everything after deleting
 
     def sceneMouseDoubleClickEvent(self, a_event):
         f_pos_x = a_event.scenePos().x()
@@ -88,7 +106,10 @@ class automation_viewer(QtGui.QGraphicsView):
         f_time = (f_pos_x - self.axis_size)/self.beat_width
         f_value = self.steps - ((f_pos_y - self.axis_size) * self.steps / self.viewer_height)
         print f_time, f_value
-        self.draw_point(f_time, f_value)
+        f_cc_start = ((f_pos_x - global_automation_min_height) / global_automation_width) * 4.0
+        f_cc_val = 127.0 - (((f_pos_y - global_automation_min_height) / global_automation_height) * 127.0)
+        print(str(f_cc_start) + "|" + str(f_cc_val))
+        self.draw_point(pydaw_cc(f_cc_start, self.cc_num, f_cc_val))
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
 
     def mouseMoveEvent(self, a_event):
@@ -169,21 +190,34 @@ class automation_viewer(QtGui.QGraphicsView):
                 self.scene.addItem(f_line)
                 self.lines[i-1] = f_line
 
-    def draw_point(self, a_time, a_value):
-        """ a_note is an instance of the pydaw_note class"""
-        f_time = self.axis_size + self.beat_width * a_time
-        f_value = self.axis_size +  self.viewer_height/self.steps * (self.steps-a_value)
-        f_point = automation_item(f_time, f_value)
+    def set_cc_num(self, a_cc_num):
+        self.cc_num = a_cc_num
+        self.clear_drawn_items()
+        #TODO:  call open_item here..
+
+    def draw_item(self, a_item):
+        """ a_item is an instance of pydaw_item """
+        self.clear_drawn_items()
+        for f_cc in a_item.ccs:
+            if f_cc.cc_num == self.cc_num:
+                self.draw_point(a_cc)
+
+    def draw_point(self, a_cc):
+        """ a_cc is an instance of the pydaw_cc class"""
+        f_time = self.axis_size + self.beat_width * a_cc.start
+        f_value = self.axis_size +  self.viewer_height/self.steps * (self.steps - a_cc.cc_val)
+        f_point = automation_item(f_time, f_value, a_cc, self)
         self.automation_points.append(f_point)
         self.scene.addItem(f_point)
         self.connect_points()
 
 if __name__ == '__main__':
+    import sys
     app = QtGui.QApplication(sys.argv)
     view = automation_viewer()
-    view.draw_point(2,127)
-    view.draw_point(3,64)
-    view.draw_point(0,0)
-    view.draw_point(1,54)
+    view.draw_point(pydaw_cc(0.5, 1, 15))
+    view.draw_point(pydaw_cc(1.0, 1, 120))
+    view.draw_point(pydaw_cc(2.0, 1, 64))
+    view.draw_point(pydaw_cc(3.0, 1, 90))
     view.show()
     sys.exit(app.exec_())
