@@ -5,23 +5,29 @@ A piano roll viewer that will eventually become a piano roll editor
 import sys
 from PyQt4 import QtGui, QtCore
 
+global_automation_point_diameter = 15.0
+global_automation_point_radius = 7.5
+
 global_automation_ruler_width = 24
 global_automation_width = 800
 global_automation_height = 300
-global_automation_total_height = global_automation_ruler_width +  global_automation_height
-global_automation_total_width = global_automation_ruler_width + global_automation_width
+global_automation_total_height = global_automation_ruler_width +  global_automation_height - global_automation_point_radius
+global_automation_total_width = global_automation_ruler_width + global_automation_width - global_automation_point_radius
+global_automation_min_height = global_automation_ruler_width - global_automation_point_radius
+
+#global_automation_gradient = QtGui.QRadialGradient(-6, -6, 15)
+global_automation_gradient = QtGui.QLinearGradient(0, 1, 15, 15)
+global_automation_gradient.setColorAt(0, QtGui.QColor(240, 10, 10))
+global_automation_gradient.setColorAt(1, QtGui.QColor(250, 120, 120))
 
 class automation_item(QtGui.QGraphicsEllipseItem):
     def __init__(self, a_time, a_value):
-        f_size = 15
-        f_half_size = f_size/2.0
-        QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, f_size, f_size)
+        QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, global_automation_point_diameter, global_automation_point_diameter)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
-        self.setPos(a_time-f_half_size, a_value-f_half_size)
-        #self.setPos(a_time, a_value)
-        self.setBrush(QtGui.QColor(255,0,0))
+        self.setPos(a_time-global_automation_point_radius, a_value - global_automation_point_radius)
+        self.setBrush(global_automation_gradient)
         f_pen = QtGui.QPen()
         f_pen.setWidth(2)
         f_pen.setColor(QtGui.QColor(170,0,0))
@@ -33,18 +39,18 @@ class automation_item(QtGui.QGraphicsEllipseItem):
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mouseMoveEvent(self, a_event)
-        if self.pos().x() < global_automation_ruler_width:
-            self.setPos(global_automation_ruler_width, self.pos().y())
+        if self.pos().x() < global_automation_min_height:
+            self.setPos(global_automation_min_height, self.pos().y())
         elif self.pos().x() > global_automation_total_width:
             self.setPos(global_automation_total_width, self.pos().y())
 
-        if self.pos().y() < global_automation_ruler_width:
-            self.setPos(self.pos().x(), global_automation_ruler_width)
+        if self.pos().y() < global_automation_min_height:
+            self.setPos(self.pos().x(), global_automation_min_height)
         elif self.pos().y() > global_automation_total_height:
             self.setPos(self.pos().x(), global_automation_total_height)
 
     def mouseReleaseEvent(self, a_event):
-        self.setPos(self.pos())
+        #self.setPos(self.pos())
         QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, a_event)
         self.setGraphicsEffect(None)
 
@@ -148,7 +154,7 @@ class automation_viewer(QtGui.QGraphicsView):
             self.lines = (len(self.automation_points)-1)*[None]
             self.automation_points.sort(key=lambda point: point.pos().x())
             f_line_pen = QtGui.QPen()
-            f_line_pen.setColor(QtGui.QColor(255,0,0))
+            f_line_pen.setColor(QtGui.QColor(255,60,60))
             f_line_pen.setWidth(2)
             for i in range(1, len(self.automation_points)):
                 f_start_x = self.automation_points[i-1].pos().x()
