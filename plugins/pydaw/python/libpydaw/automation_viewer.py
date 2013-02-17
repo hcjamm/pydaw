@@ -40,15 +40,16 @@ class automation_item(QtGui.QGraphicsEllipseItem):
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mouseMoveEvent(self, a_event)
-        if self.pos().x() < global_automation_min_height:
-            self.setPos(global_automation_min_height, self.pos().y())
-        elif self.pos().x() > global_automation_total_width:
-            self.setPos(global_automation_total_width, self.pos().y())
-
-        if self.pos().y() < global_automation_min_height:
-            self.setPos(self.pos().x(), global_automation_min_height)
-        elif self.pos().y() > global_automation_total_height:
-            self.setPos(self.pos().x(), global_automation_total_height)
+        for f_point in self.parent_view.automation_points:
+            if f_point.isSelected():
+                if f_point.pos().x() < global_automation_min_height:
+                    f_point.setPos(global_automation_min_height, f_point.pos().y())
+                elif f_point.pos().x() > global_automation_total_width:
+                    f_point.setPos(global_automation_total_width, f_point.pos().y())
+                if f_point.pos().y() < global_automation_min_height:
+                    f_point.setPos(f_point.pos().x(), global_automation_min_height)
+                elif f_point.pos().y() > global_automation_total_height:
+                    f_point.setPos(f_point.pos().x(), global_automation_total_height)
 
     def mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mouseReleaseEvent(self, a_event)
