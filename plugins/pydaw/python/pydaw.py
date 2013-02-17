@@ -2154,7 +2154,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def sceneMousePressEvent(self, a_event):
         #test = QtGui.QGraphicsSceneMouseEvent()
-        if self.click_enabled:
+        if self.click_enabled and this_item_editor.enabled:
             f_pos_x = a_event.scenePos().x()
             f_pos_y = a_event.scenePos().y()
             if f_pos_x > global_piano_keys_width and f_pos_x < global_piano_roll_grid_max_start_time and \
@@ -2269,12 +2269,56 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
 
 class piano_roll_editor_widget():
+    def quantize_dialog(self):
+        this_item_editor.quantize_dialog()
+    def transpose_dialog(self):
+        this_item_editor.transpose_dialog()
+    def time_shift_dialog(self):
+        this_item_editor.time_shift_dialog()
+    def length_shift_dialog(self):
+        this_item_editor.length_shift_dialog()
+    def velocity_dialog(self):
+        this_item_editor.velocity_dialog()
+    def clear_notes(self):
+        this_item_editor.clear_notes()
+
     def __init__(self):
         self.widget = QtGui.QWidget()
         self.vlayout = QtGui.QVBoxLayout()
         self.widget.setLayout(self.vlayout)
+
         self.controls_grid_layout = QtGui.QGridLayout()
         self.controls_grid_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 30)
+
+        f_button_width = 82
+        self.notes_quantize_button = QtGui.QPushButton("Quantize")
+        self.notes_quantize_button.setMinimumWidth(f_button_width)
+        self.notes_quantize_button.pressed.connect(self.quantize_dialog)
+        self.controls_grid_layout.addWidget(self.notes_quantize_button, 0, 10)
+        self.notes_transpose_button = QtGui.QPushButton("Transpose")
+        self.notes_transpose_button.setMinimumWidth(f_button_width)
+        self.notes_transpose_button.pressed.connect(self.transpose_dialog)
+        self.controls_grid_layout.addWidget(self.notes_transpose_button, 0, 12)
+        self.notes_shift_button = QtGui.QPushButton("Shift")
+        self.notes_shift_button.setMinimumWidth(f_button_width)
+        self.notes_shift_button.pressed.connect(self.time_shift_dialog)
+        self.controls_grid_layout.addWidget(self.notes_shift_button, 0, 13)
+        self.notes_length_button = QtGui.QPushButton("Length")
+        self.notes_length_button.setMinimumWidth(f_button_width)
+        self.notes_length_button.pressed.connect(self.length_shift_dialog)
+        self.controls_grid_layout.addWidget(self.notes_length_button, 0, 14)
+
+        self.notes_velocity_button = QtGui.QPushButton("Velocity")
+        self.notes_velocity_button.setMinimumWidth(f_button_width)
+        self.notes_velocity_button.pressed.connect(self.velocity_dialog)
+        self.controls_grid_layout.addWidget(self.notes_velocity_button, 0, 15)
+        self.controls_grid_layout.addItem(QtGui.QSpacerItem(200, 10, QtGui.QSizePolicy.Minimum), 0, 16)
+        self.notes_clear_button = QtGui.QPushButton("Clear")
+        self.notes_clear_button.setMinimumWidth(f_button_width)
+        self.notes_clear_button.pressed.connect(self.clear_notes)
+        self.controls_grid_layout.addWidget(self.notes_clear_button, 0, 17)
+        self.controls_grid_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 18)
+
         self.vlayout.addLayout(self.controls_grid_layout)
         self.vlayout.addWidget(this_piano_roll_editor)
         self.snap_combobox = QtGui.QComboBox()
@@ -2748,7 +2792,6 @@ class item_list_editor:
                 if f_name.endswith(".pyitem"):
                     self.template_combobox.addItem(f_name.split(".")[0])
 
-    #If a_new_file_name is set, a_file_name will be copied into a new file name with the name a_new_file_name
     def __init__(self):
         self.enabled = False
         self.events_follow_default = True
@@ -2758,30 +2801,25 @@ class item_list_editor:
         self.widget.setLayout(self.master_vlayout)
         self.tab_widget = QtGui.QTabWidget()
 
+        self.piano_roll_tab = QtGui.QGroupBox()
+        self.tab_widget.addTab(self.piano_roll_tab, "Piano Roll")
+
         self.notes_tab = QtGui.QGroupBox()
         self.tab_widget.addTab(self.notes_tab, "Notes")
 
         self.group_box = QtGui.QGroupBox()
-        self.tab_widget.addTab(self.group_box, "Automation")
+        self.tab_widget.addTab(self.group_box, "CCs")
+
+        self.pitchbend_tab = QtGui.QGroupBox()
+        self.tab_widget.addTab(self.pitchbend_tab, "Pitchbend")
+
         self.main_vlayout = QtGui.QVBoxLayout()
         self.main_hlayout = QtGui.QHBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
 
-        self.edit_mode_groupbox = QtGui.QGroupBox()
-        self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
-        self.edit_mode_hlayout0.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
-        self.edit_mode_hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
-        self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
-        self.edit_mode_hlayout0.addWidget(self.add_radiobutton)
-        self.multiselect_radiobutton = QtGui.QRadioButton("Multiselect")
-        self.edit_mode_hlayout0.addWidget(self.multiselect_radiobutton)
-        self.delete_radiobutton = QtGui.QRadioButton("Delete")
-        self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
-        self.add_radiobutton.setChecked(True)
         self.editing_hboxlayout = QtGui.QHBoxLayout()
-
-        #self.main_vlayout.addLayout(self.editing_hboxlayout)
         self.master_vlayout.addLayout(self.editing_hboxlayout)
+
         self.master_vlayout.addWidget(self.tab_widget)
 
         self.editing_hboxlayout.addWidget(QtGui.QLabel("Editing Item:"))
@@ -2806,7 +2844,6 @@ class item_list_editor:
         self.editing_hboxlayout.addWidget(self.template_combobox)
         self.load_templates()
         self.editing_hboxlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
-        self.editing_hboxlayout.addWidget(self.edit_mode_groupbox, alignment=QtCore.Qt.AlignRight)
 
         self.main_vlayout.addLayout(self.main_hlayout)
 
@@ -2814,6 +2851,20 @@ class item_list_editor:
         self.notes_groupbox.setMinimumWidth(591)
         self.notes_groupbox.setMaximumWidth(591)
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
+
+        self.edit_mode_groupbox = QtGui.QGroupBox()
+        self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
+        self.edit_mode_hlayout0.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        self.edit_mode_hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
+        self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
+        self.edit_mode_hlayout0.addWidget(self.add_radiobutton)
+        self.multiselect_radiobutton = QtGui.QRadioButton("Multiselect")
+        self.edit_mode_hlayout0.addWidget(self.multiselect_radiobutton)
+        self.delete_radiobutton = QtGui.QRadioButton("Delete")
+        self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
+        self.add_radiobutton.setChecked(True)
+        self.notes_vlayout.addWidget(self.edit_mode_groupbox, alignment=QtCore.Qt.AlignLeft)
+
         self.notes_gridlayout = QtGui.QGridLayout()
 
         f_button_width = 82
@@ -2863,7 +2914,11 @@ class item_list_editor:
         self.notes_hlayout = QtGui.QHBoxLayout()
         self.notes_tab.setLayout(self.notes_hlayout)
         self.notes_hlayout.addWidget(self.notes_groupbox)
-        self.notes_hlayout.addWidget(this_piano_roll_editor_widget.widget)
+        self.notes_hlayout.addItem(QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Expanding))
+
+        self.piano_roll_hlayout = QtGui.QHBoxLayout()
+        self.piano_roll_tab.setLayout(self.piano_roll_hlayout)
+        self.piano_roll_hlayout.addWidget(this_piano_roll_editor_widget.widget)
 
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
         self.ccs_groupbox.setMaximumWidth(390)
@@ -2891,6 +2946,8 @@ class item_list_editor:
         self.ccs_table_widget.keyPressEvent = self.ccs_keyPressEvent
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
 
+        self.pb_hlayout = QtGui.QHBoxLayout()
+        self.pitchbend_tab.setLayout(self.pb_hlayout)
         self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
         self.pb_groupbox.setMaximumWidth(300)
         self.pb_groupbox.setMinimumWidth(300)
@@ -2916,10 +2973,10 @@ class item_list_editor:
         self.pitchbend_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.pitchbend_table_widget.keyPressEvent = self.pbs_keyPressEvent
         self.pb_vlayout.addWidget(self.pitchbend_table_widget)
+        self.pb_hlayout.addWidget(self.pb_groupbox)
+        self.pb_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
-        #self.main_hlayout.addWidget(self.notes_groupbox)
         self.main_hlayout.addWidget(self.ccs_groupbox)
-        self.main_hlayout.addWidget(self.pb_groupbox)
         self.main_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
         self.set_headers()
         self.default_note_start = 0.0
