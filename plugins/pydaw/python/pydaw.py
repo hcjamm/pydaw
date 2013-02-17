@@ -2361,7 +2361,38 @@ class piano_roll_editor_widget():
                 this_audio_items_viewer.set_zoom(1.03)
         self.last_scale_value = self.h_zoom_slider.value()
 
+class automation_viewer_widget:
+    def plugin_changed(a_val=None):
+        f_control_combobox.clear()
+        f_control_combobox.addItems(global_cc_maps[str(f_plugin_combobox.currentText())].keys())
 
+    def control_changed(a_val=None):
+        f_plugin_str = str(f_plugin_combobox.currentText())
+        f_control_str = str(f_control_combobox.currentText())
+        if f_plugin_str != '' and f_control_str != '':
+            f_value = int(global_cc_maps[f_plugin_str][f_control_str])
+            f_cc.setValue(f_value)
+
+    def __init__(self, a_viewer):
+        self.widget = QtGui.QWidget()
+        self.vlayout = QtGui.QVBoxLayout()
+        self.widget.setLayout(self.vlayout)
+        self.automation_viewer = a_viewer
+        self.vlayout.addWidget(self.automation_viewer)
+        self.hlayout = QtGui.QHBoxLayout()
+        self.vlayout.addLayout(self.hlayout)
+
+        self.plugin_combobox = QtGui.QComboBox()
+        self.plugin_combobox.addItems(global_cc_maps.keys())
+        self.hlayout.addWidget(QtGui.QLabel("Plugin"), 2, 0)
+        self.hlayout.addWidget(self.plugin_combobox, 2, 1)
+
+        self.control_combobox = QtGui.QComboBox()
+        self.hlayout.addWidget(QtGui.QLabel("Control"), 3, 0)
+        self.hlayout.addWidget(self.control_combobox, 3, 1)
+        plugin_changed()
+        self.plugin_combobox.currentIndexChanged.connect(plugin_changed)
+        self.control_combobox.currentIndexChanged.connect(control_changed)
 
 class item_list_editor:
     def clear_notes(self):
@@ -2843,7 +2874,6 @@ class item_list_editor:
         self.template_combobox.setMinimumWidth(150)
         self.editing_hboxlayout.addWidget(self.template_combobox)
         self.load_templates()
-        self.editing_hboxlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
 
         self.main_vlayout.addLayout(self.main_hlayout)
 
@@ -2855,7 +2885,7 @@ class item_list_editor:
         self.edit_mode_groupbox = QtGui.QGroupBox()
         self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
         self.edit_mode_hlayout0.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
-        self.edit_mode_hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
+        self.edit_mode_hlayout0.addWidget(QtGui.QLabel("List Edit Mode:"))
         self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
         self.edit_mode_hlayout0.addWidget(self.add_radiobutton)
         self.multiselect_radiobutton = QtGui.QRadioButton("Multiselect")
@@ -2863,7 +2893,8 @@ class item_list_editor:
         self.delete_radiobutton = QtGui.QRadioButton("Delete")
         self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
         self.add_radiobutton.setChecked(True)
-        self.notes_vlayout.addWidget(self.edit_mode_groupbox, alignment=QtCore.Qt.AlignLeft)
+        self.editing_hboxlayout.addWidget(self.edit_mode_groupbox, alignment=QtCore.Qt.AlignLeft)
+        self.editing_hboxlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
 
         self.notes_gridlayout = QtGui.QGridLayout()
 
