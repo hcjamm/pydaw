@@ -737,19 +737,22 @@ class pydaw_item:
             self.ccs += f_result_arr
             self.ccs.sort()
         else:
-            self.pitchbends.sort()
             for i in range(len(self.pitchbends) - 1):
-                f_val_diff = self.pitchbends[i + 1].pb_val - self.pitchbends[i].pb_val # - 2 ???
-                if f_val_diff == 0:
+                f_val_diff = self.pitchbends[i + 1].pb_val - self.pitchbends[i].pb_val
+                if f_val_diff == 0.0:
                     continue
-                f_time_inc = (self.pitchbends[i + 1].start - self.pitchbends[i].start) / abs(f_val_diff)
+                f_steps = (abs(f_val_diff) / 0.05)
+                f_time_inc = (self.pitchbends[i + 1].start - self.pitchbends[i].start) / f_steps
                 f_start = self.pitchbends[i].start + f_time_inc
-                f_val_inc = 0.05
+
                 if f_val_diff < 0:
                     f_val_inc = -0.05
-                f_new_val = self.pitchbends[i + 1].pb_val + 0.05
+                    f_new_val = self.pitchbends[i].pb_val - 0.05
+                else:
+                    f_val_inc = 0.05
+                    f_new_val = self.pitchbends[i].pb_val + 0.05
                 f_result_arr = []
-                for f_i2 in range(abs(f_val_diff)/f_val_inc):
+                for f_i2 in range(int(f_steps)):
                     f_result_arr.append(pydaw_pitchbend(f_start, f_new_val))
                     f_start += f_time_inc
                     f_new_val += f_val_inc
