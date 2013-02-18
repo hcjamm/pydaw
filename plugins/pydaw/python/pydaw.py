@@ -3101,6 +3101,7 @@ class item_list_editor:
 
     def __init__(self):
         self.enabled = False
+        self.item_name = None
         self.events_follow_default = True
 
         self.widget = QtGui.QWidget()
@@ -3330,6 +3331,10 @@ class item_list_editor:
             self.open_item(self.item_name_combobox.currentText())
 
     def open_item(self, a_item_name, a_items=None):
+        f_is_new_item = False
+        if self.item_name is None or a_item_name != self.item_name:
+            f_is_new_item = True
+
         for i in range(3):
             this_cc_automation_viewers[i].clear_drawn_items()
         this_pb_automation_viewer.clear_drawn_items()
@@ -3385,11 +3390,15 @@ class item_list_editor:
         self.pitchbend_table_widget.setSortingEnabled(True)
         this_piano_roll_editor.draw_item(self.item)
         f_i = 0
-        for f_cc_num in f_cc_dict.keys():
-            self.cc_auto_viewers[f_i].set_cc_num(f_cc_num)
-            f_i += 1
-            if f_i >= len(self.cc_auto_viewers):
-                break
+        if f_is_new_item:
+            for f_cc_num in f_cc_dict.keys():
+                self.cc_auto_viewers[f_i].set_cc_num(f_cc_num)
+                f_i += 1
+                if f_i >= len(self.cc_auto_viewers):
+                    break
+        else:
+            for i in range(3):
+                this_cc_automation_viewers[i].draw_item()
         this_pb_automation_viewer.draw_item()
 
     def notes_keyPressEvent(self, event):
