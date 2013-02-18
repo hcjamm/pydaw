@@ -2633,7 +2633,10 @@ class automation_viewer_widget:
         self.automation_viewer.set_cc_num(a_num)
 
     def smooth_pressed(self):
-        this_item_editor.item.smooth_automation_points(self.is_cc, self.cc_spinbox.value())
+        if self.is_cc:
+            this_item_editor.item.smooth_automation_points(self.is_cc, self.cc_spinbox.value())
+        else:
+            this_item_editor.item.smooth_automation_points(self.is_cc)
         this_item_editor.save_and_reload()
 
     def __init__(self, a_viewer, a_is_cc=True):
@@ -2646,35 +2649,33 @@ class automation_viewer_widget:
         self.hlayout = QtGui.QHBoxLayout()
         self.vlayout.addLayout(self.hlayout)
 
-        self.cc_spinbox = QtGui.QSpinBox()
-        self.cc_spinbox.setRange(1, 127)
-        self.hlayout.addWidget(QtGui.QLabel("CC#:"))
-        self.hlayout.addWidget(self.cc_spinbox)
-        self.cc_spinbox.valueChanged.connect(self.cc_num_changed)
+        if a_is_cc:
+            self.cc_spinbox = QtGui.QSpinBox()
+            self.cc_spinbox.setRange(1, 127)
+            self.hlayout.addWidget(QtGui.QLabel("CC#:"))
+            self.hlayout.addWidget(self.cc_spinbox)
+            self.cc_spinbox.valueChanged.connect(self.cc_num_changed)
 
-        self.plugin_combobox = QtGui.QComboBox()
-        self.plugin_combobox.setMinimumWidth(120)
-        self.plugin_combobox.addItems(global_cc_maps.keys())
-        self.hlayout.addWidget(QtGui.QLabel("Plugin"))
-        self.hlayout.addWidget(self.plugin_combobox)
+            self.plugin_combobox = QtGui.QComboBox()
+            self.plugin_combobox.setMinimumWidth(120)
+            self.plugin_combobox.addItems(global_cc_maps.keys())
+            self.hlayout.addWidget(QtGui.QLabel("Plugin"))
+            self.hlayout.addWidget(self.plugin_combobox)
 
-        self.control_combobox = QtGui.QComboBox()
-        self.control_combobox.setMinimumWidth(180)
-        self.hlayout.addWidget(QtGui.QLabel("Control"))
-        self.hlayout.addWidget(self.control_combobox)
+            self.control_combobox = QtGui.QComboBox()
+            self.control_combobox.setMinimumWidth(180)
+            self.hlayout.addWidget(QtGui.QLabel("Control"))
+            self.hlayout.addWidget(self.control_combobox)
+            self.plugin_combobox.currentIndexChanged.connect(self.plugin_changed)
+            self.control_combobox.currentIndexChanged.connect(self.control_changed)
 
         self.smooth_button = QtGui.QPushButton("Smooth")
         self.smooth_button.setToolTip("By default, the control points are steppy, this button draws extra points between the exisiting points.")
         self.smooth_button.pressed.connect(self.smooth_pressed)
         self.hlayout.addWidget(self.smooth_button)
-
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
-
         self.widget.setMinimumSize(820, 420)
 
-        self.plugin_changed()
-        self.plugin_combobox.currentIndexChanged.connect(self.plugin_changed)
-        self.control_combobox.currentIndexChanged.connect(self.control_changed)
 
 
 class item_list_editor:
@@ -3286,14 +3287,12 @@ class item_list_editor:
         self.pb_groupbox.setMinimumWidth(300)
         self.pb_vlayout = QtGui.QVBoxLayout(self.pb_groupbox)
         self.pb_gridlayout = QtGui.QGridLayout()
-        f_p_spacer_left = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.pb_gridlayout.addItem(f_p_spacer_left, 0, 0, 1, 1)
+        self.pb_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 0, 1, 1)
         self.pb_clear_button = QtGui.QPushButton("Clear")
         self.pb_clear_button.setMinimumWidth(f_button_width)
         self.pb_clear_button.pressed.connect(self.clear_pb)
         self.pb_gridlayout.addWidget(self.pb_clear_button, 0, 1)
-        f_p_spacer_right = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.pb_gridlayout.addItem(f_p_spacer_right, 0, 2, 1, 1)
+        self.pb_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 2, 1, 1)
         self.pb_vlayout.addLayout(self.pb_gridlayout)
         self.pitchbend_table_widget = QtGui.QTableWidget()
         self.pitchbend_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
@@ -3309,7 +3308,8 @@ class item_list_editor:
         self.pb_hlayout.addWidget(self.pb_groupbox)
         self.pb_auto_vlayout = QtGui.QVBoxLayout()
         self.pb_hlayout.addLayout(self.pb_auto_vlayout)
-        self.pb_auto_vlayout.addWidget(this_pb_automation_viewer)
+        self.pb_viewer_widget = automation_viewer_widget(this_pb_automation_viewer, False)
+        self.pb_auto_vlayout.addWidget(self.pb_viewer_widget.widget)
         self.pb_auto_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
 
         self.pb_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
