@@ -2631,7 +2631,12 @@ class automation_viewer_widget:
         self.cc_spinbox.setValue(a_num)
         self.automation_viewer.set_cc_num(a_num)
 
-    def __init__(self, a_viewer):
+    def smooth_pressed(self):
+        this_item_editor.item.smooth_automation_points(self.is_cc, self.cc_spinbox.value())
+        this_item_editor.save_and_reload()
+
+    def __init__(self, a_viewer, a_is_cc=True):
+        self.is_cc = a_is_cc
         self.widget = QtGui.QGroupBox()
         self.vlayout = QtGui.QVBoxLayout()
         self.widget.setLayout(self.vlayout)
@@ -2656,6 +2661,11 @@ class automation_viewer_widget:
         self.control_combobox.setMinimumWidth(180)
         self.hlayout.addWidget(QtGui.QLabel("Control"))
         self.hlayout.addWidget(self.control_combobox)
+
+        self.smooth_button = QtGui.QPushButton("Smooth")
+        self.smooth_button.setToolTip("By default, the control points are steppy, this button draws extra points between the exisiting points.")
+        self.smooth_button.pressed.connect(self.smooth_pressed)
+        self.hlayout.addWidget(self.smooth_button)
 
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
