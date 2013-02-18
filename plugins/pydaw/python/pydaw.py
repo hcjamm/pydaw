@@ -2399,7 +2399,7 @@ global_automation_gradient.setColorAt(0, QtGui.QColor(240, 10, 10))
 global_automation_gradient.setColorAt(1, QtGui.QColor(250, 90, 90))
 
 class automation_item(QtGui.QGraphicsEllipseItem):
-    def __init__(self, a_time, a_value, a_cc, a_view):
+    def __init__(self, a_time, a_value, a_cc, a_view, a_is_cc=True):
         QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, global_automation_point_diameter, global_automation_point_diameter)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
@@ -2412,6 +2412,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         self.setPen(f_pen)
         self.cc_item = a_cc
         self.parent_view = a_view
+        self.is_cc = a_is_cc
 
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mousePressEvent(self, a_event)
@@ -2436,15 +2437,20 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         for f_point in self.parent_view.automation_points:
             if f_point.isSelected():
                 f_cc_start = ((f_point.pos().x() - global_automation_min_height) / global_automation_width) * 4.0
-                f_cc_val = 127.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 127.0)
-                f_point.cc_item.start = f_cc_start
-                f_point.cc_item.cc_val = int(f_cc_val)
+                if self.is_cc:
+                    f_cc_val = 127.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 127.0)
+                    f_point.cc_item.start = f_cc_start
+                    f_point.cc_item.cc_val = int(f_cc_val)
+                else:
+                    f_cc_val = 1.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 2.0)
+                    f_point.cc_item.start = f_cc_start
+                    f_point.cc_item.pb_val = f_cc_val
         this_item_editor.save_and_reload()
 
 class automation_viewer(QtGui.QGraphicsView):
-    def __init__(self, a_item_length=4, a_grid_div=16):
+    def __init__(self, a_item_length=4, a_grid_div=16, a_is_cc=True):
+        self.is_cc = a_is_cc
         self.item_length = float(a_item_length)
-        self.steps = 127.0
         self.viewer_width = global_automation_width
         self.viewer_height = global_automation_height
         self.grid_div = a_grid_div
@@ -2475,16 +2481,22 @@ class automation_viewer(QtGui.QGraphicsView):
         if a_event.key() == QtCore.Qt.Key_Delete:
             for f_point in self.automation_points:
                 if f_point.isSelected():
-                    this_item_editor.item.remove_cc(f_point.cc_item)
+                    if self.is_cc:
+                        this_item_editor.item.remove_cc(f_point.cc_item)
+                    else:
+                        this_item_editor.item.remove_pb(f_point.cc_item)
         this_item_editor.save_and_reload()
 
     def sceneMouseDoubleClickEvent(self, a_event):
         f_pos_x = a_event.scenePos().x()
         f_pos_y = a_event.scenePos().y()
         f_cc_start = ((f_pos_x - global_automation_min_height) / global_automation_width) * 4.0
-        f_cc_val = 127.0 - (((f_pos_y - global_automation_min_height) / global_automation_height) * 127.0)
-        this_item_editor.item.add_cc(pydaw_cc(f_cc_start, self.cc_num, f_cc_val))
-        #self.draw_point(pydaw_cc(f_cc_start, self.cc_num, f_cc_val))
+        if self.is_cc:
+            f_cc_val = 127.0 - (((f_pos_y - global_automation_min_height) / global_automation_height) * 127.0)
+            this_item_editor.item.add_cc(pydaw_cc(f_cc_start, self.cc_num, f_cc_val))
+        else:
+            f_cc_val = 1.0 - (((f_pos_y - global_automation_min_height) / global_automation_height) * 2.0)
+            this_item_editor.item.add_pb(pydaw_pitchbend(f_cc_start, f_cc_val))
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
         this_item_editor.save_and_reload()
 
@@ -2506,7 +2518,10 @@ class automation_viewer(QtGui.QGraphicsView):
         f_beat_pen.setWidth(2)
         f_line_pen = QtGui.QPen()
         f_line_pen.setColor(QtGui.QColor(0,0,0,40))
-        f_labels = [0, '127', 0, '64', 0, '0']
+        if self.is_cc:
+            f_labels = [0, '127', 0, '64', 0, '0']
+        else:
+            f_labels = [0, '1.0', 0, '0', 0, '-1.0']
         for i in range(1,6):
             f_line = QtGui.QGraphicsLineItem(0, 0, self.viewer_width, 0, self.y_axis)
             f_line.setPos(self.axis_size,self.viewer_height*(i-1)/4)
@@ -2575,15 +2590,22 @@ class automation_viewer(QtGui.QGraphicsView):
 
     def draw_item(self):
         self.clear_drawn_items()
-        for f_cc in this_item_editor.item.ccs:
-            if f_cc.cc_num == self.cc_num:
-                self.draw_point(f_cc)
+        if self.is_cc:
+            for f_cc in this_item_editor.item.ccs:
+                if f_cc.cc_num == self.cc_num:
+                    self.draw_point(f_cc)
+        else:
+            for f_pb in this_item_editor.item.pitchbends:
+                self.draw_point(f_pb)
 
     def draw_point(self, a_cc):
         """ a_cc is an instance of the pydaw_cc class"""
         f_time = self.axis_size + self.beat_width * a_cc.start
-        f_value = self.axis_size +  self.viewer_height/self.steps * (self.steps - a_cc.cc_val)
-        f_point = automation_item(f_time, f_value, a_cc, self)
+        if self.is_cc:
+            f_value = self.axis_size +  self.viewer_height/127.0 * (127.0 - a_cc.cc_val)
+        else:
+            f_value = self.axis_size +  self.viewer_height/2.0 * (1.0 - a_cc.pb_val)
+        f_point = automation_item(f_time, f_value, a_cc, self, self.is_cc)
         self.automation_points.append(f_point)
         self.scene.addItem(f_point)
         self.connect_points()
@@ -2642,6 +2664,7 @@ class automation_viewer_widget:
         self.plugin_changed()
         self.plugin_combobox.currentIndexChanged.connect(self.plugin_changed)
         self.control_combobox.currentIndexChanged.connect(self.control_changed)
+
 
 class item_list_editor:
     def clear_notes(self):
@@ -3272,6 +3295,11 @@ class item_list_editor:
         self.pitchbend_table_widget.keyPressEvent = self.pbs_keyPressEvent
         self.pb_vlayout.addWidget(self.pitchbend_table_widget)
         self.pb_hlayout.addWidget(self.pb_groupbox)
+        self.pb_auto_vlayout = QtGui.QVBoxLayout()
+        self.pb_hlayout.addLayout(self.pb_auto_vlayout)
+        self.pb_auto_vlayout.addWidget(this_pb_automation_viewer)
+        self.pb_auto_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+
         self.pb_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
         self.set_headers()
@@ -3304,6 +3332,7 @@ class item_list_editor:
     def open_item(self, a_item_name, a_items=None):
         for i in range(3):
             this_cc_automation_viewers[i].clear_drawn_items()
+        this_pb_automation_viewer.clear_drawn_items()
 
         self.enabled = True
         self.item_name = str(a_item_name)
@@ -3361,6 +3390,7 @@ class item_list_editor:
             f_i += 1
             if f_i >= len(self.cc_auto_viewers):
                 break
+        this_pb_automation_viewer.draw_item()
 
     def notes_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
@@ -4849,6 +4879,7 @@ global_audio_track_comboboxes.append(global_ai_sg_at_combobox)
 app.setWindowIcon(QtGui.QIcon('/usr/share/pixmaps/pydaw2.png'))
 app.aboutToQuit.connect(about_to_quit)
 
+this_pb_automation_viewer = automation_viewer(a_is_cc=False)
 this_cc_automation_viewers = []
 this_cc_automation_viewer0 = automation_viewer()
 this_cc_automation_viewer1 = automation_viewer()
