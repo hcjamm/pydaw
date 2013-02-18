@@ -2417,7 +2417,9 @@ class automation_item(QtGui.QGraphicsEllipseItem):
             if f_point.isSelected():
                 f_cc_start = ((f_point.pos().x() - global_automation_min_height) / global_automation_width) * 4.0
                 f_cc_val = 127.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 127.0)
-                print(str(f_cc_start) + "|" + str(f_cc_val))
+                f_point.cc_item.start = f_cc_start
+                f_point.cc_item.cc_val = int(f_cc_val)
+        self.parent_view.save_and_reload()
 
 class automation_viewer(QtGui.QGraphicsView):
     def __init__(self, a_item_length=4, a_grid_div=16):
@@ -2451,26 +2453,26 @@ class automation_viewer(QtGui.QGraphicsView):
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsScene.keyPressEvent(self.scene, a_event)
         if a_event.key() == QtCore.Qt.Key_Delete:
-            f_to_be_deleted = []
             for f_point in self.automation_points:
                 if f_point.isSelected():
-                    f_to_be_deleted.append(f_point)
-            for f_point in f_to_be_deleted:
-                self.automation_points.remove(f_point)
-            self.clear_drawn_items()
-            #TODO:  Properly hook into the PyDAW MIDI item and redraw everything after deleting
+                    this_item_editor.item.remove_cc(f_point.cc_item)
+        self.save_and_reload()
 
     def sceneMouseDoubleClickEvent(self, a_event):
         f_pos_x = a_event.scenePos().x()
         f_pos_y = a_event.scenePos().y()
         f_time = (f_pos_x - self.axis_size)/self.beat_width
         f_value = self.steps - ((f_pos_y - self.axis_size) * self.steps / self.viewer_height)
-        print f_time, f_value
         f_cc_start = ((f_pos_x - global_automation_min_height) / global_automation_width) * 4.0
         f_cc_val = 127.0 - (((f_pos_y - global_automation_min_height) / global_automation_height) * 127.0)
-        print(str(f_cc_start) + "|" + str(f_cc_val))
-        self.draw_point(pydaw_cc(f_cc_start, self.cc_num, f_cc_val))
+        this_item_editor.item.add_cc(pydaw_cc(f_cc_start, self.cc_num, f_cc_val))
+        #self.draw_point(pydaw_cc(f_cc_start, self.cc_num, f_cc_val))
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
+        self.save_and_reload()
+
+    def save_and_reload(self):
+        this_pydaw_project.save_item(this_item_editor.item_name, this_item_editor.item)
+        this_item_editor.open_item(this_item_editor.item_name, this_item_editor.multi_item_list)
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsView.mouseMoveEvent(self, a_event)
@@ -2523,6 +2525,8 @@ class automation_viewer(QtGui.QGraphicsView):
 
     def clear_drawn_items(self):
         self.scene.clear()
+        self.automation_points = []
+        self.lines = []
         self.draw_axis()
         self.draw_grid()
 
@@ -2553,14 +2557,13 @@ class automation_viewer(QtGui.QGraphicsView):
     def set_cc_num(self, a_cc_num):
         self.cc_num = a_cc_num
         self.clear_drawn_items()
-        #TODO:  call open_item here..
+        self.draw_item()
 
-    def draw_item(self, a_item):
-        """ a_item is an instance of pydaw_item """
+    def draw_item(self):
         self.clear_drawn_items()
-        for f_cc in a_item.ccs:
+        for f_cc in this_item_editor.item.ccs:
             if f_cc.cc_num == self.cc_num:
-                self.draw_point(a_cc)
+                self.draw_point(f_cc)
 
     def draw_point(self, a_cc):
         """ a_cc is an instance of the pydaw_cc class"""
@@ -2585,6 +2588,13 @@ class automation_viewer_widget:
             f_value = int(global_cc_maps[f_plugin_str][f_control_str])
             self.cc_spinbox.setValue(f_value)
 
+    def cc_num_changed(self, a_val=None):
+        self.set_cc_num(self.cc_spinbox.value())
+
+    def set_cc_num(self, a_num):
+        self.cc_spinbox.setValue(a_num)
+        self.automation_viewer.set_cc_num(a_num)
+
     def __init__(self, a_viewer):
         self.widget = QtGui.QGroupBox()
         self.vlayout = QtGui.QVBoxLayout()
@@ -2598,6 +2608,7 @@ class automation_viewer_widget:
         self.cc_spinbox.setRange(1, 127)
         self.hlayout.addWidget(QtGui.QLabel("CC#:"))
         self.hlayout.addWidget(self.cc_spinbox)
+        self.cc_spinbox.valueChanged.connect(self.cc_num_changed)
 
         self.plugin_combobox = QtGui.QComboBox()
         self.plugin_combobox.setMinimumWidth(120)
@@ -3199,9 +3210,6 @@ class item_list_editor:
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
         self.main_hlayout.addWidget(self.ccs_groupbox)
 
-        self.cc_auto_viewer0 = automation_viewer_widget(this_cc_automation_viewer0)
-        self.cc_auto_viewer1 = automation_viewer_widget(this_cc_automation_viewer1)
-        self.cc_auto_viewer2 = automation_viewer_widget(this_cc_automation_viewer2)
         self.cc_auto_viewer_scrollarea = QtGui.QScrollArea()
         self.cc_auto_viewer_scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.cc_auto_viewer_scrollarea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
@@ -3209,9 +3217,11 @@ class item_list_editor:
         self.cc_auto_viewer_scrollarea_widget.setMinimumSize(900, 1400)
         self.cc_auto_viewer_scrollarea.setWidget(self.cc_auto_viewer_scrollarea_widget)
         self.cc_auto_viewer_vlayout = QtGui.QVBoxLayout(self.cc_auto_viewer_scrollarea_widget)
-        self.cc_auto_viewer_vlayout.addWidget(self.cc_auto_viewer0.widget)
-        self.cc_auto_viewer_vlayout.addWidget(self.cc_auto_viewer1.widget)
-        self.cc_auto_viewer_vlayout.addWidget(self.cc_auto_viewer2.widget)
+
+        self.cc_auto_viewers = []
+        for i in range(3):
+            self.cc_auto_viewers.append(automation_viewer_widget(this_cc_automation_viewers[i]))
+            self.cc_auto_viewer_vlayout.addWidget(self.cc_auto_viewers[i].widget)
         self.cc_auto_viewer_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         self.main_hlayout.addWidget(self.cc_auto_viewer_scrollarea)
 
@@ -3274,6 +3284,9 @@ class item_list_editor:
             self.open_item(self.item_name_combobox.currentText())
 
     def open_item(self, a_item_name, a_items=None):
+        for i in range(3):
+            this_cc_automation_viewers[i].clear_drawn_items()
+
         self.enabled = True
         self.item_name = str(a_item_name)
         #self.item_name_line_edit.setText(self.item_name)
@@ -3305,7 +3318,12 @@ class item_list_editor:
         self.notes_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.setSortingEnabled(False)
         f_i = 0
+        f_cc_dict = {}
         for cc in self.item.ccs:
+            if not f_cc_dict.has_key(cc.cc_num):
+                f_cc_dict[cc.cc_num] = []
+            f_cc_dict[cc.cc_num] = cc
+
             self.ccs_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(cc.start)))
             self.ccs_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
             self.ccs_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
@@ -3319,6 +3337,12 @@ class item_list_editor:
             f_i = f_i + 1
         self.pitchbend_table_widget.setSortingEnabled(True)
         this_piano_roll_editor.draw_item(self.item)
+        f_i = 0
+        for f_cc_num in f_cc_dict.keys():
+            self.cc_auto_viewers[f_i].set_cc_num(f_cc_num)
+            f_i += 1
+            if f_i >= len(self.cc_auto_viewers):
+                break
 
     def notes_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
@@ -4807,9 +4831,13 @@ global_audio_track_comboboxes.append(global_ai_sg_at_combobox)
 app.setWindowIcon(QtGui.QIcon('/usr/share/pixmaps/pydaw2.png'))
 app.aboutToQuit.connect(about_to_quit)
 
+this_cc_automation_viewers = []
 this_cc_automation_viewer0 = automation_viewer()
 this_cc_automation_viewer1 = automation_viewer()
 this_cc_automation_viewer2 = automation_viewer()
+this_cc_automation_viewers.append(this_cc_automation_viewer0)
+this_cc_automation_viewers.append(this_cc_automation_viewer1)
+this_cc_automation_viewers.append(this_cc_automation_viewer2)
 
 this_song_editor = song_editor()
 this_region_editor = region_list_editor()
