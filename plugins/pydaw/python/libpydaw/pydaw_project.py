@@ -708,6 +708,55 @@ class pydaw_item:
                 self.notes.pop(i)
                 break
 
+    def smooth_automation_points(self, a_is_cc=True, a_cc_num=-1):
+        if a_is_cc:
+            f_this_cc_arr = []
+            for f_cc in self.ccs:
+                if f_cc.cc_num == int(a_cc_num):
+                    f_this_cc_arr.append(f_cc)
+
+            f_this_cc_arr.sort()
+            f_result_arr = []
+            for i in range(len(f_this_cc_arr) - 1):
+                f_val_diff = abs(f_this_cc_arr[i + 1].cc_val - f_this_cc_arr[i].cc_val - 4)
+                if f_val_diff == 0:
+                    continue
+                f_time_inc = ((f_this_cc_arr[i + 1].start - f_this_cc_arr[i].start) / f_val_diff) * 4.0
+                f_start = f_this_cc_arr[i].start + f_time_inc
+                if (f_this_cc_arr[i].cc_val) > (f_this_cc_arr[i + 1].cc_val):
+                    f_start_val = f_this_cc_arr[i].cc_val - 4
+                    f_inc = -4
+                else:
+                    f_start_val = f_this_cc_arr[i].cc_val + 4
+                    f_inc = 4
+                for f_i2 in range(f_start_val, (f_this_cc_arr[i + 1].cc_val), f_inc):
+                    f_result_arr.append(pydaw_cc(f_start, a_cc_num, f_i2))
+                    f_start += f_time_inc
+                    if f_start >= f_this_cc_arr[i + 1].start:
+                        break
+            self.ccs += f_result_arr
+            self.ccs.sort()
+        else:
+            self.pitchbends.sort()
+            for i in range(len(self.pitchbends) - 1):
+                f_val_diff = self.pitchbends[i + 1].pb_val - self.pitchbends[i].pb_val # - 2 ???
+                if f_val_diff == 0:
+                    continue
+                f_time_inc = (self.pitchbends[i + 1].start - self.pitchbends[i].start) / abs(f_val_diff)
+                f_start = self.pitchbends[i].start + f_time_inc
+                f_val_inc = 0.05
+                if f_val_diff < 0:
+                    f_val_inc = -0.05
+                f_new_val = self.pitchbends[i + 1].pb_val + 0.05
+                f_result_arr = []
+                for f_i2 in range(abs(f_val_diff)/f_val_inc):
+                    f_result_arr.append(pydaw_pitchbend(f_start, f_new_val))
+                    f_start += f_time_inc
+                    f_new_val += f_val_inc
+                self.pitchbends += f_result_arr
+            self.pitchbends.sort()
+
+
     def velocity_mod(self, a_amt, a_start_beat=0.0, a_end_beat=4.0, a_line=False, a_end_amt=127, a_add=False, a_notes=None):
         """ velocity_mod
         (self, a_amt, #The amount to add or subtract
