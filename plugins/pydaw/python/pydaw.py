@@ -2439,7 +2439,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                 f_cc_val = 127.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 127.0)
                 f_point.cc_item.start = f_cc_start
                 f_point.cc_item.cc_val = int(f_cc_val)
-        self.parent_view.save_and_reload()
+        this_item_editor.save_and_reload()
 
 class automation_viewer(QtGui.QGraphicsView):
     def __init__(self, a_item_length=4, a_grid_div=16):
@@ -2481,8 +2481,6 @@ class automation_viewer(QtGui.QGraphicsView):
     def sceneMouseDoubleClickEvent(self, a_event):
         f_pos_x = a_event.scenePos().x()
         f_pos_y = a_event.scenePos().y()
-        f_time = (f_pos_x - self.axis_size)/self.beat_width
-        f_value = self.steps - ((f_pos_y - self.axis_size) * self.steps / self.viewer_height)
         f_cc_start = ((f_pos_x - global_automation_min_height) / global_automation_width) * 4.0
         f_cc_val = 127.0 - (((f_pos_y - global_automation_min_height) / global_automation_height) * 127.0)
         this_item_editor.item.add_cc(pydaw_cc(f_cc_start, self.cc_num, f_cc_val))
