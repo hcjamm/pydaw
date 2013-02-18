@@ -4919,6 +4919,7 @@ this_audio_items_viewer_widget = audio_items_viewer_widget()
 
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
+this_piano_roll_editor.verticalScrollBar().setSliderPosition(700)
 
 f_def_file = expanduser("~") + "/" + global_pydaw_version_string + "/last-project.txt"
 if os.path.exists(f_def_file):
