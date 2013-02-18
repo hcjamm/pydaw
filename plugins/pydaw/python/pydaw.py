@@ -2002,6 +2002,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         else:
             self.is_resizing = False
         self.resize_rect = self.rect()
+        self.setPen(QtGui.QPen(pydaw_track_gradients[3], 2))
 
     def mouse_is_at_end(self, a_pos):
         return (a_pos.x() > (self.rect().width() * 0.8))
