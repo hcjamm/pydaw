@@ -1202,6 +1202,14 @@ class pydaw_cc:
         self.cc_num = int(a_cc_num)
         self.cc_val = int(a_cc_val)
 
+    def set_val(self, a_val):
+        f_val = int(a_val)
+        if f_val > 127:
+            f_val = 127
+        elif f_val < 0:
+            f_val = 0
+        self.cc_val = f_val
+
     def __str__(self):
         return "c|" + str(self.start) + "|" + str(self.cc_num) + "|" + str(self.cc_val) + "\n"
 
@@ -1225,6 +1233,14 @@ class pydaw_pitchbend:
     def __init__(self, a_start, a_pb_val):
         self.start = float(a_start)
         self.pb_val = float(a_pb_val)
+
+    def set_val(self, a_val):
+        f_val = round(float(a_val), 4)
+        if f_val > 1.0:
+            f_val = 1.0
+        elif f_val < -1.0:
+            f_val = -1.0
+        self.pb_val = f_val
 
     def __str__(self):
         return "p|" + str(self.start) + "|" + str(self.pb_val) + "\n"
