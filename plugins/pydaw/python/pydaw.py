@@ -4689,8 +4689,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cc_map_label = QtGui.QLabel(
         """Below you can edit the MIDI CC maps for PyDAW's plugins. All CCs are sent to both Ray-V/Euphoria/Way-V and Modulex,
 so the first 3 CC maps can overlap each other, but none of them should overlap with Modulex.
-You must restart PyDAW for changes to the CC maps to take effect.  Maps will not populate until you've started
-the plugin for the first time, and then restarted PyDAW.
+You must restart PyDAW for changes to the CC maps to take effect.
 
 IMPORTANT:  Changing these will affect any existing CC automation you have in any projects.  The next major release
 of PyDAW will not have this limitation, and will feature MIDI learn and the ability to automate parameters by
@@ -4802,17 +4801,23 @@ Any additional text must be enclosed in quotation marks."
         if a_index == -1:
             f_name = "Modulex"
             self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/lms_modulex-cc_map.txt"
+            if not os.path.isfile(self.file_name):
+                copyfile("/usr/lib/pydaw2/cc_maps/lms_modulex-cc_map.txt", self.file_name)
         elif a_index == 1:
             f_name = "Euphoria"
             self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/euphoria-cc_map.txt"
+            if not os.path.isfile(self.file_name):
+                copyfile("/usr/lib/pydaw2/cc_maps/euphoria-cc_map.txt", self.file_name)
         elif a_index == 2:
             f_name = "Ray-V"
             self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/ray_v-cc_map.txt"
+            if not os.path.isfile(self.file_name):
+                copyfile("/usr/lib/pydaw2/cc_maps/ray_v-cc_map.txt", self.file_name)
         elif a_index == 3:
             f_name = "Way-V"
             self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/way_v-cc_map.txt"
-        else:
-            assert(0)
+            if not os.path.isfile(self.file_name):
+                copyfile("/usr/lib/pydaw2/cc_maps/way_v-cc_map.txt", self.file_name)
         self.groupbox = QtGui.QGroupBox(f_name)
         self.groupbox.setMaximumWidth(420)
         f_vlayout = QtGui.QVBoxLayout(self.groupbox)
@@ -4835,7 +4840,7 @@ Any additional text must be enclosed in quotation marks."
         try:
             f_cc_map_text = open(self.file_name, "r").read()
         except:
-            return  #If we can't open the file, then it likely doesn't exist, and we won't bother trying to edit it
+            return  #If we can't open the file, then just return
 
         f_cc_map_arr = f_cc_map_text.split("\n")
         f_row_index = 0
