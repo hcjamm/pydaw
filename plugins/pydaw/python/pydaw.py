@@ -2042,6 +2042,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             self.o_pos = self.pos()
             if self.mouse_is_at_end(a_event.pos()):
                 self.is_resizing = True
+                self.mouse_y_pos = QtGui.QCursor.pos().y()
                 self.resize_start_pos = self.note_item.start
                 self.resize_pos = self.pos()
                 self.resize_rect = self.rect()
@@ -2063,6 +2064,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     self.setRect(self.resize_rect)
                     f_pos_y = (int((f_pos_y - global_piano_roll_header_height)/self.note_height) * self.note_height) + global_piano_roll_header_height
                     self.setPos(self.resize_pos.x(), f_pos_y)
+                    QtGui.QCursor.setPos(QtGui.QCursor.pos().x(), self.mouse_y_pos)
                 else:
                     if f_pos_x < global_piano_keys_width:
                         f_pos_x = global_piano_keys_width
