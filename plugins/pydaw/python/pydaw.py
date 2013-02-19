@@ -2457,15 +2457,19 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         self.setGraphicsEffect(None)
         for f_point in self.parent_view.automation_points:
             if f_point.isSelected():
-                f_cc_start = ((f_point.pos().x() - global_automation_min_height) / global_automation_width) * 4.0
+                f_cc_start = round((((f_point.pos().x() - global_automation_min_height) / global_automation_width) * 4.0), 4)
+                if f_cc_start > 4.0:
+                    f_cc_start = 4.0
+                elif f_cc_start < 0.0:
+                    f_cc_start = 0.0
                 if self.is_cc:
-                    f_cc_val = 127.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 127.0)
+                    f_cc_val = int(127.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 127.0))
                     f_point.cc_item.start = f_cc_start
-                    f_point.cc_item.cc_val = int(f_cc_val)
+                    f_point.cc_item.set_val(f_cc_val)
                 else:
-                    f_cc_val = 1.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 2.0)
+                    f_cc_val = (1.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 2.0))
                     f_point.cc_item.start = f_cc_start
-                    f_point.cc_item.pb_val = f_cc_val
+                    f_point.cc_item.set_val(f_cc_val)
         this_item_editor.save_and_reload()
 
 class automation_viewer(QtGui.QGraphicsView):
