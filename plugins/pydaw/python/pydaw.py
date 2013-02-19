@@ -43,8 +43,8 @@ class song_editor:
         for f_pos, f_region in self.song.regions.iteritems():
             self.add_qtablewidgetitem(f_region, f_pos)
         f_headers_arr = []
-        for i in range(0, 300):
-            f_headers_arr.append(str(i))
+        for f_i in range(0, 300):
+            f_headers_arr.append(str(f_i))
         self.table_widget.setHorizontalHeaderLabels(f_headers_arr)
 
     def cell_clicked(self, x, y):
@@ -162,11 +162,11 @@ class song_editor:
     def tablewidget_to_song(self):
         """ Flush the edited content of the QTableWidget back to the native song class... """
         self.song.regions = {}
-        for i in range(0, 300):
-            f_item = self.table_widget.item(0, i)
+        for f_i in range(0, 300):
+            f_item = self.table_widget.item(0, f_i)
             if not f_item is None:
                 if f_item.text() != "":
-                    self.song.add_region_ref(i, f_item.text())
+                    self.song.add_region_ref(f_i, f_item.text())
         this_pydaw_project.save_song(self.song)
         self.open_song()
 
@@ -226,7 +226,7 @@ class region_list_editor:
                 self.table_widget.setItem(i, i2, f_empty_item)
         for i in range(self.table_widget.rowCount()):
             f_item = QtGui.QTableWidgetItem()
-            f_item.setFlags(f_item.flags() & ~QtCore.Qt.ItemIsEditable & ~QtCore.Qt.ItemIsSelectable & ~QtCore.Qt.ItemIsEnabled);
+            f_item.setFlags(f_item.flags() & ~QtCore.Qt.ItemIsEditable & ~QtCore.Qt.ItemIsSelectable & ~QtCore.Qt.ItemIsEnabled)
             self.table_widget.setItem(i, 0, f_item)
         self.region_name_lineedit.setText("")
         self.enabled = False
@@ -1085,7 +1085,7 @@ class audio_list_editor:
             self.inputs.append(f_input)
             self.audio_tracks_table_widget.setCellWidget(i, 1, f_input.group_box)
         for i in range(pydaw_bus_count):
-            track = seq_track(a_track_num=i, a_track_text="Bus" + str(i), a_instrument=False);
+            track = seq_track(a_track_num=i, a_track_text="Bus" + str(i), a_instrument=False)
             self.busses.append(track)
             self.audio_tracks_table_widget.setCellWidget(i, 2, track.group_box)
         self.busses[0].track_name_lineedit.setText("Master")
@@ -1689,7 +1689,6 @@ class audio_list_editor:
 
     def ccs_click_handler(self, x, y):
         if not self.enabled:
-            self.show_not_enabled_warning()
             return
         if self.add_radiobutton.isChecked():
             self.ccs_show_event_dialog(x, y)
@@ -2394,13 +2393,14 @@ class piano_roll_editor_widget():
         """ This is a ridiculously convoluted way to do this, but I see no other way in the Qt docs.  When
         Scaling, 1.0 does not return to it's original scale, and QSlider skips values when moved quickly, making
         it necessary to interpolate the inbetween values"""
-        if self.last_scale_value > self.h_zoom_slider.value():
-            for i in range(self.h_zoom_slider.value(), self.last_scale_value):
-                this_audio_items_viewer.set_zoom(0.97)
-        else:
-            for i in range(self.last_scale_value, self.h_zoom_slider.value()):
-                this_audio_items_viewer.set_zoom(1.03)
-        self.last_scale_value = self.h_zoom_slider.value()
+        pass
+        #if self.last_scale_value > self.h_zoom_slider.value():
+        #    for i in range(self.h_zoom_slider.value(), self.last_scale_value):
+        #        this_audio_items_viewer.set_zoom(0.97)
+        #else:
+        #    for i in range(self.last_scale_value, self.h_zoom_slider.value()):
+        #        this_audio_items_viewer.set_zoom(1.03)
+        #self.last_scale_value = self.h_zoom_slider.value()
 
 
 
@@ -4775,11 +4775,6 @@ Any additional text must be enclosed in quotation marks."
         def cc_cancel_handler():
             f_window.close()
 
-        def quantize_changed(f_quantize_index):
-            f_frac = beat_frac_text_to_float(f_quantize_index)
-            f_start.setSingleStep(f_frac)
-            self.default_quantize = f_quantize_index
-
         f_default_cc_num = int(self.cc_table.item(x, 0).text())
 
         f_window = QtGui.QDialog(this_main_window)
@@ -4799,7 +4794,6 @@ Any additional text must be enclosed in quotation marks."
         f_layout.addWidget(f_cancel_button, 7,1)
         f_cancel_button.clicked.connect(cc_cancel_handler)
         f_window.exec_()
-
 
     def __init__(self, a_index):
         if a_index == -1:
