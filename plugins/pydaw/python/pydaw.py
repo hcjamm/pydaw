@@ -2043,27 +2043,31 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             if self.mouse_is_at_end(a_event.pos()):
                 self.is_resizing = True
                 self.mouse_y_pos = QtGui.QCursor.pos().y()
-                self.resize_start_pos = self.note_item.start
-                self.resize_pos = self.pos()
-                self.resize_rect = self.rect()
                 self.resize_last_mouse_pos = a_event.pos().x()
+                for f_item in this_piano_roll_editor.note_items:
+                    if f_item.isSelected():
+                        f_item.resize_start_pos = f_item.note_item.start
+                        f_item.resize_pos = f_item.pos()
+                        f_item.resize_rect = f_item.rect()
         this_piano_roll_editor.click_enabled = True
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
+        if self.is_resizing:
+            f_adjusted_width_diff = (a_event.pos().x() - self.resize_last_mouse_pos)
+            self.resize_last_mouse_pos = a_event.pos().x()
         for f_item in this_piano_roll_editor.note_items:
             if f_item.isSelected():
                 f_pos_x = f_item.pos().x()
                 f_pos_y = f_item.pos().y()
                 if self.is_resizing:
-                    f_adjusted_width = self.resize_rect.width() + (a_event.pos().x() - self.resize_last_mouse_pos)
+                    f_adjusted_width = f_item.resize_rect.width() + f_adjusted_width_diff
                     if f_adjusted_width < 12.0:
                         f_adjusted_width = 12.0
-                    self.resize_rect.setWidth(f_adjusted_width)
-                    self.resize_last_mouse_pos = a_event.pos().x()
-                    self.setRect(self.resize_rect)
+                    f_item.resize_rect.setWidth(f_adjusted_width)
+                    f_item.setRect(f_item.resize_rect)
                     f_pos_y = (int((f_pos_y - global_piano_roll_header_height)/self.note_height) * self.note_height) + global_piano_roll_header_height
-                    self.setPos(self.resize_pos.x(), f_pos_y)
+                    f_item.setPos(f_item.resize_pos.x(), f_pos_y)
                     QtGui.QCursor.setPos(QtGui.QCursor.pos().x(), self.mouse_y_pos)
                 else:
                     if f_pos_x < global_piano_keys_width:
@@ -2092,7 +2096,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                         if f_adjusted_width == 0.0:
                             f_adjusted_width = global_piano_roll_snap_value
                         f_item.resize_rect.setWidth(f_adjusted_width)
-                        f_item.setRect(self.resize_rect)
+                        f_item.setRect(f_item.resize_rect)
                     f_new_note_length = ((f_pos_x + f_item.rect().width() - global_piano_keys_width) * 0.001 * 4.0) - f_item.resize_start_pos
                     if f_new_note_length < pydaw_min_note_length:
                         f_new_note_length = pydaw_min_note_length
