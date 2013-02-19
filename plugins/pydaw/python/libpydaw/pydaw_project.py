@@ -732,7 +732,7 @@ class pydaw_item:
                 for f_i2 in range(f_start_val, (f_this_cc_arr[i + 1].cc_val), f_inc):
                     f_result_arr.append(pydaw_cc(round(f_start, 4), a_cc_num, f_i2))
                     f_start += f_time_inc
-                    if f_start >= f_this_cc_arr[i + 1].start:
+                    if f_start >= (f_this_cc_arr[i + 1].start - 0.05):
                         break
             self.ccs += f_result_arr
             self.ccs.sort()
@@ -755,10 +755,11 @@ class pydaw_item:
                 for f_i2 in range(int(f_steps)):
                     f_result_arr.append(pydaw_pitchbend(round(f_start, 4), round(f_new_val, 4)))
                     f_start += f_time_inc
+                    if f_start >= (self.pitchbends[i + 1].start - 0.05):
+                        break
                     f_new_val += f_val_inc
                 self.pitchbends += f_result_arr
             self.pitchbends.sort()
-
 
     def velocity_mod(self, a_amt, a_start_beat=0.0, a_end_beat=4.0, a_line=False, a_end_amt=127, a_add=False, a_notes=None):
         """ velocity_mod
