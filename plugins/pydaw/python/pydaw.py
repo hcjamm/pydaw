@@ -2179,6 +2179,10 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def sceneMousePressEvent(self, a_event):
         #test = QtGui.QGraphicsSceneMouseEvent()
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
+            return
         if a_event.modifiers() == QtCore.Qt.ControlModifier:
             a_event.setAccepted(True)
             QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
@@ -2280,6 +2284,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def draw_item(self, a_item):
         """ Draw all notes in an instance of the pydaw_item class"""
         self.clear_drawn_items()
+        if not this_item_editor.enabled:
+            return
         for f_note in a_item.notes:
             self.draw_note(f_note)
 
@@ -2598,6 +2604,8 @@ class automation_viewer(QtGui.QGraphicsView):
 
     def draw_item(self):
         self.clear_drawn_items()
+        if not this_item_editor.enabled:
+            return
         if self.is_cc:
             for f_cc in this_item_editor.item.ccs:
                 if f_cc.cc_num == self.cc_num:
@@ -3121,6 +3129,7 @@ class item_list_editor:
     def __init__(self):
         self.enabled = False
         self.item_name = None
+        self.item = None
         self.events_follow_default = True
 
         self.widget = QtGui.QWidget()
@@ -4928,6 +4937,11 @@ this_audio_items_viewer_widget = audio_items_viewer_widget()
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 this_piano_roll_editor.verticalScrollBar().setSliderPosition(700)
+
+for f_viewer in this_item_editor.cc_auto_viewers:  #Get the plugin/control comboboxes populated
+    f_viewer.plugin_changed()
+this_item_editor.cc_auto_viewers[1].set_cc_num(2)
+this_item_editor.cc_auto_viewers[2].set_cc_num(3)
 
 f_def_file = expanduser("~") + "/" + global_pydaw_version_string + "/last-project.txt"
 if os.path.exists(f_def_file):
