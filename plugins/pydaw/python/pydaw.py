@@ -2507,10 +2507,10 @@ class automation_viewer(QtGui.QGraphicsView):
         f_cc_start = ((f_pos_x - global_automation_min_height) / global_automation_width) * 4.0
         if self.is_cc:
             f_cc_val = 127.0 - (((f_pos_y - global_automation_min_height) / global_automation_height) * 127.0)
-            this_item_editor.item.add_cc(pydaw_cc(f_cc_start, self.cc_num, f_cc_val))
+            this_item_editor.item.add_cc(pydaw_cc(round(f_cc_start, 4), self.cc_num, f_cc_val))
         else:
             f_cc_val = 1.0 - (((f_pos_y - global_automation_min_height) / global_automation_height) * 2.0)
-            this_item_editor.item.add_pb(pydaw_pitchbend(f_cc_start, f_cc_val))
+            this_item_editor.item.add_pb(pydaw_pitchbend(round(f_cc_start, 4), round(f_cc_val, 4)))
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
         this_item_editor.save_and_reload()
 

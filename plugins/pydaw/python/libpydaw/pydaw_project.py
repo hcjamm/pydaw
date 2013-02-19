@@ -730,7 +730,7 @@ class pydaw_item:
                     f_start_val = f_this_cc_arr[i].cc_val + 4
                     f_inc = 4
                 for f_i2 in range(f_start_val, (f_this_cc_arr[i + 1].cc_val), f_inc):
-                    f_result_arr.append(pydaw_cc(f_start, a_cc_num, f_i2))
+                    f_result_arr.append(pydaw_cc(round(f_start, 4), a_cc_num, f_i2))
                     f_start += f_time_inc
                     if f_start >= f_this_cc_arr[i + 1].start:
                         break
@@ -753,7 +753,7 @@ class pydaw_item:
                     f_new_val = self.pitchbends[i].pb_val + 0.05
                 f_result_arr = []
                 for f_i2 in range(int(f_steps)):
-                    f_result_arr.append(pydaw_pitchbend(f_start, f_new_val))
+                    f_result_arr.append(pydaw_pitchbend(round(f_start, 4), round(f_new_val, 4)))
                     f_start += f_time_inc
                     f_new_val += f_val_inc
                 self.pitchbends += f_result_arr
