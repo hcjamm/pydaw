@@ -718,7 +718,7 @@ class pydaw_item:
             f_this_cc_arr.sort()
             f_result_arr = []
             for i in range(len(f_this_cc_arr) - 1):
-                f_val_diff = abs(f_this_cc_arr[i + 1].cc_val - f_this_cc_arr[i].cc_val - 4)
+                f_val_diff = abs(f_this_cc_arr[i + 1].cc_val - f_this_cc_arr[i].cc_val)
                 if f_val_diff == 0:
                     continue
                 f_time_inc = ((f_this_cc_arr[i + 1].start - f_this_cc_arr[i].start) / f_val_diff) * 4.0
