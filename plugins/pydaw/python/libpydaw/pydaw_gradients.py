@@ -33,7 +33,7 @@ f_rainbox_pos = 0.5
 
 pydaw_track_gradients = []
 
-for i in range(pydaw_midi_track_count):
+for f_i_gradient in range(pydaw_midi_track_count):
     f_colors = pydaw_linear_interpolate_gradient(f_rainbox_pos)
     f_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 100))
     f_gradient.setColorAt(0, QtGui.QColor(f_colors[0], f_colors[1], f_colors[2]))

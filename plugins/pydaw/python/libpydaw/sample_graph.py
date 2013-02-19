@@ -202,6 +202,6 @@ if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
     f_graph = pydaw_sample_graph("test.pygraph")
-    f_test = f_graph.create_sample_graph()
-    f_test.show()
+    f_test_graph = f_graph.create_sample_graph()
+    f_test_graph.show()
     sys.exit(app.exec_())
