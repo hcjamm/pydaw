@@ -2401,7 +2401,7 @@ class piano_roll_editor_widget():
 global_automation_point_diameter = 15.0
 global_automation_point_radius = global_automation_point_diameter * 0.5
 global_automation_ruler_width = 24
-global_automation_width = 800
+global_automation_width = 690
 global_automation_height = 300
 
 global_automation_total_height = global_automation_ruler_width +  global_automation_height - global_automation_point_radius
@@ -2492,6 +2492,8 @@ class automation_viewer(QtGui.QGraphicsView):
 
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsScene.keyPressEvent(self.scene, a_event)
+        if not this_item_editor.enabled:
+            return
         if a_event.key() == QtCore.Qt.Key_Delete:
             for f_point in self.automation_points:
                 if f_point.isSelected():
@@ -2502,6 +2504,9 @@ class automation_viewer(QtGui.QGraphicsView):
         this_item_editor.save_and_reload()
 
     def sceneMouseDoubleClickEvent(self, a_event):
+        if not this_item_editor.enabled:
+            this_item_editor.show_not_enabled_warning()
+            return
         f_pos_x = a_event.scenePos().x()
         f_pos_y = a_event.scenePos().y()
         f_cc_start = ((f_pos_x - global_automation_min_height) / global_automation_width) * 4.0
@@ -2689,7 +2694,8 @@ class automation_viewer_widget:
         self.smooth_button.pressed.connect(self.smooth_pressed)
         self.hlayout.addWidget(self.smooth_button)
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
-        self.widget.setMinimumSize(820, 420)
+        self.widget.setMinimumSize(750, 420)
+        self.widget.setMaximumSize(750, 420)
 
 
 
@@ -3281,10 +3287,11 @@ class item_list_editor:
         self.main_hlayout.addWidget(self.ccs_groupbox)
 
         self.cc_auto_viewer_scrollarea = QtGui.QScrollArea()
+        self.cc_auto_viewer_scrollarea.setMinimumWidth(790)
         self.cc_auto_viewer_scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.cc_auto_viewer_scrollarea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.cc_auto_viewer_scrollarea_widget = QtGui.QWidget()
-        self.cc_auto_viewer_scrollarea_widget.setMinimumSize(900, 1400)
+        self.cc_auto_viewer_scrollarea_widget.setMinimumSize(770, 1270)
         self.cc_auto_viewer_scrollarea.setWidget(self.cc_auto_viewer_scrollarea_widget)
         self.cc_auto_viewer_vlayout = QtGui.QVBoxLayout(self.cc_auto_viewer_scrollarea_widget)
 
@@ -3294,7 +3301,7 @@ class item_list_editor:
             self.cc_auto_viewer_vlayout.addWidget(self.cc_auto_viewers[i].widget)
         self.cc_auto_viewer_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         self.main_hlayout.addWidget(self.cc_auto_viewer_scrollarea)
-
+        self.main_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
         self.pb_hlayout = QtGui.QHBoxLayout()
         self.pitchbend_tab.setLayout(self.pb_hlayout)
