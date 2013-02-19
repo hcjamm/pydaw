@@ -820,7 +820,7 @@ class pydaw_item:
                             f_start = f_note.start
                             f_end = f_note.start + f_note.length
                             for f_cc in self.ccs:
-                                if f_ccs.start >= f_start and f_cc.start <= f_end:
+                                if f_cc.start >= f_start and f_cc.start <= f_end:
                                     f_ccs.append(f_cc)
                             for f_pb in self.pitchbends:
                                 if f_pb.start >= f_start and f_pb.start <= f_end:
