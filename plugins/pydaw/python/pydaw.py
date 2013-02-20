@@ -1061,8 +1061,11 @@ class audio_list_editor:
             self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.timestretch_amt)))
             if a_update_viewer:
                 f_temp_seconds = f_samplegraphs.get_sample_graph(v.file).length_in_seconds
+                if v.time_stretch_mode == 1:
+                    f_temp_seconds /= pydaw_pitch_to_ratio(v.pitch_shift)
+                elif v.time_stretch_mode == 2:
+                    f_temp_seconds /= v.timestretch_amt
                 if v.end_mode == 0:
-                    pass
                     this_audio_items_viewer.draw_item_seconds(v.start_region, v.start_bar, v.start_beat, f_temp_seconds, v.file, k, v)
                 elif v.end_mode == 1:
                     this_audio_items_viewer.draw_item_musical_time(v.start_region, v.start_bar, v.start_beat, v.end_region, v.end_bar, \

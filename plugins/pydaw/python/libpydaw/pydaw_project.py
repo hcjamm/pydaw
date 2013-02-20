@@ -10,6 +10,7 @@ from time import sleep
 #from lms_session import lms_session #deprecated
 from dssi_gui import dssi_gui
 from pydaw_git import pydaw_git_repo
+from math import log
 
 from sample_graph import pydaw_sample_graphs
 
@@ -98,6 +99,15 @@ def time_quantize_round(a_input):
         return round(a_input)
     else:
         return round(a_input, 4)
+
+def pydaw_pitch_to_hz(a_pitch):
+    return (440.0 * pow(2.0,(a_pitch - 57.0) * 0.0833333));
+
+def pydaw_hz_to_pitch(a_hz):
+    return ((12.0 * log(a_hz * (1.0/440.0), 2.0)) + 57.0);
+
+def pydaw_pitch_to_ratio(a_pitch):
+    return (1.0/pydaw_pitch_to_hz(0.0)) * pydaw_pitch_to_hz(a_pitch)
 
 class pydaw_project:
     def save_project(self):
