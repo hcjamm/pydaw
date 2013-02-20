@@ -4201,6 +4201,8 @@ class transport_widget:
             self.transport.bpm = a_tempo
             this_pydaw_project.save_transport(self.transport)
             this_pydaw_project.git_repo.git_commit("-a", "Set project tempo to " + str(a_tempo))
+            this_audio_items_viewer.set_bpm(a_tempo)
+            this_audio_editor.open_items()
     def on_loop_mode_changed(self, a_loop_mode):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
