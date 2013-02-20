@@ -16,9 +16,9 @@
 extern "C" {
 #endif
 
-const float PI = 3.141592654;
-const float PI2 = 6.283185307;
-const float base_a4=440;
+const float PI = 3.141592654f;
+const float PI2 = 6.283185307f;
+const float base_a4=440.0f;
 const float base_a4_recip=1.0f/440.0f;
 
 
