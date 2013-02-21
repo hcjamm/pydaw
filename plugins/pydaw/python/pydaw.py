@@ -284,7 +284,7 @@ class region_list_editor:
         else:
             f_item_name = str(f_item.text())
             if f_item_name != "":
-                this_item_editor.open_item(f_item_name, [f_item_name])
+                this_item_editor.open_item([f_item_name])
                 this_main_window.main_tabwidget.setCurrentIndex(1)
             else:
                 self.show_cell_dialog(x, y)
@@ -294,7 +294,7 @@ class region_list_editor:
             if (f_new_radiobutton.isChecked() and f_item_count.value() == 1):
                 f_cell_text = str(f_new_lineedit.text())
                 this_pydaw_project.create_empty_item(f_cell_text)
-                this_item_editor.open_item(f_cell_text, [f_cell_text])
+                this_item_editor.open_item([f_cell_text])
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1)
                 self.region.add_item_ref(x, y - 1, f_cell_text)
                 this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
@@ -310,7 +310,7 @@ class region_list_editor:
                     this_pydaw_project.create_empty_item(f_item_name)
                     self.add_qtablewidgetitem(f_item_name, x, y - 1 + i)
                     self.region.add_item_ref(x, y - 1 + i, f_item_name)
-                this_item_editor.open_item(f_item_list[0], f_item_list)
+                this_item_editor.open_item(f_item_list)
                 this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
@@ -498,7 +498,7 @@ class region_list_editor:
                 f_item = self.table_widget.item(i, i2)
                 if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
                     f_result.append(str(f_item.text()))
-        this_item_editor.open_item(f_result[0], f_result)
+        this_item_editor.open_item(f_result)
         this_main_window.main_tabwidget.setCurrentIndex(1)
 
     def on_draw_ccs(self):
@@ -659,7 +659,7 @@ class region_list_editor:
             f_cell_text = str(f_new_lineedit.text())
             #this_pydaw_project.create_empty_item(f_new_lineedit.text())
             this_pydaw_project.copy_item(str(f_current_item.text()), str(f_new_lineedit.text()))
-            this_item_editor.open_item(f_cell_text, [f_cell_text])
+            this_item_editor.open_item([f_cell_text])
             self.last_item_copied = f_cell_text
             self.add_qtablewidgetitem(f_cell_text, x, y - 1)
             self.region.add_item_ref(x, y - 1, f_cell_text)
@@ -1991,8 +1991,9 @@ def pydaw_set_piano_roll_quantize(a_index):
     global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / 4.0
 
 class piano_roll_note_item(QtGui.QGraphicsRectItem):
-    def __init__(self, a_length, a_note_height, a_note, a_note_item):
+    def __init__(self, a_length, a_note_height, a_note, a_note_item, a_item_index):
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_length, a_note_height)
+        self.item_index = a_item_index
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
@@ -2115,7 +2116,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     f_new_note_num = int(global_piano_roll_note_count - ((f_pos_y - global_piano_roll_header_height) / global_piano_roll_note_height))
                     f_item.note_item.set_start(f_new_note_start)
                     f_item.note_item.note_num = f_new_note_num
-        this_item_editor.item.fix_overlaps()
+        this_item_editor.items[self.item_index].fix_overlaps()
         this_item_editor.save_and_reload()
         self.is_resizing = False
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
@@ -2180,7 +2181,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         if a_event.key() == QtCore.Qt.Key_Delete:
             for f_item in self.note_items:
                 if f_item.isSelected():
-                    this_item_editor.item.remove_note(f_item.note_item)
+                    this_item_editor.items[f_item.item_index].remove_note(f_item.note_item)
         this_item_editor.save_and_reload()
 
 
@@ -2208,7 +2209,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 global_selected_piano_note = f_note_item
                 global global_selected_piano_note_pos
                 global_selected_piano_note_pos = a_event.scenePos()
-                this_item_editor.item.add_note(f_note_item)
+                this_item_editor.add_note(f_note_item)
                 this_item_editor.save_and_reload()
 
             QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
@@ -2287,20 +2288,23 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.draw_piano()
         self.draw_grid()
 
-    def draw_item(self, a_item):
+    def draw_item(self):
         """ Draw all notes in an instance of the pydaw_item class"""
         self.clear_drawn_items()
         if not this_item_editor.enabled:
             return
-        for f_note in a_item.notes:
-            self.draw_note(f_note)
+        f_beat_offset = 0
+        for f_item in this_item_editor.items:
+            for f_note in f_item.notes:
+                self.draw_note(f_note, f_beat_offset)
+            f_beat_offset += 1
 
-    def draw_note(self, a_note):
+    def draw_note(self, a_note, a_item_index):
         """ a_note is an instance of the pydaw_note class"""
-        f_start = self.piano_width + self.padding + self.beat_width*(a_note.start)
+        f_start = self.piano_width + self.padding + self.beat_width * (a_note.start + (float(a_item_index) * 4.0))
         f_length = self.beat_width*(a_note.length * 0.25 * self.item_length)
         f_note = self.header_height + self.note_height * (self.total_notes - a_note.note_num)
-        f_note_item = piano_roll_note_item(f_length, self.note_height, a_note.note_num, a_note)
+        f_note_item = piano_roll_note_item(f_length, self.note_height, a_note.note_num, a_note, a_item_index)
         f_note_item.setPos(f_start, f_note)
         f_vel_opacity = QtGui.QGraphicsOpacityEffect()
         f_vel_opacity.setOpacity((a_note.velocity * 0.007874016 * 0.6) + 0.4)
@@ -2420,8 +2424,9 @@ global_automation_gradient.setColorAt(0, QtGui.QColor(240, 10, 10))
 global_automation_gradient.setColorAt(1, QtGui.QColor(250, 90, 90))
 
 class automation_item(QtGui.QGraphicsEllipseItem):
-    def __init__(self, a_time, a_value, a_cc, a_view, a_is_cc=True):
+    def __init__(self, a_time, a_value, a_cc, a_view, a_is_cc, a_item_index):
         QtGui.QGraphicsEllipseItem.__init__(self, 0, 0, global_automation_point_diameter, global_automation_point_diameter)
+        self.item_index = a_item_index
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
@@ -2509,9 +2514,9 @@ class automation_viewer(QtGui.QGraphicsView):
             for f_point in self.automation_points:
                 if f_point.isSelected():
                     if self.is_cc:
-                        this_item_editor.item.remove_cc(f_point.cc_item)
+                        this_item_editor.items[f_point.item_index].remove_cc(f_point.cc_item)
                     else:
-                        this_item_editor.item.remove_pb(f_point.cc_item)
+                        this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
         this_item_editor.save_and_reload()
 
     def sceneMouseDoubleClickEvent(self, a_event):
@@ -2531,14 +2536,14 @@ class automation_viewer(QtGui.QGraphicsView):
                 f_cc_val = 127
             elif f_cc_val < 0:
                 f_cc_val = 0
-            this_item_editor.item.add_cc(pydaw_cc(round(f_cc_start, 4), self.cc_num, f_cc_val))
+            this_item_editor.add_cc(pydaw_cc(round(f_cc_start, 4), self.cc_num, f_cc_val))
         else:
             f_cc_val = 1.0 - (((f_pos_y - global_automation_min_height) / global_automation_height) * 2.0)
             if f_cc_val > 1.0:
                 f_cc_val = 1.0
             elif f_cc_val < -1.0:
                 f_cc_val = -1.0
-            this_item_editor.item.add_pb(pydaw_pitchbend(round(f_cc_start, 4), round(f_cc_val, 4)))
+            this_item_editor.add_pb(pydaw_pitchbend(round(f_cc_start, 4), round(f_cc_val, 4)))
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
         this_item_editor.save_and_reload()
 
@@ -2634,22 +2639,25 @@ class automation_viewer(QtGui.QGraphicsView):
         self.clear_drawn_items()
         if not this_item_editor.enabled:
             return
-        if self.is_cc:
-            for f_cc in this_item_editor.item.ccs:
-                if f_cc.cc_num == self.cc_num:
-                    self.draw_point(f_cc)
-        else:
-            for f_pb in this_item_editor.item.pitchbends:
-                self.draw_point(f_pb)
+        f_item_index = 0
+        for f_item in this_item_editor.items:
+            if self.is_cc:
+                for f_cc in f_item.ccs:
+                    if f_cc.cc_num == self.cc_num:
+                        self.draw_point(f_cc, f_item_index)
+            else:
+                for f_pb in f_item.pitchbends:
+                    self.draw_point(f_pb, f_item_index)
+            f_item_index += 1
 
-    def draw_point(self, a_cc):
+    def draw_point(self, a_cc, a_item_index):
         """ a_cc is an instance of the pydaw_cc class"""
-        f_time = self.axis_size + self.beat_width * a_cc.start
+        f_time = self.axis_size + (((float(a_item_index) * 4.0) + a_cc.start) * self.beat_width)
         if self.is_cc:
             f_value = self.axis_size +  self.viewer_height/127.0 * (127.0 - a_cc.cc_val)
         else:
             f_value = self.axis_size +  self.viewer_height/2.0 * (1.0 - a_cc.pb_val)
-        f_point = automation_item(f_time, f_value, a_cc, self, self.is_cc)
+        f_point = automation_item(f_time, f_value, a_cc, self, self.is_cc, a_item_index)
         self.automation_points.append(f_point)
         self.scene.addItem(f_point)
         self.connect_points()
@@ -2727,17 +2735,17 @@ class item_list_editor:
         if self.enabled:
             self.item.notes = []
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
     def clear_ccs(self):
         if self.enabled:
             self.item.ccs = []
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
     def clear_pb(self):
         if self.enabled:
             self.item.pitchbends = []
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
 
     def clear_new(self):
         self.enabled = False
@@ -2750,8 +2758,9 @@ class item_list_editor:
         this_piano_roll_editor.clear_drawn_items()
 
     def save_and_reload(self):
-        this_pydaw_project.save_item(self.item_name, self.item)
-        self.open_item(self.item_name, self.multi_item_list)
+        for f_i in range(len(self.item_names)):
+            this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+        self.open_item()
 
     def get_notes_table_selected_rows(self):
         f_result = []
@@ -2797,7 +2806,7 @@ class item_list_editor:
             else:
                 self.item.quantize(f_quantize_index, f_events_follow_notes.isChecked())
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Quantize item '" + self.item_name + "'")
             f_window.close()
 
@@ -2862,7 +2871,7 @@ class item_list_editor:
                 self.item.velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
                 f_end_amount.value(), f_add_values.isChecked())
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Velocity mod item '" + self.item_name + "'")
             f_window.close()
 
@@ -2931,7 +2940,7 @@ class item_list_editor:
             else:
                 self.item.transpose(f_semitone.value(), f_octave.value())
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Transpose item '" + self.item_name + "'")
             f_window.close()
 
@@ -2985,7 +2994,7 @@ class item_list_editor:
             else:
                 self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked(), a_quantize=f_quantize_index)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Time shift item '" + self.item_name + "'")
             f_window.close()
 
@@ -3049,7 +3058,7 @@ class item_list_editor:
             else:
                 self.item.length_shift(f_shift.value(), f_min_max_value, a_quantize=f_quantize_index)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Length shift item '" + self.item_name + "'")
             f_window.close()
 
@@ -3103,7 +3112,7 @@ class item_list_editor:
             f_item_handle.close()
             self.item = f_item
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Open template '" + str(self.template_combobox.currentText()) + "' as item '" + self.item_name + "'")
 
     def on_template_save_as(self):
@@ -3157,8 +3166,8 @@ class item_list_editor:
 
     def __init__(self):
         self.enabled = False
-        self.item_name = None
-        self.item = None
+        self.items = []
+        self.item_names = []
         self.events_follow_default = True
 
         self.widget = QtGui.QWidget()
@@ -3266,7 +3275,6 @@ class item_list_editor:
         self.notes_table_widget = QtGui.QTableWidget()
         self.notes_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.notes_table_widget.setColumnCount(5)
-        self.notes_table_widget.setRowCount(128)
         self.notes_table_widget.cellClicked.connect(self.notes_click_handler)
         self.notes_table_widget.setSortingEnabled(True)
         self.notes_table_widget.sortItems(0)
@@ -3299,7 +3307,6 @@ class item_list_editor:
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.ccs_table_widget.setColumnCount(3)
-        self.ccs_table_widget.setRowCount(256)
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
         self.ccs_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.sortItems(0)
@@ -3343,7 +3350,6 @@ class item_list_editor:
         self.pitchbend_table_widget = QtGui.QTableWidget()
         self.pitchbend_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.pitchbend_table_widget.setColumnCount(2)
-        self.pitchbend_table_widget.setRowCount(128)
         self.pitchbend_table_widget.cellClicked.connect(self.pitchbend_click_handler)
         self.pitchbend_table_widget.setSortingEnabled(True)
         self.pitchbend_table_widget.sortItems(0)
@@ -3385,69 +3391,88 @@ class item_list_editor:
 
     def item_index_changed(self, a_index=None):
         if self.item_index_enabled:
-            self.open_item(self.item_name_combobox.currentText())
+            self.open_item([self.item_name_combobox.currentText()])
 
-    def open_item(self, a_item_name, a_items=None):
-        f_is_new_item = False
-        if self.item_name is None or a_item_name != self.item_name:
-            f_is_new_item = True
+    def set_row_counts(self):
+        f_factor = len(self.item_names)
+        self.notes_table_widget.setRowCount(128 * f_factor)
+        self.ccs_table_widget.setRowCount(256 * f_factor)
+        self.pitchbend_table_widget.setRowCount(128 * f_factor)
 
+    def add_cc(self, a_cc):
+        f_index = int(a_cc.start / 4.0)
+        a_cc.start -= (float(f_index) * 4.0)
+        self.items[int(f_index)].add_cc(a_cc)
+
+    def add_note(self, a_note):
+        f_index = int(a_note.start / 4.0)
+        a_note.start -= (float(f_index) * 4.0)
+        self.items[f_index].add_note(a_note)
+
+    def open_item(self, a_items=None):
+        """ a_items is a list of str, which are the names of the items.  Leave blank to open the existing list """
         for i in range(3):
             this_cc_automation_viewers[i].clear_drawn_items()
         this_pb_automation_viewer.clear_drawn_items()
 
         self.enabled = True
-        self.item_name = str(a_item_name)
-        #self.item_name_line_edit.setText(self.item_name)
-        self.multi_item_list = a_items
 
         if a_items is not None:
+            self.item_names = a_items
             self.item_index_enabled = False
             self.item_name_combobox.clear()
             self.item_name_combobox.clearEditText()
             self.item_name_combobox.addItems(a_items)
-            self.item_name_combobox.setCurrentIndex(self.item_name_combobox.findText(a_item_name))
+            #self.item_name_combobox.setCurrentIndex(self.item_name_combobox.findText(a_item_name))
             self.item_index_enabled = True
 
         self.notes_table_widget.clear()
         self.ccs_table_widget.clear()
         self.pitchbend_table_widget.clear()
         self.set_headers()
-        self.item = this_pydaw_project.get_item(a_item_name)
-        self.notes_table_widget.setSortingEnabled(False)
-        f_i = 0
-        for note in self.item.notes:
-            f_note_str = note_num_to_string(note.note_num)
-            self.notes_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(note.start)))
-            self.notes_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(note.length)))
-            self.notes_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(f_note_str))
-            self.notes_table_widget.setItem(f_i, 3, QtGui.QTableWidgetItem(str(note.note_num)))
-            self.notes_table_widget.setItem(f_i, 4, QtGui.QTableWidgetItem(str(note.velocity)))
-            f_i = f_i + 1
-        self.notes_table_widget.setSortingEnabled(True)
-        self.ccs_table_widget.setSortingEnabled(False)
-        f_i = 0
+        self.set_row_counts()
+        self.items = []
         f_cc_dict = {}
-        for cc in self.item.ccs:
-            if not f_cc_dict.has_key(cc.cc_num):
-                f_cc_dict[cc.cc_num] = []
-            f_cc_dict[cc.cc_num] = cc
 
-            self.ccs_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(cc.start)))
-            self.ccs_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
-            self.ccs_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
-            f_i = f_i + 1
-        self.ccs_table_widget.setSortingEnabled(True)
+        self.notes_table_widget.setSortingEnabled(False)
+        self.ccs_table_widget.setSortingEnabled(False)
         self.pitchbend_table_widget.setSortingEnabled(False)
-        f_i = 0
-        for pb in self.item.pitchbends:
-            self.pitchbend_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(pb.start)))
-            self.pitchbend_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(pb.pb_val)))
-            f_i = f_i + 1
+
+        f_beat_offset = 0.0
+        for f_item_name in self.item_names:
+            f_item = this_pydaw_project.get_item(f_item_name)
+            self.items.append(f_item)
+            f_i = 0
+            for note in f_item.notes:
+                f_note_str = note_num_to_string(note.note_num)
+                self.notes_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(note.start + f_beat_offset)))
+                self.notes_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(note.length)))
+                self.notes_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(f_note_str))
+                self.notes_table_widget.setItem(f_i, 3, QtGui.QTableWidgetItem(str(note.note_num)))
+                self.notes_table_widget.setItem(f_i, 4, QtGui.QTableWidgetItem(str(note.velocity)))
+                f_i = f_i + 1
+            f_i = 0
+            for cc in f_item.ccs:
+                if not f_cc_dict.has_key(cc.cc_num):
+                    f_cc_dict[cc.cc_num] = []
+                f_cc_dict[cc.cc_num] = cc
+                self.ccs_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(cc.start + f_beat_offset)))
+                self.ccs_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
+                self.ccs_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
+                f_i = f_i + 1
+            f_i = 0
+            for pb in f_item.pitchbends:
+                self.pitchbend_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(pb.start + f_beat_offset)))
+                self.pitchbend_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(pb.pb_val)))
+                f_i = f_i + 1
+            f_beat_offset += 4.0
+        self.notes_table_widget.setSortingEnabled(True)
+        self.ccs_table_widget.setSortingEnabled(True)
         self.pitchbend_table_widget.setSortingEnabled(True)
-        this_piano_roll_editor.draw_item(self.item)
+
+        this_piano_roll_editor.draw_item()
         f_i = 0
-        if f_is_new_item:
+        if a_items is not None:
             for f_cc_num in f_cc_dict.keys():
                 self.cc_auto_viewers[f_i].set_cc_num(f_cc_num)
                 f_i += 1
@@ -3465,7 +3490,7 @@ class item_list_editor:
                 for f_note in f_notes:
                     self.item.remove_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Delete notes from item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.notes_clipboard = self.get_notes_table_selected_rows()
@@ -3473,14 +3498,14 @@ class item_list_editor:
             for f_note in self.notes_clipboard:
                 self.item.add_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Paste notes into item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.notes_clipboard = self.get_notes_table_selected_rows()
             for f_note in self.notes_clipboard:
                 self.item.remove_note(f_note)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Cut notes from item '" + self.item_name + "'")
         else:
             QtGui.QTableWidget.keyPressEvent(self.notes_table_widget, event)
@@ -3492,7 +3517,7 @@ class item_list_editor:
                 for f_cc in f_ccs:
                     self.item.remove_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Delete CCs from item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.ccs_clipboard = self.get_ccs_table_selected_rows()
@@ -3500,14 +3525,14 @@ class item_list_editor:
             for f_cc in self.ccs_clipboard:
                 self.item.add_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Paste CCs into item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.ccs_clipboard = self.get_ccs_table_selected_rows()
             for f_cc in self.ccs_clipboard:
                 self.item.remove_cc(f_cc)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Cut CCs from item '" + self.item_name + "'")
         else:
             QtGui.QTableWidget.keyPressEvent(self.ccs_table_widget, event)
@@ -3519,7 +3544,7 @@ class item_list_editor:
                 for f_pb in f_pbs:
                     self.item.remove_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Delete pitchbends from item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_C and event.modifiers() == QtCore.Qt.ControlModifier:
             self.pbs_clipboard = self.get_pbs_table_selected_rows()
@@ -3527,14 +3552,14 @@ class item_list_editor:
             for f_pb in self.pbs_clipboard:
                 self.item.add_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Paste pitchbends into item '" + self.item_name + "'")
         elif event.key() == QtCore.Qt.Key_X and event.modifiers() == QtCore.Qt.ControlModifier:
             self.pbs_clipboard = self.get_pbs_table_selected_rows()
             for f_pb in self.pbs_clipboard:
                 self.item.remove_pb(f_pb)
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Cut pitchbends from item '" + self.item_name + "'")
         else:
             QtGui.QTableWidget.keyPressEvent(self.pitchbend_table_widget, event)
@@ -3550,7 +3575,7 @@ class item_list_editor:
                 return
             self.item.remove_note(pydaw_note(self.notes_table_widget.item(x, 0).text(), self.notes_table_widget.item(x, 1).text(), self.notes_table_widget.item(x, 3).text(), self.notes_table_widget.item(x, 4).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Delete note from item '" + self.item_name + "'")
 
     def ccs_click_handler(self, x, y):
@@ -3564,7 +3589,7 @@ class item_list_editor:
                 return
             self.item.remove_cc(pydaw_cc(self.ccs_table_widget.item(x, 0).text(), self.ccs_table_widget.item(x, 1).text(), self.ccs_table_widget.item(x, 2).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Delete CC from item '" + self.item_name + "'")
 
     def pitchbend_click_handler(self, x, y):
@@ -3578,7 +3603,7 @@ class item_list_editor:
                 return
             self.item.remove_pb(pydaw_pitchbend(self.pitchbend_table_widget.item(x, 0).text(), self.pitchbend_table_widget.item(x, 1).text()))
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Delete pitchbend from item '" + self.item_name + "'")
 
     def notes_show_event_dialog(self, x, y, a_note=None):
@@ -3622,7 +3647,7 @@ class item_list_editor:
             self.default_quantize = int(f_quantize_combobox.currentIndex())
             this_pydaw_project.save_item(self.item_name, self.item)
 
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Update notes for item '" + self.item_name + "'")
 
             if self.is_existing_note:
@@ -3724,7 +3749,7 @@ class item_list_editor:
             self.default_cc_num = f_cc.value()
             self.default_cc_start = f_start_rounded
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Update CCs for item '" + self.item_name + "'")
             if not f_add_another.isChecked():
                 f_window.close()
@@ -3834,7 +3859,7 @@ class item_list_editor:
             self.default_pb_val = f_pb.value()
 
             this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item(self.item_name)
+            self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Update pitchbends for item '" + self.item_name + "'")
             if not f_add_another.isChecked():
                 f_window.close()
@@ -4873,7 +4898,7 @@ def global_close_all():
 def global_ui_refresh_callback():
     """ Use this to re-open all existing items/regions/song in their editors when the files have been changed externally"""
     if this_item_editor.enabled and os.path.isfile(this_pydaw_project.items_folder + "/" + this_item_editor.item_name + ".pyitem"):
-        this_item_editor.open_item(this_item_editor.item_name)
+        this_item_editor.open_item()
     else:
         this_item_editor.clear_new()
     if this_region_editor.enabled and os.path.isfile(this_pydaw_project.regions_folder + "/" + str(this_region_editor.region_name_lineedit.text()) + ".pyreg"):
