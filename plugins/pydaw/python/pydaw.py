@@ -2014,6 +2014,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.resize_rect = self.rect()
         self.setPen(QtGui.QPen(pydaw_track_gradients[3], 2))
         self.mouse_y_pos = QtGui.QCursor.pos().y()
+        self.o_brush = self.brush()
 
     def mouse_is_at_end(self, a_pos):
         return (a_pos.x() > (self.rect().width() * 0.8))
@@ -2043,11 +2044,10 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
         if a_event.modifiers() == QtCore.Qt.ShiftModifier:
-            this_item_editor.item.remove_note(self.note_item)
+            this_item_editor.items[self.item_index].remove_note(self.note_item)
             this_item_editor.save_and_reload()
             QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         else:
-            self.o_brush = self.brush()
             self.setBrush(QtGui.QColor(255,200,100))
             self.o_pos = self.pos()
             if self.mouse_is_at_end(a_event.pos()):
@@ -2105,10 +2105,11 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                         f_adjusted_width = (round(f_item.resize_rect.width()/global_piano_roll_snap_value) * global_piano_roll_snap_value)
                         if f_adjusted_width == 0.0:
                             f_adjusted_width = global_piano_roll_snap_value
-                        print(str(f_adjusted_width))
                         f_item.resize_rect.setWidth(f_adjusted_width)
                         f_item.setRect(f_item.resize_rect)
-                    f_new_note_length = ((f_pos_x + f_item.rect().width() - global_piano_keys_width) * 0.001 * 4.0) - f_item.resize_start_pos - (self.item_index * 4.0)
+                    f_new_note_length = ((f_pos_x + f_item.rect().width() - global_piano_keys_width) * 0.001 * 4.0) - f_item.resize_start_pos
+                    if global_selected_piano_note is not None and self.note_item == global_selected_piano_note:
+                        f_new_note_length -= (self.item_index * 4.0)
                     f_new_note_length = round(f_new_note_length * global_piano_roll_snap_divisor_beats) / global_piano_roll_snap_divisor_beats
                     if f_new_note_length < pydaw_min_note_length:
                         f_new_note_length = pydaw_min_note_length
