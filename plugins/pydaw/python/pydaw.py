@@ -1988,7 +1988,7 @@ def pydaw_set_piano_roll_quantize(a_index):
     elif a_index == 4:
         global_piano_roll_snap_divisor =  4.0
         global_piano_roll_snap = True
-    global_piano_roll_snap_value = (global_piano_roll_grid_width * global_item_editing_count) / global_piano_roll_snap_divisor
+    global_piano_roll_snap_value = (global_piano_roll_grid_width * global_item_editing_count) / (global_piano_roll_snap_divisor * global_item_editing_count)
     global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / (4.0 * global_item_editing_count)
 
 class piano_roll_note_item(QtGui.QGraphicsRectItem):
@@ -2105,9 +2105,10 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                         f_adjusted_width = (round(f_item.resize_rect.width()/global_piano_roll_snap_value) * global_piano_roll_snap_value)
                         if f_adjusted_width == 0.0:
                             f_adjusted_width = global_piano_roll_snap_value
+                        print(str(f_adjusted_width))
                         f_item.resize_rect.setWidth(f_adjusted_width)
                         f_item.setRect(f_item.resize_rect)
-                    f_new_note_length = ((f_pos_x + f_item.rect().width() - global_piano_keys_width) * 0.001 * 4.0) - f_item.resize_start_pos #float(this_piano_roll_editor.item_count)
+                    f_new_note_length = ((f_pos_x + f_item.rect().width() - global_piano_keys_width) * 0.001 * 4.0) - f_item.resize_start_pos - (self.item_index * 4.0)
                     f_new_note_length = round(f_new_note_length * global_piano_roll_snap_divisor_beats) / global_piano_roll_snap_divisor_beats
                     if f_new_note_length < pydaw_min_note_length:
                         f_new_note_length = pydaw_min_note_length
@@ -2115,14 +2116,12 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 else:
                     this_item_editor.items[self.item_index].notes.remove(self.note_item)
                     f_new_note_start = (f_pos_x - global_piano_keys_width) * 4.0 * 0.001 #* float(this_piano_roll_editor.item_count)
-                    print(str(f_new_note_start))
                     self.item_index, f_new_note_start = pydaw_beats_to_index(f_new_note_start)
                     f_new_note_num = int(global_piano_roll_note_count - ((f_pos_y - global_piano_roll_header_height) / global_piano_roll_note_height))
                     f_item.note_item.set_start(f_new_note_start)
                     f_item.note_item.note_num = f_new_note_num
                     this_item_editor.items[self.item_index].notes.append(self.note_item)
                     this_item_editor.items[self.item_index].notes.sort()
-                    print(str(self.item_index))
         this_item_editor.items[self.item_index].fix_overlaps()
         this_item_editor.save_and_reload()
         self.is_resizing = False
@@ -2417,14 +2416,13 @@ class piano_roll_editor_widget():
         #        this_audio_items_viewer.set_zoom(1.03)
         #self.last_scale_value = self.h_zoom_slider.value()
 
-
-
-
 global_automation_point_diameter = 15.0
 global_automation_point_radius = global_automation_point_diameter * 0.5
 global_automation_ruler_width = 24
 global_automation_width = 690
 global_automation_height = 300
+
+global_automation_grid_max_start_time = global_automation_width + global_automation_ruler_width
 
 global_automation_total_height = global_automation_ruler_width +  global_automation_height - global_automation_point_radius
 global_automation_total_width = global_automation_ruler_width + global_automation_width - global_automation_point_radius
@@ -2461,8 +2459,8 @@ class automation_item(QtGui.QGraphicsEllipseItem):
             if f_point.isSelected():
                 if f_point.pos().x() < global_automation_min_height:
                     f_point.setPos(global_automation_min_height, f_point.pos().y())
-                elif f_point.pos().x() > global_automation_total_width:
-                    f_point.setPos(global_automation_total_width, f_point.pos().y())
+                elif f_point.pos().x() > global_automation_grid_max_start_time:
+                    f_point.setPos(global_automation_grid_max_start_time, f_point.pos().y())
                 if f_point.pos().y() < global_automation_min_height:
                     f_point.setPos(f_point.pos().x(), global_automation_min_height)
                 elif f_point.pos().y() > global_automation_total_height:
@@ -2473,19 +2471,28 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         self.setGraphicsEffect(None)
         for f_point in self.parent_view.automation_points:
             if f_point.isSelected():
-                f_cc_start = round((((f_point.pos().x() - global_automation_min_height) / global_automation_width) * 4.0), 4)
-                if f_cc_start > 4.0:
-                    f_cc_start = 4.0
+                f_cc_start = round((((f_point.pos().x() - global_automation_min_height) / global_automation_width) * 4.0 * global_item_editing_count), 4)
+                if f_cc_start >= 4.0 * global_item_editing_count:
+                    f_cc_start = (4.0 * global_item_editing_count) - 0.01
                 elif f_cc_start < 0.0:
                     f_cc_start = 0.0
+                f_new_item_index, f_cc_start = pydaw_beats_to_index(f_cc_start)
                 if self.is_cc:
+                    this_item_editor.item[f_point.item_index].ccs.remove(f_point.cc_item)
+                    f_point.item_index = f_new_item_index
                     f_cc_val = int(127.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 127.0))
                     f_point.cc_item.start = f_cc_start
                     f_point.cc_item.set_val(f_cc_val)
+                    this_item_editor.item[f_point.item_index].ccs.append(f_point.cc_item)
+                    this_item_editor.item[f_point.item_index].sort()
                 else:
+                    this_item_editor.item[f_point.item_index].pitchbends.remove(f_point.cc_item)
+                    f_point.item_index = f_new_item_index
                     f_cc_val = (1.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 2.0))
                     f_point.cc_item.start = f_cc_start
                     f_point.cc_item.set_val(f_cc_val)
+                    this_item_editor.item[f_point.item_index].pitchbends.append(f_point.cc_item)
+                    this_item_editor.item[f_point.item_index].pitchbends.sort()
         this_item_editor.save_and_reload()
 
 class automation_viewer(QtGui.QGraphicsView):
@@ -2537,8 +2544,8 @@ class automation_viewer(QtGui.QGraphicsView):
         f_pos_x = a_event.scenePos().x()
         f_pos_y = a_event.scenePos().y()
         f_cc_start = ((f_pos_x - global_automation_min_height) / global_automation_width) * 4.0
-        if f_cc_start > 4.0:
-            f_cc_start = 4.0
+        if f_cc_start >= (4.0 * global_item_editing_count):
+            f_cc_start = (4.0  * global_item_editing_count) - 0.01
         elif f_cc_start < 0.0:
             f_cc_start = 0.0
         if self.is_cc:
@@ -2647,6 +2654,10 @@ class automation_viewer(QtGui.QGraphicsView):
         self.draw_item()
 
     def draw_item(self):
+        self.viewer_width = global_automation_width * global_item_editing_count
+        self.item_length = 4.0 * global_item_editing_count
+        global global_automation_grid_max_start_time
+        global_automation_grid_max_start_time = (global_automation_width * global_item_editing_count) + global_automation_ruler_width
         self.clear_drawn_items()
         if not this_item_editor.enabled:
             return
@@ -2734,31 +2745,29 @@ class automation_viewer_widget:
         self.smooth_button.pressed.connect(self.smooth_pressed)
         self.hlayout.addWidget(self.smooth_button)
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
-        self.widget.setMinimumSize(750, 420)
-        self.widget.setMaximumSize(750, 420)
+        #self.widget.setMinimumSize(750, 420)
+        #self.widget.setMaximumSize(750, 420)
 
 class item_list_editor:
     def clear_notes(self):
         if self.enabled:
-            self.item.notes = []
-            this_pydaw_project.save_item(self.item_name, self.item)
+            for f_i in len(self.items):
+                self.items[f_i].notes = []
+                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
     def clear_ccs(self):
         if self.enabled:
-            self.item.ccs = []
-            this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item()
+            for f_i in len(self.items):
+                self.items[f_i].ccs = []
+                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
     def clear_pb(self):
         if self.enabled:
-            self.item.pitchbends = []
-            this_pydaw_project.save_item(self.item_name, self.item)
-            self.open_item()
+            for f_i in len(self.items):
+                self.items[f_i].pitchbends = []
+                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
 
     def clear_new(self):
         self.enabled = False
-        #self.item_name_line_edit.setText("")
-        self.item_name_combobox.clear()
-        self.item_name_combobox.clearEditText()
         self.ccs_table_widget.clearContents()
         self.notes_table_widget.clearContents()
         self.pitchbend_table_widget.clearContents()
@@ -2855,7 +2864,7 @@ class item_list_editor:
             else:
                 f_multiselect = True
 
-        f_start_beat_val = 3.99
+        f_start_beat_val = (4.0 * global_item_editing_count) - 0.01
         f_end_beat_val = 0.0
         if f_multiselect:
             for f_note in f_ms_rows:
@@ -2905,13 +2914,13 @@ class item_list_editor:
 
         f_layout.addWidget(QtGui.QLabel("Start Beat"), 3, 0)
         f_start_beat = QtGui.QDoubleSpinBox()
-        f_start_beat.setRange(0.0, 3.99)
+        f_start_beat.setRange(0.0, (4.0 * global_item_editing_count) - 0.01)
         f_start_beat.setValue(f_start_beat_val)
         f_layout.addWidget(f_start_beat, 3, 1)
 
         f_layout.addWidget(QtGui.QLabel("End Beat"), 4, 0)
         f_end_beat = QtGui.QDoubleSpinBox()
-        f_end_beat.setRange(0.01, 4.0)
+        f_end_beat.setRange(0.01, (4.0 * global_item_editing_count))
         f_end_beat.setValue(f_end_beat_val)
         f_layout.addWidget(f_end_beat, 4, 1)
 
@@ -2942,13 +2951,14 @@ class item_list_editor:
                 f_multiselect = True
 
         def transpose_ok_handler():
-            if f_multiselect:
-                self.item.transpose(f_semitone.value(), f_octave.value(), f_ms_rows)
-            else:
-                self.item.transpose(f_semitone.value(), f_octave.value())
-            this_pydaw_project.save_item(self.item_name, self.item)
+            for f_i in range(len(self.items)):
+                if f_multiselect:
+                    self.items[f_i].transpose(f_semitone.value(), f_octave.value(), f_ms_rows)
+                else:
+                    self.items[f_i].transpose(f_semitone.value(), f_octave.value())
+                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
-            this_pydaw_project.git_repo.git_commit("-a", "Transpose item '" + self.item_name + "'")
+            this_pydaw_project.git_repo.git_commit("-a", "Transpose item(s)")
             f_window.close()
 
         def transpose_cancel_handler():
@@ -3160,17 +3170,6 @@ class item_list_editor:
         f_layout.addWidget(f_cancel, 2, 1)
         f_window.exec_()
 
-    def load_templates(self):
-        self.template_combobox.clear()
-        f_path= expanduser("~") + "/" + global_pydaw_version_string + "/item_templates"
-        if not os.path.isdir(f_path):
-            os.makedirs(f_path)
-        else:
-            f_file_list = os.listdir(f_path)
-            for f_name in f_file_list:
-                if f_name.endswith(".pyitem"):
-                    self.template_combobox.addItem(f_name.split(".")[0])
-
     def __init__(self):
         self.enabled = False
         self.items = []
@@ -3202,28 +3201,6 @@ class item_list_editor:
         self.master_vlayout.addLayout(self.editing_hboxlayout)
 
         self.master_vlayout.addWidget(self.tab_widget)
-
-        self.editing_hboxlayout.addWidget(QtGui.QLabel("Editing Item:"))
-        self.item_name_combobox = QtGui.QComboBox()
-        self.item_name_combobox.setMinimumWidth(150)
-        self.item_name_combobox.setEditable(False)
-        self.item_name_combobox.currentIndexChanged.connect(self.item_index_changed)
-        self.item_index_enabled = True
-        self.editing_hboxlayout.addWidget(self.item_name_combobox)
-
-        self.editing_hboxlayout.addWidget(QtGui.QLabel("Templates:"))
-        self.template_save_as = QtGui.QPushButton("Save as...")
-        self.template_save_as.setMinimumWidth(90)
-        self.template_save_as.pressed.connect(self.on_template_save_as)
-        self.editing_hboxlayout.addWidget(self.template_save_as)
-        self.template_open = QtGui.QPushButton("Open")
-        self.template_open.setMinimumWidth(90)
-        self.template_open.pressed.connect(self.on_template_open)
-        self.editing_hboxlayout.addWidget(self.template_open)
-        self.template_combobox = QtGui.QComboBox()
-        self.template_combobox.setMinimumWidth(150)
-        self.editing_hboxlayout.addWidget(self.template_combobox)
-        self.load_templates()
 
         self.main_vlayout.addLayout(self.main_hlayout)
 
@@ -3336,9 +3313,9 @@ class item_list_editor:
         for i in range(3):
             self.cc_auto_viewers.append(automation_viewer_widget(this_cc_automation_viewers[i]))
             self.cc_auto_viewer_vlayout.addWidget(self.cc_auto_viewers[i].widget)
-        self.cc_auto_viewer_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        #self.cc_auto_viewer_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         self.main_hlayout.addWidget(self.cc_auto_viewer_scrollarea)
-        self.main_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+        #self.main_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
         self.pb_hlayout = QtGui.QHBoxLayout()
         self.pitchbend_tab.setLayout(self.pb_hlayout)
@@ -3371,7 +3348,7 @@ class item_list_editor:
         self.pb_auto_vlayout.addWidget(self.pb_viewer_widget.widget)
         self.pb_auto_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
 
-        self.pb_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+        #self.pb_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
         self.set_headers()
         self.default_note_start = 0.0
@@ -3396,10 +3373,6 @@ class item_list_editor:
         self.ccs_table_widget.setHorizontalHeaderLabels(['Start', 'CC', 'Value'])
         self.pitchbend_table_widget.setHorizontalHeaderLabels(['Start', 'Value'])
 
-    def item_index_changed(self, a_index=None):
-        if self.item_index_enabled:
-            self.open_item([self.item_name_combobox.currentText()])
-
     def set_row_counts(self):
         f_factor = len(self.item_names)
         self.notes_table_widget.setRowCount(128 * f_factor)
@@ -3419,7 +3392,7 @@ class item_list_editor:
     def add_pb(self, a_pb):
         f_index, f_start = pydaw_beats_to_index(a_pb.start)
         a_pb.start = f_start
-        self.items[f_index].add_cc(a_pb)
+        self.items[f_index].add_pb(a_pb)
 
     def open_item(self, a_items=None):
         """ a_items is a list of str, which are the names of the items.  Leave blank to open the existing list """
@@ -3430,12 +3403,6 @@ class item_list_editor:
             global global_item_editing_count
             global_item_editing_count = len(a_items)
             self.item_names = a_items
-            self.item_index_enabled = False
-            self.item_name_combobox.clear()
-            self.item_name_combobox.clearEditText()
-            self.item_name_combobox.addItems(a_items)
-            #self.item_name_combobox.setCurrentIndex(self.item_name_combobox.findText(a_item_name))
-            self.item_index_enabled = True
 
         for i in range(3):
             this_cc_automation_viewers[i].clear_drawn_items()
@@ -3454,32 +3421,32 @@ class item_list_editor:
         self.pitchbend_table_widget.setSortingEnabled(False)
 
         f_beat_offset = 0.0
+        f_i_notes = 0
+        f_i_ccs = 0
+        f_i_pbs = 0
         for f_item_name in self.item_names:
             f_item = this_pydaw_project.get_item(f_item_name)
             self.items.append(f_item)
-            f_i = 0
             for note in f_item.notes:
                 f_note_str = note_num_to_string(note.note_num)
-                self.notes_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(note.start + f_beat_offset)))
-                self.notes_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(note.length)))
-                self.notes_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(f_note_str))
-                self.notes_table_widget.setItem(f_i, 3, QtGui.QTableWidgetItem(str(note.note_num)))
-                self.notes_table_widget.setItem(f_i, 4, QtGui.QTableWidgetItem(str(note.velocity)))
-                f_i = f_i + 1
-            f_i = 0
+                self.notes_table_widget.setItem(f_i_notes, 0, QtGui.QTableWidgetItem(str(note.start + f_beat_offset)))
+                self.notes_table_widget.setItem(f_i_notes, 1, QtGui.QTableWidgetItem(str(note.length)))
+                self.notes_table_widget.setItem(f_i_notes, 2, QtGui.QTableWidgetItem(f_note_str))
+                self.notes_table_widget.setItem(f_i_notes, 3, QtGui.QTableWidgetItem(str(note.note_num)))
+                self.notes_table_widget.setItem(f_i_notes, 4, QtGui.QTableWidgetItem(str(note.velocity)))
+                f_i_notes = f_i_notes + 1
             for cc in f_item.ccs:
                 if not f_cc_dict.has_key(cc.cc_num):
                     f_cc_dict[cc.cc_num] = []
                 f_cc_dict[cc.cc_num] = cc
-                self.ccs_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(cc.start + f_beat_offset)))
-                self.ccs_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
-                self.ccs_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
-                f_i = f_i + 1
-            f_i = 0
+                self.ccs_table_widget.setItem(f_i_ccs, 0, QtGui.QTableWidgetItem(str(cc.start + f_beat_offset)))
+                self.ccs_table_widget.setItem(f_i_ccs, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
+                self.ccs_table_widget.setItem(f_i_ccs, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
+                f_i_ccs = f_i_ccs + 1
             for pb in f_item.pitchbends:
-                self.pitchbend_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(pb.start + f_beat_offset)))
-                self.pitchbend_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(pb.pb_val)))
-                f_i = f_i + 1
+                self.pitchbend_table_widget.setItem(f_i_pbs, 0, QtGui.QTableWidgetItem(str(pb.start + f_beat_offset)))
+                self.pitchbend_table_widget.setItem(f_i_pbs, 1, QtGui.QTableWidgetItem(str(pb.pb_val)))
+                f_i_pbs = f_i_pbs + 1
             f_beat_offset += 4.0
         self.notes_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.setSortingEnabled(True)
@@ -4838,24 +4805,27 @@ Any additional text must be enclosed in quotation marks."
         f_window.exec_()
 
     def __init__(self, a_index):
+        f_local_dir = expanduser("~") + "/" + global_pydaw_version_string
+        if not os.path.isdir(f_local_dir):
+            os.mkdir(f_local_dir)
         if a_index == -1:
             f_name = "Modulex"
-            self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/lms_modulex-cc_map.txt"
+            self.file_name = f_local_dir + "/lms_modulex-cc_map.txt"
             if not os.path.isfile(self.file_name):
                 copyfile("/usr/lib/pydaw2/cc_maps/lms_modulex-cc_map.txt", self.file_name)
         elif a_index == 1:
             f_name = "Euphoria"
-            self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/euphoria-cc_map.txt"
+            self.file_name = f_local_dir + "/euphoria-cc_map.txt"
             if not os.path.isfile(self.file_name):
                 copyfile("/usr/lib/pydaw2/cc_maps/euphoria-cc_map.txt", self.file_name)
         elif a_index == 2:
             f_name = "Ray-V"
-            self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/ray_v-cc_map.txt"
+            self.file_name = f_local_dir + "/ray_v-cc_map.txt"
             if not os.path.isfile(self.file_name):
                 copyfile("/usr/lib/pydaw2/cc_maps/ray_v-cc_map.txt", self.file_name)
         elif a_index == 3:
             f_name = "Way-V"
-            self.file_name = expanduser("~") + "/" + global_pydaw_version_string + "/way_v-cc_map.txt"
+            self.file_name = f_local_dir + "/way_v-cc_map.txt"
             if not os.path.isfile(self.file_name):
                 copyfile("/usr/lib/pydaw2/cc_maps/way_v-cc_map.txt", self.file_name)
         self.groupbox = QtGui.QGroupBox(f_name)
