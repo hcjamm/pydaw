@@ -52,6 +52,11 @@ def beat_frac_text_to_float(f_index):
     else:
         return 0.25
 
+def pydaw_beats_to_index(a_beat, a_divisor=4.0):
+    f_index = int(a_beat / a_divisor)
+    f_start = a_beat - (float(f_index) * a_divisor)
+    return f_index, f_start
+
 int_to_note_array = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 def pydaw_read_file_text(a_file):
