@@ -1948,6 +1948,7 @@ class audio_input_track:
         self.output_combobox.setCurrentIndex(a_track.output)
         self.suppress_osc = False
 
+global_item_editing_count = 1
 
 global_piano_roll_snap = False
 global_piano_roll_grid_width = 1000.0
@@ -1987,8 +1988,8 @@ def pydaw_set_piano_roll_quantize(a_index):
     elif a_index == 4:
         global_piano_roll_snap_divisor =  4.0
         global_piano_roll_snap = True
-    global_piano_roll_snap_value = (global_piano_roll_grid_width * this_piano_roll_editor.item_count) / global_piano_roll_snap_divisor
-    global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / (4.0 * this_piano_roll_editor.item_count)
+    global_piano_roll_snap_value = (global_piano_roll_grid_width * global_item_editing_count) / global_piano_roll_snap_divisor
+    global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / (4.0 * global_item_editing_count)
 
 class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_length, a_note_height, a_note, a_note_item, a_item_index):
@@ -2147,7 +2148,6 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def __init__(self, a_item_length=4, a_grid_div=16):
         self.item_length = float(a_item_length)
         self.viewer_width = 1000
-        self.item_count = 1
         self.grid_div = a_grid_div
 
         self.end_octave = 8
@@ -2296,12 +2296,11 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def draw_item(self):
         """ Draw all notes in an instance of the pydaw_item class"""
-        self.item_count = len(this_item_editor.items)
-        self.viewer_width = 1000 * self.item_count
-        self.item_length = float(4 * self.item_count)
+        self.viewer_width = 1000 * global_item_editing_count
+        self.item_length = float(4 * global_item_editing_count)
         pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
         global global_piano_roll_grid_max_start_time
-        global_piano_roll_grid_max_start_time = (999.0 * self.item_count) + global_piano_keys_width
+        global_piano_roll_grid_max_start_time = (999.0 * global_item_editing_count) + global_piano_keys_width
         self.clear_drawn_items()
         if not this_item_editor.enabled:
             return
@@ -3424,13 +3423,12 @@ class item_list_editor:
 
     def open_item(self, a_items=None):
         """ a_items is a list of str, which are the names of the items.  Leave blank to open the existing list """
-        for i in range(3):
-            this_cc_automation_viewers[i].clear_drawn_items()
-        this_pb_automation_viewer.clear_drawn_items()
 
         self.enabled = True
 
         if a_items is not None:
+            global global_item_editing_count
+            global_item_editing_count = len(a_items)
             self.item_names = a_items
             self.item_index_enabled = False
             self.item_name_combobox.clear()
@@ -3438,6 +3436,10 @@ class item_list_editor:
             self.item_name_combobox.addItems(a_items)
             #self.item_name_combobox.setCurrentIndex(self.item_name_combobox.findText(a_item_name))
             self.item_index_enabled = True
+
+        for i in range(3):
+            this_cc_automation_viewers[i].clear_drawn_items()
+        this_pb_automation_viewer.clear_drawn_items()
 
         self.notes_table_widget.clear()
         self.ccs_table_widget.clear()
