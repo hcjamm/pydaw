@@ -703,6 +703,83 @@ def pydaw_draw_multi_item_cc_line(a_cc_num, a_start_val, a_end_val, a_items=[]):
             f_cc_val += f_cc_inc
             i2 += f_inc
 
+def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
+    if a_is_cc:
+        f_this_cc_arr = []
+        f_beat_offset = 0.0
+        f_index = 0
+        f_cc_num = int(a_cc_num)
+        f_result_arr = []
+        for f_item in a_items_list:
+            for f_cc in f_item.ccs:
+                if f_cc.cc_num == f_cc_num:
+                    f_new_cc = pydaw_cc((f_cc.start + f_beat_offset), f_cc_num, f_cc.cc_val)
+                    f_new_cc.item_index = f_index
+                    f_new_cc.beat_offset = f_beat_offset
+                    f_this_cc_arr.append(f_new_cc)
+            f_beat_offset += 4.0
+            f_index += 1
+            f_result_arr.append([])
+
+        f_this_cc_arr.sort()
+        for i in range(len(f_this_cc_arr) - 1):
+            f_val_diff = abs(f_this_cc_arr[i + 1].cc_val - f_this_cc_arr[i].cc_val)
+            if f_val_diff == 0:
+                continue
+            f_time_inc = ((f_this_cc_arr[i + 1].start - f_this_cc_arr[i].start) / f_val_diff) * 4.0
+            f_start = f_this_cc_arr[i].start + f_time_inc
+            if (f_this_cc_arr[i].cc_val) > (f_this_cc_arr[i + 1].cc_val):
+                f_start_val = f_this_cc_arr[i].cc_val - 4
+                f_inc = -4
+            else:
+                f_start_val = f_this_cc_arr[i].cc_val + 4
+                f_inc = 4
+            for f_i2 in range(f_start_val, (f_this_cc_arr[i + 1].cc_val), f_inc):
+                f_result_arr[f_this_cc_arr[i].item_index].append(pydaw_cc(round((f_start - f_this_cc_arr[i].beat_offset), 4), f_cc_num, f_i2))
+                f_start += f_time_inc
+                if f_start >= (f_this_cc_arr[i + 1].start - 0.05):
+                    break
+        for f_i in range(len(a_items_list)):
+            a_items_list[f_i].ccs += f_result_arr[f_i]
+            a_items_list[f_i].ccs.sort()
+    else:
+        f_this_pb_arr = []
+        f_beat_offset = 0.0
+        f_index = 0
+        f_result_arr = []
+        for f_item in a_items_list:
+            for f_pb in f_item.pitchbends:
+                f_new_pb = pydaw_pitchbend(f_pb.start + f_beat_offset, f_pb.pb_val)
+                f_new_pb.item_index = f_index
+                f_new_pb.beat_offset = f_beat_offset
+                f_this_pb_arr.append(f_new_pb)
+            f_beat_offset += 4.0
+            f_index += 1
+            f_result_arr.append([])
+        for i in range(len(f_this_pb_arr) - 1):
+            f_val_diff = f_this_pb_arr[i + 1].pb_val - f_this_pb_arr[i].pb_val
+            if f_val_diff == 0.0:
+                continue
+            f_steps = (abs(f_val_diff) / 0.05)
+            f_time_inc = (f_this_pb_arr[i + 1].start - f_this_pb_arr[i].start) / f_steps
+            f_start = f_this_pb_arr[i].start + f_time_inc
+
+            if f_val_diff < 0:
+                f_val_inc = -0.05
+                f_new_val = f_this_pb_arr[i].pb_val - 0.05
+            else:
+                f_val_inc = 0.05
+                f_new_val = f_this_pb_arr[i].pb_val + 0.05
+            for f_i2 in range(int(f_steps)):
+                f_result_arr[f_this_pb_arr[i].item_index].append(pydaw_pitchbend(round((f_start - f_this_pb_arr[i].beat_offset), 4), round(f_new_val, 4)))
+                f_start += f_time_inc
+                if f_start >= (f_this_pb_arr[i + 1].start - 0.05):
+                    break
+                f_new_val += f_val_inc
+        for f_i in range(len(a_items_list)):
+            a_items_list[f_i].pitchbends += f_result_arr[f_i]
+            a_items_list[f_i].pitchbends.sort()
+
 class pydaw_item:
     def add_note(self, a_note):
         for note in self.notes:

@@ -2662,8 +2662,6 @@ class automation_viewer(QtGui.QGraphicsView):
         self.scene.addItem(f_point)
         self.connect_points()
 
-
-
 class automation_viewer_widget:
     def plugin_changed(self, a_val=None):
         self.control_combobox.clear()
@@ -2685,9 +2683,9 @@ class automation_viewer_widget:
 
     def smooth_pressed(self):
         if self.is_cc:
-            this_item_editor.item.smooth_automation_points(self.is_cc, self.cc_spinbox.value())
+            pydaw_smooth_automation_points(this_item_editor.items, self.is_cc, self.cc_spinbox.value())
         else:
-            this_item_editor.item.smooth_automation_points(self.is_cc)
+            pydaw_smooth_automation_points(this_item_editor.items, self.is_cc)
         this_item_editor.save_and_reload()
 
     def __init__(self, a_viewer, a_is_cc=True):
@@ -3408,6 +3406,11 @@ class item_list_editor:
         f_index = int(a_note.start / 4.0)
         a_note.start -= (float(f_index) * 4.0)
         self.items[f_index].add_note(a_note)
+
+    def add_pb(self, a_pb):
+        f_index = int(a_pb.start / 4.0)
+        a_pb.start -= (float(f_index) * 4.0)
+        self.items[int(f_index)].add_pb(a_pb)
 
     def open_item(self, a_items=None):
         """ a_items is a list of str, which are the names of the items.  Leave blank to open the existing list """
