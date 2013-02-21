@@ -2042,8 +2042,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
         if a_event.modifiers() == QtCore.Qt.ShiftModifier:
             this_item_editor.item.remove_note(self.note_item)
-            this_pydaw_project.save_item(this_item_editor.item_name, this_item_editor.item)
-            this_item_editor.open_item(this_item_editor.item_name, this_item_editor.multi_item_list)
+            this_item_editor.save_and_reload()
             QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         else:
             self.o_brush = self.brush()
@@ -2117,8 +2116,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     f_item.note_item.set_start(f_new_note_start)
                     f_item.note_item.note_num = f_new_note_num
         this_item_editor.item.fix_overlaps()
-        this_pydaw_project.save_item(this_item_editor.item_name, this_item_editor.item)
-        this_item_editor.open_item(this_item_editor.item_name, this_item_editor.multi_item_list)
+        this_item_editor.save_and_reload()
         self.is_resizing = False
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         this_piano_roll_editor.click_enabled = True
@@ -2211,8 +2209,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 global global_selected_piano_note_pos
                 global_selected_piano_note_pos = a_event.scenePos()
                 this_item_editor.item.add_note(f_note_item)
-                this_pydaw_project.save_item(this_item_editor.item_name, this_item_editor.item)
-                this_item_editor.open_item(this_item_editor.item_name, this_item_editor.multi_item_list)
+                this_item_editor.save_and_reload()
 
             QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
         else:
