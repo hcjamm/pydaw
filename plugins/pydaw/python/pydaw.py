@@ -2726,8 +2726,6 @@ class automation_viewer_widget:
         self.widget.setMinimumSize(750, 420)
         self.widget.setMaximumSize(750, 420)
 
-
-
 class item_list_editor:
     def clear_notes(self):
         if self.enabled:
@@ -3398,19 +3396,19 @@ class item_list_editor:
         self.pitchbend_table_widget.setRowCount(128 * f_factor)
 
     def add_cc(self, a_cc):
-        f_index = int(a_cc.start / 4.0)
-        a_cc.start -= (float(f_index) * 4.0)
-        self.items[int(f_index)].add_cc(a_cc)
+        f_index, f_start = pydaw_beats_to_index(a_cc.start)
+        a_cc.start = f_start
+        self.items[f_index].add_cc(a_cc)
 
     def add_note(self, a_note):
-        f_index = int(a_note.start / 4.0)
-        a_note.start -= (float(f_index) * 4.0)
+        f_index, f_start = pydaw_beats_to_index(a_note.start)
+        a_note.start = f_start
         self.items[f_index].add_note(a_note)
 
     def add_pb(self, a_pb):
-        f_index = int(a_pb.start / 4.0)
-        a_pb.start -= (float(f_index) * 4.0)
-        self.items[int(f_index)].add_pb(a_pb)
+        f_index, f_start = pydaw_beats_to_index(a_pb.start)
+        a_pb.start = f_start
+        self.items[f_index].add_cc(a_pb)
 
     def open_item(self, a_items=None):
         """ a_items is a list of str, which are the names of the items.  Leave blank to open the existing list """
