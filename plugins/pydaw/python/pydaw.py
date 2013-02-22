@@ -3208,10 +3208,33 @@ class item_list_editor:
         self.notes_groupbox.setMaximumWidth(390)
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
 
+
+        self.editing_hboxlayout.addWidget(QtGui.QLabel("Editing Item:"))
+        self.item_name_combobox = QtGui.QComboBox()
+        self.item_name_combobox.setMinimumWidth(150)
+        self.item_name_combobox.setEditable(False)
+        self.item_name_combobox.currentIndexChanged.connect(self.item_index_changed)
+        self.item_index_enabled = True
+        self.editing_hboxlayout.addWidget(self.item_name_combobox)
+
+        self.editing_hboxlayout.addWidget(QtGui.QLabel("Templates:"))
+        self.template_save_as = QtGui.QPushButton("Save as...")
+        self.template_save_as.setMinimumWidth(90)
+        self.template_save_as.pressed.connect(self.on_template_save_as)
+        self.editing_hboxlayout.addWidget(self.template_save_as)
+        self.template_open = QtGui.QPushButton("Open")
+        self.template_open.setMinimumWidth(90)
+        self.template_open.pressed.connect(self.on_template_open)
+        self.editing_hboxlayout.addWidget(self.template_open)
+        self.template_combobox = QtGui.QComboBox()
+        self.template_combobox.setMinimumWidth(150)
+        self.editing_hboxlayout.addWidget(self.template_combobox)
+        self.load_templates()
+
         self.edit_mode_groupbox = QtGui.QGroupBox()
         self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
         self.edit_mode_hlayout0.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
-        self.edit_mode_hlayout0.addWidget(QtGui.QLabel("List Edit Mode:"))
+        self.edit_mode_hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
         self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
         self.edit_mode_hlayout0.addWidget(self.add_radiobutton)
         self.multiselect_radiobutton = QtGui.QRadioButton("Multiselect")
@@ -3373,6 +3396,22 @@ class item_list_editor:
         self.notes_clipboard = []
         self.ccs_clipboard = []
         self.pbs_clipboard = []
+
+
+    def item_index_changed(self, a_index=None):
+        if self.item_index_enabled:
+            self.open_item(self.item_name_combobox.currentText())
+
+    def load_templates(self):
+        self.template_combobox.clear()
+        f_path= expanduser("~") + "/" + global_pydaw_version_string + "/item_templates"
+        if not os.path.isdir(f_path):
+            os.makedirs(f_path)
+        else:
+            f_file_list = os.listdir(f_path)
+            for f_name in f_file_list:
+                if f_name.endswith(".pyitem"):
+                    self.template_combobox.addItem(f_name.split(".")[0])
 
     def set_headers(self): #Because clearing the table clears the headers
         self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note', 'Note#', 'Velocity'])
