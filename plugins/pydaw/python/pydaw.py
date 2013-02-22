@@ -2384,9 +2384,6 @@ class piano_roll_editor_widget():
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
         self.snap_combobox.setCurrentIndex(1)
-        self.add_item_button = QtGui.QPushButton("Add Note")
-        self.controls_grid_layout.addWidget(self.add_item_button, 0, 2)
-        self.add_item_button.pressed.connect(self.add_note)
         #self.h_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         #self.h_zoom_slider.setRange(0, 100)
         #self.h_zoom_slider.setMaximumWidth(600)
@@ -2395,12 +2392,6 @@ class piano_roll_editor_widget():
         #self.h_zoom_slider.valueChanged.connect(self.set_zoom)
         #self.controls_grid_layout.addWidget(QtGui.QLabel("Zoom:"), 0, 49)
         #self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
-
-    def add_note(self):
-        if not this_item_editor.enabled:
-            this_item_editor.show_not_enabled_warning()
-            return
-        this_item_editor.notes_show_event_dialog(len(this_item_editor.item.notes), 0)
 
     def set_snap(self, a_val=None):
         pydaw_set_piano_roll_quantize(self.snap_combobox.currentIndex())
@@ -2480,7 +2471,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     f_cc_start = 0.0
                 f_new_item_index, f_cc_start = pydaw_beats_to_index(f_cc_start)
                 if self.is_cc:
-                    this_item_editor.item[f_point.item_index].ccs.remove(f_point.cc_item)
+                    this_item_editor.items[f_point.item_index].ccs.remove(f_point.cc_item)
                     f_point.item_index = f_new_item_index
                     f_cc_val = int(127.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 127.0))
                     f_point.cc_item.start = f_cc_start
@@ -2819,13 +2810,14 @@ class item_list_editor:
         def quantize_ok_handler():
             f_quantize_index = f_quantize_combobox.currentIndex()
             self.events_follow_default = f_events_follow_notes.isChecked()
-            if f_multiselect:
-                self.item.quantize(f_quantize_index, f_events_follow_notes.isChecked(), f_ms_rows)
-            else:
-                self.item.quantize(f_quantize_index, f_events_follow_notes.isChecked())
-            this_pydaw_project.save_item(self.item_name, self.item)
+            for f_i in range(len(self.items)):
+                if f_multiselect:
+                    self.items[f_i].quantize(f_quantize_index, f_events_follow_notes.isChecked(), f_ms_rows)
+                else:
+                    self.items[f_i].quantize(f_quantize_index, f_events_follow_notes.isChecked())
+                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
-            this_pydaw_project.git_repo.git_commit("-a", "Quantize item '" + self.item_name + "'")
+            this_pydaw_project.git_repo.git_commit("-a", "Quantize item(s)")
             f_window.close()
 
         def quantize_cancel_handler():
@@ -2875,22 +2867,25 @@ class item_list_editor:
                 elif f_note.start > f_end_beat_val:
                     f_end_beat_val = f_note.start
         else:
-            for f_note in self.item.notes:
-                if f_note.start < f_start_beat_val:
-                    f_start_beat_val = f_note.start
-                elif f_note.start > f_end_beat_val:
-                    f_end_beat_val = f_note.start
+            f_beat_offset = 0.0
+            for f_item in self.items:
+                for f_note in f_item.notes:
+                    if (f_note.start + f_beat_offset) < f_start_beat_val:
+                        f_start_beat_val = f_note.start + f_beat_offset
+                    elif f_note.start + f_beat_offset > f_end_beat_val:
+                        f_end_beat_val = f_note.start + f_beat_offset
 
         def ok_handler():
-            if f_multiselect:
-                self.item.velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
-                f_end_amount.value(), f_add_values.isChecked(), f_ms_rows)
-            else:
-                self.item.velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
-                f_end_amount.value(), f_add_values.isChecked())
-            this_pydaw_project.save_item(self.item_name, self.item)
+            for f_i in range(global_item_editing_count):
+                if f_multiselect:
+                    self.items[f_i].velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
+                    f_end_amount.value(), f_add_values.isChecked(), f_ms_rows)
+                else:
+                    self.items[f_i].velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
+                    f_end_amount.value(), f_add_values.isChecked())
+                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
-            this_pydaw_project.git_repo.git_commit("-a", "Velocity mod item '" + self.item_name + "'")
+            this_pydaw_project.git_repo.git_commit("-a", "Velocity mod item(s)")
             f_window.close()
 
         def cancel_handler():
@@ -3008,13 +3003,14 @@ class item_list_editor:
             else:
                 f_quantize_index = None
             self.events_follow_default = f_events_follow_notes.isChecked()
-            if f_multiselect:
-                self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked(), f_ms_rows, a_quantize=f_quantize_index)
-            else:
-                self.item.time_shift(f_shift.value(), f_events_follow_notes.isChecked(), a_quantize=f_quantize_index)
-            this_pydaw_project.save_item(self.item_name, self.item)
+            for f_i in range(global_item_editing_count):
+                if f_multiselect:
+                    self.items[f_i].time_shift(f_shift.value(), f_events_follow_notes.isChecked(), f_ms_rows, a_quantize=f_quantize_index)
+                else:
+                    self.items[f_i].time_shift(f_shift.value(), f_events_follow_notes.isChecked(), a_quantize=f_quantize_index)
+                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
-            this_pydaw_project.git_repo.git_commit("-a", "Time shift item '" + self.item_name + "'")
+            this_pydaw_project.git_repo.git_commit("-a", "Time shift item")
             f_window.close()
 
         def time_shift_cancel_handler():
@@ -3072,13 +3068,14 @@ class item_list_editor:
             else:
                 f_min_max_value = None
 
-            if f_multiselect:
-                self.item.length_shift(f_shift.value(), f_min_max_value, f_ms_rows, a_quantize=f_quantize_index)
-            else:
-                self.item.length_shift(f_shift.value(), f_min_max_value, a_quantize=f_quantize_index)
-            this_pydaw_project.save_item(self.item_name, self.item)
+            for f_i in range(global_item_editing_count):
+                if f_multiselect:
+                    self.items[f_i].length_shift(f_shift.value(), f_min_max_value, f_ms_rows, a_quantize=f_quantize_index)
+                else:
+                    self.items[f_i].length_shift(f_shift.value(), f_min_max_value, a_quantize=f_quantize_index)
+                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
-            this_pydaw_project.git_repo.git_commit("-a", "Length shift item '" + self.item_name + "'")
+            this_pydaw_project.git_repo.git_commit("-a", "Length shift item(s)")
             f_window.close()
 
         def length_shift_cancel_handler():
@@ -3385,16 +3382,19 @@ class item_list_editor:
         f_index, f_start = pydaw_beats_to_index(a_cc.start)
         a_cc.start = f_start
         self.items[f_index].add_cc(a_cc)
+        return f_index
 
     def add_note(self, a_note):
         f_index, f_start = pydaw_beats_to_index(a_note.start)
         a_note.start = f_start
         self.items[f_index].add_note(a_note)
+        return f_index
 
     def add_pb(self, a_pb):
         f_index, f_start = pydaw_beats_to_index(a_pb.start)
         a_pb.start = f_start
         self.items[f_index].add_pb(a_pb)
+        return f_index
 
     def open_item(self, a_items=None):
         """ a_items is a list of str, which are the names of the items.  Leave blank to open the existing list """
@@ -3594,11 +3594,12 @@ class item_list_editor:
         if a_note is not None:
             self.is_existing_note = True
             f_note_item = a_note
-            self.default_note_start = a_note.start
-            self.default_note_length = a_note.length
-            self.default_note_note = a_note.note_num % 12
-            self.default_note_octave = (a_note.note_num / 12) - 2
-            self.default_note_velocity = a_note.velocity
+            f_note_index, f_note_item.start = pydaw_beats_to_index( f_note_item.start)
+            self.default_note_start = f_note_item.start
+            self.default_note_length = f_note_item.length
+            self.default_note_note = f_note_item.note_num % 12
+            self.default_note_octave = (f_note_item.note_num / 12) - 2
+            self.default_note_velocity = f_note_item.velocity
         else:
             f_cell = self.notes_table_widget.item(x, y)
             if f_cell is not None:
@@ -3614,25 +3615,23 @@ class item_list_editor:
 
         def note_ok_handler():
             if self.is_existing_note:
-                self.item.remove_note(f_note_item)
+                self.items[f_note_index].remove_note(f_note_item)
             f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
             f_start_rounded = time_quantize_round(f_start.value())
             f_length_rounded = time_quantize_round(f_length.value())
             f_new_note = pydaw_note(f_start_rounded, f_length_rounded, f_note_value, f_velocity.value())
-            if not self.item.add_note(f_new_note):
-                QtGui.QMessageBox.warning(f_window, "Error", "Overlapping note events")
-                return
+            f_item_index = self.add_note(f_new_note)
 
-            self.default_note_start = f_start_rounded
+            self.default_note_start = f_new_note.start
             self.default_note_length = f_length_rounded
             self.default_note_note = int(f_note.currentIndex())
             self.default_note_octave = int(f_octave.value())
             self.default_note_velocity = int(f_velocity.value())
             self.default_quantize = int(f_quantize_combobox.currentIndex())
-            this_pydaw_project.save_item(self.item_name, self.item)
+            this_pydaw_project.save_item(self.item_names[f_item_index], self.items[f_item_index])
 
             self.open_item()
-            this_pydaw_project.git_repo.git_commit("-a", "Update notes for item '" + self.item_name + "'")
+            this_pydaw_project.git_repo.git_commit("-a", "Update notes for item '" + self.item_names[f_item_index] + "'")
 
             if self.is_existing_note:
                 f_window.close()
