@@ -467,9 +467,7 @@ class region_list_editor:
         self.delete_action = QtGui.QAction("Delete (Del)", self.table_widget)
         self.delete_action.triggered.connect(self.delete_selected)
         self.table_widget.addAction(self.delete_action)
-        self.draw_ccs_action = QtGui.QAction("Draw CC Automation (CTRL+F)", self.table_widget)
-        self.draw_ccs_action.triggered.connect(self.on_draw_ccs)
-        self.table_widget.addAction(self.draw_ccs_action)
+
         self.main_vlayout.addWidget(self.table_widget, 2, 0)
         self.last_item_copied = None
         self.reset_tracks()
@@ -497,146 +495,14 @@ class region_list_editor:
             for i2 in range(1, self.region_length + 1):
                 f_item = self.table_widget.item(i, i2)
                 if not f_item is None and not str(f_item.text()) == "" and f_item.isSelected():
-                    f_result.append(str(f_item.text()))
+                    f_result_str = str(f_item.text())
+                    if f_result_str in f_result:
+                        QtGui.QMessageBox.warning(self.table_widget, "Error", "You cannot open multiple instances of the same item as a group.\n" + \
+                        "You should unlink all duplicate instances of " + f_result_str + " into their own individual item names before editing as a group.")
+                        return
+                    f_result.append(f_result_str)
         this_item_editor.open_item(f_result)
         this_main_window.main_tabwidget.setCurrentIndex(1)
-
-    def on_draw_ccs(self):
-        if not self.enabled:
-            self.warn_no_region_selected()
-            return
-
-        def ccs_ok_handler():
-            self.last_cc_line_num = f_cc_num.value()
-            f_unlink_base_name = pydaw_remove_bad_chars(f_new_lineedit.text())
-            if f_unlink_base_name == "":
-                QtGui.QMessageBox.warning(self.table_widget, "Error", "New/Unlink Prefix cannot be empty.")
-                return
-            if f_end_val.value() == f_start_val.value():
-                QtGui.QMessageBox.warning(self.table_widget, "Error", "End value is the same as start value.")
-                return
-            f_item_list = []
-            f_item_names = []  #doing this as 2 separate lists because AFAIK ordering isn't guaranteed in a dict?
-
-            f_track_num = f_track_combobox.currentIndex()
-            for i in range(f_start_bar.value() + 1, f_end_bar.value() + 1):
-                f_item = self.table_widget.item(f_track_num, i)
-                if f_item is None or str(f_item.text()) == "":  #Create the item
-                    f_new_item_name = this_pydaw_project.get_next_default_item_name(f_unlink_base_name)
-                    print(f_new_item_name)
-                    this_pydaw_project.create_empty_item(f_new_item_name)
-                    f_item_list.append(this_pydaw_project.get_item(f_new_item_name))
-                    f_item_names.append(f_new_item_name)
-                    self.region.add_item_ref(f_track_num, i - 1, f_new_item_name)
-                elif f_unlink_items.isChecked():  #item exists and we are unlinking it
-                    f_new_item_name = this_pydaw_project.get_next_default_item_name(f_unlink_base_name)
-                    print(f_new_item_name)
-                    f_item_text = str(f_item.text())
-                    this_pydaw_project.copy_item(f_item_text, f_new_item_name)
-                    f_item_list.append(this_pydaw_project.get_item(f_new_item_name))
-                    f_item_names.append(f_new_item_name)
-                    self.region.add_item_ref(f_track_num, i - 1, f_new_item_name)
-                else:
-                    f_item_text = str(f_item.text())
-                    f_item_list.append(this_pydaw_project.get_item(f_item_text))
-                    f_item_names.append(f_item_text)
-
-            pydaw_draw_multi_item_cc_line(f_cc_num.value(), f_start_val.value(), f_end_val.value(), f_item_list)
-
-            for i in range(len(f_item_list)):
-                this_pydaw_project.save_item(f_item_names[i], f_item_list[i])
-
-            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
-            self.open_region(self.region_name_lineedit.text())
-            this_pydaw_project.git_repo.git_commit("-a", "Draw CC line in region " + str(self.region_name_lineedit.text()))
-            f_window.close()
-
-        def ccs_cancel_handler():
-            f_window.close()
-
-        def on_name_changed():
-            f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
-
-        def on_start_end_change(f_value=None):
-            if f_end_bar.value() <= f_start_bar.value():
-                f_end_bar.setValue(f_start_bar.value() + 1)
-
-
-        def plugin_changed(a_val=None):
-            f_control_combobox.clear()
-            f_control_combobox.addItems(global_cc_maps[str(f_plugin_combobox.currentText())].keys())
-
-        def control_changed(a_val=None):
-            f_plugin_str = str(f_plugin_combobox.currentText())
-            f_control_str = str(f_control_combobox.currentText())
-            if f_plugin_str != '' and f_control_str != '':
-                f_value = int(global_cc_maps[f_plugin_str][f_control_str])
-                f_cc_num.setValue(f_value)
-
-        f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Draw multi-item CCs...")
-        f_layout = QtGui.QGridLayout()
-        f_window.setLayout(f_layout)
-
-        f_plugin_combobox = QtGui.QComboBox()
-        f_plugin_combobox.addItems(global_cc_maps.keys())
-        f_layout.addWidget(QtGui.QLabel("Plugin"), 1, 0)
-        f_layout.addWidget(f_plugin_combobox, 1, 1)
-
-        f_control_combobox = QtGui.QComboBox()
-        f_layout.addWidget(QtGui.QLabel("Control"), 2, 0)
-        f_layout.addWidget(f_control_combobox, 2, 1)
-
-        plugin_changed()
-        f_plugin_combobox.currentIndexChanged.connect(plugin_changed)
-        f_control_combobox.currentIndexChanged.connect(control_changed)
-
-        f_cc_num = QtGui.QSpinBox()
-        f_cc_num.setRange(1, 127)
-        f_cc_num.setValue(self.last_cc_line_num)
-        f_layout.addWidget(QtGui.QLabel("CC Num:"), 3, 0)
-        f_layout.addWidget(f_cc_num, 3, 1)
-
-        f_track_combobox = QtGui.QComboBox()
-        for f_track in this_region_editor.tracks:
-            f_track_combobox.addItem(f_track.track_name_lineedit.text())
-        f_track_combobox.setCurrentIndex(self.table_widget.currentRow())
-        f_layout.addWidget(QtGui.QLabel("Track:"), 6, 0)
-        f_layout.addWidget(f_track_combobox, 6, 1)
-        f_start_bar = QtGui.QSpinBox()
-        f_start_bar.setRange(0, 7)  #TODO:  Make 7 into region length - 1...
-        f_start_bar.valueChanged.connect(on_start_end_change)
-        f_layout.addWidget(QtGui.QLabel("Start"), 7, 0)
-        f_layout.addWidget(f_start_bar, 7, 1)
-        f_end_bar = QtGui.QSpinBox()
-        f_end_bar.setRange(1, 8)  #TODO:  Make 8 into region length...
-        f_end_bar.valueChanged.connect(on_start_end_change)
-        f_start_bar.setValue(self.table_widget.currentColumn() - 1)
-        f_layout.addWidget(QtGui.QLabel("End"), 9, 0)
-        f_layout.addWidget(f_end_bar, 9, 1)
-        f_start_val = QtGui.QSpinBox()
-        f_start_val.setRange(0, 127)
-        f_layout.addWidget(QtGui.QLabel("Start Value"), 14, 0)
-        f_layout.addWidget(f_start_val, 14, 1)
-        f_end_val = QtGui.QSpinBox()
-        f_end_val.setRange(0, 127)
-        f_layout.addWidget(QtGui.QLabel("End Value"), 18, 0)
-        f_layout.addWidget(f_end_val, 18, 1)
-        f_unlink_items = QtGui.QCheckBox("Unlink items first?")
-        f_layout.addWidget(f_unlink_items, 21, 1)
-        f_new_lineedit = QtGui.QLineEdit()
-        f_new_lineedit.editingFinished.connect(on_name_changed)
-        f_new_lineedit.setMaxLength(24)
-        f_new_lineedit.setText("unlinked")
-        f_layout.addWidget(QtGui.QLabel("New/Unlink Prefix"), 24, 0)
-        f_layout.addWidget(f_new_lineedit, 24, 1)
-        f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 27, 0)
-        f_ok_button.clicked.connect(ccs_ok_handler)
-        f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 27, 1)
-        f_cancel_button.clicked.connect(ccs_cancel_handler)
-        f_window.exec_()
 
     def on_unlink_item(self):
         """ Rename a single instance of an item and make it into a new item """
@@ -2481,16 +2347,16 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     f_cc_val = int(127.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 127.0))
                     f_point.cc_item.start = f_cc_start
                     f_point.cc_item.set_val(f_cc_val)
-                    this_item_editor.item[f_point.item_index].ccs.append(f_point.cc_item)
-                    this_item_editor.item[f_point.item_index].sort()
+                    this_item_editor.items[f_point.item_index].ccs.append(f_point.cc_item)
+                    this_item_editor.items[f_point.item_index].sort()
                 else:
-                    this_item_editor.item[f_point.item_index].pitchbends.remove(f_point.cc_item)
+                    this_item_editor.items[f_point.item_index].pitchbends.remove(f_point.cc_item)
                     f_point.item_index = f_new_item_index
                     f_cc_val = (1.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 2.0))
                     f_point.cc_item.start = f_cc_start
                     f_point.cc_item.set_val(f_cc_val)
-                    this_item_editor.item[f_point.item_index].pitchbends.append(f_point.cc_item)
-                    this_item_editor.item[f_point.item_index].pitchbends.sort()
+                    this_item_editor.items[f_point.item_index].pitchbends.append(f_point.cc_item)
+                    this_item_editor.items[f_point.item_index].pitchbends.sort()
         this_item_editor.save_and_reload()
 
 class automation_viewer(QtGui.QGraphicsView):
