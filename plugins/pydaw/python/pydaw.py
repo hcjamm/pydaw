@@ -2262,19 +2262,23 @@ class piano_roll_editor(QtGui.QGraphicsView):
             for j in range(self.notes_in_octave, 0, -1):
                 f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.note_height, self.piano)
                 f_note_bar.setPos(self.piano_width + self.padding,  self.note_height*(j) + self.octave_height*(i-1))
-                #basic implementation of zth's "show scales", there are a few transparency issues
-                #if j not in f_black_notes:
-                #    f_note_bar.setBrush(QtGui.QColor(230,230,230,100))
         f_beat_pen = QtGui.QPen()
         f_beat_pen.setWidth(2)
+        f_bar_pen = QtGui.QPen()
+        f_bar_pen.setWidth(2)
+        f_bar_pen.setColor(QtGui.QColor(224, 60, 60))
         f_line_pen = QtGui.QPen()
         f_line_pen.setColor(QtGui.QColor(0,0,0,40))
         for i in range(0, int(self.item_length) + 1):
             f_beat = QtGui.QGraphicsLineItem(0, 0, 0, self.piano_height+self.header_height-f_beat_pen.width(), self.header)
             f_beat.setPos(self.beat_width * i, 0.5 * f_beat_pen.width())
-            f_beat.setPen(f_beat_pen)
+            f_beat_number = i % 4
+            if f_beat_number == 0 and not i == 0:
+                f_beat.setPen(f_bar_pen)
+            else:
+                f_beat.setPen(f_beat_pen)
             if i < self.item_length:
-                f_number = QtGui.QGraphicsSimpleTextItem(str(i), self.header)
+                f_number = QtGui.QGraphicsSimpleTextItem(str(f_beat_number), self.header)
                 f_number.setPos(self.beat_width * i + 5, 2)
                 f_number.setBrush(QtCore.Qt.white)
                 for j in range(0, self.grid_div):
@@ -2327,17 +2331,17 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
 class piano_roll_editor_widget():
     def quantize_dialog(self):
-        this_item_editor.quantize_dialog()
+        this_item_editor.quantize_dialog(False)
     def transpose_dialog(self):
-        this_item_editor.transpose_dialog()
+        this_item_editor.transpose_dialog(False)
     def time_shift_dialog(self):
-        this_item_editor.time_shift_dialog()
+        this_item_editor.time_shift_dialog(False)
     def length_shift_dialog(self):
-        this_item_editor.length_shift_dialog()
+        this_item_editor.length_shift_dialog(False)
     def velocity_dialog(self):
-        this_item_editor.velocity_dialog()
+        this_item_editor.velocity_dialog(False)
     def clear_notes(self):
-        this_item_editor.clear_notes()
+        this_item_editor.clear_notes(False)
 
     def __init__(self):
         self.widget = QtGui.QWidget()
@@ -2575,6 +2579,9 @@ class automation_viewer(QtGui.QGraphicsView):
     def draw_grid(self):
         f_beat_pen = QtGui.QPen()
         f_beat_pen.setWidth(2)
+        f_bar_pen = QtGui.QPen()
+        f_bar_pen.setWidth(2)
+        f_bar_pen.setColor(QtGui.QColor(224, 60, 60))
         f_line_pen = QtGui.QPen()
         f_line_pen.setColor(QtGui.QColor(0,0,0,40))
         if self.is_cc:
@@ -2594,9 +2601,13 @@ class automation_viewer(QtGui.QGraphicsView):
         for i in range(0, int(self.item_length)+1):
             f_beat = QtGui.QGraphicsLineItem(0, 0, 0, self.viewer_height+self.axis_size-f_beat_pen.width(), self.x_axis)
             f_beat.setPos(self.beat_width * i, 0.5*f_beat_pen.width())
-            f_beat.setPen(f_beat_pen)
+            f_beat_number = i % 4
+            if f_beat_number == 0 and not i == 0:
+                f_beat.setPen(f_bar_pen)
+            else:
+                f_beat.setPen(f_beat_pen)
             if i < self.item_length:
-                f_number = QtGui.QGraphicsSimpleTextItem(str(i), self.x_axis)
+                f_number = QtGui.QGraphicsSimpleTextItem(str(f_beat_number), self.x_axis)
                 f_number.setPos(self.beat_width * i + 5, 2)
                 f_number.setBrush(QtCore.Qt.white)
                 for j in range(0, self.grid_div):
@@ -2743,22 +2754,34 @@ class automation_viewer_widget:
         #self.widget.setMaximumSize(750, 420)
 
 class item_list_editor:
-    def clear_notes(self):
+    def clear_notes(self, a_is_list=True):
         if self.enabled:
-            for f_i in len(self.items):
-                self.items[f_i].notes = []
-                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+            if a_is_list:
+                self.item.notes = []
+                this_pydaw_project.save_item(self.item_name, self.item)
+            else:
+                for f_i in range(len(self.items)):
+                    self.items[f_i].notes = []
+                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
-    def clear_ccs(self):
+    def clear_ccs(self, a_is_list=True):
         if self.enabled:
-            for f_i in len(self.items):
-                self.items[f_i].ccs = []
-                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
-    def clear_pb(self):
+            if a_is_list:
+                self.item.ccs = []
+                this_pydaw_project.save_item(self.item_name, self.item)
+            else:
+                for f_i in range(len(self.items)):
+                    self.items[f_i].ccs = []
+                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+    def clear_pb(self, a_is_list=True):
         if self.enabled:
-            for f_i in len(self.items):
-                self.items[f_i].pitchbends = []
-                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+            if a_is_list:
+                self.item.pitchbends = []
+                this_pydaw_project.save_item(self.item_name, self.item)
+            else:
+                for f_i in range(len(self.items)):
+                    self.items[f_i].pitchbends = []
+                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
 
     def clear_new(self):
         self.enabled = False
@@ -2796,17 +2819,18 @@ class item_list_editor:
                 f_result.append(pydaw_pitchbend(self.pitchbend_table_widget.item(i, 0).text(), self.pitchbend_table_widget.item(i, 1).text()))
         return f_result
 
-    def quantize_dialog(self):
+    def quantize_dialog(self, a_is_list=True):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
         f_multiselect = False
-        if self.multiselect_radiobutton.isChecked():
-            f_ms_rows = self.get_notes_table_selected_rows()
-            if len(f_ms_rows) == 0:
-                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
-            else:
-                f_multiselect = True
+        if a_is_list:
+            if self.multiselect_radiobutton.isChecked():
+                f_ms_rows = self.get_notes_table_selected_rows()
+                if len(f_ms_rows) == 0:
+                    QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
+                else:
+                    f_multiselect = True
 
         def quantize_ok_handler():
             f_quantize_index = f_quantize_combobox.currentIndex()
@@ -2847,17 +2871,18 @@ class item_list_editor:
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
-    def velocity_dialog(self):
+    def velocity_dialog(self, a_is_list=True):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
         f_multiselect = False
-        if self.multiselect_radiobutton.isChecked():
-            f_ms_rows = self.get_notes_table_selected_rows()
-            if len(f_ms_rows) == 0:
-                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
-            else:
-                f_multiselect = True
+        if a_is_list:
+            if self.multiselect_radiobutton.isChecked():
+                f_ms_rows = self.get_notes_table_selected_rows()
+                if len(f_ms_rows) == 0:
+                    QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
+                else:
+                    f_multiselect = True
 
         f_start_beat_val = (4.0 * global_item_editing_count) - 0.01
         f_end_beat_val = 0.0
@@ -2877,14 +2902,19 @@ class item_list_editor:
                         f_end_beat_val = f_note.start + f_beat_offset
 
         def ok_handler():
-            for f_i in range(global_item_editing_count):
+            if a_is_list:
                 if f_multiselect:
-                    self.items[f_i].velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
+                    self.item.velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
                     f_end_amount.value(), f_add_values.isChecked(), f_ms_rows)
                 else:
+                    self.item.velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
+                    f_end_amount.value(), f_add_values.isChecked())
+                this_pydaw_project.save_item(self.item_name, self.item)
+            else:
+                for f_i in range(global_item_editing_count):
                     self.items[f_i].velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
                     f_end_amount.value(), f_add_values.isChecked())
-                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Velocity mod item(s)")
             f_window.close()
@@ -2912,13 +2942,19 @@ class item_list_editor:
 
         f_layout.addWidget(QtGui.QLabel("Start Beat"), 3, 0)
         f_start_beat = QtGui.QDoubleSpinBox()
-        f_start_beat.setRange(0.0, (4.0 * global_item_editing_count) - 0.01)
+        if a_is_list:
+            f_start_beat.setRange(0.0, 3.99)
+        else:
+            f_start_beat.setRange(0.0, (4.0 * global_item_editing_count) - 0.01)
         f_start_beat.setValue(f_start_beat_val)
         f_layout.addWidget(f_start_beat, 3, 1)
 
         f_layout.addWidget(QtGui.QLabel("End Beat"), 4, 0)
         f_end_beat = QtGui.QDoubleSpinBox()
-        f_end_beat.setRange(0.01, (4.0 * global_item_editing_count))
+        if a_is_list:
+            f_end_beat.setRange(0.01, 3.99)
+        else:
+            f_end_beat.setRange(0.01, (4.0 * global_item_editing_count))
         f_end_beat.setValue(f_end_beat_val)
         f_layout.addWidget(f_end_beat, 4, 1)
 
@@ -2936,23 +2972,28 @@ class item_list_editor:
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
-    def transpose_dialog(self):
+    def transpose_dialog(self, a_is_list=True):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
         f_multiselect = False
-        if self.multiselect_radiobutton.isChecked():
-            f_ms_rows = self.get_notes_table_selected_rows()
-            if len(f_ms_rows) == 0:
-                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
-            else:
-                f_multiselect = True
+        if a_is_list:
+            if self.multiselect_radiobutton.isChecked():
+                f_ms_rows = self.get_notes_table_selected_rows()
+                if len(f_ms_rows) == 0:
+                    QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You are editing in multiselect mode, but you have not selected anything.  All items will be processed")
+                else:
+                    f_multiselect = True
 
         def transpose_ok_handler():
-            for f_i in range(len(self.items)):
+            if a_is_list:
                 if f_multiselect:
-                    self.items[f_i].transpose(f_semitone.value(), f_octave.value(), f_ms_rows)
+                    self.item.transpose(f_semitone.value(), f_octave.value(), f_ms_rows)
                 else:
+                    self.item.transpose(f_semitone.value(), f_octave.value())
+                this_pydaw_project.save_item(self.item_name, self.item)
+            else:
+                for f_i in range(len(self.items)):
                     self.items[f_i].transpose(f_semitone.value(), f_octave.value())
                 this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
@@ -2986,7 +3027,7 @@ class item_list_editor:
     def show_not_enabled_warning(self):
         QtGui.QMessageBox.warning(this_main_window, "", "You must open an item first by double-clicking on one in the region editor on the 'Song' tab.")
 
-    def time_shift_dialog(self):
+    def time_shift_dialog(self, a_is_list=True):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
@@ -2994,7 +3035,7 @@ class item_list_editor:
         if self.multiselect_radiobutton.isChecked():
             f_ms_rows = self.get_notes_table_selected_rows()
             if len(f_ms_rows) == 0:
-                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
+                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You are editing in multiselect mode, but you have not selected anything.  All items will be processed")
             else:
                 f_multiselect = True
 
@@ -3046,17 +3087,18 @@ class item_list_editor:
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
-    def length_shift_dialog(self):
+    def length_shift_dialog(self, a_is_list=True):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
         f_multiselect = False
-        if self.multiselect_radiobutton.isChecked():
-            f_ms_rows = self.get_notes_table_selected_rows()
-            if len(f_ms_rows) == 0:
-                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
-            else:
-                f_multiselect = True
+        if a_is_list:
+            if self.multiselect_radiobutton.isChecked():
+                f_ms_rows = self.get_notes_table_selected_rows()
+                if len(f_ms_rows) == 0:
+                    QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You are editing in multiselect mode, but you have not selected anything.  All items will be processed")
+                else:
+                    f_multiselect = True
 
         def length_shift_ok_handler():
             if f_quantize_checkbox.isChecked():
@@ -3069,12 +3111,17 @@ class item_list_editor:
             else:
                 f_min_max_value = None
 
-            for f_i in range(global_item_editing_count):
+            if a_is_list:
                 if f_multiselect:
-                    self.items[f_i].length_shift(f_shift.value(), f_min_max_value, f_ms_rows, a_quantize=f_quantize_index)
+                    self.item.length_shift(f_shift.value(), f_min_max_value, f_ms_rows, a_quantize=f_quantize_index)
                 else:
+                    self.item.length_shift(f_shift.value(), f_min_max_value, a_quantize=f_quantize_index)
+                this_pydaw_project.save_item(self.item_name, self.item)
+            else:
+                for f_i in range(global_item_editing_count):
                     self.items[f_i].length_shift(f_shift.value(), f_min_max_value, a_quantize=f_quantize_index)
-                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+
             self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Length shift item(s)")
             f_window.close()
@@ -3329,11 +3376,11 @@ class item_list_editor:
         self.notes_hlayout.addWidget(self.ccs_groupbox)
 
         self.cc_auto_viewer_scrollarea = QtGui.QScrollArea()
-        self.cc_auto_viewer_scrollarea.setMinimumWidth(790)
+        self.cc_auto_viewer_scrollarea.setMinimumWidth(1200)
         self.cc_auto_viewer_scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.cc_auto_viewer_scrollarea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.cc_auto_viewer_scrollarea_widget = QtGui.QWidget()
-        self.cc_auto_viewer_scrollarea_widget.setMinimumSize(770, 1270)
+        self.cc_auto_viewer_scrollarea_widget.setMinimumSize(1180, 1270)
         self.cc_auto_viewer_scrollarea.setWidget(self.cc_auto_viewer_scrollarea_widget)
         self.cc_auto_viewer_vlayout = QtGui.QVBoxLayout(self.cc_auto_viewer_scrollarea_widget)
 
@@ -3422,10 +3469,9 @@ class item_list_editor:
         self.pitchbend_table_widget.setHorizontalHeaderLabels(['Start', 'Value'])
 
     def set_row_counts(self):
-        f_factor = len(self.item_names)
-        self.notes_table_widget.setRowCount(128 * f_factor)
-        self.ccs_table_widget.setRowCount(256 * f_factor)
-        self.pitchbend_table_widget.setRowCount(128 * f_factor)
+        self.notes_table_widget.setRowCount(128)
+        self.ccs_table_widget.setRowCount(256)
+        self.pitchbend_table_widget.setRowCount(128)
 
     def add_cc(self, a_cc):
         f_index, f_start = pydaw_beats_to_index(a_cc.start)
