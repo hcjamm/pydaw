@@ -3185,7 +3185,6 @@ class item_list_editor:
         self.tab_widget.addTab(self.piano_roll_tab, "Piano Roll")
 
         self.notes_tab = QtGui.QGroupBox()
-        self.tab_widget.addTab(self.notes_tab, "Notes")
 
         self.group_box = QtGui.QGroupBox()
         self.tab_widget.addTab(self.group_box, "CCs")
@@ -3198,15 +3197,15 @@ class item_list_editor:
         self.group_box.setLayout(self.main_vlayout)
 
         self.editing_hboxlayout = QtGui.QHBoxLayout()
-        self.master_vlayout.addLayout(self.editing_hboxlayout)
+        #self.master_vlayout.addLayout(self.editing_hboxlayout)
 
         self.master_vlayout.addWidget(self.tab_widget)
 
         self.main_vlayout.addLayout(self.main_hlayout)
 
-        self.notes_groupbox = QtGui.QGroupBox("Note Tools")
-        self.notes_groupbox.setMinimumWidth(591)
-        self.notes_groupbox.setMaximumWidth(591)
+        self.notes_groupbox = QtGui.QGroupBox("Notes")
+        self.notes_groupbox.setMinimumWidth(390)
+        self.notes_groupbox.setMaximumWidth(390)
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
 
         self.edit_mode_groupbox = QtGui.QGroupBox()
@@ -3229,31 +3228,31 @@ class item_list_editor:
         self.notes_quantize_button = QtGui.QPushButton("Quantize")
         self.notes_quantize_button.setMinimumWidth(f_button_width)
         self.notes_quantize_button.pressed.connect(self.quantize_dialog)
-        self.notes_gridlayout.addWidget(self.notes_quantize_button, 0, 1)
+        self.notes_gridlayout.addWidget(self.notes_quantize_button, 0, 0)
         self.notes_transpose_button = QtGui.QPushButton("Transpose")
         self.notes_transpose_button.setMinimumWidth(f_button_width)
         self.notes_transpose_button.pressed.connect(self.transpose_dialog)
-        self.notes_gridlayout.addWidget(self.notes_transpose_button, 0, 2)
+        self.notes_gridlayout.addWidget(self.notes_transpose_button, 0, 1)
         self.notes_shift_button = QtGui.QPushButton("Shift")
         self.notes_shift_button.setMinimumWidth(f_button_width)
         self.notes_shift_button.pressed.connect(self.time_shift_dialog)
-        self.notes_gridlayout.addWidget(self.notes_shift_button, 0, 3)
+        self.notes_gridlayout.addWidget(self.notes_shift_button, 0, 2)
         self.notes_length_button = QtGui.QPushButton("Length")
         self.notes_length_button.setMinimumWidth(f_button_width)
         self.notes_length_button.pressed.connect(self.length_shift_dialog)
-        self.notes_gridlayout.addWidget(self.notes_length_button, 0, 4)
+        self.notes_gridlayout.addWidget(self.notes_length_button, 1, 0)
 
         self.notes_velocity_button = QtGui.QPushButton("Velocity")
         self.notes_velocity_button.setMinimumWidth(f_button_width)
         self.notes_velocity_button.pressed.connect(self.velocity_dialog)
-        self.notes_gridlayout.addWidget(self.notes_velocity_button, 0, 5)
+        self.notes_gridlayout.addWidget(self.notes_velocity_button, 1, 1)
 
         self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 6)
 
         self.notes_clear_button = QtGui.QPushButton("Clear")
         self.notes_clear_button.setMinimumWidth(f_button_width)
         self.notes_clear_button.pressed.connect(self.clear_notes)
-        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 7)
+        self.notes_gridlayout.addWidget(self.notes_clear_button, 1, 3)
         self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 6, 1, 1)
         self.notes_vlayout.addLayout(self.notes_gridlayout)
         self.notes_table_widget = QtGui.QTableWidget()
@@ -3266,19 +3265,22 @@ class item_list_editor:
         self.notes_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.notes_table_widget.keyPressEvent = self.notes_keyPressEvent
         self.notes_vlayout.addWidget(self.notes_table_widget)
+        self.notes_table_widget.resizeColumnsToContents()
 
         self.notes_hlayout = QtGui.QHBoxLayout()
-        self.notes_tab.setLayout(self.notes_hlayout)
+        self.list_tab_vlayout = QtGui.QVBoxLayout()
+        self.notes_tab.setLayout(self.list_tab_vlayout)
+        self.list_tab_vlayout.addLayout(self.editing_hboxlayout)
+        self.list_tab_vlayout.addLayout(self.notes_hlayout)
         self.notes_hlayout.addWidget(self.notes_groupbox)
-        self.notes_hlayout.addItem(QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Expanding))
 
         self.piano_roll_hlayout = QtGui.QHBoxLayout()
         self.piano_roll_tab.setLayout(self.piano_roll_hlayout)
         self.piano_roll_hlayout.addWidget(this_piano_roll_editor_widget.widget)
 
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
-        self.ccs_groupbox.setMaximumWidth(390)
-        self.ccs_groupbox.setMinimumWidth(390)
+        self.ccs_groupbox.setMaximumWidth(270)
+        self.ccs_groupbox.setMinimumWidth(270)
         self.ccs_vlayout = QtGui.QVBoxLayout(self.ccs_groupbox)
         self.ccs_gridlayout = QtGui.QGridLayout()
         self.ccs_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 0, 1, 1)
@@ -3297,8 +3299,9 @@ class item_list_editor:
         self.ccs_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.ccs_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.ccs_table_widget.keyPressEvent = self.ccs_keyPressEvent
+        self.ccs_table_widget.resizeColumnsToContents()
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
-        self.main_hlayout.addWidget(self.ccs_groupbox)
+        self.notes_hlayout.addWidget(self.ccs_groupbox)
 
         self.cc_auto_viewer_scrollarea = QtGui.QScrollArea()
         self.cc_auto_viewer_scrollarea.setMinimumWidth(790)
@@ -3320,8 +3323,8 @@ class item_list_editor:
         self.pb_hlayout = QtGui.QHBoxLayout()
         self.pitchbend_tab.setLayout(self.pb_hlayout)
         self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
-        self.pb_groupbox.setMaximumWidth(300)
-        self.pb_groupbox.setMinimumWidth(300)
+        self.pb_groupbox.setMaximumWidth(270)
+        self.pb_groupbox.setMinimumWidth(270)
         self.pb_vlayout = QtGui.QVBoxLayout(self.pb_groupbox)
         self.pb_gridlayout = QtGui.QGridLayout()
         self.pb_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 0, 1, 1)
@@ -3340,14 +3343,17 @@ class item_list_editor:
         self.pitchbend_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.pitchbend_table_widget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.pitchbend_table_widget.keyPressEvent = self.pbs_keyPressEvent
+        self.pitchbend_table_widget.resizeColumnsToContents()
         self.pb_vlayout.addWidget(self.pitchbend_table_widget)
-        self.pb_hlayout.addWidget(self.pb_groupbox)
+        self.notes_hlayout.addWidget(self.pb_groupbox)
         self.pb_auto_vlayout = QtGui.QVBoxLayout()
         self.pb_hlayout.addLayout(self.pb_auto_vlayout)
         self.pb_viewer_widget = automation_viewer_widget(this_pb_automation_viewer, False)
         self.pb_auto_vlayout.addWidget(self.pb_viewer_widget.widget)
         self.pb_auto_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
 
+        self.tab_widget.addTab(self.notes_tab, "List Editors")
+        self.notes_hlayout.addItem(QtGui.QSpacerItem(0, 0, QtGui.QSizePolicy.Expanding))
         #self.pb_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
         self.set_headers()
