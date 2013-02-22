@@ -3234,7 +3234,7 @@ class item_list_editor:
         self.edit_mode_groupbox = QtGui.QGroupBox()
         self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
         self.edit_mode_hlayout0.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
-        self.edit_mode_hlayout0.addWidget(QtGui.QLabel("Edit Mode:"))
+        self.edit_mode_hlayout0.addWidget(QtGui.QLabel("Mode"))
         self.add_radiobutton = QtGui.QRadioButton("Add/Edit")
         self.edit_mode_hlayout0.addWidget(self.add_radiobutton)
         self.multiselect_radiobutton = QtGui.QRadioButton("Multiselect")
@@ -3281,6 +3281,7 @@ class item_list_editor:
         self.notes_table_widget = QtGui.QTableWidget()
         self.notes_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.notes_table_widget.setColumnCount(5)
+        self.notes_table_widget.setRowCount(128)
         self.notes_table_widget.cellClicked.connect(self.notes_click_handler)
         self.notes_table_widget.setSortingEnabled(True)
         self.notes_table_widget.sortItems(0)
@@ -3316,6 +3317,7 @@ class item_list_editor:
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.ccs_table_widget.setColumnCount(3)
+        self.ccs_table_widget.setRowCount(256)
         self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
         self.ccs_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.sortItems(0)
@@ -3360,6 +3362,7 @@ class item_list_editor:
         self.pitchbend_table_widget = QtGui.QTableWidget()
         self.pitchbend_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.pitchbend_table_widget.setColumnCount(2)
+        self.pitchbend_table_widget.setRowCount(128)
         self.pitchbend_table_widget.cellClicked.connect(self.pitchbend_click_handler)
         self.pitchbend_table_widget.setSortingEnabled(True)
         self.pitchbend_table_widget.sortItems(0)
@@ -3400,7 +3403,7 @@ class item_list_editor:
 
     def item_index_changed(self, a_index=None):
         if self.item_index_enabled:
-            self.open_item(self.item_name_combobox.currentText())
+            self.open_item_list()
 
     def load_templates(self):
         self.template_combobox.clear()
@@ -3442,60 +3445,71 @@ class item_list_editor:
         self.items[f_index].add_pb(a_pb)
         return f_index
 
+    def open_item_list(self):
+        self.notes_table_widget.clear()
+        self.ccs_table_widget.clear()
+        self.pitchbend_table_widget.clear()
+        self.set_headers()
+        self.item_name = str(self.item_name_combobox.currentText())
+        self.item = this_pydaw_project.get_item(self.item_name)
+        self.notes_table_widget.setSortingEnabled(False)
+        f_i = 0
+        for note in self.item.notes:
+            f_note_str = note_num_to_string(note.note_num)
+            self.notes_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(note.start)))
+            self.notes_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(note.length)))
+            self.notes_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(f_note_str))
+            self.notes_table_widget.setItem(f_i, 3, QtGui.QTableWidgetItem(str(note.note_num)))
+            self.notes_table_widget.setItem(f_i, 4, QtGui.QTableWidgetItem(str(note.velocity)))
+            f_i = f_i + 1
+        self.notes_table_widget.setSortingEnabled(True)
+        self.ccs_table_widget.setSortingEnabled(False)
+        f_i = 0
+        for cc in self.item.ccs:
+            self.ccs_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(cc.start)))
+            self.ccs_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
+            self.ccs_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
+            f_i = f_i + 1
+        self.ccs_table_widget.setSortingEnabled(True)
+        self.pitchbend_table_widget.setSortingEnabled(False)
+        f_i = 0
+        for pb in self.item.pitchbends:
+            self.pitchbend_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(pb.start)))
+            self.pitchbend_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(pb.pb_val)))
+            f_i = f_i + 1
+        self.pitchbend_table_widget.setSortingEnabled(True)
+
     def open_item(self, a_items=None):
         """ a_items is a list of str, which are the names of the items.  Leave blank to open the existing list """
-
         self.enabled = True
 
         if a_items is not None:
             global global_item_editing_count
             global_item_editing_count = len(a_items)
             self.item_names = a_items
+            self.item_index_enabled = False
+            self.item_name_combobox.clear()
+            self.item_name_combobox.clearEditText()
+            self.item_name_combobox.addItems(a_items)
+            self.item_name_combobox.setCurrentIndex(0)
+            self.item_index_enabled = True
 
         for i in range(3):
             this_cc_automation_viewers[i].clear_drawn_items()
         this_pb_automation_viewer.clear_drawn_items()
 
-        self.notes_table_widget.clear()
-        self.ccs_table_widget.clear()
-        self.pitchbend_table_widget.clear()
-        self.set_headers()
-        self.set_row_counts()
         self.items = []
         f_cc_dict = {}
 
-        self.notes_table_widget.setSortingEnabled(False)
-        self.ccs_table_widget.setSortingEnabled(False)
-        self.pitchbend_table_widget.setSortingEnabled(False)
-
-        f_beat_offset = 0.0
-        f_i_notes = 0
-        f_i_ccs = 0
-        f_i_pbs = 0
         for f_item_name in self.item_names:
             f_item = this_pydaw_project.get_item(f_item_name)
             self.items.append(f_item)
-            for note in f_item.notes:
-                f_note_str = note_num_to_string(note.note_num)
-                self.notes_table_widget.setItem(f_i_notes, 0, QtGui.QTableWidgetItem(str(note.start + f_beat_offset)))
-                self.notes_table_widget.setItem(f_i_notes, 1, QtGui.QTableWidgetItem(str(note.length)))
-                self.notes_table_widget.setItem(f_i_notes, 2, QtGui.QTableWidgetItem(f_note_str))
-                self.notes_table_widget.setItem(f_i_notes, 3, QtGui.QTableWidgetItem(str(note.note_num)))
-                self.notes_table_widget.setItem(f_i_notes, 4, QtGui.QTableWidgetItem(str(note.velocity)))
-                f_i_notes = f_i_notes + 1
-            for cc in f_item.ccs:
-                if not f_cc_dict.has_key(cc.cc_num):
-                    f_cc_dict[cc.cc_num] = []
-                f_cc_dict[cc.cc_num] = cc
-                self.ccs_table_widget.setItem(f_i_ccs, 0, QtGui.QTableWidgetItem(str(cc.start + f_beat_offset)))
-                self.ccs_table_widget.setItem(f_i_ccs, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
-                self.ccs_table_widget.setItem(f_i_ccs, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
-                f_i_ccs = f_i_ccs + 1
-            for pb in f_item.pitchbends:
-                self.pitchbend_table_widget.setItem(f_i_pbs, 0, QtGui.QTableWidgetItem(str(pb.start + f_beat_offset)))
-                self.pitchbend_table_widget.setItem(f_i_pbs, 1, QtGui.QTableWidgetItem(str(pb.pb_val)))
-                f_i_pbs = f_i_pbs + 1
-            f_beat_offset += 4.0
+            if a_items is not None:
+                for cc in f_item.ccs:
+                    if not f_cc_dict.has_key(cc.cc_num):
+                        f_cc_dict[cc.cc_num] = []
+                    f_cc_dict[cc.cc_num] = cc
+
         self.notes_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.setSortingEnabled(True)
         self.pitchbend_table_widget.setSortingEnabled(True)
@@ -3508,10 +3522,11 @@ class item_list_editor:
                 f_i += 1
                 if f_i >= len(self.cc_auto_viewers):
                     break
-        else:
-            for i in range(3):
-                this_cc_automation_viewers[i].draw_item()
+        for i in range(3):
+            this_cc_automation_viewers[i].draw_item()
         this_pb_automation_viewer.draw_item()
+        self.open_item_list()
+
 
     def notes_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
