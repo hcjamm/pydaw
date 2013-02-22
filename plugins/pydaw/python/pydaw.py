@@ -1906,6 +1906,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
 
     def mouseDoubleClickEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         this_item_editor.notes_show_event_dialog(None, None, self.note_item)
 
     def mousePressEvent(self, a_event):
@@ -2058,6 +2059,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 if f_item.isSelected():
                     this_item_editor.items[f_item.item_index].remove_note(f_item.note_item)
         this_item_editor.save_and_reload()
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
 
 
     def sceneMousePressEvent(self, a_event):
