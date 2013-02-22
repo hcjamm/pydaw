@@ -1822,6 +1822,7 @@ global_piano_keys_width = 34  #Width of the piano keys in px
 global_piano_roll_grid_max_start_time = 999.0 + global_piano_keys_width
 global_piano_roll_note_height = 15
 global_piano_roll_snap_divisor = 16.0
+global_piano_roll_snap_beats = 4.0/global_piano_roll_snap_divisor
 global_piano_roll_snap_value = global_piano_roll_grid_width / global_piano_roll_snap_divisor
 global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / 4.0
 global_piano_roll_note_count = 120
@@ -1840,6 +1841,8 @@ def pydaw_set_piano_roll_quantize(a_index):
     global global_piano_roll_snap_value
     global global_piano_roll_snap_divisor
     global global_piano_roll_snap_divisor_beats
+    global global_piano_roll_snap_beats
+
     if a_index == 0:
         global_piano_roll_snap = False
     elif a_index == 1:
@@ -1854,6 +1857,8 @@ def pydaw_set_piano_roll_quantize(a_index):
     elif a_index == 4:
         global_piano_roll_snap_divisor =  4.0
         global_piano_roll_snap = True
+
+    global_piano_roll_snap_beats = 4.0 / global_piano_roll_snap_divisor
     global_piano_roll_snap_divisor *= global_item_editing_count
     global_piano_roll_snap_value = (global_piano_roll_grid_width * global_item_editing_count) / (global_piano_roll_snap_divisor)
     global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / (4.0 * global_item_editing_count)
@@ -1979,7 +1984,9 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     if global_selected_piano_note is not None and self.note_item == global_selected_piano_note:
                         f_new_note_length -= (self.item_index * 4.0)
                     f_new_note_length = round(f_new_note_length * global_piano_roll_snap_divisor_beats) / global_piano_roll_snap_divisor_beats
-                    if f_new_note_length < pydaw_min_note_length:
+                    if global_piano_roll_snap and f_new_note_length < global_piano_roll_snap_beats:
+                        f_new_note_length = global_piano_roll_snap_beats
+                    elif f_new_note_length < pydaw_min_note_length:
                         f_new_note_length = pydaw_min_note_length
                     f_item.note_item.set_length(f_new_note_length)
                 else:
