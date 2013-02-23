@@ -2693,6 +2693,7 @@ class item_list_editor:
         for f_i in range(len(self.item_names)):
             this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
         self.open_item()
+        this_pydaw_project.git_repo.git_commit("-a", "Edit item(s)")
 
     def get_notes_table_selected_rows(self):
         f_result = []
