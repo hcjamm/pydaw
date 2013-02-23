@@ -17,9 +17,10 @@ apt-get -y install audacity  #Because for some reason it refuses to install it a
 #probably should be answered by a human being anyways, so it's all good...
 
 cd ../..
+rm pydaw-build/*.deb
 perl deb.pl
+make clean
 cd distro/ubuntu
-
 #So, assuming you answered 'yes' and 'yes' to "install dependencies?" and "install PyDAW now?", you should
 #now have a functional PyDAW installation with all dependencies, and QJackCtl and Audacity, until I eventually
 #deprecate those in favor of native PyDAW equivalents...
