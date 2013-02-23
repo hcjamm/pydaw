@@ -2583,8 +2583,23 @@ class automation_viewer_widget:
         self.set_cc_num(self.cc_spinbox.value())
 
     def set_cc_num(self, a_num):
-        self.cc_spinbox.setValue(a_num)
-        self.automation_viewer.set_cc_num(a_num)
+        f_num = int(a_num)
+        self.cc_spinbox.setValue(f_num)
+        self.automation_viewer.set_cc_num(f_num)
+
+    def ccs_in_use_combobox_changed(self, a_val=None):
+        if not self.suppress_ccs_in_use:
+            f_str = str(self.ccs_in_use_combobox.currentText())
+            if f_str != "":
+                self.set_cc_num(f_str)
+
+    def update_ccs_in_use(self, a_ccs):
+        self.suppress_ccs_in_use = True
+        self.ccs_in_use_combobox.clear()
+        self.ccs_in_use_combobox.addItem("")
+        for f_cc in a_ccs:
+            self.ccs_in_use_combobox.addItem(str(f_cc))
+        self.suppress_ccs_in_use = False
 
     def smooth_pressed(self):
         if self.is_cc:
@@ -2622,6 +2637,12 @@ class automation_viewer_widget:
             self.hlayout.addWidget(self.control_combobox)
             self.plugin_combobox.currentIndexChanged.connect(self.plugin_changed)
             self.control_combobox.currentIndexChanged.connect(self.control_changed)
+
+            self.ccs_in_use_combobox = QtGui.QComboBox()
+            self.suppress_ccs_in_use = False
+            self.ccs_in_use_combobox.currentIndexChanged.connect(self.ccs_in_use_combobox_changed)
+            self.hlayout.addWidget(QtGui.QLabel("In Use:"))
+            self.hlayout.addWidget(self.ccs_in_use_combobox)
 
         self.smooth_button = QtGui.QPushButton("Smooth")
         self.smooth_button.setToolTip("By default, the control points are steppy, this button draws extra points between the exisiting points.")
@@ -3439,6 +3460,8 @@ class item_list_editor:
         self.pitchbend_table_widget.setSortingEnabled(True)
 
         this_piano_roll_editor.draw_item()
+        for i in range(3):
+            self.cc_auto_viewers[i].update_ccs_in_use(list(f_cc_dict.keys()))
         f_i = 0
         if a_items is not None:
             for f_cc_num in f_cc_dict.keys():
