@@ -40,15 +40,18 @@ class alsa_ports:
         client_name = ""
         client_number = ""
         for line in arr:
-            if line[:len("client")] == "client":
-                client_type = line.split("[")[1].split("]")[0]
-                client_name = line.split("'")[1]
-                client_number = line.split(" ")[1]
-            else:
-                port_name = line.split("'")[1]
-                port_number = line.strip().split(" ")[0]
-                if not client_name == "System":
-                    f_result.append(alsa_port(client_number, client_name, client_type, port_number, port_name))
+            try:
+                if line[:len("client")] == "client":
+                    client_type = line.split("[")[1].split("]")[0]
+                    client_name = line.split("'")[1]
+                    client_number = line.split(" ")[1]
+                else:
+                    port_name = line.split("'")[1]
+                    port_number = line.strip().split(" ")[0]
+                    if not client_name == "System":
+                        f_result.append(alsa_port(client_number, client_name, client_type, port_number, port_name))
+            except:
+                print("Error parsing '" + line + "', this device will not be available, please report this bug at https://pydaw.org/forum")
         return f_result
 
     def connect_to_pydaw(self, a_string):
