@@ -14,6 +14,7 @@ to use of the API.
 from commands import getoutput
 import subprocess
 from time import sleep
+import unicodedata
 
 def launch_jack_oscrolloscope():
     f_processes = getoutput("ps -ef")
@@ -25,12 +26,21 @@ def launch_jack_oscrolloscope():
 
 class alsa_port:
     def __init__(self, a_client_number, a_client_name, a_client_type, a_port_number, a_port_name):
-        self.client_number = a_client_number.strip()
-        self.client_name = a_client_name.strip()
-        self.client_type = a_client_type.strip()
-        self.port_number = a_port_number.strip()
-        self.port_name = a_port_name.strip()
+        self.client_number = sanitize_unicode_str(a_client_number)
+        self.client_name = sanitize_unicode_str(a_client_name)
+        self.client_type = sanitize_unicode_str(a_client_type)
+        self.port_number = sanitize_unicode_str(a_port_number)
+        self.port_name = sanitize_unicode_str(a_port_name)
         self.fqname = self.client_name + " - " + self.port_name + " ~ " + self.client_number + self.port_number
+
+
+def sanitize_unicode_str(a_str):
+    f_result = a_str
+    try:
+        f_result = unicodedata.normalize('', a_str).encode('ascii', 'ignore')
+    except:
+        pass
+    return f_result.strip()
 
 class alsa_ports:
     def parse_aconnect(self, a_string):
@@ -43,7 +53,7 @@ class alsa_ports:
             try:
                 if line[:len("client")] == "client":
                     client_type = line.split("[")[1].split("]")[0]
-                    client_name = line.split(":")[1].split("[")[0].strip()
+                    client_name = line.split(":")[1].split("[")[0]
                     client_number = line.split(" ")[1]
                 else:
                     port_name = line.split("'")[1]
