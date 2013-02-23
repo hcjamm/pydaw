@@ -43,12 +43,12 @@ class alsa_ports:
             try:
                 if line[:len("client")] == "client":
                     client_type = line.split("[")[1].split("]")[0]
-                    client_name = line.split("'")[1]
+                    client_name = line.split(":")[1].split("[")[0].strip()
                     client_number = line.split(" ")[1]
                 else:
                     port_name = line.split("'")[1]
                     port_number = line.strip().split(" ")[0]
-                    if not client_name == "System":
+                    if not "System" in client_name:
                         f_result.append(alsa_port(client_number, client_name, client_type, port_number, port_name))
             except:
                 print("Error parsing '" + line + "', this device will not be available, please report this bug at https://pydaw.org/forum")
@@ -57,7 +57,7 @@ class alsa_ports:
     def connect_to_pydaw(self, a_string):
         print("Attempting to connect ALSA port " + a_string + " to PyDAW...")
         for f_alsa_port in self.input_ports:
-            if f_alsa_port.client_name == "PyDAW":
+            if "PyDAW" in f_alsa_port.client_name:
                 print(getoutput("aconnect -x"))
                 f_out_port = a_string.split("~")[1]
                 f_cmd = "aconnect " + f_out_port + " " + str(f_alsa_port.client_number) + str(f_alsa_port.port_number)
