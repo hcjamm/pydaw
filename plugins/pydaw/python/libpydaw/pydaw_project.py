@@ -798,6 +798,30 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
             a_items_list[f_i].pitchbends += f_result_arr[f_i]
             a_items_list[f_i].pitchbends.sort()
 
+def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127, a_add=False):
+    f_start_beat = a_items[0].notes[0].start
+    f_range_beats = a_items[-1].notes[-1].start + (4.0 * (len(a_items) - 1)) - f_start_beat
+
+    f_beat_offset = 0.0
+    for f_item in a_items:
+        for note in f_item.notes:
+            if a_line:
+                f_frac = ((note.start + f_beat_offset - f_start_beat)/f_range_beats)
+                f_value = int(((a_end_amt - a_amt) * f_frac) + a_amt)
+            else:
+                f_value = int(a_amt)
+            if a_add:
+                note.velocity += f_value
+            else:
+                note.velocity = f_value
+            if note.velocity > 127:
+                print note.velocity
+                note.velocity = 127
+            elif note.velocity < 1:
+                note.velocity = 1
+        f_beat_offset += 4.0
+
+
 class pydaw_item:
     def add_note(self, a_note):
         for note in self.notes:
