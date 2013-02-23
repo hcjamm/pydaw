@@ -27,6 +27,24 @@ import sip
 global_pydaw_version_string = "pydaw2"
 global_pydaw_file_type_string = 'PyDAW2 Project (*.pydaw2)'
 
+global_region_lengths_dict = {}
+
+def pydaw_update_region_lengths_dict():
+    """ Call this any time the region length setup may have changed... """
+    f_song = this_pydaw_project.get_song()
+    global_region_lengths_dict = {}
+    for f_i in range(len(f_song.regions)):
+        f_region = this_pydaw_project.get_region(f_song.regions[f_i])
+        if f_region.region_length_bars != 0:
+            global_region_lengths_dict[f_i] = f_region.region_length_bars
+
+def pydaw_get_region_length(a_region_index):
+    """ Get the length of the region at song index a_region_index from the cache """
+    if global_region_lengths_dict.has_key(a_region_index):
+        return global_region_lengths_dict[a_region_index]
+    else:
+        return 8
+
 class song_editor:
     def add_qtablewidgetitem(self, a_name, a_region_num):
         """ Adds a properly formatted item.  This is not for creating empty items... """
@@ -46,6 +64,7 @@ class song_editor:
         for f_i in range(0, 300):
             f_headers_arr.append(str(f_i))
         self.table_widget.setHorizontalHeaderLabels(f_headers_arr)
+        pydaw_update_region_lengths_dict()
 
     def cell_clicked(self, x, y):
         f_is_playing = False
@@ -394,6 +413,7 @@ class region_list_editor:
             this_pydaw_project.git_repo.git_commit("-a", "Set region '" + str(self.region_name_lineedit.text()) + "' length to default value")
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
         self.open_region(self.region_name_lineedit.text())
+        pydaw_update_region_lengths_dict()
 
     def column_clicked(self, a_val):
         if a_val > 0:
@@ -673,8 +693,6 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
     global_suppress_audio_track_combobox_changes = False
 
 global_bus_track_names = ['Master', 'Bus1', 'Bus2', 'Bus3', 'Bus4']
-
-
 
 
 class audio_viewer_item(QtGui.QGraphicsRectItem):
@@ -1453,7 +1471,6 @@ class audio_list_editor:
             f_frac = beat_frac_text_to_float(f_quantize_index)
             f_start.setSingleStep(f_frac)
             self.default_quantize = f_quantize_index
-
 
         def add_another_clicked(a_checked):
             if a_checked:
