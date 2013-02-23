@@ -3452,19 +3452,14 @@ class item_list_editor:
         for f_item_name in self.item_names:
             f_item = this_pydaw_project.get_item(f_item_name)
             self.items.append(f_item)
-            if a_items is not None:
-                for cc in f_item.ccs:
-                    if not f_cc_dict.has_key(cc.cc_num):
-                        f_cc_dict[cc.cc_num] = []
-                    f_cc_dict[cc.cc_num] = cc
-
-        self.notes_table_widget.setSortingEnabled(True)
-        self.ccs_table_widget.setSortingEnabled(True)
-        self.pitchbend_table_widget.setSortingEnabled(True)
+            for cc in f_item.ccs:
+                if not f_cc_dict.has_key(cc.cc_num):
+                    f_cc_dict[cc.cc_num] = []
+                f_cc_dict[cc.cc_num] = cc
 
         this_piano_roll_editor.draw_item()
         for i in range(3):
-            self.cc_auto_viewers[i].update_ccs_in_use(list(f_cc_dict.keys()))
+            self.cc_auto_viewers[i].update_ccs_in_use(f_cc_dict.keys())
         f_i = 0
         if a_items is not None:
             for f_cc_num in f_cc_dict.keys():
