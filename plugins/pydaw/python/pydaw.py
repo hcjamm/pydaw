@@ -2800,23 +2800,14 @@ class item_list_editor:
                     QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You have editing in multiselect mode, but you have not selected anything.  All items will be processed")
                 else:
                     f_multiselect = True
-
-        f_start_beat_val = (4.0 * global_item_editing_count) - 0.01
-        f_end_beat_val = 0.0
-        if f_multiselect:
-            for f_note in f_ms_rows:
-                if f_note.start < f_start_beat_val:
-                    f_start_beat_val = f_note.start
-                elif f_note.start > f_end_beat_val:
-                    f_end_beat_val = f_note.start
-        else:
-            f_beat_offset = 0.0
-            for f_item in self.items:
-                for f_note in f_item.notes:
-                    if (f_note.start + f_beat_offset) < f_start_beat_val:
-                        f_start_beat_val = f_note.start + f_beat_offset
-                    elif f_note.start + f_beat_offset > f_end_beat_val:
-                        f_end_beat_val = f_note.start + f_beat_offset
+            f_start_beat_val = (4.0 * global_item_editing_count) - 0.01
+            f_end_beat_val = 0.0
+            if f_multiselect:
+                for f_note in f_ms_rows:
+                    if f_note.start < f_start_beat_val:
+                        f_start_beat_val = f_note.start
+                    elif f_note.start > f_end_beat_val:
+                        f_end_beat_val = f_note.start
 
         def ok_handler():
             if a_is_list:
@@ -2828,9 +2819,8 @@ class item_list_editor:
                     f_end_amount.value(), f_add_values.isChecked())
                 this_pydaw_project.save_item(self.item_name, self.item)
             else:
+                pydaw_velocity_mod(self.items, f_amount.value(), f_draw_line.isChecked(), f_end_amount.value(), f_add_values.isChecked())
                 for f_i in range(global_item_editing_count):
-                    self.items[f_i].velocity_mod(f_amount.value(), f_start_beat.value(), f_end_beat.value(), f_draw_line.isChecked(), \
-                    f_end_amount.value(), f_add_values.isChecked())
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Velocity mod item(s)")
@@ -2857,23 +2847,18 @@ class item_list_editor:
         f_end_amount.setRange(-127, 127)
         f_layout.addWidget(f_end_amount, 2, 1)
 
-        f_layout.addWidget(QtGui.QLabel("Start Beat"), 3, 0)
-        f_start_beat = QtGui.QDoubleSpinBox()
         if a_is_list:
+            f_layout.addWidget(QtGui.QLabel("Start Beat"), 3, 0)
+            f_start_beat = QtGui.QDoubleSpinBox()
             f_start_beat.setRange(0.0, 3.99)
-        else:
-            f_start_beat.setRange(0.0, (4.0 * global_item_editing_count) - 0.01)
-        f_start_beat.setValue(f_start_beat_val)
-        f_layout.addWidget(f_start_beat, 3, 1)
+            f_start_beat.setValue(f_start_beat_val)
+            f_layout.addWidget(f_start_beat, 3, 1)
 
-        f_layout.addWidget(QtGui.QLabel("End Beat"), 4, 0)
-        f_end_beat = QtGui.QDoubleSpinBox()
-        if a_is_list:
+            f_layout.addWidget(QtGui.QLabel("End Beat"), 4, 0)
+            f_end_beat = QtGui.QDoubleSpinBox()
             f_end_beat.setRange(0.01, 3.99)
-        else:
-            f_end_beat.setRange(0.01, (4.0 * global_item_editing_count))
-        f_end_beat.setValue(f_end_beat_val)
-        f_layout.addWidget(f_end_beat, 4, 1)
+            f_end_beat.setValue(f_end_beat_val)
+            f_layout.addWidget(f_end_beat, 4, 1)
 
         f_add_values = QtGui.QCheckBox("Add Values?")
         f_add_values.setToolTip("Check this to add Amount to the existing value, or leave\nunchecked to set the value to Amount.")
