@@ -3441,6 +3441,7 @@ class item_list_editor:
             self.item_name_combobox.addItems(a_items)
             self.item_name_combobox.setCurrentIndex(0)
             self.item_index_enabled = True
+            this_piano_roll_editor.horizontalScrollBar().setSliderPosition(0)
 
         for i in range(3):
             this_cc_automation_viewers[i].clear_drawn_items()
