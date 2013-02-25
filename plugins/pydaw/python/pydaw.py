@@ -193,7 +193,6 @@ class region_list_editor:
     def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num):
         """ Adds a properly formatted item.  This is not for creating empty items... """
         f_qtw_item = QtGui.QTableWidgetItem(a_name)
-        #f_qtw_item.setBackground(pydaw_item_gradient)
         f_qtw_item.setBackground(pydaw_track_gradients[a_track_num])
         f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
         f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
@@ -543,7 +542,6 @@ class region_list_editor:
 
         def note_ok_handler():
             f_cell_text = str(f_new_lineedit.text())
-            #this_pydaw_project.create_empty_item(f_new_lineedit.text())
             this_pydaw_project.copy_item(str(f_current_item.text()), str(f_new_lineedit.text()))
             this_item_editor.open_item([f_cell_text])
             self.last_item_copied = f_cell_text
@@ -1855,7 +1853,6 @@ pydaw_note_selected_gradient.setColorAt(0, QtGui.QColor(180, 172, 100))
 pydaw_note_selected_gradient.setColorAt(1, QtGui.QColor(240, 240, 240))
 
 global_selected_piano_note = None   #Used for mouse click hackery
-global_selected_piano_note_pos = None
 
 def pydaw_set_piano_roll_quantize(a_index):
     global global_piano_roll_snap
@@ -1899,20 +1896,14 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         "To edit multiple items as one logical item, select multiple items in the region editor and right-click + 'Edit Selected Items as Group'")
         self.note_item = a_note_item
         self.setAcceptHoverEvents(True)
-        #self.resize_start_pos = 0.0
         self.resize_start_pos = self.note_item.start
         if global_selected_piano_note is not None and a_note_item == global_selected_piano_note:
             self.is_resizing = True
-            self.resize_last_mouse_pos = global_selected_piano_note_pos.x()
-            self.resize_pos = global_selected_piano_note_pos
         else:
             self.is_resizing = False
-            self.resize_pos = self.pos()
-            self.resize_last_mouse_pos = self.pos()
         self.resize_rect = self.rect()
         self.setPen(QtGui.QPen(pydaw_track_gradients[3], 2))
         self.mouse_y_pos = QtGui.QCursor.pos().y()
-        self.selected_brush = QtGui.QColor(240, 240, 210)
 
     def mouse_is_at_end(self, a_pos):
         return (a_pos.x() > (self.rect().width() * 0.8))
@@ -1967,18 +1958,17 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             self.resize_last_mouse_pos = a_event.pos().x()
         for f_item in this_piano_roll_editor.note_items:
             if f_item.isSelected():
-                f_pos_x = f_item.pos().x()
-                f_pos_y = f_item.pos().y()
                 if self.is_resizing:
                     f_adjusted_width = f_item.resize_rect.width() + f_adjusted_width_diff
                     if f_adjusted_width < 12.0:
                         f_adjusted_width = 12.0
                     f_item.resize_rect.setWidth(f_adjusted_width)
                     f_item.setRect(f_item.resize_rect)
-                    f_pos_y = (int((f_pos_y - global_piano_roll_header_height)/self.note_height) * self.note_height) + global_piano_roll_header_height
-                    f_item.setPos(f_item.resize_pos.x(), f_pos_y)
+                    f_item.setPos(f_item.resize_pos.x(), f_item.resize_pos.y())
                     QtGui.QCursor.setPos(QtGui.QCursor.pos().x(), self.mouse_y_pos)
                 else:
+                    f_pos_x = f_item.pos().x()
+                    f_pos_y = f_item.pos().y()
                     if f_pos_x < global_piano_keys_width:
                         f_pos_x = global_piano_keys_width
                     elif f_pos_x > global_piano_roll_grid_max_start_time:
@@ -2024,10 +2014,10 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     f_item.note_item.note_num = f_new_note_num
                     this_item_editor.items[f_item.item_index].notes.append(f_item.note_item)
                     this_item_editor.items[f_item.item_index].notes.sort()
+            f_item.is_resizing = False
         for f_item in this_item_editor.items:
             f_item.fix_overlaps()
         this_item_editor.save_and_reload()
-        self.is_resizing = False
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         this_piano_roll_editor.click_enabled = True
 
@@ -2132,8 +2122,6 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 this_item_editor.add_note(f_note_item)
                 global global_selected_piano_note
                 global_selected_piano_note = f_note_item
-                global global_selected_piano_note_pos
-                global_selected_piano_note_pos = a_event.scenePos()
                 this_item_editor.save_and_reload()
         QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
         self.highlight_selected()
@@ -2227,7 +2215,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_beat_offset = 0
         for f_item in this_item_editor.items:
             for f_note in f_item.notes:
-                self.draw_note(f_note, f_beat_offset)
+                f_note_item = self.draw_note(f_note, f_beat_offset)
+                f_note_item.resize_last_mouse_pos = f_note_item.scenePos().x()
+                f_note_item.resize_pos = f_note_item.scenePos()
             f_beat_offset += 1
 
     def draw_note(self, a_note, a_item_index):
@@ -2242,6 +2232,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_note_item.setGraphicsEffect(f_vel_opacity)
         self.scene.addItem(f_note_item)
         self.note_items.append(f_note_item)
+        return f_note_item
 
 class piano_roll_editor_widget():
     def quantize_dialog(self):
@@ -3747,10 +3738,12 @@ class item_list_editor:
 
     def ccs_show_event_dialog(self, x, y):
         f_cell = self.ccs_table_widget.item(x, y)
+        f_old_cc = None
         if f_cell is not None:
             self.default_cc_start = float(self.ccs_table_widget.item(x, 0).text())
             self.default_cc_num = int(self.ccs_table_widget.item(x, 1).text())
             self.default_cc_val = int(self.ccs_table_widget.item(x, 2).text())
+            f_old_cc = pydaw_cc(self.default_cc_start, self.default_cc_num, self.default_cc_val)
 
         def cc_ok_handler():
             f_start_rounded = time_quantize_round(f_start.value())
@@ -3758,6 +3751,8 @@ class item_list_editor:
             if f_draw_line_checkbox.isChecked():
                 self.item.draw_cc_line(f_cc.value(), f_start.value(), f_cc_value.value(), f_end.value(), f_end_value.value())
             else:
+                if f_old_cc is not None:
+                    self.item.remove_cc(f_old_cc)
                 if not self.item.add_cc(pydaw_cc(f_start_rounded, f_cc.value(), f_cc_value.value())):
                     QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
                     return
@@ -3859,15 +3854,19 @@ class item_list_editor:
 
     def pitchbend_show_event_dialog(self, x, y):
         f_cell = self.pitchbend_table_widget.item(x, y)
+        f_old_pb = None
         if f_cell is not None:
             self.default_pb_start = float(self.pitchbend_table_widget.item(x, 0).text())
             self.default_pb_val = float(self.pitchbend_table_widget.item(x, 1).text())
+            f_old_pb = pydaw_pitchbend(self.default_pb_start, self.default_pb_val)
 
         def pb_ok_handler():
             f_start_rounded = time_quantize_round(f_start.value())
             if f_draw_line_checkbox.isChecked():
                 self.item.draw_pb_line(f_start.value(), f_pb.value(), f_end.value(), f_end_value.value())
             else:
+                if f_old_pb is not None:
+                    self.item.remove_pb(f_old_pb)
                 if not self.item.add_pb(pydaw_pitchbend(f_start_rounded, f_pb.value())):
                     QtGui.QMessageBox.warning(f_window, "Error", "Duplicate pitchbend event")
                     return
