@@ -1850,6 +1850,10 @@ pydaw_note_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF
 pydaw_note_gradient.setColorAt(0, QtGui.QColor(163, 136, 30))
 pydaw_note_gradient.setColorAt(1, QtGui.QColor(230, 221, 45))
 
+pydaw_note_selected_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 12))
+pydaw_note_selected_gradient.setColorAt(0, QtGui.QColor(180, 172, 100))
+pydaw_note_selected_gradient.setColorAt(1, QtGui.QColor(240, 240, 240))
+
 global_selected_piano_note = None   #Used for mouse click hackery
 global_selected_piano_note_pos = None
 
@@ -1895,18 +1899,20 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         "To edit multiple items as one logical item, select multiple items in the region editor and right-click + 'Edit Selected Items as Group'")
         self.note_item = a_note_item
         self.setAcceptHoverEvents(True)
-        self.resize_start_pos = 0.0
+        #self.resize_start_pos = 0.0
+        self.resize_start_pos = self.note_item.start
         if global_selected_piano_note is not None and a_note_item == global_selected_piano_note:
             self.is_resizing = True
             self.resize_last_mouse_pos = global_selected_piano_note_pos.x()
             self.resize_pos = global_selected_piano_note_pos
-            self.resize_start_pos = self.note_item.start
         else:
             self.is_resizing = False
+            self.resize_pos = self.pos()
+            self.resize_last_mouse_pos = self.pos()
         self.resize_rect = self.rect()
         self.setPen(QtGui.QPen(pydaw_track_gradients[3], 2))
         self.mouse_y_pos = QtGui.QCursor.pos().y()
-        self.o_brush = self.brush()
+        self.selected_brush = QtGui.QColor(240, 240, 210)
 
     def mouse_is_at_end(self, a_pos):
         return (a_pos.x() > (self.rect().width() * 0.8))
@@ -1941,7 +1947,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             this_item_editor.save_and_reload()
             QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         else:
-            self.setBrush(QtGui.QColor(255,200,100))
+            self.setBrush(pydaw_note_selected_gradient)
             self.o_pos = self.pos()
             if self.mouse_is_at_end(a_event.pos()):
                 self.is_resizing = True
@@ -1990,7 +1996,6 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         for f_item in this_piano_roll_editor.note_items:
             if f_item.isSelected():
-                f_item.setBrush(self.o_brush)
                 f_pos_x = f_item.pos().x()
                 f_pos_y = f_item.pos().y()
                 if self.is_resizing:
@@ -2066,6 +2071,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.scene = QtGui.QGraphicsScene(self)
         self.scene.setBackgroundBrush(QtGui.QColor(100,100,100))
         self.scene.mousePressEvent = self.sceneMousePressEvent
+        self.scene.mouseReleaseEvent = self.sceneMouseReleaseEvent
         self.setAlignment(QtCore.Qt.AlignLeft)
         self.setScene(self.scene)
         self.draw_header()
@@ -2079,6 +2085,15 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.left_click = False
         self.click_enabled = True
 
+    def highlight_selected(self):
+        for f_item in self.note_items:
+            if f_item.isSelected():
+                f_item.setBrush(pydaw_note_selected_gradient)
+
+    def unhighlight_selected(self):
+        for f_item in self.note_items:
+            f_item.setBrush(pydaw_note_gradient)
+
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsView.keyPressEvent(self, a_event)
         if a_event.key() == QtCore.Qt.Key_Delete:
@@ -2088,6 +2103,12 @@ class piano_roll_editor(QtGui.QGraphicsView):
         this_item_editor.save_and_reload()
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
 
+    def sceneMouseReleaseEvent(self, a_event):
+        QtGui.QGraphicsScene.mouseReleaseEvent(self.scene, a_event)
+        if a_event.modifiers() == QtCore.Qt.ControlModifier:
+            self.highlight_selected()
+        else:
+            self.unhighlight_selected()
 
     def sceneMousePressEvent(self, a_event):
         if not this_item_editor.enabled:
@@ -2096,7 +2117,6 @@ class piano_roll_editor(QtGui.QGraphicsView):
             return
         if a_event.modifiers() == QtCore.Qt.ControlModifier:
             a_event.setAccepted(True)
-            QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
         elif self.click_enabled and this_item_editor.enabled:
             f_pos_x = a_event.scenePos().x()
             f_pos_y = a_event.scenePos().y()
@@ -2114,10 +2134,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 global global_selected_piano_note_pos
                 global_selected_piano_note_pos = a_event.scenePos()
                 this_item_editor.save_and_reload()
-
-            QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
-        else:
-            QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
+        QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
+        self.highlight_selected()
 
     def draw_header(self):
         self.header = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.header_height)
