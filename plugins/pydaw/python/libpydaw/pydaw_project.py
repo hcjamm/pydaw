@@ -832,10 +832,7 @@ class pydaw_item:
         return True
 
     def remove_note(self, a_note):
-        for i in range(0, len(self.notes)):
-            if self.notes[i] == a_note:
-                self.notes.pop(i)
-                break
+        self.notes.remove(a_note)
 
     def velocity_mod(self, a_amt, a_start_beat=0.0, a_end_beat=4.0, a_line=False, a_end_amt=127, a_add=False, a_notes=None):
         """ velocity_mod
@@ -877,7 +874,6 @@ class pydaw_item:
                     note.velocity = 127
                 elif note.velocity < 1:
                     note.velocity = 1
-
 
     def quantize(self, a_beat_frac, a_events_move_with_item=False, a_notes=None):
         f_notes = []
@@ -923,7 +919,6 @@ class pydaw_item:
                 cc.start -= shift_adjust
             for pb in f_pbs:
                 pb.start -= shift_adjust
-
 
     def transpose(self, a_semitones, a_octave=0, a_notes=None):
         f_total = a_semitones + (a_octave * 12)
@@ -1016,7 +1011,6 @@ class pydaw_item:
         for f_note in f_to_delete:
             self.notes.remove(f_note)
 
-
     def time_shift(self, a_shift, a_events_move_with_item=False, a_notes=None, a_quantize=None):
         """ Move all items forward or backwards by a_shift number of beats, wrapping if before or after the item"""
         f_shift = float(a_shift)
@@ -1090,18 +1084,14 @@ class pydaw_item:
         pass
 
     def add_cc(self, a_cc):
-        for cc in self.ccs:
-            if a_cc == cc:
-                return False #TODO:  return -1 instead of True, and the offending editor_index when False
+        if a_cc in self.ccs:
+            return False
         self.ccs.append(a_cc)
         self.ccs.sort()
         return True
 
     def remove_cc(self, a_cc):
-        for i in range(0, len(self.ccs)):
-            if self.ccs[i] == a_cc:
-                self.ccs.pop(i)
-                break
+        self.ccs.remove(a_cc)
 
     def remove_cc_range(self, a_cc_num, a_start_beat=0.0, a_end_beat=4.0):
         """ Delete all pitchbends greater than a_start_beat and less than a_end_beat """
@@ -1136,18 +1126,14 @@ class pydaw_item:
         self.ccs.sort()
 
     def add_pb(self, a_pb):
-        for pb in self.pitchbends:
-            if a_pb == pb:
-                return False #TODO:  return -1 instead of True, and the offending editor_index when False
+        if a_pb in self.pitchbends:
+            return False
         self.pitchbends.append(a_pb)
         self.pitchbends.sort()
         return True
 
     def remove_pb(self, a_pb):
-        for i in range(0, len(self.pitchbends)):
-            if self.pitchbends[i] == a_pb:
-                self.pitchbends.pop(i)
-                break
+        self.pitchbends.remove(a_pb)
 
     def remove_pb_range(self, a_start_beat=0.0, a_end_beat=4.0):
         """ Delete all pitchbends greater than a_start_beat and less than a_end_beat """
@@ -1571,10 +1557,7 @@ class pydaw_transport:
 
 class pydaw_song_level_ccs:
     def remove_cc(self, a_cc):
-        for i in range(len(self.items)):
-            if self.items[i] == a_cc:
-                self.items.pop(i)
-                break
+        self.items.remove(a_cc)
 
     def remove_cc_range(self, a_cc_num, a_start, a_end):
         """ Delete all CCs between a_start and _end, which should be pydaw_song_level_cc instances """
