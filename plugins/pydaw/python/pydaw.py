@@ -2008,7 +2008,8 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     f_new_note_length = ((f_pos_x + f_item.rect().width() - global_piano_keys_width) * 0.001 * 4.0) - f_item.resize_start_pos
                     if global_selected_piano_note is not None and self.note_item == global_selected_piano_note:
                         f_new_note_length -= (self.item_index * 4.0)
-                    f_new_note_length = round(f_new_note_length * global_piano_roll_snap_divisor_beats) / global_piano_roll_snap_divisor_beats
+                    if global_piano_roll_snap:
+                        f_new_note_length = round(f_new_note_length * global_piano_roll_snap_divisor_beats) / global_piano_roll_snap_divisor_beats
                     if global_piano_roll_snap and f_new_note_length < global_piano_roll_snap_beats:
                         f_new_note_length = global_piano_roll_snap_beats
                     elif f_new_note_length < pydaw_min_note_length:
