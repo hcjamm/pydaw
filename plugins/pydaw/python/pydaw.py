@@ -3640,13 +3640,22 @@ class item_list_editor:
                 self.is_existing_note = False
 
         def note_ok_handler():
-            if self.is_existing_note:
-                self.items[f_note_index].remove_note(f_note_item)
             f_note_value = (int(f_note.currentIndex()) + (int(f_octave.value()) + 2) * 12)
             f_start_rounded = time_quantize_round(f_start.value())
             f_length_rounded = time_quantize_round(f_length.value())
             f_new_note = pydaw_note(f_start_rounded, f_length_rounded, f_note_value, f_velocity.value())
-            f_item_index = self.add_note(f_new_note)
+
+            if self.is_existing_note and not a_note is None:
+                self.items[f_note_index].remove_note(f_note_item)
+                f_item_index = self.add_note(f_new_note)
+                this_pydaw_project.save_item(self.item_names[f_item_index], self.items[f_item_index])
+            elif self.is_existing_note and a_note is None:
+                self.item.remove_note(f_note_item)
+                self.item.add_note(f_new_note)
+                this_pydaw_project.save_item(self.item_name, self.item)
+            else:
+                f_item_index = self.add_note(f_new_note)
+                this_pydaw_project.save_item(self.item_names[f_item_index], self.items[f_item_index])
 
             self.default_note_start = f_new_note.start
             self.default_note_length = f_length_rounded
@@ -3654,10 +3663,9 @@ class item_list_editor:
             self.default_note_octave = int(f_octave.value())
             self.default_note_velocity = int(f_velocity.value())
             self.default_quantize = int(f_quantize_combobox.currentIndex())
-            this_pydaw_project.save_item(self.item_names[f_item_index], self.items[f_item_index])
 
             self.open_item()
-            this_pydaw_project.git_repo.git_commit("-a", "Update notes for item '" + self.item_names[f_item_index] + "'")
+            this_pydaw_project.git_repo.git_commit("-a", "Update notes for item(s)")
 
             if self.is_existing_note:
                 f_window.close()
