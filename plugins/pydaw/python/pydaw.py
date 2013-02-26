@@ -1863,18 +1863,17 @@ def pydaw_set_piano_roll_quantize(a_index):
 
     if a_index == 0:
         global_piano_roll_snap = False
-    elif a_index == 1:
-        global_piano_roll_snap_divisor = 16.0
+    else:
         global_piano_roll_snap = True
+
+    if a_index == 1:
+        global_piano_roll_snap_divisor = 16.0
     elif a_index == 2:
         global_piano_roll_snap_divisor =  12.0
-        global_piano_roll_snap = True
     elif a_index == 3:
         global_piano_roll_snap_divisor =  8.0
-        global_piano_roll_snap = True
     elif a_index == 4:
         global_piano_roll_snap_divisor =  4.0
-        global_piano_roll_snap = True
 
     global_piano_roll_snap_beats = 4.0 / global_piano_roll_snap_divisor
     global_piano_roll_snap_divisor *= global_item_editing_count
@@ -2005,6 +2004,8 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     elif f_new_note_length < pydaw_min_note_length:
                         f_new_note_length = pydaw_min_note_length
                     f_item.note_item.set_length(f_new_note_length)
+                    print f_new_note_length
+                    print f_item.note_item.start
                 else:
                     this_item_editor.items[f_item.item_index].notes.remove(f_item.note_item)
                     f_new_note_start = (f_pos_x - global_piano_keys_width) * 4.0 * 0.001 #* float(this_piano_roll_editor.item_count)
@@ -2014,6 +2015,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     f_item.note_item.note_num = f_new_note_num
                     this_item_editor.items[f_item.item_index].notes.append(f_item.note_item)
                     this_item_editor.items[f_item.item_index].notes.sort()
+        for f_item in this_piano_roll_editor.note_items:
             f_item.is_resizing = False
         for f_item in this_item_editor.items:
             f_item.fix_overlaps()
@@ -2045,13 +2047,13 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.end_octave = 8
         self.start_octave = -2
         self.notes_in_octave = 12
-        self.total_notes = global_piano_roll_note_count #(self.end_octave - self.start_octave) * self.notes_in_octave + 1 #for C8
+        self.total_notes = global_piano_roll_note_count
         self.note_height = global_piano_roll_note_height
         self.octave_height = self.notes_in_octave * self.note_height
 
         self.header_height = global_piano_roll_header_height
 
-        self.piano_height = self.note_height*self.total_notes
+        self.piano_height = self.note_height * self.total_notes
         self.piano_width = 32
         self.padding = 2
         self.piano_height = self.note_height * self.total_notes
@@ -3300,9 +3302,7 @@ class item_list_editor:
         for i in range(3):
             self.cc_auto_viewers.append(automation_viewer_widget(this_cc_automation_viewers[i]))
             self.cc_auto_viewer_vlayout.addWidget(self.cc_auto_viewers[i].widget)
-        #self.cc_auto_viewer_vlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         self.main_hlayout.addWidget(self.cc_auto_viewer_scrollarea)
-        #self.main_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
         self.pb_hlayout = QtGui.QHBoxLayout()
         self.pitchbend_tab.setLayout(self.pb_hlayout)
@@ -3394,7 +3394,7 @@ class item_list_editor:
     def add_note(self, a_note):
         f_index, f_start = pydaw_beats_to_index(a_note.start)
         a_note.start = f_start
-        self.items[f_index].add_note(a_note)
+        self.items[f_index].add_note(a_note, False)
         return f_index
 
     def add_pb(self, a_pb):
@@ -3436,6 +3436,9 @@ class item_list_editor:
             self.pitchbend_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(pb.pb_val)))
             f_i = f_i + 1
         self.pitchbend_table_widget.setSortingEnabled(True)
+        self.notes_table_widget.resizeColumnsToContents()
+        self.ccs_table_widget.resizeColumnsToContents()
+        self.pitchbend_table_widget.resizeColumnsToContents()
 
     def open_item(self, a_items=None):
         """ a_items is a list of str, which are the names of the items.  Leave blank to open the existing list """
@@ -3444,6 +3447,7 @@ class item_list_editor:
         if a_items is not None:
             global global_item_editing_count
             global_item_editing_count = len(a_items)
+            pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
             self.item_names = a_items
             self.item_index_enabled = False
             self.item_name_combobox.clear()
