@@ -818,14 +818,14 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_number.setPos(self.px_per_region*(i), 2)
             f_number.setBrush(QtCore.Qt.white)
-        f_v_pen = QtGui.QPen(QtCore.Qt.white)
-        f_total_height = 32 * 65 + self.ruler_height
+        f_v_pen = QtGui.QPen(QtCore.Qt.black)
+        f_total_height = (32 * (65 + 2)) + self.ruler_height
         i3 = self.px_per_bar
         while i3 < ((300.0 * self.px_per_region) + 1.0):
             self.scene.addLine(i3, self.ruler_height, i3, f_total_height, f_v_pen)
             i3 += self.px_per_bar
         for i2 in range(32):
-            f_y = (65 * (i2 + 1)) + self.ruler_height
+            f_y = ((65 + 2) * (i2 + 1)) + self.ruler_height
             self.scene.addLine(0, f_y, f_size, f_y)
 
     def draw_item_seconds(self, a_start_region, a_start_bar, a_start_beat, a_seconds, a_name, a_track_num, a_audio_item):
