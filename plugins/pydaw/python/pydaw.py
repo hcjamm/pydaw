@@ -2121,12 +2121,19 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 else:
                     f_beat = (f_pos_x - global_piano_keys_width) * 0.001 * 4.0
                 f_note_item = pydaw_note(f_beat, 0.25, f_note, 100)
-                this_item_editor.add_note(f_note_item)
+                f_note_index = this_item_editor.add_note(f_note_item)
                 global global_selected_piano_note
                 global_selected_piano_note = f_note_item
-                this_item_editor.save_and_reload()
-        QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
+                f_drawn_note = self.draw_note(f_note_item, f_note_index)
+                f_drawn_note.setSelected(True)
+                f_drawn_note.resize_start_pos = f_drawn_note.note_item.start + (4.0 * f_drawn_note.item_index)
+                f_drawn_note.resize_pos = f_drawn_note.pos()
+                f_drawn_note.resize_rect = f_drawn_note.rect()
+                f_drawn_note.is_resizing = True
+                f_drawn_note.mouse_y_pos = QtGui.QCursor.pos().y()
+                f_drawn_note.resize_last_mouse_pos = a_event.pos().x()
         self.highlight_selected()
+        QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
 
     def draw_header(self):
         self.header = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.header_height)
