@@ -4807,14 +4807,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 break;
         }
         
-        if(f_mode == 1)
-        {
-            a_pydaw_data->is_soloed = 1;
-        }
-        else
-        {
-            v_pydaw_set_is_soloed(a_pydaw_data);
-        }
+        v_pydaw_set_is_soloed(a_pydaw_data);
+        
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);        
