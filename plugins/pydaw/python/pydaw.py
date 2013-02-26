@@ -1931,6 +1931,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         this_item_editor.notes_show_event_dialog(None, None, self.note_item)
 
     def mousePressEvent(self, a_event):
+        a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
         if a_event.modifiers() == QtCore.Qt.ShiftModifier:
             this_item_editor.items[self.item_index].remove_note(self.note_item)
@@ -1982,6 +1983,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     f_item.setPos(f_pos_x, f_pos_y)
 
     def mouseReleaseEvent(self, a_event):
+        a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         for f_item in this_piano_roll_editor.note_items:
             if f_item.isSelected():
@@ -2004,11 +2006,9 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     elif f_new_note_length < pydaw_min_note_length:
                         f_new_note_length = pydaw_min_note_length
                     f_item.note_item.set_length(f_new_note_length)
-                    print f_new_note_length
-                    print f_item.note_item.start
                 else:
                     this_item_editor.items[f_item.item_index].notes.remove(f_item.note_item)
-                    f_new_note_start = (f_pos_x - global_piano_keys_width) * 4.0 * 0.001 #* float(this_piano_roll_editor.item_count)
+                    f_new_note_start = (f_pos_x - global_piano_keys_width) * 4.0 * 0.001
                     f_item.item_index, f_new_note_start = pydaw_beats_to_index(f_new_note_start)
                     f_new_note_num = int(global_piano_roll_note_count - ((f_pos_y - global_piano_roll_header_height) / global_piano_roll_note_height))
                     f_item.note_item.set_start(f_new_note_start)
@@ -2106,10 +2106,11 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def sceneMousePressEvent(self, a_event):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
+            a_event.setAccepted(True)
             QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
             return
         if a_event.modifiers() == QtCore.Qt.ControlModifier:
-            a_event.setAccepted(True)
+            pass
         elif self.click_enabled and this_item_editor.enabled:
             f_pos_x = a_event.scenePos().x()
             f_pos_y = a_event.scenePos().y()
@@ -2118,9 +2119,10 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_note = int(self.total_notes - ((f_pos_y - global_piano_roll_header_height) / self.note_height)) + 1
                 if global_piano_roll_snap:
                     f_beat = (int((f_pos_x - global_piano_keys_width)/global_piano_roll_snap_value) * global_piano_roll_snap_value) * 0.001 * 4.0
+                    f_note_item = pydaw_note(f_beat, global_piano_roll_snap_beats, f_note, 100)
                 else:
                     f_beat = (f_pos_x - global_piano_keys_width) * 0.001 * 4.0
-                f_note_item = pydaw_note(f_beat, 0.25, f_note, 100)
+                    f_note_item = pydaw_note(f_beat, 0.25, f_note, 100)
                 f_note_index = this_item_editor.add_note(f_note_item)
                 global global_selected_piano_note
                 global_selected_piano_note = f_note_item
@@ -2133,6 +2135,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_drawn_note.mouse_y_pos = QtGui.QCursor.pos().y()
                 f_drawn_note.resize_last_mouse_pos = a_event.pos().x()
         self.highlight_selected()
+        a_event.setAccepted(True)
         QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
 
     def draw_header(self):
