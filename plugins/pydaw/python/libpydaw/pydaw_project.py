@@ -823,12 +823,15 @@ def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127, a_add=False)
 
 
 class pydaw_item:
-    def add_note(self, a_note):
-        for note in self.notes:
-            if note.overlaps(a_note):
-                return False  #TODO:  return -1 instead of True, and the offending editor_index when False
+    def add_note(self, a_note, a_check=True):
+        if a_check:
+            for note in self.notes:
+                if note.overlaps(a_note):
+                    return False  #TODO:  return -1 instead of True, and the offending editor_index when False
         self.notes.append(a_note)
         self.notes.sort()
+        if not a_check:
+            self.fix_overlaps()
         return True
 
     def remove_note(self, a_note):
