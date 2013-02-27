@@ -29,6 +29,12 @@ global_pydaw_file_type_string = 'PyDAW2 Project (*.pydaw2)'
 
 global_region_lengths_dict = {}
 
+def pydaw_print_generic_exception(a_ex):
+    f_error = type(a_ex) + " exception:" + a_ex.message
+    QtGui.QMessageBox.warning(this_main_window, "Warning", "The following error happened:\n" + f_error + \
+    "\nIf you are running PyDAW from a USB flash drive, this may be because file IO timed out due to the slow " + \
+    "nature of flash drives.  If the problem persists, you should consider installing PyDAW-OS to your hard drive instead")
+
 def pydaw_update_region_lengths_dict():
     """ Call this any time the region length setup may have changed... """
     f_song = this_pydaw_project.get_song()
@@ -1086,11 +1092,14 @@ class audio_list_editor:
                 f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
 
         def file_name_select():
-            f_file_name = str(QtGui.QFileDialog.getOpenFileName(f_window, "Select a .wav file to open...", self.last_open_dir, filter=".wav files(*.wav)"))
-            if not f_file_name is None and not f_file_name == "":
-                f_name.setText(f_file_name)
-                self.last_open_dir = os.path.dirname(f_file_name)
-                create_sample_graph(f_file_name)
+            try:
+                f_file_name = str(QtGui.QFileDialog.getOpenFileName(f_window, "Select a .wav file to open...", self.last_open_dir, filter=".wav files(*.wav)"))
+                if not f_file_name is None and not f_file_name == "":
+                    f_name.setText(f_file_name)
+                    self.last_open_dir = os.path.dirname(f_file_name)
+                    create_sample_graph(f_file_name)
+            except Exception as ex:
+                pydaw_print_generic_exception(ex)
 
         def clear_handler():
             this_pydaw_project.this_dssi_gui.pydaw_clear_single_audio_item(x)
@@ -4194,12 +4203,15 @@ class transport_widget:
                     f_window.close()
 
                 def file_dialog():
-                    f_file_name = str(QtGui.QFileDialog.getSaveFileName(f_window, "Select a file name to save to...", self.last_open_dir, filter=".wav files(*.wav)"))
-                    if not f_file_name is None and not f_file_name == "":
-                        if not f_file_name.endswith(".wav"):
-                            f_file_name = f_file_name + ".wav"
-                        f_name.setText(f_file_name)
-                        self.last_open_dir = os.path.dirname(f_file_name)
+                    try:
+                        f_file_name = str(QtGui.QFileDialog.getSaveFileName(f_window, "Select a file name to save to...", self.last_open_dir, filter=".wav files(*.wav)"))
+                        if not f_file_name is None and not f_file_name == "":
+                            if not f_file_name.endswith(".wav"):
+                                f_file_name = f_file_name + ".wav"
+                            f_name.setText(f_file_name)
+                            self.last_open_dir = os.path.dirname(f_file_name)
+                    except Exception as ex:
+                        pydaw_print_generic_exception(ex)
 
                 f_next_index = f_audio_items.get_next_index()
 
@@ -4417,27 +4429,41 @@ class transport_widget:
 
 class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
-        f_file = QtGui.QFileDialog.getSaveFileName(parent=self ,caption='New Project', directory=expanduser("~"), filter=global_pydaw_file_type_string)
-        if not f_file is None and not str(f_file) == "":
-            f_file = str(f_file)
-            if not f_file.endswith("." + global_pydaw_version_string):
-                f_file += "." + global_pydaw_version_string
-            global_new_project(f_file)
+        try:
+            f_file = QtGui.QFileDialog.getSaveFileName(parent=self ,caption='New Project', directory=expanduser("~"), filter=global_pydaw_file_type_string)
+            if not f_file is None and not str(f_file) == "":
+                f_file = str(f_file)
+                if not f_file.endswith("." + global_pydaw_version_string):
+                    f_file += "." + global_pydaw_version_string
+                global_new_project(f_file)
+        except Exception as ex:
+                pydaw_print_generic_exception(ex)
     def on_open(self):
-        f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open Project', directory=expanduser("~"), filter=global_pydaw_file_type_string)
-        if not f_file is None and not str(f_file) == "":
-            global_open_project(str(f_file))
+        try:
+            f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open Project', directory=expanduser("~"), filter=global_pydaw_file_type_string)
+            if f_file is None:
+                return
+            f_file_str = str(f_file)
+            if f_file_str == "":
+                return
+            global_open_project(f_file_str)
+        except Exception as ex:
+            pydaw_print_generic_exception(ex)
+
     def on_save(self):
         this_pydaw_project.save_project()
     def on_save_as(self):
-        f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", directory=expanduser("~") + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
-        if not f_new_file is None and not str(f_new_file) == "":
-            f_new_file = str(f_new_file)
-            if not f_new_file.endswith("." + global_pydaw_version_string):
-                f_new_file += "." + global_pydaw_version_string
-            this_pydaw_project.save_project_as(f_new_file)
-            set_window_title()
-            set_default_project(f_new_file)
+        try:
+            f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", directory=expanduser("~") + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
+            if not f_new_file is None and not str(f_new_file) == "":
+                f_new_file = str(f_new_file)
+                if not f_new_file.endswith("." + global_pydaw_version_string):
+                    f_new_file += "." + global_pydaw_version_string
+                this_pydaw_project.save_project_as(f_new_file)
+                set_window_title()
+                set_default_project(f_new_file)
+        except Exception as ex:
+                pydaw_print_generic_exception(ex)
 
     def show_offline_rendering_wait_window(self, a_file_name):
         f_file_name = str(a_file_name) + ".finished"
@@ -4499,13 +4525,16 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_window.close()
 
         def file_name_select():
-            f_file_name = str(QtGui.QFileDialog.getSaveFileName(f_window, "Select a file name to save to...", self.last_offline_dir))
-            if not f_file_name is None and f_file_name != "":
-                if not f_file_name.endswith(".wav"):
-                    f_file_name += ".wav"
-                if not f_file_name is None and not str(f_file_name) == "":
-                    f_name.setText(f_file_name)
-                self.last_offline_dir = os.path.dirname(f_file_name)
+            try:
+                f_file_name = str(QtGui.QFileDialog.getSaveFileName(f_window, "Select a file name to save to...", self.last_offline_dir))
+                if not f_file_name is None and f_file_name != "":
+                    if not f_file_name.endswith(".wav"):
+                        f_file_name += ".wav"
+                    if not f_file_name is None and not str(f_file_name) == "":
+                        f_name.setText(f_file_name)
+                    self.last_offline_dir = os.path.dirname(f_file_name)
+            except Exception as ex:
+                pydaw_print_generic_exception(ex)
 
         f_start_reg = 0
         f_end_reg = 0
@@ -4591,11 +4620,14 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_open_theme(self):
-        f_file = str(QtGui.QFileDialog.getOpenFileName(self, "Open a theme file", "/usr/lib/pydaw2/themes", "PyDAW Style(style.txt)"))
-        if not f_file is None and not f_file == "":
-            f_style = pydaw_read_file_text(f_file)
-            pydaw_write_file_text(self.user_style_file, f_file)
-            self.setStyleSheet(f_style)
+        try:
+            f_file = str(QtGui.QFileDialog.getOpenFileName(self, "Open a theme file", "/usr/lib/pydaw2/themes", "PyDAW Style(style.txt)"))
+            if not f_file is None and not f_file == "":
+                f_style = pydaw_read_file_text(f_file)
+                pydaw_write_file_text(self.user_style_file, f_file)
+                self.setStyleSheet(f_style)
+        except Exception as ex:
+                pydaw_print_generic_exception(ex)
 
     def on_version(self):
         f_window = QtGui.QDialog(this_main_window)
