@@ -4317,10 +4317,11 @@ class transport_widget:
             this_pydaw_project.save_transport(self.transport)
             this_pydaw_project.git_repo.git_commit("-a", "Set project playback bar to " + str(a_bar))
     def on_region_changed(self, a_region):
+        self.bar_spinbox.setRange(0, pydaw_get_region_length(a_region) - 1)
         self.transport.region = a_region
         if not self.is_playing and not self.is_recording:
             this_pydaw_project.save_transport(self.transport)
-            this_pydaw_project.git_repo.git_commit("-a", "Set project playback bar to " + str(a_region))
+            this_pydaw_project.git_repo.git_commit("-a", "Set project playback region to " + str(a_region))
     def on_follow_cursor_check_changed(self):
         if self.follow_checkbox.isChecked():
             f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
