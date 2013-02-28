@@ -28,6 +28,8 @@ global_pydaw_version_string = "pydaw2"
 global_pydaw_file_type_string = 'PyDAW2 Project (*.pydaw2)'
 
 global_region_lengths_dict = {}
+global_audio_region_snap_px = {}
+global_audio_bar_px = 12.5
 
 def pydaw_print_generic_exception(a_ex):
     f_error = type(a_ex) + " exception:" + a_ex.message
@@ -38,16 +40,21 @@ def pydaw_print_generic_exception(a_ex):
 def pydaw_update_region_lengths_dict():
     """ Call this any time the region length setup may have changed... """
     f_song = this_pydaw_project.get_song()
+    global global_region_lengths_dict, global_audio_region_snap_px
     global_region_lengths_dict = {}
-    for f_i in range(len(f_song.regions)):
-        f_region = this_pydaw_project.get_region(f_song.regions[f_i])
+    global_audio_region_snap_px = {}
+    for k, v in f_song.regions.iteritems():
+        f_region = this_pydaw_project.get_region(v)
         if f_region.region_length_bars != 0:
-            global_region_lengths_dict[f_i] = f_region.region_length_bars
+            global_region_lengths_dict[int(k)] = int(f_region.region_length_bars)
+    for i in range(300):
+        global_audio_region_snap_px[i] = pydaw_get_region_length(i) * global_audio_bar_px
 
 def pydaw_get_region_length(a_region_index):
     """ Get the length of the region at song index a_region_index from the cache """
-    if global_region_lengths_dict.has_key(a_region_index):
-        return global_region_lengths_dict[a_region_index]
+    f_region_index = int(a_region_index)
+    if global_region_lengths_dict.has_key(f_region_index):
+        return global_region_lengths_dict[f_region_index]
     else:
         return 8
 
@@ -71,6 +78,7 @@ class song_editor:
             f_headers_arr.append(str(f_i))
         self.table_widget.setHorizontalHeaderLabels(f_headers_arr)
         pydaw_update_region_lengths_dict()
+        this_audio_editor.open_items()
 
     def cell_clicked(self, x, y):
         f_is_playing = False
@@ -419,6 +427,7 @@ class region_list_editor:
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
         self.open_region(self.region_name_lineedit.text())
         pydaw_update_region_lengths_dict()
+        this_audio_editor.open_items()
 
     def column_clicked(self, a_val):
         if a_val > 0:
@@ -818,17 +827,20 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_size = self.px_per_region * f_total_regions
         f_ruler = QtGui.QGraphicsRectItem(0, 0, f_size, self.ruler_height)
         self.scene.addItem(f_ruler)
-        for i in range(0, f_total_regions):
-            #f_tick = QtGui.QGraphicsLineItem(self.px_per_region*i, 0, self.px_per_region*i, self.ruler_height, f_ruler)
-            f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
-            f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
-            f_number.setPos(self.px_per_region*(i), 2)
-            f_number.setBrush(QtCore.Qt.white)
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
+        f_reg_pen = QtGui.QPen(QtCore.Qt.white)
         f_total_height = (32 * (65 + 2)) + self.ruler_height
         i3 = self.px_per_bar
-        while i3 < ((300.0 * self.px_per_region) + 1.0):
-            self.scene.addLine(i3, self.ruler_height, i3, f_total_height, f_v_pen)
+        for i in range(f_total_regions):
+            f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
+            f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+            f_number.setBrush(QtCore.Qt.white)
+            f_bar_count = pydaw_get_region_length(i)
+            for i2 in range(0, f_bar_count - 1):
+                self.scene.addLine(i3, self.ruler_height, i3, f_total_height, f_v_pen)
+                i3 += self.px_per_bar
+            self.scene.addLine(i3, self.ruler_height, i3, f_total_height, f_reg_pen)
+            f_number.setPos(i3, 2)
             i3 += self.px_per_bar
         for i2 in range(32):
             f_y = ((65 + 2) * (i2 + 1)) + self.ruler_height
@@ -5001,6 +5013,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
     this_pydaw_project.suppress_updates = True
     this_pydaw_project.open_project(a_project_file, a_notify_osc)
     this_song_editor.open_song()
+    pydaw_update_region_lengths_dict()
     this_region_editor.open_tracks()
     this_transport.open_transport()
     set_default_project(a_project_file)
