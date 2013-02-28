@@ -49,9 +49,9 @@ def pydaw_update_region_lengths_dict():
             global_region_lengths_dict[int(k)] = int(f_region.region_length_bars)
     f_add = 0.0
     global_audio_region_snap_px[0] = 0.0
-    for i in range(1, 300):
+    for i in range(299):
         f_value = pydaw_get_region_length(i) * global_audio_bar_px
-        global_audio_region_snap_px[i] = f_value + f_add
+        global_audio_region_snap_px[i + 1] = f_value + f_add
         f_add += f_value
 
 def pydaw_get_region_length(a_region_index):
