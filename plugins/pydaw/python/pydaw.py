@@ -47,8 +47,12 @@ def pydaw_update_region_lengths_dict():
         f_region = this_pydaw_project.get_region(v)
         if f_region.region_length_bars != 0:
             global_region_lengths_dict[int(k)] = int(f_region.region_length_bars)
-    for i in range(300):
-        global_audio_region_snap_px[i] = pydaw_get_region_length(i) * global_audio_bar_px
+    f_add = 0.0
+    global_audio_region_snap_px[0] = 0.0
+    for i in range(1, 300):
+        f_value = pydaw_get_region_length(i) * global_audio_bar_px
+        global_audio_region_snap_px[i] = f_value + f_add
+        f_add += f_value
 
 def pydaw_get_region_length(a_region_index):
     """ Get the length of the region at song index a_region_index from the cache """
@@ -726,12 +730,18 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.setToolTip("Double click to open editor dialog, or click and drag to move")
 
     def pos_to_musical_time(self, a_pos):
-        f_pos_raw = a_pos * 0.01
-        f_pos_region = int(f_pos_raw)
-        f_pos_bars_raw = (f_pos_raw - float(f_pos_region)) * 8.0
-        f_pos_bars = int(f_pos_bars_raw)
-        f_pos_beats = f_pos_bars_raw - float(f_pos_bars)
-        return(f_pos_region, f_pos_bars, f_pos_beats)
+        f_pos_region = 0
+        f_pos_x = a_pos
+        for i in range(300):
+            if f_pos_x >= global_audio_region_snap_px[i] and f_pos_x < global_audio_region_snap_px[i + 1]:
+                f_pos_region = i
+                f_region_length = pydaw_get_region_length(i)
+                f_bar_frac = global_audio_region_snap_px[(i + 1)] - global_audio_region_snap_px[i]
+                f_bar_frac = ((f_pos_x - global_audio_region_snap_px[i]) / f_bar_frac) * f_region_length
+                f_pos_bars = int(f_bar_frac)
+                f_pos_beats = (f_bar_frac - f_pos_bars) * 4.0
+                return(f_pos_region, f_pos_bars, f_pos_beats)
+        print("Error:  did not find a region for f_pos_x = " + str(f_pos_x))
 
     def mouseDoubleClickEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
@@ -753,11 +763,16 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         self.setGraphicsEffect(None)
         f_pos_x = self.pos().x()
-        if this_audio_items_viewer.snap_enabled:
-            f_pos_x *= this_audio_items_viewer.snap_divisor_recip
-            f_pos_x = round(f_pos_x, 0)
-            f_pos_x *= this_audio_items_viewer.snap_multiplier
-            print("f_pos_x:" + str(f_pos_x))
+        if this_audio_items_viewer.snap_mode == 0:
+            pass
+        elif this_audio_items_viewer.snap_mode == 1:
+            for i in range(300):
+                if f_pos_x >= global_audio_region_snap_px[i] and f_pos_x < global_audio_region_snap_px[i + 1]:
+                    f_pos_x = global_audio_region_snap_px[i]
+                    break
+        elif this_audio_items_viewer.snap_mode == 2:
+            f_pos_x = int(f_pos_x/12.5) * 12.5
+        print("f_pos_x:" + str(f_pos_x))
         self.setPos(f_pos_x, self.mouse_y_pos)
         f_audio_items = this_pydaw_project.get_audio_items()
         f_item = f_audio_items.items[self.track_num]
@@ -792,22 +807,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.px_per_bar = 100.0/8.0
         self.draw_headers()
         self.setAlignment(QtCore.Qt.AlignTop)
-        self.snap_enabled = False
-        self.snap_multiplier = 1.0
-        self.snap_divisor_recip = 1.0
+        self.snap_mode = 0
 
     def set_snap(self, a_index):
-        print("set_snap: " + str(a_index))
-        if a_index == 0:
-            self.snap_enabled = False
-        elif a_index == 1:
-            self.snap_enabled = True
-            self.snap_multiplier = 100
-            self.snap_divisor_recip = 0.01
-        elif a_index == 2:
-            self.snap_enabled = True
-            self.snap_multiplier = 12.5
-            self.snap_divisor_recip = 0.08
+        self.snap_mode = a_index
 
     def set_zoom(self, a_scale):
         """ a_scale == number from 1.0 to 6.0 """
@@ -830,18 +833,18 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
         f_total_height = (32 * (65 + 2)) + self.ruler_height
-        i3 = self.px_per_bar
+        i3 = 0.0 #self.px_per_bar
         for i in range(f_total_regions):
             f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
             f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_number.setBrush(QtCore.Qt.white)
+            self.scene.addLine(i3, self.ruler_height, i3, f_total_height, f_reg_pen)
+            f_number.setPos(i3, 2)
+            i3 += self.px_per_bar
             f_bar_count = pydaw_get_region_length(i)
             for i2 in range(0, f_bar_count - 1):
                 self.scene.addLine(i3, self.ruler_height, i3, f_total_height, f_v_pen)
                 i3 += self.px_per_bar
-            self.scene.addLine(i3, self.ruler_height, i3, f_total_height, f_reg_pen)
-            f_number.setPos(i3, 2)
-            i3 += self.px_per_bar
         for i2 in range(32):
             f_y = ((65 + 2) * (i2 + 1)) + self.ruler_height
             self.scene.addLine(0, f_y, f_size, f_y)
@@ -1131,6 +1134,9 @@ class audio_list_editor:
         def sample_vol_changed(a_val=None):
             f_sample_vol_label.setText(str(f_sample_vol_slider.value()) + "dB")
 
+        def update_bar_count(a_val=None):
+            f_start_bar.setRange(0, pydaw_get_region_length(f_start_region.value()) - 1)
+
         def f_quitting(a_val=None):
             try:
                 global f_sg_timer
@@ -1211,6 +1217,7 @@ class audio_list_editor:
         f_start_hlayout.addWidget(QtGui.QLabel("Region:"))
         f_start_region = QtGui.QSpinBox()
         f_start_region.setRange(0, 298)
+        f_start_region.valueChanged.connect(update_bar_count)
         f_start_hlayout.addWidget(f_start_region)
         f_start_hlayout.addWidget(QtGui.QLabel("Bar:"))
         f_start_bar = QtGui.QSpinBox()
