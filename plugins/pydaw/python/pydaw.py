@@ -62,10 +62,10 @@ def pydaw_print_generic_exception(a_ex):
     "\nIf you are running PyDAW from a USB flash drive, this may be because file IO timed out due to the slow " + \
     "nature of flash drives.  If the problem persists, you should consider installing PyDAW-OS to your hard drive instead")
 
-def pydaw_scale_to_rect(a_to_scale, a_scale_to, a_count=1):
+def pydaw_scale_to_rect(a_to_scale, a_scale_to):
     """ Returns a tuple that scales one QRectF to another """
     f_x = (a_scale_to.width() / a_to_scale.width())
-    f_y = (a_scale_to.height() / a_to_scale.height()) / a_count
+    f_y = (a_scale_to.height() / a_to_scale.height())
     return (f_x, f_y)
 
 class song_editor:
@@ -743,7 +743,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_path_item.setBrush(pydaw_audio_item_scene_gradient)
             f_path_item.setParentItem(self)
             f_path_item.mapFromParent(0.0, f_y_pos)
-            f_x_scale, f_y_scale = pydaw_scale_to_rect(f_path_item.boundingRect(), self.boundingRect(), len(self.painter_paths) * 2.0)  #No idea why it has to be scaled to /2.0 it's size...
+            f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.boundingRect())  #No idea why it has to be scaled to /2.0 it's size...
             f_path_item.scale(f_x_scale, f_y_scale)
             f_y_pos += f_y_inc
             print f_y_pos
