@@ -748,11 +748,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         f_start = (a_audio_item.start_region + (((a_audio_item.start_bar * 4.0) + a_audio_item.start_beat) / global_beats_per_region)) * global_audio_px_per_region
 
+        f_length_seconds = pydaw_seconds_to_regions(a_sample_length) * global_audio_px_per_region
+        self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, 65.0)
+        f_length_seconds *= 1.0 - (a_audio_item.sample_start * 0.001)
+        f_length_seconds *= a_audio_item.sample_end * 0.001
+
         if a_audio_item.end_mode == 0:
-            f_length = pydaw_seconds_to_regions(a_sample_length) * global_audio_px_per_region
+            f_length = f_length_seconds
         elif a_audio_item.end_mode == 1:
             f_length = ((a_audio_item.end_region + (((a_audio_item.end_bar * 4.0) + a_audio_item.end_beat) / global_beats_per_region))  * global_audio_px_per_region) - f_start
-            f_length_seconds = pydaw_seconds_to_regions(a_sample_length) * global_audio_px_per_region
             if f_length_seconds < f_length:
                 f_length = f_length_seconds
 
@@ -788,7 +792,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_path_item.setParentItem(self)
             f_path_item.mapFromParent(0.0, f_track_num)
             f_path_item.setPos(a_audio_item.sample_start * -0.001 * f_length, 0.0)
-            f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.boundingRect())  #No idea why it has to be scaled to /2.0 it's size...
+            f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.rect_orig)
             f_path_item.scale(f_x_scale, f_y_scale)
             f_y_pos += f_y_inc
 
