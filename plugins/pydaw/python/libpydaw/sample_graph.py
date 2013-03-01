@@ -3,6 +3,7 @@ import os
 
 pydaw_audio_item_scene_height = 1200.0
 pydaw_audio_item_scene_width = 6000.0
+pydaw_audio_item_scene_rect = QtCore.QRectF(0.0, 0.0, pydaw_audio_item_scene_width, pydaw_audio_item_scene_height)
 
 pydaw_audio_item_scene_gradient = QtGui.QLinearGradient(0, 0, 0, 1200)
 pydaw_audio_item_scene_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(120, 120, 120))
