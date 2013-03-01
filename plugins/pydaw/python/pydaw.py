@@ -738,7 +738,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_y_pos = 0.0
         f_y_inc = a_height / len(self.painter_paths)
         for f_painter_path in self.painter_paths:
-            print("ha")
             f_path_item = QtGui.QGraphicsPathItem(f_painter_path)
             f_path_item.setBrush(pydaw_audio_item_scene_gradient)
             f_path_item.setParentItem(self)
