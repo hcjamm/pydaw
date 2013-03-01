@@ -932,7 +932,7 @@ class audio_items_viewer_widget():
 
         self.controls_grid_layout.addWidget(QtGui.QLabel("V-Zoom:"), 0, 45)
         self.v_zoom_combobox = QtGui.QComboBox()
-        self.v_zoom_combobox.addItems(["Small", "Medium", "Large", "Huge"])
+        self.v_zoom_combobox.addItems(["Small", "Medium", "Large"])
         self.v_zoom_combobox.setMinimumWidth(150)
         self.v_zoom_combobox.currentIndexChanged.connect(self.set_v_zoom)
         self.controls_grid_layout.addWidget(self.v_zoom_combobox, 0, 46)
@@ -956,9 +956,12 @@ class audio_items_viewer_widget():
 
     def set_v_zoom(self, a_val=None):
         this_audio_items_viewer.set_v_zoom(1.0 / self.v_zoom)
-        self.v_zoom = self.v_zoom_combobox.currentIndex() + 1.0
-        if self.v_zoom != 1.0:
-            self.v_zoom *= 2.0
+        if self.v_zoom_combobox.currentIndex() == 0:
+            self.v_zoom = 1.0
+        elif self.v_zoom_combobox.currentIndex() == 1:
+            self.v_zoom = 4.0
+        elif self.v_zoom_combobox.currentIndex() == 2:
+            self.v_zoom = 10.0
         this_audio_items_viewer.set_v_zoom(self.v_zoom)
 
     def set_snap(self, a_val=None):
