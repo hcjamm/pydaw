@@ -31,12 +31,6 @@ global_region_lengths_dict = {}
 global_audio_region_snap_px = {}
 global_audio_bar_px = 12.5
 
-def pydaw_print_generic_exception(a_ex):
-    f_error = type(a_ex) + " exception:" + a_ex.message
-    QtGui.QMessageBox.warning(this_main_window, "Warning", "The following error happened:\n" + f_error + \
-    "\nIf you are running PyDAW from a USB flash drive, this may be because file IO timed out due to the slow " + \
-    "nature of flash drives.  If the problem persists, you should consider installing PyDAW-OS to your hard drive instead")
-
 def pydaw_update_region_lengths_dict():
     """ Call this any time the region length setup may have changed... """
     f_song = this_pydaw_project.get_song()
@@ -61,6 +55,18 @@ def pydaw_get_region_length(a_region_index):
         return global_region_lengths_dict[f_region_index]
     else:
         return 8
+
+def pydaw_print_generic_exception(a_ex):
+    f_error = type(a_ex) + " exception:" + a_ex.message
+    QtGui.QMessageBox.warning(this_main_window, "Warning", "The following error happened:\n" + f_error + \
+    "\nIf you are running PyDAW from a USB flash drive, this may be because file IO timed out due to the slow " + \
+    "nature of flash drives.  If the problem persists, you should consider installing PyDAW-OS to your hard drive instead")
+
+def pydaw_scale_to_rect(a_to_scale, a_scale_to, a_count=1):
+    """ Returns a tuple that scales one QRectF to another """
+    f_x = (a_scale_to.width() / a_to_scale.width())
+    f_y = (a_scale_to.height() / a_to_scale.height()) / a_count
+    return (f_x, f_y)
 
 class song_editor:
     def add_qtablewidgetitem(self, a_name, a_region_num):
@@ -717,10 +723,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_length, a_height)
         f_name_arr = a_name.split("/")
         f_name = f_name_arr[len(f_name_arr) - 1]
-        self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
-        self.label.setPos(10, 5)
-        self.label.setBrush(QtCore.Qt.white)
-        self.label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         #self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)  #This caused problems with multiselect + moving items
@@ -728,6 +730,29 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.mouse_y_pos = a_y_pos
         self.audio_item = a_audio_item
         self.setToolTip("Double click to open editor dialog, or click and drag to move")
+
+        self.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
+        f_graphs = this_pydaw_project.get_samplegraphs()
+        f_graph = f_graphs.get_sample_graph(a_name)
+        self.painter_paths = f_graph.create_sample_graph(True)
+        f_y_pos = 0.0
+        f_y_inc = a_height / len(self.painter_paths)
+        for f_painter_path in self.painter_paths:
+            print("ha")
+            f_path_item = QtGui.QGraphicsPathItem(f_painter_path)
+            f_path_item.setBrush(pydaw_audio_item_scene_gradient)
+            f_path_item.setParentItem(self)
+            f_path_item.mapFromParent(0.0, f_y_pos)
+            f_x_scale, f_y_scale = pydaw_scale_to_rect(f_path_item.boundingRect(), self.boundingRect(), len(self.painter_paths) * 2.0)  #No idea why it has to be scaled to /2.0 it's size...
+            f_path_item.scale(f_x_scale, f_y_scale)
+            f_y_pos += f_y_inc
+            print f_y_pos
+
+        self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
+        self.label.setPos(10, 5)
+        self.label.setBrush(QtCore.Qt.white)
+        self.label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+
 
     def pos_to_musical_time(self, a_pos):
         f_pos_region = 0
