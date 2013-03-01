@@ -1,7 +1,12 @@
 from PyQt4 import QtGui, QtCore
 import os
 
+pydaw_audio_item_scene_height = 1200.0
+pydaw_audio_item_scene_width = 6000.0
 
+pydaw_audio_item_scene_gradient = QtGui.QLinearGradient(0, 0, 0, 1200)
+pydaw_audio_item_scene_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(120, 120, 120))
+pydaw_audio_item_scene_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(90, 90, 90))
 
 class pydaw_sample_graphs:
     def __init__(self, a_sg_dir):
@@ -112,8 +117,8 @@ class pydaw_sample_graph:
     #BIG TODO:  Make path into a list, then pass it to pydaw_render widget and render multiple channels...
     def create_sample_graph(self, a_for_scene=False):
         if a_for_scene:
-            f_width_inc = 6000.0 / self.count
-            f_section = 1200.0 / float(self.channels)
+            f_width_inc = pydaw_audio_item_scene_width / self.count
+            f_section = pydaw_audio_item_scene_height / float(self.channels)
         else:
             f_width_inc = 98.0 / self.count
             f_section = 100.0 / float(self.channels)
@@ -217,16 +222,19 @@ if __name__ == "__main__":
     f_scene.setBackgroundBrush(QtCore.Qt.darkGray)
     f_view = QtGui.QGraphicsView()
     f_view.setScene(f_scene)
-    f_path_item = QtGui.QGraphicsPathItem(f_test_graph[0])
+    f_rect_item = QtGui.QGraphicsRectItem(0.0, 0.0, 900, 210)
+    f_rect_item.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+    f_rect_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
+    f_rect_gradient = QtGui.QLinearGradient(0.0, 0.0, 0.0, 180.0)
+    f_rect_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(240, 33, 33))
+    f_rect_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(240, 33, 120))
+    f_rect_item.setBrush(f_rect_gradient)
+    f_path_item = QtGui.QGraphicsPathItem(f_test_graph[0], f_rect_item)
     f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 3.0))
 
-    f_gradient = QtGui.QLinearGradient(0, 0, 0, 1200)
-    f_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(120, 120, 120))
-    f_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(60, 60, 60))
-
-    f_path_item.setBrush(f_gradient)
+    f_path_item.setBrush(pydaw_audio_item_scene_gradient)
     f_path_item.scale(0.2, 0.2)
-    f_scene.addItem(f_path_item)
+    f_scene.addItem(f_rect_item)
 
     f_view.setGeometry(QtCore.QRect(0, 0, 1200, 360))
     f_view.show()
