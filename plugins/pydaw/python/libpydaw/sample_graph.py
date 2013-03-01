@@ -1,6 +1,8 @@
 from PyQt4 import QtGui, QtCore
 import os
 
+
+
 class pydaw_sample_graphs:
     def __init__(self, a_sg_dir):
         self.lookup = {}
@@ -108,9 +110,13 @@ class pydaw_sample_graph:
 
 
     #BIG TODO:  Make path into a list, then pass it to pydaw_render widget and render multiple channels...
-    def create_sample_graph(self):
-        f_width_inc = 98.0 / self.count
-        f_section = 100.0 / float(self.channels)
+    def create_sample_graph(self, a_for_scene=False):
+        if a_for_scene:
+            f_width_inc = 6000.0 / self.count
+            f_section = 1200.0 / float(self.channels)
+        else:
+            f_width_inc = 98.0 / self.count
+            f_section = 100.0 / float(self.channels)
         f_section_div2 = f_section * 0.5
 
         f_paths = []
@@ -127,6 +133,10 @@ class pydaw_sample_graph:
                 f_width_pos -= f_width_inc
             f_result.closeSubpath()
             f_paths.append(f_result)
+        return f_paths
+
+    def get_sample_graph_widget(self):
+        f_paths = self.create_sample_graph()
         return pydaw_render_widget(f_paths)
 
     def check_mtime(self):
@@ -202,6 +212,23 @@ if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
     f_graph = pydaw_sample_graph("test.pygraph")
-    f_test_graph = f_graph.create_sample_graph()
-    f_test_graph.show()
+    f_test_graph = f_graph.create_sample_graph(True)
+    f_scene = QtGui.QGraphicsScene()
+    f_scene.setBackgroundBrush(QtCore.Qt.darkGray)
+    f_view = QtGui.QGraphicsView()
+    f_view.setScene(f_scene)
+    f_path_item = QtGui.QGraphicsPathItem(f_test_graph[0])
+    f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 3.0))
+
+    f_gradient = QtGui.QLinearGradient(0, 0, 0, 1200)
+    f_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(120, 120, 120))
+    f_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(60, 60, 60))
+
+    f_path_item.setBrush(f_gradient)
+    f_path_item.scale(0.2, 0.2)
+    f_scene.addItem(f_path_item)
+
+    f_view.setGeometry(QtCore.QRect(0, 0, 1200, 360))
+    f_view.show()
+
     sys.exit(app.exec_())

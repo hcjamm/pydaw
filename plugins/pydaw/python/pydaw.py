@@ -1103,7 +1103,7 @@ class audio_list_editor:
                     f_ai_sample_graph = None
                 except:
                     print("Failed:  f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)")
-                f_ai_sample_graph = f_graph.create_sample_graph()
+                f_ai_sample_graph = f_graph.get_sample_graph_widget()
                 f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
 
         def file_name_select():
