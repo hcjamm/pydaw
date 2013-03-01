@@ -745,7 +745,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.boundingRect())  #No idea why it has to be scaled to /2.0 it's size...
             f_path_item.scale(f_x_scale, f_y_scale)
             f_y_pos += f_y_inc
-            print f_y_pos
 
         self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
         self.label.setPos(10, 5)
@@ -840,6 +839,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
         """ a_scale == number from 1.0 to 6.0 """
         self.scale(a_scale, 1.0)
 
+    def set_v_zoom(self, a_scale):
+        """ a_scale == number from 1.0 to 6.0 """
+        self.scale(1.0, a_scale)
+
     def set_bpm(self, a_bpm):
         self.bps = a_bpm / 60.0
         self.beats_per_region = self.item_length * self.region_length
@@ -926,14 +929,22 @@ class audio_items_viewer_widget():
         self.add_item_button = QtGui.QPushButton("Add Item")
         self.controls_grid_layout.addWidget(self.add_item_button, 0, 2)
         self.add_item_button.pressed.connect(self.add_item)
+
+        self.controls_grid_layout.addWidget(QtGui.QLabel("V-Zoom:"), 0, 45)
+        self.v_zoom_combobox = QtGui.QComboBox()
+        self.v_zoom_combobox.addItems(["Small", "Medium", "Large", "Huge"])
+        self.v_zoom_combobox.setMinimumWidth(150)
+        self.v_zoom_combobox.currentIndexChanged.connect(self.set_v_zoom)
+        self.controls_grid_layout.addWidget(self.v_zoom_combobox, 0, 46)
         self.h_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.h_zoom_slider.setRange(0, 100)
         self.h_zoom_slider.setMaximumWidth(600)
         self.h_zoom_slider.setValue(0)
         self.last_scale_value = 0
         self.h_zoom_slider.valueChanged.connect(self.set_zoom)
-        self.controls_grid_layout.addWidget(QtGui.QLabel("Zoom:"), 0, 49)
+        self.controls_grid_layout.addWidget(QtGui.QLabel("H-Zoom:"), 0, 49)
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
+        self.v_zoom = 1.0
 
     def add_item(self):
         f_audio_items = this_pydaw_project.get_audio_items()
@@ -942,6 +953,13 @@ class audio_items_viewer_widget():
                 this_audio_editor.show_cell_dialog(i, 0)
                 break
         #TODO:  QMessageBox if no available slots
+
+    def set_v_zoom(self, a_val=None):
+        this_audio_items_viewer.set_v_zoom(1.0 / self.v_zoom)
+        self.v_zoom = self.v_zoom_combobox.currentIndex() + 1.0
+        if self.v_zoom != 1.0:
+            self.v_zoom *= 2.0
+        this_audio_items_viewer.set_v_zoom(self.v_zoom)
 
     def set_snap(self, a_val=None):
         this_audio_items_viewer.set_snap(self.snap_combobox.currentIndex())
