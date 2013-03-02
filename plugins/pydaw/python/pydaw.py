@@ -875,22 +875,26 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.track = 0
         self.gradient_index = 0
         self.playback_px = 0.0
+        self.set_playback_pos(0, 0)
         self.draw_headers()
         self.setAlignment(QtCore.Qt.AlignTop)
         self.snap_mode = 0
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
 
-    def set_playback_pos(self, a_region, a_bar):
+    def set_playback_pos(self, a_region=None, a_bar=None):
         try:
             self.scene.removeItem(self.playback_cursor)
         except:
             pass
-        self.playback_cursor = QtGui.QGraphicsLineItem(0.0, global_audio_ruler_height + 1.0, 0.0, (65.0 * 32.0) + global_audio_ruler_height)
+        self.playback_cursor = QtGui.QGraphicsLineItem(0.0, global_audio_ruler_height + 2.0, 0.0, (65.0 * 32.0) + global_audio_ruler_height)
         self.playback_cursor.setPen(QtGui.QPen(QtGui.QColor.fromRgb(240, 30, 30, 180.0), 3.0))
         self.playback_cursor.setZValue(40.0)
         self.scene.addItem(self.playback_cursor)
-        self.playback_px = a_bar * global_audio_px_per_bar
-        for i in range(a_region):
+        if a_region is not None and a_bar is not None:
+            self.playback_region = a_region
+            self.playback_bar = a_bar
+        self.playback_px = self.playback_bar * global_audio_px_per_bar
+        for i in range(self.playback_region):
             self.playback_px += pydaw_get_region_length(i) * global_audio_px_per_bar
         self.playback_cursor.setPos(self.playback_px, 0.0)
 
@@ -949,6 +953,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         for i2 in range(32):
             f_y = ((65.0) * (i2 + 1)) + global_audio_ruler_height
             self.scene.addLine(0, f_y, f_size, f_y)
+        self.set_playback_pos()
 
 
     def clear_drawn_items(self):
