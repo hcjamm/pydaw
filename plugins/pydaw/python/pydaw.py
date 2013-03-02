@@ -875,6 +875,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.draw_headers()
         self.setAlignment(QtCore.Qt.AlignTop)
         self.snap_mode = 0
+        #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
 
     def set_snap(self, a_index):
         self.snap_mode = a_index
