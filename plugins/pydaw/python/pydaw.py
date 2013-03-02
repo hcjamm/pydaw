@@ -874,10 +874,46 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.audio_items = []
         self.track = 0
         self.gradient_index = 0
+        self.playback_px = 0.0
         self.draw_headers()
         self.setAlignment(QtCore.Qt.AlignTop)
         self.snap_mode = 0
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
+
+    def set_playback_pos(self, a_region, a_bar):
+        try:
+            self.scene.removeItem(self.playback_cursor)
+        except:
+            pass
+        self.playback_cursor = QtGui.QGraphicsLineItem(0.0, global_audio_ruler_height + 1.0, 0.0, (65.0 * 32.0) + global_audio_ruler_height)
+        self.playback_cursor.setPen(QtGui.QPen(QtGui.QColor.fromRgb(240, 30, 30, 180.0), 3.0))
+        self.playback_cursor.setZValue(40.0)
+        self.scene.addItem(self.playback_cursor)
+        self.playback_px = a_bar * global_audio_px_per_bar
+        for i in range(a_region):
+            self.playback_px += pydaw_get_region_length(i) * global_audio_px_per_bar
+        self.playback_cursor.setPos(self.playback_px, 0.0)
+
+    def start_playback(self, a_bars, a_bpm):
+        f_pos_x = self.playback_cursor.pos().x()
+        self.playback_cursor_animation = QtGui.QGraphicsItemAnimation()
+        self.playback_cursor_animation.setItem(self.playback_cursor)
+        f_mseconds = ((a_bars * 4.0) / a_bpm) * 60000
+        self.playback_timeline = QtCore.QTimeLine(f_mseconds)
+        self.playback_timeline.setCurveShape(QtCore.QTimeLine.LinearCurve)
+        self.playback_timeline.setFrameRange(0, 100)
+        self.playback_cursor_animation.setTimeLine(self.playback_timeline)
+        f_length_inc = global_audio_px_per_bar * a_bars * 0.01
+        for i in range(100):
+            self.playback_cursor_animation.setPosAt(i * 0.01, QtCore.QPointF(f_pos_x + (i * f_length_inc), 0.0))
+        self.playback_timeline.start()
+
+    def stop_playback(self):
+        try:
+            self.playback_timeline.stop()
+        except:
+            pass
+        self.playback_cursor.setPos(0.0, 0.0)
 
     def set_snap(self, a_index):
         self.snap_mode = a_index
@@ -913,6 +949,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         for i2 in range(32):
             f_y = ((65.0) * (i2 + 1)) + global_audio_ruler_height
             self.scene.addLine(0, f_y, f_size, f_y)
+
 
     def clear_drawn_items(self):
         self.track = 0
@@ -4268,6 +4305,11 @@ class transport_widget:
         f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
         self.beat_timer.stop()
         self.beat_timer.start(f_playback_inc)
+        self.trigger_audio_playback()
+
+    def trigger_audio_playback(self):
+        f_bar_count = pydaw_get_region_length(self.region_spinbox.value()) - self.bar_spinbox.value()
+        this_audio_items_viewer.start_playback(f_bar_count, self.tempo_spinbox.value())
 
     def show_audio_recording_dialog(self):
         f_inputs = this_pydaw_project.get_audio_input_tracks()
@@ -4362,6 +4404,8 @@ class transport_widget:
         self.is_playing = False
         if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
             this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+        this_audio_items_viewer.stop_playback()
+        this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
     def on_rec(self):
         if self.is_playing:
             self.play_button.setChecked(True)
@@ -4373,6 +4417,7 @@ class transport_widget:
         this_pydaw_project.this_dssi_gui.pydaw_rec(a_region_num=self.region_spinbox.value(), a_bar=self.bar_spinbox.value())
         f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
         self.beat_timer.start(f_playback_inc)
+        self.trigger_audio_playback()
     def on_tempo_changed(self, a_tempo):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
@@ -4398,12 +4443,14 @@ class transport_widget:
         if not self.suppress_osc and not self.is_playing and not self.is_recording:
             this_pydaw_project.save_transport(self.transport)
             this_pydaw_project.git_repo.git_commit("-a", "Set project playback bar to " + str(a_bar))
+            this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
     def on_region_changed(self, a_region):
         self.bar_spinbox.setRange(0, pydaw_get_region_length(a_region) - 1)
         self.transport.region = a_region
         if not self.is_playing and not self.is_recording:
             this_pydaw_project.save_transport(self.transport)
             this_pydaw_project.git_repo.git_commit("-a", "Set project playback region to " + str(a_region))
+            this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
     def on_follow_cursor_check_changed(self):
         if self.follow_checkbox.isChecked():
             f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
@@ -4424,7 +4471,6 @@ class transport_widget:
         if this_region_editor.region is not None and this_region_editor.region.region_length_bars > 0:
             f_region_length = this_region_editor.region.region_length_bars
         if f_new_bar_value >= f_region_length:
-            f_new_bar_value = 0
             if self.loop_mode_combobox.currentIndex() != 2:
                 self.region_spinbox.setValue(self.region_spinbox.value() + 1)
                 if self.follow_checkbox.isChecked():
@@ -4433,7 +4479,10 @@ class transport_widget:
                         this_region_editor.open_region(f_item.text())
                     else:
                         this_region_editor.clear_items()
-        self.bar_spinbox.setValue(f_new_bar_value)
+            self.bar_spinbox.setValue(0)
+            self.trigger_audio_playback()
+        else:
+            self.bar_spinbox.setValue(f_new_bar_value)
         if self.follow_checkbox.isChecked():
             this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
             this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)
