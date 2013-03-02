@@ -762,8 +762,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_length = f_length_seconds
 
         f_height = 65
-        f_padding = 2
-        f_track_num = global_audio_ruler_height + f_padding + (f_height + f_padding) * a_lane_num
+        f_track_num = global_audio_ruler_height + (f_height) * a_lane_num
 
         QtGui.QGraphicsRectItem.__init__(self, 0.0, 0.0, f_length, f_height)
 
@@ -895,7 +894,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scene.addItem(f_ruler)
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
-        f_total_height = (32 * (65 + 2)) + global_audio_ruler_height
+        f_total_height = (32.0 * (65.0)) + global_audio_ruler_height
         i3 = 0.0
         for i in range(f_total_regions):
             f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
@@ -909,7 +908,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 self.scene.addLine(i3, global_audio_ruler_height, i3, f_total_height, f_v_pen)
                 i3 += global_audio_px_per_bar
         for i2 in range(32):
-            f_y = ((65 + 2) * (i2 + 1)) + global_audio_ruler_height
+            f_y = ((65.0) * (i2 + 1)) + global_audio_ruler_height
             self.scene.addLine(0, f_y, f_size, f_y)
 
     def clear_drawn_items(self):
