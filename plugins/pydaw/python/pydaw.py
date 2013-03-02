@@ -767,6 +767,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.__init__(self, 0.0, 0.0, f_length, f_height)
 
         self.setPos(f_start, f_track_num)
+        self.last_x = self.pos().x()
         self.setBrush(a_brush)
 
         f_name_arr = a_audio_item.file.split("/")
@@ -822,6 +823,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+        self.last_x = self.pos().x()
         self.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
 
     def mouseMoveEvent(self, a_event):
@@ -835,6 +837,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         self.setGraphicsEffect(None)
         f_pos_x = self.pos().x()
+        if self.last_x == f_pos_x:
+            return
         if this_audio_items_viewer.snap_mode == 0:
             pass
         elif this_audio_items_viewer.snap_mode == 1:
@@ -844,7 +848,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     break
         elif this_audio_items_viewer.snap_mode == 2:
             f_pos_x = int(f_pos_x/12.5) * 12.5
-        print("f_pos_x:" + str(f_pos_x))
         self.setPos(f_pos_x, self.mouse_y_pos)
         f_audio_items = this_pydaw_project.get_audio_items()
         f_item = f_audio_items.items[self.track_num]
