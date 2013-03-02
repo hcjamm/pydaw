@@ -996,6 +996,26 @@ class audio_items_viewer_widget():
                 this_audio_items_viewer.set_zoom(1.03)
         self.last_scale_value = self.h_zoom_slider.value()
 
+def global_sample_graph_create_and_wait(a_file_name, a_samplegraphs):
+    f_uid = pydaw_gen_uid()
+    this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(a_file_name, f_uid)
+    a_samplegraphs.add_ref(a_file_name, f_uid)
+    this_pydaw_project.save_samplegraphs(a_samplegraphs)
+    f_file_name = this_pydaw_project.samplegraph_folder + "/" + str(f_uid) + ".pygraph"
+    for i in range(1000):
+        if os.path.isfile(f_file_name):
+            sleep(0.1)
+            print("Returning " + a_file_name)
+            f_result = a_samplegraphs.get_sample_graph(a_file_name)
+            if f_result is None:
+                print("WTF?")
+                continue
+            else:
+                return f_result
+        else:
+            sleep(0.1)
+    return None
+
 
 class audio_list_editor:
     def open_tracks(self):
@@ -1035,7 +1055,13 @@ class audio_list_editor:
             self.audio_items_table_widget.setItem(k, 14, QtGui.QTableWidgetItem(str(v.vol)))
             self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.timestretch_amt)))
             if a_update_viewer:
-                this_audio_items_viewer.draw_item(k, v, f_samplegraphs.get_sample_graph(v.file).length_in_seconds)
+                f_graph = f_samplegraphs.get_sample_graph(v.file)
+                if f_graph is None:
+                    f_graph = global_sample_graph_create_and_wait(v.file, f_samplegraphs)
+                if f_graph is None:
+                    print("Error drawing item for " + v.file + ", could not get sample graph object")
+                    continue
+                this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
         self.audio_items_table_widget.resizeColumnsToContents()
 
     def reset_tracks(self):
@@ -1113,17 +1139,19 @@ class audio_list_editor:
             global f_sg_wait_uid
             f_file_name = this_pydaw_project.samplegraph_folder + "/" + str(f_sg_wait_uid) + ".pygraph"
             if os.path.isfile(f_file_name):
+                global f_sg_wait_file_name
+                f_graph = f_samplegraphs.get_sample_graph(f_sg_wait_file_name)
+                if f_graph is None:
+                    return
                 global f_sg_timer
                 f_sg_timer.stop()
                 global f_ai_sample_graph
-                global f_sg_wait_file_name
-                f_graph = f_samplegraphs.get_sample_graph(f_sg_wait_file_name)
                 f_sg_wait_file_name = None
                 f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
                 f_ai_sample_graph.setParent(None)
                 f_ai_sample_graph.deleteLater()
                 f_ai_sample_graph = None
-                f_ai_sample_graph = f_graph.create_sample_graph()
+                f_ai_sample_graph = f_graph.get_sample_graph_widget()
                 f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
 
         def create_sample_graph(a_file_name):

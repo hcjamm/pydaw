@@ -29,7 +29,7 @@ class pydaw_sample_graphs:
             #The below has a corner case of the user could be generating a graph for a huge file, and has
             #triggered this for a 2nd time but the graph isn't finished...  but sample graph generation is lightning quick on my PC,
             #I need to test it on a slower PC with a mechanical hard drive...
-            if not f_result.is_valid() or f_result.check_mtime():
+            if not f_result.is_valid() or not f_result.check_mtime():
                 print("Not valid, or else mtime is newer than graph time, deleting sample graph...")
                 self.lookup.pop(f_file_name)
                 os.system('rm "' + f_pygraph_file + '"')
@@ -83,7 +83,7 @@ class pydaw_sample_graph:
                 break
             elif f_line_arr[0] == "meta":
                 if f_line_arr[1] == "filename":
-                    self.file = str(f_line_arr[2])
+                    self.file = str(f_line_arr[2]).strip("\n")  #Why does this have a newline on the end???
                 elif f_line_arr[1] == "timestamp":
                     self.timestamp = int(f_line_arr[2])
                 elif f_line_arr[1] == "channels":
@@ -148,11 +148,9 @@ class pydaw_sample_graph:
     def check_mtime(self):
         """ Returns False if the sample graph is older than the file modified time """
         try:
-            f_test = os.stat(self.file)
-            f_result = self.timestamp > int(f_test.st_mtime)
-            return f_result
-        except:
-            print("Error getting mtime")
+            return self.timestamp > os.path.getmtime(self.file)
+        except Exception as f_ex:
+            print("Error getting mtime: " + f_ex.message)
             return False
 
 
