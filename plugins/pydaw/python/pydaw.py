@@ -1022,6 +1022,8 @@ class audio_items_viewer_widget():
         self.v_zoom = 1.0
 
     def add_item(self):
+        if global_transport_is_playing:
+            return
         f_audio_items = this_pydaw_project.get_audio_items()
         for i in range(pydaw_max_audio_item_count):
             if not f_audio_items.items.has_key(i):
