@@ -27,6 +27,7 @@ import sip
 global_pydaw_version_string = "pydaw2"
 global_pydaw_file_type_string = 'PyDAW2 Project (*.pydaw2)'
 
+global_transport_is_playing = False
 global_region_lengths_dict = {}
 global_audio_region_snap_px = {}
 global_audio_bar_px = 12.5
@@ -769,6 +770,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.setPos(f_start, f_track_num)
         self.last_x = self.pos().x()
         self.setBrush(a_brush)
+        self.is_moving = False
 
         f_name_arr = a_audio_item.file.split("/")
         f_name = f_name_arr[len(f_name_arr) - 1]
@@ -817,24 +819,35 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         print("Error:  did not find a region for f_pos_x = " + str(f_pos_x))
 
     def mouseDoubleClickEvent(self, a_event):
+        if global_transport_is_playing:
+            return
         QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
         this_audio_editor.show_cell_dialog(self.track_num, 0, self.audio_item)
         a_event.accept()
 
     def mousePressEvent(self, a_event):
+        if global_transport_is_playing:
+            return
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
         self.last_x = self.pos().x()
-        self.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
 
     def mouseMoveEvent(self, a_event):
+        if global_transport_is_playing:
+            return
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
         f_pos = self.pos().x()
         if f_pos < 0:
             f_pos = 0
         self.setPos(f_pos, self.mouse_y_pos)
+        if not self.is_moving:
+            self.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
+            self.is_moving = True
 
     def mouseReleaseEvent(self, a_event):
+        if global_transport_is_playing:
+            return
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
+        self.is_moving = False
         self.setGraphicsEffect(None)
         f_pos_x = self.pos().x()
         if self.last_x == f_pos_x:
@@ -1133,6 +1146,8 @@ class audio_list_editor:
         self.audio_tracks_table_widget.resizeRowsToContents()
 
     def cell_clicked(self, x, y):
+        if global_transport_is_playing:
+            return
         f_item = self.audio_items_table_widget.item(x, 0)
         if f_item is None or f_item.text() == "":
             self.show_cell_dialog(x, y, None)
@@ -4302,6 +4317,8 @@ class transport_widget:
         if self.is_playing:
             self.region_spinbox.setValue(self.last_region_num)
             self.bar_spinbox.setValue(self.last_bar)
+        global global_transport_is_playing
+        global_transport_is_playing = True
         self.is_playing = True
         self.init_playback_cursor()
         self.last_region_num = self.region_spinbox.value()
@@ -4393,6 +4410,8 @@ class transport_widget:
     def on_stop(self):
         if not self.is_playing and not self.is_recording:
             return
+        global global_transport_is_playing
+        global_transport_is_playing = False
         this_pydaw_project.this_dssi_gui.pydaw_stop()
         self.beat_timer.stop()
         self.bar_spinbox.setValue(self.last_bar)
@@ -4415,6 +4434,8 @@ class transport_widget:
         if self.is_playing:
             self.play_button.setChecked(True)
             return
+        global global_transport_is_playing
+        global_transport_is_playing = True
         self.is_recording = True
         self.init_playback_cursor()
         self.last_region_num = self.region_spinbox.value()
