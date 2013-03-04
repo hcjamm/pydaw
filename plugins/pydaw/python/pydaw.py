@@ -58,7 +58,7 @@ def pydaw_get_region_length(a_region_index):
         return 8
 
 def pydaw_print_generic_exception(a_ex):
-    f_error = type(a_ex) + " exception:" + a_ex.message
+    f_error = str(type(a_ex)) + " exception:" + a_ex.message
     QtGui.QMessageBox.warning(this_main_window, "Warning", "The following error happened:\n" + f_error + \
     "\nIf you are running PyDAW from a USB flash drive, this may be because file IO timed out due to the slow " + \
     "nature of flash drives.  If the problem persists, you should consider installing PyDAW-OS to your hard drive instead")
@@ -1068,13 +1068,228 @@ def global_sample_graph_create_and_wait(a_file_name, a_samplegraphs):
             print("Returning " + a_file_name)
             f_result = a_samplegraphs.get_sample_graph(a_file_name)
             if f_result is None:
-                print("WTF?")
                 continue
             else:
                 return f_result
         else:
             sleep(0.1)
     return None
+
+class audio_item_marker(QtGui.QGraphicsRectItem):
+    def __init__(self, a_type):
+        """ a_type:  0 == start, 1 == end, more types eventually... """
+        QtGui.QGraphicsRectItem.__init__(self)
+
+class audio_item_editor(QtGui.QGraphicsView):
+    def __init__(self):
+        QtGui.QGraphicsView.__init__(self)
+        self.scene = QtGui.QGraphicsScene()
+        self.setScene(self.scene)
+        self.scene.setBackgroundBrush(QtCore.Qt.darkGray)
+
+class audio_item_editor_widget:
+    def __init__(self):
+        self.widget = QtGui.QWidget()
+        self.main_vlayout = QtGui.QVBoxLayout(self.widget)
+        self.items_list = []  #TODO:  Make this global ASAP
+        for i in range(pydaw_max_audio_item_count):
+            self.items_list.append("")
+
+        self.layout = QtGui.QGridLayout()
+        self.main_vlayout.addLayout(self.layout)
+
+        self.name = QtGui.QLineEdit()
+        self.name.setReadOnly(True)
+        self.name.setMinimumWidth(360)
+        self.layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
+        self.layout.addWidget(self.name, 0, 1)
+        self.select_file = QtGui.QPushButton("Select")
+        self.select_file.pressed.connect(self.file_name_select)
+        self.layout.addWidget(self.select_file, 0, 2)
+
+        self.sample_start_end_vlayout = QtGui.QVBoxLayout()
+        self.layout.addWidget(QtGui.QLabel("Start/End:"), 1, 0)
+        self.layout.addLayout(self.sample_start_end_vlayout, 1, 1)
+
+        self.sample_view = audio_item_editor()
+        self.sample_start_end_vlayout.addWidget(self.sample_view)
+
+        self.sample_vol_layout = QtGui.QVBoxLayout()
+        self.sample_vol_layout.addWidget(QtGui.QLabel("Vol"))
+        self.sample_vol_slider = QtGui.QSlider(QtCore.Qt.Vertical)
+        self.sample_vol_slider.setRange(-24, 24)
+        self.sample_vol_slider.setValue(0)
+        self.sample_vol_slider.valueChanged.connect(self.sample_vol_changed)
+        self.sample_vol_layout.addWidget(self.sample_vol_slider)
+        self.sample_vol_label = QtGui.QLabel("0db")
+        self.sample_vol_layout.addWidget(self.sample_vol_label)
+        self.layout.addLayout(self.sample_vol_layout, 1, 2)
+
+        self.layout.addWidget(QtGui.QLabel("Start:"), 3, 0)
+        self.start_hlayout = QtGui.QHBoxLayout()
+        self.layout.addLayout(self.start_hlayout, 3, 1)
+        self.start_hlayout.addWidget(QtGui.QLabel("Region:"))
+        self.start_region = QtGui.QSpinBox()
+        self.start_region.setRange(0, 298)
+        self.start_region.valueChanged.connect(self.update_bar_count)
+        self.start_hlayout.addWidget(self.start_region)
+        self.start_hlayout.addWidget(QtGui.QLabel("Bar:"))
+        self.start_bar = QtGui.QSpinBox()
+        self.start_bar.setRange(0, 7)
+        self.start_hlayout.addWidget(self.start_bar)
+        self.start_hlayout.addWidget(QtGui.QLabel("Beat:"))
+        self.start_beat = QtGui.QDoubleSpinBox()
+        self.start_beat.setRange(0, 3.99)
+        self.start_hlayout.addWidget(self.start_beat)
+        self.start_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+
+        self.layout.addWidget(QtGui.QLabel("End:"), 5, 0)
+        self.end_hlayout = QtGui.QHBoxLayout()
+        self.layout.addLayout(self.end_hlayout, 5, 1)
+        self.end_sample_length = QtGui.QRadioButton("Sample Length")
+        self.end_sample_length.setChecked(True)
+        self.end_hlayout.addWidget(self.end_sample_length)
+        self.end_musical_time = QtGui.QRadioButton("At:")
+        self.end_hlayout.addWidget(self.end_musical_time)
+        self.end_hlayout.addWidget(QtGui.QLabel("Region:"))
+        self.end_region = QtGui.QSpinBox()
+        self.end_region.setRange(0, 298)
+        self.end_hlayout.addWidget(self.end_region)
+        self.end_hlayout.addWidget(QtGui.QLabel("Bar:"))
+        self.end_bar = QtGui.QSpinBox()
+        self.end_bar.setRange(0, 7)
+        self.end_bar.setValue(1)
+        self.end_hlayout.addWidget(self.end_bar)
+        self.end_hlayout.addWidget(QtGui.QLabel("Beats:"))
+        self.end_beat = QtGui.QDoubleSpinBox()
+        self.end_beat.setRange(0, 3.99)
+        self.end_hlayout.addWidget(self.end_beat)
+        self.end_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+
+        self.layout.addWidget(QtGui.QLabel("Time Stretching:"), 7, 0)
+        self.timestretch_hlayout = QtGui.QHBoxLayout()
+        self.layout.addLayout(self.timestretch_hlayout, 7, 1)
+        self.timestretch_hlayout.addWidget(QtGui.QLabel("Mode:"))
+        self.timestretch_mode = QtGui.QComboBox()
+        self.timestretch_mode.setMinimumWidth(190)
+        self.timestretch_hlayout.addWidget(self.timestretch_mode)
+        self.timestretch_mode.addItems(global_timestretch_modes)
+        self.timestretch_hlayout.addWidget(QtGui.QLabel("Pitch Shift:"))
+        self.pitch_shift = QtGui.QDoubleSpinBox()
+        self.pitch_shift.setRange(-36, 36)
+        self.timestretch_hlayout.addWidget(self.pitch_shift)
+
+        self.timestretch_hlayout.addWidget(QtGui.QLabel("Time Stretch:"))
+        self.timestretch_amt = QtGui.QDoubleSpinBox()
+        self.timestretch_amt.setRange(0.2, 4.0)
+        self.timestretch_amt.setSingleStep(0.1)
+        self.timestretch_amt.setValue(1.0)
+        self.timestretch_hlayout.addWidget(self.timestretch_amt)
+
+        self.timestretch_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+
+        self.output_hlayout = QtGui.QHBoxLayout()
+        self.output_hlayout.addWidget(QtGui.QLabel("Audio Track:"))
+        self.output_combobox = QtGui.QComboBox()
+        self.output_combobox.setMinimumWidth(360)
+        self.output_combobox.addItems(global_audio_track_names.values())
+        self.output_hlayout.addWidget(self.output_combobox)
+        self.output_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+        self.layout.addWidget(QtGui.QLabel("Output:"), 9, 0)
+        self.layout.addLayout(self.output_hlayout, 9, 1)
+
+        self.ok_layout = QtGui.QHBoxLayout()
+        self.clear_button = QtGui.QPushButton("Clear Item")
+        self.clear_button.pressed.connect(self.clear_handler)
+        self.ok_layout.addWidget(self.clear_button)
+        self.ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        self.ok = QtGui.QPushButton("Save")
+        self.ok.pressed.connect(self.ok_handler)
+        self.ok_layout.addWidget(self.ok)
+        self.layout.addLayout(self.ok_layout, 11, 1)
+
+        self.last_open_dir = expanduser("~")
+
+    def open_item(self, a_item):
+        if a_item is None:
+            pass
+        else:
+            self.name.setText(a_item.file)
+            self.sample_start.setValue(a_item.sample_start)
+            self.sample_end.setValue(a_item.sample_end)
+            self.start_region.setValue(a_item.start_region)
+            self.start_bar.setValue(a_item.start_bar)
+            self.start_beat.setValue(a_item.start_beat)
+            if a_item.end_mode == 1:
+                self.end_musical_time.setChecked(True)
+            else:
+                self.end_sample_length.setChecked(True)
+            self.end_region.setValue(a_item.end_region)
+            self.end_bar.setValue(a_item.end_bar)
+            self.end_beat.setValue(a_item.end_beat)
+            self.timestretch_mode.setCurrentIndex(a_item.time_stretch_mode)
+            self.pitch_shift.setValue(a_item.pitch_shift)
+            self.timestretch_amt.setValue(a_item.timestretch_amt)
+            self.output_combobox.setCurrentIndex(a_item.output_track)
+            self.sample_vol_slider.setValue(a_item.vol)
+
+
+    def ok_handler(self):
+        if str(self.name.text()) == "":
+            QtGui.QMessageBox.warning(self.widget, "Error", "Name cannot be empty")
+            return
+        if self.end_musical_time.isChecked():
+            self.start_beat_total = float((self.start_region.value() * 8 * 4) + (self.start_bar.value() * 4)) + self.start_beat.value()
+            self.end_beat_total = float((self.end_region.value() * 8 * 4) + (self.end_bar.value() * 4)) + self.end_beat.value()
+            if self.start_beat_total >= self.end_beat_total:
+                QtGui.QMessageBox.warning(self.widget, "Error", "End point is less than or equal to start point.")
+                print("audio items:  start==" + str(self.start_beat_total) + "|" + "end==" + str(self.end_beat_total))
+                return
+
+        if self.end_sample_length.isChecked(): self.end_mode = 0
+        else: self.end_mode = 1
+
+        self.new_item = pydaw_audio_item(self.name.text(), self.sample_start.value(), self.sample_end.value(), self.start_region.value(),
+                self.start_bar.value(), self.start_beat.value(), self.end_mode, self.end_region.value(), self.end_bar.value(), self.end_beat.value(),
+                self.timestretch_mode.currentIndex(), self.pitch_shift.value(), self.output_combobox.currentIndex(), self.sample_vol_slider.value(),
+                self.timestretch_amt.value())
+
+        this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(x, self.new_item)
+        self.audio_items.add_item(x, self.new_item)
+        this_pydaw_project.save_audio_items(self.audio_items)
+        self.open_items()
+        this_pydaw_project.git_repo.git_commit("-a", "Update audio items")
+
+    def file_name_select(self):
+        try:
+            self.file_name = str(QtGui.QFileDialog.getOpenFileName(self.widget, "Select a .wav file to open...", self.last_open_dir, filter=".wav files(*.wav)"))
+            if not self.file_name is None and not self.file_name == "":
+                self.name.setText(self.file_name)
+                self.last_open_dir = os.path.dirname(self.file_name)
+                create_sample_graph(self.file_name)
+        except Exception as ex:
+            pydaw_print_generic_exception(ex)
+
+    def clear_handler(self):
+        this_pydaw_project.this_dssi_gui.pydaw_clear_single_audio_item(x)
+        self.audio_items.remove_item(x)
+        this_pydaw_project.save_audio_items(self.audio_items)
+        this_audio_editor.open_items()
+
+    def sample_start_changed(self, a_val=None):
+        if self.sample_end.value() < self.sample_start.value() + 10:
+            self.sample_end.setValue(self.sample_start.value() + 10)
+
+    def sample_end_changed(self, a_val=None):
+        if self.sample_start.value() > self.sample_end.value() - 10:
+            self.sample_start.setValue(self.sample_end.value() - 10)
+
+    def sample_vol_changed(self, a_val=None):
+        self.sample_vol_label.setText(str(self.sample_vol_slider.value()) + "dB")
+
+    def update_bar_count(self, a_val=None):
+        self.start_bar.setRange(0, pydaw_get_region_length(self.start_region.value()) - 1)
+
 
 
 class audio_list_editor:
@@ -4960,7 +5175,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.audio_items_tab.addTab(this_audio_items_viewer_widget.widget, "Viewer")
         self.audio_items_tab.addTab(this_audio_editor.items_groupbox, "Item List")
 
-        self.main_tabwidget.addTab(self.audio_items_tab, "Audio Items")
+        self.main_tabwidget.addTab(self.audio_items_tab, "Audio Seq")
+
+        self.audio_edit_tab = audio_item_editor_widget()
+        self.main_tabwidget.addTab(self.audio_edit_tab.widget, "Audio Edit")
 
         self.main_tabwidget.addTab(this_audio_editor.ccs_tab, "Automation")
 
