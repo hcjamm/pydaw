@@ -1075,10 +1075,34 @@ def global_sample_graph_create_and_wait(a_file_name, a_samplegraphs):
             sleep(0.1)
     return None
 
+global_audio_item_marker_height = 24
+
 class audio_item_marker(QtGui.QGraphicsRectItem):
     def __init__(self, a_type):
         """ a_type:  0 == start, 1 == end, more types eventually... """
         QtGui.QGraphicsRectItem.__init__(self)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+        self.line = QtGui.QGraphicsLineItem(self)
+        self.marker_type = a_type
+        if a_type == 0:
+            self.y_pos = 0
+        elif a_type == 1:
+            self.y_pos = pydaw_audio_item_scene_height - global_audio_item_marker_height
+
+    def mousePressEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+        f_pos_x = a_event.pos().x()
+        if f_pos_x < 0.0:
+            f_pos_x = 0.0
+        elif f_pos_x > pydaw_audio_item_scene_width:
+            f_pos_x = pydaw_audio_item_scene_height
+        self.setPos(f_pos_x, self.y_pos)
+
+    def mouseMoveEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
+
+    def mouseReleaseEvent(self, a_event):
+        QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
 
 class audio_item_editor(QtGui.QGraphicsView):
     def __init__(self):
@@ -1086,14 +1110,65 @@ class audio_item_editor(QtGui.QGraphicsView):
         self.scene = QtGui.QGraphicsScene()
         self.setScene(self.scene)
         self.scene.setBackgroundBrush(QtCore.Qt.darkGray)
+        self.last_x_scale = self.width() / pydaw_audio_item_scene_width
+        self.last_y_scale = self.height() / pydaw_audio_item_scene_height
+        self.scale(self.last_x_scale, self.last_y_scale)
+
+    def clear_drawn_items(self):
+        self.scene.clear()
+
+    def draw_item(self, a_path_list):
+        f_y_pos = 0
+        f_y_inc = pydaw_audio_item_scene_height / len(a_path_list)
+        for f_path in a_path_list:
+            f_path_item = QtGui.QGraphicsPathItem(f_path)
+            self.scene.addItem(f_path_item)
+            f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 3.0))
+            f_path_item.setBrush(pydaw_audio_item_scene_gradient)
+            f_path_item.setPos(0.0, f_y_pos)
+            f_y_pos += f_y_inc
+
+    def resizeEvent(self, a_resize_event):
+        QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
+        self.scale(1.0 / self.last_x_scale, 1.0 / self.last_y_scale)
+        self.last_x_scale = self.width() / pydaw_audio_item_scene_width
+        self.last_y_scale = self.height() / pydaw_audio_item_scene_height
+        self.scale(self.last_x_scale, self.last_y_scale)
+        print("Resized to " + str(self.last_x_scale) + "|" + str(self.last_y_scale))
+
+def global_edit_audio_item(a_index):
+    this_audio_item_editor_widget.selected_index_changed(a_index)
+    this_main_window.main_tabwidget.setCurrentIndex(4)
+
+def global_save_and_reload_audio_items():
+    pass
 
 class audio_item_editor_widget:
+    def selected_index_changed(self, a_val):
+        if not self.suppress_index_change:
+            if self.items_list[a_val] == "":
+                self.open_item(pydaw_audio_item("", 0, 1000, 0, 0, 0.0, 0, 0, 0, 0.0, 0,0.0, 0, 0))
+            else:
+                f_items = this_pydaw_project.get_audio_items()
+                self.open_item(f_items.items[a_val])
+
     def __init__(self):
         self.widget = QtGui.QWidget()
         self.main_vlayout = QtGui.QVBoxLayout(self.widget)
         self.items_list = []  #TODO:  Make this global ASAP
         for i in range(pydaw_max_audio_item_count):
             self.items_list.append("")
+
+        self.selected_hlayout = QtGui.QHBoxLayout()
+        self.selected_index_combobox = QtGui.QComboBox()
+        self.selected_index_combobox.setMinimumWidth(900)
+        self.selected_index_combobox.addItems(self.items_list)
+        self.selected_index_combobox.currentIndexChanged.connect(self.selected_index_changed)
+        self.selected_hlayout.addWidget(QtGui.QLabel("Selected Audio Item:"))
+        self.selected_hlayout.addWidget(self.selected_index_combobox)
+        self.selected_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+        self.main_vlayout.addLayout(self.selected_hlayout)
+        self.suppress_index_change = False
 
         self.layout = QtGui.QGridLayout()
         self.main_vlayout.addLayout(self.layout)
@@ -1211,27 +1286,27 @@ class audio_item_editor_widget:
         self.last_open_dir = expanduser("~")
 
     def open_item(self, a_item):
-        if a_item is None:
-            pass
+        self.name.setText(a_item.file)
+        self.start_region.setValue(a_item.start_region)
+        self.start_bar.setValue(a_item.start_bar)
+        self.start_beat.setValue(a_item.start_beat)
+        if a_item.end_mode == 1:
+            self.end_musical_time.setChecked(True)
         else:
-            self.name.setText(a_item.file)
-            self.sample_start.setValue(a_item.sample_start)
-            self.sample_end.setValue(a_item.sample_end)
-            self.start_region.setValue(a_item.start_region)
-            self.start_bar.setValue(a_item.start_bar)
-            self.start_beat.setValue(a_item.start_beat)
-            if a_item.end_mode == 1:
-                self.end_musical_time.setChecked(True)
-            else:
-                self.end_sample_length.setChecked(True)
-            self.end_region.setValue(a_item.end_region)
-            self.end_bar.setValue(a_item.end_bar)
-            self.end_beat.setValue(a_item.end_beat)
-            self.timestretch_mode.setCurrentIndex(a_item.time_stretch_mode)
-            self.pitch_shift.setValue(a_item.pitch_shift)
-            self.timestretch_amt.setValue(a_item.timestretch_amt)
-            self.output_combobox.setCurrentIndex(a_item.output_track)
-            self.sample_vol_slider.setValue(a_item.vol)
+            self.end_sample_length.setChecked(True)
+        self.end_region.setValue(a_item.end_region)
+        self.end_bar.setValue(a_item.end_bar)
+        self.end_beat.setValue(a_item.end_beat)
+        self.timestretch_mode.setCurrentIndex(a_item.time_stretch_mode)
+        self.pitch_shift.setValue(a_item.pitch_shift)
+        self.timestretch_amt.setValue(a_item.timestretch_amt)
+        self.output_combobox.setCurrentIndex(a_item.output_track)
+        self.sample_vol_slider.setValue(a_item.vol)
+        self.sample_view.clear_drawn_items()
+        f_graphs = this_pydaw_project.get_samplegraphs()
+        f_path_list = f_graphs.get_sample_graph(a_item.file)
+        if f_path_list is not None:
+            self.sample_view.draw_item(f_path_list)
 
 
     def ok_handler(self):
@@ -1271,18 +1346,17 @@ class audio_item_editor_widget:
             pydaw_print_generic_exception(ex)
 
     def clear_handler(self):
-        this_pydaw_project.this_dssi_gui.pydaw_clear_single_audio_item(x)
-        self.audio_items.remove_item(x)
-        this_pydaw_project.save_audio_items(self.audio_items)
+        f_index = self.selected_index_combobox.currentIndex()
+        this_pydaw_project.this_dssi_gui.pydaw_clear_single_audio_item(f_index)
+        this_audio_editor.audio_items.remove_item(f_index)
+        this_pydaw_project.save_audio_items(this_audio_editor.audio_items)
         this_audio_editor.open_items()
 
     def sample_start_changed(self, a_val=None):
-        if self.sample_end.value() < self.sample_start.value() + 10:
-            self.sample_end.setValue(self.sample_start.value() + 10)
+        pass
 
     def sample_end_changed(self, a_val=None):
-        if self.sample_start.value() > self.sample_end.value() - 10:
-            self.sample_start.setValue(self.sample_end.value() - 10)
+        pass
 
     def sample_vol_changed(self, a_val=None):
         self.sample_vol_label.setText(str(self.sample_vol_slider.value()) + "dB")
@@ -5177,7 +5251,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.main_tabwidget.addTab(self.audio_items_tab, "Audio Seq")
 
-        self.audio_edit_tab = audio_item_editor_widget()
+        self.audio_edit_tab = this_audio_item_editor_widget
         self.main_tabwidget.addTab(self.audio_edit_tab.widget, "Audio Edit")
 
         self.main_tabwidget.addTab(this_audio_editor.ccs_tab, "Automation")
@@ -5462,6 +5536,7 @@ this_item_editor = item_list_editor()
 this_transport = transport_widget()
 this_audio_items_viewer = audio_items_viewer()
 this_audio_items_viewer_widget = audio_items_viewer_widget()
+this_audio_item_editor_widget = audio_item_editor_widget()
 
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
