@@ -822,7 +822,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if global_transport_is_playing:
             return
         QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
-        this_audio_editor.show_cell_dialog(self.track_num, 0, self.audio_item)
+        #this_audio_editor.show_cell_dialog(self.track_num, 0, self.audio_item)
+        global_edit_audio_item(self.track_num)
         a_event.accept()
 
     def mousePressEvent(self, a_event):
@@ -882,7 +883,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def __init__(self):
         QtGui.QGraphicsView.__init__(self)
         self.scene = QtGui.QGraphicsScene(self)
-        self.scene.setBackgroundBrush(QtGui.QColor(90,90,90))
+        self.scene.setBackgroundBrush(QtGui.QColor(90, 90, 90))
         self.setScene(self.scene)
         self.audio_items = []
         self.track = 0
@@ -967,7 +968,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_y = ((65.0) * (i2 + 1)) + global_audio_ruler_height
             self.scene.addLine(0, f_y, f_size, f_y)
         self.set_playback_pos()
-
 
     def clear_drawn_items(self):
         self.track = 0
@@ -1122,9 +1122,9 @@ class audio_item_editor(QtGui.QGraphicsView):
         f_y_inc = pydaw_audio_item_scene_height / len(a_path_list)
         for f_path in a_path_list:
             f_path_item = QtGui.QGraphicsPathItem(f_path)
-            self.scene.addItem(f_path_item)
             f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 3.0))
             f_path_item.setBrush(pydaw_audio_item_scene_gradient)
+            self.scene.addItem(f_path_item)
             f_path_item.setPos(0.0, f_y_pos)
             f_y_pos += f_y_inc
 
@@ -1137,17 +1137,29 @@ class audio_item_editor(QtGui.QGraphicsView):
         print("Resized to " + str(self.last_x_scale) + "|" + str(self.last_y_scale))
 
 def global_edit_audio_item(a_index):
-    this_audio_item_editor_widget.selected_index_changed(a_index)
+    this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(a_index)
     this_main_window.main_tabwidget.setCurrentIndex(4)
 
-def global_save_and_reload_audio_items():
-    pass
-
 class audio_item_editor_widget:
+    def update_file_list(self):
+        self.items_list = []
+        for i in range(pydaw_max_audio_item_count):
+            self.items_list.append("")
+        f_items = this_pydaw_project.get_audio_items()
+        for k, v in f_items.items.iteritems():
+            self.items_list[k] = v.file
+        self.suppress_index_change = True
+        f_last_index = self.selected_index_combobox.currentIndex()
+        self.selected_index_combobox.clear()
+        self.selected_index_combobox.addItems(self.items_list)
+        self.selected_index_combobox.setCurrentIndex(f_last_index)
+        self.suppress_index_change = False
+
     def selected_index_changed(self, a_val):
+        print "selected_index_changed", self.suppress_index_change
         if not self.suppress_index_change:
             if self.items_list[a_val] == "":
-                self.open_item(pydaw_audio_item("", 0, 1000, 0, 0, 0.0, 0, 0, 0, 0.0, 0,0.0, 0, 0))
+                self.open_item(None)
             else:
                 f_items = this_pydaw_project.get_audio_items()
                 self.open_item(f_items.items[a_val])
@@ -1286,27 +1298,38 @@ class audio_item_editor_widget:
         self.last_open_dir = expanduser("~")
 
     def open_item(self, a_item):
-        self.name.setText(a_item.file)
-        self.start_region.setValue(a_item.start_region)
-        self.start_bar.setValue(a_item.start_bar)
-        self.start_beat.setValue(a_item.start_beat)
-        if a_item.end_mode == 1:
-            self.end_musical_time.setChecked(True)
+        if a_item is None:
+            print("open_item(None)")
+            self.name.setText("")
         else:
-            self.end_sample_length.setChecked(True)
-        self.end_region.setValue(a_item.end_region)
-        self.end_bar.setValue(a_item.end_bar)
-        self.end_beat.setValue(a_item.end_beat)
-        self.timestretch_mode.setCurrentIndex(a_item.time_stretch_mode)
-        self.pitch_shift.setValue(a_item.pitch_shift)
-        self.timestretch_amt.setValue(a_item.timestretch_amt)
-        self.output_combobox.setCurrentIndex(a_item.output_track)
-        self.sample_vol_slider.setValue(a_item.vol)
-        self.sample_view.clear_drawn_items()
-        f_graphs = this_pydaw_project.get_samplegraphs()
-        f_path_list = f_graphs.get_sample_graph(a_item.file)
-        if f_path_list is not None:
-            self.sample_view.draw_item(f_path_list)
+            print("open_item(a_item)")
+            self.name.setText(a_item.file)
+            self.start_region.setValue(a_item.start_region)
+            self.start_bar.setValue(a_item.start_bar)
+            self.start_beat.setValue(a_item.start_beat)
+            if a_item.end_mode == 1:
+                self.end_musical_time.setChecked(True)
+            else:
+                self.end_sample_length.setChecked(True)
+            self.end_region.setValue(a_item.end_region)
+            self.end_bar.setValue(a_item.end_bar)
+            self.end_beat.setValue(a_item.end_beat)
+            self.timestretch_mode.setCurrentIndex(a_item.time_stretch_mode)
+            self.pitch_shift.setValue(a_item.pitch_shift)
+            self.timestretch_amt.setValue(a_item.timestretch_amt)
+            self.output_combobox.setCurrentIndex(a_item.output_track)
+            self.sample_vol_slider.setValue(a_item.vol)
+            self.sample_view.clear_drawn_items()
+            f_graphs = this_pydaw_project.get_samplegraphs()
+            f_path_list = f_graphs.get_sample_graph(a_item.file)
+            if f_path_list is not None:
+                self.sample_view.draw_item(f_path_list.create_sample_graph(True))
+            else:
+                f_path_list = global_sample_graph_create_and_wait(a_item.file, f_graphs)
+                if f_path_list is not None:
+                    self.sample_view.draw_item(f_path_list.create_sample_graph(True))
+                else:
+                    QtGui.QMessageBox.warning(self, "Error", "Could not generate sample graph")
 
 
     def ok_handler(self):
@@ -1332,7 +1355,7 @@ class audio_item_editor_widget:
         this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(x, self.new_item)
         self.audio_items.add_item(x, self.new_item)
         this_pydaw_project.save_audio_items(self.audio_items)
-        self.open_items()
+        this_audio_editor.open_items()
         this_pydaw_project.git_repo.git_commit("-a", "Update audio items")
 
     def file_name_select(self):
@@ -1412,6 +1435,7 @@ class audio_list_editor:
                     continue
                 this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
         self.audio_items_table_widget.resizeColumnsToContents()
+        this_audio_item_editor_widget.update_file_list()
 
     def reset_tracks(self):
         self.tracks = []
@@ -1443,17 +1467,18 @@ class audio_list_editor:
         if f_item is None or f_item.text() == "":
             self.show_cell_dialog(x, y, None)
         else:
-            self.show_cell_dialog(x, y, pydaw_audio_item(self.audio_items_table_widget.item(x, 0).text(),
-                int(float(self.audio_items_table_widget.item(x, 1).text()) * 10.0),
-                int(float(self.audio_items_table_widget.item(x, 2).text()) * 10.0),
-                self.audio_items_table_widget.item(x, 3).text(), self.audio_items_table_widget.item(x, 4).text(),
-                self.audio_items_table_widget.item(x, 5).text(), self.audio_items_table_widget.item(x, 6).text(),
-                self.audio_items_table_widget.item(x, 7).text(), self.audio_items_table_widget.item(x, 8).text(),
-                self.audio_items_table_widget.item(x, 9).text(),
-                global_timestretch_modes.index(str(self.audio_items_table_widget.item(x, 10).text())),
-                self.audio_items_table_widget.item(x, 11).text(), self.audio_items_table_widget.item(x, 13).text(),
-                self.audio_items_table_widget.item(x, 14).text(), self.audio_items_table_widget.item(x, 12).text()
-                ))
+            #self.show_cell_dialog(x, y, pydaw_audio_item(self.audio_items_table_widget.item(x, 0).text(),
+            #    int(float(self.audio_items_table_widget.item(x, 1).text()) * 10.0),
+            #    int(float(self.audio_items_table_widget.item(x, 2).text()) * 10.0),
+            #    self.audio_items_table_widget.item(x, 3).text(), self.audio_items_table_widget.item(x, 4).text(),
+            #    self.audio_items_table_widget.item(x, 5).text(), self.audio_items_table_widget.item(x, 6).text(),
+            #    self.audio_items_table_widget.item(x, 7).text(), self.audio_items_table_widget.item(x, 8).text(),
+            #    self.audio_items_table_widget.item(x, 9).text(),
+            #    global_timestretch_modes.index(str(self.audio_items_table_widget.item(x, 10).text())),
+            #    self.audio_items_table_widget.item(x, 11).text(), self.audio_items_table_widget.item(x, 13).text(),
+            #    self.audio_items_table_widget.item(x, 14).text(), self.audio_items_table_widget.item(x, 12).text()
+            #    ))
+            global_edit_audio_item(y)
 
     def show_cell_dialog(self, x, y, a_item=None):
         def ok_handler():
