@@ -1139,13 +1139,15 @@ class audio_item_editor(QtGui.QGraphicsView):
         self.scene = QtGui.QGraphicsScene()
         self.setScene(self.scene)
         self.scene.setBackgroundBrush(QtCore.Qt.darkGray)
-        f_rect = self.rect()
-        self.last_x_scale = f_rect.width() / pydaw_audio_item_scene_width
-        self.last_y_scale = f_rect.height() / pydaw_audio_item_scene_height
-        self.scale(self.last_x_scale, self.last_y_scale)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.scroll_bar_height = self.horizontalScrollBar().height()
+        f_rect = self.rect()
+        self.h_scale_factor = 1.0
+        self.last_x_scale = f_rect.width() / pydaw_audio_item_scene_width
+        self.last_y_scale = (f_rect.height() - self.scroll_bar_height) / pydaw_audio_item_scene_height
+        self.scale(self.last_x_scale, self.last_y_scale)
 
     def clear_drawn_items(self):
         self.scene.clear()
@@ -1166,9 +1168,13 @@ class audio_item_editor(QtGui.QGraphicsView):
         self.scale(1.0 / self.last_x_scale, 1.0 / self.last_y_scale)
         f_rect = self.rect()
         self.last_x_scale = f_rect.width() / pydaw_audio_item_scene_width
-        self.last_y_scale = f_rect.height() / pydaw_audio_item_scene_height
+        self.last_y_scale = (f_rect.height() - self.scroll_bar_height) / pydaw_audio_item_scene_height
         self.scale(self.last_x_scale, self.last_y_scale)
-        print("Resized to " + str(self.last_x_scale) + "|" + str(self.last_y_scale))
+
+    def h_scale(self, a_scale_value):
+        self.scale(1.0 / self.h_scale_factor, 1.0)
+        self.h_scale_factor = a_scale_value
+        self.scale(self.h_scale_factor, 1.0)
 
 def global_edit_audio_item(a_index, a_switch_tabs=True):
     this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(a_index)
@@ -1201,7 +1207,7 @@ class audio_item_editor_widget:
     def __init__(self):
         self.widget = QtGui.QWidget()
         self.main_vlayout = QtGui.QVBoxLayout(self.widget)
-        self.items_list = []  #TODO:  Make this global ASAP
+        self.items_list = []  #TODO:  Make this global
         for i in range(pydaw_max_audio_item_count):
             self.items_list.append("")
 
@@ -1263,6 +1269,12 @@ class audio_item_editor_widget:
         self.start_beat.setRange(0, 3.99)
         self.start_hlayout.addWidget(self.start_beat)
         self.start_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+        self.start_hlayout.addWidget(QtGui.QLabel("H-Zoom"))
+        self.h_zoom_combobox = QtGui.QComboBox()
+        self.start_hlayout.addWidget(self.h_zoom_combobox)
+        self.h_zoom_combobox.setMinimumWidth(120)
+        self.h_zoom_combobox.addItems(["Small", "Medium", "Large"])
+        self.h_zoom_combobox.currentIndexChanged.connect(self.h_zoom_changed)
 
         self.layout.addWidget(QtGui.QLabel("End:"), 5, 0)
         self.end_hlayout = QtGui.QHBoxLayout()
@@ -1331,6 +1343,16 @@ class audio_item_editor_widget:
 
         self.last_open_dir = expanduser("~")
 
+    def h_zoom_changed(self, a_val):
+        if a_val == 0:
+            self.sample_view.h_scale(1.0)
+        elif a_val == 1:
+            self.sample_view.h_scale(3.0)
+        elif a_val == 2:
+            self.sample_view.h_scale(6.0)
+        else:
+            print("Error, invalid h_zoom_changed index: " + str(a_val))
+
     def open_item(self, a_item):
         if a_item is None:
             self.name.setText("")
@@ -1366,6 +1388,9 @@ class audio_item_editor_widget:
 
 
     def ok_handler(self):
+        if global_transport_is_playing:
+            QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
+            return
         if str(self.name.text()) == "":
             QtGui.QMessageBox.warning(self.widget, "Error", "Name cannot be empty")
             return
@@ -1392,6 +1417,9 @@ class audio_item_editor_widget:
         this_pydaw_project.git_repo.git_commit("-a", "Update audio items")
 
     def file_name_select(self):
+        if global_transport_is_playing:
+            QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
+            return
         try:
             self.file_name = str(QtGui.QFileDialog.getOpenFileName(self.widget, "Select a .wav file to open...", self.last_open_dir, filter=".wav files(*.wav)"))
             if not self.file_name is None and not self.file_name == "":
@@ -1425,7 +1453,6 @@ class audio_item_editor_widget:
 
     def update_bar_count(self, a_val=None):
         self.start_bar.setRange(0, pydaw_get_region_length(self.start_region.value()) - 1)
-
 
 
 class audio_list_editor:
@@ -1502,316 +1529,10 @@ class audio_list_editor:
     def cell_clicked(self, x, y):
         if global_transport_is_playing:
             return
-        f_item = self.audio_items_table_widget.item(x, 0)
-        if f_item is None or f_item.text() == "":
-            self.show_cell_dialog(x, y, None)
-        else:
-            #self.show_cell_dialog(x, y, pydaw_audio_item(self.audio_items_table_widget.item(x, 0).text(),
-            #    int(float(self.audio_items_table_widget.item(x, 1).text()) * 10.0),
-            #    int(float(self.audio_items_table_widget.item(x, 2).text()) * 10.0),
-            #    self.audio_items_table_widget.item(x, 3).text(), self.audio_items_table_widget.item(x, 4).text(),
-            #    self.audio_items_table_widget.item(x, 5).text(), self.audio_items_table_widget.item(x, 6).text(),
-            #    self.audio_items_table_widget.item(x, 7).text(), self.audio_items_table_widget.item(x, 8).text(),
-            #    self.audio_items_table_widget.item(x, 9).text(),
-            #    global_timestretch_modes.index(str(self.audio_items_table_widget.item(x, 10).text())),
-            #    self.audio_items_table_widget.item(x, 11).text(), self.audio_items_table_widget.item(x, 13).text(),
-            #    self.audio_items_table_widget.item(x, 14).text(), self.audio_items_table_widget.item(x, 12).text()
-            #    ))
-            global_edit_audio_item(y)
-
-    def show_cell_dialog(self, x, y, a_item=None):
-        def ok_handler():
-            if str(f_name.text()) == "":
-                QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
-                return
-            if f_end_musical_time.isChecked():
-                f_start_beat_total = float((f_start_region.value() * 8 * 4) + (f_start_bar.value() * 4)) + f_start_beat.value()
-                f_end_beat_total = float((f_end_region.value() * 8 * 4) + (f_end_bar.value() * 4)) + f_end_beat.value()
-                if f_start_beat_total >= f_end_beat_total:
-                    QtGui.QMessageBox.warning(f_window, "Error", "End point is less than or equal to start point.")
-                    print("audio items:  start==" + str(f_start_beat_total) + "|" + "end==" + str(f_end_beat_total))
-                    return
-
-            if f_end_sample_length.isChecked(): f_end_mode = 0
-            else: f_end_mode = 1
-
-            f_new_item = pydaw_audio_item(f_name.text(), f_sample_start.value(), f_sample_end.value(), f_start_region.value(),
-                    f_start_bar.value(), f_start_beat.value(), f_end_mode, f_end_region.value(), f_end_bar.value(), f_end_beat.value(),
-                    f_timestretch_mode.currentIndex(), f_pitch_shift.value(), f_output_combobox.currentIndex(), f_sample_vol_slider.value(),
-                    f_timestretch_amt.value())
-
-            this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(x, f_new_item)
-            self.audio_items.add_item(x, f_new_item)
-            this_pydaw_project.save_audio_items(self.audio_items)
-            self.open_items()
-            this_pydaw_project.git_repo.git_commit("-a", "Update audio items")
-            f_window.close()
-
-        def cancel_handler():
-            f_window.close()
-
-        def wait_for_samplegraph():
-            global f_sg_wait_uid
-            f_file_name = this_pydaw_project.samplegraph_folder + "/" + str(f_sg_wait_uid) + ".pygraph"
-            if os.path.isfile(f_file_name):
-                global f_sg_wait_file_name
-                f_graph = f_samplegraphs.get_sample_graph(f_sg_wait_file_name)
-                if f_graph is None:
-                    return
-                global f_sg_timer
-                f_sg_timer.stop()
-                global f_ai_sample_graph
-                f_sg_wait_file_name = None
-                f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
-                f_ai_sample_graph.setParent(None)
-                f_ai_sample_graph.deleteLater()
-                f_ai_sample_graph = None
-                f_ai_sample_graph = f_graph.get_sample_graph_widget()
-                f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
-
-        def create_sample_graph(a_file_name):
-            f_graph = f_samplegraphs.get_sample_graph(a_file_name)
-            global f_ai_sample_graph
-            if f_graph is None:  #We must generate one and wait
-                f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)
-                f_ai_sample_graph.setParent(None)
-                sip.delete(f_ai_sample_graph)
-                #f_ai_sample_graph.deleteLater()
-                f_ai_sample_graph = None
-                f_ai_sample_graph = QtGui.QLabel("Generating preview...")
-                f_ai_sample_graph.setMinimumHeight(300)
-                f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
-                global f_sg_wait_uid
-                global f_sg_wait_file_name
-                f_sg_wait_file_name = a_file_name
-                f_sg_wait_uid = pydaw_gen_uid()
-                this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(a_file_name, f_sg_wait_uid)
-                f_samplegraphs.add_ref(a_file_name, f_sg_wait_uid)
-                this_pydaw_project.save_samplegraphs(f_samplegraphs)
-                global f_sg_timer
-                f_sg_timer.start(200)
-            else:
-                try:
-                    f_ai_sample_graph.setParent(None)
-                    sip.delete(f_ai_sample_graph)
-                    f_ai_sample_graph = None
-                except:
-                    print("Failed:  f_sample_start_end_vlayout.removeWidget(f_ai_sample_graph)")
-                f_ai_sample_graph = f_graph.get_sample_graph_widget()
-                f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
-
-        def file_name_select():
-            try:
-                f_file_name = str(QtGui.QFileDialog.getOpenFileName(f_window, "Select a .wav file to open...", self.last_open_dir, filter=".wav files(*.wav)"))
-                if not f_file_name is None and not f_file_name == "":
-                    f_name.setText(f_file_name)
-                    self.last_open_dir = os.path.dirname(f_file_name)
-                    create_sample_graph(f_file_name)
-            except Exception as ex:
-                pydaw_print_generic_exception(ex)
-
-        def clear_handler():
-            this_pydaw_project.this_dssi_gui.pydaw_clear_single_audio_item(x)
-            self.audio_items.remove_item(x)
-            this_pydaw_project.save_audio_items(self.audio_items)
-            self.open_items()
-            f_window.close()
-
-        def sample_start_changed(a_val=None):
-            if f_sample_end.value() < f_sample_start.value() + 10:
-                f_sample_end.setValue(f_sample_start.value() + 10)
-
-        def sample_end_changed(a_val=None):
-            if f_sample_start.value() > f_sample_end.value() - 10:
-                f_sample_start.setValue(f_sample_end.value() - 10)
-
-        def sample_vol_changed(a_val=None):
-            f_sample_vol_label.setText(str(f_sample_vol_slider.value()) + "dB")
-
-        def update_bar_count(a_val=None):
-            f_start_bar.setRange(0, pydaw_get_region_length(f_start_region.value()) - 1)
-
-        def f_quitting(a_val=None):
-            try:
-                global f_sg_timer
-                f_sg_timer.stop()
-            except:
-                pass
-
-        f_samplegraphs = this_pydaw_project.get_samplegraphs()
-
-        global f_sg_timer
-        f_sg_timer = QtCore.QTimer()
-        f_sg_timer.timeout.connect(wait_for_samplegraph)
-
-        global f_sg_wait_uid
-        f_sg_wait_uid = None
-
-        global f_sg_wait_file_name
-        f_sg_wait_file_name = None
-
-        f_window = QtGui.QDialog(this_main_window)
-        f_window.finished.connect(f_quitting)
-        f_window.setMinimumWidth(800)
-        f_window.setWindowTitle("Add/edit an audio item..")
-        f_layout = QtGui.QGridLayout()
-        f_window.setLayout(f_layout)
-
-        f_name = QtGui.QLineEdit()
-        f_name.setReadOnly(True)
-        f_name.setMinimumWidth(360)
-        f_layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
-        f_layout.addWidget(f_name, 0, 1)
-        f_select_file = QtGui.QPushButton("Select")
-        f_select_file.pressed.connect(file_name_select)
-        f_layout.addWidget(f_select_file, 0, 2)
-
-        f_sample_start_end_vlayout = QtGui.QVBoxLayout()
-        f_layout.addWidget(QtGui.QLabel("Start/End:"), 1, 0)
-        f_layout.addLayout(f_sample_start_end_vlayout, 1, 1)
-        f_sample_start = QtGui.QSlider(QtCore.Qt.Horizontal)
-        f_sample_start.setObjectName("wavleft")
-        f_sample_start.valueChanged.connect(sample_start_changed)
-        f_sample_start.setRange(0, 990)
-        f_sample_start_end_vlayout.addWidget(f_sample_start)
-        f_sample_end = QtGui.QSlider(QtCore.Qt.Horizontal)
-        f_sample_end.setObjectName("wavright")
-        f_sample_end.valueChanged.connect(sample_end_changed)
-        f_sample_end.setRange(10, 1000)
-        f_sample_end.setValue(1000)
-        f_sample_start_end_vlayout.addWidget(f_sample_end)
-        global f_ai_sample_graph
-        if not a_item is None:
-            print("Loading a_item.file : " + a_item.file)
-            try:
-                create_sample_graph(a_item.file)
-            except:
-                pass
-        else:
-            f_ai_sample_graph = QtGui.QLabel()
-            f_ai_sample_graph.setMinimumHeight(300)
-        try:
-            f_sample_start_end_vlayout.addWidget(f_ai_sample_graph)
-        except:
-            print("Error creating sample_graph, if you are running in GUI debug-only mode this was to be expected")
-
-        f_sample_vol_layout = QtGui.QVBoxLayout()
-        f_sample_vol_slider = QtGui.QSlider(QtCore.Qt.Vertical)
-        f_sample_vol_slider.setRange(-24, 24)
-        f_sample_vol_slider.setValue(0)
-        f_sample_vol_slider.valueChanged.connect(sample_vol_changed)
-        f_sample_vol_layout.addWidget(f_sample_vol_slider)
-        f_sample_vol_label = QtGui.QLabel("0db")
-        f_sample_vol_layout.addWidget(f_sample_vol_label)
-        f_layout.addLayout(f_sample_vol_layout, 1, 2)
-
-        f_layout.addWidget(QtGui.QLabel("Start:"), 3, 0)
-        f_start_hlayout = QtGui.QHBoxLayout()
-        f_layout.addLayout(f_start_hlayout, 3, 1)
-        f_start_hlayout.addWidget(QtGui.QLabel("Region:"))
-        f_start_region = QtGui.QSpinBox()
-        f_start_region.setRange(0, 298)
-        f_start_region.valueChanged.connect(update_bar_count)
-        f_start_hlayout.addWidget(f_start_region)
-        f_start_hlayout.addWidget(QtGui.QLabel("Bar:"))
-        f_start_bar = QtGui.QSpinBox()
-        f_start_bar.setRange(0, 7)
-        f_start_hlayout.addWidget(f_start_bar)
-        f_start_hlayout.addWidget(QtGui.QLabel("Beat:"))
-        f_start_beat = QtGui.QDoubleSpinBox()
-        f_start_beat.setRange(0, 3.99)
-        f_start_hlayout.addWidget(f_start_beat)
-
-        f_layout.addWidget(QtGui.QLabel("End:"), 5, 0)
-        f_end_hlayout = QtGui.QHBoxLayout()
-        f_layout.addLayout(f_end_hlayout, 5, 1)
-        f_end_sample_length = QtGui.QRadioButton("Sample Length")
-        f_end_sample_length.setChecked(True)
-        f_end_hlayout.addWidget(f_end_sample_length)
-        f_end_musical_time = QtGui.QRadioButton("At:")
-        f_end_hlayout.addWidget(f_end_musical_time)
-        f_end_hlayout.addWidget(QtGui.QLabel("Region:"))
-        f_end_region = QtGui.QSpinBox()
-        f_end_region.setRange(0, 298)
-        f_end_hlayout.addWidget(f_end_region)
-        f_end_hlayout.addWidget(QtGui.QLabel("Bar:"))
-        f_end_bar = QtGui.QSpinBox()
-        f_end_bar.setRange(0, 7)
-        f_end_bar.setValue(1)
-        f_end_hlayout.addWidget(f_end_bar)
-        f_end_hlayout.addWidget(QtGui.QLabel("Beats:"))
-        f_end_beat = QtGui.QDoubleSpinBox()
-        f_end_beat.setRange(0, 3.99)
-        f_end_hlayout.addWidget(f_end_beat)
-
-        f_layout.addWidget(QtGui.QLabel("Time Stretching:"), 7, 0)
-        f_timestretch_hlayout = QtGui.QHBoxLayout()
-        f_layout.addLayout(f_timestretch_hlayout, 7, 1)
-        f_timestretch_hlayout.addWidget(QtGui.QLabel("Mode:"))
-        f_timestretch_mode = QtGui.QComboBox()
-        f_timestretch_mode.setMinimumWidth(190)
-        f_timestretch_hlayout.addWidget(f_timestretch_mode)
-        f_timestretch_mode.addItems(global_timestretch_modes)
-        f_timestretch_hlayout.addWidget(QtGui.QLabel("Pitch Shift:"))
-        f_pitch_shift = QtGui.QDoubleSpinBox()
-        f_pitch_shift.setRange(-36, 36)
-        f_timestretch_hlayout.addWidget(f_pitch_shift)
-
-        f_timestretch_hlayout.addWidget(QtGui.QLabel("Time Stretch:"))
-        f_timestretch_amt = QtGui.QDoubleSpinBox()
-        f_timestretch_amt.setRange(0.2, 4.0)
-        f_timestretch_amt.setSingleStep(0.1)
-        f_timestretch_amt.setValue(1.0)
-        f_timestretch_hlayout.addWidget(f_timestretch_amt)
-
-        f_timestretch_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
-
-        f_output_hlayout = QtGui.QHBoxLayout()
-        f_output_hlayout.addWidget(QtGui.QLabel("Audio Track:"))
-        f_output_combobox = QtGui.QComboBox()
-        f_output_combobox.setMinimumWidth(360)
-        f_output_combobox.addItems(global_audio_track_names.values())
-        f_output_hlayout.addWidget(f_output_combobox)
-        f_output_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
-        f_layout.addWidget(QtGui.QLabel("Output:"), 9, 0)
-        f_layout.addLayout(f_output_hlayout, 9, 1)
-
-        f_ok_layout = QtGui.QHBoxLayout()
-        if not a_item is None:
-            f_clear_button = QtGui.QPushButton("Clear Item")
-            f_clear_button.pressed.connect(clear_handler)
-            f_ok_layout.addWidget(f_clear_button)
-        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
-        f_ok = QtGui.QPushButton("OK")
-        f_ok.pressed.connect(ok_handler)
-        f_ok_layout.addWidget(f_ok)
-        f_layout.addLayout(f_ok_layout, 11, 1)
-        f_cancel = QtGui.QPushButton("Cancel")
-        f_cancel.pressed.connect(cancel_handler)
-        f_layout.addWidget(f_cancel, 11, 2)
-
-        if not a_item is None:
-            f_name.setText(a_item.file)
-            f_sample_start.setValue(a_item.sample_start)
-            f_sample_end.setValue(a_item.sample_end)
-            f_start_region.setValue(a_item.start_region)
-            f_start_bar.setValue(a_item.start_bar)
-            f_start_beat.setValue(a_item.start_beat)
-            if a_item.end_mode == 1:
-                f_end_musical_time.setChecked(True)
-            f_end_region.setValue(a_item.end_region)
-            f_end_bar.setValue(a_item.end_bar)
-            f_end_beat.setValue(a_item.end_beat)
-            f_timestretch_mode.setCurrentIndex(a_item.time_stretch_mode)
-            f_pitch_shift.setValue(a_item.pitch_shift)
-            f_timestretch_amt.setValue(a_item.timestretch_amt)
-            f_output_combobox.setCurrentIndex(a_item.output_track)
-            f_sample_vol_slider.setValue(a_item.vol)
-
-        f_window.exec_()
+        global_edit_audio_item(y)
 
     def __init__(self):
-        self.enabled = False #Prevents user from editing a region before one has been selected
+        self.enabled = False
         self.last_open_dir = expanduser("~")
         self.group_box = QtGui.QGroupBox()
         self.main_vlayout = QtGui.QVBoxLayout()
