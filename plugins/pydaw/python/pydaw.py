@@ -1098,7 +1098,7 @@ class audio_item_marker(QtGui.QGraphicsRectItem):
             self.line.setPos(0.0, 0.0)
             self.text_item = QtGui.QGraphicsTextItem("S")
         elif a_type == 1:
-            self.y_pos = pydaw_audio_item_scene_height - global_audio_item_marker_height - 20.0
+            self.y_pos = pydaw_audio_item_scene_height - global_audio_item_marker_height
             self.setPos((a_val * 6.0) - global_audio_item_marker_height, self.y_pos)
             self.line.setPos(global_audio_item_marker_height, self.y_pos * -1.0)
             self.text_item = QtGui.QGraphicsTextItem("E")
@@ -1141,6 +1141,8 @@ class audio_item_editor(QtGui.QGraphicsView):
         self.last_y_scale = f_rect.height() / pydaw_audio_item_scene_height
         self.scale(self.last_x_scale, self.last_y_scale)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
     def clear_drawn_items(self):
         self.scene.clear()
