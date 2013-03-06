@@ -9,6 +9,10 @@ pydaw_audio_item_scene_gradient = QtGui.QLinearGradient(0, 0, 0, 1200)
 pydaw_audio_item_scene_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(60, 60, 60, 120))
 pydaw_audio_item_scene_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(30, 30, 30, 120))
 
+pydaw_audio_item_editor_gradient = QtGui.QLinearGradient(0, 0, 0, 1200)
+pydaw_audio_item_editor_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(190, 192, 123, 120))
+pydaw_audio_item_editor_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(130, 130, 100, 120))
+
 class pydaw_sample_graphs:
     def __init__(self, a_sg_dir):
         self.lookup = {}

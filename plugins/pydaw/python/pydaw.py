@@ -1075,34 +1075,60 @@ def global_sample_graph_create_and_wait(a_file_name, a_samplegraphs):
             sleep(0.1)
     return None
 
-global_audio_item_marker_height = 24
+global_audio_item_marker_height = 66.0
 
 class audio_item_marker(QtGui.QGraphicsRectItem):
-    def __init__(self, a_type):
+    def __init__(self, a_type, a_val):
         """ a_type:  0 == start, 1 == end, more types eventually... """
-        QtGui.QGraphicsRectItem.__init__(self)
+        QtGui.QGraphicsRectItem.__init__(self, 0, 0, global_audio_item_marker_height, global_audio_item_marker_height)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
-        self.line = QtGui.QGraphicsLineItem(self)
+        #self.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+        self.line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
+        self.line.setParentItem(self)
+        self.line.setPen(QtGui.QPen(QtCore.Qt.red, 3.0))
+        #self.line.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+        self.setPen(QtCore.Qt.red)
+        self.setBrush(QtCore.Qt.red)
         self.marker_type = a_type
+        self.max_x = pydaw_audio_item_scene_width - global_audio_item_marker_height
+        self.value = a_val
         if a_type == 0:
-            self.y_pos = 0
+            self.y_pos = 0.0
+            self.setPos((a_val * 6.0), self.y_pos)
+            self.line.setPos(0.0, 0.0)
+            self.text_item = QtGui.QGraphicsTextItem("S")
         elif a_type == 1:
-            self.y_pos = pydaw_audio_item_scene_height - global_audio_item_marker_height
+            self.y_pos = pydaw_audio_item_scene_height - global_audio_item_marker_height - 20.0
+            self.setPos((a_val * 6.0) - global_audio_item_marker_height, self.y_pos)
+            self.line.setPos(global_audio_item_marker_height, self.y_pos * -1.0)
+            self.text_item = QtGui.QGraphicsTextItem("E")
+        self.text_item.setParentItem(self)
+        self.text_item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
 
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
-        f_pos_x = a_event.pos().x()
-        if f_pos_x < 0.0:
-            f_pos_x = 0.0
-        elif f_pos_x > pydaw_audio_item_scene_width:
-            f_pos_x = pydaw_audio_item_scene_height
-        self.setPos(f_pos_x, self.y_pos)
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
+        f_pos_x = a_event.scenePos().x()
+        if f_pos_x < 0.0:
+            f_pos_x = 0.0
+        elif f_pos_x > self.max_x:
+            f_pos_x = self.max_x
+        self.setPos(f_pos_x, self.y_pos)
 
     def mouseReleaseEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
+        if self.marker_type == 0:
+            f_new_val = a_event.scenePos().x() / 6.0
+        elif self.marker_type == 1:
+            f_new_val = (a_event.scenePos().x() - global_audio_item_marker_height) / 6.0
+        if f_new_val < 0.0:
+            f_new_val = 0.0
+        elif f_new_val > 1000.0:
+            f_new_val = 1000.0
+        #print f_new_val
+        self.value = f_new_val
 
 class audio_item_editor(QtGui.QGraphicsView):
     def __init__(self):
@@ -1110,35 +1136,39 @@ class audio_item_editor(QtGui.QGraphicsView):
         self.scene = QtGui.QGraphicsScene()
         self.setScene(self.scene)
         self.scene.setBackgroundBrush(QtCore.Qt.darkGray)
-        self.last_x_scale = self.width() / pydaw_audio_item_scene_width
-        self.last_y_scale = self.height() / pydaw_audio_item_scene_height
+        f_rect = self.rect()
+        self.last_x_scale = f_rect.width() / pydaw_audio_item_scene_width
+        self.last_y_scale = f_rect.height() / pydaw_audio_item_scene_height
         self.scale(self.last_x_scale, self.last_y_scale)
+        self.setRenderHint(QtGui.QPainter.Antialiasing)
 
     def clear_drawn_items(self):
         self.scene.clear()
 
-    def draw_item(self, a_path_list):
-        f_y_pos = 0
-        f_y_inc = pydaw_audio_item_scene_height / len(a_path_list)
+    def draw_item(self, a_path_list, a_start, a_end):
         for f_path in a_path_list:
             f_path_item = QtGui.QGraphicsPathItem(f_path)
             f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 3.0))
-            f_path_item.setBrush(pydaw_audio_item_scene_gradient)
+            f_path_item.setBrush(pydaw_audio_item_editor_gradient)
             self.scene.addItem(f_path_item)
-            f_path_item.setPos(0.0, f_y_pos)
-            f_y_pos += f_y_inc
+        self.start_marker = audio_item_marker(0, a_start)
+        self.scene.addItem(self.start_marker)
+        self.end_marker = audio_item_marker(1, a_end)
+        self.scene.addItem(self.end_marker)
 
     def resizeEvent(self, a_resize_event):
         QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
         self.scale(1.0 / self.last_x_scale, 1.0 / self.last_y_scale)
-        self.last_x_scale = self.width() / pydaw_audio_item_scene_width
-        self.last_y_scale = self.height() / pydaw_audio_item_scene_height
+        f_rect = self.rect()
+        self.last_x_scale = f_rect.width() / pydaw_audio_item_scene_width
+        self.last_y_scale = f_rect.height() / pydaw_audio_item_scene_height
         self.scale(self.last_x_scale, self.last_y_scale)
         print("Resized to " + str(self.last_x_scale) + "|" + str(self.last_y_scale))
 
-def global_edit_audio_item(a_index):
+def global_edit_audio_item(a_index, a_switch_tabs=True):
     this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(a_index)
-    this_main_window.main_tabwidget.setCurrentIndex(4)
+    if a_switch_tabs:
+        this_main_window.main_tabwidget.setCurrentIndex(4)
 
 class audio_item_editor_widget:
     def update_file_list(self):
@@ -1323,11 +1353,11 @@ class audio_item_editor_widget:
             f_graphs = this_pydaw_project.get_samplegraphs()
             f_path_list = f_graphs.get_sample_graph(a_item.file)
             if f_path_list is not None:
-                self.sample_view.draw_item(f_path_list.create_sample_graph(True))
+                self.sample_view.draw_item(f_path_list.create_sample_graph(True), a_item.sample_start, a_item.sample_end)
             else:
                 f_path_list = global_sample_graph_create_and_wait(a_item.file, f_graphs)
                 if f_path_list is not None:
-                    self.sample_view.draw_item(f_path_list.create_sample_graph(True))
+                    self.sample_view.draw_item(f_path_list.create_sample_graph(True), a_item.sample_start, a_item.sample_end)
                 else:
                     QtGui.QMessageBox.warning(self, "Error", "Could not generate sample graph")
 
@@ -1347,14 +1377,14 @@ class audio_item_editor_widget:
         if self.end_sample_length.isChecked(): self.end_mode = 0
         else: self.end_mode = 1
 
-        self.new_item = pydaw_audio_item(self.name.text(), self.sample_start.value(), self.sample_end.value(), self.start_region.value(),
+        self.new_item = pydaw_audio_item(self.name.text(), self.sample_view.start_marker.value, self.sample_view.end_marker.value, self.start_region.value(),
                 self.start_bar.value(), self.start_beat.value(), self.end_mode, self.end_region.value(), self.end_bar.value(), self.end_beat.value(),
                 self.timestretch_mode.currentIndex(), self.pitch_shift.value(), self.output_combobox.currentIndex(), self.sample_vol_slider.value(),
                 self.timestretch_amt.value())
 
-        this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(x, self.new_item)
-        self.audio_items.add_item(x, self.new_item)
-        this_pydaw_project.save_audio_items(self.audio_items)
+        this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(self.selected_index_combobox.currentIndex(), self.new_item)
+        this_audio_editor.audio_items.add_item(self.selected_index_combobox.currentIndex(), self.new_item)
+        this_pydaw_project.save_audio_items(this_audio_editor.audio_items)
         this_audio_editor.open_items()
         this_pydaw_project.git_repo.git_commit("-a", "Update audio items")
 
@@ -5505,6 +5535,8 @@ def global_open_project(a_project_file, a_notify_osc=True):
     this_audio_editor.open_tracks()
     this_audio_editor.automation_track_type_changed()
     global_update_audio_track_comboboxes()
+    global_edit_audio_item(1, False)
+    global_edit_audio_item(0, False)
     set_window_title()
     this_pydaw_project.suppress_updates = False
 
