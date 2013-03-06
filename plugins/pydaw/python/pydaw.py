@@ -1087,8 +1087,6 @@ class audio_item_marker(QtGui.QGraphicsRectItem):
         self.line.setParentItem(self)
         self.line.setPen(QtGui.QPen(QtCore.Qt.red, 3.0))
         #self.line.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
-        self.setPen(QtCore.Qt.red)
-        self.setBrush(QtCore.Qt.red)
         self.marker_type = a_type
         self.max_x = pydaw_audio_item_scene_width - global_audio_item_marker_height
         self.value = a_val
@@ -1097,11 +1095,15 @@ class audio_item_marker(QtGui.QGraphicsRectItem):
             self.setPos((a_val * 6.0), self.y_pos)
             self.line.setPos(0.0, 0.0)
             self.text_item = QtGui.QGraphicsTextItem("S")
+            self.setPen(QtCore.Qt.red)
+            self.setBrush(pydaw_track_gradients[1])
         elif a_type == 1:
             self.y_pos = pydaw_audio_item_scene_height - global_audio_item_marker_height
             self.setPos((a_val * 6.0) - global_audio_item_marker_height, self.y_pos)
             self.line.setPos(global_audio_item_marker_height, self.y_pos * -1.0)
             self.text_item = QtGui.QGraphicsTextItem("E")
+            self.setPen(QtCore.Qt.red)
+            self.setBrush(pydaw_track_gradients[1])
         self.text_item.setParentItem(self)
         self.text_item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
 
@@ -1331,10 +1333,9 @@ class audio_item_editor_widget:
 
     def open_item(self, a_item):
         if a_item is None:
-            print("open_item(None)")
             self.name.setText("")
+            self.sample_view.clear_drawn_items()
         else:
-            print("open_item(a_item)")
             self.name.setText(a_item.file)
             self.start_region.setValue(a_item.start_region)
             self.start_bar.setValue(a_item.start_bar)
