@@ -1027,7 +1027,8 @@ class audio_items_viewer_widget():
         f_audio_items = this_pydaw_project.get_audio_items()
         for i in range(pydaw_max_audio_item_count):
             if not f_audio_items.items.has_key(i):
-                this_audio_editor.show_cell_dialog(i, 0)
+                #this_audio_editor.show_cell_dialog(i, 0)
+                global_edit_audio_item(i)
                 break
         #TODO:  QMessageBox if no available slots
 
@@ -1062,7 +1063,7 @@ def global_sample_graph_create_and_wait(a_file_name, a_samplegraphs):
     a_samplegraphs.add_ref(a_file_name, f_uid)
     this_pydaw_project.save_samplegraphs(a_samplegraphs)
     f_file_name = this_pydaw_project.samplegraph_folder + "/" + str(f_uid) + ".pygraph"
-    for i in range(1000):
+    for i in range(100):
         if os.path.isfile(f_file_name):
             sleep(0.1)
             print("Returning " + a_file_name)
@@ -1190,7 +1191,6 @@ class audio_item_editor_widget:
         self.suppress_index_change = False
 
     def selected_index_changed(self, a_val):
-        print "selected_index_changed", self.suppress_index_change
         if not self.suppress_index_change:
             if self.items_list[a_val] == "":
                 self.open_item(None)
@@ -1397,7 +1397,13 @@ class audio_item_editor_widget:
             if not self.file_name is None and not self.file_name == "":
                 self.name.setText(self.file_name)
                 self.last_open_dir = os.path.dirname(self.file_name)
-                create_sample_graph(self.file_name)
+                f_graphs = this_pydaw_project.get_samplegraphs()
+                f_graph = global_sample_graph_create_and_wait(self.file_name, f_graphs)
+                if f_graph is not None:
+                    self.sample_view.draw_item(f_graph.create_sample_graph(True), 0.0, 1000.0)
+                    self.ok_handler()
+                else:
+                    QtGui.QMessageBox.warning(self.widget, "Error", "Couldn't generate sample graph.")
         except Exception as ex:
             pydaw_print_generic_exception(ex)
 
