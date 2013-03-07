@@ -1467,8 +1467,8 @@ class pydaw_audio_items:
         return f_result
 
 class pydaw_audio_item:
-    def __init__(self, a_file, a_sample_start, a_sample_end, a_start_region, a_start_bar, a_start_beat, a_end_mode, \
-    a_end_region, a_end_bar, a_end_beat, a_timestretch_mode, a_pitch_shift, a_output_track, a_vol, a_timestretch_amt=1.0, \
+    def __init__(self, a_file, a_sample_start=0, a_sample_end=1000, a_start_region=0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
+    a_end_region=0, a_end_bar=0, a_end_beat=0, a_timestretch_mode=0, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0, \
     a_fade_in=0, a_fade_out=1000):
         self.file = str(a_file)
         self.sample_start = int(a_sample_start)  #TODO:  int() these once I have a way of getting frame count...
