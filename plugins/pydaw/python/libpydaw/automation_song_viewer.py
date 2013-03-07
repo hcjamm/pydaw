@@ -36,7 +36,7 @@ def global_song_automation_px_to_pos(a_px):
             f_reg += 1
         else:
             f_bar = int(f_bar_count)
-            f_beat = float(f_bar_count - f_bar)
+            f_beat = float(f_bar_count - f_bar) * 4.0
             break
     return (f_reg, f_bar, f_beat)
 
@@ -109,6 +109,8 @@ class song_automation_viewer(QtGui.QGraphicsView):
                     f_to_be_deleted.append(f_point)
             for f_point in f_to_be_deleted:
                 self.automation_points.remove(f_point)
+                self.scene.removeItem(f_point)
+            self.connect_points()
 
     def sceneMouseDoubleClickEvent(self, a_event):
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
