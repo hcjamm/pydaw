@@ -1004,6 +1004,9 @@ class audio_items_viewer_widget():
         self.add_item_button = QtGui.QPushButton("Add Item")
         self.controls_grid_layout.addWidget(self.add_item_button, 0, 2)
         self.add_item_button.pressed.connect(self.add_item)
+        self.add_multi_button = QtGui.QPushButton("Add Multiple")
+        self.controls_grid_layout.addWidget(self.add_multi_button, 0, 3)
+        self.add_multi_button.pressed.connect(self.add_multi)
 
         self.controls_grid_layout.addWidget(QtGui.QLabel("V-Zoom:"), 0, 45)
         self.v_zoom_combobox = QtGui.QComboBox()
@@ -1020,6 +1023,7 @@ class audio_items_viewer_widget():
         self.controls_grid_layout.addWidget(QtGui.QLabel("H-Zoom:"), 0, 49)
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
         self.v_zoom = 1.0
+        self.last_open_dir = expanduser("~")
 
     def add_item(self):
         if global_transport_is_playing:
@@ -1027,10 +1031,34 @@ class audio_items_viewer_widget():
         f_audio_items = this_pydaw_project.get_audio_items()
         for i in range(pydaw_max_audio_item_count):
             if not f_audio_items.items.has_key(i):
-                #this_audio_editor.show_cell_dialog(i, 0)
                 global_edit_audio_item(i)
                 break
-        #TODO:  QMessageBox if no available slots
+
+    def add_multi(self):
+        if global_transport_is_playing:
+            QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
+            return
+        try:
+            f_file_names = list(QtGui.QFileDialog.getOpenFileNames(self.widget, "Select .wav file(s) to open(CTRL+click to select many)...", self.last_open_dir, filter=".wav files(*.wav)"))
+            f_graphs = this_pydaw_project.get_samplegraphs()
+            f_items = this_pydaw_project.get_audio_items()
+            test = pydaw_audio_items()
+            test.get_next_index
+            for f_file_name in f_file_names:
+                if not f_file_name is None and not f_file_name == "":
+                    f_index = f_items.get_next_index()
+                    if f_index == -1:
+                        QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
+                        break
+                    else:
+                        global_sample_graph_create_and_wait(f_file_name, f_graphs)
+                        f_item = pydaw_audio_item(f_file_name)
+                        f_items.add_item(f_index, f_item)
+                        this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(f_index, f_item)
+            this_pydaw_project.save_audio_items(f_items)
+            this_audio_editor.open_items()
+        except Exception as ex:
+            pydaw_print_generic_exception(ex)
 
     def set_v_zoom(self, a_val=None):
         this_audio_items_viewer.set_v_zoom(1.0 / self.v_zoom)
