@@ -1599,7 +1599,34 @@ class audio_list_editor:
 class song_level_automation_widget:
     def __init__(self):
         self.enabled = False
-        self.ccs_tab = QtGui.QGroupBox()
+        self.widget = QtGui.QWidget()
+        self.main_vlayout = QtGui.QVBoxLayout()
+        self.widget.setLayout(self.main_vlayout)
+
+        self.ccs_gridlayout = QtGui.QGridLayout()
+        self.track_type_combobox = QtGui.QComboBox()
+        self.track_type_combobox.setMinimumWidth(110)
+        self.track_type_combobox.currentIndexChanged.connect(self.automation_track_type_changed)
+        self.track_type_combobox.addItems(["Audio", "Bus"])
+        self.ccs_gridlayout.addWidget(QtGui.QLabel("Track Type:"), 0, 2)
+        self.ccs_gridlayout.addWidget(self.track_type_combobox, 0, 3)
+        self.track_select_combobox = QtGui.QComboBox()
+        self.track_select_combobox.setMinimumWidth(240)
+        self.track_select_combobox.currentIndexChanged.connect(self.automation_track_changed)
+        #self.track_select_combobox.addItems(global_bus_track_names)
+        self.ccs_gridlayout.addWidget(QtGui.QLabel("Track:"), 0, 4)
+        self.ccs_gridlayout.addWidget(self.track_select_combobox, 0, 5)
+        self.ccs_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 7, 1, 1)
+        self.ccs_clear_button = QtGui.QPushButton("Clear")
+        self.ccs_clear_button.setMinimumWidth(90)
+        self.ccs_clear_button.pressed.connect(self.clear_ccs)
+        self.ccs_gridlayout.addWidget(self.ccs_clear_button, 0, 9)
+        self.main_vlayout.addLayout(self.ccs_gridlayout)
+
+        self.tab_widget = QtGui.QTabWidget()
+        self.main_vlayout.addWidget(self.tab_widget)
+        self.ccs_tab = QtGui.QGroupBox() #actually the list editor tab, but preserving it's old name
+        self.tab_widget.addTab(self.ccs_tab, "List Editor")
         self.ccs_hlayout = QtGui.QHBoxLayout()
         self.ccs_tab.setLayout(self.ccs_hlayout)
         self.ccs_vlayout = QtGui.QVBoxLayout()
@@ -1609,28 +1636,6 @@ class song_level_automation_widget:
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
         self.ccs_groupbox.setMaximumWidth(510)
         self.ccs_groupbox.setMinimumWidth(510)
-        self.ccs_gridlayout = QtGui.QGridLayout()
-
-        self.track_type_combobox = QtGui.QComboBox()
-        self.track_type_combobox.setMinimumWidth(110)
-        self.track_type_combobox.currentIndexChanged.connect(self.automation_track_type_changed)
-        self.track_type_combobox.addItems(["Audio", "Bus"])
-        self.ccs_gridlayout.addWidget(QtGui.QLabel("Track Type:"), 0, 2)
-        self.ccs_gridlayout.addWidget(self.track_type_combobox, 0, 3)
-
-        self.track_select_combobox = QtGui.QComboBox()
-        self.track_select_combobox.setMinimumWidth(240)
-        self.track_select_combobox.currentIndexChanged.connect(self.automation_track_changed)
-        #self.track_select_combobox.addItems(global_bus_track_names)
-        self.ccs_gridlayout.addWidget(QtGui.QLabel("Track:"), 0, 4)
-        self.ccs_gridlayout.addWidget(self.track_select_combobox, 0, 5)
-
-        self.ccs_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 7, 1, 1)
-
-        self.ccs_clear_button = QtGui.QPushButton("Clear")
-        self.ccs_clear_button.setMinimumWidth(90)
-        self.ccs_clear_button.pressed.connect(self.clear_ccs)
-        self.ccs_gridlayout.addWidget(self.ccs_clear_button, 0, 9)
 
         self.edit_mode_groupbox = QtGui.QGroupBox()
         self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
@@ -1644,9 +1649,7 @@ class song_level_automation_widget:
         self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
         self.add_radiobutton.setChecked(True)
 
-        self.ccs_gridlayout.addWidget(self.edit_mode_groupbox, 0, 10)
-
-        self.ccs_vlayout.addLayout(self.ccs_gridlayout)
+        self.ccs_vlayout.addWidget(self.edit_mode_groupbox)
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.ccs_table_widget.setColumnCount(5)
@@ -5072,7 +5075,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.audio_edit_tab = this_audio_item_editor_widget
         self.main_tabwidget.addTab(self.audio_edit_tab.widget, "Audio Edit")
 
-        self.main_tabwidget.addTab(this_song_level_automation_widget.ccs_tab, "Automation")
+        self.main_tabwidget.addTab(this_song_level_automation_widget.widget, "Automation")
 
         #Begin CC Map tab
         self.cc_map_tab = QtGui.QWidget()
