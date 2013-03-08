@@ -695,16 +695,16 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
         global_audio_track_names[int(a_index)] = str(a_value)
     global global_suppress_audio_track_combobox_changes
     global_suppress_audio_track_combobox_changes = True
-    if this_audio_editor.track_type_combobox.currentIndex() == 0:
-        this_audio_editor.enabled = False
-        f_tmp_index = this_audio_editor.track_select_combobox.currentIndex()
-        this_audio_editor.track_select_combobox.clear()
-        this_audio_editor.track_select_combobox.addItems(['test', 'test2'])  #This is to ensure that the text clears, which apparently won't happen automatically
-        this_audio_editor.track_select_combobox.setCurrentIndex(1)
-        this_audio_editor.track_select_combobox.clear()
-        this_audio_editor.track_select_combobox.addItems(global_audio_track_names.values())
-        this_audio_editor.track_select_combobox.setCurrentIndex(f_tmp_index)
-        this_audio_editor.enabled = True
+    if this_song_level_automation_widget.track_type_combobox.currentIndex() == 0:
+        this_song_level_automation_widget.enabled = False
+        f_tmp_index = this_song_level_automation_widget.track_select_combobox.currentIndex()
+        this_song_level_automation_widget.track_select_combobox.clear()
+        this_song_level_automation_widget.track_select_combobox.addItems(['test', 'test2'])  #This is to ensure that the text clears, which apparently won't happen automatically
+        this_song_level_automation_widget.track_select_combobox.setCurrentIndex(1)
+        this_song_level_automation_widget.track_select_combobox.clear()
+        this_song_level_automation_widget.track_select_combobox.addItems(global_audio_track_names.values())
+        this_song_level_automation_widget.track_select_combobox.setCurrentIndex(f_tmp_index)
+        this_song_level_automation_widget.enabled = True
     for f_cbox in global_audio_track_comboboxes:
         f_current_index = f_cbox.currentIndex()
         f_cbox.clear()
@@ -1561,7 +1561,6 @@ class audio_list_editor:
         global_edit_audio_item(y)
 
     def __init__(self):
-        self.enabled = False
         self.last_open_dir = expanduser("~")
         self.group_box = QtGui.QGroupBox()
         self.main_vlayout = QtGui.QVBoxLayout()
@@ -1594,6 +1593,12 @@ class audio_list_editor:
         self.audio_items_table_widget.cellClicked.connect(self.cell_clicked)
         self.items_vlayout.addWidget(self.audio_items_table_widget)
 
+        self.reset_tracks()
+
+
+class song_level_automation_widget:
+    def __init__(self):
+        self.enabled = False
         self.ccs_tab = QtGui.QGroupBox()
         self.ccs_hlayout = QtGui.QHBoxLayout()
         self.ccs_tab.setLayout(self.ccs_hlayout)
@@ -1655,8 +1660,6 @@ class audio_list_editor:
         self.ccs_table_widget.keyPressEvent = self.ccs_keyPressEvent
         self.ccs_vlayout.addWidget(self.ccs_table_widget)
 
-        self.reset_tracks()
-
         self.default_cc_start_region = 0
         self.default_cc_start_bar = 0
         self.default_cc_start = 0.0
@@ -1665,8 +1668,8 @@ class audio_list_editor:
         self.default_quantize = 5
 
         self.ccs_clipboard = []
-
         self.enabled = True
+
 
     def automation_track_type_changed(self, a_val=None):
         if self.enabled:
@@ -1916,6 +1919,7 @@ class audio_list_editor:
             self.item.items = []
             self.save_and_load("Deleted CC for " + str(self.track_type_combobox.currentIndex()) + "|" + \
             str(self.track_select_combobox.currentIndex()) + "'")
+
 
 class audio_track:
     def on_vol_change(self, value):
@@ -4947,8 +4951,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         this_transport.on_spacebar()
 
     def tab_changed(self):
-        if this_audio_editor.delete_radiobutton.isChecked():
-            this_audio_editor.add_radiobutton.setChecked(True)
+        if this_song_level_automation_widget.delete_radiobutton.isChecked():
+            this_song_level_automation_widget.add_radiobutton.setChecked(True)
         if this_item_editor.delete_radiobutton.isChecked():
             this_item_editor.add_radiobutton.setChecked(True)
 
@@ -5068,7 +5072,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.audio_edit_tab = this_audio_item_editor_widget
         self.main_tabwidget.addTab(self.audio_edit_tab.widget, "Audio Edit")
 
-        self.main_tabwidget.addTab(this_audio_editor.ccs_tab, "Automation")
+        self.main_tabwidget.addTab(this_song_level_automation_widget.ccs_tab, "Automation")
 
         #Begin CC Map tab
         self.cc_map_tab = QtGui.QWidget()
@@ -5267,7 +5271,7 @@ def global_ui_refresh_callback():
         this_region_editor.clear_new()
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
-    this_audio_editor.automation_track_type_changed()
+    this_song_level_automation_widget.automation_track_type_changed()
     this_region_editor.open_tracks()
     this_song_editor.open_song()
     this_transport.open_transport()
@@ -5292,7 +5296,7 @@ def global_open_project(a_project_file, a_notify_osc=True):
     set_default_project(a_project_file)
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
-    this_audio_editor.automation_track_type_changed()
+    this_song_level_automation_widget.automation_track_type_changed()
     global_update_audio_track_comboboxes()
     global_edit_audio_item(1, False)
     global_edit_audio_item(0, False)
@@ -5313,7 +5317,7 @@ def global_new_project(a_project_file):
     this_pydaw_project.save_song(this_song_editor.song)
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
-    this_audio_editor.automation_track_type_changed()
+    this_song_level_automation_widget.automation_track_type_changed()
     this_transport.open_transport()
     set_default_project(a_project_file)
     global_update_audio_track_comboboxes()
@@ -5346,6 +5350,7 @@ this_cc_automation_viewers.append(this_cc_automation_viewer2)
 this_song_editor = song_editor()
 this_region_editor = region_list_editor()
 this_audio_editor = audio_list_editor()
+this_song_level_automation_widget = song_level_automation_widget()
 this_piano_roll_editor = piano_roll_editor()
 this_piano_roll_editor_widget = piano_roll_editor_widget()
 this_item_editor = item_list_editor()
