@@ -1607,7 +1607,7 @@ global_song_automation_reg_size_px = global_song_automation_bar_size_px * 8.0
 global_region_count = 300
 global_bars_per_region = 8
 global_song_automation_width = global_region_count * global_bars_per_region
-global_song_automation_height = 360
+global_song_automation_height = 300
 
 global_song_automation_total_height = global_song_automation_ruler_width +  global_song_automation_height - global_song_automation_point_radius
 global_song_automation_total_width = global_song_automation_ruler_width + global_song_automation_width - global_song_automation_point_radius
@@ -1850,7 +1850,7 @@ class song_level_automation_widget:
 
         self.cc_auto_viewers = []
         for i in range(3):
-            self.cc_auto_viewers.append(automation_viewer_widget(this_song_automation_viewers[i]))
+            self.cc_auto_viewers.append(automation_viewer_widget(this_song_automation_viewers[i], a_is_song_level=True))
             self.cc_auto_viewer_vlayout.addWidget(self.cc_auto_viewers[i].widget)
         self.env_main_hlayout.addWidget(self.cc_auto_viewer_scrollarea)
 
@@ -3129,14 +3129,22 @@ class automation_viewer(QtGui.QGraphicsView):
 class automation_viewer_widget:
     def plugin_changed(self, a_val=None):
         self.control_combobox.clear()
-        self.control_combobox.addItems(global_cc_maps[str(self.plugin_combobox.currentText())].keys())
+        if self.is_song_level:
+            self.control_combobox.addItems(global_cc_maps["Modulex"].keys())
+        else:
+            self.control_combobox.addItems(global_cc_maps[str(self.plugin_combobox.currentText())].keys())
 
     def control_changed(self, a_val=None):
-        f_plugin_str = str(self.plugin_combobox.currentText())
-        f_control_str = str(self.control_combobox.currentText())
-        if f_plugin_str != '' and f_control_str != '':
-            f_value = int(global_cc_maps[f_plugin_str][f_control_str])
-            self.cc_spinbox.setValue(f_value)
+        if self.is_song_level:
+            f_control_str = str(self.control_combobox.currentText())
+            if f_control_str != '':
+                f_value = int(global_cc_maps["Modulex"][f_control_str])
+        else:
+            f_plugin_str = str(self.plugin_combobox.currentText())
+            f_control_str = str(self.control_combobox.currentText())
+            if f_plugin_str != '' and f_control_str != '':
+                f_value = int(global_cc_maps[f_plugin_str][f_control_str])
+                self.cc_spinbox.setValue(f_value)
 
     def cc_num_changed(self, a_val=None):
         self.set_cc_num(self.cc_spinbox.value())
@@ -3167,7 +3175,8 @@ class automation_viewer_widget:
             pydaw_smooth_automation_points(this_item_editor.items, self.is_cc)
         this_item_editor.save_and_reload()
 
-    def __init__(self, a_viewer, a_is_cc=True):
+    def __init__(self, a_viewer, a_is_cc=True, a_is_song_level=False):
+        self.is_song_level = a_is_song_level
         self.is_cc = a_is_cc
         self.widget = QtGui.QGroupBox()
         self.vlayout = QtGui.QVBoxLayout()
@@ -3184,17 +3193,18 @@ class automation_viewer_widget:
             self.hlayout.addWidget(self.cc_spinbox)
             self.cc_spinbox.valueChanged.connect(self.cc_num_changed)
 
-            self.plugin_combobox = QtGui.QComboBox()
-            self.plugin_combobox.setMinimumWidth(120)
-            self.plugin_combobox.addItems(global_cc_maps.keys())
-            self.hlayout.addWidget(QtGui.QLabel("Plugin"))
-            self.hlayout.addWidget(self.plugin_combobox)
+            if not a_is_song_level:
+                self.plugin_combobox = QtGui.QComboBox()
+                self.plugin_combobox.setMinimumWidth(120)
+                self.plugin_combobox.addItems(global_cc_maps.keys())
+                self.hlayout.addWidget(QtGui.QLabel("Plugin"))
+                self.hlayout.addWidget(self.plugin_combobox)
+                self.plugin_combobox.currentIndexChanged.connect(self.plugin_changed)
 
             self.control_combobox = QtGui.QComboBox()
             self.control_combobox.setMinimumWidth(180)
             self.hlayout.addWidget(QtGui.QLabel("Control"))
             self.hlayout.addWidget(self.control_combobox)
-            self.plugin_combobox.currentIndexChanged.connect(self.plugin_changed)
             self.control_combobox.currentIndexChanged.connect(self.control_changed)
 
             self.ccs_in_use_combobox = QtGui.QComboBox()
@@ -5609,6 +5619,13 @@ for f_viewer in this_item_editor.cc_auto_viewers:  #Get the plugin/control combo
     f_viewer.plugin_changed()
 this_item_editor.cc_auto_viewers[1].set_cc_num(2)
 this_item_editor.cc_auto_viewers[2].set_cc_num(3)
+
+for f_viewer in this_song_level_automation_widget.cc_auto_viewers:  #Get the plugin/control comboboxes populated
+    f_viewer.plugin_changed()
+this_song_level_automation_widget.cc_auto_viewers[1].set_cc_num(2)
+this_song_level_automation_widget.cc_auto_viewers[2].set_cc_num(3)
+
+# ^^^TODO:  Move the CC maps out of the main window class and instantiate earlier
 
 f_def_file = expanduser("~") + "/" + global_pydaw_version_string + "/last-project.txt"
 if os.path.exists(f_def_file):
