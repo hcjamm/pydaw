@@ -22,7 +22,7 @@ from sys import argv
 from os.path import expanduser
 from libpydaw import *
 
-import sip
+#import sip
 
 global_pydaw_version_string = "pydaw2"
 global_pydaw_file_type_string = 'PyDAW2 Project (*.pydaw2)'
@@ -31,6 +31,13 @@ global_transport_is_playing = False
 global_region_lengths_dict = {}
 global_audio_region_snap_px = {}
 global_audio_bar_px = 12.5
+
+def pydaw_clip_value(a_val, a_min, a_max):
+    if a_val < a_min:
+        return a_min
+    if a_val > a_max:
+        return a_max
+    return a_val
 
 def pydaw_update_region_lengths_dict():
     """ Call this any time the region length setup may have changed... """
@@ -1618,7 +1625,6 @@ global_song_automation_gradient.setColorAt(0, QtGui.QColor(240, 10, 10))
 global_song_automation_gradient.setColorAt(1, QtGui.QColor(250, 90, 90))
 
 def global_song_automation_pos_to_px(a_reg, a_bar, a_beat):
-    print "global_song_automation_pos_to_px", a_reg, a_bar, a_beat
     return (((a_reg * 8.0) + (a_bar) + (a_beat * 0.25)) * global_song_automation_bar_size_px) + global_song_automation_ruler_width
 
 def global_song_automation_px_to_pos(a_px):
@@ -1636,6 +1642,10 @@ def global_song_automation_px_to_pos(a_px):
             f_beat = float(f_bar_count - f_bar) * 4.0
             break
     return (f_reg, f_bar, f_beat)
+
+def global_song_automation_px_to_value(a_px):
+    f_result = int(127.0 - ((a_px - global_song_automation_ruler_width + global_song_automation_point_radius) / global_song_automation_height) * 127.0)
+    return pydaw_clip_value(f_result, 0, 127)
 
 class song_automation_point(QtGui.QGraphicsEllipseItem):
     def __init__(self, a_pos_x, a_value, a_cc, a_view):
@@ -1674,8 +1684,14 @@ class song_automation_point(QtGui.QGraphicsEllipseItem):
         self.setGraphicsEffect(None)
         for f_point in self.parent_view.automation_points:
             if f_point.isSelected():
-                f_reg, f_bar, f_beat = global_song_automation_px_to_pos(self.pos().x())
-                print f_reg, f_bar, f_beat
+                f_reg, f_bar, f_beat = global_song_automation_px_to_pos(f_point.pos().x())
+                f_value = global_song_automation_px_to_value(f_point.pos().y())
+                print f_reg, f_bar, f_beat, f_value
+                f_point.cc_item.region = f_reg
+                f_point.cc_item.bar = f_bar
+                f_point.cc_item.beat = f_beat
+                f_point.cc_item.value = f_value
+        this_song_level_automation_widget.save_and_load("Mouse move CC point(s)")
 
 class song_automation_viewer(QtGui.QGraphicsView):
     def __init__(self):
@@ -1695,6 +1711,7 @@ class song_automation_viewer(QtGui.QGraphicsView):
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
         self.cc_num = 1
+        self.cc_item = None
 
     def keyPressEvent(self, a_event):
         a_event.setAccepted(True)
@@ -1705,9 +1722,11 @@ class song_automation_viewer(QtGui.QGraphicsView):
                 if f_point.isSelected():
                     f_to_be_deleted.append(f_point)
             for f_point in f_to_be_deleted:
-                self.automation_points.remove(f_point)
-                self.scene.removeItem(f_point)
-            self.connect_points()
+                this_song_level_automation_widget.item.remove_cc(f_point.cc_item)
+                #self.automation_points.remove(f_point)
+                #self.scene.removeItem(f_point)
+            #self.connect_points()
+            this_song_level_automation_widget.save_and_load("Delete song level CC(s)")
 
     def sceneMouseDoubleClickEvent(self, a_event):
         QtGui.QGraphicsScene.mouseDoubleClickEvent(self.scene, a_event)
@@ -1715,7 +1734,10 @@ class song_automation_viewer(QtGui.QGraphicsView):
         f_pos_y = a_event.scenePos().y()
         f_reg, f_bar, f_beat = global_song_automation_px_to_pos(f_pos_x)
         f_cc_val = 127.0 - (((f_pos_y - global_song_automation_min_height) / global_song_automation_height) * 127.0)
-        self.draw_point(pydaw_song_level_cc(f_reg, f_bar, f_beat, self.cc_num, f_cc_val))
+        f_cc_item = pydaw_song_level_cc(f_reg, f_bar, f_beat, self.cc_num, f_cc_val)
+        this_song_level_automation_widget.item.add_cc(f_cc_item)
+        this_song_level_automation_widget.save_and_load("Add song level CC")
+        #self.draw_point(pydaw_song_level_cc(f_reg, f_bar, f_beat, self.cc_num, f_cc_val))
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsView.mouseMoveEvent(self, a_event)
@@ -1723,7 +1745,7 @@ class song_automation_viewer(QtGui.QGraphicsView):
             self.connect_points()
 
     def draw_axis(self):
-        self.x_axis = QtGui.QGraphicsRectItem(0, 0, (global_song_automation_width+8)*self.beat_width, global_song_automation_ruler_width)
+        self.x_axis = QtGui.QGraphicsRectItem(0, 0, (global_song_automation_width)*self.beat_width, global_song_automation_ruler_width)
         self.x_axis.setPos(global_song_automation_ruler_width, 0)
         self.scene.addItem(self.x_axis)
         self.y_axis = QtGui.QGraphicsRectItem(0, 0, global_song_automation_ruler_width, global_song_automation_height)
@@ -1736,7 +1758,7 @@ class song_automation_viewer(QtGui.QGraphicsView):
         f_beat_pen = QtGui.QPen()
         f_beat_pen.setColor(QtGui.QColor(0,0,0,50))
         for i in range(2):
-            f_line = QtGui.QGraphicsLineItem(0, 0, (global_song_automation_width+8)*self.beat_width, 0, self.y_axis)
+            f_line = QtGui.QGraphicsLineItem(0, 0, (global_song_automation_width)*self.beat_width, 0, self.y_axis)
             f_line.setPos(global_song_automation_ruler_width,global_song_automation_height*(i+1)/2.0)
         for i in range(0, global_song_automation_width):
             f_beat = QtGui.QGraphicsLineItem(0, 0, 0, global_song_automation_height + global_song_automation_ruler_width, self.x_axis)
@@ -1753,6 +1775,8 @@ class song_automation_viewer(QtGui.QGraphicsView):
         self.scale(a_scale, 1.0)
 
     def clear_drawn_items(self):
+        self.automation_points = []
+        self.lines = []
         self.scene.clear()
         self.draw_axis()
         self.draw_grid()
@@ -1784,14 +1808,16 @@ class song_automation_viewer(QtGui.QGraphicsView):
     def set_cc_num(self, a_cc_num):
         self.cc_num = a_cc_num
         self.clear_drawn_items()
-        #TODO:  call open_item here..
+        if self.cc_item is not None:
+            self.draw_item(self.cc_item)
 
     def draw_item(self, a_item):
         """ a_item is an instance of pydaw_item """
+        self.cc_item = a_item
         self.clear_drawn_items()
-        for f_cc in a_item.ccs:
-            if f_cc.cc_num == self.cc_num:
-                self.draw_point(a_cc)
+        for f_cc in a_item.items:
+            if f_cc.cc == self.cc_num:
+                self.draw_point(f_cc)
 
     def draw_point(self, a_cc):
         """ a_cc is an instance of the pydaw_song_level_cc class"""
@@ -1938,6 +1964,15 @@ class song_level_automation_widget:
             self.ccs_table_widget.sortItems(2)  #This creates a proper ordering by time, since Qt uses a "stable sort"
             self.ccs_table_widget.sortItems(1)
             self.ccs_table_widget.sortItems(0)
+            for f_viewer in this_song_automation_viewers:
+                f_viewer.draw_item(self.item)
+
+            f_ccs = {}
+            for f_cc in self.item.items:
+                f_ccs[f_cc.cc] = None
+
+            for f_widget in self.cc_auto_viewers:
+                f_widget.update_ccs_in_use(f_ccs.keys())
 
     def ccs_show_event_dialog(self, x, y):
         f_cell = self.ccs_table_widget.item(x, y)
@@ -3213,13 +3248,13 @@ class automation_viewer_widget:
             self.hlayout.addWidget(QtGui.QLabel("In Use:"))
             self.hlayout.addWidget(self.ccs_in_use_combobox)
 
-        self.smooth_button = QtGui.QPushButton("Smooth")
-        self.smooth_button.setToolTip("By default, the control points are steppy, this button draws extra points between the exisiting points.")
-        self.smooth_button.pressed.connect(self.smooth_pressed)
-        self.hlayout.addWidget(self.smooth_button)
+        if not a_is_song_level:
+            self.smooth_button = QtGui.QPushButton("Smooth")
+            self.smooth_button.setToolTip("By default, the control points are steppy, this button draws extra points between the exisiting points.")
+            self.smooth_button.pressed.connect(self.smooth_pressed)
+            self.hlayout.addWidget(self.smooth_button)
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
-        #self.widget.setMinimumSize(750, 420)
-        #self.widget.setMaximumSize(750, 420)
+
 
 class item_list_editor:
     def clear_notes(self, a_is_list=True):
