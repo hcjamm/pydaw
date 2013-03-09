@@ -22,8 +22,6 @@ from sys import argv
 from os.path import expanduser
 from libpydaw import *
 
-#import sip
-
 global_pydaw_version_string = "pydaw2"
 global_pydaw_file_type_string = 'PyDAW2 Project (*.pydaw2)'
 
@@ -31,6 +29,7 @@ global_transport_is_playing = False
 global_region_lengths_dict = {}
 global_audio_region_snap_px = {}
 global_audio_bar_px = 12.5
+global_bar_count = 300 * 8
 
 def pydaw_clip_value(a_val, a_min, a_max):
     if a_val < a_min:
@@ -42,13 +41,15 @@ def pydaw_clip_value(a_val, a_min, a_max):
 def pydaw_update_region_lengths_dict():
     """ Call this any time the region length setup may have changed... """
     f_song = this_pydaw_project.get_song()
-    global global_region_lengths_dict, global_audio_region_snap_px
+    global global_region_lengths_dict, global_audio_region_snap_px, global_bar_count
     global_region_lengths_dict = {}
     global_audio_region_snap_px = {}
+    global_bar_count = 300 * 8
     for k, v in f_song.regions.iteritems():
         f_region = this_pydaw_project.get_region(v)
         if f_region.region_length_bars != 0:
             global_region_lengths_dict[int(k)] = int(f_region.region_length_bars)
+            global_bar_count = global_bar_count - 8 + int(f_region.region_length_bars)
     f_add = 0.0
     global_audio_region_snap_px[0] = 0.0
     for i in range(299):
@@ -446,6 +447,9 @@ class region_list_editor:
         self.open_region(self.region_name_lineedit.text())
         pydaw_update_region_lengths_dict()
         this_audio_editor.open_items()
+        for f_viewer in this_song_automation_viewers:
+            f_viewer.clear_drawn_items()
+            f_viewer.draw_item(f_viewer.cc_item)
 
     def column_clicked(self, a_val):
         if a_val > 0:
@@ -1607,17 +1611,15 @@ class audio_list_editor:
 
 global_song_automation_point_diameter = 15.0
 global_song_automation_point_radius = global_song_automation_point_diameter * 0.5
-global_song_automation_ruler_width = 24
-global_song_automation_bar_size_px = 20.0
+global_song_automation_ruler_width = 24.0
+global_song_automation_bar_size_px = 30.0
 global_song_automation_reg_size_px = global_song_automation_bar_size_px * 8.0
 
-global_region_count = 300
-global_bars_per_region = 8
-global_song_automation_width = global_region_count * global_bars_per_region
+global_song_automation_width = 300 * 8
 global_song_automation_height = 300
 
 global_song_automation_total_height = global_song_automation_ruler_width +  global_song_automation_height - global_song_automation_point_radius
-global_song_automation_total_width = global_song_automation_ruler_width + global_song_automation_width - global_song_automation_point_radius
+global_song_automation_total_width = global_song_automation_ruler_width + (global_song_automation_width * global_song_automation_bar_size_px)  - global_song_automation_point_radius
 global_song_automation_min_height = global_song_automation_ruler_width - global_song_automation_point_radius
 
 global_song_automation_gradient = QtGui.QLinearGradient(0, 0, global_song_automation_point_diameter, global_song_automation_point_diameter)
@@ -1625,7 +1627,13 @@ global_song_automation_gradient.setColorAt(0, QtGui.QColor(240, 10, 10))
 global_song_automation_gradient.setColorAt(1, QtGui.QColor(250, 90, 90))
 
 def global_song_automation_pos_to_px(a_reg, a_bar, a_beat):
-    return (((a_reg * 8.0) + (a_bar) + (a_beat * 0.25)) * global_song_automation_bar_size_px) + global_song_automation_ruler_width
+    f_result = 0.0
+    for i in range(a_reg):
+        f_result += pydaw_get_region_length(i) * global_song_automation_bar_size_px
+    f_result += a_bar * global_song_automation_bar_size_px
+    f_result += a_beat * 0.25 * global_song_automation_bar_size_px
+    f_result += global_song_automation_ruler_width
+    return f_result
 
 def global_song_automation_px_to_pos(a_px):
     f_bar_count = (a_px - global_song_automation_ruler_width + global_song_automation_point_radius) / global_song_automation_bar_size_px
@@ -1634,12 +1642,14 @@ def global_song_automation_px_to_pos(a_px):
     f_bar = 0
     f_beat = 0.0
     while True:
-        if f_bar_count >= 8.0:
-            f_bar_count -= 8.0
+        f_length = pydaw_get_region_length(f_reg)
+        if f_bar_count >= f_length:
+            f_bar_count -= f_length
             f_reg += 1
         else:
             f_bar = int(f_bar_count)
             f_beat = float(f_bar_count - f_bar) * 4.0
+            f_beat = round(f_beat, 4)
             break
     return (f_reg, f_bar, f_beat)
 
@@ -1745,7 +1755,7 @@ class song_automation_viewer(QtGui.QGraphicsView):
             self.connect_points()
 
     def draw_axis(self):
-        self.x_axis = QtGui.QGraphicsRectItem(0, 0, (global_song_automation_width)*self.beat_width, global_song_automation_ruler_width)
+        self.x_axis = QtGui.QGraphicsRectItem(0, 0, (global_bar_count)*self.beat_width, global_song_automation_ruler_width)
         self.x_axis.setPos(global_song_automation_ruler_width, 0)
         self.scene.addItem(self.x_axis)
         self.y_axis = QtGui.QGraphicsRectItem(0, 0, global_song_automation_ruler_width, global_song_automation_height)
@@ -1755,21 +1765,36 @@ class song_automation_viewer(QtGui.QGraphicsView):
     def draw_grid(self):
         f_pen = QtGui.QPen()
         f_pen.setWidth(2)
-        f_beat_pen = QtGui.QPen()
-        f_beat_pen.setColor(QtGui.QColor(0,0,0,50))
+        f_4_pen = QtGui.QPen()
+        f_4_pen.setWidth(2)
+        f_4_pen.setColor(QtGui.QColor(60, 60, 60))
+        f_bar_pen = QtGui.QPen()
+        f_bar_pen.setWidth(1.0)
+        f_bar_pen.setColor(QtGui.QColor(75, 75, 75))
         for i in range(2):
-            f_line = QtGui.QGraphicsLineItem(0, 0, (global_song_automation_width)*self.beat_width, 0, self.y_axis)
-            f_line.setPos(global_song_automation_ruler_width,global_song_automation_height*(i+1)/2.0)
-        for i in range(0, global_song_automation_width):
-            f_beat = QtGui.QGraphicsLineItem(0, 0, 0, global_song_automation_height + global_song_automation_ruler_width, self.x_axis)
-            f_beat.setPos(self.beat_width * i, 0)
-            if i % 4.0:
-                f_beat.setPen(f_beat_pen)
-            elif not i % global_bars_per_region:
-                f_number = QtGui.QGraphicsSimpleTextItem(str(int(i/global_bars_per_region)), self.x_axis)
-                f_number.setPos(self.beat_width * i + 5, 2)
-                f_number.setBrush(QtCore.Qt.white)
-                f_beat.setPen(f_pen)
+            f_line = QtGui.QGraphicsLineItem(0, 0, (global_bar_count)*self.beat_width, 0, self.y_axis)
+            f_line.setPos(global_song_automation_ruler_width, global_song_automation_height * (i+1) * 0.5)
+        f_pos = 0.0
+        for i in range(300):
+            f_bar_count = pydaw_get_region_length(i)
+            f_number = QtGui.QGraphicsSimpleTextItem(str(i), self.x_axis)
+            f_number.setPos(f_pos + 5, 2)
+            f_number.setBrush(QtCore.Qt.white)
+            f_bar = QtGui.QGraphicsLineItem(0, 0, 0, global_song_automation_height + global_song_automation_ruler_width, self.x_axis)
+            f_bar.setPos(f_pos, 0)
+            f_bar.setPen(f_pen)
+            f_pos += global_song_automation_bar_size_px
+            f_4_bar = 1
+            for i2 in range(1, f_bar_count):
+                f_bar = QtGui.QGraphicsLineItem(0, 0, 0, global_song_automation_height + global_song_automation_ruler_width, self.x_axis)
+                f_bar.setPos(f_pos, 0)
+                if f_4_bar >= 4:
+                    f_4_bar = 0
+                    f_bar.setPen(f_4_pen)
+                else:
+                    f_bar.setPen(f_bar_pen)
+                f_4_bar += 1
+                f_pos += global_song_automation_bar_size_px
 
     def set_zoom(self, a_scale):
         self.scale(a_scale, 1.0)
