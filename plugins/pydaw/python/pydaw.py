@@ -72,8 +72,29 @@ def pydaw_get_diff_in_bars(a_start_reg, a_start_bar, a_start_beat, a_end_reg, a_
         f_result += pydaw_get_region_length(i)
     f_result += (a_end_bar - a_start_bar)
     f_result += (a_end_beat - a_start_beat) * 0.25
-    print("pydaw_get_diff_in_bars: " + str(f_result))
     return f_result
+
+def pydaw_add_diff_in_bars(a_start_reg, a_start_bar, a_start_beat, a_bars):
+    """ Add a fractional number of bars, and return a tuple of region, bar and beat """
+    f_region = a_start_reg
+    f_bar = a_start_bar
+    f_beat = a_start_beat
+    f_int_bars = int(a_bars)
+    f_float_beats = (a_bars - float(f_int_bars)) * 4.0
+    f_beat += f_float_beats
+    if f_beat >= 4.0:
+        f_beat -= 4.0
+        f_bar += 1
+    f_beat = round(f_beat, 4)
+    f_bar += f_int_bars
+    while True:
+        f_reg_length = pydaw_get_region_length(f_region)
+        if f_bar >= f_reg_length:
+            f_bar -= f_reg_length
+            f_region += 1
+        else:
+            break
+    return (f_region, f_bar, f_beat)
 
 def pydaw_print_generic_exception(a_ex):
     f_error = str(type(a_ex)) + " exception:" + a_ex.message
@@ -1872,12 +1893,23 @@ def pydaw_smooth_song_automation_points(a_item, a_cc_num):
     for f_cc in a_item.items:
         if f_cc.cc == a_cc_num:
             f_cc_list.append(f_cc)
-    #for f_cc in f_cc_list:
-    #    a_item.items.remove(f_cc)
     for i in range(len(f_cc_list) - 1):
         f_cc1 = f_cc_list[i]
         f_cc2 = f_cc_list[i + 1]
-        a_item.draw_cc_line(a_cc_num, f_cc1.value, f_cc1.region, f_cc1.bar, f_cc1.beat, f_cc2.value, f_cc2.region, f_cc2.bar, f_cc2.beat)
+        f_diff_bars = pydaw_get_diff_in_bars(f_cc1.region, f_cc1.bar, f_cc1.beat, f_cc2.region, f_cc2.bar, f_cc2.beat)
+        f_time_inc = abs(f_cc2.value - f_cc1.value)
+        if f_time_inc < 3:
+            continue
+        f_time_inc = f_diff_bars / f_time_inc
+        f_inc = 1
+        if f_cc2.value < f_cc1.value:
+            f_inc = -1
+        f_region = f_cc1.region
+        f_bar = f_cc1.bar
+        f_beat = f_cc1.beat
+        for i in range(f_cc1.value + f_inc, f_cc2.value, f_inc):
+            f_region, f_bar, f_beat = pydaw_add_diff_in_bars(f_region, f_bar, f_beat, f_time_inc)
+            a_item.items.append(pydaw_song_level_cc(f_region, f_bar, f_beat, a_cc_num, i))
     this_song_level_automation_widget.save_and_load("Smooth song level automation for CC " + str(a_cc_num))
 
 
