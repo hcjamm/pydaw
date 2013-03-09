@@ -2119,7 +2119,7 @@ class song_level_automation_widget:
         def control_changed(a_val=None):
             f_control_str = str(f_control_combobox.currentText())
             if f_control_str != '':
-                f_value = int(global_cc_maps["Modulex"][f_control_str])
+                f_value = pydaw_get_cc_num_from_name("Modulex", f_control_str)
                 f_cc.setValue(f_value)
 
         f_window = QtGui.QDialog(this_main_window)
@@ -2136,7 +2136,7 @@ class song_level_automation_widget:
         f_layout.addWidget(QtGui.QLabel("Control"), 3, 0)
         f_layout.addWidget(f_control_combobox, 3, 1)
 
-        f_control_combobox.addItems(global_cc_maps["Modulex"].keys())
+        f_control_combobox.addItems(global_cc_names["Modulex"])
         f_control_combobox.currentIndexChanged.connect(control_changed)
 
         f_cc = QtGui.QSpinBox()
@@ -3254,22 +3254,22 @@ class automation_viewer_widget:
     def plugin_changed(self, a_val=None):
         self.control_combobox.clear()
         if self.is_song_level:
-            self.control_combobox.addItems([""] + global_cc_maps["Modulex"].keys())
+            self.control_combobox.addItems([""] + global_cc_names["Modulex"])
         else:
-            self.control_combobox.addItems([""] + global_cc_maps[str(self.plugin_combobox.currentText())].keys())
+            self.control_combobox.addItems([""] + global_cc_names[str(self.plugin_combobox.currentText())])
 
     def control_changed(self, a_val=None):
         if self.is_song_level:
             f_control_str = str(self.control_combobox.currentText())
             if f_control_str != '':
-                f_value = int(global_cc_maps["Modulex"][f_control_str])
+                f_value = pydaw_get_cc_num_from_name("Modulex", f_control_str)
                 self.cc_spinbox.setValue(f_value)
                 self.ccs_in_use_combobox.setCurrentIndex(0)
         else:
             f_plugin_str = str(self.plugin_combobox.currentText())
             f_control_str = str(self.control_combobox.currentText())
             if f_plugin_str != '' and f_control_str != '':
-                f_value = int(global_cc_maps[f_plugin_str][f_control_str])
+                f_value = pydaw_get_cc_num_from_name(f_plugin_str, f_control_str)
                 self.cc_spinbox.setValue(f_value)
                 self.ccs_in_use_combobox.setCurrentIndex(0)
 
@@ -3327,7 +3327,7 @@ class automation_viewer_widget:
             if not a_is_song_level:
                 self.plugin_combobox = QtGui.QComboBox()
                 self.plugin_combobox.setMinimumWidth(120)
-                self.plugin_combobox.addItems(global_cc_maps.keys())
+                self.plugin_combobox.addItems(global_cc_names.keys())
                 self.hlayout.addWidget(QtGui.QLabel("Plugin"))
                 self.hlayout.addWidget(self.plugin_combobox)
                 self.plugin_combobox.currentIndexChanged.connect(self.plugin_changed)
@@ -4457,13 +4457,13 @@ class item_list_editor:
 
         def plugin_changed(a_val=None):
             f_control_combobox.clear()
-            f_control_combobox.addItems(global_cc_maps[str(f_plugin_combobox.currentText())].keys())
+            f_control_combobox.addItems(global_cc_names[str(f_plugin_combobox.currentText())])
 
         def control_changed(a_val=None):
             f_plugin_str = str(f_plugin_combobox.currentText())
             f_control_str = str(f_control_combobox.currentText())
             if f_plugin_str != '' and f_control_str != '':
-                f_value = int(global_cc_maps[f_plugin_str][f_control_str])
+                f_value = pydaw_get_cc_num_from_name(f_plugin_str, f_control_str)
                 f_cc.setValue(f_value)
 
         f_window = QtGui.QDialog(this_main_window)
@@ -4477,7 +4477,7 @@ class item_list_editor:
         f_layout.addWidget(f_quantize_combobox, 1, 1)
 
         f_plugin_combobox = QtGui.QComboBox()
-        f_plugin_combobox.addItems(global_cc_maps.keys())
+        f_plugin_combobox.addItems(global_cc_names.keys())
         f_layout.addWidget(QtGui.QLabel("Plugin"), 2, 0)
         f_layout.addWidget(f_plugin_combobox, 2, 1)
 
@@ -5495,7 +5495,19 @@ name instead of MIDI CC number""")
         else:
             event.accept()
 
-global_cc_maps = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modulex":{}}  #A dict of dicts, with key/value pair:  control-name:control-value
+global_cc_names = {"Euphoria":[], "Way-V":[], "Ray-V":[], "Modulex":[]}
+global_cc_maps = {"Euphoria":[], "Way-V":[], "Ray-V":[], "Modulex":[]}
+
+def pydaw_get_cc_num_from_name(a_plugin_name, a_control_name):
+    """ A workaround for the obnoxious dict bug where 2 similar but different input string keys
+    overwrite the same value"""
+    f_result = 1
+    f_list = global_cc_maps[str(a_plugin_name)]
+    f_control_name = str(a_control_name)
+    for f_tuple in f_list:
+        if f_tuple[0] == f_control_name:
+            return f_tuple[1]
+    return f_result
 
 class pydaw_cc_map_editor:
     def on_save(self):
@@ -5611,15 +5623,17 @@ Any additional text must be enclosed in quotation marks."
             if not re.match(r'[0-1][0-9][0-9]-[0-9][0-9][0-9] "*"', f_line) is None:
                 f_line_arr = f_line.split("-")
                 f_cc_num = f_line_arr[0]
-                f_line_arr2 = f_line_arr[1].split(" ", 1)
-                f_ladspa_port = f_line_arr2[0]
+                f_line_arr2 = f_line_arr[1].split('"')
+                f_ladspa_port = f_line_arr2[0].strip()
                 if f_ladspa_port != "000":
-                    f_desc = f_line_arr2[1].strip('"')
+                    f_desc = str(f_line_arr2[1])
                     self.cc_table.setItem(f_row_index, 0, QtGui.QTableWidgetItem(f_cc_num))
                     self.cc_table.setItem(f_row_index, 1, QtGui.QTableWidgetItem(f_desc))
                     self.cc_table.setItem(f_row_index, 2, QtGui.QTableWidgetItem(f_ladspa_port))
-                    global_cc_maps[f_name][f_desc] = f_cc_num
+                    global_cc_maps[f_name].append((f_desc, int(f_cc_num)))
+                    global_cc_names[f_name].append(f_desc)
                     f_row_index += 1
+        global_cc_names[f_name].sort()
 
 def set_default_project(a_project_path):
     f_def_file = expanduser("~") + "/" + global_pydaw_version_string + "/last-project.txt"
