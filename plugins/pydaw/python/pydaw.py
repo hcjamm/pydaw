@@ -65,6 +65,16 @@ def pydaw_get_region_length(a_region_index):
     else:
         return 8
 
+def pydaw_get_diff_in_bars(a_start_reg, a_start_bar, a_start_beat, a_end_reg, a_end_bar, a_end_beat):
+    """ Calculate the difference in bars, ie: 10.567 bars, between 2 points """
+    f_result = 0.0
+    for i in range(a_start_reg, a_end_reg):
+        f_result += pydaw_get_region_length(i)
+    f_result += (a_end_bar - a_start_bar)
+    f_result += (a_end_beat - a_start_beat) * 0.25
+    print("pydaw_get_diff_in_bars: " + str(f_result))
+    return f_result
+
 def pydaw_print_generic_exception(a_ex):
     f_error = str(type(a_ex)) + " exception:" + a_ex.message
     QtGui.QMessageBox.warning(this_main_window, "Warning", "The following error happened:\n" + f_error + \
