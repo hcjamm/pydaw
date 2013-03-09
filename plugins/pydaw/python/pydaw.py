@@ -1854,6 +1854,18 @@ class song_automation_viewer(QtGui.QGraphicsView):
         self.connect_points()
 
 
+def pydaw_smooth_song_automation_points(a_item, a_cc_num):
+    f_cc_list = []
+    for f_cc in a_item.items:
+        if f_cc.cc == a_cc_num:
+            f_cc_list.append(f_cc)
+    for f_cc in f_cc_list:
+        a_item.items.remove(f_cc)
+    for i in range(len(f_cc_list) - 1):
+        f_cc1 = f_cc_list[i]
+        f_cc2 = f_cc_list[i + 1]
+        a_item.draw_cc_line(a_cc_num, f_cc1.value, f_cc1.region, f_cc1.bar, f_cc1.beat, f_cc2.value, f_cc2.region, f_cc2.bar, f_cc2.beat)
+    this_song_level_automation_widget.save_and_load("Smooth song level automation for CC " + str(a_cc_num))
 
 
 class song_level_automation_widget:
@@ -1919,6 +1931,8 @@ class song_level_automation_widget:
         self.ccs_groupbox.setMaximumWidth(510)
         self.ccs_groupbox.setMinimumWidth(510)
 
+        self.edit_hlayout = QtGui.QHBoxLayout()
+        self.edit_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
         self.edit_mode_groupbox = QtGui.QGroupBox()
         self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
         self.edit_mode_hlayout0.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
@@ -1931,7 +1945,8 @@ class song_level_automation_widget:
         self.edit_mode_hlayout0.addWidget(self.delete_radiobutton)
         self.add_radiobutton.setChecked(True)
 
-        self.ccs_vlayout.addWidget(self.edit_mode_groupbox)
+        self.edit_hlayout.addWidget(self.edit_mode_groupbox)
+        self.ccs_vlayout.addLayout(self.edit_hlayout)
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.ccs_table_widget.setColumnCount(5)
@@ -3237,7 +3252,10 @@ class automation_viewer_widget:
 
     def smooth_pressed(self):
         if self.is_cc:
-            pydaw_smooth_automation_points(this_item_editor.items, self.is_cc, self.cc_spinbox.value())
+            if self.is_song_level:
+                pydaw_smooth_song_automation_points(this_song_level_automation_widget.item, self.cc_spinbox.value())
+            else:
+                pydaw_smooth_automation_points(this_item_editor.items, self.is_cc, self.cc_spinbox.value())
         else:
             pydaw_smooth_automation_points(this_item_editor.items, self.is_cc)
         this_item_editor.save_and_reload()
@@ -3280,11 +3298,10 @@ class automation_viewer_widget:
             self.hlayout.addWidget(QtGui.QLabel("In Use:"))
             self.hlayout.addWidget(self.ccs_in_use_combobox)
 
-        if not a_is_song_level:
-            self.smooth_button = QtGui.QPushButton("Smooth")
-            self.smooth_button.setToolTip("By default, the control points are steppy, this button draws extra points between the exisiting points.")
-            self.smooth_button.pressed.connect(self.smooth_pressed)
-            self.hlayout.addWidget(self.smooth_button)
+        self.smooth_button = QtGui.QPushButton("Smooth")
+        self.smooth_button.setToolTip("By default, the control points are steppy, this button draws extra points between the exisiting points.")
+        self.smooth_button.pressed.connect(self.smooth_pressed)
+        self.hlayout.addWidget(self.smooth_button)
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
 
