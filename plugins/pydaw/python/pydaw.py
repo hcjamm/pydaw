@@ -3190,21 +3190,24 @@ class automation_viewer_widget:
     def plugin_changed(self, a_val=None):
         self.control_combobox.clear()
         if self.is_song_level:
-            self.control_combobox.addItems(global_cc_maps["Modulex"].keys())
+            self.control_combobox.addItems([""] + global_cc_maps["Modulex"].keys())
         else:
-            self.control_combobox.addItems(global_cc_maps[str(self.plugin_combobox.currentText())].keys())
+            self.control_combobox.addItems([""] + global_cc_maps[str(self.plugin_combobox.currentText())].keys())
 
     def control_changed(self, a_val=None):
         if self.is_song_level:
             f_control_str = str(self.control_combobox.currentText())
             if f_control_str != '':
                 f_value = int(global_cc_maps["Modulex"][f_control_str])
+                self.cc_spinbox.setValue(f_value)
+                self.ccs_in_use_combobox.setCurrentIndex(0)
         else:
             f_plugin_str = str(self.plugin_combobox.currentText())
             f_control_str = str(self.control_combobox.currentText())
             if f_plugin_str != '' and f_control_str != '':
                 f_value = int(global_cc_maps[f_plugin_str][f_control_str])
                 self.cc_spinbox.setValue(f_value)
+                self.ccs_in_use_combobox.setCurrentIndex(0)
 
     def cc_num_changed(self, a_val=None):
         self.set_cc_num(self.cc_spinbox.value())
@@ -3219,6 +3222,7 @@ class automation_viewer_widget:
             f_str = str(self.ccs_in_use_combobox.currentText())
             if f_str != "":
                 self.set_cc_num(f_str)
+                self.control_combobox.setCurrentIndex(0)
 
     def update_ccs_in_use(self, a_ccs):
         self.suppress_ccs_in_use = True
