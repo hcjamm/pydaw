@@ -1086,20 +1086,24 @@ class audio_items_viewer_widget():
             f_items = this_pydaw_project.get_audio_items()
             test = pydaw_audio_items()
             test.get_next_index
+            if len(f_file_names) == 0:
+                return
             for f_file_name in f_file_names:
-                if not f_file_name is None and not f_file_name == "":
+                f_file_name_str = str(f_file_name)
+                if not f_file_name_str is None and not f_file_name_str == "":
                     f_index = f_items.get_next_index()
                     if f_index == -1:
                         QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
                         break
                     else:
-                        global_sample_graph_create_and_wait(f_file_name, f_graphs)
-                        f_item = pydaw_audio_item(f_file_name)
+                        global_sample_graph_create_and_wait(f_file_name_str, f_graphs)
+                        f_item = pydaw_audio_item(f_file_name_str)
                         f_items.add_item(f_index, f_item)
                         this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(f_index, f_item)
             this_pydaw_project.save_audio_items(f_items)
             this_audio_editor.open_items()
             this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(f_index)
+            self.last_open_dir = os.path.dirname(f_file_name_str)
         except Exception as ex:
             pydaw_print_generic_exception(ex)
 
