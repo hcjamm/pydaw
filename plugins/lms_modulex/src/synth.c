@@ -151,26 +151,26 @@ static LADSPA_Handle g_modulex_instantiate(const LADSPA_Descriptor * descriptor,
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX3_KNOB1, 103, "FX3Knob1");
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX3_KNOB2, 104, "FX3Knob2");
     
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX4_KNOB0, 105, "FX0Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX4_KNOB1, 106, "FX0Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX4_KNOB2, 107, "FX0Knob2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX4_KNOB0, 105, "FX4Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX4_KNOB1, 106, "FX4Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX4_KNOB2, 107, "FX4Knob2");
     
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX5_KNOB0, 108, "FX1Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX5_KNOB1, 109, "FX1Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX5_KNOB2, 110, "FX1Knob2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX5_KNOB0, 108, "FX5Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX5_KNOB1, 109, "FX5Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX5_KNOB2, 110, "FX5Knob2");
     
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX6_KNOB0, 111, "FX2Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX6_KNOB1, 112, "FX2Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX6_KNOB2, 113, "FX2Knob2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX6_KNOB0, 111, "FX6Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX6_KNOB1, 112, "FX6Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX6_KNOB2, 113, "FX6Knob2");
     
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX7_KNOB0, 114, "FX3Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX7_KNOB1, 115, "FX3Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX7_KNOB2, 116, "FX3Knob2");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX7_KNOB0, 114, "FX7Knob0");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX7_KNOB1, 115, "FX7Knob1");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX7_KNOB2, 116, "FX7Knob2");
     
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_WET, 117, "Delay Wet");
     v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_DRY, 118, "Delay Dry");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FEEDBACK, 117, "Delay Feedback");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_CUTOFF, 118, "Delay Cutoff");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FEEDBACK, 119, "Delay Feedback");
+    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_CUTOFF, 120, "Delay Cutoff");
     
     
     v_ccm_read_file_to_array(plugin_data->midi_cc_map, "lms_modulex-cc_map.txt");
