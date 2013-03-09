@@ -1617,11 +1617,10 @@ global_song_automation_ruler_width = 24.0
 global_song_automation_bar_size_px = 100.0
 global_song_automation_reg_size_px = global_song_automation_bar_size_px * 8.0
 
-global_song_automation_width = 300 * 8
 global_song_automation_height = 300
 
 global_song_automation_total_height = global_song_automation_ruler_width +  global_song_automation_height - global_song_automation_point_radius
-global_song_automation_total_width = global_song_automation_ruler_width + (global_song_automation_width * global_song_automation_bar_size_px)  - global_song_automation_point_radius
+global_song_automation_total_width = global_song_automation_ruler_width + (300 * 8 * global_song_automation_bar_size_px)  - global_song_automation_point_radius
 global_song_automation_min_height = global_song_automation_ruler_width - global_song_automation_point_radius
 
 global_song_automation_gradient = QtGui.QLinearGradient(0, 0, global_song_automation_point_diameter, global_song_automation_point_diameter)
@@ -1765,6 +1764,8 @@ class song_automation_viewer(QtGui.QGraphicsView):
         self.scene.addItem(self.y_axis)
 
     def draw_grid(self):
+        global global_song_automation_total_width
+        global_song_automation_total_width = global_song_automation_ruler_width + (global_bar_count * global_song_automation_bar_size_px)  - global_song_automation_point_radius
         f_pen = QtGui.QPen()
         f_pen.setWidth(2)
         f_4_pen = QtGui.QPen()
