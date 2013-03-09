@@ -1859,8 +1859,8 @@ def pydaw_smooth_song_automation_points(a_item, a_cc_num):
     for f_cc in a_item.items:
         if f_cc.cc == a_cc_num:
             f_cc_list.append(f_cc)
-    for f_cc in f_cc_list:
-        a_item.items.remove(f_cc)
+    #for f_cc in f_cc_list:
+    #    a_item.items.remove(f_cc)
     for i in range(len(f_cc_list) - 1):
         f_cc1 = f_cc_list[i]
         f_cc2 = f_cc_list[i + 1]

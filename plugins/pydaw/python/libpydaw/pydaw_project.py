@@ -1580,6 +1580,9 @@ class pydaw_song_level_ccs:
         f_end = float(((a_end_region * 8 * 4) + (a_end_bar * 4))) + a_end_beat
         f_end_val = int(a_end_val)
 
+        if abs(f_start_val - f_end_val) < 3:
+            return
+
         f_first_cc = pydaw_song_level_cc(a_start_region, a_start_bar, a_start_beat, a_cc, a_start_val)
         f_last_cc = pydaw_song_level_cc(a_end_region, a_end_bar, a_end_beat, a_cc, a_end_val)
         #Remove any events that would overlap
