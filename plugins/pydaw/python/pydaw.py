@@ -1910,6 +1910,7 @@ def pydaw_smooth_song_automation_points(a_item, a_cc_num):
         for i in range(f_cc1.value + f_inc, f_cc2.value, f_inc):
             f_region, f_bar, f_beat = pydaw_add_diff_in_bars(f_region, f_bar, f_beat, f_time_inc)
             a_item.items.append(pydaw_song_level_cc(f_region, f_bar, f_beat, a_cc_num, i))
+    a_item.items.sort()
     this_song_level_automation_widget.save_and_load("Smooth song level automation for CC " + str(a_cc_num))
 
 
