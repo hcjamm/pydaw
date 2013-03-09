@@ -1612,7 +1612,7 @@ class audio_list_editor:
 global_song_automation_point_diameter = 15.0
 global_song_automation_point_radius = global_song_automation_point_diameter * 0.5
 global_song_automation_ruler_width = 24.0
-global_song_automation_bar_size_px = 30.0
+global_song_automation_bar_size_px = 100.0
 global_song_automation_reg_size_px = global_song_automation_bar_size_px * 8.0
 
 global_song_automation_width = 300 * 8
