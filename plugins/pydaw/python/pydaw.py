@@ -1669,7 +1669,6 @@ def global_song_automation_pos_to_px(a_reg, a_bar, a_beat):
 
 def global_song_automation_px_to_pos(a_px):
     f_bar_count = (a_px - global_song_automation_ruler_width + global_song_automation_point_radius) / global_song_automation_bar_size_px
-    print "f_bar_count", f_bar_count
     f_reg = 0
     f_bar = 0
     f_beat = 0.0
