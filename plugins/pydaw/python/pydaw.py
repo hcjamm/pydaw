@@ -1068,6 +1068,7 @@ class audio_items_viewer_widget():
                         this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(f_index, f_item)
             this_pydaw_project.save_audio_items(f_items)
             this_audio_editor.open_items()
+            this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(f_index)
         except Exception as ex:
             pydaw_print_generic_exception(ex)
 
@@ -1481,6 +1482,7 @@ class audio_item_editor_widget:
         this_audio_editor.audio_items.remove_item(f_index)
         this_pydaw_project.save_audio_items(this_audio_editor.audio_items)
         this_audio_editor.open_items()
+        self.open_item(None)
 
     def sample_start_changed(self, a_val=None):
         pass
