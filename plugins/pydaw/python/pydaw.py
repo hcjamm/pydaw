@@ -2478,6 +2478,8 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.resize_start_pos = self.note_item.start
         if global_selected_piano_note is not None and a_note_item == global_selected_piano_note:
             self.is_resizing = True
+            this_piano_roll_editor.click_enabled = True
+            QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BlankCursor))
         else:
             self.is_resizing = False
         self.resize_rect = self.rect()
@@ -2521,6 +2523,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             self.setBrush(pydaw_note_selected_gradient)
             self.o_pos = self.pos()
             if self.mouse_is_at_end(a_event.pos()):
+                QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.BlankCursor))
                 self.is_resizing = True
                 self.mouse_y_pos = QtGui.QCursor.pos().y()
                 self.resize_last_mouse_pos = a_event.pos().x()
