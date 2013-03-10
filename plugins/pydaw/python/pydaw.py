@@ -2517,12 +2517,16 @@ def pydaw_set_piano_roll_quantize(a_index):
         global_piano_roll_snap = True
 
     if a_index == 1:
-        global_piano_roll_snap_divisor = 16.0
+        global_piano_roll_snap_divisor = 64.0
     elif a_index == 2:
-        global_piano_roll_snap_divisor =  12.0
+        global_piano_roll_snap_divisor = 32.0
     elif a_index == 3:
-        global_piano_roll_snap_divisor =  8.0
+        global_piano_roll_snap_divisor = 16.0
     elif a_index == 4:
+        global_piano_roll_snap_divisor =  12.0
+    elif a_index == 5:
+        global_piano_roll_snap_divisor =  8.0
+    elif a_index == 6:
         global_piano_roll_snap_divisor =  4.0
 
     global_piano_roll_snap_beats = 4.0 / global_piano_roll_snap_divisor
@@ -2970,11 +2974,11 @@ class piano_roll_editor_widget():
         self.vlayout.addWidget(this_piano_roll_editor)
         self.snap_combobox = QtGui.QComboBox()
         self.snap_combobox.setMinimumWidth(150)
-        self.snap_combobox.addItems(["None", "1/4", "1/3", "1/2", "1"])
-        self.controls_grid_layout.addWidget(QtGui.QLabel("Snap (beats):"), 0, 0)
+        self.snap_combobox.addItems(["None", "1/64", "1/32", "1/16", "1/12", "1/8", "1/4"])
+        self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
-        self.snap_combobox.setCurrentIndex(1)
+        self.snap_combobox.setCurrentIndex(3)
         #self.h_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         #self.h_zoom_slider.setRange(0, 100)
         #self.h_zoom_slider.setMaximumWidth(600)
