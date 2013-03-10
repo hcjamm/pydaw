@@ -5007,6 +5007,7 @@ class transport_widget:
                         this_region_editor.open_region(f_item.text())
                     else:
                         this_region_editor.clear_items()
+            f_new_bar_value = 0
             self.bar_spinbox.setValue(0)
             self.trigger_audio_playback()
         else:
