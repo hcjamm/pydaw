@@ -256,13 +256,15 @@ class song_editor:
         self.open_song()
 
 class region_list_editor:
-    def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num):
+    def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num, a_selected=False):
         """ Adds a properly formatted item.  This is not for creating empty items... """
         f_qtw_item = QtGui.QTableWidgetItem(a_name)
         f_qtw_item.setBackground(pydaw_track_gradients[a_track_num])
         f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
         f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
         self.table_widget.setItem(a_track_num, a_bar_num + 1, f_qtw_item)
+        if a_selected:
+            f_qtw_item.setSelected(True)
 
     def clear_new(self):
         """ Reset the region editor state to empty """
@@ -375,11 +377,12 @@ class region_list_editor:
 
     def show_cell_dialog(self, x, y):
         def note_ok_handler():
+            self.table_widget.clearSelection()
             if (f_new_radiobutton.isChecked() and f_item_count.value() == 1):
                 f_cell_text = str(f_new_lineedit.text())
                 this_pydaw_project.create_empty_item(f_cell_text)
                 this_item_editor.open_item([f_cell_text])
-                self.add_qtablewidgetitem(f_cell_text, x, y - 1)
+                self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 self.region.add_item_ref(x, y - 1, f_cell_text)
                 this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             elif f_new_radiobutton.isChecked() and f_item_count.value() > 1:
@@ -392,19 +395,19 @@ class region_list_editor:
                     f_item_name = f_cell_text + "-" + str(f_name_suffix)
                     f_item_list.append(f_item_name)
                     this_pydaw_project.create_empty_item(f_item_name)
-                    self.add_qtablewidgetitem(f_item_name, x, y - 1 + i)
+                    self.add_qtablewidgetitem(f_item_name, x, y - 1 + i, True)
                     self.region.add_item_ref(x, y - 1 + i, f_item_name)
                 this_item_editor.open_item(f_item_list)
                 this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
-                self.add_qtablewidgetitem(f_cell_text, x, y - 1)
+                self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 self.region.add_item_ref(x, y - 1, f_cell_text)
                 this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             elif f_copy_from_radiobutton.isChecked():
                 f_cell_text = str(f_new_lineedit.text())
                 this_pydaw_project.copy_item(str(f_copy_combobox.currentText()), f_cell_text)
-                self.add_qtablewidgetitem(f_cell_text, x, y - 1)
+                self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 self.region.add_item_ref(x, y - 1, f_cell_text)
                 this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
 
