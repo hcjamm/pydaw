@@ -2592,7 +2592,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def mouseDoubleClickEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
-        this_item_editor.notes_show_event_dialog(None, None, self.note_item)
+        this_item_editor.notes_show_event_dialog(None, None, self.note_item, self.item_index)
 
     def mousePressEvent(self, a_event):
         a_event.setAccepted(True)
@@ -2664,7 +2664,6 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                         f_item.resize_rect.setWidth(f_adjusted_width)
                         f_item.setRect(f_item.resize_rect)
                     f_new_note_length = ((f_pos_x + f_item.rect().width() - global_piano_keys_width) * 0.001 * 4.0) - f_item.resize_start_pos
-                    print "f_new_note_length1", f_new_note_length
                     if global_selected_piano_note is not None and self.note_item != global_selected_piano_note:
                         f_new_note_length -= (self.item_index * 4.0)
                     #if global_piano_roll_snap:
@@ -2672,13 +2671,9 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     #    f_new_note_length = round(f_new_note_length * global_piano_roll_snap_divisor_beats) / global_piano_roll_snap_divisor_beats
                     #    print "f_new_note_length", f_new_note_length
                     if global_piano_roll_snap and f_new_note_length < global_piano_roll_snap_beats:
-                        print "global_piano_roll_snap and f_new_note_length < global_piano_roll_snap_beats:"
-                        print "global_piano_roll_snap_beats", global_piano_roll_snap_beats
                         f_new_note_length = global_piano_roll_snap_beats
                     elif f_new_note_length < pydaw_min_note_length:
-                        print "f_new_note_length < pydaw_min_note_length:"
                         f_new_note_length = pydaw_min_note_length
-                    print "f_new_note_length2", f_new_note_length
                     f_item.note_item.set_length(f_new_note_length)
                 else:
                     this_item_editor.items[f_item.item_index].notes.remove(f_item.note_item)
@@ -4334,11 +4329,14 @@ class item_list_editor:
             self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Delete pitchbend from item '" + self.item_name + "'")
 
-    def notes_show_event_dialog(self, x, y, a_note=None):
+    def notes_show_event_dialog(self, x, y, a_note=None, a_index=None):
         if a_note is not None:
             self.is_existing_note = True
             f_note_item = a_note
-            f_note_index, f_note_item.start = pydaw_beats_to_index( f_note_item.start)
+            if a_index is None:
+                f_note_index, f_note_item.start = pydaw_beats_to_index( f_note_item.start)
+            else:
+                f_note_index = a_index
             self.default_note_start = f_note_item.start
             self.default_note_length = f_note_item.length
             self.default_note_note = f_note_item.note_num % 12
@@ -4363,10 +4361,10 @@ class item_list_editor:
             f_length_rounded = time_quantize_round(f_length.value())
             f_new_note = pydaw_note(f_start_rounded, f_length_rounded, f_note_value, f_velocity.value())
 
-            if self.is_existing_note and not a_note is None:
+            if self.is_existing_note and a_note is not None:
                 self.items[f_note_index].remove_note(f_note_item)
-                f_item_index = self.add_note(f_new_note)
-                this_pydaw_project.save_item(self.item_names[f_item_index], self.items[f_item_index])
+                self.items[f_note_index].add_note(f_new_note)
+                this_pydaw_project.save_item(self.item_names[f_note_index], self.items[f_note_index])
             elif self.is_existing_note and a_note is None:
                 self.item.remove_note(f_note_item)
                 self.item.add_note(f_new_note)
