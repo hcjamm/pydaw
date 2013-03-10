@@ -3062,7 +3062,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     f_point.cc_item.start = f_cc_start
                     f_point.cc_item.set_val(f_cc_val)
                     this_item_editor.items[f_point.item_index].ccs.append(f_point.cc_item)
-                    this_item_editor.items[f_point.item_index].sort()
+                    this_item_editor.items[f_point.item_index].ccs.sort()
                 else:
                     this_item_editor.items[f_point.item_index].pitchbends.remove(f_point.cc_item)
                     f_point.item_index = f_new_item_index
