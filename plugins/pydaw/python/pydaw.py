@@ -5136,14 +5136,26 @@ class transport_widget:
         self.suppress_osc = False
 
 class pydaw_main_window(QtGui.QMainWindow):
+    def check_for_empty_directory(self, a_file):
+        """ Return true if directory is empty, show error message and return False if not """
+        f_parent_dir = os.path.dirname(a_file)
+        if not os.listdir(f_parent_dir) == []:
+            QtGui.QMessageBox.warning(self, "Error", "You must save the project file to an empty directory, use the 'Create Folder' button to create a directory.")
+            return False
+        else:
+            return True
     def on_new(self):
         try:
-            f_file = QtGui.QFileDialog.getSaveFileName(parent=self ,caption='New Project', directory=expanduser("~"), filter=global_pydaw_file_type_string)
-            if not f_file is None and not str(f_file) == "":
-                f_file = str(f_file)
-                if not f_file.endswith("." + global_pydaw_version_string):
-                    f_file += "." + global_pydaw_version_string
-                global_new_project(f_file)
+            while True:
+                f_file = QtGui.QFileDialog.getSaveFileName(parent=self ,caption='New Project', directory=expanduser("~"), filter=global_pydaw_file_type_string)
+                if not f_file is None and not str(f_file) == "":
+                    f_file = str(f_file)
+                    if not self.check_for_empty_directory(f_file):
+                        continue
+                    if not f_file.endswith("." + global_pydaw_version_string):
+                        f_file += "." + global_pydaw_version_string
+                    global_new_project(f_file)
+                break
         except Exception as ex:
                 pydaw_print_generic_exception(ex)
     def on_open(self):
@@ -5162,14 +5174,20 @@ class pydaw_main_window(QtGui.QMainWindow):
         this_pydaw_project.save_project()
     def on_save_as(self):
         try:
-            f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", directory=expanduser("~") + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
-            if not f_new_file is None and not str(f_new_file) == "":
-                f_new_file = str(f_new_file)
-                if not f_new_file.endswith("." + global_pydaw_version_string):
-                    f_new_file += "." + global_pydaw_version_string
-                this_pydaw_project.save_project_as(f_new_file)
-                set_window_title()
-                set_default_project(f_new_file)
+            while True:
+                f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", directory=expanduser("~") + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
+                if not f_new_file is None and not str(f_new_file) == "":
+                    f_new_file = str(f_new_file)
+                    if not self.check_for_empty_directory(f_new_file):
+                        continue
+                    if not f_new_file.endswith("." + global_pydaw_version_string):
+                        f_new_file += "." + global_pydaw_version_string
+                    this_pydaw_project.save_project_as(f_new_file)
+                    set_window_title()
+                    set_default_project(f_new_file)
+                    break
+                else:
+                    break
         except Exception as ex:
                 pydaw_print_generic_exception(ex)
 
