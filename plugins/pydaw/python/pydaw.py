@@ -920,6 +920,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         this_pydaw_project.this_dssi_gui.pydaw_update_single_audio_item(self.track_num, f_item)
         self.audio_item = f_item
         this_audio_editor.open_items(False)
+        if this_audio_item_editor_widget.selected_index_combobox.currentIndex() == self.track_num:
+            this_audio_item_editor_widget.open_item(f_item)
 
 class audio_items_viewer(QtGui.QGraphicsView):
     def __init__(self):
@@ -1461,7 +1463,6 @@ class audio_item_editor_widget:
                     self.sample_view.draw_item(f_path_list.create_sample_graph(True), a_item.sample_start, a_item.sample_end)
                 else:
                     QtGui.QMessageBox.warning(self, "Error", "Could not generate sample graph")
-
 
     def ok_handler(self):
         if global_transport_is_playing:
