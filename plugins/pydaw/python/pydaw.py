@@ -2769,6 +2769,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             self.unhighlight_selected()
 
     def sceneMousePressEvent(self, a_event):
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
             a_event.setAccepted(True)
@@ -3031,7 +3032,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
 
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mousePressEvent(self, a_event)
-        self.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
+        #self.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mouseMoveEvent(self, a_event)
