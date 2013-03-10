@@ -2845,17 +2845,31 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     f_key.setBrush(QtGui.QColor(255,255,255))
 
     def draw_grid(self):
+        f_black_key_brush = QtGui.QBrush(QtGui.QColor(60, 60, 60, 60))
+        f_white_key_brush = QtGui.QBrush(QtGui.QColor(210, 210, 210, 30))
+        f_c_brush = QtGui.QBrush(QtGui.QColor(250, 231, 231, 60))
+        f_octave_brushes = [f_c_brush, f_black_key_brush, f_white_key_brush, \
+        f_black_key_brush , f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
+        f_white_key_brush, f_black_key_brush, f_white_key_brush]
+        f_current_key = 0
+        f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.note_height, self.piano)
+        f_note_bar.setBrush(f_c_brush)
+        f_note_bar.setPos(self.piano_width + self.padding,  0.0)
         for i in range(self.end_octave-self.start_octave, self.start_octave-self.start_octave, -1):
             for j in range(self.notes_in_octave, 0, -1):
                 f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.note_height, self.piano)
-                f_note_bar.setPos(self.piano_width + self.padding,  self.note_height*(j) + self.octave_height*(i-1))
+                f_note_bar.setBrush(f_octave_brushes[f_current_key])
+                f_current_key += 1
+                if f_current_key >= len(f_octave_brushes):
+                    f_current_key = 0
+                f_note_bar.setPos(self.piano_width + self.padding,  self.note_height * (j) + self.octave_height * (i-1))
         f_beat_pen = QtGui.QPen()
         f_beat_pen.setWidth(2)
         f_bar_pen = QtGui.QPen()
-        f_bar_pen.setWidth(2)
-        f_bar_pen.setColor(QtGui.QColor(224, 60, 60))
+        f_bar_pen.setWidth(3.0)
+        f_bar_pen.setColor(QtGui.QColor(240, 30, 30))
         f_line_pen = QtGui.QPen()
-        f_line_pen.setColor(QtGui.QColor(0,0,0,40))
+        f_line_pen.setColor(QtGui.QColor(0, 0, 0))
         for i in range(0, int(self.item_length) + 1):
             f_beat = QtGui.QGraphicsLineItem(0, 0, 0, self.piano_height+self.header_height-f_beat_pen.width(), self.header)
             f_beat.setPos(self.beat_width * i, 0.5 * f_beat_pen.width())
@@ -2872,9 +2886,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     f_line = QtGui.QGraphicsLineItem(0, 0, 0, self.piano_height, self.header)
                     if float(j) == self.grid_div / 2.0:
                         f_line.setLine(0, 0, 0, self.piano_height)
-                        f_line.setPos((self.beat_width*i)+(self.value_width*j), self.header_height)
+                        f_line.setPos((self.beat_width * i) + (self.value_width * j), self.header_height)
                     else:
-                        f_line.setPos((self.beat_width*i)+(self.value_width*j), self.header_height)
+                        f_line.setPos((self.beat_width * i) + (self.value_width * j), self.header_height)
                         f_line.setPen(f_line_pen)
 
     def set_zoom(self, a_scale):
