@@ -140,7 +140,14 @@ class pydaw_project:
         move(f_new_project_folder + "/" + self.project_file + ".pydaw2", a_file_name)
         self.set_project_folders(f_file_name)
         self.this_dssi_gui.pydaw_open_song(self.project_folder)
-        self.git_repo.repo_dir = self.project_folder
+        #self.git_repo.repo_dir = self.project_folder
+        self.git_repo = pydaw_git_repo(self.project_folder)
+        self.git_repo.git_init()
+        f_git_ignore_file = self.project_folder + "/.gitignore"
+        if not os.path.exists(f_git_ignore_file):
+            f_file = open(f_git_ignore_file, 'w')
+            f_file.write("default.pygraphs\nsamplegraph/*.pygraph\nsamples/*\naudio/*\n")
+            f_file.close()
 
     def set_project_folders(self, a_project_file):
         self.project_folder = os.path.dirname(a_project_file)
