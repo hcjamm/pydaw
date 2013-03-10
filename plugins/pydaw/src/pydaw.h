@@ -4798,15 +4798,16 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         {
             case 0:  //MIDI
                 a_pydaw_data->track_pool[f_track_num]->solo = f_mode;
+                a_pydaw_data->track_pool[f_track_num]->current_period_event_index = 0;
                 break;
             case 2:  //Audio
                 a_pydaw_data->audio_track_pool[f_track_num]->solo = f_mode;
+                a_pydaw_data->audio_track_pool[f_track_num]->current_period_event_index = 0;
                 break;
             default:
                 assert(0);
                 break;
-        }
-        
+        }        
         v_pydaw_set_is_soloed(a_pydaw_data);
         
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
@@ -4826,9 +4827,11 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         {
             case 0:  //MIDI
                 a_pydaw_data->track_pool[f_track_num]->mute = f_mode;
+                a_pydaw_data->track_pool[f_track_num]->current_period_event_index = 0;
                 break;
             case 2:  //Audio
                 a_pydaw_data->audio_track_pool[f_track_num]->mute = f_mode;
+                a_pydaw_data->audio_track_pool[f_track_num]->current_period_event_index = 0;
                 break;
             default:
                 assert(0);
