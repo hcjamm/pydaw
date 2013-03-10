@@ -192,7 +192,9 @@ class song_editor:
         else:
             this_region_editor.open_region(str(f_cell.text()))
             if not f_is_playing:
+                this_region_editor.table_widget.clearSelection()
                 this_transport.region_spinbox.setValue(y)
+                this_transport.bar_spinbox.setValue(0)
 
     def __init__(self):
         self.song = pydaw_song()
