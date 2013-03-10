@@ -2666,10 +2666,6 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     f_new_note_length = ((f_pos_x + f_item.rect().width() - global_piano_keys_width) * 0.001 * 4.0) - f_item.resize_start_pos
                     if global_selected_piano_note is not None and self.note_item != global_selected_piano_note:
                         f_new_note_length -= (self.item_index * 4.0)
-                    #if global_piano_roll_snap:
-                    #    print "global_piano_roll_snap:"
-                    #    f_new_note_length = round(f_new_note_length * global_piano_roll_snap_divisor_beats) / global_piano_roll_snap_divisor_beats
-                    #    print "f_new_note_length", f_new_note_length
                     if global_piano_roll_snap and f_new_note_length < global_piano_roll_snap_beats:
                         f_new_note_length = global_piano_roll_snap_beats
                     elif f_new_note_length < pydaw_min_note_length:
@@ -2684,15 +2680,15 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                     f_item.note_item.note_num = f_new_note_num
                     this_item_editor.items[f_item.item_index].notes.append(f_item.note_item)
                     this_item_editor.items[f_item.item_index].notes.sort()
-        for f_item in this_piano_roll_editor.note_items:
-            f_item.is_resizing = False
         for f_item in this_item_editor.items:
             f_item.fix_overlaps()
+        global_selected_piano_note = None
         this_item_editor.save_and_reload()
+        for f_item in this_piano_roll_editor.note_items:
+            f_item.is_resizing = False
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.showing_resize_cursor = False
         this_piano_roll_editor.click_enabled = True
-        global_selected_piano_note = None
 
 class piano_key_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_piano_width, a_note_height, a_parent):
