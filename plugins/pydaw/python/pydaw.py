@@ -3082,6 +3082,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     this_item_editor.items[f_point.item_index].pitchbends.append(f_point.cc_item)
                     this_item_editor.items[f_point.item_index].pitchbends.sort()
         this_item_editor.save_and_reload()
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
 
 class automation_viewer(QtGui.QGraphicsView):
     def __init__(self, a_item_length=4, a_grid_div=16, a_is_cc=True):
