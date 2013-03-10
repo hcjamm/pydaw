@@ -3,7 +3,7 @@
 A class that contains methods and data for a PyDAW project.
 """
 
-import os, random
+import os, random, traceback
 from shutil import copyfile, move
 from time import sleep
 
@@ -842,7 +842,12 @@ class pydaw_item:
         return True
 
     def remove_note(self, a_note):
-        self.notes.remove(a_note)
+        try:
+            self.notes.remove(a_note)
+        except Exception as ex:
+            print("\n\n\nException in remove_note:" + ex.message)
+            print(repr(traceback.extract_stack()))
+            print("\n\n\n")
 
     def velocity_mod(self, a_amt, a_start_beat=0.0, a_end_beat=4.0, a_line=False, a_end_amt=127, a_add=False, a_notes=None):
         """ velocity_mod
