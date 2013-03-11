@@ -5025,8 +5025,8 @@ class transport_widget:
             return  #Looping a single bar doesn't require these values to update
         f_new_bar_value = self.bar_spinbox.value() + 1
         f_region_length = pydaw_get_region_length(self.region_spinbox.value())
-        if f_new_bar_value >= f_region_length:
-            if self.loop_mode_combobox.currentIndex() != 2:
+        if self.loop_mode_combobox.currentIndex() != 2:
+            if f_new_bar_value >= f_region_length:
                 self.region_spinbox.setValue(self.region_spinbox.value() + 1)
                 self.bar_spinbox.setMaximum(pydaw_get_region_length(self.region_spinbox.value()))
                 if self.follow_checkbox.isChecked():
@@ -5035,14 +5035,12 @@ class transport_widget:
                         this_region_editor.open_region(f_item.text())
                     else:
                         this_region_editor.clear_items()
-            f_new_bar_value = 0
-            self.bar_spinbox.setValue(0)
-            self.trigger_audio_playback()
-        else:
-            self.bar_spinbox.setValue(f_new_bar_value)
+                f_new_bar_value = 0
+                self.trigger_audio_playback()
+        self.bar_spinbox.setValue(f_new_bar_value)
         if self.follow_checkbox.isChecked():
-            this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
             this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)
+            this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
 
     def open_transport(self, a_notify_osc=False):
         if not a_notify_osc:
