@@ -3431,6 +3431,8 @@ class item_list_editor:
         self.notes_table_widget.clearContents()
         self.pitchbend_table_widget.clearContents()
         this_piano_roll_editor.clear_drawn_items()
+        self.item = None
+        self.items = []
 
     def save_and_reload(self):
         for f_i in range(len(self.item_names)):
@@ -5712,6 +5714,16 @@ def global_close_all():
     this_item_editor.clear_new()
     this_song_editor.table_widget.clearContents()
     this_audio_editor.audio_items_table_widget.clearContents()
+    this_audio_items_viewer.clear_drawn_items()
+    this_pb_automation_viewer.clear_drawn_items()
+    for f_viewer in this_cc_automation_viewers:
+        f_viewer.clear_drawn_items()
+    for f_viewer in this_song_automation_viewers:
+        f_viewer.clear_drawn_items()
+    for f_widget in this_item_editor.cc_auto_viewers:
+        f_widget.update_ccs_in_use([])
+    for f_widget in this_song_level_automation_widget.cc_auto_viewers:
+        f_widget.update_ccs_in_use([])
 
 def global_ui_refresh_callback():
     """ Use this to re-open all existing items/regions/song in their editors when the files have been changed externally"""
