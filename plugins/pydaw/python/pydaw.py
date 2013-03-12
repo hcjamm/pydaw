@@ -617,6 +617,12 @@ class region_list_editor:
 
         def note_ok_handler():
             f_cell_text = str(f_new_lineedit.text())
+            if f_cell_text == f_current_item_text:
+                QtGui.QMessageBox.warning(self.group_box, "Error", "You must choose a different name than the original item")
+                return
+            if this_pydaw_project.item_exists(f_cell_text):
+                QtGui.QMessageBox.warning(self.group_box, "Error", "An item with this name already exists.")
+                return
             this_pydaw_project.copy_item(str(f_current_item.text()), str(f_new_lineedit.text()))
             this_item_editor.open_item([f_cell_text])
             self.last_item_copied = f_cell_text
@@ -636,7 +642,7 @@ class region_list_editor:
         f_window.setWindowTitle("Copy and unlink item...")
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
-        f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_item_name())
+        f_new_lineedit = QtGui.QLineEdit(f_current_item_text)
         f_new_lineedit.editingFinished.connect(on_name_changed)
         f_new_lineedit.setMaxLength(24)
         f_layout.addWidget(QtGui.QLabel("New name:"), 0, 0)
