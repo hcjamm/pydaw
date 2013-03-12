@@ -129,6 +129,7 @@ class song_editor:
         self.table_widget.setHorizontalHeaderLabels(f_headers_arr)
         pydaw_update_region_lengths_dict()
         this_audio_editor.open_items()
+        self.clipboard = []
 
     def cell_clicked(self, x, y):
         f_is_playing = False
@@ -273,6 +274,7 @@ class region_list_editor:
         self.enabled = False
         self.region_name_lineedit.setText("")
         self.region = None
+        self.clipboard = []
 
     def open_tracks(self):
         self.reset_tracks()
@@ -3433,6 +3435,9 @@ class item_list_editor:
         this_piano_roll_editor.clear_drawn_items()
         self.item = None
         self.items = []
+        self.notes_clipboard = []
+        self.ccs_clipboard = []
+        self.pbs_clipboard = []
 
     def save_and_reload(self):
         for f_i in range(len(self.item_names)):
