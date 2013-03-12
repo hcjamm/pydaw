@@ -1247,35 +1247,23 @@ void SamplerGUI::mapAllSamplesToOneWhiteKey()
 {
     int f_i = 0;
     int f_current_note = 36;
-    bool f_has_started = FALSE;
     
     int i_white_notes = 0;
     
     int f_white_notes[7] = {2,2,1,2,2,2,1};
     
     for(f_i = 0; f_i < EUPHORIA_MAX_SAMPLE_COUNT; f_i++)
-    {
-        QString f_current_string = (m_sample_table->lms_mod_matrix->item(f_i, SMP_TB_FILE_PATH_INDEX)->text());
-        
-        if(!f_current_string.isEmpty())
+    {        
+        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[f_i]))->lms_set_value(f_current_note);
+        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[f_i]))->lms_set_value(f_current_note);
+        ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[f_i]))->lms_set_value(f_current_note);
+
+        f_current_note += f_white_notes[i_white_notes];
+
+        i_white_notes++;
+        if(i_white_notes >= 7)
         {
-            f_has_started = TRUE;
-        }
-        
-        if(f_has_started && (!f_current_string.isEmpty()))
-        {
-            ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_NOTE_INDEX]->controls[f_i]))->lms_set_value(f_current_note);
-            ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX]->controls[f_i]))->lms_set_value(f_current_note);
-            ((LMS_note_selector*)(m_sample_table->lms_mm_columns[SMP_TB_LOW_NOTE_INDEX]->controls[f_i]))->lms_set_value(f_current_note);
-            
-            f_current_note += f_white_notes[i_white_notes];
-            
-            i_white_notes++;
-            if(i_white_notes >= 7)
-            {
-                i_white_notes = 0;
-            }
-            
+            i_white_notes = 0;
         }
     }
 }
