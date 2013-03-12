@@ -4867,7 +4867,11 @@ class transport_widget:
         self.trigger_audio_playback()
 
     def trigger_audio_playback(self):
-        f_bar_count = pydaw_get_region_length(self.region_spinbox.value()) - self.bar_spinbox.value()
+        if self.loop_mode_combobox.currentIndex() == 1:
+            f_bar_count = 1
+        else:
+            f_bar_count = pydaw_get_region_length(self.region_spinbox.value()) - self.bar_spinbox.value()
+        this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
         this_audio_items_viewer.start_playback(f_bar_count, self.tempo_spinbox.value())
 
     def show_audio_recording_dialog(self):
@@ -5027,22 +5031,23 @@ class transport_widget:
             this_region_editor.table_widget.clearSelection()
     def beat_timeout(self):
         if self.loop_mode_combobox.currentIndex() == 1:
+            self.trigger_audio_playback()
             return  #Looping a single bar doesn't require these values to update
         f_new_bar_value = self.bar_spinbox.value() + 1
         f_region_length = pydaw_get_region_length(self.region_spinbox.value())
-        if self.loop_mode_combobox.currentIndex() == 0:
-            if f_new_bar_value >= f_region_length:
+        if f_new_bar_value >= f_region_length:
+            if self.loop_mode_combobox.currentIndex() == 0:
                 self.region_spinbox.setValue(self.region_spinbox.value() + 1)
                 self.bar_spinbox.setMaximum(pydaw_get_region_length(self.region_spinbox.value()))
-                if self.follow_checkbox.isChecked():
-                    f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
-                    if not f_item is None and f_item.text() != "":
-                        this_region_editor.open_region(f_item.text())
-                    else:
-                        this_region_editor.clear_items()
-                f_new_bar_value = 0
-                self.bar_spinbox.setValue(f_new_bar_value)  #NOTE:  This must not be consolidated with the other because trigger_audio_playback relies on it being set first
-                self.trigger_audio_playback()
+            if self.follow_checkbox.isChecked():
+                f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
+                if not f_item is None and f_item.text() != "":
+                    this_region_editor.open_region(f_item.text())
+                else:
+                    this_region_editor.clear_items()
+            f_new_bar_value = 0
+            self.bar_spinbox.setValue(f_new_bar_value)  #NOTE:  This must not be consolidated with the other because trigger_audio_playback relies on it being set first
+            self.trigger_audio_playback()
         self.bar_spinbox.setValue(f_new_bar_value)
         if self.follow_checkbox.isChecked():
             this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)
