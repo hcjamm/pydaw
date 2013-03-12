@@ -153,6 +153,7 @@ class song_editor:
                 this_pydaw_project.save_song(self.song)
                 if not f_is_playing:
                     this_transport.region_spinbox.setValue(y)
+                    this_transport.bar_spinbox.setValue(0)
                 f_window.close()
 
             def song_cancel_handler():
