@@ -5025,7 +5025,7 @@ class transport_widget:
             return  #Looping a single bar doesn't require these values to update
         f_new_bar_value = self.bar_spinbox.value() + 1
         f_region_length = pydaw_get_region_length(self.region_spinbox.value())
-        if self.loop_mode_combobox.currentIndex() != 2:
+        if self.loop_mode_combobox.currentIndex() == 0:
             if f_new_bar_value >= f_region_length:
                 self.region_spinbox.setValue(self.region_spinbox.value() + 1)
                 self.bar_spinbox.setMaximum(pydaw_get_region_length(self.region_spinbox.value()))
@@ -5036,6 +5036,7 @@ class transport_widget:
                     else:
                         this_region_editor.clear_items()
                 f_new_bar_value = 0
+                self.bar_spinbox.setValue(f_new_bar_value)  #NOTE:  This must not be consolidated with the other because trigger_audio_playback relies on it being set first
                 self.trigger_audio_playback()
         self.bar_spinbox.setValue(f_new_bar_value)
         if self.follow_checkbox.isChecked():
