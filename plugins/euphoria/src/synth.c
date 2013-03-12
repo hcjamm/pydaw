@@ -827,11 +827,11 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, int sample_count,
                                 (plugin_data->sampleStartPos[(plugin_data->loaded_samples[i])]));// 0.0f;
                         
                         plugin_data->vel_sens_output[f_voice_num][(plugin_data->loaded_samples[i])] = 
-                                ((1 -
+                                (1.0f -
                                 (((float)(n.velocity) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])])))
                                 /
                                 ((float)(*(plugin_data->sample_vel_high[(plugin_data->loaded_samples[i])]) - (*(plugin_data->sample_vel_low[(plugin_data->loaded_samples[i])]))))))
-                                * (*(plugin_data->sample_vel_sens[(plugin_data->loaded_samples[i])])) * -1.0f);
+                                * (*(plugin_data->sample_vel_sens[(plugin_data->loaded_samples[i])])) * -1.0f;
 
                         plugin_data->sample_amp[(plugin_data->loaded_samples[i])] = f_db_to_linear(
                             (*(plugin_data->sample_vol[(plugin_data->loaded_samples[i])])) + 
