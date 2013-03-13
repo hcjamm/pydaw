@@ -1984,6 +1984,7 @@ class song_level_automation_widget:
         self.cc_auto_viewer_scrollarea_widget = QtGui.QWidget()
         self.cc_auto_viewer_scrollarea_widget.setMinimumSize(1180, 1270)
         self.cc_auto_viewer_scrollarea.setWidget(self.cc_auto_viewer_scrollarea_widget)
+        self.cc_auto_viewer_scrollarea.setWidgetResizable(True)
         self.cc_auto_viewer_vlayout = QtGui.QVBoxLayout(self.cc_auto_viewer_scrollarea_widget)
         self.env_tab = QtGui.QGroupBox()
         self.tab_widget.addTab(self.env_tab, "Envelopes")
@@ -4038,6 +4039,7 @@ class item_list_editor:
         self.cc_auto_viewer_scrollarea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.cc_auto_viewer_scrollarea_widget = QtGui.QWidget()
         self.cc_auto_viewer_scrollarea_widget.setMinimumSize(1180, 1270)
+        self.cc_auto_viewer_scrollarea.setWidgetResizable(True)
         self.cc_auto_viewer_scrollarea.setWidget(self.cc_auto_viewer_scrollarea_widget)
         self.cc_auto_viewer_vlayout = QtGui.QVBoxLayout(self.cc_auto_viewer_scrollarea_widget)
 
