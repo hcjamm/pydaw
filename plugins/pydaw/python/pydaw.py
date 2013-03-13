@@ -777,7 +777,6 @@ global_bus_track_names = ['Master', 'Bus1', 'Bus2', 'Bus3', 'Bus4']
 #TODO:  Clean these up...
 global_beats_per_minute = 140.0
 global_beats_per_second = global_beats_per_minute / 60.0
-global_beats_per_region = 4.0 * 8.0
 global_bars_per_second = global_beats_per_second * 0.25
 
 def pydaw_set_bpm(a_bpm):
@@ -821,7 +820,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_length = 0.0
             for i in range(a_audio_item.start_region, a_audio_item.end_region):
                 f_length += pydaw_get_region_length(i)
-            f_length -= a_audio_item.start_bar
+            f_length -= a_audio_item.start_bar - (a_audio_item.start_beat * 0.25)
             f_length += a_audio_item.end_bar + (a_audio_item.end_beat * 0.25)
             f_length *= global_audio_px_per_bar
             if f_length_seconds < f_length:
@@ -1495,9 +1494,12 @@ class audio_item_editor_widget:
             QtGui.QMessageBox.warning(self.widget, "Error", "Name cannot be empty")
             return
         if self.end_musical_time.isChecked():
-            self.start_beat_total = float((self.start_region.value() * 8 * 4) + (self.start_bar.value() * 4)) + self.start_beat.value()
-            self.end_beat_total = float((self.end_region.value() * 8 * 4) + (self.end_bar.value() * 4)) + self.end_beat.value()
-            if self.start_beat_total >= self.end_beat_total:
+            f_bar_total = 0.0
+            for i in range(self.start_region.value(), self.end_region.value()):
+                f_bar_total += pydaw_get_region_length(i)
+            f_bar_total += self.end_bar.value() +  (self.end_beat.value() * 0.25)
+            f_bar_total -= self.start_bar.value() - (self.start_beat.value() * 0.25)
+            if f_bar_total <= 0.0:
                 QtGui.QMessageBox.warning(self.widget, "Error", "End point is less than or equal to start point.")
                 print("audio items:  start==" + str(self.start_beat_total) + "|" + "end==" + str(self.end_beat_total))
                 return
