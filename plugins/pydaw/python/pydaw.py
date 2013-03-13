@@ -778,17 +778,17 @@ global_bus_track_names = ['Master', 'Bus1', 'Bus2', 'Bus3', 'Bus4']
 global_beats_per_minute = 140.0
 global_beats_per_second = global_beats_per_minute / 60.0
 global_beats_per_region = 4.0 * 8.0
-global_regions_per_second = global_beats_per_second / global_beats_per_region
+global_bars_per_second = global_beats_per_second * 0.25
 
 def pydaw_set_bpm(a_bpm):
-    global global_beats_per_minute, global_beats_per_second, global_regions_per_second
+    global global_beats_per_minute, global_beats_per_second,  global_bars_per_second
     global_beats_per_minute = a_bpm
     global_beats_per_second = a_bpm / 60.0
-    global_regions_per_second = global_beats_per_second / global_beats_per_region
+    global_bars_per_second = global_beats_per_second * 0.25
 
-def pydaw_seconds_to_regions(a_seconds):
+def pydaw_seconds_to_bars(a_seconds):
     '''converts seconds to regions'''
-    return a_seconds * global_regions_per_second
+    return a_seconds * global_bars_per_second
 
 global_audio_px_per_region = 100.0
 global_audio_px_per_bar = 12.5
@@ -803,9 +803,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         elif a_audio_item.time_stretch_mode == 2:
             f_temp_seconds /= a_audio_item.timestretch_amt
 
-        f_start = (a_audio_item.start_region + (((a_audio_item.start_bar * 4.0) + a_audio_item.start_beat) / global_beats_per_region)) * global_audio_px_per_region
+        f_start = 0.0
+        for i in range(a_audio_item.start_region):
+            f_start += pydaw_get_region_length(i)
+        f_start += (a_audio_item.start_bar) + (a_audio_item.start_beat * 0.25)
+        f_start *= global_audio_px_per_bar
 
-        f_length_seconds = pydaw_seconds_to_regions(a_sample_length) * global_audio_px_per_region
+        f_length_seconds = pydaw_seconds_to_bars(a_sample_length) * global_audio_px_per_bar
         self.length_seconds_orig = f_length_seconds
         self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, 65.0)
         f_length_seconds *= 1.0 - (a_audio_item.sample_start * 0.001)
@@ -814,7 +818,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if a_audio_item.end_mode == 0:
             f_length = f_length_seconds
         elif a_audio_item.end_mode == 1:
-            f_length = ((a_audio_item.end_region + (((a_audio_item.end_bar * 4.0) + a_audio_item.end_beat) / global_beats_per_region))  * global_audio_px_per_region) - f_start
+            f_length = 0.0
+            for i in range(a_audio_item.start_region, a_audio_item.end_region):
+                f_length += pydaw_get_region_length(i)
+            f_length -= a_audio_item.start_bar
+            f_length += a_audio_item.end_bar + (a_audio_item.end_beat * 0.25)
+            f_length *= global_audio_px_per_bar
             if f_length_seconds < f_length:
                 f_length = f_length_seconds
 
