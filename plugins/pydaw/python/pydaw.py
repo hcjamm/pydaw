@@ -65,13 +65,26 @@ def pydaw_get_region_length(a_region_index):
     else:
         return 8
 
+def pydaw_get_pos_in_bars(a_reg, a_bar, a_beat):
+    f_result = 0.0
+    for i in range(a_reg):
+        f_result += pydaw_get_region_length(i)
+    f_result += (a_bar) + (a_beat * 0.25)
+    return f_result
+
 def pydaw_get_diff_in_bars(a_start_reg, a_start_bar, a_start_beat, a_end_reg, a_end_bar, a_end_beat):
     """ Calculate the difference in bars, ie: 10.567 bars, between 2 points """
     f_result = 0.0
-    for i in range(a_start_reg, a_end_reg):
-        f_result += pydaw_get_region_length(i)
-    f_result += (a_end_bar - a_start_bar)
-    f_result += (a_end_beat - a_start_beat) * 0.25
+    if a_start_reg <= a_end_reg:
+        for i in range(a_start_reg, a_end_reg):
+            f_result += pydaw_get_region_length(i)
+        f_result += (a_end_bar - a_start_bar)
+        f_result += (a_end_beat - a_start_beat) * 0.25
+    else:
+        for i in range(a_start_reg, a_end_reg, -1):
+            f_result -= pydaw_get_region_length(i)
+        f_result += (a_start_bar - a_end_bar)
+        f_result += (a_start_beat - a_end_beat) * 0.25
     return f_result
 
 def pydaw_add_diff_in_bars(a_start_reg, a_start_bar, a_start_beat, a_bars):
@@ -802,10 +815,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         elif a_audio_item.time_stretch_mode == 2:
             f_temp_seconds /= a_audio_item.timestretch_amt
 
-        f_start = 0.0
-        for i in range(a_audio_item.start_region):
-            f_start += pydaw_get_region_length(i)
-        f_start += (a_audio_item.start_bar) + (a_audio_item.start_beat * 0.25)
+        f_start = pydaw_get_pos_in_bars(a_audio_item.start_region, a_audio_item.start_bar, a_audio_item.start_beat)
         f_start *= global_audio_px_per_bar
 
         f_length_seconds = pydaw_seconds_to_bars(a_sample_length) * global_audio_px_per_bar
@@ -817,11 +827,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if a_audio_item.end_mode == 0:
             f_length = f_length_seconds
         elif a_audio_item.end_mode == 1:
-            f_length = 0.0
-            for i in range(a_audio_item.start_region, a_audio_item.end_region):
-                f_length += pydaw_get_region_length(i)
-            f_length -= a_audio_item.start_bar - (a_audio_item.start_beat * 0.25)
-            f_length += a_audio_item.end_bar + (a_audio_item.end_beat * 0.25)
+            f_length = pydaw_get_diff_in_bars(a_audio_item.start_region, a_audio_item.start_bar, \
+            a_audio_item.start_beat, a_audio_item.end_region, a_audio_item.end_bar, a_audio_item.end_beat)
             f_length *= global_audio_px_per_bar
             if f_length_seconds < f_length:
                 f_length = f_length_seconds
@@ -1494,11 +1501,8 @@ class audio_item_editor_widget:
             QtGui.QMessageBox.warning(self.widget, "Error", "Name cannot be empty")
             return
         if self.end_musical_time.isChecked():
-            f_bar_total = 0.0
-            for i in range(self.start_region.value(), self.end_region.value()):
-                f_bar_total += pydaw_get_region_length(i)
-            f_bar_total += self.end_bar.value() +  (self.end_beat.value() * 0.25)
-            f_bar_total -= self.start_bar.value() - (self.start_beat.value() * 0.25)
+            f_bar_total = pydaw_get_diff_in_bars(self.start_region.value(), self.start_bar.value(), self.start_beat.value(), \
+            self.end_region.value(), self.end_bar.value(), self.end_beat.value())
             if f_bar_total <= 0.0:
                 QtGui.QMessageBox.warning(self.widget, "Error", "End point is less than or equal to start point.")
                 print("audio items:  start==" + str(self.start_beat_total) + "|" + "end==" + str(self.end_beat_total))
