@@ -3048,7 +3048,7 @@ global_automation_ruler_width = 24
 global_automation_width = 690
 global_automation_height = 300
 
-global_automation_grid_max_start_time = global_automation_width + global_automation_ruler_width
+global_automation_grid_max_start_time = global_automation_width + global_automation_ruler_width - global_automation_point_radius
 
 global_automation_total_height = global_automation_ruler_width +  global_automation_height - global_automation_point_radius
 global_automation_total_width = global_automation_ruler_width + global_automation_width - global_automation_point_radius
@@ -3291,7 +3291,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.viewer_width = global_automation_width * global_item_editing_count
         self.item_length = 4.0 * global_item_editing_count
         global global_automation_grid_max_start_time
-        global_automation_grid_max_start_time = (global_automation_width * global_item_editing_count) + global_automation_ruler_width
+        global_automation_grid_max_start_time = (global_automation_width * global_item_editing_count) + global_automation_ruler_width - global_automation_point_radius
         self.clear_drawn_items()
         if not this_item_editor.enabled:
             return
