@@ -1479,12 +1479,12 @@ class pydaw_audio_items:
         return f_result
 
 class pydaw_audio_item:
-    def __init__(self, a_file, a_sample_start=0, a_sample_end=1000, a_start_region=0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
+    def __init__(self, a_file, a_sample_start=0.0, a_sample_end=1000.0, a_start_region=0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
     a_end_region=0, a_end_bar=0, a_end_beat=0, a_timestretch_mode=0, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0, \
-    a_fade_in=0, a_fade_out=1000):
+    a_fade_in=0.0, a_fade_out=1000.0):
         self.file = str(a_file)
-        self.sample_start = int(a_sample_start)  #TODO:  int() these once I have a way of getting frame count...
-        self.sample_end = int(a_sample_end)
+        self.sample_start = float(a_sample_start)
+        self.sample_end = float(a_sample_end)
         self.start_region = int(a_start_region)
         self.start_bar = int(a_start_bar)
         self.start_beat = float(a_start_beat)
@@ -1497,8 +1497,8 @@ class pydaw_audio_item:
         self.output_track = int(a_output_track)
         self.vol = int(a_vol)
         self.timestretch_amt = float(a_timestretch_amt)
-        self.fade_in = int(a_fade_in)
-        self.fade_out = int(a_fade_out)
+        self.fade_in = float(a_fade_in)
+        self.fade_out = float(a_fade_out)
 
     def __str__(self):
         return self.file + "|" + str(self.sample_start) + "|" + str(self.sample_end) + "|" + str(self.start_region) \
