@@ -888,7 +888,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
         self.length_handle.setPos(f_length - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
-        self.length_handle.setToolTip("Use this handle to resize the item by changing the start/end points...")
+        self.length_handle.setToolTip("Use this handle to resize the item by changing the start/end points...\nSnapping by region is not supported for length, it will be snapped by bar for either setting.")
         self.is_resizing = False
 
     def pos_to_musical_time(self, a_pos):
@@ -929,6 +929,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             return
         if self.is_resizing:
             f_x = pydaw_clip_value(a_event.pos().x(), global_audio_item_handle_size, self.length_seconds_orig_px)
+            if this_audio_items_viewer.snap_mode != 0:  #Not doing snap by region for now..
+                f_x = round(f_x / global_audio_bar_px) * global_audio_bar_px
             self.setRect(0.0, 0.0, f_x, global_audio_item_height)
             self.length_handle.setPos(f_x - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
             return
