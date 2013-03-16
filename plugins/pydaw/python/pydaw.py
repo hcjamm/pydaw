@@ -978,6 +978,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_item.end_beat = f_end_result[2]
         this_pydaw_project.save_audio_items(f_audio_items)
         this_pydaw_project.this_dssi_gui.pydaw_update_single_audio_item(self.track_num, f_item)
+        this_pydaw_project.git_repo.git_commit("-a", "Update audio items")
         self.audio_item = f_item
         this_audio_editor.open_items(False)
         if this_audio_item_editor_widget.selected_index_combobox.currentIndex() == self.track_num:
