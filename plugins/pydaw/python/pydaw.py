@@ -802,7 +802,6 @@ def pydaw_seconds_to_bars(a_seconds):
     '''converts seconds to regions'''
     return a_seconds * global_bars_per_second
 
-global_audio_px_per_region = 100.0
 global_audio_px_per_bar = 12.5
 global_audio_ruler_height = 20.0
 
@@ -1054,7 +1053,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def draw_headers(self):
         f_total_regions = 300
-        f_size = global_audio_px_per_region * f_total_regions
+        f_size = global_audio_px_per_bar * global_bar_count
         f_ruler = QtGui.QGraphicsRectItem(0, 0, f_size, global_audio_ruler_height)
         self.scene.addItem(f_ruler)
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
