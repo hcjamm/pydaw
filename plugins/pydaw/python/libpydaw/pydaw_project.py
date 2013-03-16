@@ -134,20 +134,16 @@ class pydaw_project:
         f_file_name = str(a_file_name)
         print("Saving project as " + f_file_name + " ...")
         f_new_project_folder = os.path.dirname(f_file_name)
-        f_cmd = "cp -r " + self.project_folder + "/* " + f_new_project_folder + "/"
+        #The below is safe because we already checked that the folder should be empty before calling this
+        f_cmd = 'rm -rf "' + f_new_project_folder + '"'
+        os.popen(f_cmd)
+        f_cmd = 'cp -r "' + self.project_folder + '" "' + f_new_project_folder + '"'
         os.popen(f_cmd)
         print(f_new_project_folder + "/" + self.project_file + " | " + a_file_name)
         move(f_new_project_folder + "/" + self.project_file + ".pydaw2", a_file_name)
         self.set_project_folders(f_file_name)
         self.this_dssi_gui.pydaw_open_song(self.project_folder)
-        #self.git_repo.repo_dir = self.project_folder
-        self.git_repo = pydaw_git_repo(self.project_folder)
-        self.git_repo.git_init()
-        f_git_ignore_file = self.project_folder + "/.gitignore"
-        if not os.path.exists(f_git_ignore_file):
-            f_file = open(f_git_ignore_file, 'w')
-            f_file.write("default.pygraphs\nsamplegraph/*.pygraph\nsamples/*\naudio/*\n")
-            f_file.close()
+        self.git_repo.repo_dir = self.project_folder
 
     def set_project_folders(self, a_project_file):
         self.project_folder = os.path.dirname(a_project_file)
