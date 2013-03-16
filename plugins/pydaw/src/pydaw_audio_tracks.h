@@ -35,6 +35,7 @@ typedef struct
     int channels;
     int length;
     float ratio;
+    float ratio_orig; //For storing the src-to-src ratio
     int uid;
     int start_region;
     int start_bar;
@@ -122,6 +123,7 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
     f_result->samples[0] = 0;
     f_result->samples[1] = 0;    
     f_result->ratio = 1.0f;
+    f_result->ratio_orig = 1.0f;
     f_result->uid = -1;
     f_result->adjusted_start_beat = 99999999.0f;
     
@@ -272,7 +274,9 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     free(f_fade_out_char);
     
     free(f_file_name_char);
-
+    
+    f_result->ratio = f_result->ratio_orig;  //Otherwise the pitch/time shifting gets re-applied every time...
+    
     switch(f_result->timestretch_mode)
     {
         case 0:  //None
@@ -341,10 +345,12 @@ void v_audio_items_load(t_pydaw_audio_item *a_audio_item, const char *a_path, fl
 	double ratio = (double)(info.samplerate)/(double)(a_sr);
 	
         a_audio_item->ratio = (float)ratio;
+        a_audio_item->ratio_orig = a_audio_item->ratio;
     }
     else
     {
         a_audio_item->ratio = 1.0f;
+        a_audio_item->ratio_orig = 1.0f;
     }
            
     int f_adjusted_channel_count = 1;
