@@ -2818,8 +2818,10 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_item.note_item.is_selected = False
 
     def unhighlight_selected(self):
+        self.has_selected = False
         for f_item in self.note_items:
             f_item.setBrush(pydaw_note_gradient)
+            f_item.note_item.is_selected = False
 
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsView.keyPressEvent(self, a_event)
