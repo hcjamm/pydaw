@@ -3617,6 +3617,9 @@ class item_list_editor:
         def cancel_handler():
             f_window.close()
 
+        def end_value_changed(a_val=None):
+            f_draw_line.setChecked(True)
+
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Velocity Mod")
         f_layout = QtGui.QGridLayout()
@@ -3625,7 +3628,7 @@ class item_list_editor:
         f_layout.addWidget(QtGui.QLabel("Amount"), 0, 0)
         f_amount = QtGui.QSpinBox()
         f_amount.setRange(-127, 127)
-        f_amount.setValue(64)
+        f_amount.setValue(100)
         f_layout.addWidget(f_amount, 0, 1)
         f_draw_line = QtGui.QCheckBox("Draw line?")
         f_layout.addWidget(f_draw_line, 1, 1)
@@ -3633,6 +3636,7 @@ class item_list_editor:
         f_layout.addWidget(QtGui.QLabel("End Amount"), 2, 0)
         f_end_amount = QtGui.QSpinBox()
         f_end_amount.setRange(-127, 127)
+        f_end_amount.valueChanged.connect(end_value_changed)
         f_layout.addWidget(f_end_amount, 2, 1)
 
         if a_is_list:
