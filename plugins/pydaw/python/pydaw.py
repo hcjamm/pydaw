@@ -2604,7 +2604,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.note_height = a_note_height
         self.setToolTip("Double-click to edit note properties, click and drag to move,\n" + \
         "click and drag the end to change length, and Shift+click to delete.\n" + \
-        "You can marquee-select multiple items by holding down CTRL, then clicking and dragging.\n\n" + \
+        "You can marquee-select multiple items by holding down CTRL, then clicking and dragging, or CTRL+click and drag to copy the notes.\n\n" + \
         "To edit multiple items as one logical item, select multiple items in the region editor and right-click + 'Edit Selected Items as Group'")
         self.note_item = a_note_item
         self.setAcceptHoverEvents(True)
