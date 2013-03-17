@@ -931,7 +931,7 @@ class pydaw_item:
             for pb in f_pbs:
                 pb.start -= shift_adjust
 
-    def transpose(self, a_semitones, a_octave=0, a_notes=None):
+    def transpose(self, a_semitones, a_octave=0, a_notes=None, a_selected_only=False):
         f_total = a_semitones + (a_octave * 12)
         f_notes = []
 
@@ -945,6 +945,8 @@ class pydaw_item:
                         break
 
         for note in f_notes:
+            if a_selected_only and not note.is_selected:
+                continue
             note.note_num += f_total
             if note.note_num < 0:
                 note.note_num = 0
@@ -1240,6 +1242,7 @@ class pydaw_note:
         self.length = float(a_length)
         self.velocity = int(a_velocity)
         self.note_num = int(a_note_number)
+        self.is_selected = False
         self.set_end()
 
     def overlaps(self, other):
