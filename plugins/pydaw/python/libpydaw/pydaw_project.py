@@ -802,27 +802,22 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
             a_items_list[f_i].pitchbends.sort()
 
 def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127, a_add=False, a_selected_only=False):
-    if a_selected_only:
-        # BIG TODO:  Iterate forward then backwards through the list to get the real start/end
-        f_start_beat = 0.0
-        f_range_beats = 0.0
-        f_tmp_index = 0
-        for f_item in a_items:
-            for note in f_item.notes:
-                if note.is_selected:
-                    f_start_beat = note.start + (f_tmp_index * 4.0)
-                    break
-            f_tmp_index += 1
-        f_tmp_index = len(a_items) - 1
-        for f_item in reversed(a_items):
-            for note in reversed(f_item.notes):
-                if note.is_selected:
-                    f_range_beats = note.start + (4.0 * f_tmp_index) - f_start_beat
-                    break
-            f_tmp_index -= 1
-    else:
-        f_start_beat = a_items[0].notes[0].start
-        f_range_beats = a_items[-1].notes[-1].start + (4.0 * (len(a_items) - 1)) - f_start_beat
+    f_start_beat = 0.0
+    f_range_beats = 0.0
+    f_tmp_index = 0
+    for f_item in a_items:
+        for note in f_item.notes:
+            if not a_selected_only or note.is_selected:
+                f_start_beat = note.start + (f_tmp_index * 4.0)
+                break
+        f_tmp_index += 1
+    f_tmp_index = len(a_items) - 1
+    for f_item in reversed(a_items):
+        for note in reversed(f_item.notes):
+            if not a_selected_only or note.is_selected:
+                f_range_beats = note.start + (4.0 * f_tmp_index) - f_start_beat
+                break
+        f_tmp_index -= 1
 
     f_beat_offset = 0.0
     for f_item in a_items:
