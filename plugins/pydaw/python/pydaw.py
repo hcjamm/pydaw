@@ -2971,6 +2971,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def draw_item(self):
         """ Draw all notes in an instance of the pydaw_item class"""
+        self.has_selected = False #Reset the selected-ness state...
         self.viewer_width = 1000 * global_item_editing_count
         self.item_length = float(4 * global_item_editing_count)
         pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
