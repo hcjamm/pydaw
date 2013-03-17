@@ -805,18 +805,26 @@ def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127, a_add=False,
     f_start_beat = 0.0
     f_range_beats = 0.0
     f_tmp_index = 0
+    f_break = False
     for f_item in a_items:
         for note in f_item.notes:
-            if not a_selected_only or note.is_selected:
+            if not a_selected_only or (a_selected_only and note.is_selected):
                 f_start_beat = note.start + (f_tmp_index * 4.0)
+                f_break = True
                 break
+        if f_break:
+            break
         f_tmp_index += 1
     f_tmp_index = len(a_items) - 1
+    f_break = False
     for f_item in reversed(a_items):
         for note in reversed(f_item.notes):
             if not a_selected_only or note.is_selected:
                 f_range_beats = note.start + (4.0 * f_tmp_index) - f_start_beat
+                f_break = True
                 break
+        if f_break:
+            break
         f_tmp_index -= 1
 
     f_beat_offset = 0.0
@@ -950,7 +958,6 @@ class pydaw_item:
                 pb.start -= shift_adjust
 
     def transpose(self, a_semitones, a_octave=0, a_notes=None, a_selected_only=False):
-        print("\n\ntranspose called with " + str(a_selected_only) + "\n\n")
         f_total = a_semitones + (a_octave * 12)
         f_notes = []
 
@@ -965,7 +972,6 @@ class pydaw_item:
 
         for note in f_notes:
             if a_selected_only and not note.is_selected:
-                print("continue")
                 continue
             note.note_num += f_total
             if note.note_num < 0:
