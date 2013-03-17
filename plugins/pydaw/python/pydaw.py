@@ -2798,6 +2798,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.draw_piano()
         self.draw_grid()
 
+        self.has_selected = False
+
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.note_items = []
 
@@ -2806,9 +2808,14 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.click_enabled = True
 
     def highlight_selected(self):
+        self.has_selected = False
         for f_item in self.note_items:
             if f_item.isSelected():
                 f_item.setBrush(pydaw_note_selected_gradient)
+                f_item.note_item.is_selected = True
+                self.has_selected = True
+            else:
+                f_item.note_item.is_selected = False
 
     def unhighlight_selected(self):
         for f_item in self.note_items:
@@ -2996,7 +3003,7 @@ class piano_roll_editor_widget():
     def quantize_dialog(self):
         this_item_editor.quantize_dialog(False)
     def transpose_dialog(self):
-        this_item_editor.transpose_dialog(False)
+        this_item_editor.transpose_dialog(False, this_piano_roll_editor.has_selected)
     def time_shift_dialog(self):
         this_item_editor.time_shift_dialog(False)
     def length_shift_dialog(self):
@@ -3664,7 +3671,7 @@ class item_list_editor:
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
-    def transpose_dialog(self, a_is_list=True):
+    def transpose_dialog(self, a_is_list=True, a_selected_only=False):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
@@ -3686,7 +3693,7 @@ class item_list_editor:
                 this_pydaw_project.save_item(self.item_name, self.item)
             else:
                 for f_i in range(len(self.items)):
-                    self.items[f_i].transpose(f_semitone.value(), f_octave.value())
+                    self.items[f_i].transpose(f_semitone.value(), f_octave.value(), a_selected_only=a_selected_only)
                 this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Transpose item(s)")
