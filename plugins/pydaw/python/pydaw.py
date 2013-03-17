@@ -2674,6 +2674,10 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                         f_item.resize_start_pos = f_item.note_item.start + (4.0 * f_item.item_index)
                         f_item.resize_pos = f_item.pos()
                         f_item.resize_rect = f_item.rect()
+            elif a_event.modifiers() == QtCore.Qt.ControlModifier:
+                for f_item in this_piano_roll_editor.note_items:
+                    if f_item.isSelected():
+                        this_piano_roll_editor.draw_note(f_item.note_item, f_item.item_index)
         this_piano_roll_editor.click_enabled = True
 
     def mouseMoveEvent(self, a_event):
