@@ -2731,14 +2731,19 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                         f_new_note_length = pydaw_min_note_length
                     f_item.note_item.set_length(f_new_note_length)
                 else:
-                    this_item_editor.items[f_item.item_index].notes.remove(f_item.note_item)
                     f_new_note_start = (f_pos_x - global_piano_keys_width) * 4.0 * 0.001
-                    f_item.item_index, f_new_note_start = pydaw_beats_to_index(f_new_note_start)
                     f_new_note_num = int(global_piano_roll_note_count - ((f_pos_y - global_piano_roll_header_height) / global_piano_roll_note_height))
-                    f_item.note_item.set_start(f_new_note_start)
-                    f_item.note_item.note_num = f_new_note_num
-                    this_item_editor.items[f_item.item_index].notes.append(f_item.note_item)
-                    this_item_editor.items[f_item.item_index].notes.sort()
+                    if a_event.modifiers() == QtCore.Qt.ControlModifier:
+                        f_item.item_index, f_new_note_start = pydaw_beats_to_index(f_new_note_start)
+                        f_new_note = pydaw_note(f_new_note_start, f_item.note_item.length, f_new_note_num, f_item.note_item.velocity)
+                        this_item_editor.items[f_item.item_index].add_note(f_new_note, False)
+                    else:
+                        this_item_editor.items[f_item.item_index].notes.remove(f_item.note_item)
+                        f_item.item_index, f_new_note_start = pydaw_beats_to_index(f_new_note_start)
+                        f_item.note_item.set_start(f_new_note_start)
+                        f_item.note_item.note_num = f_new_note_num
+                        this_item_editor.items[f_item.item_index].notes.append(f_item.note_item)
+                        this_item_editor.items[f_item.item_index].notes.sort()
         for f_item in this_item_editor.items:
             f_item.fix_overlaps()
         global_selected_piano_note = None
