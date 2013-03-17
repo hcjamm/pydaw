@@ -3003,13 +3003,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
 class piano_roll_editor_widget():
     def quantize_dialog(self):
-        this_item_editor.quantize_dialog(False)
+        this_item_editor.quantize_dialog(False, this_piano_roll_editor.has_selected)
     def transpose_dialog(self):
         this_item_editor.transpose_dialog(False, this_piano_roll_editor.has_selected)
-    def time_shift_dialog(self):
-        this_item_editor.time_shift_dialog(False)
-    def length_shift_dialog(self):
-        this_item_editor.length_shift_dialog(False)
     def velocity_dialog(self):
         this_item_editor.velocity_dialog(False, this_piano_roll_editor.has_selected)
     def clear_notes(self):
@@ -3032,14 +3028,6 @@ class piano_roll_editor_widget():
         self.notes_transpose_button.setMinimumWidth(f_button_width)
         self.notes_transpose_button.pressed.connect(self.transpose_dialog)
         self.controls_grid_layout.addWidget(self.notes_transpose_button, 0, 12)
-        self.notes_shift_button = QtGui.QPushButton("Shift")
-        self.notes_shift_button.setMinimumWidth(f_button_width)
-        self.notes_shift_button.pressed.connect(self.time_shift_dialog)
-        self.controls_grid_layout.addWidget(self.notes_shift_button, 0, 13)
-        self.notes_length_button = QtGui.QPushButton("Length")
-        self.notes_length_button.setMinimumWidth(f_button_width)
-        self.notes_length_button.pressed.connect(self.length_shift_dialog)
-        self.controls_grid_layout.addWidget(self.notes_length_button, 0, 14)
 
         self.notes_velocity_button = QtGui.QPushButton("Velocity")
         self.notes_velocity_button.setMinimumWidth(f_button_width)
@@ -3535,7 +3523,7 @@ class item_list_editor:
                 f_result.append(pydaw_pitchbend(self.pitchbend_table_widget.item(i, 0).text(), self.pitchbend_table_widget.item(i, 1).text()))
         return f_result
 
-    def quantize_dialog(self, a_is_list=True):
+    def quantize_dialog(self, a_is_list=True, a_selected_only=False):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
@@ -3555,7 +3543,7 @@ class item_list_editor:
                 if f_multiselect:
                     self.items[f_i].quantize(f_quantize_index, f_events_follow_notes.isChecked(), f_ms_rows)
                 else:
-                    self.items[f_i].quantize(f_quantize_index, f_events_follow_notes.isChecked())
+                    self.items[f_i].quantize(f_quantize_index, f_events_follow_notes.isChecked(), a_selected_only=a_selected_only)
                 this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Quantize item(s)")

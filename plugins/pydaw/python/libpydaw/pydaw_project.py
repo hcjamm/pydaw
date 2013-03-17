@@ -907,7 +907,7 @@ class pydaw_item:
                 elif note.velocity < 1:
                     note.velocity = 1
 
-    def quantize(self, a_beat_frac, a_events_move_with_item=False, a_notes=None):
+    def quantize(self, a_beat_frac, a_events_move_with_item=False, a_notes=None, a_selected_only=False):
         f_notes = []
         f_ccs = []
         f_pbs = []
@@ -936,6 +936,8 @@ class pydaw_item:
         f_quantize_multiple = 1.0/f_quantized_value
 
         for note in f_notes:
+            if a_selected_only and not note.is_selected:
+                continue
             f_new_start = round(note.start * f_quantize_multiple) * f_quantized_value
             note.start = f_new_start
             shift_adjust = note.start - f_new_start
