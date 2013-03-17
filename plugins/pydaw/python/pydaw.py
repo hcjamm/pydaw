@@ -2829,7 +2829,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             for f_item in self.note_items:
                 if f_item.isSelected():
                     this_item_editor.items[f_item.item_index].remove_note(f_item.note_item)
-        this_item_editor.save_and_reload()
+            this_item_editor.save_and_reload()
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
 
     def focusOutEvent(self, a_event):
