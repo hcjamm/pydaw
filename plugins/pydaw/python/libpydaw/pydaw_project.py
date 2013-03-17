@@ -950,6 +950,7 @@ class pydaw_item:
                 pb.start -= shift_adjust
 
     def transpose(self, a_semitones, a_octave=0, a_notes=None, a_selected_only=False):
+        print("\n\ntranspose called with " + str(a_selected_only) + "\n\n")
         f_total = a_semitones + (a_octave * 12)
         f_notes = []
 
@@ -964,6 +965,7 @@ class pydaw_item:
 
         for note in f_notes:
             if a_selected_only and not note.is_selected:
+                print("continue")
                 continue
             note.note_num += f_total
             if note.note_num < 0:
