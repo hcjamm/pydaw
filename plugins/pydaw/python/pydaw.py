@@ -3009,7 +3009,7 @@ class piano_roll_editor_widget():
     def length_shift_dialog(self):
         this_item_editor.length_shift_dialog(False)
     def velocity_dialog(self):
-        this_item_editor.velocity_dialog(False)
+        this_item_editor.velocity_dialog(False, this_piano_roll_editor.has_selected)
     def clear_notes(self):
         this_item_editor.clear_notes(False)
 
@@ -3585,7 +3585,7 @@ class item_list_editor:
         f_ok_cancel_layout.addWidget(f_cancel)
         f_window.exec_()
 
-    def velocity_dialog(self, a_is_list=True):
+    def velocity_dialog(self, a_is_list=True, a_selected_only=False):
         if not self.enabled:
             self.show_not_enabled_warning()
             return
@@ -3616,7 +3616,7 @@ class item_list_editor:
                     f_end_amount.value(), f_add_values.isChecked())
                 this_pydaw_project.save_item(self.item_name, self.item)
             else:
-                pydaw_velocity_mod(self.items, f_amount.value(), f_draw_line.isChecked(), f_end_amount.value(), f_add_values.isChecked())
+                pydaw_velocity_mod(self.items, f_amount.value(), f_draw_line.isChecked(), f_end_amount.value(), f_add_values.isChecked(), a_selected_only=a_selected_only)
                 for f_i in range(global_item_editing_count):
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
