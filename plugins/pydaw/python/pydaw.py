@@ -3685,7 +3685,7 @@ class item_list_editor:
             else:
                 for f_i in range(len(self.items)):
                     self.items[f_i].transpose(f_semitone.value(), f_octave.value(), a_selected_only=a_selected_only)
-                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
             self.open_item()
             this_pydaw_project.git_repo.git_commit("-a", "Transpose item(s)")
             f_window.close()
