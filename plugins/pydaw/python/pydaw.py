@@ -396,6 +396,9 @@ class region_list_editor:
             self.table_widget.clearSelection()
             if (f_new_radiobutton.isChecked() and f_item_count.value() == 1):
                 f_cell_text = str(f_new_lineedit.text())
+                if this_pydaw_project.item_exists(f_cell_text):
+                    QtGui.QMessageBox.warning(self.table_widget, "Error", "An item named '" + f_cell_text + "' already exists.")
+                    return
                 this_pydaw_project.create_empty_item(f_cell_text)
                 this_item_editor.open_item([f_cell_text])
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
@@ -422,7 +425,11 @@ class region_list_editor:
                 this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
             elif f_copy_from_radiobutton.isChecked():
                 f_cell_text = str(f_new_lineedit.text())
-                this_pydaw_project.copy_item(str(f_copy_combobox.currentText()), f_cell_text)
+                f_copy_from_text = str(f_copy_combobox.currentText())
+                if this_pydaw_project.item_exists(f_cell_text):
+                    QtGui.QMessageBox.warning(self.table_widget, "Error", "An item named '" + f_cell_text + "' already exists.")
+                    return
+                this_pydaw_project.copy_item(f_copy_from_text, f_cell_text)
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
                 self.region.add_item_ref(x, y - 1, f_cell_text)
                 this_pydaw_project.save_region(str(self.region_name_lineedit.text()), self.region)
