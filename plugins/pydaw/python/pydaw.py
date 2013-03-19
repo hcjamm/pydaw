@@ -4038,7 +4038,7 @@ class item_list_editor:
         self.notes_table_widget = QtGui.QTableWidget()
         self.notes_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.notes_table_widget.setColumnCount(5)
-        self.notes_table_widget.setRowCount(128)
+        self.notes_table_widget.setRowCount(256)
         self.notes_table_widget.cellClicked.connect(self.notes_click_handler)
         self.notes_table_widget.setSortingEnabled(True)
         self.notes_table_widget.sortItems(0)
@@ -4118,7 +4118,7 @@ class item_list_editor:
         self.pitchbend_table_widget = QtGui.QTableWidget()
         self.pitchbend_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.pitchbend_table_widget.setColumnCount(2)
-        self.pitchbend_table_widget.setRowCount(128)
+        self.pitchbend_table_widget.setRowCount(256)
         self.pitchbend_table_widget.cellClicked.connect(self.pitchbend_click_handler)
         self.pitchbend_table_widget.setSortingEnabled(True)
         self.pitchbend_table_widget.sortItems(0)
@@ -4178,9 +4178,9 @@ class item_list_editor:
         self.pitchbend_table_widget.setHorizontalHeaderLabels(['Start', 'Value'])
 
     def set_row_counts(self):
-        self.notes_table_widget.setRowCount(128)
+        self.notes_table_widget.setRowCount(256)
         self.ccs_table_widget.setRowCount(256)
-        self.pitchbend_table_widget.setRowCount(128)
+        self.pitchbend_table_widget.setRowCount(256)
 
     def add_cc(self, a_cc):
         f_index, f_start = pydaw_beats_to_index(a_cc.start)
