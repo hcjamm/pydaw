@@ -73,7 +73,7 @@ extern "C" {
 //arbitrary, I may change these 3 after evaluating memory use vs. probable item count in a real project
 #define PYDAW_MAX_ITEM_COUNT 5000
 #define PYDAW_MAX_REGION_COUNT 300
-#define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 128
+#define PYDAW_MAX_EVENTS_PER_ITEM_COUNT 256
     
 #define PYDAW_MAX_EVENTS_PER_TRACK_COUNT 2048  //Song-level CC events
     
