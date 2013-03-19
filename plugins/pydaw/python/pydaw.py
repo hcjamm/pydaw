@@ -4518,7 +4518,7 @@ class item_list_editor:
         f_layout.addWidget(f_start, 2, 1)
         f_layout.addWidget(QtGui.QLabel("Length(beats)"), 3, 0)
         f_length = QtGui.QDoubleSpinBox()
-        f_length.setRange(0.01, 16.0)
+        f_length.setRange(0.01, 32.0)
         f_length.setValue(self.default_note_length)
         f_layout.addWidget(f_length, 3, 1)
         f_length.valueChanged.connect(length_changed)
