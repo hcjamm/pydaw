@@ -3961,8 +3961,8 @@ class item_list_editor:
         self.main_vlayout.addLayout(self.main_hlayout)
 
         self.notes_groupbox = QtGui.QGroupBox("Notes")
-        self.notes_groupbox.setMinimumWidth(390)
-        self.notes_groupbox.setMaximumWidth(390)
+        self.notes_groupbox.setMinimumWidth(450)
+        self.notes_groupbox.setMaximumWidth(450)
         self.notes_vlayout = QtGui.QVBoxLayout(self.notes_groupbox)
 
 
@@ -4060,8 +4060,8 @@ class item_list_editor:
         self.piano_roll_hlayout.addWidget(this_piano_roll_editor_widget.widget)
 
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
-        self.ccs_groupbox.setMaximumWidth(270)
-        self.ccs_groupbox.setMinimumWidth(270)
+        self.ccs_groupbox.setMaximumWidth(330)
+        self.ccs_groupbox.setMinimumWidth(330)
         self.ccs_vlayout = QtGui.QVBoxLayout(self.ccs_groupbox)
         self.ccs_gridlayout = QtGui.QGridLayout()
         self.ccs_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 0, 1, 1)
@@ -4104,8 +4104,8 @@ class item_list_editor:
         self.pb_hlayout = QtGui.QHBoxLayout()
         self.pitchbend_tab.setLayout(self.pb_hlayout)
         self.pb_groupbox = QtGui.QGroupBox("Pitchbend")
-        self.pb_groupbox.setMaximumWidth(270)
-        self.pb_groupbox.setMinimumWidth(270)
+        self.pb_groupbox.setMaximumWidth(240)
+        self.pb_groupbox.setMinimumWidth(240)
         self.pb_vlayout = QtGui.QVBoxLayout(self.pb_groupbox)
         self.pb_gridlayout = QtGui.QGridLayout()
         self.pb_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 0, 1, 1)
