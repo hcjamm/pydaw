@@ -719,11 +719,11 @@ class region_list_editor:
         if not self.enabled:
             self.warn_no_region_selected()
             return
-
         for f_item in self.table_widget.selectedIndexes():
             f_empty = QtGui.QTableWidgetItem() #Clear the item
             self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
         self.tablewidget_to_region()
+        self.table_widget.clearSelection()
 
     def copy_selected(self):
         if not self.enabled:
