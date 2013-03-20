@@ -774,17 +774,15 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
             f_val_diff = f_this_pb_arr[i + 1].pb_val - f_this_pb_arr[i].pb_val
             if f_val_diff == 0.0:
                 continue
-            f_steps = (abs(f_val_diff) / 0.05)
-            f_time_inc = (f_this_pb_arr[i + 1].start - f_this_pb_arr[i].start) / f_steps
+            f_time_inc = 0.0625
             f_start = f_this_pb_arr[i].start + f_time_inc
 
-            if f_val_diff < 0:
-                f_val_inc = -0.05
-                f_new_val = f_this_pb_arr[i].pb_val - 0.05
-            else:
-                f_val_inc = 0.05
-                f_new_val = f_this_pb_arr[i].pb_val + 0.05
-            for f_i2 in range(int(f_steps)):
+            f_val_inc = f_val_diff / ((f_this_pb_arr[i + 1].start - f_this_pb_arr[i].start) * 16.0)
+            if f_val_diff < 0.0:
+                f_val_inc *= -1.0
+            f_new_val = f_this_pb_arr[i].pb_val + f_val_inc
+
+            while True:
                 f_index_offset = 0
                 f_adjusted_start = f_start - f_this_pb_arr[i].beat_offset
                 while f_adjusted_start >= 4.0:
@@ -793,7 +791,7 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
                 f_interpolated_pb = pydaw_pitchbend(round((f_adjusted_start), 4), round(f_new_val, 4))
                 f_result_arr[f_this_pb_arr[i].item_index + f_index_offset].append(f_interpolated_pb)
                 f_start += f_time_inc
-                if f_start >= (f_this_pb_arr[i + 1].start - 0.05):
+                if f_start >= (f_this_pb_arr[i + 1].start - f_val_inc):
                     break
                 f_new_val += f_val_inc
         for f_i in range(len(a_items_list)):
