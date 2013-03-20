@@ -115,13 +115,13 @@ typedef struct st_pynote
 typedef struct st_pycc
 {
     int cc_num;
-    int cc_val;
+    float cc_val;
     float start;
 }t_pycc;
 
 typedef struct st_pypitchbend
 {
-    int val;
+    float val;
     float start;
 } t_pypitchbend;
 
@@ -331,8 +331,8 @@ void g_pysong_get(t_pydaw_data*);
 t_pytrack * g_pytrack_get(int,int);
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char*);
 void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name);
-t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start);
-t_pypitchbend * g_pypitchbend_get(float a_start, int a_value);
+t_pycc * g_pycc_get(char a_cc_num, float a_cc_val, float a_start);
+t_pypitchbend * g_pypitchbend_get(float a_start, float a_value);
 t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length);
 t_pydaw_data * g_pydaw_data_get(float);
 int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name);
@@ -1068,7 +1068,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
                                 ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
                                 * (a_pydaw_data->playback_inc))) * 4.0f;
                         a_pydaw_data->item_pool[f_index]->pitchbends[(a_pydaw_data->item_pool[f_index]->pitchbend_count)] =
-                                g_pypitchbend_get(f_start, events[f_i2].data.control.value);
+                                g_pypitchbend_get(f_start, (float)events[f_i2].data.control.value);
                         a_pydaw_data->item_pool[f_index]->pitchbend_count = (a_pydaw_data->item_pool[f_index]->pitchbend_count) + 1;
                     }
                 }
@@ -1107,7 +1107,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
                                     ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
                                     * (a_pydaw_data->playback_inc))) * 4.0f;
                             a_pydaw_data->item_pool[f_index]->ccs[(a_pydaw_data->item_pool[f_index]->cc_count)] =
-                                    g_pycc_get(events[f_i2].data.control.param, events[f_i2].data.control.value, f_start);
+                                    g_pycc_get(events[f_i2].data.control.param, (float)events[f_i2].data.control.value, f_start);
                             a_pydaw_data->item_pool[f_index]->cc_count = (a_pydaw_data->item_pool[f_index]->cc_count) + 1;
                         }
                     }
@@ -2170,7 +2170,7 @@ t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length)
     return f_result;
 }
 
-t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start)
+t_pycc * g_pycc_get(char a_cc_num, float a_cc_val, float a_start)
 {
     t_pycc * f_result = (t_pycc*)malloc(sizeof(t_pycc));
     
@@ -2181,7 +2181,7 @@ t_pycc * g_pycc_get(char a_cc_num, char a_cc_val, float a_start)
     return f_result;
 }
 
-t_pypitchbend * g_pypitchbend_get(float a_start, int a_value)
+t_pypitchbend * g_pypitchbend_get(float a_start, float a_value)
 {
     t_pypitchbend * f_result = (t_pypitchbend*)malloc(sizeof(t_pypitchbend));
     
@@ -2606,7 +2606,7 @@ void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
     f_i = 0;
     while(f_i < (f_pyitem->cc_count))
     {
-        sprintf(f_temp, "c|%f|%i|%i\n", f_pyitem->ccs[f_i]->start, f_pyitem->ccs[f_i]->cc_num, f_pyitem->ccs[f_i]->cc_val);
+        sprintf(f_temp, "c|%f|%i|%f\n", f_pyitem->ccs[f_i]->start, f_pyitem->ccs[f_i]->cc_num, f_pyitem->ccs[f_i]->cc_val);
         strcat(f_result, f_temp);
         f_i++;
     }
@@ -2767,7 +2767,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
             char * f_cc_num = c_iterate_2d_char_array(f_current_string);
             char * f_cc_val = c_iterate_2d_char_array(f_current_string);
             
-            f_result->ccs[(f_result->cc_count)] = g_pycc_get(atoi(f_cc_num), atoi(f_cc_val), atof(f_start));
+            f_result->ccs[(f_result->cc_count)] = g_pycc_get(atoi(f_cc_num), atof(f_cc_val), atof(f_start));
             f_result->cc_count = (f_result->cc_count) + 1;
             
             free(f_cc_num);
@@ -2776,7 +2776,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         else if(!strcmp(f_type, "p")) //pitchbend
         {            
             char * f_pb_val_char = c_iterate_2d_char_array(f_current_string);
-            int f_pb_val = atof(f_pb_val_char) * 8192.0f;
+            float f_pb_val = atof(f_pb_val_char) * 8192.0f;
             
             f_result->pitchbends[(f_result->pitchbend_count)] = g_pypitchbend_get(atof(f_start), f_pb_val);
             f_result->pitchbend_count = (f_result->pitchbend_count) + 1;
