@@ -743,7 +743,7 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
                 f_start_val = f_this_cc_arr[i].cc_val + 4
                 f_inc = 4
 
-            for f_i2 in range(f_start_val, (f_this_cc_arr[i + 1].cc_val), f_inc):
+            for f_i2 in range(int(f_start_val), int(f_this_cc_arr[i + 1].cc_val), f_inc):
                 f_index_offset = 0
                 f_adjusted_start = f_start - f_this_cc_arr[i].beat_offset
                 while f_adjusted_start >= 4.0:
@@ -1302,14 +1302,14 @@ class pydaw_cc:
     def __init__(self, a_start, a_cc_num, a_cc_val):
         self.start = float(a_start)
         self.cc_num = int(a_cc_num)
-        self.cc_val = int(a_cc_val)
+        self.cc_val = float(a_cc_val)
 
     def set_val(self, a_val):
-        f_val = int(a_val)
-        if f_val > 127:
-            f_val = 127
-        elif f_val < 0:
-            f_val = 0
+        f_val = float(a_val)
+        if f_val > 127.0:
+            f_val = 127.0
+        elif f_val < 0.0:
+            f_val = 0.0
         self.cc_val = f_val
 
     def __str__(self):
