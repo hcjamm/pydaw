@@ -200,6 +200,10 @@ class pydaw_project:
             f_file = open(f_pytransport_file, 'w')
             f_file.write(str(f_transport_instance))
             f_file.close()
+        f_pymididevice_file = self.project_folder + "/default.pymididevice"
+        if not os.path.exists(f_pymididevice_file):
+            f_file = open(f_pymididevice_file, 'w')
+            f_file.close()
         f_pytracks_file = self.project_folder + "/default.pytracks"
         if not os.path.exists(f_pytracks_file):
             f_file = open(f_pytracks_file, 'w')
@@ -280,6 +284,7 @@ class pydaw_project:
         self.git_repo.git_add(f_pybus_file)
         self.git_repo.git_add(f_pyinput_file)
         self.git_repo.git_add(f_git_ignore_file)
+        self.git_repo.git_add(f_pymididevice_file)
         self.git_repo.git_commit("-a", "Created new project")
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
@@ -439,9 +444,15 @@ class pydaw_project:
             f_file.write(str(a_transport))
             f_file.close()
             f_file_name = self.project_folder + "/default.pymididevice"
+            f_existed = False
+            if os.path.isfile(f_file_name):
+                f_existed = True
             f_file = open(f_file_name, "w")
             f_file.write(a_transport.get_midi_device())
             f_file.close()
+            if not f_existed:
+                self.git_repo.git_add(f_file_name)
+                self.git_repo.git_commit("-a", "Add .pymididevice file")
 
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
