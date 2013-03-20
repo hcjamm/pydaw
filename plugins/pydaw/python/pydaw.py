@@ -271,6 +271,16 @@ class song_editor:
         self.open_song()
 
 class region_list_editor:
+    def on_play(self):
+        self.length_default_radiobutton.setEnabled(False)
+        self.length_alternate_radiobutton.setEnabled(False)
+        self.length_alternate_spinbox.setEnabled(False)
+
+    def on_stop(self):
+        self.length_default_radiobutton.setEnabled(True)
+        self.length_alternate_radiobutton.setEnabled(True)
+        self.length_alternate_spinbox.setEnabled(True)
+
     def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num, a_selected=False):
         """ Adds a properly formatted item.  This is not for creating empty items... """
         f_qtw_item = QtGui.QTableWidgetItem(a_name)
@@ -4930,6 +4940,9 @@ class transport_widget:
         if self.is_playing:
             self.region_spinbox.setValue(self.last_region_num)
             self.bar_spinbox.setValue(self.last_bar)
+        this_region_editor.on_play()
+        self.bar_spinbox.setEnabled(False)
+        self.region_spinbox.setEnabled(False)
         global global_transport_is_playing
         global_transport_is_playing = True
         self.is_playing = True
@@ -5029,6 +5042,9 @@ class transport_widget:
             return
         global global_transport_is_playing
         global_transport_is_playing = False
+        this_region_editor.on_stop()
+        self.bar_spinbox.setEnabled(True)
+        self.region_spinbox.setEnabled(True)
         this_pydaw_project.this_dssi_gui.pydaw_stop()
         self.beat_timer.stop()
         self.bar_spinbox.setValue(self.last_bar)
@@ -5047,10 +5063,14 @@ class transport_widget:
             this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
         this_audio_items_viewer.stop_playback()
         this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
+
     def on_rec(self):
         if self.is_playing:
             self.play_button.setChecked(True)
             return
+        this_region_editor.on_play()
+        self.bar_spinbox.setEnabled(False)
+        self.region_spinbox.setEnabled(False)
         global global_transport_is_playing
         global_transport_is_playing = True
         self.is_recording = True
