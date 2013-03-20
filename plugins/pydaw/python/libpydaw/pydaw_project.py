@@ -424,13 +424,23 @@ class pydaw_project:
             return pydaw_transport()  #defaults
         f_str = f_file.read()
         f_file.close()
-        return pydaw_transport.from_str(f_str)
+        f_result = pydaw_transport.from_str(f_str)
+        f_file_name = self.project_folder + "/default.pymididevice"
+        if os.path.isfile(f_file_name):
+            f_file = open(f_file_name)
+            f_result.midi_keybd = f_file.read()
+            f_file.close()
+        return f_result
 
     def save_transport(self, a_transport):
         if not self.suppress_updates:
             f_file_name = self.project_folder + "/default.pytransport"
             f_file = open(f_file_name, "w")
-            f_file.write(a_transport.__str__())
+            f_file.write(str(a_transport))
+            f_file.close()
+            f_file_name = self.project_folder + "/default.pymididevice"
+            f_file = open(f_file_name, "w")
+            f_file.write(a_transport.get_midi_device())
             f_file.close()
 
     def create_empty_region(self, a_region_name):
@@ -1580,7 +1590,13 @@ class pydaw_transport:
         self.bar = a_bar
 
     def __str__(self):
-        return str(self.bpm) + "|" + str(self.midi_keybd) + "|" + str(self.loop_mode) + "|" + str(self.region) + "|" + str(self.bar) + "\n\\"
+        return str(self.bpm) + "|" + "--NONE--" + "|" + str(self.loop_mode) + "|" + str(self.region) + "|" + str(self.bar) + "\n\\"
+
+    def get_midi_device(self):
+        if self.midi_keybd is not None:
+            return str(self.midi_keybd)
+        else:
+            return ""
 
     @staticmethod
     def from_str(a_str):
