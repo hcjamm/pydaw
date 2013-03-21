@@ -248,7 +248,9 @@ class song_editor:
             this_region_editor.clear_items()
             this_region_editor.region_name_lineedit.setText("")
             this_region_editor.enabled = False
+            this_region_editor.set_region_length()
             this_pydaw_project.git_repo.git_commit("-a", f_commit_msg)
+            pydaw_update_region_lengths_dict()
         else:
             QtGui.QTableWidget.keyPressEvent(self.table_widget, event)
 
@@ -258,6 +260,7 @@ class song_editor:
         self.tablewidget_to_song()
         self.table_widget.clearSelection()
         this_pydaw_project.git_repo.git_commit("-a", "Drag-n-drop song item(s)")
+        pydaw_update_region_lengths_dict()
 
     def tablewidget_to_song(self):
         """ Flush the edited content of the QTableWidget back to the native song class... """
@@ -548,7 +551,7 @@ class region_list_editor:
         self.length_alternate_radiobutton.toggled.connect(self.update_region_length)
         self.hlayout0.addWidget(self.length_alternate_radiobutton)
         self.length_alternate_spinbox = QtGui.QSpinBox()
-        self.length_alternate_spinbox.setRange(4, 16)
+        self.length_alternate_spinbox.setRange(1, 16)
         self.length_alternate_spinbox.setValue(8)
         self.length_alternate_spinbox.valueChanged.connect(self.update_region_length)
         self.hlayout0.addWidget(self.length_alternate_spinbox)
