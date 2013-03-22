@@ -760,7 +760,6 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
             f_inc = (f_val_diff / ((f_this_cc_arr[i + 1].start - f_this_cc_arr[i].start) * 16.0))
             if (f_this_cc_arr[i].cc_val) > (f_this_cc_arr[i + 1].cc_val):
                 f_inc *= -1.0
-            print f_val_diff, f_inc
             f_new_val = f_this_cc_arr[i].cc_val + f_inc
             while True:
                 f_index_offset = 0
@@ -792,14 +791,14 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
             f_index += 1
             f_result_arr.append([])
         for i in range(len(f_this_pb_arr) - 1):
-            f_val_diff = f_this_pb_arr[i + 1].pb_val - f_this_pb_arr[i].pb_val
+            f_val_diff = abs(f_this_pb_arr[i + 1].pb_val - f_this_pb_arr[i].pb_val)
             if f_val_diff == 0.0:
                 continue
             f_time_inc = 0.0625
             f_start = f_this_pb_arr[i].start + f_time_inc
 
             f_val_inc = f_val_diff / ((f_this_pb_arr[i + 1].start - f_this_pb_arr[i].start) * 16.0)
-            if f_val_diff < 0.0:
+            if f_this_pb_arr[i].pb_val > f_this_pb_arr[i + 1].pb_val:
                 f_val_inc *= -1.0
             f_new_val = f_this_pb_arr[i].pb_val + f_val_inc
 
@@ -810,11 +809,11 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
                     f_index_offset += 1
                     f_adjusted_start -= 4.0
                 f_interpolated_pb = pydaw_pitchbend(round((f_adjusted_start), 4), round(f_new_val, 4))
+                f_new_val += f_val_inc
                 f_result_arr[f_this_pb_arr[i].item_index + f_index_offset].append(f_interpolated_pb)
                 f_start += f_time_inc
-                if f_start >= (f_this_pb_arr[i + 1].start - f_val_inc):
+                if f_start >= (f_this_pb_arr[i + 1].start - 0.0625):
                     break
-                f_new_val += f_val_inc
         for f_i in range(len(a_items_list)):
             a_items_list[f_i].pitchbends += f_result_arr[f_i]
             a_items_list[f_i].pitchbends.sort()
