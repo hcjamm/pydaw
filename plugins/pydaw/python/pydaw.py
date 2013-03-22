@@ -2835,6 +2835,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.right_click = False
         self.left_click = False
         self.click_enabled = True
+        self.last_scale = 1.0
 
     def highlight_selected(self):
         self.has_selected = False
@@ -2925,6 +2926,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.scene.addItem(self.piano)
         f_key = piano_key_item(self.piano_width, self.note_height, self.piano)
         f_label = QtGui.QGraphicsSimpleTextItem("C8", f_key)
+        f_label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
         f_label.setPos(4, 0)
         f_label.setFont(f_piano_label)
         f_key.setBrush(QtGui.QColor(255,255,255))
@@ -2934,6 +2936,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_key.setPos(0, self.note_height * (j) + self.octave_height*(i-1))
                 if j == 12:
                     f_label = QtGui.QGraphicsSimpleTextItem("%s%d" % (f_labels[j-1], self.end_octave-i), f_key)
+                    f_label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                     f_label.setPos(4, 0)
                     f_label.setFont(f_piano_label)
                 if j in f_black_notes:
@@ -2969,14 +2972,17 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_line_pen.setColor(QtGui.QColor(0, 0, 0))
         for i in range(0, int(self.item_length) + 1):
             f_beat = QtGui.QGraphicsLineItem(0, 0, 0, self.piano_height+self.header_height-f_beat_pen.width(), self.header)
+            f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_beat.setPos(self.beat_width * i, 0.5 * f_beat_pen.width())
             f_beat_number = i % 4
             if f_beat_number == 0 and not i == 0:
                 f_beat.setPen(f_bar_pen)
+                f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             else:
                 f_beat.setPen(f_beat_pen)
             if i < self.item_length:
                 f_number = QtGui.QGraphicsSimpleTextItem(str(f_beat_number), self.header)
+                f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                 f_number.setPos(self.beat_width * i + 5, 2)
                 f_number.setBrush(QtCore.Qt.white)
                 for j in range(0, self.grid_div):
@@ -2989,7 +2995,13 @@ class piano_roll_editor(QtGui.QGraphicsView):
                         f_line.setPen(f_line_pen)
 
     def set_zoom(self, a_scale):
-        self.scale(a_scale, 1.0)
+        if a_scale == 1.0:
+            f_new_scale = 1.0
+        else:
+            f_new_scale = a_scale * (self.geometry().width() / 1000.0) * 0.9
+        self.scale(1.0/self.last_scale, 1.0)
+        self.scale(f_new_scale, 1.0)
+        self.last_scale = f_new_scale
 
     def clear_drawn_items(self):
         self.note_items = []
@@ -3106,6 +3118,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         self.item_index = a_item_index
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.setPos(a_time-global_automation_point_radius, a_value - global_automation_point_radius)
         self.setBrush(global_automation_gradient)
@@ -3192,6 +3205,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
         self.cc_num = 1
+        self.last_scale = 1.0
 
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsScene.keyPressEvent(self.scene, a_event)
@@ -3272,13 +3286,16 @@ class automation_viewer(QtGui.QGraphicsView):
         for i in range(0, int(self.item_length)+1):
             f_beat = QtGui.QGraphicsLineItem(0, 0, 0, self.viewer_height+self.axis_size-f_beat_pen.width(), self.x_axis)
             f_beat.setPos(self.beat_width * i, 0.5*f_beat_pen.width())
+            f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_beat_number = i % 4
             if f_beat_number == 0 and not i == 0:
                 f_beat.setPen(f_bar_pen)
+                f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             else:
                 f_beat.setPen(f_beat_pen)
             if i < self.item_length:
                 f_number = QtGui.QGraphicsSimpleTextItem(str(f_beat_number), self.x_axis)
+                f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
                 f_number.setPos(self.beat_width * i + 5, 2)
                 f_number.setBrush(QtCore.Qt.white)
                 for j in range(0, self.grid_div):
@@ -3291,7 +3308,10 @@ class automation_viewer(QtGui.QGraphicsView):
                         f_line.setPen(f_line_pen)
 
     def set_zoom(self, a_scale):
-        self.scale(a_scale, 1.0)
+        f_new_scale = a_scale #* (self.geometry().width() / global_automation_width) * 0.9
+        self.scale(1.0 / self.last_scale, 1.0)
+        self.scale(f_new_scale, 1.0)
+        self.last_scale = f_new_scale
 
     def clear_drawn_items(self):
         self.scene.clear()
@@ -3459,7 +3479,6 @@ class automation_viewer_widget:
         self.smooth_button.pressed.connect(self.smooth_pressed)
         self.hlayout.addWidget(self.smooth_button)
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
-
 
 class item_list_editor:
     def clear_notes(self, a_is_list=True):
@@ -3920,6 +3939,25 @@ class item_list_editor:
         f_layout.addWidget(f_cancel, 2, 1)
         f_window.exec_()
 
+    def set_zoom(self, a_value=None, a_is_refresh=False):
+        if not self.enabled:
+            return
+        f_index = self.zoom_combobox.currentIndex()
+        f_item_count = len(self.items)
+        if not a_is_refresh and f_item_count < 2:
+            return
+        if f_index == 0:
+            f_zoom = 1.0
+        elif f_index == 1:
+            f_zoom = (1.0/f_item_count)
+        if a_is_refresh and f_item_count < 2:
+            f_zoom = 1.0
+
+        for f_viewer in this_cc_automation_viewers:
+            f_viewer.set_zoom(f_zoom)
+        this_piano_roll_editor.set_zoom(f_zoom)
+        this_pb_automation_viewer.set_zoom(f_zoom)
+
     def __init__(self):
         self.enabled = False
         self.items = []
@@ -3933,10 +3971,11 @@ class item_list_editor:
         self.master_vlayout.addLayout(self.master_hlayout)
         self.item_list_label = QtGui.QLabel("")
         self.master_hlayout.addWidget(self.item_list_label,  QtCore.Qt.AlignLeft)
-        #self.zoom_combobox = QtGui.QComboBox()
-        #self.zoom_combobox.setMaximumWidth(120)
-        #self.zoom_combobox.addItems(["Large", "Medium", "Small"])
-        #self.master_hlayout.addWidget(self.zoom_combobox, QtCore.Qt.AlignRight)
+        self.zoom_combobox = QtGui.QComboBox()
+        self.zoom_combobox.setMaximumWidth(120)
+        self.zoom_combobox.addItems(["Large", "Small"])
+        self.zoom_combobox.currentIndexChanged.connect(self.set_zoom)
+        self.master_hlayout.addWidget(self.zoom_combobox, QtCore.Qt.AlignRight)
 
         self.tab_widget = QtGui.QTabWidget()
         self.piano_roll_tab = QtGui.QGroupBox()
@@ -4248,6 +4287,7 @@ class item_list_editor:
             self.item_name_combobox.setCurrentIndex(0)
             self.item_index_enabled = True
             this_piano_roll_editor.horizontalScrollBar().setSliderPosition(0)
+            self.set_zoom(a_is_refresh=True)
 
         for i in range(3):
             this_cc_automation_viewers[i].clear_drawn_items()
