@@ -3079,30 +3079,10 @@ class piano_roll_editor_widget():
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
         self.snap_combobox.setCurrentIndex(3)
-        #self.h_zoom_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
-        #self.h_zoom_slider.setRange(0, 100)
-        #self.h_zoom_slider.setMaximumWidth(600)
-        #self.h_zoom_slider.setValue(0)
-        #self.last_scale_value = 0
-        #self.h_zoom_slider.valueChanged.connect(self.set_zoom)
-        #self.controls_grid_layout.addWidget(QtGui.QLabel("Zoom:"), 0, 49)
-        #self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
 
     def set_snap(self, a_val=None):
         pydaw_set_piano_roll_quantize(self.snap_combobox.currentIndex())
 
-    def set_zoom(self, a_val=None):
-        """ This is a ridiculously convoluted way to do this, but I see no other way in the Qt docs.  When
-        Scaling, 1.0 does not return to it's original scale, and QSlider skips values when moved quickly, making
-        it necessary to interpolate the inbetween values"""
-        pass
-        #if self.last_scale_value > self.h_zoom_slider.value():
-        #    for i in range(self.h_zoom_slider.value(), self.last_scale_value):
-        #        this_audio_items_viewer.set_zoom(0.97)
-        #else:
-        #    for i in range(self.last_scale_value, self.h_zoom_slider.value()):
-        #        this_audio_items_viewer.set_zoom(1.03)
-        #self.last_scale_value = self.h_zoom_slider.value()
 
 global_automation_point_diameter = 15.0
 global_automation_point_radius = global_automation_point_diameter * 0.5
@@ -3949,28 +3929,29 @@ class item_list_editor:
         self.widget = QtGui.QWidget()
         self.master_vlayout = QtGui.QVBoxLayout()
         self.widget.setLayout(self.master_vlayout)
-        self.tab_widget = QtGui.QTabWidget()
+        self.master_hlayout = QtGui.QHBoxLayout()
+        self.master_vlayout.addLayout(self.master_hlayout)
+        self.item_list_label = QtGui.QLabel("")
+        self.master_hlayout.addWidget(self.item_list_label,  QtCore.Qt.AlignLeft)
+        #self.zoom_combobox = QtGui.QComboBox()
+        #self.zoom_combobox.setMaximumWidth(120)
+        #self.zoom_combobox.addItems(["Large", "Medium", "Small"])
+        #self.master_hlayout.addWidget(self.zoom_combobox, QtCore.Qt.AlignRight)
 
+        self.tab_widget = QtGui.QTabWidget()
         self.piano_roll_tab = QtGui.QGroupBox()
         self.tab_widget.addTab(self.piano_roll_tab, "Piano Roll")
-
         self.notes_tab = QtGui.QGroupBox()
-
         self.group_box = QtGui.QGroupBox()
         self.tab_widget.addTab(self.group_box, "CCs")
-
         self.pitchbend_tab = QtGui.QGroupBox()
         self.tab_widget.addTab(self.pitchbend_tab, "Pitchbend")
 
         self.main_vlayout = QtGui.QVBoxLayout()
         self.main_hlayout = QtGui.QHBoxLayout()
         self.group_box.setLayout(self.main_vlayout)
-
         self.editing_hboxlayout = QtGui.QHBoxLayout()
-        #self.master_vlayout.addLayout(self.editing_hboxlayout)
-
         self.master_vlayout.addWidget(self.tab_widget)
-
         self.main_vlayout.addLayout(self.main_hlayout)
 
         self.notes_groupbox = QtGui.QGroupBox("Notes")
@@ -4259,6 +4240,7 @@ class item_list_editor:
             global_item_editing_count = len(a_items)
             pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
             self.item_names = a_items
+            self.item_list_label.setText(", ".join(a_items))
             self.item_index_enabled = False
             self.item_name_combobox.clear()
             self.item_name_combobox.clearEditText()
