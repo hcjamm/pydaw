@@ -4275,6 +4275,7 @@ class item_list_editor:
         self.enabled = True
 
         if a_items is not None:
+            self.zoom_combobox.setCurrentIndex(0)
             global global_item_editing_count
             global_item_editing_count = len(a_items)
             pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
