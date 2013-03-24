@@ -38,9 +38,9 @@ strip:
 # --------------------------------------------------------------
 
 install:
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2/way_v
-	install -m 755 WAY_V_qt $(DESTDIR)$(PREFIX)/lib/pydaw2/way_v
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3/way_v
+	install -m 755 WAY_V_qt $(DESTDIR)$(PREFIX)/lib/pydaw3/way_v
 
 clean:
 	rm -f src/*.o src/moc_*.cpp WAY_V_qt

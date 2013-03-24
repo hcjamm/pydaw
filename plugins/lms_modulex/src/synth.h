@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#include "../../include/pydaw2/pydaw_plugin.h"
+#include "../../include/pydaw3/pydaw_plugin.h"
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/cc_map.h"
    

@@ -15,8 +15,8 @@
 
 QString pydaw_load_style()
 {
-    QString f_user_style(QDir::homePath() + QString("/pydaw2/default-style.txt"));
-    QString f_real_style_location("/usr/lib/pydaw2/themes/default/style.txt");
+    QString f_user_style(QDir::homePath() + QString("/pydaw3/default-style.txt"));
+    QString f_real_style_location("/usr/lib/pydaw3/themes/default/style.txt");
     if(QFile::exists(f_user_style))
     {
         QFile f_user_style_file(f_user_style);

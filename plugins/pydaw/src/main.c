@@ -11,7 +11,7 @@
 #include <config.h>
 #endif
 
-#include "../../include/pydaw2/pydaw_plugin.h"
+#include "../../include/pydaw3/pydaw_plugin.h"
 #include <alsa/asoundlib.h>
 #include <alsa/seq.h>
 #include <jack/jack.h>
@@ -105,7 +105,7 @@ void start_gui()
     if (fork() == 0) 
     {
         printf("start_gui with osc path %s\n", osc_path_tmp);
-        execlp("/usr/lib/pydaw2/pydaw/PYDAW_qt", "/usr/lib/pydaw2/pydaw/PYDAW_qt", osc_path_tmp, "pydaw.so", "pydaw2", "pydaw", (char*)NULL);
+        execlp("/usr/lib/pydaw3/pydaw/PYDAW_qt", "/usr/lib/pydaw3/pydaw/PYDAW_qt", osc_path_tmp, "pydaw.so", "pydaw3", "pydaw", (char*)NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
     }
@@ -649,7 +649,7 @@ main(int argc, char **argv)
     plugin->label = "pydaw";
     dll = (d3h_dll_t *)calloc(1, sizeof(d3h_dll_t));
     dll->name = "pydaw";
-    dll->directory = "/usr/lib/pydaw2";
+    dll->directory = "/usr/lib/pydaw3";
     dll->descfn = (DSSI_Descriptor_Function)dssi_descriptor; 
     j = 0;
     

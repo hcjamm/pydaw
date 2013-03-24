@@ -11,13 +11,13 @@
 #include <stdlib.h>
 
 #include "../../plugins/pydaw/src/synth.c"
-#include "../../plugins/include/pydaw2/pydaw_plugin.h"
+#include "../../plugins/include/pydaw3/pydaw_plugin.h"
 #include "ladspa_ports.h"
 #include <unistd.h>
 #include <alsa/asoundlib.h>
 
 #define DEBUGGER_SIMULATE_EXTERNAL_MIDI
-//#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw2/default-project to work without crashing...
+//#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw3/default-project to work without crashing...
 #define DEBUGGER_SAMPLE_COUNT 512
 
 int main(int argc, char** argv) 
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
         
     //It's not necessary to call this, it gets called anyways at startup...  Only use it to load an alternate project
-    //v_open_project(pydaw_data, "/home/cletus/pydaw2/default-project/default.pydaw2");
+    //v_open_project(pydaw_data, "/home/cletus/pydaw3/default-project/default.pydaw3");
 
     f_engine->output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
     f_engine->output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);

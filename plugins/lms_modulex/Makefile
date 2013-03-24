@@ -38,9 +38,9 @@ strip:
 # --------------------------------------------------------------
 
 install:
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2/lms_modulex
-	install -m 755 LMS_MODULEX_qt $(DESTDIR)$(PREFIX)/lib/pydaw2/lms_modulex
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3/lms_modulex
+	install -m 755 LMS_MODULEX_qt $(DESTDIR)$(PREFIX)/lib/pydaw3/lms_modulex
 
 clean:
 	rm -f src/*.o src/moc_*.cpp LMS_MODULEX_qt
