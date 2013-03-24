@@ -11,7 +11,7 @@ perl deb.pl
 
 ";
 
-$short_name = "pydaw2";
+$short_name = "pydaw3";
 
 $arch = `uname -i`;
 chomp($arch);

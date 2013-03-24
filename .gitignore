@@ -4,7 +4,7 @@ tools/debugger/profile.txt
 plugins/pydaw/python/libpydaw/history_test*
 tools/debugger/gmon.out
 tools/debugger/profiling.txt
-plugins/pydaw/pydaw2
+plugins/pydaw/pydaw3
 plugins/pydaw-build/debian/DEBIAN/control
 plugins/pydaw-build/debian/DEBIAN/md5sums
 tools/wavetable_maker/wavs/*.wav

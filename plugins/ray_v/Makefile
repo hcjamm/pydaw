@@ -37,9 +37,9 @@ strip:
 # --------------------------------------------------------------
 
 install:
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2/ray_v
-	install -m 755 LMS_RAYV_qt $(DESTDIR)$(PREFIX)/lib/pydaw2/ray_v
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3/ray_v
+	install -m 755 LMS_RAYV_qt $(DESTDIR)$(PREFIX)/lib/pydaw3/ray_v
 
 clean:
 	rm -f src/*.o src/moc_*.cpp LMS_RAYV_qt

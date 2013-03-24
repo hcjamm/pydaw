@@ -78,10 +78,10 @@ sub run_script
 		`rm -Rf ./core`; #Delete any core dumps from previous sessions, gdb seems to be acting up when the previous core dump isn't deleted
 		`make PREFIX=/usr DESTDIR=$dssi_path install`;
 		if($ARGV[0] eq "--debug" or $ARGV[0] eq "--run"){
-			exec("ulimit -c unlimited; ./pydaw2");
+			exec("ulimit -c unlimited; ./pydaw3");
 		} elsif($ARGV[0] eq "--gdb") {
 			print("\n\n\n****Type 'run $current_dir.so' at the (gdb) prompt***\n\n\n");
-			system("ulimit -c unlimited; gdb ./pydaw2");
+			system("ulimit -c unlimited; gdb ./pydaw3");
 		}			
 	}
 	elsif($ARGV[0] eq "--deps")

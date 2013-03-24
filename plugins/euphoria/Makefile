@@ -37,9 +37,9 @@ strip:
 # --------------------------------------------------------------
 
 install:
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2/euphoria
-	install -m 755 LMS_EUPHORIA_qt $(DESTDIR)$(PREFIX)/lib/pydaw2/euphoria
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3/euphoria
+	install -m 755 LMS_EUPHORIA_qt $(DESTDIR)$(PREFIX)/lib/pydaw3/euphoria
 
 clean:
 	rm -f src/*.o src/moc_*.cpp LMS_EUPHORIA_qt

@@ -22,8 +22,8 @@ from sys import argv
 from os.path import expanduser
 from libpydaw import *
 
-global_pydaw_version_string = "pydaw2"
-global_pydaw_file_type_string = 'PyDAW2 Project (*.pydaw2)'
+global_pydaw_version_string = "pydaw3"
+global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
 
 global_transport_is_playing = False
 global_region_lengths_dict = {}
@@ -5478,7 +5478,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
     def on_open_theme(self):
         try:
-            f_file = str(QtGui.QFileDialog.getOpenFileName(self, "Open a theme file", "/usr/lib/pydaw2/themes", "PyDAW Style(style.txt)"))
+            f_file = str(QtGui.QFileDialog.getOpenFileName(self, "Open a theme file", "/usr/lib/" + global_pydaw_version_string + "/themes", "PyDAW Style(style.txt)"))
             if not f_file is None and not f_file == "":
                 f_style = pydaw_read_file_text(f_file)
                 pydaw_write_file_text(self.user_style_file, f_file)
@@ -5492,7 +5492,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.setFixedSize(150, 80)
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
-        f_version = QtGui.QLabel(pydaw_read_file_text("/usr/lib/pydaw2/pydaw2-version.txt"))
+        f_version = QtGui.QLabel(pydaw_read_file_text("/usr/lib/" + global_pydaw_version_string + "/" + global_pydaw_version_string + "-version.txt"))
         #f_git_version = QtGui.QLabel("git revision")
         f_layout.addWidget(f_version)
         #f_layout.addWidget(f_git_version)
@@ -5530,8 +5530,8 @@ class pydaw_main_window(QtGui.QMainWindow):
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         self.setObjectName("mainwindow")
-        default_stylesheet_file = "/usr/lib/pydaw2/themes/default/style.txt"
-        self.user_style_file = expanduser("~") + "/pydaw2/default-style.txt"
+        default_stylesheet_file = "/usr/lib/" + global_pydaw_version_string + "/themes/default/style.txt"
+        self.user_style_file = expanduser("~") + "/" + global_pydaw_version_string + "/default-style.txt"
         if os.path.isfile(self.user_style_file):
             f_current_style_file_text = pydaw_read_file_text(self.user_style_file)
             if os.path.isfile(f_current_style_file_text):
@@ -5774,22 +5774,22 @@ Any additional text must be enclosed in quotation marks."
             f_name = "Modulex"
             self.file_name = f_local_dir + "/lms_modulex-cc_map.txt"
             if not os.path.isfile(self.file_name):
-                copyfile("/usr/lib/pydaw2/cc_maps/lms_modulex-cc_map.txt", self.file_name)
+                copyfile("/usr/lib/" + global_pydaw_version_string + "/cc_maps/lms_modulex-cc_map.txt", self.file_name)
         elif a_index == 1:
             f_name = "Euphoria"
             self.file_name = f_local_dir + "/euphoria-cc_map.txt"
             if not os.path.isfile(self.file_name):
-                copyfile("/usr/lib/pydaw2/cc_maps/euphoria-cc_map.txt", self.file_name)
+                copyfile("/usr/lib/" + global_pydaw_version_string + "/cc_maps/euphoria-cc_map.txt", self.file_name)
         elif a_index == 2:
             f_name = "Ray-V"
             self.file_name = f_local_dir + "/ray_v-cc_map.txt"
             if not os.path.isfile(self.file_name):
-                copyfile("/usr/lib/pydaw2/cc_maps/ray_v-cc_map.txt", self.file_name)
+                copyfile("/usr/lib/" + global_pydaw_version_string + "/cc_maps/ray_v-cc_map.txt", self.file_name)
         elif a_index == 3:
             f_name = "Way-V"
             self.file_name = f_local_dir + "/way_v-cc_map.txt"
             if not os.path.isfile(self.file_name):
-                copyfile("/usr/lib/pydaw2/cc_maps/way_v-cc_map.txt", self.file_name)
+                copyfile("/usr/lib/" + global_pydaw_version_string + "/cc_maps/way_v-cc_map.txt", self.file_name)
         self.groupbox = QtGui.QGroupBox(f_name)
         self.groupbox.setMaximumWidth(420)
         f_vlayout = QtGui.QVBoxLayout(self.groupbox)
@@ -5873,7 +5873,7 @@ def global_ui_refresh_callback():
     this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder)  #Re-open the project so that any changes can be caught by the back-end
 
 def set_window_title():
-    this_main_window.setWindowTitle('PyDAW2 - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
+    this_main_window.setWindowTitle('PyDAW3 - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
 #Opens or creates a new project
 def global_open_project(a_project_file, a_notify_osc=True):
     global_close_all()
@@ -5930,7 +5930,7 @@ global_audio_track_comboboxes = []
 global_ai_sg_at_combobox = QtGui.QComboBox()
 global_audio_track_comboboxes.append(global_ai_sg_at_combobox)
 
-app.setWindowIcon(QtGui.QIcon('/usr/share/pixmaps/pydaw2.png'))
+app.setWindowIcon(QtGui.QIcon('/usr/share/pixmaps/" + global_pydaw_version_string + ".png'))
 app.aboutToQuit.connect(about_to_quit)
 
 this_pb_automation_viewer = automation_viewer(a_is_cc=False)

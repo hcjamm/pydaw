@@ -15,7 +15,7 @@ C_OBJS   = src/main.o src/message_buffer.o
 
 # --------------------------------------------------------------
 
-all: pydaw2
+all: pydaw3
 
 debug:
 	make CFLAGS+=" -O0 -g -gdwarf-3 "
@@ -23,7 +23,7 @@ debug:
 release:
 	make CFLAGS+=" -O3 "
 
-pydaw2: $(C_OBJS)
+pydaw3: $(C_OBJS)
 	$(CC) $(C_OBJS) $(LINK_CFLAGS) -o $@
 
 # --------------------------------------------------------------
@@ -34,18 +34,18 @@ pydaw2: $(C_OBJS)
 # --------------------------------------------------------------
 
 strip:
-	strip pydaw2
+	strip pydaw3
 
 # --------------------------------------------------------------
 
 install:
 	rm -rf python/*.pyc python/libpydaw/*.pyc python/*~ python/libpydaw/*~
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 pydaw2 $(DESTDIR)$(PREFIX)/bin
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2/pydaw
-	install -m 755 PYDAW_qt $(DESTDIR)$(PREFIX)/lib/pydaw2/pydaw
-	cp -R python $(DESTDIR)$(PREFIX)/lib/pydaw2/pydaw
+	install -m 755 pydaw3 $(DESTDIR)$(PREFIX)/bin
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw
+	install -m 755 PYDAW_qt $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw
+	cp -R python $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw
 
 clean:
-	rm -f src/*.o *.so python/*.pyc python/libpydaw/*.pyc python/pydaw/*~ pydaw2 core *~ src/*~
+	rm -f src/*.o *.so python/*.pyc python/libpydaw/*.pyc python/pydaw/*~ pydaw3 core *~ src/*~

@@ -22,8 +22,8 @@ strip:
 	strip $(BIN)
 
 install:
-	install -d $(DESTDIR)$(PREFIX)/lib/pydaw2
-	install -m 755 $(BIN) $(DESTDIR)$(PREFIX)/lib/pydaw2
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3
+	install -m 755 $(BIN) $(DESTDIR)$(PREFIX)/lib/pydaw3
 
 dep:
 	rm -f .dep; \

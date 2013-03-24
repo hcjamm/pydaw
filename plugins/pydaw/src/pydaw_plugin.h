@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#include "../../include/pydaw2/pydaw_plugin.h"
+#include "../../include/pydaw3/pydaw_plugin.h"
 #include "pydaw.h"
 #include <lo/lo.h>
 #include <alsa/asoundlib.h>

@@ -3018,7 +3018,7 @@ void v_open_default_project(t_pydaw_data * a_data)
 {
     char * f_home = getenv("HOME");
     char f_default_project_folder[512];
-    sprintf(f_default_project_folder, "%s/pydaw2/default-project", f_home);
+    sprintf(f_default_project_folder, "%s/pydaw3/default-project", f_home);
     v_open_project(a_data, f_default_project_folder);
     //free(f_home);  //Not freeing this because it SEGFAULTS for some reason and is tiny....
 }
@@ -4003,7 +4003,7 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is
     
     if(a_is_fx)
     {
-        filename = "/usr/lib/pydaw2/lms_modulex/LMS_MODULEX_qt";
+        filename = "/usr/lib/pydaw3/lms_modulex/LMS_MODULEX_qt";
         dllName = "lms_modulex.so";       
     }
     else
@@ -4011,15 +4011,15 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is
         switch(a_track->plugin_index)
         {
             case 1:
-                filename = "/usr/lib/pydaw2/euphoria/LMS_EUPHORIA_qt";
+                filename = "/usr/lib/pydaw3/euphoria/LMS_EUPHORIA_qt";
                 dllName = "euphoria.so";
                 break;
             case 2:
-                filename = "/usr/lib/pydaw2/ray_v/LMS_RAYV_qt";
+                filename = "/usr/lib/pydaw3/ray_v/LMS_RAYV_qt";
                 dllName = "ray_v.so";
                 break;
             case 3:
-                filename = "/usr/lib/pydaw2/way_v/WAY_V_qt";
+                filename = "/usr/lib/pydaw3/way_v/WAY_V_qt";
                 dllName = "way_v.so";
                 break;
             default:
