@@ -5499,7 +5499,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_user_manual(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://pydaw.org/wiki/index.php?title=PyDAW2_Manual"))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://pydaw.org/wiki/index.php?title=PyDAW3_Manual"))
 
     def on_website(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://pydaw.org/"))
