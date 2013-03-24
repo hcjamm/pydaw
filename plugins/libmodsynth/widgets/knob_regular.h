@@ -17,6 +17,9 @@
 #include <QDial>
 #include <QPainter>
 #include <math.h>
+#include <QPen>
+#include <QRect>
+#include <QColor>
 
 #include "lms_control.h"
 
@@ -37,7 +40,7 @@ public:
     void set_pixmap_knob(int a_size)
     {
         QPixmap f_pixmap("/usr/lib/pydaw3/themes/default/pydaw-knob.png");
-        pixmap_size = a_size - 5;
+        pixmap_size = a_size - 10;
         pixmap = f_pixmap.scaled(pixmap_size, pixmap_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     }
     QPixmap pixmap;
@@ -45,7 +48,17 @@ public:
 protected:
     void paintEvent(QPaintEvent *ev)
     {
-        QPainter p(this);               
+        QPainter p(this);      
+        float f_frac_val = (((float)(this->value() - this->minimum())) / ((float)(this->maximum() - this->minimum())));
+        float f_rotate_value =  f_frac_val * 270.0f;
+        
+        QRect f_rect = this->rect();
+        f_rect.setWidth(f_rect.width() - 3);
+        f_rect.setHeight(f_rect.height() - 3);
+        f_rect.setX(f_rect.x() + 3);
+        f_rect.setY(f_rect.y() + 3);
+        p.setPen(QPen(QColor::fromRgb(255, 30, 30, 255), 5.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        p.drawArc(f_rect, -136 * 16, (((int)f_rotate_value) + 1) * -16);
                 
         p.setRenderHints(QPainter::HighQualityAntialiasing | QPainter::SmoothPixmapTransform);
         // xc and yc are the center of the widget's rect.
@@ -53,19 +66,15 @@ protected:
         qreal yc = height() * 0.5;
 
         // translates the coordinate system by xc and yc
-        p.translate(xc, yc);
-
-        float f_rotate_value = (((float)(this->value() - this->minimum())) / ((float)(this->maximum() - this->minimum()))) * 270.0f;
+        p.translate(xc, yc);        
+        
         p.rotate(f_rotate_value);
         
         // we need to move the rectangle that we draw by rx and ry so it's in the center.
-        qreal rx = -(pixmap_size * 0.5);
-        qreal ry = -(pixmap_size * 0.5);
+        qreal rx = -(pixmap_size * 0.5f);
+        qreal ry = -(pixmap_size * 0.5f);
         
-        p.drawPixmap(rx, ry, this->pixmap);
-        //p.drawRect(QRect(rx, ry, 13, 17));
-        
-        
+        p.drawPixmap(rx, ry, this->pixmap);                
     }
 
 };
