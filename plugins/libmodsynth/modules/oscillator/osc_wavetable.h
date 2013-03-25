@@ -183,6 +183,17 @@ float f_osc_wav_run_unison(t_osc_wav_unison * a_osc_ptr)
     return (a_osc_ptr->current_sample) * (a_osc_ptr->adjusted_amp);
 }
 
+void v_osc_wav_run_unison_core_only(t_osc_wav_unison * a_osc_ptr)
+{
+    a_osc_ptr->i_run_unison = 0;
+    a_osc_ptr->current_sample = 0.0f;
+        
+    while((a_osc_ptr->i_run_unison) < (a_osc_ptr->voice_count))
+    {        
+        v_run_osc(a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)], (a_osc_ptr->voice_inc[(a_osc_ptr->i_run_unison)]));            
+        a_osc_ptr->i_run_unison = (a_osc_ptr->i_run_unison) + 1;
+    }
+}
 
 /*Resync the oscillators at note_on to hopefully avoid phasing artifacts*/
 void v_osc_wav_note_on_sync_phases(t_osc_wav_unison * a_osc_ptr)
@@ -236,12 +247,22 @@ t_osc_wav_unison * g_osc_get_osc_wav_unison(float a_sample_rate)
         //f_result->osc_wavs[f_i] = 
         f_i++;
     }
-           
+    
+    v_osc_wav_set_unison_pitch(f_result, .5f, 60.0f);
+    f_i = 0;
+    
+    //Prevent phasing artifacts from the oscillators starting at the same phase.
+    while(f_i < 200000)
+    {
+        v_osc_wav_run_unison_core_only(f_result);
+        f_i++;
+    }
+    
     f_i = 0;
         
     while(f_i < (OSC_UNISON_MAX_VOICES))
     {
-        f_result->phases[f_i] = 0.0f;  //TODO:  get some good values for this
+        f_result->phases[f_i] = f_result->osc_cores[f_i]->output;
         f_i++;
     }
     
