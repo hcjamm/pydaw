@@ -29,6 +29,8 @@ enum LMS_KNOB_CONVERSION
     lms_kc_127_zero_to_x, lms_kc_log_time, lms_kc_127_zero_to_x_int
 };
 
+static QPen knob_regular_arc_pen(QColor::fromRgb(255, 30, 30, 255), 5.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+
 class lms_pixmap_knob : public QDial
 {
 public:
@@ -57,7 +59,7 @@ protected:
         f_rect.setHeight(f_rect.height() - 3);
         f_rect.setX(f_rect.x() + 3);
         f_rect.setY(f_rect.y() + 3);
-        p.setPen(QPen(QColor::fromRgb(255, 30, 30, 255), 5.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        p.setPen(knob_regular_arc_pen);
         p.drawArc(f_rect, -136 * 16, (((int)f_rotate_value) + 1) * -16);
                 
         p.setRenderHints(QPainter::HighQualityAntialiasing | QPainter::SmoothPixmapTransform);
