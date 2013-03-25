@@ -10,7 +10,7 @@
 #ifndef KNOB_REGULAR_H
 #define	KNOB_REGULAR_H
 
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QVBoxLayout>
 #include <QString>
 #include <QLabel>
