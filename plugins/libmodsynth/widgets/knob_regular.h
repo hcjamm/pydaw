@@ -177,7 +177,7 @@ class LMS_knob_regular : public LMS_control
             switch(lms_conv_type)
             {
                 case lms_kc_decimal:
-                    lms_value->setText(QString::number(((float)a_value) * .01 ));
+                    lms_value->setText(QString::number(((float)a_value) * .01f));
                     break;
                 case lms_kc_integer:
                     lms_value->setText(QString::number(a_value));
@@ -187,12 +187,12 @@ class LMS_knob_regular : public LMS_control
                     break;
                 case lms_kc_pitch:
                     lms_value->setText(QString::number(
-                   ((int)(440*pow(2,((float)(a_value-57))*.0833333)))
+                   ((int)(440.0f * pow(2.0,((float)(a_value - 57.0)) * 0.0833333f)))
                     ));
                     break;
                 case lms_kc_127_pitch:
                     lms_value->setText(QString::number(
-                   ((int)(440*pow(2,((float)(((a_value * 0.818897638) + 20) -57))*.0833333)))
+                   ((int)(440.0f * pow(2.0f, ((float)(((a_value * 0.818897638f) + 20.0f) -57.0)) * 0.0833333f)))
                     ));
                     break;
                 case lms_kc_127_zero_to_x:
@@ -205,7 +205,7 @@ class LMS_knob_regular : public LMS_control
                     lms_value->setText(QString::number(((int)f_dec_value)));
                     break;
                 case lms_kc_log_time:
-                    f_dec_value = ((float)(a_value)) * 0.01;
+                    f_dec_value = ((float)(a_value)) * 0.01f;
                     f_dec_value = f_dec_value * f_dec_value;
                     f_dec_value = ((int)(f_dec_value * 100.0f)) * 0.01f;
                     lms_value->setText(QString::number(f_dec_value));
@@ -252,8 +252,8 @@ class LMS_knob_regular : public LMS_control
             min_label_value_127 = a_min;
             max_label_value_127 = a_max;
             
-            label_value_127_add_to = 0 - a_min;
-            label_value_127_multiply_by = ((a_max - a_min)/127);
+            label_value_127_add_to = 0.0f - a_min;
+            label_value_127_multiply_by = ((a_max - a_min) / 127.0f);
         }
 };
 
