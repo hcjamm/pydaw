@@ -1928,28 +1928,29 @@ class song_automation_viewer(QtGui.QGraphicsView):
         self.draw_grid()
 
     def connect_points(self):
-        if self.lines:
-            for i in range(len(self.lines)):
-                self.scene.removeItem(self.lines[i])
+        pass
+        #if self.lines:
+        #    for i in range(len(self.lines)):
+        #        self.scene.removeItem(self.lines[i])
         #sort list based on x
-        if len(self.automation_points) > 1:
-            self.lines = (len(self.automation_points)-1)*[None]
-            self.automation_points.sort(key=lambda point: point.pos().x())
-            f_line_pen = QtGui.QPen()
-            f_line_pen.setColor(QtGui.QColor(255,60,60))
-            f_line_pen.setWidth(2)
-            for i in range(1, len(self.automation_points)):
-                f_start_x = self.automation_points[i-1].pos().x()
-                f_start_y = self.automation_points[i-1].pos().y()
-                f_end_x = self.automation_points[i].pos().x()
-                f_end_y = self.automation_points[i].pos().y()
-                f_pos_x = f_end_x - f_start_x
-                f_pos_y = f_end_y - f_start_y
-                f_line = QtGui.QGraphicsLineItem(0, 0, f_pos_x, f_pos_y)
-                f_line.setPos(global_song_automation_point_radius + f_start_x, global_song_automation_point_radius + f_start_y)
-                f_line.setPen(f_line_pen)
-                self.scene.addItem(f_line)
-                self.lines[i-1] = f_line
+        #if len(self.automation_points) > 1:
+        #    self.lines = (len(self.automation_points)-1)*[None]
+        #    self.automation_points.sort(key=lambda point: point.pos().x())
+        #    f_line_pen = QtGui.QPen()
+        #    f_line_pen.setColor(QtGui.QColor(255,60,60))
+        #    f_line_pen.setWidth(2)
+        #    for i in range(1, len(self.automation_points)):
+        #        f_start_x = self.automation_points[i-1].pos().x()
+        #        f_start_y = self.automation_points[i-1].pos().y()
+        #        f_end_x = self.automation_points[i].pos().x()
+        #        f_end_y = self.automation_points[i].pos().y()
+        #        f_pos_x = f_end_x - f_start_x
+        #        f_pos_y = f_end_y - f_start_y
+        #        f_line = QtGui.QGraphicsLineItem(0, 0, f_pos_x, f_pos_y)
+        #        f_line.setPos(global_song_automation_point_radius + f_start_x, global_song_automation_point_radius + f_start_y)
+        #        f_line.setPen(f_line_pen)
+        #        self.scene.addItem(f_line)
+        #        self.lines[i-1] = f_line
 
     def set_cc_num(self, a_cc_num):
         self.cc_num = a_cc_num
