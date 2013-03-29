@@ -81,6 +81,7 @@ extern "C" {
 #define PYDAW_AUDIO_INPUT_TRACK_COUNT 5
 #define PYDAW_AUDIO_TRACK_COUNT 8
 #define PYDAW_MIDI_TRACK_COUNT 16
+#define PYDAW_TRACK_COUNT_ALL (PYDAW_BUS_TRACK_COUNT + PYDAW_AUDIO_TRACK_COUNT + PYDAW_MIDI_TRACK_COUNT)
     
 #define PYDAW_MAX_EVENT_BUFFER_SIZE 512  //This could probably be made smaller
 #define PYDAW_MAX_REGION_SIZE 16
@@ -141,7 +142,7 @@ typedef struct st_pyitem
 
 typedef struct st_pyregion
 {
-    int item_indexes[PYDAW_MIDI_TRACK_COUNT][PYDAW_MAX_REGION_SIZE];  //Refers to the index of items in the master item pool 
+    int item_indexes[PYDAW_TRACK_COUNT_ALL][PYDAW_MAX_REGION_SIZE];  //Refers to the index of items in the master item pool 
     char * name;
     /*This flag is set to 1 if created during recording, signifying that it requires a default name to be created for it*/
     int not_yet_saved;
@@ -217,9 +218,10 @@ typedef struct st_pydaw_data
     t_pytrack * bus_pool[PYDAW_BUS_TRACK_COUNT];
     pthread_spinlock_t bus_spinlocks[PYDAW_BUS_TRACK_COUNT];
     t_pytrack * audio_track_pool[PYDAW_AUDIO_TRACK_COUNT];
+    t_pytrack * track_pool_all[PYDAW_TRACK_COUNT_ALL];  //contains a reference to all track types, in order:  MIDI, Bus, Audio
     t_pyaudio_input * audio_inputs[PYDAW_AUDIO_INPUT_TRACK_COUNT];
     int track_current_item_note_event_indexes[PYDAW_MIDI_TRACK_COUNT];
-    int track_current_item_cc_event_indexes[PYDAW_MIDI_TRACK_COUNT];
+    int track_current_item_cc_event_indexes[PYDAW_TRACK_COUNT_ALL];
     int track_current_item_pitchbend_event_indexes[PYDAW_MIDI_TRACK_COUNT];
     int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
     int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
@@ -963,15 +965,15 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
 {           
     int f_i = 0;
 
-    while(f_i < PYDAW_MIDI_TRACK_COUNT)
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
-        if(a_pydaw_data->track_pool[f_i]->rec  && ((a_pydaw_data->track_pool[f_i]->plugin_index) != 0))
+        if(a_pydaw_data->track_pool_all[f_i]->rec  && ((a_pydaw_data->track_pool_all[f_i]->plugin_index) != 0))
         {
             int f_i2 = 0;
 
             if(a_pydaw_data->playback_mode == 0)
             {
-                a_pydaw_data->track_pool[f_i]->current_period_event_index = 0;
+                a_pydaw_data->track_pool_all[f_i]->current_period_event_index = 0;
             }
 
             while(f_i2 < event_count)
@@ -1003,12 +1005,12 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
                 if(events[f_i2].type == SND_SEQ_EVENT_NOTEON)
                 {
                     snd_seq_ev_note_t n = events[f_i2].data.note;
-                    snd_seq_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
-                    snd_seq_ev_set_noteon(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)], 0,
+                    snd_seq_ev_clear(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)]);
+                    snd_seq_ev_set_noteon(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)], 0,
                                 n.note, n.velocity);
-                    a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)].time.tick = 
+                    a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)].time.tick = 
                             (events[f_i2].time.tick);
-                    a_pydaw_data->track_pool[f_i]->current_period_event_index = (a_pydaw_data->track_pool[f_i]->current_period_event_index) + 1;
+                    a_pydaw_data->track_pool_all[f_i]->current_period_event_index = (a_pydaw_data->track_pool_all[f_i]->current_period_event_index) + 1;
 
                     if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                     {
@@ -1026,12 +1028,12 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
                 else if(events[f_i2].type == SND_SEQ_EVENT_NOTEOFF)
                 {
                     snd_seq_ev_note_t n = events[f_i2].data.note;
-                    snd_seq_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
-                    snd_seq_ev_set_noteoff(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)], 0, n.note, 0);
-                    a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)].time.tick = 
+                    snd_seq_ev_clear(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)]);
+                    snd_seq_ev_set_noteoff(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)], 0, n.note, 0);
+                    a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)].time.tick = 
                             (events[f_i2].time.tick);
 
-                    a_pydaw_data->track_pool[f_i]->current_period_event_index = (a_pydaw_data->track_pool[f_i]->current_period_event_index) + 1;
+                    a_pydaw_data->track_pool_all[f_i]->current_period_event_index = (a_pydaw_data->track_pool_all[f_i]->current_period_event_index) + 1;
 
                     if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                     {
@@ -1056,10 +1058,10 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
                 }
                 else if(events[f_i2].type == SND_SEQ_EVENT_PITCHBEND)
                 {
-                    snd_seq_ev_clear(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)]);
-                    snd_seq_ev_set_pitchbend(&a_pydaw_data->track_pool[f_i]->event_buffer[(a_pydaw_data->track_pool[f_i]->current_period_event_index)], 
+                    snd_seq_ev_clear(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)]);
+                    snd_seq_ev_set_pitchbend(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)], 
                             0, events[f_i2].data.control.value);
-                    a_pydaw_data->track_pool[f_i]->current_period_event_index = (a_pydaw_data->track_pool[f_i]->current_period_event_index) + 1;
+                    a_pydaw_data->track_pool_all[f_i]->current_period_event_index = (a_pydaw_data->track_pool_all[f_i]->current_period_event_index) + 1;
 
                     if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                     {
@@ -1081,22 +1083,22 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
                     if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
                     {
                         long controlIn;
-                        if(a_pydaw_data->track_pool[f_i]->instrument)
+                        if(a_pydaw_data->track_pool_all[f_i]->instrument)
                         {
-                            controlIn = a_pydaw_data->track_pool[f_i]->instrument->controllerMap[controller];
+                            controlIn = a_pydaw_data->track_pool_all[f_i]->instrument->controllerMap[controller];
                             
                             if (controlIn >= 0) 
                             {
                                 /* controller is mapped to LADSPA port, update the port */
-                                v_pydaw_set_control_from_cc(a_pydaw_data->track_pool[f_i]->instrument, controlIn, &events[f_i2], 0);
+                                v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->instrument, controlIn, &events[f_i2], 0);
 
                             }
                         }
-                        controlIn = a_pydaw_data->track_pool[f_i]->effect->controllerMap[controller];
+                        controlIn = a_pydaw_data->track_pool_all[f_i]->effect->controllerMap[controller];
                         if (controlIn >= 0) 
                         {
                             /* controller is mapped to LADSPA port, update the port */
-                            v_pydaw_set_control_from_cc(a_pydaw_data->track_pool[f_i]->effect, controlIn, &events[f_i2], 0);
+                            v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->effect, controlIn, &events[f_i2], 0);
 
                         }
                         //Record the CC regardless of whether it was mapped or not...
@@ -1494,12 +1496,12 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
 
         //Calculate track CCs for this period and update the controller ports
         f_i = 0;
-        while(f_i < PYDAW_MIDI_TRACK_COUNT)
+        while(f_i < PYDAW_TRACK_COUNT_ALL)
         {   
             /* Situations where the track is effectively muted*/
-            if((a_pydaw_data->track_pool[f_i]->plugin_index == 0) ||
-                (a_pydaw_data->track_pool[f_i]->mute) ||
-                ((a_pydaw_data->is_soloed) && (!a_pydaw_data->track_pool[f_i]->solo)))
+            if((a_pydaw_data->track_pool_all[f_i]->plugin_index == 0) ||
+                (a_pydaw_data->track_pool_all[f_i]->mute) ||
+                ((a_pydaw_data->is_soloed) && (!a_pydaw_data->track_pool_all[f_i]->solo)))
             {
                 f_i++;
                 continue;
@@ -1511,7 +1513,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
             double f_track_next_period_beats = (a_pydaw_data->ml_next_period_beats);
             //double f_track_beats_offset = 0.0f;
 
-            if((a_pydaw_data->playback_mode == 2) && (a_pydaw_data->track_pool[f_i]->rec))
+            if((a_pydaw_data->playback_mode == 2) && (a_pydaw_data->track_pool_all[f_i]->rec))
             {
 
             }
@@ -1567,27 +1569,27 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                             if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
                             {
                                 long controlIn;
-                                if(a_pydaw_data->track_pool[f_i]->instrument)
+                                if(a_pydaw_data->track_pool_all[f_i]->instrument)
                                 {
-                                    controlIn = a_pydaw_data->track_pool[f_i]->instrument->controllerMap[controller];
+                                    controlIn = a_pydaw_data->track_pool_all[f_i]->instrument->controllerMap[controller];
 
                                     if (controlIn >= 0)
                                     {
                                         /* controller is mapped to LADSPA port, update the port */
                                         snd_seq_event_t f_event;
                                         f_event.data.control.value = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
-                                        v_pydaw_set_control_from_cc(a_pydaw_data->track_pool[f_i]->instrument, controlIn, &f_event, 0);
+                                        v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->instrument, controlIn, &f_event, 0);
                                     }
                                 }
 
-                                controlIn = a_pydaw_data->track_pool[f_i]->effect->controllerMap[controller];
+                                controlIn = a_pydaw_data->track_pool_all[f_i]->effect->controllerMap[controller];
 
                                 if (controlIn >= 0)
                                 {
                                     /* controller is mapped to LADSPA port, update the port */
                                     snd_seq_event_t f_event;
                                     f_event.data.control.value = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
-                                    v_pydaw_set_control_from_cc(a_pydaw_data->track_pool[f_i]->effect, controlIn, &f_event, 0);
+                                    v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->effect, controlIn, &f_event, 0);
                                 }
                             }
 
@@ -2407,7 +2409,7 @@ t_pyregion *  g_pyregion_get_new(t_pydaw_data* a_pydaw_data)
     int f_i = 0;
     int f_i2 = 0;
     
-    while(f_i < PYDAW_MIDI_TRACK_COUNT)
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
         f_i2 = 0;
         while(f_i2 < PYDAW_MAX_REGION_SIZE)
@@ -2438,7 +2440,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     int f_i = 0;
     int f_i2 = 0;
     
-    while(f_i < PYDAW_MIDI_TRACK_COUNT)
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
         f_i2 = 0;
         while(f_i2 < PYDAW_MAX_REGION_SIZE)
@@ -2512,12 +2514,12 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         free(f_x_char);
         
         char * f_item_name = c_iterate_2d_char_array(f_current_string);
-        assert(f_y < PYDAW_MIDI_TRACK_COUNT);
+        assert(f_y < PYDAW_TRACK_COUNT_ALL);
         assert(f_x < PYDAW_MAX_REGION_SIZE);
         f_result->item_indexes[f_y][f_x] = i_pydaw_get_item_index_from_name(a_pydaw_data, f_item_name);
         assert((f_result->item_indexes[f_y][f_x]) != -1);
         assert((f_result->item_indexes[f_y][f_x]) < a_pydaw_data->item_count);
-        free(f_item_name);            
+        free(f_item_name);        
 
         f_i++;
     }
@@ -2649,7 +2651,7 @@ void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num)
     
     char f_temp[LMS_TINY_STRING];
     
-    while(f_i < PYDAW_MIDI_TRACK_COUNT)
+    while(f_i < PYDAW_TRACK_COUNT_ALL)
     {
         f_i2 = 0;
         while(f_i2 < PYDAW_MAX_REGION_SIZE)
@@ -2930,6 +2932,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->input_buffers_active = 0;
     
     int f_i = 0;
+    int f_track_total = 0;
     
     while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
     {
@@ -2938,40 +2941,13 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         f_result->audio_inputs[f_i]->input_port[1] = (f_i * 2) + 1;
         f_i++;
     }
-    
-    f_i = 0;
-    
-    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
-    {        
-        f_result->audio_track_pool[f_i] = g_pytrack_get(f_i, 2);
-        f_i++;
-    }
-    
-    f_i = 0;
-    
-    while(f_i < PYDAW_BUS_TRACK_COUNT)
-    {
-        pthread_spin_init(&f_result->bus_spinlocks[f_i], 0);
-        f_result->bus_pool[f_i] = g_pytrack_get(f_i, 1);        
-        sprintf(f_result->bus_pool[f_i]->name, "Bus%i", f_i);        
-        f_i++;
-    }
-    
-    sprintf(f_result->bus_pool[0]->name, "Master");
-    
-    f_i = 0;
-    
-    while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
-    {
-        //TODO
-        f_i++;
-    }
-    
+
     f_i = 0;
     
     while(f_i < PYDAW_MIDI_TRACK_COUNT)
     {
         f_result->track_pool[f_i] = g_pytrack_get(f_i, 0);        
+        f_result->track_pool_all[f_track_total] = f_result->track_pool[f_i];
         f_result->track_current_item_note_event_indexes[f_i] = 0;
         f_result->track_current_item_cc_event_indexes[f_i] = 0;
         f_result->track_current_item_pitchbend_event_indexes[f_i] = 0;
@@ -2985,8 +2961,34 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         }
         
         f_i++;
+        f_track_total++;
     }
-        
+     
+    
+    f_i = 0;
+    
+    while(f_i < PYDAW_BUS_TRACK_COUNT)
+    {
+        pthread_spin_init(&f_result->bus_spinlocks[f_i], 0);
+        f_result->bus_pool[f_i] = g_pytrack_get(f_i, 1);    
+        f_result->track_pool_all[f_track_total] = f_result->bus_pool[f_i];
+        sprintf(f_result->bus_pool[f_i]->name, "Bus%i", f_i);        
+        f_i++;
+        f_track_total++;
+    }
+    
+    sprintf(f_result->bus_pool[0]->name, "Master");
+    
+    f_i = 0;
+    
+    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+    {        
+        f_result->audio_track_pool[f_i] = g_pytrack_get(f_i, 2);
+        f_result->track_pool_all[f_track_total] = f_result->audio_track_pool[f_i];
+        f_i++;
+        f_track_total++;
+    }
+  
     f_i = 0;
     
     while(f_i < PYDAW_MIDI_NOTE_COUNT)
