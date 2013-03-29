@@ -367,7 +367,6 @@ class region_settings:
         for f_editor in global_region_editors:
             f_editor.clear_new()
 
-class region_list_editor:
     def on_play(self):
         self.length_default_radiobutton.setEnabled(False)
         self.length_alternate_radiobutton.setEnabled(False)
@@ -378,6 +377,8 @@ class region_list_editor:
         self.length_alternate_radiobutton.setEnabled(True)
         self.length_alternate_spinbox.setEnabled(True)
 
+
+class region_list_editor:
     def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num, a_selected=False):
         """ Adds a properly formatted item.  This is not for creating empty items... """
         f_qtw_item = QtGui.QTableWidgetItem(a_name)
@@ -4316,13 +4317,17 @@ class transport_widget:
         if not self.follow_checkbox.isChecked():
             return
         if this_song_editor.table_widget.item(0, self.region_spinbox.value()) is not None:
-            this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+            this_region_settings.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
         else:
             this_region_editor.clear_items()
         if a_bar:
             this_region_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
+            this_region_audio_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
+            this_region_bus_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
         else:
             this_region_editor.table_widget.clearSelection()
+            this_region_audio_editor.table_widget.clearSelection()
+            this_region_bus_editor.table_widget.clearSelection()
         this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
     def on_spacebar(self):
         if self.is_playing or self.is_recording:
@@ -4336,7 +4341,7 @@ class transport_widget:
         if self.is_playing:
             self.region_spinbox.setValue(self.last_region_num)
             self.bar_spinbox.setValue(self.last_bar)
-        this_region_editor.on_play()
+        this_region_settings.on_play()
         self.bar_spinbox.setEnabled(False)
         self.region_spinbox.setEnabled(False)
         global global_transport_is_playing
@@ -4438,7 +4443,7 @@ class transport_widget:
             return
         global global_transport_is_playing
         global_transport_is_playing = False
-        this_region_editor.on_stop()
+        this_region_settings.on_stop()
         self.bar_spinbox.setEnabled(True)
         self.region_spinbox.setEnabled(True)
         this_pydaw_project.this_dssi_gui.pydaw_stop()
@@ -4456,7 +4461,7 @@ class transport_widget:
             self.show_audio_recording_dialog()
         self.is_playing = False
         if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
-            this_region_editor.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+            this_region_settings.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
         this_audio_items_viewer.stop_playback()
         this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
 
@@ -4464,7 +4469,7 @@ class transport_widget:
         if self.is_playing:
             self.play_button.setChecked(True)
             return
-        this_region_editor.on_play()
+        this_region_settings.on_play()
         self.bar_spinbox.setEnabled(False)
         self.region_spinbox.setEnabled(False)
         global global_transport_is_playing
@@ -4543,6 +4548,8 @@ class transport_widget:
         self.bar_spinbox.setValue(f_new_bar_value)
         if self.follow_checkbox.isChecked():
             this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)
+            this_region_bus_editor.table_widget.selectColumn(f_new_bar_value + 1)
+            this_region_audio_editor.table_widget.selectColumn(f_new_bar_value + 1)
             this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
 
     def open_transport(self, a_notify_osc=False):
