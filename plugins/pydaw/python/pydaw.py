@@ -784,16 +784,6 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
         global_audio_track_names[int(a_index)] = str(a_value)
     global global_suppress_audio_track_combobox_changes
     global_suppress_audio_track_combobox_changes = True
-    if this_song_level_automation_widget.track_type_combobox.currentIndex() == 0:
-        this_song_level_automation_widget.enabled = False
-        f_tmp_index = this_song_level_automation_widget.track_select_combobox.currentIndex()
-        this_song_level_automation_widget.track_select_combobox.clear()
-        this_song_level_automation_widget.track_select_combobox.addItems(['test', 'test2'])  #This is to ensure that the text clears, which apparently won't happen automatically
-        this_song_level_automation_widget.track_select_combobox.setCurrentIndex(1)
-        this_song_level_automation_widget.track_select_combobox.clear()
-        this_song_level_automation_widget.track_select_combobox.addItems(global_audio_track_names.values())
-        this_song_level_automation_widget.track_select_combobox.setCurrentIndex(f_tmp_index)
-        this_song_level_automation_widget.enabled = True
     for f_cbox in global_audio_track_comboboxes:
         f_current_index = f_cbox.currentIndex()
         f_cbox.clear()
@@ -5523,8 +5513,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         this_transport.on_spacebar()
 
     def tab_changed(self):
-        if this_song_level_automation_widget.delete_radiobutton.isChecked():
-            this_song_level_automation_widget.add_radiobutton.setChecked(True)
         if this_item_editor.delete_radiobutton.isChecked():
             this_item_editor.add_radiobutton.setChecked(True)
 
@@ -5627,24 +5615,29 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.main_layout.addWidget(self.main_tabwidget)
 
-        self.main_tabwidget.addTab(this_region_editor.group_box, "Song/MIDI")
-        this_region_editor.main_vlayout.addWidget(this_song_editor.table_widget, 0, 0)
+        self.regions_tab_widget = QtGui.QTabWidget()
+        self.song_region_tab = QtGui.QWidget()
+        self.song_region_vlayout = QtGui.QVBoxLayout()
+        self.song_region_tab.setLayout(self.song_region_vlayout)
+        self.main_tabwidget.addTab(self.song_region_tab, "Song/Region")
+
+        self.song_region_vlayout.addWidget(this_song_editor.table_widget)
+        self.song_region_vlayout.addWidget(self.regions_tab_widget)
+        self.regions_tab_widget.addTab(this_region_editor.group_box, "Plugins")
 
         self.main_tabwidget.addTab(this_item_editor.widget, "MIDI Item")
 
-        self.main_tabwidget.addTab(this_audio_editor.group_box, "Tracks")
+        #self.regions_tab_widget.addTab(this_audio_editor.group_box, "Tracks")
 
         self.audio_items_tab = QtGui.QTabWidget()
 
         self.audio_items_tab.addTab(this_audio_items_viewer_widget.widget, "Viewer")
         self.audio_items_tab.addTab(this_audio_editor.items_groupbox, "Item List")
 
-        self.main_tabwidget.addTab(self.audio_items_tab, "Audio Seq")
+        self.regions_tab_widget.addTab(self.audio_items_tab, "Audio")
 
         self.audio_edit_tab = this_audio_item_editor_widget
-        self.main_tabwidget.addTab(self.audio_edit_tab.widget, "Audio Edit")
-
-        self.main_tabwidget.addTab(this_song_level_automation_widget.widget, "Automation")
+        self.main_tabwidget.addTab(self.audio_edit_tab.widget, "Audio Item")
 
         #Begin CC Map tab
         self.cc_map_tab = QtGui.QWidget()
@@ -5848,11 +5841,7 @@ def global_close_all():
     this_pb_automation_viewer.clear_drawn_items()
     for f_viewer in this_cc_automation_viewers:
         f_viewer.clear_drawn_items()
-    for f_viewer in this_song_automation_viewers:
-        f_viewer.clear_drawn_items()
     for f_widget in this_item_editor.cc_auto_viewers:
-        f_widget.update_ccs_in_use([])
-    for f_widget in this_song_level_automation_widget.cc_auto_viewers:
         f_widget.update_ccs_in_use([])
 
 def global_ui_refresh_callback():
@@ -5892,7 +5881,6 @@ def global_open_project(a_project_file, a_notify_osc=True):
     set_default_project(a_project_file)
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
-    this_song_level_automation_widget.automation_track_type_changed()
     global_update_audio_track_comboboxes()
     global_edit_audio_item(1, False)
     global_edit_audio_item(0, False)
@@ -5943,18 +5931,9 @@ this_cc_automation_viewers.append(this_cc_automation_viewer0)
 this_cc_automation_viewers.append(this_cc_automation_viewer1)
 this_cc_automation_viewers.append(this_cc_automation_viewer2)
 
-this_song_automation_viewers = []
-this_song_automation_viewer0 = song_automation_viewer()
-this_song_automation_viewer1 = song_automation_viewer()
-this_song_automation_viewer2 = song_automation_viewer()
-this_song_automation_viewers.append(this_song_automation_viewer0)
-this_song_automation_viewers.append(this_song_automation_viewer1)
-this_song_automation_viewers.append(this_song_automation_viewer2)
-
 this_song_editor = song_editor()
 this_region_editor = region_list_editor()
 this_audio_editor = audio_list_editor()
-this_song_level_automation_widget = song_level_automation_widget()
 this_piano_roll_editor = piano_roll_editor()
 this_piano_roll_editor_widget = piano_roll_editor_widget()
 this_item_editor = item_list_editor()
@@ -5971,11 +5950,6 @@ for f_viewer in this_item_editor.cc_auto_viewers:  #Get the plugin/control combo
     f_viewer.plugin_changed()
 this_item_editor.cc_auto_viewers[1].set_cc_num(2)
 this_item_editor.cc_auto_viewers[2].set_cc_num(3)
-
-for f_viewer in this_song_level_automation_widget.cc_auto_viewers:  #Get the plugin/control comboboxes populated
-    f_viewer.plugin_changed()
-this_song_level_automation_widget.cc_auto_viewers[1].set_cc_num(2)
-this_song_level_automation_widget.cc_auto_viewers[2].set_cc_num(3)
 
 # ^^^TODO:  Move the CC maps out of the main window class and instantiate earlier
 
