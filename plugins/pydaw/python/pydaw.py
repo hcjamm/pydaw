@@ -356,11 +356,11 @@ class region_settings:
         for f_item in global_current_region.items:
             if f_item.bar_num < global_current_region.region_length_bars or (global_current_region.region_length_bars == 0 and f_item.bar_num < 8):
                 if f_item.track_num < pydaw_midi_track_count:
-                    this_region_editor.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
+                    this_region_editor.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num, a_is_offset=True)
                 elif f_item.track_num < pydaw_midi_track_count + pydaw_bus_count:
-                    this_region_bus_editor.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
+                    this_region_bus_editor.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num, a_is_offset=True)
                 else:
-                    this_region_audio_editor.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
+                    this_region_audio_editor.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num, a_is_offset=True)
 
     def clear_items(self):
         self.region_name_lineedit.setText("")
@@ -388,13 +388,17 @@ class region_settings:
 
 
 class region_list_editor:
-    def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num, a_selected=False):
+    def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num, a_selected=False, a_is_offset=False):
         """ Adds a properly formatted item.  This is not for creating empty items... """
+        if a_is_offset:
+            f_track_num = a_track_num - self.track_offset
+        else:
+            f_track_num = a_track_num
         f_qtw_item = QtGui.QTableWidgetItem(a_name)
-        f_qtw_item.setBackground(pydaw_track_gradients[a_track_num - self.track_offset])
+        f_qtw_item.setBackground(pydaw_track_gradients[f_track_num]) # - self.track_offset
         f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
         f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
-        self.table_widget.setItem(a_track_num - self.track_offset, a_bar_num + 1, f_qtw_item)
+        self.table_widget.setItem(f_track_num, a_bar_num + 1, f_qtw_item)
         if a_selected:
             f_qtw_item.setSelected(True)
 
@@ -403,7 +407,8 @@ class region_list_editor:
         self.clear_items()
         self.reset_tracks()
         self.enabled = False
-        self.clipboard = []
+        global global_region_clipboard
+        global_region_clipboard = []
 
     def open_tracks(self):
         self.reset_tracks()
@@ -494,6 +499,7 @@ class region_list_editor:
     def show_cell_dialog(self, x, y):
         def note_ok_handler():
             self.table_widget.clearSelection()
+            global global_current_region
             if (f_new_radiobutton.isChecked() and f_item_count.value() == 1):
                 f_cell_text = str(f_new_lineedit.text())
                 if this_pydaw_project.item_exists(f_cell_text):
@@ -653,7 +659,6 @@ class region_list_editor:
         self.main_vlayout.addWidget(self.table_widget, 2, 0)
         self.last_item_copied = None
         self.reset_tracks()
-        self.clipboard = []
         self.last_cc_line_num = 1
 
     def table_keyPressEvent(self, event):
@@ -756,7 +761,7 @@ class region_list_editor:
                     f_cell_text = f_item_name + "-" + str(f_name_suffix)
                     this_pydaw_project.copy_item(f_item_name, f_cell_text)
                     self.add_qtablewidgetitem(f_cell_text, i, i2 - 1)
-                    global_current_region.add_item_ref(i, i2 - 1, f_cell_text)
+                    global_current_region.add_item_ref(i + self.track_offset, i2 - 1, f_cell_text)
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), global_current_region)
         this_pydaw_project.git_repo.git_commit("-a", "Auto-Unlink items")
 
@@ -769,7 +774,7 @@ class region_list_editor:
             return
         f_base_row = f_selected_cells[0].row()
         f_base_column = f_selected_cells[0].column() - 1
-        for f_item in self.clipboard:
+        for f_item in global_region_clipboard:
             f_column = f_item[1] + f_base_column
             f_region_length = 8
             if global_current_region.region_length_bars > 0:
@@ -779,6 +784,7 @@ class region_list_editor:
             f_row = f_item[0] + f_base_row
             if f_row >= self.track_count or f_row < 0:
                 continue
+            print f_item[2], f_row, f_column
             self.add_qtablewidgetitem(f_item[2], f_row, f_column)
         global_tablewidget_to_region()
 
@@ -796,20 +802,20 @@ class region_list_editor:
         if not self.enabled:
             self.warn_no_region_selected()
             return
-
-        self.clipboard = []  #Clear the clipboard
+        global global_region_clipboard
+        global_region_clipboard = []  #Clear the clipboard
         for f_item in self.table_widget.selectedIndexes():
             f_cell = self.table_widget.item(f_item.row(), f_item.column())
             if not f_cell is None and not str(f_cell.text()) == "":
-                self.clipboard.append([int(f_item.row()), int(f_item.column()) - 1, str(f_cell.text())])
-        if len(self.clipboard) > 0:
-            self.clipboard.sort(key=operator.itemgetter(0))
-            f_row_offset = self.clipboard[0][0]
-            for f_item in self.clipboard:
+                global_region_clipboard.append([int(f_item.row()), int(f_item.column()) - 1, str(f_cell.text())])
+        if len(global_region_clipboard) > 0:
+            global_region_clipboard.sort(key=operator.itemgetter(0))
+            f_row_offset = global_region_clipboard[0][0]
+            for f_item in global_region_clipboard:
                 f_item[0] -= f_row_offset
-            self.clipboard.sort(key=operator.itemgetter(1))
-            f_column_offset = self.clipboard[0][1]
-            for f_item in self.clipboard:
+            global_region_clipboard.sort(key=operator.itemgetter(1))
+            f_column_offset = global_region_clipboard[0][1]
+            for f_item in global_region_clipboard:
                 f_item[1] -= f_column_offset
 
     def table_drop_event(self, a_event):
@@ -833,6 +839,8 @@ class region_list_editor:
                         f_result.append((i + self.track_offset, i2 - 1, str(f_item.text())))
         return f_result
 
+global_region_clipboard = []
+
 def global_tablewidget_to_region():
     global global_current_region
     global_current_region.items = []
@@ -842,6 +850,7 @@ def global_tablewidget_to_region():
     for f_tuple in f_result:
         global_current_region.add_item_ref(f_tuple[0], f_tuple[1], f_tuple[2])
     this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
+    this_pydaw_project.git_repo.git_commit("-a", "Edit region")
 
 
 def global_update_audio_track_comboboxes(a_index=None, a_value=None):
