@@ -355,8 +355,12 @@ class region_settings:
             f_editor.enabled = True
         for f_item in global_current_region.items:
             if f_item.bar_num < global_current_region.region_length_bars or (global_current_region.region_length_bars == 0 and f_item.bar_num < 8):
-                this_region_editor.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
-                #TODO TODO TODO...  Make this iterative when there's a property for which kind of track to do it on...
+                if f_item.track_num < pydaw_midi_track_count:
+                    this_region_editor.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
+                elif f_item.track_num < pydaw_midi_track_count + pydaw_bus_count:
+                    this_region_bus_editor.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
+                else:
+                    this_region_audio_editor.add_qtablewidgetitem(f_item.item_name, f_item.track_num, f_item.bar_num)
 
     def clear_items(self):
         self.region_name_lineedit.setText("")
@@ -387,10 +391,10 @@ class region_list_editor:
     def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num, a_selected=False):
         """ Adds a properly formatted item.  This is not for creating empty items... """
         f_qtw_item = QtGui.QTableWidgetItem(a_name)
-        f_qtw_item.setBackground(pydaw_track_gradients[a_track_num])
+        f_qtw_item.setBackground(pydaw_track_gradients[a_track_num - self.track_offset])
         f_qtw_item.setTextAlignment(QtCore.Qt.AlignCenter)
         f_qtw_item.setFlags(f_qtw_item.flags() | QtCore.Qt.ItemIsSelectable)
-        self.table_widget.setItem(a_track_num, a_bar_num + 1, f_qtw_item)
+        self.table_widget.setItem(a_track_num - self.track_offset, a_bar_num + 1, f_qtw_item)
         if a_selected:
             f_qtw_item.setSelected(True)
 
