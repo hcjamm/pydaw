@@ -3276,6 +3276,9 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         v_set_tempo(a_pydaw_data, 140.0f);
     }
     
+    v_pydaw_audio_items_free(a_pydaw_data->audio_items);
+    a_pydaw_data->audio_items = g_pydaw_audio_items_get((int)(a_pydaw_data->sample_rate));
+    
     if(i_pydaw_file_exists(a_pydaw_data->audio_items_file))
     {
         v_audio_items_load_all(a_pydaw_data->audio_items, a_pydaw_data->audio_items_file);
