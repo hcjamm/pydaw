@@ -91,6 +91,10 @@ void v_pydaw_audio_item_free(t_pydaw_audio_item* a_audio_item)
     //{ }
     //if(a_audio_item->sample_read_head)
     //{}
+    if(!a_audio_item)
+    {
+        return;
+    }
     
     if(a_audio_item->samples[0])
     {
@@ -466,6 +470,19 @@ void v_audio_items_load(t_pydaw_audio_item *a_audio_item, const char *a_path, fl
     {
         free(tmpOld[1]);
     }    
+}
+
+void v_pydaw_audio_items_free(t_pydaw_audio_items *a_audio_items)
+{
+    int f_i = 0;
+    while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+    {
+        v_pydaw_audio_item_free(a_audio_items->items[f_i]);
+        a_audio_items->items[f_i] = 0;
+        f_i++;
+    }
+    
+    free(a_audio_items);
 }
 
 void v_audio_items_sample_clear(t_pydaw_audio_item *a_audio_item)
