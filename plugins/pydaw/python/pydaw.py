@@ -498,7 +498,7 @@ class region_list_editor:
                 this_pydaw_project.create_empty_item(f_cell_text)
                 global_open_items([f_cell_text])
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
-                global_current_region.add_item_ref(x, y - 1, f_cell_text)
+                global_current_region.add_item_ref(x + self.track_offset, y - 1, f_cell_text)
                 this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
             elif f_new_radiobutton.isChecked() and f_item_count.value() > 1:
                 f_name_suffix = 1
@@ -511,13 +511,13 @@ class region_list_editor:
                     f_item_list.append(f_item_name)
                     this_pydaw_project.create_empty_item(f_item_name)
                     self.add_qtablewidgetitem(f_item_name, x, y - 1 + i, True)
-                    global_current_region.add_item_ref(x, y - 1 + i, f_item_name)
+                    global_current_region.add_item_ref(x + self.track_offset, y - 1 + i, f_item_name)
                 global_open_items(f_item_list)
                 this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
             elif f_copy_radiobutton.isChecked():
                 f_cell_text = str(f_copy_combobox.currentText())
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
-                global_current_region.add_item_ref(x, y - 1, f_cell_text)
+                global_current_region.add_item_ref(x + self.track_offset, y - 1, f_cell_text)
                 this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
             elif f_copy_from_radiobutton.isChecked():
                 f_cell_text = str(f_new_lineedit.text())
@@ -527,7 +527,7 @@ class region_list_editor:
                     return
                 this_pydaw_project.copy_item(f_copy_from_text, f_cell_text)
                 self.add_qtablewidgetitem(f_cell_text, x, y - 1, True)
-                global_current_region.add_item_ref(x, y - 1, f_cell_text)
+                global_current_region.add_item_ref(x + self.track_offset, y - 1, f_cell_text)
                 this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
 
             this_pydaw_project.git_repo.git_commit("-a", "Add reference(s) to item (group) '" + f_cell_text + "' in region '" + str(this_region_settings.region_name_lineedit.text()))
@@ -711,7 +711,7 @@ class region_list_editor:
             global_open_items([f_cell_text])
             self.last_item_copied = f_cell_text
             self.add_qtablewidgetitem(f_cell_text, x, y - 1)
-            global_current_region.add_item_ref(x, y - 1, f_cell_text)
+            global_current_region.add_item_ref(x + self.track_offset, y - 1, f_cell_text)
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), global_current_region)
             this_pydaw_project.git_repo.git_commit("-a", "Unlink item '" +  f_current_item_text + "' as '" + f_cell_text + "'")
             f_window.close()
@@ -776,7 +776,7 @@ class region_list_editor:
             if f_row >= self.track_count or f_row < 0:
                 continue
             self.add_qtablewidgetitem(f_item[2], f_row, f_column)
-        self.tablewidget_to_region()
+        global_tablewidget_to_region()
 
     def delete_selected(self):
         if not self.enabled:
@@ -785,7 +785,7 @@ class region_list_editor:
         for f_item in self.table_widget.selectedIndexes():
             f_empty = QtGui.QTableWidgetItem() #Clear the item
             self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
-        self.tablewidget_to_region()
+        global_tablewidget_to_region()
         self.table_widget.clearSelection()
 
     def copy_selected(self):
@@ -815,20 +815,30 @@ class region_list_editor:
             return
         QtGui.QTableWidget.dropEvent(self.table_widget, a_event)
         a_event.acceptProposedAction()
-        self.tablewidget_to_region()
+        global_tablewidget_to_region()
         self.table_widget.clearSelection()
 
-    def tablewidget_to_region(self):
-        """ Convert an edited QTableWidget to a native region class """
-        global global_current_region
-        global_current_region.items = []
+    def tablewidget_to_list(self):
+        """ Convert an edited QTableWidget to a list of tuples for a region ref """
+        f_result = []
         for i in range(0, self.track_count):
             for i2 in range(1, self.table_widget.columnCount()):
                 f_item = self.table_widget.item(i, i2)
                 if not f_item is None:
                     if f_item.text() != "":
-                        global_current_region.add_item_ref(i, i2 - 1, f_item.text())
-        this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
+                        f_result.append((i + self.track_offset, i2 - 1, str(f_item.text())))
+        return f_result
+
+def global_tablewidget_to_region():
+    global global_current_region
+    global_current_region.items = []
+    f_result = []
+    for f_editor in global_region_editors:
+        f_result += f_editor.tablewidget_to_list()
+    for f_tuple in f_result:
+        global_current_region.add_item_ref(f_tuple[0], f_tuple[1], f_tuple[2])
+    this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
+
 
 def global_update_audio_track_comboboxes(a_index=None, a_value=None):
     if not a_index is None and not a_value is None:
