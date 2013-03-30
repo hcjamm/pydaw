@@ -160,23 +160,6 @@ typedef struct st_pysong
     int default_bar_length;
 }t_pysong;
 
-/*typedef struct
-{
-    int cc_num;
-    int cc_val;
-    int region;
-    int bar;
-    float beat;
-}t_pydaw_song_level_cc;
-
-typedef struct 
-{
-    int started;  //reset to zero on playback or loop, set to 1 once automation  has begun
-    int count;
-    int current_index;
-    t_pydaw_song_level_cc * events[PYDAW_MAX_EVENTS_PER_TRACK_COUNT];
-}t_pydaw_song_level_automation;*/
-
 typedef struct st_pytrack
 {    
     float volume;
@@ -197,9 +180,7 @@ typedef struct st_pytrack
     
     int bus_count;  //Only for busses, the count of plugins writing to the buffer
     int bus_counter;  //This is reset to bus_count each cycle and the bus track processed when count reaches 0
-    int bus_buffer_state; //0 = Not ready, 1 = being cleared, 2 = ready
-    
-    //t_pydaw_song_level_automation * song_level_automation;
+    int bus_buffer_state; //0 = Not ready, 1 = being cleared, 2 = ready    
 }t_pytrack;
 
 typedef struct
@@ -377,11 +358,6 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
 void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data);
 
 void * v_pydaw_audio_recording_thread(void* a_arg);
-
-//t_pydaw_song_level_cc * g_pydaw_song_level_cc_get(int, int, float, int, int);
-//t_pydaw_song_level_automation * g_pydaw_song_level_automation_get(t_pydaw_data*, int, int);
-//void v_pydaw_song_level_automation_free(t_pydaw_song_level_automation *);
-//inline void v_pydaw_run_song_level_automation(t_pydaw_data *, t_pytrack*);
 
 inline float v_pydaw_count_beats(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, float a_start_beat,
         int a_end_region, int a_end_bar, float a_end_beat);
@@ -856,110 +832,6 @@ void * v_pydaw_worker_thread(void* a_arg)
     
     return (void*)1;
 }
-
-/* TODO:  A function that seeks to the first event at the current playback cursor?
- * It may not really matter, though...  but I do need to reset it at the start of playback...
- */
-/*inline void v_pydaw_run_song_level_automation(t_pydaw_data * a_pydaw_data, t_pytrack *a_pytrack)
-{
-    int f_test = 0;
-    
-    while(1)
-    {
-        //Temporary infinite loop detection...
-        f_test++;
-        assert(f_test < 2100);
-        
-        if((a_pytrack->song_level_automation->current_index) >= (a_pytrack->song_level_automation->count))
-        {
-            break;
-        }
-        
-        int f_region = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->region;
-        int f_bar = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->bar;
-        float f_beat = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->beat;
-               
-        if(f_region < a_pydaw_data->current_region)
-        {
-            //assert(a_pytrack->song_level_automation->started == 0);
-            a_pytrack->song_level_automation->current_index = (a_pytrack->song_level_automation->current_index) + 1;
-            continue;
-        }
-        else if((f_region == a_pydaw_data->current_region) || (f_region == a_pydaw_data->ml_next_region))
-        {
-            if(f_bar < a_pydaw_data->current_bar)
-            {
-                //assert(a_pytrack->song_level_automation->started == 0);
-                a_pytrack->song_level_automation->current_index = (a_pytrack->song_level_automation->current_index) + 1;
-                continue;
-            }
-            else if((f_bar == a_pydaw_data->current_bar) || (f_bar == a_pydaw_data->ml_next_bar))
-            {
-                if((!a_pydaw_data->ml_starting_new_bar) && (f_beat < a_pydaw_data->ml_current_period_beats))
-                {
-                    //assert(a_pytrack->song_level_automation->started == 0);
-                    a_pytrack->song_level_automation->current_index = (a_pytrack->song_level_automation->current_index) + 1;
-                    continue;
-                }
-                else if(((!a_pydaw_data->ml_starting_new_bar) && (f_beat >= a_pydaw_data->ml_current_period_beats) &&
-                    (f_beat < a_pydaw_data->ml_next_period_beats)) || 
-                        ((a_pydaw_data->ml_starting_new_bar) && (f_beat < a_pydaw_data->ml_next_beat)))
-                {   
-                    a_pytrack->song_level_automation->started = 1;
-                    int controller = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->cc_num;
-                    if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
-                    {
-                        long controlIn;
-                        if(a_pytrack->instrument)
-                        {
-                            controlIn = a_pytrack->instrument->controllerMap[controller];
-
-                            if (controlIn >= 0)
-                            {
-                                //controller is mapped to LADSPA port, update the port
-                                snd_seq_event_t f_event;
-                                f_event.data.control.value = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->cc_val;
-                                v_pydaw_set_control_from_cc(a_pytrack->instrument, controlIn, &f_event, 0);
-                            }
-                        }
-
-                        controlIn = a_pytrack->effect->controllerMap[controller];
-
-                        if (controlIn >= 0)
-                        {
-                            // controller is mapped to LADSPA port, update the port
-                            snd_seq_event_t f_event;
-                            f_event.data.control.value = a_pytrack->song_level_automation->events[(a_pytrack->song_level_automation->current_index)]->cc_val;
-                            v_pydaw_set_control_from_cc(a_pytrack->effect, controlIn, &f_event, 0);                            
-                        }
-                    }
-                    
-                    a_pytrack->song_level_automation->current_index = (a_pytrack->song_level_automation->current_index) + 1;
-                    
-                }
-                else
-                {
-                    break;
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-        else if(f_region > a_pydaw_data->current_region)
-        {
-            break;
-        }
-    }
-    
-    //Reset the index to zero if we're looping, and let it find itself from zero again at next run
-    if(a_pydaw_data->ml_is_looping)
-    {        
-        a_pytrack->song_level_automation->current_index = 0;
-        a_pytrack->song_level_automation->started = 0;
-    }
-}*/
 
 inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
 {           
@@ -2252,109 +2124,6 @@ void g_pysong_get(t_pydaw_data* a_pydaw_data)
 #endif
 }
 
-/*t_pydaw_song_level_cc * g_pydaw_song_level_cc_get(int a_region, int a_bar, float a_beat, int a_cc, int a_val)
-{
-    t_pydaw_song_level_cc * f_result = (t_pydaw_song_level_cc*)malloc(sizeof(t_pydaw_song_level_cc));
-    
-    f_result->region = a_region;
-    f_result->bar = a_bar;
-    f_result->beat = a_beat;
-    f_result->cc_num = a_cc;
-    f_result->cc_val = a_val;
-    
-    return f_result;
-}*/
-
-/*t_pydaw_song_level_automation * g_pydaw_song_level_automation_get(t_pydaw_data* a_pydaw_data, int a_type, int a_track)
-{
-    t_pydaw_song_level_automation * f_result = (t_pydaw_song_level_automation*)malloc(sizeof(t_pydaw_song_level_automation));
-    
-    f_result->count = 0;
-    f_result->current_index = 0;
-    f_result->started = 0;
-    
-    char f_file_name[256];
-    f_file_name[0] = '\0';
-    
-    switch(a_type)
-    {
-        case 1:  //Bus
-            sprintf(f_file_name, "%s%i.pyauto", a_pydaw_data->bus_automation_folder, a_track);
-            break;
-        case 2:  //Audio
-            sprintf(f_file_name, "%s%i.pyauto", a_pydaw_data->audio_automation_folder, a_track);
-            break;
-    }
-    
-    if(i_pydaw_file_exists(f_file_name))
-    {
-        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_file_name, LMS_LARGE_STRING);
-        
-        int f_i = 0;
-        
-        while(f_i < PYDAW_MAX_EVENTS_PER_TRACK_COUNT)
-        {
-            char * f_region_char = c_iterate_2d_char_array(f_current_string);
-            
-            if(f_current_string->eof)
-            {
-                free(f_region_char);
-                break;
-            }
-            
-            int f_region = atoi(f_region_char);
-            free(f_region_char);
-            
-            char * f_bar_char = c_iterate_2d_char_array(f_current_string);        
-            int f_bar = atoi(f_bar_char);
-            free(f_bar_char);
-            
-            char * f_beat_char = c_iterate_2d_char_array(f_current_string);        
-            float f_beat = atof(f_beat_char);
-            free(f_beat_char);
-            
-            char * f_cc_num_char = c_iterate_2d_char_array(f_current_string);        
-            int f_cc_num = atoi(f_cc_num_char);
-            free(f_cc_num_char);
-
-            char * f_cc_val_char = c_iterate_2d_char_array(f_current_string);        
-            int f_cc_val = atoi(f_cc_val_char);
-            free(f_cc_val_char);
-            
-            f_result->events[(f_result->count)] = g_pydaw_song_level_cc_get(f_region, f_bar, f_beat, f_cc_num, f_cc_val);
-            
-            f_result->count = (f_result->count) + 1;
-
-            f_i++;
-        }
-    }
-    else
-    {
-        //printf("No song-level automation found for %i|%i, loading empty automation item\n", a_type, a_track);
-    }
-    
-    return f_result;
-}*/
-
-/*void v_pydaw_song_level_automation_free(t_pydaw_song_level_automation * a_automation)
-{
-    if(a_automation)
-    {
-        int f_i = 0;
-
-        while(f_i < (a_automation->count))
-        {
-            if(a_automation->events[f_i])
-            {
-                free(a_automation->events[f_i]);
-            }
-            f_i++;
-        }
-
-        free(a_automation);
-    }
-}*/
-
 int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_name)
 {
     int f_i = 0;
@@ -3515,22 +3284,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     v_pydaw_update_audio_inputs(a_pydaw_data);
     
     v_pydaw_set_is_soloed(a_pydaw_data);
-    
-    //Load the song-level automation for each track
-    /*f_i = 0;
-    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
-    {
-        a_pydaw_data->audio_track_pool[f_i]->song_level_automation = g_pydaw_song_level_automation_get(a_pydaw_data, 2, f_i);
-        f_i++;
-    }
-    
-    f_i = 0;
-    while(f_i < PYDAW_BUS_TRACK_COUNT)
-    {
-        a_pydaw_data->bus_pool[f_i]->song_level_automation = g_pydaw_song_level_automation_get(a_pydaw_data, 1, f_i);
-        f_i++;
-    }*/
-    
+        
     v_pydaw_schedule_work(a_pydaw_data);
     
 #ifdef PYDAW_MEMCHECK
@@ -3540,25 +3294,6 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     
     v_pydaw_print_benchmark("v_open_project", f_start);
 }
-
-/*void v_pydaw_reset_song_level_automation(t_pydaw_data* a_pydaw_data)
-{
-    int f_i = 0;
-    while(f_i < PYDAW_AUDIO_TRACK_COUNT)
-    {
-        a_pydaw_data->audio_track_pool[f_i]->song_level_automation->current_index = 0;
-        a_pydaw_data->audio_track_pool[f_i]->song_level_automation->started = 0;
-        f_i++;
-    }
-    
-    f_i = 0;
-    while(f_i < PYDAW_BUS_TRACK_COUNT)
-    {
-        a_pydaw_data->bus_pool[f_i]->song_level_automation->current_index = 0;
-        a_pydaw_data->bus_pool[f_i]->song_level_automation->started = 0;
-        f_i++;
-    }
-}*/
 
 /* Moved to it's own function for re-usability, because the mutex must be held when calling*/
 void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_region, int a_bar)
@@ -3692,8 +3427,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
         case 1:  //play
             pthread_mutex_lock(&a_pydaw_data->main_mutex);
             a_pydaw_data->playback_mode = a_mode;
-            v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
-            //v_pydaw_reset_song_level_automation(a_pydaw_data);
+            v_set_playback_cursor(a_pydaw_data, a_region, a_bar);            
             v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_region, a_bar);
             pthread_mutex_unlock(&a_pydaw_data->main_mutex);
             break;
@@ -3709,8 +3443,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             a_pydaw_data->playback_mode = a_mode;
             a_pydaw_data->recording_in_current_bar = 0;
             a_pydaw_data->recording_current_item_pool_index = -1;
-            v_set_playback_cursor(a_pydaw_data, a_region, a_bar);
-            //v_pydaw_reset_song_level_automation(a_pydaw_data);
+            v_set_playback_cursor(a_pydaw_data, a_region, a_bar);            
             v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_region, a_bar);
             pthread_mutex_unlock(&a_pydaw_data->main_mutex);
             break;
@@ -4758,35 +4491,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RI)) //Rename item
     {
         //Probably won't be implemented anytime soon...
-    }
-    /*else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RELOAD_SONG_LEVEL_AUTOMATION))
-    {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
-        int f_track_type = atoi(f_val_arr->array[0]);
-        int f_track_num = atoi(f_val_arr->array[1]);
-        t_pydaw_song_level_automation * f_result = g_pydaw_song_level_automation_get(a_pydaw_data, f_track_type, f_track_num);
-        t_pydaw_song_level_automation * f_old;
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        switch(f_track_type)
-        {
-            case 1:  //Bus
-                f_old = a_pydaw_data->bus_pool[f_track_num]->song_level_automation;
-                a_pydaw_data->bus_pool[f_track_num]->song_level_automation = f_result;
-                break;
-            case 2:  //Audio
-                f_old = a_pydaw_data->audio_track_pool[f_track_num]->song_level_automation;
-                a_pydaw_data->audio_track_pool[f_track_num]->song_level_automation = f_result;
-                break;
-            default:
-                assert(0);
-                break;
-        }        
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        g_free_1d_char_array(f_val_arr);
-        v_pydaw_song_level_automation_free(f_old);
-    }*/
+    }    
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SOLO)) //Set track solo
     {
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
