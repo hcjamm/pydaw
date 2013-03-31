@@ -1816,8 +1816,7 @@ class audio_track:
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(2, self.track_number, self.record_radiobutton.isChecked())
-            global_save_all_region_tracks()
-            this_pydaw_project.git_repo.git_commit("-a", "Set rec for MIDI track " + str(self.track_number) + " to " + str(self.record_radiobutton.isChecked()))
+
     def on_name_changed(self):
         self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
         this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 2)
@@ -1910,9 +1909,8 @@ class audio_track:
         self.suppress_osc = False
 
     def get_track(self):
-        return pydaw_audio_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.volume_slider.value(), str(self.track_name_lineedit.text()), self.bus_combobox.currentIndex())
-
-
+        return pydaw_audio_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.volume_slider.value(), \
+        str(self.track_name_lineedit.text()), self.bus_combobox.currentIndex())
 
 class audio_input_track:
     def on_vol_change(self, value):
@@ -1989,7 +1987,6 @@ class audio_input_track:
         if not a_notify_osc:
             self.suppress_osc = True
         self.volume_slider.setValue(a_track.vol)
-        self.rec_checkbox.setChecked(a_track.rec)
         self.output_combobox.setCurrentIndex(a_track.output)
         self.suppress_osc = False
 
@@ -4243,11 +4240,7 @@ class seq_track:
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_type, self.track_number, self.record_radiobutton.isChecked())
-            global_save_all_region_tracks()
-            if self.track_type == 0:
-                this_pydaw_project.git_repo.git_commit("-a", "Set rec for MIDI track " + str(self.track_number) + " to " + str(self.record_radiobutton.isChecked()))
-            elif self.track_type == 1:
-                this_pydaw_project.git_repo.git_commit("-a", "Set rec for bus track " + str(self.track_number) + " to " + str(self.record_radiobutton.isChecked()))
+
     def on_name_changed(self):
         if self.is_instrument:
             self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
@@ -4362,7 +4355,6 @@ class seq_track:
         if not a_notify_osc:
             self.suppress_osc = True
         self.volume_slider.setValue(a_track.vol)
-        self.record_radiobutton.setChecked(a_track.rec)
         if self.is_instrument:
             self.track_name_lineedit.setText(a_track.name)
             self.instrument_combobox.setCurrentIndex(a_track.inst)
@@ -4373,8 +4365,8 @@ class seq_track:
 
     def get_track(self):
         if self.is_instrument:
-            return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.record_radiobutton.isChecked(),
-                           self.volume_slider.value(), str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex(), self.bus_combobox.currentIndex())
+            return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.volume_slider.value(), \
+            str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex(), self.bus_combobox.currentIndex())
         else:
             return pydaw_bus(self.volume_slider.value(), self.record_radiobutton.isChecked())
 
