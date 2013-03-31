@@ -2415,19 +2415,19 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_beat_pen = QtGui.QPen()
         f_beat_pen.setWidth(2)
         f_bar_pen = QtGui.QPen()
-        f_bar_pen.setWidth(3.0)
+        f_bar_pen.setWidth(6.0)
         f_bar_pen.setColor(QtGui.QColor(240, 30, 30))
         f_line_pen = QtGui.QPen()
         f_line_pen.setColor(QtGui.QColor(0, 0, 0))
         f_beat_y = self.piano_height + self.header_height + self.note_height
         for i in range(0, int(self.item_length) + 1):
-            f_beat_x = (self.beat_width * i) + self.piano_width #, 0.5 * f_beat_pen.width()
+            f_beat_x = (self.beat_width * i) + self.piano_width
             f_beat = self.scene.addLine(f_beat_x, 0, f_beat_x, f_beat_y)
-            f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+            #f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_beat_number = i % 4
             if f_beat_number == 0 and not i == 0:
                 f_beat.setPen(f_bar_pen)
-                f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+                #f_beat.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             else:
                 f_beat.setPen(f_beat_pen)
             if i < self.item_length:
