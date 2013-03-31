@@ -1682,12 +1682,6 @@ class audio_item_editor_widget:
 
 class audio_list_editor:
     def open_tracks(self):
-        f_busses = this_pydaw_project.get_bus_tracks()
-        for key, f_track in f_busses.busses.iteritems():
-            self.busses[key].open_track(f_track)
-        f_tracks = this_pydaw_project.get_audio_tracks()
-        for key, f_track in f_tracks.tracks.iteritems():
-            self.tracks[key].open_track(f_track)
         f_inputs = this_pydaw_project.get_audio_input_tracks()
         for key, f_track in f_inputs.tracks.iteritems():
             self.inputs[key].open_track(f_track)
@@ -1729,26 +1723,12 @@ class audio_list_editor:
         this_audio_item_editor_widget.update_file_list()
 
     def reset_tracks(self):
-        self.tracks = []
         self.inputs = []
-        self.busses = []
-
-        for i in range(pydaw_audio_track_count):
-            track = audio_track(a_track_num=i, a_track_text="track" + str(i + 1))
-            self.tracks.append(track)
-            self.audio_tracks_table_widget.setCellWidget(i, 0, track.group_box)
         for i in range(pydaw_audio_input_count):
             f_input = audio_input_track(i)
             self.inputs.append(f_input)
-            self.audio_tracks_table_widget.setCellWidget(i, 1, f_input.group_box)
-        for i in range(pydaw_bus_count):
-            track = seq_track(a_track_num=i, a_track_text="Bus" + str(i), a_instrument=False)
-            self.busses.append(track)
-            self.audio_tracks_table_widget.setCellWidget(i, 2, track.group_box)
-        self.busses[0].track_name_lineedit.setText("Master")
+            self.audio_tracks_table_widget.setCellWidget(i, 0, f_input.group_box)
         self.audio_tracks_table_widget.setColumnWidth(0, 390)
-        self.audio_tracks_table_widget.setColumnWidth(1, 390)
-        self.audio_tracks_table_widget.setColumnWidth(2, 390)
         self.audio_tracks_table_widget.resizeRowsToContents()
 
     def cell_clicked(self, x, y):
@@ -1760,24 +1740,21 @@ class audio_list_editor:
         self.last_open_dir = expanduser("~")
         self.group_box = QtGui.QGroupBox()
         self.main_vlayout = QtGui.QVBoxLayout()
-
         self.group_box.setLayout(self.main_vlayout)
         self.audio_tracks_table_widget = QtGui.QTableWidget()
         self.main_vlayout.addWidget(self.audio_tracks_table_widget)
-        self.audio_tracks_table_widget.setColumnCount(3)
-        self.audio_tracks_table_widget.setHorizontalHeaderLabels(["Audio Tracks", "Audio Inputs", "Track Busses"])
+        self.audio_tracks_table_widget.setColumnCount(1)
+        self.audio_tracks_table_widget.setHorizontalHeaderLabels(["Audio Inputs"])
         self.audio_tracks_table_widget.verticalHeader().setVisible(False)
-        self.audio_tracks_table_widget.setRowCount(pydaw_audio_track_count)
+        self.audio_tracks_table_widget.setRowCount(pydaw_audio_input_count)
         self.audio_tracks_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_tracks_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_tracks_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.audio_tracks_table_widget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         #self.table_widget.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
-
         self.items_groupbox = QtGui.QGroupBox()
         self.items_vlayout = QtGui.QVBoxLayout()
         self.items_groupbox.setLayout(self.items_vlayout)
-
         self.audio_items_table_widget = QtGui.QTableWidget()
         self.audio_items_table_widget.setColumnCount(15)
         self.audio_items_table_widget.setHorizontalHeaderLabels(["Path", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", \
@@ -1785,10 +1762,8 @@ class audio_list_editor:
         self.audio_items_table_widget.setRowCount(32)
         self.audio_items_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_items_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-
         self.audio_items_table_widget.cellClicked.connect(self.cell_clicked)
         self.items_vlayout.addWidget(self.audio_items_table_widget)
-
         self.reset_tracks()
 
 class audio_track:
@@ -5032,10 +5007,8 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_layout.addLayout(self.transport_hlayout)
 
         self.transport_hlayout.addWidget(this_transport.group_box, alignment=QtCore.Qt.AlignLeft)
-
         #The tabs
         self.main_tabwidget = QtGui.QTabWidget()
-
         self.main_tabwidget.currentChanged.connect(self.tab_changed)
 
         self.main_layout.addWidget(self.main_tabwidget)
@@ -5054,9 +5027,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.regions_tab_widget.addTab(this_region_audio_editor.group_box, "Audio Tracks")
 
         self.main_tabwidget.addTab(this_item_editor.widget, "MIDI Item")
-
-        #self.regions_tab_widget.addTab(this_audio_editor.group_box, "Tracks")
-
+        self.regions_tab_widget.addTab(this_audio_editor.group_box, "Audio Inputs")
         self.audio_items_tab = QtGui.QTabWidget()
 
         self.audio_items_tab.addTab(this_audio_items_viewer_widget.widget, "Viewer")
