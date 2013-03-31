@@ -53,7 +53,7 @@ sub run_script
 {
 	if($ARGV[0] eq "--coredump")
 	{
-		system("gdb lms-jack-dssi-host core");
+		system("gdb pydaw3 core");
 	}
 	elsif($ARGV[0] eq "--coredump-ui")
 	{
