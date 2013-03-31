@@ -4575,9 +4575,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_REC_ARM_TRACK)) //Set track record arm
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
-        int f_track_num = atoi(f_val_arr->array[0]);
-        int f_mode = atoi(f_val_arr->array[1]);
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
+        int f_type = atoi(f_val_arr->array[0]);
+        int f_track_num = atoi(f_val_arr->array[1]);
+        int f_mode = atoi(f_val_arr->array[2]);
         assert(f_mode == 0 || f_mode == 1);
         if(f_mode)
         {
@@ -4585,15 +4586,38 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
             int f_i = 0;            
             while(f_i < PYDAW_MIDI_TRACK_COUNT)
             {
-                a_pydaw_data->track_pool[f_track_num]->rec = 0;
+                a_pydaw_data->track_pool[f_i]->rec = 0;
+                f_i++;
+            }
+            f_i = 0;
+            while(f_i < PYDAW_BUS_TRACK_COUNT)
+            {
+                a_pydaw_data->bus_pool[f_i]->rec = 0;
+                f_i++;
+            }
+            f_i = 0;
+            while(f_i < PYDAW_AUDIO_TRACK_COUNT)
+            {
+                a_pydaw_data->audio_track_pool[f_i]->rec = 0;
                 f_i++;
             }
         }
-        pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        //pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        a_pydaw_data->track_pool[f_track_num]->rec = f_mode;
+        switch(f_type)
+        {
+            case 0:  //MIDI/plugin
+                a_pydaw_data->track_pool[f_track_num]->rec = f_mode;
+                break;
+            case 1: //Bus
+                a_pydaw_data->bus_pool[f_track_num]->rec = f_mode;
+                break;
+            case 2: //audio track
+                a_pydaw_data->audio_track_pool[f_track_num]->rec = f_mode;
+                break;
+        }        
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        //pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }    
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS)) //Change the plugin
