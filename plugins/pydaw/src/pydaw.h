@@ -196,6 +196,8 @@ typedef struct st_pydaw_data
     pthread_mutex_t main_mutex;
     t_pysong * pysong;
     t_pytrack * track_pool[PYDAW_MIDI_TRACK_COUNT];
+    t_pytrack * record_armed_track;
+    int record_armed_track_index_all;  //index within track_pool_all
     t_pytrack * bus_pool[PYDAW_BUS_TRACK_COUNT];
     pthread_spinlock_t bus_spinlocks[PYDAW_BUS_TRACK_COUNT];
     t_pytrack * audio_track_pool[PYDAW_AUDIO_TRACK_COUNT];
@@ -834,165 +836,158 @@ void * v_pydaw_worker_thread(void* a_arg)
 }
 
 inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
-{           
-    int f_i = 0;
-
-    while(f_i < PYDAW_TRACK_COUNT_ALL)
+{
+    if((a_pydaw_data->record_armed_track) && ((a_pydaw_data->record_armed_track->plugin_index) != 0))
     {
-        if(a_pydaw_data->track_pool_all[f_i]->rec  && ((a_pydaw_data->track_pool_all[f_i]->plugin_index) != 0))
-        {
-            int f_i2 = 0;
+        int f_i2 = 0;
 
-            if(a_pydaw_data->playback_mode == 0)
+        if(a_pydaw_data->playback_mode == 0)
+        {
+            a_pydaw_data->record_armed_track->current_period_event_index = 0;
+        }
+
+        while(f_i2 < event_count)
+        {
+            /*TODO:  Determine if any unwanted/unused SND_SEQ_EVENT types might slip in and mess this up...*/
+            if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
             {
-                a_pydaw_data->track_pool_all[f_i]->current_period_event_index = 0;
+                /*Don't overwrite the reference to the current item until an event comes through in this bar*/
+                if(!a_pydaw_data->recording_in_current_bar && ((events[f_i2].type) != SND_SEQ_EVENT_NOTEOFF))  //Don't create an empty event for note_offs
+                {
+                    a_pydaw_data->recording_in_current_bar = 1;
+                    if(!a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
+                    {
+#ifdef PYDAW_PRINT_DEBUG_INFO
+                        printf("\nRecording:  Creating new empty region at %i\n\n", (a_pydaw_data->current_region));
+#endif
+                        a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)] = g_pyregion_get_new(a_pydaw_data);
+                    }
+                    a_pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(a_pydaw_data);
+                    if((a_pydaw_data->recording_first_item) == -1)
+                    {
+                        a_pydaw_data->recording_first_item = (a_pydaw_data->recording_current_item_pool_index);
+                    }
+                    a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar] = (a_pydaw_data->recording_current_item_pool_index);
+                    a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->not_yet_saved = 1;
+                }
             }
 
-            while(f_i2 < event_count)
+            if(events[f_i2].type == SND_SEQ_EVENT_NOTEON)
             {
-                /*TODO:  Determine if any unwanted/unused SND_SEQ_EVENT types might slip in and mess this up...*/
+                snd_seq_ev_note_t n = events[f_i2].data.note;
+                snd_seq_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
+                snd_seq_ev_set_noteon(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 0,
+                            n.note, n.velocity);
+                a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].time.tick = 
+                        (events[f_i2].time.tick);
+                a_pydaw_data->record_armed_track->current_period_event_index = (a_pydaw_data->record_armed_track->current_period_event_index) + 1;
+
                 if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                 {
-                    /*Don't overwrite the reference to the current item until an event comes through in this bar*/
-                    if(!a_pydaw_data->recording_in_current_bar && ((events[f_i2].type) != SND_SEQ_EVENT_NOTEOFF))  //Don't create an empty event for note_offs
+                    a_pydaw_data->recorded_notes_beat_tracker[n.note] = (a_pydaw_data->recorded_note_current_beat);
+                    a_pydaw_data->recorded_notes_item_tracker[n.note] = (a_pydaw_data->recording_current_item_pool_index);
+                    a_pydaw_data->recorded_notes_start_tracker[n.note] = 
+                            ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
+                            * (a_pydaw_data->playback_inc))) * 4.0f;
+                    a_pydaw_data->recorded_notes_velocity_tracker[n.note] = n.velocity;
+#ifdef PYDAW_PRINT_DEBUG_INFO
+                    printf("\nRecording:  Initiating new note_on event\n\n");
+#endif
+                }
+            }
+            else if(events[f_i2].type == SND_SEQ_EVENT_NOTEOFF)
+            {
+                snd_seq_ev_note_t n = events[f_i2].data.note;
+                snd_seq_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
+                snd_seq_ev_set_noteoff(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 0, n.note, 0);
+                a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)].time.tick = 
+                        (events[f_i2].time.tick);
+
+                a_pydaw_data->record_armed_track->current_period_event_index = (a_pydaw_data->record_armed_track->current_period_event_index) + 1;
+
+                if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
+                {
+                    double f_length = ((double)((a_pydaw_data->recorded_note_current_beat) - (a_pydaw_data->recorded_notes_beat_tracker[n.note])))
+                            +  ((((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
+                            * (a_pydaw_data->playback_inc))) * 4.0f) - (a_pydaw_data->recorded_notes_start_tracker[n.note]));
+#ifdef PYDAW_PRINT_DEBUG_INFO
+                    printf("\nRecording:  Writing new note_on event f_length == %lf\n\n", f_length);
+#endif
+                    int f_index = (a_pydaw_data->recorded_notes_item_tracker[n.note]);                                
+                    a_pydaw_data->item_pool[f_index]->notes[(a_pydaw_data->item_pool[f_index]->note_count)] = 
+                            g_pynote_get(n.note,
+                            a_pydaw_data->recorded_notes_velocity_tracker[n.note],
+                            a_pydaw_data->recorded_notes_start_tracker[n.note],
+                            f_length);
+                    a_pydaw_data->item_pool[f_index]->note_count = (a_pydaw_data->item_pool[f_index]->note_count)  + 1;
+                    /*Reset to -1 to invalidate the events*/
+                    a_pydaw_data->recorded_notes_item_tracker[n.note] = -1;
+                    a_pydaw_data->recorded_notes_beat_tracker[n.note] = -1;
+                    a_pydaw_data->recorded_notes_velocity_tracker[n.note] = -1;
+                }
+            }
+            else if(events[f_i2].type == SND_SEQ_EVENT_PITCHBEND)
+            {
+                snd_seq_ev_clear(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)]);
+                snd_seq_ev_set_pitchbend(&a_pydaw_data->record_armed_track->event_buffer[(a_pydaw_data->record_armed_track->current_period_event_index)], 
+                        0, events[f_i2].data.control.value);
+                a_pydaw_data->record_armed_track->current_period_event_index = (a_pydaw_data->record_armed_track->current_period_event_index) + 1;
+
+                if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
+                {
+                    int f_index = (a_pydaw_data->recording_current_item_pool_index);
+                    double f_start =
+                            ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
+                            * (a_pydaw_data->playback_inc))) * 4.0f;
+                    a_pydaw_data->item_pool[f_index]->pitchbends[(a_pydaw_data->item_pool[f_index]->pitchbend_count)] =
+                            g_pypitchbend_get(f_start, (float)events[f_i2].data.control.value);
+                    a_pydaw_data->item_pool[f_index]->pitchbend_count = (a_pydaw_data->item_pool[f_index]->pitchbend_count) + 1;
+                }
+            }
+            else if(events[f_i2].type == SND_SEQ_EVENT_CONTROLLER)
+            {
+                int controller = events[f_i2].data.control.param;
+#ifdef PYDAW_PRINT_DEBUG_INFO
+                printf("\n\nALSA MIDI CC event:  c.param == %i, c.value == %i\n\n", events[f_i2].data.control.param, events[f_i2].data.control.value);
+#endif
+                if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
+                {
+                    long controlIn;
+                    if(a_pydaw_data->record_armed_track->instrument)
                     {
-                        a_pydaw_data->recording_in_current_bar = 1;
-                        if(!a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
+                        controlIn = a_pydaw_data->record_armed_track->instrument->controllerMap[controller];
+
+                        if (controlIn >= 0) 
                         {
-#ifdef PYDAW_PRINT_DEBUG_INFO
-                            printf("\nRecording:  Creating new empty region at %i\n\n", (a_pydaw_data->current_region));
-#endif
-                            a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)] = g_pyregion_get_new(a_pydaw_data);
+                            /* controller is mapped to LADSPA port, update the port */
+                            v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->instrument, controlIn, &events[f_i2], 0);
+
                         }
-                        a_pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(a_pydaw_data);
-                        if((a_pydaw_data->recording_first_item) == -1)
-                        {
-                            a_pydaw_data->recording_first_item = (a_pydaw_data->recording_current_item_pool_index);
-                        }
-                        a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[f_i][a_pydaw_data->current_bar] = (a_pydaw_data->recording_current_item_pool_index);
-                        a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->not_yet_saved = 1;
                     }
-                }
-
-                if(events[f_i2].type == SND_SEQ_EVENT_NOTEON)
-                {
-                    snd_seq_ev_note_t n = events[f_i2].data.note;
-                    snd_seq_ev_clear(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)]);
-                    snd_seq_ev_set_noteon(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)], 0,
-                                n.note, n.velocity);
-                    a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)].time.tick = 
-                            (events[f_i2].time.tick);
-                    a_pydaw_data->track_pool_all[f_i]->current_period_event_index = (a_pydaw_data->track_pool_all[f_i]->current_period_event_index) + 1;
-
-                    if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
+                    controlIn = a_pydaw_data->record_armed_track->effect->controllerMap[controller];
+                    if (controlIn >= 0) 
                     {
-                        a_pydaw_data->recorded_notes_beat_tracker[n.note] = (a_pydaw_data->recorded_note_current_beat);
-                        a_pydaw_data->recorded_notes_item_tracker[n.note] = (a_pydaw_data->recording_current_item_pool_index);
-                        a_pydaw_data->recorded_notes_start_tracker[n.note] = 
-                                ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
-                                * (a_pydaw_data->playback_inc))) * 4.0f;
-                        a_pydaw_data->recorded_notes_velocity_tracker[n.note] = n.velocity;
-#ifdef PYDAW_PRINT_DEBUG_INFO
-                        printf("\nRecording:  Initiating new note_on event\n\n");
-#endif
+                        /* controller is mapped to LADSPA port, update the port */
+                        v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->effect, controlIn, &events[f_i2], 0);
+
                     }
-                }
-                else if(events[f_i2].type == SND_SEQ_EVENT_NOTEOFF)
-                {
-                    snd_seq_ev_note_t n = events[f_i2].data.note;
-                    snd_seq_ev_clear(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)]);
-                    snd_seq_ev_set_noteoff(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)], 0, n.note, 0);
-                    a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)].time.tick = 
-                            (events[f_i2].time.tick);
-
-                    a_pydaw_data->track_pool_all[f_i]->current_period_event_index = (a_pydaw_data->track_pool_all[f_i]->current_period_event_index) + 1;
-
-                    if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
-                    {
-                        double f_length = ((double)((a_pydaw_data->recorded_note_current_beat) - (a_pydaw_data->recorded_notes_beat_tracker[n.note])))
-                                +  ((((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
-                                * (a_pydaw_data->playback_inc))) * 4.0f) - (a_pydaw_data->recorded_notes_start_tracker[n.note]));
-#ifdef PYDAW_PRINT_DEBUG_INFO
-                        printf("\nRecording:  Writing new note_on event f_length == %lf\n\n", f_length);
-#endif
-                        int f_index = (a_pydaw_data->recorded_notes_item_tracker[n.note]);                                
-                        a_pydaw_data->item_pool[f_index]->notes[(a_pydaw_data->item_pool[f_index]->note_count)] = 
-                                g_pynote_get(n.note,
-                                a_pydaw_data->recorded_notes_velocity_tracker[n.note],
-                                a_pydaw_data->recorded_notes_start_tracker[n.note],
-                                f_length);
-                        a_pydaw_data->item_pool[f_index]->note_count = (a_pydaw_data->item_pool[f_index]->note_count)  + 1;
-                        /*Reset to -1 to invalidate the events*/
-                        a_pydaw_data->recorded_notes_item_tracker[n.note] = -1;
-                        a_pydaw_data->recorded_notes_beat_tracker[n.note] = -1;
-                        a_pydaw_data->recorded_notes_velocity_tracker[n.note] = -1;
-                    }
-                }
-                else if(events[f_i2].type == SND_SEQ_EVENT_PITCHBEND)
-                {
-                    snd_seq_ev_clear(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)]);
-                    snd_seq_ev_set_pitchbend(&a_pydaw_data->track_pool_all[f_i]->event_buffer[(a_pydaw_data->track_pool_all[f_i]->current_period_event_index)], 
-                            0, events[f_i2].data.control.value);
-                    a_pydaw_data->track_pool_all[f_i]->current_period_event_index = (a_pydaw_data->track_pool_all[f_i]->current_period_event_index) + 1;
-
+                    //Record the CC regardless of whether it was mapped or not...
                     if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
                     {
                         int f_index = (a_pydaw_data->recording_current_item_pool_index);
                         double f_start =
                                 ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
                                 * (a_pydaw_data->playback_inc))) * 4.0f;
-                        a_pydaw_data->item_pool[f_index]->pitchbends[(a_pydaw_data->item_pool[f_index]->pitchbend_count)] =
-                                g_pypitchbend_get(f_start, (float)events[f_i2].data.control.value);
-                        a_pydaw_data->item_pool[f_index]->pitchbend_count = (a_pydaw_data->item_pool[f_index]->pitchbend_count) + 1;
+                        a_pydaw_data->item_pool[f_index]->ccs[(a_pydaw_data->item_pool[f_index]->cc_count)] =
+                                g_pycc_get(events[f_i2].data.control.param, (float)events[f_i2].data.control.value, f_start);
+                        a_pydaw_data->item_pool[f_index]->cc_count = (a_pydaw_data->item_pool[f_index]->cc_count) + 1;
                     }
                 }
-                else if(events[f_i2].type == SND_SEQ_EVENT_CONTROLLER)
-                {
-                    int controller = events[f_i2].data.control.param;
-#ifdef PYDAW_PRINT_DEBUG_INFO
-                    printf("\n\nALSA MIDI CC event:  c.param == %i, c.value == %i\n\n", events[f_i2].data.control.param, events[f_i2].data.control.value);
-#endif
-                    if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
-                    {
-                        long controlIn;
-                        if(a_pydaw_data->track_pool_all[f_i]->instrument)
-                        {
-                            controlIn = a_pydaw_data->track_pool_all[f_i]->instrument->controllerMap[controller];
-                            
-                            if (controlIn >= 0) 
-                            {
-                                /* controller is mapped to LADSPA port, update the port */
-                                v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->instrument, controlIn, &events[f_i2], 0);
-
-                            }
-                        }
-                        controlIn = a_pydaw_data->track_pool_all[f_i]->effect->controllerMap[controller];
-                        if (controlIn >= 0) 
-                        {
-                            /* controller is mapped to LADSPA port, update the port */
-                            v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->effect, controlIn, &events[f_i2], 0);
-
-                        }
-                        //Record the CC regardless of whether it was mapped or not...
-                        if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
-                        {
-                            int f_index = (a_pydaw_data->recording_current_item_pool_index);
-                            double f_start =
-                                    ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
-                                    * (a_pydaw_data->playback_inc))) * 4.0f;
-                            a_pydaw_data->item_pool[f_index]->ccs[(a_pydaw_data->item_pool[f_index]->cc_count)] =
-                                    g_pycc_get(events[f_i2].data.control.param, (float)events[f_i2].data.control.value, f_start);
-                            a_pydaw_data->item_pool[f_index]->cc_count = (a_pydaw_data->item_pool[f_index]->cc_count) + 1;
-                        }
-                    }
-                }
-                f_i2++;
             }
-            v_pydaw_update_ports(a_pydaw_data->track_pool_all[f_i]->effect);  //Ensure that the plugin GUI is updated for audio/bus tracks
-            break;  //TODO:  remove this if multiple MIDI input devices are ever supported
+            f_i2++;
         }
-        f_i++;
-    }
+        v_pydaw_update_ports(a_pydaw_data->record_armed_track->effect);  //Ensure that the plugin GUI is updated for audio/bus tracks        
+    }     
 }
 
 inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
@@ -2701,6 +2696,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->audio_items = g_pydaw_audio_items_get(a_sample_rate);
     
     f_result->input_buffers_active = 0;
+    f_result->record_armed_track = 0;
+    f_result->record_armed_track_index_all = -1;
     
     int f_i = 0;
     int f_track_total = 0;
@@ -2927,6 +2924,9 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
     char f_file_name[256];    
     sprintf(f_file_name, "%sdefault.pytracks", a_pydaw_data->project_folder);
     
+    a_pydaw_data->record_armed_track = 0;
+    a_pydaw_data->record_armed_track_index_all = -1;
+    
     if(i_pydaw_file_exists(f_file_name))
     {
         printf("v_pydaw_open_tracks:  File exists %s , loading\n", f_file_name);
@@ -2994,6 +2994,12 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->track_pool[f_track_index], f_vol);
             a_pydaw_data->track_pool[f_track_index]->bus_num = f_bus_num;
             
+            if(f_rec == 1)
+            {
+                a_pydaw_data->record_armed_track = a_pydaw_data->track_pool[f_track_index];
+                a_pydaw_data->record_armed_track_index_all = f_track_index;
+            }
+            
             v_pydaw_open_track(a_pydaw_data, a_pydaw_data->track_pool[f_track_index]);
         }
 
@@ -3055,7 +3061,13 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             a_pydaw_data->bus_pool[f_track_index]->rec = f_rec;
             
             v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->bus_pool[f_track_index], f_vol);
-                        
+            
+            if(f_rec == 1)
+            {
+                a_pydaw_data->record_armed_track = a_pydaw_data->bus_pool[f_track_index];
+                a_pydaw_data->record_armed_track_index_all = f_track_index + PYDAW_MIDI_TRACK_COUNT;
+            }
+            
             v_pydaw_open_track(a_pydaw_data, a_pydaw_data->bus_pool[f_track_index]);
         }
 
@@ -3139,6 +3151,12 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
             a_pydaw_data->audio_track_pool[f_track_index]->mute = f_mute;            
             v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->audio_track_pool[f_track_index], f_vol);
             a_pydaw_data->audio_track_pool[f_track_index]->bus_num = f_bus_num;
+                        
+            if(f_rec == 1)
+            {
+                a_pydaw_data->record_armed_track = a_pydaw_data->audio_track_pool[f_track_index];
+                a_pydaw_data->record_armed_track_index_all = f_track_index + PYDAW_MIDI_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT;
+            }
             
             v_pydaw_open_track(a_pydaw_data, a_pydaw_data->audio_track_pool[f_track_index]);
         }
@@ -4582,6 +4600,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_track_num = atoi(f_val_arr->array[1]);
         int f_mode = atoi(f_val_arr->array[2]);
         assert(f_mode == 0 || f_mode == 1);
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        
         if(f_mode)
         {
             //TODO:  This will need to be removed if PyDAW ever supports multiple MIDI input devices, just a quick hack for now
@@ -4604,22 +4624,26 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 f_i++;
             }
         }
-        //pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        
         switch(f_type)
         {
             case 0:  //MIDI/plugin
                 a_pydaw_data->track_pool[f_track_num]->rec = f_mode;
+                a_pydaw_data->record_armed_track = a_pydaw_data->track_pool[f_track_num];
+                a_pydaw_data->record_armed_track_index_all = f_track_num;
                 break;
             case 1: //Bus
                 a_pydaw_data->bus_pool[f_track_num]->rec = f_mode;
+                a_pydaw_data->record_armed_track = a_pydaw_data->bus_pool[f_track_num];
+                a_pydaw_data->record_armed_track_index_all = f_track_num + PYDAW_MIDI_TRACK_COUNT;
                 break;
             case 2: //audio track
                 a_pydaw_data->audio_track_pool[f_track_num]->rec = f_mode;
+                a_pydaw_data->record_armed_track = a_pydaw_data->audio_track_pool[f_track_num];
+                a_pydaw_data->record_armed_track_index_all = f_track_num + PYDAW_MIDI_TRACK_COUNT + PYDAW_BUS_TRACK_COUNT;
                 break;
         }        
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        //pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
     }    
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS)) //Change the plugin
