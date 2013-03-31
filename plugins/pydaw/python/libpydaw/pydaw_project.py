@@ -157,8 +157,6 @@ class pydaw_project:
         self.audiofx_folder = self.project_folder + "/audiofx"
         self.busfx_folder = self.project_folder + "/busfx"
         self.samplegraph_folder = self.project_folder + "/samplegraph"
-        self.audio_automation_folder = self.project_folder + "/audio_automation"
-        self.bus_automation_folder = self.project_folder + "/bus_automation"
 
     def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
@@ -177,7 +175,7 @@ class pydaw_project:
             self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder,
             self.audiofx_folder, self.busfx_folder, self.samplegraph_folder,
-            self.audio_automation_folder, self.bus_automation_folder, self.audio_tmp_folder
+            self.audio_tmp_folder
             ]
 
         for project_dir in project_folders:
@@ -349,30 +347,6 @@ class pydaw_project:
     def get_bus_tracks(self):
         return pydaw_busses.from_str(self.get_bus_tracks_string())
 
-    def get_audio_automation_string(self, a_track_num):
-        try:
-            f_file = open(self.audio_automation_folder + "/" + str(a_track_num) + ".pyauto", "r")
-        except:
-            return pydaw_terminating_char
-        f_result = f_file.read()
-        f_file.close()
-        return f_result
-
-    def get_audio_automation(self, a_track_num):
-        return pydaw_song_level_ccs.from_str(self.get_audio_automation_string(a_track_num))
-
-    def get_bus_automation_string(self, a_track_num):
-        try:
-            f_file = open(self.bus_automation_folder + "/" + str(a_track_num) + ".pyauto", "r")
-        except:
-            return pydaw_terminating_char
-        f_result = f_file.read()
-        f_file.close()
-        return f_result
-
-    def get_bus_automation(self, a_track_num):
-        return pydaw_song_level_ccs.from_str(self.get_bus_automation_string(a_track_num))
-
     def get_audio_tracks_string(self):
         try:
             f_file = open(self.project_folder + "/default.pyaudio", "r")
@@ -525,20 +499,6 @@ class pydaw_project:
             f_file.write(a_tracks.__str__())
             f_file.close()
             #Is there a need for a configure message here?
-
-    def save_audio_automation(self, a_track_num, a_ccs):
-        if not self.suppress_updates:
-            f_file_name = self.audio_automation_folder + "/" + str(a_track_num) + ".pyauto"
-            f_file = open(f_file_name, 'w')
-            f_file.write(str(a_ccs))
-            f_file.close()
-
-    def save_bus_automation(self, a_track_num, a_ccs):
-        if not self.suppress_updates:
-            f_file_name = self.bus_automation_folder + "/" + str(a_track_num) + ".pyauto"
-            f_file = open(f_file_name, 'w')
-            f_file.write(str(a_ccs))
-            f_file.close()
 
     def save_audio_tracks(self, a_tracks):
         if not self.suppress_updates:
@@ -1616,128 +1576,3 @@ class pydaw_transport:
             if f_arr[i] == "":
                 f_arr[i] = None
         return pydaw_transport(f_arr[0], f_arr[1], f_arr[2], f_arr[3], f_arr[4])
-
-
-class pydaw_song_level_ccs:
-    def remove_cc(self, a_cc):
-        self.items.remove(a_cc)
-
-    def remove_cc_range(self, a_cc_num, a_start, a_end):
-        """ Delete all CCs between a_start and _end, which should be pydaw_song_level_cc instances """
-        f_cc_num = int(a_cc_num)
-        f_ccs_to_delete = []
-        for cc in self.items:
-            if cc.cc == f_cc_num and  cc > a_start and cc < a_end:
-                f_ccs_to_delete.append(cc)
-        for cc in f_ccs_to_delete:
-            self.remove_cc(cc)
-        self.items.sort()
-
-    def draw_cc_line(self, a_cc, a_start_val, a_start_region, a_start_bar, a_start_beat, a_end_val, a_end_region, a_end_bar, a_end_beat):
-        f_cc = int(a_cc)
-        f_start = float(((a_start_region * 8 * 4) + (a_start_bar * 4))) + a_start_beat
-        f_start_val = int(a_start_val)
-        f_end = float(((a_end_region * 8 * 4) + (a_end_bar * 4))) + a_end_beat
-        f_end_val = int(a_end_val)
-
-        if abs(f_start_val - f_end_val) < 3:
-            return
-
-        f_first_cc = pydaw_song_level_cc(a_start_region, a_start_bar, a_start_beat, a_cc, a_start_val)
-        f_last_cc = pydaw_song_level_cc(a_end_region, a_end_bar, a_end_beat, a_cc, a_end_val)
-        #Remove any events that would overlap
-        self.remove_cc_range(f_cc, f_first_cc, f_last_cc)
-
-        f_start_diff = f_end - f_start
-        f_val_diff = abs(f_end_val - f_start_val)
-        if f_start_val > f_end_val:
-            f_inc = -1
-        else:
-            f_inc = 1
-        f_time_inc = abs(f_start_diff/float(f_val_diff))
-
-        f_new_start_region = a_start_region
-        f_new_start_bar = a_start_bar
-        f_new_start_beat = a_start_beat
-
-        f_start_val += f_inc
-
-        for i in range(0, (f_val_diff + 1)):
-            #self.items.append(pydaw_cc(round(f_start, 4), f_cc, f_start_val))
-            self.items.append(pydaw_song_level_cc(f_new_start_region, f_new_start_bar, f_new_start_beat, a_cc, f_start_val))
-            f_start_val += f_inc
-            if f_start_val > 127 or f_start_val < 0:
-                break
-            f_new_start_beat += f_time_inc
-            f_new_start_beat = round(f_new_start_beat, 4)
-            while f_new_start_beat >= 4.0:
-                f_new_start_beat -= 4.0
-                f_new_start_bar += 1
-                if f_new_start_bar >= 8:
-                    f_new_start_bar = 0
-                    f_new_start_region += 1
-        self.items.sort()
-
-    def add_cc(self, a_cc):
-        for f_cc in self.items:
-            if f_cc == a_cc:
-                return False
-        self.items.append(a_cc)
-        self.items.sort()
-        return True
-
-    def __init__(self):
-        self.items = []
-
-    @staticmethod
-    def from_str(a_str):
-        f_result = pydaw_song_level_ccs()
-        f_arr = a_str.split("\n")
-        for f_line in f_arr:
-            if f_line == pydaw_terminating_char:
-                break
-            f_line_arr = f_line.split("|")
-            f_result.add_cc(pydaw_song_level_cc(f_line_arr[0], f_line_arr[1], f_line_arr[2], f_line_arr[3], f_line_arr[4]))
-        f_result.items.sort()
-        return f_result
-
-    def __str__(self):
-        f_result = ""
-        self.items.sort()
-        for f_item in self.items:
-            f_result += str(f_item)
-        f_result += pydaw_terminating_char
-        return f_result
-
-class pydaw_song_level_cc:
-    def __init__(self, a_region, a_bar, a_beat, a_cc, a_val):
-        self.region = int(a_region)
-        self.bar = int(a_bar)
-        self.beat = float(a_beat)
-        self.cc = int(a_cc)
-        self.value = int(a_val)
-
-    def __lt__(self, other):
-        if self.region < other.region:
-            return True
-        elif self.region == other.region:
-            if self.bar < other.bar:
-                return True
-            elif self.bar == other.bar:
-                if self.beat < other.beat:
-                    return True
-                else:
-                    return False
-            else:
-                return False
-        else:
-            return False
-
-    def __gt__(self, other):
-        return not self < other
-
-    def __eq__(self, other):
-        return self.region == other.region and self.bar == other.bar and self.beat == other.beat and self.cc == other.cc and self.value == other.value
-
-    def __str__(self):
-        return str(self.region) + "|" + str(self.bar) + "|" + str(self.beat) + "|" + str(self.cc) + "|" + str(self.value) + "\n"
