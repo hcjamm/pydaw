@@ -2272,6 +2272,15 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.click_enabled = True
         self.last_scale = 1.0
 
+    def scrollContentsBy(self, x, y):
+        QtGui.QGraphicsView.scrollContentsBy(self, x, y)
+        f_point = self.get_scene_pos()
+        self.piano.setPos(f_point.x(), self.header_height)
+        self.header.setPos(self.piano_width + self.padding, f_point.y())
+
+    def get_scene_pos(self):
+        return QtCore.QPointF(self.horizontalScrollBar().value(), self.verticalScrollBar().value())
+
     def highlight_selected(self):
         self.has_selected = False
         for f_item in self.note_items:
@@ -2346,8 +2355,10 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def draw_header(self):
         self.header = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.header_height)
-        self.header.setPos(self.piano_width + self.padding, 0)
+        self.header.setBrush(QtGui.QColor.fromRgb(60, 60, 60))
+        #self.header.setPos(self.piano_width + self.padding, 0)
         self.scene.addItem(self.header)
+        self.header.mapToScene(self.piano_width + self.padding, 0.0)
         self.beat_width = self.viewer_width / self.item_length
         self.value_width = self.beat_width / self.grid_div
 
@@ -2357,8 +2368,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
         f_piano_label = QtGui.QFont()
         f_piano_label.setPointSize(8)
         self.piano = QtGui.QGraphicsRectItem(0, 0, self.piano_width, self.piano_height)
-        self.piano.setPos(0, self.header_height)
+        #self.piano.setPos(0, self.header_height)
         self.scene.addItem(self.piano)
+        self.piano.mapToScene(0.0, self.header_height)
         f_key = piano_key_item(self.piano_width, self.note_height, self.piano)
         f_label = QtGui.QGraphicsSimpleTextItem("C8", f_key)
         f_label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
