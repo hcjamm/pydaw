@@ -253,10 +253,10 @@ class song_editor:
                 f_empty = QtGui.QTableWidgetItem() #Clear the item
                 self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
             self.tablewidget_to_song()
-            this_region_editor.clear_items()
-            this_region_editor.region_name_lineedit.setText("")
-            this_region_editor.enabled = False
-            this_region_editor.set_region_length()
+            this_region_settings.clear_items()
+            this_region_settings.region_name_lineedit.setText("")
+            this_region_settings.enabled = False
+            this_region_settings.update_region_length() #TODO:  Is this right?
             this_pydaw_project.git_repo.git_commit("-a", f_commit_msg)
             pydaw_update_region_lengths_dict()
         else:
@@ -461,9 +461,18 @@ class region_list_editor:
         self.enabled = False
 
     def get_tracks(self):
-        f_result = pydaw_tracks()
-        for f_i in range(0, len(self.tracks)):
-            f_result.add_track(f_i, self.tracks[f_i].get_track())
+        if self.track_type == 0:
+            f_result = pydaw_tracks()
+            for f_i in range(0, self.track_count):
+                f_result.add_track(f_i, self.tracks[f_i].get_track())
+        elif self.track_type == 1:
+            f_result = pydaw_busses()
+            for f_i in range(0, self.track_count):
+                f_result.add_bus(f_i, self.tracks[f_i].get_track())
+        elif self.track_type == 2:
+            f_result = pydaw_audio_tracks()
+            for f_i in range(0, self.track_count):
+                f_result.add_track(f_i, self.tracks[f_i].get_track())
         return f_result
 
     def warn_no_region_selected(self):
@@ -1766,6 +1775,11 @@ class audio_list_editor:
         self.items_vlayout.addWidget(self.audio_items_table_widget)
         self.reset_tracks()
 
+def global_save_all_region_tracks():
+    this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+    this_pydaw_project.save_audio_tracks(this_region_audio_editor.get_tracks())
+    this_pydaw_project.save_busses(this_region_bus_editor.get_tracks())
+
 class audio_track:
     def on_vol_change(self, value):
         self.volume_label.setText(str(value) + " dB")
@@ -1790,6 +1804,11 @@ class audio_track:
         f_tracks.tracks[self.track_number].mute = self.mute_checkbox.isChecked()
         this_pydaw_project.save_audio_tracks(f_tracks)
         this_pydaw_project.git_repo.git_commit("-a", "Set audio track " + str(self.track_number) + " muted to " + str(self.mute_checkbox.isChecked()))
+    def on_rec(self, value):
+        if not self.suppress_osc:
+            this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(2, self.track_number, self.record_radiobutton.isChecked())
+            global_save_all_region_tracks()
+            this_pydaw_project.git_repo.git_commit("-a", "Set rec for MIDI track " + str(self.track_number) + " to " + str(self.record_radiobutton.isChecked()))
     def on_name_changed(self):
         self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
         this_pydaw_project.this_dssi_gui.pydaw_save_track_name(self.track_number, self.track_name_lineedit.text(), 2)
@@ -1863,6 +1882,11 @@ class audio_track:
         self.mute_checkbox.setObjectName("mute_checkbox")
         self.hlayout3.addWidget(self.mute_checkbox)
         self.hlayout3.addWidget(self.fx_button)
+        self.record_radiobutton = QtGui.QRadioButton()
+        rec_button_group.addButton(self.record_radiobutton)
+        self.record_radiobutton.toggled.connect(self.on_rec)
+        self.record_radiobutton.setObjectName("rec_arm_radiobutton")
+        self.hlayout3.addWidget(self.record_radiobutton)
         self.suppress_osc = False
 
     def open_track(self, a_track, a_notify_osc=False):
@@ -4196,9 +4220,12 @@ class seq_track:
             this_pydaw_project.git_repo.git_commit("-a", "Set mute for MIDI track " + str(self.track_number) + " to " + str(self.mute_checkbox.isChecked()))
     def on_rec(self, value):
         if not self.suppress_osc:
-            this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_number, self.record_radiobutton.isChecked())
-            this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-            this_pydaw_project.git_repo.git_commit("-a", "Set rec for MIDI track " + str(self.track_number) + " to " + str(self.record_radiobutton.isChecked()))
+            this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_type, self.track_number, self.record_radiobutton.isChecked())
+            global_save_all_region_tracks()
+            if self.track_type == 0:
+                this_pydaw_project.git_repo.git_commit("-a", "Set rec for MIDI track " + str(self.track_number) + " to " + str(self.record_radiobutton.isChecked()))
+            elif self.track_type == 1:
+                this_pydaw_project.git_repo.git_commit("-a", "Set rec for bus track " + str(self.track_number) + " to " + str(self.record_radiobutton.isChecked()))
     def on_name_changed(self):
         if self.is_instrument:
             self.track_name_lineedit.setText(pydaw_remove_bad_chars(self.track_name_lineedit.text()))
@@ -4227,6 +4254,10 @@ class seq_track:
 
     def __init__(self, a_track_num, a_track_text="track", a_instrument=True):
         self.is_instrument = a_instrument
+        if a_instrument:
+            self.track_type = 0
+        else:
+            self.track_type = 1
         self.suppress_osc = True
         self.track_number = a_track_num
         self.group_box = QtGui.QWidget()
@@ -4293,15 +4324,15 @@ class seq_track:
             self.mute_checkbox.clicked.connect(self.on_mute)
             self.mute_checkbox.setObjectName("mute_checkbox")
             self.hlayout3.addWidget(self.mute_checkbox)
-            self.record_radiobutton = QtGui.QRadioButton()
-            rec_button_group.addButton(self.record_radiobutton)
-            self.record_radiobutton.toggled.connect(self.on_rec)
-            self.record_radiobutton.setObjectName("rec_arm_radiobutton")
-            self.hlayout3.addWidget(self.record_radiobutton)
         else:
             self.track_name_lineedit.setReadOnly(True)
             self.hlayout3.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
             self.hlayout3.addWidget(self.fx_button)
+        self.record_radiobutton = QtGui.QRadioButton()
+        rec_button_group.addButton(self.record_radiobutton)
+        self.record_radiobutton.toggled.connect(self.on_rec)
+        self.record_radiobutton.setObjectName("rec_arm_radiobutton")
+        self.hlayout3.addWidget(self.record_radiobutton)
 
         self.suppress_osc = False
 
@@ -4309,8 +4340,8 @@ class seq_track:
         if not a_notify_osc:
             self.suppress_osc = True
         self.volume_slider.setValue(a_track.vol)
+        self.record_radiobutton.setChecked(a_track.rec)
         if self.is_instrument:
-            self.record_radiobutton.setChecked(a_track.rec)
             self.track_name_lineedit.setText(a_track.name)
             self.instrument_combobox.setCurrentIndex(a_track.inst)
             self.solo_checkbox.setChecked(a_track.solo)
@@ -4323,8 +4354,7 @@ class seq_track:
             return pydaw_track(self.solo_checkbox.isChecked(), self.mute_checkbox.isChecked(), self.record_radiobutton.isChecked(),
                            self.volume_slider.value(), str(self.track_name_lineedit.text()), self.instrument_combobox.currentIndex(), self.bus_combobox.currentIndex())
         else:
-            return pydaw_track(False, False, self.record_radiobutton.isChecked(),
-                           self.volume_slider.value(), str(self.track_name_lineedit.text()), -1)
+            return pydaw_bus(self.volume_slider.value(), self.record_radiobutton.isChecked())
 
 class transport_widget:
     def init_playback_cursor(self, a_bar=True):
@@ -4469,7 +4499,7 @@ class transport_widget:
             self.is_recording = False
             sleep(2)  #Give it some time to flush the recorded items to disk...
             if(this_region_editor.enabled):
-                this_region_editor.open_region(this_region_editor.region.name)
+                this_region_settings.open_region(this_region_editor.region.name)
             this_song_editor.open_song()
             this_pydaw_project.record_stop_git_commit()
             self.show_audio_recording_dialog()
@@ -4533,7 +4563,7 @@ class transport_widget:
         if self.follow_checkbox.isChecked():
             f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
             if not f_item is None and f_item.text() != "":
-                this_region_editor.open_region(f_item.text())
+                this_region_settings.open_region(f_item.text())
             else:
                 this_region_editor.clear_items()
             this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
@@ -4553,9 +4583,9 @@ class transport_widget:
             if self.follow_checkbox.isChecked():
                 f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
                 if not f_item is None and f_item.text() != "":
-                    this_region_editor.open_region(f_item.text())
+                    this_region_settings.open_region(f_item.text())
                 else:
-                    this_region_editor.clear_items()
+                    this_region_settings.clear_items()
             f_new_bar_value = 0
             self.bar_spinbox.setValue(f_new_bar_value)  #NOTE:  This must not be consolidated with the other because trigger_audio_playback relies on it being set first
             self.trigger_audio_playback()
@@ -5232,7 +5262,7 @@ def set_default_project(a_project_path):
     f_handle.close()
 
 def global_close_all():
-    this_region_editor.clear_new()
+    this_region_settings.clear_new()
     this_item_editor.clear_new()
     this_song_editor.table_widget.clearContents()
     this_audio_editor.audio_items_table_widget.clearContents()
@@ -5250,9 +5280,9 @@ def global_ui_refresh_callback():
     else:
         this_item_editor.clear_new()
     if this_region_editor.enabled and os.path.isfile(this_pydaw_project.regions_folder + "/" + str(this_region_editor.region_name_lineedit.text()) + ".pyreg"):
-        this_region_editor.open_region(this_region_editor.region_name_lineedit.text())
+        this_region_settings.open_region(this_region_editor.region_name_lineedit.text())
     else:
-        this_region_editor.clear_new()
+        this_region_settings.clear_new()
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
     this_region_editor.open_tracks()
