@@ -257,22 +257,6 @@ class pydaw_project:
         self.git_repo = pydaw_git_repo(self.project_folder)
         self.git_repo.git_init()
 
-        for i in range(pydaw_audio_track_count):
-            f_automation_file = self.audio_automation_folder + "/" + str(i) + ".pyauto"
-            if not os.path.exists(f_automation_file):
-                f_file = open(f_automation_file, 'w')
-                f_file.write(pydaw_terminating_char)
-                f_file.close()
-                self.git_repo.git_add(f_automation_file)
-
-        for i in range(pydaw_bus_count):
-            f_automation_file = self.bus_automation_folder + "/" + str(i) + ".pyauto"
-            if not os.path.exists(f_automation_file):
-                f_file = open(f_automation_file, 'w')
-                f_file.write(pydaw_terminating_char)
-                f_file.close()
-                self.git_repo.git_add(f_automation_file)
-
         self.git_repo.git_add(f_pysong_file)
         self.git_repo.git_add(f_pytracks_file)
         self.git_repo.git_add(f_pytransport_file)
