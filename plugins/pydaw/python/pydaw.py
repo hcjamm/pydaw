@@ -2355,7 +2355,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def draw_header(self):
         self.header = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.header_height)
-        self.header.setBrush(QtGui.QColor.fromRgb(60, 60, 60))
+        self.header.setBrush(QtGui.QColor.fromRgb(60, 60, 60, 255))
         #self.header.setPos(self.piano_width + self.padding, 0)
         self.scene.addItem(self.header)
         self.header.mapToScene(self.piano_width + self.padding, 0.0)
@@ -2475,6 +2475,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_note_item.resize_last_mouse_pos = f_note_item.scenePos().x()
                 f_note_item.resize_pos = f_note_item.scenePos()
             f_beat_offset += 1
+        self.scrollContentsBy(0, 0)
 
     def draw_note(self, a_note, a_item_index):
         """ a_note is an instance of the pydaw_note class"""
