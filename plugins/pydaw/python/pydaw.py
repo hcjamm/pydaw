@@ -1403,7 +1403,7 @@ class audio_item_editor(QtGui.QGraphicsView):
 def global_edit_audio_item(a_index, a_switch_tabs=True):
     this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(a_index)
     if a_switch_tabs:
-        this_main_window.main_tabwidget.setCurrentIndex(4)
+        this_main_window.main_tabwidget.setCurrentIndex(2)
 
 class audio_item_editor_widget:
     def update_file_list(self):
