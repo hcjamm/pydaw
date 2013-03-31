@@ -988,6 +988,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
                 }
                 f_i2++;
             }
+            v_pydaw_update_ports(a_pydaw_data->track_pool_all[f_i]->effect);  //Ensure that the plugin GUI is updated for audio/bus tracks
+            break;  //TODO:  remove this if multiple MIDI input devices are ever supported
         }
         f_i++;
     }
