@@ -207,7 +207,7 @@ class pydaw_project:
             f_file = open(f_pytracks_file, 'w')
             f_midi_tracks_instance = pydaw_tracks()
             for i in range(16):
-                f_midi_tracks_instance.add_track(i, pydaw_track(0,0,0,0,"track"+str(i + 1),0))
+                f_midi_tracks_instance.add_track(i, pydaw_track(a_name="track" + str(i + 1)))
             f_file.write(str(f_midi_tracks_instance))
             f_file.close()
         f_pyaudio_file = self.project_folder + "/default.pyaudio"
@@ -215,7 +215,7 @@ class pydaw_project:
             f_file = open(f_pyaudio_file, 'w')
             f_pyaudio_instance = pydaw_audio_tracks()
             for i in range(8):
-                f_pyaudio_instance.add_track(i, pydaw_audio_track(0,0,0,"track"+str(i + 1)))
+                f_pyaudio_instance.add_track(i, pydaw_audio_track(a_name="track" + str(i + 1)))
             f_file.write(str(f_pyaudio_instance))
             f_file.close()
 
@@ -1339,21 +1339,21 @@ class pydaw_tracks:
         for f_line in f_arr:
             if not f_line == pydaw_terminating_char:
                 f_line_arr = f_line.split("|")
-                f_result.add_track(int(f_line_arr[0]), pydaw_track(int_to_bool(f_line_arr[1]), int_to_bool(f_line_arr[2]), int_to_bool(f_line_arr[3]), int(f_line_arr[4]), f_line_arr[5], int(f_line_arr[6]), int(f_line_arr[7])))
+                f_result.add_track(int(f_line_arr[0]), pydaw_track(int_to_bool(f_line_arr[1]), int_to_bool(f_line_arr[2]), \
+                f_line_arr[3], f_line_arr[4], f_line_arr[5], f_line_arr[6]))
         return f_result
 
 class pydaw_track:
-    def __init__(self, a_solo, a_mute, a_rec, a_vol, a_name, a_inst, a_bus_num=0):
+    def __init__(self, a_solo=False, a_mute=False, a_vol=0, a_name="track", a_inst=0, a_bus_num=0):
         self.name = str(a_name)
         self.solo = bool(a_solo)
         self.mute = bool(a_mute)
-        self.rec = bool(a_rec)
         self.vol = int(a_vol)
         self.inst = int(a_inst)
         self.bus_num = int(a_bus_num)
 
     def __str__(self):
-        return bool_to_int(self.solo) + "|" + bool_to_int(self.mute) + "|" + bool_to_int(self.rec) + "|" + str(self.vol) + "|" + self.name + "|" + \
+        return bool_to_int(self.solo) + "|" + bool_to_int(self.mute) + "|" + str(self.vol) + "|" + self.name + "|" + \
         str(self.inst) + "|" + str(self.bus_num) + "\n"
 
 class pydaw_busses:
@@ -1362,7 +1362,7 @@ class pydaw_busses:
 
     def add_bus_from_str(self, a_str):
         f_arr = a_str.split("|")
-        self.add_bus(f_arr[0], pydaw_bus(f_arr[1], f_arr[2]))
+        self.add_bus(f_arr[0], pydaw_bus(f_arr[1]))
 
     def __init__(self):
         self.busses = {}
@@ -1385,12 +1385,11 @@ class pydaw_busses:
         return f_result
 
 class pydaw_bus:
-    def __init__(self, a_vol=0, a_rec=False):
+    def __init__(self, a_vol=0):
         self.vol = int(a_vol)
-        self.rec = bool(a_rec)
 
     def __str__(self):
-        return str(self.vol) + "|" + bool_to_int(self.rec) + "\n"
+        return str(self.vol) + "\n"
 
 class pydaw_audio_tracks:
     def add_track(self, a_index, a_track):
@@ -1417,17 +1416,15 @@ class pydaw_audio_tracks:
         return f_result
 
 class pydaw_audio_track:
-    def __init__(self, a_solo, a_mute, a_vol, a_name, a_bus_num=0, a_rec=False):
+    def __init__(self, a_solo=False, a_mute=False, a_vol=0, a_name="track", a_bus_num=0):
         self.name = str(a_name)
         self.solo = bool(a_solo)
         self.mute = bool(a_mute)
         self.vol = int(a_vol)
         self.bus_num = int(a_bus_num)
-        self.rec = bool(a_rec)
 
     def __str__(self):
-        return bool_to_int(self.solo) + "|" + bool_to_int(self.mute) + "|" + str(self.vol) + "|" + self.name + "|" + \
-        str(self.bus_num) + "|" + bool_to_int(self.rec) + "\n"
+        return bool_to_int(self.solo) + "|" + bool_to_int(self.mute) + "|" + str(self.vol) + "|" + self.name + "|" + str(self.bus_num) + "\n"
 
 class pydaw_audio_items:
     """ Return the next available index, or -1 if none are available """
@@ -1522,18 +1519,17 @@ class pydaw_audio_input_tracks:
                 break
             else:
                 f_line_arr = f_line.split("|")
-                f_result.add_track(int(f_line_arr[0]), pydaw_audio_input_track(int_to_bool(f_line_arr[1]), int(f_line_arr[2]), int(f_line_arr[3]), f_line_arr[4]))
+                f_result.add_track(int(f_line_arr[0]), pydaw_audio_input_track(int_to_bool(f_line_arr[1]), int(f_line_arr[2]), int(f_line_arr[3])))
         return f_result
 
 class pydaw_audio_input_track:
-    def __init__(self, a_rec, a_vol, a_output, a_input="None"):
+    def __init__(self, a_vol=0, a_output=0, a_input="None"):
         self.input = str(a_input)
         self.output = int(a_output)
-        self.rec = bool(a_rec)
         self.vol = int(a_vol)
 
     def __str__(self):
-        return bool_to_int(self.rec) + "|" + str(self.vol) + "|" + str(self.output) + "|" + str(self.input) + "\n"
+        return str(self.vol) + "|" + str(self.output) + "|" + str(self.input) + "\n"
 
 class pydaw_transport:
     def __init__(self, a_bpm=140, a_midi_keybd=None, a_loop_mode=0, a_region=0, a_bar=0):
