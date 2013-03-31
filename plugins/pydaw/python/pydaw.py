@@ -2074,6 +2074,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.resize_rect = self.rect()
         self.setPen(QtGui.QPen(pydaw_track_gradients[3], 2))
         self.mouse_y_pos = QtGui.QCursor.pos().y()
+        self.setZValue(1002.0)
 
     def mouse_is_at_end(self, a_pos):
         return (a_pos.x() > (self.rect().width() * 0.8))
@@ -2360,6 +2361,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.header.mapToScene(self.piano_width + self.padding, 0.0)
         self.beat_width = self.viewer_width / self.item_length
         self.value_width = self.beat_width / self.grid_div
+        self.header.setZValue(1003.0)
 
     def draw_piano(self):
         f_labels = ['B', 'Bb', 'A', 'Ab', 'G', 'Gb', 'F', 'E', 'Eb', 'D', 'Db', 'C']
@@ -2388,6 +2390,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     f_key.setBrush(QtGui.QColor(0,0,0))
                 else:
                     f_key.setBrush(QtGui.QColor(255,255,255))
+        self.piano.setZValue(1000.0)
 
     def draw_grid(self):
         f_black_key_brush = QtGui.QBrush(QtGui.QColor(60, 60, 60, 60))
@@ -2403,6 +2406,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         for i in range(self.end_octave-self.start_octave, self.start_octave-self.start_octave, -1):
             for j in range(self.notes_in_octave, 0, -1):
                 f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.note_height, self.piano)
+                f_note_bar.setZValue(60.0)
                 f_note_bar.setBrush(f_octave_brushes[f_current_key])
                 f_current_key += 1
                 if f_current_key >= len(f_octave_brushes):
