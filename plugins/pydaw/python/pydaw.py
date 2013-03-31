@@ -412,9 +412,18 @@ class region_list_editor:
 
     def open_tracks(self):
         self.reset_tracks()
-        f_tracks = this_pydaw_project.get_tracks()
-        for key, f_track in f_tracks.tracks.iteritems():
-            self.tracks[key].open_track(f_track)
+        if self.track_type == pydaw_track_type_enum.midi():
+            f_tracks = this_pydaw_project.get_tracks()
+            for key, f_track in f_tracks.tracks.iteritems():
+                self.tracks[key].open_track(f_track)
+        elif self.track_type == pydaw_track_type_enum.bus():
+            f_tracks = this_pydaw_project.get_bus_tracks()
+            for key, f_track in f_tracks.busses.iteritems():
+                self.tracks[key].open_track(f_track)
+        elif self.track_type == pydaw_track_type_enum.audio():
+            f_tracks = this_pydaw_project.get_audio_tracks()
+            for key, f_track in f_tracks.tracks.iteritems():
+                self.tracks[key].open_track(f_track)
 
     def reset_tracks(self):
         self.tracks = []
@@ -5279,13 +5288,14 @@ def global_ui_refresh_callback():
         global_open_items()
     else:
         this_item_editor.clear_new()
-    if this_region_editor.enabled and os.path.isfile(this_pydaw_project.regions_folder + "/" + str(this_region_editor.region_name_lineedit.text()) + ".pyreg"):
+    if this_region_settings.enabled and os.path.isfile(this_pydaw_project.regions_folder + "/" + str(this_region_settings.region_name_lineedit.text()) + ".pyreg"):
         this_region_settings.open_region(this_region_editor.region_name_lineedit.text())
     else:
         this_region_settings.clear_new()
     this_audio_editor.open_items()
     this_audio_editor.open_tracks()
-    this_region_editor.open_tracks()
+    for f_editor in global_region_editors:
+        f_editor.open_tracks()
     this_song_editor.open_song()
     this_transport.open_transport()
     this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder)  #Re-open the project so that any changes can be caught by the back-end
@@ -5304,7 +5314,8 @@ def global_open_project(a_project_file, a_notify_osc=True):
     this_pydaw_project.open_project(a_project_file, a_notify_osc)
     this_song_editor.open_song()
     pydaw_update_region_lengths_dict()
-    this_region_editor.open_tracks()
+    for f_editor in global_region_editors:
+        f_editor.open_tracks()
     this_transport.open_transport()
     set_default_project(a_project_file)
     this_audio_editor.open_items()
