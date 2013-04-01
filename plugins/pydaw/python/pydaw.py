@@ -1699,6 +1699,12 @@ class audio_item_editor_widget:
 
 
 class audio_list_editor:
+    def get_rec_armed_inputs(self):
+        f_result = []
+        for f_track in self.inputs:
+            f_result.append(f_track.rec_checkbox.isChecked())
+        return f_result
+
     def open_tracks(self):
         f_inputs = this_pydaw_project.get_audio_input_tracks()
         for key, f_track in f_inputs.tracks.iteritems():
@@ -4429,12 +4435,13 @@ class transport_widget:
         f_audio_items = this_pydaw_project.get_audio_items()
         f_samplegraphs = this_pydaw_project.get_samplegraphs()
         f_result_list = []
-        for f_i in range(5):
-            if f_inputs.tracks[f_i].rec == 1:
+        f_rec_armed = this_audio_editor.get_rec_armed_inputs()
+        for f_i in range(pydaw_audio_input_count):
+            if f_rec_armed[f_i]:
                 if os.path.isfile(this_pydaw_project.audio_tmp_folder + "/" + str(f_i) + ".wav"):
                     f_result_list.append(f_i)
                 else:
-                    print("Error:  Track " + str(f_i) + " was record-armed, but no .wav found")
+                    QtGui.QMessageBox.warning(this_main_window, "Error", "Input " + str(f_i) + " was record-armed, but no .wav found")
         if len(f_result_list) > 0:
             for f_item_number in f_result_list:
                 def ok_handler():
