@@ -4378,6 +4378,8 @@ class transport_widget:
             this_region_settings.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
         else:
             this_region_editor.clear_items()
+            this_region_audio_editor.clear_items()
+            this_region_bus_editor.clear_items()
         if a_bar:
             this_region_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
             this_region_audio_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
@@ -4504,6 +4506,7 @@ class transport_widget:
         this_region_settings.on_stop()
         self.bar_spinbox.setEnabled(True)
         self.region_spinbox.setEnabled(True)
+        self.overdub_checkbox.setEnabled(True)
         this_pydaw_project.this_dssi_gui.pydaw_stop()
         self.beat_timer.stop()
         self.bar_spinbox.setValue(self.last_bar)
@@ -4512,8 +4515,8 @@ class transport_widget:
         if self.is_recording:
             self.is_recording = False
             sleep(2)  #Give it some time to flush the recorded items to disk...
-            if(this_region_editor.enabled):
-                this_region_settings.open_region(this_region_editor.region.name)
+            if global_current_region is not None and this_region_settings.enabled:
+                this_region_settings.open_region(global_current_region.name)
             this_song_editor.open_song()
             this_pydaw_project.record_stop_git_commit()
             self.show_audio_recording_dialog()
@@ -4530,6 +4533,7 @@ class transport_widget:
         this_region_settings.on_play()
         self.bar_spinbox.setEnabled(False)
         self.region_spinbox.setEnabled(False)
+        self.overdub_checkbox.setEnabled(False)
         global global_transport_is_playing
         global_transport_is_playing = True
         self.is_recording = True
@@ -4580,10 +4584,16 @@ class transport_widget:
                 this_region_settings.open_region(f_item.text())
             else:
                 this_region_editor.clear_items()
+                this_region_audio_editor.clear_items()
+                this_region_bus_editor.clear_items()
             this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
             this_region_editor.table_widget.selectColumn(self.bar_spinbox.value())
+            this_region_audio_editor.table_widget.selectColumn(self.bar_spinbox.value())
+            this_region_bus_editor.table_widget.selectColumn(self.bar_spinbox.value())
         else:
             this_region_editor.table_widget.clearSelection()
+            this_region_audio_editor.table_widget.clearSelection()
+            this_region_bus_editor.table_widget.clearSelection()
     def beat_timeout(self):
         if self.loop_mode_combobox.currentIndex() == 1:
             self.trigger_audio_playback()
