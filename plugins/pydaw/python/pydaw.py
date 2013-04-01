@@ -4629,6 +4629,9 @@ class transport_widget:
                 break
         self.suppress_osc = False
 
+    def on_overdub_changed(self, a_val=None):
+        this_pydaw_project.this_dssi_gui.pydaw_set_overdub_mode(self.overdub_checkbox.isChecked())
+
     def __init__(self):
         self.suppress_osc = True
         self.is_recording = False
@@ -4687,10 +4690,15 @@ class transport_widget:
         self.loop_mode_combobox.setMinimumWidth(90)
         self.loop_mode_combobox.currentIndexChanged.connect(self.on_loop_mode_changed)
         f_lower_ctrl_layout.addWidget(self.loop_mode_combobox)
-        self.follow_checkbox = QtGui.QCheckBox("Follow cursor?")
+        self.follow_checkbox = QtGui.QCheckBox("Follow")
+        self.follow_checkbox.setToolTip("Checking this box causes the region editor to follow playback")
         self.follow_checkbox.setChecked(True)
         self.follow_checkbox.clicked.connect(self.on_follow_cursor_check_changed)
         f_lower_ctrl_layout.addWidget(self.follow_checkbox)
+        self.overdub_checkbox = QtGui.QCheckBox("Overdub")
+        self.overdub_checkbox.clicked.connect(self.on_overdub_changed)
+        self.overdub_checkbox.setToolTip("Checking this box causes recording to unlink existing items and append new events to the existing events")
+        f_lower_ctrl_layout.addWidget(self.overdub_checkbox)
         self.scope_button = QtGui.QPushButton("Scope")
         self.scope_button.pressed.connect(launch_jack_oscrolloscope)
         f_lower_ctrl_layout.addWidget(self.scope_button)
