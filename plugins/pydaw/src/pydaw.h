@@ -57,10 +57,8 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_UPDATE_SINGLE "au"
 #define PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH "sg"
     
-#define PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS "ua"
-    
-//#define PYDAW_CONFIGURE_KEY_RELOAD_SONG_LEVEL_AUTOMATION "sa"
-
+#define PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS "ua"    
+#define PYDAW_CONFIGURE_KEY_SET_OVERDUB_MODE "od"
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -207,6 +205,7 @@ typedef struct st_pydaw_data
     int track_current_item_pitchbend_event_indexes[PYDAW_MIDI_TRACK_COUNT];
     int playback_mode;  //0 == Stop, 1 == Play, 2 == Rec
     int loop_mode;  //0 == Off, 1 == Bar, 2 == Region
+    int overdub_mode;  //0 == Off, 1 == On
     //char * project_name;
     char * project_folder;
     char * instruments_folder;
@@ -2643,7 +2642,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->current_region = 0;
     f_result->playback_cursor = 0.0f;
     f_result->playback_inc = 0.0f;
-    
+
+    f_result->overdub_mode = 0;    
     f_result->loop_mode = 0;
     f_result->item_folder = (char*)malloc(sizeof(char) * 256);
     f_result->instruments_folder = (char*)malloc(sizeof(char) * 256);
@@ -4646,9 +4646,17 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         
         g_free_1d_char_array(f_val_arr);
     }       
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SET_OVERDUB_MODE)) //Set the bus number for specified track
+    {
+        int f_bool = atoi(a_value);
+        assert(f_bool == 0 || f_bool == 1);
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        a_pydaw_data->overdub_mode = f_bool;
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    }
     else
     {
-        printf("Unknown configure message key: %s, value %s\n", a_key, a_value);
+        printf("Unknown configure message key: %s, value %s\n", a_key, a_value);        
     }
 }
 

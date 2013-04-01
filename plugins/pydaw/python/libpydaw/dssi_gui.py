@@ -12,7 +12,6 @@ def bool_to_int(a_bool):
     else:
         return "0"
 
-
 class dssi_gui(ServerThread):
     def __init__(self, a_url=None, a_pc_func=None):
         """
@@ -201,5 +200,6 @@ class dssi_gui(ServerThread):
     def pydaw_update_audio_inputs(self):
         self.send_configure("ua", "")
 
-    def pydaw_reload_song_level_automation(self, a_track_type, a_track_num):
-        self.send_configure("sa", str(a_track_type) + "|" + str(a_track_num))
+    def pydaw_set_overdub_mode(self, a_is_on):
+        """ a_is_on should be a bool """
+        self.send_configure("od", bool_to_int(a_is_on))

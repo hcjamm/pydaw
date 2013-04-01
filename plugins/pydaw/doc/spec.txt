@@ -8,8 +8,7 @@ Startup Specifications:
 		TODO		
 
 	Startup(UI):
-		TODO		
-
+		TODO
 
 Track types:
 	0:  MIDI/plugin track
@@ -54,11 +53,9 @@ OSC configure message keys/values:
 	"au"	"file-line"  Update the file at file-line, but do not reload the sample...
 	"sg"	"file|uid"	Generate a sample-graph for "file", assigning it to uid.pygraph in the project/samplegraph/
 	"ai"	""	Reload all audio items(the sequenced audio parts/loaded files)
-
 	"ua"	""	Update audio inputs configuration from .pyinput file
-
 	"sa"	int|int	Reload song-level automation for type[int]|track[int]
-
+	"od"	int	Set overdub mode (0 False, 1 True)
 
 
 Project structure:
