@@ -607,7 +607,7 @@ border: 1px solid #6c6c6c;
 
 QCheckBox:disabled
 {
-color: #414141;
+color: #aaaaaa;
 }
 
 QDockWidget::title
@@ -765,10 +765,7 @@ QRadioButton::indicator:hover, QCheckBox::indicator:hover
 {
 border: 1px solid #ffaa00;
 }
-QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
-{
-border: 1px solid #444;
-}
+
 QCheckBox::indicator:checked
 {
 background-color: qradialgradient(
