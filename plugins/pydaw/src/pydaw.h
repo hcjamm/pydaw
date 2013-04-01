@@ -315,9 +315,9 @@ t_pytrack * g_pytrack_get(int,int);
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char*);
 void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name);
 int g_pyitem_clone(t_pydaw_data * a_pydaw_data, int a_item_index);
-t_pycc * g_pycc_get(char a_cc_num, float a_cc_val, float a_start);
+t_pycc * g_pycc_get(int a_cc_num, float a_cc_val, float a_start);
 t_pypitchbend * g_pypitchbend_get(float a_start, float a_value);
-t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length);
+t_pynote * g_pynote_get(int a_note, int a_vel, float a_start, float a_length);
 t_pydaw_data * g_pydaw_data_get(float);
 int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name);
 void v_open_project(t_pydaw_data*, const char*);
@@ -2036,7 +2036,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
 }
 
 
-t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length)
+t_pynote * g_pynote_get(int a_note, int a_vel, float a_start, float a_length)
 {
     t_pynote * f_result = (t_pynote*)malloc(sizeof(t_pynote));
     
@@ -2048,7 +2048,7 @@ t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length)
     return f_result;
 }
 
-t_pycc * g_pycc_get(char a_cc_num, float a_cc_val, float a_start)
+t_pycc * g_pycc_get(int a_cc_num, float a_cc_val, float a_start)
 {
     t_pycc * f_result = (t_pycc*)malloc(sizeof(t_pycc));
     
