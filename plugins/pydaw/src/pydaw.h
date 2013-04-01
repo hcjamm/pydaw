@@ -133,8 +133,8 @@ typedef struct st_pyitem
     int cc_count;
     t_pypitchbend * pitchbends[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
     int pitchbend_count;
-    int note_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
-    int cc_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
+    //int note_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
+    //int cc_index[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
     int uid;
 }t_pyitem;
 
@@ -314,6 +314,7 @@ void g_pysong_get(t_pydaw_data*);
 t_pytrack * g_pytrack_get(int,int);
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char*);
 void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name);
+int g_pyitem_clone(t_pydaw_data * a_pydaw_data, int a_item_index);
 t_pycc * g_pycc_get(char a_cc_num, float a_cc_val, float a_start);
 t_pypitchbend * g_pypitchbend_get(float a_start, float a_value);
 t_pynote * g_pynote_get(char a_note, char a_vel, float a_start, float a_length);
@@ -860,7 +861,15 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
 #endif
                         a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)] = g_pyregion_get_new(a_pydaw_data);
                     }
-                    a_pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(a_pydaw_data);
+                    if(a_pydaw_data->overdub_mode)
+                    {
+                        a_pydaw_data->recording_current_item_pool_index = g_pyitem_clone(a_pydaw_data, 
+                                a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar]);
+                    }
+                    else
+                    {
+                        a_pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(a_pydaw_data);
+                    }
                     if((a_pydaw_data->recording_first_item) == -1)
                     {
                         a_pydaw_data->recording_first_item = (a_pydaw_data->recording_current_item_pool_index);
@@ -2360,6 +2369,60 @@ void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
         }
     }
     
+    while(1)
+    {
+        int f_no_changes = 1;
+        
+        f_i = 0;
+        /*Use the Bubble Sort algorithm.  It's generally complete garbage, but in this instance, where the list is going to be
+         pseudo-sorted to begin with, it's actually very efficient, likely only making 3 passes at most, 1 or 2 passes typically*/
+        while(f_i < (f_pyitem->cc_count - 1))
+        {        
+            if((f_pyitem->ccs[f_i]->start) > (f_pyitem->ccs[f_i + 1]->start))
+            {
+                t_pycc * f_greater = f_pyitem->ccs[f_i];
+                t_pycc * f_lesser = f_pyitem->ccs[f_i + 1];
+                f_pyitem->ccs[f_i] = f_lesser;
+                f_pyitem->ccs[f_i + 1] = f_greater;
+                f_no_changes = 0;
+            }
+
+            f_i++;
+        }
+        
+        if(f_no_changes)
+        {
+            break;
+        }
+    }
+    
+    while(1)
+    {
+        int f_no_changes = 1;
+        
+        f_i = 0;
+        /*Use the Bubble Sort algorithm.  It's generally complete garbage, but in this instance, where the list is going to be
+         pseudo-sorted to begin with, it's actually very efficient, likely only making 3 passes at most, 1 or 2 passes typically*/
+        while(f_i < (f_pyitem->pitchbend_count - 1))
+        {        
+            if((f_pyitem->pitchbends[f_i]->start) > (f_pyitem->pitchbends[f_i + 1]->start))
+            {
+                t_pypitchbend * f_greater = f_pyitem->pitchbends[f_i];
+                t_pypitchbend * f_lesser = f_pyitem->pitchbends[f_i + 1];
+                f_pyitem->pitchbends[f_i] = f_lesser;
+                f_pyitem->pitchbends[f_i + 1] = f_greater;
+                f_no_changes = 0;
+            }
+
+            f_i++;
+        }
+        
+        if(f_no_changes)
+        {
+            break;
+        }
+    }
+    
     f_i = 0;    
     while(f_i < (f_pyitem->note_count))
     {
@@ -2484,6 +2547,43 @@ int g_pyitem_get_new(t_pydaw_data* a_pydaw_data)
     return f_result;
 }
 
+int g_pyitem_clone(t_pydaw_data * a_pydaw_data, int a_item_index)
+{
+    int f_result = g_pyitem_get_new(a_pydaw_data);
+    a_pydaw_data->item_pool[f_result]->cc_count = a_pydaw_data->item_pool[a_item_index]->cc_count;
+    a_pydaw_data->item_pool[f_result]->note_count = a_pydaw_data->item_pool[a_item_index]->note_count;
+    a_pydaw_data->item_pool[f_result]->pitchbend_count = a_pydaw_data->item_pool[a_item_index]->pitchbend_count;
+    
+    int f_i = 0;
+    while(f_i < a_pydaw_data->item_pool[a_item_index]->note_count)
+    {
+        a_pydaw_data->item_pool[f_result]->notes[f_i] = g_pynote_get(
+                a_pydaw_data->item_pool[a_item_index]->notes[f_i]->note,
+                a_pydaw_data->item_pool[a_item_index]->notes[f_i]->velocity,
+                a_pydaw_data->item_pool[a_item_index]->notes[f_i]->start,
+                a_pydaw_data->item_pool[a_item_index]->notes[f_i]->length);
+        f_i++;
+    }
+    f_i = 0;
+    while(f_i < a_pydaw_data->item_pool[a_item_index]->cc_count)
+    {
+        a_pydaw_data->item_pool[f_result]->ccs[f_i] = g_pycc_get(
+                a_pydaw_data->item_pool[a_item_index]->ccs[f_i]->cc_num,
+                a_pydaw_data->item_pool[a_item_index]->ccs[f_i]->cc_val,
+                a_pydaw_data->item_pool[a_item_index]->ccs[f_i]->start);
+        f_i++;
+    }
+    f_i = 0;
+    while(f_i < a_pydaw_data->item_pool[a_item_index]->pitchbend_count)
+    {
+        a_pydaw_data->item_pool[f_result]->pitchbends[f_i] = g_pypitchbend_get(                
+                a_pydaw_data->item_pool[a_item_index]->pitchbends[f_i]->start,
+                a_pydaw_data->item_pool[a_item_index]->pitchbends[f_i]->val);
+        f_i++;
+    }
+    
+    return f_result;
+}
 
 void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
 {
