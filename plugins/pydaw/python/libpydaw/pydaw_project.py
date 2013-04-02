@@ -146,6 +146,7 @@ class pydaw_project:
         self.git_repo.repo_dir = self.project_folder
 
     def set_project_folders(self, a_project_file):
+        #folders
         self.project_folder = os.path.dirname(a_project_file)
         self.project_file = os.path.splitext(os.path.basename(a_project_file))[0]
         self.instrument_folder = self.project_folder + "/instruments"
@@ -157,6 +158,9 @@ class pydaw_project:
         self.audiofx_folder = self.project_folder + "/audiofx"
         self.busfx_folder = self.project_folder + "/busfx"
         self.samplegraph_folder = self.project_folder + "/samplegraph"
+        #files
+        self.pyregions_file = self.project_folder + "/default.pyregions"
+        self.pyitems_file = self.project_folder + "/default.pyitems"
 
     def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
@@ -185,6 +189,13 @@ class pydaw_project:
         if not os.path.exists(a_project_file):
             f_file = open(a_project_file, 'w')
             f_file.write("This file does is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
+            f_file.close()
+
+        if not os.path.exists(self.pyregions_file):
+            f_file = open(self.pyregions_file, 'w')
+            f_file.close()
+        if not os.path.exists(self.pyitems_file):
+            f_file = open(self.pyitems_file, 'w')
             f_file.close()
 
         f_pysong_file = self.project_folder + "/default.pysong"
@@ -271,6 +282,30 @@ class pydaw_project:
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
 
+    def get_regions_dict(self):
+        try:
+            f_file = open(self.pyregions_file, "r")
+        except:
+            return ""
+        f_str = f_file.read()
+        f_file.close()
+        return pydaw_name_uid_dict.from_str(f_str)
+
+    def save_regions_dict(self, a_uid_dict):
+        pydaw_write_file_text(self.pyregions_file, str(a_uid_dict))
+
+    def get_items_dict(self):
+        try:
+            f_file = open(self.pyitems_file, "r")
+        except:
+            return ""
+        f_str = f_file.read()
+        f_file.close()
+        return pydaw_name_uid_dict.from_str(f_str)
+
+    def save_items_dict(self, a_uid_dict):
+        pydaw_write_file_text(self.pyitems_file, str(a_uid_dict))
+
     def get_song_string(self):
         try:
             f_file = open(self.project_folder + "/default.pysong", "r")
@@ -281,19 +316,26 @@ class pydaw_project:
         return f_result
 
     def get_song(self):
-        return pydaw_song.from_str(self.get_song_string())
+        return pydaw_song.from_str(self.get_song_string(), self.get_regions_dict())
 
-    def get_region_string(self, a_region_name):
+    def get_region_string(self, a_region_uid):
         try:
-            f_file = open(self.regions_folder + "/" + str(a_region_name) + ".pyreg", "r")
+            f_file = open(self.regions_folder + "/" + str(a_region_uid), "r")
         except:
-            return ""
+            return "\\"  #TODO:  allow the exception to happen???
         f_result = f_file.read()
         f_file.close()
         return f_result
 
-    def get_region(self, a_region_name):
-        return pydaw_region.from_str(a_region_name, self.get_region_string(a_region_name))
+    def get_region_by_name(self, a_region_name):
+        f_region_dict = self.get_regions_dict()
+        f_region_name = str(a_region_name)
+        f_uid = f_region_dict.get_uid_by_name(f_region_name)
+        return pydaw_region.from_str(f_uid, self.get_region_string(f_uid))
+
+    def get_region_by_uid(self, a_region_uid):
+        f_uid = str(a_region_uid)
+        return pydaw_region.from_str(f_uid, self.get_region_string(f_uid))
 
     def get_item_string(self, a_item_name):
         try:
@@ -414,11 +456,14 @@ class pydaw_project:
 
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
-        f_file_name = self.regions_folder + "/" + a_region_name + ".pyreg"
+        f_regions_dict = self.get_regions_dict()
+        f_uid = f_regions_dict.add_new_item(a_region_name)
+        f_file_name = self.regions_folder + "/" + str(f_uid)
         f_file = open(f_file_name, 'w')
         f_file.write(pydaw_terminating_char)
         f_file.close()
         self.git_repo.git_add(f_file_name)
+        self.save_regions_dict(f_regions_dict)
 
     def create_empty_item(self, a_item_name):
         f_item_name = str(a_item_name)
@@ -431,9 +476,13 @@ class pydaw_project:
         self.this_dssi_gui.pydaw_save_item(f_item_name)
 
     def copy_region(self, a_old_region, a_new_region):
-        f_new_file = self.regions_folder + "/" + str(a_new_region) + ".pyreg"
-        copyfile(self.regions_folder + "/" + str(a_old_region) + ".pyreg", f_new_file)
+        f_regions_dict = self.get_regions_dict()
+        f_uid = f_regions_dict.add_new_item(a_new_region)
+        f_old_uid = f_regions_dict.get_uid_by_name(a_old_region)
+        f_new_file = self.regions_folder + "/" + str(f_uid)
+        copyfile(self.regions_folder + "/" + str(f_old_uid), f_new_file)
         self.git_repo.git_add(f_new_file)
+        self.save_regions_dict(f_regions_dict)
 
     def copy_item(self, a_old_item, a_new_item):
         f_new_item = str(a_new_item)
@@ -571,8 +620,19 @@ class pydaw_project:
         self.suppress_updates = False
 
 class pydaw_song:
-    def add_region_ref(self, a_pos, a_region_name):
-        self.regions[int(a_pos)] = str(a_region_name)
+    def add_region_ref_by_name(self, a_pos, a_region_name, a_uid_dict):
+        self.regions[int(a_pos)] = a_uid_dict.get_uid_by_name(a_region_name)
+        #TODO:  Raise an exception if it doesn't exist...
+
+    def add_region_ref_by_uid(self, a_pos, a_region_uid, a_uid_dict):
+        self.regions[int(a_pos)] = int(a_region_uid)
+        #TODO:  Raise an exception if it doesn't exist...
+
+    def get_region_names(self, a_uid_dict):
+        f_result = {}
+        for k, v in self.regions.iteritems():
+            f_result[k] = a_uid_dict.get_name_by_uid(v)
+        return f_result
 
     def remove_region_ref(self, a_pos):
         if a_pos in self.regions:
@@ -584,11 +644,11 @@ class pydaw_song:
     def __str__(self):
         f_result = ""
         for k, v in self.regions.iteritems():
-            f_result += str(k) + "|" + v + "\n"
+            f_result += str(k) + "|" + str(v) + "\n"
         f_result += pydaw_terminating_char
         return f_result
     @staticmethod
-    def from_str(a_str):
+    def from_str(a_str, a_uid_dict):
         f_result = pydaw_song()
         f_arr = a_str.split("\n")
         for f_line in f_arr:
@@ -596,7 +656,7 @@ class pydaw_song:
                 break
             else:
                 f_region = f_line.split("|")
-                f_result.add_region_ref(int(f_region[0]), f_region[1])
+                f_result.add_region_ref_by_uid(f_region[0], f_region[1], a_uid_dict)
         return f_result
 
 class pydaw_name_uid_dict:
@@ -611,8 +671,8 @@ class pydaw_name_uid_dict:
         self.uid_lookup = {}
 
     def add_item(self, a_uid, a_name):
-        self.name_lookup[a_uid] = a_name
-        self.uid_lookup[a_name] = a_uid
+        self.name_lookup[a_uid] = str(a_name)
+        self.uid_lookup[a_name] = int(a_uid)
 
     def add_new_item(self, a_name):
         if self.uid_lookup.has_key(a_name):
@@ -621,11 +681,19 @@ class pydaw_name_uid_dict:
         self.add_item(f_uid, a_name)
         return f_uid
 
+    def get_uid_by_name(self, a_name):
+        return self.uid_lookup[str(a_name)]
+
+    def get_name_by_uid(self, a_uid):
+        return self.name_lookup[int(a_uid)]
+
     def rename_item(self, a_uid, a_new_name):
-        f_old_name = self.name_lookup[a_uid]
+        f_uid = int(a_uid)
+        f_new_name = str(a_new_name)
+        f_old_name = self.name_lookup[f_uid]
         self.uid_lookup.pop(f_old_name)
-        self.uid_lookup[a_new_name] = a_uid
-        self.name_lookup[a_uid] = a_new_name
+        self.uid_lookup[f_new_name] = f_uid
+        self.name_lookup[f_uid] = f_new_name
 
     @staticmethod
     def from_str(a_str):
@@ -646,9 +714,10 @@ class pydaw_name_uid_dict:
         return f_result
 
 class pydaw_region:
-    def add_item_ref(self, a_track_num, a_bar_num, a_item_uid):
+    def add_item_ref(self, a_track_num, a_bar_num, a_item_name, a_uid_dict):
+        f_item_uid = a_uid_dict.get_uid_by_name(a_item_name)
         self.remove_item_ref(a_track_num, a_bar_num)
-        self.items.append(pydaw_region.region_item(a_track_num, a_bar_num, a_item_uid))
+        self.items.append(pydaw_region.region_item(a_track_num, a_bar_num, f_item_uid))
 
     def remove_item_ref(self, a_track_num, a_bar_num):
         for f_item in self.items:
@@ -686,10 +755,10 @@ class pydaw_region:
         return f_result
 
     class region_item:
-        def __init__(self, a_track_num, a_bar_num, a_item_name):
+        def __init__(self, a_track_num, a_bar_num, a_item_uid):
             self.track_num = a_track_num
             self.bar_num = a_bar_num
-            self.item_name = a_item_name
+            self.item_uid = a_item_uid
 
 def pydaw_draw_multi_item_cc_line(a_cc_num, a_start_val, a_end_val, a_items=[]):
     for f_item in a_items:

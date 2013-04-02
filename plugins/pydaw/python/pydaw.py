@@ -54,7 +54,7 @@ def pydaw_update_region_lengths_dict():
     global_audio_region_snap_px = {}
     global_bar_count = 300 * 8
     for k, v in f_song.regions.iteritems():
-        f_region = this_pydaw_project.get_region(v)
+        f_region = this_pydaw_project.get_region_by_uid(v)
         if f_region.region_length_bars != 0:
             global_region_lengths_dict[int(k)] = int(f_region.region_length_bars)
             global_bar_count = global_bar_count - 8 + int(f_region.region_length_bars)
@@ -169,7 +169,8 @@ class song_editor:
                     this_pydaw_project.copy_region(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
                     this_pydaw_project.git_repo.git_commit("-a", "Create new region '" + str(f_new_lineedit.text()) + "' at " + str(y) + " copying from " + str(f_copy_combobox.currentText()))
                 self.add_qtablewidgetitem(f_new_lineedit.text(), y)
-                self.song.add_region_ref(y, str(f_new_lineedit.text()))
+                f_uid_dict = this_pydaw_project.get_regions_dict()
+                self.song.add_region_ref_by_name(y, str(f_new_lineedit.text()), f_uid_dict)
                 this_region_settings.open_region(f_new_lineedit.text())
                 this_pydaw_project.save_song(self.song)
                 if not f_is_playing:
@@ -337,7 +338,7 @@ class region_settings:
         self.clear_items()
         self.region_name_lineedit.setText(a_file_name)
         global global_current_region
-        global_current_region = this_pydaw_project.get_region(a_file_name)
+        global_current_region = this_pydaw_project.get_region_by_name(a_file_name)
         if global_current_region.region_length_bars > 0:
             for f_editor in global_region_editors:
                 f_editor.set_region_length(global_current_region.region_length_bars)
