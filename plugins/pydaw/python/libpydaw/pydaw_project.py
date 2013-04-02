@@ -599,10 +599,56 @@ class pydaw_song:
                 f_result.add_region_ref(int(f_region[0]), f_region[1])
         return f_result
 
+class pydaw_name_uid_dict:
+    def gen_file_name_uid(self):
+        f_result = random.randint(1000000, 9999999)
+        while self.name_lookup.has_key(f_result):
+            f_result = random.randint(1000000, 9999999)
+        return f_result
+
+    def __init__(self):
+        self.name_lookup = {}
+        self.uid_lookup = {}
+
+    def add_item(self, a_uid, a_name):
+        self.name_lookup[a_uid] = a_name
+        self.uid_lookup[a_name] = a_uid
+
+    def add_new_item(self, a_name):
+        if self.uid_lookup.has_key(a_name):
+            raise
+        f_uid = self.gen_file_name_uid()
+        self.add_item(f_uid, a_name)
+        return f_uid
+
+    def rename_item(self, a_uid, a_new_name):
+        f_old_name = self.name_lookup[a_uid]
+        self.uid_lookup.pop(f_old_name)
+        self.uid_lookup[a_new_name] = a_uid
+        self.name_lookup[a_uid] = a_new_name
+
+    @staticmethod
+    def from_str(a_str):
+        f_result = pydaw_name_uid_dict()
+        f_lines = a_str.split("\n")
+        for f_line in f_lines:
+            if f_line != "":
+                f_arr = f_line.split("|")
+                f_name = f_arr[0]
+                f_uid = int(f_arr[1])
+                f_result.add_item(f_uid, f_name)
+        return f_result
+
+    def __str__(self):
+        f_result = ""
+        for k, v in self.uid_lookup.iteritems():
+            f_result += str(k) + "|" + str(v) + "\n"
+        return f_result
+
 class pydaw_region:
-    def add_item_ref(self, a_track_num, a_bar_num, a_item_name):
+    def add_item_ref(self, a_track_num, a_bar_num, a_item_uid):
         self.remove_item_ref(a_track_num, a_bar_num)
-        self.items.append(pydaw_region.region_item(a_track_num, a_bar_num, a_item_name))
+        self.items.append(pydaw_region.region_item(a_track_num, a_bar_num, a_item_uid))
 
     def remove_item_ref(self, a_track_num, a_bar_num):
         for f_item in self.items:
@@ -610,9 +656,9 @@ class pydaw_region:
                 self.items.remove(f_item)
                 print("remove_item_ref removed bar: " + str(f_item.bar_num) + ", track: " + str(f_item.track_num))
 
-    def __init__(self, a_name):
+    def __init__(self, a_uid):
         self.items = []
-        self.name = a_name
+        self.uid = a_uid
         self.region_length_bars = 0  #0 == default length for project
 
     def __str__(self):
@@ -625,8 +671,8 @@ class pydaw_region:
         return f_result
 
     @staticmethod
-    def from_str(a_name, a_str):
-        f_result = pydaw_region(a_name)
+    def from_str(a_uid, a_str):
+        f_result = pydaw_region(a_uid)
         f_arr = a_str.split("\n")
         for f_line in f_arr:
             if f_line == pydaw_terminating_char:
