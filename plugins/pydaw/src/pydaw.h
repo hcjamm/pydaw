@@ -126,7 +126,6 @@ typedef struct st_pypitchbend
 
 typedef struct st_pyitem
 {
-    char * name;
     t_pynote * notes[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
     int note_count;    
     t_pycc * ccs[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
@@ -140,8 +139,8 @@ typedef struct st_pyitem
 
 typedef struct st_pyregion
 {
-    int item_indexes[PYDAW_TRACK_COUNT_ALL][PYDAW_MAX_REGION_SIZE];  //Refers to the index of items in the master item pool 
-    char * name;
+    int item_indexes[PYDAW_TRACK_COUNT_ALL][PYDAW_MAX_REGION_SIZE];  //Refers to the index of items in the master item pool     
+    int uid;
     /*This flag is set to 1 if created during recording, signifying that it requires a default name to be created for it*/
     int not_yet_saved;
     
@@ -312,24 +311,24 @@ typedef struct
 
 void g_pysong_get(t_pydaw_data*);
 t_pytrack * g_pytrack_get(int,int);
-t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const char*);
-void g_pyitem_get(t_pydaw_data* a_pydaw, const char * a_name);
+t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const int);
+void g_pyitem_get(t_pydaw_data*, const int);
 int g_pyitem_clone(t_pydaw_data * a_pydaw_data, int a_item_index);
 t_pycc * g_pycc_get(int a_cc_num, float a_cc_val, float a_start);
 t_pypitchbend * g_pypitchbend_get(float a_start, float a_value);
 t_pynote * g_pynote_get(int a_note, int a_vel, float a_start, float a_length);
 t_pydaw_data * g_pydaw_data_get(float);
-int i_get_region_index_from_name(t_pydaw_data * a_pydaw_data, const char * a_name);
+int i_get_region_index_from_name(t_pydaw_data *, int);
 void v_open_project(t_pydaw_data*, const char*);
 void v_set_tempo(t_pydaw_data*,float);
 void v_pydaw_set_is_soloed(t_pydaw_data * a_pydaw_data);
 void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode);
 void v_set_playback_cursor(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
 void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
-int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_name);
+int i_pydaw_get_item_index_from_uid(t_pydaw_data *, int);
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_index, int a_schedule_threads);
 void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data);
-int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a_region_name);
+int i_get_song_index_from_region_name(t_pydaw_data*, int);
 void v_save_pysong_to_disk(t_pydaw_data * a_pydaw_data);
 void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index);
 void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num);
@@ -2102,8 +2101,9 @@ void g_pysong_get(t_pydaw_data* a_pydaw_data)
             }
             int f_pos = atoi(f_pos_char);        
             char * f_region_char = c_iterate_2d_char_array(f_current_string);
-            f_result->regions[f_pos] = g_pyregion_get(a_pydaw_data, f_region_char);
-            strcpy(f_result->regions[f_pos]->name, f_region_char);
+            int f_uid = atoi(f_region_char);
+            f_result->regions[f_pos] = g_pyregion_get(a_pydaw_data, f_uid);
+            f_result->regions[f_pos]->uid = f_uid;
             free(f_pos_char);
             free(f_region_char);
             f_i++;
@@ -2128,25 +2128,25 @@ void g_pysong_get(t_pydaw_data* a_pydaw_data)
 #endif
 }
 
-int i_pydaw_get_item_index_from_name(t_pydaw_data * a_pydaw_data, const char* a_name)
+int i_pydaw_get_item_index_from_uid(t_pydaw_data * a_pydaw_data, int a_uid)
 {
     int f_i = 0;
     
     while(f_i < a_pydaw_data->item_count)
     {
-        if(a_pydaw_data->item_pool[f_i]->name)  //Accounting for recorded items that aren't named yet
+        if(a_pydaw_data->item_pool[f_i]->uid)  //Accounting for recorded items that aren't named yet
         {
-            if(!strcmp(a_name, a_pydaw_data->item_pool[f_i]->name))
+            if(a_uid == a_pydaw_data->item_pool[f_i]->uid)
             {
                 return f_i;
             }
         }        
         f_i++;
-    }    
+    }
     return -1;
 }
 
-int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a_region_name)
+int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, int a_uid)
 {
     int f_i = 0;
     
@@ -2154,14 +2154,13 @@ int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, const char * a
     {
         if(a_pydaw_data->pysong->regions[f_i])
         {
-            if(!strcmp(a_region_name, a_pydaw_data->pysong->regions[f_i]->name))
+            if(a_uid == a_pydaw_data->pysong->regions[f_i]->uid)
             {
                 return f_i;
             }
         }
         f_i++;
-    }
-    
+    }    
     return -1;
 }
 
@@ -2177,7 +2176,7 @@ t_pyregion *  g_pyregion_get_new(t_pydaw_data* a_pydaw_data)
     f_result->bar_length = 0;
 
     f_result->not_yet_saved = 1;
-    f_result->name = NULL;
+    f_result->uid = 0;
     
     int f_i = 0;
     int f_i2 = 0;
@@ -2196,7 +2195,7 @@ t_pyregion *  g_pyregion_get_new(t_pydaw_data* a_pydaw_data)
     return f_result;
 }
 
-t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
+t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, int a_uid)
 {    
     t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));    
     
@@ -2205,9 +2204,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     f_result->region_length_bars = 0;
     f_result->region_length_beats = 0;
     f_result->bar_length = 0;
-    
-    f_result->name = (char*)malloc(sizeof(char) * LMS_TINY_STRING);
-    strcpy(f_result->name, a_name);
+    f_result->uid = a_uid;    
     f_result->not_yet_saved = 0;
     
     int f_i = 0;
@@ -2226,7 +2223,7 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
     
     
     char f_full_path[LMS_TINY_STRING];
-    sprintf(f_full_path, "%s%s.pyreg", a_pydaw_data->region_folder, a_name);    
+    sprintf(f_full_path, "%s%i", a_pydaw_data->region_folder, a_uid);    
     
     t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);
     
@@ -2286,13 +2283,13 @@ t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, const char * a_name)
         int f_x = atoi(f_x_char);
         free(f_x_char);
         
-        char * f_item_name = c_iterate_2d_char_array(f_current_string);
+        char * f_item_uid = c_iterate_2d_char_array(f_current_string);
         assert(f_y < PYDAW_TRACK_COUNT_ALL);
         assert(f_x < PYDAW_MAX_REGION_SIZE);
-        f_result->item_indexes[f_y][f_x] = i_pydaw_get_item_index_from_name(a_pydaw_data, f_item_name);
+        f_result->item_indexes[f_y][f_x] = i_pydaw_get_item_index_from_uid(a_pydaw_data, atoi(f_item_uid));
         assert((f_result->item_indexes[f_y][f_x]) != -1);
         assert((f_result->item_indexes[f_y][f_x]) < a_pydaw_data->item_count);
-        free(f_item_name);        
+        free(f_item_uid);        
 
         f_i++;
     }
@@ -2316,7 +2313,7 @@ void v_save_pysong_to_disk(t_pydaw_data * a_pydaw_data)
     {
         if(a_pydaw_data->pysong->regions[f_i])
         {
-            sprintf(f_temp, "%i|%s\n", f_i, a_pydaw_data->pysong->regions[f_i]->name);
+            sprintf(f_temp, "%i|%i\n", f_i, a_pydaw_data->pysong->regions[f_i]->uid);
             strcat(f_result, f_temp);
         }
         f_i++;
@@ -2413,7 +2410,6 @@ void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
                 f_pyitem->pitchbends[f_i + 1] = f_greater;
                 f_no_changes = 0;
             }
-
             f_i++;
         }
         
@@ -2450,20 +2446,20 @@ void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
     
     strcat(f_result, "\\");
     
-    char f_temp2[LMS_TINY_STRING];
     //Generate a default name if necessary
-    if(!f_pyitem->name)
+    if(!f_pyitem->uid)
     {
+        int f_rand;
         do{
-            a_pydaw_data->record_name_index_items = (a_pydaw_data->record_name_index_items) + 1;
-            sprintf(f_temp2, "recorded-%i", a_pydaw_data->record_name_index_items);
-        } while(i_pydaw_get_item_index_from_name(a_pydaw_data, f_temp2) != -1);
-        
-        f_pyitem->name = (char*)malloc(sizeof(char) * LMS_TINY_STRING);
-        strcpy(f_pyitem->name, f_temp2);
+            f_rand = rand() + 1000000;
+            if(f_rand >= 10000000)
+            {
+                continue;
+            }            
+        } while(i_pydaw_get_item_index_from_uid(a_pydaw_data, f_rand) != -1);
+        f_pyitem->uid = f_rand;
     }
-    sprintf(f_temp, "%s%s.pyitem", a_pydaw_data->item_folder, f_pyitem->name);
-    
+    sprintf(f_temp, "%s%i", a_pydaw_data->item_folder, f_pyitem->uid);    
     v_pydaw_write_to_file(f_temp, f_result);
 }
 
@@ -2485,8 +2481,8 @@ void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num)
         {
             if(a_pydaw_data->pysong->regions[a_region_num]->item_indexes[f_i][f_i2]  != -1)
             {                
-                sprintf(f_temp, "%i|%i|%s\n", f_i, f_i2, 
-                        a_pydaw_data->item_pool[(a_pydaw_data->pysong->regions[a_region_num]->item_indexes[f_i][f_i2])]->name);
+                sprintf(f_temp, "%i|%i|%i\n", f_i, f_i2, 
+                        a_pydaw_data->item_pool[(a_pydaw_data->pysong->regions[a_region_num]->item_indexes[f_i][f_i2])]->uid);
                 strcat(f_result, f_temp);
             }
             f_i2++;
@@ -2496,9 +2492,11 @@ void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num)
     
     strcat(f_result, "\\");
     
-    char f_temp2[LMS_TINY_STRING];
+    int f_rand;
+    do{f_rand = rand() + 1000000;}
+    while(f_rand >= 10000000);
     //Generate a default name if necessary
-    if(!a_pydaw_data->pysong->regions[a_region_num]->name)
+    if(!a_pydaw_data->pysong->regions[a_region_num]->uid)
     {
         f_i = 0;
         while(f_i < PYDAW_MAX_REGION_COUNT)
@@ -2508,38 +2506,32 @@ void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num)
                 f_i++;
                 continue;
             }
-            
-            sprintf(f_temp2, "recorded-%i", a_pydaw_data->record_name_index_regions);
-            if(a_pydaw_data->pysong->regions[f_i] && (a_pydaw_data->pysong->regions[f_i]->name))
-            {
-                if(!strcmp(a_pydaw_data->pysong->regions[f_i]->name, f_temp2))
+            if(a_pydaw_data->pysong->regions[f_i] && (a_pydaw_data->pysong->regions[f_i]->uid))
+            {                
+                if(a_pydaw_data->pysong->regions[f_i]->uid == f_rand)
                 {
                     f_i = 0;
-                    a_pydaw_data->record_name_index_regions = (a_pydaw_data->record_name_index_regions) + 1;
+                    do{f_rand = rand() + 1000000;}
+                    while(f_rand >= 10000000);
                     continue;
                 }
             }
             f_i++;
-        }
-        a_pydaw_data->record_name_index_regions = (a_pydaw_data->record_name_index_regions) + 1;  //spare a wasted trip around the region pool next time...
-        
-        a_pydaw_data->pysong->regions[a_region_num]->name = (char*)malloc(sizeof(char) * LMS_TINY_STRING);        
-        strcpy(a_pydaw_data->pysong->regions[a_region_num]->name, f_temp2);
+        }           
+        a_pydaw_data->pysong->regions[a_region_num]->uid = f_rand;
     }
-    
-    sprintf(f_temp, "%s%s.pyreg", a_pydaw_data->region_folder, a_pydaw_data->pysong->regions[a_region_num]->name);
-    
+        
     v_pydaw_write_to_file(f_temp, f_result);
 }
 
 /*Get an empty pyitem, used for recording.  Returns the item number in the item pool*/
 int g_pyitem_get_new(t_pydaw_data* a_pydaw_data)
 {
-    t_pyitem * f_item = (t_pyitem*)malloc(sizeof(t_pyitem));
-    f_item->name = NULL;
+    t_pyitem * f_item = (t_pyitem*)malloc(sizeof(t_pyitem));    
     f_item->cc_count = 0;
     f_item->note_count = 0;
     f_item->pitchbend_count = 0;
+    f_item->uid = 0;
     
     a_pydaw_data->item_pool[(a_pydaw_data->item_count)] = f_item;
     int f_result = (a_pydaw_data->item_count);
@@ -2585,20 +2577,17 @@ int g_pyitem_clone(t_pydaw_data * a_pydaw_data, int a_item_index)
     return f_result;
 }
 
-void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
+void g_pyitem_get(t_pydaw_data* a_pydaw_data, int a_uid)
 {
     t_pyitem * f_result = (t_pyitem*)malloc(sizeof(t_pyitem));
     
-    f_result->name = (char*)malloc(sizeof(char) * 256);
-    strcpy(f_result->name, a_name);
     f_result->cc_count = 0;
     f_result->note_count = 0;
     f_result->pitchbend_count = 0;
+    f_result->uid = a_uid;
     
     char f_full_path[512];
-    strcpy(f_full_path, a_pydaw_data->item_folder);
-    strcat(f_full_path, a_name);
-    strcat(f_full_path, ".pyitem");
+    sprintf(f_full_path, "%s%i", a_pydaw_data->item_folder, a_uid);    
     
     t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_full_path, LMS_LARGE_STRING);
     
@@ -2649,13 +2638,6 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
             
             free(f_pb_val_char);
         }
-        else if(!strcmp("U", f_type))  //item UID, not yet implemented
-        {            
-            free(f_type);
-            char * f_uid_char = c_iterate_2d_char_array(f_current_string);            
-            f_result->uid = atoi(f_uid_char);
-            free(f_uid_char);            
-        }
         else
         {
             printf("Invalid event type %s\n", f_type);
@@ -2668,7 +2650,7 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, const char * a_name)
 
     g_free_2d_char_array(f_current_string);
     
-    int f_item_index = i_pydaw_get_item_index_from_name(a_pydaw_data, a_name);
+    int f_item_index = i_pydaw_get_item_index_from_uid(a_pydaw_data, a_uid);
     
     if(f_item_index < 0)
     {
@@ -3312,10 +3294,8 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         f_i = 0;
 
         while(f_i < f_item_dir_list->dir_count)
-        {
-            t_1d_char_array * f_file_name = c_split_str(f_item_dir_list->dir_list[f_i], '.', 2, LMS_SMALL_STRING);
-            g_pyitem_get(a_pydaw_data, f_file_name->array[0]);
-            g_free_1d_char_array(f_file_name);
+        {            
+            g_pyitem_get(a_pydaw_data, atoi(f_item_dir_list->dir_list[f_i]));
             f_i++;
         }
     
@@ -4443,8 +4423,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SR)) //Save region
     {        
-        t_pyregion * f_result = g_pyregion_get(a_pydaw_data, a_value);
-        int f_region_index = i_get_song_index_from_region_name(a_pydaw_data, a_value);
+        int f_uid = atoi(a_value);
+        t_pyregion * f_result = g_pyregion_get(a_pydaw_data, f_uid);
+        int f_region_index = i_get_song_index_from_region_name(a_pydaw_data, f_uid);
         
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         if(a_pydaw_data->pysong->regions[f_region_index])
@@ -4458,7 +4439,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SI)) //Save Item
     {
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        g_pyitem_get(a_pydaw_data, a_value);
+        g_pyitem_get(a_pydaw_data, atoi(a_value));
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SS))  //Save Song
