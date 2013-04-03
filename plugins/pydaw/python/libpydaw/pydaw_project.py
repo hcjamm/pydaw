@@ -340,17 +340,21 @@ class pydaw_project:
         f_uid = str(a_region_uid)
         return pydaw_region.from_str(f_uid, self.get_region_string(f_uid))
 
-    def get_item_string(self, a_item_name):
+    def get_item_string(self, a_item_uid):
         try:
-            f_file = open(self.items_folder + "/" + a_item_name + ".pyitem", "r")
+            f_file = open(self.items_folder + "/" + str(a_item_uid), "r")
         except:
             return ""
         f_result = f_file.read()
         f_file.close()
         return f_result
 
-    def get_item(self, a_item_name):
-        return pydaw_item.from_str(self.get_item_string(a_item_name))
+    def get_item_by_uid(self, a_item_uid):
+        return pydaw_item.from_str(self.get_item_string(a_item_uid))
+
+    def get_item_by_name(self, a_item_name):
+        f_items_dict = self.get_items_dict()
+        return pydaw_item.from_str(self.get_item_string(f_items_dict.get_uid_by_name(a_item_name)))
 
     def get_tracks_string(self):
         try:
@@ -506,12 +510,13 @@ class pydaw_project:
 
     def save_item(self, a_name, a_item):
         if not self.suppress_updates:
-            f_name = str(a_name)
-            f_file_name = self.items_folder + "/" + f_name + ".pyitem"
+            f_items_dict = self.get_items_dict()
+            f_uid = f_items_dict.get_uid_by_name(a_name)
+            f_file_name = self.items_folder + "/" + str(f_uid)
             f_file = open(f_file_name, 'w')
-            f_file.write(a_item.__str__())
+            f_file.write(str(a_item))
             f_file.close()
-            self.this_dssi_gui.pydaw_save_item(f_name)
+            self.this_dssi_gui.pydaw_save_item(f_uid)
 
     def save_region(self, a_name, a_region):
         if not self.suppress_updates:
@@ -590,26 +595,25 @@ class pydaw_project:
 
     def get_next_default_item_name(self, a_item_name="item"):
         f_item_name = str(a_item_name)
-        print(f_item_name)
         if f_item_name == "item":
             f_start = self.last_item_number
         else:
             f_start = 1
+        f_items_dict = self.get_items_dict()
         for i in range(f_start, 10000):
-            f_result = self.items_folder + "/" + f_item_name + "-" + str(i) + ".pyitem"
-            print(f_result)
-            if not os.path.exists(f_result):
+            f_result = f_item_name + "-" + str(i)
+            if not f_items_dict.uid_lookup.has_key(f_result):
                 if f_item_name == "item":
                     self.last_item_number = i
-                return f_item_name + "-" + str(i)
+                return f_result
 
     def get_next_default_region_name(self):
-        self.last_region_number -= 1
+        f_regions_dict = self.get_regions_dict()
         for i in range(self.last_region_number, 10000):
-            f_result = self.regions_folder + "/region-" + str(i) + ".pyreg"
-            if not os.path.isfile(f_result):
-                self.last_region_number = i + 1
-                return "region-" + str(i)
+            f_result = "region-" + str(i)
+            if not f_regions_dict.uid_lookup.has_key(f_result):
+                self.last_region_number = i
+                return f_result
 
     def get_item_list(self):
         f_result = self.get_items_dict()
