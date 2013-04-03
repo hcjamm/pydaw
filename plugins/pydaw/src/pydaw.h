@@ -103,7 +103,7 @@ extern "C" {
 #include "pydaw_sample_graph.h"
 #include "pydaw_audio_inputs.h"
     
-typedef struct st_pynote
+typedef struct
 {
     int note;
     int velocity;
@@ -111,20 +111,20 @@ typedef struct st_pynote
     float length;    
 }t_pynote;
 
-typedef struct st_pycc
+typedef struct
 {
     int cc_num;
     float cc_val;
     float start;
 }t_pycc;
 
-typedef struct st_pypitchbend
+typedef struct
 {
     float val;
     float start;
 } t_pypitchbend;
 
-typedef struct st_pyitem
+typedef struct
 {
     t_pynote * notes[PYDAW_MAX_EVENTS_PER_ITEM_COUNT];
     int note_count;    
@@ -137,7 +137,7 @@ typedef struct st_pyitem
     int uid;
 }t_pyitem;
 
-typedef struct st_pyregion
+typedef struct
 {
     int item_indexes[PYDAW_TRACK_COUNT_ALL][PYDAW_MAX_REGION_SIZE];  //Refers to the index of items in the master item pool     
     int uid;
@@ -151,13 +151,13 @@ typedef struct st_pyregion
     float tempo;
 }t_pyregion;
 
-typedef struct st_pysong
+typedef struct
 {
     t_pyregion * regions[PYDAW_MAX_REGION_COUNT];
     int default_bar_length;
 }t_pysong;
 
-typedef struct st_pytrack
+typedef struct
 {    
     float volume;
     float volume_linear;
@@ -185,7 +185,7 @@ typedef struct
     int track_type;  //Valid types:  0 == MIDI, 2 == Audio  (1==Bus is not valid for this purpose)
 }t_pydaw_work_queue_item;
 
-typedef struct st_pydaw_data
+typedef struct
 {
     long sample_count;   //set from the Jack buffer size every time the main loop is called..
     float tempo;
@@ -301,6 +301,8 @@ typedef struct st_pydaw_data
     
     pthread_t audio_recording_thread;
     int audio_recording_quit_notifier;
+    int rec_region_current_uid;
+    int rec_item_current_uid;
 }t_pydaw_data;
 
 typedef struct 
@@ -2167,16 +2169,15 @@ int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, int a_uid)
 /*For getting a new empty region during recording*/
 t_pyregion *  g_pyregion_get_new(t_pydaw_data* a_pydaw_data)
 {
-    t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));    
-    
+    t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion)); 
     f_result->alternate_tempo = 0;
     f_result->tempo = 140.0f;
     f_result->region_length_bars = 0;
     f_result->region_length_beats = 0;
     f_result->bar_length = 0;
-
     f_result->not_yet_saved = 1;
-    f_result->uid = 0;
+    f_result->uid = (a_pydaw_data->rec_region_current_uid);
+    a_pydaw_data->rec_region_current_uid = (a_pydaw_data->rec_region_current_uid) + 1;
     
     int f_i = 0;
     int f_i2 = 0;
@@ -2331,8 +2332,7 @@ void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
 {    
     char * f_result = (char*)malloc(sizeof(char) * LMS_MEDIUM_STRING);
     f_result[0] = '\0';
-    int f_i = 0;
-    
+    int f_i = 0;    
     char f_temp[LMS_TINY_STRING];
     
     t_pyitem * f_pyitem = a_pydaw_data->item_pool[a_index];
@@ -2341,8 +2341,7 @@ void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
     
     while(1)
     {
-        int f_no_changes = 1;
-        
+        int f_no_changes = 1;        
         f_i = 0;
         /*Use the Bubble Sort algorithm.  It's generally complete garbage, but in this instance, where the list is going to be
          pseudo-sorted to begin with, it's actually very efficient, likely only making 3 passes at most, 1 or 2 passes typically*/
@@ -2444,21 +2443,7 @@ void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
         f_i++;
     }
     
-    strcat(f_result, "\\");
-    
-    //Generate a default name if necessary
-    if(!f_pyitem->uid)
-    {
-        int f_rand;
-        do{
-            f_rand = rand() + 1000000;
-            if(f_rand >= 10000000)
-            {
-                continue;
-            }            
-        } while(i_pydaw_get_item_index_from_uid(a_pydaw_data, f_rand) != -1);
-        f_pyitem->uid = f_rand;
-    }
+    strcat(f_result, "\\");    
     sprintf(f_temp, "%s%i", a_pydaw_data->item_folder, f_pyitem->uid);    
     v_pydaw_write_to_file(f_temp, f_result);
 }
@@ -2491,36 +2476,7 @@ void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num)
     }
     
     strcat(f_result, "\\");
-    
-    int f_rand;
-    do{f_rand = rand() + 1000000;}
-    while(f_rand >= 10000000);
-    //Generate a default name if necessary
-    if(!a_pydaw_data->pysong->regions[a_region_num]->uid)
-    {
-        f_i = 0;
-        while(f_i < PYDAW_MAX_REGION_COUNT)
-        {            
-            if(f_i == a_region_num)
-            {
-                f_i++;
-                continue;
-            }
-            if(a_pydaw_data->pysong->regions[f_i] && (a_pydaw_data->pysong->regions[f_i]->uid))
-            {                
-                if(a_pydaw_data->pysong->regions[f_i]->uid == f_rand)
-                {
-                    f_i = 0;
-                    do{f_rand = rand() + 1000000;}
-                    while(f_rand >= 10000000);
-                    continue;
-                }
-            }
-            f_i++;
-        }           
-        a_pydaw_data->pysong->regions[a_region_num]->uid = f_rand;
-    }
-        
+    sprintf(f_temp, "%s%i", a_pydaw_data->region_folder, a_pydaw_data->pysong->regions[a_region_num]->uid);            
     v_pydaw_write_to_file(f_temp, f_result);
 }
 
@@ -2531,8 +2487,8 @@ int g_pyitem_get_new(t_pydaw_data* a_pydaw_data)
     f_item->cc_count = 0;
     f_item->note_count = 0;
     f_item->pitchbend_count = 0;
-    f_item->uid = 0;
-    
+    f_item->uid = (a_pydaw_data->rec_item_current_uid);
+    a_pydaw_data->rec_item_current_uid = (a_pydaw_data->rec_item_current_uid) + 1;    
     a_pydaw_data->item_pool[(a_pydaw_data->item_count)] = f_item;
     int f_result = (a_pydaw_data->item_count);
     a_pydaw_data->item_count = (a_pydaw_data->item_count) + 1;
@@ -2765,6 +2721,9 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->ml_next_beat = 0.0;
     f_result->ml_starting_new_bar = 0;
     f_result->ml_is_looping = 0;
+    
+    f_result->rec_region_current_uid = 0;
+    f_result->rec_item_current_uid = 0;
     
     f_result->amp_ptr = g_amp_get();
     f_result->is_offline_rendering = 0;
@@ -3501,6 +3460,8 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             }            
                         
             pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            a_pydaw_data->rec_region_current_uid = 1;
+            a_pydaw_data->rec_item_current_uid = 1;
             a_pydaw_data->recording_first_item = -1;
             a_pydaw_data->recorded_note_current_beat = 0;
             a_pydaw_data->playback_mode = a_mode;
