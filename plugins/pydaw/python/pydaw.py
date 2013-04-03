@@ -4526,7 +4526,7 @@ class transport_widget:
             self.is_recording = False
             sleep(2)  #Give it some time to flush the recorded items to disk...
             if global_current_region is not None and this_region_settings.enabled:
-                this_region_settings.open_region(global_current_region.name)
+                this_region_settings.open_region(global_current_region.uid)
             this_song_editor.open_song()
             this_pydaw_project.record_stop_git_commit()
             self.show_audio_recording_dialog()
