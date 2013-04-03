@@ -536,7 +536,7 @@ class region_list_editor:
                 f_cell_text = str(f_new_lineedit.text())
                 f_item_list = []
                 for i in range(f_item_count.value()):
-                    while this_pydaw_project.item_exists(f_cell_text + "-" + str(f_name_suffix), f_items_dict):
+                    while this_pydaw_project.item_exists(f_cell_text + "-" + str(f_name_suffix)):
                         f_name_suffix += 1
                     f_item_name = f_cell_text + "-" + str(f_name_suffix)
                     f_item_list.append(f_item_name)
@@ -2946,7 +2946,7 @@ def global_open_items(a_items=None):
     f_cc_dict = {}
 
     for f_item_name in this_item_editor.item_names:
-        f_item = this_pydaw_project.get_item(f_item_name)
+        f_item = this_pydaw_project.get_item_by_name(f_item_name)
         this_item_editor.items.append(f_item)
         for cc in f_item.ccs:
             if not f_cc_dict.has_key(cc.cc_num):
@@ -3727,7 +3727,7 @@ class item_list_editor:
         self.pitchbend_table_widget.clear()
         self.set_headers()
         self.item_name = str(self.item_name_combobox.currentText())
-        self.item = this_pydaw_project.get_item(self.item_name)
+        self.item = this_pydaw_project.get_item_by_name(self.item_name)
         self.notes_table_widget.setSortingEnabled(False)
         f_i = 0
         for note in self.item.notes:
