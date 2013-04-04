@@ -250,6 +250,24 @@ class song_editor:
         self.rename_action = QtGui.QAction("Rename region", self.table_widget)
         self.rename_action.triggered.connect(self.on_rename_region)
         self.table_widget.addAction(self.rename_action)
+        self.delete_action = QtGui.QAction("Delete (Del)", self.table_widget)
+        self.delete_action.triggered.connect(self.on_delete)
+        self.table_widget.addAction(self.delete_action)
+
+    def on_delete(self):
+        f_item = self.table_widget.currentItem()
+        if f_item is None:
+            return
+        f_item_text = str(f_item.text())
+        f_empty = QtGui.QTableWidgetItem() #Clear the item
+        self.table_widget.setItem(f_item.row(), f_item.column(), f_empty)
+        self.tablewidget_to_song()
+        this_region_settings.clear_items()
+        this_region_settings.region_name_lineedit.setText("")
+        this_region_settings.enabled = False
+        this_region_settings.update_region_length() #TODO:  Is this right?
+        this_pydaw_project.git_repo.git_commit("-a", "Remove " + f_item_text + " from song")
+        pydaw_update_region_lengths_dict()
 
     def on_rename_region(self):
         f_item = self.table_widget.currentItem()
@@ -318,11 +336,12 @@ class song_editor:
     def tablewidget_to_song(self):
         """ Flush the edited content of the QTableWidget back to the native song class... """
         self.song.regions = {}
+        f_uid_dict = this_pydaw_project.get_regions_dict()
         for f_i in range(0, 300):
             f_item = self.table_widget.item(0, f_i)
             if not f_item is None:
                 if f_item.text() != "":
-                    self.song.add_region_ref(f_i, f_item.text())
+                    self.song.add_region_ref_by_name(f_i, f_item.text(), f_uid_dict)
         this_pydaw_project.save_song(self.song)
         self.open_song()
 
@@ -830,12 +849,12 @@ class region_list_editor:
             if this_pydaw_project.item_exists(f_cell_text):
                 QtGui.QMessageBox.warning(self.group_box, "Error", "An item with this name already exists.")
                 return
-            this_pydaw_project.copy_item(str(f_current_item.text()), str(f_new_lineedit.text()))
+            f_uid = this_pydaw_project.copy_item(str(f_current_item.text()), str(f_new_lineedit.text()))
             global_open_items([f_cell_text])
             self.last_item_copied = f_cell_text
             self.add_qtablewidgetitem(f_cell_text, x, y - 1)
-            global_current_region.add_item_ref(x + self.track_offset, y - 1, f_cell_text)
-            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), global_current_region)
+            global_current_region.add_item_ref_by_uid(x + self.track_offset, y - 1, f_uid)
+            this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
             this_pydaw_project.git_repo.git_commit("-a", "Unlink item '" +  f_current_item_text + "' as '" + f_cell_text + "'")
             f_window.close()
 
