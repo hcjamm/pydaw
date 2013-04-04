@@ -340,6 +340,31 @@ class pydaw_project:
         f_uid = str(a_region_uid)
         return pydaw_region.from_str(f_uid, self.get_region_string(f_uid))
 
+    def rename_items(self, a_item_names, a_new_item_name):
+        f_items_dict = self.get_items_dict()
+        if len(a_item_names) > 1 or f_items_dict.name_exists(a_new_item_name):
+            f_suffix = 1
+            f_new_item_name = str(a_new_item_name) + "-"
+            for f_item_name in a_item_names:
+                while f_items_dict.name_exists(f_new_item_name + str(f_suffix)):
+                    f_suffix += 1
+                f_items_dict.rename_item(f_item_name, f_new_item_name + str(f_suffix))
+        else:
+            f_items_dict.rename_item(a_item_names[0], a_new_item_name)
+        self.save_items_dict(f_items_dict)
+
+    def rename_region(self, a_old_name, a_new_name):
+        f_regions_dict = self.get_regions_dict()
+        if f_regions_dict.name_exists(a_new_name):
+            f_suffix = 1
+            f_new_name = str(a_new_name) + "-"
+            while f_regions_dict.name_exists(f_new_name + str(f_suffix)):
+                f_suffix += 1
+            f_regions_dict.rename_item(a_old_name, f_new_name)
+        else:
+            f_regions_dict.rename_item(a_old_name, a_new_name)
+        self.save_regions_dict(f_regions_dict)
+
     def get_item_string(self, a_item_uid):
         try:
             f_file = open(self.items_folder + "/" + str(a_item_uid), "r")
@@ -731,6 +756,8 @@ class pydaw_name_uid_dict:
         if self.uid_lookup.has_key(a_name):
             raise Exception
         f_uid = self.gen_file_name_uid()
+        while self.uid_exists(f_uid):
+            f_uid = self.gen_file_name_uid()
         self.add_item(f_uid, a_name)
         return f_uid
 
@@ -740,13 +767,18 @@ class pydaw_name_uid_dict:
     def get_name_by_uid(self, a_uid):
         return self.name_lookup[int(a_uid)]
 
-    def rename_item(self, a_uid, a_new_name):
-        f_uid = int(a_uid)
+    def rename_item(self, a_old_name, a_new_name):
+        f_uid = self.get_uid_by_name(a_old_name)
         f_new_name = str(a_new_name)
         f_old_name = self.name_lookup[f_uid]
         self.uid_lookup.pop(f_old_name)
-        self.uid_lookup[f_new_name] = f_uid
-        self.name_lookup[f_uid] = f_new_name
+        self.add_item(f_uid, f_new_name)
+
+    def uid_exists(self, a_uid):
+        return self.name_lookup.has_key(int(a_uid))
+
+    def name_exists(self, a_name):
+        return self.uid_lookup.has_key(str(a_name))
 
     @staticmethod
     def from_str(a_str):
