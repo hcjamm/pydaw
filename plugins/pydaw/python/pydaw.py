@@ -246,6 +246,50 @@ class song_editor:
         self.table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.main_vlayout.addWidget(self.table_widget)
 
+        self.table_widget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.rename_action = QtGui.QAction("Rename region", self.table_widget)
+        self.rename_action.triggered.connect(self.on_rename_region)
+        self.table_widget.addAction(self.rename_action)
+
+    def on_rename_region(self):
+        f_item = self.table_widget.currentItem()
+        if f_item is None:
+            return
+        f_item_text = str(f_item.text())
+
+        def ok_handler():
+            f_new_name = str(f_new_lineedit.text())
+            if f_new_name == "":
+                QtGui.QMessageBox.warning(self.table_widget, "Error", "Name cannot be blank")
+                return
+            this_pydaw_project.rename_region(f_item_text, f_new_name)
+            this_pydaw_project.git_repo.git_commit("-a", "Rename region")
+            this_song_editor.open_song()
+            f_window.close()
+
+        def cancel_handler():
+            f_window.close()
+
+        def on_name_changed():
+            f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Rename region...")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_new_lineedit = QtGui.QLineEdit()
+        f_new_lineedit.editingFinished.connect(on_name_changed)
+        f_new_lineedit.setMaxLength(24)
+        f_layout.addWidget(QtGui.QLabel("New name:"), 0, 0)
+        f_layout.addWidget(f_new_lineedit, 0, 1)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_layout.addWidget(f_ok_button, 5,0)
+        f_ok_button.clicked.connect(ok_handler)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_layout.addWidget(f_cancel_button, 5,1)
+        f_cancel_button.clicked.connect(cancel_handler)
+        f_window.exec_()
+
     def table_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
             f_commit_msg = "Deleted region references at "
