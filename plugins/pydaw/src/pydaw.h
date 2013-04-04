@@ -2199,7 +2199,10 @@ t_pyregion *  g_pyregion_get_new(t_pydaw_data* a_pydaw_data)
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw_data, int a_uid)
 {    
     t_pyregion * f_result = (t_pyregion*)malloc(sizeof(t_pyregion));    
-    
+    if (a_uid >= a_pydaw_data->rec_region_current_uid)
+    {
+        a_pydaw_data->rec_region_current_uid = (a_pydaw_data->rec_region_current_uid) + 1;
+    }
     f_result->alternate_tempo = 0;
     f_result->tempo = 140.0f;
     f_result->region_length_bars = 0;
@@ -2536,7 +2539,10 @@ int g_pyitem_clone(t_pydaw_data * a_pydaw_data, int a_item_index)
 void g_pyitem_get(t_pydaw_data* a_pydaw_data, int a_uid)
 {
     t_pyitem * f_result = (t_pyitem*)malloc(sizeof(t_pyitem));
-    
+    if (a_uid >= a_pydaw_data->rec_item_current_uid)
+    {
+        a_pydaw_data->rec_item_current_uid = (a_pydaw_data->rec_item_current_uid) + 1;
+    }
     f_result->cc_count = 0;
     f_result->note_count = 0;
     f_result->pitchbend_count = 0;
@@ -2722,8 +2728,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->ml_starting_new_bar = 0;
     f_result->ml_is_looping = 0;
     
-    f_result->rec_region_current_uid = 0;
-    f_result->rec_item_current_uid = 0;
+    f_result->rec_region_current_uid = 10000000;
+    f_result->rec_item_current_uid = 10000000;
     
     f_result->amp_ptr = g_amp_get();
     f_result->is_offline_rendering = 0;
@@ -3457,11 +3463,8 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
             if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
             {
                 return;  
-            }            
-                        
+            }                        
             pthread_mutex_lock(&a_pydaw_data->main_mutex);
-            a_pydaw_data->rec_region_current_uid = 1;
-            a_pydaw_data->rec_item_current_uid = 1;
             a_pydaw_data->recording_first_item = -1;
             a_pydaw_data->recorded_note_current_beat = 0;
             a_pydaw_data->playback_mode = a_mode;

@@ -331,6 +331,10 @@ class region_settings:
         self.length_alternate_spinbox.valueChanged.connect(self.update_region_length)
         self.hlayout0.addWidget(self.length_alternate_spinbox)
 
+    def open_region_by_uid(self, a_uid):
+        f_regions_dict = this_pydaw_project.get_regions_dict()
+        self.open_region(f_regions_dict.get_name_by_uid(a_uid))
+
     def open_region(self, a_file_name):
         self.enabled = False
         for f_editor in global_region_editors:
@@ -4521,20 +4525,53 @@ class transport_widget:
         self.beat_timer.stop()
         self.bar_spinbox.setValue(self.last_bar)
         self.region_spinbox.setValue(self.last_region_num)
-        self.init_playback_cursor(a_bar=False)
         if self.is_recording:
             self.is_recording = False
             sleep(2)  #Give it some time to flush the recorded items to disk...
+            this_pydaw_project.check_for_recorded_regions()
+            self.show_save_items_dialog()
             if global_current_region is not None and this_region_settings.enabled:
-                this_region_settings.open_region(global_current_region.uid)
+                this_region_settings.open_region_by_uid(global_current_region.uid)
             this_song_editor.open_song()
             this_pydaw_project.record_stop_git_commit()
             self.show_audio_recording_dialog()
+        self.init_playback_cursor(a_bar=False)
         self.is_playing = False
-        if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
-            this_region_settings.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+        #if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
+        #    this_region_settings.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
         this_audio_items_viewer.stop_playback()
         this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
+
+    def show_save_items_dialog(self):
+        def ok_handler():
+            f_file_name = str(f_file.text())
+            if f_file_name is None or f_file_name == "":
+                QtGui.QMessageBox.warning(f_window, "Error", "You must select a name for the item")
+                return
+            this_pydaw_project.check_for_recorded_items(f_file_name)
+            f_window.close()
+
+        def cancel_handler():
+            f_window.close()
+
+        def text_edit_handler(a_val=None):
+            f_file.setText(pydaw_remove_bad_chars(f_file.text()))
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Save recorded MIDI items")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_layout.addWidget(QtGui.QLabel("Item Name:"), 0, 1)
+        f_file = QtGui.QLineEdit()
+        f_file.textEdited.connect(text_edit_handler)
+        f_layout.addWidget(f_file, 0, 2)
+        f_ok_button = QtGui.QPushButton("Save")
+        f_ok_button.clicked.connect(ok_handler)
+        f_layout.addWidget(f_ok_button, 8,2)
+        #f_cancel_button = QtGui.QPushButton("Discard File")
+        #f_layout.addWidget(f_cancel_button, 8,3)
+        #f_cancel_button.clicked.connect(cancel_handler)
+        f_window.exec_()
 
     def on_rec(self):
         if self.is_playing:

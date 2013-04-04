@@ -356,6 +356,46 @@ class pydaw_project:
         f_items_dict = self.get_items_dict()
         return pydaw_item.from_str(self.get_item_string(f_items_dict.get_uid_by_name(a_item_name)))
 
+    def check_for_recorded_items(self, a_item_name):
+        f_item_name = str(a_item_name) + "-"
+        f_str_list = os.listdir(self.items_folder)
+        f_int_list = []
+        for f_str in f_str_list:
+            f_int_list.append(int(f_str))
+        f_int_list.sort()
+        f_suffix = 1
+        f_items_dict = self.get_items_dict()
+        for f_int in f_int_list:
+            if not f_items_dict.name_lookup.has_key(f_int):
+                while f_items_dict.uid_lookup.has_key(f_item_name + str(f_suffix)):
+                    f_suffix += 1
+                f_items_dict.add_item(f_int, f_item_name + str(f_suffix))
+                f_suffix += 1
+        self.save_items_dict(f_items_dict)
+
+    def remove_recorded_items(self):
+        f_items_dict = self.get_items_dict()
+        f_str_list = os.listdir(self.items_folder)
+        for f_str in f_str_list:
+            if not f_items_dict.name_lookup.has_key(int(f_str)):
+                os.remove(self.items_folder + "/" + f_str)
+
+    def check_for_recorded_regions(self):
+        f_str_list = os.listdir(self.regions_folder)
+        f_int_list = []
+        for f_str in f_str_list:
+            f_int_list.append(int(f_str))
+        f_int_list.sort()
+        f_suffix = 1
+        f_regions_dict = self.get_regions_dict()
+        for f_int in f_int_list:
+            if not f_regions_dict.name_lookup.has_key(f_int):
+                while f_regions_dict.uid_lookup.has_key("recorded-" + str(f_suffix)):
+                    f_suffix += 1
+                f_regions_dict.add_item(f_int, "recorded-" + str(f_suffix))
+                f_suffix += 1
+        self.save_regions_dict(f_regions_dict)
+
     def get_tracks_string(self):
         try:
             f_file = open(self.project_folder + "/default.pytracks", "r")
