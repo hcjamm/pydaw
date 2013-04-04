@@ -892,10 +892,10 @@ class region_list_editor:
                     while this_pydaw_project.item_exists(f_item_name + "-" + str(f_name_suffix)):
                         f_name_suffix += 1
                     f_cell_text = f_item_name + "-" + str(f_name_suffix)
-                    this_pydaw_project.copy_item(f_item_name, f_cell_text)
+                    f_uid = this_pydaw_project.copy_item(f_item_name, f_cell_text)
                     self.add_qtablewidgetitem(f_cell_text, i, i2 - 1)
-                    global_current_region.add_item_ref(i + self.track_offset, i2 - 1, f_cell_text)
-        this_pydaw_project.save_region(str(self.region_name_lineedit.text()), global_current_region)
+                    global_current_region.add_item_ref_by_uid(i + self.track_offset, i2 - 1, f_uid)
+        this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
         this_pydaw_project.git_repo.git_commit("-a", "Auto-Unlink items")
 
     def paste_clipboard(self):
