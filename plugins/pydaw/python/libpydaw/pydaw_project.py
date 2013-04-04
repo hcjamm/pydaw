@@ -801,7 +801,7 @@ class pydaw_name_uid_dict:
 class pydaw_region:
     def add_item_ref_by_name(self, a_track_num, a_bar_num, a_item_name, a_uid_dict):
         f_item_uid = a_uid_dict.get_uid_by_name(a_item_name)
-        self.add_item_ref_by_uid(f_item_uid)
+        self.add_item_ref_by_uid(a_track_num, a_bar_num, f_item_uid)
 
     def add_item_ref_by_uid(self, a_track_num, a_bar_num, a_item_uid):
         self.remove_item_ref(a_track_num, a_bar_num)
