@@ -766,7 +766,9 @@ class region_list_editor:
     def on_rename_items(self):
         f_result = []
         for f_item in self.table_widget.selectedItems():
-            f_result.append(str(f_item.text()))
+            f_item_name = str(f_item.text())
+            if not f_item_name in f_result:
+                f_result.append(f_item_name)
         if len(f_result) == 0:
             return
 
@@ -956,11 +958,12 @@ global_region_clipboard = []
 def global_tablewidget_to_region():
     global global_current_region
     global_current_region.items = []
+    f_uid_dict = this_pydaw_project.get_items_dict()
     f_result = []
     for f_editor in global_region_editors:
         f_result += f_editor.tablewidget_to_list()
     for f_tuple in f_result:
-        global_current_region.add_item_ref(f_tuple[0], f_tuple[1], f_tuple[2])
+        global_current_region.add_item_ref_by_name(f_tuple[0], f_tuple[1], f_tuple[2], f_uid_dict)
     this_pydaw_project.save_region(str(this_region_settings.region_name_lineedit.text()), global_current_region)
     this_pydaw_project.git_repo.git_commit("-a", "Edit region")
 
