@@ -34,11 +34,15 @@ class pydaw_history:
             f_query += " LIMIT " + str(a_count)
         return self.db_exec(f_query, True)
 
-    def revert_single(self, a_timestamp):
-        pass
-
     def revert_to(self, a_timestamp):
-        pass
+        f_query = "SELECT * FROM pydaw_diffs WHERE commit_timestamp > " + str(a_timestamp) + " ORDER BY commit_timestamp DESC"
+        f_rows = self.db_exec(f_query, True)
+        f_diff_arr = []
+        for f_row in f_rows:
+            f_diff_arr.append(pydaw_history_file(f_row[2], f_row[1], f_row[3], f_row[4], f_row[5])) #deliberately crossing up the old and new text
+        f_commit = pydaw_history_commit(f_diff_arr, "Revert to commit " + str(a_timestamp))
+        f_commit.redo(self.project_dir)
+        self.commit(f_commit)
 
     def db_exec(self, a_query, a_return_records=False):
         f_conn = sqlite3.connect(self.db_file)
@@ -131,18 +135,9 @@ class pydaw_history_log_widget(QtGui.QWidget):
         f_layout.addWidget(f_textedit)
         f_dialog.exec_()
 
-    def on_revert(self):
-        """ Event handler for when the user reverts a single commit """
-        self.history_db.git_revert(str(self.table_widget.item(self.table_widget.currentRow(), 2).text()))
-        self.history_db.git_commit("-a", "Revert " + str(self.table_widget.item(self.table_widget.currentRow(), 1).text()))
-        if not self.ui_callback is None:
-            self.ui_callback()
-        self.populate_table()
-
     def on_revert_to(self):
         """ Event handler for when the user reverts the entire project back to a particular commit """
-        self.history_db.git_revert(str(self.table_widget.item(self.table_widget.currentRow(), 2).text()) + "..HEAD")
-        self.history_db.git_commit("-a", "Revert to " + str(self.table_widget.item(self.table_widget.currentRow(), 0).text()))
+        self.history_db.revert_to(str(self.table_widget.item(self.table_widget.currentRow(), 0).text()))
         if self.ui_callback is not None:
             self.ui_callback()
         self.populate_table()
