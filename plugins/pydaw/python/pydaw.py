@@ -5083,7 +5083,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.setWindowTitle("Undo history")
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
-        f_widget = pydaw_git_log_widget(this_pydaw_project.git_repo, global_ui_refresh_callback)
+        f_widget = pydaw_history_log_widget(this_pydaw_project.history, global_ui_refresh_callback)
         f_widget.populate_table()
         f_layout.addWidget(f_widget)
         f_window.setGeometry(QtCore.QRect(f_window.x(), f_window.y(), 900, 720))

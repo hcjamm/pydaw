@@ -176,18 +176,17 @@ class pydaw_project:
         self.history_commits[-1 * self.history_undo_cursor].redo(self.project_folder)
         self.history_undo_cursor -= 1
 
-    def get_instrument_files(self):
-        f_result = []
-        for f_file in os.listdir(self.instrument_folder):
-            if f_file.endswith(".pyinst"):
-                f_result.append(f_file)
-        return f_result
-
-    def get_fx_files(self):
-        f_result = []
-        for f_file in os.listdir(self.instrument_folder):
-            if f_file.endswith(".pyfx"):
-                f_result.append(f_file)
+    def get_files_dict(self, a_folder, a_ext=None):
+        f_result = {}
+        f_files = []
+        if a_ext is not None :
+            for f_file in os.listdir(a_folder):
+                if f_file.endswith(a_ext):
+                    f_files.append(f_file)
+        else:
+            f_files = os.listdir(a_folder)
+        for f_file in f_files:
+            f_result[f_file] = pydaw_read_file_text(a_folder + "/" + f_file)
         return f_result
 
     def get_bus_fx_files(self):
@@ -196,20 +195,36 @@ class pydaw_project:
     def get_audio_fx_files(self):
         return os.listdir(self.audiofx_folder)
 
+    def save_plugin_state(self, a_old, a_new, a_folder, a_ext=None):
+        for k, v in a_new.iteritems():
+            if a_old.has_key(k):
+                f_existed = 1
+                f_old_text = a_old[k]
+            else:
+                f_existed = 0
+                f_old_text = ""
+            self.history_files.append(pydaw_history.pydaw_history_file(a_folder, k, v, f_old_text, f_existed))
 
     def save_project(self):
-        f_old_inst = self.get_instrument_files()
-        f_old_fx = self.get_fx_files()
-        f_old_audio_fx = self.get_audio_fx_files()
-        f_old_bus_fx = self.get_bus_fx_files()
+        f_old_inst = self.get_files_dict(self.instrument_folder, ".pyinst")
+        f_old_fx = self.get_files_dict(self.instrument_folder, ".pyfx")
+        f_old_audio_fx = self.get_files_dict(self.audiofx_folder)
+        f_old_bus_fx = self.get_files_dict(self.busfx_folder)
 
         self.this_dssi_gui.pydaw_save_tracks()
         sleep(3)
 
-        f_new_inst = self.get_instrument_files()
-        f_new_fx = self.get_fx_files()
-        f_new_audio_fx = self.get_audio_fx_files()
-        f_new_bus_fx = self.get_bus_fx_files()
+        f_new_inst = self.get_files_dict(self.instrument_folder, ".pyinst")
+        f_new_fx = self.get_files_dict(self.instrument_folder, ".pyfx")
+        f_new_audio_fx = self.get_files_dict(self.audiofx_folder)
+        f_new_bus_fx = self.get_files_dict(self.busfx_folder)
+
+        self.save_plugin_state(f_old_inst, f_new_inst, pydaw_folder_instruments, ".pyinst")
+        self.save_plugin_state(f_old_fx, f_new_fx, pydaw_folder_instruments, ".pyfx")
+        self.save_plugin_state(f_old_audio_fx, f_new_audio_fx, pydaw_folder_audiofx)
+        self.save_plugin_state(f_old_bus_fx, f_new_bus_fx, pydaw_folder_busfx)
+
+        self.commit("Saved plugin state")
 
         for f_commit in self.history_commits:
             self.history.commit(f_commit)
