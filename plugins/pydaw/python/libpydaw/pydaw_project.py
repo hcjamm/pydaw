@@ -13,12 +13,34 @@ from pydaw_git import pydaw_git_repo
 from math import log
 
 from sample_graph import pydaw_sample_graphs
+import pydaw_history
 
 pydaw_bus_count = 5
 pydaw_audio_track_count = 8
 pydaw_audio_input_count = 5
 pydaw_midi_track_count = 16
 pydaw_max_audio_item_count = 32
+
+pydaw_folder_audio = "audio"
+pydaw_folder_audiofx = "audiofx"
+pydaw_folder_busfx = "busfx"
+pydaw_folder_instruments = "instruments"
+pydaw_folder_items = "items"
+pydaw_folder_regions = "regions"
+pydaw_folder_samplegraph = "samplegraph"
+pydaw_folder_samples = "samples"
+
+pydaw_file_pyregions = "default.pyregions"
+pydaw_file_pyitems = "default.pyitems"
+pydaw_file_pysong = "default.pysong"
+pydaw_file_pytransport = "default.pytransport"
+pydaw_file_pymididevice = "default.pymididevice"
+pydaw_file_pytracks = "default.pytracks"
+pydaw_file_pyaudio = "default.pyaudio"
+pydaw_file_pyaudioitem = "default.pyaudioitem"
+pydaw_file_pybus = "default.pybus"
+pydaw_file_pyinput = "default.pyinput"
+pydaw_file_pygraphs = "default.pygraphs"
 
 pydaw_min_note_length = 1.0/128.0  #Anything smaller gets deleted when doing a transform
 
@@ -106,15 +128,37 @@ def time_quantize_round(a_input):
         return round(a_input, 4)
 
 def pydaw_pitch_to_hz(a_pitch):
-    return (440.0 * pow(2.0,(a_pitch - 57.0) * 0.0833333));
+    return (440.0 * pow(2.0,(a_pitch - 57.0) * 0.0833333))
 
 def pydaw_hz_to_pitch(a_hz):
-    return ((12.0 * log(a_hz * (1.0/440.0), 2.0)) + 57.0);
+    return ((12.0 * log(a_hz * (1.0/440.0), 2.0)) + 57.0)
 
 def pydaw_pitch_to_ratio(a_pitch):
     return (1.0/pydaw_pitch_to_hz(0.0)) * pydaw_pitch_to_hz(a_pitch)
 
 class pydaw_project:
+    def create_file(self, a_folder, a_file, a_text):
+        """  Call save_file only if the file doesn't exist... """
+        if not os.path.isfile(self.project_folder + "/" + a_folder + "/" + a_file):
+            self.save_file(a_folder, a_file, a_text)
+
+    def save_file(self, a_folder, a_file, a_text):
+        """ Writes a file to disk and updates the project history to reflect the changes """
+        f_full_path = self.project_folder + "/" + a_folder + "/" + a_file
+        if os.path.isfile(f_full_path):
+            f_old = pydaw_read_file_text(f_full_path)
+            if f_old == a_text:
+                return
+        else:
+            f_old = ""
+        pydaw_write_file_text(f_full_path, a_text)
+        self.history_files.append(pydaw_history.pydaw_history_file(a_folder, a_file, a_text, f_old))
+
+    def commit(self, a_message):
+        """ Commit the project history """
+        self.history.commit(self.history_files, a_message)
+        self.history_files = []
+
     def save_project(self):
         self.this_dssi_gui.pydaw_save_tracks()
         sleep(3)
@@ -149,18 +193,19 @@ class pydaw_project:
         #folders
         self.project_folder = os.path.dirname(a_project_file)
         self.project_file = os.path.splitext(os.path.basename(a_project_file))[0]
-        self.instrument_folder = self.project_folder + "/instruments"
-        self.regions_folder = self.project_folder + "/regions"
-        self.items_folder = self.project_folder + "/items"
-        self.audio_folder = self.project_folder + "/audio"
+        self.instrument_folder = self.project_folder + "/" + pydaw_folder_instruments
+        self.regions_folder = self.project_folder + "/" + pydaw_folder_regions
+        self.items_folder = self.project_folder + "/" + pydaw_folder_items
+        self.audio_folder = self.project_folder + "/" + pydaw_folder_audio
         self.audio_tmp_folder = self.project_folder + "/audio/tmp"
-        self.samples_folder = self.project_folder + "/samples"  #Placeholder for future functionality
-        self.audiofx_folder = self.project_folder + "/audiofx"
-        self.busfx_folder = self.project_folder + "/busfx"
-        self.samplegraph_folder = self.project_folder + "/samplegraph"
+        self.samples_folder = self.project_folder + "/" + pydaw_folder_samples  #Placeholder for future functionality
+        self.audiofx_folder = self.project_folder + "/" + pydaw_folder_audiofx
+        self.busfx_folder = self.project_folder + "/" + pydaw_folder_busfx
+        self.samplegraph_folder = self.project_folder + "/" + pydaw_folder_samplegraph
         #files
         self.pyregions_file = self.project_folder + "/default.pyregions"
         self.pyitems_file = self.project_folder + "/default.pyitems"
+        self.history = pydaw_history.pydaw_history(self.project_folder)
 
     def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
@@ -191,97 +236,31 @@ class pydaw_project:
             f_file.write("This file does is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
             f_file.close()
 
-        if not os.path.exists(self.pyregions_file):
-            f_file = open(self.pyregions_file, 'w')
-            f_file.close()
-        if not os.path.exists(self.pyitems_file):
-            f_file = open(self.pyitems_file, 'w')
-            f_file.close()
+        self.create_file("", pydaw_file_pyregions, "")
+        self.create_file("", pydaw_file_pyitems, "")
+        self.create_file("", pydaw_file_pysong, pydaw_terminating_char)
+        self.create_file("", pydaw_file_pytransport, str(pydaw_transport()))
+        self.create_file("", pydaw_file_pymididevice, "")
+        f_midi_tracks_instance = pydaw_tracks()
+        for i in range(pydaw_midi_track_count):
+            f_midi_tracks_instance.add_track(i, pydaw_track(a_name="track" + str(i + 1)))
+        self.create_file("", pydaw_file_pytracks, str(f_midi_tracks_instance))
+        f_pyaudio_instance = pydaw_audio_tracks()
+        for i in range(pydaw_audio_track_count):
+            f_pyaudio_instance.add_track(i, pydaw_audio_track(a_name="track" + str(i + 1)))
+        self.create_file("", pydaw_file_pyaudio, str(f_pyaudio_instance))
+        self.create_file("", pydaw_file_pyaudioitem, pydaw_terminating_char)
+        f_pybus_instance = pydaw_busses()
+        for i in range(pydaw_bus_count):
+            f_pybus_instance.add_bus(i, pydaw_bus())
+        self.create_file("", pydaw_file_pybus, str(f_pybus_instance))
+        f_input_instance = pydaw_audio_input_tracks()
+        for i in range(pydaw_audio_input_count):
+            f_input_instance.add_track(i, pydaw_audio_input_track(0,0,0))
+        self.create_file("", pydaw_file_pyinput, str(f_input_instance))
+        self.create_file("", pydaw_file_pygraphs, pydaw_terminating_char)
 
-        f_pysong_file = self.project_folder + "/default.pysong"
-        if not os.path.exists(f_pysong_file):
-            f_file = open(f_pysong_file, 'w')
-            f_file.write(pydaw_terminating_char)
-            f_file.close()
-        f_pytransport_file = self.project_folder + "/default.pytransport"
-        if not os.path.exists(f_pytransport_file):
-            f_transport_instance = pydaw_transport()
-            f_file = open(f_pytransport_file, 'w')
-            f_file.write(str(f_transport_instance))
-            f_file.close()
-        f_pymididevice_file = self.project_folder + "/default.pymididevice"
-        if not os.path.exists(f_pymididevice_file):
-            f_file = open(f_pymididevice_file, 'w')
-            f_file.close()
-        f_pytracks_file = self.project_folder + "/default.pytracks"
-        if not os.path.exists(f_pytracks_file):
-            f_file = open(f_pytracks_file, 'w')
-            f_midi_tracks_instance = pydaw_tracks()
-            for i in range(16):
-                f_midi_tracks_instance.add_track(i, pydaw_track(a_name="track" + str(i + 1)))
-            f_file.write(str(f_midi_tracks_instance))
-            f_file.close()
-        f_pyaudio_file = self.project_folder + "/default.pyaudio"
-        if not os.path.exists(f_pyaudio_file):
-            f_file = open(f_pyaudio_file, 'w')
-            f_pyaudio_instance = pydaw_audio_tracks()
-            for i in range(8):
-                f_pyaudio_instance.add_track(i, pydaw_audio_track(a_name="track" + str(i + 1)))
-            f_file.write(str(f_pyaudio_instance))
-            f_file.close()
-
-        f_pyaudio_item_file = self.project_folder + "/default.pyaudioitem"
-        if not os.path.exists(f_pyaudio_item_file):
-            f_file = open(f_pyaudio_item_file, 'w')
-            f_file.write(pydaw_terminating_char)
-            f_file.close()
-        f_pybus_file = self.project_folder + "/default.pybus"
-        if not os.path.exists(f_pybus_file):
-            f_file = open(f_pybus_file, 'w')
-            f_pybus_instance = pydaw_busses()
-            for i in range(5):
-                f_pybus_instance.add_bus(i, pydaw_bus())
-            f_file.write(str(f_pybus_instance))
-            f_file.close()
-
-        f_pyinput_file = self.project_folder + "/default.pyinput"
-        if not os.path.exists(f_pyinput_file):
-            f_file = open(f_pyinput_file, 'w')
-            f_input_instance = pydaw_audio_input_tracks()
-            for i in range(5):
-                f_input_instance.add_track(i, pydaw_audio_input_track(0,0,0))
-            f_file.write(str(f_input_instance))
-            f_file.close()
-
-        f_pysamplegraphs_file = self.project_folder + "/default.pygraphs"
-        if not os.path.exists(f_pysamplegraphs_file):
-            f_file = open(f_pysamplegraphs_file, 'w')
-            f_file.write(pydaw_terminating_char)
-            f_file.close()
-
-        f_git_ignore_file = self.project_folder + "/.gitignore"
-        if not os.path.exists(f_git_ignore_file):
-            f_file = open(f_git_ignore_file, 'w')
-            f_file.write("default.pygraphs\nsamplegraph/*.pygraph\nsamples/*\naudio/*\n")
-            f_file.close()
-
-        self.git_repo = pydaw_git_repo(self.project_folder)
-        self.git_repo.git_init()
-
-        self.git_repo.git_add(self.pyitems_file)
-        self.git_repo.git_add(self.pyregions_file)
-
-        self.git_repo.git_add(f_pysong_file)
-        self.git_repo.git_add(f_pytracks_file)
-        self.git_repo.git_add(f_pytransport_file)
-        self.git_repo.git_add(a_project_file)
-        self.git_repo.git_add(f_pyaudio_file)
-        self.git_repo.git_add(f_pyaudio_item_file)
-        self.git_repo.git_add(f_pybus_file)
-        self.git_repo.git_add(f_pyinput_file)
-        self.git_repo.git_add(f_git_ignore_file)
-        self.git_repo.git_add(f_pymididevice_file)
-        self.git_repo.git_commit("-a", "Created new project")
+        self.commit("Created project")
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
 
@@ -295,7 +274,7 @@ class pydaw_project:
         return pydaw_name_uid_dict.from_str(f_str)
 
     def save_regions_dict(self, a_uid_dict):
-        pydaw_write_file_text(self.pyregions_file, str(a_uid_dict))
+        self.save_file("", pydaw_file_pyregions, str(a_uid_dict))
 
     def get_items_dict(self):
         try:
@@ -307,7 +286,7 @@ class pydaw_project:
         return pydaw_name_uid_dict.from_str(f_str)
 
     def save_items_dict(self, a_uid_dict):
-        pydaw_write_file_text(self.pyitems_file, str(a_uid_dict))
+        self.save_file("", pydaw_file_pyitems, str(a_uid_dict))
 
     def get_song_string(self):
         try:
@@ -511,30 +490,14 @@ class pydaw_project:
 
     def save_transport(self, a_transport):
         if not self.suppress_updates:
-            f_file_name = self.project_folder + "/default.pytransport"
-            f_file = open(f_file_name, "w")
-            f_file.write(str(a_transport))
-            f_file.close()
-            f_file_name = self.project_folder + "/default.pymididevice"
-            f_existed = False
-            if os.path.isfile(f_file_name):
-                f_existed = True
-            f_file = open(f_file_name, "w")
-            f_file.write(a_transport.get_midi_device())
-            f_file.close()
-            if not f_existed:
-                self.git_repo.git_add(f_file_name)
-                self.git_repo.git_commit("-a", "Add .pymididevice file")
+            self.save_file("", pydaw_file_pytransport, str(a_transport))
+            self.save_file("", pydaw_file_pymididevice, a_transport.get_midi_device())
 
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
         f_regions_dict = self.get_regions_dict()
         f_uid = f_regions_dict.add_new_item(a_region_name)
-        f_file_name = self.regions_folder + "/" + str(f_uid)
-        f_file = open(f_file_name, 'w')
-        f_file.write(pydaw_terminating_char)
-        f_file.close()
-        self.git_repo.git_add(f_file_name)
+        self.save_file(pydaw_folder_regions, f_uid, pydaw_terminating_char)
         self.save_regions_dict(f_regions_dict)
         return f_uid
 
@@ -555,9 +518,7 @@ class pydaw_project:
         f_regions_dict = self.get_regions_dict()
         f_uid = f_regions_dict.add_new_item(a_new_region)
         f_old_uid = f_regions_dict.get_uid_by_name(a_old_region)
-        f_new_file = self.regions_folder + "/" + str(f_uid)
-        copyfile(self.regions_folder + "/" + str(f_old_uid), f_new_file)
-        self.git_repo.git_add(f_new_file)
+        self.save_file(pydaw_folder_regions,  str(f_uid), pydaw_read_file_text(str(f_old_uid)))
         self.save_regions_dict(f_regions_dict)
         return f_uid
 
@@ -566,9 +527,7 @@ class pydaw_project:
         f_uid = f_items_dict.add_new_item(a_new_item)
         f_old_uid = f_items_dict.get_uid_by_name(a_old_item)
         f_new_item = str(a_new_item)
-        f_new_file = self.items_folder + "/" + str(f_uid)
-        copyfile(self.items_folder + "/" + str(f_old_uid), f_new_file)
-        self.git_repo.git_add(f_new_file)
+        self.save_file(pydaw_folder_items,  str(f_uid), pydaw_read_file_text(str(f_old_uid)))
         self.this_dssi_gui.pydaw_save_item(f_new_item)
         self.save_items_dict(f_items_dict)
         return f_uid
@@ -577,76 +536,49 @@ class pydaw_project:
         if not self.suppress_updates:
             f_items_dict = self.get_items_dict()
             f_uid = f_items_dict.get_uid_by_name(a_name)
-            f_file_name = self.items_folder + "/" + str(f_uid)
-            f_file = open(f_file_name, 'w')
-            f_file.write(str(a_item))
-            f_file.close()
+            self.save_file(pydaw_folder_items, str(f_uid), str(a_item))
             self.this_dssi_gui.pydaw_save_item(f_uid)
 
     def save_region(self, a_name, a_region):
         if not self.suppress_updates:
             f_regions_dict = self.get_regions_dict()
             f_uid = f_regions_dict.get_uid_by_name(a_name)
-            f_file_name = self.regions_folder + "/" + str(f_uid)
-            f_file = open(f_file_name, 'w')
-            f_file.write(str(a_region))
-            f_file.close()
+            self.save_file(pydaw_folder_regions, str(f_uid), str(a_region))
             self.this_dssi_gui.pydaw_save_region(f_uid)
 
     def save_song(self, a_song):
         if not self.suppress_updates:
-            f_file_name = self.project_folder + "/default.pysong"
-            f_file = open(f_file_name, 'w')
-            f_file.write(str(a_song))
-            f_file.close()
+            self.save_file("", pydaw_file_pysong, str(a_song))
             self.this_dssi_gui.pydaw_save_song()
 
     def save_tracks(self, a_tracks):
         if not self.suppress_updates:
-            f_file_name = self.project_folder + "/default.pytracks"
-            f_file = open(f_file_name, 'w')
-            f_file.write(a_tracks.__str__())
-            f_file.close()
+            self.save_file("", pydaw_file_pytracks, str(a_tracks))
             #Is there a need for a configure message here?
 
     def save_busses(self, a_tracks):
         if not self.suppress_updates:
-            f_file_name = self.project_folder + "/default.pybus"
-            f_file = open(f_file_name, 'w')
-            f_file.write(a_tracks.__str__())
-            f_file.close()
+            self.save_file("", pydaw_file_pybus, str(a_tracks))
             #Is there a need for a configure message here?
 
     def save_audio_tracks(self, a_tracks):
         if not self.suppress_updates:
-            f_file_name = self.project_folder + "/default.pyaudio"
-            f_file = open(f_file_name, 'w')
-            f_file.write(a_tracks.__str__())
-            f_file.close()
+            self.save_file("", pydaw_file_pyaudio, str(a_tracks))
             #Is there a need for a configure message here?
 
     def save_audio_inputs(self, a_tracks):
         if not self.suppress_updates:
-            f_file_name = self.project_folder + "/default.pyinput"
-            f_file = open(f_file_name, 'w')
-            f_file.write(str(a_tracks))
-            f_file.close()
+            self.save_file("", pydaw_file_pyinput, str(a_tracks))
             #Is there a need for a configure message here?
 
     def save_audio_items(self, a_tracks):
         if not self.suppress_updates:
-            f_file_name = self.project_folder + "/default.pyaudioitem"
-            f_file = open(f_file_name, 'w')
-            f_file.write(a_tracks.__str__())
-            f_file.close()
+            self.save_file("", pydaw_file_pyaudioitem, str(a_tracks))
             #Is there a need for a configure message here?
 
     def save_samplegraphs(self, a_tracks):
         if not self.suppress_updates:
-            f_file_name = self.project_folder + "/default.pygraphs"
-            f_file = open(f_file_name, 'w')
-            f_file.write(str(a_tracks))
-            f_file.close()
+            self.save_file("", pydaw_file_pygraphs, str(a_tracks))
 
     def item_exists(self, a_item_name, a_name_dict=None):
         if a_name_dict is None:
@@ -694,6 +626,7 @@ class pydaw_project:
     def __init__(self, a_osc_url=None):
         self.last_item_number = 1
         self.last_region_number = 1
+        self.history_files = []
         self.this_dssi_gui = dssi_gui(a_osc_url)
         self.suppress_updates = False
 
