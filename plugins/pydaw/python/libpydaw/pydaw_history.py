@@ -22,15 +22,14 @@ class pydaw_history:
     def commit(self, a_commit):
         f_conn = sqlite3.connect(self.db_file)
         f_cursor = f_conn.cursor()
-        f_timestamp = int(time.time())
-        f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?)", (f_timestamp, a_commit.message))
+        f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?)", (a_commit.timestamp, a_commit.message))
         for f_file in a_commit.files:
-            f_cursor.execute("INSERT INTO pydaw_diffs VALUES(?, ?, ?, ?, ?, ?)", (f_timestamp, f_file.file_name, f_file.folder, f_file.old_text, f_file.new_text, f_file.existed))
+            f_cursor.execute("INSERT INTO pydaw_diffs VALUES(?, ?, ?, ?, ?, ?)", (a_commit.timestamp, f_file.file_name, f_file.folder, f_file.old_text, f_file.new_text, f_file.existed))
         f_conn.commit()
         f_conn.close()
 
     def list_commits(self, a_count=0):
-        f_query = "SELECT * FROM pydaw_commits" # ORDER BY commmit_timestamp DESC"
+        f_query = "SELECT * FROM pydaw_commits ORDER BY commit_timestamp DESC"
         if a_count > 0:
             f_query += " LIMIT " + str(a_count)
         return self.db_exec(f_query, True)
@@ -65,6 +64,7 @@ class pydaw_history_commit:
     def __init__(self, a_files, a_message):
         self.files = a_files
         self.message = a_message
+        self.timestamp = int(time.time())
 
     def undo(self, a_project_folder):
         for f_file in self.files:
@@ -114,6 +114,7 @@ class pydaw_history_log_widget(QtGui.QWidget):
         self.table_widget.resizeColumnsToContents()
 
     def on_show(self):
+        #TODO:  Create a unified diff of all files...
         f_hash = str(self.table_widget.item(self.table_widget.currentRow(), 2).text())
         f_result = self.history_db.git_show(f_hash)
         f_dialog = QtGui.QDialog(self)
