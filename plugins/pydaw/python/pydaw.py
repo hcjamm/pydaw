@@ -5071,7 +5071,11 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_undo(self):
-        this_pydaw_project.git_repo.undo()
+        this_pydaw_project.undo()
+        global_ui_refresh_callback()
+
+    def on_redo(self):
+        this_pydaw_project.redo()
         global_ui_refresh_callback()
 
     def on_undo_history(self):
@@ -5191,15 +5195,19 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.menu_edit = self.menu_bar.addMenu("&Edit")
 
-        #self.undo_action = QtGui.QAction("Undo", self)
-        #self.menu_edit.addAction(self.undo_action)
-        #self.undo_action.triggered.connect(self.on_undo)
-        #self.undo_action.setShortcut(QtGui.QKeySequence.Undo)
+        self.undo_action = QtGui.QAction("Undo", self)
+        self.menu_edit.addAction(self.undo_action)
+        self.undo_action.triggered.connect(self.on_undo)
+        self.undo_action.setShortcut(QtGui.QKeySequence.Undo)
+
+        self.redo_action = QtGui.QAction("Redo", self)
+        self.menu_edit.addAction(self.redo_action)
+        self.redo_action.triggered.connect(self.on_redo)
+        self.redo_action.setShortcut(QtGui.QKeySequence.Redo)
 
         self.undo_history_action = QtGui.QAction("Undo History...", self)
         self.menu_edit.addAction(self.undo_history_action)
         self.undo_history_action.triggered.connect(self.on_undo_history)
-        self.undo_history_action.setShortcut(QtGui.QKeySequence.Undo)
 
         self.menu_appearance = self.menu_bar.addMenu("&Appearance")
 

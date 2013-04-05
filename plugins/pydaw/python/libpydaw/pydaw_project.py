@@ -148,23 +148,72 @@ class pydaw_project:
             f_old = pydaw_read_file_text(f_full_path)
             if f_old == a_text:
                 return
+            f_existed = 1
         else:
             f_old = ""
+            f_existed = 0
         pydaw_write_file_text(f_full_path, a_text)
-        self.history_files.append(pydaw_history.pydaw_history_file(a_folder, a_file, a_text, f_old))
+        self.history_files.append(pydaw_history.pydaw_history_file(a_folder, a_file, a_text, f_old, f_existed))
 
     def commit(self, a_message):
         """ Commit the project history """
-        self.history.commit(self.history_files, a_message)
+        if self.history_undo_cursor > 0:
+            self.history_commits = self.history_commits[:self.history_undo_cursor]
+            self.history_undo_cursor = 0
+        self.history_commits.append(pydaw_history.pydaw_history_commit(self.history_files, a_message))
         self.history_files = []
 
+    def undo(self):
+        if self.history_undo_cursor >= len(self.history_commits):
+            return False #meaning show the window
+        self.history_undo_cursor += 1
+        self.history_commits[-1 * self.history_undo_cursor].undo(self.project_folder)
+        return True
+
+    def redo(self):
+        if self.history_undo_cursor == 0:
+            return
+        self.history_commits[-1 * self.history_undo_cursor].redo(self.project_folder)
+        self.history_undo_cursor -= 1
+
+    def get_instrument_files(self):
+        f_result = []
+        for f_file in os.listdir(self.instrument_folder):
+            if f_file.endswith(".pyinst"):
+                f_result.append(f_file)
+        return f_result
+
+    def get_fx_files(self):
+        f_result = []
+        for f_file in os.listdir(self.instrument_folder):
+            if f_file.endswith(".pyfx"):
+                f_result.append(f_file)
+        return f_result
+
+    def get_bus_fx_files(self):
+        return os.listdir(self.busfx_folder)
+
+    def get_audio_fx_files(self):
+        return os.listdir(self.audiofx_folder)
+
+
     def save_project(self):
+        f_old_inst = self.get_instrument_files()
+        f_old_fx = self.get_fx_files()
+        f_old_audio_fx = self.get_audio_fx_files()
+        f_old_bus_fx = self.get_bus_fx_files()
+
         self.this_dssi_gui.pydaw_save_tracks()
         sleep(3)
-        self.git_repo.git_add(self.instrument_folder + "/*")
-        self.git_repo.git_add(self.audiofx_folder + "/*")
-        self.git_repo.git_add(self.busfx_folder + "/*")
-        self.git_repo.git_commit("-a", "Saved plugin state")
+
+        f_new_inst = self.get_instrument_files()
+        f_new_fx = self.get_fx_files()
+        f_new_audio_fx = self.get_audio_fx_files()
+        f_new_bus_fx = self.get_bus_fx_files()
+
+        for f_commit in self.history_commits:
+            self.history.commit(f_commit)
+        self.history_commits = []
 
     def record_stop_git_commit(self):
         """ This should be called once recording has stopped to catch-up Git """
@@ -617,6 +666,8 @@ class pydaw_project:
         self.last_item_number = 1
         self.last_region_number = 1
         self.history_files = []
+        self.history_commits = []
+        self.history_undo_cursor = 0
         self.this_dssi_gui = dssi_gui(a_osc_url)
         self.suppress_updates = False
 
