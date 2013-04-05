@@ -11,13 +11,15 @@ import sqlite3, os, time
 class pydaw_history:
     def __init__(self, a_project_dir):
         self.project_dir = a_project_dir
-        self.db_file = a_project_dir + "history.db"  #TODO:  Does it need a preceding slash?
+        self.db_file = a_project_dir + "/history.db"
 
         if not os.path.isfile(self.db_file):
-            self.db_exec(
-            ["CREATE TABLE pydaw_commits (commit_timestamp integer, commit_message text)",
-             "CREATE TABLE pydaw_diffs (commit_timestamp integer, commit_file text, text_old text, text_new text)"] #blob or text?
-            ) #TDOO:  Create indexes and primary key?
+            f_conn = sqlite3.connect(self.db_file)
+            f_cursor = f_conn.cursor()
+            f_cursor.execute("CREATE TABLE pydaw_commits (commit_timestamp integer, commit_message text)")
+            f_cursor.execute("CREATE TABLE pydaw_diffs (commit_timestamp integer, commit_file text, commit_folder text, text_old text, text_new text)")
+            f_conn.commit()
+            f_conn.close()
 
     def commit(self, a_files, a_message):
         f_conn = sqlite3.connect(self.db_file)
@@ -25,7 +27,7 @@ class pydaw_history:
         f_timestamp = int(time.time())
         f_cursor.execute("INSERT INTO pydaw_commits VALUES(?, ?)", (f_timestamp, a_message))
         for f_file in a_files:
-            f_cursor.execute("INSERT INTO pydaw_diffs VALUES(?, ?, ?, ?)", (f_timestamp, f_file.file_name, f_file.old_text, f_file.new_text))
+            f_cursor.execute("INSERT INTO pydaw_diffs VALUES(?, ?, ?, ?, ?)", (f_timestamp, f_file.file_name, f_file.folder, f_file.old_text, f_file.new_text))
         f_conn.commit()
         f_conn.close()
 
@@ -57,32 +59,7 @@ class pydaw_history:
 
 class pydaw_history_file:
     def __init__(self, a_folder, a_file_name, a_text_new, a_text_old):
-        self.folder = a_folder
-        self.file_name = a_file_name
-        self.file_text_new = a_text_new
-        self.old_file_text = a_text_old
-
-if __name__ == "__main__":
-    print("Parsed OK...")
-    testdir = os.path.dirname(os.path.realpath(__file__)) + "/history_test/"
-    if os.path.isdir(testdir):
-        os.system('rm -r "' + testdir + '"')
-
-    os.mkdir(testdir)
-    test_history = pydaw_history(testdir)
-
-    testfile = testdir + "test.txt"
-
-    f_file = open(testfile, "w")
-    f_file.write("test\ntest1\ntest2")
-    f_file.close()
-    f_file = open(testfile, "w")
-    f_file.write("test444\ntest1\ntest2\ntestaaaa4444")
-    f_file.close()
-    f_file = open(testfile, "a")
-    f_file.write("test3\ntest4\ntest6")
-    f_file.close()
-
-    #test_history.commit("Test commit")
-
-    test_history.db_exec(["VACUUM"])
+        self.folder = str(a_folder)
+        self.file_name = str(a_file_name)
+        self.new_text = str(a_text_new)
+        self.old_text = str(a_text_old)

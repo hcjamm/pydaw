@@ -9,7 +9,6 @@ from time import sleep
 
 #from lms_session import lms_session #deprecated
 from dssi_gui import dssi_gui
-from pydaw_git import pydaw_git_repo
 from math import log
 
 from sample_graph import pydaw_sample_graphs
@@ -139,12 +138,12 @@ def pydaw_pitch_to_ratio(a_pitch):
 class pydaw_project:
     def create_file(self, a_folder, a_file, a_text):
         """  Call save_file only if the file doesn't exist... """
-        if not os.path.isfile(self.project_folder + "/" + a_folder + "/" + a_file):
+        if not os.path.isfile(self.project_folder + "/" + str(a_folder) + "/" + str(a_file)):
             self.save_file(a_folder, a_file, a_text)
 
     def save_file(self, a_folder, a_file, a_text):
         """ Writes a file to disk and updates the project history to reflect the changes """
-        f_full_path = self.project_folder + "/" + a_folder + "/" + a_file
+        f_full_path = self.project_folder + "/" + str(a_folder) + "/" + str(a_file)
         if os.path.isfile(f_full_path):
             f_old = pydaw_read_file_text(f_full_path)
             if f_old == a_text:
@@ -205,7 +204,6 @@ class pydaw_project:
         #files
         self.pyregions_file = self.project_folder + "/default.pyregions"
         self.pyitems_file = self.project_folder + "/default.pyitems"
-        self.history = pydaw_history.pydaw_history(self.project_folder)
 
     def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
@@ -213,7 +211,7 @@ class pydaw_project:
             print("project file " + a_project_file + " does not exist, creating as new project")
             self.new_project(a_project_file)
         else:
-            self.git_repo = pydaw_git_repo(self.project_folder)
+            self.history = pydaw_history.pydaw_history(self.project_folder)
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
 
@@ -224,18 +222,15 @@ class pydaw_project:
             self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder,
             self.audiofx_folder, self.busfx_folder, self.samplegraph_folder,
-            self.audio_tmp_folder
-            ]
+            self.audio_tmp_folder]
 
         for project_dir in project_folders:
             print(project_dir)
             if not os.path.isdir(project_dir):
                 os.makedirs(project_dir)
-        if not os.path.exists(a_project_file):
-            f_file = open(a_project_file, 'w')
-            f_file.write("This file does is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
-            f_file.close()
+        self.history = pydaw_history.pydaw_history(self.project_folder)
 
+        self.create_file("", os.path.basename(a_project_file), "This file does is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
         self.create_file("", pydaw_file_pyregions, "")
         self.create_file("", pydaw_file_pyitems, "")
         self.create_file("", pydaw_file_pysong, pydaw_terminating_char)
@@ -504,12 +499,7 @@ class pydaw_project:
     def create_empty_item(self, a_item_name):
         f_items_dict = self.get_items_dict()
         f_uid = f_items_dict.add_new_item(a_item_name)
-        #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
-        f_file_name = self.items_folder + "/" + str(f_uid)
-        f_file = open(f_file_name, 'w')
-        f_file.write(pydaw_terminating_char)
-        f_file.close()
-        self.git_repo.git_add(f_file_name)
+        self.save_file(pydaw_folder_items, str(f_uid), pydaw_terminating_char)
         self.this_dssi_gui.pydaw_save_item(f_uid)
         self.save_items_dict(f_items_dict)
         return f_uid
@@ -518,7 +508,7 @@ class pydaw_project:
         f_regions_dict = self.get_regions_dict()
         f_uid = f_regions_dict.add_new_item(a_new_region)
         f_old_uid = f_regions_dict.get_uid_by_name(a_old_region)
-        self.save_file(pydaw_folder_regions,  str(f_uid), pydaw_read_file_text(str(f_old_uid)))
+        self.save_file(pydaw_folder_regions,  str(f_uid), pydaw_read_file_text(self.regions_folder + "/" + str(f_old_uid)))
         self.save_regions_dict(f_regions_dict)
         return f_uid
 
@@ -527,7 +517,7 @@ class pydaw_project:
         f_uid = f_items_dict.add_new_item(a_new_item)
         f_old_uid = f_items_dict.get_uid_by_name(a_old_item)
         f_new_item = str(a_new_item)
-        self.save_file(pydaw_folder_items,  str(f_uid), pydaw_read_file_text(str(f_old_uid)))
+        self.save_file(pydaw_folder_items,  str(f_uid), pydaw_read_file_text(self.items_folder + "/" + str(f_old_uid)))
         self.this_dssi_gui.pydaw_save_item(f_new_item)
         self.save_items_dict(f_items_dict)
         return f_uid
