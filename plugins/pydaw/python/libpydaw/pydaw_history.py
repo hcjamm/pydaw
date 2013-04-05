@@ -3,7 +3,7 @@ A lightweight clone of Git, since a few of Git's behaviors are undesirable
 for an undo/redo system.  Uses sqlite3 for storing full file text...
 """
 
-import sqlite3, os, time, sys
+import sqlite3, os, time, difflib
 from PyQt4 import QtGui, QtCore
 
 class pydaw_history:
@@ -115,8 +115,13 @@ class pydaw_history_log_widget(QtGui.QWidget):
 
     def on_show(self):
         #TODO:  Create a unified diff of all files...
-        f_hash = str(self.table_widget.item(self.table_widget.currentRow(), 2).text())
-        f_result = self.history_db.git_show(f_hash)
+        f_timestamp = int(self.table_widget.item(self.table_widget.currentRow(), 0).text())
+        f_result = ""
+        f_rows = self.history_db.db_exec("SELECT * FROM pydaw_diffs WHERE commit_timestamp = " + str(f_timestamp), True)
+        for f_row in f_rows:
+            f_file_name = str(f_row[2]) + "/" + str(f_row[1])
+            for f_line in difflib.unified_diff(str(f_row[3]).split("\n"), str(f_row[4]).split("\n"), f_file_name, f_file_name):
+                f_result += f_line + "\n"
         f_dialog = QtGui.QDialog(self)
         f_dialog.setGeometry(self.x(), self.y(), 600, 600)
         f_layout = QtGui.QVBoxLayout()
