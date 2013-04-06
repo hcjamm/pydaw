@@ -283,6 +283,7 @@ class song_editor:
             this_pydaw_project.rename_region(f_item_text, f_new_name)
             this_pydaw_project.commit("Rename region")
             this_song_editor.open_song()
+            this_region_settings.open_region(f_new_name)
             f_window.close()
 
         def cancel_handler():
