@@ -1431,6 +1431,8 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
     LADSPA_PortDescriptor *port_descriptors;
     LADSPA_PortRangeHint *port_range_hints;
     int channels;
+    int * automatable;
+    int * value_tranform_hints;
 
     euphoriaLDescriptor = (LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
 
@@ -1459,6 +1461,12 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 	port_names = (char **) calloc(desc->PortCount, sizeof(char *));
 	desc->PortNames = (const char **) port_names;
 
+        automatable = (int*)calloc(desc->PortCount, sizeof(int));
+        desc->Automatable = automatable;
+        
+        value_tranform_hints = (int*)calloc(desc->PortCount, sizeof(int));
+        desc->ValueTransformHint = value_tranform_hints;
+        
 	/* Parameters for output left */
 	port_descriptors[EUPHORIA_OUTPUT_LEFT] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
 	port_names[EUPHORIA_OUTPUT_LEFT] = "Output L";
@@ -1478,7 +1486,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_SELECTED_SAMPLE].LowerBound = 0;
 	port_range_hints[EUPHORIA_SELECTED_SAMPLE].UpperBound = (EUPHORIA_MAX_SAMPLE_COUNT - 1);
-                
+                        
 	/* Parameters for attack */
 	port_descriptors[EUPHORIA_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_ATTACK] = "Attack time (s)";
@@ -1487,6 +1495,8 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_ATTACK].LowerBound = 10; 
 	port_range_hints[EUPHORIA_ATTACK].UpperBound = 100; 
+        automatable[EUPHORIA_ATTACK] = 1;
+        value_tranform_hints[EUPHORIA_ATTACK] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	/* Parameters for decay */
 	port_descriptors[EUPHORIA_DECAY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1496,6 +1506,8 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_DECAY].LowerBound = 10; 
 	port_range_hints[EUPHORIA_DECAY].UpperBound = 100; 
+        automatable[EUPHORIA_DECAY] = 1;
+        value_tranform_hints[EUPHORIA_DECAY] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	/* Parameters for sustain */
 	port_descriptors[EUPHORIA_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1504,7 +1516,8 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_SUSTAIN].LowerBound = -60;
-	port_range_hints[EUPHORIA_SUSTAIN].UpperBound = 0;
+	port_range_hints[EUPHORIA_SUSTAIN].UpperBound = 0;         
+        automatable[EUPHORIA_SUSTAIN] = 1;
 
 	/* Parameters for release */
 	port_descriptors[EUPHORIA_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1514,6 +1527,8 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_RELEASE].LowerBound = 10; 
 	port_range_hints[EUPHORIA_RELEASE].UpperBound = 200; 
+        automatable[EUPHORIA_RELEASE] = 1;
+        value_tranform_hints[EUPHORIA_RELEASE] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
                 
 	/* Parameters for attack_f */
 	port_descriptors[EUPHORIA_FILTER_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1523,6 +1538,8 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FILTER_ATTACK].LowerBound = 10; 
 	port_range_hints[EUPHORIA_FILTER_ATTACK].UpperBound = 100; 
+        automatable[EUPHORIA_FILTER_ATTACK] = 1;
+        value_tranform_hints[EUPHORIA_FILTER_ATTACK] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	/* Parameters for decay_f */
 	port_descriptors[EUPHORIA_FILTER_DECAY] = port_descriptors[EUPHORIA_ATTACK];
@@ -1532,15 +1549,19 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FILTER_DECAY].LowerBound = 10;
 	port_range_hints[EUPHORIA_FILTER_DECAY].UpperBound = 100;
+        automatable[EUPHORIA_FILTER_DECAY] = 1;
+        value_tranform_hints[EUPHORIA_FILTER_DECAY] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	/* Parameters for sustain_f */
 	port_descriptors[EUPHORIA_FILTER_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[EUPHORIA_FILTER_SUSTAIN] = "Sustain level (%) filter";
+	port_names[EUPHORIA_FILTER_SUSTAIN] = "Sustain level filter";
 	port_range_hints[EUPHORIA_FILTER_SUSTAIN].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FILTER_SUSTAIN].LowerBound = 0; 
 	port_range_hints[EUPHORIA_FILTER_SUSTAIN].UpperBound = 100; 
+        automatable[EUPHORIA_FILTER_SUSTAIN] = 1;
+        value_tranform_hints[EUPHORIA_FILTER_SUSTAIN] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
 	/* Parameters for release_f */
 	port_descriptors[EUPHORIA_FILTER_RELEASE] = port_descriptors[EUPHORIA_ATTACK];
@@ -1550,6 +1571,8 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FILTER_RELEASE].LowerBound = 10; 
 	port_range_hints[EUPHORIA_FILTER_RELEASE].UpperBound = 200; 
+        automatable[EUPHORIA_FILTER_RELEASE] = 1;
+        value_tranform_hints[EUPHORIA_FILTER_RELEASE] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
         
         /*Parameters for noise_amp*/        
@@ -1560,6 +1583,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_NOISE_AMP].LowerBound =  -60;
 	port_range_hints[EUPHORIA_NOISE_AMP].UpperBound =  0;
+        automatable[EUPHORIA_NOISE_AMP] = 1;
                 
         /*Parameters for master vol*/        
 	port_descriptors[EUPHORIA_MASTER_VOLUME] = port_descriptors[EUPHORIA_ATTACK];
@@ -1569,7 +1593,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_MASTER_VOLUME].LowerBound =  -24;
 	port_range_hints[EUPHORIA_MASTER_VOLUME].UpperBound =  24;
-                        
+                                
         /*Parameters for master glide*/        
 	port_descriptors[EUPHORIA_MASTER_GLIDE] = port_descriptors[EUPHORIA_ATTACK];
 	port_names[EUPHORIA_MASTER_GLIDE] = "Master Glide";
@@ -1578,6 +1602,8 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_MASTER_GLIDE].LowerBound =  0;
 	port_range_hints[EUPHORIA_MASTER_GLIDE].UpperBound =  200;
+        automatable[EUPHORIA_MASTER_GLIDE] = 1;
+        value_tranform_hints[EUPHORIA_MASTER_GLIDE] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
         
         /*Parameters for master pitchbend amt*/        
@@ -1597,6 +1623,8 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_PITCH_ENV_TIME].LowerBound = 0; 
 	port_range_hints[EUPHORIA_PITCH_ENV_TIME].UpperBound = 200;
+        automatable[EUPHORIA_PITCH_ENV_TIME] = 1;
+        value_tranform_hints[EUPHORIA_PITCH_ENV_TIME] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
         /*Parameters for LFO Freq*/        
 	port_descriptors[EUPHORIA_LFO_FREQ] = port_descriptors[EUPHORIA_ATTACK];
@@ -1606,6 +1634,8 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_LFO_FREQ].LowerBound = 10; 
 	port_range_hints[EUPHORIA_LFO_FREQ].UpperBound = 1600;
+        automatable[EUPHORIA_LFO_FREQ] = 1;
+        value_tranform_hints[EUPHORIA_LFO_FREQ] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
         /*Parameters for LFO Type*/        
 	port_descriptors[EUPHORIA_LFO_TYPE] = port_descriptors[EUPHORIA_ATTACK];
@@ -1623,6 +1653,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX0_KNOB0].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX0_KNOB0].UpperBound =  127;
+        automatable[EUPHORIA_FX0_KNOB0] = 1;
         
         	
 	port_descriptors[EUPHORIA_FX0_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1632,6 +1663,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX0_KNOB1].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX0_KNOB1].UpperBound =  127;
+        automatable[EUPHORIA_FX0_KNOB1] = 1;
         	
 	port_descriptors[EUPHORIA_FX0_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX0_KNOB2] = "FX0 Knob2";
@@ -1640,6 +1672,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX0_KNOB2].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX0_KNOB2].UpperBound =  127;
+        automatable[EUPHORIA_FX0_KNOB2] = 1;
         
 	port_descriptors[EUPHORIA_FX0_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX0_COMBOBOX] = "FX0 Type";
@@ -1657,6 +1690,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX1_KNOB0].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX1_KNOB0].UpperBound =  127;
+        automatable[EUPHORIA_FX1_KNOB0] = 1;
         
         	
 	port_descriptors[EUPHORIA_FX1_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
@@ -1666,6 +1700,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX1_KNOB1].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX1_KNOB1].UpperBound =  127;
+        automatable[EUPHORIA_FX1_KNOB1] = 1;
         	
 	port_descriptors[EUPHORIA_FX1_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX1_KNOB2] = "FX1 Knob2";
@@ -1674,6 +1709,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX1_KNOB2].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX1_KNOB2].UpperBound =  127;
+        automatable[EUPHORIA_FX1_KNOB2] = 1;
         
 	port_descriptors[EUPHORIA_FX1_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX1_COMBOBOX] = "FX1 Type";
@@ -1683,8 +1719,6 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 	port_range_hints[EUPHORIA_FX1_COMBOBOX].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX1_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
         
-        
-        
         port_descriptors[EUPHORIA_FX2_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX2_KNOB0] = "FX2 Knob0";
 	port_range_hints[EUPHORIA_FX2_KNOB0].HintDescriptor =
@@ -1692,7 +1726,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX2_KNOB0].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX2_KNOB0].UpperBound =  127;
-        
+        automatable[EUPHORIA_FX2_KNOB0] = 1;
         	
 	port_descriptors[EUPHORIA_FX2_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX2_KNOB1] = "FX2 Knob1";
@@ -1701,6 +1735,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX2_KNOB1].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX2_KNOB1].UpperBound =  127;
+        automatable[EUPHORIA_FX2_KNOB1] = 1;
         	
 	port_descriptors[EUPHORIA_FX2_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX2_KNOB2] = "FX2 Knob2";
@@ -1709,6 +1744,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX2_KNOB2].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX2_KNOB2].UpperBound =  127;
+        automatable[EUPHORIA_FX2_KNOB2] = 1;
         
 	port_descriptors[EUPHORIA_FX2_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX2_COMBOBOX] = "FX2 Type";
@@ -1716,8 +1752,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
                         LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX2_COMBOBOX].LowerBound =  0;
-	port_range_hints[EUPHORIA_FX2_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-        
+	port_range_hints[EUPHORIA_FX2_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;        
         	
 	port_descriptors[EUPHORIA_FX3_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX3_KNOB0] = "FX3 Knob0";
@@ -1726,7 +1761,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX3_KNOB0].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX3_KNOB0].UpperBound =  127;
-        
+        automatable[EUPHORIA_FX3_KNOB0] = 1;
         	
 	port_descriptors[EUPHORIA_FX3_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX3_KNOB1] = "FX3 Knob1";
@@ -1735,6 +1770,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX3_KNOB1].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX3_KNOB1].UpperBound =  127;
+        automatable[EUPHORIA_FX3_KNOB1] = 1;
         	
 	port_descriptors[EUPHORIA_FX3_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX3_KNOB2] = "FX3 Knob2";
@@ -1743,6 +1779,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_FX3_KNOB2].LowerBound =  0;
 	port_range_hints[EUPHORIA_FX3_KNOB2].UpperBound =  127;
+        automatable[EUPHORIA_FX3_KNOB2] = 1;
         
 	port_descriptors[EUPHORIA_FX3_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_FX3_COMBOBOX] = "FX3 Type";
@@ -1946,16 +1983,6 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 	port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100; port_range_hints[EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100;
         
-        //End from PolyFX mod matrix
-        
-	/*port_descriptors[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[LMS_GLOBAL_MIDI_OCTAVES_OFFSET] = "Global MIDI Offset(Octaves)";
-	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_INTEGER |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].LowerBound =  -3;
-	port_range_hints[LMS_GLOBAL_MIDI_OCTAVES_OFFSET].UpperBound =  3;
-        */
         port_descriptors[EUPHORIA_NOISE_TYPE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[EUPHORIA_NOISE_TYPE] = "Noise Type";
 	port_range_hints[EUPHORIA_NOISE_TYPE].HintDescriptor =
@@ -1965,14 +1992,13 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 	port_range_hints[EUPHORIA_NOISE_TYPE].UpperBound =  2;
         
         int f_i = EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN;
-        
+                
         while(f_i < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample Note";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;
-            
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;            
             f_i++;
         }
         
@@ -1981,8 +2007,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample Pitch Low";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;
-            
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;            
             f_i++;
         }
         
@@ -1991,8 +2016,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample Pitch High";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;
-            
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 120;            
             f_i++;
         }
         
@@ -2001,8 +2025,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample Volume";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-            port_range_hints[f_i].LowerBound = -50; port_range_hints[f_i].UpperBound = 36;
-            
+            port_range_hints[f_i].LowerBound = -50; port_range_hints[f_i].UpperBound = 36;            
             f_i++;
         }
 
@@ -2011,8 +2034,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample Start";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;
-            
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
             f_i++;
         }
         
@@ -2021,8 +2043,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample End";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;
-            
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
             f_i++;
         }
         
@@ -2031,8 +2052,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Velocity Sensitivity";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 20;
-            
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 20;            
             f_i++;
         }
         
@@ -2041,8 +2061,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Low Velocity";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;
-            
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
             f_i++;
         }
         
@@ -2051,18 +2070,16 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "High Velocity";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;
-            
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
             f_i++;
         }
-        //new
+        
         while(f_i < EUPHORIA_PITCH_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample Pitch";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-            port_range_hints[f_i].LowerBound = -36; port_range_hints[f_i].UpperBound = 36;
-            
+            port_range_hints[f_i].LowerBound = -36; port_range_hints[f_i].UpperBound = 36;            
             f_i++;
         }
         
@@ -2071,8 +2088,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Sample Tune";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-            port_range_hints[f_i].LowerBound = -100; port_range_hints[f_i].UpperBound = 100;
-            
+            port_range_hints[f_i].LowerBound = -100; port_range_hints[f_i].UpperBound = 100;            
             f_i++;
         }
         
@@ -2081,8 +2097,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Mode";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 3;
-            
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 3;            
             f_i++;
         }
         
@@ -2091,8 +2106,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Loop Start";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;
-            
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
             f_i++;
         }
         
@@ -2101,8 +2115,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
             port_names[f_i] = "Loop End";
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;
-            
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 10000;            
             f_i++;
         }
         
@@ -2115,156 +2128,196 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
             
             f_i++;
         }
-        
+        int f_group_num = 1;
         //MonoFX0
         while(f_i < EUPHORIA_MONO_FX0_KNOB0_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX0 Knob0";
+            port_names[f_i] =  (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX0 Knob0 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
             f_i++;
         }
-               
+        f_group_num = 1;
         while(f_i < EUPHORIA_MONO_FX0_KNOB1_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX0 Knob1";
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX0 Knob1 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
             f_i++;
         }
-               
+        f_group_num = 1;
         while(f_i < EUPHORIA_MONO_FX0_KNOB2_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX0 Knob2";
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX0 Knob2 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
             f_i++;
         }
-               
+        f_group_num = 1;
         while(f_i < EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX0 Combobox";
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX0 Combobox Group %i", f_group_num);
+            f_group_num++;
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
             f_i++;
         }
-        
-        
-        //MonoFX1
+        f_group_num = 1;
         while(f_i < EUPHORIA_MONO_FX1_KNOB0_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX1 Knob0";
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX1 Knob0 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
             f_i++;
         }
-               
+        f_group_num = 1;
         while(f_i < EUPHORIA_MONO_FX1_KNOB1_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX1 Knob1";
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX1 Knob1 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
             f_i++;
         }
-               
+        f_group_num = 1;
         while(f_i < EUPHORIA_MONO_FX1_KNOB2_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX1 Knob2";
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX1 Knob2 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
             f_i++;
         }
-               
+        f_group_num = 1;
         while(f_i < EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX1 Combobox";
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX1 Combobox Group %i", f_group_num);
+            f_group_num++;            
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
             f_i++;
         }
-        
-        //MonoFX2
+        f_group_num = 1;
         while(f_i < EUPHORIA_MONO_FX2_KNOB0_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX2 Knob0";
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX2 Knob0 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
             f_i++;
         }
-               
+        f_group_num = 1;
         while(f_i < EUPHORIA_MONO_FX2_KNOB1_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX2 Knob1";
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX2 Knob1 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
             f_i++;
         }
-               
+        f_group_num = 1;
         while(f_i < EUPHORIA_MONO_FX2_KNOB2_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX2 Knob2";
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX2 Knob2 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
             f_i++;
         }
-               
+        f_group_num = 1;
         while(f_i < EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX2 Combobox";
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX2 Combobox Group %i", f_group_num);
+            f_group_num++;
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
+            f_i++;
+        }
+        f_group_num = 1;
+        while(f_i < EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX3 Knob0 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+        f_group_num = 1;
+        while(f_i < EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX3 Knob1 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+        f_group_num = 1;
+        while(f_i < EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX3 Knob2 Group %i", f_group_num);
+            f_group_num++;
+            automatable[f_i] = 1;
+            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
+            f_i++;
+        }
+        f_group_num = 1;
+        while(f_i < EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MAX)
+        {
+            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+            port_names[f_i] = (char*)malloc(sizeof(char) * 32); 
+            sprintf(port_names[f_i], "Mono FX3 Combobox Group %i", f_group_num);
+            f_group_num++;            
             port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
             port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
             f_i++;
         }
         
-        //MonoFX3
-        while(f_i < EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MAX)
-        {
-            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX3 Knob0";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
-            f_i++;
-        }
-               
-        while(f_i < EUPHORIA_MONO_FX3_KNOB1_PORT_RANGE_MAX)
-        {
-            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX3 Knob1";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
-            f_i++;
-        }
-               
-        while(f_i < EUPHORIA_MONO_FX3_KNOB2_PORT_RANGE_MAX)
-        {
-            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX3 Knob2";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = 127;            
-            f_i++;
-        }
-               
-        while(f_i < EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MAX)
-        {
-            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-            port_names[f_i] = "Mono FX3 Combobox";
-            port_range_hints[f_i].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE | LADSPA_HINT_INTEGER;
-            port_range_hints[f_i].LowerBound = 0; port_range_hints[f_i].UpperBound = MULTIFX3KNOB_MAX_INDEX;            
-            f_i++;
-        }
-              
         while(f_i < EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MAX)
         {
             port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
