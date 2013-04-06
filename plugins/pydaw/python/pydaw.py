@@ -2774,6 +2774,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.setResizeAnchor(QtGui.QGraphicsView.AnchorViewCenter)
         self.cc_num = 1
         self.last_scale = 1.0
+        self.plugin_index = 0
 
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsScene.keyPressEvent(self.scene, a_event)
@@ -2805,7 +2806,7 @@ class automation_viewer(QtGui.QGraphicsView):
                 f_cc_val = 127
             elif f_cc_val < 0:
                 f_cc_val = 0
-            this_item_editor.add_cc(pydaw_cc(round(f_cc_start, 4), self.cc_num, f_cc_val))
+            this_item_editor.add_cc(pydaw_cc(round(f_cc_start, 4), self.plugin_index, self.cc_num, f_cc_val))
         else:
             f_cc_val = 1.0 - (((f_pos_y - global_automation_min_height) / global_automation_height) * 2.0)
             if f_cc_val > 1.0:
@@ -2913,8 +2914,9 @@ class automation_viewer(QtGui.QGraphicsView):
         #        self.scene.addItem(f_line)
         #        self.lines[i-1] = f_line
 
-    def set_cc_num(self, a_cc_num):
-        self.cc_num = a_cc_num
+    def set_cc_num(self, a_plugin_index, a_port_num):
+        self.plugin_index = int(a_plugin_index)
+        self.cc_num = a_port_num
         self.clear_drawn_items()
         self.draw_item()
 
@@ -2968,7 +2970,7 @@ class automation_viewer_widget:
     def set_cc_num(self, a_num):
         f_num = int(a_num)
         self.cc_spinbox.setValue(f_num)
-        self.automation_viewer.set_cc_num(f_num)
+        self.automation_viewer.set_cc_num(self.plugin_combobox.currentIndex(), f_num)
 
     def ccs_in_use_combobox_changed(self, a_val=None):
         if not self.suppress_ccs_in_use:
@@ -2987,7 +2989,7 @@ class automation_viewer_widget:
 
     def smooth_pressed(self):
         if self.is_cc:
-            pydaw_smooth_automation_points(this_item_editor.items, self.is_cc, self.cc_spinbox.value())
+            pydaw_smooth_automation_points(this_item_editor.items, self.is_cc, self.plugin_combobox.currentIndex(), self.cc_spinbox.value())
         else:
             pydaw_smooth_automation_points(this_item_editor.items, self.is_cc)
         global_save_and_reload_items()
@@ -3083,6 +3085,7 @@ def global_open_items(a_items=None):
     this_item_editor.open_item_list()
 
 def global_save_and_reload_items():
+    assert(len(this_item_editor.item_names) == len(this_item_editor.items))
     for f_i in range(len(this_item_editor.item_names)):
         this_pydaw_project.save_item(this_item_editor.item_names[f_i], this_item_editor.items[f_i])
     global_open_items()

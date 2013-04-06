@@ -868,7 +868,7 @@ def pydaw_draw_multi_item_cc_line(a_cc_num, a_start_val, a_end_val, a_items=[]):
             f_cc_val += f_cc_inc
             i2 += f_inc
 
-def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
+def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc_num=-1):
     if a_is_cc:
         f_this_cc_arr = []
         f_beat_offset = 0.0
@@ -878,7 +878,7 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
         for f_item in a_items_list:
             for f_cc in f_item.ccs:
                 if f_cc.cc_num == f_cc_num:
-                    f_new_cc = pydaw_cc((f_cc.start + f_beat_offset), f_cc_num, f_cc.cc_val)
+                    f_new_cc = pydaw_cc((f_cc.start + f_beat_offset), a_plugin_index, f_cc_num, f_cc.cc_val)
                     f_new_cc.item_index = f_index
                     f_new_cc.beat_offset = f_beat_offset
                     f_this_cc_arr.append(f_new_cc)
@@ -903,7 +903,7 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_cc_num=-1):
                 while f_adjusted_start >= 4.0:
                     f_index_offset += 1
                     f_adjusted_start -= 4.0
-                f_interpolated_cc = pydaw_cc(round((f_adjusted_start), 4), f_cc_num, round(f_new_val, 4))
+                f_interpolated_cc = pydaw_cc(round((f_adjusted_start), 4), a_plugin_index, f_cc_num, round(f_new_val, 4))
                 f_new_val += f_inc
                 f_result_arr[f_this_cc_arr[i].item_index + f_index_offset].append(f_interpolated_cc)
                 f_start += f_time_inc
@@ -1452,9 +1452,10 @@ class pydaw_cc:
     def __lt__(self, other):
         return self.start < other.start
 
-    def __init__(self, a_start, a_cc_num, a_cc_val):
+    def __init__(self, a_start, a_plugin_index, a_port_num, a_cc_val):
         self.start = float(a_start)
-        self.cc_num = int(a_cc_num)
+        self.plugin_index = int(a_plugin_index)
+        self.cc_num = int(a_port_num) #This is really port_num, I'll rename later...
         self.cc_val = float(a_cc_val)
 
     def set_val(self, a_val):
@@ -1466,11 +1467,11 @@ class pydaw_cc:
         self.cc_val = f_val
 
     def __str__(self):
-        return "c|" + str(self.start) + "|" + str(self.cc_num) + "|" + str(self.cc_val) + "\n"
+        return "c|" + str(self.start) + "|" + str(self.plugin_index) + "|" + str(self.cc_num) + "|" + str(self.cc_val) + "\n"
 
     @staticmethod
     def from_arr(a_arr):
-        f_result = pydaw_cc(a_arr[1], a_arr[2], a_arr[3])
+        f_result = pydaw_cc(a_arr[1], a_arr[2], a_arr[3], a_arr[4])
         return f_result
 
     @staticmethod
