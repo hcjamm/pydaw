@@ -1,4 +1,4 @@
-*.pymap
+tools/debugger/*.pymap
 tools/debugger/profile.txt
 *.project
 *.cproject
