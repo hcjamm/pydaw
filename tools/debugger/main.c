@@ -1,10 +1,6 @@
 /* 
  * File:   main.c
- * Author: Jeff Hubbard
- * 
- * 
- *
- * Created on March 12, 2012, 7:46 PM
+ * Author: Jeff Hubbard 
  */
 
 #include <stdio.h>
@@ -20,8 +16,43 @@
 //#define DEBUGGER_SIMULATE_RECORD  //currently requires an existing ~/pydaw3/default-project to work without crashing...
 #define DEBUGGER_SAMPLE_COUNT 512
 
+
+void v_print_plugin_controller_maps()
+{
+    const LADSPA_Descriptor * f_wayv = wayv_ladspa_descriptor(0);
+    const LADSPA_Descriptor * f_rayv = wayv_ladspa_descriptor(0);
+    const LADSPA_Descriptor * f_euphoria = euphoria_ladspa_descriptor(0);
+    const LADSPA_Descriptor * f_modulex = modulex_ladspa_descriptor(0);
+    
+    char f_file_names[4][32] = {"wayv.pymap", "rayv.pymap", "euphoria.pymap", "modulex.pymap"};
+    const LADSPA_Descriptor * f_desc[] = {f_wayv, f_rayv, f_euphoria, f_modulex};
+    
+    int f_i = 0;
+    char f_line_buffer[1024] = "\0";
+    while(f_i < 4)
+    {        
+        char f_buffer[1000000] = "\0";
+        int f_i2 = 0;
+        while(f_i2 < f_desc[f_i]->PortCount)
+        {
+            if(f_desc[f_i]->Automatable[f_i2])
+            {
+                sprintf(f_line_buffer, "%s|%i|%i|%f|%f\n", f_desc[f_i]->PortNames[f_i2], f_i2, f_desc[f_i]->ValueTransformHint[f_i2],
+                        f_desc[f_i]->PortRangeHints[f_i2].LowerBound, f_desc[f_i]->PortRangeHints[f_i2].UpperBound);
+                strcat(f_buffer, f_line_buffer);
+            }
+            f_i2++;
+        }
+        FILE * f_file = fopen(f_file_names[f_i], "w");
+        fprintf(f_file, "%s", f_buffer);
+        fclose(f_file);
+        f_i++;
+    }
+}
+
 int main(int argc, char** argv) 
 {
+    v_print_plugin_controller_maps();
     v_pydaw_constructor();
 
     const LADSPA_Descriptor * f_ldesc = ladspa_descriptor(0);

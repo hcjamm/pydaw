@@ -695,6 +695,8 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
     char **port_names;
     LADSPA_PortDescriptor *port_descriptors;
     LADSPA_PortRangeHint *port_range_hints;
+    int * automatable;
+    int * value_tranform_hints;
 
     LMSLDescriptor =
 	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
@@ -721,6 +723,12 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
 
 	port_names = (char **) calloc(LMSLDescriptor->PortCount, sizeof(char *));
 	LMSLDescriptor->PortNames = (const char **) port_names;
+        
+        automatable = (int*)calloc(LMSLDescriptor->PortCount, sizeof(int));
+        LMSLDescriptor->Automatable = automatable;
+        
+        value_tranform_hints = (int*)calloc(LMSLDescriptor->PortCount, sizeof(int));
+        LMSLDescriptor->ValueTransformHint = value_tranform_hints;
 
 	/* Parameters for output */
 	port_descriptors[WAYV_OUTPUT0] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
@@ -731,515 +739,383 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
 	port_names[WAYV_OUTPUT1] = "Output 1";
 	port_range_hints[WAYV_OUTPUT1].HintDescriptor = 0;
         
-        /*Define the LADSPA ports for the plugin in the class constructor*/
-        
-	/* Parameters for attack */
 	port_descriptors[WAYV_ATTACK_MAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_ATTACK_MAIN] = "Attack time (s)";
-	port_range_hints[WAYV_ATTACK_MAIN].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_ATTACK_MAIN].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ATTACK_MAIN].LowerBound = 10.0f; 
 	port_range_hints[WAYV_ATTACK_MAIN].UpperBound = 100.0f; 
+        automatable[WAYV_ATTACK_MAIN] = 1;
+        value_tranform_hints[WAYV_ATTACK_MAIN] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	/* Parameters for decay */
 	port_descriptors[WAYV_DECAY_MAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_DECAY_MAIN] = "Decay time (s)";
-	port_range_hints[WAYV_DECAY_MAIN].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-			
+	port_range_hints[WAYV_DECAY_MAIN].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;			
 	port_range_hints[WAYV_DECAY_MAIN].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY_MAIN].UpperBound = 100.0f; 
+        automatable[WAYV_DECAY_MAIN] = 1;
+        value_tranform_hints[WAYV_DECAY_MAIN] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	/* Parameters for sustain */
 	port_descriptors[WAYV_SUSTAIN_MAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_SUSTAIN_MAIN] = "Sustain level (%)";
-	port_range_hints[WAYV_SUSTAIN_MAIN].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_SUSTAIN_MAIN].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_SUSTAIN_MAIN].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN_MAIN].UpperBound = 0.0f;
+        automatable[WAYV_SUSTAIN_MAIN] = 1;
 
-	/* Parameters for release */
 	port_descriptors[WAYV_RELEASE_MAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_RELEASE_MAIN] = "Release time (s)";
-	port_range_hints[WAYV_RELEASE_MAIN].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW | 
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_RELEASE_MAIN].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_RELEASE_MAIN].LowerBound = 10.0f; 
-	port_range_hints[WAYV_RELEASE_MAIN].UpperBound = 200.0f; 
+	port_range_hints[WAYV_RELEASE_MAIN].UpperBound = 200.0f;
+        automatable[WAYV_RELEASE_MAIN] = 1;
+        value_tranform_hints[WAYV_RELEASE_MAIN] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-        
-        
-	/* Parameters for attack */
 	port_descriptors[WAYV_ATTACK1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_ATTACK1] = "Attack time (s)";
-	port_range_hints[WAYV_ATTACK1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_ATTACK1].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ATTACK1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_ATTACK1].UpperBound = 100.0f; 
+        automatable[WAYV_ATTACK1] = 1;
+        value_tranform_hints[WAYV_ATTACK1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	/* Parameters for decay */
 	port_descriptors[WAYV_DECAY1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_DECAY1] = "Decay time (s)";
-	port_range_hints[WAYV_DECAY1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-			
+	port_range_hints[WAYV_DECAY1].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;			
 	port_range_hints[WAYV_DECAY1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY1].UpperBound = 100.0f; 
+        automatable[WAYV_DECAY1] = 1;
+        value_tranform_hints[WAYV_DECAY1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	/* Parameters for sustain */
 	port_descriptors[WAYV_SUSTAIN1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_SUSTAIN1] = "Sustain level (%)";
-	port_range_hints[WAYV_SUSTAIN1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_SUSTAIN1].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_SUSTAIN1].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN1].UpperBound = 0.0f;
+        automatable[WAYV_SUSTAIN1] = 1;
 
-	/* Parameters for release */
 	port_descriptors[WAYV_RELEASE1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_RELEASE1] = "Release time (s)";
-	port_range_hints[WAYV_RELEASE1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW | 
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_RELEASE1].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_RELEASE1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE1].UpperBound = 200.0f; 
-        
-        
-        
-        
-	/* Parameters for attack */
+        automatable[WAYV_RELEASE1] = 1;
+        value_tranform_hints[WAYV_RELEASE1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
+                
 	port_descriptors[WAYV_ATTACK2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_ATTACK2] = "Attack time (s)";
-	port_range_hints[WAYV_ATTACK2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_ATTACK2].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ATTACK2].LowerBound = 10.0f; 
 	port_range_hints[WAYV_ATTACK2].UpperBound = 100.0f; 
+        automatable[WAYV_ATTACK2] = 1;
+        value_tranform_hints[WAYV_ATTACK2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	/* Parameters for decay */
 	port_descriptors[WAYV_DECAY2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_DECAY2] = "Decay time (s)";
-	port_range_hints[WAYV_DECAY2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-			
+	port_range_hints[WAYV_DECAY2].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;			
 	port_range_hints[WAYV_DECAY2].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY2].UpperBound = 100.0f; 
+        automatable[WAYV_DECAY2] = 1;
+        value_tranform_hints[WAYV_DECAY2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	/* Parameters for sustain */
 	port_descriptors[WAYV_SUSTAIN2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_SUSTAIN2] = "Sustain level (%)";
-	port_range_hints[WAYV_SUSTAIN2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_SUSTAIN2].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_SUSTAIN2].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN2].UpperBound = 0.0f;
+        automatable[WAYV_SUSTAIN2] = 1;
 
-	/* Parameters for release */
 	port_descriptors[WAYV_RELEASE2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_RELEASE2] = "Release time (s)";
-	port_range_hints[WAYV_RELEASE2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW | 
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_RELEASE2].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_RELEASE2].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE2].UpperBound = 200.0f; 
+        automatable[WAYV_RELEASE2] = 1;
+        value_tranform_hints[WAYV_RELEASE2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
-        
-        
-        /*Parameters for noise_amp*/        
 	port_descriptors[WAYV_NOISE_AMP] = port_descriptors[WAYV_ATTACK_MAIN];
-	port_names[WAYV_NOISE_AMP] = "Dist";
-	port_range_hints[WAYV_NOISE_AMP].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_names[WAYV_NOISE_AMP] = "Noise Amp";
+	port_range_hints[WAYV_NOISE_AMP].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_NOISE_AMP].LowerBound =  -60.0f;
 	port_range_hints[WAYV_NOISE_AMP].UpperBound =  0.0f;
-                
+        automatable[WAYV_NOISE_AMP] = 1;        
         
-        /*Parameters for osc1type*/        
 	port_descriptors[WAYV_OSC1_TYPE] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC1_TYPE] = "Osc 1 Type";
-	port_range_hints[WAYV_OSC1_TYPE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_1 |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC1_TYPE].HintDescriptor = LADSPA_HINT_DEFAULT_1 | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_TYPE].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC1_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
         
-        
-        /*Parameters for osc1pitch*/        
 	port_descriptors[WAYV_OSC1_PITCH] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC1_PITCH] = "Osc 1 Pitch";
-	port_range_hints[WAYV_OSC1_PITCH].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC1_PITCH].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_PITCH].LowerBound =  -12.0f;
 	port_range_hints[WAYV_OSC1_PITCH].UpperBound =  12.0f;
         
-        
-        /*Parameters for osc1tune*/        
 	port_descriptors[WAYV_OSC1_TUNE] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC1_TUNE] = "Osc 1 Tune";
-	port_range_hints[WAYV_OSC1_TUNE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC1_TUNE].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_TUNE].LowerBound = -100.0f;
 	port_range_hints[WAYV_OSC1_TUNE].UpperBound =  100.0f;
         
-        
-        /*Parameters for osc1vol*/        
 	port_descriptors[WAYV_OSC1_VOLUME] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC1_VOLUME] = "Osc 1 Vol";
-	port_range_hints[WAYV_OSC1_VOLUME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC1_VOLUME].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_VOLUME].LowerBound =  -30.0f;
 	port_range_hints[WAYV_OSC1_VOLUME].UpperBound =  0.0f;
         
-        
-        
-        /*Parameters for osc2type*/        
 	port_descriptors[WAYV_OSC2_TYPE] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC2_TYPE] = "Osc 2 Type";
-	port_range_hints[WAYV_OSC2_TYPE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC2_TYPE].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_TYPE].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_TYPE].UpperBound =  (float)WT_TOTAL_WAVETABLE_COUNT;
         
-        
-        /*Parameters for osc2pitch*/        
 	port_descriptors[WAYV_OSC2_PITCH] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC2_PITCH] = "Osc 2 Pitch";
-	port_range_hints[WAYV_OSC2_PITCH].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC2_PITCH].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_PITCH].LowerBound =  -12.0f;
 	port_range_hints[WAYV_OSC2_PITCH].UpperBound =  12.0f;
         
-        
-        /*Parameters for osc2tune*/        
 	port_descriptors[WAYV_OSC2_TUNE] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC2_TUNE] = "Osc 2 Tune";
-	port_range_hints[WAYV_OSC2_TUNE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC2_TUNE].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_TUNE].LowerBound = -100.0f;
 	port_range_hints[WAYV_OSC2_TUNE].UpperBound = 100.0f; 
         
-        
-        /*Parameters for osc2vol*/        
 	port_descriptors[WAYV_OSC2_VOLUME] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC2_VOLUME] = "Osc 2 Vol";
-	port_range_hints[WAYV_OSC2_VOLUME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW |  LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC2_VOLUME].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW |  LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_VOLUME].LowerBound =  -30.0f;
 	port_range_hints[WAYV_OSC2_VOLUME].UpperBound =  0.0f;
         
-        
-        /*Parameters for master vol*/        
 	port_descriptors[WAYV_MASTER_VOLUME] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_MASTER_VOLUME] = "Master Vol";
-	port_range_hints[WAYV_MASTER_VOLUME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_MASTER_VOLUME].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_MASTER_VOLUME].LowerBound =  -30.0f;
 	port_range_hints[WAYV_MASTER_VOLUME].UpperBound =  12.0f;
         
-        
-        
-        /*Parameters for master unison voices*/        
 	port_descriptors[WAYV_OSC1_UNISON_VOICES] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC1_UNISON_VOICES] = "Master Unison";
-	port_range_hints[WAYV_OSC1_UNISON_VOICES].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC1_UNISON_VOICES].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[WAYV_OSC1_UNISON_VOICES].UpperBound =  7.0f;
         
-        
-        /*Parameters for master unison spread*/        
 	port_descriptors[WAYV_OSC1_UNISON_SPREAD] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC1_UNISON_SPREAD] = "Master Unison Spread";
-	port_range_hints[WAYV_OSC1_UNISON_SPREAD].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC1_UNISON_SPREAD].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_UNISON_SPREAD].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC1_UNISON_SPREAD].UpperBound =  100.0f;
         
-        
-        /*Parameters for master glide*/        
 	port_descriptors[WAYV_MASTER_GLIDE] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_MASTER_GLIDE] = "Master Glide";
-	port_range_hints[WAYV_MASTER_GLIDE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_MASTER_GLIDE].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_MASTER_GLIDE].LowerBound =  0.0f;
 	port_range_hints[WAYV_MASTER_GLIDE].UpperBound =  200.0f;
+        automatable[WAYV_MASTER_GLIDE] = 1;
+        value_tranform_hints[WAYV_MASTER_GLIDE] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
-        
-        /*Parameters for master pitchbend amt*/        
 	port_descriptors[WAYV_MASTER_PITCHBEND_AMT] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_MASTER_PITCHBEND_AMT] = "Pitchbend Amt";
-	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].LowerBound =  1.0f;
 	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].UpperBound =  36.0f;
-                        
         
-        /* Parameters for attack */
 	port_descriptors[WAYV_ATTACK_PFX1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_ATTACK_PFX1] = "Attack time (s)";
-	port_range_hints[WAYV_ATTACK_PFX1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_ATTACK_PFX1].LowerBound = 10; 
-	port_range_hints[WAYV_ATTACK_PFX1].UpperBound = 100; 
+	port_range_hints[WAYV_ATTACK_PFX1].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_ATTACK_PFX1].LowerBound = 10.0f; 
+	port_range_hints[WAYV_ATTACK_PFX1].UpperBound = 100.0f; 
+        automatable[WAYV_ATTACK_PFX1] = 1;
+        value_tranform_hints[WAYV_ATTACK_PFX1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	/* Parameters for decay */
 	port_descriptors[WAYV_DECAY_PFX1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_DECAY_PFX1] = "Decay time (s)";
-	port_range_hints[WAYV_DECAY_PFX1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_DECAY_PFX1].LowerBound = 10; 
-	port_range_hints[WAYV_DECAY_PFX1].UpperBound = 100; 
+	port_range_hints[WAYV_DECAY_PFX1].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_DECAY_PFX1].LowerBound = 10.0f; 
+	port_range_hints[WAYV_DECAY_PFX1].UpperBound = 100.0f; 
+        automatable[WAYV_DECAY_PFX1] = 1;
+        value_tranform_hints[WAYV_DECAY_PFX1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	/* Parameters for sustain */
 	port_descriptors[WAYV_SUSTAIN_PFX1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_SUSTAIN_PFX1] = "Sustain level (%)";
-	port_range_hints[WAYV_SUSTAIN_PFX1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_SUSTAIN_PFX1].LowerBound = -60;
-	port_range_hints[WAYV_SUSTAIN_PFX1].UpperBound = 0;
+	port_range_hints[WAYV_SUSTAIN_PFX1].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_SUSTAIN_PFX1].LowerBound = -60.0f;
+	port_range_hints[WAYV_SUSTAIN_PFX1].UpperBound = 0.0f;
+        automatable[WAYV_SUSTAIN_PFX1] = 1;
 
-	/* Parameters for release */
 	port_descriptors[WAYV_RELEASE_PFX1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_RELEASE_PFX1] = "Release time (s)";
-	port_range_hints[WAYV_RELEASE_PFX1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW | 
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_RELEASE_PFX1].LowerBound = 10; 
-	port_range_hints[WAYV_RELEASE_PFX1].UpperBound = 200; 
-                
-	/* Parameters for attack_f */
+	port_range_hints[WAYV_RELEASE_PFX1].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_RELEASE_PFX1].LowerBound = 10.0f; 
+	port_range_hints[WAYV_RELEASE_PFX1].UpperBound = 200.0f; 
+        automatable[WAYV_RELEASE_PFX1] = 1;
+        value_tranform_hints[WAYV_RELEASE_PFX1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
+        
 	port_descriptors[WAYV_ATTACK_PFX2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_ATTACK_PFX2] = "Attack time (s) filter";
-	port_range_hints[WAYV_ATTACK_PFX2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_ATTACK_PFX2].LowerBound = 10; 
-	port_range_hints[WAYV_ATTACK_PFX2].UpperBound = 100; 
+	port_range_hints[WAYV_ATTACK_PFX2].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_ATTACK_PFX2].LowerBound = 10.0f; 
+	port_range_hints[WAYV_ATTACK_PFX2].UpperBound = 100.0f; 
+        automatable[WAYV_ATTACK_PFX2] = 1;
+        value_tranform_hints[WAYV_ATTACK_PFX2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	/* Parameters for decay_f */
 	port_descriptors[WAYV_DECAY_PFX2] = port_descriptors[WAYV_ATTACK_PFX1];
 	port_names[WAYV_DECAY_PFX2] = "Decay time (s) filter";
-	port_range_hints[WAYV_DECAY_PFX2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_DECAY_PFX2].LowerBound = 10;
-	port_range_hints[WAYV_DECAY_PFX2].UpperBound = 100;
+	port_range_hints[WAYV_DECAY_PFX2].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_DECAY_PFX2].LowerBound = 10.0f;
+	port_range_hints[WAYV_DECAY_PFX2].UpperBound = 100.0f;
 
-	/* Parameters for sustain_f */
 	port_descriptors[WAYV_SUSTAIN_PFX2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_SUSTAIN_PFX2] = "Sustain level (%) filter";
-	port_range_hints[WAYV_SUSTAIN_PFX2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_HIGH |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_SUSTAIN_PFX2].LowerBound = 0; 
-	port_range_hints[WAYV_SUSTAIN_PFX2].UpperBound = 100; 
+	port_range_hints[WAYV_SUSTAIN_PFX2].HintDescriptor = LADSPA_HINT_DEFAULT_HIGH | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_SUSTAIN_PFX2].LowerBound = 0.0f; 
+	port_range_hints[WAYV_SUSTAIN_PFX2].UpperBound = 100.0f; 
+        automatable[WAYV_SUSTAIN_PFX2] = 1;
+        value_tranform_hints[WAYV_SUSTAIN_PFX2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
-	/* Parameters for release_f */
 	port_descriptors[WAYV_RELEASE_PFX2] = port_descriptors[WAYV_ATTACK_PFX1];
 	port_names[WAYV_RELEASE_PFX2] = "Release time (s) filter";
-	port_range_hints[WAYV_RELEASE_PFX2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW  |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_RELEASE_PFX2].LowerBound = 10; 
-	port_range_hints[WAYV_RELEASE_PFX2].UpperBound = 200; 
+	port_range_hints[WAYV_RELEASE_PFX2].HintDescriptor = LADSPA_HINT_DEFAULT_LOW  | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_RELEASE_PFX2].LowerBound = 10.0f; 
+	port_range_hints[WAYV_RELEASE_PFX2].UpperBound = 200.0f; 
+        automatable[WAYV_RELEASE_PFX2] = 1;
+        value_tranform_hints[WAYV_RELEASE_PFX2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-        
-        /*Parameters for noise_amp*/        
 	port_descriptors[WAYV_NOISE_AMP] = port_descriptors[WAYV_ATTACK_PFX1];
 	port_names[WAYV_NOISE_AMP] = "Noise Amp";
-	port_range_hints[WAYV_NOISE_AMP].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_NOISE_AMP].LowerBound =  -60;
-	port_range_hints[WAYV_NOISE_AMP].UpperBound =  0;
-                
+	port_range_hints[WAYV_NOISE_AMP].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_NOISE_AMP].LowerBound =  -60.0f;
+	port_range_hints[WAYV_NOISE_AMP].UpperBound =  0.0f;
+        automatable[WAYV_NOISE_AMP] = 1;
         
-        /*Parameters for pitch env time*/        
 	port_descriptors[WAYV_RAMP_ENV_TIME] = port_descriptors[WAYV_ATTACK_PFX1];
 	port_names[WAYV_RAMP_ENV_TIME] = "Pitch Env Time";
-	port_range_hints[WAYV_RAMP_ENV_TIME].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_RAMP_ENV_TIME].LowerBound = 0; 
-	port_range_hints[WAYV_RAMP_ENV_TIME].UpperBound = 200;
+	port_range_hints[WAYV_RAMP_ENV_TIME].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_RAMP_ENV_TIME].LowerBound = 0.0f; 
+	port_range_hints[WAYV_RAMP_ENV_TIME].UpperBound = 200.0f;
+        automatable[WAYV_RAMP_ENV_TIME] = 1;
+        value_tranform_hints[WAYV_RAMP_ENV_TIME] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
-        /*Parameters for LFO Freq*/        
 	port_descriptors[WAYV_LFO_FREQ] = port_descriptors[WAYV_ATTACK_PFX1];
 	port_names[WAYV_LFO_FREQ] = "LFO Freq";
-	port_range_hints[WAYV_LFO_FREQ].HintDescriptor =
-			LADSPA_HINT_DEFAULT_LOW |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_LFO_FREQ].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_LFO_FREQ].LowerBound = 10; 
 	port_range_hints[WAYV_LFO_FREQ].UpperBound = 1600;
+        automatable[WAYV_LFO_FREQ] = 1;
+        value_tranform_hints[WAYV_LFO_FREQ] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
-        /*Parameters for LFO Type*/        
 	port_descriptors[WAYV_LFO_TYPE] = port_descriptors[WAYV_ATTACK_PFX1];
 	port_names[WAYV_LFO_TYPE] = "LFO Type";
-	port_range_hints[WAYV_LFO_TYPE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_LFO_TYPE].LowerBound = 0; 
-	port_range_hints[WAYV_LFO_TYPE].UpperBound = 2;
+	port_range_hints[WAYV_LFO_TYPE].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_LFO_TYPE].LowerBound = 0.0f; 
+	port_range_hints[WAYV_LFO_TYPE].UpperBound = 2.0f;
         
         port_descriptors[WAYV_FX0_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX0_KNOB0] = "FX0 Knob0";
-	port_range_hints[WAYV_FX0_KNOB0].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX0_KNOB0].LowerBound =  0;
-	port_range_hints[WAYV_FX0_KNOB0].UpperBound =  127;
+	port_range_hints[WAYV_FX0_KNOB0].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX0_KNOB0].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX0_KNOB0].UpperBound =  127.0f;
+        automatable[WAYV_FX0_KNOB0] = 1;        
         
-        	
 	port_descriptors[WAYV_FX0_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX0_KNOB1] = "FX0 Knob1";
-	port_range_hints[WAYV_FX0_KNOB1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX0_KNOB1].LowerBound =  0;
-	port_range_hints[WAYV_FX0_KNOB1].UpperBound =  127;
+	port_range_hints[WAYV_FX0_KNOB1].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX0_KNOB1].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX0_KNOB1].UpperBound =  127.0f;
+        automatable[WAYV_FX0_KNOB1] = 1;
         	
 	port_descriptors[WAYV_FX0_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX0_KNOB2] = "FX0 Knob2";
-	port_range_hints[WAYV_FX0_KNOB2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX0_KNOB2].LowerBound =  0;
-	port_range_hints[WAYV_FX0_KNOB2].UpperBound =  127;
+	port_range_hints[WAYV_FX0_KNOB2].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX0_KNOB2].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX0_KNOB2].UpperBound =  127.0f;
+        automatable[WAYV_FX0_KNOB2] = 1;
         
 	port_descriptors[WAYV_FX0_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX0_COMBOBOX] = "FX0 Type";
-	port_range_hints[WAYV_FX0_COMBOBOX].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX0_COMBOBOX].LowerBound =  0;
-	port_range_hints[WAYV_FX0_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-        
+	port_range_hints[WAYV_FX0_COMBOBOX].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX0_COMBOBOX].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX0_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;        
         	
 	port_descriptors[WAYV_FX1_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX1_KNOB0] = "FX1 Knob0";
-	port_range_hints[WAYV_FX1_KNOB0].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX1_KNOB0].LowerBound =  0;
-	port_range_hints[WAYV_FX1_KNOB0].UpperBound =  127;
-        
+	port_range_hints[WAYV_FX1_KNOB0].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX1_KNOB0].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX1_KNOB0].UpperBound =  127.0f;
+        automatable[WAYV_FX1_KNOB0] = 1;
         	
 	port_descriptors[WAYV_FX1_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX1_KNOB1] = "FX1 Knob1";
-	port_range_hints[WAYV_FX1_KNOB1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX1_KNOB1].LowerBound =  0;
-	port_range_hints[WAYV_FX1_KNOB1].UpperBound =  127;
+	port_range_hints[WAYV_FX1_KNOB1].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX1_KNOB1].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX1_KNOB1].UpperBound =  127.0f;
+        automatable[WAYV_FX1_KNOB1] = 1;
         	
 	port_descriptors[WAYV_FX1_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX1_KNOB2] = "FX1 Knob2";
-	port_range_hints[WAYV_FX1_KNOB2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX1_KNOB2].LowerBound =  0;
-	port_range_hints[WAYV_FX1_KNOB2].UpperBound =  127;
+	port_range_hints[WAYV_FX1_KNOB2].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX1_KNOB2].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX1_KNOB2].UpperBound =  127.0f;
+        automatable[WAYV_FX1_KNOB2] = 1;
         
 	port_descriptors[WAYV_FX1_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX1_COMBOBOX] = "FX1 Type";
-	port_range_hints[WAYV_FX1_COMBOBOX].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX1_COMBOBOX].LowerBound =  0;
+	port_range_hints[WAYV_FX1_COMBOBOX].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX1_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX1_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-        
-        
-        
+                
         port_descriptors[WAYV_FX2_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX2_KNOB0] = "FX2 Knob0";
-	port_range_hints[WAYV_FX2_KNOB0].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX2_KNOB0].LowerBound =  0;
-	port_range_hints[WAYV_FX2_KNOB0].UpperBound =  127;
-        
+	port_range_hints[WAYV_FX2_KNOB0].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX2_KNOB0].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX2_KNOB0].UpperBound =  127.0f;        
+        automatable[WAYV_FX2_KNOB0] = 1;
         	
 	port_descriptors[WAYV_FX2_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX2_KNOB1] = "FX2 Knob1";
-	port_range_hints[WAYV_FX2_KNOB1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX2_KNOB1].LowerBound =  0;
-	port_range_hints[WAYV_FX2_KNOB1].UpperBound =  127;
+	port_range_hints[WAYV_FX2_KNOB1].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX2_KNOB1].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX2_KNOB1].UpperBound =  127.0f;
+        automatable[WAYV_FX2_KNOB1] = 1;
         	
 	port_descriptors[WAYV_FX2_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX2_KNOB2] = "FX2 Knob2";
-	port_range_hints[WAYV_FX2_KNOB2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX2_KNOB2].LowerBound =  0;
-	port_range_hints[WAYV_FX2_KNOB2].UpperBound =  127;
+	port_range_hints[WAYV_FX2_KNOB2].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX2_KNOB2].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX2_KNOB2].UpperBound =  127.0f;
+        automatable[WAYV_FX2_KNOB2] = 1;
         
 	port_descriptors[WAYV_FX2_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX2_COMBOBOX] = "FX2 Type";
-	port_range_hints[WAYV_FX2_COMBOBOX].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX2_COMBOBOX].LowerBound =  0;
-	port_range_hints[WAYV_FX2_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-        
+	port_range_hints[WAYV_FX2_COMBOBOX].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX2_COMBOBOX].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX2_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;        
         	
 	port_descriptors[WAYV_FX3_KNOB0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX3_KNOB0] = "FX3 Knob0";
-	port_range_hints[WAYV_FX3_KNOB0].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX3_KNOB0].LowerBound =  0;
-	port_range_hints[WAYV_FX3_KNOB0].UpperBound =  127;
-        
+	port_range_hints[WAYV_FX3_KNOB0].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX3_KNOB0].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX3_KNOB0].UpperBound =  127.0f;
+        automatable[WAYV_FX3_KNOB0] = 1;
         	
 	port_descriptors[WAYV_FX3_KNOB1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX3_KNOB1] = "FX3 Knob1";
-	port_range_hints[WAYV_FX3_KNOB1].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX3_KNOB1].LowerBound =  0;
-	port_range_hints[WAYV_FX3_KNOB1].UpperBound =  127;
+	port_range_hints[WAYV_FX3_KNOB1].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX3_KNOB1].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX3_KNOB1].UpperBound =  127.0f;
+        automatable[WAYV_FX3_KNOB1] = 1;
         	
 	port_descriptors[WAYV_FX3_KNOB2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX3_KNOB2] = "FX3 Knob2";
-	port_range_hints[WAYV_FX3_KNOB2].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX3_KNOB2].LowerBound =  0;
-	port_range_hints[WAYV_FX3_KNOB2].UpperBound =  127;
+	port_range_hints[WAYV_FX3_KNOB2].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX3_KNOB2].LowerBound =  0.0f;
+	port_range_hints[WAYV_FX3_KNOB2].UpperBound =  127.0f;
+        automatable[WAYV_FX3_KNOB2] = 1;
         
 	port_descriptors[WAYV_FX3_COMBOBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_FX3_COMBOBOX] = "FX3 Type";
-	port_range_hints[WAYV_FX3_COMBOBOX].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[WAYV_FX3_COMBOBOX].LowerBound =  0;
+	port_range_hints[WAYV_FX3_COMBOBOX].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_FX3_COMBOBOX].LowerBound =  0.0f;
 	port_range_hints[WAYV_FX3_COMBOBOX].UpperBound =  MULTIFX3KNOB_MAX_INDEX;
-        
-        //From PolyFX mod matrix
         
         port_descriptors[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; port_names[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0] = "LMS_PFXMATRIX_GRP0DST0SRC0CTRL0";
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -1432,89 +1308,65 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
 	port_descriptors[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL; port_names[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2] = "LMS_PFXMATRIX_GRP0DST3SRC3CTRL2";
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2].LowerBound =  -100; port_range_hints[WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2].UpperBound =  100;
-        
-        //End from PolyFX mod matrix
-        	
+                	
         port_descriptors[LMS_NOISE_TYPE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[LMS_NOISE_TYPE] = "Noise Type";
-	port_range_hints[LMS_NOISE_TYPE].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[LMS_NOISE_TYPE].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[LMS_NOISE_TYPE].LowerBound =  0;
 	port_range_hints[LMS_NOISE_TYPE].UpperBound =  2;
         
         port_descriptors[WAYV_ADSR1_CHECKBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_ADSR1_CHECKBOX] = "ADSR1 Checkbox";
-	port_range_hints[WAYV_ADSR1_CHECKBOX].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_ADSR1_CHECKBOX].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ADSR1_CHECKBOX].LowerBound =  0;
 	port_range_hints[WAYV_ADSR1_CHECKBOX].UpperBound =  1;
         
         port_descriptors[WAYV_ADSR2_CHECKBOX] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_ADSR2_CHECKBOX] = "ADSR2 Checkbox";
-	port_range_hints[WAYV_ADSR2_CHECKBOX].HintDescriptor =
-                        LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_ADSR2_CHECKBOX].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_INTEGER | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ADSR2_CHECKBOX].LowerBound =  0;
-	port_range_hints[WAYV_ADSR2_CHECKBOX].UpperBound =  1;
+	port_range_hints[WAYV_ADSR2_CHECKBOX].UpperBound =  1;        
         
-        
-        /*Parameters for LFO Amp*/
 	port_descriptors[WAYV_LFO_AMP] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_LFO_AMP] = "LFO Amp";
-	port_range_hints[WAYV_LFO_AMP].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_LFO_AMP].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_LFO_AMP].LowerBound = -24.0f;
 	port_range_hints[WAYV_LFO_AMP].UpperBound = 24.0f;
+        automatable[WAYV_LFO_AMP] = 1;
         
-        /*Parameters for LFO Pitch*/
 	port_descriptors[WAYV_LFO_PITCH] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_LFO_PITCH] = "LFO Pitch";
-	port_range_hints[WAYV_LFO_PITCH].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_LFO_PITCH].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_LFO_PITCH].LowerBound = -36.0f;
 	port_range_hints[WAYV_LFO_PITCH].UpperBound = 36.0f;
-        
-        
-        /*Parameters for pitch env amt*/        
+        automatable[WAYV_LFO_PITCH] = 1;
+                
 	port_descriptors[WAYV_PITCH_ENV_AMT] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_PITCH_ENV_AMT] = "Pitch Env Amt";
-	port_range_hints[WAYV_PITCH_ENV_AMT].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_PITCH_ENV_AMT].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_PITCH_ENV_AMT].LowerBound =  -36.0f;
 	port_range_hints[WAYV_PITCH_ENV_AMT].UpperBound =   36.0f;
-                
-        /*Parameters for master unison voices*/        
+        automatable[WAYV_PITCH_ENV_AMT] = 1;
+        
 	port_descriptors[WAYV_OSC2_UNISON_VOICES] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC2_UNISON_VOICES] = "Master Unison";
-	port_range_hints[WAYV_OSC2_UNISON_VOICES].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC2_UNISON_VOICES].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_UNISON_VOICES].LowerBound =  1.0f;
 	port_range_hints[WAYV_OSC2_UNISON_VOICES].UpperBound =  7.0f;
         
-        
-        /*Parameters for master unison spread*/        
 	port_descriptors[WAYV_OSC2_UNISON_SPREAD] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC2_UNISON_SPREAD] = "Master Unison Spread";
-	port_range_hints[WAYV_OSC2_UNISON_SPREAD].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MIDDLE |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_OSC2_UNISON_SPREAD].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_UNISON_SPREAD].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_UNISON_SPREAD].UpperBound =  100.0f;
         
-        /*Parameters for LFO Amount*/
 	port_descriptors[WAYV_LFO_AMOUNT] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_LFO_AMOUNT] = "LFO Amount";
-	port_range_hints[WAYV_LFO_AMOUNT].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[WAYV_LFO_AMOUNT].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_LFO_AMOUNT].LowerBound = 0.0f;
 	port_range_hints[WAYV_LFO_AMOUNT].UpperBound = 100.0f;
+        automatable[WAYV_LFO_AMOUNT] = 1;
+        value_tranform_hints[WAYV_LFO_AMOUNT] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
 	LMSLDescriptor->activate = v_wayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_wayv;
