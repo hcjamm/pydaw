@@ -2932,7 +2932,7 @@ class automation_viewer(QtGui.QGraphicsView):
         for f_item in this_item_editor.items:
             if self.is_cc:
                 for f_cc in f_item.ccs:
-                    if f_cc.cc_num == self.cc_num:
+                    if f_cc.cc_num == self.cc_num and f_cc.plugin_index == self.plugin_index:
                         self.draw_point(f_cc, f_item_index)
             else:
                 for f_pb in f_item.pitchbends:
@@ -2955,22 +2955,20 @@ class automation_viewer_widget:
     def plugin_changed(self, a_val=None):
         self.control_combobox.clear()
         self.control_combobox.addItems([""] + global_cc_names[str(self.plugin_combobox.currentText())])
+        self.automation_viewer.clear_drawn_items()  #TODO:  disable the viewer from editing...
 
     def control_changed(self, a_val=None):
         f_plugin_str = str(self.plugin_combobox.currentText())
         f_control_str = str(self.control_combobox.currentText())
         if f_plugin_str != '' and f_control_str != '':
-            f_value = pydaw_get_cc_num_from_name(f_plugin_str, f_control_str)
-            self.cc_spinbox.setValue(f_value)
+            self.set_cc_num()
             self.ccs_in_use_combobox.setCurrentIndex(0)
 
-    def cc_num_changed(self, a_val=None):
-        self.set_cc_num(self.cc_spinbox.value())
-
-    def set_cc_num(self, a_num):
-        f_num = int(a_num)
-        self.cc_spinbox.setValue(f_num)
-        self.automation_viewer.set_cc_num(self.plugin_combobox.currentIndex(), f_num)
+    def set_cc_num(self, a_val=None):
+        f_port_name = str(self.control_combobox.currentText())
+        if f_port_name != "":
+            f_num = global_cc_maps[str(self.plugin_combobox.currentText())][f_port_name].port
+            self.automation_viewer.set_cc_num(self.plugin_combobox.currentIndex(), f_num)
 
     def ccs_in_use_combobox_changed(self, a_val=None):
         if not self.suppress_ccs_in_use:
@@ -3005,19 +3003,14 @@ class automation_viewer_widget:
         self.vlayout.addLayout(self.hlayout)
 
         if a_is_cc:
-            self.cc_spinbox = QtGui.QSpinBox()
-            self.cc_spinbox.setRange(1, 127)
-            self.hlayout.addWidget(QtGui.QLabel("CC#:"))
-            self.hlayout.addWidget(self.cc_spinbox)
-            self.cc_spinbox.valueChanged.connect(self.cc_num_changed)
             self.plugin_combobox = QtGui.QComboBox()
             self.plugin_combobox.setMinimumWidth(120)
-            self.plugin_combobox.addItems(global_cc_names.keys())
+            self.plugin_combobox.addItems(global_plugin_names)
             self.hlayout.addWidget(QtGui.QLabel("Plugin"))
             self.hlayout.addWidget(self.plugin_combobox)
             self.plugin_combobox.currentIndexChanged.connect(self.plugin_changed)
             self.control_combobox = QtGui.QComboBox()
-            self.control_combobox.setMinimumWidth(180)
+            self.control_combobox.setMinimumWidth(240)
             self.hlayout.addWidget(QtGui.QLabel("Control"))
             self.hlayout.addWidget(self.control_combobox)
             self.control_combobox.currentIndexChanged.connect(self.control_changed)
@@ -5264,37 +5257,15 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_tabwidget.addTab(self.audio_edit_tab.widget, "Audio Item")
         self.main_tabwidget.addTab(self.audio_items_tab, "Song Level Audio")
 
-        #Begin CC Map tab
         self.cc_map_tab = QtGui.QWidget()
         self.cc_map_tab.setObjectName("ccmaptabwidget")
         f_cc_map_main_vlayout = QtGui.QVBoxLayout(self.cc_map_tab)
-        f_cc_map_label = QtGui.QLabel(
-        """Below you can edit the MIDI CC maps for PyDAW's plugins. All CCs are sent to both Ray-V/Euphoria/Way-V and Modulex,
-so the first 3 CC maps can overlap each other, but none of them should overlap with Modulex.
-You must restart PyDAW for changes to the CC maps to take effect.
-
-IMPORTANT:  Changing these will affect any existing CC automation you have in any projects.  The next major release
-of PyDAW will not have this limitation, and will feature MIDI learn and the ability to automate parameters by
-name instead of MIDI CC number""")
-        f_cc_map_label.setMaximumWidth(1200)
-        f_cc_map_main_vlayout.addWidget(f_cc_map_label)
         f_cc_map_hlayout = QtGui.QHBoxLayout()
         f_cc_map_main_vlayout.addLayout(f_cc_map_hlayout)
-        self.cc_map_rayv = pydaw_cc_map_editor(2)
-        f_cc_map_hlayout.addWidget(self.cc_map_rayv.groupbox)
-        self.cc_map_euphoria = pydaw_cc_map_editor(1)
-        f_cc_map_hlayout.addWidget(self.cc_map_euphoria.groupbox)
-        self.cc_map_wayv = pydaw_cc_map_editor(3)
-        f_cc_map_hlayout.addWidget(self.cc_map_wayv.groupbox)
-        self.cc_map_modulex = pydaw_cc_map_editor(-1)
-        f_cc_map_hlayout.addWidget(self.cc_map_modulex.groupbox)
-        #f_cc_map_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
-        self.cc_map_scrollarea = QtGui.QScrollArea()
-        self.cc_map_tab.setMinimumWidth(440 * 4)
-        self.cc_map_tab.setMinimumHeight(4100)
-        self.cc_map_scrollarea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.cc_map_scrollarea.setWidget(self.cc_map_tab)
-        self.main_tabwidget.addTab(self.cc_map_scrollarea, "CC Maps")
+        self.cc_map_table = pydaw_cc_map_editor()
+        f_cc_map_hlayout.addWidget(self.cc_map_table.groupbox)
+        f_cc_map_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        self.main_tabwidget.addTab(self.cc_map_tab, "CC Maps")
 
         self.show()
 
@@ -5311,12 +5282,36 @@ name instead of MIDI CC number""")
         else:
             event.accept()
 
+global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
 global_cc_names = {"Euphoria":[], "Way-V":[], "Ray-V":[], "Modulex":[]}
-global_cc_maps = {"Euphoria":[], "Way-V":[], "Ray-V":[], "Modulex":[]}
+global_cc_maps = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modulex":{}}
+
+class pydaw_controller_map_item:
+    def __init__(self, a_name, a_transform_hint, a_port, a_min, a_max):
+        self.name = str(a_name)
+        self.transform_hint = int(a_transform_hint)
+        self.port = int(a_port)
+        self.min = float(a_min)
+        self.max = float(a_max)
+
+def pydaw_load_controller_maps():
+    f_file_list = global_cc_names.keys()
+    for f_file_name in f_file_list:
+        try:
+            f_cc_map_text = pydaw_read_file_text("/usr/lib/" + global_pydaw_version_string + "/cc_maps/" + f_file_name + ".pymap")
+        except:
+            continue  #If we can't open the file, then just ignore
+        f_cc_map_arr = f_cc_map_text.split("\n")
+        for f_line in f_cc_map_arr:
+            if f_line == "":
+                break
+            f_line_arr = f_line.split("|")
+            f_map  = pydaw_controller_map_item(f_line_arr[0], f_line_arr[1], f_line_arr[2], f_line_arr[3], f_line_arr[4])
+            global_cc_maps[f_file_name][f_line_arr[0]] = f_map
+            global_cc_names[f_file_name].append(f_line_arr[0])
+        global_cc_names[f_file_name].sort()
 
 def pydaw_get_cc_num_from_name(a_plugin_name, a_control_name):
-    """ A workaround for the obnoxious dict bug where 2 similar but different input string keys
-    overwrite the same value"""
     f_result = 1
     f_list = global_cc_maps[str(a_plugin_name)]
     f_control_name = str(a_control_name)
@@ -5327,28 +5322,7 @@ def pydaw_get_cc_num_from_name(a_plugin_name, a_control_name):
 
 class pydaw_cc_map_editor:
     def on_save(self):
-        f_result_dict = {}
-        for i in range(0, 128):
-            f_cc_num_str = str(i)
-            for i in range(len(f_cc_num_str), 3):
-                f_cc_num_str = "0" + f_cc_num_str
-            f_result_dict[f_cc_num_str] = ["000", "empty"]
-        for i in range(0, 128):
-            if not self.cc_table.item(i, 0) is None:
-                f_cc_num_str = str(self.cc_table.item(i, 0).text())
-                for i in range(len(f_cc_num_str), 3):
-                    f_cc_num_str = "0" + f_cc_num_str
-                f_result_dict[f_cc_num_str] = [str(self.cc_table.item(i, 2).text()), str(self.cc_table.item(i, 1).text())]
-        f_result = '''"This is a MIDI CC mapping file.  The first 3 digits are the MIDI CC number,  do not edit them.
-The 2nd 3 digits are the LADSPA port number, you may change these from any value from 001 to 999.
-Any additional text must be enclosed in quotation marks."
-
-'''
-        for k, v in sorted(f_result_dict.iteritems()):
-            f_result += str(k) + "-" + str(v[0]) + ' "' + str(v[1]) + '"' + "\n"
-        f_handle = open(self.file_name, "w")
-        f_handle.write(f_result)
-        f_handle.close()
+        pass
 
     def on_click(self, x, y):
         f_cell = self.cc_table.item(x, y)
@@ -5385,32 +5359,13 @@ Any additional text must be enclosed in quotation marks."
         f_cancel_button.clicked.connect(cc_cancel_handler)
         f_window.exec_()
 
-    def __init__(self, a_index):
+    def __init__(self):
         f_local_dir = expanduser("~") + "/" + global_pydaw_version_string
         if not os.path.isdir(f_local_dir):
             os.mkdir(f_local_dir)
-        if a_index == -1:
-            f_name = "Modulex"
-            self.file_name = f_local_dir + "/lms_modulex-cc_map.txt"
-            if not os.path.isfile(self.file_name):
-                copyfile("/usr/lib/" + global_pydaw_version_string + "/cc_maps/lms_modulex-cc_map.txt", self.file_name)
-        elif a_index == 1:
-            f_name = "Euphoria"
-            self.file_name = f_local_dir + "/euphoria-cc_map.txt"
-            if not os.path.isfile(self.file_name):
-                copyfile("/usr/lib/" + global_pydaw_version_string + "/cc_maps/euphoria-cc_map.txt", self.file_name)
-        elif a_index == 2:
-            f_name = "Ray-V"
-            self.file_name = f_local_dir + "/ray_v-cc_map.txt"
-            if not os.path.isfile(self.file_name):
-                copyfile("/usr/lib/" + global_pydaw_version_string + "/cc_maps/ray_v-cc_map.txt", self.file_name)
-        elif a_index == 3:
-            f_name = "Way-V"
-            self.file_name = f_local_dir + "/way_v-cc_map.txt"
-            if not os.path.isfile(self.file_name):
-                copyfile("/usr/lib/" + global_pydaw_version_string + "/cc_maps/way_v-cc_map.txt", self.file_name)
-        self.groupbox = QtGui.QGroupBox(f_name)
-        self.groupbox.setMaximumWidth(420)
+        self.groupbox = QtGui.QGroupBox("Controllers")
+        self.groupbox.setMinimumWidth(660)
+        self.groupbox.setMaximumWidth(660)
         f_vlayout = QtGui.QVBoxLayout(self.groupbox)
 
         f_button_layout = QtGui.QHBoxLayout()
@@ -5421,35 +5376,12 @@ Any additional text must be enclosed in quotation marks."
         f_save_button.pressed.connect(self.on_save)
         f_button_layout.addWidget(f_save_button)
 
-        self.cc_table = QtGui.QTableWidget(127, 3)
+        self.cc_table = QtGui.QTableWidget(127, 4)
         self.cc_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.cc_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.cc_table.setHorizontalHeaderLabels(["CC", "Description", "LADSPA Port"])
+        self.cc_table.setHorizontalHeaderLabels(["CC", "Modulex", "Ray-V", "Way-V"])
         self.cc_table.cellClicked.connect(self.on_click)
         f_vlayout.addWidget(self.cc_table)
-
-        try:
-            f_cc_map_text = open(self.file_name, "r").read()
-        except:
-            return  #If we can't open the file, then just return
-
-        f_cc_map_arr = f_cc_map_text.split("\n")
-        f_row_index = 0
-        for f_line in f_cc_map_arr:
-            if not re.match(r'[0-1][0-9][0-9]-[0-9][0-9][0-9] "*"', f_line) is None:
-                f_line_arr = f_line.split("-")
-                f_cc_num = f_line_arr[0]
-                f_line_arr2 = f_line_arr[1].split('"')
-                f_ladspa_port = f_line_arr2[0].strip()
-                if f_ladspa_port != "000":
-                    f_desc = str(f_line_arr2[1])
-                    self.cc_table.setItem(f_row_index, 0, QtGui.QTableWidgetItem(f_cc_num))
-                    self.cc_table.setItem(f_row_index, 1, QtGui.QTableWidgetItem(f_desc))
-                    self.cc_table.setItem(f_row_index, 2, QtGui.QTableWidgetItem(f_ladspa_port))
-                    global_cc_maps[f_name].append((f_desc, int(f_cc_num)))
-                    global_cc_names[f_name].append(f_desc)
-                    f_row_index += 1
-        global_cc_names[f_name].sort()
 
 def set_default_project(a_project_path):
     f_def_file = expanduser("~") + "/" + global_pydaw_version_string + "/last-project.txt"
@@ -5536,6 +5468,8 @@ def about_to_quit():
     this_pydaw_project.quit_handler()
 
 app = QtGui.QApplication(sys.argv)
+
+pydaw_load_controller_maps()
 
 global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch)"]
 global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4", 4:"track5", 5:"track6", 6:"track7", 7:"track8"}

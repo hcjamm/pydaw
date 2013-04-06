@@ -26,5 +26,5 @@ debugger: $(C_OBJS)
 # --------------------------------------------------------------
 
 clean:
-	rm -f *.o *.so debugger
+	rm -f *.o *.so debugger *.pymap *.wav profil* gmon.out
 

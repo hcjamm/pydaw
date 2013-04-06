@@ -24,8 +24,8 @@ void v_print_plugin_controller_maps()
     const LADSPA_Descriptor * f_euphoria = euphoria_ladspa_descriptor(0);
     const LADSPA_Descriptor * f_modulex = modulex_ladspa_descriptor(0);
     
-    char f_file_names[4][32] = {"wayv.pymap", "rayv.pymap", "euphoria.pymap", "modulex.pymap"};
-    const LADSPA_Descriptor * f_desc[] = {f_wayv, f_rayv, f_euphoria, f_modulex};
+    char f_file_names[4][32] = {"Euphoria", "Way-V", "Ray-V", "Modulex"};
+    const LADSPA_Descriptor * f_desc[] = {f_euphoria, f_wayv, f_rayv, f_modulex};
     
     int f_i = 0;
     char f_line_buffer[1024] = "\0";
@@ -35,7 +35,7 @@ void v_print_plugin_controller_maps()
         int f_i2 = 0;
         while(f_i2 < f_desc[f_i]->PortCount)
         {
-            if(f_desc[f_i]->Automatable[f_i2])
+            if(f_desc[f_i]->Automatable[f_i2] == 1)
             {
                 sprintf(f_line_buffer, "%s|%i|%i|%f|%f\n", f_desc[f_i]->PortNames[f_i2], f_i2, f_desc[f_i]->ValueTransformHint[f_i2],
                         f_desc[f_i]->PortRangeHints[f_i2].LowerBound, f_desc[f_i]->PortRangeHints[f_i2].UpperBound);
@@ -43,7 +43,9 @@ void v_print_plugin_controller_maps()
             }
             f_i2++;
         }
-        FILE * f_file = fopen(f_file_names[f_i], "w");
+        char f_file_temp_name[32];
+        sprintf(f_file_temp_name, "%s.pymap", f_file_names[f_i]);
+        FILE * f_file = fopen(f_file_temp_name, "w");
         fprintf(f_file, "%s", f_buffer);
         fclose(f_file);
         f_i++;
