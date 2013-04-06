@@ -296,6 +296,10 @@ typedef int LADSPA_PortRangeHintDescriptor;
 #define LADSPA_IS_HINT_DEFAULT_440(x)     (((x) & LADSPA_HINT_DEFAULT_MASK)   \
                                             == LADSPA_HINT_DEFAULT_440)
 
+#define PYDAW_PLUGIN_HINT_TRANSFORM_NONE 0 //Display the data without transforming
+#define PYDAW_PLUGIN_HINT_TRANSFORM_PITCH_TO_HZ 1//Convert MIDI note number to hz
+#define PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL 2 //Multiply by 0.01f
+
 typedef struct _LADSPA_PortRangeHint {
 
   /* Hints about the port. */
@@ -346,7 +350,7 @@ typedef struct _LADSPA_Descriptor {
      or plugin name, which may be changed in new plugin
      versions. Labels must not contain white-space characters. */
   const char * Label;
-
+    
   /* This indicates a number of properties of the plugin. */
   LADSPA_Properties Properties;
 
@@ -380,6 +384,15 @@ typedef struct _LADSPA_Descriptor {
      above). Valid indices vary from 0 to PortCount-1. */
   const LADSPA_PortRangeHint * PortRangeHints;
 
+  
+  /* Set to zero for the host to ignore for automation, or set to 1
+     to allow MIDI automation */
+  const int * Automatable;
+
+  /* Hint for how the host should transform the data before displaying it, set 
+     to a PYDAW_PLUGIN_HINT_TRANSFORM_XXXX value */
+  const int * ValueTransformHint;
+  
   /* This may be used by the plugin developer to pass any custom
      implementation data into an instantiate call. It must not be used
      or interpreted by the host. It is expected that most plugin
