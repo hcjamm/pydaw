@@ -1046,39 +1046,61 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
 #ifdef PYDAW_PRINT_DEBUG_INFO
                 printf("\n\nALSA MIDI CC event:  c.param == %i, c.value == %i\n\n", events[f_i2].data.control.param, events[f_i2].data.control.value);
 #endif
-                if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
+                if(a_pydaw_data->cc_map[controller])
                 {
+                    int f_index = (a_pydaw_data->recording_current_item_pool_index);
+                    double f_start =
+                            ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
+                            * (a_pydaw_data->playback_inc))) * 4.0f;
+                    
                     long controlIn;
                     if(a_pydaw_data->record_armed_track->instrument)
                     {
-                        controlIn = a_pydaw_data->record_armed_track->instrument->controllerMap[controller];
+                        int f_port; 
+                        if(a_pydaw_data->record_armed_track->plugin_index == 1)  //Euphoria
+                        {
+                            f_port = a_pydaw_data->cc_map[controller]->euphoria_port;
+                        }
+                        else if(a_pydaw_data->record_armed_track->plugin_index == 2) //Ray-V
+                        {
+                            f_port = a_pydaw_data->cc_map[controller]->rayv_port;
+                        }
+                        else if(a_pydaw_data->record_armed_track->plugin_index == 3) //Way-V
+                        {
+                            f_port = a_pydaw_data->cc_map[controller]->wayv_port;
+                        }
+                        
+                        controlIn = a_pydaw_data->record_armed_track->instrument->pluginPortControlInNumbers[f_port];
 
-                        if (controlIn >= 0) 
+                        if (controlIn > 0)  //if (controlIn >= 0) 
                         {
                             /* controller is mapped to LADSPA port, update the port */
                             v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->instrument, controlIn, &events[f_i2], 0);
-
+                            
+                            if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
+                            {   
+                                a_pydaw_data->item_pool[f_index]->ccs[(a_pydaw_data->item_pool[f_index]->cc_count)] =
+                                        g_pycc_get(a_pydaw_data->record_armed_track->plugin_index, controlIn, 
+                                        (float)events[f_i2].data.control.value, f_start);
+                                a_pydaw_data->item_pool[f_index]->cc_count = (a_pydaw_data->item_pool[f_index]->cc_count) + 1;
+                            }
                         }
                     }
-                    controlIn = a_pydaw_data->record_armed_track->effect->controllerMap[controller];
-                    if (controlIn >= 0) 
+                    
+                    controlIn = a_pydaw_data->record_armed_track->effect->pluginPortControlInNumbers[a_pydaw_data->cc_map[controller]->modulex_port];
+                    
+                    if (controlIn > 0) //if (controlIn >= 0) 
                     {
                         /* controller is mapped to LADSPA port, update the port */
                         v_pydaw_set_control_from_cc(a_pydaw_data->record_armed_track->effect, controlIn, &events[f_i2], 0);
-
-                    }
-                    //Record the CC regardless of whether it was mapped or not...
-                    if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
-                    {
-                        int f_index = (a_pydaw_data->recording_current_item_pool_index);
-                        double f_start =
-                                ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
-                                * (a_pydaw_data->playback_inc))) * 4.0f;
                         
-                        assert(0);  //Not implemented yet...
-                        /*a_pydaw_data->item_pool[f_index]->ccs[(a_pydaw_data->item_pool[f_index]->cc_count)] =
-                                g_pycc_get(events[f_i2].data.control.param, (float)events[f_i2].data.control.value, f_start);
-                        a_pydaw_data->item_pool[f_index]->cc_count = (a_pydaw_data->item_pool[f_index]->cc_count) + 1;*/
+                        if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
+                        {   
+                            a_pydaw_data->item_pool[f_index]->ccs[(a_pydaw_data->item_pool[f_index]->cc_count)] =
+                                    g_pycc_get(a_pydaw_data->record_armed_track->plugin_index, controlIn, 
+                                    (float)events[f_i2].data.control.value, f_start);
+                            a_pydaw_data->item_pool[f_index]->cc_count = (a_pydaw_data->item_pool[f_index]->cc_count) + 1;
+                        }
                     }
                 }
             }
