@@ -20,7 +20,7 @@
 void v_print_plugin_controller_maps()
 {
     const LADSPA_Descriptor * f_wayv = wayv_ladspa_descriptor(0);
-    const LADSPA_Descriptor * f_rayv = wayv_ladspa_descriptor(0);
+    const LADSPA_Descriptor * f_rayv = rayv_ladspa_descriptor(0);
     const LADSPA_Descriptor * f_euphoria = euphoria_ladspa_descriptor(0);
     const LADSPA_Descriptor * f_modulex = modulex_ladspa_descriptor(0);
     

@@ -2954,15 +2954,12 @@ class automation_viewer(QtGui.QGraphicsView):
 class automation_viewer_widget:
     def plugin_changed(self, a_val=None):
         self.control_combobox.clear()
-        self.control_combobox.addItems([""] + global_cc_names[str(self.plugin_combobox.currentText())])
+        self.control_combobox.addItems(global_cc_names[str(self.plugin_combobox.currentText())])
         self.automation_viewer.clear_drawn_items()  #TODO:  disable the viewer from editing...
 
     def control_changed(self, a_val=None):
-        f_plugin_str = str(self.plugin_combobox.currentText())
-        f_control_str = str(self.control_combobox.currentText())
-        if f_plugin_str != '' and f_control_str != '':
-            self.set_cc_num()
-            self.ccs_in_use_combobox.setCurrentIndex(0)
+        self.set_cc_num()
+        self.ccs_in_use_combobox.setCurrentIndex(0)
 
     def set_cc_num(self, a_val=None):
         f_port_name = str(self.control_combobox.currentText())
@@ -2992,7 +2989,8 @@ class automation_viewer_widget:
 
     def smooth_pressed(self):
         if self.is_cc:
-            pydaw_smooth_automation_points(this_item_editor.items, self.is_cc, self.plugin_combobox.currentIndex(), self.cc_spinbox.value())
+            f_map = global_controller_port_name_dict[str(self.plugin_combobox.currentText())][str(self.control_combobox.currentText())]
+            pydaw_smooth_automation_points(this_item_editor.items, self.is_cc, self.plugin_combobox.currentIndex(), f_map.port)
         else:
             pydaw_smooth_automation_points(this_item_editor.items, self.is_cc)
         global_save_and_reload_items()
@@ -3019,7 +3017,6 @@ class automation_viewer_widget:
             self.hlayout.addWidget(QtGui.QLabel("Control"))
             self.hlayout.addWidget(self.control_combobox)
             self.control_combobox.currentIndexChanged.connect(self.control_changed)
-
             self.ccs_in_use_combobox = QtGui.QComboBox()
             self.ccs_in_use_combobox.setMinimumWidth(300)
             self.suppress_ccs_in_use = False
@@ -3064,7 +3061,7 @@ def global_open_items(a_items=None):
         f_item = this_pydaw_project.get_item_by_name(f_item_name)
         this_item_editor.items.append(f_item)
         for cc in f_item.ccs:
-            f_key = str(cc.cc_num) + "|" + str(cc.plugin_index)
+            f_key = str(cc.plugin_index) + "|" + str(cc.cc_num)
             if not f_cc_dict.has_key(f_key):
                 f_cc_dict[f_key] = []
             f_cc_dict[f_key] = cc
@@ -5295,7 +5292,7 @@ global_controller_port_name_dict = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modu
 global_controller_port_num_dict = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modulex":{}}
 
 class pydaw_controller_map_item:
-    def __init__(self, a_name, a_transform_hint, a_port, a_min, a_max):
+    def __init__(self, a_name, a_port, a_transform_hint, a_min, a_max):
         self.name = str(a_name)
         self.transform_hint = int(a_transform_hint)
         self.port = int(a_port)
@@ -5316,7 +5313,7 @@ def pydaw_load_controller_maps():
             f_line_arr = f_line.split("|")
             f_map  = pydaw_controller_map_item(f_line_arr[0], f_line_arr[1], f_line_arr[2], f_line_arr[3], f_line_arr[4])
             global_controller_port_name_dict[f_file_name][f_line_arr[0]] = f_map
-            global_controller_port_num_dict[f_file_name][int(f_line_arr[2])] = f_map
+            global_controller_port_num_dict[f_file_name][int(f_line_arr[1])] = f_map
             global_cc_names[f_file_name].append(f_line_arr[0])
         global_cc_names[f_file_name].sort()
 
