@@ -2865,9 +2865,17 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->record_armed_track = 0;
     f_result->record_armed_track_index_all = -1;
     
+    int f_i = 0;
+    
+    while(f_i < PYDAW_MIDI_NOTE_COUNT)
+    {
+        f_result->cc_map[f_i] = 0;
+        f_i++;
+    }
+    
     v_pydaw_load_cc_map(f_result, "default");
     
-    int f_i = 0;
+    f_i = 0;
     int f_track_total = 0;
     
     while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
