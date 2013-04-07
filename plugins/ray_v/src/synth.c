@@ -180,29 +180,9 @@ static LADSPA_Handle g_rayv_instantiate(const LADSPA_Descriptor * descriptor,
 {
     t_rayv *plugin_data = (t_rayv *) malloc(sizeof(t_rayv));
     
-    plugin_data->fs = s_rate;
-    
-    plugin_data->midi_cc_map = g_ccm_get();
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_TIMBRE, 74, "Filter Cutoff");
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_RES, 71, "Res");
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_FILTER_ENV_AMT, 70, "Filter Env Amt");
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_DIST_WET, 91, "Distortion Wet");
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_PITCH_ENV_AMT, 20, "Pitch Env Amt");
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_PITCH_ENV_TIME, 21, "Pitch Env Time");
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_ATTACK, 22, "Attack Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_RELEASE, 5, "Release Amp");    
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_NOISE_AMP, 73, "Noise Amp");       
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_LFO_FREQ, 72, "LFO Freq");
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_LFO_AMP, 15, "LFO Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_LFO_PITCH, 78, "LFO Pitch");
-    v_ccm_set_cc(plugin_data->midi_cc_map, RAYV_LFO_FILTER, 9, "LFO Filter");
-    
-    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "ray_v-cc_map.txt");
-    
-    /*LibModSynth additions*/
-    v_rayv_init_lms(s_rate);  //initialize any static variables    
-    /*End LibModSynth additions*/
-    
+    plugin_data->fs = s_rate;    
+    v_rayv_init_lms(s_rate);
+        
     return (LADSPA_Handle) plugin_data;
 }
 
@@ -446,13 +426,6 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
         out0[(a_voice->i_voice)] += (a_voice->current_sample);
         out1[(a_voice->i_voice)] += (a_voice->current_sample);                
     }
-}
-
-/*This returns MIDI CCs for the different knobs*/ 
-static int i_rayv_get_controller(LADSPA_Handle instance, int port)
-{
-    t_rayv *plugin_data = (t_rayv *) instance;
-    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
 }
 
 const LADSPA_Descriptor *rayv_ladspa_descriptor(int index)
@@ -770,7 +743,7 @@ const DSSI_Descriptor *rayv_dssi_descriptor(int index)
 	LMSDDescriptor->LADSPA_Plugin = rayv_ladspa_descriptor(0);
 	LMSDDescriptor->configure = NULL;  //TODO:  I think this is where the host can set plugin state, etc...
 	LMSDDescriptor->get_program = NULL;  //TODO:  This is where program change is read, plugin state retrieved, etc...
-	LMSDDescriptor->get_midi_controller_for_port = i_rayv_get_controller;
+	LMSDDescriptor->get_midi_controller_for_port = NULL;
 	LMSDDescriptor->select_program = NULL;  //TODO:  This is how the host can select programs, not sure how it differs from a MIDI program change
 	LMSDDescriptor->run_synth = v_run_rayv;
 	LMSDDescriptor->run_synth_adding = NULL;

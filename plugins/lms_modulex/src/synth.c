@@ -129,52 +129,7 @@ static LADSPA_Handle g_modulex_instantiate(const LADSPA_Descriptor * descriptor,
 {
     t_modulex *plugin_data = (t_modulex *) malloc(sizeof(t_modulex));
     
-    plugin_data->fs = s_rate;
-    
-    plugin_data->midi_cc_map = g_ccm_get();
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_VOL_SLIDER, 7, "Volume Slider");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB0, 75, "FX0Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB1, 76, "FX0Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX0_KNOB2, 97, "FX0Knob2");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB0, 77, "FX1Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB1, 119, "FX1Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX1_KNOB2, 98, "FX1Knob2");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX2_KNOB0, 99, "FX2Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX2_KNOB1, 100, "FX2Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX2_KNOB2, 101, "FX2Knob2");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX3_KNOB0, 102, "FX3Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX3_KNOB1, 103, "FX3Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX3_KNOB2, 104, "FX3Knob2");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX4_KNOB0, 105, "FX4Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX4_KNOB1, 106, "FX4Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX4_KNOB2, 107, "FX4Knob2");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX5_KNOB0, 108, "FX5Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX5_KNOB1, 109, "FX5Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX5_KNOB2, 110, "FX5Knob2");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX6_KNOB0, 111, "FX6Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX6_KNOB1, 112, "FX6Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX6_KNOB2, 113, "FX6Knob2");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX7_KNOB0, 114, "FX7Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX7_KNOB1, 115, "FX7Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FX7_KNOB2, 116, "FX7Knob2");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_WET, 117, "Delay Wet");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_DRY, 118, "Delay Dry");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_FEEDBACK, 119, "Delay Feedback");
-    v_ccm_set_cc(plugin_data->midi_cc_map, MODULEX_CUTOFF, 120, "Delay Cutoff");
-    
-    
-    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "lms_modulex-cc_map.txt");
-    
+    plugin_data->fs = s_rate;        
     return (LADSPA_Handle) plugin_data;
 }
 
@@ -361,14 +316,6 @@ static void v_modulex_run(LADSPA_Handle instance, int sample_count,
     }
     
 }
-
-
-int i_modulex_get_controller(LADSPA_Handle instance, int port)
-{    
-    t_modulex *plugin_data = (t_modulex *) instance;
-    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));     
-}
-
 
 LADSPA_Descriptor *modulex_ladspa_descriptor(int index)
 {
@@ -869,7 +816,7 @@ DSSI_Descriptor *modulex_dssi_descriptor(int index)
 	LMSDDescriptor->LADSPA_Plugin = modulex_ladspa_descriptor(0);
 	LMSDDescriptor->configure = NULL;
 	LMSDDescriptor->get_program = NULL;
-	LMSDDescriptor->get_midi_controller_for_port = i_modulex_get_controller;
+	LMSDDescriptor->get_midi_controller_for_port = NULL;
 	LMSDDescriptor->select_program = NULL;
 	LMSDDescriptor->run_synth = v_modulex_run;
 	LMSDDescriptor->run_synth_adding = NULL;

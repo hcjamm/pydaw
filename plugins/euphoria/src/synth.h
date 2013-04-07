@@ -20,7 +20,6 @@ GNU General Public License for more details.
 #include "../../libmodsynth/lib/amp.h"
 #include "../../libmodsynth/lib/voice.h"
 #include "../../libmodsynth/lib/pitch_core.h"
-#include "../../libmodsynth/lib/cc_map.h"
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/interpolate-linear.h"
 #include "../../libmodsynth/lib/interpolate-cubic.h"
@@ -173,8 +172,7 @@ typedef struct {
     t_euphoria_mono_modules * mono_modules;
     t_amp * amp_ptr;
     t_pit_pitch_core * smp_pit_core;
-    t_pit_ratio * smp_pit_ratio;
-    t_ccm_midi_cc_map * midi_cc_map;    
+    t_pit_ratio * smp_pit_ratio;    
     t_euphoria_poly_voice * data[EUPHORIA_POLYPHONY];
         
     //These are used for storing the mono FX buffers from the polyphonic voices.

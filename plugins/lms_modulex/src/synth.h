@@ -14,7 +14,6 @@ extern "C" {
 
 #include "../../include/pydaw3/pydaw_plugin.h"
 #include "libmodsynth.h"
-#include "../../libmodsynth/lib/cc_map.h"
    
 #define MODULEX_SLOW_INDEX_ITERATIONS 50
     
@@ -114,8 +113,6 @@ typedef struct {
         
     float fs;    
     t_modulex_mono_modules * mono_modules;
-    
-    t_ccm_midi_cc_map * midi_cc_map;
     
     int i_mono_out;
     int i_buffer_clear;    

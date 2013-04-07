@@ -15,7 +15,6 @@ extern "C" {
 #include "../../include/pydaw3/pydaw_plugin.h"
 
 #include "libmodsynth.h"
-#include "../../libmodsynth/lib/cc_map.h"
    
 #define PYDAW_INPUT_COUNT 10
     
