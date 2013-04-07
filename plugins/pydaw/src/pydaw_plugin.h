@@ -315,11 +315,6 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
         
     f_result->firstControlIn = 0;
     
-    for (j = 0; j < 128; j++) 
-    {
-        f_result->controllerMap[j] = -1;
-    }
-    
     int in, out, controlIn, controlOut;
     
     in = out = controlIn = controlOut = 0;
@@ -357,31 +352,8 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
         } 
         else if (LADSPA_IS_PORT_CONTROL(pod)) 
         {
-            if (LADSPA_IS_PORT_INPUT(pod)) {
-
-                if (f_result->descriptor->get_midi_controller_for_port) {
-
-                    int controller = f_result->descriptor->get_midi_controller_for_port(f_result->ladspa_handle, j);
-
-                    /*if (controller == 0) {
-                        MB_MESSAGE
-                            ("Buggy plugin: wants mapping for bank MSB\n");
-                    } else if (controller == 32) {
-                        MB_MESSAGE
-                            ("Buggy plugin: wants mapping for bank LSB\n");
-                    } else*/
-                    if (DSSI_IS_CC(controller)) 
-                    {
-                        f_result->controllerMap[DSSI_CC_NUMBER(controller)] = controlIn;
-                    }
-                }
-
-                //TODO:  Most of these haven't been alloc'd, this is going to SEGFAULT
-                //also, plugin input/output buffers need to be initialized too...
-
-                /*
-                f_result->pluginControlInInstances[controlIn] = instance;
-                 */
+            if (LADSPA_IS_PORT_INPUT(pod)) {                
+                //f_result->pluginControlInInstances[controlIn] = instance;                 
                 f_result->pluginControlInPortNumbers[controlIn] = j;
                 f_result->pluginPortControlInNumbers[j] = controlIn;
 
