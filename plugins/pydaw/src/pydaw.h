@@ -1449,12 +1449,12 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                             int controller = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->port;
                             if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
                             {
-                                int controlIn = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->port;
+                                int controlIn; // = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->port;
                                 if(a_pydaw_data->track_pool_all[f_i]->instrument && 
                                         a_pydaw_data->track_pool_all[f_i]->plugin_index == 
                                         f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->plugin_index)
                                 {
-                                    //controlIn = a_pydaw_data->track_pool_all[f_i]->instrument->controllerMap[controller];
+                                    controlIn = a_pydaw_data->track_pool_all[f_i]->instrument->pluginPortControlInNumbers[controller];
                                     if (controlIn >= 0)
                                     {
                                         /* controller is mapped to LADSPA port, update the port */
@@ -1464,7 +1464,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                                     }
                                 }
 
-                                //controlIn = a_pydaw_data->track_pool_all[f_i]->effect->controllerMap[controller];
+                                controlIn = a_pydaw_data->track_pool_all[f_i]->effect->pluginPortControlInNumbers[controller];
                                 if (controlIn >= 0)
                                 {
                                     /* controller is mapped to LADSPA port, update the port */
