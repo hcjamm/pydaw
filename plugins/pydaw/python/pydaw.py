@@ -2915,7 +2915,7 @@ class automation_viewer(QtGui.QGraphicsView):
         #        self.lines[i-1] = f_line
 
     def set_cc_num(self, a_plugin_index, a_port_num):
-        self.plugin_index = int(a_plugin_index)
+        self.plugin_index = global_plugin_numbers[int(a_plugin_index)]
         self.cc_num = a_port_num
         self.clear_drawn_items()
         self.draw_item()
@@ -5287,6 +5287,8 @@ class pydaw_main_window(QtGui.QMainWindow):
             event.accept()
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
+global_plugin_numbers = [1, 3, 2, -1]
+global_plugin_indexes = {1:0, 3:1, 2:2, -1:3}
 global_cc_names = {"Euphoria":[], "Way-V":[], "Ray-V":[], "Modulex":[]}
 global_controller_port_name_dict = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modulex":{}}
 global_controller_port_num_dict = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modulex":{}}
