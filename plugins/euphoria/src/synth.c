@@ -418,67 +418,16 @@ static LADSPA_Handle instantiateSampler(const LADSPA_Descriptor * descriptor,
         }
     }
     
-    
-    
     plugin_data->sampleRate = s_rate;
-    //plugin_data->projectDir = 0;
-    
+    //plugin_data->projectDir = 0;    
     plugin_data->sv_pitch_bend_value = 0.0f;
     plugin_data->sv_last_note = 36.0f;
-
     plugin_data->channels = 2;
-    plugin_data->amp_ptr = g_amp_get();
-    
-    memcpy(&plugin_data->mutex, &m, sizeof(pthread_mutex_t));
-    
-    plugin_data->mono_modules = g_euphoria_mono_init(s_rate);
-    
+    plugin_data->amp_ptr = g_amp_get();    
+    memcpy(&plugin_data->mutex, &m, sizeof(pthread_mutex_t));    
+    plugin_data->mono_modules = g_euphoria_mono_init(s_rate);    
     plugin_data->fs = s_rate;
     
-    plugin_data->midi_cc_map = g_ccm_get();
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_ATTACK, 73, "Attack Amp");    
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_RELEASE, 72, "Release Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FILTER_ATTACK, 58, "Attack Filter");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FILTER_DECAY, 62, "Decay Filter");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FILTER_SUSTAIN, 23, "Sustain Filter");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FILTER_RELEASE, 24, "Release Filter");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_NOISE_AMP, 25, "Noise Amp");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_MASTER_VOLUME, 36, "Master Volume");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_MASTER_GLIDE, 39, "Glide Time");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_MASTER_PITCHBEND_AMT, 40, "Pitchbend Amount");    
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_PITCH_ENV_TIME, 43, "Pitch Env Time");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_LFO_FREQ, 15, "LFO Freq");    
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_LFO_TYPE, 45, "LFO Type");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX0_KNOB0, 74, "FX0Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX0_KNOB1, 71, "FX0Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX0_KNOB2, 51, "FX0Knob2");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX0_COMBOBOX, 52, "FX0Combobox");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX1_KNOB0, 70, "FX1Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX1_KNOB1, 91, "FX1Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX1_KNOB2, 55, "FX1Knob2");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX1_COMBOBOX, 56, "FX1Combobox");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX2_KNOB0, 20, "FX2Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX2_KNOB1, 21, "FX2Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX2_KNOB2, 59, "FX2Knob2");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX2_COMBOBOX, 60, "FX2Combobox");
-    
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX3_KNOB0, 22, "FX3Knob0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX3_KNOB1, 5, "FX3Knob1");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX3_KNOB2, 63, "FX3Knob2");
-    v_ccm_set_cc(plugin_data->midi_cc_map, EUPHORIA_FX3_COMBOBOX, 64, "FX3Combobox");
-    
-    /*
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MONO_FX0_KNOB0_PORT_RANGE_MIN, 75, "MonoFX0Knob0_group0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MONO_FX0_KNOB1_PORT_RANGE_MIN, 76, "MonoFX0Knob1_group0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MONO_FX1_KNOB0_PORT_RANGE_MIN, 77, "MonoFX1Knob0_group0");
-    v_ccm_set_cc(plugin_data->midi_cc_map, LMS_MONO_FX1_KNOB1_PORT_RANGE_MIN, 7, "MonoFX1Knob1_group0");
-    */
-    
-    v_ccm_read_file_to_array(plugin_data->midi_cc_map, "euphoria-cc_map.txt");
-        
     return (LADSPA_Handle) plugin_data;
 }
 
@@ -1059,12 +1008,6 @@ static void v_run_lms_euphoria(LADSPA_Handle instance, int sample_count,
     
     plugin_data->sampleNo += sample_count;
     pthread_mutex_unlock(&plugin_data->mutex);
-}
-
-static int i_euphoria_get_controller(LADSPA_Handle instance, int port)
-{
-    t_euphoria *plugin_data = (t_euphoria *) instance;
-    return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));    
 }
 
 static char * dssi_configure_message(const char *fmt, ...)
@@ -2350,7 +2293,7 @@ const DSSI_Descriptor *euphoria_dssi_descriptor(int index)
     euphoriaDDescriptor->LADSPA_Plugin = euphoria_ladspa_descriptor(0);
     euphoriaDDescriptor->configure = c_euphoria_configure;
     euphoriaDDescriptor->get_program = NULL;
-    euphoriaDDescriptor->get_midi_controller_for_port = i_euphoria_get_controller;
+    euphoriaDDescriptor->get_midi_controller_for_port = NULL;
     euphoriaDDescriptor->select_program = NULL;
     euphoriaDDescriptor->run_synth = v_run_lms_euphoria;
     euphoriaDDescriptor->run_synth_adding = NULL;

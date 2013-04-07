@@ -14,7 +14,6 @@ extern "C" {
 #include "../../include/pydaw3/pydaw_plugin.h"
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/voice.h"
-#include "../../libmodsynth/lib/cc_map.h"
     
 //Total number of LFOs, ADSRs, other envelopes, etc...  Used for the PolyFX mod matrix
 #define WAYV_MODULATOR_COUNT 4
@@ -244,10 +243,7 @@ typedef struct {
     int polyfx_mod_counts[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT];  //How many polyfx_mod_ptrs to iterate through for the current note
     int polyfx_mod_src_index[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT][(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)];  //The index of the modulation source(LFO, ADSR, etc...) to multiply by
     float polyfx_mod_matrix_values[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT][(WAYV_CONTROLS_PER_MOD_EFFECT * WAYV_MODULATOR_COUNT)];  //The value of the mod_matrix knob, multiplied by .01
-    
-    
-    t_ccm_midi_cc_map * midi_cc_map;
-    
+        
     t_wayv_poly_voice * data[WAYV_POLYPHONY];
     t_voc_voices * voices;
     

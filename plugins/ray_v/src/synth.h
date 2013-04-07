@@ -14,7 +14,6 @@ extern "C" {
 #include "../../include/pydaw3/pydaw_plugin.h"
 #include "libmodsynth.h"
 #include "../../libmodsynth/lib/voice.h"
-#include "../../libmodsynth/lib/cc_map.h"
     
 #define RAYV_OUTPUT0  0
 #define RAYV_OUTPUT1  1
@@ -107,9 +106,7 @@ typedef struct {
     LADSPA_Data *lfo_amp;
     LADSPA_Data *lfo_pitch;
     LADSPA_Data *lfo_filter;
-    
-    t_ccm_midi_cc_map * midi_cc_map;
-    
+        
     t_rayv_poly_voice * data[RAYV_POLYPHONY];
     t_voc_voices * voices;
     
