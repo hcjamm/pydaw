@@ -1749,3 +1749,39 @@ class pydaw_transport:
             if f_arr[i] == "":
                 f_arr[i] = None
         return pydaw_transport(f_arr[0], f_arr[1], f_arr[2], f_arr[3], f_arr[4])
+
+class pydaw_cc_map_item:
+    def __init__(self, a_effects_only=False, a_rayv_port=0, a_wayv_port=0, a_euphoria_port=0, a_modulex_port=0):
+        self.effects_only = bool_to_int(a_effects_only)
+        self.rayv_port = int(a_rayv_port)
+        self.wayv_port = int(a_wayv_port)
+        self.euphoria_port = int(a_euphoria_port)
+        self.modulex_port = int(a_modulex_port)
+
+    def __str__(self):
+        return str(self.effects_only) + "|" + str(self.rayv_port) + "|" + str(self.wayv_port) + "|" + str(self.euphoria_port) + "|" + str(self.modulex_port) + "\n"
+
+class pydaw_cc_map:
+    def __init__(self):
+        self.map = {}
+
+    def add_item(self, a_cc, a_item):
+        self.map[int(a_cc)] = a_item
+
+    def __str__(self):
+        f_result = ""
+        for k, v in self.map.iteritems():
+            f_result += str(k) + "|" + str(v)
+        f_result += pydaw_terminating_char
+        return f_result
+
+    @staticmethod
+    def from_str(a_str):
+        f_result = pydaw_cc_map()
+        f_arr = a_str.split("\n")
+        for f_line in f_arr:
+            if f_line == pydaw_terminating_char:
+                break
+            f_line_arr = f_line.split("|")
+            f_result.map[int(f_line_arr[0])] = pydaw_cc_map_item(int_to_bool(f_line_arr[1]), f_line_arr[2], f_line_arr[3], f_line_arr[4], f_line_arr[5])
+        return f_result
