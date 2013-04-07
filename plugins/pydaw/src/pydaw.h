@@ -113,7 +113,9 @@ typedef struct
 
 typedef struct
 {
-    int cc_num;
+    //int cc_num;
+    int plugin_index;
+    int port;
     float cc_val;
     float start;
 }t_pycc;
@@ -316,7 +318,7 @@ t_pytrack * g_pytrack_get(int,int);
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const int);
 void g_pyitem_get(t_pydaw_data*, const int);
 int g_pyitem_clone(t_pydaw_data * a_pydaw_data, int a_item_index);
-t_pycc * g_pycc_get(int a_cc_num, float a_cc_val, float a_start);
+t_pycc * g_pycc_get(int, int, float, float);
 t_pypitchbend * g_pypitchbend_get(float a_start, float a_value);
 t_pynote * g_pynote_get(int a_note, int a_vel, float a_start, float a_length);
 t_pydaw_data * g_pydaw_data_get(float);
@@ -986,9 +988,11 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
                         double f_start =
                                 ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
                                 * (a_pydaw_data->playback_inc))) * 4.0f;
-                        a_pydaw_data->item_pool[f_index]->ccs[(a_pydaw_data->item_pool[f_index]->cc_count)] =
+                        
+                        assert(0);  //Not implemented yet...
+                        /*a_pydaw_data->item_pool[f_index]->ccs[(a_pydaw_data->item_pool[f_index]->cc_count)] =
                                 g_pycc_get(events[f_i2].data.control.param, (float)events[f_i2].data.control.value, f_start);
-                        a_pydaw_data->item_pool[f_index]->cc_count = (a_pydaw_data->item_pool[f_index]->cc_count) + 1;
+                        a_pydaw_data->item_pool[f_index]->cc_count = (a_pydaw_data->item_pool[f_index]->cc_count) + 1;*/
                     }
                 }
             }
@@ -1442,14 +1446,15 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                             ((f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->start) < f_track_next_period_beats))
                         {
                             //
-                            int controller = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_num;
+                            int controller = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->port;
                             if (controller > 0) //&& controller < MIDI_CONTROLLER_COUNT) 
                             {
-                                long controlIn;
-                                if(a_pydaw_data->track_pool_all[f_i]->instrument)
+                                int controlIn = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->port;
+                                if(a_pydaw_data->track_pool_all[f_i]->instrument && 
+                                        a_pydaw_data->track_pool_all[f_i]->plugin_index == 
+                                        f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->plugin_index)
                                 {
-                                    controlIn = a_pydaw_data->track_pool_all[f_i]->instrument->controllerMap[controller];
-
+                                    //controlIn = a_pydaw_data->track_pool_all[f_i]->instrument->controllerMap[controller];
                                     if (controlIn >= 0)
                                     {
                                         /* controller is mapped to LADSPA port, update the port */
@@ -1459,8 +1464,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                                     }
                                 }
 
-                                controlIn = a_pydaw_data->track_pool_all[f_i]->effect->controllerMap[controller];
-
+                                //controlIn = a_pydaw_data->track_pool_all[f_i]->effect->controllerMap[controller];
                                 if (controlIn >= 0)
                                 {
                                     /* controller is mapped to LADSPA port, update the port */
@@ -1469,7 +1473,6 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sam
                                     v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->effect, controlIn, &f_event, 0);
                                 }
                             }
-
                             a_pydaw_data->track_current_item_cc_event_indexes[f_i] = (a_pydaw_data->track_current_item_cc_event_indexes[f_i]) + 1;
                         }
                         else
@@ -2049,11 +2052,12 @@ t_pynote * g_pynote_get(int a_note, int a_vel, float a_start, float a_length)
     return f_result;
 }
 
-t_pycc * g_pycc_get(int a_cc_num, float a_cc_val, float a_start)
+t_pycc * g_pycc_get(int a_plugin_index, int a_cc_num, float a_cc_val, float a_start)
 {
     t_pycc * f_result = (t_pycc*)malloc(sizeof(t_pycc));
     
-    f_result->cc_num = a_cc_num;
+    f_result->plugin_index = a_plugin_index;
+    f_result->port = a_cc_num;
     f_result->cc_val = a_cc_val;
     f_result->start = a_start;
     
@@ -2433,7 +2437,7 @@ void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
     f_i = 0;
     while(f_i < (f_pyitem->cc_count))
     {
-        sprintf(f_temp, "c|%f|%i|%f\n", f_pyitem->ccs[f_i]->start, f_pyitem->ccs[f_i]->cc_num, f_pyitem->ccs[f_i]->cc_val);
+        sprintf(f_temp, "c|%f|%i|%i|%f\n", f_pyitem->ccs[f_i]->start, f_pyitem->ccs[f_i]->plugin_index, f_pyitem->ccs[f_i]->port, f_pyitem->ccs[f_i]->cc_val);
         strcat(f_result, f_temp);
         f_i++;
     }
@@ -2519,7 +2523,8 @@ int g_pyitem_clone(t_pydaw_data * a_pydaw_data, int a_item_index)
     while(f_i < a_pydaw_data->item_pool[a_item_index]->cc_count)
     {
         a_pydaw_data->item_pool[f_result]->ccs[f_i] = g_pycc_get(
-                a_pydaw_data->item_pool[a_item_index]->ccs[f_i]->cc_num,
+                a_pydaw_data->item_pool[a_item_index]->ccs[f_i]->plugin_index,
+                a_pydaw_data->item_pool[a_item_index]->ccs[f_i]->port,
                 a_pydaw_data->item_pool[a_item_index]->ccs[f_i]->cc_val,
                 a_pydaw_data->item_pool[a_item_index]->ccs[f_i]->start);
         f_i++;
@@ -2581,10 +2586,11 @@ void g_pyitem_get(t_pydaw_data* a_pydaw_data, int a_uid)
         }
         else if(!strcmp(f_type, "c")) //cc
         {
-            char * f_cc_num = c_iterate_2d_char_array(f_current_string);
+            char * f_cc_plugin_index = c_iterate_2d_char_array(f_current_string);
+            char * f_cc_num = c_iterate_2d_char_array(f_current_string);  //this is really port number, will refactor later...
             char * f_cc_val = c_iterate_2d_char_array(f_current_string);
             
-            f_result->ccs[(f_result->cc_count)] = g_pycc_get(atoi(f_cc_num), atof(f_cc_val), atof(f_start));
+            f_result->ccs[(f_result->cc_count)] = g_pycc_get(atoi(f_cc_plugin_index), atoi(f_cc_num), atof(f_cc_val), atof(f_start));
             f_result->cc_count = (f_result->cc_count) + 1;
             
             free(f_cc_num);
