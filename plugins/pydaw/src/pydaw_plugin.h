@@ -116,8 +116,7 @@ typedef struct st_pydaw_plugin
     int    controlIns;
     int    controlOuts;    
     int    firstControlIn;                       /* the offset to translate instance control in # to global control in # */
-    int    *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */
-    long   controllerMap[128]; /* maps MIDI controller to global control in # */
+    int    *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */    
     DSSI_Program_Descriptor *pluginPrograms;
         
     lo_address       uiTarget;
@@ -133,7 +132,7 @@ typedef struct st_pydaw_plugin
     float **pluginInputBuffers, **pluginOutputBuffers;
 
     float *pluginControlIns, *pluginControlOuts;
-    unsigned long *pluginControlInPortNumbers;          /* maps global control in # to instance LADSPA port # */
+    int *pluginControlInPortNumbers;          /* maps global control in # to instance LADSPA port # */
     
     int * pluginPortUpdated;
     /* Since there are no plans of allowing 3rd party DSSI plugins, the host will only remember known configure keys
@@ -150,9 +149,9 @@ typedef struct st_pydaw_plugin
 void v_pydaw_plugin_memcheck(t_pydaw_plugin * a_plugin);
 #endif
 
-void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, long controlIn, snd_seq_event_t *event, int a_ci_is_port)
+void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, snd_seq_event_t *event, int a_ci_is_port)
 {
-    long port;
+    int port;
     if(a_ci_is_port)
     {
         port = controlIn;
@@ -294,16 +293,15 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
             (int*)malloc(f_result->descriptor->LADSPA_Plugin->PortCount *
                           sizeof(int));
 
-    printf("f_result->in %i\n", f_result->ins);
+    /*printf("f_result->in %i\n", f_result->ins);
     printf("f_result->outs %i\n", f_result->outs);
     printf("f_result->controlIns %i\n", f_result->controlIns);
-    printf("f_result->controlOuts %i\n", f_result->controlOuts);    
-    
+    printf("f_result->controlOuts %i\n", f_result->controlOuts);*/
     //f_result->inputPorts = (jack_port_t **)malloc(f_result->insTotal * sizeof(jack_port_t *));
     f_result->pluginInputBuffers = (float**)malloc((f_result->ins) * sizeof(float*));
     f_result->pluginControlIns = (float*)calloc(f_result->controlIns, sizeof(float));
     //f_result->pluginControlInInstances = (d3h_instance_t **)malloc(f_result->controlInsTotal * sizeof(d3h_instance_t *));
-    f_result->pluginControlInPortNumbers = (unsigned long *)malloc(f_result->controlIns * sizeof(unsigned long));
+    f_result->pluginControlInPortNumbers = (int*)malloc(f_result->controlIns * sizeof(int));
     f_result->pluginPortUpdated = (int*)malloc(f_result->controlIns * sizeof(int));
     //f_result->outputPorts = (jack_port_t **)malloc(f_result->outsTotal * sizeof(jack_port_t *));
     f_result->pluginOutputBuffers = (float**)malloc((f_result->outs) * sizeof(float*));
