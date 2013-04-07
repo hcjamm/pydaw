@@ -59,6 +59,7 @@ extern "C" {
     
 #define PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS "ua"    
 #define PYDAW_CONFIGURE_KEY_SET_OVERDUB_MODE "od"
+#define PYDAW_CONFIGURE_KEY_LOAD_CC_MAP "cm"
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -102,7 +103,16 @@ extern "C" {
 #include "pydaw_audio_tracks.h"
 #include "pydaw_sample_graph.h"
 #include "pydaw_audio_inputs.h"
-    
+  
+typedef struct
+{
+    int effects_only;
+    int rayv_port;
+    int wayv_port;
+    int modulex_port;
+    int euphoria_port;    
+}t_py_cc_map_item;
+   
 typedef struct
 {
     int note;
@@ -305,6 +315,7 @@ typedef struct
     int audio_recording_quit_notifier;
     int rec_region_current_uid;
     int rec_item_current_uid;
+    t_py_cc_map_item * cc_map[PYDAW_MIDI_NOTE_COUNT];
 }t_pydaw_data;
 
 typedef struct 
@@ -355,16 +366,15 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data);
 void v_pydaw_process_plugins_single_threaded(t_pydaw_data * a_pydaw_data);
 void v_pydaw_print_benchmark(char * a_message, clock_t a_start);
 void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data);
-
 inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_count, float* a_output0, 
         float* a_output1, int a_audio_track_num);
 void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_region, int a_bar);
 void v_pydaw_update_audio_inputs(t_pydaw_data * a_pydaw_data);
-
 void * v_pydaw_audio_recording_thread(void* a_arg);
-
 inline float v_pydaw_count_beats(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, float a_start_beat,
         int a_end_region, int a_end_bar, float a_end_beat);
+t_py_cc_map_item * g_py_cc_map_item_get(int a_effects_only, int a_rayv_port, int a_wayv_port, int a_euphoria_port, int a_modulex_port);
+void v_pydaw_load_cc_map(t_pydaw_data * a_pydaw_data, const char * a_name);
 
 /*End declarations.  Begin implementations.*/
 
@@ -835,6 +845,82 @@ void * v_pydaw_worker_thread(void* a_arg)
     }
     
     return (void*)1;
+}
+
+t_py_cc_map_item * g_py_cc_map_item_get(int a_effects_only, int a_rayv_port, int a_wayv_port, int a_euphoria_port, int a_modulex_port)
+{
+    t_py_cc_map_item * f_result = (t_py_cc_map_item*)malloc(sizeof(t_py_cc_map_item));
+    f_result->effects_only = a_effects_only;
+    
+    if(a_effects_only)
+    {
+        f_result->modulex_port = a_modulex_port;
+        f_result->euphoria_port = 0;
+        f_result->rayv_port = 0;
+        f_result->wayv_port = 0;
+    }
+    else
+    {
+        f_result->modulex_port = 0;
+        f_result->euphoria_port = a_euphoria_port;
+        f_result->rayv_port = a_rayv_port;
+        f_result->wayv_port = a_wayv_port;
+    }
+    
+    return f_result;
+}
+
+void v_pydaw_load_cc_map(t_pydaw_data * a_pydaw_data, const char * a_name)
+{
+    int f_i = 0;
+    while(f_i < PYDAW_MIDI_NOTE_COUNT)
+    {
+        if(a_pydaw_data->cc_map[f_i])
+        {
+            free(a_pydaw_data->cc_map[f_i]);
+            a_pydaw_data->cc_map[f_i] = 0;
+        }
+        f_i++;
+    }
+    char f_temp[256];
+    char * f_home = getenv("HOME");
+    sprintf(f_temp, "%s/pydaw3/cc_maps/%s", f_home, a_name);
+    if(i_pydaw_file_exists(f_temp))
+    {
+        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_temp, LMS_LARGE_STRING);        
+        f_i = 0;
+        while(f_i < PYDAW_MIDI_NOTE_COUNT)
+        {            
+            char * f_cc_char = c_iterate_2d_char_array(f_current_string);
+            if(f_current_string->eof)
+            {
+                free(f_cc_char);
+                break;
+            }
+            int f_cc = atoi(f_cc_char);
+            free(f_cc_char);
+            char * f_effects_only_char = c_iterate_2d_char_array(f_current_string);
+            int f_effects_only = atoi(f_effects_only_char);
+            free(f_effects_only_char);
+            char * f_rayv_port_char = c_iterate_2d_char_array(f_current_string);
+            int f_rayv_port = atoi(f_rayv_port_char);
+            free(f_rayv_port_char);
+            char * f_wayv_port_char = c_iterate_2d_char_array(f_current_string);
+            int f_wayv_port = atoi(f_wayv_port_char);
+            free(f_wayv_port_char);
+            char * f_euphoria_port_char = c_iterate_2d_char_array(f_current_string);
+            int f_euphoria_port = atoi(f_euphoria_port_char);
+            free(f_euphoria_port_char);
+            char * f_modulex_port_char = c_iterate_2d_char_array(f_current_string);
+            int f_modulex_port = atoi(f_modulex_port_char);
+            free(f_modulex_port_char);
+            a_pydaw_data->cc_map[f_cc] = g_py_cc_map_item_get(f_effects_only, f_rayv_port, f_wayv_port, f_euphoria_port, f_modulex_port);
+            f_i++;
+        }
+
+        g_free_2d_char_array(f_current_string);
+        
+    }
 }
 
 inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
@@ -2749,6 +2835,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->input_buffers_active = 0;
     f_result->record_armed_track = 0;
     f_result->record_armed_track_index_all = -1;
+    
+    v_pydaw_load_cc_map(f_result, "default");
     
     int f_i = 0;
     int f_track_total = 0;
@@ -4704,6 +4792,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         a_pydaw_data->overdub_mode = f_bool;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_LOAD_CC_MAP))
+    {
+        v_pydaw_load_cc_map(a_pydaw_data, a_value);
     }
     else
     {
