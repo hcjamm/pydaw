@@ -56,6 +56,7 @@ OSC configure message keys/values:
 	"ua"	""	Update audio inputs configuration from .pyinput file
 	"sa"	int|int	Reload song-level automation for type[int]|track[int]
 	"od"	int	Set overdub mode (0 False, 1 True)
+	"cm"	name	Load the CC map at (~/pydaw[version]/cc_maps/)name
 
 
 Project structure:

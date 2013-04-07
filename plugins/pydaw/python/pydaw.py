@@ -5319,42 +5319,74 @@ def pydaw_load_controller_maps():
             global_cc_names[f_file_name].append(f_line_arr[0])
         global_cc_names[f_file_name].sort()
 
+def pydaw_get_cc_map(a_name):
+    return pydaw_cc_map.from_str(pydaw_read_file_text(global_cc_map_folder + "/" + a_name))
+    #try:
+    #    return pydaw_cc_map.from_str(pydaw_read_file_text(global_cc_map_folder + "/" + a_name))
+    #except Exception as Ex:
+    #    print("pydaw_get_cc_map Exception:  " + Ex.message)
+    #    return pydaw_cc_map()
+
+def pydaw_save_cc_map(a_name, a_map):
+    pydaw_write_file_text(global_cc_map_folder + "/" + str(a_name), str(a_map))
+
 class pydaw_cc_map_editor:
-    def on_save(self):
+    def on_save_as(self):
+        pass
+
+    def on_open(self, a_val=None):
         pass
 
     def on_click(self, x, y):
-        f_cell = self.cc_table.item(x, y)
-        if f_cell is None or str(f_cell.text()) == "":
-            return
-
         def cc_ok_handler():
-            f_cc_num_str = str(f_cc.value())
-            for i in range(len(f_cc_num_str), 3):
-                f_cc_num_str = "0" + f_cc_num_str
-            self.cc_table.setItem(x, 0, QtGui.QTableWidgetItem(f_cc_num_str))
+            f_map = pydaw_get_cc_map("default")
+            f_map.add_item(f_cc.value(), pydaw_cc_map_item(f_effects_cb.isChecked(), \
+            global_controller_port_name_dict["Ray-V"][str(f_rayv.currentText())].port, global_controller_port_name_dict["Way-V"][str(f_wayv.currentText())].port, \
+            global_controller_port_name_dict["Euphoria"][str(f_euphoria.currentText())].port, global_controller_port_name_dict["Modulex"][str(f_modulex.currentText())].port))
+            pydaw_save_cc_map("default", f_map)
+            self.open_map("default")
+            this_pydaw_project.this_dssi_gui.pydaw_load_cc_map("default")
             f_window.close()
 
         def cc_cancel_handler():
             f_window.close()
 
-        f_default_cc_num = int(self.cc_table.item(x, 0).text())
-
+        #global_controller_port_name_dict = {"Euphoria":{}, "Way-V":{}, "Ray-V":{}, "Modulex":{}}
         f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Set CC for Control")
+        f_window.setWindowTitle("Map CC to Control(s)")
         f_window.setMinimumWidth(240)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
         f_cc = QtGui.QSpinBox()
         f_cc.setRange(1, 127)
-        f_cc.setValue(f_default_cc_num)
+        f_cc.setValue(x + 1)
         f_layout.addWidget(QtGui.QLabel("CC"), 1, 0)
         f_layout.addWidget(f_cc, 1, 1)
+        f_effects_cb = QtGui.QCheckBox("Effects tracks only?")
+        f_layout.addWidget(f_effects_cb, 2, 1)
+        f_modulex = QtGui.QComboBox()
+        f_modulex.addItems(global_controller_port_name_dict["Modulex"].keys())
+        f_layout.addWidget(QtGui.QLabel("Modulex"), 3, 0)
+        f_layout.addWidget(f_modulex, 3, 1)
+        f_euphoria = QtGui.QComboBox()
+        f_euphoria.addItems(global_controller_port_name_dict["Euphoria"].keys())
+        f_layout.addWidget(QtGui.QLabel("Euphoria"), 4, 0)
+        f_layout.addWidget(f_euphoria, 4, 1)
+        f_wayv = QtGui.QComboBox()
+        f_wayv.addItems(global_controller_port_name_dict["Way-V"].keys())
+        f_layout.addWidget(QtGui.QLabel("Way-V"), 5, 0)
+        f_layout.addWidget(f_wayv, 5, 1)
+        f_rayv = QtGui.QComboBox()
+        f_rayv.addItems(global_controller_port_name_dict["Ray-V"].keys())
+        f_layout.addWidget(QtGui.QLabel("Ray-V"), 6, 0)
+        f_layout.addWidget(f_rayv, 6, 1)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_ok_cancel_layout, 7,1)
         f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 7,0)
+        f_ok_cancel_layout.addWidget(f_ok_button)
         f_ok_button.clicked.connect(cc_ok_handler)
         f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 7,1)
+        f_ok_cancel_layout.addWidget(f_cancel_button)
         f_cancel_button.clicked.connect(cc_cancel_handler)
         f_window.exec_()
 
@@ -5362,25 +5394,39 @@ class pydaw_cc_map_editor:
         f_local_dir = expanduser("~") + "/" + global_pydaw_version_string
         if not os.path.isdir(f_local_dir):
             os.mkdir(f_local_dir)
+        if not os.path.isfile(global_cc_map_folder + "/default"):
+            pydaw_save_cc_map("default", pydaw_cc_map())
         self.groupbox = QtGui.QGroupBox("Controllers")
-        self.groupbox.setMinimumWidth(660)
-        self.groupbox.setMaximumWidth(660)
+        self.groupbox.setMinimumWidth(930)
+        self.groupbox.setMaximumWidth(930)
         f_vlayout = QtGui.QVBoxLayout(self.groupbox)
-
         f_button_layout = QtGui.QHBoxLayout()
         f_vlayout.addLayout(f_button_layout)
         f_button_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         f_button_layout.addItem(f_button_spacer)
-        f_save_button = QtGui.QPushButton("Save")
-        f_save_button.pressed.connect(self.on_save)
-        f_button_layout.addWidget(f_save_button)
-
-        self.cc_table = QtGui.QTableWidget(127, 4)
+        #f_save_as_button = QtGui.QPushButton("Save As")
+        #f_save_as_button.pressed.connect(self.on_save_as)
+        #f_button_layout.addWidget(f_save_as_button)
+        self.cc_table = QtGui.QTableWidget(127, 5)
         self.cc_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.cc_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.cc_table.setHorizontalHeaderLabels(["CC", "Modulex", "Ray-V", "Way-V"])
+        self.cc_table.setHorizontalHeaderLabels(["Effects Only?", "Euphoria", "Modulex", "Ray-V", "Way-V"])
         self.cc_table.cellClicked.connect(self.on_click)
         f_vlayout.addWidget(self.cc_table)
+        self.open_map("default")
+
+    def open_map(self, a_map_name):
+        f_map = pydaw_get_cc_map(a_map_name)
+        self.cc_table.clearContents()
+        self.cc_table.setRowCount(127)
+        for k, v in f_map.map.iteritems():
+            f_row_pos = k - 1
+            self.cc_table.setItem(f_row_pos, 0, QtGui.QTableWidgetItem(str(int_to_bool(v.effects_only))))
+            self.cc_table.setItem(f_row_pos, 1, QtGui.QTableWidgetItem(global_controller_port_num_dict["Euphoria"][v.euphoria_port].name))
+            self.cc_table.setItem(f_row_pos, 2, QtGui.QTableWidgetItem(global_controller_port_num_dict["Modulex"][v.modulex_port].name))
+            self.cc_table.setItem(f_row_pos, 3, QtGui.QTableWidgetItem(global_controller_port_num_dict["Ray-V"][v.rayv_port].name))
+            self.cc_table.setItem(f_row_pos, 4, QtGui.QTableWidgetItem(global_controller_port_num_dict["Way-V"][v.wayv_port].name))
+        self.cc_table.resizeColumnsToContents()
 
 def set_default_project(a_project_path):
     f_def_file = expanduser("~") + "/" + global_pydaw_version_string + "/last-project.txt"
@@ -5468,6 +5514,11 @@ def about_to_quit():
 
 app = QtGui.QApplication(sys.argv)
 
+global_profile_folder = expanduser("~") + "/" + global_pydaw_version_string
+global_cc_map_folder = global_profile_folder + "/cc_maps"
+if not os.path.isdir(global_cc_map_folder):
+    os.makedirs(global_cc_map_folder)
+
 pydaw_load_controller_maps()
 
 global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch)"]
@@ -5516,7 +5567,7 @@ this_item_editor.cc_auto_viewers[2].set_cc_num(3)
 
 # ^^^TODO:  Move the CC maps out of the main window class and instantiate earlier
 
-f_def_file = expanduser("~") + "/" + global_pydaw_version_string + "/last-project.txt"
+f_def_file = global_profile_folder + "/last-project.txt"
 if os.path.exists(f_def_file):
     f_handle = open(f_def_file, 'r')
     default_project_file = f_handle.read()

@@ -203,3 +203,6 @@ class dssi_gui(ServerThread):
     def pydaw_set_overdub_mode(self, a_is_on):
         """ a_is_on should be a bool """
         self.send_configure("od", bool_to_int(a_is_on))
+
+    def pydaw_load_cc_map(self, a_name):
+        self.send_configure("cm", str(a_name))
