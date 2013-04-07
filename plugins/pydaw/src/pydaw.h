@@ -327,7 +327,7 @@ typedef struct
 void g_pysong_get(t_pydaw_data*);
 t_pytrack * g_pytrack_get(int,int);
 t_pyregion * g_pyregion_get(t_pydaw_data* a_pydaw, const int);
-void g_pyitem_get(t_pydaw_data*, const int);
+void g_pyitem_get(t_pydaw_data*, int);
 int g_pyitem_clone(t_pydaw_data * a_pydaw_data, int a_item_index);
 t_pycc * g_pycc_get(int, int, float, float);
 t_pypitchbend * g_pypitchbend_get(float a_start, float a_value);
@@ -952,8 +952,15 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                     }
                     if(a_pydaw_data->overdub_mode)
                     {
-                        a_pydaw_data->recording_current_item_pool_index = g_pyitem_clone(a_pydaw_data, 
-                                a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar]);
+                        int f_item_index = a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar];
+                        if(f_item_index == -1)
+                        {
+                            a_pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(a_pydaw_data);
+                        }
+                        else
+                        {
+                            a_pydaw_data->recording_current_item_pool_index = g_pyitem_clone(a_pydaw_data, f_item_index);
+                        }                        
                     }
                     else
                     {
