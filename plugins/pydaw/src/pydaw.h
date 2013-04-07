@@ -956,6 +956,8 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
                         if(f_item_index == -1)
                         {
                             a_pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(a_pydaw_data);
+                            a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar] =
+                                    a_pydaw_data->item_pool[(a_pydaw_data->recording_current_item_pool_index)]->uid;
                         }
                         else
                         {
