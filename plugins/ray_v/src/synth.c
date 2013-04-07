@@ -593,7 +593,7 @@ const LADSPA_Descriptor *rayv_ladspa_descriptor(int index)
         value_tranform_hints[RAYV_FILTER_RELEASE] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
 	port_descriptors[RAYV_NOISE_AMP] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_NOISE_AMP] = "Dist";
+	port_names[RAYV_NOISE_AMP] = "Noise Amp";
 	port_range_hints[RAYV_NOISE_AMP].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[RAYV_NOISE_AMP].LowerBound =  -60.0f;
 	port_range_hints[RAYV_NOISE_AMP].UpperBound =  0.0f;
