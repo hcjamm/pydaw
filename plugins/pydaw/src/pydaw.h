@@ -199,7 +199,7 @@ typedef struct
 
 typedef struct
 {
-    long sample_count;   //set from the Jack buffer size every time the main loop is called..
+    int sample_count;   //set from the Jack buffer size every time the main loop is called..
     float tempo;
     pthread_mutex_t main_mutex;
     t_pysong * pysong;
@@ -356,9 +356,9 @@ inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin);
 void * v_pydaw_worker_thread(void*);
 void v_pydaw_init_worker_threads(t_pydaw_data*);
 void v_open_default_project(t_pydaw_data * a_data);
-inline void v_pydaw_process_external_midi(t_pydaw_data * pydaw_data, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count);
-inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, unsigned long sample_count, 
-        snd_seq_event_t *events, unsigned long event_count, long f_next_current_sample, 
+inline void v_pydaw_process_external_midi(t_pydaw_data * pydaw_data, int sample_count, snd_seq_event_t *events, int event_count);
+inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, int sample_count, 
+        snd_seq_event_t *events, int event_count, long f_next_current_sample, 
         LADSPA_Data *output0, LADSPA_Data *output1, LADSPA_Data **a_input_buffers);
 void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, int a_end_region, 
         int a_end_bar, char * a_file_out);
@@ -923,7 +923,7 @@ void v_pydaw_load_cc_map(t_pydaw_data * a_pydaw_data, const char * a_name)
     }
 }
 
-inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned long sample_count, snd_seq_event_t *events, unsigned long event_count)
+inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sample_count, snd_seq_event_t *events, int event_count)
 {
     if((a_pydaw_data->record_armed_track) && ((a_pydaw_data->record_armed_track->plugin_index) != 0))
     {
@@ -1053,7 +1053,7 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, unsigned 
                             ((a_pydaw_data->playback_cursor) + ((((double)(events[f_i2].time.tick))/((double)sample_count)) 
                             * (a_pydaw_data->playback_inc))) * 4.0f;
                     
-                    long controlIn;
+                    int controlIn;
                     if(a_pydaw_data->record_armed_track->instrument)
                     {
                         int f_port; 
@@ -1228,8 +1228,8 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
     }    
 }
 
-inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, unsigned long sample_count, 
-        snd_seq_event_t *events, unsigned long event_count, long f_next_current_sample, 
+inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count, 
+        snd_seq_event_t *events, int event_count, long f_next_current_sample, 
         LADSPA_Data *output0, LADSPA_Data *output1, LADSPA_Data **a_input_buffers)
 {
     a_pydaw_data->sample_count = sample_count;
