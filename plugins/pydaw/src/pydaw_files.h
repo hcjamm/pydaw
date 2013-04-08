@@ -270,6 +270,14 @@ void v_pydaw_write_to_file(char * a_file, char * a_string)
     fclose(pFile);
 }
 
+void v_pydaw_append_to_file(char * a_file, char * a_string)
+{    
+    FILE* pFile = fopen(a_file, "a");
+    assert(pFile);
+    fprintf(pFile, "%s", a_string);
+    fclose(pFile);
+}
+
 int i_pydaw_file_exists(char * f_file_name)
 {
     struct stat sts;

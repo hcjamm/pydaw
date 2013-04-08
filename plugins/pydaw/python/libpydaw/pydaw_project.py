@@ -230,12 +230,6 @@ class pydaw_project:
             self.history.commit(f_commit)
         self.history_commits = []
 
-    def record_stop_git_commit(self):
-        """ This should be called once recording has stopped to catch-up Git """
-        self.git_repo.git_add(self.regions_folder + "/*")
-        self.git_repo.git_add(self.items_folder + "/*")
-        self.git_repo.git_commit("-a", "Save recorded items/regions")
-
     def save_project_as(self, a_file_name):
         self.save_project()  #This is necessary to capture the plugin states before copying everything over...  Otherwise the instruments and effects may not be what they were at this time...
         f_file_name = str(a_file_name)
@@ -433,6 +427,8 @@ class pydaw_project:
                 while f_items_dict.uid_lookup.has_key(f_item_name + str(f_suffix)):
                     f_suffix += 1
                 f_items_dict.add_item(f_int, f_item_name + str(f_suffix))
+                self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_items, str(f_int), \
+                    pydaw_read_file_text(self.items_folder + "/" + str(f_int)), "", 0))
                 f_suffix += 1
         self.save_items_dict(f_items_dict)
 

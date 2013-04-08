@@ -4643,7 +4643,6 @@ class transport_widget:
             if global_current_region is not None and this_region_settings.enabled:
                 this_region_settings.open_region_by_uid(global_current_region.uid)
             this_song_editor.open_song()
-            this_pydaw_project.record_stop_git_commit()
             self.show_audio_recording_dialog()
         self.init_playback_cursor(a_bar=False)
         self.is_playing = False
