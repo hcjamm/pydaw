@@ -222,15 +222,14 @@ typedef struct
     char * instruments_folder;
     char * item_folder;
     char * region_folder;
-    
-    char * busfx_folder;
-    char * bus_automation_folder;
-    char * audio_automation_folder;
     char * audio_folder;
-    char * audio_tmp_folder;
-    char * audiofx_folder;
+    char * audio_tmp_folder;    
     char * samples_folder;
     char * samplegraph_folder;
+    char * regions_dict_file;
+    char * items_dict_file;
+    char * busfx_folder;
+    char * audiofx_folder;
     
     double playback_cursor; //only refers to the fractional position within the current bar.
     double playback_inc;  //the increment per-period to iterate through 1 bar, as determined by sample rate and tempo
@@ -2569,7 +2568,7 @@ void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index)
     
     strcat(f_result, "\\");    
     sprintf(f_temp, "%s%i", a_pydaw_data->item_folder, f_pyitem->uid);    
-    v_pydaw_write_to_file(f_temp, f_result);
+    v_pydaw_write_to_file(f_temp, f_result);    
 }
 
 /* Items must be saved before regions to prevent a SEGFAULT at the line that references item name...*/
@@ -2824,8 +2823,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->audiofx_folder = (char*)malloc(sizeof(char) * 256);
     f_result->samples_folder = (char*)malloc(sizeof(char) * 256);
     f_result->samplegraph_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->bus_automation_folder = (char*)malloc(sizeof(char) * 256);
-    f_result->audio_automation_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->regions_dict_file = (char*)malloc(sizeof(char) * 256);
+    f_result->items_dict_file = (char*)malloc(sizeof(char) * 256);
     
     f_result->playback_mode = 0;
     f_result->pysong = NULL;
@@ -3338,22 +3337,16 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     sprintf(a_pydaw_data->project_folder, "%s/", a_project_folder);    
     sprintf(a_pydaw_data->item_folder, "%sitems/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->region_folder, "%sregions/", a_pydaw_data->project_folder);
-    sprintf(a_pydaw_data->instruments_folder, "%sinstruments/", a_pydaw_data->project_folder);
-    
+    sprintf(a_pydaw_data->instruments_folder, "%sinstruments/", a_pydaw_data->project_folder);    
     sprintf(a_pydaw_data->audio_folder, "%saudio/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->audio_tmp_folder, "%saudio/tmp/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->audiofx_folder, "%saudiofx/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->busfx_folder, "%sbusfx/", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->samples_folder, "%ssamples/", a_pydaw_data->project_folder);
-    sprintf(a_pydaw_data->samplegraph_folder, "%ssamplegraph/", a_pydaw_data->project_folder);
-    
+    sprintf(a_pydaw_data->samplegraph_folder, "%ssamplegraph/", a_pydaw_data->project_folder);    
     sprintf(a_pydaw_data->audio_items_file, "%sdefault.pyaudioitem", a_pydaw_data->project_folder);
-    
-    sprintf(a_pydaw_data->audio_automation_folder, "%saudio_automation/", a_pydaw_data->project_folder);
-    sprintf(a_pydaw_data->bus_automation_folder, "%sbus_automation/", a_pydaw_data->project_folder);
-    
-    
-    //strcpy(a_pydaw_data->project_name, a_name);
+    sprintf(a_pydaw_data->regions_dict_file, "%sdefault.pyregions", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->items_dict_file, "%sdefault.pyitems", a_pydaw_data->project_folder);
     
     int f_i = 0;
     
