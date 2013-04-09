@@ -4644,6 +4644,7 @@ class transport_widget:
                 this_region_settings.open_region_by_uid(global_current_region.uid)
             this_song_editor.open_song()
             self.show_audio_recording_dialog()
+            this_pydaw_project.commit("Recording")
         self.init_playback_cursor(a_bar=False)
         self.is_playing = False
         #if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
@@ -4677,9 +4678,9 @@ class transport_widget:
         f_ok_button = QtGui.QPushButton("Save")
         f_ok_button.clicked.connect(ok_handler)
         f_layout.addWidget(f_ok_button, 8,2)
-        #f_cancel_button = QtGui.QPushButton("Discard File")
-        #f_layout.addWidget(f_cancel_button, 8,3)
-        #f_cancel_button.clicked.connect(cancel_handler)
+        f_cancel_button = QtGui.QPushButton("Discard Changes")
+        f_layout.addWidget(f_cancel_button, 8,3)
+        f_cancel_button.clicked.connect(cancel_handler)
         f_window.exec_()
 
     def on_rec(self):
