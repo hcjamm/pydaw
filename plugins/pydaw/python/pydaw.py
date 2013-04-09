@@ -5284,6 +5284,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         elif f_reply == QtGui.QMessageBox.Cancel:
             event.ignore()
         else:
+            this_pydaw_project.commit()
             event.accept()
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
