@@ -1062,8 +1062,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_track_num = global_audio_ruler_height + (global_audio_item_height) * a_lane_num
 
         QtGui.QGraphicsRectItem.__init__(self, 0.0, 0.0, f_length, global_audio_item_height)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
-
         self.setPos(f_start, f_track_num)
         self.last_x = self.pos().x()
         self.setBrush(a_brush)
@@ -1073,7 +1071,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_name = f_name_arr[len(f_name_arr) - 1]
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
-        #self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)  #This caused problems with multiselect + moving items
+        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.track_num = a_track_num
         self.mouse_y_pos = f_track_num
         self.audio_item = a_audio_item
