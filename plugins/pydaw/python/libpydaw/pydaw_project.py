@@ -160,8 +160,9 @@ class pydaw_project:
         if self.history_undo_cursor > 0:
             self.history_commits = self.history_commits[:self.history_undo_cursor]
             self.history_undo_cursor = 0
-        self.history_commits.append(pydaw_history.pydaw_history_commit(self.history_files, a_message))
-        self.history_files = []
+        if len(self.history_files) > 0:
+            self.history_commits.append(pydaw_history.pydaw_history_commit(self.history_files, a_message))
+            self.history_files = []
 
     def undo(self):
         if self.history_undo_cursor >= len(self.history_commits):
