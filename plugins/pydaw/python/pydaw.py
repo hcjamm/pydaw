@@ -15,7 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import sys, os, re, operator
+import sys, os, operator
 from time import sleep, time
 from PyQt4 import QtGui, QtCore
 from sys import argv
@@ -5284,7 +5284,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         elif f_reply == QtGui.QMessageBox.Cancel:
             event.ignore()
         else:
-            this_pydaw_project.commit()
+            this_pydaw_project.commit("Flush undo history on exit.")
             event.accept()
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
