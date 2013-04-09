@@ -415,21 +415,29 @@ class pydaw_project:
 
     def check_for_recorded_items(self, a_item_name):
         f_item_name = str(a_item_name) + "-"
-        f_str_list = os.listdir(self.items_folder)
+        if os.path.isfile(self.project_folder + "/recorded_items"):
+            f_str_list = pydaw_read_file_text(self.project_folder + "/recorded_items").split("\n")
+            os.remove(self.project_folder + "/recorded_items")
+        else:
+            return
         f_int_list = []
         for f_str in f_str_list:
-            f_int_list.append(int(f_str))
+            if f_str == "":
+                break
+            f_int = int(f_str)
+            if not f_int in  f_int_list:
+                f_int_list.append(f_int)
         f_int_list.sort()
         f_suffix = 1
         f_items_dict = self.get_items_dict()
         for f_int in f_int_list:
-            if not f_items_dict.name_lookup.has_key(f_int):
-                while f_items_dict.uid_lookup.has_key(f_item_name + str(f_suffix)):
-                    f_suffix += 1
-                f_items_dict.add_item(f_int, f_item_name + str(f_suffix))
-                self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_items, str(f_int), \
-                    pydaw_read_file_text(self.items_folder + "/" + str(f_int)), "", 0))
+            while f_items_dict.uid_lookup.has_key(f_item_name + str(f_suffix)):
                 f_suffix += 1
+            f_items_dict.add_item(f_int, f_item_name + str(f_suffix))
+            f_old_text = self.history.get_latest_version_of_file(pydaw_folder_items, f_int)
+            self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_items, str(f_int), \
+                pydaw_read_file_text(self.items_folder + "/" + str(f_int)), f_old_text, 0))
+            f_suffix += 1
         self.save_items_dict(f_items_dict)
 
     def remove_recorded_items(self):
@@ -440,10 +448,18 @@ class pydaw_project:
                 os.remove(self.items_folder + "/" + f_str)
 
     def check_for_recorded_regions(self):
-        f_str_list = os.listdir(self.regions_folder)
+        if os.path.isfile(self.project_folder + "/recorded_regions"):
+            f_str_list = pydaw_read_file_text(self.project_folder + "/recorded_regions").split("\n")
+            os.remove(self.project_folder + "/recorded_regions")
+        else:
+            return
         f_int_list = []
         for f_str in f_str_list:
-            f_int_list.append(int(f_str))
+            if f_str == "":
+                break
+            f_int = int(f_str)
+            if not f_int in  f_int_list:
+                f_int_list.append(f_int)
         f_int_list.sort()
         f_suffix = 1
         f_regions_dict = self.get_regions_dict()
@@ -452,6 +468,9 @@ class pydaw_project:
                 while f_regions_dict.uid_lookup.has_key("recorded-" + str(f_suffix)):
                     f_suffix += 1
                 f_regions_dict.add_item(f_int, "recorded-" + str(f_suffix))
+                f_old_text = self.history.get_latest_version_of_file(pydaw_folder_regions, f_int)
+                self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_items, str(f_int), \
+                pydaw_read_file_text(self.items_folder + "/" + str(f_int)), f_old_text, 0))
                 f_suffix += 1
         self.save_regions_dict(f_regions_dict)
 

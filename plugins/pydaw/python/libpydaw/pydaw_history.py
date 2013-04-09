@@ -19,6 +19,14 @@ class pydaw_history:
             f_conn.commit()
             f_conn.close()
 
+    def get_latest_version_of_file(self, a_folder, a_file):
+        f_query_result = self.db_exec("SELECT text_new FROM pydaw_diffs WHERE commit_file = '" + str(a_file) + \
+        "' AND commit_folder = '" + str(a_folder) + "' ORDER BY commit_timestamp DESC LIMIT 1", True)
+        if len(f_query_result) == 0:
+            return ""
+        else:
+            return f_query_result[0][0]
+
     def commit(self, a_commit):
         f_conn = sqlite3.connect(self.db_file)
         f_cursor = f_conn.cursor()
