@@ -1156,7 +1156,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_x = round(f_x / global_audio_bar_px) * global_audio_bar_px
                     f_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
                     f_item.length_handle.setPos(f_x - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
-            return
         else:
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
             for f_item in this_audio_items_viewer.audio_items:
@@ -1183,7 +1182,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                             f_item.sample_end = (f_audio_item.rect().width() / f_audio_item.length_seconds_orig_px) * 1000.0
                     elif f_audio_item.is_moving:
                         if f_audio_item.last_x == f_pos_x:
-                            return
+                            continue
                         if this_audio_items_viewer.snap_mode == 0:
                             pass
                         elif this_audio_items_viewer.snap_mode == 1:
