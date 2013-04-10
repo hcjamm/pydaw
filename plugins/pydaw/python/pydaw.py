@@ -2992,9 +2992,8 @@ class automation_viewer_widget:
             f_str = str(self.ccs_in_use_combobox.currentText())
             if f_str != "":
                 f_arr = f_str.split("|")
-                f_num = global_controller_port_name_dict[f_arr[0]][f_arr[1]].port
-                self.automation_viewer.set_cc_num(self.plugin_combobox.currentIndex(), f_num)
-                self.control_combobox.setCurrentIndex(0)
+                self.plugin_combobox.setCurrentIndex(self.plugin_combobox.findText(f_arr[0]))
+                self.control_combobox.setCurrentIndex(self.control_combobox.findText(f_arr[1]))
 
     def update_ccs_in_use(self, a_ccs):
         self.suppress_ccs_in_use = True
