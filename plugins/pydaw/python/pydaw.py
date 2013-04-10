@@ -1230,6 +1230,17 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
 
+
+    def keyPressEvent(self, a_event):
+        if a_event.key() == QtCore.Qt.Key_Delete:
+            f_items = this_pydaw_project.get_audio_items()
+            for f_item in self.audio_items:
+                if f_item.isSelected():
+                    f_items.remove_item(f_item.track_num)
+            this_pydaw_project.save_audio_items(f_items)
+            this_pydaw_project.commit("Delete item(s) from song-level audio")
+            this_audio_editor.open_items(True)
+
     def set_playback_pos(self, a_region=None, a_bar=None):
         try:
             self.scene.removeItem(self.playback_cursor)
