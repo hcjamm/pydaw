@@ -390,7 +390,7 @@ inline void v_svf_set_cutoff(t_state_variable_filter *__restrict a_svf)
     
     a_svf->cutoff_hz = f_pit_midi_note_to_hz_fast((a_svf->cutoff_note), a_svf->pitch_core); //_svf->cutoff_smoother->last_value);
     
-    a_svf->cutoff_filter = (a_svf->pi2_div_sr) * (a_svf->cutoff_hz);
+    a_svf->cutoff_filter = (a_svf->pi2_div_sr) * (a_svf->cutoff_hz) * 4.0f;
 
     /*prevent the filter from exploding numerically, this does artificially cap the cutoff frequency to below what you set it to
      if you lower the oversampling rate of the filter.*/
