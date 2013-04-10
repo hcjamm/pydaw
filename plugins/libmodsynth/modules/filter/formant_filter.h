@@ -19,24 +19,24 @@ extern "C" {
 
 static float f_formant_pitches[3][10] =
 {
-    {61.4815007463, 50.3695077237, 57.0, 65.7647152829, 59.892097194, 58.8633387057, 64.0195500087, 60.2218660311, 54.9116472027, 48.5454706023},
-    {68.1946296497, 68.8021425265, 71.55592468, 72.7050324737, 74.224633736, 76.408607741, 80.6019976328, 81.769564049, 83.1263160229, 85.5572660335},
-    {86.4414926111, 85.175079641, 85.175079641, 86.6556686271, 86.2972222721, 80.2973738117, 86.4414926111, 86.937176301, 87.4190618187, 90.2902566975}
+    {65.7647152829, 64.0195500087, 60.2218660311, 48.5454706023, 54.9116472027, 58.8633387057, 61.4815007463, 50.3695077237, 59.892097194, 57.0},
+    {72.7050324737, 80.6019976328, 81.769564049, 85.5572660335, 83.1263160229, 76.408607741, 68.1946296497, 68.8021425265, 74.224633736, 71.55592468},
+    {86.6556686271, 86.4414926111, 86.937176301, 90.2902566975, 87.4190618187, 80.2973738117, 86.4414926111, 85.175079641, 86.2972222721, 85.175079641}
 };
 
 /* ^^^^ Generated with this Python script:
 from math import log
 f_list = []
-f_list.append([570, 840, 2410, "ow"])
-f_list.append([300, 870, 2240, "oo"])
-f_list.append([440, 1020, 2240, "u"])
-f_list.append([730, 1090, 2440, "a"])
-f_list.append([520, 1190, 2390, "uh"])
-f_list.append([490, 1350, 1690, "er"])
-f_list.append([660, 1720, 2410, "ae"])
-f_list.append([530, 1840, 2480, "e"])
-f_list.append([390, 1990, 2550, "i"])
-f_list.append([270, 2290, 3010, "iy"])
+f_list.append([730, 1090, 2440]) #"a"
+f_list.append([660, 1720, 2410]) #"ae"
+f_list.append([530, 1840, 2480]) #"e"
+f_list.append([270, 2290, 3010]) #"iy"
+f_list.append([390, 1990, 2550]) #"i"
+f_list.append([490, 1350, 1690]) #"er"
+f_list.append([570, 840, 2410]) #"ow"
+f_list.append([300, 870, 2240]) #"oo"
+f_list.append([520, 1190, 2390]) #"uh"
+f_list.append([440, 1020, 2240]) #"u"
 
 def pydaw_hz_to_pitch(a_hz):
     return ((12.0 * log(a_hz * (1.0/440.0), 2.0)) + 57.0)
@@ -47,9 +47,10 @@ for i in range(3):
     for f_item in f_list:
         f_print += str(pydaw_hz_to_pitch(f_item[i]))
         f_print += ", "
-    print(f_print + "}, //" + f_item[3])
+    print(f_print + "},")
 print "};"
- */
+
+ *  */
     
 typedef struct
 {
@@ -107,8 +108,7 @@ void v_for_formant_filter_set(t_for_formant_filter* a_for, float a_pos)
 
         while(a_for->iter < 3)
         {
-            a_for->pitch_tmp = f_linear_interpolate_ptr(f_formant_pitches[(a_for->iter)], a_pos, a_for->lin);
-            float f_temp = f_pit_midi_note_to_hz(a_for->pitch_tmp);            
+            a_for->pitch_tmp = f_linear_interpolate_ptr(f_formant_pitches[(a_for->iter)], a_pos, a_for->lin);                     
             v_svf_set_cutoff_base(a_for->filters[(a_for->iter)][0], (a_for->pitch_tmp));
             v_svf_set_cutoff_base(a_for->filters[(a_for->iter)][1], (a_for->pitch_tmp));
             v_svf_set_cutoff(a_for->filters[(a_for->iter)][0]);
