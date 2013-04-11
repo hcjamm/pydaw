@@ -116,11 +116,6 @@ static void v_modulex_connect_port(LADSPA_Handle instance, int port, LADSPA_Data
         case MODULEX_REVERB_TIME: plugin->reverb_time = data; break;
         case MODULEX_REVERB_WET: plugin->reverb_wet = data; break;
         case MODULEX_REVERB_COLOR: plugin->reverb_color = data; break;
-
-        case MODULEX_COMPRESSOR_THRESH: plugin->compressor_thresh = data; break;
-        case MODULEX_COMPRESSOR_ATTACK: plugin->compressor_attack = data; break;
-        case MODULEX_COMPRESSOR_RATIO: plugin->compressor_ratio = data; break;
-        case MODULEX_COMPRESSOR_RELEASE: plugin->compressor_release = data; break;
     }
 }
 
@@ -758,39 +753,7 @@ LADSPA_Descriptor *modulex_ladspa_descriptor(int index)
 	port_range_hints[MODULEX_REVERB_COLOR].LowerBound =  0.0f;
 	port_range_hints[MODULEX_REVERB_COLOR].UpperBound =  100.0f;
         automatable[MODULEX_REVERB_COLOR] = 1;
-        
-        port_descriptors[MODULEX_COMPRESSOR_THRESH] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[MODULEX_COMPRESSOR_THRESH] = "Compressor Threshold";
-	port_range_hints[MODULEX_COMPRESSOR_THRESH].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_COMPRESSOR_THRESH].LowerBound =  -24.0f;
-	port_range_hints[MODULEX_COMPRESSOR_THRESH].UpperBound =  0.0f;        
-        
-        port_descriptors[MODULEX_COMPRESSOR_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[MODULEX_COMPRESSOR_ATTACK] = "Compressor Attack";
-	port_range_hints[MODULEX_COMPRESSOR_ATTACK].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_COMPRESSOR_ATTACK].LowerBound =  0.0f;
-	port_range_hints[MODULEX_COMPRESSOR_ATTACK].UpperBound =  100.0f;
-        
-        port_descriptors[MODULEX_COMPRESSOR_RATIO] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[MODULEX_COMPRESSOR_RATIO] = "Compressor Ratio";
-	port_range_hints[MODULEX_COMPRESSOR_RATIO].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MINIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_COMPRESSOR_RATIO].LowerBound =  1.0f;
-	port_range_hints[MODULEX_COMPRESSOR_RATIO].UpperBound =  12.0f;
-        
-        port_descriptors[MODULEX_COMPRESSOR_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[MODULEX_COMPRESSOR_RELEASE] = "Compressor Release";
-	port_range_hints[MODULEX_COMPRESSOR_RELEASE].HintDescriptor =
-			LADSPA_HINT_DEFAULT_MAXIMUM |
-			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
-	port_range_hints[MODULEX_COMPRESSOR_RELEASE].LowerBound =  0.0f;
-	port_range_hints[MODULEX_COMPRESSOR_RELEASE].UpperBound =  100.0f;
-        
+                
 	LMSLDescriptor->activate = v_modulex_activate;
 	LMSLDescriptor->cleanup = v_modulex_cleanup;
 	LMSLDescriptor->connect_port = v_modulex_connect_port;
