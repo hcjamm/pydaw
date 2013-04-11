@@ -54,8 +54,6 @@ static void v_modulex_connect_port(LADSPA_Handle instance, int port, LADSPA_Data
 
     plugin = (t_modulex *) instance;
     
-    /*Add the ports from step 9 to the connectPortLMS event handler*/
-    
     switch (port) 
     {
         case MODULEX_INPUT0: plugin->input0 = data; break;

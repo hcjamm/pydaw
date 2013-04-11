@@ -22,8 +22,6 @@ extern "C" {
 #define MODULEX_OUTPUT0  2
 #define MODULEX_OUTPUT1  3
 
-/*LMS_FIRST_CONTROL_PORT is the first port used for controls such as knobs.  All control ports must be numbered continuously,
- as they are iterated through*/
 #define MODULEX_FIRST_CONTROL_PORT 4
 #define MODULEX_FX0_KNOB0  4
 #define MODULEX_FX0_KNOB1  5
@@ -74,8 +72,7 @@ extern "C" {
 /*This is the last control port*/
 #define MODULEX_LAST_CONTROL_PORT 46
 #define MODULEX_COUNT 47 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
-  
-/*GUI Step 13:  Add a variable for each control in the LMS type*/
+
 typedef struct {
     LADSPA_Data *input0;
     LADSPA_Data *input1;
