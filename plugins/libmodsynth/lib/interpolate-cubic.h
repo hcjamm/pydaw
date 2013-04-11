@@ -79,38 +79,34 @@ inline float f_cubic_interpolate_ptr_wrap(float * a_table, int a_table_size, flo
     {
         a_cubic->int_pos = (a_cubic->int_pos) - a_table_size;
     }
+    else if(a_cubic->int_pos < 0)
+    {
+        a_cubic->int_pos = (a_cubic->int_pos) + a_table_size;
+    }
     
     if(a_cubic->int_pos_plus1 >= a_table_size)
     {
         a_cubic->int_pos_plus1 = (a_cubic->int_pos_plus1) - a_table_size;
     }    
+    else if(a_cubic->int_pos_plus1 < 0)
+    {
+        a_cubic->int_pos_plus1 = (a_cubic->int_pos_plus1) + a_table_size;
+    }
     
     if(a_cubic->int_pos_minus1 >= a_table_size)
     {
         a_cubic->int_pos_minus1 = (a_cubic->int_pos_minus1) - a_table_size;
     }
+    else if(a_cubic->int_pos_minus1 < 0)
+    {
+        a_cubic->int_pos_minus1 = (a_cubic->int_pos_minus1) + a_table_size;
+    }
     
     if(a_cubic->int_pos_minus2 >= a_table_size)
     {
         a_cubic->int_pos_minus2 = (a_cubic->int_pos_minus2) - a_table_size;
-    }    
-    
-    if(a_cubic->int_pos < 0)
-    {
-        a_cubic->int_pos = (a_cubic->int_pos) + a_table_size;
-    }
-        
-    if(a_cubic->int_pos_plus1 < 0)
-    {
-        a_cubic->int_pos_plus1 = (a_cubic->int_pos_plus1) + a_table_size;
-    }
-    
-    if(a_cubic->int_pos_minus1 < 0)
-    {
-        a_cubic->int_pos_minus1 = (a_cubic->int_pos_minus1) + a_table_size;
-    }
-        
-    if(a_cubic->int_pos_minus2 < 0)
+    }   
+    else if(a_cubic->int_pos_minus2 < 0)
     {
         a_cubic->int_pos_minus2 = (a_cubic->int_pos_minus2) + a_table_size;
     }
