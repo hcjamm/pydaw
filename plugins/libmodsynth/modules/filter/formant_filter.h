@@ -16,6 +16,7 @@ extern "C" {
 
 #include "svf.h"
 #include "../../lib/interpolate-linear.h"
+#include "../signal_routing/audio_xfade.h"
 
 static float f_formant_pitches[3][10] =
 {
@@ -60,11 +61,13 @@ typedef struct
     int iter;
     float pitch_tmp;
     float last_pos;
+    float last_wet;
     t_lin_interpolater * lin;
+    t_audio_xfade * xfade;
 }t_for_formant_filter;
 
 t_for_formant_filter * g_for_formant_filter_get(float);
-void v_for_formant_filter_set(t_for_formant_filter*, float);
+void v_for_formant_filter_set(t_for_formant_filter*, float, float);
 void v_for_formant_filter_run(t_for_formant_filter*, float, float);
 
 t_for_formant_filter * g_for_formant_filter_get(float a_sr)
@@ -95,11 +98,13 @@ t_for_formant_filter * g_for_formant_filter_get(float a_sr)
     f_result->pitch_tmp = 0.0f;
     f_result->lin = g_lin_get();
     f_result->last_pos = -99.0f;
+    f_result->last_wet = 0.0f;
+    f_result->xfade = g_axf_get_audio_xfade(-3.0f);
     
     return f_result;
 }
 
-void v_for_formant_filter_set(t_for_formant_filter* a_for, float a_pos)
+void v_for_formant_filter_set(t_for_formant_filter* a_for, float a_pos, float a_wet)
 {
     if(a_pos != a_for->last_pos)
     {
@@ -115,6 +120,13 @@ void v_for_formant_filter_set(t_for_formant_filter* a_for, float a_pos)
             v_svf_set_cutoff(a_for->filters[(a_for->iter)][1]);
             a_for->iter++;
         }
+    }
+    
+    
+    if(a_for->last_wet != a_wet)
+    {
+        a_for->last_wet = a_wet;
+        v_axf_set_xfade(a_for->xfade, a_wet);
     }
 }
 
@@ -133,6 +145,9 @@ void v_for_formant_filter_run(t_for_formant_filter* a_for, float a_input0, float
     
     a_for->output0 *= 0.33333f;
     a_for->output1 *= 0.33333f;
+    
+    a_for->output0 = f_axf_run_xfade(a_for->xfade, a_input0, a_for->output0);
+    a_for->output1 = f_axf_run_xfade(a_for->xfade, a_input1, a_for->output1);
 }
 
 #ifdef	__cplusplus
