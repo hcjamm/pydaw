@@ -111,8 +111,25 @@ inline float f_linear_interpolate_ptr_wrap(float * a_table, int a_table_size, fl
     a_lin->int_pos = (int)a_ptr;
     a_lin->int_pos_plus_1 = (a_lin->int_pos) + 1;
     
+    if((a_lin->int_pos) >= a_table_size)
+    {
+        a_lin->int_pos -= a_table_size;
+    }
+    
     if((a_lin->int_pos_plus_1) >= a_table_size)
-        a_lin->int_pos_plus_1 = 0;
+    {
+        a_lin->int_pos_plus_1 -= a_table_size;
+    }
+    
+    if((a_lin->int_pos) < 0)
+    {
+        a_lin->int_pos += a_table_size;
+    }
+    
+    if((a_lin->int_pos_plus_1) < 0)
+    {
+        a_lin->int_pos_plus_1 += a_table_size;
+    }
     
     a_lin->pos = a_ptr - (a_lin->int_pos);
     
