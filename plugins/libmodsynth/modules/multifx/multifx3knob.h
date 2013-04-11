@@ -15,7 +15,7 @@ extern "C" {
 #endif
     
 /*The highest index for selecting the effect type*/
-#define MULTIFX3KNOB_MAX_INDEX 16
+#define MULTIFX3KNOB_MAX_INDEX 17
 #define MULTIFX3KNOB_KNOB_COUNT 3
 
 #include "../filter/svf.h"
@@ -29,6 +29,7 @@ extern "C" {
 #include "../distortion/saturator.h"
 #include "../filter/formant_filter.h"
 #include "../delay/chorus.h"
+#include "../distortion/glitch.h"
     
 /*BIG TODO:  Add a function to modify for the modulation sources*/
     
@@ -54,6 +55,7 @@ typedef struct st_mf3_multi
     t_amp * amp_ptr;    
     t_for_formant_filter * formant_filter;
     t_crs_chorus * chorus;
+    t_glc_glitch * glitch;
 }t_mf3_multi;
 
 /*A function pointer for switching between effect types*/
@@ -80,6 +82,7 @@ inline void v_mf3_run_limiter(t_mf3_multi*,float,float);
 inline void v_mf3_run_saturator(t_mf3_multi*, float, float);
 inline void v_mf3_run_formant_filter(t_mf3_multi*, float, float);
 inline void v_mf3_run_chorus(t_mf3_multi*, float, float);
+inline void v_mf3_run_glitch(t_mf3_multi*, float, float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -145,6 +148,8 @@ inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
                 return v_mf3_run_formant_filter;
             case 16:
                 return v_mf3_run_chorus;
+            case 17:
+                return v_mf3_run_glitch;
             default:
                 /*TODO: Report error*/
                 return v_mf3_run_off;
@@ -437,6 +442,20 @@ inline void v_mf3_run_chorus(t_mf3_multi*__restrict a_mf3, float a_in0, float a_
     a_mf3->output1 = a_mf3->chorus->output1;
 }
 
+inline void v_mf3_run_glitch(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
+{
+    v_mf3_commit_mod(a_mf3);
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.62992126f) + 5.0f;
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.08661) + 1.1f;
+    a_mf3->control_value[2] = ((a_mf3->control[2]) * 0.007874016);
+    
+    v_glc_glitch_set(a_mf3->glitch, a_mf3->control_value[0], a_mf3->control_value[1], a_mf3->control_value[2]);
+    v_glc_glitch_run(a_mf3->glitch, a_in0, a_in1);
+    
+    a_mf3->output0 = a_mf3->glitch->output0;
+    a_mf3->output1 = a_mf3->glitch->output1;
+}
+
 /* t_mf3_multi g_mf3_get(
  * float a_sample_rate)
  */
@@ -477,6 +496,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->saturator = g_sat_get();
     f_result->formant_filter = g_for_formant_filter_get(a_sample_rate);
     f_result->chorus = g_crs_chorus_get(a_sample_rate);
+    f_result->glitch = g_glc_glitch_get(a_sample_rate);
     
     return f_result;
 }
