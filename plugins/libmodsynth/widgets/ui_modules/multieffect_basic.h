@@ -206,7 +206,7 @@ public:
                 lms_knob3->lms_set_127_min_max(-12.0f, 12.0f);                
             case 15: //Formant Filter
                 lms_knob1->lms_label->setText(QString("Vowel"));
-                lms_knob2->lms_label->setText(QString("unused"));
+                lms_knob2->lms_label->setText(QString("Wet"));
                 lms_knob3->lms_label->setText(QString("unused"));
                 lms_knob1->lms_conv_type = lms_kc_none;
                 lms_knob1->lms_value->setText(QString(""));
