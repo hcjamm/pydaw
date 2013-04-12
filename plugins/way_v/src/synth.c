@@ -520,6 +520,18 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
                 plugin_data->data[f_voice]->osc2_uni_spread = (*plugin_data->osc2_uni_spread) * 0.01f;
                 plugin_data->data[f_voice]->osc3_uni_spread = (*plugin_data->osc3_uni_spread) * 0.01f;
                 
+                plugin_data->data[f_voice]->osc1fm1 = (*plugin_data->osc1fm1) * 0.01f;
+                plugin_data->data[f_voice]->osc1fm2 = (*plugin_data->osc1fm2) * 0.01f;
+                plugin_data->data[f_voice]->osc1fm3 = (*plugin_data->osc1fm3) * 0.01f;
+                
+                plugin_data->data[f_voice]->osc2fm1 = (*plugin_data->osc2fm1) * 0.01f;
+                plugin_data->data[f_voice]->osc2fm2 = (*plugin_data->osc2fm2) * 0.01f;
+                plugin_data->data[f_voice]->osc2fm3 = (*plugin_data->osc2fm3) * 0.01f;
+                
+                plugin_data->data[f_voice]->osc3fm1 = (*plugin_data->osc3fm1) * 0.01f;
+                plugin_data->data[f_voice]->osc3fm2 = (*plugin_data->osc3fm2) * 0.01f;
+                plugin_data->data[f_voice]->osc3fm3 = (*plugin_data->osc3fm3) * 0.01f;
+                
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
                 v_lfs_sync(plugin_data->data[f_voice]->lfo1, 0.0f, *(plugin_data->lfo_type));
@@ -538,8 +550,6 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
                 v_rmp_retrigger((plugin_data->data[f_voice]->ramp_env), (*(plugin_data->pitch_env_time) * .01), 1.0f);  
 
                 plugin_data->data[f_voice]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
-
-                
             } 
             /*0 velocity, the same as note-off*/
             else 
@@ -651,14 +661,21 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         {
             v_osc_wav_set_unison_pitch(a_voice->osc_wavtable1, (a_voice->osc1_uni_spread),
                     ((a_voice->base_pitch) + (*plugin_data->osc1pitch) + ((*plugin_data->osc1tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));       
+            
+            v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm1, a_voice->fm1_last);
+            v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm2, a_voice->fm2_last);
+            v_osc_wav_apply_fm(a_voice->osc_wavtable1, a_voice->osc1fm3, a_voice->fm3_last);
+            
             if(a_voice->adsr_amp1_on)
             {
-                v_adsr_run_db(a_voice->adsr_amp1);                
-                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->adsr_amp1->output) * (a_voice->osc1_linamp);
+                v_adsr_run_db(a_voice->adsr_amp1);      
+                a_voice->fm1_last = f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->adsr_amp1->output);
+                a_voice->current_sample += (a_voice->fm1_last) * (a_voice->osc1_linamp);
             }
             else
             {
-                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable1) * (a_voice->osc1_linamp);
+                a_voice->fm1_last = f_osc_wav_run_unison(a_voice->osc_wavtable1);
+                a_voice->current_sample += (a_voice->fm1_last) * (a_voice->osc1_linamp);
             }
         }
         
@@ -666,14 +683,21 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         {
             v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (a_voice->osc2_uni_spread),
                     ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
+            
+            v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm1, a_voice->fm1_last);
+            v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm2, a_voice->fm2_last);
+            v_osc_wav_apply_fm(a_voice->osc_wavtable2, a_voice->osc2fm3, a_voice->fm3_last);
+            
             if(a_voice->adsr_amp2_on)
             {
                 v_adsr_run_db(a_voice->adsr_amp2);
-                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->adsr_amp2->output) * (a_voice->osc2_linamp);
+                a_voice->fm2_last = f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->adsr_amp2->output);
+                a_voice->current_sample += (a_voice->fm2_last) * (a_voice->adsr_amp2->output) * (a_voice->osc2_linamp);
             }
             else
             {
-                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->osc2_linamp);
+                a_voice->fm2_last = f_osc_wav_run_unison(a_voice->osc_wavtable2);
+                a_voice->current_sample += (a_voice->fm2_last) * (a_voice->osc2_linamp);
             }
         }
         
@@ -681,14 +705,21 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         {
             v_osc_wav_set_unison_pitch(a_voice->osc_wavtable3, (a_voice->osc3_uni_spread),
                     ((a_voice->base_pitch) + (*plugin_data->osc3pitch) + ((*plugin_data->osc3tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
+            
+            v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm1, a_voice->fm1_last);
+            v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm2, a_voice->fm2_last);
+            v_osc_wav_apply_fm(a_voice->osc_wavtable3, a_voice->osc3fm3, a_voice->fm3_last);
+            
             if(a_voice->adsr_amp3_on)
             {
                 v_adsr_run_db(a_voice->adsr_amp3);
-                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable3) * (a_voice->adsr_amp3->output) * (a_voice->osc3_linamp);
+                a_voice->fm3_last = f_osc_wav_run_unison(a_voice->osc_wavtable3) * (a_voice->adsr_amp3->output);
+                a_voice->current_sample += (a_voice->fm3_last) * (a_voice->adsr_amp3->output) * (a_voice->osc3_linamp);
             }
             else
             {
-                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable3) * (a_voice->osc3_linamp);
+                a_voice->fm3_last = f_osc_wav_run_unison(a_voice->osc_wavtable3);
+                a_voice->current_sample += (a_voice->fm3_last) * (a_voice->osc3_linamp);
             }
         }
         

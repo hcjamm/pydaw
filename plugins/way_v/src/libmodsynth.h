@@ -71,7 +71,12 @@ typedef struct
     t_wt_wavetables * wavetables;
     
     float osc1_uni_spread, osc2_uni_spread, osc3_uni_spread;
-    float fm1, fm2, fm3;
+    
+    float osc1fm1, osc1fm2, osc1fm3;
+    float osc2fm1, osc2fm2, osc2fm3;
+    float osc3fm1, osc3fm2, osc3fm3;
+    
+    float fm1_last, fm2_last, fm3_last;
     
     t_white_noise * white_noise1;
     t_adsr * adsr_main;
@@ -141,9 +146,19 @@ t_wayv_poly_voice * g_wayv_poly_init(float a_sr)
     f_voice->osc2_uni_spread = 0.0f;
     f_voice->osc3_uni_spread = 0.0f;
     
-    f_voice->fm1 = 0.0;
-    f_voice->fm2 = 0.0;
-    f_voice->fm3 = 0.0;
+    f_voice->osc1fm1 = 0.0;
+    f_voice->osc1fm2 = 0.0;
+    f_voice->osc1fm3 = 0.0;
+    f_voice->osc2fm1 = 0.0;
+    f_voice->osc2fm2 = 0.0;
+    f_voice->osc2fm3 = 0.0;
+    f_voice->osc3fm1 = 0.0;
+    f_voice->osc3fm2 = 0.0;
+    f_voice->osc3fm3 = 0.0;
+    
+    f_voice->fm1_last = 0.0;
+    f_voice->fm2_last = 0.0;
+    f_voice->fm3_last = 0.0;
     
     f_voice->adsr_main = g_adsr_get_adsr(va_rayv_sr_recip);
     f_voice->adsr_amp1 = g_adsr_get_adsr(va_rayv_sr_recip);

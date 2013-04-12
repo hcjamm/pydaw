@@ -76,6 +76,7 @@ inline void v_osc_wav_note_on_sync_phases(t_osc_wav_unison *);
 inline void v_osc_wav_set_waveform(t_osc_wav_unison*, float *, int);
 t_osc_wav * g_osc_get_osc_wav();
 t_osc_wav_unison * g_osc_get_osc_wav_unison(float);
+inline void v_osc_wav_apply_fm(t_osc_wav_unison*, float, float);
 
 
 inline void v_osc_wav_set_waveform(t_osc_wav_unison* a_osc_wav, float * a_waveform, int a_sample_count)
@@ -149,7 +150,30 @@ void v_osc_wav_set_unison_pitch(t_osc_wav_unison * a_osc_ptr, float a_spread, fl
     
 }
 
+/* Apply phase modulation to the oscillators (but call it FM everywhere else so not to confuse people */
+inline void v_osc_wav_apply_fm(t_osc_wav_unison* a_osc_ptr, float a_signal, float a_amt)
+{
+    a_osc_ptr->i_uni_pitch = 0;
 
+    float f_amt = a_signal * a_amt;
+    
+    while((a_osc_ptr->i_uni_pitch) < (a_osc_ptr->voice_count))
+    {
+        a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output += f_amt;
+        
+        while((a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output) < 0.0f)
+        {
+            a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output += 1.0f;
+        }
+        
+        while((a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output) > 1.0f)
+        {
+            a_osc_ptr->osc_cores[(a_osc_ptr->i_uni_pitch)]->output -= 1.0f;
+        }
+
+        a_osc_ptr->i_uni_pitch = (a_osc_ptr->i_uni_pitch) + 1;
+    }
+}
 
 //Return zero if the oscillator is turned off.  A function pointer should point here if the oscillator is turned off.
 float f_osc_wav_run_unison_off(t_osc_wav_unison * a_osc_ptr)
