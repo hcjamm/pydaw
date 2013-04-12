@@ -146,6 +146,12 @@ static void v_wayv_connect_port(LADSPA_Handle instance, int port,
     case WAYV_OSC2_UNISON_SPREAD:
         plugin->osc2_uni_spread = data;        
         break;
+    case WAYV_OSC3_UNISON_VOICES:
+        plugin->osc3_uni_voice = data;
+        break;
+    case WAYV_OSC3_UNISON_SPREAD:
+        plugin->osc3_uni_spread = data;        
+        break;
     case WAYV_MASTER_GLIDE:
         plugin->master_glide = data;
         break;
@@ -255,11 +261,7 @@ static void v_wayv_connect_port(LADSPA_Handle instance, int port,
     case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL0: plugin->polyfx_mod_matrix[0][3][3][0] = data; break;
     case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL1: plugin->polyfx_mod_matrix[0][3][3][1] = data; break;
     case WAVV_PFXMATRIX_GRP0DST3SRC3CTRL2: plugin->polyfx_mod_matrix[0][3][3][2] = data; break;
-
-    //End PolyFX mod matrix
-
-    //case LMS_GLOBAL_MIDI_CHANNEL: plugin->global_midi_channel = data; break;
-    //case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: plugin->global_midi_octaves_offset = data; break;
+    
     case LMS_NOISE_TYPE: plugin->noise_type = data; break;
     case WAYV_ADSR1_CHECKBOX: plugin->adsr1_checked = data; break;
     case WAYV_ADSR2_CHECKBOX: plugin->adsr2_checked = data; break;
@@ -335,18 +337,10 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
     plugin_data->i_run_poly_voice = 0;
     
     for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count; plugin_data->event_pos = (plugin_data->event_pos) + 1)
-    {
-        //printf("plugin_data->event_pos == %i\n", plugin_data->event_pos);
-        /*Note on event*/
+    {        
         if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEON) 
         {
-            //printf("events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEON\n");
             snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
-
-            //printf("n.note == %i\nn.velocity == %i\n n.duration == %i\n", n.note, n.velocity, n.duration);
-
-            //printf("events[(plugin_data->event_pos)].time.tick == %i\nevents[(plugin_data->event_pos)].time.time.tv_sec == %i\n", 
-            //        events[(plugin_data->event_pos)].time.tick, events[(plugin_data->event_pos)].time.time.tv_sec);
 
             if (n.velocity > 0) 
             {
@@ -366,11 +360,13 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
 
                 plugin_data->data[f_voice]->osc1_linamp = f_db_to_linear_fast(*(plugin_data->osc1vol), plugin_data->mono_modules->amp_ptr); 
                 plugin_data->data[f_voice]->osc2_linamp = f_db_to_linear_fast(*(plugin_data->osc2vol), plugin_data->mono_modules->amp_ptr);
+                plugin_data->data[f_voice]->osc3_linamp = f_db_to_linear_fast(*(plugin_data->osc3vol), plugin_data->mono_modules->amp_ptr);
                 plugin_data->data[f_voice]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_main);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp1);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp2);
+                v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp3);
 
                 float f_attack = *(plugin_data->attack_main) * .01f;
                 f_attack = (f_attack) * (f_attack);
@@ -410,8 +406,22 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
 
                     v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp2, (f_attack2), (f_decay2), *(plugin_data->sustain2), (f_release2));
                     v_osc_wav_note_on_sync_phases(plugin_data->data[f_voice]->osc_wavtable2);
-                }               
+                }
                 
+                plugin_data->data[f_voice]->adsr_amp3_on = (int)(*(plugin_data->adsr3_checked));
+
+                if(plugin_data->data[f_voice]->adsr_amp3_on)
+                {
+                    float f_attack3 = *(plugin_data->attack3) * .01f;
+                    f_attack3 = (f_attack3) * (f_attack3);
+                    float f_decay3 = *(plugin_data->decay3) * .01f;
+                    f_decay3 = (f_decay3) * (f_decay3);
+                    float f_release3 = *(plugin_data->release3) * .01f;
+                    f_release3 = (f_release3) * (f_release3);   
+
+                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp3, (f_attack3), (f_decay3), *(plugin_data->sustain3), (f_release3));
+                    v_osc_wav_note_on_sync_phases(plugin_data->data[f_voice]->osc_wavtable3);
+                }
                 
                 plugin_data->data[f_voice]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
@@ -425,6 +435,10 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type1]->length);
                     v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable1, *plugin_data->osc1_uni_voice);
                 }
+                else
+                {
+                    plugin_data->data[f_voice]->osc1_on = 0;
+                }
                 
                 int f_osc_type2 = (int)(*plugin_data->osc2type) - 1;
                 
@@ -435,7 +449,27 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->wavetable,
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->length);
                     v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable2, *plugin_data->osc2_uni_voice);
-                }                
+                }
+                else
+                {
+                    plugin_data->data[f_voice]->osc2_on = 0;
+                }
+                
+                int f_osc_type3 = (int)(*plugin_data->osc3type) - 1;
+                
+                if(f_osc_type3 >= 0)
+                {
+                    plugin_data->data[f_voice]->osc3_on = 1;
+                    v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable3, 
+                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type3]->wavetable,
+                            plugin_data->data[f_voice]->wavetables->tables[f_osc_type3]->length);
+                    v_osc_wav_set_uni_voice_count(plugin_data->data[f_voice]->osc_wavtable3, *plugin_data->osc3_uni_voice);
+                }
+                else
+                {
+                    plugin_data->data[f_voice]->osc3_on = 0;
+                }
+                
                 
                 /*Set the last_note property, so the next note can glide from it if glide is turned on*/
                 plugin_data->sv_last_note = (plugin_data->data[f_voice]->note_f);
@@ -590,7 +624,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
             }
 	}        
 
-        a_voice->current_sample = 0;
+        a_voice->current_sample = 0.0f;
         
         f_rmp_run_ramp(a_voice->glide_env);
                         
@@ -631,7 +665,7 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
         {
             v_osc_wav_set_unison_pitch(a_voice->osc_wavtable2, (a_voice->osc2_uni_spread),
                     ((a_voice->base_pitch) + (*plugin_data->osc2pitch) + ((*plugin_data->osc2tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
-            if(a_voice->adsr_amp1_on)
+            if(a_voice->adsr_amp2_on)
             {
                 v_adsr_run_db(a_voice->adsr_amp2);
                 a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->adsr_amp2->output) * (a_voice->osc2_linamp);
@@ -639,6 +673,21 @@ static void v_run_wayv_voice(t_wayv *plugin_data, t_voc_single_voice a_poly_voic
             else
             {
                 a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable2) * (a_voice->osc2_linamp);
+            }
+        }
+        
+        if(a_voice->osc3_on)
+        {
+            v_osc_wav_set_unison_pitch(a_voice->osc_wavtable3, (a_voice->osc3_uni_spread),
+                    ((a_voice->base_pitch) + (*plugin_data->osc3pitch) + ((*plugin_data->osc3tune) * 0.01f) )); //+ (a_voice->lfo_pitch_output)));        
+            if(a_voice->adsr_amp3_on)
+            {
+                v_adsr_run_db(a_voice->adsr_amp3);
+                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable3) * (a_voice->adsr_amp3->output) * (a_voice->osc3_linamp);
+            }
+            else
+            {
+                a_voice->current_sample += f_osc_wav_run_unison(a_voice->osc_wavtable3) * (a_voice->osc3_linamp);
             }
         }
         
