@@ -158,6 +158,7 @@ public slots:
     void viewSampleSelectedIndexChanged(int);
     void loopModeChanged(int);
     void mapAllSamplesToOneWhiteKey();
+    void mapAllSamplesToOneMonoFXgroup();
     void clearAllSamples();
         
     //From Ray-V PolyFX
@@ -763,6 +764,7 @@ protected:
     QAction *actionSave_instrument_to_file;
     QAction *actionOpen_instrument_from_file;
     QAction *actionMapToWhiteKeys;
+    QAction *actionMapToMonoFX;
     QAction *actionClearAllSamples;
     
     QMenuBar *menubar;
