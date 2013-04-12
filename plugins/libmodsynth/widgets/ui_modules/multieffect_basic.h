@@ -23,7 +23,8 @@ public:
                 << QString("LP4") << QString("HP2") << QString("HP4") << QString("BP2") << QString("BP4")
                  << QString("Notch2") << QString("Notch4") << QString("EQ") 
                 << QString("Distortion") << QString("Comb Filter") << QString("Amp/Pan") << QString("Limiter")
-                << QString("Saturator") << QString("Formant") << QString("Chorus") << QString("Glitch");
+                << QString("Saturator") << QString("Formant") << QString("Chorus") << QString("Glitch")
+                << QString("RingMod");
         
         lms_groupbox = new LMS_group_box(a_parent, a_title, a_style);
         
@@ -231,6 +232,17 @@ public:
                 lms_knob1->lms_label->setText(QString("Pitch"));
                 lms_knob2->lms_label->setText(QString("Glitch"));
                 lms_knob3->lms_label->setText(QString("Wet"));
+                lms_knob1->lms_conv_type = lms_kc_none;                
+                lms_knob1->lms_value->setText(QString(""));
+                lms_knob2->lms_conv_type = lms_kc_none;
+                lms_knob2->lms_value->setText(QString(""));    
+                lms_knob3->lms_conv_type = lms_kc_none;
+                lms_knob3->lms_value->setText(QString(""));                
+                break;                
+            case 18: //RingMod
+                lms_knob1->lms_label->setText(QString("Pitch"));
+                lms_knob2->lms_label->setText(QString("Wet"));
+                lms_knob3->lms_label->setText(QString("unused"));
                 lms_knob1->lms_conv_type = lms_kc_none;                
                 lms_knob1->lms_value->setText(QString(""));
                 lms_knob2->lms_conv_type = lms_kc_none;
