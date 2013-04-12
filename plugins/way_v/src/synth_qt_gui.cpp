@@ -1149,6 +1149,16 @@ void wayv_gui::v_set_control(int a_port, float a_value)
         case WAYV_ADSR3_CHECKBOX: setADSR3checked(a_value); break;
         
         case WAYV_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
+        
+        case WAYV_OSC1_FM1: setOsc1FM1(a_value); break;
+        case WAYV_OSC1_FM2: setOsc1FM2(a_value); break;
+        case WAYV_OSC1_FM3: setOsc1FM3(a_value); break;
+        case WAYV_OSC2_FM1: setOsc2FM1(a_value); break;
+        case WAYV_OSC2_FM2: setOsc2FM2(a_value); break;
+        case WAYV_OSC2_FM3: setOsc2FM3(a_value); break;
+        case WAYV_OSC3_FM1: setOsc3FM1(a_value); break;
+        case WAYV_OSC3_FM2: setOsc3FM2(a_value); break;
+        case WAYV_OSC3_FM3: setOsc3FM3(a_value); break;
     }
     
 }
