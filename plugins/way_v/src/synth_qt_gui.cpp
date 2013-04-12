@@ -230,11 +230,11 @@ wayv_gui::wayv_gui(const char * host, const char * port,
     m_osc3 = new LMS_oscillator_widget(f_info, this, QString("Oscillator 3"), WAYV_OSC3_PITCH, WAYV_OSC3_TUNE, WAYV_OSC3_VOLUME, WAYV_OSC3_TYPE, f_osc_types);    
     m_osc3->lms_vol_knob->lms_knob->setMinimum(-30);
     
-    m_osc3_uni_voices = new LMS_knob_regular(QString("Unison"), 1, 7, 1, 30, QString(""), m_osc1->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC3_UNISON_VOICES);
+    m_osc3_uni_voices = new LMS_knob_regular(QString("Unison"), 1, 7, 1, 30, QString(""), m_osc3->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC3_UNISON_VOICES);
     m_osc3->lms_groupbox->lms_add_h(m_osc3_uni_voices);
     connect(m_osc3_uni_voices->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc3UnisonVoicesChanged(int)));    
     
-    m_osc3_uni_spread = new LMS_knob_regular(QString("Spread"), 0, 100, 1, 30, QString(""), m_osc1->lms_groupbox->lms_groupbox, f_info, lms_kc_decimal, WAYV_OSC3_UNISON_SPREAD);
+    m_osc3_uni_spread = new LMS_knob_regular(QString("Spread"), 0, 100, 1, 30, QString(""), m_osc3->lms_groupbox->lms_groupbox, f_info, lms_kc_decimal, WAYV_OSC3_UNISON_SPREAD);
     m_osc3->lms_groupbox->lms_add_h(m_osc3_uni_spread);
     connect(m_osc3_uni_spread->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(osc3UnisonSpreadChanged(int)));
     
