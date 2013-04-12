@@ -300,6 +300,55 @@ t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
 }
 
 
+t_osc_simple_unison * g_osc_get_osc_simple_single(float a_sample_rate)
+{
+    t_osc_simple_unison * f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_osc_simple_unison))) != 0)
+    {
+        return 0;
+    }
+    
+    v_osc_set_uni_voice_count(f_result, 1);    
+    f_result->osc_type = f_get_saw;
+    f_result->sr_recip = 1.0 / a_sample_rate;
+    f_result->adjusted_amp = 1.0;
+    f_result->bottom_pitch = -0.1;
+    f_result->current_sample = 0.0;
+    f_result->i_run_unison = 0;
+    f_result->osc_type = f_get_osc_off;
+    f_result->pitch_inc = 0.1f;
+    f_result->uni_spread = 0.1f;
+    f_result->voice_count = 1;
+    f_result->i_unison_pitch = 0;
+    f_result->i_sync_phase = 0;
+    
+    f_result->pitch_core = g_pit_get();
+    
+    int f_i = 0;
+    
+    while(f_i < (OSC_UNISON_MAX_VOICES))
+    {
+        f_result->osc_cores[f_i] =  g_get_osc_core(); 
+        f_i++;
+    }
+        
+    v_osc_set_unison_pitch(f_result, .5f, 60.0f);
+    
+    f_i = 0;
+       
+    while(f_i < (OSC_UNISON_MAX_VOICES))
+    {
+        f_result->phases[f_i] = 0.0f;
+        f_i++;
+    }
+    
+    v_osc_set_unison_pitch(f_result, .2, 60.0f);
+    
+    return f_result;
+}
+
+
 #ifdef	__cplusplus
 }
 #endif
