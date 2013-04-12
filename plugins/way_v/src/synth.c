@@ -518,6 +518,7 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
 
                 plugin_data->data[f_voice]->osc1_uni_spread = (*plugin_data->osc1_uni_spread) * 0.01f;
                 plugin_data->data[f_voice]->osc2_uni_spread = (*plugin_data->osc2_uni_spread) * 0.01f;
+                plugin_data->data[f_voice]->osc3_uni_spread = (*plugin_data->osc3_uni_spread) * 0.01f;
                 
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
