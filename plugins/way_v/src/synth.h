@@ -58,9 +58,6 @@ extern "C" {
 #define WAYV_DECAY2   25
 #define WAYV_SUSTAIN2 26
 #define WAYV_RELEASE2 27
-    
-    
-    
 #define WAYV_ATTACK_PFX1  28
 #define WAYV_DECAY_PFX1   29
 #define WAYV_SUSTAIN_PFX1 30
@@ -73,7 +70,6 @@ extern "C" {
 #define WAYV_RAMP_ENV_TIME 37
 #define WAYV_LFO_FREQ 38
 #define WAYV_LFO_TYPE 39
-//From Modulex
 #define WAYV_FX0_KNOB0  40
 #define WAYV_FX0_KNOB1 41
 #define WAYV_FX0_KNOB2  42
@@ -152,9 +148,29 @@ extern "C" {
 #define WAYV_OSC2_UNISON_VOICES 110
 #define WAYV_OSC2_UNISON_SPREAD 111
 #define WAYV_LFO_AMOUNT 112
+#define WAYV_OSC3_TYPE 113
+#define WAYV_OSC3_PITCH 114
+#define WAYV_OSC3_TUNE 115
+#define WAYV_OSC3_VOLUME 116
+#define WAYV_OSC3_UNISON_VOICES 117
+#define WAYV_OSC3_UNISON_SPREAD 118
+#define WAYV_OSC1_FM1 119
+#define WAYV_OSC1_FM2 120
+#define WAYV_OSC1_FM3 121
+#define WAYV_OSC2_FM1 122
+#define WAYV_OSC2_FM2 123
+#define WAYV_OSC2_FM3 124
+#define WAYV_OSC3_FM1 125 
+#define WAYV_OSC3_FM2 126
+#define WAYV_OSC3_FM3 127
+#define WAYV_ATTACK3  128
+#define WAYV_DECAY3   129
+#define WAYV_SUSTAIN3 130
+#define WAYV_RELEASE3 131
+#define WAYV_ADSR3_CHECKBOX 132
     
-#define WAYV_LAST_CONTROL_PORT 112
-#define WAYV_COUNT 113 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define WAYV_LAST_CONTROL_PORT 132
+#define WAYV_COUNT 133 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
     
 #define WAYV_POLYPHONY   16
 
@@ -177,6 +193,11 @@ typedef struct {
     LADSPA_Data *sustain2;
     LADSPA_Data *release2;    
     
+    LADSPA_Data *attack3;
+    LADSPA_Data *decay3;
+    LADSPA_Data *sustain3;
+    LADSPA_Data *release3;    
+    
     //LADSPA_Data pitch;
         
     LADSPA_Data *osc1pitch;
@@ -188,6 +209,23 @@ typedef struct {
     LADSPA_Data *osc2tune;
     LADSPA_Data *osc2type;
     LADSPA_Data *osc2vol;
+    
+    LADSPA_Data *osc3pitch;
+    LADSPA_Data *osc3tune;
+    LADSPA_Data *osc3type;
+    LADSPA_Data *osc3vol;
+    
+    LADSPA_Data *osc1fm1;
+    LADSPA_Data *osc1fm2;
+    LADSPA_Data *osc1fm3;
+    
+    LADSPA_Data *osc2fm1;
+    LADSPA_Data *osc2fm2;
+    LADSPA_Data *osc2fm3;
+    
+    LADSPA_Data *osc3fm1;
+    LADSPA_Data *osc3fm2;
+    LADSPA_Data *osc3fm3;
     
     LADSPA_Data *master_vol;
     
@@ -208,6 +246,8 @@ typedef struct {
     LADSPA_Data *osc1_uni_spread;
     LADSPA_Data *osc2_uni_voice;
     LADSPA_Data *osc2_uni_spread;
+    LADSPA_Data *osc3_uni_voice;
+    LADSPA_Data *osc3_uni_spread;
     
     
     LADSPA_Data *master_glide;
@@ -221,6 +261,7 @@ typedef struct {
     
     LADSPA_Data * adsr1_checked;
     LADSPA_Data * adsr2_checked;
+    LADSPA_Data * adsr3_checked;
     
     LADSPA_Data *lfo_amp;
     LADSPA_Data *lfo_pitch;

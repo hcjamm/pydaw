@@ -154,8 +154,26 @@ wayv_gui::wayv_gui(const char * host, const char * port,
     m_adsr_amp1_checkbox = new LMS_checkbox(this, f_info, WAYV_ADSR1_CHECKBOX, QString("On"));    
     connect(m_adsr_amp1_checkbox->lms_checkbox, SIGNAL(toggled(bool)), this, SLOT(adsr1checkChanged(bool)));
     m_adsr_amp1->lms_groupbox_adsr->lms_add_h(m_adsr_amp1_checkbox);
-    m_oscillator_layout->lms_add_spacer();
     
+    
+    m_groupbox_osc1_fm = new LMS_group_box(this, QString("Osc1 FM"), f_info);
+    
+    m_osc1_fm1 = new LMS_knob_regular(QString("Osc1"), 0, 100, 1, 0, QString(""), m_groupbox_osc1_fm->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC1_FM1);
+    m_groupbox_osc1_fm->lms_add_h(m_osc1_fm1);
+    connect(m_osc1_fm1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc1FM1Changed(int)));    
+    
+    m_osc1_fm2 = new LMS_knob_regular(QString("Osc2"), 0, 100, 1, 0, QString(""), m_groupbox_osc1_fm->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC1_FM2);
+    m_groupbox_osc1_fm->lms_add_h(m_osc1_fm2);
+    connect(m_osc1_fm2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc1FM2Changed(int)));    
+    
+    m_osc1_fm3 = new LMS_knob_regular(QString("Osc3"), 0, 100, 1, 0, QString(""), m_groupbox_osc1_fm->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC1_FM3);
+    m_groupbox_osc1_fm->lms_add_h(m_osc1_fm3);
+    connect(m_osc1_fm3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc1FM3Changed(int)));    
+    
+    m_oscillator_layout->lms_add_widget(m_groupbox_osc1_fm->lms_groupbox);
+    
+    
+    m_oscillator_layout->lms_add_spacer();    
     m_oscillator_layout->lms_add_layout();    
     
     m_osc2 = new LMS_oscillator_widget(f_info, this, QString("Oscillator 2"), WAYV_OSC2_PITCH, WAYV_OSC2_TUNE, WAYV_OSC2_VOLUME, WAYV_OSC2_TYPE, f_osc_types);    
@@ -179,8 +197,7 @@ wayv_gui::wayv_gui(const char * host, const char * port,
     m_adsr_amp2 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK2, WAYV_DECAY2, WAYV_SUSTAIN2, WAYV_RELEASE2, QString("ADSR Osc2"));   
     m_adsr_amp2->lms_sustain->lms_knob->setMinimum(-30);
     m_oscillator_layout->lms_add_widget(m_adsr_amp2->lms_groupbox_adsr->lms_groupbox);
-    m_oscillator_layout->lms_add_spacer();
-    
+        
     connect(m_adsr_amp2->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attack2Changed(int)));    
     connect(m_adsr_amp2->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decay2Changed(int)));        
     connect(m_adsr_amp2->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustain2Changed(int)));        
@@ -190,7 +207,76 @@ wayv_gui::wayv_gui(const char * host, const char * port,
     connect(m_adsr_amp2_checkbox->lms_checkbox, SIGNAL(toggled(bool)), this, SLOT(adsr2checkChanged(bool)));
     m_adsr_amp2->lms_groupbox_adsr->lms_add_h(m_adsr_amp2_checkbox);
     
+    m_groupbox_osc2_fm = new LMS_group_box(this, QString("Osc2 FM"), f_info);
+    
+    m_osc2_fm1 = new LMS_knob_regular(QString("Osc1"), 0, 100, 1, 0, QString(""), m_groupbox_osc2_fm->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC2_FM1);
+    m_groupbox_osc2_fm->lms_add_h(m_osc2_fm1);
+    connect(m_osc2_fm1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc2FM1Changed(int)));    
+    
+    m_osc2_fm2 = new LMS_knob_regular(QString("Osc2"), 0, 100, 1, 0, QString(""), m_groupbox_osc2_fm->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC2_FM2);
+    m_groupbox_osc2_fm->lms_add_h(m_osc2_fm2);
+    connect(m_osc2_fm2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc2FM2Changed(int)));    
+    
+    m_osc2_fm3 = new LMS_knob_regular(QString("Osc3"), 0, 100, 1, 0, QString(""), m_groupbox_osc2_fm->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC2_FM3);
+    m_groupbox_osc2_fm->lms_add_h(m_osc2_fm3);
+    connect(m_osc2_fm3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc2FM3Changed(int)));    
+    
+    m_oscillator_layout->lms_add_widget(m_groupbox_osc2_fm->lms_groupbox);
+    
+    m_oscillator_layout->lms_add_spacer();
     m_oscillator_layout->lms_add_layout();
+    
+    
+    m_osc3 = new LMS_oscillator_widget(f_info, this, QString("Oscillator 3"), WAYV_OSC3_PITCH, WAYV_OSC3_TUNE, WAYV_OSC3_VOLUME, WAYV_OSC3_TYPE, f_osc_types);    
+    m_osc3->lms_vol_knob->lms_knob->setMinimum(-30);
+    
+    m_osc3_uni_voices = new LMS_knob_regular(QString("Unison"), 1, 7, 1, 30, QString(""), m_osc1->lms_groupbox->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC3_UNISON_VOICES);
+    m_osc3->lms_groupbox->lms_add_h(m_osc3_uni_voices);
+    connect(m_osc3_uni_voices->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc3UnisonVoicesChanged(int)));    
+    
+    m_osc3_uni_spread = new LMS_knob_regular(QString("Spread"), 0, 100, 1, 30, QString(""), m_osc1->lms_groupbox->lms_groupbox, f_info, lms_kc_decimal, WAYV_OSC3_UNISON_SPREAD);
+    m_osc3->lms_groupbox->lms_add_h(m_osc3_uni_spread);
+    connect(m_osc3_uni_spread->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(osc3UnisonSpreadChanged(int)));
+    
+    
+    m_oscillator_layout->lms_add_widget(m_osc3->lms_groupbox->lms_groupbox);
+    connect(m_osc3->lms_pitch_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc3PitchChanged(int)));
+    connect(m_osc3->lms_fine_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc3TuneChanged(int)));
+    connect(m_osc3->lms_vol_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc3VolumeChanged(int)));    
+    connect(m_osc3->lms_osc_type_box->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc3TypeChanged(int)));
+        
+    m_adsr_amp3 = new LMS_adsr_widget(this, f_info, TRUE, WAYV_ATTACK3, WAYV_DECAY3, WAYV_SUSTAIN3, WAYV_RELEASE3, QString("ADSR Osc3"));   
+    m_adsr_amp3->lms_sustain->lms_knob->setMinimum(-30);
+    m_oscillator_layout->lms_add_widget(m_adsr_amp3->lms_groupbox_adsr->lms_groupbox);
+        
+    connect(m_adsr_amp3->lms_attack->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(attack3Changed(int)));    
+    connect(m_adsr_amp3->lms_decay->lms_knob,   SIGNAL(valueChanged(int)), this, SLOT(decay3Changed(int)));        
+    connect(m_adsr_amp3->lms_sustain->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(sustain3Changed(int)));        
+    connect(m_adsr_amp3->lms_release->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(release3Changed(int)));    
+    
+    m_adsr_amp3_checkbox = new LMS_checkbox(this, f_info, WAYV_ADSR3_CHECKBOX, QString("On"));    
+    connect(m_adsr_amp3_checkbox->lms_checkbox, SIGNAL(toggled(bool)), this, SLOT(adsr3checkChanged(bool)));
+    m_adsr_amp3->lms_groupbox_adsr->lms_add_h(m_adsr_amp3_checkbox);
+    
+    
+    m_groupbox_osc3_fm = new LMS_group_box(this, QString("Osc3 FM"), f_info);
+    
+    m_osc3_fm1 = new LMS_knob_regular(QString("Osc1"), 0, 100, 1, 0, QString(""), m_groupbox_osc3_fm->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC3_FM1);
+    m_groupbox_osc3_fm->lms_add_h(m_osc3_fm1);
+    connect(m_osc3_fm1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc3FM1Changed(int)));    
+    
+    m_osc3_fm2 = new LMS_knob_regular(QString("Osc2"), 0, 100, 1, 0, QString(""), m_groupbox_osc3_fm->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC3_FM2);
+    m_groupbox_osc3_fm->lms_add_h(m_osc3_fm2);
+    connect(m_osc3_fm2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc3FM2Changed(int)));    
+    
+    m_osc3_fm3 = new LMS_knob_regular(QString("Osc3"), 0, 100, 1, 0, QString(""), m_groupbox_osc3_fm->lms_groupbox, f_info, lms_kc_integer, WAYV_OSC3_FM3);
+    m_groupbox_osc3_fm->lms_add_h(m_osc3_fm3);
+    connect(m_osc3_fm3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT( osc3FM3Changed(int)));    
+    
+    m_oscillator_layout->lms_add_widget(m_groupbox_osc3_fm->lms_groupbox);
+    
+    m_oscillator_layout->lms_add_spacer();
+    m_oscillator_layout->lms_add_layout();        
     
     m_master = new LMS_master_widget(this, f_info, WAYV_MASTER_VOLUME, -1, 
             -1, WAYV_MASTER_GLIDE, WAYV_MASTER_PITCHBEND_AMT, QString("Master"), FALSE);
@@ -528,6 +614,28 @@ wayv_gui::wayv_gui(const char * host, const char * port,
     m_program->lms_add_control(m_osc2_uni_spread);
     m_program->lms_add_control(m_lfo_amount);
     
+    m_program->lms_add_control(m_osc3->lms_osc_type_box);
+    m_program->lms_add_control(m_osc3->lms_pitch_knob);
+    m_program->lms_add_control(m_osc3->lms_fine_knob);
+    m_program->lms_add_control(m_osc3->lms_vol_knob);    
+    m_program->lms_add_control(m_adsr_amp3->lms_attack);
+    m_program->lms_add_control(m_adsr_amp3->lms_decay);
+    m_program->lms_add_control(m_adsr_amp3->lms_sustain);
+    m_program->lms_add_control(m_adsr_amp3->lms_release);    
+    m_program->lms_add_control(m_adsr_amp3_checkbox);
+    m_program->lms_add_control(m_osc3_uni_voices);
+    m_program->lms_add_control(m_osc3_uni_spread);
+    
+    m_program->lms_add_control(m_osc1_fm1);
+    m_program->lms_add_control(m_osc1_fm2);
+    m_program->lms_add_control(m_osc1_fm3);
+    m_program->lms_add_control(m_osc2_fm1);
+    m_program->lms_add_control(m_osc2_fm2);
+    m_program->lms_add_control(m_osc2_fm3);
+    m_program->lms_add_control(m_osc3_fm1);
+    m_program->lms_add_control(m_osc3_fm2);
+    m_program->lms_add_control(m_osc3_fm3);
+    
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
     myTimer->setSingleShot(false);
@@ -535,10 +643,6 @@ wayv_gui::wayv_gui(const char * host, const char * port,
     
     m_suppressHostUpdate = false;
 }
-
-
-
-
 
 void wayv_gui::pfxmatrix_Changed(int a_port, int a_fx_group, int a_dst, int a_ctrl, int a_src)
 {
@@ -553,10 +657,6 @@ void wayv_gui::pfxmatrix_Changed(int a_port, int a_fx_group, int a_dst, int a_ct
     }
 #endif
 }
-
-
-
-
 
 void wayv_gui::fx0knob0Changed(int value){ lms_value_changed(value, m_fx0->lms_knob1); }
 void wayv_gui::fx0knob1Changed(int value){ lms_value_changed(value, m_fx0->lms_knob2); }
@@ -578,6 +678,18 @@ void wayv_gui::fx3knob1Changed(int value){ lms_value_changed(value, m_fx3->lms_k
 void wayv_gui::fx3knob2Changed(int value){ lms_value_changed(value, m_fx3->lms_knob3); }
 void wayv_gui::fx3comboboxChanged(int value){ lms_value_changed(value, m_fx3->lms_combobox); m_fx3->lms_combobox_changed(); }
 
+void wayv_gui::osc1FM1Changed(int value){ lms_value_changed(value, m_osc1_fm1);}
+void wayv_gui::osc1FM2Changed(int value){ lms_value_changed(value, m_osc1_fm2);}
+void wayv_gui::osc1FM3Changed(int value){ lms_value_changed(value, m_osc1_fm3);}
+
+void wayv_gui::osc2FM1Changed(int value){ lms_value_changed(value, m_osc2_fm1);}
+void wayv_gui::osc2FM2Changed(int value){ lms_value_changed(value, m_osc2_fm2);}
+void wayv_gui::osc2FM3Changed(int value){ lms_value_changed(value, m_osc2_fm3);}
+
+void wayv_gui::osc3FM1Changed(int value){ lms_value_changed(value, m_osc3_fm1);}
+void wayv_gui::osc3FM2Changed(int value){ lms_value_changed(value, m_osc3_fm2);}
+void wayv_gui::osc3FM3Changed(int value){ lms_value_changed(value, m_osc3_fm3);}
+
 void wayv_gui::adsr1checkChanged(bool a_value)
 {
     int value = 0;
@@ -596,6 +708,16 @@ void wayv_gui::adsr2checkChanged(bool a_value)
         value = 1;
     }
     lms_value_changed(value, m_adsr_amp2_checkbox);
+}
+
+void wayv_gui::adsr3checkChanged(bool a_value)
+{
+    int value = 0;
+    if(a_value)
+    {
+        value = 1;
+    }
+    lms_value_changed(value, m_adsr_amp3_checkbox);
 }
 
 void wayv_gui::pfxmatrix_grp0dst0src0ctrl0Changed(int a_value){pfxmatrix_Changed(WAVV_PFXMATRIX_GRP0DST0SRC0CTRL0, 0, 0, 0, 0);}
@@ -675,6 +797,11 @@ void wayv_gui::setDecay2(float a_value){ lms_set_value(a_value, m_adsr_amp2->lms
 void wayv_gui::setSustain2(float a_value){lms_set_value(a_value, m_adsr_amp2->lms_sustain);}
 void wayv_gui::setRelease2(float a_value){lms_set_value(a_value, m_adsr_amp2->lms_release);}
 
+void wayv_gui::setAttack3(float a_value){ lms_set_value(a_value, m_adsr_amp3->lms_attack);}
+void wayv_gui::setDecay3(float a_value){ lms_set_value(a_value, m_adsr_amp3->lms_decay); }
+void wayv_gui::setSustain3(float a_value){lms_set_value(a_value, m_adsr_amp3->lms_sustain);}
+void wayv_gui::setRelease3(float a_value){lms_set_value(a_value, m_adsr_amp3->lms_release);}
+
 void wayv_gui::setOsc1Type(float a_value){lms_set_value(a_value, m_osc1->lms_osc_type_box);}
 void wayv_gui::setOsc1Pitch(float a_value){lms_set_value(a_value, m_osc1->lms_pitch_knob);}
 void wayv_gui::setOsc1Tune(float a_value){lms_set_value(a_value, m_osc1->lms_fine_knob);}
@@ -683,12 +810,18 @@ void wayv_gui::setOsc2Type(float a_value){lms_set_value(a_value, m_osc2->lms_osc
 void wayv_gui::setOsc2Pitch(float a_value){lms_set_value(a_value, m_osc2->lms_pitch_knob);}
 void wayv_gui::setOsc2Tune(float a_value){lms_set_value(a_value, m_osc2->lms_fine_knob);}
 void wayv_gui::setOsc2Volume(float a_value){lms_set_value(a_value, m_osc2->lms_vol_knob);}
-void wayv_gui::setProgram(float a_value){lms_set_value(a_value, m_program);}
 
+void wayv_gui::setOsc3Type(float a_value){lms_set_value(a_value, m_osc3->lms_osc_type_box);}
+void wayv_gui::setOsc3Pitch(float a_value){lms_set_value(a_value, m_osc3->lms_pitch_knob);}
+void wayv_gui::setOsc3Tune(float a_value){lms_set_value(a_value, m_osc3->lms_fine_knob);}
+void wayv_gui::setOsc3Volume(float a_value){lms_set_value(a_value, m_osc3->lms_vol_knob);}
+
+void wayv_gui::setProgram(float a_value){lms_set_value(a_value, m_program);}
 
 void wayv_gui::setADSR1checked(float a_value){lms_set_value(a_value, m_adsr_amp1_checkbox);}
 void wayv_gui::setADSR2checked(float a_value){lms_set_value(a_value, m_adsr_amp2_checkbox);}
 
+void wayv_gui::setADSR3checked(float a_value){lms_set_value(a_value, m_adsr_amp3_checkbox);}
 
 void wayv_gui::setFX0knob0(float val){ lms_set_value(val, m_fx0->lms_knob1); }
 void wayv_gui::setFX0knob1(float val){ lms_set_value(val, m_fx0->lms_knob2); }
@@ -710,9 +843,6 @@ void wayv_gui::setFX3knob1(float val){ lms_set_value(val, m_fx3->lms_knob2); }
 void wayv_gui::setFX3knob2(float val){ lms_set_value(val, m_fx3->lms_knob3); }
 void wayv_gui::setFX3combobox(float val){ lms_set_value(val, m_fx3->lms_combobox); }
 
-
-
-
 void wayv_gui::setAttack(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_attack);}
 void wayv_gui::setDecay(float a_value){ lms_set_value(a_value, m_adsr_amp->lms_decay); }
 void wayv_gui::setSustain(float a_value){lms_set_value(a_value, m_adsr_amp->lms_sustain);}
@@ -728,6 +858,10 @@ void wayv_gui::setOsc1UnisonVoices(float a_value){lms_set_value(a_value, m_osc1_
 void wayv_gui::setOsc1UnisonSpread(float a_value){lms_set_value(a_value, m_osc1_uni_spread);}
 void wayv_gui::setOsc2UnisonVoices(float a_value){lms_set_value(a_value, m_osc2_uni_voices);}
 void wayv_gui::setOsc2UnisonSpread(float a_value){lms_set_value(a_value, m_osc2_uni_spread);}
+
+void wayv_gui::setOsc3UnisonVoices(float a_value){lms_set_value(a_value, m_osc3_uni_voices);}
+void wayv_gui::setOsc3UnisonSpread(float a_value){lms_set_value(a_value, m_osc3_uni_spread);}
+
 void wayv_gui::setMasterGlide(float a_value){lms_set_value(a_value, m_master->lms_master_glide);}
 void wayv_gui::setMasterPitchbendAmt(float a_value){lms_set_value(a_value, m_master->lms_master_pitchbend_amt);}
 void wayv_gui::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env->lms_time_knob);}
@@ -739,6 +873,17 @@ void wayv_gui::setLFOamount(float a_value){lms_set_value(a_value, m_lfo_amount);
 void wayv_gui::setLFOamp(float a_value){lms_set_value(a_value, m_lfo_amp);}
 void wayv_gui::setLFOpitch(float a_value){lms_set_value(a_value, m_lfo_pitch);}
 
+void wayv_gui::setOsc1FM1(float a_value){lms_set_value(a_value, m_osc1_fm1);}
+void wayv_gui::setOsc1FM2(float a_value){lms_set_value(a_value, m_osc1_fm2);}
+void wayv_gui::setOsc1FM3(float a_value){lms_set_value(a_value, m_osc1_fm3);}
+
+void wayv_gui::setOsc2FM1(float a_value){lms_set_value(a_value, m_osc2_fm1);}
+void wayv_gui::setOsc2FM2(float a_value){lms_set_value(a_value, m_osc2_fm2);}
+void wayv_gui::setOsc2FM3(float a_value){lms_set_value(a_value, m_osc2_fm3);}
+
+void wayv_gui::setOsc3FM1(float a_value){lms_set_value(a_value, m_osc3_fm1);}
+void wayv_gui::setOsc3FM2(float a_value){lms_set_value(a_value, m_osc3_fm2);}
+void wayv_gui::setOsc3FM3(float a_value){lms_set_value(a_value, m_osc3_fm3);}
 
 void wayv_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {    
@@ -764,14 +909,26 @@ void wayv_gui::decay2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2
 void wayv_gui::sustain2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_sustain);}
 void wayv_gui::release2Changed(int a_value){lms_value_changed(a_value, m_adsr_amp2->lms_release);}
 
+void wayv_gui::attack3Changed(int a_value){lms_value_changed(a_value, m_adsr_amp3->lms_attack);}
+void wayv_gui::decay3Changed(int a_value){lms_value_changed(a_value, m_adsr_amp3->lms_decay);}
+void wayv_gui::sustain3Changed(int a_value){lms_value_changed(a_value, m_adsr_amp3->lms_sustain);}
+void wayv_gui::release3Changed(int a_value){lms_value_changed(a_value, m_adsr_amp3->lms_release);}
+
 void wayv_gui::osc1TypeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_osc_type_box);}
 void wayv_gui::osc1PitchChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_pitch_knob);}
 void wayv_gui::osc1TuneChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_fine_knob);}
 void wayv_gui::osc1VolumeChanged(int a_value){lms_value_changed(a_value, m_osc1->lms_vol_knob);}
+
 void wayv_gui::osc2TypeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_osc_type_box);}
 void wayv_gui::osc2PitchChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_pitch_knob);}
 void wayv_gui::osc2TuneChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_fine_knob);}
 void wayv_gui::osc2VolumeChanged(int a_value){lms_value_changed(a_value, m_osc2->lms_vol_knob);}
+
+void wayv_gui::osc3TypeChanged(int a_value){lms_value_changed(a_value, m_osc3->lms_osc_type_box);}
+void wayv_gui::osc3PitchChanged(int a_value){lms_value_changed(a_value, m_osc3->lms_pitch_knob);}
+void wayv_gui::osc3TuneChanged(int a_value){lms_value_changed(a_value, m_osc3->lms_fine_knob);}
+void wayv_gui::osc3VolumeChanged(int a_value){lms_value_changed(a_value, m_osc3->lms_vol_knob);}
+
 void wayv_gui::programChanged(int a_value){ m_program->lms_value_changed(a_value);}
 void wayv_gui::programSaved(){ m_program->programSaved(); }
 
@@ -791,17 +948,16 @@ void wayv_gui::osc1UnisonVoicesChanged(int a_value){lms_value_changed(a_value, m
 void wayv_gui::osc1UnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_osc1_uni_spread);}
 void wayv_gui::osc2UnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_osc2_uni_voices);}
 void wayv_gui::osc2UnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_osc2_uni_spread);}
+
+void wayv_gui::osc3UnisonVoicesChanged(int a_value){lms_value_changed(a_value, m_osc3_uni_voices);}
+void wayv_gui::osc3UnisonSpreadChanged(int a_value){lms_value_changed(a_value, m_osc3_uni_spread);}
+
 void wayv_gui::masterGlideChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_glide);}
 void wayv_gui::masterPitchbendAmtChanged(int a_value){lms_value_changed(a_value, m_master->lms_master_pitchbend_amt);}
 void wayv_gui::pitchEnvTimeChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_time_knob);}
 void wayv_gui::pitchEnvAmtChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_amt_knob);}
 void wayv_gui::LFOfreqChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_freq_knob);}
 void wayv_gui::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_type_combobox);}
-
-
-
-
-
 
 
 void wayv_gui::v_print_port_name_to_cerr(int a_port)
@@ -868,20 +1024,36 @@ void wayv_gui::v_set_control(int a_port, float a_value)
         case WAYV_SUSTAIN2: setSustain2(a_value); break;
         case WAYV_RELEASE2: setRelease2(a_value); break;
         
+        case WAYV_ATTACK3: setAttack3(a_value); break;
+        case WAYV_DECAY3: setDecay3(a_value); break;
+        case WAYV_SUSTAIN3: setSustain3(a_value); break;
+        case WAYV_RELEASE3: setRelease3(a_value); break;
+        
         case WAYV_NOISE_AMP: setNoiseAmp(a_value); break;
         case WAYV_OSC1_TYPE: setOsc1Type(a_value); break;            
         case WAYV_OSC1_PITCH: setOsc1Pitch(a_value);  break;    
         case WAYV_OSC1_TUNE: setOsc1Tune(a_value); break;    
-        case WAYV_OSC1_VOLUME: setOsc1Volume(a_value); break;        
+        case WAYV_OSC1_VOLUME: setOsc1Volume(a_value); break;   
+        
         case WAYV_OSC2_TYPE: setOsc2Type(a_value); break;            
         case WAYV_OSC2_PITCH: setOsc2Pitch(a_value); break;    
         case WAYV_OSC2_TUNE: setOsc2Tune(a_value); break;    
         case WAYV_OSC2_VOLUME: setOsc2Volume(a_value); break;        
+        
+        case WAYV_OSC3_TYPE: setOsc3Type(a_value); break;            
+        case WAYV_OSC3_PITCH: setOsc3Pitch(a_value); break;    
+        case WAYV_OSC3_TUNE: setOsc3Tune(a_value); break;    
+        case WAYV_OSC3_VOLUME: setOsc3Volume(a_value); break;        
+        
         case WAYV_MASTER_VOLUME: setMasterVolume(a_value); break;    
         case WAYV_OSC1_UNISON_VOICES: setOsc1UnisonVoices(a_value); break;
         case WAYV_OSC1_UNISON_SPREAD: setOsc1UnisonSpread(a_value); break;
         case WAYV_OSC2_UNISON_VOICES: setOsc2UnisonVoices(a_value); break;
         case WAYV_OSC2_UNISON_SPREAD: setOsc2UnisonSpread(a_value); break;
+        
+        case WAYV_OSC3_UNISON_VOICES: setOsc3UnisonVoices(a_value); break;
+        case WAYV_OSC3_UNISON_SPREAD: setOsc3UnisonSpread(a_value); break;        
+        
         case WAYV_MASTER_GLIDE: setMasterGlide(a_value); break;
         case WAYV_MASTER_PITCHBEND_AMT: setMasterPitchbendAmt(a_value); break;
         
@@ -974,6 +1146,7 @@ void wayv_gui::v_set_control(int a_port, float a_value)
         
         case WAYV_ADSR1_CHECKBOX: setADSR1checked(a_value); break;
         case WAYV_ADSR2_CHECKBOX: setADSR2checked(a_value); break;
+        case WAYV_ADSR3_CHECKBOX: setADSR3checked(a_value); break;
         
         case WAYV_PITCH_ENV_AMT: setPitchEnvAmt(a_value); break;
     }
@@ -1008,20 +1181,36 @@ void wayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case WAYV_SUSTAIN2: sustain2Changed(a_value); break;
     case WAYV_RELEASE2: release2Changed(a_value); break;
     
+    case WAYV_ATTACK3: attack3Changed(a_value); break;
+    case WAYV_DECAY3: decay3Changed(a_value); break;
+    case WAYV_SUSTAIN3: sustain3Changed(a_value); break;
+    case WAYV_RELEASE3: release3Changed(a_value); break;
+    
     case WAYV_NOISE_AMP: noiseAmpChanged(a_value); break;    
     case WAYV_OSC1_TYPE: osc1TypeChanged(a_value);  break;            
     case WAYV_OSC1_PITCH:  osc1PitchChanged(a_value);  break;    
     case WAYV_OSC1_TUNE: osc1TuneChanged(a_value); break;    
     case WAYV_OSC1_VOLUME: osc1VolumeChanged(a_value); break;
+    
     case WAYV_OSC2_TYPE: osc2TypeChanged(a_value); break;            
     case WAYV_OSC2_PITCH: osc2PitchChanged(a_value); break;    
     case WAYV_OSC2_TUNE: osc2TuneChanged(a_value); break;    
     case WAYV_OSC2_VOLUME: osc2VolumeChanged(a_value); break;
+    
+    case WAYV_OSC3_TYPE: osc3TypeChanged(a_value); break;            
+    case WAYV_OSC3_PITCH: osc3PitchChanged(a_value); break;    
+    case WAYV_OSC3_TUNE: osc3TuneChanged(a_value); break;    
+    case WAYV_OSC3_VOLUME: osc3VolumeChanged(a_value); break;
+        
     case WAYV_MASTER_VOLUME: masterVolumeChanged(a_value); break;
     case WAYV_OSC1_UNISON_VOICES: osc1UnisonVoicesChanged(a_value); break;
     case WAYV_OSC1_UNISON_SPREAD: osc1UnisonSpreadChanged(a_value); break;
     case WAYV_OSC2_UNISON_VOICES: osc2UnisonVoicesChanged(a_value); break;
     case WAYV_OSC2_UNISON_SPREAD: osc2UnisonSpreadChanged(a_value); break;
+    
+    case WAYV_OSC3_UNISON_VOICES: osc3UnisonVoicesChanged(a_value); break;
+    case WAYV_OSC3_UNISON_SPREAD: osc3UnisonSpreadChanged(a_value); break;
+    
     case WAYV_MASTER_GLIDE: masterGlideChanged(a_value); break;
     case WAYV_MASTER_PITCHBEND_AMT: masterPitchbendAmtChanged(a_value); break;
     
@@ -1110,6 +1299,7 @@ void wayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
 
     case WAYV_ADSR1_CHECKBOX: adsr1checkChanged(a_value); break;
     case WAYV_ADSR2_CHECKBOX: adsr2checkChanged(a_value); break;
+    case WAYV_ADSR3_CHECKBOX: adsr3checkChanged(a_value); break;
         
     case WAYV_LFO_AMOUNT: LFOamountChanged(a_value); break;
     case WAYV_LFO_AMP: LFOampChanged(a_value); break;
@@ -1128,47 +1318,52 @@ void wayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     
 }
 
-/*TODO:  For the forseeable future, this will only be used for getting the values to write back to 
- the presets.tsv file;  It should probably return a string that can be re-interpreted into other values for
- complex controls that could have multiple ints, or string values, etc...*/
 int wayv_gui::i_get_control(int a_port)
-{
-        /*Add the controls you created to the control handler*/
-    
+{        
     switch (a_port) {
-    case WAYV_ATTACK_MAIN: return  m_adsr_amp_main->lms_attack->lms_get_value();
-    case WAYV_DECAY_MAIN:  return m_adsr_amp_main->lms_decay->lms_get_value();
-    case WAYV_SUSTAIN_MAIN: return m_adsr_amp_main->lms_sustain->lms_get_value();
-    case WAYV_RELEASE_MAIN: return m_adsr_amp_main->lms_release->lms_get_value();
-    case WAYV_NOISE_AMP: return m_noise_amp->lms_get_value();
-    case WAYV_OSC1_TYPE: return m_osc1->lms_osc_type_box->lms_get_value();
-    case WAYV_OSC1_PITCH: return m_osc1->lms_pitch_knob->lms_get_value();
-    case WAYV_OSC1_TUNE: return  m_osc1->lms_fine_knob->lms_get_value();
-    case WAYV_OSC1_VOLUME: return m_osc1->lms_vol_knob->lms_get_value();
-    case WAYV_OSC2_TYPE:  return m_osc2->lms_osc_type_box->lms_get_value();
-    case WAYV_OSC2_PITCH: return m_osc2->lms_pitch_knob->lms_get_value();
-    case WAYV_OSC2_TUNE: return m_osc2->lms_fine_knob->lms_get_value();
-    case WAYV_OSC2_VOLUME: return m_osc2->lms_vol_knob->lms_get_value();
-    case WAYV_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
-    case WAYV_OSC1_UNISON_VOICES: return m_osc1_uni_voices->lms_get_value();
-    case WAYV_OSC1_UNISON_SPREAD: return m_osc1_uni_spread->lms_get_value();
-    case WAYV_OSC2_UNISON_VOICES: return m_osc2_uni_voices->lms_get_value();
-    case WAYV_OSC2_UNISON_SPREAD: return m_osc2_uni_spread->lms_get_value();
-    case WAYV_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
-    case WAYV_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
-    
-    case WAYV_LFO_AMOUNT: return m_lfo_amount->lms_get_value();
-    case WAYV_LFO_AMP: return m_lfo_amp->lms_get_value();
-    case WAYV_LFO_PITCH: return m_lfo_pitch->lms_get_value();
-    case WAYV_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
-    //case LMS_PROGRAM_CHANGE:
+        case WAYV_ATTACK_MAIN: return  m_adsr_amp_main->lms_attack->lms_get_value();
+        case WAYV_DECAY_MAIN:  return m_adsr_amp_main->lms_decay->lms_get_value();
+        case WAYV_SUSTAIN_MAIN: return m_adsr_amp_main->lms_sustain->lms_get_value();
+        case WAYV_RELEASE_MAIN: return m_adsr_amp_main->lms_release->lms_get_value();
+        case WAYV_NOISE_AMP: return m_noise_amp->lms_get_value();
+        case WAYV_OSC1_TYPE: return m_osc1->lms_osc_type_box->lms_get_value();
+        case WAYV_OSC1_PITCH: return m_osc1->lms_pitch_knob->lms_get_value();
+        case WAYV_OSC1_TUNE: return  m_osc1->lms_fine_knob->lms_get_value();
+        case WAYV_OSC1_VOLUME: return m_osc1->lms_vol_knob->lms_get_value();
+        case WAYV_OSC2_TYPE:  return m_osc2->lms_osc_type_box->lms_get_value();
+        case WAYV_OSC2_PITCH: return m_osc2->lms_pitch_knob->lms_get_value();
+        case WAYV_OSC2_TUNE: return m_osc2->lms_fine_knob->lms_get_value();
+        case WAYV_OSC2_VOLUME: return m_osc2->lms_vol_knob->lms_get_value();
+        
+        case WAYV_OSC3_TYPE:  return m_osc3->lms_osc_type_box->lms_get_value();
+        case WAYV_OSC3_PITCH: return m_osc3->lms_pitch_knob->lms_get_value();
+        case WAYV_OSC3_TUNE: return m_osc3->lms_fine_knob->lms_get_value();
+        case WAYV_OSC3_VOLUME: return m_osc3->lms_vol_knob->lms_get_value();
+        
+        case WAYV_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
+        case WAYV_OSC1_UNISON_VOICES: return m_osc1_uni_voices->lms_get_value();
+        case WAYV_OSC1_UNISON_SPREAD: return m_osc1_uni_spread->lms_get_value();
+        case WAYV_OSC2_UNISON_VOICES: return m_osc2_uni_voices->lms_get_value();
+        case WAYV_OSC2_UNISON_SPREAD: return m_osc2_uni_spread->lms_get_value();
+        
+        case WAYV_OSC3_UNISON_VOICES: return m_osc3_uni_voices->lms_get_value();
+        case WAYV_OSC3_UNISON_SPREAD: return m_osc3_uni_spread->lms_get_value();
+        
+        case WAYV_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
+        case WAYV_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
+
+        case WAYV_LFO_AMOUNT: return m_lfo_amount->lms_get_value();
+        case WAYV_LFO_AMP: return m_lfo_amp->lms_get_value();
+        case WAYV_LFO_PITCH: return m_lfo_pitch->lms_get_value();
+        case WAYV_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
+        //case LMS_PROGRAM_CHANGE:
         //return m_program->currentIndex();
-    default:
+        default:
 #ifdef LMS_DEBUG_MODE_QT
-	wayv_cerr << "Warning: received request to get nonexistent port " << a_port << endl;
+            wayv_cerr << "Warning: received request to get nonexistent port " << a_port << endl;
 #endif
-        return 0;
-        break;
+            return 0;
+            break;
     }    
 }
 
