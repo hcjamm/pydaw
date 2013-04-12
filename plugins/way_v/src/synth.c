@@ -389,8 +389,7 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
                     float f_release1 = *(plugin_data->release1) * .01f;
                     f_release1 = (f_release1) * (f_release1);   
 
-                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp1, (f_attack1), (f_decay1), *(plugin_data->sustain1), (f_release1));
-                    v_osc_wav_note_on_sync_phases(plugin_data->data[f_voice]->osc_wavtable1);
+                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp1, (f_attack1), (f_decay1), *(plugin_data->sustain1), (f_release1));                    
                 }
 
                 plugin_data->data[f_voice]->adsr_amp2_on = (int)(*(plugin_data->adsr2_checked));
@@ -404,8 +403,7 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
                     float f_release2 = *(plugin_data->release2) * .01f;
                     f_release2 = (f_release2) * (f_release2);   
 
-                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp2, (f_attack2), (f_decay2), *(plugin_data->sustain2), (f_release2));
-                    v_osc_wav_note_on_sync_phases(plugin_data->data[f_voice]->osc_wavtable2);
+                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp2, (f_attack2), (f_decay2), *(plugin_data->sustain2), (f_release2));                    
                 }
                 
                 plugin_data->data[f_voice]->adsr_amp3_on = (int)(*(plugin_data->adsr3_checked));
@@ -419,8 +417,7 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
                     float f_release3 = *(plugin_data->release3) * .01f;
                     f_release3 = (f_release3) * (f_release3);   
 
-                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp3, (f_attack3), (f_decay3), *(plugin_data->sustain3), (f_release3));
-                    v_osc_wav_note_on_sync_phases(plugin_data->data[f_voice]->osc_wavtable3);
+                    v_adsr_set_adsr_db(plugin_data->data[f_voice]->adsr_amp3, (f_attack3), (f_decay3), *(plugin_data->sustain3), (f_release3));                    
                 }
                 
                 plugin_data->data[f_voice]->noise_amp = f_db_to_linear(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
@@ -430,6 +427,9 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
                 if(f_osc_type1 >= 0)
                 {
                     plugin_data->data[f_voice]->osc1_on = 1;
+                    
+                    v_osc_wav_note_on_sync_phases(plugin_data->data[f_voice]->osc_wavtable1);
+                    
                     v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable1, 
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type1]->wavetable,
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type1]->length);
@@ -445,6 +445,9 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
                 if(f_osc_type2 >= 0)
                 {
                     plugin_data->data[f_voice]->osc2_on = 1;
+                    
+                    v_osc_wav_note_on_sync_phases(plugin_data->data[f_voice]->osc_wavtable2);
+                    
                     v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable2, 
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->wavetable,
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type2]->length);
@@ -460,6 +463,9 @@ static void v_run_wayv(LADSPA_Handle instance, int sample_count,
                 if(f_osc_type3 >= 0)
                 {
                     plugin_data->data[f_voice]->osc3_on = 1;
+                    
+                    v_osc_wav_note_on_sync_phases(plugin_data->data[f_voice]->osc_wavtable3);
+                    
                     v_osc_wav_set_waveform(plugin_data->data[f_voice]->osc_wavtable3, 
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type3]->wavetable,
                             plugin_data->data[f_voice]->wavetables->tables[f_osc_type3]->length);
