@@ -96,6 +96,12 @@ public slots:
     void setRelease2(float);
     void setADSR2checked(float);
     
+    void setAttack3 (float);
+    void setDecay3  (float);
+    void setSustain3(float);
+    void setRelease3(float);
+    void setADSR3checked(float);
+    
     void setNoiseAmp(float);
     
     void setOsc1Type(float);
@@ -107,9 +113,12 @@ public slots:
     void setOsc2Tune(float);
     void setOsc2Volume(float);
     
+    void setOsc3Type(float);
+    void setOsc3Pitch(float);
+    void setOsc3Tune(float);
+    void setOsc3Volume(float);
    
-    void setProgram(float);    
-    
+    void setProgram(float);
     
     void setAttack (float);
     void setDecay  (float);
@@ -129,6 +138,9 @@ public slots:
     void setOsc1UnisonSpread(float);
     void setOsc2UnisonVoices(float);
     void setOsc2UnisonSpread(float);
+    
+    void setOsc3UnisonVoices(float);
+    void setOsc3UnisonSpread(float);
     
     void setMasterGlide(float);
     void setMasterPitchbendAmt(float);
@@ -164,6 +176,16 @@ public slots:
     
     void setPitchEnvAmt(float);
     
+    void setOsc1FM1(float);
+    void setOsc1FM2(float);
+    void setOsc1FM3(float);
+    void setOsc2FM1(float);
+    void setOsc2FM2(float);
+    void setOsc2FM3(float);
+    void setOsc3FM1(float);
+    void setOsc3FM2(float);
+    void setOsc3FM3(float);
+    
     void aboutToQuit();
     
 protected slots:
@@ -185,6 +207,24 @@ protected slots:
     void release2Changed(int);
     void adsr2checkChanged(bool);
     
+    void attack3Changed (int);
+    void decay3Changed  (int);
+    void sustain3Changed(int);
+    void release3Changed(int);
+    void adsr3checkChanged(bool);
+    
+    void osc1FM1Changed(int);
+    void osc1FM2Changed(int);
+    void osc1FM3Changed(int);
+    
+    void osc2FM1Changed(int);
+    void osc2FM2Changed(int);
+    void osc2FM3Changed(int);
+    
+    void osc3FM1Changed(int);
+    void osc3FM2Changed(int);
+    void osc3FM3Changed(int);
+    
     void noiseAmpChanged(int);
     
     void osc1TypeChanged(int);
@@ -195,6 +235,12 @@ protected slots:
     void osc2PitchChanged(int);
     void osc2TuneChanged(int);
     void osc2VolumeChanged(int);
+    
+    void osc3TypeChanged(int);
+    void osc3PitchChanged(int);
+    void osc3TuneChanged(int);
+    void osc3VolumeChanged(int);
+    
     void masterVolumeChanged(int);
     
     void osc1UnisonVoicesChanged(int);
@@ -202,14 +248,16 @@ protected slots:
     void osc2UnisonVoicesChanged(int);
     void osc2UnisonSpreadChanged(int);
     
+    void osc3UnisonVoicesChanged(int);
+    void osc3UnisonSpreadChanged(int);
+    
     void masterGlideChanged(int);
     void masterPitchbendAmtChanged(int);
     
     void programChanged(int);
     void programSaved();
     
-    void oscRecv();
-    
+    void oscRecv();    
     
     void attackChanged (int);
     void decayChanged  (int);
@@ -326,11 +374,16 @@ protected:
     LMS_oscillator_widget * m_osc2;
     LMS_knob_regular *m_osc2_uni_voices;
     LMS_knob_regular *m_osc2_uni_spread;
+    LMS_oscillator_widget * m_osc3;
+    LMS_knob_regular *m_osc3_uni_voices;
+    LMS_knob_regular *m_osc3_uni_spread;
     
     LMS_adsr_widget * m_adsr_amp1;
     LMS_checkbox * m_adsr_amp1_checkbox;
     LMS_adsr_widget * m_adsr_amp2;
     LMS_checkbox * m_adsr_amp2_checkbox;
+    LMS_adsr_widget * m_adsr_amp3;
+    LMS_checkbox * m_adsr_amp3_checkbox;
     
     LMS_master_widget * m_master;
             
@@ -350,7 +403,22 @@ protected:
     LMS_group_box * m_groupbox_noise;
     LMS_knob_regular *m_noise_amp;
     LMS_combobox *m_noise_type;
-            
+    
+    LMS_group_box * m_groupbox_osc1_fm;
+    LMS_knob_regular *m_osc1_fm1;
+    LMS_knob_regular *m_osc1_fm2;
+    LMS_knob_regular *m_osc1_fm3;
+    
+    LMS_group_box * m_groupbox_osc2_fm;
+    LMS_knob_regular *m_osc2_fm1;
+    LMS_knob_regular *m_osc2_fm2;
+    LMS_knob_regular *m_osc2_fm3;
+    
+    LMS_group_box * m_groupbox_osc3_fm;
+    LMS_knob_regular *m_osc3_fm1;
+    LMS_knob_regular *m_osc3_fm2;
+    LMS_knob_regular *m_osc3_fm3;
+    
     LMS_preset_manager * m_program;
     
     lo_address m_host;
