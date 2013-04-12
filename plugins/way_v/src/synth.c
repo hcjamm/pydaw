@@ -1491,54 +1491,63 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
 	port_range_hints[WAYV_OSC1_FM1].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_FM1].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC1_FM1].UpperBound =  100.0f;
+        automatable[WAYV_OSC1_FM1] = 1;
         
         port_descriptors[WAYV_OSC1_FM2] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC1_FM2] = "Osc1 FM2";
 	port_range_hints[WAYV_OSC1_FM2].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_FM2].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC1_FM2].UpperBound =  100.0f;
+        automatable[WAYV_OSC1_FM2] = 1;
         
         port_descriptors[WAYV_OSC1_FM3] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC1_FM3] = "Osc1 FM3";
 	port_range_hints[WAYV_OSC1_FM3].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC1_FM3].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC1_FM3].UpperBound =  100.0f;
+        automatable[WAYV_OSC1_FM3] = 1;
         
         port_descriptors[WAYV_OSC2_FM1] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC2_FM1] = "Osc2 FM1";
 	port_range_hints[WAYV_OSC2_FM1].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_FM1].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_FM1].UpperBound =  100.0f;
+        automatable[WAYV_OSC2_FM1] = 1;
         
         port_descriptors[WAYV_OSC2_FM2] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC2_FM2] = "Osc2 FM2";
 	port_range_hints[WAYV_OSC2_FM2].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_FM2].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_FM2].UpperBound =  100.0f;
+        automatable[WAYV_OSC2_FM2] = 1;
         
         port_descriptors[WAYV_OSC2_FM3] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC2_FM3] = "Osc2 FM3";
 	port_range_hints[WAYV_OSC2_FM3].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC2_FM3].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC2_FM3].UpperBound =  100.0f;        
+        automatable[WAYV_OSC2_FM3] = 1;
         
         port_descriptors[WAYV_OSC3_FM1] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC3_FM1] = "Osc1 FM1";
 	port_range_hints[WAYV_OSC3_FM1].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC3_FM1].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC3_FM1].UpperBound =  100.0f;
+        automatable[WAYV_OSC3_FM1] = 1;
         
         port_descriptors[WAYV_OSC3_FM2] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC3_FM2] = "Osc1 FM2";
 	port_range_hints[WAYV_OSC3_FM2].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC3_FM2].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC3_FM2].UpperBound =  100.0f;
+        automatable[WAYV_OSC3_FM2] = 1;
         
         port_descriptors[WAYV_OSC3_FM3] = port_descriptors[WAYV_ATTACK_MAIN];
 	port_names[WAYV_OSC3_FM3] = "Osc1 FM3";
 	port_range_hints[WAYV_OSC3_FM3].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_OSC3_FM3].LowerBound =  0.0f;
 	port_range_hints[WAYV_OSC3_FM3].UpperBound =  100.0f;
+        automatable[WAYV_OSC3_FM3] = 1;
         
         port_descriptors[WAYV_ATTACK3] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	port_names[WAYV_ATTACK3] = "Attack time (s)";
