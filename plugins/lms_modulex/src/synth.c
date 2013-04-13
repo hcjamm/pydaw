@@ -222,23 +222,9 @@ static void v_modulex_run(LADSPA_Handle instance, int sample_count,
         while((plugin_data->i_mono_out) < sample_count)
         {
             v_smr_iir_run(plugin_data->mono_modules->time_smoother, (*(plugin_data->delay_time) * .01));
-
-            //Not using ducking for now...  Need to do a better version that uses the new limiter
-            //v_enf_run_env_follower(plugin_data->mono_modules->env_follower, ((plugin_data->mono_modules->current_sample0) + (plugin_data->mono_modules->current_sample1)));
-
-            /*If above the ducking threshold, reduce the wet amount by the same*/
-            /*if((plugin_data->mono_modules->env_follower->output_smoothed) > *(plugin_data->duck))
-            {
-                v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), 
-                        *(plugin_data->feedback),
-                        (*(plugin_data->wet) - ((plugin_data->mono_modules->env_follower->output_smoothed) - *(plugin_data->duck))), 
-                        *(plugin_data->dry), (*(plugin_data->stereo) * .01));
-            }
-            else
-            {*/
-                v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), *(plugin_data->feedback), 
-                        *(plugin_data->wet), *(plugin_data->dry), (*(plugin_data->stereo) * .01));
-            //}
+            
+            v_ldl_set_delay(plugin_data->mono_modules->delay, (plugin_data->mono_modules->time_smoother->output), *(plugin_data->feedback), 
+                    *(plugin_data->wet), *(plugin_data->dry), (*(plugin_data->stereo) * .01), (*plugin_data->duck));
 
             v_ldl_run_delay(plugin_data->mono_modules->delay, 
                     (plugin_data->output0[(plugin_data->i_mono_out)]), (plugin_data->output0[(plugin_data->i_mono_out)]));        
