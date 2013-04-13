@@ -184,6 +184,7 @@ static void connectPortSampler(LADSPA_Handle instance, int port,
         //case LMS_GLOBAL_MIDI_CHANNEL: plugin->global_midi_channel = data; break;
         //case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: plugin->global_midi_octaves_offset = data; break;
         case EUPHORIA_NOISE_TYPE: plugin->noise_type = data; break;
+        case EUPHORIA_LFO_PITCH: plugin->lfo_pitch = data; break;
         default:
             break;
         }
@@ -573,7 +574,7 @@ static void add_sample_lms_euphoria(t_euphoria *__restrict plugin_data, int n, i
         
         plugin_data->data[n]->base_pitch = (plugin_data->data[n]->glide_env->output_multiplied)
                 +  (plugin_data->mono_modules->pitchbend_smoother->output)  //(plugin_data->sv_pitch_bend_value)
-                + (plugin_data->data[n]->last_pitch);
+                + (plugin_data->data[n]->last_pitch) + ((plugin_data->data[n]->lfo1->output) * (*(plugin_data->lfo_pitch)));
         
         if((plugin_data->voices->voices[n].off) == (i + plugin_data->sampleNo)) //pos + 
         {   
@@ -1933,6 +1934,13 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_NOISE_TYPE].LowerBound =  0;
 	port_range_hints[EUPHORIA_NOISE_TYPE].UpperBound =  2;
+        
+        port_descriptors[EUPHORIA_LFO_PITCH] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
+	port_names[EUPHORIA_LFO_PITCH] = "LFO Pitch";
+	port_range_hints[EUPHORIA_LFO_PITCH].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[EUPHORIA_LFO_PITCH].LowerBound = -36.0f;
+	port_range_hints[EUPHORIA_LFO_PITCH].UpperBound = 36.0f;
+        automatable[EUPHORIA_LFO_PITCH] = 1;
         
         int f_i = EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN;
                 

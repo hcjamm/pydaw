@@ -82,6 +82,7 @@ typedef struct {
     
     LADSPA_Data *lfo_freq;
     LADSPA_Data *lfo_type;
+    LADSPA_Data *lfo_pitch;
         
     LADSPA_Data *global_midi_octaves_offset;
         

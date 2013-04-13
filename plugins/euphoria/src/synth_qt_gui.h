@@ -186,6 +186,7 @@ public slots:
         
     void setLFOfreq(float);
     void setLFOtype(float);
+    void setLFOpitch(float);
         
     void setFX0knob0 (float val);
     void setFX0knob1 (float val);
@@ -622,6 +623,7 @@ protected slots:
         
     void LFOfreqChanged(int);
     void LFOtypeChanged(int);
+    void LFOpitchChanged(int);
     
     void fx0knob0Changed(int);
     void fx0knob1Changed(int);
@@ -733,6 +735,7 @@ protected:
     LMS_ramp_env * m_pitch_env;
     
     LMS_lfo_widget * m_lfo;
+    LMS_knob_regular * m_lfo_pitch;
     
     LMS_master_widget * m_master;
             
