@@ -166,13 +166,14 @@
 //End PolyFX Mod Matrix
 
 #define EUPHORIA_NOISE_TYPE 82
+#define EUPHORIA_LFO_PITCH 83
 
 /*This is the last control port, + 1, for zero-based iteration*/
-#define EUPHORIA_LAST_REGULAR_CONTROL_PORT 83
+#define EUPHORIA_LAST_REGULAR_CONTROL_PORT 84
 
 /*The first port to use when enumerating the ports for mod_matrix controls.  All of the mod_matrix ports should be sequential, 
  * any additional ports should prepend this port number*/
-#define EUPHORIA_FIRST_SAMPLE_TABLE_PORT 83
+#define EUPHORIA_FIRST_SAMPLE_TABLE_PORT 84
 
 /*The range of ports for sample pitch*/
 #define EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN     EUPHORIA_FIRST_SAMPLE_TABLE_PORT

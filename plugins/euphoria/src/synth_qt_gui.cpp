@@ -1117,6 +1117,10 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         connect(m_lfo->lms_freq_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOfreqChanged(int)));
         connect(m_lfo->lms_type_combobox->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(LFOtypeChanged(int)));
                 
+        m_lfo_pitch = new LMS_knob_regular(QString("Pitch"), -36, 36, 1, 0, QString("0"), m_lfo->lms_groupbox->lms_groupbox, a_style, lms_kc_integer, EUPHORIA_LFO_PITCH);
+        m_lfo->lms_groupbox->lms_add_h(m_lfo_pitch);
+        connect(m_lfo_pitch->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOpitchChanged(int)));
+        
         //MonoFX Tab
         
         m_mono_fx_tab_main_layout = new LMS_main_layout(m_mono_fx_tab);
@@ -2883,6 +2887,7 @@ void SamplerGUI::setMasterPitchbendAmt(float a_value){lms_set_value(a_value, m_m
 void SamplerGUI::setPitchEnvTime(float a_value){lms_set_value(a_value, m_pitch_env->lms_time_knob);}
 void SamplerGUI::setLFOfreq(float a_value){lms_set_value(a_value, m_lfo->lms_freq_knob);}
 void SamplerGUI::setLFOtype(float a_value){lms_set_value(a_value, m_lfo->lms_type_combobox);}
+void SamplerGUI::setLFOpitch(float a_value){lms_set_value(a_value, m_lfo_pitch);}
 
 void SamplerGUI::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {    
@@ -2912,45 +2917,7 @@ void SamplerGUI::masterPitchbendAmtChanged(int a_value){lms_value_changed(a_valu
 void SamplerGUI::pitchEnvTimeChanged(int a_value){lms_value_changed(a_value, m_pitch_env->lms_time_knob);}
 void SamplerGUI::LFOfreqChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_freq_knob);}
 void SamplerGUI::LFOtypeChanged(int a_value){lms_value_changed(a_value, m_lfo->lms_type_combobox);}
-
-void SamplerGUI::v_print_port_name_to_cerr(int a_port)
-{
-#ifdef LMS_DEBUG_MODE_QT
-    switch (a_port) {
-    case EUPHORIA_ATTACK: euphoria_cerr << "LMS_ATTACK"; break;
-    case EUPHORIA_DECAY: euphoria_cerr << "LMS_DECAY"; break;
-    case EUPHORIA_SUSTAIN: euphoria_cerr << "LMS_SUSTAIN"; break;
-    case EUPHORIA_RELEASE: euphoria_cerr << "LMS_RELEASE"; break;
-    case LMS_TIMBRE: euphoria_cerr << "LMS_TIMBRE"; break;
-    case LMS_RES: euphoria_cerr << "LMS_RES"; break;        
-    case LMS_DIST: euphoria_cerr << "LMS_DIST"; break;
-    case EUPHORIA_FILTER_ATTACK: euphoria_cerr << "LMS_FILTER_ATTACK"; break;
-    case EUPHORIA_FILTER_DECAY: euphoria_cerr << "LMS_FILTER_DECAY"; break;
-    case EUPHORIA_FILTER_SUSTAIN: euphoria_cerr << "LMS_FILTER_SUSTAIN"; break;
-    case EUPHORIA_FILTER_RELEASE: euphoria_cerr << "LMS_FILTER_RELEASE"; break;
-    case EUPHORIA_NOISE_AMP: euphoria_cerr << "LMS_NOISE_AMP"; break;    
-    case LMS_DIST_WET: euphoria_cerr << "LMS_DIST_WET"; break;            
-    case LMS_FILTER_ENV_AMT: euphoria_cerr << "LMS_FILTER_ENV_AMT"; break;    
-    case LMS_OSC1_TYPE: euphoria_cerr << "LMS_OSC1_TYPE"; break;            
-    case LMS_OSC1_PITCH: euphoria_cerr << "LMS_OSC1_PITCH"; break;    
-    case LMS_OSC1_TUNE: euphoria_cerr << "LMS_OSC1_TUNE"; break;    
-    case LMS_OSC1_VOLUME: euphoria_cerr << "LMS_OSC1_VOLUME"; break;        
-    case LMS_OSC2_TYPE: euphoria_cerr << "LMS_OSC2_TYPE"; break;            
-    case LMS_OSC2_PITCH: euphoria_cerr << "LMS_OSC2_PITCH"; break;    
-    case LMS_OSC2_TUNE: euphoria_cerr << "LMS_OSC2_TUNE";  break;    
-    case LMS_OSC2_VOLUME: euphoria_cerr << "LMS_OSC2_VOLUME"; break;        
-    case EUPHORIA_MASTER_VOLUME: euphoria_cerr << "LMS_MASTER_VOLUME"; break;
-    case LMS_MASTER_UNISON_VOICES: euphoria_cerr << "LMS_MASTER_UNISON_VOICES"; break;
-    case LMS_MASTER_UNISON_SPREAD: euphoria_cerr << "LMS_MASTER_UNISON_SPREAD"; break;
-    case EUPHORIA_MASTER_GLIDE: euphoria_cerr << "LMS_MASTER_GLIDE"; break;
-    case EUPHORIA_MASTER_PITCHBEND_AMT: euphoria_cerr << "LMS_MASTER_PITCHBEND_AMT"; break;
-    case LMS_PITCH_ENV_AMT: euphoria_cerr << "LMS_PITCH_ENV_AMT "; break;
-    case EUPHORIA_PITCH_ENV_TIME: euphoria_cerr << "LMS_PITCH_ENV_TIME ";  break;        
-    case LMS_PROGRAM_CHANGE: euphoria_cerr << "LMS_PROGRAM_CHANGE "; break;
-    default: euphoria_cerr << "Warning: received request to set nonexistent port " << a_port ; break;
-    }
-#endif
-}
+void SamplerGUI::LFOpitchChanged(int a_value){lms_value_changed(a_value, m_lfo_pitch);}
 
 void SamplerGUI::v_set_control(int port, float a_value)
 {
@@ -2975,6 +2942,7 @@ void SamplerGUI::v_set_control(int port, float a_value)
             case EUPHORIA_PITCH_ENV_TIME: setPitchEnvTime(a_value); break;                
             case EUPHORIA_LFO_FREQ: setLFOfreq(a_value); break;            
             case EUPHORIA_LFO_TYPE:  setLFOtype(a_value);  break;
+            case EUPHORIA_LFO_PITCH:  setLFOpitch(a_value);  break;
             //From Modulex            
             case EUPHORIA_FX0_KNOB0:	setFX0knob0(a_value); break;
             case EUPHORIA_FX0_KNOB1:	setFX0knob1(a_value); break;        
@@ -3327,7 +3295,7 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case EUPHORIA_PITCH_ENV_TIME: pitchEnvTimeChanged(a_value); break;
             case EUPHORIA_LFO_FREQ: LFOfreqChanged(a_value); break;
             case EUPHORIA_LFO_TYPE: LFOtypeChanged(a_value); break;
-            //From Modulex            
+            case EUPHORIA_LFO_PITCH: LFOpitchChanged(a_value); break;
             case EUPHORIA_FX0_KNOB0:	fx0knob0Changed(a_value); break;
             case EUPHORIA_FX0_KNOB1:	fx0knob1Changed(a_value); break;
             case EUPHORIA_FX0_KNOB2:	fx0knob2Changed(a_value); break;  
@@ -3396,11 +3364,8 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
             case EUPHORIA_PFXMATRIX_GRP0DST3SRC2CTRL2:  pfxmatrix_grp0dst3src2ctrl2Changed(a_value); break;
             case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL0:  pfxmatrix_grp0dst3src3ctrl0Changed(a_value); break;
             case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL1:  pfxmatrix_grp0dst3src3ctrl1Changed(a_value); break;
-            case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2:  pfxmatrix_grp0dst3src3ctrl2Changed(a_value); break;
-            
-            //case LMS_GLOBAL_MIDI_OCTAVES_OFFSET: global_midi_octaves_offsetChanged(a_value); break;
-        }
-    
+            case EUPHORIA_PFXMATRIX_GRP0DST3SRC3CTRL2:  pfxmatrix_grp0dst3src3ctrl2Changed(a_value); break;            
+        }    
     }
     else if((port >= EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MIN) && (port < EUPHORIA_SAMPLE_PITCH_PORT_RANGE_MAX))
     {
@@ -3603,17 +3568,14 @@ void SamplerGUI::v_control_changed(int port, int a_value, bool a_suppress_host_u
         {
             sample_selected_monofx_groupChanged(m_sample_selected_monofx_groups[f_value]);
         }        
-    }        
-    
-    
+    }
     else
     {
         euphoria_cerr << "v_control_changed called with invalid port " << port << "\n";
     }
     
     if(a_suppress_host_update)
-        m_suppressHostUpdate = false;
-    
+        m_suppressHostUpdate = false;    
 }
 
 int SamplerGUI::i_get_control(int port)
@@ -3641,8 +3603,8 @@ int SamplerGUI::i_get_control(int port)
             case EUPHORIA_PITCH_ENV_TIME: return m_pitch_env->lms_time_knob->lms_get_value();
             case EUPHORIA_LFO_FREQ: return m_lfo->lms_freq_knob->lms_get_value();
             case EUPHORIA_LFO_TYPE: return m_lfo->lms_type_combobox->lms_get_value();
+            case EUPHORIA_LFO_PITCH: return m_lfo_pitch->lms_get_value();
             
-            //From Modulex            
             case EUPHORIA_FX0_KNOB0: return m_fx0->lms_knob1->lms_get_value();
             case EUPHORIA_FX0_KNOB1: return m_fx0->lms_knob2->lms_get_value();
             case EUPHORIA_FX0_KNOB2: return m_fx0->lms_knob3->lms_get_value();
@@ -3853,8 +3815,7 @@ int SamplerGUI::i_get_control(int port)
     {
         int f_value = port - EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN;
         return m_mono_fx_values[f_value][2][3];
-    }
-    
+    }    
     //MonoFX3
     else if((port >= EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MIN) && (port < EUPHORIA_MONO_FX3_KNOB0_PORT_RANGE_MAX))
     {
@@ -3881,8 +3842,7 @@ int SamplerGUI::i_get_control(int port)
     {
         int f_value = port - EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN;
         return m_sample_selected_monofx_groups[f_value];
-    }        
-    
+    }
     else
     {
         euphoria_cerr << "i_get_control called with invalid port " << port << "\n";
