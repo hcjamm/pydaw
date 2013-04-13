@@ -3926,23 +3926,29 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is
     char track_number_string[6];
     sprintf(track_number_string, "%i", a_track->track_num);
     
+    char f_track_str[256];
+    
     if(a_is_fx)
     {
         switch(a_track->track_type)
         {
             case 0: //MIDI
+                sprintf(f_track_str, "[MIDI] %s", a_track->name);
                 sprintf(oscUrl, "%s/%i-mfx", a_pydaw_data->osc_url, a_track->track_num);
                 break;
             case 1: //Bus
+                sprintf(f_track_str, "[Bus] %s", a_track->name);
                 sprintf(oscUrl, "%s/%i-bfx", a_pydaw_data->osc_url, a_track->track_num);
                 break;
             case 2: //Audio
+                sprintf(f_track_str, "[Audio] %s", a_track->name);
                 sprintf(oscUrl, "%s/%i-afx", a_pydaw_data->osc_url, a_track->track_num);
                 break;
         }        
     }
     else
     {
+        sprintf(f_track_str, "%s", a_track->name);
         sprintf(oscUrl, "%s/%i-mi", a_pydaw_data->osc_url, a_track->track_num);
     }
         
@@ -3952,7 +3958,7 @@ void v_show_plugin_ui(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_is
     
     if (fork() == 0) 
     {
-        execlp(filename, filename, oscUrl, dllName, a_track->name, track_number_string, (char*)NULL);
+        execlp(filename, filename, oscUrl, dllName, f_track_str, track_number_string, (char*)NULL);
         perror("exec failed");
         exit(1);  //TODO:  should be getting rid of this???
     }    
