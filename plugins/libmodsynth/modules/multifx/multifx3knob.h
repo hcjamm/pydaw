@@ -31,6 +31,7 @@ extern "C" {
 #include "../delay/chorus.h"
 #include "../distortion/glitch.h"
 #include "../distortion/ring_mod.h"
+#include "../distortion/lofi.h"
     
 /*BIG TODO:  Add a function to modify for the modulation sources*/
     
@@ -58,6 +59,7 @@ typedef struct st_mf3_multi
     t_crs_chorus * chorus;
     t_glc_glitch * glitch;
     t_rmd_ring_mod * ring_mod;
+    t_lfi_lofi * lofi;
 }t_mf3_multi;
 
 /*A function pointer for switching between effect types*/
@@ -86,6 +88,7 @@ inline void v_mf3_run_formant_filter(t_mf3_multi*, float, float);
 inline void v_mf3_run_chorus(t_mf3_multi*, float, float);
 inline void v_mf3_run_glitch(t_mf3_multi*, float, float);
 inline void v_mf3_run_ring_mod(t_mf3_multi*, float, float);
+inline void v_mf3_run_lofi(t_mf3_multi*, float, float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -155,17 +158,16 @@ inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
                 return v_mf3_run_glitch;
             case 18:
                 return v_mf3_run_ring_mod;
+            case 19:
+                return v_mf3_run_lofi;
             default:
                 /*TODO: Report error*/
-                return v_mf3_run_off;
-                
-        }
-    
+                return v_mf3_run_off;                
+        }    
 }
 
 inline void v_mf3_set(t_mf3_multi*__restrict a_mf3, float a_control0, float a_control1, float a_control2)
-{
-    
+{    
     a_mf3->control[0] = a_control0;
     a_mf3->control[1] = a_control1;
     a_mf3->control[2] = a_control2;
@@ -475,6 +477,17 @@ inline void v_mf3_run_ring_mod(t_mf3_multi*__restrict a_mf3, float a_in0, float 
     a_mf3->output1 = a_mf3->ring_mod->output1;
 }
 
+inline void v_mf3_run_lofi(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
+{
+    v_mf3_commit_mod(a_mf3);
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.094488) + 4.0f;
+        
+    v_lfi_lofi_set(a_mf3->lofi, a_mf3->control_value[0]);
+    v_lfi_lofi_run(a_mf3->lofi, a_in0, a_in1);
+        
+    a_mf3->output0 = a_mf3->lofi->output0;
+    a_mf3->output1 = a_mf3->lofi->output1;
+}
 
 /* t_mf3_multi g_mf3_get(
  * float a_sample_rate)
@@ -518,6 +531,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->chorus = g_crs_chorus_get(a_sample_rate);
     f_result->glitch = g_glc_glitch_get(a_sample_rate);
     f_result->ring_mod = g_rmd_ring_mod_get(a_sample_rate);
+    f_result->lofi = g_lfi_lofi_get();
     
     return f_result;
 }
