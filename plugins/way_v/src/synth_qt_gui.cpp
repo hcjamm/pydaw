@@ -82,7 +82,7 @@ wayv_gui::wayv_gui(const char * host, const char * port,
             //Glitchy and distorted waves
             << "Pink Glitch" << "White Glitch" << "Acid" << "Screetch"
             //Sine and triangle-like waves
-            << "Thick Bass" << "Rattler" << "Deep Saw";
+            << "Thick Bass" << "Rattler" << "Deep Saw" << "Sine";
         
     QStringList f_lfo_types = QStringList() << "Off" << "Sine" << "Triangle";
         
