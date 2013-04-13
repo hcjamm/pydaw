@@ -1,10 +1,6 @@
 /* 
  * File:   presets.h
  * Author: Jeff Hubbard
- * 
- * This class manages preset functionality.  It also provides a means for an instrument
- * to interact with LMS Session Manager and save session state, although instruments/effects that do not
- * rely on this class for 100% of all state saving(ie: LMS Euphoria) must implement their own.
  *
  * Created on April 2, 2012, 5:50 PM
  */
@@ -24,7 +20,7 @@
 #include "group_box.h"
 #include "lms_control.h"
 
-#define LMS_PRESETS_EXT QString("-presets.tsv")
+#define LMS_PRESETS_EXT QString(".pypresets")
 
 class LMS_preset_manager : public LMS_control
 {
@@ -160,7 +156,7 @@ public:
 
         presets_tab_delimited[m_program->currentIndex()] = f_result;
 
-        QString f_file_path = QDir::homePath() + "/pydaw/" + lms_plugin_name + LMS_PRESETS_EXT;
+        QString f_file_path = QDir::homePath() + "/pydaw3/" + lms_plugin_name + LMS_PRESETS_EXT;
 
         write_presets_to_file(f_file_path);
         
