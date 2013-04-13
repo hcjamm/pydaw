@@ -16,6 +16,8 @@
 extern "C" {
 #endif
 
+#include "../lib/denormal.h"
+    
 typedef struct s_smoother_iir
 {
     float output;
@@ -43,7 +45,7 @@ inline void v_smr_iir_run(t_smoother_iir * a_smoother, float a_in)
  */
 inline void v_smr_iir_run_fast(t_smoother_iir * a_smoother, float a_in) 
 { 
-    a_smoother->output = (a_in * .2f) + ((a_smoother->output) * .8f);
+    a_smoother->output = f_remove_denormal((a_in * .2f) + ((a_smoother->output) * .8f));
 }
 
 t_smoother_iir * g_smr_iir_get_smoother();
