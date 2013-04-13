@@ -800,6 +800,7 @@ class region_list_editor:
             this_pydaw_project.rename_items(f_result, f_new_name)
             this_pydaw_project.commit("Rename items")
             this_region_settings.open_region_by_uid(global_current_region.uid)
+            global_update_items_label()
             f_window.close()
 
         def cancel_handler():
@@ -3049,9 +3050,21 @@ class automation_viewer_widget:
         self.hlayout.addWidget(self.smooth_button)
         self.hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
+global_open_items_uids = []
+
+def global_update_items_label():
+    """ Refresh the item tab labels, ie:  when rnemaing items """
+    global global_open_items_uids
+    this_item_editor.item_names = []
+    f_items_dict = this_pydaw_project.get_items_dict()
+    for f_item_uid in global_open_items_uids:
+        this_item_editor.item_names.append(f_items_dict.get_name_by_uid(f_item_uid))
+    this_item_editor.item_list_label.setText(", ".join(this_item_editor.item_names))
+
 def global_open_items(a_items=None):
     """ a_items is a list of str, which are the names of the items.  Leave blank to open the existing list """
     this_item_editor.enabled = True
+    global global_open_items_uids
 
     if a_items is not None:
         this_item_editor.zoom_combobox.setCurrentIndex(0)
@@ -3068,6 +3081,10 @@ def global_open_items(a_items=None):
         this_item_editor.item_index_enabled = True
         this_piano_roll_editor.horizontalScrollBar().setSliderPosition(0)
         this_item_editor.set_zoom(a_is_refresh=True)
+        f_items_dict = this_pydaw_project.get_items_dict()
+        global_open_items_uids = []
+        for f_item_name in a_items:
+            global_open_items_uids.append(f_items_dict.get_uid_by_name(f_item_name))
 
     for i in range(3):
         this_cc_automation_viewers[i].clear_drawn_items()
@@ -3076,8 +3093,8 @@ def global_open_items(a_items=None):
     this_item_editor.items = []
     f_cc_dict = {}
 
-    for f_item_name in this_item_editor.item_names:
-        f_item = this_pydaw_project.get_item_by_name(f_item_name)
+    for f_item_uid in global_open_items_uids:
+        f_item = this_pydaw_project.get_item_by_uid(f_item_uid)
         this_item_editor.items.append(f_item)
         for cc in f_item.ccs:
             f_key = str(cc.plugin_index) + "|" + str(cc.cc_num)
