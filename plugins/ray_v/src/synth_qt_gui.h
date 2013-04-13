@@ -39,7 +39,6 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/ui_modules/ramp_env.h"
 #include "../../libmodsynth/widgets/ui_modules/lfo.h"
 #include "../../libmodsynth/widgets/ui_modules/master.h"
-#include "../../libmodsynth/widgets/lms_session_manager.h"
 
 extern "C" {
 #include <lo/lo.h>
