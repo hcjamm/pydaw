@@ -176,8 +176,15 @@ static void v_modulex_run(LADSPA_Handle instance, int sample_count,
     {
         if(plugin_data->mono_modules->fx_func_ptr[f_i] != v_mf3_run_off)
         {
+            v_smr_iir_run_fast(plugin_data->mono_modules->smoothers[f_i][0], *plugin_data->fx_knob0[f_i]);
+            v_smr_iir_run_fast(plugin_data->mono_modules->smoothers[f_i][1], *plugin_data->fx_knob1[f_i]);
+            v_smr_iir_run_fast(plugin_data->mono_modules->smoothers[f_i][2], *plugin_data->fx_knob2[f_i]);
+            
             v_mf3_set(plugin_data->mono_modules->multieffect[f_i], 
-                    *(plugin_data->fx_knob0[f_i]), *(plugin_data->fx_knob1[f_i]), *(plugin_data->fx_knob2[f_i]));
+                    plugin_data->mono_modules->smoothers[f_i][0]->output, 
+                    plugin_data->mono_modules->smoothers[f_i][1]->output, 
+                    plugin_data->mono_modules->smoothers[f_i][2]->output
+                    );
         }
         f_i++;
     }

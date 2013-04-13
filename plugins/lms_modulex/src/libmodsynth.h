@@ -35,7 +35,7 @@ extern "C" {
 #include "../../libmodsynth/modules/delay/reverb.h"
 //#include "../../libmodsynth/modules/dynamics/compressor.h"
 
-typedef struct st_modulex_mono_modules
+typedef struct
 {
     t_mf3_multi * multieffect[8];
     fp_mf3_run fx_func_ptr[8];
@@ -45,7 +45,6 @@ typedef struct st_modulex_mono_modules
     t_enf_env_follower * env_follower;
     
     t_rvb_reverb * reverb;
-    //t_cmp_compressor * compressor;
     
     float current_sample0;
     float current_sample1;
@@ -53,14 +52,13 @@ typedef struct st_modulex_mono_modules
     t_smoother_linear * volume_smoother;
     t_smoother_linear * reverb_smoother;
     
+    t_smoother_iir * smoothers[8][3];
+    
     t_amp * amp_ptr;    
 }t_modulex_mono_modules;
-    
 
 t_modulex_mono_modules * v_modulex_mono_init(float);
 
-
-/*Initialize any modules that will be run monophonically*/
 t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
 {
     t_modulex_mono_modules * a_mono = (t_modulex_mono_modules*)malloc(sizeof(t_modulex_mono_modules));
@@ -70,7 +68,13 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
     while(f_i < 8)
     {
         a_mono->multieffect[f_i] = g_mf3_get(a_sr);    
-        a_mono->fx_func_ptr[f_i] = v_mf3_run_off;
+        a_mono->fx_func_ptr[f_i] = v_mf3_run_off;        
+        int f_i2 = 0;
+        while(f_i2 < 3)
+        {
+            a_mono->smoothers[f_i][f_i2] = g_smr_iir_get_smoother();
+            f_i2++;
+        }
         f_i++;
     }
     
@@ -81,7 +85,6 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
     a_mono->env_follower = g_enf_get_env_follower(a_sr);
     
     a_mono->reverb = g_rvb_reverb_get(a_sr);
-    //a_mono->compressor = g_cmp_get(a_sr);
     
     a_mono->volume_smoother = g_sml_get_smoother_linear(a_sr, 0.0f, -50.0f, 0.001f);
     a_mono->volume_smoother->last_value = 0.0f;
