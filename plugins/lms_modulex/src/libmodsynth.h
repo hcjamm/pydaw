@@ -41,8 +41,6 @@ typedef struct st_modulex_mono_modules
     fp_mf3_run fx_func_ptr[8];
         
     t_lms_delay * delay;
-    t_state_variable_filter * svf0;
-    t_state_variable_filter * svf1;
     t_smoother_iir * time_smoother;
     t_enf_env_follower * env_follower;
     
@@ -78,11 +76,7 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
     
     a_mono->amp_ptr = g_amp_get();
     
-    a_mono->delay = g_ldl_get_delay(1, a_sr);
-    a_mono->svf0 = g_svf_get(a_sr);
-    a_mono->svf1 = g_svf_get(a_sr);
-    v_svf_set_res(a_mono->svf0, -18);
-    v_svf_set_res(a_mono->svf1, -18);
+    a_mono->delay = g_ldl_get_delay(1, a_sr);    
     a_mono->time_smoother = g_smr_iir_get_smoother();
     a_mono->env_follower = g_enf_get_env_follower(a_sr);
     

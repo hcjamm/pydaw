@@ -52,12 +52,15 @@ typedef struct st_lms_delay
     float combined_inputs;  //Add output 0 and 1
     t_lim_limiter * limiter;
     float last_duck;
+        
+    t_state_variable_filter * svf0;
+    t_state_variable_filter * svf1;
     
     t_amp * amp_ptr;    
 }t_lms_delay;
 
 t_lms_delay * g_ldl_get_delay(float,float);
-inline void v_ldl_set_delay(t_lms_delay*,float,float,float,float,float,float);
+inline void v_ldl_set_delay(t_lms_delay*,float,float,float,float,float,float,float);
 inline void v_ldl_run_delay(t_lms_delay*,float,float);
 
 /*t_lms_delay * g_ldl_get_delay(
@@ -91,6 +94,11 @@ t_lms_delay * g_ldl_get_delay(float a_seconds, float a_sr)
     f_result->amp_ptr = g_amp_get();
     f_result->limiter = g_lim_get(a_sr);
     f_result->last_duck = -99.999f;
+    
+    f_result->svf0 = g_svf_get(a_sr);
+    f_result->svf1 = g_svf_get(a_sr);
+    v_svf_set_res(f_result->svf0, -18.0f);
+    v_svf_set_res(f_result->svf1, -18.0f);
         
     return f_result;
 }
@@ -128,8 +136,8 @@ inline void v_ldl_run_delay(t_lms_delay* a_dly, float a_in0, float a_in1)
     
     v_dly_run_tap(a_dly->delay1, a_dly->tap1);    
     
-    a_dly->feedback0 = f_remove_denormal((a_dly->tap0->output));
-    a_dly->feedback1 = f_remove_denormal((a_dly->tap1->output));
+    a_dly->feedback0 = v_svf_run_2_pole_lp(a_dly->svf0, (a_dly->tap0->output));
+    a_dly->feedback1 = v_svf_run_2_pole_lp(a_dly->svf1, (a_dly->tap1->output));
     
     v_dw_run_dry_wet(a_dly->dw0, a_in0, (a_dly->feedback0) * (a_dly->limiter->gain));
     v_dw_run_dry_wet(a_dly->dw1, a_in1, (a_dly->feedback1) * (a_dly->limiter->gain));
@@ -148,7 +156,8 @@ inline void v_ldl_run_delay(t_lms_delay* a_dly, float a_in0, float a_in1)
  * float a_dry,
  * float a_stereo)  //Crossfading between dual-mono and stereo.  0 to 1
  */
-inline void v_ldl_set_delay(t_lms_delay* a_dly,float a_seconds, float a_feeback_db, float a_wet, float a_dry, float a_stereo, float a_duck)
+inline void v_ldl_set_delay(t_lms_delay* a_dly,float a_seconds, float a_feeback_db, float a_wet, float a_dry, 
+        float a_stereo, float a_duck, float a_damp)
 {
     v_dly_set_delay_seconds(a_dly->delay0, a_dly->tap0, a_seconds);
     v_dly_set_delay_seconds(a_dly->delay1, a_dly->tap1, a_seconds);
@@ -158,8 +167,7 @@ inline void v_ldl_set_delay(t_lms_delay* a_dly,float a_seconds, float a_feeback_
     
     if(a_feeback_db != (a_dly->feedback_db))
     {
-        a_dly->feedback_db = a_feeback_db;
-        
+        a_dly->feedback_db = a_feeback_db;        
         a_dly->feedback_linear = f_db_to_linear_fast(a_feeback_db, a_dly->amp_ptr);
     }
     
@@ -168,6 +176,11 @@ inline void v_ldl_set_delay(t_lms_delay* a_dly,float a_seconds, float a_feeback_
         a_dly->last_duck = a_duck;
         v_lim_set(a_dly->limiter, a_duck, 0.0f, 400.0f);
     }
+    
+    v_svf_set_cutoff_base(a_dly->svf0, a_damp);
+    v_svf_set_cutoff_base(a_dly->svf1, a_damp);
+    v_svf_set_cutoff(a_dly->svf0);
+    v_svf_set_cutoff(a_dly->svf1);
     
     v_dw_set_dry_wet(a_dly->dw0, a_dry, a_wet);
     v_dw_set_dry_wet(a_dly->dw1, a_dry, a_wet);
