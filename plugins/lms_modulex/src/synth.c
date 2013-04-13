@@ -252,23 +252,7 @@ static void v_modulex_run(LADSPA_Handle instance, int sample_count,
             f_i++;
         }
     }
-    
-    /*if((*plugin_data->compressor_ratio) > 1.0f)
-    {
-        v_cmp_set(plugin_data->mono_modules->compressor, *plugin_data->compressor_thresh, -0.0f, 
-                    *plugin_data->compressor_attack * 0.01f, *plugin_data->compressor_release * 0.01f);
         
-        int f_i = 0;
-        while(f_i < sample_count)
-        {
-            v_cmp_run(plugin_data->mono_modules->compressor, plugin_data->output0[f_i], plugin_data->output1[f_i]);
-            plugin_data->output0[f_i] = plugin_data->mono_modules->compressor->output0;
-            plugin_data->output1[f_i] = plugin_data->mono_modules->compressor->output1;
-            f_i++;
-        }
-    }*/
-
-    
     v_sml_run(plugin_data->mono_modules->volume_smoother, (*plugin_data->vol_slider));
     
     if((plugin_data->mono_modules->volume_smoother->last_value) < -0.05f)
