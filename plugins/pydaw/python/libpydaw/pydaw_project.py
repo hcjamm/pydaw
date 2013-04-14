@@ -432,12 +432,16 @@ class pydaw_project:
         f_suffix = 1
         f_items_dict = self.get_items_dict()
         for f_int in f_int_list:
+            f_item = self.get_item_by_uid(f_int)
+            f_item.fix_overlaps()
+            self.save_item_by_uid(f_int, f_item)
             while f_items_dict.uid_lookup.has_key(f_item_name + str(f_suffix)):
                 f_suffix += 1
             f_items_dict.add_item(f_int, f_item_name + str(f_suffix))
-            f_old_text = self.history.get_latest_version_of_file(pydaw_folder_items, f_int)
-            self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_items, str(f_int), \
-                pydaw_read_file_text(self.items_folder + "/" + str(f_int)), f_old_text, 0))
+            #Commenting these out because saving the item also adds it to history
+            #f_old_text = self.history.get_latest_version_of_file(pydaw_folder_items, f_int)
+            #self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_items, str(f_int), \
+            #    pydaw_read_file_text(self.items_folder + "/" + str(f_int)), f_old_text, 0))
             f_suffix += 1
         self.save_items_dict(f_items_dict)
 
@@ -606,6 +610,12 @@ class pydaw_project:
         if not self.suppress_updates:
             f_items_dict = self.get_items_dict()
             f_uid = f_items_dict.get_uid_by_name(a_name)
+            self.save_file(pydaw_folder_items, str(f_uid), str(a_item))
+            self.this_dssi_gui.pydaw_save_item(f_uid)
+
+    def save_item_by_uid(self, a_uid, a_item):
+        if not self.suppress_updates:
+            f_uid = int(a_uid)
             self.save_file(pydaw_folder_items, str(f_uid), str(a_item))
             self.this_dssi_gui.pydaw_save_item(f_uid)
 
