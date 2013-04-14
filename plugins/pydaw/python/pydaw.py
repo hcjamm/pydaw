@@ -350,25 +350,22 @@ global_current_region = None
 
 class region_settings:
     def update_region_length(self, a_value=None):
-        if not self.enabled:
-            return
         global global_current_region
+        if not self.enabled or global_current_region is None:
+            return
         if self.length_alternate_radiobutton.isChecked():
-            self.region.region_length_bars = self.length_alternate_spinbox.value()
-            self.set_region_length(self.region.region_length_bars)
-            this_pydaw_project.commit("Set region '" + str(self.region_name_lineedit.text()) + "' length to " + str(self.length_alternate_spinbox.value()))
+            global_current_region.region_length_bars = self.length_alternate_spinbox.value()
+            #self.set_region_length(global_current_region.region_length_bars)
+            f_commit_message = "Set region '" + str(self.region_name_lineedit.text()) + "' length to " + str(self.length_alternate_spinbox.value())
         else:
             global_current_region.region_length_bars = 0
-            self.set_region_length()
-            this_pydaw_project.commit("Set region '" + str(self.region_name_lineedit.text()) + "' length to default value")
+            #self.set_region_length()
+            f_commit_message = "Set region '" + str(self.region_name_lineedit.text()) + "' length to default value"
         this_pydaw_project.save_region(str(self.region_name_lineedit.text()), global_current_region)
-        for f_region in global_region_editors:
-            self.open_region(self.region_name_lineedit.text())
+        this_pydaw_project.commit(f_commit_message)
+        self.open_region(self.region_name_lineedit.text())
         pydaw_update_region_lengths_dict()
         this_audio_editor.open_items()
-        for f_viewer in this_song_automation_viewers:
-            f_viewer.clear_drawn_items()
-            f_viewer.draw_item(f_viewer.cc_item)
 
     def __init__(self):
         self.enabled = False
@@ -390,7 +387,7 @@ class region_settings:
         self.length_alternate_radiobutton.toggled.connect(self.update_region_length)
         self.hlayout0.addWidget(self.length_alternate_radiobutton)
         self.length_alternate_spinbox = QtGui.QSpinBox()
-        self.length_alternate_spinbox.setRange(1, 16)
+        self.length_alternate_spinbox.setRange(1, pydaw_max_region_length)
         self.length_alternate_spinbox.setValue(8)
         self.length_alternate_spinbox.valueChanged.connect(self.update_region_length)
         self.hlayout0.addWidget(self.length_alternate_spinbox)
@@ -3059,7 +3056,11 @@ def global_update_items_label():
     f_items_dict = this_pydaw_project.get_items_dict()
     for f_item_uid in global_open_items_uids:
         this_item_editor.item_names.append(f_items_dict.get_name_by_uid(f_item_uid))
-    this_item_editor.item_list_label.setText(", ".join(this_item_editor.item_names))
+    f_label_text = ", ".join(this_item_editor.item_names)
+    if len(f_label_text) >= 150:
+        print len(f_label_text)
+        f_label_text = f_label_text[:150] + "..."
+    this_item_editor.item_list_label.setText(f_label_text)
 
 def global_open_items(a_items=None):
     """ a_items is a list of str, which are the names of the items.  Leave blank to open the existing list """
@@ -3072,7 +3073,11 @@ def global_open_items(a_items=None):
         global_item_editing_count = len(a_items)
         pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
         this_item_editor.item_names = a_items
-        this_item_editor.item_list_label.setText(", ".join(a_items))
+        f_label_text = ", ".join(a_items)
+        if len(f_label_text) >= 150:
+            print len(f_label_text)
+            f_label_text = f_label_text[:150] + "..."
+        this_item_editor.item_list_label.setText(f_label_text)
         this_item_editor.item_index_enabled = False
         this_item_editor.item_name_combobox.clear()
         this_item_editor.item_name_combobox.clearEditText()
@@ -3608,6 +3613,7 @@ class item_list_editor:
         self.master_hlayout = QtGui.QHBoxLayout()
         self.master_vlayout.addLayout(self.master_hlayout)
         self.item_list_label = QtGui.QLabel("")
+        self.item_list_label.setMaximumWidth(1200)
         self.master_hlayout.addWidget(self.item_list_label,  QtCore.Qt.AlignLeft)
         self.zoom_combobox = QtGui.QComboBox()
         self.zoom_combobox.setMaximumWidth(120)
