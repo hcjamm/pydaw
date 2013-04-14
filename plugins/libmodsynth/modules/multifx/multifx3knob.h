@@ -32,6 +32,7 @@ extern "C" {
 #include "../distortion/glitch.h"
 #include "../distortion/ring_mod.h"
 #include "../distortion/lofi.h"
+#include "../distortion/sample_and_hold.h"
     
 /*BIG TODO:  Add a function to modify for the modulation sources*/
     
@@ -60,6 +61,7 @@ typedef struct st_mf3_multi
     t_glc_glitch * glitch;
     t_rmd_ring_mod * ring_mod;
     t_lfi_lofi * lofi;
+    t_sah_sample_and_hold * s_and_h;
 }t_mf3_multi;
 
 /*A function pointer for switching between effect types*/
@@ -89,6 +91,7 @@ inline void v_mf3_run_chorus(t_mf3_multi*, float, float);
 inline void v_mf3_run_glitch(t_mf3_multi*, float, float);
 inline void v_mf3_run_ring_mod(t_mf3_multi*, float, float);
 inline void v_mf3_run_lofi(t_mf3_multi*, float, float);
+inline void v_mf3_run_s_and_h(t_mf3_multi*, float, float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -160,6 +163,8 @@ inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
                 return v_mf3_run_ring_mod;
             case 19:
                 return v_mf3_run_lofi;
+            case 20:
+                return v_mf3_run_s_and_h;
             default:
                 /*TODO: Report error*/
                 return v_mf3_run_off;                
@@ -428,7 +433,7 @@ inline void v_mf3_run_formant_filter(t_mf3_multi*__restrict a_mf3, float a_in0, 
 {
     v_mf3_commit_mod(a_mf3);
     a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.07086f);
-    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.007874016);
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.007874016f);
     
     v_for_formant_filter_set(a_mf3->formant_filter, a_mf3->control_value[0], a_mf3->control_value[1]);
     v_for_formant_filter_run(a_mf3->formant_filter, a_in0, a_in1);
@@ -480,13 +485,26 @@ inline void v_mf3_run_ring_mod(t_mf3_multi*__restrict a_mf3, float a_in0, float 
 inline void v_mf3_run_lofi(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     v_mf3_commit_mod(a_mf3);
-    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.094488) + 4.0f;
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.094488f) + 4.0f;
         
     v_lfi_lofi_set(a_mf3->lofi, a_mf3->control_value[0]);
     v_lfi_lofi_run(a_mf3->lofi, a_in0, a_in1);
         
     a_mf3->output0 = a_mf3->lofi->output0;
     a_mf3->output1 = a_mf3->lofi->output1;
+}
+
+inline void v_mf3_run_s_and_h(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
+{
+    v_mf3_commit_mod(a_mf3);
+    a_mf3->control_value[0] = ((a_mf3->control[0]) * 0.23622f) + 60.0f;
+    a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.007874016f);
+        
+    v_sah_sample_and_hold_set(a_mf3->s_and_h, a_mf3->control_value[0], a_mf3->control_value[1]);
+    v_sah_sample_and_hold_run(a_mf3->s_and_h, a_in0, a_in1);
+        
+    a_mf3->output0 = a_mf3->s_and_h->output0;
+    a_mf3->output1 = a_mf3->s_and_h->output1;
 }
 
 /* t_mf3_multi g_mf3_get(
@@ -532,6 +550,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->glitch = g_glc_glitch_get(a_sample_rate);
     f_result->ring_mod = g_rmd_ring_mod_get(a_sample_rate);
     f_result->lofi = g_lfi_lofi_get();
+    f_result->s_and_h = g_sah_sample_and_hold_get(a_sample_rate);
     
     return f_result;
 }
