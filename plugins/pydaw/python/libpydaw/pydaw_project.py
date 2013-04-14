@@ -805,15 +805,15 @@ class pydaw_name_uid_dict:
         f_lines = a_str.split("\n")
         for f_line in f_lines:
             if f_line != "":
-                f_arr = f_line.split("|")
-                f_name = f_arr[0]
-                f_uid = int(f_arr[1])
+                f_arr = f_line.split("|", 1)
+                f_uid = int(f_arr[0])
+                f_name = f_arr[1]
                 f_result.add_item(f_uid, f_name)
         return f_result
 
     def __str__(self):
         f_result = ""
-        for k, v in self.uid_lookup.iteritems():
+        for k, v in self.name_lookup.iteritems():
             f_result += str(k) + "|" + str(v) + "\n"
         return f_result
 
