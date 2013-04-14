@@ -24,7 +24,7 @@ public:
                  << QString("Notch2") << QString("Notch4") << QString("EQ") 
                 << QString("Distortion") << QString("Comb Filter") << QString("Amp/Pan") << QString("Limiter")
                 << QString("Saturator") << QString("Formant") << QString("Chorus") << QString("Glitch")
-                << QString("RingMod") << QString("LoFi");
+                << QString("RingMod") << QString("LoFi") << QString("S/H");
         
         lms_groupbox = new LMS_group_box(a_parent, a_title, a_style);
         
@@ -249,13 +249,24 @@ public:
                 lms_knob2->lms_value->setText(QString(""));    
                 lms_knob3->lms_conv_type = lms_kc_none;
                 lms_knob3->lms_value->setText(QString(""));                
-                break;                
+                break;        
             case 19: //LoFi
                 lms_knob1->lms_label->setText(QString("Bits"));
                 lms_knob2->lms_label->setText(QString("unused"));
                 lms_knob3->lms_label->setText(QString("unused"));
                 lms_knob1->lms_conv_type = lms_kc_127_zero_to_x;                
                 lms_knob1->lms_set_127_min_max(4.0f, 16.0f);
+                lms_knob2->lms_conv_type = lms_kc_none;
+                lms_knob2->lms_value->setText(QString(""));    
+                lms_knob3->lms_conv_type = lms_kc_none;
+                lms_knob3->lms_value->setText(QString(""));                
+                break;                
+            case 20: //Sample and Hold
+                lms_knob1->lms_label->setText(QString("Pitch"));
+                lms_knob2->lms_label->setText(QString("Wet"));
+                lms_knob3->lms_label->setText(QString("unused"));
+                lms_knob1->lms_conv_type = lms_kc_none;                
+                lms_knob1->lms_value->setText(QString(""));
                 lms_knob2->lms_conv_type = lms_kc_none;
                 lms_knob2->lms_value->setText(QString(""));    
                 lms_knob3->lms_conv_type = lms_kc_none;
