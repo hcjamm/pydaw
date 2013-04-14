@@ -1354,7 +1354,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
             double f_track_next_period_beats = (a_pydaw_data->ml_next_period_beats);
             double f_track_beats_offset = 0.0f;
 
-            if((a_pydaw_data->playback_mode == 2) && (a_pydaw_data->record_armed_track_index_all == f_i))
+            if((!a_pydaw_data->overdub_mode) && (a_pydaw_data->playback_mode == 2) && (a_pydaw_data->record_armed_track_index_all == f_i))
             {
 
             }
