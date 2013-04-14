@@ -72,6 +72,14 @@ class pydaw_history_file:
         self.old_text = str(a_text_old)
         self.existed = int(a_existed)
 
+    def __str__(self):
+        """ Generate a human-readable summary of the changes """
+        f_file_name = self.folder + "/" + self.file_name
+        f_result = "\n\n" + f_file_name + ", existed: " + str(self.existed) + "\n"
+        for f_line in difflib.unified_diff(self.old_text.split("\n"), self.new_text.split("\n"), f_file_name, f_file_name):
+            f_result += f_line + "\n"
+        return f_result
+
 class pydaw_history_commit:
     def __init__(self, a_files, a_message):
         self.files = a_files
