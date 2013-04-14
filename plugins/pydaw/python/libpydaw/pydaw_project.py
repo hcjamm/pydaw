@@ -4,7 +4,7 @@ A class that contains methods and data for a PyDAW project.
 """
 
 import os, random, traceback
-from shutil import copyfile, move
+from shutil import move
 from time import sleep
 
 #from lms_session import lms_session #deprecated
@@ -154,7 +154,10 @@ class pydaw_project:
             f_old = ""
             f_existed = 0
         pydaw_write_file_text(f_full_path, a_text)
-        self.history_files.append(pydaw_history.pydaw_history_file(a_folder, a_file, a_text, f_old, f_existed))
+        f_history_file = pydaw_history.pydaw_history_file(a_folder, a_file, a_text, f_old, f_existed)
+        self.history_files.append(f_history_file)
+        #TODO:  debug/verbose mode this output...
+        print(str(f_history_file))
 
     def commit(self, a_message):
         """ Commit the project history """
