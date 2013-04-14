@@ -822,7 +822,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
 	port_range_hints[WAYV_OUTPUT1].HintDescriptor = 0;
         
 	port_descriptors[WAYV_ATTACK_MAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_ATTACK_MAIN] = "Attack time (s)";
+	port_names[WAYV_ATTACK_MAIN] = "Master Attack";
 	port_range_hints[WAYV_ATTACK_MAIN].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ATTACK_MAIN].LowerBound = 10.0f; 
 	port_range_hints[WAYV_ATTACK_MAIN].UpperBound = 100.0f; 
@@ -830,7 +830,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_ATTACK_MAIN] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_DECAY_MAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_DECAY_MAIN] = "Decay time (s)";
+	port_names[WAYV_DECAY_MAIN] = "Master Decay";
 	port_range_hints[WAYV_DECAY_MAIN].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;			
 	port_range_hints[WAYV_DECAY_MAIN].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY_MAIN].UpperBound = 100.0f; 
@@ -838,14 +838,14 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_DECAY_MAIN] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_SUSTAIN_MAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_SUSTAIN_MAIN] = "Sustain level (%)";
+	port_names[WAYV_SUSTAIN_MAIN] = "Master Sustain";
 	port_range_hints[WAYV_SUSTAIN_MAIN].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_SUSTAIN_MAIN].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN_MAIN].UpperBound = 0.0f;
         automatable[WAYV_SUSTAIN_MAIN] = 1;
 
 	port_descriptors[WAYV_RELEASE_MAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_RELEASE_MAIN] = "Release time (s)";
+	port_names[WAYV_RELEASE_MAIN] = "Master Release";
 	port_range_hints[WAYV_RELEASE_MAIN].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_RELEASE_MAIN].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE_MAIN].UpperBound = 200.0f;
@@ -853,7 +853,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_RELEASE_MAIN] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_ATTACK1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_ATTACK1] = "Attack time (s)";
+	port_names[WAYV_ATTACK1] = "Osc1 Attack";
 	port_range_hints[WAYV_ATTACK1].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ATTACK1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_ATTACK1].UpperBound = 100.0f; 
@@ -861,7 +861,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_ATTACK1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_DECAY1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_DECAY1] = "Decay time (s)";
+	port_names[WAYV_DECAY1] = "Osc1 Decay";
 	port_range_hints[WAYV_DECAY1].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;			
 	port_range_hints[WAYV_DECAY1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY1].UpperBound = 100.0f; 
@@ -869,14 +869,14 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_DECAY1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_SUSTAIN1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_SUSTAIN1] = "Sustain level (%)";
+	port_names[WAYV_SUSTAIN1] = "Osc1 Sustain";
 	port_range_hints[WAYV_SUSTAIN1].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_SUSTAIN1].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN1].UpperBound = 0.0f;
         automatable[WAYV_SUSTAIN1] = 1;
 
 	port_descriptors[WAYV_RELEASE1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_RELEASE1] = "Release time (s)";
+	port_names[WAYV_RELEASE1] = "Osc1 Release";
 	port_range_hints[WAYV_RELEASE1].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_RELEASE1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE1].UpperBound = 200.0f; 
@@ -884,7 +884,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_RELEASE1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
                 
 	port_descriptors[WAYV_ATTACK2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_ATTACK2] = "Attack time (s)";
+	port_names[WAYV_ATTACK2] = "Osc2 Attack";
 	port_range_hints[WAYV_ATTACK2].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ATTACK2].LowerBound = 10.0f; 
 	port_range_hints[WAYV_ATTACK2].UpperBound = 100.0f; 
@@ -892,7 +892,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_ATTACK2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_DECAY2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_DECAY2] = "Decay time (s)";
+	port_names[WAYV_DECAY2] = "Osc2 Decay";
 	port_range_hints[WAYV_DECAY2].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;			
 	port_range_hints[WAYV_DECAY2].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY2].UpperBound = 100.0f; 
@@ -900,14 +900,14 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_DECAY2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_SUSTAIN2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_SUSTAIN2] = "Sustain level (%)";
+	port_names[WAYV_SUSTAIN2] = "Osc2 Sustain";
 	port_range_hints[WAYV_SUSTAIN2].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_SUSTAIN2].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN2].UpperBound = 0.0f;
         automatable[WAYV_SUSTAIN2] = 1;
 
 	port_descriptors[WAYV_RELEASE2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_RELEASE2] = "Release time (s)";
+	port_names[WAYV_RELEASE2] = "Osc2 Release";
 	port_range_hints[WAYV_RELEASE2].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_RELEASE2].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE2].UpperBound = 200.0f; 
@@ -1002,7 +1002,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
 	port_range_hints[WAYV_MASTER_PITCHBEND_AMT].UpperBound =  36.0f;
         
 	port_descriptors[WAYV_ATTACK_PFX1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_ATTACK_PFX1] = "Attack time (s)";
+	port_names[WAYV_ATTACK_PFX1] = "ADSR1 Attack";
 	port_range_hints[WAYV_ATTACK_PFX1].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ATTACK_PFX1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_ATTACK_PFX1].UpperBound = 100.0f; 
@@ -1010,7 +1010,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_ATTACK_PFX1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_DECAY_PFX1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_DECAY_PFX1] = "Decay time (s)";
+	port_names[WAYV_DECAY_PFX1] = "ADSR1 Decay";
 	port_range_hints[WAYV_DECAY_PFX1].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_DECAY_PFX1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY_PFX1].UpperBound = 100.0f; 
@@ -1018,14 +1018,14 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_DECAY_PFX1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_SUSTAIN_PFX1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_SUSTAIN_PFX1] = "Sustain level (%)";
+	port_names[WAYV_SUSTAIN_PFX1] = "ADSR1 Sustain";
 	port_range_hints[WAYV_SUSTAIN_PFX1].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_SUSTAIN_PFX1].LowerBound = -60.0f;
 	port_range_hints[WAYV_SUSTAIN_PFX1].UpperBound = 0.0f;
         automatable[WAYV_SUSTAIN_PFX1] = 1;
 
 	port_descriptors[WAYV_RELEASE_PFX1] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_RELEASE_PFX1] = "Release time (s)";
+	port_names[WAYV_RELEASE_PFX1] = "ADSR1 Release";
 	port_range_hints[WAYV_RELEASE_PFX1].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_RELEASE_PFX1].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE_PFX1].UpperBound = 200.0f; 
@@ -1033,7 +1033,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_RELEASE_PFX1] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
 	port_descriptors[WAYV_ATTACK_PFX2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_ATTACK_PFX2] = "Attack time (s) filter";
+	port_names[WAYV_ATTACK_PFX2] = "ADSR2 Attack";
 	port_range_hints[WAYV_ATTACK_PFX2].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ATTACK_PFX2].LowerBound = 10.0f; 
 	port_range_hints[WAYV_ATTACK_PFX2].UpperBound = 100.0f; 
@@ -1041,13 +1041,13 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_ATTACK_PFX2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_DECAY_PFX2] = port_descriptors[WAYV_ATTACK_PFX1];
-	port_names[WAYV_DECAY_PFX2] = "Decay time (s) filter";
+	port_names[WAYV_DECAY_PFX2] = "ADSR2 Decay";
 	port_range_hints[WAYV_DECAY_PFX2].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_DECAY_PFX2].LowerBound = 10.0f;
 	port_range_hints[WAYV_DECAY_PFX2].UpperBound = 100.0f;
 
 	port_descriptors[WAYV_SUSTAIN_PFX2] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_SUSTAIN_PFX2] = "Sustain level (%) filter";
+	port_names[WAYV_SUSTAIN_PFX2] = "ADSR2 Sustain";
 	port_range_hints[WAYV_SUSTAIN_PFX2].HintDescriptor = LADSPA_HINT_DEFAULT_HIGH | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_SUSTAIN_PFX2].LowerBound = 0.0f; 
 	port_range_hints[WAYV_SUSTAIN_PFX2].UpperBound = 100.0f; 
@@ -1055,7 +1055,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_SUSTAIN_PFX2] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
 	port_descriptors[WAYV_RELEASE_PFX2] = port_descriptors[WAYV_ATTACK_PFX1];
-	port_names[WAYV_RELEASE_PFX2] = "Release time (s) filter";
+	port_names[WAYV_RELEASE_PFX2] = "ADSR2 Release";
 	port_range_hints[WAYV_RELEASE_PFX2].HintDescriptor = LADSPA_HINT_DEFAULT_LOW  | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_RELEASE_PFX2].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE_PFX2].UpperBound = 200.0f; 
@@ -1550,7 +1550,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         automatable[WAYV_OSC3_FM3] = 1;
         
         port_descriptors[WAYV_ATTACK3] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_ATTACK3] = "Attack time (s)";
+	port_names[WAYV_ATTACK3] = "Osc3 Attack";
 	port_range_hints[WAYV_ATTACK3].HintDescriptor = LADSPA_HINT_DEFAULT_MINIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_ATTACK3].LowerBound = 10.0f; 
 	port_range_hints[WAYV_ATTACK3].UpperBound = 100.0f; 
@@ -1558,7 +1558,7 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_ATTACK3] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_DECAY3] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_DECAY3] = "Decay time (s)";
+	port_names[WAYV_DECAY3] = "Osc3 Decay";
 	port_range_hints[WAYV_DECAY3].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;			
 	port_range_hints[WAYV_DECAY3].LowerBound = 10.0f; 
 	port_range_hints[WAYV_DECAY3].UpperBound = 100.0f; 
@@ -1566,14 +1566,14 @@ const LADSPA_Descriptor *wayv_ladspa_descriptor(int index)
         value_tranform_hints[WAYV_DECAY3] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[WAYV_SUSTAIN3] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_SUSTAIN3] = "Sustain level (%)";
+	port_names[WAYV_SUSTAIN3] = "Osc3 Sustain";
 	port_range_hints[WAYV_SUSTAIN3].HintDescriptor = LADSPA_HINT_DEFAULT_MAXIMUM | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_SUSTAIN3].LowerBound = -30.0f;
 	port_range_hints[WAYV_SUSTAIN3].UpperBound = 0.0f;
         automatable[WAYV_SUSTAIN3] = 1;
 
 	port_descriptors[WAYV_RELEASE3] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[WAYV_RELEASE3] = "Release time (s)";
+	port_names[WAYV_RELEASE3] = "Osc3 Release time";
 	port_range_hints[WAYV_RELEASE3].HintDescriptor = LADSPA_HINT_DEFAULT_LOW | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[WAYV_RELEASE3].LowerBound = 10.0f; 
 	port_range_hints[WAYV_RELEASE3].UpperBound = 200.0f; 
