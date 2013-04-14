@@ -52,6 +52,7 @@ typedef struct st_osc_simple_unison
     int i_unison_pitch;
     int i_sync_phase;
     t_pit_pitch_core * pitch_core;
+    int is_resetting;  //For oscillator sync
 }t_osc_simple_unison;
 
 
@@ -144,7 +145,16 @@ inline float f_osc_run_unison_osc(t_osc_simple_unison * a_osc_ptr)
     return (a_osc_ptr->current_sample) * (a_osc_ptr->adjusted_amp);
 }
 
-
+inline float f_osc_run_unison_osc_sync(t_osc_simple_unison * a_osc_ptr)
+{
+    a_osc_ptr->i_run_unison = 0;
+    a_osc_ptr->current_sample = 0.0f;
+    
+    a_osc_ptr->is_resetting = v_run_osc_sync((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]), (a_osc_ptr->voice_inc[(a_osc_ptr->i_run_unison)]));
+    a_osc_ptr->current_sample = (a_osc_ptr->current_sample) + a_osc_ptr->osc_type((a_osc_ptr->osc_cores[(a_osc_ptr->i_run_unison)]));    
+    
+    return (a_osc_ptr->current_sample) * (a_osc_ptr->adjusted_amp);
+}
 
 inline float f_get_saw(t_osc_core * a_core)
 {
@@ -239,6 +249,17 @@ inline void v_osc_note_on_sync_phases(t_osc_simple_unison * a_osc_ptr)
     }
 }
 
+inline void v_osc_note_on_sync_phases_hard(t_osc_simple_unison * a_osc_ptr)
+{
+    a_osc_ptr->i_sync_phase = 0;
+    
+    while((a_osc_ptr->i_sync_phase) < (a_osc_ptr->voice_count))
+    {
+        a_osc_ptr->osc_cores[(a_osc_ptr->i_sync_phase)]->output = 0.0f;
+        
+        a_osc_ptr->i_sync_phase = (a_osc_ptr->i_sync_phase) + 1;
+    }
+}
 
 /* t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
  */
@@ -264,6 +285,7 @@ t_osc_simple_unison * g_osc_get_osc_simple_unison(float a_sample_rate)
     f_result->voice_count = 1;
     f_result->i_unison_pitch = 0;
     f_result->i_sync_phase = 0;
+    f_result->is_resetting = 0;
     
     f_result->pitch_core = g_pit_get();
     

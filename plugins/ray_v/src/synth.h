@@ -53,8 +53,9 @@ extern "C" {
 #define RAYV_LFO_AMP 33
 #define RAYV_LFO_PITCH 34
 #define RAYV_LFO_FILTER 35
-#define RAYV_LAST_CONTROL_PORT 35
-#define RAYV_COUNT 36 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
+#define RAYV_OSC_HARD_SYNC 36
+#define RAYV_LAST_CONTROL_PORT 36
+#define RAYV_COUNT 37 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 #define RAYV_POLYPHONY   16
 
@@ -106,6 +107,8 @@ typedef struct {
     LADSPA_Data *lfo_amp;
     LADSPA_Data *lfo_pitch;
     LADSPA_Data *lfo_filter;
+    
+    LADSPA_Data *sync_hard;
         
     t_rayv_poly_voice * data[RAYV_POLYPHONY];
     t_voc_voices * voices;

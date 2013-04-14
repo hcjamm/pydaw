@@ -53,6 +53,21 @@ void v_run_osc(t_osc_core *a_core, float a_inc)
     }    
 }
 
+int v_run_osc_sync(t_osc_core *a_core, float a_inc)
+{
+    a_core->output = (a_core->output) + a_inc;
+    
+    if(a_core->output >= 1.0f)
+    {
+        a_core->output = (a_core->output - 1.0f);
+        return 1;
+    }    
+    else
+    {
+        return 0;
+    }
+}
+
 
 #ifdef	__cplusplus
 }

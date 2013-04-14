@@ -154,6 +154,13 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_osc2->lms_vol_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(osc2VolumeChanged(int)));    
     connect(m_osc2->lms_osc_type_box->lms_combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(osc2TypeChanged(int)));
     
+    m_sync_groupbox = new LMS_group_box(this, QString("Sync"), f_info);
+    m_main_layout->lms_add_widget(m_sync_groupbox->lms_groupbox);
+    m_hard_sync = new LMS_checkbox(this, f_info, RAYV_OSC_HARD_SYNC, QString("On"));
+    m_hard_sync->lms_checkbox->setToolTip(QString("Setting this hard sync's Osc1 to Osc2.  Usually you would want to distort and pitchbend this."));
+    m_sync_groupbox->lms_add_h(m_hard_sync);
+    connect(m_hard_sync->lms_checkbox, SIGNAL(toggled(bool)), this, SLOT(hardSyncChanged(bool)));    
+    
     m_adsr_filter = new LMS_adsr_widget(this, f_info, FALSE, RAYV_FILTER_ATTACK, RAYV_FILTER_DECAY, RAYV_FILTER_SUSTAIN, RAYV_FILTER_RELEASE, QString("ADSR Filter"));
     
     m_main_layout->lms_add_widget(m_adsr_filter->lms_groupbox_adsr->lms_groupbox);
@@ -246,6 +253,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     m_program->lms_add_control(m_lfo_amp);
     m_program->lms_add_control(m_lfo_pitch);
     m_program->lms_add_control(m_lfo_cutoff);
+    m_program->lms_add_control(m_hard_sync);
     
     QTimer *myTimer = new QTimer(this);
     connect(myTimer, SIGNAL(timeout()), this, SLOT(oscRecv()));
@@ -297,6 +305,7 @@ void rayv_gui::setLFOtype(float a_value){lms_set_value(a_value, m_lfo->lms_type_
 void rayv_gui::setLFOamp(float a_value){lms_set_value(a_value, m_lfo_amp);}
 void rayv_gui::setLFOpitch(float a_value){lms_set_value(a_value, m_lfo_pitch);}
 void rayv_gui::setLFOcutoff(float a_value){lms_set_value(a_value, m_lfo_cutoff);}
+void rayv_gui::setHardSync(float a_value){lms_set_value(a_value, m_hard_sync);}
 
 void rayv_gui::lms_value_changed(int a_value, LMS_control * a_ctrl)
 {    
@@ -344,44 +353,14 @@ void rayv_gui::LFOcutoffChanged(int a_value){lms_value_changed(a_value, m_lfo_cu
 void rayv_gui::programChanged(int a_value){m_program->lms_value_changed(a_value);}
 void rayv_gui::programSaved(){ m_program->programSaved(); }
 
-
-void rayv_gui::v_print_port_name_to_cerr(int a_port)
+void rayv_gui::hardSyncChanged(bool a_value)
 {
-#ifdef LMS_DEBUG_MODE_QT
-    switch (a_port) {
-    case RAYV_ATTACK: rayv_cerr << "LMS_ATTACK"; break;
-    case RAYV_DECAY: rayv_cerr << "LMS_DECAY"; break;
-    case RAYV_SUSTAIN: rayv_cerr << "LMS_SUSTAIN"; break;
-    case RAYV_RELEASE: rayv_cerr << "LMS_RELEASE"; break;
-    case RAYV_TIMBRE: rayv_cerr << "LMS_TIMBRE"; break;
-    case RAYV_RES: rayv_cerr << "LMS_RES"; break;        
-    case RAYV_DIST: rayv_cerr << "LMS_DIST"; break;
-    case RAYV_FILTER_ATTACK: rayv_cerr << "LMS_FILTER_ATTACK"; break;
-    case RAYV_FILTER_DECAY: rayv_cerr << "LMS_FILTER_DECAY"; break;
-    case RAYV_FILTER_SUSTAIN: rayv_cerr << "LMS_FILTER_SUSTAIN"; break;
-    case RAYV_FILTER_RELEASE: rayv_cerr << "LMS_FILTER_RELEASE"; break;
-    case RAYV_NOISE_AMP: rayv_cerr << "LMS_NOISE_AMP"; break;    
-    case RAYV_DIST_WET: rayv_cerr << "LMS_DIST_WET"; break;            
-    case RAYV_FILTER_ENV_AMT: rayv_cerr << "LMS_FILTER_ENV_AMT"; break;    
-    case RAYV_OSC1_TYPE: rayv_cerr << "LMS_OSC1_TYPE"; break;            
-    case RAYV_OSC1_PITCH: rayv_cerr << "LMS_OSC1_PITCH"; break;    
-    case RAYV_OSC1_TUNE: rayv_cerr << "LMS_OSC1_TUNE"; break;    
-    case RAYV_OSC1_VOLUME: rayv_cerr << "LMS_OSC1_VOLUME"; break;        
-    case RAYV_OSC2_TYPE: rayv_cerr << "LMS_OSC2_TYPE"; break;            
-    case RAYV_OSC2_PITCH: rayv_cerr << "LMS_OSC2_PITCH"; break;    
-    case RAYV_OSC2_TUNE: rayv_cerr << "LMS_OSC2_TUNE";  break;    
-    case RAYV_OSC2_VOLUME: rayv_cerr << "LMS_OSC2_VOLUME"; break;        
-    case RAYV_MASTER_VOLUME: rayv_cerr << "LMS_MASTER_VOLUME"; break;
-    case RAYV_MASTER_UNISON_VOICES: rayv_cerr << "LMS_MASTER_UNISON_VOICES"; break;
-    case RAYV_MASTER_UNISON_SPREAD: rayv_cerr << "LMS_MASTER_UNISON_SPREAD"; break;
-    case RAYV_MASTER_GLIDE: rayv_cerr << "LMS_MASTER_GLIDE"; break;
-    case RAYV_MASTER_PITCHBEND_AMT: rayv_cerr << "LMS_MASTER_PITCHBEND_AMT"; break;
-    case RAYV_PITCH_ENV_AMT: rayv_cerr << "LMS_PITCH_ENV_AMT "; break;
-    case RAYV_PITCH_ENV_TIME: rayv_cerr << "LMS_PITCH_ENV_TIME ";  break;        
-    case RAYV_PROGRAM_CHANGE: rayv_cerr << "LMS_PROGRAM_CHANGE "; break;
-    default: rayv_cerr << "Warning: received request to set nonexistent port " << a_port ; break;
+    int value = 0;
+    if(a_value)
+    {
+        value = 1;
     }
-#endif
+    lms_value_changed(value, m_hard_sync);    
 }
 
 void rayv_gui::v_set_control(int a_port, float a_value)
@@ -428,6 +407,7 @@ void rayv_gui::v_set_control(int a_port, float a_value)
         case RAYV_LFO_AMP: setLFOamp(a_value); break;            
         case RAYV_LFO_PITCH: setLFOpitch(a_value); break;            
         case RAYV_LFO_FILTER: setLFOcutoff(a_value); break;
+        case RAYV_OSC_HARD_SYNC: setHardSync(a_value); break;
     }
     
 }
@@ -479,6 +459,7 @@ void rayv_gui::v_control_changed(int a_port, int a_value, bool a_suppress_host_u
     case RAYV_LFO_AMP: LFOampChanged(a_value); break;
     case RAYV_LFO_PITCH: LFOpitchChanged(a_value); break;
     case RAYV_LFO_FILTER: LFOcutoffChanged(a_value); break;
+    case RAYV_OSC_HARD_SYNC: hardSyncChanged(a_value); break;
     default:
 #ifdef LMS_DEBUG_MODE_QT
 	rayv_cerr << "Warning: received request to set nonexistent port " << a_port << endl;
@@ -498,49 +479,49 @@ int rayv_gui::i_get_control(int a_port)
 {
         /*Add the controls you created to the control handler*/
     
-    switch (a_port) {
-    case RAYV_ATTACK: return  m_adsr_amp->lms_attack->lms_get_value();
-    case RAYV_DECAY:  return m_adsr_amp->lms_decay->lms_get_value();
-    case RAYV_SUSTAIN: return m_adsr_amp->lms_sustain->lms_get_value();
-    case RAYV_RELEASE: return m_adsr_amp->lms_release->lms_get_value();
-    case RAYV_TIMBRE: return  m_filter->lms_cutoff_knob->lms_get_value();
-    case RAYV_RES: return m_filter->lms_res_knob->lms_get_value();        
-    case RAYV_DIST: return m_dist->lms_get_value();
-    case RAYV_FILTER_ATTACK: return m_adsr_filter->lms_attack->lms_get_value();
-    case RAYV_FILTER_DECAY: return m_adsr_filter->lms_decay->lms_get_value();
-    case RAYV_FILTER_SUSTAIN: return m_adsr_filter->lms_sustain->lms_get_value();
-    case RAYV_FILTER_RELEASE: return m_adsr_filter->lms_release->lms_get_value();
-    case RAYV_NOISE_AMP: return m_noise_amp->lms_get_value();
-    case RAYV_DIST_WET: return m_dist_wet->lms_get_value();
-    case RAYV_FILTER_ENV_AMT: return m_filter_env_amt->lms_get_value();
-    case RAYV_OSC1_TYPE: return m_osc1->lms_osc_type_box->lms_get_value();
-    case RAYV_OSC1_PITCH: return m_osc1->lms_pitch_knob->lms_get_value();
-    case RAYV_OSC1_TUNE: return  m_osc1->lms_fine_knob->lms_get_value();
-    case RAYV_OSC1_VOLUME: return m_osc1->lms_vol_knob->lms_get_value();
-    case RAYV_OSC2_TYPE:  return m_osc2->lms_osc_type_box->lms_get_value();
-    case RAYV_OSC2_PITCH: return m_osc2->lms_pitch_knob->lms_get_value();
-    case RAYV_OSC2_TUNE: return m_osc2->lms_fine_knob->lms_get_value();
-    case RAYV_OSC2_VOLUME: return m_osc2->lms_vol_knob->lms_get_value();
-    case RAYV_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
-    case RAYV_MASTER_UNISON_VOICES: return m_master->lms_master_unison_voices->lms_get_value();
-    case RAYV_MASTER_UNISON_SPREAD: return m_master->lms_master_unison_spread->lms_get_value();
-    case RAYV_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
-    case RAYV_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
-    case RAYV_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
-    case RAYV_PITCH_ENV_TIME: return m_pitch_env->lms_time_knob->lms_get_value();
-    case RAYV_LFO_FREQ: return m_lfo->lms_freq_knob->lms_get_value();
-    case RAYV_LFO_TYPE: return m_lfo->lms_type_combobox->lms_get_value();
-    case RAYV_LFO_AMP: return m_lfo_amp->lms_get_value();
-    case RAYV_LFO_PITCH: return m_lfo_pitch->lms_get_value();
-    case RAYV_LFO_FILTER: return m_lfo_cutoff->lms_get_value();
-    //case LMS_PROGRAM_CHANGE:
-        //return m_program->currentIndex();
-    default:
+    switch (a_port) 
+    {
+        case RAYV_ATTACK: return  m_adsr_amp->lms_attack->lms_get_value();
+        case RAYV_DECAY:  return m_adsr_amp->lms_decay->lms_get_value();
+        case RAYV_SUSTAIN: return m_adsr_amp->lms_sustain->lms_get_value();
+        case RAYV_RELEASE: return m_adsr_amp->lms_release->lms_get_value();
+        case RAYV_TIMBRE: return  m_filter->lms_cutoff_knob->lms_get_value();
+        case RAYV_RES: return m_filter->lms_res_knob->lms_get_value();        
+        case RAYV_DIST: return m_dist->lms_get_value();
+        case RAYV_FILTER_ATTACK: return m_adsr_filter->lms_attack->lms_get_value();
+        case RAYV_FILTER_DECAY: return m_adsr_filter->lms_decay->lms_get_value();
+        case RAYV_FILTER_SUSTAIN: return m_adsr_filter->lms_sustain->lms_get_value();
+        case RAYV_FILTER_RELEASE: return m_adsr_filter->lms_release->lms_get_value();
+        case RAYV_NOISE_AMP: return m_noise_amp->lms_get_value();
+        case RAYV_DIST_WET: return m_dist_wet->lms_get_value();
+        case RAYV_FILTER_ENV_AMT: return m_filter_env_amt->lms_get_value();
+        case RAYV_OSC1_TYPE: return m_osc1->lms_osc_type_box->lms_get_value();
+        case RAYV_OSC1_PITCH: return m_osc1->lms_pitch_knob->lms_get_value();
+        case RAYV_OSC1_TUNE: return  m_osc1->lms_fine_knob->lms_get_value();
+        case RAYV_OSC1_VOLUME: return m_osc1->lms_vol_knob->lms_get_value();
+        case RAYV_OSC2_TYPE:  return m_osc2->lms_osc_type_box->lms_get_value();
+        case RAYV_OSC2_PITCH: return m_osc2->lms_pitch_knob->lms_get_value();
+        case RAYV_OSC2_TUNE: return m_osc2->lms_fine_knob->lms_get_value();
+        case RAYV_OSC2_VOLUME: return m_osc2->lms_vol_knob->lms_get_value();
+        case RAYV_MASTER_VOLUME: return m_master->lms_master_volume->lms_get_value();
+        case RAYV_MASTER_UNISON_VOICES: return m_master->lms_master_unison_voices->lms_get_value();
+        case RAYV_MASTER_UNISON_SPREAD: return m_master->lms_master_unison_spread->lms_get_value();
+        case RAYV_MASTER_GLIDE: return m_master->lms_master_glide->lms_get_value();
+        case RAYV_MASTER_PITCHBEND_AMT: return m_master->lms_master_pitchbend_amt->lms_get_value();
+        case RAYV_PITCH_ENV_AMT: return m_pitch_env->lms_amt_knob->lms_get_value();
+        case RAYV_PITCH_ENV_TIME: return m_pitch_env->lms_time_knob->lms_get_value();
+        case RAYV_LFO_FREQ: return m_lfo->lms_freq_knob->lms_get_value();
+        case RAYV_LFO_TYPE: return m_lfo->lms_type_combobox->lms_get_value();
+        case RAYV_LFO_AMP: return m_lfo_amp->lms_get_value();
+        case RAYV_LFO_PITCH: return m_lfo_pitch->lms_get_value();
+        case RAYV_LFO_FILTER: return m_lfo_cutoff->lms_get_value();
+        case RAYV_OSC_HARD_SYNC: return m_hard_sync->lms_get_value();    
+        default:
 #ifdef LMS_DEBUG_MODE_QT
-	rayv_cerr << "Warning: received request to get nonexistent port " << a_port << endl;
+            rayv_cerr << "Warning: received request to get nonexistent port " << a_port << endl;
 #endif
-        return 0;
-        break;
+            return 0;
+            break;
     }    
 }
 
