@@ -32,6 +32,7 @@ GNU General Public License for more details.
 #include "../../libmodsynth/widgets/presets.h"
 #include "../../libmodsynth/widgets/group_box.h"
 #include "../../libmodsynth/widgets/lms_combobox.h"
+#include "../../libmodsynth/widgets/lms_checkbox.h"
 #include "../../libmodsynth/widgets/lms_main_layout.h"
 #include "../../libmodsynth/widgets/ui_modules/adsr.h"
 #include "../../libmodsynth/widgets/ui_modules/oscillator.h"
@@ -113,6 +114,7 @@ public slots:
     void setLFOamp(float);
     void setLFOpitch(float);
     void setLFOcutoff(float);
+    void setHardSync(float);
     
     void aboutToQuit();
     
@@ -162,6 +164,7 @@ protected slots:
     void LFOampChanged(int);
     void LFOpitchChanged(int);
     void LFOcutoffChanged(int);
+    void hardSyncChanged(bool);
         
     void oscRecv();
 protected:
@@ -191,6 +194,8 @@ protected:
     LMS_knob_regular *m_noise_amp;
         
     LMS_preset_manager * m_program;
+    LMS_group_box * m_sync_groupbox;
+    LMS_checkbox * m_hard_sync;
     
     lo_address m_host;
     QByteArray m_controlPath;

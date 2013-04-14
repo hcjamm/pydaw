@@ -172,6 +172,9 @@ static void v_rayv_connect_port(LADSPA_Handle instance, int port,
     case RAYV_LFO_FILTER:
         plugin->lfo_filter = data;
         break;
+    case RAYV_OSC_HARD_SYNC:
+        plugin->sync_hard = data;
+        break;
     }
 }
 
@@ -215,23 +218,15 @@ static void v_run_rayv(LADSPA_Handle instance, int sample_count,
     
     for(plugin_data->event_pos = 0; (plugin_data->event_pos) < event_count; plugin_data->event_pos = (plugin_data->event_pos) + 1)
     {
-        //printf("plugin_data->event_pos == %i\n", plugin_data->event_pos);
-        /*Note on event*/
         if (events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEON) 
         {
-            //printf("events[(plugin_data->event_pos)].type == SND_SEQ_EVENT_NOTEON\n");
             snd_seq_ev_note_t n = events[(plugin_data->event_pos)].data.note;
-
-            //printf("n.note == %i\nn.velocity == %i\n n.duration == %i\n", n.note, n.velocity, n.duration);
-
-            //printf("events[(plugin_data->event_pos)].time.tick == %i\nevents[(plugin_data->event_pos)].time.time.tv_sec == %i\n", 
-            //        events[(plugin_data->event_pos)].time.tick, events[(plugin_data->event_pos)].time.time.tv_sec);
 
             if (n.velocity > 0) 
             {
                 int f_voice = i_pick_voice(plugin_data->voices, n.note, plugin_data->sampleNo, events[(plugin_data->event_pos)].time.tick);
                 
-                plugin_data->data[f_voice]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12 + (*(plugin_data->master_vol))), //-20db to 0db, + master volume (0 to -60)
+                plugin_data->data[f_voice]->amp = f_db_to_linear_fast(((n.velocity * 0.094488) - 12.0f + (*(plugin_data->master_vol))), //-20db to 0db, + master volume (0 to -60)
                         plugin_data->mono_modules->amp_ptr); 
                 v_svf_velocity_mod(plugin_data->data[f_voice]->svf_filter, n.velocity);
 
@@ -283,15 +278,24 @@ static void v_run_rayv(LADSPA_Handle instance, int sample_count,
 
                 v_axf_set_xfade(plugin_data->data[f_voice]->dist_dry_wet, *(plugin_data->dist_wet) * 0.01f);       
 
+                plugin_data->data[f_voice]->hard_sync = (int)(*plugin_data->sync_hard);
+                
                 v_osc_set_simple_osc_unison_type(plugin_data->data[f_voice]->osc_unison1, (int)(*plugin_data->osc1type));
                 v_osc_set_simple_osc_unison_type(plugin_data->data[f_voice]->osc_unison2, (int)(*plugin_data->osc2type));   
                 v_osc_note_on_sync_phases(plugin_data->data[f_voice]->osc_unison1);
                 v_osc_note_on_sync_phases(plugin_data->data[f_voice]->osc_unison2);
 
                 v_osc_set_uni_voice_count(plugin_data->data[f_voice]->osc_unison1, *plugin_data->master_uni_voice);
-                v_osc_set_uni_voice_count(plugin_data->data[f_voice]->osc_unison2, *plugin_data->master_uni_voice);                    
+                
+                if(plugin_data->data[f_voice]->hard_sync)
+                {
+                    v_osc_set_uni_voice_count(plugin_data->data[f_voice]->osc_unison2, 1);
+                }
+                else
+                {
+                    v_osc_set_uni_voice_count(plugin_data->data[f_voice]->osc_unison2, *plugin_data->master_uni_voice);
+                }                
 
-                /*Set the last_note property, so the next note can glide from it if glide is turned on*/
                 plugin_data->sv_last_note = (plugin_data->data[f_voice]->note_f);
             } 
             /*0 velocity, the same as note-off*/
@@ -389,18 +393,39 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
         a_voice->lfo_filter_output = (*plugin_data->lfo_filter) * (a_voice->lfo1->output);
         a_voice->lfo_pitch_output = (*plugin_data->lfo_pitch) * (a_voice->lfo1->output);
 
-        a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + (a_voice->pitch_env->output_multiplied) 
-                + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
-       
-        v_osc_set_unison_pitch(a_voice->osc_unison1, (*plugin_data->master_uni_spread) * 0.01f,
-                ((a_voice->base_pitch) + (a_voice->osc1_pitch_adjust) ));
-        
-        v_osc_set_unison_pitch(a_voice->osc_unison2, (*plugin_data->master_uni_spread) * 0.01f,
-                ((a_voice->base_pitch) + (a_voice->osc2_pitch_adjust)));
+        if(a_voice->hard_sync)
+        {
+            a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + (a_voice->pitch_env->output_multiplied) 
+                    + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
 
-        a_voice->current_sample += f_osc_run_unison_osc(a_voice->osc_unison1) * (a_voice->osc1_linamp);
-        
-        a_voice->current_sample += f_osc_run_unison_osc(a_voice->osc_unison2) * (a_voice->osc2_linamp);
+            v_osc_set_unison_pitch(a_voice->osc_unison1, (*plugin_data->master_uni_spread) * 0.01f,
+                    ((a_voice->target_pitch) + (a_voice->osc1_pitch_adjust) ));
+            v_osc_set_unison_pitch(a_voice->osc_unison2, (*plugin_data->master_uni_spread) * 0.01f,
+                    ((a_voice->base_pitch) + (a_voice->osc2_pitch_adjust)));
+
+            a_voice->current_sample += f_osc_run_unison_osc_sync(a_voice->osc_unison2);
+            
+            if(a_voice->osc_unison2->is_resetting)
+            {
+                v_osc_note_on_sync_phases_hard(a_voice->osc_unison1);
+            }
+            
+            a_voice->current_sample += f_osc_run_unison_osc(a_voice->osc_unison1) * (a_voice->osc1_linamp);
+            
+        }
+        else
+        {        
+            a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + (a_voice->pitch_env->output_multiplied) 
+                    + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
+
+            v_osc_set_unison_pitch(a_voice->osc_unison1, (*plugin_data->master_uni_spread) * 0.01f,
+                    ((a_voice->base_pitch) + (a_voice->osc1_pitch_adjust) ));
+            v_osc_set_unison_pitch(a_voice->osc_unison2, (*plugin_data->master_uni_spread) * 0.01f,
+                    ((a_voice->base_pitch) + (a_voice->osc2_pitch_adjust)));
+
+            a_voice->current_sample += f_osc_run_unison_osc(a_voice->osc_unison1) * (a_voice->osc1_linamp);
+            a_voice->current_sample += f_osc_run_unison_osc(a_voice->osc_unison2) * (a_voice->osc2_linamp);            
+        }
         
         a_voice->current_sample += (f_run_white_noise(a_voice->white_noise1) * (a_voice->noise_linamp)); //white noise
         
@@ -716,6 +741,12 @@ const LADSPA_Descriptor *rayv_ladspa_descriptor(int index)
 	port_range_hints[RAYV_LFO_FILTER].LowerBound = -48.0f;
 	port_range_hints[RAYV_LFO_FILTER].UpperBound = 48.0f;
         automatable[RAYV_LFO_FILTER] = 1;
+        
+        port_descriptors[RAYV_OSC_HARD_SYNC] = port_descriptors[RAYV_ATTACK];
+	port_names[RAYV_OSC_HARD_SYNC] = "Osc Hard Sync";
+	port_range_hints[RAYV_OSC_HARD_SYNC].HintDescriptor = LADSPA_HINT_DEFAULT_MIDDLE | LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
+	port_range_hints[RAYV_OSC_HARD_SYNC].LowerBound = 0;
+	port_range_hints[RAYV_OSC_HARD_SYNC].UpperBound = 1;
                 
 	LMSLDescriptor->activate = v_rayv_activate;
 	LMSLDescriptor->cleanup = v_cleanup_rayv;

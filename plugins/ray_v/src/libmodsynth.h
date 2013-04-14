@@ -113,6 +113,8 @@ typedef struct st_rayv_poly_voice
     float osc2_linamp;
     float noise_linamp;           
     int i_voice;  //for the runVoice function to iterate the current block
+    
+    int hard_sync;
 }t_rayv_poly_voice;
 
 t_rayv_poly_voice * g_rayv_poly_init();
@@ -170,6 +172,8 @@ t_rayv_poly_voice * g_rayv_poly_init()
     f_voice->osc2_linamp = 1.0f;
     f_voice->noise_linamp = 1.0f;
     f_voice->i_voice = 0;
+    
+    f_voice->hard_sync = 0;
     
     return f_voice;
 }
