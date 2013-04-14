@@ -1430,10 +1430,9 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 	    LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
 	port_range_hints[EUPHORIA_SELECTED_SAMPLE].LowerBound = 0;
 	port_range_hints[EUPHORIA_SELECTED_SAMPLE].UpperBound = (EUPHORIA_MAX_SAMPLE_COUNT - 1);
-                        
-	/* Parameters for attack */
+        
 	port_descriptors[EUPHORIA_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[EUPHORIA_ATTACK] = "Attack time (s)";
+	port_names[EUPHORIA_ATTACK] = "Master Attack";
 	port_range_hints[EUPHORIA_ATTACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MINIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -1442,9 +1441,8 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
         automatable[EUPHORIA_ATTACK] = 1;
         value_tranform_hints[EUPHORIA_ATTACK] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
-	/* Parameters for decay */
 	port_descriptors[EUPHORIA_DECAY] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[EUPHORIA_DECAY] = "Decay time (s)";
+	port_names[EUPHORIA_DECAY] = "Master Decay";
 	port_range_hints[EUPHORIA_DECAY].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -1455,7 +1453,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 
 	/* Parameters for sustain */
 	port_descriptors[EUPHORIA_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[EUPHORIA_SUSTAIN] = "Sustain level (%)";
+	port_names[EUPHORIA_SUSTAIN] = "Master Sustain";
 	port_range_hints[EUPHORIA_SUSTAIN].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MAXIMUM |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -1465,7 +1463,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 
 	/* Parameters for release */
 	port_descriptors[EUPHORIA_RELEASE] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[EUPHORIA_RELEASE] = "Release time (s)";
+	port_names[EUPHORIA_RELEASE] = "Master Release";
 	port_range_hints[EUPHORIA_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW | 
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -1476,7 +1474,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
                 
 	/* Parameters for attack_f */
 	port_descriptors[EUPHORIA_FILTER_ATTACK] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[EUPHORIA_FILTER_ATTACK] = "Attack time (s) filter";
+	port_names[EUPHORIA_FILTER_ATTACK] = "ADSR2 Attack";
 	port_range_hints[EUPHORIA_FILTER_ATTACK].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -1487,7 +1485,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 
 	/* Parameters for decay_f */
 	port_descriptors[EUPHORIA_FILTER_DECAY] = port_descriptors[EUPHORIA_ATTACK];
-	port_names[EUPHORIA_FILTER_DECAY] = "Decay time (s) filter";
+	port_names[EUPHORIA_FILTER_DECAY] = "ADSR2 Decay";
 	port_range_hints[EUPHORIA_FILTER_DECAY].HintDescriptor =
 			LADSPA_HINT_DEFAULT_MIDDLE |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -1498,7 +1496,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
 
 	/* Parameters for sustain_f */
 	port_descriptors[EUPHORIA_FILTER_SUSTAIN] = LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
-	port_names[EUPHORIA_FILTER_SUSTAIN] = "Sustain level filter";
+	port_names[EUPHORIA_FILTER_SUSTAIN] = "ADSR2 Sustain";
 	port_range_hints[EUPHORIA_FILTER_SUSTAIN].HintDescriptor =
 			LADSPA_HINT_DEFAULT_HIGH |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
@@ -1509,7 +1507,7 @@ const LADSPA_Descriptor *euphoria_ladspa_descriptor(int index)
         
 	/* Parameters for release_f */
 	port_descriptors[EUPHORIA_FILTER_RELEASE] = port_descriptors[EUPHORIA_ATTACK];
-	port_names[EUPHORIA_FILTER_RELEASE] = "Release time (s) filter";
+	port_names[EUPHORIA_FILTER_RELEASE] = "ADSR2 Release";
 	port_range_hints[EUPHORIA_FILTER_RELEASE].HintDescriptor =
 			LADSPA_HINT_DEFAULT_LOW  |
 			LADSPA_HINT_BOUNDED_BELOW | LADSPA_HINT_BOUNDED_ABOVE;
