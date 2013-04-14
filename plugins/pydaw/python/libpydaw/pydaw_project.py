@@ -867,37 +867,6 @@ class pydaw_region:
             self.bar_num = a_bar_num
             self.item_uid = a_item_uid
 
-def pydaw_draw_multi_item_cc_line(a_cc_num, a_start_val, a_end_val, a_items=[]):
-    for f_item in a_items:
-        f_item.remove_cc_range(a_cc_num)
-    if a_start_val > a_end_val:
-        f_cc_inc = -1
-        f_val_diff = a_start_val - a_end_val
-    else:
-        f_cc_inc = 1
-        f_val_diff = a_end_val - a_start_val
-
-    if f_val_diff == 0:
-        return
-
-    f_bar_count = float(len(a_items))
-    f_inc = (f_bar_count * 4.0) / float(f_val_diff)
-
-    i2 = 0.0
-    f_cc_val = int(a_start_val)
-
-    for f_item in a_items:
-        while True:
-            if i2 > 4.0:
-                i2 -= 4.0
-                break
-            f_beat_pos = round(i2, 4)
-            if f_beat_pos == 4.0:
-                f_beat_pos = 3.999
-            f_item.add_cc(pydaw_cc(f_beat_pos, a_cc_num, f_cc_val))
-            f_cc_val += f_cc_inc
-            i2 += f_inc
-
 def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc_num=-1):
     if a_is_cc:
         f_this_cc_arr = []

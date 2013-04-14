@@ -2999,7 +2999,7 @@ class automation_viewer_widget:
         self.ccs_in_use_combobox.addItem("")
         for f_cc in a_ccs:
             f_key_split = f_cc.split("|")
-            f_plugin_name = global_plugin_names[int(f_key_split[0])]
+            f_plugin_name = global_plugin_names[global_plugin_indexes[int(f_key_split[0])]]
             f_map = global_controller_port_num_dict[f_plugin_name][int(f_key_split[1])]
             self.ccs_in_use_combobox.addItem(f_plugin_name + "|" +f_map.name)
         self.suppress_ccs_in_use = False
@@ -3007,7 +3007,7 @@ class automation_viewer_widget:
     def smooth_pressed(self):
         if self.is_cc:
             f_map = global_controller_port_name_dict[str(self.plugin_combobox.currentText())][str(self.control_combobox.currentText())]
-            pydaw_smooth_automation_points(this_item_editor.items, self.is_cc, self.plugin_combobox.currentIndex(), f_map.port)
+            pydaw_smooth_automation_points(this_item_editor.items, self.is_cc, global_plugin_numbers[self.plugin_combobox.currentIndex()], f_map.port)
         else:
             pydaw_smooth_automation_points(this_item_editor.items, self.is_cc)
         global_save_and_reload_items()
@@ -5347,10 +5347,7 @@ class pydaw_controller_map_item:
 def pydaw_load_controller_maps():
     f_file_list = global_cc_names.keys()
     for f_file_name in f_file_list:
-        try:
-            f_cc_map_text = pydaw_read_file_text("/usr/lib/" + global_pydaw_version_string + "/cc_maps/" + f_file_name + ".pymap")
-        except:
-            continue  #If we can't open the file, then just ignore
+        f_cc_map_text = pydaw_read_file_text("/usr/lib/" + global_pydaw_version_string + "/cc_maps/" + f_file_name + ".pymap")
         f_cc_map_arr = f_cc_map_text.split("\n")
         for f_line in f_cc_map_arr:
             if f_line == "":
@@ -5364,11 +5361,6 @@ def pydaw_load_controller_maps():
 
 def pydaw_get_cc_map(a_name):
     return pydaw_cc_map.from_str(pydaw_read_file_text(global_cc_map_folder + "/" + a_name))
-    #try:
-    #    return pydaw_cc_map.from_str(pydaw_read_file_text(global_cc_map_folder + "/" + a_name))
-    #except Exception as Ex:
-    #    print("pydaw_get_cc_map Exception:  " + Ex.message)
-    #    return pydaw_cc_map()
 
 def pydaw_save_cc_map(a_name, a_map):
     pydaw_write_file_text(global_cc_map_folder + "/" + str(a_name), str(a_map))
