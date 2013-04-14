@@ -115,6 +115,7 @@ typedef struct st_rayv_poly_voice
     int i_voice;  //for the runVoice function to iterate the current block
     
     int hard_sync;
+    float unison_spread;
 }t_rayv_poly_voice;
 
 t_rayv_poly_voice * g_rayv_poly_init();
@@ -174,6 +175,7 @@ t_rayv_poly_voice * g_rayv_poly_init()
     f_voice->i_voice = 0;
     
     f_voice->hard_sync = 0;
+    f_voice->unison_spread = 0.5f;
     
     return f_voice;
 }

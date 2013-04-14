@@ -246,6 +246,8 @@ static void v_run_rayv(LADSPA_Handle instance, int sample_count,
                 plugin_data->data[f_voice]->osc2_linamp = f_db_to_linear_fast(*(plugin_data->osc2vol), plugin_data->mono_modules->amp_ptr);
                 plugin_data->data[f_voice]->noise_linamp = f_db_to_linear_fast(*(plugin_data->noise_amp), plugin_data->mono_modules->amp_ptr);
 
+                plugin_data->data[f_voice]->unison_spread = (*plugin_data->master_uni_spread) * 0.01f;
+                
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_amp);
                 v_adsr_retrigger(plugin_data->data[f_voice]->adsr_filter);
                 v_lfs_sync(plugin_data->data[f_voice]->lfo1, 0.0f, *(plugin_data->lfo_type));
@@ -398,9 +400,9 @@ static void v_run_rayv_voice(t_rayv *plugin_data, t_voc_single_voice a_poly_voic
             a_voice->base_pitch = (a_voice->glide_env->output_multiplied) + (a_voice->pitch_env->output_multiplied) 
                     + (plugin_data->mono_modules->pitchbend_smoother->output) + (a_voice->last_pitch) + (a_voice->lfo_pitch_output);
 
-            v_osc_set_unison_pitch(a_voice->osc_unison1, (*plugin_data->master_uni_spread) * 0.01f,
+            v_osc_set_unison_pitch(a_voice->osc_unison1, a_voice->unison_spread,
                     ((a_voice->target_pitch) + (a_voice->osc1_pitch_adjust) ));
-            v_osc_set_unison_pitch(a_voice->osc_unison2, (*plugin_data->master_uni_spread) * 0.01f,
+            v_osc_set_unison_pitch(a_voice->osc_unison2, a_voice->unison_spread,
                     ((a_voice->base_pitch) + (a_voice->osc2_pitch_adjust)));
 
             a_voice->current_sample += f_osc_run_unison_osc_sync(a_voice->osc_unison2);
