@@ -15,7 +15,7 @@ extern "C" {
 #endif
     
 /*The highest index for selecting the effect type*/
-#define MULTIFX3KNOB_MAX_INDEX 17
+#define MULTIFX3KNOB_MAX_INDEX 20
 #define MULTIFX3KNOB_KNOB_COUNT 3
 
 #include "../filter/svf.h"
