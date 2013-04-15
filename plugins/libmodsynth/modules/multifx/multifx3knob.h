@@ -15,7 +15,7 @@ extern "C" {
 #endif
     
 /*The highest index for selecting the effect type*/
-#define MULTIFX3KNOB_MAX_INDEX 20
+#define MULTIFX3KNOB_MAX_INDEX 21
 #define MULTIFX3KNOB_KNOB_COUNT 3
 
 #include "../filter/svf.h"
@@ -100,75 +100,36 @@ inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 t_mf3_multi * g_mf3_get(float);
 inline fp_mf3_run g_mf3_get_function_pointer( int);
 
-/* void v_mf3_set(t_fx3_multi* a_mf3, 
- * int a_fx_index, //see below
- * int a_channels) //1 or 2
- * The effect indexes are:
-0  "Off"
-1  "LP2"
-2  "LP4"
-3  "HP2"
-4  "HP4"
-5  "BP2"
-6  "BP4"
-7  "Notch2"
-8  "Notch4"
-9  "EQ"
-10 "Distortion"
-11 "Comb Filter"
-12 "Amp/Panner"
-13 "Limiter"
+static fp_mf3_run mf3_function_pointers[MULTIFX3KNOB_MAX_INDEX] = 
+{    
+        v_mf3_run_off, //0    
+        v_mf3_run_lp2, //1    
+        v_mf3_run_lp4, //2    
+        v_mf3_run_hp2, //3    
+        v_mf3_run_hp4, //4    
+        v_mf3_run_bp2, //5    
+        v_mf3_run_bp4, //6    
+        v_mf3_run_notch2, //7    
+        v_mf3_run_notch4, //8    
+        v_mf3_run_eq, //9    
+        v_mf3_run_dist, //10    
+        v_mf3_run_comb, //11    
+        v_mf3_run_amp_panner, //12    
+        v_mf3_run_limiter, //13    
+        v_mf3_run_saturator, //14    
+        v_mf3_run_formant_filter, //15    
+        v_mf3_run_chorus, //16    
+        v_mf3_run_glitch, //17    
+        v_mf3_run_ring_mod, //18    
+        v_mf3_run_lofi, //19    
+        v_mf3_run_s_and_h //20
+};
+
+/* void v_mf3_set(t_fx3_multi* a_mf3, int a_fx_index)  
  */
 inline fp_mf3_run g_mf3_get_function_pointer( int a_fx_index)
 {    
-        switch(a_fx_index)
-        {
-            case 0:
-                return v_mf3_run_off;
-            case 1:
-                return v_mf3_run_lp2;
-            case 2:
-                return v_mf3_run_lp4;
-            case 3:
-                return v_mf3_run_hp2;
-            case 4:
-                return v_mf3_run_hp4;
-            case 5:
-                return v_mf3_run_bp2;
-            case 6:
-                return v_mf3_run_bp4;
-            case 7:
-                return v_mf3_run_notch2;
-            case 8:
-                return v_mf3_run_notch4;
-            case 9:
-                return v_mf3_run_eq;
-            case 10:
-                return v_mf3_run_dist;
-            case 11:
-                return v_mf3_run_comb;
-            case 12:
-                return v_mf3_run_amp_panner;
-            case 13:
-                return v_mf3_run_limiter;
-            case 14:
-                return v_mf3_run_saturator;
-            case 15:
-                return v_mf3_run_formant_filter;
-            case 16:
-                return v_mf3_run_chorus;
-            case 17:
-                return v_mf3_run_glitch;
-            case 18:
-                return v_mf3_run_ring_mod;
-            case 19:
-                return v_mf3_run_lofi;
-            case 20:
-                return v_mf3_run_s_and_h;
-            default:
-                /*TODO: Report error*/
-                return v_mf3_run_off;                
-        }    
+    return mf3_function_pointers[a_fx_index];
 }
 
 inline void v_mf3_set(t_mf3_multi*__restrict a_mf3, float a_control0, float a_control1, float a_control2)
