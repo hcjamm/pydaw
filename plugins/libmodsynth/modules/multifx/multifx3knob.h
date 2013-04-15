@@ -18,7 +18,7 @@ extern "C" {
 #define MULTIFX3KNOB_MAX_INDEX 21
 #define MULTIFX3KNOB_KNOB_COUNT 3
 
-#include "../filter/svf.h"
+#include "../filter/svf_stereo.h"
 #include "../filter/comb_filter.h"
 #include "../distortion/clipper.h"
 #include "../signal_routing/audio_xfade.h"
@@ -40,8 +40,7 @@ typedef struct st_mf3_multi
 {
     int effect_index;    
     int channels;  //Currently only 1 or 2 are supported
-    t_state_variable_filter * svf0;
-    t_state_variable_filter * svf1;
+    t_svf2_filter * svf;
     t_comb_filter * comb_filter0;
     t_comb_filter * comb_filter1;  
     t_pkq_peak_eq * eq0;
@@ -213,65 +212,65 @@ inline void v_mf3_run_off(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1
 inline void v_mf3_run_lp2(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
-    
-    a_mf3->output0 = v_svf_run_2_pole_lp(a_mf3->svf0, a_in0);
-    a_mf3->output1 = v_svf_run_2_pole_lp(a_mf3->svf1, a_in1);
+    v_svf2_run_2_pole_lp(a_mf3->svf, a_in0, a_in1);
+    a_mf3->output0 = a_mf3->svf->output0;
+    a_mf3->output1 = a_mf3->svf->output1;
 }
 
 inline void v_mf3_run_lp4(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
-    f_mfx_transform_svf_filter(a_mf3);
-    
-    a_mf3->output0 = v_svf_run_4_pole_lp(a_mf3->svf0, a_in0);
-    a_mf3->output1 = v_svf_run_4_pole_lp(a_mf3->svf1, a_in1);
+    f_mfx_transform_svf_filter(a_mf3);    
+    v_svf2_run_4_pole_lp(a_mf3->svf, a_in0, a_in1);
+    a_mf3->output0 = a_mf3->svf->output0;
+    a_mf3->output1 = a_mf3->svf->output1;
 }
 
 inline void v_mf3_run_hp2(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
-    
-    a_mf3->output0 = v_svf_run_2_pole_hp(a_mf3->svf0, a_in0);
-    a_mf3->output1 = v_svf_run_2_pole_hp(a_mf3->svf1, a_in1);
+    v_svf2_run_2_pole_hp(a_mf3->svf, a_in0, a_in1);
+    a_mf3->output0 = a_mf3->svf->output0;
+    a_mf3->output1 = a_mf3->svf->output1;
 }
 
 inline void v_mf3_run_hp4(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
-    
-    a_mf3->output0 = v_svf_run_4_pole_hp(a_mf3->svf0, a_in0);
-    a_mf3->output1 = v_svf_run_4_pole_hp(a_mf3->svf1, a_in1);
+    v_svf2_run_4_pole_hp(a_mf3->svf, a_in0, a_in1);
+    a_mf3->output0 = a_mf3->svf->output0;
+    a_mf3->output1 = a_mf3->svf->output1;
 }
 
 inline void v_mf3_run_bp2(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
-    
-    a_mf3->output0 = v_svf_run_2_pole_bp(a_mf3->svf0, a_in0);
-    a_mf3->output1 = v_svf_run_2_pole_bp(a_mf3->svf1, a_in1);
+    v_svf2_run_2_pole_bp(a_mf3->svf, a_in0, a_in1);
+    a_mf3->output0 = a_mf3->svf->output0;
+    a_mf3->output1 = a_mf3->svf->output1;
 }
 
 inline void v_mf3_run_bp4(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
-    
-    a_mf3->output0 = v_svf_run_4_pole_bp(a_mf3->svf0, a_in0);
-    a_mf3->output1 = v_svf_run_4_pole_bp(a_mf3->svf1, a_in1);
+    v_svf2_run_4_pole_bp(a_mf3->svf, a_in0, a_in1);
+    a_mf3->output0 = a_mf3->svf->output0;
+    a_mf3->output1 = a_mf3->svf->output1;
 }
 
 inline void v_mf3_run_notch2(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
-    
-    a_mf3->output0 = v_svf_run_2_pole_notch(a_mf3->svf0, a_in0);
-    a_mf3->output1 = v_svf_run_2_pole_notch(a_mf3->svf1, a_in1);
+    v_svf2_run_2_pole_notch(a_mf3->svf, a_in0, a_in1);
+    a_mf3->output0 = a_mf3->svf->output0;
+    a_mf3->output1 = a_mf3->svf->output1;
 }
 
 inline void v_mf3_run_notch4(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
 {
     f_mfx_transform_svf_filter(a_mf3);
-    
-    a_mf3->output0 = v_svf_run_4_pole_notch(a_mf3->svf0, a_in0);
-    a_mf3->output1 = v_svf_run_4_pole_notch(a_mf3->svf1, a_in1);
+    v_svf2_run_4_pole_notch(a_mf3->svf, a_in0, a_in1);
+    a_mf3->output0 = a_mf3->svf->output0;
+    a_mf3->output1 = a_mf3->svf->output1;
 }
 
 inline void v_mf3_run_eq(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
@@ -351,13 +350,9 @@ inline void f_mfx_transform_svf_filter(t_mf3_multi*__restrict a_mf3)
     //res
     a_mf3->control_value[1] = ((a_mf3->control[1]) * 0.236220472) - 30.0f;
     
-    v_svf_set_cutoff_base(a_mf3->svf0, (a_mf3->control_value[0]));    
-    v_svf_set_res(a_mf3->svf0, (a_mf3->control_value[1]));    
-    v_svf_set_cutoff(a_mf3->svf0);
-    
-    v_svf_set_cutoff_base(a_mf3->svf1, (a_mf3->control_value[0]));
-    v_svf_set_res(a_mf3->svf1, (a_mf3->control_value[1]));    
-    v_svf_set_cutoff(a_mf3->svf1);
+    v_svf2_set_cutoff_base(a_mf3->svf, (a_mf3->control_value[0]));    
+    v_svf2_set_res(a_mf3->svf, (a_mf3->control_value[1]));    
+    v_svf2_set_cutoff(a_mf3->svf);    
 }
 
 
@@ -482,8 +477,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     
     f_result->effect_index = 0; 
     f_result->channels = 2;
-    f_result->svf0 = g_svf_get(a_sample_rate);
-    f_result->svf1 = g_svf_get(a_sample_rate);
+    f_result->svf = g_svf2_get(a_sample_rate);    
     f_result->comb_filter0 = g_cmb_get_comb_filter(a_sample_rate);
     f_result->comb_filter1 = g_cmb_get_comb_filter(a_sample_rate);
     f_result->eq0 = g_pkq_get(a_sample_rate);
