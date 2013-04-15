@@ -25,8 +25,8 @@
  * Created on January 8, 2012, 11:35 AM
  */
 
-#ifndef SVF_H
-#define	SVF_H
+#ifndef PYDAW_SVF_H
+#define	PYDAW_SVF_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -486,5 +486,5 @@ t_state_variable_filter * g_svf_get(float a_sample_rate)
 }
 #endif
 
-#endif	/* SVF_H */
+#endif	/* PYDAW_SVF_H */
 
