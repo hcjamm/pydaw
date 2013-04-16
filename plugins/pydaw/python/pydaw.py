@@ -1031,7 +1031,7 @@ global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 25
 global_audio_item_handle_pen = QtGui.QPen(QtCore.Qt.white)
 
 class audio_viewer_item(QtGui.QGraphicsRectItem):
-    def __init__(self, a_track_num, a_audio_item, a_sample_length, a_brush, a_lane_num):
+    def __init__(self, a_track_num, a_audio_item, a_sample_length):
         f_temp_seconds = a_sample_length
 
         if a_audio_item.time_stretch_mode == 1:
@@ -1057,12 +1057,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             if f_length_seconds < f_length:
                 f_length = f_length_seconds
 
-        f_track_num = global_audio_ruler_height + (global_audio_item_height) * a_lane_num
+        f_track_num = global_audio_ruler_height + (global_audio_item_height) * a_audio_item.lane_num
 
         QtGui.QGraphicsRectItem.__init__(self, 0.0, 0.0, f_length, global_audio_item_height)
         self.setPos(f_start, f_track_num)
         self.last_x = self.pos().x()
-        self.setBrush(a_brush)
         self.is_moving = False
 
         f_name_arr = a_audio_item.file.split("/")
@@ -1071,7 +1070,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.track_num = a_track_num
-        self.mouse_y_pos = f_track_num
         self.audio_item = a_audio_item
         self.setToolTip("Double click to open editor dialog, or click and drag to move")
 
@@ -1105,6 +1103,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
         self.length_handle.setToolTip("Use this handle to resize the item by changing the start/end points...\nSnapping by region is not supported for length, it will be snapped by bar for either setting.")
         self.is_resizing = False
+        self.set_brush()
+
+    def set_brush(self, a_index=None):
+        if a_index is None:
+            self.setBrush(pydaw_track_gradients[self.audio_item.lane_num % len(pydaw_track_gradients)])
+        else:
+            self.setBrush(pydaw_track_gradients[a_index % len(pydaw_track_gradients)])
 
     def pos_to_musical_time(self, a_pos):
         f_pos_region = 0
@@ -1143,6 +1148,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 if f_item.isSelected():
                     f_item.last_x = f_item.pos().x()
 
+    def y_pos_to_lane_number(self, a_y_pos):
+        f_lane_num = int((a_y_pos - global_audio_ruler_height) / global_audio_item_height)
+        f_y_pos = (f_lane_num * global_audio_item_height) + global_audio_ruler_height
+        return f_lane_num, f_y_pos
+
     def mouseMoveEvent(self, a_event):
         if global_transport_is_playing:
             return
@@ -1158,10 +1168,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
-                    f_pos = f_item.pos().x()
-                    if f_pos < 0:
-                        f_pos = 0
-                    f_item.setPos(f_pos, f_item.mouse_y_pos)
+                    f_pos_x = f_item.pos().x()
+                    f_pos_y = f_item.pos().y()
+                    if f_pos_x < 0:
+                        f_pos_x = 0
+                    f_ignored, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
+                    f_item.setPos(f_pos_x, f_pos_y)
                     if not f_item.is_moving:
                         f_item.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
                         f_item.is_moving = True
@@ -1175,6 +1187,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 if f_audio_item.isSelected():
                     f_item = f_audio_items.items[f_audio_item.track_num]
                     f_pos_x = f_audio_item.pos().x()
+                    f_pos_y = f_audio_item.pos().y()
                     if f_audio_item.is_resizing:
                         if f_item.end_mode == 0:
                             f_item.sample_end = (f_audio_item.rect().width() / f_audio_item.length_seconds_orig_px) * 1000.0
@@ -1190,7 +1203,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                                     break
                         elif this_audio_items_viewer.snap_mode == 2:
                             f_pos_x = int(f_pos_x/12.5) * 12.5
-                        f_audio_item.setPos(f_pos_x, f_audio_item.mouse_y_pos)
+                        f_item.lane_num, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
+                        f_audio_item.set_brush(f_item.lane_num)
+                        f_audio_item.setPos(f_pos_x, f_pos_y)
                         f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
                         f_item.start_region = f_start_result[0]
                         f_item.start_bar = f_start_result[1]
@@ -1314,21 +1329,15 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.set_playback_pos()
 
     def clear_drawn_items(self):
-        self.track = 0
-        self.gradient_index = 0
         self.audio_items = []
         self.scene.clear()
         self.draw_headers()
 
     def draw_item(self, a_audio_item_index, a_audio_item, a_sample_length):
         '''a_start in seconds, a_length in seconds'''
-        f_audio_item = audio_viewer_item(a_audio_item_index, a_audio_item, a_sample_length, pydaw_track_gradients[self.gradient_index], self.track)
+        f_audio_item = audio_viewer_item(a_audio_item_index, a_audio_item, a_sample_length)
         self.audio_items.append(f_audio_item)
-        self.gradient_index += 1
-        if self.gradient_index >=  len(pydaw_track_gradients):
-            self.gradient_index = 0
         self.scene.addItem(f_audio_item)
-        self.track += 1
 
 class audio_items_viewer_widget():
     def __init__(self):
