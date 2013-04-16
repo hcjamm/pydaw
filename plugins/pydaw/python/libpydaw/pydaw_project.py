@@ -1656,7 +1656,7 @@ class pydaw_audio_items:
 class pydaw_audio_item:
     def __init__(self, a_file, a_sample_start=0.0, a_sample_end=1000.0, a_start_region=0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
     a_end_region=0, a_end_bar=0, a_end_beat=0, a_timestretch_mode=0, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0, \
-    a_fade_in=0.0, a_fade_out=1000.0):
+    a_fade_in=0.0, a_fade_out=1000.0, a_lane_num=0):
         self.file = str(a_file)
         self.sample_start = float(a_sample_start)
         self.sample_end = float(a_sample_end)
@@ -1674,18 +1674,19 @@ class pydaw_audio_item:
         self.timestretch_amt = float(a_timestretch_amt)
         self.fade_in = float(a_fade_in)
         self.fade_out = float(a_fade_out)
+        self.lane_num = int(a_lane_num)
 
     def __str__(self):
         return self.file + "|" + str(self.sample_start) + "|" + str(self.sample_end) + "|" + str(self.start_region) \
         + "|" + str(self.start_bar) + "|" + str(self.start_beat) + "|" + str(self.end_mode) + "|" + str(self.end_region) \
         + "|" + str(self.end_bar) + "|" + str(self.end_beat) + "|" + str(self.time_stretch_mode) \
         + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(self.timestretch_amt) \
-        + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "\n"
+        + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "|" + str(self.lane_num) + "\n"
 
     @staticmethod
     def from_arr(a_arr):
         f_result = pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
-        a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12], a_arr[13], a_arr[14], a_arr[15], a_arr[16])
+        a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12], a_arr[13], a_arr[14], a_arr[15], a_arr[16], a_arr[17])
         return f_result
 
 class pydaw_audio_input_tracks:

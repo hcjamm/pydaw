@@ -277,6 +277,9 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     f_result->sample_fade_out = atoi(f_fade_out_char);
     free(f_fade_out_char);
     
+    char * f_lane_num_char = c_iterate_2d_char_array(f_current_string);    
+    free(f_lane_num_char);  //not used by the engine
+    
     free(f_file_name_char);
     
     f_result->ratio = f_result->ratio_orig;  //Otherwise the pitch/time shifting gets re-applied every time...
