@@ -5295,13 +5295,13 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.regions_tab_widget.addTab(this_region_audio_editor.group_box, "Audio Tracks")
 
         self.main_tabwidget.addTab(this_item_editor.widget, "MIDI Item")
-        self.regions_tab_widget.addTab(this_audio_editor.group_box, "Audio Inputs")
+        #self.regions_tab_widget.addTab(this_audio_editor.group_box, "Audio Inputs")
         self.audio_items_tab = QtGui.QTabWidget()
         self.audio_items_tab.addTab(this_audio_items_viewer_widget.widget, "Viewer")
         self.audio_items_tab.addTab(this_audio_editor.items_groupbox, "Item List")
         self.audio_edit_tab = this_audio_item_editor_widget
         self.main_tabwidget.addTab(self.audio_edit_tab.widget, "Audio Item")
-        self.main_tabwidget.addTab(self.audio_items_tab, "Song Level Audio")
+        self.regions_tab_widget.addTab(self.audio_items_tab, "Audio Seq")
 
         self.cc_map_tab = QtGui.QWidget()
         self.cc_map_tab.setObjectName("ccmaptabwidget")
