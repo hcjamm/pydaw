@@ -22,20 +22,36 @@ extern "C" {
 #include "pydaw_files.h"
     
 #define PYDAW_MAX_AUDIO_ITEM_COUNT 32
+#define PYDAW_MAX_WAV_POOL_ITEM_COUNT 500
 
 #define PYDAW_AUDIO_ITEM_PADDING 64
 #define PYDAW_AUDIO_ITEM_PADDING_DIV2 32
 #define PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT 32.0f
     
-typedef struct 
+typedef struct
 {
-    int bool_sample_loaded;
     char path[512];
+    int uid;
     float * samples[2];
+    float ratio_orig;
     int channels;
     int length;
-    float ratio;
-    float ratio_orig; //For storing the src-to-src ratio
+    float sample_rate;
+    
+}t_wav_pool_item;
+
+typedef struct
+{
+    int count;
+    t_wav_pool_item * items[PYDAW_MAX_WAV_POOL_ITEM_COUNT];
+}t_wav_pool;
+
+typedef struct 
+{
+    int bool_sample_loaded;    
+    t_wav_pool_item * wav_pool_item;  //pointer assigned when playing
+    int wav_pool_uid;        
+    float ratio;    
     int uid;
     int start_region;
     int start_bar;
@@ -53,8 +69,7 @@ typedef struct
     int sample_start_offset;
     float sample_start_offset_float;
     int sample_end_offset;
-    int audio_track_output;  //The audio track whose Modulex instance to write the samples to    
-    float item_sample_rate;
+    int audio_track_output;  //The audio track whose Modulex instance to write the samples to        
     t_int_frac_read_head * sample_read_head;
     t_adsr * adsr;
     int index;
@@ -96,18 +111,13 @@ void v_pydaw_audio_item_free(t_pydaw_audio_item* a_audio_item)
         return;
     }
     
-    if(a_audio_item->samples[0])
-    {
-        free(a_audio_item->samples[0]);
-    }
-    
-    if(a_audio_item->samples[1])
-    {
-        free(a_audio_item->samples[1]);
-    }
-    
     if(a_audio_item)
     {
+        free(a_audio_item->adsr);
+        free(a_audio_item->amp_ptr);
+        free(a_audio_item->pitch_core_ptr);
+        free(a_audio_item->sample_read_head);
+        free(a_audio_item->pitch_ratio_ptr);
         free(a_audio_item);
     }
 }
@@ -121,13 +131,8 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
         return 0;
     }
     
-    f_result->path[0] = '\0';
-    f_result->bool_sample_loaded = 0;    
-    f_result->length = 0;
-    f_result->samples[0] = 0;
-    f_result->samples[1] = 0;    
-    f_result->ratio = 1.0f;
-    f_result->ratio_orig = 1.0f;
+    f_result->bool_sample_loaded = 0;        
+    f_result->ratio = 1.0f;    
     f_result->uid = -1;
     f_result->adjusted_start_beat = 99999999.0f;
     
@@ -199,26 +204,23 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     
     f_result->index = f_index;
 
-    char * f_file_name_char = c_iterate_2d_char_array(f_current_string);
-
-    if(strcmp(f_file_name_char, f_result->path))
-    {
-        v_audio_items_load(f_result, f_file_name_char, a_sr);
-    }
+    char * f_uid_char = c_iterate_2d_char_array(f_current_string);
+    f_result->uid = atoi(f_uid_char);
+    free(f_uid_char);
 
     char * f_sample_start_char = c_iterate_2d_char_array(f_current_string);
     float f_sample_start = atof(f_sample_start_char) * 0.001f;
     f_result->sample_start = f_sample_start;
     free(f_sample_start_char);
     
-    f_result->sample_start_offset = (int)((f_result->sample_start * ((float)f_result->length))) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
+    f_result->sample_start_offset = (int)((f_result->sample_start * ((float)f_result->wav_pool_item->length))) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
     f_result->sample_start_offset_float = (float)(f_result->sample_start_offset);
 
     char * f_sample_end_char = c_iterate_2d_char_array(f_current_string);
     f_result->sample_end = atof(f_sample_end_char) * 0.001f;            
     free(f_sample_end_char);
 
-    f_result->sample_end_offset = (int)((f_result->sample_end * ((float)f_result->length))) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
+    f_result->sample_end_offset = (int)((f_result->sample_end * ((float)f_result->wav_pool_item->length))) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
     
     char * f_start_region_char = c_iterate_2d_char_array(f_current_string);
     f_result->start_region = atoi(f_start_region_char);            
@@ -279,10 +281,8 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     
     char * f_lane_num_char = c_iterate_2d_char_array(f_current_string);    
     free(f_lane_num_char);  //not used by the engine
-    
-    free(f_file_name_char);
-    
-    f_result->ratio = f_result->ratio_orig;  //Otherwise the pitch/time shifting gets re-applied every time...
+        
+    f_result->ratio = f_result->wav_pool_item->ratio_orig;  //Otherwise the pitch/time shifting gets re-applied every time...
     
     switch(f_result->timestretch_mode)
     {
@@ -314,7 +314,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     return f_result;
 }
 
-void v_audio_items_load(t_pydaw_audio_item *a_audio_item, const char *a_path, float a_sr)
+void v_wav_pool_item_load(t_wav_pool_item *a_wav_pool_item, const char *a_path, float a_sr)
 {   
     /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
             
@@ -350,14 +350,11 @@ void v_audio_items_load(t_pydaw_audio_item *a_audio_item, const char *a_path, fl
     if ((int)(info.samplerate) != (int)(a_sr)) 
     {	
 	double ratio = (double)(info.samplerate)/(double)(a_sr);
-	
-        a_audio_item->ratio = (float)ratio;
-        a_audio_item->ratio_orig = a_audio_item->ratio;
+        a_wav_pool_item->ratio_orig = (float)ratio;
     }
     else
     {
-        a_audio_item->ratio = 1.0f;
-        a_audio_item->ratio_orig = 1.0f;
+        a_wav_pool_item->ratio_orig = 1.0f;
     }
            
     int f_adjusted_channel_count = 1;
@@ -432,38 +429,35 @@ void v_audio_items_load(t_pydaw_audio_item *a_audio_item, const char *a_path, fl
     
     //pthread_mutex_lock(&plugin_data->mutex);
     
-    if(a_audio_item->samples[0])
+    if(a_wav_pool_item->samples[0])
     {
-        tmpOld[0] = a_audio_item->samples[0];
+        tmpOld[0] = a_wav_pool_item->samples[0];
     }
     
-    if(a_audio_item->samples[1])
+    if(a_wav_pool_item->samples[1])
     {
-        tmpOld[1] = a_audio_item->samples[1];
+        tmpOld[1] = a_wav_pool_item->samples[1];
     }
     
-    a_audio_item->samples[0] = tmpSamples[0];
+    a_wav_pool_item->samples[0] = tmpSamples[0];
     
     if(f_adjusted_channel_count > 1)
     {
-        a_audio_item->samples[1] = tmpSamples[1];
+        a_wav_pool_item->samples[1] = tmpSamples[1];
     }
     else
     {
-        a_audio_item->samples[1] = 0;
+        a_wav_pool_item->samples[1] = 0;
     }
     
-    a_audio_item->length = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2 - 20);  //-20 to ensure we don't read past the end of the array
+    a_wav_pool_item->length = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2 - 20);  //-20 to ensure we don't read past the end of the array
     
-    a_audio_item->item_sample_rate = info.samplerate;
+    a_wav_pool_item->sample_rate = info.samplerate;
     
-    a_audio_item->channels = f_adjusted_channel_count;
+    a_wav_pool_item->channels = f_adjusted_channel_count;
     
-    sprintf(a_audio_item->path, "%s", a_path);
+    sprintf(a_wav_pool_item->path, "%s", a_path);
         
-    a_audio_item->bool_sample_loaded = 1;
-    //pthread_mutex_unlock(&plugin_data->mutex);
-    
     if (tmpOld[0]) 
     {
         free(tmpOld[0]);
@@ -488,21 +482,21 @@ void v_pydaw_audio_items_free(t_pydaw_audio_items *a_audio_items)
     free(a_audio_items);
 }
 
-void v_audio_items_sample_clear(t_pydaw_audio_item *a_audio_item)
+void v_wav_pool_item_free(t_wav_pool_item *a_wav_pool_item)
 {
-    a_audio_item->path[0] = '\0';
-    a_audio_item->bool_sample_loaded = 0;
-        
+    a_wav_pool_item->path[0] = '\0';
+            
     float *tmpOld[2];    
 
-    tmpOld[0] = a_audio_item->samples[0];
-    tmpOld[1] = a_audio_item->samples[1];
-    a_audio_item->samples[0] = 0;
-    a_audio_item->samples[1] = 0;
-    a_audio_item->length = 0;
+    tmpOld[0] = a_wav_pool_item->samples[0];
+    tmpOld[1] = a_wav_pool_item->samples[1];
+    a_wav_pool_item->samples[0] = 0;
+    a_wav_pool_item->samples[1] = 0;
+    a_wav_pool_item->length = 0;
 
     if (tmpOld[0]) free(tmpOld[0]);
     if (tmpOld[1]) free(tmpOld[1]);    
+    free(a_wav_pool_item);
 }
 
 /*Load/Reload samples from file...*/

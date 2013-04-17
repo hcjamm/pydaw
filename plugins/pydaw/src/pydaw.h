@@ -2066,10 +2066,10 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     ((a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number) <  (a_pydaw_data->audio_items->items[f_i]->sample_end_offset)))
                             //(a_pydaw_data->audio_items->items[f_i]->length)))
                     {   
-                        if(a_pydaw_data->audio_items->items[f_i]->channels == 1)
+                        if(a_pydaw_data->audio_items->items[f_i]->wav_pool_item->channels == 1)
                         {
                             float f_tmp_sample = f_cubic_interpolate_ptr_ifh(
-                            (a_pydaw_data->audio_items->items[f_i]->samples[0]),
+                            (a_pydaw_data->audio_items->items[f_i]->wav_pool_item->samples[0]),
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
                             (a_pydaw_data->audio_items->cubic_interpolator)) * 
@@ -2079,10 +2079,10 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                             a_output0[f_i2] += f_tmp_sample;
                             a_output1[f_i2] += f_tmp_sample;
                         }
-                        else if(a_pydaw_data->audio_items->items[f_i]->channels == 2)
+                        else if(a_pydaw_data->audio_items->items[f_i]->wav_pool_item->channels == 2)
                         {
                             a_output0[f_i2] += f_cubic_interpolate_ptr_ifh(
-                            (a_pydaw_data->audio_items->items[f_i]->samples[0]),
+                            (a_pydaw_data->audio_items->items[f_i]->wav_pool_item->samples[0]),
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
                             (a_pydaw_data->audio_items->cubic_interpolator)) * 
@@ -2090,7 +2090,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                             (a_pydaw_data->audio_items->items[f_i]->vol_linear);
 
                             a_output1[f_i2] += f_cubic_interpolate_ptr_ifh(
-                            (a_pydaw_data->audio_items->items[f_i]->samples[1]),
+                            (a_pydaw_data->audio_items->items[f_i]->wav_pool_item->samples[1]),
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->whole_number),
                             (a_pydaw_data->audio_items->items[f_i]->sample_read_head->fraction),
                             (a_pydaw_data->audio_items->cubic_interpolator)) * 
@@ -2100,7 +2100,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                         else
                         {
                             //TODO:  Catch this during load and do something then...
-                            printf("Error: v_pydaw_audio_items_run, invalid number of channels %i\n", a_pydaw_data->audio_items->items[f_i]->channels);
+                            printf("Error: v_pydaw_audio_items_run, invalid number of channels %i\n", a_pydaw_data->audio_items->items[f_i]->wav_pool_item->channels);
                         }
 
                         v_ifh_run(a_pydaw_data->audio_items->items[f_i]->sample_read_head, a_pydaw_data->audio_items->items[f_i]->ratio);
