@@ -41,6 +41,7 @@ pydaw_file_pyaudio = "default.pyaudio"
 pydaw_file_pyaudioitem = "default.pyaudioitem"
 pydaw_file_pybus = "default.pybus"
 pydaw_file_pyinput = "default.pyinput"
+pydaw_file_pywavs = "default.pywavs"
 
 pydaw_min_note_length = 1.0/128.0  #Anything smaller gets deleted when doing a transform
 
@@ -295,9 +296,9 @@ class pydaw_project:
         self.history = pydaw_history.pydaw_history(self.project_folder)
 
         self.create_file("", os.path.basename(a_project_file), "This file does is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
-        self.create_file("", pydaw_file_pyregions, "")
-        self.create_file("", pydaw_file_pywavs, "")
-        self.create_file("", pydaw_file_pyitems, "")
+        self.create_file("", pydaw_file_pyregions, pydaw_terminating_char)
+        self.create_file("", pydaw_file_pywavs, pydaw_terminating_char)
+        self.create_file("", pydaw_file_pyitems, pydaw_terminating_char)
         self.create_file("", pydaw_file_pysong, pydaw_terminating_char)
         self.create_file("", pydaw_file_pytransport, str(pydaw_transport()))
         self.create_file("", pydaw_file_pymididevice, "")
@@ -327,7 +328,7 @@ class pydaw_project:
         try:
             f_file = open(self.pyregions_file, "r")
         except:
-            return ""
+            return pydaw_name_uid_dict()
         f_str = f_file.read()
         f_file.close()
         return pydaw_name_uid_dict.from_str(f_str)
@@ -351,7 +352,7 @@ class pydaw_project:
         try:
             f_file = open(self.pyitems_file, "r")
         except:
-            return ""
+            return pydaw_name_uid_dict()
         f_str = f_file.read()
         f_file.close()
         return pydaw_name_uid_dict.from_str(f_str)
@@ -583,6 +584,8 @@ class pydaw_project:
         else:
             f_uid = f_uid_dict.add_new_item(a_path)
             self.create_sample_graph(a_path, f_uid)
+            self.save_wavs_dict(f_uid_dict)
+            self.commit("Add " + str(a_path) + " to pool")
             return f_uid
 
     def get_wav_path_by_uid(self, a_uid):
@@ -845,11 +848,12 @@ class pydaw_name_uid_dict:
         f_result = pydaw_name_uid_dict()
         f_lines = a_str.split("\n")
         for f_line in f_lines:
-            if f_line != pydaw_terminating_char:
-                f_arr = f_line.split("|", 1)
-                f_uid = int(f_arr[0])
-                f_name = f_arr[1]
-                f_result.add_item(f_uid, f_name)
+            if f_line == pydaw_terminating_char:
+                break
+            f_arr = f_line.split("|", 1)
+            f_uid = int(f_arr[0])
+            f_name = f_arr[1]
+            f_result.add_item(f_uid, f_name)
         return f_result
 
     def __str__(self):
