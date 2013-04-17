@@ -53,10 +53,7 @@ t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
     SF_INFO info;
     SNDFILE *file;
     size_t samples = 0;
-    float *tmpFrames, *tmpSamples[2], *tmpOld[2];
-        
-    tmpOld[0] = 0;
-    tmpOld[1] = 0;
+    float *tmpFrames, *tmpSamples[2];
     
     info.format = 0;
     file = sf_open(a_path, SFM_READ, &info);
@@ -69,7 +66,7 @@ t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
         
 	if (!file) {
             printf("error: unable to load sample file '%s'", a_path);
-	    return;
+	    return 0;
 	}
     }
         
@@ -100,14 +97,14 @@ t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
     if(posix_memalign((void**)(&(tmpSamples[0])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
     {
         printf("Call to posix_memalign failed for tmpSamples[0]\n");
-        return;
+        return 0;
     }
     if(f_adjusted_channel_count > 1)
     {
         if(posix_memalign((void**)(&(tmpSamples[1])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
         {
             printf("Call to posix_memalign failed for tmpSamples[1]\n");
-            return;
+            return 0;
         }
     }
     
@@ -159,16 +156,6 @@ t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
         
     free(tmpFrames);
     
-    if(f_result->samples[0])
-    {
-        tmpOld[0] = f_result->samples[0];
-    }
-    
-    if(f_result->samples[1])
-    {
-        tmpOld[1] = f_result->samples[1];
-    }
-    
     f_result->samples[0] = tmpSamples[0];
     
     if(f_adjusted_channel_count > 1)
@@ -187,16 +174,6 @@ t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
     f_result->channels = f_adjusted_channel_count;
     
     sprintf(f_result->path, "%s", a_path);
-        
-    if (tmpOld[0]) 
-    {
-        free(tmpOld[0]);
-    }
-    
-    if (tmpOld[1]) 
-    {
-        free(tmpOld[1]);
-    }    
     
     return f_result;
 }
@@ -220,7 +197,6 @@ void v_wav_pool_item_free(t_wav_pool_item *a_wav_pool_item)
 
 typedef struct 
 {
-    int bool_sample_loaded;    
     t_wav_pool_item * wav_pool_item;  //pointer assigned when playing
     int wav_pool_uid;        
     float ratio;    
@@ -287,8 +263,10 @@ void v_wav_pool_add_item(t_wav_pool* a_wav_pool, int a_uid, char * a_file_path)
     a_wav_pool->count++;
 }
 
+/* Load entire pool at startup/open */
 void v_wav_pool_add_items(t_wav_pool* a_wav_pool, char * a_file_path)
 {
+    a_wav_pool->count = 0;
     t_2d_char_array * f_arr = g_get_2d_array_from_file(a_file_path, LMS_LARGE_STRING);
     while(1)
     {
@@ -366,7 +344,6 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
         return 0;
     }
     
-    f_result->bool_sample_loaded = 0;        
     f_result->ratio = 1.0f;    
     f_result->uid = -1;
     f_result->adjusted_start_beat = 99999999.0f;
@@ -401,7 +378,7 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sr)
     
     while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
     {
-        f_result->items[f_i] = g_pydaw_audio_item_get((float)(a_sr));
+        f_result->items[f_i] = 0; //g_pydaw_audio_item_get((float)(a_sr));
         f_i++;
     }
     
@@ -413,7 +390,8 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sr)
  *  Pass in zero for a_items to not re-use the existing item without reloading the wave.  DO pass it in if you wish to update 
  * the item without reloading.
  */
-t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_current_string, t_pydaw_audio_items * a_items)
+t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_current_string, 
+        t_pydaw_audio_items * a_items, t_wav_pool * a_wav_pool)
 {
     t_pydaw_audio_item * f_result;
         
@@ -442,6 +420,8 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     char * f_uid_char = c_iterate_2d_char_array(f_current_string);
     f_result->uid = atoi(f_uid_char);
     free(f_uid_char);
+    
+    f_result->wav_pool_item = g_wav_pool_get_item_by_uid(a_wav_pool, f_result->uid);
 
     char * f_sample_start_char = c_iterate_2d_char_array(f_current_string);
     float f_sample_start = atof(f_sample_start_char) * 0.001f;
@@ -563,7 +543,7 @@ void v_pydaw_audio_items_free(t_pydaw_audio_items *a_audio_items)
 }
 
 /*Load/Reload samples from file...*/
-void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_file)
+void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_file, t_wav_pool * a_wav_pool)
 {
     if(i_pydaw_file_exists(a_file))
     {
@@ -574,7 +554,8 @@ void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_
         
         while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
         {            
-            t_pydaw_audio_item * f_new =  g_audio_item_load_single(a_pydaw_audio_items->sample_rate, f_current_string, 0);
+            t_pydaw_audio_item * f_new =  g_audio_item_load_single(a_pydaw_audio_items->sample_rate, 
+                    f_current_string, 0, a_wav_pool);
             if(!f_new)  //EOF'd...
             {
                 break;
