@@ -559,7 +559,7 @@ class pydaw_project:
         return pydaw_audio_items.from_str(self.get_audio_items_string())
 
     def get_sample_graph_by_name(self, a_path, a_uid_dict=None):
-        f_uid = self.get_wav_uid(a_path)
+        f_uid = self.get_wav_uid_by_name(a_path)
         return self.get_sample_graph_by_uid(f_uid)
 
     def get_sample_graph_by_uid(self, a_uid):
@@ -573,7 +573,7 @@ class pydaw_project:
         else:
             return f_result
 
-    def get_wav_uid(self, a_path, a_uid_dict=None):
+    def get_wav_uid_by_name(self, a_path, a_uid_dict=None):
         """ Return the UID from the wav pool, or add to the pool if it does not exist """
         if a_uid_dict is None:
             f_uid_dict = self.get_wavs_dict()
@@ -587,6 +587,17 @@ class pydaw_project:
             self.save_wavs_dict(f_uid_dict)
             self.commit("Add " + str(a_path) + " to pool")
             return f_uid
+
+    def get_wav_name_by_uid(self, a_uid, a_uid_dict=None):
+        """ Return the UID from the wav pool, or add to the pool if it does not exist """
+        if a_uid_dict is None:
+            f_uid_dict = self.get_wavs_dict()
+        else:
+            f_uid_dict = a_uid_dict
+        if f_uid_dict.uid_exists(a_uid):
+            return f_uid_dict.get_name_by_uid(a_uid)
+        else:
+            raise Exception
 
     def get_wav_path_by_uid(self, a_uid):
         f_uid_dict = self.get_wavs_dict()
