@@ -1064,9 +1064,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.last_x = self.pos().x()
         self.is_moving = False
 
-        #f_name_arr = a_audio_item.file.split("/")
-        #f_name = f_name_arr[len(f_name_arr) - 1]
-        f_name = str(a_audio_item.uid)
+        f_name_arr = this_pydaw_project.get_wav_name_by_uid(a_audio_item.uid).split("/")
+        f_name = f_name_arr[-1]
 
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
@@ -1407,7 +1406,7 @@ class audio_items_viewer_widget():
                     QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
                     break
                 else:
-                    f_uid = this_pydaw_project.get_wav_uid(f_file_name_str)
+                    f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
                     f_item = pydaw_audio_item(f_uid)
                     f_items.add_item(f_index, f_item)
                     this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(f_index, f_item)
