@@ -255,6 +255,42 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
     return f_result;
 }
 
+/* Return the next string from the array until a newline, ignoring any delimiting '|' characters */
+char * c_iterate_2d_char_array_to_next_line(t_2d_char_array* a_array)
+{
+    char * f_result = (char*)malloc(sizeof(char) * LMS_SMALL_STRING);
+    int f_i = 0;    
+        
+    while(1)
+    {        
+        //char a_test = a_array->array[(a_array->current_index)];
+        if(a_array->array[(a_array->current_index)] == LMS_TERMINATING_CHAR)
+        {
+            f_result[f_i] = '\0';
+            a_array->eof = 1;
+            break;
+        }
+        else if(a_array->array[(a_array->current_index)] == '\n')
+        {
+            f_result[f_i] = '\0';
+            a_array->current_index = (a_array->current_index) + 1;
+            a_array->current_row = (a_array->current_row) + 1;
+            a_array->current_column = 0;
+            break;
+        }
+        else
+        {
+            f_result[f_i] = a_array->array[(a_array->current_index)];            
+        }
+        
+        a_array->current_index = (a_array->current_index) + 1;
+        f_i++;
+    }
+    
+    return f_result;
+}
+
+
 typedef struct st_dir_list
 {
     char ** dir_list;

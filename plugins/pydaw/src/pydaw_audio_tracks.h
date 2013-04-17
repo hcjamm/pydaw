@@ -36,15 +36,187 @@ typedef struct
     float ratio_orig;
     int channels;
     int length;
-    float sample_rate;
-    
+    float sample_rate;    
 }t_wav_pool_item;
 
-typedef struct
+t_wav_pool_item * g_wav_pool_item_get(int a_uid, const char *a_path, float a_sr)
+{   
+    t_wav_pool_item *f_result;
+    
+    if(posix_memalign((void**)&f_result, 16, (sizeof(t_wav_pool_item))) != 0)
+    {
+        return 0;
+    }
+    
+    f_result->uid = a_uid;
+                
+    SF_INFO info;
+    SNDFILE *file;
+    size_t samples = 0;
+    float *tmpFrames, *tmpSamples[2], *tmpOld[2];
+        
+    tmpOld[0] = 0;
+    tmpOld[1] = 0;
+    
+    info.format = 0;
+    file = sf_open(a_path, SFM_READ, &info);
+
+    if (!file) {
+
+	const char *filename = strrchr(a_path, '/');
+	if (filename) ++filename;
+	else filename = a_path;
+        
+	if (!file) {
+            printf("error: unable to load sample file '%s'", a_path);
+	    return;
+	}
+    }
+        
+    samples = info.frames;
+
+    tmpFrames = (float *)malloc(info.frames * info.channels * sizeof(float));
+    sf_readf_float(file, tmpFrames, info.frames);
+    sf_close(file);
+
+    if ((int)(info.samplerate) != (int)(a_sr)) 
+    {	
+	double ratio = (double)(info.samplerate)/(double)(a_sr);
+        f_result->ratio_orig = (float)ratio;
+    }
+    else
+    {
+        f_result->ratio_orig = 1.0f;
+    }
+           
+    int f_adjusted_channel_count = 1;
+    if(info.channels >= 2)    
+    {
+        f_adjusted_channel_count = 2;
+    }
+
+    int f_actual_array_size = (samples + PYDAW_AUDIO_ITEM_PADDING);
+
+    if(posix_memalign((void**)(&(tmpSamples[0])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
+    {
+        printf("Call to posix_memalign failed for tmpSamples[0]\n");
+        return;
+    }
+    if(f_adjusted_channel_count > 1)
+    {
+        if(posix_memalign((void**)(&(tmpSamples[1])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
+        {
+            printf("Call to posix_memalign failed for tmpSamples[1]\n");
+            return;
+        }
+    }
+    
+    int f_i, j;
+            
+    //For performing a 5ms fadeout of the sample, for preventing clicks
+    float f_fade_out_dec = (1.0f/(float)(info.samplerate))/(0.005);
+    int f_fade_out_start = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2) - ((int)(0.005f * ((float)(info.samplerate))));
+    float f_fade_out_envelope = 1.0f;
+    float f_temp_sample = 0.0f;
+        
+    for(f_i = 0; f_i < f_actual_array_size; f_i++)
+    {   
+        if((f_i > PYDAW_AUDIO_ITEM_PADDING_DIV2) && (f_i < (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2))) // + Sampler_Sample_Padding)))
+        {
+            if(f_i >= f_fade_out_start)
+            {
+                if(f_fade_out_envelope <= 0.0f)
+                {
+                    f_fade_out_dec = 0.0f;
+                }
+                
+                f_fade_out_envelope -= f_fade_out_dec;
+            }
+            
+	    for (j = 0; j < f_adjusted_channel_count; ++j) 
+            {
+                f_temp_sample = (tmpFrames[(f_i - PYDAW_AUDIO_ITEM_PADDING_DIV2) * info.channels + j]);
+
+                if(f_i >= f_fade_out_start)
+                {
+                    tmpSamples[j][f_i] = f_temp_sample * f_fade_out_envelope;
+                }
+                else
+                {
+                    tmpSamples[j][f_i] = f_temp_sample;
+                }
+            }
+        }
+        else
+        {
+            tmpSamples[0][f_i] = 0.0f;
+            if(f_adjusted_channel_count > 1)
+            {
+                tmpSamples[1][f_i] = 0.0f;
+            }
+        }            
+    }
+        
+    free(tmpFrames);
+    
+    if(f_result->samples[0])
+    {
+        tmpOld[0] = f_result->samples[0];
+    }
+    
+    if(f_result->samples[1])
+    {
+        tmpOld[1] = f_result->samples[1];
+    }
+    
+    f_result->samples[0] = tmpSamples[0];
+    
+    if(f_adjusted_channel_count > 1)
+    {
+        f_result->samples[1] = tmpSamples[1];
+    }
+    else
+    {
+        f_result->samples[1] = 0;
+    }
+    
+    f_result->length = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2 - 20);  //-20 to ensure we don't read past the end of the array
+    
+    f_result->sample_rate = info.samplerate;
+    
+    f_result->channels = f_adjusted_channel_count;
+    
+    sprintf(f_result->path, "%s", a_path);
+        
+    if (tmpOld[0]) 
+    {
+        free(tmpOld[0]);
+    }
+    
+    if (tmpOld[1]) 
+    {
+        free(tmpOld[1]);
+    }    
+    
+    return f_result;
+}
+
+void v_wav_pool_item_free(t_wav_pool_item *a_wav_pool_item)
 {
-    int count;
-    t_wav_pool_item * items[PYDAW_MAX_WAV_POOL_ITEM_COUNT];
-}t_wav_pool;
+    a_wav_pool_item->path[0] = '\0';
+            
+    float *tmpOld[2];    
+
+    tmpOld[0] = a_wav_pool_item->samples[0];
+    tmpOld[1] = a_wav_pool_item->samples[1];
+    a_wav_pool_item->samples[0] = 0;
+    a_wav_pool_item->samples[1] = 0;
+    a_wav_pool_item->length = 0;
+
+    if (tmpOld[0]) free(tmpOld[0]);
+    if (tmpOld[1]) free(tmpOld[1]);    
+    free(a_wav_pool_item);
+}
 
 typedef struct 
 {
@@ -84,6 +256,69 @@ typedef struct
     t_pit_pitch_core * pitch_core_ptr;
     t_pit_ratio * pitch_ratio_ptr;
 } t_pydaw_audio_item __attribute__((aligned(16)));
+
+typedef struct
+{
+    float sample_rate;
+    int count;
+    t_wav_pool_item * items[PYDAW_MAX_WAV_POOL_ITEM_COUNT];
+}t_wav_pool;
+
+t_wav_pool * g_wav_pool_get(float a_sr)
+{
+    t_wav_pool * f_result = (t_wav_pool*)malloc(sizeof(t_wav_pool));
+    
+    f_result->sample_rate = a_sr;
+    f_result->count = 0;
+    
+    int f_i = 0;
+    while(f_i < PYDAW_MAX_WAV_POOL_ITEM_COUNT)
+    {
+        f_result->items[f_i] = 0;
+        f_i++;
+    }    
+    return f_result;
+}
+
+void v_wav_pool_add_item(t_wav_pool* a_wav_pool, int a_uid, char * a_file_path)
+{
+    t_wav_pool_item * f_result = g_wav_pool_item_get(a_uid, a_file_path, a_wav_pool->sample_rate);
+    a_wav_pool->items[a_wav_pool->count] = f_result;
+    a_wav_pool->count++;
+}
+
+void v_wav_pool_add_items(t_wav_pool* a_wav_pool, char * a_file_path)
+{
+    t_2d_char_array * f_arr = g_get_2d_array_from_file(a_file_path, LMS_LARGE_STRING);
+    while(1)
+    {
+        char * f_uid_str = c_iterate_2d_char_array(f_arr);
+        if(f_arr->eof)
+        {
+            free(f_uid_str);
+            break;
+        }
+        int f_uid = atoi(f_uid_str);
+        free(f_uid_str);
+        char * f_file_path = c_iterate_2d_char_array_to_next_line(f_arr);
+        v_wav_pool_add_item(a_wav_pool, f_uid, f_file_path);
+        free(f_file_path);
+    }    
+}
+
+t_wav_pool_item * g_wav_pool_get_item_by_uid(t_wav_pool* a_wav_pool, int a_uid)
+{
+    int f_i = 0;
+    while(f_i < a_wav_pool->count)
+    {
+        if(a_wav_pool->items[f_i]->uid == a_uid)
+        {
+            return a_wav_pool->items[f_i];
+        }        
+        f_i++;
+    }
+    return NULL;
+}
 
 typedef struct 
 {
@@ -314,161 +549,6 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     return f_result;
 }
 
-void v_wav_pool_item_load(t_wav_pool_item *a_wav_pool_item, const char *a_path, float a_sr)
-{   
-    /*Add that index to the list of loaded samples to iterate though when playing, if not already added*/
-            
-    SF_INFO info;
-    SNDFILE *file;
-    size_t samples = 0;
-    float *tmpFrames, *tmpSamples[2], *tmpOld[2];
-        
-    tmpOld[0] = 0;
-    tmpOld[1] = 0;
-    
-    info.format = 0;
-    file = sf_open(a_path, SFM_READ, &info);
-
-    if (!file) {
-
-	const char *filename = strrchr(a_path, '/');
-	if (filename) ++filename;
-	else filename = a_path;
-        
-	if (!file) {
-            printf("error: unable to load sample file '%s'", a_path);
-	    return;
-	}
-    }
-        
-    samples = info.frames;
-
-    tmpFrames = (float *)malloc(info.frames * info.channels * sizeof(float));
-    sf_readf_float(file, tmpFrames, info.frames);
-    sf_close(file);
-
-    if ((int)(info.samplerate) != (int)(a_sr)) 
-    {	
-	double ratio = (double)(info.samplerate)/(double)(a_sr);
-        a_wav_pool_item->ratio_orig = (float)ratio;
-    }
-    else
-    {
-        a_wav_pool_item->ratio_orig = 1.0f;
-    }
-           
-    int f_adjusted_channel_count = 1;
-    if(info.channels >= 2)    
-    {
-        f_adjusted_channel_count = 2;
-    }
-
-    int f_actual_array_size = (samples + PYDAW_AUDIO_ITEM_PADDING);
-
-    if(posix_memalign((void**)(&(tmpSamples[0])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
-    {
-        printf("Call to posix_memalign failed for tmpSamples[0]\n");
-        return;
-    }
-    if(f_adjusted_channel_count > 1)
-    {
-        if(posix_memalign((void**)(&(tmpSamples[1])), 16, ((f_actual_array_size) * sizeof(float))) != 0)
-        {
-            printf("Call to posix_memalign failed for tmpSamples[1]\n");
-            return;
-        }
-    }
-    
-    int f_i, j;
-            
-    //For performing a 5ms fadeout of the sample, for preventing clicks
-    float f_fade_out_dec = (1.0f/(float)(info.samplerate))/(0.005);
-    int f_fade_out_start = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2) - ((int)(0.005f * ((float)(info.samplerate))));
-    float f_fade_out_envelope = 1.0f;
-    float f_temp_sample = 0.0f;
-        
-    for(f_i = 0; f_i < f_actual_array_size; f_i++)
-    {   
-        if((f_i > PYDAW_AUDIO_ITEM_PADDING_DIV2) && (f_i < (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2))) // + Sampler_Sample_Padding)))
-        {
-            if(f_i >= f_fade_out_start)
-            {
-                if(f_fade_out_envelope <= 0.0f)
-                {
-                    f_fade_out_dec = 0.0f;
-                }
-                
-                f_fade_out_envelope -= f_fade_out_dec;
-            }
-            
-	    for (j = 0; j < f_adjusted_channel_count; ++j) 
-            {
-                f_temp_sample = (tmpFrames[(f_i - PYDAW_AUDIO_ITEM_PADDING_DIV2) * info.channels + j]);
-
-                if(f_i >= f_fade_out_start)
-                {
-                    tmpSamples[j][f_i] = f_temp_sample * f_fade_out_envelope;
-                }
-                else
-                {
-                    tmpSamples[j][f_i] = f_temp_sample;
-                }
-            }
-        }
-        else
-        {
-            tmpSamples[0][f_i] = 0.0f;
-            if(f_adjusted_channel_count > 1)
-            {
-                tmpSamples[1][f_i] = 0.0f;
-            }
-        }            
-    }
-        
-    free(tmpFrames);
-    
-    //pthread_mutex_lock(&plugin_data->mutex);
-    
-    if(a_wav_pool_item->samples[0])
-    {
-        tmpOld[0] = a_wav_pool_item->samples[0];
-    }
-    
-    if(a_wav_pool_item->samples[1])
-    {
-        tmpOld[1] = a_wav_pool_item->samples[1];
-    }
-    
-    a_wav_pool_item->samples[0] = tmpSamples[0];
-    
-    if(f_adjusted_channel_count > 1)
-    {
-        a_wav_pool_item->samples[1] = tmpSamples[1];
-    }
-    else
-    {
-        a_wav_pool_item->samples[1] = 0;
-    }
-    
-    a_wav_pool_item->length = (samples + PYDAW_AUDIO_ITEM_PADDING_DIV2 - 20);  //-20 to ensure we don't read past the end of the array
-    
-    a_wav_pool_item->sample_rate = info.samplerate;
-    
-    a_wav_pool_item->channels = f_adjusted_channel_count;
-    
-    sprintf(a_wav_pool_item->path, "%s", a_path);
-        
-    if (tmpOld[0]) 
-    {
-        free(tmpOld[0]);
-    }
-    
-    if (tmpOld[1]) 
-    {
-        free(tmpOld[1]);
-    }    
-}
-
 void v_pydaw_audio_items_free(t_pydaw_audio_items *a_audio_items)
 {
     int f_i = 0;
@@ -480,23 +560,6 @@ void v_pydaw_audio_items_free(t_pydaw_audio_items *a_audio_items)
     }
     
     free(a_audio_items);
-}
-
-void v_wav_pool_item_free(t_wav_pool_item *a_wav_pool_item)
-{
-    a_wav_pool_item->path[0] = '\0';
-            
-    float *tmpOld[2];    
-
-    tmpOld[0] = a_wav_pool_item->samples[0];
-    tmpOld[1] = a_wav_pool_item->samples[1];
-    a_wav_pool_item->samples[0] = 0;
-    a_wav_pool_item->samples[1] = 0;
-    a_wav_pool_item->length = 0;
-
-    if (tmpOld[0]) free(tmpOld[0]);
-    if (tmpOld[1]) free(tmpOld[1]);    
-    free(a_wav_pool_item);
 }
 
 /*Load/Reload samples from file...*/
