@@ -4589,11 +4589,13 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH)) //Create a .pygraph file for each .wav...
     {
-        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        //t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 2, LMS_TINY_STRING);
+        t_key_value_pair * f_kvp = g_kvp_get(a_value);
         char f_file_name_tmp[256];
-        sprintf(f_file_name_tmp, "%s%s.pygraph", a_pydaw_data->samplegraph_folder, f_val_arr->array[1]);        
-        v_pydaw_generate_sample_graph(f_val_arr->array[0], f_file_name_tmp);
-        g_free_1d_char_array(f_val_arr);
+        sprintf(f_file_name_tmp, "%s%s", a_pydaw_data->samplegraph_folder, f_kvp->key);
+        v_pydaw_generate_sample_graph(f_kvp->value, f_file_name_tmp);
+        //g_free_1d_char_array(f_val_arr);
+        free(f_kvp);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_LOOP)) //Set loop mode
     {

@@ -1064,8 +1064,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.last_x = self.pos().x()
         self.is_moving = False
 
-        f_name_arr = a_audio_item.file.split("/")
-        f_name = f_name_arr[len(f_name_arr) - 1]
+        #f_name_arr = a_audio_item.file.split("/")
+        #f_name = f_name_arr[len(f_name_arr) - 1]
+        f_name = str(a_audio_item.uid)
+
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
@@ -1074,8 +1076,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.setToolTip("Double click to open editor dialog, or click and drag to move")
 
         self.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
-        f_graphs = this_pydaw_project.get_samplegraphs()
-        f_graph = f_graphs.get_sample_graph(a_audio_item.file)
+        f_graph = this_pydaw_project.get_sample_graph_by_uid(a_audio_item.uid)
         self.painter_paths = f_graph.create_sample_graph(True)
 
         f_y_pos = 0.0
@@ -1391,32 +1392,31 @@ class audio_items_viewer_widget():
         if global_transport_is_playing:
             QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
             return
-        try:
-            f_file_names = list(QtGui.QFileDialog.getOpenFileNames(self.widget, "Select .wav file(s) to open(CTRL+click to select many)...", self.last_open_dir, filter=".wav files(*.wav)"))
-            f_graphs = this_pydaw_project.get_samplegraphs()
-            f_items = this_pydaw_project.get_audio_items()
-            test = pydaw_audio_items()
-            test.get_next_index
-            if len(f_file_names) == 0:
-                return
-            for f_file_name in f_file_names:
-                f_file_name_str = str(f_file_name)
-                if not f_file_name_str is None and not f_file_name_str == "":
-                    f_index = f_items.get_next_index()
-                    if f_index == -1:
-                        QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
-                        break
-                    else:
-                        global_sample_graph_create_and_wait(f_file_name_str, f_graphs)
-                        f_item = pydaw_audio_item(f_file_name_str)
-                        f_items.add_item(f_index, f_item)
-                        this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(f_index, f_item)
-            this_pydaw_project.save_audio_items(f_items)
-            this_audio_editor.open_items()
-            this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(f_index)
-            self.last_open_dir = os.path.dirname(f_file_name_str)
-        except Exception as ex:
-            pydaw_print_generic_exception(ex)
+        #try:
+        f_file_names = list(QtGui.QFileDialog.getOpenFileNames(self.widget, "Select .wav file(s) to open(CTRL+click to select many)...", self.last_open_dir, filter=".wav files(*.wav)"))
+        f_items = this_pydaw_project.get_audio_items()
+        test = pydaw_audio_items()
+        test.get_next_index
+        if len(f_file_names) == 0:
+            return
+        for f_file_name in f_file_names:
+            f_file_name_str = str(f_file_name)
+            if not f_file_name_str is None and not f_file_name_str == "":
+                f_index = f_items.get_next_index()
+                if f_index == -1:
+                    QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
+                    break
+                else:
+                    f_uid = this_pydaw_project.get_wav_uid(f_file_name_str)
+                    f_item = pydaw_audio_item(f_uid)
+                    f_items.add_item(f_index, f_item)
+                    this_pydaw_project.this_dssi_gui.pydaw_load_single_audio_item(f_index, f_item)
+        this_pydaw_project.save_audio_items(f_items)
+        this_audio_editor.open_items()
+        this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(f_index)
+        self.last_open_dir = os.path.dirname(f_file_name_str)
+        #except Exception as ex:
+        #    pydaw_print_generic_exception(ex)
 
     def set_v_zoom(self, a_val=None):
         this_audio_items_viewer.set_v_zoom(1.0 / self.v_zoom)
@@ -1442,25 +1442,6 @@ class audio_items_viewer_widget():
             for i in range(self.last_scale_value, self.h_zoom_slider.value()):
                 this_audio_items_viewer.set_zoom(1.03)
         self.last_scale_value = self.h_zoom_slider.value()
-
-def global_sample_graph_create_and_wait(a_file_name, a_samplegraphs):
-    f_uid = pydaw_gen_uid()
-    this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(a_file_name, f_uid)
-    a_samplegraphs.add_ref(a_file_name, f_uid)
-    this_pydaw_project.save_samplegraphs(a_samplegraphs)
-    f_file_name = this_pydaw_project.samplegraph_folder + "/" + str(f_uid) + ".pygraph"
-    for i in range(100):
-        if os.path.isfile(f_file_name):
-            sleep(0.1)
-            print("Returning " + a_file_name)
-            f_result = a_samplegraphs.get_sample_graph(a_file_name)
-            if f_result is None:
-                continue
-            else:
-                return f_result
-        else:
-            sleep(0.1)
-    return None
 
 global_audio_item_marker_height = 66.0
 
@@ -1574,7 +1555,7 @@ class audio_item_editor_widget:
             self.items_list.append("")
         f_items = this_pydaw_project.get_audio_items()
         for k, v in f_items.items.iteritems():
-            self.items_list[k] = v.file
+            self.items_list[k] = str(v.uid)
         self.suppress_index_change = True
         f_last_index = self.selected_index_combobox.currentIndex()
         self.selected_index_combobox.clear()
@@ -1745,7 +1726,7 @@ class audio_item_editor_widget:
             self.name.setText("")
             self.sample_view.clear_drawn_items()
         else:
-            self.name.setText(a_item.file)
+            self.name.setText(str(a_item.uid))
             self.start_region.setValue(a_item.start_region)
             self.start_bar.setValue(a_item.start_bar)
             self.start_beat.setValue(a_item.start_beat)
@@ -1762,16 +1743,16 @@ class audio_item_editor_widget:
             self.output_combobox.setCurrentIndex(a_item.output_track)
             self.sample_vol_slider.setValue(a_item.vol)
             self.sample_view.clear_drawn_items()
-            f_graphs = this_pydaw_project.get_samplegraphs()
-            f_path_list = f_graphs.get_sample_graph(a_item.file)
+            #f_graphs = this_pydaw_project.get_samplegraphs()
+            f_path_list = this_pydaw_project.get_sample_graph_by_uid(a_item.uid)
             if f_path_list is not None:
                 self.sample_view.draw_item(f_path_list.create_sample_graph(True), a_item.sample_start, a_item.sample_end)
             else:
-                f_path_list = global_sample_graph_create_and_wait(a_item.file, f_graphs)
+                f_path_list = this_pydaw_project.get_sample_graph_by_uid(a_item.uid)
                 if f_path_list is not None:
                     self.sample_view.draw_item(f_path_list.create_sample_graph(True), a_item.sample_start, a_item.sample_end)
                 else:
-                    QtGui.QMessageBox.warning(self, "Error", "Could not generate sample graph")
+                    QtGui.QMessageBox.warning(self.widget, "Error", "Could not generate sample graph")
 
     def ok_handler(self):
         if global_transport_is_playing:
@@ -1811,8 +1792,8 @@ class audio_item_editor_widget:
             if not self.file_name is None and not self.file_name == "":
                 self.name.setText(self.file_name)
                 self.last_open_dir = os.path.dirname(self.file_name)
-                f_graphs = this_pydaw_project.get_samplegraphs()
-                f_graph = global_sample_graph_create_and_wait(self.file_name, f_graphs)
+                #f_graphs = this_pydaw_project.get_samplegraphs()
+                f_graph = this_pydaw_project.get_sample_graph_by_name(self.file_name) #, f_graphs)
                 if f_graph is not None:
                     self.sample_view.draw_item(f_graph.create_sample_graph(True), 0.0, 1000.0)
                     self.ok_handler()
@@ -1861,10 +1842,10 @@ class audio_list_editor:
         if a_update_viewer:
             this_audio_items_viewer.clear_drawn_items()
 
-        f_samplegraphs = this_pydaw_project.get_samplegraphs()
+        #f_samplegraphs = this_pydaw_project.get_samplegraphs()
 
         for k, v in self.audio_items.items.iteritems():
-            self.audio_items_table_widget.setItem(k, 0, QtGui.QTableWidgetItem(str(v.file)))
+            self.audio_items_table_widget.setItem(k, 0, QtGui.QTableWidgetItem(str(v.uid)))
             self.audio_items_table_widget.setItem(k, 1, QtGui.QTableWidgetItem(str(float(v.sample_start) * 0.1)))
             self.audio_items_table_widget.setItem(k, 2, QtGui.QTableWidgetItem(str(float(v.sample_end) * 0.1)))
             self.audio_items_table_widget.setItem(k, 3, QtGui.QTableWidgetItem(str(v.start_region)))
@@ -1880,11 +1861,9 @@ class audio_list_editor:
             self.audio_items_table_widget.setItem(k, 14, QtGui.QTableWidgetItem(str(v.vol)))
             self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.timestretch_amt)))
             if a_update_viewer:
-                f_graph = f_samplegraphs.get_sample_graph(v.file)
+                f_graph = this_pydaw_project.get_sample_graph_by_uid(v.uid)
                 if f_graph is None:
-                    f_graph = global_sample_graph_create_and_wait(v.file, f_samplegraphs)
-                if f_graph is None:
-                    print("Error drawing item for " + v.file + ", could not get sample graph object")
+                    print("Error drawing item for " + str(v.uid) + ", could not get sample graph object")
                     continue
                 this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
         self.audio_items_table_widget.resizeColumnsToContents()
@@ -1925,7 +1904,7 @@ class audio_list_editor:
         self.items_groupbox.setLayout(self.items_vlayout)
         self.audio_items_table_widget = QtGui.QTableWidget()
         self.audio_items_table_widget.setColumnCount(15)
-        self.audio_items_table_widget.setHorizontalHeaderLabels(["Path", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", \
+        self.audio_items_table_widget.setHorizontalHeaderLabels(["FileUID", "Sample Start", "Sample End", "Start Region", "Start Bar", "Start Beat", \
         "End Mode", "End Region", "End Bar", "End Beat", "Timestretch Mode", "Pitch", "Timestretch", "Audio Track", "Volume"])
         self.audio_items_table_widget.setRowCount(32)
         self.audio_items_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
