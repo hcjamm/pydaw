@@ -845,7 +845,7 @@ class pydaw_name_uid_dict:
         f_result = pydaw_name_uid_dict()
         f_lines = a_str.split("\n")
         for f_line in f_lines:
-            if f_line != "":
+            if f_line != pydaw_terminating_char:
                 f_arr = f_line.split("|", 1)
                 f_uid = int(f_arr[0])
                 f_name = f_arr[1]
@@ -856,7 +856,7 @@ class pydaw_name_uid_dict:
         f_result = ""
         for k, v in self.name_lookup.iteritems():
             f_result += str(k) + "|" + str(v) + "\n"
-        return f_result
+        return f_result + pydaw_terminating_char
 
 class pydaw_region:
     def add_item_ref_by_name(self, a_track_num, a_bar_num, a_item_name, a_uid_dict):
