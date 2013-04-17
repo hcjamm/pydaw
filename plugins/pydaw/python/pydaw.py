@@ -1019,10 +1019,10 @@ def pydaw_seconds_to_bars(a_seconds):
     '''converts seconds to regions'''
     return a_seconds * global_bars_per_second
 
-global_audio_px_per_bar = 12.5
+global_audio_px_per_bar = 100.0
 global_audio_ruler_height = 20.0
 
-global_audio_item_height = 65.0
+global_audio_item_height = 75.0
 
 global_audio_item_handle_size = 12.5
 global_audio_item_handle_brush = QtGui.QLinearGradient(0.0, 0.0, 15.0, 15.0)
@@ -1243,7 +1243,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
 
-
     def keyPressEvent(self, a_event):
         if a_event.key() == QtCore.Qt.Key_Delete:
             f_items = this_pydaw_project.get_audio_items()
@@ -1310,7 +1309,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scene.addItem(f_ruler)
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
-        f_total_height = (32.0 * (65.0)) + global_audio_ruler_height
+        f_total_height = (32.0 * (global_audio_item_height)) + global_audio_ruler_height
         i3 = 0.0
         for i in range(f_total_regions):
             f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
@@ -1324,7 +1323,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 self.scene.addLine(i3, global_audio_ruler_height, i3, f_total_height, f_v_pen)
                 i3 += global_audio_px_per_bar
         for i2 in range(32):
-            f_y = ((65.0) * (i2 + 1)) + global_audio_ruler_height
+            f_y = ((global_audio_item_height) * (i2 + 1)) + global_audio_ruler_height
             self.scene.addLine(0, f_y, f_size, f_y)
         self.set_playback_pos()
 
