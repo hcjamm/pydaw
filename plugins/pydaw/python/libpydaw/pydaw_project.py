@@ -11,7 +11,7 @@ from time import sleep
 from dssi_gui import dssi_gui
 from math import log
 
-from sample_graph import pydaw_sample_graphs
+from PyQt4 import QtGui, QtCore
 import pydaw_history
 
 pydaw_bus_count = 5
@@ -32,6 +32,7 @@ pydaw_folder_samples = "samples"
 
 pydaw_file_pyregions = "default.pyregions"
 pydaw_file_pyitems = "default.pyitems"
+pydaw_file_pywavs = "default.pyregions"
 pydaw_file_pysong = "default.pysong"
 pydaw_file_pytransport = "default.pytransport"
 pydaw_file_pymididevice = "default.pymididevice"
@@ -40,7 +41,6 @@ pydaw_file_pyaudio = "default.pyaudio"
 pydaw_file_pyaudioitem = "default.pyaudioitem"
 pydaw_file_pybus = "default.pybus"
 pydaw_file_pyinput = "default.pyinput"
-pydaw_file_pygraphs = "default.pygraphs"
 
 pydaw_min_note_length = 1.0/128.0  #Anything smaller gets deleted when doing a transform
 
@@ -267,6 +267,7 @@ class pydaw_project:
         #files
         self.pyregions_file = self.project_folder + "/default.pyregions"
         self.pyitems_file = self.project_folder + "/default.pyitems"
+        self.pywavs_file = self.project_folder + "/default.pywavs"
 
     def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
@@ -295,6 +296,7 @@ class pydaw_project:
 
         self.create_file("", os.path.basename(a_project_file), "This file does is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
         self.create_file("", pydaw_file_pyregions, "")
+        self.create_file("", pydaw_file_pywavs, "")
         self.create_file("", pydaw_file_pyitems, "")
         self.create_file("", pydaw_file_pysong, pydaw_terminating_char)
         self.create_file("", pydaw_file_pytransport, str(pydaw_transport()))
@@ -316,7 +318,6 @@ class pydaw_project:
         for i in range(pydaw_audio_input_count):
             f_input_instance.add_track(i, pydaw_audio_input_track(0,0,0))
         self.create_file("", pydaw_file_pyinput, str(f_input_instance))
-        self.create_file("", pydaw_file_pygraphs, pydaw_terminating_char)
 
         self.commit("Created project")
         if a_notify_osc:
@@ -333,6 +334,18 @@ class pydaw_project:
 
     def save_regions_dict(self, a_uid_dict):
         self.save_file("", pydaw_file_pyregions, str(a_uid_dict))
+
+    def get_wavs_dict(self):
+        try:
+            f_file = open(self.pywavs_file, "r")
+        except:
+            return pydaw_name_uid_dict()
+        f_str = f_file.read()
+        f_file.close()
+        return pydaw_name_uid_dict.from_str(f_str)
+
+    def save_wavs_dict(self, a_uid_dict):
+        self.save_file("", pydaw_file_pywavs, str(a_uid_dict))
 
     def get_items_dict(self):
         try:
@@ -544,17 +557,49 @@ class pydaw_project:
     def get_audio_items(self):
         return pydaw_audio_items.from_str(self.get_audio_items_string())
 
-    def get_samplegraphs_string(self):
-        try:
-            f_file = open(self.project_folder + "/default.pygraphs", "r")
-        except:
-            return pydaw_terminating_char
-        f_result = f_file.read()
-        f_file.close()
-        return f_result
+    def get_sample_graph_by_name(self, a_path, a_uid_dict=None):
+        f_uid = self.get_wav_uid(a_path)
+        return self.get_sample_graph_by_uid(f_uid)
 
-    def get_samplegraphs(self):
-        return pydaw_sample_graphs.from_str(self.get_samplegraphs_string(), self.samplegraph_folder)
+    def get_sample_graph_by_uid(self, a_uid):
+        f_pygraph_file = self.samplegraph_folder + "/" + str(a_uid)
+        f_result = pydaw_sample_graph(f_pygraph_file)
+        if not f_result.is_valid() or not f_result.check_mtime():
+            print("Not valid, or else mtime is newer than graph time, deleting sample graph...")
+            os.system('rm "' + f_pygraph_file + '"')
+            self.create_sample_graph(self.get_wav_path_by_uid(a_uid), a_uid)
+            return pydaw_sample_graph(f_pygraph_file)
+        else:
+            return f_result
+
+    def get_wav_uid(self, a_path, a_uid_dict=None):
+        """ Return the UID from the wav pool, or add to the pool if it does not exist """
+        if a_uid_dict is None:
+            f_uid_dict = self.get_wavs_dict()
+        else:
+            f_uid_dict = a_uid_dict
+        if f_uid_dict.name_exists(a_path):
+            return f_uid_dict.get_uid_by_name(a_path)
+        else:
+            f_uid = f_uid_dict.add_new_item(a_path)
+            self.create_sample_graph(a_path, f_uid)
+            return f_uid
+
+    def get_wav_path_by_uid(self, a_uid):
+        f_uid_dict = self.get_wavs_dict()
+        return f_uid_dict.get_name_by_uid(a_uid)
+
+    def create_sample_graph(self, a_path, a_uid):
+        f_uid = int(a_uid)
+        self.this_dssi_gui.pydaw_generate_sample_graph(a_path, f_uid)
+        f_pygraph_file = self.samplegraph_folder + "/" + str(f_uid)
+        for i in range(100):
+            if os.path.isfile(f_pygraph_file):
+                sleep(0.1)
+                return
+            else:
+                sleep(0.1)
+        raise Exception
 
     def get_transport(self):
         try:
@@ -659,10 +704,6 @@ class pydaw_project:
         if not self.suppress_updates:
             self.save_file("", pydaw_file_pyaudioitem, str(a_tracks))
             #Is there a need for a configure message here?
-
-    def save_samplegraphs(self, a_tracks):
-        if not self.suppress_updates:
-            self.save_file("", pydaw_file_pygraphs, str(a_tracks))
 
     def item_exists(self, a_item_name, a_name_dict=None):
         if a_name_dict is None:
@@ -1654,10 +1695,10 @@ class pydaw_audio_items:
         return f_result
 
 class pydaw_audio_item:
-    def __init__(self, a_file, a_sample_start=0.0, a_sample_end=1000.0, a_start_region=0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
+    def __init__(self, a_uid, a_sample_start=0.0, a_sample_end=1000.0, a_start_region=0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
     a_end_region=0, a_end_bar=0, a_end_beat=0, a_timestretch_mode=0, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0, \
     a_fade_in=0.0, a_fade_out=1000.0, a_lane_num=0):
-        self.file = str(a_file)
+        self.uid = int(a_uid)
         self.sample_start = float(a_sample_start)
         self.sample_end = float(a_sample_end)
         self.start_region = int(a_start_region)
@@ -1677,7 +1718,7 @@ class pydaw_audio_item:
         self.lane_num = int(a_lane_num)
 
     def __str__(self):
-        return self.file + "|" + str(self.sample_start) + "|" + str(self.sample_end) + "|" + str(self.start_region) \
+        return str(self.uid) + "|" + str(self.sample_start) + "|" + str(self.sample_end) + "|" + str(self.start_region) \
         + "|" + str(self.start_bar) + "|" + str(self.start_beat) + "|" + str(self.end_mode) + "|" + str(self.end_region) \
         + "|" + str(self.end_bar) + "|" + str(self.end_beat) + "|" + str(self.time_stretch_mode) \
         + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(self.timestretch_amt) \
@@ -1785,3 +1826,112 @@ class pydaw_cc_map:
             f_line_arr = f_line.split("|")
             f_result.map[int(f_line_arr[0])] = pydaw_cc_map_item(int_to_bool(f_line_arr[1]), f_line_arr[2], f_line_arr[3], f_line_arr[4], f_line_arr[5])
         return f_result
+
+#From old sample_graph..py
+pydaw_audio_item_scene_height = 1200.0
+pydaw_audio_item_scene_width = 6000.0
+pydaw_audio_item_scene_rect = QtCore.QRectF(0.0, 0.0, pydaw_audio_item_scene_width, pydaw_audio_item_scene_height)
+
+pydaw_audio_item_scene_gradient = QtGui.QLinearGradient(0, 0, 0, 1200)
+pydaw_audio_item_scene_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(60, 60, 60, 120))
+pydaw_audio_item_scene_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(30, 30, 30, 120))
+
+pydaw_audio_item_editor_gradient = QtGui.QLinearGradient(0, 0, 0, 1200)
+pydaw_audio_item_editor_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(190, 192, 123, 120))
+pydaw_audio_item_editor_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(130, 130, 100, 120))
+#end from sample_graph.py
+
+class pydaw_sample_graph:
+    def __init__(self, a_file_name):
+        f_file_name = str(a_file_name)
+        self.file = None
+        self.timestamp = None
+        self.channels = None
+        self.high_peaks = ([],[])
+        self.low_peaks = ([],[])
+        self.count = None
+        self.length_in_seconds = None
+
+        if not os.path.isfile(f_file_name):
+            return
+
+        try:
+            f_file = open(f_file_name, "r")
+        except:
+            return
+
+        f_line_arr = f_file.readlines()
+        f_file.close()
+        for f_line in f_line_arr:
+            f_line_arr = f_line.split("|")
+            if f_line_arr[0] == "\\":
+                break
+            elif f_line_arr[0] == "meta":
+                if f_line_arr[1] == "filename":
+                    self.file = str(f_line_arr[2]).strip("\n")  #Why does this have a newline on the end???
+                elif f_line_arr[1] == "timestamp":
+                    self.timestamp = int(f_line_arr[2])
+                elif f_line_arr[1] == "channels":
+                    self.channels = int(f_line_arr[2])
+                elif f_line_arr[1] == "count":
+                    self.count = int(f_line_arr[2])
+                elif f_line_arr[1] == "length":
+                    self.length_in_seconds = float(f_line_arr[2])
+            elif f_line_arr[0] == "p":
+                f_p_val = float(f_line_arr[3])
+                if f_p_val > 1.0:
+                    f_p_val = 1.0
+                elif f_p_val < -1.0:
+                    f_p_val = -1.0
+                if f_line_arr[2] == "h":
+                    self.high_peaks[int(f_line_arr[1])].append(f_p_val)
+                elif f_line_arr[2] == "l":
+                    self.low_peaks[int(f_line_arr[1])].append(f_p_val)
+                else:
+                    print("Invalid sample_graph [2] value " + f_line_arr[2] )
+        for f_list in self.low_peaks:
+            f_list.reverse()
+
+    def is_valid(self):
+        f_result = (self.file is not None) and (self.timestamp is not None) \
+        and (self.channels is not None) and (self.count is not None)
+        if not f_result:
+            print("pydaw_sample_graph.is_valid() : " + str(self.file) + " failed the validity check...")
+        return f_result
+
+    def create_sample_graph(self, a_for_scene=False):
+        if a_for_scene:
+            f_width_inc = pydaw_audio_item_scene_width / self.count
+            f_section = pydaw_audio_item_scene_height / float(self.channels)
+        else:
+            f_width_inc = 98.0 / self.count
+            f_section = 100.0 / float(self.channels)
+        f_section_div2 = f_section * 0.5
+
+        f_paths = []
+
+        for f_i in range(self.channels):
+            f_result = QtGui.QPainterPath()
+            f_width_pos = 1.0
+            f_result.moveTo(f_width_pos, (f_section * f_i) + f_section_div2)
+            for f_peak in self.high_peaks[f_i]:
+                f_result.lineTo(f_width_pos, f_section_div2 - (f_peak * f_section_div2) + (f_section * f_i))
+                f_width_pos += f_width_inc
+            for f_peak in self.low_peaks[f_i]:
+                f_result.lineTo(f_width_pos, (f_peak * -1.0 * f_section_div2) + f_section_div2 + (f_section * f_i))
+                f_width_pos -= f_width_inc
+            f_result.closeSubpath()
+            f_paths.append(f_result)
+        return f_paths
+
+    #def get_sample_graph_widget(self):
+    #    f_paths = self.create_sample_graph()
+    #    return pydaw_render_widget(f_paths)
+
+    def check_mtime(self):
+        """ Returns False if the sample graph is older than the file modified time """
+        try:
+            return self.timestamp > os.path.getmtime(self.file)
+        except Exception as f_ex:
+            print("Error getting mtime: " + f_ex.message)
+            return False
