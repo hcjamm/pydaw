@@ -28,7 +28,6 @@ global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
 global_transport_is_playing = False
 global_region_lengths_dict = {}
 global_audio_region_snap_px = {}
-global_audio_bar_px = 12.5
 global_bar_count = 300 * 8
 
 class pydaw_track_type_enum:
@@ -61,7 +60,7 @@ def pydaw_update_region_lengths_dict():
     f_add = 0.0
     global_audio_region_snap_px[0] = 0.0
     for i in range(299):
-        f_value = pydaw_get_region_length(i) * global_audio_bar_px
+        f_value = pydaw_get_region_length(i) * global_audio_px_per_bar
         global_audio_region_snap_px[i + 1] = f_value + f_add
         f_add += f_value
 
@@ -429,7 +428,6 @@ class region_settings:
                     this_region_bus_editor.add_qtablewidgetitem(f_item_name, f_item.track_num, f_item.bar_num, a_is_offset=True)
                 else:
                     this_region_audio_editor.add_qtablewidgetitem(f_item_name, f_item.track_num, f_item.bar_num, a_is_offset=True)
-        print "what the fuck"
         this_audio_editor.open_items()
         this_audio_editor.open_tracks()
 
@@ -1115,18 +1113,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.setBrush(pydaw_track_gradients[a_index % len(pydaw_track_gradients)])
 
     def pos_to_musical_time(self, a_pos):
-        f_pos_region = 0
-        f_pos_x = a_pos
-        for i in range(300):
-            if f_pos_x >= global_audio_region_snap_px[i] and f_pos_x < global_audio_region_snap_px[i + 1]:
-                f_pos_region = i
-                f_region_length = pydaw_get_region_length(i)
-                f_bar_frac = global_audio_region_snap_px[(i + 1)] - global_audio_region_snap_px[i]
-                f_bar_frac = ((f_pos_x - global_audio_region_snap_px[i]) / f_bar_frac) * f_region_length
-                f_pos_bars = int(f_bar_frac)
-                f_pos_beats = (f_bar_frac - f_pos_bars) * 4.0
-                return(f_pos_region, f_pos_bars, f_pos_beats)
-        print("Error:  did not find a region for f_pos_x = " + str(f_pos_x))
+        f_bar_frac = a_pos / global_audio_px_per_bar
+        f_pos_bars = int(f_bar_frac)
+        f_pos_beats = (f_bar_frac - f_pos_bars) * 4.0
+        return(f_pos_bars, f_pos_beats)
 
     def length_handle_mouseClickEvent(self, a_event):
         a_event.setAccepted(True)
@@ -1164,7 +1154,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 if f_item.isSelected():
                     f_x = pydaw_clip_value(a_event.pos().x(), global_audio_item_handle_size, f_item.length_seconds_orig_px)
                     if this_audio_items_viewer.snap_mode != 0:  #Not doing snap by region for now..
-                        f_x = round(f_x / global_audio_bar_px) * global_audio_bar_px
+                        f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
                     f_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
                     f_item.length_handle.setPos(f_x - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         else:
@@ -1200,24 +1190,17 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         if this_audio_items_viewer.snap_mode == 0:
                             pass
                         elif this_audio_items_viewer.snap_mode == 1:
-                            for i in range(300):
-                                if f_pos_x >= global_audio_region_snap_px[i] and f_pos_x < global_audio_region_snap_px[i + 1]:
-                                    f_pos_x = global_audio_region_snap_px[i]
-                                    break
-                        elif this_audio_items_viewer.snap_mode == 2:
-                            f_pos_x = int(f_pos_x/12.5) * 12.5
+                            f_pos_x = int(f_pos_x/global_audio_px_per_bar) * global_audio_px_per_bar
                         f_item.lane_num, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
                         f_audio_item.set_brush(f_item.lane_num)
                         f_audio_item.setPos(f_pos_x, f_pos_y)
                         f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
-                        f_item.start_region = f_start_result[0]
-                        f_item.start_bar = f_start_result[1]
-                        f_item.start_beat = f_start_result[2]
+                        f_item.start_bar = f_start_result[0]
+                        f_item.start_beat = f_start_result[1]
                     if f_item.end_mode == 1:
                         f_end_result = f_audio_item.pos_to_musical_time(f_pos_x + f_audio_item.rect().width())
-                        f_item.end_region = f_end_result[0]
-                        f_item.end_bar = f_end_result[1]
-                        f_item.end_beat = f_end_result[2]
+                        f_item.end_bar = f_end_result[0]
+                        f_item.end_beat = f_end_result[1]
                     f_audio_item.audio_item = f_item
                     if this_audio_item_editor_widget.selected_index_combobox.currentIndex() == f_audio_item.track_num:
                         this_audio_item_editor_widget.open_item(f_item)
@@ -1227,7 +1210,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         this_pydaw_project.save_audio_items(global_current_region.uid, f_audio_items)
         this_pydaw_project.commit("Update audio items")
         this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
-        this_audio_editor.open_items()
+        this_audio_editor.open_items(False)
 
 class audio_items_viewer(QtGui.QGraphicsView):
     def __init__(self):
@@ -1350,7 +1333,7 @@ class audio_items_viewer_widget():
         self.vlayout.addWidget(this_audio_items_viewer)
         self.snap_combobox = QtGui.QComboBox()
         self.snap_combobox.setMinimumWidth(150)
-        self.snap_combobox.addItems(["None", "Region", "Bar"])
+        self.snap_combobox.addItems(["None", "Bar"])
         self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
@@ -1806,7 +1789,6 @@ class audio_list_editor:
         #    self.inputs[key].open_track(f_track)
 
     def open_items(self, a_update_viewer=True):
-        print "shit"
         self.audio_items = this_pydaw_project.get_audio_items(global_current_region.uid)
         self.audio_items_table_widget.clearContents()
 
