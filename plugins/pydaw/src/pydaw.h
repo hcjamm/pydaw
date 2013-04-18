@@ -1887,8 +1887,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
     a_pydaw_data->bus_pool[0]->bus_counter = (a_pydaw_data->bus_pool[0]->bus_count);
     
     if(a_pydaw_data->ml_is_looping)
-    {
-        //printf("Looping audio items at %i, %i\n", a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
+    {        
         v_pydaw_reset_audio_item_read_heads(a_pydaw_data, a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar);
     }
 }
@@ -3405,6 +3404,11 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     stat(f_song_file, &f_song_file_stat);
     
     v_pydaw_init_busses(a_pydaw_data);
+        
+    if(i_pydaw_file_exists(a_pydaw_data->wav_pool_file))
+    {
+        v_wav_pool_add_items(a_pydaw_data->wav_pool, a_pydaw_data->wav_pool_file);
+    }
     
     if(S_ISDIR(f_proj_stat.st_mode) && S_ISDIR(f_item_stat.st_mode) &&
         S_ISDIR(f_reg_stat.st_mode) && S_ISDIR(f_inst_stat.st_mode) &&
@@ -3455,12 +3459,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         printf("No transport file found, defaulting to 140.0 BPM\n");
         v_set_tempo(a_pydaw_data, 140.0f);
     }
-    
-    if(i_pydaw_file_exists(a_pydaw_data->wav_pool_file))
-    {
-        v_wav_pool_add_items(a_pydaw_data->wav_pool, a_pydaw_data->wav_pool_file);
-    }
-       
+           
     v_pydaw_update_audio_inputs(a_pydaw_data);
     
     v_pydaw_set_is_soloed(a_pydaw_data);
