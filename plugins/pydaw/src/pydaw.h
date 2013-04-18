@@ -51,10 +51,7 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_OFFLINE_RENDER "or"
     
 #define PYDAW_CONFIGURE_KEY_SET_TRACK_BUS "bs"
-#define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_ALL "ai"    
-#define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_SINGLE "as"
-#define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_CLEAR_SINGLE "ac"
-#define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_UPDATE_SINGLE "au"
+#define PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_ALL "ai"
 #define PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH "sg"
     
 #define PYDAW_CONFIGURE_KEY_UPDATE_AUDIO_INPUTS "ua"    
@@ -4632,6 +4629,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
             if(a_pydaw_data->pysong->audio_items[f_i] && a_pydaw_data->pysong->audio_items[f_i]->uid == f_uid)
             {
                 f_region_index = f_i;
+                printf("f_region_index = %i\n", f_region_index);
                 f_old = a_pydaw_data->pysong->audio_items[f_region_index];
                 break;
             }
@@ -4640,44 +4638,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         pthread_mutex_lock(&a_pydaw_data->main_mutex);        
         a_pydaw_data->pysong->audio_items[f_region_index] = f_result;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        //v_pydaw_audio_items_free(f_old);
+        //v_pydaw_audio_items_free(f_old); //Method needs to be re-thought...
     }
-    /*
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_SINGLE)) //Load/Reload a single audio item, or update it's settings
-    {
-        t_2d_char_array * f_arr = g_get_2d_array(LMS_SMALL_STRING);
-        sprintf(f_arr->array, "%s", a_value);
-        t_pydaw_audio_item * f_item = g_audio_item_load_single(a_pydaw_data->audio_items->sample_rate, 
-                f_arr, 0, a_pydaw_data->wav_pool);
-        assert(f_item);
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        t_pydaw_audio_item * f_old = a_pydaw_data->audio_items->items[f_item->index];
-        a_pydaw_data->audio_items->items[f_item->index] = f_item;
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        v_pydaw_audio_item_free(f_old);
-    }    
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_CLEAR_SINGLE)) //Clear a single audio item
-    {
-        int f_index = atoi(a_value);        
-        t_pydaw_audio_item * f_item = g_pydaw_audio_item_get(a_pydaw_data->audio_items->sample_rate);        
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        t_pydaw_audio_item * f_old = a_pydaw_data->audio_items->items[f_index];
-        a_pydaw_data->audio_items->items[f_index] = f_item;
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        v_pydaw_audio_item_free(f_old);
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_UPDATE_SINGLE)) //Update it's settings without reloading the .wav
-    {
-        t_2d_char_array * f_arr = g_get_2d_array(LMS_SMALL_STRING);
-        sprintf(f_arr->array, "%s", a_value);
-        
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        t_pydaw_audio_item * f_item = g_audio_item_load_single(a_pydaw_data->audio_items->sample_rate, f_arr, 
-                a_pydaw_data->audio_items, a_pydaw_data->wav_pool);
-        assert(f_item);        
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);        
-    }
-    */
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH)) //Create a .pygraph file for each .wav...
     {
         t_key_value_pair * f_kvp = g_kvp_get(a_value);
