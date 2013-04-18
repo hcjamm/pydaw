@@ -48,11 +48,8 @@ OSC configure message keys/values:
 	"or"	start-region|start-bar|end-region|end-bar|file-path	offline render project to .wav file
 	"bs"	track|bus|track-type	set the mixing bus to assign the track output to
 
-	"as"	"file-line"	Reload a single audio item, index and all data pulled from the corresponding line in the default.pydaudioitem file.
-	"ac"	int	Clear the sample at index[int]
-	"au"	"file-line"  Update the file at file-line, but do not reload the sample...
 	"sg"	"file|uid"	Generate a sample-graph for "file", assigning it to uid.pygraph in the project/samplegraph/
-	"ai"	""	Reload all audio items(the sequenced audio parts/loaded files)
+	"ai"	"region_uid"	Reload all audio items(the sequenced audio parts/loaded files)
 	"ua"	""	Update audio inputs configuration from .pyinput file
 	"sa"	int|int	Reload song-level automation for type[int]|track[int]
 	"od"	int	Set overdub mode (0 False, 1 True)
