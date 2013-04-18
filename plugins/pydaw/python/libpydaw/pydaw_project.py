@@ -27,6 +27,7 @@ pydaw_folder_busfx = "busfx"
 pydaw_folder_instruments = "instruments"
 pydaw_folder_items = "items"
 pydaw_folder_regions = "regions"
+pydaw_folder_regions_audio = "regions_audio"
 pydaw_folder_samplegraph = "samplegraph"
 pydaw_folder_samples = "samples"
 
@@ -258,6 +259,7 @@ class pydaw_project:
         self.project_file = os.path.splitext(os.path.basename(a_project_file))[0]
         self.instrument_folder = self.project_folder + "/" + pydaw_folder_instruments
         self.regions_folder = self.project_folder + "/" + pydaw_folder_regions
+        self.regions_audio_folder = self.project_folder + "/" + pydaw_folder_regions_audio
         self.items_folder = self.project_folder + "/" + pydaw_folder_items
         self.audio_folder = self.project_folder + "/" + pydaw_folder_audio
         self.audio_tmp_folder = self.project_folder + "/audio/tmp"
@@ -287,7 +289,7 @@ class pydaw_project:
             self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder,
             self.audiofx_folder, self.busfx_folder, self.samplegraph_folder,
-            self.audio_tmp_folder]
+            self.audio_tmp_folder, self.regions_audio_folder]
 
         for project_dir in project_folders:
             print(project_dir)
@@ -295,7 +297,7 @@ class pydaw_project:
                 os.makedirs(project_dir)
         self.history = pydaw_history.pydaw_history(self.project_folder)
 
-        self.create_file("", os.path.basename(a_project_file), "This file does is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
+        self.create_file("", os.path.basename(a_project_file), "This file is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
         self.create_file("", pydaw_file_pyregions, pydaw_terminating_char)
         self.create_file("", pydaw_file_pywavs, pydaw_terminating_char)
         self.create_file("", pydaw_file_pyitems, pydaw_terminating_char)
@@ -310,15 +312,15 @@ class pydaw_project:
         for i in range(pydaw_audio_track_count):
             f_pyaudio_instance.add_track(i, pydaw_audio_track(a_name="track" + str(i + 1)))
         self.create_file("", pydaw_file_pyaudio, str(f_pyaudio_instance))
-        self.create_file("", pydaw_file_pyaudioitem, pydaw_terminating_char)
+        #self.create_file("", pydaw_file_pyaudioitem, pydaw_terminating_char)
         f_pybus_instance = pydaw_busses()
         for i in range(pydaw_bus_count):
             f_pybus_instance.add_bus(i, pydaw_bus())
         self.create_file("", pydaw_file_pybus, str(f_pybus_instance))
-        f_input_instance = pydaw_audio_input_tracks()
-        for i in range(pydaw_audio_input_count):
-            f_input_instance.add_track(i, pydaw_audio_input_track(0,0,0))
-        self.create_file("", pydaw_file_pyinput, str(f_input_instance))
+        #f_input_instance = pydaw_audio_input_tracks()
+        #for i in range(pydaw_audio_input_count):
+        #    f_input_instance.add_track(i, pydaw_audio_input_track(0,0,0))
+        #self.create_file("", pydaw_file_pyinput, str(f_input_instance))
 
         self.commit("Created project")
         if a_notify_osc:
@@ -534,11 +536,11 @@ class pydaw_project:
         return pydaw_audio_tracks.from_str(self.get_audio_tracks_string())
 
     def get_audio_input_tracks_string(self):
-        try:
-            f_file = open(self.project_folder + "/default.pyinput", "r")
-        except:
-            print("get_audio_input_tracks_string() could not open file, returning empty")
-            return pydaw_terminating_char
+        #try:
+        f_file = open(self.project_folder + "/default.pyinput", "r")
+        #except:
+        #    print("get_audio_input_tracks_string() could not open file, returning empty")
+        #    return pydaw_terminating_char
         f_result = f_file.read()
         f_file.close()
         return f_result
@@ -546,17 +548,17 @@ class pydaw_project:
     def get_audio_input_tracks(self):
         return pydaw_audio_input_tracks.from_str(self.get_audio_input_tracks_string())
 
-    def get_audio_items_string(self):
-        try:
-            f_file = open(self.project_folder + "/default.pyaudioitem", "r")
-        except:
-            return pydaw_terminating_char
+    def get_audio_items_string(self, a_region_uid):
+        #try:
+        f_file = open(self.regions_audio_folder + "/" + str(a_region_uid), "r")
+        #except:
+        #    return pydaw_terminating_char
         f_result = f_file.read()
         f_file.close()
         return f_result
 
-    def get_audio_items(self):
-        return pydaw_audio_items.from_str(self.get_audio_items_string())
+    def get_audio_items(self, a_region_uid):
+        return pydaw_audio_items.from_str(self.get_audio_items_string(a_region_uid))
 
     def get_sample_graph_by_name(self, a_path, a_uid_dict=None):
         f_uid = self.get_wav_uid_by_name(a_path)
@@ -640,6 +642,7 @@ class pydaw_project:
         f_regions_dict = self.get_regions_dict()
         f_uid = f_regions_dict.add_new_item(a_region_name)
         self.save_file(pydaw_folder_regions, f_uid, pydaw_terminating_char)
+        self.save_file(pydaw_folder_regions_audio, f_uid, pydaw_terminating_char)
         self.save_regions_dict(f_regions_dict)
         return f_uid
 
@@ -656,6 +659,7 @@ class pydaw_project:
         f_uid = f_regions_dict.add_new_item(a_new_region)
         f_old_uid = f_regions_dict.get_uid_by_name(a_old_region)
         self.save_file(pydaw_folder_regions,  str(f_uid), pydaw_read_file_text(self.regions_folder + "/" + str(f_old_uid)))
+        self.save_file(pydaw_folder_regions_audio,  str(f_uid), pydaw_read_file_text(self.regions_audio_folder + "/" + str(f_old_uid)))
         self.save_regions_dict(f_regions_dict)
         return f_uid
 
@@ -712,12 +716,10 @@ class pydaw_project:
     def save_audio_inputs(self, a_tracks):
         if not self.suppress_updates:
             self.save_file("", pydaw_file_pyinput, str(a_tracks))
-            #Is there a need for a configure message here?
 
-    def save_audio_items(self, a_tracks):
+    def save_audio_items(self, a_region_uid, a_tracks):
         if not self.suppress_updates:
-            self.save_file("", pydaw_file_pyaudioitem, str(a_tracks))
-            #Is there a need for a configure message here?
+            self.save_file(pydaw_folder_regions_audio, str(a_region_uid), str(a_tracks))
 
     def item_exists(self, a_item_name, a_name_dict=None):
         if a_name_dict is None:
@@ -1710,17 +1712,15 @@ class pydaw_audio_items:
         return f_result
 
 class pydaw_audio_item:
-    def __init__(self, a_uid, a_sample_start=0.0, a_sample_end=1000.0, a_start_region=0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
-    a_end_region=0, a_end_bar=0, a_end_beat=0, a_timestretch_mode=0, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0, \
+    def __init__(self, a_uid, a_sample_start=0.0, a_sample_end=1000.0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
+    a_end_bar=0, a_end_beat=0, a_timestretch_mode=0, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0, \
     a_fade_in=0.0, a_fade_out=1000.0, a_lane_num=0):
         self.uid = int(a_uid)
         self.sample_start = float(a_sample_start)
         self.sample_end = float(a_sample_end)
-        self.start_region = int(a_start_region)
         self.start_bar = int(a_start_bar)
         self.start_beat = float(a_start_beat)
         self.end_mode = int(a_end_mode)
-        self.end_region = int(a_end_region)
         self.end_bar = int(a_end_bar)
         self.end_beat = float(a_end_beat)
         self.time_stretch_mode = int(a_timestretch_mode)
@@ -1733,8 +1733,8 @@ class pydaw_audio_item:
         self.lane_num = int(a_lane_num)
 
     def __str__(self):
-        return str(self.uid) + "|" + str(self.sample_start) + "|" + str(self.sample_end) + "|" + str(self.start_region) \
-        + "|" + str(self.start_bar) + "|" + str(self.start_beat) + "|" + str(self.end_mode) + "|" + str(self.end_region) \
+        return str(self.uid) + "|" + str(self.sample_start) + "|" + str(self.sample_end) \
+        + "|" + str(self.start_bar) + "|" + str(self.start_beat) + "|" + str(self.end_mode) \
         + "|" + str(self.end_bar) + "|" + str(self.end_beat) + "|" + str(self.time_stretch_mode) \
         + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(self.timestretch_amt) \
         + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "|" + str(self.lane_num) + "\n"
@@ -1742,7 +1742,7 @@ class pydaw_audio_item:
     @staticmethod
     def from_arr(a_arr):
         f_result = pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
-        a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12], a_arr[13], a_arr[14], a_arr[15], a_arr[16], a_arr[17])
+        a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12], a_arr[13], a_arr[14], a_arr[15])
         return f_result
 
 class pydaw_audio_input_tracks:

@@ -20,6 +20,7 @@ extern "C" {
 #include "../../libmodsynth/lib/interpolate-sinc.h"
 #include "../../libmodsynth/modules/modulation/adsr.h"
 #include "pydaw_files.h"
+#include "pydaw.h"
     
 #define PYDAW_MAX_AUDIO_ITEM_COUNT 32
 #define PYDAW_MAX_WAV_POOL_ITEM_COUNT 500
@@ -201,13 +202,13 @@ typedef struct
     int wav_pool_uid;        
     float ratio;    
     int uid;
-    int start_region;
+    //int start_region;
     int start_bar;
     float start_beat;
     double adjusted_start_beat;
     double adjusted_end_beat;
     int end_mode;  //0 == full sample length, 1 == musical end time
-    int end_region;
+    //int end_region;
     int end_bar;
     float end_beat;
     int timestretch_mode;  //tentatively: 0 == none, 1 == pitch, 2 == time+pitch
@@ -303,13 +304,14 @@ typedef struct
     t_pydaw_audio_item * items[PYDAW_MAX_AUDIO_ITEM_COUNT];
     int sample_rate;
     t_cubic_interpolater * cubic_interpolator;    
+    int uid;
 } t_pydaw_audio_items;
 
 
 t_pydaw_audio_item * g_pydaw_audio_item_get(float);
 t_pydaw_audio_items * g_pydaw_audio_items_get(int);
 void v_pydaw_audio_item_free(t_pydaw_audio_item *);
-void v_audio_items_load(t_pydaw_audio_item *a_audio_item, const char *a_path, float a_sr);
+//void v_audio_items_load(t_pydaw_audio_item *a_audio_item, const char *a_path, float a_sr, int a_uid);
 
 void v_pydaw_audio_item_free(t_pydaw_audio_item* a_audio_item)
 {
@@ -358,6 +360,8 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
     f_result->pitch_ratio_ptr = g_pit_ratio();
     f_result->vol = 0.0f;
     f_result->vol_linear = 1.0f;
+    //f_result->start_region = 0;
+    //f_result->end_region = 0;
         
     return f_result;
 }
@@ -436,10 +440,6 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     free(f_sample_end_char);
 
     f_result->sample_end_offset = (int)((f_result->sample_end * ((float)f_result->wav_pool_item->length))) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
-    
-    char * f_start_region_char = c_iterate_2d_char_array(f_current_string);
-    f_result->start_region = atoi(f_start_region_char);            
-    free(f_start_region_char);
 
     char * f_start_bar_char = c_iterate_2d_char_array(f_current_string);
     f_result->start_bar = atoi(f_start_bar_char);            
@@ -452,10 +452,6 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     char * f_end_mode_char = c_iterate_2d_char_array(f_current_string);
     f_result->end_mode = atoi(f_end_mode_char);
     free(f_end_mode_char);
-
-    char * f_end_region_char = c_iterate_2d_char_array(f_current_string);
-    f_result->end_region = atoi(f_end_region_char);
-    free(f_end_region_char);
 
     char * f_end_bar_char = c_iterate_2d_char_array(f_current_string);
     f_result->end_bar = atoi(f_end_bar_char);
@@ -540,39 +536,6 @@ void v_pydaw_audio_items_free(t_pydaw_audio_items *a_audio_items)
     }
     
     free(a_audio_items);
-}
-
-/*Load/Reload samples from file...*/
-void v_audio_items_load_all(t_pydaw_audio_items * a_pydaw_audio_items, char * a_file, t_wav_pool * a_wav_pool)
-{
-    if(i_pydaw_file_exists(a_file))
-    {
-        printf("v_audio_items_load_all: loading a_file: \"%s\"\n", a_file);
-        int f_i = 0;
-
-        t_2d_char_array * f_current_string = g_get_2d_array_from_file(a_file, LMS_LARGE_STRING);        
-        
-        while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
-        {            
-            t_pydaw_audio_item * f_new =  g_audio_item_load_single(a_pydaw_audio_items->sample_rate, 
-                    f_current_string, 0, a_wav_pool);
-            if(!f_new)  //EOF'd...
-            {
-                break;
-            }
-            t_pydaw_audio_item * f_old = a_pydaw_audio_items->items[f_new->index];
-            a_pydaw_audio_items->items[f_new->index] = f_new;            
-            v_pydaw_audio_item_free(f_old);
-            
-            f_i++;
-        }
-
-        g_free_2d_char_array(f_current_string);
-    }
-    else
-    {
-        printf("Error:  v_audio_items_load_all:  a_file: \"%s\" does not exist\n", a_file);
-    }
 }
 
 
