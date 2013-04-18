@@ -1232,7 +1232,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def keyPressEvent(self, a_event):
         if a_event.key() == QtCore.Qt.Key_Delete:
-            f_items = this_pydaw_project.get_audio_items()
+            f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
             for f_item in self.audio_items:
                 if f_item.isSelected():
                     f_items.remove_item(f_item.track_num)
@@ -1336,7 +1336,7 @@ class audio_items_viewer_widget():
         self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
-        self.add_multi_button = QtGui.QPushButton("Add Multiple")
+        self.add_multi_button = QtGui.QPushButton("Add Items")
         self.controls_grid_layout.addWidget(self.add_multi_button, 0, 3)
         self.add_multi_button.pressed.connect(self.add_multi)
 
@@ -1361,6 +1361,9 @@ class audio_items_viewer_widget():
         if global_transport_is_playing:
             QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
             return
+        if global_current_region is None:
+            QtGui.QMessageBox.warning(self.widget, "Error", "You must create a region and select it in the song editor above before adding audio items.")
+            return
         #try:
         f_file_names = list(QtGui.QFileDialog.getOpenFileNames(self.widget, "Select .wav file(s) to open(CTRL+click to select many)...", self.last_open_dir, filter=".wav files(*.wav)"))
         f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
@@ -1377,8 +1380,8 @@ class audio_items_viewer_widget():
                     f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
                     f_item = pydaw_audio_item(f_uid)
                     f_items.add_item(f_index, f_item)
-                    this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
         this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
+        this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
         this_audio_editor.open_items()
         this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(f_index)
         self.last_open_dir = os.path.dirname(f_file_name_str)
@@ -4396,7 +4399,7 @@ class transport_widget:
             f_bar_count = 1
         else:
             f_bar_count = pydaw_get_region_length(self.region_spinbox.value()) - self.bar_spinbox.value()
-        this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
+        this_audio_items_viewer.set_playback_pos(0, self.bar_spinbox.value())
         this_audio_items_viewer.start_playback(f_bar_count, self.tempo_spinbox.value())
 
     def show_audio_recording_dialog(self):
