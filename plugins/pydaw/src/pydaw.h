@@ -342,7 +342,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data*, const char*, const char*);
 int i_pydaw_get_item_index_from_uid(t_pydaw_data *, int);
 void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_index, int a_schedule_threads);
 void v_pydaw_assert_memory_integrity(t_pydaw_data* a_pydaw_data);
-int i_get_song_index_from_region_name(t_pydaw_data*, int);
+int i_get_song_index_from_region_uid(t_pydaw_data*, int);
 void v_save_pysong_to_disk(t_pydaw_data * a_pydaw_data);
 void v_save_pyitem_to_disk(t_pydaw_data * a_pydaw_data, int a_index);
 void v_save_pyregion_to_disk(t_pydaw_data * a_pydaw_data, int a_region_num);
@@ -2288,7 +2288,7 @@ int i_pydaw_get_item_index_from_uid(t_pydaw_data * a_pydaw_data, int a_uid)
     return -1;
 }
 
-int i_get_song_index_from_region_name(t_pydaw_data* a_pydaw_data, int a_uid)
+int i_get_song_index_from_region_uid(t_pydaw_data* a_pydaw_data, int a_uid)
 {
     int f_i = 0;
     
@@ -4596,7 +4596,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     {        
         int f_uid = atoi(a_value);
         t_pyregion * f_result = g_pyregion_get(a_pydaw_data, f_uid);
-        int f_region_index = i_get_song_index_from_region_name(a_pydaw_data, f_uid);
+        int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data, f_uid);
         
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         if(a_pydaw_data->pysong->regions[f_region_index])
@@ -4623,21 +4623,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         t_pydaw_audio_items * f_old;
         t_pydaw_audio_items * f_result = v_audio_items_load_all(a_pydaw_data, f_uid);
         int f_i = 0;
-        int f_region_index = -1;
-        while(f_i < PYDAW_MAX_REGION_COUNT)
-        {
-            if(a_pydaw_data->pysong->audio_items[f_i] && a_pydaw_data->pysong->audio_items[f_i]->uid == f_uid)
-            {
-                f_region_index = f_i;
-                printf("f_region_index = %i\n", f_region_index);
-                f_old = a_pydaw_data->pysong->audio_items[f_region_index];
-                break;
-            }
-            f_i++;
-        }
+        int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data, f_uid);
         pthread_mutex_lock(&a_pydaw_data->main_mutex);        
-        a_pydaw_data->pysong->audio_items[f_region_index] = f_result;
-        v_pydaw_reset_audio_item_read_heads(a_pydaw_data, f_region_index, 0);
+        a_pydaw_data->pysong->audio_items[f_region_index] = f_result;        
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         //v_pydaw_audio_items_free(f_old); //Method needs to be re-thought...
     }
@@ -4647,7 +4635,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         char f_file_name_tmp[256];
         sprintf(f_file_name_tmp, "%s%s", a_pydaw_data->samplegraph_folder, f_kvp->key);
         v_pydaw_generate_sample_graph(f_kvp->value, f_file_name_tmp);     
-        printf("v_wav_pool_add_item(a_pydaw_data->wav_pool, %i, %s)", atoi(f_kvp->key), f_kvp->value);
+        printf("v_wav_pool_add_item(a_pydaw_data->wav_pool, %i, \"%s\")", atoi(f_kvp->key), f_kvp->value);
         v_wav_pool_add_item(a_pydaw_data->wav_pool, atoi(f_kvp->key), f_kvp->value);
         free(f_kvp);
     }
