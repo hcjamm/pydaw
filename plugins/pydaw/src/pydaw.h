@@ -4637,6 +4637,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         }
         pthread_mutex_lock(&a_pydaw_data->main_mutex);        
         a_pydaw_data->pysong->audio_items[f_region_index] = f_result;
+        v_pydaw_reset_audio_item_read_heads(a_pydaw_data, f_region_index, 0);
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         //v_pydaw_audio_items_free(f_old); //Method needs to be re-thought...
     }
@@ -4646,6 +4647,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         char f_file_name_tmp[256];
         sprintf(f_file_name_tmp, "%s%s", a_pydaw_data->samplegraph_folder, f_kvp->key);
         v_pydaw_generate_sample_graph(f_kvp->value, f_file_name_tmp);     
+        printf("v_wav_pool_add_item(a_pydaw_data->wav_pool, %i, %s)", atoi(f_kvp->key), f_kvp->value);
         v_wav_pool_add_item(a_pydaw_data->wav_pool, atoi(f_kvp->key), f_kvp->value);
         free(f_kvp);
     }
