@@ -1227,7 +1227,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 class audio_items_viewer(QtGui.QGraphicsView):
     def __init__(self):
         QtGui.QGraphicsView.__init__(self)
-        self.region_length = 8
         self.scene = QtGui.QGraphicsScene(self)
         self.scene.dropEvent = self.sceneDropEvent
         self.scene.dragEnterEvent = self.sceneDragEnterEvent
@@ -1256,7 +1255,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def sceneDropEvent(self, a_event):
         f_x = a_event.scenePos().x()
         f_y = a_event.scenePos().y()
-        f_x = pydaw_clip_value(f_x, 0.0, (self.region_length - 1) * global_audio_px_per_bar)
+        f_x = pydaw_clip_value(f_x, 0.0, (global_current_region.region_length_bars - 1) * global_audio_px_per_bar)
         f_bar_frac = f_x / global_audio_px_per_bar
         f_pos_bars = int(f_bar_frac)
         f_pos_beats = (f_bar_frac - f_pos_bars) * 4.0
@@ -1344,14 +1343,19 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scale(1.0, a_scale)
 
     def draw_headers(self):
-        f_size = global_audio_px_per_bar * self.region_length
+        if global_current_region is None or global_current_region.region_length_bars == 0:
+            f_region_length = 8
+        else:
+            f_region_length = global_current_region.region_length_bars
+
+        f_size = global_audio_px_per_bar * f_region_length
         f_ruler = QtGui.QGraphicsRectItem(0, 0, f_size, global_audio_ruler_height)
         self.scene.addItem(f_ruler)
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
         f_total_height = (12.0 * (global_audio_item_height)) + global_audio_ruler_height
         i3 = 0.0
-        for i in range(self.region_length):
+        for i in range(f_region_length):
             f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
             f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_number.setBrush(QtCore.Qt.white)
@@ -4183,7 +4187,6 @@ class transport_widget:
             this_region_editor.table_widget.clearSelection()
             this_region_audio_editor.table_widget.clearSelection()
             this_region_bus_editor.table_widget.clearSelection()
-            this_audio_items_viewer.clear_drawn_items()
         this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
     def on_spacebar(self):
         if self.is_playing or self.is_recording:
