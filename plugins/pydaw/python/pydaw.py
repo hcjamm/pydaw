@@ -4614,27 +4614,20 @@ class transport_widget:
     def on_loop_mode_changed(self, a_loop_mode):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
-            self.transport.loop_mode = a_loop_mode
-            this_pydaw_project.save_transport(self.transport)
-            this_pydaw_project.commit("Set project loop mode to " + str(self.loop_mode_combobox.itemText(a_loop_mode)))
     def on_keybd_combobox_index_changed(self, a_index):
         self.alsa_output_ports.connect_to_pydaw(str(self.keybd_combobox.currentText()))
         if not self.suppress_osc:
-            self.transport.midi_keybd = str(self.keybd_combobox.currentText())
-            this_pydaw_project.save_transport(self.transport)
-            this_pydaw_project.commit("Set project MIDI in device to " + str(self.keybd_combobox.itemText(a_index)))
+            f_midi_keybd = str(self.keybd_combobox.currentText())
+            this_pydaw_project.save_midi_device(f_midi_keybd)
+            this_pydaw_project.commit("Set project MIDI in device to " + f_midi_keybd)
     def on_bar_changed(self, a_bar):
         self.transport.bar = a_bar
         if not self.suppress_osc and not self.is_playing and not self.is_recording:
-            this_pydaw_project.save_transport(self.transport)
-            this_pydaw_project.commit("Set project playback bar to " + str(a_bar))
             this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
     def on_region_changed(self, a_region):
         self.bar_spinbox.setRange(0, pydaw_get_region_length(a_region) - 1)
         self.transport.region = a_region
         if not self.is_playing and not self.is_recording:
-            this_pydaw_project.save_transport(self.transport)
-            this_pydaw_project.commit("Set project playback region to " + str(a_region))
             this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
     def on_follow_cursor_check_changed(self):
         if self.follow_checkbox.isChecked():
@@ -4684,14 +4677,6 @@ class transport_widget:
             self.suppress_osc = True
         self.transport = this_pydaw_project.get_transport()
         self.tempo_spinbox.setValue(int(self.transport.bpm))
-        self.region_spinbox.setValue(int(self.transport.region))
-        f_region_item = this_song_editor.table_widget.item(0, int(self.transport.region))
-        if f_region_item and str(f_region_item.text()) != "":
-            this_song_editor.table_widget.setItemSelected(f_region_item, True)
-            this_region_settings.open_region(str(f_region_item.text()))
-        self.bar_spinbox.setValue(int(self.transport.bar))
-        self.last_bar = int(self.transport.bar)
-        self.loop_mode_combobox.setCurrentIndex(int(self.transport.loop_mode))
         for i in range(self.keybd_combobox.count()):
             if str(self.keybd_combobox.itemText(i)) == self.transport.midi_keybd:
                 self.keybd_combobox.setCurrentIndex(i)
