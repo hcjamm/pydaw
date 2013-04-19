@@ -1163,7 +1163,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_pos_x = f_item.pos().x()
-                    f_pos_y = a_event.scenePos().y() #f_item.pos().y()
+                    f_pos_y = f_item.pos().y() #a_event.scenePos().y()
                     if f_pos_x < 0:
                         f_pos_x = 0
                     f_ignored, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
