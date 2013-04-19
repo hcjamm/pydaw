@@ -1192,48 +1192,6 @@ class pydaw_item:
             elif note.note_num > 127:
                 note.note_num = 127
 
-    def length_shift(self, a_length, a_min_max=None, a_notes=None, a_quantize=None):
-        """ Note lengths are clipped at up to a_min_max if a_length > 0, or down to a_min_max if a_length < 0"""
-        f_notes = []
-
-        if a_notes is None:
-            f_notes = self.notes
-        else:
-            for i in range(len(a_notes)):
-                for f_note in self.notes:
-                    if f_note == a_notes[i]:
-                        f_notes.append(f_note)
-                        break
-
-        f_length = float(a_length)
-
-        if not a_min_max is None:
-            f_min_max = float(a_min_max)
-        else:
-            if a_length < 0:
-                f_min_max = 0.01
-            else:
-                f_min_max = 100
-
-        if a_quantize is None:
-            f_is_quantized = False
-        else:
-            f_is_quantized = True
-            f_quantized_value = beat_frac_text_to_float(a_quantize)
-            f_quantize_multiple = 1.0/f_quantized_value
-
-        for f_note in f_notes:
-            f_note.length += f_length
-            if f_is_quantized:
-                f_note.length = round(f_note.length * f_quantize_multiple) * f_quantized_value
-            if f_length < 0 and f_note.length < f_min_max:
-                f_note.length = f_min_max
-            elif f_length > 0 and f_note.length > f_min_max:
-                f_note.length = f_min_max
-            f_note.set_end()
-
-        self.fix_overlaps()
-
     def fix_overlaps(self):
         """ Truncate the lengths of any notes that overlap the start of another note """
         f_to_delete = []
@@ -1262,75 +1220,6 @@ class pydaw_item:
                 f_to_delete.append(f_note)
         for f_note in f_to_delete:
             self.notes.remove(f_note)
-
-    def time_shift(self, a_shift, a_events_move_with_item=False, a_notes=None, a_quantize=None):
-        """ Move all items forward or backwards by a_shift number of beats, wrapping if before or after the item"""
-        f_shift = float(a_shift)
-        if f_shift < -4.0:
-            f_shift = -4.0
-        elif f_shift > 4.0:
-            f_shift = 4.0
-
-        f_notes = []
-        f_ccs = []
-        f_pbs = []
-
-        if a_quantize is None:
-            f_is_quantized = False
-        else:
-            f_is_quantized = True
-            f_quantized_value = beat_frac_text_to_float(a_quantize)
-            f_quantize_multiple = 1.0/f_quantized_value
-
-        if a_notes is None:
-            f_notes = self.notes
-            f_ccs = self.ccs
-            f_pbs = self.pitchbends
-        else:
-            for i in range(len(a_notes)):
-                for f_note in self.notes:
-                    if f_note == a_notes[i]:
-                        if a_events_move_with_item:
-                            f_start = f_note.start
-                            f_end = f_note.start + f_note.length
-                            for f_cc in self.ccs:
-                                if f_cc.start >= f_start and f_cc.start <= f_end:
-                                    f_ccs.append(f_cc)
-                            for f_pb in self.pitchbends:
-                                if f_pb.start >= f_start and f_pb.start <= f_end:
-                                    f_pbs.append(f_pb)
-                        f_notes.append(f_note)
-                        break
-
-        for note in f_notes:
-            note.start += f_shift
-            if note.start < 0.0:
-                note.start += 4.0
-            elif note.start >= 4.0:
-                note.start -= 4.0
-
-            if f_is_quantized:
-                f_new_start = round(note.start * f_quantize_multiple) * f_quantized_value
-                f_shift_adjusted = f_shift - (note.start - f_new_start)
-                note.start = f_new_start
-            else:
-                f_shift_adjusted = f_shift
-
-        self.fix_overlaps()
-
-        if a_events_move_with_item:
-            for cc in f_ccs:
-                cc.start += f_shift_adjusted
-                if cc.start < 0.0:
-                    cc.start += 4.0
-                elif cc.start >= 4.0:
-                    cc.start -= 4.0
-            for pb in f_pbs:
-                pb.start += f_shift_adjusted
-                if pb.start < 0.0:
-                    pb.start += 4.0
-                elif pb.start >= 4.0:
-                    pb.start -= 4.0
 
     def get_next_default_note(self):
         pass
