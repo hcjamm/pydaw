@@ -635,7 +635,10 @@ class pydaw_project:
     def save_transport(self, a_transport):
         if not self.suppress_updates:
             self.save_file("", pydaw_file_pytransport, str(a_transport))
-            self.save_file("", pydaw_file_pymididevice, a_transport.get_midi_device())
+
+    def save_midi_device(self, a_device_str):
+        if not self.suppress_updates:
+            self.save_file("", pydaw_file_pymididevice, str(a_device_str))
 
     def create_empty_region(self, a_region_name):
         #TODO:  Check for uniqueness, from a pydaw_project.check_for_uniqueness method...
@@ -1781,30 +1784,17 @@ class pydaw_audio_input_track:
         return str(self.vol) + "|" + str(self.output) + "|" + str(self.input) + "\n"
 
 class pydaw_transport:
-    def __init__(self, a_bpm=140, a_midi_keybd=None, a_loop_mode=0, a_region=0, a_bar=0):
+    def __init__(self, a_bpm=140):
         self.bpm = a_bpm
-        self.midi_keybd = a_midi_keybd
-        self.loop_mode = a_loop_mode
-        self.region = a_region
-        self.bar = a_bar
 
     def __str__(self):
-        return str(self.bpm) + "|" + "--NONE--" + "|" + str(self.loop_mode) + "|" + str(self.region) + "|" + str(self.bar) + "\n\\"
-
-    def get_midi_device(self):
-        if self.midi_keybd is not None:
-            return str(self.midi_keybd)
-        else:
-            return ""
+        return str(self.bpm) + "\n\\"
 
     @staticmethod
     def from_str(a_str):
         f_str = a_str.split("\n")[0]
         f_arr = f_str.split("|")
-        for i in range(len(f_arr)):
-            if f_arr[i] == "":
-                f_arr[i] = None
-        return pydaw_transport(f_arr[0], f_arr[1], f_arr[2], f_arr[3], f_arr[4])
+        return pydaw_transport(f_arr[0])
 
 class pydaw_cc_map_item:
     def __init__(self, a_effects_only=False, a_rayv_port=0, a_wayv_port=0, a_euphoria_port=0, a_modulex_port=0):

@@ -3440,16 +3440,10 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         char * f_tempo_str = c_iterate_2d_char_array(f_2d_array);
         float f_tempo = atof(f_tempo_str);
         free(f_tempo_str);
-        char * f_midi_keybd_str = c_iterate_2d_char_array(f_2d_array);
-        free(f_midi_keybd_str);
-        char * f_loop_mode_str =  c_iterate_2d_char_array(f_2d_array);
-        int f_loop_mode = atoi(f_loop_mode_str);
-        assert(f_loop_mode >= 0 && f_loop_mode <= 2);
-        v_set_loop_mode(a_pydaw_data, f_loop_mode);
-        g_free_2d_char_array(f_2d_array);
-        
+                
         assert(f_tempo > 30.0f && f_tempo < 300.0f);        
         v_set_tempo(a_pydaw_data, f_tempo);
+        g_free_2d_char_array(f_2d_array);
     }
     else  //No transport file, set default tempo
     {
