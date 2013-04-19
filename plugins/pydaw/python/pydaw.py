@@ -1152,8 +1152,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_x = pydaw_clip_value(a_event.pos().x(), global_audio_item_handle_size, f_item.length_seconds_orig_px)
-                    if this_audio_items_viewer.snap_mode != 0:  #Not doing snap by region for now..
+                    if this_audio_items_viewer.snap_mode != 0:
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
+                        if f_x < global_audio_px_per_bar:
+                            f_x = global_audio_px_per_bar
                     f_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
                     f_item.length_handle.setPos(f_x - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         else:
