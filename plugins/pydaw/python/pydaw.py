@@ -4430,81 +4430,6 @@ class transport_widget:
         this_audio_items_viewer.set_playback_pos(0, self.bar_spinbox.value())
         this_audio_items_viewer.start_playback(f_bar_count, self.tempo_spinbox.value())
 
-    def show_audio_recording_dialog(self):
-        f_inputs = this_pydaw_project.get_audio_input_tracks()
-        f_audio_items = this_pydaw_project.get_audio_items()
-        f_samplegraphs = this_pydaw_project.get_samplegraphs()
-        f_result_list = []
-        f_rec_armed = this_audio_editor.get_rec_armed_inputs()
-        for f_i in range(pydaw_audio_input_count):
-            if f_rec_armed[f_i]:
-                if os.path.isfile(this_pydaw_project.audio_tmp_folder + "/" + str(f_i) + ".wav"):
-                    f_result_list.append(f_i)
-                else:
-                    QtGui.QMessageBox.warning(this_main_window, "Error", "Input " + str(f_i) + " was record-armed, but no .wav found")
-        if len(f_result_list) > 0:
-            for f_item_number in f_result_list:
-                def ok_handler():
-                    f_file_name = str(f_name.text())
-                    if f_file_name is None or f_file_name == "":
-                        QtGui.QMessageBox.warning(f_window, "Error", "You must select a name for the file")
-                        return
-                    os.system('mv "' + this_pydaw_project.audio_tmp_folder + "/" + str(f_item_number) + '.wav" "' + f_file_name + '"')
-                    if f_next_index != -1 and f_import.isChecked():
-                        f_audio_items.add_item(f_next_index, pydaw_audio_item(f_file_name, 0, 1000, self.last_region_num, self.last_bar, \
-                        0.0, 0, 0, 0, 0.0, 0, 0.0, f_inputs.tracks[f_item_number].output, 0))
-                    this_pydaw_project.save_audio_items(global_current_region.uid, f_audio_items)
-                    this_pydaw_project.commit("Record audio item " + f_file_name)
-                    f_sg_uid = pydaw_gen_uid()
-                    this_pydaw_project.this_dssi_gui.pydaw_generate_sample_graph(f_file_name, f_sg_uid)
-                    f_samplegraphs.add_ref(f_file_name, f_sg_uid)
-                    this_pydaw_project.save_samplegraphs(f_samplegraphs)
-                    f_window.close()
-
-                def cancel_handler():
-                    os.system('rm "' + this_pydaw_project.audio_tmp_folder + "/" + str(f_item_number) + '.wav"')
-                    f_window.close()
-
-                def file_dialog():
-                    try:
-                        f_file_name = str(QtGui.QFileDialog.getSaveFileName(f_window, "Select a file name to save to...", self.last_open_dir, filter=".wav files(*.wav)"))
-                        if not f_file_name is None and not f_file_name == "":
-                            if not f_file_name.endswith(".wav"):
-                                f_file_name = f_file_name + ".wav"
-                            f_name.setText(f_file_name)
-                            self.last_open_dir = os.path.dirname(f_file_name)
-                    except Exception as ex:
-                        pydaw_print_generic_exception(ex)
-
-                f_next_index = f_audio_items.get_next_index()
-
-                f_window = QtGui.QDialog(this_main_window)
-                f_window.setWindowTitle("Save recorded file for audio input " + str(f_item_number))
-                f_layout = QtGui.QGridLayout()
-                f_window.setLayout(f_layout)
-                f_layout.addWidget(QtGui.QLabel("File Name"), 0, 0)
-                f_name = QtGui.QLineEdit()
-                f_layout.addWidget(f_name, 0, 1)
-                f_name.setReadOnly(True)
-                f_name.setMinimumWidth(420)
-                f_file_button = QtGui.QPushButton("Select File Name...")
-                f_file_button.clicked.connect(file_dialog)
-                f_layout.addWidget(f_file_button, 0, 2)
-                if f_next_index == -1:
-                    f_layout.addWidget(QtGui.QLabel("Cannot import into project, no available slots in item tab."), 1, 1)
-                else:
-                    f_import = QtGui.QCheckBox("Import into project?")
-                    f_import.setChecked(True)
-                    f_layout.addWidget(f_import, 1, 1)
-                f_ok_button = QtGui.QPushButton("Save File")
-                f_ok_button.clicked.connect(ok_handler)
-                f_layout.addWidget(f_ok_button, 8,2)
-                f_cancel_button = QtGui.QPushButton("Discard File")
-                f_layout.addWidget(f_cancel_button, 8,3)
-                f_cancel_button.clicked.connect(cancel_handler)
-                f_window.exec_()
-        this_audio_editor.open_items()
-
     def on_stop(self):
         if not self.is_playing and not self.is_recording:
             return
@@ -4526,7 +4451,6 @@ class transport_widget:
             if global_current_region is not None and this_region_settings.enabled:
                 this_region_settings.open_region_by_uid(global_current_region.uid)
             this_song_editor.open_song()
-            self.show_audio_recording_dialog()
             this_pydaw_project.commit("Recording")
         self.init_playback_cursor(a_bar=False)
         self.is_playing = False
@@ -5360,8 +5284,6 @@ def global_open_project(a_project_file, a_notify_osc=True):
         f_editor.open_tracks()
     this_transport.open_transport()
     set_default_project(a_project_file)
-    #this_audio_editor.open_items()
-    #this_audio_editor.open_tracks()
     global_update_audio_track_comboboxes()
     global_edit_audio_item(1, False)
     global_edit_audio_item(0, False)
@@ -5377,11 +5299,8 @@ def global_new_project(a_project_file):
         this_pydaw_project = pydaw_project()
     this_pydaw_project.new_project(a_project_file)
     this_pydaw_project.save_transport(this_transport.transport)
-    #this_pydaw_project.save_project()  #Commenting out because AFAIK there would be nothing to save???
     this_song_editor.open_song()
     this_pydaw_project.save_song(this_song_editor.song)
-    #this_audio_editor.open_items()
-    #this_audio_editor.open_tracks()
     this_transport.open_transport()
     set_default_project(a_project_file)
     global_update_audio_track_comboboxes()
