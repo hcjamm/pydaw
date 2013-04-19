@@ -1614,9 +1614,6 @@ class audio_item_editor_widget:
         self.name.setMinimumWidth(360)
         self.layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
         self.layout.addWidget(self.name, 0, 1)
-        self.select_file = QtGui.QPushButton("Select")
-        self.select_file.pressed.connect(self.file_name_select)
-        self.layout.addWidget(self.select_file, 0, 2)
 
         self.sample_start_end_vlayout = QtGui.QVBoxLayout()
         self.layout.addWidget(QtGui.QLabel("Start/End:"), 1, 0)
@@ -1786,30 +1783,12 @@ class audio_item_editor_widget:
         this_pydaw_project.commit("Update audio items")
         this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
 
-    def file_name_select(self):
-        if global_transport_is_playing:
-            QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
-            return
-        try:
-            self.file_name = str(QtGui.QFileDialog.getOpenFileName(self.widget, "Select a .wav file to open...", self.last_open_dir, filter=".wav files(*.wav)"))
-            if not self.file_name is None and not self.file_name == "":
-                self.name.setText(self.file_name)
-                self.last_open_dir = os.path.dirname(self.file_name)
-                #f_graphs = this_pydaw_project.get_samplegraphs()
-                f_graph = this_pydaw_project.get_sample_graph_by_name(self.file_name) #, f_graphs)
-                if f_graph is not None:
-                    self.sample_view.draw_item(f_graph.create_sample_graph(True), 0.0, 1000.0)
-                    self.ok_handler()
-                else:
-                    QtGui.QMessageBox.warning(self.widget, "Error", "Couldn't generate sample graph.")
-        except Exception as ex:
-            pydaw_print_generic_exception(ex)
-
     def sample_vol_changed(self, a_val=None):
         self.sample_vol_label.setText(str(self.sample_vol_slider.value()) + "dB")
 
     def update_bar_count(self, a_val=None):
-        self.start_bar.setRange(0, pydaw_get_region_length(self.start_region.value()) - 1)
+        print "TODO"
+        #self.start_bar.setRange(0, pydaw_get_region_length(self.start_region.value()) - 1)
 
 
 class audio_list_editor:
