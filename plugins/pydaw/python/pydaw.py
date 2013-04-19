@@ -3231,196 +3231,6 @@ class item_list_editor:
     def show_not_enabled_warning(self):
         QtGui.QMessageBox.warning(this_main_window, "", "You must open an item first by double-clicking on one in the region editor on the 'Song' tab.")
 
-    def time_shift_dialog(self, a_is_list=True):
-        if not self.enabled:
-            self.show_not_enabled_warning()
-            return
-        f_multiselect = False
-        if self.multiselect_radiobutton.isChecked():
-            f_ms_rows = self.get_notes_table_selected_rows()
-            if len(f_ms_rows) == 0:
-                QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You are editing in multiselect mode, but you have not selected anything.  All items will be processed")
-            else:
-                f_multiselect = True
-
-        def time_shift_ok_handler():
-            if f_quantize_checkbox.isChecked():
-                f_quantize_index = f_quantize_combobox.currentIndex()
-            else:
-                f_quantize_index = None
-            self.events_follow_default = f_events_follow_notes.isChecked()
-            for f_i in range(global_item_editing_count):
-                if f_multiselect:
-                    self.items[f_i].time_shift(f_shift.value(), f_events_follow_notes.isChecked(), f_ms_rows, a_quantize=f_quantize_index)
-                else:
-                    self.items[f_i].time_shift(f_shift.value(), f_events_follow_notes.isChecked(), a_quantize=f_quantize_index)
-                this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
-            global_open_items()
-            this_pydaw_project.commit("Time shift item")
-            f_window.close()
-
-        def time_shift_cancel_handler():
-            f_window.close()
-
-        f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Time Shift")
-        f_layout = QtGui.QGridLayout()
-        f_window.setLayout(f_layout)
-
-        f_shift = QtGui.QDoubleSpinBox()
-        f_shift.setSingleStep(0.25)
-        f_shift.setRange(-4.0, 4.0)
-        f_layout.addWidget(QtGui.QLabel("Shift(beats)"), 0, 0)
-        f_layout.addWidget(f_shift, 0, 1)
-        f_events_follow_notes = QtGui.QCheckBox("CCs and pitchbend follow notes?")
-        f_events_follow_notes.setChecked(self.events_follow_default)
-        f_layout.addWidget(f_events_follow_notes, 1, 1)
-        f_quantize_checkbox = QtGui.QCheckBox("Quantize?(beats)")
-        f_layout.addWidget(f_quantize_checkbox, 2, 0)
-        f_quantize_combobox = QtGui.QComboBox()
-        f_quantize_combobox.addItems(beat_fracs)
-        f_quantize_combobox.setCurrentIndex(5)
-        f_layout.addWidget(f_quantize_combobox, 2, 1)
-        f_ok = QtGui.QPushButton("OK")
-        f_ok.pressed.connect(time_shift_ok_handler)
-        f_ok_cancel_layout = QtGui.QHBoxLayout()
-        f_ok_cancel_layout.addWidget(f_ok)
-        f_layout.addLayout(f_ok_cancel_layout, 3, 1)
-        f_cancel = QtGui.QPushButton("Cancel")
-        f_cancel.pressed.connect(time_shift_cancel_handler)
-        f_ok_cancel_layout.addWidget(f_cancel)
-        f_window.exec_()
-
-    def length_shift_dialog(self, a_is_list=True):
-        if not self.enabled:
-            self.show_not_enabled_warning()
-            return
-        f_multiselect = False
-        if a_is_list:
-            if self.multiselect_radiobutton.isChecked():
-                f_ms_rows = self.get_notes_table_selected_rows()
-                if len(f_ms_rows) == 0:
-                    QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "You are editing in multiselect mode, but you have not selected anything.  All items will be processed")
-                else:
-                    f_multiselect = True
-
-        def length_shift_ok_handler():
-            if f_quantize_checkbox.isChecked():
-                f_quantize_index = f_quantize_combobox.currentIndex()
-            else:
-                f_quantize_index = None
-
-            if f_min_max_checkbox.isChecked():
-                f_min_max_value = f_min_max.value()
-            else:
-                f_min_max_value = None
-
-            if a_is_list:
-                if f_multiselect:
-                    self.item.length_shift(f_shift.value(), f_min_max_value, f_ms_rows, a_quantize=f_quantize_index)
-                else:
-                    self.item.length_shift(f_shift.value(), f_min_max_value, a_quantize=f_quantize_index)
-                this_pydaw_project.save_item(self.item_name, self.item)
-            else:
-                for f_i in range(global_item_editing_count):
-                    self.items[f_i].length_shift(f_shift.value(), f_min_max_value, a_quantize=f_quantize_index)
-                    this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
-
-            global_open_items()
-            this_pydaw_project.commit("Length shift item(s)")
-            f_window.close()
-
-        def length_shift_cancel_handler():
-            f_window.close()
-
-        f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Length Shift")
-        f_layout = QtGui.QGridLayout()
-        f_window.setLayout(f_layout)
-
-        f_shift = QtGui.QDoubleSpinBox()
-        f_shift.setSingleStep(0.25)
-        f_shift.setRange(-16.0, 16.0)
-        f_layout.addWidget(QtGui.QLabel("Shift(beats)"), 0, 0)
-        f_layout.addWidget(f_shift, 0, 1)
-
-        f_min_max = QtGui.QDoubleSpinBox()
-        f_min_max.setRange(0.01, 16.0)
-        f_min_max.setValue(1.0)
-        f_min_max_checkbox = QtGui.QCheckBox("Min/Max(beats)")
-        f_layout.addWidget(f_min_max_checkbox, 1, 0)
-        f_layout.addWidget(f_min_max, 1, 1)
-
-        f_quantize_checkbox = QtGui.QCheckBox("Quantize?(beats)")
-        f_layout.addWidget(f_quantize_checkbox, 2, 0)
-        f_quantize_combobox = QtGui.QComboBox()
-        f_quantize_combobox.addItems(beat_fracs)
-        f_quantize_combobox.setCurrentIndex(5)
-        f_layout.addWidget(f_quantize_combobox, 2, 1)
-
-        f_ok = QtGui.QPushButton("OK")
-        f_ok.pressed.connect(length_shift_ok_handler)
-        f_layout.addWidget(f_ok, 3, 0)
-        f_cancel = QtGui.QPushButton("Cancel")
-        f_cancel.pressed.connect(length_shift_cancel_handler)
-        f_layout.addWidget(f_cancel, 3, 1)
-        f_window.exec_()
-
-
-    def on_template_open(self):
-        if not self.enabled:
-            self.show_not_enabled_warning()
-            return
-        f_path= expanduser("~") + "/" + global_pydaw_version_string + "/item_templates/" + str(self.template_combobox.currentText()) + ".pyitem"
-        if not os.path.isfile(f_path):
-            QtGui.QMessageBox.warning(self.notes_table_widget, "Error", "Cannot find specified template")
-        else:
-            f_item_handle = open(f_path, "r")
-            f_item = pydaw_item.from_str(f_item_handle.read())
-            f_item_handle.close()
-            self.item = f_item
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit("Open template '" + str(self.template_combobox.currentText()) + "' as item '" + self.item_name + "'")
-
-    def on_template_save_as(self):
-        if not self.enabled:
-            self.show_not_enabled_warning()
-            return
-        def ok_handler():
-            if str(f_name.text()) == "":
-                QtGui.QMessageBox.warning(f_window, "Error", "Name cannot be empty")
-                return
-            f_path= expanduser("~") + "/" + global_pydaw_version_string + "/item_templates/" + str(f_name.text()) + ".pyitem"
-            f_handle = open(f_path, "w")
-            f_handle.write(self.item.__str__())
-            f_handle.close()
-            self.load_templates()
-            f_window.close()
-
-        def cancel_handler():
-            f_window.close()
-
-        def f_name_text_changed():
-            f_name.setText(pydaw_remove_bad_chars(f_name.text()))
-
-        f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Save item as template...")
-        f_layout = QtGui.QGridLayout()
-        f_window.setLayout(f_layout)
-
-        f_name = QtGui.QLineEdit()
-        f_name.textChanged.connect(f_name_text_changed)
-        f_layout.addWidget(QtGui.QLabel("Name:"), 0, 0)
-        f_layout.addWidget(f_name, 0, 1)
-        f_ok = QtGui.QPushButton("OK")
-        f_ok.pressed.connect(ok_handler)
-        f_layout.addWidget(f_ok, 2, 0)
-        f_cancel = QtGui.QPushButton("Cancel")
-        f_cancel.pressed.connect(cancel_handler)
-        f_layout.addWidget(f_cancel, 2, 1)
-        f_window.exec_()
-
     def set_zoom(self, a_value=None, a_is_refresh=False):
         if not self.enabled:
             return
@@ -3490,20 +3300,6 @@ class item_list_editor:
         self.item_index_enabled = True
         self.editing_hboxlayout.addWidget(self.item_name_combobox)
 
-        self.editing_hboxlayout.addWidget(QtGui.QLabel("Templates:"))
-        self.template_save_as = QtGui.QPushButton("Save as...")
-        self.template_save_as.setMinimumWidth(90)
-        self.template_save_as.pressed.connect(self.on_template_save_as)
-        self.editing_hboxlayout.addWidget(self.template_save_as)
-        self.template_open = QtGui.QPushButton("Open")
-        self.template_open.setMinimumWidth(90)
-        self.template_open.pressed.connect(self.on_template_open)
-        self.editing_hboxlayout.addWidget(self.template_open)
-        self.template_combobox = QtGui.QComboBox()
-        self.template_combobox.setMinimumWidth(150)
-        self.editing_hboxlayout.addWidget(self.template_combobox)
-        self.load_templates()
-
         self.edit_mode_groupbox = QtGui.QGroupBox()
         self.edit_mode_hlayout0 = QtGui.QHBoxLayout(self.edit_mode_groupbox)
         self.edit_mode_hlayout0.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
@@ -3529,26 +3325,18 @@ class item_list_editor:
         self.notes_transpose_button.setMinimumWidth(f_button_width)
         self.notes_transpose_button.pressed.connect(self.transpose_dialog)
         self.notes_gridlayout.addWidget(self.notes_transpose_button, 0, 1)
-        self.notes_shift_button = QtGui.QPushButton("Shift")
-        self.notes_shift_button.setMinimumWidth(f_button_width)
-        self.notes_shift_button.pressed.connect(self.time_shift_dialog)
-        self.notes_gridlayout.addWidget(self.notes_shift_button, 0, 2)
-        self.notes_length_button = QtGui.QPushButton("Length")
-        self.notes_length_button.setMinimumWidth(f_button_width)
-        self.notes_length_button.pressed.connect(self.length_shift_dialog)
-        self.notes_gridlayout.addWidget(self.notes_length_button, 1, 0)
 
         self.notes_velocity_button = QtGui.QPushButton("Velocity")
         self.notes_velocity_button.setMinimumWidth(f_button_width)
         self.notes_velocity_button.pressed.connect(self.velocity_dialog)
-        self.notes_gridlayout.addWidget(self.notes_velocity_button, 1, 1)
+        self.notes_gridlayout.addWidget(self.notes_velocity_button, 0, 2)
 
-        self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 6)
+        self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 3)
 
         self.notes_clear_button = QtGui.QPushButton("Clear")
         self.notes_clear_button.setMinimumWidth(f_button_width)
         self.notes_clear_button.pressed.connect(self.clear_notes)
-        self.notes_gridlayout.addWidget(self.notes_clear_button, 1, 3)
+        self.notes_gridlayout.addWidget(self.notes_clear_button, 0, 4)
         self.notes_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 6, 1, 1)
         self.notes_vlayout.addLayout(self.notes_gridlayout)
         self.notes_table_widget = QtGui.QTableWidget()
@@ -3676,17 +3464,6 @@ class item_list_editor:
     def item_index_changed(self, a_index=None):
         if self.item_index_enabled:
             self.open_item_list()
-
-    def load_templates(self):
-        self.template_combobox.clear()
-        f_path= expanduser("~") + "/" + global_pydaw_version_string + "/item_templates"
-        if not os.path.isdir(f_path):
-            os.makedirs(f_path)
-        else:
-            f_file_list = os.listdir(f_path)
-            for f_name in f_file_list:
-                if f_name.endswith(".pyitem"):
-                    self.template_combobox.addItem(f_name.split(".")[0])
 
     def set_headers(self): #Because clearing the table clears the headers
         self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note', 'Note#', 'Velocity'])
