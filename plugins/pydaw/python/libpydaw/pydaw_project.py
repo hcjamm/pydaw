@@ -1624,6 +1624,10 @@ class pydaw_audio_item:
         self.fade_out = float(a_fade_out)
         self.lane_num = int(a_lane_num)
 
+    def clone(self):
+        """ Using and abusing the functions that are already there... """
+        return pydaw_audio_item.from_arr(str(self).strip("\n").split("|"))
+
     def __str__(self):
         return str(self.uid) + "|" + str(self.sample_start) + "|" + str(self.sample_end) \
         + "|" + str(self.start_bar) + "|" + str(self.start_beat) + "|" + str(self.end_mode) \
