@@ -1032,6 +1032,7 @@ global_audio_item_handle_pen = QtGui.QPen(QtCore.Qt.white)
 
 class audio_viewer_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_track_num, a_audio_item, a_sample_length):
+        self.sample_length = a_sample_length
         f_temp_seconds = a_sample_length
 
         if a_audio_item.time_stretch_mode == 1:
@@ -1139,6 +1140,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_item.last_x = f_item.pos().x()
+                    if a_event.modifiers() == QtCore.Qt.ControlModifier:
+                        this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
 
     def y_pos_to_lane_number(self, a_y_pos):
         f_lane_num = int((a_y_pos - global_audio_ruler_height) / global_audio_item_height)
@@ -1180,6 +1183,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         for f_audio_item in this_audio_items_viewer.audio_items:
                 if f_audio_item.isSelected():
                     f_item = f_audio_items.items[f_audio_item.track_num]
+                    if a_event.modifiers() == QtCore.Qt.ControlModifier:
+                        f_item = f_item.clone()
+                        f_index = f_audio_items.get_next_index()
+                        if f_index == -1:
+                            QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
+                            break
+                        else:
+                            f_audio_items.add_item(f_index, f_item)
                     f_pos_x = f_audio_item.pos().x()
                     f_pos_y = f_audio_item.pos().y()
                     if f_audio_item.is_resizing:
