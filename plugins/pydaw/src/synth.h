@@ -16,7 +16,7 @@ extern "C" {
 
 #include "libmodsynth.h"
    
-#define PYDAW_INPUT_COUNT 10
+#define PYDAW_INPUT_COUNT 0 //10
     
 #define PYDAW_INPUT_MIN 0
 #define PYDAW_INPUT_MAX  (PYDAW_INPUT_MIN + PYDAW_INPUT_COUNT)

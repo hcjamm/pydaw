@@ -461,7 +461,8 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
     a_pydaw_data->audio_recording_quit_notifier = 0;
     
     /*The worker thread for flushing recorded audio from memory to disk*/
-    pthread_attr_t threadAttr;
+    //No longer recording in PyDAW, but keeping the code here for a future fork that will..
+    /*pthread_attr_t threadAttr;
     struct sched_param param;
     param.__sched_priority = 90;
     pthread_attr_init(&threadAttr);
@@ -469,7 +470,7 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
     pthread_attr_setstacksize(&threadAttr, 8388608); 
     pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
     pthread_create(&a_pydaw_data->audio_recording_thread, &threadAttr, v_pydaw_audio_recording_thread, (void*)a_pydaw_data);
-    pthread_attr_destroy(&threadAttr);
+    pthread_attr_destroy(&threadAttr);*/
 }
 
 inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin)
@@ -4614,9 +4615,8 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_AUDIO_ITEM_LOAD_ALL)) //Reload the entire audio items list
     {
         int f_uid = atoi(a_value);
-        t_pydaw_audio_items * f_old;
-        t_pydaw_audio_items * f_result = v_audio_items_load_all(a_pydaw_data, f_uid);
-        int f_i = 0;
+        //t_pydaw_audio_items * f_old;
+        t_pydaw_audio_items * f_result = v_audio_items_load_all(a_pydaw_data, f_uid);        
         int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data, f_uid);
         pthread_mutex_lock(&a_pydaw_data->main_mutex);        
         a_pydaw_data->pysong->audio_items[f_region_index] = f_result;        
