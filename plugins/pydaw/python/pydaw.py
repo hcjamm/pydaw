@@ -4384,6 +4384,7 @@ class transport_widget:
             this_region_editor.clear_items()
             this_region_audio_editor.clear_items()
             this_region_bus_editor.clear_items()
+            this_audio_items_viewer.clear_drawn_items()
         if a_bar:
             this_region_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
             this_region_audio_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
@@ -4392,6 +4393,7 @@ class transport_widget:
             this_region_editor.table_widget.clearSelection()
             this_region_audio_editor.table_widget.clearSelection()
             this_region_bus_editor.table_widget.clearSelection()
+            this_audio_items_viewer.clear_drawn_items()
         this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
     def on_spacebar(self):
         if self.is_playing or self.is_recording:
@@ -4641,6 +4643,7 @@ class transport_widget:
                     this_region_settings.open_region(f_item.text())
                 else:
                     this_region_settings.clear_items()
+                    this_audio_items_viewer.clear_drawn_items()
             f_new_bar_value = 0
             self.bar_spinbox.setValue(f_new_bar_value)  #NOTE:  This must not be consolidated with the other because trigger_audio_playback relies on it being set first
             self.trigger_audio_playback()
