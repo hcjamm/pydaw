@@ -4907,30 +4907,111 @@ def pydaw_save_cc_map(a_name, a_map):
     pydaw_write_file_text(global_cc_map_folder + "/" + str(a_name), str(a_map))
 
 class pydaw_cc_map_editor:
+    def add_map(self, a_item):
+        if not a_item in self.cc_maps_list:
+            self.cc_maps_list.append(a_item)
+        self.ignore_combobox = True
+        self.map_combobox.clear()
+        self.map_combobox.addItems(self.cc_maps_list)
+        self.ignore_combobox = False
+        self.map_combobox.setCurrentIndex(self.map_combobox.findText(a_item))
+
     def on_save_as(self):
-        pass
+        def ok_handler():
+            f_str = str(f_name.text())
+            if f_str == "":
+                return
+            f_map = pydaw_get_cc_map(self.current_map_name)
+            self.current_map_name = f_str
+            pydaw_save_cc_map(self.current_map_name, f_map)
+            self.add_map(f_str)
+            this_pydaw_project.this_dssi_gui.pydaw_load_cc_map(self.current_map_name)
+            f_window.close()
+
+        def cancel_handler():
+            f_window.close()
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Save CC Map")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+
+        f_name = QtGui.QLineEdit()
+        f_name.setMinimumWidth(240)
+        f_layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
+        f_layout.addWidget(f_name, 0, 1)
+
+        f_ok_layout = QtGui.QHBoxLayout()
+        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(ok_handler)
+        f_ok_layout.addWidget(f_ok)
+        f_layout.addLayout(f_ok_layout, 9, 1)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(cancel_handler)
+        f_layout.addWidget(f_cancel, 9, 2)
+        f_window.exec_()
+
+    def on_new(self):
+        def ok_handler():
+            f_str = str(f_name.text())
+            if f_str == "":
+                return
+            f_map = pydaw_cc_map()
+            self.current_map_name = f_str
+            pydaw_save_cc_map(self.current_map_name, f_map)
+            self.add_map(f_str)
+            this_pydaw_project.this_dssi_gui.pydaw_load_cc_map(self.current_map_name)
+            f_window.close()
+
+        def cancel_handler():
+            f_window.close()
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("New CC Map")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+
+        f_name = QtGui.QLineEdit()
+        f_name.setMinimumWidth(240)
+        f_layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
+        f_layout.addWidget(f_name, 0, 1)
+
+        f_ok_layout = QtGui.QHBoxLayout()
+        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(ok_handler)
+        f_ok_layout.addWidget(f_ok)
+        f_layout.addLayout(f_ok_layout, 9, 1)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(cancel_handler)
+        f_layout.addWidget(f_cancel, 9, 2)
+        f_window.exec_()
 
     def on_open(self, a_val=None):
-        pass
+        if not self.ignore_combobox:
+            self.current_map_name = str(self.map_combobox.currentText())
+            self.open_map(self.current_map_name)
+            this_pydaw_project.this_dssi_gui.pydaw_load_cc_map(self.current_map_name)
 
     def on_click(self, x, y):
         def cc_ok_handler():
-            f_map = pydaw_get_cc_map("default")
+            f_map = pydaw_get_cc_map(self.current_map_name)
             f_map.add_item(f_cc.value(), pydaw_cc_map_item(f_effects_cb.isChecked(), \
             global_controller_port_name_dict["Ray-V"][str(f_rayv.currentText())].port, global_controller_port_name_dict["Way-V"][str(f_wayv.currentText())].port, \
             global_controller_port_name_dict["Euphoria"][str(f_euphoria.currentText())].port, global_controller_port_name_dict["Modulex"][str(f_modulex.currentText())].port))
-            pydaw_save_cc_map("default", f_map)
-            self.open_map("default")
-            this_pydaw_project.this_dssi_gui.pydaw_load_cc_map("default")
+            pydaw_save_cc_map(self.current_map_name, f_map)
+            self.open_map(self.current_map_name)
+            this_pydaw_project.this_dssi_gui.pydaw_load_cc_map(self.current_map_name)
             f_window.close()
 
         def cc_cancel_handler():
-            f_map = pydaw_get_cc_map("default")
+            f_map = pydaw_get_cc_map(self.current_map_name)
             try:
                 f_map.map.pop(f_cc.value())
-                pydaw_save_cc_map("default", f_map)
-                self.open_map("default")
-                this_pydaw_project.this_dssi_gui.pydaw_load_cc_map("default")
+                pydaw_save_cc_map(self.current_map_name, f_map)
+                self.open_map(self.current_map_name)
+                this_pydaw_project.this_dssi_gui.pydaw_load_cc_map(self.current_map_name)
             except KeyError:
                 pass
             f_window.close()
@@ -4983,11 +5064,15 @@ class pydaw_cc_map_editor:
         f_window.exec_()
 
     def __init__(self):
+        self.ignore_combobox = False
         f_local_dir = expanduser("~") + "/" + global_pydaw_version_string
         if not os.path.isdir(f_local_dir):
             os.mkdir(f_local_dir)
         if not os.path.isfile(global_cc_map_folder + "/default"):
             pydaw_save_cc_map("default", pydaw_cc_map())
+        self.current_map_name = "default"
+        self.cc_maps_list = os.listdir(global_cc_map_folder)
+        self.cc_maps_list.sort()
         self.groupbox = QtGui.QGroupBox("Controllers")
         self.groupbox.setMinimumWidth(930)
         self.groupbox.setMaximumWidth(930)
@@ -4996,9 +5081,17 @@ class pydaw_cc_map_editor:
         f_vlayout.addLayout(f_button_layout)
         f_button_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         f_button_layout.addItem(f_button_spacer)
-        #f_save_as_button = QtGui.QPushButton("Save As")
-        #f_save_as_button.pressed.connect(self.on_save_as)
-        #f_button_layout.addWidget(f_save_as_button)
+        self.map_combobox = QtGui.QComboBox()
+        self.map_combobox.setMinimumWidth(240)
+        self.map_combobox.addItems(self.cc_maps_list)
+        self.map_combobox.currentIndexChanged.connect(self.on_open)
+        f_button_layout.addWidget(self.map_combobox)
+        f_new_button = QtGui.QPushButton("New")
+        f_new_button.pressed.connect(self.on_new)
+        f_button_layout.addWidget(f_new_button)
+        f_save_as_button = QtGui.QPushButton("Save As")
+        f_save_as_button.pressed.connect(self.on_save_as)
+        f_button_layout.addWidget(f_save_as_button)
         self.cc_table = QtGui.QTableWidget(127, 5)
         self.cc_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.cc_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
