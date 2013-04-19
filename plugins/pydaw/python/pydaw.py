@@ -1216,7 +1216,11 @@ class audio_items_viewer(QtGui.QGraphicsView):
         QtGui.QGraphicsView.__init__(self)
         self.region_length = 8
         self.scene = QtGui.QGraphicsScene(self)
+        self.scene.dropEvent = self.sceneDropEvent
+        self.scene.dragEnterEvent = self.sceneDragEnterEvent
+        self.scene.dragMoveEvent = self.sceneDragMoveEvent
         self.scene.setBackgroundBrush(QtGui.QColor(90, 90, 90))
+        self.setAcceptDrops(True)
         self.setScene(self.scene)
         self.audio_items = []
         self.track = 0
@@ -1229,6 +1233,43 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.setAlignment(QtCore.Qt.AlignLeft)
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
+
+    def sceneDragEnterEvent(self, a_event):
+        a_event.setAccepted(True)
+
+    def sceneDragMoveEvent(self, a_event):
+        a_event.setDropAction(QtCore.Qt.CopyAction)
+
+    def sceneDropEvent(self, a_event):
+        f_x = a_event.scenePos().x()
+        f_y = a_event.scenePos().y()
+        f_x = pydaw_clip_value(f_x, 0.0, (self.region_length - 1) * global_audio_px_per_bar)
+        f_bar_frac = f_x / global_audio_px_per_bar
+        f_pos_bars = int(f_bar_frac)
+        f_pos_beats = (f_bar_frac - f_pos_bars) * 4.0
+
+        f_y = pydaw_clip_value(f_y, global_audio_ruler_height, global_audio_ruler_height + (12.0 * global_audio_item_height))
+        f_lane_num = int((f_y - global_audio_ruler_height) / global_audio_item_height)
+
+        f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
+        if len(global_audio_item_clipboard) == 0:
+            return
+        for f_file_name in global_audio_item_clipboard:
+            f_file_name_str = str(f_file_name)
+            if not f_file_name_str is None and not f_file_name_str == "":
+                f_index = f_items.get_next_index()
+                if f_index == -1:
+                    QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
+                    break
+                else:
+                    f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
+                    f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_start_beat=f_pos_beats, a_lane_num=f_lane_num)
+                    f_items.add_item(f_index, f_item)
+        this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
+        this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
+        this_audio_editor.open_items()
+        this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(f_index)
+        self.last_open_dir = os.path.dirname(f_file_name_str)
 
     def keyPressEvent(self, a_event):
         if a_event.key() == QtCore.Qt.Key_Delete:
@@ -1321,9 +1362,23 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.audio_items.append(f_audio_item)
         self.scene.addItem(f_audio_item)
 
+global_audio_item_clipboard = []
+
 class audio_items_viewer_widget():
     def __init__(self):
+        self.hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        self.hsplitter.setSizes([200])
+        self.vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.hsplitter.addWidget(self.vsplitter)
+        self.list_folder = QtGui.QListWidget()
+        self.list_folder.itemClicked.connect(self.folder_item_clicked)
+        self.vsplitter.addWidget(self.list_folder)
+        self.list_file = QtGui.QListWidget()
+        self.list_file.setDragEnabled(True)
+        self.list_file.mousePressEvent = self.file_mouse_press_event
+        self.vsplitter.addWidget(self.list_file)
         self.widget = QtGui.QWidget()
+        self.hsplitter.addWidget(self.widget)
         self.vlayout = QtGui.QVBoxLayout()
         self.widget.setLayout(self.vlayout)
         self.controls_grid_layout = QtGui.QGridLayout()
@@ -1336,9 +1391,6 @@ class audio_items_viewer_widget():
         self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
-        self.add_multi_button = QtGui.QPushButton("Add Items")
-        self.controls_grid_layout.addWidget(self.add_multi_button, 0, 3)
-        self.add_multi_button.pressed.connect(self.add_multi)
 
         self.controls_grid_layout.addWidget(QtGui.QLabel("V-Zoom:"), 0, 45)
         self.v_zoom_combobox = QtGui.QComboBox()
@@ -1356,37 +1408,32 @@ class audio_items_viewer_widget():
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
         self.v_zoom = 1.0
         self.last_open_dir = expanduser("~")
+        self.set_folder(".")
 
-    def add_multi(self):
-        if global_transport_is_playing:
-            QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
-            return
-        if global_current_region is None:
-            QtGui.QMessageBox.warning(self.widget, "Error", "You must create a region and select it in the song editor above before adding audio items.")
-            return
-        #try:
-        f_file_names = list(QtGui.QFileDialog.getOpenFileNames(self.widget, "Select .wav file(s) to open(CTRL+click to select many)...", self.last_open_dir, filter=".wav files(*.wav)"))
-        f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
-        if len(f_file_names) == 0:
-            return
-        for f_file_name in f_file_names:
-            f_file_name_str = str(f_file_name)
-            if not f_file_name_str is None and not f_file_name_str == "":
-                f_index = f_items.get_next_index()
-                if f_index == -1:
-                    QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
-                    break
-                else:
-                    f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
-                    f_item = pydaw_audio_item(f_uid)
-                    f_items.add_item(f_index, f_item)
-        this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
-        this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
-        this_audio_editor.open_items()
-        this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(f_index)
-        self.last_open_dir = os.path.dirname(f_file_name_str)
-        #except Exception as ex:
-        #    pydaw_print_generic_exception(ex)
+    def file_mouse_press_event(self, a_event):
+        QtGui.QListWidget.mousePressEvent(self.list_file, a_event)
+        global global_audio_item_clipboard
+        global_audio_item_clipboard = []
+        for f_item in self.list_file.selectedItems():
+            global_audio_item_clipboard.append(self.last_open_dir + "/" + str(f_item.text()))
+            print self.last_open_dir + "/" + str(f_item.text())
+
+    def folder_item_clicked(self, a_item):
+        self.set_folder(a_item.text())
+
+    def set_folder(self, a_folder):
+        self.list_file.clear()
+        self.list_folder.clear()
+        self.list_folder.addItems([".."])
+        self.last_open_dir = os.path.abspath(self.last_open_dir + "/" + str(a_folder))
+        f_list = os.listdir(self.last_open_dir)
+        f_list.sort()
+        for f_file in f_list:
+            f_full_path = self.last_open_dir + "/" + f_file
+            if os.path.isdir(f_full_path) and not f_file.startswith("."):
+                self.list_folder.addItem(f_file)
+            elif f_file.upper().endswith(".WAV") and os.path.isfile(f_full_path):
+                self.list_file.addItem(f_file)
 
     def set_v_zoom(self, a_val=None):
         this_audio_items_viewer.set_v_zoom(1.0 / self.v_zoom)
@@ -5110,7 +5157,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_tabwidget.addTab(this_item_editor.widget, "MIDI Item")
         #self.regions_tab_widget.addTab(this_audio_editor.group_box, "Audio Inputs")
         self.audio_items_tab = QtGui.QTabWidget()
-        self.audio_items_tab.addTab(this_audio_items_viewer_widget.widget, "Viewer")
+        self.audio_items_tab.addTab(this_audio_items_viewer_widget.hsplitter, "Viewer")
         self.audio_items_tab.addTab(this_audio_editor.items_groupbox, "Item List")
         self.audio_edit_tab = this_audio_item_editor_widget
         self.main_tabwidget.addTab(self.audio_edit_tab.widget, "Audio Item")
