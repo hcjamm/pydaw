@@ -18,7 +18,7 @@ pydaw_bus_count = 5
 pydaw_audio_track_count = 8
 pydaw_audio_input_count = 5
 pydaw_midi_track_count = 16
-pydaw_max_audio_item_count = 32
+pydaw_max_audio_item_count = 64
 pydaw_max_region_length = 32 #bars
 
 pydaw_folder_audio = "audio"
@@ -1571,7 +1571,7 @@ class pydaw_audio_track:
 class pydaw_audio_items:
     """ Return the next available index, or -1 if none are available """
     def get_next_index(self):
-        for i in range(32):
+        for i in range(pydaw_max_audio_item_count):
             if not self.items.has_key(i):
                 return i
         return -1

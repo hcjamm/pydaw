@@ -1942,7 +1942,7 @@ class audio_list_editor:
         self.audio_items_table_widget.setColumnCount(15)
         self.audio_items_table_widget.setHorizontalHeaderLabels(["FileUID", "Sample Start", "Sample End", "Start Bar", "Start Beat", \
         "End Mode", "End Bar", "End Beat", "Timestretch Mode", "Pitch", "Timestretch", "Audio Track", "Volume", "FadeIn", "FadeOut"])
-        self.audio_items_table_widget.setRowCount(32)
+        self.audio_items_table_widget.setRowCount(pydaw_max_audio_item_count)
         self.audio_items_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_items_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
         self.audio_items_table_widget.cellClicked.connect(self.cell_clicked)
