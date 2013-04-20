@@ -1105,6 +1105,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
         self.length_handle.setToolTip("Use this handle to resize the item by changing the start/end points...\nSnapping by region is not supported for length, it will be snapped by bar for either setting.")
         self.is_resizing = False
+        self.is_copying = False
         self.set_brush()
 
     def set_brush(self, a_index=None):
@@ -1138,10 +1139,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if global_transport_is_playing:
             return
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+        if a_event.modifiers() == QtCore.Qt.ControlModifier:
+            self.is_copying = True
         for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_item.last_x = f_item.pos().x()
-                    if a_event.modifiers() == QtCore.Qt.ControlModifier:
+                    if self.is_copying:
                         this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
 
     def y_pos_to_lane_number(self, a_y_pos):
@@ -1184,7 +1187,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         for f_audio_item in this_audio_items_viewer.audio_items:
                 if f_audio_item.isSelected():
                     f_item = f_audio_items.items[f_audio_item.track_num]
-                    if a_event.modifiers() == QtCore.Qt.ControlModifier:
+                    if self.is_copying:
                         f_item = f_item.clone()
                         f_index = f_audio_items.get_next_index()
                         if f_index == -1:
