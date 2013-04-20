@@ -1242,7 +1242,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.track = 0
         self.gradient_index = 0
         self.playback_px = 0.0
-        self.set_playback_pos(0, 0)
+        self.set_playback_pos(0)
         self.draw_headers()
         self.setAlignment(QtCore.Qt.AlignTop)
         self.snap_mode = 0
@@ -1300,7 +1300,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             this_pydaw_project.commit("Delete item(s) from song-level audio")
             this_audio_editor.open_items(True)
 
-    def set_playback_pos(self, a_region=None, a_bar=None):
+    def set_playback_pos(self, a_bar=None):
         try:
             self.scene.removeItem(self.playback_cursor)
         except:
@@ -1309,12 +1309,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.playback_cursor.setPen(QtGui.QPen(QtGui.QColor.fromRgb(240, 30, 30, 180.0), 3.0))
         self.playback_cursor.setZValue(40.0)
         self.scene.addItem(self.playback_cursor)
-        if a_region is not None and a_bar is not None:
-            self.playback_region = a_region
-            self.playback_bar = a_bar
-        self.playback_px = self.playback_bar * global_audio_px_per_bar
-        for i in range(self.playback_region):
-            self.playback_px += pydaw_get_region_length(i) * global_audio_px_per_bar
+        if a_bar is not None:
+            self.playback_px = a_bar * global_audio_px_per_bar
         self.playback_cursor.setPos(self.playback_px, 0.0)
 
     def start_playback(self, a_bars, a_bpm):
@@ -4293,7 +4289,7 @@ class transport_widget:
             f_bar_count = 1
         else:
             f_bar_count = pydaw_get_region_length(self.region_spinbox.value()) - self.bar_spinbox.value()
-        this_audio_items_viewer.set_playback_pos(0, self.bar_spinbox.value())
+        this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
         this_audio_items_viewer.start_playback(f_bar_count, self.tempo_spinbox.value())
 
     def on_stop(self):
@@ -4323,7 +4319,7 @@ class transport_widget:
         #if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
         #    this_region_settings.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
         this_audio_items_viewer.stop_playback()
-        this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
+        this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
 
     def show_save_items_dialog(self):
         def ok_handler():
@@ -4394,12 +4390,12 @@ class transport_widget:
     def on_bar_changed(self, a_bar):
         self.transport.bar = a_bar
         if not self.suppress_osc and not self.is_playing and not self.is_recording:
-            this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
+            this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
     def on_region_changed(self, a_region):
         self.bar_spinbox.setRange(0, pydaw_get_region_length(a_region) - 1)
         self.transport.region = a_region
         if not self.is_playing and not self.is_recording:
-            this_audio_items_viewer.set_playback_pos(self.region_spinbox.value(), self.bar_spinbox.value())
+            this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
     def on_follow_cursor_check_changed(self):
         if self.follow_checkbox.isChecked():
             f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
