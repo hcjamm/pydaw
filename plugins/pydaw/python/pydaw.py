@@ -1145,12 +1145,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if global_transport_is_playing:
             return
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
-        if a_event.modifiers() == QtCore.Qt.ControlModifier:
-            self.is_copying = True
+
         for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_item.last_x = f_item.pos().x()
-                    if self.is_copying:
+                    if a_event.modifiers() == QtCore.Qt.ControlModifier:
+                        f_item.is_copying = True
                         this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
 
     def y_pos_to_lane_number(self, a_y_pos):
@@ -1191,44 +1191,46 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         f_audio_items = this_pydaw_project.get_audio_items(global_current_region.uid)
         for f_audio_item in this_audio_items_viewer.audio_items:
-                if f_audio_item.isSelected():
-                    f_item = f_audio_items.items[f_audio_item.track_num]
-                    if self.is_copying:
-                        f_item = f_item.clone()
-                        f_index = f_audio_items.get_next_index()
-                        if f_index == -1:
-                            QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
-                            break
-                        else:
-                            f_audio_items.add_item(f_index, f_item)
-                    f_pos_x = f_audio_item.pos().x()
-                    f_pos_y = f_audio_item.pos().y()
-                    if f_audio_item.is_resizing:
-                        if f_item.end_mode == 0:
-                            f_item.sample_end = (f_audio_item.rect().width() / f_audio_item.length_seconds_orig_px) * 1000.0
-                    elif f_audio_item.is_moving:
-                        if f_audio_item.last_x == f_pos_x:
-                            continue
-                        if this_audio_items_viewer.snap_mode == 0:
-                            pass
-                        elif this_audio_items_viewer.snap_mode == 1:
-                            f_pos_x = int(f_pos_x/global_audio_px_per_bar) * global_audio_px_per_bar
-                        f_item.lane_num, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
-                        f_audio_item.set_brush(f_item.lane_num)
-                        f_audio_item.setPos(f_pos_x, f_pos_y)
-                        f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
-                        f_item.start_bar = f_start_result[0]
-                        f_item.start_beat = f_start_result[1]
-                    if f_item.end_mode == 1:
-                        f_end_result = f_audio_item.pos_to_musical_time(f_pos_x + f_audio_item.rect().width())
-                        f_item.end_bar = f_end_result[0]
-                        f_item.end_beat = f_end_result[1]
-                    f_audio_item.audio_item = f_item
-                    if this_audio_item_editor_widget.selected_index_combobox.currentIndex() == f_audio_item.track_num:
-                        this_audio_item_editor_widget.open_item(f_item)
-                    f_audio_item.is_moving = False
-                    f_audio_item.is_resizing = False
-                    f_audio_item.setGraphicsEffect(None)
+            if f_audio_item.isSelected():
+                f_item = f_audio_items.items[f_audio_item.track_num]
+                if f_audio_item.is_copying:
+                    f_item = f_item.clone()
+                    f_index = f_audio_items.get_next_index()
+                    if f_index == -1:
+                        QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
+                        break
+                    else:
+                        f_audio_items.add_item(f_index, f_item)
+                f_pos_x = f_audio_item.pos().x()
+                f_pos_y = f_audio_item.pos().y()
+                if f_audio_item.is_resizing:
+                    if f_item.end_mode == 0:
+                        f_item.sample_end = (f_audio_item.rect().width() / f_audio_item.length_seconds_orig_px) * 1000.0
+                elif f_audio_item.is_moving:
+                    if f_audio_item.last_x == f_pos_x:
+                        continue
+                    if this_audio_items_viewer.snap_mode == 0:
+                        pass
+                    elif this_audio_items_viewer.snap_mode == 1:
+                        f_pos_x = int(f_pos_x/global_audio_px_per_bar) * global_audio_px_per_bar
+                    f_item.lane_num, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
+                    f_audio_item.set_brush(f_item.lane_num)
+                    f_audio_item.setPos(f_pos_x, f_pos_y)
+                    f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
+                    f_item.start_bar = f_start_result[0]
+                    f_item.start_beat = f_start_result[1]
+                if f_item.end_mode == 1:
+                    f_end_result = f_audio_item.pos_to_musical_time(f_pos_x + f_audio_item.rect().width())
+                    f_item.end_bar = f_end_result[0]
+                    f_item.end_beat = f_end_result[1]
+                f_audio_item.audio_item = f_item
+                if this_audio_item_editor_widget.selected_index_combobox.currentIndex() == f_audio_item.track_num:
+                    this_audio_item_editor_widget.open_item(f_item)
+            f_audio_item.is_moving = False
+            f_audio_item.is_resizing = False
+            f_audio_item.is_copying = False
+            f_audio_item.setGraphicsEffect(None)
+            #f_audio_item.setSelected(False)
         this_pydaw_project.save_audio_items(global_current_region.uid, f_audio_items)
         this_pydaw_project.commit("Update audio items")
         this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
