@@ -226,8 +226,13 @@ typedef struct
     float vol_linear;
     
     float timestretch_amt;
-    int sample_fade_in;
-    int sample_fade_out;
+    float sample_fade_in;
+    float sample_fade_out;
+    int sample_fade_in_end;
+    int sample_fade_out_start;
+    float sample_fade_in_divisor;
+    float sample_fade_out_divisor;
+    float fade_vol;
     
     t_amp * amp_ptr;
     t_pit_pitch_core * pitch_core_ptr;
@@ -483,17 +488,29 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     free(f_timestretch_amt_char);
     
     char * f_fade_in_char = c_iterate_2d_char_array(f_current_string);
-    f_result->sample_fade_in = atoi(f_fade_in_char);
+    f_result->sample_fade_in = atof(f_fade_in_char) * 0.001f;
     free(f_fade_in_char);
         
     char * f_fade_out_char = c_iterate_2d_char_array(f_current_string);
-    f_result->sample_fade_out = atoi(f_fade_out_char);
+    f_result->sample_fade_out = atof(f_fade_out_char) * 0.001f;
     free(f_fade_out_char);
+    
+    f_result->sample_fade_in_end = f_result->sample_end_offset - f_result->sample_start_offset;
+    f_result->sample_fade_in_end = 
+            ((int)((float)(f_result->sample_fade_in_end) * f_result->sample_fade_in)) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
+    
+    f_result->sample_fade_out_start = f_result->sample_end_offset - f_result->sample_start_offset;
+    f_result->sample_fade_out_start = 
+            ((int)((float)(f_result->sample_fade_out_start) * f_result->sample_fade_out)) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
+        
+    f_result->sample_fade_in_divisor = (f_result->sample_fade_in_end - ((float)(PYDAW_AUDIO_ITEM_PADDING_DIV2)));
+    
+    f_result->sample_fade_out_divisor = (f_result->sample_end_offset - f_result->sample_fade_out_start);
     
     char * f_lane_num_char = c_iterate_2d_char_array(f_current_string);    
     free(f_lane_num_char);  //not used by the engine
         
-    f_result->ratio = f_result->wav_pool_item->ratio_orig;  //Otherwise the pitch/time shifting gets re-applied every time...
+    f_result->ratio = f_result->wav_pool_item->ratio_orig;
     
     switch(f_result->timestretch_mode)
     {
@@ -523,6 +540,27 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     f_result->adsr->stage = 4;
     
     return f_result;
+}
+
+void v_pydaw_audio_item_set_fade_vol(t_pydaw_audio_item *a_audio_item)
+{
+    if(a_audio_item->sample_read_head->whole_number < a_audio_item->sample_fade_in_end)
+    {
+        a_audio_item->fade_vol = ((float)(a_audio_item->sample_read_head->whole_number)) / a_audio_item->sample_fade_in_divisor;        
+        a_audio_item->fade_vol = ((a_audio_item->fade_vol) * 40.0f) - 40.0f;
+        a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);
+    }
+    else if(a_audio_item->sample_read_head->whole_number >= a_audio_item->sample_fade_out_start)
+    {
+        a_audio_item->fade_vol = ((float)(a_audio_item->sample_read_head->whole_number - a_audio_item->sample_fade_out_start)) 
+                / a_audio_item->sample_fade_out_divisor;
+        a_audio_item->fade_vol = ((a_audio_item->fade_vol) * 40.0f) - 40.0f;
+        a_audio_item->fade_vol = f_db_to_linear_fast(a_audio_item->fade_vol, a_audio_item->amp_ptr);
+    }
+    else
+    {
+        a_audio_item->fade_vol = 1.0f;
+    }        
 }
 
 void v_pydaw_audio_items_free(t_pydaw_audio_items *a_audio_items)

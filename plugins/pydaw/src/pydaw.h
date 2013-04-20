@@ -2078,6 +2078,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     ((a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_read_head->whole_number) <  (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_end_offset)))
                             //(a_pydaw_data->audio_items->items[f_i]->length)))
                     {   
+                        v_pydaw_audio_item_set_fade_vol(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]);
+                        
                         if(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->wav_pool_item->channels == 1)
                         {
                             float f_tmp_sample = f_cubic_interpolate_ptr_ifh(
@@ -2086,7 +2088,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                             (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_read_head->fraction),
                             (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->cubic_interpolator)) * 
                             (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr->output) *
-                            (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->vol_linear);
+                            (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->vol_linear) * 
+                            (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->fade_vol);
 
                             a_output0[f_i2] += f_tmp_sample;
                             a_output1[f_i2] += f_tmp_sample;
@@ -2099,7 +2102,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                             (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_read_head->fraction),
                             (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->cubic_interpolator)) * 
                             (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr->output) *
-                            (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->vol_linear);
+                            (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->vol_linear) * 
+                            (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->fade_vol);
 
                             a_output1[f_i2] += f_cubic_interpolate_ptr_ifh(
                             (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->wav_pool_item->samples[1]),
@@ -2107,7 +2111,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                             (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_read_head->fraction),
                             (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->cubic_interpolator)) * 
                             (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr->output) *
-                            (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->vol_linear);
+                            (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->vol_linear) * 
+                            (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->fade_vol);
                         }
                         else
                         {
