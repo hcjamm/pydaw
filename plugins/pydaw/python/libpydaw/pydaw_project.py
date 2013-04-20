@@ -1606,7 +1606,7 @@ class pydaw_audio_items:
 class pydaw_audio_item:
     def __init__(self, a_uid, a_sample_start=0.0, a_sample_end=1000.0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
     a_end_bar=0, a_end_beat=0, a_timestretch_mode=0, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0, \
-    a_fade_in=0.0, a_fade_out=1000.0, a_lane_num=0):
+    a_fade_in=0.0, a_fade_out=999.0, a_lane_num=0):
         self.uid = int(a_uid)
         self.sample_start = float(a_sample_start)
         self.sample_end = float(a_sample_end)
