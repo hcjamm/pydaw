@@ -16,7 +16,8 @@ GNU General Public License for more details.
 """
 
 import sys, os, operator
-from time import sleep, time
+from time import sleep
+import time
 from PyQt4 import QtGui, QtCore
 from sys import argv
 from os.path import expanduser
@@ -4594,10 +4595,10 @@ class pydaw_main_window(QtGui.QMainWindow):
                 f_time_label.setText("Finished in " + str(f_time_label.text()))
                 os.system('rm "' + f_file_name + '"')
             else:
-                f_elapsed_time = time() - f_start_time
+                f_elapsed_time = time.time() - f_start_time
                 f_time_label.setText(str(round(f_elapsed_time, 1)))
 
-        f_start_time = time()
+        f_start_time = time.time()
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Rendering to .wav, please wait")
         f_layout = QtGui.QGridLayout()
