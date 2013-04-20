@@ -1381,15 +1381,57 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
 global_audio_item_clipboard = []
 
+global_bookmarks_file_path = expanduser("~") + "/" + global_pydaw_version_string + "/lms_file_browser_bookmarks.txt"
+
+def global_get_file_bookmarks():
+    """ Get the bookmarks shared with Euphoria """
+    f_result = {}
+    if os.path.isfile(global_bookmarks_file_path):
+        f_text = pydaw_read_file_text(global_bookmarks_file_path)
+        f_arr = f_text.split("\n")
+        for f_line in f_arr:
+            f_line_arr = f_line.split("|||")
+            if len(f_line_arr) < 2:
+                break
+            f_result[f_line_arr[0]] = f_line_arr[1]
+    return f_result
+
+def global_add_file_bookmark(a_folder):
+    f_dict = global_get_file_bookmarks()
+    f_folder = str(a_folder)
+    f_dict[f_folder.split("/")[-1]] = f_folder
+    f_result = ""
+    for k, v in f_dict.iteritems():
+        f_result += str(k) + "|||" + str(v) + "\n"
+    pydaw_write_file_text(global_bookmarks_file_path, f_result.strip("\n"))
+
 class audio_items_viewer_widget():
     def __init__(self):
         self.hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         self.hsplitter.setSizes([200])
         self.vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.hsplitter.addWidget(self.vsplitter)
+        self.folders_tab_widget = QtGui.QTabWidget()
+        self.vsplitter.addWidget(self.folders_tab_widget)
+        self.folders_tab = QtGui.QWidget()
+        self.folders_tab_widget.addTab(self.folders_tab, "Folders")
+        self.folders_tab_vlayout = QtGui.QVBoxLayout()
+        self.folders_tab.setLayout(self.folders_tab_vlayout)
         self.list_folder = QtGui.QListWidget()
         self.list_folder.itemClicked.connect(self.folder_item_clicked)
-        self.vsplitter.addWidget(self.list_folder)
+        self.folders_tab_vlayout.addWidget(self.list_folder)
+        self.bookmark_button = QtGui.QPushButton("Bookmark")
+        self.bookmark_button.pressed.connect(self.bookmark_button_pressed)
+        self.folders_tab_vlayout.addWidget(self.bookmark_button)
+
+        self.bookmarks_tab = QtGui.QWidget()
+        self.list_bookmarks = QtGui.QListWidget()
+        self.list_bookmarks.itemClicked.connect(self.bookmark_clicked)
+        self.bookmarks_tab_vlayout = QtGui.QVBoxLayout()
+        self.bookmarks_tab.setLayout(self.bookmarks_tab_vlayout)
+        self.bookmarks_tab_vlayout.addWidget(self.list_bookmarks)
+        self.folders_tab_widget.addTab(self.bookmarks_tab, "Bookmarks")
+
         self.list_file = QtGui.QListWidget()
         self.list_file.setDragEnabled(True)
         self.list_file.mousePressEvent = self.file_mouse_press_event
@@ -1426,6 +1468,22 @@ class audio_items_viewer_widget():
         self.v_zoom = 1.0
         self.last_open_dir = expanduser("~")
         self.set_folder(".")
+        self.open_bookmarks()
+
+    def open_bookmarks(self):
+        self.list_bookmarks.clear()
+        f_dict = global_get_file_bookmarks()
+        for k, v in f_dict.iteritems():
+            self.list_bookmarks.addItem(str(k))
+
+    def bookmark_button_pressed(self):
+        global_add_file_bookmark(self.last_open_dir)
+        self.open_bookmarks()
+
+    def bookmark_clicked(self, a_item):
+        f_dict = global_get_file_bookmarks()
+        f_full_path = f_dict[str(a_item.text())]
+        self.set_folder(f_full_path, True)
 
     def file_mouse_press_event(self, a_event):
         QtGui.QListWidget.mousePressEvent(self.list_file, a_event)
@@ -1438,11 +1496,14 @@ class audio_items_viewer_widget():
     def folder_item_clicked(self, a_item):
         self.set_folder(a_item.text())
 
-    def set_folder(self, a_folder):
+    def set_folder(self, a_folder, a_full_path=False):
         self.list_file.clear()
         self.list_folder.clear()
         self.list_folder.addItems([".."])
-        self.last_open_dir = os.path.abspath(self.last_open_dir + "/" + str(a_folder))
+        if a_full_path:
+            self.last_open_dir = str(a_folder)
+        else:
+            self.last_open_dir = os.path.abspath(self.last_open_dir + "/" + str(a_folder))
         f_list = os.listdir(self.last_open_dir)
         f_list.sort()
         for f_file in f_list:
