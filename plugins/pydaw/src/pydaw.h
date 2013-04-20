@@ -1918,7 +1918,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
     double f_adjusted_next_song_pos_beats = v_pydaw_count_beats(a_pydaw_data, 0, 0, 0.0f, a_pydaw_data->ml_next_region, a_pydaw_data->ml_next_bar, 
                 a_pydaw_data->ml_next_beat);
             
-    if(a_pydaw_data->input_buffers_active)
+    /*if(a_pydaw_data->input_buffers_active)
     {
         f_i = 0;
         while(f_i < PYDAW_AUDIO_INPUT_TRACK_COUNT)
@@ -1988,7 +1988,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
             }
             f_i++;
         }
-    }
+    }*/
         
     f_i = 0;
     f_i2 = 0;
@@ -2017,8 +2017,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
             {
                 f_i++;
                 continue;
-            }
-                        
+            }                        
             
             if(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->end_mode == 1)            
             {
@@ -2035,8 +2034,7 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     f_i++;
                     continue;
                 }
-            }
-            
+            }            
 
             int f_adjusted_sample_count = a_sample_count;
             f_i2 = 0;            
