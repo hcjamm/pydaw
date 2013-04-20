@@ -1259,10 +1259,13 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def sceneDropEvent(self, a_event):
         f_x = a_event.scenePos().x()
         f_y = a_event.scenePos().y()
-        f_x = pydaw_clip_value(f_x, 0.0, (global_current_region.region_length_bars - 1) * global_audio_px_per_bar)
+        if global_current_region.region_length_bars == 0:
+            f_max_start = 8
+        else:
+            f_max_start = global_current_region.region_length_bars - 1
         f_bar_frac = f_x / global_audio_px_per_bar
         f_pos_bars = int(f_bar_frac)
-        f_pos_beats = (f_bar_frac - f_pos_bars) * 4.0
+        f_pos_bars = pydaw_clip_value(f_pos_bars, 0, f_max_start)
 
         f_y = pydaw_clip_value(f_y, global_audio_ruler_height, global_audio_ruler_height + (12.0 * global_audio_item_height))
         f_lane_num = int((f_y - global_audio_ruler_height) / global_audio_item_height)
@@ -1279,7 +1282,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     break
                 else:
                     f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
-                    f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_start_beat=f_pos_beats, a_lane_num=f_lane_num)
+                    f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_lane_num=f_lane_num)
                     f_items.add_item(f_index, f_item)
         this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
         this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
