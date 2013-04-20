@@ -2120,6 +2120,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.note_item = a_note_item
         self.setAcceptHoverEvents(True)
         self.resize_start_pos = self.note_item.start
+        self.is_copying = False
         if global_selected_piano_note is not None and a_note_item == global_selected_piano_note:
             self.is_resizing = True
             this_piano_roll_editor.click_enabled = True
@@ -2187,6 +2188,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                         f_item.resize_pos = f_item.pos()
                         f_item.resize_rect = f_item.rect()
             elif a_event.modifiers() == QtCore.Qt.ControlModifier:
+                self.is_copying = True
                 for f_item in this_piano_roll_editor.note_items:
                     if f_item.isSelected():
                         this_piano_roll_editor.draw_note(f_item.note_item, f_item.item_index)
@@ -2249,7 +2251,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                 else:
                     f_new_note_start = (f_pos_x - global_piano_keys_width) * 4.0 * 0.001
                     f_new_note_num = int(global_piano_roll_note_count - ((f_pos_y - global_piano_roll_header_height) / global_piano_roll_note_height))
-                    if a_event.modifiers() == QtCore.Qt.ControlModifier:
+                    if self.is_copying:
                         f_item.item_index, f_new_note_start = pydaw_beats_to_index(f_new_note_start)
                         f_new_note = pydaw_note(f_new_note_start, f_item.note_item.length, f_new_note_num, f_item.note_item.velocity)
                         this_item_editor.items[f_item.item_index].add_note(f_new_note, False)
@@ -2266,6 +2268,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         global_save_and_reload_items()
         for f_item in this_piano_roll_editor.note_items:
             f_item.is_resizing = False
+            f_item.is_copying = False
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.showing_resize_cursor = False
         this_piano_roll_editor.click_enabled = True
