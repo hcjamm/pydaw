@@ -123,6 +123,12 @@ def pydaw_print_generic_exception(a_ex):
     "\nIf you are running PyDAW from a USB flash drive, this may be because file IO timed out due to the slow " + \
     "nature of flash drives.  If the problem persists, you should consider installing PyDAW-OS to your hard drive instead")
 
+def pydaw_global_current_region_is_none():
+    if global_current_region is None:
+        QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first by clicking in the song editor above.")
+        return True
+    return False
+
 def pydaw_scale_to_rect(a_to_scale, a_scale_to):
     """ Returns a tuple that scales one QRectF to another """
     f_x = (a_scale_to.width() / a_to_scale.width())
@@ -1257,6 +1263,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         a_event.setDropAction(QtCore.Qt.CopyAction)
 
     def sceneDropEvent(self, a_event):
+        if pydaw_global_current_region_is_none():
+            return
         f_x = a_event.scenePos().x()
         f_y = a_event.scenePos().y()
         if global_current_region.region_length_bars == 0:
@@ -1291,6 +1299,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.last_open_dir = os.path.dirname(f_file_name_str)
 
     def keyPressEvent(self, a_event):
+        if pydaw_global_current_region_is_none():
+            return
         if a_event.key() == QtCore.Qt.Key_Delete:
             f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
             for f_item in self.audio_items:
