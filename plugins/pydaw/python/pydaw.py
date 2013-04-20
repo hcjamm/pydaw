@@ -1497,7 +1497,8 @@ class audio_items_viewer_widget():
 
     def bookmark_clicked(self, a_item):
         f_dict = global_get_file_bookmarks()
-        f_full_path = f_dict[str(a_item.text())]
+        f_folder_name = str(a_item.text())
+        f_full_path = f_dict[f_folder_name] + "/" + f_folder_name
         self.set_folder(f_full_path, True)
 
     def file_mouse_press_event(self, a_event):
