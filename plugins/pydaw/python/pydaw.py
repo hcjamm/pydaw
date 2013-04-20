@@ -1655,11 +1655,11 @@ class audio_item_editor_widget:
         for k, v in f_items.items.iteritems():
             self.items_list[k] = str(v.uid)
         self.suppress_index_change = True
-        f_last_index = self.selected_index_combobox.currentIndex()
         self.selected_index_combobox.clear()
         self.selected_index_combobox.addItems(self.items_list)
-        self.selected_index_combobox.setCurrentIndex(f_last_index)
+        self.selected_index_combobox.setCurrentIndex(0)
         self.suppress_index_change = False
+        self.selected_index_changed(0)
 
     def selected_index_changed(self, a_val):
         if not self.suppress_index_change:
