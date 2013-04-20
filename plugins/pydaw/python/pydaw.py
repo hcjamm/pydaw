@@ -1052,7 +1052,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         f_length_seconds = pydaw_seconds_to_bars(a_sample_length) * global_audio_px_per_bar
         self.length_seconds_orig_px = f_length_seconds
-        self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, 65.0)
+        self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, global_audio_item_height)
         f_length_seconds *= 1.0 - (a_audio_item.sample_start * 0.001)
         f_length_seconds *= a_audio_item.sample_end * 0.001
 
@@ -1087,7 +1087,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.painter_paths = f_graph.create_sample_graph(True)
 
         f_y_pos = 0.0
-        f_y_inc = 65.0 / len(self.painter_paths)
+        f_y_inc = global_audio_item_height / len(self.painter_paths)
         for f_painter_path in self.painter_paths:
             f_path_item = QtGui.QGraphicsPathItem(f_painter_path)
             f_path_item.setBrush(pydaw_audio_item_scene_gradient)
