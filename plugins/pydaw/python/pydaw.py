@@ -1206,6 +1206,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 if f_audio_item.is_resizing:
                     if f_item.end_mode == 0:
                         f_item.sample_end = (f_audio_item.rect().width() / f_audio_item.length_seconds_orig_px) * 1000.0
+                        print "f_item.sample_end", f_item.sample_end
                 elif f_audio_item.is_moving:
                     if f_audio_item.last_x == f_pos_x:
                         continue
@@ -1905,8 +1906,8 @@ class audio_list_editor:
 
         for k, v in self.audio_items.items.iteritems():
             self.audio_items_table_widget.setItem(k, 0, QtGui.QTableWidgetItem(str(v.uid)))
-            self.audio_items_table_widget.setItem(k, 1, QtGui.QTableWidgetItem(str(float(v.sample_start) * 0.1)))
-            self.audio_items_table_widget.setItem(k, 2, QtGui.QTableWidgetItem(str(float(v.sample_end) * 0.1)))
+            self.audio_items_table_widget.setItem(k, 1, QtGui.QTableWidgetItem(str(float(v.sample_start))))
+            self.audio_items_table_widget.setItem(k, 2, QtGui.QTableWidgetItem(str(float(v.sample_end))))
             self.audio_items_table_widget.setItem(k, 3, QtGui.QTableWidgetItem(str(v.start_bar)))
             self.audio_items_table_widget.setItem(k, 4, QtGui.QTableWidgetItem(str(v.start_beat)))
             self.audio_items_table_widget.setItem(k, 5, QtGui.QTableWidgetItem(str(v.end_mode)))
