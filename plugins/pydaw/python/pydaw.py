@@ -1750,6 +1750,11 @@ class audio_item_editor_widget:
         self.end_beat = QtGui.QDoubleSpinBox()
         self.end_beat.setRange(0, 3.99)
         self.start_hlayout.addWidget(self.end_beat)
+        self.start_hlayout.addItem(QtGui.QSpacerItem(100, 0))
+        self.start_hlayout.addWidget(QtGui.QLabel("Lane:"))
+        self.lane_num = QtGui.QSpinBox()
+        self.lane_num.setRange(0, 11)
+        self.start_hlayout.addWidget(self.lane_num)
         self.start_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
         self.start_hlayout.addWidget(QtGui.QLabel("H-Zoom"))
         self.h_zoom_combobox = QtGui.QComboBox()
@@ -1844,6 +1849,7 @@ class audio_item_editor_widget:
             self.sample_vol_slider.setValue(a_item.vol)
             self.fade_in.setValue(a_item.fade_in)
             self.fade_out.setValue(a_item.fade_out)
+            self.lane_num.setValue(a_item.lane_num)
             self.sample_view.clear_drawn_items()
             f_path_list = this_pydaw_project.get_sample_graph_by_uid(a_item.uid)
             if f_path_list is not None:
@@ -1873,7 +1879,7 @@ class audio_item_editor_widget:
         self.new_item = pydaw_audio_item(str(self.selected_index_combobox.currentText()), self.sample_view.start_marker.value, self.sample_view.end_marker.value,
                 self.start_bar.value(), self.start_beat.value(), self.end_mode, self.end_bar.value(), self.end_beat.value(),
                 self.timestretch_mode.currentIndex(), self.pitch_shift.value(), self.output_combobox.currentIndex(), self.sample_vol_slider.value(),
-                self.timestretch_amt.value(), self.fade_in.value(), self.fade_out.value())
+                self.timestretch_amt.value(), self.fade_in.value(), self.fade_out.value(), self.lane_num.value())
 
         this_audio_editor.audio_items.add_item(self.selected_index_combobox.currentIndex(), self.new_item)
         this_pydaw_project.save_audio_items(global_current_region.uid, this_audio_editor.audio_items)
