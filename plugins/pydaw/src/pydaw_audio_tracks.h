@@ -396,8 +396,6 @@ t_pydaw_audio_items * g_pydaw_audio_items_get(int a_sr)
 
 /* t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_current_string, t_pydaw_audio_items * a_items)
  *
- *  Pass in zero for a_items to not re-use the existing item without reloading the wave.  DO pass it in if you wish to update 
- * the item without reloading.
  */
 t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_current_string, 
         t_pydaw_audio_items * a_items, t_wav_pool * a_wav_pool)
@@ -499,7 +497,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     f_result->sample_fade_in_end = 
             ((int)((float)(f_result->sample_fade_in_end) * f_result->sample_fade_in)) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
     
-    f_result->sample_fade_out_start = f_result->sample_end_offset - f_result->sample_start_offset;
+    f_result->sample_fade_out_start = f_result->sample_end_offset; // + f_result->sample_start_offset;
     f_result->sample_fade_out_start = 
             ((int)((float)(f_result->sample_fade_out_start) * f_result->sample_fade_out)) + PYDAW_AUDIO_ITEM_PADDING_DIV2;
         
