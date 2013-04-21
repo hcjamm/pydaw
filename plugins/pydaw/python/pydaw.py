@@ -1320,7 +1320,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 if f_item.isSelected():
                     f_items.remove_item(f_item.track_num)
             this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
-            this_pydaw_project.commit("Delete item(s) from song-level audio")
+            this_pydaw_project.commit("Delete audio item(s)")
             this_audio_editor.open_items(True)
 
     def set_playback_pos(self, a_bar=None):
