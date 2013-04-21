@@ -83,6 +83,7 @@ extern "C" {
 #define PYDAW_MAX_REGION_SIZE 32
 #define PYDAW_MIDI_NOTE_COUNT 128
 #define PYDAW_MIDI_RECORD_BUFFER_LENGTH 600 //(PYDAW_MAX_REGION_COUNT * PYDAW_REGION_SIZE)  //recording buffer for MIDI, in bars
+#define PYDAW_MAX_WORK_ITEMS_PER_THREAD 128
     
 #include <string.h>
 #include <pthread.h>
@@ -437,7 +438,7 @@ void v_pydaw_init_worker_threads(t_pydaw_data * a_pydaw_data)
         pthread_cond_init(&a_pydaw_data->track_cond[f_i], NULL);
     
         pthread_mutex_init(&a_pydaw_data->track_block_mutexes[f_i], NULL);
-        a_pydaw_data->track_work_queues[f_i] = (t_pydaw_work_queue_item*)malloc(sizeof(t_pydaw_work_queue_item) * 32);  //Max 32 work items per thread...
+        a_pydaw_data->track_work_queues[f_i] = (t_pydaw_work_queue_item*)malloc(sizeof(t_pydaw_work_queue_item) * PYDAW_MAX_WORK_ITEMS_PER_THREAD);
         a_pydaw_data->track_work_queue_counts[f_i] = 0;
         a_pydaw_data->track_thread_is_finished[f_i] = 0;
         a_pydaw_data->track_thread_quit_notifier[f_i] = 0;
