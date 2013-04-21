@@ -1067,8 +1067,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if a_audio_item.end_mode == 0:
             f_length = f_length_seconds
         elif a_audio_item.end_mode == 1:
-            f_length = pydaw_get_diff_in_bars(0.0, a_audio_item.start_bar, \
-            a_audio_item.start_beat, 0.0, a_audio_item.end_bar, a_audio_item.end_beat)
+            f_length = pydaw_get_diff_in_bars(0, a_audio_item.start_bar, \
+            a_audio_item.start_beat, 0, a_audio_item.end_bar, a_audio_item.end_beat)
             f_length *= global_audio_px_per_bar
             if f_length_seconds < f_length:
                 f_length = f_length_seconds
@@ -1310,6 +1310,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
         if len(global_audio_item_clipboard) == 0:
             return
+        f_length_bars = pydaw_get_current_region_length() - 1
         for f_file_name in global_audio_item_clipboard:
             f_file_name_str = str(f_file_name)
             if not f_file_name_str is None and not f_file_name_str == "":
@@ -1319,7 +1320,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     break
                 else:
                     f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
-                    f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_lane_num=f_lane_num)
+                    f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_lane_num=f_lane_num, a_end_mode=1, a_end_bar=f_length_bars, a_end_beat=3.99)
+
                     f_items.add_item(f_index, f_item)
         this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
         this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
