@@ -1414,7 +1414,8 @@ def global_get_file_bookmarks():
 def global_add_file_bookmark(a_folder):
     f_dict = global_get_file_bookmarks()
     f_folder = str(a_folder)
-    f_dict[f_folder.split("/")[-1]] = f_folder
+    f_folder_arr = f_folder.split("/")
+    f_dict[f_folder_arr[-1]] = "/".join(f_folder_arr[:-1])
     f_result = ""
     for k, v in f_dict.iteritems():
         f_result += str(k) + "|||" + str(v) + "\n"
