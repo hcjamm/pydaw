@@ -1132,7 +1132,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def pos_to_musical_time(self, a_pos):
         f_bar_frac = a_pos / global_audio_px_per_bar
         f_pos_bars = int(f_bar_frac)
-        f_pos_beats = (f_bar_frac - f_pos_bars) * 4.0
+        f_pos_beats = round((f_bar_frac - f_pos_bars) * 4.0, 6)
         return(f_pos_bars, f_pos_beats)
 
     def length_handle_mouseClickEvent(self, a_event):
@@ -1218,8 +1218,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_pos_y = f_audio_item.pos().y()
                 if f_audio_item.is_resizing:
                     if f_item.end_mode == 0:
-                        f_item.sample_end = (f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0
-                        print "f_item.sample_end", f_item.sample_end
+                        f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
                 elif f_audio_item.is_moving:
                     if f_audio_item.last_x == f_pos_x:
                         continue
@@ -1238,7 +1237,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     if f_end > f_max_x:
                         f_end_px = f_max_x - f_pos_x
                         f_audio_item.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
-                        f_item.sample_end = (f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0
+                        f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
                         f_audio_item.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
                 if f_item.end_mode == 1:
                     f_end_result = f_audio_item.pos_to_musical_time(f_pos_x + f_audio_item.rect().width())
