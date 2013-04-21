@@ -1669,11 +1669,12 @@ class audio_item_editor_widget:
         for k, v in f_items.items.iteritems():
             self.items_list[k] = str(v.uid)
         self.suppress_index_change = True
+        f_index = self.selected_index_combobox.currentIndex()
         self.selected_index_combobox.clear()
         self.selected_index_combobox.addItems(self.items_list)
-        self.selected_index_combobox.setCurrentIndex(0)
+        self.selected_index_combobox.setCurrentIndex(f_index)
         self.suppress_index_change = False
-        self.selected_index_changed(0)
+        self.selected_index_changed(f_index)
 
     def selected_index_changed(self, a_val):
         if not self.suppress_index_change:
@@ -1858,9 +1859,6 @@ class audio_item_editor_widget:
         if global_transport_is_playing:
             QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
             return
-        if str(self.name.text()) == "":
-            QtGui.QMessageBox.warning(self.widget, "Error", "Name cannot be empty")
-            return
         if self.end_musical_time.isChecked():
             f_bar_total = pydaw_get_diff_in_bars(self.start_region.value(), self.start_bar.value(), self.start_beat.value(), \
             self.end_region.value(), self.end_bar.value(), self.end_beat.value())
@@ -1872,7 +1870,7 @@ class audio_item_editor_widget:
         if self.end_sample_length.isChecked(): self.end_mode = 0
         else: self.end_mode = 1
 
-        self.new_item = pydaw_audio_item(self.name.text(), self.sample_view.start_marker.value, self.sample_view.end_marker.value,
+        self.new_item = pydaw_audio_item(str(self.selected_index_combobox.currentText()), self.sample_view.start_marker.value, self.sample_view.end_marker.value,
                 self.start_bar.value(), self.start_beat.value(), self.end_mode, self.end_bar.value(), self.end_beat.value(),
                 self.timestretch_mode.currentIndex(), self.pitch_shift.value(), self.output_combobox.currentIndex(), self.sample_vol_slider.value(),
                 self.timestretch_amt.value(), self.fade_in.value(), self.fade_out.value())
