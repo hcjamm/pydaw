@@ -1704,12 +1704,6 @@ class audio_item_editor_widget:
         self.layout = QtGui.QGridLayout()
         self.main_vlayout.addLayout(self.layout)
 
-        self.name = QtGui.QLineEdit()
-        self.name.setReadOnly(True)
-        self.name.setMinimumWidth(360)
-        self.layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
-        self.layout.addWidget(self.name, 0, 1)
-
         self.sample_start_end_vlayout = QtGui.QVBoxLayout()
         self.layout.addWidget(QtGui.QLabel("Start/End:"), 1, 0)
         self.layout.addLayout(self.sample_start_end_vlayout, 1, 1)
@@ -1832,10 +1826,8 @@ class audio_item_editor_widget:
 
     def open_item(self, a_item):
         if a_item is None:
-            self.name.setText("")
             self.sample_view.clear_drawn_items()
         else:
-            self.name.setText(str(a_item.uid))
             self.start_bar.setValue(a_item.start_bar)
             self.start_beat.setValue(a_item.start_beat)
             if a_item.end_mode == 1:
