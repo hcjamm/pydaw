@@ -1059,7 +1059,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         f_length_seconds = pydaw_seconds_to_bars(a_sample_length) * global_audio_px_per_bar
         self.length_seconds_orig_px = f_length_seconds
-        self.length_px_minus_start = f_length_seconds - (a_audio_item.sample_start * 0.001 * f_length_seconds)
+        f_length_seconds -= (a_audio_item.sample_start * 0.001 * f_length_seconds)
+        self.length_px_minus_start = f_length_seconds
         self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, global_audio_item_height)
         f_length_seconds *= 1.0 - (a_audio_item.sample_start * 0.001)
         f_length_seconds *= a_audio_item.sample_end * 0.001
@@ -1891,8 +1892,8 @@ class audio_item_editor_widget:
             QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
             return
         if self.end_musical_time.isChecked():
-            f_bar_total = pydaw_get_diff_in_bars(self.start_region.value(), self.start_bar.value(), self.start_beat.value(), \
-            self.end_region.value(), self.end_bar.value(), self.end_beat.value())
+            f_bar_total = pydaw_get_diff_in_bars(0, self.start_bar.value(), self.start_beat.value(), \
+            0, self.end_bar.value(), self.end_beat.value())
             if f_bar_total <= 0.0:
                 QtGui.QMessageBox.warning(self.widget, "Error", "End point is less than or equal to start point.")
                 print("audio items:  start==" + str(self.start_beat_total) + "|" + "end==" + str(self.end_beat_total))
@@ -1914,11 +1915,6 @@ class audio_item_editor_widget:
 
     def sample_vol_changed(self, a_val=None):
         self.sample_vol_label.setText(str(self.sample_vol_slider.value()) + "dB")
-
-    def update_bar_count(self, a_val=None):
-        print "TODO"
-        #self.start_bar.setRange(0, pydaw_get_region_length(self.start_region.value()) - 1)
-
 
 class audio_list_editor:
     def open_items(self, a_update_viewer=True):
