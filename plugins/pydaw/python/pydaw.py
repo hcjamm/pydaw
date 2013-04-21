@@ -5254,13 +5254,16 @@ def global_ui_refresh_callback():
         this_region_settings.open_region(this_region_editor.region_name_lineedit.text())
     else:
         this_region_settings.clear_new()
-    this_audio_editor.open_items()
-    this_audio_editor.open_tracks()
-    for f_editor in global_region_editors:
-        f_editor.open_tracks()
+    if global_current_region is not None:
+        this_audio_editor.open_items()
+        this_audio_editor.open_tracks()
+        this_region_settings.open_region(global_current_region.uid)
+        for f_editor in global_region_editors:
+            f_editor.open_tracks()
+    global_open_items()
     this_song_editor.open_song()
     this_transport.open_transport()
-    this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder)  #Re-open the project so that any changes can be caught by the back-end
+    this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder)
 
 def set_window_title():
     this_main_window.setWindowTitle('PyDAW3 - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
