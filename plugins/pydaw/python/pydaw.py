@@ -1338,6 +1338,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 if f_item.isSelected():
                     f_items.remove_item(f_item.track_num)
             this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
+            this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
             this_pydaw_project.commit("Delete audio item(s)")
             this_audio_editor.open_items(True)
 
