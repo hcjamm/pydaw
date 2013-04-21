@@ -73,6 +73,13 @@ def pydaw_get_region_length(a_region_index):
     else:
         return 8
 
+def pydaw_get_current_region_length():
+    f_result = global_current_region.region_length_bars
+    if f_result == 0:
+        return 8
+    else:
+        return f_result
+
 def pydaw_get_pos_in_bars(a_reg, a_bar, a_beat):
     f_result = 0.0
     for i in range(a_reg):
@@ -1052,6 +1059,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         f_length_seconds = pydaw_seconds_to_bars(a_sample_length) * global_audio_px_per_bar
         self.length_seconds_orig_px = f_length_seconds
+        self.length_px_minus_start = f_length_seconds - (a_audio_item.sample_start * 0.001 * f_length_seconds)
         self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, global_audio_item_height)
         f_length_seconds *= 1.0 - (a_audio_item.sample_start * 0.001)
         f_length_seconds *= a_audio_item.sample_end * 0.001
@@ -1155,6 +1163,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def y_pos_to_lane_number(self, a_y_pos):
         f_lane_num = int((a_y_pos - global_audio_ruler_height) / global_audio_item_height)
+        f_lane_num = pydaw_clip_value(f_lane_num, 0, 11)
         f_y_pos = (f_lane_num * global_audio_item_height) + global_audio_ruler_height
         return f_lane_num, f_y_pos
 
@@ -1169,17 +1178,17 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
                         if f_x < global_audio_px_per_bar:
                             f_x = global_audio_px_per_bar
-                    f_x = pydaw_clip_value(f_x, global_audio_item_handle_size, f_item.length_seconds_orig_px)
+                    f_x = pydaw_clip_value(f_x, global_audio_item_handle_size, f_item.length_px_minus_start)
                     f_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
                     f_item.length_handle.setPos(f_x - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         else:
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
+            f_max_x = (pydaw_get_current_region_length() * global_audio_px_per_bar) - 5.0
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_pos_x = f_item.pos().x()
                     f_pos_y = f_item.pos().y() #a_event.scenePos().y()
-                    if f_pos_x < 0:
-                        f_pos_x = 0
+                    f_pos_x = pydaw_clip_value(f_pos_x, 0.0, f_max_x)
                     f_ignored, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
                     f_item.setPos(f_pos_x, f_pos_y)
                     if not f_item.is_moving:
@@ -1206,7 +1215,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_pos_y = f_audio_item.pos().y()
                 if f_audio_item.is_resizing:
                     if f_item.end_mode == 0:
-                        f_item.sample_end = (f_audio_item.rect().width() / f_audio_item.length_seconds_orig_px) * 1000.0
+                        f_item.sample_end = (f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0
                         print "f_item.sample_end", f_item.sample_end
                 elif f_audio_item.is_moving:
                     if f_audio_item.last_x == f_pos_x:
