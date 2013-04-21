@@ -2030,7 +2030,8 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                     a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->end_beat);
                 
                 // + 2.0f ensures that the ADSR envelope has had adequate time to finish running
-                if((a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adjusted_end_beat) < (f_adjusted_song_pos_beats + 2.0f))
+                if((a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adjusted_end_beat) 
+                        < (f_adjusted_song_pos_beats))
                 {
                     f_i++;
                     continue;
