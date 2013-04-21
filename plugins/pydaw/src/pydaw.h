@@ -2121,6 +2121,14 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
                         }
 
                         v_ifh_run(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_read_head, a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->ratio);
+                        
+                        if(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->sample_read_head->whole_number >=
+                            a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->wav_pool_item->length - 1)
+                        {
+                            a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr->stage = 4;
+                            break;
+                        }
+                        
                         v_adsr_run_db(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);
 
                         f_i2++;
