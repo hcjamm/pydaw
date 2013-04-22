@@ -3031,6 +3031,21 @@ def global_update_items_label():
         f_label_text = f_label_text[:150] + "..."
     this_item_editor.item_list_label.setText(f_label_text)
 
+def global_check_midi_items():
+    """ Return True if OK, otherwise clear the the item editors and return False """
+    f_items_dict = this_pydaw_project.get_items_dict()
+    f_invalid = False
+    for f_uid in global_open_items_uids:
+        if not f_items_dict.uid_exists(f_uid):
+            f_invalid = True
+            break
+    if f_invalid:
+        this_item_editor.clear_new()
+        this_item_editor.item_list_label.setText("")
+        return False
+    else:
+        return True
+
 def global_open_items(a_items=None):
     """ a_items is a list of str, which are the names of the items.  Leave blank to open the existing list """
     this_item_editor.enabled = True
@@ -5246,21 +5261,16 @@ def global_close_all():
 
 def global_ui_refresh_callback():
     """ Use this to re-open all existing items/regions/song in their editors when the files have been changed externally"""
-    if this_item_editor.enabled and os.path.isfile(this_pydaw_project.items_folder + "/" + this_item_editor.item_name + ".pyitem"):
-        global_open_items()
-    else:
-        this_item_editor.clear_new()
-    if this_region_settings.enabled and os.path.isfile(this_pydaw_project.regions_folder + "/" + str(this_region_settings.region_name_lineedit.text()) + ".pyreg"):
-        this_region_settings.open_region(this_region_editor.region_name_lineedit.text())
-    else:
-        this_region_settings.clear_new()
     if global_current_region is not None:
+        this_region_settings.open_region_by_uid(global_current_region.uid)
         this_audio_editor.open_items()
-        this_audio_editor.open_tracks()
-        this_region_settings.open_region(global_current_region.uid)
+        #this_audio_editor.open_tracks()
         for f_editor in global_region_editors:
             f_editor.open_tracks()
-    global_open_items()
+    else:
+        this_region_settings.clear_new()
+    if global_check_midi_items():
+        global_open_items()
     this_song_editor.open_song()
     this_transport.open_transport()
     this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder)
