@@ -3396,6 +3396,9 @@ class item_list_editor:
         this_piano_roll_editor.set_zoom(f_zoom)
         this_pb_automation_viewer.set_zoom(f_zoom)
 
+    def tab_changed(self, a_val=None):
+        this_piano_roll_editor.click_enabled = True
+
     def __init__(self):
         self.enabled = False
         self.items = []
@@ -3417,6 +3420,7 @@ class item_list_editor:
         self.master_hlayout.addWidget(self.zoom_combobox, QtCore.Qt.AlignRight)
 
         self.tab_widget = QtGui.QTabWidget()
+        self.tab_widget.currentChanged.connect(self.tab_changed)
         self.piano_roll_tab = QtGui.QGroupBox()
         self.tab_widget.addTab(self.piano_roll_tab, "Piano Roll")
         self.notes_tab = QtGui.QGroupBox()
