@@ -767,6 +767,8 @@ class pydaw_project:
 
     def quit_handler(self):
         self.this_dssi_gui.stop_server()
+        for f_commit in self.history_commits:
+            self.history.commit(f_commit)
 
     def __init__(self, a_osc_url=None):
         self.last_item_number = 1
