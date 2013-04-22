@@ -178,14 +178,15 @@ class song_editor:
             def song_ok_handler():
                 if f_new_radiobutton.isChecked():
                     f_uid = this_pydaw_project.create_empty_region(str(f_new_lineedit.text()))
-                    this_pydaw_project.commit("Create empty region '" + str(f_new_lineedit.text()) + "' at " + str(y))
+                    f_msg = "Create empty region '" + str(f_new_lineedit.text()) + "' at " + str(y)
                 elif f_copy_radiobutton.isChecked():
                     f_uid = this_pydaw_project.copy_region(str(f_copy_combobox.currentText()), str(f_new_lineedit.text()))
-                    this_pydaw_project.commit("Create new region '" + str(f_new_lineedit.text()) + "' at " + str(y) + " copying from " + str(f_copy_combobox.currentText()))
+                    f_msg = "Create new region '" + str(f_new_lineedit.text()) + "' at " + str(y) + " copying from " + str(f_copy_combobox.currentText())
                 self.add_qtablewidgetitem(f_new_lineedit.text(), y)
                 self.song.add_region_ref_by_uid(y, f_uid)
                 this_region_settings.open_region(f_new_lineedit.text())
                 this_pydaw_project.save_song(self.song)
+                this_pydaw_project.commit(f_msg)
                 if not f_is_playing:
                     this_transport.region_spinbox.setValue(y)
                     this_transport.bar_spinbox.setValue(0)
@@ -5261,7 +5262,9 @@ def global_close_all():
 
 def global_ui_refresh_callback():
     """ Use this to re-open all existing items/regions/song in their editors when the files have been changed externally"""
-    if global_current_region is not None:
+    f_regions_dict = this_pydaw_project.get_regions_dict()
+    global global_current_region
+    if global_current_region is not None and f_regions_dict.uid_exists(global_current_region.uid):
         this_region_settings.open_region_by_uid(global_current_region.uid)
         this_audio_editor.open_items()
         #this_audio_editor.open_tracks()
@@ -5269,7 +5272,8 @@ def global_ui_refresh_callback():
             f_editor.open_tracks()
     else:
         this_region_settings.clear_new()
-    if global_check_midi_items():
+        global_current_region = None
+    if this_item_editor.enabled and global_check_midi_items():
         global_open_items()
     this_song_editor.open_song()
     this_transport.open_transport()
