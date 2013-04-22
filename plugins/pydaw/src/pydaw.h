@@ -334,7 +334,7 @@ t_pypitchbend * g_pypitchbend_get(float a_start, float a_value);
 t_pynote * g_pynote_get(int a_note, int a_vel, float a_start, float a_length);
 t_pydaw_data * g_pydaw_data_get(float);
 int i_get_region_index_from_name(t_pydaw_data *, int);
-void v_open_project(t_pydaw_data*, const char*);
+void v_open_project(t_pydaw_data*, const char*, int);
 void v_set_tempo(t_pydaw_data*,float);
 void v_pydaw_set_is_soloed(t_pydaw_data * a_pydaw_data);
 void v_set_loop_mode(t_pydaw_data * a_pydaw_data, int a_mode);
@@ -3003,7 +3003,7 @@ void v_open_default_project(t_pydaw_data * a_data)
     char * f_home = getenv("HOME");
     char f_default_project_folder[512];
     sprintf(f_default_project_folder, "%s/pydaw3/default-project", f_home);
-    v_open_project(a_data, f_default_project_folder);
+    v_open_project(a_data, f_default_project_folder, 1);
 }
 
 void v_pydaw_activate_osc_thread(t_pydaw_data * a_pydaw_data, lo_method_handler osc_message_handler)
@@ -3364,7 +3364,7 @@ void v_pydaw_open_tracks(t_pydaw_data * a_pydaw_data)
 #endif
 }
 
-void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
+void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder, int a_first_load)
 {
     clock_t f_start = clock();
     
@@ -3414,7 +3414,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
     
     v_pydaw_init_busses(a_pydaw_data);
         
-    if(i_pydaw_file_exists(a_pydaw_data->wav_pool_file))
+    if(a_first_load && i_pydaw_file_exists(a_pydaw_data->wav_pool_file))
     {
         v_wav_pool_add_items(a_pydaw_data->wav_pool, a_pydaw_data->wav_pool_file);
     }
@@ -3433,7 +3433,11 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         }
     
         g_pysong_get(a_pydaw_data);
-        v_pydaw_open_tracks(a_pydaw_data);
+        
+        if(a_first_load)
+        {
+            v_pydaw_open_tracks(a_pydaw_data);
+        }
     }
     else
     {
@@ -3463,7 +3467,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder)
         v_set_tempo(a_pydaw_data, 140.0f);
     }
            
-    v_pydaw_update_audio_inputs(a_pydaw_data);
+    //v_pydaw_update_audio_inputs(a_pydaw_data);
     
     v_pydaw_set_is_soloed(a_pydaw_data);
         
@@ -4651,7 +4655,9 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OS)) //Open Song
     {        
-        v_open_project(a_pydaw_data, a_value);        
+        t_key_value_pair * f_kvp = g_kvp_get(a_value);
+        int f_first_open = atoi(f_kvp->key);
+        v_open_project(a_pydaw_data, f_kvp->value, f_first_open);        
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_TEMPO)) //Change tempo
     {
