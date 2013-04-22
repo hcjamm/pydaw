@@ -236,6 +236,7 @@ class pydaw_project:
         for f_commit in self.history_commits:
             self.history.commit(f_commit)
         self.history_commits = []
+        self.history_undo_cursor = 0
 
     def save_project_as(self, a_file_name):
         self.save_project()  #This is necessary to capture the plugin states before copying everything over...  Otherwise the instruments and effects may not be what they were at this time...
