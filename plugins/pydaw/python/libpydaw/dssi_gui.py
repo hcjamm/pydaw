@@ -107,8 +107,8 @@ class dssi_gui(ServerThread):
     def pydaw_save_song(self):
         self.send_configure("ss", "")
 
-    def pydaw_open_song(self, a_project_folder):
-        self.send_configure("os", a_project_folder)
+    def pydaw_open_song(self, a_project_folder, a_first_open=True):
+        self.send_configure("os",  bool_to_int(a_first_open) + "|" + str(a_project_folder))
 
     def pydaw_save_item(self, a_name):
         self.send_configure("si", str(a_name))

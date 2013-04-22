@@ -21,7 +21,7 @@ OSC configure message keys/values:
 	key	value	notes
 
 	"ss"	""	Save song
-	"os"	dir	Open song(dir=project directory, file=.pysong file(without extension))
+	"os"	bool|dir	Open song(bool=0|1 (0==don't reload wav pool or plugin state) dir=project directory, file=.pysong file(without extension))
 	"si"	file	Save/update an item(file==file name)
 	"di"	file	Delete item(file==file name)
 	"sr"	file	Save/update an region(file==file name)
