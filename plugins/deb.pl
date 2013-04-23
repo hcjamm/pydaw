@@ -40,6 +40,7 @@ check_deps();
 #Delete gedit backup files and Python compile-cache files
 system('find . -type f -name *~ -exec rm -f {} \\;');
 system('find . -type f -name *.pyc -exec rm -f {} \\;');
+system('find . -type f -name core -exec rm -f {} \\;');
 
 
 system("make clean && make && make strip && make DESTDIR=\$(pwd)/pydaw-build/debian install");
