@@ -1053,12 +1053,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if a_audio_item.time_stretch_mode == 1:
             f_temp_seconds /= pydaw_pitch_to_ratio(a_audio_item.pitch_shift)
         elif a_audio_item.time_stretch_mode == 2:
-            f_temp_seconds /= a_audio_item.timestretch_amt
+            f_temp_seconds *= a_audio_item.timestretch_amt
 
         f_start = pydaw_get_pos_in_bars(0, a_audio_item.start_bar, a_audio_item.start_beat)
         f_start *= global_audio_px_per_bar
 
-        f_length_seconds = pydaw_seconds_to_bars(a_sample_length) * global_audio_px_per_bar
+        f_length_seconds = pydaw_seconds_to_bars(f_temp_seconds) * global_audio_px_per_bar
         self.length_seconds_orig_px = f_length_seconds
         f_length_seconds -= (a_audio_item.sample_start * 0.001 * f_length_seconds)
         self.length_px_minus_start = f_length_seconds
