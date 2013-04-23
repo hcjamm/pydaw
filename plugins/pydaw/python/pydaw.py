@@ -1284,6 +1284,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.snap_mode = 0
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.setAlignment(QtCore.Qt.AlignLeft)
+        self.is_playing = False
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
 
     def sceneDragEnterEvent(self, a_event):
@@ -1358,6 +1359,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.playback_cursor.setPos(self.playback_px, 0.0)
 
     def start_playback(self, a_bars, a_bpm):
+        self.is_playing = True
         f_pos_x = self.playback_cursor.pos().x()
         self.playback_cursor_animation = QtGui.QGraphicsItemAnimation()
         self.playback_cursor_animation.setItem(self.playback_cursor)
@@ -1376,6 +1378,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             self.playback_timeline.stop()
         except:
             pass
+        self.is_playing = False
         self.playback_cursor.setPos(0.0, 0.0)
 
     def set_snap(self, a_index):
@@ -1416,6 +1419,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.set_playback_pos()
 
     def clear_drawn_items(self):
+        if self.is_playing:
+            self.stop_playback()
         self.audio_items = []
         self.scene.clear()
         self.draw_headers()
