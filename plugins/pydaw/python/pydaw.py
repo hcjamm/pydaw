@@ -1326,6 +1326,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     f_items.add_item(f_index, f_item)
         this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
         this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
+        this_pydaw_project.commit("Added audio items to region " + str(global_current_region.uid))
         this_audio_editor.open_items()
         this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(f_index)
         self.last_open_dir = os.path.dirname(f_file_name_str)
@@ -3125,6 +3126,7 @@ class item_list_editor:
                 for f_i in range(len(self.items)):
                     self.items[f_i].notes = []
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+            this_pydaw_project.commit("Clear notes")
             global_open_items()
     def clear_ccs(self, a_is_list=True):
         if self.enabled:
@@ -3135,6 +3137,8 @@ class item_list_editor:
                 for f_i in range(len(self.items)):
                     self.items[f_i].ccs = []
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+            this_pydaw_project.commit("Clear CCs")
+            global_open_items()
     def clear_pb(self, a_is_list=True):
         if self.enabled:
             if a_is_list:
@@ -3144,6 +3148,8 @@ class item_list_editor:
                 for f_i in range(len(self.items)):
                     self.items[f_i].pitchbends = []
                     this_pydaw_project.save_item(self.item_names[f_i], self.items[f_i])
+            this_pydaw_project.commit("Clear pitchbends")
+            global_open_items()
 
     def clear_new(self):
         self.enabled = False
@@ -5009,7 +5015,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         elif f_reply == QtGui.QMessageBox.Cancel:
             event.ignore()
         else:
-            this_pydaw_project.commit("Flush undo history on exit.")
             event.accept()
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
