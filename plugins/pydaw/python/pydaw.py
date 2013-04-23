@@ -1293,7 +1293,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         a_event.setDropAction(QtCore.Qt.CopyAction)
 
     def sceneDropEvent(self, a_event):
-        if pydaw_global_current_region_is_none():
+        if pydaw_global_current_region_is_none() or this_transport.is_playing:
             return
         f_x = a_event.scenePos().x()
         f_y = a_event.scenePos().y()
