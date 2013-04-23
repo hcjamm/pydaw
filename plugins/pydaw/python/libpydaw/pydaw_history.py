@@ -155,5 +155,5 @@ class pydaw_history_log_widget(QtGui.QWidget):
         """ Event handler for when the user reverts the entire project back to a particular commit """
         self.history_db.revert_to(str(self.table_widget.item(self.table_widget.currentRow(), 0).text()))
         if self.ui_callback is not None:
-            self.ui_callback()
+            self.ui_callback(True)
         self.populate_table()

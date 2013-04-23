@@ -1822,6 +1822,7 @@ class audio_item_editor_widget:
         self.timestretch_hlayout.addWidget(QtGui.QLabel("Time Stretch:"))
         self.timestretch_amt = QtGui.QDoubleSpinBox()
         self.timestretch_amt.setRange(0.2, 4.0)
+        self.timestretch_amt.setDecimals(5)
         self.timestretch_amt.setSingleStep(0.1)
         self.timestretch_amt.setValue(1.0)
         self.timestretch_hlayout.addWidget(self.timestretch_amt)
@@ -4791,14 +4792,22 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_window.exec_()
 
     def on_undo(self):
-        this_pydaw_project.undo()
-        global_ui_refresh_callback()
+        if this_transport.is_playing:
+            return
+        if this_pydaw_project.undo():
+            global_ui_refresh_callback()
+        else:
+            self.on_undo_history()
 
     def on_redo(self):
+        if this_transport.is_playing:
+            return
         this_pydaw_project.redo()
         global_ui_refresh_callback()
 
     def on_undo_history(self):
+        if this_transport.is_playing:
+            return
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Undo history")
         f_layout = QtGui.QVBoxLayout()
@@ -5264,7 +5273,7 @@ def global_close_all():
     for f_widget in this_item_editor.cc_auto_viewers:
         f_widget.update_ccs_in_use([])
 
-def global_ui_refresh_callback():
+def global_ui_refresh_callback(a_restore_all=False):
     """ Use this to re-open all existing items/regions/song in their editors when the files have been changed externally"""
     f_regions_dict = this_pydaw_project.get_regions_dict()
     global global_current_region
@@ -5281,7 +5290,7 @@ def global_ui_refresh_callback():
         global_open_items()
     this_song_editor.open_song()
     this_transport.open_transport()
-    this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder, False)
+    this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder, a_restore_all)
 
 def set_window_title():
     this_main_window.setWindowTitle('PyDAW3 - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
