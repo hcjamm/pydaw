@@ -493,12 +493,13 @@ class pydaw_project:
         f_regions_dict = self.get_regions_dict()
         for f_int in f_int_list:
             if not f_regions_dict.name_lookup.has_key(f_int):
+                self.save_file(pydaw_folder_regions_audio, f_int, pydaw_terminating_char)
                 while f_regions_dict.uid_lookup.has_key("recorded-" + str(f_suffix)):
                     f_suffix += 1
                 f_regions_dict.add_item(f_int, "recorded-" + str(f_suffix))
                 f_old_text = self.history.get_latest_version_of_file(pydaw_folder_regions, f_int)
                 self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_items, str(f_int), \
-                pydaw_read_file_text(self.items_folder + "/" + str(f_int)), f_old_text, 0))
+                pydaw_read_file_text(self.regions_folder + "/" + str(f_int)), f_old_text, 0))
                 f_suffix += 1
         self.save_regions_dict(f_regions_dict)
 
