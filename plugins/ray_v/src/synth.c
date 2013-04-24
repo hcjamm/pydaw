@@ -623,8 +623,8 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_descriptors[RAYV_OSC1_PITCH] = port_descriptors[RAYV_ATTACK];
 	port_names[RAYV_OSC1_PITCH] = "Osc 1 Pitch";
 	port_range_hints[RAYV_OSC1_PITCH].HintDescriptor = PYFX_HINT_DEFAULT_MIDDLE | PYFX_HINT_BOUNDED_BELOW | PYFX_HINT_BOUNDED_ABOVE;
-	port_range_hints[RAYV_OSC1_PITCH].LowerBound =  -12.0f;
-	port_range_hints[RAYV_OSC1_PITCH].UpperBound =  12.0f;
+	port_range_hints[RAYV_OSC1_PITCH].LowerBound =  -36.0f;
+	port_range_hints[RAYV_OSC1_PITCH].UpperBound =  36.0f;
         
 	port_descriptors[RAYV_OSC1_TUNE] = port_descriptors[RAYV_ATTACK];
 	port_names[RAYV_OSC1_TUNE] = "Osc 1 Tune";
@@ -647,8 +647,8 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_descriptors[RAYV_OSC2_PITCH] = port_descriptors[RAYV_ATTACK];
 	port_names[RAYV_OSC2_PITCH] = "Osc 2 Pitch";
 	port_range_hints[RAYV_OSC2_PITCH].HintDescriptor = PYFX_HINT_DEFAULT_MIDDLE | PYFX_HINT_BOUNDED_BELOW | PYFX_HINT_BOUNDED_ABOVE;
-	port_range_hints[RAYV_OSC2_PITCH].LowerBound =  -12.0f;
-	port_range_hints[RAYV_OSC2_PITCH].UpperBound =  12.0f;
+	port_range_hints[RAYV_OSC2_PITCH].LowerBound =  -36.0f;
+	port_range_hints[RAYV_OSC2_PITCH].UpperBound =  36.0f;
         
 	port_descriptors[RAYV_OSC2_TUNE] = port_descriptors[RAYV_ATTACK];
 	port_names[RAYV_OSC2_TUNE] = "Osc 2 Tune";

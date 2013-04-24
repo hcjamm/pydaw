@@ -24,7 +24,7 @@ public:
     {
         lms_groupbox = new LMS_group_box(a_parent, a_title, a_style);
          
-        lms_pitch_knob =  new LMS_knob_regular(QString("Pitch"), -12, 12, 1, 0, QString("0"), lms_groupbox->lms_groupbox, a_style, lms_kc_integer, a_pitch_port);    
+        lms_pitch_knob =  new LMS_knob_regular(QString("Pitch"), -36, 36, 1, 0, QString("0"), lms_groupbox->lms_groupbox, a_style, lms_kc_integer, a_pitch_port);    
         lms_groupbox->lms_add_h(lms_pitch_knob);    
         lms_fine_knob = new LMS_knob_regular(QString("Fine"), -100, 100, 1, 0, QString("0"), lms_groupbox->lms_groupbox, a_style, lms_kc_decimal, a_fine_port);
         lms_groupbox->lms_add_h(lms_fine_knob);
