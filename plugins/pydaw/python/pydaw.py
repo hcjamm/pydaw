@@ -4619,7 +4619,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
         try:
             while True:
-                f_file = QtGui.QFileDialog.getSaveFileName(parent=self ,caption='New Project', directory=expanduser("~"), filter=global_pydaw_file_type_string)
+                f_file = QtGui.QFileDialog.getSaveFileName(parent=self ,caption='New Project', directory=expanduser("~") + "/default." + global_pydaw_version_string, filter=global_pydaw_file_type_string)
                 if not f_file is None and not str(f_file) == "":
                     f_file = str(f_file)
                     if not self.check_for_empty_directory(f_file):
