@@ -8,7 +8,7 @@
 
 #include "../../plugins/pydaw/src/synth.c"
 #include "../../plugins/include/pydaw3/pydaw_plugin.h"
-#include "ladspa_ports.h"
+#include "pyfx_ports.h"
 #include <unistd.h>
 #include <alsa/asoundlib.h>
 
@@ -19,13 +19,13 @@
 
 void v_print_plugin_controller_maps()
 {
-    const LADSPA_Descriptor * f_wayv = wayv_ladspa_descriptor(0);
-    const LADSPA_Descriptor * f_rayv = rayv_ladspa_descriptor(0);
-    const LADSPA_Descriptor * f_euphoria = euphoria_ladspa_descriptor(0);
-    const LADSPA_Descriptor * f_modulex = modulex_ladspa_descriptor(0);
+    const PYFX_Descriptor * f_wayv = wayv_PYFX_descriptor(0);
+    const PYFX_Descriptor * f_rayv = rayv_PYFX_descriptor(0);
+    const PYFX_Descriptor * f_euphoria = euphoria_PYFX_descriptor(0);
+    const PYFX_Descriptor * f_modulex = modulex_PYFX_descriptor(0);
     
     char f_file_names[4][32] = {"Euphoria", "Way-V", "Ray-V", "Modulex"};
-    const LADSPA_Descriptor * f_desc[] = {f_euphoria, f_wayv, f_rayv, f_modulex};
+    const PYFX_Descriptor * f_desc[] = {f_euphoria, f_wayv, f_rayv, f_modulex};
     
     int f_i = 0;
     char f_line_buffer[1024] = "\0";
@@ -57,9 +57,9 @@ int main(int argc, char** argv)
     v_print_plugin_controller_maps();
     v_pydaw_constructor();
 
-    const LADSPA_Descriptor * f_ldesc = ladspa_descriptor(0);
-    const DSSI_Descriptor * f_ddesc = dssi_descriptor(0);
-    LADSPA_Handle f_handle =  f_ldesc->instantiate(f_ldesc, 44100);
+    const PYFX_Descriptor * f_ldesc = PYFX_descriptor(0);
+    const PYINST_Descriptor * f_ddesc = PYINST_descriptor(0);
+    PYFX_Handle f_handle =  f_ldesc->instantiate(f_ldesc, 44100);
     f_ldesc->activate(f_handle);
 
     t_pydaw_engine * f_engine = (t_pydaw_engine*)f_handle;
@@ -67,14 +67,14 @@ int main(int argc, char** argv)
     //It's not necessary to call this, it gets called anyways at startup...  Only use it to load an alternate project
     //v_open_project(pydaw_data, "/home/cletus/pydaw3/default-project/default.pydaw3");
 
-    f_engine->output0 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
-    f_engine->output1 = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
+    f_engine->output0 = (PYFX_Data*)malloc(sizeof(PYFX_Data) * 8192);
+    f_engine->output1 = (PYFX_Data*)malloc(sizeof(PYFX_Data) * 8192);
     
     int f_i = 0;
     
     while(f_i < PYDAW_INPUT_COUNT)
     {
-        f_engine->input_arr[f_i] = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);
+        f_engine->input_arr[f_i] = (PYFX_Data*)malloc(sizeof(PYFX_Data) * 8192);
         
         int f_i2 = 0;
         while(f_i2 < DEBUGGER_SAMPLE_COUNT)
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     }
     
     float * f_control_ins = (float*)malloc(sizeof(float) * 3000);
-    set_ladspa_ports(f_ddesc, f_handle, f_control_ins);
+    set_PYFX_ports(f_ddesc, f_handle, f_control_ins);
     
     f_i = 0;
     

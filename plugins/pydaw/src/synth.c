@@ -37,8 +37,8 @@ GNU General Public License for more details.
 #include <unistd.h>
 #include <alsa/asoundlib.h>
 
-static LADSPA_Descriptor *LMSLDescriptor = NULL;
-static DSSI_Descriptor *LMSDDescriptor = NULL;
+static PYFX_Descriptor *LMSLDescriptor = NULL;
+static PYINST_Descriptor *LMSDDescriptor = NULL;
 
 static t_pydaw_data * pydaw_data;
 
@@ -202,12 +202,12 @@ int pydaw_osc_message_handler(const char *path, const char *types, lo_arg **argv
     return pydaw_osc_debug_handler(path, types, argv, argc, data, user_data);
 }
 
-static void v_pydaw_run(LADSPA_Handle instance, int sample_count,
+static void v_pydaw_run(PYFX_Handle instance, int sample_count,
 		  snd_seq_event_t * events, int EventCount);
 
 
 __attribute__ ((visibility("default")))
-const LADSPA_Descriptor *ladspa_descriptor(int index)
+const PYFX_Descriptor *PYFX_descriptor(int index)
 {
     switch (index) {
     case 0:
@@ -218,7 +218,7 @@ const LADSPA_Descriptor *ladspa_descriptor(int index)
 }
 
 __attribute__ ((visibility("default")))
-const DSSI_Descriptor *dssi_descriptor(int index)
+const PYINST_Descriptor *PYINST_descriptor(int index)
 {
     switch (index) {
     case 0:
@@ -228,12 +228,12 @@ const DSSI_Descriptor *dssi_descriptor(int index)
     }
 }
 
-static void v_pydaw_cleanup(LADSPA_Handle instance)
+static void v_pydaw_cleanup(PYFX_Handle instance)
 {
     free(instance);
 }
 
-static void v_pydaw_connect_port(LADSPA_Handle instance, int port, LADSPA_Data * data)
+static void v_pydaw_connect_port(PYFX_Handle instance, int port, PYFX_Data * data)
 {
     t_pydaw_engine *plugin;
 
@@ -253,19 +253,19 @@ static void v_pydaw_connect_port(LADSPA_Handle instance, int port, LADSPA_Data *
     }
 }
 
-static LADSPA_Handle g_pydaw_instantiate(const LADSPA_Descriptor * descriptor, int s_rate)
+static PYFX_Handle g_pydaw_instantiate(const PYFX_Descriptor * descriptor, int s_rate)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) malloc(sizeof(t_pydaw_engine));
-    plugin_data->input_arr = (LADSPA_Data**)malloc(sizeof(LADSPA_Data*) * PYDAW_INPUT_COUNT);
+    plugin_data->input_arr = (PYFX_Data**)malloc(sizeof(PYFX_Data*) * PYDAW_INPUT_COUNT);
     
     pydaw_data = g_pydaw_data_get(s_rate);
     
     plugin_data->fs = s_rate;
         
-    return (LADSPA_Handle) plugin_data;
+    return (PYFX_Handle) plugin_data;
 }
 
-static void v_pydaw_activate(LADSPA_Handle instance)
+static void v_pydaw_activate(PYFX_Handle instance)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;        
     plugin_data->mono_modules = v_mono_init((plugin_data->fs));  
@@ -276,13 +276,13 @@ static void v_pydaw_activate(LADSPA_Handle instance)
 }
 
 /*
-static void runLMSWrapper(LADSPA_Handle instance, int sample_count)
+static void runLMSWrapper(PYFX_Handle instance, int sample_count)
 {
     run_lms_pydaw(instance, sample_count, NULL, 0);
 }
 */
 
-static void v_pydaw_run(LADSPA_Handle instance, int sample_count, snd_seq_event_t *events, int event_count)
+static void v_pydaw_run(PYFX_Handle instance, int sample_count, snd_seq_event_t *events, int event_count)
 {
     t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
                
@@ -317,7 +317,7 @@ static void v_pydaw_run(LADSPA_Handle instance, int sample_count, snd_seq_event_
     }
 }
 
-char *c_pydaw_configure(LADSPA_Handle instance, const char *key, const char *value)
+char *c_pydaw_configure(PYFX_Handle instance, const char *key, const char *value)
 {
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *)instance;
     v_pydaw_parse_configure_message(pydaw_data, key, value);
@@ -325,10 +325,10 @@ char *c_pydaw_configure(LADSPA_Handle instance, const char *key, const char *val
     return NULL;
 }
 
-int i_pydaw_get_controller(LADSPA_Handle instance, int port)
+int i_pydaw_get_controller(PYFX_Handle instance, int port)
 {    
     //t_pydaw_engine *plugin_data = (t_pydaw_engine *) instance;
-    //return DSSI_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
+    //return PYINST_CC(i_ccm_get_cc(plugin_data->midi_cc_map, port));
     return -1;     
 }
 
@@ -339,31 +339,31 @@ void _init()
 #endif
 {
     char **port_names;
-    LADSPA_PortDescriptor *port_descriptors;
-    LADSPA_PortRangeHint *port_range_hints;
+    PYFX_PortDescriptor *port_descriptors;
+    PYFX_PortRangeHint *port_range_hints;
 
     LMSLDescriptor =
-	(LADSPA_Descriptor *) malloc(sizeof(LADSPA_Descriptor));
+	(PYFX_Descriptor *) malloc(sizeof(PYFX_Descriptor));
     if (LMSLDescriptor) {
         LMSLDescriptor->UniqueID = PYDAW_PLUGIN_UUID;
 	LMSLDescriptor->Label = PYDAW_PLUGIN_NAME;
-	LMSLDescriptor->Properties = LADSPA_PROPERTY_REALTIME;
+	LMSLDescriptor->Properties = PYFX_PROPERTY_REALTIME;
 	LMSLDescriptor->Name = PYDAW_PLUGIN_LONG_NAME;
 	LMSLDescriptor->Maker = PYDAW_PLUGIN_DEV;
 	LMSLDescriptor->Copyright = "GNU GPL v3";
 	LMSLDescriptor->PortCount = PYDAW_COUNT;
 
-	port_descriptors = (LADSPA_PortDescriptor *)
+	port_descriptors = (PYFX_PortDescriptor *)
 				calloc(LMSLDescriptor->PortCount, sizeof
-						(LADSPA_PortDescriptor));
+						(PYFX_PortDescriptor));
 	LMSLDescriptor->PortDescriptors =
-	    (const LADSPA_PortDescriptor *) port_descriptors;
+	    (const PYFX_PortDescriptor *) port_descriptors;
 
-	port_range_hints = (LADSPA_PortRangeHint *)
+	port_range_hints = (PYFX_PortRangeHint *)
 				calloc(LMSLDescriptor->PortCount, sizeof
-						(LADSPA_PortRangeHint));
+						(PYFX_PortRangeHint));
 	LMSLDescriptor->PortRangeHints =
-	    (const LADSPA_PortRangeHint *) port_range_hints;
+	    (const PYFX_PortRangeHint *) port_range_hints;
 
 	port_names = (char **) calloc(LMSLDescriptor->PortCount, sizeof(char *));
 	LMSLDescriptor->PortNames = (const char **) port_names;
@@ -373,17 +373,17 @@ void _init()
         
         for(f_i = PYDAW_INPUT_MIN; f_i < PYDAW_INPUT_MAX; f_i++)
         {
-            port_descriptors[f_i] = LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO;
+            port_descriptors[f_i] = PYFX_PORT_INPUT | PYFX_PORT_AUDIO;
             port_names[f_i] = "Input ";  //TODO:  Give a more descriptive port name
             port_range_hints[f_i].HintDescriptor = 0;
         }
                 
 	/* Parameters for output */
-	port_descriptors[PYDAW_OUTPUT0] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
+	port_descriptors[PYDAW_OUTPUT0] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
 	port_names[PYDAW_OUTPUT0] = "Output 0";
 	port_range_hints[PYDAW_OUTPUT0].HintDescriptor = 0;
 
-        port_descriptors[PYDAW_OUTPUT1] = LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
+        port_descriptors[PYDAW_OUTPUT1] = PYFX_PORT_OUTPUT | PYFX_PORT_AUDIO;
 	port_names[PYDAW_OUTPUT1] = "Output 1";
 	port_range_hints[PYDAW_OUTPUT1].HintDescriptor = 0;
                
@@ -398,10 +398,10 @@ void _init()
 	LMSLDescriptor->set_run_adding_gain = NULL;
     }
 
-    LMSDDescriptor = (DSSI_Descriptor *) malloc(sizeof(DSSI_Descriptor));
+    LMSDDescriptor = (PYINST_Descriptor *) malloc(sizeof(PYINST_Descriptor));
     if (LMSDDescriptor) {
-	LMSDDescriptor->DSSI_API_Version = 1;
-	LMSDDescriptor->LADSPA_Plugin = LMSLDescriptor;
+	LMSDDescriptor->PYINST_API_Version = 1;
+	LMSDDescriptor->PYFX_Plugin = LMSLDescriptor;
 	LMSDDescriptor->configure = c_pydaw_configure;
 	LMSDDescriptor->get_program = NULL;
 	LMSDDescriptor->get_midi_controller_for_port = i_pydaw_get_controller;
@@ -474,9 +474,9 @@ void v_pydaw_destructor()
     }
         
     if (LMSLDescriptor) {
-	free((LADSPA_PortDescriptor *) LMSLDescriptor->PortDescriptors);
+	free((PYFX_PortDescriptor *) LMSLDescriptor->PortDescriptors);
 	free((char **) LMSLDescriptor->PortNames);
-	free((LADSPA_PortRangeHint *) LMSLDescriptor->PortRangeHints);
+	free((PYFX_PortRangeHint *) LMSLDescriptor->PortRangeHints);
 	free(LMSLDescriptor);
     }
     if (LMSDDescriptor) {

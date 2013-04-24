@@ -74,29 +74,29 @@ extern "C" {
 #define MODULEX_COUNT 47 /* must be 1 + highest value above CHANGE THIS IF YOU ADD OR TAKE AWAY ANYTHING*/
 
 typedef struct {
-    LADSPA_Data *input0;
-    LADSPA_Data *input1;
-    LADSPA_Data *output0;
-    LADSPA_Data *output1;
+    PYFX_Data *input0;
+    PYFX_Data *input1;
+    PYFX_Data *output0;
+    PYFX_Data *output1;
     
-    LADSPA_Data *fx_knob0[8];
-    LADSPA_Data *fx_knob1[8];    
-    LADSPA_Data *fx_knob2[8];
-    LADSPA_Data *fx_combobox[8];
+    PYFX_Data *fx_knob0[8];
+    PYFX_Data *fx_knob1[8];    
+    PYFX_Data *fx_knob2[8];
+    PYFX_Data *fx_combobox[8];
     
-    LADSPA_Data *delay_time;
-    LADSPA_Data *feedback;
-    LADSPA_Data *dry;
-    LADSPA_Data *wet;
-    LADSPA_Data *duck;
-    LADSPA_Data *cutoff;
-    LADSPA_Data *stereo;
+    PYFX_Data *delay_time;
+    PYFX_Data *feedback;
+    PYFX_Data *dry;
+    PYFX_Data *wet;
+    PYFX_Data *duck;
+    PYFX_Data *cutoff;
+    PYFX_Data *stereo;
     
-    LADSPA_Data *vol_slider;
+    PYFX_Data *vol_slider;
     
-    LADSPA_Data *reverb_time;
-    LADSPA_Data *reverb_wet;
-    LADSPA_Data *reverb_color;
+    PYFX_Data *reverb_time;
+    PYFX_Data *reverb_wet;
+    PYFX_Data *reverb_color;
             
     float fs;    
     t_modulex_mono_modules * mono_modules;

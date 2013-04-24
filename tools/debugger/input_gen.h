@@ -19,10 +19,10 @@ extern "C" {
 #include "../../plugins/libmodsynth/lib/pitch_core.h"
 #include <ladspa.h>
     
-LADSPA_Data * g_get_input(int,float);
+PYFX_Data * g_get_input(int,float);
 
-/*LADSPA_Data * g_get_input(
- * int a_buffer_size,  //The size of the LADSPA_Data*
+/*PYFX_Data * g_get_input(
+ * int a_buffer_size,  //The size of the PYFX_Data*
  * float a_note_pitch,  //The pitch of the oscillator
  * int osc_type) //oscillator type.  See below
  * 
@@ -37,9 +37,9 @@ LADSPA_Data * g_get_input(int,float);
  *  3.   Sine
  *  4.   Off
  */
-LADSPA_Data * g_dbg_get_input_buffer(int a_buffer_size,float a_note_pitch, int a_osc_type)
+PYFX_Data * g_dbg_get_input_buffer(int a_buffer_size,float a_note_pitch, int a_osc_type)
 {
-    LADSPA_Data * f_result = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * (a_buffer_size));
+    PYFX_Data * f_result = (PYFX_Data*)malloc(sizeof(PYFX_Data) * (a_buffer_size));
     
     int f_i = 0;
     

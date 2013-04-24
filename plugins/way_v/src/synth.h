@@ -175,107 +175,107 @@ extern "C" {
 #define WAYV_POLYPHONY   16
 
 typedef struct {
-    LADSPA_Data *output0;
-    LADSPA_Data *output1;
-    //LADSPA_Data *tune;
-    LADSPA_Data *attack_main;
-    LADSPA_Data *decay_main;
-    LADSPA_Data *sustain_main;
-    LADSPA_Data *release_main;    
+    PYFX_Data *output0;
+    PYFX_Data *output1;
+    //PYFX_Data *tune;
+    PYFX_Data *attack_main;
+    PYFX_Data *decay_main;
+    PYFX_Data *sustain_main;
+    PYFX_Data *release_main;    
     
-    LADSPA_Data *attack1;
-    LADSPA_Data *decay1;
-    LADSPA_Data *sustain1;
-    LADSPA_Data *release1;    
+    PYFX_Data *attack1;
+    PYFX_Data *decay1;
+    PYFX_Data *sustain1;
+    PYFX_Data *release1;    
     
-    LADSPA_Data *attack2;
-    LADSPA_Data *decay2;
-    LADSPA_Data *sustain2;
-    LADSPA_Data *release2;    
+    PYFX_Data *attack2;
+    PYFX_Data *decay2;
+    PYFX_Data *sustain2;
+    PYFX_Data *release2;    
     
-    LADSPA_Data *attack3;
-    LADSPA_Data *decay3;
-    LADSPA_Data *sustain3;
-    LADSPA_Data *release3;    
+    PYFX_Data *attack3;
+    PYFX_Data *decay3;
+    PYFX_Data *sustain3;
+    PYFX_Data *release3;    
     
-    //LADSPA_Data pitch;
+    //PYFX_Data pitch;
         
-    LADSPA_Data *osc1pitch;
-    LADSPA_Data *osc1tune;
-    LADSPA_Data *osc1type;
-    LADSPA_Data *osc1vol;
+    PYFX_Data *osc1pitch;
+    PYFX_Data *osc1tune;
+    PYFX_Data *osc1type;
+    PYFX_Data *osc1vol;
     
-    LADSPA_Data *osc2pitch;
-    LADSPA_Data *osc2tune;
-    LADSPA_Data *osc2type;
-    LADSPA_Data *osc2vol;
+    PYFX_Data *osc2pitch;
+    PYFX_Data *osc2tune;
+    PYFX_Data *osc2type;
+    PYFX_Data *osc2vol;
     
-    LADSPA_Data *osc3pitch;
-    LADSPA_Data *osc3tune;
-    LADSPA_Data *osc3type;
-    LADSPA_Data *osc3vol;
+    PYFX_Data *osc3pitch;
+    PYFX_Data *osc3tune;
+    PYFX_Data *osc3type;
+    PYFX_Data *osc3vol;
     
-    LADSPA_Data *osc1fm1;
-    LADSPA_Data *osc1fm2;
-    LADSPA_Data *osc1fm3;
+    PYFX_Data *osc1fm1;
+    PYFX_Data *osc1fm2;
+    PYFX_Data *osc1fm3;
     
-    LADSPA_Data *osc2fm1;
-    LADSPA_Data *osc2fm2;
-    LADSPA_Data *osc2fm3;
+    PYFX_Data *osc2fm1;
+    PYFX_Data *osc2fm2;
+    PYFX_Data *osc2fm3;
     
-    LADSPA_Data *osc3fm1;
-    LADSPA_Data *osc3fm2;
-    LADSPA_Data *osc3fm3;
+    PYFX_Data *osc3fm1;
+    PYFX_Data *osc3fm2;
+    PYFX_Data *osc3fm3;
     
-    LADSPA_Data *master_vol;
+    PYFX_Data *master_vol;
     
-    LADSPA_Data *attack;
-    LADSPA_Data *decay;
-    LADSPA_Data *sustain;
-    LADSPA_Data *release;
+    PYFX_Data *attack;
+    PYFX_Data *decay;
+    PYFX_Data *sustain;
+    PYFX_Data *release;
         
-    LADSPA_Data *attack_f;
-    LADSPA_Data *decay_f;
-    LADSPA_Data *sustain_f;
-    LADSPA_Data *release_f;
+    PYFX_Data *attack_f;
+    PYFX_Data *decay_f;
+    PYFX_Data *sustain_f;
+    PYFX_Data *release_f;
     
-    LADSPA_Data *noise_amp;
-    LADSPA_Data *noise_type;
+    PYFX_Data *noise_amp;
+    PYFX_Data *noise_type;
         
-    LADSPA_Data *osc1_uni_voice;
-    LADSPA_Data *osc1_uni_spread;
-    LADSPA_Data *osc2_uni_voice;
-    LADSPA_Data *osc2_uni_spread;
-    LADSPA_Data *osc3_uni_voice;
-    LADSPA_Data *osc3_uni_spread;
+    PYFX_Data *osc1_uni_voice;
+    PYFX_Data *osc1_uni_spread;
+    PYFX_Data *osc2_uni_voice;
+    PYFX_Data *osc2_uni_spread;
+    PYFX_Data *osc3_uni_voice;
+    PYFX_Data *osc3_uni_spread;
     
     
-    LADSPA_Data *master_glide;
-    LADSPA_Data *master_pb_amt;
+    PYFX_Data *master_glide;
+    PYFX_Data *master_pb_amt;
         
-    LADSPA_Data *pitch_env_time;
-    LADSPA_Data *pitch_env_amt;
+    PYFX_Data *pitch_env_time;
+    PYFX_Data *pitch_env_amt;
     
-    LADSPA_Data *lfo_freq;
-    LADSPA_Data *lfo_type;
+    PYFX_Data *lfo_freq;
+    PYFX_Data *lfo_type;
     
-    LADSPA_Data * adsr1_checked;
-    LADSPA_Data * adsr2_checked;
-    LADSPA_Data * adsr3_checked;
+    PYFX_Data * adsr1_checked;
+    PYFX_Data * adsr2_checked;
+    PYFX_Data * adsr3_checked;
     
-    LADSPA_Data *lfo_amp;
-    LADSPA_Data *lfo_pitch;
-    LADSPA_Data *lfo_amount;
+    PYFX_Data *lfo_amp;
+    PYFX_Data *lfo_pitch;
+    PYFX_Data *lfo_amount;
         
        
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
-    LADSPA_Data *pfx_mod_knob[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
+    PYFX_Data *pfx_mod_knob[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
     
-    LADSPA_Data *fx_combobox[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT];
+    PYFX_Data *fx_combobox[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT];
         
     //PolyFX Mod Matrix
     //Corresponds to the mod matrix spinboxes
-    LADSPA_Data *polyfx_mod_matrix[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_MODULATOR_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
+    PYFX_Data *polyfx_mod_matrix[WAYV_EFFECTS_GROUPS_COUNT][WAYV_MODULAR_POLYFX_COUNT][WAYV_MODULATOR_COUNT][WAYV_CONTROLS_PER_MOD_EFFECT];
     
     int active_polyfx[WAYV_POLYPHONY][WAYV_MODULAR_POLYFX_COUNT];
     int active_polyfx_count[WAYV_POLYPHONY];
