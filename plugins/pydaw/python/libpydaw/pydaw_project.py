@@ -232,7 +232,9 @@ class pydaw_project:
         self.save_plugin_state(f_old_bus_fx, f_new_bus_fx, pydaw_folder_busfx)
 
         self.commit("Saved plugin state")
+        self.flush_history()
 
+    def flush_history(self):
         for f_commit in self.history_commits:
             self.history.commit(f_commit)
         self.history_commits = []
@@ -767,8 +769,7 @@ class pydaw_project:
 
     def quit_handler(self):
         self.this_dssi_gui.stop_server()
-        for f_commit in self.history_commits:
-            self.history.commit(f_commit)
+        self.flush_history()
 
     def __init__(self, a_osc_url=None):
         self.last_item_number = 1
