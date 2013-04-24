@@ -4819,6 +4819,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_undo_history(self):
         if this_transport.is_playing:
             return
+        this_pydaw_project.flush_history()
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Undo history")
         f_layout = QtGui.QVBoxLayout()
