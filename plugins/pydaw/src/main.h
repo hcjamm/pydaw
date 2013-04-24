@@ -18,8 +18,8 @@
  * all copies or substantial portions of the software.
  */
 
-#ifndef _JACK_DSSI_HOST_H
-#define _JACK_DSSI_HOST_H
+#ifndef _JACK_PYINST_HOST_H
+#define _JACK_PYINST_HOST_H
 
 #include "../../include/pydaw3/pydaw_plugin.h"
 #include <lo/lo.h>
@@ -36,8 +36,8 @@ struct _d3h_dll_t {
     d3h_dll_t               *next;
     char                    *name;
     char                    *directory;
-    int                      is_DSSI_dll;
-    DSSI_Descriptor_Function descfn;      /* if is_DSSI_dll is false, this is a LADSPA_Descriptor_Function */
+    int                      is_PYINST_dll;
+    PYINST_Descriptor_Function descfn;      /* if is_PYINST_dll is false, this is a PYFX_Descriptor_Function */
 };
 
 typedef struct _d3h_plugin_t d3h_plugin_t;
@@ -48,7 +48,7 @@ struct _d3h_plugin_t {
     d3h_dll_t             *dll;
     char                  *label;
     int                    is_first_in_dll;
-    const DSSI_Descriptor *descriptor;
+    const PYINST_Descriptor *descriptor;
     int                    ins;
     int                    outs;
     int                    controlIns;
@@ -71,7 +71,7 @@ struct _d3h_instance_t {
     long             controllerMap[MIDI_CONTROLLER_COUNT]; /* maps MIDI controller to global control in # */
 
     int              pluginProgramCount;
-    DSSI_Program_Descriptor
+    PYINST_Program_Descriptor
                     *pluginPrograms;
     long             currentBank;
     long             currentProgram;
@@ -91,5 +91,5 @@ struct _d3h_instance_t {
     char            *ui_osc_show_path;
 };
 
-#endif /* _JACK_DSSI_HOST_H */
+#endif /* _JACK_PYINST_HOST_H */
 

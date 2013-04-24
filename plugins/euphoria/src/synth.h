@@ -35,65 +35,65 @@ GNU General Public License for more details.
 #define EUPHORIA_SLOW_INDEX_COUNT 64
 
 typedef struct {
-    LADSPA_Data *output[2];    
-    LADSPA_Data *basePitch[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *low_note[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *high_note[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_vol[EUPHORIA_MAX_SAMPLE_COUNT];     //in decibels    
-    LADSPA_Data *sampleStarts[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sampleEnds[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sampleLoopStarts[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sampleLoopEnds[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sampleLoopModes[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_vel_sens[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_vel_low[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_vel_high[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_pitch[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_tune[EUPHORIA_MAX_SAMPLE_COUNT];
-    LADSPA_Data *sample_interpolation_mode[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *output[2];    
+    PYFX_Data *basePitch[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *low_note[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *high_note[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sample_vol[EUPHORIA_MAX_SAMPLE_COUNT];     //in decibels    
+    PYFX_Data *sampleStarts[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sampleEnds[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sampleLoopStarts[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sampleLoopEnds[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sampleLoopModes[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sample_vel_sens[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sample_vel_low[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sample_vel_high[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sample_pitch[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sample_tune[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sample_interpolation_mode[EUPHORIA_MAX_SAMPLE_COUNT];
     
-    LADSPA_Data *mfx_knobs[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
-    LADSPA_Data *mfx_comboboxes[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT];
+    PYFX_Data *mfx_knobs[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
+    PYFX_Data *mfx_comboboxes[EUPHORIA_MONO_FX_GROUPS_COUNT][EUPHORIA_MONO_FX_COUNT];
     
     //The MonoFX group selected for each sample
-    LADSPA_Data *sample_mfx_groups[EUPHORIA_MAX_SAMPLE_COUNT];
+    PYFX_Data *sample_mfx_groups[EUPHORIA_MAX_SAMPLE_COUNT];
     
-    LADSPA_Data *selected_sample;
+    PYFX_Data *selected_sample;
         
-    LADSPA_Data *attack;
-    LADSPA_Data *decay;
-    LADSPA_Data *sustain;
-    LADSPA_Data *release;
+    PYFX_Data *attack;
+    PYFX_Data *decay;
+    PYFX_Data *sustain;
+    PYFX_Data *release;
         
-    LADSPA_Data *attack_f;
-    LADSPA_Data *decay_f;
-    LADSPA_Data *sustain_f;
-    LADSPA_Data *release_f;
+    PYFX_Data *attack_f;
+    PYFX_Data *decay_f;
+    PYFX_Data *sustain_f;
+    PYFX_Data *release_f;
     
-    LADSPA_Data *master_vol;
+    PYFX_Data *master_vol;
     
-    LADSPA_Data *noise_amp;    
-    LADSPA_Data *noise_type;
+    PYFX_Data *noise_amp;    
+    PYFX_Data *noise_type;
     
-    LADSPA_Data *master_glide;
-    LADSPA_Data *master_pb_amt;
+    PYFX_Data *master_glide;
+    PYFX_Data *master_pb_amt;
     
-    LADSPA_Data *pitch_env_time;
+    PYFX_Data *pitch_env_time;
     
-    LADSPA_Data *lfo_freq;
-    LADSPA_Data *lfo_type;
-    LADSPA_Data *lfo_pitch;
+    PYFX_Data *lfo_freq;
+    PYFX_Data *lfo_type;
+    PYFX_Data *lfo_pitch;
         
-    LADSPA_Data *global_midi_octaves_offset;
+    PYFX_Data *global_midi_octaves_offset;
         
     //Corresponds to the actual knobs on the effects themselves, not the mod matrix
-    LADSPA_Data *pfx_mod_knob[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
+    PYFX_Data *pfx_mod_knob[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
     
-    LADSPA_Data *fx_combobox[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT];
+    PYFX_Data *fx_combobox[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT];
         
     //PolyFX Mod Matrix
     //Corresponds to the mod matrix spinboxes
-    LADSPA_Data *polyfx_mod_matrix[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_MODULATOR_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
+    PYFX_Data *polyfx_mod_matrix[EUPHORIA_EFFECTS_GROUPS_COUNT][EUPHORIA_MODULAR_POLYFX_COUNT][EUPHORIA_MODULATOR_COUNT][EUPHORIA_CONTROLS_PER_MOD_EFFECT];
     
     //End from PolyFX Mod Matrix
     

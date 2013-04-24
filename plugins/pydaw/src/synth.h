@@ -34,10 +34,10 @@ extern "C" {
   
 /*GUI Step 13:  Add a variable for each control in the LMS type*/
 typedef struct {
-    LADSPA_Data **input_arr;
+    PYFX_Data **input_arr;
     
-    LADSPA_Data *output0;
-    LADSPA_Data *output1;
+    PYFX_Data *output0;
+    PYFX_Data *output1;
     
     float fs;    
     t_mono_modules * mono_modules;

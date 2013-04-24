@@ -29,17 +29,17 @@ extern "C" {
     
 //#define PYDAW_PLUGIN_MEMCHECK
 
-LADSPA_Data g_pydaw_get_port_default(const LADSPA_Descriptor *plugin, int port, int sample_rate)
+PYFX_Data g_pydaw_get_port_default(const PYFX_Descriptor *plugin, int port, int sample_rate)
 {
-    LADSPA_PortRangeHint hint = plugin->PortRangeHints[port];
+    PYFX_PortRangeHint hint = plugin->PortRangeHints[port];
     float lower = hint.LowerBound *
-	(LADSPA_IS_HINT_SAMPLE_RATE(hint.HintDescriptor) ? sample_rate : 1.0f);
+	(PYFX_IS_HINT_SAMPLE_RATE(hint.HintDescriptor) ? sample_rate : 1.0f);
     float upper = hint.UpperBound *
-	(LADSPA_IS_HINT_SAMPLE_RATE(hint.HintDescriptor) ? sample_rate : 1.0f);
+	(PYFX_IS_HINT_SAMPLE_RATE(hint.HintDescriptor) ? sample_rate : 1.0f);
 
-    if (!LADSPA_IS_HINT_HAS_DEFAULT(hint.HintDescriptor)) {
-	if (!LADSPA_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor) ||
-	    !LADSPA_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
+    if (!PYFX_IS_HINT_HAS_DEFAULT(hint.HintDescriptor)) {
+	if (!PYFX_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor) ||
+	    !PYFX_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
 	    /* No hint, its not bounded, wild guess */
 	    return 0.0f;
 	}
@@ -55,43 +55,43 @@ LADSPA_Data g_pydaw_get_port_default(const LADSPA_Descriptor *plugin, int port, 
 
     /* Try all the easy ones */
     
-    if (LADSPA_IS_HINT_DEFAULT_0(hint.HintDescriptor)) {
+    if (PYFX_IS_HINT_DEFAULT_0(hint.HintDescriptor)) {
 	return 0.0f;
-    } else if (LADSPA_IS_HINT_DEFAULT_1(hint.HintDescriptor)) {
+    } else if (PYFX_IS_HINT_DEFAULT_1(hint.HintDescriptor)) {
 	return 1.0f;
-    } else if (LADSPA_IS_HINT_DEFAULT_100(hint.HintDescriptor)) {
+    } else if (PYFX_IS_HINT_DEFAULT_100(hint.HintDescriptor)) {
 	return 100.0f;
-    } else if (LADSPA_IS_HINT_DEFAULT_440(hint.HintDescriptor)) {
+    } else if (PYFX_IS_HINT_DEFAULT_440(hint.HintDescriptor)) {
 	return 440.0f;
     }
 
     /* All the others require some bounds */
 
-    if (LADSPA_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor)) {
-	if (LADSPA_IS_HINT_DEFAULT_MINIMUM(hint.HintDescriptor)) {
+    if (PYFX_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor)) {
+	if (PYFX_IS_HINT_DEFAULT_MINIMUM(hint.HintDescriptor)) {
 	    return lower;
 	}
     }
-    if (LADSPA_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
-	if (LADSPA_IS_HINT_DEFAULT_MAXIMUM(hint.HintDescriptor)) {
+    if (PYFX_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
+	if (PYFX_IS_HINT_DEFAULT_MAXIMUM(hint.HintDescriptor)) {
 	    return upper;
 	}
-	if (LADSPA_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor)) {
-            if (LADSPA_IS_HINT_LOGARITHMIC(hint.HintDescriptor) &&
+	if (PYFX_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor)) {
+            if (PYFX_IS_HINT_LOGARITHMIC(hint.HintDescriptor) &&
                 lower > 0.0f && upper > 0.0f) {
-                if (LADSPA_IS_HINT_DEFAULT_LOW(hint.HintDescriptor)) {
+                if (PYFX_IS_HINT_DEFAULT_LOW(hint.HintDescriptor)) {
                     return expf(logf(lower) * 0.75f + logf(upper) * 0.25f);
-                } else if (LADSPA_IS_HINT_DEFAULT_MIDDLE(hint.HintDescriptor)) {
+                } else if (PYFX_IS_HINT_DEFAULT_MIDDLE(hint.HintDescriptor)) {
                     return expf(logf(lower) * 0.5f + logf(upper) * 0.5f);
-                } else if (LADSPA_IS_HINT_DEFAULT_HIGH(hint.HintDescriptor)) {
+                } else if (PYFX_IS_HINT_DEFAULT_HIGH(hint.HintDescriptor)) {
                     return expf(logf(lower) * 0.25f + logf(upper) * 0.75f);
                 }
             } else {
-                if (LADSPA_IS_HINT_DEFAULT_LOW(hint.HintDescriptor)) {
+                if (PYFX_IS_HINT_DEFAULT_LOW(hint.HintDescriptor)) {
                     return lower * 0.75f + upper * 0.25f;
-                } else if (LADSPA_IS_HINT_DEFAULT_MIDDLE(hint.HintDescriptor)) {
+                } else if (PYFX_IS_HINT_DEFAULT_MIDDLE(hint.HintDescriptor)) {
                     return lower * 0.5f + upper * 0.5f;
-                } else if (LADSPA_IS_HINT_DEFAULT_HIGH(hint.HintDescriptor)) {
+                } else if (PYFX_IS_HINT_DEFAULT_HIGH(hint.HintDescriptor)) {
                     return lower * 0.25f + upper * 0.75f;
                 }
 	    }
@@ -106,18 +106,18 @@ typedef struct st_pydaw_plugin
 {
     //void * lib_handle;
         
-    DSSI_Descriptor_Function descfn;
+    PYINST_Descriptor_Function descfn;
     
-    LADSPA_Handle ladspa_handle;
+    PYFX_Handle PYFX_handle;
     
-    const DSSI_Descriptor *descriptor;
+    const PYINST_Descriptor *descriptor;
     int    ins;
     int    outs;
     int    controlIns;
     int    controlOuts;    
     int    firstControlIn;                       /* the offset to translate instance control in # to global control in # */
     int    *pluginPortControlInNumbers;           /* maps instance LADSPA port # to global control in # */    
-    DSSI_Program_Descriptor *pluginPrograms;
+    PYINST_Program_Descriptor *pluginPrograms;
         
     lo_address       uiTarget;
     lo_address       uiSource;
@@ -160,23 +160,23 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, snd_se
     {
         port = instance->pluginControlInPortNumbers[controlIn];
     }
-    const LADSPA_Descriptor *p = instance->descriptor->LADSPA_Plugin;
+    const PYFX_Descriptor *p = instance->descriptor->PYFX_Plugin;
 
-    LADSPA_PortRangeHintDescriptor d = p->PortRangeHints[port].HintDescriptor;
+    PYFX_PortRangeHintDescriptor d = p->PortRangeHints[port].HintDescriptor;
 
-    LADSPA_Data lb = p->PortRangeHints[port].LowerBound ;
-        /* * (LADSPA_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
+    PYFX_Data lb = p->PortRangeHints[port].LowerBound ;
+        /* * (PYFX_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
 	 instance->sample_rate : 1.0f); */
 
-    LADSPA_Data ub = p->PortRangeHints[port].UpperBound ;
-         /*   * (LADSPA_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
+    PYFX_Data ub = p->PortRangeHints[port].UpperBound ;
+         /*   * (PYFX_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
 	 sample_rate : 1.0f); */
 
     float value = (float)event->data.control.value;
 
-    if (!LADSPA_IS_HINT_BOUNDED_BELOW(d)) 
+    if (!PYFX_IS_HINT_BOUNDED_BELOW(d)) 
     {
-	if (!LADSPA_IS_HINT_BOUNDED_ABOVE(d)) {
+	if (!PYFX_IS_HINT_BOUNDED_ABOVE(d)) {
 	    /* unbounded: might as well leave the value alone. */
             return;
 	} else {
@@ -186,12 +186,12 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, snd_se
     } 
     else 
     {
-	if (!LADSPA_IS_HINT_BOUNDED_ABOVE(d)) {
+	if (!PYFX_IS_HINT_BOUNDED_ABOVE(d)) {
 	    /* bounded below only. just shift the range. */
 	    value = lb + value;
 	} else {
 	    /* bounded both ends.  more interesting. */
-            if (LADSPA_IS_HINT_LOGARITHMIC(d) && lb > 0.0f && ub > 0.0f) {
+            if (PYFX_IS_HINT_LOGARITHMIC(d) && lb > 0.0f && ub > 0.0f) {
 		const float llb = logf(lb);
 		const float lub = logf(ub);
 
@@ -201,7 +201,7 @@ void v_pydaw_set_control_from_cc(t_pydaw_plugin *instance, int controlIn, snd_se
 	    }
 	}
     }
-    if (LADSPA_IS_HINT_INTEGER(d)) 
+    if (PYFX_IS_HINT_INTEGER(d)) 
     {
         value = lrintf(value);
     }
@@ -222,19 +222,19 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     switch(a_index)
     {
         case -1:
-            f_result->descfn = (DSSI_Descriptor_Function)modulex_dssi_descriptor;
+            f_result->descfn = (PYINST_Descriptor_Function)modulex_PYINST_descriptor;
             //f_result->lib_handle = dlopen("/usr/lib/dssi/lms_modulex.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
         case 1:
-            f_result->descfn = (DSSI_Descriptor_Function)euphoria_dssi_descriptor;
+            f_result->descfn = (PYINST_Descriptor_Function)euphoria_PYINST_descriptor;
             //f_result->lib_handle = dlopen("/usr/lib/dssi/euphoria.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
         case 2:
-            f_result->descfn = (DSSI_Descriptor_Function)rayv_dssi_descriptor;
+            f_result->descfn = (PYINST_Descriptor_Function)rayv_PYINST_descriptor;
             //f_result->lib_handle = dlopen("/usr/lib/dssi/ray_v.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
         case 3:
-            f_result->descfn = (DSSI_Descriptor_Function)wayv_dssi_descriptor;
+            f_result->descfn = (PYINST_Descriptor_Function)wayv_PYINST_descriptor;
             //f_result->lib_handle = dlopen("/usr/lib/dssi/way_v.so", RTLD_NOW | RTLD_LOCAL);                  
             break;
     }
@@ -255,7 +255,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     
     f_result->showing_ui = 0;
         
-    //f_result->descfn = (DSSI_Descriptor_Function)dlsym(f_result->lib_handle, "dssi_descriptor");
+    //f_result->descfn = (PYINST_Descriptor_Function)dlsym(f_result->lib_handle, "PYINST_descriptor");
     
     f_result->descriptor = f_result->descfn(0);
     
@@ -266,22 +266,22 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
 
     int j;
     
-    for (j = 0; j < f_result->descriptor->LADSPA_Plugin->PortCount; j++) 
+    for (j = 0; j < f_result->descriptor->PYFX_Plugin->PortCount; j++) 
     {
-        LADSPA_PortDescriptor pod = f_result->descriptor->LADSPA_Plugin->PortDescriptors[j];
+        PYFX_PortDescriptor pod = f_result->descriptor->PYFX_Plugin->PortDescriptors[j];
 
-        if (LADSPA_IS_PORT_AUDIO(pod)) 
+        if (PYFX_IS_PORT_AUDIO(pod)) 
         {
-            if (LADSPA_IS_PORT_INPUT(pod)) ++f_result->ins;
-            else if (LADSPA_IS_PORT_OUTPUT(pod)) ++f_result->outs;
+            if (PYFX_IS_PORT_INPUT(pod)) ++f_result->ins;
+            else if (PYFX_IS_PORT_OUTPUT(pod)) ++f_result->outs;
         } 
-        else if (LADSPA_IS_PORT_CONTROL(pod)) 
+        else if (PYFX_IS_PORT_CONTROL(pod)) 
         {
-            if (LADSPA_IS_PORT_INPUT(pod)) 
+            if (PYFX_IS_PORT_INPUT(pod)) 
             {
                 ++f_result->controlIns;
             }
-            else if (LADSPA_IS_PORT_OUTPUT(pod)) 
+            else if (PYFX_IS_PORT_OUTPUT(pod)) 
             {
                 ++f_result->controlOuts;
             }
@@ -290,7 +290,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
    
     /* finish up new plugin */
     f_result->pluginPortControlInNumbers =
-            (int*)malloc(f_result->descriptor->LADSPA_Plugin->PortCount *
+            (int*)malloc(f_result->descriptor->PYFX_Plugin->PortCount *
                           sizeof(int));
 
     /*printf("f_result->in %i\n", f_result->ins);
@@ -309,7 +309,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     
     //TODO:  Count ins and outs from the loop at line 1142.  Or just rely on that we already know it
     
-    f_result->ladspa_handle = f_result->descriptor->LADSPA_Plugin->instantiate(f_result->descriptor->LADSPA_Plugin, a_sample_rate);
+    f_result->PYFX_handle = f_result->descriptor->PYFX_Plugin->instantiate(f_result->descriptor->PYFX_Plugin, a_sample_rate);
         
     f_result->firstControlIn = 0;
     
@@ -317,53 +317,53 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
     
     in = out = controlIn = controlOut = 0;
     
-    for (j = 0; j < f_result->descriptor->LADSPA_Plugin->PortCount; j++) 
+    for (j = 0; j < f_result->descriptor->PYFX_Plugin->PortCount; j++) 
     {
-        LADSPA_PortDescriptor pod =
-            f_result->descriptor->LADSPA_Plugin->PortDescriptors[j];
+        PYFX_PortDescriptor pod =
+            f_result->descriptor->PYFX_Plugin->PortDescriptors[j];
 
         f_result->pluginPortControlInNumbers[j] = -1;
 
-        if (LADSPA_IS_PORT_AUDIO(pod)) {
+        if (PYFX_IS_PORT_AUDIO(pod)) {
 
-            if (LADSPA_IS_PORT_INPUT(pod)) 
+            if (PYFX_IS_PORT_INPUT(pod)) 
             {
                 if(posix_memalign((void**)(&f_result->pluginInputBuffers[in]), 16, (sizeof(float) * 8192)) != 0)
                 {
                     return 0;
                 }
 
-                f_result->descriptor->LADSPA_Plugin->connect_port(f_result->ladspa_handle, j, f_result->pluginInputBuffers[in]);                                
+                f_result->descriptor->PYFX_Plugin->connect_port(f_result->PYFX_handle, j, f_result->pluginInputBuffers[in]);                                
                 in++;
             } 
-            else if (LADSPA_IS_PORT_OUTPUT(pod)) 
+            else if (PYFX_IS_PORT_OUTPUT(pod)) 
             {
                 if(posix_memalign((void**)(&f_result->pluginOutputBuffers[out]), 16, (sizeof(float) * 8192)) != 0)
                 {
                     return 0;
                 }
 
-                f_result->descriptor->LADSPA_Plugin->connect_port(f_result->ladspa_handle, j, f_result->pluginOutputBuffers[out]);                
+                f_result->descriptor->PYFX_Plugin->connect_port(f_result->PYFX_handle, j, f_result->pluginOutputBuffers[out]);                
                 out++;
             }
 
         } 
-        else if (LADSPA_IS_PORT_CONTROL(pod)) 
+        else if (PYFX_IS_PORT_CONTROL(pod)) 
         {
-            if (LADSPA_IS_PORT_INPUT(pod)) {                
+            if (PYFX_IS_PORT_INPUT(pod)) {                
                 //f_result->pluginControlInInstances[controlIn] = instance;                 
                 f_result->pluginControlInPortNumbers[controlIn] = j;
                 f_result->pluginPortControlInNumbers[j] = controlIn;
 
                 f_result->pluginControlIns[controlIn] = g_pydaw_get_port_default
-                    (f_result->descriptor->LADSPA_Plugin, j, a_sample_rate);
+                    (f_result->descriptor->PYFX_Plugin, j, a_sample_rate);
 
-                f_result->descriptor->LADSPA_Plugin->connect_port
-                    (f_result->ladspa_handle, j, &f_result->pluginControlIns[controlIn++]);
+                f_result->descriptor->PYFX_Plugin->connect_port
+                    (f_result->PYFX_handle, j, &f_result->pluginControlIns[controlIn++]);
 
-            } else if (LADSPA_IS_PORT_OUTPUT(pod)) {
-                f_result->descriptor->LADSPA_Plugin->connect_port
-                    (f_result->ladspa_handle, j, &f_result->pluginControlOuts[controlOut++]);
+            } else if (PYFX_IS_PORT_OUTPUT(pod)) {
+                f_result->descriptor->PYFX_Plugin->connect_port
+                    (f_result->PYFX_handle, j, &f_result->pluginControlOuts[controlOut++]);
             }
         }
     }
@@ -373,7 +373,7 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
         f_result->pluginPortUpdated[f_i] = 0;
     }
     
-    f_result->descriptor->LADSPA_Plugin->activate(f_result->ladspa_handle);
+    f_result->descriptor->PYFX_Plugin->activate(f_result->PYFX_handle);
     
 #ifdef PYDAW_PLUGIN_MEMCHECK
     v_pydaw_plugin_memcheck(f_result);
@@ -397,14 +397,14 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
             a_plugin->uiSource = NULL;
         }
 
-        if (a_plugin->descriptor->LADSPA_Plugin->deactivate) 
+        if (a_plugin->descriptor->PYFX_Plugin->deactivate) 
         {
-            a_plugin->descriptor->LADSPA_Plugin->deactivate(a_plugin->ladspa_handle);
+            a_plugin->descriptor->PYFX_Plugin->deactivate(a_plugin->PYFX_handle);
         }
 
-        if (a_plugin->descriptor->LADSPA_Plugin->cleanup) 
+        if (a_plugin->descriptor->PYFX_Plugin->cleanup) 
         {
-            a_plugin->descriptor->LADSPA_Plugin->cleanup(a_plugin->ladspa_handle);
+            a_plugin->descriptor->PYFX_Plugin->cleanup(a_plugin->PYFX_handle);
         }
         
 #ifdef PYDAW_PLUGIN_MEMCHECK
@@ -422,7 +422,7 @@ void v_free_pydaw_plugin(t_pydaw_plugin * a_plugin)
 void v_run_plugin(t_pydaw_plugin * a_plugin, int a_sample_count, snd_seq_event_t * a_event_buffer, 
         int a_event_count)
 {
-    a_plugin->descriptor->run_synth(a_plugin->ladspa_handle, a_sample_count, a_event_buffer, a_event_count);
+    a_plugin->descriptor->run_synth(a_plugin->PYFX_handle, a_sample_count, a_event_buffer, a_event_count);
 
 #ifdef PYDAW_PLUGIN_MEMCHECK
     v_pydaw_plugin_memcheck(a_plugin);

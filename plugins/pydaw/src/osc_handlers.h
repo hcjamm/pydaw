@@ -81,9 +81,9 @@ int pydaw_osc_midi_handler(t_pydaw_plugin *instance, lo_arg **argv)
 int pydaw_osc_control_handler(t_pydaw_plugin *instance, lo_arg **argv)
 {
     int port = argv[0]->i;
-    LADSPA_Data value = argv[1]->f;
+    PYFX_Data value = argv[1]->f;
 
-    if (port < 0 || port > instance->descriptor->LADSPA_Plugin->PortCount) {
+    if (port < 0 || port > instance->descriptor->PYFX_Plugin->PortCount) {
 	fprintf(stderr, "PyDAW: OSC: port number (%d) is out of range\n", port);
 	return 0;
     }
@@ -115,7 +115,7 @@ int pydaw_osc_configure_handler(t_pydaw_plugin *instance, lo_arg **argv)
 
     if (instance->descriptor->configure) 
     {
-        message = instance->descriptor->configure(instance->ladspa_handle, key, value);
+        message = instance->descriptor->configure(instance->PYFX_handle, key, value);
         if (message) 
         {
             printf("PyDAW: on configure '%s' '%s', plugin returned error '%s'\n",key, value, message);
@@ -130,16 +130,16 @@ int pydaw_osc_configure_handler(t_pydaw_plugin *instance, lo_arg **argv)
 	int n = instance->number;
 	int m = n;
 
-	if (!strncmp(key, DSSI_RESERVED_CONFIGURE_PREFIX,
-		     strlen(DSSI_RESERVED_CONFIGURE_PREFIX))) {
+	if (!strncmp(key, PYINST_RESERVED_CONFIGURE_PREFIX,
+		     strlen(PYINST_RESERVED_CONFIGURE_PREFIX))) {
 	    fprintf(stderr, "%s: OSC: UI for plugin '%s' attempted to use reserved configure key \"%s\", ignoring\n", myName, instance->friendly_name, key);
 	    return 0;
 	}
 
         
 	if (instance->plugin->instances > 1 &&
-	    !strncmp(key, DSSI_GLOBAL_CONFIGURE_PREFIX,
-		     strlen(DSSI_GLOBAL_CONFIGURE_PREFIX))) {
+	    !strncmp(key, PYINST_GLOBAL_CONFIGURE_PREFIX,
+		     strlen(PYINST_GLOBAL_CONFIGURE_PREFIX))) {
 	    while (n > 0 && instances[n-1].plugin == instances[m].plugin) --n;
 	    m = n + instances[n].plugin->instances - 1;
 	}
@@ -235,7 +235,7 @@ int pydaw_osc_update_handler(t_pydaw_plugin *instance, lo_arg **argv, lo_address
     /*
     if (projectDirectory) {
 	lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
-		DSSI_PROJECT_DIRECTORY_KEY, projectDirectory);
+		PYINST_PROJECT_DIRECTORY_KEY, projectDirectory);
     }
     */
 

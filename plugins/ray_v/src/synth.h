@@ -60,55 +60,55 @@ extern "C" {
 #define RAYV_POLYPHONY   16
 
 typedef struct {
-    LADSPA_Data *output0;
-    LADSPA_Data *output1;
-    LADSPA_Data *tune;
-    LADSPA_Data *attack;
-    LADSPA_Data *decay;
-    LADSPA_Data *sustain;
-    LADSPA_Data *release;
-    LADSPA_Data *timbre;
-    LADSPA_Data *res;
-    LADSPA_Data *dist;
-    LADSPA_Data pitch;
+    PYFX_Data *output0;
+    PYFX_Data *output1;
+    PYFX_Data *tune;
+    PYFX_Data *attack;
+    PYFX_Data *decay;
+    PYFX_Data *sustain;
+    PYFX_Data *release;
+    PYFX_Data *timbre;
+    PYFX_Data *res;
+    PYFX_Data *dist;
+    PYFX_Data pitch;
     
-    LADSPA_Data *attack_f;
-    LADSPA_Data *decay_f;
-    LADSPA_Data *sustain_f;
-    LADSPA_Data *release_f;
+    PYFX_Data *attack_f;
+    PYFX_Data *decay_f;
+    PYFX_Data *sustain_f;
+    PYFX_Data *release_f;
     
-    LADSPA_Data *osc1pitch;
-    LADSPA_Data *osc1tune;
-    LADSPA_Data *osc1type;
-    LADSPA_Data *osc1vol;
+    PYFX_Data *osc1pitch;
+    PYFX_Data *osc1tune;
+    PYFX_Data *osc1type;
+    PYFX_Data *osc1vol;
     
-    LADSPA_Data *osc2pitch;
-    LADSPA_Data *osc2tune;
-    LADSPA_Data *osc2type;
-    LADSPA_Data *osc2vol;
+    PYFX_Data *osc2pitch;
+    PYFX_Data *osc2tune;
+    PYFX_Data *osc2type;
+    PYFX_Data *osc2vol;
     
-    LADSPA_Data *filter_env_amt;
-    LADSPA_Data *dist_wet;
-    LADSPA_Data *master_vol;
+    PYFX_Data *filter_env_amt;
+    PYFX_Data *dist_wet;
+    PYFX_Data *master_vol;
     
-    LADSPA_Data *noise_amp;
+    PYFX_Data *noise_amp;
     
     
-    LADSPA_Data *master_uni_voice;
-    LADSPA_Data *master_uni_spread;
-    LADSPA_Data *master_glide;
-    LADSPA_Data *master_pb_amt;
+    PYFX_Data *master_uni_voice;
+    PYFX_Data *master_uni_spread;
+    PYFX_Data *master_glide;
+    PYFX_Data *master_pb_amt;
     
-    LADSPA_Data *pitch_env_amt;
-    LADSPA_Data *pitch_env_time;
+    PYFX_Data *pitch_env_amt;
+    PYFX_Data *pitch_env_time;
     
-    LADSPA_Data *lfo_freq;
-    LADSPA_Data *lfo_type;
-    LADSPA_Data *lfo_amp;
-    LADSPA_Data *lfo_pitch;
-    LADSPA_Data *lfo_filter;
+    PYFX_Data *lfo_freq;
+    PYFX_Data *lfo_type;
+    PYFX_Data *lfo_amp;
+    PYFX_Data *lfo_pitch;
+    PYFX_Data *lfo_filter;
     
-    LADSPA_Data *sync_hard;
+    PYFX_Data *sync_hard;
         
     t_rayv_poly_voice * data[RAYV_POLYPHONY];
     t_voc_voices * voices;

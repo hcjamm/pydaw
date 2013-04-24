@@ -359,7 +359,7 @@ void v_open_default_project(t_pydaw_data * a_data);
 inline void v_pydaw_process_external_midi(t_pydaw_data * pydaw_data, int sample_count, snd_seq_event_t *events, int event_count);
 inline void v_pydaw_run_main_loop(t_pydaw_data * pydaw_data, int sample_count, 
         snd_seq_event_t *events, int event_count, long f_next_current_sample, 
-        LADSPA_Data *output0, LADSPA_Data *output1, LADSPA_Data **a_input_buffers);
+        PYFX_Data *output0, PYFX_Data *output1, PYFX_Data **a_input_buffers);
 void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int a_start_bar, int a_end_region, 
         int a_end_bar, char * a_file_out);
 inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data);
@@ -1244,7 +1244,7 @@ inline void v_pydaw_schedule_work(t_pydaw_data * a_pydaw_data)
 
 inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count, 
         snd_seq_event_t *events, int event_count, long f_next_current_sample, 
-        LADSPA_Data *output0, LADSPA_Data *output1, LADSPA_Data **a_input_buffers)
+        PYFX_Data *output0, PYFX_Data *output1, PYFX_Data **a_input_buffers)
 {
     a_pydaw_data->sample_count = sample_count;
     a_pydaw_data->input_buffers = a_input_buffers;
@@ -3117,7 +3117,7 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
         
         if(f_instance->euphoria_load_set)
         {
-            char * message = f_instance->descriptor->configure(f_instance->ladspa_handle, "load", f_instance->euphoria_load);
+            char * message = f_instance->descriptor->configure(f_instance->PYFX_handle, "load", f_instance->euphoria_load);
             if (message) 
             {
                 printf("v_pydaw_open_track: on configure '%s' '%s', plugin returned error '%s'\n","load", f_instance->euphoria_load, message);
@@ -4118,8 +4118,8 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
         
         f_result_fx->pluginOutputBuffers = f_result_fx->pluginInputBuffers;
         
-        f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 2, f_result_fx->pluginOutputBuffers[0]);
-        f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 3, f_result_fx->pluginOutputBuffers[1]);
+        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 2, f_result_fx->pluginOutputBuffers[0]);
+        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 3, f_result_fx->pluginOutputBuffers[1]);
         
         t_pydaw_plugin * f_fx = a_track->effect;
                 
@@ -4204,10 +4204,10 @@ void v_set_plugin_index(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
         f_result_fx->pluginInputBuffers = f_result->pluginOutputBuffers;
         f_result_fx->pluginOutputBuffers = f_result_fx->pluginInputBuffers;
         
-        f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 0, f_result_fx->pluginInputBuffers[0]);
-        f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 1, f_result_fx->pluginInputBuffers[1]);
-        f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 2, f_result_fx->pluginOutputBuffers[0]);
-        f_result_fx->descriptor->LADSPA_Plugin->connect_port(f_result_fx->ladspa_handle, 3, f_result_fx->pluginOutputBuffers[1]);
+        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 0, f_result_fx->pluginInputBuffers[0]);
+        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 1, f_result_fx->pluginInputBuffers[1]);
+        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 2, f_result_fx->pluginOutputBuffers[0]);
+        f_result_fx->descriptor->PYFX_Plugin->connect_port(f_result_fx->PYFX_handle, 3, f_result_fx->pluginOutputBuffers[1]);
                 
         /* If switching from a different plugin(but not from no plugin), delete the preset file */
         if(((a_track->plugin_index) != 0) && i_pydaw_file_exists(f_file_name))
@@ -4464,7 +4464,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     
     while(f_i < (PYDAW_AUDIO_INPUT_TRACK_COUNT * 2))
     {
-        a_pydaw_data->input_buffers[f_i] = (LADSPA_Data*)malloc(sizeof(LADSPA_Data) * 8192);        
+        a_pydaw_data->input_buffers[f_i] = (PYFX_Data*)malloc(sizeof(PYFX_Data) * 8192);        
         f_i++;
     }
     a_pydaw_data->input_buffers_active = 1;

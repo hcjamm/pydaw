@@ -55,7 +55,7 @@ static float sample_rate;
 static d3h_instance_t instances[D3H_MAX_INSTANCES];
 static int            instance_count = 0;
 
-static LADSPA_Handle    *instanceHandles;
+static PYFX_Handle    *instanceHandles;
 static snd_seq_event_t **instanceEventBuffers;
 static int    *instanceEventCounts;
 
@@ -91,7 +91,7 @@ static int midiEventReadIndex = 0, midiEventWriteIndex = 0;
 
 static pthread_mutex_t midiEventBufferMutex = PTHREAD_MUTEX_INITIALIZER;
 
-LADSPA_Data get_port_default(const LADSPA_Descriptor *plugin, int port);
+PYFX_Data get_port_default(const PYFX_Descriptor *plugin, int port);
 
 void osc_error(int num, const char *m, const char *path);
 
@@ -169,22 +169,22 @@ setControl(d3h_instance_t *instance, long controlIn, snd_seq_event_t *event)
 {
     long port = pluginControlInPortNumbers[controlIn];
 
-    const LADSPA_Descriptor *p = instance->plugin->descriptor->LADSPA_Plugin;
+    const PYFX_Descriptor *p = instance->plugin->descriptor->PYFX_Plugin;
 
-    LADSPA_PortRangeHintDescriptor d = p->PortRangeHints[port].HintDescriptor;
+    PYFX_PortRangeHintDescriptor d = p->PortRangeHints[port].HintDescriptor;
 
-    LADSPA_Data lb = p->PortRangeHints[port].LowerBound *
-	(LADSPA_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
+    PYFX_Data lb = p->PortRangeHints[port].LowerBound *
+	(PYFX_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
 	 sample_rate : 1.0f);
 
-    LADSPA_Data ub = p->PortRangeHints[port].UpperBound *
-	(LADSPA_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
+    PYFX_Data ub = p->PortRangeHints[port].UpperBound *
+	(PYFX_IS_HINT_SAMPLE_RATE(p->PortRangeHints[port].HintDescriptor) ?
 	 sample_rate : 1.0f);
 
     float value = (float)event->data.control.value;
 
-    if (!LADSPA_IS_HINT_BOUNDED_BELOW(d)) {
-	if (!LADSPA_IS_HINT_BOUNDED_ABOVE(d)) {
+    if (!PYFX_IS_HINT_BOUNDED_BELOW(d)) {
+	if (!PYFX_IS_HINT_BOUNDED_ABOVE(d)) {
 	    /* unbounded: might as well leave the value alone. */
             return;
 	} else {
@@ -192,12 +192,12 @@ setControl(d3h_instance_t *instance, long controlIn, snd_seq_event_t *event)
 	    value = ub - 127.0f + value;
 	}
     } else {
-	if (!LADSPA_IS_HINT_BOUNDED_ABOVE(d)) {
+	if (!PYFX_IS_HINT_BOUNDED_ABOVE(d)) {
 	    /* bounded below only. just shift the range. */
 	    value = lb + value;
 	} else {
 	    /* bounded both ends.  more interesting. */
-            if (LADSPA_IS_HINT_LOGARITHMIC(d) && lb > 0.0f && ub > 0.0f) {
+            if (PYFX_IS_HINT_LOGARITHMIC(d) && lb > 0.0f && ub > 0.0f) {
 		const float llb = logf(lb);
 		const float lub = logf(ub);
 
@@ -207,7 +207,7 @@ setControl(d3h_instance_t *instance, long controlIn, snd_seq_event_t *event)
 	    }
 	}
     }
-    if (LADSPA_IS_HINT_INTEGER(d)) {
+    if (PYFX_IS_HINT_INTEGER(d)) {
         value = lrintf(value);
     }
 
@@ -389,7 +389,7 @@ audio_callback(jack_nframes_t nframes, void *arg)
 	jack_default_audio_sample_t *buffer =
 	    jack_port_get_buffer(inputPorts[inCount], nframes);
 	
-	memcpy(pluginInputBuffers[inCount], buffer, nframes * sizeof(LADSPA_Data));
+	memcpy(pluginInputBuffers[inCount], buffer, nframes * sizeof(PYFX_Data));
     }
 
     /* call run_synth() or run_multiple_synths() for all instances */
@@ -404,7 +404,7 @@ audio_callback(jack_nframes_t nframes, void *arg)
 	if (instances[i].inactive) {
 	    int j;
 	    for (j = 0; j < instances[i].plugin->outs; ++j) {
-		memset(pluginOutputBuffers[outCount + j], 0, nframes * sizeof(LADSPA_Data));
+		memset(pluginOutputBuffers[outCount + j], 0, nframes * sizeof(PYFX_Data));
 	    }
 	    outCount += j;
 	    ++i;
@@ -427,8 +427,8 @@ audio_callback(jack_nframes_t nframes, void *arg)
                                                        instanceEventBuffers[i],
                                                        instanceEventCounts[i]);
             i++;
-        } else if (instances[i].plugin->descriptor->LADSPA_Plugin->run) {
-	    instances[i].plugin->descriptor->LADSPA_Plugin->run(instanceHandles[i],
+        } else if (instances[i].plugin->descriptor->PYFX_Plugin->run) {
+	    instances[i].plugin->descriptor->PYFX_Plugin->run(instanceHandles[i],
 								nframes);
 	    i++;
 	} else {
@@ -437,14 +437,14 @@ audio_callback(jack_nframes_t nframes, void *arg)
 	}
     }
 
-    assert(sizeof(LADSPA_Data) == sizeof(jack_default_audio_sample_t));
+    assert(sizeof(PYFX_Data) == sizeof(jack_default_audio_sample_t));
 
     for (outCount = 0; outCount < outsTotal; ++outCount) {
 
 	jack_default_audio_sample_t *buffer =
 	    jack_port_get_buffer(outputPorts[outCount], nframes);
 	
-	memcpy(buffer, pluginOutputBuffers[outCount], nframes * sizeof(LADSPA_Data));
+	memcpy(buffer, pluginOutputBuffers[outCount], nframes * sizeof(PYFX_Data));
     }
 
     return 0;
@@ -458,7 +458,7 @@ char *
 load(const char *dllName, void **dll, int quiet) /* returns directory where dll found */
 {
     static char *defaultDssiPath = 0;
-    const char *dssiPath = getenv("DSSI_PATH");
+    const char *dssiPath = getenv("PYINST_PATH");
     char *path, *origPath, *element, *message;
     void *handle = 0;
 
@@ -586,10 +586,10 @@ void query_programs(d3h_instance_t *instance)
 
 	if (i > 0) {
 	    instance->pluginProgramCount = i;
-	    instance->pluginPrograms = (DSSI_Program_Descriptor *)
-		malloc(i * sizeof(DSSI_Program_Descriptor));
+	    instance->pluginPrograms = (PYINST_Program_Descriptor *)
+		malloc(i * sizeof(PYINST_Program_Descriptor));
 	    while (i > 0) {
-		const DSSI_Program_Descriptor *descriptor;
+		const PYINST_Program_Descriptor *descriptor;
 		--i;
 		descriptor = instance->plugin->descriptor->get_program(instanceHandles[instance->number], i);
 		instance->pluginPrograms[i].Bank = descriptor->Bank;
@@ -650,10 +650,10 @@ main(int argc, char **argv)
     dll = (d3h_dll_t *)calloc(1, sizeof(d3h_dll_t));
     dll->name = "pydaw";
     dll->directory = "/usr/lib/pydaw3";
-    dll->descfn = (DSSI_Descriptor_Function)dssi_descriptor; 
+    dll->descfn = (PYINST_Descriptor_Function)PYINST_descriptor; 
     j = 0;
     
-    plugin->descriptor = dssi_descriptor(0);
+    plugin->descriptor = PYINST_descriptor(0);
     
     plugin->dll = dll;
 
@@ -663,19 +663,19 @@ main(int argc, char **argv)
     plugin->controlIns = 0;
     plugin->controlOuts = 0;
 
-    for (j = 0; j < plugin->descriptor->LADSPA_Plugin->PortCount; j++) 
+    for (j = 0; j < plugin->descriptor->PYFX_Plugin->PortCount; j++) 
     {
-        LADSPA_PortDescriptor pod = plugin->descriptor->LADSPA_Plugin->PortDescriptors[j];
+        PYFX_PortDescriptor pod = plugin->descriptor->PYFX_Plugin->PortDescriptors[j];
 
-        if (LADSPA_IS_PORT_AUDIO(pod)) 
+        if (PYFX_IS_PORT_AUDIO(pod)) 
         {
-            if (LADSPA_IS_PORT_INPUT(pod)) ++plugin->ins;
-            else if (LADSPA_IS_PORT_OUTPUT(pod)) ++plugin->outs;
+            if (PYFX_IS_PORT_INPUT(pod)) ++plugin->ins;
+            else if (PYFX_IS_PORT_OUTPUT(pod)) ++plugin->outs;
         }
-        else if (LADSPA_IS_PORT_CONTROL(pod)) 
+        else if (PYFX_IS_PORT_CONTROL(pod)) 
         {
-            if (LADSPA_IS_PORT_INPUT(pod)) ++plugin->controlIns;
-            else if (LADSPA_IS_PORT_OUTPUT(pod)) ++plugin->controlOuts;
+            if (PYFX_IS_PORT_INPUT(pod)) ++plugin->controlIns;
+            else if (PYFX_IS_PORT_OUTPUT(pod)) ++plugin->controlOuts;
         }
     }
 
@@ -756,7 +756,7 @@ main(int argc, char **argv)
     if (!haveClientName) {
 	if (instance_count > 1) strcpy(clientName, "jack-dssi-host");
 	else {
-	    strncpy(clientName, instances[0].plugin->descriptor->LADSPA_Plugin->Name, clientLen);
+	    strncpy(clientName, instances[0].plugin->descriptor->PYFX_Plugin->Name, clientLen);
 	    clientName[clientLen] = '\0';
 	}
     }
@@ -787,8 +787,8 @@ main(int argc, char **argv)
     pluginOutputBuffers = (float **)malloc(outsTotal * sizeof(float *));
     pluginControlOuts = (float *)calloc(controlOutsTotal, sizeof(float));
 
-    instanceHandles = (LADSPA_Handle *)malloc(instance_count *
-                                              sizeof(LADSPA_Handle));
+    instanceHandles = (PYFX_Handle *)malloc(instance_count *
+                                              sizeof(PYFX_Handle));
     instanceEventBuffers = (snd_seq_event_t **)malloc(instance_count *
                                                       sizeof(snd_seq_event_t *));
     instanceEventCounts = (int*)malloc(instance_count * sizeof(int));
@@ -797,7 +797,7 @@ main(int argc, char **argv)
         instanceEventBuffers[i] = (snd_seq_event_t *)malloc(EVENT_BUFFER_SIZE *
                                                             sizeof(snd_seq_event_t));
         instances[i].pluginPortControlInNumbers =
-            (int *)malloc(instances[i].plugin->descriptor->LADSPA_Plugin->PortCount *
+            (int *)malloc(instances[i].plugin->descriptor->PYFX_Plugin->PortCount *
                           sizeof(int));
     }
 
@@ -806,12 +806,12 @@ main(int argc, char **argv)
     reps = 0;
     for (i = 0; i < instance_count; i++) {
 	if (i > 0 &&
-	    !strcmp(instances[i  ].plugin->descriptor->LADSPA_Plugin->Name,
-		    instances[i-1].plugin->descriptor->LADSPA_Plugin->Name)) {
+	    !strcmp(instances[i  ].plugin->descriptor->PYFX_Plugin->Name,
+		    instances[i-1].plugin->descriptor->PYFX_Plugin->Name)) {
 	    ++reps;
 	} else if (i < instance_count - 1 &&
-		   !strcmp(instances[i  ].plugin->descriptor->LADSPA_Plugin->Name,
-			   instances[i+1].plugin->descriptor->LADSPA_Plugin->Name)) {
+		   !strcmp(instances[i  ].plugin->descriptor->PYFX_Plugin->Name,
+			   instances[i+1].plugin->descriptor->PYFX_Plugin->Name)) {
 	    reps = 1;
 	} else {
 	    reps = 0;
@@ -825,7 +825,7 @@ main(int argc, char **argv)
 		*/
 		sprintf(portName, "in_%d", in);
 	    } else {
-		strncpy(portName, instances[i].plugin->descriptor->LADSPA_Plugin->Name, 30);
+		strncpy(portName, instances[i].plugin->descriptor->PYFX_Plugin->Name, 30);
 		if (reps > 0) {
 		    portName[25] = '\0';
 		    sprintf(portName + strlen(portName), " %d in_%d", reps, j + 1);
@@ -863,7 +863,7 @@ main(int argc, char **argv)
 		*/
 		sprintf(portName, "out_%d", out);
 	    } else {
-		strncpy(portName, instances[i].plugin->descriptor->LADSPA_Plugin->Name, 30);
+		strncpy(portName, instances[i].plugin->descriptor->PYFX_Plugin->Name, 30);
 		if (reps > 0) {
 		    portName[25] = '\0';
 		    sprintf(portName + strlen(portName), " %d out_%d", reps, j + 1);
@@ -902,8 +902,8 @@ main(int argc, char **argv)
 
     for (i = 0; i < instance_count; i++) {
         plugin = instances[i].plugin;
-        instanceHandles[i] = plugin->descriptor->LADSPA_Plugin->instantiate
-            (plugin->descriptor->LADSPA_Plugin, sample_rate);
+        instanceHandles[i] = plugin->descriptor->PYFX_Plugin->instantiate
+            (plugin->descriptor->PYFX_Plugin, sample_rate);
         if (!instanceHandles[i]) {
             fprintf(stderr, "\n%s: Error: Failed to instantiate instance %d!, plugin \"%s\"\n",
                     myName, i, plugin->label);
@@ -911,7 +911,7 @@ main(int argc, char **argv)
         }
 	if (projectDirectory && plugin->descriptor->configure) {
 	    char *rv =plugin->descriptor->configure(instanceHandles[i],
-						    DSSI_PROJECT_DIRECTORY_KEY,
+						    PYINST_PROJECT_DIRECTORY_KEY,
 						    projectDirectory);
 	    if (rv) {
 		fprintf(stderr, "%s: Warning: plugin doesn't like project directory: \"%s\"\n", myName, rv);
@@ -951,27 +951,27 @@ main(int argc, char **argv)
         }
 
         plugin = instance->plugin;
-        for (j = 0; j < plugin->descriptor->LADSPA_Plugin->PortCount; j++) {  /* j is LADSPA port number */
+        for (j = 0; j < plugin->descriptor->PYFX_Plugin->PortCount; j++) {  /* j is LADSPA port number */
 
-            LADSPA_PortDescriptor pod =
-                plugin->descriptor->LADSPA_Plugin->PortDescriptors[j];
+            PYFX_PortDescriptor pod =
+                plugin->descriptor->PYFX_Plugin->PortDescriptors[j];
 
             instance->pluginPortControlInNumbers[j] = -1;
 
-            if (LADSPA_IS_PORT_AUDIO(pod)) {
+            if (PYFX_IS_PORT_AUDIO(pod)) {
 
-                if (LADSPA_IS_PORT_INPUT(pod)) {
-                    plugin->descriptor->LADSPA_Plugin->connect_port
+                if (PYFX_IS_PORT_INPUT(pod)) {
+                    plugin->descriptor->PYFX_Plugin->connect_port
                         (instanceHandles[i], j, pluginInputBuffers[in++]);
 
-                } else if (LADSPA_IS_PORT_OUTPUT(pod)) {
-                    plugin->descriptor->LADSPA_Plugin->connect_port
+                } else if (PYFX_IS_PORT_OUTPUT(pod)) {
+                    plugin->descriptor->PYFX_Plugin->connect_port
                         (instanceHandles[i], j, pluginOutputBuffers[out++]);
                 }
 
-            } else if (LADSPA_IS_PORT_CONTROL(pod)) {
+            } else if (PYFX_IS_PORT_CONTROL(pod)) {
 
-                if (LADSPA_IS_PORT_INPUT(pod)) {
+                if (PYFX_IS_PORT_INPUT(pod)) {
 
                     if (plugin->descriptor->get_midi_controller_for_port) {
 
@@ -984,8 +984,8 @@ main(int argc, char **argv)
                         } else if (controller == 32) {
                             MB_MESSAGE
                                 ("Buggy plugin: wants mapping for bank LSB\n");
-                        } else if (DSSI_IS_CC(controller)) {
-                            instance->controllerMap[DSSI_CC_NUMBER(controller)]
+                        } else if (PYINST_IS_CC(controller)) {
+                            instance->controllerMap[PYINST_CC_NUMBER(controller)]
                                 = controlIn;
                         }
                     }
@@ -995,20 +995,20 @@ main(int argc, char **argv)
                     instance->pluginPortControlInNumbers[j] = controlIn;
 
                     pluginControlIns[controlIn] = get_port_default
-                        (plugin->descriptor->LADSPA_Plugin, j);
+                        (plugin->descriptor->PYFX_Plugin, j);
 
-                    plugin->descriptor->LADSPA_Plugin->connect_port
+                    plugin->descriptor->PYFX_Plugin->connect_port
                         (instanceHandles[i], j, &pluginControlIns[controlIn++]);
 
-                } else if (LADSPA_IS_PORT_OUTPUT(pod)) {
-                    plugin->descriptor->LADSPA_Plugin->connect_port
+                } else if (PYFX_IS_PORT_OUTPUT(pod)) {
+                    plugin->descriptor->PYFX_Plugin->connect_port
                         (instanceHandles[i], j, &pluginControlOuts[controlOut++]);
                 }
             }
         }  /* 'for (j...'  LADSPA port number */
 
-        if (plugin->descriptor->LADSPA_Plugin->activate) {
-            plugin->descriptor->LADSPA_Plugin->activate(instanceHandles[i]);
+        if (plugin->descriptor->PYFX_Plugin->activate) {
+            plugin->descriptor->PYFX_Plugin->activate(instanceHandles[i]);
         }
 	instance->inactive = 0;
     } /* 'for (i...' instance number */
@@ -1136,13 +1136,13 @@ main(int argc, char **argv)
             instance->uiSource = NULL;
         }
 
-        if (instance->plugin->descriptor->LADSPA_Plugin->deactivate) {
-            instance->plugin->descriptor->LADSPA_Plugin->deactivate
+        if (instance->plugin->descriptor->PYFX_Plugin->deactivate) {
+            instance->plugin->descriptor->PYFX_Plugin->deactivate
 		(instanceHandles[i]);
 	}
 
-        if (instance->plugin->descriptor->LADSPA_Plugin->cleanup) {
-            instance->plugin->descriptor->LADSPA_Plugin->cleanup
+        if (instance->plugin->descriptor->PYFX_Plugin->cleanup) {
+            instance->plugin->descriptor->PYFX_Plugin->cleanup
 		(instanceHandles[i]);
 	}
     }
@@ -1159,17 +1159,17 @@ main(int argc, char **argv)
     return 0;
 }
 
-LADSPA_Data get_port_default(const LADSPA_Descriptor *plugin, int port)
+PYFX_Data get_port_default(const PYFX_Descriptor *plugin, int port)
 {
-    LADSPA_PortRangeHint hint = plugin->PortRangeHints[port];
+    PYFX_PortRangeHint hint = plugin->PortRangeHints[port];
     float lower = hint.LowerBound *
-	(LADSPA_IS_HINT_SAMPLE_RATE(hint.HintDescriptor) ? sample_rate : 1.0f);
+	(PYFX_IS_HINT_SAMPLE_RATE(hint.HintDescriptor) ? sample_rate : 1.0f);
     float upper = hint.UpperBound *
-	(LADSPA_IS_HINT_SAMPLE_RATE(hint.HintDescriptor) ? sample_rate : 1.0f);
+	(PYFX_IS_HINT_SAMPLE_RATE(hint.HintDescriptor) ? sample_rate : 1.0f);
 
-    if (!LADSPA_IS_HINT_HAS_DEFAULT(hint.HintDescriptor)) {
-	if (!LADSPA_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor) ||
-	    !LADSPA_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
+    if (!PYFX_IS_HINT_HAS_DEFAULT(hint.HintDescriptor)) {
+	if (!PYFX_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor) ||
+	    !PYFX_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
 	    /* No hint, its not bounded, wild guess */
 	    return 0.0f;
 	}
@@ -1185,43 +1185,43 @@ LADSPA_Data get_port_default(const LADSPA_Descriptor *plugin, int port)
 
     /* Try all the easy ones */
     
-    if (LADSPA_IS_HINT_DEFAULT_0(hint.HintDescriptor)) {
+    if (PYFX_IS_HINT_DEFAULT_0(hint.HintDescriptor)) {
 	return 0.0f;
-    } else if (LADSPA_IS_HINT_DEFAULT_1(hint.HintDescriptor)) {
+    } else if (PYFX_IS_HINT_DEFAULT_1(hint.HintDescriptor)) {
 	return 1.0f;
-    } else if (LADSPA_IS_HINT_DEFAULT_100(hint.HintDescriptor)) {
+    } else if (PYFX_IS_HINT_DEFAULT_100(hint.HintDescriptor)) {
 	return 100.0f;
-    } else if (LADSPA_IS_HINT_DEFAULT_440(hint.HintDescriptor)) {
+    } else if (PYFX_IS_HINT_DEFAULT_440(hint.HintDescriptor)) {
 	return 440.0f;
     }
 
     /* All the others require some bounds */
 
-    if (LADSPA_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor)) {
-	if (LADSPA_IS_HINT_DEFAULT_MINIMUM(hint.HintDescriptor)) {
+    if (PYFX_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor)) {
+	if (PYFX_IS_HINT_DEFAULT_MINIMUM(hint.HintDescriptor)) {
 	    return lower;
 	}
     }
-    if (LADSPA_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
-	if (LADSPA_IS_HINT_DEFAULT_MAXIMUM(hint.HintDescriptor)) {
+    if (PYFX_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
+	if (PYFX_IS_HINT_DEFAULT_MAXIMUM(hint.HintDescriptor)) {
 	    return upper;
 	}
-	if (LADSPA_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor)) {
-            if (LADSPA_IS_HINT_LOGARITHMIC(hint.HintDescriptor) &&
+	if (PYFX_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor)) {
+            if (PYFX_IS_HINT_LOGARITHMIC(hint.HintDescriptor) &&
                 lower > 0.0f && upper > 0.0f) {
-                if (LADSPA_IS_HINT_DEFAULT_LOW(hint.HintDescriptor)) {
+                if (PYFX_IS_HINT_DEFAULT_LOW(hint.HintDescriptor)) {
                     return expf(logf(lower) * 0.75f + logf(upper) * 0.25f);
-                } else if (LADSPA_IS_HINT_DEFAULT_MIDDLE(hint.HintDescriptor)) {
+                } else if (PYFX_IS_HINT_DEFAULT_MIDDLE(hint.HintDescriptor)) {
                     return expf(logf(lower) * 0.5f + logf(upper) * 0.5f);
-                } else if (LADSPA_IS_HINT_DEFAULT_HIGH(hint.HintDescriptor)) {
+                } else if (PYFX_IS_HINT_DEFAULT_HIGH(hint.HintDescriptor)) {
                     return expf(logf(lower) * 0.25f + logf(upper) * 0.75f);
                 }
             } else {
-                if (LADSPA_IS_HINT_DEFAULT_LOW(hint.HintDescriptor)) {
+                if (PYFX_IS_HINT_DEFAULT_LOW(hint.HintDescriptor)) {
                     return lower * 0.75f + upper * 0.25f;
-                } else if (LADSPA_IS_HINT_DEFAULT_MIDDLE(hint.HintDescriptor)) {
+                } else if (PYFX_IS_HINT_DEFAULT_MIDDLE(hint.HintDescriptor)) {
                     return lower * 0.5f + upper * 0.5f;
-                } else if (LADSPA_IS_HINT_DEFAULT_HIGH(hint.HintDescriptor)) {
+                } else if (PYFX_IS_HINT_DEFAULT_HIGH(hint.HintDescriptor)) {
                     return lower * 0.25f + upper * 0.75f;
                 }
 	    }
@@ -1305,9 +1305,9 @@ int osc_midi_handler(d3h_instance_t *instance, lo_arg **argv)
 int osc_control_handler(d3h_instance_t *instance, lo_arg **argv)
 {
     int port = argv[0]->i;
-    LADSPA_Data value = argv[1]->f;
+    PYFX_Data value = argv[1]->f;
 
-    if (port < 0 || port > instance->plugin->descriptor->LADSPA_Plugin->PortCount) {
+    if (port < 0 || port > instance->plugin->descriptor->PYFX_Plugin->PortCount) {
 	fprintf(stderr, "%s: OSC: %s port number (%d) is out of range\n",
                 myName, instance->friendly_name, port);
 	return 0;
@@ -1382,15 +1382,15 @@ int osc_configure_handler(d3h_instance_t *instance, lo_arg **argv)
 	int n = instance->number;
 	int m = n;
 
-	if (!strncmp(key, DSSI_RESERVED_CONFIGURE_PREFIX,
-		     strlen(DSSI_RESERVED_CONFIGURE_PREFIX))) {
+	if (!strncmp(key, PYINST_RESERVED_CONFIGURE_PREFIX,
+		     strlen(PYINST_RESERVED_CONFIGURE_PREFIX))) {
 	    fprintf(stderr, "%s: OSC: UI for plugin '%s' attempted to use reserved configure key \"%s\", ignoring\n", myName, instance->friendly_name, key);
 	    return 0;
 	}
 
 	if (instance->plugin->instances > 1 &&
-	    !strncmp(key, DSSI_GLOBAL_CONFIGURE_PREFIX,
-		     strlen(DSSI_GLOBAL_CONFIGURE_PREFIX))) {
+	    !strncmp(key, PYINST_GLOBAL_CONFIGURE_PREFIX,
+		     strlen(PYINST_GLOBAL_CONFIGURE_PREFIX))) {
 	    while (n > 0 && instances[n-1].plugin == instances[m].plugin) --n;
 	    m = n + instances[n].plugin->instances - 1;
 	}
@@ -1488,7 +1488,7 @@ osc_update_handler(d3h_instance_t *instance, lo_arg **argv, lo_address source)
 
     if (projectDirectory) {
 	lo_send(instance->uiTarget, instance->ui_osc_configure_path, "ss",
-		DSSI_PROJECT_DIRECTORY_KEY, projectDirectory);
+		PYINST_PROJECT_DIRECTORY_KEY, projectDirectory);
     }
 
     /* Send current bank/program  (-FIX- another race...) */
@@ -1545,8 +1545,8 @@ int osc_exiting_handler(d3h_instance_t *instance, lo_arg **argv)
 	  would still be included in a run_multiple_synths call unless
 	  we re-jigged the instance array at the same time -- leave it
 	  for now
-	if (instance->plugin->descriptor->LADSPA_Plugin->deactivate) {
-            instance->plugin->descriptor->LADSPA_Plugin->deactivate
+	if (instance->plugin->descriptor->PYFX_Plugin->deactivate) {
+            instance->plugin->descriptor->PYFX_Plugin->deactivate
 		(instanceHandles[instance->number]);
 	}
 	*/
