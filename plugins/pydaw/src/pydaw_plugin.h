@@ -332,6 +332,13 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
                 {
                     return 0;
                 }
+                
+                int f_i = 0;
+                while(f_i < 8192)
+                {
+                    f_result->pluginInputBuffers[in][f_i] = 0.0f;
+                    f_i++;
+                }
 
                 f_result->descriptor->PYFX_Plugin->connect_port(f_result->PYFX_handle, j, f_result->pluginInputBuffers[in]);                                
                 in++;
@@ -341,6 +348,13 @@ t_pydaw_plugin * g_pydaw_plugin_get(int a_sample_rate, int a_index)
                 if(posix_memalign((void**)(&f_result->pluginOutputBuffers[out]), 16, (sizeof(float) * 8192)) != 0)
                 {
                     return 0;
+                }                
+                
+                int f_i = 0;
+                while(f_i < 8192)
+                {
+                    f_result->pluginOutputBuffers[out][f_i] = 0.0f;
+                    f_i++;
                 }
 
                 f_result->descriptor->PYFX_Plugin->connect_port(f_result->PYFX_handle, j, f_result->pluginOutputBuffers[out]);                
