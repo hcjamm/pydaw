@@ -4406,26 +4406,21 @@ class transport_widget:
             this_pydaw_project.check_for_recorded_items(f_file_name)
             f_window.close()
 
-        def cancel_handler():
-            f_window.close()
-
         def text_edit_handler(a_val=None):
             f_file.setText(pydaw_remove_bad_chars(f_file.text()))
 
-        f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("Save recorded MIDI items")
+        f_window = QtGui.QDialog(this_main_window, QtCore.Qt.WindowTitleHint | QtCore.Qt.FramelessWindowHint)
+        f_window.setMinimumWidth(330)
         f_layout = QtGui.QGridLayout()
         f_window.setLayout(f_layout)
-        f_layout.addWidget(QtGui.QLabel("Item Name:"), 0, 1)
+        f_layout.addWidget(QtGui.QLabel("Save recorded MIDI items"), 0, 2)
+        f_layout.addWidget(QtGui.QLabel("Item Name:"), 3, 1)
         f_file = QtGui.QLineEdit()
         f_file.textEdited.connect(text_edit_handler)
-        f_layout.addWidget(f_file, 0, 2)
+        f_layout.addWidget(f_file, 3, 2)
         f_ok_button = QtGui.QPushButton("Save")
         f_ok_button.clicked.connect(ok_handler)
         f_layout.addWidget(f_ok_button, 8,2)
-        f_cancel_button = QtGui.QPushButton("Discard Changes")
-        f_layout.addWidget(f_cancel_button, 8,3)
-        f_cancel_button.clicked.connect(cancel_handler)
         f_window.exec_()
 
     def on_rec(self):
