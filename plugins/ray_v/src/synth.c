@@ -539,7 +539,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
         value_tranform_hints[RAYV_RELEASE] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
 
 	port_descriptors[RAYV_TIMBRE] = port_descriptors[RAYV_ATTACK];
-	port_names[RAYV_TIMBRE] = "Timbre";
+	port_names[RAYV_TIMBRE] = "Filter Cutoff";
 	port_range_hints[RAYV_TIMBRE].HintDescriptor = PYFX_HINT_DEFAULT_MAXIMUM | PYFX_HINT_BOUNDED_BELOW | PYFX_HINT_BOUNDED_ABOVE;
 	port_range_hints[RAYV_TIMBRE].LowerBound =  20.0f;
 	port_range_hints[RAYV_TIMBRE].UpperBound =  124.0f;
