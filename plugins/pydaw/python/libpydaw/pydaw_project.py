@@ -144,10 +144,10 @@ class pydaw_project:
         if not os.path.isfile(self.project_folder + "/" + str(a_folder) + "/" + str(a_file)):
             self.save_file(a_folder, a_file, a_text)
 
-    def save_file(self, a_folder, a_file, a_text):
+    def save_file(self, a_folder, a_file, a_text, a_force_new=False):
         """ Writes a file to disk and updates the project history to reflect the changes """
         f_full_path = self.project_folder + "/" + str(a_folder) + "/" + str(a_file)
-        if os.path.isfile(f_full_path):
+        if not a_force_new and os.path.isfile(f_full_path):
             f_old = pydaw_read_file_text(f_full_path)
             if f_old == a_text:
                 return
@@ -438,6 +438,7 @@ class pydaw_project:
         return pydaw_item.from_str(self.get_item_string(f_items_dict.get_uid_by_name(a_item_name)))
 
     def check_for_recorded_items(self, a_item_name):
+        self.check_for_recorded_regions()
         f_item_name = str(a_item_name) + "-"
         if os.path.isfile(self.project_folder + "/recorded_items"):
             f_str_list = pydaw_read_file_text(self.project_folder + "/recorded_items").split("\n")
@@ -457,23 +458,12 @@ class pydaw_project:
         for f_int in f_int_list:
             f_item = self.get_item_by_uid(f_int)
             f_item.fix_overlaps()
-            self.save_item_by_uid(f_int, f_item)
+            self.save_item_by_uid(f_int, f_item, a_new_item=True)
             while f_items_dict.uid_lookup.has_key(f_item_name + str(f_suffix)):
                 f_suffix += 1
             f_items_dict.add_item(f_int, f_item_name + str(f_suffix))
-            #Commenting these out because saving the item also adds it to history
-            #f_old_text = self.history.get_latest_version_of_file(pydaw_folder_items, f_int)
-            #self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_items, str(f_int), \
-            #    pydaw_read_file_text(self.items_folder + "/" + str(f_int)), f_old_text, 0))
             f_suffix += 1
         self.save_items_dict(f_items_dict)
-
-    def remove_recorded_items(self):
-        f_items_dict = self.get_items_dict()
-        f_str_list = os.listdir(self.items_folder)
-        for f_str in f_str_list:
-            if not f_items_dict.name_lookup.has_key(int(f_str)):
-                os.remove(self.items_folder + "/" + f_str)
 
     def check_for_recorded_regions(self):
         if os.path.isfile(self.project_folder + "/recorded_regions"):
@@ -497,15 +487,21 @@ class pydaw_project:
                 while f_regions_dict.uid_lookup.has_key("recorded-" + str(f_suffix)):
                     f_suffix += 1
                 f_regions_dict.add_item(f_int, "recorded-" + str(f_suffix))
-                f_old_text = self.history.get_latest_version_of_file(pydaw_folder_regions, f_int)
-                self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_items, str(f_int), \
-                pydaw_read_file_text(self.regions_folder + "/" + str(f_int)), f_old_text, 0))
                 f_suffix += 1
+                f_old_text = ""
+            else:
+                f_old_text = self.history.get_latest_version_of_file(pydaw_folder_regions, f_int)
+            self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_regions, str(f_int), \
+            pydaw_read_file_text(self.regions_folder + "/" + str(f_int)), f_old_text, 0))
+
         self.save_regions_dict(f_regions_dict)
         f_old_text = self.history.get_latest_version_of_file("", pydaw_file_pysong)
         f_new_text = pydaw_read_file_text(self.project_folder + "/" + pydaw_file_pysong)
-        if f_old_text != f_new_text:
+        if f_old_text is not None and f_new_text != f_old_text:
+            print "Appending history file for pysong"
             self.history_files.append(pydaw_history.pydaw_history_file("", pydaw_file_pysong, f_new_text, f_old_text, 1))
+        else:
+            print "f_old_text", f_old_text
 
     def get_tracks_string(self):
         try:
@@ -543,24 +539,8 @@ class pydaw_project:
     def get_audio_tracks(self):
         return pydaw_audio_tracks.from_str(self.get_audio_tracks_string())
 
-    def get_audio_input_tracks_string(self):
-        #try:
-        f_file = open(self.project_folder + "/default.pyinput", "r")
-        #except:
-        #    print("get_audio_input_tracks_string() could not open file, returning empty")
-        #    return pydaw_terminating_char
-        f_result = f_file.read()
-        f_file.close()
-        return f_result
-
-    def get_audio_input_tracks(self):
-        return pydaw_audio_input_tracks.from_str(self.get_audio_input_tracks_string())
-
     def get_audio_items_string(self, a_region_uid):
-        #try:
         f_file = open(self.regions_audio_folder + "/" + str(a_region_uid), "r")
-        #except:
-        #    return pydaw_terminating_char
         f_result = f_file.read()
         f_file.close()
         return f_result
@@ -691,10 +671,10 @@ class pydaw_project:
             self.save_file(pydaw_folder_items, str(f_uid), str(a_item))
             self.this_dssi_gui.pydaw_save_item(f_uid)
 
-    def save_item_by_uid(self, a_uid, a_item):
+    def save_item_by_uid(self, a_uid, a_item, a_new_item=False):
         if not self.suppress_updates:
             f_uid = int(a_uid)
-            self.save_file(pydaw_folder_items, str(f_uid), str(a_item))
+            self.save_file(pydaw_folder_items, str(f_uid), str(a_item), a_new_item)
             self.this_dssi_gui.pydaw_save_item(f_uid)
 
     def save_region(self, a_name, a_region):

@@ -4387,7 +4387,6 @@ class transport_widget:
             self.is_recording = False
             this_pydaw_project.flush_history() #As the history will be referenced when the recorded items are added to history
             sleep(2)  #Give it some time to flush the recorded items to disk...
-            this_pydaw_project.check_for_recorded_regions()
             self.show_save_items_dialog()
             if global_current_region is not None and this_region_settings.enabled:
                 this_region_settings.open_region_by_uid(global_current_region.uid)
