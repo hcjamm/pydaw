@@ -4361,6 +4361,8 @@ class transport_widget:
         self.trigger_audio_playback()
 
     def trigger_audio_playback(self):
+        if not self.follow_checkbox.isChecked():
+            return
         if self.loop_mode_combobox.currentIndex() == 1:
             f_bar_count = 1
         else:
@@ -4383,6 +4385,7 @@ class transport_widget:
         self.region_spinbox.setValue(self.last_region_num)
         if self.is_recording:
             self.is_recording = False
+            this_pydaw_project.flush_history() #As the history will be referenced when the recorded items are added to history
             sleep(2)  #Give it some time to flush the recorded items to disk...
             this_pydaw_project.check_for_recorded_regions()
             self.show_save_items_dialog()
@@ -4502,14 +4505,14 @@ class transport_widget:
                     this_region_settings.clear_items()
                     this_audio_items_viewer.clear_drawn_items()
             f_new_bar_value = 0
-            self.bar_spinbox.setValue(f_new_bar_value)  #NOTE:  This must not be consolidated with the other because trigger_audio_playback relies on it being set first
-            self.trigger_audio_playback()
+            self.bar_spinbox.setValue(f_new_bar_value) #NOTE:  This must not be consolidated with the other because trigger_audio_playback relies on it being set first
         self.bar_spinbox.setValue(f_new_bar_value)
         if self.follow_checkbox.isChecked():
             this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)
             this_region_bus_editor.table_widget.selectColumn(f_new_bar_value + 1)
             this_region_audio_editor.table_widget.selectColumn(f_new_bar_value + 1)
             this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
+            self.trigger_audio_playback()
 
     def open_transport(self, a_notify_osc=False):
         if not a_notify_osc:
@@ -5287,8 +5290,6 @@ def global_ui_refresh_callback(a_restore_all=False):
         this_region_settings.open_region_by_uid(global_current_region.uid)
         this_audio_editor.open_items()
         #this_audio_editor.open_tracks()
-        for f_editor in global_region_editors:
-            f_editor.open_tracks()
     else:
         this_region_settings.clear_new()
         global_current_region = None
@@ -5296,6 +5297,8 @@ def global_ui_refresh_callback(a_restore_all=False):
         global_open_items()
     this_song_editor.open_song()
     this_transport.open_transport()
+    for f_editor in global_region_editors:
+            f_editor.open_tracks()
     this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder, a_restore_all)
 
 def set_window_title():

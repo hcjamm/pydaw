@@ -502,6 +502,10 @@ class pydaw_project:
                 pydaw_read_file_text(self.regions_folder + "/" + str(f_int)), f_old_text, 0))
                 f_suffix += 1
         self.save_regions_dict(f_regions_dict)
+        f_old_text = self.history.get_latest_version_of_file("", pydaw_file_pysong)
+        f_new_text = pydaw_read_file_text(self.project_folder + "/" + pydaw_file_pysong)
+        if f_old_text != f_new_text:
+            self.history_files.append(pydaw_history.pydaw_history_file("", pydaw_file_pysong, f_new_text, f_old_text, 1))
 
     def get_tracks_string(self):
         try:
