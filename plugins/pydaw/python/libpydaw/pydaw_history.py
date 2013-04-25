@@ -20,10 +20,11 @@ class pydaw_history:
             f_conn.close()
 
     def get_latest_version_of_file(self, a_folder, a_file):
-        f_query_result = self.db_exec("SELECT text_new FROM pydaw_diffs WHERE commit_file = '" + str(a_file) + \
+        f_query_result = self.db_exec("SELECT text_new, existed FROM pydaw_diffs WHERE commit_file = '" + str(a_file) + \
         "' AND commit_folder = '" + str(a_folder) + "' ORDER BY commit_timestamp DESC LIMIT 1", True)
+        #if f_query_result[0][1] == 0 or len(f_query_result) == 0:
         if len(f_query_result) == 0:
-            return ""
+            return None
         else:
             return f_query_result[0][0]
 
