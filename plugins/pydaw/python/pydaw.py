@@ -469,7 +469,6 @@ class region_settings:
         self.length_alternate_radiobutton.setEnabled(True)
         self.length_alternate_spinbox.setEnabled(True)
 
-
 class region_list_editor:
     def add_qtablewidgetitem(self, a_name, a_track_num, a_bar_num, a_selected=False, a_is_offset=False):
         """ Adds a properly formatted item.  This is not for creating empty items... """
@@ -4150,6 +4149,19 @@ class item_list_editor:
 
 rec_button_group = QtGui.QButtonGroup()
 
+global_last_rec_armed_track = None
+
+def global_set_record_armed_track():
+    if global_last_rec_armed_track is None:
+        return
+    elif global_last_rec_armed_track < pydaw_midi_track_count:
+        this_region_editor.tracks[global_last_rec_armed_track].record_radiobutton.setChecked(True)
+    elif global_last_rec_armed_track < pydaw_midi_track_count + pydaw_bus_count:
+        this_region_bus_editor.tracks[global_last_rec_armed_track - pydaw_midi_track_count].record_radiobutton.setChecked(True)
+    else:
+        this_region_audio_editor.tracks[global_last_rec_armed_track - pydaw_midi_track_count - pydaw_bus_count].record_radiobutton.setChecked(True)
+
+
 class seq_track:
     def on_vol_change(self, value):
         self.volume_label.setText(str(value) + " dB")
@@ -4183,6 +4195,8 @@ class seq_track:
     def on_rec(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_track_rec(self.track_type, self.track_number, self.record_radiobutton.isChecked())
+            global global_last_rec_armed_track
+            global_last_rec_armed_track = self.track_number
 
     def on_name_changed(self):
         if self.is_instrument:
@@ -5299,6 +5313,7 @@ def global_ui_refresh_callback(a_restore_all=False):
     for f_editor in global_region_editors:
             f_editor.open_tracks()
     this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder, a_restore_all)
+    global_set_record_armed_track()
 
 def set_window_title():
     this_main_window.setWindowTitle('PyDAW3 - ' + this_pydaw_project.project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
