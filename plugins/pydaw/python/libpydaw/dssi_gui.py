@@ -110,8 +110,8 @@ class dssi_gui(ServerThread):
     def pydaw_open_song(self, a_project_folder, a_first_open=True):
         self.send_configure("os",  bool_to_int(a_first_open) + "|" + str(a_project_folder))
 
-    def pydaw_save_item(self, a_name):
-        self.send_configure("si", str(a_name))
+    def pydaw_save_item(self, a_uid):
+        self.send_configure("si", str(a_uid))
 
     def pydaw_delete_item(self):
         self.send_configure("di", "TODO")
@@ -121,9 +121,6 @@ class dssi_gui(ServerThread):
 
     def pydaw_delete_region(self):
         self.send_configure("dr", "TODO")
-
-    def pydaw_rename_item(self):
-        self.send_configure("ri", "TODO")
 
     def pydaw_play(self, a_region_num="0", a_bar="0"):
         self.send_configure("play", str(a_region_num) + "|" + str(a_bar))
