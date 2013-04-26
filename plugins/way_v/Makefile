@@ -7,7 +7,7 @@ MOC ?= moc-qt4
 
 PREFIX ?= /usr
 
-BASE_FLAGS     = -ffast-math -fPIC -msse -msse2 -msse3 -mfpmath=sse -Wall -Isrc -I.
+BASE_FLAGS     = -ffast-math -msse -msse2 -msse3 -mfpmath=sse -Wall -Isrc -I.
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
 BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11 sm sndfile) $(CXXFLAGS)
 LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile samplerate)
