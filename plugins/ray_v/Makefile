@@ -6,7 +6,7 @@ MOC ?= moc-qt4
 
 PREFIX ?= /usr
 
-BASE_FLAGS     =  -mstackrealign -fsingle-precision-constant -fPIC -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -Wall -Isrc
+BASE_FLAGS     =  -mstackrealign -fsingle-precision-constant -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -Isrc
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
 BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11 sm) $(CXXFLAGS)
 LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa)
