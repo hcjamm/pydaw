@@ -660,7 +660,7 @@ class pydaw_project:
         f_old_uid = f_items_dict.get_uid_by_name(a_old_item)
         f_new_item = str(a_new_item)
         self.save_file(pydaw_folder_items,  str(f_uid), pydaw_read_file_text(self.items_folder + "/" + str(f_old_uid)))
-        self.this_dssi_gui.pydaw_save_item(f_new_item)
+        self.this_dssi_gui.pydaw_save_item(f_uid)
         self.save_items_dict(f_items_dict)
         return f_uid
 
