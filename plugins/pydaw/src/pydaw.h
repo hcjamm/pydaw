@@ -91,7 +91,7 @@ extern "C" {
 #include <stdlib.h>
 #include <assert.h>
 #include "pydaw_files.h"
-#include "pydaw_plugin.h"
+#include "pydaw_plugin_wrapper.h"
 #include <sys/stat.h>
 #include <sched.h>
 #include <unistd.h>
