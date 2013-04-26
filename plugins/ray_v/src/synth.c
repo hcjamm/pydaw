@@ -714,8 +714,8 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_range_hints[RAYV_LFO_FREQ].HintDescriptor = PYFX_HINT_DEFAULT_MIDDLE | PYFX_HINT_BOUNDED_BELOW | PYFX_HINT_BOUNDED_ABOVE;
 	port_range_hints[RAYV_LFO_FREQ].LowerBound = 10.0f;
 	port_range_hints[RAYV_LFO_FREQ].UpperBound = 400.0f;
-        automatable[RAYV_PITCH_ENV_TIME] = 1;
-        value_tranform_hints[RAYV_PITCH_ENV_TIME] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
+        automatable[RAYV_LFO_FREQ] = 1;
+        value_tranform_hints[RAYV_LFO_FREQ] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         
 	port_descriptors[RAYV_LFO_TYPE] = port_descriptors[RAYV_ATTACK];
 	port_names[RAYV_LFO_TYPE] = "LFO Type";
