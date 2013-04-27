@@ -65,11 +65,14 @@ class alsa_ports:
         return f_result
 
     def connect_to_pydaw(self, a_string):
-        print("Attempting to connect ALSA port " + a_string + " to PyDAW...")
+        f_string = str(a_string)
+        print("Attempting to connect ALSA port " + f_string + " to PyDAW...")
+        print(getoutput("aconnect -x"))
+        if f_string == "None":
+            return
         for f_alsa_port in self.input_ports:
             if "PyDAW" in f_alsa_port.client_name:
-                print(getoutput("aconnect -x"))
-                f_out_port = a_string.split("~")[1]
+                f_out_port = f_string.split("~")[1]
                 f_cmd = "aconnect " + f_out_port + " " + str(f_alsa_port.client_number) + str(f_alsa_port.port_number)
                 print(f_cmd)
                 print(getoutput(f_cmd))
@@ -82,7 +85,7 @@ class alsa_ports:
         return f_result
 
     def get_output_fqnames(self):
-        f_result = []
+        f_result = ["None"]
         for port in self.output_ports:
             f_result.append(port.fqname)
         return f_result
