@@ -24,6 +24,10 @@ if [ ! -d extract-cd ]; then
 	sudo cp sources.list edit/etc/apt/
 	sudo cp quit.sh edit/root/
 	sudo cp setup.sh edit/root/
+	sudo cp pydaw-live.sh edit/etc/profile.d/
+	pydaw_live_script = edit/etc/profile.d/pydaw-live.sh
+	chmod +x "$pydaw_live_script"
+	chmod 755 "$pydaw_live_script"
 else
 	echo "extract-cd directory exists, not extracting from live DVD"
 fi
