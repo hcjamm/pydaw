@@ -37,13 +37,14 @@ check_deps();
 #Create a clean folder for the plugins to go in
 `rm -Rf pydaw-build/debian/usr`;
 `mkdir pydaw-build/debian/usr`;
-#Delete gedit backup files and Python compile-cache files
-system('find . -type f -name *~ -exec rm -f {} \\;');
-system('find . -type f -name *.pyc -exec rm -f {} \\;');
-system('find . -type f -name core -exec rm -f {} \\;');
-
 
 system("make clean && make && make strip && make DESTDIR=\$(pwd)/pydaw-build/debian install");
+
+
+#Delete gedit backup files, core dumps and Python compile-cache files
+system('find ./pydaw-build/debian -type f -name *~  -exec rm -f {} \\;');
+system('find ./pydaw-build/debian -type f -name *.pyc  -exec rm -f {} \\;');
+system('find ./pydaw-build/debian -type f -name core  -exec rm -f {} \\;');
 
 if(-e "$short_name-version.txt")
 {
@@ -146,6 +147,16 @@ chomp($install_answer);
 
 if($install_answer eq "y"){
 	system("sudo dpkg -i pydaw-build/$package_name");
+}
+
+$pydaw_os_home = "pydaw-build/pydaw_os/edit/root";
+
+if(-d $pydaw_os_home){
+	system("sudo cp pydaw-build/$package_name $pydaw_os_home/");
+}
+else
+{
+	print "There is no PyDAW-OS directory, not copying package to /root";
 }
 
 #This is because debian packages will only accept dashes in package names

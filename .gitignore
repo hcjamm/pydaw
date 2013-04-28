@@ -1,3 +1,8 @@
+plugins/pydaw-build/pydaw_os/edit
+plugins/pydaw-build/pydaw_os/extract-cd
+plugins/pydaw-build/pydaw_os/mnt
+plugins/pydaw-build/pydaw_os/md5sum.txt
+*.iso
 tools/debugger/*.pymap
 tools/debugger/profile.txt
 *.project
