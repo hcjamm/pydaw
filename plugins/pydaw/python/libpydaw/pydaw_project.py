@@ -254,7 +254,7 @@ class pydaw_project:
         move(f_new_project_folder + "/" + self.project_file + ".pydaw3", a_file_name)
         self.set_project_folders(f_file_name)
         self.this_dssi_gui.pydaw_open_song(self.project_folder)
-        self.git_repo.repo_dir = self.project_folder
+        self.history = pydaw_history.pydaw_history(self.project_folder)
 
     def set_project_folders(self, a_project_file):
         #folders
