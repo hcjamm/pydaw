@@ -935,53 +935,50 @@ inline void v_pydaw_process_external_midi(t_pydaw_data * a_pydaw_data, int sampl
         {
             a_pydaw_data->record_armed_track->current_period_event_index = 0;
         }
-
-        while(f_i2 < event_count)
+        
+        if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
         {
-            if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
+            if(!a_pydaw_data->recording_in_current_bar)
             {
-                if(!a_pydaw_data->recording_in_current_bar && ((events[f_i2].type) != SND_SEQ_EVENT_NOTEOFF))
+                a_pydaw_data->recording_in_current_bar = 1;
+                if(!a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
                 {
-                    a_pydaw_data->recording_in_current_bar = 1;
-                    if(!a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)])
-                    {
-#ifdef PYDAW_PRINT_DEBUG_INFO
-                        printf("\nRecording:  Creating new empty region at %i\n\n", (a_pydaw_data->current_region));
-#endif
-                        a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)] = g_pyregion_get_new(a_pydaw_data);                        
-                    }
-                    
-                    if(a_pydaw_data->overdub_mode)
-                    {
-                        int f_item_index = a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar];
-                        if(f_item_index == -1)
-                        {
-                            a_pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(a_pydaw_data);
-                            a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar] =
-                                    a_pydaw_data->item_pool[(a_pydaw_data->recording_current_item_pool_index)]->uid;                            
-                        }
-                        else
-                        {
-                            a_pydaw_data->recording_current_item_pool_index = g_pyitem_clone(a_pydaw_data, f_item_index);
-                            a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar] =
-                                    a_pydaw_data->item_pool[(a_pydaw_data->recording_current_item_pool_index)]->uid;                            
-                        }                        
-                    }
-                    else
+                    a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)] = g_pyregion_get_new(a_pydaw_data);                        
+                }
+
+                if(a_pydaw_data->overdub_mode)
+                {
+                    int f_item_index = a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar];
+                    if(f_item_index == -1)
                     {
                         a_pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(a_pydaw_data);
                         a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar] =
-                                a_pydaw_data->item_pool[(a_pydaw_data->recording_current_item_pool_index)]->uid;                        
+                                a_pydaw_data->item_pool[(a_pydaw_data->recording_current_item_pool_index)]->uid;                            
                     }
-                    if((a_pydaw_data->recording_first_item) == -1)
+                    else
                     {
-                        a_pydaw_data->recording_first_item = (a_pydaw_data->recording_current_item_pool_index);
-                    }
-                    a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar] = (a_pydaw_data->recording_current_item_pool_index);
-                    a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->not_yet_saved = 1;
+                        a_pydaw_data->recording_current_item_pool_index = g_pyitem_clone(a_pydaw_data, f_item_index);
+                        a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar] =
+                                a_pydaw_data->item_pool[(a_pydaw_data->recording_current_item_pool_index)]->uid;                            
+                    }                        
                 }
+                else
+                {
+                    a_pydaw_data->recording_current_item_pool_index = g_pyitem_get_new(a_pydaw_data);
+                    a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar] =
+                            a_pydaw_data->item_pool[(a_pydaw_data->recording_current_item_pool_index)]->uid;                        
+                }
+                if((a_pydaw_data->recording_first_item) == -1)
+                {
+                    a_pydaw_data->recording_first_item = (a_pydaw_data->recording_current_item_pool_index);
+                }
+                a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->item_indexes[a_pydaw_data->record_armed_track_index_all][a_pydaw_data->current_bar] = (a_pydaw_data->recording_current_item_pool_index);
+                a_pydaw_data->pysong->regions[(a_pydaw_data->current_region)]->not_yet_saved = 1;
             }
+        }
 
+        while(f_i2 < event_count)
+        {
             if(events[f_i2].type == SND_SEQ_EVENT_NOTEON)
             {
                 snd_seq_ev_note_t n = events[f_i2].data.note;
