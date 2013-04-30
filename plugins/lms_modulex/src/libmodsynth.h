@@ -49,6 +49,8 @@ typedef struct
     float current_sample0;
     float current_sample1;
     
+    float vol_linear;
+    
     t_smoother_linear * volume_smoother;
     t_smoother_linear * reverb_smoother;
     
@@ -90,6 +92,8 @@ t_modulex_mono_modules * v_modulex_mono_init(float a_sr)
     a_mono->volume_smoother->last_value = 0.0f;
     a_mono->reverb_smoother = g_sml_get_smoother_linear(a_sr, 100.0f, 0.0f, 0.001f);
     a_mono->reverb_smoother->last_value = 0.0f;
+    
+    a_mono->vol_linear = 1.0f;
     
     return a_mono;
 }
