@@ -489,10 +489,12 @@ class pydaw_project:
                 f_regions_dict.add_item(f_int, "recorded-" + str(f_suffix))
                 f_suffix += 1
                 f_old_text = ""
+                f_existed = 0
             else:
                 f_old_text = self.history.get_latest_version_of_file(pydaw_folder_regions, f_int)
+                f_existed = 1
             self.history_files.append(pydaw_history.pydaw_history_file(pydaw_folder_regions, str(f_int), \
-            pydaw_read_file_text(self.regions_folder + "/" + str(f_int)), f_old_text, 0))
+            pydaw_read_file_text(self.regions_folder + "/" + str(f_int)), f_old_text, f_existed))
 
         self.save_regions_dict(f_regions_dict)
         f_old_text = self.history.get_latest_version_of_file("", pydaw_file_pysong)
