@@ -259,19 +259,19 @@ static void v_modulex_run(PYFX_Handle instance, int sample_count,
             f_i++;
         }
     }
-        
-    v_sml_run(plugin_data->mono_modules->volume_smoother, (*plugin_data->vol_slider));
     
-    if((plugin_data->mono_modules->volume_smoother->last_value) != 0.0f)
+    if((plugin_data->mono_modules->volume_smoother->last_value) != 0.0f || (*plugin_data->vol_slider != 0.0f))
     {
-        plugin_data->mono_modules->vol_linear = 
-                f_db_to_linear_fast((plugin_data->mono_modules->volume_smoother->last_value), 
-                plugin_data->mono_modules->amp_ptr);
-     
-        int f_i = 0;
-        
+        f_i = 0;
+
         while(f_i < sample_count)
         {
+            v_sml_run(plugin_data->mono_modules->volume_smoother, (*plugin_data->vol_slider));
+
+            plugin_data->mono_modules->vol_linear = 
+                f_db_to_linear_fast((plugin_data->mono_modules->volume_smoother->last_value), 
+                plugin_data->mono_modules->amp_ptr);
+
             plugin_data->output0[f_i] *= (plugin_data->mono_modules->vol_linear);
             plugin_data->output1[f_i] *= (plugin_data->mono_modules->vol_linear);
             f_i++;
