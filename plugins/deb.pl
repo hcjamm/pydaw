@@ -156,7 +156,7 @@ if(-d $pydaw_os_home){
 }
 else
 {
-	print "There is no PyDAW-OS directory, not copying package to /root";
+	print "\n\nThere is no PyDAW-OS directory, not copying package to /root\n\n\n";
 }
 
 #This is because debian packages will only accept dashes in package names
