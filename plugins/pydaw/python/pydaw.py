@@ -1698,8 +1698,9 @@ class audio_item_editor_widget:
         for i in range(pydaw_max_audio_item_count):
             self.items_list.append("")
         f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
+        f_wavs_dict = this_pydaw_project.get_wavs_dict()
         for k, v in f_items.items.iteritems():
-            self.items_list[k] = str(v.uid)
+            self.items_list[k] = f_wavs_dict.get_name_by_uid(v.uid)
         self.suppress_index_change = True
         f_index = self.selected_index_combobox.currentIndex()
         self.selected_index_combobox.clear()
