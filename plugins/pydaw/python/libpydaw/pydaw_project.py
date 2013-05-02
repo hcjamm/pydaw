@@ -571,13 +571,14 @@ class pydaw_project:
             f_uid_dict = self.get_wavs_dict()
         else:
             f_uid_dict = a_uid_dict
-        if f_uid_dict.name_exists(a_path):
-            return f_uid_dict.get_uid_by_name(a_path)
+        f_path = str(a_path).replace("//", "/")
+        if f_uid_dict.name_exists(f_path):
+            return f_uid_dict.get_uid_by_name(f_path)
         else:
-            f_uid = f_uid_dict.add_new_item(a_path)
-            self.create_sample_graph(a_path, f_uid)
+            f_uid = f_uid_dict.add_new_item(f_path)
+            self.create_sample_graph(f_path, f_uid)
             self.save_wavs_dict(f_uid_dict)
-            self.commit("Add " + str(a_path) + " to pool")
+            self.commit("Add " + str(f_path) + " to pool")
             return f_uid
 
     def get_wav_name_by_uid(self, a_uid, a_uid_dict=None):
