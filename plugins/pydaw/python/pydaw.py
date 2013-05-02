@@ -1752,6 +1752,7 @@ class audio_item_editor_widget:
         self.sample_vol_slider.valueChanged.connect(self.sample_vol_changed)
         self.sample_vol_layout.addWidget(self.sample_vol_slider)
         self.sample_vol_label = QtGui.QLabel("0db")
+        self.sample_vol_label.setMinimumWidth(48)
         self.sample_vol_layout.addWidget(self.sample_vol_label)
         self.layout.addLayout(self.sample_vol_layout, 1, 2)
 
