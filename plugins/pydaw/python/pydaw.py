@@ -4863,7 +4863,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_version(self):
         f_window = QtGui.QDialog(this_main_window)
         f_window.setWindowTitle("Version Info")
-        f_window.setFixedSize(150, 80)
+        f_window.setFixedSize(420, 90)
         f_layout = QtGui.QVBoxLayout()
         f_window.setLayout(f_layout)
         f_version = QtGui.QLabel(pydaw_read_file_text("/usr/lib/" + global_pydaw_version_string + "/" + global_pydaw_version_string + "-version.txt"))
