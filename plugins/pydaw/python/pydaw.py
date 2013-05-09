@@ -1917,7 +1917,8 @@ class audio_item_editor_widget:
         if self.end_sample_length.isChecked(): self.end_mode = 0
         else: self.end_mode = 1
 
-        self.new_item = pydaw_audio_item(str(self.selected_index_combobox.currentText()), self.sample_view.start_marker.value, self.sample_view.end_marker.value,
+        f_uid = this_pydaw_project.get_wav_uid_by_name(str(self.selected_index_combobox.currentText()))
+        self.new_item = pydaw_audio_item(f_uid, self.sample_view.start_marker.value, self.sample_view.end_marker.value,
                 self.start_bar.value(), self.start_beat.value(), self.end_mode, self.end_bar.value(), self.end_beat.value(),
                 self.timestretch_mode.currentIndex(), self.pitch_shift.value(), self.output_combobox.currentIndex(), self.sample_vol_slider.value(),
                 self.timestretch_amt.value(), self.fade_in.value(), self.fade_out.value(), self.lane_num.value())
