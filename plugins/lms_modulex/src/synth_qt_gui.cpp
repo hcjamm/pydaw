@@ -97,7 +97,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     m_main_hboxlayout->addLayout(m_volume_slider->lms_layout, -1);
     connect(m_volume_slider->lms_slider, SIGNAL(valueChanged(int)), this, SLOT(volumeChanged(int)));
     
-    m_fx0 = new LMS_multieffect(this, QString("FX1"), f_info, MODULEX_FX0_KNOB0, MODULEX_FX0_KNOB1, MODULEX_FX0_KNOB2, MODULEX_FX0_COMBOBOX);
+    m_fx0 = new LMS_multieffect(this, QString("FX0"), f_info, MODULEX_FX0_KNOB0, MODULEX_FX0_KNOB1, MODULEX_FX0_KNOB2, MODULEX_FX0_COMBOBOX);
     connect(m_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob0Changed(int)));
     connect(m_fx0->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob1Changed(int)));
     connect(m_fx0->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob2Changed(int)));
@@ -105,7 +105,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     
     m_main_layout->lms_add_widget(m_fx0->lms_groupbox->lms_groupbox);
         
-    m_fx1 = new LMS_multieffect(this, QString("FX2"), f_info, MODULEX_FX1_KNOB0, MODULEX_FX1_KNOB1, MODULEX_FX1_KNOB2, MODULEX_FX1_COMBOBOX);
+    m_fx1 = new LMS_multieffect(this, QString("FX1"), f_info, MODULEX_FX1_KNOB0, MODULEX_FX1_KNOB1, MODULEX_FX1_KNOB2, MODULEX_FX1_COMBOBOX);
     connect(m_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob0Changed(int)));
     connect(m_fx1->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob1Changed(int)));
     connect(m_fx1->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob2Changed(int)));
@@ -114,7 +114,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     m_main_layout->lms_add_widget(m_fx1->lms_groupbox->lms_groupbox);
     m_main_layout->lms_add_layout();    
         
-    m_fx2 = new LMS_multieffect(this, QString("FX3"), f_info, MODULEX_FX2_KNOB0, MODULEX_FX2_KNOB1, MODULEX_FX2_KNOB2, MODULEX_FX2_COMBOBOX);
+    m_fx2 = new LMS_multieffect(this, QString("FX2"), f_info, MODULEX_FX2_KNOB0, MODULEX_FX2_KNOB1, MODULEX_FX2_KNOB2, MODULEX_FX2_COMBOBOX);
     connect(m_fx2->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob0Changed(int)));
     connect(m_fx2->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob1Changed(int)));
     connect(m_fx2->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob2Changed(int)));
@@ -122,7 +122,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     
     m_main_layout->lms_add_widget(m_fx2->lms_groupbox->lms_groupbox);
    
-    m_fx3 = new LMS_multieffect(this, QString("FX4"), f_info, MODULEX_FX3_KNOB0, MODULEX_FX3_KNOB1, MODULEX_FX3_KNOB2, MODULEX_FX3_COMBOBOX);
+    m_fx3 = new LMS_multieffect(this, QString("FX3"), f_info, MODULEX_FX3_KNOB0, MODULEX_FX3_KNOB1, MODULEX_FX3_KNOB2, MODULEX_FX3_COMBOBOX);
     connect(m_fx3->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob0Changed(int)));
     connect(m_fx3->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob1Changed(int)));
     connect(m_fx3->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob2Changed(int)));
@@ -131,7 +131,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     m_main_layout->lms_add_widget(m_fx3->lms_groupbox->lms_groupbox);
     m_main_layout->lms_add_layout();    
         
-    m_fx4 = new LMS_multieffect(this, QString("FX5"), f_info, MODULEX_FX4_KNOB0, MODULEX_FX4_KNOB1, MODULEX_FX4_KNOB2, MODULEX_FX4_COMBOBOX);
+    m_fx4 = new LMS_multieffect(this, QString("FX4"), f_info, MODULEX_FX4_KNOB0, MODULEX_FX4_KNOB1, MODULEX_FX4_KNOB2, MODULEX_FX4_COMBOBOX);
     connect(m_fx4->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx4knob0Changed(int)));
     connect(m_fx4->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx4knob1Changed(int)));
     connect(m_fx4->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx4knob2Changed(int)));
@@ -139,7 +139,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     
     m_main_layout->lms_add_widget(m_fx4->lms_groupbox->lms_groupbox);
             
-    m_fx5 = new LMS_multieffect(this, QString("FX6"), f_info, MODULEX_FX5_KNOB0, MODULEX_FX5_KNOB1, MODULEX_FX5_KNOB2, MODULEX_FX5_COMBOBOX);
+    m_fx5 = new LMS_multieffect(this, QString("FX5"), f_info, MODULEX_FX5_KNOB0, MODULEX_FX5_KNOB1, MODULEX_FX5_KNOB2, MODULEX_FX5_COMBOBOX);
     connect(m_fx5->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx5knob0Changed(int)));
     connect(m_fx5->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx5knob1Changed(int)));
     connect(m_fx5->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx5knob2Changed(int)));
@@ -148,7 +148,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     m_main_layout->lms_add_widget(m_fx5->lms_groupbox->lms_groupbox);
     m_main_layout->lms_add_layout();    
     
-    m_fx6 = new LMS_multieffect(this, QString("FX7"), f_info, MODULEX_FX6_KNOB0, MODULEX_FX6_KNOB1, MODULEX_FX6_KNOB2, MODULEX_FX6_COMBOBOX);
+    m_fx6 = new LMS_multieffect(this, QString("FX6"), f_info, MODULEX_FX6_KNOB0, MODULEX_FX6_KNOB1, MODULEX_FX6_KNOB2, MODULEX_FX6_COMBOBOX);
     connect(m_fx6->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx6knob0Changed(int)));
     connect(m_fx6->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx6knob1Changed(int)));
     connect(m_fx6->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx6knob2Changed(int)));
@@ -156,7 +156,7 @@ modulex_gui::modulex_gui(const char * host, const char * port,
     
     m_main_layout->lms_add_widget(m_fx6->lms_groupbox->lms_groupbox);
 
-    m_fx7 = new LMS_multieffect(this, QString("FX8"), f_info, MODULEX_FX7_KNOB0, MODULEX_FX7_KNOB1, MODULEX_FX7_KNOB2, MODULEX_FX7_COMBOBOX);
+    m_fx7 = new LMS_multieffect(this, QString("FX7"), f_info, MODULEX_FX7_KNOB0, MODULEX_FX7_KNOB1, MODULEX_FX7_KNOB2, MODULEX_FX7_COMBOBOX);
     connect(m_fx7->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx7knob0Changed(int)));
     connect(m_fx7->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx7knob1Changed(int)));
     connect(m_fx7->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx7knob2Changed(int)));
