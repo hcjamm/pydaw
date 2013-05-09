@@ -956,7 +956,10 @@ def pydaw_smooth_automation_points(a_items_list, a_is_cc, a_plugin_index=0, a_cc
                     f_adjusted_start -= 4.0
                 f_interpolated_cc = pydaw_cc(round((f_adjusted_start), 4), a_plugin_index, f_cc_num, round(f_new_val, 4))
                 f_new_val += f_inc
-                f_result_arr[f_this_cc_arr[i].item_index + f_index_offset].append(f_interpolated_cc)
+                f_new_index = f_this_cc_arr[i].item_index + f_index_offset
+                if f_new_index >= len(f_result_arr):
+                    break
+                f_result_arr[f_new_index].append(f_interpolated_cc)
                 f_start += f_time_inc
                 if f_start >= (f_this_cc_arr[i + 1].start - 0.0625):
                     break
