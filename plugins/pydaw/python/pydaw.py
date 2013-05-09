@@ -451,6 +451,10 @@ class region_settings:
         self.length_default_radiobutton.setChecked(True)
         for f_editor in global_region_editors:
             f_editor.clear_items()
+        this_audio_items_viewer.clear_drawn_items()
+        this_audio_editor.clear_new()
+        global global_current_region
+        global_current_region = None
 
     def clear_new(self):
         self.region_name_lineedit.setText("")
@@ -1957,6 +1961,9 @@ class audio_list_editor:
                 this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
         self.audio_items_table_widget.resizeColumnsToContents()
         this_audio_item_editor_widget.update_file_list()
+
+    def clear_new(self):
+        self.audio_items_table_widget.clearContents()
 
     def cell_clicked(self, x, y):
         if global_transport_is_playing:
