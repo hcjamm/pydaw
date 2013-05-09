@@ -146,9 +146,10 @@ public:
                 lms_knob2->lms_label->setText(QString("Q"));
                 lms_knob3->lms_label->setText(QString("Gain"));
                 lms_knob1->lms_conv_type = lms_kc_127_pitch;
-                lms_knob2->lms_conv_type = lms_kc_none;                
+                lms_knob2->lms_conv_type = lms_kc_none;
                 lms_knob3->lms_conv_type = lms_kc_127_zero_to_x;
                 lms_knob3->lms_set_127_min_max(-24.0f, 24.0f);
+                lms_knob2->lms_value->setText(QString(""));
                 break;
             case 10: //Distortion
                 lms_knob1->lms_label->setText(QString("Gain"));
