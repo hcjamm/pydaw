@@ -702,6 +702,8 @@ class region_list_editor:
         f_window.exec_()
 
     def column_clicked(self, a_val):
+        if this_transport.is_playing:
+            return
         if a_val > 0:
             this_transport.bar_spinbox.setValue(a_val - 1)
 
