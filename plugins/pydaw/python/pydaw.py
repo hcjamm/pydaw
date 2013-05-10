@@ -3537,8 +3537,8 @@ class item_list_editor:
         self.piano_roll_hlayout.addWidget(this_piano_roll_editor_widget.widget)
 
         self.ccs_groupbox = QtGui.QGroupBox("CCs")
-        self.ccs_groupbox.setMaximumWidth(330)
-        self.ccs_groupbox.setMinimumWidth(330)
+        self.ccs_groupbox.setMaximumWidth(420)
+        self.ccs_groupbox.setMinimumWidth(420)
         self.ccs_vlayout = QtGui.QVBoxLayout(self.ccs_groupbox)
         self.ccs_gridlayout = QtGui.QGridLayout()
         self.ccs_gridlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum), 0, 0, 1, 1)
@@ -3550,9 +3550,8 @@ class item_list_editor:
         self.ccs_vlayout.addLayout(self.ccs_gridlayout)
         self.ccs_table_widget = QtGui.QTableWidget()
         self.ccs_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.ccs_table_widget.setColumnCount(3)
+        self.ccs_table_widget.setColumnCount(4)
         self.ccs_table_widget.setRowCount(256)
-        self.ccs_table_widget.cellClicked.connect(self.ccs_click_handler)
         self.ccs_table_widget.setSortingEnabled(True)
         self.ccs_table_widget.sortItems(0)
         self.ccs_table_widget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -3640,7 +3639,7 @@ class item_list_editor:
 
     def set_headers(self): #Because clearing the table clears the headers
         self.notes_table_widget.setHorizontalHeaderLabels(['Start', 'Length', 'Note', 'Note#', 'Velocity'])
-        self.ccs_table_widget.setHorizontalHeaderLabels(['Start', 'CC', 'Value'])
+        self.ccs_table_widget.setHorizontalHeaderLabels(['Start', 'Plugin', 'Control', 'Value'])
         self.pitchbend_table_widget.setHorizontalHeaderLabels(['Start', 'Value'])
 
     def set_row_counts(self):
@@ -3687,9 +3686,12 @@ class item_list_editor:
         self.ccs_table_widget.setSortingEnabled(False)
         f_i = 0
         for cc in self.item.ccs:
+            f_plugin_name = global_plugin_names[global_plugin_indexes[int(cc.plugin_index)]]
+            f_port_name = global_controller_port_num_dict[f_plugin_name][int(cc.cc_num)].name
             self.ccs_table_widget.setItem(f_i, 0, QtGui.QTableWidgetItem(str(cc.start)))
-            self.ccs_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(str(cc.cc_num)))
-            self.ccs_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(str(cc.cc_val)))
+            self.ccs_table_widget.setItem(f_i, 1, QtGui.QTableWidgetItem(f_plugin_name))
+            self.ccs_table_widget.setItem(f_i, 2, QtGui.QTableWidgetItem(f_port_name))
+            self.ccs_table_widget.setItem(f_i, 3, QtGui.QTableWidgetItem(str(cc.cc_val)))
             f_i = f_i + 1
         self.ccs_table_widget.setSortingEnabled(True)
         self.pitchbend_table_widget.setSortingEnabled(False)
@@ -3797,20 +3799,6 @@ class item_list_editor:
             this_pydaw_project.save_item(self.item_name, self.item)
             global_open_items()
             this_pydaw_project.commit("Delete note from item '" + self.item_name + "'")
-
-    def ccs_click_handler(self, x, y):
-        if not self.enabled:
-            self.show_not_enabled_warning()
-            return
-        if self.add_radiobutton.isChecked():
-            self.ccs_show_event_dialog(x, y)
-        elif self.delete_radiobutton.isChecked():
-            if self.ccs_table_widget.item(x, 0) is None:
-                return
-            self.item.remove_cc(pydaw_cc(self.ccs_table_widget.item(x, 0).text(), self.ccs_table_widget.item(x, 1).text(), self.ccs_table_widget.item(x, 2).text()))
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit("Delete CC from item '" + self.item_name + "'")
 
     def pitchbend_click_handler(self, x, y):
         if not self.enabled:
@@ -3955,122 +3943,6 @@ class item_list_editor:
         f_cancel_button = QtGui.QPushButton("Cancel")
         f_layout.addWidget(f_cancel_button, 6,1)
         f_cancel_button.clicked.connect(note_cancel_handler)
-        f_quantize_combobox.setCurrentIndex(self.default_quantize)
-        f_window.exec_()
-
-    def ccs_show_event_dialog(self, x, y):
-        f_cell = self.ccs_table_widget.item(x, y)
-        f_old_cc = None
-        if f_cell is not None:
-            self.default_cc_start = float(self.ccs_table_widget.item(x, 0).text())
-            self.default_cc_num = int(self.ccs_table_widget.item(x, 1).text())
-            self.default_cc_val = int(self.ccs_table_widget.item(x, 2).text())
-            f_old_cc = pydaw_cc(self.default_cc_start, self.default_cc_num, self.default_cc_val)
-
-        def cc_ok_handler():
-            f_start_rounded = time_quantize_round(f_start.value())
-
-            if f_draw_line_checkbox.isChecked():
-                self.item.draw_cc_line(f_cc.value(), f_start.value(), f_cc_value.value(), f_end.value(), f_end_value.value())
-            else:
-                if f_old_cc is not None:
-                    self.item.remove_cc(f_old_cc)
-                if not self.item.add_cc(pydaw_cc(f_start_rounded, f_cc.value(), f_cc_value.value())):
-                    QtGui.QMessageBox.warning(f_window, "Error", "Duplicate CC event")
-                    return
-
-            self.default_cc_start = f_start.value()
-            self.default_cc_num = f_cc.value()
-            self.default_cc_start = f_start_rounded
-            this_pydaw_project.save_item(self.item_name, self.item)
-            global_open_items()
-            this_pydaw_project.commit("Update CCs for item '" + self.item_name + "'")
-            if not f_add_another.isChecked():
-                f_window.close()
-
-        def cc_cancel_handler():
-            f_window.close()
-
-        def quantize_changed(f_quantize_index):
-            f_frac = beat_frac_text_to_float(f_quantize_index)
-            f_start.setSingleStep(f_frac)
-            self.default_quantize = f_quantize_index
-
-
-        def add_another_clicked(a_checked):
-            if a_checked:
-                f_cancel_button.setText("Close")
-            else:
-                f_cancel_button.setText("Cancel")
-
-        def plugin_changed(a_val=None):
-            f_control_combobox.clear()
-            f_control_combobox.addItems(global_cc_names[str(f_plugin_combobox.currentText())])
-
-        def control_changed(a_val=None):
-            f_plugin_str = str(f_plugin_combobox.currentText())
-            f_control_str = str(f_control_combobox.currentText())
-            if f_plugin_str != '' and f_control_str != '':
-                f_value = global_controller_port_name_dict[f_plugin_str][f_control_str].port
-                f_cc.setValue(f_value) #TODO:  This is going to be all sorts of broken with the new system
-
-        f_window = QtGui.QDialog(this_main_window)
-        f_window.setWindowTitle("CCs")
-        f_layout = QtGui.QGridLayout()
-        f_window.setLayout(f_layout)
-        f_quantize_combobox = QtGui.QComboBox()
-        f_quantize_combobox.addItems(beat_fracs)
-        f_quantize_combobox.currentIndexChanged.connect(quantize_changed)
-        f_layout.addWidget(QtGui.QLabel("Quantize(beats)"), 1, 0)
-        f_layout.addWidget(f_quantize_combobox, 1, 1)
-
-        f_plugin_combobox = QtGui.QComboBox()
-        f_plugin_combobox.addItems(global_cc_names.keys())
-        f_layout.addWidget(QtGui.QLabel("Plugin"), 2, 0)
-        f_layout.addWidget(f_plugin_combobox, 2, 1)
-
-        f_control_combobox = QtGui.QComboBox()
-        f_layout.addWidget(QtGui.QLabel("Control"), 3, 0)
-        f_layout.addWidget(f_control_combobox, 3, 1)
-
-        plugin_changed()
-        f_plugin_combobox.currentIndexChanged.connect(plugin_changed)
-        f_control_combobox.currentIndexChanged.connect(control_changed)
-
-        f_cc = QtGui.QSpinBox()
-        f_cc.setRange(1, 127)
-        f_cc.setValue(self.default_cc_num)
-        f_layout.addWidget(QtGui.QLabel("CC"), 5, 0)
-        f_layout.addWidget(f_cc, 5, 1)
-        f_cc_value = QtGui.QSpinBox()
-        f_cc_value.setRange(0, 127)
-        f_cc_value.setValue(self.default_cc_val)
-        f_layout.addWidget(QtGui.QLabel("Value"), 6, 0)
-        f_layout.addWidget(f_cc_value, 6, 1)
-        f_layout.addWidget(QtGui.QLabel("Start(beats)"), 7, 0)
-        f_start = QtGui.QDoubleSpinBox()
-        f_start.setRange(0.0, 3.99)
-        f_start.setValue(self.default_cc_start)
-        f_layout.addWidget(f_start, 7, 1)
-        f_draw_line_checkbox = QtGui.QCheckBox("Draw line")
-        f_layout.addWidget(f_draw_line_checkbox, 9, 1)
-        f_layout.addWidget(QtGui.QLabel("End(beats)"), 12, 0)
-        f_end = QtGui.QDoubleSpinBox()
-        f_end.setRange(0, 3.99)
-        f_layout.addWidget(f_end, 12, 1)
-        f_layout.addWidget(QtGui.QLabel("End Value"), 13, 0)
-        f_end_value = QtGui.QSpinBox()
-        f_end_value.setRange(0, 127)
-        f_layout.addWidget(f_end_value, 13, 1)
-        f_add_another = QtGui.QCheckBox("Add another?")
-        f_add_another.toggled.connect(add_another_clicked)
-        f_layout.addWidget(f_add_another, 14, 1)
-        f_ok_button = QtGui.QPushButton("OK")
-        f_layout.addWidget(f_ok_button, 15, 0)
-        f_ok_button.clicked.connect(cc_ok_handler)
-        f_cancel_button = QtGui.QPushButton("Cancel")
-        f_layout.addWidget(f_cancel_button, 15, 1)
-        f_cancel_button.clicked.connect(cc_cancel_handler)
         f_quantize_combobox.setCurrentIndex(self.default_quantize)
         f_window.exec_()
 
