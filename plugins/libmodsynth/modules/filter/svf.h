@@ -382,6 +382,11 @@ inline void v_svf_set_cutoff(t_state_variable_filter *__restrict a_svf)
     a_svf->cutoff_note = (a_svf->cutoff_base) + ((a_svf->cutoff_mod) * (a_svf->velocity_mod_amt)) + (a_svf->velocity_cutoff);
     a_svf->cutoff_mod = 0.0f;
     
+    if(a_svf->cutoff_note > 123.9209f)  //21000hz
+    {
+        a_svf->cutoff_note = 123.9209f;
+    }
+        
     /*It hasn't changed since last time, return*/    
     if((a_svf->cutoff_note) == (a_svf->cutoff_last))
         return; 
