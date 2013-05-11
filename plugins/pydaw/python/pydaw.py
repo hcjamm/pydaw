@@ -1160,11 +1160,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if global_transport_is_playing:
             return
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
-
+        if a_event.modifiers() == QtCore.Qt.ControlModifier:
+            f_copying = True
+        else:
+            f_copying = False
         for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_item.last_x = f_item.pos().x()
-                    if a_event.modifiers() == QtCore.Qt.ControlModifier:
+                    if f_copying:
                         f_item.is_copying = True
                         this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
 
@@ -1196,7 +1199,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_pos_x = f_item.pos().x()
                     f_pos_y = f_item.pos().y() #a_event.scenePos().y()
                     f_pos_x = pydaw_clip_value(f_pos_x, 0.0, f_max_x)
-                    f_ignored, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
+                    f_ignored, f_pos_y = f_item.y_pos_to_lane_number(f_pos_y)
                     f_item.setPos(f_pos_x, f_pos_y)
                     if not f_item.is_moving:
                         f_item.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
@@ -1212,20 +1215,21 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         for f_audio_item in this_audio_items_viewer.audio_items:
             if f_audio_item.isSelected():
                 f_item = f_audio_items.items[f_audio_item.track_num]
-                if f_audio_item.is_copying:
-                    f_item = f_item.clone()
-                    f_index = f_audio_items.get_next_index()
-                    if f_index == -1:
-                        QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
-                        break
-                    else:
-                        f_audio_items.add_item(f_index, f_item)
-                f_pos_x = f_audio_item.pos().x()
-                f_pos_y = f_audio_item.pos().y()
                 if f_audio_item.is_resizing:
                     if f_item.end_mode == 0:
                         f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
-                elif f_audio_item.is_moving:
+                else:
+                    f_pos_x = f_audio_item.pos().x()
+                    f_pos_y = f_audio_item.pos().y()
+                    if f_audio_item.is_copying:
+                        f_item = f_item.clone()
+                        f_index = f_audio_items.get_next_index()
+                        if f_index == -1:
+                            QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
+                            break
+                        else:
+                            f_audio_items.add_item(f_index, f_item)
+                    #elif f_audio_item.is_moving:   #Not needed?
                     if f_audio_item.last_x == f_pos_x:
                         continue
                     if this_audio_items_viewer.snap_mode == 0:
@@ -1238,24 +1242,24 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
                     f_item.start_bar = f_start_result[0]
                     f_item.start_beat = f_start_result[1]
-                if f_item.end_mode == 0:
-                    f_end = f_pos_x + f_audio_item.rect().width()
-                    if f_end > f_max_x:
-                        f_end_px = f_max_x - f_pos_x
-                        f_audio_item.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
-                        f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
-                        f_audio_item.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
-                if f_item.end_mode == 1:
-                    f_end_result = f_audio_item.pos_to_musical_time(f_pos_x + f_audio_item.rect().width())
-                    if f_end_result[0] >= f_current_region_length:
-                        f_end_px = f_max_x - f_pos_x
-                        f_audio_item.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
-                        f_audio_item.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
-                        f_item.end_bar = f_current_region_length - 1
-                        f_item.end_beat = 3.99
-                    else:
-                        f_item.end_bar = f_end_result[0]
-                        f_item.end_beat = f_end_result[1]
+                    if f_item.end_mode == 0:
+                        f_end = f_pos_x + f_audio_item.rect().width()
+                        if f_end > f_max_x:
+                            f_end_px = f_max_x - f_pos_x
+                            f_audio_item.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
+                            f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
+                            f_audio_item.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
+                    if f_item.end_mode == 1:
+                        f_end_result = f_audio_item.pos_to_musical_time(f_pos_x + f_audio_item.rect().width())
+                        if f_end_result[0] >= f_current_region_length:
+                            f_end_px = f_max_x - f_pos_x
+                            f_audio_item.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
+                            f_audio_item.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
+                            f_item.end_bar = f_current_region_length - 1
+                            f_item.end_beat = 3.99
+                        else:
+                            f_item.end_bar = f_end_result[0]
+                            f_item.end_beat = f_end_result[1]
                 f_audio_item.audio_item = f_item
                 if this_audio_item_editor_widget.selected_index_combobox.currentIndex() == f_audio_item.track_num:
                     this_audio_item_editor_widget.open_item(f_item)
