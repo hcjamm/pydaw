@@ -1212,6 +1212,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_audio_items = this_pydaw_project.get_audio_items(global_current_region.uid)
         f_current_region_length = pydaw_get_current_region_length()
         f_max_x = f_current_region_length * global_audio_px_per_bar
+        f_reset_selection = False
         for f_audio_item in this_audio_items_viewer.audio_items:
             if f_audio_item.isSelected():
                 f_item = f_audio_items.items[f_audio_item.track_num]
@@ -1222,6 +1223,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_pos_x = f_audio_item.pos().x()
                     f_pos_y = f_audio_item.pos().y()
                     if f_audio_item.is_copying:
+                        f_reset_selection = True
                         f_item = f_item.clone()
                         f_index = f_audio_items.get_next_index()
                         if f_index == -1:
@@ -1271,7 +1273,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         this_pydaw_project.save_audio_items(global_current_region.uid, f_audio_items)
         this_pydaw_project.commit("Update audio items")
         this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
-        this_audio_editor.open_items(False)
+        this_audio_editor.open_items(f_reset_selection)
 
 class audio_items_viewer(QtGui.QGraphicsView):
     def __init__(self):
