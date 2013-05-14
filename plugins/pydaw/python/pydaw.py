@@ -2815,8 +2815,8 @@ class automation_viewer(QtGui.QGraphicsView):
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
             return
-        f_pos_x = a_event.scenePos().x()
-        f_pos_y = a_event.scenePos().y()
+        f_pos_x = a_event.scenePos().x() - global_automation_point_radius
+        f_pos_y = a_event.scenePos().y() - global_automation_point_radius
         f_cc_start = ((f_pos_x - global_automation_min_height) / global_automation_width) * 4.0
         if f_cc_start >= (4.0 * global_item_editing_count):
             f_cc_start = (4.0  * global_item_editing_count) - 0.01
