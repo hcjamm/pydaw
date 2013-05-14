@@ -26,6 +26,16 @@ from libpydaw import *
 global_pydaw_version_string = "pydaw3"
 global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
 
+if os.path.isdir("/home/ubuntu") and os.path.isdir("/media/pydaw_data"):
+    global_home = "/media/pydaw_data"
+    global_pydaw_home = "/media/pydaw_data/" + global_pydaw_version_string
+    if not os.path.isdir(global_pydaw_home):
+        os.mkdir(global_pydaw_home)
+else:
+    global_home = expanduser("~")
+    global_pydaw_home = expanduser("~") + "/" + global_pydaw_version_string
+
+
 global_transport_is_playing = False
 global_region_lengths_dict = {}
 global_audio_region_snap_px = {}
@@ -1444,7 +1454,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
 global_audio_item_clipboard = []
 
-global_bookmarks_file_path = expanduser("~") + "/" + global_pydaw_version_string + "/lms_file_browser_bookmarks.txt"
+global_bookmarks_file_path = global_pydaw_home + "/lms_file_browser_bookmarks.txt"
 
 def global_get_file_bookmarks():
     """ Get the bookmarks shared with Euphoria """
@@ -1530,7 +1540,7 @@ class audio_items_viewer_widget():
         self.controls_grid_layout.addWidget(QtGui.QLabel("H-Zoom:"), 0, 49)
         self.controls_grid_layout.addWidget(self.h_zoom_slider, 0, 50)
         self.v_zoom = 1.0
-        self.last_open_dir = expanduser("~")
+        self.last_open_dir = global_home
         self.set_folder(".")
         self.open_bookmarks()
 
@@ -1865,7 +1875,7 @@ class audio_item_editor_widget:
         self.ok_layout.addWidget(self.ok)
         self.layout.addLayout(self.ok_layout, 11, 1)
 
-        self.last_open_dir = expanduser("~")
+        self.last_open_dir = global_home
 
     def h_zoom_changed(self, a_val):
         if a_val == 0:
@@ -1980,7 +1990,7 @@ class audio_list_editor:
         global_edit_audio_item(y)
 
     def __init__(self):
-        self.last_open_dir = expanduser("~")
+        self.last_open_dir = global_home
         self.items_groupbox = QtGui.QGroupBox()
         self.items_vlayout = QtGui.QVBoxLayout()
         self.items_groupbox.setLayout(self.items_vlayout)
@@ -4436,7 +4446,7 @@ class transport_widget:
         self.is_recording = False
         self.is_playing = False
         self.last_bar = 0
-        self.last_open_dir = expanduser("~")
+        self.last_open_dir = global_home
         self.transport = pydaw_transport()
         self.group_box = QtGui.QGroupBox()
         self.vlayout = QtGui.QVBoxLayout()
@@ -4520,7 +4530,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_new(self):
         try:
             while True:
-                f_file = QtGui.QFileDialog.getSaveFileName(parent=self ,caption='New Project', directory=expanduser("~") + "/default." + global_pydaw_version_string, filter=global_pydaw_file_type_string)
+                f_file = QtGui.QFileDialog.getSaveFileName(parent=self ,caption='New Project', directory=global_home + "/default." + global_pydaw_version_string, filter=global_pydaw_file_type_string)
                 if not f_file is None and not str(f_file) == "":
                     f_file = str(f_file)
                     if not self.check_for_empty_directory(f_file):
@@ -4533,7 +4543,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 pydaw_print_generic_exception(ex)
     def on_open(self):
         try:
-            f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open Project', directory=expanduser("~"), filter=global_pydaw_file_type_string)
+            f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open Project', directory=global_home, filter=global_pydaw_file_type_string)
             if f_file is None:
                 return
             f_file_str = str(f_file)
@@ -4548,7 +4558,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_save_as(self):
         try:
             while True:
-                f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", directory=expanduser("~") + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
+                f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", directory=global_home + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
                 if not f_new_file is None and not str(f_new_file) == "":
                     f_new_file = str(f_new_file)
                     if not self.check_for_empty_directory(f_new_file):
@@ -4700,7 +4710,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 9, 2)
-        self.last_offline_dir = expanduser("~")
+        self.last_offline_dir = global_home
         f_window.exec_()
 
     def on_undo(self):
@@ -4784,7 +4794,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.setObjectName("mainwindow")
         default_stylesheet_file = "/usr/lib/" + global_pydaw_version_string + "/themes/default/style.txt"
-        self.user_style_file = expanduser("~") + "/" + global_pydaw_version_string + "/default-style.txt"
+        self.user_style_file = global_pydaw_home + "/default-style.txt"
         if os.path.isfile(self.user_style_file):
             f_current_style_file_text = pydaw_read_file_text(self.user_style_file)
             if os.path.isfile(f_current_style_file_text):
@@ -5119,7 +5129,7 @@ class pydaw_cc_map_editor:
 
     def __init__(self):
         self.ignore_combobox = False
-        f_local_dir = expanduser("~") + "/" + global_pydaw_version_string
+        f_local_dir = global_pydaw_home
         if not os.path.isdir(f_local_dir):
             os.mkdir(f_local_dir)
         if not os.path.isfile(global_cc_map_folder + "/default"):
@@ -5168,7 +5178,7 @@ class pydaw_cc_map_editor:
         self.cc_table.resizeColumnsToContents()
 
 def set_default_project(a_project_path):
-    f_def_file = expanduser("~") + "/" + global_pydaw_version_string + "/last-project.txt"
+    f_def_file = global_pydaw_home + "/last-project.txt"
     f_handle = open(f_def_file, 'w')
     f_handle.write(str(a_project_path))
     f_handle.close()
@@ -5250,8 +5260,7 @@ def about_to_quit():
 
 app = QtGui.QApplication(sys.argv)
 
-global_profile_folder = expanduser("~") + "/" + global_pydaw_version_string
-global_cc_map_folder = global_profile_folder + "/cc_maps"
+global_cc_map_folder = global_pydaw_home + "/cc_maps"
 if not os.path.isdir(global_cc_map_folder):
     os.makedirs(global_cc_map_folder)
 
@@ -5303,15 +5312,15 @@ this_item_editor.cc_auto_viewers[2].set_cc_num(3)
 
 # ^^^TODO:  Move the CC maps out of the main window class and instantiate earlier
 
-f_def_file = global_profile_folder + "/last-project.txt"
+f_def_file = global_pydaw_home + "/last-project.txt"
 if os.path.exists(f_def_file):
     f_handle = open(f_def_file, 'r')
     default_project_file = f_handle.read()
     f_handle.close()
     if not os.path.exists(default_project_file):
-        default_project_file = expanduser("~") + "/" + global_pydaw_version_string + "/default-project/default." + global_pydaw_version_string
+        default_project_file = global_pydaw_home + "/default-project/default." + global_pydaw_version_string
 else:
-    default_project_file = expanduser("~") + "/" + global_pydaw_version_string + "/default-project/default." + global_pydaw_version_string
+    default_project_file = global_pydaw_home + "/default-project/default." + global_pydaw_version_string
 if os.path.exists(default_project_file):
     global_open_project(default_project_file)
 else:
