@@ -1118,7 +1118,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_path_item.setBrush(pydaw_audio_item_scene_gradient)
             f_path_item.setParentItem(self)
             f_path_item.mapFromParent(0.0, f_track_num)
-            f_path_item.setPos(a_audio_item.sample_start * -0.001 * self.length_seconds_orig_px, 0.0)
+            f_path_item.setPos(a_audio_item.sample_start * -0.001 * f_length, 0.0)
             f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.rect_orig)
             f_path_item.scale(f_x_scale, f_y_scale)
             f_y_pos += f_y_inc
@@ -1927,7 +1927,6 @@ class audio_item_editor_widget:
             0, self.end_bar.value(), self.end_beat.value())
             if f_bar_total <= 0.0:
                 QtGui.QMessageBox.warning(self.widget, "Error", "End point is less than or equal to start point.")
-                print("audio items:  start==" + str(self.start_beat_total) + "|" + "end==" + str(self.end_beat_total))
                 return
 
         if self.end_sample_length.isChecked(): self.end_mode = 0
