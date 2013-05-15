@@ -805,14 +805,16 @@ void * v_pydaw_worker_thread(void* a_arg)
             }
             else if(f_item.track_type == 1)  //Bus track
             {
-                int f_i2 = 0;
-                
+                //Not necessary because it's assigned by the first plugin that writes to it...
+                /*
+                int f_i2 = 0;                
                 while(f_i2 < f_args->pydaw_data->sample_count)
                 {
                     f_args->pydaw_data->bus_pool[f_item.track_number]->effect->pluginInputBuffers[0][f_i2] = 0.0f;
                     f_args->pydaw_data->bus_pool[f_item.track_number]->effect->pluginInputBuffers[1][f_i2] = 0.0f;
                     f_i2++;
                 }
+                */
 
                 if((f_args->pydaw_data->bus_pool[f_item.track_number]->bus_count) == 0)
                 {
