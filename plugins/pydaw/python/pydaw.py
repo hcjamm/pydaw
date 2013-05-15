@@ -1579,7 +1579,7 @@ class audio_items_viewer_widget():
         else:
             self.last_open_dir = os.path.abspath(self.last_open_dir + "/" + str(a_folder))
         f_list = os.listdir(self.last_open_dir)
-        f_list.sort()
+        f_list.sort(key=str.lower)
         for f_file in f_list:
             f_full_path = self.last_open_dir + "/" + f_file
             if os.path.isdir(f_full_path) and not f_file.startswith("."):
