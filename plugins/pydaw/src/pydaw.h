@@ -3420,7 +3420,10 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder, in
     struct stat f_song_file_stat;
     stat(f_song_file, &f_song_file_stat);
     
-    v_pydaw_init_busses(a_pydaw_data);
+    if(a_first_load)
+    {
+        v_pydaw_init_busses(a_pydaw_data);
+    }
         
     if(a_first_load && i_pydaw_file_exists(a_pydaw_data->wav_pool_file))
     {
