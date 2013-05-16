@@ -14,6 +14,8 @@ from math import log
 from PyQt4 import QtGui, QtCore
 import pydaw_history
 
+global_pydaw_version_string = "pydaw3"
+
 pydaw_bus_count = 5
 pydaw_audio_track_count = 8
 pydaw_audio_input_count = 5
@@ -300,6 +302,8 @@ class pydaw_project:
                 os.makedirs(project_dir)
         self.history = pydaw_history.pydaw_history(self.project_folder)
 
+        self.create_file("", "version.txt", "Created with " + global_pydaw_version_string + "-" + \
+        pydaw_read_file_text("/usr/lib/" + global_pydaw_version_string + "/" + global_pydaw_version_string + "-version.txt"))
         self.create_file("", os.path.basename(a_project_file), "This file is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
         self.create_file("", pydaw_file_pyregions, pydaw_terminating_char)
         self.create_file("", pydaw_file_pywavs, pydaw_terminating_char)

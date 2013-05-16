@@ -23,7 +23,6 @@ from sys import argv
 from os.path import expanduser
 from libpydaw import *
 
-global_pydaw_version_string = "pydaw3"
 global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
 
 if os.path.isdir("/home/ubuntu") and os.path.isdir("/media/pydaw_data"):
