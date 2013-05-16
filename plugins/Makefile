@@ -1,6 +1,8 @@
 #!/usr/bin/make -f
 
-PREFIX ?= /usr
+#Prefix installs aren't currently supported because paths have been hard-coded for Qt stylesheets
+#and a couple of other scenarios where it's very inconvenient to have to allow the path to change...
+PREFIX = /usr
 DESTDIR ?=
 
 # --------------------------------------------------------------
