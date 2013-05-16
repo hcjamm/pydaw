@@ -713,7 +713,7 @@ const PYFX_Descriptor *rayv_PYFX_descriptor(int index)
 	port_names[RAYV_LFO_FREQ] = "LFO Freq";
 	port_range_hints[RAYV_LFO_FREQ].HintDescriptor = PYFX_HINT_DEFAULT_MIDDLE | PYFX_HINT_BOUNDED_BELOW | PYFX_HINT_BOUNDED_ABOVE;
 	port_range_hints[RAYV_LFO_FREQ].LowerBound = 10.0f;
-	port_range_hints[RAYV_LFO_FREQ].UpperBound = 400.0f;
+	port_range_hints[RAYV_LFO_FREQ].UpperBound = 1600.0f;
         automatable[RAYV_LFO_FREQ] = 1;
         value_tranform_hints[RAYV_LFO_FREQ] = PYDAW_PLUGIN_HINT_TRANSFORM_DECIMAL;
         

@@ -200,6 +200,7 @@ rayv_gui::rayv_gui(const char * host, const char * port,
     connect(m_pitch_env->lms_time_knob->lms_knob, SIGNAL(valueChanged(int)), this, SLOT(pitchEnvTimeChanged(int)));
     
     m_lfo = new LMS_lfo_widget(this, f_info, RAYV_LFO_FREQ, RAYV_LFO_TYPE, f_lfo_types, QString("LFO"));
+    m_lfo->lms_freq_knob->lms_knob->setRange(0, 1600);
     m_main_layout->lms_add_widget(m_lfo->lms_groupbox->lms_groupbox);
             
     connect(m_lfo->lms_freq_knob->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(LFOfreqChanged(int)));
