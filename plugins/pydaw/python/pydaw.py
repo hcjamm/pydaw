@@ -1365,40 +1365,13 @@ class audio_items_viewer(QtGui.QGraphicsView):
             this_audio_editor.open_items(True)
 
     def set_playback_pos(self, a_bar=None):
-        try:
-            self.scene.removeItem(self.playback_cursor)
-        except:
-            pass
-        self.playback_cursor = QtGui.QGraphicsLineItem(0.0, global_audio_ruler_height + 2.0, 0.0, (global_audio_item_height * 12.0) + global_audio_ruler_height)
-        self.playback_cursor.setPen(QtGui.QPen(QtGui.QColor.fromRgb(240, 30, 30, 180.0), 3.0))
-        self.playback_cursor.setZValue(40.0)
-        self.scene.addItem(self.playback_cursor)
-        if a_bar is not None:
-            self.playback_px = a_bar * global_audio_px_per_bar
-        self.playback_cursor.setPos(self.playback_px, 0.0)
+        pass
 
     def start_playback(self, a_bars, a_bpm):
         self.is_playing = True
-        f_pos_x = self.playback_cursor.pos().x()
-        self.playback_cursor_animation = QtGui.QGraphicsItemAnimation()
-        self.playback_cursor_animation.setItem(self.playback_cursor)
-        f_mseconds = ((a_bars * 4.0) / a_bpm) * 60000
-        self.playback_timeline = QtCore.QTimeLine(f_mseconds)
-        self.playback_timeline.setCurveShape(QtCore.QTimeLine.LinearCurve)
-        self.playback_timeline.setFrameRange(0, 100)
-        self.playback_cursor_animation.setTimeLine(self.playback_timeline)
-        f_length_inc = global_audio_px_per_bar * a_bars * 0.01
-        for i in range(100):
-            self.playback_cursor_animation.setPosAt(i * 0.01, QtCore.QPointF(f_pos_x + (i * f_length_inc), 0.0))
-        self.playback_timeline.start()
 
     def stop_playback(self):
-        try:
-            self.playback_timeline.stop()
-        except:
-            pass
         self.is_playing = False
-        self.playback_cursor.setPos(0.0, 0.0)
 
     def set_snap(self, a_index):
         self.snap_mode = a_index
