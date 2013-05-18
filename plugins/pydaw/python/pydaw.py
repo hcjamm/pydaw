@@ -2689,10 +2689,21 @@ class automation_item(QtGui.QGraphicsEllipseItem):
         self.cc_item = a_cc
         self.parent_view = a_view
         self.is_cc = a_is_cc
+        self.is_copying = False
 
     def mousePressEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mousePressEvent(self, a_event)
-        #self.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
+        if a_event.modifiers() == QtCore.Qt.ControlModifier:
+            self.is_copying = True
+            for f_item in self.parent_view.automation_points:
+                if f_item.isSelected():
+                    self.parent_view.draw_point(f_item.cc_item, f_item.item_index)
+                    if self.is_cc:
+                        this_item_editor.items[f_item.item_index].ccs.append(f_item.cc_item.clone())
+                    else:
+                        this_item_editor.items[f_item.item_index].pitchbends.append(f_item.cc_item.clone())
+        else:
+            self.is_copying = False
 
     def mouseMoveEvent(self, a_event):
         QtGui.QGraphicsEllipseItem.mouseMoveEvent(self, a_event)
@@ -2719,7 +2730,8 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     f_cc_start = 0.0
                 f_new_item_index, f_cc_start = pydaw_beats_to_index(f_cc_start)
                 if self.is_cc:
-                    this_item_editor.items[f_point.item_index].ccs.remove(f_point.cc_item)
+                    if not self.is_copying:
+                        this_item_editor.items[f_point.item_index].ccs.remove(f_point.cc_item)
                     f_point.item_index = f_new_item_index
                     f_cc_val = int(127.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 127.0))
                     f_point.cc_item.start = f_cc_start
@@ -2727,7 +2739,8 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     this_item_editor.items[f_point.item_index].ccs.append(f_point.cc_item)
                     this_item_editor.items[f_point.item_index].ccs.sort()
                 else:
-                    this_item_editor.items[f_point.item_index].pitchbends.remove(f_point.cc_item)
+                    if not self.is_copying:
+                        this_item_editor.items[f_point.item_index].pitchbends.remove(f_point.cc_item)
                     f_point.item_index = f_new_item_index
                     f_cc_val = (1.0 - (((f_point.pos().y() - global_automation_min_height) / global_automation_height) * 2.0))
                     f_point.cc_item.start = f_cc_start
@@ -2779,7 +2792,7 @@ class automation_viewer(QtGui.QGraphicsView):
                         this_item_editor.items[f_point.item_index].remove_cc(f_point.cc_item)
                     else:
                         this_item_editor.items[f_point.item_index].remove_pb(f_point.cc_item)
-        global_save_and_reload_items()
+            global_save_and_reload_items()
 
     def sceneMouseDoubleClickEvent(self, a_event):
         if not this_item_editor.enabled:
