@@ -1,13 +1,15 @@
-/* 
- * File:   audio_xfade.h
- * Author: Jeff Hubbard
- *
- * Purpose:  Performs a smooth crossfade suitable for a 100% Dry to 100% Wet knob
- * 
- * TODO:  Implement the curve portion that makes this suitable for audio
- *
- * Created on January 17, 2012, 8:59 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef AUDIO_XFADE_H
 #define	AUDIO_XFADE_H

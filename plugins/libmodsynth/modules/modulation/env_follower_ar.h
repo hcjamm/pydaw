@@ -1,13 +1,15 @@
-/* 
- * File:   env_follower_ar.h
- * Author: Jeff Hubbard
- * 
- * An envelope follower with integrated attack and release
- * 
- * This file is not yet production-ready, it still contains bugs and flaws
- *
- * Created on March 11, 2012, 5:19 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef ENV_FOLLOWER_AR_H
 #define	ENV_FOLLOWER_AR_H

@@ -1,21 +1,15 @@
-/* 
- * File:   smoother-linear.h
- * Author: Jeff Hubbard
- * 
- * Purpose:  This file provides smoothing for GUI controls, although it is also suitable for other things.
- * 
- * Typical usage:
- * 
- * //in your mono_modules in libmodsynth.h
- * t_smoother_linear * smoother = g_sml_get_smoother_linear(44100, 100, 0, 0.5f);
- * 
- * //in your main loop in synth.c
- * v_sml_run(plugin_data->mono_modules->smoother, (plugin_data->vals.your_val));
- * 
- * //Now do something with plugin_data->mono_modules->smoother->last_value
- * 
- * Created on January 9, 2012, 8:02 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef SMOOTHER_LINEAR_H
 #define	SMOOTHER_LINEAR_H

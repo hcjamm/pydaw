@@ -1,13 +1,15 @@
-/* 
- * File:   pitch_core.h
- * Author: Jeff Hubbard
- * 
- * Purpose:  This file provides functions for converting pitch values to and from linear hz values
- * 
- * Typical usage would be converting MIDI notes to hz values
- *
- * Created on January 7, 2012, 7:21 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef PITCH_CORE_H
 #define	PITCH_CORE_H

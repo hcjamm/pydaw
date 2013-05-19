@@ -1,17 +1,5 @@
-/* 
- * File:   amp.h
- * 
- * Purpose:  This file provides functions used for converting linear amplitude values to and
- * from decibels.
- * 
- * Typical usage:
- * 
- * float test1 = f_db_to_linear_fast(-6.0f);  //test1 == .5
- * float test2 = f_linear_to_db_fast(0.25f);  //test2 == -12
- * 
- * You should always prefer the fast versions except in rare circumstances where extreme accuracy
- * is required, or else you need more input range than the fast version can provide
- * 
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,8 +9,7 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
- */
+*/
 
 #ifndef AMP_H
 #define	AMP_H

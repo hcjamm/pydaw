@@ -1,11 +1,15 @@
-/* 
- * File:   lms_note_selector.h
- * Author: Jeff Hubbard
- * 
- * A combobox with C through B, and a Spinbox for Octave.  Inherits LMS_control.
- *
- * Created on April 7, 2012, 10:53 AM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef LMS_NOTE_SELECTOR_H
 #define	LMS_NOTE_SELECTOR_H

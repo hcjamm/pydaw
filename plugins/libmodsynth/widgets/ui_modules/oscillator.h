@@ -1,11 +1,15 @@
-/* 
- * File:   oscillator.h
- * Author: Jeff Hubbard
- * 
- * A modular UI element for an oscillator
- *
- * Created on April 3, 2012, 11:24 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef OSCILLATOR_H
 #define	OSCILLATOR_H

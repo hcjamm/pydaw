@@ -1,15 +1,15 @@
-/* 
- * File:   ramp_env.h
- * Author: Jeff Hubbard
- * 
- * Purpose:  This file provides t_ramp_env, a ramp envelope.
- * 
- * The envelope goes from 0 at retrigger to 1 when finished.
- * 
- * The 0 to 1 value can be read from t_ramp_env->output, or you can read a multiplied value from t_ramp_env->output_multiplied
- *
- * Created on January 25, 2012, 8:23 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 
 #ifndef RAMP_ENV_H

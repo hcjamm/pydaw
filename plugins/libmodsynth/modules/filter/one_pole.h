@@ -1,11 +1,15 @@
-/* 
- * File:   one_pole.h
- * Author: jeffh
- * 
- * Purpose:  provides t_opl_one_pole, a simple one pole filter that can be used for audio or smoothing
- *
- * Created on March 5, 2012, 11:06 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef ONE_POLE_H
 #define	ONE_POLE_H

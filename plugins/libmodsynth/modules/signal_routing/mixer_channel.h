@@ -1,13 +1,15 @@
-/* 
- * File:   mixer_channel.h
- * Author: Jeff Hubbard
- *
- * This file provides a mixer channel for a multichannel mixer.
- * 
- * Pan is calculated by a sine ranging from .5 to 1.5 radians, with pan law added.
- * 
- * Created on April 11, 2012, 6:01 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef MIXER_CHANNEL_H
 #define	MIXER_CHANNEL_H

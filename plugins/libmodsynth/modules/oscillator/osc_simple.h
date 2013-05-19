@@ -1,15 +1,15 @@
-/* 
- * File:   osc_simple.h
- * Author: Jeff Hubbard
- * 
- * Purpose:  This file provides t_osc_simple_unison, a full-featured oscillator that uses
- * simple, mathematically pure waveforms with no anti-aliasing or any other magic.
- * 
- * This oscillator type is meant to be used for retro-sounding softsynths.  Eventually, the preferred 
- * oscillator type will be a wavetable oscillator using SINC interpolation, which is not yet finished.
- *
- * Created on January 7, 2012, 8:52 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef OSC_SIMPLE_H
 #define	OSC_SIMPLE_H

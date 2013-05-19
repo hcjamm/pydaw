@@ -1,29 +1,15 @@
-/* 
- * File:   svf.h
- * Author: Jeff Hubbard
- * 
- * Purpose:  provides t_state_variable_filter, a multimode filter with lowpass, highpass and bandpass types,
- * in 2 or 4 pole configurations
- * 
- * Usage:
- * 
- * t_state_variable_filter * svf = g_svf_get(44100);
- * //set resonance
- * void v_svf_set_res(svf, -6);
- * //Set the value from your control (probably better to run it through a smoother first)
- * inline void v_svf_set_cutoff_base(svf, (plugin_data->vals.cutoff))
- * //modify it with an envelope
- * inline void v_svf_add_cutoff_mod(svf, ...->adsr->output);
- * //calculate your filter coefficients based on the cutoff base and all mods
- * inline void v_svf_set_cutoff(svf);
- * //run the filter
- * float output = fp_svf_run_filter(svf, input);
- * 
- * The above does not include creating the function pointer or setting up controls to change it.  See LMS Filter for an example
- * 
- *
- * Created on January 8, 2012, 11:35 AM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef PYDAW_SVF_H
 #define	PYDAW_SVF_H
