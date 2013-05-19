@@ -24,6 +24,7 @@ from PyQt4 import QtGui, QtCore
 import pydaw_history
 
 global_pydaw_version_string = "pydaw3"
+global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
 
 pydaw_bus_count = 5
 pydaw_audio_track_count = 8

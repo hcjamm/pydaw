@@ -21,15 +21,29 @@ from sys import argv
 from os.path import expanduser
 from libpydaw import *
 
-global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
+global_show_create_folder_error = False
 
 if os.path.isdir("/home/ubuntu") and os.path.isdir("/media/pydaw_data"):
+    global_is_live_mode = True
     global_home = "/media/pydaw_data"
     global_pydaw_home = "/media/pydaw_data/" + global_pydaw_version_string
-    if not os.path.isdir(global_pydaw_home):
-        os.mkdir(global_pydaw_home)
+    global_default_project_folder = global_home + "/" + global_pydaw_version_string + "_projects"
+    try:
+        if not os.path.isdir(global_pydaw_home):
+            os.mkdir(global_pydaw_home)
+        if not os.path.isdir(global_default_project_folder):
+            os.mkdir(global_default_project_folder)
+            pydaw_write_file_text(global_default_project_folder + "/README.txt", "Create subfolders in here and save your live projects to those subfolders.  Saving in the regular filesystem will not persist between live sessions.")
+    except:
+        global_show_create_folder_error = True
+        global_is_live_mode = False
+        global_home = expanduser("~")
+        global_default_project_folder = global_home
+        global_pydaw_home = expanduser("~") + "/" + global_pydaw_version_string
 else:
+    global_is_live_mode = False
     global_home = expanduser("~")
+    global_default_project_folder = global_home
     global_pydaw_home = expanduser("~") + "/" + global_pydaw_version_string
 
 
@@ -4524,7 +4538,7 @@ class pydaw_main_window(QtGui.QMainWindow):
                 pydaw_print_generic_exception(ex)
     def on_open(self):
         try:
-            f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open Project', directory=global_home, filter=global_pydaw_file_type_string)
+            f_file = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open Project', directory=global_default_project_folder, filter=global_pydaw_file_type_string)
             if f_file is None:
                 return
             f_file_str = str(f_file)
@@ -4539,7 +4553,7 @@ class pydaw_main_window(QtGui.QMainWindow):
     def on_save_as(self):
         try:
             while True:
-                f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", directory=global_home + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
+                f_new_file = QtGui.QFileDialog.getSaveFileName(self, "Save project as...", directory=global_default_project_folder + "/" + this_pydaw_project.project_file + "." + global_pydaw_version_string)
                 if not f_new_file is None and not str(f_new_file) == "":
                     f_new_file = str(f_new_file)
                     if not self.check_for_empty_directory(f_new_file):
@@ -5316,5 +5330,11 @@ if os.path.exists(default_project_file):
     global_open_project(default_project_file)
 else:
     global_new_project(default_project_file)
+
+if global_show_create_folder_error:
+    QtGui.QMessageBox.warning(this_main_window, "Warning",
+"""Error creating folder in /media/pydaw_data , this is probably a permission issue
+if you didn't use FAT as the filesystem, settings will NOT persist between sessions
+until you make /media/pydaw_data writable.""".replace("\n", " "))
 
 sys.exit(app.exec_())
