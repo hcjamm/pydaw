@@ -1,9 +1,15 @@
-/* 
- * File:   peak_eq.h
- * Author: jeffh
- *
- * Created on July 15, 2012, 9:46 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef PEAK_EQ_H
 #define	PEAK_EQ_H

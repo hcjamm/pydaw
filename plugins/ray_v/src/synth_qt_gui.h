@@ -1,6 +1,6 @@
 /* -*- c-basic-offset: 4 -*-  vi:set ts=8 sts=4 sw=4: */
-
-/* synth_qt_gui.h
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -10,7 +10,6 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 */
 
 #ifndef RAYV_SYNTH_QT_GUI_H

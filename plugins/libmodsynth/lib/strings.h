@@ -1,12 +1,15 @@
-/* 
- * File:   strings.h
- * Author: jeffh
- * 
- * This was created because GCC is doing some poor optimizations to strcpy that are causing SEGFAULTs.
- * Eventually it will contain more string processing functions specific to LibModSynth.
- *
- * Created on July 29, 2012, 7:43 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef STRINGS_H
 #define	STRINGS_H

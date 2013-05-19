@@ -1,13 +1,15 @@
-/* 
- * File:   smoother-iir.h
- * Author: Jeff Hubbard
- * 
- * This file provides the t_smoother_iir type, which can be used to smooth GUI controls values.
- * 
- * Smoother linear provides better fine-tuning of the smoothing, and only uses slightly more CPU power.
- *
- * Created on February 6, 2012, 7:12 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef SMOOTHER_IIR_H
 #define	SMOOTHER_IIR_H

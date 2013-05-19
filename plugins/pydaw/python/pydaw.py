@@ -1,9 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-PyDAW is a DAW using Python and Qt for the UI, with a high performance,
-sample-accurate audio/MIDI back end written in C, and suite of high quality
-built in plugins.
+This file is part of the PyDAW project, Copyright PyDAW Team
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

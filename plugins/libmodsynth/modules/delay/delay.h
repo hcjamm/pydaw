@@ -1,12 +1,15 @@
-/* 
- * File:   delay.h
- * Author: Jeff Hubbard
- * 
- * A simple delay line with provisions for settings delay in fractional measures or seconds. 
- * Meant to provide the basis for more complicated delay modules
- * 
- * Created on January 28, 2012, 1:39 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef DELAY_H
 #define	DELAY_H

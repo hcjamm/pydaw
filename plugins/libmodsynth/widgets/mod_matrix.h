@@ -1,12 +1,15 @@
-/* 
- * File:   mod_matrix.h
- * Author: Jeff Hubbard
- * 
- *  A QTableWidget for use as a modulation matrix.  
- * It will contain widgets that control plugin parameters
- *
- * Created on April 1, 2012,10:41 AM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef MOD_MATRIX_H
 #define	MOD_MATRIX_H

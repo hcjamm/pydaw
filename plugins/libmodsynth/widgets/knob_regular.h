@@ -1,11 +1,15 @@
-/* 
- * File:   knob_regular.h
- * Author: Jeff Hubbard
- *
- * A plain knob and label nested in a QVBoxLayout
- * 
- * Created on April 1, 2012, 11:46 AM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef KNOB_REGULAR_H
 #define	KNOB_REGULAR_H

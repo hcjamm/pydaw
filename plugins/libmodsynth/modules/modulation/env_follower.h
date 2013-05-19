@@ -1,13 +1,15 @@
-/* 
- * File:   env_follower.h
- * Author: Jeff Hubbard
- * 
- * A basic envelope follower without any controls.  Use this for following the amplitude of an audio signal.
- * 
- * t_enf_env_follower->output_smoothed == The amplitude of the audio signal in decibels, typically -100 to 0
- *
- * Created on March 5, 2012, 8:35 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef ENV_FOLLOWER_H
 #define	ENV_FOLLOWER_H

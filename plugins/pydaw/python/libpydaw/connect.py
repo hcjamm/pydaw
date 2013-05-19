@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-Methods for querying and connecting ALSA and Jack ports.
+This file is part of the PyDAW project, Copyright PyDAW Team
 
-The ways things are done in this file are about as fundametally wrong as you
-could possibly do them.  The reason for this is that it takes a lot less time
-to hack the output of CLI utilities than it does to decipher terrible
-documentation that lacks basic examples of how to do tasks fundamental
-to use of the API.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
 
-
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 """
 
 from commands import getoutput

@@ -1,14 +1,15 @@
-/* 
- * File:   denormal.h
- * Author: Jeff Hubbard
- * 
- * Purpose:  This file provides functions for removing denormals from plugins.
- * 
- * Denormalization occurs when audio signals containing feedback decay into very small numbers.
- * This causes a huge spike in CPU usage.
- *
- * Created on January 11, 2012, 8:10 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef DENORMAL_H
 #define	DENORMAL_H

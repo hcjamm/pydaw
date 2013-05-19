@@ -1,11 +1,15 @@
-/* 
- * File:   lms_main_layout.h
- * Author: Jeff Hubbard
- * 
- * The main layout to be used in a plugin, either in the main QFrame, or in a tabpage
- *
- * Created on April 1, 2012, 9:47 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef LMS_MAIN_LAYOUT_H
 #define	LMS_MAIN_LAYOUT_H

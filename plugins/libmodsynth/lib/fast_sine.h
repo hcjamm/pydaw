@@ -1,14 +1,15 @@
-/* 
- * File:   fast_sine.h
- * Author: Jeff Hubbard
- * 
- * Purpose:  This file provides functions for generating approximated sines.
- * 
- * This file should be used instead of sin(); from math.h whenever possible, as it consumes
- * substantially less CPU.
- *
- * Created on February 14, 2012, 7:20 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef FAST_SINE_H
 #define	FAST_SINE_H

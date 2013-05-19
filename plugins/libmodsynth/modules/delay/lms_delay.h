@@ -1,13 +1,15 @@
-/* 
- * File:   lms_delay.h
- * Author: Jeff Hubbard
- * 
- * This file contains t_lms_delay, which is the basis of LMS_Delay version 1.  It is a complete
- * mono/stereo delay effect written with delay.h
- * 
- * Created on March 5, 2012, 9:16 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
 
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 #ifndef LMS_DELAY_H
 #define	LMS_DELAY_H
 

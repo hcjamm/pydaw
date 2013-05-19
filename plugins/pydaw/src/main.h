@@ -1,22 +1,16 @@
 /* -*- c-basic-offset: 4 -*-  vi:set ts=8 sts=4 sw=4: */
-
-/* jack-dssi-host.h
- *
- * DSSI Soft Synth Interface
- *
- * This is a host for DSSI plugins.  It listens for MIDI events on an
- * ALSA sequencer port, delivers them to DSSI synths and outputs the
- * result via JACK.
- */
-
 /*
- * Copyright 2004, 2009 Chris Cannam, Steve Harris and Sean Bolton.
- * 
- * Permission to use, copy, modify, distribute, and sell this software
- * for any purpose is hereby granted without fee, provided that the
- * above copyright notice and this permission notice are included in
- * all copies or substantial portions of the software.
- */
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef _JACK_PYINST_HOST_H
 #define _JACK_PYINST_HOST_H

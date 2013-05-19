@@ -1,11 +1,15 @@
-/* 
- * File:   ports.h
- * Author: Jeff Hubbard
- * 
- * Separate the LADSPA/OSC ports into their own header file so Qt MOC will stop complaining
- *
- * Created on April 8, 2012, 2:27 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef EUPHORIA_PORTS_H
 #define	EUPHORIA_PORTS_H

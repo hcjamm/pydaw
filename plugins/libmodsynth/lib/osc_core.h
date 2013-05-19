@@ -1,12 +1,15 @@
-/* 
- * File:   osc_core.h
- * Author: Jeff Hubbard
- * 
- * Purpose:  This file provides the t_osc_core type, which is meant to provide base functionality
- * for oscillators, that can be easily extended in later versions of LibModSynth.
- *
- * Created on January 7, 2012, 7:19 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #ifndef OSC_CORE_H
 #define	OSC_CORE_H
