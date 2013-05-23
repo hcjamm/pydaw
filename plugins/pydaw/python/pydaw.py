@@ -2946,6 +2946,8 @@ class automation_viewer(QtGui.QGraphicsView):
         if not this_item_editor.enabled:
             return
         f_item_index = 0
+        f_pen = QtGui.QPen(pydaw_note_gradient, 2.0)
+        f_note_height = (global_automation_height / 127.0)
         for f_item in this_item_editor.items:
             if self.is_cc:
                 for f_cc in f_item.ccs:
@@ -2957,9 +2959,9 @@ class automation_viewer(QtGui.QGraphicsView):
             for f_note in f_item.notes:
                 f_note_start = (f_item_index * global_automation_width) + (f_note.start * 0.25 * global_automation_width) + global_automation_ruler_width
                 f_note_end = f_note_start + (f_note.length * global_automation_width * 0.25)
-                f_note_y = global_automation_ruler_width + ((127.0 - (f_note.note_num)) * (global_automation_height / 127.0))
+                f_note_y = global_automation_ruler_width + ((127.0 - (f_note.note_num)) * f_note_height)
                 f_note_item = QtGui.QGraphicsLineItem(f_note_start, f_note_y, f_note_end, f_note_y)
-                f_note_item.setPen(QtGui.QPen(pydaw_note_gradient, 2.0))
+                f_note_item.setPen(f_pen)
                 self.scene.addItem(f_note_item)
             f_item_index += 1
 
