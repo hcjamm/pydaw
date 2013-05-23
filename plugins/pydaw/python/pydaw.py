@@ -2954,6 +2954,13 @@ class automation_viewer(QtGui.QGraphicsView):
             else:
                 for f_pb in f_item.pitchbends:
                     self.draw_point(f_pb, f_item_index)
+            for f_note in f_item.notes:
+                f_note_start = (f_item_index * global_automation_width) + (f_note.start * 0.25 * global_automation_width) + global_automation_ruler_width
+                f_note_end = f_note_start + (f_note.length * global_automation_width * 0.25)
+                f_note_y = global_automation_ruler_width + ((127.0 - (f_note.note_num)) * (global_automation_height / 127.0))
+                f_note_item = QtGui.QGraphicsLineItem(f_note_start, f_note_y, f_note_end, f_note_y)
+                f_note_item.setPen(QtGui.QPen(pydaw_note_gradient, 2.0))
+                self.scene.addItem(f_note_item)
             f_item_index += 1
 
     def draw_point(self, a_cc, a_item_index):
