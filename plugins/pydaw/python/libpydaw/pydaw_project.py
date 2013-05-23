@@ -1469,7 +1469,7 @@ class pydaw_pitchbend:
     @staticmethod
     def from_str(a_str):
         f_arr = a_str.split("|")
-        return pydaw_note.from_arr(f_arr)
+        return pydaw_pitchbend.from_arr(f_arr)
 
     def clone(self):
         return pydaw_pitchbend.from_str(str(self))
