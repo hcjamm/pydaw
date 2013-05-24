@@ -1135,7 +1135,7 @@ SamplerGUI::SamplerGUI(bool stereo, const char * host, const char * port,
         m_mono_fx_tab_selected_group_label = new QLabel();
         m_mono_fx_tab_selected_group_label->setText(QString("FX Group:"));
         
-        for(int f_i = 0; f_i < EUPHORIA_MONO_FX_GROUPS_COUNT; f_i++)
+        for(int f_i = 1; f_i <= EUPHORIA_MONO_FX_GROUPS_COUNT; f_i++)
         {
             m_mono_fx_tab_selected_group->addItem(QString::number(f_i));
         }
