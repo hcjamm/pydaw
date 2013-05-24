@@ -23,7 +23,13 @@ from libpydaw import *
 
 global_show_create_folder_error = False
 
-if os.path.isdir("/home/ubuntu") and os.path.isdir("/media/pydaw_data"):
+if os.path.isdir("/home/ubuntu") and os.path.islink("/dev/disk/by-label/pydaw_data"):
+    if not os.path.isdir("/media/pydaw_data"):
+        try:
+            os.system("gksudo mkdir /media/pydaw_data")
+            os.system("gksudo mount /dev/disk/by-label/pydaw_data /media/pydaw_data")
+        except:
+            print("Could not mount pydaw_data partition, this may indicate a problem with the flash drive or permissions")
     global_is_live_mode = True
     global_home = "/media/pydaw_data"
     global_pydaw_home = "/media/pydaw_data/" + global_pydaw_version_string
