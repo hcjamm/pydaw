@@ -57,6 +57,7 @@ inline void v_lfs_sync(t_lfs_lfo * a_lfs, float a_phase, int a_type)
             break;
         case 2:
             a_lfs->osc_ptr = f_get_triangle;     
+            a_lfs->osc_core->output = 0.5f;  //So that it will be at 0 to begin with
             break;
     }    
 }
