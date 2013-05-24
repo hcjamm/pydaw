@@ -21,6 +21,7 @@ extern "C" {
 #include "../../lib/interpolate-cubic.h"
 #include "../../lib/amp.h"
 #include "../oscillator/lfo_simple.h"
+#include "../filter/svf_stereo.h"
 
 typedef struct 
 {
@@ -34,6 +35,8 @@ typedef struct
     t_lfs_lfo * lfo;
     t_cubic_interpolater * cubic;
     t_amp * amp;
+    t_svf2_filter * hp;
+    t_svf2_filter * lp;
 }t_crs_chorus;
 
 t_crs_chorus * g_crs_chorus_get(float);
@@ -78,6 +81,14 @@ t_crs_chorus* g_crs_chorus_get(float a_sr)
     f_result->freq_last = -99.99f;
     f_result->output0 = 0.0f;
     f_result->output1 = 0.0f;
+    f_result->lp = g_svf2_get(a_sr);
+    f_result->hp = g_svf2_get(a_sr);
+    v_svf2_set_res(f_result->lp, -15.0f);
+    v_svf2_set_res(f_result->hp, -15.0f);
+    v_svf2_set_cutoff_base(f_result->hp, 50.0f);
+    v_svf2_set_cutoff(f_result->hp);
+    v_svf2_set_cutoff_base(f_result->lp, 90.0f);
+    v_svf2_set_cutoff(f_result->lp);
     v_lfs_sync(f_result->lfo, 0.0f, 1);
     
     return f_result;
@@ -132,6 +143,12 @@ void v_crs_chorus_run(t_crs_chorus* a_crs, float a_input0, float a_input1)
             (a_crs->pos_left), a_crs->cubic) * (a_crs->wet_lin));
     a_crs->output1 = a_input1 +  (f_cubic_interpolate_ptr_wrap(a_crs->buffer, (a_crs->buffer_size), 
             (a_crs->pos_right), a_crs->cubic) * (a_crs->wet_lin));
+    
+    v_svf2_run_2_pole_hp(a_crs->hp, a_crs->output0, a_crs->output1);
+    v_svf2_run_2_pole_lp(a_crs->lp, a_crs->hp->output0, a_crs->hp->output1);
+    
+    a_crs->output0 = a_crs->lp->output0;
+    a_crs->output1 = a_crs->lp->output1;
     
     a_crs->buffer_ptr++;
     if((a_crs->buffer_ptr) >= (a_crs->buffer_size))
