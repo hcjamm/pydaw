@@ -20,7 +20,7 @@ import unicodedata
 def launch_jack_oscrolloscope():
     f_processes = getoutput("ps -ef")
     if not "pydaw_jack_oscrolloscope" in f_processes:
-        subprocess.Popen(['/usr/lib/pydaw2/pydaw_jack_oscrolloscope', '-n', '2', '-x', '960', '-y', '360'])
+        subprocess.Popen(['/usr/lib/pydaw3/pydaw_jack_oscrolloscope', '-n', '2', '-x', '960', '-y', '360'])
         sleep(2)
     getoutput("jack_connect PyDAW:'PyDAW out_1' jack_oscrolloscope:in_1")
     getoutput("jack_connect PyDAW:'PyDAW out_2' jack_oscrolloscope:in_2")
