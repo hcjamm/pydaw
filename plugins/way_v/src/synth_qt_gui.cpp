@@ -312,7 +312,7 @@ wayv_gui::wayv_gui(const char * host, const char * port,
         
     //From Modulex
 
-    m_fx0 = new LMS_multieffect(this, QString("FX1"), f_info, WAYV_FX0_KNOB0, WAYV_FX0_KNOB1, WAYV_FX0_KNOB2, WAYV_FX0_COMBOBOX);
+    m_fx0 = new LMS_multieffect(this, QString("FX0"), f_info, WAYV_FX0_KNOB0, WAYV_FX0_KNOB1, WAYV_FX0_KNOB2, WAYV_FX0_COMBOBOX);
     connect(m_fx0->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob0Changed(int)));
     connect(m_fx0->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob1Changed(int)));
     connect(m_fx0->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx0knob2Changed(int)));
@@ -320,7 +320,7 @@ wayv_gui::wayv_gui(const char * host, const char * port,
 
     m_main_layout->lms_add_widget(m_fx0->lms_groupbox->lms_groupbox);
 
-    m_fx1 = new LMS_multieffect(this, QString("FX2"), f_info, WAYV_FX1_KNOB0, WAYV_FX1_KNOB1, WAYV_FX1_KNOB2, WAYV_FX1_COMBOBOX);
+    m_fx1 = new LMS_multieffect(this, QString("FX1"), f_info, WAYV_FX1_KNOB0, WAYV_FX1_KNOB1, WAYV_FX1_KNOB2, WAYV_FX1_COMBOBOX);
     connect(m_fx1->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob0Changed(int)));
     connect(m_fx1->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob1Changed(int)));
     connect(m_fx1->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx1knob2Changed(int)));
@@ -330,7 +330,7 @@ wayv_gui::wayv_gui(const char * host, const char * port,
 
     m_main_layout->lms_add_layout();    
 
-    m_fx2 = new LMS_multieffect(this, QString("FX3"), f_info, WAYV_FX2_KNOB0, WAYV_FX2_KNOB1, WAYV_FX2_KNOB2, WAYV_FX2_COMBOBOX);
+    m_fx2 = new LMS_multieffect(this, QString("FX2"), f_info, WAYV_FX2_KNOB0, WAYV_FX2_KNOB1, WAYV_FX2_KNOB2, WAYV_FX2_COMBOBOX);
     connect(m_fx2->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob0Changed(int)));
     connect(m_fx2->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob1Changed(int)));
     connect(m_fx2->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx2knob2Changed(int)));
@@ -338,7 +338,7 @@ wayv_gui::wayv_gui(const char * host, const char * port,
 
     m_main_layout->lms_add_widget(m_fx2->lms_groupbox->lms_groupbox);
 
-    m_fx3 = new LMS_multieffect(this, QString("FX4"), f_info, WAYV_FX3_KNOB0, WAYV_FX3_KNOB1, WAYV_FX3_KNOB2, WAYV_FX3_COMBOBOX);
+    m_fx3 = new LMS_multieffect(this, QString("FX3"), f_info, WAYV_FX3_KNOB0, WAYV_FX3_KNOB1, WAYV_FX3_KNOB2, WAYV_FX3_COMBOBOX);
     connect(m_fx3->lms_knob1->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob0Changed(int)));
     connect(m_fx3->lms_knob2->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob1Changed(int)));
     connect(m_fx3->lms_knob3->lms_knob,  SIGNAL(valueChanged(int)), this, SLOT(fx3knob2Changed(int)));
@@ -353,21 +353,21 @@ wayv_gui::wayv_gui(const char * host, const char * port,
 
     QList <LMS_mod_matrix_column*> f_mod_matrix_columns;
 
+    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX0\nCtrl1"), -100, 100, 0); 
+    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX0\nCtrl2"), -100, 100, 0); 
+    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX0\nCtrl3"), -100, 100, 0); 
+
     f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl1"), -100, 100, 0); 
     f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl2"), -100, 100, 0); 
-    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl3"), -100, 100, 0); 
+    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX1\nCtrl3"), -100, 100, 0);  
 
-    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl1"), -100, 100, 0); 
-    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl2"), -100, 100, 0); 
+    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl1"), -100, 100, 0);  
+    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl2"), -100, 100, 0);  
     f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX2\nCtrl3"), -100, 100, 0);  
 
     f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl1"), -100, 100, 0);  
     f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl2"), -100, 100, 0);  
     f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX3\nCtrl3"), -100, 100, 0);  
-
-    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl1"), -100, 100, 0);  
-    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl2"), -100, 100, 0);  
-    f_mod_matrix_columns << new LMS_mod_matrix_column(spinbox, QString("FX4\nCtrl3"), -100, 100, 0);  
 
     m_polyfx_mod_matrix[0] = new LMS_mod_matrix(this, WAYV_MODULATOR_COUNT, f_mod_matrix_columns, WAVV_PFXMATRIX_FIRST_PORT, f_info);
     m_polyfx_mod_matrix[0]->lms_mod_matrix->setMinimumHeight(165);
