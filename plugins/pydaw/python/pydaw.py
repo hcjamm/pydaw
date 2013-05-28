@@ -1722,7 +1722,7 @@ class audio_item_editor_widget:
 
     def selected_index_changed(self, a_val):
         if not self.suppress_index_change:
-            if self.items_list[a_val] == "":
+            if global_current_region is None or self.items_list[a_val] == "":
                 self.open_item(None)
             else:
                 f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
