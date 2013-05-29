@@ -4095,8 +4095,8 @@ class seq_track:
     def on_solo(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_solo(self.track_number, self.solo_checkbox.isChecked(), 0)
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-        this_pydaw_project.commit("Set solo for MIDI track " + str(self.track_number) + " to " + str(self.solo_checkbox.isChecked()))
+            this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+            this_pydaw_project.commit("Set solo for MIDI track " + str(self.track_number) + " to " + str(self.solo_checkbox.isChecked()))
     def on_mute(self, value):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_mute(self.track_number, self.mute_checkbox.isChecked(), 0)
@@ -4130,9 +4130,10 @@ class seq_track:
             else:
                 this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 1)
     def on_bus_changed(self, a_value=0):
-        this_pydaw_project.save_tracks(this_region_editor.get_tracks())
-        this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex(), 0)
-        this_pydaw_project.commit("Set bus for MIDI track " + str(self.track_number) + " to " + str(self.bus_combobox.currentIndex()))
+        if not self.suppress_osc:
+            this_pydaw_project.save_tracks(this_region_editor.get_tracks())
+            this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex(), 0)
+            this_pydaw_project.commit("Set bus for MIDI track " + str(self.track_number) + " to " + str(self.bus_combobox.currentIndex()))
 
     def __init__(self, a_track_num, a_track_text="track", a_instrument=True):
         self.is_instrument = a_instrument
