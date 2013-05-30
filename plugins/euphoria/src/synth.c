@@ -981,27 +981,30 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
                 plugin_data->output[0][i] += plugin_data->mono_fx_buffers[0][0][i];
                 plugin_data->output[1][i] += plugin_data->mono_fx_buffers[0][1][i];
 
-                //Add the previewing sample
-                plugin_data->output[0][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
-                            (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
-                
-                if(plugin_data->sample_channels[(EUPHORIA_MAX_SAMPLE_COUNT)] > 1)
+                if(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)])
                 {
-                    plugin_data->output[1][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)], 
-                            (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
-                }
-                else
-                {
-                    plugin_data->output[1][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
-                            (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
-                }
-                
-                plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + (plugin_data->sample_rate_ratios[EUPHORIA_MAX_SAMPLE_COUNT]);
+                    //Add the previewing sample
+                    plugin_data->output[0][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
+                                (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
 
-                if((plugin_data->preview_sample_array_index) >= (plugin_data->preview_length))
-                {
-                    plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT][0] = '\0';
-                    break;
+                    if(plugin_data->sample_channels[(EUPHORIA_MAX_SAMPLE_COUNT)] > 1)
+                    {
+                        plugin_data->output[1][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[1][(EUPHORIA_MAX_SAMPLE_COUNT)], 
+                                (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
+                    }
+                    else
+                    {
+                        plugin_data->output[1][i] += f_cubic_interpolate_ptr(plugin_data->sampleData[0][(EUPHORIA_MAX_SAMPLE_COUNT)], 
+                                (plugin_data->preview_sample_array_index), plugin_data->cubic_interpolator);
+                    }
+
+                    plugin_data->preview_sample_array_index = (plugin_data->preview_sample_array_index) + (plugin_data->sample_rate_ratios[EUPHORIA_MAX_SAMPLE_COUNT]);
+
+                    if((plugin_data->preview_sample_array_index) >= (plugin_data->preview_length))
+                    {
+                        plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT][0] = '\0';
+                        break;
+                    }
                 }
             }
         }
