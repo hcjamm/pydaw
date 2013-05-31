@@ -362,6 +362,8 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
     plugin_data->smp_pit_core = g_pit_get();
     plugin_data->smp_pit_ratio = g_pit_ratio();
         
+    plugin_data->sample_rate_ratios[EUPHORIA_MAX_SAMPLE_COUNT] = 1.0f;
+    
     int f_i = 0;
     while(f_i < EUPHORIA_MAX_SAMPLE_COUNT)
     {

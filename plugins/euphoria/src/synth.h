@@ -148,7 +148,7 @@ typedef struct {
     int          sampleRate;
     float fs;    //From Ray-V
     float ratio; //Used per-sample;  If voices are ever multithreaded, this will need to be widened...
-    float sample_rate_ratios[EUPHORIA_MAX_SAMPLE_COUNT];
+    float sample_rate_ratios[EUPHORIA_TOTAL_SAMPLE_COUNT];
     
     t_voc_voices * voices;
     int         velocities[EUPHORIA_POLYPHONY];    
