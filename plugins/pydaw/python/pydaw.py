@@ -1409,9 +1409,11 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_region_length = global_current_region.region_length_bars
 
         f_size = global_audio_px_per_bar * f_region_length
+        f_beat_inc = global_audio_px_per_bar * 0.25
         f_ruler = QtGui.QGraphicsRectItem(0, 0, f_size, global_audio_ruler_height)
         self.scene.addItem(f_ruler)
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
+        f_beat_pen = QtGui.QPen(QtCore.Qt.darkGray)
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
         f_total_height = (12.0 * (global_audio_item_height)) + global_audio_ruler_height
         i3 = 0.0
@@ -1421,6 +1423,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_number.setBrush(QtCore.Qt.white)
             self.scene.addLine(i3, global_audio_ruler_height, i3, f_total_height, f_v_pen)
             f_number.setPos(i3, 2)
+            for f_beat_i in range(1, 4):
+                f_beat_x = i3 + (f_beat_inc * f_beat_i)
+                self.scene.addLine(f_beat_x, global_audio_ruler_height, f_beat_x, f_total_height, f_beat_pen)
             i3 += global_audio_px_per_bar
         self.scene.addLine(i3, global_audio_ruler_height, i3, f_total_height, f_reg_pen)
         for i2 in range(12):
