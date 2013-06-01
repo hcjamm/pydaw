@@ -21,7 +21,7 @@ extern "C" {
 /*These should be customized for each developer and plugin*/
 #define RAYV_PLUGIN_NAME "LMS_RAYV"
 #define RAYV_PLUGIN_LONG_NAME "Ray-V";
-#define RAYV_PLUGIN_DEV "Jeff Hubbard <jhubbard651@users.sf.net>";
+#define RAYV_PLUGIN_DEV "PyDAW Team <pydawteam@users.sf.net>";
 #define RAYV_PLUGIN_UUID 1337721
 
 #ifdef	__cplusplus

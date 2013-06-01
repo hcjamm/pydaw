@@ -21,7 +21,7 @@ extern "C" {
 /*These should be customized for each developer and plugin*/
 #define EUPHORIA_PLUGIN_NAME "LMS_EUPHORIA"
 #define EUPHORIA_PLUGIN_LONG_NAME "Euphoria";
-#define EUPHORIA_PLUGIN_DEV "Jeff Hubbard <jhubbard651@users.sf.net>";
+#define EUPHORIA_PLUGIN_DEV "PyDAW Team <pydawteam@users.sf.net>";
 #define EUPHORIA_PLUGIN_UUID 818831
 
 #ifdef	__cplusplus

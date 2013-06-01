@@ -21,7 +21,7 @@ extern "C" {
 /*These should be customized for each developer and plugin*/
 #define MODULEX_PLUGIN_NAME "LMS_MODULEX"
 #define MODULEX_PLUGIN_LONG_NAME "LMS Modulex";
-#define MODULEX_PLUGIN_DEV "Jeff Hubbard <jhubbard651@users.sf.net>";
+#define MODULEX_PLUGIN_DEV "PyDAW Team <pydawteam@users.sf.net>";
 #define MODULEX_PLUGIN_UUID 402679
 
 #ifdef	__cplusplus
