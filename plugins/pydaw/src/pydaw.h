@@ -1591,20 +1591,20 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                                     controlIn = a_pydaw_data->track_pool_all[f_i]->instrument->pluginPortControlInNumbers[controller];
                                     if (controlIn >= 0)
                                     {
-                                        /* controller is mapped to LADSPA port, update the port */
                                         snd_seq_event_t f_event;
                                         f_event.data.control.value = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
                                         v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->instrument, controlIn, &f_event, 0);
                                     }
                                 }
-
-                                controlIn = a_pydaw_data->track_pool_all[f_i]->effect->pluginPortControlInNumbers[controller];
-                                if (controlIn >= 0)
+                                else if(f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->plugin_index == -1)
                                 {
-                                    /* controller is mapped to LADSPA port, update the port */
-                                    snd_seq_event_t f_event;
-                                    f_event.data.control.value = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
-                                    v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->effect, controlIn, &f_event, 0);
+                                    controlIn = a_pydaw_data->track_pool_all[f_i]->effect->pluginPortControlInNumbers[controller];
+                                    if (controlIn >= 0)
+                                    {
+                                        snd_seq_event_t f_event;
+                                        f_event.data.control.value = f_current_item.ccs[(a_pydaw_data->track_current_item_cc_event_indexes[f_i])]->cc_val;
+                                        v_pydaw_set_control_from_cc(a_pydaw_data->track_pool_all[f_i]->effect, controlIn, &f_event, 0);
+                                    }
                                 }
                             }
                             a_pydaw_data->track_current_item_cc_event_indexes[f_i] = (a_pydaw_data->track_current_item_cc_event_indexes[f_i]) + 1;
