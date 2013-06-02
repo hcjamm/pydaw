@@ -72,6 +72,14 @@ int main(int argc, char** argv)
     
     int f_i = 0;
     
+    while(f_i < argc)
+    {
+        printf("arg[%i]: %s\n", f_i, argv[f_i]);
+        f_i++;
+    }
+    
+    f_i = 0;
+    
     while(f_i < PYDAW_INPUT_COUNT)
     {
         f_engine->input_arr[f_i] = (PYFX_Data*)malloc(sizeof(PYFX_Data) * 8192);
@@ -124,7 +132,7 @@ int main(int argc, char** argv)
     v_set_playback_mode(pydaw_data, 0, 0, 0);
 #endif
     
-    v_pydaw_offline_render(pydaw_data, 0, 0, 0, 3, "test.wav");
+    v_pydaw_offline_render(pydaw_data, 0, 0, 3, 3, "test.wav");
     
     exit(0);
     //return 0;     

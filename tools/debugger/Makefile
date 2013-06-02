@@ -15,7 +15,7 @@ all: debugger
 debug:
 	make CFLAGS+=" -O0 -gdwarf-3 "
 
-benchmark:
+pydaw_benchmark:
 	make CFLAGS+=" -O3 "
 
 gprof:
