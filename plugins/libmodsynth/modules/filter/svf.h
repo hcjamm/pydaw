@@ -220,7 +220,7 @@ inline fp_svf_run_filter svf_get_run_filter_ptr(int a_cascades, int a_filter_typ
  * float a_input_value) //the audio input to filter
  * 
  * The main action to run the filter kernel*/
-inline void v_svf_set_input_value(t_state_variable_filter *__restrict a_svf, t_svf_kernel * a_kernel, float a_input_value)
+inline void v_svf_set_input_value(t_state_variable_filter *__restrict a_svf, t_svf_kernel * __restrict a_kernel, float a_input_value)
 {        
     a_kernel->filter_input = a_input_value;
     
