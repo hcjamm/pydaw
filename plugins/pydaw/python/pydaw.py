@@ -1553,6 +1553,7 @@ class audio_items_viewer_widget():
         f_folder_name = str(a_item.text())
         f_full_path = f_dict[f_folder_name] + "/" + f_folder_name
         self.set_folder(f_full_path, True)
+        self.folders_tab_widget.setCurrentIndex(0)
 
     def file_mouse_press_event(self, a_event):
         QtGui.QListWidget.mousePressEvent(self.list_file, a_event)
