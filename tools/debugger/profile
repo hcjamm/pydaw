@@ -1,0 +1,9 @@
+make clean && make gprof && ./debugger && gprof ./debugger > profile.txt
+
+if [ -f /usr/bin/gedit ]; then
+	gedit profile.txt
+elif [ -f /usr/bin/kate ]; then
+	kate profile.txt
+else
+	echo "Now open profile.txt in your favorite editor."
+fi
