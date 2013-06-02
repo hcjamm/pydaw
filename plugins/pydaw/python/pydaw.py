@@ -2427,6 +2427,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 self.has_selected = True
             else:
                 f_item.note_item.is_selected = False
+                f_item.setBrush(pydaw_note_gradient)
 
     def unhighlight_selected(self):
         self.has_selected = False
@@ -2462,7 +2463,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
             return
         if a_event.modifiers() == QtCore.Qt.ControlModifier:
-            pass
+            self.unhighlight_selected()
         elif self.click_enabled and this_item_editor.enabled:
             f_pos_x = a_event.scenePos().x()
             f_pos_y = a_event.scenePos().y()
@@ -2486,7 +2487,6 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_drawn_note.is_resizing = True
                 f_drawn_note.mouse_y_pos = QtGui.QCursor.pos().y()
                 f_drawn_note.resize_last_mouse_pos = a_event.pos().x()
-        self.highlight_selected()
         a_event.setAccepted(True)
         QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
 
