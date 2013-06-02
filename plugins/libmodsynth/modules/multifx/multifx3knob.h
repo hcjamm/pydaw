@@ -103,7 +103,7 @@ inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 t_mf3_multi * g_mf3_get(float);
 inline fp_mf3_run g_mf3_get_function_pointer( int);
 
-static fp_mf3_run mf3_function_pointers[MULTIFX3KNOB_MAX_INDEX] = 
+const fp_mf3_run mf3_function_pointers[MULTIFX3KNOB_MAX_INDEX] = 
 {    
         v_mf3_run_off, //0    
         v_mf3_run_lp2, //1    
