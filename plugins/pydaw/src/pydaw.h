@@ -2926,6 +2926,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->ab_mode = 0;
     f_result->ab_start = 0.0f;
     f_result->ab_amp_lin = 1.0f;
+    f_result->is_ab_ing = 0;
     
     int f_i = 0;
     
