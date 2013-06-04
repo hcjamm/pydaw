@@ -149,9 +149,6 @@ class dssi_gui(ServerThread):
     def pydaw_set_tempo(self, a_tempo):
         self.send_configure("tempo", str(a_tempo))
 
-    def pydaw_set_timesig(self):
-        self.send_configure("tsig", "TODO")
-
     def pydaw_set_vol(self, a_track_num, a_vol, a_track_type):
         self.send_configure("vol", str(a_track_num) + "|" + str(a_vol) + "|" + str(a_track_type))
 
@@ -209,3 +206,6 @@ class dssi_gui(ServerThread):
 
     def pydaw_ab_pos(self, a_val):
         self.send_configure("abp", str(a_val))
+
+    def pydaw_ab_vol(self, a_val):
+        self.send_configure("abv", str(a_val))

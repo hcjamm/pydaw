@@ -67,6 +67,7 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_LOAD_AB_OPEN "abo"
 #define PYDAW_CONFIGURE_KEY_LOAD_AB_SET "abs"
 #define PYDAW_CONFIGURE_KEY_LOAD_AB_POS "abp"
+#define PYDAW_CONFIGURE_KEY_LOAD_AB_VOL "abv"
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -331,6 +332,7 @@ typedef struct
     int ab_mode;  //0 == off, 1 == on
     float ab_start; //0.0f to 1.0f
     int is_ab_ing;  //Set this to a_pydaw_data->ab_mode on playback
+    float ab_amp_lin;
 }t_pydaw_data;
 
 typedef struct 
@@ -395,6 +397,7 @@ t_pydaw_audio_items * v_audio_items_load_all(t_pydaw_data * a_pydaw_data, int a_
 void v_pydaw_set_ab_mode(t_pydaw_data * a_pydaw_data, int a_mode);
 void v_pydaw_set_ab_start(t_pydaw_data * a_pydaw_data, int a_start);
 void v_pydaw_set_ab_file(t_pydaw_data * a_pydaw_data, const char * a_file);
+void v_pydaw_set_ab_vol(t_pydaw_data * a_pydaw_data, float a_vol);
 
 /*End declarations.  Begin implementations.*/
 
@@ -1938,8 +1941,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                     (a_pydaw_data->ab_audio_item->sample_read_head->whole_number),
                     (a_pydaw_data->ab_audio_item->sample_read_head->fraction),
                     (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->cubic_interpolator)) * 
-                    (a_pydaw_data->ab_audio_item->adsr->output); // *
-                    //(a_pydaw_data->ab_audio_item->vol_linear) * 
+                    (a_pydaw_data->ab_audio_item->adsr->output) *
+                    (a_pydaw_data->ab_amp_lin); // * 
                     //(a_pydaw_data->ab_audio_item->fade_vol);
 
                     output0[f_i] = f_tmp_sample;
@@ -1952,8 +1955,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                     (a_pydaw_data->ab_audio_item->sample_read_head->whole_number),
                     (a_pydaw_data->ab_audio_item->sample_read_head->fraction),
                     (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->cubic_interpolator)) * 
-                    (a_pydaw_data->ab_audio_item->adsr->output); // *
-                    //(a_pydaw_data->ab_audio_item->vol_linear) * 
+                    (a_pydaw_data->ab_audio_item->adsr->output) *
+                    (a_pydaw_data->ab_amp_lin); // * 
                     //(a_pydaw_data->ab_audio_item->fade_vol);
 
                     output1[f_i] = f_cubic_interpolate_ptr_ifh(
@@ -1961,8 +1964,8 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                     (a_pydaw_data->ab_audio_item->sample_read_head->whole_number),
                     (a_pydaw_data->ab_audio_item->sample_read_head->fraction),
                     (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->cubic_interpolator)) * 
-                    (a_pydaw_data->ab_audio_item->adsr->output); // *
-                    //(a_pydaw_data->ab_audio_item->vol_linear) * 
+                    (a_pydaw_data->ab_audio_item->adsr->output) *
+                    (a_pydaw_data->ab_amp_lin); // * 
                     //(a_pydaw_data->ab_audio_item->fade_vol);
                 }
 
@@ -2922,6 +2925,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->ab_audio_item = g_pydaw_audio_item_get(f_result->sample_rate);
     f_result->ab_mode = 0;
     f_result->ab_start = 0.0f;
+    f_result->ab_amp_lin = 1.0f;
     
     int f_i = 0;
     
@@ -4622,6 +4626,14 @@ void v_pydaw_set_ab_file(t_pydaw_data * a_pydaw_data, const char * a_file)
 }
 
 
+void v_pydaw_set_ab_vol(t_pydaw_data * a_pydaw_data, float a_vol)
+{
+    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    a_pydaw_data->ab_amp_lin = f_db_to_linear_fast(a_vol, a_pydaw_data->amp_ptr);
+    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+}
+
+
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_key, const char* a_value)
 {
     printf("v_pydaw_parse_configure_message:  key: \"%s\", value: \"%s\"\n", a_key, a_value);
@@ -4987,7 +4999,12 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     {
         int f_mode = atoi(a_value);
         v_pydaw_set_ab_mode(a_pydaw_data, f_mode);
-    }            
+    }    
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_LOAD_AB_VOL))
+    {
+        float f_vol = atof(a_value);
+        v_pydaw_set_ab_vol(a_pydaw_data, f_vol);
+    }
     else
     {
         printf("Unknown configure message key: %s, value %s\n", a_key, a_value);        

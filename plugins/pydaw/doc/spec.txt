@@ -57,6 +57,7 @@ OSC configure message keys/values:
 	"abo"	file_path	Open the file at file_path for use with the A/B player
 	"abs"	int	0 for playing regular audio, 1 for playing the loaded A/B file
 	"abp"   int	Set start position, range 0 to 1000
+	"abv"	float	Set A/B item volume
 
 
 Project structure:
