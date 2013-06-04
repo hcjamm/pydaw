@@ -4945,6 +4945,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cc_map_hlayout.addWidget(self.cc_map_table.groupbox)
         f_cc_map_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         self.main_tabwidget.addTab(self.cc_map_tab, "CC Maps")
+        self.main_tabwidget.addTab(this_ab_widget.widget, "A/B")
 
         self.show()
 
@@ -5204,6 +5205,48 @@ class pydaw_cc_map_editor:
             self.cc_table.setItem(f_row_pos, 4, QtGui.QTableWidgetItem(global_controller_port_num_dict["Way-V"][v.wayv_port].name))
         self.cc_table.resizeColumnsToContents()
 
+class a_b_widget:
+    def __init__(self):
+        self.widget = QtGui.QWidget()
+        self.vlayout = QtGui.QVBoxLayout()
+        self.widget.setLayout(self.vlayout)
+        self.file_hlayout = QtGui.QHBoxLayout()
+        self.file_lineedit = QtGui.QLineEdit()
+        self.file_lineedit.setReadOnly(True)
+        self.file_hlayout.addWidget(self.file_lineedit)
+        self.vlayout.addLayout(self.file_hlayout)
+        self.file_button = QtGui.QPushButton("Open")
+        self.file_button.pressed.connect(self.on_file_open)
+        self.file_hlayout.addWidget(self.file_button)
+        self.start_hlayout = QtGui.QHBoxLayout()
+        self.vlayout.addLayout(self.start_hlayout)
+        self.start_hlayout.addWidget(QtGui.QLabel("Start:"))
+        self.start_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.start_slider.setRange(0, 1000)
+        self.start_slider.valueChanged.connect(self.on_start_changed)
+        self.start_hlayout.addWidget(self.start_slider)
+        self.enabled_checkbox = QtGui.QCheckBox("Enabled?")
+        self.enabled_checkbox.stateChanged.connect(self.enabled_changed)
+        self.file_hlayout.addWidget(self.enabled_checkbox)
+        self.vlayout.addSpacerItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
+
+    def enabled_changed(self, a_val=None):
+        this_pydaw_project.this_dssi_gui.pydaw_ab_set(self.enabled_checkbox.isChecked())
+
+    def on_file_open(self):
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=self.widget ,caption='Open Project', directory=global_default_project_folder, filter='Wav File(*.wav)')
+        if f_file is None:
+            return
+        f_file_str = str(f_file)
+        if f_file_str == "":
+            return
+        self.file_lineedit.setText(f_file_str)
+        this_pydaw_project.this_dssi_gui.pydaw_ab_open(f_file_str)
+        this_pydaw_project.this_dssi_gui.pydaw_ab_pos(self.start_slider.value())
+
+    def on_start_changed(self, a_val=None):
+        this_pydaw_project.this_dssi_gui.pydaw_ab_pos(self.start_slider.value())
+
 def set_default_project(a_project_path):
     f_def_file = global_pydaw_home + "/last-project.txt"
     f_handle = open(f_def_file, 'w')
@@ -5312,6 +5355,7 @@ this_cc_automation_viewers.append(this_cc_automation_viewer0)
 this_cc_automation_viewers.append(this_cc_automation_viewer1)
 this_cc_automation_viewers.append(this_cc_automation_viewer2)
 
+this_ab_widget = a_b_widget()
 this_song_editor = song_editor()
 this_region_settings = region_settings()
 this_region_editor = region_list_editor(pydaw_track_type_enum.midi())

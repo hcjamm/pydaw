@@ -208,13 +208,11 @@ typedef struct
     int wav_pool_uid;        
     float ratio;    
     int uid;
-    //int start_region;
     int start_bar;
     float start_beat;
     double adjusted_start_beat;
     double adjusted_end_beat;
-    int end_mode;  //0 == full sample length, 1 == musical end time
-    //int end_region;
+    int end_mode;  //0 == full sample length, 1 == musical end time    
     int end_bar;
     float end_beat;
     int timestretch_mode;  //tentatively: 0 == none, 1 == pitch, 2 == time+pitch

@@ -200,3 +200,12 @@ class dssi_gui(ServerThread):
 
     def pydaw_load_cc_map(self, a_name):
         self.send_configure("cm", str(a_name))
+
+    def pydaw_ab_open(self, a_file):
+        self.send_configure("abo", str(a_file))
+
+    def pydaw_ab_set(self, a_bool):
+        self.send_configure("abs", bool_to_int(a_bool))
+
+    def pydaw_ab_pos(self, a_val):
+        self.send_configure("abp", str(a_val))
