@@ -4460,6 +4460,8 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     pthread_mutex_lock(&a_pydaw_data->offline_mutex);
     a_pydaw_data->is_offline_rendering = 1;
     a_pydaw_data->input_buffers_active = 0;
+    int f_ab_old = a_pydaw_data->ab_mode;
+    a_pydaw_data->ab_mode = 0;
     
     int f_bar_count = a_end_bar - a_start_bar;
     
@@ -4576,6 +4578,7 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     fclose(f_finished);
     
     a_pydaw_data->is_offline_rendering = 0;
+    a_pydaw_data->ab_mode = f_ab_old;
     pthread_mutex_unlock(&a_pydaw_data->offline_mutex);
 }
 
