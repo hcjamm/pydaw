@@ -333,6 +333,7 @@ typedef struct
     float ab_start; //0.0f to 1.0f
     int is_ab_ing;  //Set this to a_pydaw_data->ab_mode on playback
     float ab_amp_lin;
+    t_cubic_interpolater * cubic_interpolator;
 }t_pydaw_data;
 
 typedef struct 
@@ -1940,7 +1941,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                     (a_pydaw_data->ab_wav_item->samples[0]),
                     (a_pydaw_data->ab_audio_item->sample_read_head->whole_number),
                     (a_pydaw_data->ab_audio_item->sample_read_head->fraction),
-                    (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->cubic_interpolator)) * 
+                    (a_pydaw_data->cubic_interpolator)) * 
                     (a_pydaw_data->ab_audio_item->adsr->output) *
                     (a_pydaw_data->ab_amp_lin); // * 
                     //(a_pydaw_data->ab_audio_item->fade_vol);
@@ -1954,7 +1955,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                     (a_pydaw_data->ab_wav_item->samples[0]),
                     (a_pydaw_data->ab_audio_item->sample_read_head->whole_number),
                     (a_pydaw_data->ab_audio_item->sample_read_head->fraction),
-                    (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->cubic_interpolator)) * 
+                    (a_pydaw_data->cubic_interpolator)) * 
                     (a_pydaw_data->ab_audio_item->adsr->output) *
                     (a_pydaw_data->ab_amp_lin); // * 
                     //(a_pydaw_data->ab_audio_item->fade_vol);
@@ -1963,7 +1964,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                     (a_pydaw_data->ab_wav_item->samples[1]),
                     (a_pydaw_data->ab_audio_item->sample_read_head->whole_number),
                     (a_pydaw_data->ab_audio_item->sample_read_head->fraction),
-                    (a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->cubic_interpolator)) * 
+                    (a_pydaw_data->cubic_interpolator)) * 
                     (a_pydaw_data->ab_audio_item->adsr->output) *
                     (a_pydaw_data->ab_amp_lin); // * 
                     //(a_pydaw_data->ab_audio_item->fade_vol);
@@ -2927,6 +2928,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->ab_start = 0.0f;
     f_result->ab_amp_lin = 1.0f;
     f_result->is_ab_ing = 0;
+    f_result->cubic_interpolator = g_cubic_get();
     
     int f_i = 0;
     
