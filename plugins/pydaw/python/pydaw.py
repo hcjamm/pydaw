@@ -4290,6 +4290,7 @@ class transport_widget:
         self.beat_timer.stop()
         self.beat_timer.start(f_playback_inc)
         self.trigger_audio_playback()
+        this_ab_widget.on_play()
 
     def trigger_audio_playback(self):
         if not self.follow_checkbox.isChecked():
@@ -4329,6 +4330,7 @@ class transport_widget:
         #    this_region_settings.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
         this_audio_items_viewer.stop_playback()
         this_audio_items_viewer.set_playback_pos(self.bar_spinbox.value())
+        this_ab_widget.on_stop()
 
     def show_save_items_dialog(self):
         def ok_handler():
@@ -4374,6 +4376,7 @@ class transport_widget:
         f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
         self.beat_timer.start(f_playback_inc)
         self.trigger_audio_playback()
+
     def on_tempo_changed(self, a_tempo):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
@@ -5256,6 +5259,9 @@ class a_b_widget:
         self.enabled_checkbox = QtGui.QCheckBox("Enabled?")
         self.enabled_checkbox.stateChanged.connect(self.enabled_changed)
         self.file_hlayout.addWidget(self.enabled_checkbox)
+        self.return_checkbox = QtGui.QCheckBox("Return to start pos on stop?")
+        self.return_checkbox.setChecked(True)
+        self.file_hlayout.addWidget(self.return_checkbox)
         self.gridlayout = QtGui.QGridLayout()
         self.vlayout.addLayout(self.gridlayout)
         self.gridlayout.addWidget(QtGui.QLabel("Start:"), 0, 0)
@@ -5273,6 +5279,11 @@ class a_b_widget:
         self.gridlayout.addWidget(self.vol_slider, 1, 1)
         self.vlayout.addSpacerItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
         self.last_folder = global_home
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.on_timeout)
+        self.suppress_start = False
+        self.orig_pos = 0
+        self.has_loaded_file = False
 
     def enabled_changed(self, a_val=None):
         this_pydaw_project.this_dssi_gui.pydaw_ab_set(self.enabled_checkbox.isChecked())
@@ -5293,9 +5304,45 @@ class a_b_widget:
         this_pydaw_project.this_dssi_gui.pydaw_ab_open(f_file_str)
         this_pydaw_project.this_dssi_gui.pydaw_ab_pos(self.start_slider.value())
         self.last_folder = os.path.dirname(f_file_str)
+        import wave
+        f_wav = wave.open(f_file_str, "r")
+        f_frames = f_wav.getnframes()
+        f_rate = f_wav.getframerate()
+        f_duration = f_frames/float(f_rate)
+        f_wav.close()
+        print("Duration:  " + str(f_duration))
+        #self.timeout = (f_duration / 1000.0) * 1000.0  #<think about that...
+        self.timer.setInterval(f_duration)
+        self.has_loaded_file = True
+
+    def on_play(self):
+        if self.enabled_checkbox.isChecked():
+            self.orig_pos = self.start_slider.value()
+            self.suppress_start = True
+            self.start_slider.setEnabled(False)
+            if self.has_loaded_file:
+                self.timer.start()
+
+    def on_stop(self):
+        if self.suppress_start:
+            self.start_slider.setEnabled(True)
+            if self.has_loaded_file:
+                self.timer.stop()
+            if self.return_checkbox.isChecked():
+                self.start_slider.setValue(self.orig_pos)
+                self.suppress_start = False
+            else:
+                self.suppress_start = False
+                self.on_start_changed()
+
+    def on_timeout(self):
+        f_val = self.start_slider.value() + 1
+        if f_val <= 1000:
+            self.start_slider.setValue(f_val)
 
     def on_start_changed(self, a_val=None):
-        this_pydaw_project.this_dssi_gui.pydaw_ab_pos(self.start_slider.value())
+        if not self.suppress_start:
+            this_pydaw_project.this_dssi_gui.pydaw_ab_pos(self.start_slider.value())
 
 def set_default_project(a_project_path):
     f_def_file = global_pydaw_home + "/last-project.txt"
