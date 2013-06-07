@@ -5086,7 +5086,10 @@ class pydaw_cc_map_editor:
             self.open_map(self.current_map_name)
             this_pydaw_project.this_dssi_gui.pydaw_load_cc_map(self.current_map_name)
 
-    def on_click(self, x, y):
+    def on_new_cc(self):
+        self.on_click()
+
+    def on_click(self, x=None, y=None):
         def cc_ok_handler():
             f_map = pydaw_get_cc_map(self.current_map_name)
             f_map.add_item(f_cc.value(), pydaw_cc_map_item(f_effects_cb.isChecked(), \
@@ -5115,36 +5118,52 @@ class pydaw_cc_map_editor:
         f_window.setLayout(f_layout)
         f_cc = QtGui.QSpinBox()
         f_cc.setRange(1, 127)
-        f_cc.setValue(x + 1)
+        if x is not None:
+            f_cc.setValue(int(self.cc_table.item(x, 0).text()))
         f_layout.addWidget(QtGui.QLabel("CC"), 1, 0)
         f_layout.addWidget(f_cc, 1, 1)
         f_effects_cb = QtGui.QCheckBox("Effects tracks only?")
         f_layout.addWidget(f_effects_cb, 2, 1)
+        if x is not None and str(self.cc_table.item(x, 1).text()) == "True":
+            f_effects_cb.setChecked(True)
+
+        f_euphoria = QtGui.QComboBox()
+        f_list = list(global_controller_port_name_dict["Euphoria"].keys())
+        f_list.sort()
+        f_euphoria.addItems(f_list)
+        f_layout.addWidget(QtGui.QLabel("Euphoria"), 3, 0)
+        f_layout.addWidget(f_euphoria, 3, 1)
+        if x is not None:
+            f_euphoria.setCurrentIndex(f_euphoria.findText( str(self.cc_table.item(x, 2).text()) ))
+
         f_modulex = QtGui.QComboBox()
         f_modulex.setMinimumWidth(300)
         f_list = list(global_controller_port_name_dict["Modulex"].keys())
         f_list.sort()
         f_modulex.addItems(f_list)
-        f_layout.addWidget(QtGui.QLabel("Modulex"), 3, 0)
-        f_layout.addWidget(f_modulex, 3, 1)
-        f_euphoria = QtGui.QComboBox()
-        f_list = list(global_controller_port_name_dict["Euphoria"].keys())
-        f_list.sort()
-        f_euphoria.addItems(f_list)
-        f_layout.addWidget(QtGui.QLabel("Euphoria"), 4, 0)
-        f_layout.addWidget(f_euphoria, 4, 1)
-        f_wayv = QtGui.QComboBox()
-        f_list = list(global_controller_port_name_dict["Way-V"].keys())
-        f_list.sort()
-        f_wayv.addItems(f_list)
-        f_layout.addWidget(QtGui.QLabel("Way-V"), 5, 0)
-        f_layout.addWidget(f_wayv, 5, 1)
+        f_layout.addWidget(QtGui.QLabel("Modulex"), 4, 0)
+        f_layout.addWidget(f_modulex, 4, 1)
+        if x is not None:
+            f_modulex.setCurrentIndex(f_modulex.findText( str(self.cc_table.item(x, 3).text()) ))
+
         f_rayv = QtGui.QComboBox()
         f_list = list(global_controller_port_name_dict["Ray-V"].keys())
         f_list.sort()
         f_rayv.addItems(f_list)
-        f_layout.addWidget(QtGui.QLabel("Ray-V"), 6, 0)
-        f_layout.addWidget(f_rayv, 6, 1)
+        f_layout.addWidget(QtGui.QLabel("Ray-V"), 5, 0)
+        f_layout.addWidget(f_rayv, 5, 1)
+        if x is not None:
+            f_rayv.setCurrentIndex(f_rayv.findText( str(self.cc_table.item(x, 4).text()) ))
+
+        f_wayv = QtGui.QComboBox()
+        f_list = list(global_controller_port_name_dict["Way-V"].keys())
+        f_list.sort()
+        f_wayv.addItems(f_list)
+        f_layout.addWidget(QtGui.QLabel("Way-V"), 6, 0)
+        f_layout.addWidget(f_wayv, 6, 1)
+        if x is not None:
+            f_wayv.setCurrentIndex(f_wayv.findText( str(self.cc_table.item(x, 5).text()) ))
+
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_layout.addLayout(f_ok_cancel_layout, 7,1)
         f_ok_button = QtGui.QPushButton("OK")
@@ -5173,36 +5192,52 @@ class pydaw_cc_map_editor:
         f_vlayout.addLayout(f_button_layout)
         f_button_spacer = QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         f_button_layout.addItem(f_button_spacer)
+        f_new_cc_button = QtGui.QPushButton("New CC")
+        f_new_cc_button.pressed.connect(self.on_new_cc)
+        f_button_layout.addWidget(f_new_cc_button)
         self.map_combobox = QtGui.QComboBox()
         self.map_combobox.setMinimumWidth(240)
         self.map_combobox.addItems(self.cc_maps_list)
         self.map_combobox.currentIndexChanged.connect(self.on_open)
         f_button_layout.addWidget(self.map_combobox)
-        f_new_button = QtGui.QPushButton("New")
+        f_new_button = QtGui.QPushButton("New Map")
         f_new_button.pressed.connect(self.on_new)
         f_button_layout.addWidget(f_new_button)
         f_save_as_button = QtGui.QPushButton("Save As")
         f_save_as_button.pressed.connect(self.on_save_as)
         f_button_layout.addWidget(f_save_as_button)
-        self.cc_table = QtGui.QTableWidget(127, 5)
+        self.cc_table = QtGui.QTableWidget(0, 6)
         self.cc_table.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
+        self.cc_table.verticalHeader().setVisible(False)
         self.cc_table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.cc_table.setHorizontalHeaderLabels(["Effects Only?", "Euphoria", "Modulex", "Ray-V", "Way-V"])
+        self.cc_table.setHorizontalHeaderLabels(["CC", "Effects Only?", "Euphoria", "Modulex", "Ray-V", "Way-V"])
         self.cc_table.cellClicked.connect(self.on_click)
+        self.cc_table.setSortingEnabled(True)
+        self.cc_table.sortByColumn(0)
         f_vlayout.addWidget(self.cc_table)
         self.open_map("default")
 
     def open_map(self, a_map_name):
         f_map = pydaw_get_cc_map(a_map_name)
         self.cc_table.clearContents()
-        self.cc_table.setRowCount(127)
+        self.cc_table.setSortingEnabled(False)
+        self.cc_table.setRowCount(len(f_map.map))
+        f_row_pos = 0
         for k, v in f_map.map.iteritems():
-            f_row_pos = k - 1
-            self.cc_table.setItem(f_row_pos, 0, QtGui.QTableWidgetItem(str(int_to_bool(v.effects_only))))
-            self.cc_table.setItem(f_row_pos, 1, QtGui.QTableWidgetItem(global_controller_port_num_dict["Euphoria"][v.euphoria_port].name))
-            self.cc_table.setItem(f_row_pos, 2, QtGui.QTableWidgetItem(global_controller_port_num_dict["Modulex"][v.modulex_port].name))
-            self.cc_table.setItem(f_row_pos, 3, QtGui.QTableWidgetItem(global_controller_port_num_dict["Ray-V"][v.rayv_port].name))
-            self.cc_table.setItem(f_row_pos, 4, QtGui.QTableWidgetItem(global_controller_port_num_dict["Way-V"][v.wayv_port].name))
+            if k < 10:
+                f_num = "00" + str(k)
+            elif k < 100:
+                f_num = "0" + str(k)
+            else:
+                f_num = str(k)
+            self.cc_table.setItem(f_row_pos, 0, QtGui.QTableWidgetItem(f_num))
+            self.cc_table.setItem(f_row_pos, 1, QtGui.QTableWidgetItem(str(int_to_bool(v.effects_only))))
+            self.cc_table.setItem(f_row_pos, 2, QtGui.QTableWidgetItem(global_controller_port_num_dict["Euphoria"][v.euphoria_port].name))
+            self.cc_table.setItem(f_row_pos, 3, QtGui.QTableWidgetItem(global_controller_port_num_dict["Modulex"][v.modulex_port].name))
+            self.cc_table.setItem(f_row_pos, 4, QtGui.QTableWidgetItem(global_controller_port_num_dict["Ray-V"][v.rayv_port].name))
+            self.cc_table.setItem(f_row_pos, 5, QtGui.QTableWidgetItem(global_controller_port_num_dict["Way-V"][v.wayv_port].name))
+            f_row_pos += 1
+        self.cc_table.setSortingEnabled(True)
         self.cc_table.resizeColumnsToContents()
 
 class a_b_widget:
