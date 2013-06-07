@@ -1977,9 +1977,12 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
                 {
                     v_adsr_release(a_pydaw_data->ab_audio_item->adsr);
                 }
-                                
-            }
-            
+                else if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_OFF && 
+                        a_pydaw_data->ab_audio_item->adsr->stage == 4)
+                {
+                    a_pydaw_data->is_ab_ing = 0;
+                }                                
+            }            
             f_i++;
         }
     }
