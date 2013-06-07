@@ -5272,6 +5272,7 @@ class a_b_widget:
         self.vol_slider.valueChanged.connect(self.vol_changed)
         self.gridlayout.addWidget(self.vol_slider, 1, 1)
         self.vlayout.addSpacerItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding))
+        self.last_folder = global_home
 
     def enabled_changed(self, a_val=None):
         this_pydaw_project.this_dssi_gui.pydaw_ab_set(self.enabled_checkbox.isChecked())
@@ -5282,7 +5283,7 @@ class a_b_widget:
         self.vol_label.setText(str(f_result) + "db")
 
     def on_file_open(self):
-        f_file = QtGui.QFileDialog.getOpenFileName(parent=self.widget ,caption='Open Project', directory=global_default_project_folder, filter='Wav File(*.wav)')
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=self.widget ,caption='Open Project', directory=self.last_folder, filter='Wav File(*.wav)')
         if f_file is None:
             return
         f_file_str = str(f_file)
@@ -5291,6 +5292,7 @@ class a_b_widget:
         self.file_lineedit.setText(f_file_str)
         this_pydaw_project.this_dssi_gui.pydaw_ab_open(f_file_str)
         this_pydaw_project.this_dssi_gui.pydaw_ab_pos(self.start_slider.value())
+        self.last_folder = os.path.dirname(f_file_str)
 
     def on_start_changed(self, a_val=None):
         this_pydaw_project.this_dssi_gui.pydaw_ab_pos(self.start_slider.value())
