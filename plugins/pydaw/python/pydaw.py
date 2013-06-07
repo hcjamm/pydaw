@@ -5294,6 +5294,8 @@ class a_b_widget:
         self.vol_label.setText(str(f_result) + "db")
 
     def on_file_open(self):
+        if not os.path.isdir(self.last_folder):
+            self.last_folder = global_home
         f_file = QtGui.QFileDialog.getOpenFileName(parent=self.widget ,caption='Open Project', directory=self.last_folder, filter='Wav File(*.wav)')
         if f_file is None:
             return
@@ -5316,6 +5318,7 @@ class a_b_widget:
         self.has_loaded_file = True
 
     def on_play(self):
+        self.file_button.setEnabled(False)
         if self.enabled_checkbox.isChecked():
             self.orig_pos = self.start_slider.value()
             self.suppress_start = True
@@ -5324,6 +5327,7 @@ class a_b_widget:
                 self.timer.start()
 
     def on_stop(self):
+        self.file_button.setEnabled(True)
         if self.suppress_start:
             self.start_slider.setEnabled(True)
             if self.has_loaded_file:
