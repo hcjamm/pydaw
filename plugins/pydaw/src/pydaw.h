@@ -3530,26 +3530,23 @@ void v_pydaw_reset_audio_item_read_heads(t_pydaw_data * a_pydaw_data, int a_regi
         
     while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
     {
-        if(!a_pydaw_data->pysong->audio_items[a_region]->items[f_i])
+        if(a_pydaw_data->pysong->audio_items[a_region]->items[f_i])
         {
-            f_i++;
-            continue;
-        }
-        
-        a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->wav_pool_item = 
-                g_wav_pool_get_item_by_uid(a_pydaw_data->wav_pool, a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->uid);
+            a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->wav_pool_item = 
+                    g_wav_pool_get_item_by_uid(a_pydaw_data->wav_pool, a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->uid);
 
-        if(((a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_start_beat) <= f_adjusted_song_pos_beats) &&
-            (((a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->end_mode) == 0) ||
-            ((a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_end_beat) > f_adjusted_song_pos_beats)))
-        {            
-            double test1 = f_adjusted_song_pos_beats - (a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_start_beat);
-            double test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->ratio);
-            v_ifh_retrigger_double(a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->sample_read_head, test2 + PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);
-            v_adsr_retrigger(a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adsr);
+            if(((a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_start_beat) <= f_adjusted_song_pos_beats) &&
+                (((a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->end_mode) == 0) ||
+                ((a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_end_beat) > f_adjusted_song_pos_beats)))
+            {            
+                double test1 = f_adjusted_song_pos_beats - (a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adjusted_start_beat);
+                double test2 = test1 * (a_pydaw_data->samples_per_beat) * (a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->ratio);
+                v_ifh_retrigger_double(a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->sample_read_head, test2 + PYDAW_AUDIO_ITEM_PADDING_DIV2_FLOAT);
+                v_adsr_retrigger(a_pydaw_data->pysong->audio_items[a_region]->items[f_i]->adsr);
+            }
         }
         f_i++;
-    }    
+    }
 }
 
 /* void v_set_playback_mode(t_pydaw_data * a_pydaw_data, 

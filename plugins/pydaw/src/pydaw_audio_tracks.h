@@ -358,6 +358,7 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
     f_result->ratio = 1.0f;    
     f_result->uid = -1;
     f_result->adjusted_start_beat = 99999999.0f;
+    f_result->adjusted_end_beat = 99999999.0f;
     
     f_result->adsr = g_adsr_get_adsr(1.0f/a_sr);
     v_adsr_set_adsr_db(f_result->adsr, 0.003f, 0.1f, 0.0f, 0.2f);
@@ -369,8 +370,7 @@ t_pydaw_audio_item * g_pydaw_audio_item_get(float a_sr)
     f_result->pitch_ratio_ptr = g_pit_ratio();
     f_result->vol = 0.0f;
     f_result->vol_linear = 1.0f;
-    //f_result->start_region = 0;
-    //f_result->end_region = 0;
+    f_result->end_mode = 0;    
         
     return f_result;
 }
