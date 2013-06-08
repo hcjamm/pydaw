@@ -66,7 +66,7 @@ void v_lim_set(t_lim_limiter*a_lim, float a_thresh, float a_ceiling, float a_rel
         }
         else
         {
-            a_lim->release = a_release * 0.001f;
+            a_lim->release = a_release * 0.003f;
         }
         
         
