@@ -391,22 +391,23 @@ global_current_region = None
 
 class region_settings:
     def update_region_length(self, a_value=None):
-        global global_current_region
-        if not self.enabled or global_current_region is None:
-            return
-        if self.length_alternate_radiobutton.isChecked():
-            global_current_region.region_length_bars = self.length_alternate_spinbox.value()
-            #self.set_region_length(global_current_region.region_length_bars)
-            f_commit_message = "Set region '" + str(self.region_name_lineedit.text()) + "' length to " + str(self.length_alternate_spinbox.value())
-        else:
-            global_current_region.region_length_bars = 0
-            #self.set_region_length()
-            f_commit_message = "Set region '" + str(self.region_name_lineedit.text()) + "' length to default value"
-        this_pydaw_project.save_region(str(self.region_name_lineedit.text()), global_current_region)
-        this_pydaw_project.commit(f_commit_message)
-        self.open_region(self.region_name_lineedit.text())
-        pydaw_update_region_lengths_dict()
-        this_audio_editor.open_items()
+        if not this_transport.is_playing and not this_transport.is_recording:
+            global global_current_region
+            if not self.enabled or global_current_region is None:
+                return
+            if self.length_alternate_radiobutton.isChecked():
+                global_current_region.region_length_bars = self.length_alternate_spinbox.value()
+                #self.set_region_length(global_current_region.region_length_bars)
+                f_commit_message = "Set region '" + str(self.region_name_lineedit.text()) + "' length to " + str(self.length_alternate_spinbox.value())
+            else:
+                global_current_region.region_length_bars = 0
+                #self.set_region_length()
+                f_commit_message = "Set region '" + str(self.region_name_lineedit.text()) + "' length to default value"
+            this_pydaw_project.save_region(str(self.region_name_lineedit.text()), global_current_region)
+            this_pydaw_project.commit(f_commit_message)
+            self.open_region(self.region_name_lineedit.text())
+            pydaw_update_region_lengths_dict()
+            this_audio_editor.open_items()
 
     def __init__(self):
         self.enabled = False
@@ -729,7 +730,7 @@ class region_list_editor:
         f_window.exec_()
 
     def column_clicked(self, a_val):
-        if this_transport.is_playing:
+        if this_transport.is_playing or this_transport.is_recording:
             return
         if a_val > 0:
             this_transport.bar_spinbox.setValue(a_val - 1)
@@ -1331,7 +1332,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         a_event.setDropAction(QtCore.Qt.CopyAction)
 
     def sceneDropEvent(self, a_event):
-        if pydaw_global_current_region_is_none() or this_transport.is_playing:
+        if pydaw_global_current_region_is_none() or this_transport.is_playing or this_transport.is_recording:
             return
         f_x = a_event.scenePos().x()
         f_y = a_event.scenePos().y()
