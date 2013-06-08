@@ -21,6 +21,7 @@ extern "C" {
 #include "../../lib/lms_math.h"
 #include "../../lib/amp.h"
 #include <math.h>
+#include <assert.h>
     
 #define LMS_HOLD_TIME_DIVISOR 500.0f
 
@@ -78,9 +79,15 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
 {
     a_lim->maxSpls=f_lms_max(f_lms_abs(a_in0),f_lms_abs(a_in1));
 
+    //clip at 24dB.  If a memory error causes a huge value, the limiter would never return.
+    if(a_lim->maxSpls > 16.0f)
+    {
+        a_lim->maxSpls = 16.0f;
+    }
+    
     a_lim->r1Timer = (a_lim->r1Timer) + 1;
     
-    if((a_lim->r1Timer) > (a_lim->holdtime))
+    if((a_lim->r1Timer) >= (a_lim->holdtime))
     {
         a_lim->r1Timer = 0; 
         a_lim->max1Block = (a_lim->max1Block) - (a_lim->r);
@@ -92,10 +99,10 @@ void v_lim_run(t_lim_limiter *a_lim, float a_in0, float a_in1)
     }
      
     a_lim->max1Block = f_lms_max((a_lim->max1Block),(a_lim->maxSpls));
-    
+        
     a_lim->r2Timer = (a_lim->r2Timer) + 1;
     
-    if((a_lim->r2Timer) > (a_lim->holdtime))
+    if((a_lim->r2Timer) >= (a_lim->holdtime))
     {
         a_lim->r2Timer = 0; 
         a_lim->max2Block = (a_lim->max2Block) - (a_lim->r);
