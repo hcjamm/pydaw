@@ -334,6 +334,13 @@ typedef struct
     int is_ab_ing;  //Set this to a_pydaw_data->ab_mode on playback
     float ab_amp_lin;
     t_cubic_interpolater * cubic_interpolator;
+    t_wav_pool_item * preview_wav_item;
+    t_pydaw_audio_item * preview_audio_item;
+    int preview_mode;  //0 == off, 1 == on
+    float preview_start; //0.0f to 1.0f
+    int is_previewing;  //Set this to a_pydaw_data->ab_mode on playback
+    float preview_amp_lin;
+    int preview_max_sample_count;
 }t_pydaw_data;
 
 typedef struct 
@@ -1986,8 +1993,72 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
             f_i++;
         }
     }
-}
+    
+    if(a_pydaw_data->is_previewing)
+    {
+        f_i = 0;
+        while(f_i < sample_count)
+        {            
+            if((a_pydaw_data->preview_audio_item->sample_read_head->whole_number) >=  (a_pydaw_data->preview_wav_item->length))
+            {
+                a_pydaw_data->is_previewing = 0;
+                break;
+            }
+            else
+            {
+                v_adsr_run_db(a_pydaw_data->preview_audio_item->adsr);
+                if(a_pydaw_data->preview_wav_item->channels == 1)
+                {
+                    float f_tmp_sample = f_cubic_interpolate_ptr_ifh(
+                    (a_pydaw_data->preview_wav_item->samples[0]),
+                    (a_pydaw_data->preview_audio_item->sample_read_head->whole_number),
+                    (a_pydaw_data->preview_audio_item->sample_read_head->fraction),
+                    (a_pydaw_data->cubic_interpolator)) * 
+                    (a_pydaw_data->preview_audio_item->adsr->output) *
+                    (a_pydaw_data->preview_amp_lin); // * 
+                    //(a_pydaw_data->preview_audio_item->fade_vol);
 
+                    output0[f_i] = f_tmp_sample;
+                    output1[f_i] = f_tmp_sample;
+                }
+                else if(a_pydaw_data->preview_wav_item->channels > 1)
+                {
+                    output0[f_i] = f_cubic_interpolate_ptr_ifh(
+                    (a_pydaw_data->preview_wav_item->samples[0]),
+                    (a_pydaw_data->preview_audio_item->sample_read_head->whole_number),
+                    (a_pydaw_data->preview_audio_item->sample_read_head->fraction),
+                    (a_pydaw_data->cubic_interpolator)) * 
+                    (a_pydaw_data->preview_audio_item->adsr->output) *
+                    (a_pydaw_data->preview_amp_lin); // * 
+                    //(a_pydaw_data->preview_audio_item->fade_vol);
+
+                    output1[f_i] = f_cubic_interpolate_ptr_ifh(
+                    (a_pydaw_data->preview_wav_item->samples[1]),
+                    (a_pydaw_data->preview_audio_item->sample_read_head->whole_number),
+                    (a_pydaw_data->preview_audio_item->sample_read_head->fraction),
+                    (a_pydaw_data->cubic_interpolator)) * 
+                    (a_pydaw_data->preview_audio_item->adsr->output) *
+                    (a_pydaw_data->preview_amp_lin); // * 
+                    //(a_pydaw_data->preview_audio_item->fade_vol);
+                }
+
+                v_ifh_run(a_pydaw_data->preview_audio_item->sample_read_head, a_pydaw_data->preview_audio_item->ratio);
+
+                if((a_pydaw_data->preview_audio_item->sample_read_head->whole_number) 
+                        >=  (a_pydaw_data->preview_max_sample_count))
+                {
+                    v_adsr_release(a_pydaw_data->preview_audio_item->adsr);
+                }
+                else if(a_pydaw_data->preview_audio_item->adsr->stage == 4)
+                {
+                    a_pydaw_data->is_previewing = 0;
+                    break;
+                }                                
+            }            
+            f_i++;
+        }
+    }
+}
 
 
 
@@ -2932,6 +3003,13 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->ab_amp_lin = 1.0f;
     f_result->is_ab_ing = 0;
     f_result->cubic_interpolator = g_cubic_get();
+    f_result->preview_wav_item = 0;
+    f_result->preview_audio_item = g_pydaw_audio_item_get(f_result->sample_rate);
+    f_result->preview_mode = 0;
+    f_result->preview_start = 0.0f;
+    f_result->preview_amp_lin = 1.0f;
+    f_result->is_previewing = 0;
+    f_result->preview_max_sample_count = ((int)(a_sample_rate)) * 12;
     
     int f_i = 0;
     
@@ -4639,6 +4717,42 @@ void v_pydaw_set_ab_vol(t_pydaw_data * a_pydaw_data, float a_vol)
     pthread_mutex_unlock(&a_pydaw_data->main_mutex);
 }
 
+void v_pydaw_set_preview_file(t_pydaw_data * a_pydaw_data, const char * a_file)
+{
+    t_wav_pool_item * f_result = g_wav_pool_item_get(0, a_file, a_pydaw_data->sample_rate);
+    
+    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    
+    t_wav_pool_item * f_old = a_pydaw_data->preview_wav_item;
+    a_pydaw_data->preview_wav_item = f_result;
+    
+    if(!f_result)
+    {
+        a_pydaw_data->preview_mode = 0;
+    }
+    
+    a_pydaw_data->preview_audio_item->ratio = a_pydaw_data->preview_wav_item->ratio_orig;
+    
+    a_pydaw_data->preview_mode = 1;
+    
+    if(a_pydaw_data->preview_wav_item)
+    {
+        a_pydaw_data->is_previewing = a_pydaw_data->preview_mode;
+        if(a_pydaw_data->is_previewing)
+        {
+            v_ifh_retrigger(a_pydaw_data->preview_audio_item->sample_read_head, 
+                    a_pydaw_data->preview_audio_item->sample_start_offset); 
+            v_adsr_retrigger(a_pydaw_data->preview_audio_item->adsr);
+        }
+    }
+    
+    pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+    
+    if(f_old)
+    {
+        v_wav_pool_item_free(f_old);
+    }
+}
 
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_key, const char* a_value)
 {
@@ -4935,7 +5049,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     }    
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PREVIEW_SAMPLE)) //Preview a sample
     {
-        printf("Sample preview not yet implemented");
+        v_pydaw_set_preview_file(a_pydaw_data, a_value);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_OFFLINE_RENDER)) //Render a project to .wav file
     {

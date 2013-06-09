@@ -1481,7 +1481,7 @@ class audio_items_viewer_widget():
         self.folders_tab_widget = QtGui.QTabWidget()
         self.vsplitter.addWidget(self.folders_tab_widget)
         self.folders_tab = QtGui.QWidget()
-        self.folders_tab_widget.addTab(self.folders_tab, "Folders")
+        self.folders_tab_widget.addTab(self.folders_tab, "Files")
         self.folders_tab_vlayout = QtGui.QVBoxLayout()
         self.folders_tab.setLayout(self.folders_tab_vlayout)
         self.list_folder = QtGui.QListWidget()
@@ -1499,10 +1499,17 @@ class audio_items_viewer_widget():
         self.bookmarks_tab_vlayout.addWidget(self.list_bookmarks)
         self.folders_tab_widget.addTab(self.bookmarks_tab, "Bookmarks")
 
+        self.file_vlayout = QtGui.QVBoxLayout()
+        self.file_widget = QtGui.QWidget()
+        self.file_widget.setLayout(self.file_vlayout)
+        self.vsplitter.addWidget(self.file_widget)
         self.list_file = QtGui.QListWidget()
         self.list_file.setDragEnabled(True)
         self.list_file.mousePressEvent = self.file_mouse_press_event
-        self.vsplitter.addWidget(self.list_file)
+        self.file_vlayout.addWidget(self.list_file)
+        self.preview_button = QtGui.QPushButton("Preview")
+        self.file_vlayout.addWidget(self.preview_button)
+        self.preview_button.pressed.connect(self.on_preview)
         self.widget = QtGui.QWidget()
         self.hsplitter.addWidget(self.widget)
         self.vlayout = QtGui.QVBoxLayout()
@@ -1537,6 +1544,11 @@ class audio_items_viewer_widget():
         self.set_folder(".")
         self.open_bookmarks()
 
+    def on_preview(self):
+        f_list = self.list_file.selectedItems()
+        if len(f_list) > 0:
+            this_pydaw_project.this_dssi_gui.pydaw_preview_audio(self.last_open_dir + "/" + str(f_list[0].text()))
+
     def open_bookmarks(self):
         self.list_bookmarks.clear()
         f_dict = global_get_file_bookmarks()
@@ -1560,7 +1572,6 @@ class audio_items_viewer_widget():
         global_audio_item_clipboard = []
         for f_item in self.list_file.selectedItems():
             global_audio_item_clipboard.append(self.last_open_dir + "/" + str(f_item.text()))
-            print self.last_open_dir + "/" + str(f_item.text())
 
     def folder_item_clicked(self, a_item):
         self.set_folder(a_item.text())
@@ -1573,6 +1584,7 @@ class audio_items_viewer_widget():
             self.last_open_dir = str(a_folder)
         else:
             self.last_open_dir = os.path.abspath(self.last_open_dir + "/" + str(a_folder))
+        self.last_open_dir = self.last_open_dir.replace("//", "/")
         f_list = os.listdir(self.last_open_dir)
         f_list.sort(key=str.lower)
         for f_file in f_list:

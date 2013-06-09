@@ -44,7 +44,7 @@ OSC configure message keys/values:
 	"fx"	int|int	show FX GUI for track(int)|track_type
 	"tn"	int|string|int	Set track[int]->name to string of track_type(int)
 
-	"preview" path	Preview a .wav or other supported sample format....  (not yet implemented)
+	"preview" path	Preview a .wav or other supported sample format
 	"or"	start-region|start-bar|end-region|end-bar|file-path	offline render project to .wav file
 	"bs"	track|bus|track-type	set the mixing bus to assign the track output to
 

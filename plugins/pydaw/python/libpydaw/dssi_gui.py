@@ -209,3 +209,6 @@ class dssi_gui(ServerThread):
 
     def pydaw_ab_vol(self, a_val):
         self.send_configure("abv", str(a_val))
+
+    def pydaw_preview_audio(self, a_file):
+        self.send_configure("preview", str(a_file))
