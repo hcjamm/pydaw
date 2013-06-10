@@ -1151,6 +1151,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
         self.length_handle.setPos(f_length - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
+        self.length_handle_line = QtGui.QGraphicsLineItem(global_audio_item_handle_size, global_audio_item_handle_size, global_audio_item_handle_size, (global_audio_item_height * -1.0) + global_audio_item_handle_size, self.length_handle)
+        self.length_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
         self.length_handle.setToolTip("Use this handle to resize the item by changing the start/end points...\nSnapping by region is not supported for length, it will be snapped by bar for either setting.")
         self.is_resizing = False
         self.is_copying = False
@@ -1174,6 +1176,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_item.is_resizing = True
+                    f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
 
     def mouseDoubleClickEvent(self, a_event):
         if global_transport_is_playing:
@@ -1216,7 +1219,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         if f_x < global_audio_px_per_bar:
                             f_x = global_audio_px_per_bar
                     f_x = pydaw_clip_value(f_x, global_audio_item_handle_size, f_item.length_px_minus_start)
-                    f_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
+                    #f_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
                     f_item.length_handle.setPos(f_x - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         else:
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
@@ -1245,7 +1248,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item = f_audio_items.items[f_audio_item.track_num]
                 f_pos_x = f_audio_item.pos().x()
                 if f_audio_item.is_resizing:
+                    f_x = a_event.pos().x()
+                    if this_audio_items_viewer.snap_mode == 1:
+                        f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
+                        if f_x < global_audio_px_per_bar:
+                            f_x = global_audio_px_per_bar
+                    f_x = pydaw_clip_value(f_x, global_audio_item_handle_size, f_audio_item.length_px_minus_start)
+                    f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
                     f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
+                    f_audio_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
                 else:
                     f_pos_y = f_audio_item.pos().y()
                     if f_audio_item.is_copying:
