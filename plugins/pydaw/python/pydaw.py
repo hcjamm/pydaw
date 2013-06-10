@@ -1249,11 +1249,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_x = a_event.pos().x()
+                    #f_x = a_event.scenePos().x()
                     if this_audio_items_viewer.snap_mode == 1:
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
                         if f_x < global_audio_px_per_bar:
                             f_x = global_audio_px_per_bar
                     f_x = pydaw_clip_value(f_x, f_item.sample_start_offset_px, f_item.length_handle.pos().x())
+                    #print "f_item.sample_start_offset_px", f_item.sample_start_offset_px
                     #f_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
                     f_item.start_handle.setPos(f_x, global_audio_item_height - global_audio_item_handle_size)
         else:
@@ -1284,13 +1286,20 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_pos_x = f_audio_item.pos().x()
                 if f_audio_item.is_resizing:
                     f_x = a_event.pos().x()
+                    #f_x = f_audio_item.length_handle.scenePos().x()
                     if this_audio_items_viewer.snap_mode == 1:
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
                         if f_x < global_audio_px_per_bar:
                             f_x = global_audio_px_per_bar
                     f_x = pydaw_clip_value(f_x, global_audio_item_handle_size, f_audio_item.length_px_minus_start)
                     f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
-                    f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
+                    if f_item.end_mode == 0:
+                        f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
+                    elif f_item.end_mode == 1:
+                        f_end_result = f_audio_item.pos_to_musical_time(f_x + f_audio_item.pos().x())
+                        f_item.end_bar = f_end_result[0]
+                        f_item.end_beat = f_end_result[1]
+                        print "f_item.end_bar", f_item.end_bar, "f_item.end_beat", f_item.end_beat
                     f_audio_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
                 elif f_audio_item.is_start_resizing:
                     #f_x = a_event.scenePos().x()
@@ -1305,10 +1314,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_sample_start_orig = f_item.sample_start
                     f_item.sample_start = ((f_x - f_audio_item.start_handle_scene_min) / (f_audio_item.start_handle_scene_max - f_audio_item.start_handle_scene_min)) * 1000.0
                     f_item.sample_start = pydaw_clip_value(f_item.sample_start, 0.0, 999.0)
+                    print "f_item.sample_start", f_item.sample_start
                     if f_item.end_mode == 0:
                         f_length_new = (f_sample_start_orig - f_item.sample_start) + f_item.sample_end
                         f_length_new = pydaw_clip_value(f_length_new, 1.0, 1000.0)
                         f_item.sample_end = f_length_new
+                        print "f_item.sample_end", f_item.sample_end
+                    elif f_item.end_mode == 1:
+                        pass
                     f_reset_selection = True
                     #f_x = pydaw_clip_value(f_x, global_audio_item_handle_size, f_audio_item.length_px_minus_start)
                     #f_audio_item.setRect(0.0, 0.0, f_audio_item.rect().width() - (f_x - f_audio_item.pos().x()), global_audio_item_height)
