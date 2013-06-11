@@ -5356,7 +5356,9 @@ class a_b_widget:
         self.file_hlayout.addWidget(self.return_checkbox)
         self.gridlayout = QtGui.QGridLayout()
         self.vlayout.addLayout(self.gridlayout)
-        self.gridlayout.addWidget(QtGui.QLabel("Start:"), 0, 0)
+        self.time_label = QtGui.QLabel("0:00")
+        self.time_label.setMinimumWidth(60)
+        self.gridlayout.addWidget(self.time_label, 0, 0)
         self.start_slider = QtGui.QSlider(QtCore.Qt.Horizontal)
         self.start_slider.setRange(0, 1000)
         self.start_slider.valueChanged.connect(self.on_start_changed)
@@ -5376,6 +5378,8 @@ class a_b_widget:
         self.suppress_start = False
         self.orig_pos = 0
         self.has_loaded_file = False
+        self.duration = None
+        self.sixty_recip = 1.0 / 60.0
 
     def enabled_changed(self, a_val=None):
         this_pydaw_project.this_dssi_gui.pydaw_ab_set(self.enabled_checkbox.isChecked())
@@ -5402,12 +5406,22 @@ class a_b_widget:
         f_wav = wave.open(f_file_str, "r")
         f_frames = f_wav.getnframes()
         f_rate = f_wav.getframerate()
-        f_duration = f_frames/float(f_rate)
+        self.duration = f_frames/float(f_rate)
         f_wav.close()
-        print("Duration:  " + str(f_duration))
-        #self.timeout = (f_duration / 1000.0) * 1000.0  #<think about that...
-        self.timer.setInterval(f_duration)
+        print("Duration:  " + str(self.duration))
+        #self.timeout = (self.duration / 1000.0) * 1000.0  #<think about that...
+        self.timer.setInterval(self.duration)
         self.has_loaded_file = True
+
+    def set_time_label(self, a_value):
+        if self.duration is not None:
+            f_seconds = self.duration * a_value * 0.001
+            f_minutes = int(f_seconds * self.sixty_recip)
+            f_seconds = int(f_seconds % 60.0)
+            if f_seconds < 10:
+                self.time_label.setText(str(f_minutes) + ":0" + str(f_seconds))
+            else:
+                self.time_label.setText(str(f_minutes) + ":" + str(f_seconds))
 
     def on_play(self):
         self.file_button.setEnabled(False)
@@ -5426,6 +5440,7 @@ class a_b_widget:
                 self.timer.stop()
             if self.return_checkbox.isChecked():
                 self.start_slider.setValue(self.orig_pos)
+                self.set_time_label(self.orig_pos)
                 self.suppress_start = False
             else:
                 self.suppress_start = False
@@ -5435,10 +5450,13 @@ class a_b_widget:
         f_val = self.start_slider.value() + 1
         if f_val <= 1000:
             self.start_slider.setValue(f_val)
+            self.set_time_label(f_val)
 
     def on_start_changed(self, a_val=None):
         if not self.suppress_start:
-            this_pydaw_project.this_dssi_gui.pydaw_ab_pos(self.start_slider.value())
+            f_val = self.start_slider.value()
+            this_pydaw_project.this_dssi_gui.pydaw_ab_pos(f_val)
+            self.set_time_label(f_val)
 
 def set_default_project(a_project_path):
     f_def_file = global_pydaw_home + "/last-project.txt"
