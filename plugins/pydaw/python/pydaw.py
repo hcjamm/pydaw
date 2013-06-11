@@ -1094,10 +1094,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.y_inc = global_audio_item_height / len(self.painter_paths)
         f_y_pos = 0.0
         self.path_items = []
+        f_track_num = global_audio_ruler_height + (global_audio_item_height) * self.audio_item.lane_num
         for f_painter_path in self.painter_paths:
             f_path_item = QtGui.QGraphicsPathItem(f_painter_path)
             f_path_item.setBrush(pydaw_audio_item_scene_gradient)
             f_path_item.setParentItem(self)
+            f_path_item.mapFromParent(0.0, f_track_num)
             self.path_items.append(f_path_item)
             f_y_pos += self.y_inc
         f_name_arr = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid).split("/")
@@ -1129,7 +1131,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.is_resizing = False
         self.is_copying = False
         self.set_brush()
-
+        self.waveforms_scaled = False
         self.draw()
 
     def draw(self):
@@ -1173,11 +1175,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.start_handle_scene_min = f_start + self.sample_start_offset_px
         self.start_handle_scene_max = self.start_handle_scene_min + self.length_seconds_orig_px
         for f_path_item in self.path_items:
-            f_path_item.mapFromParent(0.0, f_track_num)
             f_path_item.setPos(self.sample_start_offset_px, 0.0)
-            f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.rect_orig)
-            f_path_item.scale(f_x_scale, f_y_scale)
+            if not self.waveforms_scaled:
+                f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.rect_orig)
+                f_path_item.scale(f_x_scale, f_y_scale)
             f_y_pos += self.y_inc
+        self.waveforms_scaled = True
 
         self.length_handle.setPos(f_length - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         self.start_handle.setPos(0.0, global_audio_item_height - global_audio_item_handle_size)
@@ -1289,7 +1292,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item = f_audio_items.items[f_audio_item.track_num]
                 f_pos_x = f_audio_item.pos().x()
                 if f_audio_item.is_resizing:
-                    f_reset_selection = True
                     f_x = a_event.pos().x()
                     #f_x = f_audio_item.length_handle.scenePos().x()
                     if this_audio_items_viewer.snap_mode == 1:
@@ -1307,7 +1309,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         print "f_item.end_bar", f_item.end_bar, "f_item.end_beat", f_item.end_beat
                     f_audio_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
                 elif f_audio_item.is_start_resizing:
-                    f_reset_selection = True
                     #f_x = a_event.scenePos().x()
                     f_x = f_audio_item.start_handle.scenePos().x()
                     if this_audio_items_viewer.snap_mode == 1:
@@ -1337,7 +1338,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 else:
                     f_pos_y = f_audio_item.pos().y()
                     if f_audio_item.is_copying:
-                        f_reset_selection = True
                         f_item = f_item.clone()
                         f_index = f_audio_items.get_next_index()
                         if f_index == -1:
@@ -1378,6 +1378,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_audio_item.audio_item = f_item
                 if this_audio_item_editor_widget.selected_index_combobox.currentIndex() == f_audio_item.track_num:
                     this_audio_item_editor_widget.open_item(f_item)
+                f_audio_item.draw()
             f_audio_item.is_moving = False
             f_audio_item.is_resizing = False
             f_audio_item.is_start_resizing = False
