@@ -1081,56 +1081,59 @@ global_audio_item_handle_pen = QtGui.QPen(QtCore.Qt.white)
 class audio_viewer_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_track_num, a_audio_item, a_sample_length):
         self.sample_length = a_sample_length
-        f_temp_seconds = a_sample_length
+        self.audio_item = a_audio_item
+        self.track_num = a_track_num
+        f_graph = this_pydaw_project.get_sample_graph_by_uid(self.audio_item.uid)
+        self.painter_paths = f_graph.create_sample_graph(True)
+        self.draw()
 
-        if a_audio_item.time_stretch_mode == 1:
-            f_temp_seconds /= pydaw_pitch_to_ratio(a_audio_item.pitch_shift)
-        elif a_audio_item.time_stretch_mode == 2:
-            f_temp_seconds *= a_audio_item.timestretch_amt
+    def draw(self):
+        f_temp_seconds = self.sample_length
 
-        f_start = pydaw_get_pos_in_bars(0, a_audio_item.start_bar, a_audio_item.start_beat)
+        if self.audio_item.time_stretch_mode == 1:
+            f_temp_seconds /= pydaw_pitch_to_ratio(self.audio_item.pitch_shift)
+        elif self.audio_item.time_stretch_mode == 2:
+            f_temp_seconds *= self.audio_item.timestretch_amt
+
+        f_start = pydaw_get_pos_in_bars(0, self.audio_item.start_bar, self.audio_item.start_beat)
         f_start *= global_audio_px_per_bar
 
         f_length_seconds = pydaw_seconds_to_bars(f_temp_seconds) * global_audio_px_per_bar
         self.length_seconds_orig_px = f_length_seconds
         self.rect_orig = QtCore.QRectF(0.0, 0.0, f_length_seconds, global_audio_item_height)
-        self.length_px_minus_start = f_length_seconds - (a_audio_item.sample_start * 0.001 * f_length_seconds)
-        f_length_seconds *= 1.0 - (a_audio_item.sample_start * 0.001)
-        f_length_seconds *= a_audio_item.sample_end * 0.001
+        self.length_px_minus_start = f_length_seconds - (self.audio_item.sample_start * 0.001 * f_length_seconds)
+        f_length_seconds *= 1.0 - (self.audio_item.sample_start * 0.001)
+        f_length_seconds *= self.audio_item.sample_end * 0.001
 
-        if a_audio_item.end_mode == 0:
+        if self.audio_item.end_mode == 0:
             f_length = f_length_seconds
-        elif a_audio_item.end_mode == 1:
-            f_length = pydaw_get_diff_in_bars(0, a_audio_item.start_bar, \
-            a_audio_item.start_beat, 0, a_audio_item.end_bar, a_audio_item.end_beat)
+        elif self.audio_item.end_mode == 1:
+            f_length = pydaw_get_diff_in_bars(0, self.audio_item.start_bar, \
+            self.audio_item.start_beat, 0, self.audio_item.end_bar, self.audio_item.end_beat)
             f_length *= global_audio_px_per_bar
             if f_length_seconds < f_length:
                 f_length = f_length_seconds
 
-        f_track_num = global_audio_ruler_height + (global_audio_item_height) * a_audio_item.lane_num
+        f_track_num = global_audio_ruler_height + (global_audio_item_height) * self.audio_item.lane_num
 
         QtGui.QGraphicsRectItem.__init__(self, 0.0, 0.0, f_length, global_audio_item_height)
         self.setPos(f_start, f_track_num)
         self.last_x = self.pos().x()
         self.is_moving = False
 
-        f_name_arr = this_pydaw_project.get_wav_name_by_uid(a_audio_item.uid).split("/")
+        f_name_arr = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid).split("/")
         f_name = f_name_arr[-1]
 
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
-        self.track_num = a_track_num
-        self.audio_item = a_audio_item
         self.setToolTip("Double click to open editor dialog, or click and drag to move")
 
         self.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
-        f_graph = this_pydaw_project.get_sample_graph_by_uid(a_audio_item.uid)
-        self.painter_paths = f_graph.create_sample_graph(True)
 
         f_y_pos = 0.0
         f_y_inc = global_audio_item_height / len(self.painter_paths)
-        self.sample_start_offset_px = a_audio_item.sample_start * -0.001 * self.length_seconds_orig_px
+        self.sample_start_offset_px = self.audio_item.sample_start * -0.001 * self.length_seconds_orig_px
         self.start_handle_scene_min = f_start + self.sample_start_offset_px
         self.start_handle_scene_max = self.start_handle_scene_min + self.length_seconds_orig_px
         for f_painter_path in self.painter_paths:
@@ -1138,7 +1141,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_path_item.setBrush(pydaw_audio_item_scene_gradient)
             f_path_item.setParentItem(self)
             f_path_item.mapFromParent(0.0, f_track_num)
-            #f_path_item.setPos(a_audio_item.sample_start * -0.001 * f_length, 0.0)
+            #f_path_item.setPos(self.audio_item.sample_start * -0.001 * f_length, 0.0)
             f_path_item.setPos(self.sample_start_offset_px, 0.0)
             f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.rect_orig)
             f_path_item.scale(f_x_scale, f_y_scale)
