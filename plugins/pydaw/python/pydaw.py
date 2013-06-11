@@ -4353,7 +4353,7 @@ class transport_widget:
         if not self.follow_checkbox.isChecked():
             return
         if this_song_editor.table_widget.item(0, self.region_spinbox.value()) is not None:
-            f_region_name = this_song_editor.table_widget.item(0, self.region_spinbox.value()).text()
+            f_region_name = str(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
             if global_current_region_name is not None and f_region_name != global_current_region_name:
                 this_region_settings.open_region(f_region_name)
         else:
