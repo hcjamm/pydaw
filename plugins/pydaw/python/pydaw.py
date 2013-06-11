@@ -388,6 +388,7 @@ class song_editor:
         self.open_song()
 
 global_current_region = None
+global_current_region_name = None
 
 class region_settings:
     def update_region_length(self, a_value=None):
@@ -444,6 +445,8 @@ class region_settings:
             f_editor.enabled = False
         self.clear_items()
         self.region_name_lineedit.setText(a_file_name)
+        global global_current_region_name
+        global_current_region_name = str(a_file_name)
         global global_current_region
         global_current_region = this_pydaw_project.get_region_by_name(a_file_name)
         if global_current_region.region_length_bars > 0:
@@ -4350,7 +4353,9 @@ class transport_widget:
         if not self.follow_checkbox.isChecked():
             return
         if this_song_editor.table_widget.item(0, self.region_spinbox.value()) is not None:
-            this_region_settings.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
+            f_region_name = this_song_editor.table_widget.item(0, self.region_spinbox.value()).text()
+            if global_current_region_name is not None and f_region_name != global_current_region_name:
+                this_region_settings.open_region(f_region_name)
         else:
             this_region_editor.clear_items()
             this_region_audio_editor.clear_items()
