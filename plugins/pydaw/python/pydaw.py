@@ -1080,11 +1080,56 @@ global_audio_item_handle_pen = QtGui.QPen(QtCore.Qt.white)
 
 class audio_viewer_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_track_num, a_audio_item, a_sample_length):
+        QtGui.QGraphicsRectItem.__init__(self)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+        self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
+
         self.sample_length = a_sample_length
         self.audio_item = a_audio_item
         self.track_num = a_track_num
         f_graph = this_pydaw_project.get_sample_graph_by_uid(self.audio_item.uid)
         self.painter_paths = f_graph.create_sample_graph(True)
+        self.y_inc = global_audio_item_height / len(self.painter_paths)
+        f_y_pos = 0.0
+        self.path_items = []
+        for f_painter_path in self.painter_paths:
+            f_path_item = QtGui.QGraphicsPathItem(f_painter_path)
+            f_path_item.setBrush(pydaw_audio_item_scene_gradient)
+            f_path_item.setParentItem(self)
+            self.path_items.append(f_path_item)
+            f_y_pos += self.y_inc
+        f_name_arr = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid).split("/")
+        f_name = f_name_arr[-1]
+        self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
+        self.label.setPos(10, 5)
+        self.label.setBrush(QtCore.Qt.white)
+        self.label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
+
+        self.length_handle = QtGui.QGraphicsRectItem(parent=self)
+        self.length_handle.setBrush(global_audio_item_handle_brush)
+        self.length_handle.setPen(global_audio_item_handle_pen)
+        self.length_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
+        self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
+        self.length_handle_line = QtGui.QGraphicsLineItem(global_audio_item_handle_size, global_audio_item_handle_size, global_audio_item_handle_size, (global_audio_item_height * -1.0) + global_audio_item_handle_size, self.length_handle)
+        self.length_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
+        self.length_handle.setToolTip("Use this handle to resize the item by changing the start/end points.")
+
+        self.start_handle = QtGui.QGraphicsRectItem(parent=self)
+        self.start_handle.setBrush(global_audio_item_handle_brush)
+        self.start_handle.setPen(global_audio_item_handle_pen)
+        self.start_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
+        self.start_handle.mousePressEvent = self.start_handle_mouseClickEvent
+        self.start_handle_line = QtGui.QGraphicsLineItem(0.0, global_audio_item_handle_size, 0.0, (global_audio_item_height * -1.0) + global_audio_item_handle_size, self.start_handle)
+        self.start_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
+        self.start_handle.setToolTip("Use this handle to resize the item by changing the start point.")
+
+        self.is_start_resizing = False
+        self.is_resizing = False
+        self.is_copying = False
+        self.set_brush()
+
         self.draw()
 
     def draw(self):
@@ -1116,66 +1161,26 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         f_track_num = global_audio_ruler_height + (global_audio_item_height) * self.audio_item.lane_num
 
-        QtGui.QGraphicsRectItem.__init__(self, 0.0, 0.0, f_length, global_audio_item_height)
+        self.setRect(0.0, 0.0, f_length, global_audio_item_height)
         self.setPos(f_start, f_track_num)
         self.last_x = self.pos().x()
         self.is_moving = False
 
-        f_name_arr = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid).split("/")
-        f_name = f_name_arr[-1]
-
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
-        self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.setToolTip("Double click to open editor dialog, or click and drag to move")
 
-        self.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
-
         f_y_pos = 0.0
-        f_y_inc = global_audio_item_height / len(self.painter_paths)
         self.sample_start_offset_px = self.audio_item.sample_start * -0.001 * self.length_seconds_orig_px
         self.start_handle_scene_min = f_start + self.sample_start_offset_px
         self.start_handle_scene_max = self.start_handle_scene_min + self.length_seconds_orig_px
-        for f_painter_path in self.painter_paths:
-            f_path_item = QtGui.QGraphicsPathItem(f_painter_path)
-            f_path_item.setBrush(pydaw_audio_item_scene_gradient)
-            f_path_item.setParentItem(self)
+        for f_path_item in self.path_items:
             f_path_item.mapFromParent(0.0, f_track_num)
-            #f_path_item.setPos(self.audio_item.sample_start * -0.001 * f_length, 0.0)
             f_path_item.setPos(self.sample_start_offset_px, 0.0)
             f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.rect_orig)
             f_path_item.scale(f_x_scale, f_y_scale)
-            f_y_pos += f_y_inc
+            f_y_pos += self.y_inc
 
-        self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
-        self.label.setPos(10, 5)
-        self.label.setBrush(QtCore.Qt.white)
-        self.label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
-
-        self.length_handle = QtGui.QGraphicsRectItem(parent=self)
-        self.length_handle.setBrush(global_audio_item_handle_brush)
-        self.length_handle.setPen(global_audio_item_handle_pen)
-        self.length_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
         self.length_handle.setPos(f_length - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
-        self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
-        self.length_handle_line = QtGui.QGraphicsLineItem(global_audio_item_handle_size, global_audio_item_handle_size, global_audio_item_handle_size, (global_audio_item_height * -1.0) + global_audio_item_handle_size, self.length_handle)
-        self.length_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        self.length_handle.setToolTip("Use this handle to resize the item by changing the start/end points.")
-
-        self.start_handle = QtGui.QGraphicsRectItem(parent=self)
-        self.start_handle.setBrush(global_audio_item_handle_brush)
-        self.start_handle.setPen(global_audio_item_handle_pen)
-        self.start_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
         self.start_handle.setPos(0.0, global_audio_item_height - global_audio_item_handle_size)
-        self.start_handle.mousePressEvent = self.start_handle_mouseClickEvent
-        self.start_handle_line = QtGui.QGraphicsLineItem(0.0, global_audio_item_handle_size, 0.0, (global_audio_item_height * -1.0) + global_audio_item_handle_size, self.start_handle)
-        self.start_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        self.start_handle.setToolTip("Use this handle to resize the item by changing the start point.")
-
-        self.is_start_resizing = False
-        self.is_resizing = False
-        self.is_copying = False
-        self.set_brush()
 
     def set_brush(self, a_index=None):
         if a_index is None:
