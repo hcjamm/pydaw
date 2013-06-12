@@ -1323,12 +1323,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_sample_start_orig = f_item.sample_start
                     f_item.sample_start = ((f_x - f_audio_item.start_handle_scene_min) / (f_audio_item.start_handle_scene_max - f_audio_item.start_handle_scene_min)) * 1000.0
                     f_item.sample_start = pydaw_clip_value(f_item.sample_start, 0.0, 999.0)
-                    print "f_item.sample_start", f_item.sample_start
+                    #print "f_item.sample_start", f_item.sample_start
                     if f_item.end_mode == 0:
                         f_length_new = (f_sample_start_orig - f_item.sample_start) + f_item.sample_end
                         f_length_new = pydaw_clip_value(f_length_new, 1.0, 1000.0)
                         f_item.sample_end = f_length_new
-                        print "f_item.sample_end", f_item.sample_end
+                        #print "f_item.sample_end", f_item.sample_end
                     elif f_item.end_mode == 1:
                         pass
                 else:
@@ -1612,6 +1612,10 @@ class audio_items_viewer_widget():
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
 
+        self.clone_button = QtGui.QPushButton("Clone")
+        self.clone_button.pressed.connect(self.on_clone)
+        self.controls_grid_layout.addWidget(self.clone_button, 0, 10)
+
         self.controls_grid_layout.addWidget(QtGui.QLabel("V-Zoom:"), 0, 45)
         self.v_zoom_combobox = QtGui.QComboBox()
         self.v_zoom_combobox.addItems(["Small", "Medium", "Large"])
@@ -1630,6 +1634,40 @@ class audio_items_viewer_widget():
         self.last_open_dir = global_home
         self.set_folder(".")
         self.open_bookmarks()
+
+    def on_clone(self):
+        if global_current_region is None or global_transport_is_playing:
+            return
+        def ok_handler():
+            f_region_name = str(f_region_combobox.currentText())
+            this_pydaw_project.region_audio_clone(global_current_region.uid, f_region_name)
+            this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
+            this_pydaw_project.commit("Clone audio from region " + f_region_name)
+            this_audio_editor.open_items(True)
+            f_window.close()
+
+        def cancel_handler():
+            f_window.close()
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Clone audio from region...")
+        f_window.setMinimumWidth(270)
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_layout.addWidget(QtGui.QLabel("Clone from:"), 0, 0)
+        f_region_combobox = QtGui.QComboBox()
+        f_regions_dict = this_pydaw_project.get_regions_dict()
+        f_regions_list = list(f_regions_dict.uid_lookup.keys())
+        f_regions_list.sort()
+        f_region_combobox.addItems(f_regions_list)
+        f_layout.addWidget(f_region_combobox, 0, 1)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_layout.addWidget(f_ok_button, 5,0)
+        f_ok_button.clicked.connect(ok_handler)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_layout.addWidget(f_cancel_button, 5,1)
+        f_cancel_button.clicked.connect(cancel_handler)
+        f_window.exec_()
 
     def on_preview(self):
         f_list = self.list_file.selectedItems()

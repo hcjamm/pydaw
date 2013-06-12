@@ -673,6 +673,11 @@ class pydaw_project:
         self.save_regions_dict(f_regions_dict)
         return f_uid
 
+    def region_audio_clone(self, a_dest_region_uid, a_src_region_name):
+        f_regions_dict = self.get_regions_dict()
+        f_uid = f_regions_dict.get_uid_by_name(a_src_region_name)
+        self.save_file(pydaw_folder_regions_audio, str(a_dest_region_uid), pydaw_read_file_text(self.regions_audio_folder + "/" + str(f_uid)))
+
     def copy_item(self, a_old_item, a_new_item):
         f_items_dict = self.get_items_dict()
         f_uid = f_items_dict.add_new_item(a_new_item)
