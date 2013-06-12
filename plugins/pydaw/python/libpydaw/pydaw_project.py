@@ -286,6 +286,7 @@ class pydaw_project:
         self.pyregions_file = self.project_folder + "/default.pyregions"
         self.pyitems_file = self.project_folder + "/default.pyitems"
         self.pywavs_file = self.project_folder + "/default.pywavs"
+        pydaw_clear_sample_graph_cache()
 
     def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
@@ -570,12 +571,13 @@ class pydaw_project:
 
     def get_sample_graph_by_uid(self, a_uid):
         f_pygraph_file = self.samplegraph_folder + "/" + str(a_uid)
-        f_result = pydaw_sample_graph(f_pygraph_file)
+        f_result = pydaw_sample_graph.create(f_pygraph_file)
         if not f_result.is_valid() or not f_result.check_mtime():
             print("Not valid, or else mtime is newer than graph time, deleting sample graph...")
             os.system('rm "' + f_pygraph_file + '"')
+            pydaw_remove_item_from_sg_cache(f_pygraph_file)
             self.create_sample_graph(self.get_wav_path_by_uid(a_uid), a_uid)
-            return pydaw_sample_graph(f_pygraph_file)
+            return pydaw_sample_graph.create(f_pygraph_file)
         else:
             return f_result
 
@@ -1753,7 +1755,31 @@ pydaw_audio_item_editor_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(190, 192, 
 pydaw_audio_item_editor_gradient.setColorAt(1.0, QtGui.QColor.fromRgb(130, 130, 100, 120))
 #end from sample_graph.py
 
+def pydaw_clear_sample_graph_cache():
+    global global_sample_graph_cache
+    global_sample_graph_cache = {}
+
+def pydaw_remove_item_from_sg_cache(a_path):
+    global global_sample_graph_cache
+    try:
+        global_sample_graph_cache.pop()
+    except KeyError:
+        print("pydaw_remove_item_from_sg_cache: " + a_path + " not found.")
+
+global_sample_graph_cache = {}
+
 class pydaw_sample_graph:
+    @staticmethod
+    def create(a_file_name):
+        f_file_name = str(a_file_name)
+        global global_sample_graph_cache
+        if global_sample_graph_cache.has_key(f_file_name):
+            return global_sample_graph_cache[f_file_name]
+        else:
+            f_result = pydaw_sample_graph(f_file_name)
+            global_sample_graph_cache[f_file_name] = f_result
+            return f_result
+
     def __init__(self, a_file_name):
         f_file_name = str(a_file_name)
         self.file = None
