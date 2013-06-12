@@ -1310,7 +1310,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.end_bar = f_end_result[0]
                         f_item.end_beat = f_end_result[1]
                         print "f_item.end_bar", f_item.end_bar, "f_item.end_beat", f_item.end_beat
-                    f_audio_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
                 elif f_audio_item.is_start_resizing:
                     #f_x = a_event.scenePos().x()
                     f_x = f_audio_item.start_handle.scenePos().x()
@@ -1332,12 +1331,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         print "f_item.sample_end", f_item.sample_end
                     elif f_item.end_mode == 1:
                         pass
-                    #f_x = pydaw_clip_value(f_x, global_audio_item_handle_size, f_audio_item.length_px_minus_start)
-                    #f_audio_item.setRect(0.0, 0.0, f_audio_item.rect().width() - (f_x - f_audio_item.pos().x()), global_audio_item_height)
-                    #f_audio_item.setPos(f_x, f_audio_item.pos().y())
-                    #self.start_handle.setPos(0.0, global_audio_item_height - global_audio_item_handle_size)
-                    #f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
-                    f_audio_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
                 else:
                     f_pos_y = f_audio_item.pos().y()
                     if f_audio_item.is_copying:
@@ -1387,6 +1380,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_audio_item.is_start_resizing = False
             f_audio_item.is_copying = False
             f_audio_item.setGraphicsEffect(None)
+            f_audio_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
             #f_audio_item.setSelected(False)
         this_pydaw_project.save_audio_items(global_current_region.uid, f_audio_items)
         this_pydaw_project.commit("Update audio items")
