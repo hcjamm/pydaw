@@ -4343,19 +4343,19 @@ class seq_track:
             return pydaw_bus(self.volume_slider.value(), self.record_radiobutton.isChecked())
 
 class transport_widget:
-    def init_playback_cursor(self, a_bar=True):
+    def init_playback_cursor(self, a_start=True):
         if not self.follow_checkbox.isChecked():
             return
         if this_song_editor.table_widget.item(0, self.region_spinbox.value()) is not None:
             f_region_name = str(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
-            if global_current_region_name is not None and f_region_name != global_current_region_name:
+            if not a_start or (global_current_region_name is not None and f_region_name != global_current_region_name) or global_current_region is None:
                 this_region_settings.open_region(f_region_name)
         else:
             this_region_editor.clear_items()
             this_region_audio_editor.clear_items()
             this_region_bus_editor.clear_items()
             this_audio_items_viewer.clear_drawn_items()
-        if a_bar:
+        if a_start:
             this_region_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
             this_region_audio_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
             this_region_bus_editor.table_widget.selectColumn(self.bar_spinbox.value() + 1)
@@ -4424,7 +4424,7 @@ class transport_widget:
                 this_region_settings.open_region_by_uid(global_current_region.uid)
             this_song_editor.open_song()
             this_pydaw_project.commit("Recording")
-        self.init_playback_cursor(a_bar=False)
+        self.init_playback_cursor(a_start=False)
         self.is_playing = False
         #if not this_song_editor.table_widget.item(0, self.region_spinbox.value()) is None:
         #    this_region_settings.open_region(this_song_editor.table_widget.item(0, self.region_spinbox.value()).text())
