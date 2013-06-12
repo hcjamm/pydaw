@@ -9,6 +9,9 @@ if [ -d /home/ubuntu ]; then
 			mkdir /media/pydaw_data
 			mount /dev/disk/by-label/pydaw_data /media/pydaw_data
 		fi
+		if [ ! -d /media/pydaw_data/mixxx ]; then
+			mkdir /media/pydaw_data/mixxx
+		fi
 		ln -s /media/pydaw_data/mixxx /home/ubuntu/.mixxx
 	fi
 else
