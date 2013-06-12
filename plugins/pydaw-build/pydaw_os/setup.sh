@@ -13,10 +13,9 @@ apt-get update
 #This fails to install when a dependency of another package,
 #hence we install manually first
 apt-get install -y audacity
-
+apt-get install -y mixxx
 #Here either wget a .deb, or (preferably) have deb.pl move it here when building...
 
 #dpkg -i pydaw*.deb
 #Due the WTF normally encountered when doing this, it's often necessary to run:
 #apt-get install -f
-
