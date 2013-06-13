@@ -1219,13 +1219,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_item.is_resizing = True
                     f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
 
-    def mouseDoubleClickEvent(self, a_event):
-        if global_transport_is_playing:
-            return
-        QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
-        #this_audio_editor.show_cell_dialog(self.track_num, 0, self.audio_item)
-        global_edit_audio_item(self.track_num)
-        a_event.accept()
 
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
@@ -1375,8 +1368,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.end_bar = f_end_result[0]
                         f_item.end_beat = f_end_result[1]
                 f_audio_item.audio_item = f_item
-                if this_audio_item_editor_widget.selected_index_combobox.currentIndex() == f_audio_item.track_num:
-                    this_audio_item_editor_widget.open_item(f_item)
                 f_audio_item.draw()
             f_audio_item.is_moving = False
             f_audio_item.is_resizing = False
@@ -1574,6 +1565,7 @@ class audio_items_viewer_widget():
         self.vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         self.hsplitter.addWidget(self.vsplitter)
         self.folders_tab_widget = QtGui.QTabWidget()
+        self.folders_tab_widget.setMaximumWidth(660)
         self.vsplitter.addWidget(self.folders_tab_widget)
         self.folders_tab = QtGui.QWidget()
         self.folders_tab_widget.addTab(self.folders_tab, "Files")
@@ -1593,6 +1585,8 @@ class audio_items_viewer_widget():
         self.bookmarks_tab.setLayout(self.bookmarks_tab_vlayout)
         self.bookmarks_tab_vlayout.addWidget(self.list_bookmarks)
         self.folders_tab_widget.addTab(self.bookmarks_tab, "Bookmarks")
+
+        self.folders_tab_widget.addTab(this_audio_item_editor_widget.widget, "Edit")
 
         self.file_vlayout = QtGui.QVBoxLayout()
         self.file_widget = QtGui.QWidget()
@@ -1752,159 +1746,14 @@ class audio_items_viewer_widget():
                 this_audio_items_viewer.set_zoom(1.03)
         self.last_scale_value = self.h_zoom_slider.value()
 
-global_audio_item_marker_height = 66.0
-
-class audio_item_marker(QtGui.QGraphicsRectItem):
-    def __init__(self, a_type, a_val):
-        """ a_type:  0 == start, 1 == end, more types eventually... """
-        QtGui.QGraphicsRectItem.__init__(self, 0, 0, global_audio_item_marker_height, global_audio_item_marker_height)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
-        #self.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
-        self.line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, pydaw_audio_item_scene_height)
-        self.line.setParentItem(self)
-        self.line.setPen(QtGui.QPen(QtCore.Qt.red, 3.0))
-        #self.line.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
-        self.marker_type = a_type
-        self.max_x = pydaw_audio_item_scene_width - global_audio_item_marker_height
-        self.value = a_val
-        if a_type == 0:
-            self.y_pos = 0.0
-            self.setPos((a_val * 6.0), self.y_pos)
-            self.line.setPos(0.0, 0.0)
-            self.text_item = QtGui.QGraphicsTextItem("S")
-            self.setPen(QtCore.Qt.red)
-            self.setBrush(pydaw_track_gradients[1])
-        elif a_type == 1:
-            self.y_pos = pydaw_audio_item_scene_height - global_audio_item_marker_height
-            self.setPos((a_val * 6.0) - global_audio_item_marker_height, self.y_pos)
-            self.line.setPos(global_audio_item_marker_height, self.y_pos * -1.0)
-            self.text_item = QtGui.QGraphicsTextItem("E")
-            self.setPen(QtCore.Qt.red)
-            self.setBrush(pydaw_track_gradients[1])
-        self.text_item.setParentItem(self)
-        self.text_item.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
-
-    def mousePressEvent(self, a_event):
-        QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
-
-    def mouseMoveEvent(self, a_event):
-        QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
-        f_pos_x = a_event.scenePos().x()
-        if f_pos_x < 0.0:
-            f_pos_x = 0.0
-        elif f_pos_x > self.max_x:
-            f_pos_x = self.max_x
-        self.setPos(f_pos_x, self.y_pos)
-
-    def mouseReleaseEvent(self, a_event):
-        QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
-        if self.marker_type == 0:
-            f_new_val = a_event.scenePos().x() / 6.0
-        elif self.marker_type == 1:
-            f_new_val = (a_event.scenePos().x() + global_audio_item_marker_height) / 6.0
-        f_new_val = pydaw_clip_value(f_new_val, 0.0, 1000.0)
-        self.value = f_new_val
-
-class audio_item_editor(QtGui.QGraphicsView):
-    def __init__(self):
-        QtGui.QGraphicsView.__init__(self)
-        self.scene = QtGui.QGraphicsScene()
-        self.setScene(self.scene)
-        self.scene.setBackgroundBrush(QtCore.Qt.darkGray)
-        #self.setRenderHint(QtGui.QPainter.Antialiasing)
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.scroll_bar_height = self.horizontalScrollBar().height()
-        f_rect = self.rect()
-        self.h_scale_factor = 1.0
-        self.last_x_scale = f_rect.width() / pydaw_audio_item_scene_width
-        self.last_y_scale = (f_rect.height() - self.scroll_bar_height) / pydaw_audio_item_scene_height
-        self.scale(self.last_x_scale, self.last_y_scale)
-
-    def clear_drawn_items(self):
-        self.scene.clear()
-
-    def draw_item(self, a_path_list, a_start, a_end):
-        for f_path in a_path_list:
-            f_path_item = QtGui.QGraphicsPathItem(f_path)
-            f_path_item.setPen(QtGui.QPen(QtCore.Qt.white, 3.0))
-            f_path_item.setBrush(pydaw_audio_item_editor_gradient)
-            self.scene.addItem(f_path_item)
-        self.start_marker = audio_item_marker(0, a_start)
-        self.scene.addItem(self.start_marker)
-        self.end_marker = audio_item_marker(1, a_end)
-        self.scene.addItem(self.end_marker)
-
-    def resizeEvent(self, a_resize_event):
-        QtGui.QGraphicsView.resizeEvent(self, a_resize_event)
-        self.scale(1.0 / self.last_x_scale, 1.0 / self.last_y_scale)
-        f_rect = self.rect()
-        self.last_x_scale = f_rect.width() / pydaw_audio_item_scene_width
-        self.last_y_scale = (f_rect.height() - self.scroll_bar_height) / pydaw_audio_item_scene_height
-        self.scale(self.last_x_scale, self.last_y_scale)
-
-    def h_scale(self, a_scale_value):
-        self.scale(1.0 / self.h_scale_factor, 1.0)
-        self.h_scale_factor = a_scale_value
-        self.scale(self.h_scale_factor, 1.0)
-
-def global_edit_audio_item(a_index, a_switch_tabs=True):
-    this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(a_index)
-    if a_switch_tabs:
-        this_main_window.main_tabwidget.setCurrentIndex(2)
-
 class audio_item_editor_widget:
-    def update_file_list(self):
-        self.items_list = []
-        for i in range(pydaw_max_audio_item_count):
-            self.items_list.append("")
-        f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
-        f_wavs_dict = this_pydaw_project.get_wavs_dict()
-        for k, v in f_items.items.iteritems():
-            self.items_list[k] = f_wavs_dict.get_name_by_uid(v.uid)
-        self.suppress_index_change = True
-        f_index = self.selected_index_combobox.currentIndex()
-        self.selected_index_combobox.clear()
-        self.selected_index_combobox.addItems(self.items_list)
-        self.selected_index_combobox.setCurrentIndex(f_index)
-        self.suppress_index_change = False
-        self.selected_index_changed(f_index)
-
-    def selected_index_changed(self, a_val):
-        if not self.suppress_index_change:
-            if global_current_region is None or self.items_list[a_val] == "":
-                self.open_item(None)
-            else:
-                f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
-                self.open_item(f_items.items[a_val])
-
     def __init__(self):
         self.widget = QtGui.QWidget()
+        self.widget.setMaximumWidth(460)
         self.main_vlayout = QtGui.QVBoxLayout(self.widget)
-        self.items_list = []  #TODO:  Make this global
-        for i in range(pydaw_max_audio_item_count):
-            self.items_list.append("")
-
-        self.selected_hlayout = QtGui.QHBoxLayout()
-        self.selected_index_combobox = QtGui.QComboBox()
-        self.selected_index_combobox.setMinimumWidth(900)
-        self.selected_index_combobox.addItems(self.items_list)
-        self.selected_index_combobox.currentIndexChanged.connect(self.selected_index_changed)
-        self.selected_hlayout.addWidget(QtGui.QLabel("Selected Audio Item:"))
-        self.selected_hlayout.addWidget(self.selected_index_combobox)
-        self.selected_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
-        self.main_vlayout.addLayout(self.selected_hlayout)
-        self.suppress_index_change = False
 
         self.layout = QtGui.QGridLayout()
         self.main_vlayout.addLayout(self.layout)
-
-        self.sample_start_end_vlayout = QtGui.QVBoxLayout()
-        self.layout.addWidget(QtGui.QLabel("Start/End:"), 1, 0)
-        self.layout.addLayout(self.sample_start_end_vlayout, 1, 1)
-
-        self.sample_view = audio_item_editor()
-        self.sample_start_end_vlayout.addWidget(self.sample_view)
 
         self.sample_vol_layout = QtGui.QVBoxLayout()
         self.sample_vol_layout.addWidget(QtGui.QLabel("Vol"))
@@ -1917,114 +1766,68 @@ class audio_item_editor_widget:
         self.sample_vol_label.setMinimumWidth(48)
         self.sample_vol_layout.addWidget(self.sample_vol_label)
         self.layout.addLayout(self.sample_vol_layout, 1, 2)
-
-        self.layout.addWidget(QtGui.QLabel("Start:"), 3, 0)
+        self.vlayout2 = QtGui.QVBoxLayout()
+        self.layout.addLayout(self.vlayout2, 1, 1)
         self.start_hlayout = QtGui.QHBoxLayout()
-        self.layout.addLayout(self.start_hlayout, 3, 1)
-        self.start_hlayout.addWidget(QtGui.QLabel("Bar:"))
-        self.start_bar = QtGui.QSpinBox()
-        self.start_bar.setRange(0, 7)
-        self.start_hlayout.addWidget(self.start_bar)
-        self.start_hlayout.addWidget(QtGui.QLabel("Beat:"))
-        self.start_beat = QtGui.QDoubleSpinBox()
-        self.start_beat.setRange(0, 3.99)
-        self.start_hlayout.addWidget(self.start_beat)
-        self.start_hlayout.addItem(QtGui.QSpacerItem(50, 10))
-        self.start_hlayout.addWidget(QtGui.QLabel("End:"))
-        self.end_sample_length = QtGui.QRadioButton("Sample Length")
-        self.end_sample_length.setChecked(True)
+        self.vlayout2.addLayout(self.start_hlayout)
+        self.start_hlayout.addWidget(QtGui.QLabel("End Mode:"))
+        self.end_sample_length = QtGui.QRadioButton("Linear")
         self.start_hlayout.addWidget(self.end_sample_length)
-        self.end_musical_time = QtGui.QRadioButton("At:")
+        self.end_musical_time = QtGui.QRadioButton("Musical")
         self.start_hlayout.addWidget(self.end_musical_time)
-        self.start_hlayout.addWidget(QtGui.QLabel("Bar:"))
-        self.end_bar = QtGui.QSpinBox()
-        self.end_bar.setRange(0, 7)
-        self.end_bar.setValue(1)
-        self.start_hlayout.addWidget(self.end_bar)
-        self.start_hlayout.addWidget(QtGui.QLabel("Beats:"))
-        self.end_beat = QtGui.QDoubleSpinBox()
-        self.end_beat.setRange(0, 3.99)
-        self.start_hlayout.addWidget(self.end_beat)
-        self.start_hlayout.addItem(QtGui.QSpacerItem(50, 0))
-        self.start_hlayout.addWidget(QtGui.QLabel("Lane:"))
-        self.lane_num = QtGui.QSpinBox()
-        self.lane_num.setRange(0, 11)
-        self.start_hlayout.addWidget(self.lane_num)
-        self.start_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
-        self.start_hlayout.addWidget(QtGui.QLabel("H-Zoom"))
-        self.h_zoom_combobox = QtGui.QComboBox()
-        self.start_hlayout.addWidget(self.h_zoom_combobox)
-        self.h_zoom_combobox.setMinimumWidth(120)
-        self.h_zoom_combobox.addItems(["Small", "Medium", "Large"])
-        self.h_zoom_combobox.currentIndexChanged.connect(self.h_zoom_changed)
 
-        self.layout.addWidget(QtGui.QLabel("Fade:"), 5, 0)
+        self.vlayout2.addWidget(QtGui.QLabel("Fade:"))
         self.fade_hlayout = QtGui.QHBoxLayout()
-        self.layout.addLayout(self.fade_hlayout, 5, 1)
+        self.vlayout2.addLayout(self.fade_hlayout)
         self.fade_hlayout.addWidget(QtGui.QLabel("In:"))
         self.fade_in = QtGui.QDoubleSpinBox()
         self.fade_in.setRange(0.0, 998.0)
         self.fade_hlayout.addWidget(self.fade_in)
-        self.fade_hlayout.addItem(QtGui.QSpacerItem(100, 10))
         self.fade_hlayout.addWidget(QtGui.QLabel("Out:"))
         self.fade_out = QtGui.QDoubleSpinBox()
         self.fade_out.setRange(1.0, 998.0)
         self.fade_out.setSingleStep(0.1)
         self.fade_out.setValue(1.0)
         self.fade_hlayout.addWidget(self.fade_out)
-        self.fade_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
 
-        self.layout.addWidget(QtGui.QLabel("Time Stretching:"), 7, 0)
+        self.vlayout2.addWidget(QtGui.QLabel("Time Stretching:"))
         self.timestretch_hlayout = QtGui.QHBoxLayout()
-        self.layout.addLayout(self.timestretch_hlayout, 7, 1)
+        self.timestretch_hlayout2 = QtGui.QHBoxLayout()
+        self.vlayout2.addLayout(self.timestretch_hlayout)
+        self.vlayout2.addLayout(self.timestretch_hlayout2)
         self.timestretch_hlayout.addWidget(QtGui.QLabel("Mode:"))
         self.timestretch_mode = QtGui.QComboBox()
         self.timestretch_mode.setMinimumWidth(190)
         self.timestretch_hlayout.addWidget(self.timestretch_mode)
         self.timestretch_mode.addItems(global_timestretch_modes)
-        self.timestretch_hlayout.addItem(QtGui.QSpacerItem(100, 10))
-        self.timestretch_hlayout.addWidget(QtGui.QLabel("Pitch Shift:"))
+        self.timestretch_hlayout2.addWidget(QtGui.QLabel("Pitch Shift:"))
         self.pitch_shift = QtGui.QDoubleSpinBox()
         self.pitch_shift.setRange(-36, 36)
-        self.timestretch_hlayout.addWidget(self.pitch_shift)
-        self.timestretch_hlayout.addWidget(QtGui.QLabel("Time Stretch:"))
+        self.timestretch_hlayout2.addWidget(self.pitch_shift)
+        self.timestretch_hlayout2.addWidget(QtGui.QLabel("Time Stretch:"))
         self.timestretch_amt = QtGui.QDoubleSpinBox()
         self.timestretch_amt.setRange(0.2, 4.0)
         self.timestretch_amt.setDecimals(5)
         self.timestretch_amt.setSingleStep(0.1)
         self.timestretch_amt.setValue(1.0)
-        self.timestretch_hlayout.addWidget(self.timestretch_amt)
-        self.timestretch_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
+        self.timestretch_hlayout2.addWidget(self.timestretch_amt)
 
         self.output_hlayout = QtGui.QHBoxLayout()
         self.output_hlayout.addWidget(QtGui.QLabel("Audio Track:"))
         self.output_combobox = QtGui.QComboBox()
-        self.output_combobox.setMinimumWidth(360)
+        self.output_combobox.setMinimumWidth(270)
         self.output_combobox.addItems(global_audio_track_names.values())
         self.output_hlayout.addWidget(self.output_combobox)
-        self.output_hlayout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding))
-        self.layout.addWidget(QtGui.QLabel("Output:"), 9, 0)
-        self.layout.addLayout(self.output_hlayout, 9, 1)
+        self.vlayout2.addLayout(self.output_hlayout)
 
         self.ok_layout = QtGui.QHBoxLayout()
-        self.ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
         self.ok = QtGui.QPushButton("Save Changes")
         self.ok.setToolTip("Changes are not saved until you push this button")
         self.ok.pressed.connect(self.ok_handler)
         self.ok_layout.addWidget(self.ok)
-        self.layout.addLayout(self.ok_layout, 11, 1)
+        self.vlayout2.addLayout(self.ok_layout)
 
         self.last_open_dir = global_home
-
-    def h_zoom_changed(self, a_val):
-        if a_val == 0:
-            self.sample_view.h_scale(1.0)
-        elif a_val == 1:
-            self.sample_view.h_scale(3.0)
-        elif a_val == 2:
-            self.sample_view.h_scale(6.0)
-        else:
-            print("Error, invalid h_zoom_changed index: " + str(a_val))
 
     def open_item(self, a_item):
         if a_item is None:
@@ -2117,7 +1920,6 @@ class audio_list_editor:
                     continue
                 this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
         self.audio_items_table_widget.resizeColumnsToContents()
-        this_audio_item_editor_widget.update_file_list()
 
     def clear_new(self):
         self.audio_items_table_widget.clearContents()
@@ -2125,7 +1927,6 @@ class audio_list_editor:
     def cell_clicked(self, x, y):
         if global_transport_is_playing:
             return
-        global_edit_audio_item(y)
 
     def __init__(self):
         self.last_open_dir = global_home
@@ -5080,8 +4881,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.regions_tab_widget.addTab(this_region_audio_editor.group_box, "Audio Tracks")
 
         self.main_tabwidget.addTab(this_item_editor.widget, "MIDI Item")
-        #self.regions_tab_widget.addTab(this_audio_editor.group_box, "Audio Inputs")
-        self.main_tabwidget.addTab(this_audio_item_editor_widget.widget, "Audio Item")
         self.regions_tab_widget.addTab(this_audio_items_viewer_widget.hsplitter, "Audio Seq")
         self.regions_tab_widget.addTab(this_audio_editor.items_groupbox, "Audio List")
 
@@ -5569,8 +5368,6 @@ def global_open_project(a_project_file, a_notify_osc=True):
     this_transport.open_transport()
     set_default_project(a_project_file)
     global_update_audio_track_comboboxes()
-    global_edit_audio_item(1, False)
-    global_edit_audio_item(0, False)
     set_window_title()
     this_pydaw_project.suppress_updates = False
 
@@ -5628,6 +5425,7 @@ this_region_bus_editor = region_list_editor(pydaw_track_type_enum.bus())
 this_region_audio_editor = region_list_editor(pydaw_track_type_enum.audio())
 global_region_editors = (this_region_editor, this_region_bus_editor, this_region_audio_editor)
 
+this_audio_item_editor_widget = audio_item_editor_widget()
 this_audio_editor = audio_list_editor()
 this_piano_roll_editor = piano_roll_editor()
 this_piano_roll_editor_widget = piano_roll_editor_widget()
@@ -5635,7 +5433,6 @@ this_item_editor = item_list_editor()
 this_transport = transport_widget()
 this_audio_items_viewer = audio_items_viewer()
 this_audio_items_viewer_widget = audio_items_viewer_widget()
-this_audio_item_editor_widget = audio_item_editor_widget()
 
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
