@@ -1189,10 +1189,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.start_handle.setPos(0.0, global_audio_item_height - global_audio_item_handle_size)
 
     def set_brush(self, a_index=None):
-        if a_index is None:
-            self.setBrush(pydaw_track_gradients[self.audio_item.lane_num % len(pydaw_track_gradients)])
+        if self.isSelected():
+            self.setBrush(pydaw_selected_gradient)
         else:
-            self.setBrush(pydaw_track_gradients[a_index % len(pydaw_track_gradients)])
+            if a_index is None:
+                self.setBrush(pydaw_track_gradients[self.audio_item.lane_num % len(pydaw_track_gradients)])
+            else:
+                self.setBrush(pydaw_track_gradients[a_index % len(pydaw_track_gradients)])
 
     def pos_to_musical_time(self, a_pos):
         f_bar_frac = a_pos / global_audio_px_per_bar
@@ -1395,6 +1398,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scene.dragEnterEvent = self.sceneDragEnterEvent
         self.scene.dragMoveEvent = self.sceneDragMoveEvent
         self.scene.setBackgroundBrush(QtGui.QColor(90, 90, 90))
+        self.scene.selectionChanged.connect(self.scene_selection_changed)
         self.setAcceptDrops(True)
         self.setScene(self.scene)
         self.audio_items = []
@@ -1409,6 +1413,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.setAlignment(QtCore.Qt.AlignLeft)
         self.is_playing = False
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
+
+    def scene_selection_changed(self):
+        for f_item in self.audio_items:
+            f_item.set_brush()
 
     def sceneDragEnterEvent(self, a_event):
         a_event.setAccepted(True)

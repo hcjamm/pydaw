@@ -54,3 +54,8 @@ for f_i_gradient in range(pydaw_midi_track_count):
 pydaw_region_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(100, 100))
 pydaw_region_gradient.setColorAt(0, QtGui.QColor(190, 170, 40))
 pydaw_region_gradient.setColorAt(1, QtGui.QColor(230, 221, 45))
+
+pydaw_selected_gradient = QtGui.QLinearGradient(QtCore.QPointF(0, 0), QtCore.QPointF(0, 100))
+#ffa02f, #d7801a)
+pydaw_selected_gradient.setColorAt(0, QtGui.QColor(255, 160, 47))
+pydaw_selected_gradient.setColorAt(1, QtGui.QColor(215, 128, 26))
