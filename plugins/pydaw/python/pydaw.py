@@ -1771,10 +1771,11 @@ class audio_item_editor_widget:
         self.start_hlayout = QtGui.QHBoxLayout()
         self.vlayout2.addLayout(self.start_hlayout)
         self.start_hlayout.addWidget(QtGui.QLabel("End Mode:"))
-        self.end_sample_length = QtGui.QRadioButton("Linear")
-        self.start_hlayout.addWidget(self.end_sample_length)
         self.end_musical_time = QtGui.QRadioButton("Musical")
         self.start_hlayout.addWidget(self.end_musical_time)
+        self.end_musical_time.setChecked(True)
+        self.end_sample_length = QtGui.QRadioButton("Linear")
+        self.start_hlayout.addWidget(self.end_sample_length)
 
         self.vlayout2.addWidget(QtGui.QLabel("Fade:"))
         self.fade_hlayout = QtGui.QHBoxLayout()
@@ -1787,7 +1788,7 @@ class audio_item_editor_widget:
         self.fade_out = QtGui.QDoubleSpinBox()
         self.fade_out.setRange(1.0, 998.0)
         self.fade_out.setSingleStep(0.1)
-        self.fade_out.setValue(1.0)
+        self.fade_out.setValue(998.0)
         self.fade_hlayout.addWidget(self.fade_out)
 
         self.vlayout2.addWidget(QtGui.QLabel("Time Stretching:"))
@@ -1803,6 +1804,7 @@ class audio_item_editor_widget:
         self.timestretch_hlayout2.addWidget(QtGui.QLabel("Pitch Shift:"))
         self.pitch_shift = QtGui.QDoubleSpinBox()
         self.pitch_shift.setRange(-36, 36)
+        self.pitch_shift.setValue(0.0)
         self.timestretch_hlayout2.addWidget(self.pitch_shift)
         self.timestretch_hlayout2.addWidget(QtGui.QLabel("Time Stretch:"))
         self.timestretch_amt = QtGui.QDoubleSpinBox()
@@ -1864,27 +1866,33 @@ class audio_item_editor_widget:
         if global_transport_is_playing:
             QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
             return
-        if self.end_musical_time.isChecked():
-            f_bar_total = pydaw_get_diff_in_bars(0, self.start_bar.value(), self.start_beat.value(), \
-            0, self.end_bar.value(), self.end_beat.value())
-            if f_bar_total <= 0.0:
-                QtGui.QMessageBox.warning(self.widget, "Error", "End point is less than or equal to start point.")
-                return
 
         if self.end_sample_length.isChecked(): self.end_mode = 0
         else: self.end_mode = 1
 
-        f_uid = this_pydaw_project.get_wav_uid_by_name(str(self.selected_index_combobox.currentText()))
-        self.new_item = pydaw_audio_item(f_uid, self.sample_view.start_marker.value, self.sample_view.end_marker.value,
-                self.start_bar.value(), self.start_beat.value(), self.end_mode, self.end_bar.value(), self.end_beat.value(),
-                self.timestretch_mode.currentIndex(), self.pitch_shift.value(), self.output_combobox.currentIndex(), self.sample_vol_slider.value(),
-                self.timestretch_amt.value(), self.fade_in.value(), self.fade_out.value(), self.lane_num.value())
+        f_selected_count = 0
 
-        this_audio_editor.audio_items.add_item(self.selected_index_combobox.currentIndex(), self.new_item)
-        this_pydaw_project.save_audio_items(global_current_region.uid, this_audio_editor.audio_items)
-        this_audio_editor.open_items()
-        this_pydaw_project.commit("Update audio items")
-        this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
+        for f_item in this_audio_items_viewer.audio_items:
+            if f_item.isSelected():
+                f_item.audio_item.end_mode = self.end_mode
+                f_item.audio_item.time_stretch_mode = self.timestretch_mode.currentIndex()
+                f_item.audio_item.pitch_shift = self.pitch_shift.value()
+                f_item.audio_item.timestretch_amt = self.timestretch_amt.value()
+                f_item.audio_item.output_track = self.output_combobox.currentIndex()
+                f_item.audio_item.vol = self.sample_vol_slider.value()
+                f_item.audio_item.fade_in = self.fade_in.value()
+                f_item.audio_item.fade_out = self.fade_out.value()
+                f_selected_count += 1
+                #TODO:  Redraw self and update any parameters here instead of reloading the scene with open_items()
+
+
+        if f_selected_count == 0:
+            QtGui.QMessageBox.warning(self.widget, "Error", "No items selected")
+        else:
+            this_pydaw_project.save_audio_items(global_current_region.uid, this_audio_editor.audio_items)
+            this_audio_editor.open_items(True)
+            this_pydaw_project.commit("Update audio items")
+            this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
 
     def sample_vol_changed(self, a_val=None):
         self.sample_vol_label.setText(str(self.sample_vol_slider.value()) + "dB")
