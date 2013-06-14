@@ -1223,6 +1223,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
             return
+        this_audio_item_editor_widget.open_item(self.audio_item)
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
         if a_event.modifiers() == QtCore.Qt.ControlModifier:
             f_copying = True
@@ -1801,12 +1802,12 @@ class audio_item_editor_widget:
         self.timestretch_mode.setMinimumWidth(190)
         self.timestretch_hlayout.addWidget(self.timestretch_mode)
         self.timestretch_mode.addItems(global_timestretch_modes)
-        self.timestretch_hlayout2.addWidget(QtGui.QLabel("Pitch Shift:"))
+        self.timestretch_hlayout2.addWidget(QtGui.QLabel("Pitch:"))
         self.pitch_shift = QtGui.QDoubleSpinBox()
         self.pitch_shift.setRange(-36, 36)
         self.pitch_shift.setValue(0.0)
         self.timestretch_hlayout2.addWidget(self.pitch_shift)
-        self.timestretch_hlayout2.addWidget(QtGui.QLabel("Time Stretch:"))
+        self.timestretch_hlayout2.addWidget(QtGui.QLabel("Time:"))
         self.timestretch_amt = QtGui.QDoubleSpinBox()
         self.timestretch_amt.setRange(0.2, 4.0)
         self.timestretch_amt.setDecimals(5)
@@ -1817,10 +1818,11 @@ class audio_item_editor_widget:
         self.output_hlayout = QtGui.QHBoxLayout()
         self.output_hlayout.addWidget(QtGui.QLabel("Audio Track:"))
         self.output_combobox = QtGui.QComboBox()
-        self.output_combobox.setMinimumWidth(270)
+        self.output_combobox.setMinimumWidth(210)
         self.output_combobox.addItems(global_audio_track_names.values())
         self.output_hlayout.addWidget(self.output_combobox)
         self.vlayout2.addLayout(self.output_hlayout)
+        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
 
         self.ok_layout = QtGui.QHBoxLayout()
         self.ok = QtGui.QPushButton("Save Changes")
@@ -1833,16 +1835,12 @@ class audio_item_editor_widget:
 
     def open_item(self, a_item):
         if a_item is None:
-            self.sample_view.clear_drawn_items()
+            pass #TODO:  Reset values to default
         else:
-            self.start_bar.setValue(a_item.start_bar)
-            self.start_beat.setValue(a_item.start_beat)
             if a_item.end_mode == 1:
                 self.end_musical_time.setChecked(True)
             else:
                 self.end_sample_length.setChecked(True)
-            self.end_bar.setValue(a_item.end_bar)
-            self.end_beat.setValue(a_item.end_beat)
             self.timestretch_mode.setCurrentIndex(a_item.time_stretch_mode)
             self.pitch_shift.setValue(a_item.pitch_shift)
             self.timestretch_amt.setValue(a_item.timestretch_amt)
@@ -1850,25 +1848,16 @@ class audio_item_editor_widget:
             self.sample_vol_slider.setValue(a_item.vol)
             self.fade_in.setValue(a_item.fade_in)
             self.fade_out.setValue(a_item.fade_out)
-            self.lane_num.setValue(a_item.lane_num)
-            self.sample_view.clear_drawn_items()
-            f_path_list = this_pydaw_project.get_sample_graph_by_uid(a_item.uid)
-            if f_path_list is not None:
-                self.sample_view.draw_item(f_path_list.create_sample_graph(True), a_item.sample_start, a_item.sample_end)
-            else:
-                f_path_list = this_pydaw_project.get_sample_graph_by_uid(a_item.uid)
-                if f_path_list is not None:
-                    self.sample_view.draw_item(f_path_list.create_sample_graph(True), a_item.sample_start, a_item.sample_end)
-                else:
-                    QtGui.QMessageBox.warning(self.widget, "Error", "Could not generate sample graph")
 
     def ok_handler(self):
         if global_transport_is_playing:
             QtGui.QMessageBox.warning(self.widget, "Error", "Cannot edit audio items during playback")
             return
 
-        if self.end_sample_length.isChecked(): self.end_mode = 0
-        else: self.end_mode = 1
+        if self.end_sample_length.isChecked():
+            self.end_mode = 0
+        else:
+            self.end_mode = 1
 
         f_selected_count = 0
 
@@ -1882,15 +1871,15 @@ class audio_item_editor_widget:
                 f_item.audio_item.vol = self.sample_vol_slider.value()
                 f_item.audio_item.fade_in = self.fade_in.value()
                 f_item.audio_item.fade_out = self.fade_out.value()
+                this_audio_editor.audio_items.items[f_item.track_num] = f_item.audio_item
+                f_item.draw()
                 f_selected_count += 1
-                #TODO:  Redraw self and update any parameters here instead of reloading the scene with open_items()
-
 
         if f_selected_count == 0:
             QtGui.QMessageBox.warning(self.widget, "Error", "No items selected")
         else:
             this_pydaw_project.save_audio_items(global_current_region.uid, this_audio_editor.audio_items)
-            this_audio_editor.open_items(True)
+            this_audio_editor.open_items(False)
             this_pydaw_project.commit("Update audio items")
             this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
 
