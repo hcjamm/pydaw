@@ -1,3 +1,4 @@
+cp /usr/lib/pydaw3/mixxx/mixxx-launcher.py /usr/bin
 apt-get clean
 rm -rf /tmp/* ~/.bash_history
 #rm /etc/hosts
