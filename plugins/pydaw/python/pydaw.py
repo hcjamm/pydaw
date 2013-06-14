@@ -1136,6 +1136,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.is_copying = False
         self.set_brush()
         self.waveforms_scaled = False
+        self.vol_linear = pydaw_db_to_lin(self.audio_item.vol)
+        print "self.vol_linear", self.vol_linear
         self.draw()
 
     def draw(self):
@@ -1182,6 +1184,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_path_item.setPos(self.sample_start_offset_px, 0.0)
             if not self.waveforms_scaled:
                 f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.rect_orig)
+                f_y_scale *= self.vol_linear
                 f_path_item.scale(f_x_scale, f_y_scale)
             f_y_pos += self.y_inc
         self.waveforms_scaled = True
@@ -1892,6 +1895,7 @@ class audio_item_editor_widget:
                 f_item.audio_item.time_stretch_mode = f_new_ts_mode
                 f_item.audio_item.pitch_shift = f_new_ps
                 f_item.audio_item.timestretch_amt = f_new_ts
+                f_item.audio_item.vol = f_new_vol
 
                 f_item.draw()
                 f_item.clip_at_region_end()
