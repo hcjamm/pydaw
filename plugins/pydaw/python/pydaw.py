@@ -1189,6 +1189,29 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_handle.setPos(f_length - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         self.start_handle.setPos(0.0, global_audio_item_height - global_audio_item_handle_size)
 
+    def clip_at_region_end(self):
+        f_current_region_length = pydaw_get_current_region_length()
+        f_max_x = f_current_region_length * global_audio_px_per_bar
+        f_pos_x = self.pos().x()
+        if self.audio_item.end_mode == 0:
+            f_end = f_pos_x + self.rect().width()
+            if f_end > f_max_x:
+                f_end_px = f_max_x - f_pos_x
+                self.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
+                self.audio_item.sample_end = round((self.rect().width() / self.length_px_minus_start) * 1000.0, 6)
+                self.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
+        elif self.audio_item.end_mode == 1:
+            f_end_result = self.pos_to_musical_time(f_pos_x + self.rect().width())
+            if f_end_result[0] >= f_current_region_length:
+                f_end_px = f_max_x - f_pos_x
+                self.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
+                self.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
+                self.audio_item.end_bar = f_current_region_length - 1
+                self.audio_item.end_beat = 3.99
+            else:
+                self.audio_item.end_bar = f_end_result[0]
+                self.audio_item.end_beat = f_end_result[1]
+
     def set_brush(self, a_index=None):
         if self.isSelected():
             self.setBrush(pydaw_selected_gradient)
@@ -1287,18 +1310,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if global_transport_is_playing:
             return
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
-        f_audio_items = this_pydaw_project.get_audio_items(global_current_region.uid)
-        f_current_region_length = pydaw_get_current_region_length()
-        f_max_x = f_current_region_length * global_audio_px_per_bar
+        f_audio_items =  this_audio_editor.audio_items #this_pydaw_project.get_audio_items(global_current_region.uid)
         f_reset_selection = False
         f_did_change = False
         for f_audio_item in this_audio_items_viewer.audio_items:
             if f_audio_item.isSelected():
-                f_item = f_audio_items.items[f_audio_item.track_num]
+                f_item = f_audio_item.audio_item #f_audio_items.items[f_audio_item.track_num]
                 f_pos_x = f_audio_item.pos().x()
                 if f_audio_item.is_resizing:
                     f_x = a_event.pos().x()
-                    #f_x = f_audio_item.length_handle.scenePos().x()
                     if this_audio_items_viewer.snap_mode == 1:
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
                         if f_x < global_audio_px_per_bar:
@@ -1355,29 +1375,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
                     f_item.start_bar = f_start_result[0]
                     f_item.start_beat = f_start_result[1]
-                if f_item.end_mode == 0:
-                    f_end = f_pos_x + f_audio_item.rect().width()
-                    if f_end > f_max_x:
-                        f_end_px = f_max_x - f_pos_x
-                        f_audio_item.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
-                        f_item.sample_end = round((f_audio_item.rect().width() / f_audio_item.length_px_minus_start) * 1000.0, 6)
-                        f_audio_item.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
-                elif f_item.end_mode == 1:
-                    f_end_result = f_audio_item.pos_to_musical_time(f_pos_x + f_audio_item.rect().width())
-                    if f_end_result[0] >= f_current_region_length:
-                        f_end_px = f_max_x - f_pos_x
-                        f_audio_item.setRect(0.0, 0.0, f_end_px, global_audio_item_height)
-                        f_audio_item.length_handle.setPos(f_end_px - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
-                        f_item.end_bar = f_current_region_length - 1
-                        f_item.end_beat = 3.99
-                    else:
-                        f_item.end_bar = f_end_result[0]
-                        f_item.end_beat = f_end_result[1]
+                f_audio_item.clip_at_region_end()
                 f_item_str = str(f_item)
                 if f_item_str != self.orig_string:
                     self.orig_string = f_item_str
                     f_did_change = True
-                    f_audio_item.audio_item = f_item
+                    #f_audio_item.audio_item = f_item
                     f_audio_item.draw()
             f_audio_item.is_moving = False
             f_audio_item.is_resizing = False
@@ -1461,7 +1464,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
         this_pydaw_project.commit("Added audio items to region " + str(global_current_region.uid))
         this_audio_editor.open_items()
-        this_audio_item_editor_widget.selected_index_combobox.setCurrentIndex(f_index)
         self.last_open_dir = os.path.dirname(f_file_name_str)
 
     def keyPressEvent(self, a_event):
@@ -1880,6 +1882,8 @@ class audio_item_editor_widget:
                 f_item.audio_item.vol = self.sample_vol_slider.value()
                 f_item.audio_item.fade_in = self.fade_in.value()
                 f_item.audio_item.fade_out = self.fade_out.value()
+                f_item.draw()
+                f_item.clip_at_region_end()
                 this_audio_editor.audio_items.items[f_item.track_num] = f_item.audio_item
                 f_item.draw()
                 f_selected_count += 1
