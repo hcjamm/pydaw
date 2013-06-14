@@ -45,6 +45,7 @@ install:
 	cp -r share $(DESTDIR)$(PREFIX)
 	cp -r themes $(DESTDIR)$(PREFIX)/lib/pydaw3
 	cp -r cc_maps $(DESTDIR)$(PREFIX)/lib/pydaw3
+	cp -r mixxx $(DESTDIR)$(PREFIX)/lib/pydaw3
 	install -m 755 pydaw3-version.txt $(DESTDIR)$(PREFIX)/lib/pydaw3
 	echo "\n\nGit: " `git rev-parse HEAD` >> $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw3-version.txt
 
