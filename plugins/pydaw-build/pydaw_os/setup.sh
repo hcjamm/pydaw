@@ -14,6 +14,7 @@ apt-get update
 #hence we install manually first
 apt-get install -y audacity
 apt-get install -y mixxx
+cp /usr/lib/pydaw3/mixxx/mixxx-launcher.py /usr/bin
 #Here either wget a .deb, or (preferably) have deb.pl move it here when building...
 
 #dpkg -i pydaw*.deb
