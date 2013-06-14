@@ -1373,7 +1373,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     else:
                         f_item.end_bar = f_end_result[0]
                         f_item.end_beat = f_end_result[1]
-                if str(f_item) != self.orig_string:
+                f_item_str = str(f_item)
+                if f_item_str != self.orig_string:
+                    self.orig_string = f_item_str
                     f_did_change = True
                     f_audio_item.audio_item = f_item
                     f_audio_item.draw()
