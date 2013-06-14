@@ -1236,6 +1236,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.is_copying = True
                         this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
 
+    def mouseDoubleClickEvent(self, a_event):
+        this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(2)
+
     def y_pos_to_lane_number(self, a_y_pos):
         f_lane_num = int((a_y_pos - global_audio_ruler_height) / global_audio_item_height)
         f_lane_num = pydaw_clip_value(f_lane_num, 0, 11)
