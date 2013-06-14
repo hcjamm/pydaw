@@ -18,7 +18,7 @@ from time import sleep
 
 #from lms_session import lms_session #deprecated
 from dssi_gui import dssi_gui
-from math import log
+from math import log, pow
 
 from PyQt4 import QtGui, QtCore
 import pydaw_history
@@ -149,6 +149,12 @@ def pydaw_hz_to_pitch(a_hz):
 
 def pydaw_pitch_to_ratio(a_pitch):
     return (1.0/pydaw_pitch_to_hz(0.0)) * pydaw_pitch_to_hz(a_pitch)
+
+def pydaw_db_to_lin(a_value):
+    return pow(10.0, (0.05 * a_value))
+
+def pydaw_lin_to_db(a_value):
+    return log(a_value, 10.0) * 20.0
 
 class pydaw_project:
     def create_file(self, a_folder, a_file, a_text):
