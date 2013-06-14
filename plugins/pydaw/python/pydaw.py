@@ -1920,6 +1920,10 @@ class audio_list_editor:
         self.audio_items_table_widget.clearContents()
 
         if a_update_viewer:
+            f_selected_list = []
+            for f_item in this_audio_items_viewer.audio_items:
+                if f_item.isSelected():
+                    f_selected_list.append(str(f_item.audio_item))
             this_audio_items_viewer.clear_drawn_items()
 
         for k, v in self.audio_items.items.iteritems():
@@ -1944,6 +1948,10 @@ class audio_list_editor:
                     print("Error drawing item for " + str(v.uid) + ", could not get sample graph object")
                     continue
                 this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
+        if a_update_viewer:
+            for f_item in this_audio_items_viewer.audio_items:
+                if str(f_item.audio_item) in f_selected_list:
+                    f_item.setSelected(True)
         self.audio_items_table_widget.resizeColumnsToContents()
 
     def clear_new(self):
