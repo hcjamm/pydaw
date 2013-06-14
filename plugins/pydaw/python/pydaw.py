@@ -1313,12 +1313,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if global_transport_is_playing:
             return
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
-        f_audio_items =  this_audio_editor.audio_items #this_pydaw_project.get_audio_items(global_current_region.uid)
-        f_reset_selection = False
+        f_audio_items =  this_audio_editor.audio_items
+        f_reset_selection = True  #Set to True when testing, set to False for better UI performance...
         f_did_change = False
         for f_audio_item in this_audio_items_viewer.audio_items:
             if f_audio_item.isSelected():
-                f_item = f_audio_item.audio_item #f_audio_items.items[f_audio_item.track_num]
+                f_item = f_audio_item.audio_item
                 f_pos_x = f_audio_item.pos().x()
                 if f_audio_item.is_resizing:
                     f_x = a_event.pos().x()
@@ -1359,6 +1359,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 else:
                     f_pos_y = f_audio_item.pos().y()
                     if f_audio_item.is_copying:
+                        f_reset_selection = True
                         f_item = f_item.clone()
                         f_index = f_audio_items.get_next_index()
                         if f_index == -1:
