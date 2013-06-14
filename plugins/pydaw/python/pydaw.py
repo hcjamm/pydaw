@@ -1871,20 +1871,31 @@ class audio_item_editor_widget:
             self.end_mode = 1
 
         f_selected_count = 0
+        f_reload_scene = False
 
         for f_item in this_audio_items_viewer.audio_items:
             if f_item.isSelected():
                 f_item.audio_item.end_mode = self.end_mode
-                f_item.audio_item.time_stretch_mode = self.timestretch_mode.currentIndex()
-                f_item.audio_item.pitch_shift = self.pitch_shift.value()
-                f_item.audio_item.timestretch_amt = self.timestretch_amt.value()
                 f_item.audio_item.output_track = self.output_combobox.currentIndex()
-                f_item.audio_item.vol = self.sample_vol_slider.value()
                 f_item.audio_item.fade_in = self.fade_in.value()
                 f_item.audio_item.fade_out = self.fade_out.value()
+
+                f_new_vol = self.sample_vol_slider.value()
+                f_new_ts_mode = self.timestretch_mode.currentIndex()
+                f_new_ts = self.timestretch_amt.value()
+                f_new_ps = self.pitch_shift.value()
+                if (f_item.audio_item.vol != f_new_vol) or \
+                (f_item.audio_item.time_stretch_mode != f_new_ts_mode) or \
+                (f_new_ts_mode == 1 and f_item.audio_item.pitch_shift != f_new_ps) or \
+                (f_new_ts_mode == 1 and f_item.audio_item.timestretch_amt != f_new_ts):
+                    f_reload_scene = True
+                f_item.audio_item.time_stretch_mode = f_new_ts_mode
+                f_item.audio_item.pitch_shift = f_new_ps
+                f_item.audio_item.timestretch_amt = f_new_ts
+
                 f_item.draw()
                 f_item.clip_at_region_end()
-                this_audio_editor.audio_items.items[f_item.track_num] = f_item.audio_item
+                #this_audio_editor.audio_items.items[f_item.track_num] = f_item.audio_item
                 f_item.draw()
                 f_selected_count += 1
 
@@ -1892,7 +1903,7 @@ class audio_item_editor_widget:
             QtGui.QMessageBox.warning(self.widget, "Error", "No items selected")
         else:
             this_pydaw_project.save_audio_items(global_current_region.uid, this_audio_editor.audio_items)
-            this_audio_editor.open_items(False)
+            this_audio_editor.open_items(f_reload_scene)
             this_pydaw_project.commit("Update audio items")
             this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
 
