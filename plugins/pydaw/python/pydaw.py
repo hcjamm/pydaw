@@ -1091,6 +1091,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         self.sample_length = a_sample_length
         self.audio_item = a_audio_item
+        self.orig_string = str(a_audio_item)
         self.track_num = a_track_num
         f_graph = this_pydaw_project.get_sample_graph_by_uid(self.audio_item.uid)
         self.painter_paths = f_graph.create_sample_graph(True)
@@ -1290,6 +1291,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_current_region_length = pydaw_get_current_region_length()
         f_max_x = f_current_region_length * global_audio_px_per_bar
         f_reset_selection = False
+        f_did_change = False
         for f_audio_item in this_audio_items_viewer.audio_items:
             if f_audio_item.isSelected():
                 f_item = f_audio_items.items[f_audio_item.track_num]
@@ -1371,19 +1373,21 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     else:
                         f_item.end_bar = f_end_result[0]
                         f_item.end_beat = f_end_result[1]
-                f_audio_item.audio_item = f_item
-                f_audio_item.draw()
+                if str(f_item) != self.orig_string:
+                    f_did_change = True
+                    f_audio_item.audio_item = f_item
+                    f_audio_item.draw()
             f_audio_item.is_moving = False
             f_audio_item.is_resizing = False
             f_audio_item.is_start_resizing = False
             f_audio_item.is_copying = False
             f_audio_item.setGraphicsEffect(None)
             f_audio_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
-            #f_audio_item.setSelected(False)
-        this_pydaw_project.save_audio_items(global_current_region.uid, f_audio_items)
-        this_pydaw_project.commit("Update audio items")
-        this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
-        this_audio_editor.open_items(f_reset_selection)
+        if f_did_change:
+            this_pydaw_project.save_audio_items(global_current_region.uid, f_audio_items)
+            this_pydaw_project.commit("Update audio items")
+            this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
+            this_audio_editor.open_items(f_reset_selection)
 
 class audio_items_viewer(QtGui.QGraphicsView):
     def __init__(self):
