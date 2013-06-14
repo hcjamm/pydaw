@@ -534,7 +534,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
             break;
         case 2:  //Time affecting pitch
         {
-            f_result->ratio *= (f_result->timestretch_amt);
+            f_result->ratio *= (1.0f / (f_result->timestretch_amt));
         }
             break;
     }
