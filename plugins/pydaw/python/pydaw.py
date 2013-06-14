@@ -1890,7 +1890,7 @@ class audio_item_editor_widget:
                 if (f_item.audio_item.vol != f_new_vol) or \
                 (f_item.audio_item.time_stretch_mode != f_new_ts_mode) or \
                 (f_new_ts_mode == 1 and f_item.audio_item.pitch_shift != f_new_ps) or \
-                (f_new_ts_mode == 1 and f_item.audio_item.timestretch_amt != f_new_ts):
+                (f_new_ts_mode == 2 and f_item.audio_item.timestretch_amt != f_new_ts):
                     f_reload_scene = True
                 f_item.audio_item.time_stretch_mode = f_new_ts_mode
                 f_item.audio_item.pitch_shift = f_new_ps
