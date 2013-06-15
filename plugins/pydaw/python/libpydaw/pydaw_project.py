@@ -1656,10 +1656,10 @@ class pydaw_audio_item:
         return pydaw_audio_item.from_arr(str(self).strip("\n").split("|"))
 
     def __str__(self):
-        return str(self.uid) + "|" + str(self.sample_start) + "|" + str(self.sample_end) \
-        + "|" + str(self.start_bar) + "|" + str(self.start_beat) + "|" + str(self.end_mode) \
-        + "|" + str(self.end_bar) + "|" + str(self.end_beat) + "|" + str(self.time_stretch_mode) \
-        + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(self.timestretch_amt) \
+        return str(self.uid) + "|" + str(round(self.sample_start, 4)) + "|" + str(round(self.sample_end, 4)) \
+        + "|" + str(self.start_bar) + "|" + str(round(self.start_beat, 4)) + "|" + str(self.end_mode) \
+        + "|" + str(self.end_bar) + "|" + str(round(self.end_beat, 4)) + "|" + str(self.time_stretch_mode) \
+        + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(round(self.timestretch_amt, 4)) \
         + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "|" + str(self.lane_num) + "\n"
 
     @staticmethod
