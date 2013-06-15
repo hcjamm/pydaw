@@ -4623,6 +4623,7 @@ class pydaw_main_window(QtGui.QMainWindow):
             self.end_reg = f_end_region.value()
             self.start_bar = f_start_bar.value()
             self.end_bar = f_end_bar.value()
+            self.last_offline_dir = os.path.dirname(str(f_name.text()))
             f_window.close()
             self.show_offline_rendering_wait_window(f_name.text())
 
@@ -4631,6 +4632,8 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         def file_name_select():
             try:
+                if not os.path.isdir(self.last_offline_dir):
+                    self.last_offline_dir = global_home
                 f_file_name = str(QtGui.QFileDialog.getSaveFileName(f_window, "Select a file name to save to...", self.last_offline_dir))
                 if not f_file_name is None and f_file_name != "":
                     if not f_file_name.endswith(".wav"):
@@ -4711,7 +4714,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_cancel = QtGui.QPushButton("Cancel")
         f_cancel.pressed.connect(cancel_handler)
         f_layout.addWidget(f_cancel, 9, 2)
-        self.last_offline_dir = global_home
         f_window.exec_()
 
     def on_undo(self):
@@ -4807,6 +4809,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.setStyleSheet(f_style)
         self.first_offline_render = True
+        self.last_offline_dir = global_home
 
         self.central_widget = QtGui.QWidget()
         self.setCentralWidget(self.central_widget)
