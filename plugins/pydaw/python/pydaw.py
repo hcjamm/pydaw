@@ -1326,7 +1326,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_end_result = f_audio_item.pos_to_musical_time(f_x + f_audio_item.pos().x())
                         f_item.end_bar = f_end_result[0]
                         f_item.end_beat = f_end_result[1]
-                        print "f_item.end_bar", f_item.end_bar, "f_item.end_beat", f_item.end_beat
+                        #print "f_item.end_bar", f_item.end_bar, "f_item.end_beat", f_item.end_beat
                 elif f_audio_item.is_start_resizing:
                     #f_x = a_event.scenePos().x()
                     f_x = f_audio_item.start_handle.scenePos().x()
@@ -1359,12 +1359,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                             break
                         else:
                             f_audio_items.add_item(f_index, f_item)
+                    else:
+                        f_audio_item.set_brush(f_item.lane_num)
                     if this_audio_items_viewer.snap_mode == 0:
                         pass
                     elif this_audio_items_viewer.snap_mode == 1:
                         f_pos_x = int(f_pos_x / global_audio_px_per_bar) * global_audio_px_per_bar
                     f_item.lane_num, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
-                    f_audio_item.set_brush(f_item.lane_num)
                     f_audio_item.setPos(f_pos_x, f_pos_y)
                     f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
                     f_item.start_bar = f_start_result[0]
