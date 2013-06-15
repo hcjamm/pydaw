@@ -1580,12 +1580,20 @@ class audio_items_viewer_widget():
         self.folders_tab_widget.addTab(self.folders_tab, "Files")
         self.folders_tab_vlayout = QtGui.QVBoxLayout()
         self.folders_tab.setLayout(self.folders_tab_vlayout)
+        self.folder_path_lineedit = QtGui.QLineEdit()
+        self.folder_path_lineedit.setReadOnly(True)
+        self.folders_tab_vlayout.addWidget(self.folder_path_lineedit)
         self.list_folder = QtGui.QListWidget()
         self.list_folder.itemClicked.connect(self.folder_item_clicked)
         self.folders_tab_vlayout.addWidget(self.list_folder)
+        self.folder_buttons_hlayout = QtGui.QHBoxLayout()
+        self.folders_tab_vlayout.addLayout(self.folder_buttons_hlayout)
+        self.up_button = QtGui.QPushButton("Up")
+        self.up_button.pressed.connect(self.on_up_button)
+        self.folder_buttons_hlayout.addWidget(self.up_button)
         self.bookmark_button = QtGui.QPushButton("Bookmark")
         self.bookmark_button.pressed.connect(self.bookmark_button_pressed)
-        self.folders_tab_vlayout.addWidget(self.bookmark_button)
+        self.folder_buttons_hlayout.addWidget(self.bookmark_button)
 
         self.bookmarks_tab = QtGui.QWidget()
         self.list_bookmarks = QtGui.QListWidget()
@@ -1712,6 +1720,9 @@ class audio_items_viewer_widget():
     def folder_item_clicked(self, a_item):
         self.set_folder(a_item.text())
 
+    def on_up_button(self):
+        self.set_folder("..")
+
     def set_folder(self, a_folder, a_full_path=False):
         self.list_file.clear()
         self.list_folder.clear()
@@ -1721,6 +1732,7 @@ class audio_items_viewer_widget():
         else:
             self.last_open_dir = os.path.abspath(self.last_open_dir + "/" + str(a_folder))
         self.last_open_dir = self.last_open_dir.replace("//", "/")
+        self.folder_path_lineedit.setText(self.last_open_dir)
         f_list = os.listdir(self.last_open_dir)
         f_list.sort(key=str.lower)
         for f_file in f_list:
