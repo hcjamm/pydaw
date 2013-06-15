@@ -1550,7 +1550,11 @@ def global_get_file_bookmarks():
             f_line_arr = f_line.split("|||")
             if len(f_line_arr) < 2:
                 break
-            f_result[f_line_arr[0]] = f_line_arr[1]
+            f_full_path = f_line_arr[1] + "/" + f_line_arr[0]
+            if os.path.isdir(f_full_path):
+                f_result[f_line_arr[0]] = f_line_arr[1]
+            else:
+                print("Warning:  Not loading bookmark '" + f_line_arr[0] + "' because the directory '" + f_full_path + "' does not exist.")
     return f_result
 
 def global_add_file_bookmark(a_folder):
