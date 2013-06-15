@@ -1137,7 +1137,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.set_brush()
         self.waveforms_scaled = False
         self.vol_linear = pydaw_db_to_lin(self.audio_item.vol)
-        print "self.vol_linear", self.vol_linear
         self.draw()
 
     def draw(self):
@@ -1171,7 +1170,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         self.setRect(0.0, 0.0, f_length, global_audio_item_height)
         self.setPos(f_start, f_track_num)
-        self.last_x = self.pos().x()
         self.is_moving = False
 
         self.setToolTip("Double click to open editor dialog, or click and drag to move")
@@ -1246,22 +1244,16 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_item.is_resizing = True
                     f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
 
-
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
             return
         this_audio_item_editor_widget.open_item(self.audio_item)
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
         if a_event.modifiers() == QtCore.Qt.ControlModifier:
-            f_copying = True
-        else:
-            f_copying = False
-        for f_item in this_audio_items_viewer.audio_items:
+            for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
-                    f_item.last_x = f_item.pos().x()
-                    if f_copying:
-                        f_item.is_copying = True
-                        this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
+                    f_item.is_copying = True
+                    this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
 
     def mouseDoubleClickEvent(self, a_event):
         this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(2)
@@ -1367,8 +1359,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                             break
                         else:
                             f_audio_items.add_item(f_index, f_item)
-                    if f_audio_item.last_x == f_pos_x:
-                        continue
                     if this_audio_items_viewer.snap_mode == 0:
                         pass
                     elif this_audio_items_viewer.snap_mode == 1:
@@ -1384,8 +1374,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 if f_item_str != self.orig_string:
                     self.orig_string = f_item_str
                     f_did_change = True
-                    #f_audio_item.audio_item = f_item
-                    f_audio_item.draw()
+                    if not f_reset_selection:
+                        f_audio_item.draw()
             f_audio_item.is_moving = False
             f_audio_item.is_resizing = False
             f_audio_item.is_start_resizing = False
