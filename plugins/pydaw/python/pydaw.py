@@ -1726,7 +1726,6 @@ class audio_items_viewer_widget():
     def set_folder(self, a_folder, a_full_path=False):
         self.list_file.clear()
         self.list_folder.clear()
-        self.list_folder.addItems([".."])
         if a_full_path:
             self.last_open_dir = str(a_folder)
         else:
