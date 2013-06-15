@@ -5270,7 +5270,7 @@ class a_b_widget:
     def on_file_open(self):
         if not os.path.isdir(self.last_folder):
             self.last_folder = global_home
-        f_file = QtGui.QFileDialog.getOpenFileName(parent=self.widget ,caption='Open Project', directory=self.last_folder, filter='Wav File(*.wav)')
+        f_file = QtGui.QFileDialog.getOpenFileName(parent=self.widget ,caption='Open .wav file for A/B', directory=self.last_folder, filter='Wav File(*.wav)')
         if f_file is None:
             return
         f_file_str = str(f_file)
