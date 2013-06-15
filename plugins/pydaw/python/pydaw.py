@@ -1928,9 +1928,9 @@ class audio_list_editor:
             self.audio_items_table_widget.setItem(k, 7, QtGui.QTableWidgetItem(str(v.end_beat)))
             self.audio_items_table_widget.setItem(k, 8, QtGui.QTableWidgetItem(str(global_timestretch_modes[v.time_stretch_mode])))
             self.audio_items_table_widget.setItem(k, 9, QtGui.QTableWidgetItem(str(v.pitch_shift)))
-            self.audio_items_table_widget.setItem(k, 10, QtGui.QTableWidgetItem(str(v.output_track)))
-            self.audio_items_table_widget.setItem(k, 11, QtGui.QTableWidgetItem(str(v.vol)))
-            self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.timestretch_amt)))
+            self.audio_items_table_widget.setItem(k, 10, QtGui.QTableWidgetItem(str(v.timestretch_amt)))
+            self.audio_items_table_widget.setItem(k, 11, QtGui.QTableWidgetItem(str(v.output_track)))
+            self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.vol)))
             self.audio_items_table_widget.setItem(k, 13, QtGui.QTableWidgetItem(str(v.fade_in)))
             self.audio_items_table_widget.setItem(k, 14, QtGui.QTableWidgetItem(str(v.fade_out)))
             if a_update_viewer:
