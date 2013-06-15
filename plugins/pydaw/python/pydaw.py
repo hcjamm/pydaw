@@ -1381,6 +1381,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_audio_item.setGraphicsEffect(None)
             f_audio_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
         if f_did_change:
+            f_audio_items.deduplicate_items()
             this_pydaw_project.save_audio_items(global_current_region.uid, f_audio_items)
             this_pydaw_project.commit("Update audio items")
             this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)

@@ -1611,6 +1611,20 @@ class pydaw_audio_items:
     def remove_item(self, a_index):
         self.items.pop(int(a_index))
 
+    def deduplicate_items(self):
+        f_to_delete = []
+        f_values = []
+        for k, v in self.items.iteritems():
+            f_str = str(v)
+            if f_str in f_values:
+                f_to_delete.append(k)
+            else:
+                f_values.append(f_str)
+        for f_key in f_to_delete:
+            print("Removing duplicate audio item at " + str(f_key))
+            self.items.pop(f_key)
+
+
     @staticmethod
     def from_str(a_str):
         f_result = pydaw_audio_items()
