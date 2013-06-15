@@ -1651,6 +1651,19 @@ class pydaw_audio_item:
         self.fade_out = float(a_fade_out)
         self.lane_num = int(a_lane_num)
 
+    def set_pos(self, a_bar, a_beat):
+        f_bar = int(a_bar)
+        f_beat = float(a_beat)
+        if self.end_mode == 0:
+            pass
+        elif self.end_mode == 1:
+            f_bar_diff = f_bar - self.start_bar
+            f_beat_diff = f_beat - self.start_beat
+            self.end_bar += f_bar_diff
+            self.end_beat += f_beat_diff
+        self.start_bar = f_bar
+        self.start_beat = f_beat
+
     def clone(self):
         """ Using and abusing the functions that are already there... """
         return pydaw_audio_item.from_arr(str(self).strip("\n").split("|"))

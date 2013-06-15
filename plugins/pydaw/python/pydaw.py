@@ -1352,13 +1352,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_pos_y = f_audio_item.pos().y()
                     if f_audio_item.is_copying:
                         f_reset_selection = True
-                        f_item = f_item.clone()
+                        f_item_old = f_item.clone()
                         f_index = f_audio_items.get_next_index()
                         if f_index == -1:
                             QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
                             break
                         else:
-                            f_audio_items.add_item(f_index, f_item)
+                            f_audio_items.add_item(f_index, f_item_old)
                     else:
                         f_audio_item.set_brush(f_item.lane_num)
                     if this_audio_items_viewer.snap_mode == 0:
@@ -1368,8 +1368,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_item.lane_num, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
                     f_audio_item.setPos(f_pos_x, f_pos_y)
                     f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
-                    f_item.start_bar = f_start_result[0]
-                    f_item.start_beat = f_start_result[1]
+                    f_item.set_pos(f_start_result[0], f_start_result[1])
                 f_audio_item.clip_at_region_end()
                 f_item_str = str(f_item)
                 if f_item_str != self.orig_string:
