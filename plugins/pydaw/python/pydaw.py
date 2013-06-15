@@ -1905,8 +1905,8 @@ class audio_item_editor_widget:
 
 class audio_list_editor:
     def open_items(self, a_update_viewer=True):
-        self.audio_items = this_pydaw_project.get_audio_items(global_current_region.uid)
         self.audio_items_table_widget.clearContents()
+        self.audio_items = this_pydaw_project.get_audio_items(global_current_region.uid)
 
         if a_update_viewer:
             f_selected_list = []
@@ -4347,13 +4347,15 @@ class transport_widget:
         self.trigger_audio_playback()
 
     def on_tempo_changed(self, a_tempo):
+        self.transport.bpm = a_tempo
+        pydaw_set_bpm(a_tempo)
+        if global_current_region is not None:
+            this_audio_editor.open_items()
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_tempo(a_tempo)
-            self.transport.bpm = a_tempo
             this_pydaw_project.save_transport(self.transport)
             this_pydaw_project.commit("Set project tempo to " + str(a_tempo))
-            pydaw_set_bpm(a_tempo)
-            this_audio_editor.open_items()
+
     def on_loop_mode_changed(self, a_loop_mode):
         if not self.suppress_osc:
             this_pydaw_project.this_dssi_gui.pydaw_set_loop_mode(a_loop_mode)
