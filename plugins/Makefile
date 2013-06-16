@@ -42,6 +42,7 @@ install:
 	make -C lms_modulex PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	make -C way_v PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	make -C pydaw_jack_oscrolloscope PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
+	install -d $(DESTDIR)$(PREFIX)/lib/pydaw3
 	cp -r share $(DESTDIR)$(PREFIX)
 	cp -r themes $(DESTDIR)$(PREFIX)/lib/pydaw3
 	cp -r cc_maps $(DESTDIR)$(PREFIX)/lib/pydaw3
