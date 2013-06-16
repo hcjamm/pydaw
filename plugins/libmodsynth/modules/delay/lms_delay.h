@@ -54,6 +54,7 @@ typedef struct st_lms_delay
     float combined_inputs;  //Add output 0 and 1
     t_lim_limiter * limiter;
     float last_duck;
+    float limiter_gain;
         
     t_state_variable_filter * svf0;
     t_state_variable_filter * svf1;
@@ -97,6 +98,8 @@ t_lms_delay * g_ldl_get_delay(float a_seconds, float a_sr)
     f_result->limiter = g_lim_get(a_sr);
     f_result->last_duck = -99.999f;
     
+    f_result->limiter_gain = 0.0f;
+    
     f_result->svf0 = g_svf_get(a_sr);
     f_result->svf1 = g_svf_get(a_sr);
     v_svf_set_res(f_result->svf0, -18.0f);
@@ -105,21 +108,14 @@ t_lms_delay * g_ldl_get_delay(float a_seconds, float a_sr)
     return f_result;
 }
 
-/* inline void v_ldl_run_delay_ping_pong(
- * t_lms_delay* a_dly, 
- * float a_in0, //input 0  - audio input 0
- * float a_in1, //input 1
- * float a_fb0, //feedback 0 - This is for allowing external modules to modify the feedback, like a dampening filter
- * float a_fb1) //feedback 1
- */
 inline void v_ldl_run_delay(t_lms_delay* a_dly, float a_in0, float a_in1)
 {    
-    v_enf_run_env_follower(a_dly->feeback_env_follower, ((a_dly->feedback0) + (a_dly->feedback1)));
-    /*Automatically reduce feedback if delay volume is too high*/
+    /*v_enf_run_env_follower(a_dly->feeback_env_follower, ((a_dly->feedback0) + (a_dly->feedback1)));
+    //Automatically reduce feedback if delay volume is too high
     if((a_dly->feeback_env_follower->output_smoothed) > -3.0f)
     {
         a_dly->feedback_linear = f_db_to_linear(((-3.0f - (a_dly->feeback_env_follower->output_smoothed)) * 0.3f), a_dly->amp_ptr);
-    }
+    }*/
     
     v_lim_run(a_dly->limiter, a_in0, a_in1);
     
@@ -141,8 +137,15 @@ inline void v_ldl_run_delay(t_lms_delay* a_dly, float a_in0, float a_in1)
     a_dly->feedback0 = v_svf_run_2_pole_lp(a_dly->svf0, (a_dly->tap0->output));
     a_dly->feedback1 = v_svf_run_2_pole_lp(a_dly->svf1, (a_dly->tap1->output));
     
-    v_dw_run_dry_wet(a_dly->dw0, a_in0, (a_dly->feedback0) * (a_dly->limiter->gain));
-    v_dw_run_dry_wet(a_dly->dw1, a_in1, (a_dly->feedback1) * (a_dly->limiter->gain));
+    a_dly->limiter_gain =  (a_dly->limiter->gain)  * (a_dly->limiter->autogain);
+    
+    if(a_dly->limiter_gain > 1.0f)
+    {
+        a_dly->limiter_gain = 1.0f;
+    }
+    
+    v_dw_run_dry_wet(a_dly->dw0, a_in0, (a_dly->feedback0) * (a_dly->limiter_gain));
+    v_dw_run_dry_wet(a_dly->dw1, a_in1, (a_dly->feedback1) * (a_dly->limiter_gain));
     
     a_dly->output0 = (a_dly->dw0->output);
     a_dly->output1 = (a_dly->dw1->output);
@@ -171,6 +174,10 @@ inline void v_ldl_set_delay(t_lms_delay* a_dly,float a_seconds, float a_feeback_
     {
         a_dly->feedback_db = a_feeback_db;        
         a_dly->feedback_linear = f_db_to_linear_fast(a_feeback_db, a_dly->amp_ptr);
+        if(a_dly->feedback_linear > 0.9f)
+        {
+            a_dly->feedback_linear = 0.9f;
+        }
     }
     
     if(a_dly->last_duck != a_duck)
