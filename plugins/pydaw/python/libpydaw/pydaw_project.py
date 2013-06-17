@@ -1624,6 +1624,26 @@ class pydaw_audio_items:
             print("Removing duplicate audio item at " + str(f_key))
             self.items.pop(f_key)
 
+    def set_region_length(self, a_length):
+        """ Remove any items not within the new length, or change any end points that are past
+        the new end.  Return True if anything changed, otherwise False"""
+        f_to_delete = []
+        f_length = int(a_length)
+        f_length_change_count = 0
+        for k, v in self.items.iteritems():
+            if v.start_bar >= f_length:
+                f_to_delete.append(k)
+                print("Item begins after new region length of " + str(a_length) + ", deleting: " + str(v))
+            elif v.end_bar >= f_length:
+                v.end_bar = f_length - 1
+                v.end_beat = 3.99
+                f_length_change_count += 1
+        for f_key in f_to_delete:
+            self.items.pop(f_key)
+        if len(f_to_delete) > 0 or f_length_change_count > 0:
+            return True
+        else:
+            return False
 
     @staticmethod
     def from_str(a_str):

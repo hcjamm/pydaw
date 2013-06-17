@@ -397,14 +397,16 @@ class region_settings:
             if not self.enabled or global_current_region is None:
                 return
             if self.length_alternate_radiobutton.isChecked():
-                global_current_region.region_length_bars = self.length_alternate_spinbox.value()
-                #self.set_region_length(global_current_region.region_length_bars)
+                f_region_length = self.length_alternate_spinbox.value()
+                global_current_region.region_length_bars = f_region_length
                 f_commit_message = "Set region '" + str(self.region_name_lineedit.text()) + "' length to " + str(self.length_alternate_spinbox.value())
             else:
                 global_current_region.region_length_bars = 0
-                #self.set_region_length()
+                f_region_length = 8
                 f_commit_message = "Set region '" + str(self.region_name_lineedit.text()) + "' length to default value"
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), global_current_region)
+            if this_audio_editor.audio_items.set_region_length(f_region_length):
+                this_pydaw_project.save_audio_items(global_current_region.uid, this_audio_editor.audio_items)
             this_pydaw_project.commit(f_commit_message)
             self.open_region(self.region_name_lineedit.text())
             pydaw_update_region_lengths_dict()
