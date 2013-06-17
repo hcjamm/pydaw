@@ -432,6 +432,7 @@ class region_settings:
         self.length_alternate_radiobutton.toggled.connect(self.update_region_length)
         self.hlayout0.addWidget(self.length_alternate_radiobutton)
         self.length_alternate_spinbox = QtGui.QSpinBox()
+        self.length_alternate_spinbox.setKeyboardTracking(False)
         self.length_alternate_spinbox.setRange(1, pydaw_max_region_length)
         self.length_alternate_spinbox.setValue(8)
         self.length_alternate_spinbox.valueChanged.connect(self.update_region_length)
