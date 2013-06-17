@@ -1074,6 +1074,7 @@ def pydaw_seconds_to_bars(a_seconds):
     return a_seconds * global_bars_per_second
 
 global_audio_px_per_bar = 100.0
+global_audio_px_per_beat = 100.0 / 4.0
 global_audio_ruler_height = 20.0
 
 global_audio_item_height = 75.0
@@ -1278,6 +1279,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
                         if f_x < global_audio_px_per_bar:
                             f_x = global_audio_px_per_bar
+                    elif this_audio_items_viewer.snap_mode == 2:
+                        f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
+                        if f_x < global_audio_px_per_beat:
+                            f_x = global_audio_px_per_beat
                     f_x = pydaw_clip_value(f_x, global_audio_item_handle_size, f_item.length_px_minus_start)
                     f_item.length_handle.setPos(f_x - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         elif self.is_start_resizing:
@@ -1286,6 +1291,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_x = a_event.pos().x()
                     if this_audio_items_viewer.snap_mode == 1:
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
+                    elif this_audio_items_viewer.snap_mode == 2:
+                        f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
                     f_x = pydaw_clip_value(f_x, f_item.sample_start_offset_px, f_item.length_handle.pos().x())
                     f_item.start_handle.setPos(f_x, global_audio_item_height - global_audio_item_handle_size)
         else:
@@ -1319,6 +1326,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
                         if f_x < global_audio_px_per_bar:
                             f_x = global_audio_px_per_bar
+                    elif this_audio_items_viewer.snap_mode == 2:
+                        f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
+                        if f_x < global_audio_px_per_beat:
+                            f_x = global_audio_px_per_beat
                     f_x = pydaw_clip_value(f_x, global_audio_item_handle_size, f_audio_item.length_px_minus_start)
                     f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
                     if f_item.end_mode == 0:
@@ -1333,6 +1344,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_x = f_audio_item.start_handle.scenePos().x()
                     if this_audio_items_viewer.snap_mode == 1:
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
+                        if f_x < f_audio_item.sample_start_offset_px:
+                            f_x = f_audio_item.sample_start_offset_px
+                    elif this_audio_items_viewer.snap_mode == 2:
+                        f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
                         if f_x < f_audio_item.sample_start_offset_px:
                             f_x = f_audio_item.sample_start_offset_px
                     f_start_result = self.pos_to_musical_time(f_x)
@@ -1366,6 +1381,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         pass
                     elif this_audio_items_viewer.snap_mode == 1:
                         f_pos_x = int(f_pos_x / global_audio_px_per_bar) * global_audio_px_per_bar
+                    elif this_audio_items_viewer.snap_mode == 2:
+                        f_pos_x = int(f_pos_x / global_audio_px_per_beat) * global_audio_px_per_beat
                     f_item.lane_num, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
                     f_audio_item.setPos(f_pos_x, f_pos_y)
                     f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
@@ -1626,7 +1643,7 @@ class audio_items_viewer_widget():
         self.vlayout.addWidget(this_audio_items_viewer)
         self.snap_combobox = QtGui.QComboBox()
         self.snap_combobox.setMinimumWidth(150)
-        self.snap_combobox.addItems(["None", "Bar"])
+        self.snap_combobox.addItems(["None", "Bar", "Beat"])
         self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
