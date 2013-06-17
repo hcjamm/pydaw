@@ -392,8 +392,8 @@ global_current_region_name = None
 
 class region_settings:
     def update_region_length(self, a_value=None):
-        if not this_transport.is_playing and not this_transport.is_recording:
-            global global_current_region
+        global global_current_region
+        if not this_transport.is_playing and not this_transport.is_recording and global_current_region is not None:
             if not self.enabled or global_current_region is None:
                 return
             if self.length_alternate_radiobutton.isChecked():
@@ -1386,7 +1386,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_audio_items.deduplicate_items()
             this_pydaw_project.save_audio_items(global_current_region.uid, f_audio_items)
             this_pydaw_project.commit("Update audio items")
-            this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
             this_audio_editor.open_items(f_reset_selection)
 
 class audio_items_viewer(QtGui.QGraphicsView):
@@ -1456,7 +1455,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
                     f_items.add_item(f_index, f_item)
         this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
-        this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
         this_pydaw_project.commit("Added audio items to region " + str(global_current_region.uid))
         this_audio_editor.open_items()
         self.last_open_dir = os.path.dirname(f_file_name_str)
@@ -1470,7 +1468,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 if f_item.isSelected():
                     f_items.remove_item(f_item.track_num)
             this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
-            this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
             this_pydaw_project.commit("Delete audio item(s)")
             this_audio_editor.open_items(True)
 
@@ -1916,7 +1913,6 @@ class audio_item_editor_widget:
             this_pydaw_project.save_audio_items(global_current_region.uid, this_audio_editor.audio_items)
             this_audio_editor.open_items(f_reload_scene)
             this_pydaw_project.commit("Update audio items")
-            this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
 
     def sample_vol_changed(self, a_val=None):
         self.sample_vol_label.setText(str(self.sample_vol_slider.value()) + "dB")

@@ -740,6 +740,7 @@ class pydaw_project:
     def save_audio_items(self, a_region_uid, a_tracks):
         if not self.suppress_updates:
             self.save_file(pydaw_folder_regions_audio, str(a_region_uid), str(a_tracks))
+            self.this_dssi_gui.pydaw_reload_audio_items(a_region_uid)
 
     def item_exists(self, a_item_name, a_name_dict=None):
         if a_name_dict is None:
