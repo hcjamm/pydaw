@@ -70,11 +70,17 @@ int main(int argc, char** argv)
     f_engine->output0 = (PYFX_Data*)malloc(sizeof(PYFX_Data) * 8192);
     f_engine->output1 = (PYFX_Data*)malloc(sizeof(PYFX_Data) * 8192);
     
+    int arg_dump = 0;
+    
     int f_i = 0;
     
     while(f_i < argc)
     {
         printf("arg[%i]: %s\n", f_i, argv[f_i]);
+        if(!strcmp(argv[f_i], "dump"))  //force a core dump
+        {
+            arg_dump = 1;
+        }
         f_i++;
     }
     
@@ -133,6 +139,11 @@ int main(int argc, char** argv)
 #endif
     
     v_pydaw_offline_render(pydaw_data, 0, 0, 3, 3, "test.wav");
+    
+    if(arg_dump)
+    {
+        assert(0);
+    }
     
     exit(0);
     //return 0;     

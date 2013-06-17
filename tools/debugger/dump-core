@@ -1,0 +1,6 @@
+if [ -f ./core ]; then
+	rm ./core
+fi
+
+ulimit -c unlimited
+make clean && make && ./debugger dump
