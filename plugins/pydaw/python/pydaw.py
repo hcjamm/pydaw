@@ -4492,6 +4492,7 @@ class transport_widget:
         self.hlayout1.addWidget(self.rec_button)
         self.hlayout1.addWidget(QtGui.QLabel("BPM:"))
         self.tempo_spinbox = QtGui.QSpinBox()
+        self.tempo_spinbox.setKeyboardTracking(False)
         self.tempo_spinbox.setObjectName("large_spinbox")
         self.tempo_spinbox.setRange(50, 200)
         self.tempo_spinbox.valueChanged.connect(self.on_tempo_changed)
