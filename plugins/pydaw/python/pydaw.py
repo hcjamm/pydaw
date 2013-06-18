@@ -1140,6 +1140,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.is_copying = False
         self.set_brush()
         self.waveforms_scaled = False
+        self.event_pos_orig = None
+        self.width_orig = None
         self.vol_linear = pydaw_db_to_lin(self.audio_item.vol)
         self.draw()
 
@@ -1253,11 +1255,21 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             return
         this_audio_item_editor_widget.open_item(self.audio_item)
         QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+        self.event_pos_orig = a_event.pos().x()
         if a_event.modifiers() == QtCore.Qt.ControlModifier:
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_item.is_copying = True
+                    f_item.width_orig = f_item.rect().width()
                     this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
+        if self.is_start_resizing:
+            for f_item in this_audio_items_viewer.audio_items:
+                if f_item.isSelected():
+                    f_item.width_orig = 0.0
+        else:
+            for f_item in this_audio_items_viewer.audio_items:
+                if f_item.isSelected():
+                    f_item.width_orig = f_item.rect().width()
 
     def mouseDoubleClickEvent(self, a_event):
         this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(2)
@@ -1271,10 +1283,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def mouseMoveEvent(self, a_event):
         if global_transport_is_playing:
             return
+        f_event_pos = a_event.pos().x()
+        f_event_diff = f_event_pos - self.event_pos_orig
         if self.is_resizing:
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
-                    f_x = a_event.pos().x()
+                    f_x = f_item.width_orig + f_event_diff
                     if this_audio_items_viewer.snap_mode == 1:
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
                         if f_x < global_audio_px_per_bar:
@@ -1288,7 +1302,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         elif self.is_start_resizing:
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
-                    f_x = a_event.pos().x()
+                    f_x = f_item.width_orig + f_event_diff
                     if this_audio_items_viewer.snap_mode == 1:
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
                     elif this_audio_items_viewer.snap_mode == 2:
@@ -1316,12 +1330,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_audio_items =  this_audio_editor.audio_items
         f_reset_selection = True  #Set to True when testing, set to False for better UI performance...
         f_did_change = False
+        f_event_pos = a_event.pos().x()
+        f_event_diff = f_event_pos - self.event_pos_orig
         for f_audio_item in this_audio_items_viewer.audio_items:
             if f_audio_item.isSelected():
                 f_item = f_audio_item.audio_item
                 f_pos_x = f_audio_item.pos().x()
                 if f_audio_item.is_resizing:
-                    f_x = a_event.pos().x()
+                    f_x = f_audio_item.width_orig + f_event_diff
                     if this_audio_items_viewer.snap_mode == 1:
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
                         if f_x < global_audio_px_per_bar:
