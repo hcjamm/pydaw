@@ -4260,6 +4260,11 @@ class seq_track:
             return pydaw_bus(self.volume_slider.value(), self.record_radiobutton.isChecked())
 
 class transport_widget:
+    def get_pos_in_seconds(self):
+        f_bars = pydaw_get_pos_in_bars(self.region_spinbox.value(), self.bar_spinbox.value(), 0.0)
+        f_seconds_per_bar = 60.0 / (self.tempo_spinbox.value() * 0.25)
+        return f_bars * f_seconds_per_bar
+
     def init_playback_cursor(self, a_start=True):
         if not self.follow_checkbox.isChecked():
             return
@@ -5283,6 +5288,9 @@ class a_b_widget:
         self.return_checkbox = QtGui.QCheckBox("Return to start pos on stop?")
         self.return_checkbox.setChecked(True)
         self.file_hlayout.addWidget(self.return_checkbox)
+        self.transport_checkbox = QtGui.QCheckBox("Follow transport time?")
+        self.transport_checkbox.setChecked(True)
+        self.file_hlayout.addWidget(self.transport_checkbox)
         self.gridlayout = QtGui.QGridLayout()
         self.vlayout.addLayout(self.gridlayout)
         self.time_label = QtGui.QLabel("0:00")
@@ -5355,6 +5363,14 @@ class a_b_widget:
     def on_play(self):
         self.file_button.setEnabled(False)
         if self.enabled_checkbox.isChecked():
+            if self.transport_checkbox.isChecked():
+                print("shit")
+                f_pos_seconds = this_transport.get_pos_in_seconds()
+                print f_pos_seconds
+                f_pos = (f_pos_seconds / self.duration) * 1000.0
+                f_pos = pydaw_clip_value(f_pos, 0.0, 999.0)
+                print f_pos
+                self.start_slider.setValue(int(f_pos))
             self.orig_pos = self.start_slider.value()
             self.suppress_start = True
             self.start_slider.setEnabled(False)
