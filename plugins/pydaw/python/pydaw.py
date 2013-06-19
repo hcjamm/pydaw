@@ -1254,21 +1254,48 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
             return
-        this_audio_item_editor_widget.open_item(self.audio_item)
-        QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
-        self.event_pos_orig = a_event.pos().x()
-        for f_item in this_audio_items_viewer.audio_items:
-            if f_item.isSelected():
-                f_item_pos = f_item.pos().x()
-                f_item.quantize_offset = f_item_pos - f_item.quantize(f_item_pos)
-                if a_event.modifiers() == QtCore.Qt.ControlModifier:
-                    f_item.is_copying = True
-                    f_item.width_orig = f_item.rect().width()
-                    this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
-                if self.is_start_resizing:
-                    f_item.width_orig = 0.0
-                else:
-                    f_item.width_orig = f_item.rect().width()
+        if a_event.modifiers() == QtCore.Qt.ShiftModifier:
+            f_item = self.audio_item
+            f_item_old = f_item.clone()
+            f_index = this_audio_editor.audio_items.get_next_index()
+            if f_index == -1:
+                QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
+                return
+            else:
+                this_audio_editor.audio_items.add_item(f_index, f_item_old)
+            f_event_pos = a_event.pos().x()
+            f_pos = f_event_pos - (f_event_pos - self.quantize(f_event_pos))
+            f_scene_pos = self.quantize(a_event.scenePos().x())
+            f_musical_pos = self.pos_to_musical_time(f_scene_pos)
+            f_sample_shown = 1000.0 - f_item.sample_start - f_item.sample_end
+            f_sample_rect_pos = f_pos / self.rect().width()
+            f_item.sample_start = (f_sample_rect_pos * f_sample_shown) + f_item.sample_start
+            f_item.start_bar = f_musical_pos[0]
+            f_item.start_beat = f_musical_pos[1]
+            if f_item.end_mode == 0:
+                f_item_old.sample_end = f_item.sample_start
+            elif f_item.end_mode == 1:
+                f_item_old.end_bar = f_musical_pos[0]
+                f_item_old.end_beat = f_musical_pos[1]
+            this_pydaw_project.save_audio_items(global_current_region.uid, this_audio_editor.audio_items)
+            this_pydaw_project.commit("Split audio item")
+            this_audio_editor.open_items(True)
+        else:
+            this_audio_item_editor_widget.open_item(self.audio_item)
+            QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
+            self.event_pos_orig = a_event.pos().x()
+            for f_item in this_audio_items_viewer.audio_items:
+                if f_item.isSelected():
+                    f_item_pos = f_item.pos().x()
+                    f_item.quantize_offset = f_item_pos - f_item.quantize(f_item_pos)
+                    if a_event.modifiers() == QtCore.Qt.ControlModifier:
+                        f_item.is_copying = True
+                        f_item.width_orig = f_item.rect().width()
+                        this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
+                    if self.is_start_resizing:
+                        f_item.width_orig = 0.0
+                    else:
+                        f_item.width_orig = f_item.rect().width()
 
     def mouseDoubleClickEvent(self, a_event):
         this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(2)
