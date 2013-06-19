@@ -1281,7 +1281,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         return f_lane_num, f_y_pos
 
     def mouseMoveEvent(self, a_event):
-        if global_transport_is_playing:
+        if global_transport_is_playing or self.event_pos_orig is None:
             return
         f_event_pos = a_event.pos().x()
         f_event_diff = f_event_pos - self.event_pos_orig
@@ -1324,7 +1324,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.is_moving = True
 
     def mouseReleaseEvent(self, a_event):
-        if global_transport_is_playing:
+        if global_transport_is_playing or self.event_pos_orig is None:
             return
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         f_audio_items =  this_audio_editor.audio_items
