@@ -1267,7 +1267,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_pos = f_event_pos - (f_event_pos - self.quantize(f_event_pos))
             f_scene_pos = self.quantize(a_event.scenePos().x())
             f_musical_pos = self.pos_to_musical_time(f_scene_pos)
-            f_sample_shown = 1000.0 - f_item.sample_start - f_item.sample_end
+            f_sample_shown = (1000.0 - f_item.sample_start) - (1000.0 - f_item.sample_end)
             f_sample_rect_pos = f_pos / self.rect().width()
             f_item.sample_start = (f_sample_rect_pos * f_sample_shown) + f_item.sample_start
             f_item.start_bar = f_musical_pos[0]
