@@ -4871,6 +4871,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_TEMPO)) //Change tempo
     {
         v_set_tempo(a_pydaw_data, atof(a_value));
+        g_pysong_get(a_pydaw_data);  //To reload audio items when tempo has changed
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SHOW_PLUGIN_UI))
     {
