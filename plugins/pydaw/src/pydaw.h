@@ -3529,6 +3529,28 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder, in
         v_wav_pool_add_items(a_pydaw_data->wav_pool, a_pydaw_data->wav_pool_file);
     }
     
+    char f_transport_file[256];  //TODO:  This should be moved to a separate function
+    sprintf(f_transport_file, "%sdefault.pytransport", a_pydaw_data->project_folder);
+    
+    if(i_pydaw_file_exists(f_transport_file))
+    {
+        printf("v_open_project:  Found transport file, setting tempo from file\n");
+
+        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_transport_file, LMS_LARGE_STRING);
+        char * f_tempo_str = c_iterate_2d_char_array(f_2d_array);
+        float f_tempo = atof(f_tempo_str);
+        free(f_tempo_str);
+                
+        assert(f_tempo > 30.0f && f_tempo < 300.0f);        
+        v_set_tempo(a_pydaw_data, f_tempo);
+        g_free_2d_char_array(f_2d_array);
+    }
+    else  //No transport file, set default tempo
+    {
+        printf("No transport file found, defaulting to 140.0 BPM\n");
+        v_set_tempo(a_pydaw_data, 140.0f);
+    }
+    
     if(S_ISDIR(f_proj_stat.st_mode) && S_ISDIR(f_item_stat.st_mode) &&
         S_ISDIR(f_reg_stat.st_mode) && S_ISDIR(f_inst_stat.st_mode) &&
         S_ISREG(f_song_file_stat.st_mode))
@@ -3554,29 +3576,7 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder, in
         printf("Song file and project directory structure not found, not loading project.  This is to be expected if launching PyDAW for the first time\n");
         g_pysong_get(a_pydaw_data);  //Loads empty...  TODO:  Make this a separate function for getting an empty pysong or loading a file into one...        
     }
-    
-    char f_transport_file[256];  //TODO:  This should be moved to a separate function
-    sprintf(f_transport_file, "%sdefault.pytransport", a_pydaw_data->project_folder);
-    
-    if(i_pydaw_file_exists(f_transport_file))
-    {
-        printf("v_open_project:  Found transport file, setting tempo from file\n");
-
-        t_2d_char_array * f_2d_array = g_get_2d_array_from_file(f_transport_file, LMS_LARGE_STRING);
-        char * f_tempo_str = c_iterate_2d_char_array(f_2d_array);
-        float f_tempo = atof(f_tempo_str);
-        free(f_tempo_str);
-                
-        assert(f_tempo > 30.0f && f_tempo < 300.0f);        
-        v_set_tempo(a_pydaw_data, f_tempo);
-        g_free_2d_char_array(f_2d_array);
-    }
-    else  //No transport file, set default tempo
-    {
-        printf("No transport file found, defaulting to 140.0 BPM\n");
-        v_set_tempo(a_pydaw_data, 140.0f);
-    }
-           
+                   
     //v_pydaw_update_audio_inputs(a_pydaw_data);
     
     v_pydaw_set_is_soloed(a_pydaw_data);
@@ -3786,7 +3786,7 @@ t_pydaw_audio_items * v_audio_items_load_all(t_pydaw_data * a_pydaw_data, int a_
         while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
         {            
             t_pydaw_audio_item * f_new =  g_audio_item_load_single(a_pydaw_data->sample_rate, 
-                    f_current_string, 0, a_pydaw_data->wav_pool);
+                    f_current_string, 0, a_pydaw_data->wav_pool, a_pydaw_data->tempo);
             if(!f_new)  //EOF'd...
             {
                 break;
