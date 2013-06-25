@@ -1113,18 +1113,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_name_arr = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid).split("/")
         f_name = f_name_arr[-1]
         self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
-        self.label.setPos(10, 5)
+        self.label.setPos(10, 28)
         self.label.setBrush(QtCore.Qt.white)
         self.label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
-
-        self.length_handle = QtGui.QGraphicsRectItem(parent=self)
-        self.length_handle.setBrush(global_audio_item_handle_brush)
-        self.length_handle.setPen(global_audio_item_handle_pen)
-        self.length_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
-        self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
-        self.length_handle_line = QtGui.QGraphicsLineItem(global_audio_item_handle_size, global_audio_item_handle_size, global_audio_item_handle_size, (global_audio_item_height * -1.0) + global_audio_item_handle_size, self.length_handle)
-        self.length_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        self.length_handle.setToolTip("Use this handle to resize the item by changing the start/end points.")
 
         self.start_handle = QtGui.QGraphicsRectItem(parent=self)
         self.start_handle.setBrush(global_audio_item_handle_brush)
@@ -1135,9 +1126,38 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.start_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
         self.start_handle.setToolTip("Use this handle to resize the item by changing the start point.")
 
+        self.length_handle = QtGui.QGraphicsRectItem(parent=self)
+        self.length_handle.setBrush(global_audio_item_handle_brush)
+        self.length_handle.setPen(global_audio_item_handle_pen)
+        self.length_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
+        self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
+        self.length_handle_line = QtGui.QGraphicsLineItem(global_audio_item_handle_size, global_audio_item_handle_size, global_audio_item_handle_size, (global_audio_item_height * -1.0) + global_audio_item_handle_size, self.length_handle)
+        self.length_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
+        self.length_handle.setToolTip("Use this handle to resize the item by changing the start/end points.")
+
+        self.fade_in_handle = QtGui.QGraphicsRectItem(parent=self)
+        self.fade_in_handle.setBrush(global_audio_item_handle_brush)
+        self.fade_in_handle.setPen(global_audio_item_handle_pen)
+        self.fade_in_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
+        self.fade_in_handle.mousePressEvent = self.fade_in_handle_mouseClickEvent
+        self.fade_in_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
+        self.fade_in_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
+        self.fade_in_handle.setToolTip("Use this handle to change the fade in.")
+
+        self.fade_out_handle = QtGui.QGraphicsRectItem(parent=self)
+        self.fade_out_handle.setBrush(global_audio_item_handle_brush)
+        self.fade_out_handle.setPen(global_audio_item_handle_pen)
+        self.fade_out_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
+        self.fade_out_handle.mousePressEvent = self.fade_out_handle_mouseClickEvent
+        self.fade_out_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
+        self.fade_out_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
+        self.fade_out_handle.setToolTip("Use this handle to change the fade in.")
+
         self.is_start_resizing = False
         self.is_resizing = False
         self.is_copying = False
+        self.is_fading_in = False
+        self.is_fading_out = False
         self.set_brush()
         self.waveforms_scaled = False
         self.event_pos_orig = None
@@ -1175,7 +1195,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         f_track_num = global_audio_ruler_height + (global_audio_item_height) * self.audio_item.lane_num
 
+        f_fade_in = self.audio_item.fade_in * 0.001
+        f_fade_out = self.audio_item.fade_out * 0.001
         self.setRect(0.0, 0.0, f_length, global_audio_item_height)
+        self.fade_in_handle.setPos((f_length * f_fade_in), 0.0)
+        self.fade_out_handle.setPos((f_length * f_fade_out) - global_audio_item_handle_size, 0.0)
+        self.update_fade_in_line()
+        self.update_fade_out_line()
         self.setPos(f_start, f_track_num)
         self.is_moving = False
 
@@ -1239,17 +1265,31 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.length_handle, a_event)
         for f_item in this_audio_items_viewer.audio_items:
-                if f_item.isSelected():
-                    f_item.is_start_resizing = True
-                    f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
+            if f_item.isSelected():
+                f_item.is_start_resizing = True
+                f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
 
     def length_handle_mouseClickEvent(self, a_event):
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.length_handle, a_event)
         for f_item in this_audio_items_viewer.audio_items:
-                if f_item.isSelected():
-                    f_item.is_resizing = True
-                    f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
+            if f_item.isSelected():
+                f_item.is_resizing = True
+                f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
+
+    def fade_in_handle_mouseClickEvent(self, a_event):
+        a_event.setAccepted(True)
+        QtGui.QGraphicsRectItem.mousePressEvent(self.fade_in_handle, a_event)
+        for f_item in this_audio_items_viewer.audio_items:
+            if f_item.isSelected():
+                f_item.is_fading_in = True
+
+    def fade_out_handle_mouseClickEvent(self, a_event):
+        a_event.setAccepted(True)
+        QtGui.QGraphicsRectItem.mousePressEvent(self.fade_out_handle, a_event)
+        for f_item in this_audio_items_viewer.audio_items:
+            if f_item.isSelected():
+                f_item.is_fading_out = True
 
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
@@ -1320,6 +1360,13 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_x = global_audio_px_per_beat
         return f_x
 
+    def update_fade_in_line(self):
+        f_pos = self.fade_in_handle.pos()
+        self.fade_in_handle_line.setLine(f_pos.x(), 0.0, 0.0, global_audio_item_height)
+
+    def update_fade_out_line(self):
+        f_pos = self.fade_out_handle.pos()
+        self.fade_out_handle_line.setLine(f_pos.x() + global_audio_item_handle_size, 0.0, self.rect().width(), global_audio_item_height)
 
     def mouseMoveEvent(self, a_event):
         if global_transport_is_playing or self.event_pos_orig is None:
@@ -1351,6 +1398,20 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
                     f_x = pydaw_clip_value(f_x, f_item.sample_start_offset_px, f_item.length_handle.pos().x())
                     f_item.start_handle.setPos(f_x, global_audio_item_height - global_audio_item_handle_size)
+        elif self.is_fading_in:
+            for f_item in this_audio_items_viewer.audio_items:
+                if f_item.isSelected():
+                    f_x = f_event_pos #f_item.width_orig + f_event_diff
+                    f_x = pydaw_clip_value(f_x, 0.0, f_item.width_orig - global_audio_item_handle_size)
+                    f_item.fade_in_handle.setPos(f_x, 0.0)
+                    f_item.update_fade_in_line()
+        elif self.is_fading_out:
+            for f_item in this_audio_items_viewer.audio_items:
+                if f_item.isSelected():
+                    f_x = f_event_pos #f_item.width_orig + f_event_diff
+                    f_x = pydaw_clip_value(f_x, 0.0, f_item.width_orig - global_audio_item_handle_size)
+                    f_item.fade_out_handle.setPos(f_x, 0.0)
+                    f_item.update_fade_out_line()
         else:
             QtGui.QGraphicsRectItem.mouseMoveEvent(self, a_event)
             f_max_x = (pydaw_get_current_region_length() * global_audio_px_per_bar) - global_audio_item_handle_size
@@ -1423,6 +1484,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         #print "f_item.sample_end", f_item.sample_end
                     elif f_item.end_mode == 1:
                         pass
+                elif f_audio_item.is_fading_in:
+                    f_pos = f_audio_item.fade_in_handle.pos().x()
+                    f_val = (f_pos / f_audio_item.rect().width()) * 1000.0
+                    f_item.fade_in = pydaw_clip_value(f_val, 0.0, 997.0)
+                elif f_audio_item.is_fading_out:
+                    f_pos = f_audio_item.fade_out_handle.pos().x()
+                    f_val = (f_pos / f_audio_item.rect().width()) * 1000.0
+                    f_item.fade_out = pydaw_clip_value(f_val, 1.0, 998.0)
                 else:
                     f_pos_y = f_audio_item.pos().y()
                     if f_audio_item.is_copying:
@@ -1457,6 +1526,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_audio_item.is_resizing = False
             f_audio_item.is_start_resizing = False
             f_audio_item.is_copying = False
+            f_audio_item.is_fading_in = False
+            f_audio_item.is_fading_out = False
             f_audio_item.setGraphicsEffect(None)
             f_audio_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
         if f_did_change:
