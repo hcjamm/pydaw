@@ -1949,20 +1949,7 @@ class audio_item_editor_widget:
         self.end_musical_time.setChecked(True)
         self.end_sample_length = QtGui.QRadioButton("Linear")
         self.start_hlayout.addWidget(self.end_sample_length)
-
-        self.vlayout2.addWidget(QtGui.QLabel("Fade:"))
-        self.fade_hlayout = QtGui.QHBoxLayout()
-        self.vlayout2.addLayout(self.fade_hlayout)
-        self.fade_hlayout.addWidget(QtGui.QLabel("In:"))
-        self.fade_in = QtGui.QDoubleSpinBox()
-        self.fade_in.setRange(0.0, 998.0)
-        self.fade_hlayout.addWidget(self.fade_in)
-        self.fade_hlayout.addWidget(QtGui.QLabel("Out:"))
-        self.fade_out = QtGui.QDoubleSpinBox()
-        self.fade_out.setRange(1.0, 998.0)
-        self.fade_out.setSingleStep(0.1)
-        self.fade_out.setValue(998.0)
-        self.fade_hlayout.addWidget(self.fade_out)
+        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
 
         self.vlayout2.addWidget(QtGui.QLabel("Time Stretching:"))
         self.timestretch_hlayout = QtGui.QHBoxLayout()
@@ -1987,6 +1974,7 @@ class audio_item_editor_widget:
         self.timestretch_amt.setValue(1.0)
         self.timestretch_hlayout2.addWidget(self.timestretch_amt)
 
+        self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
         self.output_hlayout = QtGui.QHBoxLayout()
         self.output_hlayout.addWidget(QtGui.QLabel("Audio Track:"))
         self.output_combobox = QtGui.QComboBox()
@@ -2018,8 +2006,6 @@ class audio_item_editor_widget:
             self.timestretch_amt.setValue(a_item.timestretch_amt)
             self.output_combobox.setCurrentIndex(a_item.output_track)
             self.sample_vol_slider.setValue(a_item.vol)
-            self.fade_in.setValue(a_item.fade_in)
-            self.fade_out.setValue(a_item.fade_out)
 
     def ok_handler(self):
         if global_transport_is_playing:
@@ -2038,8 +2024,6 @@ class audio_item_editor_widget:
             if f_item.isSelected():
                 f_item.audio_item.end_mode = self.end_mode
                 f_item.audio_item.output_track = self.output_combobox.currentIndex()
-                f_item.audio_item.fade_in = self.fade_in.value()
-                f_item.audio_item.fade_out = self.fade_out.value()
 
                 f_new_vol = self.sample_vol_slider.value()
                 f_new_ts_mode = self.timestretch_mode.currentIndex()
