@@ -1567,8 +1567,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.end_beat = f_end_result[1]
                         print f_item.end_bar, f_item.end_beat
                     if f_item.time_stretch_mode == 2:
-                        f_x = pydaw_clip_value(f_x, f_audio_item.length_px_minus_start * 0.25, f_audio_item.length_px_minus_start * 4.0)
-                        f_item.timestretch_amt = f_x / f_audio_item.length_px_minus_start
+                        f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.25, f_audio_item.stretch_width_default * 4.0)
+                        f_item.timestretch_amt = f_x / f_audio_item.stretch_width_default
                     #elif f_item.time_stretch_mode == 3:
                     else:
                         assert(False)
