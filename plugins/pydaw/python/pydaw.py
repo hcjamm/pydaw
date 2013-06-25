@@ -1496,7 +1496,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_item.fade_in = pydaw_clip_value(f_val, 0.0, 997.0)
                 elif f_audio_item.is_fading_out:
                     f_pos = f_audio_item.fade_out_handle.pos().x()
-                    f_val = (f_pos / (f_audio_item.rect().width() - global_audio_item_handle_size)) * 1000.0
+                    f_val = ((f_pos + global_audio_item_handle_size) / (f_audio_item.rect().width())) * 1000.0
                     f_item.fade_out = pydaw_clip_value(f_val, 1.0, 998.0)
                 else:
                     f_pos_y = f_audio_item.pos().y()
