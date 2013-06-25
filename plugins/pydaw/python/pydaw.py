@@ -1332,6 +1332,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.is_copying = True
                         f_item.width_orig = f_item.rect().width()
                         this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
+                    if self.is_fading_out:
+                        f_item.fade_orig_pos = f_item.fade_out_handle.pos().x()
+                    elif self.is_fading_in:
+                        f_item.fade_orig_pos = f_item.fade_in_handle.pos().x()
                     if self.is_start_resizing:
                         f_item.width_orig = 0.0
                     else:
@@ -1401,14 +1405,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         elif self.is_fading_in:
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
-                    f_x = f_event_pos #f_item.width_orig + f_event_diff
+                    #f_x = f_event_pos #f_item.width_orig + f_event_diff
+                    f_x = f_item.fade_orig_pos + f_event_diff
                     f_x = pydaw_clip_value(f_x, 0.0, f_item.fade_out_handle.pos().x() - global_audio_item_handle_size)
                     f_item.fade_in_handle.setPos(f_x, 0.0)
                     f_item.update_fade_in_line()
         elif self.is_fading_out:
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
-                    f_x = f_item.width_orig + f_event_diff
+                    f_x = f_item.fade_orig_pos + f_event_diff
                     f_x = pydaw_clip_value(f_x, f_item.fade_in_handle.pos().x() + global_audio_item_handle_size, \
                         f_item.width_orig - global_audio_item_handle_size)
                     f_item.fade_out_handle.setPos(f_x, 0.0)
