@@ -1674,7 +1674,7 @@ class pydaw_audio_item:
         self.sample_end = float(a_sample_end)
         self.start_bar = int(a_start_bar)
         self.start_beat = round(float(a_start_beat), 6)
-        self.end_mode = int(a_end_mode)
+        self.end_mode = int(a_end_mode)  #0 == sample length, 1 == musical time
         self.end_bar = int(a_end_bar)
         self.end_beat = round(float(a_end_beat), 6)
         self.time_stretch_mode = int(a_timestretch_mode)
