@@ -1487,7 +1487,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_end_result = f_audio_item.pos_to_musical_time(f_x + f_audio_item.pos().x())
                         f_item.end_bar = f_end_result[0]
                         f_item.end_beat = f_end_result[1]
-                        #print "f_item.end_bar", f_item.end_bar, "f_item.end_beat", f_item.end_beat
                 elif f_audio_item.is_start_resizing:
                     #f_x = a_event.scenePos().x()
                     f_x = f_audio_item.start_handle.scenePos().x()
@@ -1502,17 +1501,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_start_result = self.pos_to_musical_time(f_x)
                     f_item.start_bar = f_start_result[0]
                     f_item.start_beat = f_start_result[1]
-                    f_sample_start_orig = f_item.sample_start
                     f_item.sample_start = ((f_x - f_audio_item.start_handle_scene_min) / (f_audio_item.start_handle_scene_max - f_audio_item.start_handle_scene_min)) * 1000.0
                     f_item.sample_start = pydaw_clip_value(f_item.sample_start, 0.0, 999.0)
-                    #print "f_item.sample_start", f_item.sample_start
-                    if f_item.end_mode == 0:
-                        f_length_new = (f_sample_start_orig - f_item.sample_start) + f_item.sample_end
-                        f_length_new = pydaw_clip_value(f_length_new, 1.0, 1000.0)
-                        f_item.sample_end = f_length_new
-                        #print "f_item.sample_end", f_item.sample_end
-                    elif f_item.end_mode == 1:
-                        pass
                 elif f_audio_item.is_fading_in:
                     f_pos = f_audio_item.fade_in_handle.pos().x()
                     f_val = (f_pos / f_audio_item.rect().width()) * 1000.0
@@ -1531,7 +1521,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         assert(False)
                     f_x = f_audio_item.quantize(f_x)
                     f_x -= f_audio_item.quantize_offset
-
                     #f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
                     if f_item.end_mode == 0:
                         pass
