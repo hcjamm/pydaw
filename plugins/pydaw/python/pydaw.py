@@ -1448,7 +1448,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_item.update_fade_out_line()
         elif self.is_stretching:
             for f_item in this_audio_items_viewer.audio_items:
-                if f_item.isSelected():
+                if f_item.isSelected() and f_item.audio_item.time_stretch_mode >= 2:
                     f_x = f_item.width_orig + f_event_diff
                     if this_audio_items_viewer.snap_mode == 1:
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
@@ -1544,7 +1544,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_pos = f_audio_item.fade_out_handle.pos().x()
                     f_val = ((f_pos + global_audio_item_handle_size) / (f_audio_item.rect().width())) * 1000.0
                     f_item.fade_out = pydaw_clip_value(f_val, 1.0, 998.0)
-                elif f_audio_item.is_stretching:
+                elif f_audio_item.is_stretching and f_item.time_stretch_mode >= 2:
                     f_reset_selection = True
                     f_x = f_audio_item.width_orig + f_event_diff
                     if this_audio_items_viewer.snap_mode == 1:
