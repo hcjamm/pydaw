@@ -152,6 +152,7 @@ class pydaw_history_log_widget(QtGui.QWidget):
             for f_line in difflib.unified_diff(str(f_row[3]).split("\n"), str(f_row[4]).split("\n"), f_file_name, f_file_name):
                 f_result += f_line + "\n"
         f_dialog = QtGui.QDialog(self)
+        f_dialog.setWindowTitle("PyDAW Diff")
         f_dialog.setGeometry(self.x(), self.y(), 600, 600)
         f_layout = QtGui.QVBoxLayout()
         f_dialog.setLayout(f_layout)
