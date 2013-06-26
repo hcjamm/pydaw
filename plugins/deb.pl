@@ -89,12 +89,12 @@ Installed-Size: $size
 Maintainer: Jeff Hubbard <jhubbard651\@users.sf.net>
 Architecture: $arch
 Version: $version
-Depends: liblo-dev, libasound2-dev, libqt4-dev, libsndfile1-dev, qjackctl, alsa-utils, python-liblo, python-qt4, libsdl1.2-dev, ffado-mixer-qt4, ffado-tools, ffado-dbus-server, audacity, python
+Depends: liblo-dev, libasound2-dev, libqt4-dev, libsndfile1-dev, qjackctl, alsa-utils, python-liblo, python-qt4, libsdl1.2-dev, ffado-mixer-qt4, ffado-tools, ffado-dbus-server, audacity, python2.7, rubberband-cli
 Provides: $short_name
 Conflicts: 
 Replaces: 
 Description: A digital audio workstation with a full suite of instrument and effects plugins.
- PyDAW comes with a modular sampler, a modular wavetable synthesizer, and an analog style synthesizer, as well as numerous built-in effects.
+ PyDAW is a full featured audio and MIDI sequencer with a modular sampler, a modular wavetable/FM synthesizer, and an analog style synthesizer, as well as many built-in effects.
 ";
 
 open (MYFILE, ">pydaw-build/debian/DEBIAN/control");
