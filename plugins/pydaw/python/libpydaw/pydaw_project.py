@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import os, random, traceback
+import os, random, traceback, subprocess
 from shutil import move
 from time import sleep
 
@@ -42,6 +42,7 @@ pydaw_folder_regions = "regions"
 pydaw_folder_regions_audio = "regions_audio"
 pydaw_folder_samplegraph = "samplegraph"
 pydaw_folder_samples = "samples"
+pydaw_folder_timestretch = "timestretch"
 
 pydaw_file_pyregions = "default.pyregions"
 pydaw_file_pyitems = "default.pyitems"
@@ -288,10 +289,15 @@ class pydaw_project:
         self.audiofx_folder = self.project_folder + "/" + pydaw_folder_audiofx
         self.busfx_folder = self.project_folder + "/" + pydaw_folder_busfx
         self.samplegraph_folder = self.project_folder + "/" + pydaw_folder_samplegraph
+        self.timestretch_folder = self.project_folder + "/" + pydaw_folder_timestretch
         #files
         self.pyregions_file = self.project_folder + "/default.pyregions"
         self.pyitems_file = self.project_folder + "/default.pyitems"
         self.pywavs_file = self.project_folder + "/default.pywavs"
+
+        self.timestretch_cache = {}
+        self.timestretch_reverse_lookup = {}
+
         pydaw_clear_sample_graph_cache()
 
     def open_project(self, a_project_file, a_notify_osc=True):
@@ -311,7 +317,7 @@ class pydaw_project:
             self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder,
             self.audiofx_folder, self.busfx_folder, self.samplegraph_folder,
-            self.audio_tmp_folder, self.regions_audio_folder]
+            self.audio_tmp_folder, self.regions_audio_folder, self.timestretch_folder]
 
         for project_dir in project_folders:
             print(project_dir)
@@ -458,6 +464,25 @@ class pydaw_project:
         f_items_dict = self.get_items_dict()
         return pydaw_item.from_str(self.get_item_string(f_items_dict.get_uid_by_name(a_item_name)))
 
+    def timestretch_audio_item(self, a_audio_item):
+        """ Return path, uid for a time-stretched audio item and update all project files,
+        or None if the UID already exists in the cache"""
+        if not os.path.isdir(self.timestretch_folder):
+            os.mkdir(self.timestretch_folder)
+        f_src_path = self.get_wav_name_by_uid(a_audio_item.uid)
+        f_key = (a_audio_item.time_stretch_mode, a_audio_item.timestretch_amt, a_audio_item.pitch_shift, f_src_path)
+        if self.timestretch_cache.has_key(f_key):
+            a_audio_item.uid = self.timestretch_cache[f_key]
+            return None, None
+        else:
+            f_uid = pydaw_gen_uid()
+            f_dest_path = self.timestretch_folder + "/" + str(f_uid) + ".wav"
+            subprocess.Popen(["rubberband", "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
+                              "-R", "--pitch-hq", f_src_path, f_dest_path])
+            self.timestretch_cache[f_key] = f_uid
+            a_audio_item.uid = self.timestretch_cache[f_key]
+            return f_dest_path, f_uid
+
     def check_for_recorded_items(self, a_item_name):
         self.check_for_recorded_regions()
         f_item_name = str(a_item_name) + "-"
@@ -587,7 +612,7 @@ class pydaw_project:
         else:
             return f_result
 
-    def get_wav_uid_by_name(self, a_path, a_uid_dict=None):
+    def get_wav_uid_by_name(self, a_path, a_uid_dict=None, a_uid=None):
         """ Return the UID from the wav pool, or add to the pool if it does not exist """
         if a_uid_dict is None:
             f_uid_dict = self.get_wavs_dict()
@@ -597,7 +622,7 @@ class pydaw_project:
         if f_uid_dict.name_exists(f_path):
             return f_uid_dict.get_uid_by_name(f_path)
         else:
-            f_uid = f_uid_dict.add_new_item(f_path)
+            f_uid = f_uid_dict.add_new_item(f_path, a_uid)
             self.create_sample_graph(f_path, f_uid)
             self.save_wavs_dict(f_uid_dict)
             self.commit("Add " + str(f_path) + " to pool")
@@ -850,12 +875,15 @@ class pydaw_name_uid_dict:
         self.name_lookup[a_uid] = str(a_name)
         self.uid_lookup[a_name] = int(a_uid)
 
-    def add_new_item(self, a_name):
+    def add_new_item(self, a_name, a_uid=None):
         if self.uid_lookup.has_key(a_name):
             raise Exception
-        f_uid = self.gen_file_name_uid()
-        while self.uid_exists(f_uid):
+        if a_uid is None:
             f_uid = self.gen_file_name_uid()
+            while self.uid_exists(f_uid):
+                f_uid = self.gen_file_name_uid()
+        else:
+            f_uid = a_uid
         self.add_item(f_uid, a_name)
         return f_uid
 
