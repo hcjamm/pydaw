@@ -1110,7 +1110,10 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_path_item.mapFromParent(0.0, f_track_num)
             self.path_items.append(f_path_item)
             f_y_pos += self.y_inc
-        f_name_arr = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid).split("/")
+        f_file_name = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid)
+        if self.audio_item.time_stretch_mode >= 2:
+            f_file_name = this_pydaw_project.timestretch_lookup_orig_path(f_file_name)
+        f_name_arr = f_file_name.split("/")
         f_name = f_name_arr[-1]
         self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)
         self.label.setPos(10, 28)
@@ -1534,7 +1537,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         print f_item.end_bar, f_item.end_beat
                     #if f_item.time_stretch_mode == 2:
                     f_item.timestretch_amt = f_x / f_audio_item.stretch_width_default
-                    if f_item.time_stretch_mode == 3:
+                    if f_item.time_stretch_mode == 3 and f_audio_item.orig_string != str(f_item):
                         f_ts_result = this_pydaw_project.timestretch_audio_item(f_item)
                         if f_ts_result is not None:
                             f_stretched_items.append(f_ts_result)
@@ -1566,8 +1569,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_item.set_pos(f_start_result[0], f_start_result[1])
                 f_audio_item.clip_at_region_end()
                 f_item_str = str(f_item)
-                if f_item_str != self.orig_string:
-                    self.orig_string = f_item_str
+                if f_item_str != f_audio_item.orig_string:
+                    f_audio_item.orig_string = f_item_str
                     f_did_change = True
                     if not f_reset_selection:
                         f_audio_item.draw()
@@ -1583,6 +1586,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if f_did_change:
             f_audio_items.deduplicate_items()
             if f_was_stretching:
+                this_pydaw_project.save_stretch_dicts()
                 for f_stretch_item in f_stretched_items:
                     f_stretch_item[2].wait()
                     this_pydaw_project.get_wav_uid_by_name(f_stretch_item[0], a_uid=f_stretch_item[1])

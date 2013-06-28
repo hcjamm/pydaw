@@ -498,6 +498,12 @@ class pydaw_project:
         f_items_dict = self.get_items_dict()
         return pydaw_item.from_str(self.get_item_string(f_items_dict.get_uid_by_name(a_item_name)))
 
+    def timestretch_lookup_orig_path(self, a_path):
+        if self.timestretch_reverse_lookup.has_key(a_path):
+            return self.timestretch_reverse_lookup[a_path]
+        else:
+            return a_path
+
     def timestretch_audio_item(self, a_audio_item):
         """ Return path, uid for a time-stretched audio item and update all project files,
         or None if the UID already exists in the cache"""
@@ -506,6 +512,9 @@ class pydaw_project:
         f_src_path = self.get_wav_name_by_uid(a_audio_item.uid)
         if self.timestretch_reverse_lookup.has_key(f_src_path):
             f_src_path = self.timestretch_reverse_lookup[f_src_path]
+        else:
+            if a_audio_item.timestretch_amt == 1.0 and a_audio_item.pitch_shift == 0.0:
+                return None  #Don't run Rubberband if the file is not being timestretched yet
         f_key = (a_audio_item.time_stretch_mode, a_audio_item.timestretch_amt, a_audio_item.pitch_shift, f_src_path)
         if self.timestretch_cache.has_key(f_key):
             a_audio_item.uid = self.timestretch_cache[f_key]
@@ -513,8 +522,10 @@ class pydaw_project:
         else:
             f_uid = pydaw_gen_uid()
             f_dest_path = self.timestretch_folder + "/" + str(f_uid) + ".wav"
-            f_proc = subprocess.Popen(["rubberband", "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
-                              "-R", "--pitch-hq", f_src_path, f_dest_path])
+            f_cmd = ["rubberband", "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
+                     "-R", "--pitch-hq", f_src_path, f_dest_path]
+            print("Running " + " ".join(f_cmd))
+            f_proc = subprocess.Popen(f_cmd)
             self.timestretch_cache[f_key] = f_uid
             self.timestretch_reverse_lookup[f_dest_path] = f_src_path
             a_audio_item.uid = self.timestretch_cache[f_key]
