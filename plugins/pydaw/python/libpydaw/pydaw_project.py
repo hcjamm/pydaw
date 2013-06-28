@@ -46,7 +46,6 @@ pydaw_folder_timestretch = "timestretch"
 
 pydaw_file_pyregions = "default.pyregions"
 pydaw_file_pyitems = "default.pyitems"
-pydaw_file_pywavs = "default.pyregions"
 pydaw_file_pysong = "default.pysong"
 pydaw_file_pytransport = "default.pytransport"
 pydaw_file_pymididevice = "default.pymididevice"
@@ -56,6 +55,8 @@ pydaw_file_pyaudioitem = "default.pyaudioitem"
 pydaw_file_pybus = "default.pybus"
 pydaw_file_pyinput = "default.pyinput"
 pydaw_file_pywavs = "default.pywavs"
+pydaw_file_pystretch = "default.pystretch"
+pydaw_file_pystretch_map = "map.pystretch"
 
 pydaw_min_note_length = 1.0/128.0  #Anything smaller gets deleted when doing a transform
 
@@ -294,9 +295,10 @@ class pydaw_project:
         self.pyregions_file = self.project_folder + "/default.pyregions"
         self.pyitems_file = self.project_folder + "/default.pyitems"
         self.pywavs_file = self.project_folder + "/default.pywavs"
+        self.pystretch_file = self.project_folder + "/" + pydaw_file_pystretch
+        self.pystretch_map_file = self.project_folder + "/" + pydaw_file_pystretch_map
 
-        self.timestretch_cache = {}
-        self.timestretch_reverse_lookup = {}
+        self.open_stretch_dicts()
 
         pydaw_clear_sample_graph_cache()
 
@@ -330,6 +332,8 @@ class pydaw_project:
         self.create_file("", os.path.basename(a_project_file), "This file is not supposed to contain any data, it is only a placeholder for saving and opening the project :)")
         self.create_file("", pydaw_file_pyregions, pydaw_terminating_char)
         self.create_file("", pydaw_file_pywavs, pydaw_terminating_char)
+        self.create_file("", pydaw_file_pystretch_map, pydaw_terminating_char)
+        self.create_file("", pydaw_file_pystretch, pydaw_terminating_char)
         self.create_file("", pydaw_file_pyitems, pydaw_terminating_char)
         self.create_file("", pydaw_file_pysong, pydaw_terminating_char)
         self.create_file("", pydaw_file_pytransport, str(pydaw_transport()))
@@ -342,19 +346,50 @@ class pydaw_project:
         for i in range(pydaw_audio_track_count):
             f_pyaudio_instance.add_track(i, pydaw_audio_track(a_name="track" + str(i + 1)))
         self.create_file("", pydaw_file_pyaudio, str(f_pyaudio_instance))
-        #self.create_file("", pydaw_file_pyaudioitem, pydaw_terminating_char)
         f_pybus_instance = pydaw_busses()
         for i in range(pydaw_bus_count):
             f_pybus_instance.add_bus(i, pydaw_bus())
         self.create_file("", pydaw_file_pybus, str(f_pybus_instance))
-        #f_input_instance = pydaw_audio_input_tracks()
-        #for i in range(pydaw_audio_input_count):
-        #    f_input_instance.add_track(i, pydaw_audio_input_track(0,0,0))
-        #self.create_file("", pydaw_file_pyinput, str(f_input_instance))
 
         self.commit("Created project")
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
+
+    def open_stretch_dicts(self):
+        self.timestretch_cache = {}
+        self.timestretch_reverse_lookup = {}
+        if not os.path.exists(self.pystretch_file):  #TODO:  Remove at PyDAWv4
+            self.create_file("", pydaw_file_pystretch_map, pydaw_terminating_char)
+            self.create_file("", pydaw_file_pystretch, pydaw_terminating_char)
+            self.commit("Create timestretch files")
+            return
+
+        f_cache_text = pydaw_read_file_text(self.pystretch_file)
+        for f_line in f_cache_text.split("\n"):
+            if f_line == pydaw_terminating_char:
+                break
+            f_line_arr = f_line.split("|", 4)
+            self.timestretch_cache[(f_line_arr[0], f_line_arr[1], f_line_arr[2])] = f_line_arr[3]
+
+        f_map_text = pydaw_read_file_text(self.pystretch_map_file)
+        for f_line in f_map_text.split("\n"):
+            if f_line == pydaw_terminating_char:
+                break
+            f_line_arr = f_line.split("|||")
+            self.timestretch_reverse_lookup[f_line_arr[0]] = f_line_arr[1]
+
+    def save_stretch_dicts(self):
+        f_stretch_text = ""
+        for k, v in self.timestretch_cache.iteritems():
+            f_stretch_text += str(k[0]) + "|"+ str(k[1]) + "|" + str(k[2]) + "|" + str(v) + "\n"
+        f_stretch_text += pydaw_terminating_char
+        self.save_file("", pydaw_file_pystretch, f_stretch_text)
+
+        f_map_text = ""
+        for k, v in self.timestretch_reverse_lookup.iteritems():
+            f_map_text += str(k) + "|||" + str(v)
+        f_map_text += pydaw_terminating_char
+        self.save_file("", pydaw_file_pystretch_map, f_map_text)
 
     def get_regions_dict(self):
         try:
@@ -470,18 +505,21 @@ class pydaw_project:
         if not os.path.isdir(self.timestretch_folder):
             os.mkdir(self.timestretch_folder)
         f_src_path = self.get_wav_name_by_uid(a_audio_item.uid)
+        if self.timestretch_reverse_lookup.has_key(f_src_path):
+            f_src_path = self.timestretch_reverse_lookup[f_src_path]
         f_key = (a_audio_item.time_stretch_mode, a_audio_item.timestretch_amt, a_audio_item.pitch_shift, f_src_path)
         if self.timestretch_cache.has_key(f_key):
             a_audio_item.uid = self.timestretch_cache[f_key]
-            return None, None
+            return None
         else:
             f_uid = pydaw_gen_uid()
             f_dest_path = self.timestretch_folder + "/" + str(f_uid) + ".wav"
-            subprocess.Popen(["rubberband", "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
+            f_proc = subprocess.Popen(["rubberband", "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
                               "-R", "--pitch-hq", f_src_path, f_dest_path])
             self.timestretch_cache[f_key] = f_uid
+            self.timestretch_reverse_lookup[f_dest_path] = f_src_path
             a_audio_item.uid = self.timestretch_cache[f_key]
-            return f_dest_path, f_uid
+            return f_dest_path, f_uid, f_proc
 
     def check_for_recorded_items(self, a_item_name):
         self.check_for_recorded_regions()

@@ -1217,7 +1217,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.update_fade_out_line()
         self.setPos(f_start, f_track_num)
         self.is_moving = False
-        if self.audio_item.time_stretch_mode == 2:
+        if self.audio_item.time_stretch_mode >= 2:
             self.stretch_width_default = f_length / self.audio_item.timestretch_amt
 
         self.setToolTip("Double click to open editor dialog, or click and drag to move")
@@ -1444,7 +1444,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     if f_item.audio_item.time_stretch_mode == 2:
                         f_x = pydaw_clip_value(f_x, f_item.stretch_width_default * 0.25, f_item.stretch_width_default * 4.0)
                     else:
-                        assert(False)
+                        f_x = pydaw_clip_value(f_x, f_item.stretch_width_default * 0.1, f_item.stretch_width_default * 10.0)
                     f_x = f_item.quantize(f_x)
                     f_x -= f_item.quantize_offset
                     f_item.stretch_handle.setPos(f_x - global_audio_item_handle_size, (global_audio_item_height * 0.5) - (global_audio_item_handle_size * 0.5))
@@ -1469,6 +1469,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_audio_items =  this_audio_editor.audio_items
         f_reset_selection = True  #Set to True when testing, set to False for better UI performance...
         f_did_change = False
+        f_was_stretching = False
+        f_stretched_items = []
         f_event_pos = a_event.pos().x()
         f_event_diff = f_event_pos - self.event_pos_orig
         for f_audio_item in this_audio_items_viewer.audio_items:
@@ -1513,12 +1515,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_item.fade_out = pydaw_clip_value(f_val, 1.0, 998.0)
                 elif f_audio_item.is_stretching and f_item.time_stretch_mode >= 2:
                     f_reset_selection = True
-
+                    f_was_stretching = True
                     f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset
                     if f_audio_item.audio_item.time_stretch_mode == 2:
                         f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.25, f_audio_item.stretch_width_default * 4.0)
                     else:
-                        assert(False)
+                        f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.1, f_audio_item.stretch_width_default * 10.0)
                     f_x = f_audio_item.quantize(f_x)
                     f_x -= f_audio_item.quantize_offset
                     #f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
@@ -1530,9 +1532,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.end_bar = f_end_result[0]
                         f_item.end_beat = f_end_result[1]
                         print f_item.end_bar, f_item.end_beat
-                    if f_item.time_stretch_mode == 2:
-                        f_item.timestretch_amt = f_x / f_audio_item.stretch_width_default
-                    #elif f_item.time_stretch_mode == 3:
+                    #if f_item.time_stretch_mode == 2:
+                    f_item.timestretch_amt = f_x / f_audio_item.stretch_width_default
+                    if f_item.time_stretch_mode == 3:
+                        f_ts_result = this_pydaw_project.timestretch_audio_item(f_item)
+                        if f_ts_result is not None:
+                            f_stretched_items.append(f_ts_result)
                     else:
                         assert(False)
                     f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
@@ -1577,6 +1582,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_audio_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
         if f_did_change:
             f_audio_items.deduplicate_items()
+            if f_was_stretching:
+                for f_stretch_item in f_stretched_items:
+                    f_stretch_item[2].wait()
+                    this_pydaw_project.get_wav_uid_by_name(f_stretch_item[0], a_uid=f_stretch_item[1])
+
             this_pydaw_project.save_audio_items(global_current_region.uid, f_audio_items)
             this_pydaw_project.commit("Update audio items")
             this_audio_editor.open_items(f_reset_selection)
@@ -5629,7 +5639,7 @@ if not os.path.isdir(global_cc_map_folder):
 
 pydaw_load_controller_maps()
 
-global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch)"]
+global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch)", "Rubberband"]
 global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4", 4:"track5", 5:"track6", 6:"track7", 7:"track8"}
 global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []

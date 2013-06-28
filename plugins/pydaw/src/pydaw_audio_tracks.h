@@ -548,6 +548,11 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
             f_result->ratio *= (1.0f / (f_result->timestretch_amt));
         }
             break;
+        case 3:  //Rubberband
+        {
+            //Don't have to do anything here, this comes pre-stretched...
+        }
+            break;
     }
     
     f_result->adsr->stage = 4;
