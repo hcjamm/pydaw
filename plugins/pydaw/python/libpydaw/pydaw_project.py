@@ -298,8 +298,6 @@ class pydaw_project:
         self.pystretch_file = self.project_folder + "/" + pydaw_file_pystretch
         self.pystretch_map_file = self.project_folder + "/" + pydaw_file_pystretch_map
 
-        self.open_stretch_dicts()
-
         pydaw_clear_sample_graph_cache()
 
     def open_project(self, a_project_file, a_notify_osc=True):
@@ -309,6 +307,7 @@ class pydaw_project:
             self.new_project(a_project_file)
         else:
             self.history = pydaw_history.pydaw_history(self.project_folder)
+        self.open_stretch_dicts()
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
 
