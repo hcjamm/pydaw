@@ -386,7 +386,7 @@ class pydaw_project:
 
         f_map_text = ""
         for k, v in self.timestretch_reverse_lookup.iteritems():
-            f_map_text += str(k) + "|||" + str(v)
+            f_map_text += str(k) + "|||" + str(v) + "\n"
         f_map_text += pydaw_terminating_char
         self.save_file("", pydaw_file_pystretch_map, f_map_text)
 
