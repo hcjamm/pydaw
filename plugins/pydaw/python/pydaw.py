@@ -486,7 +486,6 @@ class region_settings:
         for f_editor in global_region_editors:
             f_editor.clear_items()
         this_audio_items_viewer.clear_drawn_items()
-        this_audio_editor.clear_new()
         global global_current_region
         global_current_region = None
 
@@ -2113,67 +2112,29 @@ class audio_item_editor_widget:
     def sample_vol_changed(self, a_val=None):
         self.sample_vol_label.setText(str(self.sample_vol_slider.value()) + "dB")
 
+
+#TODO:  Deprecate this and move functions to global
 class audio_list_editor:
     def open_items(self, a_update_viewer=True):
-        self.audio_items_table_widget.clearContents()
         self.audio_items = this_pydaw_project.get_audio_items(global_current_region.uid)
-
         if a_update_viewer:
             f_selected_list = []
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_selected_list.append(str(f_item.audio_item))
             this_audio_items_viewer.clear_drawn_items()
-
-        for k, v in self.audio_items.items.iteritems():
-            self.audio_items_table_widget.setItem(k, 0, QtGui.QTableWidgetItem(str(v.uid)))
-            self.audio_items_table_widget.setItem(k, 1, QtGui.QTableWidgetItem(str(float(v.sample_start))))
-            self.audio_items_table_widget.setItem(k, 2, QtGui.QTableWidgetItem(str(float(v.sample_end))))
-            self.audio_items_table_widget.setItem(k, 3, QtGui.QTableWidgetItem(str(v.start_bar)))
-            self.audio_items_table_widget.setItem(k, 4, QtGui.QTableWidgetItem(str(v.start_beat)))
-            self.audio_items_table_widget.setItem(k, 5, QtGui.QTableWidgetItem(str(v.end_mode)))
-            self.audio_items_table_widget.setItem(k, 6, QtGui.QTableWidgetItem(str(v.end_bar)))
-            self.audio_items_table_widget.setItem(k, 7, QtGui.QTableWidgetItem(str(v.end_beat)))
-            self.audio_items_table_widget.setItem(k, 8, QtGui.QTableWidgetItem(str(global_timestretch_modes[v.time_stretch_mode])))
-            self.audio_items_table_widget.setItem(k, 9, QtGui.QTableWidgetItem(str(v.pitch_shift)))
-            self.audio_items_table_widget.setItem(k, 10, QtGui.QTableWidgetItem(str(v.timestretch_amt)))
-            self.audio_items_table_widget.setItem(k, 11, QtGui.QTableWidgetItem(str(v.output_track)))
-            self.audio_items_table_widget.setItem(k, 12, QtGui.QTableWidgetItem(str(v.vol)))
-            self.audio_items_table_widget.setItem(k, 13, QtGui.QTableWidgetItem(str(v.fade_in)))
-            self.audio_items_table_widget.setItem(k, 14, QtGui.QTableWidgetItem(str(v.fade_out)))
-            if a_update_viewer:
-                f_graph = this_pydaw_project.get_sample_graph_by_uid(v.uid)
-                if f_graph is None:
-                    print("Error drawing item for " + str(v.uid) + ", could not get sample graph object")
-                    continue
-                this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
-        if a_update_viewer:
+            for k, v in self.audio_items.items.iteritems():
+                    f_graph = this_pydaw_project.get_sample_graph_by_uid(v.uid)
+                    if f_graph is None:
+                        print("Error drawing item for " + str(v.uid) + ", could not get sample graph object")
+                        continue
+                    this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
             for f_item in this_audio_items_viewer.audio_items:
                 if str(f_item.audio_item) in f_selected_list:
                     f_item.setSelected(True)
-        self.audio_items_table_widget.resizeColumnsToContents()
-
-    def clear_new(self):
-        self.audio_items_table_widget.clearContents()
-
-    def cell_clicked(self, x, y):
-        if global_transport_is_playing:
-            return
 
     def __init__(self):
-        self.last_open_dir = global_home
-        self.items_groupbox = QtGui.QGroupBox()
-        self.items_vlayout = QtGui.QVBoxLayout()
-        self.items_groupbox.setLayout(self.items_vlayout)
-        self.audio_items_table_widget = QtGui.QTableWidget()
-        self.audio_items_table_widget.setColumnCount(15)
-        self.audio_items_table_widget.setHorizontalHeaderLabels(["FileUID", "Sample Start", "Sample End", "Start Bar", "Start Beat", \
-        "End Mode", "End Bar", "End Beat", "Timestretch Mode", "Pitch", "Timestretch", "Audio Track", "Volume", "FadeIn", "FadeOut"])
-        self.audio_items_table_widget.setRowCount(pydaw_max_audio_item_count)
-        self.audio_items_table_widget.setVerticalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.audio_items_table_widget.setHorizontalScrollMode(QtGui.QAbstractItemView.ScrollPerPixel)
-        self.audio_items_table_widget.cellClicked.connect(self.cell_clicked)
-        self.items_vlayout.addWidget(self.audio_items_table_widget)
+        self.audio_items = None
 
 def global_save_all_region_tracks():
     this_pydaw_project.save_tracks(this_region_editor.get_tracks())
@@ -5125,7 +5086,6 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.main_tabwidget.addTab(this_item_editor.widget, "MIDI Item")
         self.regions_tab_widget.addTab(this_audio_items_viewer_widget.hsplitter, "Audio Seq")
-        self.regions_tab_widget.addTab(this_audio_editor.items_groupbox, "Audio List")
 
         self.cc_map_tab = QtGui.QWidget()
         self.cc_map_tab.setObjectName("ccmaptabwidget")
@@ -5575,7 +5535,6 @@ def global_close_all():
     this_region_settings.clear_new()
     this_item_editor.clear_new()
     this_song_editor.table_widget.clearContents()
-    this_audio_editor.audio_items_table_widget.clearContents()
     this_audio_items_viewer.clear_drawn_items()
     this_pb_automation_viewer.clear_drawn_items()
     for f_viewer in this_cc_automation_viewers:
