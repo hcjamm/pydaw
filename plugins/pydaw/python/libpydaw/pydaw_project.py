@@ -307,7 +307,7 @@ class pydaw_project:
             self.new_project(a_project_file)
         else:
             self.history = pydaw_history.pydaw_history(self.project_folder)
-        self.open_stretch_dicts()
+            self.open_stretch_dicts()
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
 
@@ -349,7 +349,7 @@ class pydaw_project:
         for i in range(pydaw_bus_count):
             f_pybus_instance.add_bus(i, pydaw_bus())
         self.create_file("", pydaw_file_pybus, str(f_pybus_instance))
-
+        self.open_stretch_dicts()
         self.commit("Created project")
         if a_notify_osc:
             self.this_dssi_gui.pydaw_open_song(self.project_folder)
@@ -1886,7 +1886,7 @@ def pydaw_clear_sample_graph_cache():
 def pydaw_remove_item_from_sg_cache(a_path):
     global global_sample_graph_cache
     try:
-        global_sample_graph_cache.pop()
+        global_sample_graph_cache.pop(a_path)
     except KeyError:
         print("pydaw_remove_item_from_sg_cache: " + a_path + " not found.")
 
