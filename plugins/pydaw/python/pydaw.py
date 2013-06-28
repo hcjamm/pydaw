@@ -73,6 +73,18 @@ def pydaw_clip_value(a_val, a_min, a_max):
         return a_max
     return a_val
 
+def pydaw_clip_min(a_val, a_min):
+    if a_val < a_min:
+        return a_min
+    else:
+        return a_val
+
+def pydaw_clip_max(a_val, a_max):
+    if a_val > a_max:
+        return a_max
+    else:
+        return a_val
+
 def pydaw_update_region_lengths_dict():
     """ Call this any time the region length setup may have changed... """
     f_song = this_pydaw_project.get_song()
@@ -1314,9 +1326,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def stretch_handle_mouseClickEvent(self, a_event):
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.stretch_handle, a_event)
+        f_max_region_pos = global_audio_px_per_bar * pydaw_get_current_region_length()
         for f_item in this_audio_items_viewer.audio_items:
             if f_item.isSelected() and f_item.audio_item.time_stretch_mode >= 2:
                 f_item.is_stretching = True
+                f_item.max_stretch = f_max_region_pos - f_item.pos().x()
                 f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
                 #for f_path in f_item.path_items:
                 #    f_path.hide()
@@ -1447,6 +1461,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_x = pydaw_clip_value(f_x, f_item.stretch_width_default * 0.25, f_item.stretch_width_default * 4.0)
                     else:
                         f_x = pydaw_clip_value(f_x, f_item.stretch_width_default * 0.1, f_item.stretch_width_default * 10.0)
+                    f_x = pydaw_clip_max(f_x, f_item.max_stretch)
                     f_x = f_item.quantize(f_x)
                     f_x -= f_item.quantize_offset
                     f_item.stretch_handle.setPos(f_x - global_audio_item_handle_size, (global_audio_item_height * 0.5) - (global_audio_item_handle_size * 0.5))
@@ -1522,6 +1537,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.25, f_audio_item.stretch_width_default * 4.0)
                     else:
                         f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.1, f_audio_item.stretch_width_default * 10.0)
+                    f_x = pydaw_clip_max(f_x, f_audio_item.max_stretch)
                     f_x = f_audio_item.quantize(f_x)
                     f_x -= f_audio_item.quantize_offset
                     #f_audio_item.setRect(0.0, 0.0, f_x, global_audio_item_height)
