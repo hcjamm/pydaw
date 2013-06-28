@@ -2009,6 +2009,7 @@ class audio_item_editor_widget:
         self.timestretch_mode.setMinimumWidth(190)
         self.timestretch_hlayout.addWidget(self.timestretch_mode)
         self.timestretch_mode.addItems(global_timestretch_modes)
+        self.timestretch_mode.currentIndexChanged.connect(self.timestretch_mode_changed)
         self.timestretch_hlayout2.addWidget(QtGui.QLabel("Pitch:"))
         self.pitch_shift = QtGui.QDoubleSpinBox()
         self.pitch_shift.setRange(-36, 36)
@@ -2021,6 +2022,7 @@ class audio_item_editor_widget:
         self.timestretch_amt.setSingleStep(0.1)
         self.timestretch_amt.setValue(1.0)
         self.timestretch_hlayout2.addWidget(self.timestretch_amt)
+        self.timestretch_mode_changed(0)
 
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
         self.output_hlayout = QtGui.QHBoxLayout()
@@ -2040,6 +2042,26 @@ class audio_item_editor_widget:
         self.vlayout2.addLayout(self.ok_layout)
 
         self.last_open_dir = global_home
+
+    def timestretch_mode_changed(self, a_val=None):
+        if a_val == 0:
+            self.pitch_shift.setEnabled(False)
+            self.timestretch_amt.setEnabled(False)
+            self.pitch_shift.setValue(0.0)
+            self.timestretch_amt.setValue(1.0)
+        elif a_val == 1:
+            self.pitch_shift.setEnabled(True)
+            self.timestretch_amt.setEnabled(False)
+            self.timestretch_amt.setValue(1.0)
+        elif a_val == 2:
+            self.pitch_shift.setEnabled(False)
+            self.timestretch_amt.setEnabled(True)
+            self.pitch_shift.setValue(0.0)
+            self.timestretch_amt.setRange(0.2, 4.0)
+        elif a_val == 3:
+            self.pitch_shift.setEnabled(True)
+            self.timestretch_amt.setEnabled(True)
+            self.timestretch_amt.setRange(0.1, 10.0)
 
     def open_item(self, a_item):
         if a_item is None:
