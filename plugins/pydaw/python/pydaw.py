@@ -1318,8 +1318,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             if f_item.isSelected() and f_item.audio_item.time_stretch_mode >= 2:
                 f_item.is_stretching = True
                 f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
-                for f_path in f_item.path_items:
-                    f_path.hide()
+                #for f_path in f_item.path_items:
+                #    f_path.hide()
 
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
