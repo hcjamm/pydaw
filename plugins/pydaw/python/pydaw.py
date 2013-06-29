@@ -1294,6 +1294,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         return(f_pos_bars, f_pos_beats)
 
     def start_handle_mouseClickEvent(self, a_event):
+        self.setSelected(True)
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.length_handle, a_event)
         for f_item in this_audio_items_viewer.audio_items:
@@ -1303,6 +1304,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
 
     def length_handle_mouseClickEvent(self, a_event):
+        self.setSelected(True)
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.length_handle, a_event)
         for f_item in this_audio_items_viewer.audio_items:
@@ -1311,6 +1313,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
 
     def fade_in_handle_mouseClickEvent(self, a_event):
+        self.setSelected(True)
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.fade_in_handle, a_event)
         for f_item in this_audio_items_viewer.audio_items:
@@ -1318,6 +1321,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.is_fading_in = True
 
     def fade_out_handle_mouseClickEvent(self, a_event):
+        self.setSelected(True)
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.fade_out_handle, a_event)
         for f_item in this_audio_items_viewer.audio_items:
@@ -1325,6 +1329,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.is_fading_out = True
 
     def stretch_handle_mouseClickEvent(self, a_event):
+        self.setSelected(True)
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.stretch_handle, a_event)
         f_max_region_pos = global_audio_px_per_bar * pydaw_get_current_region_length()
