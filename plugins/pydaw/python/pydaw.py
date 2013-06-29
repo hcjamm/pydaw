@@ -2155,6 +2155,8 @@ class audio_item_editor_widget:
                 f_new_ts_mode = self.timestretch_mode.currentIndex()
                 f_new_ts = self.timestretch_amt.value()
                 f_new_ps = self.pitch_shift.value()
+                if f_item.audio_item.time_stretch_mode >= 3 and f_new_ts_mode < 3:
+                    f_item.audio_item.uid = this_pydaw_project.timestretch_get_orig_file_uid(f_item.audio_item.uid)
                 f_item.audio_item.time_stretch_mode = f_new_ts_mode
                 f_item.audio_item.pitch_shift = f_new_ps
                 f_item.audio_item.timestretch_amt = f_new_ts

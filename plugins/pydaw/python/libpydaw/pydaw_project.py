@@ -531,6 +531,12 @@ class pydaw_project:
             a_audio_item.uid = self.timestretch_cache[f_key]
             return f_dest_path, f_uid, f_proc
 
+    def timestretch_get_orig_file_uid(self, a_uid):
+        """ Return the UID of the original file """
+        f_new_path = self.get_wav_path_by_uid(a_uid)
+        f_old_path = self.timestretch_reverse_lookup[f_new_path]
+        return self.get_wav_uid_by_name(f_old_path)
+
     def check_for_recorded_items(self, a_item_name):
         self.check_for_recorded_regions()
         f_item_name = str(a_item_name) + "-"
