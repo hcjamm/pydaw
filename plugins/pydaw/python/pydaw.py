@@ -1234,7 +1234,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if self.audio_item.time_stretch_mode >= 2:
             self.stretch_width_default = f_length / self.audio_item.timestretch_amt
 
-        self.setToolTip("Double click to open editor dialog, or click and drag to move")
+        self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\nShift+click to split items\nCtrl+drag to copy selected items")
 
         f_y_pos = 0.0
         self.sample_start_offset_px = self.audio_item.sample_start * -0.001 * self.length_seconds_orig_px
