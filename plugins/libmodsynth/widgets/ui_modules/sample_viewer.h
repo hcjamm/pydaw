@@ -27,7 +27,7 @@ GNU General Public License for more details.
 
 /*For sliders that calculate as a percentage, like sample start/end or loop start/end*/
 #define SLIDER_LENGTH 10000
-#define SLIDER_LENGTH_RECIP 1/SLIDER_LENGTH
+#define SLIDER_LENGTH_RECIP 1.0f/(float)SLIDER_LENGTH
 
 class LMS_sample_viewer
 {

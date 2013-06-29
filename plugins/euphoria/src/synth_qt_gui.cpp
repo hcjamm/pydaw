@@ -1309,14 +1309,14 @@ void SamplerGUI::sampleStartChanged(int a_value)
         
         int f_diff = 10000 - m_sample_ends[(m_sample_table->lms_selected_column)];
         
-        if((f_diff - a_value) < 500)
+        if((f_diff - a_value) < 100)
         {
-            m_sample_ends[(m_sample_table->lms_selected_column)] = 9500 - a_value;
+            m_sample_ends[(m_sample_table->lms_selected_column)] = 9900 - a_value;
             
             if((m_sample_ends[(m_sample_table->lms_selected_column)]) < 0)
             {
                 m_sample_ends[(m_sample_table->lms_selected_column)] = 0;
-                m_sample_starts[(m_sample_table->lms_selected_column)] = 9500;
+                m_sample_starts[(m_sample_table->lms_selected_column)] = 9900;
                 
                 m_sample_start_hslider->setValue((m_sample_starts[(m_sample_table->lms_selected_column)]));
             }
@@ -1345,14 +1345,14 @@ void SamplerGUI::sampleEndChanged(int a_value)
 
     int f_diff = 10000 - m_sample_starts[(m_sample_table->lms_selected_column)];
 
-    if((f_diff - a_value) < 500)
+    if((f_diff - a_value) < 100)
     {
-        m_sample_starts[(m_sample_table->lms_selected_column)] = 9500 - a_value;
+        m_sample_starts[(m_sample_table->lms_selected_column)] = 9900 - a_value;
 
         if((m_sample_starts[(m_sample_table->lms_selected_column)]) < 0)
         {
             m_sample_starts[(m_sample_table->lms_selected_column)] = 0;
-            m_sample_ends[(m_sample_table->lms_selected_column)] = 9500;
+            m_sample_ends[(m_sample_table->lms_selected_column)] = 9900;
             
             m_sample_end_hslider->setValue((m_sample_ends[(m_sample_table->lms_selected_column)]));
         }
@@ -1381,14 +1381,14 @@ void SamplerGUI::sampleLoopStartChanged(int a_value)
                 
         int f_diff = 10000 - m_sample_loop_ends[(m_sample_table->lms_selected_column)];
         
-        if((f_diff - a_value) < 500)
+        if((f_diff - a_value) < 100)
         {
-            m_sample_loop_ends[(m_sample_table->lms_selected_column)] = 9500 - a_value;
+            m_sample_loop_ends[(m_sample_table->lms_selected_column)] = 9900 - a_value;
             
             if((m_sample_loop_ends[(m_sample_table->lms_selected_column)]) < 0)
             {
                 m_sample_loop_ends[(m_sample_table->lms_selected_column)] = 0;
-                m_sample_loop_starts[(m_sample_table->lms_selected_column)] = 9500;
+                m_sample_loop_starts[(m_sample_table->lms_selected_column)] = 9900;
                 
                 m_sample_loop_start_hslider->setValue((m_sample_loop_starts[(m_sample_table->lms_selected_column)]));
             }
@@ -1417,14 +1417,14 @@ void SamplerGUI::sampleLoopEndChanged(int a_value)
     
     int f_diff = 10000 - m_sample_loop_starts[(m_sample_table->lms_selected_column)];
 
-    if((f_diff - a_value) < 500)
+    if((f_diff - a_value) < 100)
     {
-        m_sample_loop_starts[(m_sample_table->lms_selected_column)] = 9500 - a_value;
+        m_sample_loop_starts[(m_sample_table->lms_selected_column)] = 9900 - a_value;
 
         if((m_sample_loop_starts[(m_sample_table->lms_selected_column)]) < 0)
         {
             m_sample_loop_starts[(m_sample_table->lms_selected_column)] = 0;
-            m_sample_loop_ends[(m_sample_table->lms_selected_column)] = 9500;
+            m_sample_loop_ends[(m_sample_table->lms_selected_column)] = 9900;
             
             m_sample_loop_end_hslider->setValue((m_sample_loop_ends[(m_sample_table->lms_selected_column)]));
         }
