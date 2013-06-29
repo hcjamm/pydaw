@@ -2069,6 +2069,8 @@ class audio_item_editor_widget:
         self.output_hlayout = QtGui.QHBoxLayout()
         self.output_hlayout.addWidget(QtGui.QLabel("Audio Track:"))
         self.output_combobox = QtGui.QComboBox()
+        global global_audio_track_comboboxes
+        global_audio_track_comboboxes.append(self.output_combobox)
         self.output_combobox.setMinimumWidth(210)
         self.output_combobox.addItems(global_audio_track_names.values())
         self.output_hlayout.addWidget(self.output_combobox)
@@ -5686,8 +5688,6 @@ global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pit
 global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4", 4:"track5", 5:"track6", 6:"track7", 7:"track8"}
 global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []
-global_ai_sg_at_combobox = QtGui.QComboBox()
-global_audio_track_comboboxes.append(global_ai_sg_at_combobox)
 
 app.setWindowIcon(QtGui.QIcon('/usr/share/pixmaps/" + global_pydaw_version_string + ".png'))
 app.aboutToQuit.connect(about_to_quit)
