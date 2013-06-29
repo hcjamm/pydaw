@@ -5032,7 +5032,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://pydaw.org/wiki/index.php?title=PyDAW3_Manual"))
 
     def on_website(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://pydaw.org/"))
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl("http://sourceforge.net/projects/libmodsynth/"))
 
     def show_help_file(self, a_file):
         f_window = QtGui.QDialog(this_main_window)
@@ -5139,10 +5139,6 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.website_action = QtGui.QAction("PyDAW Website...", self)
         self.menu_help.addAction(self.website_action)
         self.website_action.triggered.connect(self.on_website)
-
-        self.manual_action = QtGui.QAction("Online User Manual...", self)
-        self.menu_help.addAction(self.manual_action)
-        self.manual_action.triggered.connect(self.on_user_manual)
 
         self.version_action = QtGui.QAction("Version Info...", self)
         self.menu_help.addAction(self.version_action)
