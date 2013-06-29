@@ -1298,6 +1298,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.mousePressEvent(self.length_handle, a_event)
         for f_item in this_audio_items_viewer.audio_items:
             if f_item.isSelected():
+                f_item.min_start = f_item.pos().x() * -1.0
                 f_item.is_start_resizing = True
                 f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
 
@@ -1434,7 +1435,15 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 if f_item.isSelected():
                     f_x = f_item.width_orig + f_event_diff + f_item.quantize_offset
                     f_x = pydaw_clip_value(f_x, f_item.sample_start_offset_px, f_item.length_handle.pos().x())
-                    f_x = f_item.quantize(f_x)
+                    f_x = pydaw_clip_min(f_x, f_item.min_start)
+                    if this_audio_items_viewer.snap_mode == 1:
+                        f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
+                        if f_x >= f_item.length_handle.pos().x():
+                            f_x -= global_audio_px_per_bar
+                    elif this_audio_items_viewer.snap_mode == 2:
+                        f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
+                        if f_x >= f_item.length_handle.pos().x():
+                            f_x -= global_audio_px_per_beat
                     f_x -= f_item.quantize_offset
                     f_item.start_handle.setPos(f_x, global_audio_item_height - global_audio_item_handle_size)
         elif self.is_fading_in:
@@ -1507,8 +1516,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.end_bar = f_end_result[0]
                         f_item.end_beat = f_end_result[1]
                 elif f_audio_item.is_start_resizing:
-                    #f_x = a_event.scenePos().x()
                     f_x = f_audio_item.start_handle.scenePos().x()
+                    f_x = pydaw_clip_min(f_x, 0.0)
                     if this_audio_items_viewer.snap_mode == 1:
                         f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
                         if f_x < f_audio_item.sample_start_offset_px:
