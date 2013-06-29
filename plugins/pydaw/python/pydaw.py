@@ -126,6 +126,17 @@ def pydaw_get_pos_in_bars(a_reg, a_bar, a_beat):
     f_result += (a_bar) + (a_beat * 0.25)
     return f_result
 
+def pydaw_bars_to_pos(a_bars):
+    """ Convert a raw bar count to region, bar """
+    f_bar_total = 0
+    for i in range(299):
+        f_bar_count = pydaw_get_region_length(i)
+        if f_bar_total + f_bar_count > a_bars:
+            return i, a_bars - f_bar_total
+        else:
+            f_bar_total += f_bar_count
+    assert(False)
+
 def pydaw_get_diff_in_bars(a_start_reg, a_start_bar, a_start_beat, a_end_reg, a_end_bar, a_end_beat):
     """ Calculate the difference in bars, ie: 10.567 bars, between 2 points """
     f_result = 0.0
@@ -4440,6 +4451,14 @@ class transport_widget:
         f_seconds_per_bar = 60.0 / (self.tempo_spinbox.value() * 0.25)
         return f_bars * f_seconds_per_bar
 
+    def set_pos_in_seconds(self, a_seconds):
+        f_seconds_per_bar = 60.0 / (self.tempo_spinbox.value() * 0.25)
+        f_bars_total = int(a_seconds / f_seconds_per_bar)
+        f_region, f_bar = pydaw_bars_to_pos(f_bars_total)
+        print f_region, f_bar
+        self.region_spinbox.setValue(f_region)
+        self.bar_spinbox.setValue(f_bar)
+
     def init_playback_cursor(self, a_start=True):
         if not self.follow_checkbox.isChecked():
             return
@@ -5538,12 +5557,9 @@ class a_b_widget:
         self.file_button.setEnabled(False)
         if self.enabled_checkbox.isChecked():
             if self.transport_checkbox.isChecked():
-                print("shit")
                 f_pos_seconds = this_transport.get_pos_in_seconds()
-                print f_pos_seconds
                 f_pos = (f_pos_seconds / self.duration) * 1000.0
                 f_pos = pydaw_clip_value(f_pos, 0.0, 999.0)
-                print f_pos
                 self.start_slider.setValue(int(f_pos))
             self.orig_pos = self.start_slider.value()
             self.suppress_start = True
@@ -5572,10 +5588,13 @@ class a_b_widget:
             self.set_time_label(f_val)
 
     def on_start_changed(self, a_val=None):
-        if not self.suppress_start:
+        if not self.suppress_start and self.has_loaded_file:
             f_val = self.start_slider.value()
             this_pydaw_project.this_dssi_gui.pydaw_ab_pos(f_val)
             self.set_time_label(f_val)
+            if self.transport_checkbox.isChecked():
+                f_pos = f_val * 0.001 * self.duration
+                this_transport.set_pos_in_seconds(f_pos)
 
 def set_default_project(a_project_path):
     f_def_file = global_pydaw_home + "/last-project.txt"
