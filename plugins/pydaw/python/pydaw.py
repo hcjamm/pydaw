@@ -2669,6 +2669,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
             self.highlight_selected()
         else:
             self.unhighlight_selected()
+        self.click_enabled = True
 
     def sceneMousePressEvent(self, a_event):
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
