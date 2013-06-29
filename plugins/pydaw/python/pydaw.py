@@ -1305,6 +1305,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         return(f_pos_bars, f_pos_beats)
 
     def start_handle_mouseClickEvent(self, a_event):
+        if global_transport_is_playing:
+            return
         self.setSelected(True)
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.length_handle, a_event)
@@ -1315,6 +1317,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
 
     def length_handle_mouseClickEvent(self, a_event):
+        if global_transport_is_playing:
+            return
         self.setSelected(True)
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.length_handle, a_event)
@@ -1324,6 +1328,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape, False)
 
     def fade_in_handle_mouseClickEvent(self, a_event):
+        if global_transport_is_playing:
+            return
         self.setSelected(True)
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.fade_in_handle, a_event)
@@ -1332,6 +1338,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.is_fading_in = True
 
     def fade_out_handle_mouseClickEvent(self, a_event):
+        if global_transport_is_playing:
+            return
         self.setSelected(True)
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.fade_out_handle, a_event)
@@ -1340,6 +1348,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_item.is_fading_out = True
 
     def stretch_handle_mouseClickEvent(self, a_event):
+        if global_transport_is_playing:
+            return
         self.setSelected(True)
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mousePressEvent(self.stretch_handle, a_event)
