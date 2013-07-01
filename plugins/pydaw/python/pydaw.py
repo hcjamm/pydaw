@@ -429,7 +429,7 @@ class region_settings:
                 f_commit_message = "Set region '" + str(self.region_name_lineedit.text()) + "' length to default value"
             this_pydaw_project.save_region(str(self.region_name_lineedit.text()), global_current_region)
             if this_audio_editor.audio_items.set_region_length(f_region_length):
-                this_pydaw_project.save_audio_items(global_current_region.uid, this_audio_editor.audio_items)
+                this_pydaw_project.save_audio_region(global_current_region.uid, this_audio_editor.audio_items)
             this_pydaw_project.commit(f_commit_message)
             self.open_region(self.region_name_lineedit.text())
             pydaw_update_region_lengths_dict()
@@ -446,6 +446,9 @@ class region_settings:
         self.region_name_lineedit.setMaximumWidth(330)
         self.hlayout0.addWidget(self.region_name_lineedit)
         self.hlayout0.addItem(QtGui.QSpacerItem(10,10, QtGui.QSizePolicy.Expanding))
+        self.split_button = QtGui.QPushButton("Split")
+        self.split_button.pressed.connect(self.on_split)
+        self.hlayout0.addWidget(self.split_button)
         self.hlayout0.addWidget(QtGui.QLabel("Region Length:"))
         self.length_default_radiobutton = QtGui.QRadioButton("default")
         self.length_default_radiobutton.setChecked(True)
@@ -460,6 +463,57 @@ class region_settings:
         self.length_alternate_spinbox.setValue(8)
         self.length_alternate_spinbox.valueChanged.connect(self.update_region_length)
         self.hlayout0.addWidget(self.length_alternate_spinbox)
+
+    def on_split(self):
+        if global_current_region is None or this_transport.is_playing or this_transport.is_recording or \
+        global_current_region.region_length_bars == 1:
+            return
+        def split_ok_handler():
+            f_index = f_split_at.value()
+            f_region_name = str(f_new_lineedit.text())
+            f_new_uid = this_pydaw_project.copy_region(global_current_region_name, f_region_name)
+            f_midi_tuple = global_current_region.split(f_index, f_new_uid)
+            f_audio_tuple = this_audio_editor.audio_items.split(f_index)
+            this_pydaw_project.save_region(global_current_region_name, f_midi_tuple[0])
+            this_pydaw_project.save_region(f_region_name, f_midi_tuple[1])
+            this_pydaw_project.save_audio_region(global_current_region.uid, f_audio_tuple[0])
+            this_pydaw_project.save_audio_region(f_new_uid, f_audio_tuple[1])
+            f_current_index = this_song_editor.song.get_index_of_region(global_current_region.uid)
+            this_song_editor.song.insert_region(f_current_index + 1, f_midi_tuple[1].uid)
+            this_pydaw_project.save_song(this_song_editor.song)
+            this_pydaw_project.commit("Split region " + global_current_region_name + " into " + f_region_name)
+            this_song_editor.open_song()
+            this_region_settings.open_region_by_uid(global_current_region.uid)
+            f_window.close()
+        def split_cancel_handler():
+            f_window.close()
+        def on_name_changed():
+            f_new_lineedit.setText(pydaw_remove_bad_chars(f_new_lineedit.text()))
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Split region...")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+        f_vlayout0 = QtGui.QVBoxLayout()
+        f_new_lineedit = QtGui.QLineEdit(this_pydaw_project.get_next_default_region_name())
+        f_new_lineedit.editingFinished.connect(on_name_changed)
+        f_new_lineedit.setMaxLength(24)
+        f_layout.addWidget(QtGui.QLabel("New name:"), 0, 1)
+        f_layout.addWidget(f_new_lineedit, 0, 2)
+        f_layout.addLayout(f_vlayout0, 1, 0)
+        f_split_at = QtGui.QSpinBox()
+        f_split_at.setRange(1, pydaw_get_current_region_length() - 1)
+        f_layout.addWidget(QtGui.QLabel("Split at:"), 2, 1)
+        f_layout.addWidget(f_split_at, 2, 2)
+        f_ok_cancel_layout = QtGui.QHBoxLayout()
+        f_layout.addLayout(f_ok_cancel_layout, 5, 2)
+        f_ok_button = QtGui.QPushButton("OK")
+        f_ok_cancel_layout.addWidget(f_ok_button)
+        f_ok_button.clicked.connect(split_ok_handler)
+        f_cancel_button = QtGui.QPushButton("Cancel")
+        f_ok_cancel_layout.addWidget(f_cancel_button)
+        f_cancel_button.clicked.connect(split_cancel_handler)
+        f_window.exec_()
 
     def open_region_by_uid(self, a_uid):
         f_regions_dict = this_pydaw_project.get_regions_dict()
@@ -1388,7 +1442,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             elif f_item.end_mode == 1:
                 f_item_old.end_bar = f_musical_pos[0]
                 f_item_old.end_beat = f_musical_pos[1]
-            this_pydaw_project.save_audio_items(global_current_region.uid, this_audio_editor.audio_items)
+            this_pydaw_project.save_audio_region(global_current_region.uid, this_audio_editor.audio_items)
             this_pydaw_project.commit("Split audio item")
             this_audio_editor.open_items(True)
         else:
@@ -1637,7 +1691,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 for f_stretch_item in f_stretched_items:
                     f_stretch_item[2].wait()
                     this_pydaw_project.get_wav_uid_by_name(f_stretch_item[0], a_uid=f_stretch_item[1])
-            this_pydaw_project.save_audio_items(global_current_region.uid, f_audio_items)
+            this_pydaw_project.save_audio_region(global_current_region.uid, f_audio_items)
             this_pydaw_project.commit("Update audio items")
             this_audio_editor.open_items(f_reset_selection)
 
@@ -1691,7 +1745,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_y = pydaw_clip_value(f_y, global_audio_ruler_height, global_audio_ruler_height + (12.0 * global_audio_item_height))
         f_lane_num = int((f_y - global_audio_ruler_height) / global_audio_item_height)
 
-        f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
+        f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
         if len(global_audio_item_clipboard) == 0:
             return
         f_length_bars = pydaw_get_current_region_length() - 1
@@ -1707,7 +1761,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     f_item = pydaw_audio_item(f_uid, a_start_bar=f_pos_bars, a_lane_num=f_lane_num, a_end_mode=1, a_end_bar=f_length_bars, a_end_beat=3.99)
 
                     f_items.add_item(f_index, f_item)
-        this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
+        this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
         this_pydaw_project.commit("Added audio items to region " + str(global_current_region.uid))
         this_audio_editor.open_items()
         self.last_open_dir = os.path.dirname(f_file_name_str)
@@ -1716,11 +1770,11 @@ class audio_items_viewer(QtGui.QGraphicsView):
         if pydaw_global_current_region_is_none():
             return
         if a_event.key() == QtCore.Qt.Key_Delete:
-            f_items = this_pydaw_project.get_audio_items(global_current_region.uid)
+            f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
             for f_item in self.audio_items:
                 if f_item.isSelected():
                     f_items.remove_item(f_item.track_num)
-            this_pydaw_project.save_audio_items(global_current_region.uid, f_items)
+            this_pydaw_project.save_audio_region(global_current_region.uid, f_items)
             this_pydaw_project.commit("Delete audio item(s)")
             this_audio_editor.open_items(True)
 
@@ -2182,7 +2236,7 @@ class audio_item_editor_widget:
                 for f_stretch_item in f_stretched_items:
                     f_stretch_item[2].wait()
                     this_pydaw_project.get_wav_uid_by_name(f_stretch_item[0], a_uid=f_stretch_item[1])
-            this_pydaw_project.save_audio_items(global_current_region.uid, this_audio_editor.audio_items)
+            this_pydaw_project.save_audio_region(global_current_region.uid, this_audio_editor.audio_items)
             this_audio_editor.open_items(True)
             this_pydaw_project.commit("Update audio items")
 
@@ -2193,7 +2247,7 @@ class audio_item_editor_widget:
 #TODO:  Deprecate this and move functions to global
 class audio_list_editor:
     def open_items(self, a_update_viewer=True):
-        self.audio_items = this_pydaw_project.get_audio_items(global_current_region.uid)
+        self.audio_items = this_pydaw_project.get_audio_region(global_current_region.uid)
         if a_update_viewer:
             f_selected_list = []
             for f_item in this_audio_items_viewer.audio_items:

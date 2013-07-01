@@ -641,14 +641,14 @@ class pydaw_project:
     def get_audio_tracks(self):
         return pydaw_audio_tracks.from_str(self.get_audio_tracks_string())
 
-    def get_audio_items_string(self, a_region_uid):
+    def get_audio_region_string(self, a_region_uid):
         f_file = open(self.regions_audio_folder + "/" + str(a_region_uid), "r")
         f_result = f_file.read()
         f_file.close()
         return f_result
 
-    def get_audio_items(self, a_region_uid):
-        return pydaw_audio_items.from_str(self.get_audio_items_string(a_region_uid))
+    def get_audio_region(self, a_region_uid):
+        return pydaw_audio_region.from_str(self.get_audio_region_string(a_region_uid))
 
     def get_sample_graph_by_name(self, a_path, a_uid_dict=None):
         f_uid = self.get_wav_uid_by_name(a_path)
@@ -749,10 +749,10 @@ class pydaw_project:
         self.save_items_dict(f_items_dict)
         return f_uid
 
-    def copy_region(self, a_old_region, a_new_region):
+    def copy_region(self, a_old_region_name, a_new_region_name):
         f_regions_dict = self.get_regions_dict()
-        f_uid = f_regions_dict.add_new_item(a_new_region)
-        f_old_uid = f_regions_dict.get_uid_by_name(a_old_region)
+        f_uid = f_regions_dict.add_new_item(a_new_region_name)
+        f_old_uid = f_regions_dict.get_uid_by_name(a_old_region_name)
         self.save_file(pydaw_folder_regions,  str(f_uid), pydaw_read_file_text(self.regions_folder + "/" + str(f_old_uid)))
         self.save_file(pydaw_folder_regions_audio,  str(f_uid), pydaw_read_file_text(self.regions_audio_folder + "/" + str(f_old_uid)))
         self.save_regions_dict(f_regions_dict)
@@ -816,7 +816,7 @@ class pydaw_project:
         if not self.suppress_updates:
             self.save_file("", pydaw_file_pyinput, str(a_tracks))
 
-    def save_audio_items(self, a_region_uid, a_tracks):
+    def save_audio_region(self, a_region_uid, a_tracks):
         if not self.suppress_updates:
             self.save_file(pydaw_folder_regions_audio, str(a_region_uid), str(a_tracks))
             self.this_dssi_gui.pydaw_reload_audio_items(a_region_uid)
@@ -875,6 +875,33 @@ class pydaw_project:
         self.suppress_updates = False
 
 class pydaw_song:
+    def __init__(self):
+        self.regions = {}
+
+    def get_index_of_region(self, a_uid):
+        for k, v in self.regions.iteritems():
+            if v == a_uid:
+                return k
+        assert(False)
+
+    def insert_region(self, a_index, a_region_uid):
+        f_new_dict = {}
+        f_old_dict = {}
+        for k, v in self.regions.iteritems():
+            print str(k) + "|" + str(v)
+            if k >= a_index:
+                if k < 299:
+                    f_new_dict[k + 1] = v
+            else:
+                f_old_dict[k] = v
+        print "\n\n\n"
+        for k, v in f_new_dict.iteritems():
+            print str(k) + "|" + str(v)
+            f_old_dict[k] = v
+        print "\n\n\n"
+        self.regions = f_old_dict
+        self.regions[a_index] = a_region_uid
+
     def add_region_ref_by_name(self, a_pos, a_region_name, a_uid_dict):
         self.regions[int(a_pos)] = a_uid_dict.get_uid_by_name(a_region_name)
         #TODO:  Raise an exception if it doesn't exist...
@@ -892,9 +919,6 @@ class pydaw_song:
     def remove_region_ref(self, a_pos):
         if a_pos in self.regions:
             del self.regions[a_pos]
-
-    def __init__(self):
-        self.regions = {}
 
     def __str__(self):
         f_result = ""
@@ -980,6 +1004,28 @@ class pydaw_name_uid_dict:
         return f_result + pydaw_terminating_char
 
 class pydaw_region:
+    def __init__(self, a_uid):
+        self.items = []
+        self.uid = a_uid
+        self.region_length_bars = 0  #0 == default length for project
+
+    def split(self, a_index, a_new_uid):
+        f_region0 = pydaw_region(self.uid)
+        f_region1 = pydaw_region(a_new_uid)
+        for f_item in self.items:
+            if f_item.bar_num >= a_index:
+                f_item.bar_num -= a_index
+                f_region1.items.append(f_item)
+            else:
+                f_region0.items.append(f_item)
+        if self.region_length_bars == 0:
+            f_length = 8
+        else:
+            f_length = self.region_length_bars
+        f_region0.region_length_bars = a_index
+        f_region1.region_length_bars = f_length - a_index
+        return f_region0, f_region1
+
     def add_item_ref_by_name(self, a_track_num, a_bar_num, a_item_name, a_uid_dict):
         f_item_uid = a_uid_dict.get_uid_by_name(a_item_name)
         self.add_item_ref_by_uid(a_track_num, a_bar_num, f_item_uid)
@@ -993,11 +1039,6 @@ class pydaw_region:
             if f_item.bar_num == a_bar_num and f_item.track_num == a_track_num:
                 self.items.remove(f_item)
                 print("remove_item_ref removed bar: " + str(f_item.bar_num) + ", track: " + str(f_item.track_num))
-
-    def __init__(self, a_uid):
-        self.items = []
-        self.uid = a_uid
-        self.region_length_bars = 0  #0 == default length for project
 
     def __str__(self):
         f_result = ""
@@ -1678,15 +1719,32 @@ class pydaw_audio_track:
     def __str__(self):
         return bool_to_int(self.solo) + "|" + bool_to_int(self.mute) + "|" + str(self.vol) + "|" + self.name + "|" + str(self.bus_num) + "\n"
 
-class pydaw_audio_items:
+class pydaw_audio_region:
+    def __init__(self):
+        self.items = {}
+
     """ Return the next available index, or -1 if none are available """
     def get_next_index(self):
         for i in range(pydaw_max_audio_item_count):
             if not self.items.has_key(i):
                 return i
         return -1
-    def __init__(self):
-        self.items = {}
+
+    def split(self, a_index):
+        f_region0 = pydaw_audio_region()
+        f_region1 = pydaw_audio_region()
+        for k, v in self.items.iteritems():
+            if v.start_bar >= a_index:
+                v.start_bar -= a_index
+                if v.end_mode == 1:
+                    v.end_bar -= a_index
+                f_region1.items[k] = v
+            else:
+                if v.end_mode == 1 and v.end_bar >= a_index:
+                    v.end_bar = a_index - 1
+                    v.end_beat = 3.99
+                f_region0.items[k] = v
+        return f_region0, f_region1
 
     def add_item(self, a_index, a_item):
         self.items[int(a_index)] = a_item
@@ -1730,14 +1788,14 @@ class pydaw_audio_items:
 
     @staticmethod
     def from_str(a_str):
-        f_result = pydaw_audio_items()
+        f_result = pydaw_audio_region()
         f_lines = a_str.split("\n")
         for f_line in f_lines:
             if f_line == pydaw_terminating_char:
                 return f_result
             f_arr = f_line.split("|")
             f_result.add_item(int(f_arr[0]), pydaw_audio_item.from_arr(f_arr[1:]))
-        print("pydaw_audio_items.from_str:  Warning:  no pydaw_terminating_char")
+        print("pydaw_audio_region.from_str:  Warning:  no pydaw_terminating_char")
         return f_result
 
     def __str__(self):
