@@ -2217,10 +2217,10 @@ class audio_item_editor_widget:
                 f_item.audio_item.vol = f_new_vol
                 f_item.draw()
                 f_item.clip_at_region_end()
-                f_item.audio_item.end_mode = self.end_mode
-                if self.end_mode == 1:
+                if self.end_mode == 1 and f_item.audio_item.end_mode == 0:
                     f_item.audio_item.end_bar = f_region_length
                     f_item.audio_item.end_beat = 3.99
+                f_item.audio_item.end_mode = self.end_mode
                 f_item.draw()
                 if f_item.audio_item.time_stretch_mode == 3 and f_item.orig_string != str(f_item.audio_item):
                     f_was_stretching = True
