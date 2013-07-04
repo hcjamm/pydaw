@@ -1974,6 +1974,8 @@ class audio_items_viewer_widget():
         self.open_bookmarks()
 
     def on_copy(self):
+        if global_current_region is None or global_transport_is_playing:
+            return
         global global_audio_items_clipboard
         global_audio_items_clipboard = []
         for f_item in this_audio_items_viewer.audio_items:
@@ -1981,6 +1983,8 @@ class audio_items_viewer_widget():
                 global_audio_items_clipboard.append(str(f_item.audio_item))
 
     def on_paste(self):
+        if global_current_region is None or global_transport_is_playing:
+            return
         for f_str in global_audio_items_clipboard:
             f_index = this_audio_editor.audio_items.get_next_index()
             if f_index == -1:
