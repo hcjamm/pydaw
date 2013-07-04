@@ -1154,8 +1154,11 @@ global_audio_px_per_beat = 100.0 / 4.0
 global_audio_px_per_8th = 100.0 / 8.0
 global_audio_px_per_12th = 100.0 / 12.0
 global_audio_px_per_16th = 100.0 / 16.0
-global_audio_ruler_height = 20.0
 
+global_audio_quantize = False
+global_audio_quantize_px = None
+
+global_audio_ruler_height = 20.0
 global_audio_item_height = 75.0
 
 global_audio_item_handle_size = 9.0
@@ -1482,70 +1485,29 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_y_pos = (f_lane_num * global_audio_item_height) + global_audio_ruler_height
         return f_lane_num, f_y_pos
 
+    def quantize_all(self, a_x):
+        f_x = a_x
+        if global_audio_quantize:
+            f_x = round(f_x / global_audio_quantize_px) * global_audio_quantize_px
+        return f_x
+
     def quantize(self, a_x):
         f_x = a_x
-        if this_audio_items_viewer.snap_mode == 0:
-            pass
-        elif this_audio_items_viewer.snap_mode == 1:
-            f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
-            if f_x < global_audio_px_per_bar:
-                f_x = global_audio_px_per_bar
-        elif this_audio_items_viewer.snap_mode == 2:
-            f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
-            if f_x < global_audio_px_per_beat:
-                f_x = global_audio_px_per_beat
-        elif this_audio_items_viewer.snap_mode == 3:
-            f_x = round(f_x / global_audio_px_per_8th) * global_audio_px_per_8th
-            if f_x < global_audio_px_per_8th:
-                f_x = global_audio_px_per_8th
-        elif this_audio_items_viewer.snap_mode == 4:
-            f_x = round(f_x / global_audio_px_per_12th) * global_audio_px_per_12th
-            if f_x < global_audio_px_per_12th:
-                f_x = global_audio_px_per_12th
-        elif this_audio_items_viewer.snap_mode == 5:
-            f_x = round(f_x / global_audio_px_per_16th) * global_audio_px_per_16th
-            if f_x < global_audio_px_per_16th:
-                f_x = global_audio_px_per_16th
+        f_x = self.quantize_all(f_x)
+        if global_audio_quantize and f_x < global_audio_quantize_px:
+            f_x = global_audio_quantize_px
         return f_x
 
     def quantize_start(self, a_x):
         f_x = a_x
-        if this_audio_items_viewer.snap_mode == 1:
-            f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
-            if f_x >= self.length_handle.pos().x():
-                f_x -= global_audio_px_per_bar
-        elif this_audio_items_viewer.snap_mode == 2:
-            f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
-            if f_x >= self.length_handle.pos().x():
-                f_x -= global_audio_px_per_beat
-        elif this_audio_items_viewer.snap_mode == 3:
-            f_x = round(f_x / global_audio_px_per_8th) * global_audio_px_per_8th
-            if f_x >= self.length_handle.pos().x():
-                f_x -= global_audio_px_per_8th
-        elif this_audio_items_viewer.snap_mode == 4:
-            f_x = round(f_x / global_audio_px_per_12th) * global_audio_px_per_12th
-            if f_x >= self.length_handle.pos().x():
-                f_x -= global_audio_px_per_12th
-        elif this_audio_items_viewer.snap_mode == 5:
-            f_x = round(f_x / global_audio_px_per_16th) * global_audio_px_per_16th
-            if f_x >= self.length_handle.pos().x():
-                f_x -= global_audio_px_per_16th
+        f_x = self.quantize_all(f_x)
+        if f_x >= self.length_handle.pos().x():
+            f_x -= global_audio_quantize_px
         return f_x
 
     def quantize_scene(self, a_x):
         f_x = a_x
-        if this_audio_items_viewer.snap_mode == 0:
-            pass
-        elif this_audio_items_viewer.snap_mode == 1:
-            f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
-        elif this_audio_items_viewer.snap_mode == 2:
-            f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
-        elif this_audio_items_viewer.snap_mode == 3:
-            f_x = round(f_x / global_audio_px_per_8th) * global_audio_px_per_8th
-        elif this_audio_items_viewer.snap_mode == 4:
-            f_x = round(f_x / global_audio_px_per_12th) * global_audio_px_per_12th
-        elif this_audio_items_viewer.snap_mode == 5:
-            f_x = round(f_x / global_audio_px_per_16th) * global_audio_px_per_16th
+        f_x = self.quantize_all(f_x)
         return f_x
 
 
@@ -1652,16 +1614,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 elif f_audio_item.is_start_resizing:
                     f_x = f_audio_item.start_handle.scenePos().x()
                     f_x = pydaw_clip_min(f_x, 0.0)
-                    if this_audio_items_viewer.snap_mode == 1:
-                        f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
-                    elif this_audio_items_viewer.snap_mode == 2:
-                        f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
-                    elif this_audio_items_viewer.snap_mode == 3:
-                        f_x = round(f_x / global_audio_px_per_8th) * global_audio_px_per_8th
-                    elif this_audio_items_viewer.snap_mode == 4:
-                        f_x = round(f_x / global_audio_px_per_12th) * global_audio_px_per_12th
-                    elif this_audio_items_viewer.snap_mode == 5:
-                        f_x = round(f_x / global_audio_px_per_16th) * global_audio_px_per_16th
+                    f_x = self.quantize_all(f_x)
                     if f_x < f_audio_item.sample_start_offset_px:
                         f_x = f_audio_item.sample_start_offset_px
                     f_start_result = self.pos_to_musical_time(f_x)
@@ -1716,18 +1669,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                             f_audio_items.add_item(f_index, f_item_old)
                     else:
                         f_audio_item.set_brush(f_item.lane_num)
-                    if this_audio_items_viewer.snap_mode == 0:
-                        pass
-                    elif this_audio_items_viewer.snap_mode == 1:
-                        f_pos_x = int(f_pos_x / global_audio_px_per_bar) * global_audio_px_per_bar
-                    elif this_audio_items_viewer.snap_mode == 2:
-                        f_pos_x = int(f_pos_x / global_audio_px_per_beat) * global_audio_px_per_beat
-                    elif this_audio_items_viewer.snap_mode == 3:
-                        f_pos_x = int(f_pos_x / global_audio_px_per_8th) * global_audio_px_per_8th
-                    elif this_audio_items_viewer.snap_mode == 4:
-                        f_pos_x = int(f_pos_x / global_audio_px_per_12th) * global_audio_px_per_12th
-                    elif this_audio_items_viewer.snap_mode == 5:
-                        f_pos_x = int(f_pos_x / global_audio_px_per_16th) * global_audio_px_per_16th
+                    f_pos_x = self.quantize_all(f_pos_x)
                     f_item.lane_num, f_pos_y = self.y_pos_to_lane_number(f_pos_y)
                     f_audio_item.setPos(f_pos_x, f_pos_y)
                     f_start_result = f_audio_item.pos_to_musical_time(f_pos_x)
@@ -1777,7 +1719,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.set_playback_pos(0)
         self.draw_headers()
         self.setAlignment(QtCore.Qt.AlignTop)
-        self.snap_mode = 0
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.setAlignment(QtCore.Qt.AlignLeft)
         self.is_playing = False
@@ -1850,9 +1791,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def stop_playback(self):
         self.is_playing = False
-
-    def set_snap(self, a_index):
-        self.snap_mode = a_index
 
     def set_zoom(self, a_scale):
         """ a_scale == number from 1.0 to 6.0 """
@@ -2151,7 +2089,21 @@ class audio_items_viewer_widget():
         this_audio_items_viewer.set_v_zoom(self.v_zoom)
 
     def set_snap(self, a_val=None):
-        this_audio_items_viewer.set_snap(self.snap_combobox.currentIndex())
+        global global_audio_quantize, global_audio_quantize_px
+        global_audio_quantize = True
+        if a_val == 0:
+            global_audio_quantize = False
+            global_audio_quantize_px = None
+        elif a_val == 1:
+            global_audio_quantize_px = global_audio_px_per_bar
+        elif a_val == 2:
+            global_audio_quantize_px = global_audio_px_per_beat
+        elif a_val == 3:
+            global_audio_quantize_px = global_audio_px_per_8th
+        elif a_val == 4:
+            global_audio_quantize_px = global_audio_px_per_12th
+        elif a_val == 5:
+            global_audio_quantize_px = global_audio_px_per_16th
 
     def set_zoom(self, a_val=None):
         """ This is a ridiculously convoluted way to do this, but I see no other way in the Qt docs.  When
