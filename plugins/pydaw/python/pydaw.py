@@ -1309,15 +1309,16 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         if not self.waveforms_scaled:
             f_i_inc = 1.0 / len(self.painter_paths)
-            f_i = f_i_inc
-            f_y_offset = (1.0 - self.vol_linear) * self.y_inc
-            print "f_y_offset:", f_y_offset, ",", "self.vol_linear", self.vol_linear
+            f_i = f_i_inc * 1.0
+            f_y_inc = 0.0
+            f_y_offset = (1.0 - self.vol_linear) * self.y_inc * f_i_inc
             for f_path_item in self.path_items:
-                f_path_item.setPos(self.sample_start_offset_px, (f_y_offset * f_i))
+                f_path_item.setPos(self.sample_start_offset_px, f_y_offset + f_y_inc * f_i)
                 f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.rect_orig)
                 f_y_scale *= self.vol_linear
                 f_path_item.scale(f_x_scale, f_y_scale)
                 f_i += f_i_inc
+                f_y_inc += self.y_inc
         self.waveforms_scaled = True
 
         self.length_handle.setPos(f_length - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
