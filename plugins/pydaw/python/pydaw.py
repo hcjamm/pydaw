@@ -1512,23 +1512,23 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_x = a_x
         if this_audio_items_viewer.snap_mode == 1:
             f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
-            if f_x >= f_item.length_handle.pos().x():
+            if f_x >= self.length_handle.pos().x():
                 f_x -= global_audio_px_per_bar
         elif this_audio_items_viewer.snap_mode == 2:
             f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
-            if f_x >= f_item.length_handle.pos().x():
+            if f_x >= self.length_handle.pos().x():
                 f_x -= global_audio_px_per_beat
         elif this_audio_items_viewer.snap_mode == 3:
             f_x = round(f_x / global_audio_px_per_8th) * global_audio_px_per_8th
-            if f_x >= f_item.length_handle.pos().x():
+            if f_x >= self.length_handle.pos().x():
                 f_x -= global_audio_px_per_8th
         elif this_audio_items_viewer.snap_mode == 4:
             f_x = round(f_x / global_audio_px_per_12th) * global_audio_px_per_12th
-            if f_x >= f_item.length_handle.pos().x():
+            if f_x >= self.length_handle.pos().x():
                 f_x -= global_audio_px_per_12th
         elif this_audio_items_viewer.snap_mode == 5:
             f_x = round(f_x / global_audio_px_per_16th) * global_audio_px_per_16th
-            if f_x >= f_item.length_handle.pos().x():
+            if f_x >= self.length_handle.pos().x():
                 f_x -= global_audio_px_per_16th
         return f_x
 
