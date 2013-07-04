@@ -1249,6 +1249,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.stretch_handle.setToolTip("Use this handle to resize the item by time-stretching it.")
         self.stretch_handle.hide()
 
+        self.split_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, global_audio_item_height, self)
+        self.split_line.mapFromParent(0.0, 0.0)
+        self.split_line.hide()
+        self.split_line_is_shown = False
+        self.split_line.setPen(QtGui.QPen(QtCore.Qt.red, 4.0))
+
+        self.setAcceptHoverEvents(True)
+
         self.is_start_resizing = False
         self.is_resizing = False
         self.is_copying = False
@@ -1478,6 +1486,29 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def mouseDoubleClickEvent(self, a_event):
         this_audio_items_viewer_widget.folders_tab_widget.setCurrentIndex(2)
+
+    def hoverEnterEvent(self, a_event):
+        f_item_pos = self.pos().x()
+        self.quantize_offset = f_item_pos - self.quantize(f_item_pos)
+
+    def hoverMoveEvent(self, a_event):
+        if a_event.modifiers() == QtCore.Qt.ShiftModifier:
+            if not self.split_line_is_shown:
+                self.split_line_is_shown = True
+                self.split_line.show()
+            f_x = a_event.pos().x()
+            f_x = self.quantize(f_x)
+            f_x -= self.quantize_offset
+            self.split_line.setPos(f_x, 0.0)
+        else:
+            if self.split_line_is_shown:
+                self.split_line_is_shown = False
+                self.split_line.hide()
+
+    def hoverLeaveEvent(self, a_event):
+        if self.split_line_is_shown:
+            self.split_line_is_shown = False
+            self.split_line.hide()
 
     def y_pos_to_lane_number(self, a_y_pos):
         f_lane_num = int((a_y_pos - global_audio_ruler_height) / global_audio_item_height)
