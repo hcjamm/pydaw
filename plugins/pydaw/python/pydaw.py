@@ -1872,8 +1872,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_ruler = QtGui.QGraphicsRectItem(0, 0, f_size, global_audio_ruler_height)
         self.scene.addItem(f_ruler)
         f_v_pen = QtGui.QPen(QtCore.Qt.black)
-        f_beat_pen = QtGui.QPen(QtCore.Qt.white)
-        f_16th_pen = QtGui.QPen(QtCore.Qt.darkGray)
+        f_beat_pen = QtGui.QPen(QtGui.QColor(210, 210, 210))
+        f_16th_pen = QtGui.QPen(QtGui.QColor(120, 120, 120))
         f_reg_pen = QtGui.QPen(QtCore.Qt.white)
         f_total_height = (12.0 * (global_audio_item_height)) + global_audio_ruler_height
         i3 = 0.0
