@@ -1181,12 +1181,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.y_inc = global_audio_item_height / len(self.painter_paths)
         f_y_pos = 0.0
         self.path_items = []
-        f_track_num = global_audio_ruler_height + (global_audio_item_height) * self.audio_item.lane_num
         for f_painter_path in self.painter_paths:
             f_path_item = QtGui.QGraphicsPathItem(f_painter_path)
             f_path_item.setBrush(pydaw_audio_item_scene_gradient)
             f_path_item.setParentItem(self)
-            f_path_item.mapFromParent(0.0, f_track_num)
+            f_path_item.mapToParent(0.0, 0.0)
             self.path_items.append(f_path_item)
             f_y_pos += self.y_inc
         f_file_name = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid)
@@ -1304,17 +1303,21 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\nShift+click to split items\nCtrl+drag to copy selected items")
 
-        f_y_pos = 0.0
         self.sample_start_offset_px = self.audio_item.sample_start * -0.001 * self.length_seconds_orig_px
         self.start_handle_scene_min = f_start + self.sample_start_offset_px
         self.start_handle_scene_max = self.start_handle_scene_min + self.length_seconds_orig_px
-        for f_path_item in self.path_items:
-            f_path_item.setPos(self.sample_start_offset_px, 0.0)
-            if not self.waveforms_scaled:
+
+        if not self.waveforms_scaled:
+            f_i_inc = 1.0 / len(self.painter_paths)
+            f_i = f_i_inc
+            f_y_offset = (1.0 - self.vol_linear) * self.y_inc
+            print "f_y_offset:", f_y_offset, ",", "self.vol_linear", self.vol_linear
+            for f_path_item in self.path_items:
+                f_path_item.setPos(self.sample_start_offset_px, (f_y_offset * f_i))
                 f_x_scale, f_y_scale = pydaw_scale_to_rect(pydaw_audio_item_scene_rect, self.rect_orig)
                 f_y_scale *= self.vol_linear
                 f_path_item.scale(f_x_scale, f_y_scale)
-            f_y_pos += self.y_inc
+                f_i += f_i_inc
         self.waveforms_scaled = True
 
         self.length_handle.setPos(f_length - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
