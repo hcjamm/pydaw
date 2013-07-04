@@ -1489,7 +1489,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
     def hoverEnterEvent(self, a_event):
         f_item_pos = self.pos().x()
-        self.quantize_offset = f_item_pos - self.quantize(f_item_pos)
+        self.quantize_offset = f_item_pos - self.quantize_all(f_item_pos)
 
     def hoverMoveEvent(self, a_event):
         if a_event.modifiers() == QtCore.Qt.ShiftModifier:
@@ -1497,7 +1497,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 self.split_line_is_shown = True
                 self.split_line.show()
             f_x = a_event.pos().x()
-            f_x = self.quantize(f_x)
+            f_x = self.quantize_all(f_x)
             f_x -= self.quantize_offset
             self.split_line.setPos(f_x, 0.0)
         else:
