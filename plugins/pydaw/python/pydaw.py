@@ -1528,6 +1528,22 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 f_x -= global_audio_px_per_16th
         return f_x
 
+    def quantize_scene(self, a_x):
+        f_x = a_x
+        if this_audio_items_viewer.snap_mode == 0:
+            pass
+        elif this_audio_items_viewer.snap_mode == 1:
+            f_x = round(f_x / global_audio_px_per_bar) * global_audio_px_per_bar
+        elif this_audio_items_viewer.snap_mode == 2:
+            f_x = round(f_x / global_audio_px_per_beat) * global_audio_px_per_beat
+        elif this_audio_items_viewer.snap_mode == 3:
+            f_x = round(f_x / global_audio_px_per_8th) * global_audio_px_per_8th
+        elif this_audio_items_viewer.snap_mode == 4:
+            f_x = round(f_x / global_audio_px_per_12th) * global_audio_px_per_12th
+        elif this_audio_items_viewer.snap_mode == 5:
+            f_x = round(f_x / global_audio_px_per_16th) * global_audio_px_per_16th
+        return f_x
+
 
     def update_fade_in_line(self):
         f_pos = self.fade_in_handle.pos()
@@ -1596,6 +1612,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_pos_y = f_item.pos().y()
                     f_pos_x = pydaw_clip_value(f_pos_x, 0.0, f_max_x)
                     f_ignored, f_pos_y = f_item.y_pos_to_lane_number(f_pos_y)
+                    f_pos_x = f_item.quantize_scene(f_pos_x)
                     f_item.setPos(f_pos_x, f_pos_y)
                     if not f_item.is_moving:
                         f_item.setGraphicsEffect(QtGui.QGraphicsOpacityEffect())
