@@ -762,6 +762,7 @@ class pydaw_project:
         f_regions_dict = self.get_regions_dict()
         f_uid = f_regions_dict.get_uid_by_name(a_src_region_name)
         self.save_file(pydaw_folder_regions_audio, str(a_dest_region_uid), pydaw_read_file_text(self.regions_audio_folder + "/" + str(f_uid)))
+        self.this_dssi_gui.pydaw_reload_audio_items(a_dest_region_uid)
 
     def copy_item(self, a_old_item, a_new_item):
         f_items_dict = self.get_items_dict()
@@ -1849,6 +1850,10 @@ class pydaw_audio_item:
         + "|" + str(self.end_bar) + "|" + str(round(self.end_beat, 4)) + "|" + str(self.time_stretch_mode) \
         + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(round(self.timestretch_amt, 4)) \
         + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "|" + str(self.lane_num) + "\n"
+
+    @staticmethod
+    def from_str(f_str):
+        return pydaw_audio_item.from_arr(f_str.split("|"))
 
     @staticmethod
     def from_arr(a_arr):

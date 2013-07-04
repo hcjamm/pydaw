@@ -1810,10 +1810,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
         f_lane_num = int((f_y - global_audio_ruler_height) / global_audio_item_height)
 
         f_items = this_pydaw_project.get_audio_region(global_current_region.uid)
-        if len(global_audio_item_clipboard) == 0:
+        if len(global_audio_items_to_drop) == 0:
             return
         f_length_bars = pydaw_get_current_region_length() - 1
-        for f_file_name in global_audio_item_clipboard:
+        for f_file_name in global_audio_items_to_drop:
             f_file_name_str = str(f_file_name)
             if not f_file_name_str is None and not f_file_name_str == "":
                 f_index = f_items.get_next_index()
@@ -1910,7 +1910,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.audio_items.append(f_audio_item)
         self.scene.addItem(f_audio_item)
 
-global_audio_item_clipboard = []
+global_audio_items_to_drop = []
+global_audio_items_clipboard = []
 
 global_bookmarks_file_path = global_pydaw_home + "/lms_file_browser_bookmarks.txt"
 
@@ -2008,6 +2009,12 @@ class audio_items_viewer_widget():
         self.clone_button = QtGui.QPushButton("Clone")
         self.clone_button.pressed.connect(self.on_clone)
         self.controls_grid_layout.addWidget(self.clone_button, 0, 10)
+        self.copy_button = QtGui.QPushButton("Copy")
+        self.copy_button.pressed.connect(self.on_copy)
+        self.controls_grid_layout.addWidget(self.copy_button, 0, 11)
+        self.paste_button = QtGui.QPushButton("Paste")
+        self.paste_button.pressed.connect(self.on_paste)
+        self.controls_grid_layout.addWidget(self.paste_button, 0, 12)
 
         self.controls_grid_layout.addWidget(QtGui.QLabel("V-Zoom:"), 0, 45)
         self.v_zoom_combobox = QtGui.QComboBox()
@@ -2028,13 +2035,31 @@ class audio_items_viewer_widget():
         self.set_folder(".")
         self.open_bookmarks()
 
+    def on_copy(self):
+        global global_audio_items_clipboard
+        global_audio_items_clipboard = []
+        for f_item in this_audio_items_viewer.audio_items:
+            if f_item.isSelected():
+                global_audio_items_clipboard.append(str(f_item.audio_item))
+
+    def on_paste(self):
+        for f_str in global_audio_items_clipboard:
+            f_index = this_audio_editor.audio_items.get_next_index()
+            if f_index == -1:
+                break
+            f_item = pydaw_audio_item.from_str(f_str)
+            this_audio_editor.audio_items.add_item(f_index, f_item)
+        this_audio_editor.audio_items.deduplicate_items()
+        this_pydaw_project.save_audio_region(global_current_region.uid, this_audio_editor.audio_items)
+        this_pydaw_project.commit("Paste audio items")
+        this_audio_editor.open_items(True)
+
     def on_clone(self):
         if global_current_region is None or global_transport_is_playing:
             return
         def ok_handler():
             f_region_name = str(f_region_combobox.currentText())
             this_pydaw_project.region_audio_clone(global_current_region.uid, f_region_name)
-            this_pydaw_project.this_dssi_gui.pydaw_reload_audio_items(global_current_region.uid)
             this_pydaw_project.commit("Clone audio from region " + f_region_name)
             this_audio_editor.open_items(True)
             f_window.close()
@@ -2086,10 +2111,10 @@ class audio_items_viewer_widget():
 
     def file_mouse_press_event(self, a_event):
         QtGui.QListWidget.mousePressEvent(self.list_file, a_event)
-        global global_audio_item_clipboard
-        global_audio_item_clipboard = []
+        global global_audio_items_to_drop
+        global_audio_items_to_drop = []
         for f_item in self.list_file.selectedItems():
-            global_audio_item_clipboard.append(self.last_open_dir + "/" + str(f_item.text()))
+            global_audio_items_to_drop.append(self.last_open_dir + "/" + str(f_item.text()))
 
     def folder_item_clicked(self, a_item):
         self.set_folder(a_item.text())
