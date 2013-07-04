@@ -1470,7 +1470,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_item_pos = f_item.pos().x()
-                    f_item.quantize_offset = f_item_pos - f_item.quantize(f_item_pos)
+                    f_item.quantize_offset = f_item_pos - f_item.quantize_all(f_item_pos)
                     if a_event.modifiers() == QtCore.Qt.ControlModifier:
                         f_item.is_copying = True
                         f_item.width_orig = f_item.rect().width()
