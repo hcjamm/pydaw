@@ -1464,7 +1464,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_pydaw_project.commit("Split audio item")
             this_audio_editor.open_items(True)
         else:
-            this_audio_item_editor_widget.open_item(self.audio_item)
+            #this_audio_item_editor_widget.open_item(self.audio_item)
             QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
             self.event_pos_orig = a_event.pos().x()
             for f_item in this_audio_items_viewer.audio_items:
@@ -1756,8 +1756,62 @@ class audio_items_viewer(QtGui.QGraphicsView):
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
 
     def scene_selection_changed(self):
+        f_selected_items = []
         for f_item in self.audio_items:
             f_item.set_brush()
+            if f_item.isSelected():
+                f_selected_items.append(f_item)
+        f_end_mode_checked = True
+        if len(f_selected_items) > 1:
+            f_end_mode_val = f_selected_items[0].audio_item.end_mode
+            for f_item in f_selected_items[1:]:
+                if f_item.audio_item.end_mode != f_end_mode_val:
+                    f_end_mode_checked = False
+                    break
+        this_audio_item_editor_widget.end_mode_checkbox.setChecked(f_end_mode_checked)
+        f_timestretch_checked = True
+        if len( f_selected_items) > 1:
+            f_time_stretch_mode_val = f_selected_items[0].audio_item.time_stretch_mode
+            f_time_stretch_amt_val = f_selected_items[0].audio_item.timestretch_amt
+            f_pitch_val = f_selected_items[0].audio_item.pitch_shift
+            for f_item in f_selected_items[1:]:
+                if f_item.audio_item.time_stretch_mode != f_time_stretch_mode_val or \
+                f_item.audio_item.timestretch_amt != f_time_stretch_amt_val or \
+                f_item.audio_item.pitch_shift != f_pitch_val:
+                    f_timestretch_checked = False
+                    break
+        this_audio_item_editor_widget.timestretch_checkbox.setChecked(f_timestretch_checked)
+        f_output_checked = True
+        if len( f_selected_items) > 1:
+            f_output_val = f_selected_items[0].audio_item.output_track
+            for f_item in f_selected_items[1:]:
+                if f_item.audio_item.output_track != f_output_val:
+                    f_output_checked = False
+                    break
+        this_audio_item_editor_widget.output_checkbox.setChecked(f_output_checked)
+        f_vol_checked = True
+        if len( f_selected_items) > 1:
+            f_vol_val = f_selected_items[0].audio_item.vol
+            for f_item in f_selected_items[1:]:
+                if f_item.audio_item.vol != f_vol_val:
+                    print f_item.audio_item.vol
+                    f_vol_checked = False
+                    break
+        this_audio_item_editor_widget.vol_checkbox.setChecked(f_vol_checked)
+        if len(f_selected_items) > 0:
+            if f_end_mode_checked:
+                if f_selected_items[0].audio_item.end_mode == 1:
+                    this_audio_item_editor_widget.end_musical_time.setChecked(True)
+                else:
+                    this_audio_item_editor_widget.end_sample_length.setChecked(True)
+            if f_timestretch_checked:
+                this_audio_item_editor_widget.timestretch_mode.setCurrentIndex(f_selected_items[0].audio_item.time_stretch_mode)
+                this_audio_item_editor_widget.pitch_shift.setValue(f_selected_items[0].audio_item.pitch_shift)
+                this_audio_item_editor_widget.timestretch_amt.setValue(f_selected_items[0].audio_item.timestretch_amt)
+            if f_output_checked:
+                this_audio_item_editor_widget.output_combobox.setCurrentIndex(f_selected_items[0].audio_item.output_track)
+            if f_vol_checked:
+                this_audio_item_editor_widget.sample_vol_slider.setValue(f_selected_items[0].audio_item.vol)
 
     def sceneDragEnterEvent(self, a_event):
         a_event.setAccepted(True)
@@ -2162,7 +2216,8 @@ class audio_item_editor_widget:
         self.main_vlayout.addLayout(self.layout)
 
         self.sample_vol_layout = QtGui.QVBoxLayout()
-        self.sample_vol_layout.addWidget(QtGui.QLabel("Vol"))
+        self.vol_checkbox = QtGui.QCheckBox("Vol")
+        self.sample_vol_layout.addWidget(self.vol_checkbox)
         self.sample_vol_slider = QtGui.QSlider(QtCore.Qt.Vertical)
         self.sample_vol_slider.setRange(-24, 24)
         self.sample_vol_slider.setValue(0)
@@ -2176,7 +2231,8 @@ class audio_item_editor_widget:
         self.layout.addLayout(self.vlayout2, 1, 1)
         self.start_hlayout = QtGui.QHBoxLayout()
         self.vlayout2.addLayout(self.start_hlayout)
-        self.start_hlayout.addWidget(QtGui.QLabel("End Mode:"))
+        self.end_mode_checkbox = QtGui.QCheckBox("End Mode:")
+        self.start_hlayout.addWidget(self.end_mode_checkbox)
         self.end_musical_time = QtGui.QRadioButton("Musical")
         self.start_hlayout.addWidget(self.end_musical_time)
         self.end_musical_time.setChecked(True)
@@ -2184,13 +2240,15 @@ class audio_item_editor_widget:
         self.start_hlayout.addWidget(self.end_sample_length)
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
 
-        self.vlayout2.addWidget(QtGui.QLabel("Time Stretching:"))
+        self.timestretch_checkbox = QtGui.QCheckBox("Time Stretching:")
+        self.vlayout2.addWidget(self.timestretch_checkbox)
         self.timestretch_hlayout = QtGui.QHBoxLayout()
         self.timestretch_hlayout2 = QtGui.QHBoxLayout()
         self.vlayout2.addLayout(self.timestretch_hlayout)
         self.vlayout2.addLayout(self.timestretch_hlayout2)
         self.timestretch_hlayout.addWidget(QtGui.QLabel("Mode:"))
         self.timestretch_mode = QtGui.QComboBox()
+        self.timestretch_mode.currentIndexChanged.connect(self.timestretch_changed)
         self.timestretch_mode.setMinimumWidth(190)
         self.timestretch_hlayout.addWidget(self.timestretch_mode)
         self.timestretch_mode.addItems(global_timestretch_modes)
@@ -2199,6 +2257,7 @@ class audio_item_editor_widget:
         self.pitch_shift = QtGui.QDoubleSpinBox()
         self.pitch_shift.setRange(-36, 36)
         self.pitch_shift.setValue(0.0)
+        self.pitch_shift.valueChanged.connect(self.timestretch_changed)
         self.timestretch_hlayout2.addWidget(self.pitch_shift)
         self.timestretch_hlayout2.addWidget(QtGui.QLabel("Time:"))
         self.timestretch_amt = QtGui.QDoubleSpinBox()
@@ -2206,17 +2265,20 @@ class audio_item_editor_widget:
         self.timestretch_amt.setDecimals(5)
         self.timestretch_amt.setSingleStep(0.1)
         self.timestretch_amt.setValue(1.0)
+        self.timestretch_amt.valueChanged.connect(self.timestretch_changed)
         self.timestretch_hlayout2.addWidget(self.timestretch_amt)
         self.timestretch_mode_changed(0)
 
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
         self.output_hlayout = QtGui.QHBoxLayout()
-        self.output_hlayout.addWidget(QtGui.QLabel("Audio Track:"))
+        self.output_checkbox = QtGui.QCheckBox("Output:")
+        self.output_hlayout.addWidget(self.output_checkbox)
         self.output_combobox = QtGui.QComboBox()
         global global_audio_track_comboboxes
         global_audio_track_comboboxes.append(self.output_combobox)
         self.output_combobox.setMinimumWidth(210)
         self.output_combobox.addItems(global_audio_track_names.values())
+        self.output_combobox.currentIndexChanged.connect(self.output_changed)
         self.output_hlayout.addWidget(self.output_combobox)
         self.vlayout2.addLayout(self.output_hlayout)
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
@@ -2229,6 +2291,15 @@ class audio_item_editor_widget:
         self.vlayout2.addLayout(self.ok_layout)
 
         self.last_open_dir = global_home
+
+    def end_mode_changed(self, a_val=None):
+        self.end_mode_checkbox.setChecked(True)
+
+    def timestretch_changed(self, a_val=None):
+        self.timestretch_checkbox.setChecked(True)
+
+    def output_changed(self, a_val=None):
+        self.output_checkbox.setChecked(True)
 
     def timestretch_mode_changed(self, a_val=None):
         if a_val == 0:
@@ -2284,29 +2355,32 @@ class audio_item_editor_widget:
 
         for f_item in this_audio_items_viewer.audio_items:
             if f_item.isSelected():
-                f_item.audio_item.output_track = self.output_combobox.currentIndex()
-                f_new_vol = self.sample_vol_slider.value()
-                f_new_ts_mode = self.timestretch_mode.currentIndex()
-                f_new_ts = self.timestretch_amt.value()
-                f_new_ps = self.pitch_shift.value()
-                if f_item.audio_item.time_stretch_mode >= 3 and f_new_ts_mode < 3:
-                    f_item.audio_item.uid = this_pydaw_project.timestretch_get_orig_file_uid(f_item.audio_item.uid)
-                f_item.audio_item.time_stretch_mode = f_new_ts_mode
-                f_item.audio_item.pitch_shift = f_new_ps
-                f_item.audio_item.timestretch_amt = f_new_ts
-                f_item.audio_item.vol = f_new_vol
+                if self.output_checkbox.isChecked():
+                    f_item.audio_item.output_track = self.output_combobox.currentIndex()
+                if self.vol_checkbox.isChecked():
+                    f_item.audio_item.vol = self.sample_vol_slider.value()
+                if self.timestretch_checkbox.isChecked():
+                    f_new_ts_mode = self.timestretch_mode.currentIndex()
+                    f_new_ts = self.timestretch_amt.value()
+                    f_new_ps = self.pitch_shift.value()
+                    if f_item.audio_item.time_stretch_mode >= 3 and f_new_ts_mode < 3:
+                        f_item.audio_item.uid = this_pydaw_project.timestretch_get_orig_file_uid(f_item.audio_item.uid)
+                    f_item.audio_item.time_stretch_mode = f_new_ts_mode
+                    f_item.audio_item.pitch_shift = f_new_ps
+                    f_item.audio_item.timestretch_amt = f_new_ts
+                    f_item.draw()
+                    f_item.clip_at_region_end()
+                    if f_item.audio_item.time_stretch_mode == 3 and f_item.orig_string != str(f_item.audio_item):
+                        f_was_stretching = True
+                        f_ts_result = this_pydaw_project.timestretch_audio_item(f_item.audio_item)
+                        if f_ts_result is not None:
+                            f_stretched_items.append(f_ts_result)
+                if self.end_mode_checkbox.isChecked():
+                    if self.end_mode == 1 and f_item.audio_item.end_mode == 0:
+                        f_item.audio_item.end_bar = f_region_length
+                        f_item.audio_item.end_beat = 3.99
+                    f_item.audio_item.end_mode = self.end_mode
                 f_item.draw()
-                f_item.clip_at_region_end()
-                if self.end_mode == 1 and f_item.audio_item.end_mode == 0:
-                    f_item.audio_item.end_bar = f_region_length
-                    f_item.audio_item.end_beat = 3.99
-                f_item.audio_item.end_mode = self.end_mode
-                f_item.draw()
-                if f_item.audio_item.time_stretch_mode == 3 and f_item.orig_string != str(f_item.audio_item):
-                    f_was_stretching = True
-                    f_ts_result = this_pydaw_project.timestretch_audio_item(f_item.audio_item)
-                    if f_ts_result is not None:
-                        f_stretched_items.append(f_ts_result)
                 f_selected_count += 1
         if f_selected_count == 0:
             QtGui.QMessageBox.warning(self.widget, "Error", "No items selected")
@@ -2322,6 +2396,7 @@ class audio_item_editor_widget:
 
     def sample_vol_changed(self, a_val=None):
         self.sample_vol_label.setText(str(self.sample_vol_slider.value()) + "dB")
+        self.vol_checkbox.setChecked(True)
 
 
 #TODO:  Deprecate this and move functions to global
