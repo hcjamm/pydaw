@@ -57,9 +57,19 @@ public:
     QLineEdit * folder_path;
     QMap <QString, QString> hashtable;
     QString f_global_config_path;
+    QString home_path;
 
     LMS_file_browser(QWidget *a_parent)
     {     
+        if(QDir("/media/pydaw_data").exists() && QDir("/home/ubuntu").exists())
+        {
+            this->home_path = QString("/media/pydaw_data");
+        }
+        else
+        {
+            this->home_path = QDir::homePath();
+        }
+        
         m_file_browser_verticalLayout = new QVBoxLayout();
                 
         m_file_browser_verticalLayout->setObjectName(QString::fromUtf8("m_file_browser_verticalLayout"));
@@ -164,7 +174,7 @@ public:
 
         m_bookmarks_label->setText(QString("Bookmarks"));
         m_folders_label->setText(QString("Folders"));
-        m_folder_path_lineedit->setText(QString("/home"));
+        m_folder_path_lineedit->setText(this->home_path);
         m_up_pushButton->setText(QString("Up"));
         m_files_label->setText(QString("Files"));
 
@@ -173,7 +183,7 @@ public:
         m_preview_pushButton->setText(QString("Preview"));
         m_load_pushButton->setText(QString("Load"));
         
-        f_global_config_path = QString(QDir::homePath() + QString("/pydaw3/lms_file_browser_bookmarks.txt"));
+        f_global_config_path = this->home_path + QString("/pydaw3/lms_file_browser_bookmarks.txt");
         
         if(QFile::exists(f_global_config_path))
         {
@@ -208,7 +218,7 @@ public:
         }
         
         
-        folder_opened(QString("/home/"), FALSE);
+        folder_opened(this->home_path, FALSE);
     }
     
     void folder_opened(QString a_folder, bool a_relative_path)
