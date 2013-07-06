@@ -15,6 +15,7 @@ GNU General Public License for more details.
 import os, random, traceback, subprocess
 from shutil import move
 from time import sleep
+import midi
 
 #from lms_session import lms_session #deprecated
 from dssi_gui import dssi_gui
@@ -2077,3 +2078,46 @@ class pydaw_sample_graph:
         except Exception as f_ex:
             print("Error getting mtime: " + f_ex.message)
             return False
+
+class pydaw_midi_file_to_items:
+    """ Convert the MIDI file at a_file to a dict of pydaw_item's with keys
+        in the format (track#, channel#, bar#)"""
+    def __init__(self, a_file):
+        f_stream = midi.read_midifile(str(a_file))
+        f_stream.trackpool.sort()
+        self.result_dict = {}
+        for f_event in f_stream.trackpool:
+            if isinstance(f_event, midi.NoteEvent):
+                f_beat = (float(f_event.tick) / float(f_stream.resolution)) % 4.0
+                f_bar = (int(f_event.tick) / int(f_stream.resolution)) / 4
+                f_pitch = f_event.pitch
+                f_velocity = f_event.velocity
+                f_length = f_event.length
+                f_channel = f_event.channel
+                f_track = f_event.track
+                f_key = (f_track, f_channel, f_bar)
+                if not self.result_dict.has_key(f_key):
+                    self.result_dict[f_key] = pydaw_item()
+                f_note = pydaw_note(f_beat, f_length, f_pitch, f_velocity)
+                self.result_dict[f_key].add_note(f_note)
+
+    def get_track_count(self):
+        f_result = []
+        for k, v in self.result_dict.iteritems():
+            if k[0] not in f_result:
+                f_result.append(k[0])
+        return len(f_result)
+
+    def get_channel_count(self):
+        f_result = []
+        for k, v in self.result_dict.iteritems():
+            if k[1] not in f_result:
+                f_result.append(k[1])
+        return len(f_result)
+
+    def get_file_names_dict(self, a_name):
+        f_result = {}
+        f_name = str(a_name).strip()
+        for k, v in self.result_dict.iteritems():
+            f_result[f_name + "-" + str(k[0]) + "-" + str(k[1]) + "-" + str(k[2])] = v
+        return f_result

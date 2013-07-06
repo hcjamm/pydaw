@@ -5264,6 +5264,76 @@ class pydaw_main_window(QtGui.QMainWindow):
         if this_item_editor.delete_radiobutton.isChecked():
             this_item_editor.add_radiobutton.setChecked(True)
 
+    def on_import_midi(self):
+        self.midi_file = None
+
+        def ok_handler():
+            if self.midi_file is None:
+                QtGui.QMessageBox.warning(f_window, "Error", "File name cannot be empty")
+                return
+            f_item_name_str = str(f_item_name.text())
+            if f_item_name_str == "":
+                QtGui.QMessageBox.warning(f_window, "Error", "File name cannot be empty")
+                return
+
+            f_result_dict = self.midi_file.get_file_names_dict(f_item_name_str)
+            for k, v in f_result_dict.iteritems():
+                f_item_uid = this_pydaw_project.create_empty_item(str(k))
+                this_pydaw_project.save_item_by_uid(f_item_uid, v)
+            this_pydaw_project.commit("Import MIDI file")
+            f_window.close()
+
+        def cancel_handler():
+            f_window.close()
+
+        def file_name_select():
+            try:
+                if not os.path.isdir(self.last_offline_dir):
+                    self.last_offline_dir = global_home
+                f_file_name = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open MIDI File', directory=global_default_project_folder, filter='MIDI File (*.mid)')
+                if not f_file_name is None and not str(f_file_name) == "":
+                    f_name.setText(f_file_name)
+                    self.midi_file = pydaw_midi_file_to_items(f_file_name)
+            except Exception as ex:
+                pydaw_print_generic_exception(ex)
+
+        def item_name_changed(a_val=None):
+            f_item_name.setText(pydaw_remove_bad_chars(f_item_name.text()))
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Import MIDI File...")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+
+        f_name = QtGui.QLineEdit()
+        f_name.setReadOnly(True)
+        f_name.setMinimumWidth(360)
+        f_layout.addWidget(QtGui.QLabel("File Name:"), 0, 0)
+        f_layout.addWidget(f_name, 0, 1)
+        f_select_file = QtGui.QPushButton("Select")
+        f_select_file.pressed.connect(file_name_select)
+        f_layout.addWidget(f_select_file, 0, 2)
+
+        f_item_name = QtGui.QLineEdit()
+        f_layout.addWidget(QtGui.QLabel("Item Name:"), 2, 0)
+        f_item_name.editingFinished.connect(item_name_changed)
+        f_layout.addWidget(f_item_name, 2, 1)
+
+        f_info_label = QtGui.QLabel()
+        f_layout.addWidget(f_info_label, 4, 1)
+
+        f_ok_layout = QtGui.QHBoxLayout()
+        f_ok_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum))
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(ok_handler)
+        f_ok_layout.addWidget(f_ok)
+        f_layout.addLayout(f_ok_layout, 9, 1)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(cancel_handler)
+        f_layout.addWidget(f_cancel, 9, 2)
+        f_window.exec_()
+
+
     def __init__(self):
         QtGui.QMainWindow.__init__(self)
         self.setObjectName("mainwindow")
@@ -5320,6 +5390,10 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.offline_render_action = QtGui.QAction("Offline Render...", self)
         self.menu_file.addAction(self.offline_render_action)
         self.offline_render_action.triggered.connect(self.on_offline_render)
+
+        self.import_midi_action = QtGui.QAction("Import MIDI File...", self)
+        self.menu_file.addAction(self.import_midi_action)
+        self.import_midi_action.triggered.connect(self.on_import_midi)
 
         self.menu_edit = self.menu_bar.addMenu("&Edit")
 
