@@ -1161,7 +1161,7 @@ global_audio_quantize_px = None
 global_audio_ruler_height = 20.0
 global_audio_item_height = 75.0
 
-global_audio_item_handle_size = 9.0
+global_audio_item_handle_size = 12.0
 global_audio_item_handle_brush = QtGui.QLinearGradient(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size)
 global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 120))
 global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 90))
