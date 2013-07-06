@@ -857,11 +857,11 @@ class pydaw_project:
 
     def get_item_list(self):
         f_result = self.get_items_dict()
-        return f_result.uid_lookup.keys()
+        return sorted(f_result.uid_lookup.keys())
 
     def get_region_list(self):
         f_result = self.get_regions_dict()
-        return f_result.uid_lookup.keys()
+        return sorted(f_result.uid_lookup.keys())
 
     def quit_handler(self):
         self.this_dssi_gui.stop_server()
