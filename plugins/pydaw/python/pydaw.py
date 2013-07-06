@@ -5278,7 +5278,10 @@ class pydaw_main_window(QtGui.QMainWindow):
 
             f_result_dict = self.midi_file.get_file_names_dict(f_item_name_str)
             for k, v in f_result_dict.iteritems():
-                f_item_uid = this_pydaw_project.create_empty_item(str(k))
+                f_this_item_name = str(k)
+                if this_pydaw_project.item_exists(f_this_item_name):
+                    f_this_item_name = this_pydaw_project.get_next_default_item_name(f_this_item_name)
+                f_item_uid = this_pydaw_project.create_empty_item(f_this_item_name)
                 this_pydaw_project.save_item_by_uid(f_item_uid, v)
             this_pydaw_project.commit("Import MIDI file")
             f_window.close()

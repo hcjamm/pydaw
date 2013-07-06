@@ -99,6 +99,12 @@ class Event(object):
                             self.channel,
                             self.track)
 
+    def __lt__(self, other):
+        if self.tick < other.tick:
+            return True
+        else:
+            return False
+
     def __cmp__(self, other):
         if self.tick < other.tick: return -1
         elif self.tick > other.tick: return 1

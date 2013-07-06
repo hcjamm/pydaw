@@ -2085,13 +2085,25 @@ class pydaw_midi_file_to_items:
     def __init__(self, a_file):
         f_stream = midi.read_midifile(str(a_file))
         f_stream.trackpool.sort()
+        #First fix the lengths of events that have note-off events
+        f_note_on_dict = {}
+        for f_event in f_stream.trackpool:
+            if isinstance(f_event, midi.NoteOnEvent):
+                f_note_on_dict[f_event.pitch] = f_event
+            elif isinstance(f_event, midi.NoteOffEvent):
+                if f_note_on_dict.has_key(f_event.pitch):
+                    f_note_on_dict[f_event.pitch].length = float(f_event.tick - f_note_on_dict[f_event.pitch].tick) / float(f_stream.resolution)
+                    f_note_on_dict.pop(f_event.pitch)
+                else:
+                    print("Error, note-off event does not correspond to a note-on event, ignoring event:\n" + str(f_event))
+
         self.result_dict = {}
         for f_event in f_stream.trackpool:
-            if isinstance(f_event, midi.NoteEvent):
+            if isinstance(f_event, midi.NoteOnEvent):
+                f_velocity = f_event.velocity
                 f_beat = (float(f_event.tick) / float(f_stream.resolution)) % 4.0
                 f_bar = (int(f_event.tick) / int(f_stream.resolution)) / 4
                 f_pitch = f_event.pitch
-                f_velocity = f_event.velocity
                 f_length = f_event.length
                 f_channel = f_event.channel
                 f_track = f_event.track
@@ -2099,7 +2111,7 @@ class pydaw_midi_file_to_items:
                 if not self.result_dict.has_key(f_key):
                     self.result_dict[f_key] = pydaw_item()
                 f_note = pydaw_note(f_beat, f_length, f_pitch, f_velocity)
-                self.result_dict[f_key].add_note(f_note)
+                self.result_dict[f_key].add_note(f_note) #, a_check=False)
 
     def get_track_count(self):
         f_result = []
