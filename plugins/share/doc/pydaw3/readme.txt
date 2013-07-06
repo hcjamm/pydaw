@@ -4,15 +4,12 @@ Thank you for trying the PyDAW live DVD/USB image, below are some tips to help g
 
 Some VERY important concepts of using the live USB/DVD:
 
-1. Anything you save to your desktop or home folder while running the live USB/DVD WILL NOT BE THERE WHEN YOU REBOOT!!!
-Therefore, you must save projects, audio, etc... to a separate data partition of the drive in {filesystem}/data/{name of partition}/folder1/folder2/...  You browse there in the SaveAs/Open dialogs by clicking 'filesystem' on the left, then the the folder with the name you gave the partition, then browse through or create folders as necessary.
+1. Anything you save to your desktop or home folder while running the live USB/DVD WILL NOT BE THERE WHEN YOU REBOOT!!!  
+If you created a live USB flash drive according to the instructions on the download page, and created a separate partition called "pydaw_data", then PyDAW-OS will save only your PyDAW projects and Mixxx settings to the flash drive.
 
-2. You won't be able to reliably record audio directly back to the flash drive, unless you have some epic-ly fast USB3 flash drive, 99.9999% of flash drives just aren't fast enough.  However, a good USB3 mechanical hard drive or SSD could probably handle it...
-IN THE FUTURE, I will create a "use super-sized memory buffers" for recording option to mitigate this problem, however, that is going to require an extraordinary amount of RAM to function correctly, and it would still be difficult to recommend that over a proper hard drive.
+If you wish to save files from any other programs, you must save them to the flash drive, for example:  /media/pydaw_data/{some_folder}/{file_name}
 
-3.  When creating a new project using the live DVD/USB, you should immediately do a SaveAs...  PyDAW currently copies and then fully reloads the project on Save-As to ensure filesystem and memory integrity, copying the project from it's default in-memory location to the flash drive will freeze the window for a very long time due to the slow speed of most flash drives.
-
-4.  For the best experience possible, you should install to your main hard drive rather than using live mode...  Of course, live mode offers certain advantages like being able to take your projects with you on a flash drive and boot on any other computer, but installing to a hard drive has better performance and less chance of losing anything by forgetting to save to the flash drive.
+2.  For the best experience possible, you should install to your main hard drive rather than using live mode, although in most cases, live mode is quite usable...  Of course, live mode offers certain advantages like being able to take your projects with you on a flash drive and boot on any other computer, but installing to a hard drive has better performance and typically better reliability than a flash drive.
 
 5.  In order to have internet in live mode, you are going to have to either plug in a network cable, or manually connect to your wireless network from the icon on the upper left of the screen, since the live USB won't remember your wireless network between boots.  If you don't need internet, you don't have to connect anything.
 
@@ -50,7 +47,5 @@ Alesis IO2 Express (USB)
 Focusrite Saffire Pro 14 (Firewire)
 
 both of which **IN MY PERSONAL EXPERIENCE** work just fine with PyDAW.   However, I can't guarantee that they'll work on every PC out there...
-
-Note:  I also have an M-Audio Audiophile 192 and a Numark soundcard laying around that both work in Linux, somebody remind me to test those if I don't post the results here later...
 
 ---------------------------------------------------------------------------
