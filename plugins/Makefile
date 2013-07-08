@@ -48,7 +48,10 @@ install:
 	cp -r cc_maps $(DESTDIR)$(PREFIX)/lib/pydaw3
 	cp -r mixxx $(DESTDIR)$(PREFIX)/lib/pydaw3
 	install -m 755 pydaw3-version.txt $(DESTDIR)$(PREFIX)/lib/pydaw3
-	echo "\n\nGit: " `git rev-parse HEAD` >> $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw3-version.txt
+	#Add the Git revision to the version.txt file if possible
+	@	if [ -e /usr/bin/git ] && [ -e ../.git ]; then \
+			echo "\n\nGit: " `/usr/bin/git rev-parse HEAD` >> $(DESTDIR)$(PREFIX)/lib/pydaw3/pydaw3-version.txt ; \
+		fi
 
 clean:
 	make -C pydaw clean
