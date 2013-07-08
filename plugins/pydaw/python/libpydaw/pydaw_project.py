@@ -847,12 +847,15 @@ class pydaw_project:
                     self.last_item_number = i
                 return f_result
 
-    def get_next_default_region_name(self):
+    def get_next_default_region_name(self, a_region_name="region"):
         f_regions_dict = self.get_regions_dict()
+        if str(a_region_name) != "region" and not f_regions_dict.uid_lookup.has_key(str(a_region_name)):
+            return str(a_region_name)
         for i in range(self.last_region_number, 10000):
-            f_result = "region-" + str(i)
+            f_result = str(a_region_name) + "-" + str(i)
             if not f_regions_dict.uid_lookup.has_key(f_result):
-                self.last_region_number = i
+                if str(a_region_name) == "region":
+                    self.last_region_number = i
                 return f_result
 
     def get_item_list(self):
@@ -879,6 +882,12 @@ class pydaw_project:
 class pydaw_song:
     def __init__(self):
         self.regions = {}
+
+    def get_next_empty_pos(self):
+        for f_i in range(300):
+            if not self.regions.has_key(f_i):
+                return f_i
+        return None
 
     def get_index_of_region(self, a_uid):
         for k, v in self.regions.iteritems():
@@ -2098,6 +2107,7 @@ class pydaw_midi_file_to_items:
                     print("Error, note-off event does not correspond to a note-on event, ignoring event:\n" + str(f_event))
 
         self.result_dict = {}
+
         for f_event in f_stream.trackpool:
             if isinstance(f_event, midi.NoteOnEvent):
                 f_velocity = f_event.velocity
@@ -2113,6 +2123,33 @@ class pydaw_midi_file_to_items:
                 f_note = pydaw_note(f_beat, f_length, f_pitch, f_velocity)
                 self.result_dict[f_key].add_note(f_note) #, a_check=False)
 
+        f_min = 0
+        f_max = 0
+
+        for k, v in self.result_dict.iteritems():
+            if k[2] < f_min:
+                f_min = k[2]
+            if k[2] > f_max:
+                f_max = k[2]
+
+        self.bar_count = f_max - f_min
+        self.bar_offset = f_min
+        self.channel_count = self.get_channel_count()
+        self.track_count = self.get_track_count()
+
+        #Nested dict in format [track][channel][bar]
+        self.track_map = {}
+        for f_i in range(pydaw_midi_track_count):
+            self.track_map[f_i] = {}
+
+        for k, v in self.result_dict.iteritems():
+            f_track, f_channel, f_bar = k
+            if f_track < pydaw_midi_track_count:
+                if not self.track_map[f_track].has_key(f_channel):
+                    self.track_map[f_track][f_channel] = {}
+                self.track_map[f_track][f_channel][f_bar - self.bar_offset] = v
+
+
     def get_track_count(self):
         f_result = []
         for k, v in self.result_dict.iteritems():
@@ -2127,9 +2164,37 @@ class pydaw_midi_file_to_items:
                 f_result.append(k[1])
         return len(f_result)
 
-    def get_file_names_dict(self, a_name):
-        f_result = {}
-        f_name = str(a_name).strip()
-        for k, v in self.result_dict.iteritems():
-            f_result[f_name + "-" + str(k[0]) + "-" + str(k[1]) + "-" + str(k[2])] = v
-        return f_result
+    def populate_region_from_track_map(self, a_project, a_name):
+        f_actual_track_num = 0
+        f_result_region = pydaw_region(pydaw_gen_uid())
+        if self.bar_count > pydaw_max_region_length:
+            f_result_region.region_length_bars = self.bar_count
+        else:
+            f_result_region.region_length_bars = pydaw_max_region_length
+        f_region_name = a_project.get_next_default_region_name(a_name)
+        f_region_uid = a_project.create_empty_region(f_region_name)
+        for f_track, f_channel_dict in self.track_map.iteritems():
+            print("f_track " + str(f_track))
+            for f_channel, f_bar_dict in self.track_map[f_track].iteritems():
+                print("f_channel" + str(f_channel))
+                for f_bar, f_item in self.track_map[f_track][f_channel].iteritems():
+                    print("f_bar" + str(f_bar))
+                    f_this_item_name = str(a_name) + "-" + str(f_track) + "-" + str(f_channel) + "-" + str(f_bar)
+                    if a_project.item_exists(f_this_item_name):
+                        f_this_item_name = a_project.get_next_default_item_name(f_this_item_name)
+                    f_item_uid = a_project.create_empty_item(f_this_item_name)
+                    a_project.save_item_by_uid(f_item_uid, f_item)
+                    f_result_region.add_item_ref_by_uid(f_actual_track_num, f_bar, f_item_uid)
+                    if f_bar >= pydaw_max_region_length:
+                        break
+                f_actual_track_num += 1
+                if f_actual_track_num >= pydaw_midi_track_count:
+                    break
+            if f_actual_track_num >= pydaw_midi_track_count:
+                    break
+        a_project.save_region(f_region_name, f_result_region)
+        f_song = a_project.get_song()
+        f_song_pos = f_song.get_next_empty_pos()
+        if f_song_pos is not None:
+            f_song.add_region_ref_by_uid(f_song_pos, f_region_uid)
+            a_project.save_song(f_song)

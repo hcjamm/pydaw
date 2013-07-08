@@ -5276,29 +5276,24 @@ class pydaw_main_window(QtGui.QMainWindow):
                 QtGui.QMessageBox.warning(f_window, "Error", "File name cannot be empty")
                 return
 
-            f_result_dict = self.midi_file.get_file_names_dict(f_item_name_str)
-            for k, v in f_result_dict.iteritems():
-                f_this_item_name = str(k)
-                if this_pydaw_project.item_exists(f_this_item_name):
-                    f_this_item_name = this_pydaw_project.get_next_default_item_name(f_this_item_name)
-                f_item_uid = this_pydaw_project.create_empty_item(f_this_item_name)
-                this_pydaw_project.save_item_by_uid(f_item_uid, v)
+            self.midi_file.populate_region_from_track_map(this_pydaw_project, f_item_name_str)
             this_pydaw_project.commit("Import MIDI file")
+            this_song_editor.open_song()
             f_window.close()
 
         def cancel_handler():
             f_window.close()
 
         def file_name_select():
-            try:
+            #try:
                 if not os.path.isdir(self.last_offline_dir):
                     self.last_offline_dir = global_home
                 f_file_name = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open MIDI File', directory=global_default_project_folder, filter='MIDI File (*.mid)')
                 if not f_file_name is None and not str(f_file_name) == "":
                     f_name.setText(f_file_name)
                     self.midi_file = pydaw_midi_file_to_items(f_file_name)
-            except Exception as ex:
-                pydaw_print_generic_exception(ex)
+            #except Exception as ex:
+            #    pydaw_print_generic_exception(ex)
 
         def item_name_changed(a_val=None):
             f_item_name.setText(pydaw_remove_bad_chars(f_item_name.text()))
