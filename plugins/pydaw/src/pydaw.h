@@ -4816,15 +4816,26 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_uid = atoi(a_value);
         t_pyregion * f_result = g_pyregion_get(a_pydaw_data, f_uid);
         int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data, f_uid);
-        
-        pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        if(a_pydaw_data->pysong->regions[f_region_index])
+                
+        if(f_region_index >= 0 )
         {
-            free(a_pydaw_data->pysong->regions[f_region_index]);
-            a_pydaw_data->pysong->regions[f_region_index] = NULL;
+            t_pyregion * f_old_region = NULL;
+            if(a_pydaw_data->pysong->regions[f_region_index])
+            {
+                f_old_region = a_pydaw_data->pysong->regions[f_region_index];                
+            }
+            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            a_pydaw_data->pysong->regions[f_region_index] = f_result;
+            pthread_mutex_unlock(&a_pydaw_data->main_mutex);  
+            if(f_old_region)
+            {
+                free(f_old_region);
+            }
         }
-        a_pydaw_data->pysong->regions[f_region_index] = f_result;
-        pthread_mutex_unlock(&a_pydaw_data->main_mutex);        
+        else
+        {
+            printf("region %i is not in song, not loading...", f_uid);
+        }
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SI)) //Save Item
     {
