@@ -759,6 +759,10 @@ class region_list_editor:
 
             f_window.close()
 
+        def paste_button_pressed():
+            self.paste_clipboard()
+            f_window.close()
+
         def note_cancel_handler():
             f_window.close()
 
@@ -801,6 +805,10 @@ class region_list_editor:
         f_item_count.setRange(1, self.region_length - y + 1)
         f_item_count.setToolTip("Only used for 'New'")
         f_layout.addWidget(f_item_count, 2, 2)
+        if len(global_region_clipboard) > 0:
+            f_paste_clipboard_button = QtGui.QPushButton("Paste Clipboard")
+            f_layout.addWidget(f_paste_clipboard_button, 4, 2)
+            f_paste_clipboard_button.pressed.connect(paste_button_pressed)
         f_ok_cancel_layout = QtGui.QHBoxLayout()
         f_layout.addLayout(f_ok_cancel_layout, 5, 2)
         f_ok_button = QtGui.QPushButton("OK")
