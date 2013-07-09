@@ -5283,10 +5283,11 @@ class pydaw_main_window(QtGui.QMainWindow):
             if f_item_name_str == "":
                 QtGui.QMessageBox.warning(f_window, "Error", "File name cannot be empty")
                 return
-
-            self.midi_file.populate_region_from_track_map(this_pydaw_project, f_item_name_str)
-            this_pydaw_project.commit("Import MIDI file")
-            this_song_editor.open_song()
+            if not self.midi_file.populate_region_from_track_map(this_pydaw_project, f_item_name_str):
+                QtGui.QMessageBox.warning(f_window, "Error", "No available slots for inserting a region, delete an existing region from the song editor first")
+            else:
+                this_pydaw_project.commit("Import MIDI file")
+                this_song_editor.open_song()
             f_window.close()
 
         def cancel_handler():

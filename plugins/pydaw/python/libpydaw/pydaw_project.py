@@ -2132,7 +2132,7 @@ class pydaw_midi_file_to_items:
             if k[2] > f_max:
                 f_max = k[2]
 
-        self.bar_count = f_max - f_min
+        self.bar_count = f_max - f_min + 1
         self.bar_offset = f_min
         self.channel_count = self.get_channel_count()
         self.track_count = self.get_track_count()
@@ -2166,19 +2166,23 @@ class pydaw_midi_file_to_items:
 
     def populate_region_from_track_map(self, a_project, a_name):
         f_actual_track_num = 0
-        f_result_region = pydaw_region(pydaw_gen_uid())
-        if self.bar_count > pydaw_max_region_length:
-            f_result_region.region_length_bars = self.bar_count
+        f_song = a_project.get_song()
+        f_song_pos = f_song.get_next_empty_pos()
+        if f_song_pos is not None:
+            f_region_name = a_project.get_next_default_region_name(a_name)
+            f_region_uid = a_project.create_empty_region(f_region_name)
+            f_result_region = a_project.get_region_by_uid(f_region_uid)
+            f_song.add_region_ref_by_uid(f_song_pos, f_region_uid)
+            a_project.save_song(f_song)
         else:
+            return False
+        if self.bar_count > pydaw_max_region_length:
             f_result_region.region_length_bars = pydaw_max_region_length
-        f_region_name = a_project.get_next_default_region_name(a_name)
-        f_region_uid = a_project.create_empty_region(f_region_name)
+        else:
+            f_result_region.region_length_bars = self.bar_count
         for f_track, f_channel_dict in self.track_map.iteritems():
-            print("f_track " + str(f_track))
             for f_channel, f_bar_dict in self.track_map[f_track].iteritems():
-                print("f_channel" + str(f_channel))
                 for f_bar, f_item in self.track_map[f_track][f_channel].iteritems():
-                    print("f_bar" + str(f_bar))
                     f_this_item_name = str(a_name) + "-" + str(f_track) + "-" + str(f_channel) + "-" + str(f_bar)
                     if a_project.item_exists(f_this_item_name):
                         f_this_item_name = a_project.get_next_default_item_name(f_this_item_name)
@@ -2193,8 +2197,5 @@ class pydaw_midi_file_to_items:
             if f_actual_track_num >= pydaw_midi_track_count:
                     break
         a_project.save_region(f_region_name, f_result_region)
-        f_song = a_project.get_song()
-        f_song_pos = f_song.get_next_empty_pos()
-        if f_song_pos is not None:
-            f_song.add_region_ref_by_uid(f_song_pos, f_region_uid)
-            a_project.save_song(f_song)
+        return True
+
