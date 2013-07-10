@@ -33,11 +33,7 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_SS "ss"
 #define PYDAW_CONFIGURE_KEY_OS "os"
 #define PYDAW_CONFIGURE_KEY_SI "si"
-#define PYDAW_CONFIGURE_KEY_DI "di"
 #define PYDAW_CONFIGURE_KEY_SR "sr"
-#define PYDAW_CONFIGURE_KEY_DR "dr"
-#define PYDAW_CONFIGURE_KEY_RR "rr"
-#define PYDAW_CONFIGURE_KEY_RI "ri"
 #define PYDAW_CONFIGURE_KEY_PLAY "play"
 #define PYDAW_CONFIGURE_KEY_REC "rec"
 #define PYDAW_CONFIGURE_KEY_STOP "stop"
@@ -4919,22 +4915,6 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
     {
         v_pydaw_save_tracks(a_pydaw_data);
     }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_DI)) //Delete Item
-    {
-        //Probably won't be implemented anytime soon...
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_DR)) //Delete region
-    {
-        //Probably won't be implemented anytime soon...
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RR)) //Rename region
-    {
-        //Probably won't be implemented anytime soon...
-    }
-    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RI)) //Rename item
-    {
-        //Probably won't be implemented anytime soon...
-    }    
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_SOLO)) //Set track solo
     {
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
