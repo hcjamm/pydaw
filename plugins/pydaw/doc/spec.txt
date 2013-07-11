@@ -54,6 +54,7 @@ OSC configure message keys/values:
 	"abs"	int	0 for playing regular audio, 1 for playing the loaded A/B file
 	"abp"   int	Set start position, range 0 to 1000
 	"abv"	float	Set A/B item volume
+	"panic" ""	Send a note-off to all instruments on all notes.
 
 
 Project structure:

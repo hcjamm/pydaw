@@ -212,3 +212,6 @@ class dssi_gui(ServerThread):
 
     def pydaw_preview_audio(self, a_file):
         self.send_configure("preview", str(a_file))
+
+    def pydaw_panic(self):
+        self.send_configure("panic", "")

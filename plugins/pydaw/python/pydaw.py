@@ -4911,6 +4911,9 @@ class transport_widget:
     def on_overdub_changed(self, a_val=None):
         this_pydaw_project.this_dssi_gui.pydaw_set_overdub_mode(self.overdub_checkbox.isChecked())
 
+    def on_panic(self):
+        this_pydaw_project.this_dssi_gui.pydaw_panic()
+
     def __init__(self):
         self.suppress_osc = True
         self.is_recording = False
@@ -4982,6 +4985,10 @@ class transport_widget:
         self.scope_button = QtGui.QPushButton("Scope")
         self.scope_button.pressed.connect(launch_jack_oscrolloscope)
         f_lower_ctrl_layout.addWidget(self.scope_button)
+        self.panic_button = QtGui.QPushButton("!")
+        self.panic_button.setToolTip("Panic button:   Sends a note-off signal on every note to every instrument")
+        self.panic_button.pressed.connect(self.on_panic)
+        f_lower_ctrl_layout.addWidget(self.panic_button)
         f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout, 1, 1)
         self.hlayout1.addLayout(f_loop_midi_gridlayout)
         #This is an awful way to do this, I'll eventually have IPC that goes both directions...
