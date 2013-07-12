@@ -5840,8 +5840,6 @@ class a_b_widget:
         if f_file_str == "":
             return
         self.file_lineedit.setText(f_file_str)
-        this_pydaw_project.this_dssi_gui.pydaw_ab_open(f_file_str)
-        this_pydaw_project.this_dssi_gui.pydaw_ab_pos(self.start_slider.value())
         self.last_folder = os.path.dirname(f_file_str)
         import wave
         f_wav = wave.open(f_file_str, "r")
@@ -5853,6 +5851,9 @@ class a_b_widget:
         #self.timeout = (self.duration / 1000.0) * 1000.0  #<think about that...
         self.timer.setInterval(self.duration)
         self.has_loaded_file = True
+        self.transport_sync()
+        this_pydaw_project.this_dssi_gui.pydaw_ab_open(f_file_str)
+        this_pydaw_project.this_dssi_gui.pydaw_ab_pos(self.start_slider.value())
 
     def set_time_label(self, a_value):
         if self.duration is not None:
@@ -5864,14 +5865,17 @@ class a_b_widget:
             else:
                 self.time_label.setText(str(f_minutes) + ":" + str(f_seconds))
 
+    def transport_sync(self):
+        if self.transport_checkbox.isChecked() and self.has_loaded_file:
+            f_pos_seconds = this_transport.get_pos_in_seconds()
+            f_pos = (f_pos_seconds / self.duration) * 1000.0
+            f_pos = pydaw_clip_value(f_pos, 0.0, 999.0)
+            self.start_slider.setValue(int(f_pos))
+
     def on_play(self):
         self.file_button.setEnabled(False)
         if self.enabled_checkbox.isChecked():
-            if self.transport_checkbox.isChecked():
-                f_pos_seconds = this_transport.get_pos_in_seconds()
-                f_pos = (f_pos_seconds / self.duration) * 1000.0
-                f_pos = pydaw_clip_value(f_pos, 0.0, 999.0)
-                self.start_slider.setValue(int(f_pos))
+            self.transport_sync()
             self.orig_pos = self.start_slider.value()
             self.suppress_start = True
             self.start_slider.setEnabled(False)
