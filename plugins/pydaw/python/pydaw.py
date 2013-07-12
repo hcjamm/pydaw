@@ -5301,15 +5301,17 @@ class pydaw_main_window(QtGui.QMainWindow):
             f_window.close()
 
         def file_name_select():
-            #try:
+            try:
                 if not os.path.isdir(self.last_offline_dir):
                     self.last_offline_dir = global_home
                 f_file_name = QtGui.QFileDialog.getOpenFileName(parent=self ,caption='Open MIDI File', directory=global_default_project_folder, filter='MIDI File (*.mid)')
                 if not f_file_name is None and not str(f_file_name) == "":
                     f_name.setText(f_file_name)
                     self.midi_file = pydaw_midi_file_to_items(f_file_name)
-            #except Exception as ex:
-            #    pydaw_print_generic_exception(ex)
+                    if str(f_item_name.text()).strip() == "":
+                        f_item_name.setText(pydaw_remove_bad_chars(f_file_name.split("/")[-1].replace(".", "-")))
+            except Exception as ex:
+                pydaw_print_generic_exception(ex)
 
         def item_name_changed(a_val=None):
             f_item_name.setText(pydaw_remove_bad_chars(f_item_name.text()))
@@ -5329,6 +5331,7 @@ class pydaw_main_window(QtGui.QMainWindow):
         f_layout.addWidget(f_select_file, 0, 2)
 
         f_item_name = QtGui.QLineEdit()
+        f_item_name.setMaxLength(24)
         f_layout.addWidget(QtGui.QLabel("Item Name:"), 2, 0)
         f_item_name.editingFinished.connect(item_name_changed)
         f_layout.addWidget(f_item_name, 2, 1)
