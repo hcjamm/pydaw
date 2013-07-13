@@ -43,9 +43,9 @@ $sleep = "sleep 1";
 
 $makefile = "Makefile";
 
-$deps_ubuntu = "sudo apt-get install -y liblo-dev libasound2-dev g++ libqt4-dev libjack-jackd2-dev libsndfile1-dev libtool autoconf gdb debhelper dh-make build-essential automake autoconf libtool qjackctl alsa-utils python-liblo python-qt4 libsdl1.2-dev ffado-mixer-qt4 ffado-tools ffado-dbus-server rubberband-cli python2.7 squashfs-tools genisoimage";
+$deps_ubuntu = "sudo apt-get install -y liblo-dev libasound2-dev g++ libqt4-dev libjack-jackd2-dev libsndfile1-dev libtool autoconf gdb debhelper dh-make build-essential automake autoconf libtool qjackctl alsa-utils python-liblo python-qt4 libsdl1.2-dev ffado-mixer-qt4 ffado-tools ffado-dbus-server rubberband-cli python2.7 squashfs-tools genisoimage libmad0-dev";
 
-$deps_debian = "sudo apt-get install -y liblo-dev libasound2-dev libqt4-dev libjack-dev libsndfile1-dev automake autoconf libtool qjackctl alsa-utils python-liblo python-qt4 libsdl1.2-dev ffado-mixer-qt4 ffado-tools ffado-dbus-server rubberband-cli";
+$deps_debian = "sudo apt-get install -y liblo-dev libasound2-dev libqt4-dev libjack-dev libsndfile1-dev automake autoconf libtool qjackctl alsa-utils python-liblo python-qt4 libsdl1.2-dev ffado-mixer-qt4 ffado-tools ffado-dbus-server rubberband-cli libmad0-dev";
 
 $audio_group = "sudo usermod -g audio \$USER";
 
@@ -189,6 +189,11 @@ Attempt to install dependencies? [n]:\n");
 		if($deps_result)
 		{
 			print("\nInstalling dependencies returned $deps_result.  The required dependencies may not have installed correctly.  If you think this is a bug, please report it.\n\n");
+		}
+		else
+		{
+			#install libSBSMS to /usr/local so that we can build against it
+			system("cd pydaw_sbsms ; make distclean ; ./configure ; make ; sudo make install");
 		}
 	}
 	elsif(($install_answer eq "n") || ($install_answer eq ""))
