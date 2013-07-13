@@ -193,7 +193,7 @@ Attempt to install dependencies? [n]:\n");
 		else
 		{
 			#install libSBSMS to /usr/local so that we can build against it
-			system("cd pydaw_sbsms ; make distclean ; ./configure ; make ; sudo make install");
+			system("cd pydaw_sbsms && ./configure && make && sudo make install");
 		}
 	}
 	elsif(($install_answer eq "n") || ($install_answer eq ""))
