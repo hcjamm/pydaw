@@ -7,8 +7,6 @@
 #include <stdlib.h>
 #include <algorithm>
 #include "import.h"
-#include <cstring>
-
 using namespace std;
 using namespace _sbsms_;
 

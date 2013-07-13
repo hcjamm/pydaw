@@ -7,7 +7,6 @@
 #include <iostream>
 #include <fstream>
 #include <assert.h>
-#include <cstring>
 
 enum {
   MP3_INPUT_BUFFER_SIZE = 4096,
