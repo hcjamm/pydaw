@@ -1,0 +1,15 @@
+Makefile
+cli/Makefile
+cli/config.status
+cli/libtool
+cli/src/Makefile
+cli/src/config.h
+cli/src/sbsms
+cli/src/stamp-h1
+config.status
+libsbsms.spec
+libtool
+sbsms.pc
+src/Makefile
+src/config.h
+src/stamp-h1
