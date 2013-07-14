@@ -1827,7 +1827,7 @@ class pydaw_audio_region:
 class pydaw_audio_item:
     def __init__(self, a_uid, a_sample_start=0.0, a_sample_end=1000.0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
     a_end_bar=0, a_end_beat=0, a_timestretch_mode=3, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0, \
-    a_fade_in=0.0, a_fade_out=999.0, a_lane_num=0, a_pitch_shift_end=0.0, a_timestretch_amt_end=1.0, a_reversed=False):
+    a_fade_in=0.0, a_fade_out=999.0, a_lane_num=0, a_pitch_shift_end=0.0, a_timestretch_amt_end=1.0, a_reversed=False, a_crispness=4):
         self.uid = int(a_uid)
         self.sample_start = float(a_sample_start)
         self.sample_end = float(a_sample_end)
@@ -1847,6 +1847,7 @@ class pydaw_audio_item:
         self.pitch_shift_end = round(float(a_pitch_shift_end), 6)
         self.timestretch_amt_end = round(float(a_timestretch_amt_end), 6)
         self.reversed = a_reversed
+        self.crispness = int(a_crispness) #This is specific to Rubberband
 
     def set_pos(self, a_bar, a_beat):
         f_bar = int(a_bar)
@@ -1871,7 +1872,7 @@ class pydaw_audio_item:
         + "|" + str(self.end_bar) + "|" + str(round(self.end_beat, 6)) + "|" + str(self.time_stretch_mode) \
         + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(round(self.timestretch_amt, 6)) \
         + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "|" + str(self.lane_num) + "|" + str(round(self.pitch_shift_end, 6 )) \
-        + "|" + str(round(self.timestretch_amt_end, 6)) + "|" + str(bool_to_int(self.reversed)) + "\n"
+        + "|" + str(round(self.timestretch_amt_end, 6)) + "|" + str(bool_to_int(self.reversed)) + "|" + str(self.crispness) + "\n"
 
     @staticmethod
     def from_str(f_str):
@@ -1882,10 +1883,10 @@ class pydaw_audio_item:
         if len(a_arr) == 16:
             f_result = pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
             a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12], a_arr[13], a_arr[14], a_arr[15])
-        elif len(a_arr) == 19:
+        elif len(a_arr) == 20:
             f_result = pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
             a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12], a_arr[13], a_arr[14], a_arr[15], a_arr[16], \
-            a_arr[17], int_to_bool(a_arr[18]))
+            a_arr[17], int_to_bool(a_arr[18]), a_arr[19])
         return f_result
 
 class pydaw_audio_input_tracks:
