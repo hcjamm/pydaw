@@ -2324,6 +2324,10 @@ class audio_item_editor_widget:
         self.ok_layout.addWidget(self.ok)
         self.vlayout2.addLayout(self.ok_layout)
 
+        f_sbsms_tooltip = "This control is only valid for the SBSMS timestretch mode"
+        self.timestretch_amt_end.setToolTip(f_sbsms_tooltip)
+        self.pitch_shift_end.setToolTip(f_sbsms_tooltip)
+
         self.last_open_dir = global_home
 
     def timestretch_end_mode_changed(self, a_val=None):
