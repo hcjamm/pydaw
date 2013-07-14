@@ -6064,6 +6064,8 @@ def global_new_project(a_project_file):
 def about_to_quit():
     this_pydaw_project.quit_handler()
 
+this_pydaw_project = pydaw_project()
+
 app = QtGui.QApplication(sys.argv)
 
 global_cc_map_folder = global_pydaw_home + "/cc_maps"
