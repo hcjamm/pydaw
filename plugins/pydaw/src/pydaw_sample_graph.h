@@ -22,6 +22,7 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <assert.h>
 //#include <sys/stat.h>
 
 #define PYDAW_SAMPLE_GRAPH_MAX_SIZE 2097152
@@ -174,6 +175,60 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
     {
         printf("v_pydaw_generate_sample_graph:  Cannot open '%s' for writing, path is either invalid or you do not have the rights to open it.\n", a_file_out);
     }
+}
+
+void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
+{
+    
+    SF_INFO info;
+    SNDFILE *file;
+    size_t samples = 0;
+    float *tmpFrames;
+            
+    info.format = 0;
+    file = sf_open(a_file_in, SFM_READ, &info);
+
+    if (!file) 
+    {
+	const char *filename = strrchr(a_file_in, '/');
+	if (filename) ++filename;
+	else filename = a_file_in;
+        
+	if (!file) 
+        {
+	    assert(0);
+	}
+    }
+    
+    if (info.frames > 100000000) {
+	//TODO:  Something, anything....
+    }
+
+    //!!! complain also if more than 2 channels
+    
+    samples = info.frames;
+
+    tmpFrames = (float *)malloc(info.frames * info.channels * sizeof(float));
+    sf_readf_float(file, tmpFrames, info.frames);
+    
+    SF_INFO f_sf_info;
+    f_sf_info.channels = 2;
+    f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+    f_sf_info.samplerate = info.samplerate;
+                
+    SNDFILE * f_sndfile = sf_open(a_file_out, SFM_WRITE, &f_sf_info);
+           
+    sf_writef_float(f_sndfile, tmpFrames, info.frames);
+    
+    sf_close(file);
+    sf_close(f_sndfile);
+        
+    char f_tmp_finished[256];    
+    sprintf(f_tmp_finished, "%s.finished", a_file_out);    
+    FILE * f_finished = fopen(f_tmp_finished, "w");    
+    fclose(f_finished);  
+    
+    free(tmpFrames);
 }
 
 #ifdef	__cplusplus
