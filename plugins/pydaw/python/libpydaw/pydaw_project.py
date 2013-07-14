@@ -1837,12 +1837,12 @@ class pydaw_audio_item:
         self.pitch_shift = round(float(a_pitch_shift), 6)
         self.output_track = int(a_output_track)
         self.vol = int(a_vol)
-        self.timestretch_amt = float(a_timestretch_amt)
+        self.timestretch_amt = round(float(a_timestretch_amt), 6)
         self.fade_in = float(a_fade_in)
         self.fade_out = float(a_fade_out)
         self.lane_num = int(a_lane_num)
-        self.pitch_shift_end = float(a_pitch_shift_end)
-        self.timestretch_amt_end = float(a_timestretch_amt_end)
+        self.pitch_shift_end = round(float(a_pitch_shift_end), 6)
+        self.timestretch_amt_end = round(float(a_timestretch_amt_end), 6)
         self.reversed = a_reversed
 
     def set_pos(self, a_bar, a_beat):
@@ -1863,12 +1863,12 @@ class pydaw_audio_item:
         return pydaw_audio_item.from_arr(str(self).strip("\n").split("|"))
 
     def __str__(self):
-        return str(self.uid) + "|" + str(round(self.sample_start, 4)) + "|" + str(round(self.sample_end, 4)) \
-        + "|" + str(self.start_bar) + "|" + str(round(self.start_beat, 4)) + "|" + str(self.end_mode) \
-        + "|" + str(self.end_bar) + "|" + str(round(self.end_beat, 4)) + "|" + str(self.time_stretch_mode) \
-        + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(round(self.timestretch_amt, 4)) \
-        + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "|" + str(self.lane_num) + "|" + str(self.pitch_shift_end) \
-        + "|" + str(self.timestretch_amt_end) + "|" + str(bool_to_int(self.reversed)) + "\n"
+        return str(self.uid) + "|" + str(round(self.sample_start, 6)) + "|" + str(round(self.sample_end, 6)) \
+        + "|" + str(self.start_bar) + "|" + str(round(self.start_beat, 6)) + "|" + str(self.end_mode) \
+        + "|" + str(self.end_bar) + "|" + str(round(self.end_beat, 6)) + "|" + str(self.time_stretch_mode) \
+        + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(round(self.timestretch_amt, 6)) \
+        + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "|" + str(self.lane_num) + "|" + str(round(self.pitch_shift_end, 6 )) \
+        + "|" + str(round(self.timestretch_amt_end, 6)) + "|" + str(bool_to_int(self.reversed)) + "\n"
 
     @staticmethod
     def from_str(f_str):
