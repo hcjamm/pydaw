@@ -2268,6 +2268,7 @@ class audio_item_editor_widget:
         self.time_pitch_gridlayout.addWidget(self.pitch_shift, 0, 1)
 
         self.pitch_shift_end_checkbox = QtGui.QCheckBox("End:")
+        self.pitch_shift_end_checkbox.toggled.connect(self.pitch_end_mode_changed)
         self.time_pitch_gridlayout.addWidget(self.pitch_shift_end_checkbox, 0, 2)
         self.pitch_shift_end = QtGui.QDoubleSpinBox()
         self.pitch_shift_end.setRange(-36, 36)
@@ -2283,6 +2284,7 @@ class audio_item_editor_widget:
         self.time_pitch_gridlayout.addWidget(self.timestretch_amt, 1, 1)
 
         self.timestretch_amt_end_checkbox = QtGui.QCheckBox("End:")
+        self.timestretch_amt_end_checkbox.toggled.connect(self.timestretch_end_mode_changed)
         self.time_pitch_gridlayout.addWidget(self.timestretch_amt_end_checkbox, 1, 2)
         self.timestretch_amt_end = QtGui.QDoubleSpinBox()
         self.timestretch_amt_end.setRange(0.2, 4.0)
@@ -2321,6 +2323,14 @@ class audio_item_editor_widget:
         self.vlayout2.addLayout(self.ok_layout)
 
         self.last_open_dir = global_home
+
+    def timestretch_end_mode_changed(self, a_val=None):
+        if not self.timestretch_amt_end_checkbox.isChecked():
+            self.timestretch_amt_end.setValue(self.timestretch_amt.value())
+
+    def pitch_end_mode_changed(self, a_val=None):
+        if not self.pitch_shift_end_checkbox.isChecked():
+            self.pitch_shift_end.setValue(self.pitch_shift.value())
 
     def end_mode_changed(self, a_val=None):
         self.end_mode_checkbox.setChecked(True)
@@ -2385,11 +2395,22 @@ class audio_item_editor_widget:
                 self.end_musical_time.setChecked(True)
             else:
                 self.end_sample_length.setChecked(True)
+            if a_item.timestretch_amt_end == a_item.timestretch_amt:
+                self.timestretch_amt_end_checkbox.setChecked(False)
+            else:
+                self.timestretch_amt_end_checkbox.setChecked(True)
+            if a_item.pitch_shift_end == a_item.pitch_shift:
+                self.pitch_shift_end_checkbox.setChecked(False)
+            else:
+                self.pitch_shift_end_checkbox.setChecked(True)
             self.timestretch_mode.setCurrentIndex(a_item.time_stretch_mode)
             self.pitch_shift.setValue(a_item.pitch_shift)
             self.timestretch_amt.setValue(a_item.timestretch_amt)
             self.output_combobox.setCurrentIndex(a_item.output_track)
             self.sample_vol_slider.setValue(a_item.vol)
+            self.pitch_shift_end.setValue(a_item.pitch_shift_end)
+            self.timestretch_amt_end.setValue(a_item.timestretch_amt_end)
+
 
     def ok_handler(self):
         if global_transport_is_playing:
