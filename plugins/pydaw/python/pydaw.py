@@ -1342,8 +1342,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         self.length_handle.setPos(f_length - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         self.start_handle.setPos(0.0, global_audio_item_height - global_audio_item_handle_size)
-        if self.audio_item.time_stretch_mode >= 2 and not \
-        ((self.audio_item.time_stretch_mode == 4) and (self.audio_item.timestretch_amt_end != self.audio_item.timestretch_amt)):
+        if self.audio_item.time_stretch_mode >= 2 and \
+        ((self.audio_item.time_stretch_mode != 4) or (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt)):
             self.stretch_handle.show()
             self.stretch_handle.setPos(f_length - global_audio_item_handle_size, (global_audio_item_height * 0.5) - (global_audio_item_handle_size * 0.5))
 
