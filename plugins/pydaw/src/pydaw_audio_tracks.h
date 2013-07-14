@@ -241,6 +241,10 @@ typedef struct
     t_amp * amp_ptr;
     t_pit_pitch_core * pitch_core_ptr;
     t_pit_ratio * pitch_ratio_ptr;
+    
+    float pitch_shift_end;
+    float timestretch_amt_end;
+    int is_reversed;
 } t_pydaw_audio_item __attribute__((aligned(16)));
 
 typedef struct
@@ -498,6 +502,20 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     f_result->sample_fade_out = atof(f_fade_out_char) * 0.001f;
     free(f_fade_out_char);
     
+    if(!f_current_string->eol)  //TODO:  Remove this if statement at PyDAWv4
+    {
+        //Not used in the back-end
+        char * f_pitch_shift_end_char = c_iterate_2d_char_array(f_current_string);
+        free(f_pitch_shift_end_char);
+        //Not used in the back-end
+        char * f_timestretch_end_char = c_iterate_2d_char_array(f_current_string);
+        free(f_timestretch_end_char);
+        
+        char * f_reversed_char = c_iterate_2d_char_array(f_current_string);
+        f_result->is_reversed = atoi(f_reversed_char);
+        free(f_reversed_char);
+    }
+    
     if(f_result->end_mode == 1)
     {
         float f_beats_total = ((float)((f_result->end_bar - f_result->start_bar) * 4)) + (f_result->end_beat - f_result->start_beat);
@@ -549,6 +567,11 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
         }
             break;
         case 3:  //Rubberband
+        {
+            //Don't have to do anything here, this comes pre-stretched...
+        }
+            break;
+        case 4:  //SBSMS
         {
             //Don't have to do anything here, this comes pre-stretched...
         }
