@@ -1342,7 +1342,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
 
         self.length_handle.setPos(f_length - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         self.start_handle.setPos(0.0, global_audio_item_height - global_audio_item_handle_size)
-        if self.audio_item.time_stretch_mode >= 2:
+        if self.audio_item.time_stretch_mode >= 2 and not \
+        ((self.audio_item.time_stretch_mode == 4) and (self.audio_item.timestretch_amt_end != self.audio_item.timestretch_amt)):
             self.stretch_handle.show()
             self.stretch_handle.setPos(f_length - global_audio_item_handle_size, (global_audio_item_height * 0.5) - (global_audio_item_handle_size * 0.5))
 
@@ -1689,6 +1690,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.end_beat = f_end_result[1]
                         print f_item.end_bar, f_item.end_beat
                     f_item.timestretch_amt = f_x / f_audio_item.stretch_width_default
+                    f_item.timestretch_amt_end = f_item.timestretch_amt
                     if f_item.time_stretch_mode >= 3 and f_audio_item.orig_string != str(f_item):
                         f_was_stretching = True
                         f_ts_result = this_pydaw_project.timestretch_audio_item(f_item)
