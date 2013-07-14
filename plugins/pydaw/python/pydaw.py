@@ -1689,7 +1689,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item.end_beat = f_end_result[1]
                         print f_item.end_bar, f_item.end_beat
                     f_item.timestretch_amt = f_x / f_audio_item.stretch_width_default
-                    if f_item.time_stretch_mode == 3 and f_audio_item.orig_string != str(f_item):
+                    if f_item.time_stretch_mode >= 3 and f_audio_item.orig_string != str(f_item):
                         f_was_stretching = True
                         f_ts_result = this_pydaw_project.timestretch_audio_item(f_item)
                         if f_ts_result is not None:
@@ -2419,14 +2419,18 @@ class audio_item_editor_widget:
                     f_new_ts_mode = self.timestretch_mode.currentIndex()
                     f_new_ts = self.timestretch_amt.value()
                     f_new_ps = self.pitch_shift.value()
+                    f_new_ts_end = self.timestretch_amt_end.value()
+                    f_new_ps_end = self.pitch_shift_end.value()
                     if f_item.audio_item.time_stretch_mode >= 3 and f_new_ts_mode < 3:
                         f_item.audio_item.uid = this_pydaw_project.timestretch_get_orig_file_uid(f_item.audio_item.uid)
                     f_item.audio_item.time_stretch_mode = f_new_ts_mode
                     f_item.audio_item.pitch_shift = f_new_ps
                     f_item.audio_item.timestretch_amt = f_new_ts
+                    f_item.audio_item.pitch_shift_end = f_new_ps_end
+                    f_item.audio_item.timestretch_amt_end = f_new_ts_end
                     f_item.draw()
                     f_item.clip_at_region_end()
-                    if f_item.audio_item.time_stretch_mode == 3 and f_item.orig_string != str(f_item.audio_item):
+                    if f_item.audio_item.time_stretch_mode >= 3 and f_item.orig_string != str(f_item.audio_item):
                         f_was_stretching = True
                         f_ts_result = this_pydaw_project.timestretch_audio_item(f_item.audio_item)
                         if f_ts_result is not None:

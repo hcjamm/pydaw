@@ -528,7 +528,7 @@ class pydaw_project:
                          "-R", "--pitch-hq", f_src_path, f_dest_path]
             elif a_audio_item.time_stretch_mode == 4:
                 f_cmd = ["/usr/lib/pydaw3/sbsms/bin/sbsms", f_src_path, f_dest_path,
-                         str(a_audio_item.timestretch_amt), str(a_audio_item.timestretch_amt_end),
+                         str(1.0 / a_audio_item.timestretch_amt), str(1.0 / a_audio_item.timestretch_amt_end),
                          str(a_audio_item.pitch_shift), str(a_audio_item.pitch_shift_end) ]
             print("Running " + " ".join(f_cmd))
             f_proc = subprocess.Popen(f_cmd)
