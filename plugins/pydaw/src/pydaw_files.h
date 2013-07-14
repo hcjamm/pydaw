@@ -76,6 +76,7 @@ typedef struct st_2d_char_array
     int current_row;
     int current_column;
     int eof;
+    int eol;
 }t_2d_char_array;
 
 void g_free_1d_char_array(t_1d_char_array * a_array)
@@ -206,6 +207,7 @@ t_2d_char_array * g_get_2d_array(int a_size)
     f_result->current_row = 0;
     f_result->current_column = 0;
     f_result->eof = 0;
+    f_result->eol = 0;
     return f_result;
 }
 
@@ -231,6 +233,7 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
         {
             f_result[f_i] = '\0';
             a_array->eof = 1;
+            a_array->eol = 1;
             break;
         }
         else if(a_array->array[(a_array->current_index)] == '\n')
@@ -239,6 +242,7 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
             a_array->current_index = (a_array->current_index) + 1;
             a_array->current_row = (a_array->current_row) + 1;
             a_array->current_column = 0;
+            a_array->eol = 1;
             break;
         }
         else if(a_array->array[(a_array->current_index)] == '|')
@@ -246,12 +250,14 @@ char * c_iterate_2d_char_array(t_2d_char_array* a_array)
             f_result[f_i] = '\0';
             a_array->current_index = (a_array->current_index) + 1;
             a_array->current_column = (a_array->current_column) + 1;
+            a_array->eol = 0;
             //assert((a_array->current_column) < (a_array->));  //TODO:  A check for acceptable column counts
             break;
         }
         else
         {
-            f_result[f_i] = a_array->array[(a_array->current_index)];            
+            a_array->eol = 0;
+            f_result[f_i] = a_array->array[(a_array->current_index)];
         }
         
         a_array->current_index = (a_array->current_index) + 1;
