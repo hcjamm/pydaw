@@ -508,7 +508,7 @@ class pydaw_project:
     def timestretch_audio_item(self, a_audio_item):
         """ Return path, uid for a time-stretched audio item and update all project files,
         or None if the UID already exists in the cache"""
-        if not os.path.isdir(self.timestretch_folder):
+        if not os.path.isdir(self.timestretch_folder):  #TODO:  remove at PyDAWv4
             os.mkdir(self.timestretch_folder)
         f_src_path = self.get_wav_name_by_uid(a_audio_item.uid)
         if self.timestretch_reverse_lookup.has_key(f_src_path):
@@ -523,8 +523,13 @@ class pydaw_project:
         else:
             f_uid = pydaw_gen_uid()
             f_dest_path = self.timestretch_folder + "/" + str(f_uid) + ".wav"
-            f_cmd = ["rubberband", "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
-                     "-R", "--pitch-hq", f_src_path, f_dest_path]
+            if a_audio_item.time_stretch_mode == 3:
+                f_cmd = ["rubberband", "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
+                         "-R", "--pitch-hq", f_src_path, f_dest_path]
+            elif a_audio_item.time_stretch_mode == 4:
+                f_cmd = ["/usr/lib/pydaw3/sbsms/bin/sbsms", f_src_path, f_dest_path,
+                         str(a_audio_item.timestretch_amt), str(a_audio_item.timestretch_amt_end),
+                         str(a_audio_item.pitch_shift), str(a_audio_item.pitch_shift_end) ]
             print("Running " + " ".join(f_cmd))
             f_proc = subprocess.Popen(f_cmd)
             self.timestretch_cache[f_key] = f_uid
@@ -1819,7 +1824,7 @@ class pydaw_audio_region:
 class pydaw_audio_item:
     def __init__(self, a_uid, a_sample_start=0.0, a_sample_end=1000.0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
     a_end_bar=0, a_end_beat=0, a_timestretch_mode=3, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0, \
-    a_fade_in=0.0, a_fade_out=999.0, a_lane_num=0):
+    a_fade_in=0.0, a_fade_out=999.0, a_lane_num=0, a_pitch_shift_end=0.0, a_timestretch_amt_end=1.0, a_reversed=False):
         self.uid = int(a_uid)
         self.sample_start = float(a_sample_start)
         self.sample_end = float(a_sample_end)
@@ -1836,6 +1841,9 @@ class pydaw_audio_item:
         self.fade_in = float(a_fade_in)
         self.fade_out = float(a_fade_out)
         self.lane_num = int(a_lane_num)
+        self.pitch_shift_end = float(a_pitch_shift_end)
+        self.timestretch_amt_end = float(a_timestretch_amt_end)
+        self.reversed = a_reversed
 
     def set_pos(self, a_bar, a_beat):
         f_bar = int(a_bar)
@@ -1859,7 +1867,8 @@ class pydaw_audio_item:
         + "|" + str(self.start_bar) + "|" + str(round(self.start_beat, 4)) + "|" + str(self.end_mode) \
         + "|" + str(self.end_bar) + "|" + str(round(self.end_beat, 4)) + "|" + str(self.time_stretch_mode) \
         + "|" + str(self.pitch_shift) + "|" + str(self.output_track) + "|" + str(self.vol) + "|" + str(round(self.timestretch_amt, 4)) \
-        + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "|" + str(self.lane_num) + "\n"
+        + "|" + str(self.fade_in) + "|" + str(self.fade_out) + "|" + str(self.lane_num) + "|" + str(self.pitch_shift_end) \
+        + "|" + str(self.timestretch_amt_end) + "|" + str(bool_to_int(self.reversed)) + "\n"
 
     @staticmethod
     def from_str(f_str):
@@ -1867,8 +1876,13 @@ class pydaw_audio_item:
 
     @staticmethod
     def from_arr(a_arr):
-        f_result = pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
-        a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12], a_arr[13], a_arr[14], a_arr[15])
+        if len(a_arr) == 16:
+            f_result = pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
+            a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12], a_arr[13], a_arr[14], a_arr[15])
+        elif len(a_arr) == 19:
+            f_result = pydaw_audio_item(a_arr[0], a_arr[1], a_arr[2], a_arr[3], a_arr[4], a_arr[5], a_arr[6],\
+            a_arr[7], a_arr[8], a_arr[9], a_arr[10], a_arr[11], a_arr[12], a_arr[13], a_arr[14], a_arr[15], a_arr[16], \
+            a_arr[17], int_to_bool(a_arr[18]))
         return f_result
 
 class pydaw_audio_input_tracks:

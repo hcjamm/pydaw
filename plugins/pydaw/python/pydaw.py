@@ -2251,31 +2251,53 @@ class audio_item_editor_widget:
         self.timestretch_checkbox = QtGui.QCheckBox("Time Stretching:")
         self.vlayout2.addWidget(self.timestretch_checkbox)
         self.timestretch_hlayout = QtGui.QHBoxLayout()
-        self.timestretch_hlayout2 = QtGui.QHBoxLayout()
+        self.time_pitch_gridlayout = QtGui.QGridLayout()
         self.vlayout2.addLayout(self.timestretch_hlayout)
-        self.vlayout2.addLayout(self.timestretch_hlayout2)
+        self.vlayout2.addLayout(self.time_pitch_gridlayout)
         self.timestretch_hlayout.addWidget(QtGui.QLabel("Mode:"))
         self.timestretch_mode = QtGui.QComboBox()
-        self.timestretch_mode.currentIndexChanged.connect(self.timestretch_changed)
+
         self.timestretch_mode.setMinimumWidth(190)
         self.timestretch_hlayout.addWidget(self.timestretch_mode)
         self.timestretch_mode.addItems(global_timestretch_modes)
         self.timestretch_mode.currentIndexChanged.connect(self.timestretch_mode_changed)
-        self.timestretch_hlayout2.addWidget(QtGui.QLabel("Pitch:"))
+        self.time_pitch_gridlayout.addWidget(QtGui.QLabel("Pitch:"), 0, 0)
         self.pitch_shift = QtGui.QDoubleSpinBox()
         self.pitch_shift.setRange(-36, 36)
         self.pitch_shift.setValue(0.0)
-        self.pitch_shift.valueChanged.connect(self.timestretch_changed)
-        self.timestretch_hlayout2.addWidget(self.pitch_shift)
-        self.timestretch_hlayout2.addWidget(QtGui.QLabel("Time:"))
+        self.time_pitch_gridlayout.addWidget(self.pitch_shift, 0, 1)
+
+        self.pitch_shift_end_checkbox = QtGui.QCheckBox("End:")
+        self.time_pitch_gridlayout.addWidget(self.pitch_shift_end_checkbox, 0, 2)
+        self.pitch_shift_end = QtGui.QDoubleSpinBox()
+        self.pitch_shift_end.setRange(-36, 36)
+        self.pitch_shift_end.setValue(0.0)
+        self.time_pitch_gridlayout.addWidget(self.pitch_shift_end, 0, 3)
+
+        self.time_pitch_gridlayout.addWidget(QtGui.QLabel("Time:"), 1, 0)
         self.timestretch_amt = QtGui.QDoubleSpinBox()
         self.timestretch_amt.setRange(0.2, 4.0)
         self.timestretch_amt.setDecimals(5)
         self.timestretch_amt.setSingleStep(0.1)
         self.timestretch_amt.setValue(1.0)
-        self.timestretch_amt.valueChanged.connect(self.timestretch_changed)
-        self.timestretch_hlayout2.addWidget(self.timestretch_amt)
+        self.time_pitch_gridlayout.addWidget(self.timestretch_amt, 1, 1)
+
+        self.timestretch_amt_end_checkbox = QtGui.QCheckBox("End:")
+        self.time_pitch_gridlayout.addWidget(self.timestretch_amt_end_checkbox, 1, 2)
+        self.timestretch_amt_end = QtGui.QDoubleSpinBox()
+        self.timestretch_amt_end.setRange(0.2, 4.0)
+        self.timestretch_amt_end.setDecimals(5)
+        self.timestretch_amt_end.setSingleStep(0.1)
+        self.timestretch_amt_end.setValue(1.0)
+        self.time_pitch_gridlayout.addWidget(self.timestretch_amt_end, 1, 3)
+
         self.timestretch_mode_changed(0)
+
+        self.timestretch_mode.currentIndexChanged.connect(self.timestretch_changed)
+        self.pitch_shift.valueChanged.connect(self.timestretch_changed)
+        self.pitch_shift_end.valueChanged.connect(self.timestretch_changed)
+        self.timestretch_amt.valueChanged.connect(self.timestretch_changed)
+        self.timestretch_amt_end.valueChanged.connect(self.timestretch_changed)
 
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
         self.output_hlayout = QtGui.QHBoxLayout()
@@ -2305,6 +2327,10 @@ class audio_item_editor_widget:
 
     def timestretch_changed(self, a_val=None):
         self.timestretch_checkbox.setChecked(True)
+        if not self.pitch_shift_end_checkbox.isChecked():
+            self.pitch_shift_end.setValue(self.pitch_shift.value())
+        if not self.timestretch_amt_end_checkbox.isChecked():
+            self.timestretch_amt_end.setValue(self.timestretch_amt.value())
 
     def output_changed(self, a_val=None):
         self.output_checkbox.setChecked(True)
@@ -2315,19 +2341,41 @@ class audio_item_editor_widget:
             self.timestretch_amt.setEnabled(False)
             self.pitch_shift.setValue(0.0)
             self.timestretch_amt.setValue(1.0)
+            self.timestretch_amt_end_checkbox.setEnabled(False)
+            self.timestretch_amt_end_checkbox.setChecked(False)
+            self.pitch_shift_end_checkbox.setEnabled(False)
+            self.pitch_shift_end_checkbox.setChecked(False)
         elif a_val == 1:
             self.pitch_shift.setEnabled(True)
             self.timestretch_amt.setEnabled(False)
             self.timestretch_amt.setValue(1.0)
+            self.timestretch_amt_end_checkbox.setEnabled(False)
+            self.timestretch_amt_end_checkbox.setChecked(False)
+            self.pitch_shift_end_checkbox.setEnabled(False)
+            self.pitch_shift_end_checkbox.setChecked(False)
         elif a_val == 2:
             self.pitch_shift.setEnabled(False)
             self.timestretch_amt.setEnabled(True)
             self.pitch_shift.setValue(0.0)
             self.timestretch_amt.setRange(0.2, 4.0)
+            self.timestretch_amt_end_checkbox.setEnabled(False)
+            self.timestretch_amt_end_checkbox.setChecked(False)
+            self.pitch_shift_end_checkbox.setEnabled(False)
+            self.pitch_shift_end_checkbox.setChecked(False)
         elif a_val == 3:
             self.pitch_shift.setEnabled(True)
             self.timestretch_amt.setEnabled(True)
             self.timestretch_amt.setRange(0.1, 10.0)
+            self.timestretch_amt_end_checkbox.setEnabled(False)
+            self.timestretch_amt_end_checkbox.setChecked(False)
+            self.pitch_shift_end_checkbox.setEnabled(False)
+            self.pitch_shift_end_checkbox.setChecked(False)
+        elif a_val == 4:
+            self.pitch_shift.setEnabled(True)
+            self.timestretch_amt.setEnabled(True)
+            self.timestretch_amt.setRange(0.1, 10.0)
+            self.timestretch_amt_end_checkbox.setEnabled(True)
+            self.pitch_shift_end_checkbox.setEnabled(True)
 
     def open_item(self, a_item):
         if a_item is None:
@@ -5997,7 +6045,7 @@ if not os.path.isdir(global_cc_map_folder):
 
 pydaw_load_controller_maps()
 
-global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch)", "Rubberband"]
+global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch)", "Rubberband", "SBSMS"]
 global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4", 4:"track5", 5:"track6", 6:"track7", 7:"track8"}
 global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []
