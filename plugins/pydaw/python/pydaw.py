@@ -1343,7 +1343,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_handle.setPos(f_length - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_size)
         self.start_handle.setPos(0.0, global_audio_item_height - global_audio_item_handle_size)
         if self.audio_item.time_stretch_mode >= 2 and \
-        ((self.audio_item.time_stretch_mode != 4) or (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt)):
+        ((self.audio_item.time_stretch_mode != 5) or (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt)):
             self.stretch_handle.show()
             self.stretch_handle.setPos(f_length - global_audio_item_handle_size, (global_audio_item_height * 0.5) - (global_audio_item_handle_size * 0.5))
 
@@ -1784,10 +1784,14 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_time_stretch_mode_val = f_selected_items[0].audio_item.time_stretch_mode
             f_time_stretch_amt_val = f_selected_items[0].audio_item.timestretch_amt
             f_pitch_val = f_selected_items[0].audio_item.pitch_shift
+            f_time_stretch_amt_end_val = f_selected_items[0].audio_item.timestretch_amt_end
+            f_pitch_end_val = f_selected_items[0].audio_item.pitch_shift_end
             for f_item in f_selected_items[1:]:
                 if f_item.audio_item.time_stretch_mode != f_time_stretch_mode_val or \
                 f_item.audio_item.timestretch_amt != f_time_stretch_amt_val or \
-                f_item.audio_item.pitch_shift != f_pitch_val:
+                f_item.audio_item.pitch_shift != f_pitch_val or \
+                f_item.audio_item.pitch_shift_end != f_pitch_end_val or \
+                f_item.audio_item.timestretch_amt_end != f_time_stretch_amt_end_val:
                     f_timestretch_checked = False
                     break
         this_audio_item_editor_widget.timestretch_checkbox.setChecked(f_timestretch_checked)
@@ -2219,7 +2223,7 @@ class audio_items_viewer_widget():
 class audio_item_editor_widget:
     def __init__(self):
         self.widget = QtGui.QWidget()
-        self.widget.setMaximumWidth(460)
+        self.widget.setMaximumWidth(480)
         self.main_vlayout = QtGui.QVBoxLayout(self.widget)
 
         self.layout = QtGui.QGridLayout()
@@ -2259,7 +2263,7 @@ class audio_item_editor_widget:
         self.timestretch_hlayout.addWidget(QtGui.QLabel("Mode:"))
         self.timestretch_mode = QtGui.QComboBox()
 
-        self.timestretch_mode.setMinimumWidth(190)
+        self.timestretch_mode.setMinimumWidth(240)
         self.timestretch_hlayout.addWidget(self.timestretch_mode)
         self.timestretch_mode.addItems(global_timestretch_modes)
         self.timestretch_mode.currentIndexChanged.connect(self.timestretch_mode_changed)
@@ -2378,7 +2382,7 @@ class audio_item_editor_widget:
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
-        elif a_val == 3:
+        elif a_val == 3 or a_val == 4:
             self.pitch_shift.setEnabled(True)
             self.timestretch_amt.setEnabled(True)
             self.timestretch_amt.setRange(0.1, 10.0)
@@ -2386,7 +2390,7 @@ class audio_item_editor_widget:
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
-        elif a_val == 4:
+        elif a_val == 5:
             self.pitch_shift.setEnabled(True)
             self.timestretch_amt.setEnabled(True)
             self.timestretch_amt.setRange(0.1, 10.0)
@@ -6078,7 +6082,7 @@ if not os.path.isdir(global_cc_map_folder):
 
 pydaw_load_controller_maps()
 
-global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch)", "Rubberband", "SBSMS"]
+global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch)", "Rubberband", "Rubberband(formants)", "SBSMS"]
 global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4", 4:"track5", 5:"track6", 6:"track7", 7:"track8"}
 global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []

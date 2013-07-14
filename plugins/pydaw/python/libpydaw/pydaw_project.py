@@ -527,6 +527,9 @@ class pydaw_project:
                 f_cmd = ["rubberband", "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
                          "-R", "--pitch-hq", f_src_path, f_dest_path]
             elif a_audio_item.time_stretch_mode == 4:
+                f_cmd = ["rubberband", "-F", "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
+                         "-R", "--pitch-hq", f_src_path, f_dest_path]
+            elif a_audio_item.time_stretch_mode == 5:
                 f_cmd = ["/usr/lib/pydaw3/sbsms/bin/sbsms", f_src_path, f_dest_path,
                          str(1.0 / a_audio_item.timestretch_amt), str(1.0 / a_audio_item.timestretch_amt_end),
                          str(a_audio_item.pitch_shift), str(a_audio_item.pitch_shift_end) ]
