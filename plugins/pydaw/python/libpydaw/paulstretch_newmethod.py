@@ -79,17 +79,17 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
 
     smp[:,nsamples-end_size:nsamples]*=linspace(1,0,end_size)
 
-    
+
     #compute the displacement inside the input file
     start_pos=0.0
     displace_pos=windowsize*0.5
 
     #create Hann window
-    window=0.5-cos(arange(windowsize,dtype='float')*2.0*pi/(windowsize-1))*0.5
+    window=0.5-cos(arange(windowsize,dtype='double')*2.0*pi/(windowsize-1))*0.5
 
     old_windowed_buf=zeros((2,windowsize))
     hinv_sqrt2=(1+sqrt(0.5))*0.5
-    hinv_buf=2.0*(hinv_sqrt2-(1.0-hinv_sqrt2)*cos(arange(half_windowsize,dtype='float')*2.0*pi/half_windowsize))/hinv_sqrt2
+    hinv_buf=2.0*(hinv_sqrt2-(1.0-hinv_sqrt2)*cos(arange(half_windowsize,dtype='double')*2.0*pi/half_windowsize))/hinv_sqrt2
 
     freqs=zeros((2,half_windowsize+1))
     old_freqs=freqs
@@ -115,7 +115,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
             if buf.shape[1]<windowsize:
                 buf=append(buf,zeros((2,windowsize-buf.shape[1])),1)
             buf=buf*window
-    
+
             #get the amplitudes of the frequency components and discard the phases
             freqs=abs(fft.rfft(buf))
 
@@ -147,7 +147,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
         ph=random.uniform(0,2*pi,(nchannels,cfreqs.shape[1]))*1j
         cfreqs=cfreqs*exp(ph)
 
-        #do the inverse FFT 
+        #do the inverse FFT
         buf=fft.irfft(cfreqs)
 
         #window again the output buffer
@@ -159,8 +159,8 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
 
         #remove the resulted amplitude modulation
         output*=hinv_buf
-        
-        #clamp the values to -1..1 
+
+        #clamp the values to -1..1
         output[output>1.0]=1.0
         output[output<-1.0]=-1.0
 
@@ -178,7 +178,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
         print "%d %% \r" % int(100.0*start_pos/nsamples),
         sys.stdout.flush()
 
-        
+
         if extra_onset_time_credit<=0.0:
             displace_tick+=displace_tick_increase
         else:
@@ -193,11 +193,11 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
             get_next_buf=True
 
     outfile.close()
-    
+
     if plot_onsets:
         plt.plot(onsets)
         plt.show()
-    
+
 
 ########################################
 print "Paul's Extreme Sound Stretch (Paulstretch) - Python version 20110223"
@@ -219,7 +219,7 @@ print "window size =",options.window_size,"seconds"
 print "onset sensitivity =",options.onset
 (samplerate,smp)=load_wav(args[0])
 
-paulstretch(samplerate,smp,options.stretch,options.window_size,options.onset,args[1])
+paulstretch(samplerate,smp,double(options.stretch),double(options.window_size),double(options.onset),args[1])
 
 
 
