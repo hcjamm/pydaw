@@ -1603,6 +1603,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_x = f_item.width_orig + f_event_diff + f_item.quantize_offset
                     if f_item.audio_item.time_stretch_mode == 2:
                         f_x = pydaw_clip_value(f_x, f_item.stretch_width_default * 0.25, f_item.stretch_width_default * 4.0)
+                    elif f_item.audio_item.time_stretch_mode == 6:
+                        f_x = pydaw_clip_value(f_x, f_item.stretch_width_default * 0.5, f_item.stretch_width_default * 10.0)
                     else:
                         f_x = pydaw_clip_value(f_x, f_item.stretch_width_default * 0.1, f_item.stretch_width_default * 10.0)
                     f_x = pydaw_clip_max(f_x, f_item.max_stretch)
