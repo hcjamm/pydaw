@@ -241,6 +241,7 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
         while(f_i < info.frames * info.channels)
         {
             tmpFrames[f_i] *= f_normalize;
+            f_i++;
         }
     }
            
