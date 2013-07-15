@@ -81,6 +81,21 @@ inline void v_svf2_run_no_filter(t_svf2_filter*, float, float);
 
 inline void v_svf2_run_2_pole_allpass(t_svf2_filter*, float, float);
 
+void v_svf2_free(t_svf2_filter*);
+
+void v_svf2_free(t_svf2_filter* a_svf2)
+{
+    v_amp_free(a_svf2->amp_ptr);
+    int f_i = 0;
+    while(f_i < SVF_MAX_CASCADE)
+    {
+        free(a_svf2->filter_kernels[f_i][0]);
+        free(a_svf2->filter_kernels[f_i][1]);
+        f_i++;
+    }
+    free(a_svf2);
+}
+
 /* inline void v_svf2_run_no_filter(
  * t_svf2_filter* a_svf, 
  * float a_in) //audio input

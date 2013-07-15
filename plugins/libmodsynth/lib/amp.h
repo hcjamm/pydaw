@@ -44,6 +44,13 @@ t_amp * g_amp_get()
     return f_result;
 }
 
+void v_amp_free(t_amp* a_amp)
+{
+    free(a_amp->linear);
+    a_amp->linear = 0;
+    free(a_amp);
+}
+
 inline float f_db_to_linear(float,t_amp*);
 inline float f_linear_to_db(float,t_amp*); 
 inline float f_db_to_linear_fast(float,t_amp*);
