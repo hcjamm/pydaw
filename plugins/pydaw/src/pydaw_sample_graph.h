@@ -223,7 +223,7 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
     
     t_svf2_filter * f_dc_offset = g_svf2_get((float)(info.samplerate));
     v_svf2_set_res(f_dc_offset, -24.0f);
-    v_svf2_set_cutoff_base(f_dc_offset, 36.0);
+    v_svf2_set_cutoff_base(f_dc_offset, 48.0);
     
     if(info.channels == 1)
     {
