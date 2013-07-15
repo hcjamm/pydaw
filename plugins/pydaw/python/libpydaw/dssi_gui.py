@@ -12,10 +12,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import sys
+import sys, os
 import liblo
 from liblo import *
 from urlparse import urlparse
+from time import sleep
 
 #TODO:  Move this to a mutual location and rename to bool_to_int_str
 def bool_to_int(a_bool):
@@ -215,3 +216,18 @@ class dssi_gui(ServerThread):
 
     def pydaw_panic(self):
         self.send_configure("panic", "")
+
+    def pydaw_convert_wav_to_32_bit(self, a_in_file, a_out_file):
+        f_wait_file = str(a_out_file) + ".finished"
+        if os.path.isfile(f_wait_file):
+            os.remove(f_wait_file)
+        self.send_configure("conv32f", str(a_in_file) + "\n" + str(a_out_file))
+        while True:
+            if os.path.isfile(f_wait_file):
+                try:
+                    os.remove(f_wait_file)
+                    break
+                except:
+                    print("pydaw_convert_wav_to_32_bit:  Exception when deleting " + f_wait_file)
+            else:
+                sleep(0.5)

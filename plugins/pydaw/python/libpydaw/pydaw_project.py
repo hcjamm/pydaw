@@ -533,6 +533,11 @@ class pydaw_project:
                 f_cmd = ["/usr/lib/pydaw3/sbsms/bin/sbsms", f_src_path, f_dest_path,
                          str(1.0 / a_audio_item.timestretch_amt), str(1.0 / a_audio_item.timestretch_amt_end),
                          str(a_audio_item.pitch_shift), str(a_audio_item.pitch_shift_end) ]
+            elif a_audio_item.time_stretch_mode == 6:
+                f_tmp_file = self.audio_tmp_folder + "/" + str(f_uid) + ".wav"
+                self.this_dssi_gui.pydaw_convert_wav_to_32_bit(f_src_path, f_tmp_file)
+                f_cmd = ["/usr/lib/pydaw3/pydaw/python/libpydaw/paulstretch_newmethod.py",
+                         "-s", str(a_audio_item.timestretch_amt), f_tmp_file, f_dest_path ]
             print("Running " + " ".join(f_cmd))
             f_proc = subprocess.Popen(f_cmd)
             self.timestretch_cache[f_key] = f_uid

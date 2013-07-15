@@ -182,10 +182,8 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
 {
     
     SF_INFO info;
-    SNDFILE *file;
-    size_t samples = 0;
-    float *tmpFrames;
-        
+    SNDFILE *file;    
+    float *tmpFrames;        
     float f_max = 0.0;
             
     info.format = 0;
@@ -203,14 +201,13 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
 	}
     }
     
-    if (info.frames > 100000000) {
+    if (info.frames > 100000000)
+    {
 	//TODO:  Something, anything....
     }
 
     //!!! complain also if more than 2 channels
     
-    samples = info.frames;
-
     tmpFrames = (float *)malloc(info.frames * info.channels * sizeof(float));
     sf_readf_float(file, tmpFrames, info.frames);
     
@@ -225,21 +222,21 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
     
     while(f_i < info.frames * info.channels)
     {
-        if(tmpFrames[f_i] > 0.0 && tmpFrames[f_i] > f_max)
+        if(tmpFrames[f_i] > 0.0f && tmpFrames[f_i] > f_max)
         {
             f_max = tmpFrames[f_i];
         }
-        else if(tmpFrames[f_i] < 0.0 && (tmpFrames[f_i] * -1.0f) > f_max)
+        else if(tmpFrames[f_i] < 0.0f && (tmpFrames[f_i] * -1.0f) > f_max)
         {
             f_max = tmpFrames[f_i] * -1.0f;
-        }
-        
+        }        
         f_i++;
     }
     
-    if(f_max > 1.0f)
+    printf("f_max = %f\n", f_max);
+    if(f_max >= 0.8f)
     {
-        float f_normalize = 1.0f / f_max;
+        float f_normalize = 0.8f / f_max;        
         f_i = 0;
         while(f_i < info.frames * info.channels)
         {

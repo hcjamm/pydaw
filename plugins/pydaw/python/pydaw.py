@@ -2396,6 +2396,15 @@ class audio_item_editor_widget:
             self.timestretch_amt.setRange(0.1, 10.0)
             self.timestretch_amt_end_checkbox.setEnabled(True)
             self.pitch_shift_end_checkbox.setEnabled(True)
+        elif a_val == 6:
+            self.pitch_shift.setEnabled(False)
+            self.timestretch_amt.setEnabled(True)
+            self.pitch_shift.setValue(0.0)
+            self.timestretch_amt.setRange(0.2, 8.0)
+            self.timestretch_amt_end_checkbox.setEnabled(False)
+            self.timestretch_amt_end_checkbox.setChecked(False)
+            self.pitch_shift_end_checkbox.setEnabled(False)
+            self.pitch_shift_end_checkbox.setChecked(False)
 
     def open_item(self, a_item):
         if a_item is None:
@@ -6082,7 +6091,7 @@ if not os.path.isdir(global_cc_map_folder):
 
 pydaw_load_controller_maps()
 
-global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch)", "Rubberband", "Rubberband(formants)", "SBSMS"]
+global_timestretch_modes = ["None", "Pitch(affecting time)", "Time(affecting pitch)", "Rubberband", "Rubberband(formants)", "SBSMS", "Paulstretch"]
 global_audio_track_names = {0:"track1", 1:"track2", 2:"track3", 3:"track4", 4:"track5", 5:"track6", 6:"track7", 7:"track8"}
 global_suppress_audio_track_combobox_changes = False
 global_audio_track_comboboxes = []
