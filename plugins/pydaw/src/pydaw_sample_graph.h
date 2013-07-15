@@ -24,6 +24,7 @@ extern "C" {
 #include <time.h>
 #include <assert.h>
 //#include <sys/stat.h>
+#include "../../libmodsynth/modules/filter/svf.h"
 
 #define PYDAW_SAMPLE_GRAPH_MAX_SIZE 2097152
 #define PYDAW_SAMPLE_GRAPH_POINTS_PER_SECOND 32.0f
@@ -179,8 +180,7 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
 
 /*Convert a wav file to 32bit float and normalize, for use with Paulstretch*/
 void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
-{
-    
+{    
     SF_INFO info;
     SNDFILE *file;    
     float *tmpFrames;        
@@ -215,10 +215,43 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
     f_sf_info.channels = info.channels;
     f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
     f_sf_info.samplerate = info.samplerate;
-                
-    SNDFILE * f_sndfile = sf_open(a_file_out, SFM_WRITE, &f_sf_info);
+    sf_close(file);
+    
     
     int f_i = 0;
+    
+    
+    t_svf2_filter * f_dc_offset = g_svf2_get((float)(info.samplerate));
+    v_svf2_set_res(f_dc_offset, -24.0f);
+    v_svf2_set_cutoff_base(f_dc_offset, 36.0);
+    
+    if(info.channels == 1)
+    {
+        while(f_i < info.frames * info.channels)
+        {
+            float f_sample0 = tmpFrames[f_i];
+            v_svf2_run_2_pole_hp(f_dc_offset, f_sample0, f_sample0);
+            tmpFrames[f_i] = f_dc_offset->output0;
+            f_i++;
+        }
+    }
+    else if(info.channels == 2)
+    {
+        while(f_i < info.frames * info.channels)
+        {
+            float f_sample0 = tmpFrames[f_i];
+            f_i++;
+            float f_sample1 = tmpFrames[f_i];
+            v_svf2_run_2_pole_hp(f_dc_offset, f_sample0, f_sample1);
+            tmpFrames[f_i - 1] = f_dc_offset->output0;
+            tmpFrames[f_i] = f_dc_offset->output1;
+            f_i++;
+        }
+    }
+    
+    v_svf2_free(f_dc_offset);        
+    
+    f_i = 0;
     
     while(f_i < info.frames * info.channels)
     {
@@ -234,9 +267,9 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
     }
     
     printf("\n\nf_max = %f\n\n\n", f_max);
-    if(f_max > 0.25f)
+    if(f_max > 0.99f)
     {
-        float f_normalize = 0.25f / f_max;
+        float f_normalize = 0.99f / f_max;
         printf("\n\nNormalizing, f_normalizing = %f\n\n\n", f_normalize);
         f_i = 0;
         while(f_i < (info.frames * info.channels))
@@ -246,8 +279,8 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
         }
     }
            
+    SNDFILE * f_sndfile = sf_open(a_file_out, SFM_WRITE, &f_sf_info);
     sf_writef_float(f_sndfile, tmpFrames, info.frames);    
-    sf_close(file);
     sf_close(f_sndfile);
         
     char f_tmp_finished[256];    

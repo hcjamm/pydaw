@@ -1675,6 +1675,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     f_x = f_audio_item.width_orig + f_event_diff + f_audio_item.quantize_offset
                     if f_audio_item.audio_item.time_stretch_mode == 2:
                         f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.25, f_audio_item.stretch_width_default * 4.0)
+                    elif f_audio_item.audio_item.time_stretch_mode == 6:
+                        f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.5, f_audio_item.stretch_width_default * 10.0)
                     else:
                         f_x = pydaw_clip_value(f_x, f_audio_item.stretch_width_default * 0.1, f_audio_item.stretch_width_default * 10.0)
                     f_x = pydaw_clip_max(f_x, f_audio_item.max_stretch)
@@ -2400,7 +2402,7 @@ class audio_item_editor_widget:
             self.pitch_shift.setEnabled(False)
             self.timestretch_amt.setEnabled(True)
             self.pitch_shift.setValue(0.0)
-            self.timestretch_amt.setRange(0.2, 8.0)
+            self.timestretch_amt.setRange(0.5, 10.0)
             self.timestretch_amt_end_checkbox.setEnabled(False)
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)

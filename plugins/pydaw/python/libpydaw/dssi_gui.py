@@ -230,4 +230,4 @@ class dssi_gui(ServerThread):
                 except:
                     print("pydaw_convert_wav_to_32_bit:  Exception when deleting " + f_wait_file)
             else:
-                sleep(0.5)
+                sleep(0.1)
