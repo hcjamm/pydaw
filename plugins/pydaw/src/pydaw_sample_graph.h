@@ -177,6 +177,7 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
     }
 }
 
+/*Convert a wav file to 32bit float and normalize*/
 void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
 {
     
@@ -184,6 +185,8 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
     SNDFILE *file;
     size_t samples = 0;
     float *tmpFrames;
+        
+    float f_max = 0.0;
             
     info.format = 0;
     file = sf_open(a_file_in, SFM_READ, &info);
@@ -217,6 +220,32 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
     f_sf_info.samplerate = info.samplerate;
                 
     SNDFILE * f_sndfile = sf_open(a_file_out, SFM_WRITE, &f_sf_info);
+    
+    int f_i = 0;
+    
+    while(f_i < info.frames * info.channels)
+    {
+        if(tmpFrames[f_i] > 0.0 && tmpFrames[f_i] > f_max)
+        {
+            f_max = tmpFrames[f_i];
+        }
+        else if(tmpFrames[f_i] < 0.0 && (tmpFrames[f_i] * -1.0f) > f_max)
+        {
+            f_max = tmpFrames[f_i] * -1.0f;
+        }
+        
+        f_i++;
+    }
+    
+    if(f_max > 1.0f)
+    {
+        float f_normalize = 1.0f / f_max;
+        f_i = 0;
+        while(f_i < info.frames * info.channels)
+        {
+            tmpFrames[f_i] *= f_normalize;
+        }
+    }
            
     sf_writef_float(f_sndfile, tmpFrames, info.frames);
     
