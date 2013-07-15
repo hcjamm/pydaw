@@ -177,7 +177,7 @@ void v_pydaw_generate_sample_graph(char * a_file_in, char * a_file_out)
     }
 }
 
-/*Convert a wav file to 32bit float and normalize*/
+/*Convert a wav file to 32bit float and normalize, for use with Paulstretch*/
 void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
 {
     
@@ -212,7 +212,7 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
     sf_readf_float(file, tmpFrames, info.frames);
     
     SF_INFO f_sf_info;
-    f_sf_info.channels = 2;
+    f_sf_info.channels = info.channels;
     f_sf_info.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
     f_sf_info.samplerate = info.samplerate;
                 
@@ -233,20 +233,20 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
         f_i++;
     }
     
-    printf("f_max = %f\n", f_max);
-    if(f_max >= 0.8f)
+    printf("\n\nf_max = %f\n\n\n", f_max);
+    if(f_max > 0.25f)
     {
-        float f_normalize = 0.8f / f_max;        
+        float f_normalize = 0.25f / f_max;
+        printf("\n\nNormalizing, f_normalizing = %f\n\n\n", f_normalize);
         f_i = 0;
-        while(f_i < info.frames * info.channels)
+        while(f_i < (info.frames * info.channels))
         {
-            tmpFrames[f_i] *= f_normalize;
+            tmpFrames[f_i] = f_normalize * tmpFrames[f_i];
             f_i++;
         }
     }
            
-    sf_writef_float(f_sndfile, tmpFrames, info.frames);
-    
+    sf_writef_float(f_sndfile, tmpFrames, info.frames);    
     sf_close(file);
     sf_close(f_sndfile);
         
