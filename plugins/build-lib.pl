@@ -43,9 +43,9 @@ $sleep = "sleep 1";
 
 $makefile = "Makefile";
 
-$deps_ubuntu = "sudo apt-get install -y liblo-dev libasound2-dev g++ libqt4-dev libjack-jackd2-dev libsndfile1-dev libtool autoconf gdb debhelper dh-make build-essential automake autoconf libtool qjackctl alsa-utils python-liblo python-qt4 libsdl1.2-dev ffado-mixer-qt4 ffado-tools ffado-dbus-server rubberband-cli python2.7 squashfs-tools genisoimage libmad0-dev";
+$deps_ubuntu = "sudo apt-get install -y liblo-dev libasound2-dev g++ libqt4-dev libjack-jackd2-dev libsndfile1-dev libtool autoconf gdb debhelper dh-make build-essential automake autoconf libtool qjackctl alsa-utils python-liblo python-qt4 libsdl1.2-dev ffado-mixer-qt4 ffado-tools ffado-dbus-server rubberband-cli python2.7 squashfs-tools genisoimage libmad0-dev python-scipy python-numpy";
 
-$deps_debian = "sudo apt-get install -y liblo-dev libasound2-dev libqt4-dev libjack-dev libsndfile1-dev automake autoconf libtool qjackctl alsa-utils python-liblo python-qt4 libsdl1.2-dev ffado-mixer-qt4 ffado-tools ffado-dbus-server rubberband-cli libmad0-dev";
+$deps_debian = "sudo apt-get install -y liblo-dev libasound2-dev libqt4-dev libjack-dev libsndfile1-dev automake autoconf libtool qjackctl alsa-utils python-liblo python-qt4 libsdl1.2-dev ffado-mixer-qt4 ffado-tools ffado-dbus-server rubberband-cli libmad0-dev python-scipy python-numpy";
 
 $audio_group = "sudo usermod -g audio \$USER";
 
