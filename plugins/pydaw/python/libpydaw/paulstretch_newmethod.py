@@ -170,7 +170,7 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
         if f_min > f_max:
             f_max = f_min
 
-        if f_max >= 0.75:
+        if f_max > 0.75:
             f_normalize = 0.75 / f_max
             output *= f_normalize
 
