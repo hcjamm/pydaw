@@ -219,11 +219,11 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
     
     
     int f_i = 0;
-    
-    
+        
+    /*
     t_svf2_filter * f_dc_offset = g_svf2_get((float)(info.samplerate));
     v_svf2_set_res(f_dc_offset, -24.0f);
-    v_svf2_set_cutoff_base(f_dc_offset, 48.0);
+    v_svf2_set_cutoff_base(f_dc_offset, 18.0);
     
     if(info.channels == 1)
     {
@@ -249,9 +249,11 @@ void v_pydaw_convert_wav_to_32_bit_float(char * a_file_in, char * a_file_out)
         }
     }
     
-    v_svf2_free(f_dc_offset);        
-    
+    v_svf2_free(f_dc_offset);
     f_i = 0;
+    */
+    
+    
     
     while(f_i < info.frames * info.channels)
     {
