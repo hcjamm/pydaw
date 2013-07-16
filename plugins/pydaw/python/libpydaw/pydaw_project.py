@@ -368,8 +368,17 @@ class pydaw_project:
         for f_line in f_cache_text.split("\n"):
             if f_line == pydaw_terminating_char:
                 break
-            f_line_arr = f_line.split("|", 4)
-            self.timestretch_cache[(f_line_arr[0], f_line_arr[1], f_line_arr[2])] = f_line_arr[3]
+            f_line_arr = f_line.split("|", 5)
+            if len(f_line_arr) == 4:  #TODO:  Remove at PyDAWv4
+                self.timestretch_cache[(int(f_line_arr[0]), float(f_line_arr[1]), float(f_line_arr[2]), \
+                float(f_line_arr[1]), float(f_line_arr[2]), 4)] = int(f_line_arr[3])
+            elif len(f_line_arr) == 6:
+                f_file_path_and_uid = f_line_arr[5].split("|||")
+                self.timestretch_cache[(int(f_line_arr[0]), float(f_line_arr[1]), float(f_line_arr[2]), \
+                float(f_line_arr[3]), float(f_line_arr[4]), f_file_path_and_uid[0])] = int(f_file_path_and_uid[1])
+            else:
+                print("Error: len(f_line_arr) == " + str(len(f_line_arr)))
+                assert(False)
 
         f_map_text = pydaw_read_file_text(self.pystretch_map_file)
         for f_line in f_map_text.split("\n"):
@@ -381,7 +390,9 @@ class pydaw_project:
     def save_stretch_dicts(self):
         f_stretch_text = ""
         for k, v in self.timestretch_cache.iteritems():
-            f_stretch_text += str(k[0]) + "|"+ str(k[1]) + "|" + str(k[2]) + "|" + str(v) + "\n"
+            for f_tuple_val in k:
+                f_stretch_text += str(f_tuple_val) + "|"
+            f_stretch_text += "||" + str(v) + "\n"
         f_stretch_text += pydaw_terminating_char
         self.save_file("", pydaw_file_pystretch, f_stretch_text)
 
@@ -515,8 +526,9 @@ class pydaw_project:
             f_src_path = self.timestretch_reverse_lookup[f_src_path]
         else:
             if a_audio_item.timestretch_amt == 1.0 and a_audio_item.pitch_shift == 0.0:
-                return None  #Don't run Rubberband if the file is not being timestretched yet
-        f_key = (a_audio_item.time_stretch_mode, a_audio_item.timestretch_amt, a_audio_item.pitch_shift, f_src_path)
+                return None  #Don't process if the file is not being stretched/shifted yet
+        f_key = (a_audio_item.time_stretch_mode, a_audio_item.timestretch_amt, a_audio_item.pitch_shift, \
+        a_audio_item.timestretch_amt_end, a_audio_item.pitch_shift_end, a_audio_item.crispness, f_src_path)
         if self.timestretch_cache.has_key(f_key):
             a_audio_item.uid = self.timestretch_cache[f_key]
             return None
@@ -524,10 +536,10 @@ class pydaw_project:
             f_uid = pydaw_gen_uid()
             f_dest_path = self.timestretch_folder + "/" + str(f_uid) + ".wav"
             if a_audio_item.time_stretch_mode == 3:
-                f_cmd = ["rubberband", "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
+                f_cmd = ["rubberband", "-c", str(a_audio_item.crispness), "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
                          "-R", "--pitch-hq", f_src_path, f_dest_path]
             elif a_audio_item.time_stretch_mode == 4:
-                f_cmd = ["rubberband", "-F", "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
+                f_cmd = ["rubberband", "-F", "-c", str(a_audio_item.crispness), "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
                          "-R", "--pitch-hq", f_src_path, f_dest_path]
             elif a_audio_item.time_stretch_mode == 5:
                 f_cmd = ["/usr/lib/pydaw3/sbsms/bin/sbsms", f_src_path, f_dest_path,
@@ -538,6 +550,7 @@ class pydaw_project:
                 self.this_dssi_gui.pydaw_convert_wav_to_32_bit(f_src_path, f_tmp_file)
                 f_cmd = ["/usr/lib/pydaw3/pydaw/python/libpydaw/paulstretch_newmethod.py",
                          "-s", str(a_audio_item.timestretch_amt), f_tmp_file, f_dest_path ]
+
             print("Running " + " ".join(f_cmd))
             f_proc = subprocess.Popen(f_cmd)
             self.timestretch_cache[f_key] = f_uid
