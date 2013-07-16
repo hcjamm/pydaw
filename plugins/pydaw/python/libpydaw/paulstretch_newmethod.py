@@ -161,8 +161,18 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
         output*=hinv_buf
 
         #clamp the values to -1..1
-        output[output>1.0]=1.0
-        output[output<-1.0]=-1.0
+        #output[output>1.0]=1.0
+        #output[output<-1.0]=-1.0
+
+        #Normalize to -3dB or so rather than clip...  Since it tends to make everything clip anyways...
+        f_max = output.max()
+        f_min = abs(output.min())
+        if f_min > f_max:
+            f_max = f_min
+
+        if f_max >= 0.75:
+            f_normalize = 0.75 / f_max
+            output *= f_normalize
 
         #write the output to wav file
         outfile.writeframes(int16(output.ravel(1)*32767.0).tostring())
