@@ -2432,9 +2432,8 @@ class audio_item_editor_widget:
             self.crispness_combobox.setCurrentIndex(4)
             self.crispness_combobox.setEnabled(False)
         elif a_val == 6:
-            self.pitch_shift.setEnabled(False)
+            self.pitch_shift.setEnabled(True)
             self.timestretch_amt.setEnabled(True)
-            self.pitch_shift.setValue(0.0)
             self.pitch_shift_end.setValue(0.0)
             self.timestretch_amt.setRange(0.5, 10.0)
             self.timestretch_amt_end.setRange(0.5, 10.0)

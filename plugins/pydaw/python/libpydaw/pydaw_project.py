@@ -548,7 +548,11 @@ class pydaw_project:
             elif a_audio_item.time_stretch_mode == 6:
                 f_tmp_file = self.audio_tmp_folder + "/" + str(f_uid) + ".wav"
                 self.this_dssi_gui.pydaw_convert_wav_to_32_bit(f_src_path, f_tmp_file)
-                f_cmd = ["/usr/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py",
+                if a_audio_item.pitch_shift != 0.0:
+                    f_cmd = ["/usr/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py",
+                         "-s", str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift), f_tmp_file, f_dest_path ]
+                else:
+                    f_cmd = ["/usr/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py",
                          "-s", str(a_audio_item.timestretch_amt), f_tmp_file, f_dest_path ]
 
             print("Running " + " ".join(f_cmd))
