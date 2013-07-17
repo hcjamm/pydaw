@@ -290,6 +290,9 @@ class song_editor:
         self.hlayout0 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout0)
         self.table_widget = QtGui.QTableWidget()
+        #self.table_widget.setToolTip("This is the song editor.  A song is a timeline consisting of regions,\n" + \
+        #"click here to add a region, click and drag to move a region, or press the 'delete' button to delete\n" + \
+        #"the selected regions.  Click on a region to edit it in the region editor below.")
         self.table_widget.setColumnCount(300)
         self.table_widget.setRowCount(1)
         self.table_widget.setMinimumHeight(87)
@@ -841,6 +844,10 @@ class region_list_editor:
         self.main_vlayout = QtGui.QGridLayout()
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
+        #self.table_widget.setToolTip("This is a region editor, it consists of items and tracks.\n" + \
+        #"A track is either a plugin instrument, audio track or bus track.\n" + \
+        #"An item is one bar of MIDI notes or plugin automation.  Click an empty cell to add a new item\n" + \
+        #"Double click an item to open it in the piano-roll-editor or select multiple and right-click->'edit multiple items as group'")
         self.table_widget.verticalHeader().setVisible(False)
         self.table_widget.horizontalHeader().sectionClicked.connect(self.column_clicked)
         self.table_widget.setMinimumHeight(360)
@@ -2232,6 +2239,9 @@ class audio_items_viewer_widget():
 class audio_item_editor_widget:
     def __init__(self):
         self.widget = QtGui.QWidget()
+        #self.widget.setToolTip("To edit the properties of one or more audio item(s),\n" + \
+        #"click or marquee select items, then change their properties and click 'Save Changes'\n" + \
+        #"Only the control section(s) whose checkbox is checked will be updated.")
         self.widget.setMaximumWidth(480)
         self.main_vlayout = QtGui.QVBoxLayout(self.widget)
 
@@ -2347,7 +2357,8 @@ class audio_item_editor_widget:
         self.ok_layout.addWidget(self.ok)
         self.vlayout2.addLayout(self.ok_layout)
 
-        f_sbsms_tooltip = "This control is only valid for the SBSMS timestretch mode"
+        f_sbsms_tooltip = "This control is only valid for the SBSMS timestretch mode," + \
+        "\nthe start/end values are for the full sample length, not the edited start/end points"
         self.timestretch_amt_end.setToolTip(f_sbsms_tooltip)
         self.pitch_shift_end.setToolTip(f_sbsms_tooltip)
 
