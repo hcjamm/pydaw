@@ -1790,12 +1790,14 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_pitch_val = f_selected_items[0].audio_item.pitch_shift
             f_time_stretch_amt_end_val = f_selected_items[0].audio_item.timestretch_amt_end
             f_pitch_end_val = f_selected_items[0].audio_item.pitch_shift_end
+            f_crispness_val = f_selected_items[0].audio_item.crispness
             for f_item in f_selected_items[1:]:
                 if f_item.audio_item.time_stretch_mode != f_time_stretch_mode_val or \
                 f_item.audio_item.timestretch_amt != f_time_stretch_amt_val or \
                 f_item.audio_item.pitch_shift != f_pitch_val or \
                 f_item.audio_item.pitch_shift_end != f_pitch_end_val or \
-                f_item.audio_item.timestretch_amt_end != f_time_stretch_amt_end_val:
+                f_item.audio_item.timestretch_amt_end != f_time_stretch_amt_end_val or \
+                f_item.audio_item.crispness != f_crispness_val:
                     f_timestretch_checked = False
                     break
         this_audio_item_editor_widget.timestretch_checkbox.setChecked(f_timestretch_checked)
@@ -1826,6 +1828,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 this_audio_item_editor_widget.timestretch_mode.setCurrentIndex(f_selected_items[0].audio_item.time_stretch_mode)
                 this_audio_item_editor_widget.pitch_shift.setValue(f_selected_items[0].audio_item.pitch_shift)
                 this_audio_item_editor_widget.timestretch_amt.setValue(f_selected_items[0].audio_item.timestretch_amt)
+                this_audio_item_editor_widget.pitch_shift_end.setValue(f_selected_items[0].audio_item.pitch_shift_end)
+                this_audio_item_editor_widget.timestretch_amt_end.setValue(f_selected_items[0].audio_item.timestretch_amt_end)
+                this_audio_item_editor_widget.crispness_combobox.setCurrentIndex(f_selected_items[0].audio_item.crispness)
             if f_output_checked:
                 this_audio_item_editor_widget.output_combobox.setCurrentIndex(f_selected_items[0].audio_item.output_track)
             if f_vol_checked:
@@ -2293,6 +2298,15 @@ class audio_item_editor_widget:
         self.timestretch_amt.setValue(1.0)
         self.time_pitch_gridlayout.addWidget(self.timestretch_amt, 1, 1)
 
+        self.crispness_layout = QtGui.QHBoxLayout()
+        self.vlayout2.addLayout(self.crispness_layout)
+        self.crispness_layout.addWidget(QtGui.QLabel("Crispness"))
+        self.crispness_combobox = QtGui.QComboBox()
+        self.crispness_combobox.addItems(["0 (smeared)", "1", "2", "3", "4 (normal)", "5 (sharp, good for drums)"])
+        self.crispness_combobox.setCurrentIndex(4)
+        self.crispness_combobox.setToolTip("Affects the sharpness of transients, only for modes using Rubberband")
+        self.crispness_layout.addWidget(self.crispness_combobox)
+
         self.timestretch_amt_end_checkbox = QtGui.QCheckBox("End:")
         self.timestretch_amt_end_checkbox.toggled.connect(self.timestretch_end_mode_changed)
         self.time_pitch_gridlayout.addWidget(self.timestretch_amt_end_checkbox, 1, 2)
@@ -2310,6 +2324,7 @@ class audio_item_editor_widget:
         self.pitch_shift_end.valueChanged.connect(self.timestretch_changed)
         self.timestretch_amt.valueChanged.connect(self.timestretch_changed)
         self.timestretch_amt_end.valueChanged.connect(self.timestretch_changed)
+        self.crispness_combobox.currentIndexChanged.connect(self.timestretch_changed)
 
         self.vlayout2.addSpacerItem(QtGui.QSpacerItem(1, 20))
         self.output_hlayout = QtGui.QHBoxLayout()
@@ -2371,6 +2386,8 @@ class audio_item_editor_widget:
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
+            self.crispness_combobox.setCurrentIndex(4)
+            self.crispness_combobox.setEnabled(False)
         elif a_val == 1:
             self.pitch_shift.setEnabled(True)
             self.timestretch_amt.setEnabled(False)
@@ -2380,6 +2397,8 @@ class audio_item_editor_widget:
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
+            self.crispness_combobox.setCurrentIndex(4)
+            self.crispness_combobox.setEnabled(False)
         elif a_val == 2:
             self.pitch_shift.setEnabled(False)
             self.timestretch_amt.setEnabled(True)
@@ -2391,6 +2410,8 @@ class audio_item_editor_widget:
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
+            self.crispness_combobox.setCurrentIndex(4)
+            self.crispness_combobox.setEnabled(False)
         elif a_val == 3 or a_val == 4:
             self.pitch_shift.setEnabled(True)
             self.timestretch_amt.setEnabled(True)
@@ -2400,6 +2421,7 @@ class audio_item_editor_widget:
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
+            self.crispness_combobox.setEnabled(True)
         elif a_val == 5:
             self.pitch_shift.setEnabled(True)
             self.timestretch_amt.setEnabled(True)
@@ -2407,6 +2429,8 @@ class audio_item_editor_widget:
             self.timestretch_amt_end.setRange(0.1, 10.0)
             self.timestretch_amt_end_checkbox.setEnabled(True)
             self.pitch_shift_end_checkbox.setEnabled(True)
+            self.crispness_combobox.setCurrentIndex(4)
+            self.crispness_combobox.setEnabled(False)
         elif a_val == 6:
             self.pitch_shift.setEnabled(False)
             self.timestretch_amt.setEnabled(True)
@@ -2418,6 +2442,8 @@ class audio_item_editor_widget:
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
+            self.crispness_combobox.setCurrentIndex(4)
+            self.crispness_combobox.setEnabled(False)
 
     def open_item(self, a_item):
         if a_item is None:
@@ -2442,6 +2468,7 @@ class audio_item_editor_widget:
             self.sample_vol_slider.setValue(a_item.vol)
             self.pitch_shift_end.setValue(a_item.pitch_shift_end)
             self.timestretch_amt_end.setValue(a_item.timestretch_amt_end)
+            self.crispness_combobox.setCurrentIndex(a_item.crispness)
 
 
     def ok_handler(self):
@@ -2474,6 +2501,7 @@ class audio_item_editor_widget:
                     f_new_ps = self.pitch_shift.value()
                     f_new_ts_end = self.timestretch_amt_end.value()
                     f_new_ps_end = self.pitch_shift_end.value()
+                    f_item.audio_item.crispness = self.crispness_combobox.currentIndex()
                     if f_item.audio_item.time_stretch_mode >= 3 and f_new_ts_mode < 3:
                         f_item.audio_item.uid = this_pydaw_project.timestretch_get_orig_file_uid(f_item.audio_item.uid)
                     f_item.audio_item.time_stretch_mode = f_new_ts_mode
