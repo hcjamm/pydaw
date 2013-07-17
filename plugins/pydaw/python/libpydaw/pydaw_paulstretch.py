@@ -17,7 +17,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import sys
+import sys, os, subprocess
 from numpy import *
 import scipy.io.wavfile
 import wave
@@ -211,7 +211,6 @@ def paulstretch(samplerate, smp, stretch, windowsize_seconds, onset_level, outfi
 
     if a_start_pitch is not None:
         print("Pitch shifting file")
-        import os, subprocess
         f_dest_path = outfilename
         f_src_path = outfilename.replace(".wav", "-OLD.wav")
         print f_src_path, "\n", f_dest_path
