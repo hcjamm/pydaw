@@ -180,6 +180,37 @@ def pydaw_print_generic_exception(a_ex):
     "\nIf you are running PyDAW from a USB flash drive, this may be because file IO timed out due to the slow " + \
     "nature of flash drives.  If the problem persists, you should consider installing PyDAW-OS to your hard drive instead")
 
+global_tooltips_enabled = True
+
+def pydaw_set_tooltips_enabled(a_enabled):
+    global global_tooltips_enabled
+    global_tooltips_enabled = a_enabled
+    if a_enabled:
+        pydaw_write_file_text(global_pydaw_home + "/" + "tooltips.txt", "True")
+        this_song_editor.table_widget.setToolTip("This is the song editor.  A song is a timeline consisting of regions,\n" + \
+        "click here to add a region, click and drag to move a region, or press the 'delete' button to delete\n" + \
+        "the selected regions.  Click on a region to edit it in the region editor below.\n\n" + \
+        "Click the 'tooltips' checkbox in the transport to disable these tooltips")
+        for f_region_editor in global_region_editors:
+            f_region_editor.table_widget.setToolTip("This is a region editor, it consists of items and tracks.\n" + \
+            "A track is either a plugin instrument, audio track or bus track.\n" + \
+            "An item is one bar of MIDI notes or plugin automation.  Click an empty cell to add a new item\n" + \
+            "Double click an item to open it in the piano-roll-editor or select multiple and right-click->'edit multiple items as group'\n\n" + \
+        "Click the 'tooltips' checkbox in the transport to disable these tooltips")
+        this_audio_item_editor_widget.widget.setToolTip("To edit the properties of one or more audio item(s),\n" + \
+        "click or marquee select items, then change their properties and click 'Save Changes'\n" + \
+        "Only the control section(s) whose checkbox is checked will be updated.\n\n" + \
+        "Click the 'tooltips' checkbox in the transport to disable these tooltips")
+        this_audio_items_viewer.setToolTip("Drag .wav files from the file browser onto here.  You can edit item properties with the\n" + \
+        "'Edit' tab to the left, or by clicking and dragging the item handles.")
+    else:
+        pydaw_write_file_text(global_pydaw_home + "/" + "tooltips.txt", "False")
+        this_song_editor.table_widget.setToolTip("")
+        for f_region_editor in global_region_editors:
+            f_region_editor.table_widget.setToolTip("")
+        this_audio_item_editor_widget.widget.setToolTip("")
+        this_audio_items_viewer.setToolTip("")
+
 def pydaw_global_current_region_is_none():
     if global_current_region is None:
         QtGui.QMessageBox.warning(this_main_window, "", "You must create or select a region first by clicking in the song editor above.")
@@ -290,9 +321,6 @@ class song_editor:
         self.hlayout0 = QtGui.QHBoxLayout()
         self.main_vlayout.addLayout(self.hlayout0)
         self.table_widget = QtGui.QTableWidget()
-        #self.table_widget.setToolTip("This is the song editor.  A song is a timeline consisting of regions,\n" + \
-        #"click here to add a region, click and drag to move a region, or press the 'delete' button to delete\n" + \
-        #"the selected regions.  Click on a region to edit it in the region editor below.")
         self.table_widget.setColumnCount(300)
         self.table_widget.setRowCount(1)
         self.table_widget.setMinimumHeight(87)
@@ -845,10 +873,6 @@ class region_list_editor:
         self.main_vlayout = QtGui.QGridLayout()
         self.group_box.setLayout(self.main_vlayout)
         self.table_widget = QtGui.QTableWidget()
-        #self.table_widget.setToolTip("This is a region editor, it consists of items and tracks.\n" + \
-        #"A track is either a plugin instrument, audio track or bus track.\n" + \
-        #"An item is one bar of MIDI notes or plugin automation.  Click an empty cell to add a new item\n" + \
-        #"Double click an item to open it in the piano-roll-editor or select multiple and right-click->'edit multiple items as group'")
         self.table_widget.verticalHeader().setVisible(False)
         self.table_widget.horizontalHeader().sectionClicked.connect(self.column_clicked)
         self.table_widget.setMinimumHeight(360)
@@ -1224,7 +1248,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.start_handle.mousePressEvent = self.start_handle_mouseClickEvent
         self.start_handle_line = QtGui.QGraphicsLineItem(0.0, global_audio_item_handle_size, 0.0, (global_audio_item_height * -1.0) + global_audio_item_handle_size, self.start_handle)
         self.start_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        self.start_handle.setToolTip("Use this handle to resize the item by changing the start point.")
+        if global_tooltips_enabled:
+            self.start_handle.setToolTip("Use this handle to resize the item by changing the start point.")
 
         self.length_handle = QtGui.QGraphicsRectItem(parent=self)
         self.length_handle.setBrush(global_audio_item_handle_brush)
@@ -1233,7 +1258,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
         self.length_handle_line = QtGui.QGraphicsLineItem(global_audio_item_handle_size, global_audio_item_handle_size, global_audio_item_handle_size, (global_audio_item_height * -1.0) + global_audio_item_handle_size, self.length_handle)
         self.length_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        self.length_handle.setToolTip("Use this handle to resize the item by changing the end point.")
+        if global_tooltips_enabled:
+            self.length_handle.setToolTip("Use this handle to resize the item by changing the end point.")
 
         self.fade_in_handle = QtGui.QGraphicsRectItem(parent=self)
         self.fade_in_handle.setBrush(global_audio_item_handle_brush)
@@ -1242,7 +1268,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.fade_in_handle.mousePressEvent = self.fade_in_handle_mouseClickEvent
         self.fade_in_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
         self.fade_in_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        self.fade_in_handle.setToolTip("Use this handle to change the fade in.")
+        if global_tooltips_enabled:
+            self.fade_in_handle.setToolTip("Use this handle to change the fade in.")
 
         self.fade_out_handle = QtGui.QGraphicsRectItem(parent=self)
         self.fade_out_handle.setBrush(global_audio_item_handle_brush)
@@ -1251,7 +1278,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.fade_out_handle.mousePressEvent = self.fade_out_handle_mouseClickEvent
         self.fade_out_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
         self.fade_out_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        self.fade_out_handle.setToolTip("Use this handle to change the fade out.")
+        if global_tooltips_enabled:
+            self.fade_out_handle.setToolTip("Use this handle to change the fade out.")
 
         self.stretch_handle = QtGui.QGraphicsRectItem(parent=self)
         self.stretch_handle.setBrush(global_audio_item_handle_brush)
@@ -1262,7 +1290,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         (global_audio_item_handle_size * 0.5) - (global_audio_item_height * 0.5), global_audio_item_handle_size, \
         (global_audio_item_height * 0.5) + (global_audio_item_handle_size * 0.5), self.stretch_handle)
         self.stretch_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        self.stretch_handle.setToolTip("Use this handle to resize the item by time-stretching it.")
+        if global_tooltips_enabled:
+            self.stretch_handle.setToolTip("Use this handle to resize the item by time-stretching it.")
         self.stretch_handle.hide()
 
         self.split_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, global_audio_item_height, self)
@@ -1327,8 +1356,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.is_moving = False
         if self.audio_item.time_stretch_mode >= 2:
             self.stretch_width_default = f_length / self.audio_item.timestretch_amt
-
-        self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\nShift+click to split items\nCtrl+drag to copy selected items")
+        if global_tooltips_enabled:
+            self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\nShift+click to split items\nCtrl+drag to copy selected items")
 
         self.sample_start_offset_px = self.audio_item.sample_start * -0.001 * self.length_seconds_orig_px
         self.start_handle_scene_min = f_start + self.sample_start_offset_px
@@ -2257,9 +2286,6 @@ class audio_items_viewer_widget():
 class audio_item_editor_widget:
     def __init__(self):
         self.widget = QtGui.QWidget()
-        #self.widget.setToolTip("To edit the properties of one or more audio item(s),\n" + \
-        #"click or marquee select items, then change their properties and click 'Save Changes'\n" + \
-        #"Only the control section(s) whose checkbox is checked will be updated.")
         self.widget.setMaximumWidth(480)
         self.main_vlayout = QtGui.QVBoxLayout(self.widget)
 
@@ -2783,10 +2809,11 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         self.setFlag(QtGui.QGraphicsItem.ItemSendsGeometryChanges)
         self.setBrush(pydaw_note_gradient)
         self.note_height = a_note_height
-        self.setToolTip("Double-click to edit note properties\nclick and drag to move,\n" + \
-        "click and drag the end to change length\nShift+click to delete.\n" + \
-        "You can marquee-select multiple items by holding down CTRL, then clicking and dragging\nCTRL+click and drag to copy the selected notes.\n\n" + \
-        "To edit multiple items as one logical item, select multiple items in the region editor and right-click + 'Edit Selected Items as Group'")
+        if global_tooltips_enabled:
+            self.setToolTip("Double-click to edit note properties\nclick and drag to move,\n" + \
+            "click and drag the end to change length\nShift+click to delete.\n" + \
+            "You can marquee-select multiple items by holding down CTRL, then clicking and dragging\nCTRL+click and drag to copy the selected notes.\n\n" + \
+            "To edit multiple items as one logical item, select multiple items in the region editor and right-click + 'Edit Selected Items as Group'")
         self.note_item = a_note_item
         self.setAcceptHoverEvents(True)
         self.resize_start_pos = self.note_item.start
@@ -5150,6 +5177,15 @@ class transport_widget:
         self.panic_button.setToolTip("Panic button:   Sends a note-off signal on every note to every instrument")
         self.panic_button.pressed.connect(self.on_panic)
         f_lower_ctrl_layout.addWidget(self.panic_button)
+        self.tooltips_checkbox = QtGui.QCheckBox("Tooltips")
+        self.tooltips_checkbox.setToolTip("Check this box to show really annoying (but thorough) tooltips for everything")
+        self.tooltips_checkbox.stateChanged.connect(pydaw_set_tooltips_enabled)
+        if os.path.isfile(global_pydaw_home + "/" + "tooltips.txt"):
+            if pydaw_read_file_text(global_pydaw_home + "/" + "tooltips.txt") == "True":
+                self.tooltips_checkbox.setChecked(True)
+        else:
+            self.tooltips_checkbox.setChecked(True)
+        f_lower_ctrl_layout.addWidget(self.tooltips_checkbox)
         f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout, 1, 1)
         self.hlayout1.addLayout(f_loop_midi_gridlayout)
         #This is an awful way to do this, I'll eventually have IPC that goes both directions...
@@ -6190,8 +6226,8 @@ this_audio_editor = audio_list_editor()
 this_piano_roll_editor = piano_roll_editor()
 this_piano_roll_editor_widget = piano_roll_editor_widget()
 this_item_editor = item_list_editor()
-this_transport = transport_widget()
 this_audio_items_viewer = audio_items_viewer()
+this_transport = transport_widget()
 this_audio_items_viewer_widget = audio_items_viewer_widget()
 
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
