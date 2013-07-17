@@ -1488,7 +1488,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_item_old = f_item.clone()
             f_index = this_audio_editor.audio_items.get_next_index()
             if f_index == -1:
-                QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
+                QtGui.QMessageBox.warning(self, "Error", "No more available audio item slots, max per region is " + str(pydaw_max_audio_item_count))
                 return
             else:
                 this_audio_editor.audio_items.add_item(f_index, f_item_old)
@@ -1745,7 +1745,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_item_old = f_item.clone()
                         f_index = f_audio_items.get_next_index()
                         if f_index == -1:
-                            QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
+                            QtGui.QMessageBox.warning(self, "Error", "No more available audio item slots, max per region is " + str(pydaw_max_audio_item_count))
                             break
                         else:
                             f_audio_items.add_item(f_index, f_item_old)
@@ -1921,7 +1921,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
             if not f_file_name_str is None and not f_file_name_str == "":
                 f_index = f_items.get_next_index()
                 if f_index == -1:
-                    QtGui.QMessageBox.warning(self.widget, "Error", "No more available audio item slots")
+                    QtGui.QMessageBox.warning(self, "Error", "No more available audio item slots, max per region is " + str(pydaw_max_audio_item_count))
                     break
                 else:
                     f_uid = this_pydaw_project.get_wav_uid_by_name(f_file_name_str)
