@@ -1594,14 +1594,14 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                 if f_item.isSelected():
                     #f_x = f_event_pos #f_item.width_orig + f_event_diff
                     f_x = f_item.fade_orig_pos + f_event_diff
-                    f_x = pydaw_clip_value(f_x, 0.0, f_item.fade_out_handle.pos().x() - global_audio_item_handle_size)
+                    f_x = pydaw_clip_value(f_x, 0.0, f_item.fade_out_handle.pos().x() - 4.0)
                     f_item.fade_in_handle.setPos(f_x, 0.0)
                     f_item.update_fade_in_line()
         elif self.is_fading_out:
             for f_item in this_audio_items_viewer.audio_items:
                 if f_item.isSelected():
                     f_x = f_item.fade_orig_pos + f_event_diff
-                    f_x = pydaw_clip_value(f_x, f_item.fade_in_handle.pos().x() + global_audio_item_handle_size, \
+                    f_x = pydaw_clip_value(f_x, f_item.fade_in_handle.pos().x() + 4.0, \
                         f_item.width_orig - global_audio_item_handle_size)
                     f_item.fade_out_handle.setPos(f_x, 0.0)
                     f_item.update_fade_out_line()
