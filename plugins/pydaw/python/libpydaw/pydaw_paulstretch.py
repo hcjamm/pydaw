@@ -23,6 +23,8 @@ import scipy.io.wavfile
 import wave
 from optparse import OptionParser
 
+global_pydaw_version_string = "pydaw3"
+
 plot_onsets=False
 if plot_onsets:
     import matplotlib.pyplot as plt
@@ -59,7 +61,7 @@ def optimize_windowsize(n):
         orig_n+=1
     return orig_n
 
-def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilename):
+def paulstretch(samplerate, smp, stretch, windowsize_seconds, onset_level, outfilename, a_start_pitch, a_end_pitch):
 
     if plot_onsets:
         onsets=[]
@@ -203,6 +205,22 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
 
     outfile.close()
 
+    if a_start_pitch is not None:
+        print("Pitch shifting file")
+        import os, subprocess
+        f_dest_path = outfilename
+        f_src_path = outfilename.replace(".wav", "-OLD.wav")
+        print f_src_path, "\n", f_dest_path
+        os.rename(f_dest_path, f_src_path)
+        if a_end_pitch is not None:
+            f_cmd = ["/usr/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms", f_src_path, f_dest_path,
+                     "1.0", "1.0", str(a_start_pitch), str(a_end_pitch)]
+        else:
+            f_cmd = ["rubberband", "-p", str(a_start_pitch), "-R", "--pitch-hq", f_src_path, f_dest_path]
+        print("Running " + " ".join(f_cmd))
+        f_proc = subprocess.Popen(f_cmd)
+        f_proc.wait()
+        os.remove(f_src_path)
     if plot_onsets:
         plt.plot(onsets)
         plt.show()
@@ -214,7 +232,9 @@ print "by Nasca Octavian PAUL, Targu Mures, Romania\n"
 parser = OptionParser(usage="usage: %prog [options] input_wav output_wav")
 parser.add_option("-s", "--stretch", dest="stretch",help="stretch amount (1.0 = no stretch)",type="float",default=8.0)
 parser.add_option("-w", "--window_size", dest="window_size",help="window size (seconds)",type="float",default=0.25)
-parser.add_option("-t", "--onset", dest="onset",help="onset sensitivity (0.0=max,1.0=min)",type="float",default=10.0)
+parser.add_option("-t", "--onset", dest="onset",help="onset sensitivity (0.0=max, 1.0=min)",type="float",default=10.0)
+parser.add_option("-p", "--start-pitch", dest="start_pitch",help="start pitch (36.0=max, -36.0=min)",type="float",default=None)
+parser.add_option("-e", "--end-pitch", dest="end_pitch",help="end pitch (36.0=max, -36.0=min)",type="float",default=None)
 (options, args) = parser.parse_args()
 
 if (len(args)<2) or (options.stretch<=0.0) or (options.window_size<=0.001):
@@ -229,4 +249,4 @@ if f_tuple is None:
     print("Error loading wav file, returned None")
     sys.exit(9999)
 
-paulstretch(f_tuple[0], f_tuple[1], double(options.stretch), double(options.window_size), double(options.onset), args[1])
+paulstretch(f_tuple[0], f_tuple[1], double(options.stretch), double(options.window_size), double(options.onset), args[1], options.start_pitch, options.end_pitch)
