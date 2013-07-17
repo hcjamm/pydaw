@@ -436,7 +436,7 @@ class region_settings:
             this_pydaw_project.commit(f_commit_message)
             self.open_region(self.region_name_lineedit.text())
             pydaw_update_region_lengths_dict()
-            this_audio_editor.open_items()
+            #this_audio_editor.open_items()  #Redundant
 
     def __init__(self):
         self.enabled = False
@@ -557,6 +557,7 @@ class region_settings:
                     this_region_bus_editor.add_qtablewidgetitem(f_item_name, f_item.track_num, f_item.bar_num, a_is_offset=True)
                 else:
                     this_region_audio_editor.add_qtablewidgetitem(f_item_name, f_item.track_num, f_item.bar_num, a_is_offset=True)
+        this_audio_items_viewer.scale_to_region_size()
         this_audio_editor.open_items()
 
     def clear_items(self):
@@ -1774,7 +1775,24 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
         self.setAlignment(QtCore.Qt.AlignLeft)
         self.is_playing = False
+        self.last_x_scale = 1.0
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
+
+    def resizeEvent(self, a_event):
+        QtGui.QGraphicsView.resizeEvent(self, a_event)
+        self.scale_to_region_size()
+
+    def scale_to_region_size(self):
+        if global_current_region is not None:
+            f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
+            f_region_length = pydaw_get_current_region_length()
+            f_region_px = f_region_length * global_audio_px_per_bar
+            f_new_scale = f_width / f_region_px
+            if self.last_x_scale != f_new_scale:
+                self.scale(1.0 / self.last_x_scale, 1.0)
+                self.last_x_scale = f_new_scale
+                self.scale(self.last_x_scale, 1.0)
+                self.horizontalScrollBar().setValue(0)
 
     def scene_selection_changed(self):
         f_selected_items = []
