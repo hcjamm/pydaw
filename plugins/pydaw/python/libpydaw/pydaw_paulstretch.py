@@ -1,13 +1,21 @@
 #!/usr/bin/env python
 #
 # Paul's Extreme Sound Stretch (Paulstretch) - Python version
-# using a new method
-# by Nasca Octavian PAUL, Targu Mures, Romania
+# originally by Nasca Octavian PAUL, Targu Mures, Romania
 #
-# http://hypermammut.sourceforge.net/paulstretch/
-#
-#
+# Forked to allow better integration with PyDAW
+"""
+This file is part of the PyDAW project, Copyright PyDAW Team
 
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+"""
 
 import sys
 from numpy import *
@@ -79,7 +87,6 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
 
     smp[:,nsamples-end_size:nsamples]*=linspace(1,0,end_size)
 
-
     #compute the displacement inside the input file
     start_pos=0.0
     displace_pos=windowsize*0.5
@@ -128,7 +135,6 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
             else:
                 freqs_scaled=zeros(num_bins_scaled_freq)
 
-
             #process onsets
             m=2.0*mean(freqs_scaled-old_freqs_scaled)/(mean(abs(old_freqs_scaled))+1e-3)
             if m<0.0:
@@ -160,11 +166,6 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
         #remove the resulted amplitude modulation
         output*=hinv_buf
 
-        #clamp the values to -1..1
-        #output[output>1.0]=1.0
-        #output[output<-1.0]=-1.0
-
-        #Normalize to -3dB or so rather than clip...  Since it tends to make everything clip anyways...
         f_max = output.max()
         f_min = abs(output.min())
         if f_min > f_max:
@@ -174,7 +175,6 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
             f_normalize = 0.75 / f_max
             output *= f_normalize
 
-        #write the output to wav file
         outfile.writeframes(int16(output.ravel(1)*32767.0).tostring())
 
         if get_next_buf:
@@ -187,7 +187,6 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
             break
         print "%d %% \r" % int(100.0*start_pos/nsamples),
         sys.stdout.flush()
-
 
         if extra_onset_time_credit<=0.0:
             displace_tick+=displace_tick_increase
@@ -208,7 +207,6 @@ def paulstretch(samplerate,smp,stretch,windowsize_seconds,onset_level,outfilenam
         plt.plot(onsets)
         plt.show()
 
-
 ########################################
 print "Paul's Extreme Sound Stretch (Paulstretch) - Python version 20110223"
 print "new method: using onsets information"
@@ -219,7 +217,6 @@ parser.add_option("-w", "--window_size", dest="window_size",help="window size (s
 parser.add_option("-t", "--onset", dest="onset",help="onset sensitivity (0.0=max,1.0=min)",type="float",default=10.0)
 (options, args) = parser.parse_args()
 
-
 if (len(args)<2) or (options.stretch<=0.0) or (options.window_size<=0.001):
     print "Error in command line parameters. Run this program with --help for help."
     sys.exit(1)
@@ -227,9 +224,9 @@ if (len(args)<2) or (options.stretch<=0.0) or (options.window_size<=0.001):
 print "stretch amount =",options.stretch
 print "window size =",options.window_size,"seconds"
 print "onset sensitivity =",options.onset
-(samplerate,smp)=load_wav(args[0])
+f_tuple = load_wav(args[0])
+if f_tuple is None:
+    print("Error loading wav file, returned None")
+    sys.exit(9999)
 
-paulstretch(samplerate,smp,double(options.stretch),double(options.window_size),double(options.onset),args[1])
-
-
-
+paulstretch(f_tuple[0], f_tuple[1], double(options.stretch), double(options.window_size), double(options.onset), args[1])
