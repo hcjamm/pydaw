@@ -542,13 +542,13 @@ class pydaw_project:
                 f_cmd = ["rubberband", "-F", "-c", str(a_audio_item.crispness), "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
                          "-R", "--pitch-hq", f_src_path, f_dest_path]
             elif a_audio_item.time_stretch_mode == 5:
-                f_cmd = ["/usr/lib/pydaw3/sbsms/bin/sbsms", f_src_path, f_dest_path,
+                f_cmd = ["/usr/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms", f_src_path, f_dest_path,
                          str(1.0 / a_audio_item.timestretch_amt), str(1.0 / a_audio_item.timestretch_amt_end),
                          str(a_audio_item.pitch_shift), str(a_audio_item.pitch_shift_end) ]
             elif a_audio_item.time_stretch_mode == 6:
                 f_tmp_file = self.audio_tmp_folder + "/" + str(f_uid) + ".wav"
                 self.this_dssi_gui.pydaw_convert_wav_to_32_bit(f_src_path, f_tmp_file)
-                f_cmd = ["/usr/lib/pydaw3/pydaw/python/libpydaw/paulstretch_newmethod.py",
+                f_cmd = ["/usr/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py",
                          "-s", str(a_audio_item.timestretch_amt), f_tmp_file, f_dest_path ]
 
             print("Running " + " ".join(f_cmd))
