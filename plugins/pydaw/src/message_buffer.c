@@ -17,7 +17,7 @@ GNU General Public License for more details.
 #include <pthread.h>
 #include <stdio.h>
 
-#define BUFFERS      16		/* must be 2^n */
+#define BUFFERS      64		/* must be 2^n */
 #define BUFFER_SIZE 256
 
 static char buffer[BUFFERS][BUFFER_SIZE];
