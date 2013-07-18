@@ -900,6 +900,44 @@ class pydaw_project:
         self.this_dssi_gui.stop_server()
         self.flush_history()
 
+    def check_audio_files(self):
+        """ Verify that all audio files exist  """
+        f_result = []
+        f_regions = self.get_regions_dict()
+        f_wav_pool = self.get_wavs_dict()
+        f_to_delete = []
+        f_commit = False
+        for k, v in f_wav_pool.name_lookup.iteritems():
+            if not os.path.isfile(v):
+                f_to_delete.append(k)
+        if len(f_to_delete) > 0:
+            f_commit = True
+            for f_key in f_to_delete:
+                f_wav_pool.name_lookup.pop(f_key)
+            self.save_wavs_dict(f_wav_pool)
+            self.error_log_write("Removed missing audio item(s) from wav_pool")
+        for f_uid in f_regions.uid_lookup.values():
+            f_to_delete = []
+            f_region = self.get_audio_region(f_uid)
+            for k, v in f_region.items.iteritems():
+                if not f_wav_pool.uid_exists(v.uid):
+                    f_to_delete.append(k)
+            if len(f_to_delete) > 0:
+                f_commit = True
+                for f_key in f_to_delete:
+                    f_region.remove_item(f_key)
+                f_result += f_to_delete
+                self.save_audio_region(f_uid, f_region)
+                self.error_log_write("Removed missing audio item(s) from region " + str(f_uid))
+        if f_commit:
+            self.commit("")
+        return f_result
+
+    def error_log_write(self, a_message):
+        f_file = open(self.project_folder + "/error.log", "a")
+        f_file.write(a_message)
+        f_file.close()
+
     def __init__(self, a_osc_url=None):
         self.last_item_number = 1
         self.last_region_number = 1
