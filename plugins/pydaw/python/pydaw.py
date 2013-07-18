@@ -1834,7 +1834,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 self.scale(1.0 / self.last_x_scale, 1.0)
                 self.last_x_scale = f_new_scale
                 self.scale(self.last_x_scale, 1.0)
-                self.horizontalScrollBar().setValue(0)
+            self.horizontalScrollBar().setSliderPosition(0)
 
     def scene_selection_changed(self):
         f_selected_items = []
