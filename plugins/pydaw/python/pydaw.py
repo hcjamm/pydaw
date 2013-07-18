@@ -203,6 +203,15 @@ def pydaw_set_tooltips_enabled(a_enabled):
         "Click the 'tooltips' checkbox in the transport to disable these tooltips")
         this_audio_items_viewer.setToolTip("Drag .wav files from the file browser onto here.  You can edit item properties with the\n" + \
         "'Edit' tab to the left, or by clicking and dragging the item handles.")
+        this_audio_items_viewer_widget.hsplitter.setToolTip("Use this handle to expand or collapse the file browser.")
+        this_main_window.transport_splitter.setToolTip("Use this handle to expand or collapse the transport.")
+        this_main_window.song_region_splitter.setToolTip("Use this handle to expand or collapse the song editor and region info.")
+        this_audio_item_editor_widget.timestretch_mode.setToolTip("Modes:\n\nNone:  No stretching or pitch adjustment\n" + \
+        "Pitch affecting time:  Repitch the item, it will become shorter at higher pitches, and longer at lower pitches\n" + \
+        "Time affecting pitch:  Stretch the item to the desired length, it will have lower pitch at longer lengths, and higher pitch at shorter lengths\n" + \
+        "Rubberband:  Adjust pitch and time independently\nRubberband (formants): Same as Rubberband, but preserves formants\n" + \
+        "SBSMS:  Adjust pitch and time independently, also with the ability to set start/end pitch/time differently\n" + \
+        "Paulstretch:  Mostly for stretching items very long, creates a very smeared, atmospheric sound")
     else:
         pydaw_write_file_text(global_pydaw_home + "/" + "tooltips.txt", "False")
         this_song_editor.table_widget.setToolTip("")
@@ -210,6 +219,10 @@ def pydaw_set_tooltips_enabled(a_enabled):
             f_region_editor.table_widget.setToolTip("")
         this_audio_item_editor_widget.widget.setToolTip("")
         this_audio_items_viewer.setToolTip("")
+        this_audio_items_viewer_widget.hsplitter.setToolTip("")
+        this_main_window.transport_splitter.setToolTip("")
+        this_main_window.song_region_splitter.setToolTip("")
+        this_audio_item_editor_widget.timestretch_mode.setToolTip("")
 
 def pydaw_global_current_region_is_none():
     if global_current_region is None:
@@ -5178,13 +5191,8 @@ class transport_widget:
         self.panic_button.pressed.connect(self.on_panic)
         f_lower_ctrl_layout.addWidget(self.panic_button)
         self.tooltips_checkbox = QtGui.QCheckBox("Tooltips")
-        self.tooltips_checkbox.setToolTip("Check this box to show really annoying (but thorough) tooltips for everything")
+        self.tooltips_checkbox.setToolTip("Check this box to show really annoying (but useful) tooltips for everything")
         self.tooltips_checkbox.stateChanged.connect(pydaw_set_tooltips_enabled)
-        if os.path.isfile(global_pydaw_home + "/" + "tooltips.txt"):
-            if pydaw_read_file_text(global_pydaw_home + "/" + "tooltips.txt") == "True":
-                self.tooltips_checkbox.setChecked(True)
-        else:
-            self.tooltips_checkbox.setChecked(True)
         f_lower_ctrl_layout.addWidget(self.tooltips_checkbox)
         f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout, 1, 1)
         self.hlayout1.addLayout(f_loop_midi_gridlayout)
@@ -5571,6 +5579,8 @@ class pydaw_main_window(QtGui.QMainWindow):
 
         self.main_layout = QtGui.QVBoxLayout()
         self.central_widget.setLayout(self.main_layout)
+        self.transport_splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.main_layout.addWidget(self.transport_splitter)
 
         self.spacebar_action = QtGui.QAction(self)
         self.addAction(self.spacebar_action)
@@ -5642,23 +5652,29 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.version_action.triggered.connect(self.on_version)
 
         self.transport_hlayout = QtGui.QHBoxLayout()
-        self.main_layout.addLayout(self.transport_hlayout)
+        self.transport_widget = QtGui.QWidget()
+        self.transport_widget.setLayout(self.transport_hlayout)
+        self.transport_splitter.addWidget(self.transport_widget)
+        self.transport_widget.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
 
         self.transport_hlayout.addWidget(this_transport.group_box, alignment=QtCore.Qt.AlignLeft)
         #The tabs
         self.main_tabwidget = QtGui.QTabWidget()
         self.main_tabwidget.currentChanged.connect(self.tab_changed)
-        self.main_layout.addWidget(self.main_tabwidget)
+        self.transport_splitter.addWidget(self.main_tabwidget)
 
         self.regions_tab_widget = QtGui.QTabWidget()
         self.song_region_tab = QtGui.QWidget()
         self.song_region_vlayout = QtGui.QVBoxLayout()
         self.song_region_tab.setLayout(self.song_region_vlayout)
-        self.main_tabwidget.addTab(self.song_region_tab, "Song/Region")
+        self.song_region_splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.song_region_splitter.addWidget(self.song_region_tab)
+        self.main_tabwidget.addTab(self.song_region_splitter, "Song/Region")
 
         self.song_region_vlayout.addWidget(this_song_editor.table_widget)
         self.song_region_vlayout.addLayout(this_region_settings.hlayout0)
-        self.song_region_vlayout.addWidget(self.regions_tab_widget)
+
+        self.song_region_splitter.addWidget(self.regions_tab_widget)
         self.regions_tab_widget.addTab(this_region_editor.group_box, "Plugins")
         self.regions_tab_widget.addTab(this_region_bus_editor.group_box, "Busses")
         self.regions_tab_widget.addTab(this_region_audio_editor.group_box, "Audio Tracks")
@@ -6260,5 +6276,11 @@ if global_show_create_folder_error:
 """Error creating folder in /media/pydaw_data , this is probably a permission issue
 if you didn't use FAT as the filesystem, settings will NOT persist between sessions
 until you make /media/pydaw_data writable.""".replace("\n", " "))
+
+if os.path.isfile(global_pydaw_home + "/" + "tooltips.txt"):
+    if pydaw_read_file_text(global_pydaw_home + "/" + "tooltips.txt") == "True":
+        this_transport.tooltips_checkbox.setChecked(True)
+else:
+    this_transport.tooltips_checkbox.setChecked(True)
 
 sys.exit(app.exec_())
