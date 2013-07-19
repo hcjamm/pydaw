@@ -65,6 +65,10 @@ pydaw_terminating_char = "\\"
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
 
+pydaw_rubberband_util = "/usr/lib/" + global_pydaw_version_string + "/rubberband/bin/rubberband"
+pydaw_sbsms_util = "/usr/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms"
+pydaw_paulstretch_util = "/usr/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py"
+
 def pydaw_remove_bad_chars(a_str):
     """ Remove any characters that have special meaning to PyDAW """
     f_str = str(a_str)
@@ -536,23 +540,23 @@ class pydaw_project:
             f_uid = pydaw_gen_uid()
             f_dest_path = self.timestretch_folder + "/" + str(f_uid) + ".wav"
             if a_audio_item.time_stretch_mode == 3:
-                f_cmd = ["rubberband", "-c", str(a_audio_item.crispness), "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
+                f_cmd = [pydaw_rubberband_util, "-c", str(a_audio_item.crispness), "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
                          "-R", "--pitch-hq", f_src_path, f_dest_path]
             elif a_audio_item.time_stretch_mode == 4:
-                f_cmd = ["rubberband", "-F", "-c", str(a_audio_item.crispness), "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
+                f_cmd = [pydaw_rubberband_util, "-F", "-c", str(a_audio_item.crispness), "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
                          "-R", "--pitch-hq", f_src_path, f_dest_path]
             elif a_audio_item.time_stretch_mode == 5:
-                f_cmd = ["/usr/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms", f_src_path, f_dest_path,
+                f_cmd = [pydaw_sbsms_util, f_src_path, f_dest_path,
                          str(1.0 / a_audio_item.timestretch_amt), str(1.0 / a_audio_item.timestretch_amt_end),
                          str(a_audio_item.pitch_shift), str(a_audio_item.pitch_shift_end) ]
             elif a_audio_item.time_stretch_mode == 6:
                 f_tmp_file = self.audio_tmp_folder + "/" + str(f_uid) + ".wav"
                 self.this_dssi_gui.pydaw_convert_wav_to_32_bit(f_src_path, f_tmp_file)
                 if a_audio_item.pitch_shift != 0.0:
-                    f_cmd = ["/usr/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py",
+                    f_cmd = [pydaw_paulstretch_util,
                          "-s", str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift), "-d", f_tmp_file, f_dest_path ]
                 else:
-                    f_cmd = ["/usr/lib/" + global_pydaw_version_string + "/pydaw/python/libpydaw/pydaw_paulstretch.py",
+                    f_cmd = [pydaw_paulstretch_util,
                          "-s", str(a_audio_item.timestretch_amt), "-d", f_tmp_file, f_dest_path ]
 
             print("Running " + " ".join(f_cmd))
@@ -1887,7 +1891,7 @@ class pydaw_audio_region:
 class pydaw_audio_item:
     def __init__(self, a_uid, a_sample_start=0.0, a_sample_end=1000.0, a_start_bar=0, a_start_beat=0.0, a_end_mode=0, \
     a_end_bar=0, a_end_beat=0, a_timestretch_mode=3, a_pitch_shift=0.0, a_output_track=0, a_vol=0, a_timestretch_amt=1.0, \
-    a_fade_in=0.0, a_fade_out=999.0, a_lane_num=0, a_pitch_shift_end=0.0, a_timestretch_amt_end=1.0, a_reversed=False, a_crispness=4):
+    a_fade_in=0.0, a_fade_out=999.0, a_lane_num=0, a_pitch_shift_end=0.0, a_timestretch_amt_end=1.0, a_reversed=False, a_crispness=5):
         self.uid = int(a_uid)
         self.sample_start = float(a_sample_start)
         self.sample_end = float(a_sample_end)

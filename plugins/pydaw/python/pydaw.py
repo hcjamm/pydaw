@@ -2398,8 +2398,8 @@ class audio_item_editor_widget:
         self.vlayout2.addLayout(self.crispness_layout)
         self.crispness_layout.addWidget(QtGui.QLabel("Crispness"))
         self.crispness_combobox = QtGui.QComboBox()
-        self.crispness_combobox.addItems(["0 (smeared)", "1", "2", "3", "4 (normal)", "5 (sharp, good for drums)"])
-        self.crispness_combobox.setCurrentIndex(4)
+        self.crispness_combobox.addItems(["0 (smeared)", "1 (good for piano)", "2", "3", "4", "5 (normal)", "6 (sharp, good for drums)"])
+        self.crispness_combobox.setCurrentIndex(5)
         self.crispness_combobox.setToolTip("Affects the sharpness of transients, only for modes using Rubberband")
         self.crispness_layout.addWidget(self.crispness_combobox)
 
@@ -2483,7 +2483,7 @@ class audio_item_editor_widget:
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
-            self.crispness_combobox.setCurrentIndex(4)
+            self.crispness_combobox.setCurrentIndex(5)
             self.crispness_combobox.setEnabled(False)
         elif a_val == 1:
             self.pitch_shift.setEnabled(True)
@@ -2494,7 +2494,7 @@ class audio_item_editor_widget:
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
-            self.crispness_combobox.setCurrentIndex(4)
+            self.crispness_combobox.setCurrentIndex(5)
             self.crispness_combobox.setEnabled(False)
         elif a_val == 2:
             self.pitch_shift.setEnabled(False)
@@ -2507,7 +2507,7 @@ class audio_item_editor_widget:
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
-            self.crispness_combobox.setCurrentIndex(4)
+            self.crispness_combobox.setCurrentIndex(5)
             self.crispness_combobox.setEnabled(False)
         elif a_val == 3 or a_val == 4:
             self.pitch_shift.setEnabled(True)
@@ -2526,7 +2526,7 @@ class audio_item_editor_widget:
             self.timestretch_amt_end.setRange(0.1, 10.0)
             self.timestretch_amt_end_checkbox.setEnabled(True)
             self.pitch_shift_end_checkbox.setEnabled(True)
-            self.crispness_combobox.setCurrentIndex(4)
+            self.crispness_combobox.setCurrentIndex(5)
             self.crispness_combobox.setEnabled(False)
         elif a_val == 6:
             self.pitch_shift.setEnabled(True)
@@ -2538,7 +2538,7 @@ class audio_item_editor_widget:
             self.timestretch_amt_end_checkbox.setChecked(False)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
-            self.crispness_combobox.setCurrentIndex(4)
+            self.crispness_combobox.setCurrentIndex(5)
             self.crispness_combobox.setEnabled(False)
 
     def open_item(self, a_item):

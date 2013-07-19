@@ -1,5 +1,5 @@
 #dependencies
-sudo yum install qjackctl PyQt4 pyliblo gcc alsa-lib-devel liblo-devel libsndfile-devel gcc-c++ audacity qt-devel SDL-devel jack-audio-connection-kit-devel rubberband git libmad-devel numpy scipy
+sudo yum install qjackctl PyQt4 pyliblo gcc alsa-lib-devel liblo-devel libsndfile-devel gcc-c++ audacity qt-devel SDL-devel jack-audio-connection-kit-devel git libmad-devel numpy scipy ladspa-devel vamp-plugin-sdk-devel fftw-devel
 
 #Now run:
 #make clean
