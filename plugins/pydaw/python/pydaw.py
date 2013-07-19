@@ -1221,6 +1221,8 @@ global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 25
 global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 90))
 global_audio_item_handle_pen = QtGui.QPen(QtCore.Qt.white)
 
+global_last_audio_item_dir = global_home
+
 class audio_viewer_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_track_num, a_audio_item, a_sample_length):
         QtGui.QGraphicsRectItem.__init__(self)
@@ -1521,9 +1523,34 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_audio_items_viewer.scene.clearSelection()
             self.setSelected(True)
 
+    def show_context_menu(self, a_event):
+        f_menu = QtGui.QMenu()
+        f_save_a_copy_action = QtGui.QAction("Save a copy", this_audio_items_viewer)
+        f_save_a_copy_action.triggered.connect(self.save_a_copy)
+        f_menu.addAction(f_save_a_copy_action)
+        f_menu.exec_(a_event.screenPos())
+
+    def save_a_copy(self):
+        global global_last_audio_item_dir
+        f_file = QtGui.QFileDialog.getSaveFileName(parent=this_audio_items_viewer ,caption='New Project', directory=global_last_audio_item_dir, filter=global_pydaw_file_type_string)
+        if not f_file is None and not str(f_file) == "":
+            f_file = str(f_file)
+            if not f_file.endswith(".wav"):
+                f_file += ".wav"
+            global_last_audio_item_dir = os.path.dirname(f_file)
+            f_orig_path = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid)
+            f_cmd = 'cp "' + f_orig_path + '" "' + f_file + '"'
+            print(f_cmd)
+            os.system(f_cmd)
+
     def mousePressEvent(self, a_event):
         if global_transport_is_playing:
             return
+
+        if a_event.button() == QtCore.Qt.RightButton:
+            self.show_context_menu(a_event)
+            return
+
         if a_event.modifiers() == QtCore.Qt.ShiftModifier:
             f_item = self.audio_item
             f_item_old = f_item.clone()
