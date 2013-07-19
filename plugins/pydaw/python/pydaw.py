@@ -2023,11 +2023,11 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_number = QtGui.QGraphicsSimpleTextItem("%d" % i, f_ruler)
             f_number.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
             f_number.setBrush(QtCore.Qt.white)
-            self.scene.addLine(i3, global_audio_ruler_height, i3, f_total_height, f_v_pen)
-            f_number.setPos(i3, 2)
+            self.scene.addLine(i3, 0.0, i3, f_total_height, f_v_pen)
+            f_number.setPos(i3 + 3.0, 2)
             for f_beat_i in range(1, 4):
                 f_beat_x = i3 + (global_audio_px_per_beat * f_beat_i)
-                self.scene.addLine(f_beat_x, global_audio_ruler_height, f_beat_x, f_total_height, f_beat_pen)
+                self.scene.addLine(f_beat_x, 0.0, f_beat_x, f_total_height, f_beat_pen)
             for f_16th_i in range(1, 16):
                 if f_16th_i % 4 != 0:
                     f_16th_x = i3 + (global_audio_px_per_16th * f_16th_i)
