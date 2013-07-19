@@ -1214,7 +1214,7 @@ global_audio_quantize_px = None
 global_audio_ruler_height = 20.0
 global_audio_item_height = 75.0
 
-global_audio_item_handle_size = 12.0
+global_audio_item_handle_size = 6.25
 global_audio_item_handle_brush = QtGui.QLinearGradient(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size)
 global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 120))
 global_audio_item_handle_brush.setColorAt(0.0, QtGui.QColor.fromRgb(255, 255, 255, 90))
@@ -1255,6 +1255,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.label.setFlag(QtGui.QGraphicsItem.ItemIgnoresTransformations)
 
         self.start_handle = QtGui.QGraphicsRectItem(parent=self)
+        self.start_handle.setAcceptHoverEvents(True)
+        self.start_handle.hoverEnterEvent = self.generic_hoverEnterEvent
+        self.start_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
         self.start_handle.setBrush(global_audio_item_handle_brush)
         self.start_handle.setPen(global_audio_item_handle_pen)
         self.start_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
@@ -1265,6 +1268,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.start_handle.setToolTip("Use this handle to resize the item by changing the start point.")
 
         self.length_handle = QtGui.QGraphicsRectItem(parent=self)
+        self.length_handle.setAcceptHoverEvents(True)
+        self.length_handle.hoverEnterEvent = self.generic_hoverEnterEvent
+        self.length_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
         self.length_handle.setBrush(global_audio_item_handle_brush)
         self.length_handle.setPen(global_audio_item_handle_pen)
         self.length_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
@@ -1275,6 +1281,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.length_handle.setToolTip("Use this handle to resize the item by changing the end point.")
 
         self.fade_in_handle = QtGui.QGraphicsRectItem(parent=self)
+        self.fade_in_handle.setAcceptHoverEvents(True)
+        self.fade_in_handle.hoverEnterEvent = self.generic_hoverEnterEvent
+        self.fade_in_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
         self.fade_in_handle.setBrush(global_audio_item_handle_brush)
         self.fade_in_handle.setPen(global_audio_item_handle_pen)
         self.fade_in_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
@@ -1285,6 +1294,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.fade_in_handle.setToolTip("Use this handle to change the fade in.")
 
         self.fade_out_handle = QtGui.QGraphicsRectItem(parent=self)
+        self.fade_out_handle.setAcceptHoverEvents(True)
+        self.fade_out_handle.hoverEnterEvent = self.generic_hoverEnterEvent
+        self.fade_out_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
         self.fade_out_handle.setBrush(global_audio_item_handle_brush)
         self.fade_out_handle.setPen(global_audio_item_handle_pen)
         self.fade_out_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
@@ -1295,6 +1307,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.fade_out_handle.setToolTip("Use this handle to change the fade out.")
 
         self.stretch_handle = QtGui.QGraphicsRectItem(parent=self)
+        self.stretch_handle.setAcceptHoverEvents(True)
+        self.stretch_handle.hoverEnterEvent = self.generic_hoverEnterEvent
+        self.stretch_handle.hoverLeaveEvent = self.generic_hoverLeaveEvent
         self.stretch_handle.setBrush(global_audio_item_handle_brush)
         self.stretch_handle.setPen(global_audio_item_handle_pen)
         self.stretch_handle.setRect(QtCore.QRectF(0.0, 0.0, global_audio_item_handle_size, global_audio_item_handle_size))
@@ -1328,6 +1343,12 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.vol_linear = pydaw_db_to_lin(self.audio_item.vol)
         self.quantize_offset = 0.0
         self.draw()
+
+    def generic_hoverEnterEvent(self, a_event):
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.SizeHorCursor))
+
+    def generic_hoverLeaveEvent(self, a_event):
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
 
     def draw(self):
         f_temp_seconds = self.sample_length
@@ -1680,6 +1701,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if global_transport_is_playing or self.event_pos_orig is None:
             return
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
+        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         f_audio_items =  this_audio_editor.audio_items
         f_reset_selection = True  #Set to True when testing, set to False for better UI performance...
         f_did_change = False
