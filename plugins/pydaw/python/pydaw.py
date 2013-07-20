@@ -1356,9 +1356,9 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
     def draw(self):
         f_temp_seconds = self.sample_length
 
-        if self.audio_item.time_stretch_mode == 1:
+        if self.audio_item.time_stretch_mode == 1 and (self.audio_item.pitch_shift_end == self.audio_item.pitch_shift):
             f_temp_seconds /= pydaw_pitch_to_ratio(self.audio_item.pitch_shift)
-        elif self.audio_item.time_stretch_mode == 2:
+        elif self.audio_item.time_stretch_mode == 2 and (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt):
             f_temp_seconds *= self.audio_item.timestretch_amt
 
         f_start = pydaw_get_pos_in_bars(0, self.audio_item.start_bar, self.audio_item.start_beat)
@@ -1391,7 +1391,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.update_fade_out_line()
         self.setPos(f_start, f_track_num)
         self.is_moving = False
-        if self.audio_item.time_stretch_mode >= 2:
+        if self.audio_item.time_stretch_mode >= 3 or \
+        (self.audio_item.time_stretch_mode == 2 and (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt)):
             self.stretch_width_default = f_length / self.audio_item.timestretch_amt
         if global_tooltips_enabled:
             self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\nShift+click to split items\nCtrl+drag to copy selected items")
@@ -1417,7 +1418,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_handle.setPos(f_length - global_audio_item_handle_size, global_audio_item_height - global_audio_item_handle_height)
         self.start_handle.setPos(0.0, global_audio_item_height - global_audio_item_handle_height)
         if self.audio_item.time_stretch_mode >= 2 and \
-        ((self.audio_item.time_stretch_mode != 5) or (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt)):
+        (((self.audio_item.time_stretch_mode != 5) and (self.audio_item.time_stretch_mode != 2)) or \
+        (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt)):
             self.stretch_handle.show()
             self.stretch_handle.setPos(f_length - global_audio_item_handle_size, (global_audio_item_height * 0.5) - (global_audio_item_handle_height * 0.5))
 
@@ -2517,10 +2519,11 @@ class audio_item_editor_widget:
             self.timestretch_amt.setEnabled(False)
             self.timestretch_amt.setValue(1.0)
             self.timestretch_amt_end.setValue(1.0)
+            self.timestretch_amt_end.setEnabled(False)
             self.timestretch_amt_end_checkbox.setEnabled(False)
             self.timestretch_amt_end_checkbox.setChecked(False)
-            self.pitch_shift_end_checkbox.setEnabled(False)
-            self.pitch_shift_end_checkbox.setChecked(False)
+            self.pitch_shift_end_checkbox.setEnabled(True)
+            self.pitch_shift_end.setEnabled(True)
             self.crispness_combobox.setCurrentIndex(5)
             self.crispness_combobox.setEnabled(False)
         elif a_val == 2:
@@ -2528,16 +2531,18 @@ class audio_item_editor_widget:
             self.timestretch_amt.setEnabled(True)
             self.pitch_shift.setValue(0.0)
             self.pitch_shift_end.setValue(0.0)
+            self.pitch_shift_end.setEnabled(False)
             self.timestretch_amt.setRange(0.2, 4.0)
             self.timestretch_amt_end.setRange(0.2, 4.0)
-            self.timestretch_amt_end_checkbox.setEnabled(False)
-            self.timestretch_amt_end_checkbox.setChecked(False)
+            self.timestretch_amt_end.setEnabled(True)
+            self.timestretch_amt_end_checkbox.setEnabled(True)
             self.pitch_shift_end_checkbox.setEnabled(False)
             self.pitch_shift_end_checkbox.setChecked(False)
             self.crispness_combobox.setCurrentIndex(5)
             self.crispness_combobox.setEnabled(False)
         elif a_val == 3 or a_val == 4:
             self.pitch_shift.setEnabled(True)
+            self.pitch_shift_end.setEnabled(False)
             self.timestretch_amt.setEnabled(True)
             self.timestretch_amt.setRange(0.1, 10.0)
             self.timestretch_amt_end.setRange(0.1, 10.0)
@@ -2548,7 +2553,9 @@ class audio_item_editor_widget:
             self.crispness_combobox.setEnabled(True)
         elif a_val == 5:
             self.pitch_shift.setEnabled(True)
+            self.pitch_shift_end.setEnabled(True)
             self.timestretch_amt.setEnabled(True)
+            self.timestretch_amt_end.setEnabled(True)
             self.timestretch_amt.setRange(0.1, 10.0)
             self.timestretch_amt_end.setRange(0.1, 10.0)
             self.timestretch_amt_end_checkbox.setEnabled(True)
@@ -2558,6 +2565,8 @@ class audio_item_editor_widget:
         elif a_val == 6:
             self.pitch_shift.setEnabled(True)
             self.timestretch_amt.setEnabled(True)
+            self.timestretch_amt_end.setEnabled(False)
+            self.pitch_shift_end.setEnabled(False)
             self.pitch_shift_end.setValue(0.0)
             self.timestretch_amt.setRange(0.5, 10.0)
             self.timestretch_amt_end.setRange(0.5, 10.0)
@@ -2625,8 +2634,16 @@ class audio_item_editor_widget:
                     f_new_ts_end = self.timestretch_amt_end.value()
                     f_new_ps_end = self.pitch_shift_end.value()
                     f_item.audio_item.crispness = self.crispness_combobox.currentIndex()
-                    if f_item.audio_item.time_stretch_mode >= 3 and f_new_ts_mode < 3:
+
+                    if ((f_item.audio_item.time_stretch_mode >= 3) or
+                    (f_item.audio_item.time_stretch_mode == 1 and f_item.audio_item.pitch_shift_end != f_item.audio_item.pitch_shift) or \
+                    (f_item.audio_item.time_stretch_mode == 2 and f_item.audio_item.timestretch_amt_end != f_item.audio_item.timestretch_amt)) \
+                    and \
+                    ((f_new_ts_mode == 0) or \
+                    (f_new_ts_mode == 1 and f_new_ps == f_new_ps_end) or \
+                    (f_new_ts_mode == 2 and f_new_ts == f_new_ts_end)):
                         f_item.audio_item.uid = this_pydaw_project.timestretch_get_orig_file_uid(f_item.audio_item.uid)
+
                     f_item.audio_item.time_stretch_mode = f_new_ts_mode
                     f_item.audio_item.pitch_shift = f_new_ps
                     f_item.audio_item.timestretch_amt = f_new_ts
@@ -2634,7 +2651,8 @@ class audio_item_editor_widget:
                     f_item.audio_item.timestretch_amt_end = f_new_ts_end
                     f_item.draw()
                     f_item.clip_at_region_end()
-                    if f_item.audio_item.time_stretch_mode >= 3 and f_item.orig_string != str(f_item.audio_item):
+                    if (f_item.audio_item.time_stretch_mode >= 3 or f_new_ts != f_new_ts_end or f_new_ps != f_new_ps_end) \
+                    and f_item.orig_string != str(f_item.audio_item):
                         f_was_stretching = True
                         f_ts_result = this_pydaw_project.timestretch_audio_item(f_item.audio_item)
                         if f_ts_result is not None:

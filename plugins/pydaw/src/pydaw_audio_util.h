@@ -152,7 +152,7 @@ void v_pydaw_rate_envelope(char * a_file_in, char * a_file_out, float a_start_ra
     float f_sample_pos = 0.0;
                 
     long f_size = 0;
-    long f_block_size = 10000;
+    long f_block_size = 6000000;
     
     float * f_output = (float*)malloc(sizeof(float) * (f_block_size * 2)); //f_sample_count_long);
         
@@ -220,7 +220,7 @@ void v_pydaw_rate_envelope(char * a_file_in, char * a_file_out, float a_start_ra
             }
         }
         
-        sf_writef_float(f_sndfile, f_output, f_block_size);        
+        sf_writef_float(f_sndfile, f_output, f_size);        
     }
         
     sf_close(f_sndfile);
@@ -360,7 +360,7 @@ void v_pydaw_pitch_envelope(char * a_file_in, char * a_file_out, float a_start_p
             }
         }
         
-        sf_writef_float(f_sndfile, f_output, f_block_size);        
+        sf_writef_float(f_sndfile, f_output, f_size);
     }
         
     sf_close(f_sndfile);

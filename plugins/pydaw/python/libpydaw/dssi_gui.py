@@ -226,3 +226,33 @@ class dssi_gui(ServerThread):
                     print("pydaw_convert_wav_to_32_bit:  Exception when deleting " + f_wait_file)
             else:
                 sleep(0.1)
+
+    def pydaw_rate_env(self, a_in_file, a_out_file, a_start, a_end):
+        f_wait_file = str(a_out_file) + ".finished"
+        if os.path.isfile(f_wait_file):
+            os.remove(f_wait_file)
+        self.send_configure("renv", str(a_in_file) + "\n" + str(a_out_file) + "\n" + str(a_start) + "|" + str(a_end))
+        while True:
+            if os.path.isfile(f_wait_file):
+                try:
+                    os.remove(f_wait_file)
+                    break
+                except:
+                    print("pydaw_rate_env:  Exception when deleting " + f_wait_file)
+            else:
+                sleep(0.1)
+
+    def pydaw_pitch_env(self, a_in_file, a_out_file, a_start, a_end):
+        f_wait_file = str(a_out_file) + ".finished"
+        if os.path.isfile(f_wait_file):
+            os.remove(f_wait_file)
+        self.send_configure("penv", str(a_in_file) + "\n" + str(a_out_file) + "\n" + str(a_start) + "|" + str(a_end))
+        while True:
+            if os.path.isfile(f_wait_file):
+                try:
+                    os.remove(f_wait_file)
+                    break
+                except:
+                    print("pydaw_rate_env:  Exception when deleting " + f_wait_file)
+            else:
+                sleep(0.1)

@@ -560,21 +560,27 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
             break;
         case 1:  //Pitch affecting time
         {
-            if((f_result->pitch_shift) >= 0.0f)
+            if(f_result->pitch_shift == f_result->pitch_shift_end) //Otherwise, it's already been stretched offline
             {
-                f_result->ratio *= f_pit_midi_note_to_ratio_fast(0.0f, (f_result->pitch_shift), 
-                        f_result->pitch_core_ptr, f_result->pitch_ratio_ptr);
-            }
-            else
-            {
-                f_result->ratio *= f_pit_midi_note_to_ratio_fast(((f_result->pitch_shift) * -1.0f), 0.0f, 
-                        f_result->pitch_core_ptr, f_result->pitch_ratio_ptr);
+                if((f_result->pitch_shift) >= 0.0f)
+                {
+                    f_result->ratio *= f_pit_midi_note_to_ratio_fast(0.0f, (f_result->pitch_shift), 
+                            f_result->pitch_core_ptr, f_result->pitch_ratio_ptr);
+                }
+                else
+                {
+                    f_result->ratio *= f_pit_midi_note_to_ratio_fast(((f_result->pitch_shift) * -1.0f), 0.0f, 
+                            f_result->pitch_core_ptr, f_result->pitch_ratio_ptr);
+                }
             }
         }
             break;
         case 2:  //Time affecting pitch
         {
-            f_result->ratio *= (1.0f / (f_result->timestretch_amt));
+            if(f_result->timestretch_amt == f_result->timestretch_amt_end) //Otherwise, it's already been stretched offline
+            {
+                f_result->ratio *= (1.0f / (f_result->timestretch_amt));
+            }
         }
             break;
         /*

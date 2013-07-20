@@ -66,6 +66,8 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_LOAD_AB_VOL "abv"
 #define PYDAW_CONFIGURE_KEY_PANIC "panic"
 #define PYDAW_CONFIGURE_KEY_CONV32F "conv32f"
+#define PYDAW_CONFIGURE_KEY_PITCH_ENV "penv"
+#define PYDAW_CONFIGURE_KEY_RATE_ENV "renv"
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -5153,7 +5155,53 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         free(f_out_file);
         f_arr->array = 0;
         g_free_2d_char_array(f_arr);
-    }    
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_RATE_ENV))
+    {
+        t_2d_char_array * f_arr = g_get_2d_array(LMS_SMALL_STRING);
+        char f_tmp_char[LMS_SMALL_STRING];
+        sprintf(f_tmp_char, "%s", a_value);
+        f_arr->array = f_tmp_char;
+        char * f_in_file = c_iterate_2d_char_array(f_arr);
+        char * f_out_file = c_iterate_2d_char_array(f_arr);
+        char * f_start_str = c_iterate_2d_char_array(f_arr);
+        char * f_end_str = c_iterate_2d_char_array(f_arr);
+        float f_start = atof(f_start_str);
+        float f_end = atof(f_end_str);
+        
+        v_pydaw_rate_envelope(f_in_file, f_out_file, f_start, f_end);
+        
+        free(f_in_file);
+        free(f_out_file);
+        free(f_start_str);
+        free(f_end_str);
+        
+        f_arr->array = 0;
+        g_free_2d_char_array(f_arr);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PITCH_ENV))
+    {
+        t_2d_char_array * f_arr = g_get_2d_array(LMS_SMALL_STRING);
+        char f_tmp_char[LMS_SMALL_STRING];
+        sprintf(f_tmp_char, "%s", a_value);
+        f_arr->array = f_tmp_char;
+        char * f_in_file = c_iterate_2d_char_array(f_arr);
+        char * f_out_file = c_iterate_2d_char_array(f_arr);
+        char * f_start_str = c_iterate_2d_char_array(f_arr);
+        char * f_end_str = c_iterate_2d_char_array(f_arr);
+        float f_start = atof(f_start_str);
+        float f_end = atof(f_end_str);
+        
+        v_pydaw_pitch_envelope(f_in_file, f_out_file, f_start, f_end);
+        
+        free(f_in_file);
+        free(f_out_file);
+        free(f_start_str);
+        free(f_end_str);
+        
+        f_arr->array = 0;
+        g_free_2d_char_array(f_arr);
+    }
     else
     {
         printf("Unknown configure message key: %s, value %s\n", a_key, a_value);        

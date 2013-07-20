@@ -443,7 +443,15 @@ class pydaw_project:
         else:
             f_uid = pydaw_gen_uid()
             f_dest_path = self.timestretch_folder + "/" + str(f_uid) + ".wav"
-            if a_audio_item.time_stretch_mode == 3:
+
+            f_cmd = None
+            if a_audio_item.time_stretch_mode == 1:
+                self.this_dssi_gui.pydaw_pitch_env(f_src_path, f_dest_path, a_audio_item.pitch_shift, a_audio_item.pitch_shift_end)
+                self.get_wav_uid_by_name(f_dest_path, a_uid=f_uid)  #add it to the pool
+            elif a_audio_item.time_stretch_mode == 2:
+                self.this_dssi_gui.pydaw_rate_env(f_src_path, f_dest_path, a_audio_item.timestretch_amt, a_audio_item.timestretch_amt_end)
+                self.get_wav_uid_by_name(f_dest_path, a_uid=f_uid)  #add it to the pool
+            elif a_audio_item.time_stretch_mode == 3:
                 f_cmd = [pydaw_rubberband_util, "-c", str(a_audio_item.crispness), "-t",  str(a_audio_item.timestretch_amt), "-p", str(a_audio_item.pitch_shift),
                          "-R", "--pitch-hq", f_src_path, f_dest_path]
             elif a_audio_item.time_stretch_mode == 4:
@@ -463,18 +471,27 @@ class pydaw_project:
                     f_cmd = [pydaw_paulstretch_util,
                          "-s", str(a_audio_item.timestretch_amt), "-d", f_tmp_file, f_dest_path ]
 
-            print("Running " + " ".join(f_cmd))
-            f_proc = subprocess.Popen(f_cmd)
+
             self.timestretch_cache[f_key] = f_uid
             self.timestretch_reverse_lookup[f_dest_path] = f_src_path
             a_audio_item.uid = self.timestretch_cache[f_key]
-            return f_dest_path, f_uid, f_proc
+
+            if f_cmd is not None:
+                print("Running " + " ".join(f_cmd))
+                f_proc = subprocess.Popen(f_cmd)
+                return f_dest_path, f_uid, f_proc
+            else:
+                return None
 
     def timestretch_get_orig_file_uid(self, a_uid):
         """ Return the UID of the original file """
         f_new_path = self.get_wav_path_by_uid(a_uid)
-        f_old_path = self.timestretch_reverse_lookup[f_new_path]
-        return self.get_wav_uid_by_name(f_old_path)
+        if self.timestretch_reverse_lookup.has_key(f_new_path):
+            f_old_path = self.timestretch_reverse_lookup[f_new_path]
+            return self.get_wav_uid_by_name(f_old_path)
+        else:
+            print("\n####\n####\nWARNING:  timestretch_get_orig_file_uid could not find uid " + str(a_uid) + "\n####\n####\n")
+            return a_uid
 
     def check_for_recorded_items(self, a_item_name):
         self.check_for_recorded_regions()
