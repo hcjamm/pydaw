@@ -2310,10 +2310,11 @@ class audio_items_viewer_widget():
         f_list.sort(key=str.lower)
         for f_file in f_list:
             f_full_path = self.last_open_dir + "/" + f_file
-            if os.path.isdir(f_full_path) and not f_file.startswith("."):
-                self.list_folder.addItem(f_file)
-            elif f_file.upper().endswith(".WAV") and os.path.isfile(f_full_path):
-                self.list_file.addItem(f_file)
+            if  not f_file.startswith("."):
+                if os.path.isdir(f_full_path):
+                    self.list_folder.addItem(f_file)
+                elif f_file.upper().endswith(".WAV") and os.path.isfile(f_full_path):
+                    self.list_file.addItem(f_file)
 
     def set_v_zoom(self, a_val=None):
         this_audio_items_viewer.set_v_zoom(1.0 / self.v_zoom)
