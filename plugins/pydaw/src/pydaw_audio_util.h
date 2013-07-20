@@ -152,7 +152,7 @@ void v_pydaw_rate_envelope(char * a_file_in, char * a_file_out, float a_start_ra
     float f_sample_pos = 0.0;
                 
     long f_size = 0;
-    long f_block_size = 6000000;
+    long f_block_size = 5000;
     
     float * f_output = (float*)malloc(sizeof(float) * (f_block_size * 2)); //f_sample_count_long);
         
@@ -192,8 +192,7 @@ void v_pydaw_rate_envelope(char * a_file_in, char * a_file_out, float a_start_ra
     while(((int)f_sample_pos) < info.frames)
     {
         f_size = 0;
-                
-        //Interleave the samples...
+        
         while(f_size < f_block_size)
         {            
             if(info.channels == 1)
@@ -220,7 +219,14 @@ void v_pydaw_rate_envelope(char * a_file_in, char * a_file_out, float a_start_ra
             }
         }
         
-        sf_writef_float(f_sndfile, f_output, f_size);        
+        if(info.channels == 1)
+        {
+            sf_writef_float(f_sndfile, f_output, f_size);
+        }
+        else if(info.channels == 2)
+        {
+            sf_writef_float(f_sndfile, f_output, f_size / 2);
+        }
     }
         
     sf_close(f_sndfile);
