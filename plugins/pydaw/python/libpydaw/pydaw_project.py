@@ -433,7 +433,8 @@ class pydaw_project:
         if self.timestretch_reverse_lookup.has_key(f_src_path):
             f_src_path = self.timestretch_reverse_lookup[f_src_path]
         else:
-            if a_audio_item.timestretch_amt == 1.0 and a_audio_item.pitch_shift == 0.0:
+            if a_audio_item.timestretch_amt == 1.0 and a_audio_item.pitch_shift == 0.0 and \
+            a_audio_item.timestretch_amt_end == 1.0 and a_audio_item.pitch_shift_end == 0.0:
                 return None  #Don't process if the file is not being stretched/shifted yet
         f_key = (a_audio_item.time_stretch_mode, a_audio_item.timestretch_amt, a_audio_item.pitch_shift, \
         a_audio_item.timestretch_amt_end, a_audio_item.pitch_shift_end, a_audio_item.crispness, f_src_path)
