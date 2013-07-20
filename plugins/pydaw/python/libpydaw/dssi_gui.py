@@ -17,13 +17,8 @@ import liblo
 from liblo import *
 from urlparse import urlparse
 from time import sleep
+from pydaw_util import bool_to_int
 
-#TODO:  Move this to a mutual location and rename to bool_to_int_str
-def bool_to_int(a_bool):
-    if a_bool:
-        return "1"
-    else:
-        return "0"
 
 class dssi_gui(ServerThread):
     def __init__(self, a_url=None, a_pc_func=None):
