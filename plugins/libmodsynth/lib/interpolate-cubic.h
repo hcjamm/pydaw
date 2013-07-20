@@ -71,7 +71,7 @@ inline float f_cubic_interpolate(float a_a, float a_b, float a_position)
  * float * a_table, 
  * int a_table_size, 
  * float a_ptr, 
- * t_cubic_interpolater * a_lin)
+ * t_cubic_interpolater * a_cubic)
  * 
  * This method uses a pointer instead of an array the float* must be malloc'd to (sizeof(float) * a_table_size)
  */

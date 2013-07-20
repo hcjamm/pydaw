@@ -110,6 +110,7 @@ extern "C" {
 #include "pydaw_audio_tracks.h"
 #include "pydaw_sample_graph.h"
 #include "pydaw_audio_inputs.h"
+#include "pydaw_audio_util.h"
   
 typedef struct
 {
