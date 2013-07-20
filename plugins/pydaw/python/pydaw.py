@@ -1951,6 +1951,17 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     this_audio_item_editor_widget.end_sample_length.setChecked(True)
             if f_timestretch_checked:
                 this_audio_item_editor_widget.timestretch_mode.setCurrentIndex(f_selected_items[0].audio_item.time_stretch_mode)
+
+                if f_selected_items[0].audio_item.timestretch_amt_end != f_selected_items[0].audio_item.timestretch_amt:
+                    this_audio_item_editor_widget.timestretch_amt_end_checkbox.setChecked(True)
+                else:
+                    this_audio_item_editor_widget.timestretch_amt_end_checkbox.setChecked(False)
+
+                if f_selected_items[0].audio_item.pitch_shift_end != f_selected_items[0].audio_item.pitch_shift:
+                    this_audio_item_editor_widget.pitch_shift_end_checkbox.setChecked(True)
+                else:
+                    this_audio_item_editor_widget.pitch_shift_end_checkbox.setChecked(False)
+
                 this_audio_item_editor_widget.pitch_shift.setValue(f_selected_items[0].audio_item.pitch_shift)
                 this_audio_item_editor_widget.timestretch_amt.setValue(f_selected_items[0].audio_item.timestretch_amt)
                 this_audio_item_editor_widget.pitch_shift_end.setValue(f_selected_items[0].audio_item.pitch_shift_end)
@@ -2314,7 +2325,11 @@ class audio_items_viewer_widget():
                 if os.path.isdir(f_full_path):
                     self.list_folder.addItem(f_file)
                 elif f_file.upper().endswith(".WAV") and os.path.isfile(f_full_path):
-                    self.list_file.addItem(f_file)
+                    if not pydaw_str_has_bad_chars(f_full_path):
+                        self.list_file.addItem(f_file)
+                    else:
+                        print("Not adding '" + f_full_path + "' because it contains bad chars, you must rename this file path without:")
+                        print("\n".join(pydaw_bad_chars))
 
     def set_v_zoom(self, a_val=None):
         this_audio_items_viewer.set_v_zoom(1.0 / self.v_zoom)
@@ -2568,7 +2583,6 @@ class audio_item_editor_widget:
             self.timestretch_amt.setEnabled(True)
             self.timestretch_amt_end.setEnabled(False)
             self.pitch_shift_end.setEnabled(False)
-            self.pitch_shift_end.setValue(0.0)
             self.timestretch_amt.setRange(0.5, 10.0)
             self.timestretch_amt_end.setRange(0.5, 10.0)
             self.timestretch_amt_end_checkbox.setEnabled(False)
@@ -2579,6 +2593,8 @@ class audio_item_editor_widget:
             self.crispness_combobox.setEnabled(False)
 
     def open_item(self, a_item):
+        print("audio_item_editor_widget.open_item()")
+        print(str(a_item))
         if a_item is None:
             pass #TODO:  Reset values to default
         else:
