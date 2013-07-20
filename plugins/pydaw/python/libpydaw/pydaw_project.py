@@ -433,8 +433,10 @@ class pydaw_project:
         if self.timestretch_reverse_lookup.has_key(f_src_path):
             f_src_path = self.timestretch_reverse_lookup[f_src_path]
         else:
-            if a_audio_item.timestretch_amt == 1.0 and a_audio_item.pitch_shift == 0.0 and \
-            a_audio_item.timestretch_amt_end == 1.0 and a_audio_item.pitch_shift_end == 0.0:
+            if (a_audio_item.timestretch_amt == 1.0 and a_audio_item.pitch_shift == 0.0 and \
+            a_audio_item.timestretch_amt_end == 1.0 and a_audio_item.pitch_shift_end == 0.0) or \
+            (a_audio_item.time_stretch_mode == 1 and a_audio_item.pitch_shift == a_audio_item.pitch_shift_end) or \
+            (a_audio_item.time_stretch_mode == 2 and a_audio_item.timestretch_amt == a_audio_item.timestretch_amt_end):
                 return None  #Don't process if the file is not being stretched/shifted yet
         f_key = (a_audio_item.time_stretch_mode, a_audio_item.timestretch_amt, a_audio_item.pitch_shift, \
         a_audio_item.timestretch_amt_end, a_audio_item.pitch_shift_end, a_audio_item.crispness, f_src_path)
@@ -1982,7 +1984,7 @@ def pydaw_remove_item_from_sg_cache(a_path):
     try:
         global_sample_graph_cache.pop(a_path)
     except KeyError:
-        print("pydaw_remove_item_from_sg_cache: " + a_path + " not found.")
+        print("\n\npydaw_remove_item_from_sg_cache: " + a_path + " not found.\n\n")
 
 global_sample_graph_cache = {}
 
@@ -2052,7 +2054,7 @@ class pydaw_sample_graph:
         f_result = (self.file is not None) and (self.timestamp is not None) \
         and (self.channels is not None) and (self.count is not None)
         if not f_result:
-            print("pydaw_sample_graph.is_valid() : " + str(self.file) + " failed the validity check...")
+            print("\n\npydaw_sample_graph.is_valid() : " + str(self.file) + " failed the validity check...\n\n")
         return f_result
 
     def create_sample_graph(self, a_for_scene=False):
@@ -2089,7 +2091,7 @@ class pydaw_sample_graph:
         try:
             return self.timestamp > os.path.getmtime(self.file)
         except Exception as f_ex:
-            print("Error getting mtime: " + f_ex.message)
+            print("\n\nError getting mtime: " + f_ex.message + "\n\n")
             return False
 
 class pydaw_midi_file_to_items:

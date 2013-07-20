@@ -2646,10 +2646,16 @@ class audio_item_editor_widget:
                     f_item.audio_item.vol = self.sample_vol_slider.value()
                 if self.timestretch_checkbox.isChecked():
                     f_new_ts_mode = self.timestretch_mode.currentIndex()
-                    f_new_ts = self.timestretch_amt.value()
-                    f_new_ps = self.pitch_shift.value()
-                    f_new_ts_end = self.timestretch_amt_end.value()
-                    f_new_ps_end = self.pitch_shift_end.value()
+                    f_new_ts = round(self.timestretch_amt.value(), 6)
+                    f_new_ps = round(self.pitch_shift.value(), 6)
+                    if self.timestretch_amt_end_checkbox.isChecked():
+                        f_new_ts_end = round(self.timestretch_amt_end.value(), 6)
+                    else:
+                        f_new_ts_end = f_new_ts
+                    if self.pitch_shift_end_checkbox.isChecked():
+                        f_new_ps_end = round(self.pitch_shift_end.value(), 6)
+                    else:
+                        f_new_ps_end = f_new_ps
                     f_item.audio_item.crispness = self.crispness_combobox.currentIndex()
 
                     if ((f_item.audio_item.time_stretch_mode >= 3) or
@@ -2668,8 +2674,10 @@ class audio_item_editor_widget:
                     f_item.audio_item.timestretch_amt_end = f_new_ts_end
                     f_item.draw()
                     f_item.clip_at_region_end()
-                    if (f_item.audio_item.time_stretch_mode >= 3 or f_new_ts != f_new_ts_end or f_new_ps != f_new_ps_end) \
-                    and f_item.orig_string != str(f_item.audio_item):
+                    if (f_new_ts_mode >= 3) or \
+                    (f_new_ts_mode == 1 and f_new_ps != f_new_ps_end) or \
+                    (f_new_ts_mode == 2 and f_new_ts != f_new_ts_end) and \
+                    (f_item.orig_string != str(f_item.audio_item)):
                         f_was_stretching = True
                         f_ts_result = this_pydaw_project.timestretch_audio_item(f_item.audio_item)
                         if f_ts_result is not None:

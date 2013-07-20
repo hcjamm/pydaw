@@ -510,13 +510,18 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     f_result->sample_fade_out = atof(f_fade_out_char) * 0.001f;
     free(f_fade_out_char);
     
+    //Not used by the back-end
+    char * f_lane_num = c_iterate_2d_char_array(f_current_string);
+    free(f_lane_num);
+    
     if(!f_current_string->eol)  //TODO:  Remove this if statement at PyDAWv4
     {
-        //Not used in the back-end
         char * f_pitch_shift_end_char = c_iterate_2d_char_array(f_current_string);
+        f_result->pitch_shift_end = atof(f_pitch_shift_end_char);
         free(f_pitch_shift_end_char);
-        //Not used in the back-end
+        
         char * f_timestretch_end_char = c_iterate_2d_char_array(f_current_string);
+        f_result->timestretch_amt_end = atof(f_timestretch_end_char);
         free(f_timestretch_end_char);
         
         char * f_reversed_char = c_iterate_2d_char_array(f_current_string);
@@ -556,8 +561,8 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     
     switch(f_result->timestretch_mode)
     {
-        case 0:  //None
-            break;
+        //case 0:  //None
+        //    break;
         case 1:  //Pitch affecting time
         {
             if(f_result->pitch_shift == f_result->pitch_shift_end) //Otherwise, it's already been stretched offline
@@ -573,6 +578,10 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
                             f_result->pitch_core_ptr, f_result->pitch_ratio_ptr);
                 }
             }
+            else
+            {
+                printf("\n\n%f != %f\n\n", f_result->pitch_shift, f_result->pitch_shift_end);
+            }
         }
             break;
         case 2:  //Time affecting pitch
@@ -580,6 +589,10 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
             if(f_result->timestretch_amt == f_result->timestretch_amt_end) //Otherwise, it's already been stretched offline
             {
                 f_result->ratio *= (1.0f / (f_result->timestretch_amt));
+            }
+            else
+            {
+                printf("\n\n%f != %f\n\n", f_result->timestretch_amt, f_result->timestretch_amt_end);
             }
         }
             break;
