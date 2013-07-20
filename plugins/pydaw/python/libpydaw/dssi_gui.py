@@ -12,12 +12,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import sys, os
+import sys
 import liblo
 from liblo import *
 from urlparse import urlparse
-from time import sleep
-from pydaw_util import bool_to_int
+from pydaw_util import bool_to_int, pydaw_wait_for_finished_file, pydaw_get_wait_file_path
 
 
 class dssi_gui(ServerThread):
@@ -213,46 +212,16 @@ class dssi_gui(ServerThread):
         self.send_configure("panic", "")
 
     def pydaw_convert_wav_to_32_bit(self, a_in_file, a_out_file):
-        f_wait_file = str(a_out_file) + ".finished"
-        if os.path.isfile(f_wait_file):
-            os.remove(f_wait_file)
+        f_wait_file = pydaw_get_wait_file_path(a_out_file)
         self.send_configure("conv32f", str(a_in_file) + "\n" + str(a_out_file))
-        while True:
-            if os.path.isfile(f_wait_file):
-                try:
-                    os.remove(f_wait_file)
-                    break
-                except:
-                    print("pydaw_convert_wav_to_32_bit:  Exception when deleting " + f_wait_file)
-            else:
-                sleep(0.1)
+        pydaw_wait_for_finished_file(f_wait_file)
 
     def pydaw_rate_env(self, a_in_file, a_out_file, a_start, a_end):
-        f_wait_file = str(a_out_file) + ".finished"
-        if os.path.isfile(f_wait_file):
-            os.remove(f_wait_file)
+        f_wait_file = pydaw_get_wait_file_path(a_out_file)
         self.send_configure("renv", str(a_in_file) + "\n" + str(a_out_file) + "\n" + str(a_start) + "|" + str(a_end))
-        while True:
-            if os.path.isfile(f_wait_file):
-                try:
-                    os.remove(f_wait_file)
-                    break
-                except:
-                    print("pydaw_rate_env:  Exception when deleting " + f_wait_file)
-            else:
-                sleep(0.1)
+        pydaw_wait_for_finished_file(f_wait_file)
 
     def pydaw_pitch_env(self, a_in_file, a_out_file, a_start, a_end):
-        f_wait_file = str(a_out_file) + ".finished"
-        if os.path.isfile(f_wait_file):
-            os.remove(f_wait_file)
+        f_wait_file = pydaw_get_wait_file_path(a_out_file)
         self.send_configure("penv", str(a_in_file) + "\n" + str(a_out_file) + "\n" + str(a_start) + "|" + str(a_end))
-        while True:
-            if os.path.isfile(f_wait_file):
-                try:
-                    os.remove(f_wait_file)
-                    break
-                except:
-                    print("pydaw_rate_env:  Exception when deleting " + f_wait_file)
-            else:
-                sleep(0.1)
+        pydaw_wait_for_finished_file(f_wait_file)

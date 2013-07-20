@@ -12,7 +12,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import random
+import random, os
+from time import sleep
 from math import log, pow
 
 pydaw_bad_chars = ["|", "\\", "~", "."]
@@ -109,3 +110,22 @@ def pydaw_db_to_lin(a_value):
 
 def pydaw_lin_to_db(a_value):
     return log(a_value, 10.0) * 20.0
+
+def pydaw_wait_for_finished_file(a_file):
+    """ Wait until a_file exists, then delete it and return.  It should
+    already have the .finished extension"""
+    while True:
+        if os.path.isfile(a_file):
+            try:
+                os.remove(a_file)
+                break
+            except:
+                print("pydaw_wait_for_finished_file:  Exception when deleting " + a_file)
+        else:
+            sleep(0.1)
+
+def pydaw_get_wait_file_path(a_file):
+    f_wait_file = str(a_file) + ".finished"
+    if os.path.isfile(f_wait_file):
+        os.remove(f_wait_file)
+    return f_wait_file
