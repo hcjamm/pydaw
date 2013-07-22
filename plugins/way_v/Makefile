@@ -9,9 +9,9 @@ PREFIX = /usr
 
 BASE_FLAGS     = -ffast-math -msse -msse2 -msse3 -mfpmath=sse -Wall -Isrc -I.
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
-BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11 sm sndfile) $(CXXFLAGS)
+BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11 sndfile) $(CXXFLAGS)
 LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa sndfile samplerate)
-LINK_CXXFLAGS  = -lm -pthread $(shell pkg-config --libs liblo QtCore QtGui x11 sm sndfile) $(LDFLAGS)
+LINK_CXXFLAGS  = -lm -pthread $(shell pkg-config --libs liblo QtCore QtGui x11 sndfile) $(LDFLAGS)
 
 CXX_OBJS = src/synth_qt_gui.o src/moc_synth_qt_gui.o
 
