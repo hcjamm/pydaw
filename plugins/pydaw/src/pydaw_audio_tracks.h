@@ -553,10 +553,7 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
     f_result->sample_fade_in_divisor = (float)(f_result->sample_fade_in_end - f_result->sample_start_offset - (PYDAW_AUDIO_ITEM_PADDING_DIV2));
     
     f_result->sample_fade_out_divisor = (float)(f_result->sample_end_offset - f_result->sample_fade_out_start);
-    
-    char * f_lane_num_char = c_iterate_2d_char_array(f_current_string);    
-    free(f_lane_num_char);  //not used by the engine
-        
+            
     f_result->ratio = f_result->wav_pool_item->ratio_orig;
     
     switch(f_result->timestretch_mode)
