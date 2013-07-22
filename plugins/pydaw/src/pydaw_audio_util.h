@@ -366,7 +366,14 @@ void v_pydaw_pitch_envelope(char * a_file_in, char * a_file_out, float a_start_p
             }
         }
         
-        sf_writef_float(f_sndfile, f_output, f_size);
+        if(info.channels == 1)
+        {
+            sf_writef_float(f_sndfile, f_output, f_size);
+        }
+        else if(info.channels == 2)
+        {
+            sf_writef_float(f_sndfile, f_output, f_size / 2);
+        }
     }
         
     sf_close(f_sndfile);

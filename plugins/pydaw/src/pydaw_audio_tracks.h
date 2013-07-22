@@ -578,10 +578,6 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
                             f_result->pitch_core_ptr, f_result->pitch_ratio_ptr);
                 }
             }
-            else
-            {
-                printf("\n\n%f != %f\n\n", f_result->pitch_shift, f_result->pitch_shift_end);
-            }
         }
             break;
         case 2:  //Time affecting pitch
@@ -589,10 +585,6 @@ t_pydaw_audio_item * g_audio_item_load_single(float a_sr, t_2d_char_array * f_cu
             if(f_result->timestretch_amt == f_result->timestretch_amt_end) //Otherwise, it's already been stretched offline
             {
                 f_result->ratio *= (1.0f / (f_result->timestretch_amt));
-            }
-            else
-            {
-                printf("\n\n%f != %f\n\n", f_result->timestretch_amt, f_result->timestretch_amt_end);
             }
         }
             break;
