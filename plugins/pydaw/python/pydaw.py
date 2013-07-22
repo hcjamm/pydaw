@@ -573,6 +573,7 @@ class region_settings:
         global_current_region_name = str(a_file_name)
         global global_current_region
         global_current_region = this_pydaw_project.get_region_by_name(a_file_name)
+        print global_current_region.region_length_bars
         if global_current_region.region_length_bars > 0:
             for f_editor in global_region_editors:
                 f_editor.set_region_length(global_current_region.region_length_bars)
@@ -6242,6 +6243,8 @@ def global_close_all():
 
 def global_ui_refresh_callback(a_restore_all=False):
     """ Use this to re-open all existing items/regions/song in their editors when the files have been changed externally"""
+    for f_editor in global_region_editors:
+        f_editor.open_tracks()
     f_regions_dict = this_pydaw_project.get_regions_dict()
     global global_current_region
     if global_current_region is not None and f_regions_dict.uid_exists(global_current_region.uid):
@@ -6255,8 +6258,6 @@ def global_ui_refresh_callback(a_restore_all=False):
         global_open_items()
     this_song_editor.open_song()
     this_transport.open_transport()
-    for f_editor in global_region_editors:
-            f_editor.open_tracks()
     this_pydaw_project.this_dssi_gui.pydaw_open_song(this_pydaw_project.project_folder, a_restore_all)
     global_set_record_armed_track()
 
