@@ -928,9 +928,10 @@ class region_list_editor:
         self.delete_action = QtGui.QAction("Delete (Del)", self.table_widget)
         self.delete_action.triggered.connect(self.delete_selected)
         self.table_widget.addAction(self.delete_action)
-        self.transpose_action = QtGui.QAction("Transpose", self.table_widget)
-        self.transpose_action.triggered.connect(self.transpose_dialog)
-        self.table_widget.addAction(self.transpose_action)
+        if a_track_type == 0:
+            self.transpose_action = QtGui.QAction("Transpose", self.table_widget)
+            self.transpose_action.triggered.connect(self.transpose_dialog)
+            self.table_widget.addAction(self.transpose_action)
 
         self.main_vlayout.addWidget(self.table_widget, 2, 0)
         self.last_item_copied = None
