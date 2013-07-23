@@ -31,7 +31,9 @@ else
 fi
 
 sudo cp /etc/resolv.conf edit/etc/
-sudo cp sources.list edit/etc/apt/
+
+sudo cp /etc/apt/sources.list edit/etc/apt/
+
 sudo cp pydaw-live.sh edit/etc/profile.d/
 pydaw_live_script=edit/etc/profile.d/pydaw-live.sh
 sudo chmod +x "$pydaw_live_script"
