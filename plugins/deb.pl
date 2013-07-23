@@ -13,21 +13,8 @@ perl deb.pl
 
 $short_name = "pydaw3";
 
-$arch = `uname -i`;
+$arch = `dpkg --print-architecture`;
 chomp($arch);
-
-if($arch eq "x86_64")
-{
-$arch = "amd64"; #i386 will already be correct, so there is no elsif for it
-}
-elsif($arch eq "unknown")
-{
-	print "Unknown architecture, please enter the name of the architecture.  Some standard ones are i386, i686 and AMD64.  
-If you're not sure, press CTRL+C to exit the script, and confirm the architecture you're compiling for, otherwise your packages won't work
-arch:\n";
-	$arch = <STDIN>;
-	chomp($arch);	
-}
 
 require 'build-lib.pl';
 
