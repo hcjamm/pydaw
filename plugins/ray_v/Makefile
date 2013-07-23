@@ -8,9 +8,9 @@ PREFIX = /usr
 
 BASE_FLAGS     =  -mstackrealign -fsingle-precision-constant -mtune=generic -msse -msse2 -msse3 -mfpmath=sse -Isrc
 BUILD_CFLAGS   = $(BASE_FLAGS) $(CFLAGS)
-BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11 sm) $(CXXFLAGS)
+BUILD_CXXFLAGS = $(BASE_FLAGS) $(shell pkg-config --cflags liblo QtCore QtGui x11) $(CXXFLAGS)
 LINK_CFLAGS    = -shared -lm $(LDFLAGS) $(shell pkg-config --libs liblo alsa)
-LINK_CXXFLAGS  = -lm $(shell pkg-config --libs liblo QtCore QtGui x11 sm) $(LDFLAGS)
+LINK_CXXFLAGS  = -lm $(shell pkg-config --libs liblo QtCore QtGui x11) $(LDFLAGS)
 
 CXX_OBJS = src/synth_qt_gui.o src/moc_synth_qt_gui.o
 
