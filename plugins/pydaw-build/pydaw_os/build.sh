@@ -8,14 +8,20 @@
 
 sudo apt-get install squashfs-tools genisoimage
 
-if [ ! -f ubuntu-12.04.2-desktop-amd64.iso ]; then
-	echo "You must place ubuntu-12.04.2-desktop-amd64.iso in this directory before continuing"
+if [ $1 == "saucy" ]; then
+	ISO_NAME="saucy-desktop-amd64.iso"
+else
+	ISO_NAME="ubuntu-12.04.2-desktop-amd64.iso"
+fi
+
+if [ ! -f $ISO_NAME ]; then
+	echo "You must place $ISO_NAME in this directory before continuing"
 	exit 1
 fi
 
 if [ ! -d extract-cd ]; then
 	mkdir mnt
-	sudo mount -o loop ubuntu*.iso mnt
+	sudo mount -o loop $ISO_NAME mnt
 	mkdir extract-cd
 	sudo rsync --exclude=/casper/filesystem.squashfs -a mnt/ extract-cd
 	sudo unsquashfs mnt/casper/filesystem.squashfs
