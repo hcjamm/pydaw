@@ -928,11 +928,65 @@ class region_list_editor:
         self.delete_action = QtGui.QAction("Delete (Del)", self.table_widget)
         self.delete_action.triggered.connect(self.delete_selected)
         self.table_widget.addAction(self.delete_action)
+        self.transpose_action = QtGui.QAction("Transpose", self.table_widget)
+        self.transpose_action.triggered.connect(self.transpose_dialog)
+        self.table_widget.addAction(self.transpose_action)
 
         self.main_vlayout.addWidget(self.table_widget, 2, 0)
         self.last_item_copied = None
         self.reset_tracks()
         self.last_cc_line_num = 1
+
+    def get_selected_items(self):
+        f_result = []
+        for f_index in self.table_widget.selectedIndexes():
+            f_cell = self.table_widget.item(f_index.row(), f_index.column())
+            if not f_cell is None and not str(f_cell.text()) == "":
+                f_result.append(str(f_cell.text()))
+        return f_result
+
+    def transpose_dialog(self):
+        if pydaw_global_current_region_is_none():
+            return
+
+        f_item_list = self.get_selected_items()
+        if len(f_item_list) == 0:
+            QtGui.QMessageBox.warning(this_main_window, "Error", "No items selected")
+            return
+
+        def transpose_ok_handler():
+            for f_item_name in f_item_list:
+                f_item = this_pydaw_project.get_item_by_name(f_item_name)
+                f_item.transpose(f_semitone.value(), f_octave.value(), a_selected_only=False)
+                this_pydaw_project.save_item(f_item_name, f_item)
+            this_pydaw_project.commit("Transpose item(s)")
+            if len(global_open_items_uids) > 0:
+                global_open_items()
+            f_window.close()
+
+        def transpose_cancel_handler():
+            f_window.close()
+
+        f_window = QtGui.QDialog(this_main_window)
+        f_window.setWindowTitle("Transpose")
+        f_layout = QtGui.QGridLayout()
+        f_window.setLayout(f_layout)
+
+        f_semitone = QtGui.QSpinBox()
+        f_semitone.setRange(-12, 12)
+        f_layout.addWidget(QtGui.QLabel("Semitones"), 0, 0)
+        f_layout.addWidget(f_semitone, 0, 1)
+        f_octave = QtGui.QSpinBox()
+        f_octave.setRange(-5, 5)
+        f_layout.addWidget(QtGui.QLabel("Octaves"), 1, 0)
+        f_layout.addWidget(f_octave, 1, 1)
+        f_ok = QtGui.QPushButton("OK")
+        f_ok.pressed.connect(transpose_ok_handler)
+        f_layout.addWidget(f_ok, 2, 0)
+        f_cancel = QtGui.QPushButton("Cancel")
+        f_cancel.pressed.connect(transpose_cancel_handler)
+        f_layout.addWidget(f_cancel, 2, 1)
+        f_window.exec_()
 
     def table_keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
