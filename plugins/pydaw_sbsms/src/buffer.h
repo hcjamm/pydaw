@@ -2,6 +2,8 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
+#include "string.h"
+#include "stdlib.h"
 #include "sbsms.h"
 #include "grain.h"
 #include <list>
