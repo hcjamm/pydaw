@@ -1304,8 +1304,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             self.path_items.append(f_path_item)
             f_y_pos += self.y_inc
         f_file_name = this_pydaw_project.get_wav_name_by_uid(self.audio_item.uid)
-        if self.audio_item.time_stretch_mode >= 2:
-            f_file_name = this_pydaw_project.timestretch_lookup_orig_path(f_file_name)
+        f_file_name = this_pydaw_project.timestretch_lookup_orig_path(f_file_name)
         f_name_arr = f_file_name.split("/")
         f_name = f_name_arr[-1]
         self.label = QtGui.QGraphicsSimpleTextItem(f_name, parent=self)

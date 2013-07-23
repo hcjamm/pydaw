@@ -617,7 +617,7 @@ class pydaw_project:
         f_pygraph_file = self.samplegraph_folder + "/" + str(a_uid)
         f_result = pydaw_sample_graph.create(f_pygraph_file)
         if not f_result.is_valid() or not f_result.check_mtime():
-            print("Not valid, or else mtime is newer than graph time, deleting sample graph...")
+            print("\n\nNot valid, or else mtime is newer than graph time, deleting sample graph...\n")
             os.system('rm "' + f_pygraph_file + '"')
             pydaw_remove_item_from_sg_cache(f_pygraph_file)
             self.create_sample_graph(self.get_wav_path_by_uid(a_uid), a_uid)
@@ -666,6 +666,9 @@ class pydaw_project:
                 return
             else:
                 sleep(0.1)
+        print("\n\n\n\n")
+        print(str(a_path))
+        print(str(a_uid))
         raise Exception
 
     def get_transport(self):
@@ -2081,10 +2084,6 @@ class pydaw_sample_graph:
             f_result.closeSubpath()
             f_paths.append(f_result)
         return f_paths
-
-    #def get_sample_graph_widget(self):
-    #    f_paths = self.create_sample_graph()
-    #    return pydaw_render_widget(f_paths)
 
     def check_mtime(self):
         """ Returns False if the sample graph is older than the file modified time """
