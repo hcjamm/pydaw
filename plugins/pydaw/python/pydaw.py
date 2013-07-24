@@ -92,7 +92,7 @@ def pydaw_update_region_lengths_dict():
     global_region_lengths_dict = {}
     global_audio_region_snap_px = {}
     global_bar_count = 300 * 8
-    for k, v in f_song.regions.iteritems():
+    for k, v in list(f_song.regions.items()):
         f_region = this_pydaw_project.get_region_by_uid(v)
         if f_region.region_length_bars != 0:
             global_region_lengths_dict[int(k)] = int(f_region.region_length_bars)
@@ -107,7 +107,7 @@ def pydaw_update_region_lengths_dict():
 def pydaw_get_region_length(a_region_index):
     """ Get the length of the region at song index a_region_index from the cache """
     f_region_index = int(a_region_index)
-    if global_region_lengths_dict.has_key(f_region_index):
+    if f_region_index in global_region_lengths_dict:
         return global_region_lengths_dict[f_region_index]
     else:
         return 8
@@ -250,7 +250,7 @@ class song_editor:
         self.table_widget.clearContents()
         self.song = this_pydaw_project.get_song()
         f_region_dict = this_pydaw_project.get_regions_dict()
-        for f_pos, f_region in self.song.regions.iteritems():
+        for f_pos, f_region in list(self.song.regions.items()):
             self.add_qtablewidgetitem(f_region_dict.get_name_by_uid(f_region), f_pos)
         f_headers_arr = []
         for f_i in range(0, 300):
@@ -573,7 +573,6 @@ class region_settings:
         global_current_region_name = str(a_file_name)
         global global_current_region
         global_current_region = this_pydaw_project.get_region_by_name(a_file_name)
-        print global_current_region.region_length_bars
         if global_current_region.region_length_bars > 0:
             for f_editor in global_region_editors:
                 f_editor.set_region_length(global_current_region.region_length_bars)
@@ -656,15 +655,15 @@ class region_list_editor:
         self.reset_tracks()
         if self.track_type == pydaw_track_type_enum.midi():
             f_tracks = this_pydaw_project.get_tracks()
-            for key, f_track in f_tracks.tracks.iteritems():
+            for key, f_track in list(f_tracks.tracks.items()):
                 self.tracks[key].open_track(f_track)
         elif self.track_type == pydaw_track_type_enum.bus():
             f_tracks = this_pydaw_project.get_bus_tracks()
-            for key, f_track in f_tracks.busses.iteritems():
+            for key, f_track in list(f_tracks.busses.items()):
                 self.tracks[key].open_track(f_track)
         elif self.track_type == pydaw_track_type_enum.audio():
             f_tracks = this_pydaw_project.get_audio_tracks()
-            for key, f_track in f_tracks.tracks.iteritems():
+            for key, f_track in list(f_tracks.tracks.items()):
                 self.tracks[key].open_track(f_track)
 
     def reset_tracks(self):
@@ -1155,7 +1154,6 @@ class region_list_editor:
             f_row = f_item[0] + f_base_row
             if f_row >= self.track_count or f_row < 0:
                 continue
-            print f_item[2], f_row, f_column
             self.add_qtablewidgetitem(f_item[2], f_row, f_column)
         global_tablewidget_to_region()
 
@@ -1236,7 +1234,7 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
         f_cbox.addItems(['test', 'test2'])  #This is to ensure that the text clears, which apparently won't happen automatically
         f_cbox.setCurrentIndex(1)
         f_cbox.clear()
-        f_cbox.addItems(global_audio_track_names.values())
+        f_cbox.addItems(list(global_audio_track_names.values()))
         f_cbox.setCurrentIndex(f_current_index)
 
     global_suppress_audio_track_combobox_changes = False
@@ -1855,7 +1853,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                         f_end_result = f_audio_item.pos_to_musical_time(f_x + f_audio_item.pos().x())
                         f_item.end_bar = f_end_result[0]
                         f_item.end_beat = f_end_result[1]
-                        print f_item.end_bar, f_item.end_beat
                     f_item.timestretch_amt = f_x / f_audio_item.stretch_width_default
                     f_item.timestretch_amt_end = f_item.timestretch_amt
                     if f_item.time_stretch_mode >= 3 and f_audio_item.orig_string != str(f_item):
@@ -1994,7 +1991,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
             f_vol_val = f_selected_items[0].audio_item.vol
             for f_item in f_selected_items[1:]:
                 if f_item.audio_item.vol != f_vol_val:
-                    print f_item.audio_item.vol
                     f_vol_checked = False
                     break
         this_audio_item_editor_widget.vol_checkbox.setChecked(f_vol_checked)
@@ -2166,7 +2162,7 @@ def global_get_file_bookmarks():
             if os.path.isdir(f_full_path):
                 f_result[f_line_arr[0]] = f_line_arr[1]
             else:
-                print("Warning:  Not loading bookmark '" + f_line_arr[0] + "' because the directory '" + f_full_path + "' does not exist.")
+                print(("Warning:  Not loading bookmark '" + f_line_arr[0] + "' because the directory '" + f_full_path + "' does not exist."))
     return f_result
 
 def global_add_file_bookmark(a_folder):
@@ -2175,7 +2171,7 @@ def global_add_file_bookmark(a_folder):
     f_folder_arr = f_folder.split("/")
     f_dict[f_folder_arr[-1]] = "/".join(f_folder_arr[:-1])
     f_result = ""
-    for k, v in f_dict.iteritems():
+    for k, v in list(f_dict.items()):
         f_result += str(k) + "|||" + str(v) + "\n"
     pydaw_write_file_text(global_bookmarks_file_path, f_result.strip("\n"))
 
@@ -2336,7 +2332,7 @@ class audio_items_viewer_widget():
     def open_bookmarks(self):
         self.list_bookmarks.clear()
         f_dict = global_get_file_bookmarks()
-        for k, v in f_dict.iteritems():
+        for k, v in list(f_dict.items()):
             self.list_bookmarks.addItem(str(k))
 
     def bookmark_button_pressed(self):
@@ -2383,8 +2379,8 @@ class audio_items_viewer_widget():
                     if not pydaw_str_has_bad_chars(f_full_path):
                         self.list_file.addItem(f_file)
                     else:
-                        print("Not adding '" + f_full_path + "' because it contains bad chars, you must rename this file path without:")
-                        print("\n".join(pydaw_bad_chars))
+                        print(("Not adding '" + f_full_path + "' because it contains bad chars, you must rename this file path without:"))
+                        print(("\n".join(pydaw_bad_chars)))
 
     def set_v_zoom(self, a_val=None):
         this_audio_items_viewer.set_v_zoom(1.0 / self.v_zoom)
@@ -2530,7 +2526,7 @@ class audio_item_editor_widget:
         global global_audio_track_comboboxes
         global_audio_track_comboboxes.append(self.output_combobox)
         self.output_combobox.setMinimumWidth(210)
-        self.output_combobox.addItems(global_audio_track_names.values())
+        self.output_combobox.addItems(list(global_audio_track_names.values()))
         self.output_combobox.currentIndexChanged.connect(self.output_changed)
         self.output_hlayout.addWidget(self.output_combobox)
         self.vlayout2.addLayout(self.output_hlayout)
@@ -2649,7 +2645,7 @@ class audio_item_editor_widget:
 
     def open_item(self, a_item):
         print("audio_item_editor_widget.open_item()")
-        print(str(a_item))
+        print((str(a_item)))
         if a_item is None:
             pass #TODO:  Reset values to default
         else:
@@ -2771,10 +2767,10 @@ class audio_list_editor:
                 if f_item.isSelected():
                     f_selected_list.append(str(f_item.audio_item))
             this_audio_items_viewer.clear_drawn_items()
-            for k, v in self.audio_items.items.iteritems():
+            for k, v in list(self.audio_items.items.items()):
                     f_graph = this_pydaw_project.get_sample_graph_by_uid(v.uid)
                     if f_graph is None:
-                        print("Error drawing item for " + str(v.uid) + ", could not get sample graph object")
+                        print(("Error drawing item for " + str(v.uid) + ", could not get sample graph object"))
                         continue
                     this_audio_items_viewer.draw_item(k, v, f_graph.length_in_seconds)
             for f_item in this_audio_items_viewer.audio_items:
@@ -3866,7 +3862,6 @@ def global_update_items_label():
         this_item_editor.item_names.append(f_items_dict.get_name_by_uid(f_item_uid))
     f_label_text = ", ".join(this_item_editor.item_names)
     if len(f_label_text) >= 150:
-        print len(f_label_text)
         f_label_text = f_label_text[:150] + "..."
     this_item_editor.item_list_label.setText(f_label_text)
 
@@ -3898,7 +3893,6 @@ def global_open_items(a_items=None):
         this_item_editor.item_names = a_items
         f_label_text = ", ".join(a_items)
         if len(f_label_text) >= 150:
-            print len(f_label_text)
             f_label_text = f_label_text[:150] + "..."
         this_item_editor.item_list_label.setText(f_label_text)
         this_item_editor.item_index_enabled = False
@@ -3926,16 +3920,16 @@ def global_open_items(a_items=None):
         this_item_editor.items.append(f_item)
         for cc in f_item.ccs:
             f_key = str(cc.plugin_index) + "|" + str(cc.cc_num)
-            if not f_cc_dict.has_key(f_key):
+            if not f_key in f_cc_dict:
                 f_cc_dict[f_key] = []
             f_cc_dict[f_key] = cc
 
     this_piano_roll_editor.draw_item()
     for i in range(3):
-        this_item_editor.cc_auto_viewers[i].update_ccs_in_use(f_cc_dict.keys())
+        this_item_editor.cc_auto_viewers[i].update_ccs_in_use(list(f_cc_dict.keys()))
     f_i = 0
     if a_items is not None:
-        for f_cc_num in f_cc_dict.keys():
+        for f_cc_num in list(f_cc_dict.keys()):
             this_item_editor.cc_auto_viewers[f_i].set_cc_num(f_cc_num)
             f_i += 1
             if f_i >= len(this_item_editor.cc_auto_viewers):
@@ -5042,7 +5036,6 @@ class transport_widget:
         f_seconds_per_bar = 60.0 / (self.tempo_spinbox.value() * 0.25)
         f_bars_total = int(a_seconds / f_seconds_per_bar)
         f_region, f_bar = pydaw_bars_to_pos(f_bars_total)
-        print f_region, f_bar
         self.region_spinbox.setValue(f_region)
         self.bar_spinbox.setValue(f_bar)
 
@@ -5878,7 +5871,7 @@ class pydaw_controller_map_item:
         self.max = float(a_max)
 
 def pydaw_load_controller_maps():
-    f_file_list = global_cc_names.keys()
+    f_file_list = list(global_cc_names.keys())
     for f_file_name in f_file_list:
         f_cc_map_text = pydaw_read_file_text("/usr/lib/" + global_pydaw_version_string + "/cc_maps/" + f_file_name + ".pymap")
         f_cc_map_arr = f_cc_map_text.split("\n")
@@ -6123,7 +6116,7 @@ class pydaw_cc_map_editor:
         self.cc_table.setSortingEnabled(False)
         self.cc_table.setRowCount(len(f_map.map))
         f_row_pos = 0
-        for k, v in f_map.map.iteritems():
+        for k, v in list(f_map.map.items()):
             if k < 10:
                 f_num = "00" + str(k)
             elif k < 100:
@@ -6214,7 +6207,7 @@ class a_b_widget:
         f_rate = f_wav.getframerate()
         self.duration = f_frames/float(f_rate)
         f_wav.close()
-        print("Duration:  " + str(self.duration))
+        print(("Duration:  " + str(self.duration)))
         #self.timeout = (self.duration / 1000.0) * 1000.0  #<think about that...
         self.timer.setInterval(self.duration)
         self.has_loaded_file = True

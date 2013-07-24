@@ -207,7 +207,7 @@ class EventFactory(object):
         elif (Event in bases) or (NoteEvent in bases):
             cls.EventRegistry.append(event)
         else:
-            raise ValueError, "Unknown bases class in event type: "+event.name
+            raise ValueError("Unknown bases class in event type: " + event.name)
     register_event = classmethod(register_event)
 
     def parse_midi_event(self, track):
@@ -226,7 +226,7 @@ class EventFactory(object):
                     evi.decode(self.RunningTick, cmd, track)
                     return evi
             else:
-                raise Warning, "Unknown Meta MIDI Event: " + `cmd`
+                raise Warning("Unknown Meta MIDI Event: ") # + `cmd`
         # not a Meta MIDI event, must be a general message
         else:
             for etype in self.EventRegistry:
@@ -243,7 +243,7 @@ class EventFactory(object):
                             cached_stsmsg, track, chr(stsmsg))
                     return evi
                 else:
-                    raise Warning, "Unknown MIDI Event: " + `stsmsg`
+                    raise Warning("Unknown MIDI Event: ") # + `stsmsg`
 
 class NoteEvent(Event):
     length = 2
@@ -729,15 +729,15 @@ class EventStream(object):
 
     def timesort(self):
         self.trackpool.sort()
-        for track in self.tracklist.values():
+        for track in list(self.tracklist.values()):
             track.sort()
 
     def textdump(self):
         for event in self.trackpool:
-            print event
+            print((str(event)))
 
     def __iter__(self):
-        return iter(self.tracklist.values())
+        return iter(list(self.tracklist.values()))
 
     def iterevents(self, mswindow=0):
         self.timesort()
@@ -873,7 +873,7 @@ class EventStreamReader(object):
         elif isinstance(instream, StringIO):  #was string before...
             self.instream = StringIO(instream)
         else:
-            raise TypeError, "Expecting file, string, or StringIO"
+            raise TypeError("Expecting file, string, or StringIO")
         self.parse_file_header()
         for track in range(self.midistream.trackcount):
             trksz = self.parse_track_header()
@@ -885,7 +885,7 @@ class EventStreamReader(object):
         # First four bytes are MIDI header
         magic = self.instream.read(4)
         if magic != 'MThd':
-            raise TypeError, "Bad header in MIDI file."
+            raise TypeError("Bad header in MIDI file.")
         # next four bytes are header size
         # next two bytes specify the format version
         # next two bytes specify the number of tracks
@@ -905,7 +905,7 @@ class EventStreamReader(object):
         # First four bytes are Track header
         magic = self.instream.read(4)
         if magic != 'MTrk':
-            raise TypeError, "Bad track header in MIDI file: " + magic
+            raise TypeError("Bad track header in MIDI file: " + magic)
         # next four bytes are header size
         trksz = unpack(">L", self.instream.read(4))[0]
         return trksz
@@ -959,12 +959,12 @@ def write_varlen(value):
 def test_varlen():
     for value in xrange(0x0FFFFFFF):
         if not (value % 0xFFFF):
-            print hex(value)
+            print((str(hex(value))))
         datum = write_varlen(value)
         newvalue = read_varlen(iter(datum))
         if value != newvalue:
             hexstr = str.join('', map(hex, map(ord, datum)))
-            print "%s != %s (hex: %s)" % (value, newvalue, hexstr)
+            print(("%s != %s (hex: %s)" % (value, newvalue, hexstr)))
 
 def new_stream(tempo=120, resolution=480, format=1):
     stream = EventStream()

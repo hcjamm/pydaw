@@ -127,7 +127,7 @@ def pydaw_wait_for_finished_file(a_file):
                 os.remove(a_file)
                 break
             except:
-                print("pydaw_wait_for_finished_file:  Exception when deleting " + a_file)
+                print(("pydaw_wait_for_finished_file:  Exception when deleting " + a_file))
         else:
             sleep(0.1)
 

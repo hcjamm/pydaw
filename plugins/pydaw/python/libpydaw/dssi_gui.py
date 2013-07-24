@@ -16,7 +16,7 @@ import sys
 import liblo
 from liblo import *
 from urlparse import urlparse
-from pydaw_util import bool_to_int, pydaw_wait_for_finished_file, pydaw_get_wait_file_path
+from libpydaw.pydaw_util import bool_to_int, pydaw_wait_for_finished_file, pydaw_get_wait_file_path
 
 
 class dssi_gui(ServerThread):
@@ -40,16 +40,16 @@ class dssi_gui(ServerThread):
 
             try:
                 self.target = liblo.Address(o.port)
-            except liblo.AddressError, err:
-                print str(err)
+            except liblo.AddressError as err:
+                print((str(err)))
                 sys.exit()
             except:
-                print("Unable to start OSC with " + str(o.port))
+                print(("Unable to start OSC with " + str(o.port)))
                 self.with_osc = False
                 return
 
             self.base_path = str.split(a_url, str(o.port))[1]
-            print("base_path = " + self.base_path)
+            print(("base_path = " + self.base_path))
 
             self.control_path = self.base_path + "/control"
             self.program_path = self.base_path + "/program"
@@ -65,7 +65,7 @@ class dssi_gui(ServerThread):
             self.add_method(self.control_path, 'if', self.control_handler)
 
             liblo.send(self.target, self.update_path, self.get_url()[:-1] + self.base_path)
-            print("Sent " + self.get_url()[:-1] + self.base_path + " to " + self.update_path)
+            print(("Sent " + self.get_url()[:-1] + self.base_path + " to " + self.update_path))
 
     def stop_server(self):
         print("stop_server called")
@@ -77,17 +77,17 @@ class dssi_gui(ServerThread):
         if self.with_osc:
             liblo.send(self.target, self.control_path, port_number, port_value)
         else:
-            print("Running standalone UI without OSC.  Would've sent control message: key:" + str(port_number) + " value: " + str(port_value))
+            print(("Running standalone UI without OSC.  Would've sent control message: key:" + str(port_number) + " value: " + str(port_value)))
 
     def send_configure(self, key, value):
         if self.with_osc:
             liblo.send(self.target, self.configure_path, key, value)
         else:
-            print("Running standalone UI without OSC.  Would've sent configure message: key: \"" + str(key) + "\" value: \"" + str(value) + "\"")
+            print(("Running standalone UI without OSC.  Would've sent configure message: key: \"" + str(key) + "\" value: \"" + str(value) + "\""))
 
     def configure_handler(self, path, args):
         s1, s2 = args
-        print("PyDAW configure_handler called key: " + s1 + " value: " + s2 + "\n")
+        print(("PyDAW configure_handler called key: " + s1 + " value: " + s2 + "\n"))
         if s1 == "pc":  #playback cursor
             if not self.pc_func is None:
                 f_vals = s2.split("|")
@@ -105,9 +105,9 @@ class dssi_gui(ServerThread):
     @make_method(None, None)
     def fallback(path, args, types, src):
         if self.with_osc:
-            print "got unknown message '%s' from '%s'" % (path, src.get_url())
+            print(("got unknown message '%s' from '%s'" % (path, src.get_url())))
             for a, t in zip(args, types):
-                print "argument of type '%s': %s" % (t, a)
+                print(("argument of type '%s': %s" % (t, a)))
 
     #methods for sending PyDAW-protocol OSC messages
 

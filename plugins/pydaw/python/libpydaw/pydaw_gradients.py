@@ -13,7 +13,7 @@ GNU General Public License for more details.
 """
 
 from PyQt4 import QtGui, QtCore
-from pydaw_project import pydaw_midi_track_count
+from libpydaw.pydaw_project import pydaw_midi_track_count
 
 def pydaw_linear_interpolate_gradient(a_pos):
     f_frac = a_pos % 1
@@ -24,7 +24,7 @@ def pydaw_linear_interpolate_gradient(a_pos):
     f_green = ((pydaw_rainbow_gradient[f_int][0] - pydaw_rainbow_gradient[f_int + 1][1]) * f_frac) + pydaw_rainbow_gradient[f_int + 1][1]
     f_blue = ((pydaw_rainbow_gradient[f_int][0] - pydaw_rainbow_gradient[f_int + 1][2]) * f_frac) + pydaw_rainbow_gradient[f_int + 1][2]
     if __name__ == "__main__":
-        print("rgba(" + str(f_red) + ", " + str(f_green) + ", " + str(f_blue) + ", 255.0)")
+        print(("rgba(" + str(f_red) + ", " + str(f_green) + ", " + str(f_blue) + ", 255.0)"))
     return (f_red, f_green, f_blue)
 
 pydaw_g_hi = 210.0

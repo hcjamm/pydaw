@@ -15,14 +15,14 @@ GNU General Public License for more details.
 import os, random, traceback, subprocess
 from shutil import move
 from time import sleep
-import midi
-from pydaw_util import *
+from libpydaw import midi
+from libpydaw.pydaw_util import *
 
 #from lms_session import lms_session #deprecated
-from dssi_gui import dssi_gui
+from libpydaw.dssi_gui import dssi_gui
 
 from PyQt4 import QtGui, QtCore
-import pydaw_history
+from libpydaw import pydaw_history
 
 global_pydaw_version_string = "pydaw3"
 global_pydaw_file_type_string = 'PyDAW3 Project (*.pydaw3)'
@@ -88,7 +88,7 @@ class pydaw_project:
         f_history_file = pydaw_history.pydaw_history_file(a_folder, a_file, a_text, f_old, f_existed)
         self.history_files.append(f_history_file)
         #TODO:  debug/verbose mode this output...
-        print(str(f_history_file))
+        print((str(f_history_file)))
 
     def commit(self, a_message):
         """ Commit the project history """
@@ -132,8 +132,8 @@ class pydaw_project:
         return os.listdir(self.audiofx_folder)
 
     def save_plugin_state(self, a_old, a_new, a_folder, a_ext=None):
-        for k, v in a_new.iteritems():
-            if a_old.has_key(k):
+        for k, v in list(a_new.items()):
+            if k in a_old:
                 f_existed = 1
                 f_old_text = a_old[k]
             else:
@@ -172,14 +172,14 @@ class pydaw_project:
     def save_project_as(self, a_file_name):
         self.save_project()  #This is necessary to capture the plugin states before copying everything over...  Otherwise the instruments and effects may not be what they were at this time...
         f_file_name = str(a_file_name)
-        print("Saving project as " + f_file_name + " ...")
+        print(("Saving project as " + f_file_name + " ..."))
         f_new_project_folder = os.path.dirname(f_file_name)
         #The below is safe because we already checked that the folder should be empty before calling this
         f_cmd = 'rm -rf "' + f_new_project_folder + '"'
         os.popen(f_cmd)
         f_cmd = 'cp -r "' + self.project_folder + '" "' + f_new_project_folder + '"'
         os.popen(f_cmd)
-        print(f_new_project_folder + "/" + self.project_file + " | " + a_file_name)
+        print((f_new_project_folder + "/" + self.project_file + " | " + a_file_name))
         move(f_new_project_folder + "/" + self.project_file + ".pydaw3", a_file_name)
         self.set_project_folders(f_file_name)
         self.this_dssi_gui.pydaw_open_song(self.project_folder)
@@ -212,7 +212,7 @@ class pydaw_project:
     def open_project(self, a_project_file, a_notify_osc=True):
         self.set_project_folders(a_project_file)
         if not os.path.exists(a_project_file):
-            print("project file " + a_project_file + " does not exist, creating as new project")
+            print(("project file " + a_project_file + " does not exist, creating as new project"))
             self.new_project(a_project_file)
         else:
             self.history = pydaw_history.pydaw_history(self.project_folder)
@@ -285,7 +285,7 @@ class pydaw_project:
                 self.timestretch_cache[(int(f_line_arr[0]), float(f_line_arr[1]), float(f_line_arr[2]), \
                 float(f_line_arr[3]), float(f_line_arr[4]), f_file_path_and_uid[0])] = int(f_file_path_and_uid[1])
             else:
-                print("Error: len(f_line_arr) == " + str(len(f_line_arr)))
+                print(("Error: len(f_line_arr) == " + str(len(f_line_arr))))
                 assert(False)
 
         f_map_text = pydaw_read_file_text(self.pystretch_map_file)
@@ -297,7 +297,7 @@ class pydaw_project:
 
     def save_stretch_dicts(self):
         f_stretch_text = ""
-        for k, v in self.timestretch_cache.iteritems():
+        for k, v in list(self.timestretch_cache.items()):
             for f_tuple_val in k:
                 f_stretch_text += str(f_tuple_val) + "|"
             f_stretch_text += "||" + str(v) + "\n"
@@ -305,7 +305,7 @@ class pydaw_project:
         self.save_file("", pydaw_file_pystretch, f_stretch_text)
 
         f_map_text = ""
-        for k, v in self.timestretch_reverse_lookup.iteritems():
+        for k, v in list(self.timestretch_reverse_lookup.items()):
             f_map_text += str(k) + "|||" + str(v) + "\n"
         f_map_text += pydaw_terminating_char
         self.save_file("", pydaw_file_pystretch_map, f_map_text)
@@ -419,7 +419,7 @@ class pydaw_project:
         return pydaw_item.from_str(self.get_item_string(f_items_dict.get_uid_by_name(a_item_name)))
 
     def timestretch_lookup_orig_path(self, a_path):
-        if self.timestretch_reverse_lookup.has_key(a_path):
+        if a_path in self.timestretch_reverse_lookup:
             return self.timestretch_reverse_lookup[a_path]
         else:
             return a_path
@@ -430,7 +430,7 @@ class pydaw_project:
         if not os.path.isdir(self.timestretch_folder):  #TODO:  remove at PyDAWv4
             os.mkdir(self.timestretch_folder)
         f_src_path = self.get_wav_name_by_uid(a_audio_item.uid)
-        if self.timestretch_reverse_lookup.has_key(f_src_path):
+        if f_src_path in self.timestretch_reverse_lookup:
             f_src_path = self.timestretch_reverse_lookup[f_src_path]
         else:
             if (a_audio_item.timestretch_amt == 1.0 and a_audio_item.pitch_shift == 0.0 and \
@@ -440,7 +440,7 @@ class pydaw_project:
                 return None  #Don't process if the file is not being stretched/shifted yet
         f_key = (a_audio_item.time_stretch_mode, a_audio_item.timestretch_amt, a_audio_item.pitch_shift, \
         a_audio_item.timestretch_amt_end, a_audio_item.pitch_shift_end, a_audio_item.crispness, f_src_path)
-        if self.timestretch_cache.has_key(f_key):
+        if f_key in self.timestretch_cache:
             a_audio_item.uid = self.timestretch_cache[f_key]
             return None
         else:
@@ -480,7 +480,7 @@ class pydaw_project:
             a_audio_item.uid = self.timestretch_cache[f_key]
 
             if f_cmd is not None:
-                print("Running " + " ".join(f_cmd))
+                print(("Running " + " ".join(f_cmd)))
                 f_proc = subprocess.Popen(f_cmd)
                 return f_dest_path, f_uid, f_proc
             else:
@@ -489,11 +489,11 @@ class pydaw_project:
     def timestretch_get_orig_file_uid(self, a_uid):
         """ Return the UID of the original file """
         f_new_path = self.get_wav_path_by_uid(a_uid)
-        if self.timestretch_reverse_lookup.has_key(f_new_path):
+        if f_new_path in self.timestretch_reverse_lookup:
             f_old_path = self.timestretch_reverse_lookup[f_new_path]
             return self.get_wav_uid_by_name(f_old_path)
         else:
-            print("\n####\n####\nWARNING:  timestretch_get_orig_file_uid could not find uid " + str(a_uid) + "\n####\n####\n")
+            print(("\n####\n####\nWARNING:  timestretch_get_orig_file_uid could not find uid " + str(a_uid) + "\n####\n####\n"))
             return a_uid
 
     def check_for_recorded_items(self, a_item_name):
@@ -518,7 +518,7 @@ class pydaw_project:
             f_item = self.get_item_by_uid(f_int)
             f_item.fix_overlaps()
             self.save_item_by_uid(f_int, f_item, a_new_item=True)
-            while f_items_dict.uid_lookup.has_key(f_item_name + str(f_suffix)):
+            while f_item_name + str(f_suffix) in f_items_dict.uid_lookup:
                 f_suffix += 1
             f_items_dict.add_item(f_int, f_item_name + str(f_suffix))
             f_suffix += 1
@@ -541,9 +541,9 @@ class pydaw_project:
         f_suffix = 1
         f_regions_dict = self.get_regions_dict()
         for f_int in f_int_list:
-            if not f_regions_dict.name_lookup.has_key(f_int):
+            if not f_int in f_regions_dict.name_lookup:
                 self.save_file(pydaw_folder_regions_audio, f_int, pydaw_terminating_char)
-                while f_regions_dict.uid_lookup.has_key("recorded-" + str(f_suffix)):
+                while "recorded-" + str(f_suffix) in f_regions_dict.uid_lookup:
                     f_suffix += 1
                 f_regions_dict.add_item(f_int, "recorded-" + str(f_suffix))
                 f_suffix += 1
@@ -559,10 +559,10 @@ class pydaw_project:
         f_old_text = self.history.get_latest_version_of_file("", pydaw_file_pysong)
         f_new_text = pydaw_read_file_text(self.project_folder + "/" + pydaw_file_pysong)
         if f_old_text is not None and f_new_text != f_old_text:
-            print "Appending history file for pysong"
+            print("Appending history file for pysong")
             self.history_files.append(pydaw_history.pydaw_history_file("", pydaw_file_pysong, f_new_text, f_old_text, 1))
         else:
-            print "f_old_text", f_old_text
+            print(("f_old_text: " + f_old_text))
 
     def get_tracks_string(self):
         try:
@@ -667,8 +667,8 @@ class pydaw_project:
             else:
                 sleep(0.1)
         print("\n\n\n\n")
-        print(str(a_path))
-        print(str(a_uid))
+        print((str(a_path)))
+        print((str(a_uid)))
         raise Exception
 
     def get_transport(self):
@@ -789,7 +789,7 @@ class pydaw_project:
             f_name_dict = self.get_items_dict()
         else:
             f_name_dict = a_name_dict
-        if f_name_dict.uid_lookup.has_key(str(a_item_name)):
+        if str(a_item_name) in f_name_dict.uid_lookup:
             return True
         else:
             return False
@@ -803,18 +803,18 @@ class pydaw_project:
         f_items_dict = self.get_items_dict()
         for i in range(f_start, 10000):
             f_result = f_item_name + "-" + str(i)
-            if not f_items_dict.uid_lookup.has_key(f_result):
+            if not f_result in f_items_dict.uid_lookup:
                 if f_item_name == "item":
                     self.last_item_number = i
                 return f_result
 
     def get_next_default_region_name(self, a_region_name="region"):
         f_regions_dict = self.get_regions_dict()
-        if str(a_region_name) != "region" and not f_regions_dict.uid_lookup.has_key(str(a_region_name)):
+        if str(a_region_name) != "region" and not str(a_region_name) in f_regions_dict.uid_lookup:
             return str(a_region_name)
         for i in range(self.last_region_number, 10000):
             f_result = str(a_region_name) + "-" + str(i)
-            if not f_regions_dict.uid_lookup.has_key(f_result):
+            if not f_result in f_regions_dict.uid_lookup:
                 if str(a_region_name) == "region":
                     self.last_region_number = i
                 return f_result
@@ -838,7 +838,7 @@ class pydaw_project:
         f_wav_pool = self.get_wavs_dict()
         f_to_delete = []
         f_commit = False
-        for k, v in f_wav_pool.name_lookup.iteritems():
+        for k, v in list(f_wav_pool.name_lookup.items()):
             if not os.path.isfile(v):
                 f_to_delete.append(k)
         if len(f_to_delete) > 0:
@@ -847,10 +847,10 @@ class pydaw_project:
                 f_wav_pool.name_lookup.pop(f_key)
             self.save_wavs_dict(f_wav_pool)
             self.error_log_write("Removed missing audio item(s) from wav_pool")
-        for f_uid in f_regions.uid_lookup.values():
+        for f_uid in list(f_regions.uid_lookup.values()):
             f_to_delete = []
             f_region = self.get_audio_region(f_uid)
-            for k, v in f_region.items.iteritems():
+            for k, v in list(f_region.items.items()):
                 if not f_wav_pool.uid_exists(v.uid):
                     f_to_delete.append(k)
             if len(f_to_delete) > 0:
@@ -884,12 +884,12 @@ class pydaw_song:
 
     def get_next_empty_pos(self):
         for f_i in range(300):
-            if not self.regions.has_key(f_i):
+            if not f_i in self.regions:
                 return f_i
         return None
 
     def get_index_of_region(self, a_uid):
-        for k, v in self.regions.iteritems():
+        for k, v in list(self.regions.items()):
             if v == a_uid:
                 return k
         assert(False)
@@ -897,18 +897,16 @@ class pydaw_song:
     def insert_region(self, a_index, a_region_uid):
         f_new_dict = {}
         f_old_dict = {}
-        for k, v in self.regions.iteritems():
-            print str(k) + "|" + str(v)
+        for k, v in list(self.regions.items()):
             if k >= a_index:
                 if k < 299:
                     f_new_dict[k + 1] = v
             else:
                 f_old_dict[k] = v
-        print "\n\n\n"
-        for k, v in f_new_dict.iteritems():
-            print str(k) + "|" + str(v)
+        print("\n\n\n")
+        for k, v in list(f_new_dict.items()):
             f_old_dict[k] = v
-        print "\n\n\n"
+        print("\n\n\n")
         self.regions = f_old_dict
         self.regions[a_index] = a_region_uid
 
@@ -922,7 +920,7 @@ class pydaw_song:
 
     def get_region_names(self, a_uid_dict):
         f_result = {}
-        for k, v in self.regions.iteritems():
+        for k, v in list(self.regions.items()):
             f_result[k] = a_uid_dict.get_name_by_uid(v)
         return f_result
 
@@ -932,7 +930,7 @@ class pydaw_song:
 
     def __str__(self):
         f_result = ""
-        for k, v in self.regions.iteritems():
+        for k, v in list(self.regions.items()):
             f_result += str(k) + "|" + str(v) + "\n"
         f_result += pydaw_terminating_char
         return f_result
@@ -951,7 +949,7 @@ class pydaw_song:
 class pydaw_name_uid_dict:
     def gen_file_name_uid(self):
         f_result = random.randint(1000000, 9999999)
-        while self.name_lookup.has_key(f_result):
+        while f_result in self.name_lookup:
             f_result = random.randint(1000000, 9999999)
         return f_result
 
@@ -964,7 +962,7 @@ class pydaw_name_uid_dict:
         self.uid_lookup[a_name] = int(a_uid)
 
     def add_new_item(self, a_name, a_uid=None):
-        if self.uid_lookup.has_key(a_name):
+        if a_name in self.uid_lookup:
             raise Exception
         if a_uid is None:
             f_uid = self.gen_file_name_uid()
@@ -989,10 +987,10 @@ class pydaw_name_uid_dict:
         self.add_item(f_uid, f_new_name)
 
     def uid_exists(self, a_uid):
-        return self.name_lookup.has_key(int(a_uid))
+        return int(a_uid) in self.name_lookup
 
     def name_exists(self, a_name):
-        return self.uid_lookup.has_key(str(a_name))
+        return str(a_name) in self.uid_lookup
 
     @staticmethod
     def from_str(a_str):
@@ -1009,7 +1007,7 @@ class pydaw_name_uid_dict:
 
     def __str__(self):
         f_result = ""
-        for k, v in self.name_lookup.iteritems():
+        for k, v in list(self.name_lookup.items()):
             f_result += str(k) + "|" + str(v) + "\n"
         return f_result + pydaw_terminating_char
 
@@ -1048,7 +1046,7 @@ class pydaw_region:
         for f_item in self.items:
             if f_item.bar_num == a_bar_num and f_item.track_num == a_track_num:
                 self.items.remove(f_item)
-                print("remove_item_ref removed bar: " + str(f_item.bar_num) + ", track: " + str(f_item.track_num))
+                print(("remove_item_ref removed bar: " + str(f_item.bar_num) + ", track: " + str(f_item.track_num)))
 
     def __str__(self):
         f_result = ""
@@ -1210,7 +1208,6 @@ def pydaw_velocity_mod(a_items, a_amt, a_line=False, a_end_amt=127, a_add=False,
             else:
                 note.velocity = f_value
             if note.velocity > 127:
-                print note.velocity
                 note.velocity = 127
             elif note.velocity < 1:
                 note.velocity = 1
@@ -1233,8 +1230,8 @@ class pydaw_item:
         try:
             self.notes.remove(a_note)
         except Exception as ex:
-            print("\n\n\nException in remove_note:" + ex.message)
-            print(repr(traceback.extract_stack()))
+            print(("\n\n\nException in remove_note:" + ex.message))
+            print((repr(traceback.extract_stack())))
             print("\n\n\n")
 
     def velocity_mod(self, a_amt, a_start_beat=0.0, a_end_beat=4.0, a_line=False, a_end_amt=127, a_add=False, a_notes=None):
@@ -1630,7 +1627,7 @@ class pydaw_tracks:
 
     def __str__(self):
         f_result = ""
-        for k, v in self.tracks.iteritems():
+        for k, v in list(self.tracks.items()):
             f_result += str(k) + "|" + str(v)
         f_result += pydaw_terminating_char
         return f_result
@@ -1672,7 +1669,7 @@ class pydaw_busses:
 
     def __str__(self):
         f_result = ""
-        for k, f_bus in self.busses.iteritems():
+        for k, f_bus in list(self.busses.items()):
             f_result += str(k) + "|" + str(f_bus)
         f_result += pydaw_terminating_char
         return f_result
@@ -1703,7 +1700,7 @@ class pydaw_audio_tracks:
 
     def __str__(self):
         f_result = ""
-        for k, v in self.tracks.iteritems():
+        for k, v in list(self.tracks.items()):
             f_result += str(k) + "|" + str(v)
         f_result += pydaw_terminating_char
         return f_result
@@ -1736,14 +1733,14 @@ class pydaw_audio_region:
     """ Return the next available index, or -1 if none are available """
     def get_next_index(self):
         for i in range(pydaw_max_audio_item_count):
-            if not self.items.has_key(i):
+            if not i in self.items:
                 return i
         return -1
 
     def split(self, a_index):
         f_region0 = pydaw_audio_region()
         f_region1 = pydaw_audio_region()
-        for k, v in self.items.iteritems():
+        for k, v in list(self.items.items()):
             if v.start_bar >= a_index:
                 v.start_bar -= a_index
                 if v.end_mode == 1:
@@ -1765,14 +1762,14 @@ class pydaw_audio_region:
     def deduplicate_items(self):
         f_to_delete = []
         f_values = []
-        for k, v in self.items.iteritems():
+        for k, v in list(self.items.items()):
             f_str = str(v)
             if f_str in f_values:
                 f_to_delete.append(k)
             else:
                 f_values.append(f_str)
         for f_key in f_to_delete:
-            print("Removing duplicate audio item at " + str(f_key))
+            print(("Removing duplicate audio item at " + str(f_key)))
             self.items.pop(f_key)
 
     def set_region_length(self, a_length):
@@ -1781,10 +1778,10 @@ class pydaw_audio_region:
         f_to_delete = []
         f_length = int(a_length)
         f_length_change_count = 0
-        for k, v in self.items.iteritems():
+        for k, v in list(self.items.items()):
             if v.start_bar >= f_length:
                 f_to_delete.append(k)
-                print("Item begins after new region length of " + str(a_length) + ", deleting: " + str(v))
+                print(("Item begins after new region length of " + str(a_length) + ", deleting: " + str(v)))
             elif v.end_bar >= f_length:
                 v.end_bar = f_length - 1
                 v.end_beat = 3.99
@@ -1810,7 +1807,7 @@ class pydaw_audio_region:
 
     def __str__(self):
         f_result = ""
-        for k, f_item in self.items.iteritems():
+        for k, f_item in list(self.items.items()):
             f_result += str(k) + "|" + str(f_item)
         f_result += pydaw_terminating_char
         return f_result
@@ -1889,7 +1886,7 @@ class pydaw_audio_input_tracks:
 
     def __str__(self):
         f_result = ""
-        for k, v in self.tracks.iteritems():
+        for k, v in list(self.tracks.items()):
             f_result += str(k) + "|" + str(v)
         f_result += pydaw_terminating_char
         return f_result
@@ -1948,7 +1945,7 @@ class pydaw_cc_map:
 
     def __str__(self):
         f_result = ""
-        for k, v in self.map.iteritems():
+        for k, v in list(self.map.items()):
             f_result += str(k) + "|" + str(v)
         f_result += pydaw_terminating_char
         return f_result
@@ -1987,7 +1984,7 @@ def pydaw_remove_item_from_sg_cache(a_path):
     try:
         global_sample_graph_cache.pop(a_path)
     except KeyError:
-        print("\n\npydaw_remove_item_from_sg_cache: " + a_path + " not found.\n\n")
+        print(("\n\npydaw_remove_item_from_sg_cache: " + a_path + " not found.\n\n"))
 
 global_sample_graph_cache = {}
 
@@ -1996,7 +1993,7 @@ class pydaw_sample_graph:
     def create(a_file_name):
         f_file_name = str(a_file_name)
         global global_sample_graph_cache
-        if global_sample_graph_cache.has_key(f_file_name):
+        if f_file_name in global_sample_graph_cache:
             return global_sample_graph_cache[f_file_name]
         else:
             f_result = pydaw_sample_graph(f_file_name)
@@ -2049,7 +2046,7 @@ class pydaw_sample_graph:
                 elif f_line_arr[2] == "l":
                     self.low_peaks[int(f_line_arr[1])].append(f_p_val)
                 else:
-                    print("Invalid sample_graph [2] value " + f_line_arr[2] )
+                    print(("Invalid sample_graph [2] value " + f_line_arr[2] ))
         for f_list in self.low_peaks:
             f_list.reverse()
 
@@ -2057,7 +2054,7 @@ class pydaw_sample_graph:
         f_result = (self.file is not None) and (self.timestamp is not None) \
         and (self.channels is not None) and (self.count is not None)
         if not f_result:
-            print("\n\npydaw_sample_graph.is_valid() : " + str(self.file) + " failed the validity check...\n\n")
+            print(("\n\npydaw_sample_graph.is_valid() : " + str(self.file) + " failed the validity check...\n\n"))
         return f_result
 
     def create_sample_graph(self, a_for_scene=False):
@@ -2090,7 +2087,7 @@ class pydaw_sample_graph:
         try:
             return self.timestamp > os.path.getmtime(self.file)
         except Exception as f_ex:
-            print("\n\nError getting mtime: " + f_ex.message + "\n\n")
+            print(("\n\nError getting mtime: " + f_ex.message + "\n\n"))
             return False
 
 class pydaw_midi_file_to_items:
@@ -2105,11 +2102,11 @@ class pydaw_midi_file_to_items:
             if isinstance(f_event, midi.NoteOnEvent):
                 f_note_on_dict[f_event.pitch] = f_event
             elif isinstance(f_event, midi.NoteOffEvent):
-                if f_note_on_dict.has_key(f_event.pitch):
+                if f_event.pitch in f_note_on_dict:
                     f_note_on_dict[f_event.pitch].length = float(f_event.tick - f_note_on_dict[f_event.pitch].tick) / float(f_stream.resolution)
                     f_note_on_dict.pop(f_event.pitch)
                 else:
-                    print("Error, note-off event does not correspond to a note-on event, ignoring event:\n" + str(f_event))
+                    print(("Error, note-off event does not correspond to a note-on event, ignoring event:\n" + str(f_event)))
 
         self.result_dict = {}
 
@@ -2123,7 +2120,7 @@ class pydaw_midi_file_to_items:
                 f_channel = f_event.channel
                 f_track = f_event.track
                 f_key = (f_track, f_channel, f_bar)
-                if not self.result_dict.has_key(f_key):
+                if not f_key in self.result_dict:
                     self.result_dict[f_key] = pydaw_item()
                 f_note = pydaw_note(f_beat, f_length, f_pitch, f_velocity)
                 self.result_dict[f_key].add_note(f_note) #, a_check=False)
@@ -2131,7 +2128,7 @@ class pydaw_midi_file_to_items:
         f_min = 0
         f_max = 0
 
-        for k, v in self.result_dict.iteritems():
+        for k, v in list(self.result_dict.items()):
             if k[2] < f_min:
                 f_min = k[2]
             if k[2] > f_max:
@@ -2147,24 +2144,24 @@ class pydaw_midi_file_to_items:
         for f_i in range(pydaw_midi_track_count):
             self.track_map[f_i] = {}
 
-        for k, v in self.result_dict.iteritems():
+        for k, v in list(self.result_dict.items()):
             f_track, f_channel, f_bar = k
             if f_track < pydaw_midi_track_count:
-                if not self.track_map[f_track].has_key(f_channel):
+                if not f_channel in self.track_map[f_track]:
                     self.track_map[f_track][f_channel] = {}
                 self.track_map[f_track][f_channel][f_bar - self.bar_offset] = v
 
 
     def get_track_count(self):
         f_result = []
-        for k, v in self.result_dict.iteritems():
+        for k, v in list(self.result_dict.items()):
             if k[0] not in f_result:
                 f_result.append(k[0])
         return len(f_result)
 
     def get_channel_count(self):
         f_result = []
-        for k, v in self.result_dict.iteritems():
+        for k, v in list(self.result_dict.items()):
             if k[1] not in f_result:
                 f_result.append(k[1])
         return len(f_result)
@@ -2185,9 +2182,9 @@ class pydaw_midi_file_to_items:
             f_result_region.region_length_bars = pydaw_max_region_length
         else:
             f_result_region.region_length_bars = self.bar_count
-        for f_track, f_channel_dict in self.track_map.iteritems():
-            for f_channel, f_bar_dict in self.track_map[f_track].iteritems():
-                for f_bar, f_item in self.track_map[f_track][f_channel].iteritems():
+        for f_track, f_channel_dict in list(self.track_map.items()):
+            for f_channel, f_bar_dict in list(self.track_map[f_track].items()):
+                for f_bar, f_item in list(self.track_map[f_track][f_channel].items()):
                     f_this_item_name = str(a_name) + "-" + str(f_track) + "-" + str(f_channel) + "-" + str(f_bar)
                     if a_project.item_exists(f_this_item_name):
                         f_this_item_name = a_project.get_next_default_item_name(f_this_item_name)

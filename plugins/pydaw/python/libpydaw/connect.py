@@ -62,13 +62,13 @@ class alsa_ports:
                     if not "System" in client_name:
                         f_result.append(alsa_port(client_number, client_name, client_type, port_number, port_name))
             except:
-                print("Error parsing '" + line + "', this device will not be available, please report this bug at https://pydaw.org/forum")
+                print(("Error parsing '" + line + "', this device will not be available, please report this bug at https://pydaw.org/forum"))
         return f_result
 
     def connect_to_pydaw(self, a_string):
         f_string = str(a_string)
-        print("Attempting to connect ALSA port " + f_string + " to PyDAW...")
-        print(getoutput("aconnect -x"))
+        print(("Attempting to connect ALSA port " + f_string + " to PyDAW..."))
+        print((getoutput("aconnect -x")))
         if f_string == "None":
             return
         for f_alsa_port in self.input_ports:
@@ -76,7 +76,7 @@ class alsa_ports:
                 f_out_port = f_string.split("~")[1]
                 f_cmd = "aconnect " + f_out_port + " " + str(f_alsa_port.client_number) + str(f_alsa_port.port_number)
                 print(f_cmd)
-                print(getoutput(f_cmd))
+                print((getoutput(f_cmd)))
                 break
 
     def get_input_fqnames(self):
@@ -110,6 +110,6 @@ class jack_ports:
 if __name__ == "__main__":
     this_alsa_ports = alsa_ports()
     for port in this_alsa_ports.input_ports:
-        print(port.fqname)
+        print((port.fqname))
     for port in this_alsa_ports.output_ports:
-        print(port.fqname)
+        print((port.fqname))

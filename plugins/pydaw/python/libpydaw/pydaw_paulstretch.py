@@ -40,7 +40,7 @@ def load_wav(filename):
             smp=tile(smp,(2,1))
         return (samplerate,smp)
     except:
-        print "Error loading wav: "+filename
+        print(("Error loading wav: " + filename))
         return None
 
 
@@ -185,9 +185,9 @@ def paulstretch(samplerate, smp, stretch, windowsize_seconds, onset_level, outfi
         get_next_buf=False
 
         if start_pos>=nsamples:
-            print "100 %"
+            #print("100 %")
             break
-        print "%d %% \r" % int(100.0*start_pos/nsamples),
+        #print("%d %% \r" % int(100.0*start_pos/nsamples),)
         sys.stdout.flush()
 
         if extra_onset_time_credit<=0.0:
@@ -206,21 +206,21 @@ def paulstretch(samplerate, smp, stretch, windowsize_seconds, onset_level, outfi
     outfile.close()
 
     if a_delete:
-        print("Deleting source file " + a_in_file)
+        print(("Deleting source file " + a_in_file))
         os.remove(a_in_file)
 
     if a_start_pitch is not None:
         print("Pitch shifting file")
         f_dest_path = outfilename
         f_src_path = outfilename.replace(".wav", "-OLD.wav")
-        print f_src_path, "\n", f_dest_path
+        print((f_src_path, "\n", f_dest_path))
         os.rename(f_dest_path, f_src_path)
         if a_end_pitch is not None:
             f_cmd = ["/usr/lib/" + global_pydaw_version_string + "/sbsms/bin/sbsms", f_src_path, f_dest_path,
                      "1.0", "1.0", str(a_start_pitch), str(a_end_pitch)]
         else:
             f_cmd = ["rubberband", "-p", str(a_start_pitch), "-R", "--pitch-hq", f_src_path, f_dest_path]
-        print("Running " + " ".join(f_cmd))
+        print(("Running " + " ".join(f_cmd)))
         f_proc = subprocess.Popen(f_cmd)
         f_proc.wait()
         os.remove(f_src_path)
@@ -229,9 +229,9 @@ def paulstretch(samplerate, smp, stretch, windowsize_seconds, onset_level, outfi
         plt.show()
 
 ########################################
-print "Paul's Extreme Sound Stretch (Paulstretch) - Python version 20110223"
-print "new method: using onsets information"
-print "by Nasca Octavian PAUL, Targu Mures, Romania\n"
+print("Paul's Extreme Sound Stretch (Paulstretch) - Python version 20110223")
+print("new method: using onsets information")
+print("by Nasca Octavian PAUL, Targu Mures, Romania\n")
 parser = OptionParser(usage="usage: %prog [options] input_wav output_wav")
 parser.add_option("-s", "--stretch", dest="stretch",help="stretch amount (1.0 = no stretch)",type="float",default=8.0)
 parser.add_option("-w", "--window_size", dest="window_size",help="window size (seconds)",type="float",default=0.25)
@@ -242,12 +242,12 @@ parser.add_option("-d", "--delete", dest="delete",help="Delete source file after
 (options, args) = parser.parse_args()
 
 if (len(args)<2) or (options.stretch<=0.0) or (options.window_size<=0.001):
-    print "Error in command line parameters. Run this program with --help for help."
+    print("Error in command line parameters. Run this program with --help for help.")
     sys.exit(1)
 
-print "stretch amount =",options.stretch
-print "window size =",options.window_size,"seconds"
-print "onset sensitivity =",options.onset
+print(("stretch amount =" + str(options.stretch)))
+print(("window size =" + str(options.window_size) + "seconds"))
+print(("onset sensitivity =" + str(options.onset)))
 f_tuple = load_wav(args[0])
 if f_tuple is None:
     print("Error loading wav file, returned None")
