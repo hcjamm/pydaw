@@ -19,7 +19,7 @@ extern "C" {
 #endif
     
 /*The highest index for selecting the effect type*/
-#define MULTIFX3KNOB_MAX_INDEX 21
+#define MULTIFX3KNOB_MAX_INDEX 23
 #define MULTIFX3KNOB_KNOB_COUNT 3
 
 #include "../filter/svf_stereo.h"
@@ -95,6 +95,8 @@ inline void v_mf3_run_glitch(t_mf3_multi*, float, float);
 inline void v_mf3_run_ring_mod(t_mf3_multi*, float, float);
 inline void v_mf3_run_lofi(t_mf3_multi*, float, float);
 inline void v_mf3_run_s_and_h(t_mf3_multi*, float, float);
+inline void v_mf3_run_hp_dw(t_mf3_multi*,float,float);
+inline void v_mf3_run_lp_dw(t_mf3_multi*,float,float);
 
 inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 
@@ -125,7 +127,9 @@ const fp_mf3_run mf3_function_pointers[MULTIFX3KNOB_MAX_INDEX] =
         v_mf3_run_glitch, //17    
         v_mf3_run_ring_mod, //18    
         v_mf3_run_lofi, //19    
-        v_mf3_run_s_and_h //20
+        v_mf3_run_s_and_h, //20
+        v_mf3_run_lp_dw, //21
+        v_mf3_run_hp_dw, //22
 };
 
 /* void v_mf3_set(t_fx3_multi* a_mf3, int a_fx_index)  
@@ -467,6 +471,27 @@ inline void v_mf3_run_s_and_h(t_mf3_multi*__restrict a_mf3, float a_in0, float a
     a_mf3->output1 = a_mf3->s_and_h->output1;
 }
 
+
+inline void v_mf3_run_lp_dw(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
+{
+    f_mfx_transform_svf_filter(a_mf3);
+    a_mf3->control_value[2] = a_mf3->control[2] * 0.007874016;
+    v_axf_set_xfade(a_mf3->xfader, a_mf3->control_value[2]);
+    v_svf2_run_2_pole_lp(a_mf3->svf, a_in0, a_in1);
+    a_mf3->output0 = f_axf_run_xfade(a_mf3->xfader, a_in0, a_mf3->svf->output0);
+    a_mf3->output1 = f_axf_run_xfade(a_mf3->xfader, a_in1, a_mf3->svf->output1);
+}
+
+inline void v_mf3_run_hp_dw(t_mf3_multi*__restrict a_mf3, float a_in0, float a_in1)
+{
+    f_mfx_transform_svf_filter(a_mf3);
+    a_mf3->control_value[2] = a_mf3->control[2] * 0.007874016;
+    v_axf_set_xfade(a_mf3->xfader, a_mf3->control_value[2]);
+    v_svf2_run_2_pole_hp(a_mf3->svf, a_in0, a_in1);
+    a_mf3->output0 = f_axf_run_xfade(a_mf3->xfader, a_in0, a_mf3->svf->output0);
+    a_mf3->output1 = f_axf_run_xfade(a_mf3->xfader, a_in1, a_mf3->svf->output1);
+}
+
 /* t_mf3_multi g_mf3_get(
  * float a_sample_rate)
  */
@@ -510,7 +535,7 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->ring_mod = g_rmd_ring_mod_get(a_sample_rate);
     f_result->lofi = g_lfi_lofi_get();
     f_result->s_and_h = g_sah_sample_and_hold_get(a_sample_rate);
-    
+        
     return f_result;
 }
 

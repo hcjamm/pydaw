@@ -28,7 +28,8 @@ public:
                  << QString("Notch2") << QString("Notch4") << QString("EQ") 
                 << QString("Distortion") << QString("Comb Filter") << QString("Amp/Pan") << QString("Limiter")
                 << QString("Saturator") << QString("Formant") << QString("Chorus") << QString("Glitch")
-                << QString("RingMod") << QString("LoFi") << QString("S/H");
+                << QString("RingMod") << QString("LoFi") << QString("S/H") << QString("LP-Dry/Wet")  
+                << QString("HP-Dry/Wet");
         
         lms_groupbox = new LMS_group_box(a_parent, a_title, a_style);
         
@@ -209,7 +210,8 @@ public:
                 lms_knob2->lms_conv_type = lms_kc_none;
                 lms_knob2->lms_value->setText(QString(""));
                 lms_knob3->lms_conv_type = lms_kc_127_zero_to_x;
-                lms_knob3->lms_set_127_min_max(-12.0f, 12.0f);                
+                lms_knob3->lms_set_127_min_max(-12.0f, 12.0f);
+                break;
             case 15: //Formant Filter
                 lms_knob1->lms_label->setText(QString("Vowel"));
                 lms_knob2->lms_label->setText(QString("Wet"));
@@ -276,6 +278,26 @@ public:
                 lms_knob2->lms_value->setText(QString(""));    
                 lms_knob3->lms_conv_type = lms_kc_none;
                 lms_knob3->lms_value->setText(QString(""));                
+                break;
+            case 21: //LP2-Dry/Wet
+                lms_knob1->lms_label->setText(QString("Cutoff"));
+                lms_knob2->lms_label->setText(QString("Res"));
+                lms_knob3->lms_label->setText(QString("Wet"));
+                lms_knob1->lms_conv_type = lms_kc_127_pitch;
+                lms_knob2->lms_conv_type = lms_kc_127_zero_to_x;
+                lms_knob2->lms_set_127_min_max(-30.0f, 0.0f);
+                lms_knob3->lms_conv_type = lms_kc_none;
+                lms_knob3->lms_value->setText(QString(""));
+                break;                
+            case 22: //HP2-Dry/Wet
+                lms_knob1->lms_label->setText(QString("Cutoff"));
+                lms_knob2->lms_label->setText(QString("Res"));
+                lms_knob3->lms_label->setText(QString("Wet"));
+                lms_knob1->lms_conv_type = lms_kc_127_pitch;
+                lms_knob2->lms_conv_type = lms_kc_127_zero_to_x;
+                lms_knob2->lms_set_127_min_max(-30.0f, 0.0f);
+                lms_knob3->lms_conv_type = lms_kc_none;
+                lms_knob3->lms_value->setText(QString(""));
                 break;
         }
         
