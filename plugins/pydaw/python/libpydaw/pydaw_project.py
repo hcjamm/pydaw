@@ -2051,11 +2051,19 @@ class pydaw_sample_graph:
             f_list.reverse()
 
     def is_valid(self):
-        f_result = (self.file is not None) and (self.timestamp is not None) \
-        and (self.channels is not None) and (self.count is not None)
-        if not f_result:
-            print(("\n\npydaw_sample_graph.is_valid() : " + str(self.file) + " failed the validity check...\n\n"))
-        return f_result
+        if (self.file is None):
+            print(("\n\npydaw_sample_graph.is_valid() self.file is None " + str(self.file) + "\n"))
+            return False
+        if self.timestamp is None:
+            print(("\n\npydaw_sample_graph.is_valid() self.timestamp is None " + str(self.file) + "\n"))
+            return False
+        if self.channels is None:
+            print(("\n\npydaw_sample_graph.is_valid() self.channels is None " + str(self.file) + "\n"))
+            return False
+        if self.count is None:
+            print(("\n\npydaw_sample_graph.is_valid() self.count is None " + str(self.file) + "\n"))
+            return False
+        return True
 
     def create_sample_graph(self, a_for_scene=False):
         if a_for_scene:
@@ -2085,9 +2093,11 @@ class pydaw_sample_graph:
     def check_mtime(self):
         """ Returns False if the sample graph is older than the file modified time """
         try:
-            return self.timestamp > os.path.getmtime(self.file)
+            f_timestamp = int(os.path.getmtime(self.file))
+            #print((str(self.timestamp) + " > " + str(f_timestamp)))
+            return self.timestamp > f_timestamp
         except Exception as f_ex:
-            print(("\n\nError getting mtime: " + f_ex.message + "\n\n"))
+            print(("\n\nError getting mtime: " + str(f_ex.message) + "\n\n"))
             return False
 
 class pydaw_midi_file_to_items:
