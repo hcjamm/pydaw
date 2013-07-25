@@ -3588,6 +3588,7 @@ class automation_viewer(QtGui.QGraphicsView):
         self.cc_num = 1
         self.last_scale = 1.0
         self.plugin_index = 0
+        self.last_x_scale = 1.0
 
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsScene.keyPressEvent(self.scene, a_event)
@@ -3689,12 +3690,6 @@ class automation_viewer(QtGui.QGraphicsView):
                         f_line.setPos((self.beat_width*i)+(self.value_width*j), self.axis_size)
                         f_line.setPen(f_line_pen)
 
-    def set_zoom(self, a_scale):
-        f_new_scale = a_scale #* (self.geometry().width() / global_automation_width) * 0.9
-        self.scale(1.0 / self.last_scale, 1.0)
-        self.scale(f_new_scale, 1.0)
-        self.last_scale = f_new_scale
-
     def clear_drawn_items(self):
         self.scene.clear()
         self.automation_points = []
@@ -3702,30 +3697,26 @@ class automation_viewer(QtGui.QGraphicsView):
         self.draw_axis()
         self.draw_grid()
 
+    def resizeEvent(self, a_event):
+        QtGui.QGraphicsView.resizeEvent(self, a_event)
+        self.scale_to_width()
+
+    def scale_to_width(self):
+        if global_item_zoom_index == 0:
+            self.scale(1.0 / self.last_x_scale, 1.0)
+            self.last_x_scale = 1.0
+        elif global_item_editing_count > 0 and global_item_zoom_index == 1:
+            f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
+            f_new_scale = f_width / self.viewer_width
+            if self.last_x_scale != f_new_scale:
+                self.scale(1.0 / self.last_x_scale, 1.0)
+                self.last_x_scale = f_new_scale
+                self.scale(self.last_x_scale, 1.0)
+            self.horizontalScrollBar().setSliderPosition(0)
+
+    #TODO:  Remove
     def connect_points(self):
         pass
-        #if self.lines:
-        #    for i in range(len(self.lines)):
-        #        self.scene.removeItem(self.lines[i])
-        #sort list based on x
-        #if len(self.automation_points) > 1:
-        #    self.lines = (len(self.automation_points)-1)*[None]
-        #    self.automation_points.sort(key=lambda point: point.pos().x())
-        #    f_line_pen = QtGui.QPen()
-        #    f_line_pen.setColor(QtGui.QColor(255,60,60))
-        #    f_line_pen.setWidth(2)
-        #    for i in range(1, len(self.automation_points)):
-        #        f_start_x = self.automation_points[i-1].pos().x()
-        #        f_start_y = self.automation_points[i-1].pos().y()
-        #        f_end_x = self.automation_points[i].pos().x()
-        #        f_end_y = self.automation_points[i].pos().y()
-        #        f_pos_x = f_end_x - f_start_x
-        #        f_pos_y = f_end_y - f_start_y
-        #        f_line = QtGui.QGraphicsLineItem(0, 0, f_pos_x, f_pos_y)
-        #        f_line.setPos(7.5+f_start_x, 7.5+f_start_y)
-        #        f_line.setPen(f_line_pen)
-        #        self.scene.addItem(f_line)
-        #        self.lines[i-1] = f_line
 
     def set_cc_num(self, a_plugin_index, a_port_num):
         self.plugin_index = global_plugin_numbers[int(a_plugin_index)]
@@ -3945,6 +3936,8 @@ def global_save_and_reload_items():
         this_pydaw_project.save_item(this_item_editor.item_names[f_i], this_item_editor.items[f_i])
     global_open_items()
     this_pydaw_project.commit("Edit item(s)")
+
+global_item_zoom_index = 0
 
 class item_list_editor:
     def clear_notes(self, a_is_list=True):
@@ -4221,17 +4214,18 @@ class item_list_editor:
         f_item_count = len(self.items)
         if not a_is_refresh and f_item_count < 2:
             return
-        if f_index == 0:
+        if f_index == 0 or (a_is_refresh and f_item_count < 2):
             f_zoom = 1.0
         elif f_index == 1:
             f_zoom = (1.0/f_item_count)
-        if a_is_refresh and f_item_count < 2:
-            f_zoom = 1.0
+
+        global global_item_zoom_index
+        global_item_zoom_index = f_index
 
         for f_viewer in this_cc_automation_viewers:
-            f_viewer.set_zoom(f_zoom)
+            f_viewer.scale_to_width()
         this_piano_roll_editor.set_zoom(f_zoom)
-        this_pb_automation_viewer.set_zoom(f_zoom)
+        this_pb_automation_viewer.scale_to_width()
 
     def tab_changed(self, a_val=None):
         this_piano_roll_editor.click_enabled = True
