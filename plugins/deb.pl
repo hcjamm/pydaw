@@ -25,7 +25,10 @@ check_deps();
 `rm -Rf pydaw-build/debian/usr`;
 `mkdir pydaw-build/debian/usr`;
 
-system("make clean && make && make strip && make DESTDIR=\$(pwd)/pydaw-build/debian install");
+if( system("make clean && make && make strip && make DESTDIR=\$(pwd)/pydaw-build/debian install") != 0)
+{
+	exit 1;
+}
 
 
 #Delete gedit backup files, core dumps and Python compile-cache files
