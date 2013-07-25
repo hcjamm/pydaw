@@ -3191,6 +3191,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.left_click = False
         self.click_enabled = True
         self.last_scale = 1.0
+        self.last_x_scale = 1.0
 
     def scrollContentsBy(self, x, y):
         QtGui.QGraphicsView.scrollContentsBy(self, x, y)
@@ -3361,14 +3362,22 @@ class piano_roll_editor(QtGui.QGraphicsView):
                     if float(j) != self.grid_div * 0.5:
                         f_line.setPen(f_line_pen)
 
-    def set_zoom(self, a_scale):
-        if a_scale == 1.0:
-            f_new_scale = 1.0
-        else:
-            f_new_scale = a_scale * (self.geometry().width() / 1000.0) * 0.9
-        self.scale(1.0/self.last_scale, 1.0)
-        self.scale(f_new_scale, 1.0)
-        self.last_scale = f_new_scale
+    def resizeEvent(self, a_event):
+        QtGui.QGraphicsView.resizeEvent(self, a_event)
+        self.scale_to_width()
+
+    def scale_to_width(self):
+        if global_item_zoom_index == 0:
+            self.scale(1.0 / self.last_x_scale, 1.0)
+            self.last_x_scale = 1.0
+        elif global_item_editing_count > 0 and global_item_zoom_index == 1:
+            f_width = float(self.rect().width()) - float(self.verticalScrollBar().width()) - 6.0
+            f_new_scale = f_width / self.viewer_width
+            if self.last_x_scale != f_new_scale:
+                self.scale(1.0 / self.last_x_scale, 1.0)
+                self.last_x_scale = f_new_scale
+                self.scale(self.last_x_scale, 1.0)
+            self.horizontalScrollBar().setSliderPosition(0)
 
     def clear_drawn_items(self):
         self.note_items = []
@@ -4214,17 +4223,13 @@ class item_list_editor:
         f_item_count = len(self.items)
         if not a_is_refresh and f_item_count < 2:
             return
-        if f_index == 0 or (a_is_refresh and f_item_count < 2):
-            f_zoom = 1.0
-        elif f_index == 1:
-            f_zoom = (1.0/f_item_count)
 
         global global_item_zoom_index
         global_item_zoom_index = f_index
 
         for f_viewer in this_cc_automation_viewers:
             f_viewer.scale_to_width()
-        this_piano_roll_editor.set_zoom(f_zoom)
+        this_piano_roll_editor.scale_to_width()
         this_pb_automation_viewer.scale_to_width()
 
     def tab_changed(self, a_val=None):
