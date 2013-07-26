@@ -1,16 +1,15 @@
-/* 
- * File:   main.c
- * Author: Jeff Hubbard
- * 
- * Generate wavetables and print as C arrays.
- * 
- * You may be interested to know that this is how it was done back in the 
- * early days of digital hardware(and probably still today), and that this 
- * methodology will produce far better results than ie:  sampling ye olden 
- * vintage hardware and trimming the samples by hand.
- *
- * Created on March 12, 2012, 7:46 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>

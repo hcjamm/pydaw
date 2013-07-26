@@ -1,13 +1,15 @@
-/* 
- * File:   main.c
- * Author: Jeff Hubbard
- * 
- * This is for plotting functions.  The "doodling" code style should make it abundantly clear that
- * this is not a serious application for serious people, but rather a fast-and-loose developer's tool
- * for generating code that may or may not require more tweaking.
- *
- * Created on February 7, 2012, 6:52 PM
- */
+/*
+This file is part of the PyDAW project, Copyright PyDAW Team
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
