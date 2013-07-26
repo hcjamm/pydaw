@@ -1404,7 +1404,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.SizeHorCursor))
 
     def generic_hoverLeaveEvent(self, a_event):
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        QtGui.QApplication.restoreOverrideCursor()
 
     def draw(self):
         f_temp_seconds = self.sample_length
@@ -1790,7 +1790,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if global_transport_is_playing or self.event_pos_orig is None:
             return
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        QtGui.QApplication.restoreOverrideCursor()
         f_audio_items =  this_audio_editor.audio_items
         f_reset_selection = True  #Set to True when testing, set to False for better UI performance...
         f_did_change = False
@@ -3008,7 +3008,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.SizeHorCursor))
             self.showing_resize_cursor = True
         elif not f_is_at_end and self.showing_resize_cursor:
-            QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+            QtGui.QApplication.restoreOverrideCursor()
             self.showing_resize_cursor = False
 
     def hoverEnterEvent(self, a_event):
@@ -3018,12 +3018,12 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def hoverLeaveEvent(self, a_event):
         QtGui.QGraphicsRectItem.hoverLeaveEvent(self, a_event)
         this_piano_roll_editor.click_enabled = True
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        QtGui.QApplication.restoreOverrideCursor()
         self.showing_resize_cursor = False
 
     def mouseDoubleClickEvent(self, a_event):
         QtGui.QGraphicsRectItem.mouseDoubleClickEvent(self, a_event)
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        QtGui.QApplication.restoreOverrideCursor()
         this_item_editor.notes_show_event_dialog(None, None, self.note_item, self.item_index)
 
     def mousePressEvent(self, a_event):
@@ -3032,7 +3032,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         if a_event.modifiers() == QtCore.Qt.ShiftModifier:
             this_item_editor.items[self.item_index].remove_note(self.note_item)
             global_save_and_reload_items()
-            QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+            QtGui.QApplication.restoreOverrideCursor()
             self.showing_resize_cursor = False
         else:
             self.setBrush(pydaw_note_selected_gradient)
@@ -3133,7 +3133,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             if f_item.isSelected():
                 this_piano_roll_editor.selected_note_strings.append(str(f_item.note_item))
         global_save_and_reload_items()  #<Was above the loop, but I'm not sure why...
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        QtGui.QApplication.restoreOverrideCursor()
         self.showing_resize_cursor = False
         this_piano_roll_editor.click_enabled = True
 
@@ -3147,7 +3147,7 @@ class piano_key_item(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.hoverEnterEvent(self, a_event)
         self.o_brush = self.brush()
         self.setBrush(self.hover_brush)
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        QtGui.QApplication.restoreOverrideCursor()
 
     def hoverLeaveEvent(self, a_event):
         QtGui.QGraphicsRectItem.hoverLeaveEvent(self, a_event)
@@ -3227,18 +3227,18 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 if f_item.isSelected():
                     this_item_editor.items[f_item.item_index].remove_note(f_item.note_item)
             global_save_and_reload_items()
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        QtGui.QApplication.restoreOverrideCursor()
 
     def focusOutEvent(self, a_event):
         QtGui.QGraphicsView.focusOutEvent(self, a_event)
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        QtGui.QApplication.restoreOverrideCursor()
 
     def sceneMouseReleaseEvent(self, a_event):
         QtGui.QGraphicsScene.mouseReleaseEvent(self.scene, a_event)
         self.click_enabled = True
 
     def sceneMousePressEvent(self, a_event):
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        QtGui.QApplication.restoreOverrideCursor()
         if not this_item_editor.enabled:
             this_item_editor.show_not_enabled_warning()
             a_event.setAccepted(True)
@@ -3565,7 +3565,7 @@ class automation_item(QtGui.QGraphicsEllipseItem):
                     this_item_editor.items[f_point.item_index].pitchbends.append(f_point.cc_item)
                     this_item_editor.items[f_point.item_index].pitchbends.sort()
         global_save_and_reload_items()
-        QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        QtGui.QApplication.restoreOverrideCursor()
 
 class automation_viewer(QtGui.QGraphicsView):
     def __init__(self, a_item_length=4, a_grid_div=16, a_is_cc=True):
