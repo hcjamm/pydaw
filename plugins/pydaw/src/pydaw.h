@@ -4602,8 +4602,16 @@ void v_pydaw_offline_render(t_pydaw_data * a_pydaw_data, int a_start_region, int
     
     clock_t f_start = clock();
     
+    int f_current_bar = 999;  //For printing the current region/bar
+    
     while(((a_pydaw_data->current_region) < a_end_region) || ((a_pydaw_data->current_bar) < a_end_bar))
     {
+        if(a_pydaw_data->current_bar != f_current_bar)
+        {
+            f_current_bar = a_pydaw_data->current_bar;
+            printf("%i:%i\n", a_pydaw_data->current_region, a_pydaw_data->current_bar);
+        }
+        
         f_i = 0;
         f_size = 0;
     
