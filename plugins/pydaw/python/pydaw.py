@@ -3125,10 +3125,14 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         for f_item in this_item_editor.items:
             f_item.fix_overlaps()
         global_selected_piano_note = None
-        global_save_and_reload_items()
+        this_piano_roll_editor.selected_note_strings = []
+        #global_save_and_reload_items()
         for f_item in this_piano_roll_editor.note_items:
             f_item.is_resizing = False
             f_item.is_copying = False
+            if f_item.isSelected():
+                this_piano_roll_editor.selected_note_strings.append(str(f_item.note_item))
+        global_save_and_reload_items()  #<Was above the loop, but I'm not sure why...
         QtGui.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.showing_resize_cursor = False
         this_piano_roll_editor.click_enabled = True
@@ -3192,6 +3196,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.click_enabled = True
         self.last_scale = 1.0
         self.last_x_scale = 1.0
+        self.scene.selectionChanged.connect(self.highlight_selected)
+
+        self.selected_note_strings = []
 
     def scrollContentsBy(self, x, y):
         QtGui.QGraphicsView.scrollContentsBy(self, x, y)
@@ -3213,12 +3220,6 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_item.note_item.is_selected = False
                 f_item.setBrush(pydaw_note_gradient)
 
-    def unhighlight_selected(self):
-        self.has_selected = False
-        for f_item in self.note_items:
-            f_item.setBrush(pydaw_note_gradient)
-            f_item.note_item.is_selected = False
-
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsView.keyPressEvent(self, a_event)
         if a_event.key() == QtCore.Qt.Key_Delete:
@@ -3234,10 +3235,6 @@ class piano_roll_editor(QtGui.QGraphicsView):
 
     def sceneMouseReleaseEvent(self, a_event):
         QtGui.QGraphicsScene.mouseReleaseEvent(self.scene, a_event)
-        if a_event.modifiers() == QtCore.Qt.ControlModifier:
-            self.highlight_selected()
-        else:
-            self.unhighlight_selected()
         self.click_enabled = True
 
     def sceneMousePressEvent(self, a_event):
@@ -3248,8 +3245,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
             QtGui.QGraphicsScene.mousePressEvent(self.scene, a_event)
             return
         if a_event.modifiers() == QtCore.Qt.ControlModifier:
-            self.unhighlight_selected()
+            pass
         elif self.click_enabled and this_item_editor.enabled:
+            self.scene.clearSelection()
             f_pos_x = a_event.scenePos().x()
             f_pos_y = a_event.scenePos().y()
             if f_pos_x > global_piano_keys_width and f_pos_x < global_piano_roll_grid_max_start_time and \
@@ -3403,6 +3401,8 @@ class piano_roll_editor(QtGui.QGraphicsView):
                 f_note_item = self.draw_note(f_note, f_beat_offset)
                 f_note_item.resize_last_mouse_pos = f_note_item.scenePos().x()
                 f_note_item.resize_pos = f_note_item.scenePos()
+                if str(f_note) in self.selected_note_strings:
+                    f_note_item.setSelected(True)
             f_beat_offset += 1
         self.scrollContentsBy(0, 0)
 
