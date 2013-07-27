@@ -220,6 +220,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
         "The 'Follow' checkbox causes playback to UI change the current song/region to follow playback.\n" + \
         "The 'Overdub' checkbox causes recorded MIDI notes to be appended to existing items, rather than placed in new items that replace the existing items.\n" + \
         "The 'Scope' button launches an oscilloscope attached to the master outputs.\n" + \
+        "You can start or stop playback by pressing spacebar\n" + \
         "The '!' (panic) button sends a note-off event on every note to every plugin.  Use this when you get a stuck note." + \
         "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips")
         this_main_window.cc_map_tab.setToolTip("Use this tab to create CC maps for your MIDI controller to PyDAW's built-in plugins\n" + \
