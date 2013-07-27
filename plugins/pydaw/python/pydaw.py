@@ -3276,6 +3276,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def keyPressEvent(self, a_event):
         QtGui.QGraphicsView.keyPressEvent(self, a_event)
         if a_event.key() == QtCore.Qt.Key_Delete:
+            self.selected_note_strings = []
             for f_item in self.note_items:
                 if f_item.isSelected():
                     this_item_editor.items[f_item.item_index].remove_note(f_item.note_item)
