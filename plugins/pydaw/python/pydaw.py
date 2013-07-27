@@ -197,7 +197,10 @@ def pydaw_set_tooltips_enabled(a_enabled):
             "A track is either a plugin instrument, audio track or bus track.\n" + \
             "An item is one bar of MIDI notes or plugin automation.  Click an empty cell to add a new item\n" + \
             "Double click an item to open it in the piano-roll-editor or select multiple and right-click->'edit multiple items as group'\n\n" + \
-        "Click the 'tooltips' checkbox in the transport to disable these tooltips")
+            "The selected items can be copied by pressing CTRL+C, cut with CTRL+X, pasted with CTRL+V, and deleted by pressing 'Delete'\n\n" + \
+            "Additional functions can be found by right-clicking on the items, the term 'unlink' means to create a new copy of the item that\n" + \
+            "does not change it's parent item when edited (by default all items are 'ghost items' that update all items with the same name)\n\n" + \
+            "Click the 'tooltips' checkbox in the transport to disable these tooltips")
         this_audio_items_viewer.setToolTip("Drag .wav files from the file browser onto here.  You can edit item properties with the\n" + \
         "'Edit' tab to the left, or by clicking and dragging the item handles." + \
         "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips")
