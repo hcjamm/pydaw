@@ -3945,7 +3945,9 @@ def global_open_items(a_items=None):
     global global_open_items_uids
 
     if a_items is not None:
-        this_item_editor.zoom_combobox.setCurrentIndex(0)
+        f_index = this_item_editor.zoom_combobox.currentIndex()
+        if f_index == 1:
+            this_item_editor.zoom_combobox.setCurrentIndex(0)
         global global_item_editing_count
         global_item_editing_count = len(a_items)
         pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
@@ -3997,6 +3999,9 @@ def global_open_items(a_items=None):
         this_cc_automation_viewers[i].draw_item()
     this_pb_automation_viewer.draw_item()
     this_item_editor.open_item_list()
+
+    if a_items is not None and f_index == 1:
+        this_item_editor.zoom_combobox.setCurrentIndex(1)
 
 def global_save_and_reload_items():
     assert(len(this_item_editor.item_names) == len(this_item_editor.items))
