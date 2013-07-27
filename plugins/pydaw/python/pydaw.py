@@ -180,7 +180,7 @@ def pydaw_print_generic_exception(a_ex):
     "\nIf you are running PyDAW from a USB flash drive, this may be because file IO timed out due to the slow " + \
     "nature of flash drives.  If the problem persists, you should consider installing PyDAW-OS to your hard drive instead")
 
-global_tooltips_enabled = True
+global_tooltips_enabled = False
 
 def pydaw_set_tooltips_enabled(a_enabled):
     """ Set extensive tooltips as an alternative to maintaining a separate user manual """
@@ -227,6 +227,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
         this_ab_widget.widget.setToolTip("This tab allows you to A/B your track against a .wav file.\n" + \
         "Click the 'Open' button to open the .wav file, then click the 'Enabled?' checkbox to disable normal audio and enable the A/B track")
         this_audio_item_editor_widget.set_tooltips(True)
+        this_audio_items_viewer.set_tooltips(True)
     else:
         pydaw_write_file_text(global_pydaw_home + "/" + "tooltips.txt", "False")
         this_song_editor.table_widget.setToolTip("")
@@ -242,6 +243,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
         this_transport.group_box.setToolTip("")
         this_main_window.cc_map_tab.setToolTip("")
         this_ab_widget.widget.setToolTip("")
+        this_audio_items_viewer.set_tooltips(False)
 
 def pydaw_global_current_region_is_none():
     if global_current_region is None:
@@ -1339,8 +1341,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.start_handle.mousePressEvent = self.start_handle_mouseClickEvent
         self.start_handle_line = QtGui.QGraphicsLineItem(0.0, global_audio_item_handle_height, 0.0, (global_audio_item_height * -1.0) + global_audio_item_handle_height, self.start_handle)
         self.start_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        if global_tooltips_enabled:
-            self.start_handle.setToolTip("Use this handle to resize the item by changing the start point.")
 
         self.length_handle = QtGui.QGraphicsRectItem(parent=self)
         self.length_handle.setAcceptHoverEvents(True)
@@ -1352,8 +1352,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.length_handle.mousePressEvent = self.length_handle_mouseClickEvent
         self.length_handle_line = QtGui.QGraphicsLineItem(global_audio_item_handle_size, global_audio_item_handle_height, global_audio_item_handle_size, (global_audio_item_height * -1.0) + global_audio_item_handle_height, self.length_handle)
         self.length_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        if global_tooltips_enabled:
-            self.length_handle.setToolTip("Use this handle to resize the item by changing the end point.")
 
         self.fade_in_handle = QtGui.QGraphicsRectItem(parent=self)
         self.fade_in_handle.setAcceptHoverEvents(True)
@@ -1365,8 +1363,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.fade_in_handle.mousePressEvent = self.fade_in_handle_mouseClickEvent
         self.fade_in_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
         self.fade_in_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        if global_tooltips_enabled:
-            self.fade_in_handle.setToolTip("Use this handle to change the fade in.")
 
         self.fade_out_handle = QtGui.QGraphicsRectItem(parent=self)
         self.fade_out_handle.setAcceptHoverEvents(True)
@@ -1378,8 +1374,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.fade_out_handle.mousePressEvent = self.fade_out_handle_mouseClickEvent
         self.fade_out_handle_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, 0.0, self)
         self.fade_out_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        if global_tooltips_enabled:
-            self.fade_out_handle.setToolTip("Use this handle to change the fade out.")
 
         self.stretch_handle = QtGui.QGraphicsRectItem(parent=self)
         self.stretch_handle.setAcceptHoverEvents(True)
@@ -1393,8 +1387,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         (global_audio_item_handle_height * 0.5) - (global_audio_item_height * 0.5), global_audio_item_handle_size, \
         (global_audio_item_height * 0.5) + (global_audio_item_handle_height * 0.5), self.stretch_handle)
         self.stretch_handle_line.setPen(QtGui.QPen(QtCore.Qt.white, 2.0))
-        if global_tooltips_enabled:
-            self.stretch_handle.setToolTip("Use this handle to resize the item by time-stretching it.")
         self.stretch_handle.hide()
 
         self.split_line = QtGui.QGraphicsLineItem(0.0, 0.0, 0.0, global_audio_item_height, self)
@@ -1417,6 +1409,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         self.width_orig = None
         self.vol_linear = pydaw_db_to_lin(self.audio_item.vol)
         self.quantize_offset = 0.0
+        if global_tooltips_enabled:
+            self.set_tooltips(True)
         self.draw()
 
     def generic_hoverEnterEvent(self, a_event):
@@ -1466,8 +1460,6 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         if self.audio_item.time_stretch_mode >= 3 or \
         (self.audio_item.time_stretch_mode == 2 and (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt)):
             self.stretch_width_default = f_length / self.audio_item.timestretch_amt
-        if global_tooltips_enabled:
-            self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\nShift+click to split items\nCtrl+drag to copy selected items")
 
         self.sample_start_offset_px = self.audio_item.sample_start * -0.001 * self.length_seconds_orig_px
         self.start_handle_scene_min = f_start + self.sample_start_offset_px
@@ -1494,6 +1486,22 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         (self.audio_item.timestretch_amt_end == self.audio_item.timestretch_amt)):
             self.stretch_handle.show()
             self.stretch_handle.setPos(f_length - global_audio_item_handle_size, (global_audio_item_height * 0.5) - (global_audio_item_handle_height * 0.5))
+
+    def set_tooltips(self, a_on):
+        if a_on:
+            self.setToolTip("Double click to open editor dialog\nClick and drag selected to move.\nShift+click to split items\nCtrl+drag to copy selected items")
+            self.start_handle.setToolTip("Use this handle to resize the item by changing the start point.")
+            self.length_handle.setToolTip("Use this handle to resize the item by changing the end point.")
+            self.fade_in_handle.setToolTip("Use this handle to change the fade in.")
+            self.fade_out_handle.setToolTip("Use this handle to change the fade out.")
+            self.stretch_handle.setToolTip("Use this handle to resize the item by time-stretching it.")
+        else:
+            self.setToolTip("")
+            self.start_handle.setToolTip("")
+            self.length_handle.setToolTip("")
+            self.fade_in_handle.setToolTip("")
+            self.fade_out_handle.setToolTip("")
+            self.stretch_handle.setToolTip("")
 
     def clip_at_region_end(self):
         f_current_region_length = pydaw_get_current_region_length()
@@ -1948,6 +1956,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.is_playing = False
         self.last_x_scale = 1.0
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
+
+    def set_tooltips(self, a_on):
+        for f_item in self.audio_items:
+            f_item.set_tooltips(a_on)
 
     def resizeEvent(self, a_event):
         QtGui.QGraphicsView.resizeEvent(self, a_event)
@@ -2581,7 +2593,6 @@ class audio_item_editor_widget:
             "where you can apply effects and automation.")
             self.sample_vol_slider.setToolTip("Use this to set the sample volume. If you need to automate volume changes, either\n" +\
             "use the fade-in/fade-out handles, or automate the volume on the audio track specified in the Output: combobox.")
-
         else:
             self.timestretch_amt_end.setToolTip("")
             self.pitch_shift_end.setToolTip("")
