@@ -3842,7 +3842,7 @@ class automation_viewer_widget:
     def plugin_changed(self, a_val=None):
         self.control_combobox.clear()
         self.control_combobox.addItems(global_cc_names[str(self.plugin_combobox.currentText())])
-        self.automation_viewer.clear_drawn_items()  #TODO:  disable the viewer from editing...
+        self.automation_viewer.draw_item()
 
     def control_changed(self, a_val=None):
         self.set_cc_num()
