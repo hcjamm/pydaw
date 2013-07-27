@@ -198,10 +198,6 @@ def pydaw_set_tooltips_enabled(a_enabled):
             "An item is one bar of MIDI notes or plugin automation.  Click an empty cell to add a new item\n" + \
             "Double click an item to open it in the piano-roll-editor or select multiple and right-click->'edit multiple items as group'\n\n" + \
         "Click the 'tooltips' checkbox in the transport to disable these tooltips")
-        this_audio_item_editor_widget.widget.setToolTip("To edit the properties of one or more audio item(s),\n" + \
-        "click or marquee select items, then change their properties and click 'Save Changes'\n" + \
-        "Only the control section(s) whose checkbox is checked will be updated.\n\n" + \
-        "Click the 'tooltips' checkbox in the transport to disable these tooltips")
         this_audio_items_viewer.setToolTip("Drag .wav files from the file browser onto here.  You can edit item properties with the\n" + \
         "'Edit' tab to the left, or by clicking and dragging the item handles." + \
         "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips")
@@ -212,12 +208,6 @@ def pydaw_set_tooltips_enabled(a_enabled):
         "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips")
         this_main_window.transport_splitter.setToolTip("Use this handle to expand or collapse the transport.")
         this_main_window.song_region_splitter.setToolTip("Use this handle to expand or collapse the song editor and region info.")
-        this_audio_item_editor_widget.timestretch_mode.setToolTip("Modes:\n\nNone:  No stretching or pitch adjustment\n" + \
-        "Pitch affecting time:  Repitch the item, it will become shorter at higher pitches, and longer at lower pitches\n" + \
-        "Time affecting pitch:  Stretch the item to the desired length, it will have lower pitch at longer lengths, and higher pitch at shorter lengths\n" + \
-        "Rubberband:  Adjust pitch and time independently\nRubberband (formants): Same as Rubberband, but preserves formants\n" + \
-        "SBSMS:  Adjust pitch and time independently, also with the ability to set start/end pitch/time differently\n" + \
-        "Paulstretch:  Mostly for stretching items very long, creates a very smeared, atmospheric sound")
         this_piano_roll_editor.setToolTip("Click+drag to draw notes\nCTRL+click+drag to marquee select multiple items\n" + \
         "Press the Del button to delete selected notes\nTo edit velocity, use the velocity button\n" + \
         "Double-click to edit note properties\nClick and drag the note end to change length\nShift+click to delete a note\n" + \
@@ -236,18 +226,18 @@ def pydaw_set_tooltips_enabled(a_enabled):
         "Each CC routes to a different control for each instrument, or if the CC is 'Effects Only', it routes only to Modulex")
         this_ab_widget.widget.setToolTip("This tab allows you to A/B your track against a .wav file.\n" + \
         "Click the 'Open' button to open the .wav file, then click the 'Enabled?' checkbox to disable normal audio and enable the A/B track")
+        this_audio_item_editor_widget.set_tooltips(True)
     else:
         pydaw_write_file_text(global_pydaw_home + "/" + "tooltips.txt", "False")
         this_song_editor.table_widget.setToolTip("")
         for f_region_editor in global_region_editors:
             f_region_editor.table_widget.setToolTip("")
-        this_audio_item_editor_widget.widget.setToolTip("")
+        this_audio_item_editor_widget.set_tooltips(False)
         this_audio_items_viewer.setToolTip("")
         this_audio_items_viewer_widget.folders_widget.setToolTip("")
         this_audio_items_viewer_widget.hsplitter.setToolTip("")
         this_main_window.transport_splitter.setToolTip("")
         this_main_window.song_region_splitter.setToolTip("")
-        this_audio_item_editor_widget.timestretch_mode.setToolTip("")
         this_piano_roll_editor.setToolTip("")
         this_transport.group_box.setToolTip("")
         this_main_window.cc_map_tab.setToolTip("")
@@ -2525,7 +2515,6 @@ class audio_item_editor_widget:
         self.crispness_combobox = QtGui.QComboBox()
         self.crispness_combobox.addItems(["0 (smeared)", "1 (good for piano)", "2", "3", "4", "5 (normal)", "6 (sharp, good for drums)"])
         self.crispness_combobox.setCurrentIndex(5)
-        self.crispness_combobox.setToolTip("Affects the sharpness of transients, only for modes using Rubberband")
         self.crispness_layout.addWidget(self.crispness_combobox)
 
         self.timestretch_amt_end_checkbox = QtGui.QCheckBox("End:")
@@ -2563,17 +2552,45 @@ class audio_item_editor_widget:
 
         self.ok_layout = QtGui.QHBoxLayout()
         self.ok = QtGui.QPushButton("Save Changes")
-        self.ok.setToolTip("Changes are not saved until you push this button")
         self.ok.pressed.connect(self.ok_handler)
         self.ok_layout.addWidget(self.ok)
         self.vlayout2.addLayout(self.ok_layout)
 
-        f_sbsms_tooltip = "This control is only valid for the SBSMS timestretch mode," + \
-        "\nthe start/end values are for the full sample length, not the edited start/end points"
-        self.timestretch_amt_end.setToolTip(f_sbsms_tooltip)
-        self.pitch_shift_end.setToolTip(f_sbsms_tooltip)
-
         self.last_open_dir = global_home
+
+    def set_tooltips(self, a_on):
+        if a_on:
+            f_sbsms_tooltip = "This control is only valid for the SBSMS and %s modes,\n" + \
+            "the start/end values are for the full sample length, not the edited start/end points\n" + \
+            "setting the start/end time to different values will cause the timestretch handle to disappear on the audio item."
+            self.timestretch_amt_end.setToolTip((f_sbsms_tooltip % ("Time(affecting pitch)",)))
+            self.pitch_shift_end.setToolTip((f_sbsms_tooltip % ("Pitch(affecting time)",)))
+            self.ok.setToolTip("Changes are not saved until you push this button")
+            self.widget.setToolTip("To edit the properties of one or more audio item(s),\n" + \
+            "click or marquee select items, then change their properties and click 'Save Changes'\n" + \
+            "Only the control section(s) whose checkbox is checked will be updated.\n\n" + \
+            "Click the 'tooltips' checkbox in the transport to disable these tooltips")
+            self.crispness_combobox.setToolTip("Affects the sharpness of transients, only for modes using Rubberband")
+            self.timestretch_mode.setToolTip("Modes:\n\nNone:  No stretching or pitch adjustment\n" + \
+            "Pitch affecting time:  Repitch the item, it will become shorter at higher pitches, and longer at lower pitches\n" + \
+            "Time affecting pitch:  Stretch the item to the desired length, it will have lower pitch at longer lengths, and higher pitch at shorter lengths\n" + \
+            "Rubberband:  Adjust pitch and time independently\nRubberband (formants): Same as Rubberband, but preserves formants\n" + \
+            "SBSMS:  Adjust pitch and time independently, also with the ability to set start/end pitch/time differently\n" + \
+            "Paulstretch:  Mostly for stretching items very long, creates a very smeared, atmospheric sound")
+            self.output_combobox.setToolTip("Use this combobox to select the output audio track on the 'Audio Tracks' tab\n" + \
+            "where you can apply effects and automation.")
+            self.sample_vol_slider.setToolTip("Use this to set the sample volume. If you need to automate volume changes, either\n" +\
+            "use the fade-in/fade-out handles, or automate the volume on the audio track specified in the Output: combobox.")
+
+        else:
+            self.timestretch_amt_end.setToolTip("")
+            self.pitch_shift_end.setToolTip("")
+            self.ok.setToolTip("")
+            self.widget.setToolTip("")
+            self.crispness_combobox.setToolTip("")
+            self.timestretch_mode.setToolTip("")
+            self.output_combobox.setToolTip("")
+            self.sample_vol_slider.setToolTip("")
 
     def timestretch_end_mode_changed(self, a_val=None):
         if not self.timestretch_amt_end_checkbox.isChecked():
