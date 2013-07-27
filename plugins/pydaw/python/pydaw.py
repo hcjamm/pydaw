@@ -1057,6 +1057,8 @@ class region_list_editor:
             if f_new_name == "":
                 QtGui.QMessageBox.warning(self.group_box, "Error", "Name cannot be blank")
                 return
+            global global_region_clipboard
+            global_region_clipboard = []  #Clear the clipboard, otherwise the names could be invalid
             this_pydaw_project.rename_items(f_result, f_new_name)
             this_pydaw_project.commit("Rename items")
             this_region_settings.open_region_by_uid(global_current_region.uid)
