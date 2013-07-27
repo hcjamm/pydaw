@@ -3147,6 +3147,8 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         a_event.setAccepted(True)
         QtGui.QGraphicsRectItem.mouseReleaseEvent(self, a_event)
         global global_selected_piano_note
+        if self.is_copying:
+            f_new_selection = []
         for f_item in this_piano_roll_editor.note_items:
             if f_item.isSelected():
                 f_pos_x = f_item.pos().x()
@@ -3173,6 +3175,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
                         f_item.item_index, f_new_note_start = pydaw_beats_to_index(f_new_note_start)
                         f_new_note = pydaw_note(f_new_note_start, f_item.note_item.length, f_new_note_num, f_item.note_item.velocity)
                         this_item_editor.items[f_item.item_index].add_note(f_new_note, False)
+                        f_new_selection.append(f_new_note)  #pass a ref instead of a str in case fix_overlaps() modifies it.
                     else:
                         this_item_editor.items[f_item.item_index].notes.remove(f_item.note_item)
                         f_item.item_index, f_new_note_start = pydaw_beats_to_index(f_new_note_start)
@@ -3184,13 +3187,16 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
             f_item.fix_overlaps()
         global_selected_piano_note = None
         this_piano_roll_editor.selected_note_strings = []
-        #global_save_and_reload_items()
         for f_item in this_piano_roll_editor.note_items:
             f_item.is_resizing = False
             f_item.is_copying = False
-            if f_item.isSelected():
-                this_piano_roll_editor.selected_note_strings.append(str(f_item.note_item))
-        global_save_and_reload_items()  #<Was above the loop, but I'm not sure why...
+            if self.is_copying:
+                for f_new_item in f_new_selection:
+                    this_piano_roll_editor.selected_note_strings.append(str(f_new_item))
+            else:
+                if f_item.isSelected():
+                    this_piano_roll_editor.selected_note_strings.append(str(f_item.note_item))
+        global_save_and_reload_items()  #<Was above the loop before, but I'm not sure why...
         QtGui.QApplication.restoreOverrideCursor()
         self.showing_resize_cursor = False
         this_piano_roll_editor.click_enabled = True
