@@ -33,8 +33,6 @@ enum LMS_KNOB_CONVERSION
     lms_kc_127_zero_to_x, lms_kc_log_time, lms_kc_127_zero_to_x_int
 };
 
-static QPen knob_regular_arc_pen(QColor::fromRgb(255, 30, 30, 255), 5.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-
 class lms_pixmap_knob : public QDial
 {
 public:
@@ -42,6 +40,10 @@ public:
      : QDial(parent)
     {
          setParent(parent);
+         arc_gradient = QLinearGradient(0.0, 0.0, 90.0, 0.0);
+         arc_gradient.setColorAt(0.0, QColor::fromRgb(120, 120, 255, 255));
+         arc_gradient.setColorAt(0.66, QColor::fromRgb(255, 0, 0, 255));
+         knob_regular_arc_pen = QPen(arc_gradient, 5.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     }
     void set_pixmap_knob(int a_size)
     {
@@ -51,13 +53,14 @@ public:
     }
     QPixmap pixmap;
     int pixmap_size;
+    QGradient arc_gradient;
+    QPen knob_regular_arc_pen;
 protected:
     void paintEvent(QPaintEvent *ev)
     {
         QPainter p(this);      
         float f_frac_val = (((float)(this->value() - this->minimum())) / ((float)(this->maximum() - this->minimum())));
-        float f_rotate_value =  f_frac_val * 270.0f;
-        
+        float f_rotate_value =  f_frac_val * 270.0f;        
         QRect f_rect = this->rect();
         f_rect.setWidth(f_rect.width() - 3);
         f_rect.setHeight(f_rect.height() - 3);
