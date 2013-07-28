@@ -102,7 +102,7 @@ class pydaw_knob_control:
             f_dec_value = (int(f_dec_value * 100.0)) * 0.01
             self.value_label.setText(str(f_dec_value))
 
-class pydaw_modulex_effect:
+class pydaw_modulex_single:
     def __init__(self, a_title=None):
         self.group_box = QtGui.QGroupBox()
         if a_title is not None:
@@ -354,13 +354,33 @@ class pydaw_modulex_effect:
         self.knobs[1].knob_value_changed(self.knobs[1].knob.value())
         self.knobs[2].knob_value_changed(self.knobs[2].knob.value())
 
+class pydaw_modulex_full:
+    def __init__(self):
+        self.effects = []
+        self.widget = QtGui.QWidget()
+        self.layout = QtGui.QGridLayout()
+        self.widget.setLayout(self.layout)
+        f_col = 0
+        f_row = 0
+        for f_i in range(8):
+            f_effect = pydaw_modulex_single(("FX" + str(f_i)))
+            self.effects.append(f_effect)
+            self.layout.addWidget(f_effect.group_box, f_row, f_col)
+            f_col += 1
+            if f_col >= 2:
+                f_col = 0
+                f_row += 1
+        self.widget.setGeometry(0, 0, 730, 570)  #ensure minimum size
+        self.scroll_area = QtGui.QScrollArea()
+        self.scroll_area.setGeometry(0, 0, 735, 575)
+        self.scroll_area.setWidget(self.widget)
 
 if __name__ == "__main__":
     def pydaw_knob_test():
         import sys
         app = QtGui.QApplication(sys.argv)
-        f_modulex = pydaw_modulex_effect("FX0")
-        f_modulex.group_box.setStyleSheet(pydaw_util.pydaw_read_file_text("/usr/lib/pydaw3/themes/default/style.txt"))
-        f_modulex.group_box.show()
+        f_modulex = pydaw_modulex_full()
+        f_modulex.scroll_area.setStyleSheet(pydaw_util.pydaw_read_file_text("/usr/lib/pydaw3/themes/default/style.txt"))
+        f_modulex.scroll_area.show()
         sys.exit(app.exec_())
     pydaw_knob_test()
