@@ -1258,9 +1258,7 @@ def global_update_audio_track_comboboxes(a_index=None, a_value=None):
     for f_cbox in global_audio_track_comboboxes:
         f_current_index = f_cbox.currentIndex()
         f_cbox.clear()
-        f_cbox.addItems(['test', 'test2'])  #This is to ensure that the text clears, which apparently won't happen automatically
-        f_cbox.setCurrentIndex(1)
-        f_cbox.clear()
+        f_cbox.clearEditText()
         f_cbox.addItems(list(global_audio_track_names.values()))
         f_cbox.setCurrentIndex(f_current_index)
 
