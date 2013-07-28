@@ -4888,7 +4888,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         char f_file_name_tmp[256];
         sprintf(f_file_name_tmp, "%s%s", a_pydaw_data->samplegraph_folder, f_kvp->key);
         v_pydaw_generate_sample_graph(f_kvp->value, f_file_name_tmp);     
-        printf("v_wav_pool_add_item(a_pydaw_data->wav_pool, %i, \"%s\")", atoi(f_kvp->key), f_kvp->value);
+        printf("v_wav_pool_add_item(a_pydaw_data->wav_pool, %i, \"%s\")\n", atoi(f_kvp->key), f_kvp->value);
         v_wav_pool_add_item(a_pydaw_data->wav_pool, atoi(f_kvp->key), f_kvp->value);
         free(f_kvp);
     }
