@@ -14,7 +14,7 @@ GNU General Public License for more details.
 
 import os, random, traceback, subprocess
 from shutil import move
-from time import sleep
+from time import sleep, time
 from libpydaw import midi
 from libpydaw.pydaw_util import *
 
@@ -148,7 +148,10 @@ class pydaw_project:
         f_old_bus_fx = self.get_files_dict(self.busfx_folder)
 
         self.this_dssi_gui.pydaw_save_tracks()
-        sleep(3)
+        f_tmp_file = self.project_folder + "/" + "tracks.finished"
+        if os.path.isfile(f_tmp_file):
+            os.remove(f_tmp_file)
+        pydaw_wait_for_finished_file(f_tmp_file)
 
         f_new_inst = self.get_files_dict(self.instrument_folder, ".pyinst")
         f_new_fx = self.get_files_dict(self.instrument_folder, ".pyfx")

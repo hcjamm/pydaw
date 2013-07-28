@@ -4027,6 +4027,9 @@ void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
     
     printf("Saving tracks complete\n");
     pthread_mutex_unlock(&a_pydaw_data->quit_mutex);
+    char f_tmp_file[512] = "\0";
+    sprintf(f_tmp_file, "%stracks.finished", a_pydaw_data->project_folder);
+    v_pydaw_write_to_file(f_tmp_file, "Finished");
     
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
