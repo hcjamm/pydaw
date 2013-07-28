@@ -326,6 +326,7 @@ typedef struct
     int audio_recording_quit_notifier;
     int rec_region_current_uid;
     int rec_item_current_uid;
+    int suppress_new_audio_items;  //used to prevent new audio items from playing while the existing are being faded out.
     t_py_cc_map_item * cc_map[PYDAW_MIDI_NOTE_COUNT];
     t_wav_pool * wav_pool;
     t_wav_pool_item * ab_wav_item;
@@ -2096,6 +2097,13 @@ inline int v_pydaw_audio_items_run(t_pydaw_data * a_pydaw_data, int a_sample_cou
             continue;
         }
         
+        if(a_pydaw_data->suppress_new_audio_items && 
+            ((a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr->stage) == 4))
+        {
+            f_i++;
+            continue;
+        }
+        
         if((a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->audio_track_output) == a_audio_track_num)
         {              
             f_return_value = 1;
@@ -2966,6 +2974,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->record_name_index_items = 0;
     f_result->record_name_index_regions = 0;
     f_result->recorded_note_current_beat = 0;
+    f_result->suppress_new_audio_items = 0;
     f_result->recording_current_item_pool_index = -1;
     f_result->recording_first_item = -1;
     
@@ -3642,14 +3651,32 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
     {
         case 0: //stop
         {  
+            int f_i = 0;
             int f_was_recording = 0;
             if(a_pydaw_data->playback_mode == PYDAW_PLAYBACK_MODE_REC)
             {
                 f_was_recording = 1;
             }
             pthread_mutex_lock(&a_pydaw_data->main_mutex);
-            a_pydaw_data->playback_mode = a_mode;
-            int f_i = 0;
+            a_pydaw_data->suppress_new_audio_items = 1;
+            //Fade out the playing audio tracks
+            if(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region])
+            {
+                while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+                {
+                    if(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i])
+                    {
+                        v_adsr_release(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);
+                    }                    
+                    f_i++;
+                }
+            }
+            pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+            f_i = 0;
+            usleep(60000);  
+            pthread_mutex_lock(&a_pydaw_data->main_mutex);
+            a_pydaw_data->suppress_new_audio_items = 0;
+            a_pydaw_data->playback_mode = a_mode;            
             //Send zero pitchbend messages so the plugins pitch isn't off next time playback starts
             while(f_i < PYDAW_MIDI_TRACK_COUNT)
             {
@@ -3661,22 +3688,7 @@ void v_set_playback_mode(t_pydaw_data * a_pydaw_data, int a_mode, int a_region, 
                     a_pydaw_data->track_pool[f_i]->current_period_event_index = 1;                    
                 }
                 f_i++;
-            }
-            f_i = 0;
-            //Fade out the playing audio tracks
-            if(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region])
-            {
-                while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
-                {
-                    if((a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]) == 0)
-                    {
-                        f_i++;
-                        continue;
-                    }
-                    v_adsr_release(a_pydaw_data->pysong->audio_items[a_pydaw_data->current_region]->items[f_i]->adsr);
-                    f_i++;
-                }
-            }
+            }            
             pthread_mutex_unlock(&a_pydaw_data->main_mutex);
             if(f_was_recording)  //Things must be saved in the order of:  items|regions|song, otherwise it will SEGFAULT from not having a name yet...
             {   
