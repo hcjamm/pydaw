@@ -15,7 +15,10 @@ GNU General Public License for more details.
 import pydaw_util
 from PyQt4 import QtGui, QtCore
 
-global_knob_arc_pen = QtGui.QPen(QtGui.QColor.fromRgb(255, 30, 30, 255), 5.0, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
+global_knob_arc_gradient = QtGui.QLinearGradient(0.0, 0.0, 90.0, 0.0)
+global_knob_arc_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(120, 120, 255, 255))
+global_knob_arc_gradient.setColorAt(0.66, QtGui.QColor.fromRgb(255, 0, 0, 255))
+global_knob_arc_pen = QtGui.QPen(global_knob_arc_gradient, 5.0, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
 
 class pydaw_pixmap_knob(QtGui.QDial):
     def __init__(self, a_size):
@@ -364,6 +367,9 @@ class pydaw_modulex_full:
         f_row = 0
         for f_i in range(8):
             f_effect = pydaw_modulex_single(("FX" + str(f_i)))
+            f_effect.combobox.currentIndexChanged.connect(self.control_changed)
+            for f_i2 in range(3):
+                f_effect.knobs[f_i2].knob.sliderReleased.connect(self.control_changed)
             self.effects.append(f_effect)
             self.layout.addWidget(f_effect.group_box, f_row, f_col)
             f_col += 1
@@ -374,6 +380,9 @@ class pydaw_modulex_full:
         self.scroll_area = QtGui.QScrollArea()
         self.scroll_area.setGeometry(0, 0, 735, 575)
         self.scroll_area.setWidget(self.widget)
+
+    def control_changed(self, a_val=None):
+        print(str(a_val))
 
 if __name__ == "__main__":
     def pydaw_knob_test():
