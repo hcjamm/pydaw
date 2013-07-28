@@ -432,6 +432,12 @@ class pydaw_project:
         or None if the UID already exists in the cache"""
         if not os.path.isdir(self.timestretch_folder):  #TODO:  remove at PyDAWv4
             os.mkdir(self.timestretch_folder)
+
+        a_audio_item.timestretch_amt = round(a_audio_item.timestretch_amt, 6)
+        a_audio_item.pitch_shift = round(a_audio_item.pitch_shift, 6)
+        a_audio_item.timestretch_amt_end = round(a_audio_item.timestretch_amt_end, 6)
+        a_audio_item.pitch_shift_end = round(a_audio_item.pitch_shift_end, 6)
+
         f_src_path = self.get_wav_name_by_uid(a_audio_item.uid)
         if f_src_path in self.timestretch_reverse_lookup:
             f_src_path = self.timestretch_reverse_lookup[f_src_path]
