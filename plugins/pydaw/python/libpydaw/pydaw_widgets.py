@@ -359,8 +359,8 @@ if __name__ == "__main__":
     def pydaw_knob_test():
         import sys
         app = QtGui.QApplication(sys.argv)
-        f_modulex = pydaw_modulex_effect()
-        f_modulex.group_box.setStyleSheet(open("/usr/lib/pydaw3/themes/default/style.txt").read())
+        f_modulex = pydaw_modulex_effect("FX0")
+        f_modulex.group_box.setStyleSheet(pydaw_util.pydaw_read_file_text("/usr/lib/pydaw3/themes/default/style.txt"))
         f_modulex.group_box.show()
         sys.exit(app.exec_())
     pydaw_knob_test()
