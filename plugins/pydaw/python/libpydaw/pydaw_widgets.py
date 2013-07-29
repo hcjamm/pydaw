@@ -131,6 +131,13 @@ class pydaw_modulex_single:
                                 "LoFi", "S/H", "LP-Dry/Wet" , "HP-Dry/Wet"])
         self.layout.addWidget(self.combobox, 1, 3)
 
+    def set_from_class(self, a_class):
+        """ a_class is a pydaw_ """
+        self.knobs[0].setValue(a_class.knob0)
+        self.knobs[1].setValue(a_class.knob1)
+        self.knobs[2].setValue(a_class.knob2)
+        self.combobox.setCurrentIndex(a_class.fx_num)
+
     def type_combobox_changed(self, a_val):
         if a_val == 0: #Off
             self.knobs[0].name_label.setText((""))

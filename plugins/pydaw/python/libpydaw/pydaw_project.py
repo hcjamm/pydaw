@@ -14,7 +14,7 @@ GNU General Public License for more details.
 
 import os, random, traceback, subprocess
 from shutil import move
-from time import sleep, time
+from time import sleep
 from libpydaw import midi
 from libpydaw.pydaw_util import *
 

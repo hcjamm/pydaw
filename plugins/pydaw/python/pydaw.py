@@ -2260,6 +2260,15 @@ class audio_items_viewer_widget():
         self.folders_tab_widget.addTab(self.modulex.scroll_area, "Per-Item FX")
         self.modulex.widget.setDisabled(True)
 
+        self.modulex_copy_button = QtGui.QPushButton("Copy")
+        self.modulex_copy_button.pressed.connect(self.on_modulex_copy)
+        self.modulex_paste_button = QtGui.QPushButton("Paste")
+        self.modulex_paste_button.pressed.connect(self.on_modulex_paste)
+        self.modulex_hlayout = QtGui.QHBoxLayout()
+        self.modulex_hlayout.addWidget(self.modulex_copy_button)
+        self.modulex_hlayout.addWidget(self.modulex_paste_button)
+        self.modulex.layout.insertLayout(0, self.modulex_hlayout)
+
         self.file_vlayout = QtGui.QVBoxLayout()
         self.file_widget = QtGui.QWidget()
         self.file_widget.setLayout(self.file_vlayout)
@@ -2314,6 +2323,12 @@ class audio_items_viewer_widget():
         self.last_open_dir = global_home
         self.set_folder(".")
         self.open_bookmarks()
+
+    def on_modulex_copy(self):
+        pass
+
+    def on_modulex_paste(self):
+        pass
 
     def on_copy(self):
         if global_current_region is None or global_transport_is_playing:
