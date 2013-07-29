@@ -1886,6 +1886,47 @@ class pydaw_audio_item:
             a_arr[17], int_to_bool(a_arr[18]), a_arr[19])
         return f_result
 
+class pydaw_audio_item_fx_region:
+    def __init__(self):
+        self.fx_list = []
+
+    def __str__(self):
+        f_result = ""
+        self.fx_list.sort()
+        for f_item in self.fx_list:
+            f_result += str(f_item)
+        return f_result
+
+    @staticmethod
+    def from_str(a_str):
+        f_result = pydaw_audio_item_fx_region()
+        f_arr = str(a_str).split("\n")
+        for f_line in f_arr:
+            if f_line == pydaw_terminating_char:
+                break
+            a_index, a_fx_num, a_knob0, a_knob1, a_knob2, a_type = f_line.split("|")
+            f_item = pydaw_audio_item_fx(a_index, a_fx_num, a_knob0, a_knob1, a_knob2, a_type)
+            f_result.fx_list.append(f_item)
+        f_result.fx_list.sort()
+        return f_result
+
+class pydaw_audio_item_fx:
+    def __init__(self, a_index, a_fx_num, a_knob0, a_knob1, a_knob2, a_type):
+        self.index = int(a_index)
+        self.fx_num = int(a_fx_num)
+        self.knob0 = int(a_knob0)
+        self.knob1 = int(a_knob1)
+        self.knob2 = int(a_knob2)
+
+    def __lt__(self, other):
+        if self.index > other.index:
+            return False
+        else:
+            return self.fx_num < other.fx_num
+
+    def __str__(self):
+        return str(self.index) + "|" + str(self.fx_num) + "|" + str(self.knob0) + "|" + str(self.knob1) + "|" + str(self.knob2) + "\n"
+
 class pydaw_audio_input_tracks:
     def add_track(self, a_index, a_track):
         self.tracks[a_index] = a_track
