@@ -2248,6 +2248,9 @@ class audio_items_viewer_widget():
 
         self.folders_tab_widget.addTab(this_audio_item_editor_widget.widget, "Edit")
 
+        self.modulex = pydaw_widgets.pydaw_modulex_full()
+        self.folders_tab_widget.addTab(self.modulex.scroll_area, "Per-Item FX")
+
         self.file_vlayout = QtGui.QVBoxLayout()
         self.file_widget = QtGui.QWidget()
         self.file_widget.setLayout(self.file_vlayout)
