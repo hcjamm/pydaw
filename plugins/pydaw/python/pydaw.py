@@ -209,6 +209,8 @@ def pydaw_set_tooltips_enabled(a_enabled):
         "Drag and drop one file at a time onto the sequencer.\n.wav files are the only supported audio file format.\n" + \
         "Click the 'Bookmark' button to save the current folder to your bookmarks located on the 'Bookmarks' tab." + \
         "\n\nClick the 'tooltips' checkbox in the transport to disable these tooltips")
+        this_audio_items_viewer_widget.modulex.widget.setToolTip("This tab allows you to set effects per-item.\n" + \
+        "The tab is only enabled when you have exactly one item selected, the copy and paste buttons allow you to copy settings between multipe items.")
         this_main_window.transport_splitter.setToolTip("Use this handle to expand or collapse the transport.")
         this_main_window.song_region_splitter.setToolTip("Use this handle to expand or collapse the song editor and region info.")
         this_piano_roll_editor.setToolTip("Click+drag to draw notes\nCTRL+click+drag to marquee select multiple items\n" + \
@@ -1989,11 +1991,17 @@ class audio_items_viewer(QtGui.QGraphicsView):
                 f_selected_items.append(f_item)
         f_end_mode_checked = True
         if len(f_selected_items) > 1:
+            this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
             f_end_mode_val = f_selected_items[0].audio_item.end_mode
             for f_item in f_selected_items[1:]:
                 if f_item.audio_item.end_mode != f_end_mode_val:
                     f_end_mode_checked = False
                     break
+        elif len(f_selected_items) == 1:
+            this_audio_items_viewer_widget.modulex.widget.setEnabled(True)
+        elif len(f_selected_items) == 0:
+            this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
+
         this_audio_item_editor_widget.end_mode_checkbox.setChecked(f_end_mode_checked)
         f_timestretch_checked = True
         if len( f_selected_items) > 1:
@@ -2250,6 +2258,7 @@ class audio_items_viewer_widget():
 
         self.modulex = pydaw_widgets.pydaw_modulex_full()
         self.folders_tab_widget.addTab(self.modulex.scroll_area, "Per-Item FX")
+        self.modulex.widget.setDisabled(True)
 
         self.file_vlayout = QtGui.QVBoxLayout()
         self.file_widget = QtGui.QWidget()
