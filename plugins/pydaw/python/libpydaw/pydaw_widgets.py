@@ -117,6 +117,27 @@ class pydaw_knob_control:
             f_dec_value = (int(f_dec_value * 100.0)) * 0.01
             self.value_label.setText(str(f_dec_value))
 
+class pydaw_combobox_control:
+    def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_items_list=[]):
+        self.suppress_changes = True
+        self.name_label = QtGui.QLabel(str(a_label))
+        self.name_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.control = QtGui.QComboBox()
+        self.control.setMinimumWidth(a_size)
+        self.control.currentIndexChanged.connect(self.combobox_index_changed)
+        self.control.addItems(a_items_list)
+        self.value_label = QtGui.QLabel("")
+        self.value_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.port_num = int(a_port_num)
+        self.rel_callback = a_rel_callback
+        self.val_callback = a_val_callback
+        self.suppress_changes = False
+
+    def combobox_index_changed(self, a_val):
+        if not self.suppress_changes:
+            self.val_callback(self.port_num, a_val)
+            self.rel_callback(self.port_num, a_val)
+
 class pydaw_modulex_single:
     def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback):
         self.group_box = QtGui.QGroupBox()
@@ -131,16 +152,13 @@ class pydaw_modulex_single:
             self.layout.addWidget(f_knob.knob, 1, f_i)
             self.layout.addWidget(f_knob.value_label, 2, f_i)
             self.knobs.append(f_knob)
-        self.type_label = QtGui.QLabel("Type")
-        self.type_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.layout.addWidget(self.type_label, 0, 3)
-        self.combobox = QtGui.QComboBox()
-        self.combobox.setMinimumWidth(132)
-        self.combobox.currentIndexChanged.connect(self.type_combobox_changed)
-        self.combobox.addItems(["Off", "LP2" , "LP4", "HP2", "HP4", "BP2", "BP4" , "Notch2", "Notch4", "EQ" , "Distortion",
-                                "Comb Filter", "Amp/Pan", "Limiter" , "Saturator", "Formant", "Chorus", "Glitch" , "RingMod",
-                                "LoFi", "S/H", "LP-Dry/Wet" , "HP-Dry/Wet"])
-        self.layout.addWidget(self.combobox, 1, 3)
+        self.combobox = pydaw_combobox_control(132, "Type", a_port_k1 + 3, a_rel_callback, a_val_callback,
+               ["Off", "LP2" , "LP4", "HP2", "HP4", "BP2", "BP4" , "Notch2", "Notch4", "EQ" , "Distortion",
+                "Comb Filter", "Amp/Pan", "Limiter" , "Saturator", "Formant", "Chorus", "Glitch" , "RingMod",
+                "LoFi", "S/H", "LP-Dry/Wet" , "HP-Dry/Wet"])
+        self.layout.addWidget(self.combobox.name_label, 0, 3)
+        self.combobox.control.currentIndexChanged.connect(self.type_combobox_changed)
+        self.layout.addWidget(self.combobox.control, 1, 3)
 
     def set_from_class(self, a_class):
         """ a_class is a pydaw_audio_item_fx instance """
@@ -389,9 +407,6 @@ class pydaw_per_audio_item_fx_widget:
         f_port = 0
         for f_i in range(8):
             f_effect = pydaw_modulex_single(("FX" + str(f_i)), f_port, a_rel_callback, a_val_callback)
-            f_effect.combobox.currentIndexChanged.connect(self.control_changed)
-            for f_i2 in range(3):
-                f_effect.knobs[f_i2].knob.sliderReleased.connect(self.control_changed)
             self.effects.append(f_effect)
             self.layout.addWidget(f_effect.group_box)
             f_port += 4
@@ -399,9 +414,6 @@ class pydaw_per_audio_item_fx_widget:
         self.scroll_area = QtGui.QScrollArea()
         self.scroll_area.setGeometry(0, 0, 360, 1120)
         self.scroll_area.setWidget(self.widget)
-
-    def control_changed(self, a_val=None):
-        print(str(a_val))
 
     def set_from_list(self, a_list):
         """ a_class is a pydaw_audio_item_fx instance """
