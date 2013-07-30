@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-import pydaw_util
+from libpydaw import pydaw_util, pydaw_project
 from PyQt4 import QtGui, QtCore
 
 global_knob_arc_gradient = QtGui.QLinearGradient(0.0, 0.0, 90.0, 0.0)
@@ -132,11 +132,15 @@ class pydaw_modulex_single:
         self.layout.addWidget(self.combobox, 1, 3)
 
     def set_from_class(self, a_class):
-        """ a_class is a pydaw_ """
-        self.knobs[0].setValue(a_class.knob0)
-        self.knobs[1].setValue(a_class.knob1)
-        self.knobs[2].setValue(a_class.knob2)
+        """ a_class is a pydaw_audio_item_fx instance """
+        self.knobs[0].setValue(a_class.knobs[0])
+        self.knobs[1].setValue(a_class.knobs[1])
+        self.knobs[2].setValue(a_class.knobs[2])
         self.combobox.setCurrentIndex(a_class.fx_num)
+
+    def get_class(self):
+        """ return a pydaw_audio_item_fx instance """
+        return pydaw_project.pydaw_audio_item_fx(self.knobs[0].value(), self.knobs[1].value(), self.knobs[2].value(), self.combobox.currentIndex())
 
     def type_combobox_changed(self, a_val):
         if a_val == 0: #Off
@@ -385,6 +389,18 @@ class pydaw_modulex_full:
 
     def control_changed(self, a_val=None):
         print(str(a_val))
+
+    def set_from_list(self, a_list):
+        """ a_class is a pydaw_audio_item_fx instance """
+        for f_i in len(a_list):
+            self.effects[f_i].set_from_class(a_list[f_i])
+
+    def get_list(self):
+        """ return a list of pydaw_audio_item_fx instances """
+        f_result = []
+        for f_effect in self.effects:
+            f_result.append(f_effect.get_class())
+        return f_result
 
 if __name__ == "__main__":
     def pydaw_knob_test():

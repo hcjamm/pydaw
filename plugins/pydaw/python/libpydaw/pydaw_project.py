@@ -36,6 +36,7 @@ pydaw_max_region_length = 32 #bars
 
 pydaw_folder_audio = "audio"
 pydaw_folder_audiofx = "audiofx"
+pydaw_folder_audio_per_item_fx = "audio_per_item_fx"
 pydaw_folder_busfx = "busfx"
 pydaw_folder_instruments = "instruments"
 pydaw_folder_items = "items"
@@ -200,6 +201,7 @@ class pydaw_project:
         self.audio_tmp_folder = self.project_folder + "/audio/tmp"
         self.samples_folder = self.project_folder + "/" + pydaw_folder_samples  #Placeholder for future functionality
         self.audiofx_folder = self.project_folder + "/" + pydaw_folder_audiofx
+        self.audio_per_item_fx_folder = self.project_folder + "/" + pydaw_folder_audio_per_item_fx
         self.busfx_folder = self.project_folder + "/" + pydaw_folder_busfx
         self.samplegraph_folder = self.project_folder + "/" + pydaw_folder_samplegraph
         self.timestretch_folder = self.project_folder + "/" + pydaw_folder_timestretch
@@ -229,7 +231,7 @@ class pydaw_project:
         project_folders = [
             self.project_folder, self.instrument_folder, self.regions_folder,
             self.items_folder, self.audio_folder, self.samples_folder,
-            self.audiofx_folder, self.busfx_folder, self.samplegraph_folder,
+            self.audiofx_folder, self.audio_per_item_fx_folder, self.busfx_folder, self.samplegraph_folder,
             self.audio_tmp_folder, self.regions_audio_folder, self.timestretch_folder]
 
         for project_dir in project_folders:
@@ -617,6 +619,15 @@ class pydaw_project:
 
     def get_audio_region(self, a_region_uid):
         return pydaw_audio_region.from_str(self.get_audio_region_string(a_region_uid))
+
+    def get_audio_per_item_fx_region_string(self, a_region_uid):
+        f_file = open(self.regions_audio_folder + "/" + str(a_region_uid), "r")
+        f_result = f_file.read()
+        f_file.close()
+        return f_result
+
+    def get_audio_per_item_fx_region(self, a_region_uid):
+        return pydaw_audio_item_fx_region.from_str(self.get_audio_per_item_fx_region_string(a_region_uid))
 
     def get_sample_graph_by_name(self, a_path, a_uid_dict=None):
         f_uid = self.get_wav_uid_by_name(a_path)
@@ -1888,14 +1899,22 @@ class pydaw_audio_item:
 
 class pydaw_audio_item_fx_region:
     def __init__(self):
-        self.fx_list = []
+        self.fx_list = {}
 
     def __str__(self):
         f_result = ""
-        self.fx_list.sort()
-        for f_item in self.fx_list:
+        for k, v in self.fx_list.items:
+            f_result += self.get_row_str(k) + "\n"
+        f_result += pydaw_terminating_char
+        return f_result
+
+    def get_row_str(self, a_row_index):
+        for f_item in self.fx_list[int(a_row_index)]:
             f_result += str(f_item)
         return f_result
+
+    def set_row(self, a_row_index, a_fx_list):
+        self.fx_list[int(a_row_index)] = a_fx_list
 
     @staticmethod
     def from_str(a_str):
@@ -1904,19 +1923,21 @@ class pydaw_audio_item_fx_region:
         for f_line in f_arr:
             if f_line == pydaw_terminating_char:
                 break
-            a_index, a_fx_num, a_knob0, a_knob1, a_knob2, a_type = f_line.split("|")
-            f_item = pydaw_audio_item_fx(a_index, a_fx_num, a_knob0, a_knob1, a_knob2, a_type)
-            f_result.fx_list.append(f_item)
-        f_result.fx_list.sort()
+            f_items_arr = []
+            f_index, f_vals = f_line.split("|", 1)
+            for f_i in range(8):
+                a_knob0, a_knob1, a_knob2, a_type, f_vals = f_vals.split("|", 4)
+                f_items_arr.append(f_item)
+            f_result.set_row(f_index, f_items_arr)
         return f_result
 
 class pydaw_audio_item_fx:
-    def __init__(self, a_index, a_fx_num, a_knob0, a_knob1, a_knob2, a_type):
-        self.index = int(a_index)
-        self.fx_num = int(a_fx_num)
-        self.knob0 = int(a_knob0)
-        self.knob1 = int(a_knob1)
-        self.knob2 = int(a_knob2)
+    def __init__(self, a_knob0, a_knob1, a_knob2, a_type):
+        self.knobs = []
+        self.knobs.append(int(a_knob0))
+        self.knobs.append(int(a_knob1))
+        self.knobs.append(int(a_knob2))
+        self.fx_type = int(a_type)
 
     def __lt__(self, other):
         if self.index > other.index:
@@ -1925,7 +1946,7 @@ class pydaw_audio_item_fx:
             return self.fx_num < other.fx_num
 
     def __str__(self):
-        return str(self.index) + "|" + str(self.fx_num) + "|" + str(self.knob0) + "|" + str(self.knob1) + "|" + str(self.knob2) + "\n"
+        return str(self.index) + "|" + str(self.fx_num) + "|" + str(self.knobs[0]) + "|" + str(self.knobs[1]) + "|" + str(self.knobs[2])
 
 class pydaw_audio_input_tracks:
     def add_track(self, a_index, a_track):
