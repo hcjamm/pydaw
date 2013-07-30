@@ -1985,12 +1985,14 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def scene_selection_changed(self):
         f_selected_items = []
+        global global_current_audio_item_index
         for f_item in self.audio_items:
             f_item.set_brush()
             if f_item.isSelected():
                 f_selected_items.append(f_item)
         f_end_mode_checked = True
         if len(f_selected_items) > 1:
+            global_current_audio_item_index = None
             this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
             f_end_mode_val = f_selected_items[0].audio_item.end_mode
             for f_item in f_selected_items[1:]:
@@ -1998,8 +2000,10 @@ class audio_items_viewer(QtGui.QGraphicsView):
                     f_end_mode_checked = False
                     break
         elif len(f_selected_items) == 1:
+            global_current_audio_item_index = f_selected_items[0].track_num
             this_audio_items_viewer_widget.modulex.widget.setEnabled(True)
         elif len(f_selected_items) == 0:
+            global_current_audio_item_index = None
             this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
 
         this_audio_item_editor_widget.end_mode_checkbox.setChecked(f_end_mode_checked)
@@ -2218,6 +2222,15 @@ def global_add_file_bookmark(a_folder):
         f_result += str(k) + "|||" + str(v) + "\n"
     pydaw_write_file_text(global_bookmarks_file_path, f_result.strip("\n"))
 
+global_current_audio_item_index = None
+
+def global_paif_val_callback(a_port, a_val):
+    if global_current_region is not None and global_current_audio_item_index is not None:
+        this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx(global_current_region.uid, global_current_audio_item_index, a_port, a_val)
+
+def global_paif_rel_callback(a_port, a_val):
+    print(str(a_port) + "|" + str(a_val))
+
 class audio_items_viewer_widget():
     def __init__(self):
         self.hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
@@ -2256,7 +2269,7 @@ class audio_items_viewer_widget():
 
         self.folders_tab_widget.addTab(this_audio_item_editor_widget.widget, "Edit")
 
-        self.modulex = pydaw_widgets.pydaw_modulex_full()
+        self.modulex = pydaw_widgets.pydaw_per_audio_item_fx_widget(global_paif_rel_callback, global_paif_val_callback)
         self.folders_tab_widget.addTab(self.modulex.scroll_area, "Per-Item FX")
         self.modulex.widget.setDisabled(True)
 

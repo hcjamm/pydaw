@@ -68,6 +68,8 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_CONV32F "conv32f"
 #define PYDAW_CONFIGURE_KEY_PITCH_ENV "penv"
 #define PYDAW_CONFIGURE_KEY_RATE_ENV "renv"
+//Update a single control for a per-audio-item-fx
+#define PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX "paif"
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -4814,6 +4816,20 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX))
+    {
+        t_1d_char_array * f_arr = c_split_str(a_value, '|', 4, LMS_SMALL_STRING);
+        int f_region_uid = atoi(f_arr->array[0]);
+        int f_item_index = atoi(f_arr->array[1]);
+        int f_port_num = atoi(f_arr->array[2]);
+        float f_port_val = atof(f_arr->array[3]);
+                
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        //The magic would go here
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        
+        printf("Not yet implemented");
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PLAY)) //Begin playback
     {

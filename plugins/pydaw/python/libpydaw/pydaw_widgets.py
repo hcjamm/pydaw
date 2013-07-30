@@ -24,7 +24,6 @@ class pydaw_pixmap_knob(QtGui.QDial):
     def __init__(self, a_size):
         QtGui.QDial.__init__(self)
         self.setRange(0, 127)
-        self.setValue(64)
         self.setGeometry(0, 0, a_size, a_size)
         self.set_pixmap_knob(a_size)
 
@@ -66,14 +65,20 @@ class pydaw_knob_control:
     kc_log_time = 6
     kc_127_zero_to_x_int = 7
 
-    def __init__(self, a_size, a_label="", a_knob_conversion=kc_none):
+    def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_knob_conversion=kc_none):
         self.name_label = QtGui.QLabel(str(a_label))
         self.name_label.setAlignment(QtCore.Qt.AlignCenter)
         self.knob = pydaw_pixmap_knob(a_size)
+        self.knob.setValue(64)
         self.knob.valueChanged.connect(self.knob_value_changed)
+        self.knob.sliderReleased.connect(self.knob_released)
         self.value_label = QtGui.QLabel("")
         self.value_label.setAlignment(QtCore.Qt.AlignCenter)
         self.knob_conversion = a_knob_conversion
+        self.port_num = int(a_port_num)
+        self.val_callback = a_val_callback
+        self.rel_callback = a_rel_callback
+        self.suppress_changes = False
 
     def lms_set_127_min_max(self, a_min, a_max):
         self.min_label_value_127 = a_min;
@@ -81,7 +86,13 @@ class pydaw_knob_control:
         self.label_value_127_add_to = 0.0 - a_min;
         self.label_value_127_multiply_by = ((a_max - a_min) / 127.0);
 
+    def knob_released(self):
+        self.rel_callback(self.port_num, self.knob.value())
+
     def knob_value_changed(self, a_value):
+        if not self.suppress_changes:
+            self.val_callback(self.port_num, self.knob.value())
+            #TODO:  global_current_region.uid, global_current_audio_item_index should actually be in the callback, not here
         f_dec_value = 0.0
         if self.knob_conversion == self.kc_decimal:
             self.value_label.setText(str(a_value * .01))
@@ -107,7 +118,7 @@ class pydaw_knob_control:
             self.value_label.setText(str(f_dec_value))
 
 class pydaw_modulex_single:
-    def __init__(self, a_title=None):
+    def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback):
         self.group_box = QtGui.QGroupBox()
         if a_title is not None:
             self.group_box.setTitle(str(a_title))
@@ -115,7 +126,7 @@ class pydaw_modulex_single:
         self.group_box.setLayout(self.layout)
         self.knobs = []
         for f_i in range(3):
-            f_knob = pydaw_knob_control(51)
+            f_knob = pydaw_knob_control(51, "", a_port_k1 + f_i, a_rel_callback, a_val_callback)
             self.layout.addWidget(f_knob.name_label, 0, f_i)
             self.layout.addWidget(f_knob.knob, 1, f_i)
             self.layout.addWidget(f_knob.value_label, 2, f_i)
@@ -369,19 +380,21 @@ class pydaw_modulex_single:
         self.knobs[1].knob_value_changed(self.knobs[1].knob.value())
         self.knobs[2].knob_value_changed(self.knobs[2].knob.value())
 
-class pydaw_modulex_full:
-    def __init__(self):
+class pydaw_per_audio_item_fx_widget:
+    def __init__(self, a_rel_callback, a_val_callback):
         self.effects = []
         self.widget = QtGui.QWidget()
         self.layout = QtGui.QVBoxLayout()
         self.widget.setLayout(self.layout)
+        f_port = 0
         for f_i in range(8):
-            f_effect = pydaw_modulex_single(("FX" + str(f_i)))
+            f_effect = pydaw_modulex_single(("FX" + str(f_i)), f_port, a_rel_callback, a_val_callback)
             f_effect.combobox.currentIndexChanged.connect(self.control_changed)
             for f_i2 in range(3):
                 f_effect.knobs[f_i2].knob.sliderReleased.connect(self.control_changed)
             self.effects.append(f_effect)
             self.layout.addWidget(f_effect.group_box)
+            f_port += 4
         self.widget.setGeometry(0, 0, 348, 1100)  #ensure minimum size
         self.scroll_area = QtGui.QScrollArea()
         self.scroll_area.setGeometry(0, 0, 360, 1120)
@@ -401,13 +414,3 @@ class pydaw_modulex_full:
         for f_effect in self.effects:
             f_result.append(f_effect.get_class())
         return f_result
-
-if __name__ == "__main__":
-    def pydaw_knob_test():
-        import sys
-        app = QtGui.QApplication(sys.argv)
-        f_modulex = pydaw_modulex_full()
-        f_modulex.scroll_area.setStyleSheet(pydaw_util.pydaw_read_file_text("/usr/lib/pydaw3/themes/default/style.txt"))
-        f_modulex.scroll_area.show()
-        sys.exit(app.exec_())
-    pydaw_knob_test()

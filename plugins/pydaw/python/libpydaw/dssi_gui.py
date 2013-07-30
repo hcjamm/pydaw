@@ -225,3 +225,6 @@ class dssi_gui(ServerThread):
         f_wait_file = pydaw_get_wait_file_path(a_out_file)
         self.send_configure("penv", str(a_in_file) + "\n" + str(a_out_file) + "\n" + str(a_start) + "|" + str(a_end))
         pydaw_wait_for_finished_file(f_wait_file)
+
+    def pydaw_audio_per_item_fx(self, a_region_uid, a_item_index, a_port_num, a_val):
+        self.send_configure("paif", str(a_region_uid) + "|" + str(a_item_index) + "|" + str(a_port_num) + "|" + str(a_val))
