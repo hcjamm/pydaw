@@ -431,7 +431,7 @@ void v_pydaw_set_ab_vol(t_pydaw_data * a_pydaw_data, float a_vol);
 
 t_pydaw_per_audio_item_fx_region * g_paif_region_get();
 void v_paif_region_free(t_pydaw_per_audio_item_fx_region*);
-t_pydaw_per_audio_item_fx_region * g_paif_region_open(t_pydaw_data*, int, int);
+void v_paif_region_open(t_pydaw_data*, int, int);
 t_pydaw_per_audio_item_fx_item * g_paif_item_get(t_pydaw_data *);
 void v_paif_set_control(t_pydaw_data *, int, int, int, float);
 
@@ -451,6 +451,7 @@ t_pydaw_per_audio_item_fx_region * g_paif_region_get()
         while(f_i2 < 8)
         {
             f_result->items[f_i][f_i2] = 0;
+            f_i2++;
         }
         f_i++;
     }
@@ -479,7 +480,7 @@ void v_paif_region_free(t_pydaw_per_audio_item_fx_region * a_paif)
     free(a_paif);
 }
 
-t_pydaw_per_audio_item_fx_region * g_paif_region_open(t_pydaw_data * a_pydaw_data, int a_region_uid, int a_hold_mutex)
+void v_paif_region_open(t_pydaw_data * a_pydaw_data, int a_region_uid, int a_hold_mutex)
 {
     t_pydaw_per_audio_item_fx_region * f_result = g_paif_region_get();
     f_result->region_uid = a_region_uid;
@@ -553,9 +554,7 @@ t_pydaw_per_audio_item_fx_region * g_paif_region_open(t_pydaw_data * a_pydaw_dat
     if(f_old)
     {
         free(f_old);
-    }
-    
-    return f_result;
+    }    
 }
 
 t_pydaw_per_audio_item_fx_item * g_paif_item_get(t_pydaw_data * a_pydaw_data)
