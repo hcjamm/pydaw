@@ -634,6 +634,7 @@ class pydaw_project:
     def save_audio_per_item_fx_region(self, a_region_uid, a_paif):
         if not self.suppress_updates:
             self.save_file(pydaw_folder_audio_per_item_fx, str(a_region_uid), str(a_paif))
+            self.commit("Update per-audio-item effects")
 
     def get_sample_graph_by_name(self, a_path, a_uid_dict=None):
         f_uid = self.get_wav_uid_by_name(a_path)
