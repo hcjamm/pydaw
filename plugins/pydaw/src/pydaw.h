@@ -111,6 +111,7 @@ extern "C" {
 #include <sndfile.h>
 #include <time.h>
 #include "../../libmodsynth/lib/amp.h"
+#include "../../libmodsynth/modules/multifx/multifx3knob.h"
 #include "pydaw_audio_tracks.h"
 #include "pydaw_sample_graph.h"
 #include "pydaw_audio_inputs.h"
@@ -183,7 +184,20 @@ typedef struct
 }t_pysong;
 
 typedef struct
-{    
+{
+    float a_knobs[3];
+    int fx_type;
+    fp_mf3_run func_ptr;
+    t_mf3_multi * mf3;
+}t_pydaw_per_audio_item_fx_item;
+
+typedef struct
+{
+    t_pydaw_per_audio_item_fx_item * items[PYDAW_MAX_AUDIO_ITEM_COUNT];
+}t_pydaw_per_audio_item_fx_region;
+
+typedef struct
+{
     float volume;
     float volume_linear;
     int solo;
@@ -345,6 +359,9 @@ typedef struct
     int is_previewing;  //Set this to a_pydaw_data->ab_mode on playback
     float preview_amp_lin;
     int preview_max_sample_count;
+    
+    t_pydaw_per_audio_item_fx_region * per_audio_item_fx[PYDAW_MAX_REGION_COUNT];
+    char * per_audio_item_fx_folder;
 }t_pydaw_data;
 
 typedef struct 
@@ -410,6 +427,9 @@ void v_pydaw_set_ab_mode(t_pydaw_data * a_pydaw_data, int a_mode);
 void v_pydaw_set_ab_start(t_pydaw_data * a_pydaw_data, int a_start);
 void v_pydaw_set_ab_file(t_pydaw_data * a_pydaw_data, const char * a_file);
 void v_pydaw_set_ab_vol(t_pydaw_data * a_pydaw_data, float a_vol);
+
+t_pydaw_per_audio_item_fx_region * g_paif_item_get();
+t_pydaw_per_audio_item_fx_region * g_paif_item_open(t_pydaw_data *, t_pydaw_per_audio_item_fx_region *, int);
 
 /*End declarations.  Begin implementations.*/
 
@@ -2967,6 +2987,7 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->recorded_regions_file = (char*)malloc(sizeof(char) * 256);
     f_result->wav_pool_file = (char*)malloc(sizeof(char) * 256);
     f_result->region_audio_folder = (char*)malloc(sizeof(char) * 256);
+    f_result->per_audio_item_fx_folder = (char*)malloc(sizeof(char) * 256);
     
     f_result->playback_mode = 0;
     f_result->pysong = NULL;
@@ -3099,6 +3120,14 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
         f_result->recorded_notes_start_tracker[f_i] = 0.0f;
         f_result->recorded_notes_velocity_tracker[f_i] = -1;
         
+        f_i++;
+    }
+    
+    f_i = 0;
+    
+    while(f_i < PYDAW_MAX_REGION_COUNT)
+    {
+        f_result->per_audio_item_fx[f_i] = 0;
         f_i++;
     }
        
@@ -3502,7 +3531,8 @@ void v_open_project(t_pydaw_data* a_pydaw_data, const char* a_project_folder, in
     sprintf(a_pydaw_data->samplegraph_folder, "%ssamplegraph/", a_pydaw_data->project_folder);    
     sprintf(a_pydaw_data->recorded_items_file, "%srecorded_items", a_pydaw_data->project_folder);
     sprintf(a_pydaw_data->recorded_regions_file, "%srecorded_regions", a_pydaw_data->project_folder);    
-    sprintf(a_pydaw_data->wav_pool_file, "%sdefault.pywavs", a_pydaw_data->project_folder);  
+    sprintf(a_pydaw_data->wav_pool_file, "%sdefault.pywavs", a_pydaw_data->project_folder);
+    sprintf(a_pydaw_data->per_audio_item_fx_folder, "%saudio_per_item_fx/", a_pydaw_data->project_folder);
     
     int f_i = 0;
     
