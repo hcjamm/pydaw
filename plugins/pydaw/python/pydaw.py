@@ -2002,6 +2002,8 @@ class audio_items_viewer(QtGui.QGraphicsView):
         elif len(f_selected_items) == 1:
             global_current_audio_item_index = f_selected_items[0].track_num
             this_audio_items_viewer_widget.modulex.widget.setEnabled(True)
+            f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
+            this_audio_items_viewer_widget.modulex.set_from_list(f_paif.get_row(global_current_audio_item_index))
         elif len(f_selected_items) == 0:
             global_current_audio_item_index = None
             this_audio_items_viewer_widget.modulex.widget.setDisabled(True)
@@ -2229,7 +2231,11 @@ def global_paif_val_callback(a_port, a_val):
         this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx(global_current_region.uid, global_current_audio_item_index, a_port, a_val)
 
 def global_paif_rel_callback(a_port, a_val):
-    print(str(a_port) + "|" + str(a_val))
+    if global_current_region is not None:
+        f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
+        f_index_list = this_audio_items_viewer_widget.modulex.get_list()
+        f_paif.set_row(global_current_audio_item_index, f_index_list)
+        this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_paif)
 
 class audio_items_viewer_widget():
     def __init__(self):

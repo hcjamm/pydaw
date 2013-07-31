@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-from libpydaw import pydaw_util, pydaw_project
+from pydaw_project import pydaw_audio_item_fx
 from PyQt4 import QtGui, QtCore
 
 global_knob_arc_gradient = QtGui.QLinearGradient(0.0, 0.0, 90.0, 0.0)
@@ -80,6 +80,12 @@ class pydaw_knob_control:
         self.rel_callback = a_rel_callback
         self.suppress_changes = False
 
+    def set_value(self, a_val):
+        self.suppress_changes = True
+        self.knob.setValue(a_val)
+        self.knob_value_changed(a_val)
+        self.suppress_changes = False
+
     def lms_set_127_min_max(self, a_min, a_max):
         self.min_label_value_127 = a_min;
         self.max_label_value_127 = a_max;
@@ -92,7 +98,6 @@ class pydaw_knob_control:
     def knob_value_changed(self, a_value):
         if not self.suppress_changes:
             self.val_callback(self.port_num, self.knob.value())
-            #TODO:  global_current_region.uid, global_current_audio_item_index should actually be in the callback, not here
         f_dec_value = 0.0
         if self.knob_conversion == self.kc_decimal:
             self.value_label.setText(str(a_value * .01))
@@ -138,6 +143,11 @@ class pydaw_combobox_control:
             self.val_callback(self.port_num, a_val)
             self.rel_callback(self.port_num, a_val)
 
+    def set_value(self, a_val):
+        self.suppress_changes = True
+        self.control.setCurrentIndex(a_val)
+        self.suppress_changes = False
+
 class pydaw_modulex_single:
     def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback):
         self.group_box = QtGui.QGroupBox()
@@ -162,14 +172,14 @@ class pydaw_modulex_single:
 
     def set_from_class(self, a_class):
         """ a_class is a pydaw_audio_item_fx instance """
-        self.knobs[0].setValue(a_class.knobs[0])
-        self.knobs[1].setValue(a_class.knobs[1])
-        self.knobs[2].setValue(a_class.knobs[2])
-        self.combobox.setCurrentIndex(a_class.fx_num)
+        self.knobs[0].set_value(a_class.knobs[0])
+        self.knobs[1].set_value(a_class.knobs[1])
+        self.knobs[2].set_value(a_class.knobs[2])
+        self.combobox.set_value(a_class.fx_type)
 
     def get_class(self):
         """ return a pydaw_audio_item_fx instance """
-        return pydaw_project.pydaw_audio_item_fx(self.knobs[0].value(), self.knobs[1].value(), self.knobs[2].value(), self.combobox.currentIndex())
+        return pydaw_audio_item_fx(self.knobs[0].knob.value(), self.knobs[1].knob.value(), self.knobs[2].knob.value(), self.combobox.control.currentIndex())
 
     def type_combobox_changed(self, a_val):
         if a_val == 0: #Off
@@ -394,9 +404,13 @@ class pydaw_modulex_single:
             self.knobs[2].knob_conversion = pydaw_knob_control.kc_none
             self.knobs[2].value_label.setText((""))
 
-        self.knobs[0].knob_value_changed(self.knobs[0].knob.value())
-        self.knobs[1].knob_value_changed(self.knobs[1].knob.value())
-        self.knobs[2].knob_value_changed(self.knobs[2].knob.value())
+        self.knobs[0].set_value(self.knobs[0].knob.value())
+        self.knobs[1].set_value(self.knobs[1].knob.value())
+        self.knobs[2].set_value(self.knobs[2].knob.value())
+
+        #self.knobs[0].knob_value_changed(self.knobs[0].knob.value())
+        #self.knobs[1].knob_value_changed(self.knobs[1].knob.value())
+        #self.knobs[2].knob_value_changed(self.knobs[2].knob.value())
 
 class pydaw_per_audio_item_fx_widget:
     def __init__(self, a_rel_callback, a_val_callback):
@@ -417,7 +431,7 @@ class pydaw_per_audio_item_fx_widget:
 
     def set_from_list(self, a_list):
         """ a_class is a pydaw_audio_item_fx instance """
-        for f_i in len(a_list):
+        for f_i in range(len(a_list)):
             self.effects[f_i].set_from_class(a_list[f_i])
 
     def get_list(self):
@@ -426,3 +440,4 @@ class pydaw_per_audio_item_fx_widget:
         for f_effect in self.effects:
             f_result.append(f_effect.get_class())
         return f_result
+
