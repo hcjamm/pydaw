@@ -31,7 +31,6 @@ GNU General Public License for more details.
 #include "synth.h"
 #include "meta.h"
 #include "../../libmodsynth/lib/lms_math.h"
-#include "../../libmodsynth/lib/strings.h"
 
 static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
 		       snd_seq_event_t *events, int EventCount);
@@ -351,10 +350,10 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
     
     plugin_data->preview_sample_array_index = 0;
     plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT] = 0;  //To prevent a SEGFAULT on the first call of the main loop
-    plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT] = (char*)malloc(sizeof(char) * 200);
+    plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT] = (char*)malloc(sizeof(char) * 1024);
     plugin_data->sampleData[0][EUPHORIA_MAX_SAMPLE_COUNT] = NULL;
     plugin_data->sampleData[1][EUPHORIA_MAX_SAMPLE_COUNT] = NULL;
-    lms_strcpy(plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT], ""); //This is the preview file path
+    plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT][0] = '\0'; //This is the preview file path
     plugin_data->sample_files = (char*)malloc(sizeof(char) * 10000);
     plugin_data->preview_sample_max_length = s_rate * 5.0f;  //Sets the maximum time to preview a sample to 5 seconds, lest a user unwittlingly tries to preview a 2 hour long sample.
     plugin_data->preview_length = 0.0f;
@@ -378,8 +377,8 @@ static PYFX_Handle instantiateSampler(const PYFX_Descriptor * descriptor,
         plugin_data->sampleEndPos[f_i] = 0.0f;
         plugin_data->sample_last_interpolated_value[f_i] = 0.0f;
         
-        plugin_data->sample_paths[f_i] = (char*)malloc(sizeof(char) * 200);
-        lms_strcpy(plugin_data->sample_paths[f_i], "");
+        plugin_data->sample_paths[f_i] = (char*)malloc(sizeof(char) * 1024);
+        plugin_data->sample_paths[f_i][0] = '\0';
         
         plugin_data->sampleData[0][f_i] = NULL;
         plugin_data->sampleData[1][f_i] = NULL;
@@ -974,7 +973,7 @@ static void v_run_lms_euphoria(PYFX_Handle instance, int sample_count,
         if((plugin_data->sampleNo) == 0)  //Workaround for the last previewed sample playing on project startup.  This will be removed when the preview functionality gets reworked
         {
             plugin_data->preview_sample_array_index = plugin_data->sampleCount[EUPHORIA_MAX_SAMPLE_COUNT];
-            lms_strcpy(plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT], "");
+            plugin_data->sample_paths[EUPHORIA_MAX_SAMPLE_COUNT][0] = '\0';
         }
         else
         {
@@ -1207,7 +1206,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
     
     plugin_data->sample_channels[(a_index)] = f_adjusted_channel_count;
     
-    lms_strcpy(plugin_data->sample_paths[(a_index)], path);
+    sprintf(plugin_data->sample_paths[(a_index)], "%s", path);
         
     //The last index is reserved for previewing samples for the UI;
     //Reset the array indexer so it will play from the beginning.
@@ -1234,7 +1233,7 @@ static char *c_euphoria_sampler_load(t_euphoria *plugin_data, const char *path, 
 
 static char *c_euphoria_clear(t_euphoria *plugin_data, int a_index)
 {
-    lms_strcpy(plugin_data->sample_paths[a_index], "");
+    plugin_data->sample_paths[a_index][0] = '\0';
     
     if(a_index != EUPHORIA_MAX_SAMPLE_COUNT)
     {
@@ -1296,7 +1295,7 @@ static char *c_euphoria_clear(t_euphoria *plugin_data, int a_index)
 /* Call samplerLoad for all samples.*/
 static char *c_euphoria_load_all(t_euphoria *plugin_data, const char *paths)
 {       
-    lms_strcpy(plugin_data->sample_files, paths);
+    sprintf(plugin_data->sample_files, "%s", paths);
     
     int f_index = 0;
     int f_samples_loaded_count = 0;

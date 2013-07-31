@@ -37,7 +37,7 @@ extern "C" {
     
 typedef struct
 {
-    char path[512];
+    char path[1024];
     int uid;
     float * samples[2];
     float ratio_orig;
