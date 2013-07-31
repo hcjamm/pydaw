@@ -40,6 +40,7 @@ typedef struct
 }t_crs_chorus;
 
 t_crs_chorus * g_crs_chorus_get(float);
+void v_crs_free(t_crs_chorus *);
 void v_crs_chorus_set(t_crs_chorus*, float, float);
 void v_crs_chorus_run(t_crs_chorus*, float, float);
 
@@ -155,6 +156,17 @@ void v_crs_chorus_run(t_crs_chorus* a_crs, float a_input0, float a_input1)
     {
         a_crs->buffer_ptr = 0;
     }
+}
+
+void v_crs_free(t_crs_chorus * a_crs)
+{
+    v_amp_free(a_crs->amp);
+    free(a_crs->buffer);
+    free(a_crs->cubic);
+    v_svf2_free(a_crs->hp);
+    v_lfs_free(a_crs->lfo);
+    v_svf2_free(a_crs->lp);
+    free(a_crs);
 }
 
 #ifdef	__cplusplus

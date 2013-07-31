@@ -29,6 +29,7 @@ typedef struct st_pit_pitch_core
 }t_pit_pitch_core;
 
 inline t_pit_pitch_core * g_pit_get();
+void v_pit_free(t_pit_pitch_core *);
 
 inline t_pit_pitch_core * g_pit_get()
 {
@@ -45,6 +46,11 @@ inline t_pit_pitch_core * g_pit_get()
     return f_result;    
 }
 
+void v_pit_free(t_pit_pitch_core * a_pit)
+{
+    free(a_pit->linear);
+    free(a_pit);
+}
 
 typedef struct st_pit_ratio
 {

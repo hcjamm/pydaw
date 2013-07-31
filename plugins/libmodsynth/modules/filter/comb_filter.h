@@ -54,6 +54,7 @@ typedef struct st_comb_filter
 inline void v_cmb_set_input(t_comb_filter*,float);
 inline void v_cmb_set_all(t_comb_filter*, float,float,float);
 t_comb_filter * g_cmb_get_comb_filter(float);
+void v_cmb_free(t_comb_filter *);
 
 /* v_cmb_set_input(
  * t_comb_filter*,
@@ -207,6 +208,15 @@ t_comb_filter * g_cmb_get_comb_filter(float a_sr)
     return f_result;
 }
 
+
+void v_cmb_free(t_comb_filter * a_cmb)
+{
+    v_amp_free(a_cmb->amp_ptr);
+    free(a_cmb->linear);
+    free(a_cmb->input_buffer);
+    v_pit_free(a_cmb->pitch_core);
+    free(a_cmb);
+}
 
 #ifdef	__cplusplus
 }

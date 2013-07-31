@@ -77,6 +77,13 @@ t_amp_and_panner * g_app_get()
     return f_result;
 }
 
+void v_app_free(t_amp_and_panner * a_app)
+{
+    v_amp_free(a_app->amp_ptr);
+    free(a_app->linear_interpolator);
+    free(a_app);
+}
+
 #ifdef	__cplusplus
 }
 #endif

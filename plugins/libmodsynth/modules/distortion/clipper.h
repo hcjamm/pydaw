@@ -35,6 +35,7 @@ typedef struct st_clipper
 void v_clp_set_clip_sym(t_clipper *, float);
 void v_clp_set_in_gain(t_clipper *, float);
 t_clipper * g_clp_get_clipper();
+void v_clp_free(t_clipper *);
 inline float f_clp_clip(t_clipper*, float);
 
 /*v_clp_set_clip_sym(
@@ -110,23 +111,15 @@ inline float f_clp_clip(t_clipper * a_clp, float a_input)
         a_clp->result = (a_clp->clip_high);
     else if(a_clp->result < (a_clp->clip_low))
         a_clp->result = (a_clp->clip_low);
-    
-#ifdef CLP_DEBUG_MODE
-    a_clp->debug_counter = (a_clp->debug_counter) + 1;
-    
-    if((a_clp->debug_counter) >= 100000)
-    {
-        a_clp->debug_counter = 0;
-        printf("Clipper debug info:\n");
-        printf("a_clp->clip_db == %f\n", (a_clp->clip_db));
-        printf("a_clp->clip_high == %f\n", (a_clp->clip_high));
-        printf("a_clp->clip_low == %f\n", (a_clp->clip_low));
-        printf("a_clp->in_db == %f\n", (a_clp->in_db));
-        printf("a_clp->input_gain_linear == %f\n", (a_clp->input_gain_linear));
-    }
-#endif
-    
+   
     return (a_clp->result);
+}
+
+
+void v_clp_free(t_clipper * a_clp)
+{
+    v_amp_free(a_clp->amp_ptr);
+    free(a_clp);
 }
 
 #ifdef	__cplusplus

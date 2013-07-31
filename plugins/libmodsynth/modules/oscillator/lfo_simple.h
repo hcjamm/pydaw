@@ -32,6 +32,7 @@ inline void v_lfs_sync(t_lfs_lfo *,float,int);
 inline void v_lfs_set(t_lfs_lfo *, float);
 inline void v_lfs_run(t_lfs_lfo *);
 t_lfs_lfo * g_lfs_get(float);
+void v_lfs_free(t_lfs_lfo * );
 
 /* inline void v_lfs_sync(
  * t_lfs_lfo * a_lfs, 
@@ -101,6 +102,11 @@ t_lfs_lfo * g_lfs_get(float a_sr)
     return f_result;
 }
 
+void v_lfs_free(t_lfs_lfo * a_lfs)
+{
+    v_osc_core_free(a_lfs->osc_core);    
+    free(a_lfs);
+}
 
 #ifdef	__cplusplus
 }

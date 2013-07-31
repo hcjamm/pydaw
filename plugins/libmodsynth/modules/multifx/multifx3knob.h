@@ -103,6 +103,7 @@ inline void f_mfx_transform_svf_filter(t_mf3_multi*);
 //inline float f_mf3_midi_to_pitch(float);
 
 t_mf3_multi * g_mf3_get(float);
+void v_mf3_free(t_mf3_multi*);
 inline fp_mf3_run g_mf3_get_function_pointer( int);
 
 const fp_mf3_run mf3_function_pointers[MULTIFX3KNOB_MAX_INDEX] = 
@@ -537,6 +538,23 @@ t_mf3_multi * g_mf3_get(float a_sample_rate)
     f_result->s_and_h = g_sah_sample_and_hold_get(a_sample_rate);
         
     return f_result;
+}
+
+void v_mf3_free(t_mf3_multi * a_mf3 )
+{
+    if(a_mf3)
+    {
+        v_app_free(a_mf3->amp_and_panner);
+        v_amp_free(a_mf3->amp_ptr);
+        v_crs_free(a_mf3->chorus);
+        v_clp_free(a_mf3->clipper);
+        v_cmb_free(a_mf3->comb_filter0);
+        v_cmb_free(a_mf3->comb_filter1);
+        
+        //TODO:  The rest
+        
+        free(a_mf3);
+    }
 }
 
 #ifdef	__cplusplus

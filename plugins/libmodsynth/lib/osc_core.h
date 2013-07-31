@@ -31,6 +31,7 @@ typedef struct st_osc_core
 
 void v_run_osc(t_osc_core *, float);
 t_osc_core * g_get_osc_core();
+void v_osc_core_free(t_osc_core *);
 
 
 t_osc_core * g_get_osc_core()
@@ -39,6 +40,12 @@ t_osc_core * g_get_osc_core()
     f_result->output = 0.0f;    
     f_result->linear = g_lin_get();
     return f_result;
+}
+
+void v_osc_core_free(t_osc_core * a_osc)
+{
+    free(a_osc->linear);
+    free(a_osc);
 }
 
 /* void v_run_osc(
