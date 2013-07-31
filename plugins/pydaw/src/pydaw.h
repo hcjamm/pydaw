@@ -193,6 +193,7 @@ typedef struct
 
 typedef struct
 {
+    int region_uid;
     t_pydaw_per_audio_item_fx_item * items[PYDAW_MAX_AUDIO_ITEM_COUNT];
 }t_pydaw_per_audio_item_fx_region;
 
@@ -428,10 +429,87 @@ void v_pydaw_set_ab_start(t_pydaw_data * a_pydaw_data, int a_start);
 void v_pydaw_set_ab_file(t_pydaw_data * a_pydaw_data, const char * a_file);
 void v_pydaw_set_ab_vol(t_pydaw_data * a_pydaw_data, float a_vol);
 
-t_pydaw_per_audio_item_fx_region * g_paif_item_get();
-t_pydaw_per_audio_item_fx_region * g_paif_item_open(t_pydaw_data *, t_pydaw_per_audio_item_fx_region *, int);
+t_pydaw_per_audio_item_fx_region * g_paif_region_get();
+t_pydaw_per_audio_item_fx_region * g_paif_region_open(t_pydaw_data *, int);
+void v_paif_set_control(t_pydaw_data *, int, int, int, float);
 
 /*End declarations.  Begin implementations.*/
+
+
+t_pydaw_per_audio_item_fx_region * g_paif_region_get()
+{
+    t_pydaw_per_audio_item_fx_region * f_result = (t_pydaw_per_audio_item_fx_region*)malloc(sizeof(t_pydaw_per_audio_item_fx_region));
+    f_result->region_uid = -1;
+    
+    int f_i = 0;
+    
+    while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+    {
+        f_result->items[f_i] = 0;
+        f_i++;
+    }
+    
+    return f_result;
+}
+
+t_pydaw_per_audio_item_fx_region * g_paif_region_open(t_pydaw_data * a_pydaw_data, int a_region_uid)
+{
+    t_pydaw_per_audio_item_fx_region * f_result = g_paif_region_get();
+    f_result->region_uid = a_region_uid;
+    
+    //////////////////////////
+    
+    int f_i = 0;
+    char f_temp[256];    
+    sprintf(f_temp, "%s%i", a_pydaw_data->per_audio_item_fx_folder, a_region_uid);
+    if(i_pydaw_file_exists(f_temp))
+    {
+        t_2d_char_array * f_current_string = g_get_2d_array_from_file(f_temp, LMS_LARGE_STRING);                
+        while(f_i < PYDAW_MAX_AUDIO_ITEM_COUNT)
+        {            
+            char * f_index_char = c_iterate_2d_char_array(f_current_string);
+            if(f_current_string->eof)
+            {
+                free(f_index_char);
+                break;
+            }
+            int f_index = atoi(f_index_char);
+            free(f_index_char);
+            
+            int f_i2 = 0;
+            
+            while(f_i2 < 8)
+            {
+                int f_i3 = 0;
+                while(f_i3 < 3)
+                {
+                    char * f_knob_char = c_iterate_2d_char_array(f_current_string);
+                    float f_knob_val = atof(f_knob_char);
+                    free(f_knob_char);
+                    f_i3++;
+                }
+                char * f_type_char = c_iterate_2d_char_array(f_current_string);
+                float f_type_val = atof(f_type_char);
+                free(f_type_char);
+                
+                f_i2++;
+            }            
+            
+            f_i++;
+        }
+
+        g_free_2d_char_array(f_current_string);
+        
+    }
+    
+    return f_result;
+}
+
+void v_paif_set_control(t_pydaw_data * a_pydaw_data, int a_region_uid, int a_item_index, int a_port, float a_val)
+{
+    int f_effect_index = a_port / 4;
+    int f_control_index = a_port % 4;
+}
 
 void v_pydaw_init_busses(t_pydaw_data * a_pydaw_data)
 {
@@ -4856,7 +4934,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         float f_port_val = atof(f_arr->array[3]);
                 
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
-        //The magic would go here
+        v_paif_set_control(a_pydaw_data, f_region_uid, f_item_index, f_port_num, f_port_val);
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         
         printf("Not yet implemented");
