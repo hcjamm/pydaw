@@ -561,7 +561,7 @@ void v_paif_set_control(t_pydaw_data * a_pydaw_data, int a_region_uid, int a_ite
     int f_effect_index = a_port / 4;
     int f_control_index = a_port % 4;
     int f_song_index = i_get_song_index_from_region_uid(a_pydaw_data, a_region_uid);
-    
+        
     if(!a_pydaw_data->pysong->per_audio_item_fx[f_song_index])
     {
         t_pydaw_per_audio_item_fx_region * f_region = g_paif_region_get();
@@ -587,6 +587,7 @@ void v_paif_set_control(t_pydaw_data * a_pydaw_data, int a_region_uid, int a_ite
             a_pydaw_data->pysong->per_audio_item_fx[f_song_index]->items[a_item_index][f_i] = f_items[f_i];
             f_i++;
         }
+        a_pydaw_data->pysong->per_audio_item_fx[f_song_index]->loaded[a_item_index] = 1;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
     }
     
@@ -597,6 +598,11 @@ void v_paif_set_control(t_pydaw_data * a_pydaw_data, int a_region_uid, int a_ite
         int f_fx_index = (int)a_val;
         a_pydaw_data->pysong->per_audio_item_fx[f_song_index]->items[a_item_index][f_effect_index]->fx_type = f_fx_index;
         a_pydaw_data->pysong->per_audio_item_fx[f_song_index]->items[a_item_index][f_effect_index]->func_ptr = g_mf3_get_function_pointer(f_fx_index);
+        
+        v_mf3_set(a_pydaw_data->pysong->per_audio_item_fx[f_song_index]->items[a_item_index][f_effect_index]->mf3,
+            a_pydaw_data->pysong->per_audio_item_fx[f_song_index]->items[a_item_index][f_effect_index]->a_knobs[0],
+            a_pydaw_data->pysong->per_audio_item_fx[f_song_index]->items[a_item_index][f_effect_index]->a_knobs[1],
+            a_pydaw_data->pysong->per_audio_item_fx[f_song_index]->items[a_item_index][f_effect_index]->a_knobs[2]);
     }
     else
     {
