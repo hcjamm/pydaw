@@ -59,6 +59,7 @@ OSC configure message keys/values:
 	"penv" src\ndest\nstart|end apply pitch envelope with start/end pitches
 	"renv" src\ndest\nstart|end apply rate envelope with start/end rates
 	"paif" region-uid|item-index|port-num|val	Update a control value for per-audio-item-fx
+	"par" region-uid	Reload the per-audio-item effects for region-uid
 
 
 Project structure:

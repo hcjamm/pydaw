@@ -228,3 +228,6 @@ class dssi_gui(ServerThread):
 
     def pydaw_audio_per_item_fx(self, a_region_uid, a_item_index, a_port_num, a_val):
         self.send_configure("paif", str(a_region_uid) + "|" + str(a_item_index) + "|" + str(a_port_num) + "|" + str(a_val))
+
+    def pydaw_audio_per_item_fx_region(self, a_region_uid):
+        self.send_configure("par", str(a_region_uid))

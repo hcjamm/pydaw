@@ -2342,12 +2342,21 @@ class audio_items_viewer_widget():
         self.last_open_dir = global_home
         self.set_folder(".")
         self.open_bookmarks()
+        self.modulex_clipboard = None
 
     def on_modulex_copy(self):
-        pass
+        if global_current_audio_item_index is not None and global_current_region is not None:
+            f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
+            self.modulex_clipboard = f_paif.get_row(global_current_audio_item_index)
 
     def on_modulex_paste(self):
-        pass
+        if self.modulex_clipboard is not None and \
+        global_current_audio_item_index is not None and global_current_region is not None:
+            f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
+            this_audio_items_viewer_widget.modulex.set_from_list(self.modulex_clipboard)
+            f_paif.set_row(global_current_audio_item_index, self.modulex_clipboard)
+            this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_paif)
+            this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
 
     def on_copy(self):
         if global_current_region is None or global_transport_is_playing:

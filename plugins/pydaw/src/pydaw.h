@@ -70,6 +70,8 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_RATE_ENV "renv"
 //Update a single control for a per-audio-item-fx
 #define PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX "paif"
+//Reload entire region for per-audio-item-fx
+#define PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX_REGION "par"
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -5148,6 +5150,17 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         a_pydaw_data->pysong->audio_items[f_region_index] = f_result;        
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         //v_pydaw_audio_items_free(f_old); //Method needs to be re-thought...
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX_REGION))
+    {
+        int f_uid = atoi(a_value);
+        t_pydaw_per_audio_item_fx_region * f_result = g_paif_region_open(a_pydaw_data, f_uid);
+        int f_region_index = i_get_song_index_from_region_uid(a_pydaw_data, f_uid);
+        t_pydaw_per_audio_item_fx_region * f_old = a_pydaw_data->pysong->per_audio_item_fx[f_region_index];
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);        
+        a_pydaw_data->pysong->per_audio_item_fx[f_region_index] = f_result;        
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        //TODO:  Free this with a yet-to-be-written free function
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH)) //Create a .pygraph file for each .wav...
     {
