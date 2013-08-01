@@ -1961,6 +1961,7 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.setAlignment(QtCore.Qt.AlignLeft)
         self.is_playing = False
         self.last_x_scale = 1.0
+        self.reselect_on_stop = []
         #self.setRenderHint(QtGui.QPainter.Antialiasing)  #Somewhat slow on my AMD 5450 using the FOSS driver
 
     def set_tooltips(self, a_on):
@@ -2130,11 +2131,20 @@ class audio_items_viewer(QtGui.QGraphicsView):
     def set_playback_pos(self, a_bar=None):
         pass
 
+    def set_playback_clipboard(self):
+        self.reselect_on_stop = []
+        for f_item in self.audio_items:
+            if f_item.isSelected():
+                self.reselect_on_stop.append(str(f_item.audio_item))
+
     def start_playback(self, a_bars, a_bpm):
         self.is_playing = True
 
     def stop_playback(self):
         self.is_playing = False
+        for f_item in self.audio_items:
+            if str(f_item.audio_item) in self.reselect_on_stop:
+                f_item.setSelected(True)
 
     def set_zoom(self, a_scale):
         """ a_scale == number from 1.0 to 6.0 """
@@ -5209,6 +5219,7 @@ class transport_widget:
         self.beat_timer.start(f_playback_inc)
         self.trigger_audio_playback()
         this_ab_widget.on_play()
+        this_audio_items_viewer.set_playback_clipboard()
 
     def trigger_audio_playback(self):
         if not self.follow_checkbox.isChecked():
@@ -5294,6 +5305,7 @@ class transport_widget:
         f_playback_inc = int(((1.0/(float(self.tempo_spinbox.value()) / 60)) * 4000))
         self.beat_timer.start(f_playback_inc)
         self.trigger_audio_playback()
+        this_audio_items_viewer.set_playback_clipboard()
 
     def on_tempo_changed(self, a_tempo):
         self.transport.bpm = a_tempo
