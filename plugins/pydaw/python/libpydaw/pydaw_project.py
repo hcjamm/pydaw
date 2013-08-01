@@ -756,7 +756,7 @@ class pydaw_project:
         self.save_file(pydaw_folder_audio_per_item_fx, str(a_dest_region_uid), pydaw_read_file_text(self.audio_per_item_fx_folder + "/" + str(f_uid)))
         self.this_dssi_gui.pydaw_reload_audio_items(a_dest_region_uid)
         self.this_dssi_gui.pydaw_audio_per_item_fx_region(a_dest_region_uid)
-        this_pydaw_project.commit("Clone audio from region " + f_region_name)
+        self.commit("Clone audio from region " + f_region_name)
 
     def copy_item(self, a_old_item, a_new_item):
         f_items_dict = self.get_items_dict()
