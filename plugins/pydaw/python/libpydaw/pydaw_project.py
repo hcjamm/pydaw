@@ -631,10 +631,11 @@ class pydaw_project:
             f_text = pydaw_read_file_text(f_path)
             return pydaw_audio_item_fx_region.from_str(f_text)
 
-    def save_audio_per_item_fx_region(self, a_region_uid, a_paif):
+    def save_audio_per_item_fx_region(self, a_region_uid, a_paif, a_commit=True):
         if not self.suppress_updates:
             self.save_file(pydaw_folder_audio_per_item_fx, str(a_region_uid), str(a_paif))
-            self.commit("Update per-audio-item effects")
+            if a_commit:
+                self.commit("Update per-audio-item effects")
 
     def get_sample_graph_by_name(self, a_path, a_uid_dict=None):
         f_uid = self.get_wav_uid_by_name(a_path)
@@ -744,6 +745,7 @@ class pydaw_project:
         f_old_uid = f_regions_dict.get_uid_by_name(a_old_region_name)
         self.save_file(pydaw_folder_regions,  str(f_uid), pydaw_read_file_text(self.regions_folder + "/" + str(f_old_uid)))
         self.save_file(pydaw_folder_regions_audio,  str(f_uid), pydaw_read_file_text(self.regions_audio_folder + "/" + str(f_old_uid)))
+        self.save_file(pydaw_folder_audio_per_item_fx, str(f_uid), pydaw_read_file_text(self.audio_per_item_fx_folder + "/" + str(f_old_uid)))
         self.save_regions_dict(f_regions_dict)
         return f_uid
 
@@ -751,7 +753,10 @@ class pydaw_project:
         f_regions_dict = self.get_regions_dict()
         f_uid = f_regions_dict.get_uid_by_name(a_src_region_name)
         self.save_file(pydaw_folder_regions_audio, str(a_dest_region_uid), pydaw_read_file_text(self.regions_audio_folder + "/" + str(f_uid)))
+        self.save_file(pydaw_folder_audio_per_item_fx, str(a_dest_region_uid), pydaw_read_file_text(self.audio_per_item_fx_folder + "/" + str(f_uid)))
         self.this_dssi_gui.pydaw_reload_audio_items(a_dest_region_uid)
+        self.this_dssi_gui.pydaw_audio_per_item_fx_region(a_dest_region_uid)
+        this_pydaw_project.commit("Clone audio from region " + f_region_name)
 
     def copy_item(self, a_old_item, a_new_item):
         f_items_dict = self.get_items_dict()
@@ -1924,15 +1929,18 @@ class pydaw_audio_item_fx_region:
     def set_row(self, a_row_index, a_fx_list):
         self.fx_list[int(a_row_index)] = a_fx_list
 
-    def get_row(self, a_row_index):
+    def get_row(self, a_row_index, a_return_none=False):
         if int(a_row_index) in self.fx_list:
             return self.fx_list[int(a_row_index)]
         else:
             print(("Index " + str(a_row_index) + " not found in pydaw_audio_item_fx_region"))
-            f_result = []
-            for f_i in range(8):
-                f_result.append(pydaw_audio_item_fx(64, 64, 64, 0))
-            return f_result
+            if a_return_none:
+                return None
+            else:
+                f_result = []
+                for f_i in range(8):
+                    f_result.append(pydaw_audio_item_fx(64, 64, 64, 0))
+                return f_result
 
     @staticmethod
     def from_str(a_str):

@@ -1666,6 +1666,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             this_pydaw_project.commit("Split audio item")
             global_open_audio_items(True)
         else:
+            if a_event.modifiers() == QtCore.Qt.ControlModifier:
+                f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
             #this_audio_item_editor_widget.open_item(self.audio_item)
             QtGui.QGraphicsRectItem.mousePressEvent(self, a_event)
             self.event_pos_orig = a_event.pos().x()
@@ -1676,6 +1678,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                     if a_event.modifiers() == QtCore.Qt.ControlModifier:
                         f_item.is_copying = True
                         f_item.width_orig = f_item.rect().width()
+                        f_item.per_item_fx = f_per_item_fx_dict.get_row(f_item.track_num)
                         this_audio_items_viewer.draw_item(f_item.track_num, f_item.audio_item, f_item.sample_length)
                     if self.is_fading_out:
                         f_item.fade_orig_pos = f_item.fade_out_handle.pos().x()
@@ -1831,6 +1834,11 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
         f_stretched_items = []
         f_event_pos = a_event.pos().x()
         f_event_diff = f_event_pos - self.event_pos_orig
+        if self.is_copying:
+            f_was_copying = True
+            f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
+        else:
+            f_was_copying = False
         for f_audio_item in this_audio_items_viewer.audio_items:
             if f_audio_item.isSelected():
                 f_item = f_audio_item.audio_item
@@ -1905,6 +1913,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
                             break
                         else:
                             f_audio_items.add_item(f_index, f_item_old)
+                            if f_audio_item.per_item_fx is not None:
+                                f_per_item_fx_dict.set_row(f_index, f_audio_item.per_item_fx)
                     else:
                         f_audio_item.set_brush(f_item.lane_num)
                     f_pos_x = self.quantize_all(f_pos_x)
@@ -1930,6 +1940,8 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_audio_item.setFlag(QtGui.QGraphicsItem.ItemClipsChildrenToShape)
         if f_did_change:
             f_audio_items.deduplicate_items()
+            if f_was_copying:
+                this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_per_item_fx_dict, False)
             if f_was_stretching:
                 this_pydaw_project.save_stretch_dicts()
                 for f_stretch_item in f_stretched_items:
@@ -2203,7 +2215,6 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.scene.addItem(f_audio_item)
 
 global_audio_items_to_drop = []
-global_audio_items_clipboard = []
 
 global_bookmarks_file_path = global_pydaw_home + "/lms_file_browser_bookmarks.txt"
 
@@ -2353,6 +2364,7 @@ class audio_items_viewer_widget():
         self.set_folder(".")
         self.open_bookmarks()
         self.modulex_clipboard = None
+        self.audio_items_clipboard = []
 
     def on_modulex_copy(self):
         if global_current_audio_item_index is not None and global_current_region is not None:
@@ -2371,23 +2383,27 @@ class audio_items_viewer_widget():
     def on_copy(self):
         if global_current_region is None or global_transport_is_playing:
             return
-        global global_audio_items_clipboard
-        global_audio_items_clipboard = []
+        self.audio_items_clipboard = []
+        f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
         for f_item in this_audio_items_viewer.audio_items:
             if f_item.isSelected():
-                global_audio_items_clipboard.append(str(f_item.audio_item))
+                self.audio_items_clipboard.append((str(f_item.audio_item), f_per_item_fx_dict.get_row(f_item.track_num, True)))
 
     def on_paste(self):
         if global_current_region is None or global_transport_is_playing:
             return
-        for f_str in global_audio_items_clipboard:
+        f_per_item_fx_dict = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
+        for f_str, f_list in self.audio_items_clipboard:
             f_index = global_audio_items.get_next_index()
             if f_index == -1:
                 break
             f_item = pydaw_audio_item.from_str(f_str)
             global_audio_items.add_item(f_index, f_item)
+            if f_list is not None:
+                f_per_item_fx_dict.set_row(f_index, f_list)
         global_audio_items.deduplicate_items()
         this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
+        this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_per_item_fx_dict, False)
         this_pydaw_project.commit("Paste audio items")
         global_open_audio_items(True)
 
@@ -2397,7 +2413,6 @@ class audio_items_viewer_widget():
         def ok_handler():
             f_region_name = str(f_region_combobox.currentText())
             this_pydaw_project.region_audio_clone(global_current_region.uid, f_region_name)
-            this_pydaw_project.commit("Clone audio from region " + f_region_name)
             global_open_audio_items(True)
             f_window.close()
 
