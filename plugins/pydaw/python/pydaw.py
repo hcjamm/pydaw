@@ -2158,6 +2158,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
 
     def stop_playback(self):
         self.is_playing = False
+        self.reset_selection()
+
+    def reset_selection(self):
         for f_item in self.audio_items:
             if str(f_item.audio_item) in self.reselect_on_stop:
                 f_item.setSelected(True)
@@ -5454,13 +5457,13 @@ class transport_widget:
             if self.loop_mode_combobox.currentIndex() == 0:
                 self.region_spinbox.setValue(self.region_spinbox.value() + 1)
                 self.bar_spinbox.setMaximum(pydaw_get_region_length(self.region_spinbox.value()))
-            if self.follow_checkbox.isChecked():
-                f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
-                if not f_item is None and f_item.text() != "":
-                    this_region_settings.open_region(f_item.text())
-                else:
-                    this_region_settings.clear_items()
-                    this_audio_items_viewer.clear_drawn_items()
+                if self.follow_checkbox.isChecked():
+                    f_item = this_song_editor.table_widget.item(0, self.region_spinbox.value())
+                    if not f_item is None and f_item.text() != "":
+                        this_region_settings.open_region(f_item.text())
+                    else:
+                        this_region_settings.clear_items()
+                        this_audio_items_viewer.clear_drawn_items()
             f_new_bar_value = 0
             self.bar_spinbox.setValue(f_new_bar_value) #NOTE:  This must not be consolidated with the other because trigger_audio_playback relies on it being set first
         self.bar_spinbox.setValue(f_new_bar_value)
@@ -5468,7 +5471,8 @@ class transport_widget:
             this_region_editor.table_widget.selectColumn(f_new_bar_value + 1)
             this_region_bus_editor.table_widget.selectColumn(f_new_bar_value + 1)
             this_region_audio_editor.table_widget.selectColumn(f_new_bar_value + 1)
-            this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
+            if self.loop_mode_combobox.currentIndex() == 0:
+                this_song_editor.table_widget.selectColumn(self.region_spinbox.value())
             self.trigger_audio_playback()
 
     def open_transport(self, a_notify_osc=False):
