@@ -32,7 +32,14 @@ typedef struct
 t_sah_sample_and_hold * g_sah_sample_and_hold_get(float);
 void v_sah_sample_and_hold_set(t_sah_sample_and_hold*, float, float);
 void v_sah_sample_and_hold_run(t_sah_sample_and_hold*, float, float);
+void v_sah_free(t_sah_sample_and_hold*);
 
+void v_sah_free(t_sah_sample_and_hold * a_sah)
+{
+    v_pit_free(a_sah->pitch);
+    free(a_sah->xfade);
+    free(a_sah);
+}
 
 t_sah_sample_and_hold * g_sah_sample_and_hold_get(float a_sr)
 {

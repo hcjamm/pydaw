@@ -39,6 +39,14 @@ typedef struct st_sat_saturator
 t_sat_saturator * g_sat_get();
 inline void v_sat_set(t_sat_saturator*,float,float,float);
 inline void v_sat_run(t_sat_saturator*,float,float);
+void v_sat_free(t_sat_saturator*);
+
+void v_sat_free(t_sat_saturator * a_sat)
+{
+    v_amp_free(a_sat->amp_ptr);
+    free(a_sat->lin_interpolator);
+    free(a_sat);
+}
 
 inline void v_sat_set(t_sat_saturator* a_sat, float a_ingain, float a_amt, float a_outgain)
 {
