@@ -2624,17 +2624,19 @@ void g_pysong_get(t_pydaw_data* a_pydaw_data)
         g_free_2d_char_array(f_current_string);
     }
     
-    pthread_mutex_lock(&a_pydaw_data->main_mutex);
+    t_pysong * f_old = a_pydaw_data->pysong;
     
-    if(a_pydaw_data->pysong)
-    {
-        free(a_pydaw_data->pysong);
-    }
+    pthread_mutex_lock(&a_pydaw_data->main_mutex);
     
     a_pydaw_data->pysong = f_result;
     
     pthread_mutex_unlock(&a_pydaw_data->main_mutex);
     
+    if(f_old)
+    {
+        free(f_old);
+    }
+        
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
 #endif
