@@ -42,6 +42,14 @@ t_pkq_peak_eq * g_pkq_get(float);
 
 inline void v_pkq_calc_coeffs(t_pkq_peak_eq*,float,float,float);
 inline void v_pkq_run(t_pkq_peak_eq*,float,float);
+void v_pkq_free(t_pkq_peak_eq*);
+
+void v_pkq_free(t_pkq_peak_eq * a_pkq)
+{
+    v_amp_free(a_pkq->amp_ptr);
+    v_pit_free(a_pkq->pitch_core);
+    free(a_pkq);
+}
 
 /* inline void v_pkq_calc_coeffs(
  * t_pkq_peak_eq *a_pkq,

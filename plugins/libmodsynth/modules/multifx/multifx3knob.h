@@ -550,9 +550,16 @@ void v_mf3_free(t_mf3_multi * a_mf3 )
         v_clp_free(a_mf3->clipper);
         v_cmb_free(a_mf3->comb_filter0);
         v_cmb_free(a_mf3->comb_filter1);
-        
-        //TODO:  The rest
-        
+        v_pkq_free(a_mf3->eq0);
+        //a_mf3->formant_filter
+        //a_mf3->glitch
+        //a_mf3->limiter
+        //a_mf3->lofi
+        //a_mf3->ring_mod
+        //a_mf3->s_and_h
+        //a_mf3->saturator        
+        v_svf2_free(a_mf3->svf);
+        free(a_mf3->xfader);
         free(a_mf3);
     }
 }
