@@ -3143,10 +3143,10 @@ def pydaw_set_piano_roll_quantize(a_index):
         global_piano_roll_snap_divisor =  4.0
 
     global_piano_roll_snap_beats = 4.0 / global_piano_roll_snap_divisor
+    this_piano_roll_editor.set_grid_div(global_piano_roll_snap_divisor / 4.0)
     global_piano_roll_snap_divisor *= global_item_editing_count
     global_piano_roll_snap_value = (global_piano_roll_grid_width * global_item_editing_count) / (global_piano_roll_snap_divisor)
     global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / (4.0 * global_item_editing_count)
-    this_piano_roll_editor.set_grid_div(global_piano_roll_snap_divisor / 4.0)
 
 class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_length, a_note_height, a_note, a_note_item, a_item_index):
