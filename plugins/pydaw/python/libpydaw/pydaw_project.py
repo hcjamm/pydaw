@@ -211,6 +211,7 @@ class pydaw_project:
         self.pywavs_file = self.project_folder + "/default.pywavs"
         self.pystretch_file = self.project_folder + "/" + pydaw_file_pystretch
         self.pystretch_map_file = self.project_folder + "/" + pydaw_file_pystretch_map
+        self.pyscale_file = self.project_folder + "/default.pyscale"
 
         pydaw_clear_sample_graph_cache()
 
@@ -314,6 +315,16 @@ class pydaw_project:
             f_map_text += str(k) + "|||" + str(v) + "\n"
         f_map_text += pydaw_terminating_char
         self.save_file("", pydaw_file_pystretch_map, f_map_text)
+
+    def set_midi_scale(self, a_key, a_scale):
+        pydaw_write_file_text(self.pyscale_file, str(a_key) + "|" + str(a_scale))
+
+    def get_midi_scale(self):
+        if os.path.exists(self.pyscale_file):
+            f_list = pydaw_read_file_text(self.pyscale_file).split("|")
+            return (int(f_list[0]), int(f_list[1]))
+        else:
+            return None
 
     def get_regions_dict(self):
         try:

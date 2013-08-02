@@ -3099,7 +3099,9 @@ def pydaw_set_piano_roll_quantize(a_index):
     else:
         global_piano_roll_snap = True
 
-    if a_index == 1:
+    if a_index == 0:
+        global_piano_roll_snap_divisor = 16.0  #For grid lines in the piano roll
+    elif a_index == 1:
         global_piano_roll_snap_divisor = 64.0
     elif a_index == 2:
         global_piano_roll_snap_divisor = 32.0
@@ -3116,6 +3118,7 @@ def pydaw_set_piano_roll_quantize(a_index):
     global_piano_roll_snap_divisor *= global_item_editing_count
     global_piano_roll_snap_value = (global_piano_roll_grid_width * global_item_editing_count) / (global_piano_roll_snap_divisor)
     global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / (4.0 * global_item_editing_count)
+    this_piano_roll_editor.set_grid_div(global_piano_roll_snap_divisor / 4.0)
 
 class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_length, a_note_height, a_note, a_note_item, a_item_index):
@@ -3309,10 +3312,10 @@ class piano_key_item(QtGui.QGraphicsRectItem):
         self.setBrush(self.o_brush)
 
 class piano_roll_editor(QtGui.QGraphicsView):
-    def __init__(self, a_item_length=4, a_grid_div=16):
-        self.item_length = float(a_item_length)
+    def __init__(self):
+        self.item_length = 4.0
         self.viewer_width = 1000
-        self.grid_div = a_grid_div
+        self.grid_div = 16
 
         self.end_octave = 8
         self.start_octave = -2
@@ -3354,6 +3357,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.last_x_scale = 1.0
         self.scene.selectionChanged.connect(self.highlight_selected)
         self.selected_note_strings = []
+
+    def set_grid_div(self, a_div):
+        self.grid_div = int(a_div)
 
     def scrollContentsBy(self, x, y):
         QtGui.QGraphicsView.scrollContentsBy(self, x, y)
@@ -3468,9 +3474,9 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.piano.setZValue(1000.0)
 
     def draw_grid(self):
-        f_black_key_brush = QtGui.QBrush(QtGui.QColor(60, 60, 60, 60))
-        f_white_key_brush = QtGui.QBrush(QtGui.QColor(210, 210, 210, 30))
-        f_base_brush = QtGui.QBrush(QtGui.QColor(250, 231, 231, 60))
+        f_black_key_brush = QtGui.QBrush(QtGui.QColor(30, 30, 30, 90))
+        f_white_key_brush = QtGui.QBrush(QtGui.QColor(210, 210, 210, 90))
+        f_base_brush = QtGui.QBrush(QtGui.QColor(255, 255, 255, 120))
         if self.first_open or this_piano_roll_editor_widget.scale_combobox.currentIndex() == 0:
             f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, \
             f_black_key_brush , f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
@@ -3648,12 +3654,17 @@ class piano_roll_editor_widget():
         self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
-        self.snap_combobox.setCurrentIndex(3)
 
     def set_snap(self, a_val=None):
-        pydaw_set_piano_roll_quantize(self.snap_combobox.currentIndex())
+        f_index = self.snap_combobox.currentIndex()
+        pydaw_set_piano_roll_quantize(f_index)
+        if len(global_open_items_uids) > 0:
+            global_open_items()
+        else:
+            this_piano_roll_editor.clear_drawn_items()
 
     def reload_handler(self, a_val=None):
+        this_pydaw_project.set_midi_scale(self.scale_key_combobox.currentIndex(), self.scale_combobox.currentIndex())
         if len(global_open_items_uids) > 0:
             global_open_items()
         else:
@@ -6521,6 +6532,10 @@ def global_open_project(a_project_file, a_notify_osc=True):
     global_update_audio_track_comboboxes()
     set_window_title()
     this_pydaw_project.suppress_updates = False
+    f_scale = this_pydaw_project.get_midi_scale()
+    if f_scale is not None:
+        this_piano_roll_editor_widget.scale_key_combobox.setCurrentIndex(f_scale[0])
+        this_piano_roll_editor_widget.scale_combobox.setCurrentIndex(f_scale[1])
 
 def global_new_project(a_project_file):
     global_close_all()
@@ -6587,6 +6602,7 @@ this_audio_items_viewer_widget = audio_items_viewer_widget()
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 this_piano_roll_editor.verticalScrollBar().setSliderPosition(700)
+this_piano_roll_editor_widget.snap_combobox.setCurrentIndex(3)
 
 for f_viewer in this_item_editor.cc_auto_viewers:  #Get the plugin/control comboboxes populated
     f_viewer.plugin_changed()
