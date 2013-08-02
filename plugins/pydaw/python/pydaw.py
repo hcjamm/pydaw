@@ -3326,6 +3326,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.scene.mouseReleaseEvent = self.sceneMouseReleaseEvent
         self.setAlignment(QtCore.Qt.AlignLeft)
         self.setScene(self.scene)
+        self.first_open = True
         self.draw_header()
         self.draw_piano()
         self.draw_grid()
@@ -3341,7 +3342,6 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.last_scale = 1.0
         self.last_x_scale = 1.0
         self.scene.selectionChanged.connect(self.highlight_selected)
-
         self.selected_note_strings = []
 
     def scrollContentsBy(self, x, y):
@@ -3459,13 +3459,26 @@ class piano_roll_editor(QtGui.QGraphicsView):
     def draw_grid(self):
         f_black_key_brush = QtGui.QBrush(QtGui.QColor(60, 60, 60, 60))
         f_white_key_brush = QtGui.QBrush(QtGui.QColor(210, 210, 210, 30))
-        f_c_brush = QtGui.QBrush(QtGui.QColor(250, 231, 231, 60))
-        f_octave_brushes = [f_c_brush, f_black_key_brush, f_white_key_brush, \
-        f_black_key_brush , f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
-        f_white_key_brush, f_black_key_brush, f_white_key_brush]
+        f_base_brush = QtGui.QBrush(QtGui.QColor(250, 231, 231, 60))
+        if self.first_open or this_piano_roll_editor_widget.scale_combobox.currentIndex() == 0:
+            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, \
+            f_black_key_brush , f_white_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
+            f_white_key_brush, f_black_key_brush, f_white_key_brush]
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 1:
+            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, \
+            f_white_key_brush, f_black_key_brush , f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, \
+             f_white_key_brush, f_black_key_brush, f_white_key_brush]
+        elif this_piano_roll_editor_widget.scale_combobox.currentIndex() == 2:
+            f_octave_brushes = [f_base_brush, f_black_key_brush, f_white_key_brush, \
+            f_white_key_brush, f_black_key_brush, f_white_key_brush, f_black_key_brush, f_white_key_brush, f_white_key_brush, \
+            f_black_key_brush, f_black_key_brush, f_white_key_brush]
         f_current_key = 0
+        if not self.first_open:
+            f_index = 12 - this_piano_roll_editor_widget.scale_key_combobox.currentIndex()
+            f_octave_brushes = f_octave_brushes[f_index:] + f_octave_brushes[:f_index]
+        self.first_open = False
         f_note_bar = QtGui.QGraphicsRectItem(0, 0, self.viewer_width, self.note_height, self.piano)
-        f_note_bar.setBrush(f_c_brush)
+        f_note_bar.setBrush(f_base_brush)
         f_note_bar.setPos(self.piano_width + self.padding,  0.0)
         for i in range(self.end_octave-self.start_octave, self.start_octave-self.start_octave, -1):
             for j in range(self.notes_in_octave, 0, -1):
@@ -3581,8 +3594,20 @@ class piano_roll_editor_widget():
         self.widget.setLayout(self.vlayout)
 
         self.controls_grid_layout = QtGui.QGridLayout()
-        self.controls_grid_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 30)
+        self.scale_key_combobox = QtGui.QComboBox()
+        self.scale_key_combobox.setMinimumWidth(60)
+        self.scale_key_combobox.addItems(["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"])
+        self.scale_key_combobox.currentIndexChanged.connect(self.reload_handler)
+        self.controls_grid_layout.addWidget(QtGui.QLabel("Key:"), 0, 3)
+        self.controls_grid_layout.addWidget(self.scale_key_combobox, 0, 4)
+        self.scale_combobox = QtGui.QComboBox()
+        self.scale_combobox.setMinimumWidth(172)
+        self.scale_combobox.addItems(["Major", "Melodic Minor", "Harmonic Minor"])
+        self.scale_combobox.currentIndexChanged.connect(self.reload_handler)
+        self.controls_grid_layout.addWidget(QtGui.QLabel("Scale:"), 0, 5)
+        self.controls_grid_layout.addWidget(self.scale_combobox, 0, 6)
 
+        self.controls_grid_layout.addItem(QtGui.QSpacerItem(10, 10, QtGui.QSizePolicy.Expanding), 0, 30)
         f_button_width = 82
         self.notes_quantize_button = QtGui.QPushButton("Quantize")
         self.notes_quantize_button.setMinimumWidth(f_button_width)
@@ -3617,6 +3642,11 @@ class piano_roll_editor_widget():
     def set_snap(self, a_val=None):
         pydaw_set_piano_roll_quantize(self.snap_combobox.currentIndex())
 
+    def reload_handler(self, a_val=None):
+        if len(global_open_items_uids) > 0:
+            global_open_items()
+        else:
+            this_piano_roll_editor.clear_drawn_items()
 
 global_automation_point_diameter = 15.0
 global_automation_point_radius = global_automation_point_diameter * 0.5
