@@ -1968,6 +1968,9 @@ class audio_items_viewer(QtGui.QGraphicsView):
         self.gradient_index = 0
         self.playback_px = 0.0
         self.set_playback_pos(0)
+        self.snap_draw_extra_lines = False
+        self.snap_extra_lines_div = global_audio_px_per_8th
+        self.snap_extra_lines_range = 8
         self.draw_headers()
         self.setAlignment(QtCore.Qt.AlignTop)
         self.setDragMode(QtGui.QGraphicsView.RubberBandDrag)
@@ -2167,6 +2170,16 @@ class audio_items_viewer(QtGui.QGraphicsView):
         """ a_scale == number from 1.0 to 6.0 """
         self.scale(1.0, a_scale)
 
+    def set_grid_div(self, a_enabled, a_div, a_range):
+        self.snap_draw_extra_lines = a_enabled
+        self.snap_extra_lines_div = float(a_div)
+        self.snap_extra_lines_range = int(a_range)
+        self.snap_extra_lines_beat_skip = self.snap_extra_lines_range / 4
+        if global_current_region is None:
+            self.clear_drawn_items()
+        else:
+            global_open_audio_items(True)
+
     def draw_headers(self):
         if global_current_region is None or global_current_region.region_length_bars == 0:
             f_region_length = 8
@@ -2191,10 +2204,11 @@ class audio_items_viewer(QtGui.QGraphicsView):
             for f_beat_i in range(1, 4):
                 f_beat_x = i3 + (global_audio_px_per_beat * f_beat_i)
                 self.scene.addLine(f_beat_x, 0.0, f_beat_x, f_total_height, f_beat_pen)
-            for f_16th_i in range(1, 16):
-                if f_16th_i % 4 != 0:
-                    f_16th_x = i3 + (global_audio_px_per_16th * f_16th_i)
-                    self.scene.addLine(f_16th_x, global_audio_ruler_height, f_16th_x, f_total_height, f_16th_pen)
+            if self.snap_draw_extra_lines:
+                for f_16th_i in range(1, self.snap_extra_lines_range):
+                    if f_16th_i % self.snap_extra_lines_beat_skip != 0:
+                        f_16th_x = i3 + (self.snap_extra_lines_div * f_16th_i)
+                        self.scene.addLine(f_16th_x, global_audio_ruler_height, f_16th_x, f_total_height, f_16th_pen)
             i3 += global_audio_px_per_bar
         self.scene.addLine(i3, global_audio_ruler_height, i3, f_total_height, f_reg_pen)
         for i2 in range(12):
@@ -2523,19 +2537,28 @@ class audio_items_viewer_widget():
     def set_snap(self, a_val=None):
         global global_audio_quantize, global_audio_quantize_px
         global_audio_quantize = True
+        f_lines_enabled = True
+        f_snap_range = 8
         if a_val == 0:
             global_audio_quantize = False
-            global_audio_quantize_px = None
+            global_audio_quantize_px = global_audio_px_per_beat
+            f_lines_enabled = False
         elif a_val == 1:
             global_audio_quantize_px = global_audio_px_per_bar
+            f_lines_enabled = False
         elif a_val == 2:
             global_audio_quantize_px = global_audio_px_per_beat
+            f_lines_enabled = False
         elif a_val == 3:
             global_audio_quantize_px = global_audio_px_per_8th
+            f_snap_range = 8
         elif a_val == 4:
             global_audio_quantize_px = global_audio_px_per_12th
+            f_snap_range = 12
         elif a_val == 5:
             global_audio_quantize_px = global_audio_px_per_16th
+            f_snap_range = 16
+        this_audio_items_viewer.set_grid_div(f_lines_enabled, global_audio_quantize_px, f_snap_range)
 
     def set_zoom(self, a_val=None):
         """ This is a ridiculously convoluted way to do this, but I see no other way in the Qt docs.  When
