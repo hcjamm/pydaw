@@ -745,7 +745,9 @@ class pydaw_project:
         f_old_uid = f_regions_dict.get_uid_by_name(a_old_region_name)
         self.save_file(pydaw_folder_regions,  str(f_uid), pydaw_read_file_text(self.regions_folder + "/" + str(f_old_uid)))
         self.save_file(pydaw_folder_regions_audio,  str(f_uid), pydaw_read_file_text(self.regions_audio_folder + "/" + str(f_old_uid)))
-        self.save_file(pydaw_folder_audio_per_item_fx, str(f_uid), pydaw_read_file_text(self.audio_per_item_fx_folder + "/" + str(f_old_uid)))
+        f_paif_file = self.audio_per_item_fx_folder + "/" + str(f_old_uid)
+        if os.path.isfile(f_paif_file):
+            self.save_file(pydaw_folder_audio_per_item_fx, str(f_uid), pydaw_read_file_text(f_paif_file))
         self.save_regions_dict(f_regions_dict)
         return f_uid
 
@@ -753,9 +755,11 @@ class pydaw_project:
         f_regions_dict = self.get_regions_dict()
         f_uid = f_regions_dict.get_uid_by_name(a_src_region_name)
         self.save_file(pydaw_folder_regions_audio, str(a_dest_region_uid), pydaw_read_file_text(self.regions_audio_folder + "/" + str(f_uid)))
-        self.save_file(pydaw_folder_audio_per_item_fx, str(a_dest_region_uid), pydaw_read_file_text(self.audio_per_item_fx_folder + "/" + str(f_uid)))
+        f_paif_file = self.audio_per_item_fx_folder + "/" + str(f_uid)
+        if os.path.isfile(f_paif_file):
+            self.save_file(pydaw_folder_audio_per_item_fx, str(a_dest_region_uid), pydaw_read_file_text(f_paif_file))
+            self.this_dssi_gui.pydaw_audio_per_item_fx_region(a_dest_region_uid)
         self.this_dssi_gui.pydaw_reload_audio_items(a_dest_region_uid)
-        self.this_dssi_gui.pydaw_audio_per_item_fx_region(a_dest_region_uid)
         self.commit("Clone audio from region " + str(a_src_region_name))
 
     def copy_item(self, a_old_item, a_new_item):
