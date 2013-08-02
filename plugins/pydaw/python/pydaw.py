@@ -3127,17 +3127,19 @@ def pydaw_set_piano_roll_quantize(a_index):
 
     if a_index == 0:
         global_piano_roll_snap_divisor = 16.0  #For grid lines in the piano roll
-    elif a_index == 1:
-        global_piano_roll_snap_divisor = 64.0
-    elif a_index == 2:
-        global_piano_roll_snap_divisor = 32.0
-    elif a_index == 3:
-        global_piano_roll_snap_divisor = 16.0
-    elif a_index == 4:
-        global_piano_roll_snap_divisor =  12.0
-    elif a_index == 5:
-        global_piano_roll_snap_divisor =  8.0
+    elif a_index == 7:
+        global_piano_roll_snap_divisor = 128.0
     elif a_index == 6:
+        global_piano_roll_snap_divisor = 64.0
+    elif a_index == 5:
+        global_piano_roll_snap_divisor = 32.0
+    elif a_index == 4:
+        global_piano_roll_snap_divisor = 16.0
+    elif a_index == 3:
+        global_piano_roll_snap_divisor =  12.0
+    elif a_index == 2:
+        global_piano_roll_snap_divisor =  8.0
+    elif a_index == 1:
         global_piano_roll_snap_divisor =  4.0
 
     global_piano_roll_snap_beats = 4.0 / global_piano_roll_snap_divisor
@@ -3590,7 +3592,7 @@ class piano_roll_editor(QtGui.QGraphicsView):
         self.has_selected = False #Reset the selected-ness state...
         self.viewer_width = 1000 * global_item_editing_count
         self.item_length = float(4 * global_item_editing_count)
-        pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
+        #pydaw_set_piano_roll_quantize(this_piano_roll_editor_widget.snap_combobox.currentIndex())
         global global_piano_roll_grid_max_start_time
         global_piano_roll_grid_max_start_time = (999.0 * global_item_editing_count) + global_piano_keys_width
         self.clear_drawn_items()
@@ -3676,7 +3678,7 @@ class piano_roll_editor_widget():
         self.vlayout.addWidget(this_piano_roll_editor)
         self.snap_combobox = QtGui.QComboBox()
         self.snap_combobox.setMinimumWidth(150)
-        self.snap_combobox.addItems(["None", "1/64", "1/32", "1/16", "1/12", "1/8", "1/4"])
+        self.snap_combobox.addItems(["None", "1/4", "1/8", "1/12", "1/16", "1/32", "1/64", "1/128"])
         self.controls_grid_layout.addWidget(QtGui.QLabel("Snap:"), 0, 0)
         self.controls_grid_layout.addWidget(self.snap_combobox, 0, 1)
         self.snap_combobox.currentIndexChanged.connect(self.set_snap)
@@ -6629,7 +6631,7 @@ this_audio_items_viewer_widget = audio_items_viewer_widget()
 this_main_window = pydaw_main_window() #You must call this after instantiating the other widgets, as it relies on them existing
 this_main_window.setWindowState(QtCore.Qt.WindowMaximized)
 this_piano_roll_editor.verticalScrollBar().setSliderPosition(700)
-this_piano_roll_editor_widget.snap_combobox.setCurrentIndex(3)
+this_piano_roll_editor_widget.snap_combobox.setCurrentIndex(4)
 
 for f_viewer in this_item_editor.cc_auto_viewers:  #Get the plugin/control comboboxes populated
     f_viewer.plugin_changed()
