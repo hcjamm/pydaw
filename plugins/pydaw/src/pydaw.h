@@ -437,8 +437,34 @@ t_pydaw_per_audio_item_fx_region * g_paif_region_open(t_pydaw_data*, int);
 t_pydaw_per_audio_item_fx_item * g_paif_item_get(t_pydaw_data *);
 void v_paif_set_control(t_pydaw_data *, int, int, int, float);
 
+void v_pysong_free(t_pysong *);
+
 /*End declarations.  Begin implementations.*/
 
+
+void v_pysong_free(t_pysong * a_pysong)
+{
+    int f_i = 0;
+    while(f_i < PYDAW_MAX_REGION_COUNT)
+    {
+        if(a_pysong->audio_items[f_i])
+        {
+            v_pydaw_audio_items_free(a_pysong->audio_items[f_i]);
+        }
+        
+        if(a_pysong->per_audio_item_fx[f_i])
+        {
+            v_paif_region_free(a_pysong->per_audio_item_fx[f_i]);
+        }
+        
+        if(a_pysong->regions[f_i])
+        {
+            free(a_pysong->regions[f_i]);
+        }
+        
+        f_i++;
+    }    
+}
 
 t_pydaw_per_audio_item_fx_region * g_paif_region_get()
 {
@@ -2634,7 +2660,7 @@ void g_pysong_get(t_pydaw_data* a_pydaw_data)
     
     if(f_old)
     {
-        free(f_old);
+        v_pysong_free(f_old);
     }
         
 #ifdef PYDAW_MEMCHECK
@@ -5162,7 +5188,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         pthread_mutex_lock(&a_pydaw_data->main_mutex);        
         a_pydaw_data->pysong->per_audio_item_fx[f_region_index] = f_result;        
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
-        //TODO:  Free this with a yet-to-be-written free function
+        v_paif_region_free(f_old);
     }
     else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_CREATE_SAMPLE_GRAPH)) //Create a .pygraph file for each .wav...
     {
