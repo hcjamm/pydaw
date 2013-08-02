@@ -2267,7 +2267,7 @@ def global_paif_val_callback(a_port, a_val):
         this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx(global_current_region.uid, global_current_audio_item_index, a_port, a_val)
 
 def global_paif_rel_callback(a_port, a_val):
-    if global_current_region is not None:
+    if global_current_region is not None and global_current_audio_item_index is not None:
         f_paif = this_pydaw_project.get_audio_per_item_fx_region(global_current_region.uid)
         f_index_list = this_audio_items_viewer_widget.modulex.get_list()
         f_paif.set_row(global_current_audio_item_index, f_index_list)
