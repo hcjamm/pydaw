@@ -1942,6 +1942,7 @@ class audio_viewer_item(QtGui.QGraphicsRectItem):
             f_audio_items.deduplicate_items()
             if f_was_copying:
                 this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_per_item_fx_dict, False)
+                this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
             if f_was_stretching:
                 this_pydaw_project.save_stretch_dicts()
                 for f_stretch_item in f_stretched_items:
@@ -2404,6 +2405,7 @@ class audio_items_viewer_widget():
         global_audio_items.deduplicate_items()
         this_pydaw_project.save_audio_region(global_current_region.uid, global_audio_items)
         this_pydaw_project.save_audio_per_item_fx_region(global_current_region.uid, f_per_item_fx_dict, False)
+        this_pydaw_project.this_dssi_gui.pydaw_audio_per_item_fx_region(global_current_region.uid)
         this_pydaw_project.commit("Paste audio items")
         global_open_audio_items(True)
 
