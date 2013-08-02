@@ -441,3 +441,9 @@ class pydaw_per_audio_item_fx_widget:
             f_result.append(f_effect.get_class())
         return f_result
 
+    def clear_effects(self):
+        for f_effect in self.effects:
+            f_effect.combobox.set_value(0)
+            for f_knob in f_effect.knobs:
+                f_knob.set_value(64)
+

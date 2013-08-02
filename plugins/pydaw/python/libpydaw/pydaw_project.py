@@ -1933,6 +1933,9 @@ class pydaw_audio_item_fx_region:
     def set_row(self, a_row_index, a_fx_list):
         self.fx_list[int(a_row_index)] = a_fx_list
 
+    def clear_row(self, a_row_index):
+        self.fx_list.pop(a_row_index)
+
     def get_row(self, a_row_index, a_return_none=False):
         if int(a_row_index) in self.fx_list:
             return self.fx_list[int(a_row_index)]
