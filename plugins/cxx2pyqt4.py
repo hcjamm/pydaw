@@ -32,8 +32,12 @@ if not os.path.isfile(sys.argv[1]):
 f_handle = open(sys.argv[1])
 f_text = f_handle.read()
 f_handle.close()
+
+f_text = f_text.replace("!", " not ")
+
 for f_i in range(30):
     f_text = f_text.replace("  ", " ")
+
 f_text = f_text.replace("QString", "")
 f_text = f_text.replace("this", "self")
 f_text = f_text.replace("TRUE", "True")
@@ -63,6 +67,7 @@ f_text = f_text.replace("struct", "class")
 f_text = f_text.replace(" argv", " sys.argv")
 f_text = f_text.replace("argc", "len(sys.argv)")
 f_text = f_text.replace(".0f", ".0")
+f_text = f_text.replace("++", "+= 1")
 
 
 #PyDAW Specific
