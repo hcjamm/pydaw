@@ -2715,7 +2715,9 @@ class audio_item_editor_widget:
             "SBSMS:  Adjust pitch and time independently, also with the ability to set start/end pitch/time differently\n" + \
             "Paulstretch:  Mostly for stretching items very long, creates a very smeared, atmospheric sound")
             self.output_combobox.setToolTip("Use this combobox to select the output audio track on the 'Audio Tracks' tab\n" + \
-            "where you can apply effects and automation.")
+            "where you can apply effects and automation.  Please note that if you use a lot of audio sequencing in your projects,\n" + \
+            "you must assign audio items to multiple tracks to take advantage of multiple CPU cores, otherwise all items will be \n" +
+            "processed on a single core")
             self.sample_vol_slider.setToolTip("Use this to set the sample volume. If you need to automate volume changes, either\n" +\
             "use the fade-in/fade-out handles, or automate the volume on the audio track specified in the Output: combobox.")
         else:
