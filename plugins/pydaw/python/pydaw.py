@@ -3148,6 +3148,8 @@ def pydaw_set_piano_roll_quantize(a_index):
     global_piano_roll_snap_value = (global_piano_roll_grid_width * global_item_editing_count) / (global_piano_roll_snap_divisor)
     global_piano_roll_snap_divisor_beats = global_piano_roll_snap_divisor / (4.0 * global_item_editing_count)
 
+global_piano_roll_min_note_length = global_piano_roll_grid_width / 128.0
+
 class piano_roll_note_item(QtGui.QGraphicsRectItem):
     def __init__(self, a_length, a_note_height, a_note, a_note_item, a_item_index):
         QtGui.QGraphicsRectItem.__init__(self, 0, 0, a_length, a_note_height)
@@ -3242,9 +3244,7 @@ class piano_roll_note_item(QtGui.QGraphicsRectItem):
         for f_item in this_piano_roll_editor.note_items:
             if f_item.isSelected():
                 if self.is_resizing:
-                    f_adjusted_width = f_item.resize_rect.width() + f_adjusted_width_diff
-                    if f_adjusted_width < 12.0:
-                        f_adjusted_width = 12.0
+                    f_adjusted_width = pydaw_clip_min(f_item.resize_rect.width() + f_adjusted_width_diff, global_piano_roll_min_note_length)
                     f_item.resize_rect.setWidth(f_adjusted_width)
                     f_item.setRect(f_item.resize_rect)
                     f_item.setPos(f_item.resize_pos.x(), f_item.resize_pos.y())
