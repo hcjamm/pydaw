@@ -243,6 +243,7 @@ def pydaw_set_tooltips_enabled(a_enabled):
         this_audio_items_viewer.setToolTip("")
         this_audio_items_viewer_widget.folders_widget.setToolTip("")
         this_audio_items_viewer_widget.hsplitter.setToolTip("")
+        this_audio_items_viewer_widget.modulex.widget.setToolTip("")
         this_main_window.transport_splitter.setToolTip("")
         this_main_window.song_region_splitter.setToolTip("")
         this_piano_roll_editor.setToolTip("")
