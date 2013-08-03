@@ -60,6 +60,7 @@ typedef struct st_voc_voices
     t_voc_single_voice * voices;
     int count;
     int iterator;
+    int steal_voice_index;
 }t_voc_voices;
 
 t_voc_voices * g_voc_get_voices(int);
@@ -73,6 +74,7 @@ t_voc_voices * g_voc_get_voices(int a_count)
     f_result->voices = (t_voc_single_voice*)malloc(sizeof(t_voc_single_voice) * a_count);
     
     f_result->iterator = 0;
+    f_result->steal_voice_index = 0;
     
     int f_i = 0;
     
@@ -94,18 +96,45 @@ int i_pick_voice(t_voc_voices *data, int a_current_note, long a_current_sample, 
 {   
     data->iterator = 0;
     /* Look for a duplicate note */
+    int f_note_count = 0;
+    int f_last_note = -1;
     while ((data->iterator) < (data->count)) 
     {
 	//if ((data->voices[(data->iterator)].note == a_current_note) && (data->voices[(data->iterator)].n_state == note_state_running)) 
-        if ((data->voices[(data->iterator)].note == a_current_note) && 
-                ((data->voices[(data->iterator)].n_state == note_state_releasing) || 
-                (data->voices[(data->iterator)].n_state == note_state_running)))
+        if(data->voices[(data->iterator)].note == a_current_note)
         {
-                /*Kill the voice with this same note if already being used*/
+            if((data->voices[(data->iterator)].n_state == note_state_releasing) || 
+            (data->voices[(data->iterator)].n_state == note_state_running))
+            {
                 data->voices[(data->iterator)].n_state = note_state_killed;
                 data->voices[(data->iterator)].off = a_current_sample;
-	}
-        
+            }
+            
+            f_note_count++;
+            if(f_note_count > 1)  //do not allow more than 2 voices for any note, at any time...
+            {
+                if(data->steal_voice_index == 0)
+                {
+                    data->steal_voice_index = 1;
+                    data->voices[(data->iterator)].on = a_current_sample + a_tick;
+                    data->voices[(data->iterator)].n_state = note_state_running;
+                    //data->voices[(data->iterator)].off = -1;
+                    return (data->iterator);
+                }
+                else
+                {
+                    data->steal_voice_index = 0;
+                    data->voices[f_last_note].on = a_current_sample + a_tick;
+                    data->voices[f_last_note].n_state = note_state_running;
+                    //data->voices[f_last_note].off = -1;
+                    return f_last_note;
+                }
+            }
+            else
+            {
+                f_last_note = (data->iterator);
+            }
+        }
         data->iterator = (data->iterator) + 1;
     }
     
