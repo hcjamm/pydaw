@@ -67,7 +67,7 @@ kc_127_zero_to_x_int = 7
 
 
 class pydaw_abstract_ui_control:
-    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion=kc_none):
+    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion=kc_none, a_port_dict=None):
         self.name_label = QtGui.QLabel(str(a_label))
         self.name_label.setAlignment(QtCore.Qt.AlignCenter)
         self.port_num = int(a_port_num)
@@ -75,6 +75,8 @@ class pydaw_abstract_ui_control:
         self.rel_callback = a_rel_callback
         self.suppress_changes = False
         self.val_conversion = a_val_conversion
+        if a_port_dict is not None:
+            a_port_dict[self.port_num] = self
 
     def set_value(self, a_val):
         self.suppress_changes = True
@@ -120,8 +122,9 @@ class pydaw_abstract_ui_control:
 
 
 class pydaw_knob_control(pydaw_abstract_ui_control):
-    def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, a_default_val, a_val_conversion=kc_none):
-        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion)
+    def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, \
+    a_default_val, a_val_conversion=kc_none, a_port_dict=None):
+        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, a_port_dict)
         self.control = pydaw_pixmap_knob(a_size, a_min_val, a_max_val, a_default_val)
         self.control.valueChanged.connect(self.control_value_changed)
         self.control.sliderReleased.connect(self.control_released)
@@ -130,7 +133,8 @@ class pydaw_knob_control(pydaw_abstract_ui_control):
 
 
 class pydaw_slider_control(pydaw_abstract_ui_control):
-    def __init__(self, a_orientation, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, a_default_val, a_val_conversion=kc_none):
+    def __init__(self, a_orientation, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, \
+    a_default_val, a_val_conversion=kc_none, a_port_dict=None):
         pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion)
         self.control = QtGui.QSlider()
         self.control.setRange(a_min_val, a_max_val)
@@ -142,7 +146,8 @@ class pydaw_slider_control(pydaw_abstract_ui_control):
 
 
 class pydaw_spinbox_control(pydaw_abstract_ui_control):
-    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, a_default_val, a_val_conversion=kc_none):
+    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, \
+    a_default_val, a_val_conversion=kc_none, a_port_dict=None):
         pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion)
         self.control = QtGui.QSpinBox()
         self.control.setRange(a_min_val, a_max_val)
@@ -153,7 +158,8 @@ class pydaw_spinbox_control(pydaw_abstract_ui_control):
 
 
 class pydaw_doublespinbox_control(pydaw_abstract_ui_control):
-    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, a_default_val, a_val_conversion=kc_none):
+    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, \
+    a_default_val, a_val_conversion=kc_none, a_port_dict=None):
         pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion)
         self.control = QtGui.QDoubleSpinBox()
         self.control.setRange(a_min_val, a_max_val)
@@ -164,7 +170,7 @@ class pydaw_doublespinbox_control(pydaw_abstract_ui_control):
 
 
 class pydaw_combobox_control:
-    def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_items_list=[]):
+    def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_items_list=[], a_port_dict=None):
         self.suppress_changes = True
         self.name_label = QtGui.QLabel(str(a_label))
         self.name_label.setAlignment(QtCore.Qt.AlignCenter)
@@ -178,6 +184,8 @@ class pydaw_combobox_control:
         self.rel_callback = a_rel_callback
         self.val_callback = a_val_callback
         self.suppress_changes = False
+        if a_port_dict is not None:
+            a_port_dict[self.port_num] = self
 
     def combobox_index_changed(self, a_val):
         if not self.suppress_changes:
@@ -190,7 +198,7 @@ class pydaw_combobox_control:
         self.suppress_changes = False
 
 class pydaw_modulex_single:
-    def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback):
+    def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback, a_port_dict=None):
         self.group_box = QtGui.QGroupBox()
         if a_title is not None:
             self.group_box.setTitle(str(a_title))
@@ -198,7 +206,7 @@ class pydaw_modulex_single:
         self.group_box.setLayout(self.layout)
         self.knobs = []
         for f_i in range(3):
-            f_knob = pydaw_knob_control(51, "", a_port_k1 + f_i, a_rel_callback, a_val_callback, 0, 127, 64)
+            f_knob = pydaw_knob_control(51, "", a_port_k1 + f_i, a_rel_callback, a_val_callback, 0, 127, 64, a_port_dict=a_port_dict)
             self.layout.addWidget(f_knob.name_label, 0, f_i)
             self.layout.addWidget(f_knob.control, 1, f_i)
             self.layout.addWidget(f_knob.value_label, 2, f_i)
@@ -206,7 +214,7 @@ class pydaw_modulex_single:
         self.combobox = pydaw_combobox_control(132, "Type", a_port_k1 + 3, a_rel_callback, a_val_callback,
                ["Off", "LP2" , "LP4", "HP2", "HP4", "BP2", "BP4" , "Notch2", "Notch4", "EQ" , "Distortion",
                 "Comb Filter", "Amp/Pan", "Limiter" , "Saturator", "Formant", "Chorus", "Glitch" , "RingMod",
-                "LoFi", "S/H", "LP-Dry/Wet" , "HP-Dry/Wet"])
+                "LoFi", "S/H", "LP-Dry/Wet" , "HP-Dry/Wet"], a_port_dict=a_port_dict)
         self.layout.addWidget(self.combobox.name_label, 0, 3)
         self.combobox.control.currentIndexChanged.connect(self.type_combobox_changed)
         self.layout.addWidget(self.combobox.control, 1, 3)
