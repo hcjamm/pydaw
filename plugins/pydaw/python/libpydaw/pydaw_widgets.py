@@ -12,6 +12,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
+import os
+import pydaw_util
 from pydaw_project import pydaw_audio_item_fx
 from PyQt4 import QtGui, QtCore
 
@@ -83,6 +85,9 @@ class pydaw_abstract_ui_control:
         self.control.setValue(a_val)
         self.control_value_changed(a_val)
         self.suppress_changes = False
+
+    def get_value(self):
+        return self.control.value()
 
     def set_127_min_max(self, a_min, a_max):
         self.min_label_value_127 = a_min;
@@ -196,6 +201,117 @@ class pydaw_combobox_control:
         self.suppress_changes = True
         self.control.setCurrentIndex(a_val)
         self.suppress_changes = False
+
+    def get_value(self):
+        return self.control.currentIndex()
+
+class pydaw_adsr_widget:
+    def __init__(self):
+        pass
+
+class pydaw_osc_widget:
+    def __init__(self, a_size, a_pitch_port, a_fine_port, a_vol_port, a_type_port, a_osc_types_list, \
+    a_rel_callback, a_val_callback, a_label, a_port_dict=None):
+        self.pitch_knob = pydaw_knob_control(a_size, "Pitch", a_pitch_port, a_rel_callback, a_val_callback, -36, 36, 0, \
+        a_val_conversion=kc_integer, a_port_dict=a_port_dict)
+        self.fine_knob = pydaw_knob_control(a_size, "Fine", a_fine_port, a_rel_callback, a_val_callback, -100, 100, 0, \
+        a_val_conversion=kc_decimal, a_port_dict=a_port_dict)
+        self.vol_knob = pydaw_knob_control(a_size, "Vol", a_vol_port, a_rel_callback, a_val_callback, -60, 0, -6, \
+        a_val_conversion=kc_integer, a_port_dict=a_port_dict)
+        self.osc_type_combobox = pydaw_combobox_control(114, "Type", a_type_port, a_rel_callback, a_val_callback, a_osc_types_list, a_port_dict)
+        self.grid_layout = QtGui.QGridLayout()
+        self.group_box = QtGui.QGroupBox(str(a_label))
+        self.group_box.setLayout(self.grid_layout)
+        self.grid_layout.addWidget(self.pitch_knob.name_label, 0, 0)
+        self.grid_layout.addWidget(self.pitch_knob.control, 0, 1)
+        self.grid_layout.addWidget(self.pitch_knob.value_label, 0, 2)
+
+        self.grid_layout.addWidget(self.fine_knob.name_label, 1, 0)
+        self.grid_layout.addWidget(self.fine_knob.control, 1, 1)
+        self.grid_layout.addWidget(self.fine_knob.value_label, 1, 2)
+
+        self.grid_layout.addWidget(self.vol_knob.name_label, 2, 0)
+        self.grid_layout.addWidget(self.vol_knob.control, 2, 1)
+        self.grid_layout.addWidget(self.vol_knob.value_label, 2, 2)
+
+        self.grid_layout.addWidget(self.osc_type_combobox.name_label, 3, 0)
+        self.grid_layout.addWidget(self.osc_type_combobox.control, 3, 1)
+
+class pydaw_note_selector_widget:
+    def __init__(self, a_port, a_rel_callback, a_val_callback, a_port_dict=None):
+        self.control = self
+        self.port = a_port
+        self.rel_callback = a_rel_callback
+        self.val_callback = a_val_callback
+        self.note_combobox = QtGui.QComboBox()
+        self.note_combobox.addItems(["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"])
+        self.octave_spinbox = QtGui.QSpinBox()
+        self.octave_spinbox.setRange(-2, 8)
+        self.octave_spinbox.setValue(3)
+        self.widget = QtGui.QWidget()
+        self.layout = QtGui.QHBoxLayout()
+        self.widget.setLayout(self.layout)
+        self.layout.addWidget(self.note_combobox)
+        self.layout.addWidget(self.octave_spinbox)
+        self.note_combobox.currentIndexChanged.connect(self.value_changed)
+        self.octave_spinbox.currentIndexChanged.connect(self.value_changed)
+        self.suppress_changes = False
+
+    def value_changed(self, a_val=None):
+        if not self.suppress_changes:
+            self.selected_note = (self.note_combobox.currentIndex()) + (((self.octave_spinbox.currentIndex()) + 2) * 12)
+        self.val_callback(self.port, self.selected_note)
+        self.rel_callback(self.port, self.selected_note)
+
+    def set_value(self, a_val):
+        self.note_combobox.setCurrentIndex(a_val % 12)
+        self.octave_spinbox.setValue((int(a_val / 12)) - 2)
+
+    def get_value(self):
+        return self.selected_note
+
+
+class pydaw_preset_manager_widget:
+    def __init__(self, a_plugin_name,  a_default_presets, a_port_num, a_rel_callback, a_val_callback, a_port_dict=None):
+        if os.path.isdir("/media/pydaw_data") and os.path.isdir("/home/ubuntu"):
+            self.preset_path = "/media/pydaw_data/pydaw3/" + str(a_plugin_name) + ".pypresets"
+        else:
+            self.preset_path = os.path.expanduser("~") + "/pydaw3/" + str(a_plugin_name) + ".pypresets"
+        self.layout = QtGui.QHBoxLayout()
+        #TODO:  I believe it's not necessary to use the custom version, just a QComboBox would be better
+        self.program_combobox = pydaw_combobox_control(150, "", a_rel_callback, a_val_callback, a_port_num=a_port_num, )
+        self.group_box = QtGui.QGroupBox()
+        self.group_box.setLayout(self.layout)
+        self.layout.addWidget(self.program_combobox.control)
+        self.save_button = QtGui.QPushButton("Save")
+        self.save_button.pressed.connect(self.save_presets)
+        self.layout.addWidget(self.save_button)
+        self.presets_tab_delimited = []
+        self.controls = []
+        self.load_presets()
+
+    def load_presets(self):
+        f_text = pydaw_util.pydaw_read_file_text(self.preset_path)
+        f_line_arr = f_text.split("\n")
+        self.presets_tab_delimited = []
+        for f_i in range(128):
+            self.presets_tab_delimited.append([f_line_arr[f_i].split("\t")])
+
+    def save_presets(self):
+        if str(self.program_combobox.control.currentText()) == "empty":
+            QtGui.QMessageBox.warning(self.group_box, "Error", "Preset name cannot be 'empty'")
+            return
+        if self.program_combobox.control.currentIndex() == 0:
+            QtGui.QMessageBox.warning(self.group_box, "Error", "The first preset must be empty")
+            return
+        f_result_values = [str(self.program_combobox.control.currentText())]
+        for f_control in self.controls:
+            f_result_values.append(str(f_control.get_value()))
+        self.presets_tab_delimited[(self.program_combobox.control.currentIndex())] = f_result_values
+        f_result = ""
+        for f_list in self.presets_tab_delimited:
+            f_result += "\t".join(f_list)
+        pydaw_util.pydaw_write_file_text(self.preset_path, f_result)
 
 class pydaw_modulex_single:
     def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback, a_port_dict=None):
