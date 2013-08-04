@@ -22,6 +22,21 @@ global_knob_arc_gradient.setColorAt(0.0, QtGui.QColor.fromRgb(120, 120, 255, 255
 global_knob_arc_gradient.setColorAt(0.66, QtGui.QColor.fromRgb(255, 0, 0, 255))
 global_knob_arc_pen = QtGui.QPen(global_knob_arc_gradient, 5.0, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin)
 
+class pydaw_plugin_file:
+    """ Abstracts a .pyinst or .pyfx file """
+    def __init__(self, a_path):
+        f_text = pydaw_util.pydaw_read_file_text(a_path)
+        f_line_arr = f_text.split("\n")
+        self.port_dict = {}
+        self.euphoria_samples = []
+        for f_line in f_line_arr:
+            f_items = f_line.split("|", 1)
+            if f_items[0] == "load":
+                for f_sample_path in f_items[1].split("~"):
+                    self.euphoria_samples.append(f_sample_path)
+            else:
+                self.port_dict[int(f_items[0])] = float(f_items[1])
+
 class pydaw_pixmap_knob(QtGui.QDial):
     def __init__(self, a_size, a_min_val, a_max_val, a_default_val):
         QtGui.QDial.__init__(self)
@@ -66,7 +81,6 @@ kc_127_pitch = 4
 kc_127_zero_to_x = 5
 kc_log_time = 6
 kc_127_zero_to_x_int = 7
-
 
 class pydaw_abstract_ui_control:
     def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion=kc_none, a_port_dict=None):
@@ -243,6 +257,7 @@ class pydaw_note_selector_widget:
         self.port = a_port
         self.rel_callback = a_rel_callback
         self.val_callback = a_val_callback
+        self.selected_note = 48
         self.note_combobox = QtGui.QComboBox()
         self.note_combobox.addItems(["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"])
         self.octave_spinbox = QtGui.QSpinBox()
@@ -265,7 +280,7 @@ class pydaw_note_selector_widget:
 
     def set_value(self, a_val):
         self.note_combobox.setCurrentIndex(a_val % 12)
-        self.octave_spinbox.setValue((int(a_val / 12)) - 2)
+        self.octave_spinbox.setValue((int(float(a_val) / 12.0)) - 2)
 
     def get_value(self):
         return self.selected_note
@@ -279,7 +294,7 @@ class pydaw_preset_manager_widget:
             self.preset_path = os.path.expanduser("~") + "/pydaw3/" + str(a_plugin_name) + ".pypresets"
         self.layout = QtGui.QHBoxLayout()
         #TODO:  I believe it's not necessary to use the custom version, just a QComboBox would be better
-        self.program_combobox = pydaw_combobox_control(150, "", a_rel_callback, a_val_callback, a_port_num=a_port_num, )
+        self.program_combobox = pydaw_combobox_control(150, "", a_rel_callback, a_val_callback, a_port_num=a_port_num)
         self.group_box = QtGui.QGroupBox()
         self.group_box.setLayout(self.layout)
         self.layout.addWidget(self.program_combobox.control)
