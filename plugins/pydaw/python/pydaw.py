@@ -20,6 +20,7 @@ from PyQt4 import QtGui, QtCore
 from sys import argv
 from os.path import expanduser
 from libpydaw import *
+import liblo
 
 global_show_create_folder_error = False
 
@@ -263,6 +264,12 @@ def pydaw_scale_to_rect(a_to_scale, a_scale_to):
     f_x = (a_scale_to.width() / a_to_scale.width())
     f_y = (a_scale_to.height() / a_to_scale.height())
     return (f_x, f_y)
+
+def global_plugin_rel_callback(a_is_instrument, a_track_type, a_track_num, a_port, a_val):
+    pass
+
+def global_plugin_val_callback(a_is_instrument, a_track_type, a_track_num, a_port, a_val):
+    this_pydaw_project.this_dssi_gui.pydaw_update_plugin_control(a_is_instrument, a_track_type, a_track_num, a_port, a_val)
 
 class song_editor:
     def add_qtablewidgetitem(self, a_name, a_region_num):
@@ -3005,7 +3012,9 @@ class audio_track:
         global_update_audio_track_comboboxes(self.track_number, self.track_name_lineedit.text())
         this_pydaw_project.commit("Set audio track " + str(self.track_number) + " name to " + str(self.track_name_lineedit.text()))
     def on_show_fx(self):
-        this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 2)
+        #this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 2)
+        global_open_fx_ui(self.track_number, pydaw_folder_audiofx, 2, "Audio Track: " + str(self.track_name_lineedit.text()))
+
     def on_bus_changed(self, a_value=0):
         this_pydaw_project.this_dssi_gui.pydaw_set_bus(self.track_number, self.bus_combobox.currentIndex(), 2)
         f_tracks = this_pydaw_project.get_audio_tracks()
@@ -5146,9 +5155,12 @@ class seq_track:
     def on_show_fx(self):
         if not self.is_instrument or self.instrument_combobox.currentIndex() > 0:
             if self.is_instrument:
-                this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 0)
+                #this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 0)
+                global_open_fx_ui(self.track_number, pydaw_folder_instruments, 0, "MIDI Track: " + str(self.track_name_lineedit.text()))
             else:
-                this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 1)
+                #this_pydaw_project.this_dssi_gui.pydaw_show_fx(self.track_number, 1)
+                global_open_fx_ui(self.track_number, pydaw_folder_busfx, 1, "Bus Track: " + str(self.track_name_lineedit.text()))
+                f_modulex.widget.show()
     def on_bus_changed(self, a_value=0):
         if not self.suppress_osc:
             this_pydaw_project.save_tracks(this_region_editor.get_tracks())
@@ -5582,6 +5594,28 @@ class transport_widget:
         self.beat_timer = QtCore.QTimer()
         self.beat_timer.timeout.connect(self.beat_timeout)
         self.suppress_osc = False
+
+global_open_fx_ui_dicts = [{}, {}, {}]
+global_open_inst_ui_dict = {}
+
+def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
+    global global_open_fx_ui_dicts
+    f_modulex = pydaw_widgets.pydaw_modulex_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
+    this_pydaw_project, a_folder, a_track_type, a_title, this_main_window.styleSheet(), global_fx_closed_callback)
+    f_modulex.widget.show()
+    global_open_fx_ui_dicts[a_track_type][a_track_num] = f_modulex
+    print(str(global_open_fx_ui_dicts))
+
+def global_fx_closed_callback(a_track_num, a_track_type):
+    global global_open_fx_ui_dicts
+    global_open_fx_ui_dicts[a_track_type].pop(a_track_num)
+    print(str(global_open_fx_ui_dicts))
+
+def global_open_inst_ui(a_track_num, a_folder, a_track_type, a_title):
+    pass
+
+def global_inst_closed_callback(a_track_num, a_track_type=None):
+    pass
 
 class pydaw_main_window(QtGui.QMainWindow):
     def check_for_empty_directory(self, a_file):
@@ -6075,7 +6109,39 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.main_tabwidget.addTab(self.cc_map_tab, "CC Maps")
         self.main_tabwidget.addTab(this_ab_widget.widget, "A/B")
 
+        try:
+            self.osc_server = liblo.Server(30321)
+        except liblo.ServerError, err:
+            print("Error creating OSC server:  " + str(err))
+            self.osc_server = None
+        if self.osc_server is not None:
+            print(self.osc_server.get_url())
+            self.osc_server.add_method("pydaw/ui_configure", 'ss', self.configure_callback)
+            self.osc_server.add_method(None, None, self.osc_fallback)
+            self.osc_timer = QtCore.QTimer(self)
+            self.osc_timer.setSingleShot(False)
+            self.osc_timer.timeout.connect(self.osc_time_callback)
+            self.osc_timer.start(20)
+
         self.show()
+
+    def osc_time_callback(self):
+        self.osc_server.recv(1)
+
+    def osc_fallback(self, path, args, types, src):
+        print "got unknown message '%s' from '%s'" % (path, src)
+        for a, t in zip(args, types):
+            print "argument of type '%s': %s" % (t, a)
+
+    def configure_callback(self, path, args):
+        a_key, a_val = args
+        if a_key == "pc":
+            f_is_inst, f_track_type, f_track_num, f_port, f_val = a_val.split("|")
+            if pydaw_util.int_to_bool(f_is_inst):
+                pass
+            else:
+                if int(f_track_num) in global_open_fx_ui_dicts[int(f_track_type)]:
+                    global_open_fx_ui_dicts[int(f_track_type)][int(f_track_num)].set_control_val(int(f_port), float(f_val))
 
     def closeEvent(self, event):
         f_reply = QtGui.QMessageBox.question(self, 'Message',

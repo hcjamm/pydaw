@@ -13,9 +13,6 @@ GNU General Public License for more details.
 */
 
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
 
 #include <stdlib.h>
 #include <limits.h>
@@ -419,7 +416,8 @@ void v_pydaw_destructor()
     if(pydaw_data)
     {
         pydaw_data->audio_recording_quit_notifier = 1;
-        v_pydaw_close_all_uis(pydaw_data);        
+        v_pydaw_close_all_uis(pydaw_data);   
+        lo_address_free(pydaw_data->uiTarget);
         
         sleep(2);
 

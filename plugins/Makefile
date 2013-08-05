@@ -14,7 +14,7 @@ all:
 	make -C pydaw CFLAGS+=" -O3 "
 	make -C euphoria CFLAGS+=" -O3 "
 	make -C ray_v CFLAGS+=" -O3 "
-	make -C lms_modulex CFLAGS+=" -O3 "
+	#make -C lms_modulex CFLAGS+=" -O3 "
 	make -C way_v CFLAGS+=" -O3 "
 	make -C pydaw_jack_oscrolloscope
 	cd pydaw_sbsms && ./configure --prefix=$(SBSMS_PREFIX) && make && cd ..
@@ -26,10 +26,10 @@ debug:
 	make -C pydaw CFLAGS+=" -O0 -g -gdwarf-3 "
 	make -C euphoria CFLAGS+=" -O0 -g -gdwarf-3 "
 	make -C ray_v CFLAGS+=" -O0 -g -gdwarf-3 "
-	make -C lms_modulex CFLAGS+=" -O0 -g -gdwarf-3 "
+	#make -C lms_modulex CFLAGS+=" -O0 -g -gdwarf-3 "
 	make -C way_v CFLAGS+=" -O0 -g -gdwarf-3 "
 	make -C pydaw_jack_oscrolloscope
-        cd pydaw_sbsms ; make distclean ; ./configure --prefix=$(SBSMS_PREFIX) ; make ; cd ..
+        cd pydaw_sbsms && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make && cd ..
         cd pydaw_sbsms/cli && make distclean && ./configure --prefix=$(SBSMS_PREFIX) && make LDFLAGS+="-pthread" && cd ..
 	cd pydaw_rubberband && make distclean && ./configure --prefix=$(RUBBERBAND_PREFIX) && make && cd ..
 
@@ -39,7 +39,7 @@ strip:
 	make -C pydaw strip
 	make -C euphoria strip
 	make -C ray_v strip
-	make -C lms_modulex strip
+	#make -C lms_modulex strip
 	make -C way_v strip
 	make -C pydaw_jack_oscrolloscope strip
 
@@ -51,7 +51,7 @@ install:
 	make -C pydaw PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	make -C euphoria PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	make -C ray_v PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
-	make -C lms_modulex PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
+	#make -C lms_modulex PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	make -C way_v PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	make -C pydaw_jack_oscrolloscope PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	cp -r share $(DESTDIR)$(PREFIX)
@@ -73,7 +73,7 @@ clean:
 	make -C pydaw clean
 	make -C euphoria clean
 	make -C ray_v clean
-	make -C lms_modulex clean
+	#make -C lms_modulex clean
 	make -C way_v clean
 	make -C pydaw_jack_oscrolloscope clean
 	#make -C pydaw_sbsms clean

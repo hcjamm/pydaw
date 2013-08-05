@@ -72,6 +72,7 @@ extern "C" {
 #define PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX "paif"
 //Reload entire region for per-audio-item-fx
 #define PYDAW_CONFIGURE_KEY_PER_AUDIO_ITEM_FX_REGION "par"
+#define PYDAW_CONFIGURE_KEY_UPDATE_PLUGIN_CONTROL "pc"
     
 #define PYDAW_LOOP_MODE_OFF 0
 #define PYDAW_LOOP_MODE_BAR 1
@@ -118,6 +119,7 @@ extern "C" {
 #include "pydaw_sample_graph.h"
 #include "pydaw_audio_inputs.h"
 #include "pydaw_audio_util.h"
+#include <lo/lo.h>
   
 typedef struct
 {
@@ -362,9 +364,9 @@ typedef struct
     float preview_start; //0.0f to 1.0f
     int is_previewing;  //Set this to a_pydaw_data->ab_mode on playback
     float preview_amp_lin;
-    int preview_max_sample_count;
-        
+    int preview_max_sample_count;        
     char * per_audio_item_fx_folder;
+    lo_address uiTarget;
 }t_pydaw_data;
 
 typedef struct 
@@ -761,6 +763,25 @@ inline void v_pydaw_update_ports(t_pydaw_plugin * a_plugin)
     }
 }
 
+inline void v_pydaw_fx_update_ports(t_pydaw_data * a_pydaw_data, t_pydaw_plugin * a_plugin, int a_track_type, int a_track_num)
+{
+    int f_i = 0;
+    while(f_i < (a_plugin->controlIns))
+    {
+        if (a_plugin->pluginPortUpdated[f_i]) 
+        {
+            int port = a_plugin->pluginControlInPortNumbers[f_i];
+            float value = a_plugin->pluginControlIns[f_i];
+
+            a_plugin->pluginPortUpdated[f_i] = 0;
+            char a_value[256];
+            sprintf(a_value, "0|%i|%i|%i|%f", a_track_type, a_track_num, f_i, value);
+            lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "pc", a_value);            
+        }
+        f_i++;
+    }
+}
+
 inline void v_pydaw_set_bus_counters(t_pydaw_data * a_pydaw_data)
 {    
     int f_i = 0;
@@ -1011,7 +1032,8 @@ void * v_pydaw_worker_thread(void* a_arg)
             if(f_item.track_type == 0)  //MIDI/plugin-instrument
             {
                 v_pydaw_update_ports(f_args->pydaw_data->track_pool[f_item.track_number]->instrument);
-                v_pydaw_update_ports(f_args->pydaw_data->track_pool[f_item.track_number]->effect);
+                v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]->effect, 0,
+                        f_item.track_number);
 
                 v_run_plugin(f_args->pydaw_data->track_pool[f_item.track_number]->instrument, (f_args->pydaw_data->sample_count), 
                         f_args->pydaw_data->track_pool[f_item.track_number]->event_buffer, 
@@ -1039,7 +1061,8 @@ void * v_pydaw_worker_thread(void* a_arg)
                     f_i2++;
                 }
                 
-                v_pydaw_update_ports(f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect);
+                v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->audio_track_pool[f_item.track_number]->effect, 2,
+                        f_item.track_number);
                 
                 if((!f_args->pydaw_data->audio_track_pool[f_item.track_number]->mute) &&
                     ((!f_args->pydaw_data->is_soloed) ||
@@ -1099,7 +1122,8 @@ void * v_pydaw_worker_thread(void* a_arg)
                         pthread_spin_unlock(&f_args->pydaw_data->bus_spinlocks[f_item.track_number]);
                     }
                     
-                    v_pydaw_update_ports(f_args->pydaw_data->bus_pool[f_item.track_number]->effect);
+                    v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number]->effect, 1, 
+                            f_item.track_number);
 
                     v_pydaw_run_pre_effect_vol(f_args->pydaw_data, f_args->pydaw_data->bus_pool[f_item.track_number]);
                     
@@ -2129,7 +2153,7 @@ inline void v_pydaw_run_main_loop(t_pydaw_data * a_pydaw_data, int sample_count,
         f_i++;
     }
     
-    v_pydaw_update_ports(a_pydaw_data->bus_pool[0]->effect);
+    v_pydaw_fx_update_ports(a_pydaw_data, a_pydaw_data->bus_pool[0]->effect, 1, 0);
     
     f_i = 0;
     //A ghetto pthread_join for threads that never finish...
@@ -3397,6 +3421,8 @@ t_pydaw_data * g_pydaw_data_get(float a_sample_rate)
     f_result->osc_url = (char *)malloc(strlen(tmp) + strlen(osc_path_tmp));
     sprintf(f_result->osc_url, "%s%s", tmp, osc_path_tmp + 1);    
     free(tmp);
+
+    f_result->uiTarget = lo_address_new_from_url("osc.udp://localhost:30321/");
     
     return f_result;
 }
@@ -4201,7 +4227,8 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
         v_pydaw_save_plugin(a_pydaw_data, a_track, 0, a_type);
     }
     
-    v_pydaw_save_plugin(a_pydaw_data, a_track, 1, a_type);
+    //Now being done through the UI
+    //v_pydaw_save_plugin(a_pydaw_data, a_track, 1, a_type);
     
 #ifdef PYDAW_MEMCHECK
     v_pydaw_assert_memory_integrity(a_pydaw_data);
@@ -5068,8 +5095,43 @@ void v_pydaw_set_preview_file(t_pydaw_data * a_pydaw_data, const char * a_file)
 void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_key, const char* a_value)
 {
     printf("v_pydaw_parse_configure_message:  key: \"%s\", value: \"%s\"\n", a_key, a_value);
-        
-    if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_VOL)) //Set track volume
+    if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_UPDATE_PLUGIN_CONTROL)) //Set plugin control
+    {
+        t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 5, LMS_TINY_STRING);
+        int f_is_inst = atoi(f_val_arr->array[0]);
+        int f_track_type = atoi(f_val_arr->array[1]);
+        int f_track_num = atoi(f_val_arr->array[2]);
+        int f_port = atoi(f_val_arr->array[3]);
+        float f_value = atof(f_val_arr->array[4]);
+        t_pydaw_plugin * f_instance;
+        pthread_mutex_lock(&a_pydaw_data->main_mutex);
+        //pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        switch(f_track_type)
+        {
+            case 0:  //MIDI track
+                if(f_is_inst)
+                {
+                    f_instance = a_pydaw_data->track_pool[f_track_num]->instrument;
+                }
+                else
+                {
+                    f_instance = a_pydaw_data->track_pool[f_track_num]->effect;
+                }
+                break;
+            case 1:  //Bus track
+                f_instance = a_pydaw_data->bus_pool[f_track_num]->effect;
+                break;
+            case 2:  //Audio track
+                f_instance = a_pydaw_data->audio_track_pool[f_track_num]->effect;
+                break;
+        }
+        f_instance->pluginControlIns[f_port] = f_value;
+        f_instance->pluginPortUpdated[f_port] = 1;
+        pthread_mutex_unlock(&a_pydaw_data->main_mutex);
+        //pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
+        g_free_1d_char_array(f_val_arr);
+    }
+    else if(!strcmp(a_key, PYDAW_CONFIGURE_KEY_VOL)) //Set track volume
     {
         t_1d_char_array * f_val_arr = c_split_str(a_value, '|', 3, LMS_TINY_STRING);
         int f_track_num = atoi(f_val_arr->array[0]);
@@ -5081,14 +5143,14 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         switch(f_track_type)
         {
             case 0:  //MIDI track
-                v_pydaw_set_track_volume(a_pydaw_data,  a_pydaw_data->track_pool[f_track_num], f_track_vol);
+                v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->track_pool[f_track_num], f_track_vol);
                 break;
             case 1:  //Bus track
-                v_pydaw_set_track_volume(a_pydaw_data,  a_pydaw_data->bus_pool[f_track_num], f_track_vol);
+                v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->bus_pool[f_track_num], f_track_vol);
                 break;
             case 2:  //Audio track
-                v_pydaw_set_track_volume(a_pydaw_data,  a_pydaw_data->audio_track_pool[f_track_num], f_track_vol);
-                break;            
+                v_pydaw_set_track_volume(a_pydaw_data, a_pydaw_data->audio_track_pool[f_track_num], f_track_vol);
+                break;
             case 3:  //Audio Input
                 a_pydaw_data->audio_inputs[f_track_num]->vol = f_track_vol;            
                 a_pydaw_data->audio_inputs[f_track_num]->vol_linear = f_db_to_linear_fast(f_track_vol, a_pydaw_data->amp_ptr);

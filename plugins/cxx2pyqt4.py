@@ -38,6 +38,7 @@ f_text = f_text.replace("!", " not ")
 for f_i in range(30):
     f_text = f_text.replace("  ", " ")
 
+f_text = f_text.replace("Qt::", "QtCore.Qt.")
 f_text = f_text.replace("QString", "")
 f_text = f_text.replace("this", "self")
 f_text = f_text.replace("TRUE", "True")
