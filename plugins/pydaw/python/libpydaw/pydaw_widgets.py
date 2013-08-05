@@ -24,18 +24,34 @@ global_knob_arc_pen = QtGui.QPen(global_knob_arc_gradient, 5.0, QtCore.Qt.SolidL
 
 class pydaw_plugin_file:
     """ Abstracts a .pyinst or .pyfx file """
-    def __init__(self, a_path):
-        f_text = pydaw_util.pydaw_read_file_text(a_path)
-        f_line_arr = f_text.split("\n")
+    def __init__(self, a_path=None):
         self.port_dict = {}
         self.euphoria_samples = []
-        for f_line in f_line_arr:
-            f_items = f_line.split("|", 1)
-            if f_items[0] == "load":
-                for f_sample_path in f_items[1].split("~"):
-                    self.euphoria_samples.append(f_sample_path)
-            else:
-                self.port_dict[int(f_items[0])] = float(f_items[1])
+        if a_path is not None:
+            f_text = pydaw_util.pydaw_read_file_text(a_path)
+            f_line_arr = f_text.split("\n")
+            for f_line in f_line_arr:
+                if f_line == "\\":
+                    break
+                f_items = f_line.split("|", 1)
+                if f_items[0] == "load":
+                    for f_sample_path in f_items[1].split("~"):
+                        self.euphoria_samples.append(f_sample_path)
+                else:
+                    self.port_dict[int(f_items[0])] = float(f_items[1])
+
+    @staticmethod
+    def from_dict(a_dict):
+        f_result = pydaw_plugin_file()
+        for k, v in a_dict.items():
+            f_result.port_dict[int(k)] = v
+        return f_result
+
+    def __str__(self):
+        f_result = ""
+        for k, v in self.port_dict.items():
+            f_result += str(k) + "|" + str(v)
+        return f_result
 
 class pydaw_pixmap_knob(QtGui.QDial):
     def __init__(self, a_size, a_min_val, a_max_val, a_default_val):
@@ -648,13 +664,48 @@ class pydaw_per_audio_item_fx_widget:
             for f_knob in f_effect.knobs:
                 f_knob.set_value(64)
 
-
-class modulex_plugin_ui:
-    def __init__(self, a_rel_callback, a_val_callback):
-        self.effects = []
+class pydaw_abstract_plugin_ui:
+    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project):
+        self.track_num = a_track_num
+        self.pydaw_project = a_project
+        self.rel_callback = a_rel_callback
+        self.val_callback = a_val_callback
         self.widget = QtGui.QWidget()
+        self.widget.closeEvent = self.widget_close_event
         self.layout = QtGui.QVBoxLayout()
         self.widget.setLayout(self.layout)
+        self.port_dict = {}
+        self.effects = []
+
+    def open_plugin_file(self):
+        f_file = pydaw_plugin_file(self.folder)
+        for k, v in f_file.port_dict.items():
+            self.set_control_val(k, v)
+
+    def save_plugin_file(self):
+        f_file = pydaw_plugin_file.from_dict(self.port_dict)
+        pydaw_util.pydaw_write_file_text(self.file, str(f_file))
+
+    def widget_close_event(self, a_event):
+        self.save_plugin_file()
+        QtGui.QWidget.closeEvent(self.widget, a_event)
+
+    def plugin_rel_callback(self, a_port, a_val):
+        self.rel_callback(self.is_instrument, self.track_num, a_port, a_val)
+
+    def plugin_val_callback(self, a_port, a_val):
+        self.val_callback(self.is_instrument, self.track_num, a_port, a_val)
+
+    def set_control_val(self, a_port, a_val):
+        self.port_dict[int(a_port)].set_value(a_val)
+
+
+class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
+    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder):
+        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project)
+        self.file = a_folder + "/" + str(self.track_num) + ".pyfx"
+        self.is_instrument = False
+
         self.tab_widget = QtGui.QTabWidget()
         self.layout.addWidget(self.tab_widget)
 
@@ -675,7 +726,7 @@ class modulex_plugin_ui:
         f_column = 0
         f_row = 0
         for f_i in range(8):
-            f_effect = pydaw_modulex_single(("FX" + str(f_i)), f_port, a_rel_callback, a_val_callback)
+            f_effect = pydaw_modulex_single(("FX" + str(f_i)), f_port, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
             self.effects.append(f_effect)
             self.fx_layout.addWidget(f_effect.group_box, f_column, f_row)
             f_column += 1
@@ -684,5 +735,6 @@ class modulex_plugin_ui:
                 f_row += 1
             f_port += 4
 
+        self.open_plugin_file()
 
 
