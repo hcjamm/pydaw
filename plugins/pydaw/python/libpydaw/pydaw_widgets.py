@@ -13,7 +13,7 @@ GNU General Public License for more details.
 """
 
 import os
-import pydaw_util
+import pydaw_util, pydaw_ports
 from pydaw_project import pydaw_audio_item_fx
 from PyQt4 import QtGui, QtCore
 
@@ -220,8 +220,29 @@ class pydaw_combobox_control:
         return self.control.currentIndex()
 
 class pydaw_adsr_widget:
-    def __init__(self):
-        pass
+    def __init__(self, a_size, a_sustain_in_db, a_attack_port, a_decay_port, a_sustain_port, a_release_port, \
+            a_label, a_rel_callback, a_val_callback, a_port_dict=None):
+        self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback, a_val_callback, 0, 100, 0, kc_log_time, a_port_dict)
+        self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback, a_val_callback, 0, 100, 0, kc_log_time, a_port_dict)
+        if a_sustain_in_db:
+            self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, -60, 0, 0, kc_integer, a_port_dict)
+        else:
+            self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, 0, 100, 100, kc_decimal, a_port_dict)
+        self.release_knob = pydaw_knob_control(a_size, "Release", a_release_port, a_rel_callback, a_val_callback, 10, 200, 0, kc_log_time, a_port_dict)
+        self.groupbox = QtGui.QGroupBox(a_label)
+        self.layout = QtGui.QGridLayout(self.groupbox)
+        self.layout.addWidget(self.attack_knob.name_label, 0, 0)
+        self.layout.addWidget(self.attack_knob.control, 0, 1)
+        self.layout.addWidget(self.attack_knob.value_label, 0, 2)
+        self.layout.addWidget(self.decay_knob.name_label, 1, 0)
+        self.layout.addWidget(self.decay_knob.control, 1, 1)
+        self.layout.addWidget(self.decay_knob.value_label, 1, 2)
+        self.layout.addWidget(self.sustain_knob.name_label, 2, 0)
+        self.layout.addWidget(self.sustain_knob.control, 2, 1)
+        self.layout.addWidget(self.sustain_knob.value_label, 2, 2)
+        self.layout.addWidget(self.release_knob.name_label, 3, 0)
+        self.layout.addWidget(self.release_knob.control, 3, 1)
+        self.layout.addWidget(self.release_knob.value_label, 3, 2)
 
 class pydaw_osc_widget:
     def __init__(self, a_size, a_pitch_port, a_fine_port, a_vol_port, a_type_port, a_osc_types_list, \
@@ -626,4 +647,42 @@ class pydaw_per_audio_item_fx_widget:
             f_effect.combobox.set_value(0)
             for f_knob in f_effect.knobs:
                 f_knob.set_value(64)
+
+
+class modulex_plugin_ui:
+    def __init__(self, a_rel_callback, a_val_callback):
+        self.effects = []
+        self.widget = QtGui.QWidget()
+        self.layout = QtGui.QVBoxLayout()
+        self.widget.setLayout(self.layout)
+        self.tab_widget = QtGui.QTabWidget()
+        self.layout.addWidget(self.tab_widget)
+
+        self.fx_tab = QtGui.QWidget()
+        self.tab_widget.addTab(self.fx_tab, "Effects")
+        self.fx_layout = QtGui.QGridLayout()
+        self.fx_tab.setLayout(self.fx_layout)
+
+        self.delay_tab = QtGui.QWidget()
+        self.tab_widget.addTab(self.delay_tab, "Delay")
+        self.delay_layout = QtGui.QVBoxLayout()
+        self.delay_tab.setLayout(self.delay_layout)
+
+        self.delay_groupbox = QtGui.QGroupBox("Delay")
+        self.delay_groupbox_layout = QtGui.QGridLayout(self.delay_groupbox)
+
+        f_port = 2
+        f_column = 0
+        f_row = 0
+        for f_i in range(8):
+            f_effect = pydaw_modulex_single(("FX" + str(f_i)), f_port, a_rel_callback, a_val_callback)
+            self.effects.append(f_effect)
+            self.fx_layout.addWidget(f_effect.group_box, f_column, f_row)
+            f_column += 1
+            if f_column > 1:
+                f_column = 0
+                f_row += 1
+            f_port += 4
+
+
 
