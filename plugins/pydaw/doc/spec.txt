@@ -60,6 +60,7 @@ OSC configure message keys/values:
 	"renv" src\ndest\nstart|end apply rate envelope with start/end rates
 	"paif" region-uid|item-index|port-num|val	Update a control value for per-audio-item-fx
 	"par" region-uid	Reload the per-audio-item effects for region-uid
+	"pc" is_instrument|track_type|track_num|port|val Update a plugins control from a PyQt GUI
 
 
 Project structure:

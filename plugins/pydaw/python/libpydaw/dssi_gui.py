@@ -231,3 +231,6 @@ class dssi_gui(ServerThread):
 
     def pydaw_audio_per_item_fx_region(self, a_region_uid):
         self.send_configure("par", str(a_region_uid))
+
+    def pydaw_update_plugin_control(self, a_is_instrument, a_track_type, a_track_num, a_port, a_val):
+        self.send_configure("pc", str(a_is_instrument) + "|" + str(a_track_type) + "|" + str(a_track_num) + "|" + str(a_port) + "|" + str(a_val))
