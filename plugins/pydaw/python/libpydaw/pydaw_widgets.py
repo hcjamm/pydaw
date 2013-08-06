@@ -286,18 +286,10 @@ class pydaw_adsr_widget:
         self.release_knob = pydaw_knob_control(a_size, "Release", a_release_port, a_rel_callback, a_val_callback, 10, 200, 0, kc_log_time, a_port_dict)
         self.groupbox = QtGui.QGroupBox(a_label)
         self.layout = QtGui.QGridLayout(self.groupbox)
-        self.layout.addWidget(self.attack_knob.name_label, 0, 0)
-        self.layout.addWidget(self.attack_knob.control, 0, 1)
-        self.layout.addWidget(self.attack_knob.value_label, 0, 2)
-        self.layout.addWidget(self.decay_knob.name_label, 1, 0)
-        self.layout.addWidget(self.decay_knob.control, 1, 1)
-        self.layout.addWidget(self.decay_knob.value_label, 1, 2)
-        self.layout.addWidget(self.sustain_knob.name_label, 2, 0)
-        self.layout.addWidget(self.sustain_knob.control, 2, 1)
-        self.layout.addWidget(self.sustain_knob.value_label, 2, 2)
-        self.layout.addWidget(self.release_knob.name_label, 3, 0)
-        self.layout.addWidget(self.release_knob.control, 3, 1)
-        self.layout.addWidget(self.release_knob.value_label, 3, 2)
+        self.attack_knob.add_to_grid_layout(self.layout, 0)
+        self.decay_knob.add_to_grid_layout(self.layout, 1)
+        self.sustain_knob.add_to_grid_layout(self.layout, 2)
+        self.release_knob.add_to_grid_layout(self.layout, 3)
 
 class pydaw_filter_widget:
     def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict, a_cutoff_port, a_res_port, a_type_port=None, a_label="Filter"):
@@ -334,8 +326,8 @@ class pydaw_lfo_widget:
         10, 1600, 200, kc_decimal, a_port_dict)
         self.freq_knob.add_to_grid_layout(self.layout, 0)
         self.type_combobox = pydaw_combobox_control(150, "Type", a_type_port, a_rel_callback, a_val_callback, a_type_list, a_port_dict)
-        self.layout.addWidget(self.type_combobox.name_label, 2, 0)
-        self.layout.addWidget(self.type_combobox.control, 2, 1)
+        self.layout.addWidget(self.type_combobox.name_label, 0, 1)
+        self.layout.addWidget(self.type_combobox.control, 1, 1)
 
 class pydaw_osc_widget:
     def __init__(self, a_size, a_pitch_port, a_fine_port, a_vol_port, a_type_port, a_osc_types_list, \
@@ -350,20 +342,11 @@ class pydaw_osc_widget:
         self.grid_layout = QtGui.QGridLayout()
         self.group_box = QtGui.QGroupBox(str(a_label))
         self.group_box.setLayout(self.grid_layout)
-        self.grid_layout.addWidget(self.pitch_knob.name_label, 0, 0)
-        self.grid_layout.addWidget(self.pitch_knob.control, 0, 1)
-        self.grid_layout.addWidget(self.pitch_knob.value_label, 0, 2)
-
-        self.grid_layout.addWidget(self.fine_knob.name_label, 1, 0)
-        self.grid_layout.addWidget(self.fine_knob.control, 1, 1)
-        self.grid_layout.addWidget(self.fine_knob.value_label, 1, 2)
-
-        self.grid_layout.addWidget(self.vol_knob.name_label, 2, 0)
-        self.grid_layout.addWidget(self.vol_knob.control, 2, 1)
-        self.grid_layout.addWidget(self.vol_knob.value_label, 2, 2)
-
-        self.grid_layout.addWidget(self.osc_type_combobox.name_label, 3, 0)
-        self.grid_layout.addWidget(self.osc_type_combobox.control, 3, 1)
+        self.pitch_knob.add_to_grid_layout(self.grid_layout, 0)
+        self.fine_knob.add_to_grid_layout(self.grid_layout, 1)
+        self.vol_knob.add_to_grid_layout(self.grid_layout, 2)
+        self.grid_layout.addWidget(self.osc_type_combobox.name_label, 0, 3)
+        self.grid_layout.addWidget(self.osc_type_combobox.control, 1, 3)
 
 class pydaw_note_selector_widget:
     def __init__(self, a_port, a_rel_callback, a_val_callback, a_port_dict=None):
@@ -401,7 +384,7 @@ class pydaw_note_selector_widget:
 
 
 class pydaw_preset_manager_widget:
-    def __init__(self, a_plugin_name,  a_default_presets, a_port_num, a_rel_callback, a_val_callback, a_port_dict=None):
+    def __init__(self, a_plugin_name,  a_default_presets):
         if os.path.isdir("/media/pydaw_data") and os.path.isdir("/home/ubuntu"):
             self.preset_path = "/media/pydaw_data/pydaw3/" + str(a_plugin_name) + ".pypresets"
         else:
@@ -413,16 +396,19 @@ class pydaw_preset_manager_widget:
         self.program_combobox.currentIndexChanged.connect(self.index_changed)
         self.group_box = QtGui.QGroupBox()
         self.group_box.setLayout(self.layout)
-        self.layout.addWidget(self.program_combobox.control)
+        self.layout.addWidget(self.program_combobox)
         self.save_button = QtGui.QPushButton("Save")
         self.save_button.pressed.connect(self.save_presets)
         self.layout.addWidget(self.save_button)
         self.presets_tab_delimited = []
         self.controls = []
-        self.load_presets()
+        self.load_presets(a_default_presets)
 
-    def load_presets(self):
-        f_text = pydaw_util.pydaw_read_file_text(self.preset_path)
+    def load_presets(self, a_text=None):
+        if a_text is not None:
+            f_text = str(a_text)
+        else:
+            f_text = pydaw_util.pydaw_read_file_text(self.preset_path)
         f_line_arr = f_text.split("\n")
         self.presets_tab_delimited = []
         for f_i in range(128):
@@ -987,12 +973,18 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, a_close_callback):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, a_close_callback)
+        self.folder = str(a_folder)
+        self.file = str(self.track_num) + ".pyinst"
+        self.track_name = str(a_track_name)
+        self.widget.setWindowTitle("PyDAW Ray-V - " + self.track_name)
+        self.is_instrument = True
 
         f_osc_types = ["Saw" , "Square" , "Triangle" , "Sine" , "Off"]
         f_lfo_types = ["Off" , "Sine" , "Triangle"]
         f_default_presets = ("empty\nclassic 5th pad\t68\t95\t-8\t153\t90\t-15\t15\t94\t100\t4\t166\t-19\t36\t1\t0\t0\t0\t0\t0\t7\t0\t0\t-14\t5\t42\t1\t18\t38\t0\t10\t0\t0\t0\t0\t0\n303 acid lead\t41\t58\t-9\t47\t70\t0\t36\t37\t95\t1\t99\t-30\t36\t100\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t1\t10\t1\t18\t1\t0\t10\t0\t0\t0\t0\t0\nhoover\t39\t53\t-9\t45\t124\t-16\t15\t12\t29\t1\t99\t-12\t0\t1\t0\t0\t0\t0\t4\t0\t0\t0\t-8\t4\t42\t1\t18\t73\t-26\t10\t0\t0\t0\t0\t0\nbendy saw\t10\t49\t-3\t16\t124\t-16\t15\t100\t100\t1\t162\t-60\t0\t1\t0\t0\t0\t0\t4\t0\t0\t0\t-16\t1\t42\t54\t36\t1\t0\t10\t0\t0\t0\t0\t0\nsupersaw lead\t10\t49\t-3\t61\t124\t-15\t36\t10\t33\t1\t162\t-12\t0\t1\t0\t0\t0\t-6\t4\t0\t0\t0\t-16\t5\t41\t1\t17\t1\t0\t10\t0\t0\t0\t0\t0\n3rd Plucks\t10\t49\t-20\t124\t90\t-9\t36\t10\t29\t1\t73\t-12\t36\t1\t0\t0\t0\t-6\t0\t5\t0\t0\t-16\t5\t50\t1\t17\t1\t0\t10\t0\t0\t0\t0\t0\nsquare lead\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-12\t36\t1\t1\t0\t0\t-6\t4\t0\t0\t0\t-16\t4\t50\t1\t17\t1\t0\t0\t0\t0\t0\t0\t0\ntriangle kick drum\t3\t49\t-12\t60\t124\t-9\t36\t1\t21\t1\t73\t-37\t36\t1\t2\t0\t0\t-6\t4\t0\t0\t0\t-5\t4\t50\t1\t17\t8\t-24\t0\t0\t0\t0\t0\t0\nnoise snare\t10\t51\t-30\t14\t99\t-6\t36\t21\t38\t1\t73\t-3\t36\t100\t4\t0\t0\t-6\t4\t0\t0\t0\t-18\t4\t50\t1\t17\t17\t-24\t10\t0\t0\t0\t0\t0\nelectro open hihat\t39\t49\t-30\t14\t95\t-3\t36\t36\t43\t1\t73\t-3\t36\t100\t4\t0\t0\t-6\t4\t0\t0\t0\t-18\t4\t50\t1\t17\t17\t-24\t10\t0\t0\t0\t0\t0\nSynchronize Me\t10\t32\t0\t57\t124\t-15\t15\t32\t32\t75\t57\t-60\t0\t99\t3\t0\t0\t0\t4\t0\t0\t0\t-6\t1\t50\t0\t18\t100\t-12\t205\t0\t0\t0\t0\t1\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty")
-        m_program =  pydaw_preset_manager_widget("RAYV", f_default_presets)
-        m_main_layout = QtGui.QVBoxLayout(self.widget)
+        m_program =  pydaw_preset_manager_widget("LMS_RAYV", f_default_presets)
+        m_main_layout = QtGui.QVBoxLayout()
+        self.layout.addLayout(m_main_layout)
         self.hlayout0 = QtGui.QHBoxLayout()
         m_main_layout.addLayout(self.hlayout0)
         self.hlayout0.addWidget(m_program.group_box)
@@ -1033,7 +1025,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         m_main_layout.addLayout(self.hlayout2)
         m_osc2 =  pydaw_osc_widget(64, pydaw_ports.RAYV_OSC2_PITCH, pydaw_ports.RAYV_OSC2_TUNE, pydaw_ports.RAYV_OSC2_VOLUME, pydaw_ports.RAYV_OSC2_TYPE, \
         f_osc_types, self.plugin_rel_callback, self.plugin_val_callback, "Oscillator 2", self.port_dict)
-        m_main_layout.lms_add_widget(m_osc2.group_box)
+        self.hlayout2.addWidget(m_osc2.group_box)
         m_sync_groupbox =  QtGui.QGroupBox("Sync")
         self.hlayout2.addWidget(m_sync_groupbox)
         self.sync_gridlayout = QtGui.QGridLayout(m_sync_groupbox)
@@ -1049,7 +1041,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hlayout2.addWidget(m_filter.groupbox)
         m_filter_env_amt =  pydaw_knob_control(64, "Env Amt", pydaw_ports.RAYV_FILTER_ENV_AMT, self.plugin_rel_callback, self.plugin_val_callback, \
         -36, 36, 0, kc_integer, self.port_dict)
-        m_filter_env_amt.add_to_grid_layout(m_filter.layout)
+        m_filter_env_amt.add_to_grid_layout(m_filter.layout, 2)
         self.hlayout3 = QtGui.QHBoxLayout()
         m_main_layout.addLayout(self.hlayout3)
         m_master =  pydaw_master_widget(64, self.plugin_rel_callback, self.plugin_val_callback, pydaw_ports.RAYV_MASTER_VOLUME, \
@@ -1071,7 +1063,11 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         m_lfo_pitch.add_to_grid_layout(m_lfo.layout, 3)
         m_lfo_cutoff =  pydaw_knob_control(64, "Filter", pydaw_ports.RAYV_LFO_FILTER, self.plugin_rel_callback, self.plugin_val_callback, \
         -48, 48, 0, kc_integer, self.port_dict)
-        m_lfo.lms_groupbox.lms_add_h(m_lfo_cutoff)
+        m_lfo_cutoff.add_to_grid_layout(m_lfo.layout, 4)
+
+        self.hlayout1.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.hlayout2.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        self.hlayout3.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         """Add the knobs to the preset module"""
         m_program.add_control(m_adsr_amp.attack_knob)
