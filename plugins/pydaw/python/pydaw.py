@@ -5600,10 +5600,13 @@ global_open_inst_ui_dict = {}
 
 def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
     global global_open_fx_ui_dicts
-    f_modulex = pydaw_widgets.pydaw_modulex_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
-    this_pydaw_project, a_folder, a_track_type, a_title, this_main_window.styleSheet(), global_fx_closed_callback)
-    f_modulex.widget.show()
-    global_open_fx_ui_dicts[a_track_type][a_track_num] = f_modulex
+    if not a_track_num in global_open_fx_ui_dicts[a_track_type]:
+        f_modulex = pydaw_widgets.pydaw_modulex_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
+        this_pydaw_project, a_folder, a_track_type, a_title, this_main_window.styleSheet(), global_fx_closed_callback)
+        f_modulex.widget.show()
+        global_open_fx_ui_dicts[a_track_type][a_track_num] = f_modulex
+    else:
+        global_open_fx_ui_dicts[a_track_type][a_track_num].widget.raise_()
     print(str(global_open_fx_ui_dicts))
 
 def global_fx_closed_callback(a_track_num, a_track_type):
