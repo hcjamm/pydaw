@@ -5620,6 +5620,13 @@ def global_open_inst_ui(a_track_num, a_folder, a_track_type, a_title):
 def global_inst_closed_callback(a_track_num, a_track_type=None):
     pass
 
+def global_close_all_plugin_windows():
+    for f_dict in global_open_fx_ui_dicts:
+        for v in f_dict.values():
+            v.widget.close()
+    for v in global_open_inst_ui_dict.values():
+        v.widget.close()
+
 class pydaw_main_window(QtGui.QMainWindow):
     def check_for_empty_directory(self, a_file):
         """ Return true if directory is empty, show error message and return False if not """
@@ -6156,8 +6163,10 @@ class pydaw_main_window(QtGui.QMainWindow):
             event.accept()
         elif f_reply == QtGui.QMessageBox.Cancel:
             event.ignore()
+            return
         else:
             event.accept()
+        global_close_all_plugin_windows()
 
 global_plugin_names = ["Euphoria", "Way-V", "Ray-V", "Modulex"]
 global_plugin_numbers = [1, 3, 2, -1]
@@ -6582,6 +6591,7 @@ def set_default_project(a_project_path):
     f_handle.close()
 
 def global_close_all():
+    global_close_all_plugin_windows()
     this_region_settings.clear_new()
     this_item_editor.clear_new()
     this_song_editor.table_widget.clearContents()
