@@ -214,14 +214,33 @@ class pydaw_doublespinbox_control(pydaw_abstract_ui_control):
 
 
 class pydaw_checkbox_control(pydaw_abstract_ui_control):
-    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, \
-    a_default_val, a_val_conversion=kc_none, a_port_dict=None):
-        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, a_port_dict)
+    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_port_dict=None):
+        pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_port_dict=a_port_dict)
         self.control = QtGui.QCheckBox()
         self.control.stateChanged.connect(self.control_value_changed)
         self.control.stateChanged.connect(self.control_released)
         self.value_label = None
-        self.set_value(a_default_val)
+        self.suppress_changes = False
+
+    def control_value_changed(self, a_val=None):
+        if not self.suppress_changes:
+            self.val_callback(self.port_num, self.get_value())
+
+    def control_released(self, a_val=None):
+        pass
+
+    def set_value(self, a_val):
+        f_val = int(a_val)
+        if f_val == 0:
+            self.control.setChecked(False)
+        else:
+            self.control.setChecked(True)
+
+    def get_value(self):
+        if self.control.isChecked():
+            return 1
+        else:
+            return 0
 
 
 class pydaw_combobox_control:
@@ -279,6 +298,22 @@ class pydaw_adsr_widget:
         self.layout.addWidget(self.release_knob.name_label, 3, 0)
         self.layout.addWidget(self.release_knob.control, 3, 1)
         self.layout.addWidget(self.release_knob.value_label, 3, 2)
+
+class pydaw_filter_widget:
+    def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict, a_cutoff_port, a_res_port, a_type_port=None, a_label="Filter"):
+        self.groupbox = QtGui.QGroupBox(str(a_label))
+        self.layout = QtGui.QGridLayout(self.groupbox)
+        self.cutoff_knob = pydaw_knob_control(a_size, "Cutoff", a_cutoff_port, a_rel_callback, a_val_callback, \
+        20, 124, 96, kc_pitch, a_port_dict)
+        self.cutoff_knob.add_to_grid_layout(self.layout, 0)
+        self.res_knob = pydaw_knob_control(a_size, "Res", a_res_port, a_rel_callback, a_val_callback, \
+        -30, 0, -12, kc_integer, a_port_dict)
+        self.res_knob.add_to_grid_layout(self.layout, 1)
+        if a_type_port is not None:
+            self.type_combobox = pydaw_combobox_control(150, "Type", a_type_port, a_rel_callback, a_val_callback, \
+            ["LP 2", "HP 2", "BP2", "LP 4", "HP 4", "BP4", "Off"], a_port_dict)
+            self.layout.addWidget(self.type_combobox.name_label, 2, 0)
+            self.layout.addWidget(self.type_combobox.control, 2, 1)
 
 class pydaw_osc_widget:
     def __init__(self, a_size, a_pitch_port, a_fine_port, a_vol_port, a_type_port, a_osc_types_list, \
@@ -960,19 +995,25 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         m_main_layout.lms_add_widget(m_osc2.group_box)
         m_sync_groupbox =  QtGui.QGroupBox("Sync")
         self.hlayout2.addWidget(m_sync_groupbox)
+        self.sync_gridlayout = QtGui.QGridLayout(m_sync_groupbox)
+        m_hard_sync =  pydaw_checkbox_control("On", pydaw_ports.RAYV_OSC_HARD_SYNC, self.plugin_rel_callback, self.plugin_val_callback, \
+        self.port_dict)
+        m_hard_sync.control.setToolTip(("Setting self hard sync's Osc1 to Osc2. Usually you would want to distort and pitchbend self."))
+        self.sync_gridlayout.addWidget(m_hard_sync.control, 1, 0)
+        m_adsr_filter =  pydaw_adsr_widget(64, False, pydaw_ports.RAYV_FILTER_ATTACK, pydaw_ports.RAYV_FILTER_DECAY, pydaw_ports.RAYV_FILTER_SUSTAIN, \
+        pydaw_ports.RAYV_FILTER_RELEASE, "ADSR Filter", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
+        self.hlayout2.addWidget(m_adsr_filter.groupbox)
+        m_filter =  pydaw_filter_widget(64, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, \
+        pydaw_ports.RAYV_TIMBRE, pydaw_ports.RAYV_RES)
+        self.hlayout2.addWidget(m_filter.groupbox)
+        m_filter_env_amt =  pydaw_knob_control(64, "Env Amt", pydaw_ports.RAYV_FILTER_ENV_AMT, self.plugin_rel_callback, self.plugin_val_callback, \
+        -36, 36, 0, kc_integer, self.port_dict)
+        m_filter_env_amt.add_to_grid_layout(m_filter.layout)
+        self.hlayout3 = QtGui.QHBoxLayout()
+        m_main_layout.addLayout(self.hlayout3)
 
         #LEFT OFF HERE
 
-        m_hard_sync =  LMS_checkbox(self, pydaw_ports.RAYV_OSC_HARD_SYNC, ("On"))
-        m_hard_sync.lms_checkbox.setToolTip(("Setting self hard sync's Osc1 to Osc2. Usually you would want to distort and pitchbend self."))
-        m_sync_groupbox.lms_add_h(m_hard_sync)
-        m_adsr_filter =  LMS_adsr_widget(self, False, pydaw_ports.RAYV_FILTER_ATTACK, pydaw_ports.RAYV_FILTER_DECAY, pydaw_ports.RAYV_FILTER_SUSTAIN, pydaw_ports.RAYV_FILTER_RELEASE, ("ADSR Filter"))
-        m_main_layout.lms_add_widget(m_adsr_filter.lms_groupbox_adsr.lms_groupbox)
-        m_filter =  LMS_filter_widget(self, pydaw_ports.RAYV_TIMBRE, pydaw_ports.RAYV_RES, -1, False)
-        m_main_layout.lms_add_widget(m_filter.lms_groupbox.lms_groupbox)
-        m_filter_env_amt =  pydaw_knob_control(("Env Amt"), -36, 36, 1, 0, ("0"), m_filter.lms_groupbox.lms_groupbox, kc_integer, pydaw_ports.RAYV_FILTER_ENV_AMT)
-        m_filter.lms_groupbox.lms_add_h(m_filter_env_amt)
-        m_main_layout.lms_add_layout()
         m_master =  LMS_master_widget(self, pydaw_ports.RAYV_MASTER_VOLUME, pydaw_ports.RAYV_MASTER_UNISON_VOICES,
         pydaw_ports.RAYV_MASTER_UNISON_SPREAD, pydaw_ports.RAYV_MASTER_GLIDE, pydaw_ports.RAYV_MASTER_PITCHBEND_AMT, ("Master"))
         m_main_layout.lms_add_widget(m_master.lms_groupbox.lms_groupbox)
