@@ -315,6 +315,28 @@ class pydaw_filter_widget:
             self.layout.addWidget(self.type_combobox.name_label, 2, 0)
             self.layout.addWidget(self.type_combobox.control, 2, 1)
 
+class pydaw_ramp_env_widget:
+    def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict, a_time_port, a_amt_port, a_label="Ramp Env"):
+        self.groupbox = QtGui.QGroupBox(str(a_label))
+        self.layout = QtGui.QGridLayout(self.groupbox)
+        self.amt_knob = pydaw_knob_control(a_size, "Amt", a_amt_port, a_rel_callback, a_val_callback, \
+        -36, 36, 0, kc_integer, a_port_dict)
+        self.amt_knob.add_to_grid_layout(self.layout, 0)
+        self.time_knob = pydaw_knob_control(a_size, "Time", a_time_port, a_rel_callback, a_val_callback, \
+        1, 200, 100, kc_decimal, a_port_dict)
+        self.time_knob.add_to_grid_layout(self.layout, 1)
+
+class pydaw_lfo_widget:
+    def __init__(self, a_size, a_rel_callback, a_val_callback, a_port_dict, a_freq_port, a_type_port, a_type_list, a_label="LFO"):
+        self.groupbox = QtGui.QGroupBox(str(a_label))
+        self.layout = QtGui.QGridLayout(self.groupbox)
+        self.freq_knob = pydaw_knob_control(a_size, "Freq", a_freq_port, a_rel_callback, a_val_callback, \
+        10, 1600, 200, kc_decimal, a_port_dict)
+        self.freq_knob.add_to_grid_layout(self.layout, 0)
+        self.type_combobox = pydaw_combobox_control(150, "Type", a_type_port, a_rel_callback, a_val_callback, a_type_list, a_port_dict)
+        self.layout.addWidget(self.type_combobox.name_label, 2, 0)
+        self.layout.addWidget(self.type_combobox.control, 2, 1)
+
 class pydaw_osc_widget:
     def __init__(self, a_size, a_pitch_port, a_fine_port, a_vol_port, a_type_port, a_osc_types_list, \
     a_rel_callback, a_val_callback, a_label, a_port_dict=None):
@@ -434,6 +456,27 @@ class pydaw_preset_manager_widget:
     def add_control(self, a_control):
         self.controls.append(a_control)
 
+class pydaw_master_widget:
+    def __init__(self, a_size, a_rel_callback, a_val_callback, a_master_vol_port, a_master_glide_port, a_master_pitchbend_port, \
+    a_port_dict, a_title="Master", a_master_uni_voices_port=None, a_master_uni_spread_port=None):
+        self.group_box = QtGui.QGroupBox()
+        self.group_box.setTitle(str(a_title))
+        self.layout = QtGui.QGridLayout(self.group_box)
+        self.vol_knob = pydaw_knob_control(a_size, "Vol", a_master_vol_port, a_rel_callback, a_val_callback, -60, 12, -6, kc_integer, a_port_dict)
+        self.vol_knob.add_to_grid_layout(self.layout, 0)
+        if a_master_uni_voices_port is not None and a_master_uni_spread_port is not None:
+            self.uni_voices_knob = pydaw_knob_control(a_size, "Unison", a_master_uni_voices_port, a_rel_callback, a_val_callback,\
+            1, 7, 1, kc_integer, a_port_dict)
+            self.uni_voices_knob.add_to_grid_layout(self.layout, 1)
+            self.uni_spread_knob = pydaw_knob_control(a_size, "Spraed", a_master_uni_spread_port, a_rel_callback, a_val_callback,\
+            10, 100, 50, kc_decimal, a_port_dict)
+            self.uni_spread_knob.add_to_grid_layout(self.layout, 2)
+        self.glide_knob = pydaw_knob_control(a_size, "Glide", a_master_glide_port, a_rel_callback, a_val_callback, 0, 200, 0, kc_decimal, a_port_dict)
+        self.glide_knob.add_to_grid_layout(self.layout, 3)
+        self.pb_knob = pydaw_knob_control(a_size, "Pitchbend", a_master_pitchbend_port, a_rel_callback, a_val_callback, -36, 36, 0, kc_integer, a_port_dict)
+        self.pb_knob.add_to_grid_layout(self.layout, 4)
+
+
 class pydaw_modulex_single:
     def __init__(self, a_title, a_port_k1, a_rel_callback, a_val_callback, a_port_dict=None):
         self.group_box = QtGui.QGroupBox()
@@ -444,9 +487,7 @@ class pydaw_modulex_single:
         self.knobs = []
         for f_i in range(3):
             f_knob = pydaw_knob_control(51, "", a_port_k1 + f_i, a_rel_callback, a_val_callback, 0, 127, 64, a_port_dict=a_port_dict)
-            self.layout.addWidget(f_knob.name_label, 0, f_i)
-            self.layout.addWidget(f_knob.control, 1, f_i)
-            self.layout.addWidget(f_knob.value_label, 2, f_i)
+            f_knob.add_to_grid_layout(self.layout, f_i)
             self.knobs.append(f_knob)
         self.combobox = pydaw_combobox_control(132, "Type", a_port_k1 + 3, a_rel_callback, a_val_callback,
                ["Off", "LP2" , "LP4", "HP2", "HP4", "BP2", "BP4" , "Notch2", "Notch4", "EQ" , "Distortion",
@@ -1011,60 +1052,63 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         m_filter_env_amt.add_to_grid_layout(m_filter.layout)
         self.hlayout3 = QtGui.QHBoxLayout()
         m_main_layout.addLayout(self.hlayout3)
+        m_master =  pydaw_master_widget(64, self.plugin_rel_callback, self.plugin_val_callback, pydaw_ports.RAYV_MASTER_VOLUME, \
+        pydaw_ports.RAYV_MASTER_GLIDE, pydaw_ports.RAYV_MASTER_PITCHBEND_AMT, self.port_dict, "Master", \
+        pydaw_ports.RAYV_MASTER_UNISON_VOICES,pydaw_ports.RAYV_MASTER_UNISON_SPREAD)
+        self.hlayout3.addWidget(m_master.group_box)
+        m_pitch_env =  pydaw_ramp_env_widget(64, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, \
+        pydaw_ports.RAYV_PITCH_ENV_TIME, pydaw_ports.RAYV_PITCH_ENV_AMT, "Pitch Env")
+        self.hlayout3.addWidget(m_pitch_env.groupbox)
+        m_lfo =  pydaw_lfo_widget(64, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, \
+        pydaw_ports.RAYV_LFO_FREQ, pydaw_ports.RAYV_LFO_TYPE, f_lfo_types, "LFO")
+        self.hlayout3.addWidget(m_lfo.groupbox)
 
-        #LEFT OFF HERE
-
-        m_master =  LMS_master_widget(self, pydaw_ports.RAYV_MASTER_VOLUME, pydaw_ports.RAYV_MASTER_UNISON_VOICES,
-        pydaw_ports.RAYV_MASTER_UNISON_SPREAD, pydaw_ports.RAYV_MASTER_GLIDE, pydaw_ports.RAYV_MASTER_PITCHBEND_AMT, ("Master"))
-        m_main_layout.lms_add_widget(m_master.lms_groupbox.lms_groupbox)
-        m_pitch_env =  LMS_ramp_env(self, pydaw_ports.RAYV_PITCH_ENV_TIME, pydaw_ports.RAYV_PITCH_ENV_AMT, -1, False, ("Pitch Env"), True)
-        m_main_layout.lms_add_widget(m_pitch_env.lms_groupbox.lms_groupbox)
-        m_lfo =  LMS_lfo_widget(self, pydaw_ports.RAYV_LFO_FREQ, pydaw_ports.RAYV_LFO_TYPE, f_lfo_types, ("LFO"))
-        m_lfo.lms_freq_knob.lms_knob.setRange(0, 1600)
-        m_main_layout.lms_add_widget(m_lfo.lms_groupbox.lms_groupbox)
-        m_lfo_amp =  pydaw_knob_control(("Amp"), -24, 24, 1, 0, ("0"), m_lfo.lms_groupbox.lms_groupbox, kc_integer, pydaw_ports.RAYV_LFO_AMP)
-        m_lfo.lms_groupbox.lms_add_h(m_lfo_amp)
-        m_lfo_pitch =  pydaw_knob_control(("Pitch"), -36, 36, 1, 0, ("0"), m_lfo.lms_groupbox.lms_groupbox, kc_integer, pydaw_ports.RAYV_LFO_PITCH)
-        m_lfo.lms_groupbox.lms_add_h(m_lfo_pitch)
-        m_lfo_cutoff =  pydaw_knob_control(("Filter"), -48, 48, 1, 0, ("0"), m_lfo.lms_groupbox.lms_groupbox, kc_integer, pydaw_ports.RAYV_LFO_FILTER)
+        m_lfo_amp =  pydaw_knob_control(64, "Amp", pydaw_ports.RAYV_LFO_AMP, self.plugin_rel_callback, self.plugin_val_callback, \
+        -24, 24, 0, kc_integer, self.port_dict)
+        m_lfo_amp.add_to_grid_layout(m_lfo.layout, 2)
+        m_lfo_pitch =  pydaw_knob_control(64, "Pitch", pydaw_ports.RAYV_LFO_PITCH, self.plugin_rel_callback, self.plugin_val_callback, \
+        -36, 36, 0, kc_integer, self.port_dict)
+        m_lfo_pitch.add_to_grid_layout(m_lfo.layout, 3)
+        m_lfo_cutoff =  pydaw_knob_control(64, "Filter", pydaw_ports.RAYV_LFO_FILTER, self.plugin_rel_callback, self.plugin_val_callback, \
+        -48, 48, 0, kc_integer, self.port_dict)
         m_lfo.lms_groupbox.lms_add_h(m_lfo_cutoff)
+
         """Add the knobs to the preset module"""
         m_program.add_control(m_adsr_amp.attack_knob)
         m_program.add_control(m_adsr_amp.decay_knob)
         m_program.add_control(m_adsr_amp.sustain_knob)
         m_program.add_control(m_adsr_amp.release_knob)
-        m_program.add_control(m_filter.lms_cutoff_knob)
-        m_program.add_control(m_filter.lms_res_knob)
+        m_program.add_control(m_filter.cutoff_knob)
+        m_program.add_control(m_filter.res_knob)
         m_program.add_control(m_dist)
-        m_program.add_control(m_adsr_filter.lms_attack)
-        m_program.add_control(m_adsr_filter.lms_decay)
-        m_program.add_control(m_adsr_filter.lms_sustain)
-        m_program.add_control(m_adsr_filter.lms_release)
+        m_program.add_control(m_adsr_filter.attack_knob)
+        m_program.add_control(m_adsr_filter.decay_knob)
+        m_program.add_control(m_adsr_filter.sustain_knob)
+        m_program.add_control(m_adsr_filter.release_knob)
         m_program.add_control(m_noise_amp)
         m_program.add_control(m_filter_env_amt)
         m_program.add_control(m_dist_wet)
-        m_program.add_control(m_osc1.lms_osc_type_box)
-        m_program.add_control(m_osc1.lms_pitch_knob)
-        m_program.add_control(m_osc1.lms_fine_knob)
-        m_program.add_control(m_osc1.lms_vol_knob)
-        m_program.add_control(m_osc2.lms_osc_type_box)
-        m_program.add_control(m_osc2.lms_pitch_knob)
-        m_program.add_control(m_osc2.lms_fine_knob)
-        m_program.add_control(m_osc2.lms_vol_knob)
-        m_program.add_control(m_master.lms_master_volume)
-        m_program.add_control(m_master.lms_master_unison_voices)
-        m_program.add_control(m_master.lms_master_unison_spread)
-        m_program.add_control(m_master.lms_master_glide)
-        m_program.add_control(m_master.lms_master_pitchbend_amt)
-        m_program.add_control(m_pitch_env.lms_time_knob)
-        m_program.add_control(m_pitch_env.lms_amt_knob)
-        m_program.add_control(m_lfo.lms_freq_knob)
-        m_program.add_control(m_lfo.lms_type_combobox)
+        m_program.add_control(m_osc1.osc_type_combobox)
+        m_program.add_control(m_osc1.pitch_knob)
+        m_program.add_control(m_osc1.fine_knob)
+        m_program.add_control(m_osc1.vol_knob)
+        m_program.add_control(m_osc2.osc_type_combobox)
+        m_program.add_control(m_osc2.pitch_knob)
+        m_program.add_control(m_osc2.fine_knob)
+        m_program.add_control(m_osc2.vol_knob)
+        m_program.add_control(m_master.vol_knob)
+        m_program.add_control(m_master.uni_voices_knob)
+        m_program.add_control(m_master.uni_spread_knob)
+        m_program.add_control(m_master.glide_knob)
+        m_program.add_control(m_master.pb_knob)
+        m_program.add_control(m_pitch_env.time_knob)
+        m_program.add_control(m_pitch_env.amt_knob)
+        m_program.add_control(m_lfo.freq_knob)
+        m_program.add_control(m_lfo.type_combobox)
         m_program.add_control(m_lfo_amp)
         m_program.add_control(m_lfo_pitch)
         m_program.add_control(m_lfo_cutoff)
         m_program.add_control(m_hard_sync)
-
 
         self.generate_control_dict()
         self.open_plugin_file()
