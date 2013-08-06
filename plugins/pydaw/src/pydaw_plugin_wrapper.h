@@ -138,11 +138,9 @@ typedef struct st_pydaw_plugin
     float **pluginInputBuffers, **pluginOutputBuffers;
 
     float *pluginControlIns, *pluginControlOuts;
-    int *pluginControlInPortNumbers;          /* maps global control in # to instance LADSPA port # */
+    int *pluginControlInPortNumbers;
     
     int * pluginPortUpdated;
-    /* Since there are no plans of allowing 3rd party DSSI plugins, the host will only remember known configure keys
-     that should be recalled by the UI*/
     char euphoria_load[16384];
     int euphoria_load_set;
     //char euphoria_last_dir[512];

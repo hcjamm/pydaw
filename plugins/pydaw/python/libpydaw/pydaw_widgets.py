@@ -41,10 +41,10 @@ class pydaw_plugin_file:
                     self.port_dict[int(f_items[0])] = float(f_items[1])
 
     @staticmethod
-    def from_dict(a_dict):
+    def from_dict(a_port_dict, a_control_dict):
         f_result = pydaw_plugin_file()
-        for k, v in a_dict.items():
-            f_result.port_dict[int(k)] = v
+        for k, v in a_port_dict.items():
+            f_result.port_dict[a_control_dict[int(k)]] = v
         return f_result
 
     def __str__(self):
@@ -687,6 +687,8 @@ class pydaw_abstract_plugin_ui:
         self.layout = QtGui.QVBoxLayout()
         self.widget.setLayout(self.layout)
         self.port_dict = {}
+        self.port_to_control_dict = {}
+        self.control_to_port_dict = {}
         self.effects = []
         self.close_callback = a_close_callback
 
@@ -695,12 +697,12 @@ class pydaw_abstract_plugin_ui:
         if os.path.isfile(f_file_path):
             f_file = pydaw_plugin_file(f_file_path)
             for k, v in f_file.port_dict.items():
-                self.set_control_val(k, v)
+                self.set_control_val(self.control_to_port_dict[int(k)], v)
         else:
             print("pydaw_abstract_plugin_ui.open_plugin_file(): + " + f_file_path + " did not exist, not loading.")
 
     def save_plugin_file(self):
-        f_file = pydaw_plugin_file.from_dict(self.port_dict)
+        f_file = pydaw_plugin_file.from_dict(self.port_dict, self.port_to_control_dict)
         self.pydaw_project.save_file(self.folder, self.file, str(f_file))
         self.pydaw_project.commit("Update controls for " + self.track_name)
 
@@ -721,6 +723,17 @@ class pydaw_abstract_plugin_ui:
             self.port_dict[int(a_port)].set_value(a_val)
         else:
             print("pydaw_abstract_plugin_ui.set_control_val():  Did not have port " + str(f_port))
+
+    def generate_control_dict(self):
+        """ Aligning the file save format to the same as the parts forked from DSSI.
+        TODO:  Change the file format and get rid of this at PyDAWv4"""
+        f_keys = list(self.port_dict.keys())
+        f_keys.sort()
+        f_index = 0
+        for f_key in f_keys:
+            self.port_to_control_dict[f_key] = f_index
+            self.control_to_port_dict[f_index] = f_key
+            f_index += 1
 
 
 class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
@@ -751,7 +764,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.delay_groupbox = QtGui.QGroupBox("Delay")
         self.delay_groupbox_layout = QtGui.QGridLayout(self.delay_groupbox)
 
-        f_port = 0
+        f_port = 4
         f_column = 0
         f_row = 0
         for f_i in range(8):
@@ -766,7 +779,7 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.volume_gridlayout = QtGui.QGridLayout()
         self.fx_hlayout.addLayout(self.volume_gridlayout)
-        self.volume_slider = pydaw_slider_control(QtCore.Qt.Vertical, "Vol", pydaw_ports.MODULEX_VOL_SLIDER -4, self.plugin_rel_callback, \
+        self.volume_slider = pydaw_slider_control(QtCore.Qt.Vertical, "Vol", pydaw_ports.MODULEX_VOL_SLIDER, self.plugin_rel_callback, \
         self.plugin_val_callback, -60, 24, 0, kc_integer, self.port_dict)
         self.volume_slider.add_to_grid_layout(self.volume_gridlayout, 0)
 
@@ -776,25 +789,25 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         delay_groupbox.setGeometry(0, 0, 10, 10)
         delay_gridlayout = QtGui.QGridLayout(delay_groupbox)
         self.delay_hlayout.addWidget(delay_groupbox)
-        self.delay_time_knob =  pydaw_knob_control(51, "Time", pydaw_ports.MODULEX_DELAY_TIME - 4, self.plugin_rel_callback, \
+        self.delay_time_knob =  pydaw_knob_control(51, "Time", pydaw_ports.MODULEX_DELAY_TIME, self.plugin_rel_callback, \
         self.plugin_val_callback, 10, 100, 50, kc_decimal, self.port_dict)
         self.delay_time_knob.add_to_grid_layout(delay_gridlayout, 0)
-        m_feedback =  pydaw_knob_control(51, "Feedbk", pydaw_ports.MODULEX_FEEDBACK - 4, self.plugin_rel_callback, \
+        m_feedback =  pydaw_knob_control(51, "Feedbk", pydaw_ports.MODULEX_FEEDBACK, self.plugin_rel_callback, \
         self.plugin_val_callback, -20, 0, -12, kc_integer, self.port_dict)
         m_feedback.add_to_grid_layout(delay_gridlayout, 1)
-        m_dry =  pydaw_knob_control(51, "Dry", pydaw_ports.MODULEX_DRY - 4, self.plugin_rel_callback, \
+        m_dry =  pydaw_knob_control(51, "Dry", pydaw_ports.MODULEX_DRY, self.plugin_rel_callback, \
         self.plugin_val_callback, -30, 0, 0, kc_integer, self.port_dict)
         m_dry.add_to_grid_layout(delay_gridlayout, 2)
-        m_wet =  pydaw_knob_control(51, "Wet", pydaw_ports.MODULEX_WET - 4, self.plugin_rel_callback, \
+        m_wet =  pydaw_knob_control(51, "Wet", pydaw_ports.MODULEX_WET, self.plugin_rel_callback, \
         self.plugin_val_callback, -30, 0, -30, kc_integer, self.port_dict)
         m_wet.add_to_grid_layout(delay_gridlayout, 3)
-        m_duck =  pydaw_knob_control(51, "Duck", pydaw_ports.MODULEX_DUCK - 4, self.plugin_rel_callback, \
+        m_duck =  pydaw_knob_control(51, "Duck", pydaw_ports.MODULEX_DUCK, self.plugin_rel_callback, \
         self.plugin_val_callback, -40, 0, 0, kc_integer, self.port_dict)
         m_duck.add_to_grid_layout(delay_gridlayout, 4)
-        m_cutoff =  pydaw_knob_control(51, "Cutoff", pydaw_ports.MODULEX_CUTOFF - 4, self.plugin_rel_callback, \
+        m_cutoff =  pydaw_knob_control(51, "Cutoff", pydaw_ports.MODULEX_CUTOFF, self.plugin_rel_callback, \
         self.plugin_val_callback, 20, 124, 66, kc_pitch, self.port_dict)
         m_cutoff.add_to_grid_layout(delay_gridlayout, 5)
-        m_stereo =  pydaw_knob_control(51, "Stereo", pydaw_ports.MODULEX_STEREO - 4, self.plugin_rel_callback, \
+        m_stereo =  pydaw_knob_control(51, "Stereo", pydaw_ports.MODULEX_STEREO, self.plugin_rel_callback, \
         self.plugin_val_callback, 0, 100, 100, kc_decimal, self.port_dict)
         m_stereo.add_to_grid_layout(delay_gridlayout, 6)
         self.bpm_groupbox =  QtGui.QGroupBox()
@@ -834,18 +847,20 @@ class pydaw_modulex_plugin_ui(pydaw_abstract_plugin_ui):
         self.delay_vlayout.addLayout(self.reverb_hlayout)
         self.reverb_hlayout.addWidget(reverb_groupbox)
         self.reverb_hlayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        m_reverb_time =  pydaw_knob_control(51, "Time", pydaw_ports.MODULEX_REVERB_TIME - 4, self.plugin_rel_callback, \
+        m_reverb_time =  pydaw_knob_control(51, "Time", pydaw_ports.MODULEX_REVERB_TIME, self.plugin_rel_callback, \
         self.plugin_val_callback, 0, 100, 50, kc_decimal, self.port_dict)
         m_reverb_time.add_to_grid_layout(self.reverb_groupbox_gridlayout, 0)
-        m_reverb_wet =  pydaw_knob_control(51, "Wet", pydaw_ports.MODULEX_REVERB_WET - 4, self.plugin_rel_callback, \
+        m_reverb_wet =  pydaw_knob_control(51, "Wet", pydaw_ports.MODULEX_REVERB_WET, self.plugin_rel_callback, \
         self.plugin_val_callback, 0, 100, 0, kc_decimal, self.port_dict)
         m_reverb_wet.add_to_grid_layout(self.reverb_groupbox_gridlayout, 1)
-        m_reverb_color =  pydaw_knob_control(51, "Color", pydaw_ports.MODULEX_REVERB_COLOR - 4, self.plugin_rel_callback, \
+        m_reverb_color =  pydaw_knob_control(51, "Color", pydaw_ports.MODULEX_REVERB_COLOR, self.plugin_rel_callback, \
         self.plugin_val_callback, 0, 100, 100, kc_decimal, self.port_dict)
         m_reverb_color.add_to_grid_layout(self.reverb_groupbox_gridlayout, 2)
         self.delay_spacer_layout = QtGui.QVBoxLayout()
         self.delay_vlayout.addLayout(self.delay_spacer_layout)
         self.delay_spacer_layout.addItem(QtGui.QSpacerItem(1, 1, vPolicy=QtGui.QSizePolicy.Expanding))
+
+        self.generate_control_dict()
         self.open_plugin_file()
 
     def bpmSyncPressed(self):

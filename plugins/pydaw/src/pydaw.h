@@ -775,7 +775,7 @@ inline void v_pydaw_fx_update_ports(t_pydaw_data * a_pydaw_data, t_pydaw_plugin 
 
             a_plugin->pluginPortUpdated[f_i] = 0;
             char a_value[256];
-            sprintf(a_value, "0|%i|%i|%i|%f", a_track_type, a_track_num, f_i, value);
+            sprintf(a_value, "0|%i|%i|%i|%f", a_track_type, a_track_num, port, value);
             lo_send(a_pydaw_data->uiTarget, "pydaw/ui_configure", "ss", "pc", a_value);            
         }
         f_i++;
@@ -5103,6 +5103,7 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
         int f_track_num = atoi(f_val_arr->array[2]);
         int f_port = atoi(f_val_arr->array[3]);
         float f_value = atof(f_val_arr->array[4]);
+        
         t_pydaw_plugin * f_instance;
         pthread_mutex_lock(&a_pydaw_data->main_mutex);
         //pthread_mutex_lock(&a_pydaw_data->track_pool[f_track_num]->mutex);
@@ -5125,8 +5126,10 @@ void v_pydaw_parse_configure_message(t_pydaw_data* a_pydaw_data, const char* a_k
                 f_instance = a_pydaw_data->audio_track_pool[f_track_num]->effect;
                 break;
         }
-        f_instance->pluginControlIns[f_port] = f_value;
-        f_instance->pluginPortUpdated[f_port] = 1;
+        
+        int f_control_in = f_instance->pluginPortControlInNumbers[f_port];        
+        f_instance->pluginControlIns[f_control_in] = f_value;
+        //f_instance->pluginPortUpdated[f_control_in] = 1;
         pthread_mutex_unlock(&a_pydaw_data->main_mutex);
         //pthread_mutex_unlock(&a_pydaw_data->track_pool[f_track_num]->mutex);
         g_free_1d_char_array(f_val_arr);
