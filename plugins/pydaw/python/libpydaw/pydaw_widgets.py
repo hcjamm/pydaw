@@ -411,12 +411,12 @@ class pydaw_preset_manager_widget:
         self.program_combobox.currentIndexChanged.connect(self.program_changed)
 
     def load_presets(self, a_text=None):
-        if a_text is not None:
-            print("loading presets from defaults")
-            f_text = str(a_text)
-        else:
+        if os.path.isfile(self.preset_path):
             print("loading presets from file")
             f_text = pydaw_util.pydaw_read_file_text(self.preset_path)
+        else:
+            print("loading presets from defaults")
+            f_text = str(a_text)
         f_line_arr = f_text.split("\n")
         print(str(len(f_line_arr)))
         self.presets_tab_delimited = []
