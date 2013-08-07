@@ -1111,3 +1111,345 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.generate_control_dict()
         self.open_plugin_file()
+
+
+
+class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
+    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, a_close_callback):
+        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, a_close_callback)
+        f_osc_types = [
+            "Off"
+            #Saw-like waves
+            , "Plain Saw" , "SuperbSaw" , "Viral Saw" , "Soft Saw" , "Mid Saw" , "Lush Saw"
+            #Square-like waves
+            , "Evil Square" , "Punchy Square" , "Soft Square"
+            #Glitchy and distorted waves
+            , "Pink Glitch" , "White Glitch" , "Acid" , "Screetch"
+            #Sine and triangle-like waves
+            , "Thick Bass" , "Rattler" , "Deep Saw" , "Sine"
+        ]
+        f_lfo_types = [ "Off" , "Sine" , "Triangle"]
+        f_default_presets = ("empty\nWaterfall Strings\t10\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t32\t0\t57\t407\t0\t-60\t0\t200\t1\t0\t0\t-9\t12\t12\t0\t-9\t-9\t0\t18\t0\t0\t63\t63\t63\t1\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t41\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t4\t50\t100\t0\t0\t0\t0\t10\t32\t0\t57\t0\t4\t50\t0\t49\t0\t0\t0\t0\t0\t0\t0\nJP Pad\t41\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t32\t0\t57\t35\t1\t-16\t1\t100\t2\t0\t0\t0\t0\t0\t0\t0\t-9\t0\t18\t0\t0\t63\t63\t63\t8\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t27\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t4\t50\t100\t0\t0\t0\t0\t10\t32\t0\t57\t0\t4\t50\t0\t0\t0\t0\t0\t0\t0\t0\t0\nCyborg Honeybee\t10\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t32\t0\t57\t407\t0\t-14\t1\t100\t17\t0\t0\t-10\t17\t0\t0\t-30\t-9\t45\t18\t0\t0\t63\t63\t127\t17\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t4\t50\t100\t6\t0\t0\t-7\t10\t32\t0\t57\t0\t4\t50\t0\t73\t0\t73\t0\t0\t43\t0\t0\nWeird FM Pluck\t41\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t37\t-30\t57\t35\t1\t-60\t1\t100\t17\t0\t0\t-6\t17\t0\t0\t0\t-9\t0\t18\t0\t1\t63\t63\t63\t8\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t27\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t0\t0\t0\t0\t10\t32\t0\t57\t0\t4\t50\t0\t52\t0\t27\t0\t0\t0\t0\t0\nSlow Thunder\t41\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t100\t-30\t57\t35\t0\t-60\t1\t200\t15\t0\t0\t-6\t15\t7\t0\t0\t-9\t0\t18\t0\t1\t123\t127\t0\t10\t102\t104\t63\t5\t63\t63\t63\t16\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t-52\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t3\t50\t1\t50\t100\t15\t12\t0\t-30\t100\t32\t0\t57\t1\t4\t50\t0\t19\t0\t27\t0\t20\t25\t16\t0\nAlien Talk\t41\t32\t0\t57\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t1\t-60\t1\t200\t6\t0\t0\t-6\t15\t-12\t0\t-8\t-9\t0\t18\t0\t1\t58\t127\t0\t15\t127\t104\t63\t1\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t21\t0\t0\t0\t0\t0\t53\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t1\t50\t100\t0\t12\t0\t-30\t100\t32\t0\t57\t0\t4\t50\t0\t19\t0\t0\t0\t0\t25\t16\t0\nThick FM Bass\t41\t32\t0\t57\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-60\t1\t200\t17\t0\t0\t-6\t17\t-12\t0\t-8\t-9\t0\t18\t0\t1\t58\t127\t0\t0\t127\t104\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t17\t12\t0\t-15\t100\t32\t0\t57\t0\t4\t50\t0\t19\t0\t0\t0\t0\t25\t16\t0\nDubstep Apocalypse\t41\t32\t0\t57\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-60\t1\t200\t17\t0\t0\t-6\t17\t-12\t0\t-8\t-19\t0\t18\t0\t1\t58\t64\t0\t16\t66\t90\t63\t11\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t-33\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t17\t12\t0\t-15\t100\t32\t0\t57\t0\t1\t50\t0\t39\t0\t0\t0\t0\t57\t44\t0\nSoft Pluck\t25\t32\t-9\t153\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-9\t1\t11\t6\t0\t0\t0\t0\t-12\t0\t-8\t-8\t0\t18\t0\t0\t58\t64\t0\t0\t124\t90\t63\t2\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t-59\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t1\t50\t100\t0\t12\t0\t-15\t100\t32\t0\t57\t0\t1\t50\t0\t0\t0\t0\t0\t0\t0\t0\t0\nThin Reese\t25\t32\t-9\t84\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-9\t1\t11\t3\t0\t0\t0\t16\t-12\t0\t0\t-8\t0\t18\t0\t0\t85\t64\t116\t9\t124\t90\t0\t10\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t0\t12\t0\t-15\t100\t32\t0\t57\t0\t1\t50\t0\t31\t0\t0\t0\t0\t0\t0\t0\nFM Percussion\t10\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t47\t-30\t57\t407\t0\t-60\t0\t100\t17\t0\t0\t0\t17\t6\t0\t-30\t-9\t0\t18\t0\t1\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t17\t12\t0\t-30\t10\t32\t-30\t57\t1\t1\t50\t0\t17\t0\t0\t0\t42\t0\t0\t0\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty")
+
+        self.tab_widget =  QtGui.QTabWidget(self)
+        self.window_layout =  QtGui.QVBoxLayout()
+        self.setLayout(self.window_layout)
+        self.window_layout.addWidget(self.tab_widget)
+        self.osc_tab =  QtGui.QWidget()
+        self.tab_widget.addTab(self.osc_tab, ("Oscillators"))
+        self.poly_fx_tab =  QtGui.QWidget()
+        self.tab_widget.addTab(self.poly_fx_tab, ("PolyFX"))
+        self.oscillator_layout =  LMS_main_layout(self.osc_tab)
+        self.program =  LMS_preset_manager((pydaw_ports.WAYV_PLUGIN_NAME), f_default_presets, -1,  self)
+        self.oscillator_layout.lms_add_widget(self.program.lms_group_box)
+
+        self.oscillator_layout.lms_add_spacer()
+
+        self.oscillator_layout.lms_add_layout()
+        self.osc1 =  LMS_oscillator_widget( self, ("Oscillator 1") , pydaw_ports.WAYV_OSC1_PITCH, pydaw_ports.WAYV_OSC1_TUNE, pydaw_ports.WAYV_OSC1_VOLUME, pydaw_ports.WAYV_OSC1_TYPE, f_osc_types)
+        self.osc1.lms_vol_knob.lms_knob.setMinimum(-30)
+        self.osc1_uni_voices =  pydaw_knob_control(("Unison"), 1, 7, 1, 30, (""), self.osc1.lms_groupbox.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC1_UNISON_VOICES)
+        self.osc1.lms_groupbox.lms_add_h(self.osc1_uni_voices)
+
+        self.osc1_uni_spread =  pydaw_knob_control(("Spread"), 0, 100, 1, 30, (""), self.osc1.lms_groupbox.lms_groupbox,  lms_kc_decimal, pydaw_ports.WAYV_OSC1_UNISON_SPREAD)
+        self.osc1.lms_groupbox.lms_add_h(self.osc1_uni_spread)
+
+        self.oscillator_layout.lms_add_widget(self.osc1.lms_groupbox.lms_groupbox)
+
+        self.adsr_amp1 =  LMS_adsr_widget(self,  True, pydaw_ports.WAYV_ATTACK1, pydaw_ports.WAYV_DECAY1, pydaw_ports.WAYV_SUSTAIN1, pydaw_ports.WAYV_RELEASE1, ("ADSR Osc1"))
+        self.adsr_amp1.lms_sustain.lms_knob.setMinimum(-30)
+        self.oscillator_layout.lms_add_widget(self.adsr_amp1.lms_groupbox_adsr.lms_groupbox)
+
+        self.adsr_amp1_checkbox =  LMS_checkbox(self,  pydaw_ports.WAYV_ADSR1_CHECKBOX, ("On"))
+
+        self.adsr_amp1.lms_groupbox_adsr.lms_add_h(self.adsr_amp1_checkbox)
+        self.groupbox_osc1_fm =  LMS_group_box(self, ("Osc1 FM"), f_info)
+        self.osc1_fm1 =  pydaw_knob_control(("Osc1"), 0, 100, 1, 0, (""), self.groupbox_osc1_fm.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC1_FM1)
+        self.groupbox_osc1_fm.lms_add_h(self.osc1_fm1)
+
+        self.osc1_fm2 =  pydaw_knob_control(("Osc2"), 0, 100, 1, 0, (""), self.groupbox_osc1_fm.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC1_FM2)
+        self.groupbox_osc1_fm.lms_add_h(self.osc1_fm2)
+
+        self.osc1_fm3 =  pydaw_knob_control(("Osc3"), 0, 100, 1, 0, (""), self.groupbox_osc1_fm.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC1_FM3)
+        self.groupbox_osc1_fm.lms_add_h(self.osc1_fm3)
+
+        self.oscillator_layout.lms_add_widget(self.groupbox_osc1_fm.lms_groupbox)
+        self.oscillator_layout.lms_add_spacer()
+        self.oscillator_layout.lms_add_layout()
+        self.osc2 =  LMS_oscillator_widget( self, ("Oscillator 2"), pydaw_ports.WAYV_OSC2_PITCH, pydaw_ports.WAYV_OSC2_TUNE, pydaw_ports.WAYV_OSC2_VOLUME, pydaw_ports.WAYV_OSC2_TYPE, f_osc_types)
+        self.osc2.lms_vol_knob.lms_knob.setMinimum(-30)
+        self.osc2_uni_voices =  pydaw_knob_control(("Unison"), 1, 7, 1, 30, (""), self.osc1.lms_groupbox.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC2_UNISON_VOICES)
+        self.osc2.lms_groupbox.lms_add_h(self.osc2_uni_voices)
+
+        self.osc2_uni_spread =  pydaw_knob_control(("Spread"), 0, 100, 1, 30, (""), self.osc1.lms_groupbox.lms_groupbox,  lms_kc_decimal, pydaw_ports.WAYV_OSC2_UNISON_SPREAD)
+        self.osc2.lms_groupbox.lms_add_h(self.osc2_uni_spread)
+
+        self.oscillator_layout.lms_add_widget(self.osc2.lms_groupbox.lms_groupbox)
+
+        self.adsr_amp2 =  LMS_adsr_widget(self,  True, pydaw_ports.WAYV_ATTACK2, pydaw_ports.WAYV_DECAY2, pydaw_ports.WAYV_SUSTAIN2, pydaw_ports.WAYV_RELEASE2, ("ADSR Osc2"))
+        self.adsr_amp2.lms_sustain.lms_knob.setMinimum(-30)
+        self.oscillator_layout.lms_add_widget(self.adsr_amp2.lms_groupbox_adsr.lms_groupbox)
+
+        self.adsr_amp2_checkbox =  LMS_checkbox(self,  pydaw_ports.WAYV_ADSR2_CHECKBOX, ("On"))
+
+        self.adsr_amp2.lms_groupbox_adsr.lms_add_h(self.adsr_amp2_checkbox)
+        self.groupbox_osc2_fm =  LMS_group_box(self, ("Osc2 FM"), f_info)
+        self.osc2_fm1 =  pydaw_knob_control(("Osc1"), 0, 100, 1, 0, (""), self.groupbox_osc2_fm.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC2_FM1)
+        self.groupbox_osc2_fm.lms_add_h(self.osc2_fm1)
+
+        self.osc2_fm2 =  pydaw_knob_control(("Osc2"), 0, 100, 1, 0, (""), self.groupbox_osc2_fm.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC2_FM2)
+        self.groupbox_osc2_fm.lms_add_h(self.osc2_fm2)
+
+        self.osc2_fm3 =  pydaw_knob_control(("Osc3"), 0, 100, 1, 0, (""), self.groupbox_osc2_fm.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC2_FM3)
+        self.groupbox_osc2_fm.lms_add_h(self.osc2_fm3)
+
+        self.oscillator_layout.lms_add_widget(self.groupbox_osc2_fm.lms_groupbox)
+        self.oscillator_layout.lms_add_spacer()
+        self.oscillator_layout.lms_add_layout()
+        self.osc3 =  LMS_oscillator_widget( self, ("Oscillator 3"), pydaw_ports.WAYV_OSC3_PITCH, pydaw_ports.WAYV_OSC3_TUNE, pydaw_ports.WAYV_OSC3_VOLUME, pydaw_ports.WAYV_OSC3_TYPE, f_osc_types)
+        self.osc3.lms_vol_knob.lms_knob.setMinimum(-30)
+        self.osc3_uni_voices =  pydaw_knob_control(("Unison"), 1, 7, 1, 30, (""), self.osc3.lms_groupbox.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC3_UNISON_VOICES)
+        self.osc3.lms_groupbox.lms_add_h(self.osc3_uni_voices)
+
+        self.osc3_uni_spread =  pydaw_knob_control(("Spread"), 0, 100, 1, 30, (""), self.osc3.lms_groupbox.lms_groupbox,  lms_kc_decimal, pydaw_ports.WAYV_OSC3_UNISON_SPREAD)
+        self.osc3.lms_groupbox.lms_add_h(self.osc3_uni_spread)
+
+        self.oscillator_layout.lms_add_widget(self.osc3.lms_groupbox.lms_groupbox)
+
+        self.adsr_amp3 =  LMS_adsr_widget(self,  True, pydaw_ports.WAYV_ATTACK3, pydaw_ports.WAYV_DECAY3, pydaw_ports.WAYV_SUSTAIN3, pydaw_ports.WAYV_RELEASE3, ("ADSR Osc3"))
+        self.adsr_amp3.lms_sustain.lms_knob.setMinimum(-30)
+        self.oscillator_layout.lms_add_widget(self.adsr_amp3.lms_groupbox_adsr.lms_groupbox)
+
+        self.adsr_amp3_checkbox =  LMS_checkbox(self,  pydaw_ports.WAYV_ADSR3_CHECKBOX, ("On"))
+
+        self.adsr_amp3.lms_groupbox_adsr.lms_add_h(self.adsr_amp3_checkbox)
+        self.groupbox_osc3_fm =  LMS_group_box(self, ("Osc3 FM"), f_info)
+        self.osc3_fm1 =  pydaw_knob_control(("Osc1"), 0, 100, 1, 0, (""), self.groupbox_osc3_fm.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC3_FM1)
+        self.groupbox_osc3_fm.lms_add_h(self.osc3_fm1)
+
+        self.osc3_fm2 =  pydaw_knob_control(("Osc2"), 0, 100, 1, 0, (""), self.groupbox_osc3_fm.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC3_FM2)
+        self.groupbox_osc3_fm.lms_add_h(self.osc3_fm2)
+
+        self.osc3_fm3 =  pydaw_knob_control(("Osc3"), 0, 100, 1, 0, (""), self.groupbox_osc3_fm.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_OSC3_FM3)
+        self.groupbox_osc3_fm.lms_add_h(self.osc3_fm3)
+
+        self.oscillator_layout.lms_add_widget(self.groupbox_osc3_fm.lms_groupbox)
+        self.oscillator_layout.lms_add_spacer()
+        self.oscillator_layout.lms_add_layout()
+        self.master =  LMS_master_widget(self,  pydaw_ports.WAYV_MASTER_VOLUME, -1,
+        -1, pydaw_ports.WAYV_MASTER_GLIDE, pydaw_ports.WAYV_MASTER_PITCHBEND_AMT, ("Master"), False)
+        self.master.lms_master_volume.lms_knob.setMinimum(-30)
+        self.oscillator_layout.lms_add_widget(self.master.lms_groupbox.lms_groupbox)
+
+        self.adsr_amp_main =  LMS_adsr_widget(self,  True, pydaw_ports.WAYV_ATTACK_MAIN, pydaw_ports.WAYV_DECAY_MAIN, pydaw_ports.WAYV_SUSTAIN_MAIN, pydaw_ports.WAYV_RELEASE_MAIN, ("ADSR Master"))
+        self.adsr_amp_main.lms_sustain.lms_knob.setMinimum(-30)
+        self.oscillator_layout.lms_add_widget(self.adsr_amp_main.lms_groupbox_adsr.lms_groupbox)
+
+        self.groupbox_noise =  LMS_group_box(self, ("Noise"), f_info)
+        self.oscillator_layout.lms_add_widget(self.groupbox_noise.lms_groupbox)
+        self.noise_amp =  pydaw_knob_control(("Vol"), -60, 0, 1, 30, (""), self.groupbox_noise.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_NOISE_AMP)
+        self.groupbox_noise.lms_add_h(self.noise_amp)
+
+        self.noise_type =  LMS_combobox(("Type"), self, List() , ("Off") , ("White") , ("Pink"), LMS_NOISE_TYPE, f_info)
+        self.noise_type.lms_combobox.setMinimumWidth(87)
+        self.groupbox_noise.lms_add_h(self.noise_type)
+
+        self.oscillator_layout.lms_add_spacer()
+        self.oscillator_layout.lms_add_layout()
+        self.oscillator_layout.lms_add_vertical_spacer()
+        self.main_layout =  LMS_main_layout(self.poly_fx_tab)
+        #From Modulex
+        self.fx0 =  pydaw_modulex_single(self, ("FX0"),  pydaw_ports.WAYV_FX0_KNOB0, pydaw_ports.WAYV_FX0_KNOB1, pydaw_ports.WAYV_FX0_KNOB2, pydaw_ports.WAYV_FX0_COMBOBOX)
+
+        self.main_layout.lms_add_widget(self.fx0.lms_groupbox.lms_groupbox)
+        self.fx1 =  pydaw_modulex_single(self, ("FX1"),  pydaw_ports.WAYV_FX1_KNOB0, pydaw_ports.WAYV_FX1_KNOB1, pydaw_ports.WAYV_FX1_KNOB2, pydaw_ports.WAYV_FX1_COMBOBOX)
+
+        self.main_layout.lms_add_widget(self.fx1.lms_groupbox.lms_groupbox)
+        self.main_layout.lms_add_layout()
+        self.fx2 =  pydaw_modulex_single(self, ("FX2"),  pydaw_ports.WAYV_FX2_KNOB0, pydaw_ports.WAYV_FX2_KNOB1, pydaw_ports.WAYV_FX2_KNOB2, pydaw_ports.WAYV_FX2_COMBOBOX)
+
+        self.main_layout.lms_add_widget(self.fx2.lms_groupbox.lms_groupbox)
+        self.fx3 =  pydaw_modulex_single(self, ("FX3"),  pydaw_ports.WAYV_FX3_KNOB0, pydaw_ports.WAYV_FX3_KNOB1, pydaw_ports.WAYV_FX3_KNOB2, pydaw_ports.WAYV_FX3_COMBOBOX)
+
+        self.main_layout.lms_add_widget(self.fx3.lms_groupbox.lms_groupbox)
+        self.main_layout.lms_add_layout()
+        #New mod matrix
+        f_mod_matrix_columns = [
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX0\nCtrl1"), -100, 100, 0),
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX0\nCtrl2"), -100, 100, 0),
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX0\nCtrl3"), -100, 100, 0),
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX1\nCtrl1"), -100, 100, 0),
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX1\nCtrl2"), -100, 100, 0),
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX1\nCtrl3"), -100, 100, 0),
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX2\nCtrl1"), -100, 100, 0),
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX2\nCtrl2"), -100, 100, 0),
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX2\nCtrl3"), -100, 100, 0),
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX3\nCtrl1"), -100, 100, 0),
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX3\nCtrl2"), -100, 100, 0),
+            f_mod_matrix_columns ,  LMS_mod_matrix_column(spinbox, ("FX3\nCtrl3"), -100, 100, 0),
+        ]
+        self.polyfx_mod_matrix[0] =  LMS_mod_matrix(self, WAYV_MODULATOR_COUNT, f_mod_matrix_columns, WAVV_PFXMATRIX_FIRST_PORT, f_info)
+        self.polyfx_mod_matrix[0].lms_mod_matrix.setMinimumHeight(165)
+        self.polyfx_mod_matrix[0].lms_mod_matrix.setMaximumHeight(165)
+        self.polyfx_mod_matrix[0].lms_mod_matrix.setVerticalHeaderLabels(List() , ("ADSR 1") , ("ADSR 2") , ("Ramp Env") , ("LFO"))
+        self.main_layout.lms_add_widget(self.polyfx_mod_matrix[0].lms_mod_matrix)
+        self.polyfx_mod_matrix[0].lms_mod_matrix.resizeColumnsToContents()
+        self.main_layout.lms_add_layout()
+
+        self.adsr_amp =  LMS_adsr_widget(self,  True, pydaw_ports.WAYV_ATTACK_PFX1, pydaw_ports.WAYV_DECAY_PFX1, pydaw_ports.WAYV_SUSTAIN_PFX1, pydaw_ports.WAYV_RELEASE_PFX1, ("ADSR 1"))
+        self.adsr_amp.lms_release.lms_knob.setMinimum(5) #overriding the default for self, because we want a low minimum default that won't click
+        self.adsr_amp.lms_sustain.lms_knob.setMinimum(-30)
+        self.main_layout.lms_add_widget(self.adsr_amp.lms_groupbox_adsr.lms_groupbox)
+
+        self.adsr_filter =  LMS_adsr_widget(self,  False, pydaw_ports.WAYV_ATTACK_PFX2, pydaw_ports.WAYV_DECAY_PFX2, pydaw_ports.WAYV_SUSTAIN_PFX2, pydaw_ports.WAYV_RELEASE_PFX2, ("ADSR 2"))
+        self.main_layout.lms_add_widget(self.adsr_filter.lms_groupbox_adsr.lms_groupbox)
+
+        self.pitch_env =  LMS_ramp_env(self,  pydaw_ports.WAYV_RAMP_ENV_TIME, pydaw_ports.WAYV_PITCH_ENV_AMT, -1, False, ("Ramp Env"), True)
+        self.pitch_env.lms_amt_knob.lms_label.setText(("Pitch"))
+        self.main_layout.lms_add_widget(self.pitch_env.lms_groupbox.lms_groupbox)
+
+        self.lfo =  LMS_lfo_widget(self,  pydaw_ports.WAYV_LFO_FREQ, pydaw_ports.WAYV_LFO_TYPE, f_lfo_types, ("LFO"))
+        self.main_layout.lms_add_widget(self.lfo.lms_groupbox.lms_groupbox)
+        #Overriding the default so we can have a faster LFO
+        self.lfo.lms_freq_knob.lms_knob.setMaximum(1600)
+        self.lfo_amount =  pydaw_knob_control(("Amount"), 0, 100, 1, 0, ("0"), self.lfo.lms_groupbox.lms_groupbox,  lms_kc_decimal, pydaw_ports.WAYV_LFO_AMOUNT)
+        self.lfo.lms_groupbox.lms_add_h(self.lfo_amount)
+
+        self.lfo_amp =  pydaw_knob_control(("Amp"), -24, 24, 1, 0, ("0"), self.lfo.lms_groupbox.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_LFO_AMP)
+        self.lfo.lms_groupbox.lms_add_h(self.lfo_amp)
+
+        self.lfo_pitch =  pydaw_knob_control(("Pitch"), -36, 36, 1, 0, ("0"), self.lfo.lms_groupbox.lms_groupbox,  lms_kc_integer, pydaw_ports.WAYV_LFO_PITCH)
+        self.lfo.lms_groupbox.lms_add_h(self.lfo_pitch)
+
+        """Add the knobs to the preset module"""
+        self.program.lms_add_control(self.adsr_amp_main.lms_attack)
+        self.program.lms_add_control(self.adsr_amp_main.lms_decay)
+        self.program.lms_add_control(self.adsr_amp_main.lms_sustain)
+        self.program.lms_add_control(self.adsr_amp_main.lms_release)
+        self.program.lms_add_control(self.adsr_amp.lms_attack)
+        self.program.lms_add_control(self.adsr_amp.lms_decay)
+        self.program.lms_add_control(self.adsr_amp.lms_sustain)
+        self.program.lms_add_control(self.adsr_amp.lms_release)
+        self.program.lms_add_control(self.adsr_filter.lms_attack)
+        self.program.lms_add_control(self.adsr_filter.lms_decay)
+        self.program.lms_add_control(self.adsr_filter.lms_sustain)
+        self.program.lms_add_control(self.adsr_filter.lms_release)
+        self.program.lms_add_control(self.adsr_amp1.lms_attack)
+        self.program.lms_add_control(self.adsr_amp1.lms_decay)
+        self.program.lms_add_control(self.adsr_amp1.lms_sustain)
+        self.program.lms_add_control(self.adsr_amp1.lms_release)
+        self.program.lms_add_control(self.adsr_amp2.lms_attack)
+        self.program.lms_add_control(self.adsr_amp2.lms_decay)
+        self.program.lms_add_control(self.adsr_amp2.lms_sustain)
+        self.program.lms_add_control(self.adsr_amp2.lms_release)
+        self.program.lms_add_control(self.lfo.lms_freq_knob)
+        self.program.lms_add_control(self.lfo.lms_type_combobox)
+        self.program.lms_add_control(self.noise_amp)
+        self.program.lms_add_control(self.noise_type)
+        self.program.lms_add_control(self.pitch_env.lms_time_knob)
+        self.program.lms_add_control(self.osc1.lms_osc_type_box)
+        self.program.lms_add_control(self.osc1.lms_pitch_knob)
+        self.program.lms_add_control(self.osc1.lms_fine_knob)
+        self.program.lms_add_control(self.osc1.lms_vol_knob)
+        self.program.lms_add_control(self.osc2.lms_osc_type_box)
+        self.program.lms_add_control(self.osc2.lms_pitch_knob)
+        self.program.lms_add_control(self.osc2.lms_fine_knob)
+        self.program.lms_add_control(self.osc2.lms_vol_knob)
+        self.program.lms_add_control(self.master.lms_master_volume)
+        self.program.lms_add_control(self.master.lms_master_glide)
+        self.program.lms_add_control(self.master.lms_master_pitchbend_amt)
+        self.program.lms_add_control(self.adsr_amp1_checkbox)
+        self.program.lms_add_control(self.adsr_amp2_checkbox)
+        self.program.lms_add_control(self.fx0.lms_knob1)
+        self.program.lms_add_control(self.fx0.lms_knob2)
+        self.program.lms_add_control(self.fx0.lms_knob3)
+        self.program.lms_add_control(self.fx0.lms_combobox)
+        self.program.lms_add_control(self.fx1.lms_knob1)
+        self.program.lms_add_control(self.fx1.lms_knob2)
+        self.program.lms_add_control(self.fx1.lms_knob3)
+        self.program.lms_add_control(self.fx1.lms_combobox)
+        self.program.lms_add_control(self.fx2.lms_knob1)
+        self.program.lms_add_control(self.fx2.lms_knob2)
+        self.program.lms_add_control(self.fx2.lms_knob3)
+        self.program.lms_add_control(self.fx2.lms_combobox)
+        self.program.lms_add_control(self.fx3.lms_knob1)
+        self.program.lms_add_control(self.fx3.lms_knob2)
+        self.program.lms_add_control(self.fx3.lms_knob3)
+        self.program.lms_add_control(self.fx3.lms_combobox)
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[0].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[1].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[2].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[0].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[1].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[2].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[0].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[1].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[2].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[0].controls[3])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[1].controls[3])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[2].controls[3])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[3].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[4].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[5].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[3].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[4].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[5].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[3].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[4].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[5].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[3].controls[3])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[4].controls[3])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[5].controls[3])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[6].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[7].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[8].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[6].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[7].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[8].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[6].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[7].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[8].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[6].controls[3])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[7].controls[3])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[8].controls[3])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[9].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[10].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[11].controls[0])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[9].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[10].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[11].controls[1])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[9].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[10].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[11].controls[2])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[9].controls[3])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[10].controls[3])
+        self.program.lms_add_control(self.polyfx_mod_matrix[0].lms_mself.columns[11].controls[3])
+        self.program.lms_add_control(self.lfo_amp)
+        self.program.lms_add_control(self.lfo_pitch)
+        self.program.lms_add_control(self.pitch_env.lms_amt_knob)
+        self.program.lms_add_control(self.osc1_uni_voices)
+        self.program.lms_add_control(self.osc1_uni_spread)
+        self.program.lms_add_control(self.osc2_uni_voices)
+        self.program.lms_add_control(self.osc2_uni_spread)
+        self.program.lms_add_control(self.lfo_amount)
+        self.program.lms_add_control(self.osc3.lms_osc_type_box)
+        self.program.lms_add_control(self.osc3.lms_pitch_knob)
+        self.program.lms_add_control(self.osc3.lms_fine_knob)
+        self.program.lms_add_control(self.osc3.lms_vol_knob)
+        self.program.lms_add_control(self.adsr_amp3.lms_attack)
+        self.program.lms_add_control(self.adsr_amp3.lms_decay)
+        self.program.lms_add_control(self.adsr_amp3.lms_sustain)
+        self.program.lms_add_control(self.adsr_amp3.lms_release)
+        self.program.lms_add_control(self.adsr_amp3_checkbox)
+        self.program.lms_add_control(self.osc3_uni_voices)
+        self.program.lms_add_control(self.osc3_uni_spread)
+        self.program.lms_add_control(self.osc1_fm1)
+        self.program.lms_add_control(self.osc1_fm2)
+        self.program.lms_add_control(self.osc1_fm3)
+        self.program.lms_add_control(self.osc2_fm1)
+        self.program.lms_add_control(self.osc2_fm2)
+        self.program.lms_add_control(self.osc2_fm3)
+        self.program.lms_add_control(self.osc3_fm1)
+        self.program.lms_add_control(self.osc3_fm2)
+        self.program.lms_add_control(self.osc3_fm3)
+
