@@ -54,10 +54,9 @@ class pydaw_plugin_file:
         return f_result + "\\"
 
 class pydaw_pixmap_knob(QtGui.QDial):
-    def __init__(self, a_size, a_min_val, a_max_val, a_default_val):
+    def __init__(self, a_size, a_min_val, a_max_val):
         QtGui.QDial.__init__(self)
         self.setRange(a_min_val, a_max_val)
-        self.setValue(a_default_val)
         self.setGeometry(0, 0, a_size, a_size)
         self.set_pixmap_knob(a_size)
         self.setFixedSize(a_size, a_size)
@@ -174,11 +173,12 @@ class pydaw_knob_control(pydaw_abstract_ui_control):
     def __init__(self, a_size, a_label, a_port_num, a_rel_callback, a_val_callback, a_min_val, a_max_val, \
     a_default_val, a_val_conversion=kc_none, a_port_dict=None):
         pydaw_abstract_ui_control.__init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion, a_port_dict)
-        self.control = pydaw_pixmap_knob(a_size, a_min_val, a_max_val, a_default_val)
+        self.control = pydaw_pixmap_knob(a_size, a_min_val, a_max_val)
         self.control.valueChanged.connect(self.control_value_changed)
         self.control.sliderReleased.connect(self.control_released)
         self.value_label = QtGui.QLabel("")
         self.value_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.set_value(a_default_val)
 
 
 class pydaw_slider_control(pydaw_abstract_ui_control):
@@ -1026,7 +1026,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.noise_layout = QtGui.QGridLayout(self.groupbox_noise)
         self.hlayout1.addWidget(self.groupbox_noise)
         self.noise_amp =  pydaw_knob_control(64, "Vol", pydaw_ports.RAYV_NOISE_AMP, self.plugin_rel_callback, self.plugin_val_callback, \
-        -60, 0, 30, kc_integer, self.port_dict)
+        -60, 0, -30, kc_integer, self.port_dict)
         self.noise_amp.add_to_grid_layout(self.noise_layout, 0)
         self.hlayout2 = QtGui.QHBoxLayout()
         self.main_layout.addLayout(self.hlayout2)
@@ -1039,7 +1039,7 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.hard_sync =  pydaw_checkbox_control("On", pydaw_ports.RAYV_OSC_HARD_SYNC, self.plugin_rel_callback, self.plugin_val_callback, \
         self.port_dict)
         self.hard_sync.control.setToolTip(("Setting self hard sync's Osc1 to Osc2. Usually you would want to distort and pitchbend self."))
-        self.sync_gridlayout.addWidget(self.hard_sync.control, 1, 0)
+        self.sync_gridlayout.addWidget(self.hard_sync.control, 1, 0, QtCore.Qt.AlignCenter)
         self.adsr_filter =  pydaw_adsr_widget(64, False, pydaw_ports.RAYV_FILTER_ATTACK, pydaw_ports.RAYV_FILTER_DECAY, pydaw_ports.RAYV_FILTER_SUSTAIN, \
         pydaw_ports.RAYV_FILTER_RELEASE, "ADSR Filter", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
         self.hlayout2.addWidget(self.adsr_filter.groupbox)
