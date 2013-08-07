@@ -1118,9 +1118,15 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
 
 
 
-class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
+class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
     def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, a_close_callback):
         pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, a_close_callback)
+        self.folder = str(a_folder)
+        self.file = str(self.track_num) + ".pyinst"
+        self.track_name = str(a_track_name)
+        self.widget.setWindowTitle("PyDAW Ray-V - " + self.track_name)
+        self.is_instrument = True
+
         f_osc_types = [
             "Off"
             #Saw-like waves
@@ -1134,11 +1140,8 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
         ]
         f_lfo_types = [ "Off" , "Sine" , "Triangle"]
         f_default_presets = ("empty\nWaterfall Strings\t10\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t32\t0\t57\t407\t0\t-60\t0\t200\t1\t0\t0\t-9\t12\t12\t0\t-9\t-9\t0\t18\t0\t0\t63\t63\t63\t1\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t41\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t4\t50\t100\t0\t0\t0\t0\t10\t32\t0\t57\t0\t4\t50\t0\t49\t0\t0\t0\t0\t0\t0\t0\nJP Pad\t41\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t32\t0\t57\t35\t1\t-16\t1\t100\t2\t0\t0\t0\t0\t0\t0\t0\t-9\t0\t18\t0\t0\t63\t63\t63\t8\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t27\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t4\t50\t100\t0\t0\t0\t0\t10\t32\t0\t57\t0\t4\t50\t0\t0\t0\t0\t0\t0\t0\t0\t0\nCyborg Honeybee\t10\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t32\t0\t57\t407\t0\t-14\t1\t100\t17\t0\t0\t-10\t17\t0\t0\t-30\t-9\t45\t18\t0\t0\t63\t63\t127\t17\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t4\t50\t100\t6\t0\t0\t-7\t10\t32\t0\t57\t0\t4\t50\t0\t73\t0\t73\t0\t0\t43\t0\t0\nWeird FM Pluck\t41\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t37\t-30\t57\t35\t1\t-60\t1\t100\t17\t0\t0\t-6\t17\t0\t0\t0\t-9\t0\t18\t0\t1\t63\t63\t63\t8\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t27\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t0\t0\t0\t0\t10\t32\t0\t57\t0\t4\t50\t0\t52\t0\t27\t0\t0\t0\t0\t0\nSlow Thunder\t41\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t100\t-30\t57\t35\t0\t-60\t1\t200\t15\t0\t0\t-6\t15\t7\t0\t0\t-9\t0\t18\t0\t1\t123\t127\t0\t10\t102\t104\t63\t5\t63\t63\t63\t16\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t-52\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t3\t50\t1\t50\t100\t15\t12\t0\t-30\t100\t32\t0\t57\t1\t4\t50\t0\t19\t0\t27\t0\t20\t25\t16\t0\nAlien Talk\t41\t32\t0\t57\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t1\t-60\t1\t200\t6\t0\t0\t-6\t15\t-12\t0\t-8\t-9\t0\t18\t0\t1\t58\t127\t0\t15\t127\t104\t63\t1\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t21\t0\t0\t0\t0\t0\t53\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t1\t50\t100\t0\t12\t0\t-30\t100\t32\t0\t57\t0\t4\t50\t0\t19\t0\t0\t0\t0\t25\t16\t0\nThick FM Bass\t41\t32\t0\t57\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-60\t1\t200\t17\t0\t0\t-6\t17\t-12\t0\t-8\t-9\t0\t18\t0\t1\t58\t127\t0\t0\t127\t104\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t17\t12\t0\t-15\t100\t32\t0\t57\t0\t4\t50\t0\t19\t0\t0\t0\t0\t25\t16\t0\nDubstep Apocalypse\t41\t32\t0\t57\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-60\t1\t200\t17\t0\t0\t-6\t17\t-12\t0\t-8\t-19\t0\t18\t0\t1\t58\t64\t0\t16\t66\t90\t63\t11\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t-33\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t17\t12\t0\t-15\t100\t32\t0\t57\t0\t1\t50\t0\t39\t0\t0\t0\t0\t57\t44\t0\nSoft Pluck\t25\t32\t-9\t153\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-9\t1\t11\t6\t0\t0\t0\t0\t-12\t0\t-8\t-8\t0\t18\t0\t0\t58\t64\t0\t0\t124\t90\t63\t2\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t-59\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t4\t50\t1\t50\t100\t0\t12\t0\t-15\t100\t32\t0\t57\t0\t1\t50\t0\t0\t0\t0\t0\t0\t0\t0\t0\nThin Reese\t25\t32\t-9\t84\t10\t55\t0\t57\t12\t37\t0\t57\t10\t32\t0\t57\t10\t23\t-11\t57\t249\t0\t-9\t1\t11\t3\t0\t0\t0\t16\t-12\t0\t0\t-8\t0\t18\t0\t0\t85\t64\t116\t9\t124\t90\t0\t10\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t0\t12\t0\t-15\t100\t32\t0\t57\t0\t1\t50\t0\t31\t0\t0\t0\t0\t0\t0\t0\nFM Percussion\t10\t32\t0\t57\t10\t55\t0\t57\t32\t55\t75\t57\t10\t32\t0\t57\t10\t47\t-30\t57\t407\t0\t-60\t0\t100\t17\t0\t0\t0\t17\t6\t0\t-30\t-9\t0\t18\t0\t1\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t63\t63\t63\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1\t50\t1\t50\t100\t17\t12\t0\t-30\t10\t32\t-30\t57\t1\t1\t50\t0\t17\t0\t0\t0\t42\t0\t0\t0\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty\nempty")
-
-        self.tab_widget =  QtGui.QTabWidget(self)
-        self.window_layout =  QtGui.QVBoxLayout()
-        self.widget.setLayout(self.window_layout)
-        self.window_layout.addWidget(self.tab_widget)
+        self.tab_widget =  QtGui.QTabWidget()
+        self.layout.addWidget(self.tab_widget)
         self.osc_tab =  QtGui.QWidget()
         self.tab_widget.addTab(self.osc_tab, ("Oscillators"))
         self.poly_fx_tab =  QtGui.QWidget()
@@ -1156,20 +1159,20 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
         pydaw_ports.WAYV_OSC1_TYPE, f_osc_types, self.plugin_rel_callback, self.plugin_val_callback, "Oscillator 1", self.port_dict)
         self.osc1_uni_voices =  pydaw_knob_control(51, "Unison", pydaw_ports.WAYV_OSC1_UNISON_VOICES, self.plugin_rel_callback, self.plugin_val_callback, \
         1, 7, 4, kc_integer, self.port_dict)
-        self.osc1_uni_voices.add_to_grid_layout(self.osc1.grid_layout)
+        self.osc1_uni_voices.add_to_grid_layout(self.osc1.grid_layout, 4)
         self.osc1_uni_spread =  pydaw_knob_control(51, "Spread", pydaw_ports.WAYV_OSC1_UNISON_SPREAD, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 30, kc_decimal, self.port_dict)
-        self.osc1_uni_spread.add_to_grid_layout(self.osc1.grid_layout)
+        self.osc1_uni_spread.add_to_grid_layout(self.osc1.grid_layout, 5)
 
         self.hlayout1.addWidget(self.osc1.group_box)
 
         self.adsr_amp1 =  pydaw_adsr_widget(51,  True, pydaw_ports.WAYV_ATTACK1, pydaw_ports.WAYV_DECAY1, pydaw_ports.WAYV_SUSTAIN1, \
         pydaw_ports.WAYV_RELEASE1, "ADSR Osc1", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
-        self.hlayout1.addWidget(self.adsr_amp1.lms_groupbox_adsr.lms_groupbox)
+        self.hlayout1.addWidget(self.adsr_amp1.groupbox)
 
         self.adsr_amp1_checkbox =  pydaw_checkbox_control("On", pydaw_ports.WAYV_ADSR1_CHECKBOX, self.plugin_rel_callback, self.plugin_val_callback, \
         self.port_dict)
-        self.adsr_amp1_checkbox.add_to_grid_layout(self.adsr_amp1.layout)
+        self.adsr_amp1_checkbox.add_to_grid_layout(self.adsr_amp1.layout, 4)
 
         self.groupbox_osc1_fm =  QtGui.QGroupBox("Osc1 FM")
         self.groupbox_osc1_fm_layout = QtGui.QGridLayout(self.groupbox_osc1_fm)
@@ -1180,11 +1183,11 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
 
         self.osc1_fm2 =  pydaw_knob_control(51, "Osc2", pydaw_ports.WAYV_OSC1_FM2, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_integer, self.port_dict)
-        self.osc1_fm2.add_to_grid_layout(self.groupbox_osc1_fm_layout, 0)
+        self.osc1_fm2.add_to_grid_layout(self.groupbox_osc1_fm_layout, 1)
 
         self.osc1_fm3 =  pydaw_knob_control(51, "Osc3", pydaw_ports.WAYV_OSC1_FM3, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_integer, self.port_dict)
-        self.osc1_fm3.add_to_grid_layout(self.groupbox_osc1_fm_layout, 0)
+        self.osc1_fm3.add_to_grid_layout(self.groupbox_osc1_fm_layout, 2)
 
         self.hlayout1.addWidget(self.groupbox_osc1_fm)
         self.hlayout1.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
@@ -1196,20 +1199,20 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
         pydaw_ports.WAYV_OSC2_TYPE, f_osc_types, self.plugin_rel_callback, self.plugin_val_callback, "Oscillator 2", self.port_dict)
         self.osc2_uni_voices =  pydaw_knob_control(51, "Unison", pydaw_ports.WAYV_OSC2_UNISON_VOICES, self.plugin_rel_callback, self.plugin_val_callback, \
         1, 7, 4, kc_integer, self.port_dict)
-        self.osc2_uni_voices.add_to_grid_layout(self.osc2.grid_layout)
+        self.osc2_uni_voices.add_to_grid_layout(self.osc2.grid_layout, 4)
         self.osc2_uni_spread =  pydaw_knob_control(51, "Spread", pydaw_ports.WAYV_OSC2_UNISON_SPREAD, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 30, kc_decimal, self.port_dict)
-        self.osc2_uni_spread.add_to_grid_layout(self.osc2.grid_layout)
+        self.osc2_uni_spread.add_to_grid_layout(self.osc2.grid_layout, 5)
 
         self.hlayout2.addWidget(self.osc2.group_box)
 
         self.adsr_amp2 =  pydaw_adsr_widget(51,  True, pydaw_ports.WAYV_ATTACK2, pydaw_ports.WAYV_DECAY2, pydaw_ports.WAYV_SUSTAIN2, \
         pydaw_ports.WAYV_RELEASE2, "ADSR Osc2", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
-        self.hlayout2.addWidget(self.adsr_amp2.lms_groupbox_adsr.lms_groupbox)
+        self.hlayout2.addWidget(self.adsr_amp2.groupbox)
 
         self.adsr_amp2_checkbox =  pydaw_checkbox_control("On", pydaw_ports.WAYV_ADSR2_CHECKBOX, self.plugin_rel_callback, self.plugin_val_callback, \
         self.port_dict)
-        self.adsr_amp2_checkbox.add_to_grid_layout(self.adsr_amp2.layout)
+        self.adsr_amp2_checkbox.add_to_grid_layout(self.adsr_amp2.layout, 4)
 
         self.groupbox_osc2_fm =  QtGui.QGroupBox("Osc2 FM")
         self.groupbox_osc2_fm_layout = QtGui.QGridLayout(self.groupbox_osc2_fm)
@@ -1220,11 +1223,11 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
 
         self.osc2_fm2 =  pydaw_knob_control(51, "Osc2", pydaw_ports.WAYV_OSC2_FM2, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_integer, self.port_dict)
-        self.osc2_fm2.add_to_grid_layout(self.groupbox_osc2_fm_layout, 0)
+        self.osc2_fm2.add_to_grid_layout(self.groupbox_osc2_fm_layout, 1)
 
         self.osc2_fm3 =  pydaw_knob_control(51, "Osc3", pydaw_ports.WAYV_OSC2_FM3, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_integer, self.port_dict)
-        self.osc2_fm3.add_to_grid_layout(self.groupbox_osc2_fm_layout, 0)
+        self.osc2_fm3.add_to_grid_layout(self.groupbox_osc2_fm_layout, 2)
 
         self.hlayout2.addWidget(self.groupbox_osc2_fm)
         self.hlayout2.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
@@ -1236,20 +1239,20 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
         pydaw_ports.WAYV_OSC3_TYPE, f_osc_types, self.plugin_rel_callback, self.plugin_val_callback, "Oscillator 3", self.port_dict)
         self.osc3_uni_voices =  pydaw_knob_control(51, "Unison", pydaw_ports.WAYV_OSC3_UNISON_VOICES, self.plugin_rel_callback, self.plugin_val_callback, \
         1, 7, 4, kc_integer, self.port_dict)
-        self.osc3_uni_voices.add_to_grid_layout(self.osc3.grid_layout)
+        self.osc3_uni_voices.add_to_grid_layout(self.osc3.grid_layout, 4)
         self.osc3_uni_spread =  pydaw_knob_control(51, "Spread", pydaw_ports.WAYV_OSC3_UNISON_SPREAD, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 30, kc_decimal, self.port_dict)
-        self.osc3_uni_spread.add_to_grid_layout(self.osc3.grid_layout)
+        self.osc3_uni_spread.add_to_grid_layout(self.osc3.grid_layout, 5)
 
         self.hlayout3.addWidget(self.osc3.group_box)
 
         self.adsr_amp3 =  pydaw_adsr_widget(51,  True, pydaw_ports.WAYV_ATTACK3, pydaw_ports.WAYV_DECAY3, pydaw_ports.WAYV_SUSTAIN3, \
         pydaw_ports.WAYV_RELEASE3, "ADSR Osc3", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
-        self.hlayout3.addWidget(self.adsr_amp3.lms_groupbox_adsr.lms_groupbox)
+        self.hlayout3.addWidget(self.adsr_amp3.groupbox)
 
         self.adsr_amp3_checkbox =  pydaw_checkbox_control("On", pydaw_ports.WAYV_ADSR3_CHECKBOX, self.plugin_rel_callback, self.plugin_val_callback, \
         self.port_dict)
-        self.adsr_amp3_checkbox.add_to_grid_layout(self.adsr_amp3.layout)
+        self.adsr_amp3_checkbox.add_to_grid_layout(self.adsr_amp3.layout, 4)
 
         self.groupbox_osc3_fm =  QtGui.QGroupBox("Osc3 FM")
         self.groupbox_osc3_fm_layout = QtGui.QGridLayout(self.groupbox_osc3_fm)
@@ -1260,11 +1263,11 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
 
         self.osc3_fm2 =  pydaw_knob_control(51, "Osc2", pydaw_ports.WAYV_OSC3_FM2, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_integer, self.port_dict)
-        self.osc3_fm2.add_to_grid_layout(self.groupbox_osc3_fm_layout, 0)
+        self.osc3_fm2.add_to_grid_layout(self.groupbox_osc3_fm_layout, 1)
 
         self.osc3_fm3 =  pydaw_knob_control(51, "Osc3", pydaw_ports.WAYV_OSC3_FM3, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_integer, self.port_dict)
-        self.osc3_fm3.add_to_grid_layout(self.groupbox_osc3_fm_layout, 0)
+        self.osc3_fm3.add_to_grid_layout(self.groupbox_osc3_fm_layout, 2)
 
         self.hlayout3.addWidget(self.groupbox_osc3_fm)
         self.hlayout3.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
@@ -1275,7 +1278,7 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
         self.master =  pydaw_master_widget(51,  self.plugin_rel_callback, self.plugin_val_callback, pydaw_ports.WAYV_MASTER_VOLUME, \
         pydaw_ports.WAYV_MASTER_GLIDE, pydaw_ports.WAYV_MASTER_PITCHBEND_AMT, self.port_dict)
 
-        self.hlayout4.addWidget(self.master.lms_groupbox.lms_groupbox)
+        self.hlayout4.addWidget(self.master.group_box)
 
         self.adsr_amp_main =  pydaw_adsr_widget(51, True, pydaw_ports.WAYV_ATTACK_MAIN, pydaw_ports.WAYV_DECAY_MAIN, \
         pydaw_ports.WAYV_SUSTAIN_MAIN, pydaw_ports.WAYV_RELEASE_MAIN, "ADSR Master", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict )
@@ -1284,13 +1287,13 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
         self.groupbox_noise =  QtGui.QGroupBox("Noise")
         self.groupbox_noise_layout = QtGui.QGridLayout(self.groupbox_noise)
         self.hlayout4.addWidget(self.groupbox_noise)
-        self.noise_amp =  pydaw_knob_control(51, "Vol", pydaw_ports.WAYV_NOISE_AMP, self.plugin_rel_callback, self.plugin_val_callback \
-        -60, 0, 30, kc_integer, self.port_dict)
-        self.noise_amp.add_to_grid_layout(self.groupbox_noise_layout)
+        self.noise_amp =  pydaw_knob_control(51, "Vol", pydaw_ports.WAYV_NOISE_AMP, self.plugin_rel_callback, self.plugin_val_callback, \
+        -60, 0, -30, kc_integer, self.port_dict)
+        self.noise_amp.add_to_grid_layout(self.groupbox_noise_layout, 0)
 
-        self.noise_type =  pydaw_combobox_control(87, "Type", pydaw_ports.LMS_NOISE_TYPE, self.plugin_rel_callback, self.plugin_val_callback \
+        self.noise_type =  pydaw_combobox_control(87, "Type", pydaw_ports.LMS_NOISE_TYPE, self.plugin_rel_callback, self.plugin_val_callback, \
         ["Off", "White", "Pink"], self.port_dict)
-        self.noise_type.add_to_grid_layout(self.groupbox_noise_layout)
+        self.noise_type.add_to_grid_layout(self.groupbox_noise_layout, 1)
 
         self.main_layout =  QtGui.QVBoxLayout(self.poly_fx_tab)
         self.hlayout5 = QtGui.QHBoxLayout()
@@ -1308,6 +1311,8 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
         self.hlayout6.addWidget(self.fx3.group_box)
 
         self.mod_matrix = QtGui.QTableWidget()
+        self.mod_matrix.setRowCount(4)
+        self.mod_matrix.setColumnCount(12)
         #self.polyfx_mod_matrix[0].lms_mod_matrix.setMinimumHeight(165)
         #self.polyfx_mod_matrix[0].lms_mod_matrix.setMaximumHeight(165)
         self.mod_matrix.setHorizontalHeaderLabels(["FX0\nCtrl1", "FX0\nCtrl2", "FX0\nCtrl3", "FX1\nCtrl1", "FX1\nCtrl2", "FX1\nCtrl3", "FX2\nCtrl1",
@@ -1321,7 +1326,7 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
                     f_ctrl = pydaw_spinbox_control(None, f_port_num, self.rel_callback, self.val_callback, -100, 100, 0, kc_none, self.port_dict)
                     self.program.add_control(f_ctrl)
                     f_x = (f_i_dst * 3) + f_i_ctrl
-                    self.mod_matrix.setCellWidget(f_ctrl.control, f_i_src, f_x)
+                    self.mod_matrix.setCellWidget(f_i_src, f_x, f_ctrl.control)
                     f_port_num += 1
 
         self.main_layout.addWidget(self.mod_matrix)
@@ -1350,15 +1355,15 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
 
         self.lfo_amount =  pydaw_knob_control(51, "Amount", pydaw_ports.WAYV_LFO_AMOUNT, self.rel_callback, self.val_callback, \
         0, 100, 0, kc_decimal, self.port_dict)
-        self.lfo_amount.add_to_grid_layout(self.lfo.layout)
+        self.lfo_amount.add_to_grid_layout(self.lfo.layout, 2)
 
         self.lfo_amp =  pydaw_knob_control(51, "Amp", pydaw_ports.WAYV_LFO_AMP, self.rel_callback, self.val_callback, \
         -24, 24, 0, kc_integer, self.port_dict)
-        self.lfo_amp.add_to_grid_layout(self.lfo.layout)
+        self.lfo_amp.add_to_grid_layout(self.lfo.layout, 3)
 
         self.lfo_pitch =  pydaw_knob_control(51, "Pitch", pydaw_ports.WAYV_LFO_PITCH, self.rel_callback, self.val_callback, \
         -36, 36, 0,  kc_integer, self.port_dict)
-        self.lfo_pitch.add_to_grid_layout(self.lfo.layout)
+        self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 4)
 
         #Add the knobs to the preset module
         self.program.add_control(self.adsr_amp_main.attack_knob)
@@ -1370,68 +1375,68 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
         self.program.add_control(self.adsr_amp.sustain_knob)
         self.program.add_control(self.adsr_amp.release_knob)
         self.program.add_control(self.adsr_filter.attack_knob)
-        self.program.add_control(self.adsr_filter.lms_decay)
-        self.program.add_control(self.adsr_filter.lms_sustain)
-        self.program.add_control(self.adsr_filter.lms_release)
-        self.program.add_control(self.adsr_amp1.lms_attack)
-        self.program.add_control(self.adsr_amp1.lms_decay)
-        self.program.add_control(self.adsr_amp1.lms_sustain)
-        self.program.add_control(self.adsr_amp1.lms_release)
-        self.program.add_control(self.adsr_amp2.lms_attack)
-        self.program.add_control(self.adsr_amp2.lms_decay)
-        self.program.add_control(self.adsr_amp2.lms_sustain)
-        self.program.add_control(self.adsr_amp2.lms_release)
-        self.program.add_control(self.lfo.lms_freq_knob)
-        self.program.add_control(self.lfo.lms_type_combobox)
+        self.program.add_control(self.adsr_filter.decay_knob)
+        self.program.add_control(self.adsr_filter.sustain_knob)
+        self.program.add_control(self.adsr_filter.release_knob)
+        self.program.add_control(self.adsr_amp1.attack_knob)
+        self.program.add_control(self.adsr_amp1.decay_knob)
+        self.program.add_control(self.adsr_amp1.sustain_knob)
+        self.program.add_control(self.adsr_amp1.release_knob)
+        self.program.add_control(self.adsr_amp2.attack_knob)
+        self.program.add_control(self.adsr_amp2.decay_knob)
+        self.program.add_control(self.adsr_amp2.sustain_knob)
+        self.program.add_control(self.adsr_amp2.release_knob)
+        self.program.add_control(self.lfo.freq_knob)
+        self.program.add_control(self.lfo.type_combobox)
         self.program.add_control(self.noise_amp)
         self.program.add_control(self.noise_type)
-        self.program.add_control(self.pitch_env.lms_time_knob)
-        self.program.add_control(self.osc1.lms_osc_type_box)
-        self.program.add_control(self.osc1.lms_pitch_knob)
-        self.program.add_control(self.osc1.lms_fine_knob)
-        self.program.add_control(self.osc1.lms_vol_knob)
-        self.program.add_control(self.osc2.lms_osc_type_box)
-        self.program.add_control(self.osc2.lms_pitch_knob)
-        self.program.add_control(self.osc2.lms_fine_knob)
-        self.program.add_control(self.osc2.lms_vol_knob)
-        self.program.add_control(self.master.lms_master_volume)
-        self.program.add_control(self.master.lms_master_glide)
-        self.program.add_control(self.master.lms_master_pitchbend_amt)
+        self.program.add_control(self.pitch_env.time_knob)
+        self.program.add_control(self.osc1.osc_type_combobox)
+        self.program.add_control(self.osc1.pitch_knob)
+        self.program.add_control(self.osc1.fine_knob)
+        self.program.add_control(self.osc1.vol_knob)
+        self.program.add_control(self.osc2.osc_type_combobox)
+        self.program.add_control(self.osc2.pitch_knob)
+        self.program.add_control(self.osc2.fine_knob)
+        self.program.add_control(self.osc2.vol_knob)
+        self.program.add_control(self.master.vol_knob)
+        self.program.add_control(self.master.glide_knob)
+        self.program.add_control(self.master.pb_knob)
         self.program.add_control(self.adsr_amp1_checkbox)
         self.program.add_control(self.adsr_amp2_checkbox)
-        self.program.add_control(self.fx0.lms_knob1)
-        self.program.add_control(self.fx0.lms_knob2)
-        self.program.add_control(self.fx0.lms_knob3)
-        self.program.add_control(self.fx0.lms_combobox)
-        self.program.add_control(self.fx1.lms_knob1)
-        self.program.add_control(self.fx1.lms_knob2)
-        self.program.add_control(self.fx1.lms_knob3)
-        self.program.add_control(self.fx1.lms_combobox)
-        self.program.add_control(self.fx2.lms_knob1)
-        self.program.add_control(self.fx2.lms_knob2)
-        self.program.add_control(self.fx2.lms_knob3)
-        self.program.add_control(self.fx2.lms_combobox)
-        self.program.add_control(self.fx3.lms_knob1)
-        self.program.add_control(self.fx3.lms_knob2)
-        self.program.add_control(self.fx3.lms_knob3)
-        self.program.add_control(self.fx3.lms_combobox)
+        self.program.add_control(self.fx0.knobs[0])
+        self.program.add_control(self.fx0.knobs[1])
+        self.program.add_control(self.fx0.knobs[2])
+        self.program.add_control(self.fx0.combobox)
+        self.program.add_control(self.fx1.knobs[0])
+        self.program.add_control(self.fx1.knobs[1])
+        self.program.add_control(self.fx1.knobs[2])
+        self.program.add_control(self.fx1.combobox)
+        self.program.add_control(self.fx2.knobs[0])
+        self.program.add_control(self.fx2.knobs[1])
+        self.program.add_control(self.fx2.knobs[2])
+        self.program.add_control(self.fx2.combobox)
+        self.program.add_control(self.fx3.knobs[0])
+        self.program.add_control(self.fx3.knobs[1])
+        self.program.add_control(self.fx3.knobs[2])
+        self.program.add_control(self.fx3.combobox)
         #mod matrix stuff was here, now at the beginning
         self.program.add_control(self.lfo_amp)
         self.program.add_control(self.lfo_pitch)
-        self.program.add_control(self.pitch_env.lms_amt_knob)
+        self.program.add_control(self.pitch_env.amt_knob)
         self.program.add_control(self.osc1_uni_voices)
         self.program.add_control(self.osc1_uni_spread)
         self.program.add_control(self.osc2_uni_voices)
         self.program.add_control(self.osc2_uni_spread)
         self.program.add_control(self.lfo_amount)
-        self.program.add_control(self.osc3.lms_osc_type_box)
-        self.program.add_control(self.osc3.lms_pitch_knob)
-        self.program.add_control(self.osc3.lms_fine_knob)
-        self.program.add_control(self.osc3.lms_vol_knob)
-        self.program.add_control(self.adsr_amp3.lms_attack)
-        self.program.add_control(self.adsr_amp3.lms_decay)
-        self.program.add_control(self.adsr_amp3.lms_sustain)
-        self.program.add_control(self.adsr_amp3.lms_release)
+        self.program.add_control(self.osc3.osc_type_combobox)
+        self.program.add_control(self.osc3.pitch_knob)
+        self.program.add_control(self.osc3.fine_knob)
+        self.program.add_control(self.osc3.vol_knob)
+        self.program.add_control(self.adsr_amp3.attack_knob)
+        self.program.add_control(self.adsr_amp3.decay_knob)
+        self.program.add_control(self.adsr_amp3.sustain_knob)
+        self.program.add_control(self.adsr_amp3.release_knob)
         self.program.add_control(self.adsr_amp3_checkbox)
         self.program.add_control(self.osc3_uni_voices)
         self.program.add_control(self.osc3_uni_spread)
