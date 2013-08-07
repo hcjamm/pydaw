@@ -6155,16 +6155,18 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.osc_server.recv(1)
 
     def osc_fallback(self, path, args, types, src):
-        print "got unknown message '%s' from '%s'" % (path, src)
+        print("got unknown message '%s' from '%s'" % (path, src))
         for a, t in zip(args, types):
-            print "argument of type '%s': %s" % (t, a)
+            print("argument of type '%s': %s" % (t, a))
 
     def configure_callback(self, path, args):
         a_key, a_val = args
+        #print(str(a_val) + "|" + str(a_val))
         if a_key == "pc":
             f_is_inst, f_track_type, f_track_num, f_port, f_val = a_val.split("|")
             if pydaw_util.int_to_bool(f_is_inst):
-                pass
+                if int(f_track_num) in global_open_inst_ui_dict:
+                    global_open_inst_ui_dict[int(f_track_num)].set_control_val(int(f_port), float(f_val))
             else:
                 if int(f_track_num) in global_open_fx_ui_dicts[int(f_track_type)]:
                     global_open_fx_ui_dicts[int(f_track_type)][int(f_track_num)].set_control_val(int(f_port), float(f_val))
