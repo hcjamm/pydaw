@@ -60,6 +60,7 @@ class pydaw_pixmap_knob(QtGui.QDial):
         self.setValue(a_default_val)
         self.setGeometry(0, 0, a_size, a_size)
         self.set_pixmap_knob(a_size)
+        self.setFixedSize(a_size, a_size)
 
     def set_pixmap_knob(self, a_size):
         f_pixmap = QtGui.QPixmap("/usr/lib/pydaw3/themes/default/pydaw-knob.png")
@@ -1071,10 +1072,6 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         -48, 48, 0, kc_integer, self.port_dict)
         self.lfo_cutoff.add_to_grid_layout(self.lfo.layout, 4)
 
-        self.hlayout1.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.hlayout2.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-        self.hlayout3.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
-
         """Add the knobs to the preset module"""
         self.preset_manager.add_control(self.adsr_amp.attack_knob)
         self.preset_manager.add_control(self.adsr_amp.decay_knob)
@@ -1111,8 +1108,6 @@ class pydaw_rayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.preset_manager.add_control(self.lfo_pitch)
         self.preset_manager.add_control(self.lfo_cutoff)
         self.preset_manager.add_control(self.hard_sync)
-
-        print(str(len(self.preset_manager.controls)))
 
         self.generate_control_dict()
         self.open_plugin_file()
