@@ -99,7 +99,7 @@ kc_log_time = 6
 kc_127_zero_to_x_int = 7
 
 class pydaw_abstract_ui_control:
-    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion=kc_none, a_port_dict=None):
+    def __init__(self, a_label, a_port_num, a_rel_callback, a_val_callback, a_val_conversion=kc_none, a_port_dict=None, a_port_offset_callback=None):
         self.name_label = QtGui.QLabel(str(a_label))
         self.name_label.setAlignment(QtCore.Qt.AlignCenter)
         self.port_num = int(a_port_num)
@@ -109,6 +109,7 @@ class pydaw_abstract_ui_control:
         self.val_conversion = a_val_conversion
         if a_port_dict is not None:
             a_port_dict[self.port_num] = self
+        self.port_offset_callback = a_port_offset_callback
 
     def set_value(self, a_val):
         self.suppress_changes = True
@@ -131,7 +132,10 @@ class pydaw_abstract_ui_control:
 
     def control_value_changed(self, a_value):
         if not self.suppress_changes:
-            self.val_callback(self.port_num, self.control.value())
+            if self.port_offset_callback is None:
+                self.val_callback(self.port_num, self.control.value())
+            else:
+                self.val_callback(self.port_num + self.port_offset_callback(), self.control.value())
         if self.value_label is not None:
             f_value = float(a_value)
             f_dec_value = 0.0
@@ -254,7 +258,7 @@ class pydaw_combobox_control:
         self.control.setMinimumWidth(a_size)
         self.control.addItems(a_items_list)
         self.control.setCurrentIndex(0)
-        self.control.currentIndexChanged.connect(self.combobox_index_changed)
+        self.control.currentIndexChanged.connect(self.control_value_changed)
         self.port_num = int(a_port_num)
         self.rel_callback = a_rel_callback
         self.val_callback = a_val_callback
@@ -263,7 +267,7 @@ class pydaw_combobox_control:
             a_port_dict[self.port_num] = self
         self.value_label = None
 
-    def combobox_index_changed(self, a_val):
+    def control_value_changed(self, a_val):
         if not self.suppress_changes:
             self.val_callback(self.port_num, a_val)
             self.rel_callback(self.port_num, a_val)
