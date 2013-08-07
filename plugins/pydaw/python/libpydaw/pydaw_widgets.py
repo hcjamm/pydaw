@@ -443,8 +443,8 @@ class pydaw_preset_manager_widget:
             f_preset = self.presets_tab_delimited[self.program_combobox.currentIndex()]
             print("setting preset " + str(f_preset))
             for f_i in range(1, len(f_preset)):
-                self.controls[f_i].set_value(f_preset[f_i])
-                self.controls[f_i].control_value_changed(f_preset[f_i])
+                self.controls[f_i - 1].set_value(f_preset[f_i])
+                self.controls[f_i - 1].control_value_changed(f_preset[f_i])
 
     def add_control(self, a_control):
         self.controls.append(a_control)

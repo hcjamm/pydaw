@@ -5150,7 +5150,12 @@ class seq_track:
             sleep(0.3)
             this_pydaw_project.commit("Set instrument for MIDI track " + str(self.track_number) + " to " + str(self.instrument_combobox.currentText()))
     def on_show_ui(self):
-        if self.instrument_combobox.currentIndex() > 0:
+        f_index = self.instrument_combobox.currentIndex()
+        if f_index == 0:
+            pass
+        elif f_index == 2:
+            global_open_inst_ui(self.track_number, f_index, "MIDI Track: " + str(self.track_name_lineedit.text()) )
+        else:
             this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
     def on_show_fx(self):
         if not self.is_instrument or self.instrument_combobox.currentIndex() > 0:
@@ -5590,7 +5595,6 @@ class transport_widget:
         f_lower_ctrl_layout.addWidget(self.tooltips_checkbox)
         f_loop_midi_gridlayout.addLayout(f_lower_ctrl_layout, 1, 1)
         self.hlayout1.addLayout(f_loop_midi_gridlayout)
-        #This is an awful way to do this, I'll eventually have IPC that goes both directions...
         self.beat_timer = QtCore.QTimer()
         self.beat_timer.timeout.connect(self.beat_timeout)
         self.suppress_osc = False
@@ -5609,16 +5613,28 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
         global_open_fx_ui_dicts[a_track_type][a_track_num].widget.raise_()
     print(str(global_open_fx_ui_dicts))
 
+def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
+    global global_open_inst_ui_dict
+    if not a_track_num in global_open_inst_ui_dict:
+        if a_plugin_type == 2:
+            f_plugin = pydaw_widgets.pydaw_rayv_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
+        this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback)
+        f_plugin.widget.show()
+        global_open_inst_ui_dict[a_track_num] = f_plugin
+    else:
+        global_open_inst_ui_dict[a_track_num].widget.raise_()
+    print(str(global_open_inst_ui_dict))
+
+
 def global_fx_closed_callback(a_track_num, a_track_type):
     global global_open_fx_ui_dicts
     global_open_fx_ui_dicts[a_track_type].pop(a_track_num)
     print(str(global_open_fx_ui_dicts))
 
-def global_open_inst_ui(a_track_num, a_folder, a_track_type, a_title):
-    pass
-
 def global_inst_closed_callback(a_track_num, a_track_type=None):
-    pass
+    global global_open_inst_ui_dict
+    global_open_inst_ui_dict.pop(a_track_num)
+    print(str(global_open_inst_ui_dict))
 
 def global_close_all_plugin_windows():
     for f_dict in global_open_fx_ui_dicts:
