@@ -1270,7 +1270,6 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
         self.hlayout3.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
 
-
         self.hlayout4 = QtGui.QHBoxLayout()
         self.oscillator_layout.addLayout(self.hlayout4)
         self.master =  pydaw_master_widget(51,  self.plugin_rel_callback, self.plugin_val_callback, pydaw_ports.WAYV_MASTER_VOLUME, \
@@ -1325,9 +1324,6 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
                     self.mod_matrix.setCellWidget(f_ctrl.control, f_i_src, f_x)
                     f_port_num += 1
 
-
-        #TODO:  Add checks for name_label is None
-
         self.main_layout.addWidget(self.mod_matrix)
         self.mod_matrix.resizeColumnsToContents()
 
@@ -1356,11 +1352,13 @@ class pydaw_wayv_gui(pydaw_abstract_plugin_ui):
         0, 100, 0, kc_decimal, self.port_dict)
         self.lfo_amount.add_to_grid_layout(self.lfo.layout)
 
-        self.lfo_amp =  pydaw_knob_control(("Amp"), -24, 24, 1, 0, ("0"), self.lfo.lms_groupbox.lms_groupbox,  kc_integer, pydaw_ports.WAYV_LFO_AMP)
-        self.lfo.lms_groupbox.lms_add_h(self.lfo_amp)
+        self.lfo_amp =  pydaw_knob_control(51, "Amp", pydaw_ports.WAYV_LFO_AMP, self.rel_callback, self.val_callback, \
+        -24, 24, 0, kc_integer, self.port_dict)
+        self.lfo_amp.add_to_grid_layout(self.lfo.layout)
 
-        self.lfo_pitch =  pydaw_knob_control(("Pitch"), -36, 36, 1, 0, ("0"), self.lfo.lms_groupbox.lms_groupbox,  kc_integer, pydaw_ports.WAYV_LFO_PITCH)
-        self.lfo.lms_groupbox.lms_add_h(self.lfo_pitch)
+        self.lfo_pitch =  pydaw_knob_control(51, "Pitch", pydaw_ports.WAYV_LFO_PITCH, self.rel_callback, self.val_callback, \
+        -36, 36, 0,  kc_integer, self.port_dict)
+        self.lfo_pitch.add_to_grid_layout(self.lfo.layout)
 
         #Add the knobs to the preset module
         self.program.add_control(self.adsr_amp_main.attack_knob)
