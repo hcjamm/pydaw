@@ -1720,14 +1720,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
          #f_info.LMS_set_label_style("background-color: white border: 1px solid black border-radius: 6px QtGui.QComboBox{color:whitebackground-color:black:", 60)
         self.main_layout =  LMS_main_layout(self.poly_fx_tab)
         #From Modulex
-        self.fx0 =  pydaw_modulex_single(self, ("FX0"), a_style, pydaw_ports.EUPHORIA_FX0_KNOB0, pydaw_ports.EUPHORIA_FX0_KNOB1, pydaw_ports.EUPHORIA_FX0_KNOB2, pydaw_ports.EUPHORIA_FX0_COMBOBOX)
+        self.fx0 =  pydaw_modulex_single(self, ("FX0"), pydaw_ports.EUPHORIA_FX0_KNOB0, pydaw_ports.EUPHORIA_FX0_KNOB1, pydaw_ports.EUPHORIA_FX0_KNOB2, pydaw_ports.EUPHORIA_FX0_COMBOBOX)
         self.main_layout.lms_add_widget(self.fx0.lms_groupbox.lms_groupbox)
-        self.fx1 =  pydaw_modulex_single(self, ("FX1"), a_style, pydaw_ports.EUPHORIA_FX1_KNOB0, pydaw_ports.EUPHORIA_FX1_KNOB1, pydaw_ports.EUPHORIA_FX1_KNOB2, pydaw_ports.EUPHORIA_FX1_COMBOBOX)
+        self.fx1 =  pydaw_modulex_single(self, ("FX1"), pydaw_ports.EUPHORIA_FX1_KNOB0, pydaw_ports.EUPHORIA_FX1_KNOB1, pydaw_ports.EUPHORIA_FX1_KNOB2, pydaw_ports.EUPHORIA_FX1_COMBOBOX)
         self.main_layout.lms_add_widget(self.fx1.lms_groupbox.lms_groupbox)
         self.main_layout.lms_add_layout()
-        self.fx2 =  pydaw_modulex_single(self, ("FX2"), a_style, pydaw_ports.EUPHORIA_FX2_KNOB0, pydaw_ports.EUPHORIA_FX2_KNOB1, pydaw_ports.EUPHORIA_FX2_KNOB2, pydaw_ports.EUPHORIA_FX2_COMBOBOX)
+        self.fx2 =  pydaw_modulex_single(self, ("FX2"), pydaw_ports.EUPHORIA_FX2_KNOB0, pydaw_ports.EUPHORIA_FX2_KNOB1, pydaw_ports.EUPHORIA_FX2_KNOB2, pydaw_ports.EUPHORIA_FX2_COMBOBOX)
         self.main_layout.lms_add_widget(self.fx2.lms_groupbox.lms_groupbox)
-        self.fx3 =  pydaw_modulex_single(self, ("FX3"), a_style, pydaw_ports.EUPHORIA_FX3_KNOB0, pydaw_ports.EUPHORIA_FX3_KNOB1, pydaw_ports.EUPHORIA_FX3_KNOB2, pydaw_ports.EUPHORIA_FX3_COMBOBOX)
+        self.fx3 =  pydaw_modulex_single(self, ("FX3"), pydaw_ports.EUPHORIA_FX3_KNOB0, pydaw_ports.EUPHORIA_FX3_KNOB1, pydaw_ports.EUPHORIA_FX3_KNOB2, pydaw_ports.EUPHORIA_FX3_COMBOBOX)
 
         self.main_layout.lms_add_widget(self.fx3.lms_groupbox.lms_groupbox)
         self.main_layout.lms_add_layout()
@@ -1742,29 +1742,29 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.polyfx_mod_matrix[0].lms_mod_matrix.resizeColumnsToContents()
         self.main_layout.lms_add_layout()
         #End from Modulex
-        self.adsr_amp =  LMS_adsr_widget(self, a_style, True, pydaw_ports.EUPHORIA_ATTACK, pydaw_ports.EUPHORIA_DECAY, pydaw_ports.EUPHORIA_SUSTAIN, pydaw_ports.EUPHORIA_RELEASE, ("ADSR Amp"))
+        self.adsr_amp =  LMS_adsr_widget(self, True, pydaw_ports.EUPHORIA_ATTACK, pydaw_ports.EUPHORIA_DECAY, pydaw_ports.EUPHORIA_SUSTAIN, pydaw_ports.EUPHORIA_RELEASE, ("ADSR Amp"))
         self.adsr_amp.lms_release.lms_knob.setMinimum(5) #overriding the default for self, because we want a low minimum default that won't click
         self.main_layout.lms_add_widget(self.adsr_amp.lms_groupbox_adsr.lms_groupbox)
         self.groupbox_noise =  LMS_group_box(self, ("Noise"), a_style)
         self.main_layout.lms_add_widget(self.groupbox_noise.lms_groupbox)
-        self.noise_amp =  pydaw_knob_control(("Vol"), -60, 0, 1, 30, (""), self.groupbox_noise.lms_groupbox, a_style, lms_kc_integer, pydaw_ports.EUPHORIA_NOISE_AMP)
+        self.noise_amp =  pydaw_knob_control(("Vol"), -60, 0, 1, 30, (""), self.groupbox_noise.lms_groupbox, kc_integer, pydaw_ports.EUPHORIA_NOISE_AMP)
         self.groupbox_noise.lms_add_h(self.noise_amp)
         #connect(self.noise_amp.lms_knob, SIGNAL(valueChanged(int)), self, SLOT(noiseAmpChanged(int)))
         self.noise_type =  LMS_combobox(("Type"), self, List() , ("Off") , ("White") , ("Pink"), pydaw_ports.EUPHORIA_NOISE_TYPE, a_style)
         self.noise_type.lms_combobox.setMinimumWidth(87)
         self.groupbox_noise.lms_add_h(self.noise_type)
         #connect(self.noise_type.lms_combobox, SIGNAL(currentIndexChanged(int)), self, SLOT(noise_typeChanged(int)))
-        self.adsr_filter =  LMS_adsr_widget(self, a_style, False, pydaw_ports.EUPHORIA_FILTER_ATTACK, pydaw_ports.EUPHORIA_FILTER_DECAY, pydaw_ports.EUPHORIA_FILTER_SUSTAIN, pydaw_ports.EUPHORIA_FILTER_RELEASE, ("ADSR 2"))
+        self.adsr_filter =  LMS_adsr_widget(self, False, pydaw_ports.EUPHORIA_FILTER_ATTACK, pydaw_ports.EUPHORIA_FILTER_DECAY, pydaw_ports.EUPHORIA_FILTER_SUSTAIN, pydaw_ports.EUPHORIA_FILTER_RELEASE, ("ADSR 2"))
         self.main_layout.lms_add_widget(self.adsr_filter.lms_groupbox_adsr.lms_groupbox)
-        self.pitch_env =  LMS_ramp_env(self, a_style, pydaw_ports.EUPHORIA_PITCH_ENV_TIME, -1, -1, False, ("Ramp Env"), False)
+        self.pitch_env =  LMS_ramp_env(self, pydaw_ports.EUPHORIA_PITCH_ENV_TIME, -1, -1, False, ("Ramp Env"), False)
         self.main_layout.lms_add_widget(self.pitch_env.lms_groupbox.lms_groupbox)
         #connect(self.pitch_env.lms_time_knob.lms_knob, SIGNAL(valueChanged(int)), self, SLOT(pitchEnvTimeChanged(int)))
-        self.lfo =  LMS_lfo_widget(self, a_style, pydaw_ports.EUPHORIA_LFO_FREQ, pydaw_ports.EUPHORIA_LFO_TYPE, f_lfo_types, ("LFO"))
+        self.lfo =  LMS_lfo_widget(self, pydaw_ports.EUPHORIA_LFO_FREQ, pydaw_ports.EUPHORIA_LFO_TYPE, f_lfo_types, ("LFO"))
         self.main_layout.lms_add_widget(self.lfo.lms_groupbox.lms_groupbox)
         #Overriding the default so we can have a faster LFO
         self.lfo.lms_freq_knob.lms_knob.setMaximum(1600)
 
-        self.lfo_pitch =  pydaw_knob_control(("Pitch"), -36, 36, 1, 0, ("0"), self.lfo.lms_groupbox.lms_groupbox, a_style, lms_kc_integer, pydaw_ports.EUPHORIA_LFO_PITCH)
+        self.lfo_pitch =  pydaw_knob_control(("Pitch"), -36, 36, 1, 0, ("0"), self.lfo.lms_groupbox.lms_groupbox,kc_integer, pydaw_ports.EUPHORIA_LFO_PITCH)
         self.lfo.lms_groupbox.lms_add_h(self.lfo_pitch)
 
         #MonoFX Tab
@@ -1788,17 +1788,17 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_group)
         self.mono_fx_tab_main_layout.lms_add_widget(self.selected_container)
         self.mono_fx_tab_main_layout.lms_add_layout()
-        self.mono_fx0 =  pydaw_modulex_single(self, ("FX0"), a_style, pydaw_ports.EUPHORIA_FX0_KNOB0, pydaw_ports.EUPHORIA_FX0_KNOB1, pydaw_ports.EUPHORIA_FX0_KNOB2, pydaw_ports.EUPHORIA_FX0_COMBOBOX)
+        self.mono_fx0 =  pydaw_modulex_single(self, ("FX0"), pydaw_ports.EUPHORIA_FX0_KNOB0, pydaw_ports.EUPHORIA_FX0_KNOB1, pydaw_ports.EUPHORIA_FX0_KNOB2, pydaw_ports.EUPHORIA_FX0_COMBOBOX)
         self.mono_fx_tab_main_layout.lms_add_widget(self.mono_fx0.lms_groupbox.lms_groupbox)
-        self.mono_fx1 =  pydaw_modulex_single(self, ("FX1"), a_style, pydaw_ports.EUPHORIA_FX1_KNOB0, pydaw_ports.EUPHORIA_FX1_KNOB1, pydaw_ports.EUPHORIA_FX1_KNOB2, pydaw_ports.EUPHORIA_FX1_COMBOBOX)
+        self.mono_fx1 =  pydaw_modulex_single(self, ("FX1"), pydaw_ports.EUPHORIA_FX1_KNOB0, pydaw_ports.EUPHORIA_FX1_KNOB1, pydaw_ports.EUPHORIA_FX1_KNOB2, pydaw_ports.EUPHORIA_FX1_COMBOBOX)
         self.mono_fx_tab_main_layout.lms_add_widget(self.mono_fx1.lms_groupbox.lms_groupbox)
         self.mono_fx_tab_main_layout.lms_add_layout()
-        self.mono_fx2 =  pydaw_modulex_single(self, ("FX2"), a_style, pydaw_ports.EUPHORIA_FX2_KNOB0, pydaw_ports.EUPHORIA_FX2_KNOB1, pydaw_ports.EUPHORIA_FX2_KNOB2, pydaw_ports.EUPHORIA_FX2_COMBOBOX)
+        self.mono_fx2 =  pydaw_modulex_single(self, ("FX2"), pydaw_ports.EUPHORIA_FX2_KNOB0, pydaw_ports.EUPHORIA_FX2_KNOB1, pydaw_ports.EUPHORIA_FX2_KNOB2, pydaw_ports.EUPHORIA_FX2_COMBOBOX)
         self.mono_fx_tab_main_layout.lms_add_widget(self.mono_fx2.lms_groupbox.lms_groupbox)
-        self.mono_fx3 =  pydaw_modulex_single(self, ("FX3"), a_style, pydaw_ports.EUPHORIA_FX3_KNOB0, pydaw_ports.EUPHORIA_FX3_KNOB1, pydaw_ports.EUPHORIA_FX3_KNOB2, pydaw_ports.EUPHORIA_FX3_COMBOBOX)
+        self.mono_fx3 =  pydaw_modulex_single(self, ("FX3"), pydaw_ports.EUPHORIA_FX3_KNOB0, pydaw_ports.EUPHORIA_FX3_KNOB1, pydaw_ports.EUPHORIA_FX3_KNOB2, pydaw_ports.EUPHORIA_FX3_COMBOBOX)
         self.mono_fx_tab_main_layout.lms_add_widget(self.mono_fx3.lms_groupbox.lms_groupbox)
         self.mono_fx_tab_main_layout.lms_add_layout()
-        self.master =  LMS_master_widget(self, a_style, pydaw_ports.EUPHORIA_MASTER_VOLUME, -1,
+        self.master =  LMS_master_widget(self, pydaw_ports.EUPHORIA_MASTER_VOLUME, -1,
         -1, pydaw_ports.EUPHORIA_MASTER_GLIDE, pydaw_ports.EUPHORIA_MASTER_PITCHBEND_AMT, ("Master"), False)
         self.mono_fx_tab_main_layout.lms_add_widget(self.master.lms_groupbox.lms_groupbox)
         self.master.lms_master_volume.lms_knob.setMinimum(-24)
@@ -2017,7 +2017,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
             generate_files_string((self.sample_table.lms_selected_column))
 
-    def selectionChanged():
+    def selectionChanged(self):
         if(self.suppress_selected_sample_changed):
             return
         self.suppress_selected_sample_changed = True
