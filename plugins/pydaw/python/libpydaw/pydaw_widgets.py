@@ -411,7 +411,7 @@ class pydaw_note_selector_widget:
 
     def value_changed(self, a_val=None):
         if not self.suppress_changes:
-            self.selected_note = (self.note_combobox.currentIndex()) + (((self.octave_spinbox.currentIndex()) + 2) * 12)
+            self.selected_note = (self.note_combobox.currentIndex()) + (((self.octave_spinbox.value()) + 2) * 12)
         self.val_callback(self.port, self.selected_note)
         self.rel_callback(self.port, self.selected_note)
 
@@ -1720,14 +1720,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         f_port_start = pydaw_ports.EUPHORIA_PLAY_PITCH_LOW_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_low_pitch = pydaw_note_selector_widget(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
-            self.sample_table.setCellWidget(f_i, 2, f_low_pitch.widget)
+            self.sample_table.setCellWidget(f_i, 3, f_low_pitch.widget)
             self.sample_low_notes.append(f_low_pitch)
 
         self.sample_high_notes = []
         f_port_start = pydaw_ports.EUPHORIA_PLAY_PITCH_HIGH_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_high_pitch = pydaw_note_selector_widget(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
-            self.sample_table.setCellWidget(f_i, 3, f_high_pitch.widget)
+            self.sample_table.setCellWidget(f_i, 4, f_high_pitch.widget)
             self.sample_high_notes.append(f_high_pitch)
 
         self.sample_vols = []
@@ -1921,6 +1921,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_table.setHorizontalHeaderLabels(f_sample_table_columns)
         self.sample_table.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
         self.sample_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.sample_table.resizeRowsToContents()
 
         self.file_selector =  pydaw_file_select_widget()
         """Set all of the array variables that are per-sample"""
