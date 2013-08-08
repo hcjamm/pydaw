@@ -1779,7 +1779,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.sample_vols.append(f_sample_tune)
 
         self.sample_modes = []
-        f_port_start = pydaw_ports.EUPHORIA_TUNE_PORT_RANGE_MIN
+        f_port_start = pydaw_ports.EUPHORIA_SAMPLE_INTERPOLATION_MODE_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_sample_mode = pydaw_combobox_control(120, None, f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, \
             f_interpolation_modes, self.port_dict)
@@ -1803,6 +1803,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             f_loop_start = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
             self.loop_starts.append(f_loop_start)
+
+        self.loop_modes = []
+        f_port_start = pydaw_ports.EUPHORIA_SAMPLE_LOOP_MODE_PORT_RANGE_MIN
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            f_loop_mode = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
+            self.loop_modes.append(f_loop_mode)
 
         self.loop_ends = []
         f_port_start = pydaw_ports.EUPHORIA_SAMPLE_LOOP_END_PORT_RANGE_MIN
@@ -1831,7 +1837,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.monofx0comboboxes = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX0_COMBOBOX_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 64, self.port_dict)
+            f_ctrl = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
             self.monofx0comboboxes.append(f_ctrl)
         #MonoFX1
         self.monofx1knob0_ctrls = []
@@ -1855,7 +1861,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.monofx1comboboxes = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX1_COMBOBOX_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 64, self.port_dict)
+            f_ctrl = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
             self.monofx1comboboxes.append(f_ctrl)
         #MonoFX2
         self.monofx2knob0_ctrls = []
@@ -1879,7 +1885,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.monofx2comboboxes = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX2_COMBOBOX_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 64, self.port_dict)
+            f_ctrl = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
             self.monofx2comboboxes.append(f_ctrl)
         #MonoFX3
         self.monofx3knob0_ctrls = []
@@ -1903,8 +1909,14 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.monofx3comboboxes = []
         f_port_start = pydaw_ports.EUPHORIA_MONO_FX3_COMBOBOX_PORT_RANGE_MIN
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            f_ctrl = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 64, self.port_dict)
+            f_ctrl = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
             self.monofx3comboboxes.append(f_ctrl)
+
+        self.monofx_groups = []
+        f_port_start = pydaw_ports.EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            f_monofx_group = pydaw_null_control(f_port_start + f_i, self.plugin_rel_callback, self.plugin_val_callback, 0, self.port_dict)
+            self.monofx_groups.append(f_monofx_group)
 
         self.sample_table.setHorizontalHeaderLabels(f_sample_table_columns)
         self.sample_table.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
