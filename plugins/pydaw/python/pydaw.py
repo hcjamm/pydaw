@@ -5153,7 +5153,7 @@ class seq_track:
         f_index = self.instrument_combobox.currentIndex()
         if f_index == 0:
             pass
-        elif f_index == 2:
+        elif f_index == 2 or f_index == 3:
             global_open_inst_ui(self.track_number, f_index, "MIDI Track: " + str(self.track_name_lineedit.text()) )
         else:
             this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
@@ -5618,7 +5618,10 @@ def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
     if not a_track_num in global_open_inst_ui_dict:
         if a_plugin_type == 2:
             f_plugin = pydaw_widgets.pydaw_rayv_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
-        this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback)
+            this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback)
+        elif a_plugin_type == 3:
+            f_plugin = pydaw_widgets.pydaw_wayv_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
+            this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback)
         f_plugin.widget.show()
         global_open_inst_ui_dict[a_track_num] = f_plugin
     else:

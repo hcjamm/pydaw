@@ -1031,7 +1031,7 @@ void * v_pydaw_worker_thread(void* a_arg)
             
             if(f_item.track_type == 0)  //MIDI/plugin-instrument
             {
-                if(f_args->pydaw_data->track_pool[f_item.track_number]->plugin_index == 2)
+                if(f_args->pydaw_data->track_pool[f_item.track_number]->plugin_index >= 2)
                 {
                     v_pydaw_fx_update_ports(f_args->pydaw_data, f_args->pydaw_data->track_pool[f_item.track_number]->instrument, 0,
                         f_item.track_number, 1);
@@ -4231,10 +4231,10 @@ void v_pydaw_save_track(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a_
         return;  //Delete the file if exists?
     }
 
-    if(a_track->plugin_index != -1)
-    {
+    //if(a_track->plugin_index != -1)    
+    //{
         v_pydaw_save_plugin(a_pydaw_data, a_track, 0, a_type);
-    }
+    //}
     
     //Now being done through the UI
     //v_pydaw_save_plugin(a_pydaw_data, a_track, 1, a_type);
@@ -4340,10 +4340,13 @@ void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
     
     while(f_i < PYDAW_MIDI_TRACK_COUNT)
     {
-        v_pydaw_save_track(a_pydaw_data, a_pydaw_data->track_pool[f_i], 0);
+        if(a_pydaw_data, a_pydaw_data->track_pool[f_i]->plugin_index == 1)
+        {
+            v_pydaw_save_track(a_pydaw_data, a_pydaw_data->track_pool[f_i], 0);
+        }
         f_i++;
     }
-    
+    /*
     f_i = 0;
     
     while(f_i < PYDAW_BUS_TRACK_COUNT)
@@ -4359,7 +4362,7 @@ void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
         v_pydaw_save_track(a_pydaw_data, a_pydaw_data->audio_track_pool[f_i], 2);
         f_i++;
     }
-    
+    */
     printf("Saving tracks complete\n");
     pthread_mutex_unlock(&a_pydaw_data->quit_mutex);
     char f_tmp_file[512] = "\0";

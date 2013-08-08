@@ -289,12 +289,12 @@ class pydaw_adsr_widget:
     def __init__(self, a_size, a_sustain_in_db, a_attack_port, a_decay_port, a_sustain_port, a_release_port, \
             a_label, a_rel_callback, a_val_callback, a_port_dict=None):
         self.attack_knob = pydaw_knob_control(a_size, "Attack", a_attack_port, a_rel_callback, a_val_callback, 0, 100, 0, kc_log_time, a_port_dict)
-        self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback, a_val_callback, 0, 100, 0, kc_log_time, a_port_dict)
+        self.decay_knob = pydaw_knob_control(a_size, "Decay", a_decay_port, a_rel_callback, a_val_callback, 10, 100, 0, kc_log_time, a_port_dict)
         if a_sustain_in_db:
-            self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, -60, 0, 0, kc_integer, a_port_dict)
+            self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, -30, 0, 0, kc_integer, a_port_dict)
         else:
             self.sustain_knob = pydaw_knob_control(a_size, "Sustain", a_sustain_port, a_rel_callback, a_val_callback, 0, 100, 100, kc_decimal, a_port_dict)
-        self.release_knob = pydaw_knob_control(a_size, "Release", a_release_port, a_rel_callback, a_val_callback, 10, 200, 0, kc_log_time, a_port_dict)
+        self.release_knob = pydaw_knob_control(a_size, "Release", a_release_port, a_rel_callback, a_val_callback, 10, 400, 0, kc_log_time, a_port_dict)
         self.groupbox = QtGui.QGroupBox(a_label)
         self.layout = QtGui.QGridLayout(self.groupbox)
         self.attack_knob.add_to_grid_layout(self.layout, 0)
@@ -336,7 +336,7 @@ class pydaw_lfo_widget:
         self.freq_knob = pydaw_knob_control(a_size, "Freq", a_freq_port, a_rel_callback, a_val_callback, \
         10, 1600, 200, kc_decimal, a_port_dict)
         self.freq_knob.add_to_grid_layout(self.layout, 0)
-        self.type_combobox = pydaw_combobox_control(150, "Type", a_type_port, a_rel_callback, a_val_callback, a_type_list, a_port_dict)
+        self.type_combobox = pydaw_combobox_control(120, "Type", a_type_port, a_rel_callback, a_val_callback, a_type_list, a_port_dict)
         self.layout.addWidget(self.type_combobox.name_label, 0, 1)
         self.layout.addWidget(self.type_combobox.control, 1, 1)
 
@@ -1124,7 +1124,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.folder = str(a_folder)
         self.file = str(self.track_num) + ".pyinst"
         self.track_name = str(a_track_name)
-        self.widget.setWindowTitle("PyDAW Ray-V - " + self.track_name)
+        self.widget.setWindowTitle("PyDAW Way-V - " + self.track_name)
         self.is_instrument = True
 
         f_osc_types = [
@@ -1159,6 +1159,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         pydaw_ports.WAYV_OSC1_TYPE, f_osc_types, self.plugin_rel_callback, self.plugin_val_callback, "Oscillator 1", self.port_dict)
         self.osc1_uni_voices =  pydaw_knob_control(51, "Unison", pydaw_ports.WAYV_OSC1_UNISON_VOICES, self.plugin_rel_callback, self.plugin_val_callback, \
         1, 7, 4, kc_integer, self.port_dict)
+        self.osc1.osc_type_combobox.control.setCurrentIndex(1)
         self.osc1_uni_voices.add_to_grid_layout(self.osc1.grid_layout, 4)
         self.osc1_uni_spread =  pydaw_knob_control(51, "Spread", pydaw_ports.WAYV_OSC1_UNISON_SPREAD, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 30, kc_decimal, self.port_dict)
@@ -1190,7 +1191,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.osc1_fm3.add_to_grid_layout(self.groupbox_osc1_fm_layout, 2)
 
         self.hlayout1.addWidget(self.groupbox_osc1_fm)
-        self.hlayout1.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        #self.hlayout1.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         #Osc2
         self.hlayout2 = QtGui.QHBoxLayout()
@@ -1230,7 +1231,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.osc2_fm3.add_to_grid_layout(self.groupbox_osc2_fm_layout, 2)
 
         self.hlayout2.addWidget(self.groupbox_osc2_fm)
-        self.hlayout2.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        #self.hlayout2.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
         #osc3
         self.hlayout3 = QtGui.QHBoxLayout()
@@ -1270,7 +1271,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.osc3_fm3.add_to_grid_layout(self.groupbox_osc3_fm_layout, 2)
 
         self.hlayout3.addWidget(self.groupbox_osc3_fm)
-        self.hlayout3.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
+        #self.hlayout3.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Expanding))
 
 
         self.hlayout4 = QtGui.QHBoxLayout()
@@ -1293,6 +1294,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.noise_type =  pydaw_combobox_control(87, "Type", pydaw_ports.LMS_NOISE_TYPE, self.plugin_rel_callback, self.plugin_val_callback, \
         ["Off", "White", "Pink"], self.port_dict)
+        self.noise_type.control.setMaximumWidth(87)
         self.noise_type.add_to_grid_layout(self.groupbox_noise_layout, 1)
 
         self.main_layout =  QtGui.QVBoxLayout(self.poly_fx_tab)
@@ -1323,7 +1325,7 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         for f_i_dst in range(4):
             for f_i_src in range(4):
                 for f_i_ctrl in range(3):
-                    f_ctrl = pydaw_spinbox_control(None, f_port_num, self.rel_callback, self.val_callback, -100, 100, 0, kc_none, self.port_dict)
+                    f_ctrl = pydaw_spinbox_control(None, f_port_num, self.plugin_rel_callback, self.plugin_val_callback, -100, 100, 0, kc_none, self.port_dict)
                     self.program.add_control(f_ctrl)
                     f_x = (f_i_dst * 3) + f_i_ctrl
                     self.mod_matrix.setCellWidget(f_i_src, f_x, f_ctrl.control)
@@ -1336,32 +1338,32 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.main_layout.addLayout(self.hlayout7)
 
         self.adsr_amp =  pydaw_adsr_widget(51, True, pydaw_ports.WAYV_ATTACK_PFX1, pydaw_ports.WAYV_DECAY_PFX1, pydaw_ports.WAYV_SUSTAIN_PFX1, \
-        pydaw_ports.WAYV_RELEASE_PFX1, "ADSR 1", self.rel_callback, self.val_callback, self.port_dict)
+        pydaw_ports.WAYV_RELEASE_PFX1, "ADSR 1", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
         #self.adsr_amp.lms_release.lms_knob.setMinimum(5) #overriding the default for self, because we want a low minimum default that won't click
         self.hlayout7.addWidget(self.adsr_amp.groupbox)
 
         self.adsr_filter =  pydaw_adsr_widget(51,  False, pydaw_ports.WAYV_ATTACK_PFX2, pydaw_ports.WAYV_DECAY_PFX2, pydaw_ports.WAYV_SUSTAIN_PFX2, \
-        pydaw_ports.WAYV_RELEASE_PFX2, "ADSR 2", self.rel_callback, self.val_callback, self.port_dict)
+        pydaw_ports.WAYV_RELEASE_PFX2, "ADSR 2", self.plugin_rel_callback, self.plugin_val_callback, self.port_dict)
         self.hlayout7.addWidget(self.adsr_filter.groupbox)
 
-        self.pitch_env =  pydaw_ramp_env_widget(51, self.rel_callback, self.val_callback, self.port_dict, \
+        self.pitch_env =  pydaw_ramp_env_widget(51, self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, \
         pydaw_ports.WAYV_RAMP_ENV_TIME, pydaw_ports.WAYV_PITCH_ENV_AMT, "Ramp Env")
         self.pitch_env.amt_knob.name_label.setText("Pitch")
         self.hlayout7.addWidget(self.pitch_env.groupbox)
 
-        self.lfo =  pydaw_lfo_widget(51,  self.rel_callback, self.val_callback, self.port_dict, pydaw_ports.WAYV_LFO_FREQ, \
+        self.lfo =  pydaw_lfo_widget(51,  self.plugin_rel_callback, self.plugin_val_callback, self.port_dict, pydaw_ports.WAYV_LFO_FREQ, \
         pydaw_ports.WAYV_LFO_TYPE, f_lfo_types, "LFO")
         self.hlayout7.addWidget(self.lfo.groupbox)
 
-        self.lfo_amount =  pydaw_knob_control(51, "Amount", pydaw_ports.WAYV_LFO_AMOUNT, self.rel_callback, self.val_callback, \
+        self.lfo_amount =  pydaw_knob_control(51, "Amount", pydaw_ports.WAYV_LFO_AMOUNT, self.plugin_rel_callback, self.plugin_val_callback, \
         0, 100, 0, kc_decimal, self.port_dict)
         self.lfo_amount.add_to_grid_layout(self.lfo.layout, 2)
 
-        self.lfo_amp =  pydaw_knob_control(51, "Amp", pydaw_ports.WAYV_LFO_AMP, self.rel_callback, self.val_callback, \
+        self.lfo_amp =  pydaw_knob_control(51, "Amp", pydaw_ports.WAYV_LFO_AMP, self.plugin_rel_callback, self.plugin_val_callback, \
         -24, 24, 0, kc_integer, self.port_dict)
         self.lfo_amp.add_to_grid_layout(self.lfo.layout, 3)
 
-        self.lfo_pitch =  pydaw_knob_control(51, "Pitch", pydaw_ports.WAYV_LFO_PITCH, self.rel_callback, self.val_callback, \
+        self.lfo_pitch =  pydaw_knob_control(51, "Pitch", pydaw_ports.WAYV_LFO_PITCH, self.plugin_rel_callback, self.plugin_val_callback, \
         -36, 36, 0,  kc_integer, self.port_dict)
         self.lfo_pitch.add_to_grid_layout(self.lfo.layout, 4)
 
@@ -1450,3 +1452,5 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
         self.program.add_control(self.osc3_fm2)
         self.program.add_control(self.osc3_fm3)
 
+        self.generate_control_dict()
+        self.open_plugin_file()
