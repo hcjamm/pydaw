@@ -1454,3 +1454,690 @@ class pydaw_wayv_plugin_ui(pydaw_abstract_plugin_ui):
 
         self.generate_control_dict()
         self.open_plugin_file()
+
+"""Used for outputting sampler parameters to text files"""
+LMS_DELIMITER  =  "|"
+"""These define the index of each column in m_sample_table. Re-order these if you add or remove columns"""
+SMP_TB_RADIOBUTTON_INDEX  =  0
+SMP_TB_FILE_PATH_INDEX  =  1
+SMP_TB_NOTE_INDEX  =  2
+SMP_TB_LOW_NOTE_INDEX  =  3
+SMP_TB_HIGH_NOTE_INDEX  =  4
+SMP_TB_VOLUME_INDEX  =  5
+SMP_TB_VEL_SENS_INDEX  =  6
+SMP_TB_VEL_LOW_INDEX  =  7
+SMP_TB_VEL_HIGH_INDEX  =  8
+SMP_TB_PITCH_INDEX  =  9
+SMP_TB_TUNE_INDEX  =  10
+SMP_TB_INTERPOLATION_MODE_INDEX  =  11
+
+class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
+    def __init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_folder, a_track_type, a_track_name, a_stylesheet, a_close_callback):
+        pydaw_abstract_plugin_ui.__init__(self, a_rel_callback, a_val_callback, a_track_num, a_project, a_track_type, a_stylesheet, a_close_callback)
+        self.folder = str(a_folder)
+        self.file = str(self.track_num) + ".pyinst"
+        self.track_name = str(a_track_name)
+        self.widget.setWindowTitle("PyDAW Way-V - " + self.track_name)
+        self.is_instrument = True
+        #Begin Euphoria C++
+        self.handle_control_updates = True
+        self.creating_instrument_file = False
+        self.suppress_selected_sample_changed = False
+        #a_style.LMS_set_value_style(("color : white background-color: rgba(0,0,0,0)"), 64)
+         #a_style.LMS_set_label_style(("QLabel{color:blackbackground-color:whiteborder:solid 2px whiteborder-radius:2px text-align : center:"), 64)
+        #a_style.LMS_set_value_style("")
+        f_interpolation_modes = [("Pitched") , ("Percussion") , ("No Pitch")]
+        f_sample_table_columns = [
+            "", #Selected row
+            "Path", #File path
+            "Sample Pitch", #Sample base pitch
+            "Low Note", #Low Note
+            "High Note", #High Note
+            "Volume", #Volume
+            "Vel. Sens.", #Velocity Sensitivity
+            "Low Vel.", #Low Velocity
+            "High Vel.", #High Velocity
+            "Pitch", #Pitch
+            "Tune", #Tune
+            "Mode" #Interpolation Mode
+        ]
+
+        self.sample_table = QtGui.QTableWidget(pydaw_ports.pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT, len(f_sample_table_columns))
+        for f_i in range(pydaw_ports.pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            pass #TODO:  Add the controls
+
+        self.sample_table.setHorizontalHeaderLabels(f_sample_table_columns)
+        self.sample_table.verticalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.sample_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Fixed)
+        self.file_selector =  LMS_file_select(self)
+        """Set all of the array variables that are per-sample"""
+        self.note_indexes = {}
+        for i in range(pydaw_ports.pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            #f_rb = (QRadioButton*)m_sample_table.lms_mod_matrix.cellWidget(i , SMP_TB_RADIOBUTTON_INDEX)
+            self.note_indexes[i] = 0
+
+        actionMove_files_to_single_directory =  QtGui.QAction(self.widget)
+        actionSave_instrument_to_file =  QtGui.QAction(self.widget)
+        actionOpen_instrument_from_file =  QtGui.QAction(self.widget)
+        actionMapToWhiteKeys =  QtGui.QAction(self.widget)
+        actionMapToMonoFX =  QtGui.QAction(self.widget)
+        actionClearAllSamples =  QtGui.QAction(self.widget)
+        menubar =  QtGui.QMenuBar(self.widget)
+        menuFile =  QtGui.QMenu(menubar)
+        menubar.addAction(menuFile.menuAction())
+        menuFile.addAction(actionMove_files_to_single_directory)
+        menuFile.addAction(actionSave_instrument_to_file)
+        menuFile.addAction(actionOpen_instrument_from_file)
+        menuFile.addAction(actionMapToWhiteKeys)
+        menuFile.addAction(actionMapToMonoFX)
+        menuFile.addAction(actionClearAllSamples)
+        actionMove_files_to_single_directory.setText("Move files to single directory")
+        actionSave_instrument_to_file.setText( "Save instrument to file" )
+        actionOpen_instrument_from_file.setText( "Open instrument from file" )
+        actionMapToWhiteKeys.setText(("Map All Samples to 1 White Key"))
+        actionMapToMonoFX.setText(("Map All Samples to Own MonoFX Group"))
+        actionClearAllSamples.setText(("Clear All Samples"))
+        menuFile.setTitle("Menu")
+
+        self.resize(1200, 680)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
+        self.setSizePolicy(sizePolicy)
+        self.smp_tab_main_verticalLayout =  QtGui.QVBoxLayout()
+        self.main_v_layout =  QtGui.QVBoxLayout(self)
+        self.main_v_layout.addWidget(menubar)
+        self.main_tab =  QtGui.QTabWidget(self)
+        self.sample_tab =  QtGui.QWidget()
+        self.sample_tab_horizontalLayout =  QtGui.QHBoxLayout(self.sample_tab)
+        self.smp_tab_scrollAreaWidgetContents =  QtGui.QWidget(self.sample_tab)
+        self.smp_tab_scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 966, 728))
+        horizontalLayout =  QtGui.QHBoxLayout(self.smp_tab_scrollAreaWidgetContents)
+        self.smp_tab_main_verticalLayout.addWidget(self.sample_table.lms_mod_matrix, QtGui.QtCore.Qt.AlignCenter)
+        self.smp_tab_main_verticalLayout.addLayout(self.file_selector.lms_layout)
+        self.file_browser =  LMS_file_browser(self)
+        self.preview_file = ""
+        horizontalLayout.addLayout(self.file_browser.m_file_browser_verticalLayout, -1)
+        horizontalLayout.addLayout(self.smp_tab_main_verticalLayout)
+        f_settings_and_logo_hlayout =  QtGui.QHBoxLayout()
+        f_logo_label =  QtGui.QLabel("", self)
+        f_logo_label.setTextFormat(QtCore.Qt.RichText)
+        f_logo_text = "<html><img src=\"data:image/pngbase64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wHCBEcGthN72sAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAgAElEQVR42u2cd5weZdX3v9fMXbf3kt4rhJJQpSiKNKU3QQED+IgCIiLgI4gIjyAIKIb2gKA0QSBEwFAklCSQkJDesymb7dl67+7dZ67rvH/MfW82kEAC8sr7efd8PvOZ2XtnrrnmnOv8Tp2BARqgARqgARqgARqgARqgARqgARqgARqgARqgARqgARqgL5zU/w8Pucy0gyrlAKVYbVoJ4lOIwsUQVDZ+lAy1Cv9zE9xiulgqbXt1TatE9/jctdK+l/OJ/Fue60Pdzgrp8OagP/n56tPdrHDa/q/z3geQEM0BUrZXF66KtvG+tHO4+vTrQsa3d5N6cHXf8btNGzh60PjP9HDTbG9uc6WRSaocgHm6flC5yjlURKUcjBRbgXAVgRV+Fdr0H4egTaZzfxemuRAXAASVOUUQBGUHlbJLCLxTrnJr9+QG60w7E60yNpnOoRq+4YAroPtGFZWdhfIpFSrAXjJYFSxf3LqFgypGfe4HfMtt4mtWNcpSzNONU8eqgqdz8I0zYHzKUq3phNqoE3cen1N97X8cK9frzkc6dFx6dMJEdFxHTMJETMJEdNxEdFxHTVK2pCPyQu+2S/d0zBodsQBW6/Yrtpuo9JiERExce+Nnt4SOSkoa0j3yRrThjwAiwskXf+9zPc8KswNSPtAtp7WYaKNjUqJ10nUlqUVcebOtqWnsX+#IRD+T/B8J2yIKUkOAvJRSRcEUX16opQSGzu3I5Zq+eGzz2kgD/hUQxBFA9CrRFeAmy8KB9Kqn+4JiB872J50zO8+WNRNZUnFwUq1LQbZ2wd6URo4TXrZYEoZb5VnbEHbT4ar8O3F+ENGTLejUD4sC5TvzXnzIjWX/7wUGAz8X4chq/8faSTtIlojWoOrMY7GOFrEdRENvlRHUzNtd98/PgTD9uQGCWUyY5N2EEcrcTXiaMTVIq5GXI12wE6nYgl34cN/Hcr2znE15eX+vX2YJ6SR09QQFqsSNd5XkWH+9htHq/AfSvCHHHEjBrEAbPxEYnHn3ZdeUvTGchQk/xMasJMAXAQRREBEiYjKWgnlmQDQurc3QHtntQuhPbmBk1nDaREx2RWtlIASFAKIeHcR4zgq2NRSBeSnbWuvXeTvqcGICAepSkF+bS0xrfeMJuc3+djGQXeFrBzbsmyjxQgomru7nM0rV/UADUDXf14AghYlRpQIgskwJyMM8ZilLMG2NXsID66S7F6MiDcektkyx969jChlsG0DaIW1V/Bzuamj07SilAJBLZbLHh5N+KocrKhWdAVV2Ldg7aqeLY3NiZAV8GzElppU6/bWCNC8Sw1I/WHXx1+YABTGiBgjIlqMaDFGY4xGjEY8JmEMfcZhDzRgx14Mok3/MUWMRkR7wjUg0qd3e3iHW3QdANdLkBKrAtw1oQ/M9sfHEZ4eFBXXSqUChOy#/OVnjOvurJVlC0WPgXoRR8uTbN9e2uu7Ws2ZIxVhm7TjYjVz9cIXsVNul5tdps53d36RQlAjFEYAYPKrP7sJhkNEA+n9jSKdrzrcCQzdt+40m/19x/byJ7E6DN0EwA32sMQEYbYlSAP2vNV6b3jVfC7AayoZfkTYRVWD738YvycM09v3vegad0TBg0JGNImjTHrN2xM4EqrLze3s#YPzf1/MIejPLn8qRunPaKbjp9ltsw4WZ7qIz2VTPTN/ILMsIiYjACIgaMxyDxlKJPA8QLD/YQgpwMBKWViEGMx2HxyLMzYkRMxhnKasCnCuByexCXmQbm6SYPdlbB23Lq/ZNV6FK/WF1K+RIBAtz5t8eTPzz3Oy0EfAsvuPZnCUiHFT69taVRL1m3thdo1OlUH/6LCHcoT29nm+bpX1Gh1w8i/EKRnffQf4uMBvhNfNsX5gUZA8YgxogxRok2SsQoMaIyOO2t6D2GoLRI39gaD96MoPvuo4zOGGeTFUs2BPw0ukQUR9qDILHQ/+ak5oemEPpBQKxuywqkgwT1Nffe1XPtxZduJ5567cDHH95wSGHVsLgb1wrLrN24yW1dubITqIsmk33utFIKpUZxndk8bJjyXzOIYEmFlatTrh76xzefnQaoN8PD1BdlhI0RD4JEqQxUKCMefgt4NmJv3POsBng2AE0f/JDVKPG0S7SA7oM3+bQgq5mp9mAAXgkO+= 12+KnhJUKxu2womQgTNj+65I3rXdb+IkEjPRfHClad8u7qI2BBXqSQgKzbXpOnq7QRaPC95ZypQgdwtjhtNi3Li6XTsgT88EI9d8tMxwLC5SskXI4AMMwRv1RuUSJ/nknEZPaTecw3YoV1iyGqTh/+e1VWiMx6RyZiBT/V49Fb2s6oBeFo3XLc/wcvDYnVaVjAWJGCuuO+e+AO/+GUPSWcR8LfDVr9eNxI9EdFKWX43iWMWrlyeBrYDHfzXdC9YWfNW3z0uY8jW1T558fZtNe9/+= 147Ns6a8UAP25q15yzsoJukru94uP5043yts3n3kXBaGa09LehzEz1hq6y3bjKasOdeUBaCPI9HG4UYwSiVcWwVGCXZgEAwWRtg7XK8U81WZlieEbxf1114mArdXIgvaSx/MkxA/WzGXckZV10TQfOOgpcFPvjepG/umysd423spE/5TGNnl6xdujwG1AMdPPSoF0VPGM1pmfuUeJpyG6ce8Vdmzd8PqAjAOicYbJNUqm8+N6thjJM6zhajbrVGfOrq+d3yNsZJhEtU0ccF4AgiGG2UykANiJIdoRJok0WMPdWAfkZYezhvNKItz9VUiIc2RoHps8e7BrlrTC2/t0Z43o+pPf5IQr8px29Syu4uISw3Pvage/fV10bRvGfDTA2LAYw07ROWUKlSOEECZvmWjbptW102AIsCdIpQohQPmMYhSplxGuPmYCdUOqWbGtrc9k1179193Nmb6Mf8i8xWHiOIUoO4NTPln7ubp0ywAlNKlDXUhkItSrkiqV5LWn3kvqlU8fpP0AC09mDGGETjcUdlbaIBZcTI3mRo0kg/A+9tojzf00N6UVmYMyJ2JsZQ7AJms8w/Rzbvd7yE/meQ+HOjmO2VqkDNmD3TvfVn1yZwzCJbqVe0yLJsGJIvTAwpfEaRskCWr1ltki2tWfxPZVY81P/BKkVdeRi5PwphRyPiJPz+kF0/qjj94qgpv83mivLLiult7+IxNcLzwIDpeuPBp6vc6RNV7nHlBEp9+IMCKk3CdZVj1SPJh9zefERuo18izPdRN1QrMVqJMRm30OOHhxUaLLOXXlB2vSTBaI/5ngZkExFKoQGNWAYx2TDgo3SF3qz+ZI+WMrOm+gIJ3TVOAmPTStrLVLH8bf477hU/uEzo6l1iw4tasQAh4WUD77LzlTU5hBKwTRTRy1esdkk5zQq2S78A7OwhF5T3xHum1LRHgoG07h41rDpQHsjJW9i4reXuZ58KZBOQve1d3C+blFJKkNU595u8675C6KKJqrC6K5noeaVu/bYPVq2J9dY1mrNPPj73uNH7Vi1t2RJ77I9/DHP7jGFA3a4F4LmJxiCiFUZJdiUKCGIU2nhovRcCkOxeXNAm44r2yVCMGLxRDf08LNkhiF+brfzaGimYV313UHDTFAkd4kB7tSo2725c61582WUWja3rfPBP11IfYHaU66bknDA4R6xqC4xfBXVTTzsb169PA82Syf8MO3wade9/yKUU9y4g8sRda1e82bK9pXLuoHNPrgqE9QfzF6S54Y6xQDVQA/AjNUZw15Y8ZHJ+e5zKPX+4KkvObli/7sqHHqrb/M68TtZuaGPMsOQhZ510JFjly1asSqUfeWqUDwa7uxWAEm0EnWG0ziSiQUAplAGtTR8s7a0RFo0YrTBGKS19wkVpQTQiGvHtCMS83bsiHJ05vkUm/uRQFTzNRjoLrWKnIRXT5/3gEpVYvX6T37JfckTPxUgnwGXR9eqBvAlylITH56NKUKQtfGZzcwObVq3tyRjgXoC69z/kWunmWKXiwFP886acH57x3VuKc/LCEUmlly9ebJNIB/tlViA51zfDyr3lm4TPGa7KOh9bt2T7pddd16pffateubJWYNHhTzw6ZeqQUacC7sqly10iEW1Dwt2dG5oSjKuM9lxQIwaTCciM1krrbP5mb+KAxI690Uq0UcYYspsYI95v3tjGC8QBLC8Zl2X+RWbTyV9TwR+XiHLE8sUdlHPRz67yNb27oBF4yTH6TYTtAAR8fD3seRmllhpfoCg0SlKAfLhqtTFNzZ1BqKe6MtHnnVDQN+evnDi98Bt5Bfvn4TNNXV3u1rXrU0AT0J0953r/sEsOkcBZw1Rx7+sNG9suveqqmH55TovlytsCfwcWnTtu4ugSUiWtpJI1G2s0rjRh+zt3HwkrLwVhRIwGYxTGZOyBl5rAmB2piL3zgrwVbkzGFhiVgTvPtTWCeEHgjki47x5let3ob6nQNSPxBZOW6imh0L1hxj2+OY89ngbeVvBOxqPJ3NTlTLtKcOf4C8UaHkRZBuW6ICuWLQNDm8Jqo3k7/SPgLBWSHpYrpsTCksZol9teW58CtvvyCjyBpZdW7od9xlArSBd296333a/1G/Njflho4C2gFRFf0HSPCuFTjbEup7GhKQ20S044+gmpCGNcxGRiAaPBuHh77zirAXthhDNuZRJjXEEb8QTrkt28+7mgdV+8B6HSwkzZ+N3gdSp89X4ERkWNjlRT6j49722ZcdvtNvH0IhveFNjcP0AKpNcAUKWqKkvEGmlDCiwdIWU2rFirgWYTDnbubs7Vxh4WgoCNz1lbV6ujXZE40HbiVd9LA1ziK/zGEMPIXPK731q31J3/wosAa1x4D+gAKNdrBgVECnMIuZtrG0xTc2MCaHWMm9ytG9qNcdNoN63ETYObYbTKFGNIK6PSxg0ge26EIxm+dGFMUmknjXJSIo7VT4s0Bgej0qJdMd75kWWrUl6+Z/APv0LgBLTuCdmFqcUdDXLVFZfn0dS6woea6YYCS0imHLBBaRBIByYDMEzZgwpQg7S4SaVy08u3rA/UbN4UA7Zov93dh48foTylxoSU+NKo5LIly6GjsyMELS/dep9B6gtGGvfIEmXbUSTy9D9mWdTUbQfmisXm7DIYZwWG52gpEazYyrXrhW313UCTxOLJ3WpAj4ibEnHSiJvGuGmMk8ak08q4aWWcNOI4RhtELNlDLYhkICiiRCfFG9Pxxs2O6QkdSaeNdsRI35wmS/NBR+M7p0RIpm1fVAglr7n2+rzeFWtbgTdcZKnHfMCSj5mmSqzROUggKW7SIpRetWyNlWpq7AGaNLIz+2VRX4Haj5QFQPWgk9vWbgTHdPhy87oAwsSrCmFoyA7GmuKR9NL3F9jAFmATZkdOKWBMVS4qN44b37htC0RTPUDnR1MZvp1Xq9YppdNpMCmviLVTYSSNIW20f2+McCQDQZ2idRKTdjCBJOLafQk3wcWQwkhajIsYG4ghC0Inkb54InZJr2U6B1Pm3v3Mn3MXPvpUGngVeANo7LuR+Xh0XiLWmDColOhkAkmvWrNG0ZNsAbbSE+vzaEqlkY5MAxeyuCwgUhxQttMgXelt9dv8QKvtOj14lftB+ZDjw59aV1+ruzZtdfAgcEf3mXyfYsOIQmzVRTy1tmaDBXQoiMgndUV0KeMmMek0Iimvf6efaVIkEZPSThARa08F0J6Jc9owOqa0kxSVTilxrIwTqgAtmhTGpMQNeqVjzMh03qmHBexpgukKUJJ4ddVC/+= 1vvKYIWMCIQe+y9Y0WmBzEmWdjW2ApENtzF6yVSWSf0jBU+8TVxvYn6+PbZd68dy2gla/uF+Pt5UFI2JsJJ0Z7AVUm4gxU54hb4icQ27C5RtXX1TlAi5tKRT2GmWKlMA5WYmtLnS/V0d0L1OOz47jZmO7y4WPhgELbl9ja0p5uWLchnIm6ez+xLSWB0XExblIpk0Q8AcgOnzyFNo6Ng9rzgnkPntcbtYxKiXFTaCcJacsLMJQXYRuSGJ0U7RBPpjls8rgzAzlHVKHcTqWjhRi9cMHcnAnTpsSHnnJsoOo7J52aS/hkJRt82OVeVkkwmdq+MnK0SYhYByhVmUTHbBVw2yOd1qgxw2MjvnHYyFFXfO/KMraEVrqp7tE+/8NAHQ2tWXeoNMfoPG37Yptrtob0toYosCUGcYAWcU2vMqk0WhmlLGMrA7Ti6j5ImyT+E6Yp32AXq2dDc6OVqG9KAVvl0wTgpBJuNOBPJZVFQjKc61f7iitXVGE4TV7INtH4HrWN2JmoI5xOhfAFVFypVBJx+1I9CjRaJTA6rkw8lUrq8qMPm3oA4YoYTk/MaDdGMyecd0r3uRd/v0vbUuiSOFhE24I/G8zJjgYmyeRSlRGRRLcioSSurMqg3Hjvnc3Kb+c6xA8N4cupfX9RC088NQKoY+gxAlDkOGVhbF8MFV+0eHEO0ZTmoPG+ykXrfduVciLNjW3ri6qiU3Py/OMmjeutOHJqUdNLr48lyQe8e2Ww4qjpp00n/8Qc7SZ6bZ+zYPGComRtszC4hIL1r9KTf8juBdDd2qrbqwLJqkDIinsa0Ociiwgh5eqc0kJfqLIsN9nSmbsnAjgoMFxeBQq6e6p9JTkqaqlEUkT3UyGlcYkjbiQStdBuwYRRw8uqyXWTpFNByzZgCOWFxcJGSFk+fFHZZcnG0wCFLQkV9fXqXiVKiQJVaJe4QbtQOyRVPnk9rUR9i#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#faQbTfmr7DId0MYOKOwQlhVC2UGwg2AFwQorZeVgWSGlrJDCCivLCmHZQcEOidghhRVUyg6i7KAYy+= 16/kp/pTb4zavfuuwEd/VWDbwgYlbxkS7lPaLWm7z9SZOKioZUDC0tKkgHEBXAsiNL11WgaQCaMcb5cgsA4OenePun3nume9naV2bd/uDkjqam4qG+YU6BCloBZXwBxA5mNxE7KFhBhRUUrADKDkDmf3jHgu0XsQKWsQutsDXOv3+0tydhPXvsd7/V+= 1oHpcDf8KpaLZ/pKSpu9vbDqksqh1SUVIYK3GLyROuOcG99cx6wDejM1P6/VGTv9NcdF8LNz8IlX4OltbC2cXEqV7F5xfpvOpLMHT5+bG+FqnL8SpSljGUjlgWWBZaNWDbGssGyEGWD8imsgGWpoPJTpApMGUPTNnl67j+eHTb7u9cdm1i4TgHPALOA9f26WD4bXfj1r+wzcdyhQ8tK3VwqUrULV1SsenzmCNMVezWTAkh/2QTwcRP+1NVw/t3wrf3hleXeb/sMOpyCvIvLJo0ZPeVbR3RNOuqQtvLi8pSFiIurBLEE3RevebGDJRaW2PjF4JOWzqbAyhf/VbX2mTdGds1fUUZSr8z40PMzrR768z6M/8lrvl1qOM+qaQqZ+vbCaO32odGlG5vpSdyU8ev1l18A#Nd+OWT3vGJ+8Ps5X32jfKck6guPb1wSNXw4lGDTeW+Y2JlVVWJguLCdDg/z7GV36AQx03ZyZ6ov6ezx9e0eXNex4qa4o4VmwviG+uFtK4HFmYgZzXQCv8maHjj5jBL1g/mwdfHsK1zGpCP316Po+f0b4b6UgsgZTRBa2dk4pSDFf9YJAB+i3JHcTCFOQfisydaAX+pnRvMsQL+oFLKJyJKHBcTS2F6E2LiqThp3QnUKliFz64RbeoQae7XtfK5KDD/TtJL1sBP/gLARLA2KV+BEdfSYLBUDCOOZ/LMl1cARhss27PLruNYSZ9P8nbfC6+Asky+pBwownvZ2e6rYHoMjmS2LiwrkmmQ+I9CwYUi/FV9yb5T4mZyIo7emTciEhSRHBHx74VQVf88ypeBfuG6Rd/v6BiS/ftKkS8fHkki2Z/xh4rIb7pE/rZN5B9NIo9HRe4Uke+ISJ7XvKbIHVzJ+Jsu3jvR/AfoayKnDHnlldnsu8/XANQBB3z5PtXTnO1KE/nBWpGWW5cu3f6t227beuTPr9l03C23bP2v117r+u9ly9xpV1313ztBl+MgIkqLWAkRKymiutK79ii7jKEunc7eh6QxqlHEWua66lc1NZk8hkFEVJ0x1gcialby4wHse1rzjuMoGpsQEdYbo2YZox4RUX/aRYfEOJGTAw89tIGSktsBeOAB5vV6JdqV3d08aIy6WkRNN0adY0xfueGSJu9tzF/W1vIzEc6Kezm3f4rwGxF1Vne34lLvddahd9zxb9ACkanrRbac+Pjjq1HqCeAnwInAcfh857Hf/o9QUfGU8vD/U2lRKslNrsvizAtIn0bPObsPVs9obeMmEd7aQ/iYGo/3F8CJgYceXEJJya8BeOSRPRtn6VJO6u7+1NOqfvUr7z733vv5BBARufSe7u4tHHjgc8AJj4vs5BKNggAwnJycvH5CGywiJ4rIpWmRa0TkIhHp+9bMhGf+1nd9UsyE9t7eqZnrhorI9FaRHzeKHPaRhXBko8gPVoqc0yRS9dF5fmhM2ZJEYlrm3Jw6keNeFDn/SZGvikjwY0lSkRMDDz20NCuAM5Yt63+v0NMiB1wtcvxFIid8v9/ccxcvBuD6FSusX4mM+i9jKgBqRIbcKnLsOSJHZdt0yi+7bK/5/bEvKb0IkRafL11+8ME9bUuXzrlAKZ2FC6UUWzzvZhuZ1bVQpGxWc/OTa1atOrhm85bWaCpJ0YQJwUnHHLP9Fq1vudG2Z64/9zt9489GXbhg27YjH37rraeeXbXq3Jfffntwa34+1aeeGj+yu/v2ufXbnl9QNejWnz#wrcXbFhv/EccoXxHHfVh7quv3xI74bia0hNvlTQAAAoRSURBVHvuoeOnP+VVpfZbWV#i2/e8buXH9i+fczMF144rKahwQ4cepj/18d87V221t7GyBF9DbsGRPpBywsHHADAv0TGXKD19PeeeurQtsWLc1Aq15o61Q1+= 1OHzqXXrZsQOOqgb4O9TpvispqbLOp57rviMJUveuGjevNPXL148JrZ1ayHPPnsD8GzH/Pl7/P70rqAHgP2XLNnn0p6e96/u6Zk/q63tfBEZKyI5u7vuWpH84dOnX01h4aPANcB3gR+NfOwvLx/b2rao7Kabjui7x+rV6gaRn56ZTL579tNPLy0aPfoR4GfAxfz5kb9UJxLP37pmzUNn3nDjy8CdwA845JBfsrHmX/5nnvkz/WDvdJFDq5PJJ8fOnv1e+fHHvwbcDlzC8OG38Ne/ruKVl5+juqpPc4aJnOC7#6lFBfflP1toUjFScb83vejHy/IROU3ABcxZcp9/O53Hfz2tw+qTL6sQMTPkiW/sZ58cnn+ddctoKrqWeBO8vJm4PdfZmXO+1wQlBVCxS23XHHs3Lmbb04mN80UeW+xyGONIrekRU7uf+55m7f1T+rt/PWUQYMrjunoeHnIr371RKauy51vvKF+L/KTk1pb5zFx0kzg+Hs7OnwAk/71xn4HiDw9+L77FgD/HbCtMdmhBsfjlwdnzfqAsrIzs79NFzlknMgzXHrpO8AvSgcN2tGlcdtt5zFr1gZOOeXX2Z+GiJzgmzFjKcXFfb+dJnJa7h/+MAf4CzB5p/lff/2V/PrXrUyefDZAWW1t0Kqru4E771xHQcErCo4ZHgplk5kh8vOtz8LznS7KyVjx1htv/NO/zj#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#1fSKR7oydcb4uMnXZO+/c1fm9C5bQUP9HJk2+mGBgKs3NMVpatmTqzB/0jX/0UZUsWXoh0Wgn8GdAKC1VdHSIgjIpL/8vSksPwraDxGIxGhvbcJx6vFehPgRg9Ohp1NWdieO8lqno/fvpxn4JqikQyoHyIAwvhCEVOeG8j10wZUqfEENQmQvDK4uKivuqVWATDH58xdh2gIMO8o7vuqv/ivCRn78j/3TmWf0A0wpkb/ZVkQOK57w1h1GjHspCaT6UB2AYlZU73l2oKP9YAY2hQ/tl0ar65h+GXD8M9sOwIBQU7TpZp/D7/fw/SYHAx38755xdn2vbnzjUESJTi9+b/y5jxjwA5O5hxXsHle3Fx8p3Vz37lDl+JiP8hVJ6F10hzz6763P1J1ctu5JJK718eSGxWN5uWW19AoPa9+KT+rtLW+svS5OFbe9YDf+GVbEndIqIZY0dexa2/SPIfOghN/fzPUNeHgP0abR8CaMff2LnhX7uuQN8+VJo4QANMH+ABmiABmiABmiABmiABmiABmiABmiABmiABmh39H8A0Z5o4CSEcKoAAAAASUVORK5CYII=\"/></html>"
+        f_logo_label.setText(f_logo_text)
+        f_logo_label.setMinimumSize(90, 30)
+        f_logo_label.setAlignment(QtCore.Qt.AlignCenter)
+        f_logo_label.show()
+        f_settings_and_logo_hlayout.addWidget(f_logo_label, -1, QtGui.QtCore.Qt.AlignRight)
+        self.smp_tab_main_verticalLayout.addLayout(f_settings_and_logo_hlayout, -1)
+        self.sample_tab_horizontalLayout.addWidget(self.smp_tab_scrollAreaWidgetContents)
+        self.main_tab.addTab(self.sample_tab, ())
+        self.poly_fx_tab =  QtGui.QWidget()
+        self.main_tab.addTab(self.poly_fx_tab, ())
+        self.mono_fx_tab =  QtGui.QWidget()
+        self.main_tab.addTab(self.mono_fx_tab, ())
+        self.main_v_layout.addWidget(self.main_tab)
+        self.main_tab.setTabText(self.main_tab.indexOf(self.sample_tab), "Samples" )
+        self.main_tab.setTabText(self.main_tab.indexOf(self.poly_fx_tab), "Poly FX" )
+        self.main_tab.setTabText(self.main_tab.indexOf(self.mono_fx_tab), "Mono FX" )
+        self.main_tab.setCurrentIndex(0)
+        self.sample_table.lms_mod_matrix.resizeColumnsToContents()
+        #m_sample_table.lms_mod_matrix.horizontalHeader().setStretchLastSection(True)
+
+        #m_view_sample_tab
+        self.view_sample_tab =  QtGui.QWidget()
+        #m_view_sample_tab.setStyleSheet(("color : white background-color : black"))
+        self.main_tab.addTab(self.view_sample_tab, ())
+        self.main_tab.setTabText(self.main_tab.indexOf(self.view_sample_tab), "View" )
+        self.view_sample_tab_main_vlayout =  QtGui.QVBoxLayout(self.view_sample_tab)
+        self.view_sample_tab_main_vlayout.setContentsMargins(0, 0, 0, 0)
+        self.start_end_label =  QtGui.QLabel(self.view_sample_tab)
+        self.start_end_label.setText(("Start/End"))
+        self.view_sample_tab_main_vlayout.addWidget(self.start_end_label, -1, QtGui.QtCore.Qt.AlignHCenter)
+        #Sample Start
+        self.sample_start_hlayout =  QtGui.QHBoxLayout()
+        self.sample_start_left_hspacer =  QtGui.QSpacerItem(0, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_start_hlayout.addItem(self.sample_start_left_hspacer)
+        self.sample_start_hslider =  QtGui.QSlider(self.view_sample_tab)
+        self.sample_start_hslider.setMaximum(10000)
+        self.sample_start_hslider.setOrientation(QtCore.Qt.Horizontal)
+        self.sample_start_hlayout.addWidget(self.sample_start_hslider)
+        self.sample_start_right_hspacer =  QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_start_hlayout.addItem(self.sample_start_right_hspacer)
+        self.view_sample_tab_main_vlayout.addLayout(self.sample_start_hlayout)
+        #Sample End
+        self.sample_end_hlayout =  QtGui.QHBoxLayout()
+        self.sample_end_left_hspacer =  QtGui.QSpacerItem(0, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_end_hlayout.addItem(self.sample_end_left_hspacer)
+        self.sample_end_hslider =  QtGui.QSlider(self.view_sample_tab)
+        self.sample_end_hslider.setObjectName(("wavright"))
+        self.sample_end_hslider.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.sample_end_hslider.setMaximum(10000)
+        self.sample_end_hslider.setValue(0)
+        self.sample_end_hslider.setOrientation(QtCore.Qt.Horizontal)
+        self.sample_end_hslider.setInvertedAppearance(False)
+        self.sample_end_hslider.setInvertedControls(False)
+        self.sample_end_hlayout.addWidget(self.sample_end_hslider)
+        self.sample_end_right_hspacer =  QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_end_hlayout.addItem(self.sample_end_right_hspacer)
+        self.view_sample_tab_main_vlayout.addLayout(self.sample_end_hlayout)
+        self.loop_start_end_label =  QtGui.QLabel(self.view_sample_tab)
+        self.loop_start_end_label.setText(("Loop Start/End"))
+        self.view_sample_tab_main_vlayout.addWidget(self.loop_start_end_label, -1, QtGui.QtCore.Qt.AlignHCenter)
+        #Sample Loop Start
+        self.sample_loop_start_hlayout =  QtGui.QHBoxLayout()
+        self.sample_loop_start_left_hspacer =  QtGui.QSpacerItem(0, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_loop_start_hlayout.addItem(self.sample_loop_start_left_hspacer)
+        self.sample_loop_start_hslider =  QtGui.QSlider(self.view_sample_tab)
+        self.sample_loop_start_hslider.setObjectName(("wavleft"))
+        self.sample_loop_start_hslider.setMaximum(10000)
+        self.sample_loop_start_hslider.setOrientation(QtCore.Qt.Horizontal)
+        self.sample_loop_start_hlayout.addWidget(self.sample_loop_start_hslider)
+        self.sample_loop_start_right_hspacer =  QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_loop_start_hlayout.addItem(self.sample_loop_start_right_hspacer)
+        self.view_sample_tab_main_vlayout.addLayout(self.sample_loop_start_hlayout)
+        #Sample Loop End
+        self.sample_loop_end_hlayout =  QtGui.QHBoxLayout()
+        self.sample_loop_end_left_hspacer =  QtGui.QSpacerItem(0, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_loop_end_hlayout.addItem(self.sample_loop_end_left_hspacer)
+        self.sample_loop_end_hslider =  QtGui.QSlider(self.view_sample_tab)
+        self.sample_loop_end_hslider.setObjectName(("wavright"))
+        self.sample_loop_end_hslider.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.sample_loop_end_hslider.setMaximum(10000)
+        self.sample_loop_end_hslider.setValue(0)
+        self.sample_loop_end_hslider.setOrientation(QtCore.Qt.Horizontal)
+        self.sample_loop_end_hslider.setInvertedAppearance(False)
+        self.sample_loop_end_hslider.setInvertedControls(False)
+        self.sample_loop_end_hlayout.addWidget(self.sample_loop_end_hslider)
+        self.sample_loop_end_right_hspacer =  QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_loop_end_hlayout.addItem(self.sample_loop_end_right_hspacer)
+        self.view_sample_tab_main_vlayout.addLayout(self.sample_loop_end_hlayout)
+        #Sample Graph
+        self.sample_graph_hlayout =  QtGui.QHBoxLayout()
+        self.sample_graph_left_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_graph_hlayout.addItem(self.sample_graph_left_hspacer)
+        self.sample_graph =  LMS_sample_graph(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT, 300, LMS_SAMPLE_GRAPH_WIDTH, self.view_sample_tab)
+        self.sample_graph_hlayout.addWidget(self.sample_graph.m_sample_graph)
+        self.sample_graph_right_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_graph_hlayout.addItem(self.sample_graph_right_hspacer)
+        self.view_sample_tab_main_vlayout.addLayout(self.sample_graph_hlayout)
+        #The combobox for selecting the sample on the 'view' tab
+        self.sample_view_select_sample_hlayout =  QtGui.QHBoxLayout()
+        self.sample_view_extra_controls_left_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_view_select_sample_hlayout.addItem(self.sample_view_extra_controls_left_hspacer)
+        self.sample_view_extra_controls_gridview =  QtGui.QGridLayout()
+        self.selected_sample_index_combobox =  QtGui.QComboBox(self.view_sample_tab)
+        sizePolicy1 = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.selected_sample_index_combobox.sizePolicy().hasHeightForWidth())
+        self.selected_sample_index_combobox.setSizePolicy(sizePolicy1)
+        self.selected_sample_index_combobox.setMinimumWidth(320)
+        for f_i in range(pydaw_ports.pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            self.selected_sample_index_combobox.addItem("")
+        self.sample_view_extra_controls_gridview.addWidget(self.selected_sample_index_combobox, 1, 0, 1, 1)
+        self.selected_sample_index_label =  QtGui.QLabel(self.view_sample_tab)
+        self.sample_view_extra_controls_gridview.addWidget(self.selected_sample_index_label, 0, 0, 1, 1)
+        self.sample_view_select_sample_hlayout.addLayout(self.sample_view_extra_controls_gridview)
+        self.sample_view_extra_controls_right_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_view_select_sample_hlayout.addItem(self.sample_view_extra_controls_right_hspacer)
+        self.view_sample_tab_main_vlayout.addLayout(self.sample_view_select_sample_hlayout)
+        #The loop mode combobox
+        self.loop_mode_combobox =  QtGui.QComboBox(self.view_sample_tab)
+        self.loop_mode_combobox.addItems(["Off", "On"])
+        self.loop_mode_label =  QtGui.QLabel(self.view_sample_tab)
+        self.loop_mode_label.setText(("Loop Mode"))
+        self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_label, 0, 1, 1, 1)
+        self.sample_view_extra_controls_gridview.addWidget(self.loop_mode_combobox, 1, 1, 1, 1)
+        #connect(self.loop_mode_combobox, SIGNAL(currentIndexChanged(int)), self, SLOT(loopModeChanged(int)))
+        #The file select on the 'view' tab
+        self.sample_view_file_select_hlayout =  QtGui.QHBoxLayout()
+        self.sample_view_file_select_left_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_view_file_select_hlayout.addItem(self.sample_view_file_select_left_hspacer)
+        self.view_file_selector =  LMS_file_select(self.view_sample_tab)
+        self.view_file_selector.lms_file_path.setMinimumWidth(400)
+        self.sample_view_file_select_hlayout.addLayout(self.view_file_selector.lms_layout)
+        self.sample_view_file_select_right_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.sample_view_file_select_hlayout.addItem(self.sample_view_file_select_right_hspacer)
+        self.view_sample_tab_main_vlayout.addLayout(self.sample_view_file_select_hlayout)
+        self.view_sample_tab_lower_vspacer =  QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.view_sample_tab_main_vlayout.addItem(self.view_sample_tab_lower_vspacer)
+        self.selected_sample_index_label.setText( "Selected Sample" )
+        for f_i in range(pydaw_ports.pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            self.sample_starts[f_i] = 0
+            self.sample_ends[f_i] = 0
+            self.sample_loop_starts[f_i] = 0
+            self.sample_loop_ends[f_i] = 0
+            self.sample_loop_modes[f_i] = 0
+            self.sample_selected_monofx_groups[f_i] = 0
+        #end self.view_sample_tab
+        #From Ray-V PolyFX
+        f_lfo_types = ["Off" , "Sine" , "Triangle"]
+        """This string is generated by running presets_to_qstring.pl script in the packaging folder on the .tsv file associated with self plugin
+        in ~/pydaw . If modifying self plugin by changing the number of parameters to be saved by presets, you should comment self out
+        and uncomment the section above it."""
+        #LMS_style_info * f_info =  LMS_style_info(64)
+         #f_info.LMS_set_label_style("background-color: white border: 1px solid black border-radius: 6px QtGui.QComboBox{color:whitebackground-color:black:", 60)
+        self.main_layout =  LMS_main_layout(self.poly_fx_tab)
+        #From Modulex
+        self.fx0 =  pydaw_modulex_single(self, ("FX0"), a_style, pydaw_ports.EUPHORIA_FX0_KNOB0, pydaw_ports.EUPHORIA_FX0_KNOB1, pydaw_ports.EUPHORIA_FX0_KNOB2, pydaw_ports.EUPHORIA_FX0_COMBOBOX)
+        self.main_layout.lms_add_widget(self.fx0.lms_groupbox.lms_groupbox)
+        self.fx1 =  pydaw_modulex_single(self, ("FX1"), a_style, pydaw_ports.EUPHORIA_FX1_KNOB0, pydaw_ports.EUPHORIA_FX1_KNOB1, pydaw_ports.EUPHORIA_FX1_KNOB2, pydaw_ports.EUPHORIA_FX1_COMBOBOX)
+        self.main_layout.lms_add_widget(self.fx1.lms_groupbox.lms_groupbox)
+        self.main_layout.lms_add_layout()
+        self.fx2 =  pydaw_modulex_single(self, ("FX2"), a_style, pydaw_ports.EUPHORIA_FX2_KNOB0, pydaw_ports.EUPHORIA_FX2_KNOB1, pydaw_ports.EUPHORIA_FX2_KNOB2, pydaw_ports.EUPHORIA_FX2_COMBOBOX)
+        self.main_layout.lms_add_widget(self.fx2.lms_groupbox.lms_groupbox)
+        self.fx3 =  pydaw_modulex_single(self, ("FX3"), a_style, pydaw_ports.EUPHORIA_FX3_KNOB0, pydaw_ports.EUPHORIA_FX3_KNOB1, pydaw_ports.EUPHORIA_FX3_KNOB2, pydaw_ports.EUPHORIA_FX3_COMBOBOX)
+
+        self.main_layout.lms_add_widget(self.fx3.lms_groupbox.lms_groupbox)
+        self.main_layout.lms_add_layout()
+        #New mod matrix
+        f_mod_matrix_columns = [
+            "FX0\nCtrl1", "FX0\nCtrl2", "FX0\nCtrl3", "FX1\nCtrl1", "FX1\nCtrl2", "FX1\nCtrl3",
+            "FX2\nCtrl1", "FX2\nCtrl2", "FX2\nCtrl3","FX3\nCtrl1", "FX3\nCtrl2", "FX3\nCtrl3"
+        ]
+        self.polyfx_mod_matrix[0] =  LMS_mod_matrix(self, pydaw_ports.EUPHORIA_MODULATOR_COUNT, f_mod_matrix_columns, pydaw_ports.EUPHORIA_PFXMATRIX_FIRST_PORT, a_style)
+        self.polyfx_mod_matrix[0].lms_mod_matrix.setVerticalHeaderLabels(List() , ("ADSR Amp") , ("ADSR 2") , ("Ramp Env") , ("LFO"))
+        self.main_layout.lms_add_widget(self.polyfx_mod_matrix[0].lms_mod_matrix)
+        self.polyfx_mod_matrix[0].lms_mod_matrix.resizeColumnsToContents()
+        self.main_layout.lms_add_layout()
+        #End from Modulex
+        self.adsr_amp =  LMS_adsr_widget(self, a_style, True, pydaw_ports.EUPHORIA_ATTACK, pydaw_ports.EUPHORIA_DECAY, pydaw_ports.EUPHORIA_SUSTAIN, pydaw_ports.EUPHORIA_RELEASE, ("ADSR Amp"))
+        self.adsr_amp.lms_release.lms_knob.setMinimum(5) #overriding the default for self, because we want a low minimum default that won't click
+        self.main_layout.lms_add_widget(self.adsr_amp.lms_groupbox_adsr.lms_groupbox)
+        self.groupbox_noise =  LMS_group_box(self, ("Noise"), a_style)
+        self.main_layout.lms_add_widget(self.groupbox_noise.lms_groupbox)
+        self.noise_amp =  pydaw_knob_control(("Vol"), -60, 0, 1, 30, (""), self.groupbox_noise.lms_groupbox, a_style, lms_kc_integer, pydaw_ports.EUPHORIA_NOISE_AMP)
+        self.groupbox_noise.lms_add_h(self.noise_amp)
+        #connect(self.noise_amp.lms_knob, SIGNAL(valueChanged(int)), self, SLOT(noiseAmpChanged(int)))
+        self.noise_type =  LMS_combobox(("Type"), self, List() , ("Off") , ("White") , ("Pink"), pydaw_ports.EUPHORIA_NOISE_TYPE, a_style)
+        self.noise_type.lms_combobox.setMinimumWidth(87)
+        self.groupbox_noise.lms_add_h(self.noise_type)
+        #connect(self.noise_type.lms_combobox, SIGNAL(currentIndexChanged(int)), self, SLOT(noise_typeChanged(int)))
+        self.adsr_filter =  LMS_adsr_widget(self, a_style, False, pydaw_ports.EUPHORIA_FILTER_ATTACK, pydaw_ports.EUPHORIA_FILTER_DECAY, pydaw_ports.EUPHORIA_FILTER_SUSTAIN, pydaw_ports.EUPHORIA_FILTER_RELEASE, ("ADSR 2"))
+        self.main_layout.lms_add_widget(self.adsr_filter.lms_groupbox_adsr.lms_groupbox)
+        self.pitch_env =  LMS_ramp_env(self, a_style, pydaw_ports.EUPHORIA_PITCH_ENV_TIME, -1, -1, False, ("Ramp Env"), False)
+        self.main_layout.lms_add_widget(self.pitch_env.lms_groupbox.lms_groupbox)
+        #connect(self.pitch_env.lms_time_knob.lms_knob, SIGNAL(valueChanged(int)), self, SLOT(pitchEnvTimeChanged(int)))
+        self.lfo =  LMS_lfo_widget(self, a_style, pydaw_ports.EUPHORIA_LFO_FREQ, pydaw_ports.EUPHORIA_LFO_TYPE, f_lfo_types, ("LFO"))
+        self.main_layout.lms_add_widget(self.lfo.lms_groupbox.lms_groupbox)
+        #Overriding the default so we can have a faster LFO
+        self.lfo.lms_freq_knob.lms_knob.setMaximum(1600)
+
+        self.lfo_pitch =  pydaw_knob_control(("Pitch"), -36, 36, 1, 0, ("0"), self.lfo.lms_groupbox.lms_groupbox, a_style, lms_kc_integer, pydaw_ports.EUPHORIA_LFO_PITCH)
+        self.lfo.lms_groupbox.lms_add_h(self.lfo_pitch)
+
+        #MonoFX Tab
+        self.mono_fx_tab_main_layout =  LMS_main_layout(self.mono_fx_tab)
+        self.selected_container =  QtGui.QWidget()
+        self.mono_fx_tab_selected_hlayout =  QtGui.QHBoxLayout(self.selected_container)
+        self.mono_fx_tab_selected_sample =  QtGui.QComboBox(self.mono_fx_tab)
+        self.mono_fx_tab_selected_group =  QtGui.QComboBox(self.mono_fx_tab)
+        self.mono_fx_tab_selected_sample_label =  QtGui.QLabel()
+        self.mono_fx_tab_selected_sample_label.setText(("Selected Sample:"))
+        self.mono_fx_tab_selected_group_label =  QtGui.QLabel()
+        self.mono_fx_tab_selected_group_label.setText(("FX Group:"))
+        for f_i in range(1, pydaw_ports.EUPHORIA_MONO_FX_GROUPS_COUNT):
+            self.mono_fx_tab_selected_group.addItem(str(f_i))
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            self.mono_fx_tab_selected_sample.addItem("")
+
+        self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_sample_label)
+        self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_sample)
+        self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_group_label)
+        self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_group)
+        self.mono_fx_tab_main_layout.lms_add_widget(self.selected_container)
+        self.mono_fx_tab_main_layout.lms_add_layout()
+        self.mono_fx0 =  pydaw_modulex_single(self, ("FX0"), a_style, pydaw_ports.EUPHORIA_FX0_KNOB0, pydaw_ports.EUPHORIA_FX0_KNOB1, pydaw_ports.EUPHORIA_FX0_KNOB2, pydaw_ports.EUPHORIA_FX0_COMBOBOX)
+        self.mono_fx_tab_main_layout.lms_add_widget(self.mono_fx0.lms_groupbox.lms_groupbox)
+        self.mono_fx1 =  pydaw_modulex_single(self, ("FX1"), a_style, pydaw_ports.EUPHORIA_FX1_KNOB0, pydaw_ports.EUPHORIA_FX1_KNOB1, pydaw_ports.EUPHORIA_FX1_KNOB2, pydaw_ports.EUPHORIA_FX1_COMBOBOX)
+        self.mono_fx_tab_main_layout.lms_add_widget(self.mono_fx1.lms_groupbox.lms_groupbox)
+        self.mono_fx_tab_main_layout.lms_add_layout()
+        self.mono_fx2 =  pydaw_modulex_single(self, ("FX2"), a_style, pydaw_ports.EUPHORIA_FX2_KNOB0, pydaw_ports.EUPHORIA_FX2_KNOB1, pydaw_ports.EUPHORIA_FX2_KNOB2, pydaw_ports.EUPHORIA_FX2_COMBOBOX)
+        self.mono_fx_tab_main_layout.lms_add_widget(self.mono_fx2.lms_groupbox.lms_groupbox)
+        self.mono_fx3 =  pydaw_modulex_single(self, ("FX3"), a_style, pydaw_ports.EUPHORIA_FX3_KNOB0, pydaw_ports.EUPHORIA_FX3_KNOB1, pydaw_ports.EUPHORIA_FX3_KNOB2, pydaw_ports.EUPHORIA_FX3_COMBOBOX)
+        self.mono_fx_tab_main_layout.lms_add_widget(self.mono_fx3.lms_groupbox.lms_groupbox)
+        self.mono_fx_tab_main_layout.lms_add_layout()
+        self.master =  LMS_master_widget(self, a_style, pydaw_ports.EUPHORIA_MASTER_VOLUME, -1,
+        -1, pydaw_ports.EUPHORIA_MASTER_GLIDE, pydaw_ports.EUPHORIA_MASTER_PITCHBEND_AMT, ("Master"), False)
+        self.mono_fx_tab_main_layout.lms_add_widget(self.master.lms_groupbox.lms_groupbox)
+        self.master.lms_master_volume.lms_knob.setMinimum(-24)
+        self.master.lms_master_volume.lms_knob.setMaximum(24)
+        self.mono_fx_tab_main_layout.lms_add_layout()
+
+
+    def clearAllSamples():
+        for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            set_selected_sample_combobox_item(i, (""))
+            self.sample_graph.clearPixmap(i)
+            f_item =  QtGui.QTableWidgetItem()
+            f_item.setText((""))
+            f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            self.sample_table.lms_mod_matrix.setItem(i, SMP_TB_FILE_PATH_INDEX, f_item)
+        generate_files_string()
+        self.view_file_selector.lms_set_file((""))
+        self.file_selector.lms_set_file((""))
+
+    def mapAllSamplesToOneMonoFXgroup():
+        f_orig_index = self.mono_fx_tab_selected_sample.currentIndex()
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            self.mono_fx_tab_selected_sample.setCurrentIndex(f_i)
+            self.mono_fx_tab_selected_group.setCurrentIndex(f_i)
+        self.mono_fx_tab_selected_sample.setCurrentIndex(f_orig_index)
+
+    def mapAllSamplesToOneWhiteKey():
+        f_current_note = 36
+        i_white_notes = 0
+        f_white_notes = [2,2,1,2,2,2,1]
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            #((LMS_note_selector*)(self.sample_table.lms_mm_columns[SMP_TB_NOTE_INDEX].controls[f_i])).lms_set_value(f_current_note)
+            #((LMS_note_selector*)(self.sample_table.lms_mm_columns[SMP_TB_HIGH_NOTE_INDEX].controls[f_i])).lms_set_value(f_current_note)
+            #((LMS_note_selector*)(self.sample_table.lms_mm_columns[SMP_TB_LOW_NOTE_INDEX].controls[f_i])).lms_set_value(f_current_note)
+            f_current_note += f_white_notes[i_white_notes]
+            i_white_notes+= 1
+            if i_white_notes >= 7:
+                i_white_notes = 0
+    def viewSampleSelectedIndexChanged(a_index):
+        if(self.suppress_selected_sample_changed):
+            return
+        #f_radio_button = (QRadioButton*)m_sample_table.lms_mod_matrix.cellWidget(a_index , SMP_TB_RADIOBUTTON_INDEX)
+        f_radio_button.click()
+
+    def loopModeChanged(a_value):
+        self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+        self.sample_loop_modes[(self.sample_table.lms_selected_column)] = a_value
+
+    def sampleStartChanged(a_value):
+        self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+        f_diff = 10000 - self.sample_ends[(self.sample_table.lms_selected_column)]
+        if((f_diff - a_value) < 100):
+            self.sample_ends[(self.sample_table.lms_selected_column)] = 9900 - a_value
+            if((self.sample_ends[(self.sample_table.lms_selected_column)]) < 0):
+                self.sample_ends[(self.sample_table.lms_selected_column)] = 0
+                self.sample_starts[(self.sample_table.lms_selected_column)] = 9900
+                self.sample_start_hslider.setValue((self.sample_starts[(self.sample_table.lms_selected_column)]))
+            else:
+                self.sample_starts[(self.sample_table.lms_selected_column)] = a_value
+            self.sample_end_hslider.setValue((self.sample_ends[(self.sample_table.lms_selected_column)]))
+        else:
+            self.sample_starts[(self.sample_table.lms_selected_column)] = a_value
+
+    def sampleEndChanged(a_value):
+        self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+        f_diff = 10000 - self.sample_starts[(self.sample_table.lms_selected_column)]
+        if((f_diff - a_value) < 100):
+            self.sample_starts[(self.sample_table.lms_selected_column)] = 9900 - a_value
+            if((self.sample_starts[(self.sample_table.lms_selected_column)]) < 0):
+                self.sample_starts[(self.sample_table.lms_selected_column)] = 0
+                self.sample_ends[(self.sample_table.lms_selected_column)] = 9900
+                self.sample_end_hslider.setValue((self.sample_ends[(self.sample_table.lms_selected_column)]))
+            else:
+                self.sample_ends[(self.sample_table.lms_selected_column)] = a_value
+            self.sample_start_hslider.setValue((self.sample_starts[(self.sample_table.lms_selected_column)]))
+        else:
+            self.sample_ends[(self.sample_table.lms_selected_column)] = a_value
+
+    def sampleLoopStartChanged(a_value):
+        self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+        f_diff = 10000 - self.sample_loop_ends[(self.sample_table.lms_selected_column)]
+        if((f_diff - a_value) < 100):
+            self.sample_loop_ends[(self.sample_table.lms_selected_column)] = 9900 - a_value
+            if((self.sample_loop_ends[(self.sample_table.lms_selected_column)]) < 0):
+                self.sample_loop_ends[(self.sample_table.lms_selected_column)] = 0
+                self.sample_loop_starts[(self.sample_table.lms_selected_column)] = 9900
+                self.sample_loop_start_hslider.setValue((self.sample_loop_starts[(self.sample_table.lms_selected_column)]))
+            else:
+                self.sample_loop_starts[(self.sample_table.lms_selected_column)] = a_value
+            self.sample_loop_end_hslider.setValue((self.sample_loop_ends[(self.sample_table.lms_selected_column)]))
+        else:
+            self.sample_loop_starts[(self.sample_table.lms_selected_column)] = a_value
+
+    def sampleLoopEndChanged(a_value):
+        self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+        f_diff = 10000 - self.sample_loop_starts[(self.sample_table.lms_selected_column)]
+        if((f_diff - a_value) < 100):
+            self.sample_loop_starts[(self.sample_table.lms_selected_column)] = 9900 - a_value
+            if((self.sample_loop_starts[(self.sample_table.lms_selected_column)]) < 0):
+                self.sample_loop_starts[(self.sample_table.lms_selected_column)] = 0
+                self.sample_loop_ends[(self.sample_table.lms_selected_column)] = 9900
+                self.sample_loop_end_hslider.setValue((self.sample_loop_ends[(self.sample_table.lms_selected_column)]))
+            else:
+                self.sample_loop_ends[(self.sample_table.lms_selected_column)] = a_value
+            self.sample_loop_start_hslider.setValue((self.sample_loop_starts[(self.sample_table.lms_selected_column)]))
+        else:
+            self.sample_loop_ends[(self.sample_table.lms_selected_column)] = a_value
+
+    def setSampleFile( files):
+        self.suppressHostUpdate = True
+        pydaw_ports.EUPHORIA_cerr , "Calling setSampleFile with string:\n" , files , "\n"
+        self.files = files
+        files.replace((pydaw_ports.EUPHORIA_FILES_STRING_RELOAD_DELIMITER), (pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER))
+        f_file_list = files.split((pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER))
+        for f_i in range(len(f_file_list)):
+            if f_i >= pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT:
+                break
+            f_item =  QtGui.QTableWidgetItem()
+            f_item.setText(f_file_list[f_i])
+            f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+            self.sample_table.lms_mod_matrix.setItem(f_i, SMP_TB_FILE_PATH_INDEX, f_item)
+            if f_file_list[f_i] == "":
+                continue
+            f_path_sections = f_file_list[f_i].split("/")
+            set_selected_sample_combobox_item(f_i, f_path_sections[-1])
+            self.sample_graph.generatePreview(f_file_list[f_i], f_i)
+        self.sample_table.lms_mod_matrix.resizeColumnsToContents()
+        selectionChanged()
+        self.suppressHostUpdate = False
+
+    def setSelection(a_value):
+        self.suppressHostUpdate = True
+        #m_selected_sample[a_value].setChecked(True)
+        self.suppressHostUpdate = False
+    """ def set_selected_sample_combobox_item(
+    * int a_index, #Currently, you should only set self to (self.sample_table.lms_selected_column), but I'm leaving it there for when it can be implemented to work otherwise
+    *  a_text) #The text of the  item
+    """
+    def set_selected_sample_combobox_item(a_index,  a_text):
+        self.suppress_selected_sample_changed = True
+        self.selected_sample_index_combobox.removeItem(a_index)
+        self.selected_sample_index_combobox.insertItem(a_index, a_text)
+        self.selected_sample_index_combobox.setCurrentIndex(a_index)
+        self.mono_fx_tab_selected_sample.removeItem(a_index)
+        self.mono_fx_tab_selected_sample.insertItem(a_index, a_text)
+        self.mono_fx_tab_selected_sample.setCurrentIndex(a_index)
+        self.suppress_selected_sample_changed = False
+
+    def fileSelect():
+        paths = self.file_selector.open_button_pressed_multiple(self)
+        self.view_file_selector.lms_set_file(self.file_selector.lms_get_file())
+        load_files(paths)
+
+    def load_files(paths):
+        if len(paths) > 0:
+            self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+            f_sample_index_to_load = (self.sample_table.lms_selected_column)
+            for i in range(len(paths)):
+                path = paths[i]
+                if path != "":
+                    if( not os.path.isfile(path)):
+                        QtGui.QMessageBox.warning(self, ("Error"), ("File cannot be read."))
+                        continue
+                    f_path_sections = path.split(("/"))
+                    set_selected_sample_combobox_item(f_sample_index_to_load, f_path_sections.at((f_path_sections.count() - 1)))
+                    self.sample_graph.generatePreview(path, f_sample_index_to_load)
+                    f_item =  QtGui.QTableWidgetItem()
+                    f_item.setText(path)
+                    f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+                    self.sample_table.lms_mod_matrix.setItem(f_sample_index_to_load, SMP_TB_FILE_PATH_INDEX, f_item)
+                    f_sample_index_to_load+= 1
+                    if(f_sample_index_to_load >= pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+                        break
+
+            generate_files_string()
+            #ifndef LMS_DEBUG_STANDALONE
+            lo_send(self.host, self.configurePath, "ss", "load", files_string.toLocal8Bit().data())
+            lo_send(self.host, self.configurePath, "ss", "lastdir", self.file_selector.lms_last_directory.toLocal8Bit().data())
+            #endif
+            self.sample_table.lms_mod_matrix.resizeColumnsToContents()
+            selectionChanged()
+
+    def generate_files_string():
+        generate_files_string(-1)
+
+    def generate_files_string(a_index):
+        files_string = ("")
+        for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+            files_string.append(self.sample_table.lms_mod_matrix.item(f_i, SMP_TB_FILE_PATH_INDEX).text())
+            if((a_index != -1) and (f_i == a_index)):
+                files_string.append(pydaw_ports.EUPHORIA_FILES_STRING_RELOAD_DELIMITER)
+            else:
+                files_string.append(pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER)
+        files_string.append(preview_file + pydaw_ports.EUPHORIA_FILES_STRING_DELIMITER)
+
+    def clearFile():
+        self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+        self.sample_graph.clearPixmap((self.sample_table.lms_selected_column))
+        self.sample_start_hslider.setValue(0)
+        self.sample_end_hslider.setValue(0)
+        set_selected_sample_combobox_item((self.sample_table.lms_selected_column), (""))
+        f_item =  QtGui.QTableWidgetItem()
+        f_item.setText((""))
+        f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+        self.sample_table.lms_mod_matrix.setItem((self.sample_table.lms_selected_column), SMP_TB_FILE_PATH_INDEX, f_item)
+        self.file_selector.clear_button_pressed()
+        self.view_file_selector.clear_button_pressed()
+        generate_files_string()
+
+    def openInEditor():
+        self.file_selector.open_in_editor_button_pressed(self)
+
+    def reloadSample():
+        path = self.file_selector.lms_file_path.text()
+        if path != "":
+            self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+            generate_files_string((self.sample_table.lms_selected_column))
+
+    def selectionChanged():
+        if(self.suppress_selected_sample_changed):
+            return
+        self.suppress_selected_sample_changed = True
+        self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+        self.selected_sample_index_combobox.setCurrentIndex((self.sample_table.lms_selected_column))
+        self.mono_fx_tab_selected_sample.setCurrentIndex((self.sample_table.lms_selected_column))
+        self.suppress_selected_sample_changed = False
+        setSelectedMonoFX(self.sample_selected_monofx_groups[((self.sample_table.lms_selected_column))])
+        self.selected_sample_index_combobox.setCurrentIndex((self.sample_table.lms_selected_column))
+        self.mono_fx_tab_selected_sample.setCurrentIndex((self.sample_table.lms_selected_column))
+        self.sample_graph.indexChanged((self.sample_table.lms_selected_column))
+
+        self.file_selector.lms_set_file(self.sample_table.lms_mod_matrix.item(self.sample_table.lms_selected_column, SMP_TB_FILE_PATH_INDEX).text())
+        self.view_file_selector.lms_set_file(self.sample_table.lms_mod_matrix.item(self.sample_table.lms_selected_column, SMP_TB_FILE_PATH_INDEX).text())
+        self.suppressHostUpdate = True
+        self.sample_start_hslider.setValue(self.sample_starts[(self.sample_table.lms_selected_column)])
+        self.sample_end_hslider.setValue(self.sample_ends[(self.sample_table.lms_selected_column)])
+        self.sample_loop_start_hslider.setValue(self.sample_loop_starts[(self.sample_table.lms_selected_column)])
+        self.sample_loop_end_hslider.setValue(self.sample_loop_ends[(self.sample_table.lms_selected_column)])
+        self.loop_mode_combobox.setCurrentIndex(self.sample_loop_modes[(self.sample_table.lms_selected_column)])
+        self.suppressHostUpdate = False
+
+    def file_browser_load_button_pressed():
+        f_result = self.file_browser.files_opened()
+        for f_i in range(len(f_result)):
+            f_temp = (self.file_browser.m_folder_path_lineedit.text() + "/" + f_result.at(f_i))
+            f_result.removeAt(f_i)
+            f_result.insert(f_i, f_temp)
+        load_files(f_result)
+
+    def file_browser_up_button_pressed():
+        self.file_browser.up_one_folder()
+
+    def file_browser_preview_button_pressed():
+        f_list = self.file_browser.m_files_listWidget.selectedItems()
+        if len(f_list) > 0:
+            preview_file = self.file_browser.m_folder_path_lineedit.text() + ("/") + f_list[0].text()
+            generate_files_string()
+            #ifndef LMS_DEBUG_STANDALONE
+            #lo_send(self.host, self.configurePath, "ss", "load", files_string.toLocal8Bit().data())
+            #lo_send(self.host, self.configurePath, "ss", "lastdir", self.file_browser.m_folder_path_lineedit.text().toLocal8Bit().data())
+            #endif
+            preview_file = ("")
+
+    def file_browser_folder_clicked(a_item):
+        self.file_browser.folder_opened(a_item.text(), True)
+
+    def file_browser_bookmark_clicked(a_item):
+        self.file_browser.bookmark_clicked(a_item.text())
+
+    def file_browser_bookmark_button_pressed(self):
+        self.file_browser.bookmark_button_pressed()
+
+    def file_browser_bookmark_delete_button_pressed(self):
+        self.file_browser.bookmark_delete_button_pressed()
+
+    def moveSamplesToSingleDirectory():
+        f_selected_path = ("")
+        if(self.creating_instrument_file):
+            f_selected_path = self.inst_file_tmp_path
+        else:
+            f_selected_path = QtGui.QFileDialog.getExistingDirectory(self, "Select a directory to move the samples to...", ".")
+        if not f_selected_path.isEmpty():
+            #TODO: check that the directory is empty...
+            self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+            f_current_radio_button = self.sample_table.lms_selected_column
+            for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
+                f_current_file_path = self.sample_table.lms_mod_matrix.item(i, SMP_TB_FILE_PATH_INDEX).text()
+                if(f_current_file_path.isNull()):
+                    continue
+                if((f_current_file_path.isEmpty())):
+                    continue
+                if(f_current_file_path.startsWith(f_selected_path, QtGui.QtCore.Qt.CaseInsensitive)):
+                    continue
+                f_current_file =  QtGui.QFile(f_current_file_path)
+                f_file_arr = f_current_file.fileName().split("/")
+                f__file = f_selected_path + ("/") + f_file_arr[(f_file_arr.count() - 1)]
+                #ifdef LMS_DEBUG_STANDALONE
+                f_string = f__file.toStdString()
+                #endif
+                f_current_file.copy(f__file)
+                f_item =  QtGui.QTableWidgetItem()
+                f_item.setText(f__file)
+                f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
+                self.sample_table.lms_mod_matrix.setItem(i, SMP_TB_FILE_PATH_INDEX, f_item)
+                #f_radio_button = (QRadioButton*)m_sample_table.lms_mod_matrix.cellWidget(i , SMP_TB_RADIOBUTTON_INDEX)
+                f_radio_button.setChecked(True)
+                generate_files_string()
+                #lo_send(self.host, m_configurePath, "ss", "load", files_string.toLocal8Bit().data())
+            """Select the radio button that was originally selected"""
+            #f_radio_button = (QRadioButton*)m_sample_table.lms_mod_matrix.cellWidget(f_current_radio_button , SMP_TB_RADIOBUTTON_INDEX)
+            f_radio_button.setChecked(True)
+
+    def sample_selected_monofx_groupChanged(a_value):
+        self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+        self.sample_selected_monofx_groups[(self.sample_table.lms_selected_column)] = a_value
+        setmonoFX0knob0(self.mono_fx_values[a_value][0][0])
+        setmonoFX0knob1(self.mono_fx_values[a_value][0][1])
+        setmonoFX0knob2(self.mono_fx_values[a_value][0][2])
+        setmonoFX0combobox(self.mono_fx_values[a_value][0][3])
+        setmonoFX1knob0(self.mono_fx_values[a_value][1][0])
+        setmonoFX1knob1(self.mono_fx_values[a_value][1][1])
+        setmonoFX1knob2(self.mono_fx_values[a_value][1][2])
+        setmonoFX1combobox(self.mono_fx_values[a_value][1][3])
+        setmonoFX2knob0(self.mono_fx_values[a_value][2][0])
+        setmonoFX2knob1(self.mono_fx_values[a_value][2][1])
+        setmonoFX2knob2(self.mono_fx_values[a_value][2][2])
+        setmonoFX2combobox(self.mono_fx_values[a_value][2][3])
+        setmonoFX3knob0(self.mono_fx_values[a_value][3][0])
+        setmonoFX3knob1(self.mono_fx_values[a_value][3][1])
+        setmonoFX3knob2(self.mono_fx_values[a_value][3][2])
+        setmonoFX3combobox(self.mono_fx_values[a_value][3][3])
+        if not self.suppressHostUpdate:
+            self.sample_table.find_selected_radio_button(SMP_TB_RADIOBUTTON_INDEX)
+            if(a_value >= 0):
+                #ifndef LMS_DEBUG_STANDALONE
+                lo_send(self.host, self.controlPath, "if", (pydaw_ports.EUPHORIA_SAMPLE_MONO_FX_GROUP_PORT_RANGE_MIN + (self.sample_table.lms_selected_column)), float(a_value))
+                #endif
+
+    def setSelectedMonoFX(val):
+        self.suppressHostUpdate = True
+        self.mono_fx_tab_selected_group.setCurrentIndex(int(val))
+        self.suppressHostUpdate = False
