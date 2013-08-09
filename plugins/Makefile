@@ -12,7 +12,7 @@ PYDAW_VERSION = pydaw3
 
 all:
 	make -C pydaw CFLAGS+=" -O3 "
-	make -C euphoria CFLAGS+=" -O3 "
+	#make -C euphoria CFLAGS+=" -O3 "
 	#make -C ray_v CFLAGS+=" -O3 "
 	#make -C lms_modulex CFLAGS+=" -O3 "
 	#make -C way_v CFLAGS+=" -O3 "
@@ -24,7 +24,7 @@ all:
 # --------------------------------------------------------------
 debug:
 	make -C pydaw CFLAGS+=" -O0 -g -gdwarf-3 "
-	make -C euphoria CFLAGS+=" -O0 -g -gdwarf-3 "
+	#make -C euphoria CFLAGS+=" -O0 -g -gdwarf-3 "
 	#make -C ray_v CFLAGS+=" -O0 -g -gdwarf-3 "
 	#make -C lms_modulex CFLAGS+=" -O0 -g -gdwarf-3 "
 	#make -C way_v CFLAGS+=" -O0 -g -gdwarf-3 "
@@ -37,7 +37,7 @@ debug:
 
 strip:
 	make -C pydaw strip
-	make -C euphoria strip
+	#make -C euphoria strip
 	#make -C ray_v strip
 	#make -C lms_modulex strip
 	#make -C way_v strip
@@ -49,7 +49,7 @@ install:
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/sbsms
 	install -d $(DESTDIR)$(PREFIX)/lib/$(PYDAW_VERSION)/rubberband
 	make -C pydaw PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
-	make -C euphoria PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
+	#make -C euphoria PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	#make -C ray_v PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	#make -C lms_modulex PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
 	#make -C way_v PREFIX=$(PREFIX) DESTDIR=$(DESTDIR) install
@@ -71,11 +71,11 @@ install:
 
 clean:
 	make -C pydaw clean
-	make -C euphoria clean
-	make -C ray_v clean
+	#make -C euphoria clean
+	#make -C ray_v clean
 	#make -C lms_modulex clean
 	#make -C way_v clean
-	#make -C pydaw_jack_oscrolloscope clean
+	make -C pydaw_jack_oscrolloscope clean
 	#make -C pydaw_sbsms clean
 	#make -C pydaw_sbsms/cli clean
 	#make -C pydaw_rubberband clean
