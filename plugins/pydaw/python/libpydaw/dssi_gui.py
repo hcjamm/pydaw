@@ -236,5 +236,5 @@ class dssi_gui(ServerThread):
         self.send_configure("pc", bool_to_int(a_is_instrument) + "|" + str(a_track_type) + "|" + str(a_track_num) + "|" + str(a_port) + "|" + str(a_val))
 
     def pydaw_configure_plugin(self, a_is_instrument, a_track_type, a_track_num, a_key, a_message):
-        self.send_configure("pc", bool_to_int(a_is_instrument) + "|" + str(a_track_type) + "|" + str(a_track_num) + "|" + str(a_key) + "|" + str(a_message))
+        self.send_configure("co", bool_to_int(a_is_instrument) + "|" + str(a_track_type) + "|" + str(a_track_num) + "|" + str(a_key) + "|" + str(a_message))
 

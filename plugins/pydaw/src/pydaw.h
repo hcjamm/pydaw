@@ -3546,7 +3546,7 @@ void v_pydaw_open_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
                 int f_port_key = atoi(f_key);
                 float f_port_value = atof(f_value);
                 
-                //assert(f_port_key < (f_instance->controlIns));
+                assert(f_port_key < (f_instance->controlIns));
                 
                 f_instance->pluginControlIns[f_port_key] = f_port_value;
             }                
@@ -4262,7 +4262,7 @@ void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
     {
         f_instance = a_track->instrument;
     }
-
+    /*
     if((a_is_fx == 0) && (a_track->plugin_index == 1))
     {
         if(a_track->instrument->euphoria_load_set)
@@ -4287,7 +4287,7 @@ void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
             strcat(f_string, f_load);
         }
     }
-
+    */
     int f_i2 = 0;
 
     while(f_i2 < (f_instance->controlIns))
@@ -4337,17 +4337,19 @@ void v_pydaw_save_plugin(t_pydaw_data * a_pydaw_data, t_pytrack * a_track, int a
 void v_pydaw_save_tracks(t_pydaw_data * a_pydaw_data)
 {
     pthread_mutex_lock(&a_pydaw_data->quit_mutex);
-    int f_i = 0;
     
+    /*
+    int f_i = 0;
+     
     while(f_i < PYDAW_MIDI_TRACK_COUNT)
     {
-        if(a_pydaw_data, a_pydaw_data->track_pool[f_i]->plugin_index == 1)
+        if(a_pydaw_data->track_pool[f_i]->plugin_index == 1)
         {
             v_pydaw_save_track(a_pydaw_data, a_pydaw_data->track_pool[f_i], 0);
         }
         f_i++;
     }
-    /*
+    
     f_i = 0;
     
     while(f_i < PYDAW_BUS_TRACK_COUNT)
