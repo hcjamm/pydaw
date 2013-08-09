@@ -26,7 +26,7 @@ class pydaw_plugin_file:
     """ Abstracts a .pyinst or .pyfx file """
     def __init__(self, a_path=None):
         self.port_dict = {}
-        self.euphoria_samples = []
+        self.configure_dict = {}
         if a_path is not None:
             f_text = pydaw_util.pydaw_read_file_text(a_path)
             f_line_arr = f_text.split("\n")
@@ -34,21 +34,29 @@ class pydaw_plugin_file:
                 if f_line == "\\":
                     break
                 f_items = f_line.split("|", 1)
-                if f_items[0] == "load":
-                    for f_sample_path in f_items[1].split("~"):
-                        self.euphoria_samples.append(f_sample_path)
+                f_config = False
+                try:
+                    int(f_items[0])
+                except ValueError:
+                    f_config = True
+                if f_config:
+                    self.configure_dict[(f_items[0])] = f_items[1]
                 else:
                     self.port_dict[int(f_items[0])] = float(f_items[1])
 
     @staticmethod
-    def from_dict(a_port_dict, a_control_dict):
+    def from_dict(a_port_dict, a_control_dict, a_configure_dict):
         f_result = pydaw_plugin_file()
         for k, v in a_port_dict.items():
             f_result.port_dict[a_control_dict[int(k)]] = v
+        for k, v in a_configure_dict.items():
+            f_result.configure_dict[k] = v
         return f_result
 
     def __str__(self):
         f_result = ""
+        for k, v in self.configure_dict.items():
+            f_result += str(k) + "|" + str(v) + "\n"
         for k, v in self.port_dict.items():
             f_result += str(k) + "|" + str(v.get_value()) + "\n"
         return f_result + "\\"
@@ -1037,6 +1045,8 @@ class pydaw_abstract_plugin_ui:
         self.control_to_port_dict = {}
         self.effects = []
         self.close_callback = a_close_callback
+        self.configure_dict = {}
+
 
     def open_plugin_file(self):
         f_file_path = self.pydaw_project.project_folder + "/" + self.folder + "/" + self.file
@@ -1048,7 +1058,7 @@ class pydaw_abstract_plugin_ui:
             print("pydaw_abstract_plugin_ui.open_plugin_file(): + " + f_file_path + " did not exist, not loading.")
 
     def save_plugin_file(self):
-        f_file = pydaw_plugin_file.from_dict(self.port_dict, self.port_to_control_dict)
+        f_file = pydaw_plugin_file.from_dict(self.port_dict, self.port_to_control_dict, self.configure_dict)
         self.pydaw_project.save_file(self.folder, self.file, str(f_file))
         self.pydaw_project.commit("Update controls for " + self.track_name)
 
@@ -1069,6 +1079,10 @@ class pydaw_abstract_plugin_ui:
             self.port_dict[int(a_port)].set_value(a_val)
         else:
             print("pydaw_abstract_plugin_ui.set_control_val():  Did not have port " + str(f_port))
+
+    def configure_plugin(self, a_key, a_message):
+        """ Override this function to allow str|str key/value pair messages """
+        pass
 
     def generate_control_dict(self):
         """ Aligning the file save format to the same as the parts forked from DSSI.
