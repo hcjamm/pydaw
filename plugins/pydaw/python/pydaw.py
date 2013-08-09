@@ -5153,10 +5153,10 @@ class seq_track:
         f_index = self.instrument_combobox.currentIndex()
         if f_index == 0:
             pass
-        elif f_index == 2 or f_index == 3:
-            global_open_inst_ui(self.track_number, f_index, "MIDI Track: " + str(self.track_name_lineedit.text()) )
-        else:
-            this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
+        #elif f_index == 2 or f_index == 3:
+        global_open_inst_ui(self.track_number, f_index, "MIDI Track: " + str(self.track_name_lineedit.text()) )
+        #else:
+        #    this_pydaw_project.this_dssi_gui.pydaw_show_ui(self.track_number)
     def on_show_fx(self):
         if not self.is_instrument or self.instrument_combobox.currentIndex() > 0:
             if self.is_instrument:
@@ -5616,6 +5616,9 @@ def global_open_fx_ui(a_track_num, a_folder, a_track_type, a_title):
 def global_open_inst_ui(a_track_num, a_plugin_type, a_title):
     global global_open_inst_ui_dict
     if not a_track_num in global_open_inst_ui_dict:
+        if a_plugin_type == 1:
+            f_plugin = pydaw_widgets.pydaw_euphoria_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
+            this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback)
         if a_plugin_type == 2:
             f_plugin = pydaw_widgets.pydaw_rayv_plugin_ui(global_plugin_rel_callback, global_plugin_val_callback, a_track_num, \
             this_pydaw_project, pydaw_folder_instruments, 0, a_title, this_main_window.styleSheet(), global_inst_closed_callback)
