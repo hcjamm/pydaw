@@ -5626,6 +5626,7 @@ class pydaw_main_window(QtGui.QMainWindow):
 
     def on_save(self):
         this_pydaw_project.save_project()
+
     def on_save_as(self):
         try:
             while True:
@@ -5989,12 +5990,12 @@ class pydaw_main_window(QtGui.QMainWindow):
         self.open_action.triggered.connect(self.on_open)
         self.open_action.setShortcut(QtGui.QKeySequence.Open)
 
-        self.save_action = QtGui.QAction("Save", self)
-        self.menu_file.addAction(self.save_action)
-        self.save_action.triggered.connect(self.on_save)
-        self.save_action.setShortcut(QtGui.QKeySequence.Save)
+        #self.save_action = QtGui.QAction("Save", self)
+        #self.menu_file.addAction(self.save_action)
+        #self.save_action.triggered.connect(self.on_save)
+        #self.save_action.setShortcut(QtGui.QKeySequence.Save)
 
-        self.save_as_action = QtGui.QAction("Save As...", self)
+        self.save_as_action = QtGui.QAction("Save As...(projects are automatically saved, this creates a copy)", self)
         self.menu_file.addAction(self.save_as_action)
         self.save_as_action.triggered.connect(self.on_save_as)
         self.save_as_action.setShortcut(QtGui.QKeySequence.SaveAs)
