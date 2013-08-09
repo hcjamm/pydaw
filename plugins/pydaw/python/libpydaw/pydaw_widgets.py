@@ -2219,7 +2219,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             self.selected_sample_index_combobox.addItem("")
         self.sample_view_extra_controls_gridview.addWidget(self.selected_sample_index_combobox, 1, 0, 1, 1)
-        self.selected_sample_index_label =  QtGui.QLabel(self.view_sample_tab)
+        self.selected_sample_index_label =  QtGui.QLabel("Selected Sample")
         self.sample_view_extra_controls_gridview.addWidget(self.selected_sample_index_label, 0, 0, 1, 1)
         self.sample_view_select_sample_hlayout.addLayout(self.sample_view_extra_controls_gridview)
         self.sample_view_extra_controls_right_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -2243,7 +2243,6 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.sample_view_file_select_right_hspacer =  QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.sample_view_file_select_hlayout.addItem(self.sample_view_file_select_right_hspacer)
         self.view_sample_tab_main_vlayout.addLayout(self.sample_view_file_select_hlayout)
-        self.selected_sample_index_label.setText( "Selected Sample" )
 
         f_lfo_types = ["Off" , "Sine" , "Triangle"]
 
@@ -2326,7 +2325,7 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             self.mono_fx_tab_selected_sample.addItem("")
         self.mono_fx_tab_selected_group.currentIndexChanged.connect(self.sample_selected_monofx_groupChanged)
-
+        self.mono_fx_tab_selected_sample.currentIndexChanged.connect(self.selectionChanged)
         self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_sample_label)
         self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_sample)
         self.mono_fx_tab_selected_hlayout.addWidget(self.mono_fx_tab_selected_group_label)
@@ -2419,21 +2418,22 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
     def clearAllSamples(self):
         for i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
             self.set_selected_sample_combobox_item(i, (""))
-            self.sample_graph.clearPixmap(i)
+            #TODO:  Bring back when the sample graph is working
+            #self.sample_graph.clearPixmap(i)
             f_item =  QtGui.QTableWidgetItem()
             f_item.setText((""))
             f_item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEnabled)
             self.sample_table.setItem(i, SMP_TB_FILE_PATH_INDEX, f_item)
         self.generate_files_string()
-        self.view_file_selector.lms_set_file((""))
-        self.file_selector.lms_set_file((""))
+        self.view_file_selector.set_file((""))
+        self.file_selector.set_file((""))
 
     def mapAllSamplesToOneMonoFXgroup(self):
-        f_orig_index = self.mono_fx_tab_selected_sample.currentIndex()
         for f_i in range(pydaw_ports.EUPHORIA_MAX_SAMPLE_COUNT):
-            self.mono_fx_tab_selected_sample.setCurrentIndex(f_i)
-            self.mono_fx_tab_selected_group.setCurrentIndex(f_i)
-        self.mono_fx_tab_selected_sample.setCurrentIndex(f_orig_index)
+            self.monofx_groups[f_i].set_value(f_i)
+            self.monofx_groups[f_i].control_value_changed(f_i)
+        self.mono_fx_tab_selected_sample.setCurrentIndex(1)
+        self.mono_fx_tab_selected_sample.setCurrentIndex(0)
 
     def mapAllSamplesToOneWhiteKey(self):
         f_current_note = 36
@@ -2443,6 +2443,9 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
             self.sample_base_pitches[f_i].set_value(f_current_note)
             self.sample_high_notes[f_i].set_value(f_current_note)
             self.sample_low_notes[f_i].set_value(f_current_note)
+            self.sample_base_pitches[f_i].control_value_changed(f_current_note)
+            self.sample_high_notes[f_i].control_value_changed(f_current_note)
+            self.sample_low_notes[f_i].control_value_changed(f_current_note)
             f_current_note += f_white_notes[i_white_notes]
             i_white_notes+= 1
             if i_white_notes >= 7:
@@ -2583,8 +2586,12 @@ class pydaw_euphoria_plugin_ui(pydaw_abstract_plugin_ui):
         self.setSelectedMonoFX()
         self.selected_sample_index_combobox.setCurrentIndex((self.selected_row_index))
         self.mono_fx_tab_selected_sample.setCurrentIndex((self.selected_row_index))
-        self.file_selector.set_file(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
-        self.view_file_selector.set_file(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
+        if self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX) is None:
+            f_file_path = ""
+        else:
+            f_file_path = str(self.sample_table.item(self.selected_row_index, SMP_TB_FILE_PATH_INDEX).text())
+        self.file_selector.set_file(f_file_path)
+        self.view_file_selector.set_file(f_file_path)
         #TODO:  Add this back when the sample graphs are sorted out
         #self.sample_graph.indexChanged((self.selected_row_index))
         #self.suppressHostUpdate = True
